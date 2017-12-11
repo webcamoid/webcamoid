@@ -20,7 +20,7 @@
 #ifndef COLORREPLACE_H
 #define COLORREPLACE_H
 
-#include <ak.h>
+#include <akplugin.h>
 
 class ColorReplace: public QObject, public AkPlugin
 {

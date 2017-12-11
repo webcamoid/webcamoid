@@ -20,8 +20,7 @@
 #ifndef EDGEELEMENT_H
 #define EDGEELEMENT_H
 
-#include <ak.h>
-#include <akutils.h>
+#include <akelement.h>
 
 class EdgeElement: public AkElement
 {

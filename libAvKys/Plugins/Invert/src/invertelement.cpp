@@ -17,6 +17,10 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QImage>
+#include <akutils.h>
+#include <akpacket.h>
+
 #include "invertelement.h"
 
 InvertElement::InvertElement(): AkElement()
@@ -36,3 +40,5 @@ AkPacket InvertElement::iStream(const AkPacket &packet)
     AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
     akSend(oPacket)
 }
+
+#include "moc_invertelement.cpp"

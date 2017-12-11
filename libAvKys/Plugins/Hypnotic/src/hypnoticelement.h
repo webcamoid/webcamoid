@@ -20,8 +20,9 @@
 #ifndef HYPNOTICELEMENT_H
 #define HYPNOTICELEMENT_H
 
-#include <ak.h>
-#include <akutils.h>
+#include <akelement.h>
+
+class HypnoticElementPrivate;
 
 class HypnoticElement: public AkElement
 {
@@ -51,27 +52,16 @@ class HypnoticElement: public AkElement
             OpticModeParabola,
             OpticModeHorizontalStripe
         };
-        typedef QMap<OpticMode, QImage> OpticalMap;
 
         explicit HypnoticElement();
+        ~HypnoticElement();
 
         Q_INVOKABLE QString mode() const;
         Q_INVOKABLE int speedInc() const;
         Q_INVOKABLE int threshold() const;
 
     private:
-        OpticMode m_mode;
-        int m_speedInc;
-        int m_threshold;
-        QSize m_frameSize;
-        QVector<QRgb> m_palette;
-        OpticalMap m_opticalMap;
-        quint8 m_speed;
-        quint8 m_phase;
-
-        QVector<QRgb> createPalette();
-        OpticalMap createOpticalMap(const QSize &size);
-        QImage imageThreshold(const QImage &src, int threshold);
+        HypnoticElementPrivate *d;
 
     protected:
         QString controlInterfaceProvide(const QString &controlId) const;

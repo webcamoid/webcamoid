@@ -20,8 +20,10 @@
 #ifndef RADIOACTIVEELEMENT_H
 #define RADIOACTIVEELEMENT_H
 
-#include <ak.h>
-#include <akutils.h>
+#include <qrgb.h>
+#include <akelement.h>
+
+class RadioactiveElementPrivate;
 
 class RadioactiveElement: public AkElement
 {
@@ -73,6 +75,7 @@ class RadioactiveElement: public AkElement
         };
 
         explicit RadioactiveElement();
+        ~RadioactiveElement();
 
         Q_INVOKABLE QString mode() const;
         Q_INVOKABLE int blur() const;
@@ -83,26 +86,7 @@ class RadioactiveElement: public AkElement
         Q_INVOKABLE QRgb radColor() const;
 
     private:
-        RadiationMode m_mode;
-        qreal m_zoom;
-        int m_threshold;
-        int m_lumaThreshold;
-        int m_alphaDiff;
-        QRgb m_radColor;
-
-        QSize m_frameSize;
-        QImage m_prevFrame;
-        QImage m_blurZoomBuffer;
-        AkElementPtr m_blurFilter;
-
-        QImage imageDiff(const QImage &img1,
-                         const QImage &img2,
-                         int threshold,
-                         int lumaThreshold,
-                         QRgb radColor,
-                         RadiationMode mode);
-
-        QImage imageAlphaDiff(const QImage &src, int alphaDiff);
+        RadioactiveElementPrivate *d;
 
     protected:
         QString controlInterfaceProvide(const QString &controlId) const;

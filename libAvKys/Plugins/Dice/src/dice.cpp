@@ -34,3 +34,5 @@ QStringList Dice::keys() const
 {
     return QStringList();
 }
+
+#include "moc_dice.cpp"

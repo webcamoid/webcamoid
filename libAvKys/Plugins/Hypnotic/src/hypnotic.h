@@ -20,7 +20,7 @@
 #ifndef HYPNOTIC_H
 #define HYPNOTIC_H
 
-#include <ak.h>
+#include <akplugin.h>
 
 class Hypnotic: public QObject, public AkPlugin
 {

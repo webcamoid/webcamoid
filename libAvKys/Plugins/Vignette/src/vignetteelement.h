@@ -20,10 +20,10 @@
 #ifndef VIGNETTEELEMENT_H
 #define VIGNETTEELEMENT_H
 
-#include <QtMath>
-#include <QMutex>
-#include <ak.h>
-#include <akutils.h>
+#include <qrgb.h>
+#include <akelement.h>
+
+class VignetteElementPrivate;
 
 class VignetteElement: public AkElement
 {
@@ -51,6 +51,7 @@ class VignetteElement: public AkElement
 
     public:
         explicit VignetteElement();
+        ~VignetteElement();
 
         Q_INVOKABLE QRgb color() const;
         Q_INVOKABLE qreal aspect() const;
@@ -58,19 +59,7 @@ class VignetteElement: public AkElement
         Q_INVOKABLE qreal softness() const;
 
     private:
-        QRgb m_color;
-        qreal m_aspect;
-        qreal m_scale;
-        qreal m_softness;
-
-        QSize m_curSize;
-        QImage m_vignette;
-        QMutex m_mutex;
-
-        inline qreal radius(qreal x, qreal y)
-        {
-            return sqrt(x * x + y * y);
-        }
+        VignetteElementPrivate *d;
 
     protected:
         QString controlInterfaceProvide(const QString &controlId) const;

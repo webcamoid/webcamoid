@@ -34,3 +34,5 @@ QStringList ColorFilter::keys() const
 {
     return QStringList();
 }
+
+#include "moc_colorfilter.cpp"

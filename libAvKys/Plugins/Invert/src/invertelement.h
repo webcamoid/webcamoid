@@ -20,8 +20,7 @@
 #ifndef INVERTELEMENT_H
 #define INVERTELEMENT_H
 
-#include <ak.h>
-#include <akutils.h>
+#include <akelement.h>
 
 class InvertElement: public AkElement
 {

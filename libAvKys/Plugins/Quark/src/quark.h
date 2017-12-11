@@ -20,7 +20,7 @@
 #ifndef QUARK_H
 #define QUARK_H
 
-#include <ak.h>
+#include <akplugin.h>
 
 class Quark: public QObject, public AkPlugin
 {

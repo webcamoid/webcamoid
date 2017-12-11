@@ -34,3 +34,5 @@ QStringList PrimariesColors::keys() const
 {
     return QStringList();
 }
+
+#include "moc_primariescolors.cpp"

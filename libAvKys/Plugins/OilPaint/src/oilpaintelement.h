@@ -20,8 +20,7 @@
 #ifndef OILPAINTELEMENT_H
 #define OILPAINTELEMENT_H
 
-#include <ak.h>
-#include <akutils.h>
+#include <akelement.h>
 
 class OilPaintElement: public AkElement
 {

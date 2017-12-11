@@ -34,3 +34,5 @@ QStringList Dizzy::keys() const
 {
     return QStringList();
 }
+
+#include "moc_dizzy.cpp"

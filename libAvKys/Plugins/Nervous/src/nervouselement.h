@@ -20,8 +20,9 @@
 #ifndef NERVOUSELEMENT_H
 #define NERVOUSELEMENT_H
 
-#include <ak.h>
-#include <akutils.h>
+#include <akelement.h>
+
+class NervousElementPrivate;
 
 class NervousElement: public AkElement
 {
@@ -39,17 +40,13 @@ class NervousElement: public AkElement
 
     public:
         explicit NervousElement();
+        ~NervousElement();
 
         Q_INVOKABLE int nFrames() const;
         Q_INVOKABLE bool simple() const;
 
     private:
-        int m_nFrames;
-        bool m_simple;
-
-        QVector<QImage> m_frames;
-        QSize m_frameSize;
-        int m_stride;
+        NervousElementPrivate *d;
 
     protected:
         QString controlInterfaceProvide(const QString &controlId) const;

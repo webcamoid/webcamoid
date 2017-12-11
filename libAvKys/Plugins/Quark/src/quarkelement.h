@@ -20,8 +20,9 @@
 #ifndef QUARKELEMENT_H
 #define QUARKELEMENT_H
 
-#include <ak.h>
-#include <akutils.h>
+#include <akelement.h>
+
+class QuarkElementPrivate;
 
 class QuarkElement: public AkElement
 {
@@ -34,14 +35,12 @@ class QuarkElement: public AkElement
 
     public:
         explicit QuarkElement();
+        ~QuarkElement();
 
         Q_INVOKABLE int nFrames() const;
 
     private:
-        int m_nFrames;
-
-        QVector<QImage> m_frames;
-        QSize m_frameSize;
+        QuarkElementPrivate *d;
 
     protected:
         QString controlInterfaceProvide(const QString &controlId) const;

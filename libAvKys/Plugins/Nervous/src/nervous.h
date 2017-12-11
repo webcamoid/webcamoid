@@ -20,7 +20,7 @@
 #ifndef NERVOUS_H
 #define NERVOUS_H
 
-#include <ak.h>
+#include <akplugin.h>
 
 class Nervous: public QObject, public AkPlugin
 {

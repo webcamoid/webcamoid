@@ -20,7 +20,7 @@
 #ifndef DISTORT_H
 #define DISTORT_H
 
-#include <ak.h>
+#include <akplugin.h>
 
 class Distort: public QObject, public AkPlugin
 {

@@ -20,7 +20,7 @@
 #ifndef BLUR_H
 #define BLUR_H
 
-#include <ak.h>
+#include <akplugin.h>
 
 class Blur: public QObject, public AkPlugin
 {

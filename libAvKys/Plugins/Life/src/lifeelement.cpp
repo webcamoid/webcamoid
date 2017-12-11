@@ -17,31 +17,55 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QQmlContext>
 #include <QtMath>
 #include <QPainter>
+#include <akutils.h>
+#include <akpacket.h>
 
 #include "lifeelement.h"
 
+class LifeElementPrivate
+{
+    public:
+        QRgb m_lifeColor;
+        int m_threshold;
+        int m_lumaThreshold;
+        QSize m_frameSize;
+        QImage m_prevFrame;
+        QImage m_lifeBuffer;
+
+        LifeElementPrivate():
+            m_lifeColor(qRgb(255, 255, 255)),
+            m_threshold(15),
+            m_lumaThreshold(15)
+        {
+        }
+};
+
 LifeElement::LifeElement(): AkElement()
 {
-    this->m_lifeColor = qRgb(255, 255, 255);
-    this->m_threshold = 15;
-    this->m_lumaThreshold = 15;
+    this->d = new LifeElementPrivate;
+}
+
+LifeElement::~LifeElement()
+{
+    delete this->d;
 }
 
 QRgb LifeElement::lifeColor() const
 {
-    return this->m_lifeColor;
+    return this->d->m_lifeColor;
 }
 
 int LifeElement::threshold() const
 {
-    return this->m_threshold;
+    return this->d->m_threshold;
 }
 
 int LifeElement::lumaThreshold() const
 {
-    return this->m_lumaThreshold;
+    return this->d->m_lumaThreshold;
 }
 
 QImage LifeElement::imageDiff(const QImage &img1,
@@ -83,18 +107,19 @@ QImage LifeElement::imageDiff(const QImage &img1,
 
 void LifeElement::updateLife()
 {
-    QImage lifeBuffer(this->m_lifeBuffer.size(), this->m_lifeBuffer.format());
+    QImage lifeBuffer(this->d->m_lifeBuffer.size(),
+                      this->d->m_lifeBuffer.format());
     lifeBuffer.fill(0);
 
     for (int y = 1; y < lifeBuffer.height() - 1; y++) {
-        const quint8 *iLine = this->m_lifeBuffer.constScanLine(y);
-        quint8 *oLine = lifeBuffer.scanLine(y);
+        auto iLine = this->d->m_lifeBuffer.constScanLine(y);
+        auto oLine = lifeBuffer.scanLine(y);
 
         for (int x = 1; x < lifeBuffer.width() - 1; x++) {
             int count = 0;
 
             for (int j = -1; j < 2; j++) {
-                const quint8 *line = this->m_lifeBuffer.constScanLine(y + j);
+                auto line = this->d->m_lifeBuffer.constScanLine(y + j);
 
                 for (int i = -1; i < 2; i++)
                     count += line[x + i];
@@ -107,7 +132,7 @@ void LifeElement::updateLife()
         }
     }
 
-    memcpy(this->m_lifeBuffer.bits(),
+    memcpy(this->d->m_lifeBuffer.bits(),
            lifeBuffer.constBits(),
            size_t(lifeBuffer.byteCount()));
 }
@@ -130,28 +155,28 @@ void LifeElement::controlInterfaceConfigure(QQmlContext *context,
 
 void LifeElement::setLifeColor(QRgb lifeColor)
 {
-    if (this->m_lifeColor == lifeColor)
+    if (this->d->m_lifeColor == lifeColor)
         return;
 
-    this->m_lifeColor = lifeColor;
+    this->d->m_lifeColor = lifeColor;
     emit this->lifeColorChanged(lifeColor);
 }
 
 void LifeElement::setThreshold(int threshold)
 {
-    if (this->m_threshold == threshold)
+    if (this->d->m_threshold == threshold)
         return;
 
-    this->m_threshold = threshold;
+    this->d->m_threshold = threshold;
     emit this->thresholdChanged(threshold);
 }
 
 void LifeElement::setLumaThreshold(int lumaThreshold)
 {
-    if (this->m_lumaThreshold == lumaThreshold)
+    if (this->d->m_lumaThreshold == lumaThreshold)
         return;
 
-    this->m_lumaThreshold = lumaThreshold;
+    this->d->m_lumaThreshold = lumaThreshold;
     emit this->lumaThresholdChanged(lumaThreshold);
 }
 
@@ -180,34 +205,34 @@ AkPacket LifeElement::iStream(const AkPacket &packet)
     src = src.convertToFormat(QImage::Format_ARGB32);
     QImage oFrame = src;
 
-    if (src.size() != this->m_frameSize) {
-        this->m_lifeBuffer = QImage();
-        this->m_prevFrame = QImage();
-
-        this->m_frameSize = src.size();
+    if (src.size() != this->d->m_frameSize) {
+        this->d->m_lifeBuffer = QImage();
+        this->d->m_prevFrame = QImage();
+        this->d->m_frameSize = src.size();
     }
 
-    if (this->m_prevFrame.isNull()) {
-        this->m_lifeBuffer = QImage(src.size(), QImage::Format_Indexed8);
-        this->m_lifeBuffer.setColor(0, 0);
-        this->m_lifeBuffer.setColor(1, this->m_lifeColor);
-        this->m_lifeBuffer.fill(0);
+    if (this->d->m_prevFrame.isNull()) {
+        this->d->m_lifeBuffer = QImage(src.size(), QImage::Format_Indexed8);
+        this->d->m_lifeBuffer.setColor(0, 0);
+        this->d->m_lifeBuffer.setColor(1, this->d->m_lifeColor);
+        this->d->m_lifeBuffer.fill(0);
     }
     else {
         // Compute the difference between previous and current frame,
         // and save it to the buffer.
-        QImage diff = this->imageDiff(this->m_prevFrame,
-                                      src,
-                                      this->m_threshold,
-                                      this->m_lumaThreshold);
+        QImage diff =
+                this->imageDiff(this->d->m_prevFrame,
+                                src,
+                                this->d->m_threshold,
+                                this->d->m_lumaThreshold);
 
-        this->m_lifeBuffer.setColor(1, this->m_lifeColor);
+        this->d->m_lifeBuffer.setColor(1, this->d->m_lifeColor);
 
-        for (int y = 0; y < this->m_lifeBuffer.height(); y++) {
-            const quint8 *diffLine = diff.constScanLine(y);
-            quint8 *lifeBufferLine = this->m_lifeBuffer.scanLine(y);
+        for (int y = 0; y < this->d->m_lifeBuffer.height(); y++) {
+            auto diffLine = diff.constScanLine(y);
+            auto lifeBufferLine = this->d->m_lifeBuffer.scanLine(y);
 
-            for (int x = 0; x < this->m_lifeBuffer.width(); x++)
+            for (int x = 0; x < this->d->m_lifeBuffer.width(); x++)
                 lifeBufferLine[x] |= diffLine[x];
         }
 
@@ -215,12 +240,14 @@ AkPacket LifeElement::iStream(const AkPacket &packet)
 
         QPainter painter;
         painter.begin(&oFrame);
-        painter.drawImage(0, 0, this->m_lifeBuffer);
+        painter.drawImage(0, 0, this->d->m_lifeBuffer);
         painter.end();
     }
 
-    this->m_prevFrame = src.copy();
+    this->d->m_prevFrame = src.copy();
 
     AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
     akSend(oPacket)
 }
+
+#include "moc_lifeelement.cpp"

@@ -17,7 +17,11 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QImage>
+#include <QQmlContext>
 #include <QtMath>
+#include <akutils.h>
+#include <akpacket.h>
 
 #include "colorreplaceelement.h"
 
@@ -173,3 +177,5 @@ AkPacket ColorReplaceElement::iStream(const AkPacket &packet)
     AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
     akSend(oPacket)
 }
+
+#include "moc_colorreplaceelement.cpp"

@@ -20,7 +20,7 @@
 #ifndef DENOISE_H
 #define DENOISE_H
 
-#include <ak.h>
+#include <akplugin.h>
 
 class Denoise: public QObject, public AkPlugin
 {

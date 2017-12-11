@@ -34,3 +34,5 @@ QStringList Halftone::keys() const
 {
     return QStringList();
 }
+
+#include "moc_halftone.cpp"

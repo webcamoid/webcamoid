@@ -20,7 +20,7 @@
 #ifndef RIPPLE_H
 #define RIPPLE_H
 
-#include <ak.h>
+#include <akplugin.h>
 
 class Ripple: public QObject, public AkPlugin
 {

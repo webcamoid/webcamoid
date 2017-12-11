@@ -20,11 +20,9 @@
 #ifndef AGINGELEMENT_H
 #define AGINGELEMENT_H
 
-#include <QMutex>
-#include <ak.h>
-#include <akutils.h>
+#include <akelement.h>
 
-#include "scratch.h"
+class AgingElementPrivate;
 
 class AgingElement: public AkElement
 {
@@ -42,15 +40,13 @@ class AgingElement: public AkElement
 
     public:
         explicit AgingElement();
+        ~AgingElement();
 
         Q_INVOKABLE int nScratches() const;
         Q_INVOKABLE bool addDust() const;
 
     private:
-        QVector<Scratch> m_scratches;
-        bool m_addDust;
-
-        QMutex m_mutex;
+        AgingElementPrivate *d;
 
         QImage colorAging(const QImage &src);
         void scratching(QImage &dest);

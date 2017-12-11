@@ -20,8 +20,7 @@
 #ifndef EmbossELEMENT_H
 #define EmbossELEMENT_H
 
-#include <ak.h>
-#include <akutils.h>
+#include <akelement.h>
 
 class EmbossElement: public AkElement
 {

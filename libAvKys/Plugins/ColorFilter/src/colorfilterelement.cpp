@@ -17,7 +17,11 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QImage>
+#include <QQmlContext>
 #include <QtMath>
+#include <akutils.h>
+#include <akpacket.h>
 
 #include "colorfilterelement.h"
 
@@ -176,3 +180,5 @@ AkPacket ColorFilterElement::iStream(const AkPacket &packet)
     AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
     akSend(oPacket)
 }
+
+#include "moc_colorfilterelement.cpp"

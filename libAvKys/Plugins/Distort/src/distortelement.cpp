@@ -17,32 +17,89 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QVector>
+#include <QPoint>
+#include <QImage>
+#include <QQmlContext>
+#include <QtMath>
+#include <akutils.h>
+#include <akpacket.h>
+
 #include "distortelement.h"
+
+class DistortElementPrivate
+{
+    public:
+        qreal m_amplitude;
+        qreal m_frequency;
+        int m_gridSizeLog;
+
+        DistortElementPrivate():
+            m_amplitude(1.0),
+            m_frequency(1.0),
+            m_gridSizeLog(1)
+        {
+        }
+
+        inline QPoint plasmaFunction(const QPoint &point, const QSize &size,
+                                     qreal amp, qreal freq, qreal t);
+        inline QVector<QPoint> createGrid(int width, int height,
+                                          int gridSize, qreal time);
+};
 
 DistortElement::DistortElement(): AkElement()
 {
-    this->m_amplitude = 1.0;
-    this->m_frequency = 1.0;
-    this->m_gridSizeLog = 1;
+    this->d = new DistortElementPrivate;
+}
+
+DistortElement::~DistortElement()
+{
+    delete this->d;
 }
 
 qreal DistortElement::amplitude() const
 {
-    return this->m_amplitude;
+    return this->d->m_amplitude;
 }
 
 qreal DistortElement::frequency() const
 {
-    return this->m_frequency;
+    return this->d->m_frequency;
 }
 
 int DistortElement::gridSizeLog() const
 {
-    return this->m_gridSizeLog;
+    return this->d->m_gridSizeLog;
 }
 
-QVector<QPoint> DistortElement::createGrid(int width, int height,
-                                           int gridSize, qreal time)
+// this will compute a displacement value such that
+// 0<=x_retval<xsize and 0<=y_retval<ysize.
+QPoint DistortElementPrivate::plasmaFunction(const QPoint &point,
+                                             const QSize &size,
+                                             qreal amp,
+                                             qreal freq,
+                                             qreal t)
+{
+    qreal time = fmod(t, 2 * M_PI);
+    qreal h = size.height() - 1;
+    qreal w = size.width() - 1;
+    qreal dx = (-4.0 / (w * w) * point.x() + 4.0 / w) * point.x();
+    qreal dy = (-4.0 / (h * h) * point.y() + 4.0 / h) * point.y();
+
+    int x = qRound(point.x() + amp * (size.width() / 4.0) * dx
+                   * sin(freq * point.y() / size.height() + time));
+
+    int y = qRound(point.y() + amp * (size.height() / 4.0) * dy
+                   * sin(freq * point.x() / size.width() + time));
+
+    return QPoint(qBound(0, x, size.width() - 1),
+                  qBound(0, y, size.height() - 1));
+}
+
+QVector<QPoint> DistortElementPrivate::createGrid(int width,
+                                                  int height,
+                                                  int gridSize,
+                                                  qreal time)
 {
     QVector<QPoint> grid;
 
@@ -73,28 +130,28 @@ void DistortElement::controlInterfaceConfigure(QQmlContext *context,
 
 void DistortElement::setAmplitude(qreal amplitude)
 {
-    if (qFuzzyCompare(this->m_amplitude, amplitude))
+    if (qFuzzyCompare(this->d->m_amplitude, amplitude))
         return;
 
-    this->m_amplitude = amplitude;
+    this->d->m_amplitude = amplitude;
     emit this->amplitudeChanged(amplitude);
 }
 
 void DistortElement::setFrequency(qreal frequency)
 {
-    if (qFuzzyCompare(this->m_frequency, frequency))
+    if (qFuzzyCompare(this->d->m_frequency, frequency))
         return;
 
-    this->m_frequency = frequency;
+    this->d->m_frequency = frequency;
     emit this->frequencyChanged(frequency);
 }
 
 void DistortElement::setGridSizeLog(int gridSizeLog)
 {
-    if (this->m_gridSizeLog == gridSizeLog)
+    if (this->d->m_gridSizeLog == gridSizeLog)
         return;
 
-    this->m_gridSizeLog = gridSizeLog;
+    this->d->m_gridSizeLog = gridSizeLog;
     emit this->gridSizeLogChanged(gridSizeLog);
 }
 
@@ -126,10 +183,10 @@ AkPacket DistortElement::iStream(const AkPacket &packet)
     const QRgb *srcBits = reinterpret_cast<const QRgb *>(src.constBits());
     QRgb *destBits = reinterpret_cast<QRgb *>(oFrame.bits());
 
-    int gridSizeLog = this->m_gridSizeLog > 0? this->m_gridSizeLog: 1;
+    int gridSizeLog = this->d->m_gridSizeLog > 0? this->d->m_gridSizeLog: 1;
     int gridSize = 1 << gridSizeLog;
     qreal time = packet.pts() * packet.timeBase().value();
-    QVector<QPoint> grid = this->createGrid(src.width(), src.height(), gridSize, time);
+    auto grid = this->d->createGrid(src.width(), src.height(), gridSize, time);
 
     int gridX = src.width() / gridSize;
     int gridY = src.height() / gridSize;
@@ -191,3 +248,5 @@ AkPacket DistortElement::iStream(const AkPacket &packet)
     AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
     akSend(oPacket)
 }
+
+#include "moc_distortelement.cpp"

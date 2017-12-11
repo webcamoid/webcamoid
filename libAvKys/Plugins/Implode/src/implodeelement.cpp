@@ -17,7 +17,11 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QImage>
 #include <QtMath>
+#include <QQmlContext>
+#include <akutils.h>
+#include <akpacket.h>
 
 #include "implodeelement.h"
 
@@ -104,3 +108,5 @@ AkPacket ImplodeElement::iStream(const AkPacket &packet)
     AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
     akSend(oPacket)
 }
+
+#include "moc_implodeelement.cpp"

@@ -20,8 +20,9 @@
 #ifndef COLORTRANSFORMELEMENT_H
 #define COLORTRANSFORMELEMENT_H
 
-#include <ak.h>
-#include <akutils.h>
+#include <akelement.h>
+
+class ColorTransformElementPrivate;
 
 class ColorTransformElement: public AkElement
 {
@@ -34,11 +35,12 @@ class ColorTransformElement: public AkElement
 
     public:
         explicit ColorTransformElement();
+        ~ColorTransformElement();
 
         Q_INVOKABLE QVariantList kernel() const;
 
     private:
-        QVector<qreal> m_kernel;
+        ColorTransformElementPrivate *d;
 
     protected:
         QString controlInterfaceProvide(const QString &controlId) const;

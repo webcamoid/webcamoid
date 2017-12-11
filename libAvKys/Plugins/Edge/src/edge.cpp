@@ -34,3 +34,5 @@ QStringList Edge::keys() const
 {
     return QStringList();
 }
+
+#include "moc_edge.cpp"

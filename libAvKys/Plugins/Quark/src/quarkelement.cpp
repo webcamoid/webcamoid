@@ -17,16 +17,39 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QImage>
+#include <QQmlContext>
+#include <akutils.h>
+#include <akpacket.h>
+
 #include "quarkelement.h"
+
+class QuarkElementPrivate
+{
+    public:
+        int m_nFrames;
+        QVector<QImage> m_frames;
+        QSize m_frameSize;
+
+        QuarkElementPrivate():
+            m_nFrames(16)
+        {
+        }
+};
 
 QuarkElement::QuarkElement(): AkElement()
 {
-    this->m_nFrames = 16;
+    this->d = new QuarkElementPrivate;
+}
+
+QuarkElement::~QuarkElement()
+{
+    delete this->d;
 }
 
 int QuarkElement::nFrames() const
 {
-    return this->m_nFrames;
+    return this->d->m_nFrames;
 }
 
 QString QuarkElement::controlInterfaceProvide(const QString &controlId) const
@@ -46,10 +69,10 @@ void QuarkElement::controlInterfaceConfigure(QQmlContext *context, const QString
 
 void QuarkElement::setNFrames(int nFrames)
 {
-    if (this->m_nFrames == nFrames)
+    if (this->d->m_nFrames == nFrames)
         return;
 
-    this->m_nFrames = nFrames;
+    this->d->m_nFrames = nFrames;
     emit this->nFramesChanged(nFrames);
 }
 
@@ -68,27 +91,29 @@ AkPacket QuarkElement::iStream(const AkPacket &packet)
     src = src.convertToFormat(QImage::Format_ARGB32);
     QImage oFrame(src.size(), src.format());
 
-    if (src.size() != this->m_frameSize) {
-        this->m_frames.clear();
-        this->m_frameSize = src.size();
+    if (src.size() != this->d->m_frameSize) {
+        this->d->m_frames.clear();
+        this->d->m_frameSize = src.size();
     }
 
-    int nFrames = this->m_nFrames > 0? this->m_nFrames: 1;
-    this->m_frames << src.copy();
-    int diff = this->m_frames.size() - nFrames;
+    int nFrames = this->d->m_nFrames > 0? this->d->m_nFrames: 1;
+    this->d->m_frames << src.copy();
+    int diff = this->d->m_frames.size() - nFrames;
 
     for (int i = 0; i < diff; i++)
-        this->m_frames.removeFirst();
+        this->d->m_frames.removeFirst();
 
     for (int y = 0; y < src.height(); y++) {
         QRgb *dstLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
 
         for (int x = 0; x < src.width(); x++) {
-            int frame = qrand() % this->m_frames.size();
-            dstLine[x] = this->m_frames[frame].pixel(x, y);
+            int frame = qrand() % this->d->m_frames.size();
+            dstLine[x] = this->d->m_frames[frame].pixel(x, y);
         }
     }
 
     AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
     akSend(oPacket)
 }
+
+#include "moc_quarkelement.cpp"

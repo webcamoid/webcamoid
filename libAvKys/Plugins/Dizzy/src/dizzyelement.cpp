@@ -19,29 +19,56 @@
 
 #include <QtMath>
 #include <QPainter>
+#include <QQmlContext>
+#include <akutils.h>
+#include <akpacket.h>
 
 #include "dizzyelement.h"
 
+class DizzyElementPrivate
+{
+    public:
+        qreal m_speed;
+        qreal m_zoomRate;
+        qreal m_strength;
+        QImage m_prevFrame;
+
+        DizzyElementPrivate():
+            m_speed(5.0),
+            m_zoomRate(0.02),
+            m_strength(0.75)
+        {
+        }
+
+        inline void setParams(int *dx, int *dy,
+                              int *sx, int *sy,
+                              int width, int height,
+                              qreal phase, qreal zoomRate);
+};
+
 DizzyElement::DizzyElement(): AkElement()
 {
-    this->m_speed = 5.0;
-    this->m_zoomRate = 0.02;
-    this->m_strength = 0.75;
+    this->d = new DizzyElementPrivate;
+}
+
+DizzyElement::~DizzyElement()
+{
+    delete this->d;
 }
 
 qreal DizzyElement::speed() const
 {
-    return this->m_speed;
+    return this->d->m_speed;
 }
 
 qreal DizzyElement::zoomRate() const
 {
-    return this->m_zoomRate;
+    return this->d->m_zoomRate;
 }
 
 qreal DizzyElement::strength() const
 {
-    return this->m_strength;
+    return this->d->m_strength;
 }
 
 QString DizzyElement::controlInterfaceProvide(const QString &controlId) const
@@ -62,28 +89,28 @@ void DizzyElement::controlInterfaceConfigure(QQmlContext *context,
 
 void DizzyElement::setSpeed(qreal speed)
 {
-    if (qFuzzyCompare(this->m_speed, speed))
+    if (qFuzzyCompare(this->d->m_speed, speed))
         return;
 
-    this->m_speed = speed;
+    this->d->m_speed = speed;
     emit this->speedChanged(speed);
 }
 
 void DizzyElement::setZoomRate(qreal zoomRate)
 {
-    if (qFuzzyCompare(this->m_zoomRate, zoomRate))
+    if (qFuzzyCompare(this->d->m_zoomRate, zoomRate))
         return;
 
-    this->m_zoomRate = zoomRate;
+    this->d->m_zoomRate = zoomRate;
     emit this->zoomRateChanged(zoomRate);
 }
 
 void DizzyElement::setStrength(qreal strength)
 {
-    if (qFuzzyCompare(this->m_strength, strength))
+    if (qFuzzyCompare(this->d->m_strength, strength))
         return;
 
-    this->m_strength = strength;
+    this->d->m_strength = strength;
     emit this->strengthChanged(strength);
 }
 
@@ -113,34 +140,36 @@ AkPacket DizzyElement::iStream(const AkPacket &packet)
     QImage oFrame(src.size(), src.format());
     oFrame.fill(0);
 
-    if (this->m_prevFrame.isNull()) {
-        this->m_prevFrame = QImage(src.size(), src.format());
-        this->m_prevFrame.fill(0);
+    if (this->d->m_prevFrame.isNull()) {
+        this->d->m_prevFrame = QImage(src.size(), src.format());
+        this->d->m_prevFrame.fill(0);
     }
 
     qreal pts = 2 * M_PI * packet.pts() * packet.timeBase().value()
-                / this->m_speed;
+                / this->d->m_speed;
 
     qreal angle = (2 * M_PI / 180) * sin(pts) + (M_PI / 180) * sin(pts + 2.5);
-    qreal scale = 1.0 + this->m_zoomRate;
+    qreal scale = 1.0 + this->d->m_zoomRate;
 
     QTransform transform;
     transform.scale(scale, scale);
     transform.rotateRadians(angle);
-    this->m_prevFrame = this->m_prevFrame.transformed(transform);
+    this->d->m_prevFrame = this->d->m_prevFrame.transformed(transform);
 
-    QRect rect(this->m_prevFrame.rect());
+    QRect rect(this->d->m_prevFrame.rect());
     rect.moveCenter(oFrame.rect().center());
 
     QPainter painter;
     painter.begin(&oFrame);
-    painter.drawImage(rect, this->m_prevFrame);
-    painter.setOpacity(1.0 - this->m_strength);
+    painter.drawImage(rect, this->d->m_prevFrame);
+    painter.setOpacity(1.0 - this->d->m_strength);
     painter.drawImage(0, 0, src);
     painter.end();
 
-    this->m_prevFrame = oFrame;
+    this->d->m_prevFrame = oFrame;
 
     AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
     akSend(oPacket)
 }
+
+#include "moc_dizzyelement.cpp"

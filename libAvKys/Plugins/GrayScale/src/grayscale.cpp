@@ -34,3 +34,5 @@ QStringList GrayScale::keys() const
 {
     return QStringList();
 }
+
+#include "moc_grayscale.cpp"

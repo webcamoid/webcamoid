@@ -34,3 +34,5 @@ QStringList ScanLines::keys() const
 {
     return QStringList();
 }
+
+#include "moc_scanlines.cpp"

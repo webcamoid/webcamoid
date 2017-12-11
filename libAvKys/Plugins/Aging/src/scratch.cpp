@@ -19,14 +19,13 @@
 
 #include "scratch.h"
 
-Scratch::Scratch(QObject *parent):
-    QObject(parent),
+Scratch::Scratch():
+    m_life0(0.0),
     m_life(0.0),
     m_dlife(0.0),
     m_x(0.0),
     m_dx(0.0),
-    m_y(0),
-    m_life0(0.0)
+    m_y(0)
 {
 }
 
@@ -54,13 +53,12 @@ Scratch::Scratch(qreal minLife, qreal maxLife,
 }
 
 Scratch::Scratch(const Scratch &other):
-    QObject(other.parent()),
+    m_life0(other.m_life0),
     m_life(other.m_life),
     m_dlife(other.m_dlife),
     m_x(other.m_x),
     m_dx(other.m_dx),
-    m_y(other.m_y),
-    m_life0(other.m_life0)
+    m_y(other.m_y)
 {
 }
 

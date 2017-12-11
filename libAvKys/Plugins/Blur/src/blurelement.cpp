@@ -17,24 +17,51 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include "blurelement.h"
+#include <QImage>
+#include <QQmlContext>
+#include <akutils.h>
+#include <akpacket.h>
 
-BlurElement::BlurElement(): AkElement()
+#include "blurelement.h"
+#include "pixel.h"
+
+class BlurElementPrivate
 {
-    this->m_radius = 5;
+    public:
+        int m_radius;
+
+        BlurElementPrivate():
+            m_radius(5)
+        {
+        }
+
+        inline void integralImage(const QImage &image,
+                                  int oWidth, int oHeight,
+                                  PixelU32 *integral);
+};
+
+BlurElement::BlurElement():
+    AkElement()
+{
+    this->d = new BlurElementPrivate;
+}
+
+BlurElement::~BlurElement()
+{
+    delete this->d;
 }
 
 int BlurElement::radius() const
 {
-    return this->m_radius;
+    return this->d->m_radius;
 }
 
-void BlurElement::integralImage(const QImage &image,
-                                int oWidth, int oHeight,
-                                PixelU32 *integral)
+void BlurElementPrivate::integralImage(const QImage &image,
+                                       int oWidth, int oHeight,
+                                       PixelU32 *integral)
 {
     for (int y = 1; y < oHeight; y++) {
-        const QRgb *line = reinterpret_cast<const QRgb *>(image.constScanLine(y - 1));
+        auto line = reinterpret_cast<const QRgb *>(image.constScanLine(y - 1));
 
         // Reset current line summation.
         PixelU32 sum;
@@ -76,10 +103,10 @@ void BlurElement::controlInterfaceConfigure(QQmlContext *context,
 
 void BlurElement::setRadius(int radius)
 {
-    if (this->m_radius == radius)
+    if (this->d->m_radius == radius)
         return;
 
-    this->m_radius = radius;
+    this->d->m_radius = radius;
     emit this->radiusChanged(radius);
 }
 
@@ -101,9 +128,9 @@ AkPacket BlurElement::iStream(const AkPacket &packet)
     int oWidth = src.width() + 1;
     int oHeight = src.height() + 1;
     PixelU32 *integral = new PixelU32[oWidth * oHeight];
-    this->integralImage(src, oWidth, oHeight, integral);
+    this->d->integralImage(src, oWidth, oHeight, integral);
 
-    int radius = this->m_radius;
+    int radius = this->d->m_radius;
 
     for (int y = 0; y < src.height(); y++) {
         QRgb *oLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
@@ -126,3 +153,5 @@ AkPacket BlurElement::iStream(const AkPacket &packet)
     AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
     akSend(oPacket)
 }
+
+#include "moc_blurelement.cpp"

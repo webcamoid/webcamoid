@@ -20,8 +20,7 @@
 #ifndef PRIMARIESCOLORSELEMENT_H
 #define PRIMARIESCOLORSELEMENT_H
 
-#include <ak.h>
-#include <akutils.h>
+#include <akelement.h>
 
 class PrimariesColorsElement: public AkElement
 {

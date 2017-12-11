@@ -34,3 +34,5 @@ QStringList Radioactive::keys() const
 {
     return QStringList();
 }
+
+#include "moc_radioactive.cpp"

@@ -20,8 +20,8 @@
 #ifndef COLORFILTERELEMENT_H
 #define COLORFILTERELEMENT_H
 
-#include <ak.h>
-#include <akutils.h>
+#include <qrgb.h>
+#include <akelement.h>
 
 class ColorFilterElement: public AkElement
 {

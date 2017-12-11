@@ -34,3 +34,5 @@ QStringList Life::keys() const
 {
     return QStringList();
 }
+
+#include "moc_life.cpp"

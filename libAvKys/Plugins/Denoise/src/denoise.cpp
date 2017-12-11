@@ -34,3 +34,5 @@ QStringList Denoise::keys() const
 {
     return QStringList();
 }
+
+#include "moc_denoise.cpp"

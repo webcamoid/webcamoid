@@ -17,7 +17,13 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QImage>
+#include <QVector>
+#include <akutils.h>
+#include <akpacket.h>
+
 #include "equalizeelement.h"
+#include "pixelstructs.h"
 
 EqualizeElement::EqualizeElement(): AkElement()
 {
@@ -96,3 +102,5 @@ AkPacket EqualizeElement::iStream(const AkPacket &packet)
     AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
     akSend(oPacket)
 }
+
+#include "moc_equalizeelement.cpp"

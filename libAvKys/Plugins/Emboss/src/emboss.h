@@ -20,7 +20,7 @@
 #ifndef EMBOSS_H
 #define EMBOSS_H
 
-#include <ak.h>
+#include <akplugin.h>
 
 class Emboss: public QObject, public AkPlugin
 {

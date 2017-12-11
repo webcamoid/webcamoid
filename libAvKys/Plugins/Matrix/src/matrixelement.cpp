@@ -18,8 +18,16 @@
  */
 
 #include <QApplication>
+#include <QQmlContext>
+#include <QPainter>
+#include <QFontMetrics>
+#include <QMutex>
+#include <akutils.h>
+#include <akpacket.h>
 
 #include "matrixelement.h"
+#include "character.h"
+#include "raindrop.h"
 
 typedef QMap<QFont::HintingPreference, QString> HintingPreferenceToStr;
 
@@ -62,24 +70,54 @@ inline StyleStrategyToStr initStyleStrategyToStr()
 
 Q_GLOBAL_STATIC_WITH_ARGS(StyleStrategyToStr, styleStrategyToStr, (initStyleStrategyToStr()))
 
+class MatrixElementPrivate
+{
+    public:
+        int m_nDrops;
+        QString m_charTable;
+        QFont m_font;
+        QRgb m_cursorColor;
+        QRgb m_foregroundColor;
+        QRgb m_backgroundColor;
+        int m_minDropLength;
+        int m_maxDropLength;
+        qreal m_minSpeed;
+        qreal m_maxSpeed;
+        bool m_showCursor;
+
+        QList<Character> m_characters;
+        QSize m_fontSize;
+        QList<RainDrop> m_rain;
+        QMutex m_mutex;
+
+        QSize fontSize(const QString &chrTable, const QFont &font) const;
+        QImage drawChar(const QChar &chr, const QFont &font,
+                        const QSize &fontSize,
+                        QRgb foreground, QRgb background) const;
+        int imageWeight(const QImage &image) const;
+        static bool chrLessThan(const Character &chr1, const Character &chr2);
+        QImage renderRain(const QSize &frameSize, const QImage &textImage);
+};
+
 MatrixElement::MatrixElement(): AkElement()
 {
-    this->m_nDrops = 25;
+    this->d = new MatrixElementPrivate;
+    this->d->m_nDrops = 25;
 
     for (int i = 32; i < 127; i++)
-        this->m_charTable.append(QChar(i));
+        this->d->m_charTable.append(QChar(i));
 
-    this->m_font = QApplication::font();
-    this->m_font.setHintingPreference(QFont::PreferFullHinting);
-    this->m_font.setStyleStrategy(QFont::NoAntialias);
-    this->m_cursorColor = qRgb(255, 255, 255);
-    this->m_foregroundColor = qRgb(0, 255, 0);
-    this->m_backgroundColor = qRgb(0, 0, 0);
-    this->m_minDropLength = 3;
-    this->m_maxDropLength = 20;
-    this->m_minSpeed = 0.5;
-    this->m_maxSpeed = 5.0;
-    this->m_showCursor = false;
+    this->d->m_font = QApplication::font();
+    this->d->m_font.setHintingPreference(QFont::PreferFullHinting);
+    this->d->m_font.setStyleStrategy(QFont::NoAntialias);
+    this->d->m_cursorColor = qRgb(255, 255, 255);
+    this->d->m_foregroundColor = qRgb(0, 255, 0);
+    this->d->m_backgroundColor = qRgb(0, 0, 0);
+    this->d->m_minDropLength = 3;
+    this->d->m_maxDropLength = 20;
+    this->d->m_minSpeed = 0.5;
+    this->d->m_maxSpeed = 5.0;
+    this->d->m_showCursor = false;
 
     this->updateCharTable();
 
@@ -113,72 +151,80 @@ MatrixElement::MatrixElement(): AkElement()
                      &MatrixElement::updateCharTable);
 }
 
+MatrixElement::~MatrixElement()
+{
+    delete this->d;
+}
+
 int MatrixElement::nDrops() const
 {
-    return this->m_nDrops;
+    return this->d->m_nDrops;
 }
 
 QString MatrixElement::charTable() const
 {
-    return this->m_charTable;
+    return this->d->m_charTable;
 }
 
 QFont MatrixElement::font() const
 {
-    return this->m_font;
+    return this->d->m_font;
 }
 
 QString MatrixElement::hintingPreference() const
 {
-    return hintingPreferenceToStr->value(this->m_font.hintingPreference(), "PreferFullHinting");
+    return hintingPreferenceToStr->value(this->d->m_font.hintingPreference(),
+                                         "PreferFullHinting");
 }
 
 QString MatrixElement::styleStrategy() const
 {
-    return styleStrategyToStr->value(this->m_font.styleStrategy(), "NoAntialias");
+    return styleStrategyToStr->value(this->d->m_font.styleStrategy(),
+                                     "NoAntialias");
 }
 
 QRgb MatrixElement::cursorColor() const
 {
-    return this->m_cursorColor;
+    return this->d->m_cursorColor;
 }
 
 QRgb MatrixElement::foregroundColor() const
 {
-    return this->m_foregroundColor;
+    return this->d->m_foregroundColor;
 }
 
 QRgb MatrixElement::backgroundColor() const
 {
-    return this->m_backgroundColor;
+    return this->d->m_backgroundColor;
 }
 
 int MatrixElement::minDropLength() const
 {
-    return this->m_minDropLength;
+    return this->d->m_minDropLength;
 }
 
 int MatrixElement::maxDropLength() const
 {
-    return this->m_maxDropLength;
+    return this->d->m_maxDropLength;
 }
 
 qreal MatrixElement::minSpeed() const
 {
-    return this->m_minSpeed;
+    return this->d->m_minSpeed;
 }
 
 qreal MatrixElement::maxSpeed() const
 {
-    return this->m_maxSpeed;
+    return this->d->m_maxSpeed;
 }
 
 bool MatrixElement::showCursor() const
 {
-    return this->m_showCursor;
+    return this->d->m_showCursor;
 }
 
-QSize MatrixElement::fontSize(const QString &chrTable, const QFont &font) const
+QSize MatrixElementPrivate::fontSize(const QString &chrTable,
+                                     const QFont &font) const
 {
     QFontMetrics metrics(font);
     int width = -1;
@@ -197,15 +243,14 @@ QSize MatrixElement::fontSize(const QString &chrTable, const QFont &font) const
     return QSize(width, height);
 }
 
-QImage MatrixElement::drawChar(const QChar &chr, const QFont &font,
-                               const QSize &fontSize, QRgb foreground,
-                               QRgb background) const
+QImage MatrixElementPrivate::drawChar(const QChar &chr, const QFont &font,
+                                      const QSize &fontSize, QRgb foreground,
+                                      QRgb background) const
 {
     QImage fontImg(fontSize, QImage::Format_RGB32);
     fontImg.fill(background);
 
     QPainter painter;
-
     painter.begin(&fontImg);
     painter.setPen(foreground);
     painter.setFont(font);
@@ -215,7 +260,7 @@ QImage MatrixElement::drawChar(const QChar &chr, const QFont &font,
     return fontImg;
 }
 
-int MatrixElement::imageWeight(const QImage &image) const
+int MatrixElementPrivate::imageWeight(const QImage &image) const
 {
     int weight = 0;
 
@@ -231,13 +276,14 @@ int MatrixElement::imageWeight(const QImage &image) const
     return weight;
 }
 
-bool MatrixElement::chrLessThan(const Character &chr1, const Character &chr2)
+bool MatrixElementPrivate::chrLessThan(const Character &chr1,
+                                       const Character &chr2)
 {
     return chr1.weight < chr2.weight;
 }
 
-QImage MatrixElement::renderRain(const QSize &frameSize,
-                                 const QImage &textImage)
+QImage MatrixElementPrivate::renderRain(const QSize &frameSize,
+                                        const QImage &textImage)
 {
     this->m_mutex.lock();
     QImage rain(frameSize, QImage::Format_ARGB32);
@@ -308,30 +354,30 @@ void MatrixElement::controlInterfaceConfigure(QQmlContext *context,
 
 void MatrixElement::setNDrops(int nDrops)
 {
-    if (this->m_nDrops == nDrops)
+    if (this->d->m_nDrops == nDrops)
         return;
 
-    QMutexLocker(&this->m_mutex);
-    this->m_nDrops = nDrops;
+    QMutexLocker(&this->d->m_mutex);
+    this->d->m_nDrops = nDrops;
     emit this->nDropsChanged(nDrops);
 }
 
 void MatrixElement::setCharTable(const QString &charTable)
 {
-    if (this->m_charTable == charTable)
+    if (this->d->m_charTable == charTable)
         return;
 
-    QMutexLocker(&this->m_mutex);
-    this->m_charTable = charTable;
+    QMutexLocker(&this->d->m_mutex);
+    this->d->m_charTable = charTable;
     emit this->charTableChanged(charTable);
 }
 
 void MatrixElement::setFont(const QFont &font)
 {
-    if (this->m_font == font)
+    if (this->d->m_font == font)
         return;
 
-    QMutexLocker(&this->m_mutex);
+    QMutexLocker(&this->d->m_mutex);
 
     QFont::HintingPreference hp =
             hintingPreferenceToStr->key(this->hintingPreference(),
@@ -340,10 +386,10 @@ void MatrixElement::setFont(const QFont &font)
             styleStrategyToStr->key(this->styleStrategy(),
                                     QFont::NoAntialias);
 
-    this->m_font = font;
-    this->m_font.setHintingPreference(hp);
-    this->m_font.setStyleStrategy(ss);
-    this->m_rain.clear();
+    this->d->m_font = font;
+    this->d->m_font.setHintingPreference(hp);
+    this->d->m_font.setStyleStrategy(ss);
+    this->d->m_rain.clear();
     emit this->fontChanged(font);
 }
 
@@ -353,12 +399,12 @@ void MatrixElement::setHintingPreference(const QString &hintingPreference)
             hintingPreferenceToStr->key(hintingPreference,
                                         QFont::PreferFullHinting);
 
-    if (this->m_font.hintingPreference() == hp)
+    if (this->d->m_font.hintingPreference() == hp)
         return;
 
-    QMutexLocker(&this->m_mutex);
-    this->m_font.setHintingPreference(hp);
-    this->m_rain.clear();
+    QMutexLocker(&this->d->m_mutex);
+    this->d->m_font.setHintingPreference(hp);
+    this->d->m_rain.clear();
     emit hintingPreferenceChanged(hintingPreference);
 }
 
@@ -368,92 +414,92 @@ void MatrixElement::setStyleStrategy(const QString &styleStrategy)
             styleStrategyToStr->key(styleStrategy,
                                     QFont::NoAntialias);
 
-    if (this->m_font.styleStrategy() == ss)
+    if (this->d->m_font.styleStrategy() == ss)
         return;
 
-    QMutexLocker(&this->m_mutex);
-    this->m_font.setStyleStrategy(ss);
-    this->m_rain.clear();
+    QMutexLocker(&this->d->m_mutex);
+    this->d->m_font.setStyleStrategy(ss);
+    this->d->m_rain.clear();
     emit styleStrategyChanged(styleStrategy);
 }
 
 void MatrixElement::setCursorColor(QRgb cursorColor)
 {
-    if (this->m_cursorColor == cursorColor)
+    if (this->d->m_cursorColor == cursorColor)
         return;
 
-    QMutexLocker(&this->m_mutex);
-    this->m_cursorColor = cursorColor;
+    QMutexLocker(&this->d->m_mutex);
+    this->d->m_cursorColor = cursorColor;
     emit this->cursorColorChanged(cursorColor);
 }
 
 void MatrixElement::setForegroundColor(QRgb foregroundColor)
 {
-    if (this->m_foregroundColor == foregroundColor)
+    if (this->d->m_foregroundColor == foregroundColor)
         return;
 
-    QMutexLocker(&this->m_mutex);
-    this->m_foregroundColor = foregroundColor;
+    QMutexLocker(&this->d->m_mutex);
+    this->d->m_foregroundColor = foregroundColor;
     emit this->foregroundColorChanged(foregroundColor);
 }
 
 void MatrixElement::setBackgroundColor(QRgb backgroundColor)
 {
-    if (this->m_backgroundColor == backgroundColor)
+    if (this->d->m_backgroundColor == backgroundColor)
         return;
 
-    QMutexLocker(&this->m_mutex);
-    this->m_backgroundColor = backgroundColor;
+    QMutexLocker(&this->d->m_mutex);
+    this->d->m_backgroundColor = backgroundColor;
     emit this->backgroundColorChanged(backgroundColor);
 }
 
 void MatrixElement::setMinDropLength(int minDropLength)
 {
-    if (this->m_minDropLength == minDropLength)
+    if (this->d->m_minDropLength == minDropLength)
         return;
 
-    QMutexLocker(&this->m_mutex);
-    this->m_minDropLength = minDropLength;
+    QMutexLocker(&this->d->m_mutex);
+    this->d->m_minDropLength = minDropLength;
     emit this->minDropLengthChanged(minDropLength);
 }
 
 void MatrixElement::setMaxDropLength(int maxDropLength)
 {
-    if (this->m_maxDropLength == maxDropLength)
+    if (this->d->m_maxDropLength == maxDropLength)
         return;
 
-    QMutexLocker(&this->m_mutex);
-    this->m_maxDropLength = maxDropLength;
+    QMutexLocker(&this->d->m_mutex);
+    this->d->m_maxDropLength = maxDropLength;
     emit this->maxDropLengthChanged(maxDropLength);
 }
 
 void MatrixElement::setMinSpeed(qreal minSpeed)
 {
-    if (qFuzzyCompare(this->m_minSpeed, minSpeed))
+    if (qFuzzyCompare(this->d->m_minSpeed, minSpeed))
         return;
 
-    QMutexLocker(&this->m_mutex);
-    this->m_minSpeed = minSpeed;
+    QMutexLocker(&this->d->m_mutex);
+    this->d->m_minSpeed = minSpeed;
     emit this->minSpeedChanged(minSpeed);
 }
 
 void MatrixElement::setMaxSpeed(qreal maxSpeed)
 {
-    if (qFuzzyCompare(this->m_maxSpeed, maxSpeed))
+    if (qFuzzyCompare(this->d->m_maxSpeed, maxSpeed))
         return;
 
-    QMutexLocker(&this->m_mutex);
-    this->m_maxSpeed = maxSpeed;
+    QMutexLocker(&this->d->m_mutex);
+    this->d->m_maxSpeed = maxSpeed;
     emit this->maxSpeedChanged(maxSpeed);
 }
 
 void MatrixElement::setShowCursor(bool showCursor)
 {
-    if (this->m_showCursor == showCursor)
+    if (this->d->m_showCursor == showCursor)
         return;
 
-    QMutexLocker(&this->m_mutex);
-    this->m_showCursor = showCursor;
+    QMutexLocker(&this->d->m_mutex);
+    this->d->m_showCursor = showCursor;
     emit this->showCursorChanged(showCursor);
 }
 
@@ -536,20 +582,20 @@ AkPacket MatrixElement::iStream(const AkPacket &packet)
 
     src = src.convertToFormat(QImage::Format_RGB32);
 
-    this->m_mutex.lock();
-    int textWidth = src.width() / this->m_fontSize.width();
-    int textHeight = src.height() / this->m_fontSize.height();
+    this->d->m_mutex.lock();
+    int textWidth = src.width() / this->d->m_fontSize.width();
+    int textHeight = src.height() / this->d->m_fontSize.height();
 
-    int outWidth = textWidth * this->m_fontSize.width();
-    int outHeight = textHeight * this->m_fontSize.height();
+    int outWidth = textWidth * this->d->m_fontSize.width();
+    int outHeight = textHeight * this->d->m_fontSize.height();
 
     QImage oFrame(outWidth, outHeight, src.format());
 
-    QList<Character> characters(this->m_characters);
-    this->m_mutex.unlock();
+    QList<Character> characters(this->d->m_characters);
+    this->d->m_mutex.unlock();
 
     if (characters.size() < 256) {
-        oFrame.fill(this->m_backgroundColor);
+        oFrame.fill(this->d->m_backgroundColor);
         AkPacket oPacket = AkUtils::imageToPacket(oFrame.scaled(src.size()),
                                                   packet);
         akSend(oPacket)
@@ -563,15 +609,15 @@ AkPacket MatrixElement::iStream(const AkPacket &packet)
     painter.begin(&oFrame);
 
     for (int i = 0; i < textArea; i++) {
-        int x = this->m_fontSize.width() * (i % textWidth);
-        int y = this->m_fontSize.height() * (i / textWidth);
+        int x = this->d->m_fontSize.width() * (i % textWidth);
+        int y = this->d->m_fontSize.height() * (i / textWidth);
 
         Character chr = characters[qGray(textImageBits[i])];
         painter.drawImage(x, y, chr.image);
         textImageBits[i] = chr.foreground;
     }
 
-    painter.drawImage(0, 0, this->renderRain(oFrame.size(), textImage));
+    painter.drawImage(0, 0, this->d->renderRain(oFrame.size(), textImage));
     painter.end();
 
     AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
@@ -580,41 +626,44 @@ AkPacket MatrixElement::iStream(const AkPacket &packet)
 
 void MatrixElement::updateCharTable()
 {
-    QMutexLocker(&this->m_mutex);
+    QMutexLocker(&this->d->m_mutex);
     QList<Character> characters;
-    this->m_fontSize = this->fontSize(this->m_charTable, this->m_font);
+    this->d->m_fontSize =
+            this->d->fontSize(this->d->m_charTable, this->d->m_font);
 
     QVector<QRgb> colorTable(256);
 
     for (int i = 0; i < 256; i++)
         colorTable[i] = qRgb(i, i, i);
 
-    for (const QChar &chr: this->m_charTable) {
-        QImage image = drawChar(chr,
-                                this->m_font,
-                                this->m_fontSize,
-                                this->m_foregroundColor, this->m_backgroundColor);
-        int weight = this->imageWeight(image);
+    for (const QChar &chr: this->d->m_charTable) {
+        QImage image =
+                this->d->drawChar(chr,
+                                  this->d->m_font,
+                                  this->d->m_fontSize,
+                                  this->d->m_foregroundColor,
+                                  this->d->m_backgroundColor);
+        int weight = this->d->imageWeight(image);
 
         characters.append(Character(chr, QImage(), weight));
     }
 
-    std::sort(characters.begin(), characters.end(), this->chrLessThan);
+    std::sort(characters.begin(), characters.end(), this->d->chrLessThan);
 
-    this->m_characters.clear();
+    this->d->m_characters.clear();
 
     if (characters.isEmpty())
         return;
 
     QVector<QRgb> pallete;
 
-    int r0 = qRed(this->m_backgroundColor);
-    int g0 = qGreen(this->m_backgroundColor);
-    int b0 = qBlue(this->m_backgroundColor);
+    int r0 = qRed(this->d->m_backgroundColor);
+    int g0 = qGreen(this->d->m_backgroundColor);
+    int b0 = qBlue(this->d->m_backgroundColor);
 
-    int rDiff = qRed(this->m_foregroundColor) - r0;
-    int gDiff = qGreen(this->m_foregroundColor) - g0;
-    int bDiff = qBlue(this->m_foregroundColor) - b0;
+    int rDiff = qRed(this->d->m_foregroundColor) - r0;
+    int gDiff = qGreen(this->d->m_foregroundColor) - g0;
+    int bDiff = qBlue(this->d->m_foregroundColor) - b0;
 
     for (int i = 0; i < 128; i++) {
         int r = (i * rDiff) / 127 + r0;
@@ -624,13 +673,13 @@ void MatrixElement::updateCharTable()
         pallete << qRgb(r, g, b);
     }
 
-    r0 = qRed(this->m_foregroundColor);
-    g0 = qGreen(this->m_foregroundColor);
-    b0 = qBlue(this->m_foregroundColor);
+    r0 = qRed(this->d->m_foregroundColor);
+    g0 = qGreen(this->d->m_foregroundColor);
+    b0 = qBlue(this->d->m_foregroundColor);
 
-    rDiff = qRed(this->m_cursorColor) - r0;
-    gDiff = qGreen(this->m_cursorColor) - g0;
-    bDiff = qBlue(this->m_cursorColor) - b0;
+    rDiff = qRed(this->d->m_cursorColor) - r0;
+    gDiff = qGreen(this->d->m_cursorColor) - g0;
+    bDiff = qBlue(this->d->m_cursorColor) - b0;
 
     for (int i = 0; i < 128; i++) {
         int r = (i * rDiff) / 127 + r0;
@@ -642,13 +691,16 @@ void MatrixElement::updateCharTable()
 
     for (int i = 0; i < 256; i++) {
         int c = i * (characters.size() - 1) / 255;
-        characters[c].image = drawChar(characters[c].chr,
-                                       this->m_font,
-                                       this->m_fontSize,
-                                       pallete[i],
-                                       this->m_backgroundColor);
+        characters[c].image =
+                this->d->drawChar(characters[c].chr,
+                                  this->d->m_font,
+                                  this->d->m_fontSize,
+                                  pallete[i],
+                                  this->d->m_backgroundColor);
         characters[c].foreground = pallete[i];
-        characters[c].background = this->m_backgroundColor;
-        this->m_characters.append(characters[c]);
+        characters[c].background = this->d->m_backgroundColor;
+        this->d->m_characters.append(characters[c]);
     }
 }
+
+#include "moc_matrixelement.cpp"

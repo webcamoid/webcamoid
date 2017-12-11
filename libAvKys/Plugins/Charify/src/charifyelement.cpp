@@ -18,6 +18,11 @@
  */
 
 #include <QApplication>
+#include <QPainter>
+#include <QQmlContext>
+#include <QMutex>
+#include <akutils.h>
+#include <akpacket.h>
 
 #include "charifyelement.h"
 
@@ -25,67 +30,95 @@ typedef QMap<CharifyElement::ColorMode, QString> ColorModeToStr;
 
 inline ColorModeToStr initColorModeToStr()
 {
-    ColorModeToStr colorModeToStr;
-    colorModeToStr[CharifyElement::ColorModeNatural] = "natural";
-    colorModeToStr[CharifyElement::ColorModeFixed] = "fixed";
+    ColorModeToStr colorModeToStr {
+        {CharifyElement::ColorModeNatural, "natural"},
+        {CharifyElement::ColorModeFixed  , "fixed"  }
+    };
 
     return colorModeToStr;
 }
 
-Q_GLOBAL_STATIC_WITH_ARGS(ColorModeToStr, colorModeToStr, (initColorModeToStr()))
+Q_GLOBAL_STATIC_WITH_ARGS(ColorModeToStr,
+                          colorModeToStr,
+                          (initColorModeToStr()))
 
 typedef QMap<QFont::HintingPreference, QString> HintingPreferenceToStr;
 
 inline HintingPreferenceToStr initHintingPreferenceToStr()
 {
-    HintingPreferenceToStr hintingPreferenceToStr;
-    hintingPreferenceToStr[QFont::PreferDefaultHinting] = "PreferDefaultHinting";
-    hintingPreferenceToStr[QFont::PreferNoHinting] = "PreferNoHinting";
-    hintingPreferenceToStr[QFont::PreferVerticalHinting] = "PreferVerticalHinting";
-    hintingPreferenceToStr[QFont::PreferFullHinting] = "PreferFullHinting";
+    HintingPreferenceToStr hintingPreferenceToStr {
+        {QFont::PreferDefaultHinting , "PreferDefaultHinting" },
+        {QFont::PreferNoHinting      , "PreferNoHinting"      },
+        {QFont::PreferVerticalHinting, "PreferVerticalHinting"},
+        {QFont::PreferFullHinting    , "PreferFullHinting"    }
+    };
 
     return hintingPreferenceToStr;
 }
 
-Q_GLOBAL_STATIC_WITH_ARGS(HintingPreferenceToStr, hintingPreferenceToStr, (initHintingPreferenceToStr()))
+Q_GLOBAL_STATIC_WITH_ARGS(HintingPreferenceToStr,
+                          hintingPreferenceToStr,
+                          (initHintingPreferenceToStr()))
 
 typedef QMap<QFont::StyleStrategy, QString> StyleStrategyToStr;
 
 inline StyleStrategyToStr initStyleStrategyToStr()
 {
-    StyleStrategyToStr styleStrategyToStr;
-    styleStrategyToStr[QFont::PreferDefault] = "PreferDefault";
-    styleStrategyToStr[QFont::PreferBitmap] = "PreferBitmap";
-    styleStrategyToStr[QFont::PreferDevice] = "PreferDevice";
-    styleStrategyToStr[QFont::PreferOutline] = "PreferOutline";
-    styleStrategyToStr[QFont::ForceOutline] = "ForceOutline";
-    styleStrategyToStr[QFont::PreferMatch] = "PreferMatch";
-    styleStrategyToStr[QFont::PreferQuality] = "PreferQuality";
-    styleStrategyToStr[QFont::PreferAntialias] = "PreferAntialias";
-    styleStrategyToStr[QFont::NoAntialias] = "NoAntialias";
-    styleStrategyToStr[QFont::OpenGLCompatible] = "OpenGLCompatible";
-    styleStrategyToStr[QFont::ForceIntegerMetrics] = "ForceIntegerMetrics";
-    styleStrategyToStr[QFont::NoSubpixelAntialias] = "NoSubpixelAntialias";
-    styleStrategyToStr[QFont::NoFontMerging] = "NoFontMerging";
+    StyleStrategyToStr styleStrategyToStr {
+        {QFont::PreferDefault      , "PreferDefault"      },
+        {QFont::PreferBitmap       , "PreferBitmap"       },
+        {QFont::PreferDevice       , "PreferDevice"       },
+        {QFont::PreferOutline      , "PreferOutline"      },
+        {QFont::ForceOutline       , "ForceOutline"       },
+        {QFont::PreferMatch        , "PreferMatch"        },
+        {QFont::PreferQuality      , "PreferQuality"      },
+        {QFont::PreferAntialias    , "PreferAntialias"    },
+        {QFont::NoAntialias        , "NoAntialias"        },
+        {QFont::OpenGLCompatible   , "OpenGLCompatible"   },
+        {QFont::ForceIntegerMetrics, "ForceIntegerMetrics"},
+        {QFont::NoSubpixelAntialias, "NoSubpixelAntialias"},
+        {QFont::NoFontMerging      , "NoFontMerging"      }
+    };
 
     return styleStrategyToStr;
 }
 
-Q_GLOBAL_STATIC_WITH_ARGS(StyleStrategyToStr, styleStrategyToStr, (initStyleStrategyToStr()))
+Q_GLOBAL_STATIC_WITH_ARGS(StyleStrategyToStr,
+                          styleStrategyToStr,
+                          (initStyleStrategyToStr()))
+
+class CharifyElementPrivate
+{
+    public:
+        CharifyElement::ColorMode m_mode;
+        QString m_charTable;
+        QFont m_font;
+        QRgb m_foregroundColor;
+        QRgb m_backgroundColor;
+        QVector<Character> m_characters;
+        QSize m_fontSize;
+        QMutex m_mutex;
+        bool m_reversed;
+
+        CharifyElementPrivate():
+            m_mode(CharifyElement::ColorModeNatural),
+            m_font(QApplication::font()),
+            m_foregroundColor(qRgb(255, 255, 255)),
+            m_backgroundColor(qRgb(0, 0, 0)),
+            m_reversed(false)
+        {
+        }
+};
 
 CharifyElement::CharifyElement(): AkElement()
 {
-    this->m_mode = ColorModeNatural;
+    this->d = new CharifyElementPrivate;
 
     for (int i = 32; i < 127; i++)
-        this->m_charTable.append(QChar(i));
+        this->d->m_charTable.append(QChar(i));
 
-    this->m_font = QApplication::font();
-    this->m_font.setHintingPreference(QFont::PreferFullHinting);
-    this->m_font.setStyleStrategy(QFont::NoAntialias);
-    this->m_foregroundColor = qRgb(255, 255, 255);
-    this->m_backgroundColor = qRgb(0, 0, 0);
-    this->m_reversed = false;
+    this->d->m_font.setHintingPreference(QFont::PreferFullHinting);
+    this->d->m_font.setStyleStrategy(QFont::NoAntialias);
 
     this->updateCharTable();
 
@@ -123,44 +156,51 @@ CharifyElement::CharifyElement(): AkElement()
                      &CharifyElement::updateCharTable);
 }
 
+CharifyElement::~CharifyElement()
+{
+    delete this->d;
+}
+
 QString CharifyElement::mode() const
 {
-    return colorModeToStr->value(this->m_mode);
+    return colorModeToStr->value(this->d->m_mode);
 }
 
 QString CharifyElement::charTable() const
 {
-    return this->m_charTable;
+    return this->d->m_charTable;
 }
 
 QFont CharifyElement::font() const
 {
-    return this->m_font;
+    return this->d->m_font;
 }
 
 QString CharifyElement::hintingPreference() const
 {
-    return hintingPreferenceToStr->value(this->m_font.hintingPreference(), "PreferFullHinting");
+    return hintingPreferenceToStr->value(this->d->m_font.hintingPreference(),
+                                         "PreferFullHinting");
 }
 
 QString CharifyElement::styleStrategy() const
 {
-    return styleStrategyToStr->value(this->m_font.styleStrategy(), "NoAntialias");
+    return styleStrategyToStr->value(this->d->m_font.styleStrategy(),
+                                     "NoAntialias");
 }
 
 QRgb CharifyElement::foregroundColor() const
 {
-    return this->m_foregroundColor;
+    return this->d->m_foregroundColor;
 }
 
 QRgb CharifyElement::backgroundColor() const
 {
-    return this->m_backgroundColor;
+    return this->d->m_backgroundColor;
 }
 
 bool CharifyElement::reversed() const
 {
-    return this->m_reversed;
+    return this->d->m_reversed;
 }
 
 QSize CharifyElement::fontSize(const QString &chrTable, const QFont &font) const
@@ -205,7 +245,7 @@ int CharifyElement::imageWeight(const QImage &image, bool reversed) const
     int weight = 0;
 
     for (int y = 0; y < image.height(); y++) {
-        const QRgb *imageLine = reinterpret_cast<const QRgb *>(image.constScanLine(y));
+        auto imageLine = reinterpret_cast<const QRgb *>(image.constScanLine(y));
 
         for (int x = 0; x < image.width(); x++)
             weight += qGray(imageLine[x]);
@@ -231,7 +271,8 @@ QString CharifyElement::controlInterfaceProvide(const QString &controlId) const
     return QString("qrc:/Charify/share/qml/main.qml");
 }
 
-void CharifyElement::controlInterfaceConfigure(QQmlContext *context, const QString &controlId) const
+void CharifyElement::controlInterfaceConfigure(QQmlContext *context,
+                                               const QString &controlId) const
 {
     Q_UNUSED(controlId)
 
@@ -243,25 +284,25 @@ void CharifyElement::setMode(const QString &mode)
 {
     ColorMode modeEnum = colorModeToStr->key(mode, ColorModeNatural);
 
-    if (this->m_mode == modeEnum)
+    if (this->d->m_mode == modeEnum)
         return;
 
-    this->m_mode = modeEnum;
+    this->d->m_mode = modeEnum;
     emit this->modeChanged(mode);
 }
 
 void CharifyElement::setCharTable(const QString &charTable)
 {
-    if (this->m_charTable == charTable)
+    if (this->d->m_charTable == charTable)
         return;
 
-    this->m_charTable = charTable;
+    this->d->m_charTable = charTable;
     emit this->charTableChanged(charTable);
 }
 
 void CharifyElement::setFont(const QFont &font)
 {
-    if (this->m_font == font)
+    if (this->d->m_font == font)
         return;
 
     QFont::HintingPreference hp =
@@ -271,9 +312,9 @@ void CharifyElement::setFont(const QFont &font)
             styleStrategyToStr->key(this->styleStrategy(),
                                     QFont::NoAntialias);
 
-    this->m_font = font;
-    this->m_font.setHintingPreference(hp);
-    this->m_font.setStyleStrategy(ss);
+    this->d->m_font = font;
+    this->d->m_font.setHintingPreference(hp);
+    this->d->m_font.setStyleStrategy(ss);
     emit this->fontChanged(font);
 }
 
@@ -283,10 +324,10 @@ void CharifyElement::setHintingPreference(const QString &hintingPreference)
             hintingPreferenceToStr->key(hintingPreference,
                                         QFont::PreferFullHinting);
 
-    if (this->m_font.hintingPreference() == hp)
+    if (this->d->m_font.hintingPreference() == hp)
         return;
 
-    this->m_font.setHintingPreference(hp);
+    this->d->m_font.setHintingPreference(hp);
     emit hintingPreferenceChanged(hintingPreference);
 }
 
@@ -296,37 +337,37 @@ void CharifyElement::setStyleStrategy(const QString &styleStrategy)
             styleStrategyToStr->key(styleStrategy,
                                     QFont::NoAntialias);
 
-    if (this->m_font.styleStrategy() == ss)
+    if (this->d->m_font.styleStrategy() == ss)
         return;
 
-    this->m_font.setStyleStrategy(ss);
+    this->d->m_font.setStyleStrategy(ss);
     emit styleStrategyChanged(styleStrategy);
 }
 
 void CharifyElement::setForegroundColor(QRgb foregroundColor)
 {
-    if (this->m_foregroundColor == foregroundColor)
+    if (this->d->m_foregroundColor == foregroundColor)
         return;
 
-    this->m_foregroundColor = foregroundColor;
+    this->d->m_foregroundColor = foregroundColor;
     emit this->foregroundColorChanged(foregroundColor);
 }
 
 void CharifyElement::setBackgroundColor(QRgb backgroundColor)
 {
-    if (this->m_backgroundColor == backgroundColor)
+    if (this->d->m_backgroundColor == backgroundColor)
         return;
 
-    this->m_backgroundColor = backgroundColor;
+    this->d->m_backgroundColor = backgroundColor;
     emit this->backgroundColorChanged(backgroundColor);
 }
 
 void CharifyElement::setReversed(bool reversed)
 {
-    if (this->m_reversed == reversed)
+    if (this->d->m_reversed == reversed)
         return;
 
-    this->m_reversed = reversed;
+    this->d->m_reversed = reversed;
     emit this->reversedChanged(reversed);
 }
 
@@ -384,10 +425,10 @@ AkPacket CharifyElement::iStream(const AkPacket &packet)
 
     src = src.convertToFormat(QImage::Format_ARGB32);
 
-    this->m_mutex.lock();
-    QSize fontSize = this->m_fontSize;
-    QVector<Character> characters = this->m_characters;
-    this->m_mutex.unlock();
+    this->d->m_mutex.lock();
+    QSize fontSize = this->d->m_fontSize;
+    QVector<Character> characters = this->d->m_characters;
+    this->d->m_mutex.unlock();
 
     int textWidth = src.width() / fontSize.width();
     int textHeight = src.height() / fontSize.height();
@@ -399,7 +440,8 @@ AkPacket CharifyElement::iStream(const AkPacket &packet)
 
     if (characters.isEmpty()) {
         oFrame.fill(qRgb(0, 0, 0));
-        AkPacket oPacket = AkUtils::imageToPacket(oFrame.scaled(src.size()), packet);
+        auto oPacket = AkUtils::imageToPacket(oFrame.scaled(src.size()),
+                                              packet);
         akSend(oPacket)
     }
 
@@ -414,61 +456,67 @@ AkPacket CharifyElement::iStream(const AkPacket &packet)
         int x = fontSize.width() * (i % textWidth);
         int y = fontSize.height() * (i / textWidth);
 
-        if (this->m_mode == ColorModeFixed)
+        if (this->d->m_mode == ColorModeFixed)
             painter.drawImage(x, y, characters[qGray(textImageBits[i])].image);
         else {
             QChar chr = characters[qGray(textImageBits[i])].chr;
             QRgb foreground = textImageBits[i];
-            QImage image = this->drawChar(chr, this->m_font, fontSize, foreground, this->m_backgroundColor);
+            QImage image = this->drawChar(chr,
+                                          this->d->m_font,
+                                          fontSize,
+                                          foreground,
+                                          this->d->m_backgroundColor);
             painter.drawImage(x, y, image);
         }
     }
 
     painter.end();
 
-    AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
+    auto oPacket = AkUtils::imageToPacket(oFrame, packet);
     akSend(oPacket)
 }
 
 void CharifyElement::updateCharTable()
 {
     QList<Character> characters;
-    QSize fontSize = this->fontSize(this->m_charTable, this->m_font);
+    QSize fontSize = this->fontSize(this->d->m_charTable, this->d->m_font);
 
     QVector<QRgb> colorTable(256);
 
     for (int i = 0; i < 256; i++)
         colorTable[i] = qRgb(i, i, i);
 
-    for (const QChar &chr: this->m_charTable) {
+    for (const QChar &chr: this->d->m_charTable) {
         QImage image = this->drawChar(chr,
-                                      this->m_font,
+                                      this->d->m_font,
                                       fontSize,
-                                      this->m_foregroundColor,
-                                      this->m_backgroundColor);
-        int weight = this->imageWeight(image, this->m_reversed);
+                                      this->d->m_foregroundColor,
+                                      this->d->m_backgroundColor);
+        int weight = this->imageWeight(image, this->d->m_reversed);
 
-        if (this->m_mode == ColorModeFixed)
+        if (this->d->m_mode == ColorModeFixed)
             characters.append(Character(chr, image, weight));
         else
             characters.append(Character(chr, QImage(), weight));
     }
 
-    QMutexLocker(&this->m_mutex);
+    QMutexLocker(&this->d->m_mutex);
 
-    this->m_fontSize = fontSize;
+    this->d->m_fontSize = fontSize;
 
     if (characters.isEmpty()) {
-        this->m_characters.clear();
+        this->d->m_characters.clear();
 
         return;
     }
 
-    this->m_characters.resize(256);
+    this->d->m_characters.resize(256);
     std::sort(characters.begin(), characters.end(), this->chrLessThan);
 
     for (int i = 0; i < 256; i++) {
         int c = i * (characters.size() - 1) / 255;
-        this->m_characters[i] = characters[c];
+        this->d->m_characters[i] = characters[c];
     }
 }
+
+#include "moc_charifyelement.cpp"

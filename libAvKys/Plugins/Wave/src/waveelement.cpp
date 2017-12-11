@@ -17,16 +17,38 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QImage>
+#include <QQmlContext>
 #include <QtMath>
+#include <QMutex>
+#include <akutils.h>
+#include <akpacket.h>
 
 #include "waveelement.h"
 
+class WaveElementPrivate
+{
+    public:
+        qreal m_amplitude;
+        qreal m_frequency;
+        qreal m_phase;
+        QRgb m_background;
+        QSize m_frameSize;
+        QVector<int> m_sineMap;
+        QMutex m_mutex;
+
+        WaveElementPrivate():
+            m_amplitude(0.12),
+            m_frequency(8),
+            m_phase(0.0),
+            m_background(qRgb(0, 0, 0))
+        {
+        }
+};
+
 WaveElement::WaveElement(): AkElement()
 {
-    this->m_amplitude = 0.12;
-    this->m_frequency = 8;
-    this->m_phase = 0.0;
-    this->m_background = qRgb(0, 0, 0);
+    this->d = new WaveElementPrivate;
 
     QObject::connect(this,
                      &WaveElement::amplitudeChanged,
@@ -50,24 +72,30 @@ WaveElement::WaveElement(): AkElement()
                      &WaveElement::updateSineMap);
 }
 
+WaveElement::~WaveElement()
+{
+
+    delete this->d;
+}
+
 qreal WaveElement::amplitude() const
 {
-    return this->m_amplitude;
+    return this->d->m_amplitude;
 }
 
 qreal WaveElement::frequency() const
 {
-    return this->m_frequency;
+    return this->d->m_frequency;
 }
 
 qreal WaveElement::phase() const
 {
-    return this->m_phase;
+    return this->d->m_phase;
 }
 
 QRgb WaveElement::background() const
 {
-    return this->m_background;
+    return this->d->m_background;
 }
 
 QString WaveElement::controlInterfaceProvide(const QString &controlId) const
@@ -88,37 +116,37 @@ void WaveElement::controlInterfaceConfigure(QQmlContext *context,
 
 void WaveElement::setAmplitude(qreal amplitude)
 {
-    if (qFuzzyCompare(amplitude, this->m_amplitude))
+    if (qFuzzyCompare(amplitude, this->d->m_amplitude))
         return;
 
-    this->m_amplitude = amplitude;
+    this->d->m_amplitude = amplitude;
     emit this->amplitudeChanged(amplitude);
 }
 
 void WaveElement::setFrequency(qreal frequency)
 {
-    if (qFuzzyCompare(frequency, this->m_frequency))
+    if (qFuzzyCompare(frequency, this->d->m_frequency))
         return;
 
-    this->m_frequency = frequency;
+    this->d->m_frequency = frequency;
     emit this->frequencyChanged(frequency);
 }
 
 void WaveElement::setPhase(qreal phase)
 {
-    if (qFuzzyCompare(this->m_phase, phase))
+    if (qFuzzyCompare(this->d->m_phase, phase))
         return;
 
-    this->m_phase = phase;
+    this->d->m_phase = phase;
     emit this->phaseChanged(phase);
 }
 
 void WaveElement::setBackground(QRgb background)
 {
-    if (background == this->m_background)
+    if (background == this->d->m_background)
         return;
 
-    this->m_background = background;
+    this->d->m_background = background;
     emit this->backgroundChanged(background);
 }
 
@@ -150,10 +178,10 @@ AkPacket WaveElement::iStream(const AkPacket &packet)
         return AkPacket();
 
     src = src.convertToFormat(QImage::Format_ARGB32);
-    qreal amplitude = this->m_amplitude;
+    qreal amplitude = this->d->m_amplitude;
 
     QImage oFrame(src.width(), src.height(), src.format());
-    oFrame.fill(this->m_background);
+    oFrame.fill(this->d->m_background);
 
     if (amplitude <= 0.0)
         akSend(packet)
@@ -162,14 +190,14 @@ AkPacket WaveElement::iStream(const AkPacket &packet)
         akSend(oPacket)
     }
 
-    if (src.size() != this->m_frameSize) {
-        this->m_frameSize = src.size();
+    if (src.size() != this->d->m_frameSize) {
+        this->d->m_frameSize = src.size();
         emit this->frameSizeChanged(src.size());
     }
 
-    this->m_mutex.lock();
-    QVector<int> sineMap(this->m_sineMap);
-    this->m_mutex.unlock();
+    this->d->m_mutex.lock();
+    QVector<int> sineMap(this->d->m_sineMap);
+    this->d->m_mutex.unlock();
 
     if (sineMap.isEmpty())
         akSend(packet)
@@ -178,11 +206,10 @@ AkPacket WaveElement::iStream(const AkPacket &packet)
         // Get input line.
         int yi = int(y / (1.0 - amplitude));
 
-        if (yi < 0
-            || yi >= src.height())
+        if (yi < 0 || yi >= src.height())
             continue;
 
-        const QRgb *iLine = reinterpret_cast<const QRgb *>(src.constScanLine(yi));
+        auto iLine = reinterpret_cast<const QRgb *>(src.constScanLine(yi));
 
         for (int x = 0; x < oFrame.width(); x++) {
             // Get output line.
@@ -203,21 +230,23 @@ AkPacket WaveElement::iStream(const AkPacket &packet)
 
 void WaveElement::updateSineMap()
 {
-    if (this->m_frameSize.isEmpty())
+    if (this->d->m_frameSize.isEmpty())
         return;
 
-    int width = this->m_frameSize.width();
-    int height = this->m_frameSize.height();
+    int width = this->d->m_frameSize.width();
+    int height = this->d->m_frameSize.height();
     QVector<int> sineMap(width);
-    qreal phase = 2.0 * M_PI * this->m_phase;
+    qreal phase = 2.0 * M_PI * this->d->m_phase;
 
     for (int x = 0; x < width; x++)
-        sineMap[x] = int(0.5 * this->m_amplitude * height
-                         * (sin(this->m_frequency * 2.0 * M_PI * x / width
+        sineMap[x] = int(0.5 * this->d->m_amplitude * height
+                         * (sin(this->d->m_frequency * 2.0 * M_PI * x / width
                                 + phase)
                             + 1.0));
 
-    this->m_mutex.lock();
-    this->m_sineMap = sineMap;
-    this->m_mutex.unlock();
+    this->d->m_mutex.lock();
+    this->d->m_sineMap = sineMap;
+    this->d->m_mutex.unlock();
 }
+
+#include "moc_waveelement.cpp"

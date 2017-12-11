@@ -20,9 +20,10 @@
 #ifndef CARTOONELEMENT_H
 #define CARTOONELEMENT_H
 
-#include <QMutex>
-#include <ak.h>
-#include <akutils.h>
+#include <qrgb.h>
+#include <akelement.h>
+
+class CartoonElementPrivate;
 
 class CartoonElement: public AkElement
 {
@@ -76,48 +77,7 @@ class CartoonElement: public AkElement
         Q_INVOKABLE QSize scanSize() const;
 
     private:
-        int m_ncolors;
-        int m_colorDiff;
-        bool m_showEdges;
-        int m_thresholdLow;
-        int m_thresholdHi;
-        QRgb m_lineColor;
-        QSize m_scanSize;
-        QVector<QRgb> m_palette;
-        qint64 m_id;
-        qint64 m_lastTime;
-        QMutex m_mutex;
-
-        QVector<QRgb> palette(const QImage &img, int ncolors, int colorDiff);
-        QRgb nearestColor(int *index, int *diff, const QVector<QRgb> &palette, QRgb color) const;
-        QImage edges(const QImage &src, int thLow, int thHi, QRgb color) const;
-
-        inline int rgb24Torgb16(QRgb color)
-        {
-            return ((qRed(color) >> 3) << 11)
-                    | ((qGreen(color) >> 2) << 5)
-                    | (qBlue(color) >> 3);
-        }
-
-        inline void rgb16Torgb24(int *r, int *g, int *b, int color)
-        {
-            *r = (color >> 11) & 0x1f;
-            *g = (color >> 5) & 0x3f;
-            *b = color & 0x1f;
-            *r = 0xff * *r / 0x1f;
-            *g = 0xff * *g / 0x3f;
-            *b = 0xff * *b / 0x1f;
-        }
-
-        inline QRgb rgb16Torgb24(int color)
-        {
-            int r;
-            int g;
-            int b;
-            rgb16Torgb24(&r, &g, &b, color);
-
-            return qRgb(r, g, b);
-        }
+        CartoonElementPrivate *d;
 
     protected:
         QString controlInterfaceProvide(const QString &controlId) const;

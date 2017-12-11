@@ -20,8 +20,9 @@
 #ifndef SHAGADELICELEMENT_H
 #define SHAGADELICELEMENT_H
 
-#include <ak.h>
-#include <akutils.h>
+#include <akelement.h>
+
+class ShagadelicElementPrivate;
 
 class ShagadelicElement: public AkElement
 {
@@ -34,24 +35,12 @@ class ShagadelicElement: public AkElement
 
     public:
         explicit ShagadelicElement();
+        ~ShagadelicElement();
 
         Q_INVOKABLE quint32 mask() const;
 
     private:
-        quint32 m_mask;
-
-        int m_rx;
-        int m_ry;
-        int m_bx;
-        int m_by;
-        int m_rvx;
-        int m_rvy;
-        int m_bvx;
-        int m_bvy;
-        uchar m_phase;
-        QImage m_ripple;
-        QImage m_spiral;
-        QSize m_curSize;
+        ShagadelicElementPrivate *d;
 
         QImage makeRipple(const QSize &size) const;
         QImage makeSpiral(const QSize &size) const;

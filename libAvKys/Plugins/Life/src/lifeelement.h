@@ -20,8 +20,10 @@
 #ifndef LIFEELEMENT_H
 #define LIFEELEMENT_H
 
-#include <ak.h>
-#include <akutils.h>
+#include <qrgb.h>
+#include <akelement.h>
+
+class LifeElementPrivate;
 
 class LifeElement: public AkElement
 {
@@ -44,19 +46,14 @@ class LifeElement: public AkElement
 
     public:
         explicit LifeElement();
+        ~LifeElement();
 
         Q_INVOKABLE QRgb lifeColor() const;
         Q_INVOKABLE int threshold() const;
         Q_INVOKABLE int lumaThreshold() const;
 
     private:
-        QRgb m_lifeColor;
-        int m_threshold;
-        int m_lumaThreshold;
-
-        QSize m_frameSize;
-        QImage m_prevFrame;
-        QImage m_lifeBuffer;
+        LifeElementPrivate *d;
 
         QImage imageDiff(const QImage &img1,
                          const QImage &img2,

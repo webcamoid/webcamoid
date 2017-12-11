@@ -20,8 +20,9 @@
 #ifndef CHANGEHSLELEMENT_H
 #define CHANGEHSLELEMENT_H
 
-#include <ak.h>
-#include <akutils.h>
+#include <akelement.h>
+
+class ChangeHSLElementPrivate;
 
 class ChangeHSLElement: public AkElement
 {
@@ -34,11 +35,12 @@ class ChangeHSLElement: public AkElement
 
     public:
         explicit ChangeHSLElement();
+        ~ChangeHSLElement();
 
         Q_INVOKABLE QVariantList kernel() const;
 
     private:
-        QVector<qreal> m_kernel;
+        ChangeHSLElementPrivate *d;
 
     protected:
         QString controlInterfaceProvide(const QString &controlId) const;

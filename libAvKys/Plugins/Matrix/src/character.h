@@ -21,7 +21,6 @@
 #define CHARACTER_H
 
 #include <QImage>
-#include <qrgb.h>
 
 class Character
 {

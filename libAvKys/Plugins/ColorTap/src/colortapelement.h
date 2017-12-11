@@ -20,9 +20,9 @@
 #ifndef COLORTAPELEMENT_H
 #define COLORTAPELEMENT_H
 
-#include <QMutex>
-#include <ak.h>
-#include <akutils.h>
+#include <akelement.h>
+
+class ColorTapElementPrivate;
 
 class ColorTapElement: public AkElement
 {
@@ -35,13 +35,12 @@ class ColorTapElement: public AkElement
 
     public:
         explicit ColorTapElement();
+        ~ColorTapElement();
 
         Q_INVOKABLE QString table() const;
 
     private:
-        QImage m_table;
-        QString m_tableName;
-        QMutex m_mutex;
+        ColorTapElementPrivate *d;
 
     protected:
         QString controlInterfaceProvide(const QString &controlId) const;

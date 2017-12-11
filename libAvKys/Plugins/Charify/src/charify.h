@@ -20,7 +20,7 @@
 #ifndef CHARIFY_H
 #define CHARIFY_H
 
-#include <ak.h>
+#include <akplugin.h>
 
 class Charify: public QObject, public AkPlugin
 {

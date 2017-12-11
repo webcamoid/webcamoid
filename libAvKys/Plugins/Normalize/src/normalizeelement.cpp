@@ -17,6 +17,10 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QImage>
+#include <akutils.h>
+#include <akpacket.h>
+
 #include "normalizeelement.h"
 #include "pixelstructs.h"
 
@@ -163,3 +167,5 @@ AkPacket NormalizeElement::iStream(const AkPacket &packet)
     AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
     akSend(oPacket)
 }
+
+#include "moc_normalizeelement.cpp"

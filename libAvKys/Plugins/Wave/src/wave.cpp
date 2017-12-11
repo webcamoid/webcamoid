@@ -34,3 +34,5 @@ QStringList Wave::keys() const
 {
     return QStringList();
 }
+
+#include "moc_wave.cpp"

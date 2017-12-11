@@ -20,7 +20,7 @@
 #ifndef CARTOON_H
 #define CARTOON_H
 
-#include <ak.h>
+#include <akplugin.h>
 
 class Cartoon: public QObject, public AkPlugin
 {

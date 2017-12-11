@@ -34,3 +34,5 @@ QStringList Nervous::keys() const
 {
     return QStringList();
 }
+
+#include "moc_nervous.cpp"

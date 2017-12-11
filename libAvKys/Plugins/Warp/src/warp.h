@@ -20,7 +20,7 @@
 #ifndef WARP_H
 #define WARP_H
 
-#include <ak.h>
+#include <akplugin.h>
 
 class Warp: public QObject, public AkPlugin
 {

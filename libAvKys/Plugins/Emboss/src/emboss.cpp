@@ -34,3 +34,5 @@ QStringList Emboss::keys() const
 {
     return QStringList();
 }
+
+#include "moc_emboss.cpp"

@@ -17,28 +17,50 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QPainter>
 #include <QTime>
+#include <QPainter>
+#include <QQmlContext>
+#include <akutils.h>
+#include <akpacket.h>
 
 #include "scrollelement.h"
 
+class ScrollElementPrivate
+{
+    public:
+        qreal m_speed;
+        qreal m_noise;
+        qreal m_offset;
+        QSize m_curSize;
+
+        ScrollElementPrivate():
+            m_speed(0.25),
+            m_noise(0.1),
+            m_offset(0.0)
+        {
+        }
+};
+
 ScrollElement::ScrollElement(): AkElement()
 {
-    this->m_speed = 0.25;
-    this->m_noise = 0.1;
-    this->m_offset = 0.0;
+    this->d = new ScrollElementPrivate;
 
     qsrand(uint(QTime::currentTime().msec()));
 }
 
+ScrollElement::~ScrollElement()
+{
+    delete this->d;
+}
+
 qreal ScrollElement::speed() const
 {
-    return this->m_speed;
+    return this->d->m_speed;
 }
 
 qreal ScrollElement::noise() const
 {
-    return this->m_noise;
+    return this->d->m_noise;
 }
 
 QImage ScrollElement::generateNoise(const QSize &size, qreal persent)
@@ -77,19 +99,19 @@ void ScrollElement::controlInterfaceConfigure(QQmlContext *context,
 
 void ScrollElement::setSpeed(qreal speed)
 {
-    if (qFuzzyCompare(speed, this->m_speed))
+    if (qFuzzyCompare(speed, this->d->m_speed))
         return;
 
-    this->m_speed = speed;
+    this->d->m_speed = speed;
     emit this->speedChanged(speed);
 }
 
 void ScrollElement::setNoise(qreal noise)
 {
-    if (qFuzzyCompare(this->m_noise, noise))
+    if (qFuzzyCompare(this->d->m_noise, noise))
         return;
 
-    this->m_noise = noise;
+    this->d->m_noise = noise;
     emit this->noiseChanged(noise);
 }
 
@@ -113,12 +135,12 @@ AkPacket ScrollElement::iStream(const AkPacket &packet)
     src = src.convertToFormat(QImage::Format_ARGB32);
     QImage oFrame = QImage(src.size(), src.format());
 
-    if (src.size() != this->m_curSize) {
-        this->m_offset = 0.0;
-        this->m_curSize = src.size();
+    if (src.size() != this->d->m_curSize) {
+        this->d->m_offset = 0.0;
+        this->d->m_curSize = src.size();
     }
 
-    int offset = int(this->m_offset);
+    int offset = int(this->d->m_offset);
 
     memcpy(oFrame.scanLine(0),
            src.constScanLine(src.height() - offset - 1),
@@ -130,17 +152,19 @@ AkPacket ScrollElement::iStream(const AkPacket &packet)
 
     QPainter painter;
     painter.begin(&oFrame);
-    QImage noise = this->generateNoise(oFrame.size(), this->m_noise);
+    QImage noise = this->generateNoise(oFrame.size(), this->d->m_noise);
     painter.drawImage(0, 0, noise);
     painter.end();
 
-    this->m_offset += this->m_speed * oFrame.height();
+    this->d->m_offset += this->d->m_speed * oFrame.height();
 
-    if (this->m_offset >= qreal(src.height()))
-        this->m_offset = 0.0;
-    else if (this->m_offset < 0.0)
-        this->m_offset = src.height();
+    if (this->d->m_offset >= qreal(src.height()))
+        this->d->m_offset = 0.0;
+    else if (this->d->m_offset < 0.0)
+        this->d->m_offset = src.height();
 
     AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
     akSend(oPacket)
 }
+
+#include "moc_scrollelement.cpp"

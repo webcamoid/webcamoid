@@ -34,3 +34,5 @@ QStringList Swirl::keys() const
 {
     return QStringList();
 }
+
+#include "moc_swirl.cpp"

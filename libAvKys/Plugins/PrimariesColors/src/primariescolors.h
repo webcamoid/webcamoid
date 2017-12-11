@@ -20,7 +20,7 @@
 #ifndef PRIMARIESCOLORS_H
 #define PRIMARIESCOLORS_H
 
-#include <ak.h>
+#include <akplugin.h>
 
 class PrimariesColors: public QObject, public AkPlugin
 {

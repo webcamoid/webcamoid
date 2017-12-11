@@ -20,8 +20,9 @@
 #ifndef WARHOLELEMENT_H
 #define WARHOLELEMENT_H
 
-#include <ak.h>
-#include <akutils.h>
+#include <akelement.h>
+
+class WarholElementPrivate;
 
 class WarholElement: public AkElement
 {
@@ -34,12 +35,12 @@ class WarholElement: public AkElement
 
     public:
         explicit WarholElement();
+        ~WarholElement();
 
         Q_INVOKABLE int nFrames() const;
 
     private:
-        int m_nFrames;
-        QVector<quint32> m_colorTable;
+        WarholElementPrivate *d;
 
     protected:
         QString controlInterfaceProvide(const QString &controlId) const;

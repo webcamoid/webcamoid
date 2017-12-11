@@ -20,7 +20,7 @@
 #ifndef VIGNETTE_H
 #define VIGNETTE_H
 
-#include <ak.h>
+#include <akplugin.h>
 
 class Vignette: public QObject, public AkPlugin
 {

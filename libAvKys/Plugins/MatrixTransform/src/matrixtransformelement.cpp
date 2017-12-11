@@ -17,21 +17,42 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QVariant>
+#include <QVector>
+#include <QImage>
+#include <QMutex>
+#include <QQmlContext>
+#include <akutils.h>
+#include <akpacket.h>
+
 #include "matrixtransformelement.h"
+
+class MatrixTransformElementPrivate
+{
+    public:
+        QVector<qreal> m_kernel;
+        QMutex m_mutex;
+};
 
 MatrixTransformElement::MatrixTransformElement(): AkElement()
 {
-    this->m_kernel = {
+    this->d = new MatrixTransformElementPrivate;
+    this->d->m_kernel = {
         1, 0, 0,
         0, 1, 0
     };
+}
+
+MatrixTransformElement::~MatrixTransformElement()
+{
+    delete this->d;
 }
 
 QVariantList MatrixTransformElement::kernel() const
 {
     QVariantList kernel;
 
-    for (const qreal &e: this->m_kernel)
+    for (const qreal &e: this->d->m_kernel)
         kernel << e;
 
     return kernel;
@@ -60,11 +81,11 @@ void MatrixTransformElement::setKernel(const QVariantList &kernel)
     for (const QVariant &e: kernel)
         k << e.toReal();
 
-    if (this->m_kernel == k)
+    if (this->d->m_kernel == k)
         return;
 
-    QMutexLocker(&this->m_mutex);
-    this->m_kernel = k;
+    QMutexLocker(&this->d->m_mutex);
+    this->d->m_kernel = k;
     emit this->kernelChanged(kernel);
 }
 
@@ -88,9 +109,9 @@ AkPacket MatrixTransformElement::iStream(const AkPacket &packet)
     src = src.convertToFormat(QImage::Format_ARGB32);
     QImage oFrame = QImage(src.size(), src.format());
 
-    this->m_mutex.lock();
-    QVector<qreal> kernel = this->m_kernel;
-    this->m_mutex.unlock();
+    this->d->m_mutex.lock();
+    QVector<qreal> kernel = this->d->m_kernel;
+    this->d->m_mutex.unlock();
 
     qreal det = kernel[0] * kernel[4] - kernel[1] * kernel[3];
 
@@ -119,3 +140,5 @@ AkPacket MatrixTransformElement::iStream(const AkPacket &packet)
     AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
     akSend(oPacket)
 }
+
+#include "moc_matrixtransformelement.cpp"

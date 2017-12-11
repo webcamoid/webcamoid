@@ -66,9 +66,11 @@ class AkQml: public QQuickItem
         Q_INVOKABLE QObject *newElement(const QString &pluginId,
                                         const QString &elementName={}) const;
 
+        Q_INVOKABLE QVariant varFrac(QObject *frac) const;
         Q_INVOKABLE QVariant varFrac(AkFrac *frac) const;
         Q_INVOKABLE QVariant varFrac(qint64 num, qint64 den) const;
 
+        Q_INVOKABLE QVariant varCaps(QObject *caps) const;
         Q_INVOKABLE QVariant varCaps(AkCaps *caps) const;
 };
 

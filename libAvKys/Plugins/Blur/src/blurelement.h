@@ -20,10 +20,9 @@
 #ifndef BLURELEMENT_H
 #define BLURELEMENT_H
 
-#include <ak.h>
-#include <akutils.h>
+#include <akelement.h>
 
-#include "pixel.h"
+class BlurElementPrivate;
 
 class BlurElement: public AkElement
 {
@@ -36,15 +35,12 @@ class BlurElement: public AkElement
 
     public:
         explicit BlurElement();
+        ~BlurElement();
 
         Q_INVOKABLE int radius() const;
 
     private:
-        int m_radius;
-
-        void integralImage(const QImage &image,
-                           int oWidth, int oHeight,
-                           PixelU32 *integral);
+        BlurElementPrivate *d;
 
     protected:
         QString controlInterfaceProvide(const QString &controlId) const;

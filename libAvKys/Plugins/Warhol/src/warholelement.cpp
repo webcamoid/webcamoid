@@ -17,22 +17,44 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QImage>
+#include <QQmlContext>
+#include <akutils.h>
+#include <akpacket.h>
+
 #include "warholelement.h"
+
+class WarholElementPrivate
+{
+    public:
+        int m_nFrames;
+        QVector<quint32> m_colorTable;
+
+        WarholElementPrivate():
+            m_nFrames(3)
+        {
+        }
+};
 
 WarholElement::WarholElement(): AkElement()
 {
-    this->m_nFrames = 3;
+    this->d = new WarholElementPrivate;
 
-    this->m_colorTable = {
+    this->d->m_colorTable = {
         0x000080, 0x008000, 0x800000,
         0x00e000, 0x808000, 0x800080,
         0x808080, 0x008080, 0xe0e000
     };
 }
 
+WarholElement::~WarholElement()
+{
+    delete this->d;
+}
+
 int WarholElement::nFrames() const
 {
-    return this->m_nFrames;
+    return this->d->m_nFrames;
 }
 
 QString WarholElement::controlInterfaceProvide(const QString &controlId) const
@@ -53,10 +75,10 @@ void WarholElement::controlInterfaceConfigure(QQmlContext *context,
 
 void WarholElement::setNFrames(int nFrames)
 {
-    if (this->m_nFrames == nFrames)
+    if (this->d->m_nFrames == nFrames)
         return;
 
-    this->m_nFrames = nFrames;
+    this->d->m_nFrames = nFrames;
     emit this->nFramesChanged(nFrames);
 }
 
@@ -74,7 +96,7 @@ AkPacket WarholElement::iStream(const AkPacket &packet)
 
     src = src.convertToFormat(QImage::Format_ARGB32);
     QImage oFrame = QImage(src.size(), src.format());
-    int nFrames = this->m_nFrames;
+    int nFrames = this->d->m_nFrames;
 
     for (int y = 0; y < src.height(); y++) {
         QRgb *oLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
@@ -85,12 +107,14 @@ AkPacket WarholElement::iStream(const AkPacket &packet)
             int i = ((y * nFrames) / src.height()) * nFrames +
                     ((x * nFrames) / src.width());
 
-            i = qBound(0, i, this->m_colorTable.size() - 1);
+            i = qBound(0, i, this->d->m_colorTable.size() - 1);
             const QRgb *iLine = reinterpret_cast<const QRgb *>(src.constScanLine(q));
-            oLine[x] = (iLine[p] ^ this->m_colorTable[i]) | 0xff000000;
+            oLine[x] = (iLine[p] ^ this->d->m_colorTable[i]) | 0xff000000;
         }
     }
 
     AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
     akSend(oPacket)
 }
+
+#include "moc_warholelement.cpp"

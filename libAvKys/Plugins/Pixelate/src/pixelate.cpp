@@ -34,3 +34,5 @@ QStringList Pixelate::keys() const
 {
     return QStringList();
 }
+
+#include "moc_pixelate.cpp"

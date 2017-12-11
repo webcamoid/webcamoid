@@ -20,10 +20,7 @@
 #ifndef EQUALIZEELEMENT_H
 #define EQUALIZEELEMENT_H
 
-#include <ak.h>
-#include <akutils.h>
-
-#include "pixelstructs.h"
+#include <akelement.h>
 
 class EqualizeElement: public AkElement
 {

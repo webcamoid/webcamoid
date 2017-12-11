@@ -20,7 +20,7 @@
 #ifndef EDGE_H
 #define EDGE_H
 
-#include <ak.h>
+#include <akplugin.h>
 
 class Edge: public QObject, public AkPlugin
 {

@@ -34,3 +34,5 @@ QStringList Cinema::keys() const
 {
     return QStringList();
 }
+
+#include "moc_cinema.cpp"

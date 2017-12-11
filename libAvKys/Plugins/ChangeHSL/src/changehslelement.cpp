@@ -17,24 +17,41 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QColor>
+#include <QVariant>
+#include <QImage>
+#include <QQmlContext>
+#include <akutils.h>
+#include <akpacket.h>
 
 #include "changehslelement.h"
 
+class ChangeHSLElementPrivate
+{
+    public:
+        QVector<qreal> m_kernel;
+};
+
 ChangeHSLElement::ChangeHSLElement(): AkElement()
 {
-    this->m_kernel = {
+    this->d = new ChangeHSLElementPrivate;
+
+    this->d->m_kernel = {
         1, 0, 0, 0,
         0, 1, 0, 0,
         0, 0, 1, 0
     };
 }
 
+ChangeHSLElement::~ChangeHSLElement()
+{
+    delete this->d;
+}
+
 QVariantList ChangeHSLElement::kernel() const
 {
     QVariantList kernel;
 
-    for (const qreal &e: this->m_kernel)
+    for (const qreal &e: this->d->m_kernel)
         kernel << e;
 
     return kernel;
@@ -63,10 +80,10 @@ void ChangeHSLElement::setKernel(const QVariantList &kernel)
     for (const QVariant &e: kernel)
         k << e.toReal();
 
-    if (this->m_kernel == k)
+    if (this->d->m_kernel == k)
         return;
 
-    this->m_kernel = k;
+    this->d->m_kernel = k;
     emit this->kernelChanged(kernel);
 }
 
@@ -83,7 +100,7 @@ void ChangeHSLElement::resetKernel()
 
 AkPacket ChangeHSLElement::iStream(const AkPacket &packet)
 {
-    if (this->m_kernel.size() < 12)
+    if (this->d->m_kernel.size() < 12)
         akSend(packet)
 
     QImage src = AkUtils::packetToImage(packet);
@@ -93,7 +110,7 @@ AkPacket ChangeHSLElement::iStream(const AkPacket &packet)
 
     src = src.convertToFormat(QImage::Format_ARGB32);
     QImage oFrame(src.size(), src.format());
-    QVector<qreal> kernel = this->m_kernel;
+    QVector<qreal> kernel = this->d->m_kernel;
 
     for (int y = 0; y < src.height(); y++) {
         const QRgb *srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
@@ -125,3 +142,5 @@ AkPacket ChangeHSLElement::iStream(const AkPacket &packet)
     AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
     akSend(oPacket)
 }
+
+#include "moc_changehslelement.cpp"

@@ -20,7 +20,7 @@
 #ifndef LIFE_H
 #define LIFE_H
 
-#include <ak.h>
+#include <akplugin.h>
 
 class Life: public QObject, public AkPlugin
 {

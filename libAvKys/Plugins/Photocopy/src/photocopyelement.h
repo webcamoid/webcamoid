@@ -20,8 +20,7 @@
 #ifndef PHOTOCOPYELEMENT_H
 #define PHOTOCOPYELEMENT_H
 
-#include <ak.h>
-#include <akutils.h>
+#include <akelement.h>
 
 class PhotocopyElement: public AkElement
 {

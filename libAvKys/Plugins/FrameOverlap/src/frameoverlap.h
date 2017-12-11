@@ -20,7 +20,7 @@
 #ifndef FRAMEOVERLAP_H
 #define FRAMEOVERLAP_H
 
-#include <ak.h>
+#include <akplugin.h>
 
 class FrameOverlap: public QObject, public AkPlugin
 {

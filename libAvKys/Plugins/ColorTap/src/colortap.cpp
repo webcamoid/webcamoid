@@ -34,3 +34,5 @@ QStringList ColorTap::keys() const
 {
     return QStringList();
 }
+
+#include "moc_colortap.cpp"

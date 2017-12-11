@@ -17,18 +17,40 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QImage>
+#include <QQmlContext>
 #include <QtMath>
+#include <akutils.h>
+#include <akpacket.h>
 
 #include "warpelement.h"
 
+class WarpElementPrivate
+{
+    public:
+        qreal m_ripples;
+        QSize m_frameSize;
+        QVector<qreal> m_phiTable;
+
+        WarpElementPrivate():
+            m_ripples(4)
+        {
+        }
+};
+
 WarpElement::WarpElement(): AkElement()
 {
-    this->m_ripples = 4;
+    this->d = new WarpElementPrivate;
+}
+
+WarpElement::~WarpElement()
+{
+    delete this->d;
 }
 
 qreal WarpElement::ripples() const
 {
-    return this->m_ripples;
+    return this->d->m_ripples;
 }
 
 QString WarpElement::controlInterfaceProvide(const QString &controlId) const
@@ -49,10 +71,10 @@ void WarpElement::controlInterfaceConfigure(QQmlContext *context,
 
 void WarpElement::setRipples(qreal ripples)
 {
-    if (qFuzzyCompare(this->m_ripples, ripples))
+    if (qFuzzyCompare(this->d->m_ripples, ripples))
         return;
 
-    this->m_ripples = ripples;
+    this->d->m_ripples = ripples;
     emit this->ripplesChanged(ripples);
 }
 
@@ -71,20 +93,20 @@ AkPacket WarpElement::iStream(const AkPacket &packet)
     src = src.convertToFormat(QImage::Format_ARGB32);
     QImage oFrame(src.size(), src.format());
 
-    if (src.size() != this->m_frameSize) {
+    if (src.size() != this->d->m_frameSize) {
         int cx = src.width() >> 1;
         int cy = src.height() >> 1;
 
         qreal k = 2.0 * M_PI / sqrt(cx * cx + cy * cy);
 
-        this->m_phiTable.clear();
+        this->d->m_phiTable.clear();
 
         for (int y = -cy; y < cy; y++)
             for (int x = -cx; x < cx; x++)
-                this->m_phiTable << k * sqrt(x * x + y * y);
+                this->d->m_phiTable << k * sqrt(x * x + y * y);
 
-        this->m_frameSize = src.size();
-        emit this->frameSizeChanged(this->m_frameSize);
+        this->d->m_frameSize = src.size();
+        emit this->frameSizeChanged(this->d->m_frameSize);
     }
 
     static int tval = 0;
@@ -95,10 +117,10 @@ AkPacket WarpElement::iStream(const AkPacket &packet)
     qreal dy = -35 * sin(tval * M_PI / 256)
                + 40 * sin((tval + 30) * M_PI / 512);
 
-    qreal ripples = this->m_ripples * sin((tval - 70) * M_PI / 64);
+    qreal ripples = this->d->m_ripples * sin((tval - 70) * M_PI / 64);
 
     tval = (tval + 1) & 511;
-    qreal *phiTable = this->m_phiTable.data();
+    qreal *phiTable = this->d->m_phiTable.data();
 
     for (int y = 0, i = 0; y < src.height(); y++) {
         auto oLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
@@ -120,3 +142,5 @@ AkPacket WarpElement::iStream(const AkPacket &packet)
     AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
     akSend(oPacket)
 }
+
+#include "moc_warpelement.cpp"

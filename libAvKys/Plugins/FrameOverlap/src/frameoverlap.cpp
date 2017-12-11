@@ -34,3 +34,5 @@ QStringList FrameOverlap::keys() const
 {
     return QStringList();
 }
+
+#include "moc_frameoverlap.cpp"

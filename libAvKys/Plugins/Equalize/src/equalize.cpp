@@ -34,3 +34,5 @@ QStringList Equalize::keys() const
 {
     return QStringList();
 }
+
+#include "moc_equalize.cpp"

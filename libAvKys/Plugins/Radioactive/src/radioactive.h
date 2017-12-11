@@ -20,7 +20,7 @@
 #ifndef RADIOACTIVE_H
 #define RADIOACTIVE_H
 
-#include <ak.h>
+#include <akplugin.h>
 
 class Radioactive: public QObject, public AkPlugin
 {

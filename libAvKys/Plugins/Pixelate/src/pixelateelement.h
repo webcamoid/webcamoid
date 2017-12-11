@@ -20,8 +20,9 @@
 #ifndef PIXELATEELEMENT_H
 #define PIXELATEELEMENT_H
 
-#include <ak.h>
-#include <akutils.h>
+#include <akelement.h>
+
+class PixelateElementPrivate;
 
 class PixelateElement: public AkElement
 {
@@ -34,11 +35,12 @@ class PixelateElement: public AkElement
 
     public:
         explicit PixelateElement();
+        ~PixelateElement();
 
         Q_INVOKABLE QSize blockSize() const;
 
     private:
-        QSize m_blockSize;
+        PixelateElementPrivate *d;
 
     protected:
         QString controlInterfaceProvide(const QString &controlId) const;

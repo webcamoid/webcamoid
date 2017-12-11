@@ -17,22 +17,46 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QImage>
+#include <QQmlContext>
+#include <akutils.h>
+#include <akpacket.h>
+
 #include "frameoverlapelement.h"
+
+class FrameOverlapElementPrivate
+{
+    public:
+        int m_nFrames;
+        int m_stride;
+        QVector<QImage> m_frames;
+        QSize m_frameSize;
+
+        FrameOverlapElementPrivate():
+            m_nFrames(16),
+            m_stride(4)
+        {
+        }
+};
 
 FrameOverlapElement::FrameOverlapElement(): AkElement()
 {
-    this->m_nFrames = 16;
-    this->m_stride = 4;
+    this->d = new FrameOverlapElementPrivate;
+}
+
+FrameOverlapElement::~FrameOverlapElement()
+{
+    delete this->d;
 }
 
 int FrameOverlapElement::nFrames() const
 {
-    return this->m_nFrames;
+    return this->d->m_nFrames;
 }
 
 int FrameOverlapElement::stride() const
 {
-    return this->m_stride;
+    return this->d->m_stride;
 }
 
 QString FrameOverlapElement::controlInterfaceProvide(const QString &controlId) const
@@ -53,19 +77,19 @@ void FrameOverlapElement::controlInterfaceConfigure(QQmlContext *context,
 
 void FrameOverlapElement::setNFrames(int nFrames)
 {
-    if (this->m_nFrames == nFrames)
+    if (this->d->m_nFrames == nFrames)
         return;
 
-    this->m_nFrames = nFrames;
+    this->d->m_nFrames = nFrames;
     emit this->nFramesChanged(nFrames);
 }
 
 void FrameOverlapElement::setStride(int stride)
 {
-    if (this->m_stride == stride)
+    if (this->d->m_stride == stride)
         return;
 
-    this->m_stride = stride;
+    this->d->m_stride = stride;
     emit this->strideChanged(stride);
 }
 
@@ -89,18 +113,18 @@ AkPacket FrameOverlapElement::iStream(const AkPacket &packet)
     src = src.convertToFormat(QImage::Format_ARGB32);
     QImage oFrame(src.size(), src.format());
 
-    if (src.size() != this->m_frameSize) {
-        this->m_frames.clear();
-        this->m_frameSize = src.size();
+    if (src.size() != this->d->m_frameSize) {
+        this->d->m_frames.clear();
+        this->d->m_frameSize = src.size();
     }
 
-    this->m_frames << src.copy();
-    int diff = this->m_frames.size() - this->m_nFrames;
+    this->d->m_frames << src.copy();
+    int diff = this->d->m_frames.size() - this->d->m_nFrames;
 
     for (int i = 0; i < diff; i++)
-        this->m_frames.removeFirst();
+        this->d->m_frames.removeFirst();
 
-    int stride = this->m_stride > 0? this->m_stride: 1;
+    int stride = this->d->m_stride > 0? this->d->m_stride: 1;
 
     for (int y = 0; y < oFrame.height(); y++) {
         QRgb *dstBits = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
@@ -112,10 +136,10 @@ AkPacket FrameOverlapElement::iStream(const AkPacket &packet)
             int a = 0;
             int n = 0;
 
-            for (int frame = this->m_frames.size() - 1;
+            for (int frame = this->d->m_frames.size() - 1;
                  frame >= 0;
                  frame -= stride) {
-                QRgb pixel = this->m_frames[frame].pixel(x, y);
+                QRgb pixel = this->d->m_frames[frame].pixel(x, y);
 
                 r += qRed(pixel);
                 g += qGreen(pixel);
@@ -140,3 +164,5 @@ AkPacket FrameOverlapElement::iStream(const AkPacket &packet)
     AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
     akSend(oPacket)
 }
+
+#include "moc_frameoverlapelement.cpp"

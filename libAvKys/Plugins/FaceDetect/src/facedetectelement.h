@@ -20,11 +20,10 @@
 #ifndef FACEDETECTELEMENT_H
 #define FACEDETECTELEMENT_H
 
-#include <QPainter>
-#include <ak.h>
-#include <akutils.h>
+#include <qrgb.h>
+#include <akelement.h>
 
-#include "haar/haardetector.h"
+class FaceDetectElementPrivate;
 
 class FaceDetectElement: public AkElement
 {
@@ -87,6 +86,7 @@ class FaceDetectElement: public AkElement
         };
 
         explicit FaceDetectElement();
+        ~FaceDetectElement();
 
         Q_INVOKABLE QString haarFile() const;
         Q_INVOKABLE QString markerType() const;
@@ -99,15 +99,7 @@ class FaceDetectElement: public AkElement
         Q_INVOKABLE QSize scanSize() const;
 
     private:
-        QString m_haarFile;
-        MarkerType m_markerType;
-        QPen m_markerPen;
-        QString m_markerImage;
-        QImage m_markerImg;
-        QSize m_pixelGridSize;
-        QSize m_scanSize;
-        AkElementPtr m_blurFilter;
-        HaarDetector m_cascadeClassifier;
+        FaceDetectElementPrivate *d;
 
     protected:
         QString controlInterfaceProvide(const QString &controlId) const;

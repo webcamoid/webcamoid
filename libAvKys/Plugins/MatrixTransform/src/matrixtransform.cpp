@@ -34,3 +34,5 @@ QStringList MatrixTransform::keys() const
 {
     return QStringList();
 }
+
+#include "moc_matrixtransform.cpp"

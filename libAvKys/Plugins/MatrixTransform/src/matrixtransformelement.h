@@ -20,9 +20,9 @@
 #ifndef MATRIXTRANSFORMELEMENT_H
 #define MATRIXTRANSFORMELEMENT_H
 
-#include <QMutex>
-#include <ak.h>
-#include <akutils.h>
+#include <akelement.h>
+
+class MatrixTransformElementPrivate;
 
 class MatrixTransformElement: public AkElement
 {
@@ -35,12 +35,12 @@ class MatrixTransformElement: public AkElement
 
     public:
         explicit MatrixTransformElement();
+        ~MatrixTransformElement();
 
         Q_INVOKABLE QVariantList kernel() const;
 
     private:
-        QVector<qreal> m_kernel;
-        QMutex m_mutex;
+        MatrixTransformElementPrivate *d;
 
     protected:
         QString controlInterfaceProvide(const QString &controlId) const;

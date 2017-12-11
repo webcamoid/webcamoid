@@ -20,8 +20,7 @@
 #ifndef IMPLODEELEMENT_H
 #define IMPLODEELEMENT_H
 
-#include <ak.h>
-#include <akutils.h>
+#include <akelement.h>
 
 class ImplodeElement: public AkElement
 {

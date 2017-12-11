@@ -34,3 +34,5 @@ QStringList Normalize::keys() const
 {
     return QStringList();
 }
+
+#include "moc_normalize.cpp"

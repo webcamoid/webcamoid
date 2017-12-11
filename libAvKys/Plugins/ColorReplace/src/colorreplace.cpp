@@ -34,3 +34,5 @@ QStringList ColorReplace::keys() const
 {
     return QStringList();
 }
+
+#include "moc_colorreplace.cpp"

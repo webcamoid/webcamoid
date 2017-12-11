@@ -34,3 +34,5 @@ QStringList FaceDetect::keys() const
 {
     return QStringList();
 }
+
+#include "moc_facedetect.cpp"

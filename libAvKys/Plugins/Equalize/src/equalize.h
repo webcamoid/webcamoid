@@ -20,7 +20,7 @@
 #ifndef EQUALIZE_H
 #define EQUALIZE_H
 
-#include <ak.h>
+#include <akplugin.h>
 
 class Equalize: public QObject, public AkPlugin
 {

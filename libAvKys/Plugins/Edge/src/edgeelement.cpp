@@ -17,7 +17,12 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QImage>
+#include <QQmlContext>
+#include <QVector>
 #include <QtMath>
+#include <akutils.h>
+#include <akpacket.h>
 
 #include "edgeelement.h"
 
@@ -462,3 +467,5 @@ AkPacket EdgeElement::iStream(const AkPacket &packet)
     AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
     akSend(oPacket)
 }
+
+#include "moc_edgeelement.cpp"

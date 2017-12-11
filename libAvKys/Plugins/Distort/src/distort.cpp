@@ -34,3 +34,5 @@ QStringList Distort::keys() const
 {
     return QStringList();
 }
+
+#include "moc_distort.cpp"

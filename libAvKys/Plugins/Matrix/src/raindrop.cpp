@@ -17,7 +17,37 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QPainter>
+#include <QFont>
+
 #include "raindrop.h"
+
+class RainDropPrivate
+{
+    public:
+        QSize m_textArea;
+        QString m_line;
+        int m_length;
+        QString m_charTable;
+        QFont m_font;
+        QSize m_fontSize;
+        QRgb m_cursorColor;
+        QRgb m_startColor;
+        QRgb m_endColor;
+        QPointF m_pos;
+        QPoint m_prevPos;
+        qreal m_speed;
+        QImage m_sprite;
+
+        inline int randInt(int a, int b);
+        inline qreal randReal(qreal a, qreal b);
+        inline int gradientColor(int i, int from, int to, int length);
+        inline QRgb gradientRgb(int i, QRgb from, QRgb to, int length);
+        inline QRgb gradient(int i, QRgb from, QRgb mid, QRgb to, int length);
+        inline QImage drawChar(const QChar &chr,
+                               const QFont &font, const QSize &fontSize,
+                               QRgb foreground, QRgb background) const;
+};
 
 RainDrop::RainDrop(const QSize &textArea,
                    const QString &charTable,
@@ -30,65 +60,71 @@ RainDrop::RainDrop(const QSize &textArea,
                    int maxLength,
                    qreal minSpeed,
                    qreal maxSpeed,
-                   bool randomStart, QObject *parent):
-    QObject(parent)
+                   bool randomStart)
 {
+    this->d = new RainDropPrivate;
+
     for (int i = 0; i < textArea.height(); i++)
-        this->m_line.append(charTable[qrand() % charTable.size()]);
+        this->d->m_line.append(charTable[qrand() % charTable.size()]);
 
-    this->m_textArea = textArea;
+    this->d->m_textArea = textArea;
     int y = randomStart? qrand() % textArea.height(): 0;
-    this->m_pos = QPointF(qrand() % textArea.width(), y);
-    this->m_font = font;
-    this->m_fontSize = fontSize;
-    this->m_cursorColor = cursorColor;
-    this->m_startColor = startColor;
-    this->m_endColor = endColor;
-    this->m_length = this->randInt(minLength, maxLength);
+    this->d->m_pos = QPointF(qrand() % textArea.width(), y);
+    this->d->m_font = font;
+    this->d->m_fontSize = fontSize;
+    this->d->m_cursorColor = cursorColor;
+    this->d->m_startColor = startColor;
+    this->d->m_endColor = endColor;
+    this->d->m_length = this->d->randInt(minLength, maxLength);
 
-    if (this->m_length < 1)
-        this->m_length = 1;
+    if (this->d->m_length < 1)
+        this->d->m_length = 1;
 
-    this->m_speed = this->randReal(minSpeed, maxSpeed);
+    this->d->m_speed = this->d->randReal(minSpeed, maxSpeed);
 
-    if (this->m_speed < 0.1)
-        this->m_speed = 0.1;
+    if (this->d->m_speed < 0.1)
+        this->d->m_speed = 0.1;
 }
 
-RainDrop::RainDrop(const RainDrop &other):
-    QObject(other.parent()),
-    m_textArea(other.m_textArea),
-    m_line(other.m_line),
-    m_length(other.m_length),
-    m_charTable(other.m_charTable),
-    m_font(other.m_font),
-    m_fontSize(other.m_fontSize),
-    m_cursorColor(other.m_cursorColor),
-    m_startColor(other.m_startColor),
-    m_endColor(other.m_endColor),
-    m_pos(other.m_pos),
-    m_prevPos(other.m_prevPos),
-    m_speed(other.m_speed),
-    m_sprite(other.m_sprite)
+RainDrop::RainDrop(const RainDrop &other)
 {
+    this->d = new RainDropPrivate;
+    this->d->m_textArea = other.d->m_textArea;
+    this->d->m_line = other.d->m_line;
+    this->d->m_length = other.d->m_length;
+    this->d->m_charTable = other.d->m_charTable;
+    this->d->m_font = other.d->m_font;
+    this->d->m_fontSize = other.d->m_fontSize;
+    this->d->m_cursorColor = other.d->m_cursorColor;
+    this->d->m_startColor = other.d->m_startColor;
+    this->d->m_endColor = other.d->m_endColor;
+    this->d->m_pos = other.d->m_pos;
+    this->d->m_prevPos = other.d->m_prevPos;
+    this->d->m_speed = other.d->m_speed;
+    this->d->m_sprite = other.d->m_sprite;
+}
+
+RainDrop::~RainDrop()
+{
+    delete this->d;
 }
 
 RainDrop &RainDrop::operator =(const RainDrop &other)
 {
     if (this != &other) {
-        this->m_textArea = other.m_textArea;
-        this->m_line = other.m_line;
-        this->m_length = other.m_length;
-        this->m_charTable = other.m_charTable;
-        this->m_font = other.m_font;
-        this->m_fontSize = other.m_fontSize;
-        this->m_cursorColor = other.m_cursorColor;
-        this->m_startColor = other.m_startColor;
-        this->m_endColor = other.m_endColor;
-        this->m_pos = other.m_pos;
-        this->m_prevPos = other.m_prevPos;
-        this->m_speed = other.m_speed;
-        this->m_sprite = other.m_sprite;
+        this->d->m_textArea = other.d->m_textArea;
+        this->d->m_line = other.d->m_line;
+        this->d->m_length = other.d->m_length;
+        this->d->m_charTable = other.d->m_charTable;
+        this->d->m_font = other.d->m_font;
+        this->d->m_fontSize = other.d->m_fontSize;
+        this->d->m_cursorColor = other.d->m_cursorColor;
+        this->d->m_startColor = other.d->m_startColor;
+        this->d->m_endColor = other.d->m_endColor;
+        this->d->m_pos = other.d->m_pos;
+        this->d->m_prevPos = other.d->m_prevPos;
+        this->d->m_speed = other.d->m_speed;
+        this->d->m_sprite = other.d->m_sprite;
     }
 
     return *this;
@@ -97,14 +133,15 @@ RainDrop &RainDrop::operator =(const RainDrop &other)
 RainDrop RainDrop::operator ++(int)
 {
     RainDrop rainDrop = *this;
-    this->m_pos = QPointF(this->m_pos.x(), this->m_pos.y() + this->m_speed);
+    this->d->m_pos = QPointF(this->d->m_pos.x(),
+                             this->d->m_pos.y() + this->d->m_speed);
 
     return rainDrop;
 }
 
 bool RainDrop::isVisible() const
 {
-    return int(this->m_pos.y() + 1 - this->m_length) < this->m_line.size();
+    return int(this->d->m_pos.y() + 1 - this->d->m_length) < this->d->m_line.size();
 }
 
 QImage RainDrop::render(QRgb tailColor, bool showCursor)
@@ -112,34 +149,35 @@ QImage RainDrop::render(QRgb tailColor, bool showCursor)
     if (!this->isVisible())
         return QImage();
 
-    if (this->pos() == this->m_prevPos) {
+    if (this->pos() == this->d->m_prevPos) {
         if (!showCursor)
-            return this->m_sprite;
+            return this->d->m_sprite;
 
         QPainter painter;
 
-        painter.begin(&this->m_sprite);
-        QChar c = this->m_line[qrand() % this->m_line.size()];
+        painter.begin(&this->d->m_sprite);
+        QChar c = this->d->m_line[qrand() % this->d->m_line.size()];
 
-        QImage sprite = this->drawChar(c,
-                                       this->m_font,
-                                       this->m_fontSize,
-                                       this->m_endColor,
-                                       this->m_cursorColor);
+        QImage sprite =
+                this->d->drawChar(c,
+                                  this->d->m_font,
+                                  this->d->m_fontSize,
+                                  this->d->m_endColor,
+                                  this->d->m_cursorColor);
 
         painter.drawImage(0,
-                          (this->m_length - 1) * this->m_fontSize.height(),
+                          (this->d->m_length - 1) * this->d->m_fontSize.height(),
                           sprite);
 
         painter.end();
 
-        return this->m_sprite;
+        return this->d->m_sprite;
     }
 
-    this->m_prevPos = this->pos();
+    this->d->m_prevPos = this->pos();
 
-    QImage drop(this->m_fontSize.width(),
-                this->m_length * this->m_fontSize.height(),
+    QImage drop(this->d->m_fontSize.width(),
+                this->d->m_length * this->d->m_fontSize.height(),
                 QImage::Format_RGB32);
 
     QPainter painter;
@@ -149,65 +187,68 @@ QImage RainDrop::render(QRgb tailColor, bool showCursor)
     QRgb foreground;
     QRgb background;
 
-    for (int i = 0; i < this->m_length; i++) {
-        int c = int(i + this->m_pos.y() + 1 - this->m_length);
+    for (int i = 0; i < this->d->m_length; i++) {
+        int c = int(i + this->d->m_pos.y() + 1 - this->d->m_length);
 
-        if (c >= 0 && c < this->m_line.size()) {
-            if (i == this->m_length - 1) {
-                chr = this->m_line[qrand() % this->m_line.size()];
+        if (c >= 0 && c < this->d->m_line.size()) {
+            if (i == this->d->m_length - 1) {
+                chr = this->d->m_line[qrand() % this->d->m_line.size()];
 
                 if (showCursor) {
-                    foreground = this->m_endColor;
-                    background = this->m_cursorColor;
+                    foreground = this->d->m_endColor;
+                    background = this->d->m_cursorColor;
                 } else {
-                    foreground = this->m_cursorColor;
-                    background = this->m_endColor;
+                    foreground = this->d->m_cursorColor;
+                    background = this->d->m_endColor;
                 }
             } else {
-                chr = this->m_line[c];
-                foreground = this->gradient(i,
-                                            tailColor,
-                                            this->m_startColor,
-                                            this->m_cursorColor,
-                                            this->m_length);
-                background = this->m_endColor;
+                chr = this->d->m_line[c];
+                foreground =
+                        this->d->gradient(i,
+                                          tailColor,
+                                          this->d->m_startColor,
+                                          this->d->m_cursorColor,
+                                          this->d->m_length);
+                background = this->d->m_endColor;
             }
 
-            QImage sprite = this->drawChar(chr,
-                                           this->m_font,
-                                           this->m_fontSize,
-                                           foreground,
-                                           background);
+            QImage sprite =
+                    this->d->drawChar(chr,
+                                      this->d->m_font,
+                                      this->d->m_fontSize,
+                                      foreground,
+                                      background);
 
-            painter.drawImage(0, i * this->m_fontSize.height(), sprite);
+            painter.drawImage(0, i * this->d->m_fontSize.height(), sprite);
         }
     }
 
     painter.end();
 
-    this->m_sprite = drop;
+    this->d->m_sprite = drop;
 
     return drop;
 }
 
 QPoint RainDrop::pos() const
 {
-    int x = int(this->m_pos.x() * this->m_fontSize.width());
-    int y = int(this->m_pos.y() + 1 - this->m_length) * this->m_fontSize.height();
+    int x = int(this->d->m_pos.x() * this->d->m_fontSize.width());
+    int y = int(this->d->m_pos.y() + 1 - this->d->m_length)
+            * this->d->m_fontSize.height();
 
     return QPoint(x, y);
 }
 
 QPoint RainDrop::tail() const
 {
-    int y = int(this->m_pos.y() - this->m_length);
+    int y = int(this->d->m_pos.y() - this->d->m_length);
 
-    return QPoint(int(this->m_pos.x()), y);
+    return QPoint(int(this->d->m_pos.x()), y);
 }
 
-QImage RainDrop::drawChar(const QChar &chr,
-                          const QFont &font, const QSize &fontSize,
-                          QRgb foreground, QRgb background) const
+QImage RainDropPrivate::drawChar(const QChar &chr,
+                                 const QFont &font, const QSize &fontSize,
+                                 QRgb foreground, QRgb background) const
 {
     QImage fontImg(fontSize, QImage::Format_RGB32);
     fontImg.fill(background);
@@ -221,4 +262,53 @@ QImage RainDrop::drawChar(const QChar &chr,
     painter.end();
 
     return fontImg;
+}
+
+int RainDropPrivate::randInt(int a, int b)
+{
+    if (a > b) {
+        int c = a;
+        a = b;
+        b = c;
+    }
+
+    return qrand() % (b + 1 - a) + a;
+}
+
+qreal RainDropPrivate::randReal(qreal a, qreal b)
+{
+    if (a > b) {
+        qreal c = a;
+        a = b;
+        b = c;
+    }
+
+    return qrand() * (b - a) / RAND_MAX + a;
+}
+
+int RainDropPrivate::gradientColor(int i, int from, int to, int length)
+{
+    if (length < 2)
+        return from;
+
+    return (i * (to - from)) / (length - 1) + from;
+}
+
+QRgb RainDropPrivate::gradientRgb(int i, QRgb from, QRgb to, int length)
+{
+    int r = this->gradientColor(i, qRed(from), qRed(to), length);
+    int g = this->gradientColor(i, qGreen(from), qGreen(to), length);
+    int b = this->gradientColor(i, qBlue(from), qBlue(to), length);
+
+    return qRgb(r, g, b);
+}
+
+QRgb RainDropPrivate::gradient(int i, QRgb from, QRgb mid, QRgb to, int length)
+{
+    int l1 = length >> 1;
+
+    if (i < l1)
+        return this->gradientRgb(i, from, mid, l1);
+
+    return this->gradientRgb(i - l1, mid, to, length - l1);
 }

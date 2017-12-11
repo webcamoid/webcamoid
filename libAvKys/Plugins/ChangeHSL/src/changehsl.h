@@ -20,7 +20,7 @@
 #ifndef CHANGEHSL_H
 #define CHANGEHSL_H
 
-#include <ak.h>
+#include <akplugin.h>
 
 class ChangeHSL: public QObject, public AkPlugin
 {

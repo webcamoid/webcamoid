@@ -20,8 +20,9 @@
 #ifndef RIPPLEELEMENT_H
 #define RIPPLEELEMENT_H
 
-#include <ak.h>
-#include <akutils.h>
+#include <akelement.h>
+
+class RippleElementPrivate;
 
 class RippleElement: public AkElement
 {
@@ -61,6 +62,7 @@ class RippleElement: public AkElement
         };
 
         explicit RippleElement();
+        ~RippleElement();
 
         Q_INVOKABLE QString mode() const;
         Q_INVOKABLE int amplitude() const;
@@ -69,62 +71,7 @@ class RippleElement: public AkElement
         Q_INVOKABLE int lumaThreshold() const;
 
     private:
-        RippleMode m_mode;
-        int m_amplitude;
-        int m_decay;
-        int m_threshold;
-        int m_lumaThreshold;
-
-        AkCaps m_caps;
-        QImage m_prevFrame;
-        QVector<QImage> m_rippleBuffer;
-        int m_curRippleBuffer;
-
-        int m_period;
-        int m_rainStat;
-        uint m_dropProb;
-        int m_dropProbIncrement;
-        int m_dropsPerFrameMax;
-        int m_dropsPerFrame;
-        int m_dropPower;
-
-        QImage imageDiff(const QImage &img1,
-                         const QImage &img2,
-                         int threshold,
-                         int lumaThreshold, int strength);
-
-        void addDrops(const QImage &buffer, const QImage &drops);
-        void ripple(const QImage &buffer1, const QImage &buffer2, int decay);
-        QImage applyWater(const QImage &src, const QImage &buffer);
-        QImage rainDrop(int width, int height, int strength);
-
-        inline QImage drop(int width, int height, int power)
-        {
-            QImage drops(width, height, QImage::Format_ARGB32);
-            auto dropsBits = reinterpret_cast<int *>(drops.bits());
-
-            drops.fill(qRgba(0, 0, 0, 0));
-
-            int widthM1 = width - 1;
-            int widthP1 = width + 1;
-
-            int x = qrand() % (width - 4) + 2;
-            int y = qrand() % (height - 4) + 2;
-
-            int offset = x + y * width;
-
-            dropsBits[offset - widthP1] = power >> 2;
-            dropsBits[offset - width] = power >> 1;
-            dropsBits[offset - widthM1] = power >> 2;
-            dropsBits[offset - 1] = power >> 1;
-            dropsBits[offset] = power;
-            dropsBits[offset + 1] = power >> 1;
-            dropsBits[offset + widthM1] = power >> 2;
-            dropsBits[offset + width] = power >> 1;
-            dropsBits[offset + widthP1] = power >> 2;
-
-            return drops;
-        }
+        RippleElementPrivate *d;
 
     protected:
         QString controlInterfaceProvide(const QString &controlId) const;

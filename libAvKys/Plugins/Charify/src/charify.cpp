@@ -34,3 +34,5 @@ QStringList Charify::keys() const
 {
     return QStringList();
 }
+
+#include "moc_charify.cpp"

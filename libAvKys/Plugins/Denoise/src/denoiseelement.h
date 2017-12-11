@@ -20,11 +20,9 @@
 #ifndef DENOISEELEMENT_H
 #define DENOISEELEMENT_H
 
-#include <QtMath>
-#include <ak.h>
-#include <akutils.h>
+#include <akelement.h>
 
-#include "params.h"
+class DenoiseElementPrivate;
 
 class DenoiseElement: public AkElement
 {
@@ -60,40 +58,7 @@ class DenoiseElement: public AkElement
         Q_INVOKABLE qreal sigma() const;
 
     private:
-        int m_radius;
-        int m_factor;
-        int m_mu;
-        qreal m_sigma;
-        int *m_weight;
-
-        inline void makeTable(int factor)
-        {
-            for (int s = 0; s < 128; s++) {
-                int h = -2 * s * s;
-
-                for (int m = 0; m < 256; m++)
-                    for (int c = 0; c < 256; c++) {
-                        if (s == 0) {
-                            this->m_weight[(m << 16) | (s << 8) | c] = 0;
-
-                            continue;
-                        }
-
-                        int d = c - m;
-                        d *= d;
-
-                        this->m_weight[(m << 16) | (s << 8) | c] = qRound(factor * exp(qreal(d) / h));
-                    }
-            }
-        }
-
-        void integralImage(const QImage &image,
-                           int oWidth, int oHeight,
-                           PixelU8 *planes,
-                           PixelU32 *integral,
-                           PixelU64 *integral2);
-        static void denoise(const DenoiseStaticParams &staticParams,
-                            const DenoiseParams *params);
+        DenoiseElementPrivate *d;
 
     protected:
         QString controlInterfaceProvide(const QString &controlId) const;

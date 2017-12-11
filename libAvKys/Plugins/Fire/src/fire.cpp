@@ -34,3 +34,5 @@ QStringList Fire::keys() const
 {
     return QStringList();
 }
+
+#include "moc_fire.cpp"

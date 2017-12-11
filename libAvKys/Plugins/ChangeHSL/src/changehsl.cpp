@@ -34,3 +34,5 @@ QStringList ChangeHSL::keys() const
 {
     return QStringList();
 }
+
+#include "moc_changehsl.cpp"

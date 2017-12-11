@@ -34,3 +34,5 @@ QStringList Shagadelic::keys() const
 {
     return QStringList();
 }
+
+#include "moc_shagadelic.cpp"

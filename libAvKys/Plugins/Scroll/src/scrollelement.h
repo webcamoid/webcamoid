@@ -20,8 +20,9 @@
 #ifndef SCROLLELEMENT_H
 #define SCROLLELEMENT_H
 
-#include <ak.h>
-#include <akutils.h>
+#include <akelement.h>
+
+class ScrollElementPrivate;
 
 class ScrollElement: public AkElement
 {
@@ -39,15 +40,13 @@ class ScrollElement: public AkElement
 
     public:
         explicit ScrollElement();
+        ~ScrollElement();
 
         Q_INVOKABLE qreal speed() const;
         Q_INVOKABLE qreal noise() const;
 
     private:
-        qreal m_speed;
-        qreal m_noise;
-        qreal m_offset;
-        QSize m_curSize;
+        ScrollElementPrivate *d;
 
         QImage generateNoise(const QSize &size, qreal persent);
 

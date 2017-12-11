@@ -34,3 +34,5 @@ QStringList Photocopy::keys() const
 {
     return QStringList();
 }
+
+#include "moc_photocopy.cpp"

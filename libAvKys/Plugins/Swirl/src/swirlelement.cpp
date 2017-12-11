@@ -17,7 +17,11 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QImage>
+#include <QQmlContext>
 #include <QtMath>
+#include <akutils.h>
+#include <akpacket.h>
 
 #include "swirlelement.h"
 
@@ -115,3 +119,5 @@ AkPacket SwirlElement::iStream(const AkPacket &packet)
     AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
     akSend(oPacket)
 }
+
+#include "moc_swirlelement.cpp"

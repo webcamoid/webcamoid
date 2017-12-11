@@ -34,3 +34,5 @@ QStringList Warhol::keys() const
 {
     return QStringList();
 }
+
+#include "moc_warhol.cpp"

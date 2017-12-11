@@ -17,26 +17,51 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QImage>
+#include <QVector>
 #include <QTime>
+#include <QMutex>
+#include <QQmlContext>
+#include <akutils.h>
+#include <akpacket.h>
 
 #include "agingelement.h"
+#include "scratch.h"
+
+class AgingElementPrivate
+{
+    public:
+        QVector<Scratch> m_scratches;
+        QMutex m_mutex;
+        bool m_addDust;
+
+        AgingElementPrivate():
+            m_addDust(true)
+        {
+        }
+};
 
 AgingElement::AgingElement(): AkElement()
 {
-    this->m_scratches.resize(7);
-    this->m_addDust = true;
+    this->d = new AgingElementPrivate;
+    this->d->m_scratches.resize(7);
 
     qsrand(uint(QTime::currentTime().msec()));
 }
 
+AgingElement::~AgingElement()
+{
+    delete this->d;
+}
+
 int AgingElement::nScratches() const
 {
-    return this->m_scratches.size();
+    return this->d->m_scratches.size();
 }
 
 bool AgingElement::addDust() const
 {
-    return this->m_addDust;
+    return this->d->m_addDust;
 }
 
 QImage AgingElement::colorAging(const QImage &src)
@@ -70,33 +95,34 @@ QImage AgingElement::colorAging(const QImage &src)
 
 void AgingElement::scratching(QImage &dest)
 {
-    QMutexLocker locker(&this->m_mutex);
+    QMutexLocker locker(&this->d->m_mutex);
 
-    for (int i = 0; i < this->m_scratches.size(); i++) {
-        if (this->m_scratches[i].life() < 1.0) {
+    for (int i = 0; i < this->d->m_scratches.size(); i++) {
+        if (this->d->m_scratches[i].life() < 1.0) {
             if (qrand() <= 0.06 * RAND_MAX) {
-                this->m_scratches[i] = Scratch(2.0, 33.0,
-                                               1.0, 1.0,
-                                               0.0, dest.width() - 1,
-                                               0.0, 512.0,
-                                               0.0, dest.height() - 1);
+                this->d->m_scratches[i] =
+                        Scratch(2.0, 33.0,
+                                1.0, 1.0,
+                                0.0, dest.width() - 1,
+                                0.0, 512.0,
+                                0.0, dest.height() - 1);
             } else
                 continue;
         }
 
-        if (this->m_scratches[i].x() < 0.0
-            || this->m_scratches[i].x() >= dest.width()) {
-            this->m_scratches[i]++;
+        if (this->d->m_scratches[i].x() < 0.0
+            || this->d->m_scratches[i].x() >= dest.width()) {
+            this->d->m_scratches[i]++;
 
             continue;
         }
 
         int lumaVariance = 8;
         int luma = 32 + qrand() % lumaVariance;
-        int x = int(this->m_scratches[i].x());
+        int x = int(this->d->m_scratches[i].x());
 
-        int y1 = this->m_scratches[i].y();
-        int y2 = this->m_scratches[i].isAboutToDie()?
+        int y1 = this->d->m_scratches[i].y();
+        int y2 = this->d->m_scratches[i].isAboutToDie()?
                      qrand() % dest.height():
                      dest.height();
 
@@ -113,7 +139,7 @@ void AgingElement::scratching(QImage &dest)
             line[x] = qRgba(r, g, b, qAlpha(line[x]));
         }
 
-        this->m_scratches[i]++;
+        this->d->m_scratches[i]++;
     }
 }
 
@@ -205,20 +231,20 @@ void AgingElement::controlInterfaceConfigure(QQmlContext *context,
 
 void AgingElement::setNScratches(int nScratches)
 {
-    if (this->m_scratches.size() == nScratches)
+    if (this->d->m_scratches.size() == nScratches)
         return;
 
-    QMutexLocker locker(&this->m_mutex);
-    this->m_scratches.resize(nScratches);
+    QMutexLocker locker(&this->d->m_mutex);
+    this->d->m_scratches.resize(nScratches);
     emit this->nScratchesChanged(nScratches);
 }
 
 void AgingElement::setAddDust(bool addDust)
 {
-    if (this->m_addDust == addDust)
+    if (this->d->m_addDust == addDust)
         return;
 
-    this->m_addDust = addDust;
+    this->d->m_addDust = addDust;
     emit this->addDustChanged(addDust);
 }
 
@@ -244,9 +270,11 @@ AkPacket AgingElement::iStream(const AkPacket &packet)
     this->scratching(oFrame);
     this->pits(oFrame);
 
-    if (this->m_addDust)
+    if (this->d->m_addDust)
         this->dusts(oFrame);
 
     AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
     akSend(oPacket)
 }
+
+#include "moc_agingelement.cpp"

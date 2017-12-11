@@ -20,8 +20,7 @@
 #ifndef NORMALIZEELEMENT_H
 #define NORMALIZEELEMENT_H
 
-#include <ak.h>
-#include <akutils.h>
+#include <akelement.h>
 
 class NormalizeElement: public AkElement
 {

@@ -20,9 +20,10 @@
 #ifndef WAVEELEMENT_H
 #define WAVEELEMENT_H
 
-#include <QMutex>
-#include <ak.h>
-#include <akutils.h>
+#include <qrgb.h>
+#include <akelement.h>
+
+class WaveElementPrivate;
 
 class WaveElement: public AkElement
 {
@@ -50,6 +51,7 @@ class WaveElement: public AkElement
 
     public:
         explicit WaveElement();
+        ~WaveElement();
 
         Q_INVOKABLE qreal amplitude() const;
         Q_INVOKABLE qreal frequency() const;
@@ -57,13 +59,7 @@ class WaveElement: public AkElement
         Q_INVOKABLE QRgb background() const;
 
     private:
-        qreal m_amplitude;
-        qreal m_frequency;
-        qreal m_phase;
-        QRgb m_background;
-        QSize m_frameSize;
-        QVector<int> m_sineMap;
-        QMutex m_mutex;
+        WaveElementPrivate *d;
 
     protected:
         QString controlInterfaceProvide(const QString &controlId) const;

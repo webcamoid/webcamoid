@@ -20,9 +20,9 @@
 #ifndef HALFTONEELEMENT_H
 #define HALFTONEELEMENT_H
 
-#include <QMutex>
-#include <ak.h>
-#include <akutils.h>
+#include <akelement.h>
+
+class HalftoneElementPrivate;
 
 class HalftoneElement: public AkElement
 {
@@ -55,6 +55,7 @@ class HalftoneElement: public AkElement
 
     public:
         explicit HalftoneElement();
+        ~HalftoneElement();
 
         Q_INVOKABLE QString pattern() const;
         Q_INVOKABLE QSize patternSize() const;
@@ -63,14 +64,7 @@ class HalftoneElement: public AkElement
         Q_INVOKABLE qreal intercept() const;
 
     private:
-        QString m_pattern;
-        QSize m_patternSize;
-        qreal m_lightness;
-        qreal m_slope;
-        qreal m_intercept;
-        QMutex m_mutex;
-        QSize m_frameSize;
-        QImage m_patternImage;
+        HalftoneElementPrivate *d;
 
         void updatePattern();
 

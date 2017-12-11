@@ -34,3 +34,5 @@ QStringList Cartoon::keys() const
 {
     return QStringList();
 }
+
+#include "moc_cartoon.cpp"

@@ -20,8 +20,9 @@
 #ifndef WARPELEMENT_H
 #define WARPELEMENT_H
 
-#include <ak.h>
-#include <akutils.h>
+#include <akelement.h>
+
+class WarpElementPrivate;
 
 class WarpElement: public AkElement
 {
@@ -34,14 +35,12 @@ class WarpElement: public AkElement
 
     public:
         explicit WarpElement();
+        ~WarpElement();
 
-        qreal ripples() const;
+        Q_INVOKABLE qreal ripples() const;
 
     private:
-        qreal m_ripples;
-
-        QSize m_frameSize;
-        QVector<qreal> m_phiTable;
+        WarpElementPrivate *d;
 
     protected:
         QString controlInterfaceProvide(const QString &controlId) const;

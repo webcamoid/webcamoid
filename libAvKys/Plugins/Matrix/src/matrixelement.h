@@ -20,12 +20,10 @@
 #ifndef MATRIXELEMENT_H
 #define MATRIXELEMENT_H
 
-#include <QMutex>
-#include <ak.h>
-#include <akutils.h>
+#include <qrgb.h>
+#include <akelement.h>
 
-#include "character.h"
-#include "raindrop.h"
+class MatrixElementPrivate;
 
 class MatrixElement: public AkElement
 {
@@ -98,6 +96,7 @@ class MatrixElement: public AkElement
 
     public:
         explicit MatrixElement();
+        ~MatrixElement();
 
         Q_INVOKABLE int nDrops() const;
         Q_INVOKABLE QString charTable() const;
@@ -114,30 +113,7 @@ class MatrixElement: public AkElement
         Q_INVOKABLE bool showCursor() const;
 
     private:
-        int m_nDrops;
-        QString m_charTable;
-        QFont m_font;
-        QRgb m_cursorColor;
-        QRgb m_foregroundColor;
-        QRgb m_backgroundColor;
-        int m_minDropLength;
-        int m_maxDropLength;
-        qreal m_minSpeed;
-        qreal m_maxSpeed;
-        bool m_showCursor;
-
-        QList<Character> m_characters;
-        QSize m_fontSize;
-        QList<RainDrop> m_rain;
-        QMutex m_mutex;
-
-        QSize fontSize(const QString &chrTable, const QFont &font) const;
-        QImage drawChar(const QChar &chr, const QFont &font,
-                        const QSize &fontSize,
-                        QRgb foreground, QRgb background) const;
-        int imageWeight(const QImage &image) const;
-        static bool chrLessThan(const Character &chr1, const Character &chr2);
-        QImage renderRain(const QSize &frameSize, const QImage &textImage);
+        MatrixElementPrivate *d;
 
     protected:
         QString controlInterfaceProvide(const QString &controlId) const;

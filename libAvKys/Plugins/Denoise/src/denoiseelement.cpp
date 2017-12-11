@@ -17,54 +17,86 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QImage>
+#include <QQmlContext>
 #include <QtConcurrent>
+#include <QtMath>
+#include <akutils.h>
+#include <akpacket.h>
 
 #include "denoiseelement.h"
+#include "params.h"
+
+class DenoiseElementPrivate
+{
+    public:
+        int m_radius;
+        int m_factor;
+        int m_mu;
+        qreal m_sigma;
+        int *m_weight;
+
+        DenoiseElementPrivate():
+            m_radius(1),
+            m_factor(1024),
+            m_mu(0),
+            m_sigma(1.0),
+            m_weight(nullptr)
+        {
+        }
+
+        inline void makeTable(int factor);
+        inline void integralImage(const QImage &image,
+                                  int oWidth, int oHeight,
+                                  PixelU8 *planes,
+                                  PixelU32 *integral,
+                                  PixelU64 *integral2);
+        inline static void denoise(const DenoiseStaticParams &staticParams,
+                                   const DenoiseParams *params);
+};
 
 DenoiseElement::DenoiseElement(): AkElement()
 {
-    this->m_radius = 1;
-    this->m_factor = 1024;
-    this->m_mu = 0;
-    this->m_sigma = 1.0;
+    this->d = new DenoiseElementPrivate;
 
-    this->m_weight = new int[1 << 24];
-    this->makeTable(this->m_factor);
+    this->d->m_weight = new int[1 << 24];
+    this->d->makeTable(this->d->m_factor);
 }
 
 DenoiseElement::~DenoiseElement()
 {
-    delete [] this->m_weight;
+    delete [] this->d->m_weight;
+    delete this->d;
 }
 
 int DenoiseElement::radius() const
 {
-    return this->m_radius;
+    return this->d->m_radius;
 }
 
 int DenoiseElement::factor() const
 {
-    return this->m_factor;
+    return this->d->m_factor;
 }
 
 int DenoiseElement::mu() const
 {
-    return this->m_mu;
+    return this->d->m_mu;
 }
 
 qreal DenoiseElement::sigma() const
 {
-    return this->m_sigma;
+    return this->d->m_sigma;
 }
 
-void DenoiseElement::integralImage(const QImage &image,
-                                   int oWidth, int oHeight,
-                                   PixelU8 *planes,
-                                   PixelU32 *integral,
-                                   PixelU64 *integral2)
+void DenoiseElementPrivate::integralImage(const QImage &image,
+                                          int oWidth, int oHeight,
+                                          PixelU8 *planes,
+                                          PixelU32 *integral,
+                                          PixelU64 *integral2)
 {
     for (int y = 1; y < oHeight; y++) {
-        const QRgb *line = reinterpret_cast<const QRgb *>(image.constScanLine(y - 1));
+        auto line = reinterpret_cast<const QRgb *>(image.constScanLine(y - 1));
         PixelU8 *planesLine = planes
                               + (y - 1) * image.width();
 
@@ -95,8 +127,8 @@ void DenoiseElement::integralImage(const QImage &image,
     }
 }
 
-void DenoiseElement::denoise(const DenoiseStaticParams &staticParams,
-                             const DenoiseParams *params)
+void DenoiseElementPrivate::denoise(const DenoiseStaticParams &staticParams,
+                                    const DenoiseParams *params)
 {
     PixelU32 sum = integralSum(staticParams.integral, staticParams.oWidth,
                                params->xp, params->yp, params->kw, params->kh);
@@ -149,6 +181,27 @@ void DenoiseElement::denoise(const DenoiseStaticParams &staticParams,
     delete params;
 }
 
+void DenoiseElementPrivate::makeTable(int factor)
+{
+    for (int s = 0; s < 128; s++) {
+        int h = -2 * s * s;
+
+        for (int m = 0; m < 256; m++)
+            for (int c = 0; c < 256; c++) {
+                if (s == 0) {
+                    this->m_weight[(m << 16) | (s << 8) | c] = 0;
+
+                    continue;
+                }
+
+                int d = c - m;
+                d *= d;
+
+                this->m_weight[(m << 16) | (s << 8) | c] = qRound(factor * exp(qreal(d) / h));
+            }
+    }
+}
+
 QString DenoiseElement::controlInterfaceProvide(const QString &controlId) const
 {
     Q_UNUSED(controlId)
@@ -167,37 +220,37 @@ void DenoiseElement::controlInterfaceConfigure(QQmlContext *context,
 
 void DenoiseElement::setRadius(int radius)
 {
-    if (this->m_radius == radius)
+    if (this->d->m_radius == radius)
         return;
 
-    this->m_radius = radius;
+    this->d->m_radius = radius;
     emit this->radiusChanged(radius);
 }
 
 void DenoiseElement::setFactor(int factor)
 {
-    if (this->m_factor == factor)
+    if (this->d->m_factor == factor)
         return;
 
-    this->m_factor = factor;
+    this->d->m_factor = factor;
     emit this->factorChanged(factor);
 }
 
 void DenoiseElement::setMu(int mu)
 {
-    if (this->m_mu == mu)
+    if (this->d->m_mu == mu)
         return;
 
-    this->m_mu = mu;
+    this->d->m_mu = mu;
     emit this->muChanged(mu);
 }
 
 void DenoiseElement::setSigma(qreal sigma)
 {
-    if (qFuzzyCompare(this->m_sigma, sigma))
+    if (qFuzzyCompare(this->d->m_sigma, sigma))
         return;
 
-    this->m_sigma = sigma;
+    this->d->m_sigma = sigma;
     emit this->sigmaChanged(sigma);
 }
 
@@ -223,7 +276,7 @@ void DenoiseElement::resetSigma()
 
 AkPacket DenoiseElement::iStream(const AkPacket &packet)
 {
-    int radius = this->m_radius;
+    int radius = this->d->m_radius;
 
     if (radius < 1)
         akSend(packet)
@@ -237,9 +290,9 @@ AkPacket DenoiseElement::iStream(const AkPacket &packet)
 
     static int factor = 1024;
 
-    if (this->m_factor != factor) {
-        this->makeTable(factor);
-        factor = this->m_factor;
+    if (this->d->m_factor != factor) {
+        this->d->makeTable(factor);
+        factor = this->d->m_factor;
     }
 
     QImage oFrame(src.size(), src.format());
@@ -249,9 +302,9 @@ AkPacket DenoiseElement::iStream(const AkPacket &packet)
     PixelU8 *planes = new PixelU8[oWidth * oHeight];
     PixelU32 *integral = new PixelU32[oWidth * oHeight];
     PixelU64 *integral2 = new PixelU64[oWidth * oHeight];
-    this->integralImage(src,
-                        oWidth, oHeight,
-                        planes, integral, integral2);
+    this->d->integralImage(src,
+                           oWidth, oHeight,
+                           planes, integral, integral2);
 
     DenoiseStaticParams staticParams;
     staticParams.planes = planes;
@@ -259,9 +312,9 @@ AkPacket DenoiseElement::iStream(const AkPacket &packet)
     staticParams.integral2 = integral2;
     staticParams.width = src.width();
     staticParams.oWidth = oWidth;
-    staticParams.weights = this->m_weight;
-    staticParams.mu = this->m_mu;
-    staticParams.sigma = this->m_sigma < 0.1? 0.1: this->m_sigma;
+    staticParams.weights = this->d->m_weight;
+    staticParams.mu = this->d->m_mu;
+    staticParams.sigma = this->d->m_sigma < 0.1? 0.1: this->d->m_sigma;
 
     QThreadPool threadPool;
 
@@ -278,7 +331,7 @@ AkPacket DenoiseElement::iStream(const AkPacket &packet)
             int xp = qMax(x - radius, 0);
             int kw = qMin(x + radius, src.width() - 1) - xp + 1;
 
-            DenoiseParams *params = new DenoiseParams();
+            auto params = new DenoiseParams();
             params->xp = xp;
             params->yp = yp;
             params->kw = kw;
@@ -288,9 +341,12 @@ AkPacket DenoiseElement::iStream(const AkPacket &packet)
             params->alpha = qAlpha(iLine[x]);
 
             if (radius >= 20)
-                QtConcurrent::run(&threadPool, DenoiseElement::denoise, staticParams, params);
+                QtConcurrent::run(&threadPool,
+                                  DenoiseElementPrivate::denoise,
+                                  staticParams,
+                                  params);
             else
-                this->denoise(staticParams, params);
+                this->d->denoise(staticParams, params);
         }
     }
 
@@ -303,3 +359,5 @@ AkPacket DenoiseElement::iStream(const AkPacket &packet)
     AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
     akSend(oPacket)
 }
+
+#include "moc_denoiseelement.cpp"

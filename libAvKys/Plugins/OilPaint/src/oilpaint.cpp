@@ -34,3 +34,5 @@ QStringList OilPaint::keys() const
 {
     return QStringList();
 }
+
+#include "moc_oilpaint.cpp"

@@ -17,19 +17,38 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QMutex>
+#include <QImage>
+#include <QQmlContext>
 #include <QStandardPaths>
+#include <akutils.h>
+#include <akpacket.h>
 
 #include "colortapelement.h"
 
+class ColorTapElementPrivate
+{
+    public:
+        QImage m_table;
+        QString m_tableName;
+        QMutex m_mutex;
+};
+
 ColorTapElement::ColorTapElement(): AkElement()
 {
-    this->m_tableName = ":/ColorTap/share/tables/base.bmp";
-    this->m_table = QImage(this->m_tableName).scaled(16, 16);
+    this->d = new ColorTapElementPrivate;
+    this->d->m_tableName = ":/ColorTap/share/tables/base.bmp";
+    this->d->m_table = QImage(this->d->m_tableName).scaled(16, 16);
+}
+
+ColorTapElement::~ColorTapElement()
+{
+    delete this->d;
 }
 
 QString ColorTapElement::table() const
 {
-    return this->m_tableName;
+    return this->d->m_tableName;
 }
 
 QString ColorTapElement::controlInterfaceProvide(const QString &controlId) const
@@ -53,7 +72,7 @@ void ColorTapElement::controlInterfaceConfigure(QQmlContext *context,
 
 void ColorTapElement::setTable(const QString &table)
 {
-    if (this->m_tableName == table)
+    if (this->d->m_tableName == table)
         return;
 
     QString tableName;
@@ -63,7 +82,7 @@ void ColorTapElement::setTable(const QString &table)
         tableImg = QImage(table);
 
         if (tableImg.isNull()) {
-            if (this->m_tableName.isNull())
+            if (this->d->m_tableName.isNull())
                 return;
         } else {
             tableName = table;
@@ -71,11 +90,11 @@ void ColorTapElement::setTable(const QString &table)
         }
     }
 
-    this->m_tableName = tableName;
-    this->m_mutex.lock();
-    this->m_table = tableImg;
-    this->m_mutex.unlock();
-    emit this->tableChanged(this->m_tableName);
+    this->d->m_tableName = tableName;
+    this->d->m_mutex.lock();
+    this->d->m_table = tableImg;
+    this->d->m_mutex.unlock();
+    emit this->tableChanged(this->d->m_tableName);
 }
 
 void ColorTapElement::resetTable()
@@ -85,28 +104,28 @@ void ColorTapElement::resetTable()
 
 AkPacket ColorTapElement::iStream(const AkPacket &packet)
 {
-    this->m_mutex.lock();
+    this->d->m_mutex.lock();
 
-    if (this->m_table.isNull()) {
-        this->m_mutex.unlock();
+    if (this->d->m_table.isNull()) {
+        this->d->m_mutex.unlock();
         akSend(packet)
     }
 
     QImage src = AkUtils::packetToImage(packet);
 
     if (src.isNull()) {
-        this->m_mutex.unlock();
+        this->d->m_mutex.unlock();
 
         return AkPacket();
     }
 
     src = src.convertToFormat(QImage::Format_ARGB32);
     QImage oFrame(src.size(), src.format());
-    const QRgb *tableBits = reinterpret_cast<const QRgb *>(this->m_table.constBits());
+    auto tableBits = reinterpret_cast<const QRgb *>(this->d->m_table.constBits());
 
     for (int y = 0; y < src.height(); y++) {
-        const QRgb *srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
-        QRgb *dstLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
+        auto srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
+        auto dstLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
 
         for (int x = 0; x < src.width(); x++) {
             int r = qRed(srcLine[x]);
@@ -121,8 +140,10 @@ AkPacket ColorTapElement::iStream(const AkPacket &packet)
         }
     }
 
-    this->m_mutex.unlock();
+    this->d->m_mutex.unlock();
 
     AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
     akSend(oPacket)
 }
+
+#include "moc_colortapelement.cpp"

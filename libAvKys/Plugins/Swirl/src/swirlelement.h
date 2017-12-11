@@ -20,8 +20,7 @@
 #ifndef SWIRLELEMENT_H
 #define SWIRLELEMENT_H
 
-#include <ak.h>
-#include <akutils.h>
+#include <akelement.h>
 
 class SwirlElement: public AkElement
 {

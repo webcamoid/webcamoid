@@ -17,7 +17,11 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QImage>
+#include <QQmlContext>
 #include <QtMath>
+#include <akutils.h>
+#include <akpacket.h>
 
 #include "cinemaelement.h"
 
@@ -94,7 +98,7 @@ AkPacket CinemaElement::iStream(const AkPacket &packet)
 
     for (int y = 0; y < src.height(); y++) {
         qreal k = 1.0 - qAbs(y - cy) / qreal(cy);
-        const QRgb *iLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
+        auto iLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
         QRgb *oLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
 
         if (k > this->m_stripSize)
@@ -114,3 +118,5 @@ AkPacket CinemaElement::iStream(const AkPacket &packet)
     AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
     akSend(oPacket)
 }
+
+#include "moc_cinemaelement.cpp"

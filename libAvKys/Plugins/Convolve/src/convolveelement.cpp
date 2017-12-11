@@ -17,26 +17,55 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QVariant>
+#include <QVector>
+#include <QMutex>
+#include <QImage>
+#include <QQmlContext>
+#include <akutils.h>
+#include <akfrac.h>
+#include <akpacket.h>
+
 #include "convolveelement.h"
+
+class ConvolveElementPrivate
+{
+    public:
+        QVector<int> m_kernel;
+        QSize m_kernelSize;
+        AkFrac m_factor;
+        QMutex m_mutex;
+        int m_bias;
+
+        ConvolveElementPrivate():
+            m_kernelSize(QSize(3, 3)),
+            m_factor(AkFrac(1, 1)),
+            m_bias(0)
+        {
+        }
+};
 
 ConvolveElement::ConvolveElement(): AkElement()
 {
-    this->m_kernel = {
+    this->d = new ConvolveElementPrivate;
+
+    this->d->m_kernel = {
         0, 0, 0,
         0, 1, 0,
         0, 0, 0
     };
+}
 
-    this->m_kernelSize = QSize(3, 3);
-    this->m_factor = AkFrac(1, 1);
-    this->m_bias = 0;
+ConvolveElement::~ConvolveElement()
+{
+    delete this->d;
 }
 
 QVariantList ConvolveElement::kernel() const
 {
     QVariantList kernel;
 
-    for (const int &e: this->m_kernel)
+    for (const int &e: this->d->m_kernel)
         kernel << e;
 
     return kernel;
@@ -44,17 +73,17 @@ QVariantList ConvolveElement::kernel() const
 
 QSize ConvolveElement::kernelSize() const
 {
-    return this->m_kernelSize;
+    return this->d->m_kernelSize;
 }
 
 AkFrac ConvolveElement::factor() const
 {
-    return this->m_factor;
+    return this->d->m_factor;
 }
 
 int ConvolveElement::bias() const
 {
-    return this->m_bias;
+    return this->d->m_bias;
 }
 
 QString ConvolveElement::controlInterfaceProvide(const QString &controlId) const
@@ -80,41 +109,41 @@ void ConvolveElement::setKernel(const QVariantList &kernel)
     for (const QVariant &e: kernel)
         k << e.toInt();
 
-    if (this->m_kernel == k)
+    if (this->d->m_kernel == k)
         return;
 
-    QMutexLocker(&this->m_mutex);
-    this->m_kernel = k;
+    QMutexLocker(&this->d->m_mutex);
+    this->d->m_kernel = k;
     emit this->kernelChanged(kernel);
 }
 
 void ConvolveElement::setKernelSize(const QSize &kernelSize)
 {
-    if (this->m_kernelSize == kernelSize)
+    if (this->d->m_kernelSize == kernelSize)
         return;
 
-    QMutexLocker(&this->m_mutex);
-    this->m_kernelSize = kernelSize;
+    QMutexLocker(&this->d->m_mutex);
+    this->d->m_kernelSize = kernelSize;
     emit this->kernelSizeChanged(kernelSize);
 }
 
 void ConvolveElement::setFactor(const AkFrac &factor)
 {
-    if (this->m_factor == factor)
+    if (this->d->m_factor == factor)
         return;
 
-    QMutexLocker(&this->m_mutex);
-    this->m_factor = factor;
+    QMutexLocker(&this->d->m_mutex);
+    this->d->m_factor = factor;
     emit this->factorChanged(factor);
 }
 
 void ConvolveElement::setBias(int bias)
 {
-    if (this->m_bias == bias)
+    if (this->d->m_bias == bias)
         return;
 
-    QMutexLocker(&this->m_mutex);
-    this->m_bias = bias;
+    QMutexLocker(&this->d->m_mutex);
+    this->d->m_bias = bias;
     emit this->biasChanged(bias);
 }
 
@@ -154,14 +183,14 @@ AkPacket ConvolveElement::iStream(const AkPacket &packet)
     src = src.convertToFormat(QImage::Format_ARGB32);
     QImage oFrame(src.size(), src.format());
 
-    this->m_mutex.lock();
-    QVector<int> kernel = this->m_kernel;
+    this->d->m_mutex.lock();
+    QVector<int> kernel = this->d->m_kernel;
     const int *kernelBits = kernel.constData();
-    qint64 factorNum = this->m_factor.num();
-    qint64 factorDen = this->m_factor.den();
-    int kernelWidth = this->m_kernelSize.width();
-    int kernelHeight = this->m_kernelSize.height();
-    this->m_mutex.unlock();
+    qint64 factorNum = this->d->m_factor.num();
+    qint64 factorDen = this->d->m_factor.den();
+    int kernelWidth = this->d->m_kernelSize.width();
+    int kernelHeight = this->d->m_kernelSize.height();
+    this->d->m_mutex.unlock();
 
     int minI = -(kernelWidth - 1) / 2;
     int maxI = (kernelWidth + 1) / 2;
@@ -169,8 +198,8 @@ AkPacket ConvolveElement::iStream(const AkPacket &packet)
     int maxJ = (kernelHeight + 1) / 2;
 
     for (int y = 0; y < src.height(); y++) {
-        const QRgb *iLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
-        QRgb *oLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
+        auto iLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
+        auto oLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
 
         for (int x = 0; x < src.width(); x++) {
             int r = 0;
@@ -179,7 +208,8 @@ AkPacket ConvolveElement::iStream(const AkPacket &packet)
 
             for (int j = minJ, k = 0; j < maxJ; j++) {
                 int yp = qBound(0, y + j, src.height() - 1);
-                const QRgb *iLine = reinterpret_cast<const QRgb *>(src.constScanLine(yp));
+                auto iLine =
+                        reinterpret_cast<const QRgb *>(src.constScanLine(yp));
 
                 for (int i = minI; i < maxI; i++, k++) {
                     int xp = qBound(0, x + i, src.width() - 1);
@@ -193,9 +223,9 @@ AkPacket ConvolveElement::iStream(const AkPacket &packet)
             }
 
             if (factorNum) {
-                r = int(factorNum * r / factorDen + this->m_bias);
-                g = int(factorNum * g / factorDen + this->m_bias);
-                b = int(factorNum * b / factorDen + this->m_bias);
+                r = int(factorNum * r / factorDen + this->d->m_bias);
+                g = int(factorNum * g / factorDen + this->d->m_bias);
+                b = int(factorNum * b / factorDen + this->d->m_bias);
 
                 r = qBound(0, r, 255);
                 g = qBound(0, g, 255);
@@ -213,3 +243,5 @@ AkPacket ConvolveElement::iStream(const AkPacket &packet)
     AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
     akSend(oPacket)
 }
+
+#include "moc_convolveelement.cpp"

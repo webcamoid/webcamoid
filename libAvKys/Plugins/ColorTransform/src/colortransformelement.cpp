@@ -17,22 +17,41 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QVector>
+#include <QImage>
+#include <QQmlContext>
+#include <akutils.h>
+#include <akpacket.h>
+
 #include "colortransformelement.h"
+
+class ColorTransformElementPrivate
+{
+    public:
+        QVector<qreal> m_kernel;
+};
 
 ColorTransformElement::ColorTransformElement(): AkElement()
 {
-    this->m_kernel = {
+    this->d = new ColorTransformElementPrivate;
+
+    this->d->m_kernel = {
         1, 0, 0, 0,
         0, 1, 0, 0,
         0, 0, 1, 0
     };
 }
 
+ColorTransformElement::~ColorTransformElement()
+{
+    delete this->d;
+}
+
 QVariantList ColorTransformElement::kernel() const
 {
     QVariantList kernel;
 
-    for (const qreal &e: this->m_kernel)
+    for (const qreal &e: this->d->m_kernel)
         kernel << e;
 
     return kernel;
@@ -61,10 +80,10 @@ void ColorTransformElement::setKernel(const QVariantList &kernel)
     for (const QVariant &e: kernel)
         k << e.toReal();
 
-    if (this->m_kernel == k)
+    if (this->d->m_kernel == k)
         return;
 
-    this->m_kernel = k;
+    this->d->m_kernel = k;
     emit this->kernelChanged(kernel);
 }
 
@@ -81,7 +100,7 @@ void ColorTransformElement::resetKernel()
 
 AkPacket ColorTransformElement::iStream(const AkPacket &packet)
 {
-    if (this->m_kernel.size() < 12)
+    if (this->d->m_kernel.size() < 12)
         akSend(packet)
 
     QImage src = AkUtils::packetToImage(packet);
@@ -91,11 +110,11 @@ AkPacket ColorTransformElement::iStream(const AkPacket &packet)
 
     src = src.convertToFormat(QImage::Format_ARGB32);
     QImage oFrame(src.size(), src.format());
-    QVector<qreal> kernel = this->m_kernel;
+    auto kernel = this->d->m_kernel;
 
     for (int y = 0; y < src.height(); y++) {
-        const QRgb *srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
-        QRgb *dstLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
+        auto srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
+        auto dstLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
 
         for (int x = 0; x < src.width(); x++) {
             int r = qRed(srcLine[x]);
@@ -117,3 +136,5 @@ AkPacket ColorTransformElement::iStream(const AkPacket &packet)
     AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
     akSend(oPacket)
 }
+
+#include "moc_colortransformelement.cpp"

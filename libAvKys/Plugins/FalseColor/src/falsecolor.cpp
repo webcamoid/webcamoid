@@ -34,3 +34,5 @@ QStringList FalseColor::keys() const
 {
     return QStringList();
 }
+
+#include "moc_falsecolor.cpp"

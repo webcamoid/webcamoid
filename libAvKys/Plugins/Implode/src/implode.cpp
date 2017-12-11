@@ -34,3 +34,5 @@ QStringList Implode::keys() const
 {
     return QStringList();
 }
+
+#include "moc_implode.cpp"

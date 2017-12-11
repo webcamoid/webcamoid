@@ -20,8 +20,9 @@
 #ifndef FALSECOLORELEMENT_H
 #define FALSECOLORELEMENT_H
 
-#include <ak.h>
-#include <akutils.h>
+#include <akelement.h>
+
+class FalseColorElementPrivate;
 
 class FalseColorElement: public AkElement
 {
@@ -39,13 +40,13 @@ class FalseColorElement: public AkElement
 
     public:
         explicit FalseColorElement();
+        ~FalseColorElement();
 
         Q_INVOKABLE QVariantList table() const;
         Q_INVOKABLE bool soft() const;
 
     private:
-        QList<QRgb> m_table;
-        bool m_soft;
+        FalseColorElementPrivate *d;
 
     protected:
         QString controlInterfaceProvide(const QString &controlId) const;

@@ -20,8 +20,9 @@
 #ifndef FIREELEMENT_H
 #define FIREELEMENT_H
 
-#include <ak.h>
-#include <akutils.h>
+#include <akelement.h>
+
+class FireElementPrivate;
 
 class FireElement: public AkElement
 {
@@ -86,6 +87,7 @@ class FireElement: public AkElement
         };
 
         explicit FireElement();
+        ~FireElement();
 
         Q_INVOKABLE QString mode() const;
         Q_INVOKABLE int cool() const;
@@ -99,35 +101,7 @@ class FireElement: public AkElement
         Q_INVOKABLE int nColors() const;
 
     private:
-        FireMode m_mode;
-        int m_cool;
-        qreal m_disolve;
-        qreal m_zoom;
-        int m_threshold;
-        int m_lumaThreshold;
-        int m_alphaDiff;
-        int m_alphaVariation;
-        int m_nColors;
-
-        QSize m_framSize;
-        QImage m_prevFrame;
-        QImage m_fireBuffer;
-        QVector<QRgb> m_palette;
-        AkElementPtr m_blurFilter;
-
-        QImage imageDiff(const QImage &img1,
-                         const QImage &img2,
-                         int colors,
-                         int threshold,
-                         int lumaThreshold, int alphaVariation,
-                         FireMode mode);
-
-        QImage zoomImage(const QImage &src, qreal factor);
-        void coolImage(QImage &src, int colorDiff);
-        void imageAlphaDiff(QImage &src, int alphaDiff);
-        void disolveImage(QImage &src, qreal amount);
-        QImage burn(const QImage &src, const QVector<QRgb> &palette);
-        QVector<QRgb> createPalette();
+        FireElementPrivate *d;
 
     protected:
         QString controlInterfaceProvide(const QString &controlId) const;

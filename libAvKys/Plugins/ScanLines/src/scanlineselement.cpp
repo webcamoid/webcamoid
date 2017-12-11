@@ -17,6 +17,11 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QImage>
+#include <QQmlContext>
+#include <akutils.h>
+#include <akpacket.h>
+
 #include "scanlineselement.h"
 
 ScanLinesElement::ScanLinesElement(): AkElement()
@@ -132,3 +137,5 @@ AkPacket ScanLinesElement::iStream(const AkPacket &packet)
     AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
     akSend(oPacket)
 }
+
+#include "moc_scanlineselement.cpp"

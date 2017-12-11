@@ -20,8 +20,8 @@
 #ifndef SCANLINESELEMENT_H
 #define SCANLINESELEMENT_H
 
-#include <ak.h>
-#include <akutils.h>
+#include <qrgb.h>
+#include <akelement.h>
 
 class ScanLinesElement: public AkElement
 {

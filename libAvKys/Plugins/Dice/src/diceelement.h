@@ -20,9 +20,9 @@
 #ifndef DICEELEMENT_H
 #define DICEELEMENT_H
 
-#include <QMutex>
-#include <ak.h>
-#include <akutils.h>
+#include <akelement.h>
+
+class DiceElementPrivate;
 
 class DiceElement: public AkElement
 {
@@ -35,15 +35,12 @@ class DiceElement: public AkElement
 
     public:
         explicit DiceElement();
+        ~DiceElement();
 
         Q_INVOKABLE int diceSize() const;
 
     private:
-        int m_diceSize;
-
-        QMutex m_mutex;
-        QImage m_diceMap;
-        QSize m_frameSize;
+        DiceElementPrivate *d;
 
     protected:
         QString controlInterfaceProvide(const QString &controlId) const;

@@ -20,7 +20,7 @@
 #ifndef SCROLL_H
 #define SCROLL_H
 
-#include <ak.h>
+#include <akplugin.h>
 
 class Scroll: public QObject, public AkPlugin
 {

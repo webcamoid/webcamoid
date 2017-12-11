@@ -18,15 +18,42 @@
  */
 
 #include <QPainter>
+#include <QQmlContext>
+#include <QtMath>
+#include <QMutex>
+#include <akutils.h>
+#include <akpacket.h>
 
 #include "vignetteelement.h"
 
+class VignetteElementPrivate
+{
+    public:
+        QRgb m_color;
+        qreal m_aspect;
+        qreal m_scale;
+        qreal m_softness;
+        QSize m_curSize;
+        QImage m_vignette;
+        QMutex m_mutex;
+
+        VignetteElementPrivate():
+            m_color(qRgb(0, 0, 0)),
+            m_aspect(3.0 / 7.0),
+            m_scale(0.5),
+            m_softness(0.5)
+        {
+        }
+
+        inline qreal radius(qreal x, qreal y)
+        {
+            return qSqrt(x * x + y * y);
+        }
+};
+
 VignetteElement::VignetteElement(): AkElement()
 {
-    this->m_color = qRgb(0, 0, 0);
-    this->m_aspect = 3.0 / 7.0;
-    this->m_scale = 0.5;
-    this->m_softness = 0.5;
+    this->d = new VignetteElementPrivate;
 
     QObject::connect(this,
                      &VignetteElement::colorChanged,
@@ -50,24 +77,29 @@ VignetteElement::VignetteElement(): AkElement()
                      &VignetteElement::updateVignette);
 }
 
+VignetteElement::~VignetteElement()
+{
+    delete this->d;
+}
+
 QRgb VignetteElement::color() const
 {
-    return this->m_color;
+    return this->d->m_color;
 }
 
 qreal VignetteElement::aspect() const
 {
-    return this->m_aspect;
+    return this->d->m_aspect;
 }
 
 qreal VignetteElement::scale() const
 {
-    return this->m_scale;
+    return this->d->m_scale;
 }
 
 qreal VignetteElement::softness() const
 {
-    return this->m_softness;
+    return this->d->m_softness;
 }
 
 QString VignetteElement::controlInterfaceProvide(const QString &controlId) const
@@ -88,37 +120,37 @@ void VignetteElement::controlInterfaceConfigure(QQmlContext *context,
 
 void VignetteElement::setColor(QRgb color)
 {
-    if (this->m_color == color)
+    if (this->d->m_color == color)
         return;
 
-    this->m_color = color;
+    this->d->m_color = color;
     emit this->colorChanged(color);
 }
 
 void VignetteElement::setAspect(qreal aspect)
 {
-    if (qFuzzyCompare(this->m_aspect, aspect))
+    if (qFuzzyCompare(this->d->m_aspect, aspect))
         return;
 
-    this->m_aspect = aspect;
+    this->d->m_aspect = aspect;
     emit this->aspectChanged(aspect);
 }
 
 void VignetteElement::setScale(qreal scale)
 {
-    if (qFuzzyCompare(this->m_scale, scale))
+    if (qFuzzyCompare(this->d->m_scale, scale))
         return;
 
-    this->m_scale = scale;
+    this->d->m_scale = scale;
     emit this->scaleChanged(scale);
 }
 
 void VignetteElement::setSoftness(qreal softness)
 {
-    if (qFuzzyCompare(this->m_softness, softness))
+    if (qFuzzyCompare(this->d->m_softness, softness))
         return;
 
-    this->m_softness = softness;
+    this->d->m_softness = softness;
     emit this->softnessChanged(softness);
 }
 
@@ -151,14 +183,14 @@ AkPacket VignetteElement::iStream(const AkPacket &packet)
 
     QImage oFrame = src.convertToFormat(QImage::Format_ARGB32);
 
-    if (src.size() != this->m_curSize) {
-        this->m_curSize = src.size();
-        emit this->curSizeChanged(this->m_curSize);
+    if (src.size() != this->d->m_curSize) {
+        this->d->m_curSize = src.size();
+        emit this->curSizeChanged(this->d->m_curSize);
     }
 
-    this->m_mutex.lock();
-    QImage vignette = this->m_vignette;
-    this->m_mutex.unlock();
+    this->d->m_mutex.lock();
+    QImage vignette = this->d->m_vignette;
+    this->d->m_mutex.unlock();
 
     QPainter painter;
     painter.begin(&oFrame);
@@ -171,21 +203,22 @@ AkPacket VignetteElement::iStream(const AkPacket &packet)
 
 void VignetteElement::updateVignette()
 {
-    this->m_mutex.lock();
+    this->d->m_mutex.lock();
 
-    QSize curSize = this->m_curSize;
+    QSize curSize = this->d->m_curSize;
     QImage vignette(curSize, QImage::Format_ARGB32);
 
     // Center of the ellipse.
     int xc = vignette.width() / 2;
     int yc = vignette.height() / 2;
 
-    qreal aspect = qBound(0.0, this->m_aspect, 1.0);
-    qreal rho = qBound(0.01, this->m_aspect, 0.99);
+    qreal aspect = qBound(0.0, this->d->m_aspect, 1.0);
+    qreal rho = qBound(0.01, this->d->m_aspect, 0.99);
 
     // Calculate the maximum scale to clear the vignette.
-    qreal scale = this->m_scale * sqrt(1.0 / pow(rho, 2)
-                                       + 1.0 / pow(1.0 - rho, 2));
+    qreal scale =
+            this->d->m_scale * qSqrt(1.0 / qPow(rho, 2)
+                                    + 1.0 / qPow(1.0 - rho, 2));
 
     // Calculate radius.
     qreal a = scale * aspect * xc;
@@ -202,19 +235,19 @@ void VignetteElement::updateVignette()
     qreal qb = b * b;
     qreal qab = qa * qb;
 
-    qreal softness = 255.0 * (2.0 * this->m_softness - 1.0);
+    qreal softness = 255.0 * (2.0 * this->d->m_softness - 1.0);
 
-    int red = qRed(this->m_color);
-    int green = qGreen(this->m_color);
-    int blue = qBlue(this->m_color);
-    int alpha = qAlpha(this->m_color);
+    int red = qRed(this->d->m_color);
+    int green = qGreen(this->d->m_color);
+    int blue = qBlue(this->d->m_color);
+    int alpha = qAlpha(this->d->m_color);
 
     // Get the radius to a corner.
     qreal dwa = xc / a;
     qreal dhb = yc / b;
-    qreal maxRadius = this->radius(dwa, dhb);
+    qreal maxRadius = this->d->radius(dwa, dhb);
 
-    this->m_mutex.unlock();
+    this->d->m_mutex.unlock();
 
     for (int y = 0; y < vignette.height(); y++) {
         QRgb *line = reinterpret_cast<QRgb *>(vignette.scanLine(y));
@@ -235,7 +268,7 @@ void VignetteElement::updateVignette()
             else {
                 // The opacity of the pixel depends on the relation between
                 // it's radius and the corner radius.
-                qreal k = this->radius(dxa, dyb) / maxRadius;
+                qreal k = this->d->radius(dxa, dyb) / maxRadius;
                 int opacity = int(k * alpha - softness);
                 opacity = qBound(0, opacity, 255);
                 line[x] = qRgba(red, green, blue, opacity);
@@ -243,7 +276,9 @@ void VignetteElement::updateVignette()
         }
     }
 
-    this->m_mutex.lock();
-    this->m_vignette = vignette;
-    this->m_mutex.unlock();
+    this->d->m_mutex.lock();
+    this->d->m_vignette = vignette;
+    this->d->m_mutex.unlock();
 }
+
+#include "moc_vignetteelement.cpp"

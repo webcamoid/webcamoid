@@ -17,8 +17,13 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QtMath>
+#include <QVariant>
+#include <QMap>
 #include <QPainter>
+#include <QQmlContext>
+#include <QtMath>
+#include <akutils.h>
+#include <akpacket.h>
 
 #include "fireelement.h"
 
@@ -36,93 +41,135 @@ inline FireModeMap initFireModeMap()
 
 Q_GLOBAL_STATIC_WITH_ARGS(FireModeMap, fireModeToStr, (initFireModeMap()))
 
+class FireElementPrivate
+{
+    public:
+        FireElement::FireMode m_mode;
+        int m_cool;
+        qreal m_disolve;
+        qreal m_zoom;
+        int m_threshold;
+        int m_lumaThreshold;
+        int m_alphaDiff;
+        int m_alphaVariation;
+        int m_nColors;
+        QSize m_framSize;
+        QImage m_prevFrame;
+        QImage m_fireBuffer;
+        QVector<QRgb> m_palette;
+        AkElementPtr m_blurFilter;
+
+        FireElementPrivate():
+            m_mode(FireElement::FireModeHard),
+            m_cool(-16),
+            m_disolve(0.01),
+            m_zoom(0.02),
+            m_threshold(15),
+            m_lumaThreshold(15),
+            m_alphaDiff(-12),
+            m_alphaVariation(127),
+            m_nColors(8)
+        {
+        }
+
+        inline QImage imageDiff(const QImage &img1,
+                                const QImage &img2,
+                                int colors,
+                                int threshold,
+                                int lumaThreshold,
+                                int alphaVariation,
+                                FireElement::FireMode mode);
+        inline QImage zoomImage(const QImage &src, qreal factor);
+        inline void coolImage(QImage &src, int colorDiff);
+        inline void imageAlphaDiff(QImage &src, int alphaDiff);
+        inline void disolveImage(QImage &src, qreal amount);
+        inline QImage burn(const QImage &src, const QVector<QRgb> &palette);
+        inline QVector<QRgb> createPalette();
+};
+
 FireElement::FireElement(): AkElement()
 {
-    this->m_mode = FireModeHard;
-    this->m_cool = -16;
-    this->m_disolve = 0.01;
-    this->m_zoom = 0.02;
-    this->m_threshold = 15;
-    this->m_lumaThreshold = 15;
-    this->m_alphaDiff = -12;
-    this->m_alphaVariation = 127;
-    this->m_nColors = 8;
+    this->d = new FireElementPrivate;
+    this->d->m_palette = this->d->createPalette();
+    this->d->m_blurFilter = AkElement::create("Blur");
+    this->d->m_blurFilter->setProperty("radius", 2);
 
-    this->m_palette = this->createPalette();
-    this->m_blurFilter = AkElement::create("Blur");
-    this->m_blurFilter->setProperty("radius", 2);
-
-    QObject::connect(this->m_blurFilter.data(),
+    QObject::connect(this->d->m_blurFilter.data(),
                      SIGNAL(radiusChanged(int)),
                      this,
                      SIGNAL(blurChanged(int)));
 }
 
+FireElement::~FireElement()
+{
+    delete this->d;
+}
+
 QString FireElement::mode() const
 {
-    return fireModeToStr->value(this->m_mode);
+    return fireModeToStr->value(this->d->m_mode);
 }
 
 int FireElement::cool() const
 {
-    return this->m_cool;
+    return this->d->m_cool;
 }
 
 qreal FireElement::disolve() const
 {
-    return this->m_disolve;
+    return this->d->m_disolve;
 }
 
 int FireElement::blur() const
 {
-    return this->m_blurFilter->property("radius").toInt();
+    return this->d->m_blurFilter->property("radius").toInt();
 }
 
 qreal FireElement::zoom() const
 {
-    return this->m_zoom;
+    return this->d->m_zoom;
 }
 
 int FireElement::threshold() const
 {
-    return this->m_threshold;
+    return this->d->m_threshold;
 }
 
 int FireElement::lumaThreshold() const
 {
-    return this->m_lumaThreshold;
+    return this->d->m_lumaThreshold;
 }
 
 int FireElement::alphaDiff() const
 {
-    return this->m_alphaDiff;
+    return this->d->m_alphaDiff;
 }
 
 int FireElement::alphaVariation() const
 {
-    return this->m_alphaVariation;
+    return this->d->m_alphaVariation;
 }
 
 int FireElement::nColors() const
 {
-    return this->m_nColors;
+    return this->d->m_nColors;
 }
 
-QImage FireElement::imageDiff(const QImage &img1,
-                            const QImage &img2,
-                            int colors,
-                            int threshold,
-                            int lumaThreshold,
-                            int alphaVariation,
-                            FireMode mode)
+QImage FireElementPrivate::imageDiff(const QImage &img1,
+                                     const QImage &img2,
+                                     int colors,
+                                     int threshold,
+                                     int lumaThreshold,
+                                     int alphaVariation,
+                                     FireElement::FireMode mode)
 {
     int width = qMin(img1.width(), img2.width());
     int height = qMin(img1.height(), img2.height());
     QImage diff(width, height, QImage::Format_ARGB32);
 
     for (int y = 0; y < height; y++) {
-        const QRgb *iLine1 = reinterpret_cast<const QRgb *>(img1.constScanLine(y));
-        const QRgb *iLine2 = reinterpret_cast<const QRgb *>(img2.constScanLine(y));
+        auto iLine1 = reinterpret_cast<const QRgb *>(img1.constScanLine(y));
+        auto iLine2 = reinterpret_cast<const QRgb *>(img2.constScanLine(y));
         QRgb *oLine = reinterpret_cast<QRgb *>(diff.scanLine(y));
 
         for (int x = 0; x < width; x++) {
@@ -141,7 +188,7 @@ QImage FireElement::imageDiff(const QImage &img1,
             int alpha = dr * dr + dg * dg + db * db;
             alpha = int(sqrt(alpha / 3));
 
-            if (mode == FireModeSoft)
+            if (mode == FireElement::FireModeSoft)
                 alpha = alpha < threshold? 0: alpha;
             else
                 alpha = alpha < threshold?
@@ -160,7 +207,7 @@ QImage FireElement::imageDiff(const QImage &img1,
     return diff;
 }
 
-QImage FireElement::zoomImage(const QImage &src, qreal factor)
+QImage FireElementPrivate::zoomImage(const QImage &src, qreal factor)
 {
     QImage scaled = src.scaled(src.width(),
                                int((1 + factor) * src.height()));
@@ -178,7 +225,7 @@ QImage FireElement::zoomImage(const QImage &src, qreal factor)
     return zoom;
 }
 
-void FireElement::coolImage(QImage &src, int colorDiff)
+void FireElementPrivate::coolImage(QImage &src, int colorDiff)
 {
     for (int y = 0; y < src.height(); y++) {
         QRgb *srcLine = reinterpret_cast<QRgb *>(src.scanLine(y));
@@ -190,7 +237,7 @@ void FireElement::coolImage(QImage &src, int colorDiff)
     }
 }
 
-void FireElement::imageAlphaDiff(QImage &src, int alphaDiff)
+void FireElementPrivate::imageAlphaDiff(QImage &src, int alphaDiff)
 {
     for (int y = 0; y < src.height(); y++) {
         QRgb *srcLine = reinterpret_cast<QRgb *>(src.scanLine(y));
@@ -204,7 +251,7 @@ void FireElement::imageAlphaDiff(QImage &src, int alphaDiff)
     }
 }
 
-void FireElement::disolveImage(QImage &src, qreal amount)
+void FireElementPrivate::disolveImage(QImage &src, qreal amount)
 {
     qint64 videoArea = src.width() * src.height();
     qint64 n = qint64(amount * videoArea);
@@ -220,7 +267,7 @@ void FireElement::disolveImage(QImage &src, qreal amount)
     }
 }
 
-QImage FireElement::burn(const QImage &src, const QVector<QRgb> &palette)
+QImage FireElementPrivate::burn(const QImage &src, const QVector<QRgb> &palette)
 {
     QImage dest(src.size(), src.format());
 
@@ -241,7 +288,7 @@ QImage FireElement::burn(const QImage &src, const QVector<QRgb> &palette)
     return dest;
 }
 
-QVector<QRgb> FireElement::createPalette()
+QVector<QRgb> FireElementPrivate::createPalette()
 {
     QVector<QRgb> palette;
 
@@ -278,87 +325,87 @@ void FireElement::setMode(const QString &mode)
 {
     FireMode modeEnum = fireModeToStr->key(mode, FireModeHard);
 
-    if (this->m_mode == modeEnum)
+    if (this->d->m_mode == modeEnum)
         return;
 
-    this->m_mode = modeEnum;
+    this->d->m_mode = modeEnum;
     emit this->modeChanged(mode);
 }
 
 void FireElement::setCool(int cool)
 {
-    if (this->m_cool == cool)
+    if (this->d->m_cool == cool)
         return;
 
-    this->m_cool = cool;
+    this->d->m_cool = cool;
     emit this->coolChanged(cool);
 }
 
 void FireElement::setDisolve(qreal disolve)
 {
-    if (qFuzzyCompare(this->m_disolve, disolve))
+    if (qFuzzyCompare(this->d->m_disolve, disolve))
         return;
 
-    this->m_disolve = disolve;
+    this->d->m_disolve = disolve;
     emit this->disolveChanged(disolve);
 }
 
 void FireElement::setBlur(int blur)
 {
-    this->m_blurFilter->setProperty("radius", blur);
+    this->d->m_blurFilter->setProperty("radius", blur);
 }
 
 void FireElement::setZoom(qreal zoom)
 {
-    if (qFuzzyCompare(this->m_zoom, zoom))
+    if (qFuzzyCompare(this->d->m_zoom, zoom))
         return;
 
-    this->m_zoom = zoom;
+    this->d->m_zoom = zoom;
     emit this->zoomChanged(zoom);
 }
 
 void FireElement::setThreshold(int threshold)
 {
-    if (this->m_threshold == threshold)
+    if (this->d->m_threshold == threshold)
         return;
 
-    this->m_threshold = threshold;
+    this->d->m_threshold = threshold;
     emit this->thresholdChanged(threshold);
 }
 
 void FireElement::setLumaThreshold(int lumaThreshold)
 {
-    if (this->m_lumaThreshold == lumaThreshold)
+    if (this->d->m_lumaThreshold == lumaThreshold)
         return;
 
-    this->m_lumaThreshold = lumaThreshold;
+    this->d->m_lumaThreshold = lumaThreshold;
     emit this->lumaThresholdChanged(lumaThreshold);
 }
 
 void FireElement::setAlphaDiff(int alphaDiff)
 {
-    if (this->m_alphaDiff == alphaDiff)
+    if (this->d->m_alphaDiff == alphaDiff)
         return;
 
-    this->m_alphaDiff = alphaDiff;
+    this->d->m_alphaDiff = alphaDiff;
     emit this->alphaDiffChanged(alphaDiff);
 }
 
 void FireElement::setAlphaVariation(int alphaVariation)
 {
-    if (this->m_alphaVariation == alphaVariation)
+    if (this->d->m_alphaVariation == alphaVariation)
         return;
 
-    this->m_alphaVariation = alphaVariation;
+    this->d->m_alphaVariation = alphaVariation;
     emit this->alphaVariationChanged(alphaVariation);
 }
 
 void FireElement::setNColors(int nColors)
 {
-    if (this->m_nColors == nColors)
+    if (this->d->m_nColors == nColors)
         return;
 
-    this->m_nColors = nColors;
+    this->d->m_nColors = nColors;
     emit this->nColorsChanged(nColors);
 }
 
@@ -422,52 +469,57 @@ AkPacket FireElement::iStream(const AkPacket &packet)
     src = src.convertToFormat(QImage::Format_ARGB32);
     QImage oFrame(src.size(), src.format());
 
-    if (src.size() != this->m_framSize) {
-        this->m_fireBuffer = QImage();
-        this->m_prevFrame = QImage();
-        this->m_framSize = src.size();
+    if (src.size() != this->d->m_framSize) {
+        this->d->m_fireBuffer = QImage();
+        this->d->m_prevFrame = QImage();
+        this->d->m_framSize = src.size();
     }
 
-    if (this->m_prevFrame.isNull()) {
+    if (this->d->m_prevFrame.isNull()) {
         oFrame = src;
-        this->m_fireBuffer = QImage(src.size(), src.format());
-        this->m_fireBuffer.fill(qRgba(0, 0, 0, 0));
+        this->d->m_fireBuffer = QImage(src.size(), src.format());
+        this->d->m_fireBuffer.fill(qRgba(0, 0, 0, 0));
     } else {
-        this->m_fireBuffer = this->zoomImage(this->m_fireBuffer, this->m_zoom);
-        this->coolImage(this->m_fireBuffer, this->m_cool);
-        this->imageAlphaDiff(this->m_fireBuffer, this->m_alphaDiff);
-        this->disolveImage(this->m_fireBuffer, this->m_disolve);
+        this->d->m_fireBuffer = this->d->zoomImage(this->d->m_fireBuffer,
+                                                   this->d->m_zoom);
+        this->d->coolImage(this->d->m_fireBuffer, this->d->m_cool);
+        this->d->imageAlphaDiff(this->d->m_fireBuffer, this->d->m_alphaDiff);
+        this->d->disolveImage(this->d->m_fireBuffer, this->d->m_disolve);
 
-        int nColors = this->m_nColors > 0? this->m_nColors: 1;
+        int nColors = this->d->m_nColors > 0? this->d->m_nColors: 1;
 
         // Compute the difference between previous and current frame,
         // and save it to the buffer.
-        QImage diff = this->imageDiff(this->m_prevFrame,
-                                      src,
-                                      nColors,
-                                      this->m_threshold,
-                                      this->m_lumaThreshold,
-                                      this->m_alphaVariation,
-                                      this->m_mode);
+        QImage diff =
+                this->d->imageDiff(this->d->m_prevFrame,
+                                   src,
+                                   nColors,
+                                   this->d->m_threshold,
+                                   this->d->m_lumaThreshold,
+                                   this->d->m_alphaVariation,
+                                   this->d->m_mode);
 
         QPainter painter;
-        painter.begin(&this->m_fireBuffer);
+        painter.begin(&this->d->m_fireBuffer);
         painter.drawImage(0, 0, diff);
         painter.end();
 
-        AkPacket firePacket = AkUtils::imageToPacket(this->m_fireBuffer, packet);
-        AkPacket blurPacket = this->m_blurFilter->iStream(firePacket);
-        this->m_fireBuffer = AkUtils::packetToImage(blurPacket);
+        auto firePacket = AkUtils::imageToPacket(this->d->m_fireBuffer, packet);
+        auto blurPacket = this->d->m_blurFilter->iStream(firePacket);
+        this->d->m_fireBuffer = AkUtils::packetToImage(blurPacket);
 
         // Apply buffer.
         painter.begin(&oFrame);
         painter.drawImage(0, 0, src);
-        painter.drawImage(0, 0, this->burn(this->m_fireBuffer, this->m_palette));
+        painter.drawImage(0, 0, this->d->burn(this->d->m_fireBuffer,
+                                              this->d->m_palette));
         painter.end();
     }
 
-    this->m_prevFrame = src.copy();
+    this->d->m_prevFrame = src.copy();
 
     AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
     akSend(oPacket)
 }
+
+#include "moc_fireelement.cpp"

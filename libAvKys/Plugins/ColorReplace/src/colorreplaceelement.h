@@ -20,8 +20,8 @@
 #ifndef COLORREPLACEELEMENT_H
 #define COLORREPLACEELEMENT_H
 
-#include <ak.h>
-#include <akutils.h>
+#include <qrgb.h>
+#include <akelement.h>
 
 class ColorReplaceElement: public AkElement
 {

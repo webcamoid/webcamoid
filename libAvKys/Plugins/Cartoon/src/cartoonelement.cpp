@@ -21,65 +21,105 @@
 #include <QtMath>
 #include <QPainter>
 #include <QDateTime>
+#include <QMutex>
+#include <QQmlContext>
+#include <akutils.h>
+#include <akpacket.h>
 
 #include "cartoonelement.h"
 
+class CartoonElementPrivate
+{
+    public:
+        int m_ncolors;
+        int m_colorDiff;
+        bool m_showEdges;
+        int m_thresholdLow;
+        int m_thresholdHi;
+        QRgb m_lineColor;
+        QSize m_scanSize;
+        QVector<QRgb> m_palette;
+        qint64 m_id;
+        qint64 m_lastTime;
+        QMutex m_mutex;
+
+        CartoonElementPrivate():
+            m_ncolors(8),
+            m_colorDiff(95),
+            m_showEdges(true),
+            m_thresholdLow(85),
+            m_thresholdHi(171),
+            m_lineColor(qRgb(0, 0, 0)),
+            m_scanSize(QSize(320, 240)),
+            m_id(-1),
+            m_lastTime(0)
+        {
+        }
+
+        inline QVector<QRgb> palette(const QImage &img,
+                                     int ncolors,
+                                     int colorDiff);
+        inline QRgb nearestColor(int *index,
+                                 int *diff,
+                                 const QVector<QRgb> &palette,
+                                 QRgb color) const;
+        inline QImage edges(const QImage &src,
+                            int thLow,
+                            int thHi,
+                            QRgb color) const;
+        inline int rgb24Torgb16(QRgb color);
+        inline void rgb16Torgb24(int *r, int *g, int *b, int color);
+        inline QRgb rgb16Torgb24(int color);
+};
+
 CartoonElement::CartoonElement(): AkElement()
 {
-    this->m_ncolors = 8;
-    this->m_colorDiff = 95;
-    this->m_showEdges = true;
-    this->m_thresholdLow = 85;
-    this->m_thresholdHi = 171;
-    this->m_lineColor = qRgb(0, 0, 0);
-    this->m_scanSize = QSize(320, 240);
-    this->m_id = -1;
-    this->m_lastTime = 0;
+    this->d = new CartoonElementPrivate;
 }
 
 CartoonElement::~CartoonElement()
 {
-
+    delete this->d;
 }
 
 int CartoonElement::ncolors() const
 {
-    return this->m_ncolors;
+    return this->d->m_ncolors;
 }
 
 int CartoonElement::colorDiff() const
 {
-    return this->m_colorDiff;
+    return this->d->m_colorDiff;
 }
 
 bool CartoonElement::showEdges() const
 {
-    return this->m_showEdges;
+    return this->d->m_showEdges;
 }
 
 int CartoonElement::thresholdLow() const
 {
-    return this->m_thresholdLow;
+    return this->d->m_thresholdLow;
 }
 
 int CartoonElement::thresholdHi() const
 {
-    return this->m_thresholdHi;
+    return this->d->m_thresholdHi;
 }
 
 QRgb CartoonElement::lineColor() const
 {
-    return this->m_lineColor;
+    return this->d->m_lineColor;
 }
 
 QSize CartoonElement::scanSize() const
 {
-    return this->m_scanSize;
+    return this->d->m_scanSize;
 }
 
-QVector<QRgb> CartoonElement::palette(const QImage &img,
-                                      int ncolors,
-                                      int colorDiff)
+QVector<QRgb> CartoonElementPrivate::palette(const QImage &img,
+                                             int ncolors,
+                                             int colorDiff)
 {
     qint64 time = QDateTime::currentMSecsSinceEpoch();
 
@@ -151,10 +191,10 @@ QVector<QRgb> CartoonElement::palette(const QImage &img,
     return palette;
 }
 
-QRgb CartoonElement::nearestColor(int *index,
-                                  int *diff,
-                                  const QVector<QRgb> &palette,
-                                  QRgb color) const
+QRgb CartoonElementPrivate::nearestColor(int *index,
+                                         int *diff,
+                                         const QVector<QRgb> &palette,
+                                         QRgb color) const
 {
     if (palette.isEmpty()) {
         if (index)
@@ -195,7 +235,10 @@ QRgb CartoonElement::nearestColor(int *index,
     return palette[index_];
 }
 
-QImage CartoonElement::edges(const QImage &src, int thLow, int thHi, QRgb color) const
+QImage CartoonElementPrivate::edges(const QImage &src,
+                                    int thLow,
+                                    int thHi,
+                                    QRgb color) const
 {
     QImage dst(src.size(), src.format());
 
@@ -248,6 +291,33 @@ QImage CartoonElement::edges(const QImage &src, int thLow, int thHi, QRgb color)
     return dst;
 }
 
+int CartoonElementPrivate::rgb24Torgb16(QRgb color)
+{
+    return ((qRed(color) >> 3) << 11)
+            | ((qGreen(color) >> 2) << 5)
+            | (qBlue(color) >> 3);
+}
+
+void CartoonElementPrivate::rgb16Torgb24(int *r, int *g, int *b, int color)
+{
+    *r = (color >> 11) & 0x1f;
+    *g = (color >> 5) & 0x3f;
+    *b = color & 0x1f;
+    *r = 0xff * *r / 0x1f;
+    *g = 0xff * *g / 0x3f;
+    *b = 0xff * *b / 0x1f;
+}
+
+QRgb CartoonElementPrivate::rgb16Torgb24(int color)
+{
+    int r;
+    int g;
+    int b;
+    rgb16Torgb24(&r, &g, &b, color);
+
+    return qRgb(r, g, b);
+}
+
 QString CartoonElement::controlInterfaceProvide(const QString &controlId) const
 {
     Q_UNUSED(controlId)
@@ -266,66 +336,66 @@ void CartoonElement::controlInterfaceConfigure(QQmlContext *context,
 
 void CartoonElement::setNColors(int ncolors)
 {
-    if (this->m_ncolors == ncolors)
+    if (this->d->m_ncolors == ncolors)
         return;
 
-    this->m_ncolors = ncolors;
+    this->d->m_ncolors = ncolors;
     emit this->ncolorsChanged(ncolors);
 }
 
 void CartoonElement::setColorDiff(int colorDiff)
 {
-    if (this->m_colorDiff == colorDiff)
+    if (this->d->m_colorDiff == colorDiff)
         return;
 
-    this->m_colorDiff = colorDiff;
+    this->d->m_colorDiff = colorDiff;
     emit this->colorDiffChanged(colorDiff);
 }
 
 void CartoonElement::setShowEdges(bool showEdges)
 {
-    if (this->m_showEdges == showEdges)
+    if (this->d->m_showEdges == showEdges)
         return;
 
-    this->m_showEdges = showEdges;
+    this->d->m_showEdges = showEdges;
     emit this->showEdgesChanged(showEdges);
 }
 
 void CartoonElement::setThresholdLow(int thresholdLow)
 {
-    if (this->m_thresholdLow == thresholdLow)
+    if (this->d->m_thresholdLow == thresholdLow)
         return;
 
-    this->m_thresholdLow = thresholdLow;
+    this->d->m_thresholdLow = thresholdLow;
     emit this->thresholdLowChanged(thresholdLow);
 }
 
 void CartoonElement::setThresholdHi(int thresholdHi)
 {
-    if (this->m_thresholdHi == thresholdHi)
+    if (this->d->m_thresholdHi == thresholdHi)
         return;
 
-    this->m_thresholdHi = thresholdHi;
+    this->d->m_thresholdHi = thresholdHi;
     emit this->thresholdHiChanged(thresholdHi);
 }
 
 void CartoonElement::setLineColor(QRgb lineColor)
 {
-    if (this->m_lineColor == lineColor)
+    if (this->d->m_lineColor == lineColor)
         return;
 
-    this->m_lineColor = lineColor;
+    this->d->m_lineColor = lineColor;
     emit this->lineColorChanged(lineColor);
 }
 
 void CartoonElement::setScanSize(const QSize &scanSize)
 {
-    if (this->m_scanSize == scanSize)
+    if (this->d->m_scanSize == scanSize)
         return;
 
-    this->m_mutex.lock();
-    this->m_scanSize = scanSize;
-    this->m_mutex.unlock();
+    this->d->m_mutex.lock();
+    this->d->m_scanSize = scanSize;
+    this->d->m_mutex.unlock();
     emit this->scanSizeChanged(scanSize);
 }
 
@@ -366,9 +436,9 @@ void CartoonElement::resetScanSize()
 
 AkPacket CartoonElement::iStream(const AkPacket &packet)
 {
-    this->m_mutex.lock();
-    QSize scanSize(this->m_scanSize);
-    this->m_mutex.unlock();
+    this->d->m_mutex.lock();
+    QSize scanSize(this->d->m_scanSize);
+    this->d->m_mutex.unlock();
 
     if (scanSize.isEmpty())
         akSend(packet)
@@ -381,32 +451,35 @@ AkPacket CartoonElement::iStream(const AkPacket &packet)
     src = src.convertToFormat(QImage::Format_ARGB32);
     QImage oFrame(src.size(), src.format());
 
-    if (this->m_id != packet.id()) {
-        this->m_id = packet.id();
-        this->m_palette.clear();
-        this->m_lastTime = QDateTime::currentMSecsSinceEpoch();
+    if (this->d->m_id != packet.id()) {
+        this->d->m_id = packet.id();
+        this->d->m_palette.clear();
+        this->d->m_lastTime = QDateTime::currentMSecsSinceEpoch();
     }
 
     // Palettize image.
     QVector<QRgb> palette =
-            this->palette(src.scaled(scanSize, Qt::KeepAspectRatio), this->m_ncolors, this->m_colorDiff);
+            this->d->palette(src.scaled(scanSize, Qt::KeepAspectRatio),
+                             this->d->m_ncolors,
+                             this->d->m_colorDiff);
 
     for (int y = 0; y < src.height(); y++) {
         const QRgb *srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
         QRgb *dstLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
 
         for (int x = 0; x < src.width(); x++)
-            dstLine[x] = palette[this->rgb24Torgb16(srcLine[x])];
+            dstLine[x] = palette[this->d->rgb24Torgb16(srcLine[x])];
     }
 
     // Draw the edges.
-    if (this->m_showEdges) {
+    if (this->d->m_showEdges) {
         QPainter painter;
         painter.begin(&oFrame);
-        QImage edges = this->edges(src,
-                                   this->m_thresholdLow,
-                                   this->m_thresholdHi,
-                                   this->m_lineColor);
+        QImage edges =
+                this->d->edges(src,
+                               this->d->m_thresholdLow,
+                               this->d->m_thresholdHi,
+                               this->d->m_lineColor);
         painter.drawImage(0, 0, edges);
         painter.end();
     }
@@ -414,3 +487,5 @@ AkPacket CartoonElement::iStream(const AkPacket &packet)
     AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
     akSend(oPacket)
 }
+
+#include "moc_cartoonelement.cpp"

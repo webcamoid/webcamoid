@@ -17,18 +17,39 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QColor>
+#include <QImage>
+#include <QQmlContext>
+#include <QMutex>
 #include <QStandardPaths>
+#include <akutils.h>
+#include <akpacket.h>
 
 #include "halftoneelement.h"
 
+class HalftoneElementPrivate
+{
+    public:
+        QString m_pattern;
+        QSize m_patternSize;
+        qreal m_lightness;
+        qreal m_slope;
+        qreal m_intercept;
+        QMutex m_mutex;
+        QSize m_frameSize;
+        QImage m_patternImage;
+
+        HalftoneElementPrivate():
+            m_pattern(":/Halftone/share/patterns/ditherCluster8Matrix.bmp"),
+            m_lightness(0.5),
+            m_slope(1.0),
+            m_intercept(0.0)
+        {
+        }
+};
+
 HalftoneElement::HalftoneElement(): AkElement()
 {
-    this->m_pattern = ":/Halftone/share/patterns/ditherCluster8Matrix.bmp";
-    this->m_lightness = 0.5;
-    this->m_slope = 1.0;
-    this->m_intercept = 0.0;
-
+    this->d = new HalftoneElementPrivate;
     this->updatePattern();
 
     QObject::connect(this,
@@ -41,53 +62,58 @@ HalftoneElement::HalftoneElement(): AkElement()
                      &HalftoneElement::updatePattern);
 }
 
+HalftoneElement::~HalftoneElement()
+{
+    delete this->d;
+}
+
 QString HalftoneElement::pattern() const
 {
-    return this->m_pattern;
+    return this->d->m_pattern;
 }
 
 QSize HalftoneElement::patternSize() const
 {
-    return this->m_patternSize;
+    return this->d->m_patternSize;
 }
 
 qreal HalftoneElement::lightness() const
 {
-    return this->m_lightness;
+    return this->d->m_lightness;
 }
 
 qreal HalftoneElement::slope() const
 {
-    return this->m_slope;
+    return this->d->m_slope;
 }
 
 qreal HalftoneElement::intercept() const
 {
-    return this->m_intercept;
+    return this->d->m_intercept;
 }
 
 void HalftoneElement::updatePattern()
 {
-    if (this->m_pattern.isEmpty()) {
-        this->m_mutex.lock();
-        this->m_patternImage = QImage();
-        this->m_mutex.unlock();
+    if (this->d->m_pattern.isEmpty()) {
+        this->d->m_mutex.lock();
+        this->d->m_patternImage = QImage();
+        this->d->m_mutex.unlock();
 
         return;
     }
 
-    QImage image(this->m_pattern);
+    QImage image(this->d->m_pattern);
 
     if (image.isNull()) {
-        this->m_mutex.lock();
-        this->m_patternImage = QImage();
-        this->m_mutex.unlock();
+        this->d->m_mutex.lock();
+        this->d->m_patternImage = QImage();
+        this->d->m_mutex.unlock();
 
         return;
     }
 
-    QSize patternSize = this->m_patternSize.isEmpty()?
-                            image.size(): this->m_patternSize;
+    QSize patternSize = this->d->m_patternSize.isEmpty()?
+                            image.size(): this->d->m_patternSize;
     QImage pattern(patternSize, QImage::Format_Indexed8);
 
     for (int i = 0; i < 256; i++)
@@ -96,16 +122,16 @@ void HalftoneElement::updatePattern()
     image = image.scaled(patternSize).convertToFormat(QImage::Format_RGB32);
 
     for (int y = 0; y < patternSize.height(); y++) {
-        const QRgb *srcLine = reinterpret_cast<const QRgb *>(image.constScanLine(y));
-        quint8 *dstLine = pattern.scanLine(y);
+        auto srcLine = reinterpret_cast<const QRgb *>(image.constScanLine(y));
+        auto dstLine = pattern.scanLine(y);
 
         for (int x = 0; x < patternSize.width(); x++)
             dstLine[x] = quint8(qGray(srcLine[x]));
     }
 
-    this->m_mutex.lock();
-    this->m_patternImage = pattern;
-    this->m_mutex.unlock();
+    this->d->m_mutex.lock();
+    this->d->m_patternImage = pattern;
+    this->d->m_mutex.unlock();
 }
 
 QString HalftoneElement::controlInterfaceProvide(const QString &controlId) const
@@ -129,46 +155,46 @@ void HalftoneElement::controlInterfaceConfigure(QQmlContext *context,
 
 void HalftoneElement::setPattern(const QString &pattern)
 {
-    if (this->m_pattern == pattern)
+    if (this->d->m_pattern == pattern)
         return;
 
-    this->m_pattern = pattern;
+    this->d->m_pattern = pattern;
     emit this->patternChanged(pattern);
 }
 
 void HalftoneElement::setPatternSize(const QSize &patternSize)
 {
-    if (this->m_patternSize == patternSize)
+    if (this->d->m_patternSize == patternSize)
         return;
 
-    this->m_patternSize = patternSize;
+    this->d->m_patternSize = patternSize;
     emit this->patternSizeChanged(patternSize);
 }
 
 void HalftoneElement::setLightness(qreal lightness)
 {
-    if (qFuzzyCompare(this->m_lightness, lightness))
+    if (qFuzzyCompare(this->d->m_lightness, lightness))
         return;
 
-    this->m_lightness = lightness;
+    this->d->m_lightness = lightness;
     emit this->lightnessChanged(lightness);
 }
 
 void HalftoneElement::setSlope(qreal slope)
 {
-    if (qFuzzyCompare(this->m_slope, slope))
+    if (qFuzzyCompare(this->d->m_slope, slope))
         return;
 
-    this->m_slope = slope;
+    this->d->m_slope = slope;
     emit this->slopeChanged(slope);
 }
 
 void HalftoneElement::setIntercept(qreal intercept)
 {
-    if (qFuzzyCompare(this->m_intercept, intercept))
+    if (qFuzzyCompare(this->d->m_intercept, intercept))
         return;
 
-    this->m_intercept = intercept;
+    this->d->m_intercept = intercept;
     emit this->interceptChanged(intercept);
 }
 
@@ -207,15 +233,15 @@ AkPacket HalftoneElement::iStream(const AkPacket &packet)
     src = src.convertToFormat(QImage::Format_ARGB32);
     QImage oFrame(src.size(), src.format());
 
-    this->m_mutex.lock();
+    this->d->m_mutex.lock();
 
-    if (this->m_patternImage.isNull()) {
-        this->m_mutex.unlock();
+    if (this->d->m_patternImage.isNull()) {
+        this->d->m_mutex.unlock();
         akSend(packet)
     }
 
-    QImage patternImage = this->m_patternImage.copy();
-    this->m_mutex.unlock();
+    QImage patternImage = this->d->m_patternImage.copy();
+    this->d->m_mutex.unlock();
 
     // filter image
     for (int y = 0; y < src.height(); y++) {
@@ -229,7 +255,9 @@ AkPacket HalftoneElement::iStream(const AkPacket &packet)
             int gray = qGray(iLine[x]);
             const quint8 *pattern = reinterpret_cast<const quint8 *>(patternImage.constScanLine(row));
             int threshold = pattern[col];
-            threshold = int(this->m_slope * threshold + this->m_intercept);
+            threshold = int(this->d->m_slope
+                            * threshold
+                            + this->d->m_intercept);
             threshold = qBound(0, threshold, 255);
 
             if (gray > threshold)
@@ -239,7 +267,7 @@ AkPacket HalftoneElement::iStream(const AkPacket &packet)
 
                 color.setHsl(color.hue(),
                              color.saturation(),
-                             int(this->m_lightness * color.lightness()),
+                             int(this->d->m_lightness * color.lightness()),
                              color.alpha());
 
                 oLine[x] = color.rgba();
@@ -250,3 +278,5 @@ AkPacket HalftoneElement::iStream(const AkPacket &packet)
     AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
     akSend(oPacket)
 }
+
+#include "moc_halftoneelement.cpp"

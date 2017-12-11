@@ -20,12 +20,11 @@
 #ifndef CHARIFYELEMENT_H
 #define CHARIFYELEMENT_H
 
-#include <QPainter>
-#include <QMutex>
-#include <ak.h>
-#include <akutils.h>
+#include <akelement.h>
 
 #include "character.h"
+
+class CharifyElementPrivate;
 
 class CharifyElement: public AkElement
 {
@@ -80,6 +79,7 @@ class CharifyElement: public AkElement
         };
 
         explicit CharifyElement();
+        ~CharifyElement();
 
         Q_INVOKABLE QString mode() const;
         Q_INVOKABLE QString charTable() const;
@@ -91,16 +91,7 @@ class CharifyElement: public AkElement
         Q_INVOKABLE bool reversed() const;
 
     private:
-        ColorMode m_mode;
-        QString m_charTable;
-        QFont m_font;
-        QRgb m_foregroundColor;
-        QRgb m_backgroundColor;
-        bool m_reversed;
-
-        QVector<Character> m_characters;
-        QSize m_fontSize;
-        QMutex m_mutex;
+        CharifyElementPrivate *d;
 
         QSize fontSize(const QString &chrTable, const QFont &font) const;
         QImage drawChar(const QChar &chr, const QFont &font,

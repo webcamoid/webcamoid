@@ -20,9 +20,10 @@
 #ifndef CONVOLVEELEMENT_H
 #define CONVOLVEELEMENT_H
 
-#include <QMutex>
-#include <ak.h>
-#include <akutils.h>
+#include <akelement.h>
+
+class ConvolveElementPrivate;
+class AkFrac;
 
 class ConvolveElement: public AkElement
 {
@@ -50,6 +51,7 @@ class ConvolveElement: public AkElement
 
     public:
         explicit ConvolveElement();
+        ~ConvolveElement();
 
         Q_INVOKABLE QVariantList kernel() const;
         Q_INVOKABLE QSize kernelSize() const;
@@ -57,12 +59,7 @@ class ConvolveElement: public AkElement
         Q_INVOKABLE int bias() const;
 
     private:
-        QVector<int> m_kernel;
-        QSize m_kernelSize;
-        AkFrac m_factor;
-        int m_bias;
-
-        QMutex m_mutex;
+        ConvolveElementPrivate *d;
 
     protected:
         QString controlInterfaceProvide(const QString &controlId) const;

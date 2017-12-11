@@ -34,3 +34,5 @@ QStringList Scroll::keys() const
 {
     return QStringList();
 }
+
+#include "moc_scroll.cpp"

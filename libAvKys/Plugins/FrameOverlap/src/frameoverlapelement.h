@@ -20,8 +20,9 @@
 #ifndef FRAMEOVERLAPELEMENT_H
 #define FRAMEOVERLAPELEMENT_H
 
-#include <ak.h>
-#include <akutils.h>
+#include <akelement.h>
+
+class FrameOverlapElementPrivate;
 
 class FrameOverlapElement: public AkElement
 {
@@ -39,15 +40,13 @@ class FrameOverlapElement: public AkElement
 
     public:
         explicit FrameOverlapElement();
+        ~FrameOverlapElement();
 
         Q_INVOKABLE int nFrames() const;
         Q_INVOKABLE int stride() const;
 
     private:
-        int m_nFrames;
-        int m_stride;
-        QVector<QImage> m_frames;
-        QSize m_frameSize;
+        FrameOverlapElementPrivate *d;
 
     protected:
         QString controlInterfaceProvide(const QString &controlId) const;

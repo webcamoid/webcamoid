@@ -20,7 +20,7 @@
 #ifndef COLORTRANSFORM_H
 #define COLORTRANSFORM_H
 
-#include <ak.h>
+#include <akplugin.h>
 
 class ColorTransform: public QObject, public AkPlugin
 {

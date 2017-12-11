@@ -34,3 +34,5 @@ QStringList Quark::keys() const
 {
     return QStringList();
 }
+
+#include "moc_quark.cpp"

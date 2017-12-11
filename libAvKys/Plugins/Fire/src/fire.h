@@ -20,7 +20,7 @@
 #ifndef FIRE_H
 #define FIRE_H
 
-#include <ak.h>
+#include <akplugin.h>
 
 class Fire: public QObject, public AkPlugin
 {

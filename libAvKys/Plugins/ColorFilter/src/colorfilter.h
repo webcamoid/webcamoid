@@ -20,7 +20,7 @@
 #ifndef COLORFILTER_H
 #define COLORFILTER_H
 
-#include <ak.h>
+#include <akplugin.h>
 
 class ColorFilter: public QObject, public AkPlugin
 {

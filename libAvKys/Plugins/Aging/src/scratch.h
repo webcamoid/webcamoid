@@ -20,34 +20,12 @@
 #ifndef SCRATCH_H
 #define SCRATCH_H
 
-#include <QObject>
+#include <QtCore/qglobal.h>
 
-class Scratch: public QObject
+class Scratch
 {
-    Q_OBJECT
-    Q_PROPERTY(qreal life
-               READ life
-               WRITE setLife
-               RESET resetLife)
-    Q_PROPERTY(qreal dlife
-               READ dlife
-               WRITE setDLife
-               RESET resetDLife)
-    Q_PROPERTY(qreal x
-               READ x
-               WRITE setX
-               RESET resetX)
-    Q_PROPERTY(qreal dx
-               READ dx
-               WRITE setDx
-               RESET resetDx)
-    Q_PROPERTY(int y
-               READ y
-               WRITE setY
-               RESET resetY)
-
     public:
-        explicit Scratch(QObject *parent=nullptr);
+        explicit Scratch();
         Scratch(qreal minLife, qreal maxLife,
                 qreal minDLife, qreal maxDLife,
                 qreal minX, qreal maxX,
@@ -57,28 +35,18 @@ class Scratch: public QObject
         Scratch &operator =(const Scratch &other);
         Scratch operator ++(int);
 
-        Q_INVOKABLE qreal life() const;
-        Q_INVOKABLE qreal &life();
-        Q_INVOKABLE qreal dlife() const;
-        Q_INVOKABLE qreal &dlife();
-        Q_INVOKABLE qreal x() const;
-        Q_INVOKABLE qreal &x();
-        Q_INVOKABLE qreal dx() const;
-        Q_INVOKABLE qreal &dx();
-        Q_INVOKABLE int y() const;
-        Q_INVOKABLE int &y();
+        qreal life() const;
+        qreal &life();
+        qreal dlife() const;
+        qreal &dlife();
+        qreal x() const;
+        qreal &x();
+        qreal dx() const;
+        qreal &dx();
+        int y() const;
+        int &y();
 
-        Q_INVOKABLE bool isAboutToDie() const;
-
-    private:
-        qreal m_life;
-        qreal m_dlife;
-        qreal m_x;
-        qreal m_dx;
-        int m_y;
-        qreal m_life0;
-
-    public slots:
+        bool isAboutToDie() const;
         void setLife(qreal life);
         void setDLife(qreal dlife);
         void setX(qreal x);
@@ -89,6 +57,14 @@ class Scratch: public QObject
         void resetX();
         void resetDx();
         void resetY();
+
+    private:
+        qreal m_life0;
+        qreal m_life;
+        qreal m_dlife;
+        qreal m_x;
+        qreal m_dx;
+        int m_y;
 };
 
 #endif // SCRATCH_H

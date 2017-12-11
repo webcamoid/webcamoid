@@ -34,3 +34,5 @@ QStringList Ripple::keys() const
 {
     return QStringList();
 }
+
+#include "moc_ripple.cpp"

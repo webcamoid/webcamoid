@@ -34,3 +34,5 @@ QStringList Invert::keys() const
 {
     return QStringList();
 }
+
+#include "moc_invert.cpp"

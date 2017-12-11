@@ -34,3 +34,5 @@ QStringList Temperature::keys() const
 {
     return QStringList();
 }
+
+#include "moc_temperature.cpp"

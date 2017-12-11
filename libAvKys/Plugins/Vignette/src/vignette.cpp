@@ -34,3 +34,5 @@ QStringList Vignette::keys() const
 {
     return QStringList();
 }
+
+#include "moc_vignette.cpp"

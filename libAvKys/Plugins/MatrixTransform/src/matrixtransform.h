@@ -20,7 +20,7 @@
 #ifndef MATRIXTRANSFORM_H
 #define MATRIXTRANSFORM_H
 
-#include <ak.h>
+#include <akplugin.h>
 
 class MatrixTransform: public QObject, public AkPlugin
 {

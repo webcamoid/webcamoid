@@ -20,8 +20,7 @@
 #ifndef GRAYSCALEELEMENT_H
 #define GRAYSCALEELEMENT_H
 
-#include <ak.h>
-#include <akutils.h>
+#include <akelement.h>
 
 class GrayScaleElement: public AkElement
 {

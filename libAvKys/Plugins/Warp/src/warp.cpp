@@ -34,3 +34,5 @@ QStringList Warp::keys() const
 {
     return QStringList();
 }
+
+#include "moc_warp.cpp"

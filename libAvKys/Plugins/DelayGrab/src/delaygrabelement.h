@@ -20,9 +20,9 @@
 #ifndef DELAYGRABELEMENT_H
 #define DELAYGRABELEMENT_H
 
-#include <QMutex>
-#include <ak.h>
-#include <akutils.h>
+#include <akelement.h>
+
+class DelayGrabElementPrivate;
 
 class DelayGrabElement: public AkElement
 {
@@ -58,20 +58,14 @@ class DelayGrabElement: public AkElement
         };
 
         explicit DelayGrabElement();
+        ~DelayGrabElement();
 
         Q_INVOKABLE QString mode() const;
         Q_INVOKABLE int blockSize() const;
         Q_INVOKABLE int nFrames() const;
 
     private:
-        DelayGrabMode m_mode;
-        int m_blockSize;
-        int m_nFrames;
-
-        QMutex m_mutex;
-        QSize m_frameSize;
-        QVector<QImage> m_frames;
-        QVector<int> m_delayMap;
+        DelayGrabElementPrivate *d;
 
     protected:
         QString controlInterfaceProvide(const QString &controlId) const;
