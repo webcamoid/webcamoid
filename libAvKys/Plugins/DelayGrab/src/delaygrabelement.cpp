@@ -17,6 +17,7 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <cstdlib>
 #include <QMap>
 #include <QVector>
 #include <QMutex>

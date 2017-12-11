@@ -17,6 +17,8 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <cstdlib>
+
 #include "scratch.h"
 
 Scratch::Scratch():

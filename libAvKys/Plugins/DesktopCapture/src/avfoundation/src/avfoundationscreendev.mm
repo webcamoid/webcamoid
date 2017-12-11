@@ -170,7 +170,9 @@ void AVFoundationScreenDev::frameReceived(CGDirectDisplayID screen,
     QImage frameImg(int(CGImageGetWidth(image)),
                     int(CGImageGetHeight(image)),
                     QImage::Format_RGB32);
-    auto bufferSize = size_t(qMin(buffer.size(), frameImg.byteCount()));
+    auto bufferSize = size_t(qMin(buffer.size(),
+                                  frameImg.bytesPerLine()
+                                  * frameImg.height()));
     memcpy(frameImg.bits(), buffer.constData(), bufferSize);
 
     AkVideoCaps caps;

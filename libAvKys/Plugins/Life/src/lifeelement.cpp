@@ -134,7 +134,8 @@ void LifeElement::updateLife()
 
     memcpy(this->d->m_lifeBuffer.bits(),
            lifeBuffer.constBits(),
-           size_t(lifeBuffer.byteCount()));
+           size_t(lifeBuffer.bytesPerLine())
+           * size_t(lifeBuffer.height()));
 }
 
 QString LifeElement::controlInterfaceProvide(const QString &controlId) const
