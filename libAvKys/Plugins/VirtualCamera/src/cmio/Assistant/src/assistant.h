@@ -30,29 +30,25 @@ namespace AkVCam
             Assistant();
             ~Assistant();
 
-            CFDataRef requestPort(bool asClient) const;
-            CFDataRef addPort(const std::string &portName);
-            CFDataRef removePort(const std::string &port);
-            CFDataRef deviceCreate(const std::string &port,
-                                   const std::string &description,
-                                   const std::vector<VideoFormat> &formats);
-            CFDataRef deviceDestroy(const std::string &deviceId);
-            CFDataRef setBroadcasting(const std::string &deviceId,
-                                      bool broadcasting);
-            CFDataRef frameReady(CFDataRef data) const;
-            CFDataRef devices() const;
-            CFDataRef description(const std::string &deviceId) const;
-            CFDataRef formats(const std::string &deviceId) const;
-            CFDataRef broadcasting(const std::string &deviceId);
-            static CFDataRef messageReceived(CFMessagePortRef local,
-                                             SInt32 msgid,
-                                             CFDataRef data,
-                                             void *info);
-            void messagePortInvalidated(CFMessagePortRef messagePort);
+            void requestPort(xpc_connection_t client, xpc_object_t event);
+            void addPort(xpc_connection_t client, xpc_object_t event);
+            void removePortByName(const std::string &portName);
+            void removePort(xpc_connection_t client, xpc_object_t event);
+            void deviceCreate(xpc_connection_t client, xpc_object_t event);
+            void deviceDestroyById(const std::string &deviceId);
+            void deviceDestroy(xpc_connection_t client, xpc_object_t event);
+            void setBroadcasting(xpc_connection_t client, xpc_object_t event);
+            void frameReady(xpc_connection_t client, xpc_object_t event);
+            void devices(xpc_connection_t client, xpc_object_t event);
+            void description(xpc_connection_t client, xpc_object_t event);
+            void formats(xpc_connection_t client, xpc_object_t event);
+            void broadcasting(xpc_connection_t client, xpc_object_t event);
+            void messageReceived(xpc_connection_t client, xpc_object_t event);
 
         private:
             AssistantServers m_servers;
             AssistantClients m_clients;
+            std::map<int64_t, XpcMessage> m_messageHandlers;
 
             inline static uint64_t id()
             {

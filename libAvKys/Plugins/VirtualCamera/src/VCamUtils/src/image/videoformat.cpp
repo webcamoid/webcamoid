@@ -48,14 +48,6 @@ AkVCam::VideoFormat::VideoFormat(const VideoFormat &other)
     this->m_frameRates = other.m_frameRates;
 }
 
-AkVCam::VideoFormat::VideoFormat(const AkVCam::VideoFormatStruct &videoFormatStruct)
-{
-    this->m_fourcc = videoFormatStruct.fourcc;
-    this->m_width = videoFormatStruct.width;
-    this->m_height = videoFormatStruct.height;
-    this->m_frameRates.push_back(videoFormatStruct.frameRate);
-}
-
 AkVCam::VideoFormat &AkVCam::VideoFormat::operator =(const VideoFormat &other)
 {
     if (this != &other) {
@@ -64,16 +56,6 @@ AkVCam::VideoFormat &AkVCam::VideoFormat::operator =(const VideoFormat &other)
         this->m_height = other.m_height;
         this->m_frameRates = other.m_frameRates;
     }
-
-    return *this;
-}
-
-AkVCam::VideoFormat &AkVCam::VideoFormat::operator =(const VideoFormatStruct &videoFormatStruct)
-{
-    this->m_fourcc = videoFormatStruct.fourcc;
-    this->m_width = videoFormatStruct.width;
-    this->m_height = videoFormatStruct.height;
-    this->m_frameRates.push_back(videoFormatStruct.frameRate);
 
     return *this;
 }
@@ -145,14 +127,4 @@ double AkVCam::VideoFormat::minimumFrameRate() const
 
     return *std::min_element(this->m_frameRates.begin(),
                              this->m_frameRates.end());
-}
-
-AkVCam::VideoFormatStruct AkVCam::VideoFormat::toStruct() const
-{
-    return {
-        this->m_fourcc,
-        this->m_width,
-        this->m_height,
-        this->minimumFrameRate()
-    };
 }

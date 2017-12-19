@@ -24,8 +24,9 @@
 #include <string>
 #include <vector>
 #include <map>
-
-#include <CoreFoundation/CFMessagePort.h>
+#include <functional>
+#include <xpc/xpc.h>
+#include <xpc/connection.h>
 
 #include "VCamUtils/src/image/videoformat.h"
 
@@ -55,6 +56,9 @@
 
 #define AKVCAM_ASSISTANT_REQUEST_TIMEOUT 10.0
 
+#define AKVCAM_BIND_FUNC(member) \
+    std::bind(&member, this, std::placeholders::_1, std::placeholders::_2)
+
 namespace AkVCam
 {
     struct AssistantDevice
@@ -67,12 +71,14 @@ namespace AkVCam
 
     struct AssistantServer
     {
-        CFMessagePortRef messagePort;
+        xpc_connection_t connection;
         std::vector<AssistantDevice> devices;
     };
 
     typedef std::map<std::string, AssistantServer> AssistantServers;
-    typedef std::map<std::string, CFMessagePortRef> AssistantClients;
+    typedef std::map<std::string, xpc_connection_t> AssistantClients;
+    typedef std::function<void (xpc_connection_t,
+                                xpc_object_t)> XpcMessage;
 }
 
 #endif // ASSISTANTGLOBALS_H

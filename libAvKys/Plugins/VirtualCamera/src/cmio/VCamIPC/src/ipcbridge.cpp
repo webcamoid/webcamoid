@@ -18,10 +18,15 @@
  */
 
 #include <sstream>
+#include <algorithm>
+#include <IOSurface/IOSurface.h>
+#include <CoreMedia/CMFormatDescription.h>
 
 #include "ipcbridge.h"
 #include "../../Assistant/src/assistantglobals.h"
+#include "VCamUtils/src/utils.h"
 #include "VCamUtils/src/image/videoformat.h"
+#include "VCamUtils/src/image/videoframe.h"
 
 namespace AkVCam
 {
@@ -32,21 +37,28 @@ namespace AkVCam
     {
         public:
             IpcBridge *parent;
-            CFMessagePortRef messagePort;
-            CFMessagePortRef serverMessagePort;
-            CFRunLoopSourceRef runLoopSource;
+            std::string portName;
+            xpc_connection_t messagePort;
+            xpc_connection_t serverMessagePort;
             std::vector<std::string> devices;
-            IpcBridge::FrameReadCallback frameReadCallback;
+            IpcBridge::FrameReadyCallback frameReadyCallback;
             IpcBridge::DeviceChangedCallback deviceAddedCallback;
             IpcBridge::DeviceChangedCallback deviceRemovedCallback;
+            std::map<int64_t, XpcMessage> m_messageHandlers;
+            std::vector<std::string> broadcasting;
 
             IpcBridgePrivate(IpcBridge *parent=nullptr):
                 parent(parent),
                 messagePort(nullptr),
-                serverMessagePort(nullptr),
-                runLoopSource(nullptr)
+                serverMessagePort(nullptr)
             {
                 this->startAssistant();
+
+                this->m_messageHandlers = {
+                    {AKVCAM_ASSISTANT_MSG_DEVICE_CREATED  , AKVCAM_BIND_FUNC(IpcBridgePrivate::deviceCreated)  },
+                    {AKVCAM_ASSISTANT_MSG_DEVICE_DESTROYED, AKVCAM_BIND_FUNC(IpcBridgePrivate::deviceDestroyed)},
+                    {AKVCAM_ASSISTANT_MSG_FRAME_READY     , AKVCAM_BIND_FUNC(IpcBridgePrivate::frameReady)     }
+                };
             }
 
             inline bool startAssistant()
@@ -92,107 +104,71 @@ namespace AkVCam
                 return this->m_bridges;
             }
 
-            inline static CFDataRef messageReceived(CFMessagePortRef local,
-                                                    SInt32 msgid,
-                                                    CFDataRef data,
-                                                    void *info)
+            inline void deviceCreated(xpc_connection_t client,
+                                      xpc_object_t event)
             {
-                auto self = reinterpret_cast<IpcBridge *>(info);
+                UNUSED(client)
 
-                switch (msgid) {
-                    case AKVCAM_ASSISTANT_MSG_DEVICE_CREATED: {
-                        if (self->d->deviceAddedCallback)
-                            self->d->deviceAddedCallback(self->d->dataToCppString(data));
-                    }
+                std::string device = xpc_dictionary_get_string(event, "device");
 
-                    case AKVCAM_ASSISTANT_MSG_DEVICE_DESTROYED: {
-                        if (self->d->deviceRemovedCallback)
-                            self->d->deviceRemovedCallback(self->d->dataToCppString(data));
-                    }
+                for (auto bridge: this->m_bridges)
+                    if (bridge->d->deviceAddedCallback)
+                        bridge->d->deviceAddedCallback(device);
+            }
 
-                    case AKVCAM_ASSISTANT_MSG_FRAME_READY: {
-                    }
+            inline void deviceDestroyed(xpc_connection_t client,
+                                        xpc_object_t event)
+            {
+                UNUSED(client)
 
-                    default:
-                        break;
+                std::string device = xpc_dictionary_get_string(event, "device");
+
+                for (auto bridge: this->m_bridges)
+                    if (bridge->d->deviceRemovedCallback)
+                        bridge->d->deviceRemovedCallback(device);
+            }
+
+            inline void frameReady(xpc_connection_t client,
+                                   xpc_object_t event)
+            {
+                UNUSED(client)
+
+                std::string deviceId = xpc_dictionary_get_string(event, "device");
+                auto frame = xpc_dictionary_get_value(event, "frame");
+                auto surface = IOSurfaceLookupFromXPCObject(frame);
+
+                uint32_t surfaceSeed = 0;
+                IOSurfaceLock(surface, kIOSurfaceLockReadOnly, &surfaceSeed);
+                FourCC fourcc = IOSurfaceGetPixelFormat(surface);
+                int width = IOSurfaceGetWidth(surface);
+                int height = IOSurfaceGetHeight(surface);
+                size_t size = IOSurfaceGetAllocSize(surface);
+                auto data = reinterpret_cast<uint8_t *>(IOSurfaceGetBaseAddress(surface));
+                AkVCam::VideoFrame videoFrame({fourcc, width, height},
+                                              data, size);
+                IOSurfaceUnlock(surface, kIOSurfaceLockReadOnly, &surfaceSeed);
+                CFRelease(surface);
+
+                for (auto bridge: this->m_bridges)
+                    if (bridge->d->frameReadyCallback)
+                        bridge->d->frameReadyCallback(deviceId, videoFrame);
+            }
+
+            inline void messageReceived(xpc_connection_t client,
+                                        xpc_object_t event)
+            {
+                auto type = xpc_get_type(event);
+
+                if (type == XPC_TYPE_ERROR) {
+                     auto description = xpc_copy_description(event);
+                     AkLoggerLog("ERROR: " << description);
+                     free(description);
+                } else if (type == XPC_TYPE_DICTIONARY) {
+                    int64_t message = xpc_dictionary_get_int64(event, "message");
+
+                    if (this->m_messageHandlers.count(message))
+                        this->m_messageHandlers[message](client, event);
                 }
-
-                return nullptr;
-            }
-
-            inline static void serverMessagePortInvalidated(CFMessagePortRef messagePort,
-                                                            void *info)
-            {
-                for (auto bridge: ipcBridgePrivate()->bridges())
-                    bridge->d->serverMessagePortInvalidated(messagePort);
-            }
-
-            inline void serverMessagePortInvalidated(CFMessagePortRef messagePort)
-            {
-
-            }
-
-            inline CFDataRef stringToData(const CFStringRef cfstr)
-            {
-                auto data = CFStringGetCStringPtr(cfstr,
-                                                  kCFStringEncodingUTF8);
-
-                return CFDataCreate(kCFAllocatorDefault,
-                                    reinterpret_cast<const UInt8 *>(data),
-                                    CFStringGetLength(cfstr));
-            }
-
-            inline std::string stringToCppString(const CFStringRef cfstr)
-            {
-                return std::string(CFStringGetCStringPtr(cfstr,
-                                                         kCFStringEncodingUTF8),
-                                   CFStringGetLength(cfstr));
-            }
-
-            inline CFDataRef stringToData(const std::string &cppstr)
-            {
-                return CFDataCreate(kCFAllocatorDefault,
-                                    reinterpret_cast<const UInt8 *>(cppstr.c_str()),
-                                    cppstr.size());
-            }
-
-            inline std::string dataToCppString(const CFDataRef data)
-            {
-                return std::string(reinterpret_cast<const char *>(CFDataGetBytePtr(data)),
-                                   size_t(CFDataGetLength(data)));
-            }
-
-            inline std::vector<std::string> dataToStringList(const CFDataRef data)
-            {
-                std::vector<std::string> strList;
-                auto dateStrList = CFDataGetBytePtr(data);
-                auto len = CFDataGetLength(data);
-                CFIndex i = 0;
-
-                do {
-                    std::string str;
-
-                    for (; *dateStrList && i < len; dateStrList++, i++)
-                        str += *dateStrList;
-
-                    if (!str.empty()) {
-                        strList.push_back(str);
-                        dateStrList++;
-                        i++;
-                    }
-                } while (*dateStrList && i < len);
-
-                return strList;
-            }
-
-            inline std::vector<AkVCam::VideoFormat> dataToVideoFormats(const CFDataRef data)
-            {
-                size_t bytes = size_t(CFDataGetLength(data));
-                size_t nformats = bytes / sizeof(VideoFormatStruct);
-                std::vector<VideoFormatStruct> formatStructs(nformats);
-                memcpy(formatStructs.data(), CFDataGetBytePtr(data), bytes);
-
-                return {formatStructs.begin(), formatStructs.end()};
             }
 
         private:
@@ -225,155 +201,117 @@ bool AkVCam::IpcBridge::registerEndPoint(bool asClient)
     if (this->d->serverMessagePort)
         return true;
 
-    CFDataRef dataServerName = nullptr;
-    CFMessagePortRef messagePort = nullptr;
-    CFMessagePortRef serverMessagePort = nullptr;
-    CFRunLoopSourceRef runLoopSource = nullptr;
-    CFStringRef serverName = nullptr;
-    CFMessagePortContext context {0, this, nullptr, nullptr, nullptr};
-    CFDataRef data = nullptr;
-    SInt32 status = 0;
+    xpc_object_t dictionary = nullptr;
+    xpc_object_t reply = nullptr;
+    std::string portName;
+    xpc_connection_t messagePort = nullptr;
+    xpc_type_t replyType;
+    bool status = false;
 
-    serverMessagePort =
-            CFMessagePortCreateRemote(kCFAllocatorDefault,
-                                      CFSTR(AKVCAM_ASSISTANT_NAME));
+    auto serverMessagePort =
+            xpc_connection_create_mach_service(AKVCAM_ASSISTANT_NAME,
+                                               NULL,
+                                               0);
 
     if (!serverMessagePort)
         goto registerEndPoint_failed;
 
-    CFMessagePortSetInvalidationCallBack(serverMessagePort,
-                                         IpcBridgePrivate::serverMessagePortInvalidated);
-    data = CFDataCreate(kCFAllocatorDefault,
-                        reinterpret_cast<UInt8 *>(&asClient),
-                        1);
-    status =
-        CFMessagePortSendRequest(serverMessagePort,
-                                 AKVCAM_ASSISTANT_MSG_REQUEST_PORT,
-                                 data,
-                                 AKVCAM_ASSISTANT_REQUEST_TIMEOUT,
-                                 AKVCAM_ASSISTANT_REQUEST_TIMEOUT,
-                                 kCFRunLoopDefaultMode,
-                                 &dataServerName);
-    CFRelease(data);
+    xpc_connection_set_event_handler(serverMessagePort, ^(xpc_object_t) {});
+    xpc_connection_resume(serverMessagePort);
 
-    if (status != kCFMessagePortSuccess)
+    dictionary = xpc_dictionary_create(NULL, NULL, 0);
+    xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_REQUEST_PORT);
+    xpc_dictionary_set_bool(dictionary, "client", asClient);
+    reply = xpc_connection_send_message_with_reply_sync(serverMessagePort,
+                                                        dictionary);
+    xpc_release(dictionary);
+    replyType = xpc_get_type(reply);
+
+    if (replyType == XPC_TYPE_DICTIONARY)
+        portName = xpc_dictionary_get_string(reply, "port");
+
+    xpc_release(reply);
+
+    if (replyType != XPC_TYPE_DICTIONARY)
         goto registerEndPoint_failed;
 
-    serverName =
-            CFStringCreateWithBytes(kCFAllocatorDefault,
-                                    CFDataGetBytePtr(dataServerName),
-                                    CFDataGetLength(dataServerName),
-                                    kCFStringEncodingUTF8,
-                                    false);
-
-    messagePort =
-            CFMessagePortCreateLocal(kCFAllocatorDefault,
-                                     serverName,
-                                     IpcBridgePrivate::messageReceived,
-                                     &context,
-                                     nullptr);
-    CFRelease(serverName);
+    messagePort = xpc_connection_create(NULL, NULL);
 
     if (!messagePort)
         goto registerEndPoint_failed;
 
-    runLoopSource =
-            CFMessagePortCreateRunLoopSource(kCFAllocatorDefault,
-                                             messagePort,
-                                             0);
+    xpc_connection_set_event_handler(messagePort, ^(xpc_object_t event) {
+        auto type = xpc_get_type(event);
 
-    if (!runLoopSource)
+        if (type == XPC_TYPE_ERROR)
+            return;
+
+        auto client = reinterpret_cast<xpc_connection_t>(event);
+
+        xpc_connection_set_event_handler(client, ^(xpc_object_t event) {
+            ipcBridgePrivate()->messageReceived(client, event);
+        });
+
+        xpc_connection_resume(client);
+    });
+
+    xpc_connection_resume(messagePort);
+
+    dictionary = xpc_dictionary_create(NULL, NULL, 0);
+    xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_ADD_PORT);
+    xpc_dictionary_set_string(dictionary, "port", portName.c_str());
+    xpc_dictionary_set_connection(dictionary, "connection", messagePort);
+    reply = xpc_connection_send_message_with_reply_sync(serverMessagePort,
+                                                        dictionary);
+    xpc_release(dictionary);
+    replyType = xpc_get_type(reply);
+
+    if (replyType == XPC_TYPE_DICTIONARY)
+        status = xpc_dictionary_get_bool(reply, "status");
+
+    xpc_release(reply);
+
+    if (replyType != XPC_TYPE_DICTIONARY || !status)
         goto registerEndPoint_failed;
 
-    CFRunLoopAddSource(CFRunLoopGetMain(),
-                       runLoopSource,
-                       kCFRunLoopCommonModes);
-
-    status =
-        CFMessagePortSendRequest(serverMessagePort,
-                                 AKVCAM_ASSISTANT_MSG_ADD_PORT,
-                                 dataServerName,
-                                 AKVCAM_ASSISTANT_REQUEST_TIMEOUT,
-                                 AKVCAM_ASSISTANT_REQUEST_TIMEOUT,
-                                 nullptr,
-                                 nullptr);
-
-    if (status != kCFMessagePortSuccess)
-        goto registerEndPoint_failed;
-
-    if (dataServerName)
-        CFRelease(dataServerName);
-
+    this->d->portName = portName;
     this->d->messagePort = messagePort;
     this->d->serverMessagePort = serverMessagePort;
-    this->d->runLoopSource = runLoopSource;
 
     return true;
 
 registerEndPoint_failed:
-    if (dataServerName)
-        CFRelease(dataServerName);
-
-    if (runLoopSource) {
-        CFRunLoopRemoveSource(CFRunLoopGetMain(),
-                              runLoopSource,
-                              kCFRunLoopCommonModes);
-        CFRelease(runLoopSource);
-    }
-
-    if (messagePort) {
-        CFMessagePortInvalidate(messagePort);
-        CFRelease(messagePort);
-    }
+    if (messagePort)
+        xpc_release(messagePort);
 
     if (serverMessagePort)
-        CFRelease(serverMessagePort);
+        xpc_release(serverMessagePort);
 
     return false;
 }
 
 void AkVCam::IpcBridge::unregisterEndPoint()
 {
-    if (this->d->runLoopSource) {
-        CFRunLoopRemoveSource(CFRunLoopGetMain(),
-                              this->d->runLoopSource,
-                              kCFRunLoopCommonModes);
-        CFRelease(this->d->runLoopSource);
-        this->d->runLoopSource = nullptr;
-    }
-
-    CFStringRef messagePortName = nullptr;
-
     if (this->d->messagePort) {
-        messagePortName =
-                CFStringCreateCopy(kCFAllocatorDefault,
-                                   CFMessagePortGetName(this->d->messagePort));
-        CFRelease(this->d->messagePort);
+        xpc_release(this->d->messagePort);
         this->d->messagePort = nullptr;
     }
 
     if (this->d->serverMessagePort) {
-        if (messagePortName) {
-            auto dataMessagePortName =
-                    this->d->stringToData(messagePortName);
-
-            CFMessagePortSendRequest(this->d->serverMessagePort,
-                                     AKVCAM_ASSISTANT_MSG_REMOVE_PORT,
-                                     dataMessagePortName,
-                                     AKVCAM_ASSISTANT_REQUEST_TIMEOUT,
-                                     AKVCAM_ASSISTANT_REQUEST_TIMEOUT,
-                                     nullptr,
-                                     nullptr);
-            CFRelease(dataMessagePortName);
-
+        if (!this->d->portName.empty()) {
+            auto dictionary = xpc_dictionary_create(NULL, NULL, 0);
+            xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_REMOVE_PORT);
+            xpc_dictionary_set_string(dictionary, "port", this->d->portName.c_str());
+            xpc_connection_send_message(this->d->serverMessagePort,
+                                        dictionary);
+            xpc_release(dictionary);
         }
 
-        CFRelease(this->d->serverMessagePort);
+        xpc_release(this->d->serverMessagePort);
         this->d->serverMessagePort = nullptr;
     }
 
-    if (messagePortName)
-        CFRelease(messagePortName);
+    this->d->portName.clear();
 }
 
 std::vector<std::string> AkVCam::IpcBridge::listDevices(bool all) const
@@ -384,22 +322,26 @@ std::vector<std::string> AkVCam::IpcBridge::listDevices(bool all) const
     if (!all)
         return this->d->devices;
 
-    CFDataRef dataDevices = nullptr;
+    auto dictionary = xpc_dictionary_create(NULL, NULL, 0);
+    xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICES);
+    auto reply = xpc_connection_send_message_with_reply_sync(this->d->serverMessagePort,
+                                                             dictionary);
+    xpc_release(dictionary);
+    auto replyType = xpc_get_type(reply);
 
-    auto status =
-        CFMessagePortSendRequest(this->d->serverMessagePort,
-                                 AKVCAM_ASSISTANT_MSG_DEVICES,
-                                 nullptr,
-                                 AKVCAM_ASSISTANT_REQUEST_TIMEOUT,
-                                 AKVCAM_ASSISTANT_REQUEST_TIMEOUT,
-                                 kCFRunLoopDefaultMode,
-                                 &dataDevices);
+    if (replyType != XPC_TYPE_DICTIONARY) {
+        xpc_release(reply);
 
-    if (status != kCFMessagePortSuccess)
         return {};
+    }
 
-    auto devices = this->d->dataToStringList(dataDevices);
-    CFRelease(dataDevices);
+    auto devicesList = xpc_dictionary_get_array(reply, "devices");
+    std::vector<std::string> devices;
+
+    for (size_t i = 0; i < xpc_array_get_count(devicesList); i++)
+        devices.push_back(xpc_array_get_string(devicesList, i));
+
+    xpc_release(reply);
 
     return devices;
 }
@@ -409,24 +351,22 @@ std::string AkVCam::IpcBridge::description(const std::string &deviceId) const
     if (!this->d->serverMessagePort)
         return {};
 
-    auto dataDeviceId = this->d->stringToData(deviceId);
-    CFDataRef dataDescription = nullptr;
+    auto dictionary = xpc_dictionary_create(NULL, NULL, 0);
+    xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DESCRIPTION);
+    xpc_dictionary_set_string(dictionary, "device", deviceId.c_str());
+    auto reply = xpc_connection_send_message_with_reply_sync(this->d->serverMessagePort,
+                                                             dictionary);
+    xpc_release(dictionary);
+    auto replyType = xpc_get_type(reply);
 
-    auto status =
-        CFMessagePortSendRequest(this->d->serverMessagePort,
-                                 AKVCAM_ASSISTANT_MSG_DESCRIPTION,
-                                 dataDeviceId,
-                                 AKVCAM_ASSISTANT_REQUEST_TIMEOUT,
-                                 AKVCAM_ASSISTANT_REQUEST_TIMEOUT,
-                                 kCFRunLoopDefaultMode,
-                                 &dataDescription);
-    CFRelease(dataDeviceId);
+    if (replyType != XPC_TYPE_DICTIONARY) {
+        xpc_release(reply);
 
-    if (status != kCFMessagePortSuccess)
         return {};
+    }
 
-    auto description = this->d->dataToCppString(dataDescription);
-    CFRelease(dataDescription);
+    std::string description(xpc_dictionary_get_string(reply, "description"));
+    xpc_release(reply);
 
     return description;
 }
@@ -436,24 +376,34 @@ std::vector<AkVCam::VideoFormat> AkVCam::IpcBridge::formats(const std::string &d
     if (!this->d->serverMessagePort)
         return {};
 
-    auto dataDeviceId = this->d->stringToData(deviceId);
-    CFDataRef dataFormats = nullptr;
+    auto dictionary = xpc_dictionary_create(NULL, NULL, 0);
+    xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_FORMATS);
+    xpc_dictionary_set_string(dictionary, "device", deviceId.c_str());
+    auto reply = xpc_connection_send_message_with_reply_sync(this->d->serverMessagePort,
+                                                             dictionary);
+    xpc_release(dictionary);
+    auto replyType = xpc_get_type(reply);
 
-    auto status =
-        CFMessagePortSendRequest(this->d->serverMessagePort,
-                                 AKVCAM_ASSISTANT_MSG_FORMATS,
-                                 dataDeviceId,
-                                 AKVCAM_ASSISTANT_REQUEST_TIMEOUT,
-                                 AKVCAM_ASSISTANT_REQUEST_TIMEOUT,
-                                 kCFRunLoopDefaultMode,
-                                 &dataFormats);
-    CFRelease(dataDeviceId);
+    if (replyType != XPC_TYPE_DICTIONARY) {
+        xpc_release(reply);
 
-    if (status != kCFMessagePortSuccess)
         return {};
+    }
 
-    auto formats = this->d->dataToVideoFormats(dataFormats);
-    CFRelease(dataFormats);
+    auto formatsList = xpc_dictionary_get_array(reply, "formats");
+    std::vector<VideoFormat> formats;
+
+    for (size_t i = 0; i < xpc_array_get_count(formatsList); i++) {
+        auto format = xpc_array_get_dictionary(formatsList, i);
+        auto fourcc = FourCC(xpc_dictionary_get_uint64(format, "fourcc"));
+        auto width = int(xpc_dictionary_get_int64(format, "width"));
+        auto height = int(xpc_dictionary_get_int64(format, "height"));
+        double fps = xpc_dictionary_get_double(format, "fps");
+
+        formats.push_back(VideoFormat(fourcc, width, height, {fps}));
+    }
+
+    xpc_release(reply);
 
     return formats;
 }
@@ -469,43 +419,40 @@ std::string AkVCam::IpcBridge::deviceCreate(const std::string &description,
     if (!this->d->serverMessagePort || !this->d->messagePort)
         return {};
 
-    auto messagePortName = CFMessagePortGetName(this->d->messagePort);
-    auto portName = this->d->stringToCppString(messagePortName);
-    std::vector<VideoFormatStruct> formatsStruct;
+    auto dictionary = xpc_dictionary_create(NULL, NULL, 0);
+    xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_CREATE);
+    xpc_dictionary_set_string(dictionary, "port", this->d->portName.c_str());
+    xpc_dictionary_set_string(dictionary, "description", description.c_str());
+    auto formatsList = xpc_array_create(NULL, 0);
 
-    for (auto &format: formats)
-        formatsStruct.push_back(format.toStruct());
+    for (auto &format: formats) {
+        auto dictFormat = xpc_dictionary_create(nullptr, nullptr, 0);
+        xpc_dictionary_set_uint64(dictFormat, "fourcc", format.fourcc());
+        xpc_dictionary_set_int64(dictFormat, "width", format.width());
+        xpc_dictionary_set_int64(dictFormat, "height", format.height());
+        xpc_dictionary_set_double(dictFormat, "fps", format.minimumFrameRate());
+        xpc_array_append_value(formatsList, dictFormat);
+    }
 
-    CFIndex dataBytes = portName.size() + 1
-                      + description.size() + 1
-                      + formats.size() * sizeof(VideoFormatStruct);
-    std::vector<UInt8> data(dataBytes, 0);
+    xpc_dictionary_set_value(dictionary, "formats", formatsList);
 
-    memcpy(data.data(), portName.data(), portName.size());
-    auto it = data.data() + portName.size() + 1;
-    memcpy(it, description.data(), description.size());
-    it += description.size() + 1;
-    memcpy(it, formatsStruct.data(), formatsStruct.size() * sizeof(VideoFormatStruct));
+    auto reply = xpc_connection_send_message_with_reply_sync(this->d->serverMessagePort,
+                                                             dictionary);
+    xpc_release(dictionary);
+    auto replyType = xpc_get_type(reply);
 
-    auto dataParams = CFDataCreate(kCFAllocatorDefault, data.data(), data.size());
-    CFDataRef dataDeviceId = nullptr;
+    if (replyType != XPC_TYPE_DICTIONARY) {
+        xpc_release(reply);
 
-    auto status =
-        CFMessagePortSendRequest(this->d->serverMessagePort,
-                                 AKVCAM_ASSISTANT_MSG_DEVICE_CREATE,
-                                 dataParams,
-                                 AKVCAM_ASSISTANT_REQUEST_TIMEOUT,
-                                 AKVCAM_ASSISTANT_REQUEST_TIMEOUT,
-                                 kCFRunLoopDefaultMode,
-                                 &dataDeviceId);
-    CFRelease(dataParams);
-
-    if (status != kCFMessagePortSuccess)
         return {};
+    }
 
-    auto deviceId = this->d->dataToCppString(dataDeviceId);
-    CFRelease(dataDeviceId);
-    this->d->devices.push_back(deviceId);
+    std::string deviceId(xpc_dictionary_get_string(reply, "device"));
+
+    if (!deviceId.empty())
+        this->d->devices.push_back(deviceId);
+
+    xpc_release(reply);
 
     return deviceId;
 }
@@ -522,77 +469,125 @@ void AkVCam::IpcBridge::deviceDestroy(const std::string &deviceId)
     if (it == this->d->devices.end())
         return;
 
-    auto dataDeviceId = this->d->stringToData(deviceId);
-
-    CFMessagePortSendRequest(this->d->serverMessagePort,
-                             AKVCAM_ASSISTANT_MSG_DEVICE_DESTROY,
-                             dataDeviceId,
-                             AKVCAM_ASSISTANT_REQUEST_TIMEOUT,
-                             AKVCAM_ASSISTANT_REQUEST_TIMEOUT,
-                             nullptr,
-                             nullptr);
-    CFRelease(dataDeviceId);
-
+    auto dictionary = xpc_dictionary_create(NULL, NULL, 0);
+    xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_DESTROY);
+    xpc_dictionary_set_string(dictionary, "device", deviceId.c_str());
+    xpc_connection_send_message(this->d->serverMessagePort,
+                                dictionary);
+    xpc_release(dictionary);
     this->d->devices.erase(it);
 }
 
 bool AkVCam::IpcBridge::deviceStart(const std::string &deviceId)
 {
-    CFIndex dataBytes = deviceId.size() + 2;
-    std::vector<UInt8> msgData(dataBytes, 0);
-    memcpy(msgData.data(), deviceId.data(), deviceId.size());
-    auto it = msgData.data() + deviceId.size() + 1;
-    *it = false;
+    auto it = std::find(this->d->broadcasting.begin(),
+                        this->d->broadcasting.end(),
+                        deviceId);
 
-    auto data = CFDataCreate(kCFAllocatorDefault,
-                             msgData.data(),
-                             dataBytes);
+    if (it != this->d->broadcasting.end())
+        return false;
 
-    CFDataRef dataOk = nullptr;
+    auto dictionary = xpc_dictionary_create(NULL, NULL, 0);
+    xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_SETBROADCASTING);
+    xpc_dictionary_set_string(dictionary, "device", deviceId.c_str());
+    xpc_dictionary_set_bool(dictionary, "broadcasting", true);
+    auto reply = xpc_connection_send_message_with_reply_sync(this->d->serverMessagePort,
+                                                             dictionary);
+    xpc_release(dictionary);
+    auto replyType = xpc_get_type(reply);
 
-    CFMessagePortSendRequest(this->d->serverMessagePort,
-                             AKVCAM_ASSISTANT_MSG_DEVICE_SETBROADCASTING,
-                             data,
-                             AKVCAM_ASSISTANT_REQUEST_TIMEOUT,
-                             AKVCAM_ASSISTANT_REQUEST_TIMEOUT,
-                             kCFRunLoopDefaultMode,
-                             &dataOk);
-    bool broadcasting = *CFDataGetBytePtr(dataOk);
+    if (replyType != XPC_TYPE_DICTIONARY) {
+        xpc_release(reply);
 
-    CFRelease(dataOk);
-    CFRelease(data);
+        return {};
+    }
 
-    return broadcasting;
+    bool status = xpc_dictionary_get_bool(reply, "status");
+    xpc_release(reply);
+    this->d->broadcasting.push_back(deviceId);
+
+    return status;
 }
 
 void AkVCam::IpcBridge::deviceStop(const std::string &deviceId)
 {
-    CFIndex dataBytes = deviceId.size() + 2;
-    std::vector<UInt8> msgData(dataBytes, 0);
-    memcpy(msgData.data(), deviceId.data(), deviceId.size());
-    auto it = msgData.data() + deviceId.size() + 1;
-    *it = false;
+    auto it = std::find(this->d->broadcasting.begin(),
+                        this->d->broadcasting.end(),
+                        deviceId);
 
-    auto data = CFDataCreate(kCFAllocatorDefault,
-                             msgData.data(),
-                             dataBytes);
+    if (it == this->d->broadcasting.end())
+        return;
 
-    CFMessagePortSendRequest(this->d->serverMessagePort,
-                             AKVCAM_ASSISTANT_MSG_DEVICE_SETBROADCASTING,
-                             data,
-                             AKVCAM_ASSISTANT_REQUEST_TIMEOUT,
-                             AKVCAM_ASSISTANT_REQUEST_TIMEOUT,
-                             nullptr,
-                             nullptr);
-    CFRelease(data);
+    auto dictionary = xpc_dictionary_create(NULL, NULL, 0);
+    xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_SETBROADCASTING);
+    xpc_dictionary_set_string(dictionary, "device", deviceId.c_str());
+    xpc_dictionary_set_bool(dictionary, "broadcasting", false);
+    xpc_connection_send_message(this->d->serverMessagePort,
+                                dictionary);
+    xpc_release(dictionary);
+    this->d->broadcasting.erase(it);
 }
 
 void AkVCam::IpcBridge::write(const std::string &deviceId,
-                              const VideoFormat &format,
-                              const void *data,
-                              size_t dataSize)
+                              const VideoFrame &frame)
 {
+    auto it = std::find(this->d->broadcasting.begin(),
+                        this->d->broadcasting.end(),
+                        deviceId);
 
+    if (it == this->d->broadcasting.end())
+        return;
+
+    std::vector<CFStringRef> keys {
+        kIOSurfacePixelFormat,
+        kIOSurfaceWidth,
+        kIOSurfaceHeight,
+        kIOSurfaceAllocSize
+    };
+
+    auto fourcc = frame.format().fourcc();
+    auto width = frame.format().width();
+    auto height = frame.format().height();
+    auto dataSize = int64_t(frame.dataSize());
+
+    std::vector<CFNumberRef> values {
+        CFNumberCreate(kCFAllocatorDefault, kCFNumberSInt32Type, &fourcc),
+        CFNumberCreate(kCFAllocatorDefault, kCFNumberSInt32Type, &width),
+        CFNumberCreate(kCFAllocatorDefault, kCFNumberSInt32Type, &height),
+        CFNumberCreate(kCFAllocatorDefault, kCFNumberSInt64Type, &dataSize)
+    };
+
+    auto surfaceProperties =
+            CFDictionaryCreate(kCFAllocatorDefault,
+                               reinterpret_cast<const void **>(keys.data()),
+                               reinterpret_cast<const void **>(values.data()),
+                               values.size(),
+                               NULL,
+                               NULL);
+    auto surface = IOSurfaceCreate(surfaceProperties);
+
+    for (auto value: values)
+        CFRelease(value);
+
+    CFRelease(surfaceProperties);
+
+    if (!surface)
+        return;
+
+    uint32_t surfaceSeed = 0;
+    IOSurfaceLock(surface, 0, &surfaceSeed);
+    auto data = IOSurfaceGetBaseAddress(surface);
+    memcpy(data, frame.data().get(), frame.dataSize());
+    IOSurfaceUnlock(surface, 0, &surfaceSeed);
+
+    auto dictionary = xpc_dictionary_create(NULL, NULL, 0);
+    xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_FRAME_READY);
+    xpc_dictionary_set_string(dictionary, "device", deviceId.c_str());
+    xpc_dictionary_set_value(dictionary, "frame", IOSurfaceCreateXPCObject(surface));
+    xpc_connection_send_message(this->d->serverMessagePort,
+                                dictionary);
+    xpc_release(dictionary);
+    CFRelease(surface);
 }
 
 bool AkVCam::IpcBridge::deviceOpen(const std::string &deviceId)
@@ -605,9 +600,9 @@ bool AkVCam::IpcBridge::deviceClose(const std::string &deviceId)
     return false;
 }
 
-void AkVCam::IpcBridge::setFrameReadCallback(FrameReadCallback callback)
+void AkVCam::IpcBridge::setFrameReadyCallback(FrameReadyCallback callback)
 {
-    this->d->frameReadCallback = callback;
+    this->d->frameReadyCallback = callback;
 }
 
 void AkVCam::IpcBridge::setDeviceAddedCallback(DeviceChangedCallback callback)

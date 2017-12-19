@@ -109,13 +109,13 @@ namespace AkVCam
 {
     class IpcBridgePrivate;
     class VideoFormat;
+    class VideoFrame;
 
     class IpcBridge
     {
         typedef std::function<void (const std::string &deviceId)> DeviceChangedCallback;
         typedef std::function<void (const std::string &deviceId,
-                                    const VideoFormat &format,
-                                    const void *data)> FrameReadCallback;
+                                    const VideoFrame &frame)> FrameReadyCallback;
 
         public:
             IpcBridge();
@@ -155,9 +155,7 @@ namespace AkVCam
 
             // Transfer a frame to the device.
             void write(const std::string &deviceId,
-                       const VideoFormat &format,
-                       const void *data,
-                       size_t dataSize);
+                       const VideoFrame &frame);
 
             /* Client */
 
@@ -169,7 +167,7 @@ namespace AkVCam
 
             // Set the function that will be called when a new frame
             // is available to the client.
-            void setFrameReadCallback(FrameReadCallback callback);
+            void setFrameReadyCallback(FrameReadyCallback callback);
 
             // Set the function that will be called when a new device definition
             // is added.

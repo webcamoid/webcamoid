@@ -30,6 +30,7 @@
 #include "cameraoutcmio.h"
 #include "ipcbridge.h"
 #include "../Assistant/src/assistantglobals.h"
+#include "VCamUtils/src/image/videoframe.h"
 
 #define MAX_CAMERAS 1
 
@@ -61,7 +62,15 @@ CameraOutCMIO::CameraOutCMIO(QObject *parent):
     this->d = new CameraOutCMIOPrivate;
     QDir applicationDir(QCoreApplication::applicationDirPath());
     this->m_driverPath = applicationDir.absoluteFilePath(*akVCamDriver());
-    this->d->m_ipcBridge.registerEndPoint(false);
+
+    auto daemon =
+            QString("%1/%2.plist")
+            .arg(CMIO_DAEMONS_PATH)
+            .arg(AKVCAM_ASSISTANT_NAME)
+            .replace("~", QDir::homePath());
+
+    if (QFileInfo::exists(daemon))
+        this->d->m_ipcBridge.registerEndPoint(false);
 }
 
 CameraOutCMIO::~CameraOutCMIO()
@@ -109,8 +118,9 @@ void CameraOutCMIO::writeFrame(const AkPacket &frame)
                                {videoFrame.caps().fps().value()});
 
     this->d->m_ipcBridge.write(this->d->m_curDevice.toStdString(),
-                               format,
-                               videoFrame.buffer().constData());
+                               AkVCam::VideoFrame(format,
+                                                  reinterpret_cast<const uint8_t *>(videoFrame.buffer().constData()),
+                                                  videoFrame.buffer().size()));
 }
 
 int CameraOutCMIO::maxCameras() const

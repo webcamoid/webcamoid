@@ -30,14 +30,6 @@ namespace AkVCam
 {
     typedef uint32_t FourCC;
 
-    struct VideoFormatStruct
-    {
-            FourCC fourcc;
-            int width;
-            int height;
-            double frameRate;
-    };
-
     class VideoFormat
     {
         public:
@@ -47,9 +39,7 @@ namespace AkVCam
                         int height,
                         const std::vector<double> &frameRates={});
             VideoFormat(const VideoFormat &other);
-            VideoFormat(const VideoFormatStruct &videoFormatStruct);
             VideoFormat &operator =(const VideoFormat &other);
-            VideoFormat &operator =(const VideoFormatStruct &videoFormatStruct);
             ~VideoFormat();
 
             FourCC fourcc() const;
@@ -62,7 +52,6 @@ namespace AkVCam
             std::vector<double> &frameRates();
             std::vector<std::pair<double, double>> frameRateRanges() const;
             double minimumFrameRate() const;
-            VideoFormatStruct toStruct() const;
 
         private:
             FourCC m_fourcc;

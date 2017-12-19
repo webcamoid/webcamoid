@@ -17,42 +17,51 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <iostream>
+#include <CoreFoundation/CFRunLoop.h>
 
 #include "assistant.h"
+#include "VCamUtils/src/utils.h"
+
+AkVCam::Assistant *assistant()
+{
+    static AkVCam::Assistant assistant;
+
+    return &assistant;
+}
 
 int main()
 {
-    AkVCam::Assistant assistant;
-    CFMessagePortContext context {0, &assistant, nullptr, nullptr, nullptr};
+    auto server =
+            xpc_connection_create_mach_service(AKVCAM_ASSISTANT_NAME,
+                                               NULL,
+                                               XPC_CONNECTION_MACH_SERVICE_LISTENER);
 
-    auto messagePort =
-            CFMessagePortCreateLocal(kCFAllocatorDefault,
-                                     CFSTR(AKVCAM_ASSISTANT_NAME),
-                                     assistant.messageReceived,
-                                     &context,
-                                     nullptr);
+    if (!server)
+        return EXIT_FAILURE;
 
-    if (messagePort) {
-        auto runLoopSource =
-                CFMessagePortCreateRunLoopSource(kCFAllocatorDefault,
-                                                 messagePort,
-                                                 0);
+    xpc_connection_set_event_handler(server, ^(xpc_object_t event) {
+        auto type = xpc_get_type(event);
 
-        if (runLoopSource) {
-            CFRunLoopAddSource(CFRunLoopGetMain(),
-                               runLoopSource,
-                               kCFRunLoopCommonModes);
-            CFRunLoopRun();
+        if (type == XPC_TYPE_ERROR) {
+             auto description = xpc_copy_description(event);
+             AkLoggerLog("ERROR: " << description);
+             free(description);
 
-            CFRunLoopRemoveSource(CFRunLoopGetMain(),
-                                  runLoopSource,
-                                  kCFRunLoopCommonModes);
-            CFRelease(runLoopSource);
+             return;
         }
 
-        CFRelease(messagePort);
-    }
+        auto client = reinterpret_cast<xpc_connection_t>(event);
 
-    return 0;
+        xpc_connection_set_event_handler(client, ^(xpc_object_t event) {
+            assistant()->messageReceived(client, event);
+        });
+
+        xpc_connection_resume(client);
+    });
+
+    xpc_connection_resume(server);
+    CFRunLoopRun();
+    xpc_release(server);
+
+    return EXIT_SUCCESS;
 }
