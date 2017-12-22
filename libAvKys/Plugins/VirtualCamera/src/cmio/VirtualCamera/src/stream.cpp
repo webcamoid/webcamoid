@@ -134,6 +134,8 @@ void AkVCam::Stream::setFormat(const VideoFormat &format)
 
     if (!format.frameRates().empty())
         this->setFrameRate(format.frameRates()[0]);
+
+    this->m_format = format;
 }
 
 void AkVCam::Stream::setFrameRate(Float64 frameRate)
@@ -258,9 +260,13 @@ void AkVCam::Stream::streamLoop(CFRunLoopTimerRef timer, void *info)
     if (self->m_queue->fullness() >= 1.0f)
         return;
 
+    FourCC fourcc = self->m_format.fourcc();
+    int width = self->m_format.width();
+    int height = self->m_format.height();
+    double fps = self->m_format.minimumFrameRate();
     static int64_t pts = 0;
 
-    CMIOStreamClockPostTimingEvent(CMTimeMake(pts, 30),
+    CMIOStreamClockPostTimingEvent(CMTimeMake(pts, fps),
                                    UInt64(CFAbsoluteTimeGetCurrent()),
                                    false,
                                    self->m_clock->ref());
@@ -268,8 +274,8 @@ void AkVCam::Stream::streamLoop(CFRunLoopTimerRef timer, void *info)
 
     CVImageBufferRef imageBuffer = nullptr;
     CVPixelBufferCreate(kCFAllocatorDefault,
-                        640,
-                        480,
+                        width,
+                        height,
                         kCMPixelFormat_32ARGB,
                         nullptr,
                         &imageBuffer);
@@ -277,10 +283,10 @@ void AkVCam::Stream::streamLoop(CFRunLoopTimerRef timer, void *info)
     CVPixelBufferLockBaseAddress(imageBuffer, 0);
     auto data = reinterpret_cast<UInt32 *>(CVPixelBufferGetBaseAddress(imageBuffer));
 
-    for (int y = 0; y < 480; y++) {
-        auto line = data + y * 640;
+    for (int y = 0; y < height; y++) {
+        auto line = data + y * width;
 
-        for (int x = 0; x < 640; x++) {
+        for (int x = 0; x < width; x++) {
             UInt32 r = rand() % 256;
             UInt32 g = rand() % 256;
             UInt32 b = rand() % 256;
@@ -297,9 +303,9 @@ void AkVCam::Stream::streamLoop(CFRunLoopTimerRef timer, void *info)
                                                  &format);
 
     CMSampleTimingInfo timingInfo {
-        CMTimeMake(1, 30),
-        CMTimeMake(pts, 30),
-        CMTimeMake(pts, 30)
+        CMTimeMake(1, fps),
+        CMTimeMake(pts, fps),
+        CMTimeMake(pts, fps)
     };
 
     CMSampleBufferRef buffer = nullptr;

@@ -351,6 +351,21 @@ bool AkVCam::ObjectProperties::getProperty(UInt32 property, UInt32 *value)
     return true;
 }
 
+bool AkVCam::ObjectProperties::getProperty(UInt32 property, std::string *value)
+{
+    if (!value || !this->d->m_properties.count(property))
+        return false;
+
+    auto propertyType = this->d->m_properties[property].type;
+
+    if (propertyType != PropertyTypeString)
+        return false;
+
+    *value = this->d->m_properties[property].str;
+
+    return true;
+}
+
 bool AkVCam::ObjectProperties::getProperty(UInt32 property,
                                            UInt32 qualifierDataSize,
                                            const void *qualifierData,

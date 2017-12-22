@@ -44,6 +44,7 @@ namespace AkVCam
             IpcBridge::FrameReadyCallback frameReadyCallback;
             IpcBridge::DeviceChangedCallback deviceAddedCallback;
             IpcBridge::DeviceChangedCallback deviceRemovedCallback;
+            IpcBridge::BroadcastingChangedCallback broadcastingChangedCallback;
             std::map<int64_t, XpcMessage> m_messageHandlers;
             std::vector<std::string> broadcasting;
 
@@ -55,9 +56,10 @@ namespace AkVCam
                 this->startAssistant();
 
                 this->m_messageHandlers = {
-                    {AKVCAM_ASSISTANT_MSG_DEVICE_CREATED  , AKVCAM_BIND_FUNC(IpcBridgePrivate::deviceCreated)  },
-                    {AKVCAM_ASSISTANT_MSG_DEVICE_DESTROYED, AKVCAM_BIND_FUNC(IpcBridgePrivate::deviceDestroyed)},
-                    {AKVCAM_ASSISTANT_MSG_FRAME_READY     , AKVCAM_BIND_FUNC(IpcBridgePrivate::frameReady)     }
+                    {AKVCAM_ASSISTANT_MSG_DEVICE_CREATED             , AKVCAM_BIND_FUNC(IpcBridgePrivate::deviceCreated)      },
+                    {AKVCAM_ASSISTANT_MSG_DEVICE_DESTROYED           , AKVCAM_BIND_FUNC(IpcBridgePrivate::deviceDestroyed)    },
+                    {AKVCAM_ASSISTANT_MSG_FRAME_READY                , AKVCAM_BIND_FUNC(IpcBridgePrivate::frameReady)         },
+                    {AKVCAM_ASSISTANT_MSG_DEVICE_BROADCASTING_CHANGED, AKVCAM_BIND_FUNC(IpcBridgePrivate::broadcastingChanged)}
                 };
             }
 
@@ -152,6 +154,19 @@ namespace AkVCam
                 for (auto bridge: this->m_bridges)
                     if (bridge->d->frameReadyCallback)
                         bridge->d->frameReadyCallback(deviceId, videoFrame);
+            }
+
+            inline void broadcastingChanged(xpc_connection_t client,
+                                            xpc_object_t event)
+            {
+                UNUSED(client)
+
+                std::string deviceId = xpc_dictionary_get_string(event, "device");
+                bool broadcasting = xpc_dictionary_get_string(event, "broadcasting");
+
+                for (auto bridge: this->m_bridges)
+                    if (bridge->d->broadcastingChangedCallback)
+                        bridge->d->broadcastingChangedCallback(deviceId, broadcasting);
             }
 
             inline void messageReceived(xpc_connection_t client,
@@ -408,6 +423,28 @@ std::vector<AkVCam::VideoFormat> AkVCam::IpcBridge::formats(const std::string &d
     return formats;
 }
 
+bool AkVCam::IpcBridge::broadcasting(const std::string &deviceId) const
+{
+    auto dictionary = xpc_dictionary_create(NULL, NULL, 0);
+    xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_BROADCASTING);
+    xpc_dictionary_set_string(dictionary, "device", deviceId.c_str());
+    auto reply = xpc_connection_send_message_with_reply_sync(this->d->serverMessagePort,
+                                                             dictionary);
+    xpc_release(dictionary);
+    auto replyType = xpc_get_type(reply);
+
+    if (replyType != XPC_TYPE_DICTIONARY) {
+        xpc_release(reply);
+
+        return false;
+    }
+
+    bool broadcasting = xpc_dictionary_get_bool(reply, "broadcasting");
+    xpc_release(reply);
+
+    return broadcasting;
+}
+
 std::string AkVCam::IpcBridge::deviceCreate(const std::string &description,
                                             const std::vector<VideoFormat> &formats)
 {
@@ -613,4 +650,9 @@ void AkVCam::IpcBridge::setDeviceAddedCallback(DeviceChangedCallback callback)
 void AkVCam::IpcBridge::setDeviceRemovedCallback(DeviceChangedCallback callback)
 {
     this->d->deviceRemovedCallback = callback;
+}
+
+void AkVCam::IpcBridge::setBroadcastingChangedCallback(BroadcastingChangedCallback callback)
+{
+    this->d->broadcastingChangedCallback = callback;
 }

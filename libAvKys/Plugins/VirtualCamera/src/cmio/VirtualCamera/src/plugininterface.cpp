@@ -17,10 +17,15 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <sstream>
+#include <algorithm>
+#include <sys/stat.h>
 #include <IOKit/audio/IOAudioTypes.h>
 
 #include "plugininterface.h"
 #include "utils.h"
+#include "VCamIPC/src/ipcbridge.h"
+#include "Assistant/src/assistantglobals.h"
 
 #define AkPluginPrivateIntefaceLog() \
     AkLoggerLog("PluginInterfacePrivate::" << __FUNCTION__ << "()")
@@ -35,10 +40,11 @@ namespace AkVCam
     struct PluginInterfacePrivate
     {
         public:
-            CMIOHardwarePlugInInterface *pluginInterface;
             PluginInterface *self;
+            CMIOHardwarePlugInInterface pluginInterface;
             ULONG m_ref;
             ULONG m_reserved;
+            AkVCam::IpcBridge m_ipcBridge;
 
             static HRESULT QueryInterface(void *self,
                                           REFIID uuid,
@@ -498,48 +504,64 @@ AkVCam::PluginInterface::PluginInterface():
     m_objectID(0)
 {
     this->m_className = "PluginInterface";
+    this->d = new PluginInterfacePrivate;
+    this->d->self = this;
+    this->d->pluginInterface = {
+        //	Padding for COM
+        NULL,
 
-    this->d = new PluginInterfacePrivate {
-        new CMIOHardwarePlugInInterface {
-            //	Padding for COM
-            NULL,
+        // IUnknown Routines
+        PluginInterfacePrivate::QueryInterface,
+        PluginInterfacePrivate::AddRef,
+        PluginInterfacePrivate::Release,
 
-            // IUnknown Routines
-            PluginInterfacePrivate::QueryInterface,
-            PluginInterfacePrivate::AddRef,
-            PluginInterfacePrivate::Release,
-
-            // DAL Plug-In Routines
-            PluginInterfacePrivate::Initialize,
-            PluginInterfacePrivate::InitializeWithObjectID,
-            PluginInterfacePrivate::Teardown,
-            PluginInterfacePrivate::ObjectShow,
-            PluginInterfacePrivate::ObjectHasProperty,
-            PluginInterfacePrivate::ObjectIsPropertySettable,
-            PluginInterfacePrivate::ObjectGetPropertyDataSize,
-            PluginInterfacePrivate::ObjectGetPropertyData,
-            PluginInterfacePrivate::ObjectSetPropertyData,
-            PluginInterfacePrivate::DeviceSuspend,
-            PluginInterfacePrivate::DeviceResume,
-            PluginInterfacePrivate::DeviceStartStream,
-            PluginInterfacePrivate::DeviceStopStream,
-            PluginInterfacePrivate::DeviceProcessAVCCommand,
-            PluginInterfacePrivate::DeviceProcessRS422Command,
-            PluginInterfacePrivate::StreamCopyBufferQueue,
-            PluginInterfacePrivate::StreamDeckPlay,
-            PluginInterfacePrivate::StreamDeckStop,
-            PluginInterfacePrivate::StreamDeckJog,
-            PluginInterfacePrivate::StreamDeckCueTo
-        },
-        this,
-        0,
-        0
+        // DAL Plug-In Routines
+        PluginInterfacePrivate::Initialize,
+        PluginInterfacePrivate::InitializeWithObjectID,
+        PluginInterfacePrivate::Teardown,
+        PluginInterfacePrivate::ObjectShow,
+        PluginInterfacePrivate::ObjectHasProperty,
+        PluginInterfacePrivate::ObjectIsPropertySettable,
+        PluginInterfacePrivate::ObjectGetPropertyDataSize,
+        PluginInterfacePrivate::ObjectGetPropertyData,
+        PluginInterfacePrivate::ObjectSetPropertyData,
+        PluginInterfacePrivate::DeviceSuspend,
+        PluginInterfacePrivate::DeviceResume,
+        PluginInterfacePrivate::DeviceStartStream,
+        PluginInterfacePrivate::DeviceStopStream,
+        PluginInterfacePrivate::DeviceProcessAVCCommand,
+        PluginInterfacePrivate::DeviceProcessRS422Command,
+        PluginInterfacePrivate::StreamCopyBufferQueue,
+        PluginInterfacePrivate::StreamDeckPlay,
+        PluginInterfacePrivate::StreamDeckStop,
+        PluginInterfacePrivate::StreamDeckJog,
+        PluginInterfacePrivate::StreamDeckCueTo
     };
+    this->d->m_ref = 0;
+    this->d->m_reserved = 0;
+
+    auto home = getenv("HOME");
+    std::string homePath = home? home: "/";
+
+    std::stringstream ss;
+    ss << CMIO_DAEMONS_PATH << "/" << AKVCAM_ASSISTANT_NAME << ".plist";
+    auto daemon = ss.str();
+
+    if (daemon[0] == '~')
+        daemon.replace(0, 1, homePath);
+
+    struct stat fileInfo;
+
+    if (stat(daemon.c_str(), &fileInfo) == 0)
+        this->d->m_ipcBridge.registerEndPoint(true);
+
+    this->d->m_ipcBridge.setDeviceAddedCallback(std::bind(&PluginInterface::deviceAdded, this, std::placeholders::_1));
+    this->d->m_ipcBridge.setDeviceRemovedCallback(std::bind(&PluginInterface::deviceRemoved, this, std::placeholders::_1));
 }
 
 AkVCam::PluginInterface::~PluginInterface()
 {
-    delete this->d->pluginInterface;
+    this->d->m_ipcBridge.unregisterEndPoint();
     delete this->d;
 }
 
@@ -599,18 +621,60 @@ OSStatus AkVCam::PluginInterface::InitializeWithObjectID(CMIOObjectID objectID)
 
     this->m_objectID = objectID;
 
+    for (auto deviceId: this->d->m_ipcBridge.listDevices())
+        this->deviceAdded(deviceId);
+
+    return kCMIOHardwareNoError;
+}
+
+OSStatus AkVCam::PluginInterface::Teardown()
+{
+    AkLoggerLog("AkVCam::PluginInterface::Teardown");
+    AkLoggerLog("STUB");
+/*
+    this->m_devices.clear();
+    this->m_objectID = 0;
+*/
+    return kCMIOHardwareNoError;
+}
+
+void AkVCam::PluginInterface::deviceAdded(const std::string &deviceId)
+{
+    AkLoggerLog("AkVCam::PluginInterface::deviceAdded");
+    AkLoggerLog("Device Added: " << deviceId);
+
+    auto description = this->d->m_ipcBridge.description(deviceId);
+    auto formats = this->d->m_ipcBridge.formats(deviceId);
+
+    this->createDevice(deviceId, description, formats);
+}
+
+void AkVCam::PluginInterface::deviceRemoved(const std::string &deviceId)
+{
+    AkLoggerLog("AkVCam::PluginInterface::deviceRemoved");
+    AkLoggerLog("Device Removed: " << deviceId);
+
+    this->destroyDevice(deviceId);
+}
+
+bool AkVCam::PluginInterface::createDevice(const std::string &deviceId,
+                                           const std::string &description,
+                                           const std::vector<VideoFormat> &formats)
+{
+    StreamPtr stream;
+
     // Create one device.
     auto pluginRef = reinterpret_cast<CMIOHardwarePlugInRef>(this->d);
-    auto device = DevicePtr(new Device(pluginRef));
+    auto device = std::make_shared<Device>(pluginRef);
     this->m_devices.push_back(device);
 
     // Define device properties.
     device->properties().setProperty(kCMIOObjectPropertyName,
-                                     "AvKys Virtual Camera");
-    device->properties().setProperty(kCMIODevicePropertyModelUID,
-                                     "AkVirtualCamera");
+                                     description.c_str());
     device->properties().setProperty(kCMIOObjectPropertyManufacturer,
-                                     "Webcamoid Project");
+                                     CMIO_PLUGIN_VENDOR);
+    device->properties().setProperty(kCMIODevicePropertyModelUID,
+                                     CMIO_PLUGIN_PRODUCT);
     device->properties().setProperty(kCMIODevicePropertyLinkedCoreAudioDeviceUID,
                                      "");
     device->properties().setProperty(kCMIODevicePropertyLinkedAndSyncedCoreAudioDeviceUID,
@@ -627,62 +691,61 @@ OSStatus AkVCam::PluginInterface::InitializeWithObjectID(CMIOObjectID objectID)
     device->properties().setProperty(kCMIODevicePropertyDeviceIsAlive,
                                      UInt32(1));
     device->properties().setProperty(kCMIODevicePropertyDeviceUID,
-                                     "AvKysVirtualCamera("
-                                     + std::to_string(objectID)
-                                     + ")");
+                                     deviceId.c_str());
     device->properties().setProperty(kCMIODevicePropertyTransportType,
                                      UInt32(kIOAudioDeviceTransportTypePCI));
     device->properties().setProperty(kCMIODevicePropertyDeviceIsRunningSomewhere,
                                      UInt32(0));
 
-    auto status = device->createObject();
+    if (device->createObject() != kCMIOHardwareNoError)
+        goto createDevice_failed;
 
-    if (status != kCMIOHardwareNoError) {
-        this->Teardown();
-
-        return status;
-    }
-
-    auto stream = device->addStream();
-
-    std::vector<VideoFormat> videoFormats {
-        {kCMPixelFormat_32ARGB, 640, 480, {30.0}}
-    };
-
-    stream->setFormats(videoFormats);
-    stream->properties().setProperty(kCMIOStreamPropertyDirection, UInt32(0));
+    stream = device->addStream();
 
     // Register one stream for this device.
-    if (!stream) {
-        this->Teardown();
+    if (!stream)
+        goto createDevice_failed;
 
-        return kCMIOHardwareUnspecifiedError;
-    }
+    stream->setFormats(formats);
+    stream->properties().setProperty(kCMIOStreamPropertyDirection, UInt32(0));
 
-    status = device->registerStreams();
+    if (device->registerStreams() != kCMIOHardwareNoError) {
+        device->registerStreams(false);
 
-    if (status != kCMIOHardwareNoError) {
-        this->Teardown();
-
-        return status;
+        goto createDevice_failed;
     }
 
     // Register the device.
-    status = device->registerObject();
+    if (device->registerObject() != kCMIOHardwareNoError) {
+        device->registerObject(false);
+        device->registerStreams(false);
 
-    if (status != kCMIOHardwareNoError)
-        this->Teardown();
+        goto createDevice_failed;
+    }
 
-    return status;
+    return true;
+
+createDevice_failed:
+    this->m_devices.erase(std::prev(this->m_devices.end()));
+
+    return false;
 }
 
-OSStatus AkVCam::PluginInterface::Teardown()
+void AkVCam::PluginInterface::destroyDevice(const std::string &deviceId)
 {
-    AkLoggerLog("AkVCam::PluginInterface::Teardown");
-    AkLoggerLog("STUB");
-/*
-    this->m_devices.clear();
-    this->m_objectID = 0;
-*/
-    return kCMIOHardwareNoError;
+    for (auto it = this->m_devices.begin(); it != this->m_devices.end(); it++) {
+        auto device = *it;
+
+        std::string curDeviceId;
+        device->properties().getProperty(kCMIODevicePropertyDeviceUID,
+                                         &curDeviceId);
+
+        if (curDeviceId == deviceId) {
+            device->registerObject(false);
+            device->registerStreams(false);
+            this->m_devices.erase(it);
+
+            break;
+        }
+    }
 }

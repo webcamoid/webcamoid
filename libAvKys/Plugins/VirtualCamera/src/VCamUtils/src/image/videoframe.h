@@ -20,17 +20,23 @@
 #ifndef VIDEOFRAME_H
 #define VIDEOFRAME_H
 
-#include <vector>
 #include <memory>
+
+#include "videoformat.h"
 
 namespace AkVCam
 {
     class VideoFormatPrivate;
-    class VideoFormat;
 
     class VideoFrame
     {
         public:
+            enum Scaling
+            {
+                ScalingFast,
+                ScalingLinear
+            };
+
             VideoFrame();
             VideoFrame(const VideoFormat &format,
                        const std::shared_ptr<uint8_t> &data,
@@ -48,6 +54,13 @@ namespace AkVCam
             std::shared_ptr<uint8_t> &data();
             size_t dataSize() const;
             size_t &dataSize();
+
+            VideoFrame scaled(int width,
+                              int height,
+                              Scaling mode=ScalingFast) const;
+            static std::vector<FourCC> &inputFormats();
+            static std::vector<FourCC> &outputFormats();
+            VideoFrame convert(FourCC fourcc) const;
 
         private:
             VideoFormatPrivate *d;

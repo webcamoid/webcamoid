@@ -25,6 +25,7 @@
 namespace AkVCam
 {
     struct PluginInterfacePrivate;
+    class VideoFrame;
 
     class PluginInterface: public ObjectInterface
     {
@@ -45,6 +46,13 @@ namespace AkVCam
             PluginInterfacePrivate *d;
             CMIOObjectID m_objectID;
             std::list<DevicePtr> m_devices;
+
+            void deviceAdded(const std::string &deviceId);
+            void deviceRemoved(const std::string &deviceId);
+            bool createDevice(const std::string &deviceId,
+                              const std::string &description,
+                              const std::vector<VideoFormat> &formats);
+            void destroyDevice(const std::string &deviceId);
     };
 }
 
