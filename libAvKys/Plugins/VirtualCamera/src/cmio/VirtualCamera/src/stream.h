@@ -59,6 +59,8 @@ namespace AkVCam
 
         private:
             ClockPtr m_clock;
+            UInt64 m_sequence;
+            CMTime m_pts;
             SampleBufferQueuePtr m_queue;
             CMIODeviceStreamQueueAlteredProc m_queueAltered;
             VideoFormat m_format;

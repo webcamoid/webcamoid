@@ -151,6 +151,8 @@ bool AkVCam::Stream::start()
     if (this->m_running)
         return false;
 
+    this->m_sequence = 0;
+    memset(&this->m_pts, 0, sizeof(CMTime));
     CFTimeInterval interval = 30.0e-3;
     CFRunLoopTimerContext context {0, this, nullptr, nullptr, nullptr};
     this->m_timer =
@@ -264,13 +266,26 @@ void AkVCam::Stream::streamLoop(CFRunLoopTimerRef timer, void *info)
     int width = self->m_format.width();
     int height = self->m_format.height();
     double fps = self->m_format.minimumFrameRate();
-    static int64_t pts = 0;
 
-    CMIOStreamClockPostTimingEvent(CMTimeMake(pts, fps),
-                                   UInt64(CFAbsoluteTimeGetCurrent()),
-                                   false,
+    bool resync = false;
+    auto hostTime = UInt64(CFAbsoluteTimeGetCurrent());
+    auto pts = CMIOStreamClockConvertHostTimeToDeviceTime(hostTime,
+                                                          self->m_clock->ref());
+    auto ptsDiff = CMTimeGetSeconds(CMTimeSubtract(self->m_pts, pts));
+
+    if (CMTimeCompare(pts, self->m_pts) == 0)
+        return;
+    if (CMTIME_IS_INVALID(self->m_pts)
+        || ptsDiff < 0
+        || ptsDiff > 2. / fps) {
+        self->m_pts = pts;
+        resync = true;
+    }
+
+    CMIOStreamClockPostTimingEvent(self->m_pts,
+                                   hostTime,
+                                   resync,
                                    self->m_clock->ref());
-    pts++;
 
     CVImageBufferRef imageBuffer = nullptr;
     CVPixelBufferCreate(kCFAllocatorDefault,
@@ -302,10 +317,11 @@ void AkVCam::Stream::streamLoop(CFRunLoopTimerRef timer, void *info)
                                                  imageBuffer,
                                                  &format);
 
+    auto duration = CMTimeMake(1, fps);
     CMSampleTimingInfo timingInfo {
-        CMTimeMake(1, fps),
-        CMTimeMake(pts, fps),
-        CMTimeMake(pts, fps)
+        duration,
+        self->m_pts,
+        self->m_pts
     };
 
     CMSampleBufferRef buffer = nullptr;
@@ -313,11 +329,15 @@ void AkVCam::Stream::streamLoop(CFRunLoopTimerRef timer, void *info)
                                          imageBuffer,
                                          format,
                                          &timingInfo,
-                                         UInt64(pts),
-                                         0,
+                                         self->m_sequence,
+                                         resync?
+                                             kCMIOSampleBufferDiscontinuityFlag_UnknownDiscontinuity:
+                                             kCMIOSampleBufferNoDiscontinuities,
                                          &buffer);
 
     self->m_queue->enqueue(buffer);
+    self->m_pts = CMTimeAdd(self->m_pts, duration);
+    self->m_sequence++;
 
     if (self->m_queueAltered)
         self->m_queueAltered(self->m_objectID,

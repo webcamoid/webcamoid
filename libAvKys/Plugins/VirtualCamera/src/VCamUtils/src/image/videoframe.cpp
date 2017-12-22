@@ -136,17 +136,17 @@ namespace AkVCam
                 m_dataSize(0)
             {
                 this->m_convert = {
-                    {MKFOURCC('R', 'G', 'B',  24), MKFOURCC('R', 'G', 'B',  32), rgb24_to_rgb32},
-                    {MKFOURCC('R', 'G', 'B',  24), MKFOURCC('R', 'G', 'B',  16), rgb24_to_rgb16},
-                    {MKFOURCC('R', 'G', 'B',  24), MKFOURCC('R', 'G', 'B',  15), rgb24_to_rgb15},
-                    {MKFOURCC('R', 'G', 'B',  24), MKFOURCC('B', 'G', 'R',  32), rgb24_to_bgr32},
-                    {MKFOURCC('R', 'G', 'B',  24), MKFOURCC('B', 'G', 'R',  24), rgb24_to_bgr24},
-                    {MKFOURCC('R', 'G', 'B',  24), MKFOURCC('B', 'G', 'R',  15), rgb24_to_bgr16},
-                    {MKFOURCC('R', 'G', 'B',  24), MKFOURCC('B', 'G', 'R',  16), rgb24_to_bgr15},
-                    {MKFOURCC('R', 'G', 'B',  24), MKFOURCC('U', 'Y', 'V', 'Y'), rgb24_to_uyvy },
-                    {MKFOURCC('R', 'G', 'B',  24), MKFOURCC('Y', 'U', 'Y', '2'), rgb24_to_yuy2 },
-                    {MKFOURCC('R', 'G', 'B',  24), MKFOURCC('N', 'V', '1', '2'), rgb24_to_nv12 },
-                    {MKFOURCC('R', 'G', 'B',  24), MKFOURCC('N', 'V', '2', '1'), rgb24_to_nv21 }
+                    {MKFOURCC('R', 'G', 'B', 24), MKFOURCC('R', 'G', 'B',  32), rgb24_to_rgb32},
+                    {MKFOURCC('R', 'G', 'B', 24), MKFOURCC('R', 'G', 'B',  16), rgb24_to_rgb16},
+                    {MKFOURCC('R', 'G', 'B', 24), MKFOURCC('R', 'G', 'B',  15), rgb24_to_rgb15},
+                    {MKFOURCC('R', 'G', 'B', 24), MKFOURCC('B', 'G', 'R',  32), rgb24_to_bgr32},
+                    {MKFOURCC('R', 'G', 'B', 24), MKFOURCC('B', 'G', 'R',  24), rgb24_to_bgr24},
+                    {MKFOURCC('R', 'G', 'B', 24), MKFOURCC('B', 'G', 'R',  15), rgb24_to_bgr16},
+                    {MKFOURCC('R', 'G', 'B', 24), MKFOURCC('B', 'G', 'R',  16), rgb24_to_bgr15},
+                    {MKFOURCC('R', 'G', 'B', 24), MKFOURCC('U', 'Y', 'V', 'Y'), rgb24_to_uyvy },
+                    {MKFOURCC('R', 'G', 'B', 24), MKFOURCC('Y', 'U', 'Y', '2'), rgb24_to_yuy2 },
+                    {MKFOURCC('R', 'G', 'B', 24), MKFOURCC('N', 'V', '1', '2'), rgb24_to_nv12 },
+                    {MKFOURCC('R', 'G', 'B', 24), MKFOURCC('N', 'V', '2', '1'), rgb24_to_nv21 }
                 };
             }
 
