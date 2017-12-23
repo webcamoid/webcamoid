@@ -284,7 +284,7 @@ bool AkVCam::ObjectProperties::setProperty(UInt32 property,
                 auto mediaType = CMFormatDescriptionGetMediaType(videoDescription);
                 auto dimensions = CMVideoFormatDescriptionGetDimensions(videoDescription);
                 this->d->m_properties[property].videoFormat =
-                        VideoFormat(mediaType,
+                        VideoFormat(formatFromCM(mediaType),
                                     dimensions.width,
                                     dimensions.height);
             } else {
@@ -454,7 +454,7 @@ bool AkVCam::ObjectProperties::getProperty(UInt32 property,
                 auto videoFormat = this->d->m_properties[property].videoFormat;
                 auto status =
                         CMVideoFormatDescriptionCreate(kCFAllocatorDefault,
-                                                       videoFormat.fourcc(),
+                                                       formatToCM(videoFormat.fourcc()),
                                                        videoFormat.width(),
                                                        videoFormat.height(),
                                                        nullptr,
@@ -481,7 +481,7 @@ bool AkVCam::ObjectProperties::getProperty(UInt32 property,
                     CMFormatDescriptionRef formatRef = nullptr;
                     auto status =
                             CMVideoFormatDescriptionCreate(kCFAllocatorDefault,
-                                                           format.fourcc(),
+                                                           formatToCM(format.fourcc()),
                                                            format.width(),
                                                            format.height(),
                                                            nullptr,

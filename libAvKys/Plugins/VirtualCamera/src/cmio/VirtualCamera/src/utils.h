@@ -22,11 +22,16 @@
 
 #include <string>
 #include <CoreMediaIO/CMIOHardwarePlugIn.h>
+#include <CoreMedia/CMFormatDescription.h>
+
+#include "VCamUtils/src/image/videoformat.h"
 
 namespace AkVCam
 {
     bool uuidEqual(const REFIID &uuid1, const CFUUIDRef uuid2);
     std::string enumToString(UInt32 value);
+    FourCharCode formatToCM(PixelFormat format);
+    PixelFormat formatFromCM(FourCharCode format);
 }
 
 #endif // UTILS_H

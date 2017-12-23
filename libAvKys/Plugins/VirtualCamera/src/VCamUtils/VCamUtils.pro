@@ -39,7 +39,6 @@ TEMPLATE = lib
 
 SOURCES += \
     src/cstream/cstream.cpp \
-    src/image/bitmap.cpp \
     src/image/videoformat.cpp \
     src/logger/logger.cpp \
     src/resources/rcdata.cpp \
@@ -51,7 +50,6 @@ SOURCES += \
 HEADERS += \
     src/utils.h \
     src/cstream/cstream.h \
-    src/image/bitmap.h \
     src/image/color.h \
     src/image/videoformat.h \
     src/logger/logger.h \

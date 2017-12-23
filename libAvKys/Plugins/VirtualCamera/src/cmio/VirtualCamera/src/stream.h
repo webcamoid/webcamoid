@@ -64,6 +64,7 @@ namespace AkVCam
             SampleBufferQueuePtr m_queue;
             CMIODeviceStreamQueueAlteredProc m_queueAltered;
             VideoFormat m_format;
+            double m_fps;
             void *m_queueAlteredRefCon;
             CFRunLoopTimerRef m_timer;
             bool m_running;

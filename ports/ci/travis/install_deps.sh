@@ -103,7 +103,8 @@ elif [ "${DOCKERSYS}" = debian ]; then
             qml-module-qtquick-controls2 \
             qml-module-qtquick-dialogs \
             qml-module-qtquick-extras \
-            qml-module-qtquick-privatewidgets
+            qml-module-qtquick-privatewidgets \
+            qml-module-qtquick-templates2
     fi
 
     # Install FFmpeg dev

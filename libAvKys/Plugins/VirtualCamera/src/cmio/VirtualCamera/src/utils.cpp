@@ -17,9 +17,24 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <map>
 #include <algorithm>
 
 #include "utils.h"
+
+inline const std::map<AkVCam::PixelFormat, FourCharCode> *formatsTable()
+{
+    static const std::map<AkVCam::PixelFormat, FourCharCode> formatsTable {
+        {AkVCam::PixelFormatBGR32, kCMPixelFormat_32ARGB         },
+        {AkVCam::PixelFormatRGB24, kCMPixelFormat_24RGB          },
+        {AkVCam::PixelFormatRGB16, kCMPixelFormat_16LE565        },
+        {AkVCam::PixelFormatRGB15, kCMPixelFormat_16LE555        },
+        {AkVCam::PixelFormatUYVY , kCMPixelFormat_422YpCbCr8     },
+        {AkVCam::PixelFormatYUY2 , kCMPixelFormat_422YpCbCr8_yuvs}
+    };
+
+    return &formatsTable;
+}
 
 bool AkVCam::uuidEqual(const REFIID &uuid1, const CFUUIDRef uuid2)
 {
@@ -42,4 +57,22 @@ std::string AkVCam::enumToString(UInt32 value)
     valueStr = "'" + valueStr + "'";
 
     return valueStr;
+}
+
+FourCharCode AkVCam::formatToCM(PixelFormat format)
+{
+    for (auto &format: *formatsTable())
+        if (format.first = format)
+            return format.second;
+
+    return FourCharCode(0);
+}
+
+AkVCam::PixelFormat AkVCam::formatFromCM(FourCharCode format)
+{
+    for (auto &format: *formatsTable())
+        if (format.second = format)
+            return format.first;
+
+    return PixelFormat(0);
 }

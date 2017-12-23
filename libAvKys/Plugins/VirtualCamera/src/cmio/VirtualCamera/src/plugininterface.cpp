@@ -622,6 +622,16 @@ OSStatus AkVCam::PluginInterface::InitializeWithObjectID(CMIOObjectID objectID)
 
     this->m_objectID = objectID;
 
+#if defined(QT_DEBUG) && 1
+    std::vector<VideoFormat> formats {
+        {PixelFormatRGB32, 640, 480, {30.0}}
+    };
+
+    this->createDevice("org.webcamoid.cmio.AkVCam.Driver.Debug",
+                       "Virtual Debug Camera (driver side)",
+                       formats);
+#endif
+
     for (auto deviceId: this->d->m_ipcBridge.listDevices())
         this->deviceAdded(deviceId);
 

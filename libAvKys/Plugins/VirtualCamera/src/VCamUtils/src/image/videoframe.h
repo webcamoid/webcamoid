@@ -26,7 +26,7 @@
 
 namespace AkVCam
 {
-    class VideoFormatPrivate;
+    class VideoFramePrivate;
 
     class VideoFrame
     {
@@ -38,6 +38,7 @@ namespace AkVCam
             };
 
             VideoFrame();
+            VideoFrame(const std::string &bmpResource);
             VideoFrame(const VideoFormat &format,
                        const std::shared_ptr<uint8_t> &data,
                        size_t dataSize);
@@ -57,13 +58,13 @@ namespace AkVCam
 
             VideoFrame scaled(int width,
                               int height,
-                              Scaling mode=ScalingFast) const;
-            static std::vector<FourCC> &inputFormats();
-            static std::vector<FourCC> &outputFormats();
+                              Scaling mode=ScalingFast,
+                              bool keepAspect=true) const;
+            bool canConvert(FourCC input, FourCC output) const;
             VideoFrame convert(FourCC fourcc) const;
 
         private:
-            VideoFormatPrivate *d;
+            VideoFramePrivate *d;
     };
 }
 

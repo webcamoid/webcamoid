@@ -23,6 +23,8 @@
 #include "videoframe.h"
 #include "videoformat.h"
 #include "../utils.h"
+#include "../cstream/cstream.h"
+#include "../resources/rcloader.h"
 
 namespace AkVCam
 {
@@ -124,7 +126,7 @@ namespace AkVCam
         VideoConvertFuntion convert;
     };
 
-    class VideoFormatPrivate
+    class VideoFramePrivate
     {
         public:
             VideoFormat m_format;
@@ -132,21 +134,21 @@ namespace AkVCam
             size_t m_dataSize;
             std::vector<VideoConvert> m_convert;
 
-            VideoFormatPrivate():
+            VideoFramePrivate():
                 m_dataSize(0)
             {
                 this->m_convert = {
-                    {MKFOURCC('R', 'G', 'B', 24), MKFOURCC('R', 'G', 'B',  32), rgb24_to_rgb32},
-                    {MKFOURCC('R', 'G', 'B', 24), MKFOURCC('R', 'G', 'B',  16), rgb24_to_rgb16},
-                    {MKFOURCC('R', 'G', 'B', 24), MKFOURCC('R', 'G', 'B',  15), rgb24_to_rgb15},
-                    {MKFOURCC('R', 'G', 'B', 24), MKFOURCC('B', 'G', 'R',  32), rgb24_to_bgr32},
-                    {MKFOURCC('R', 'G', 'B', 24), MKFOURCC('B', 'G', 'R',  24), rgb24_to_bgr24},
-                    {MKFOURCC('R', 'G', 'B', 24), MKFOURCC('B', 'G', 'R',  15), rgb24_to_bgr16},
-                    {MKFOURCC('R', 'G', 'B', 24), MKFOURCC('B', 'G', 'R',  16), rgb24_to_bgr15},
-                    {MKFOURCC('R', 'G', 'B', 24), MKFOURCC('U', 'Y', 'V', 'Y'), rgb24_to_uyvy },
-                    {MKFOURCC('R', 'G', 'B', 24), MKFOURCC('Y', 'U', 'Y', '2'), rgb24_to_yuy2 },
-                    {MKFOURCC('R', 'G', 'B', 24), MKFOURCC('N', 'V', '1', '2'), rgb24_to_nv12 },
-                    {MKFOURCC('R', 'G', 'B', 24), MKFOURCC('N', 'V', '2', '1'), rgb24_to_nv21 }
+                    {PixelFormatRGB24, PixelFormatRGB32, rgb24_to_rgb32},
+                    {PixelFormatRGB24, PixelFormatRGB16, rgb24_to_rgb16},
+                    {PixelFormatRGB24, PixelFormatRGB15, rgb24_to_rgb15},
+                    {PixelFormatRGB24, PixelFormatBGR32, rgb24_to_bgr32},
+                    {PixelFormatRGB24, PixelFormatBGR24, rgb24_to_bgr24},
+                    {PixelFormatRGB24, PixelFormatBGR15, rgb24_to_bgr16},
+                    {PixelFormatRGB24, PixelFormatBGR16, rgb24_to_bgr15},
+                    {PixelFormatRGB24, PixelFormatUYVY , rgb24_to_uyvy },
+                    {PixelFormatRGB24, PixelFormatYUY2 , rgb24_to_yuy2 },
+                    {PixelFormatRGB24, PixelFormatNV12 , rgb24_to_nv12 },
+                    {PixelFormatRGB24, PixelFormatNV21 , rgb24_to_nv21 }
                 };
             }
 
@@ -190,6 +192,12 @@ namespace AkVCam
                                                int srcLength, int dstLength,
                                                int *srcCoordMin, int *srcCoordMax,
                                                int *kNum, int *kDen);
+            inline uint8_t extrapolateComponent(uint8_t min, uint8_t max,
+                                               int kNum, int kDen) const;
+            inline RGB24 extrapolateColor(const RGB24 &colorMin,
+                                          const RGB24 &colorMax,
+                                          int kNum,
+                                          int kDen) const;
             inline RGB24 extrapolateColor(int xMin, int xMax,
                                           int kNumX, int kDenX,
                                           int yMin, int yMax,
@@ -199,14 +207,84 @@ namespace AkVCam
 
 AkVCam::VideoFrame::VideoFrame()
 {
-    this->d = new VideoFormatPrivate;
+    this->d = new VideoFramePrivate;
+}
+
+AkVCam::VideoFrame::VideoFrame(const std::string &bmpResource)
+{
+    this->d = new VideoFramePrivate;
+
+    auto bitmapStream = RcLoader::load(bmpResource);
+
+    if (!bitmapStream.data())
+        return;
+
+    if (bitmapStream.read<char>() != 'B'
+        || bitmapStream.read<char>() != 'M')
+        return;
+
+    bitmapStream.seek(8);
+    auto pixelsOffset = bitmapStream.read<uint32_t>();
+    bitmapStream.seek(4);
+    auto width = int(bitmapStream.read<uint32_t>());
+    auto height = int(bitmapStream.read<uint32_t>());
+    bitmapStream.seek(2);
+    auto depth = bitmapStream.read<uint16_t>();
+    bitmapStream.seek(int(pixelsOffset), CStreamRead::SeekSet);
+
+    size_t dataSize = size_t(3 * width * height);
+
+    if (!dataSize)
+        return;
+
+    auto data = std::shared_ptr<uint8_t>(new uint8_t[dataSize]);
+
+    switch (depth) {
+        case 24:
+            for (int y = 0; y < height; y++) {
+                auto line = reinterpret_cast<RGB24 *>(data.get()) + width * (height - y - 1);
+
+                for (int x = 0; x < width; x++) {
+                    line[x].b = bitmapStream.read<uint8_t>();
+                    line[x].g = bitmapStream.read<uint8_t>();
+                    line[x].r = bitmapStream.read<uint8_t>();
+                }
+            }
+
+            this->d->m_format = {PixelFormatRGB24, width, height};
+            this->d->m_data = data;
+            this->d->m_dataSize = dataSize;
+
+            break;
+
+        case 32:
+            for (int y = 0; y < height; y++) {
+                auto line = reinterpret_cast<RGB24 *>(data.get()) + width * (height - y - 1);
+
+                for (int x = 0; x < width; x++) {
+                    line[x].b = bitmapStream.read<uint8_t>();
+                    line[x].g = bitmapStream.read<uint8_t>();
+                    line[x].r = bitmapStream.read<uint8_t>();
+                    bitmapStream.seek<uint8_t>();
+                }
+            }
+
+            this->d->m_format = {PixelFormatRGB24, width, height};
+            this->d->m_data = data;
+            this->d->m_dataSize = dataSize;
+
+            break;
+
+        default:
+            break;
+    }
 }
 
 AkVCam::VideoFrame::VideoFrame(const AkVCam::VideoFormat &format,
                                const std::shared_ptr<uint8_t> &data,
                                size_t dataSize)
 {
-    this->d = new VideoFormatPrivate;
+    this->d = new VideoFramePrivate;
     this->d->m_format = format;
     this->d->m_data = data;
     this->d->m_dataSize = dataSize;
@@ -216,7 +294,7 @@ AkVCam::VideoFrame::VideoFrame(const AkVCam::VideoFormat &format,
                                const uint8_t *data,
                                size_t dataSize)
 {
-    this->d = new VideoFormatPrivate;
+    this->d = new VideoFramePrivate;
     this->d->m_format = format;
     this->d->m_data = std::shared_ptr<uint8_t>(new uint8_t[dataSize]);
     memcpy(this->d->m_data.get(), data, dataSize);
@@ -225,7 +303,7 @@ AkVCam::VideoFrame::VideoFrame(const AkVCam::VideoFormat &format,
 
 AkVCam::VideoFrame::VideoFrame(const AkVCam::VideoFrame &other)
 {
-    this->d = new VideoFormatPrivate;
+    this->d = new VideoFramePrivate;
     this->d->m_format = other.d->m_format;
     this->d->m_data = other.d->m_data;
     this->d->m_dataSize = other.d->m_dataSize;
@@ -279,13 +357,14 @@ size_t &AkVCam::VideoFrame::dataSize()
 
 AkVCam::VideoFrame AkVCam::VideoFrame::scaled(int width,
                                               int height,
-                                              Scaling mode) const
+                                              Scaling mode,
+                                              bool keepAspect) const
 {
     if (this->d->m_format.width() == width
         && this->d->m_format.height() == height)
         return *this;
 
-    if (this->d->m_format.fourcc() != MKFOURCC('R', 'G', 'B',  24))
+    if (this->d->m_format.fourcc() != PixelFormatRGB24)
         return {};
 
     auto format = this->d->m_format;
@@ -293,6 +372,7 @@ AkVCam::VideoFrame AkVCam::VideoFrame::scaled(int width,
     format.height() = height;
     size_t dataSize = size_t(3 * width * height);
     auto data = std::shared_ptr<uint8_t>(new uint8_t[dataSize]);
+    memset(data.get(), 0, dataSize);
 
     switch (mode) {
         case ScalingFast:
@@ -314,12 +394,12 @@ AkVCam::VideoFrame AkVCam::VideoFrame::scaled(int width,
         case ScalingLinear: {
             auto extrapolateX =
                     this->d->m_format.width() < width?
-                        &VideoFormatPrivate::extrapolateUp:
-                        &VideoFormatPrivate::extrapolateDown;
+                        &VideoFramePrivate::extrapolateUp:
+                        &VideoFramePrivate::extrapolateDown;
             auto extrapolateY =
                     this->d->m_format.height() < height?
-                        &VideoFormatPrivate::extrapolateUp:
-                        &VideoFormatPrivate::extrapolateDown;
+                        &VideoFramePrivate::extrapolateUp:
+                        &VideoFramePrivate::extrapolateDown;
 
             for (int y = 0; y < height; y++) {
                 auto destLine = reinterpret_cast<RGB24 *>(data.get())
@@ -358,40 +438,15 @@ AkVCam::VideoFrame AkVCam::VideoFrame::scaled(int width,
     return VideoFrame(format, data, dataSize);
 }
 
-std::vector<AkVCam::FourCC> &AkVCam::VideoFrame::inputFormats()
+bool AkVCam::VideoFrame::canConvert(FourCC input, FourCC output) const
 {
-    static std::vector<AkVCam::FourCC> inputFormats {
-        MKFOURCC('R', 'G', 'B',  24),
-    };
+    for (auto &convert: this->d->m_convert)
+        if (convert.from == input
+            && convert.to == output) {
+            return true;
+        }
 
-    return inputFormats;
-}
-
-std::vector<AkVCam::FourCC> &AkVCam::VideoFrame::outputFormats()
-{
-    static std::vector<AkVCam::FourCC> outputFormats {
-        // RGB formats
-        MKFOURCC('R', 'G', 'B',  32),
-        MKFOURCC('R', 'G', 'B',  24),
-        MKFOURCC('R', 'G', 'B',  16),
-        MKFOURCC('R', 'G', 'B',  15),
-
-        // BGR formats
-        MKFOURCC('B', 'G', 'R',  32),
-        MKFOURCC('B', 'G', 'R',  24),
-        MKFOURCC('B', 'G', 'R',  15),
-        MKFOURCC('B', 'G', 'R',  16),
-
-        // Luminance+Chrominance formats
-        MKFOURCC('U', 'Y', 'V', 'Y'),
-        MKFOURCC('Y', 'U', 'Y', '2'),
-
-        // two planes -- one Y, one Cr + Cb interleaved
-        MKFOURCC('N', 'V', '1', '2'),
-        MKFOURCC('N', 'V', '2', '1')
-    };
-
-    return outputFormats;
+    return false;
 }
 
 AkVCam::VideoFrame AkVCam::VideoFrame::convert(AkVCam::FourCC fourcc) const
@@ -428,22 +483,22 @@ AkVCam::VideoFrame AkVCam::VideoFrame::convert(AkVCam::FourCC fourcc) const
     return VideoFrame(format, data, dataSize);
 }
 
-uint8_t AkVCam::VideoFormatPrivate::rgb_y(int r, int g, int b)
+uint8_t AkVCam::VideoFramePrivate::rgb_y(int r, int g, int b)
 {
     return uint8_t(((66 * r + 129 * g + 25 * b + 128) >> 8) + 16);
 }
 
-uint8_t AkVCam::VideoFormatPrivate::rgb_u(int r, int g, int b)
+uint8_t AkVCam::VideoFramePrivate::rgb_u(int r, int g, int b)
 {
     return uint8_t(((-38 * r - 74 * g + 112 * b + 128) >> 8) + 128);
 }
 
-uint8_t AkVCam::VideoFormatPrivate::rgb_v(int r, int g, int b)
+uint8_t AkVCam::VideoFramePrivate::rgb_v(int r, int g, int b)
 {
     return uint8_t(((112 * r - 94 * g - 18 * b + 128) >> 8) + 128);
 }
 
-uint8_t AkVCam::VideoFormatPrivate::yuv_r(int y, int u, int v)
+uint8_t AkVCam::VideoFramePrivate::yuv_r(int y, int u, int v)
 {
     UNUSED(u)
     int r = (298 * (y - 16) + 409 * (v - 128) + 128) >> 8;
@@ -451,14 +506,14 @@ uint8_t AkVCam::VideoFormatPrivate::yuv_r(int y, int u, int v)
     return uint8_t(bound(0, r, 255));
 }
 
-uint8_t AkVCam::VideoFormatPrivate::yuv_g(int y, int u, int v)
+uint8_t AkVCam::VideoFramePrivate::yuv_g(int y, int u, int v)
 {
     int g = (298 * (y - 16) - 100 * (u - 128) - 208 * (v - 128) + 128) >> 8;
 
     return uint8_t(bound(0, g, 255));
 }
 
-uint8_t AkVCam::VideoFormatPrivate::yuv_b(int y, int u, int v)
+uint8_t AkVCam::VideoFramePrivate::yuv_b(int y, int u, int v)
 {
     UNUSED(v)
     int b = (298 * (y - 16) + 516 * (u - 128) + 128) >> 8;
@@ -466,7 +521,7 @@ uint8_t AkVCam::VideoFormatPrivate::yuv_b(int y, int u, int v)
     return uint8_t(bound(0, b, 255));
 }
 
-size_t AkVCam::VideoFormatPrivate::rgb24_to_rgb32(void *dst, const void *src, int width, int height)
+size_t AkVCam::VideoFramePrivate::rgb24_to_rgb32(void *dst, const void *src, int width, int height)
 {
     size_t len = size_t(width * height);
     size_t osize = 32 * len / 8;
@@ -487,7 +542,7 @@ size_t AkVCam::VideoFormatPrivate::rgb24_to_rgb32(void *dst, const void *src, in
     return osize;
 }
 
-size_t AkVCam::VideoFormatPrivate::rgb24_to_rgb16(void *dst, const void *src, int width, int height)
+size_t AkVCam::VideoFramePrivate::rgb24_to_rgb16(void *dst, const void *src, int width, int height)
 {
     size_t len = size_t(width * height);
     size_t osize = 16 * len / 8;
@@ -507,7 +562,7 @@ size_t AkVCam::VideoFormatPrivate::rgb24_to_rgb16(void *dst, const void *src, in
     return osize;
 }
 
-size_t AkVCam::VideoFormatPrivate::rgb24_to_rgb15(void *dst, const void *src, int width, int height)
+size_t AkVCam::VideoFramePrivate::rgb24_to_rgb15(void *dst, const void *src, int width, int height)
 {
     size_t len = size_t(width * height);
     size_t osize = 16 * len / 8;
@@ -528,7 +583,7 @@ size_t AkVCam::VideoFormatPrivate::rgb24_to_rgb15(void *dst, const void *src, in
     return osize;
 }
 
-size_t AkVCam::VideoFormatPrivate::rgb24_to_bgr32(void *dst, const void *src, int width, int height)
+size_t AkVCam::VideoFramePrivate::rgb24_to_bgr32(void *dst, const void *src, int width, int height)
 {
     size_t len = size_t(width * height);
     size_t osize = 32 * len / 8;
@@ -549,7 +604,7 @@ size_t AkVCam::VideoFormatPrivate::rgb24_to_bgr32(void *dst, const void *src, in
     return osize;
 }
 
-size_t AkVCam::VideoFormatPrivate::rgb24_to_bgr24(void *dst, const void *src, int width, int height)
+size_t AkVCam::VideoFramePrivate::rgb24_to_bgr24(void *dst, const void *src, int width, int height)
 {
     size_t len = size_t(width * height);
     size_t osize = 24 * len / 8;
@@ -569,7 +624,7 @@ size_t AkVCam::VideoFormatPrivate::rgb24_to_bgr24(void *dst, const void *src, in
     return osize;
 }
 
-size_t AkVCam::VideoFormatPrivate::rgb24_to_bgr16(void *dst, const void *src, int width, int height)
+size_t AkVCam::VideoFramePrivate::rgb24_to_bgr16(void *dst, const void *src, int width, int height)
 {
     size_t len = size_t(width * height);
     size_t osize = 16 * len / 8;
@@ -589,7 +644,7 @@ size_t AkVCam::VideoFormatPrivate::rgb24_to_bgr16(void *dst, const void *src, in
     return osize;
 }
 
-size_t AkVCam::VideoFormatPrivate::rgb24_to_bgr15(void *dst, const void *src, int width, int height)
+size_t AkVCam::VideoFramePrivate::rgb24_to_bgr15(void *dst, const void *src, int width, int height)
 {
     size_t len = size_t(width * height);
     size_t osize = 16 * len / 8;
@@ -610,7 +665,7 @@ size_t AkVCam::VideoFormatPrivate::rgb24_to_bgr15(void *dst, const void *src, in
     return osize;
 }
 
-size_t AkVCam::VideoFormatPrivate::rgb24_to_uyvy(void *dst, const void *src, int width, int height)
+size_t AkVCam::VideoFramePrivate::rgb24_to_uyvy(void *dst, const void *src, int width, int height)
 {
     size_t len = size_t(width * height);
     size_t osize = 16 * len / 8;
@@ -645,7 +700,7 @@ size_t AkVCam::VideoFormatPrivate::rgb24_to_uyvy(void *dst, const void *src, int
     return osize;
 }
 
-size_t AkVCam::VideoFormatPrivate::rgb24_to_yuy2(void *dst, const void *src, int width, int height)
+size_t AkVCam::VideoFramePrivate::rgb24_to_yuy2(void *dst, const void *src, int width, int height)
 {
     size_t len = size_t(width * height);
     size_t osize = 16 * len / 8;
@@ -680,7 +735,7 @@ size_t AkVCam::VideoFormatPrivate::rgb24_to_yuy2(void *dst, const void *src, int
     return osize;
 }
 
-size_t AkVCam::VideoFormatPrivate::rgb24_to_nv12(void *dst, const void *src, int width, int height)
+size_t AkVCam::VideoFramePrivate::rgb24_to_nv12(void *dst, const void *src, int width, int height)
 {
     size_t len = size_t(width * height);
     size_t osize = 12 * len / 8;
@@ -724,7 +779,7 @@ size_t AkVCam::VideoFormatPrivate::rgb24_to_nv12(void *dst, const void *src, int
     return osize;
 }
 
-size_t AkVCam::VideoFormatPrivate::rgb24_to_nv21(void *dst, const void *src, int width, int height)
+size_t AkVCam::VideoFramePrivate::rgb24_to_nv21(void *dst, const void *src, int width, int height)
 {
     size_t len = size_t(width * height);
     size_t osize = 12 * len / 8;
@@ -768,7 +823,7 @@ size_t AkVCam::VideoFormatPrivate::rgb24_to_nv21(void *dst, const void *src, int
     return osize;
 }
 
-void AkVCam::VideoFormatPrivate::extrapolateUp(int dstCoord,
+void AkVCam::VideoFramePrivate::extrapolateUp(int dstCoord,
                                                int srcLength, int dstLength,
                                                int *srcCoordMin, int *srcCoordMax,
                                                int *kNum, int *kDen)
@@ -783,7 +838,7 @@ void AkVCam::VideoFormatPrivate::extrapolateUp(int dstCoord,
     *kDen = dstCoordMax - dstCoordMin;
 }
 
-void AkVCam::VideoFormatPrivate::extrapolateDown(int dstCoord,
+void AkVCam::VideoFramePrivate::extrapolateDown(int dstCoord,
                                                  int srcLength, int dstLength,
                                                  int *srcCoordMin, int *srcCoordMax,
                                                  int *kNum, int *kDen)
@@ -792,11 +847,29 @@ void AkVCam::VideoFormatPrivate::extrapolateDown(int dstCoord,
     int dstLength_1 = dstLength - 1;
     *srcCoordMin = srcLength_1 * dstCoord / dstLength_1;
     *srcCoordMax = *srcCoordMin;
-    *kNum = 1;
-    *kDen = 2;
+    *kNum = 0;
+    *kDen = 1;
 }
 
-AkVCam::RGB24 AkVCam::VideoFormatPrivate::extrapolateColor(int xMin, int xMax,
+uint8_t AkVCam::VideoFramePrivate::extrapolateComponent(uint8_t min, uint8_t max,
+                                                         int kNum, int kDen) const
+{
+    return uint8_t((kNum * (max - min) + kDen * min) / kDen);
+}
+
+AkVCam::RGB24 AkVCam::VideoFramePrivate::extrapolateColor(const RGB24 &colorMin,
+                                                           const RGB24 &colorMax,
+                                                           int kNum,
+                                                           int kDen) const
+{
+    return RGB24 {
+        extrapolateComponent(colorMin.b, colorMax.b, kNum, kDen),
+        extrapolateComponent(colorMin.g, colorMax.g, kNum, kDen),
+        extrapolateComponent(colorMin.r, colorMax.r, kNum, kDen)
+    };
+}
+
+AkVCam::RGB24 AkVCam::VideoFramePrivate::extrapolateColor(int xMin, int xMax,
                                                            int kNumX, int kDenX,
                                                            int yMin, int yMax,
                                                            int kNumY, int kDenY) const
@@ -805,30 +878,8 @@ AkVCam::RGB24 AkVCam::VideoFormatPrivate::extrapolateColor(int xMin, int xMax,
                  + yMin * this->m_format.width();
     auto maxLine = reinterpret_cast<RGB24 *>(this->m_data.get())
                  + yMax * this->m_format.width();
+    auto colorMin = extrapolateColor(minLine[xMin], minLine[xMax], kNumX, kDenX);
+    auto colorMax = extrapolateColor(maxLine[xMin], maxLine[xMax], kNumX, kDenX);
 
-    auto &color0 = minLine[xMin];
-    auto &colorX = minLine[xMax];
-    auto &colorY = maxLine[xMin];
-
-    int diffXR = colorX.r - color0.r;
-    int diffXG = colorX.g - color0.g;
-    int diffXB = colorX.b - color0.b;
-
-    int diffYR = colorY.r - color0.r;
-    int diffYG = colorY.g - color0.g;
-    int diffYB = colorY.b - color0.b;
-
-    auto rx = uint8_t((kNumX * diffXR + kDenX * color0.r) / kDenX);
-    auto gx = uint8_t((kNumX * diffXG + kDenX * color0.g) / kDenX);
-    auto bx = uint8_t((kNumX * diffXB + kDenX * color0.b) / kDenX);
-
-    auto ry = uint8_t((kNumY * diffYR + kDenY * color0.r) / kDenY);
-    auto gy = uint8_t((kNumY * diffYG + kDenY * color0.g) / kDenY);
-    auto by = uint8_t((kNumY * diffYB + kDenY * color0.b) / kDenY);
-
-    return {
-        uint8_t(bound(0, rx + ry, 255)),
-        uint8_t(bound(0, gx + gy, 255)),
-        uint8_t(bound(0, bx + by, 255))
-    };
+    return extrapolateColor(colorMin, colorMax, kNumY, kDenY);
 }

@@ -30,6 +30,29 @@ namespace AkVCam
 {
     typedef uint32_t FourCC;
 
+    enum PixelFormat
+    {
+        // RGB formats
+        PixelFormatRGB32 = MKFOURCC('R', 'G', 'B',  32),
+        PixelFormatRGB24 = MKFOURCC('R', 'G', 'B',  24),
+        PixelFormatRGB16 = MKFOURCC('R', 'G', 'B',  16),
+        PixelFormatRGB15 = MKFOURCC('R', 'G', 'B',  15),
+
+        // BGR formats
+        PixelFormatBGR32 = MKFOURCC('B', 'G', 'R',  32),
+        PixelFormatBGR24 = MKFOURCC('B', 'G', 'R',  24),
+        PixelFormatBGR16 = MKFOURCC('B', 'G', 'R',  15),
+        PixelFormatBGR15 = MKFOURCC('B', 'G', 'R',  16),
+
+        // Luminance+Chrominance formats
+        PixelFormatUYVY = MKFOURCC('U', 'Y', 'V', 'Y'),
+        PixelFormatYUY2 = MKFOURCC('Y', 'U', 'Y', '2'),
+
+        // two planes -- one Y, one Cr + Cb interleaved
+        PixelFormatNV12 = MKFOURCC('N', 'V', '1', '2'),
+        PixelFormatNV21 = MKFOURCC('N', 'V', '2', '1')
+    };
+
     class VideoFormat
     {
         public:

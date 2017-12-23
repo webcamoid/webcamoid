@@ -33,11 +33,11 @@ AkVCam::Stream::Stream(bool registerObject,
     this->m_className = "Stream";
     this->m_classID = kCMIOStreamClassID;
     this->m_clock =
-            ClockPtr(new Clock("CMIO::VirtualCamera::Stream",
-                               CMTimeMake(1, 10),
-                               100,
-                               10));
-    this->m_queue = SampleBufferQueuePtr(new SampleBufferQueue(30));
+            std::make_shared<Clock>("CMIO::VirtualCamera::Stream",
+                                    CMTimeMake(1, 10),
+                                    100,
+                                    10);
+    this->m_queue = std::make_shared<SampleBufferQueue>(30);
 
     if (registerObject) {
         this->createObject();
@@ -142,6 +142,7 @@ void AkVCam::Stream::setFrameRate(Float64 frameRate)
 {
     this->m_properties.setProperty(kCMIOStreamPropertyFrameRate,
                                    frameRate);
+    this->m_fps = frameRate;
 }
 
 bool AkVCam::Stream::start()
@@ -153,7 +154,7 @@ bool AkVCam::Stream::start()
 
     this->m_sequence = 0;
     memset(&this->m_pts, 0, sizeof(CMTime));
-    CFTimeInterval interval = 30.0e-3;
+    CFTimeInterval interval = 1.0 / this->m_fps;
     CFRunLoopTimerContext context {0, this, nullptr, nullptr, nullptr};
     this->m_timer =
             CFRunLoopTimerCreate(kCFAllocatorDefault,
@@ -265,7 +266,6 @@ void AkVCam::Stream::streamLoop(CFRunLoopTimerRef timer, void *info)
     FourCC fourcc = self->m_format.fourcc();
     int width = self->m_format.width();
     int height = self->m_format.height();
-    double fps = self->m_format.minimumFrameRate();
 
     bool resync = false;
     auto hostTime = UInt64(CFAbsoluteTimeGetCurrent());
@@ -276,7 +276,7 @@ void AkVCam::Stream::streamLoop(CFRunLoopTimerRef timer, void *info)
         return;
     if (CMTIME_IS_INVALID(self->m_pts)
         || ptsDiff < 0
-        || ptsDiff > 2. / fps) {
+        || ptsDiff > 2. / self->m_fps) {
         self->m_pts = pts;
         resync = true;
     }
@@ -316,7 +316,7 @@ void AkVCam::Stream::streamLoop(CFRunLoopTimerRef timer, void *info)
                                                  imageBuffer,
                                                  &format);
 
-    auto duration = CMTimeMake(1, fps);
+    auto duration = CMTimeMake(1, self->m_fps);
     CMSampleTimingInfo timingInfo {
         duration,
         self->m_pts,
