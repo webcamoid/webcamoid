@@ -20,6 +20,7 @@
 #include <map>
 
 #include "object.h"
+#include "utils.h"
 
 namespace AkVCam
 {
@@ -454,7 +455,7 @@ bool AkVCam::ObjectProperties::getProperty(UInt32 property,
                 auto videoFormat = this->d->m_properties[property].videoFormat;
                 auto status =
                         CMVideoFormatDescriptionCreate(kCFAllocatorDefault,
-                                                       formatToCM(videoFormat.fourcc()),
+                                                       formatToCM(PixelFormat(videoFormat.fourcc())),
                                                        videoFormat.width(),
                                                        videoFormat.height(),
                                                        nullptr,
@@ -481,7 +482,7 @@ bool AkVCam::ObjectProperties::getProperty(UInt32 property,
                     CMFormatDescriptionRef formatRef = nullptr;
                     auto status =
                             CMVideoFormatDescriptionCreate(kCFAllocatorDefault,
-                                                           formatToCM(format.fourcc()),
+                                                           formatToCM(PixelFormat(format.fourcc())),
                                                            format.width(),
                                                            format.height(),
                                                            nullptr,

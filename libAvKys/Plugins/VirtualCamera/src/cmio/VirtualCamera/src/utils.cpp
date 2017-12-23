@@ -61,18 +61,18 @@ std::string AkVCam::enumToString(UInt32 value)
 
 FourCharCode AkVCam::formatToCM(PixelFormat format)
 {
-    for (auto &format: *formatsTable())
-        if (format.first = format)
-            return format.second;
+    for (auto &fmt: *formatsTable())
+        if (fmt.first == format)
+            return fmt.second;
 
     return FourCharCode(0);
 }
 
 AkVCam::PixelFormat AkVCam::formatFromCM(FourCharCode format)
 {
-    for (auto &format: *formatsTable())
-        if (format.second = format)
-            return format.first;
+    for (auto &fmt: *formatsTable())
+        if (fmt.second == format)
+            return fmt.first;
 
     return PixelFormat(0);
 }
