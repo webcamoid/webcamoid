@@ -40,8 +40,8 @@ namespace AkVCam
     struct PluginInterfacePrivate
     {
         public:
+            CMIOHardwarePlugInInterface *pluginInterface;
             PluginInterface *self;
-            CMIOHardwarePlugInInterface pluginInterface;
             ULONG m_ref;
             ULONG m_reserved;
             AkVCam::IpcBridge m_ipcBridge;
@@ -506,7 +506,7 @@ AkVCam::PluginInterface::PluginInterface():
     this->m_className = "PluginInterface";
     this->d = new PluginInterfacePrivate;
     this->d->self = this;
-    this->d->pluginInterface = {
+    this->d->pluginInterface = new CMIOHardwarePlugInInterface {
         //	Padding for COM
         NULL,
 
@@ -562,6 +562,7 @@ AkVCam::PluginInterface::PluginInterface():
 AkVCam::PluginInterface::~PluginInterface()
 {
     this->d->m_ipcBridge.unregisterEndPoint();
+    delete this->d->pluginInterface;
     delete this->d;
 }
 

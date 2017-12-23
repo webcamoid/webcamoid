@@ -269,8 +269,7 @@ void AkVCam::Stream::streamLoop(CFRunLoopTimerRef timer, void *info)
 
     bool resync = false;
     auto hostTime = UInt64(CFAbsoluteTimeGetCurrent());
-    auto pts = CMIOStreamClockConvertHostTimeToDeviceTime(hostTime,
-                                                          self->m_clock->ref());
+    auto pts = CMTimeMake(hostTime, 1e9);
     auto ptsDiff = CMTimeGetSeconds(CMTimeSubtract(self->m_pts, pts));
 
     if (CMTimeCompare(pts, self->m_pts) == 0)
@@ -334,6 +333,8 @@ void AkVCam::Stream::streamLoop(CFRunLoopTimerRef timer, void *info)
                                              kCMIOSampleBufferDiscontinuityFlag_UnknownDiscontinuity:
                                              kCMIOSampleBufferNoDiscontinuities,
                                          &buffer);
+    CFRelease(format);
+    CFRelease(imageBuffer);
 
     self->m_queue->enqueue(buffer);
     self->m_pts = CMTimeAdd(self->m_pts, duration);
