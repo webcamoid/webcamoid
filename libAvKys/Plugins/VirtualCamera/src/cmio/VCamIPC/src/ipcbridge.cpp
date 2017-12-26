@@ -543,7 +543,7 @@ AkVCam::VideoFrame::Scaling AkVCam::IpcBridge::scalingMode(const std::string &de
     if (replyType != XPC_TYPE_DICTIONARY) {
         xpc_release(reply);
 
-        return false;
+        return VideoFrame::ScalingFast;
     }
 
     auto scaling = VideoFrame::Scaling(xpc_dictionary_get_int64(reply, "scaling"));

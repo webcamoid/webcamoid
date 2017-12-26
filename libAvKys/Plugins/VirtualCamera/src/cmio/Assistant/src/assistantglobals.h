@@ -76,14 +76,6 @@ namespace AkVCam
         bool horizontalMirror;
         bool verticalMirror;
         VideoFrame::Scaling scaling;
-
-        AssistantDevice():
-            broadcasting(false),
-            horizontalMirror(false),
-            verticalMirror(false),
-            scaling(VideoFrame::ScalingFast)
-        {
-        }
     };
 
     struct AssistantServer

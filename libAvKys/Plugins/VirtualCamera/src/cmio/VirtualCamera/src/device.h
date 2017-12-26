@@ -44,7 +44,7 @@ namespace AkVCam
             std::list<StreamPtr> addStreams(int n);
             OSStatus registerStreams(bool regist=true);
             std::string deviceId() const;
-            void setDeviceId(const std::string &deviceId) const;
+            void setDeviceId(const std::string &deviceId);
 
             void frameReady(const VideoFrame &frame);
             void setBroadcasting(bool broadcasting);

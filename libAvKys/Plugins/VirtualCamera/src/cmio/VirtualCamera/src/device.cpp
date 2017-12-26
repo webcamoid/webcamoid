@@ -172,7 +172,7 @@ std::string AkVCam::Device::deviceId() const
     return this->m_deviceId;
 }
 
-void AkVCam::Device::setDeviceId(const std::string &deviceId) const
+void AkVCam::Device::setDeviceId(const std::string &deviceId)
 {
     this->m_deviceId = deviceId;
 }
