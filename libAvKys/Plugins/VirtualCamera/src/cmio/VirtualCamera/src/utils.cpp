@@ -25,7 +25,7 @@
 inline const std::map<AkVCam::PixelFormat, FourCharCode> *formatsTable()
 {
     static const std::map<AkVCam::PixelFormat, FourCharCode> formatsTable {
-        {AkVCam::PixelFormatBGR32, kCMPixelFormat_32ARGB         },
+        {AkVCam::PixelFormatRGB32, kCMPixelFormat_32ARGB         },
         {AkVCam::PixelFormatRGB24, kCMPixelFormat_24RGB          },
         {AkVCam::PixelFormatRGB16, kCMPixelFormat_16LE565        },
         {AkVCam::PixelFormatRGB15, kCMPixelFormat_16LE555        },

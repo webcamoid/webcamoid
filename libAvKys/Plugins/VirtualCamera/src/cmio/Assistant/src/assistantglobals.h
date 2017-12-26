@@ -28,7 +28,7 @@
 #include <xpc/xpc.h>
 #include <xpc/connection.h>
 
-#include "VCamUtils/src/image/videoformat.h"
+#include "VCamUtils/src/image/videoframe.h"
 
 #define AKVCAM_ASSISTANT_NAME        "org.webcamoid.cmio.AkVCam.Assistant"
 #define AKVCAM_ASSISTANT_CLIENT_NAME "org.webcamoid.cmio.AkVCam.Client"
@@ -46,13 +46,19 @@
 #define AKVCAM_ASSISTANT_MSG_DEVICE_DESTROYED            0x103
 #define AKVCAM_ASSISTANT_MSG_DEVICE_SETBROADCASTING      0x104
 #define AKVCAM_ASSISTANT_MSG_DEVICE_BROADCASTING_CHANGED 0x105
-#define AKVCAM_ASSISTANT_MSG_FRAME_READY                 0x106
+#define AKVCAM_ASSISTANT_MSG_DEVICE_SETMIRRORING         0x106
+#define AKVCAM_ASSISTANT_MSG_DEVICE_MIRRORING_CHANGED    0x107
+#define AKVCAM_ASSISTANT_MSG_DEVICE_SETSCALING           0x108
+#define AKVCAM_ASSISTANT_MSG_DEVICE_SCALING_CHANGED      0x109
+#define AKVCAM_ASSISTANT_MSG_FRAME_READY                 0x10A
 
 // Client messages
 #define AKVCAM_ASSISTANT_MSG_DEVICES                     0x200
 #define AKVCAM_ASSISTANT_MSG_DESCRIPTION                 0x201
 #define AKVCAM_ASSISTANT_MSG_FORMATS                     0x202
 #define AKVCAM_ASSISTANT_MSG_DEVICE_BROADCASTING         0x203
+#define AKVCAM_ASSISTANT_MSG_DEVICE_MIRRORING            0x104
+#define AKVCAM_ASSISTANT_MSG_DEVICE_SCALING              0x105
 
 #define AKVCAM_ASSISTANT_REQUEST_TIMEOUT 10.0
 
@@ -67,6 +73,17 @@ namespace AkVCam
         std::string description;
         std::vector<VideoFormat> formats;
         bool broadcasting;
+        bool horizontalMirror;
+        bool verticalMirror;
+        VideoFrame::Scaling scaling;
+
+        AssistantDevice():
+            broadcasting(false),
+            horizontalMirror(false),
+            verticalMirror(false),
+            scaling(VideoFrame::ScalingFast)
+        {
+        }
     };
 
     struct AssistantServer

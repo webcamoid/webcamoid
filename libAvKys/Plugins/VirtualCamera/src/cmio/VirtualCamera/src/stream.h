@@ -25,6 +25,7 @@
 #include "object.h"
 #include "clock.h"
 #include "queue.h"
+#include "../VCamUtils/src/image/videoframe.h"
 
 namespace AkVCam
 {
@@ -48,6 +49,11 @@ namespace AkVCam
             void stop();
             bool running();
 
+            void frameReady(const VideoFrame &frame);
+            void setBroadcasting(bool broadcasting);
+            void setMirror(bool horizontalMirror, bool verticalMirror);
+            void setScaling(VideoFrame::Scaling scaling);
+
             // Stream Interface
             OSStatus copyBufferQueue(CMIODeviceStreamQueueAlteredProc queueAlteredProc,
                                      void *queueAlteredRefCon,
@@ -65,6 +71,7 @@ namespace AkVCam
             CMIODeviceStreamQueueAlteredProc m_queueAltered;
             VideoFormat m_format;
             double m_fps;
+            VideoFrame m_testFrame;
             void *m_queueAlteredRefCon;
             CFRunLoopTimerRef m_timer;
             bool m_running;

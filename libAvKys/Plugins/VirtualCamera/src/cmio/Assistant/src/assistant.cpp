@@ -34,11 +34,15 @@ AkVCam::Assistant::Assistant()
         {AKVCAM_ASSISTANT_MSG_DEVICE_CREATE         , AKVCAM_BIND_FUNC(Assistant::deviceCreate)   },
         {AKVCAM_ASSISTANT_MSG_DEVICE_DESTROY        , AKVCAM_BIND_FUNC(Assistant::deviceDestroy)  },
         {AKVCAM_ASSISTANT_MSG_DEVICE_SETBROADCASTING, AKVCAM_BIND_FUNC(Assistant::setBroadcasting)},
+        {AKVCAM_ASSISTANT_MSG_DEVICE_SETMIRRORING   , AKVCAM_BIND_FUNC(Assistant::setMirroring)   },
+        {AKVCAM_ASSISTANT_MSG_DEVICE_SETSCALING     , AKVCAM_BIND_FUNC(Assistant::setScaling)     },
         {AKVCAM_ASSISTANT_MSG_FRAME_READY           , AKVCAM_BIND_FUNC(Assistant::frameReady)     },
         {AKVCAM_ASSISTANT_MSG_DEVICES               , AKVCAM_BIND_FUNC(Assistant::devices)        },
         {AKVCAM_ASSISTANT_MSG_DESCRIPTION           , AKVCAM_BIND_FUNC(Assistant::description)    },
         {AKVCAM_ASSISTANT_MSG_FORMATS               , AKVCAM_BIND_FUNC(Assistant::formats)        },
-        {AKVCAM_ASSISTANT_MSG_DEVICE_BROADCASTING   , AKVCAM_BIND_FUNC(Assistant::broadcasting)   }
+        {AKVCAM_ASSISTANT_MSG_DEVICE_BROADCASTING   , AKVCAM_BIND_FUNC(Assistant::broadcasting)   },
+        {AKVCAM_ASSISTANT_MSG_DEVICE_MIRRORING      , AKVCAM_BIND_FUNC(Assistant::mirroring)      },
+        {AKVCAM_ASSISTANT_MSG_DEVICE_SCALING        , AKVCAM_BIND_FUNC(Assistant::scaling)        }
     };
 }
 
@@ -186,7 +190,13 @@ void AkVCam::Assistant::deviceCreate(xpc_connection_t client,
             std::stringstream ss;
             ss << portName << "/Device" << this->id();
             auto deviceId = ss.str();
-            server.second.devices.push_back({deviceId, description, formats, false});
+            server.second.devices.push_back({deviceId,
+                                             description,
+                                             formats,
+                                             false,
+                                             false,
+                                             false,
+                                             VideoFrame::ScalingFast});
 
             auto notification = xpc_dictionary_create(NULL, NULL, 0);
             xpc_dictionary_set_int64(notification, "message", AKVCAM_ASSISTANT_MSG_DEVICE_CREATED);
@@ -272,6 +282,82 @@ setBroadcasting_end:
     xpc_release(reply);
 }
 
+void AkVCam::Assistant::setMirroring(xpc_connection_t client, xpc_object_t event)
+{
+    AkAssistantLogMethod();
+    std::string deviceId = xpc_dictionary_get_string(event, "device");
+    bool ok = false;
+
+    for (auto &server: this->m_servers)
+        for (auto &device: server.second.devices)
+            if (device.deviceId == deviceId) {
+                bool horizontalMirror = xpc_dictionary_get_bool(event, "hmirror");
+                bool verticalMirror = xpc_dictionary_get_bool(event, "vmirror");
+
+                if (device.horizontalMirror == horizontalMirror
+                    && device.verticalMirror == verticalMirror)
+                    goto setMirroring_end;
+
+                device.horizontalMirror = horizontalMirror;
+                device.verticalMirror = verticalMirror;
+                auto notification = xpc_dictionary_create(NULL, NULL, 0);
+                xpc_dictionary_set_int64(notification, "message", AKVCAM_ASSISTANT_MSG_DEVICE_MIRRORING_CHANGED);
+                xpc_dictionary_set_string(notification, "device", deviceId.c_str());
+                xpc_dictionary_set_bool(notification, "hmirror", horizontalMirror);
+                xpc_dictionary_set_bool(notification, "vmirror", verticalMirror);
+
+                for (auto &client: this->m_clients)
+                    xpc_connection_send_message(client.second, notification);
+
+                ok = true;
+
+                goto setMirroring_end;
+            }
+
+setMirroring_end:
+
+    auto reply = xpc_dictionary_create_reply(event);
+    xpc_dictionary_set_bool(reply, "status", ok);
+    xpc_connection_send_message(client, reply);
+    xpc_release(reply);
+}
+
+void AkVCam::Assistant::setScaling(xpc_connection_t client, xpc_object_t event)
+{
+    AkAssistantLogMethod();
+    std::string deviceId = xpc_dictionary_get_string(event, "device");
+    bool ok = false;
+
+    for (auto &server: this->m_servers)
+        for (auto &device: server.second.devices)
+            if (device.deviceId == deviceId) {
+                auto scaling = VideoFrame::Scaling(xpc_dictionary_get_int64(event, "scaling"));
+
+                if (device.scaling == scaling)
+                    goto setScaling_end;
+
+                device.scaling = scaling;
+                auto notification = xpc_dictionary_create(NULL, NULL, 0);
+                xpc_dictionary_set_int64(notification, "message", AKVCAM_ASSISTANT_MSG_DEVICE_SCALING_CHANGED);
+                xpc_dictionary_set_string(notification, "device", deviceId.c_str());
+                xpc_dictionary_set_int64(notification, "scaling", scaling);
+
+                for (auto &client: this->m_clients)
+                    xpc_connection_send_message(client.second, notification);
+
+                ok = true;
+
+                goto setScaling_end;
+            }
+
+setScaling_end:
+
+    auto reply = xpc_dictionary_create_reply(event);
+    xpc_dictionary_set_bool(reply, "status", ok);
+    xpc_connection_send_message(client, reply);
+    xpc_release(reply);
+}
+
 void AkVCam::Assistant::frameReady(xpc_connection_t client,
                                    xpc_object_t event)
 {
@@ -332,7 +418,7 @@ void AkVCam::Assistant::formats(xpc_connection_t client,
 
     for (auto &server: this->m_servers)
         for (auto &device: server.second.devices)
-            if (device.deviceId == deviceId) {                
+            if (device.deviceId == deviceId) {
                 auto formats = xpc_array_create(NULL, 0);
 
                 for (auto &format: device.formats) {
@@ -364,6 +450,41 @@ void AkVCam::Assistant::broadcasting(xpc_connection_t client,
             if (device.deviceId == deviceId) {
                 auto reply = xpc_dictionary_create_reply(event);
                 xpc_dictionary_set_bool(reply, "broadcasting", device.broadcasting);
+                xpc_connection_send_message(client, reply);
+                xpc_release(reply);
+
+                return;
+            }
+}
+
+void AkVCam::Assistant::mirroring(xpc_connection_t client, xpc_object_t event)
+{
+    AkAssistantLogMethod();
+    std::string deviceId = xpc_dictionary_get_string(event, "device");
+
+    for (auto &server: this->m_servers)
+        for (auto &device: server.second.devices)
+            if (device.deviceId == deviceId) {
+                auto reply = xpc_dictionary_create_reply(event);
+                xpc_dictionary_set_bool(reply, "hmirror", device.horizontalMirror);
+                xpc_dictionary_set_bool(reply, "vmirror", device.verticalMirror);
+                xpc_connection_send_message(client, reply);
+                xpc_release(reply);
+
+                return;
+            }
+}
+
+void AkVCam::Assistant::scaling(xpc_connection_t client, xpc_object_t event)
+{
+    AkAssistantLogMethod();
+    std::string deviceId = xpc_dictionary_get_string(event, "device");
+
+    for (auto &server: this->m_servers)
+        for (auto &device: server.second.devices)
+            if (device.deviceId == deviceId) {
+                auto reply = xpc_dictionary_create_reply(event);
+                xpc_dictionary_set_int64(reply, "scaling", device.scaling);
                 xpc_connection_send_message(client, reply);
                 xpc_release(reply);
 

@@ -38,11 +38,15 @@ namespace AkVCam
             void deviceDestroyById(const std::string &deviceId);
             void deviceDestroy(xpc_connection_t client, xpc_object_t event);
             void setBroadcasting(xpc_connection_t client, xpc_object_t event);
+            void setMirroring(xpc_connection_t client, xpc_object_t event);
+            void setScaling(xpc_connection_t client, xpc_object_t event);
             void frameReady(xpc_connection_t client, xpc_object_t event);
             void devices(xpc_connection_t client, xpc_object_t event);
             void description(xpc_connection_t client, xpc_object_t event);
             void formats(xpc_connection_t client, xpc_object_t event);
             void broadcasting(xpc_connection_t client, xpc_object_t event);
+            void mirroring(xpc_connection_t client, xpc_object_t event);
+            void scaling(xpc_connection_t client, xpc_object_t event);
             void messageReceived(xpc_connection_t client, xpc_object_t event);
 
         private:

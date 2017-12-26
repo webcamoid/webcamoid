@@ -43,6 +43,13 @@ namespace AkVCam
             StreamPtr addStream();
             std::list<StreamPtr> addStreams(int n);
             OSStatus registerStreams(bool regist=true);
+            std::string deviceId() const;
+            void setDeviceId(const std::string &deviceId) const;
+
+            void frameReady(const VideoFrame &frame);
+            void setBroadcasting(bool broadcasting);
+            void setMirror(bool horizontalMirror, bool verticalMirror);
+            void setScaling(VideoFrame::Scaling scaling);
 
             // Device Interface
             OSStatus suspend();
@@ -53,6 +60,7 @@ namespace AkVCam
             OSStatus processRS422Command(CMIODeviceRS422Command *ioRS422Command);
 
         private:
+            std::string m_deviceId;
             std::map<CMIOObjectID, StreamPtr> m_streams;
 
             void updateStreamsProperty();

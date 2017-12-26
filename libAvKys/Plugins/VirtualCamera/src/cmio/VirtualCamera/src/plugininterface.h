@@ -25,7 +25,6 @@
 namespace AkVCam
 {
     struct PluginInterfacePrivate;
-    class VideoFrame;
 
     class PluginInterface: public ObjectInterface
     {
@@ -45,10 +44,19 @@ namespace AkVCam
         private:
             PluginInterfacePrivate *d;
             CMIOObjectID m_objectID;
-            std::list<DevicePtr> m_devices;
+            std::vector<DevicePtr> m_devices;
 
             void deviceAdded(const std::string &deviceId);
             void deviceRemoved(const std::string &deviceId);
+            void frameReady(const std::string &deviceId,
+                            const VideoFrame &frame);
+            void setBroadcasting(const std::string &deviceId,
+                                 bool broadcasting);
+            void setMirror(const std::string &deviceId,
+                           bool horizontalMirror,
+                           bool verticalMirror);
+            void setScaling(const std::string &deviceId,
+                            VideoFrame::Scaling scaling);
             bool createDevice(const std::string &deviceId,
                               const std::string &description,
                               const std::vector<VideoFormat> &formats);

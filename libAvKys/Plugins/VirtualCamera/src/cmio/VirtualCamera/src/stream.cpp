@@ -32,6 +32,7 @@ AkVCam::Stream::Stream(bool registerObject,
 {
     this->m_className = "Stream";
     this->m_classID = kCMIOStreamClassID;
+    this->m_testFrame = {":/VirtualCamera/share/TestFrame/TestFrame.bmp"};
     this->m_clock =
             std::make_shared<Clock>("CMIO::VirtualCamera::Stream",
                                     CMTimeMake(1, 10),
@@ -198,6 +199,26 @@ bool AkVCam::Stream::running()
     return this->m_running;
 }
 
+void AkVCam::Stream::frameReady(const AkVCam::VideoFrame &frame)
+{
+
+}
+
+void AkVCam::Stream::setBroadcasting(bool broadcasting)
+{
+
+}
+
+void AkVCam::Stream::setMirror(bool horizontalMirror, bool verticalMirror)
+{
+
+}
+
+void AkVCam::Stream::setScaling(AkVCam::VideoFrame::Scaling scaling)
+{
+
+}
+
 OSStatus AkVCam::Stream::copyBufferQueue(CMIODeviceStreamQueueAlteredProc queueAlteredProc,
                                          void *queueAlteredRefCon,
                                          CMSimpleQueueRef *queue)
@@ -286,29 +307,22 @@ void AkVCam::Stream::streamLoop(CFRunLoopTimerRef timer, void *info)
                                    resync,
                                    self->m_clock->ref());
 
+    auto outputFrame =
+            self->m_testFrame
+            .scaled(width, height)
+            .convert(fourcc);
+
     CVImageBufferRef imageBuffer = nullptr;
     CVPixelBufferCreate(kCFAllocatorDefault,
                         width,
                         height,
-                        kCMPixelFormat_32ARGB,
+                        formatToCM(PixelFormat(fourcc)),
                         nullptr,
                         &imageBuffer);
 
     CVPixelBufferLockBaseAddress(imageBuffer, 0);
-    auto data = reinterpret_cast<UInt32 *>(CVPixelBufferGetBaseAddress(imageBuffer));
-
-    for (int y = 0; y < height; y++) {
-        auto line = data + y * width;
-
-        for (int x = 0; x < width; x++) {
-            UInt32 r = rand() % 256;
-            UInt32 g = rand() % 256;
-            UInt32 b = rand() % 256;
-
-            line[x] = 0xff000000 | (r << 16) | (g << 8) | b;
-        }
-    }
-
+    auto data = CVPixelBufferGetBaseAddress(imageBuffer);
+    memcpy(data, outputFrame.data().get(), outputFrame.dataSize());
     CVPixelBufferUnlockBaseAddress(imageBuffer, 0);
 
     CMVideoFormatDescriptionRef format = nullptr;

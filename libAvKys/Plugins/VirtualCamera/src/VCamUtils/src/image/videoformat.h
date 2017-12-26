@@ -41,8 +41,8 @@ namespace AkVCam
         // BGR formats
         PixelFormatBGR32 = MKFOURCC('B', 'G', 'R',  32),
         PixelFormatBGR24 = MKFOURCC('B', 'G', 'R',  24),
-        PixelFormatBGR16 = MKFOURCC('B', 'G', 'R',  15),
-        PixelFormatBGR15 = MKFOURCC('B', 'G', 'R',  16),
+        PixelFormatBGR16 = MKFOURCC('B', 'G', 'R',  16),
+        PixelFormatBGR15 = MKFOURCC('B', 'G', 'R',  15),
 
         // Luminance+Chrominance formats
         PixelFormatUYVY = MKFOURCC('U', 'Y', 'V', 'Y'),
@@ -75,6 +75,10 @@ namespace AkVCam
             std::vector<double> &frameRates();
             std::vector<std::pair<double, double>> frameRateRanges() const;
             double minimumFrameRate() const;
+
+            static void roundNearest(int width, int height,
+                                     int *owidth, int *oheight,
+                                     int align=32);
 
         private:
             FourCC m_fourcc;

@@ -31,10 +31,10 @@ namespace AkVCam
     // Little Endian format
     struct RGB32
     {
+        uint8_t x;
         uint8_t b;
         uint8_t g;
         uint8_t r;
-        uint8_t x;
     };
 
     struct RGB24
@@ -61,10 +61,10 @@ namespace AkVCam
 
     struct BGR32
     {
+        uint8_t x;
         uint8_t r;
         uint8_t g;
         uint8_t b;
-        uint8_t x;
     };
 
     struct BGR24
@@ -91,30 +91,30 @@ namespace AkVCam
 
     struct UYVY
     {
-        uint8_t y1;
         uint8_t v0;
         uint8_t y0;
         uint8_t u0;
+        uint8_t y1;
     };
 
     struct YUY2
     {
         uint8_t y0;
-        uint8_t u0;
-        uint8_t y1;
         uint8_t v0;
+        uint8_t y1;
+        uint8_t u0;
     };
 
     struct UV
     {
-        uint8_t u;
         uint8_t v;
+        uint8_t u;
     };
 
     struct VU
     {
-        uint8_t v;
         uint8_t u;
+        uint8_t v;
     };
 
     typedef size_t (*VideoConvertFuntion)(void *dst, const void *src, int width, int height);
@@ -232,7 +232,7 @@ AkVCam::VideoFrame::VideoFrame(const std::string &bmpResource)
     auto depth = bitmapStream.read<uint16_t>();
     bitmapStream.seek(int(pixelsOffset), CStreamRead::SeekSet);
 
-    size_t dataSize = size_t(3 * width * height);
+    size_t dataSize = size_t(sizeof(RGB24) * width * height);
 
     if (!dataSize)
         return;
@@ -245,9 +245,9 @@ AkVCam::VideoFrame::VideoFrame(const std::string &bmpResource)
                 auto line = reinterpret_cast<RGB24 *>(data.get()) + width * (height - y - 1);
 
                 for (int x = 0; x < width; x++) {
-                    line[x].b = bitmapStream.read<uint8_t>();
-                    line[x].g = bitmapStream.read<uint8_t>();
                     line[x].r = bitmapStream.read<uint8_t>();
+                    line[x].g = bitmapStream.read<uint8_t>();
+                    line[x].b = bitmapStream.read<uint8_t>();
                 }
             }
 
@@ -262,10 +262,10 @@ AkVCam::VideoFrame::VideoFrame(const std::string &bmpResource)
                 auto line = reinterpret_cast<RGB24 *>(data.get()) + width * (height - y - 1);
 
                 for (int x = 0; x < width; x++) {
-                    line[x].b = bitmapStream.read<uint8_t>();
-                    line[x].g = bitmapStream.read<uint8_t>();
-                    line[x].r = bitmapStream.read<uint8_t>();
                     bitmapStream.seek<uint8_t>();
+                    line[x].r = bitmapStream.read<uint8_t>();
+                    line[x].g = bitmapStream.read<uint8_t>();
+                    line[x].b = bitmapStream.read<uint8_t>();
                 }
             }
 
@@ -370,22 +370,22 @@ AkVCam::VideoFrame AkVCam::VideoFrame::scaled(int width,
     auto format = this->d->m_format;
     format.width() = width;
     format.height() = height;
-    size_t dataSize = size_t(3 * width * height);
+    size_t dataSize = sizeof(RGB24) * size_t(width * height);
     auto data = std::shared_ptr<uint8_t>(new uint8_t[dataSize]);
     memset(data.get(), 0, dataSize);
+    auto dataSrc = reinterpret_cast<RGB24 *>(this->d->m_data.get());
+    auto dataDst = reinterpret_cast<RGB24 *>(data.get());
 
     switch (mode) {
         case ScalingFast:
             for (int y = 0; y < height; y++) {
                 auto srcY = (this->d->m_format.height() - 1) * y / (height - 1);
-                auto srcLine = reinterpret_cast<RGB24 *>(this->d->m_data.get())
-                             + srcY * this->d->m_format.width();
-                auto destLine = reinterpret_cast<RGB24 *>(data.get())
-                              + y * width;
+                auto srcLine = dataSrc + srcY * this->d->m_format.width();
+                auto dstLine = dataDst + y * width;
 
                 for (int x = 0; x < width; x++) {
                     auto srcX = (this->d->m_format.width() - 1) * x / (width - 1);
-                    destLine[x] = srcLine[srcX];
+                    dstLine[x] = srcLine[srcX];
                 }
             }
 
@@ -402,8 +402,7 @@ AkVCam::VideoFrame AkVCam::VideoFrame::scaled(int width,
                         &VideoFramePrivate::extrapolateDown;
 
             for (int y = 0; y < height; y++) {
-                auto destLine = reinterpret_cast<RGB24 *>(data.get())
-                              + y * width;
+                auto dstLine = dataDst + y * width;
                 int yMin;
                 int yMax;
                 int kNumY;
@@ -423,7 +422,7 @@ AkVCam::VideoFrame AkVCam::VideoFrame::scaled(int width,
                                  &xMin, &xMax,
                                  &kNumX, &kDenX);
 
-                    destLine[x] =
+                    dstLine[x] =
                             this->d->extrapolateColor(xMin, xMax,
                                                       kNumX, kDenX,
                                                       yMin, yMax,

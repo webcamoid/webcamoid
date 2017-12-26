@@ -282,7 +282,7 @@ bool AkVCam::ObjectProperties::setProperty(UInt32 property,
                 this->d->m_properties[property].isSettable = isSettable;
                 auto videoDescription =
                         *static_cast<const CMFormatDescriptionRef *>(data);
-                auto mediaType = CMFormatDescriptionGetMediaType(videoDescription);
+                auto mediaType = CMFormatDescriptionGetMediaSubType(videoDescription);
                 auto dimensions = CMVideoFormatDescriptionGetDimensions(videoDescription);
                 this->d->m_properties[property].videoFormat =
                         VideoFormat(formatFromCM(mediaType),

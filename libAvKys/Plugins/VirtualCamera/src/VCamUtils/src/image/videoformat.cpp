@@ -128,3 +128,31 @@ double AkVCam::VideoFormat::minimumFrameRate() const
     return *std::min_element(this->m_frameRates.begin(),
                              this->m_frameRates.end());
 }
+
+void AkVCam::VideoFormat::roundNearest(int width, int height,
+                                       int *owidth, int *oheight,
+                                       int align)
+{
+    /* Explanation:
+     *
+     * When 'align' is a power of 2, the left most bit will be 1 (the pivot),
+     * while all bits to the right will be 0, if destination width is multiple
+     * of 'align' all bits after pivot position will be 0, then we create a
+     * mask substracting 1 to the align, so all bits after pivot position in
+     * the mask will 1.
+     * Then we use the mask to remove all bits after pivot position in 'width'.
+     * This give us the lower (floor) width nearest to the original 'width' and
+     * multiple of align. To get the rounded nearest value we add align / 2 to
+     * 'width'.
+     * This is the equivalent of:
+     *
+     * align * round(width / align)
+     */
+    *owidth = width + (align >> 1) - ((width + (align >> 1)) & (align - 1));
+
+    /* Find the nearest width:
+     *
+     * round(height * owidth / width)
+     */
+    *oheight = (2 * height * *owidth + width) / (2 * width);
+}

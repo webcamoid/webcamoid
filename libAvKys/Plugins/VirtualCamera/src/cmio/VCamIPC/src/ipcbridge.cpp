@@ -45,6 +45,8 @@ namespace AkVCam
             IpcBridge::DeviceChangedCallback deviceAddedCallback;
             IpcBridge::DeviceChangedCallback deviceRemovedCallback;
             IpcBridge::BroadcastingChangedCallback broadcastingChangedCallback;
+            IpcBridge::MirrorChangedCallback mirrorChangedCallback;
+            IpcBridge::ScalingChangedCallback scalingChangedCallback;
             std::map<int64_t, XpcMessage> m_messageHandlers;
             std::vector<std::string> broadcasting;
 
@@ -162,11 +164,40 @@ namespace AkVCam
                 UNUSED(client)
 
                 std::string deviceId = xpc_dictionary_get_string(event, "device");
-                bool broadcasting = xpc_dictionary_get_string(event, "broadcasting");
+                bool broadcasting = xpc_dictionary_get_bool(event, "broadcasting");
 
                 for (auto bridge: this->m_bridges)
                     if (bridge->d->broadcastingChangedCallback)
                         bridge->d->broadcastingChangedCallback(deviceId, broadcasting);
+            }
+
+            inline void mirrorChanged(xpc_connection_t client,
+                                      xpc_object_t event)
+            {
+                UNUSED(client)
+
+                std::string deviceId = xpc_dictionary_get_string(event, "device");
+                bool horizontalMirror = xpc_dictionary_get_bool(event, "hmirror");
+                bool verticalMirror = xpc_dictionary_get_bool(event, "vmirror");
+
+                for (auto bridge: this->m_bridges)
+                    if (bridge->d->mirrorChangedCallback)
+                        bridge->d->mirrorChangedCallback(deviceId,
+                                                         horizontalMirror,
+                                                         verticalMirror);
+            }
+
+            inline void scalingChanged(xpc_connection_t client,
+                                       xpc_object_t event)
+            {
+                UNUSED(client)
+
+                std::string deviceId = xpc_dictionary_get_string(event, "device");
+                auto scaling = VideoFrame::Scaling(xpc_dictionary_get_int64(event, "scaling"));
+
+                for (auto bridge: this->m_bridges)
+                    if (bridge->d->scalingChangedCallback)
+                        bridge->d->scalingChangedCallback(deviceId, scaling);
             }
 
             inline void messageReceived(xpc_connection_t client,
@@ -386,6 +417,16 @@ std::string AkVCam::IpcBridge::description(const std::string &deviceId) const
     return description;
 }
 
+std::vector<AkVCam::PixelFormat> AkVCam::IpcBridge::supportedOutputPixelFormats() const
+{
+    return {
+        PixelFormatRGB32,
+        PixelFormatRGB24,
+        PixelFormatUYVY,
+        PixelFormatYUY2
+    };
+}
+
 std::vector<AkVCam::VideoFormat> AkVCam::IpcBridge::formats(const std::string &deviceId) const
 {
     if (!this->d->serverMessagePort)
@@ -443,6 +484,72 @@ bool AkVCam::IpcBridge::broadcasting(const std::string &deviceId) const
     xpc_release(reply);
 
     return broadcasting;
+}
+
+bool AkVCam::IpcBridge::isHorizontalMirrored(const std::string &deviceId)
+{
+    auto dictionary = xpc_dictionary_create(NULL, NULL, 0);
+    xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_MIRRORING);
+    xpc_dictionary_set_string(dictionary, "device", deviceId.c_str());
+    auto reply = xpc_connection_send_message_with_reply_sync(this->d->serverMessagePort,
+                                                             dictionary);
+    xpc_release(dictionary);
+    auto replyType = xpc_get_type(reply);
+
+    if (replyType != XPC_TYPE_DICTIONARY) {
+        xpc_release(reply);
+
+        return false;
+    }
+
+    bool horizontalMirror = xpc_dictionary_get_bool(reply, "hmirror");
+    xpc_release(reply);
+
+    return horizontalMirror;
+}
+
+bool AkVCam::IpcBridge::isVerticalMirrored(const std::string &deviceId)
+{
+    auto dictionary = xpc_dictionary_create(NULL, NULL, 0);
+    xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_MIRRORING);
+    xpc_dictionary_set_string(dictionary, "device", deviceId.c_str());
+    auto reply = xpc_connection_send_message_with_reply_sync(this->d->serverMessagePort,
+                                                             dictionary);
+    xpc_release(dictionary);
+    auto replyType = xpc_get_type(reply);
+
+    if (replyType != XPC_TYPE_DICTIONARY) {
+        xpc_release(reply);
+
+        return false;
+    }
+
+    bool verticalMirror = xpc_dictionary_get_bool(reply, "vmirror");
+    xpc_release(reply);
+
+    return verticalMirror;
+}
+
+AkVCam::VideoFrame::Scaling AkVCam::IpcBridge::scalingMode(const std::string &deviceId)
+{
+    auto dictionary = xpc_dictionary_create(NULL, NULL, 0);
+    xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_SCALING);
+    xpc_dictionary_set_string(dictionary, "device", deviceId.c_str());
+    auto reply = xpc_connection_send_message_with_reply_sync(this->d->serverMessagePort,
+                                                             dictionary);
+    xpc_release(dictionary);
+    auto replyType = xpc_get_type(reply);
+
+    if (replyType != XPC_TYPE_DICTIONARY) {
+        xpc_release(reply);
+
+        return false;
+    }
+
+    auto scaling = VideoFrame::Scaling(xpc_dictionary_get_int64(reply, "scaling"));
+    xpc_release(reply);
+
+    return scaling;
 }
 
 std::string AkVCam::IpcBridge::deviceCreate(const std::string &description,
@@ -627,6 +734,31 @@ void AkVCam::IpcBridge::write(const std::string &deviceId,
     CFRelease(surface);
 }
 
+void AkVCam::IpcBridge::setMirroring(const std::string &deviceId,
+                                     bool horizontalMirrored,
+                                     bool verticalMirrored)
+{
+    auto dictionary = xpc_dictionary_create(NULL, NULL, 0);
+    xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_SETMIRRORING);
+    xpc_dictionary_set_string(dictionary, "device", deviceId.c_str());
+    xpc_dictionary_set_bool(dictionary, "hmirror", horizontalMirrored);
+    xpc_dictionary_set_bool(dictionary, "vmirror", verticalMirrored);
+    xpc_connection_send_message(this->d->serverMessagePort,
+                                dictionary);
+    xpc_release(dictionary);
+}
+
+void AkVCam::IpcBridge::setScaling(const std::string &deviceId, VideoFrame::Scaling scaling)
+{
+    auto dictionary = xpc_dictionary_create(NULL, NULL, 0);
+    xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_SETSCALING);
+    xpc_dictionary_set_string(dictionary, "device", deviceId.c_str());
+    xpc_dictionary_set_int64(dictionary, "scaling", scaling);
+    xpc_connection_send_message(this->d->serverMessagePort,
+                                dictionary);
+    xpc_release(dictionary);
+}
+
 bool AkVCam::IpcBridge::deviceOpen(const std::string &deviceId)
 {
     return false;
@@ -655,4 +787,14 @@ void AkVCam::IpcBridge::setDeviceRemovedCallback(DeviceChangedCallback callback)
 void AkVCam::IpcBridge::setBroadcastingChangedCallback(BroadcastingChangedCallback callback)
 {
     this->d->broadcastingChangedCallback = callback;
+}
+
+void AkVCam::IpcBridge::setMirrorChangedCallback(AkVCam::IpcBridge::MirrorChangedCallback callback)
+{
+    this->d->mirrorChangedCallback = callback;
+}
+
+void AkVCam::IpcBridge::setScalingChangedCallback(AkVCam::IpcBridge::ScalingChangedCallback callback)
+{
+    this->d->scalingChangedCallback = callback;
 }

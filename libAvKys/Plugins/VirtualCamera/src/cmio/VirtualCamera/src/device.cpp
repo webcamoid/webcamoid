@@ -167,6 +167,40 @@ OSStatus AkVCam::Device::registerStreams(bool regist)
     return status;
 }
 
+std::string AkVCam::Device::deviceId() const
+{
+    return this->m_deviceId;
+}
+
+void AkVCam::Device::setDeviceId(const std::string &deviceId) const
+{
+    this->m_deviceId = deviceId;
+}
+
+void AkVCam::Device::frameReady(const AkVCam::VideoFrame &frame)
+{
+    for (auto &stream: this->m_streams)
+        stream.second->frameReady(frame);
+}
+
+void AkVCam::Device::setBroadcasting(bool broadcasting)
+{
+    for (auto &stream: this->m_streams)
+        stream.second->setBroadcasting(broadcasting);
+}
+
+void AkVCam::Device::setMirror(bool horizontalMirror, bool verticalMirror)
+{
+    for (auto &stream: this->m_streams)
+        stream.second->setMirror(horizontalMirror, verticalMirror);
+}
+
+void AkVCam::Device::setScaling(AkVCam::VideoFrame::Scaling scaling)
+{
+    for (auto &stream: this->m_streams)
+        stream.second->setScaling(scaling);
+}
+
 OSStatus AkVCam::Device::suspend()
 {
     AkObjectLogMethod();

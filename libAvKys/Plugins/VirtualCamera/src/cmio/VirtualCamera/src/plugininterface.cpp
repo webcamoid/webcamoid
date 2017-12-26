@@ -555,8 +555,12 @@ AkVCam::PluginInterface::PluginInterface():
     if (stat(daemon.c_str(), &fileInfo) == 0)
         this->d->m_ipcBridge.registerEndPoint(true);
 
-    this->d->m_ipcBridge.setDeviceAddedCallback(std::bind(&PluginInterface::deviceAdded, this, std::placeholders::_1));
-    this->d->m_ipcBridge.setDeviceRemovedCallback(std::bind(&PluginInterface::deviceRemoved, this, std::placeholders::_1));
+    this->d->m_ipcBridge.setDeviceAddedCallback(std::bind(&PluginInterface::deviceAdded,
+                                                          this,
+                                                          std::placeholders::_1));
+    this->d->m_ipcBridge.setDeviceRemovedCallback(std::bind(&PluginInterface::deviceRemoved,
+                                                            this,
+                                                            std::placeholders::_1));
 }
 
 AkVCam::PluginInterface::~PluginInterface()
@@ -668,6 +672,47 @@ void AkVCam::PluginInterface::deviceRemoved(const std::string &deviceId)
     this->destroyDevice(deviceId);
 }
 
+void AkVCam::PluginInterface::frameReady(const std::string &deviceId,
+                                         const VideoFrame &frame)
+{
+    AkLoggerLog("AkVCam::PluginInterface::frameReady");
+
+    for (auto device: this->m_devices)
+        if (device->deviceId() == deviceId)
+            device->frameReady(frame);
+}
+
+void AkVCam::PluginInterface::setBroadcasting(const std::string &deviceId,
+                                              bool broadcasting)
+{
+    AkLoggerLog("AkVCam::PluginInterface::setBroadcasting");
+
+    for (auto device: this->m_devices)
+        if (device->deviceId() == deviceId)
+            device->setBroadcasting(broadcasting);
+}
+
+void AkVCam::PluginInterface::setMirror(const std::string &deviceId,
+                                        bool horizontalMirror,
+                                        bool verticalMirror)
+{
+    AkLoggerLog("AkVCam::PluginInterface::setMirror");
+
+    for (auto device: this->m_devices)
+        if (device->deviceId() == deviceId)
+            device->setMirror(horizontalMirror, verticalMirror);
+}
+
+void AkVCam::PluginInterface::setScaling(const std::string &deviceId,
+                                         VideoFrame::Scaling scaling)
+{
+    AkLoggerLog("AkVCam::PluginInterface::setScaling");
+
+    for (auto device: this->m_devices)
+        if (device->deviceId() == deviceId)
+            device->setScaling(scaling);
+}
+
 bool AkVCam::PluginInterface::createDevice(const std::string &deviceId,
                                            const std::string &description,
                                            const std::vector<VideoFormat> &formats)
@@ -677,6 +722,7 @@ bool AkVCam::PluginInterface::createDevice(const std::string &deviceId,
     // Create one device.
     auto pluginRef = reinterpret_cast<CMIOHardwarePlugInRef>(this->d);
     auto device = std::make_shared<Device>(pluginRef);
+    device->setDeviceId(deviceId);
     this->m_devices.push_back(device);
 
     // Define device properties.
@@ -733,6 +779,11 @@ bool AkVCam::PluginInterface::createDevice(const std::string &deviceId,
 
         goto createDevice_failed;
     }
+
+    device->setBroadcasting(this->d->m_ipcBridge.broadcasting(deviceId));
+    device->setMirror(this->d->m_ipcBridge.isHorizontalMirrored(deviceId),
+                      this->d->m_ipcBridge.isVerticalMirrored(deviceId));
+    device->setScaling(this->d->m_ipcBridge.scalingMode(deviceId));
 
     return true;
 

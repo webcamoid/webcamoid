@@ -24,11 +24,11 @@
 #include <vector>
 #include <functional>
 
+#include "VCamUtils/src/image/videoframe.h"
+
 namespace AkVCam
 {
     class IpcBridgePrivate;
-    class VideoFormat;
-    class VideoFrame;
 
     class IpcBridge
     {
@@ -37,6 +37,11 @@ namespace AkVCam
                                     const VideoFrame &frame)> FrameReadyCallback;
         typedef std::function<void (const std::string &deviceId,
                                     bool broadcasting)> BroadcastingChangedCallback;
+        typedef std::function<void (const std::string &deviceId,
+                                    bool horizontalMirror,
+                                    bool verticalMirror)> MirrorChangedCallback;
+        typedef std::function<void (const std::string &deviceId,
+                                    VideoFrame::Scaling scaling)> ScalingChangedCallback;
 
         public:
             IpcBridge();
@@ -56,11 +61,23 @@ namespace AkVCam
             // Return human readable description of the device.
             std::string description(const std::string &deviceId) const;
 
+            // Output pixel formats supported by the driver.
+            std::vector<PixelFormat> supportedOutputPixelFormats() const;
+
             // Return supported formats for the device.
             std::vector<VideoFormat> formats(const std::string &deviceId) const;
 
             // Return return the status of the device.
             bool broadcasting(const std::string &deviceId) const;
+
+            // Device is horizontal mirrored,
+            bool isHorizontalMirrored(const std::string &deviceId);
+
+            // Device is vertical mirrored,
+            bool isVerticalMirrored(const std::string &deviceId);
+
+            // Device is linear scaled.
+            VideoFrame::Scaling scalingMode(const std::string &deviceId);
 
             /* Server */
 
@@ -80,6 +97,15 @@ namespace AkVCam
             // Transfer a frame to the device.
             void write(const std::string &deviceId,
                        const VideoFrame &frame);
+
+            // Set mirroring options for device,
+            void setMirroring(const std::string &deviceId,
+                              bool horizontalMirrored,
+                              bool verticalMirrored);
+
+            // Set scaling options for device.
+            void setScaling(const std::string &deviceId,
+                            VideoFrame::Scaling scaling);
 
             /* Client */
 
@@ -104,6 +130,14 @@ namespace AkVCam
             // Set the function that will be called when a device is transmitting
             // video frames.
             void setBroadcastingChangedCallback(BroadcastingChangedCallback callback);
+
+            // Set the function that will be called when the mirroring option
+            // changes for a device.
+            void setMirrorChangedCallback(MirrorChangedCallback callback);
+
+            // Set the function that will be called when the scaling option
+            // changes for a device.
+            void setScalingChangedCallback(ScalingChangedCallback callback);
 
         private:
             IpcBridgePrivate *d;
