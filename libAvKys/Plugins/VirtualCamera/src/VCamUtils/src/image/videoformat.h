@@ -75,6 +75,7 @@ namespace AkVCam
             std::vector<double> &frameRates();
             std::vector<std::pair<double, double>> frameRateRanges() const;
             double minimumFrameRate() const;
+            void clear();
 
             static void roundNearest(int width, int height,
                                      int *owidth, int *oheight,

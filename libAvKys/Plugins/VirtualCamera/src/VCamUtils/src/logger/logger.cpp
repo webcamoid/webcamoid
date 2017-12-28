@@ -17,6 +17,8 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <iomanip>
+#include <sstream>
 #include <fstream>
 
 #include "logger.h"
@@ -46,9 +48,18 @@ namespace AkVCam
     }
 }
 
-void AkVCam::Logger::start(const std::string &fileName)
+void AkVCam::Logger::start(const std::string &fileName,
+                           const std::string &extension)
 {
-    loggerPrivate()->fileNamePrivate = fileName;
+    std::stringstream ss;
+    auto time = std::time(nullptr);
+    ss << fileName
+       << "-"
+       << std::put_time(std::localtime(&time), "%Y%m%d%H%M%S")
+       << "."
+       << extension;
+
+    loggerPrivate()->fileNamePrivate = ss.str();
     loggerPrivate()->initialized = true;
 }
 
@@ -62,6 +73,9 @@ std::ostream &AkVCam::Logger::log()
         loggerPrivate()->logFilePrivate.open(loggerPrivate()->fileNamePrivate,
                                              std::ios_base::out
                                              | std::ios_base::app);
+
+    if (!loggerPrivate()->logFilePrivate.is_open())
+        return std::cout;
 
     return loggerPrivate()->logFilePrivate;
 }

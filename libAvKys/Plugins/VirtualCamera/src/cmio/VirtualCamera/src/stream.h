@@ -72,11 +72,19 @@ namespace AkVCam
             VideoFormat m_format;
             double m_fps;
             VideoFrame m_testFrame;
+            VideoFrame m_testFrameAdapted;
             void *m_queueAlteredRefCon;
             CFRunLoopTimerRef m_timer;
             bool m_running;
+            bool m_broadcasting;
+            bool m_horizontalMirror;
+            bool m_verticalMirror;
+            VideoFrame::Scaling m_scaling;
 
+            bool startTimer();
+            void stopTimer();
             static void streamLoop(CFRunLoopTimerRef timer, void *info);
+            void sendFrame(const VideoFrame &frame);
     };
 }
 

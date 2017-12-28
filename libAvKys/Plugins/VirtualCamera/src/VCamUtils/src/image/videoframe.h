@@ -55,7 +55,9 @@ namespace AkVCam
             std::shared_ptr<uint8_t> &data();
             size_t dataSize() const;
             size_t &dataSize();
+            void clear();
 
+            VideoFrame mirror(bool horizontalMirror, bool verticalMirror) const;
             VideoFrame scaled(int width,
                               int height,
                               Scaling mode=ScalingFast,

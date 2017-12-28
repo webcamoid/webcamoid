@@ -129,6 +129,14 @@ double AkVCam::VideoFormat::minimumFrameRate() const
                              this->m_frameRates.end());
 }
 
+void AkVCam::VideoFormat::clear()
+{
+    this->m_fourcc = 0;
+    this->m_width = 0;
+    this->m_height = 0;
+    this->m_frameRates.clear();
+}
+
 void AkVCam::VideoFormat::roundNearest(int width, int height,
                                        int *owidth, int *oheight,
                                        int align)
@@ -136,11 +144,12 @@ void AkVCam::VideoFormat::roundNearest(int width, int height,
     /* Explanation:
      *
      * When 'align' is a power of 2, the left most bit will be 1 (the pivot),
-     * while all bits to the right will be 0, if destination width is multiple
-     * of 'align' all bits after pivot position will be 0, then we create a
-     * mask substracting 1 to the align, so all bits after pivot position in
-     * the mask will 1.
-     * Then we use the mask to remove all bits after pivot position in 'width'.
+     * while all other bits be 0, if destination width is multiple of 'align'
+     * all bits after pivot position will be 0, then we create a mask
+     * substracting 1 to the align, so all bits after pivot position in the
+     * mask will 1.
+     * Then we negate all bits in the mask so all bits from pivot to the left
+     * will be 1, and then we use that mask to get a width multiple of align.
      * This give us the lower (floor) width nearest to the original 'width' and
      * multiple of align. To get the rounded nearest value we add align / 2 to
      * 'width'.
@@ -148,7 +157,7 @@ void AkVCam::VideoFormat::roundNearest(int width, int height,
      *
      * align * round(width / align)
      */
-    *owidth = width + (align >> 1) - ((width + (align >> 1)) & (align - 1));
+    *owidth = (width + (align >> 1)) & ~(align - 1);
 
     /* Find the nearest width:
      *

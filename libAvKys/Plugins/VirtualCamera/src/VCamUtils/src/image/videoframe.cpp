@@ -232,7 +232,7 @@ AkVCam::VideoFrame::VideoFrame(const std::string &bmpResource)
     auto depth = bitmapStream.read<uint16_t>();
     bitmapStream.seek(int(pixelsOffset), CStreamRead::SeekSet);
 
-    size_t dataSize = size_t(sizeof(RGB24) * width * height);
+    size_t dataSize = sizeof(RGB24) * size_t(width * height);
 
     if (!dataSize)
         return;
@@ -355,6 +355,56 @@ size_t &AkVCam::VideoFrame::dataSize()
     return this->d->m_dataSize;
 }
 
+void AkVCam::VideoFrame::clear()
+{
+    this->d->m_format.clear();
+    this->d->m_data.reset();
+    this->d->m_dataSize = 0;
+}
+
+AkVCam::VideoFrame AkVCam::VideoFrame::mirror(bool horizontalMirror,
+                                              bool verticalMirror) const
+{
+    if (!horizontalMirror && !verticalMirror)
+        return *this;
+
+    auto format = this->d->m_format;
+    int width = format.width();
+    int height = format.height();
+    size_t dataSize = this->d->m_dataSize;
+    auto data = std::shared_ptr<uint8_t>(new uint8_t[dataSize]);
+    auto dataSrc = reinterpret_cast<RGB24 *>(this->d->m_data.get());
+    auto dataDst = reinterpret_cast<RGB24 *>(data.get());
+
+    if (horizontalMirror && verticalMirror) {
+        for (int y = 0; y < height; y++) {
+            auto srcLine = dataSrc + (height - y - 1) * width;
+            auto dstLine = dataDst + y * width;
+
+            for (int x = 0; x < width; x++)
+                dstLine[x] = srcLine[width - x - 1];
+        }
+    } if (horizontalMirror) {
+        for (int y = 0; y < height; y++) {
+            auto srcLine = dataSrc + y * width;
+            auto dstLine = dataDst + y * width;
+
+            for (int x = 0; x < width; x++)
+                dstLine[x] = srcLine[width - x - 1];
+        }
+    } if (verticalMirror) {
+        for (int y = 0; y < height; y++) {
+            auto srcLine = dataSrc + (height - y - 1) * width;
+            auto dstLine = dataDst + y * width;
+
+            for (int x = 0; x < width; x++)
+                dstLine[x] = srcLine[x];
+        }
+    }
+
+    return VideoFrame(format, data, dataSize);
+}
+
 AkVCam::VideoFrame AkVCam::VideoFrame::scaled(int width,
                                               int height,
                                               Scaling mode,
@@ -372,7 +422,6 @@ AkVCam::VideoFrame AkVCam::VideoFrame::scaled(int width,
     format.height() = height;
     size_t dataSize = sizeof(RGB24) * size_t(width * height);
     auto data = std::shared_ptr<uint8_t>(new uint8_t[dataSize]);
-    memset(data.get(), 0, dataSize);
     auto dataSrc = reinterpret_cast<RGB24 *>(this->d->m_data.get());
     auto dataDst = reinterpret_cast<RGB24 *>(data.get());
 
@@ -389,7 +438,7 @@ AkVCam::VideoFrame AkVCam::VideoFrame::scaled(int width,
                 }
             }
 
-            break;
+            return VideoFrame(format, data, dataSize);
 
         case ScalingLinear: {
             auto extrapolateX =
@@ -430,9 +479,11 @@ AkVCam::VideoFrame AkVCam::VideoFrame::scaled(int width,
                 }
             }
 
-            break;
+            return VideoFrame(format, data, dataSize);
         }
     }
+
+    memset(data.get(), 0, dataSize);
 
     return VideoFrame(format, data, dataSize);
 }

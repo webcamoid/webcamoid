@@ -73,12 +73,20 @@ namespace AkVCam
                 int result = system(launchctl.str().c_str());
 
                 if (result != 0) {
+                    auto homePath = std::string("/Users/") + getenv("USER");
+
+                    std::stringstream ss;
+                    ss << CMIO_DAEMONS_PATH
+                       << "/"
+                       << AKVCAM_ASSISTANT_NAME
+                       << ".plist";
+                    auto daemon = ss.str();
+
+                    if (daemon[0] == '~')
+                        daemon.replace(0, 1, homePath);
+
                     launchctl.str("");
-                    launchctl << "launchctl load -w "
-                              << CMIO_DAEMONS_PATH
-                              << "/"
-                              << AKVCAM_ASSISTANT_NAME
-                              << ".plist";
+                    launchctl << "launchctl load -w " << daemon;
                     result = system(launchctl.str().c_str());
 
                     return result == 0;
@@ -466,6 +474,9 @@ std::vector<AkVCam::VideoFormat> AkVCam::IpcBridge::formats(const std::string &d
 
 bool AkVCam::IpcBridge::broadcasting(const std::string &deviceId) const
 {
+    if (!this->d->serverMessagePort)
+        return false;
+
     auto dictionary = xpc_dictionary_create(NULL, NULL, 0);
     xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_BROADCASTING);
     xpc_dictionary_set_string(dictionary, "device", deviceId.c_str());
@@ -488,6 +499,9 @@ bool AkVCam::IpcBridge::broadcasting(const std::string &deviceId) const
 
 bool AkVCam::IpcBridge::isHorizontalMirrored(const std::string &deviceId)
 {
+    if (!this->d->serverMessagePort)
+        return false;
+
     auto dictionary = xpc_dictionary_create(NULL, NULL, 0);
     xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_MIRRORING);
     xpc_dictionary_set_string(dictionary, "device", deviceId.c_str());
@@ -510,6 +524,9 @@ bool AkVCam::IpcBridge::isHorizontalMirrored(const std::string &deviceId)
 
 bool AkVCam::IpcBridge::isVerticalMirrored(const std::string &deviceId)
 {
+    if (!this->d->serverMessagePort)
+        return false;
+
     auto dictionary = xpc_dictionary_create(NULL, NULL, 0);
     xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_MIRRORING);
     xpc_dictionary_set_string(dictionary, "device", deviceId.c_str());
@@ -532,6 +549,9 @@ bool AkVCam::IpcBridge::isVerticalMirrored(const std::string &deviceId)
 
 AkVCam::VideoFrame::Scaling AkVCam::IpcBridge::scalingMode(const std::string &deviceId)
 {
+    if (!this->d->serverMessagePort)
+        return VideoFrame::ScalingFast;
+
     auto dictionary = xpc_dictionary_create(NULL, NULL, 0);
     xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_SCALING);
     xpc_dictionary_set_string(dictionary, "device", deviceId.c_str());

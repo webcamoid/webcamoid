@@ -26,7 +26,13 @@ extern "C" void *akPluginMain(CFAllocatorRef allocator,
 {
     UNUSED(allocator)
 
-    AkLoggerStart("/tmp/AkVirtualCamera.log");
+#if defined(QT_DEBUG) && 0
+    // Turn on lights
+    freopen("/dev/tty", "a", stdout);
+    freopen("/dev/tty", "a", stderr);
+#endif
+
+    AkLoggerStart("/tmp/AkVirtualCamera", "log");
 
     if (not CFEqual(requestedTypeUUID, kCMIOHardwarePlugInTypeID))
         return nullptr;

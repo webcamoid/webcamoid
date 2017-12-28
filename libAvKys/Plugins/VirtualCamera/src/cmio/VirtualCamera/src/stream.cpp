@@ -28,7 +28,11 @@ AkVCam::Stream::Stream(bool registerObject,
     m_queueAltered(nullptr),
     m_queueAlteredRefCon(nullptr),
     m_timer(nullptr),
-    m_running(false)
+    m_running(false),
+    m_broadcasting(false),
+    m_horizontalMirror(false),
+    m_verticalMirror(false),
+    m_scaling(VideoFrame::ScalingFast)
 {
     this->m_className = "Stream";
     this->m_classID = kCMIOStreamClassID;
@@ -154,27 +158,17 @@ bool AkVCam::Stream::start()
         return false;
 
     this->m_sequence = 0;
-    memset(&this->m_pts, 0, sizeof(CMTime));
-    CFTimeInterval interval = 1.0 / this->m_fps;
-    CFRunLoopTimerContext context {0, this, nullptr, nullptr, nullptr};
-    this->m_timer =
-            CFRunLoopTimerCreate(kCFAllocatorDefault,
-                                 0.0,
-                                 interval,
-                                 0,
-                                 0,
-                                 Stream::streamLoop,
-                                 &context);
+    memset(&this->m_pts, 0, sizeof(CMTime));    
 
-    if (!this->m_timer)
-        return false;
+    if (this->m_broadcasting) {
+        this->m_running = true;
 
-    CFRunLoopAddTimer(CFRunLoopGetMain(),
-                      this->m_timer,
-                      kCFRunLoopCommonModes);
-    this->m_running = true;
+        return true;
+    }
 
-    return true;
+    this->m_running = this->startTimer();
+
+    return this->m_running;
 }
 
 void AkVCam::Stream::stop()
@@ -185,13 +179,7 @@ void AkVCam::Stream::stop()
         return;
 
     this->m_running = false;
-
-    CFRunLoopTimerInvalidate(this->m_timer);
-    CFRunLoopRemoveTimer(CFRunLoopGetMain(),
-                         this->m_timer,
-                         kCFRunLoopCommonModes);
-    CFRelease(this->m_timer);
-    this->m_timer = nullptr;
+    this->stopTimer();
 }
 
 bool AkVCam::Stream::running()
@@ -201,22 +189,43 @@ bool AkVCam::Stream::running()
 
 void AkVCam::Stream::frameReady(const AkVCam::VideoFrame &frame)
 {
+    if (!this->m_running || !this->m_broadcasting)
+        return;
 
+    FourCC fourcc = this->m_format.fourcc();
+    int width = this->m_format.width();
+    int height = this->m_format.height();
+
+    auto outputFrame =
+            frame
+            .mirror(this->m_horizontalMirror,
+                    this->m_verticalMirror)
+            .scaled(width, height,
+                    this->m_scaling)
+            .convert(fourcc);
+
+    this->sendFrame(outputFrame);
 }
 
 void AkVCam::Stream::setBroadcasting(bool broadcasting)
 {
+    this->m_broadcasting = broadcasting;
 
+    if (broadcasting)
+        this->stopTimer();
+    else if (this->m_running)
+        this->startTimer();
 }
 
 void AkVCam::Stream::setMirror(bool horizontalMirror, bool verticalMirror)
 {
-
+    this->m_horizontalMirror = horizontalMirror;
+    this->m_verticalMirror = verticalMirror;
 }
 
 void AkVCam::Stream::setScaling(AkVCam::VideoFrame::Scaling scaling)
 {
-
+    this->m_scaling = scaling;
 }
 
 OSStatus AkVCam::Stream::copyBufferQueue(CMIODeviceStreamQueueAlteredProc queueAlteredProc,
@@ -274,6 +283,58 @@ OSStatus AkVCam::Stream::deckCueTo(Float64 frameNumber, Boolean playOnCue)
     return kCMIOHardwareUnspecifiedError;
 }
 
+bool AkVCam::Stream::startTimer()
+{
+    if (this->m_timer)
+        return false;
+
+    FourCC fourcc = this->m_format.fourcc();
+    int width = this->m_format.width();
+    int height = this->m_format.height();
+
+    this->m_testFrameAdapted =
+            this->m_testFrame
+            .mirror(this->m_horizontalMirror,
+                    this->m_verticalMirror)
+            .scaled(width, height,
+                    this->m_scaling)
+            .convert(fourcc);
+
+    CFTimeInterval interval = 1.0 / this->m_fps;
+    CFRunLoopTimerContext context {0, this, nullptr, nullptr, nullptr};
+    this->m_timer =
+            CFRunLoopTimerCreate(kCFAllocatorDefault,
+                                 0.0,
+                                 interval,
+                                 0,
+                                 0,
+                                 Stream::streamLoop,
+                                 &context);
+
+    if (!this->m_timer)
+        return false;
+
+    CFRunLoopAddTimer(CFRunLoopGetMain(),
+                      this->m_timer,
+                      kCFRunLoopCommonModes);
+
+    return true;
+}
+
+void AkVCam::Stream::stopTimer()
+{
+    if (!this->m_timer)
+        return;
+
+    CFRunLoopTimerInvalidate(this->m_timer);
+    CFRunLoopRemoveTimer(CFRunLoopGetMain(),
+                         this->m_timer,
+                         kCFRunLoopCommonModes);
+    CFRelease(this->m_timer);
+    this->m_timer = nullptr;
+    this->m_testFrameAdapted.clear();
+}
+
 void AkVCam::Stream::streamLoop(CFRunLoopTimerRef timer, void *info)
 {
     AkLoggerLog("Reading frame");
@@ -281,36 +342,39 @@ void AkVCam::Stream::streamLoop(CFRunLoopTimerRef timer, void *info)
 
     auto self = reinterpret_cast<Stream *>(info);
 
-    if (self->m_queue->fullness() >= 1.0f)
+    if (!self->m_running || self->m_broadcasting)
         return;
 
-    FourCC fourcc = self->m_format.fourcc();
-    int width = self->m_format.width();
-    int height = self->m_format.height();
+    self->sendFrame(self->m_testFrameAdapted);
+}
+
+void AkVCam::Stream::sendFrame(const AkVCam::VideoFrame &frame)
+{
+    if (this->m_queue->fullness() >= 1.0f)
+        return;
+
+    FourCC fourcc = frame.format().fourcc();
+    int width = frame.format().width();
+    int height = frame.format().height();
 
     bool resync = false;
     auto hostTime = UInt64(CFAbsoluteTimeGetCurrent());
     auto pts = CMTimeMake(hostTime, 1e9);
-    auto ptsDiff = CMTimeGetSeconds(CMTimeSubtract(self->m_pts, pts));
+    auto ptsDiff = CMTimeGetSeconds(CMTimeSubtract(this->m_pts, pts));
 
-    if (CMTimeCompare(pts, self->m_pts) == 0)
+    if (CMTimeCompare(pts, this->m_pts) == 0)
         return;
-    if (CMTIME_IS_INVALID(self->m_pts)
+    if (CMTIME_IS_INVALID(this->m_pts)
         || ptsDiff < 0
-        || ptsDiff > 2. / self->m_fps) {
-        self->m_pts = pts;
+        || ptsDiff > 2. / this->m_fps) {
+        this->m_pts = pts;
         resync = true;
     }
 
-    CMIOStreamClockPostTimingEvent(self->m_pts,
+    CMIOStreamClockPostTimingEvent(this->m_pts,
                                    hostTime,
                                    resync,
-                                   self->m_clock->ref());
-
-    auto outputFrame =
-            self->m_testFrame
-            .scaled(width, height)
-            .convert(fourcc);
+                                   this->m_clock->ref());
 
     CVImageBufferRef imageBuffer = nullptr;
     CVPixelBufferCreate(kCFAllocatorDefault,
@@ -320,9 +384,12 @@ void AkVCam::Stream::streamLoop(CFRunLoopTimerRef timer, void *info)
                         nullptr,
                         &imageBuffer);
 
+    if (!imageBuffer)
+        return;
+
     CVPixelBufferLockBaseAddress(imageBuffer, 0);
     auto data = CVPixelBufferGetBaseAddress(imageBuffer);
-    memcpy(data, outputFrame.data().get(), outputFrame.dataSize());
+    memcpy(data, frame.data().get(), frame.dataSize());
     CVPixelBufferUnlockBaseAddress(imageBuffer, 0);
 
     CMVideoFormatDescriptionRef format = nullptr;
@@ -330,11 +397,11 @@ void AkVCam::Stream::streamLoop(CFRunLoopTimerRef timer, void *info)
                                                  imageBuffer,
                                                  &format);
 
-    auto duration = CMTimeMake(1, self->m_fps);
+    auto duration = CMTimeMake(1, this->m_fps);
     CMSampleTimingInfo timingInfo {
         duration,
-        self->m_pts,
-        self->m_pts
+        this->m_pts,
+        this->m_pts
     };
 
     CMSampleBufferRef buffer = nullptr;
@@ -342,7 +409,7 @@ void AkVCam::Stream::streamLoop(CFRunLoopTimerRef timer, void *info)
                                          imageBuffer,
                                          format,
                                          &timingInfo,
-                                         self->m_sequence,
+                                         this->m_sequence,
                                          resync?
                                              kCMIOSampleBufferDiscontinuityFlag_UnknownDiscontinuity:
                                              kCMIOSampleBufferNoDiscontinuities,
@@ -350,12 +417,12 @@ void AkVCam::Stream::streamLoop(CFRunLoopTimerRef timer, void *info)
     CFRelease(format);
     CFRelease(imageBuffer);
 
-    self->m_queue->enqueue(buffer);
-    self->m_pts = CMTimeAdd(self->m_pts, duration);
-    self->m_sequence++;
+    this->m_queue->enqueue(buffer);
+    this->m_pts = CMTimeAdd(this->m_pts, duration);
+    this->m_sequence++;
 
-    if (self->m_queueAltered)
-        self->m_queueAltered(self->m_objectID,
+    if (this->m_queueAltered)
+        this->m_queueAltered(this->m_objectID,
                              buffer,
-                             self->m_queueAlteredRefCon);
+                             this->m_queueAlteredRefCon);
 }

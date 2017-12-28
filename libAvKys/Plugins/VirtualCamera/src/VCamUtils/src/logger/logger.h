@@ -23,7 +23,7 @@
 #include <iostream>
 
 #ifdef QT_DEBUG
-    #define AkLoggerStart(fileName) AkVCam::Logger::start(fileName)
+    #define AkLoggerStart(...) AkVCam::Logger::start(__VA_ARGS__)
     #define AkLoggerLog(data) AkVCam::Logger::log() << data << std::endl
     #define AkLoggerStop() AkVCam::Logger::stop(fileName)
 
@@ -31,7 +31,8 @@
     {
         namespace Logger
         {
-            void start(const std::string &fileName=std::string());
+            void start(const std::string &fileName=std::string(),
+                       const std::string &extension=std::string());
             std::ostream &log();
             void stop();
         }

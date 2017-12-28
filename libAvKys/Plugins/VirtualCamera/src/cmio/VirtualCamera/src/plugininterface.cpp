@@ -540,8 +540,7 @@ AkVCam::PluginInterface::PluginInterface():
     this->d->m_ref = 0;
     this->d->m_reserved = 0;
 
-    auto home = getenv("HOME");
-    std::string homePath = home? home: "/";
+    auto homePath = std::string("/Users/") + getenv("USER");
 
     std::stringstream ss;
     ss << CMIO_DAEMONS_PATH << "/" << AKVCAM_ASSISTANT_NAME << ".plist";
@@ -645,11 +644,7 @@ OSStatus AkVCam::PluginInterface::InitializeWithObjectID(CMIOObjectID objectID)
 OSStatus AkVCam::PluginInterface::Teardown()
 {
     AkLoggerLog("AkVCam::PluginInterface::Teardown");
-    AkLoggerLog("STUB");
-/*
-    this->m_devices.clear();
-    this->m_objectID = 0;
-*/
+
     return kCMIOHardwareNoError;
 }
 
