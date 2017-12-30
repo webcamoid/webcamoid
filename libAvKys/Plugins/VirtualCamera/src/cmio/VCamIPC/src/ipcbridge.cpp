@@ -28,6 +28,9 @@
 #include "VCamUtils/src/image/videoformat.h"
 #include "VCamUtils/src/image/videoframe.h"
 
+#define AkIpcBridgeLogMethod() \
+    AkLoggerLog("IpcBridge::" << __FUNCTION__ << "()")
+
 namespace AkVCam
 {
     class IpcBridgePrivate;
@@ -61,7 +64,9 @@ namespace AkVCam
                     {AKVCAM_ASSISTANT_MSG_DEVICE_CREATED             , AKVCAM_BIND_FUNC(IpcBridgePrivate::deviceCreated)      },
                     {AKVCAM_ASSISTANT_MSG_DEVICE_DESTROYED           , AKVCAM_BIND_FUNC(IpcBridgePrivate::deviceDestroyed)    },
                     {AKVCAM_ASSISTANT_MSG_FRAME_READY                , AKVCAM_BIND_FUNC(IpcBridgePrivate::frameReady)         },
-                    {AKVCAM_ASSISTANT_MSG_DEVICE_BROADCASTING_CHANGED, AKVCAM_BIND_FUNC(IpcBridgePrivate::broadcastingChanged)}
+                    {AKVCAM_ASSISTANT_MSG_DEVICE_BROADCASTING_CHANGED, AKVCAM_BIND_FUNC(IpcBridgePrivate::broadcastingChanged)},
+                    {AKVCAM_ASSISTANT_MSG_DEVICE_MIRRORING_CHANGED   , AKVCAM_BIND_FUNC(IpcBridgePrivate::mirrorChanged)      },
+                    {AKVCAM_ASSISTANT_MSG_DEVICE_SCALING_CHANGED     , AKVCAM_BIND_FUNC(IpcBridgePrivate::scalingChanged)     }
                 };
             }
 
@@ -239,6 +244,8 @@ namespace AkVCam
 
 AkVCam::IpcBridge::IpcBridge()
 {
+    AkIpcBridgeLogMethod();
+
     this->d = new IpcBridgePrivate(this);
     ipcBridgePrivate()->add(this);
 }
@@ -252,6 +259,8 @@ AkVCam::IpcBridge::~IpcBridge()
 
 bool AkVCam::IpcBridge::registerEndPoint(bool asClient)
 {
+    AkIpcBridgeLogMethod();
+
     if (this->d->serverMessagePort)
         return true;
 
@@ -346,6 +355,8 @@ registerEndPoint_failed:
 
 void AkVCam::IpcBridge::unregisterEndPoint()
 {
+    AkIpcBridgeLogMethod();
+
     if (this->d->messagePort) {
         xpc_release(this->d->messagePort);
         this->d->messagePort = nullptr;
@@ -370,6 +381,8 @@ void AkVCam::IpcBridge::unregisterEndPoint()
 
 std::vector<std::string> AkVCam::IpcBridge::listDevices(bool all) const
 {
+    AkIpcBridgeLogMethod();
+
     if (!this->d->serverMessagePort)
         return {};
 
@@ -402,6 +415,8 @@ std::vector<std::string> AkVCam::IpcBridge::listDevices(bool all) const
 
 std::string AkVCam::IpcBridge::description(const std::string &deviceId) const
 {
+    AkIpcBridgeLogMethod();
+
     if (!this->d->serverMessagePort)
         return {};
 
@@ -437,6 +452,8 @@ std::vector<AkVCam::PixelFormat> AkVCam::IpcBridge::supportedOutputPixelFormats(
 
 std::vector<AkVCam::VideoFormat> AkVCam::IpcBridge::formats(const std::string &deviceId) const
 {
+    AkIpcBridgeLogMethod();
+
     if (!this->d->serverMessagePort)
         return {};
 
@@ -474,6 +491,8 @@ std::vector<AkVCam::VideoFormat> AkVCam::IpcBridge::formats(const std::string &d
 
 bool AkVCam::IpcBridge::broadcasting(const std::string &deviceId) const
 {
+    AkIpcBridgeLogMethod();
+
     if (!this->d->serverMessagePort)
         return false;
 
@@ -494,11 +513,16 @@ bool AkVCam::IpcBridge::broadcasting(const std::string &deviceId) const
     bool broadcasting = xpc_dictionary_get_bool(reply, "broadcasting");
     xpc_release(reply);
 
+    AkLoggerLog("Device: " << deviceId);
+    AkLoggerLog("Broadcasting: " << broadcasting);
+
     return broadcasting;
 }
 
 bool AkVCam::IpcBridge::isHorizontalMirrored(const std::string &deviceId)
 {
+    AkIpcBridgeLogMethod();
+
     if (!this->d->serverMessagePort)
         return false;
 
@@ -524,6 +548,8 @@ bool AkVCam::IpcBridge::isHorizontalMirrored(const std::string &deviceId)
 
 bool AkVCam::IpcBridge::isVerticalMirrored(const std::string &deviceId)
 {
+    AkIpcBridgeLogMethod();
+
     if (!this->d->serverMessagePort)
         return false;
 
@@ -549,6 +575,8 @@ bool AkVCam::IpcBridge::isVerticalMirrored(const std::string &deviceId)
 
 AkVCam::VideoFrame::Scaling AkVCam::IpcBridge::scalingMode(const std::string &deviceId)
 {
+    AkIpcBridgeLogMethod();
+
     if (!this->d->serverMessagePort)
         return VideoFrame::ScalingFast;
 
@@ -575,6 +603,8 @@ AkVCam::VideoFrame::Scaling AkVCam::IpcBridge::scalingMode(const std::string &de
 std::string AkVCam::IpcBridge::deviceCreate(const std::string &description,
                                             const std::vector<VideoFormat> &formats)
 {
+    AkIpcBridgeLogMethod();
+
     if (!this->d->startAssistant())
         return {};
 
@@ -623,6 +653,8 @@ std::string AkVCam::IpcBridge::deviceCreate(const std::string &description,
 
 void AkVCam::IpcBridge::deviceDestroy(const std::string &deviceId)
 {
+    AkIpcBridgeLogMethod();
+
     if (!this->d->serverMessagePort)
         return;
 
@@ -644,6 +676,8 @@ void AkVCam::IpcBridge::deviceDestroy(const std::string &deviceId)
 
 bool AkVCam::IpcBridge::deviceStart(const std::string &deviceId)
 {
+    AkIpcBridgeLogMethod();
+
     auto it = std::find(this->d->broadcasting.begin(),
                         this->d->broadcasting.end(),
                         deviceId);
@@ -675,6 +709,8 @@ bool AkVCam::IpcBridge::deviceStart(const std::string &deviceId)
 
 void AkVCam::IpcBridge::deviceStop(const std::string &deviceId)
 {
+    AkIpcBridgeLogMethod();
+
     auto it = std::find(this->d->broadcasting.begin(),
                         this->d->broadcasting.end(),
                         deviceId);
@@ -695,6 +731,8 @@ void AkVCam::IpcBridge::deviceStop(const std::string &deviceId)
 void AkVCam::IpcBridge::write(const std::string &deviceId,
                               const VideoFrame &frame)
 {
+    AkIpcBridgeLogMethod();
+
     auto it = std::find(this->d->broadcasting.begin(),
                         this->d->broadcasting.end(),
                         deviceId);
@@ -758,6 +796,8 @@ void AkVCam::IpcBridge::setMirroring(const std::string &deviceId,
                                      bool horizontalMirrored,
                                      bool verticalMirrored)
 {
+    AkIpcBridgeLogMethod();
+
     auto dictionary = xpc_dictionary_create(NULL, NULL, 0);
     xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_SETMIRRORING);
     xpc_dictionary_set_string(dictionary, "device", deviceId.c_str());
@@ -770,6 +810,8 @@ void AkVCam::IpcBridge::setMirroring(const std::string &deviceId,
 
 void AkVCam::IpcBridge::setScaling(const std::string &deviceId, VideoFrame::Scaling scaling)
 {
+    AkIpcBridgeLogMethod();
+
     auto dictionary = xpc_dictionary_create(NULL, NULL, 0);
     xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_SETSCALING);
     xpc_dictionary_set_string(dictionary, "device", deviceId.c_str());

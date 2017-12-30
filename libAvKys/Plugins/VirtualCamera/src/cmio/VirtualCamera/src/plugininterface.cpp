@@ -560,6 +560,23 @@ AkVCam::PluginInterface::PluginInterface():
     this->d->m_ipcBridge.setDeviceRemovedCallback(std::bind(&PluginInterface::deviceRemoved,
                                                             this,
                                                             std::placeholders::_1));
+    this->d->m_ipcBridge.setFrameReadyCallback(std::bind(&PluginInterface::frameReady,
+                                                         this,
+                                                         std::placeholders::_1,
+                                                         std::placeholders::_2));
+    this->d->m_ipcBridge.setBroadcastingChangedCallback(std::bind(&PluginInterface::setBroadcasting,
+                                                                  this,
+                                                                  std::placeholders::_1,
+                                                                  std::placeholders::_2));
+    this->d->m_ipcBridge.setMirrorChangedCallback(std::bind(&PluginInterface::setMirror,
+                                                            this,
+                                                            std::placeholders::_1,
+                                                            std::placeholders::_2,
+                                                            std::placeholders::_3));
+    this->d->m_ipcBridge.setScalingChangedCallback(std::bind(&PluginInterface::setScaling,
+                                                             this,
+                                                             std::placeholders::_1,
+                                                             std::placeholders::_2));
 }
 
 AkVCam::PluginInterface::~PluginInterface()
@@ -681,6 +698,8 @@ void AkVCam::PluginInterface::setBroadcasting(const std::string &deviceId,
                                               bool broadcasting)
 {
     AkLoggerLog("AkVCam::PluginInterface::setBroadcasting");
+    AkLoggerLog("Device: " << deviceId);
+    AkLoggerLog("Broadcasting: " << broadcasting);
 
     for (auto device: this->m_devices)
         if (device->deviceId() == deviceId)

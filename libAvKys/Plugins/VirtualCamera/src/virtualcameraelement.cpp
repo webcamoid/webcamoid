@@ -33,7 +33,7 @@
 #ifdef Q_OS_WIN32
     #define PREFERRED_FORMAT AkVideoCaps::Format_0rgb
 #elif defined(Q_OS_OSX)
-    #define PREFERRED_FORMAT AkVideoCaps::Format_argb
+    #define PREFERRED_FORMAT AkVideoCaps::Format_rgb24
 #else
     #define PREFERRED_FORMAT AkVideoCaps::Format_yuv420p
 #endif
@@ -46,7 +46,7 @@ inline QSharedPointer<T> ptr_cast(QObject *obj=nullptr)
     return QSharedPointer<T>(static_cast<T *>(obj));
 }
 
-#define PREFERRED_ROUNDING 4
+#define PREFERRED_ROUNDING 32
 
 inline int roundTo(int value, int n)
 {
@@ -519,7 +519,9 @@ AkPacket VirtualCameraElement::iStream(const AkPacket &packet)
         oPacket = AkUtils::roundSizeTo(AkUtils::imageToPacket(image, packet),
                                        PREFERRED_ROUNDING);
 #elif defined(Q_OS_OSX)
-        oPacket = packet;
+        image = image.convertToFormat(QImage::Format_RGB888);
+        oPacket = AkUtils::roundSizeTo(AkUtils::imageToPacket(image, packet),
+                                       PREFERRED_ROUNDING);
 #else
         image = this->d->swapChannels(image);
 

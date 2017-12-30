@@ -25,10 +25,10 @@
 #include "akcommons.h"
 
 #define AkFourCC(a, b, c, d) \
-    (((quint32(d) & 0xff) << 24) \
-     | ((quint32(c) & 0xff) << 16) \
-     | ((quint32(b) & 0xff) << 8) \
-     | (quint32(a) & 0xff))
+    (((quint32(a) & 0xff) << 24) \
+   | ((quint32(b) & 0xff) << 16) \
+   | ((quint32(c) & 0xff) <<  8) \
+   |  (quint32(d) & 0xff))
 
 #define AK_FOURCC_NULL AkFourCC('\x0', '\x0', '\x0', '\x0')
 

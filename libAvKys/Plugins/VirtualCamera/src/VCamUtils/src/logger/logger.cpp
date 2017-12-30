@@ -65,9 +65,12 @@ void AkVCam::Logger::start(const std::string &fileName,
 
 std::ostream &AkVCam::Logger::log()
 {
+    auto time = std::time(nullptr);
+
     if (!loggerPrivate()->initialized
         || loggerPrivate()->fileNamePrivate.empty())
-        return std::cout;
+        return std::cout << std::put_time(std::localtime(&time),
+                                          "[%Y-%m-%d %H:%M:%S] ");
 
     if (!loggerPrivate()->logFilePrivate.is_open())
         loggerPrivate()->logFilePrivate.open(loggerPrivate()->fileNamePrivate,
@@ -75,9 +78,12 @@ std::ostream &AkVCam::Logger::log()
                                              | std::ios_base::app);
 
     if (!loggerPrivate()->logFilePrivate.is_open())
-        return std::cout;
+        return std::cout << std::put_time(std::localtime(&time),
+                                          "[%Y-%m-%d %H:%M:%S] ");
 
-    return loggerPrivate()->logFilePrivate;
+    return loggerPrivate()->logFilePrivate
+            << std::put_time(std::localtime(&time),
+                             "[%Y-%m-%d %H:%M:%S] ");
 }
 
 void AkVCam::Logger::stop()

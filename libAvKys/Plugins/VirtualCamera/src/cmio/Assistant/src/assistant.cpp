@@ -260,6 +260,8 @@ void AkVCam::Assistant::setBroadcasting(xpc_connection_t client,
                 if (device.broadcasting == broadcasting)
                     goto setBroadcasting_end;
 
+                AkLoggerLog("Device: " << deviceId);
+                AkLoggerLog("Broadcasting: " << broadcasting);
                 device.broadcasting = broadcasting;
                 auto notification = xpc_dictionary_create(NULL, NULL, 0);
                 xpc_dictionary_set_int64(notification, "message", AKVCAM_ASSISTANT_MSG_DEVICE_BROADCASTING_CHANGED);
@@ -448,6 +450,8 @@ void AkVCam::Assistant::broadcasting(xpc_connection_t client,
     for (auto &server: this->m_servers)
         for (auto &device: server.second.devices)
             if (device.deviceId == deviceId) {
+                AkLoggerLog("Device: " << deviceId);
+                AkLoggerLog("Broadcasting: " << device.broadcasting);
                 auto reply = xpc_dictionary_create_reply(event);
                 xpc_dictionary_set_bool(reply, "broadcasting", device.broadcasting);
                 xpc_connection_send_message(client, reply);

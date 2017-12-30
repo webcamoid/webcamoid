@@ -18,6 +18,7 @@
  */
 
 #include <map>
+#include <sstream>
 #include <algorithm>
 
 #include "utils.h"
@@ -52,11 +53,17 @@ bool AkVCam::uuidEqual(const REFIID &uuid1, const CFUUIDRef uuid2)
 std::string AkVCam::enumToString(UInt32 value)
 {
     auto valueChr = reinterpret_cast<char *>(&value);
-    std::string valueStr(valueChr, 4);
-    std::reverse(valueStr.begin(), valueStr.end());
-    valueStr = "'" + valueStr + "'";
+    std::stringstream ss;
 
-    return valueStr;
+    for (int i = 3; i >= 0; i--)
+        if (valueChr[i] < 0)
+            ss << std::hex << valueChr[i];
+        else if (valueChr[i] < 32)
+            ss << int(valueChr[i]);
+        else
+            ss << valueChr[i];
+
+    return "'" + ss.str() + "'";
 }
 
 FourCharCode AkVCam::formatToCM(PixelFormat format)

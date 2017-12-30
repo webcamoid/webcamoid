@@ -38,7 +38,7 @@
         }
     }
 #else
-    #define AkLoggerStart(fileName)
+    #define AkLoggerStart(...)
     #define AkLoggerLog(data)
     #define AkLoggerStop(fileName)
 #endif

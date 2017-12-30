@@ -116,8 +116,19 @@ OSStatus AkVCam::Stream::registerObject(bool regist)
 void AkVCam::Stream::setFormats(const std::vector<VideoFormat> &formats)
 {
     AkObjectLogMethod();
+
     if (formats.empty())
         return;
+
+#ifdef QT_DEBUG
+    for (auto &format: formats)
+        AkLoggerLog("Format: "
+                    << enumToString(format.fourcc())
+                    << " "
+                    << format.width()
+                    << "x"
+                    << format.height());
+#endif
 
     this->m_properties.setProperty(kCMIOStreamPropertyFormatDescriptions,
                                    formats);
@@ -189,6 +200,10 @@ bool AkVCam::Stream::running()
 
 void AkVCam::Stream::frameReady(const AkVCam::VideoFrame &frame)
 {
+    AkObjectLogMethod();
+    AkLoggerLog("Running: " << this->m_running);
+    AkLoggerLog("Broadcasting: " << this->m_broadcasting);
+
     if (!this->m_running || !this->m_broadcasting)
         return;
 
@@ -337,7 +352,7 @@ void AkVCam::Stream::stopTimer()
 
 void AkVCam::Stream::streamLoop(CFRunLoopTimerRef timer, void *info)
 {
-    AkLoggerLog("Reading frame");
+    AkLoggerLog("AkVCam::Stream::streamLoop");
     UNUSED(timer)
 
     auto self = reinterpret_cast<Stream *>(info);
@@ -350,12 +365,21 @@ void AkVCam::Stream::streamLoop(CFRunLoopTimerRef timer, void *info)
 
 void AkVCam::Stream::sendFrame(const AkVCam::VideoFrame &frame)
 {
+    AkObjectLogMethod();
+
     if (this->m_queue->fullness() >= 1.0f)
         return;
 
     FourCC fourcc = frame.format().fourcc();
     int width = frame.format().width();
     int height = frame.format().height();
+
+    AkLoggerLog("Sending Frame: "
+                << enumToString(fourcc)
+                << " "
+                << width
+                << "x"
+                << height);
 
     bool resync = false;
     auto hostTime = UInt64(CFAbsoluteTimeGetCurrent());
