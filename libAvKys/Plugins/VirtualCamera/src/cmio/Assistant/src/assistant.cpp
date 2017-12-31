@@ -374,7 +374,6 @@ void AkVCam::Assistant::devices(xpc_connection_t client,
                                 xpc_object_t event)
 {
     AkAssistantLogMethod();
-
     auto devices = xpc_array_create(NULL, 0);
 
     for (auto &server: this->m_servers)
@@ -394,22 +393,26 @@ void AkVCam::Assistant::description(xpc_connection_t client,
 {
     AkAssistantLogMethod();
     std::string deviceId = xpc_dictionary_get_string(event, "device");
+    std::string description;
 
     for (auto &server: this->m_servers)
         for (auto &device: server.second.devices)
             if (device.deviceId == deviceId) {
-                AkLoggerLog("Description for device "
-                            << deviceId
-                            << ": "
-                            << device.description);
+                description = device.description;
 
-                auto reply = xpc_dictionary_create_reply(event);
-                xpc_dictionary_set_string(reply, "description", device.description.c_str());
-                xpc_connection_send_message(client, reply);
-                xpc_release(reply);
-
-                return;
+                goto description_end;
             }
+
+description_end:
+    AkLoggerLog("Description for device "
+                << deviceId
+                << ": "
+                << description);
+
+    auto reply = xpc_dictionary_create_reply(event);
+    xpc_dictionary_set_string(reply, "description", description.c_str());
+    xpc_connection_send_message(client, reply);
+    xpc_release(reply);
 }
 
 void AkVCam::Assistant::formats(xpc_connection_t client,
@@ -417,12 +420,11 @@ void AkVCam::Assistant::formats(xpc_connection_t client,
 {
     AkAssistantLogMethod();
     std::string deviceId = xpc_dictionary_get_string(event, "device");
+    auto formats = xpc_array_create(NULL, 0);
 
     for (auto &server: this->m_servers)
         for (auto &device: server.second.devices)
             if (device.deviceId == deviceId) {
-                auto formats = xpc_array_create(NULL, 0);
-
                 for (auto &format: device.formats) {
                     auto dictFormat = xpc_dictionary_create(nullptr, nullptr, 0);
                     xpc_dictionary_set_uint64(dictFormat, "fourcc", format.fourcc());
@@ -432,13 +434,14 @@ void AkVCam::Assistant::formats(xpc_connection_t client,
                     xpc_array_append_value(formats, dictFormat);
                 }
 
-                auto reply = xpc_dictionary_create_reply(event);
-                xpc_dictionary_set_value(reply, "formats", formats);
-                xpc_connection_send_message(client, reply);
-                xpc_release(reply);
-
-                return;
+                goto formats_end;
             }
+
+formats_end:
+    auto reply = xpc_dictionary_create_reply(event);
+    xpc_dictionary_set_value(reply, "formats", formats);
+    xpc_connection_send_message(client, reply);
+    xpc_release(reply);
 }
 
 void AkVCam::Assistant::broadcasting(xpc_connection_t client,
@@ -446,54 +449,73 @@ void AkVCam::Assistant::broadcasting(xpc_connection_t client,
 {
     AkAssistantLogMethod();
     std::string deviceId = xpc_dictionary_get_string(event, "device");
+    bool broadcasting = false;
 
     for (auto &server: this->m_servers)
         for (auto &device: server.second.devices)
             if (device.deviceId == deviceId) {
-                AkLoggerLog("Device: " << deviceId);
-                AkLoggerLog("Broadcasting: " << device.broadcasting);
-                auto reply = xpc_dictionary_create_reply(event);
-                xpc_dictionary_set_bool(reply, "broadcasting", device.broadcasting);
-                xpc_connection_send_message(client, reply);
-                xpc_release(reply);
+                broadcasting = device.broadcasting;
 
-                return;
+                goto broadcasting_end;
             }
+
+broadcasting_end:
+    AkLoggerLog("Device: " << deviceId);
+    AkLoggerLog("Broadcasting: " << broadcasting);
+    auto reply = xpc_dictionary_create_reply(event);
+    xpc_dictionary_set_bool(reply, "broadcasting", broadcasting);
+    xpc_connection_send_message(client, reply);
+    xpc_release(reply);
 }
 
 void AkVCam::Assistant::mirroring(xpc_connection_t client, xpc_object_t event)
 {
     AkAssistantLogMethod();
     std::string deviceId = xpc_dictionary_get_string(event, "device");
+    bool horizontalMirror = false;
+    bool verticalMirror = false;
 
     for (auto &server: this->m_servers)
         for (auto &device: server.second.devices)
             if (device.deviceId == deviceId) {
-                auto reply = xpc_dictionary_create_reply(event);
-                xpc_dictionary_set_bool(reply, "hmirror", device.horizontalMirror);
-                xpc_dictionary_set_bool(reply, "vmirror", device.verticalMirror);
-                xpc_connection_send_message(client, reply);
-                xpc_release(reply);
+                horizontalMirror = device.horizontalMirror;
+                verticalMirror = device.verticalMirror;
 
-                return;
+                goto mirroring_end;
             }
+
+mirroring_end:
+    AkLoggerLog("Device: " << deviceId);
+    AkLoggerLog("Horizontal mirror: " << horizontalMirror);
+    AkLoggerLog("Vertical mirror: " << verticalMirror);
+    auto reply = xpc_dictionary_create_reply(event);
+    xpc_dictionary_set_bool(reply, "hmirror", horizontalMirror);
+    xpc_dictionary_set_bool(reply, "vmirror", verticalMirror);
+    xpc_connection_send_message(client, reply);
+    xpc_release(reply);
 }
 
 void AkVCam::Assistant::scaling(xpc_connection_t client, xpc_object_t event)
 {
     AkAssistantLogMethod();
     std::string deviceId = xpc_dictionary_get_string(event, "device");
+    bool scaling = false;
 
     for (auto &server: this->m_servers)
         for (auto &device: server.second.devices)
             if (device.deviceId == deviceId) {
-                auto reply = xpc_dictionary_create_reply(event);
-                xpc_dictionary_set_int64(reply, "scaling", device.scaling);
-                xpc_connection_send_message(client, reply);
-                xpc_release(reply);
+                scaling = device.scaling;
 
-                return;
+                goto scaling_end;
             }
+
+scaling_end:
+    AkLoggerLog("Device: " << deviceId);
+    AkLoggerLog("Scaling: " << scaling);
+    auto reply = xpc_dictionary_create_reply(event);
+    xpc_dictionary_set_int64(reply, "scaling", scaling);
+    xpc_connection_send_message(client, reply);
+    xpc_release(reply);
 }
 
 void AkVCam::Assistant::messageReceived(xpc_connection_t client,

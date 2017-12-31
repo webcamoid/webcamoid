@@ -20,6 +20,7 @@
 #include <iomanip>
 #include <sstream>
 #include <fstream>
+#include <chrono>
 
 #include "logger.h"
 
@@ -65,12 +66,17 @@ void AkVCam::Logger::start(const std::string &fileName,
 
 std::ostream &AkVCam::Logger::log()
 {
-    auto time = std::time(nullptr);
+    auto now = std::chrono::high_resolution_clock::now();
+    auto nowMSecs = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch());
+    auto nowSecs = std::chrono::duration_cast<std::chrono::seconds>(nowMSecs);
+    std::stringstream ss;
+    std::time_t time = nowSecs.count();
+    ss << std::put_time(std::localtime(&time), "[%Y-%m-%d %H:%M:%S.");
+    ss << nowMSecs.count() % 1000 << "] ";
 
     if (!loggerPrivate()->initialized
         || loggerPrivate()->fileNamePrivate.empty())
-        return std::cout << std::put_time(std::localtime(&time),
-                                          "[%Y-%m-%d %H:%M:%S] ");
+        return std::cout << ss.str();
 
     if (!loggerPrivate()->logFilePrivate.is_open())
         loggerPrivate()->logFilePrivate.open(loggerPrivate()->fileNamePrivate,
@@ -78,12 +84,9 @@ std::ostream &AkVCam::Logger::log()
                                              | std::ios_base::app);
 
     if (!loggerPrivate()->logFilePrivate.is_open())
-        return std::cout << std::put_time(std::localtime(&time),
-                                          "[%Y-%m-%d %H:%M:%S] ");
+        return std::cout << ss.str();
 
-    return loggerPrivate()->logFilePrivate
-            << std::put_time(std::localtime(&time),
-                             "[%Y-%m-%d %H:%M:%S] ");
+    return loggerPrivate()->logFilePrivate << ss.str();
 }
 
 void AkVCam::Logger::stop()

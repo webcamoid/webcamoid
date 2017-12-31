@@ -341,6 +341,8 @@ bool AkVCam::IpcBridge::registerEndPoint(bool asClient)
     this->d->messagePort = messagePort;
     this->d->serverMessagePort = serverMessagePort;
 
+    AkLoggerLog("SUCCESSFUL");
+
     return true;
 
 registerEndPoint_failed:
@@ -349,6 +351,8 @@ registerEndPoint_failed:
 
     if (serverMessagePort)
         xpc_release(serverMessagePort);
+
+    AkLoggerLog("FAILED");
 
     return false;
 }
