@@ -42,6 +42,8 @@ namespace AkVCam
                                     bool verticalMirror)> MirrorChangedCallback;
         typedef std::function<void (const std::string &deviceId,
                                     VideoFrame::Scaling scaling)> ScalingChangedCallback;
+        typedef std::function<void (const std::string &deviceId,
+                                    VideoFrame::AspectRatio aspectRatio)> AspectRatioChangedCallback;
 
         public:
             IpcBridge();
@@ -76,8 +78,11 @@ namespace AkVCam
             // Device is vertical mirrored,
             bool isVerticalMirrored(const std::string &deviceId);
 
-            // Device is linear scaled.
+            // Scaling mode for frames shown in clients.
             VideoFrame::Scaling scalingMode(const std::string &deviceId);
+
+            // Aspect ratio mode for frames shown in clients.
+            VideoFrame::AspectRatio aspectRatioMode(const std::string &deviceId);
 
             /* Server */
 
@@ -107,13 +112,11 @@ namespace AkVCam
             void setScaling(const std::string &deviceId,
                             VideoFrame::Scaling scaling);
 
+            // Set aspect ratio options for device.
+            void setAspectRatio(const std::string &deviceId,
+                                VideoFrame::AspectRatio aspectRatio);
+
             /* Client */
-
-            // Open device for frames reading.
-            bool deviceOpen(const std::string &deviceId);
-
-            // Close device for frames reading.
-            bool deviceClose(const std::string &deviceId);
 
             // Set the function that will be called when a new frame
             // is available to the client.
@@ -138,6 +141,10 @@ namespace AkVCam
             // Set the function that will be called when the scaling option
             // changes for a device.
             void setScalingChangedCallback(ScalingChangedCallback callback);
+
+            // Set the function that will be called when the aspect ratio option
+            // changes for a device.
+            void setAspectRatioChangedCallback(AspectRatioChangedCallback callback);
 
         private:
             IpcBridgePrivate *d;

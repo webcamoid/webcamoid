@@ -37,6 +37,13 @@ namespace AkVCam
                 ScalingLinear
             };
 
+            enum AspectRatio
+            {
+                AspectRatioIgnore,
+                AspectRatioKeep,
+                AspectRatioExpanding
+            };
+
             VideoFrame();
             VideoFrame(const std::string &bmpResource);
             VideoFrame(const VideoFormat &format,
@@ -61,7 +68,7 @@ namespace AkVCam
             VideoFrame scaled(int width,
                               int height,
                               Scaling mode=ScalingFast,
-                              bool keepAspect=true) const;
+                              AspectRatio aspectRatio=AspectRatioIgnore) const;
             bool canConvert(FourCC input, FourCC output) const;
             VideoFrame convert(FourCC fourcc) const;
 

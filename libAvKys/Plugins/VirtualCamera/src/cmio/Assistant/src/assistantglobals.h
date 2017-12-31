@@ -50,7 +50,9 @@
 #define AKVCAM_ASSISTANT_MSG_DEVICE_MIRRORING_CHANGED    0x107
 #define AKVCAM_ASSISTANT_MSG_DEVICE_SETSCALING           0x108
 #define AKVCAM_ASSISTANT_MSG_DEVICE_SCALING_CHANGED      0x109
-#define AKVCAM_ASSISTANT_MSG_FRAME_READY                 0x10A
+#define AKVCAM_ASSISTANT_MSG_DEVICE_SETASPECTRATIO       0x10A
+#define AKVCAM_ASSISTANT_MSG_DEVICE_ASPECTRATIO_CHANGED  0x10B
+#define AKVCAM_ASSISTANT_MSG_FRAME_READY                 0x10C
 
 // Client messages
 #define AKVCAM_ASSISTANT_MSG_DEVICES                     0x200
@@ -59,6 +61,7 @@
 #define AKVCAM_ASSISTANT_MSG_DEVICE_BROADCASTING         0x203
 #define AKVCAM_ASSISTANT_MSG_DEVICE_MIRRORING            0x204
 #define AKVCAM_ASSISTANT_MSG_DEVICE_SCALING              0x205
+#define AKVCAM_ASSISTANT_MSG_DEVICE_ASPECTRATIO          0x206
 
 #define AKVCAM_ASSISTANT_REQUEST_TIMEOUT 10.0
 
@@ -76,6 +79,7 @@ namespace AkVCam
         bool horizontalMirror;
         bool verticalMirror;
         VideoFrame::Scaling scaling;
+        VideoFrame::AspectRatio aspectRatio;
     };
 
     struct AssistantServer

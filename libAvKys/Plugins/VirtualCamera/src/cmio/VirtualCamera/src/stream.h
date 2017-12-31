@@ -53,6 +53,7 @@ namespace AkVCam
             void setBroadcasting(bool broadcasting);
             void setMirror(bool horizontalMirror, bool verticalMirror);
             void setScaling(VideoFrame::Scaling scaling);
+            void setAspectRatio(VideoFrame::AspectRatio aspectRatio);
 
             // Stream Interface
             OSStatus copyBufferQueue(CMIODeviceStreamQueueAlteredProc queueAlteredProc,
@@ -80,6 +81,7 @@ namespace AkVCam
             bool m_horizontalMirror;
             bool m_verticalMirror;
             VideoFrame::Scaling m_scaling;
+            VideoFrame::AspectRatio m_aspectRatio;
 
             bool startTimer();
             void stopTimer();

@@ -408,7 +408,7 @@ AkVCam::VideoFrame AkVCam::VideoFrame::mirror(bool horizontalMirror,
 AkVCam::VideoFrame AkVCam::VideoFrame::scaled(int width,
                                               int height,
                                               Scaling mode,
-                                              bool keepAspect) const
+                                              AspectRatio aspectRatio) const
 {
     if (this->d->m_format.width() == width
         && this->d->m_format.height() == height)

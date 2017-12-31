@@ -201,6 +201,12 @@ void AkVCam::Device::setScaling(AkVCam::VideoFrame::Scaling scaling)
         stream.second->setScaling(scaling);
 }
 
+void AkVCam::Device::setAspectRatio(AkVCam::VideoFrame::AspectRatio aspectRatio)
+{
+    for (auto &stream: this->m_streams)
+        stream.second->setAspectRatio(aspectRatio);
+}
+
 OSStatus AkVCam::Device::suspend()
 {
     AkObjectLogMethod();

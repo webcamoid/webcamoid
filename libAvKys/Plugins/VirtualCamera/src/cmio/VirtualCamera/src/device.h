@@ -50,6 +50,7 @@ namespace AkVCam
             void setBroadcasting(bool broadcasting);
             void setMirror(bool horizontalMirror, bool verticalMirror);
             void setScaling(VideoFrame::Scaling scaling);
+            void setAspectRatio(VideoFrame::AspectRatio aspectRatio);
 
             // Device Interface
             OSStatus suspend();

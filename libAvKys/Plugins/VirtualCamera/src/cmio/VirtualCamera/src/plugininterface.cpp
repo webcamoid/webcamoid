@@ -577,6 +577,10 @@ AkVCam::PluginInterface::PluginInterface():
                                                              this,
                                                              std::placeholders::_1,
                                                              std::placeholders::_2));
+    this->d->m_ipcBridge.setAspectRatioChangedCallback(std::bind(&PluginInterface::setAspectRatio,
+                                                                 this,
+                                                                 std::placeholders::_1,
+                                                                 std::placeholders::_2));
 }
 
 AkVCam::PluginInterface::~PluginInterface()
@@ -727,6 +731,16 @@ void AkVCam::PluginInterface::setScaling(const std::string &deviceId,
             device->setScaling(scaling);
 }
 
+void AkVCam::PluginInterface::setAspectRatio(const std::string &deviceId,
+                                             AkVCam::VideoFrame::AspectRatio aspectRatio)
+{
+    AkLoggerLog("AkVCam::PluginInterface::setAspectRatio");
+
+    for (auto device: this->m_devices)
+        if (device->deviceId() == deviceId)
+            device->setAspectRatio(aspectRatio);
+}
+
 bool AkVCam::PluginInterface::createDevice(const std::string &deviceId,
                                            const std::string &description,
                                            const std::vector<VideoFormat> &formats)
@@ -798,6 +812,7 @@ bool AkVCam::PluginInterface::createDevice(const std::string &deviceId,
     device->setMirror(this->d->m_ipcBridge.isHorizontalMirrored(deviceId),
                       this->d->m_ipcBridge.isVerticalMirrored(deviceId));
     device->setScaling(this->d->m_ipcBridge.scalingMode(deviceId));
+    device->setAspectRatio(this->d->m_ipcBridge.aspectRatioMode(deviceId));
 
     return true;
 

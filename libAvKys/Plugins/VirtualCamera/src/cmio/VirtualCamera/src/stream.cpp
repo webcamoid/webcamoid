@@ -32,7 +32,8 @@ AkVCam::Stream::Stream(bool registerObject,
     m_broadcasting(false),
     m_horizontalMirror(false),
     m_verticalMirror(false),
-    m_scaling(VideoFrame::ScalingFast)
+    m_scaling(VideoFrame::ScalingFast),
+    m_aspectRatio(VideoFrame::AspectRatioIgnore)
 {
     this->m_className = "Stream";
     this->m_classID = kCMIOStreamClassID;
@@ -216,7 +217,8 @@ void AkVCam::Stream::frameReady(const AkVCam::VideoFrame &frame)
             .mirror(this->m_horizontalMirror,
                     this->m_verticalMirror)
             .scaled(width, height,
-                    this->m_scaling)
+                    this->m_scaling,
+                    this->m_aspectRatio)
             .convert(fourcc);
 
     this->sendFrame(outputFrame);
@@ -224,6 +226,8 @@ void AkVCam::Stream::frameReady(const AkVCam::VideoFrame &frame)
 
 void AkVCam::Stream::setBroadcasting(bool broadcasting)
 {
+    AkObjectLogMethod();
+
     this->m_broadcasting = broadcasting;
 
     if (broadcasting)
@@ -234,6 +238,8 @@ void AkVCam::Stream::setBroadcasting(bool broadcasting)
 
 void AkVCam::Stream::setMirror(bool horizontalMirror, bool verticalMirror)
 {
+    AkObjectLogMethod();
+
     this->m_horizontalMirror = horizontalMirror;
     this->m_verticalMirror = verticalMirror;
 }
@@ -241,6 +247,11 @@ void AkVCam::Stream::setMirror(bool horizontalMirror, bool verticalMirror)
 void AkVCam::Stream::setScaling(AkVCam::VideoFrame::Scaling scaling)
 {
     this->m_scaling = scaling;
+}
+
+void AkVCam::Stream::setAspectRatio(AkVCam::VideoFrame::AspectRatio aspectRatio)
+{
+    this->m_aspectRatio = aspectRatio;
 }
 
 OSStatus AkVCam::Stream::copyBufferQueue(CMIODeviceStreamQueueAlteredProc queueAlteredProc,
@@ -300,6 +311,8 @@ OSStatus AkVCam::Stream::deckCueTo(Float64 frameNumber, Boolean playOnCue)
 
 bool AkVCam::Stream::startTimer()
 {
+    AkObjectLogMethod();
+
     if (this->m_timer)
         return false;
 
@@ -312,7 +325,8 @@ bool AkVCam::Stream::startTimer()
             .mirror(this->m_horizontalMirror,
                     this->m_verticalMirror)
             .scaled(width, height,
-                    this->m_scaling)
+                    this->m_scaling,
+                    this->m_aspectRatio)
             .convert(fourcc);
 
     CFTimeInterval interval = 1.0 / this->m_fps;
@@ -338,6 +352,8 @@ bool AkVCam::Stream::startTimer()
 
 void AkVCam::Stream::stopTimer()
 {
+    AkObjectLogMethod();
+
     if (!this->m_timer)
         return;
 

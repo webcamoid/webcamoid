@@ -57,6 +57,8 @@ namespace AkVCam
                            bool verticalMirror);
             void setScaling(const std::string &deviceId,
                             VideoFrame::Scaling scaling);
+            void setAspectRatio(const std::string &deviceId,
+                                VideoFrame::AspectRatio aspectRatio);
             bool createDevice(const std::string &deviceId,
                               const std::string &description,
                               const std::vector<VideoFormat> &formats);

@@ -50,6 +50,7 @@ namespace AkVCam
             IpcBridge::BroadcastingChangedCallback broadcastingChangedCallback;
             IpcBridge::MirrorChangedCallback mirrorChangedCallback;
             IpcBridge::ScalingChangedCallback scalingChangedCallback;
+            IpcBridge::AspectRatioChangedCallback aspectRatioChangedCallback;
             std::map<int64_t, XpcMessage> m_messageHandlers;
             std::vector<std::string> broadcasting;
 
@@ -66,7 +67,8 @@ namespace AkVCam
                     {AKVCAM_ASSISTANT_MSG_FRAME_READY                , AKVCAM_BIND_FUNC(IpcBridgePrivate::frameReady)         },
                     {AKVCAM_ASSISTANT_MSG_DEVICE_BROADCASTING_CHANGED, AKVCAM_BIND_FUNC(IpcBridgePrivate::broadcastingChanged)},
                     {AKVCAM_ASSISTANT_MSG_DEVICE_MIRRORING_CHANGED   , AKVCAM_BIND_FUNC(IpcBridgePrivate::mirrorChanged)      },
-                    {AKVCAM_ASSISTANT_MSG_DEVICE_SCALING_CHANGED     , AKVCAM_BIND_FUNC(IpcBridgePrivate::scalingChanged)     }
+                    {AKVCAM_ASSISTANT_MSG_DEVICE_SCALING_CHANGED     , AKVCAM_BIND_FUNC(IpcBridgePrivate::scalingChanged)     },
+                    {AKVCAM_ASSISTANT_MSG_DEVICE_ASPECTRATIO_CHANGED , AKVCAM_BIND_FUNC(IpcBridgePrivate::aspectRatioChanged) }
                 };
             }
 
@@ -211,6 +213,19 @@ namespace AkVCam
                 for (auto bridge: this->m_bridges)
                     if (bridge->d->scalingChangedCallback)
                         bridge->d->scalingChangedCallback(deviceId, scaling);
+            }
+
+            inline void aspectRatioChanged(xpc_connection_t client,
+                                           xpc_object_t event)
+            {
+                UNUSED(client)
+
+                std::string deviceId = xpc_dictionary_get_string(event, "device");
+                auto aspectRatio = VideoFrame::AspectRatio(xpc_dictionary_get_int64(event, "aspect"));
+
+                for (auto bridge: this->m_bridges)
+                    if (bridge->d->aspectRatioChangedCallback)
+                        bridge->d->aspectRatioChangedCallback(deviceId, aspectRatio);
             }
 
             inline void messageReceived(xpc_connection_t client,
@@ -604,6 +619,33 @@ AkVCam::VideoFrame::Scaling AkVCam::IpcBridge::scalingMode(const std::string &de
     return scaling;
 }
 
+AkVCam::VideoFrame::AspectRatio AkVCam::IpcBridge::aspectRatioMode(const std::string &deviceId)
+{
+    AkIpcBridgeLogMethod();
+
+    if (!this->d->serverMessagePort)
+        return VideoFrame::AspectRatioIgnore;
+
+    auto dictionary = xpc_dictionary_create(NULL, NULL, 0);
+    xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_ASPECTRATIO);
+    xpc_dictionary_set_string(dictionary, "device", deviceId.c_str());
+    auto reply = xpc_connection_send_message_with_reply_sync(this->d->serverMessagePort,
+                                                             dictionary);
+    xpc_release(dictionary);
+    auto replyType = xpc_get_type(reply);
+
+    if (replyType != XPC_TYPE_DICTIONARY) {
+        xpc_release(reply);
+
+        return VideoFrame::AspectRatioIgnore;
+    }
+
+    auto aspectRatio = VideoFrame::AspectRatio(xpc_dictionary_get_int64(reply, "aspect"));
+    xpc_release(reply);
+
+    return aspectRatio;
+}
+
 std::string AkVCam::IpcBridge::deviceCreate(const std::string &description,
                                             const std::vector<VideoFormat> &formats)
 {
@@ -726,9 +768,10 @@ void AkVCam::IpcBridge::deviceStop(const std::string &deviceId)
     xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_SETBROADCASTING);
     xpc_dictionary_set_string(dictionary, "device", deviceId.c_str());
     xpc_dictionary_set_bool(dictionary, "broadcasting", false);
-    xpc_connection_send_message(this->d->serverMessagePort,
-                                dictionary);
+    auto reply = xpc_connection_send_message_with_reply_sync(this->d->serverMessagePort,
+                                                             dictionary);
     xpc_release(dictionary);
+    xpc_release(reply);
     this->d->broadcasting.erase(it);
 }
 
@@ -807,12 +850,14 @@ void AkVCam::IpcBridge::setMirroring(const std::string &deviceId,
     xpc_dictionary_set_string(dictionary, "device", deviceId.c_str());
     xpc_dictionary_set_bool(dictionary, "hmirror", horizontalMirrored);
     xpc_dictionary_set_bool(dictionary, "vmirror", verticalMirrored);
-    xpc_connection_send_message(this->d->serverMessagePort,
-                                dictionary);
+    auto reply = xpc_connection_send_message_with_reply_sync(this->d->serverMessagePort,
+                                                             dictionary);
     xpc_release(dictionary);
+    xpc_release(reply);
 }
 
-void AkVCam::IpcBridge::setScaling(const std::string &deviceId, VideoFrame::Scaling scaling)
+void AkVCam::IpcBridge::setScaling(const std::string &deviceId,
+                                   VideoFrame::Scaling scaling)
 {
     AkIpcBridgeLogMethod();
 
@@ -820,19 +865,25 @@ void AkVCam::IpcBridge::setScaling(const std::string &deviceId, VideoFrame::Scal
     xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_SETSCALING);
     xpc_dictionary_set_string(dictionary, "device", deviceId.c_str());
     xpc_dictionary_set_int64(dictionary, "scaling", scaling);
-    xpc_connection_send_message(this->d->serverMessagePort,
-                                dictionary);
+    auto reply = xpc_connection_send_message_with_reply_sync(this->d->serverMessagePort,
+                                                             dictionary);
     xpc_release(dictionary);
+    xpc_release(reply);
 }
 
-bool AkVCam::IpcBridge::deviceOpen(const std::string &deviceId)
+void AkVCam::IpcBridge::setAspectRatio(const std::string &deviceId,
+                                       AkVCam::VideoFrame::AspectRatio aspectRatio)
 {
-    return false;
-}
+    AkIpcBridgeLogMethod();
 
-bool AkVCam::IpcBridge::deviceClose(const std::string &deviceId)
-{
-    return false;
+    auto dictionary = xpc_dictionary_create(NULL, NULL, 0);
+    xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_SETASPECTRATIO);
+    xpc_dictionary_set_string(dictionary, "device", deviceId.c_str());
+    xpc_dictionary_set_int64(dictionary, "aspect", aspectRatio);
+    auto reply = xpc_connection_send_message_with_reply_sync(this->d->serverMessagePort,
+                                                             dictionary);
+    xpc_release(dictionary);
+    xpc_release(reply);
 }
 
 void AkVCam::IpcBridge::setFrameReadyCallback(FrameReadyCallback callback)
@@ -863,4 +914,9 @@ void AkVCam::IpcBridge::setMirrorChangedCallback(AkVCam::IpcBridge::MirrorChange
 void AkVCam::IpcBridge::setScalingChangedCallback(AkVCam::IpcBridge::ScalingChangedCallback callback)
 {
     this->d->scalingChangedCallback = callback;
+}
+
+void AkVCam::IpcBridge::setAspectRatioChangedCallback(AkVCam::IpcBridge::AspectRatioChangedCallback callback)
+{
+    this->d->aspectRatioChangedCallback = callback;
 }

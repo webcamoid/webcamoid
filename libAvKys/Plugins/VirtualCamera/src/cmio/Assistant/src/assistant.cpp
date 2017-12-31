@@ -36,13 +36,15 @@ AkVCam::Assistant::Assistant()
         {AKVCAM_ASSISTANT_MSG_DEVICE_SETBROADCASTING, AKVCAM_BIND_FUNC(Assistant::setBroadcasting)},
         {AKVCAM_ASSISTANT_MSG_DEVICE_SETMIRRORING   , AKVCAM_BIND_FUNC(Assistant::setMirroring)   },
         {AKVCAM_ASSISTANT_MSG_DEVICE_SETSCALING     , AKVCAM_BIND_FUNC(Assistant::setScaling)     },
+        {AKVCAM_ASSISTANT_MSG_DEVICE_SETASPECTRATIO , AKVCAM_BIND_FUNC(Assistant::setAspectRatio) },
         {AKVCAM_ASSISTANT_MSG_FRAME_READY           , AKVCAM_BIND_FUNC(Assistant::frameReady)     },
         {AKVCAM_ASSISTANT_MSG_DEVICES               , AKVCAM_BIND_FUNC(Assistant::devices)        },
         {AKVCAM_ASSISTANT_MSG_DESCRIPTION           , AKVCAM_BIND_FUNC(Assistant::description)    },
         {AKVCAM_ASSISTANT_MSG_FORMATS               , AKVCAM_BIND_FUNC(Assistant::formats)        },
         {AKVCAM_ASSISTANT_MSG_DEVICE_BROADCASTING   , AKVCAM_BIND_FUNC(Assistant::broadcasting)   },
         {AKVCAM_ASSISTANT_MSG_DEVICE_MIRRORING      , AKVCAM_BIND_FUNC(Assistant::mirroring)      },
-        {AKVCAM_ASSISTANT_MSG_DEVICE_SCALING        , AKVCAM_BIND_FUNC(Assistant::scaling)        }
+        {AKVCAM_ASSISTANT_MSG_DEVICE_SCALING        , AKVCAM_BIND_FUNC(Assistant::scaling)        },
+        {AKVCAM_ASSISTANT_MSG_DEVICE_ASPECTRATIO    , AKVCAM_BIND_FUNC(Assistant::aspectRatio)    },
     };
 }
 
@@ -196,7 +198,8 @@ void AkVCam::Assistant::deviceCreate(xpc_connection_t client,
                                              false,
                                              false,
                                              false,
-                                             VideoFrame::ScalingFast});
+                                             VideoFrame::ScalingFast,
+                                             VideoFrame::AspectRatioIgnore});
 
             auto notification = xpc_dictionary_create(NULL, NULL, 0);
             xpc_dictionary_set_int64(notification, "message", AKVCAM_ASSISTANT_MSG_DEVICE_CREATED);
@@ -324,7 +327,8 @@ setMirroring_end:
     xpc_release(reply);
 }
 
-void AkVCam::Assistant::setScaling(xpc_connection_t client, xpc_object_t event)
+void AkVCam::Assistant::setScaling(xpc_connection_t client,
+                                   xpc_object_t event)
 {
     AkAssistantLogMethod();
     std::string deviceId = xpc_dictionary_get_string(event, "device");
@@ -353,6 +357,42 @@ void AkVCam::Assistant::setScaling(xpc_connection_t client, xpc_object_t event)
             }
 
 setScaling_end:
+
+    auto reply = xpc_dictionary_create_reply(event);
+    xpc_dictionary_set_bool(reply, "status", ok);
+    xpc_connection_send_message(client, reply);
+    xpc_release(reply);
+}
+
+void AkVCam::Assistant::setAspectRatio(xpc_connection_t client, xpc_object_t event)
+{
+    AkAssistantLogMethod();
+    std::string deviceId = xpc_dictionary_get_string(event, "device");
+    bool ok = false;
+
+    for (auto &server: this->m_servers)
+        for (auto &device: server.second.devices)
+            if (device.deviceId == deviceId) {
+                auto aspectRatio = VideoFrame::AspectRatio(xpc_dictionary_get_int64(event, "aspect"));
+
+                if (device.aspectRatio == aspectRatio)
+                    goto setAspectRatio_end;
+
+                device.aspectRatio = aspectRatio;
+                auto notification = xpc_dictionary_create(NULL, NULL, 0);
+                xpc_dictionary_set_int64(notification, "message", AKVCAM_ASSISTANT_MSG_DEVICE_ASPECTRATIO_CHANGED);
+                xpc_dictionary_set_string(notification, "device", deviceId.c_str());
+                xpc_dictionary_set_int64(notification, "aspect", aspectRatio);
+
+                for (auto &client: this->m_clients)
+                    xpc_connection_send_message(client.second, notification);
+
+                ok = true;
+
+                goto setAspectRatio_end;
+            }
+
+setAspectRatio_end:
 
     auto reply = xpc_dictionary_create_reply(event);
     xpc_dictionary_set_bool(reply, "status", ok);
@@ -514,6 +554,30 @@ scaling_end:
     AkLoggerLog("Scaling: " << scaling);
     auto reply = xpc_dictionary_create_reply(event);
     xpc_dictionary_set_int64(reply, "scaling", scaling);
+    xpc_connection_send_message(client, reply);
+    xpc_release(reply);
+}
+
+void AkVCam::Assistant::aspectRatio(xpc_connection_t client,
+                                    xpc_object_t event)
+{
+    AkAssistantLogMethod();
+    std::string deviceId = xpc_dictionary_get_string(event, "device");
+    bool aspectRatio = false;
+
+    for (auto &server: this->m_servers)
+        for (auto &device: server.second.devices)
+            if (device.deviceId == deviceId) {
+                aspectRatio = device.aspectRatio;
+
+                goto aspectRatio_end;
+            }
+
+aspectRatio_end:
+    AkLoggerLog("Device: " << deviceId);
+    AkLoggerLog("Aspect ratio: " << aspectRatio);
+    auto reply = xpc_dictionary_create_reply(event);
+    xpc_dictionary_set_int64(reply, "aspect", aspectRatio);
     xpc_connection_send_message(client, reply);
     xpc_release(reply);
 }

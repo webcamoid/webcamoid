@@ -93,8 +93,8 @@ QImage AkUtils::packetToImage(const AkPacket &packet)
 
 AkPacket AkUtils::roundSizeTo(const AkPacket &packet, int align)
 {
-    int frameWidth = packet.property("width").toInt();
-    int frameHeight = packet.property("height").toInt();
+    int frameWidth = packet.caps().property("width").toInt();
+    int frameHeight = packet.caps().property("height").toInt();
 
     /* Explanation:
      *
