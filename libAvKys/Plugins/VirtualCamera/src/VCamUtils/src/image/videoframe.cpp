@@ -117,7 +117,8 @@ namespace AkVCam
         uint8_t v;
     };
 
-    typedef size_t (*VideoConvertFuntion)(void *dst, const void *src, int width, int height);
+    typedef size_t (*VideoConvertFuntion)(void *dst, const void *src,
+                                          int width, int height);
 
     struct VideoConvert
     {
@@ -185,11 +186,11 @@ namespace AkVCam
             inline static size_t rgb24_to_nv21(void *dst, const void *src, int width, int height);
 
             inline static void extrapolateUp(int dstCoord,
-                                             int srcLength, int dstLength,
+                                             int num, int den, int s,
                                              int *srcCoordMin, int *srcCoordMax,
                                              int *kNum, int *kDen);
             inline static void extrapolateDown(int dstCoord,
-                                               int srcLength, int dstLength,
+                                               int num, int den, int s,
                                                int *srcCoordMin, int *srcCoordMax,
                                                int *kNum, int *kDen);
             inline uint8_t extrapolateComponent(uint8_t min, uint8_t max,
@@ -417,23 +418,85 @@ AkVCam::VideoFrame AkVCam::VideoFrame::scaled(int width,
     if (this->d->m_format.fourcc() != PixelFormatRGB24)
         return {};
 
+    int xDstMin = 0;
+    int yDstMin = 0;
+    int xDstMax = width;
+    int yDstMax = height;
+
+    if (aspectRatio == AspectRatioKeep) {
+        if (width * this->d->m_format.height()
+            > this->d->m_format.width() * height) {
+            // Right and left black bars
+            xDstMin = (width * this->d->m_format.height()
+                       - this->d->m_format.width() * height)
+                       / (2 * this->d->m_format.height());
+            xDstMax = (width * this->d->m_format.height()
+                       + this->d->m_format.width() * height)
+                       / (2 * this->d->m_format.height());
+        } else if (width * this->d->m_format.height()
+                   < this->d->m_format.width() * height) {
+            // Top and bottom black bars
+            yDstMin = (this->d->m_format.width() * height
+                       - width * this->d->m_format.height())
+                       / (2 * this->d->m_format.width());
+            yDstMax = (this->d->m_format.width() * height
+                       + width * this->d->m_format.height())
+                       / (2 * this->d->m_format.width());
+        }
+    }
+
+    int iWidth = this->d->m_format.width() - 1;
+    int iHeight = this->d->m_format.height() - 1;
+    int oWidth = xDstMax - xDstMin - 1;
+    int oHeight = yDstMax - yDstMin - 1;
+    int xNum = iWidth;
+    int xDen = oWidth;
+    int xs = 0;
+    int yNum = iHeight;
+    int yDen = oHeight;
+    int ys = 0;
+
+    if (aspectRatio == AspectRatioExpanding) {
+        if (mode == ScalingLinear) {
+            iWidth--;
+            iHeight--;
+            oWidth--;
+            oHeight--;
+        }
+
+        if (width * this->d->m_format.height()
+            < this->d->m_format.width() * height) {
+            // Right and left cut
+            xNum = 2 * iHeight;
+            xDen = 2 * oHeight;
+            xs = iWidth * oHeight - oWidth * iHeight;
+        } else if (width * this->d->m_format.height()
+                   > this->d->m_format.width() * height) {
+            // Top and bottom cut
+            yNum = 2 * iWidth;
+            yDen = 2 * oWidth;
+            ys = oWidth * iHeight - iWidth * oHeight;
+        }
+    }
+
     auto format = this->d->m_format;
     format.width() = width;
     format.height() = height;
     size_t dataSize = sizeof(RGB24) * size_t(width * height);
     auto data = std::shared_ptr<uint8_t>(new uint8_t[dataSize]);
+    memset(data.get(), 0, dataSize);
     auto dataSrc = reinterpret_cast<RGB24 *>(this->d->m_data.get());
     auto dataDst = reinterpret_cast<RGB24 *>(data.get());
 
     switch (mode) {
         case ScalingFast:
-            for (int y = 0; y < height; y++) {
-                auto srcY = (this->d->m_format.height() - 1) * y / (height - 1);
+            for (int y = yDstMin; y < yDstMax; y++) {
+                auto srcY = (yNum * (y - yDstMin) + ys) / yDen;
                 auto srcLine = dataSrc + srcY * this->d->m_format.width();
                 auto dstLine = dataDst + y * width;
 
-                for (int x = 0; x < width; x++) {
-                    auto srcX = (this->d->m_format.width() - 1) * x / (width - 1);
+                for (int x = xDstMin; x < xDstMax; x++) {
+                    auto srcX = (xNum * (x - xDstMin) + xs) / xDen;
                     dstLine[x] = srcLine[srcX];
                 }
             }
@@ -450,24 +513,24 @@ AkVCam::VideoFrame AkVCam::VideoFrame::scaled(int width,
                         &VideoFramePrivate::extrapolateUp:
                         &VideoFramePrivate::extrapolateDown;
 
-            for (int y = 0; y < height; y++) {
+            for (int y = yDstMin; y < yDstMax; y++) {
                 auto dstLine = dataDst + y * width;
                 int yMin;
                 int yMax;
                 int kNumY;
                 int kDenY;
-                extrapolateY(y,
-                             this->d->m_format.height(), height,
+                extrapolateY(y - yDstMin,
+                             yNum, yDen, ys,
                              &yMin, &yMax,
                              &kNumY, &kDenY);
 
-                for (int x = 0; x < width; x++) {
+                for (int x = xDstMin; x < xDstMax; x++) {
                     int xMin;
                     int xMax;
                     int kNumX;
                     int kDenX;
-                    extrapolateX(x,
-                                 this->d->m_format.width(), width,
+                    extrapolateX(x - xDstMin,
+                                 xNum, xDen, xs,
                                  &xMin, &xMax,
                                  &kNumX, &kDenX);
 
@@ -571,7 +634,8 @@ uint8_t AkVCam::VideoFramePrivate::yuv_b(int y, int u, int v)
     return uint8_t(bound(0, b, 255));
 }
 
-size_t AkVCam::VideoFramePrivate::rgb24_to_rgb32(void *dst, const void *src, int width, int height)
+size_t AkVCam::VideoFramePrivate::rgb24_to_rgb32(void *dst, const void *src,
+                                                 int width, int height)
 {
     size_t len = size_t(width * height);
     size_t osize = 32 * len / 8;
@@ -592,7 +656,8 @@ size_t AkVCam::VideoFramePrivate::rgb24_to_rgb32(void *dst, const void *src, int
     return osize;
 }
 
-size_t AkVCam::VideoFramePrivate::rgb24_to_rgb16(void *dst, const void *src, int width, int height)
+size_t AkVCam::VideoFramePrivate::rgb24_to_rgb16(void *dst, const void *src,
+                                                 int width, int height)
 {
     size_t len = size_t(width * height);
     size_t osize = 16 * len / 8;
@@ -612,7 +677,8 @@ size_t AkVCam::VideoFramePrivate::rgb24_to_rgb16(void *dst, const void *src, int
     return osize;
 }
 
-size_t AkVCam::VideoFramePrivate::rgb24_to_rgb15(void *dst, const void *src, int width, int height)
+size_t AkVCam::VideoFramePrivate::rgb24_to_rgb15(void *dst, const void *src,
+                                                 int width, int height)
 {
     size_t len = size_t(width * height);
     size_t osize = 16 * len / 8;
@@ -633,7 +699,8 @@ size_t AkVCam::VideoFramePrivate::rgb24_to_rgb15(void *dst, const void *src, int
     return osize;
 }
 
-size_t AkVCam::VideoFramePrivate::rgb24_to_bgr32(void *dst, const void *src, int width, int height)
+size_t AkVCam::VideoFramePrivate::rgb24_to_bgr32(void *dst, const void *src,
+                                                 int width, int height)
 {
     size_t len = size_t(width * height);
     size_t osize = 32 * len / 8;
@@ -654,7 +721,8 @@ size_t AkVCam::VideoFramePrivate::rgb24_to_bgr32(void *dst, const void *src, int
     return osize;
 }
 
-size_t AkVCam::VideoFramePrivate::rgb24_to_bgr24(void *dst, const void *src, int width, int height)
+size_t AkVCam::VideoFramePrivate::rgb24_to_bgr24(void *dst, const void *src,
+                                                 int width, int height)
 {
     size_t len = size_t(width * height);
     size_t osize = 24 * len / 8;
@@ -674,7 +742,8 @@ size_t AkVCam::VideoFramePrivate::rgb24_to_bgr24(void *dst, const void *src, int
     return osize;
 }
 
-size_t AkVCam::VideoFramePrivate::rgb24_to_bgr16(void *dst, const void *src, int width, int height)
+size_t AkVCam::VideoFramePrivate::rgb24_to_bgr16(void *dst, const void *src,
+                                                 int width, int height)
 {
     size_t len = size_t(width * height);
     size_t osize = 16 * len / 8;
@@ -694,7 +763,8 @@ size_t AkVCam::VideoFramePrivate::rgb24_to_bgr16(void *dst, const void *src, int
     return osize;
 }
 
-size_t AkVCam::VideoFramePrivate::rgb24_to_bgr15(void *dst, const void *src, int width, int height)
+size_t AkVCam::VideoFramePrivate::rgb24_to_bgr15(void *dst, const void *src,
+                                                 int width, int height)
 {
     size_t len = size_t(width * height);
     size_t osize = 16 * len / 8;
@@ -715,7 +785,8 @@ size_t AkVCam::VideoFramePrivate::rgb24_to_bgr15(void *dst, const void *src, int
     return osize;
 }
 
-size_t AkVCam::VideoFramePrivate::rgb24_to_uyvy(void *dst, const void *src, int width, int height)
+size_t AkVCam::VideoFramePrivate::rgb24_to_uyvy(void *dst, const void *src,
+                                                int width, int height)
 {
     size_t len = size_t(width * height);
     size_t osize = 16 * len / 8;
@@ -750,7 +821,8 @@ size_t AkVCam::VideoFramePrivate::rgb24_to_uyvy(void *dst, const void *src, int 
     return osize;
 }
 
-size_t AkVCam::VideoFramePrivate::rgb24_to_yuy2(void *dst, const void *src, int width, int height)
+size_t AkVCam::VideoFramePrivate::rgb24_to_yuy2(void *dst, const void *src,
+                                                int width, int height)
 {
     size_t len = size_t(width * height);
     size_t osize = 16 * len / 8;
@@ -785,7 +857,8 @@ size_t AkVCam::VideoFramePrivate::rgb24_to_yuy2(void *dst, const void *src, int 
     return osize;
 }
 
-size_t AkVCam::VideoFramePrivate::rgb24_to_nv12(void *dst, const void *src, int width, int height)
+size_t AkVCam::VideoFramePrivate::rgb24_to_nv12(void *dst, const void *src,
+                                                int width, int height)
 {
     size_t len = size_t(width * height);
     size_t osize = 12 * len / 8;
@@ -829,7 +902,8 @@ size_t AkVCam::VideoFramePrivate::rgb24_to_nv12(void *dst, const void *src, int 
     return osize;
 }
 
-size_t AkVCam::VideoFramePrivate::rgb24_to_nv21(void *dst, const void *src, int width, int height)
+size_t AkVCam::VideoFramePrivate::rgb24_to_nv21(void *dst, const void *src,
+                                                int width, int height)
 {
     size_t len = size_t(width * height);
     size_t osize = 12 * len / 8;
@@ -874,43 +948,39 @@ size_t AkVCam::VideoFramePrivate::rgb24_to_nv21(void *dst, const void *src, int 
 }
 
 void AkVCam::VideoFramePrivate::extrapolateUp(int dstCoord,
-                                               int srcLength, int dstLength,
-                                               int *srcCoordMin, int *srcCoordMax,
-                                               int *kNum, int *kDen)
+                                              int num, int den, int s,
+                                              int *srcCoordMin, int *srcCoordMax,
+                                              int *kNum, int *kDen)
 {
-    int srcLength_1 = srcLength - 2;
-    int dstLength_1 = dstLength - 2;
-    *srcCoordMin = srcLength_1 * dstCoord / dstLength_1;
+    *srcCoordMin = (num * dstCoord + s) / den;
     *srcCoordMax = *srcCoordMin + 1;
-    int dstCoordMin = dstLength_1 * *srcCoordMin / srcLength_1;
-    int dstCoordMax = dstLength_1 * *srcCoordMax / srcLength_1;
+    int dstCoordMin = (den * *srcCoordMin - s) / num;
+    int dstCoordMax = (den * *srcCoordMax - s) / num;
     *kNum = dstCoord - dstCoordMin;
     *kDen = dstCoordMax - dstCoordMin;
 }
 
 void AkVCam::VideoFramePrivate::extrapolateDown(int dstCoord,
-                                                 int srcLength, int dstLength,
-                                                 int *srcCoordMin, int *srcCoordMax,
-                                                 int *kNum, int *kDen)
+                                                int num, int den, int s,
+                                                int *srcCoordMin, int *srcCoordMax,
+                                                int *kNum, int *kDen)
 {
-    int srcLength_1 = srcLength - 1;
-    int dstLength_1 = dstLength - 1;
-    *srcCoordMin = srcLength_1 * dstCoord / dstLength_1;
+    *srcCoordMin = (num * dstCoord + s) / den;
     *srcCoordMax = *srcCoordMin;
     *kNum = 0;
     *kDen = 1;
 }
 
 uint8_t AkVCam::VideoFramePrivate::extrapolateComponent(uint8_t min, uint8_t max,
-                                                         int kNum, int kDen) const
+                                                        int kNum, int kDen) const
 {
     return uint8_t((kNum * (max - min) + kDen * min) / kDen);
 }
 
 AkVCam::RGB24 AkVCam::VideoFramePrivate::extrapolateColor(const RGB24 &colorMin,
-                                                           const RGB24 &colorMax,
-                                                           int kNum,
-                                                           int kDen) const
+                                                          const RGB24 &colorMax,
+                                                          int kNum,
+                                                          int kDen) const
 {
     return RGB24 {
         extrapolateComponent(colorMin.b, colorMax.b, kNum, kDen),
@@ -920,9 +990,9 @@ AkVCam::RGB24 AkVCam::VideoFramePrivate::extrapolateColor(const RGB24 &colorMin,
 }
 
 AkVCam::RGB24 AkVCam::VideoFramePrivate::extrapolateColor(int xMin, int xMax,
-                                                           int kNumX, int kDenX,
-                                                           int yMin, int yMax,
-                                                           int kNumY, int kDenY) const
+                                                          int kNumX, int kDenX,
+                                                          int yMin, int yMax,
+                                                          int kNumY, int kDenY) const
 {
     auto minLine = reinterpret_cast<RGB24 *>(this->m_data.get())
                  + yMin * this->m_format.width();
