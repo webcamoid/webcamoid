@@ -33,8 +33,10 @@ namespace AkVCam
 
     class Device: public Object
     {
+        typedef std::function<void (const std::string &deviceId)> ListenerCallback;
+
         public:
-            Device(CMIOHardwarePlugInRef m_pluginInterface,
+            Device(CMIOHardwarePlugInRef pluginInterface,
                    bool createObject=false);
             ~Device();
 
@@ -51,6 +53,8 @@ namespace AkVCam
             void setMirror(bool horizontalMirror, bool verticalMirror);
             void setScaling(VideoFrame::Scaling scaling);
             void setAspectRatio(VideoFrame::AspectRatio aspectRatio);
+            void setAddListenerCallback(ListenerCallback callback);
+            void setRemoveListenerCallback(ListenerCallback callback);
 
             // Device Interface
             OSStatus suspend();
@@ -63,6 +67,8 @@ namespace AkVCam
         private:
             std::string m_deviceId;
             std::map<CMIOObjectID, StreamPtr> m_streams;
+            ListenerCallback m_addListenerCallback;
+            ListenerCallback m_removeListenerCallback;
 
             void updateStreamsProperty();
     };

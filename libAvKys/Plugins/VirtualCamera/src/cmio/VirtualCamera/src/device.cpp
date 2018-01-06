@@ -207,6 +207,16 @@ void AkVCam::Device::setAspectRatio(AkVCam::VideoFrame::AspectRatio aspectRatio)
         stream.second->setAspectRatio(aspectRatio);
 }
 
+void AkVCam::Device::setAddListenerCallback(AkVCam::Device::ListenerCallback callback)
+{
+    this->m_addListenerCallback = callback;
+}
+
+void AkVCam::Device::setRemoveListenerCallback(AkVCam::Device::ListenerCallback callback)
+{
+    this->m_removeListenerCallback = callback;
+}
+
 OSStatus AkVCam::Device::suspend()
 {
     AkObjectLogMethod();
@@ -254,6 +264,9 @@ OSStatus AkVCam::Device::startStream(CMIOStreamID stream)
         this->propertyChanged(1, &address);
     }
 
+    if (this->m_addListenerCallback)
+        this->m_addListenerCallback(this->m_deviceId);
+
     return kCMIOHardwareNoError;
 }
 
@@ -283,6 +296,9 @@ OSStatus AkVCam::Device::stopStream(CMIOStreamID stream)
         auto address = this->address(kCMIODevicePropertyDeviceIsRunning);
         this->propertyChanged(1, &address);
     }
+
+    if (this->m_removeListenerCallback)
+        this->m_removeListenerCallback(this->m_deviceId);
 
     return kCMIOHardwareNoError;
 }

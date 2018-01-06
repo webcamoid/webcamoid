@@ -42,6 +42,7 @@ namespace AkVCam
             void setScaling(xpc_connection_t client, xpc_object_t event);
             void setAspectRatio(xpc_connection_t client, xpc_object_t event);
             void frameReady(xpc_connection_t client, xpc_object_t event);
+            void listeners(xpc_connection_t client, xpc_object_t event);
             void devices(xpc_connection_t client, xpc_object_t event);
             void description(xpc_connection_t client, xpc_object_t event);
             void formats(xpc_connection_t client, xpc_object_t event);
@@ -49,6 +50,9 @@ namespace AkVCam
             void mirroring(xpc_connection_t client, xpc_object_t event);
             void scaling(xpc_connection_t client, xpc_object_t event);
             void aspectRatio(xpc_connection_t client, xpc_object_t event);
+            void addListener(xpc_connection_t client, xpc_object_t event);
+            void removeListener(xpc_connection_t client, xpc_object_t event);
+            void peerDied();
             void messageReceived(xpc_connection_t client, xpc_object_t event);
 
         private:

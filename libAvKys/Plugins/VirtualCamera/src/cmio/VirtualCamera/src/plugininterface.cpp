@@ -741,6 +741,16 @@ void AkVCam::PluginInterface::setAspectRatio(const std::string &deviceId,
             device->setAspectRatio(aspectRatio);
 }
 
+void AkVCam::PluginInterface::addListener(const std::string &deviceId)
+{
+    this->d->m_ipcBridge.addListener(deviceId);
+}
+
+void AkVCam::PluginInterface::removeListener(const std::string &deviceId)
+{
+    this->d->m_ipcBridge.removeListener(deviceId);
+}
+
 bool AkVCam::PluginInterface::createDevice(const std::string &deviceId,
                                            const std::string &description,
                                            const std::vector<VideoFormat> &formats)
@@ -751,6 +761,12 @@ bool AkVCam::PluginInterface::createDevice(const std::string &deviceId,
     auto pluginRef = reinterpret_cast<CMIOHardwarePlugInRef>(this->d);
     auto device = std::make_shared<Device>(pluginRef);
     device->setDeviceId(deviceId);
+    device->setAddListenerCallback(std::bind(&PluginInterface::addListener,
+                                             this,
+                                             std::placeholders::_1));
+    device->setRemoveListenerCallback(std::bind(&PluginInterface::removeListener,
+                                                this,
+                                                std::placeholders::_1));
     this->m_devices.push_back(device);
 
     // Define device properties.

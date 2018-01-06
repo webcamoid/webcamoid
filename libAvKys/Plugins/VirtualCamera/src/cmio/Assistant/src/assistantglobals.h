@@ -38,6 +38,7 @@
 #define AKVCAM_ASSISTANT_MSG_REQUEST_PORT                0x000
 #define AKVCAM_ASSISTANT_MSG_ADD_PORT                    0x001
 #define AKVCAM_ASSISTANT_MSG_REMOVE_PORT                 0x002
+#define AKVCAM_ASSISTANT_MSG_ISALIVE                     0x003
 
 // Server messages
 #define AKVCAM_ASSISTANT_MSG_DEVICE_CREATE               0x100
@@ -53,6 +54,8 @@
 #define AKVCAM_ASSISTANT_MSG_DEVICE_SETASPECTRATIO       0x10A
 #define AKVCAM_ASSISTANT_MSG_DEVICE_ASPECTRATIO_CHANGED  0x10B
 #define AKVCAM_ASSISTANT_MSG_FRAME_READY                 0x10C
+#define AKVCAM_ASSISTANT_MSG_LISTENERS                   0x10D
+#define AKVCAM_ASSISTANT_MSG_LISTENERS_CHANGED           0x10E
 
 // Client messages
 #define AKVCAM_ASSISTANT_MSG_DEVICES                     0x200
@@ -62,6 +65,8 @@
 #define AKVCAM_ASSISTANT_MSG_DEVICE_MIRRORING            0x204
 #define AKVCAM_ASSISTANT_MSG_DEVICE_SCALING              0x205
 #define AKVCAM_ASSISTANT_MSG_DEVICE_ASPECTRATIO          0x206
+#define AKVCAM_ASSISTANT_MSG_ADD_LISTENER                0x207
+#define AKVCAM_ASSISTANT_MSG_REMOVE_LISTENER             0x208
 
 #define AKVCAM_ASSISTANT_REQUEST_TIMEOUT 10.0
 
@@ -75,6 +80,7 @@ namespace AkVCam
         std::string deviceId;
         std::string description;
         std::vector<VideoFormat> formats;
+        int listeners;
         bool broadcasting;
         bool horizontalMirror;
         bool verticalMirror;

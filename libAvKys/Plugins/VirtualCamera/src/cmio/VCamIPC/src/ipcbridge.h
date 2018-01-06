@@ -44,6 +44,8 @@ namespace AkVCam
                                     VideoFrame::Scaling scaling)> ScalingChangedCallback;
         typedef std::function<void (const std::string &deviceId,
                                     VideoFrame::AspectRatio aspectRatio)> AspectRatioChangedCallback;
+        typedef std::function<void (const std::string &deviceId,
+                                    int listeners)> ListenersChangedCallback;
 
         public:
             IpcBridge();
@@ -84,6 +86,9 @@ namespace AkVCam
             // Aspect ratio mode for frames shown in clients.
             VideoFrame::AspectRatio aspectRatioMode(const std::string &deviceId);
 
+            // How many programs are using the virtual camera now.
+            int listeners(const std::string &deviceId);
+
             /* Server */
 
             // Create a device definition.
@@ -100,7 +105,7 @@ namespace AkVCam
             void deviceStop(const std::string &deviceId);
 
             // Transfer a frame to the device.
-            void write(const std::string &deviceId,
+            bool write(const std::string &deviceId,
                        const VideoFrame &frame);
 
             // Set mirroring options for device,
@@ -116,7 +121,17 @@ namespace AkVCam
             void setAspectRatio(const std::string &deviceId,
                                 VideoFrame::AspectRatio aspectRatio);
 
+            // Set the function that will be called when the number of listeners
+            // changes for a device.
+            void setListenersChangedCallback(ListenersChangedCallback callback);
+
             /* Client */
+
+            // Increment the count of device listeners
+            bool addListener(const std::string &deviceId);
+
+            // Decrement the count of device listeners
+            bool removeListener(const std::string &deviceId);
 
             // Set the function that will be called when a new frame
             // is available to the client.

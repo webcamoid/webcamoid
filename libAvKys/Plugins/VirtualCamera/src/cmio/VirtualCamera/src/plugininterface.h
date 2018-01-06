@@ -59,6 +59,8 @@ namespace AkVCam
                             VideoFrame::Scaling scaling);
             void setAspectRatio(const std::string &deviceId,
                                 VideoFrame::AspectRatio aspectRatio);
+            void addListener(const std::string &deviceId);
+            void removeListener(const std::string &deviceId);
             bool createDevice(const std::string &deviceId,
                               const std::string &description,
                               const std::vector<VideoFormat> &formats);
