@@ -47,6 +47,7 @@ namespace AkVCam
             OSStatus registerStreams(bool regist=true);
             std::string deviceId() const;
             void setDeviceId(const std::string &deviceId);
+            void stopStreams();
 
             void frameReady(const VideoFrame &frame);
             void setBroadcasting(bool broadcasting);

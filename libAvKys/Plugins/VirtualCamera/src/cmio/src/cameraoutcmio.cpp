@@ -54,6 +54,8 @@ class CameraOutCMIOPrivate
 
         inline bool sudo(const QString &command) const;
         inline QString readDaemonPlist() const;
+        inline bool loadDaemon() const;
+        inline void unloadDaemon() const;
 };
 
 CameraOutCMIO::CameraOutCMIO(QObject *parent):
@@ -162,12 +164,15 @@ QString CameraOutCMIO::createWebcam(const QString &description,
         QFile::copy(daemonPlist, dstDaemonsPath);
     }
 
+    if (!this->d->loadDaemon())
+        return QString();
+
     AkVideoCaps caps(this->m_caps);
 
     this->d->m_ipcBridge.deviceCreate(description.isEmpty()?
                                           "AvKys Virtual Camera":
                                           description.toStdString(),
-                                      {{caps.fourCC(),
+                                      {{AkVCam::PixelFormatRGB32,
                                         caps.width(), caps.height(),
                                         {caps.fps().value()}}});
 
@@ -218,6 +223,7 @@ bool CameraOutCMIO::removeWebcam(const QString &webcam,
     if (!webcams.contains(webcam))
         return false;
 
+    this->d->unloadDaemon();
     QString plugin = QFileInfo(this->m_driverPath).fileName();
     QString dstPath = CMIO_PLUGINS_DAL_PATH;
     QString rm = "rm -rvf " + dstPath + "/" + plugin;
@@ -353,6 +359,52 @@ QString CameraOutCMIOPrivate::readDaemonPlist() const
     plistFile.close();
 
     return plistFile.fileName();
+}
+
+bool CameraOutCMIOPrivate::loadDaemon() const
+{
+    QProcess launchctl;
+
+    int result =
+            QProcess::execute("launchctl", {
+                                  "list",
+                                  AKVCAM_ASSISTANT_NAME
+                              });
+
+    if (result == 0)
+        return true;
+
+    auto daemonPlist = QString("%1.plist").arg(AKVCAM_ASSISTANT_NAME);
+    auto daemonsPath = QString(CMIO_DAEMONS_PATH).replace("~", QDir::homePath());
+    auto dstDaemonsPath = QDir(daemonsPath).absoluteFilePath(daemonPlist);
+
+    if (!QFileInfo(dstDaemonsPath).exists())
+        return false;
+
+    result =
+            QProcess::execute("launchctl", {
+                                  "load",
+                                  "-w",
+                                  dstDaemonsPath
+                              });
+
+    return result == 0;
+}
+
+void CameraOutCMIOPrivate::unloadDaemon() const
+{
+    auto daemonPlist = QString("%1.plist").arg(AKVCAM_ASSISTANT_NAME);
+    auto daemonsPath = QString(CMIO_DAEMONS_PATH).replace("~", QDir::homePath());
+    auto dstDaemonsPath = QDir(daemonsPath).absoluteFilePath(daemonPlist);
+
+    if (!QFileInfo(dstDaemonsPath).exists())
+        return ;
+
+    QProcess::execute("launchctl", {
+                          "unload",
+                          "-w",
+                          dstDaemonsPath
+                      });
 }
 
 bool CameraOutCMIO::init(int streamIndex)

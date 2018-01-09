@@ -743,11 +743,15 @@ void AkVCam::PluginInterface::setAspectRatio(const std::string &deviceId,
 
 void AkVCam::PluginInterface::addListener(const std::string &deviceId)
 {
+    AkLoggerLog("AkVCam::PluginInterface::addListener");
+
     this->d->m_ipcBridge.addListener(deviceId);
 }
 
 void AkVCam::PluginInterface::removeListener(const std::string &deviceId)
 {
+    AkLoggerLog("AkVCam::PluginInterface::removeListener");
+
     this->d->m_ipcBridge.removeListener(deviceId);
 }
 
@@ -755,6 +759,8 @@ bool AkVCam::PluginInterface::createDevice(const std::string &deviceId,
                                            const std::string &description,
                                            const std::vector<VideoFormat> &formats)
 {
+    AkLoggerLog("AkVCam::PluginInterface::createDevice");
+
     StreamPtr stream;
 
     // Create one device.
@@ -840,6 +846,8 @@ createDevice_failed:
 
 void AkVCam::PluginInterface::destroyDevice(const std::string &deviceId)
 {
+    AkLoggerLog("AkVCam::PluginInterface::destroyDevice");
+
     for (auto it = this->m_devices.begin(); it != this->m_devices.end(); it++) {
         auto device = *it;
 
@@ -848,6 +856,7 @@ void AkVCam::PluginInterface::destroyDevice(const std::string &deviceId)
                                          &curDeviceId);
 
         if (curDeviceId == deviceId) {
+            device->stopStreams();
             device->registerObject(false);
             device->registerStreams(false);
             this->m_devices.erase(it);

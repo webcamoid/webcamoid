@@ -34,7 +34,7 @@ extern "C" void *akPluginMain(CFAllocatorRef allocator,
 
     AkLoggerStart("/tmp/AkVirtualCamera", "log");
 
-    if (not CFEqual(requestedTypeUUID, kCMIOHardwarePlugInTypeID))
+    if (!CFEqual(requestedTypeUUID, kCMIOHardwarePlugInTypeID))
         return nullptr;
 
     return AkVCam::PluginInterface::create();

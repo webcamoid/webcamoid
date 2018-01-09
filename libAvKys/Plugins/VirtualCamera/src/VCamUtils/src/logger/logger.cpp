@@ -66,11 +66,10 @@ void AkVCam::Logger::start(const std::string &fileName,
 
 std::ostream &AkVCam::Logger::log()
 {
-    auto now = std::chrono::high_resolution_clock::now();
+    auto now = std::chrono::system_clock::now();
     auto nowMSecs = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch());
-    auto nowSecs = std::chrono::duration_cast<std::chrono::seconds>(nowMSecs);
     std::stringstream ss;
-    std::time_t time = nowSecs.count();
+    auto time = std::chrono::system_clock::to_time_t(now);
     ss << std::put_time(std::localtime(&time), "[%Y-%m-%d %H:%M:%S.");
     ss << nowMSecs.count() % 1000 << "] ";
 

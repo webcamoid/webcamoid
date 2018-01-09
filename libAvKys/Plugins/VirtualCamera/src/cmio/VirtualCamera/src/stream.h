@@ -72,6 +72,7 @@ namespace AkVCam
             CMIODeviceStreamQueueAlteredProc m_queueAltered;
             VideoFormat m_format;
             double m_fps;
+            VideoFrame m_currentFrame;
             VideoFrame m_testFrame;
             VideoFrame m_testFrameAdapted;
             void *m_queueAlteredRefCon;
@@ -82,11 +83,13 @@ namespace AkVCam
             bool m_verticalMirror;
             VideoFrame::Scaling m_scaling;
             VideoFrame::AspectRatio m_aspectRatio;
+            std::mutex m_mutex;
 
             bool startTimer();
             void stopTimer();
             static void streamLoop(CFRunLoopTimerRef timer, void *info);
             void sendFrame(const VideoFrame &frame);
+            void updateTestFrame();
     };
 }
 

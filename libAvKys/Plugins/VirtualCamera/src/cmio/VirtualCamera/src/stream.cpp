@@ -121,8 +121,22 @@ void AkVCam::Stream::setFormats(const std::vector<VideoFormat> &formats)
     if (formats.empty())
         return;
 
+    std::vector<VideoFormat> formatsAdjusted;
+
+    for (auto format: formats) {
+        int width;
+        int height;
+        AkVCam::VideoFormat::roundNearest(format.width(),
+                                          format.height(),
+                                          &width,
+                                          &height);
+        format.width() = width;
+        format.height() = height;
+        formatsAdjusted.push_back(format);
+    }
+
 #ifdef QT_DEBUG
-    for (auto &format: formats)
+    for (auto &format: formatsAdjusted)
         AkLoggerLog("Format: "
                     << enumToString(format.fourcc())
                     << " "
@@ -132,8 +146,8 @@ void AkVCam::Stream::setFormats(const std::vector<VideoFormat> &formats)
 #endif
 
     this->m_properties.setProperty(kCMIOStreamPropertyFormatDescriptions,
-                                   formats);
-    this->setFormat(formats[0]);
+                                   formatsAdjusted);
+    this->setFormat(formatsAdjusted[0]);
 }
 
 void AkVCam::Stream::setFormat(const VideoFormat &format)
@@ -169,15 +183,10 @@ bool AkVCam::Stream::start()
     if (this->m_running)
         return false;
 
+    this->updateTestFrame();
+    this->m_currentFrame = this->m_testFrameAdapted;
     this->m_sequence = 0;
     memset(&this->m_pts, 0, sizeof(CMTime));    
-
-    if (this->m_broadcasting) {
-        this->m_running = true;
-
-        return true;
-    }
-
     this->m_running = this->startTimer();
 
     return this->m_running;
@@ -192,6 +201,8 @@ void AkVCam::Stream::stop()
 
     this->m_running = false;
     this->stopTimer();
+    this->m_currentFrame.clear();
+    this->m_testFrameAdapted.clear();
 }
 
 bool AkVCam::Stream::running()
@@ -205,53 +216,78 @@ void AkVCam::Stream::frameReady(const AkVCam::VideoFrame &frame)
     AkLoggerLog("Running: " << this->m_running);
     AkLoggerLog("Broadcasting: " << this->m_broadcasting);
 
-    if (!this->m_running || !this->m_broadcasting)
+    if (!this->m_running)
         return;
 
-    FourCC fourcc = this->m_format.fourcc();
-    int width = this->m_format.width();
-    int height = this->m_format.height();
+    this->m_mutex.lock();
 
-    auto outputFrame =
-            frame
-            .mirror(this->m_horizontalMirror,
-                    this->m_verticalMirror)
-            .scaled(width, height,
-                    this->m_scaling,
-                    this->m_aspectRatio)
-            .convert(fourcc);
+    if (this->m_broadcasting) {
+        FourCC fourcc = this->m_format.fourcc();
+        int width = this->m_format.width();
+        int height = this->m_format.height();
 
-    this->sendFrame(outputFrame);
+        this->m_currentFrame =
+                frame
+                .mirror(this->m_horizontalMirror,
+                        this->m_verticalMirror)
+                .scaled(width, height,
+                        this->m_scaling,
+                        this->m_aspectRatio)
+                .convert(fourcc);
+    }
+
+    this->m_mutex.unlock();
 }
 
 void AkVCam::Stream::setBroadcasting(bool broadcasting)
 {
     AkObjectLogMethod();
 
+    if (this->m_broadcasting == broadcasting)
+        return;
+
+    this->m_mutex.lock();
     this->m_broadcasting = broadcasting;
 
-    if (broadcasting)
-        this->stopTimer();
-    else if (this->m_running)
-        this->startTimer();
+    if (!broadcasting)
+        this->m_currentFrame = this->m_testFrameAdapted;
+
+    this->m_mutex.unlock();
 }
 
 void AkVCam::Stream::setMirror(bool horizontalMirror, bool verticalMirror)
 {
     AkObjectLogMethod();
 
+    if (this->m_horizontalMirror == horizontalMirror
+        && this->m_verticalMirror == verticalMirror)
+        return;
+
     this->m_horizontalMirror = horizontalMirror;
     this->m_verticalMirror = verticalMirror;
+    this->updateTestFrame();
 }
 
 void AkVCam::Stream::setScaling(AkVCam::VideoFrame::Scaling scaling)
 {
+    AkObjectLogMethod();
+
+    if (this->m_scaling == scaling)
+        return;
+
     this->m_scaling = scaling;
+    this->updateTestFrame();
 }
 
 void AkVCam::Stream::setAspectRatio(AkVCam::VideoFrame::AspectRatio aspectRatio)
 {
+    AkObjectLogMethod();
+
+    if (this->m_aspectRatio == aspectRatio)
+        return;
+
     this->m_aspectRatio = aspectRatio;
+    this->updateTestFrame();
 }
 
 OSStatus AkVCam::Stream::copyBufferQueue(CMIODeviceStreamQueueAlteredProc queueAlteredProc,
@@ -316,19 +352,6 @@ bool AkVCam::Stream::startTimer()
     if (this->m_timer)
         return false;
 
-    FourCC fourcc = this->m_format.fourcc();
-    int width = this->m_format.width();
-    int height = this->m_format.height();
-
-    this->m_testFrameAdapted =
-            this->m_testFrame
-            .mirror(this->m_horizontalMirror,
-                    this->m_verticalMirror)
-            .scaled(width, height,
-                    this->m_scaling,
-                    this->m_aspectRatio)
-            .convert(fourcc);
-
     CFTimeInterval interval = 1.0 / this->m_fps;
     CFRunLoopTimerContext context {0, this, nullptr, nullptr, nullptr};
     this->m_timer =
@@ -363,7 +386,6 @@ void AkVCam::Stream::stopTimer()
                          kCFRunLoopCommonModes);
     CFRelease(this->m_timer);
     this->m_timer = nullptr;
-    this->m_testFrameAdapted.clear();
 }
 
 void AkVCam::Stream::streamLoop(CFRunLoopTimerRef timer, void *info)
@@ -373,10 +395,12 @@ void AkVCam::Stream::streamLoop(CFRunLoopTimerRef timer, void *info)
 
     auto self = reinterpret_cast<Stream *>(info);
 
-    if (!self->m_running || self->m_broadcasting)
+    if (!self->m_running)
         return;
 
-    self->sendFrame(self->m_testFrameAdapted);
+    self->m_mutex.lock();
+    self->sendFrame(self->m_currentFrame);
+    self->m_mutex.unlock();
 }
 
 void AkVCam::Stream::sendFrame(const AkVCam::VideoFrame &frame)
@@ -465,4 +489,20 @@ void AkVCam::Stream::sendFrame(const AkVCam::VideoFrame &frame)
         this->m_queueAltered(this->m_objectID,
                              buffer,
                              this->m_queueAlteredRefCon);
+}
+
+void AkVCam::Stream::updateTestFrame()
+{
+    FourCC fourcc = this->m_format.fourcc();
+    int width = this->m_format.width();
+    int height = this->m_format.height();
+
+    this->m_testFrameAdapted =
+            this->m_testFrame
+            .mirror(this->m_horizontalMirror,
+                    this->m_verticalMirror)
+            .scaled(width, height,
+                    this->m_scaling,
+                    this->m_aspectRatio)
+            .convert(fourcc);
 }

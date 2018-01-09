@@ -177,6 +177,12 @@ void AkVCam::Device::setDeviceId(const std::string &deviceId)
     this->m_deviceId = deviceId;
 }
 
+void AkVCam::Device::stopStreams()
+{
+    for (auto &stream: this->m_streams)
+        stream.second->stop();
+}
+
 void AkVCam::Device::frameReady(const AkVCam::VideoFrame &frame)
 {
     for (auto &stream: this->m_streams)

@@ -60,8 +60,6 @@ namespace AkVCam
                 messagePort(nullptr),
                 serverMessagePort(nullptr)
             {
-                this->startAssistant();
-
                 this->m_messageHandlers = {
                     {AKVCAM_ASSISTANT_MSG_ISALIVE                    , AKVCAM_BIND_FUNC(IpcBridgePrivate::isAlive)            },
                     {AKVCAM_ASSISTANT_MSG_DEVICE_CREATED             , AKVCAM_BIND_FUNC(IpcBridgePrivate::deviceCreated)      },
@@ -73,36 +71,6 @@ namespace AkVCam
                     {AKVCAM_ASSISTANT_MSG_DEVICE_ASPECTRATIO_CHANGED , AKVCAM_BIND_FUNC(IpcBridgePrivate::aspectRatioChanged) },
                     {AKVCAM_ASSISTANT_MSG_LISTENERS_CHANGED          , AKVCAM_BIND_FUNC(IpcBridgePrivate::listenersChanged)   },
                 };
-            }
-
-            inline bool startAssistant()
-            {
-                std::stringstream launchctl;
-
-                launchctl << "launchctl list " << AKVCAM_ASSISTANT_NAME;
-                int result = system(launchctl.str().c_str());
-
-                if (result != 0) {
-                    auto homePath = std::string("/Users/") + getenv("USER");
-
-                    std::stringstream ss;
-                    ss << CMIO_DAEMONS_PATH
-                       << "/"
-                       << AKVCAM_ASSISTANT_NAME
-                       << ".plist";
-                    auto daemon = ss.str();
-
-                    if (daemon[0] == '~')
-                        daemon.replace(0, 1, homePath);
-
-                    launchctl.str("");
-                    launchctl << "launchctl load -w " << daemon;
-                    result = system(launchctl.str().c_str());
-
-                    return result == 0;
-                }
-
-                return true;
             }
 
             inline void add(IpcBridge *bridge)
@@ -141,6 +109,7 @@ namespace AkVCam
                                       xpc_object_t event)
             {
                 UNUSED(client)
+                AkLoggerLog("IpcBridgePrivate::deviceCreated");
 
                 std::string device = xpc_dictionary_get_string(event, "device");
 
@@ -153,6 +122,7 @@ namespace AkVCam
                                         xpc_object_t event)
             {
                 UNUSED(client)
+                AkLoggerLog("IpcBridgePrivate::deviceDestroyed");
 
                 std::string device = xpc_dictionary_get_string(event, "device");
 
@@ -165,10 +135,14 @@ namespace AkVCam
                                    xpc_object_t event)
             {
                 UNUSED(client)
+                AkLoggerLog("IpcBridgePrivate::frameReady");
 
                 std::string deviceId = xpc_dictionary_get_string(event, "device");
                 auto frame = xpc_dictionary_get_value(event, "frame");
                 auto surface = IOSurfaceLookupFromXPCObject(frame);
+
+                if (!surface)
+                    return;
 
                 uint32_t surfaceSeed = 0;
                 IOSurfaceLock(surface, kIOSurfaceLockReadOnly, &surfaceSeed);
@@ -191,6 +165,7 @@ namespace AkVCam
                                             xpc_object_t event)
             {
                 UNUSED(client)
+                AkLoggerLog("IpcBridgePrivate::broadcastingChanged");
 
                 std::string deviceId = xpc_dictionary_get_string(event, "device");
                 bool broadcasting = xpc_dictionary_get_bool(event, "broadcasting");
@@ -204,6 +179,7 @@ namespace AkVCam
                                       xpc_object_t event)
             {
                 UNUSED(client)
+                AkLoggerLog("IpcBridgePrivate::mirrorChanged");
 
                 std::string deviceId = xpc_dictionary_get_string(event, "device");
                 bool horizontalMirror = xpc_dictionary_get_bool(event, "hmirror");
@@ -220,6 +196,7 @@ namespace AkVCam
                                        xpc_object_t event)
             {
                 UNUSED(client)
+                AkLoggerLog("IpcBridgePrivate::scalingChanged");
 
                 std::string deviceId = xpc_dictionary_get_string(event, "device");
                 auto scaling = VideoFrame::Scaling(xpc_dictionary_get_int64(event, "scaling"));
@@ -233,6 +210,7 @@ namespace AkVCam
                                            xpc_object_t event)
             {
                 UNUSED(client)
+                AkLoggerLog("IpcBridgePrivate::aspectRatioChanged");
 
                 std::string deviceId = xpc_dictionary_get_string(event, "device");
                 auto aspectRatio = VideoFrame::AspectRatio(xpc_dictionary_get_int64(event, "aspect"));
@@ -246,6 +224,7 @@ namespace AkVCam
                                          xpc_object_t event)
             {
                 UNUSED(client)
+                AkLoggerLog("IpcBridgePrivate::listenersChanged");
 
                 std::string deviceId = xpc_dictionary_get_string(event, "device");
                 auto listeners = xpc_dictionary_get_int64(event, "listeners");
@@ -707,9 +686,6 @@ std::string AkVCam::IpcBridge::deviceCreate(const std::string &description,
                                             const std::vector<VideoFormat> &formats)
 {
     AkIpcBridgeLogMethod();
-
-    if (!this->d->startAssistant())
-        return {};
 
     this->registerEndPoint(false);
 
