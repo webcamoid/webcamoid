@@ -24,7 +24,7 @@
 
 #include "plugininterface.h"
 #include "utils.h"
-#include "VCamIPC/src/ipcbridge.h"
+#include "ipcbridge.h"
 #include "Assistant/src/assistantglobals.h"
 
 #define AkPluginPrivateIntefaceLog() \
@@ -552,7 +552,7 @@ AkVCam::PluginInterface::PluginInterface():
     struct stat fileInfo;
 
     if (stat(daemon.c_str(), &fileInfo) == 0)
-        this->d->m_ipcBridge.registerEndPoint(true);
+        this->d->m_ipcBridge.registerPeer(true);
 
     this->d->m_ipcBridge.setDeviceAddedCallback(std::bind(&PluginInterface::deviceAdded,
                                                           this,
@@ -585,7 +585,7 @@ AkVCam::PluginInterface::PluginInterface():
 
 AkVCam::PluginInterface::~PluginInterface()
 {
-    this->d->m_ipcBridge.unregisterEndPoint();
+    this->d->m_ipcBridge.unregisterPeer();
     delete this->d->pluginInterface;
     delete this->d;
 }

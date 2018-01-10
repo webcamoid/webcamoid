@@ -73,12 +73,12 @@ CameraOutCMIO::CameraOutCMIO(QObject *parent):
             .replace("~", QDir::homePath());
 
     if (QFileInfo::exists(daemon))
-        this->d->m_ipcBridge.registerEndPoint(false);
+        this->d->m_ipcBridge.registerPeer(false);
 }
 
 CameraOutCMIO::~CameraOutCMIO()
 {
-    this->d->m_ipcBridge.unregisterEndPoint();
+    this->d->m_ipcBridge.unregisterPeer();
     delete this->d;
 }
 

@@ -56,11 +56,11 @@ namespace AkVCam
 
             /* Server & Client */
 
-            // Register the end point to the global server.
-            bool registerEndPoint(bool asClient);
+            // Register the peer to the global server.
+            bool registerPeer(bool asClient);
 
-            // Unregister the end point to the global server.
-            void unregisterEndPoint();
+            // Unregister the peer to the global server.
+            void unregisterPeer();
 
             // List available servers.
             std::vector<std::string> listDevices(bool all=true) const;

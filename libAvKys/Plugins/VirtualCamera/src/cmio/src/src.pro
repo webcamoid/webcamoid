@@ -37,7 +37,6 @@ HEADERS = \
 
 
 INCLUDEPATH += \
-    ../VCamIPC/src \
     ../../../../../Lib/src \
     ../../
 

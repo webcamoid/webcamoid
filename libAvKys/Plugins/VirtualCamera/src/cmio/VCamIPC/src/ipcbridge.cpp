@@ -274,12 +274,12 @@ AkVCam::IpcBridge::IpcBridge()
 
 AkVCam::IpcBridge::~IpcBridge()
 {
-    this->unregisterEndPoint();
+    this->unregisterPeer();
     ipcBridgePrivate()->remove(this);
     delete this->d;
 }
 
-bool AkVCam::IpcBridge::registerEndPoint(bool asClient)
+bool AkVCam::IpcBridge::registerPeer(bool asClient)
 {
     AkIpcBridgeLogMethod();
 
@@ -379,7 +379,7 @@ registerEndPoint_failed:
     return false;
 }
 
-void AkVCam::IpcBridge::unregisterEndPoint()
+void AkVCam::IpcBridge::unregisterPeer()
 {
     AkIpcBridgeLogMethod();
 
@@ -687,7 +687,7 @@ std::string AkVCam::IpcBridge::deviceCreate(const std::string &description,
 {
     AkIpcBridgeLogMethod();
 
-    this->registerEndPoint(false);
+    this->registerPeer(false);
 
     if (!this->d->serverMessagePort || !this->d->messagePort)
         return {};

@@ -36,6 +36,7 @@ CONFIG += plugin
 HEADERS = \
     virtualcamera.h \
     virtualcameraelement.h \
+    ipcbridge.h \
     cameraout.h \
     convertvideo.h \
     virtualcameraglobals.h

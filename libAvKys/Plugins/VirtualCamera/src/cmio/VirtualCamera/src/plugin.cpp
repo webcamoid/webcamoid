@@ -19,7 +19,7 @@
 
 #include "plugin.h"
 #include "utils.h"
-#include "VCamIPC/src/ipcbridge.h"
+#include "ipcbridge.h"
 
 extern "C" void *akPluginMain(CFAllocatorRef allocator,
                               CFUUIDRef requestedTypeUUID)

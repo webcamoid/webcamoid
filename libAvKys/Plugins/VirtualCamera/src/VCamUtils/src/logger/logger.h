@@ -25,7 +25,7 @@
 #ifdef QT_DEBUG
     #define AkLoggerStart(...) AkVCam::Logger::start(__VA_ARGS__)
     #define AkLoggerLog(data) AkVCam::Logger::log() << data << std::endl
-    #define AkLoggerStop() AkVCam::Logger::stop(fileName)
+    #define AkLoggerStop() AkVCam::Logger::stop()
 
     namespace AkVCam
     {
@@ -40,7 +40,7 @@
 #else
     #define AkLoggerStart(...)
     #define AkLoggerLog(data)
-    #define AkLoggerStop(fileName)
+    #define AkLoggerStop()
 #endif
 
 #endif // AKVCAMUTILS_LOGGER_H

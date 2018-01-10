@@ -44,7 +44,7 @@ SOURCES = \
     src/ipcbridge.cpp
 
 HEADERS =  \
-    src/ipcbridge.h
+    ../../ipcbridge.h
 
 INCLUDEPATH += \
     ../.. \
