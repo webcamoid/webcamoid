@@ -232,6 +232,7 @@ bool AkVCam::Stream::start()
     this->d->m_sequence = 0;
     memset(&this->d->m_pts, 0, sizeof(CMTime));
     this->d->m_running = this->d->startTimer();
+    AkLoggerLog("Running: " << this->d->m_running);
 
     return this->d->m_running;
 }
@@ -437,14 +438,15 @@ void AkVCam::StreamPrivate::streamLoop(CFRunLoopTimerRef timer, void *info)
     AkLoggerLog("AkVCam::StreamPrivate::streamLoop()");
     UNUSED(timer)
 
-    auto self = reinterpret_cast<Stream *>(info);
+    auto self = reinterpret_cast<StreamPrivate *>(info);
+    AkLoggerLog("Running: " << self->m_running);
 
-    if (!self->d->m_running)
+    if (!self->m_running)
         return;
 
-    self->d->m_mutex.lock();
-    self->d->sendFrame(self->d->m_currentFrame);
-    self->d->m_mutex.unlock();
+    self->m_mutex.lock();
+    self->sendFrame(self->m_currentFrame);
+    self->m_mutex.unlock();
 }
 
 void AkVCam::StreamPrivate::sendFrame(const VideoFrame &frame)
