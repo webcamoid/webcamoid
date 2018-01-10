@@ -20,6 +20,7 @@
 #include <CoreFoundation/CFRunLoop.h>
 
 #include "assistant.h"
+#include "assistantglobals.h"
 #include "VCamUtils/src/utils.h"
 
 AkVCam::Assistant *assistant()
@@ -29,7 +30,7 @@ AkVCam::Assistant *assistant()
     return &assistant;
 }
 
-int main()
+int main(int argc, char **argv)
 {
     auto server =
             xpc_connection_create_mach_service(AKVCAM_ASSISTANT_NAME,
@@ -38,6 +39,15 @@ int main()
 
     if (!server)
         return EXIT_FAILURE;
+
+    for (int i = 0; i < argc; i++)
+        if (strcmp(argv[i], "--timeout") == 0 && i + 1 < argc) {
+            auto timeout = strtod(argv[i + 1], nullptr);
+            AkLoggerLog("Set timeout: " << timeout);
+            assistant()->setTimeout(timeout);
+
+            break;
+        }
 
     xpc_connection_set_event_handler(server, ^(xpc_object_t event) {
         auto type = xpc_get_type(event);

@@ -17,6 +17,7 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <map>
 #include <sstream>
 #include <algorithm>
 #include <IOSurface/IOSurface.h>
@@ -199,7 +200,7 @@ namespace AkVCam
                 AkLoggerLog("IpcBridgePrivate::scalingChanged");
 
                 std::string deviceId = xpc_dictionary_get_string(event, "device");
-                auto scaling = VideoFrame::Scaling(xpc_dictionary_get_int64(event, "scaling"));
+                auto scaling = Scaling(xpc_dictionary_get_int64(event, "scaling"));
 
                 for (auto bridge: this->m_bridges)
                     if (bridge->d->scalingChangedCallback)
@@ -213,7 +214,7 @@ namespace AkVCam
                 AkLoggerLog("IpcBridgePrivate::aspectRatioChanged");
 
                 std::string deviceId = xpc_dictionary_get_string(event, "device");
-                auto aspectRatio = VideoFrame::AspectRatio(xpc_dictionary_get_int64(event, "aspect"));
+                auto aspectRatio = AspectRatio(xpc_dictionary_get_int64(event, "aspect"));
 
                 for (auto bridge: this->m_bridges)
                     if (bridge->d->aspectRatioChangedCallback)
@@ -469,7 +470,6 @@ std::vector<AkVCam::PixelFormat> AkVCam::IpcBridge::supportedOutputPixelFormats(
 {
     return {
         PixelFormatRGB32,
-        PixelFormatRGB24,
         PixelFormatUYVY,
         PixelFormatYUY2
     };
@@ -598,12 +598,12 @@ bool AkVCam::IpcBridge::isVerticalMirrored(const std::string &deviceId)
     return verticalMirror;
 }
 
-AkVCam::VideoFrame::Scaling AkVCam::IpcBridge::scalingMode(const std::string &deviceId)
+AkVCam::Scaling AkVCam::IpcBridge::scalingMode(const std::string &deviceId)
 {
     AkIpcBridgeLogMethod();
 
     if (!this->d->serverMessagePort)
-        return VideoFrame::ScalingFast;
+        return ScalingFast;
 
     auto dictionary = xpc_dictionary_create(NULL, NULL, 0);
     xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_SCALING);
@@ -616,21 +616,21 @@ AkVCam::VideoFrame::Scaling AkVCam::IpcBridge::scalingMode(const std::string &de
     if (replyType != XPC_TYPE_DICTIONARY) {
         xpc_release(reply);
 
-        return VideoFrame::ScalingFast;
+        return ScalingFast;
     }
 
-    auto scaling = VideoFrame::Scaling(xpc_dictionary_get_int64(reply, "scaling"));
+    auto scaling = Scaling(xpc_dictionary_get_int64(reply, "scaling"));
     xpc_release(reply);
 
     return scaling;
 }
 
-AkVCam::VideoFrame::AspectRatio AkVCam::IpcBridge::aspectRatioMode(const std::string &deviceId)
+AkVCam::AspectRatio AkVCam::IpcBridge::aspectRatioMode(const std::string &deviceId)
 {
     AkIpcBridgeLogMethod();
 
     if (!this->d->serverMessagePort)
-        return VideoFrame::AspectRatioIgnore;
+        return AspectRatioIgnore;
 
     auto dictionary = xpc_dictionary_create(NULL, NULL, 0);
     xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_ASPECTRATIO);
@@ -643,10 +643,10 @@ AkVCam::VideoFrame::AspectRatio AkVCam::IpcBridge::aspectRatioMode(const std::st
     if (replyType != XPC_TYPE_DICTIONARY) {
         xpc_release(reply);
 
-        return VideoFrame::AspectRatioIgnore;
+        return AspectRatioIgnore;
     }
 
-    auto aspectRatio = VideoFrame::AspectRatio(xpc_dictionary_get_int64(reply, "aspect"));
+    auto aspectRatio = AspectRatio(xpc_dictionary_get_int64(reply, "aspect"));
     xpc_release(reply);
 
     return aspectRatio;
@@ -904,7 +904,7 @@ void AkVCam::IpcBridge::setMirroring(const std::string &deviceId,
 }
 
 void AkVCam::IpcBridge::setScaling(const std::string &deviceId,
-                                   VideoFrame::Scaling scaling)
+                                   Scaling scaling)
 {
     AkIpcBridgeLogMethod();
 
@@ -922,7 +922,7 @@ void AkVCam::IpcBridge::setScaling(const std::string &deviceId,
 }
 
 void AkVCam::IpcBridge::setAspectRatio(const std::string &deviceId,
-                                       AkVCam::VideoFrame::AspectRatio aspectRatio)
+                                       AspectRatio aspectRatio)
 {
     AkIpcBridgeLogMethod();
 

@@ -22,28 +22,17 @@
 
 #include <memory>
 
-#include "videoformat.h"
+#include "videoformattypes.h"
+#include "videoframetypes.h"
 
 namespace AkVCam
 {
     class VideoFramePrivate;
+    class VideoFormat;
 
     class VideoFrame
     {
         public:
-            enum Scaling
-            {
-                ScalingFast,
-                ScalingLinear
-            };
-
-            enum AspectRatio
-            {
-                AspectRatioIgnore,
-                AspectRatioKeep,
-                AspectRatioExpanding
-            };
-
             VideoFrame();
             VideoFrame(const std::string &bmpResource);
             VideoFrame(const VideoFormat &format,

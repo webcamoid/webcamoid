@@ -722,7 +722,7 @@ void AkVCam::PluginInterface::setMirror(const std::string &deviceId,
 }
 
 void AkVCam::PluginInterface::setScaling(const std::string &deviceId,
-                                         VideoFrame::Scaling scaling)
+                                         Scaling scaling)
 {
     AkLoggerLog("AkVCam::PluginInterface::setScaling");
 
@@ -732,7 +732,7 @@ void AkVCam::PluginInterface::setScaling(const std::string &deviceId,
 }
 
 void AkVCam::PluginInterface::setAspectRatio(const std::string &deviceId,
-                                             AkVCam::VideoFrame::AspectRatio aspectRatio)
+                                             AspectRatio aspectRatio)
 {
     AkLoggerLog("AkVCam::PluginInterface::setAspectRatio");
 

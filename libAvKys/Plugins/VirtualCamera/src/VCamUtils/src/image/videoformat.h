@@ -20,38 +20,13 @@
 #ifndef AKVCAMUTILS_VIDEOFORMAT_H
 #define AKVCAMUTILS_VIDEOFORMAT_H
 
-#include <cstdint>
 #include <vector>
 
-#define MKFOURCC(a, b, c, d) \
-    (((a & 0xff) << 24) | ((b & 0xff) << 16) | ((c & 0xff) << 8) | (d & 0xff))
+#include "videoformattypes.h"
 
 namespace AkVCam
 {
-    typedef uint32_t FourCC;
-
-    enum PixelFormat
-    {
-        // RGB formats
-        PixelFormatRGB32 = MKFOURCC('R', 'G', 'B',  32),
-        PixelFormatRGB24 = MKFOURCC('R', 'G', 'B',  24),
-        PixelFormatRGB16 = MKFOURCC('R', 'G', 'B',  16),
-        PixelFormatRGB15 = MKFOURCC('R', 'G', 'B',  15),
-
-        // BGR formats
-        PixelFormatBGR32 = MKFOURCC('B', 'G', 'R',  32),
-        PixelFormatBGR24 = MKFOURCC('B', 'G', 'R',  24),
-        PixelFormatBGR16 = MKFOURCC('B', 'G', 'R',  16),
-        PixelFormatBGR15 = MKFOURCC('B', 'G', 'R',  15),
-
-        // Luminance+Chrominance formats
-        PixelFormatUYVY = MKFOURCC('U', 'Y', 'V', 'Y'),
-        PixelFormatYUY2 = MKFOURCC('Y', 'U', 'Y', '2'),
-
-        // two planes -- one Y, one Cr + Cb interleaved
-        PixelFormatNV12 = MKFOURCC('N', 'V', '1', '2'),
-        PixelFormatNV21 = MKFOURCC('N', 'V', '2', '1')
-    };
+    class VideoFormatPrivate;
 
     class VideoFormat
     {
@@ -82,10 +57,7 @@ namespace AkVCam
                                      int align=32);
 
         private:
-            FourCC m_fourcc;
-            int m_width;
-            int m_height;
-            std::vector<double> m_frameRates;
+            VideoFormatPrivate *d;
     };
 }
 

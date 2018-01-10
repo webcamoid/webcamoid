@@ -20,15 +20,8 @@
 #ifndef ASSISTANTGLOBALS_H
 #define ASSISTANTGLOBALS_H
 
-#include <cstdint>
-#include <string>
-#include <vector>
-#include <map>
 #include <functional>
 #include <xpc/xpc.h>
-#include <xpc/connection.h>
-
-#include "VCamUtils/src/image/videoframe.h"
 
 #define AKVCAM_ASSISTANT_NAME        "org.webcamoid.cmio.AkVCam.Assistant"
 #define AKVCAM_ASSISTANT_CLIENT_NAME "org.webcamoid.cmio.AkVCam.Client"
@@ -68,34 +61,11 @@
 #define AKVCAM_ASSISTANT_MSG_ADD_LISTENER                0x207
 #define AKVCAM_ASSISTANT_MSG_REMOVE_LISTENER             0x208
 
-#define AKVCAM_ASSISTANT_REQUEST_TIMEOUT 10.0
-
 #define AKVCAM_BIND_FUNC(member) \
     std::bind(&member, this, std::placeholders::_1, std::placeholders::_2)
 
 namespace AkVCam
 {
-    struct AssistantDevice
-    {
-        std::string deviceId;
-        std::string description;
-        std::vector<VideoFormat> formats;
-        int listeners;
-        bool broadcasting;
-        bool horizontalMirror;
-        bool verticalMirror;
-        VideoFrame::Scaling scaling;
-        VideoFrame::AspectRatio aspectRatio;
-    };
-
-    struct AssistantServer
-    {
-        xpc_connection_t connection;
-        std::vector<AssistantDevice> devices;
-    };
-
-    typedef std::map<std::string, AssistantServer> AssistantServers;
-    typedef std::map<std::string, xpc_connection_t> AssistantClients;
     typedef std::function<void (xpc_connection_t,
                                 xpc_object_t)> XpcMessage;
 }

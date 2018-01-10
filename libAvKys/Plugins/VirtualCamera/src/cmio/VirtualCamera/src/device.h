@@ -52,8 +52,8 @@ namespace AkVCam
             void frameReady(const VideoFrame &frame);
             void setBroadcasting(bool broadcasting);
             void setMirror(bool horizontalMirror, bool verticalMirror);
-            void setScaling(VideoFrame::Scaling scaling);
-            void setAspectRatio(VideoFrame::AspectRatio aspectRatio);
+            void setScaling(Scaling scaling);
+            void setAspectRatio(AspectRatio aspectRatio);
             void setAddListenerCallback(ListenerCallback callback);
             void setRemoveListenerCallback(ListenerCallback callback);
 

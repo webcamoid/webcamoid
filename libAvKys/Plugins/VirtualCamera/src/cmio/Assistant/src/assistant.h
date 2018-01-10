@@ -20,16 +20,20 @@
 #ifndef ASSISTANT_H
 #define ASSISTANT_H
 
-#include "assistantglobals.h"
+#include <string>
+#include <xpc/xpc.h>
 
 namespace AkVCam
 {
+    class AssistantPrivate;
+
     class Assistant
     {
         public:
             Assistant();
             ~Assistant();
 
+            void setTimeout(double timeout);
             void requestPort(xpc_connection_t client, xpc_object_t event);
             void addPort(xpc_connection_t client, xpc_object_t event);
             void removePortByName(const std::string &portName);
@@ -56,16 +60,7 @@ namespace AkVCam
             void messageReceived(xpc_connection_t client, xpc_object_t event);
 
         private:
-            AssistantServers m_servers;
-            AssistantClients m_clients;
-            std::map<int64_t, XpcMessage> m_messageHandlers;
-
-            inline static uint64_t id()
-            {
-                static uint64_t id = 0;
-
-                return id++;
-            }
+            AssistantPrivate *d;
     };
 }
 

@@ -24,11 +24,14 @@
 #include <vector>
 #include <functional>
 
-#include "VCamUtils/src/image/videoframe.h"
+#include "VCamUtils/src/image/videoformattypes.h"
+#include "VCamUtils/src/image/videoframetypes.h"
 
 namespace AkVCam
 {
     class IpcBridgePrivate;
+    class VideoFormat;
+    class VideoFrame;
 
     class IpcBridge
     {
@@ -41,9 +44,9 @@ namespace AkVCam
                                     bool horizontalMirror,
                                     bool verticalMirror)> MirrorChangedCallback;
         typedef std::function<void (const std::string &deviceId,
-                                    VideoFrame::Scaling scaling)> ScalingChangedCallback;
+                                    Scaling scaling)> ScalingChangedCallback;
         typedef std::function<void (const std::string &deviceId,
-                                    VideoFrame::AspectRatio aspectRatio)> AspectRatioChangedCallback;
+                                    AspectRatio aspectRatio)> AspectRatioChangedCallback;
         typedef std::function<void (const std::string &deviceId,
                                     int listeners)> ListenersChangedCallback;
 
@@ -81,10 +84,10 @@ namespace AkVCam
             bool isVerticalMirrored(const std::string &deviceId);
 
             // Scaling mode for frames shown in clients.
-            VideoFrame::Scaling scalingMode(const std::string &deviceId);
+            Scaling scalingMode(const std::string &deviceId);
 
             // Aspect ratio mode for frames shown in clients.
-            VideoFrame::AspectRatio aspectRatioMode(const std::string &deviceId);
+            AspectRatio aspectRatioMode(const std::string &deviceId);
 
             // How many programs are using the virtual camera now.
             int listeners(const std::string &deviceId);
@@ -115,11 +118,11 @@ namespace AkVCam
 
             // Set scaling options for device.
             void setScaling(const std::string &deviceId,
-                            VideoFrame::Scaling scaling);
+                            Scaling scaling);
 
             // Set aspect ratio options for device.
             void setAspectRatio(const std::string &deviceId,
-                                VideoFrame::AspectRatio aspectRatio);
+                                AspectRatio aspectRatio);
 
             // Set the function that will be called when the number of listeners
             // changes for a device.

@@ -201,13 +201,13 @@ void AkVCam::Device::setMirror(bool horizontalMirror, bool verticalMirror)
         stream.second->setMirror(horizontalMirror, verticalMirror);
 }
 
-void AkVCam::Device::setScaling(AkVCam::VideoFrame::Scaling scaling)
+void AkVCam::Device::setScaling(Scaling scaling)
 {
     for (auto &stream: this->m_streams)
         stream.second->setScaling(scaling);
 }
 
-void AkVCam::Device::setAspectRatio(AkVCam::VideoFrame::AspectRatio aspectRatio)
+void AkVCam::Device::setAspectRatio(AspectRatio aspectRatio)
 {
     for (auto &stream: this->m_streams)
         stream.second->setAspectRatio(aspectRatio);

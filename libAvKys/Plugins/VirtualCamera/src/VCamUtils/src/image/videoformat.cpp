@@ -21,40 +21,64 @@
 
 #include "videoformat.h"
 
-AkVCam::VideoFormat::VideoFormat():
-    m_fourcc(0),
-    m_width(0),
-    m_height(0)
+namespace AkVCam
 {
+    class VideoFormatPrivate
+    {
+        public:
+            FourCC m_fourcc;
+            int m_width;
+            int m_height;
+            std::vector<double> m_frameRates;
+
+            VideoFormatPrivate():
+                m_fourcc(0),
+                m_width(0),
+                m_height(0)
+            {
+            }
+
+            VideoFormatPrivate(FourCC fourcc,
+                               int width,
+                               int height,
+                               const std::vector<double> &frameRates):
+                m_fourcc(fourcc),
+                m_width(width),
+                m_height(height),
+                m_frameRates(frameRates)
+            {
+            }
+    };
+}
+
+AkVCam::VideoFormat::VideoFormat()
+{
+    this->d = new VideoFormatPrivate;
 }
 
 AkVCam::VideoFormat::VideoFormat(FourCC fourcc,
                                  int width,
                                  int height,
-                                 const std::vector<double> &frameRates):
-    m_fourcc(fourcc),
-    m_width(width),
-    m_height(height),
-    m_frameRates(frameRates)
+                                 const std::vector<double> &frameRates)
 {
-
+    this->d = new VideoFormatPrivate(fourcc, width, height, frameRates);
 }
 
 AkVCam::VideoFormat::VideoFormat(const VideoFormat &other)
 {
-    this->m_fourcc = other.m_fourcc;
-    this->m_width = other.m_width;
-    this->m_height = other.m_height;
-    this->m_frameRates = other.m_frameRates;
+    this->d = new VideoFormatPrivate(other.d->m_fourcc,
+                                     other.d->m_width,
+                                     other.d->m_height,
+                                     other.d->m_frameRates);
 }
 
 AkVCam::VideoFormat &AkVCam::VideoFormat::operator =(const VideoFormat &other)
 {
     if (this != &other) {
-        this->m_fourcc = other.m_fourcc;
-        this->m_width = other.m_width;
-        this->m_height = other.m_height;
-        this->m_frameRates = other.m_frameRates;
+        this->d->m_fourcc = other.d->m_fourcc;
+        this->d->m_width = other.d->m_width;
+        this->d->m_height = other.d->m_height;
+        this->d->m_frameRates = other.d->m_frameRates;
     }
 
     return *this;
@@ -62,58 +86,58 @@ AkVCam::VideoFormat &AkVCam::VideoFormat::operator =(const VideoFormat &other)
 
 AkVCam::VideoFormat::~VideoFormat()
 {
-
+    delete this->d;
 }
 
 AkVCam::FourCC AkVCam::VideoFormat::fourcc() const
 {
-    return this->m_fourcc;
+    return this->d->m_fourcc;
 }
 
 AkVCam::FourCC &AkVCam::VideoFormat::fourcc()
 {
-    return this->m_fourcc;
+    return this->d->m_fourcc;
 }
 
 int AkVCam::VideoFormat::width() const
 {
-    return this->m_width;
+    return this->d->m_width;
 }
 
 int &AkVCam::VideoFormat::width()
 {
-    return this->m_width;
+    return this->d->m_width;
 }
 
 int AkVCam::VideoFormat::height() const
 {
-    return this->m_height;
+    return this->d->m_height;
 }
 
 int &AkVCam::VideoFormat::height()
 {
-    return this->m_height;
+    return this->d->m_height;
 }
 
 std::vector<double> AkVCam::VideoFormat::frameRates() const
 {
-    return this->m_frameRates;
+    return this->d->m_frameRates;
 }
 
 std::vector<double> &AkVCam::VideoFormat::frameRates()
 {
-    return this->m_frameRates;
+    return this->d->m_frameRates;
 }
 
 std::vector<std::pair<double, double>> AkVCam::VideoFormat::frameRateRanges() const
 {
     std::vector<std::pair<double, double>> ranges;
 
-    if (!this->m_frameRates.empty()) {
-        auto min = *std::min_element(this->m_frameRates.begin(),
-                                     this->m_frameRates.end());
-        auto max = *std::max_element(this->m_frameRates.begin(),
-                                     this->m_frameRates.end());
+    if (!this->d->m_frameRates.empty()) {
+        auto min = *std::min_element(this->d->m_frameRates.begin(),
+                                     this->d->m_frameRates.end());
+        auto max = *std::max_element(this->d->m_frameRates.begin(),
+                                     this->d->m_frameRates.end());
         ranges.push_back({min, max});
     }
 
@@ -122,19 +146,19 @@ std::vector<std::pair<double, double>> AkVCam::VideoFormat::frameRateRanges() co
 
 double AkVCam::VideoFormat::minimumFrameRate() const
 {
-    if (this->m_frameRates.empty())
+    if (this->d->m_frameRates.empty())
         return 0.0;
 
-    return *std::min_element(this->m_frameRates.begin(),
-                             this->m_frameRates.end());
+    return *std::min_element(this->d->m_frameRates.begin(),
+                             this->d->m_frameRates.end());
 }
 
 void AkVCam::VideoFormat::clear()
 {
-    this->m_fourcc = 0;
-    this->m_width = 0;
-    this->m_height = 0;
-    this->m_frameRates.clear();
+    this->d->m_fourcc = 0;
+    this->d->m_width = 0;
+    this->d->m_height = 0;
+    this->d->m_frameRates.clear();
 }
 
 void AkVCam::VideoFormat::roundNearest(int width, int height,

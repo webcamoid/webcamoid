@@ -30,6 +30,7 @@
 #include "cameraoutcmio.h"
 #include "ipcbridge.h"
 #include "../Assistant/src/assistantglobals.h"
+#include "VCamUtils/src/image/videoformat.h"
 #include "VCamUtils/src/image/videoframe.h"
 
 #define MAX_CAMERAS 1
@@ -301,17 +302,20 @@ QString CameraOutCMIOPrivate::readDaemonPlist() const
                     valueElement.replaceChild(daemonXml.createTextNode(AKVCAM_ASSISTANT_NAME),
                                               valueElement.firstChild());
             } else if (keyElement.text() == "ProgramArguments") {
-                auto stringChilds = valueElement.elementsByTagName("string");
+                while (!valueElement.childNodes().isEmpty())
+                    valueElement.removeChild(valueElement.firstChild());
 
-                for (int i = 0; i < stringChilds.size(); i++) {
-                    auto item = stringChilds.item(i);
+                auto keyProgram = daemonXml.createElement("string");
+                valueElement.appendChild(keyProgram);
+                keyProgram.appendChild(daemonXml.createTextNode(assistantPath));
 
-                    if (item.childNodes().isEmpty())
-                        item.appendChild(daemonXml.createTextNode(assistantPath));
-                    else
-                        item.replaceChild(daemonXml.createTextNode(assistantPath),
-                                          item.firstChild());
-                }
+                auto keyTimeout = daemonXml.createElement("string");
+                valueElement.appendChild(keyTimeout);
+                keyTimeout.appendChild(daemonXml.createTextNode("--timeout"));
+
+                auto keyTimeoutValue = daemonXml.createElement("string");
+                valueElement.appendChild(keyTimeoutValue);
+                keyTimeoutValue.appendChild(daemonXml.createTextNode("300.0"));
             } else if (keyElement.text() == "MachServices") {
                 auto stringChilds = valueElement.elementsByTagName("key");
 

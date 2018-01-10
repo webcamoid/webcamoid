@@ -20,16 +20,15 @@
 #ifndef STREAM_H
 #define STREAM_H
 
-#include <thread>
-
+#include "VCamUtils/src/image/videoframetypes.h"
 #include "object.h"
-#include "clock.h"
 #include "queue.h"
-#include "../VCamUtils/src/image/videoframe.h"
 
 namespace AkVCam
 {
+    class StreamPrivate;
     class Stream;
+    class VideoFrame;
     typedef std::shared_ptr<Stream> StreamPtr;
     typedef Queue<CMSampleBufferRef> SampleBufferQueue;
     typedef QueuePtr<CMSampleBufferRef> SampleBufferQueuePtr;
@@ -52,8 +51,8 @@ namespace AkVCam
             void frameReady(const VideoFrame &frame);
             void setBroadcasting(bool broadcasting);
             void setMirror(bool horizontalMirror, bool verticalMirror);
-            void setScaling(VideoFrame::Scaling scaling);
-            void setAspectRatio(VideoFrame::AspectRatio aspectRatio);
+            void setScaling(Scaling scaling);
+            void setAspectRatio(AspectRatio aspectRatio);
 
             // Stream Interface
             OSStatus copyBufferQueue(CMIODeviceStreamQueueAlteredProc queueAlteredProc,
@@ -65,31 +64,9 @@ namespace AkVCam
             OSStatus deckCueTo(Float64 frameNumber, Boolean playOnCue);
 
         private:
-            ClockPtr m_clock;
-            UInt64 m_sequence;
-            CMTime m_pts;
-            SampleBufferQueuePtr m_queue;
-            CMIODeviceStreamQueueAlteredProc m_queueAltered;
-            VideoFormat m_format;
-            double m_fps;
-            VideoFrame m_currentFrame;
-            VideoFrame m_testFrame;
-            VideoFrame m_testFrameAdapted;
-            void *m_queueAlteredRefCon;
-            CFRunLoopTimerRef m_timer;
-            bool m_running;
-            bool m_broadcasting;
-            bool m_horizontalMirror;
-            bool m_verticalMirror;
-            VideoFrame::Scaling m_scaling;
-            VideoFrame::AspectRatio m_aspectRatio;
-            std::mutex m_mutex;
+            StreamPrivate *d;
 
-            bool startTimer();
-            void stopTimer();
-            static void streamLoop(CFRunLoopTimerRef timer, void *info);
-            void sendFrame(const VideoFrame &frame);
-            void updateTestFrame();
+            friend class StreamPrivate;
     };
 }
 

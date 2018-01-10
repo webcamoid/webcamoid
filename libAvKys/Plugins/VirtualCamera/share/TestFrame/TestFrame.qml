@@ -193,11 +193,9 @@ Rectangle {
             Text {
                 id: usage
                 color: "#ffffff"
-                text: "This is a Webcamoid's virtual webcam test.\n"
-                    + "Go to Webcamoid, enable virtual webcam output and "
-                    + "play some webcam, desktop or video, doing so will "
-                    + "create a new device for the stream, and will make "
-                    + "this device disappear."
+                text: "This is a Webcamoid's virtual webcam device.\n"
+                    + "Go to Webcamoid, enable virtual webcam output, select "
+                    + "this device and play some webcam, desktop or video."
                 wrapMode: Text.WordWrap
                 anchors.fill: parent
                 topPadding: 8

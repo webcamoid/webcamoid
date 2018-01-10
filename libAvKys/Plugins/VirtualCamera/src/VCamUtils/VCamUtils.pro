@@ -57,4 +57,6 @@ HEADERS += \
     src/resources/rcloader.h \
     src/resources/rcname.h \
     src/resources/rcnode.h \
-    src/image/videoframe.h
+    src/image/videoframe.h \
+    src/image/videoformattypes.h \
+    src/image/videoframetypes.h

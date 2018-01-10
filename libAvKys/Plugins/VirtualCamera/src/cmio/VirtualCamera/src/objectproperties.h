@@ -24,13 +24,13 @@
 #include <string>
 #include <CoreMediaIO/CMIOHardwareObject.h>
 
-#include "VCamUtils/src/image/videoformat.h"
 #include "clock.h"
 
 namespace AkVCam
 {
-    class Object;
     class ObjectPropertiesPrivate;
+    class Object;
+    class VideoFormat;
     typedef std::shared_ptr<Object> ObjectPtr;
 
     class ObjectProperties
