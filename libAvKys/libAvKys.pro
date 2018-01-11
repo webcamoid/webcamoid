@@ -16,10 +16,10 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-exists(commons.pri) {
-    include(commons.pri)
+exists(akcommons.pri) {
+    include(akcommons.pri)
 } else {
-    error("commons.pri file not found.")
+    error("akcommons.pri file not found.")
 }
 
 !isEmpty(BUILDDOCS):!isEqual(BUILDDOCS, 0) {

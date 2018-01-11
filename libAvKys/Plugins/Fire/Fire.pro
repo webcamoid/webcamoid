@@ -21,13 +21,13 @@ exists(translations.qrc) {
     RESOURCES += translations.qrc
 }
 
-exists(commons.pri) {
-    include(commons.pri)
+exists(akcommons.pri) {
+    include(akcommons.pri)
 } else {
-    exists(../../commons.pri) {
-        include(../../commons.pri)
+    exists(../../akcommons.pri) {
+        include(../../akcommons.pri)
     } else {
-        error("commons.pri file not found.")
+        error("akcommons.pri file not found.")
     }
 }
 

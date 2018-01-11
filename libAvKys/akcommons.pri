@@ -16,51 +16,16 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-exists(translations.qrc) {
-    TRANSLATIONS = $$files(share/ts/*.ts)
-    RESOURCES += translations.qrc
-}
+COMMONS_APPNAME = "libAvKys"
+COMMONS_TARGET = $$lower($${COMMONS_APPNAME})
+COMMONS_TARGET = $$replace(COMMONS_TARGET, lib, "")
 
-exists(akcommons.pri) {
-    include(akcommons.pri)
+exists(commons.pri) {
+    include(commons.pri)
 } else {
-    exists(../../akcommons.pri) {
-        include(../../akcommons.pri)
+    exists(../commons.pri) {
+        include(../commons.pri)
     } else {
-        error("akcommons.pri file not found.")
+        error("commons.pri file not found.")
     }
 }
-
-CONFIG += plugin
-
-HEADERS = \
-    src/colorreplace.h \
-    src/colorreplaceelement.h
-
-INCLUDEPATH += \
-    ../../Lib/src
-
-LIBS += -L$${PWD}/../../Lib/ -l$${COMMONS_TARGET}
-
-OTHER_FILES += pspec.json
-
-QT += qml
-
-RESOURCES += \
-    ColorReplace.qrc
-
-SOURCES = \
-    src/colorreplace.cpp \
-    src/colorreplaceelement.cpp
-
-lupdate_only {
-    SOURCES += $$files(share/qml/*.qml)
-}
-
-DESTDIR = $${OUT_PWD}
-
-TEMPLATE = lib
-
-INSTALLS += target
-
-target.path = $${LIBDIR}/$${COMMONS_TARGET}

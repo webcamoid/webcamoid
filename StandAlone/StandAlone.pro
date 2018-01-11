@@ -23,6 +23,9 @@ exists(translations.qrc) {
     RESOURCES += translations.qrc
 }
 
+COMMONS_APPNAME = Webcamoid
+COMMONS_TARGET = $$lower($${COMMONS_APPNAME})
+
 exists(commons.pri) {
     include(commons.pri)
 } else {
@@ -185,4 +188,17 @@ unix:!macx {
     docs.files = share/docs_auto/html
     docs.path = $${HTMLDIR}
     docs.CONFIG += no_check_exist
+}
+
+
+INSTALLS += \
+    license
+
+license.files = ../COPYING
+license.path = $${LICENSEDIR}
+
+unix:!macx {
+    INSTALLS += desktop
+    desktop.files = ../$${COMMONS_TARGET}.desktop
+    desktop.path = $${DATAROOTDIR}/applications
 }

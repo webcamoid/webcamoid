@@ -16,8 +16,6 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-COMMONS_APPNAME = "Webcamoid"
-COMMONS_TARGET = $$lower($${COMMONS_APPNAME})
 VER_MAJ = 8
 VER_MIN = 5
 VER_PAT = 0
@@ -108,11 +106,19 @@ DEFINES += \
     LOCALLIBDIR=\"\\\"$$LOCALLIBDIR\\\"\" \
     INSTALLQMLDIR=\"\\\"$$INSTALLQMLDIR\\\"\"
 
+TARGET_ARCH = $$QMAKE_TARGET.arch
+
+isEmpty(TARGET_ARCH): !msvc {
+    TARGET_ARCH = $$system($$QMAKE_CC -dumpmachine)
+    TARGET_ARCH = $$split(TARGET_ARCH, -)
+    TARGET_ARCH = $$first(TARGET_ARCH)
+}
+
 CONFIG(debug, debug|release) {
-    COMMONS_BUILD_PATH = build/Qt$${QT_VERSION}/$${QMAKE_CC}/debug
+    COMMONS_BUILD_PATH = build/Qt$${QT_VERSION}/$${QMAKE_CC}/$${TARGET_ARCH}/debug
     DEFINES += QT_DEBUG
 } else {
-    COMMONS_BUILD_PATH = build/Qt$${QT_VERSION}/$${QMAKE_CC}/release
+    COMMONS_BUILD_PATH = build/Qt$${QT_VERSION}/$${QMAKE_CC}/$${TARGET_ARCH}/release
 }
 
 MOC_DIR = $${COMMONS_BUILD_PATH}/moc

@@ -16,12 +16,6 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-exists(commons.pri) {
-    include(commons.pri)
-} else {
-    error("commons.pri file not found.")
-}
-
 TEMPLATE = subdirs
 
 CONFIG += ordered
@@ -34,17 +28,3 @@ OTHER_FILES = \
     .gitignore \
     README.md \
     translations.pri
-
-# Install rules
-
-INSTALLS += \
-    license
-
-license.files = COPYING
-license.path = $${LICENSEDIR}
-
-unix:!macx {
-    INSTALLS += desktop
-    desktop.files = $${COMMONS_TARGET}.desktop
-    desktop.path = $${DATAROOTDIR}/applications
-}
