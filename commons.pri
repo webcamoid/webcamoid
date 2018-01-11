@@ -106,19 +106,19 @@ DEFINES += \
     LOCALLIBDIR=\"\\\"$$LOCALLIBDIR\\\"\" \
     INSTALLQMLDIR=\"\\\"$$INSTALLQMLDIR\\\"\"
 
-TARGET_ARCH = $$QMAKE_TARGET.arch
+TARGET_ARCH = $${QMAKE_TARGET.arch}
 
 isEmpty(TARGET_ARCH): !msvc {
-    TARGET_ARCH = $$system($$QMAKE_CC -dumpmachine)
+    TARGET_ARCH = $$system($${QMAKE_CC} -dumpmachine)
     TARGET_ARCH = $$split(TARGET_ARCH, -)
     TARGET_ARCH = $$first(TARGET_ARCH)
 }
 
 CONFIG(debug, debug|release) {
-    COMMONS_BUILD_PATH = build/Qt$${QT_VERSION}/$${QMAKE_CC}/$${TARGET_ARCH}/debug
+    COMMONS_BUILD_PATH = build/Qt$${QT_VERSION}/$$basename(QMAKE_CC)/$${TARGET_ARCH}/debug
     DEFINES += QT_DEBUG
 } else {
-    COMMONS_BUILD_PATH = build/Qt$${QT_VERSION}/$${QMAKE_CC}/$${TARGET_ARCH}/release
+    COMMONS_BUILD_PATH = build/Qt$${QT_VERSION}/$$basename(QMAKE_CC)/$${TARGET_ARCH}/release
 }
 
 MOC_DIR = $${COMMONS_BUILD_PATH}/moc
