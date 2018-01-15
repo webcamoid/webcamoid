@@ -60,3 +60,7 @@ HEADERS += \
     src/image/videoframe.h \
     src/image/videoformattypes.h \
     src/image/videoframetypes.h
+
+isEmpty(STATIC_BUILD) | isEqual(STATIC_BUILD, 0) {
+    win32-g++: QMAKE_LFLAGS = -static -static-libgcc -static-libstdc++
+}

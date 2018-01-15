@@ -120,8 +120,6 @@ macx: ICON = share/icons/webcamoid.icns
 
 TEMPLATE = app
 
-# http://www.loc.gov/standards/iso639-2/php/code_list.php
-
 CODECFORTR = UTF-8
 CODECFORSRC = UTF-8
 
@@ -189,7 +187,6 @@ unix:!macx {
     docs.path = $${HTMLDIR}
     docs.CONFIG += no_check_exist
 }
-
 
 INSTALLS += \
     license
