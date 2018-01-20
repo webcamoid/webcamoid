@@ -23,6 +23,7 @@
 #include "stream.h"
 #include "clock.h"
 #include "utils.h"
+#include "VCamUtils/src/image/videoformat.h"
 #include "VCamUtils/src/image/videoframe.h"
 
 namespace AkVCam

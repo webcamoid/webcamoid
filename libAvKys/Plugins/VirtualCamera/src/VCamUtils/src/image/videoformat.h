@@ -38,6 +38,8 @@ namespace AkVCam
                         const std::vector<double> &frameRates={});
             VideoFormat(const VideoFormat &other);
             VideoFormat &operator =(const VideoFormat &other);
+            bool operator ==(const VideoFormat &other) const;
+            bool operator !=(const VideoFormat &other) const;
             ~VideoFormat();
 
             FourCC fourcc() const;
@@ -50,6 +52,8 @@ namespace AkVCam
             std::vector<double> &frameRates();
             std::vector<std::pair<double, double>> frameRateRanges() const;
             double minimumFrameRate() const;
+            size_t bpp() const;
+            size_t size() const;
             void clear();
 
             static void roundNearest(int width, int height,

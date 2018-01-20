@@ -21,6 +21,7 @@
 
 #include "object.h"
 #include "utils.h"
+#include "VCamUtils/src/image/videoformat.h"
 
 namespace AkVCam
 {

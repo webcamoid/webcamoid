@@ -17,6 +17,7 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <map>
 #include <algorithm>
 
 #include "videoformat.h"
@@ -82,6 +83,22 @@ AkVCam::VideoFormat &AkVCam::VideoFormat::operator =(const VideoFormat &other)
     }
 
     return *this;
+}
+
+bool AkVCam::VideoFormat::operator ==(const AkVCam::VideoFormat &other) const
+{
+    return this->d->m_fourcc == other.d->m_fourcc
+           && this->d->m_width == other.d->m_width
+           && this->d->m_height == other.d->m_height
+           && this->d->m_frameRates == other.d->m_frameRates;
+}
+
+bool AkVCam::VideoFormat::operator !=(const AkVCam::VideoFormat &other) const
+{
+    return this->d->m_fourcc != other.d->m_fourcc
+           || this->d->m_width != other.d->m_width
+           || this->d->m_height != other.d->m_height
+           || this->d->m_frameRates != other.d->m_frameRates;
 }
 
 AkVCam::VideoFormat::~VideoFormat()
@@ -151,6 +168,35 @@ double AkVCam::VideoFormat::minimumFrameRate() const
 
     return *std::min_element(this->d->m_frameRates.begin(),
                              this->d->m_frameRates.end());
+}
+
+size_t AkVCam::VideoFormat::bpp() const
+{
+    static const std::map<PixelFormat, size_t> formatToBpp {
+        {PixelFormatRGB32, 32},
+        {PixelFormatRGB24, 24},
+        {PixelFormatRGB16, 16},
+        {PixelFormatRGB15, 16},
+        {PixelFormatBGR32, 32},
+        {PixelFormatBGR24, 24},
+        {PixelFormatBGR16, 16},
+        {PixelFormatBGR15, 16},
+        {PixelFormatUYVY , 16},
+        {PixelFormatYUY2 , 16},
+        {PixelFormatNV12 , 12},
+        {PixelFormatNV21 , 12}
+    };
+
+    for (auto &bpp: formatToBpp)
+        if (bpp.first == this->d->m_fourcc)
+            return bpp.second;
+
+    return 0;
+}
+
+size_t AkVCam::VideoFormat::size() const
+{
+    return size_t(this->d->m_width * this->d->m_height) * this->bpp() / 8;
 }
 
 void AkVCam::VideoFormat::clear()

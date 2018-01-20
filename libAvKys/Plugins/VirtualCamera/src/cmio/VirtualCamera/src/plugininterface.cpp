@@ -26,6 +26,7 @@
 #include "utils.h"
 #include "ipcbridge.h"
 #include "Assistant/src/assistantglobals.h"
+#include "VCamUtils/src/image/videoformat.h"
 
 #define AkPluginPrivateIntefaceLog() \
     AkLoggerLog("PluginInterfacePrivate::" << __FUNCTION__ << "()")
