@@ -168,7 +168,7 @@
         <location filename="../../../libAvKys/Plugins/VirtualCamera/src/v4l2sys/src/cameraoutv4l2.cpp" line="315"/>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/src/v4l2sys/src/cameraoutv4l2.cpp" line="369"/>
         <source>Virtual Camera %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Віртуальна камера %1</translation>
     </message>
 </context>
 <context>
@@ -181,12 +181,12 @@
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/CodecConfigs.qml" line="112"/>
         <source>Search option</source>
-        <translation type="unfinished"></translation>
+        <translation>Параметр пошуку</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/CodecConfigs.qml" line="126"/>
         <source>Reset</source>
-        <translation type="unfinished"></translation>
+        <translation>Скидання</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/CodecConfigs.qml" line="141"/>
@@ -196,7 +196,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/CodecConfigs.qml" line="151"/>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation>Гаразд</translation>
     </message>
 </context>
 <context>
@@ -355,7 +355,7 @@
     <message>
         <location filename="../qml/MediaConfig.qml" line="68"/>
         <source>Media UID</source>
-        <translation type="unfinished"></translation>
+        <translation>Медіа UID</translation>
     </message>
     <message>
         <location filename="../qml/MediaConfig.qml" line="75"/>
@@ -419,7 +419,7 @@
     <message>
         <location filename="../qml/PluginConfig.qml" line="115"/>
         <source>Extra search paths</source>
-        <translation type="unfinished"></translation>
+        <translation>Додатковий пошук шляхів</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="124"/>
@@ -2082,7 +2082,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="64"/>
         <source>Devices</source>
-        <translation type="unfinished"></translation>
+        <translation>Пристрої</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="81"/>
@@ -2097,12 +2097,12 @@
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="105"/>
         <source>Remove</source>
-        <translation type="unfinished">Видалити</translation>
+        <translation type="unfinished">Вилучити</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="116"/>
         <source>Remove All</source>
-        <translation type="unfinished"></translation>
+        <translation>Вилучити усі</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="137"/>
@@ -2117,7 +2117,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="147"/>
         <source>Password</source>
-        <translation type="unfinished"></translation>
+        <translation>Пароль</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="154"/>
@@ -2127,7 +2127,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="166"/>
         <source>Ok</source>
-        <translation type="unfinished">Ok</translation>
+        <translation type="unfinished">Гаразд</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="214"/>
@@ -2137,7 +2137,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="269"/>
         <source>This system is not supported yet</source>
-        <translation type="unfinished"></translation>
+        <translation>Ця система ще не підтримується</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="291"/>
@@ -2147,7 +2147,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="305"/>
         <source>Wrong password</source>
-        <translation type="unfinished"></translation>
+        <translation>Неправильний пароль</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Warp/share/qml/main.qml" line="28"/>
@@ -2157,7 +2157,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="116"/>
         <source>Phase</source>
-        <translation type="unfinished"></translation>
+        <translation>Фаза</translation>
     </message>
 </context>
 </TS>
