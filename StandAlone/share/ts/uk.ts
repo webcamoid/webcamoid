@@ -176,7 +176,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/CodecConfigs.qml" line="27"/>
         <source>Configure %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Налаштувати %1</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/CodecConfigs.qml" line="112"/>
@@ -289,7 +289,7 @@
     <message>
         <location filename="../qml/GeneralConfig.qml" line="78"/>
         <source>Desktop capture</source>
-        <translation type="unfinished"></translation>
+        <translation>Захоплення робочого столу</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="88"/>
@@ -497,7 +497,7 @@
     <message>
         <location filename="../../src/clioptions.cpp" line="73"/>
         <source>virtual camera driver path</source>
-        <translation type="unfinished"></translation>
+        <translation>шлях до драйвера віртуальної камери</translation>
     </message>
 </context>
 <context>
@@ -583,7 +583,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/StreamOptions.qml" line="28"/>
         <source>Stream #%1 (%2)</source>
-        <translation type="unfinished"></translation>
+        <translation>Трансляція #%1 (%2)</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/StreamOptions.qml" line="29"/>
@@ -593,7 +593,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/StreamOptions.qml" line="64"/>
         <source>Codec</source>
-        <translation type="unfinished"></translation>
+        <translation>Кодек</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/StreamOptions.qml" line="85"/>
