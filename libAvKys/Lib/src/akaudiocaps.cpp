@@ -17,6 +17,7 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QDataStream>
 #include <QDebug>
 #include <QMetaEnum>
 #include <QVector>

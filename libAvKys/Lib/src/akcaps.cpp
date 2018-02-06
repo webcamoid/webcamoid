@@ -17,6 +17,7 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QDataStream>
 #include <QDebug>
 #include <QRegExp>
 #include <QStringList>
@@ -27,22 +28,20 @@
 class AkCapsPrivate
 {
     public:
-        bool m_isValid;
         QString m_mimeType;
+        bool m_isValid;
 };
 
 AkCaps::AkCaps(QObject *parent): QObject(parent)
 {
     this->d = new AkCapsPrivate();
     this->d->m_isValid = false;
-    this->d->m_mimeType = "";
 }
 
 AkCaps::AkCaps(const QVariantMap &caps)
 {
     this->d = new AkCapsPrivate();
     this->d->m_isValid = false;
-    this->d->m_mimeType = "";
     this->fromMap(caps);
 }
 
@@ -50,7 +49,6 @@ AkCaps::AkCaps(const QString &caps)
 {
     this->d = new AkCapsPrivate();
     this->d->m_isValid = false;
-    this->d->m_mimeType = "";
     this->fromString(caps);
 }
 

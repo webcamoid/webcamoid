@@ -17,10 +17,11 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QDataStream>
 #include <QDebug>
+#include <QMetaEnum>
 #include <QSize>
 #include <QVector>
-#include <QMetaEnum>
 
 #include "akvideocaps.h"
 #include "akfrac.h"

@@ -17,10 +17,10 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QDataStream>
 #include <QDebug>
 #include <QRegExp>
 #include <QStringList>
-#include <QDataStream>
 
 #include "akfrac.h"
 

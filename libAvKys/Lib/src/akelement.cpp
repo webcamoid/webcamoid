@@ -17,20 +17,20 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QVector>
-#include <QRegExp>
+#include <QCoreApplication>
+#include <QCryptographicHash>
+#include <QDataStream>
+#include <QDebug>
+#include <QDir>
+#include <QDirIterator>
+#include <QFileInfo>
 #include <QMetaMethod>
 #include <QPluginLoader>
-#include <QDirIterator>
-#include <QDir>
-#include <QFileInfo>
-#include <QCoreApplication>
-#include <QDataStream>
-#include <QCryptographicHash>
-#include <QQmlEngine>
-#include <QQmlContext>
 #include <QQmlComponent>
-#include <QDebug>
+#include <QQmlContext>
+#include <QQmlEngine>
+#include <QRegExp>
+#include <QVector>
 
 #include "akelement.h"
 #include "akplugin.h"

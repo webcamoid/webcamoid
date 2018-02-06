@@ -20,6 +20,7 @@
 #ifndef VIDEOFRAME_H
 #define VIDEOFRAME_H
 
+#include <string>
 #include <memory>
 
 #include "videoformattypes.h"
