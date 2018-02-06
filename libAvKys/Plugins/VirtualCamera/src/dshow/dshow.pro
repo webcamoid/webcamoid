@@ -21,5 +21,5 @@ TEMPLATE = subdirs
 CONFIG += ordered
 
 SUBDIRS = \
-    VirtualCameraFilter \
+    VirtualCamera \
     src

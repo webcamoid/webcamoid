@@ -43,7 +43,7 @@ LIBS += -L$${PWD}/../../../../../Lib/ -l$${COMMONS_TARGET}
 OTHER_FILES += ../pspec.json
 
 LIBS += \
-    -L$${OUT_PWD}/../VirtualCameraFilter/ipc -lipc \
+    \ #-L$${OUT_PWD}/../VirtualCameraFilter/ipc -lipc \
     -lstrmiids \
     -luuid \
     -lole32 \

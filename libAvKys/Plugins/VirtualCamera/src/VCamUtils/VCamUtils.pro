@@ -45,7 +45,8 @@ SOURCES += \
     src/resources/rcloader.cpp \
     src/resources/rcname.cpp \
     src/resources/rcnode.cpp \
-    src/image/videoframe.cpp
+    src/image/videoframe.cpp \
+    src/utils.cpp
 
 HEADERS += \
     src/utils.h \

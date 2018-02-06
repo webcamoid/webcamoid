@@ -680,6 +680,7 @@ MonikersMap CaptureDShowPrivate::listMonikers() const
     HRESULT hr = this->enumerateCameras(&pEnum);
 
     if (SUCCEEDED(hr)) {
+        pEnum->Reset();
         IMoniker *pMoniker = nullptr;
 
         for (int i = 0; pEnum->Next(1, &pMoniker, nullptr) == S_OK; i++) {
@@ -772,7 +773,11 @@ MediaTypesList CaptureDShowPrivate::listMediaTypes(IBaseFilter *filter) const
 
     for (const PinPtr &pin: pins) {
         IEnumMediaTypes *pEnum = nullptr;
-        pin->EnumMediaTypes(&pEnum);
+
+        if (FAILED(pin->EnumMediaTypes(&pEnum)))
+            continue;
+
+        pEnum->Reset();
         AM_MEDIA_TYPE *mediaType = nullptr;
 
         while (pEnum->Next(1, &mediaType, nullptr) == S_OK)
@@ -825,6 +830,7 @@ PinPtr CaptureDShowPrivate::findUnconnectedPin(IBaseFilter *pFilter,
     if (FAILED(pFilter->EnumPins(&pEnum)))
         return PinPtr();
 
+    pEnum->Reset();
     PinPtr matchedPin;
     IPin *pPin = nullptr;
 
@@ -884,6 +890,7 @@ PinList CaptureDShowPrivate::enumPins(IBaseFilter *filter,
     IEnumPins *enumPins = nullptr;
 
     if (SUCCEEDED(filter->EnumPins(&enumPins))) {
+        enumPins->Reset();
         IPin *pin = nullptr;
 
         while (S_OK == enumPins->Next(1, &pin, nullptr)) {

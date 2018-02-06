@@ -17,17 +17,11 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef AKVCAMUTILS_UTILS_H
-#define AKVCAMUTILS_UTILS_H
+#include "utils.h"
 
-#include "logger/logger.h"
+uint64_t AkVCam::id()
+{
+    static uint64_t id = 0;
 
-#ifndef UNUSED
-    #define UNUSED(x) (void)(x);
-#endif
-
-namespace AkVCam {
-    uint64_t id();
+    return id++;
 }
-
-#endif // AKVCAMUTILS_UTILS_H
