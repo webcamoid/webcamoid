@@ -20,6 +20,8 @@
 #ifndef AKVCAMUTILS_UTILS_H
 #define AKVCAMUTILS_UTILS_H
 
+#include <cstdint>
+
 #include "logger/logger.h"
 
 #ifndef UNUSED
