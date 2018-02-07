@@ -18,6 +18,7 @@
  */
 
 #include <QVariant>
+#include <akcaps.h>
 #include <akpacket.h>
 
 #include "capture.h"
