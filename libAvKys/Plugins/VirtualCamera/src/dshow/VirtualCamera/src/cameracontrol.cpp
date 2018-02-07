@@ -19,7 +19,7 @@
 
 #include <map>
 #include <vector>
-#include <vfwmsgs.h>
+#include <dshow.h>
 
 #include "cameracontrol.h"
 #include "utils.h"

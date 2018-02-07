@@ -17,7 +17,7 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <vfwmsgs.h>
+#include <dshow.h>
 
 #include "enummediatypes.h"
 #include "utils.h"

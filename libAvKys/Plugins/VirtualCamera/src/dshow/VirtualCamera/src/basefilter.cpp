@@ -17,7 +17,8 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <vfwmsgs.h>
+#include <algorithm>
+#include <dshow.h>
 
 #include "basefilter.h"
 #include "cameracontrol.h"

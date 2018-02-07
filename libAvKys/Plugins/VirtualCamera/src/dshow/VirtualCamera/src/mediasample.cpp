@@ -17,7 +17,7 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <vfwmsgs.h>
+#include <dshow.h>
 
 #include "mediasample.h"
 #include "utils.h"
@@ -40,9 +40,9 @@ namespace AkVCam
             REFERENCE_TIME m_sampleTimeEnd;
             REFERENCE_TIME m_mediaTimeStart;
             REFERENCE_TIME m_mediaTimeEnd;
-            WINBOOL m_syncPoint;
-            WINBOOL m_preroll;
-            WINBOOL m_discontinuity;
+            BOOL m_syncPoint;
+            BOOL m_preroll;
+            BOOL m_discontinuity;
     };
 }
 
@@ -57,7 +57,7 @@ AkVCam::MediaSample::MediaSample(IMemAllocator *memAllocator,
     this->d->m_bufferSize = bufferSize;
     this->d->m_dataLength = bufferSize;
     this->d->m_prefix = prefix;
-    size_t realSize = size_t(bufferSize + prefix + align - 1) & ~ULONG(align - 1);
+    auto realSize = size_t(bufferSize + prefix + align - 1) & ~size_t(align - 1);
     this->d->m_buffer = new BYTE[realSize];
     this->d->m_mediaType = nullptr;
     this->d->m_sampleTimeStart = -1;
@@ -147,7 +147,7 @@ HRESULT AkVCam::MediaSample::IsSyncPoint()
     return this->d->m_syncPoint? S_OK: S_FALSE;
 }
 
-HRESULT AkVCam::MediaSample::SetSyncPoint(WINBOOL bIsSyncPoint)
+HRESULT AkVCam::MediaSample::SetSyncPoint(BOOL bIsSyncPoint)
 {
     AkLogMethod();
     this->d->m_syncPoint = bIsSyncPoint;
@@ -162,7 +162,7 @@ HRESULT AkVCam::MediaSample::IsPreroll()
     return this->d->m_preroll? S_OK: S_FALSE;
 }
 
-HRESULT AkVCam::MediaSample::SetPreroll(WINBOOL bIsPreroll)
+HRESULT AkVCam::MediaSample::SetPreroll(BOOL bIsPreroll)
 {
     AkLogMethod();
     this->d->m_preroll = bIsPreroll;
@@ -224,7 +224,7 @@ HRESULT AkVCam::MediaSample::IsDiscontinuity()
     return this->d->m_discontinuity? S_OK: S_FALSE;
 }
 
-HRESULT AkVCam::MediaSample::SetDiscontinuity(WINBOOL bDiscontinuity)
+HRESULT AkVCam::MediaSample::SetDiscontinuity(BOOL bDiscontinuity)
 {
     AkLogMethod();
     this->d->m_discontinuity = bDiscontinuity;

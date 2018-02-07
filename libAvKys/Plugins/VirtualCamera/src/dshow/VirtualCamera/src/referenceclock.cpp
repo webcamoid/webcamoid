@@ -26,6 +26,10 @@
 #include <thread>
 #include <vector>
 
+#ifndef NOMINMAX
+# define NOMINMAX
+#endif
+
 #include "referenceclock.h"
 #include "utils.h"
 #include "VCamUtils/src/utils.h"

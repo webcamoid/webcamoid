@@ -24,7 +24,7 @@
 #include <mutex>
 #include <sstream>
 #include <thread>
-#include <vfwmsgs.h>
+#include <dshow.h>
 
 #include "pin.h"
 #include "basefilter.h"

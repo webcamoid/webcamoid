@@ -18,8 +18,7 @@
  */
 
 #include <vector>
-#include <windef.h>
-#include <winbase.h>
+#include <combaseapi.h>
 #include <winreg.h>
 #include <uuids.h>
 
@@ -91,7 +90,7 @@ bool AkVCam::PluginInterface::registerServer(const std::string &deviceId,
                         nullptr,
                         REG_SZ,
                         description.c_str(),
-                        description.size());
+                        DWORD(description.size()));
 
     if (result != ERROR_SUCCESS)
         goto registerServer_failed;
@@ -106,7 +105,7 @@ bool AkVCam::PluginInterface::registerServer(const std::string &deviceId,
                         nullptr,
                         REG_SZ,
                         fileName.c_str(),
-                        fileName.size());
+                        DWORD(fileName.size()));
 
     if (result != ERROR_SUCCESS)
         goto registerServer_failed;
@@ -117,7 +116,7 @@ bool AkVCam::PluginInterface::registerServer(const std::string &deviceId,
                           0L,
                           REG_SZ,
                           reinterpret_cast<const BYTE *>(threadingModel.c_str()),
-                          (threadingModel.size() + 1) * sizeof(wchar_t));
+                          DWORD((threadingModel.size() + 1) * sizeof(wchar_t)));
 
     ok = true;
 
@@ -160,9 +159,9 @@ bool AkVCam::PluginInterface::registerFilter(const std::string &deviceId,
         {
             REG_PINFLAG_B_MANY | REG_PINFLAG_B_OUTPUT,
             1,
-            pinTypes.size(),
+            UINT(pinTypes.size()),
             pinTypes.data(),
-            mediums.size(),
+            UINT(mediums.size()),
             mediums.data(),
             &PIN_CATEGORY_CAPTURE
         }
@@ -170,7 +169,7 @@ bool AkVCam::PluginInterface::registerFilter(const std::string &deviceId,
     REGFILTER2 regFilter;
     regFilter.dwVersion = 2;
     regFilter.dwMerit = MERIT_NORMAL;
-    regFilter.cPins2 = pins.size();
+    regFilter.cPins2 = ULONG(pins.size());
     regFilter.rgPins2 = pins.data();
 
     auto result = CoInitialize(nullptr);
@@ -270,7 +269,7 @@ bool AkVCam::PluginInterface::setDevicePath(const std::string &deviceId) const
                            0,
                            REG_SZ,
                            reinterpret_cast<const BYTE *>(devicePath.c_str()),
-                           (devicePath.size() + 1) * sizeof(wchar_t));
+                           DWORD((devicePath.size() + 1) * sizeof(wchar_t)));
 
     if (result != ERROR_SUCCESS)
         goto setDevicePath_failed;

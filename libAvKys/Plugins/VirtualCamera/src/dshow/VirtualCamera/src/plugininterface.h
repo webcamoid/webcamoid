@@ -21,7 +21,7 @@
 #define PLUGININTERFACE_H
 
 #include <string>
-#include <minwindef.h>
+#include <combaseapi.h>
 
 namespace AkVCam
 {

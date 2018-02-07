@@ -105,7 +105,7 @@ HRESULT AkVCam::ClassFactory::CreateInstance(IUnknown *pUnkOuter,
     return S_OK;
 }
 
-HRESULT AkVCam::ClassFactory::LockServer(WINBOOL fLock)
+HRESULT AkVCam::ClassFactory::LockServer(BOOL fLock)
 {
     AkLogMethod();
     this->d->m_locked += fLock? 1: -1;

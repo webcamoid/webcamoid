@@ -46,7 +46,7 @@ namespace AkVCam
             HRESULT STDMETHODCALLTYPE CreateInstance(IUnknown *pUnkOuter,
                                                      REFIID riid,
                                                      void **ppvObject);
-            HRESULT STDMETHODCALLTYPE LockServer(WINBOOL fLock);
+            HRESULT STDMETHODCALLTYPE LockServer(BOOL fLock);
 
         private:
             ClassFactoryPrivate *d;

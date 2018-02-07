@@ -20,8 +20,7 @@
 #ifndef PLUGIN_H
 #define PLUGIN_H
 
-#include <windef.h>
-#include <winbase.h>
+#include <combaseapi.h>
 
 // Minimum required COM interface.
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved);

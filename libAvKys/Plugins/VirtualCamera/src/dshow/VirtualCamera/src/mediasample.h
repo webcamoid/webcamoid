@@ -50,15 +50,15 @@ namespace AkVCam
             HRESULT STDMETHODCALLTYPE SetTime(REFERENCE_TIME *pTimeStart,
                                               REFERENCE_TIME *pTimeEnd);
             HRESULT STDMETHODCALLTYPE IsSyncPoint();
-            HRESULT STDMETHODCALLTYPE SetSyncPoint(WINBOOL bIsSyncPoint);
+            HRESULT STDMETHODCALLTYPE SetSyncPoint(BOOL bIsSyncPoint);
             HRESULT STDMETHODCALLTYPE IsPreroll();
-            HRESULT STDMETHODCALLTYPE SetPreroll(WINBOOL bIsPreroll);
+            HRESULT STDMETHODCALLTYPE SetPreroll(BOOL bIsPreroll);
             LONG STDMETHODCALLTYPE GetActualDataLength();
             HRESULT STDMETHODCALLTYPE SetActualDataLength(LONG lLen);
             HRESULT STDMETHODCALLTYPE GetMediaType(AM_MEDIA_TYPE **ppMediaType);
             HRESULT STDMETHODCALLTYPE SetMediaType(AM_MEDIA_TYPE *pMediaType);
             HRESULT STDMETHODCALLTYPE IsDiscontinuity();
-            HRESULT STDMETHODCALLTYPE SetDiscontinuity(WINBOOL bDiscontinuity);
+            HRESULT STDMETHODCALLTYPE SetDiscontinuity(BOOL bDiscontinuity);
             HRESULT STDMETHODCALLTYPE GetMediaTime(LONGLONG *pTimeStart,
                                                    LONGLONG *pTimeEnd);
             HRESULT STDMETHODCALLTYPE SetMediaTime(LONGLONG *pTimeStart,
@@ -104,7 +104,7 @@ namespace AkVCam
         return MediaSample::IsSyncPoint(); \
     } \
     \
-    HRESULT STDMETHODCALLTYPE SetSyncPoint(WINBOOL bIsSyncPoint) \
+    HRESULT STDMETHODCALLTYPE SetSyncPoint(BOOL bIsSyncPoint) \
     { \
         return MediaSample::SetSyncPoint(bIsSyncPoint); \
     } \
@@ -114,7 +114,7 @@ namespace AkVCam
         return MediaSample::IsPreroll(); \
     } \
     \
-    HRESULT STDMETHODCALLTYPE SetPreroll(WINBOOL bIsPreroll) \
+    HRESULT STDMETHODCALLTYPE SetPreroll(BOOL bIsPreroll) \
     { \
         return MediaSample::SetPreroll(bIsPreroll); \
     } \
@@ -144,7 +144,7 @@ namespace AkVCam
         return MediaSample::IsDiscontinuity(); \
     } \
     \
-    HRESULT STDMETHODCALLTYPE SetDiscontinuity(WINBOOL bDiscontinuity) \
+    HRESULT STDMETHODCALLTYPE SetDiscontinuity(BOOL bDiscontinuity) \
     { \
         return MediaSample::SetDiscontinuity(bDiscontinuity); \
     } \

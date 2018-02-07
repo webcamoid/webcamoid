@@ -50,8 +50,8 @@ namespace AkVCam
             HRESULT STDMETHODCALLTYPE Load(IPropertyBag *pPropBag,
                                            IErrorLog *pErrorLog);
             HRESULT STDMETHODCALLTYPE Save(IPropertyBag *pPropBag,
-                                           WINBOOL fClearDirty,
-                                           WINBOOL fSaveAllProperties);
+                                           BOOL fClearDirty,
+                                           BOOL fSaveAllProperties);
 
         private:
             PersistPropertyBagPrivate *d;

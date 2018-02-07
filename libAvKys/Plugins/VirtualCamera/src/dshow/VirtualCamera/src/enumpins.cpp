@@ -18,7 +18,7 @@
  */
 
 #include <vector>
-#include <vfwmsgs.h>
+#include <dshow.h>
 
 #include "enumpins.h"
 #include "pin.h"

@@ -20,7 +20,7 @@
 #include <cwchar>
 #include <map>
 #include <sstream>
-#include <windef.h>
+#include <combaseapi.h>
 #include <fileapi.h>
 #include <wincrypt.h>
 #include <comdef.h>
@@ -129,7 +129,7 @@ CLSID AkVCam::createClsidFromStr(const std::string &str)
 
     if (!CryptHashData(hash,
                        reinterpret_cast<const BYTE *>(str.c_str()),
-                       str.size(),
+                       DWORD(str.size()),
                        0))
         goto clsidFromStr_failed;
 
@@ -307,7 +307,7 @@ AM_MEDIA_TYPE *AkVCam::mediaTypeFromFormat(const AkVCam::VideoFormat &format)
     videoInfo->bmiHeader.biPlanes = 1;
     videoInfo->bmiHeader.biBitCount = WORD(format.bpp());
     videoInfo->bmiHeader.biCompression = compressionFromFormat(format.fourcc());
-    videoInfo->bmiHeader.biSizeImage = format.size();
+    videoInfo->bmiHeader.biSizeImage = DWORD(format.size());
 
     auto mediaType =
             reinterpret_cast<AM_MEDIA_TYPE *>(CoTaskMemAlloc(sizeof(AM_MEDIA_TYPE)));
@@ -318,7 +318,7 @@ AM_MEDIA_TYPE *AkVCam::mediaTypeFromFormat(const AkVCam::VideoFormat &format)
     mediaType->subtype = subtype;
     mediaType->bFixedSizeSamples = TRUE;
     mediaType->bTemporalCompression = FALSE;
-    mediaType->lSampleSize = frameSize;
+    mediaType->lSampleSize = ULONG(frameSize);
     mediaType->formattype = FORMAT_VideoInfo;
     mediaType->cbFormat = sizeof(VIDEOINFOHEADER);
     mediaType->pbFormat = reinterpret_cast<BYTE *>(videoInfo);

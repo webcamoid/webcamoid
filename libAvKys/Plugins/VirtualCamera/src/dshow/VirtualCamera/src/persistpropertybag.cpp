@@ -106,8 +106,8 @@ HRESULT AkVCam::PersistPropertyBag::Load(IPropertyBag *pPropBag,
 }
 
 HRESULT AkVCam::PersistPropertyBag::Save(IPropertyBag *pPropBag,
-                                         WINBOOL fClearDirty,
-                                         WINBOOL fSaveAllProperties)
+                                         BOOL fClearDirty,
+                                         BOOL fSaveAllProperties)
 {
     UNUSED(fClearDirty)
     UNUSED(fSaveAllProperties)

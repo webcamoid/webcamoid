@@ -19,7 +19,7 @@
 
 #include <algorithm>
 #include <vector>
-#include <vfwmsgs.h>
+#include <dshow.h>
 
 #include "mediafilter.h"
 #include "utils.h"

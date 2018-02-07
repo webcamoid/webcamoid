@@ -21,7 +21,7 @@
 #include <amvideo.h>
 #include <dvdmedia.h>
 #include <uuids.h>
-#include <vfwmsgs.h>
+#include <dshow.h>
 
 #include "streamconfig.h"
 #include "basefilter.h"

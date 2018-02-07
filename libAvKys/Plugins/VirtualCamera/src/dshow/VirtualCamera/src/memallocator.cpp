@@ -20,7 +20,7 @@
 #include <condition_variable>
 #include <mutex>
 #include <vector>
-#include <vfwmsgs.h>
+#include <dshow.h>
 
 #include "memallocator.h"
 #include "mediasample.h"
@@ -189,7 +189,7 @@ HRESULT AkVCam::MemAllocator::GetBuffer(IMediaSample **ppBuffer,
 
     HRESULT result = S_FALSE;
 
-    do {        
+    do {
         for (auto &sample: this->d->m_samples) {
             if (sample->ref() < 2) {
                 *ppBuffer = sample;
