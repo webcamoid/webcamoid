@@ -36,6 +36,7 @@ class AkElementPrivate;
 class AkPacket;
 class AkAudioPacket;
 class AkVideoPacket;
+class QDataStream;
 class QQmlEngine;
 class QQmlContext;
 

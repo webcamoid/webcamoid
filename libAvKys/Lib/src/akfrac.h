@@ -25,6 +25,7 @@
 #include "akcommons.h"
 
 class AkFracPrivate;
+class QDataStream;
 
 class AKCOMMONS_EXPORT AkFrac: public QObject
 {

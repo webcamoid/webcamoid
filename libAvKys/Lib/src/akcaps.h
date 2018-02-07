@@ -25,6 +25,7 @@
 #include "akcommons.h"
 
 class AkCapsPrivate;
+class QDataStream;
 
 class AKCOMMONS_EXPORT AkCaps: public QObject
 {

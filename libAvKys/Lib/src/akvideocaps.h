@@ -35,6 +35,7 @@
 class AkVideoCapsPrivate;
 class AkCaps;
 class AkFrac;
+class QDataStream;
 
 class AKCOMMONS_EXPORT AkVideoCaps: public QObject
 {

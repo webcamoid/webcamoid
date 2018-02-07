@@ -26,6 +26,7 @@
 
 class AkAudioCapsPrivate;
 class AkCaps;
+class QDataStream;
 
 class AKCOMMONS_EXPORT AkAudioCaps: public QObject
 {
