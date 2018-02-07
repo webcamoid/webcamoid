@@ -17,6 +17,7 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <akcaps.h>
 #include <akpacket.h>
 
 #include "convertvideo.h"

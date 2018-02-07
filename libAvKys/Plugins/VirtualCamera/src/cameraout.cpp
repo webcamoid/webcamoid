@@ -17,6 +17,8 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <akpacket.h>
+
 #include "cameraout.h"
 
 #define PASSWORD_TIMEOUT 2500
