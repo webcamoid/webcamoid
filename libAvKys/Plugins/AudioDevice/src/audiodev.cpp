@@ -18,6 +18,7 @@
  */
 
 #include <QVector>
+#include <akaudiopacket.h>
 
 #include "audiodev.h"
 
