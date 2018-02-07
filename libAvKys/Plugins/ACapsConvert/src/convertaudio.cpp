@@ -17,6 +17,8 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <akaudiocaps.h>
+
 #include "convertaudio.h"
 #include "akpacket.h"
 
