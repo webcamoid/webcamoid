@@ -25,6 +25,14 @@ environment:
     INSTALL_PREFIX: C:/projects/webcamoid/ports/deploy/temp_priv/root
 
   matrix:
+    - QTDIR: C:\Qt\5.9\mingw53_32
+      TOOLSDIR: C:\Qt\Tools\mingw482_32
+    - QTDIR: C:\Qt\5.9\mingw53_32
+      TOOLSDIR: C:\Qt\Tools\mingw491_32
+    - QTDIR: C:\Qt\5.9\mingw53_32
+      TOOLSDIR: C:\Qt\Tools\mingw492_32
+    - QTDIR: C:\Qt\5.9\mingw53_32
+      TOOLSDIR: C:\Qt\Tools\mingw530_32
     - QTDIR: C:\Qt\5.9\msvc2013_64
       TOOLSDIR: C:\Qt\Tools\QtCreator
       QMAKESPEC: win32-msvc
@@ -49,14 +57,6 @@ environment:
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
       VSPATH: C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build
       MAKETOOL: jom
-    - QTDIR: C:\Qt\5.9\mingw53_32
-      TOOLSDIR: C:\Qt\Tools\mingw482_32
-    - QTDIR: C:\Qt\5.9\mingw53_32
-      TOOLSDIR: C:\Qt\Tools\mingw491_32
-    - QTDIR: C:\Qt\5.9\mingw53_32
-      TOOLSDIR: C:\Qt\Tools\mingw492_32
-    - QTDIR: C:\Qt\5.9\mingw53_32
-      TOOLSDIR: C:\Qt\Tools\mingw530_32
 
 install:
   - ports\ci\appveyor\install_deps.bat

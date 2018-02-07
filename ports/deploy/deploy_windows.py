@@ -304,6 +304,9 @@ class Deploy:
     def exeDump(self, exe):
         dllImports = set()
 
+        if not os.path.exists(exe) or not os.path.isfile(exe):
+            return dllImports
+
         with open(exe, 'rb') as f:
             # Check DOS header signature.
             if f.read(2) != b'MZ':
