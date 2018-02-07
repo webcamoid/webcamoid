@@ -18,6 +18,7 @@
  */
 
 #include <akaudiocaps.h>
+#include <akaudiopacket.h>
 
 #include "convertaudio.h"
 #include "akpacket.h"
