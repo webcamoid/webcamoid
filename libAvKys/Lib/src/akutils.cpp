@@ -17,9 +17,10 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QVariant>
-#include <QMap>
+#include <QDataStream>
 #include <QImage>
+#include <QMap>
+#include <QVariant>
 
 #include "akutils.h"
 #include "akcaps.h"

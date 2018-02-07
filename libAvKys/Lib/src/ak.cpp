@@ -17,9 +17,10 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QDir>
 #include <QColor>
 #include <QCoreApplication>
+#include <QDataStream>
+#include <QDir>
 #include <QQmlEngine>
 
 #ifdef Q_OS_WIN32
