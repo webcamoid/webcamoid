@@ -19,6 +19,7 @@
 
 #include <QVariantMap>
 #include <akcaps.h>
+#include <akpacket.h>
 
 #include "mediawriter.h"
 
