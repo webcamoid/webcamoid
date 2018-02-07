@@ -101,28 +101,28 @@ matrix:
       - docker
     compiler: gcc
     env:
-      - DOCKERSYS=debian DOCKERIMG=ubuntu:zesty
+      - DOCKERSYS=debian DOCKERIMG=ubuntu:artful
   - os: linux
     sudo: required
     services:
       - docker
     compiler: clang
     env:
-      - DOCKERSYS=debian DOCKERIMG=ubuntu:zesty
+      - DOCKERSYS=debian DOCKERIMG=ubuntu:artful
   - os: linux
     sudo: required
     services:
       - docker
     compiler: gcc
     env:
-      - DOCKERSYS=debian DOCKERIMG=ubuntu:artful
+      - DOCKERSYS=debian DOCKERIMG=ubuntu:bionic
   - os: linux
     sudo: required
     services:
       - docker
     compiler: clang
     env:
-      - DOCKERSYS=debian DOCKERIMG=ubuntu:artful
+      - DOCKERSYS=debian DOCKERIMG=ubuntu:bionic
   - os: osx
     osx_image: xcode8.3
     compiler: clang

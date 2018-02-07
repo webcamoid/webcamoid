@@ -396,7 +396,10 @@ class Deploy:
 
                     dllName += c
 
-                dllImports.add(dllName.decode(sys.getdefaultencoding()))
+                try:
+                    dllImports.add(dllName.decode(sys.getdefaultencoding()))
+                except:
+                    pass
 
         return dllImports
 
