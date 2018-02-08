@@ -51,7 +51,7 @@ HRESULT AkVCam::PersistPropertyBag::QueryInterface(const IID &riid,
                                                    void **ppvObject)
 {
     AkLogMethod();
-    AkLoggerLog("IID: " + AkVCam::stringFromClsid(riid));
+    AkLoggerLog("IID: ", AkVCam::stringFromClsid(riid));
 
     if (!ppvObject)
         return E_POINTER;

@@ -57,7 +57,7 @@ bool AkVCam::ClassFactory::locked()
 HRESULT AkVCam::ClassFactory::QueryInterface(const IID &riid, void **ppvObject)
 {
     AkLogMethod();
-    AkLoggerLog("IID: " + AkVCam::stringFromClsid(riid));
+    AkLoggerLog("IID: ", AkVCam::stringFromClsid(riid));
 
     if (!ppvObject)
         return E_POINTER;
@@ -88,8 +88,8 @@ HRESULT AkVCam::ClassFactory::CreateInstance(IUnknown *pUnkOuter,
                                              void **ppvObject)
 {
     AkLogMethod();
-    AkLoggerLog("Outer: " << ULONG_PTR(pUnkOuter));
-    AkLoggerLog("IID: " << stringFromClsid(riid));
+    AkLoggerLog("Outer: ", ULONG_PTR(pUnkOuter));
+    AkLoggerLog("IID: ", stringFromClsid(riid));
 
     if (!ppvObject)
         return E_INVALIDARG;

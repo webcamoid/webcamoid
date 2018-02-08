@@ -26,11 +26,10 @@
 #include "VCamUtils/src/image/videoformattypes.h"
 
 #define AkLogInterface(interface, instance) \
-    AkLoggerLog("Returning " << #interface << "(" << instance << ")")
+    AkLoggerLog("Returning ", #interface, "(", instance, ")")
 
 #define AkLogMethod() \
-    AkLoggerLog(AK_CUR_INTERFACE \
-                << "(" << this << ")::" << __FUNCTION__ << "()")
+    AkLoggerLog(AK_CUR_INTERFACE, "(", this, ")::", __FUNCTION__, "()")
 
 namespace AkVCam
 {

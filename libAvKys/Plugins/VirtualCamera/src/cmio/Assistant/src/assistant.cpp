@@ -28,7 +28,7 @@
 #include "VCamUtils/src/image/videoframe.h"
 
 #define AkAssistantLogMethod() \
-    AkLoggerLog("Assistant::" << __FUNCTION__ << "()")
+    AkLoggerLog("Assistant::", __FUNCTION__, "()")
 
 namespace AkVCam
 {
@@ -136,7 +136,7 @@ void AkVCam::Assistant::requestPort(xpc_connection_t client,
                 AKVCAM_ASSISTANT_SERVER_NAME;
     portName += std::to_string(this->d->id());
 
-    AkLoggerLog("Returning Port: " << portName);
+    AkLoggerLog("Returning Port: ", portName);
 
     auto reply = xpc_dictionary_create_reply(event);
     xpc_dictionary_set_string(reply, "port", portName.c_str());
@@ -165,7 +165,7 @@ void AkVCam::Assistant::addPort(xpc_connection_t client,
             }
 
         if (ok) {
-            AkLoggerLog("Adding Client: " << portName);
+            AkLoggerLog("Adding Client: ", portName);
             this->d->m_clients[portName] = connection;
             this->d->stopTimer();
         }
@@ -178,7 +178,7 @@ void AkVCam::Assistant::addPort(xpc_connection_t client,
             }
 
         if (ok) {
-            AkLoggerLog("Adding Server: " << portName);
+            AkLoggerLog("Adding Server: ", portName);
             this->d->m_servers[portName] = {connection, {}};
             this->d->stopTimer();
         }
@@ -193,7 +193,7 @@ void AkVCam::Assistant::addPort(xpc_connection_t client,
 void AkVCam::Assistant::removePortByName(const std::string &portName)
 {
     AkAssistantLogMethod();
-    AkLoggerLog("Port: " << portName);
+    AkLoggerLog("Port: ", portName);
 
     for (auto &server: this->d->m_servers)
         if (server.first == portName) {
@@ -335,8 +335,8 @@ void AkVCam::Assistant::setBroadcasting(xpc_connection_t client,
                 if (device.broadcasting == broadcasting)
                     goto setBroadcasting_end;
 
-                AkLoggerLog("Device: " << deviceId);
-                AkLoggerLog("Broadcasting: " << broadcasting);
+                AkLoggerLog("Device: ", deviceId);
+                AkLoggerLog("Broadcasting: ", broadcasting);
                 device.broadcasting = broadcasting;
                 auto notification = xpc_dictionary_create(NULL, NULL, 0);
                 xpc_dictionary_set_int64(notification, "message", AKVCAM_ASSISTANT_MSG_DEVICE_BROADCASTING_CHANGED);
@@ -498,8 +498,8 @@ void AkVCam::Assistant::listeners(xpc_connection_t client,
             }
 
 listeners_end:
-    AkLoggerLog("Device: " << deviceId);
-    AkLoggerLog("Listeners: " << listeners);
+    AkLoggerLog("Device: ", deviceId);
+    AkLoggerLog("Listeners: ", listeners);
     auto reply = xpc_dictionary_create_reply(event);
     xpc_dictionary_set_int64(reply, "listeners", listeners);
     xpc_connection_send_message(client, reply);
@@ -540,10 +540,7 @@ void AkVCam::Assistant::description(xpc_connection_t client,
             }
 
 description_end:
-    AkLoggerLog("Description for device "
-                << deviceId
-                << ": "
-                << description);
+    AkLoggerLog("Description for device ", deviceId, ": ", description);
 
     auto reply = xpc_dictionary_create_reply(event);
     xpc_dictionary_set_string(reply, "description", description.c_str());
@@ -596,8 +593,8 @@ void AkVCam::Assistant::broadcasting(xpc_connection_t client,
             }
 
 broadcasting_end:
-    AkLoggerLog("Device: " << deviceId);
-    AkLoggerLog("Broadcasting: " << broadcasting);
+    AkLoggerLog("Device: ", deviceId);
+    AkLoggerLog("Broadcasting: ", broadcasting);
     auto reply = xpc_dictionary_create_reply(event);
     xpc_dictionary_set_bool(reply, "broadcasting", broadcasting);
     xpc_connection_send_message(client, reply);
@@ -621,9 +618,9 @@ void AkVCam::Assistant::mirroring(xpc_connection_t client, xpc_object_t event)
             }
 
 mirroring_end:
-    AkLoggerLog("Device: " << deviceId);
-    AkLoggerLog("Horizontal mirror: " << horizontalMirror);
-    AkLoggerLog("Vertical mirror: " << verticalMirror);
+    AkLoggerLog("Device: ", deviceId);
+    AkLoggerLog("Horizontal mirror: ", horizontalMirror);
+    AkLoggerLog("Vertical mirror: ", verticalMirror);
     auto reply = xpc_dictionary_create_reply(event);
     xpc_dictionary_set_bool(reply, "hmirror", horizontalMirror);
     xpc_dictionary_set_bool(reply, "vmirror", verticalMirror);
@@ -646,8 +643,8 @@ void AkVCam::Assistant::scaling(xpc_connection_t client, xpc_object_t event)
             }
 
 scaling_end:
-    AkLoggerLog("Device: " << deviceId);
-    AkLoggerLog("Scaling: " << scaling);
+    AkLoggerLog("Device: ", deviceId);
+    AkLoggerLog("Scaling: ", scaling);
     auto reply = xpc_dictionary_create_reply(event);
     xpc_dictionary_set_int64(reply, "scaling", scaling);
     xpc_connection_send_message(client, reply);
@@ -670,8 +667,8 @@ void AkVCam::Assistant::aspectRatio(xpc_connection_t client,
             }
 
 aspectRatio_end:
-    AkLoggerLog("Device: " << deviceId);
-    AkLoggerLog("Aspect ratio: " << aspectRatio);
+    AkLoggerLog("Device: ", deviceId);
+    AkLoggerLog("Aspect ratio: ", aspectRatio);
     auto reply = xpc_dictionary_create_reply(event);
     xpc_dictionary_set_int64(reply, "aspect", aspectRatio);
     xpc_connection_send_message(client, reply);
@@ -779,12 +776,12 @@ void AkVCam::Assistant::messageReceived(xpc_connection_t client,
     AkAssistantLogMethod();
     auto type = xpc_get_type(event);
 
-    if (type == XPC_TYPE_ERROR) {        
+    if (type == XPC_TYPE_ERROR) {
         if (event == XPC_ERROR_CONNECTION_INVALID) {
             this->peerDied();
         } else {
             auto description = xpc_copy_description(event);
-            AkLoggerLog("ERROR: " << description);
+            AkLoggerLog("ERROR: ", description);
             free(description);
         }
     } else if (type == XPC_TYPE_DICTIONARY) {

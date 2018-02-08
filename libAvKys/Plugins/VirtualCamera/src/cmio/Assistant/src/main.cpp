@@ -43,7 +43,7 @@ int main(int argc, char **argv)
     for (int i = 0; i < argc; i++)
         if (strcmp(argv[i], "--timeout") == 0 && i + 1 < argc) {
             auto timeout = strtod(argv[i + 1], nullptr);
-            AkLoggerLog("Set timeout: " << timeout);
+            AkLoggerLog("Set timeout: ", timeout);
             assistant()->setTimeout(timeout);
 
             break;
@@ -54,7 +54,7 @@ int main(int argc, char **argv)
 
         if (type == XPC_TYPE_ERROR) {
              auto description = xpc_copy_description(event);
-             AkLoggerLog("ERROR: " << description);
+             AkLoggerLog("ERROR: ", description);
              free(description);
 
              return;

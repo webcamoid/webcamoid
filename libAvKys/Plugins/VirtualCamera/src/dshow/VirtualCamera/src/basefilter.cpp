@@ -111,7 +111,7 @@ IFilterGraph *AkVCam::BaseFilter::filterGraph() const
 HRESULT AkVCam::BaseFilter::QueryInterface(const IID &riid, void **ppvObject)
 {
     AkLogMethod();
-    AkLoggerLog("IID: " + AkVCam::stringFromClsid(riid));
+    AkLoggerLog("IID: ", AkVCam::stringFromClsid(riid));
 
     if (!ppvObject)
         return E_POINTER;
@@ -229,9 +229,9 @@ HRESULT AkVCam::BaseFilter::JoinFilterGraph(IFilterGraph *pGraph, LPCWSTR pName)
     this->d->m_filterGraph = pGraph;
     this->d->m_filterName = std::wstring(pName? pName: L"");
 
-    AkLoggerLog("Filter graph: " << this->d->m_filterGraph);
-    AkLoggerLog("Name: " << std::string(this->d->m_filterName.begin(),
-                                        this->d->m_filterName.end()));
+    AkLoggerLog("Filter graph: ", this->d->m_filterGraph);
+    AkLoggerLog("Name: ", std::string(this->d->m_filterName.begin(),
+                                      this->d->m_filterName.end()));
 
     return S_OK;
 }

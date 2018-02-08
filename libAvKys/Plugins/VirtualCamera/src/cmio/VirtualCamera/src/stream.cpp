@@ -123,7 +123,7 @@ OSStatus AkVCam::Stream::createObject()
     if (status == kCMIOHardwareNoError) {
         this->m_isCreated = true;
         this->m_objectID = streamID;
-        AkLoggerLog("Created stream: " << this->m_objectID);
+        AkLoggerLog("Created stream: ", this->m_objectID);
     }
 
     return status;
@@ -182,12 +182,12 @@ void AkVCam::Stream::setFormats(const std::vector<VideoFormat> &formats)
 
 #ifdef QT_DEBUG
     for (auto &format: formatsAdjusted)
-        AkLoggerLog("Format: "
-                    << enumToString(format.fourcc())
-                    << " "
-                    << format.width()
-                    << "x"
-                    << format.height());
+        AkLoggerLog("Format: ",
+                    enumToString(format.fourcc()),
+                    " ",
+                    format.width(),
+                    "x",
+                    format.height());
 #endif
 
     this->m_properties.setProperty(kCMIOStreamPropertyFormatDescriptions,
@@ -233,7 +233,7 @@ bool AkVCam::Stream::start()
     this->d->m_sequence = 0;
     memset(&this->d->m_pts, 0, sizeof(CMTime));
     this->d->m_running = this->d->startTimer();
-    AkLoggerLog("Running: " << this->d->m_running);
+    AkLoggerLog("Running: ", this->d->m_running);
 
     return this->d->m_running;
 }
@@ -259,8 +259,8 @@ bool AkVCam::Stream::running()
 void AkVCam::Stream::frameReady(const AkVCam::VideoFrame &frame)
 {
     AkObjectLogMethod();
-    AkLoggerLog("Running: " << this->d->m_running);
-    AkLoggerLog("Broadcasting: " << this->d->m_broadcasting);
+    AkLoggerLog("Running: ", this->d->m_running);
+    AkLoggerLog("Broadcasting: ", this->d->m_broadcasting);
 
     if (!this->d->m_running)
         return;
@@ -440,7 +440,7 @@ void AkVCam::StreamPrivate::streamLoop(CFRunLoopTimerRef timer, void *info)
     UNUSED(timer)
 
     auto self = reinterpret_cast<StreamPrivate *>(info);
-    AkLoggerLog("Running: " << self->m_running);
+    AkLoggerLog("Running: ", self->m_running);
 
     if (!self->m_running)
         return;
@@ -461,12 +461,12 @@ void AkVCam::StreamPrivate::sendFrame(const VideoFrame &frame)
     int width = frame.format().width();
     int height = frame.format().height();
 
-    AkLoggerLog("Sending Frame: "
-                << enumToString(fourcc)
-                << " "
-                << width
-                << "x"
-                << height);
+    AkLoggerLog("Sending Frame: ",
+                enumToString(fourcc),
+                " ",
+                width,
+                "x",
+                height);
 
     bool resync = false;
     auto hostTime = UInt64(CFAbsoluteTimeGetCurrent());

@@ -32,7 +32,7 @@ inline AkVCam::PluginInterface *pluginInterface()
 
 // Filter entry point
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
-{   
+{
     UNUSED(lpvReserved)
 
 #if defined(QT_DEBUG) && 0
@@ -43,12 +43,12 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 #endif
 
     AkLoggerStart(AkVCam::tempPath() + "\\AkVirtualCamera", "log");
-    AkLoggerLog(__FUNCTION__ << "()");
+    AkLoggerLog(__FUNCTION__, "()");
 
     switch (fdwReason) {
         case DLL_PROCESS_ATTACH:
             AkLoggerLog("Reason Attach");
-            AkLoggerLog("Module file name: " << AkVCam::moduleFileName(hinstDLL));
+            AkLoggerLog("Module file name: ", AkVCam::moduleFileName(hinstDLL));
             DisableThreadLibraryCalls(hinstDLL);
             pluginInterface()->pluginHinstance() = hinstDLL;
 
@@ -60,7 +60,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
             break;
 
         default:
-            AkLoggerLog("Reason Unknown: " << fdwReason);
+            AkLoggerLog("Reason Unknown: ", fdwReason);
 
             break;
     }
@@ -70,9 +70,9 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 
 STDAPI DllGetClassObject(REFCLSID rclsid, REFIID riid, LPVOID *ppv)
 {
-    AkLoggerLog(__FUNCTION__ << "()");
-    AkLoggerLog("CLSID: " << AkVCam::stringFromClsid(rclsid));
-    AkLoggerLog("IID: " << AkVCam::stringFromClsid(rclsid));
+    AkLoggerLog(__FUNCTION__, "()");
+    AkLoggerLog("CLSID: ", AkVCam::stringFromClsid(rclsid));
+    AkLoggerLog("IID: ", AkVCam::stringFromClsid(rclsid));
 
     if (!ppv)
         return E_INVALIDARG;
@@ -92,14 +92,14 @@ STDAPI DllGetClassObject(REFCLSID rclsid, REFIID riid, LPVOID *ppv)
 
 STDAPI DllCanUnloadNow()
 {
-    AkLoggerLog(__FUNCTION__ << "()");
+    AkLoggerLog(__FUNCTION__, "()");
 
     return AkVCam::ClassFactory::locked()? S_FALSE: S_OK;
 }
 
 STDAPI DllRegisterServer()
 {
-    AkLoggerLog(__FUNCTION__ << "()");
+    AkLoggerLog(__FUNCTION__, "()");
 
     DllUnregisterServer();
 
@@ -112,7 +112,7 @@ STDAPI DllRegisterServer()
 
 STDAPI DllUnregisterServer()
 {
-    AkLoggerLog(__FUNCTION__ << "()");
+    AkLoggerLog(__FUNCTION__, "()");
     pluginInterface()->destroyDevice(DSHOW_PLUGIN_CLSID_STRING);
 
     return S_OK;

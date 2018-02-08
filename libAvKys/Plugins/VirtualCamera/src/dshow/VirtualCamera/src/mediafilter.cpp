@@ -128,7 +128,7 @@ HRESULT AkVCam::MediaFilter::GetState(DWORD dwMilliSecsTimeout,
         return E_POINTER;
 
     *State = this->d->m_state;
-    AkLoggerLog("State: " << *State);
+    AkLoggerLog("State: ", *State);
 
     return S_OK;
 }

@@ -24,7 +24,7 @@
 
 #ifdef QT_DEBUG
     #define AkLoggerStart(...) AkVCam::Logger::start(__VA_ARGS__)
-    #define AkLoggerLog(data) AkVCam::Logger::log() << data << std::endl
+    #define AkLoggerLog(...) AkVCam::Logger::log(__VA_ARGS__)
     #define AkLoggerStop() AkVCam::Logger::stop()
 
     namespace AkVCam
@@ -33,13 +33,29 @@
         {
             void start(const std::string &fileName=std::string(),
                        const std::string &extension=std::string());
-            std::ostream &log();
+            std::string header();
+            std::ostream &out();
+            void log();
+            void tlog();
             void stop();
+
+            template<typename First, typename... Next>
+            void tlog(const First &first, const Next &... next)
+            {
+                out() << first;
+                tlog(next...);
+            }
+
+            template<typename... Param>
+            void log(const Param &... param)
+            {
+                tlog(header(), " ", param...);
+            }
         }
     }
 #else
     #define AkLoggerStart(...)
-    #define AkLoggerLog(data)
+    #define AkLoggerLog(...)
     #define AkLoggerStop()
 #endif
 

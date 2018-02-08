@@ -26,16 +26,16 @@
 #define AkCUnknownLogMethod() \
     AkLoggerLog((this->d->m_parent? \
                     stringFromClsid(this->d->m_parentCLSID): \
-                    std::string("CUnknown")) \
-                << "(" << (this->d->m_parent? this->d->m_parent: this) \
-                << ")::" << __FUNCTION__ << "()")
+                    std::string("CUnknown")), \
+                "(", (this->d->m_parent? this->d->m_parent: this), \
+                ")::", __FUNCTION__, "()")
 
 #define AkCUnknownLogThis() \
-    AkLoggerLog("Returning " \
-                << (this->d->m_parent? \
-                        stringFromClsid(this->d->m_parentCLSID): \
-                        std::string("CUnknown")) \
-                << "(" << (this->d->m_parent? this->d->m_parent: this) << ")")
+    AkLoggerLog("Returning ", \
+                (this->d->m_parent? \
+                    stringFromClsid(this->d->m_parentCLSID): \
+                    std::string("CUnknown")), \
+                "(", (this->d->m_parent? this->d->m_parent: this), ")")
 
 namespace AkVCam
 {
@@ -76,7 +76,7 @@ ULONG AkVCam::CUnknown::ref() const
 HRESULT AkVCam::CUnknown::QueryInterface(const IID &riid, void **ppvObject)
 {
     AkCUnknownLogMethod();
-    AkLoggerLog("IID: " + AkVCam::stringFromClsid(riid));
+    AkLoggerLog("IID: ", AkVCam::stringFromClsid(riid));
 
     if (!ppvObject)
         return E_POINTER;
@@ -101,7 +101,7 @@ ULONG AkVCam::CUnknown::AddRef()
 {
     AkCUnknownLogMethod();
     this->d->m_ref++;
-    AkLoggerLog("REF: " << this->d->m_ref);
+    AkLoggerLog("REF: ", this->d->m_ref);
 
     return this->d->m_ref;
 }
@@ -109,7 +109,7 @@ ULONG AkVCam::CUnknown::AddRef()
 ULONG AkVCam::CUnknown::Release()
 {
     AkCUnknownLogMethod();
-    AkLoggerLog("REF: " << this->d->m_ref);
+    AkLoggerLog("REF: ", this->d->m_ref);
 
     if (this->d->m_ref)
         this->d->m_ref--;

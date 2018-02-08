@@ -30,7 +30,7 @@
 #include "VCamUtils/src/image/videoframe.h"
 
 #define AkIpcBridgeLogMethod() \
-    AkLoggerLog("IpcBridge::" << __FUNCTION__ << "()")
+    AkLoggerLog("IpcBridge::", __FUNCTION__, "()")
 
 namespace AkVCam
 {
@@ -242,7 +242,7 @@ namespace AkVCam
 
                 if (type == XPC_TYPE_ERROR) {
                      auto description = xpc_copy_description(event);
-                     AkLoggerLog("ERROR: " << description);
+                     AkLoggerLog("ERROR: ", description);
                      free(description);
                 } else if (type == XPC_TYPE_DICTIONARY) {
                     int64_t message = xpc_dictionary_get_int64(event, "message");
@@ -538,8 +538,8 @@ bool AkVCam::IpcBridge::broadcasting(const std::string &deviceId) const
     bool broadcasting = xpc_dictionary_get_bool(reply, "broadcasting");
     xpc_release(reply);
 
-    AkLoggerLog("Device: " << deviceId);
-    AkLoggerLog("Broadcasting: " << broadcasting);
+    AkLoggerLog("Device: ", deviceId);
+    AkLoggerLog("Broadcasting: ", broadcasting);
 
     return broadcasting;
 }
@@ -676,8 +676,8 @@ int AkVCam::IpcBridge::listeners(const std::string &deviceId)
     bool listeners = xpc_dictionary_get_int64(reply, "listeners");
     xpc_release(reply);
 
-    AkLoggerLog("Device: " << deviceId);
-    AkLoggerLog("Listeners: " << listeners);
+    AkLoggerLog("Device: ", deviceId);
+    AkLoggerLog("Listeners: ", listeners);
 
     return listeners;
 }

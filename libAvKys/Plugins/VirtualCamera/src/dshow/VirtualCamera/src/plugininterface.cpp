@@ -71,9 +71,9 @@ bool AkVCam::PluginInterface::registerServer(const std::string &deviceId,
     auto fileName = AkVCam::moduleFileNameW(this->d->m_pluginHinstance);
     std::wstring threadingModel = L"Both";
 
-    AkLoggerLog("CLSID: " << std::string(clsid.begin(), clsid.end()));
-    AkLoggerLog("Description: " << std::string(description.begin(), description.end()));
-    AkLoggerLog("Filename: " << std::string(fileName.begin(), fileName.end()));
+    AkLoggerLog("CLSID: ", std::string(clsid.begin(), clsid.end()));
+    AkLoggerLog("Description: ", std::string(description.begin(), description.end()));
+    AkLoggerLog("Filename: ", std::string(fileName.begin(), fileName.end()));
 
     auto subkey = L"CLSID\\" + clsid;
 
@@ -127,7 +127,7 @@ registerServer_failed:
     if (keyCLSID)
         RegCloseKey(keyCLSID);
 
-    AkLoggerLog("Result: " + stringFromResult(result));
+    AkLoggerLog("Result: ", stringFromResult(result));
 
     return ok;
 }
@@ -137,7 +137,7 @@ void AkVCam::PluginInterface::unregisterServer(const std::string &deviceId) cons
     AkLogMethod();
 
     auto clsid = createClsidWStrFromStr(deviceId);
-    AkLoggerLog("CLSID: " << std::string(clsid.begin(), clsid.end()));
+    AkLoggerLog("CLSID: ", std::string(clsid.begin(), clsid.end()));
     auto subkey = L"CLSID\\" + clsid;
 
     this->d->deleteTree(HKEY_CLASSES_ROOT, subkey.c_str());
@@ -203,7 +203,7 @@ registerFilter_failed:
 
     CoUninitialize();
 
-    AkLoggerLog("Result: " + stringFromResult(result));
+    AkLoggerLog("Result: ", stringFromResult(result));
 
     return ok;
 }
@@ -237,7 +237,7 @@ unregisterFilter_failed:
         filterMapper->Release();
 
     CoUninitialize();
-    AkLoggerLog("Result: " + stringFromResult(result));
+    AkLoggerLog("Result: ", stringFromResult(result));
 }
 
 bool AkVCam::PluginInterface::setDevicePath(const std::string &deviceId) const
@@ -251,7 +251,7 @@ bool AkVCam::PluginInterface::setDevicePath(const std::string &deviceId) const
             + createClsidWStrFromStr(deviceId);
     std::wstring devicePath(deviceId.begin(), deviceId.end());
     AkLoggerLog("Key: HKEY_CLASSES_ROOT");
-    AkLoggerLog("SubKey: " + std::string(subKey.begin(), subKey.end()));
+    AkLoggerLog("SubKey: ", std::string(subKey.begin(), subKey.end()));
 
     HKEY hKey = nullptr;
     auto result = RegOpenKeyEx(HKEY_CLASSES_ROOT,
@@ -280,7 +280,7 @@ setDevicePath_failed:
     if (hKey)
         RegCloseKey(hKey);
 
-    AkLoggerLog("Result: " + stringFromResult(result));
+    AkLoggerLog("Result: ", stringFromResult(result));
 
     return ok;
 }

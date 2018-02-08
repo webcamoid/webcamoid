@@ -60,7 +60,7 @@ OSStatus AkVCam::Device::createObject()
     if (status == kCMIOHardwareNoError) {
         this->m_isCreated = true;
         this->m_objectID = deviceID;
-        AkLoggerLog("Created device: " << this->m_objectID);
+        AkLoggerLog("Created device: ", this->m_objectID);
     }
 
     return status;

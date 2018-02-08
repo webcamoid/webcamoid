@@ -29,12 +29,10 @@
 #include "VCamUtils/src/image/videoformat.h"
 
 #define AkPluginPrivateIntefaceLog() \
-    AkLoggerLog("PluginInterfacePrivate::" << __FUNCTION__ << "()")
+    AkLoggerLog("PluginInterfacePrivate::", __FUNCTION__, "()")
 
 #define AkPluginPrivateIntefaceLogID(x) \
-    AkLoggerLog("PluginInterfacePrivate::" \
-                << __FUNCTION__ \
-                << "(id = " << x << ")")
+    AkLoggerLog("PluginInterfacePrivate::", __FUNCTION__, "(id = ", x, ")")
 
 namespace AkVCam
 {
@@ -643,7 +641,7 @@ OSStatus AkVCam::PluginInterface::Initialize()
 
 OSStatus AkVCam::PluginInterface::InitializeWithObjectID(CMIOObjectID objectID)
 {
-    AkLoggerLog("AkVCam::PluginInterface::InitializeWithObjectID: " << objectID);
+    AkLoggerLog("AkVCam::PluginInterface::InitializeWithObjectID: ", objectID);
 
     this->m_objectID = objectID;
 
@@ -673,7 +671,7 @@ OSStatus AkVCam::PluginInterface::Teardown()
 void AkVCam::PluginInterface::deviceAdded(const std::string &deviceId)
 {
     AkLoggerLog("AkVCam::PluginInterface::deviceAdded");
-    AkLoggerLog("Device Added: " << deviceId);
+    AkLoggerLog("Device Added: ", deviceId);
 
     auto description = this->d->m_ipcBridge.description(deviceId);
     auto formats = this->d->m_ipcBridge.formats(deviceId);
@@ -684,7 +682,7 @@ void AkVCam::PluginInterface::deviceAdded(const std::string &deviceId)
 void AkVCam::PluginInterface::deviceRemoved(const std::string &deviceId)
 {
     AkLoggerLog("AkVCam::PluginInterface::deviceRemoved");
-    AkLoggerLog("Device Removed: " << deviceId);
+    AkLoggerLog("Device Removed: ", deviceId);
 
     this->destroyDevice(deviceId);
 }
@@ -703,8 +701,8 @@ void AkVCam::PluginInterface::setBroadcasting(const std::string &deviceId,
                                               bool broadcasting)
 {
     AkLoggerLog("AkVCam::PluginInterface::setBroadcasting");
-    AkLoggerLog("Device: " << deviceId);
-    AkLoggerLog("Broadcasting: " << broadcasting);
+    AkLoggerLog("Device: ", deviceId);
+    AkLoggerLog("Broadcasting: ", broadcasting);
 
     for (auto device: this->m_devices)
         if (device->deviceId() == deviceId)

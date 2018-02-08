@@ -151,7 +151,7 @@ HRESULT AkVCam::MemAllocator::Decommit()
             freeSamples++;
         }
 
-    AkLoggerLog("Free samples: " << freeSamples << "/" << totalSamples);
+    AkLoggerLog("Free samples: ", freeSamples, "/", totalSamples);
 
     if (freeSamples >= totalSamples) {
         AkLoggerLog("Decommiting");
