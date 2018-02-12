@@ -89,7 +89,7 @@ QString DesktopCaptureElement::media() const
     return this->d->m_screenCapture->media();
 }
 
-QList<int> DesktopCaptureElement::streams() const
+QList<int> DesktopCaptureElement::streams()
 {
     if (!this->d->m_screenCapture)
         return {};

@@ -38,7 +38,7 @@ class AKCOMMONS_EXPORT AkMultimediaSourceElement: public AkElement
 
         Q_INVOKABLE virtual QStringList medias();
         Q_INVOKABLE virtual QString media() const;
-        Q_INVOKABLE virtual QList<int> streams() const;
+        Q_INVOKABLE virtual QList<int> streams();
         Q_INVOKABLE virtual bool loop() const;
 
         Q_INVOKABLE virtual int defaultStream(const QString &mimeType);

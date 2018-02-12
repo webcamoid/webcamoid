@@ -82,7 +82,7 @@ QString MultiSrcElement::media() const
     return this->d->m_mediaSource->media();
 }
 
-QList<int> MultiSrcElement::streams() const
+QList<int> MultiSrcElement::streams()
 {
     if (!this->d->m_mediaSource)
         return {};

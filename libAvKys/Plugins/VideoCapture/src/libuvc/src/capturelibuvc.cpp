@@ -238,7 +238,7 @@ QString CaptureLibUVC::device() const
     return this->d->m_device;
 }
 
-QList<int> CaptureLibUVC::streams() const
+QList<int> CaptureLibUVC::streams()
 {
     if (!this->d->m_streams.isEmpty())
         return this->d->m_streams;

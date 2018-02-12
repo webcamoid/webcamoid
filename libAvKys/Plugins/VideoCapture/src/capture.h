@@ -56,7 +56,7 @@ class Capture: public QObject
 
         Q_INVOKABLE virtual QStringList webcams() const;
         Q_INVOKABLE virtual QString device() const;
-        Q_INVOKABLE virtual QList<int> streams() const;
+        Q_INVOKABLE virtual QList<int> streams();
         Q_INVOKABLE virtual QList<int> listTracks(const QString &mimeType);
         Q_INVOKABLE virtual QString ioMethod() const;
         Q_INVOKABLE virtual int nBuffers() const;

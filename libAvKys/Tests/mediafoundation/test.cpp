@@ -17,31 +17,14 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef PUSHSOURCE_H
-#define PUSHSOURCE_H
+#include <mfapi.h>
+#include <mfidl.h>
+#include <mfreadwrite.h>
+#include <strmif.h>
+#include <dbt.h>
+#include <uuids.h>
 
-#include "latency.h"
-
-namespace AkVCam
+int main()
 {
-    class PushSource:
-            public IAMPushSource,
-            public Latency
-    {
-        public:
-            PushSource(IAMStreamConfig *streamConfig);
-            virtual ~PushSource();
-
-            DECLARE_IAMLATENCY
-
-            // IAMPushSource
-            HRESULT WINAPI GetPushSourceFlags(ULONG *pFlags);
-            HRESULT WINAPI SetPushSourceFlags(ULONG Flags);
-            HRESULT WINAPI SetStreamOffset(REFERENCE_TIME rtOffset);
-            HRESULT WINAPI GetStreamOffset(REFERENCE_TIME *prtOffset);
-            HRESULT WINAPI GetMaxStreamOffset(REFERENCE_TIME *prtMaxOffset);
-            HRESULT WINAPI SetMaxStreamOffset(REFERENCE_TIME rtMaxOffset);
-    };
+    return 0;
 }
-
-#endif // PUSHSOURCE_H

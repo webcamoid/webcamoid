@@ -17,31 +17,20 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef PUSHSOURCE_H
-#define PUSHSOURCE_H
+#ifndef PLUGIN_H
+#define PLUGIN_H
 
-#include "latency.h"
+#include <akplugin.h>
 
-namespace AkVCam
+class Plugin: public QObject, public AkPlugin
 {
-    class PushSource:
-            public IAMPushSource,
-            public Latency
-    {
-        public:
-            PushSource(IAMStreamConfig *streamConfig);
-            virtual ~PushSource();
+    Q_OBJECT
+    Q_INTERFACES(AkPlugin)
+    Q_PLUGIN_METADATA(IID "org.avkys.plugin" FILE "pspec.json")
 
-            DECLARE_IAMLATENCY
+    public:
+        QObject *create(const QString &key, const QString &specification);
+        QStringList keys() const;
+};
 
-            // IAMPushSource
-            HRESULT WINAPI GetPushSourceFlags(ULONG *pFlags);
-            HRESULT WINAPI SetPushSourceFlags(ULONG Flags);
-            HRESULT WINAPI SetStreamOffset(REFERENCE_TIME rtOffset);
-            HRESULT WINAPI GetStreamOffset(REFERENCE_TIME *prtOffset);
-            HRESULT WINAPI GetMaxStreamOffset(REFERENCE_TIME *prtMaxOffset);
-            HRESULT WINAPI SetMaxStreamOffset(REFERENCE_TIME rtMaxOffset);
-    };
-}
-
-#endif // PUSHSOURCE_H
+#endif // PLUGIN_H

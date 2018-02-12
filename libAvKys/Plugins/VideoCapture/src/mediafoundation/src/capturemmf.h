@@ -17,16 +17,18 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef CAPTUREDSHOW_H
-#define CAPTUREDSHOW_H
+#ifndef CAPTUREMMF_H
+#define CAPTUREMMF_H
 
 #include <QAbstractNativeEventFilter>
 
 #include "capture.h"
 
-class CaptureDShowPrivate;
+class CaptureMMFPrivate;
 
-class CaptureDShow: public Capture, QAbstractNativeEventFilter
+class CaptureMMF:
+        public Capture,
+        public QAbstractNativeEventFilter
 {
     Q_OBJECT
 
@@ -34,13 +36,12 @@ class CaptureDShow: public Capture, QAbstractNativeEventFilter
         enum IoMethod
         {
             IoMethodUnknown = -1,
-            IoMethodDirectRead,
-            IoMethodGrabSample,
-            IoMethodGrabBuffer
+            IoMethodSync,
+            IoMethodASync
         };
 
-        explicit CaptureDShow(QObject *parent=nullptr);
-        ~CaptureDShow();
+        explicit CaptureMMF(QObject *parent=nullptr);
+        ~CaptureMMF();
 
         Q_INVOKABLE QStringList webcams() const;
         Q_INVOKABLE QString device() const;
@@ -64,7 +65,7 @@ class CaptureDShow: public Capture, QAbstractNativeEventFilter
                                long *result);
 
     private:
-        CaptureDShowPrivate *d;
+        CaptureMMFPrivate *d;
 
     public slots:
         bool init();
@@ -78,9 +79,6 @@ class CaptureDShow: public Capture, QAbstractNativeEventFilter
         void resetIoMethod();
         void resetNBuffers();
         void reset();
-
-    private slots:
-        void frameReceived(qreal time, const QByteArray &buffer);
 };
 
-#endif // CAPTUREDSHOW_H
+#endif // CAPTUREMMF_H

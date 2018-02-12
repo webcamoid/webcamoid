@@ -150,7 +150,7 @@ QString VideoCaptureElement::media() const
     return this->d->m_capture->device();
 }
 
-QList<int> VideoCaptureElement::streams() const
+QList<int> VideoCaptureElement::streams()
 {
     if (!this->d->m_capture)
         return {};

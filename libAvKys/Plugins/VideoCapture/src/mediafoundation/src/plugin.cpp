@@ -17,31 +17,22 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef PUSHSOURCE_H
-#define PUSHSOURCE_H
+#include "plugin.h"
+#include "capturemmf.h"
 
-#include "latency.h"
-
-namespace AkVCam
+QObject *Plugin::create(const QString &key, const QString &specification)
 {
-    class PushSource:
-            public IAMPushSource,
-            public Latency
-    {
-        public:
-            PushSource(IAMStreamConfig *streamConfig);
-            virtual ~PushSource();
+    Q_UNUSED(specification)
 
-            DECLARE_IAMLATENCY
+    if (key == AK_PLUGIN_TYPE_SUBMODULE)
+        return new CaptureMMF();
 
-            // IAMPushSource
-            HRESULT WINAPI GetPushSourceFlags(ULONG *pFlags);
-            HRESULT WINAPI SetPushSourceFlags(ULONG Flags);
-            HRESULT WINAPI SetStreamOffset(REFERENCE_TIME rtOffset);
-            HRESULT WINAPI GetStreamOffset(REFERENCE_TIME *prtOffset);
-            HRESULT WINAPI GetMaxStreamOffset(REFERENCE_TIME *prtMaxOffset);
-            HRESULT WINAPI SetMaxStreamOffset(REFERENCE_TIME rtMaxOffset);
-    };
+    return nullptr;
 }
 
-#endif // PUSHSOURCE_H
+QStringList Plugin::keys() const
+{
+    return QStringList();
+}
+
+#include "moc_plugin.cpp"

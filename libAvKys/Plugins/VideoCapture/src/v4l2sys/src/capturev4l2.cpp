@@ -183,7 +183,7 @@ QString CaptureV4L2::device() const
     return this->d->m_device;
 }
 
-QList<int> CaptureV4L2::streams() const
+QList<int> CaptureV4L2::streams()
 {
     if (!this->d->m_streams.isEmpty())
         return this->d->m_streams;

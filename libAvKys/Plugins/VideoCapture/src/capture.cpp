@@ -42,7 +42,7 @@ QString Capture::device() const
     return QString();
 }
 
-QList<int> Capture::streams() const
+QList<int> Capture::streams()
 {
     return QList<int>();
 }

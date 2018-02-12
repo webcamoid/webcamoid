@@ -64,7 +64,7 @@ class DesktopCaptureElement: public AkMultimediaSourceElement
         Q_INVOKABLE AkFrac fps() const;
         Q_INVOKABLE QStringList medias();
         Q_INVOKABLE QString media() const;
-        Q_INVOKABLE QList<int> streams() const;
+        Q_INVOKABLE QList<int> streams();
         Q_INVOKABLE int defaultStream(const QString &mimeType);
         Q_INVOKABLE QString description(const QString &media);
         Q_INVOKABLE AkCaps caps(int stream);

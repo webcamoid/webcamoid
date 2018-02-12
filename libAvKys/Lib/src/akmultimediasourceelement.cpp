@@ -51,7 +51,7 @@ QString AkMultimediaSourceElement::media() const
     return this->d->m_media;
 }
 
-QList<int> AkMultimediaSourceElement::streams() const
+QList<int> AkMultimediaSourceElement::streams()
 {
     return this->d->m_streams;
 }

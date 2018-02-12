@@ -67,7 +67,7 @@ class MultiSrcElement: public AkMultimediaSourceElement
 
         Q_INVOKABLE QStringList medias();
         Q_INVOKABLE QString media() const;
-        Q_INVOKABLE QList<int> streams() const;
+        Q_INVOKABLE QList<int> streams();
         Q_INVOKABLE bool loop() const;
         Q_INVOKABLE QList<int> listTracks(const QString &type="");
         Q_INVOKABLE QString streamLanguage(int stream);

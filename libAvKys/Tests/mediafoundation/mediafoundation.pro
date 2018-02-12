@@ -16,16 +16,17 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-TEMPLATE = subdirs
+CONFIG += console c++11
 
-CONFIG(debug, debug|release): CONFIG += ordered
+LIBS += \
+    -lmf \
+    -lmfplat \
+    -lmfreadwrite \
+    -lmfuuid \
+    -lole32 \
+    -lstrmiids
 
-SUBDIRS = src
-CONFIG(config_avfoundation): SUBDIRS += src/avfoundation
-CONFIG(config_dshow): SUBDIRS += src/dshow
-CONFIG(config_ffmpeg): SUBDIRS += src/ffmpeg
-CONFIG(config_gstreamer): SUBDIRS += src/gstreamer
-CONFIG(config_libuvc): SUBDIRS += src/libuvc
-CONFIG(config_mediafoundation): SUBDIRS += src/mediafoundation
-CONFIG(config_v4l2): SUBDIRS += src/v4l2sys
-CONFIG(config_v4lutils): SUBDIRS += src/v4lutils
+SOURCES = \
+    test.cpp
+
+TARGET = test_auto

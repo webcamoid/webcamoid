@@ -83,6 +83,8 @@ isEmpty(NOLIBUVC) {
     qtCompileTest(libuvc)
 }
 
+isEmpty(NOMEDIAFOUNDATION): qtCompileTest(mediafoundation)
+
 isEmpty(NOOSS) {
     cache(INCLUDEDIR)
     qtCompileTest(oss)

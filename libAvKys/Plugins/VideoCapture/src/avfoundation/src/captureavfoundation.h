@@ -43,7 +43,7 @@ class CaptureAvFoundation: public Capture
 
         Q_INVOKABLE QStringList webcams() const;
         Q_INVOKABLE QString device() const;
-        Q_INVOKABLE QList<int> streams() const;
+        Q_INVOKABLE QList<int> streams();
         Q_INVOKABLE QList<int> listTracks(const QString &mimeType);
         Q_INVOKABLE QString ioMethod() const;
         Q_INVOKABLE int nBuffers() const;

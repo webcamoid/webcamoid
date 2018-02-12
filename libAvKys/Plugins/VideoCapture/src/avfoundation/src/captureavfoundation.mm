@@ -269,7 +269,7 @@ QString CaptureAvFoundation::device() const
     return this->d->m_device;
 }
 
-QList<int> CaptureAvFoundation::streams() const
+QList<int> CaptureAvFoundation::streams()
 {
     if (!this->d->m_streams.isEmpty())
         return this->d->m_streams;
