@@ -25,6 +25,8 @@
 #include <wincrypt.h>
 #include <comdef.h>
 #include <initguid.h>
+#include <mscoree.h>
+#include <inspectable.h>
 #include <strmif.h>
 #include <amvideo.h>
 #include <dvdmedia.h>
@@ -118,8 +120,8 @@ CLSID AkVCam::createClsidFromStr(const std::string &str)
     memset(&clsid, 0, sizeof(CLSID));
 
     if (!CryptAcquireContext(&provider,
-                             NULL,
-                             NULL,
+                             nullptr,
+                             nullptr,
                              PROV_RSA_FULL,
                              CRYPT_VERIFYCONTEXT))
         goto clsidFromStr_failed;
@@ -191,12 +193,15 @@ std::string AkVCam::stringFromResult(HRESULT result)
 std::string AkVCam::stringFromClsid(const CLSID &clsid)
 {
     static const std::map<CLSID, std::string> clsidToString {
+        {IID_IAgileObject       , "IAgileObject"       }, // x
         {IID_IAMCameraControl   , "IAMCameraControl"   },
+        {IID_IAMCrossbar        , "IAMCrossbar"        }, // x
         {IID_IAMDeviceRemoval   , "IAMDeviceRemoval"   }, // Not required
         {IID_IAMFilterMiscFlags , "IAMFilterMiscFlags" },
         {IID_IAMOpenProgress    , "IAMOpenProgress"    }, // Not required
         {IID_IAMPushSource      , "IAMPushSource"      },
         {IID_IAMStreamConfig    , "IAMStreamConfig"    },
+        {IID_IAMVideoControl    , "IAMVideoControl"    }, // x
         {IID_IAMVideoProcAmp    , "IAMVideoProcAmp"    },
         {IID_IBaseFilter        , "IBaseFilter"        },
         {IID_IBasicAudio        , "IBasicAudio"        }, // Not required
@@ -204,25 +209,42 @@ std::string AkVCam::stringFromClsid(const CLSID &clsid)
         {IID_IClassFactory      , "IClassFactory"      },
         {IID_IEnumMediaTypes    , "IEnumMediaTypes"    },
         {IID_IEnumPins          , "IEnumPins"          },
+        {IID_IInspectable       , "IInspectable"       }, // x
         {IID_IKsPropertySet     , "IKsPropertySet"     }, // Not required
+        {IID_IManagedObject     , "IManagedObject"     }, // x
+        {IID_IMarshal           , "IMarshal"           }, // x
+        {IID_IMediaFilter       , "IMediaFilter"       }, // x
         {IID_IMediaPosition     , "IMediaPosition"     }, // Not required
         {IID_IMediaSample       , "IMediaSample"       },
         {IID_IMediaSample2      , "IMediaSample2"      }, // Defined but not used
         {IID_IMediaSeeking      , "IMediaSeeking"      }, // Not required
         {IID_IMemAllocator      , "IMemAllocator"      },
+        {IID_INoMarshal         , "INoMarshal"         }, // x
         {IID_IPersistPropertyBag, "IPersistPropertyBag"},
         {IID_IPin               , "IPin"               },
+        {IID_IProvideClassInfo  , "IProvideClassInfo"  }, // x
         {IID_IReferenceClock    , "IReferenceClock"    },
+        {IID_IRpcOptions        , "IRpcOptions"        }, // x
         {IID_IVideoWindow       , "IVideoWindow"       }, // Not required
         {IID_IUnknown           , "IUnknown"           },
     };
 
     /* The interface query tree:
      *
+     * IBaseFilter -> IAgileObject
+     * IBaseFilter -> IAMCrossbar
      * IBaseFilter -> IAMCameraControl
      * IBaseFilter -> IAMFilterMiscFlags
+     * IBaseFilter -> IAMVideoControl
      * IBaseFilter -> IAMVideoProcAmp
+     * IBaseFilter -> IInspectable
+     * IBaseFilter -> IManagedObject
+     * IBaseFilter -> IMarshal
+     * IBaseFilter -> IMediaFilter
+     * IBaseFilter -> INoMarshal
+     * IBaseFilter -> IProvideClassInfo
      * IBaseFilter -> IReferenceClock
+     * IBaseFilter -> IRpcOptions
      * IClassFactory -> IBaseFilter
      * IClassFactory -> IPersistPropertyBag
      * IPersistPropertyBag -> IBaseFilter

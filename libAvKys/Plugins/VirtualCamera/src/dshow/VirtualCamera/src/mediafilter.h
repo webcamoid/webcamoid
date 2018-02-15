@@ -20,7 +20,6 @@
 #ifndef MEDIAFILTER_H
 #define MEDIAFILTER_H
 
-#include <functional>
 #include <strmif.h>
 
 #include "persist.h"
@@ -28,7 +27,8 @@
 namespace AkVCam
 {
     class MediaFilterPrivate;
-    typedef std::function<HRESULT (FILTER_STATE state)> StateChangedCallback;
+    typedef HRESULT (* StateChangedCallback)(void *userData,
+                                             FILTER_STATE state);
 
     class MediaFilter:
             public IMediaFilter,
@@ -38,8 +38,10 @@ namespace AkVCam
             MediaFilter(REFIID classCLSID, IBaseFilter *baseFilter);
             virtual ~MediaFilter();
 
-            void subscribeStateChanged(const StateChangedCallback &callback);
-            void unsubscribeStateChanged(const StateChangedCallback &callback);
+            void subscribeStateChanged(void *userData,
+                                       StateChangedCallback callback);
+            void unsubscribeStateChanged(void *userData,
+                                         StateChangedCallback callback);
 
             DECLARE_IPERSIST
 
@@ -60,14 +62,16 @@ namespace AkVCam
 #define DECLARE_IMEDIAFILTER_NQ \
     DECLARE_IPERSIST_NQ \
     \
-    void subscribeStateChanged(const StateChangedCallback &callback) \
+    void subscribeStateChanged(void *userData, \
+                               StateChangedCallback callback) \
     { \
-        MediaFilter::subscribeStateChanged(callback); \
+        MediaFilter::subscribeStateChanged(userData, callback); \
     } \
     \
-    void unsubscribeStateChanged(const StateChangedCallback &callback) \
+    void unsubscribeStateChanged(void *userData, \
+                                 StateChangedCallback callback) \
     { \
-        MediaFilter::unsubscribeStateChanged(callback); \
+        MediaFilter::unsubscribeStateChanged(userData, callback); \
     } \
     \
     HRESULT STDMETHODCALLTYPE Stop() \

@@ -17,7 +17,6 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <algorithm>
 #include <vector>
 #include <dshow.h>
 
@@ -34,7 +33,7 @@ namespace AkVCam
         public:
             IBaseFilter *m_baseFilter;
             IReferenceClock *m_clock;
-            std::vector<StateChangedCallback> m_stateChanged;
+            std::vector<std::pair<void *, StateChangedCallback>> m_stateChanged;
             FILTER_STATE m_state;
             REFERENCE_TIME m_start;
     };
@@ -60,23 +59,23 @@ AkVCam::MediaFilter::~MediaFilter()
     delete this->d;
 }
 
-void AkVCam::MediaFilter::subscribeStateChanged(const StateChangedCallback &callback)
+void AkVCam::MediaFilter::subscribeStateChanged(void *userData,
+                                                StateChangedCallback callback)
 {
     AkLogMethod();
-    this->d->m_stateChanged.push_back(callback);
+    this->d->m_stateChanged.push_back({userData, callback});
 }
 
-void AkVCam::MediaFilter::unsubscribeStateChanged(const StateChangedCallback &callback)
+void AkVCam::MediaFilter::unsubscribeStateChanged(void *userData,
+                                                  StateChangedCallback callback)
 {
     AkLogMethod();
 
     for (auto it = this->d->m_stateChanged.begin();
          it != this->d->m_stateChanged.end();
          it++) {
-        auto a = it->target<void (*)(FILTER_STATE)>();
-        auto b = callback.target<void (FILTER_STATE)>();
-
-        if (*a == b) {
+        if (it->first == userData
+            && it->second == callback) {
             this->d->m_stateChanged.erase(it);
 
             break;
@@ -90,7 +89,7 @@ HRESULT AkVCam::MediaFilter::Stop()
     this->d->m_state = State_Stopped;
 
     for (auto &callback: this->d->m_stateChanged)
-        callback(this->d->m_state);
+        callback.second(callback.first, this->d->m_state);
 
     return S_OK;
 }
@@ -101,7 +100,7 @@ HRESULT AkVCam::MediaFilter::Pause()
     this->d->m_state = State_Paused;
 
     for (auto &callback: this->d->m_stateChanged)
-        callback(this->d->m_state);
+        callback.second(callback.first, this->d->m_state);
 
     return S_OK;
 }
@@ -113,7 +112,7 @@ HRESULT AkVCam::MediaFilter::Run(REFERENCE_TIME tStart)
     this->d->m_state = State_Running;
 
     for (auto &callback: this->d->m_stateChanged)
-        callback(this->d->m_state);
+        callback.second(callback.first, this->d->m_state);
 
     return S_OK;
 }

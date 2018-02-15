@@ -31,8 +31,8 @@ VideoCaptureGlobals::VideoCaptureGlobals(QObject *parent):
 
     this->m_preferredLibrary = QStringList {
 #ifdef Q_OS_WIN32
-        "mediafoundation",
         "dshow",
+        "mediafoundation",
         "libuvc",
 #elif defined(Q_OS_OSX)
         "avfoundation",

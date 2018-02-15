@@ -44,7 +44,7 @@ namespace AkVCam
 
             BaseFilter *baseFilter() const;
             void setBaseFilter(BaseFilter *baseFilter);
-            HRESULT stateChanged(FILTER_STATE state);
+            static HRESULT stateChanged(void *userData, FILTER_STATE state);
 
             DECLARE_IUNKNOWN_NQ
 

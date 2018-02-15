@@ -131,92 +131,93 @@ void AkVCam::Pin::setBaseFilter(BaseFilter *baseFilter)
     this->d->m_baseFilter = baseFilter;
 }
 
-HRESULT AkVCam::Pin::stateChanged(FILTER_STATE state)
+HRESULT AkVCam::Pin::stateChanged(void *userData, FILTER_STATE state)
 {
-    AkLogMethod();
-    AkLoggerLog("Old state: ", this->d->m_prevState);
+    auto self = reinterpret_cast<Pin *>(userData);
+    AkLoggerLog(AK_CUR_INTERFACE, "(", self, ")::", __FUNCTION__, "()");
+    AkLoggerLog("Old state: ", self->d->m_prevState);
     AkLoggerLog("New state: ", state);
 
-    if (state == this->d->m_prevState)
+    if (state == self->d->m_prevState)
         return S_OK;
 
-    if (this->d->m_prevState == State_Stopped) {
+    if (self->d->m_prevState == State_Stopped) {
         if (state == State_Paused) {
-            this->d->m_refTime = -1;
+            self->d->m_refTime = -1;
 
-            if (FAILED(this->d->m_baseFilter->GetSyncSource(&this->d->m_clock)))
+            if (FAILED(self->d->m_baseFilter->GetSyncSource(&self->d->m_clock)))
                 return E_FAIL;
 
-            this->d->m_clock->AddRef();
+            self->d->m_clock->AddRef();
 
-            this->d->m_sendFrameEvent =
+            self->d->m_sendFrameEvent =
                     CreateEvent(NULL, FALSE, FALSE, L"SendFrame");
 
-            this->d->m_running = false;
-            this->d->m_sendFrameThread =
-                    std::thread(&PinPrivate::sendFrameLoop, this->d);
-            AkLoggerLog("Launching thread ", this->d->m_sendFrameThread.get_id());
+            self->d->m_running = false;
+            self->d->m_sendFrameThread =
+                    std::thread(&PinPrivate::sendFrameLoop, self->d);
+            AkLoggerLog("Launching thread ", self->d->m_sendFrameThread.get_id());
 
             /* The filter must send an initial thumbnail frame before going to
              * running state.
              */
             REFERENCE_TIME now = 0;
-            this->d->m_clock->GetTime(&now);
-            this->d->m_clock->AdviseTime(now,
+            self->d->m_clock->GetTime(&now);
+            self->d->m_clock->AdviseTime(now,
                                          0,
-                                         HEVENT(this->d->m_sendFrameEvent),
-                                         &this->d->m_adviseCookie);
+                                         HEVENT(self->d->m_sendFrameEvent),
+                                         &self->d->m_adviseCookie);
         }
-    } else if (this->d->m_prevState == State_Paused) {
+    } else if (self->d->m_prevState == State_Paused) {
         if (state == State_Stopped) {
-            this->d->m_clock->Release();
-            this->d->m_clock = nullptr;
+            self->d->m_clock->Release();
+            self->d->m_clock = nullptr;
         } else if (state == State_Running) {
-            if (this->d->m_sendFrameThread.joinable())
-                this->d->m_sendFrameThread.join();
+            if (self->d->m_sendFrameThread.joinable())
+                self->d->m_sendFrameThread.join();
 
-            if (this->d->m_adviseCookie)
-                this->d->m_clock->Unadvise(this->d->m_adviseCookie);
+            if (self->d->m_adviseCookie)
+                self->d->m_clock->Unadvise(self->d->m_adviseCookie);
 
-            if (this->d->m_sendFrameEvent)
-                CloseHandle(this->d->m_sendFrameEvent);
+            if (self->d->m_sendFrameEvent)
+                CloseHandle(self->d->m_sendFrameEvent);
 
-            this->d->m_sendFrameEvent =
+            self->d->m_sendFrameEvent =
                     CreateSemaphore(NULL, 1, 1, L"SendFrame");
 
-            this->d->m_running = true;
-            this->d->m_sendFrameThread =
-                    std::thread(&PinPrivate::sendFrameLoop, this->d);
-            AkLoggerLog("Launching thread ", this->d->m_sendFrameThread.get_id());
+            self->d->m_running = true;
+            self->d->m_sendFrameThread =
+                    std::thread(&PinPrivate::sendFrameLoop, self->d);
+            AkLoggerLog("Launching thread ", self->d->m_sendFrameThread.get_id());
 
             REFERENCE_TIME now = 0;
-            this->d->m_clock->GetTime(&now);
+            self->d->m_clock->GetTime(&now);
 
             AM_MEDIA_TYPE *mediaType = nullptr;
-            this->d->m_streamConfig->GetFormat(&mediaType);
+            self->d->m_streamConfig->GetFormat(&mediaType);
             auto videoFormat = formatFromMediaType(mediaType);
             deleteMediaType(&mediaType);
             auto period = REFERENCE_TIME(TIME_BASE
                                          / videoFormat.minimumFrameRate());
 
-            this->d->m_clock->AdvisePeriodic(now,
+            self->d->m_clock->AdvisePeriodic(now,
                                              period,
-                                             HSEMAPHORE(this->d->m_sendFrameEvent),
-                                             &this->d->m_adviseCookie);
+                                             HSEMAPHORE(self->d->m_sendFrameEvent),
+                                             &self->d->m_adviseCookie);
         }
-    } else if (this->d->m_prevState == State_Running) {
+    } else if (self->d->m_prevState == State_Running) {
         if (state == State_Paused) {
-            this->d->m_running = false;
+            self->d->m_running = false;
 
-            this->d->m_clock->Unadvise(this->d->m_adviseCookie);
-            this->d->m_adviseCookie = 0;
+            self->d->m_clock->Unadvise(self->d->m_adviseCookie);
+            self->d->m_adviseCookie = 0;
 
-            CloseHandle(this->d->m_sendFrameEvent);
-            this->d->m_sendFrameEvent = 0;
+            CloseHandle(self->d->m_sendFrameEvent);
+            self->d->m_sendFrameEvent = 0;
         }
     }
 
-    this->d->m_prevState = state;
+    self->d->m_prevState = state;
 
     return S_OK;
 }
@@ -423,9 +424,7 @@ HRESULT AkVCam::Pin::Connect(IPin *pReceivePin, const AM_MEDIA_TYPE *pmt)
     this->d->m_connectedTo = pReceivePin;
     this->d->m_connectedTo->AddRef();
 
-    this->d->m_baseFilter->subscribeStateChanged(std::bind(&Pin::stateChanged,
-                                                           this,
-                                                           std::placeholders::_1));
+    this->d->m_baseFilter->subscribeStateChanged(this, Pin::stateChanged);
 
     AkLoggerLog("Connected to ", pReceivePin);
 
@@ -446,9 +445,7 @@ HRESULT AkVCam::Pin::Disconnect()
 {
     AkLogMethod();
 
-    this->d->m_baseFilter->unsubscribeStateChanged(std::bind(&Pin::stateChanged,
-                                                             this,
-                                                             std::placeholders::_1));
+    this->d->m_baseFilter->unsubscribeStateChanged(this, Pin::stateChanged);
 
     if (this->d->m_baseFilter) {
         FILTER_STATE state;
