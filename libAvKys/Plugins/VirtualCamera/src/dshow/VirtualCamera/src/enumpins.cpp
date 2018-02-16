@@ -135,6 +135,7 @@ HRESULT AkVCam::EnumPins::Next(ULONG cPins, IPin **ppPins, ULONG *pcFetched)
 HRESULT AkVCam::EnumPins::Skip(ULONG cPins)
 {
     AkLogMethod();
+    AkLoggerLog("Skip ", cPins, " pins");
 
     if (this->d->m_changed) {
         this->d->m_changed = false;

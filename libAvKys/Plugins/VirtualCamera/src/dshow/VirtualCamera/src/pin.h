@@ -22,7 +22,6 @@
 
 #include <string>
 #include <vector>
-#include <strmif.h>
 
 #include "streamconfig.h"
 

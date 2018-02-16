@@ -146,6 +146,15 @@ HRESULT AkVCam::BaseFilter::QueryInterface(const IID &riid, void **ppvObject)
         *ppvObject = referenceClock;
 
         return S_OK;
+    } else if (IsEqualIID(riid, IID_IPin)) {
+        this->d->m_pins->Reset();
+        IPin *pin = nullptr;
+        this->d->m_pins->Next(1, &pin, nullptr);
+        AkLogInterface(IPin, pin);
+        pin->AddRef();
+        *ppvObject = pin;
+
+        return S_OK;
     }
 
     return CUnknown::QueryInterface(riid, ppvObject);
