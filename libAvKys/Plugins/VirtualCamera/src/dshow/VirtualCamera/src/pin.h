@@ -24,7 +24,7 @@
 #include <vector>
 #include <strmif.h>
 
-#include "cunknown.h"
+#include "streamconfig.h"
 
 namespace AkVCam
 {
@@ -34,7 +34,7 @@ namespace AkVCam
 
     class Pin:
             public IPin,
-            public CUnknown
+            public StreamConfig
     {
         public:
             Pin(BaseFilter *baseFilter=nullptr,
@@ -46,7 +46,7 @@ namespace AkVCam
             void setBaseFilter(BaseFilter *baseFilter);
             static HRESULT stateChanged(void *userData, FILTER_STATE state);
 
-            DECLARE_IUNKNOWN_NQ
+            DECLARE_IAMSTREAMCONFIG_NQ
 
             // IUNknown
             HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid,

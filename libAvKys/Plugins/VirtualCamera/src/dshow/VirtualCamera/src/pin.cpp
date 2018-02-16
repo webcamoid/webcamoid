@@ -32,7 +32,6 @@
 #include "memallocator.h"
 #include "pushsource.h"
 #include "referenceclock.h"
-#include "streamconfig.h"
 #include "utils.h"
 #include "VCamUtils/src/image/videoformat.h"
 #include "VCamUtils/src/utils.h"
@@ -52,7 +51,6 @@ namespace AkVCam
             IPin *m_connectedTo;
             IMemInputPin *m_memInputPin;
             IMemAllocator *m_memAllocator;
-            StreamConfig *m_streamConfig;
             IReferenceClock *m_clock;
             REFERENCE_TIME m_refTime;
             REFERENCE_TIME m_start;
@@ -72,8 +70,10 @@ namespace AkVCam
 AkVCam::Pin::Pin(BaseFilter *baseFilter,
                  const std::vector<VideoFormat> &formats,
                  const std::wstring &pinName):
-    CUnknown(this, IID_IPin)
+    StreamConfig(this)
 {
+    this->setParent(this, &IID_IPin);
+
     this->d = new PinPrivate;
     this->d->self = this;
     this->d->m_baseFilter = baseFilter;
@@ -86,8 +86,6 @@ AkVCam::Pin::Pin(BaseFilter *baseFilter,
     this->d->m_connectedTo = nullptr;
     this->d->m_memInputPin = nullptr;
     this->d->m_memAllocator = nullptr;
-    this->d->m_streamConfig = new StreamConfig(this);
-    this->d->m_streamConfig->AddRef();
     this->d->m_clock = nullptr;
     this->d->m_refTime = -1;
     this->d->m_start = 0;
@@ -95,7 +93,7 @@ AkVCam::Pin::Pin(BaseFilter *baseFilter,
     this->d->m_rate = 1.0;
     this->d->m_prevState = State_Stopped;
     this->d->m_adviseCookie = 0;
-    this->d->m_sendFrameEvent = 0;
+    this->d->m_sendFrameEvent = nullptr;
     this->d->m_running = false;
 }
 
@@ -111,9 +109,6 @@ AkVCam::Pin::~Pin()
 
     if (this->d->m_memAllocator)
         this->d->m_memAllocator->Release();
-
-    if (this->d->m_streamConfig)
-        this->d->m_streamConfig->Release();
 
     delete this->d;
 }
@@ -151,7 +146,7 @@ HRESULT AkVCam::Pin::stateChanged(void *userData, FILTER_STATE state)
             self->d->m_clock->AddRef();
 
             self->d->m_sendFrameEvent =
-                    CreateEvent(NULL, FALSE, FALSE, L"SendFrame");
+                    CreateEvent(nullptr, FALSE, FALSE, L"SendFrame");
 
             self->d->m_running = false;
             self->d->m_sendFrameThread =
@@ -183,7 +178,7 @@ HRESULT AkVCam::Pin::stateChanged(void *userData, FILTER_STATE state)
                 CloseHandle(self->d->m_sendFrameEvent);
 
             self->d->m_sendFrameEvent =
-                    CreateSemaphore(NULL, 1, 1, L"SendFrame");
+                    CreateSemaphore(nullptr, 1, 1, L"SendFrame");
 
             self->d->m_running = true;
             self->d->m_sendFrameThread =
@@ -194,7 +189,7 @@ HRESULT AkVCam::Pin::stateChanged(void *userData, FILTER_STATE state)
             self->d->m_clock->GetTime(&now);
 
             AM_MEDIA_TYPE *mediaType = nullptr;
-            self->d->m_streamConfig->GetFormat(&mediaType);
+            self->GetFormat(&mediaType);
             auto videoFormat = formatFromMediaType(mediaType);
             deleteMediaType(&mediaType);
             auto period = REFERENCE_TIME(TIME_BASE
@@ -213,7 +208,7 @@ HRESULT AkVCam::Pin::stateChanged(void *userData, FILTER_STATE state)
             self->d->m_adviseCookie = 0;
 
             CloseHandle(self->d->m_sendFrameEvent);
-            self->d->m_sendFrameEvent = 0;
+            self->d->m_sendFrameEvent = nullptr;
         }
     }
 
@@ -233,14 +228,14 @@ HRESULT AkVCam::Pin::QueryInterface(const IID &riid, void **ppvObject)
     *ppvObject = nullptr;
 
     if (IsEqualIID(riid, IID_IAMStreamConfig)) {
-        auto streamConfig = this->d->m_streamConfig;
+        auto streamConfig = this;
         AkLogInterface(IAMStreamConfig, streamConfig);
         streamConfig->AddRef();
         *ppvObject = streamConfig;
 
         return S_OK;
     } else if (IsEqualIID(riid, IID_IAMPushSource)) {
-        auto pushSource = new PushSource(this->d->m_streamConfig);
+        auto pushSource = new PushSource(this);
         AkLogInterface(IAMPushSource, pushSource);
         pushSource->AddRef();
         *ppvObject = pushSource;
@@ -416,7 +411,7 @@ HRESULT AkVCam::Pin::Connect(IPin *pReceivePin, const AM_MEDIA_TYPE *pmt)
     this->d->m_memAllocator = memAllocator;
     this->d->m_memAllocator->AddRef();
 
-    this->d->m_streamConfig->setMediaType(mediaType);
+    this->setMediaType(mediaType);
 
     if (this->d->m_connectedTo)
         this->d->m_connectedTo->Release();
@@ -471,7 +466,7 @@ HRESULT AkVCam::Pin::Disconnect()
         this->d->m_memAllocator = nullptr;
     }
 
-    this->d->m_streamConfig->setMediaType(nullptr);
+    this->setMediaType(nullptr);
 
     return S_OK;
 }
@@ -507,7 +502,7 @@ HRESULT AkVCam::Pin::ConnectionMediaType(AM_MEDIA_TYPE *pmt)
         return VFW_E_NOT_CONNECTED;
 
     AM_MEDIA_TYPE *mediaType = nullptr;
-    this->d->m_streamConfig->GetFormat(&mediaType);
+    this->GetFormat(&mediaType);
     copyMediaType(pmt, mediaType);
     AkLoggerLog("Media Type: ", stringFromMediaType(mediaType));
 
@@ -676,7 +671,7 @@ void AkVCam::PinPrivate::sendFrame()
         buffer[i] = rand() % 255;
 
     AM_MEDIA_TYPE *mediaType = nullptr;
-    this->m_streamConfig->GetFormat(&mediaType);
+    self->GetFormat(&mediaType);
     sample->SetMediaType(mediaType);
     REFERENCE_TIME startTime = 0;
     this->m_clock->GetTime(&startTime);

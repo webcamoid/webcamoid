@@ -56,4 +56,39 @@ namespace AkVCam
     };
 }
 
+#define DECLARE_IAMSTREAMCONFIG_NQ \
+    DECLARE_IUNKNOWN_NQ \
+    \
+    void setMediaType(const AM_MEDIA_TYPE *mediaType) \
+    { \
+        StreamConfig::setMediaType(mediaType); \
+    } \
+    \
+    HRESULT STDMETHODCALLTYPE SetFormat(AM_MEDIA_TYPE *pmt) \
+    { \
+        return StreamConfig::SetFormat(pmt); \
+    } \
+    \
+    HRESULT STDMETHODCALLTYPE GetFormat(AM_MEDIA_TYPE **pmt) \
+    { \
+        return StreamConfig::GetFormat(pmt); \
+    } \
+    \
+    HRESULT STDMETHODCALLTYPE GetNumberOfCapabilities(int *piCount, \
+                                                      int *piSize) \
+    { \
+        return StreamConfig::GetNumberOfCapabilities(piCount, piSize); \
+    } \
+    \
+    HRESULT STDMETHODCALLTYPE GetStreamCaps(int iIndex, \
+                                            AM_MEDIA_TYPE **pmt, \
+                                            BYTE *pSCC) \
+    { \
+        return StreamConfig::GetStreamCaps(iIndex, pmt, pSCC); \
+    }
+
+#define DECLARE_IAMSTREAMCONFIG \
+    DECLARE_IUNKNOWN_Q \
+    DECLARE_IAMSTREAMCONFIG_NQ
+
 #endif // STREAMCONFIG_H

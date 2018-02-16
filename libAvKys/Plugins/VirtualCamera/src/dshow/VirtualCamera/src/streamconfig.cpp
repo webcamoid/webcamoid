@@ -166,7 +166,7 @@ HRESULT AkVCam::StreamConfig::GetNumberOfCapabilities(int *piCount,
             mediaTypes->Reset();
             AM_MEDIA_TYPE *mediaType = nullptr;
 
-            while (SUCCEEDED(mediaTypes->Next(1, &mediaType, nullptr))) {
+            while (mediaTypes->Next(1, &mediaType, nullptr) == S_OK) {
                 (*piCount)++;
                 deleteMediaType(&mediaType);
             }
@@ -214,7 +214,7 @@ HRESULT AkVCam::StreamConfig::GetStreamCaps(int iIndex,
             AM_MEDIA_TYPE *mediaType = nullptr;
 
             for (int i = 0;
-                 SUCCEEDED(mediaTypes->Next(1, &mediaType, nullptr));
+                 mediaTypes->Next(1, &mediaType, nullptr) == S_OK;
                  i++) {
                 if (i == iIndex) {
                     *pmt = mediaType;
