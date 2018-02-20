@@ -44,6 +44,7 @@ namespace AkVCam
     std::wstring wstringFromIid(const IID &iid);
     std::string stringFromResult(HRESULT result);
     std::string stringFromClsid(const CLSID &clsid);
+    wchar_t *wcharStrFromWStr(const std::wstring &wstr);
     FourCC formatFromGuid(const GUID &guid);
     const GUID &guidFromFormat(FourCC format);
     DWORD compressionFromFormat(FourCC format);

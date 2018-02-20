@@ -36,7 +36,7 @@ namespace AkVCam
             Latency(IAMStreamConfig *streamConfig=nullptr);
             virtual ~Latency();
 
-            DECLARE_IUNKNOWN
+            DECLARE_IUNKNOWN(IID_IAMLatency)
 
             // IAMLatency
             HRESULT WINAPI GetLatency(REFERENCE_TIME *prtLatency);
@@ -54,8 +54,8 @@ namespace AkVCam
         return Latency::GetLatency(prtLatency); \
     }
 
-#define DECLARE_IAMLATENCY \
-    DECLARE_IUNKNOWN_Q \
+#define DECLARE_IAMLATENCY(interfaceIid) \
+    DECLARE_IUNKNOWN_Q(interfaceIid) \
     DECLARE_IAMLATENCY_NQ
 
 #endif // LATENCY_H

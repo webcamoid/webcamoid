@@ -58,4 +58,50 @@ namespace AkVCam
     };
 }
 
+#define DECLARE_IPERSISTPROPERTYBAG_Q(interfaceIid) \
+    HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, \
+                                             void **ppvObject) \
+    { \
+        if (!ppvObject) \
+            return E_POINTER; \
+        \
+        *ppvObject = nullptr; \
+        \
+        if (IsEqualIID(riid, interfaceIid)) { \
+            this->AddRef(); \
+            *ppvObject = this; \
+            \
+            return S_OK; \
+        } \
+        \
+        return PersistPropertyBag::QueryInterface(riid, ppvObject); \
+    }
+
+#define DECLARE_IPERSISTPROPERTYBAG_NQ \
+    DECLARE_IPERSIST_NQ \
+    \
+    HRESULT STDMETHODCALLTYPE InitNew() \
+    { \
+        return PersistPropertyBag::InitNew(); \
+    } \
+    \
+    HRESULT STDMETHODCALLTYPE Load(IPropertyBag *pPropBag, \
+                                   IErrorLog *pErrorLog) \
+    { \
+        return PersistPropertyBag::Load(pPropBag, pErrorLog); \
+    } \
+    \
+    HRESULT STDMETHODCALLTYPE Save(IPropertyBag *pPropBag, \
+                                   BOOL fClearDirty, \
+                                   BOOL fSaveAllProperties) \
+    { \
+        return PersistPropertyBag::Save(pPropBag, \
+                                        fClearDirty, \
+                                        fSaveAllProperties); \
+    }
+
+#define DECLARE_IPERSISTPROPERTYBAG(interfaceIid) \
+    DECLARE_IPERSISTPROPERTYBAG_Q(interfaceIid) \
+    DECLARE_IPERSISTPROPERTYBAG_NQ
+
 #endif // PERSISTPROPERTYBAG_H

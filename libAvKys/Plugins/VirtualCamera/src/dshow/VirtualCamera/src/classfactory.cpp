@@ -64,7 +64,13 @@ HRESULT AkVCam::ClassFactory::QueryInterface(const IID &riid, void **ppvObject)
 
     *ppvObject = nullptr;
 
-    if (IsEqualIID(riid, IID_IPersistPropertyBag)) {
+    if (IsEqualIID(riid, IID_IClassFactory)) {
+        AkLogInterface(IClassFactory, this);
+        this->AddRef();
+        *ppvObject = this;
+
+        return S_OK;
+    } else if (IsEqualIID(riid, IID_IPersistPropertyBag)) {
         auto persistPropertyBag = new PersistPropertyBag(this->d->m_clsid);
         AkLogInterface(IPersistPropertyBag, persistPropertyBag);
         persistPropertyBag->AddRef();

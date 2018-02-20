@@ -40,7 +40,7 @@ namespace AkVCam
             void setPin(Pin *pin);
             void setMediaType(const AM_MEDIA_TYPE *mediaType);
 
-            DECLARE_IUNKNOWN
+            DECLARE_IUNKNOWN(IID_IAMStreamConfig)
 
             // IAMStreamConfig
             HRESULT STDMETHODCALLTYPE SetFormat(AM_MEDIA_TYPE *pmt);
@@ -87,8 +87,8 @@ namespace AkVCam
         return StreamConfig::GetStreamCaps(iIndex, pmt, pSCC); \
     }
 
-#define DECLARE_IAMSTREAMCONFIG \
-    DECLARE_IUNKNOWN_Q \
+#define DECLARE_IAMSTREAMCONFIG(interfaceIid) \
+    DECLARE_IUNKNOWN_Q(interfaceIid) \
     DECLARE_IAMSTREAMCONFIG_NQ
 
 #endif // STREAMCONFIG_H

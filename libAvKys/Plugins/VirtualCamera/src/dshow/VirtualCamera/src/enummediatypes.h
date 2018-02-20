@@ -45,7 +45,7 @@ namespace AkVCam
             void setFormats(const std::vector<VideoFormat> &formats,
                             bool changed=true);
 
-            DECLARE_IUNKNOWN
+            DECLARE_IUNKNOWN(IID_IEnumMediaTypes)
 
             // IEnumMediaTypes
             HRESULT STDMETHODCALLTYPE Next(ULONG cMediaTypes,

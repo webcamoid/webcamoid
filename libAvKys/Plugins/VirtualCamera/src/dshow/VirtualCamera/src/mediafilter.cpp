@@ -41,7 +41,7 @@ namespace AkVCam
 
 AkVCam::MediaFilter::MediaFilter(const IID &classCLSID,
                                  IBaseFilter *baseFilter):
-    Persist(classCLSID)
+    PersistPropertyBag(classCLSID)
 {
     this->setParent(this, &IID_IMediaFilter);
     this->d = new MediaFilterPrivate;

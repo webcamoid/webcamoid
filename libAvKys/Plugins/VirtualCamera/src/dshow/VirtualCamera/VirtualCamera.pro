@@ -52,52 +52,54 @@ TARGET = $${DSHOW_PLUGIN_NAME}_$${TARGET_ARCH}
 TEMPLATE = lib
 
 HEADERS += \
-    src/utils.h \
-    src/plugininterface.h \
-    src/plugin.h \
-    src/classfactory.h \
-    src/persistpropertybag.h \
     src/basefilter.h \
-    src/cunknown.h \
-    src/persist.h \
-    src/mediafilter.h \
-    src/enumpins.h \
-    src/pin.h \
-    src/enummediatypes.h \
-    src/filtermiscflags.h \
-    src/streamconfig.h \
-    src/latency.h \
-    src/pushsource.h \
     src/cameracontrol.h \
-    src/videoprocamp.h \
-    src/referenceclock.h \
-    src/memallocator.h \
+    src/classfactory.h \
+    src/cunknown.h \
+    src/enummediatypes.h \
+    src/enumpins.h \
+    src/filtermiscflags.h \
+    src/latency.h \
+    src/mediafilter.h \
     src/mediasample.h \
-    src/mediasample2.h
+    src/mediasample2.h \
+    src/memallocator.h \
+    src/persist.h \
+    src/persistpropertybag.h \
+    src/pin.h \
+    src/plugin.h \
+    src/plugininterface.h \
+    src/pushsource.h \
+    src/referenceclock.h \
+    src/specifypropertypages.h \
+    src/streamconfig.h \
+    src/utils.h \
+    src/videoprocamp.h
 
 SOURCES += \
-    src/plugin.cpp \
-    src/utils.cpp \
-    src/plugininterface.cpp \
-    src/classfactory.cpp \
-    src/persistpropertybag.cpp \
     src/basefilter.cpp \
-    src/cunknown.cpp \
-    src/persist.cpp \
-    src/mediafilter.cpp \
-    src/enumpins.cpp \
-    src/pin.cpp \
-    src/enummediatypes.cpp \
-    src/filtermiscflags.cpp \
-    src/streamconfig.cpp \
-    src/latency.cpp \
-    src/pushsource.cpp \
     src/cameracontrol.cpp \
-    src/videoprocamp.cpp \
-    src/referenceclock.cpp \
-    src/memallocator.cpp \
+    src/classfactory.cpp \
+    src/cunknown.cpp \
+    src/enummediatypes.cpp \
+    src/enumpins.cpp \
+    src/filtermiscflags.cpp \
+    src/latency.cpp \
+    src/mediafilter.cpp \
     src/mediasample.cpp \
-    src/mediasample2.cpp
+    src/mediasample2.cpp \
+    src/memallocator.cpp \
+    src/persist.cpp \
+    src/persistpropertybag.cpp \
+    src/pin.cpp \
+    src/plugin.cpp \
+    src/plugininterface.cpp \
+    src/pushsource.cpp \
+    src/referenceclock.cpp \
+    src/specifypropertypages.cpp \
+    src/streamconfig.cpp \
+    src/utils.cpp \
+    src/videoprocamp.cpp
 
 DESTDIR = $${OUT_PWD}
 

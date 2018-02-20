@@ -35,7 +35,7 @@ namespace AkVCam
                          LONG bufferSize, LONG align, LONG prefix);
             virtual ~MediaSample2();
 
-            DECLARE_IMEDIASAMPLE
+            DECLARE_IMEDIASAMPLE(IID_IMediaSample2)
 
             // IMediaSample2
             HRESULT STDMETHODCALLTYPE GetProperties(DWORD cbProperties,

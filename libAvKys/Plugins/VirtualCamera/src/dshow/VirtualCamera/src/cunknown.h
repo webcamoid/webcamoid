@@ -46,10 +46,22 @@ namespace AkVCam
     };
 }
 
-#define DECLARE_IUNKNOWN_Q \
+#define DECLARE_IUNKNOWN_Q(interfaceIid) \
     HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, \
                                              void **ppvObject) \
     { \
+        if (!ppvObject) \
+            return E_POINTER; \
+        \
+        *ppvObject = nullptr; \
+        \
+        if (IsEqualIID(riid, interfaceIid)) { \
+            this->AddRef(); \
+            *ppvObject = this; \
+            \
+            return S_OK; \
+        } \
+        \
         return CUnknown::QueryInterface(riid, ppvObject); \
     }
 
@@ -84,13 +96,13 @@ namespace AkVCam
     DECLARE_IUNKNOWN_NQR \
     DECLARE_IUNKNOWN_R
 
-#define DECLARE_IUNKNOWN_NR \
+#define DECLARE_IUNKNOWN_NR(interfaceIid) \
     DECLARE_IUNKNOWN_NQR \
-    DECLARE_IUNKNOWN_Q
+    DECLARE_IUNKNOWN_Q(interfaceIid)
 
-#define DECLARE_IUNKNOWN \
+#define DECLARE_IUNKNOWN(interfaceIid) \
     DECLARE_IUNKNOWN_NQR \
-    DECLARE_IUNKNOWN_Q \
+    DECLARE_IUNKNOWN_Q(interfaceIid) \
     DECLARE_IUNKNOWN_R
 
 #endif // CUNKNOWN_H

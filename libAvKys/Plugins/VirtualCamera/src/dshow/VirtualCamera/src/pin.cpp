@@ -227,7 +227,13 @@ HRESULT AkVCam::Pin::QueryInterface(const IID &riid, void **ppvObject)
 
     *ppvObject = nullptr;
 
-    if (IsEqualIID(riid, IID_IAMStreamConfig)) {
+    if (IsEqualIID(riid, IID_IPin)) {
+        AkLogInterface(IPin, this);
+        this->AddRef();
+        *ppvObject = this;
+
+        return S_OK;
+    } else if (IsEqualIID(riid, IID_IAMStreamConfig)) {
         auto streamConfig = static_cast<IAMStreamConfig *>(this);
         AkLogInterface(IAMStreamConfig, streamConfig);
         streamConfig->AddRef();

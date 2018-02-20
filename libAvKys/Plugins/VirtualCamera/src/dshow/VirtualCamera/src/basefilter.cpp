@@ -26,6 +26,7 @@
 #include "filtermiscflags.h"
 #include "pin.h"
 #include "referenceclock.h"
+#include "specifypropertypages.h"
 #include "videoprocamp.h"
 #include "utils.h"
 #include "VCamUtils/src/image/videoformat.h"
@@ -118,7 +119,13 @@ HRESULT AkVCam::BaseFilter::QueryInterface(const IID &riid, void **ppvObject)
 
     *ppvObject = nullptr;
 
-    if (IsEqualIID(riid, IID_IAMFilterMiscFlags)) {
+    if (IsEqualIID(riid, IID_IBaseFilter)) {
+        AkLogInterface(IBaseFilter, this);
+        this->AddRef();
+        *ppvObject = this;
+
+        return S_OK;
+    } else if (IsEqualIID(riid, IID_IAMFilterMiscFlags)) {
         auto filterMiscFlags = new FilterMiscFlags;
         AkLogInterface(IAMFilterMiscFlags, filterMiscFlags);
         filterMiscFlags->AddRef();
@@ -155,9 +162,16 @@ HRESULT AkVCam::BaseFilter::QueryInterface(const IID &riid, void **ppvObject)
         *ppvObject = pin;
 
         return S_OK;
+    } else if (IsEqualIID(riid, IID_ISpecifyPropertyPages)) {
+        auto specifyPropertyPages = new SpecifyPropertyPages;
+        AkLogInterface(ISpecifyPropertyPages, specifyPropertyPages);
+        specifyPropertyPages->AddRef();
+        *ppvObject = specifyPropertyPages;
+
+        return S_OK;
     }
 
-    return CUnknown::QueryInterface(riid, ppvObject);
+    return MediaFilter::QueryInterface(riid, ppvObject);
 }
 
 HRESULT AkVCam::BaseFilter::EnumPins(IEnumPins **ppEnum)
@@ -255,10 +269,7 @@ HRESULT AkVCam::BaseFilter::QueryVendorInfo(LPWSTR *pVendorInfo)
     if (!pVendorInfo)
         return E_POINTER;
 
-    auto len = (this->d->m_vendor.size() + 1) + sizeof(WCHAR);
-    *pVendorInfo = reinterpret_cast<LPWSTR>(CoTaskMemAlloc(len));
-    memset(pVendorInfo, 0, len);
-    memcpy(*pVendorInfo, this->d->m_vendor.c_str(), this->d->m_vendor.size());
+    *pVendorInfo = wcharStrFromWStr(this->d->m_vendor);
 
     return S_OK;
 }

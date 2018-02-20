@@ -17,43 +17,28 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef PERSIST_H
-#define PERSIST_H
+#ifndef SPECIFYPROPERTYPAGES_H
+#define SPECIFYPROPERTYPAGES_H
+
+#include <ocidl.h>
 
 #include "cunknown.h"
 
 namespace AkVCam
 {
-    class PersistPrivate;
-
-    class Persist:
-            public IPersist,
+    class SpecifyPropertyPages:
+            public ISpecifyPropertyPages,
             public CUnknown
     {
         public:
-            Persist(REFIID classCLSID);
-            virtual ~Persist();
+            SpecifyPropertyPages();
+            virtual ~SpecifyPropertyPages();
 
-            DECLARE_IUNKNOWN(IID_IPersist)
+            DECLARE_IUNKNOWN(IID_ISpecifyPropertyPages)
 
-            // IPersist
-            HRESULT STDMETHODCALLTYPE GetClassID(CLSID *pClassID);
-
-        private:
-            PersistPrivate *d;
+            // ISpecifyPropertyPages
+            HRESULT STDMETHODCALLTYPE GetPages(CAUUID *pPages);
     };
 }
 
-#define DECLARE_IPERSIST_NQ \
-    DECLARE_IUNKNOWN_NQ \
-    \
-    HRESULT STDMETHODCALLTYPE GetClassID(CLSID *pClassID) \
-    { \
-        return Persist::GetClassID(pClassID); \
-    }
-
-#define DECLARE_IPERSIST(interfaceIid) \
-    DECLARE_IUNKNOWN_Q(interfaceIid) \
-    DECLARE_IPERSIST_NQ
-
-#endif // PERSIST_H
+#endif // SPECIFYPROPERTYPAGES_H

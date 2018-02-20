@@ -34,7 +34,7 @@ namespace AkVCam
             FilterMiscFlags();
             virtual ~FilterMiscFlags();
 
-            DECLARE_IUNKNOWN
+            DECLARE_IUNKNOWN(IID_IAMFilterMiscFlags)
 
             // IAMFilterMiscFlags
             ULONG STDMETHODCALLTYPE GetMiscFlags();

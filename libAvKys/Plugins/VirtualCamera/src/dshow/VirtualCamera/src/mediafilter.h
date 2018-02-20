@@ -22,7 +22,7 @@
 
 #include <strmif.h>
 
-#include "persist.h"
+#include "persistpropertybag.h"
 
 namespace AkVCam
 {
@@ -32,7 +32,7 @@ namespace AkVCam
 
     class MediaFilter:
             public IMediaFilter,
-            public Persist
+            public PersistPropertyBag
     {
         public:
             MediaFilter(REFIID classCLSID, IBaseFilter *baseFilter);
@@ -43,7 +43,7 @@ namespace AkVCam
             void unsubscribeStateChanged(void *userData,
                                          StateChangedCallback callback);
 
-            DECLARE_IPERSIST
+            DECLARE_IPERSISTPROPERTYBAG(IID_IMediaFilter)
 
             // IMediaFilter
             HRESULT STDMETHODCALLTYPE Stop();
@@ -60,7 +60,7 @@ namespace AkVCam
 }
 
 #define DECLARE_IMEDIAFILTER_NQ \
-    DECLARE_IPERSIST_NQ \
+    DECLARE_IPERSISTPROPERTYBAG_NQ \
     \
     void subscribeStateChanged(void *userData, \
                                StateChangedCallback callback) \
@@ -105,8 +105,8 @@ namespace AkVCam
         return MediaFilter::GetSyncSource(pClock); \
     }
 
-#define DECLARE_IMEDIAFILTER \
-    DECLARE_IUNKNOWN_Q \
+#define DECLARE_IMEDIAFILTER(interfaceIid) \
+    DECLARE_IPERSISTPROPERTYBAG_Q(interfaceIid) \
     DECLARE_IMEDIAFILTER_NQ
 
 #endif // MEDIAFILTER_H
