@@ -198,7 +198,6 @@ std::string AkVCam::stringFromClsid(const CLSID &clsid)
         {IID_IAMAudioRendererStats       , "IAMAudioRendererStats"       }, // x
         {IID_IAMBufferNegotiation        , "IAMBufferNegotiation"        }, // x
         {IID_IAMCameraControl            , "IAMCameraControl"            },
-        {IID_IAMCertifiedOutputProtection, "IAMCertifiedOutputProtection"}, // x
         {IID_IAMClockAdjust              , "IAMClockAdjust"              }, // x
         {IID_IAMCrossbar                 , "IAMCrossbar"                 }, // x
         {IID_IAMDeviceRemoval            , "IAMDeviceRemoval"            }, // Not required
@@ -227,11 +226,14 @@ std::string AkVCam::stringFromClsid(const CLSID &clsid)
         {IID_IMediaSample                , "IMediaSample"                },
         {IID_IMediaSample2               , "IMediaSample2"               }, // Defined but not used
         {IID_IMediaSeeking               , "IMediaSeeking"               }, // Not required
+        {IID_IMediaEventSink             , "IMediaEventSink"             },
         {IID_IMemAllocator               , "IMemAllocator"               },
         {IID_INoMarshal                  , "INoMarshal"                  }, // x
+        {IID_IPersist                    , "IPersist"                    },
         {IID_IPersistPropertyBag         , "IPersistPropertyBag"         },
         {IID_IPin                        , "IPin"                        },
         {IID_IProvideClassInfo           , "IProvideClassInfo"           }, // x
+        {IID_IQualityControl             , "IQualityControl"             }, // x
         {IID_IReferenceClock             , "IReferenceClock"             },
         {IID_IRpcOptions                 , "IRpcOptions"                 }, // x
         {IID_ISpecifyPropertyPages       , "ISpecifyPropertyPages"       }, // x
@@ -265,6 +267,7 @@ std::string AkVCam::stringFromClsid(const CLSID &clsid)
      * IPin -> IAMPushSource
      * IPin -> IAMStreamConfig
      * IPin -> IKsPropertySet
+     * IPin -> IQualityControl
      */
 
     for (auto &id: clsidToString)

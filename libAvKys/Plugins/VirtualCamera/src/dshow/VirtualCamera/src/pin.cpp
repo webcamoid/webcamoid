@@ -51,7 +51,6 @@ namespace AkVCam
             IPin *m_connectedTo;
             IMemInputPin *m_memInputPin;
             IMemAllocator *m_memAllocator;
-            IReferenceClock *m_clock;
             REFERENCE_TIME m_refTime;
             REFERENCE_TIME m_start;
             REFERENCE_TIME m_stop;
@@ -62,6 +61,7 @@ namespace AkVCam
             std::atomic<bool> m_running;
             std::thread m_sendFrameThread;
 
+            void sendFrameOneShot();
             void sendFrameLoop();
             void sendFrame();
     };
@@ -86,7 +86,6 @@ AkVCam::Pin::Pin(BaseFilter *baseFilter,
     this->d->m_connectedTo = nullptr;
     this->d->m_memInputPin = nullptr;
     this->d->m_memAllocator = nullptr;
-    this->d->m_clock = nullptr;
     this->d->m_refTime = -1;
     this->d->m_start = 0;
     this->d->m_stop = MAXLONGLONG;
@@ -139,40 +138,44 @@ HRESULT AkVCam::Pin::stateChanged(void *userData, FILTER_STATE state)
     if (self->d->m_prevState == State_Stopped) {
         if (state == State_Paused) {
             self->d->m_refTime = -1;
+            IReferenceClock *clock = nullptr;
 
-            if (FAILED(self->d->m_baseFilter->GetSyncSource(&self->d->m_clock)))
+            if (FAILED(self->d->m_baseFilter->GetSyncSource(&clock)))
                 return E_FAIL;
-
-            self->d->m_clock->AddRef();
 
             self->d->m_sendFrameEvent =
                     CreateEvent(nullptr, FALSE, FALSE, L"SendFrame");
 
-            self->d->m_running = false;
+            self->d->m_running = true;
             self->d->m_sendFrameThread =
-                    std::thread(&PinPrivate::sendFrameLoop, self->d);
+                    std::thread(&PinPrivate::sendFrameOneShot, self->d);
             AkLoggerLog("Launching thread ", self->d->m_sendFrameThread.get_id());
 
             /* The filter must send an initial thumbnail frame before going to
              * running state.
              */
             REFERENCE_TIME now = 0;
-            self->d->m_clock->GetTime(&now);
-            self->d->m_clock->AdviseTime(now,
-                                         0,
-                                         HEVENT(self->d->m_sendFrameEvent),
-                                         &self->d->m_adviseCookie);
+            clock->GetTime(&now);
+            clock->AdviseTime(now,
+                              0,
+                              HEVENT(self->d->m_sendFrameEvent),
+                              &self->d->m_adviseCookie);
+            clock->Release();
         }
     } else if (self->d->m_prevState == State_Paused) {
         if (state == State_Stopped) {
-            self->d->m_clock->Release();
-            self->d->m_clock = nullptr;
+            self->d->m_sendFrameThread.join();
         } else if (state == State_Running) {
-            if (self->d->m_sendFrameThread.joinable())
-                self->d->m_sendFrameThread.join();
+            IReferenceClock *clock = nullptr;
+
+            if (FAILED(self->d->m_baseFilter->GetSyncSource(&clock)))
+                return E_FAIL;
+
+            self->d->m_running = false;
+            self->d->m_sendFrameThread.join();
 
             if (self->d->m_adviseCookie)
-                self->d->m_clock->Unadvise(self->d->m_adviseCookie);
+                clock->Unadvise(self->d->m_adviseCookie);
 
             if (self->d->m_sendFrameEvent)
                 CloseHandle(self->d->m_sendFrameEvent);
@@ -186,7 +189,7 @@ HRESULT AkVCam::Pin::stateChanged(void *userData, FILTER_STATE state)
             AkLoggerLog("Launching thread ", self->d->m_sendFrameThread.get_id());
 
             REFERENCE_TIME now = 0;
-            self->d->m_clock->GetTime(&now);
+            clock->GetTime(&now);
 
             AM_MEDIA_TYPE *mediaType = nullptr;
             self->GetFormat(&mediaType);
@@ -195,18 +198,23 @@ HRESULT AkVCam::Pin::stateChanged(void *userData, FILTER_STATE state)
             auto period = REFERENCE_TIME(TIME_BASE
                                          / videoFormat.minimumFrameRate());
 
-            self->d->m_clock->AdvisePeriodic(now,
-                                             period,
-                                             HSEMAPHORE(self->d->m_sendFrameEvent),
-                                             &self->d->m_adviseCookie);
+            clock->AdvisePeriodic(now,
+                                  period,
+                                  HSEMAPHORE(self->d->m_sendFrameEvent),
+                                  &self->d->m_adviseCookie);
+            clock->Release();
         }
     } else if (self->d->m_prevState == State_Running) {
         if (state == State_Paused) {
             self->d->m_running = false;
+            IReferenceClock *clock = nullptr;
 
-            self->d->m_clock->Unadvise(self->d->m_adviseCookie);
+            if (SUCCEEDED(self->d->m_baseFilter->GetSyncSource(&clock))) {
+                clock->Unadvise(self->d->m_adviseCookie);
+                clock->Release();
+            }
+
             self->d->m_adviseCookie = 0;
-
             CloseHandle(self->d->m_sendFrameEvent);
             self->d->m_sendFrameEvent = nullptr;
         }
@@ -409,14 +417,11 @@ HRESULT AkVCam::Pin::Connect(IPin *pReceivePin, const AM_MEDIA_TYPE *pmt)
         this->d->m_memInputPin->Release();
 
     this->d->m_memInputPin = memInputPin;
-    this->d->m_memInputPin->AddRef();
 
     if (this->d->m_memAllocator)
         this->d->m_memAllocator->Release();
 
     this->d->m_memAllocator = memAllocator;
-    this->d->m_memAllocator->AddRef();
-
     this->setMediaType(mediaType);
 
     if (this->d->m_connectedTo)
@@ -640,14 +645,24 @@ HRESULT AkVCam::Pin::NewSegment(REFERENCE_TIME tStart,
     return S_OK;
 }
 
+void AkVCam::PinPrivate::sendFrameOneShot()
+{
+    AkLogMethod();
+
+    WaitForSingleObject(this->m_sendFrameEvent, INFINITE);
+    this->sendFrame();
+    AkLoggerLog("Thread ", std::this_thread::get_id(), " finnished");
+    this->m_running = false;
+}
+
 void AkVCam::PinPrivate::sendFrameLoop()
 {
     AkLogMethod();
 
-    do {
+    while (this->m_running) {
         WaitForSingleObject(this->m_sendFrameEvent, INFINITE);
         this->sendFrame();
-    } while (this->m_running);
+    }
 
     AkLoggerLog("Thread ", std::this_thread::get_id(), " finnished");
 }
@@ -680,7 +695,12 @@ void AkVCam::PinPrivate::sendFrame()
     self->GetFormat(&mediaType);
     sample->SetMediaType(mediaType);
     REFERENCE_TIME startTime = 0;
-    this->m_clock->GetTime(&startTime);
+    IReferenceClock *clock = nullptr;
+
+    if (SUCCEEDED(this->m_baseFilter->GetSyncSource(&clock))) {
+        clock->GetTime(&startTime);
+        clock->Release();
+    }
 
     if (this->m_refTime < 0)
         this->m_refTime = startTime;
