@@ -40,7 +40,7 @@ namespace AkVCam
             void setPin(Pin *pin);
             void setMediaType(const AM_MEDIA_TYPE *mediaType);
 
-            DECLARE_IUNKNOWN
+            DECLARE_IUNKNOWN(IID_IAMStreamConfig)
 
             // IAMStreamConfig
             HRESULT STDMETHODCALLTYPE SetFormat(AM_MEDIA_TYPE *pmt);
@@ -55,5 +55,40 @@ namespace AkVCam
             StreamConfigPrivate *d;
     };
 }
+
+#define DECLARE_IAMSTREAMCONFIG_NQ \
+    DECLARE_IUNKNOWN_NQ \
+    \
+    void setMediaType(const AM_MEDIA_TYPE *mediaType) \
+    { \
+        StreamConfig::setMediaType(mediaType); \
+    } \
+    \
+    HRESULT STDMETHODCALLTYPE SetFormat(AM_MEDIA_TYPE *pmt) \
+    { \
+        return StreamConfig::SetFormat(pmt); \
+    } \
+    \
+    HRESULT STDMETHODCALLTYPE GetFormat(AM_MEDIA_TYPE **pmt) \
+    { \
+        return StreamConfig::GetFormat(pmt); \
+    } \
+    \
+    HRESULT STDMETHODCALLTYPE GetNumberOfCapabilities(int *piCount, \
+                                                      int *piSize) \
+    { \
+        return StreamConfig::GetNumberOfCapabilities(piCount, piSize); \
+    } \
+    \
+    HRESULT STDMETHODCALLTYPE GetStreamCaps(int iIndex, \
+                                            AM_MEDIA_TYPE **pmt, \
+                                            BYTE *pSCC) \
+    { \
+        return StreamConfig::GetStreamCaps(iIndex, pmt, pSCC); \
+    }
+
+#define DECLARE_IAMSTREAMCONFIG(interfaceIid) \
+    DECLARE_IUNKNOWN_Q(interfaceIid) \
+    DECLARE_IAMSTREAMCONFIG_NQ
 
 #endif // STREAMCONFIG_H

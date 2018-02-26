@@ -42,7 +42,7 @@ namespace AkVCam
             void removePin(IPin *pin, bool changed=true);
             void setBaseFilter(AkVCam::BaseFilter *baseFilter);
 
-            DECLARE_IUNKNOWN
+            DECLARE_IUNKNOWN(IID_IEnumPins)
 
             // IEnumPins
             HRESULT STDMETHODCALLTYPE Next(ULONG cPins,

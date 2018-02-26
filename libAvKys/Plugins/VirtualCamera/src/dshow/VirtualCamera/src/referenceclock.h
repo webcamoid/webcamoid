@@ -38,7 +38,7 @@ namespace AkVCam
             ReferenceClock();
             virtual ~ReferenceClock();
 
-            DECLARE_IUNKNOWN
+            DECLARE_IUNKNOWN(IID_IReferenceClock)
 
             HRESULT STDMETHODCALLTYPE GetTime(REFERENCE_TIME *pTime);
             HRESULT STDMETHODCALLTYPE AdviseTime(REFERENCE_TIME baseTime,

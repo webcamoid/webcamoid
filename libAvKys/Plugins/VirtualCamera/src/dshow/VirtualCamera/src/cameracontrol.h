@@ -36,7 +36,7 @@ namespace AkVCam
             CameraControl();
             virtual ~CameraControl();
 
-            DECLARE_IUNKNOWN
+            DECLARE_IUNKNOWN(IID_IAMCameraControl)
 
             // IAMCameraControl
             HRESULT STDMETHODCALLTYPE GetRange(LONG Property,

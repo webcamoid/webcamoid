@@ -36,7 +36,7 @@ namespace AkVCam
             VideoProcAmp();
             virtual ~VideoProcAmp();
 
-            DECLARE_IUNKNOWN
+            DECLARE_IUNKNOWN(IID_IAMVideoProcAmp)
 
             // IAMVideoProcAmp
             HRESULT STDMETHODCALLTYPE GetRange(LONG Property,

@@ -25,6 +25,8 @@
 #include <wincrypt.h>
 #include <comdef.h>
 #include <initguid.h>
+#include <mscoree.h>
+#include <inspectable.h>
 #include <strmif.h>
 #include <amvideo.h>
 #include <dvdmedia.h>
@@ -118,8 +120,8 @@ CLSID AkVCam::createClsidFromStr(const std::string &str)
     memset(&clsid, 0, sizeof(CLSID));
 
     if (!CryptAcquireContext(&provider,
-                             NULL,
-                             NULL,
+                             nullptr,
+                             nullptr,
                              PROV_RSA_FULL,
                              CRYPT_VERIFYCONTEXT))
         goto clsidFromStr_failed;
@@ -133,12 +135,11 @@ CLSID AkVCam::createClsidFromStr(const std::string &str)
                        0))
         goto clsidFromStr_failed;
 
-    if (!CryptGetHashParam(hash,
-                           HP_HASHVAL,
-                           reinterpret_cast<BYTE *>(&clsid),
-                           &clsidLen,
-                           0))
-        goto clsidFromStr_failed;
+    CryptGetHashParam(hash,
+                      HP_HASHVAL,
+                      reinterpret_cast<BYTE *>(&clsid),
+                      &clsidLen,
+                      0);
 
 clsidFromStr_failed:
     if (hash)
@@ -191,44 +192,82 @@ std::string AkVCam::stringFromResult(HRESULT result)
 std::string AkVCam::stringFromClsid(const CLSID &clsid)
 {
     static const std::map<CLSID, std::string> clsidToString {
-        {IID_IAMCameraControl   , "IAMCameraControl"   },
-        {IID_IAMDeviceRemoval   , "IAMDeviceRemoval"   }, // Not required
-        {IID_IAMFilterMiscFlags , "IAMFilterMiscFlags" },
-        {IID_IAMOpenProgress    , "IAMOpenProgress"    }, // Not required
-        {IID_IAMPushSource      , "IAMPushSource"      },
-        {IID_IAMStreamConfig    , "IAMStreamConfig"    },
-        {IID_IAMVideoProcAmp    , "IAMVideoProcAmp"    },
-        {IID_IBaseFilter        , "IBaseFilter"        },
-        {IID_IBasicAudio        , "IBasicAudio"        }, // Not required
-        {IID_IBasicVideo        , "IBasicVideo"        }, // Not required
-        {IID_IClassFactory      , "IClassFactory"      },
-        {IID_IEnumMediaTypes    , "IEnumMediaTypes"    },
-        {IID_IEnumPins          , "IEnumPins"          },
-        {IID_IKsPropertySet     , "IKsPropertySet"     }, // Not required
-        {IID_IMediaPosition     , "IMediaPosition"     }, // Not required
-        {IID_IMediaSample       , "IMediaSample"       },
-        {IID_IMediaSample2      , "IMediaSample2"      }, // Defined but not used
-        {IID_IMediaSeeking      , "IMediaSeeking"      }, // Not required
-        {IID_IMemAllocator      , "IMemAllocator"      },
-        {IID_IPersistPropertyBag, "IPersistPropertyBag"},
-        {IID_IPin               , "IPin"               },
-        {IID_IReferenceClock    , "IReferenceClock"    },
-        {IID_IVideoWindow       , "IVideoWindow"       }, // Not required
-        {IID_IUnknown           , "IUnknown"           },
+        {IID_IAgileObject                , "IAgileObject"                }, // x
+        {IID_IAMAnalogVideoDecoder       , "IAMAnalogVideoDecoder"       }, // x
+        {IID_IAMAudioInputMixer          , "IAMAudioInputMixer"          }, // x
+        {IID_IAMAudioRendererStats       , "IAMAudioRendererStats"       }, // x
+        {IID_IAMBufferNegotiation        , "IAMBufferNegotiation"        }, // x
+        {IID_IAMCameraControl            , "IAMCameraControl"            },
+        {IID_IAMClockAdjust              , "IAMClockAdjust"              }, // x
+        {IID_IAMCrossbar                 , "IAMCrossbar"                 }, // x
+        {IID_IAMDeviceRemoval            , "IAMDeviceRemoval"            }, // Not required
+        {IID_IAMFilterMiscFlags          , "IAMFilterMiscFlags"          },
+        {IID_IAMOpenProgress             , "IAMOpenProgress"             }, // Not required
+        {IID_IAMPushSource               , "IAMPushSource"               },
+        {IID_IAMStreamConfig             , "IAMStreamConfig"             },
+        {IID_IAMVfwCompressDialogs       , "IAMVfwCompressDialogs"       }, // x
+        {IID_IAMVideoControl             , "IAMVideoControl"             }, // x
+        {IID_IAMVideoProcAmp             , "IAMVideoProcAmp"             },
+        {IID_IBaseFilter                 , "IBaseFilter"                 },
+        {IID_IBasicAudio                 , "IBasicAudio"                 }, // Not required
+        {IID_IBasicVideo                 , "IBasicVideo"                 }, // Not required
+        {IID_IClassFactory               , "IClassFactory"               },
+        {IID_IEnumMediaTypes             , "IEnumMediaTypes"             },
+        {IID_IEnumPins                   , "IEnumPins"                   },
+        {IID_IFileSinkFilter             , "IFileSinkFilter"             }, // x
+        {IID_IFileSinkFilter2            , "IFileSinkFilter2"            }, // x
+        {IID_IFileSourceFilter           , "IFileSourceFilter"           }, // x
+        {IID_IInspectable                , "IInspectable"                }, // x
+        {IID_IKsPropertySet              , "IKsPropertySet"              }, // Not required
+        {IID_IManagedObject              , "IManagedObject"              }, // x
+        {IID_IMarshal                    , "IMarshal"                    }, // x
+        {IID_IMediaFilter                , "IMediaFilter"                }, // x
+        {IID_IMediaPosition              , "IMediaPosition"              }, // Not required
+        {IID_IMediaSample                , "IMediaSample"                },
+        {IID_IMediaSample2               , "IMediaSample2"               }, // Defined but not used
+        {IID_IMediaSeeking               , "IMediaSeeking"               }, // Not required
+        {IID_IMediaEventSink             , "IMediaEventSink"             },
+        {IID_IMemAllocator               , "IMemAllocator"               },
+        {IID_INoMarshal                  , "INoMarshal"                  }, // x
+        {IID_IPersist                    , "IPersist"                    },
+        {IID_IPersistPropertyBag         , "IPersistPropertyBag"         },
+        {IID_IPin                        , "IPin"                        },
+        {IID_IProvideClassInfo           , "IProvideClassInfo"           }, // x
+        {IID_IQualityControl             , "IQualityControl"             }, // x
+        {IID_IReferenceClock             , "IReferenceClock"             },
+        {IID_IRpcOptions                 , "IRpcOptions"                 }, // x
+        {IID_ISpecifyPropertyPages       , "ISpecifyPropertyPages"       }, // x
+        {IID_IVideoWindow                , "IVideoWindow"                }, // Not required
+        {IID_IUnknown                    , "IUnknown"                    },
     };
 
     /* The interface query tree:
      *
+     * IBaseFilter -> IAgileObject
+     * IBaseFilter -> IAMCrossbar
      * IBaseFilter -> IAMCameraControl
      * IBaseFilter -> IAMFilterMiscFlags
+     * IBaseFilter -> IAMVideoControl
      * IBaseFilter -> IAMVideoProcAmp
+     * IBaseFilter -> IFileSinkFilter
+     * IBaseFilter -> IFileSinkFilter2
+     * IBaseFilter -> IFileSourceFilter
+     * IBaseFilter -> IInspectable
+     * IBaseFilter -> IManagedObject
+     * IBaseFilter -> IMarshal
+     * IBaseFilter -> IMediaFilter
+     * IBaseFilter -> INoMarshal
+     * IBaseFilter -> IProvideClassInfo
      * IBaseFilter -> IReferenceClock
+     * IBaseFilter -> IRpcOptions
+     * IBaseFilter -> ISpecifyPropertyPages
      * IClassFactory -> IBaseFilter
      * IClassFactory -> IPersistPropertyBag
      * IPersistPropertyBag -> IBaseFilter
      * IPin -> IAMPushSource
      * IPin -> IAMStreamConfig
      * IPin -> IKsPropertySet
+     * IPin -> IQualityControl
      */
 
     for (auto &id: clsidToString)
@@ -236,6 +275,19 @@ std::string AkVCam::stringFromClsid(const CLSID &clsid)
             return id.second;
 
     return stringFromIid(clsid);
+}
+
+wchar_t *AkVCam::wcharStrFromWStr(const std::wstring &wstr)
+{
+    if (wstr.size() < 1)
+        return nullptr;
+
+    auto wcstrSize = wstr.size() * sizeof(wchar_t);
+    auto wcstr = reinterpret_cast<wchar_t *>(CoTaskMemAlloc(wcstrSize + 1));
+    wcstr[wstr.size()] = 0;
+    memcpy(wcstr, wstr.data(), wcstrSize);
+
+    return wcstr;
 }
 
 AkVCam::FourCC AkVCam::formatFromGuid(const GUID &guid)
@@ -407,10 +459,13 @@ bool AkVCam::copyMediaType(AM_MEDIA_TYPE *dstMediaType,
     if (!dstMediaType)
         return false;
 
-    memcpy(dstMediaType, srcMediaType, sizeof(AM_MEDIA_TYPE));
+    if (!srcMediaType) {
+        memset(dstMediaType, 0, sizeof(AM_MEDIA_TYPE));
 
-    if (!srcMediaType)
         return false;
+    }
+
+    memcpy(dstMediaType, srcMediaType, sizeof(AM_MEDIA_TYPE));
 
     if (dstMediaType->cbFormat && dstMediaType->pbFormat) {
         dstMediaType->pbFormat =

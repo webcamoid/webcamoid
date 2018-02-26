@@ -32,7 +32,6 @@
 #include "memallocator.h"
 #include "pushsource.h"
 #include "referenceclock.h"
-#include "streamconfig.h"
 #include "utils.h"
 #include "VCamUtils/src/image/videoformat.h"
 #include "VCamUtils/src/utils.h"
@@ -52,8 +51,6 @@ namespace AkVCam
             IPin *m_connectedTo;
             IMemInputPin *m_memInputPin;
             IMemAllocator *m_memAllocator;
-            StreamConfig *m_streamConfig;
-            IReferenceClock *m_clock;
             REFERENCE_TIME m_refTime;
             REFERENCE_TIME m_start;
             REFERENCE_TIME m_stop;
@@ -64,6 +61,7 @@ namespace AkVCam
             std::atomic<bool> m_running;
             std::thread m_sendFrameThread;
 
+            void sendFrameOneShot();
             void sendFrameLoop();
             void sendFrame();
     };
@@ -72,8 +70,10 @@ namespace AkVCam
 AkVCam::Pin::Pin(BaseFilter *baseFilter,
                  const std::vector<VideoFormat> &formats,
                  const std::wstring &pinName):
-    CUnknown(this, IID_IPin)
+    StreamConfig(this)
 {
+    this->setParent(this, &IID_IPin);
+
     this->d = new PinPrivate;
     this->d->self = this;
     this->d->m_baseFilter = baseFilter;
@@ -86,16 +86,13 @@ AkVCam::Pin::Pin(BaseFilter *baseFilter,
     this->d->m_connectedTo = nullptr;
     this->d->m_memInputPin = nullptr;
     this->d->m_memAllocator = nullptr;
-    this->d->m_streamConfig = new StreamConfig(this);
-    this->d->m_streamConfig->AddRef();
-    this->d->m_clock = nullptr;
     this->d->m_refTime = -1;
     this->d->m_start = 0;
     this->d->m_stop = MAXLONGLONG;
     this->d->m_rate = 1.0;
     this->d->m_prevState = State_Stopped;
     this->d->m_adviseCookie = 0;
-    this->d->m_sendFrameEvent = 0;
+    this->d->m_sendFrameEvent = nullptr;
     this->d->m_running = false;
 }
 
@@ -111,9 +108,6 @@ AkVCam::Pin::~Pin()
 
     if (this->d->m_memAllocator)
         this->d->m_memAllocator->Release();
-
-    if (this->d->m_streamConfig)
-        this->d->m_streamConfig->Release();
 
     delete this->d;
 }
@@ -131,92 +125,102 @@ void AkVCam::Pin::setBaseFilter(BaseFilter *baseFilter)
     this->d->m_baseFilter = baseFilter;
 }
 
-HRESULT AkVCam::Pin::stateChanged(FILTER_STATE state)
+HRESULT AkVCam::Pin::stateChanged(void *userData, FILTER_STATE state)
 {
-    AkLogMethod();
-    AkLoggerLog("Old state: ", this->d->m_prevState);
+    auto self = reinterpret_cast<Pin *>(userData);
+    AkLoggerLog(AK_CUR_INTERFACE, "(", self, ")::", __FUNCTION__, "()");
+    AkLoggerLog("Old state: ", self->d->m_prevState);
     AkLoggerLog("New state: ", state);
 
-    if (state == this->d->m_prevState)
+    if (state == self->d->m_prevState)
         return S_OK;
 
-    if (this->d->m_prevState == State_Stopped) {
+    if (self->d->m_prevState == State_Stopped) {
         if (state == State_Paused) {
-            this->d->m_refTime = -1;
+            self->d->m_refTime = -1;
+            IReferenceClock *clock = nullptr;
 
-            if (FAILED(this->d->m_baseFilter->GetSyncSource(&this->d->m_clock)))
+            if (FAILED(self->d->m_baseFilter->GetSyncSource(&clock)))
                 return E_FAIL;
 
-            this->d->m_clock->AddRef();
+            self->d->m_sendFrameEvent =
+                    CreateEvent(nullptr, FALSE, FALSE, L"SendFrame");
 
-            this->d->m_sendFrameEvent =
-                    CreateEvent(NULL, FALSE, FALSE, L"SendFrame");
-
-            this->d->m_running = false;
-            this->d->m_sendFrameThread =
-                    std::thread(&PinPrivate::sendFrameLoop, this->d);
-            AkLoggerLog("Launching thread ", this->d->m_sendFrameThread.get_id());
+            self->d->m_running = true;
+            self->d->m_sendFrameThread =
+                    std::thread(&PinPrivate::sendFrameOneShot, self->d);
+            AkLoggerLog("Launching thread ", self->d->m_sendFrameThread.get_id());
 
             /* The filter must send an initial thumbnail frame before going to
              * running state.
              */
             REFERENCE_TIME now = 0;
-            this->d->m_clock->GetTime(&now);
-            this->d->m_clock->AdviseTime(now,
-                                         0,
-                                         HEVENT(this->d->m_sendFrameEvent),
-                                         &this->d->m_adviseCookie);
+            clock->GetTime(&now);
+            clock->AdviseTime(now,
+                              0,
+                              HEVENT(self->d->m_sendFrameEvent),
+                              &self->d->m_adviseCookie);
+            clock->Release();
         }
-    } else if (this->d->m_prevState == State_Paused) {
+    } else if (self->d->m_prevState == State_Paused) {
         if (state == State_Stopped) {
-            this->d->m_clock->Release();
-            this->d->m_clock = nullptr;
+            self->d->m_sendFrameThread.join();
         } else if (state == State_Running) {
-            if (this->d->m_sendFrameThread.joinable())
-                this->d->m_sendFrameThread.join();
+            IReferenceClock *clock = nullptr;
 
-            if (this->d->m_adviseCookie)
-                this->d->m_clock->Unadvise(this->d->m_adviseCookie);
+            if (FAILED(self->d->m_baseFilter->GetSyncSource(&clock)))
+                return E_FAIL;
 
-            if (this->d->m_sendFrameEvent)
-                CloseHandle(this->d->m_sendFrameEvent);
+            self->d->m_running = false;
+            self->d->m_sendFrameThread.join();
 
-            this->d->m_sendFrameEvent =
-                    CreateSemaphore(NULL, 1, 1, L"SendFrame");
+            if (self->d->m_adviseCookie)
+                clock->Unadvise(self->d->m_adviseCookie);
 
-            this->d->m_running = true;
-            this->d->m_sendFrameThread =
-                    std::thread(&PinPrivate::sendFrameLoop, this->d);
-            AkLoggerLog("Launching thread ", this->d->m_sendFrameThread.get_id());
+            if (self->d->m_sendFrameEvent)
+                CloseHandle(self->d->m_sendFrameEvent);
+
+            self->d->m_sendFrameEvent =
+                    CreateSemaphore(nullptr, 1, 1, L"SendFrame");
+
+            self->d->m_running = true;
+            self->d->m_sendFrameThread =
+                    std::thread(&PinPrivate::sendFrameLoop, self->d);
+            AkLoggerLog("Launching thread ", self->d->m_sendFrameThread.get_id());
 
             REFERENCE_TIME now = 0;
-            this->d->m_clock->GetTime(&now);
+            clock->GetTime(&now);
 
             AM_MEDIA_TYPE *mediaType = nullptr;
-            this->d->m_streamConfig->GetFormat(&mediaType);
+            self->GetFormat(&mediaType);
             auto videoFormat = formatFromMediaType(mediaType);
             deleteMediaType(&mediaType);
             auto period = REFERENCE_TIME(TIME_BASE
                                          / videoFormat.minimumFrameRate());
 
-            this->d->m_clock->AdvisePeriodic(now,
-                                             period,
-                                             HSEMAPHORE(this->d->m_sendFrameEvent),
-                                             &this->d->m_adviseCookie);
+            clock->AdvisePeriodic(now,
+                                  period,
+                                  HSEMAPHORE(self->d->m_sendFrameEvent),
+                                  &self->d->m_adviseCookie);
+            clock->Release();
         }
-    } else if (this->d->m_prevState == State_Running) {
+    } else if (self->d->m_prevState == State_Running) {
         if (state == State_Paused) {
-            this->d->m_running = false;
+            self->d->m_running = false;
+            IReferenceClock *clock = nullptr;
 
-            this->d->m_clock->Unadvise(this->d->m_adviseCookie);
-            this->d->m_adviseCookie = 0;
+            if (SUCCEEDED(self->d->m_baseFilter->GetSyncSource(&clock))) {
+                clock->Unadvise(self->d->m_adviseCookie);
+                clock->Release();
+            }
 
-            CloseHandle(this->d->m_sendFrameEvent);
-            this->d->m_sendFrameEvent = 0;
+            self->d->m_adviseCookie = 0;
+            CloseHandle(self->d->m_sendFrameEvent);
+            self->d->m_sendFrameEvent = nullptr;
         }
     }
 
-    this->d->m_prevState = state;
+    self->d->m_prevState = state;
 
     return S_OK;
 }
@@ -231,15 +235,21 @@ HRESULT AkVCam::Pin::QueryInterface(const IID &riid, void **ppvObject)
 
     *ppvObject = nullptr;
 
-    if (IsEqualIID(riid, IID_IAMStreamConfig)) {
-        auto streamConfig = this->d->m_streamConfig;
+    if (IsEqualIID(riid, IID_IPin)) {
+        AkLogInterface(IPin, this);
+        this->AddRef();
+        *ppvObject = this;
+
+        return S_OK;
+    } else if (IsEqualIID(riid, IID_IAMStreamConfig)) {
+        auto streamConfig = static_cast<IAMStreamConfig *>(this);
         AkLogInterface(IAMStreamConfig, streamConfig);
         streamConfig->AddRef();
         *ppvObject = streamConfig;
 
         return S_OK;
     } else if (IsEqualIID(riid, IID_IAMPushSource)) {
-        auto pushSource = new PushSource(this->d->m_streamConfig);
+        auto pushSource = new PushSource(this);
         AkLogInterface(IAMPushSource, pushSource);
         pushSource->AddRef();
         *ppvObject = pushSource;
@@ -407,15 +417,12 @@ HRESULT AkVCam::Pin::Connect(IPin *pReceivePin, const AM_MEDIA_TYPE *pmt)
         this->d->m_memInputPin->Release();
 
     this->d->m_memInputPin = memInputPin;
-    this->d->m_memInputPin->AddRef();
 
     if (this->d->m_memAllocator)
         this->d->m_memAllocator->Release();
 
     this->d->m_memAllocator = memAllocator;
-    this->d->m_memAllocator->AddRef();
-
-    this->d->m_streamConfig->setMediaType(mediaType);
+    this->setMediaType(mediaType);
 
     if (this->d->m_connectedTo)
         this->d->m_connectedTo->Release();
@@ -423,9 +430,7 @@ HRESULT AkVCam::Pin::Connect(IPin *pReceivePin, const AM_MEDIA_TYPE *pmt)
     this->d->m_connectedTo = pReceivePin;
     this->d->m_connectedTo->AddRef();
 
-    this->d->m_baseFilter->subscribeStateChanged(std::bind(&Pin::stateChanged,
-                                                           this,
-                                                           std::placeholders::_1));
+    this->d->m_baseFilter->subscribeStateChanged(this, Pin::stateChanged);
 
     AkLoggerLog("Connected to ", pReceivePin);
 
@@ -446,9 +451,7 @@ HRESULT AkVCam::Pin::Disconnect()
 {
     AkLogMethod();
 
-    this->d->m_baseFilter->unsubscribeStateChanged(std::bind(&Pin::stateChanged,
-                                                             this,
-                                                             std::placeholders::_1));
+    this->d->m_baseFilter->unsubscribeStateChanged(this, Pin::stateChanged);
 
     if (this->d->m_baseFilter) {
         FILTER_STATE state;
@@ -474,7 +477,7 @@ HRESULT AkVCam::Pin::Disconnect()
         this->d->m_memAllocator = nullptr;
     }
 
-    this->d->m_streamConfig->setMediaType(nullptr);
+    this->setMediaType(nullptr);
 
     return S_OK;
 }
@@ -510,7 +513,7 @@ HRESULT AkVCam::Pin::ConnectionMediaType(AM_MEDIA_TYPE *pmt)
         return VFW_E_NOT_CONNECTED;
 
     AM_MEDIA_TYPE *mediaType = nullptr;
-    this->d->m_streamConfig->GetFormat(&mediaType);
+    this->GetFormat(&mediaType);
     copyMediaType(pmt, mediaType);
     AkLoggerLog("Media Type: ", stringFromMediaType(mediaType));
 
@@ -642,14 +645,24 @@ HRESULT AkVCam::Pin::NewSegment(REFERENCE_TIME tStart,
     return S_OK;
 }
 
+void AkVCam::PinPrivate::sendFrameOneShot()
+{
+    AkLogMethod();
+
+    WaitForSingleObject(this->m_sendFrameEvent, INFINITE);
+    this->sendFrame();
+    AkLoggerLog("Thread ", std::this_thread::get_id(), " finnished");
+    this->m_running = false;
+}
+
 void AkVCam::PinPrivate::sendFrameLoop()
 {
     AkLogMethod();
 
-    do {
+    while (this->m_running) {
         WaitForSingleObject(this->m_sendFrameEvent, INFINITE);
         this->sendFrame();
-    } while (this->m_running);
+    }
 
     AkLoggerLog("Thread ", std::this_thread::get_id(), " finnished");
 }
@@ -679,10 +692,15 @@ void AkVCam::PinPrivate::sendFrame()
         buffer[i] = rand() % 255;
 
     AM_MEDIA_TYPE *mediaType = nullptr;
-    this->m_streamConfig->GetFormat(&mediaType);
+    self->GetFormat(&mediaType);
     sample->SetMediaType(mediaType);
     REFERENCE_TIME startTime = 0;
-    this->m_clock->GetTime(&startTime);
+    IReferenceClock *clock = nullptr;
+
+    if (SUCCEEDED(this->m_baseFilter->GetSyncSource(&clock))) {
+        clock->GetTime(&startTime);
+        clock->Release();
+    }
 
     if (this->m_refTime < 0)
         this->m_refTime = startTime;

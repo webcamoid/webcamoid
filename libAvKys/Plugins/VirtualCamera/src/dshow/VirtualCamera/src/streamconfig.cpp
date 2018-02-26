@@ -166,7 +166,7 @@ HRESULT AkVCam::StreamConfig::GetNumberOfCapabilities(int *piCount,
             mediaTypes->Reset();
             AM_MEDIA_TYPE *mediaType = nullptr;
 
-            while (SUCCEEDED(mediaTypes->Next(1, &mediaType, nullptr))) {
+            while (mediaTypes->Next(1, &mediaType, nullptr) == S_OK) {
                 (*piCount)++;
                 deleteMediaType(&mediaType);
             }
@@ -192,7 +192,7 @@ HRESULT AkVCam::StreamConfig::GetStreamCaps(int iIndex,
 
     *pmt = nullptr;
     auto configCaps = reinterpret_cast<VIDEO_STREAM_CONFIG_CAPS *>(pSCC);
-    memset(&configCaps, 0, sizeof(VIDEO_STREAM_CONFIG_CAPS));
+    memset(configCaps, 0, sizeof(VIDEO_STREAM_CONFIG_CAPS));
 
     if (iIndex < 0)
         return E_INVALIDARG;
@@ -214,7 +214,7 @@ HRESULT AkVCam::StreamConfig::GetStreamCaps(int iIndex,
             AM_MEDIA_TYPE *mediaType = nullptr;
 
             for (int i = 0;
-                 SUCCEEDED(mediaTypes->Next(1, &mediaType, nullptr));
+                 mediaTypes->Next(1, &mediaType, nullptr) == S_OK;
                  i++) {
                 if (i == iIndex) {
                     *pmt = mediaType;
@@ -240,8 +240,5 @@ HRESULT AkVCam::StreamConfig::GetStreamCaps(int iIndex,
         }
     }
 
-    if (!pmt)
-        return S_FALSE;
-
-    return S_OK;
+    return *pmt? S_OK: S_FALSE;
 }

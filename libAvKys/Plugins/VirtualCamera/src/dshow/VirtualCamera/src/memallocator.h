@@ -36,7 +36,7 @@ namespace AkVCam
             MemAllocator();
             virtual ~MemAllocator();
 
-            DECLARE_IUNKNOWN
+            DECLARE_IUNKNOWN(IID_IMemAllocator)
 
             // IMemAllocator
             HRESULT STDMETHODCALLTYPE SetProperties(ALLOCATOR_PROPERTIES *pRequest,

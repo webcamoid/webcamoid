@@ -32,7 +32,7 @@ namespace AkVCam
             PushSource(IAMStreamConfig *streamConfig);
             virtual ~PushSource();
 
-            DECLARE_IAMLATENCY
+            DECLARE_IAMLATENCY(IID_IAMPushSource)
 
             // IAMPushSource
             HRESULT WINAPI GetPushSourceFlags(ULONG *pFlags);

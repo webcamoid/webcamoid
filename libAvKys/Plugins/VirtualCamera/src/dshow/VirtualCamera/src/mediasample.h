@@ -37,7 +37,7 @@ namespace AkVCam
                         LONG bufferSize, LONG align, LONG prefix);
             virtual ~MediaSample();
 
-            DECLARE_IUNKNOWN_NR
+            DECLARE_IUNKNOWN_NR(IID_IMediaSample)
 
             // IUnknown
             ULONG STDMETHODCALLTYPE Release();
@@ -69,8 +69,8 @@ namespace AkVCam
     };
 }
 
-#define DECLARE_IMEDIASAMPLE \
-    DECLARE_IUNKNOWN_NR \
+#define DECLARE_IMEDIASAMPLE(interfaceIid) \
+    DECLARE_IUNKNOWN_NR(interfaceIid) \
     \
     ULONG STDMETHODCALLTYPE Release() \
     { \

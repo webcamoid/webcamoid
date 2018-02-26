@@ -58,7 +58,13 @@ HRESULT AkVCam::PersistPropertyBag::QueryInterface(const IID &riid,
 
     *ppvObject = nullptr;
 
-    if (IsEqualIID(riid, IID_IBaseFilter)) {
+    if (IsEqualIID(riid, IID_IPersistPropertyBag)) {
+        AkLogInterface(IPersistPropertyBag, this);
+        this->AddRef();
+        *ppvObject = this;
+
+        return S_OK;
+    } else if (IsEqualIID(riid, IID_IBaseFilter)) {
         CLSID clsid;
         auto result = this->GetClassID(&clsid);
 
@@ -73,7 +79,7 @@ HRESULT AkVCam::PersistPropertyBag::QueryInterface(const IID &riid,
         return S_OK;
     }
 
-    return CUnknown::QueryInterface(riid, ppvObject);
+    return Persist::QueryInterface(riid, ppvObject);
 }
 
 HRESULT AkVCam::PersistPropertyBag::InitNew()
