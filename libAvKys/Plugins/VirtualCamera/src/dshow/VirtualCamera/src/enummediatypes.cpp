@@ -135,6 +135,7 @@ HRESULT AkVCam::EnumMediaTypes::Next(ULONG cMediaTypes,
 HRESULT AkVCam::EnumMediaTypes::Skip(ULONG cMediaTypes)
 {
     AkLogMethod();
+    AkLoggerLog("Skip ", cMediaTypes, " media types");
 
     if (this->d->m_changed) {
         this->d->m_changed = false;
@@ -144,7 +145,7 @@ HRESULT AkVCam::EnumMediaTypes::Skip(ULONG cMediaTypes)
 
     auto position = this->d->m_position + cMediaTypes;
 
-    if (position >= this->d->m_formats.size())
+    if (position > this->d->m_formats.size())
         return S_FALSE;
 
     this->d->m_position = position;

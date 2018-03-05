@@ -43,6 +43,7 @@ namespace AkVCam
             BOOL m_syncPoint;
             BOOL m_preroll;
             BOOL m_discontinuity;
+            BOOL m_mediaTypeChanged;
     };
 }
 
@@ -67,6 +68,7 @@ AkVCam::MediaSample::MediaSample(IMemAllocator *memAllocator,
     this->d->m_syncPoint = S_FALSE;
     this->d->m_preroll = S_FALSE;
     this->d->m_discontinuity = S_FALSE;
+    this->d->m_mediaTypeChanged = S_FALSE;
 }
 
 AkVCam::MediaSample::~MediaSample()
@@ -196,6 +198,11 @@ HRESULT AkVCam::MediaSample::GetMediaType(AM_MEDIA_TYPE **ppMediaType)
     if (!ppMediaType)
         return E_POINTER;
 
+    *ppMediaType = nullptr;
+
+    if (this->d->m_mediaTypeChanged == S_FALSE)
+        return S_FALSE;
+
     *ppMediaType = createMediaType(this->d->m_mediaType);
 
     if (!*ppMediaType)
@@ -211,8 +218,15 @@ HRESULT AkVCam::MediaSample::SetMediaType(AM_MEDIA_TYPE *pMediaType)
     if (!pMediaType)
         return E_POINTER;
 
+    if (isEqualMediaType(pMediaType, this->d->m_mediaType, true)) {
+        this->d->m_mediaTypeChanged = S_FALSE;
+
+        return S_OK;
+    }
+
     deleteMediaType(&this->d->m_mediaType);
     this->d->m_mediaType = createMediaType(pMediaType);
+    this->d->m_mediaTypeChanged = S_OK;
 
     return S_OK;
 }

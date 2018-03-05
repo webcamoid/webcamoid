@@ -145,7 +145,7 @@ HRESULT AkVCam::EnumPins::Skip(ULONG cPins)
 
     auto position = this->d->m_position + cPins;
 
-    if (position >= this->d->m_pins.size())
+    if (position > this->d->m_pins.size())
         return S_FALSE;
 
     this->d->m_position = position;

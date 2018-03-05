@@ -30,6 +30,7 @@
 #include "basefilter.h"
 #include "enummediatypes.h"
 #include "memallocator.h"
+#include "propertyset.h"
 #include "pushsource.h"
 #include "referenceclock.h"
 #include "utils.h"
@@ -63,7 +64,7 @@ namespace AkVCam
 
             void sendFrameOneShot();
             void sendFrameLoop();
-            void sendFrame();
+            HRESULT sendFrame();
     };
 }
 
@@ -205,19 +206,21 @@ HRESULT AkVCam::Pin::stateChanged(void *userData, FILTER_STATE state)
             clock->Release();
         }
     } else if (self->d->m_prevState == State_Running) {
-        if (state == State_Paused) {
-            self->d->m_running = false;
-            IReferenceClock *clock = nullptr;
+        self->d->m_running = false;
 
-            if (SUCCEEDED(self->d->m_baseFilter->GetSyncSource(&clock))) {
-                clock->Unadvise(self->d->m_adviseCookie);
-                clock->Release();
-            }
+        if (state == State_Stopped)
+            self->d->m_sendFrameThread.join();
 
-            self->d->m_adviseCookie = 0;
-            CloseHandle(self->d->m_sendFrameEvent);
-            self->d->m_sendFrameEvent = nullptr;
+        IReferenceClock *clock = nullptr;
+
+        if (SUCCEEDED(self->d->m_baseFilter->GetSyncSource(&clock))) {
+            clock->Unadvise(self->d->m_adviseCookie);
+            clock->Release();
         }
+
+        self->d->m_adviseCookie = 0;
+        CloseHandle(self->d->m_sendFrameEvent);
+        self->d->m_sendFrameEvent = nullptr;
     }
 
     self->d->m_prevState = state;
@@ -253,6 +256,13 @@ HRESULT AkVCam::Pin::QueryInterface(const IID &riid, void **ppvObject)
         AkLogInterface(IAMPushSource, pushSource);
         pushSource->AddRef();
         *ppvObject = pushSource;
+
+        return S_OK;
+    } else if (IsEqualIID(riid, IID_IKsPropertySet)) {
+        auto propertySet = new PropertySet();
+        AkLogInterface(IKsPropertySet, propertySet);
+        propertySet->AddRef();
+        *ppvObject = propertySet;
 
         return S_OK;
     }
@@ -318,15 +328,14 @@ HRESULT AkVCam::Pin::Connect(IPin *pReceivePin, const AM_MEDIA_TYPE *pmt)
                 AkLoggerLog("Testing media type: ", stringFromMediaType(mt));
 
                 // If the mediatype match our suported mediatypes...
-                HRESULT accept = this->QueryAccept(mt);
-                deleteMediaType(&mt);
-
-                if (SUCCEEDED(accept)) {
+                if (SUCCEEDED(this->QueryAccept(mt))) {
                     // set it.
-                    mediaType = createMediaType(mt);
+                    mediaType = mt;
 
                     break;
                 }
+
+                deleteMediaType(&mt);
             }
 
             mediaTypes->Release();
@@ -340,10 +349,13 @@ HRESULT AkVCam::Pin::Connect(IPin *pReceivePin, const AM_MEDIA_TYPE *pmt)
             this->d->m_mediaTypes->Reset();
 
             while (this->d->m_mediaTypes->Next(1, &mt, nullptr) == S_OK) {
-                mediaType = createMediaType(mt);
-                deleteMediaType(&mt);
+                if (SUCCEEDED(pReceivePin->QueryAccept(mt))) {
+                    mediaType = mt;
 
-                break;
+                    break;
+                }
+
+                deleteMediaType(&mt);
             }
         }
     }
@@ -536,7 +548,8 @@ HRESULT AkVCam::Pin::QueryPinInfo(PIN_INFO *pInfo)
     memset(pInfo->achName, 0, MAX_PIN_NAME * sizeof(WCHAR));
     memcpy(pInfo->achName,
            this->d->m_pinName.c_str(),
-           std::min<size_t>(MAX_PIN_NAME, this->d->m_pinName.size()));
+           std::min<size_t>(this->d->m_pinName.size() * sizeof(WCHAR),
+                            MAX_PIN_NAME));
 
     return S_OK;
 }
@@ -567,7 +580,9 @@ HRESULT AkVCam::Pin::QueryId(LPWSTR *Id)
         return E_OUTOFMEMORY;
 
     memset(*Id, 0, wstrSize);
-    memcpy(*Id, this->d->m_pinId.c_str(), this->d->m_pinId.size());
+    memcpy(*Id,
+           this->d->m_pinId.c_str(),
+           this->d->m_pinId.size() * sizeof(WCHAR));
 
     return S_OK;
 }
@@ -595,12 +610,14 @@ HRESULT AkVCam::Pin::QueryAccept(const AM_MEDIA_TYPE *pmt)
 HRESULT AkVCam::Pin::EnumMediaTypes(IEnumMediaTypes **ppEnum)
 {
     AkLogMethod();
-    auto result = this->d->m_mediaTypes->Clone(ppEnum);
 
-    if (SUCCEEDED(result))
-        (*ppEnum)->Reset();
+    if (!ppEnum)
+        return E_POINTER;
 
-    return result;
+    *ppEnum = new AkVCam::EnumMediaTypes(this->d->m_mediaTypes->formats());
+    (*ppEnum)->AddRef();
+
+    return S_OK;
 }
 
 HRESULT AkVCam::Pin::QueryInternalConnections(IPin **apPin, ULONG *nPin)
@@ -661,13 +678,23 @@ void AkVCam::PinPrivate::sendFrameLoop()
 
     while (this->m_running) {
         WaitForSingleObject(this->m_sendFrameEvent, INFINITE);
-        this->sendFrame();
+        auto result = this->sendFrame();
+
+        if (FAILED(result)) {
+            AkLoggerLog("Error sending frame: ",
+                        result,
+                        ": ",
+                        stringFromResult(result));
+            this->m_running = false;
+
+            break;
+        }
     }
 
     AkLoggerLog("Thread ", std::this_thread::get_id(), " finnished");
 }
 
-void AkVCam::PinPrivate::sendFrame()
+HRESULT AkVCam::PinPrivate::sendFrame()
 {
     AkLogMethod();
     IMediaSample *sample = nullptr;
@@ -677,7 +704,7 @@ void AkVCam::PinPrivate::sendFrame()
                                                nullptr,
                                                0))
         || !sample)
-        return;
+        return E_FAIL;
 
     BYTE *buffer = nullptr;
     LONG size = sample->GetSize();
@@ -685,7 +712,7 @@ void AkVCam::PinPrivate::sendFrame()
     if (size < 1 || FAILED(sample->GetPointer(&buffer)) || !buffer) {
         sample->Release();
 
-        return;
+        return E_FAIL;
     }
 
     for (LONG i = 0; i < size; i++)
@@ -693,7 +720,6 @@ void AkVCam::PinPrivate::sendFrame()
 
     AM_MEDIA_TYPE *mediaType = nullptr;
     self->GetFormat(&mediaType);
-    sample->SetMediaType(mediaType);
     REFERENCE_TIME startTime = 0;
     IReferenceClock *clock = nullptr;
 
@@ -717,6 +743,9 @@ void AkVCam::PinPrivate::sendFrame()
     sample->SetSyncPoint(true);
     sample->SetPreroll(false);
     AkLoggerLog("Sending ", stringFromMediaSample(sample));
-    this->m_memInputPin->Receive(sample);
+    auto result = this->m_memInputPin->Receive(sample);
+    AkLoggerLog("Frame sent");
     sample->Release();
+
+    return result;
 }

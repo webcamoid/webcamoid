@@ -53,7 +53,6 @@ TEMPLATE = lib
 
 HEADERS += \
     src/basefilter.h \
-    src/cameracontrol.h \
     src/classfactory.h \
     src/cunknown.h \
     src/enummediatypes.h \
@@ -74,11 +73,11 @@ HEADERS += \
     src/specifypropertypages.h \
     src/streamconfig.h \
     src/utils.h \
-    src/videoprocamp.h
+    src/videoprocamp.h \
+    src/propertyset.h
 
 SOURCES += \
     src/basefilter.cpp \
-    src/cameracontrol.cpp \
     src/classfactory.cpp \
     src/cunknown.cpp \
     src/enummediatypes.cpp \
@@ -99,7 +98,8 @@ SOURCES += \
     src/specifypropertypages.cpp \
     src/streamconfig.cpp \
     src/utils.cpp \
-    src/videoprocamp.cpp
+    src/videoprocamp.cpp \
+    src/propertyset.cpp
 
 DESTDIR = $${OUT_PWD}
 

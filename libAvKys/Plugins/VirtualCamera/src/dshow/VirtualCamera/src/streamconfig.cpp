@@ -136,6 +136,8 @@ HRESULT AkVCam::StreamConfig::GetFormat(AM_MEDIA_TYPE **pmt)
     else
         *pmt = createMediaType(this->d->m_mediaType);
 
+    AkLoggerLog("MediaType: ", stringFromMediaType(*pmt));
+
     return S_OK;
 }
 

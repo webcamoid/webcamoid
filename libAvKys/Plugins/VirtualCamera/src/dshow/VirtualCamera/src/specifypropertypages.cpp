@@ -46,8 +46,7 @@ HRESULT AkVCam::SpecifyPropertyPages::GetPages(CAUUID *pPages)
 
     std::vector<GUID> pages {
         CLSID_VideoProcAmpPropertyPage,
-        CLSID_CameraControlPropertyPage,
-        CLSID_VideoStreamConfigPropertyPage,
+        //CLSID_VideoStreamConfigPropertyPage,
     };
 
     pPages->cElems = pages.size();

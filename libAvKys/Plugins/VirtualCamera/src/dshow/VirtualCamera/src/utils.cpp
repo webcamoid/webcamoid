@@ -197,7 +197,7 @@ std::string AkVCam::stringFromClsid(const CLSID &clsid)
         {IID_IAMAudioInputMixer          , "IAMAudioInputMixer"          }, // x
         {IID_IAMAudioRendererStats       , "IAMAudioRendererStats"       }, // x
         {IID_IAMBufferNegotiation        , "IAMBufferNegotiation"        }, // x
-        {IID_IAMCameraControl            , "IAMCameraControl"            },
+        {IID_IAMCameraControl            , "IAMCameraControl"            }, // x
         {IID_IAMClockAdjust              , "IAMClockAdjust"              }, // x
         {IID_IAMCrossbar                 , "IAMCrossbar"                 }, // x
         {IID_IAMDeviceRemoval            , "IAMDeviceRemoval"            }, // Not required
@@ -206,6 +206,7 @@ std::string AkVCam::stringFromClsid(const CLSID &clsid)
         {IID_IAMPushSource               , "IAMPushSource"               },
         {IID_IAMStreamConfig             , "IAMStreamConfig"             },
         {IID_IAMVfwCompressDialogs       , "IAMVfwCompressDialogs"       }, // x
+        {IID_IAMVideoCompression         , "IAMVideoCompression"         }, // x
         {IID_IAMVideoControl             , "IAMVideoControl"             }, // x
         {IID_IAMVideoProcAmp             , "IAMVideoProcAmp"             },
         {IID_IBaseFilter                 , "IBaseFilter"                 },
@@ -346,7 +347,7 @@ AM_MEDIA_TYPE *AkVCam::mediaTypeFromFormat(const AkVCam::VideoFormat &format)
     memset(videoInfo, 0, sizeof(VIDEOINFOHEADER));
 
     // Initialize info header.
-    videoInfo->rcSource = {0, 0, format.width(), format.height()};
+    videoInfo->rcSource = {0, 0, 0, 0};
     videoInfo->rcTarget = videoInfo->rcSource;
     videoInfo->dwBitRate = DWORD(8 * frameSize * format.minimumFrameRate());
     videoInfo->AvgTimePerFrame =
@@ -526,8 +527,6 @@ bool AkVCam::containsMediaType(const AM_MEDIA_TYPE *mediaType,
         if (isEqual)
             break;
     }
-
-    mediaTypes->Reset();
 
     return isEqual;
 }

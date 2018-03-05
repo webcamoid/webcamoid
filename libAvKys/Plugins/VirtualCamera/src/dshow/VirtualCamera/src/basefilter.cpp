@@ -21,7 +21,6 @@
 #include <dshow.h>
 
 #include "basefilter.h"
-#include "cameracontrol.h"
 #include "enumpins.h"
 #include "filtermiscflags.h"
 #include "pin.h"
@@ -41,7 +40,6 @@ namespace AkVCam
         public:
             EnumPins *m_pins;
             VideoProcAmp *m_videoProcAmp;
-            CameraControl *m_cameraControl;
             ReferenceClock *m_referenceClock;
             std::wstring m_vendor;
             std::wstring m_filterName;
@@ -60,8 +58,6 @@ AkVCam::BaseFilter::BaseFilter(const GUID &clsid,
     this->d->m_pins->AddRef();
     this->d->m_videoProcAmp = new VideoProcAmp;
     this->d->m_videoProcAmp->AddRef();
-    this->d->m_cameraControl = new CameraControl;
-    this->d->m_cameraControl->AddRef();
     this->d->m_referenceClock = new ReferenceClock;
     this->d->m_referenceClock->AddRef();
     this->d->m_vendor = vendor;
@@ -74,7 +70,6 @@ AkVCam::BaseFilter::~BaseFilter()
     this->d->m_pins->setBaseFilter(nullptr);
     this->d->m_pins->Release();
     this->d->m_videoProcAmp->Release();
-    this->d->m_cameraControl->Release();
     this->d->m_referenceClock->Release();
 
     delete this->d;
@@ -139,13 +134,6 @@ HRESULT AkVCam::BaseFilter::QueryInterface(const IID &riid, void **ppvObject)
         *ppvObject = videoProcAmp;
 
         return S_OK;
-    } else if (IsEqualIID(riid, IID_IAMCameraControl)) {
-        auto cameraControl = this->d->m_cameraControl;
-        AkLogInterface(IAMCameraControl, cameraControl);
-        cameraControl->AddRef();
-        *ppvObject = cameraControl;
-
-        return S_OK;
     } else if (IsEqualIID(riid, IID_IReferenceClock)) {
         auto referenceClock = this->d->m_referenceClock;
         AkLogInterface(IReferenceClock, referenceClock);
@@ -158,8 +146,19 @@ HRESULT AkVCam::BaseFilter::QueryInterface(const IID &riid, void **ppvObject)
         IPin *pin = nullptr;
         this->d->m_pins->Next(1, &pin, nullptr);
         AkLogInterface(IPin, pin);
-        pin->AddRef();
         *ppvObject = pin;
+
+        return S_OK;
+    } else if (IsEqualIID(riid, IID_IAMStreamConfig)) {
+        this->d->m_pins->Reset();
+        IPin *pin = nullptr;
+        this->d->m_pins->Next(1, &pin, nullptr);
+        IAMStreamConfig *streamConfig = nullptr;
+        pin->QueryInterface(IID_IAMStreamConfig,
+                            reinterpret_cast<void **>(&streamConfig));
+        pin->Release();
+        AkLogInterface(IAMStreamConfig, streamConfig);
+        *ppvObject = streamConfig;
 
         return S_OK;
     } else if (IsEqualIID(riid, IID_ISpecifyPropertyPages)) {
@@ -234,7 +233,8 @@ HRESULT AkVCam::BaseFilter::QueryFilterInfo(FILTER_INFO *pInfo)
     if (this->d->m_filterName.size() > 0) {
         memcpy(pInfo->achName,
                this->d->m_filterName.c_str(),
-               std::max<size_t>(this->d->m_filterName.size(), MAX_FILTER_NAME));
+               std::max<size_t>(this->d->m_filterName.size() * sizeof(WCHAR),
+                                MAX_FILTER_NAME));
     }
 
     pInfo->pGraph = this->d->m_filterGraph;
