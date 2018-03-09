@@ -157,7 +157,7 @@ bool AkVCam::PluginInterface::registerFilter(const std::string &deviceId,
     std::vector<REGPINMEDIUM> mediums;
     std::vector<REGFILTERPINS2> pins {
         {
-            REG_PINFLAG_B_MANY | REG_PINFLAG_B_OUTPUT,
+            REG_PINFLAG_B_OUTPUT,
             1,
             UINT(pinTypes.size()),
             pinTypes.data(),
@@ -168,7 +168,7 @@ bool AkVCam::PluginInterface::registerFilter(const std::string &deviceId,
     };
     REGFILTER2 regFilter;
     regFilter.dwVersion = 2;
-    regFilter.dwMerit = MERIT_NORMAL;
+    regFilter.dwMerit = MERIT_DO_NOT_USE;
     regFilter.cPins2 = ULONG(pins.size());
     regFilter.rgPins2 = pins.data();
 

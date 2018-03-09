@@ -28,13 +28,27 @@
 
 #define AK_CUR_INTERFACE "SpecifyPropertyPages"
 
-AkVCam::SpecifyPropertyPages::SpecifyPropertyPages():
+namespace AkVCam
+{
+    class SpecifyPropertyPagesPrivate
+    {
+        public:
+            IPin *m_pin;
+    };
+}
+
+AkVCam::SpecifyPropertyPages::SpecifyPropertyPages(IPin *pin):
     CUnknown(this, IID_ISpecifyPropertyPages)
 {
+    this->d = new SpecifyPropertyPagesPrivate;
+    this->d->m_pin = pin;
+    this->d->m_pin->AddRef();
 }
 
 AkVCam::SpecifyPropertyPages::~SpecifyPropertyPages()
 {
+    this->d->m_pin->Release();
+    delete this->d;
 }
 
 HRESULT AkVCam::SpecifyPropertyPages::GetPages(CAUUID *pPages)
@@ -46,8 +60,14 @@ HRESULT AkVCam::SpecifyPropertyPages::GetPages(CAUUID *pPages)
 
     std::vector<GUID> pages {
         CLSID_VideoProcAmpPropertyPage,
-        //CLSID_VideoStreamConfigPropertyPage,
     };
+
+    IPin *pin = nullptr;
+
+    if (SUCCEEDED(this->d->m_pin->ConnectedTo(&pin))) {
+        pages.push_back(CLSID_VideoStreamConfigPropertyPage);
+        pin->Release();
+    }
 
     pPages->cElems = pages.size();
     pPages->pElems =

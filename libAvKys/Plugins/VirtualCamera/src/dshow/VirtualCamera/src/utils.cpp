@@ -35,6 +35,7 @@
 
 #include "utils.h"
 #include "referenceclock.h"
+#include "VCamUtils/src/utils.h"
 #include "VCamUtils/src/image/videoformat.h"
 
 namespace AkVCam
@@ -201,10 +202,13 @@ std::string AkVCam::stringFromClsid(const CLSID &clsid)
         {IID_IAMClockAdjust              , "IAMClockAdjust"              }, // x
         {IID_IAMCrossbar                 , "IAMCrossbar"                 }, // x
         {IID_IAMDeviceRemoval            , "IAMDeviceRemoval"            }, // Not required
+        {IID_IAMExtDevice                , "IAMExtDevice"                }, // x
         {IID_IAMFilterMiscFlags          , "IAMFilterMiscFlags"          },
         {IID_IAMOpenProgress             , "IAMOpenProgress"             }, // Not required
         {IID_IAMPushSource               , "IAMPushSource"               },
         {IID_IAMStreamConfig             , "IAMStreamConfig"             },
+        {IID_IAMTVTuner                  , "IAMTVTuner"                  },
+        {IID_IAMVfwCaptureDialogs        , "IAMVfwCaptureDialogs"        }, // x
         {IID_IAMVfwCompressDialogs       , "IAMVfwCompressDialogs"       }, // x
         {IID_IAMVideoCompression         , "IAMVideoCompression"         }, // x
         {IID_IAMVideoControl             , "IAMVideoControl"             }, // x
@@ -506,7 +510,7 @@ void AkVCam::deleteMediaType(AM_MEDIA_TYPE **mediaType)
 
     auto format = (*mediaType)->pbFormat;
 
-    if (format)
+    if (format && (*mediaType)->cbFormat)
         CoTaskMemFree(format);
 
     CoTaskMemFree(*mediaType);

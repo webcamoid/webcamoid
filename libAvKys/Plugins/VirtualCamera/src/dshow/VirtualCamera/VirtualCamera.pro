@@ -74,7 +74,8 @@ HEADERS += \
     src/streamconfig.h \
     src/utils.h \
     src/videoprocamp.h \
-    src/propertyset.h
+    src/propertyset.h \
+    src/videocontrol.h
 
 SOURCES += \
     src/basefilter.cpp \
@@ -99,7 +100,8 @@ SOURCES += \
     src/streamconfig.cpp \
     src/utils.cpp \
     src/videoprocamp.cpp \
-    src/propertyset.cpp
+    src/propertyset.cpp \
+    src/videocontrol.cpp
 
 DESTDIR = $${OUT_PWD}
 
