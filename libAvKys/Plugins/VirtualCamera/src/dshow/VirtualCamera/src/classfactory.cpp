@@ -64,7 +64,8 @@ HRESULT AkVCam::ClassFactory::QueryInterface(const IID &riid, void **ppvObject)
 
     *ppvObject = nullptr;
 
-    if (IsEqualIID(riid, IID_IClassFactory)) {
+    if (IsEqualIID(riid, IID_IUnknown)
+        || IsEqualIID(riid, IID_IClassFactory)) {
         AkLogInterface(IClassFactory, this);
         this->AddRef();
         *ppvObject = this;

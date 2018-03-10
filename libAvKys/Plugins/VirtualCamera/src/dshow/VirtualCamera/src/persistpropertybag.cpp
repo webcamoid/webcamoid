@@ -58,7 +58,8 @@ HRESULT AkVCam::PersistPropertyBag::QueryInterface(const IID &riid,
 
     *ppvObject = nullptr;
 
-    if (IsEqualIID(riid, IID_IPersistPropertyBag)) {
+    if (IsEqualIID(riid, IID_IUnknown)
+        || IsEqualIID(riid, IID_IPersistPropertyBag)) {
         AkLogInterface(IPersistPropertyBag, this);
         this->AddRef();
         *ppvObject = this;

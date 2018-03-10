@@ -44,6 +44,10 @@ namespace AkVCam
             BaseFilter *baseFilter() const;
             void setBaseFilter(BaseFilter *baseFilter);
             static HRESULT stateChanged(void *userData, FILTER_STATE state);
+            bool horizontalFlip() const;
+            void setHorizontalFlip(bool flip);
+            bool verticalFlip() const;
+            void setVerticalFlip(bool flip);
 
             DECLARE_IAMSTREAMCONFIG_NQ
 

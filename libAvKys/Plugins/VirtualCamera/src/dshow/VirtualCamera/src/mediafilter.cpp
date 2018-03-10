@@ -87,22 +87,32 @@ HRESULT AkVCam::MediaFilter::Stop()
 {
     AkLogMethod();
     this->d->m_state = State_Stopped;
+    HRESULT result = S_OK;
 
-    for (auto &callback: this->d->m_stateChanged)
-        callback.second(callback.first, this->d->m_state);
+    for (auto &callback: this->d->m_stateChanged) {
+        auto r = callback.second(callback.first, this->d->m_state);
 
-    return S_OK;
+        if (r != S_OK)
+            result = r;
+    }
+
+    return result;
 }
 
 HRESULT AkVCam::MediaFilter::Pause()
 {
     AkLogMethod();
     this->d->m_state = State_Paused;
+    HRESULT result = S_OK;
 
-    for (auto &callback: this->d->m_stateChanged)
-        callback.second(callback.first, this->d->m_state);
+    for (auto &callback: this->d->m_stateChanged) {
+        auto r = callback.second(callback.first, this->d->m_state);
 
-    return S_OK;
+        if (r != S_OK)
+            result = r;
+    }
+
+    return result;
 }
 
 HRESULT AkVCam::MediaFilter::Run(REFERENCE_TIME tStart)
@@ -110,11 +120,16 @@ HRESULT AkVCam::MediaFilter::Run(REFERENCE_TIME tStart)
     AkLogMethod();
     this->d->m_start = tStart;
     this->d->m_state = State_Running;
+    HRESULT result = S_OK;
 
-    for (auto &callback: this->d->m_stateChanged)
-        callback.second(callback.first, this->d->m_state);
+    for (auto &callback: this->d->m_stateChanged) {
+        auto r = callback.second(callback.first, this->d->m_state);
 
-    return S_OK;
+        if (r != S_OK)
+            result = r;
+    }
+
+    return result;
 }
 
 HRESULT AkVCam::MediaFilter::GetState(DWORD dwMilliSecsTimeout,

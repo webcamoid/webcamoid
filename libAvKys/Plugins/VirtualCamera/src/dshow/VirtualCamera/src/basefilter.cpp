@@ -21,12 +21,12 @@
 #include <dshow.h>
 
 #include "basefilter.h"
-#include "cameracontrol.h"
 #include "enumpins.h"
 #include "filtermiscflags.h"
 #include "pin.h"
 #include "referenceclock.h"
 #include "specifypropertypages.h"
+#include "videocontrol.h"
 #include "videoprocamp.h"
 #include "utils.h"
 #include "VCamUtils/src/image/videoformat.h"
@@ -41,7 +41,6 @@ namespace AkVCam
         public:
             EnumPins *m_pins;
             VideoProcAmp *m_videoProcAmp;
-            CameraControl *m_cameraControl;
             ReferenceClock *m_referenceClock;
             std::wstring m_vendor;
             std::wstring m_filterName;
@@ -60,8 +59,6 @@ AkVCam::BaseFilter::BaseFilter(const GUID &clsid,
     this->d->m_pins->AddRef();
     this->d->m_videoProcAmp = new VideoProcAmp;
     this->d->m_videoProcAmp->AddRef();
-    this->d->m_cameraControl = new CameraControl;
-    this->d->m_cameraControl->AddRef();
     this->d->m_referenceClock = new ReferenceClock;
     this->d->m_referenceClock->AddRef();
     this->d->m_vendor = vendor;
@@ -74,7 +71,6 @@ AkVCam::BaseFilter::~BaseFilter()
     this->d->m_pins->setBaseFilter(nullptr);
     this->d->m_pins->Release();
     this->d->m_videoProcAmp->Release();
-    this->d->m_cameraControl->Release();
     this->d->m_referenceClock->Release();
 
     delete this->d;
@@ -109,6 +105,11 @@ IFilterGraph *AkVCam::BaseFilter::filterGraph() const
     return this->d->m_filterGraph;
 }
 
+IReferenceClock *AkVCam::BaseFilter::referenceClock() const
+{
+    return this->d->m_referenceClock;
+}
+
 HRESULT AkVCam::BaseFilter::QueryInterface(const IID &riid, void **ppvObject)
 {
     AkLogMethod();
@@ -119,7 +120,9 @@ HRESULT AkVCam::BaseFilter::QueryInterface(const IID &riid, void **ppvObject)
 
     *ppvObject = nullptr;
 
-    if (IsEqualIID(riid, IID_IBaseFilter)) {
+    if (IsEqualIID(riid, IID_IUnknown)
+        || IsEqualIID(riid, IID_IBaseFilter)
+        || IsEqualIID(riid, IID_IMediaFilter)) {
         AkLogInterface(IBaseFilter, this);
         this->AddRef();
         *ppvObject = this;
@@ -132,18 +135,21 @@ HRESULT AkVCam::BaseFilter::QueryInterface(const IID &riid, void **ppvObject)
         *ppvObject = filterMiscFlags;
 
         return S_OK;
+    } else if (IsEqualIID(riid, IID_IAMVideoControl)) {
+        IEnumPins *pins = nullptr;
+        this->d->m_pins->Clone(&pins);
+        auto videoControl = new VideoControl(pins);
+        pins->Release();
+        AkLogInterface(IAMVideoControl, videoControl);
+        videoControl->AddRef();
+        *ppvObject = videoControl;
+
+        return S_OK;
     } else if (IsEqualIID(riid, IID_IAMVideoProcAmp)) {
         auto videoProcAmp = this->d->m_videoProcAmp;
         AkLogInterface(IAMVideoProcAmp, videoProcAmp);
         videoProcAmp->AddRef();
         *ppvObject = videoProcAmp;
-
-        return S_OK;
-    } else if (IsEqualIID(riid, IID_IAMCameraControl)) {
-        auto cameraControl = this->d->m_cameraControl;
-        AkLogInterface(IAMCameraControl, cameraControl);
-        cameraControl->AddRef();
-        *ppvObject = cameraControl;
 
         return S_OK;
     } else if (IsEqualIID(riid, IID_IReferenceClock)) {
@@ -153,22 +159,26 @@ HRESULT AkVCam::BaseFilter::QueryInterface(const IID &riid, void **ppvObject)
         *ppvObject = referenceClock;
 
         return S_OK;
-    } else if (IsEqualIID(riid, IID_IPin)) {
+    } else if (IsEqualIID(riid, IID_ISpecifyPropertyPages)) {
         this->d->m_pins->Reset();
         IPin *pin = nullptr;
         this->d->m_pins->Next(1, &pin, nullptr);
-        AkLogInterface(IPin, pin);
-        pin->AddRef();
-        *ppvObject = pin;
-
-        return S_OK;
-    } else if (IsEqualIID(riid, IID_ISpecifyPropertyPages)) {
-        auto specifyPropertyPages = new SpecifyPropertyPages;
+        auto specifyPropertyPages = new SpecifyPropertyPages(pin);
+        pin->Release();
         AkLogInterface(ISpecifyPropertyPages, specifyPropertyPages);
         specifyPropertyPages->AddRef();
         *ppvObject = specifyPropertyPages;
 
         return S_OK;
+    } else {
+        this->d->m_pins->Reset();
+        IPin *pin = nullptr;
+        this->d->m_pins->Next(1, &pin, nullptr);
+        auto result = pin->QueryInterface(riid, ppvObject);
+        pin->Release();
+
+        if (SUCCEEDED(result))
+            return result;
     }
 
     return MediaFilter::QueryInterface(riid, ppvObject);
@@ -234,7 +244,8 @@ HRESULT AkVCam::BaseFilter::QueryFilterInfo(FILTER_INFO *pInfo)
     if (this->d->m_filterName.size() > 0) {
         memcpy(pInfo->achName,
                this->d->m_filterName.c_str(),
-               std::max<size_t>(this->d->m_filterName.size(), MAX_FILTER_NAME));
+               std::max<size_t>(this->d->m_filterName.size() * sizeof(WCHAR),
+                                MAX_FILTER_NAME));
     }
 
     pInfo->pGraph = this->d->m_filterGraph;

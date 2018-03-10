@@ -20,24 +20,29 @@
 #ifndef SPECIFYPROPERTYPAGES_H
 #define SPECIFYPROPERTYPAGES_H
 
-#include <ocidl.h>
+#include <strmif.h>
 
 #include "cunknown.h"
 
 namespace AkVCam
 {
+    class SpecifyPropertyPagesPrivate;
+
     class SpecifyPropertyPages:
             public ISpecifyPropertyPages,
             public CUnknown
     {
         public:
-            SpecifyPropertyPages();
+            SpecifyPropertyPages(IPin *pin);
             virtual ~SpecifyPropertyPages();
 
             DECLARE_IUNKNOWN(IID_ISpecifyPropertyPages)
 
             // ISpecifyPropertyPages
             HRESULT STDMETHODCALLTYPE GetPages(CAUUID *pPages);
+
+        private:
+            SpecifyPropertyPagesPrivate *d;
     };
 }
 

@@ -46,6 +46,7 @@ namespace AkVCam
             void removePin(IPin *pin, bool changed=true);
             static BaseFilter *create(const GUID &clsid);
             IFilterGraph *filterGraph() const;
+            IReferenceClock *referenceClock() const;
 
             DECLARE_IMEDIAFILTER_NQ
 
