@@ -334,29 +334,40 @@ HRESULT AkVCam::Pin::Connect(IPin *pReceivePin, const AM_MEDIA_TYPE *pmt)
 
         mediaType = createMediaType(pmt);
     } else {
-        // List media types supported by the input pin.
+        // Test currently set media type.
         AM_MEDIA_TYPE *mt = nullptr;
-        IEnumMediaTypes *mediaTypes = nullptr;
 
-        // Test media types supported by the input pin.
-        if (SUCCEEDED(pReceivePin->EnumMediaTypes(&mediaTypes))) {
-            mediaTypes->Reset();
+        if (SUCCEEDED(this->GetFormat(&mt)) && mt) {
+            if (pReceivePin->QueryAccept(mt) == S_OK)
+                mediaType = mt;
+            else
+                deleteMediaType(&mt);
+        }
 
-            while (mediaTypes->Next(1, &mt, nullptr) == S_OK) {
-                AkLoggerLog("Testing media type: ", stringFromMediaType(mt));
+        if (!mediaType) {
+            // Test media types supported by the input pin.
+            AM_MEDIA_TYPE *mt = nullptr;
+            IEnumMediaTypes *mediaTypes = nullptr;
 
-                // If the mediatype match our suported mediatypes...
-                if (this->QueryAccept(mt) == S_OK) {
-                    // set it.
-                    mediaType = mt;
+            if (SUCCEEDED(pReceivePin->EnumMediaTypes(&mediaTypes))) {
+                mediaTypes->Reset();
 
-                    break;
+                while (mediaTypes->Next(1, &mt, nullptr) == S_OK) {
+                    AkLoggerLog("Testing media type: ", stringFromMediaType(mt));
+
+                    // If the mediatype match our suported mediatypes...
+                    if (this->QueryAccept(mt) == S_OK) {
+                        // set it.
+                        mediaType = mt;
+
+                        break;
+                    }
+
+                    deleteMediaType(&mt);
                 }
 
-                deleteMediaType(&mt);
+                mediaTypes->Release();
             }
-
-            mediaTypes->Release();
         }
 
         if (!mediaType) {
@@ -444,7 +455,7 @@ HRESULT AkVCam::Pin::Connect(IPin *pReceivePin, const AM_MEDIA_TYPE *pmt)
         this->d->m_memAllocator->Release();
 
     this->d->m_memAllocator = memAllocator;
-    this->setMediaType(mediaType);
+    this->SetFormat(mediaType);
 
     if (this->d->m_connectedTo)
         this->d->m_connectedTo->Release();
@@ -497,8 +508,6 @@ HRESULT AkVCam::Pin::Disconnect()
         this->d->m_memAllocator->Release();
         this->d->m_memAllocator = nullptr;
     }
-
-    this->setMediaType(nullptr);
 
     return S_OK;
 }

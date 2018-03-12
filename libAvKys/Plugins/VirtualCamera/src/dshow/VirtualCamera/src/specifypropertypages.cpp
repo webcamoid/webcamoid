@@ -23,6 +23,8 @@
 #include <uuids.h>
 
 #include "specifypropertypages.h"
+#include "basefilter.h"
+#include "pin.h"
 #include "utils.h"
 #include "VCamUtils/src/utils.h"
 
@@ -65,7 +67,13 @@ HRESULT AkVCam::SpecifyPropertyPages::GetPages(CAUUID *pPages)
     IPin *pin = nullptr;
 
     if (SUCCEEDED(this->d->m_pin->ConnectedTo(&pin))) {
-        pages.push_back(CLSID_VideoStreamConfigPropertyPage);
+        auto cpin = dynamic_cast<Pin *>(this->d->m_pin);
+        FILTER_STATE state = State_Stopped;
+        cpin->baseFilter()->GetState(0, &state);
+
+        if (state == State_Stopped)
+            pages.push_back(CLSID_VideoStreamConfigPropertyPage);
+
         pin->Release();
     }
 

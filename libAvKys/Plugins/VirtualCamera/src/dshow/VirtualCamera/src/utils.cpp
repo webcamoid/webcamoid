@@ -226,6 +226,7 @@ std::string AkVCam::stringFromClsid(const CLSID &clsid)
         {IID_IKsPropertySet              , "IKsPropertySet"              }, // Not required
         {IID_IManagedObject              , "IManagedObject"              }, // x
         {IID_IMarshal                    , "IMarshal"                    }, // x
+        {IID_IMediaControl               , "IMediaControl"               },
         {IID_IMediaFilter                , "IMediaFilter"                }, // x
         {IID_IMediaPosition              , "IMediaPosition"              }, // Not required
         {IID_IMediaSample                , "IMediaSample"                },
@@ -631,16 +632,31 @@ std::string AkVCam::stringFromMediaType(const AM_MEDIA_TYPE *mediaType)
     if (!mediaType)
         return std::string("MediaType(NULL)");
 
-    auto mtStr =
-            "MediaType("
-            + stringFromMajorType(mediaType->majortype)
-            + ", "
-            + stringFromSubType(mediaType->subtype)
-            + ", "
-            + stringFromFormatType(mediaType->formattype)
-            + ")";
+    std::stringstream ss;
+    ss << "MediaType("
+       << stringFromMajorType(mediaType->majortype)
+       << ", "
+       << stringFromSubType(mediaType->subtype)
+       << ", "
+       << stringFromFormatType(mediaType->formattype);
 
-    return mtStr;
+    if (IsEqualGUID(mediaType->formattype, FORMAT_VideoInfo)) {
+        auto format = reinterpret_cast<VIDEOINFOHEADER *>(mediaType->pbFormat);
+        ss << ", "
+           << format->bmiHeader.biWidth
+           << ", "
+           << format->bmiHeader.biHeight;
+    } else if (IsEqualGUID(mediaType->formattype, FORMAT_VideoInfo2)) {
+        auto format = reinterpret_cast<VIDEOINFOHEADER *>(mediaType->pbFormat);
+        ss << ", "
+           << format->bmiHeader.biWidth
+           << ", "
+           << format->bmiHeader.biHeight;
+    }
+
+    ss << ")";
+
+    return ss.str();
 }
 
 std::string AkVCam::stringFromMediaSample(IMediaSample *mediaSample)

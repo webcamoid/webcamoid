@@ -60,12 +60,6 @@ void AkVCam::StreamConfig::setPin(Pin *pin)
     this->d->m_pin = pin;
 }
 
-void AkVCam::StreamConfig::setMediaType(const AM_MEDIA_TYPE *mediaType)
-{
-    deleteMediaType(&this->d->m_mediaType);
-    this->d->m_mediaType = createMediaType(mediaType);
-}
-
 HRESULT AkVCam::StreamConfig::SetFormat(AM_MEDIA_TYPE *pmt)
 {
     AkLogMethod();
@@ -86,26 +80,23 @@ HRESULT AkVCam::StreamConfig::SetFormat(AM_MEDIA_TYPE *pmt)
                 return VFW_E_NOT_STOPPED;
         }
 
-        if (FAILED(this->d->m_pin->QueryAccept(pmt)))
+        if (this->d->m_pin->QueryAccept(pmt) != S_OK)
             return VFW_E_INVALIDMEDIATYPE;
-
-        IPin *pin = nullptr;
-
-        if (SUCCEEDED(this->d->m_pin->ConnectedTo(&pin))) {
-            if (pin)
-                pin->Release();
-            else
-                return VFW_E_NOT_CONNECTED;
-        }
     }
 
     deleteMediaType(&this->d->m_mediaType);
     this->d->m_mediaType = createMediaType(pmt);
 
-    if (this->d->m_pin
-        && this->d->m_pin->baseFilter()
-        && this->d->m_pin->baseFilter()->filterGraph())
-        this->d->m_pin->baseFilter()->filterGraph()->Reconnect(this->d->m_pin);
+    IPin *pin = nullptr;
+
+    if (SUCCEEDED(this->d->m_pin->ConnectedTo(&pin))) {
+        if (this->d->m_pin
+            && this->d->m_pin->baseFilter()
+            && this->d->m_pin->baseFilter()->filterGraph())
+            this->d->m_pin->baseFilter()->filterGraph()->Reconnect(this->d->m_pin);
+
+        pin->Release();
+    }
 
     return S_OK;
 }
@@ -119,26 +110,26 @@ HRESULT AkVCam::StreamConfig::GetFormat(AM_MEDIA_TYPE **pmt)
 
     *pmt = nullptr;
 
-    if (this->d->m_pin) {
-        IPin *pin = nullptr;
-
-        if (SUCCEEDED(this->d->m_pin->ConnectedTo(&pin))) {
-            if (pin)
-                pin->Release();
-            else
-                return VFW_E_NOT_CONNECTED;
-        }
-    }
-
-    if (!this->d->m_mediaType
-        || IsEqualGUID(this->d->m_mediaType->majortype, GUID_NULL))
-        *pmt = nullptr;
-    else
+    if (this->d->m_mediaType) {
         *pmt = createMediaType(this->d->m_mediaType);
+    } else {
+        IEnumMediaTypes *mediaTypes = nullptr;
+
+        if (FAILED(this->d->m_pin->EnumMediaTypes(&mediaTypes)))
+            return E_FAIL;
+
+        AM_MEDIA_TYPE *mediaType = nullptr;
+        mediaTypes->Reset();
+
+        if (mediaTypes->Next(1, &mediaType, nullptr) == S_OK)
+            *pmt = mediaType;
+
+        mediaTypes->Release();
+    }
 
     AkLoggerLog("MediaType: ", stringFromMediaType(*pmt));
 
-    return S_OK;
+    return *pmt? S_OK: E_FAIL;
 }
 
 HRESULT AkVCam::StreamConfig::GetNumberOfCapabilities(int *piCount,
@@ -153,15 +144,6 @@ HRESULT AkVCam::StreamConfig::GetNumberOfCapabilities(int *piCount,
     *piSize = 0;
 
     if (this->d->m_pin) {
-        IPin *pin = nullptr;
-
-        if (SUCCEEDED(this->d->m_pin->ConnectedTo(&pin))) {
-            if (pin)
-                pin->Release();
-            else
-                return VFW_E_NOT_CONNECTED;
-        }
-
         IEnumMediaTypes *mediaTypes = nullptr;
 
         if (SUCCEEDED(this->d->m_pin->EnumMediaTypes(&mediaTypes))) {
@@ -200,15 +182,6 @@ HRESULT AkVCam::StreamConfig::GetStreamCaps(int iIndex,
         return E_INVALIDARG;
 
     if (this->d->m_pin) {
-        IPin *pin = nullptr;
-
-        if (SUCCEEDED(this->d->m_pin->ConnectedTo(&pin))) {
-            if (pin)
-                pin->Release();
-            else
-                return VFW_E_NOT_CONNECTED;
-        }
-
         IEnumMediaTypes *mediaTypes = nullptr;
 
         if (SUCCEEDED(this->d->m_pin->EnumMediaTypes(&mediaTypes))) {
@@ -221,7 +194,7 @@ HRESULT AkVCam::StreamConfig::GetStreamCaps(int iIndex,
                 if (i == iIndex) {
                     *pmt = mediaType;
 
-                    if (IsEqualGUID(configCaps->guid, FORMAT_VideoInfo)) {
+                    if (IsEqualGUID(mediaType->formattype, FORMAT_VideoInfo)) {
                         auto format = reinterpret_cast<VIDEOINFOHEADER *>(mediaType->pbFormat);
                         configCaps->guid = mediaType->formattype;
                         configCaps->VideoStandard = AnalogVideo_None;
@@ -249,7 +222,7 @@ HRESULT AkVCam::StreamConfig::GetStreamCaps(int iIndex,
                         configCaps->MaxFrameInterval = format->AvgTimePerFrame;
                         configCaps->MinBitsPerSecond = LONG(format->dwBitRate);
                         configCaps->MaxBitsPerSecond = LONG(format->dwBitRate);
-                    } else if (IsEqualGUID(configCaps->guid, FORMAT_VideoInfo2)) {
+                    } else if (IsEqualGUID(mediaType->formattype, FORMAT_VideoInfo2)) {
                         auto format = reinterpret_cast<VIDEOINFOHEADER2 *>(mediaType->pbFormat);
                         configCaps->guid = mediaType->formattype;
                         configCaps->VideoStandard = AnalogVideo_None;
@@ -288,6 +261,8 @@ HRESULT AkVCam::StreamConfig::GetStreamCaps(int iIndex,
             mediaTypes->Release();
         }
     }
+
+    AkLoggerLog("Media Type: ", stringFromMediaType(*pmt));
 
     return *pmt? S_OK: S_FALSE;
 }
