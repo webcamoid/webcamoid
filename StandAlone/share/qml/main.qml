@@ -24,7 +24,7 @@ import QtQuick.Layouts 1.3
 import AkQml 1.0
 import Webcamoid 1.0
 import WebcamoidUpdates 1.0
-import "qrc:/Ak/share/qml/AkQmlControls"
+import AkQmlControls 1.0
 
 ApplicationWindow {
     id: wdgMainWidget
