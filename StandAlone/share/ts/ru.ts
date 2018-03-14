@@ -6,47 +6,47 @@
     <message>
         <location filename="../qml/About.qml" line="27"/>
         <source>About %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Подробнее о %1</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="46"/>
         <source>Information</source>
-        <translation type="unfinished"></translation>
+        <translation>Информация</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="84"/>
         <source>Version %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Версия %1</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="88"/>
         <source>Using Qt %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Использование Qt %1</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="101"/>
         <source>Webcam capture application.</source>
-        <translation type="unfinished"></translation>
+        <translation>Приложение для захвата камеры.</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="104"/>
         <source>A simple webcam application for picture and video capture.</source>
-        <translation type="unfinished"></translation>
+        <translation>Простое приложение для камеры для захвата изображений и видео.</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="92"/>
         <source>Website</source>
-        <translation type="unfinished"></translation>
+        <translation>Сайт</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="50"/>
         <source>License</source>
-        <translation type="unfinished"></translation>
+        <translation>Лицензия</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="127"/>
         <source>Close</source>
-        <translation type="unfinished"></translation>
+        <translation>Закрыть</translation>
     </message>
 </context>
 <context>
