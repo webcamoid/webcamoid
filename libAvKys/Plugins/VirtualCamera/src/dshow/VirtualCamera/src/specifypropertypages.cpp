@@ -77,7 +77,7 @@ HRESULT AkVCam::SpecifyPropertyPages::GetPages(CAUUID *pPages)
         pin->Release();
     }
 
-    pPages->cElems = pages.size();
+    pPages->cElems = ULONG(pages.size());
     pPages->pElems =
             reinterpret_cast<GUID *>(CoTaskMemAlloc(sizeof(GUID) * pages.size()));
     AkLoggerLog("Returning property pages:");
