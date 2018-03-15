@@ -16,7 +16,7 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-TRANSLATIONS_PRI = ../translations.pri
+TRANSLATIONS_PRI = $$_PRO_FILE_PWD_/../translations.pri
 
 exists(translations.qrc) {
     TRANSLATIONS = $$files(share/ts/*.ts)
@@ -29,15 +29,15 @@ COMMONS_TARGET = $$lower($${COMMONS_APPNAME})
 exists(commons.pri) {
     include(commons.pri)
 } else {
-    exists(../commons.pri) {
-        include(../commons.pri)
+    exists($$_PRO_FILE_PWD_/../commons.pri) {
+        include($$_PRO_FILE_PWD_/../commons.pri)
     } else {
         error("commons.pri file not found.")
     }
 }
 
 !isEmpty(BUILDDOCS):!isEqual(BUILDDOCS, 0) {
-    DOCSOURCES = ../$${COMMONS_APPNAME}.qdocconf
+    DOCSOURCES = $$_PRO_FILE_PWD_/../$${COMMONS_APPNAME}.qdocconf
 
     builddocs.input = DOCSOURCES
     builddocs.output = share/docs_auto/html/$${COMMONS_TARGET}.index
