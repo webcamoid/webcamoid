@@ -34,8 +34,9 @@ namespace AkVCam
             void uninstall();
             void debug();
             void showHelp(int argc, char **argv);
-            static WINAPI void main(DWORD dwArgc, LPTSTR *lpszArgv);
     };
 }
+
+void WINAPI serviceMain(DWORD dwArgc, LPTSTR *lpszArgv);
 
 #endif // SERVICE_H

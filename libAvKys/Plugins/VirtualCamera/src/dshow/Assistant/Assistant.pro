@@ -46,9 +46,7 @@ SOURCES += \
 
 LIBS += \
     -L$${OUT_PWD}/../../VCamUtils -lVCamUtils \
-    -lole32 \
-    -lstrmiids \
-    -luuid
+    -ladvapi32
 
 INCLUDEPATH += \
     ../..

@@ -17,6 +17,7 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <string>
 #include <vector>
 #include <windows.h>
 
@@ -51,8 +52,8 @@ int main(int argc, char **argv)
 
     WCHAR serviceName[] = DSHOW_PLUGIN_ASSISTANT_NAME_L;
     std::vector<SERVICE_TABLE_ENTRY> serviceTable {
-        {serviceName, AkVCam::Service::main},
-        {nullptr    , nullptr              }
+        {serviceName, serviceMain},
+        {nullptr    , nullptr    }
     };
 
     if (!StartServiceCtrlDispatcher(serviceTable.data()))

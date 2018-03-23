@@ -18,6 +18,7 @@
  */
 
 #include <iostream>
+#include <string>
 #include <thread>
 #include <windows.h>
 #include <shellapi.h>
@@ -48,11 +49,6 @@ namespace AkVCam
                              uint32_t *messageId,
                              char **data,
                              uint32_t *dataSize);
-            static WINAPI DWORD controlHandler(DWORD control,
-                                               DWORD eventType,
-                                               LPVOID eventData,
-                                               LPVOID context);
-            static WINAPI BOOL controlDebugHandler(DWORD control);
     };
 
     struct Message
@@ -63,6 +59,12 @@ namespace AkVCam
 
     GLOBAL_STATIC(ServicePrivate, servicePrivate)
 }
+
+DWORD WINAPI controlHandler(DWORD control,
+                            DWORD eventType,
+                            LPVOID eventData,
+                            LPVOID context);
+BOOL WINAPI controlDebugHandler(DWORD control);
 
 AkVCam::Service::Service()
 {
@@ -144,7 +146,7 @@ void AkVCam::Service::uninstall()
 
 void AkVCam::Service::debug()
 {
-    SetConsoleCtrlHandler(ServicePrivate::controlDebugHandler, TRUE);
+    SetConsoleCtrlHandler(controlDebugHandler, TRUE);
 
     if (servicePrivate()->init()) {
         servicePrivate()->m_thread.join();
@@ -176,38 +178,6 @@ void AkVCam::Service::showHelp(int argc, char **argv)
     std::cout << "\t-u, --uninstall\tUnistall the service." << std::endl;
     std::cout << "\t-d, --debug\tDebug the service." << std::endl;
     std::cout << "\t-h, --help\tShow this help." << std::endl;
-}
-
-void AkVCam::Service::main(DWORD dwArgc, LPTSTR *lpszArgv)
-{
-    UNUSED(dwArgc)
-    UNUSED(lpszArgv)
-
-    AkLoggerLog("Setting service control handler");
-
-    servicePrivate()->m_statusHandler =
-            RegisterServiceCtrlHandlerEx(TEXT(DSHOW_PLUGIN_ASSISTANT_NAME),
-                                         ServicePrivate::controlHandler,
-                                         nullptr);
-
-    if (!servicePrivate()->m_statusHandler)
-        return;
-
-    servicePrivate()->sendStatus(SERVICE_START_PENDING, NO_ERROR, 3000);
-
-    AkLoggerLog("Setting up service");
-
-    if (servicePrivate()->init()) {
-        servicePrivate()->sendStatus(SERVICE_RUNNING, NO_ERROR, 0);
-        AkLoggerLog("Service started");
-        servicePrivate()->m_thread.join();
-        AkLoggerLog("Stopping service");
-        servicePrivate()->sendStatus(SERVICE_STOP_PENDING, NO_ERROR, 0);
-        servicePrivate()->uninit();
-    }
-
-    AkLoggerLog("Service stopped");
-    servicePrivate()->sendStatus(SERVICE_STOPPED, NO_ERROR, 0);
 }
 
 AkVCam::ServicePrivate::ServicePrivate()
@@ -434,10 +404,10 @@ bool AkVCam::ServicePrivate::readMessage(HANDLE *events,
     return true;
 }
 
-DWORD AkVCam::ServicePrivate::controlHandler(DWORD control,
-                                             DWORD  eventType,
-                                             LPVOID eventData,
-                                             LPVOID context)
+DWORD controlHandler(DWORD control,
+                     DWORD  eventType,
+                     LPVOID eventData,
+                     LPVOID context)
 {
     UNUSED(eventType)
     UNUSED(eventData)
@@ -448,9 +418,11 @@ DWORD AkVCam::ServicePrivate::controlHandler(DWORD control,
     switch (control) {
         case SERVICE_CONTROL_SHUTDOWN:
         case SERVICE_CONTROL_STOP:
-            servicePrivate()->sendStatus(SERVICE_STOP_PENDING, NO_ERROR, 0);
-            servicePrivate()->m_running = false;
-            SetEvent(servicePrivate()->m_finnishEvent);
+            AkVCam::servicePrivate()->sendStatus(SERVICE_STOP_PENDING,
+                                                 NO_ERROR,
+                                                 0);
+            AkVCam::servicePrivate()->m_running = false;
+            SetEvent(AkVCam::servicePrivate()->m_finnishEvent);
             result = NO_ERROR;
 
             break;
@@ -464,21 +436,52 @@ DWORD AkVCam::ServicePrivate::controlHandler(DWORD control,
             break;
     }
 
-    servicePrivate()->sendStatus(servicePrivate()->m_status.dwCurrentState,
-                                 NO_ERROR,
-                                 0);
+    auto state = AkVCam::servicePrivate()->m_status.dwCurrentState;
+    AkVCam::servicePrivate()->sendStatus(state, NO_ERROR, 0);
 
     return result;
 }
 
-BOOL AkVCam::ServicePrivate::controlDebugHandler(DWORD control)
+BOOL controlDebugHandler(DWORD control)
 {
     if (control == CTRL_BREAK_EVENT || control == CTRL_C_EVENT) {
-        servicePrivate()->m_running = false;
-        SetEvent(servicePrivate()->m_finnishEvent);
+        AkVCam::servicePrivate()->m_running = false;
+        SetEvent(AkVCam::servicePrivate()->m_finnishEvent);
 
         return TRUE;
     }
 
     return FALSE;
+}
+
+void serviceMain(DWORD dwArgc, LPTSTR *lpszArgv)
+{
+    UNUSED(dwArgc)
+    UNUSED(lpszArgv)
+
+    AkLoggerLog("Setting service control handler");
+
+    AkVCam::servicePrivate()->m_statusHandler =
+            RegisterServiceCtrlHandlerEx(TEXT(DSHOW_PLUGIN_ASSISTANT_NAME),
+                                         controlHandler,
+                                         nullptr);
+
+    if (!AkVCam::servicePrivate()->m_statusHandler)
+        return;
+
+    AkVCam::servicePrivate()->sendStatus(SERVICE_START_PENDING, NO_ERROR, 3000);
+
+    AkLoggerLog("Setting up service");
+
+    if (AkVCam::servicePrivate()->init()) {
+        AkVCam::servicePrivate()->sendStatus(SERVICE_RUNNING, NO_ERROR, 0);
+        AkLoggerLog("Service started");
+        AkVCam::servicePrivate()->m_thread.join();
+        AkLoggerLog("Stopping service");
+        AkVCam::servicePrivate()->sendStatus(SERVICE_STOP_PENDING, NO_ERROR, 0);
+        AkVCam::servicePrivate()->uninit();
+    }
+
+    AkLoggerLog("Service stopped");
+    AkVCam::servicePrivate()->sendStatus(SERVICE_STOPPED, NO_ERROR, 0);
 }
