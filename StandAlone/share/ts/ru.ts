@@ -467,7 +467,7 @@
     <message>
         <location filename="../../src/clioptions.cpp" line="32"/>
         <source>Webcam capture application.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Приложение для захвата камеры.</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="36"/>

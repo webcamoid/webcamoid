@@ -48,7 +48,7 @@ LIBS += \
     -luuid \
     -lwinmm
 
-TARGET = $${DSHOW_PLUGIN_NAME}_$${TARGET_ARCH}
+TARGET = $${DSHOW_PLUGIN_NAME}
 TEMPLATE = lib
 
 HEADERS += \
@@ -105,7 +105,7 @@ SOURCES += \
     src/videocontrol.cpp \
     src/qualitycontrol.cpp
 
-DESTDIR = $${OUT_PWD}
+DESTDIR = $${OUT_PWD}/bin/$${TARGET_ARCH}
 
 RESOURCES += \
     ../../../TestFrame.qrc

@@ -23,12 +23,7 @@
 #include "assistantglobals.h"
 #include "VCamUtils/src/utils.h"
 
-AkVCam::Assistant *assistant()
-{
-    static AkVCam::Assistant assistant;
-
-    return &assistant;
-}
+GLOBAL_STATIC(AkVCam::Assistant, assistant)
 
 int main(int argc, char **argv)
 {

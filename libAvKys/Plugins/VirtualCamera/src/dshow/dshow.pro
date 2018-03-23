@@ -21,5 +21,6 @@ TEMPLATE = subdirs
 CONFIG += ordered
 
 SUBDIRS = \
+    Assistant \
     VirtualCamera \
     src

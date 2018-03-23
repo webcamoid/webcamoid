@@ -17,35 +17,25 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef AKVCAMUTILS_UTILS_H
-#define AKVCAMUTILS_UTILS_H
+#ifndef SERVICE_H
+#define SERVICE_H
 
-#include <cstdint>
+#include <minwindef.h>
 
-#include "logger/logger.h"
+namespace AkVCam
+{
+    class Service
+    {
+        public:
+            Service();
+            ~Service();
 
-#ifndef UNUSED
-    #define UNUSED(x) (void)(x);
-#endif
-
-#define GLOBAL_STATIC(type, variableName) \
-    type *variableName() \
-    { \
-        static type _##variableName; \
-        \
-        return &_##variableName; \
-    }
-
-#define GLOBAL_STATIC_WITH_ARGS(type, variableName, ...) \
-    type *variableName() \
-    { \
-        static type _##variableName {__VA_ARGS__}; \
-        \
-        return &_##variableName; \
-    }
-
-namespace AkVCam {
-    uint64_t id();
+            bool install();
+            void uninstall();
+            void debug();
+            void showHelp(int argc, char **argv);
+            static WINAPI void main(DWORD dwArgc, LPTSTR *lpszArgv);
+    };
 }
 
-#endif // AKVCAMUTILS_UTILS_H
+#endif // SERVICE_H

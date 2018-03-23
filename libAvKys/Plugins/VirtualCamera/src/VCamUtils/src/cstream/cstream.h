@@ -17,8 +17,8 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef AKVCAMUTILS_CSTREAM_H
-#define AKVCAMUTILS_CSTREAM_H
+#ifndef AKVCAMUTILS_CSTREAMREAD_H
+#define AKVCAMUTILS_CSTREAMREAD_H
 
 #include <algorithm>
 #include <cstring>
@@ -91,4 +91,4 @@ namespace AkVCam
     };
 }
 
-#endif // AKVCAMUTILS_CSTREAM_H
+#endif // AKVCAMUTILS_CSTREAMREAD_H

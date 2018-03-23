@@ -193,88 +193,59 @@ std::string AkVCam::stringFromResult(HRESULT result)
 std::string AkVCam::stringFromClsid(const CLSID &clsid)
 {
     static const std::map<CLSID, std::string> clsidToString {
-        {IID_IAgileObject                , "IAgileObject"                }, // x
-        {IID_IAMAnalogVideoDecoder       , "IAMAnalogVideoDecoder"       }, // x
-        {IID_IAMAudioInputMixer          , "IAMAudioInputMixer"          }, // x
-        {IID_IAMAudioRendererStats       , "IAMAudioRendererStats"       }, // x
-        {IID_IAMBufferNegotiation        , "IAMBufferNegotiation"        }, // x
-        {IID_IAMCameraControl            , "IAMCameraControl"            }, // x
-        {IID_IAMClockAdjust              , "IAMClockAdjust"              }, // x
-        {IID_IAMCrossbar                 , "IAMCrossbar"                 }, // x
-        {IID_IAMDeviceRemoval            , "IAMDeviceRemoval"            }, // Not required
-        {IID_IAMExtDevice                , "IAMExtDevice"                }, // x
+        {IID_IAgileObject                , "IAgileObject"                },
+        {IID_IAMAnalogVideoDecoder       , "IAMAnalogVideoDecoder"       },
+        {IID_IAMAudioInputMixer          , "IAMAudioInputMixer"          },
+        {IID_IAMAudioRendererStats       , "IAMAudioRendererStats"       },
+        {IID_IAMBufferNegotiation        , "IAMBufferNegotiation"        },
+        {IID_IAMCameraControl            , "IAMCameraControl"            },
+        {IID_IAMClockAdjust              , "IAMClockAdjust"              },
+        {IID_IAMCrossbar                 , "IAMCrossbar"                 },
+        {IID_IAMDeviceRemoval            , "IAMDeviceRemoval"            },
+        {IID_IAMExtDevice                , "IAMExtDevice"                },
         {IID_IAMFilterMiscFlags          , "IAMFilterMiscFlags"          },
-        {IID_IAMOpenProgress             , "IAMOpenProgress"             }, // Not required
+        {IID_IAMOpenProgress             , "IAMOpenProgress"             },
         {IID_IAMPushSource               , "IAMPushSource"               },
         {IID_IAMStreamConfig             , "IAMStreamConfig"             },
         {IID_IAMTVTuner                  , "IAMTVTuner"                  },
-        {IID_IAMVfwCaptureDialogs        , "IAMVfwCaptureDialogs"        }, // x
-        {IID_IAMVfwCompressDialogs       , "IAMVfwCompressDialogs"       }, // x
-        {IID_IAMVideoCompression         , "IAMVideoCompression"         }, // x
-        {IID_IAMVideoControl             , "IAMVideoControl"             }, // x
+        {IID_IAMVfwCaptureDialogs        , "IAMVfwCaptureDialogs"        },
+        {IID_IAMVfwCompressDialogs       , "IAMVfwCompressDialogs"       },
+        {IID_IAMVideoCompression         , "IAMVideoCompression"         },
+        {IID_IAMVideoControl             , "IAMVideoControl"             },
         {IID_IAMVideoProcAmp             , "IAMVideoProcAmp"             },
         {IID_IBaseFilter                 , "IBaseFilter"                 },
-        {IID_IBasicAudio                 , "IBasicAudio"                 }, // Not required
-        {IID_IBasicVideo                 , "IBasicVideo"                 }, // Not required
+        {IID_IBasicAudio                 , "IBasicAudio"                 },
+        {IID_IBasicVideo                 , "IBasicVideo"                 },
         {IID_IClassFactory               , "IClassFactory"               },
         {IID_IEnumMediaTypes             , "IEnumMediaTypes"             },
         {IID_IEnumPins                   , "IEnumPins"                   },
-        {IID_IFileSinkFilter             , "IFileSinkFilter"             }, // x
-        {IID_IFileSinkFilter2            , "IFileSinkFilter2"            }, // x
-        {IID_IFileSourceFilter           , "IFileSourceFilter"           }, // x
-        {IID_IInspectable                , "IInspectable"                }, // x
-        {IID_IKsPropertySet              , "IKsPropertySet"              }, // Not required
-        {IID_IManagedObject              , "IManagedObject"              }, // x
-        {IID_IMarshal                    , "IMarshal"                    }, // x
+        {IID_IFileSinkFilter             , "IFileSinkFilter"             },
+        {IID_IFileSinkFilter2            , "IFileSinkFilter2"            },
+        {IID_IFileSourceFilter           , "IFileSourceFilter"           },
+        {IID_IInspectable                , "IInspectable"                },
+        {IID_IKsPropertySet              , "IKsPropertySet"              },
+        {IID_IManagedObject              , "IManagedObject"              },
+        {IID_IMarshal                    , "IMarshal"                    },
         {IID_IMediaControl               , "IMediaControl"               },
-        {IID_IMediaFilter                , "IMediaFilter"                }, // x
-        {IID_IMediaPosition              , "IMediaPosition"              }, // Not required
+        {IID_IMediaFilter                , "IMediaFilter"                },
+        {IID_IMediaPosition              , "IMediaPosition"              },
         {IID_IMediaSample                , "IMediaSample"                },
-        {IID_IMediaSample2               , "IMediaSample2"               }, // Defined but not used
-        {IID_IMediaSeeking               , "IMediaSeeking"               }, // Not required
+        {IID_IMediaSample2               , "IMediaSample2"               },
+        {IID_IMediaSeeking               , "IMediaSeeking"               },
         {IID_IMediaEventSink             , "IMediaEventSink"             },
         {IID_IMemAllocator               , "IMemAllocator"               },
-        {IID_INoMarshal                  , "INoMarshal"                  }, // x
+        {IID_INoMarshal                  , "INoMarshal"                  },
         {IID_IPersist                    , "IPersist"                    },
         {IID_IPersistPropertyBag         , "IPersistPropertyBag"         },
         {IID_IPin                        , "IPin"                        },
-        {IID_IProvideClassInfo           , "IProvideClassInfo"           }, // x
-        {IID_IQualityControl             , "IQualityControl"             }, // x
+        {IID_IProvideClassInfo           , "IProvideClassInfo"           },
+        {IID_IQualityControl             , "IQualityControl"             },
         {IID_IReferenceClock             , "IReferenceClock"             },
-        {IID_IRpcOptions                 , "IRpcOptions"                 }, // x
-        {IID_ISpecifyPropertyPages       , "ISpecifyPropertyPages"       }, // x
-        {IID_IVideoWindow                , "IVideoWindow"                }, // Not required
+        {IID_IRpcOptions                 , "IRpcOptions"                 },
+        {IID_ISpecifyPropertyPages       , "ISpecifyPropertyPages"       },
+        {IID_IVideoWindow                , "IVideoWindow"                },
         {IID_IUnknown                    , "IUnknown"                    },
     };
-
-    /* The interface query tree:
-     *
-     * IBaseFilter -> IAgileObject
-     * IBaseFilter -> IAMCrossbar
-     * IBaseFilter -> IAMCameraControl
-     * IBaseFilter -> IAMFilterMiscFlags
-     * IBaseFilter -> IAMVideoControl
-     * IBaseFilter -> IAMVideoProcAmp
-     * IBaseFilter -> IFileSinkFilter
-     * IBaseFilter -> IFileSinkFilter2
-     * IBaseFilter -> IFileSourceFilter
-     * IBaseFilter -> IInspectable
-     * IBaseFilter -> IManagedObject
-     * IBaseFilter -> IMarshal
-     * IBaseFilter -> IMediaFilter
-     * IBaseFilter -> INoMarshal
-     * IBaseFilter -> IProvideClassInfo
-     * IBaseFilter -> IReferenceClock
-     * IBaseFilter -> IRpcOptions
-     * IBaseFilter -> ISpecifyPropertyPages
-     * IClassFactory -> IBaseFilter
-     * IClassFactory -> IPersistPropertyBag
-     * IPersistPropertyBag -> IBaseFilter
-     * IPin -> IAMPushSource
-     * IPin -> IAMStreamConfig
-     * IPin -> IKsPropertySet
-     * IPin -> IQualityControl
-     */
 
     for (auto &id: clsidToString)
         if (IsEqualCLSID(id.first, clsid))
