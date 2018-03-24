@@ -18,6 +18,7 @@
  */
 
 #include <iostream>
+#include <memory>
 #include <string>
 #include <thread>
 #include <windows.h>
@@ -249,11 +250,11 @@ bool AkVCam::ServicePrivate::init()
      * https://msdn.microsoft.com/en-us/library/windows/desktop/aa379570(v=vs.85).aspx
      */
     WCHAR descriptor[] =
-            L"D:"                  // Discretionary ACL
-            "(D;OICI;GA;;;BG)"     // Deny access to Built-in Guests
-            "(D;OICI;GA;;;AN)"     // Deny access to Anonymous Logon
-            "(A;OICI;GRGWGX;;;AU)" // Allow read/write/execute to Authenticated Users
-            "(A;OICI;GA;;;BA)";    // Allow full control to Administrators
+            L"D:"                   // Discretionary ACL
+            L"(D;OICI;GA;;;BG)"     // Deny access to Built-in Guests
+            L"(D;OICI;GA;;;AN)"     // Deny access to Anonymous Logon
+            L"(A;OICI;GRGWGX;;;AU)" // Allow read/write/execute to Authenticated Users
+            L"(A;OICI;GA;;;BA)";    // Allow full control to Administrators
 
     std::wstring pipeName = L"\\\\.\\pipe\\";
     pipeName += DSHOW_PLUGIN_ASSISTANT_NAME_L;
@@ -404,10 +405,10 @@ bool AkVCam::ServicePrivate::readMessage(HANDLE *events,
     return true;
 }
 
-DWORD controlHandler(DWORD control,
-                     DWORD  eventType,
-                     LPVOID eventData,
-                     LPVOID context)
+DWORD WINAPI controlHandler(DWORD control,
+                            DWORD  eventType,
+                            LPVOID eventData,
+                            LPVOID context)
 {
     UNUSED(eventType)
     UNUSED(eventData)
@@ -442,7 +443,7 @@ DWORD controlHandler(DWORD control,
     return result;
 }
 
-BOOL controlDebugHandler(DWORD control)
+BOOL WINAPI controlDebugHandler(DWORD control)
 {
     if (control == CTRL_BREAK_EVENT || control == CTRL_C_EVENT) {
         AkVCam::servicePrivate()->m_running = false;
@@ -454,7 +455,7 @@ BOOL controlDebugHandler(DWORD control)
     return FALSE;
 }
 
-void serviceMain(DWORD dwArgc, LPTSTR *lpszArgv)
+void WINAPI serviceMain(DWORD dwArgc, LPTSTR *lpszArgv)
 {
     UNUSED(dwArgc)
     UNUSED(lpszArgv)
