@@ -80,7 +80,8 @@ STDAPI DllGetClassObject(REFCLSID rclsid, REFIID riid, LPVOID *ppv)
     *ppv = nullptr;
 
     if (!IsEqualIID(riid, IID_IUnknown)
-        && !IsEqualIID(riid, IID_IClassFactory))
+        && !IsEqualIID(riid, IID_IClassFactory)
+        && AkVCam::cameraFromClsid(riid).empty())
             return CLASS_E_CLASSNOTAVAILABLE;
 
     auto classFactory = new AkVCam::ClassFactory(rclsid);
@@ -103,17 +104,47 @@ STDAPI DllRegisterServer()
 
     DllUnregisterServer();
 
-    if (!pluginInterface()->createDevice(DSHOW_PLUGIN_CLSID_STRING,
-                                         DSHOW_PLUGIN_DESCRIPTION_L))
-        return E_UNEXPECTED;
+    auto cameras = AkVCam::listCameras();
+    bool ok = true;
 
-    return S_OK;
+    for (auto camera: cameras) {
+        auto description = AkVCam::cameraDescription(camera);
+        auto path = AkVCam::cameraPath(camera);
+
+#ifdef QT_DEBUG
+        auto clsid = AkVCam::createClsidFromStr(path);
+#endif
+
+        AkLoggerLog("Creating Camera");
+        AkLoggerLog("\tDescription: ", std::string(description.begin(),
+                                                   description.end()));
+        AkLoggerLog("\tPath: ", std::string(path.begin(), path.end()));
+        AkLoggerLog("\tCLSID: ", AkVCam::stringFromIid(clsid));
+
+        ok &= pluginInterface()->createDevice(path, description);
+    }
+
+    return ok? S_OK: E_UNEXPECTED;
 }
 
 STDAPI DllUnregisterServer()
 {
     AkLoggerLog(__FUNCTION__, "()");
-    pluginInterface()->destroyDevice(DSHOW_PLUGIN_CLSID_STRING);
+
+    auto cameras =
+            AkVCam::listRegisteredCameras(pluginInterface()->pluginHinstance());
+
+    for (auto camera: cameras) {
+        AkLoggerLog("Deleting ", AkVCam::stringFromClsid(camera));
+        pluginInterface()->destroyDevice(camera);
+    }
+
+    // Unregister old virtual camera filter.
+    // NOTE: This code must be removed in future versions.
+    CLSID clsid;
+    CLSIDFromString(L"{41764B79-7320-5669-7274-75616C43616D}", &clsid);
+    AkLoggerLog("Deleting ", AkVCam::stringFromClsid(clsid));
+    pluginInterface()->destroyDevice(clsid);
 
     return S_OK;
 }

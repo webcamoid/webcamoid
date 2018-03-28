@@ -90,6 +90,7 @@ bool operator <(const CLSID &a, const CLSID &b)
 std::string AkVCam::tempPath()
 {
     WCHAR tempPath[MAX_PATH];
+    memset(tempPath, 0, MAX_PATH * sizeof(WCHAR));
     GetTempPath(MAX_PATH, tempPath);
     std::wstring wTempPath(tempPath);
 
@@ -99,6 +100,7 @@ std::string AkVCam::tempPath()
 std::wstring AkVCam::moduleFileNameW(HINSTANCE hinstDLL)
 {
     WCHAR fileName[MAX_PATH];
+    memset(fileName, 0, MAX_PATH * sizeof(WCHAR));
     GetModuleFileName(hinstDLL, fileName, MAX_PATH);
 
     return std::wstring(fileName);
@@ -113,6 +115,11 @@ std::string AkVCam::moduleFileName(HINSTANCE hinstDLL)
 
 // Converts a human redable string to a CLSID using MD5 hash.
 CLSID AkVCam::createClsidFromStr(const std::string &str)
+{
+    return createClsidFromStr(std::wstring(str.begin(), str.end()));
+}
+
+CLSID AkVCam::createClsidFromStr(const std::wstring &str)
 {
     HCRYPTPROV provider = 0;
     HCRYPTHASH hash = 0;
@@ -132,7 +139,7 @@ CLSID AkVCam::createClsidFromStr(const std::string &str)
 
     if (!CryptHashData(hash,
                        reinterpret_cast<const BYTE *>(str.c_str()),
-                       DWORD(str.size()),
+                       DWORD(str.size() * sizeof(wchar_t)),
                        0))
         goto clsidFromStr_failed;
 
@@ -153,6 +160,11 @@ clsidFromStr_failed:
 }
 
 std::wstring AkVCam::createClsidWStrFromStr(const std::string &str)
+{
+    return createClsidWStrFromStr(std::wstring(str.begin(), str.end()));
+}
+
+std::wstring AkVCam::createClsidWStrFromStr(const std::wstring &str)
 {
     auto clsid = createClsidFromStr(str);
     OLECHAR *clsidWStr = nullptr;
@@ -193,58 +205,58 @@ std::string AkVCam::stringFromResult(HRESULT result)
 std::string AkVCam::stringFromClsid(const CLSID &clsid)
 {
     static const std::map<CLSID, std::string> clsidToString {
-        {IID_IAgileObject                , "IAgileObject"                },
-        {IID_IAMAnalogVideoDecoder       , "IAMAnalogVideoDecoder"       },
-        {IID_IAMAudioInputMixer          , "IAMAudioInputMixer"          },
-        {IID_IAMAudioRendererStats       , "IAMAudioRendererStats"       },
-        {IID_IAMBufferNegotiation        , "IAMBufferNegotiation"        },
-        {IID_IAMCameraControl            , "IAMCameraControl"            },
-        {IID_IAMClockAdjust              , "IAMClockAdjust"              },
-        {IID_IAMCrossbar                 , "IAMCrossbar"                 },
-        {IID_IAMDeviceRemoval            , "IAMDeviceRemoval"            },
-        {IID_IAMExtDevice                , "IAMExtDevice"                },
-        {IID_IAMFilterMiscFlags          , "IAMFilterMiscFlags"          },
-        {IID_IAMOpenProgress             , "IAMOpenProgress"             },
-        {IID_IAMPushSource               , "IAMPushSource"               },
-        {IID_IAMStreamConfig             , "IAMStreamConfig"             },
-        {IID_IAMTVTuner                  , "IAMTVTuner"                  },
-        {IID_IAMVfwCaptureDialogs        , "IAMVfwCaptureDialogs"        },
-        {IID_IAMVfwCompressDialogs       , "IAMVfwCompressDialogs"       },
-        {IID_IAMVideoCompression         , "IAMVideoCompression"         },
-        {IID_IAMVideoControl             , "IAMVideoControl"             },
-        {IID_IAMVideoProcAmp             , "IAMVideoProcAmp"             },
-        {IID_IBaseFilter                 , "IBaseFilter"                 },
-        {IID_IBasicAudio                 , "IBasicAudio"                 },
-        {IID_IBasicVideo                 , "IBasicVideo"                 },
-        {IID_IClassFactory               , "IClassFactory"               },
-        {IID_IEnumMediaTypes             , "IEnumMediaTypes"             },
-        {IID_IEnumPins                   , "IEnumPins"                   },
-        {IID_IFileSinkFilter             , "IFileSinkFilter"             },
-        {IID_IFileSinkFilter2            , "IFileSinkFilter2"            },
-        {IID_IFileSourceFilter           , "IFileSourceFilter"           },
-        {IID_IInspectable                , "IInspectable"                },
-        {IID_IKsPropertySet              , "IKsPropertySet"              },
-        {IID_IManagedObject              , "IManagedObject"              },
-        {IID_IMarshal                    , "IMarshal"                    },
-        {IID_IMediaControl               , "IMediaControl"               },
-        {IID_IMediaFilter                , "IMediaFilter"                },
-        {IID_IMediaPosition              , "IMediaPosition"              },
-        {IID_IMediaSample                , "IMediaSample"                },
-        {IID_IMediaSample2               , "IMediaSample2"               },
-        {IID_IMediaSeeking               , "IMediaSeeking"               },
-        {IID_IMediaEventSink             , "IMediaEventSink"             },
-        {IID_IMemAllocator               , "IMemAllocator"               },
-        {IID_INoMarshal                  , "INoMarshal"                  },
-        {IID_IPersist                    , "IPersist"                    },
-        {IID_IPersistPropertyBag         , "IPersistPropertyBag"         },
-        {IID_IPin                        , "IPin"                        },
-        {IID_IProvideClassInfo           , "IProvideClassInfo"           },
-        {IID_IQualityControl             , "IQualityControl"             },
-        {IID_IReferenceClock             , "IReferenceClock"             },
-        {IID_IRpcOptions                 , "IRpcOptions"                 },
-        {IID_ISpecifyPropertyPages       , "ISpecifyPropertyPages"       },
-        {IID_IVideoWindow                , "IVideoWindow"                },
-        {IID_IUnknown                    , "IUnknown"                    },
+        {IID_IAgileObject         , "IAgileObject"         },
+        {IID_IAMAnalogVideoDecoder, "IAMAnalogVideoDecoder"},
+        {IID_IAMAudioInputMixer   , "IAMAudioInputMixer"   },
+        {IID_IAMAudioRendererStats, "IAMAudioRendererStats"},
+        {IID_IAMBufferNegotiation , "IAMBufferNegotiation" },
+        {IID_IAMCameraControl     , "IAMCameraControl"     },
+        {IID_IAMClockAdjust       , "IAMClockAdjust"       },
+        {IID_IAMCrossbar          , "IAMCrossbar"          },
+        {IID_IAMDeviceRemoval     , "IAMDeviceRemoval"     },
+        {IID_IAMExtDevice         , "IAMExtDevice"         },
+        {IID_IAMFilterMiscFlags   , "IAMFilterMiscFlags"   },
+        {IID_IAMOpenProgress      , "IAMOpenProgress"      },
+        {IID_IAMPushSource        , "IAMPushSource"        },
+        {IID_IAMStreamConfig      , "IAMStreamConfig"      },
+        {IID_IAMTVTuner           , "IAMTVTuner"           },
+        {IID_IAMVfwCaptureDialogs , "IAMVfwCaptureDialogs" },
+        {IID_IAMVfwCompressDialogs, "IAMVfwCompressDialogs"},
+        {IID_IAMVideoCompression  , "IAMVideoCompression"  },
+        {IID_IAMVideoControl      , "IAMVideoControl"      },
+        {IID_IAMVideoProcAmp      , "IAMVideoProcAmp"      },
+        {IID_IBaseFilter          , "IBaseFilter"          },
+        {IID_IBasicAudio          , "IBasicAudio"          },
+        {IID_IBasicVideo          , "IBasicVideo"          },
+        {IID_IClassFactory        , "IClassFactory"        },
+        {IID_IEnumMediaTypes      , "IEnumMediaTypes"      },
+        {IID_IEnumPins            , "IEnumPins"            },
+        {IID_IFileSinkFilter      , "IFileSinkFilter"      },
+        {IID_IFileSinkFilter2     , "IFileSinkFilter2"     },
+        {IID_IFileSourceFilter    , "IFileSourceFilter"    },
+        {IID_IInspectable         , "IInspectable"         },
+        {IID_IKsPropertySet       , "IKsPropertySet"       },
+        {IID_IManagedObject       , "IManagedObject"       },
+        {IID_IMarshal             , "IMarshal"             },
+        {IID_IMediaControl        , "IMediaControl"        },
+        {IID_IMediaFilter         , "IMediaFilter"         },
+        {IID_IMediaPosition       , "IMediaPosition"       },
+        {IID_IMediaSample         , "IMediaSample"         },
+        {IID_IMediaSample2        , "IMediaSample2"        },
+        {IID_IMediaSeeking        , "IMediaSeeking"        },
+        {IID_IMediaEventSink      , "IMediaEventSink"      },
+        {IID_IMemAllocator        , "IMemAllocator"        },
+        {IID_INoMarshal           , "INoMarshal"           },
+        {IID_IPersist             , "IPersist"             },
+        {IID_IPersistPropertyBag  , "IPersistPropertyBag"  },
+        {IID_IPin                 , "IPin"                 },
+        {IID_IProvideClassInfo    , "IProvideClassInfo"    },
+        {IID_IQualityControl      , "IQualityControl"      },
+        {IID_IReferenceClock      , "IReferenceClock"      },
+        {IID_IRpcOptions          , "IRpcOptions"          },
+        {IID_ISpecifyPropertyPages, "ISpecifyPropertyPages"},
+        {IID_IVideoWindow         , "IVideoWindow"         },
+        {IID_IUnknown             , "IUnknown"             },
     };
 
     for (auto &id: clsidToString)
@@ -510,23 +522,23 @@ bool AkVCam::containsMediaType(const AM_MEDIA_TYPE *mediaType,
 std::string AkVCam::stringFromMajorType(const GUID &majorType)
 {
     static const std::map<GUID, std::string> mtToStr {
-        {GUID_NULL               , "GUID_NULL"               },
-        {MEDIATYPE_AnalogAudio   , "MEDIATYPE_AnalogAudio"   },
-        {MEDIATYPE_AnalogVideo   , "MEDIATYPE_AnalogVideo"   },
-        {MEDIATYPE_Audio         , "MEDIATYPE_Audio"         },
-        {MEDIATYPE_AUXLine21Data , "MEDIATYPE_AUXLine21Data" },
-        {MEDIATYPE_File          , "MEDIATYPE_File"          },
-        {MEDIATYPE_Interleaved   , "MEDIATYPE_Interleaved"   },
-        {MEDIATYPE_LMRT          , "MEDIATYPE_LMRT"          },
-        {MEDIATYPE_Midi          , "MEDIATYPE_Midi"          },
-        {MEDIATYPE_MPEG2_PES     , "MEDIATYPE_MPEG2_PES"     },
-        {MEDIATYPE_ScriptCommand , "MEDIATYPE_ScriptCommand" },
-        {MEDIATYPE_Stream        , "MEDIATYPE_Stream"        },
-        {MEDIATYPE_Text          , "MEDIATYPE_Text"          },
-        {MEDIATYPE_Timecode      , "MEDIATYPE_Timecode"      },
-        {MEDIATYPE_URL_STREAM    , "MEDIATYPE_URL_STREAM"    },
-        {MEDIATYPE_VBI           , "MEDIATYPE_VBI"           },
-        {MEDIATYPE_Video         , "MEDIATYPE_Video"         }
+        {GUID_NULL              , "GUID_NULL"              },
+        {MEDIATYPE_AnalogAudio  , "MEDIATYPE_AnalogAudio"  },
+        {MEDIATYPE_AnalogVideo  , "MEDIATYPE_AnalogVideo"  },
+        {MEDIATYPE_Audio        , "MEDIATYPE_Audio"        },
+        {MEDIATYPE_AUXLine21Data, "MEDIATYPE_AUXLine21Data"},
+        {MEDIATYPE_File         , "MEDIATYPE_File"         },
+        {MEDIATYPE_Interleaved  , "MEDIATYPE_Interleaved"  },
+        {MEDIATYPE_LMRT         , "MEDIATYPE_LMRT"         },
+        {MEDIATYPE_Midi         , "MEDIATYPE_Midi"         },
+        {MEDIATYPE_MPEG2_PES    , "MEDIATYPE_MPEG2_PES"    },
+        {MEDIATYPE_ScriptCommand, "MEDIATYPE_ScriptCommand"},
+        {MEDIATYPE_Stream       , "MEDIATYPE_Stream"       },
+        {MEDIATYPE_Text         , "MEDIATYPE_Text"         },
+        {MEDIATYPE_Timecode     , "MEDIATYPE_Timecode"     },
+        {MEDIATYPE_URL_STREAM   , "MEDIATYPE_URL_STREAM"   },
+        {MEDIATYPE_VBI          , "MEDIATYPE_VBI"          },
+        {MEDIATYPE_Video        , "MEDIATYPE_Video"        }
     };
 
     for (auto &mediaType: mtToStr)
@@ -652,19 +664,283 @@ std::string AkVCam::stringFromMediaSample(IMediaSample *mediaSample)
     auto dataLength = mediaSample->GetActualDataLength();
 
     std::stringstream ss;
-    ss << "MediaSample(" << std::endl;
-    ss << "    Buffer: " << size_t(buffer) << std::endl;
-    ss << "    Buffer Size: " << bufferSize << std::endl;
-    ss << "    Media Type: " << stringFromMediaType(mediaType) << std::endl;
-    ss << "    Time: (" << timeStart << ", " << timeEnd << ")" << std::endl;
-    ss << "    Media Time: (" << mediaTimeStart << ", " << mediaTimeEnd << ")" << std::endl;
-    ss << "    Discontinuity: " << discontinuity << std::endl;
-    ss << "    Preroll: " << preroll << std::endl;
-    ss << "    Sync Point: " << syncPoint << std::endl;
-    ss << "    Data Length: " << dataLength << std::endl;
-    ss << ")";
+    ss << "MediaSample(" << std::endl
+       << "    Buffer: " << size_t(buffer) << std::endl
+       << "    Buffer Size: " << bufferSize << std::endl
+       << "    Media Type: " << stringFromMediaType(mediaType) << std::endl
+       << "    Time: (" << timeStart << ", " << timeEnd << ")" << std::endl
+       << "    Media Time: (" << mediaTimeStart << ", " << mediaTimeEnd << ")" << std::endl
+       << "    Discontinuity: " << discontinuity << std::endl
+       << "    Preroll: " << preroll << std::endl
+       << "    Sync Point: " << syncPoint << std::endl
+       << "    Data Length: " << dataLength << std::endl
+       << ")";
 
     deleteMediaType(&mediaType);
 
     return ss.str();
+}
+
+std::vector<CLSID> AkVCam::listRegisteredCameras(HINSTANCE hinstDLL)
+{
+    std::wstringstream ss;
+    ss << L"CLSID\\"
+       << wstringFromIid(CLSID_VideoInputDeviceCategory)
+       << L"\\Instance";
+
+    HKEY key = nullptr;
+    auto result = RegOpenKeyEx(HKEY_CLASSES_ROOT,
+                               ss.str().c_str(),
+                               0,
+                               MAXIMUM_ALLOWED,
+                               &key);
+
+    if (result != ERROR_SUCCESS)
+        return {};
+
+    std::vector<CLSID> cameras;
+    TCHAR subKey[MAX_PATH];
+    DWORD subKeyLen = MAX_PATH;
+    FILETIME lastWrite;
+
+    for (DWORD i = 0;
+         RegEnumKeyEx(key,
+                      i,
+                      subKey,
+                      &subKeyLen,
+                      nullptr,
+                      nullptr,
+                      nullptr,
+                      &lastWrite) == ERROR_SUCCESS;
+         i++) {
+        std::wstringstream ss;
+        ss << L"CLSID\\" << subKey << L"\\InprocServer32";
+        WCHAR path[MAX_PATH];
+        DWORD pathSize = MAX_PATH;
+
+        if (RegGetValue(HKEY_CLASSES_ROOT,
+                        ss.str().c_str(),
+                        nullptr,
+                        RRF_RT_REG_SZ,
+                        nullptr,
+                        path,
+                        &pathSize) == ERROR_SUCCESS) {
+            WCHAR modulePath[MAX_PATH];
+            memset(modulePath, 0, MAX_PATH * sizeof(WCHAR));
+            GetModuleFileName(hinstDLL, modulePath, MAX_PATH);
+
+            if (!lstrcmpi(path, modulePath)) {
+                CLSID clsid;
+                memset(&clsid, 0, sizeof(CLSID));
+                CLSIDFromString(subKey, &clsid);
+                cameras.push_back(clsid);
+            }
+        }
+    }
+
+    RegCloseKey(key);
+
+    return cameras;
+}
+
+std::vector<std::wstring> AkVCam::listCameras()
+{
+    std::vector<std::wstring> cameras;
+
+    DWORD nCameras = 0;
+    DWORD nCamerasSize = sizeof(DWORD);
+
+    if (RegGetValue(HKEY_LOCAL_MACHINE,
+                    L"SOFTWARE\\Webcamoid\\VirtualCamera\\CameraList\\cameras",
+                    L"size",
+                    RRF_RT_REG_DWORD,
+                    nullptr,
+                    &nCameras,
+                    &nCamerasSize) != ERROR_SUCCESS)
+        return cameras;
+
+    for (DWORD i = 0; i < nCameras; i++) {
+        std::wstringstream ss;
+        ss << L"SOFTWARE\\Webcamoid\\VirtualCamera\\CameraList\\cameras\\" << i + 1;
+
+        WCHAR camera[1024];
+        DWORD cameraSize = 1024 * sizeof(WCHAR);
+        memset(camera, 0, cameraSize);
+
+        if (RegGetValue(HKEY_LOCAL_MACHINE,
+                        ss.str().c_str(),
+                        L"camera",
+                        RRF_RT_REG_SZ,
+                        nullptr,
+                        &camera,
+                        &cameraSize) != ERROR_SUCCESS)
+            continue;
+
+        cameras.push_back(camera);
+    }
+
+    return cameras;
+}
+
+std::wstring AkVCam::cameraFromClsid(const CLSID &clsid)
+{
+    for (auto camera: listCameras()) {
+        auto cameraClsid = createClsidFromStr(cameraPath(camera));
+
+        if (IsEqualCLSID(cameraClsid, clsid) && !cameraFormats(camera).empty())
+            return camera;
+    }
+
+    return std::wstring();
+}
+
+std::wstring AkVCam::cameraDescription(const std::wstring &cameraId)
+{
+    std::wstringstream ss;
+    ss << L"SOFTWARE\\Webcamoid\\VirtualCamera\\Camera_" << cameraId;
+
+    WCHAR description[1024];
+    DWORD descriptionSize = 1024 * sizeof(WCHAR);
+    memset(description, 0, descriptionSize);
+
+    if (RegGetValue(HKEY_LOCAL_MACHINE,
+                    ss.str().c_str(),
+                    L"description",
+                    RRF_RT_REG_SZ,
+                    nullptr,
+                    &description,
+                    &descriptionSize) != ERROR_SUCCESS)
+        return std::wstring();
+
+    return std::wstring(description);
+}
+
+std::wstring AkVCam::cameraPath(const std::wstring &cameraId)
+{
+    std::wstringstream ss;
+    ss << L"SOFTWARE\\Webcamoid\\VirtualCamera\\Camera_" << cameraId;
+
+    WCHAR path[1024];
+    DWORD pathSize = 1024 * sizeof(WCHAR);
+    memset(path, 0, pathSize);
+
+    if (RegGetValue(HKEY_LOCAL_MACHINE,
+                    ss.str().c_str(),
+                    L"path",
+                    RRF_RT_REG_SZ,
+                    nullptr,
+                    &path,
+                    &pathSize) != ERROR_SUCCESS)
+        return std::wstring();
+
+    return std::wstring(path);
+}
+
+AkVCam::VideoFormat AkVCam::cameraFormat(const std::wstring &formatId)
+{
+    std::wstringstream ss;
+    ss << L"SOFTWARE\\Webcamoid\\VirtualCamera\\VideoFormat_" << formatId;
+
+    WCHAR formatStr[1024];
+    DWORD variableSize = 1024 * sizeof(WCHAR);
+    memset(formatStr, 0, variableSize);
+
+    if (RegGetValue(HKEY_LOCAL_MACHINE,
+                    ss.str().c_str(),
+                    L"format",
+                    RRF_RT_REG_SZ,
+                    nullptr,
+                    &formatStr,
+                    &variableSize) != ERROR_SUCCESS)
+        return {};
+
+    DWORD width = 0;
+    variableSize = sizeof(DWORD);
+
+    if (RegGetValue(HKEY_LOCAL_MACHINE,
+                    ss.str().c_str(),
+                    L"width",
+                    RRF_RT_REG_DWORD,
+                    nullptr,
+                    &width,
+                    &variableSize) != ERROR_SUCCESS)
+        return {};
+
+    DWORD height = 0;
+    variableSize = sizeof(DWORD);
+
+    if (RegGetValue(HKEY_LOCAL_MACHINE,
+                    ss.str().c_str(),
+                    L"height",
+                    RRF_RT_REG_DWORD,
+                    nullptr,
+                    &height,
+                    &variableSize) != ERROR_SUCCESS)
+        return {};
+
+    DWORD fps = 0;
+    variableSize = sizeof(DWORD);
+
+    if (RegGetValue(HKEY_LOCAL_MACHINE,
+                    ss.str().c_str(),
+                    L"fps",
+                    RRF_RT_REG_DWORD,
+                    nullptr,
+                    &fps,
+                    &variableSize) != ERROR_SUCCESS)
+        return {};
+
+    std::wstring format(formatStr);
+    auto fourcc = VideoFormat::fourccFromString(std::string(format.begin(),
+                                                            format.end()));
+
+    return VideoFormat(fourcc, int(width), int(height), {double(fps)});
+}
+
+std::vector<AkVCam::VideoFormat> AkVCam::cameraFormats(const std::wstring &cameraId)
+{
+    std::wstringstream ss;
+    ss << L"SOFTWARE\\Webcamoid\\VirtualCamera\\Camera_"
+       << cameraId
+       << L"\\formats";
+
+    DWORD nFormats;
+    DWORD nFormatsSize = sizeof(DWORD);
+    memset(&nFormats, 0, nFormatsSize);
+
+    if (RegGetValue(HKEY_LOCAL_MACHINE,
+                    ss.str().c_str(),
+                    L"size",
+                    RRF_RT_REG_DWORD,
+                    nullptr,
+                    &nFormats,
+                    &nFormatsSize) != ERROR_SUCCESS)
+        return {};
+
+    std::vector<AkVCam::VideoFormat> formats;
+
+    for (DWORD i = 0; i < nFormats; i++) {
+        std::wstringstream ss2;
+        ss2 << ss.str() << L"\\" << i + 1;
+
+        WCHAR format[1024];
+        DWORD formatSize = 1024 * sizeof(WCHAR);
+        memset(format, 0, formatSize);
+
+        if (RegGetValue(HKEY_LOCAL_MACHINE,
+                        ss2.str().c_str(),
+                        L"format",
+                        RRF_RT_REG_SZ,
+                        nullptr,
+                        &format,
+                        &formatSize) != ERROR_SUCCESS)
+            continue;
+
+        auto videoFormat = cameraFormat(format);
+
+        if (videoFormat)
+            formats.push_back(videoFormat);
+    }
+
+    return formats;
 }

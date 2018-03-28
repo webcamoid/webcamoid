@@ -50,6 +50,52 @@ namespace AkVCam
             {
             }
     };
+
+    class VideoFormatGlobals
+    {
+        public:
+            PixelFormat format;
+            size_t bpp;
+            std::string str;
+
+            inline static const std::vector<VideoFormatGlobals> &formats()
+            {
+                static const std::vector<VideoFormatGlobals> formats {
+                    {PixelFormatRGB32, 32, "RGB32"},
+                    {PixelFormatRGB24, 24, "RGB24"},
+                    {PixelFormatRGB16, 16, "RGB16"},
+                    {PixelFormatRGB15, 16, "RGB15"},
+                    {PixelFormatBGR32, 32, "BGR32"},
+                    {PixelFormatBGR24, 24, "BGR24"},
+                    {PixelFormatBGR16, 16, "BGR16"},
+                    {PixelFormatBGR15, 16, "BGR15"},
+                    {PixelFormatUYVY , 16, "UYVY" },
+                    {PixelFormatYUY2 , 16, "YUY2" },
+                    {PixelFormatNV12 , 12, "NV12" },
+                    {PixelFormatNV21 , 12, "NV21" }
+                };
+
+                return formats;
+            }
+
+            static inline const VideoFormatGlobals *byPixelFormat(PixelFormat pixelFormat)
+            {
+                for (auto &format: formats())
+                    if (format.format == pixelFormat)
+                        return &format;
+
+                return nullptr;
+            }
+
+            static inline const VideoFormatGlobals *byStr(const std::string str)
+            {
+                for (auto &format: formats())
+                    if (format.str == str)
+                        return &format;
+
+                return nullptr;
+            }
+    };
 }
 
 AkVCam::VideoFormat::VideoFormat()
@@ -99,6 +145,11 @@ bool AkVCam::VideoFormat::operator !=(const AkVCam::VideoFormat &other) const
            || this->d->m_width != other.d->m_width
            || this->d->m_height != other.d->m_height
            || this->d->m_frameRates != other.d->m_frameRates;
+}
+
+AkVCam::VideoFormat::operator bool() const
+{
+    return this->size() != 0;
 }
 
 AkVCam::VideoFormat::~VideoFormat()
@@ -172,26 +223,9 @@ double AkVCam::VideoFormat::minimumFrameRate() const
 
 size_t AkVCam::VideoFormat::bpp() const
 {
-    static const std::map<PixelFormat, size_t> formatToBpp {
-        {PixelFormatRGB32, 32},
-        {PixelFormatRGB24, 24},
-        {PixelFormatRGB16, 16},
-        {PixelFormatRGB15, 16},
-        {PixelFormatBGR32, 32},
-        {PixelFormatBGR24, 24},
-        {PixelFormatBGR16, 16},
-        {PixelFormatBGR15, 16},
-        {PixelFormatUYVY , 16},
-        {PixelFormatYUY2 , 16},
-        {PixelFormatNV12 , 12},
-        {PixelFormatNV21 , 12}
-    };
+    auto vf = VideoFormatGlobals::byPixelFormat(PixelFormat(this->d->m_fourcc));
 
-    for (auto &bpp: formatToBpp)
-        if (bpp.first == this->d->m_fourcc)
-            return bpp.second;
-
-    return 0;
+    return vf? vf->bpp: 0;
 }
 
 size_t AkVCam::VideoFormat::size() const
@@ -234,4 +268,18 @@ void AkVCam::VideoFormat::roundNearest(int width, int height,
      * round(height * owidth / width)
      */
     *oheight = (2 * height * *owidth + width) / (2 * width);
+}
+
+AkVCam::FourCC AkVCam::VideoFormat::fourccFromString(const std::string &fourccStr)
+{
+    auto vf = VideoFormatGlobals::byStr(fourccStr);
+
+    return vf? vf->format: 0;
+}
+
+std::string AkVCam::VideoFormat::stringFromFourcc(AkVCam::FourCC fourcc)
+{
+    auto vf = VideoFormatGlobals::byPixelFormat(PixelFormat(fourcc));
+
+    return vf? vf->str: std::string();
 }
