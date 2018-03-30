@@ -832,7 +832,7 @@
         <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="195"/>
         <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="163"/>
         <source>Choose a color</source>
-        <translation type="unfinished"></translation>
+        <translation>Вибір кольору</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="36"/>
@@ -864,7 +864,7 @@
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="86"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="76"/>
         <source>Symbols</source>
-        <translation type="unfinished"></translation>
+        <translation>Символи</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="96"/>
@@ -1288,7 +1288,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="121"/>
         <source>Eye</source>
-        <translation type="unfinished"></translation>
+        <translation>Око</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="125"/>
@@ -1343,7 +1343,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="165"/>
         <source>Left ear</source>
-        <translation type="unfinished"></translation>
+        <translation>Ліве вухо</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="169"/>
@@ -1363,7 +1363,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="181"/>
         <source>Right ear</source>
-        <translation type="unfinished"></translation>
+        <translation>Праве вухо</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="185"/>
