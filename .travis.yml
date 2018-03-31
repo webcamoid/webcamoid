@@ -124,10 +124,10 @@ matrix:
     env:
       - DOCKERSYS=debian DOCKERIMG=ubuntu:bionic
   - os: osx
-    osx_image: xcode8.3
+    osx_image: xcode9.1
     compiler: clang
   - os: osx
-    osx_image: xcode9
+    osx_image: xcode9.2
     compiler: clang
   - language: android
     jdk: oraclejdk8

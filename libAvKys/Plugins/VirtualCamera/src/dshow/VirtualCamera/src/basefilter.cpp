@@ -90,12 +90,13 @@ void AkVCam::BaseFilter::removePin(IPin *pin, bool changed)
 
 AkVCam::BaseFilter *AkVCam::BaseFilter::create(const GUID &clsid)
 {
+    auto camera = cameraFromClsid(clsid);
+    auto description = cameraDescription(camera);
     auto baseFilter = new BaseFilter(clsid,
-                                     DSHOW_PLUGIN_DESCRIPTION_L,
+                                     description,
                                      DSHOW_PLUGIN_VENDOR_L);
-    baseFilter->addPin({{PixelFormatRGB32, 640, 480, {30.0}}},
-                       L"Video",
-                       false);
+    auto formats = cameraFormats(camera);
+    baseFilter->addPin(formats, L"Video", false);
 
     return baseFilter;
 }

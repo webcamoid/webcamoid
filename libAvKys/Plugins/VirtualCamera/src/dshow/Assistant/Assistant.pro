@@ -16,11 +16,44 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-TEMPLATE = subdirs
+exists(akcommons.pri) {
+    include(akcommons.pri)
+} else {
+    exists(../../../../../akcommons.pri) {
+        include(../../../../../akcommons.pri)
+    } else {
+        error("akcommons.pri file not found.")
+    }
+}
 
-CONFIG += ordered
+include(../dshow.pri)
+include(../../VCamUtils/VCamUtils.pri)
 
-SUBDIRS = \
-    Assistant \
-    VirtualCamera \
-    src
+TEMPLATE = app
+CONFIG += console c++11
+CONFIG -= app_bundle
+CONFIG -= qt
+
+DESTDIR = $${OUT_PWD}
+
+TARGET = $${DSHOW_PLUGIN_ASSISTANT_NAME}
+
+TEMPLATE = app
+
+SOURCES += \
+    src/main.cpp \
+    src/service.cpp
+
+LIBS += \
+    -L$${OUT_PWD}/../../VCamUtils -lVCamUtils \
+    -ladvapi32
+
+INCLUDEPATH += \
+    ../..
+
+isEmpty(STATIC_BUILD) | isEqual(STATIC_BUILD, 0) {
+    win32-g++: QMAKE_LFLAGS = -static -static-libgcc -static-libstdc++
+}
+
+HEADERS += \
+    src/service.h

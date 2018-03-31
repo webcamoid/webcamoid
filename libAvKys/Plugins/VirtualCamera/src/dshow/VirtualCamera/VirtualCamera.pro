@@ -48,7 +48,7 @@ LIBS += \
     -luuid \
     -lwinmm
 
-TARGET = $${DSHOW_PLUGIN_NAME}_$${TARGET_ARCH}
+TARGET = $${DSHOW_PLUGIN_NAME}
 TEMPLATE = lib
 
 HEADERS += \
@@ -75,7 +75,8 @@ HEADERS += \
     src/utils.h \
     src/videoprocamp.h \
     src/propertyset.h \
-    src/videocontrol.h
+    src/videocontrol.h \
+    src/qualitycontrol.h
 
 SOURCES += \
     src/basefilter.cpp \
@@ -101,9 +102,10 @@ SOURCES += \
     src/utils.cpp \
     src/videoprocamp.cpp \
     src/propertyset.cpp \
-    src/videocontrol.cpp
+    src/videocontrol.cpp \
+    src/qualitycontrol.cpp
 
-DESTDIR = $${OUT_PWD}
+DESTDIR = $${OUT_PWD}/bin/$${TARGET_ARCH}
 
 RESOURCES += \
     ../../../TestFrame.qrc

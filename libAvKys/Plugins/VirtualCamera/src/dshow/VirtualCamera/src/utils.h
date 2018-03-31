@@ -21,6 +21,7 @@
 #define UTILS_H
 
 #include <string>
+#include <vector>
 #include <strmif.h>
 
 #include "VCamUtils/src/image/videoformattypes.h"
@@ -39,7 +40,9 @@ namespace AkVCam
     std::wstring moduleFileNameW(HINSTANCE hinstDLL);
     std::string moduleFileName(HINSTANCE hinstDLL);
     CLSID createClsidFromStr(const std::string &str);
+    CLSID createClsidFromStr(const std::wstring &str);
     std::wstring createClsidWStrFromStr(const std::string &str);
+    std::wstring createClsidWStrFromStr(const std::wstring &str);
     std::string stringFromIid(const IID &iid);
     std::wstring wstringFromIid(const IID &iid);
     std::string stringFromResult(HRESULT result);
@@ -65,6 +68,13 @@ namespace AkVCam
     std::string stringFromFormatType(const GUID &formatType);
     std::string stringFromMediaType(const AM_MEDIA_TYPE *mediaType);
     std::string stringFromMediaSample(IMediaSample *mediaSample);
+    std::vector<CLSID> listRegisteredCameras(HINSTANCE hinstDLL);
+    std::vector<std::wstring> listCameras();
+    std::wstring cameraFromClsid(const CLSID &clsid);
+    std::wstring cameraDescription(const std::wstring &cameraId);
+    std::wstring cameraPath(const std::wstring &cameraId);
+    VideoFormat cameraFormat(const std::wstring &formatId);
+    std::vector<VideoFormat> cameraFormats(const std::wstring &cameraId);
 }
 
 #endif // UTILS_H

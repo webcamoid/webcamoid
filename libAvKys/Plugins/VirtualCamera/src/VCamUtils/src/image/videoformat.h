@@ -20,6 +20,7 @@
 #ifndef AKVCAMUTILS_VIDEOFORMAT_H
 #define AKVCAMUTILS_VIDEOFORMAT_H
 
+#include <string>
 #include <vector>
 
 #include "videoformattypes.h"
@@ -40,6 +41,7 @@ namespace AkVCam
             VideoFormat &operator =(const VideoFormat &other);
             bool operator ==(const VideoFormat &other) const;
             bool operator !=(const VideoFormat &other) const;
+            operator bool() const;
             ~VideoFormat();
 
             FourCC fourcc() const;
@@ -59,6 +61,8 @@ namespace AkVCam
             static void roundNearest(int width, int height,
                                      int *owidth, int *oheight,
                                      int align=32);
+            static FourCC fourccFromString(const std::string &fourccStr);
+            static std::string stringFromFourcc(FourCC fourcc);
 
         private:
             VideoFormatPrivate *d;
