@@ -38,7 +38,8 @@ TARGET = VCamIPC
 TEMPLATE = lib
 
 LIBS = \
-    -L$${OUT_PWD}/../../VCamUtils -lVCamUtils
+    -L$${OUT_PWD}/../../VCamUtils -lVCamUtils \
+    -ladvapi32
 
 SOURCES = \
     src/ipcbridge.cpp \
