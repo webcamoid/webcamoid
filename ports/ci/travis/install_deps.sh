@@ -173,8 +173,6 @@ elif [ "${DOCKERSYS}" = opensuse ]; then
         libpulse-devel \
         libjack-devel
 elif [ "${TRAVIS_OS_NAME}" = osx ]; then
-    brew unlink python
-
     brew install \
         p7zip \
         python3 \
