@@ -30,30 +30,25 @@
 #include <vfwmsgs.h>
 
 #include "cameraoutdshow.h"
-//#include "filtercommons.h"
 #include "ipcbridge.h"
+#include "VCamUtils/src/image/videoformat.h"
+#include "VCamUtils/src/image/videoframe.h"
 
-#define MAX_CAMERAS 1
+#define MAX_CAMERAS 64
 #define VCAM_DRIVER "VirtualCameraSource.dll"
 
 class CameraOutDShowPrivate
 {
     public:
         QStringList m_webcams;
-//        IpcBridge m_ipcBridge;
+        QString m_curDevice;
+        AkVCam::IpcBridge m_ipcBridge;
         int m_streamIndex;
 
         CameraOutDShowPrivate():
             m_streamIndex(-1)
         {
         }
-
-        inline HRESULT enumerateCameras(IEnumMoniker **ppEnum) const;
-        inline QString iidToString(const IID &iid) const;
-        inline bool sudo(const QString &command,
-                         const QString &params,
-                         const QString &dir=QString(),
-                         bool hide=false) const;
 };
 
 CameraOutDShow::CameraOutDShow(QObject *parent):
@@ -66,83 +61,16 @@ CameraOutDShow::CameraOutDShow(QObject *parent):
 
 CameraOutDShow::~CameraOutDShow()
 {
+    this->d->m_ipcBridge.unregisterPeer();
+    delete this->d;
 }
 
 QStringList CameraOutDShow::webcams() const
 {
-    IEnumMoniker *pEnum = nullptr;
-    HRESULT hr = this->d->enumerateCameras(&pEnum);
-
-    if (FAILED(hr))
-        return QStringList();
-
-    IMoniker *pMoniker = nullptr;
-    QString devicePath;
-
-    for (int i = 0; pEnum->Next(1, &pMoniker, nullptr) == S_OK; i++) {
-        IBaseFilter *filter = nullptr;
-        hr = pMoniker->BindToObject(nullptr,
-                                    nullptr,
-                                    IID_IBaseFilter,
-                                    reinterpret_cast<void **>(&filter));
-
-        if (FAILED(hr)) {
-            pMoniker->Release();
-            pMoniker = nullptr;
-
-            continue;
-        }
-
-        CLSID clsid;
-
-        if (FAILED(filter->GetClassID(&clsid))) {
-            filter->Release();
-            pMoniker->Release();
-            pMoniker = nullptr;
-
-            continue;
-        }
-
-        filter->Release();
-/*
-        if (clsid != CLSID_VirtualCameraSource) {
-            pMoniker->Release();
-            pMoniker = nullptr;
-
-            continue;
-        }
-*/
-        IPropertyBag *pPropBag = nullptr;
-        hr = pMoniker->BindToStorage(nullptr,
-                                     nullptr,
-                                     IID_IPropertyBag,
-                                     reinterpret_cast<void **>(&pPropBag));
-
-        if (SUCCEEDED(hr)) {
-            VARIANT var;
-            VariantInit(&var);
-            hr = pPropBag->Read(L"DevicePath", &var, nullptr);
-
-            if (SUCCEEDED(hr))
-                devicePath = QString::fromWCharArray(var.bstrVal);
-            else
-                devicePath = QString("/dev/video%1").arg(i);
-
-            pPropBag->Release();
-        }
-
-        pMoniker->Release();
-        pMoniker = nullptr;
-
-        break;
-    }
-
-    pEnum->Release();
-
     QStringList webcams;
 
-    if (!devicePath.isEmpty())
-        webcams << devicePath;
+    for (auto &device: this->d->m_ipcBridge.listDevices(true))
+        webcams << QString::fromStdString(device);
 
     return webcams;
 }
@@ -154,71 +82,31 @@ int CameraOutDShow::streamIndex() const
 
 QString CameraOutDShow::description(const QString &webcam) const
 {
-    IEnumMoniker *pEnum = nullptr;
-    HRESULT hr = this->d->enumerateCameras(&pEnum);
+    for (auto &device: this->d->m_ipcBridge.listDevices(false)) {
+        auto deviceId = QString::fromStdString(device);
 
-    if (FAILED(hr))
-        return QString();
-
-    IMoniker *pMoniker = nullptr;
-
-    for (int i = 0; pEnum->Next(1, &pMoniker, nullptr) == S_OK; i++) {
-        IPropertyBag *pPropBag = nullptr;
-        hr = pMoniker->BindToStorage(nullptr,
-                                     nullptr,
-                                     IID_IPropertyBag,
-                                     reinterpret_cast<void **>(&pPropBag));
-
-        if (SUCCEEDED(hr)) {
-            VARIANT var;
-            VariantInit(&var);
-            hr = pPropBag->Read(L"DevicePath", &var, nullptr);
-            QString devicePath;
-
-            if (SUCCEEDED(hr))
-                devicePath = QString::fromWCharArray(var.bstrVal);
-            else
-                devicePath = QString("/dev/video%1").arg(i);
-
-            if (devicePath == webcam) {
-                // Get description or friendly name.
-                hr = pPropBag->Read(L"Description", &var, nullptr);
-
-                if (FAILED(hr))
-                    hr = pPropBag->Read(L"FriendlyName", &var, nullptr);
-
-                QString description;
-
-                if (SUCCEEDED(hr))
-                    description = QString::fromWCharArray(var.bstrVal);
-
-                pPropBag->Release();
-                pMoniker->Release();
-                pEnum->Release();
-
-                return description;
-            }
-
-            pPropBag->Release();
-        }
-
-        pMoniker->Release();
-        pMoniker = nullptr;
+        if (deviceId == webcam)
+            return QString::fromStdString(this->d->m_ipcBridge.description(device));
     }
 
-    pEnum->Release();
-
-    return QString();
+    return {};
 }
+
 void CameraOutDShow::writeFrame(const AkPacket &frame)
 {
-    AkVideoPacket videoFrame = frame;
-/*
-    if (this->d->m_ipcBridge.write(AkVideoCaps::fourCC(videoFrame.caps().format()),
-                                   DWORD(videoFrame.caps().width()),
-                                   DWORD(videoFrame.caps().height()),
-                                   reinterpret_cast<const BYTE *>(videoFrame.buffer().constData())) < 1)
-        qDebug() << "Error writing frame";*/
+    if (this->d->m_curDevice.isEmpty())
+        return;
+
+    AkVideoPacket videoFrame(frame);
+    AkVCam::VideoFormat format(videoFrame.caps().fourCC(),
+                               videoFrame.caps().width(),
+                               videoFrame.caps().height(),
+                               {videoFrame.caps().fps().value()});
+
+    this->d->m_ipcBridge.write(this->d->m_curDevice.toStdString(),
+                               AkVCam::VideoFrame(format,
+                                                  reinterpret_cast<const uint8_t *>(videoFrame.buffer().constData()),
+                                                  size_t(videoFrame.buffer().size())));
 }
 
 int CameraOutDShow::maxCameras() const
@@ -336,98 +224,25 @@ bool CameraOutDShow::removeAllWebcams(const QString &password)
     return true;
 }
 
-HRESULT CameraOutDShowPrivate::enumerateCameras(IEnumMoniker **ppEnum) const
+bool CameraOutDShow::init(int streamIndex)
 {
-    // Create the System Device Enumerator.
-    ICreateDevEnum *pDevEnum = nullptr;
-    HRESULT hr = CoCreateInstance(CLSID_SystemDeviceEnum,
-                                  nullptr,
-                                  CLSCTX_INPROC_SERVER,
-                                  IID_ICreateDevEnum,
-                                  reinterpret_cast<void **>(&pDevEnum));
-
-    if (SUCCEEDED(hr)) {
-        // Create an enumerator for the category.
-        hr = pDevEnum->CreateClassEnumerator(CLSID_VideoInputDeviceCategory, ppEnum, 0);
-
-        if (hr == S_FALSE)
-            hr = VFW_E_NOT_FOUND;
-
-        pDevEnum->Release();
-    }
-
-    return hr;
-}
-
-QString CameraOutDShowPrivate::iidToString(const IID &iid) const
-{
-    LPWSTR strIID = nullptr;
-    StringFromIID(iid, &strIID);
-    QString str = QString::fromWCharArray(strIID);
-    CoTaskMemFree(strIID);
-
-    return str;
-}
-
-bool CameraOutDShowPrivate::sudo(const QString &command,
-                                 const QString &params,
-                                 const QString &dir,
-                                 bool hide) const
-{
-    const static int maxStrLen = 1024;
-
-    wchar_t wcommand[maxStrLen];
-    memset(wcommand, 0, maxStrLen * sizeof(wchar_t));
-    command.toWCharArray(wcommand);
-
-    wchar_t wparams[maxStrLen];
-    memset(wparams, 0, maxStrLen * sizeof(wchar_t));
-    params.toWCharArray(wparams);
-
-    wchar_t wdir[maxStrLen];
-    memset(wdir, 0, maxStrLen * sizeof(wchar_t));
-    dir.toWCharArray(wdir);
-
-    SHELLEXECUTEINFO execInfo;
-    ZeroMemory(&execInfo, sizeof(SHELLEXECUTEINFO));
-
-    execInfo.cbSize = sizeof(SHELLEXECUTEINFO);
-    execInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
-    execInfo.hwnd = nullptr;
-    execInfo.lpVerb = L"runas";
-    execInfo.lpFile = wcommand;
-    execInfo.lpParameters = wparams;
-    execInfo.lpDirectory = wdir;
-    execInfo.nShow = hide? SW_HIDE: SW_SHOWNORMAL;
-    execInfo.hInstApp = nullptr;
-    ShellExecuteEx(&execInfo);
-
-    if (!execInfo.hProcess)
+    if (!this->d->m_ipcBridge.deviceStart(this->m_device.toStdString()))
         return false;
 
-    WaitForSingleObject(execInfo.hProcess, INFINITE);
-
-    DWORD exitCode;
-    BOOL ok = GetExitCodeProcess(execInfo.hProcess, &exitCode);
-
-    CloseHandle(execInfo.hProcess);
-
-    if (ok && FAILED(exitCode))
-        return false;
+    this->d->m_streamIndex = streamIndex;
+    this->d->m_curDevice = this->m_device;
 
     return true;
 }
 
-bool CameraOutDShow::init(int streamIndex)
-{
-    this->d->m_streamIndex = streamIndex;
-
-    return false; //this->d->m_ipcBridge.open(IPC_FILE_NAME, IpcBridge::Write);
-}
-
 void CameraOutDShow::uninit()
 {
-//    this->d->m_ipcBridge.close();
+    if (this->d->m_curDevice.isEmpty())
+        return;
+
+    this->d->m_ipcBridge.deviceStop(this->d->m_curDevice.toStdString());
+    this->d->m_streamIndex = -1;
+    this->d->m_curDevice.clear();
 }
 
 void CameraOutDShow::resetDriverPath()

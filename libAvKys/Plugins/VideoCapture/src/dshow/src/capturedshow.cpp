@@ -893,7 +893,7 @@ PinList CaptureDShowPrivate::enumPins(IBaseFilter *filter,
         enumPins->Reset();
         IPin *pin = nullptr;
 
-        while (S_OK == enumPins->Next(1, &pin, nullptr)) {
+        while (enumPins->Next(1, &pin, nullptr) == S_OK) {
             PIN_DIRECTION pinDir;
 
             if (SUCCEEDED(pin->QueryDirection(&pinDir))
@@ -904,11 +904,10 @@ PinList CaptureDShowPrivate::enumPins(IBaseFilter *filter,
             }
 
             pin->Release();
-            pin = nullptr;
         }
-    }
 
-    enumPins->Release();
+        enumPins->Release();
+    }
 
     return pinList;
 }

@@ -33,7 +33,7 @@
 #include "VCamUtils/src/image/videoformat.h"
 #include "VCamUtils/src/image/videoframe.h"
 
-#define MAX_CAMERAS 1
+#define MAX_CAMERAS 64
 
 Q_GLOBAL_STATIC_WITH_ARGS(QString,
                           akVCamDriver,
@@ -123,7 +123,7 @@ void CameraOutCMIO::writeFrame(const AkPacket &frame)
     this->d->m_ipcBridge.write(this->d->m_curDevice.toStdString(),
                                AkVCam::VideoFrame(format,
                                                   reinterpret_cast<const uint8_t *>(videoFrame.buffer().constData()),
-                                                  videoFrame.buffer().size()));
+                                                  size_t(videoFrame.buffer().size())));
 }
 
 int CameraOutCMIO::maxCameras() const

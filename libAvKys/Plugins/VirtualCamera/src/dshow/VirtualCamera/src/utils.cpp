@@ -20,23 +20,15 @@
 #include <cwchar>
 #include <map>
 #include <sstream>
-#include <combaseapi.h>
-#include <fileapi.h>
-#include <wincrypt.h>
-#include <comdef.h>
-#include <initguid.h>
-#include <mscoree.h>
-#include <inspectable.h>
-#include <strmif.h>
-#include <amvideo.h>
+#include <dshow.h>
 #include <dvdmedia.h>
-#include <uuids.h>
-#include <control.h>
+#include <comdef.h>
 
 #include "utils.h"
-#include "referenceclock.h"
 #include "VCamUtils/src/utils.h"
 #include "VCamUtils/src/image/videoformat.h"
+
+#define TIME_BASE 1.0e7
 
 namespace AkVCam
 {
@@ -175,7 +167,7 @@ std::wstring AkVCam::createClsidWStrFromStr(const std::wstring &str)
     std::wstring wstr(clsidWStr);
     CoTaskMemFree(clsidWStr);
 
-    return wstr;
+    return createClsidWStrFromStr(std::wstring(str.begin(), str.end()));
 }
 
 std::string AkVCam::stringFromIid(const IID &iid)
@@ -234,9 +226,7 @@ std::string AkVCam::stringFromClsid(const CLSID &clsid)
         {IID_IFileSinkFilter      , "IFileSinkFilter"      },
         {IID_IFileSinkFilter2     , "IFileSinkFilter2"     },
         {IID_IFileSourceFilter    , "IFileSourceFilter"    },
-        {IID_IInspectable         , "IInspectable"         },
         {IID_IKsPropertySet       , "IKsPropertySet"       },
-        {IID_IManagedObject       , "IManagedObject"       },
         {IID_IMarshal             , "IMarshal"             },
         {IID_IMediaControl        , "IMediaControl"        },
         {IID_IMediaFilter         , "IMediaFilter"         },
@@ -683,10 +673,14 @@ std::string AkVCam::stringFromMediaSample(IMediaSample *mediaSample)
 
 std::vector<CLSID> AkVCam::listRegisteredCameras(HINSTANCE hinstDLL)
 {
+    WCHAR *strIID = nullptr;
+    StringFromIID(CLSID_VideoInputDeviceCategory, &strIID);
+
     std::wstringstream ss;
     ss << L"CLSID\\"
-       << wstringFromIid(CLSID_VideoInputDeviceCategory)
+       << strIID
        << L"\\Instance";
+    CoTaskMemFree(strIID);
 
     HKEY key = nullptr;
     auto result = RegOpenKeyEx(HKEY_CLASSES_ROOT,

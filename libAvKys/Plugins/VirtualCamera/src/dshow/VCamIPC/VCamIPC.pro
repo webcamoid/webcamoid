@@ -28,43 +28,27 @@ exists(akcommons.pri) {
 
 include(../dshow.pri)
 
-CONFIG += plugin
+CONFIG += staticlib c++11
+CONFIG -= qt
 
-HEADERS = \
-    plugin.h \
-    cameraoutdshow.h \
-    ../../cameraout.h
+DESTDIR = $${OUT_PWD}
 
-INCLUDEPATH += \
-    ../../../../../Lib/src \
-    ../../
-
-LIBS += -L$${PWD}/../../../../../Lib/ -l$${COMMONS_TARGET}
-
-OTHER_FILES += ../pspec.json
-
-LIBS += \
-    -L$${OUT_PWD}/../VCamIPC -lVCamIPC \
-    -L$${OUT_PWD}/../../VCamUtils -lVCamUtils \
-    -lstrmiids \
-    -luuid \
-    -lole32 \
-    -loleaut32 \
-    -lshell32
-
-QT += qml
-
-SOURCES = \
-    plugin.cpp \
-    cameraoutdshow.cpp \
-    ../../cameraout.cpp
-
-DESTDIR = $${OUT_PWD}/../../../submodules/VirtualCamera
-
-TARGET = dshow
+TARGET = VCamIPC
 
 TEMPLATE = lib
 
-INSTALLS += target
+LIBS = \
+    -L$${OUT_PWD}/../../VCamUtils -lVCamUtils
 
-target.path = $${LIBDIR}/$${COMMONS_TARGET}/submodules/VirtualCamera
+SOURCES = \
+    src/ipcbridge.cpp \
+    ../VirtualCamera/src/utils.cpp
+
+HEADERS =  \
+    ../../ipcbridge.h \
+    ../VirtualCamera/src/utils.h
+
+INCLUDEPATH += \
+    ../.. \
+    ../Assistant/src \
+    ../VirtualCamera/src

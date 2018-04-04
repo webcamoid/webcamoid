@@ -35,7 +35,6 @@ HEADERS = \
     cameraoutcmio.h \
     ../../cameraout.h
 
-
 INCLUDEPATH += \
     ../../../../../Lib/src \
     ../../
@@ -45,8 +44,8 @@ LIBS += -L$${PWD}/../../../../../Lib/ -l$${COMMONS_TARGET}
 OTHER_FILES += ../pspec.json
 
 LIBS += \
-    -L$${OUT_PWD}/../../VCamUtils -lVCamUtils \
     -L$${OUT_PWD}/../VCamIPC -lVCamIPC \
+    -L$${OUT_PWD}/../../VCamUtils -lVCamUtils \
     -framework CoreFoundation \
     -framework CoreMedia \
     -framework CoreMediaIO \

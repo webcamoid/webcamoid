@@ -21,6 +21,7 @@
 #define IPCBRIDGE_H
 
 #include <string>
+#include <map>
 #include <vector>
 #include <functional>
 
@@ -55,6 +56,10 @@ namespace AkVCam
             ~IpcBridge();
 
             /* Server & Client */
+
+            // Execute commands with elevated privileges.
+            int sudo(const std::vector<std::string> &parameters,
+                     const std::map<std::string, std::string> &options);
 
             // Register the peer to the global server.
             bool registerPeer(bool asClient);

@@ -175,7 +175,7 @@ elif [ "${DOCKERSYS}" = opensuse ]; then
 elif [ "${TRAVIS_OS_NAME}" = osx ]; then
     brew install \
         p7zip \
-        python3 \
+        python \
         ccache \
         pkg-config \
         qt5 \

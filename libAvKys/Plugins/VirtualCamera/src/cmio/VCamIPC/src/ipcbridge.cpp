@@ -279,6 +279,16 @@ AkVCam::IpcBridge::~IpcBridge()
     delete this->d;
 }
 
+int AkVCam::IpcBridge::sudo(const std::vector<std::string> &parameters,
+                            const std::map<std::string, std::string> &options)
+{
+    UNUSED(parameters)
+    UNUSED(options)
+    AkIpcBridgeLogMethod();
+
+    return -1;
+}
+
 bool AkVCam::IpcBridge::registerPeer(bool asClient)
 {
     AkIpcBridgeLogMethod();
@@ -657,7 +667,7 @@ int AkVCam::IpcBridge::listeners(const std::string &deviceId)
     AkIpcBridgeLogMethod();
 
     if (!this->d->serverMessagePort)
-        return false;
+        return 0;
 
     auto dictionary = xpc_dictionary_create(NULL, NULL, 0);
     xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_LISTENERS);
@@ -758,7 +768,7 @@ bool AkVCam::IpcBridge::deviceStart(const std::string &deviceId)
     AkIpcBridgeLogMethod();
 
     if (!this->d->serverMessagePort)
-        return true;
+        return false;
 
     auto it = std::find(this->d->broadcasting.begin(),
                         this->d->broadcasting.end(),
