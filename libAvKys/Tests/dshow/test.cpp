@@ -19,6 +19,7 @@
 
 #include <dshow.h>
 #include <dbt.h>
+#include <strmif.h>
 #include <usbiodef.h>
 
 int main()

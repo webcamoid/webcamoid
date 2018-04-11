@@ -21,10 +21,15 @@ CONFIG += console c++11
 DEFINES += __STDC_CONSTANT_MACROS NO_DSHOW_STRSAFE
 
 LIBS += \
-    -lstrmiids \
-    -luuid \
+    -ladvapi32 \
+    -lkernel32 \
     -lole32 \
-    -loleaut32
+    -loleaut32 \
+    -lshell32 \
+    -lstrmiids \
+    -luser32 \
+    -luuid \
+    -lwinmm
 
 SOURCES = \
     test.cpp

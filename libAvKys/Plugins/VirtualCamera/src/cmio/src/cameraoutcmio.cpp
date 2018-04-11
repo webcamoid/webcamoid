@@ -141,9 +141,6 @@ QString CameraOutCMIO::createWebcam(const QString &description,
 
     auto webcams = this->webcams();
 
-    if (!webcams.isEmpty())
-        return QString();
-
     QString plugin = QFileInfo(this->m_driverPath).fileName();
     QString dstPath = CMIO_PLUGINS_DAL_PATH;
     QString pluginInstallPath = dstPath + "/" + plugin;

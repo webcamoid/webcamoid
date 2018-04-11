@@ -279,6 +279,14 @@ AkVCam::IpcBridge::~IpcBridge()
     delete this->d;
 }
 
+void AkVCam::IpcBridge::setOption(const std::string &key,
+                                  const std::string &value)
+{
+    UNUSED(key)
+    UNUSED(value)
+    AkIpcBridgeLogMethod();
+}
+
 int AkVCam::IpcBridge::sudo(const std::vector<std::string> &parameters,
                             const std::map<std::string, std::string> &options)
 {

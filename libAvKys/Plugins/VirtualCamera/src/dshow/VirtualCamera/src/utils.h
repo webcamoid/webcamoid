@@ -37,6 +37,7 @@ namespace AkVCam
     class VideoFormat;
 
     std::string tempPath();
+    std::string programFilesPath();
     std::wstring moduleFileNameW(HINSTANCE hinstDLL);
     std::string moduleFileName(HINSTANCE hinstDLL);
     CLSID createClsidFromStr(const std::string &str);
@@ -69,12 +70,15 @@ namespace AkVCam
     std::string stringFromMediaType(const AM_MEDIA_TYPE *mediaType);
     std::string stringFromMediaSample(IMediaSample *mediaSample);
     std::vector<CLSID> listRegisteredCameras(HINSTANCE hinstDLL);
-    std::vector<std::wstring> listCameras();
-    std::wstring cameraFromClsid(const CLSID &clsid);
-    std::wstring cameraDescription(const std::wstring &cameraId);
-    std::wstring cameraPath(const std::wstring &cameraId);
-    VideoFormat cameraFormat(const std::wstring &formatId);
-    std::vector<VideoFormat> cameraFormats(const std::wstring &cameraId);
+    DWORD camerasCount();
+    std::wstring createDevicePath();
+    int cameraFromId(const std::wstring &path);
+    int cameraFromId(const CLSID &clsid);
+    std::wstring cameraDescription(DWORD cameraId);
+    std::wstring cameraPath(DWORD cameraIndex);
+    DWORD formatsCount(DWORD cameraIndex);
+    VideoFormat cameraFormat(DWORD cameraIndex, DWORD formatId);
+    std::vector<VideoFormat> cameraFormats(DWORD cameraIndex);
 }
 
 #endif // UTILS_H

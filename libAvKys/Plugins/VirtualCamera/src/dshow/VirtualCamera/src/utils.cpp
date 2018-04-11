@@ -17,12 +17,14 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <algorithm>
 #include <cwchar>
 #include <map>
 #include <sstream>
 #include <dshow.h>
 #include <dvdmedia.h>
 #include <comdef.h>
+#include <shlobj.h>
 
 #include "utils.h"
 #include "VCamUtils/src/utils.h"
@@ -87,6 +89,16 @@ std::string AkVCam::tempPath()
     std::wstring wTempPath(tempPath);
 
     return std::string(wTempPath.begin(), wTempPath.end());
+}
+
+std::string AkVCam::programFilesPath()
+{
+    WCHAR programFiles[MAX_PATH];
+    memset(programFiles, 0, MAX_PATH * sizeof(WCHAR));
+    SHGetSpecialFolderPath(nullptr, programFiles, CSIDL_PROGRAM_FILES, FALSE);
+    std::wstring wProgramFilesPath(programFiles);
+
+    return std::string(wProgramFilesPath.begin(), wProgramFilesPath.end());
 }
 
 std::wstring AkVCam::moduleFileNameW(HINSTANCE hinstDLL)
@@ -167,7 +179,7 @@ std::wstring AkVCam::createClsidWStrFromStr(const std::wstring &str)
     std::wstring wstr(clsidWStr);
     CoTaskMemFree(clsidWStr);
 
-    return createClsidWStrFromStr(std::wstring(str.begin(), str.end()));
+    return wstr;
 }
 
 std::string AkVCam::stringFromIid(const IID &iid)
@@ -692,24 +704,50 @@ std::vector<CLSID> AkVCam::listRegisteredCameras(HINSTANCE hinstDLL)
     if (result != ERROR_SUCCESS)
         return {};
 
+    DWORD subkeys = 0;
+
+    result = RegQueryInfoKey(key,
+                             nullptr,
+                             nullptr,
+                             nullptr,
+                             &subkeys,
+                             nullptr,
+                             nullptr,
+                             nullptr,
+                             nullptr,
+                             nullptr,
+                             nullptr,
+                             nullptr);
+
+    if (result != ERROR_SUCCESS) {
+        RegCloseKey(key);
+
+        return {};
+    }
+
     std::vector<CLSID> cameras;
-    TCHAR subKey[MAX_PATH];
-    DWORD subKeyLen = MAX_PATH;
     FILETIME lastWrite;
 
-    for (DWORD i = 0;
-         RegEnumKeyEx(key,
-                      i,
-                      subKey,
-                      &subKeyLen,
-                      nullptr,
-                      nullptr,
-                      nullptr,
-                      &lastWrite) == ERROR_SUCCESS;
-         i++) {
+    for (DWORD i = 0; i < subkeys; i++) {
+        TCHAR subKey[MAX_PATH];
+        memset(subKey, 0, MAX_PATH * sizeof(TCHAR));
+        DWORD subKeyLen = MAX_PATH;
+        result = RegEnumKeyEx(key,
+                              i,
+                              subKey,
+                              &subKeyLen,
+                              nullptr,
+                              nullptr,
+                              nullptr,
+                              &lastWrite);
+
+        if (result != ERROR_SUCCESS)
+            continue;
+
         std::wstringstream ss;
         ss << L"CLSID\\" << subKey << L"\\InprocServer32";
         WCHAR path[MAX_PATH];
+        memset(path, 0, MAX_PATH * sizeof(WCHAR));
         DWORD pathSize = MAX_PATH;
 
         if (RegGetValue(HKEY_CLASSES_ROOT,
@@ -737,61 +775,75 @@ std::vector<CLSID> AkVCam::listRegisteredCameras(HINSTANCE hinstDLL)
     return cameras;
 }
 
-std::vector<std::wstring> AkVCam::listCameras()
+DWORD AkVCam::camerasCount()
 {
-    std::vector<std::wstring> cameras;
-
     DWORD nCameras = 0;
     DWORD nCamerasSize = sizeof(DWORD);
 
-    if (RegGetValue(HKEY_LOCAL_MACHINE,
-                    L"SOFTWARE\\Webcamoid\\VirtualCamera\\CameraList\\cameras",
-                    L"size",
-                    RRF_RT_REG_DWORD,
-                    nullptr,
-                    &nCameras,
-                    &nCamerasSize) != ERROR_SUCCESS)
-        return cameras;
+    RegGetValue(HKEY_LOCAL_MACHINE,
+                L"SOFTWARE\\Webcamoid\\VirtualCamera\\Cameras",
+                L"size",
+                RRF_RT_REG_DWORD,
+                nullptr,
+                &nCameras,
+                &nCamerasSize);
 
-    for (DWORD i = 0; i < nCameras; i++) {
-        std::wstringstream ss;
-        ss << L"SOFTWARE\\Webcamoid\\VirtualCamera\\CameraList\\cameras\\" << i + 1;
-
-        WCHAR camera[1024];
-        DWORD cameraSize = 1024 * sizeof(WCHAR);
-        memset(camera, 0, cameraSize);
-
-        if (RegGetValue(HKEY_LOCAL_MACHINE,
-                        ss.str().c_str(),
-                        L"camera",
-                        RRF_RT_REG_SZ,
-                        nullptr,
-                        &camera,
-                        &cameraSize) != ERROR_SUCCESS)
-            continue;
-
-        cameras.push_back(camera);
-    }
-
-    return cameras;
+    return nCameras;
 }
 
-std::wstring AkVCam::cameraFromClsid(const CLSID &clsid)
+std::wstring AkVCam::createDevicePath()
 {
-    for (auto camera: listCameras()) {
-        auto cameraClsid = createClsidFromStr(cameraPath(camera));
+    // List device paths in use.
+    std::vector<std::wstring> cameraPaths;
 
-        if (IsEqualCLSID(cameraClsid, clsid) && !cameraFormats(camera).empty())
-            return camera;
+    for (DWORD i = 0; i < camerasCount(); i++)
+        cameraPaths.push_back(cameraPath(i));
+
+    const int maxId = 64;
+
+    for (int i = 0; i < maxId; i++) {
+        /* There are no rules for device paths in Windows. Just append an
+         * incremental index to a common prefix.
+         */
+        std::wstringstream ss;
+        ss << DSHOW_PLUGIN_DEVICE_PREFIX_L << i;
+
+        auto path = ss.str();
+
+        // Check if the path is being used, if not return it.
+        if (std::find(cameraPaths.begin(),
+                      cameraPaths.end(),
+                      path) == cameraPaths.end())
+            return path;
     }
 
-    return std::wstring();
+    return {};
 }
 
-std::wstring AkVCam::cameraDescription(const std::wstring &cameraId)
+int AkVCam::cameraFromId(const std::wstring &path)
+{
+    auto clsid = createClsidFromStr(path);
+
+    return cameraFromId(clsid);
+}
+
+int AkVCam::cameraFromId(const CLSID &clsid)
+{
+    for (DWORD i = 0; i < camerasCount(); i++) {
+        auto cameraClsid = createClsidFromStr(cameraPath(i));
+
+        if (IsEqualCLSID(cameraClsid, clsid) && !cameraFormats(i).empty())
+            return int(i);
+    }
+
+    return -1;
+}
+
+std::wstring AkVCam::cameraDescription(DWORD cameraIndex)
 {
     std::wstringstream ss;
-    ss << L"SOFTWARE\\Webcamoid\\VirtualCamera\\Camera_" << cameraId;
+    ss << L"SOFTWARE\\Webcamoid\\VirtualCamera\\Cameras\\"
+       << cameraIndex + 1;
 
     WCHAR description[1024];
     DWORD descriptionSize = 1024 * sizeof(WCHAR);
@@ -809,10 +861,11 @@ std::wstring AkVCam::cameraDescription(const std::wstring &cameraId)
     return std::wstring(description);
 }
 
-std::wstring AkVCam::cameraPath(const std::wstring &cameraId)
+std::wstring AkVCam::cameraPath(DWORD cameraIndex)
 {
     std::wstringstream ss;
-    ss << L"SOFTWARE\\Webcamoid\\VirtualCamera\\Camera_" << cameraId;
+    ss << L"SOFTWARE\\Webcamoid\\VirtualCamera\\Cameras\\"
+       << cameraIndex + 1;
 
     WCHAR path[1024];
     DWORD pathSize = 1024 * sizeof(WCHAR);
@@ -830,10 +883,35 @@ std::wstring AkVCam::cameraPath(const std::wstring &cameraId)
     return std::wstring(path);
 }
 
-AkVCam::VideoFormat AkVCam::cameraFormat(const std::wstring &formatId)
+DWORD AkVCam::formatsCount(DWORD cameraIndex)
 {
     std::wstringstream ss;
-    ss << L"SOFTWARE\\Webcamoid\\VirtualCamera\\VideoFormat_" << formatId;
+    ss << L"SOFTWARE\\Webcamoid\\VirtualCamera\\Cameras\\"
+       << cameraIndex + 1
+       << L"\\Formats";
+
+    DWORD nFormats;
+    DWORD nFormatsSize = sizeof(DWORD);
+    memset(&nFormats, 0, nFormatsSize);
+
+    RegGetValue(HKEY_LOCAL_MACHINE,
+                ss.str().c_str(),
+                L"size",
+                RRF_RT_REG_DWORD,
+                nullptr,
+                &nFormats,
+                &nFormatsSize);
+
+    return nFormats;
+}
+
+AkVCam::VideoFormat AkVCam::cameraFormat(DWORD cameraIndex, DWORD formatIndex)
+{
+    std::wstringstream ss;
+    ss << L"SOFTWARE\\Webcamoid\\VirtualCamera\\Cameras\\"
+       << cameraIndex + 1
+       << L"\\Formats\\"
+       << formatIndex + 1;
 
     WCHAR formatStr[1024];
     DWORD variableSize = 1024 * sizeof(WCHAR);
@@ -891,46 +969,12 @@ AkVCam::VideoFormat AkVCam::cameraFormat(const std::wstring &formatId)
     return VideoFormat(fourcc, int(width), int(height), {double(fps)});
 }
 
-std::vector<AkVCam::VideoFormat> AkVCam::cameraFormats(const std::wstring &cameraId)
+std::vector<AkVCam::VideoFormat> AkVCam::cameraFormats(DWORD cameraIndex)
 {
-    std::wstringstream ss;
-    ss << L"SOFTWARE\\Webcamoid\\VirtualCamera\\Camera_"
-       << cameraId
-       << L"\\formats";
-
-    DWORD nFormats;
-    DWORD nFormatsSize = sizeof(DWORD);
-    memset(&nFormats, 0, nFormatsSize);
-
-    if (RegGetValue(HKEY_LOCAL_MACHINE,
-                    ss.str().c_str(),
-                    L"size",
-                    RRF_RT_REG_DWORD,
-                    nullptr,
-                    &nFormats,
-                    &nFormatsSize) != ERROR_SUCCESS)
-        return {};
-
     std::vector<AkVCam::VideoFormat> formats;
 
-    for (DWORD i = 0; i < nFormats; i++) {
-        std::wstringstream ss2;
-        ss2 << ss.str() << L"\\" << i + 1;
-
-        WCHAR format[1024];
-        DWORD formatSize = 1024 * sizeof(WCHAR);
-        memset(format, 0, formatSize);
-
-        if (RegGetValue(HKEY_LOCAL_MACHINE,
-                        ss2.str().c_str(),
-                        L"format",
-                        RRF_RT_REG_SZ,
-                        nullptr,
-                        &format,
-                        &formatSize) != ERROR_SUCCESS)
-            continue;
-
-        auto videoFormat = cameraFormat(format);
+    for (DWORD i = 0; i < formatsCount(cameraIndex); i++) {
+        auto videoFormat = cameraFormat(cameraIndex, i);
 
         if (videoFormat)
             formats.push_back(videoFormat);

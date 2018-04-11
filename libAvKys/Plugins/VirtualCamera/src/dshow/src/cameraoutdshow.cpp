@@ -35,7 +35,8 @@
 #include "VCamUtils/src/image/videoframe.h"
 
 #define MAX_CAMERAS 64
-#define VCAM_DRIVER "VirtualCameraSource.dll"
+
+Q_GLOBAL_STATIC_WITH_ARGS(QString, akVCamDriver, ("filter"))
 
 class CameraOutDShowPrivate
 {
@@ -56,7 +57,8 @@ CameraOutDShow::CameraOutDShow(QObject *parent):
 {
     this->d = new CameraOutDShowPrivate;
     QDir applicationDir(QCoreApplication::applicationDirPath());
-    this->m_driverPath = applicationDir.absoluteFilePath(VCAM_DRIVER);
+    this->m_driverPath = applicationDir.absoluteFilePath(*akVCamDriver());
+    this->d->m_ipcBridge.registerPeer(false);
 }
 
 CameraOutDShow::~CameraOutDShow()
@@ -82,7 +84,7 @@ int CameraOutDShow::streamIndex() const
 
 QString CameraOutDShow::description(const QString &webcam) const
 {
-    for (auto &device: this->d->m_ipcBridge.listDevices(false)) {
+    for (auto &device: this->d->m_ipcBridge.listDevices(true)) {
         auto deviceId = QString::fromStdString(device);
 
         if (deviceId == webcam)
@@ -124,27 +126,10 @@ QString CameraOutDShow::createWebcam(const QString &description,
 
     QStringList webcams = this->webcams();
 
-    if (!webcams.isEmpty())
-        return QString();
-/*
-    QString reg =
-            QString("HKEY_LOCAL_MACHINE\\SOFTWARE\\Classes\\CLSID\\%1\\Instance\\%2")
-            .arg(this->d->iidToString(CLSID_VideoInputDeviceCategory))
-            .arg(this->d->iidToString(CLSID_VirtualCameraSource));
+    this->d->m_ipcBridge.setOption("driverPath", this->m_driverPath.toStdString());
+    this->d->m_ipcBridge.deviceCreate(description.toStdString(),
+                                      {{AkVCam::PixelFormatRGB24, 640, 480, {30.0}}});
 
-    QString desc = description.isEmpty()?
-                       QString::fromWCharArray(FILTER_NAME):
-                       description;
-
-    QString params =
-            QString("/c \"regsvr32 \"%1\" && reg add %2 /v FriendlyName /d \"%3\" /f\"")
-            .arg(this->m_driverPath)
-            .arg(reg)
-            .arg(desc);
-
-    if (!this->d->sudo("cmd", params, "", true))
-        return QString();
-*/
     QStringList curWebcams = this->webcams();
 
     if (curWebcams != webcams)
@@ -195,21 +180,10 @@ bool CameraOutDShow::removeWebcam(const QString &webcam,
 
     if (!webcams.contains(webcam))
         return false;
-/*
-    QString reg =
-            QString("HKEY_LOCAL_MACHINE\\SOFTWARE\\Classes\\CLSID\\%1\\InprocServer32")
-            .arg(this->d->iidToString(CLSID_VirtualCameraSource));
 
-    QSettings settings(reg, QSettings::NativeFormat);
-
-    QString params =
-            QString("/u \"%1\"")
-            .arg(settings.value(".").toString());
-
-    if (!this->d->sudo("regsvr32", params))
-        return false;
-*/
-    emit this->webcamsChanged(QStringList());
+    this->d->m_ipcBridge.setOption("driverPath", this->m_driverPath.toStdString());
+    this->d->m_ipcBridge.deviceDestroy(webcam.toStdString());
+    emit this->webcamsChanged({});
 
     return true;
 }
@@ -248,7 +222,7 @@ void CameraOutDShow::uninit()
 void CameraOutDShow::resetDriverPath()
 {
     QDir applicationDir(QCoreApplication::applicationDirPath());
-    this->setDriverPath(applicationDir.absoluteFilePath(VCAM_DRIVER));
+    this->setDriverPath(applicationDir.absoluteFilePath(*akVCamDriver()));
 }
 
 #include "moc_cameraoutdshow.cpp"

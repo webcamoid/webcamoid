@@ -57,6 +57,9 @@ namespace AkVCam
 
             /* Server & Client */
 
+            // Pass extra options to the bridge.
+            void setOption(const std::string &key, const std::string &value);
+
             // Execute commands with elevated privileges.
             int sudo(const std::vector<std::string> &parameters,
                      const std::map<std::string, std::string> &options);

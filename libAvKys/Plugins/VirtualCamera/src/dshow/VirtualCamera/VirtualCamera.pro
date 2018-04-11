@@ -44,6 +44,7 @@ LIBS += \
     -lkernel32 \
     -lole32 \
     -loleaut32 \
+    -lshell32 \
     -lstrmiids \
     -luser32 \
     -luuid \

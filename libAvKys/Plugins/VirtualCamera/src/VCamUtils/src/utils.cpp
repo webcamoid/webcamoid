@@ -17,6 +17,12 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <cstring>
+#include <ctime>
+#include <fstream>
+#include <iomanip>
+#include <sstream>
+
 #include "utils.h"
 
 uint64_t AkVCam::id()
@@ -24,4 +30,43 @@ uint64_t AkVCam::id()
     static uint64_t id = 0;
 
     return id++;
+}
+
+std::string AkVCam::timeStamp()
+{
+    std::stringstream ss;
+    auto time = std::time(nullptr);
+    ss << std::put_time(std::localtime(&time), "%Y%m%d%H%M%S");
+
+    return ss.str();
+}
+
+bool AkVCam::isEqualFile(const std::string &file1, const std::string &file2)
+{
+    if (file1 == file2)
+        return true;
+
+    std::fstream f1;
+    std::fstream f2;
+    f1.open(file1, std::ios_base::in);
+    f2.open(file2, std::ios_base::in);
+
+    if (!f1.is_open() || !f2.is_open())
+        return false;
+
+    const size_t bufferSize = 1024;
+    char buffer1[bufferSize];
+    char buffer2[bufferSize];
+    memset(buffer1, 0, bufferSize);
+    memset(buffer2, 0, bufferSize);
+
+    while (!f1.eof() && !f2.eof()) {
+        f1.read(buffer1, bufferSize);
+        f2.read(buffer2, bufferSize);
+
+        if (memcmp(buffer1, buffer2, bufferSize))
+            return false;
+    }
+
+    return true;
 }

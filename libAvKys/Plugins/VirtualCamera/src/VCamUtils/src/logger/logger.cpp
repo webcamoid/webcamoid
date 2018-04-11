@@ -24,6 +24,7 @@
 #include <thread>
 
 #include "logger.h"
+#include "../utils.h"
 
 #ifdef QT_DEBUG
 
@@ -54,10 +55,9 @@ void AkVCam::Logger::start(const std::string &fileName,
                            const std::string &extension)
 {
     std::stringstream ss;
-    auto time = std::time(nullptr);
     ss << fileName
        << "-"
-       << std::put_time(std::localtime(&time), "%Y%m%d%H%M%S")
+       << timeStamp()
        << "."
        << extension;
 

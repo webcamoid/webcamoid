@@ -99,7 +99,6 @@ isEmpty(NOV4L2) {
     isEmpty(NOV4LUTILS): CONFIG(config_v4l2): qtCompileTest(v4lutils)
 }
 
-isEmpty(NOVCAMWIN): qtCompileTest(vcamwin)
 isEmpty(NOWASAPI): qtCompileTest(wasapi)
 
 TEMPLATE = subdirs

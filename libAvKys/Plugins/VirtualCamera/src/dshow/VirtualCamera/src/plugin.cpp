@@ -81,7 +81,7 @@ STDAPI DllGetClassObject(REFCLSID rclsid, REFIID riid, LPVOID *ppv)
 
     if (!IsEqualIID(riid, IID_IUnknown)
         && !IsEqualIID(riid, IID_IClassFactory)
-        && AkVCam::cameraFromClsid(riid).empty())
+        && AkVCam::cameraFromId(riid) < 0)
             return CLASS_E_CLASSNOTAVAILABLE;
 
     auto classFactory = new AkVCam::ClassFactory(rclsid);
@@ -104,12 +104,11 @@ STDAPI DllRegisterServer()
 
     DllUnregisterServer();
 
-    auto cameras = AkVCam::listCameras();
     bool ok = true;
 
-    for (auto camera: cameras) {
-        auto description = AkVCam::cameraDescription(camera);
-        auto path = AkVCam::cameraPath(camera);
+    for (DWORD i = 0; i < AkVCam::camerasCount(); i++) {
+        auto description = AkVCam::cameraDescription(i);
+        auto path = AkVCam::cameraPath(i);
 
 #ifdef QT_DEBUG
         auto clsid = AkVCam::createClsidFromStr(path);

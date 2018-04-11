@@ -90,12 +90,16 @@ void AkVCam::BaseFilter::removePin(IPin *pin, bool changed)
 
 AkVCam::BaseFilter *AkVCam::BaseFilter::create(const GUID &clsid)
 {
-    auto camera = cameraFromClsid(clsid);
-    auto description = cameraDescription(camera);
+    auto camera = cameraFromId(clsid);
+
+    if (camera < 0)
+        return nullptr;
+
+    auto description = cameraDescription(DWORD(camera));
     auto baseFilter = new BaseFilter(clsid,
                                      description,
                                      DSHOW_PLUGIN_VENDOR_L);
-    auto formats = cameraFormats(camera);
+    auto formats = cameraFormats(DWORD(camera));
     baseFilter->addPin(formats, L"Video", false);
 
     return baseFilter;

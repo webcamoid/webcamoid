@@ -44,8 +44,11 @@
         return &_##variableName; \
     }
 
-namespace AkVCam {
+namespace AkVCam
+{
     uint64_t id();
+    std::string timeStamp();
+    bool isEqualFile(const std::string &file1, const std::string &file2);
 }
 
 #endif // AKVCAMUTILS_UTILS_H
