@@ -19,7 +19,6 @@
 
 #include <chrono>
 #include <fstream>
-#include <iomanip>
 #include <sstream>
 #include <thread>
 
@@ -69,10 +68,13 @@ std::string AkVCam::Logger::header()
 {
     auto now = std::chrono::system_clock::now();
     auto nowMSecs = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch());
-    std::stringstream ss;
+    char timeStamp[256];
     auto time = std::chrono::system_clock::to_time_t(now);
-    ss << std::put_time(std::localtime(&time), "[%Y-%m-%d %H:%M:%S.");
-    ss << nowMSecs.count() % 1000 << ", " << std::this_thread::get_id() << "] ";
+    strftime(timeStamp, 256, "%Y-%m-%d %H:%M:%S", std::localtime(&time));
+    std::stringstream ss;
+    ss << "["
+       << timeStamp
+       << "." << nowMSecs.count() % 1000 << ", " << std::this_thread::get_id() << "] ";
 
     return ss.str();
 }

@@ -20,8 +20,6 @@
 #include <cstring>
 #include <ctime>
 #include <fstream>
-#include <iomanip>
-#include <sstream>
 
 #include "utils.h"
 
@@ -34,11 +32,11 @@ uint64_t AkVCam::id()
 
 std::string AkVCam::timeStamp()
 {
-    std::stringstream ss;
+    char ts[256];
     auto time = std::time(nullptr);
-    ss << std::put_time(std::localtime(&time), "%Y%m%d%H%M%S");
+    strftime(ts, 256, "%Y%m%d%H%M%S", std::localtime(&time));
 
-    return ss.str();
+    return std::string(ts);
 }
 
 bool AkVCam::isEqualFile(const std::string &file1, const std::string &file2)
