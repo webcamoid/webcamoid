@@ -125,11 +125,10 @@ QString CameraOutDShow::createWebcam(const QString &description,
         return QString();
 
     QStringList webcams = this->webcams();
-
-    this->d->m_ipcBridge.setOption("driverPath", this->m_driverPath.toStdString());
+    this->d->m_ipcBridge.setOption("driverPath",
+                                   this->m_driverPath.toStdString());
     this->d->m_ipcBridge.deviceCreate(description.toStdString(),
                                       {{AkVCam::PixelFormatRGB24, 640, 480, {30.0}}});
-
     QStringList curWebcams = this->webcams();
 
     if (curWebcams != webcams)
@@ -148,27 +147,16 @@ bool CameraOutDShow::changeDescription(const QString &webcam,
 
     if (!webcams.contains(webcam))
         return false;
-/*
-    QString reg =
-            QString("HKEY_LOCAL_MACHINE\\SOFTWARE\\Classes\\CLSID\\%1\\Instance\\%2")
-            .arg(this->d->iidToString(CLSID_VideoInputDeviceCategory))
-            .arg(this->d->iidToString(CLSID_VirtualCameraSource));
 
-    QString desc = description.isEmpty()?
-                       QString::fromWCharArray(FILTER_NAME):
-                       description;
+    this->d->m_ipcBridge.setOption("driverPath",
+                                   this->m_driverPath.toStdString());
+    bool result =
+            this->d->m_ipcBridge.changeDescription(webcam.toStdString(),
+                                                   description.toStdString());
 
-    QString params =
-            QString("add %1 /v FriendlyName /d \"%2\" /f")
-            .arg(reg)
-            .arg(desc);
-
-    if (!this->d->sudo("reg", params))
-        return false;
-*/
     emit this->webcamsChanged(webcams);
 
-    return true;
+    return result;
 }
 
 bool CameraOutDShow::removeWebcam(const QString &webcam,
@@ -181,7 +169,8 @@ bool CameraOutDShow::removeWebcam(const QString &webcam,
     if (!webcams.contains(webcam))
         return false;
 
-    this->d->m_ipcBridge.setOption("driverPath", this->m_driverPath.toStdString());
+    this->d->m_ipcBridge.setOption("driverPath",
+                                   this->m_driverPath.toStdString());
     this->d->m_ipcBridge.deviceDestroy(webcam.toStdString());
     emit this->webcamsChanged({});
 
@@ -192,8 +181,10 @@ bool CameraOutDShow::removeAllWebcams(const QString &password)
 {
     Q_UNUSED(password)
 
-    for (const QString &webcam: this->webcams())
-        this->removeWebcam(webcam, password);
+    this->d->m_ipcBridge.setOption("driverPath",
+                                   this->m_driverPath.toStdString());
+    this->d->m_ipcBridge.destroyAllDevices();
+    emit this->webcamsChanged({});
 
     return true;
 }

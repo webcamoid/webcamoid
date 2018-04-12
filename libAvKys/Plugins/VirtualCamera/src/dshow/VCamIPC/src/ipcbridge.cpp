@@ -492,6 +492,110 @@ void AkVCam::IpcBridge::deviceDestroy(const std::string &deviceId)
     }
 }
 
+bool AkVCam::IpcBridge::changeDescription(const std::string &deviceId,
+                                          const std::string &description)
+{
+    AkIpcBridgeLogMethod();
+
+    auto camera = cameraFromId(std::wstring(deviceId.begin(), deviceId.end()));
+
+    if (camera < 0)
+        return false;
+
+    std::stringstream ss;
+    ss << "@echo off" << std::endl;
+
+    auto driverPath =
+            this->d->replace(this->d->options["driverPath"], "/", "\\");
+    auto driverInstallPath = programFilesPath() + "\\Webcamoid\\filter";
+    std::vector<std::string> installPaths;
+
+    for (auto path: this->d->findPlugins(std::wstring(driverPath.begin(),
+                                                      driverPath.end()))) {
+        std::string path_(path.begin(), path.end());
+        auto installPath =
+                this->d->replace(path_, driverPath, driverInstallPath);
+
+        installPaths.push_back(installPath);
+    }
+
+    ss << this->d->regAddLine("HKLM\\SOFTWARE\\Webcamoid\\VirtualCamera\\Cameras\\"
+                              + std::to_string(camera + 1),
+                              "description",
+                              description)
+       << std::endl;
+
+    for (auto path: installPaths)
+        ss << "regsvr32 /s \"" << path << "\"" << std::endl;
+
+    auto scriptPath = tempPath()
+                    + "\\device_change_description_" + timeStamp() + ".bat";
+    std::fstream script;
+    script.open(scriptPath, std::ios_base::out);
+    bool ok = false;
+
+    if (script.is_open()) {
+        script << ss.str();
+        script.close();
+        ok = this->sudo({"cmd", "/c", scriptPath}, {}) == 0;
+        std::wstring wScriptPath(scriptPath.begin(), scriptPath.end());
+        DeleteFile(wScriptPath.c_str());
+    }
+
+    return ok;
+}
+
+bool AkVCam::IpcBridge::destroyAllDevices()
+{
+    AkIpcBridgeLogMethod();
+
+    std::stringstream ss;
+    ss << "@echo off" << std::endl;
+
+    auto driverPath =
+            this->d->replace(this->d->options["driverPath"], "/", "\\");
+    auto driverInstallPath = programFilesPath() + "\\Webcamoid\\filter";
+    std::vector<std::string> installPaths;
+
+    for (auto path: this->d->findPlugins(std::wstring(driverPath.begin(),
+                                                      driverPath.end()))) {
+        std::string path_(path.begin(), path.end());
+        auto installPath =
+                this->d->replace(path_, driverPath, driverInstallPath);
+
+        installPaths.push_back(installPath);
+    }
+
+    for (auto path: installPaths)
+        ss << "regsvr32 /s /u \"" << path << "\"" << std::endl;
+
+    ss << this->d->regDeleteLine("HKLM\\SOFTWARE\\Webcamoid\\VirtualCamera\\Cameras")
+       << std::endl;
+
+    std::wstring wDriverPath(driverPath.begin(), driverPath.end());
+    std::wstring wDriverInstallPath(driverInstallPath.begin(),
+                                    driverInstallPath.end());
+
+    if (lstrcmpi(wDriverPath.c_str(), wDriverInstallPath.c_str()))
+        ss << "rmdir /s /q \"" << driverInstallPath << "\"";
+
+    auto scriptPath = tempPath()
+                    + "\\device_remove_all_" + timeStamp() + ".bat";
+    std::fstream script;
+    script.open(scriptPath, std::ios_base::out);
+    bool ok = false;
+
+    if (script.is_open()) {
+        script << ss.str();
+        script.close();
+        ok = this->sudo({"cmd", "/c", scriptPath}, {}) == 0;
+        std::wstring wScriptPath(scriptPath.begin(), scriptPath.end());
+        DeleteFile(wScriptPath.c_str());
+    }
+
+    return ok;
+}
+
 bool AkVCam::IpcBridge::deviceStart(const std::string &deviceId)
 {
     AkIpcBridgeLogMethod();

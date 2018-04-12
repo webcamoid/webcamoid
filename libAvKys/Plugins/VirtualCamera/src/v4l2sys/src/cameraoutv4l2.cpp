@@ -473,6 +473,12 @@ int CameraOutV4L2Private::xioctl(int fd, ulong request, void *arg) const
     return r;
 }
 
+/* List of possible graphical sudo methods that can be supported:
+ *
+ * https://en.wikipedia.org/wiki/Comparison_of_privilege_authorization_features#Introduction_to_implementations
+ *
+ * NOTE: 'su' and 'sudo' methods must be removed.
+ */
 QStringList CameraOutV4L2Private::availableMethods() const
 {
     auto paths = QProcessEnvironment::systemEnvironment().value("PATH").split(':');

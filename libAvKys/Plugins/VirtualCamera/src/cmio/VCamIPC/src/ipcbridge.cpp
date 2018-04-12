@@ -771,6 +771,23 @@ void AkVCam::IpcBridge::deviceDestroy(const std::string &deviceId)
     this->d->devices.erase(it);
 }
 
+bool AkVCam::IpcBridge::changeDescription(const std::string &deviceId,
+                                          const std::string &description)
+{
+    UNUSED(deviceId)
+    UNUSED(description)
+    AkIpcBridgeLogMethod();
+
+    return false;
+}
+
+bool AkVCam::IpcBridge::destroyAllDevices()
+{
+    AkIpcBridgeLogMethod();
+
+    return true;
+}
+
 bool AkVCam::IpcBridge::deviceStart(const std::string &deviceId)
 {
     AkIpcBridgeLogMethod();

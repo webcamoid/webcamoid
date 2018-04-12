@@ -109,6 +109,13 @@ namespace AkVCam
             // Remove a device definition.
             void deviceDestroy(const std::string &deviceId);
 
+            // Change device description.
+            bool changeDescription(const std::string &deviceId,
+                                   const std::string &description);
+
+            // Remove all device definitions.
+            bool destroyAllDevices();
+
             // Start frame transfer to the device.
             bool deviceStart(const std::string &deviceId);
 
