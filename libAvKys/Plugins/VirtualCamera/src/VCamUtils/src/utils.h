@@ -48,6 +48,9 @@ namespace AkVCam
 {
     uint64_t id();
     std::string timeStamp();
+    std::string replace(const std::string &str,
+                        const std::string &from,
+                        const std::string &to);
     bool isEqualFile(const std::string &file1, const std::string &file2);
 }
 

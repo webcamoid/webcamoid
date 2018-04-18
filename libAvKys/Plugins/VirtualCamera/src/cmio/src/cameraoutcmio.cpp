@@ -52,11 +52,6 @@ class CameraOutCMIOPrivate
         {
 
         }
-
-        inline bool sudo(const QString &command) const;
-        inline QString readDaemonPlist() const;
-        inline bool loadDaemon() const;
-        inline void unloadDaemon() const;
 };
 
 CameraOutCMIO::CameraOutCMIO(QObject *parent):
@@ -65,15 +60,7 @@ CameraOutCMIO::CameraOutCMIO(QObject *parent):
     this->d = new CameraOutCMIOPrivate;
     QDir applicationDir(QCoreApplication::applicationDirPath());
     this->m_driverPath = applicationDir.absoluteFilePath(*akVCamDriver());
-
-    auto daemon =
-            QString("%1/%2.plist")
-            .arg(CMIO_DAEMONS_PATH)
-            .arg(AKVCAM_ASSISTANT_NAME)
-            .replace("~", QDir::homePath());
-
-    if (QFileInfo::exists(daemon))
-        this->d->m_ipcBridge.registerPeer(false);
+    this->d->m_ipcBridge.registerPeer(false);
 }
 
 CameraOutCMIO::~CameraOutCMIO()
@@ -86,7 +73,7 @@ QStringList CameraOutCMIO::webcams() const
 {
     QStringList webcams;
 
-    for (auto &device: this->d->m_ipcBridge.listDevices(false))
+    for (auto device: this->d->m_ipcBridge.listDevices(false))
         webcams << QString::fromStdString(device);
 
     return webcams;
@@ -99,7 +86,7 @@ int CameraOutCMIO::streamIndex() const
 
 QString CameraOutCMIO::description(const QString &webcam) const
 {
-    for (auto &device: this->d->m_ipcBridge.listDevices(false)) {
+    for (auto device: this->d->m_ipcBridge.listDevices(false)) {
         auto deviceId = QString::fromStdString(device);
 
         if (deviceId == webcam)
@@ -140,46 +127,22 @@ QString CameraOutCMIO::createWebcam(const QString &description,
         return QString();
 
     auto webcams = this->webcams();
-
-    QString plugin = QFileInfo(this->m_driverPath).fileName();
-    QString dstPath = CMIO_PLUGINS_DAL_PATH;
-    QString pluginInstallPath = dstPath + "/" + plugin;
-
-    if (!QFileInfo(pluginInstallPath).exists()) {
-        QString cp = "cp -rvf '" + this->m_driverPath + "' " + dstPath;
-
-        if (!this->d->sudo(cp))
-            return QString();
-    }
-
-    auto daemonPlist = this->d->readDaemonPlist();
-    auto daemonPlistFile = QFileInfo(daemonPlist).fileName();
-    auto daemonsPath = QString(CMIO_DAEMONS_PATH).replace("~", QDir::homePath());
-    auto dstDaemonsPath = QDir(daemonsPath).absoluteFilePath(daemonPlistFile);
-
-    if (!QFileInfo(dstDaemonsPath).exists()) {
-        QDir().mkpath(daemonsPath);
-        QFile::copy(daemonPlist, dstDaemonsPath);
-    }
-
-    if (!this->d->loadDaemon())
-        return QString();
-
     AkVideoCaps caps(this->m_caps);
-
-    this->d->m_ipcBridge.deviceCreate(description.isEmpty()?
-                                          "AvKys Virtual Camera":
-                                          description.toStdString(),
-                                      {{AkVCam::PixelFormatRGB32,
-                                        caps.width(), caps.height(),
-                                        {caps.fps().value()}}});
-
+    this->d->m_ipcBridge.setOption("driverPath",
+                                   this->m_driverPath.toStdString());
+    auto webcam =
+            this->d->m_ipcBridge.deviceCreate(description.isEmpty()?
+                                                  "AvKys Virtual Camera":
+                                                  description.toStdString(),
+                                              {{AkVCam::PixelFormatRGB32,
+                                                caps.width(), caps.height(),
+                                                {caps.fps().value()}}});
     auto curWebcams = this->webcams();
 
     if (curWebcams != webcams)
         emit this->webcamsChanged(curWebcams);
 
-    return curWebcams.isEmpty()? QString(): curWebcams.first();
+    return QString::fromStdString(webcam);
 }
 
 bool CameraOutCMIO::changeDescription(const QString &webcam,
@@ -193,22 +156,18 @@ bool CameraOutCMIO::changeDescription(const QString &webcam,
     if (!webcams.contains(webcam))
         return false;
 
-    this->d->m_ipcBridge.deviceDestroy(webcam.toStdString());
-    AkVideoCaps caps(this->m_caps);
-
-    this->d->m_ipcBridge.deviceCreate(description.isEmpty()?
-                                          "AvKys Virtual Camera":
-                                          description.toStdString(),
-                                      {{caps.fourCC(),
-                                        caps.width(), caps.height(),
-                                        {caps.fps().value()}}});
+    this->d->m_ipcBridge.setOption("driverPath",
+                                   this->m_driverPath.toStdString());
+    bool result =
+            this->d->m_ipcBridge.changeDescription(webcam.toStdString(),
+                                                   description.toStdString());
 
     auto curWebcams = this->webcams();
 
     if (curWebcams != webcams)
         emit this->webcamsChanged(curWebcams);
 
-    return true;
+    return result;
 }
 
 bool CameraOutCMIO::removeWebcam(const QString &webcam,
@@ -221,17 +180,10 @@ bool CameraOutCMIO::removeWebcam(const QString &webcam,
     if (!webcams.contains(webcam))
         return false;
 
-    this->d->unloadDaemon();
-    QString plugin = QFileInfo(this->m_driverPath).fileName();
-    QString dstPath = CMIO_PLUGINS_DAL_PATH;
-    QString rm = "rm -rvf " + dstPath + "/" + plugin;
-
-    if (!this->d->sudo(rm))
-        return false;
-
-    QDir(QString(CMIO_DAEMONS_PATH).replace("~", QDir::homePath()))
-            .remove(QString("%1.plist").arg(AKVCAM_ASSISTANT_NAME));
-    emit this->webcamsChanged(QStringList());
+    this->d->m_ipcBridge.setOption("driverPath",
+                                   this->m_driverPath.toStdString());
+    this->d->m_ipcBridge.deviceDestroy(webcam.toStdString());
+    emit this->webcamsChanged({});
 
     return true;
 }
@@ -240,172 +192,12 @@ bool CameraOutCMIO::removeAllWebcams(const QString &password)
 {
     Q_UNUSED(password)
 
-    for (const QString &webcam: this->webcams())
-        this->removeWebcam(webcam, password);
+    this->d->m_ipcBridge.setOption("driverPath",
+                                   this->m_driverPath.toStdString());
+    this->d->m_ipcBridge.destroyAllDevices();
+    emit this->webcamsChanged({});
 
     return true;
-}
-
-bool CameraOutCMIOPrivate::sudo(const QString &command) const
-{
-    QProcess su;
-    su.start("osascript",
-             {"-e",
-              "do shell script \""
-              + command
-              + "\" with administrator privileges"});
-    su.waitForFinished(-1);
-
-    if (su.exitCode()) {
-        QByteArray outMsg = su.readAllStandardOutput();
-
-        if (!outMsg.isEmpty())
-            qDebug() << outMsg.toStdString().c_str();
-
-        QByteArray errorMsg = su.readAllStandardError();
-
-        if (!errorMsg.isEmpty())
-            qDebug() << errorMsg.toStdString().c_str();
-
-        return false;
-    }
-
-    return true;
-}
-
-QString CameraOutCMIOPrivate::readDaemonPlist() const
-{
-    QFile daemonFile(":/VirtualCameraCMIO/daemon.plist");
-    daemonFile.open(QIODevice::ReadOnly | QIODevice::Text);
-    QDomDocument daemonXml;
-    daemonXml.setContent(&daemonFile);
-    auto daemonDict = daemonXml.documentElement().firstChildElement();
-    auto keys = daemonDict.childNodes();
-    auto assistantPath =
-            QString("%1/%2.plugin/Contents/Resources/%3")
-                .arg(CMIO_PLUGINS_DAL_PATH)
-                .arg(CMIO_PLUGIN_NAME)
-                .arg(CMIO_PLUGIN_ASSISTANT_NAME);
-
-    for (int i = 0; i < keys.size(); i++) {
-        if (keys.item(i).nodeName() == "key") {
-            auto keyElement = keys.item(i).toElement();
-            auto valueElement = keyElement.nextSiblingElement();
-
-            if (keyElement.text() == "Label") {
-                if (valueElement.childNodes().isEmpty())
-                    valueElement.appendChild(daemonXml.createTextNode(AKVCAM_ASSISTANT_NAME));
-                else
-                    valueElement.replaceChild(daemonXml.createTextNode(AKVCAM_ASSISTANT_NAME),
-                                              valueElement.firstChild());
-            } else if (keyElement.text() == "ProgramArguments") {
-                while (!valueElement.childNodes().isEmpty())
-                    valueElement.removeChild(valueElement.firstChild());
-
-                auto keyProgram = daemonXml.createElement("string");
-                valueElement.appendChild(keyProgram);
-                keyProgram.appendChild(daemonXml.createTextNode(assistantPath));
-
-                auto keyTimeout = daemonXml.createElement("string");
-                valueElement.appendChild(keyTimeout);
-                keyTimeout.appendChild(daemonXml.createTextNode("--timeout"));
-
-                auto keyTimeoutValue = daemonXml.createElement("string");
-                valueElement.appendChild(keyTimeoutValue);
-                keyTimeoutValue.appendChild(daemonXml.createTextNode("300.0"));
-            } else if (keyElement.text() == "MachServices") {
-                auto stringChilds = valueElement.elementsByTagName("key");
-
-                for (int i = 0; i < stringChilds.size(); i++) {
-                    auto item = stringChilds.item(i);
-
-                    if (item.childNodes().isEmpty())
-                        item.appendChild(daemonXml.createTextNode(AKVCAM_ASSISTANT_NAME));
-                    else
-                        item.replaceChild(daemonXml.createTextNode(AKVCAM_ASSISTANT_NAME),
-                                          item.firstChild());
-                }
-            }
-        }
-    }
-
-#ifdef QT_DEBUG
-    auto daemonLog = QString("/tmp/%1.log").arg(AKVCAM_ASSISTANT_NAME);
-
-    // StandardOutPath key
-    auto keyStandardOutPath = daemonXml.createElement("key");
-    daemonDict.appendChild(keyStandardOutPath);
-    keyStandardOutPath.appendChild(daemonXml.createTextNode("StandardOutPath"));
-
-    // StandardOutPath value
-    auto valueStandardOutPath = daemonXml.createElement("string");
-    daemonDict.appendChild(valueStandardOutPath);
-    valueStandardOutPath.appendChild(daemonXml.createTextNode(daemonLog));
-
-    // StandardErrorPath key
-    auto keyStandardErrorPath = daemonXml.createElement("key");
-    daemonDict.appendChild(keyStandardErrorPath);
-    keyStandardErrorPath.appendChild(daemonXml.createTextNode("StandardErrorPath"));
-
-    // StandardErrorPath value
-    auto valueStandardErrorPath = daemonXml.createElement("string");
-    daemonDict.appendChild(valueStandardErrorPath);
-    valueStandardErrorPath.appendChild(daemonXml.createTextNode(daemonLog));
-#endif
-
-    auto tempDir = QStandardPaths::writableLocation(QStandardPaths::TempLocation);
-    QFile plistFile(tempDir + "/" + AKVCAM_ASSISTANT_NAME + ".plist");
-    plistFile.open(QIODevice::ReadWrite | QIODevice::Text);
-    plistFile.write(daemonXml.toString().toUtf8());
-    plistFile.close();
-
-    return plistFile.fileName();
-}
-
-bool CameraOutCMIOPrivate::loadDaemon() const
-{
-    QProcess launchctl;
-
-    int result =
-            QProcess::execute("launchctl", {
-                                  "list",
-                                  AKVCAM_ASSISTANT_NAME
-                              });
-
-    if (result == 0)
-        return true;
-
-    auto daemonPlist = QString("%1.plist").arg(AKVCAM_ASSISTANT_NAME);
-    auto daemonsPath = QString(CMIO_DAEMONS_PATH).replace("~", QDir::homePath());
-    auto dstDaemonsPath = QDir(daemonsPath).absoluteFilePath(daemonPlist);
-
-    if (!QFileInfo(dstDaemonsPath).exists())
-        return false;
-
-    result =
-            QProcess::execute("launchctl", {
-                                  "load",
-                                  "-w",
-                                  dstDaemonsPath
-                              });
-
-    return result == 0;
-}
-
-void CameraOutCMIOPrivate::unloadDaemon() const
-{
-    auto daemonPlist = QString("%1.plist").arg(AKVCAM_ASSISTANT_NAME);
-    auto daemonsPath = QString(CMIO_DAEMONS_PATH).replace("~", QDir::homePath());
-    auto dstDaemonsPath = QDir(daemonsPath).absoluteFilePath(daemonPlist);
-
-    if (!QFileInfo(dstDaemonsPath).exists())
-        return ;
-
-    QProcess::execute("launchctl", {
-                          "unload",
-                          "-w",
-                          dstDaemonsPath
-                      });
 }
 
 bool CameraOutCMIO::init(int streamIndex)

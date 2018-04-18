@@ -39,6 +39,20 @@ std::string AkVCam::timeStamp()
     return std::string(ts);
 }
 
+std::string AkVCam::replace(const std::string &str,
+                            const std::string &from,
+                            const std::string &to)
+{
+    auto newStr = str;
+
+    for (auto pos = newStr.find(from);
+         pos != std::string::npos;
+         pos = newStr.find(from))
+        newStr.replace(pos, from.size(), to);
+
+    return newStr;
+}
+
 bool AkVCam::isEqualFile(const std::string &file1, const std::string &file2)
 {
     if (file1 == file2)

@@ -124,17 +124,23 @@ QString CameraOutDShow::createWebcam(const QString &description,
     if (!QFileInfo(this->m_driverPath).exists())
         return QString();
 
-    QStringList webcams = this->webcams();
+    auto webcams = this->webcams();
+    AkVideoCaps caps(this->m_caps);
     this->d->m_ipcBridge.setOption("driverPath",
                                    this->m_driverPath.toStdString());
-    this->d->m_ipcBridge.deviceCreate(description.toStdString(),
-                                      {{AkVCam::PixelFormatRGB24, 640, 480, {30.0}}});
-    QStringList curWebcams = this->webcams();
+    auto webcam =
+            this->d->m_ipcBridge.deviceCreate(description.isEmpty()?
+                                                  "AvKys Virtual Camera":
+                                                  description.toStdString(),
+                                              {{AkVCam::PixelFormatRGB24,
+                                                640, 480,
+                                                {caps.fps().value()}}});
+    auto curWebcams = this->webcams();
 
     if (curWebcams != webcams)
         emit this->webcamsChanged(curWebcams);
 
-    return curWebcams.isEmpty()? QString(): curWebcams.first();
+    return QString::fromStdString(webcam);
 }
 
 bool CameraOutDShow::changeDescription(const QString &webcam,
@@ -154,7 +160,10 @@ bool CameraOutDShow::changeDescription(const QString &webcam,
             this->d->m_ipcBridge.changeDescription(webcam.toStdString(),
                                                    description.toStdString());
 
-    emit this->webcamsChanged(webcams);
+    auto curWebcams = this->webcams();
+
+    if (curWebcams != webcams)
+        emit this->webcamsChanged(curWebcams);
 
     return result;
 }

@@ -1,5 +1,0 @@
-<RCC>
-    <qresource prefix="/VirtualCameraCMIO">
-        <file>daemon.plist</file>
-    </qresource>
-</RCC>

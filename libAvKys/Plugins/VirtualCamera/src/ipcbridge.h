@@ -62,7 +62,7 @@ namespace AkVCam
 
             // Execute commands with elevated privileges.
             int sudo(const std::vector<std::string> &parameters,
-                     const std::map<std::string, std::string> &options);
+                     const std::map<std::string, std::string> &options={});
 
             // Register the peer to the global server.
             bool registerPeer(bool asClient);
