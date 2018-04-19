@@ -748,11 +748,17 @@ bool AkVCam::IpcBridgePrivate::isVirtualCamera(const MonikerPtr &moniker) const
 {
     auto baseFilter = this->filter(moniker.get());
 
+    if (!baseFilter)
+        return false;
+
     return this->isVirtualCamera(baseFilter.get());
 }
 
 bool AkVCam::IpcBridgePrivate::isVirtualCamera(IBaseFilter *baseFilter) const
 {
+    if (!baseFilter)
+        return false;
+
     CLSID clsid;
     memset(&clsid, 0, sizeof(CLSID));
     baseFilter->GetClassID(&clsid);
