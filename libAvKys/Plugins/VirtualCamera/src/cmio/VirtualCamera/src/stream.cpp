@@ -469,8 +469,8 @@ void AkVCam::StreamPrivate::sendFrame(const VideoFrame &frame)
                 height);
 
     bool resync = false;
-    auto hostTime = UInt64(CFAbsoluteTimeGetCurrent());
-    auto pts = CMTimeMake(hostTime, 1e9);
+    auto hostTime = CFAbsoluteTimeGetCurrent();
+    auto pts = CMTimeMake(int64_t(hostTime), 1e9);
     auto ptsDiff = CMTimeGetSeconds(CMTimeSubtract(this->m_pts, pts));
 
     if (CMTimeCompare(pts, this->m_pts) == 0)
@@ -483,14 +483,14 @@ void AkVCam::StreamPrivate::sendFrame(const VideoFrame &frame)
     }
 
     CMIOStreamClockPostTimingEvent(this->m_pts,
-                                   hostTime,
+                                   UInt64(hostTime),
                                    resync,
                                    this->m_clock->ref());
 
     CVImageBufferRef imageBuffer = nullptr;
     CVPixelBufferCreate(kCFAllocatorDefault,
-                        width,
-                        height,
+                        size_t(width),
+                        size_t(height),
                         formatToCM(PixelFormat(fourcc)),
                         nullptr,
                         &imageBuffer);
@@ -508,7 +508,7 @@ void AkVCam::StreamPrivate::sendFrame(const VideoFrame &frame)
                                                  imageBuffer,
                                                  &format);
 
-    auto duration = CMTimeMake(1, this->m_fps);
+    auto duration = CMTimeMake(1, int32_t(this->m_fps));
     CMSampleTimingInfo timingInfo {
         duration,
         this->m_pts,

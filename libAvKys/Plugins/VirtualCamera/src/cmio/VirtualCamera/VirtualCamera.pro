@@ -46,6 +46,7 @@ LIBS = \
     -framework CoreMedia \
     -framework CoreMediaIO \
     -framework CoreVideo \
+    -framework Foundation \
     -framework IOKit \
     -framework IOSurface
 

@@ -70,9 +70,6 @@ namespace AkVCam
                                       const std::string &value) const;
             std::string regMoveLine(const std::string &fromKey,
                                     const std::string &toKey) const;
-            std::string replace(const std::string &str,
-                                const std::string &from,
-                                const std::string &to) const;
             std::string dirname(const std::string &path) const;
     };
 }
@@ -297,16 +294,14 @@ std::string AkVCam::IpcBridge::deviceCreate(const std::string &description,
     std::stringstream ss;
     ss << "@echo off" << std::endl;
 
-    auto driverPath =
-            this->d->replace(this->d->options["driverPath"], "/", "\\");
+    auto driverPath = replace(this->d->options["driverPath"], "/", "\\");
     auto driverInstallPath = programFilesPath() + "\\Webcamoid\\filter";
     std::vector<std::string> installPaths;
 
     for (auto path: this->d->findPlugins(std::wstring(driverPath.begin(),
                                                       driverPath.end()))) {
         std::string path_(path.begin(), path.end());
-        auto installPath =
-                this->d->replace(path_, driverPath, driverInstallPath);
+        auto installPath = replace(path_, driverPath, driverInstallPath);
 
         if (!isEqualFile(path_, installPath))
             ss << "mkdir \""
@@ -403,7 +398,7 @@ std::string AkVCam::IpcBridge::deviceCreate(const std::string &description,
         script.close();
 
         // Execute the script with elevated privileges.
-        if (this->sudo({"cmd", "/c", scriptPath}, {}))
+        if (this->sudo({"cmd", "/c", scriptPath}))
             devicePath.clear();
 
         std::wstring wScriptPath(scriptPath.begin(), scriptPath.end());
@@ -427,16 +422,14 @@ void AkVCam::IpcBridge::deviceDestroy(const std::string &deviceId)
     std::stringstream ss;
     ss << "@echo off" << std::endl;
 
-    auto driverPath =
-            this->d->replace(this->d->options["driverPath"], "/", "\\");
+    auto driverPath = replace(this->d->options["driverPath"], "/", "\\");
     auto driverInstallPath = programFilesPath() + "\\Webcamoid\\filter";
     std::vector<std::string> installPaths;
 
     for (auto path: this->d->findPlugins(std::wstring(driverPath.begin(),
                                                       driverPath.end()))) {
         std::string path_(path.begin(), path.end());
-        auto installPath =
-                this->d->replace(path_, driverPath, driverInstallPath);
+        auto installPath = replace(path_, driverPath, driverInstallPath);
 
         installPaths.push_back(installPath);
     }
@@ -486,7 +479,7 @@ void AkVCam::IpcBridge::deviceDestroy(const std::string &deviceId)
     if (script.is_open()) {
         script << ss.str();
         script.close();
-        this->sudo({"cmd", "/c", scriptPath}, {});
+        this->sudo({"cmd", "/c", scriptPath});
         std::wstring wScriptPath(scriptPath.begin(), scriptPath.end());
         DeleteFile(wScriptPath.c_str());
     }
@@ -505,17 +498,14 @@ bool AkVCam::IpcBridge::changeDescription(const std::string &deviceId,
     std::stringstream ss;
     ss << "@echo off" << std::endl;
 
-    auto driverPath =
-            this->d->replace(this->d->options["driverPath"], "/", "\\");
+    auto driverPath = replace(this->d->options["driverPath"], "/", "\\");
     auto driverInstallPath = programFilesPath() + "\\Webcamoid\\filter";
     std::vector<std::string> installPaths;
 
     for (auto path: this->d->findPlugins(std::wstring(driverPath.begin(),
                                                       driverPath.end()))) {
         std::string path_(path.begin(), path.end());
-        auto installPath =
-                this->d->replace(path_, driverPath, driverInstallPath);
-
+        auto installPath = replace(path_, driverPath, driverInstallPath);
         installPaths.push_back(installPath);
     }
 
@@ -537,7 +527,7 @@ bool AkVCam::IpcBridge::changeDescription(const std::string &deviceId,
     if (script.is_open()) {
         script << ss.str();
         script.close();
-        ok = this->sudo({"cmd", "/c", scriptPath}, {}) == 0;
+        ok = this->sudo({"cmd", "/c", scriptPath}) == 0;
         std::wstring wScriptPath(scriptPath.begin(), scriptPath.end());
         DeleteFile(wScriptPath.c_str());
     }
@@ -552,17 +542,14 @@ bool AkVCam::IpcBridge::destroyAllDevices()
     std::stringstream ss;
     ss << "@echo off" << std::endl;
 
-    auto driverPath =
-            this->d->replace(this->d->options["driverPath"], "/", "\\");
+    auto driverPath = replace(this->d->options["driverPath"], "/", "\\");
     auto driverInstallPath = programFilesPath() + "\\Webcamoid\\filter";
     std::vector<std::string> installPaths;
 
     for (auto path: this->d->findPlugins(std::wstring(driverPath.begin(),
                                                       driverPath.end()))) {
         std::string path_(path.begin(), path.end());
-        auto installPath =
-                this->d->replace(path_, driverPath, driverInstallPath);
-
+        auto installPath = replace(path_, driverPath, driverInstallPath);
         installPaths.push_back(installPath);
     }
 
@@ -588,7 +575,7 @@ bool AkVCam::IpcBridge::destroyAllDevices()
     if (script.is_open()) {
         script << ss.str();
         script.close();
-        ok = this->sudo({"cmd", "/c", scriptPath}, {}) == 0;
+        ok = this->sudo({"cmd", "/c", scriptPath}) == 0;
         std::wstring wScriptPath(scriptPath.begin(), scriptPath.end());
         DeleteFile(wScriptPath.c_str());
     }
@@ -761,11 +748,17 @@ bool AkVCam::IpcBridgePrivate::isVirtualCamera(const MonikerPtr &moniker) const
 {
     auto baseFilter = this->filter(moniker.get());
 
+    if (!baseFilter)
+        return false;
+
     return this->isVirtualCamera(baseFilter.get());
 }
 
 bool AkVCam::IpcBridgePrivate::isVirtualCamera(IBaseFilter *baseFilter) const
 {
+    if (!baseFilter)
+        return false;
+
     CLSID clsid;
     memset(&clsid, 0, sizeof(CLSID));
     baseFilter->GetClassID(&clsid);
@@ -977,20 +970,6 @@ std::string AkVCam::IpcBridgePrivate::regMoveLine(const std::string &fromKey,
        << regDeleteLine(fromKey);
 
     return ss.str();
-}
-
-std::string AkVCam::IpcBridgePrivate::replace(const std::string &str,
-                                              const std::string &from,
-                                              const std::string &to) const
-{
-    auto newStr = str;
-
-    for (auto pos = newStr.find(from);
-         pos != std::string::npos;
-         pos = newStr.find(from))
-        newStr.replace(pos, from.size(), to);
-
-    return newStr;
 }
 
 std::string AkVCam::IpcBridgePrivate::dirname(const std::string &path) const

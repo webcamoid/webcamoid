@@ -50,6 +50,7 @@ LIBS += \
     -framework CoreMedia \
     -framework CoreMediaIO \
     -framework CoreVideo \
+    -framework Foundation \
     -framework IOKit \
     -framework IOSurface
 
@@ -65,9 +66,6 @@ DESTDIR = $${OUT_PWD}/../../../submodules/VirtualCamera
 TARGET = cmio
 
 TEMPLATE = lib
-
-RESOURCES = \
-    ../cmio.qrc
 
 INSTALLS += target
 

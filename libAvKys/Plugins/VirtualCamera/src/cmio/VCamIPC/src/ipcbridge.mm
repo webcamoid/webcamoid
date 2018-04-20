@@ -17,11 +17,16 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <fstream>
 #include <map>
 #include <sstream>
 #include <algorithm>
+#include <sys/stat.h>
+#include <dirent.h>
+#include <Foundation/Foundation.h>
 #include <IOSurface/IOSurface.h>
 #include <CoreMedia/CMFormatDescription.h>
+#include <xpc/connection.h>
 
 #include "ipcbridge.h"
 #include "../../Assistant/src/assistantglobals.h"
@@ -34,9 +39,6 @@
 
 namespace AkVCam
 {
-    class IpcBridgePrivate;
-    IpcBridgePrivate *ipcBridgePrivate();
-
     class IpcBridgePrivate
     {
         public:
@@ -55,202 +57,38 @@ namespace AkVCam
             IpcBridge::ListenersChangedCallback listenersChangedCallback;
             std::map<int64_t, XpcMessage> m_messageHandlers;
             std::vector<std::string> broadcasting;
+            std::map<std::string, std::string> options;
+            bool uninstall;
 
-            IpcBridgePrivate(IpcBridge *parent=nullptr):
-                parent(parent),
-                messagePort(nullptr),
-                serverMessagePort(nullptr)
-            {
-                this->m_messageHandlers = {
-                    {AKVCAM_ASSISTANT_MSG_ISALIVE                    , AKVCAM_BIND_FUNC(IpcBridgePrivate::isAlive)            },
-                    {AKVCAM_ASSISTANT_MSG_DEVICE_CREATED             , AKVCAM_BIND_FUNC(IpcBridgePrivate::deviceCreated)      },
-                    {AKVCAM_ASSISTANT_MSG_DEVICE_DESTROYED           , AKVCAM_BIND_FUNC(IpcBridgePrivate::deviceDestroyed)    },
-                    {AKVCAM_ASSISTANT_MSG_FRAME_READY                , AKVCAM_BIND_FUNC(IpcBridgePrivate::frameReady)         },
-                    {AKVCAM_ASSISTANT_MSG_DEVICE_BROADCASTING_CHANGED, AKVCAM_BIND_FUNC(IpcBridgePrivate::broadcastingChanged)},
-                    {AKVCAM_ASSISTANT_MSG_DEVICE_MIRRORING_CHANGED   , AKVCAM_BIND_FUNC(IpcBridgePrivate::mirrorChanged)      },
-                    {AKVCAM_ASSISTANT_MSG_DEVICE_SCALING_CHANGED     , AKVCAM_BIND_FUNC(IpcBridgePrivate::scalingChanged)     },
-                    {AKVCAM_ASSISTANT_MSG_DEVICE_ASPECTRATIO_CHANGED , AKVCAM_BIND_FUNC(IpcBridgePrivate::aspectRatioChanged) },
-                    {AKVCAM_ASSISTANT_MSG_LISTENERS_CHANGED          , AKVCAM_BIND_FUNC(IpcBridgePrivate::listenersChanged)   },
-                };
-            }
+            IpcBridgePrivate(IpcBridge *parent=nullptr);
+            inline void add(IpcBridge *bridge);
+            void remove(IpcBridge *bridge);
+            inline std::vector<IpcBridge *> &bridges();
 
-            inline void add(IpcBridge *bridge)
-            {
-                this->m_bridges.push_back(bridge);
-            }
+            // Message handling methods
+            void isAlive(xpc_connection_t client, xpc_object_t event);
+            void deviceCreated(xpc_connection_t client, xpc_object_t event);
+            void deviceDestroyed(xpc_connection_t client, xpc_object_t event);
+            void frameReady(xpc_connection_t client, xpc_object_t event);
+            void broadcastingChanged(xpc_connection_t client,
+                                     xpc_object_t event);
+            void mirrorChanged(xpc_connection_t client, xpc_object_t event);
+            void scalingChanged(xpc_connection_t client, xpc_object_t event);
+            void aspectRatioChanged(xpc_connection_t client, xpc_object_t event);
+            void listenersChanged(xpc_connection_t client, xpc_object_t event);
+            void messageReceived(xpc_connection_t client, xpc_object_t event);
 
-            inline void remove(IpcBridge *bridge)
-            {
-                for (size_t i = 0; i < this->m_bridges.size(); i++)
-                    if (this->m_bridges[i] == bridge) {
-                        this->m_bridges.erase(this->m_bridges.begin()
-                                              + long(i));
-
-                        break;
-                    }
-            }
-
-            inline std::vector<IpcBridge *> &bridges()
-            {
-                return this->m_bridges;
-            }
-
-            inline void isAlive(xpc_connection_t client,
-                                xpc_object_t event)
-            {
-                AkLoggerLog("IpcBridgePrivate::isAlive");
-
-                auto reply = xpc_dictionary_create_reply(event);
-                xpc_dictionary_set_bool(reply, "alive", true);
-                xpc_connection_send_message(client, reply);
-                xpc_release(reply);
-            }
-
-            inline void deviceCreated(xpc_connection_t client,
-                                      xpc_object_t event)
-            {
-                UNUSED(client)
-                AkLoggerLog("IpcBridgePrivate::deviceCreated");
-
-                std::string device = xpc_dictionary_get_string(event, "device");
-
-                for (auto bridge: this->m_bridges)
-                    if (bridge->d->deviceAddedCallback)
-                        bridge->d->deviceAddedCallback(device);
-            }
-
-            inline void deviceDestroyed(xpc_connection_t client,
-                                        xpc_object_t event)
-            {
-                UNUSED(client)
-                AkLoggerLog("IpcBridgePrivate::deviceDestroyed");
-
-                std::string device = xpc_dictionary_get_string(event, "device");
-
-                for (auto bridge: this->m_bridges)
-                    if (bridge->d->deviceRemovedCallback)
-                        bridge->d->deviceRemovedCallback(device);
-            }
-
-            inline void frameReady(xpc_connection_t client,
-                                   xpc_object_t event)
-            {
-                UNUSED(client)
-                AkLoggerLog("IpcBridgePrivate::frameReady");
-
-                std::string deviceId = xpc_dictionary_get_string(event, "device");
-                auto frame = xpc_dictionary_get_value(event, "frame");
-                auto surface = IOSurfaceLookupFromXPCObject(frame);
-
-                if (!surface)
-                    return;
-
-                uint32_t surfaceSeed = 0;
-                IOSurfaceLock(surface, kIOSurfaceLockReadOnly, &surfaceSeed);
-                FourCC fourcc = IOSurfaceGetPixelFormat(surface);
-                int width = IOSurfaceGetWidth(surface);
-                int height = IOSurfaceGetHeight(surface);
-                size_t size = IOSurfaceGetAllocSize(surface);
-                auto data = reinterpret_cast<uint8_t *>(IOSurfaceGetBaseAddress(surface));
-                AkVCam::VideoFrame videoFrame({fourcc, width, height},
-                                              data, size);
-                IOSurfaceUnlock(surface, kIOSurfaceLockReadOnly, &surfaceSeed);
-                CFRelease(surface);
-
-                for (auto bridge: this->m_bridges)
-                    if (bridge->d->frameReadyCallback)
-                        bridge->d->frameReadyCallback(deviceId, videoFrame);
-            }
-
-            inline void broadcastingChanged(xpc_connection_t client,
-                                            xpc_object_t event)
-            {
-                UNUSED(client)
-                AkLoggerLog("IpcBridgePrivate::broadcastingChanged");
-
-                std::string deviceId = xpc_dictionary_get_string(event, "device");
-                bool broadcasting = xpc_dictionary_get_bool(event, "broadcasting");
-
-                for (auto bridge: this->m_bridges)
-                    if (bridge->d->broadcastingChangedCallback)
-                        bridge->d->broadcastingChangedCallback(deviceId, broadcasting);
-            }
-
-            inline void mirrorChanged(xpc_connection_t client,
-                                      xpc_object_t event)
-            {
-                UNUSED(client)
-                AkLoggerLog("IpcBridgePrivate::mirrorChanged");
-
-                std::string deviceId = xpc_dictionary_get_string(event, "device");
-                bool horizontalMirror = xpc_dictionary_get_bool(event, "hmirror");
-                bool verticalMirror = xpc_dictionary_get_bool(event, "vmirror");
-
-                for (auto bridge: this->m_bridges)
-                    if (bridge->d->mirrorChangedCallback)
-                        bridge->d->mirrorChangedCallback(deviceId,
-                                                         horizontalMirror,
-                                                         verticalMirror);
-            }
-
-            inline void scalingChanged(xpc_connection_t client,
-                                       xpc_object_t event)
-            {
-                UNUSED(client)
-                AkLoggerLog("IpcBridgePrivate::scalingChanged");
-
-                std::string deviceId = xpc_dictionary_get_string(event, "device");
-                auto scaling = Scaling(xpc_dictionary_get_int64(event, "scaling"));
-
-                for (auto bridge: this->m_bridges)
-                    if (bridge->d->scalingChangedCallback)
-                        bridge->d->scalingChangedCallback(deviceId, scaling);
-            }
-
-            inline void aspectRatioChanged(xpc_connection_t client,
-                                           xpc_object_t event)
-            {
-                UNUSED(client)
-                AkLoggerLog("IpcBridgePrivate::aspectRatioChanged");
-
-                std::string deviceId = xpc_dictionary_get_string(event, "device");
-                auto aspectRatio = AspectRatio(xpc_dictionary_get_int64(event, "aspect"));
-
-                for (auto bridge: this->m_bridges)
-                    if (bridge->d->aspectRatioChangedCallback)
-                        bridge->d->aspectRatioChangedCallback(deviceId, aspectRatio);
-            }
-
-            inline void listenersChanged(xpc_connection_t client,
-                                         xpc_object_t event)
-            {
-                UNUSED(client)
-                AkLoggerLog("IpcBridgePrivate::listenersChanged");
-
-                std::string deviceId = xpc_dictionary_get_string(event, "device");
-                auto listeners = xpc_dictionary_get_int64(event, "listeners");
-
-                for (auto bridge: this->m_bridges)
-                    if (bridge->d->listenersChangedCallback)
-                        bridge->d->listenersChangedCallback(deviceId, listeners);
-            }
-
-            inline void messageReceived(xpc_connection_t client,
-                                        xpc_object_t event)
-            {
-                auto type = xpc_get_type(event);
-
-                if (type == XPC_TYPE_ERROR) {
-                     auto description = xpc_copy_description(event);
-                     AkLoggerLog("ERROR: ", description);
-                     free(description);
-                } else if (type == XPC_TYPE_DICTIONARY) {
-                    int64_t message = xpc_dictionary_get_int64(event, "message");
-
-                    if (this->m_messageHandlers.count(message))
-                        this->m_messageHandlers[message](client, event);
-                }
-            }
+            // Utility methods
+            std::string homePath() const;
+            bool fileExists(const std::string &path) const;
+            std::string fileName(const std::string &path) const;
+            bool mkpath(const std::string &path) const;
+            bool rm(const std::string &path) const;
+            bool createDaemonPlist(const std::string &fileName) const;
+            bool loadDaemon() const;
+            void unloadDaemon() const;
+            bool checkDaemon();
+            void uninstallPlugin();
 
         private:
             std::vector<IpcBridge *> m_bridges;
@@ -282,24 +120,65 @@ AkVCam::IpcBridge::~IpcBridge()
 void AkVCam::IpcBridge::setOption(const std::string &key,
                                   const std::string &value)
 {
-    UNUSED(key)
-    UNUSED(value)
     AkIpcBridgeLogMethod();
+
+    if (value.empty())
+        this->d->options.erase(key);
+    else
+        this->d->options[key] = value;
 }
 
 int AkVCam::IpcBridge::sudo(const std::vector<std::string> &parameters,
                             const std::map<std::string, std::string> &options)
 {
-    UNUSED(parameters)
     UNUSED(options)
     AkIpcBridgeLogMethod();
 
-    return -1;
+    std::stringstream ss;
+    ss << "osascript -e \"do shell script \\\"";
+
+    for (auto param: parameters) {
+        if (param.find(' ') == std::string::npos)
+            ss << param;
+        else
+            ss << "'" << param << "'";
+
+        ss << ' ';
+    }
+
+    ss << "\\\" with administrator privileges\" 2>&1";
+    auto sudo = popen(ss.str().c_str(), "r");
+
+    if (!sudo)
+        return -1;
+
+    std::string output;
+    char buffer[1024];
+
+    while (fgets(buffer, 1024, sudo))
+        output += std::string(buffer);
+
+    auto result = pclose(sudo);
+
+    if (result)
+        AkLoggerLog(output);
+
+    return result;
 }
 
 bool AkVCam::IpcBridge::registerPeer(bool asClient)
 {
     AkIpcBridgeLogMethod();
+
+    if (!asClient) {
+        std::string plistFile =
+                CMIO_DAEMONS_PATH "/" AKVCAM_ASSISTANT_NAME ".plist";
+
+        auto daemon = replace(plistFile, "~", this->d->homePath());
+
+        if (!this->d->fileExists(daemon))
+            return false;
+    }
 
     if (this->d->serverMessagePort)
         return true;
@@ -705,6 +584,9 @@ std::string AkVCam::IpcBridge::deviceCreate(const std::string &description,
 {
     AkIpcBridgeLogMethod();
 
+    if (!this->d->checkDaemon())
+        return {};
+
     this->registerPeer(false);
 
     if (!this->d->serverMessagePort || !this->d->messagePort)
@@ -769,21 +651,40 @@ void AkVCam::IpcBridge::deviceDestroy(const std::string &deviceId)
                                 dictionary);
     xpc_release(dictionary);
     this->d->devices.erase(it);
+
+    // If no devices are registered
+    if (this->d->uninstall && listDevices().empty())
+        this->d->uninstallPlugin();
 }
 
 bool AkVCam::IpcBridge::changeDescription(const std::string &deviceId,
                                           const std::string &description)
 {
-    UNUSED(deviceId)
-    UNUSED(description)
     AkIpcBridgeLogMethod();
 
-    return false;
+    auto formats = this->formats(deviceId);
+
+    if (formats.empty())
+        return false;
+
+    this->d->uninstall = false;
+    this->deviceDestroy(deviceId);
+    this->d->uninstall = true;
+
+    if (this->deviceCreate(description.empty()?
+                               "AvKys Virtual Camera":
+                               description,
+                           formats).empty())
+        return false;
+
+    return true;
 }
 
 bool AkVCam::IpcBridge::destroyAllDevices()
 {
     AkIpcBridgeLogMethod();
+
+    this->d->uninstallPlugin();
 
     return true;
 }
@@ -887,7 +788,7 @@ bool AkVCam::IpcBridge::write(const std::string &deviceId,
             CFDictionaryCreate(kCFAllocatorDefault,
                                reinterpret_cast<const void **>(keys.data()),
                                reinterpret_cast<const void **>(values.data()),
-                               values.size(),
+                               CFIndex(values.size()),
                                NULL,
                                NULL);
     auto surface = IOSurfaceCreate(surfaceProperties);
@@ -1066,4 +967,420 @@ void AkVCam::IpcBridge::setScalingChangedCallback(AkVCam::IpcBridge::ScalingChan
 void AkVCam::IpcBridge::setAspectRatioChangedCallback(AkVCam::IpcBridge::AspectRatioChangedCallback callback)
 {
     this->d->aspectRatioChangedCallback = callback;
+}
+
+AkVCam::IpcBridgePrivate::IpcBridgePrivate(IpcBridge *parent):
+    parent(parent),
+    messagePort(nullptr),
+    serverMessagePort(nullptr),
+    uninstall(true)
+{
+    this->m_messageHandlers = {
+        {AKVCAM_ASSISTANT_MSG_ISALIVE                    , AKVCAM_BIND_FUNC(IpcBridgePrivate::isAlive)            },
+        {AKVCAM_ASSISTANT_MSG_DEVICE_CREATED             , AKVCAM_BIND_FUNC(IpcBridgePrivate::deviceCreated)      },
+        {AKVCAM_ASSISTANT_MSG_DEVICE_DESTROYED           , AKVCAM_BIND_FUNC(IpcBridgePrivate::deviceDestroyed)    },
+        {AKVCAM_ASSISTANT_MSG_FRAME_READY                , AKVCAM_BIND_FUNC(IpcBridgePrivate::frameReady)         },
+        {AKVCAM_ASSISTANT_MSG_DEVICE_BROADCASTING_CHANGED, AKVCAM_BIND_FUNC(IpcBridgePrivate::broadcastingChanged)},
+        {AKVCAM_ASSISTANT_MSG_DEVICE_MIRRORING_CHANGED   , AKVCAM_BIND_FUNC(IpcBridgePrivate::mirrorChanged)      },
+        {AKVCAM_ASSISTANT_MSG_DEVICE_SCALING_CHANGED     , AKVCAM_BIND_FUNC(IpcBridgePrivate::scalingChanged)     },
+        {AKVCAM_ASSISTANT_MSG_DEVICE_ASPECTRATIO_CHANGED , AKVCAM_BIND_FUNC(IpcBridgePrivate::aspectRatioChanged) },
+        {AKVCAM_ASSISTANT_MSG_LISTENERS_CHANGED          , AKVCAM_BIND_FUNC(IpcBridgePrivate::listenersChanged)   },
+    };
+}
+
+void AkVCam::IpcBridgePrivate::add(IpcBridge *bridge)
+{
+    this->m_bridges.push_back(bridge);
+}
+
+void AkVCam::IpcBridgePrivate::remove(IpcBridge *bridge)
+{
+    for (size_t i = 0; i < this->m_bridges.size(); i++)
+        if (this->m_bridges[i] == bridge) {
+            this->m_bridges.erase(this->m_bridges.begin()
+                                  + long(i));
+
+            break;
+        }
+}
+
+std::vector<AkVCam::IpcBridge *> &AkVCam::IpcBridgePrivate::bridges()
+{
+    return this->m_bridges;
+}
+
+void AkVCam::IpcBridgePrivate::isAlive(xpc_connection_t client,
+                                       xpc_object_t event)
+{
+    AkLoggerLog("IpcBridgePrivate::isAlive");
+
+    auto reply = xpc_dictionary_create_reply(event);
+    xpc_dictionary_set_bool(reply, "alive", true);
+    xpc_connection_send_message(client, reply);
+    xpc_release(reply);
+}
+
+void AkVCam::IpcBridgePrivate::deviceCreated(xpc_connection_t client,
+                                             xpc_object_t event)
+{
+    UNUSED(client)
+    AkLoggerLog("IpcBridgePrivate::deviceCreated");
+
+    std::string device = xpc_dictionary_get_string(event, "device");
+
+    for (auto bridge: this->m_bridges)
+        if (bridge->d->deviceAddedCallback)
+            bridge->d->deviceAddedCallback(device);
+}
+
+void AkVCam::IpcBridgePrivate::deviceDestroyed(xpc_connection_t client,
+                                               xpc_object_t event)
+{
+    UNUSED(client)
+    AkLoggerLog("IpcBridgePrivate::deviceDestroyed");
+
+    std::string device = xpc_dictionary_get_string(event, "device");
+
+    for (auto bridge: this->m_bridges)
+        if (bridge->d->deviceRemovedCallback)
+            bridge->d->deviceRemovedCallback(device);
+}
+
+void AkVCam::IpcBridgePrivate::frameReady(xpc_connection_t client,
+                                          xpc_object_t event)
+{
+    UNUSED(client)
+    AkLoggerLog("IpcBridgePrivate::frameReady");
+
+    std::string deviceId =
+            xpc_dictionary_get_string(event, "device");
+    auto frame = xpc_dictionary_get_value(event, "frame");
+    auto surface = IOSurfaceLookupFromXPCObject(frame);
+
+    if (!surface)
+        return;
+
+    uint32_t surfaceSeed = 0;
+    IOSurfaceLock(surface, kIOSurfaceLockReadOnly, &surfaceSeed);
+    FourCC fourcc = IOSurfaceGetPixelFormat(surface);
+    int width = int(IOSurfaceGetWidth(surface));
+    int height = int(IOSurfaceGetHeight(surface));
+    size_t size = IOSurfaceGetAllocSize(surface);
+    auto data = reinterpret_cast<uint8_t *>(IOSurfaceGetBaseAddress(surface));
+    AkVCam::VideoFrame videoFrame({fourcc, width, height},
+                                  data, size);
+    IOSurfaceUnlock(surface, kIOSurfaceLockReadOnly, &surfaceSeed);
+    CFRelease(surface);
+
+    for (auto bridge: this->m_bridges)
+        if (bridge->d->frameReadyCallback)
+            bridge->d->frameReadyCallback(deviceId, videoFrame);
+}
+
+void AkVCam::IpcBridgePrivate::broadcastingChanged(xpc_connection_t client,
+                                                   xpc_object_t event)
+{
+    UNUSED(client)
+    AkLoggerLog("IpcBridgePrivate::broadcastingChanged");
+
+    std::string deviceId =
+            xpc_dictionary_get_string(event, "device");
+    bool broadcasting =
+            xpc_dictionary_get_bool(event, "broadcasting");
+
+    for (auto bridge: this->m_bridges)
+        if (bridge->d->broadcastingChangedCallback)
+            bridge->d->broadcastingChangedCallback(deviceId,
+                                                   broadcasting);
+}
+
+void AkVCam::IpcBridgePrivate::mirrorChanged(xpc_connection_t client,
+                                             xpc_object_t event)
+{
+    UNUSED(client)
+    AkLoggerLog("IpcBridgePrivate::mirrorChanged");
+
+    std::string deviceId =
+            xpc_dictionary_get_string(event, "device");
+    bool horizontalMirror =
+            xpc_dictionary_get_bool(event, "hmirror");
+    bool verticalMirror =
+            xpc_dictionary_get_bool(event, "vmirror");
+
+    for (auto bridge: this->m_bridges)
+        if (bridge->d->mirrorChangedCallback)
+            bridge->d->mirrorChangedCallback(deviceId,
+                                             horizontalMirror,
+                                             verticalMirror);
+}
+
+void AkVCam::IpcBridgePrivate::scalingChanged(xpc_connection_t client,
+                                              xpc_object_t event)
+{
+    UNUSED(client)
+    AkLoggerLog("IpcBridgePrivate::scalingChanged");
+
+    std::string deviceId =
+            xpc_dictionary_get_string(event, "device");
+    auto scaling =
+            Scaling(xpc_dictionary_get_int64(event, "scaling"));
+
+    for (auto bridge: this->m_bridges)
+        if (bridge->d->scalingChangedCallback)
+            bridge->d->scalingChangedCallback(deviceId, scaling);
+}
+
+void AkVCam::IpcBridgePrivate::aspectRatioChanged(xpc_connection_t client,
+                                                  xpc_object_t event)
+{
+    UNUSED(client)
+    AkLoggerLog("IpcBridgePrivate::aspectRatioChanged");
+
+    std::string deviceId =
+            xpc_dictionary_get_string(event, "device");
+    auto aspectRatio =
+            AspectRatio(xpc_dictionary_get_int64(event, "aspect"));
+
+    for (auto bridge: this->m_bridges)
+        if (bridge->d->aspectRatioChangedCallback)
+            bridge->d->aspectRatioChangedCallback(deviceId,
+                                                  aspectRatio);
+}
+
+void AkVCam::IpcBridgePrivate::listenersChanged(xpc_connection_t client,
+                                                xpc_object_t event)
+{
+    UNUSED(client)
+    AkLoggerLog("IpcBridgePrivate::listenersChanged");
+
+    std::string deviceId =
+            xpc_dictionary_get_string(event, "device");
+    auto listeners = xpc_dictionary_get_int64(event, "listeners");
+
+    for (auto bridge: this->m_bridges)
+        if (bridge->d->listenersChangedCallback)
+            bridge->d->listenersChangedCallback(deviceId,
+                                                int(listeners));
+}
+
+void AkVCam::IpcBridgePrivate::messageReceived(xpc_connection_t client,
+                                               xpc_object_t event)
+{
+    auto type = xpc_get_type(event);
+
+    if (type == XPC_TYPE_ERROR) {
+        auto description = xpc_copy_description(event);
+        AkLoggerLog("ERROR: ", description);
+        free(description);
+    } else if (type == XPC_TYPE_DICTIONARY) {
+        auto message = xpc_dictionary_get_int64(event, "message");
+
+        if (this->m_messageHandlers.count(message))
+            this->m_messageHandlers[message](client, event);
+    }
+}
+
+std::string AkVCam::IpcBridgePrivate::homePath() const
+{
+    auto homePath = NSHomeDirectory();
+
+    if (!homePath)
+        return {};
+
+    return std::string(homePath.UTF8String);
+}
+
+bool AkVCam::IpcBridgePrivate::fileExists(const std::string &path) const
+{
+    struct stat stats;
+    memset(&stats, 0, sizeof(struct stat));
+
+    return stat(path.c_str(), &stats) == 0;
+}
+
+std::string AkVCam::IpcBridgePrivate::fileName(const std::string &path) const
+{
+    return path.substr(path.rfind("/") + 1);
+}
+
+bool AkVCam::IpcBridgePrivate::mkpath(const std::string &path) const
+{
+    if (path.empty())
+        return false;
+
+    if (this->fileExists(path))
+        return true;
+
+    // Create parent folders
+    for (auto pos = path.find('/');
+         pos != std::string::npos;
+         pos = path.find('/', pos + 1)) {
+        auto path_ = path.substr(0, pos);
+
+        if (path_.empty() || this->fileExists(path_))
+            continue;
+
+        if (mkdir(path_.c_str(),
+                  S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH))
+            return false;
+    }
+
+    return !mkdir(path.c_str(),
+                  S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+}
+
+bool AkVCam::IpcBridgePrivate::rm(const std::string &path) const
+{
+    if (path.empty())
+        return false;
+
+    struct stat stats;
+    memset(&stats, 0, sizeof(struct stat));
+
+    if (stat(path.c_str(), &stats))
+        return false;
+
+    bool ok = true;
+
+    if (S_ISDIR(stats.st_mode)) {
+        auto dir = opendir(path.c_str());
+
+        while (auto entry = readdir(dir))
+            if (strcmp(entry->d_name, ".") && strcmp(entry->d_name, ".."))
+                this->rm(entry->d_name);
+
+        closedir(dir);
+
+        ok &= !rmdir(path.c_str());
+    } else {
+        ok &= !::remove(path.c_str());
+    }
+
+    return ok;
+}
+
+bool AkVCam::IpcBridgePrivate::createDaemonPlist(const std::string &fileName) const
+{
+    std::fstream plistFile;
+    plistFile.open(fileName, std::ios_base::out);
+
+    if (!plistFile.is_open())
+        return false;
+
+    plistFile << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" << std::endl
+              << "<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" "
+              << "\"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">"
+              << std::endl
+              << "<plist version=\"1.0\">" << std::endl
+              << "    <dict>" << std::endl
+              << "        <key>Label</key>" << std::endl
+              << "        <string>" << AKVCAM_ASSISTANT_NAME
+                                    << "</string>" << std::endl
+              << "        <key>ProgramArguments</key>" << std::endl
+              << "        <array>" << std::endl
+              << "            <string>" << CMIO_PLUGINS_DAL_PATH
+                                        << "/"
+                                        << CMIO_PLUGIN_NAME
+                                        << ".plugin/Contents/Resources/"
+                                        << CMIO_PLUGIN_ASSISTANT_NAME
+                                        << "</string>" << std::endl
+              << "            <string>--timeout</string>" << std::endl
+              << "            <string>300.0</string>" << std::endl
+              << "        </array>" << std::endl
+              << "        <key>MachServices</key>" << std::endl
+              << "        <dict>" << std::endl
+              << "            <key>" << AKVCAM_ASSISTANT_NAME
+                                     << "</key>" << std::endl
+              << "            <true/>" << std::endl
+              << "        </dict>" << std::endl;
+
+#ifdef QT_DEBUG
+    std::string daemonLog = "/tmp/" AKVCAM_ASSISTANT_NAME ".log";
+
+    plistFile << "        <key>StandardOutPath</key>" << std::endl
+              << "        <string>" << daemonLog << "</string>" << std::endl
+              << "        <key>StandardErrorPath</key>" << std::endl
+              << "        <string>" << daemonLog << "</string>" << std::endl;
+#endif
+
+    plistFile << "    </dict>" << std::endl
+              << "</plist>" << std::endl;
+
+    return true;
+}
+
+bool AkVCam::IpcBridgePrivate::loadDaemon() const
+{
+    auto launchctl = popen("launchctl list " AKVCAM_ASSISTANT_NAME, "r");
+
+    if (launchctl && !pclose(launchctl))
+        return true;
+
+    auto daemonsPath = replace(CMIO_DAEMONS_PATH, "~", this->homePath());
+    auto dstDaemonsPath = daemonsPath + "/" AKVCAM_ASSISTANT_NAME ".plist";
+
+    if (!this->fileExists(dstDaemonsPath))
+        return false;
+
+    launchctl = popen(("launchctl load -w '" + dstDaemonsPath + "'").c_str(),
+                      "r");
+
+    return launchctl && !pclose(launchctl);
+}
+
+void AkVCam::IpcBridgePrivate::unloadDaemon() const
+{
+    std::string daemonPlist = AKVCAM_ASSISTANT_NAME ".plist";
+    auto daemonsPath = replace(CMIO_DAEMONS_PATH, "~", this->homePath());
+    auto dstDaemonsPath = daemonsPath + "/" + daemonPlist;
+
+    if (!this->fileExists(dstDaemonsPath))
+        return ;
+
+    auto launchctl =
+            popen(("launchctl unload -w '" + dstDaemonsPath + "'").c_str(),
+                  "r");
+    pclose(launchctl);
+}
+
+bool AkVCam::IpcBridgePrivate::checkDaemon()
+{
+    auto driverPath = replace(this->options["driverPath"], "\\", "/");
+    auto plugin = this->fileName(driverPath);
+    std::string dstPath = CMIO_PLUGINS_DAL_PATH;
+    std::string pluginInstallPath = dstPath + "/" + plugin;
+
+    if (!this->fileExists(pluginInstallPath))
+        if (this->parent->sudo({"cp", "-rvf", driverPath, dstPath}))
+            return false;
+
+    auto daemonsPath = replace(CMIO_DAEMONS_PATH, "~", this->homePath());
+    auto dstDaemonsPath = daemonsPath + "/" + AKVCAM_ASSISTANT_NAME + ".plist";
+
+    if (!this->fileExists(dstDaemonsPath)) {
+        if (!this->mkpath(daemonsPath))
+            return false;
+
+        if (!this->createDaemonPlist(dstDaemonsPath))
+            return false;
+    }
+
+    return this->loadDaemon();
+}
+
+void AkVCam::IpcBridgePrivate::uninstallPlugin()
+{
+    // Stop the daemon
+    this->unloadDaemon();
+
+    // Remove the agent plist
+    auto daemonsPath =
+            replace(CMIO_DAEMONS_PATH, "~", this->homePath());
+    this->rm(daemonsPath + "/" AKVCAM_ASSISTANT_NAME ".plist");
+
+    // Remove the plugin
+    auto driverPath = replace(this->options["driverPath"], "\\", "/");
+    auto plugin = this->fileName(driverPath);
+    std::string dstPath = CMIO_PLUGINS_DAL_PATH;
+    this->parent->sudo({"rm", "-rvf", dstPath + "/" + plugin});
 }

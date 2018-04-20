@@ -18,6 +18,8 @@
  */
 
 #include <CoreFoundation/CFRunLoop.h>
+#include <xpc/xpc.h>
+#include <xpc/connection.h>
 
 #include "assistant.h"
 #include "assistantglobals.h"
