@@ -107,7 +107,7 @@
     <message>
         <location filename="../qml/AudioConfig.qml" line="121"/>
         <source>Select the output device for audio playing</source>
-        <translation type="unfinished"></translation>
+        <translation>Seleziona il dispositivo per la riproduzione audio</translation>
     </message>
     <message>
         <location filename="../qml/AudioConfig.qml" line="134"/>
@@ -117,7 +117,7 @@
     <message>
         <location filename="../qml/AudioConfig.qml" line="137"/>
         <source>Select the device for audio capturing</source>
-        <translation type="unfinished"></translation>
+        <translation>Seleziona il dispositivo per la registrazione audio</translation>
     </message>
     <message>
         <location filename="../qml/AudioConfig.qml" line="193"/>
