@@ -31,8 +31,13 @@
     {
         namespace Logger
         {
+            typedef void (*LogCallBack)(const char *data,
+                                        size_t size,
+                                        void *userData);
+
             void start(const std::string &fileName=std::string(),
                        const std::string &extension=std::string());
+            void start(LogCallBack callback, void *userData);
             std::string header();
             std::ostream &out();
             void log();

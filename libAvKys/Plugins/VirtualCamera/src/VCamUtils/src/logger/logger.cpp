@@ -30,17 +30,20 @@
 
 namespace AkVCam
 {
-    class LoggerPrivate
+    class LoggerPrivate: public std::streambuf
     {
         public:
-            bool initialized;
-            std::string fileNamePrivate;
-            std::fstream logFilePrivate;
+            std::ostream *outs;
+            std::string fileName;
+            std::fstream logFile;
+            Logger::LogCallBack logCallback;
+            void *userData;
 
-            LoggerPrivate():
-                initialized(false)
-            {
-            }
+            LoggerPrivate();
+            ~LoggerPrivate();
+
+        protected:
+            std::streamsize xsputn(const char *s, std::streamsize n);
     };
 
     inline LoggerPrivate *loggerPrivate()
@@ -54,15 +57,16 @@ namespace AkVCam
 void AkVCam::Logger::start(const std::string &fileName,
                            const std::string &extension)
 {
-    std::stringstream ss;
-    ss << fileName
-       << "-"
-       << timeStamp()
-       << "."
-       << extension;
+    stop();
+    loggerPrivate()->fileName =
+            fileName + "-" + timeStamp() + "." + extension;
+}
 
-    loggerPrivate()->fileNamePrivate = ss.str();
-    loggerPrivate()->initialized = true;
+void AkVCam::Logger::start(LogCallBack callback, void *userData)
+{
+    stop();
+    loggerPrivate()->logCallback = callback;
+    loggerPrivate()->userData = userData;
 }
 
 std::string AkVCam::Logger::header()
@@ -82,19 +86,21 @@ std::string AkVCam::Logger::header()
 
 std::ostream &AkVCam::Logger::out()
 {
-    if (!loggerPrivate()->initialized
-        || loggerPrivate()->fileNamePrivate.empty())
+    if (loggerPrivate()->logCallback)
+        return *loggerPrivate()->outs;
+
+    if (loggerPrivate()->fileName.empty())
         return std::cout;
 
-    if (!loggerPrivate()->logFilePrivate.is_open())
-        loggerPrivate()->logFilePrivate.open(loggerPrivate()->fileNamePrivate,
+    if (!loggerPrivate()->logFile.is_open())
+        loggerPrivate()->logFile.open(loggerPrivate()->fileName,
                                              std::ios_base::out
                                              | std::ios_base::app);
 
-    if (!loggerPrivate()->logFilePrivate.is_open())
+    if (!loggerPrivate()->logFile.is_open())
         return std::cout;
 
-    return loggerPrivate()->logFilePrivate;
+    return loggerPrivate()->logFile;
 }
 
 void AkVCam::Logger::log()
@@ -109,11 +115,33 @@ void AkVCam::Logger::tlog()
 
 void AkVCam::Logger::stop()
 {
-    loggerPrivate()->initialized = false;
-    loggerPrivate()->fileNamePrivate = {};
+    loggerPrivate()->fileName = {};
 
-    if (loggerPrivate()->logFilePrivate.is_open())
-        loggerPrivate()->logFilePrivate.close();
+    if (loggerPrivate()->logFile.is_open())
+        loggerPrivate()->logFile.close();
+
+    loggerPrivate()->logCallback = nullptr;
+    loggerPrivate()->userData = nullptr;
+}
+
+AkVCam::LoggerPrivate::LoggerPrivate():
+    outs(new std::ostream(this)),
+    logCallback(nullptr),
+    userData(nullptr)
+{
+}
+
+AkVCam::LoggerPrivate::~LoggerPrivate()
+{
+    delete this->outs;
+}
+
+std::streamsize AkVCam::LoggerPrivate::xsputn(const char *s, std::streamsize n)
+{
+    if (this->logCallback)
+        this->logCallback(s, size_t(n), this->userData);
+
+    return std::streambuf::xsputn(s, n);
 }
 
 #endif

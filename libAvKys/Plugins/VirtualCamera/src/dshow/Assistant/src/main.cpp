@@ -18,21 +18,21 @@
  */
 
 #include <string>
-#include <vector>
 #include <windows.h>
 
 #include "service.h"
+#include "utils.h"
 #include "VCamUtils/src/utils.h"
 
 int main(int argc, char **argv)
 {
+    AkLoggerStart(AkVCam::tempPath() + "\\" DSHOW_PLUGIN_ASSISTANT_NAME, "log");
+
     AkVCam::Service service;
 
     if (argc > 1) {
         if (!strcmp(argv[1], "-i") || !strcmp(argv[1], "--install")) {
-            service.install();
-
-            return EXIT_SUCCESS;
+            return service.install()? EXIT_SUCCESS: EXIT_FAILURE;
         } else if (!strcmp(argv[1], "-u") || !strcmp(argv[1], "--uninstall")) {
             service.uninstall();
 
@@ -50,14 +50,17 @@ int main(int argc, char **argv)
 
     AkLoggerLog("Setting service dispatcher");
 
-    WCHAR serviceName[] = DSHOW_PLUGIN_ASSISTANT_NAME_L;
-    std::vector<SERVICE_TABLE_ENTRY> serviceTable {
+    WCHAR serviceName[] = TEXT(DSHOW_PLUGIN_ASSISTANT_NAME);
+    SERVICE_TABLE_ENTRY serviceTable[] = {
         {serviceName, serviceMain},
         {nullptr    , nullptr    }
     };
 
-    if (!StartServiceCtrlDispatcher(serviceTable.data()))
+    if (!StartServiceCtrlDispatcher(serviceTable)) {
+        AkLoggerLog("Service dispatcher failed");
+
         return EXIT_FAILURE;
+    }
 
     return EXIT_SUCCESS;
 }

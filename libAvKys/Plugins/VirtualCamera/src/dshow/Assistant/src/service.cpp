@@ -29,6 +29,12 @@
 #include "VCamUtils/src/cstream/cstream.h"
 #include "VCamUtils/src/utils.h"
 
+#define AkServiceLogMethod() \
+    AkLoggerLog("Service::", __FUNCTION__, "()")
+
+#define AkServicePrivateLogMethod() \
+    AkLoggerLog("ServicePrivate::", __FUNCTION__, "()")
+
 namespace AkVCam
 {
     class ServicePrivate
@@ -77,26 +83,31 @@ AkVCam::Service::~Service()
 
 bool AkVCam::Service::install()
 {
+    AkServiceLogMethod();
     WCHAR fileName[MAX_PATH];
 
-    if (!GetModuleFileName(nullptr, fileName, MAX_PATH))
+    if (!GetModuleFileName(nullptr, fileName, MAX_PATH)) {
+        AkLoggerLog("Can't read module file name");
+
        return false;
+    }
 
     auto scManager =
             OpenSCManager(nullptr,
                           nullptr,
                           SC_MANAGER_CONNECT | SC_MANAGER_CREATE_SERVICE);
 
-    if (!scManager)
-        return false;
+    if (!scManager) {
+        AkLoggerLog("Can't open SCManager");
 
-    bool ok = false;
+        return false;
+    }
 
     auto service =
             CreateService(scManager,
                           TEXT(DSHOW_PLUGIN_ASSISTANT_NAME),
                           TEXT(DSHOW_PLUGIN_ASSISTANT_DESCRIPTION),
-                          SERVICE_QUERY_STATUS,
+                          SERVICE_ALL_ACCESS,
                           SERVICE_WIN32_OWN_PROCESS,
                           SERVICE_DEMAND_START,
                           SERVICE_ERROR_NORMAL,
@@ -107,22 +118,37 @@ bool AkVCam::Service::install()
                           nullptr,
                           nullptr);
 
-    if (service) {
-        ok = true;
-        CloseServiceHandle(service);
+    if (!service) {
+        AkLoggerLog("Can't create service");
+        CloseServiceHandle(scManager);
+
+        return false;
     }
 
+    SERVICE_DESCRIPTION serviceDescription;
+    WCHAR description[] = TEXT(DSHOW_PLUGIN_DESCRIPTION_EXT);
+    serviceDescription.lpDescription = description;
+    auto result =
+            ChangeServiceConfig2(service,
+                                 SERVICE_CONFIG_DESCRIPTION,
+                                 &serviceDescription);
+
+    CloseServiceHandle(service);
     CloseServiceHandle(scManager);
 
-    return ok;
+    return result;
 }
 
 void AkVCam::Service::uninstall()
 {
+    AkServiceLogMethod();
     auto scManager = OpenSCManager(nullptr, nullptr, SC_MANAGER_CONNECT);
 
-    if (!scManager)
+    if (!scManager) {
+        AkLoggerLog("Can't open SCManager");
+
         return;
+    }
 
     auto sevice = OpenService(scManager,
                               TEXT(DSHOW_PLUGIN_ASSISTANT_NAME),
@@ -132,14 +158,20 @@ void AkVCam::Service::uninstall()
         if (ControlService(sevice,
                            SERVICE_CONTROL_STOP,
                            &servicePrivate()->m_status)) {
+            AkLoggerLog("Stopping service");
+
             do {
                 Sleep(1000);
                 QueryServiceStatus(sevice, &servicePrivate()->m_status);
             } while(servicePrivate()->m_status.dwCurrentState != SERVICE_STOPPED);
         }
 
-        DeleteService(sevice);
+        if (!DeleteService(sevice))
+            AkLoggerLog("Delete service failed");
+
         CloseServiceHandle(sevice);
+    } else {
+        AkLoggerLog("Can't open service");
     }
 
     CloseServiceHandle(scManager);
@@ -147,6 +179,7 @@ void AkVCam::Service::uninstall()
 
 void AkVCam::Service::debug()
 {
+    AkServiceLogMethod();
     SetConsoleCtrlHandler(controlDebugHandler, TRUE);
 
     if (servicePrivate()->init()) {
@@ -157,6 +190,7 @@ void AkVCam::Service::debug()
 
 void AkVCam::Service::showHelp(int argc, char **argv)
 {
+    AkServiceLogMethod();
     UNUSED(argc)
 
     auto programName = strrchr(argv[0], '\\');
@@ -183,6 +217,8 @@ void AkVCam::Service::showHelp(int argc, char **argv)
 
 AkVCam::ServicePrivate::ServicePrivate()
 {
+    AkServicePrivateLogMethod();
+
     this->m_status = {
         SERVICE_WIN32_OWN_PROCESS,
         SERVICE_STOPPED,
@@ -200,6 +236,8 @@ AkVCam::ServicePrivate::ServicePrivate()
 
 bool AkVCam::ServicePrivate::main()
 {
+    AkServicePrivateLogMethod();
+
     HANDLE events[] = {
         this->m_finnishEvent,
         CreateEvent(nullptr, TRUE, FALSE, nullptr)
@@ -241,6 +279,7 @@ bool AkVCam::ServicePrivate::main()
 
 bool AkVCam::ServicePrivate::init()
 {
+    AkServicePrivateLogMethod();
     bool ok = false;
 
     // Define who can read and write from pipe.
@@ -261,7 +300,7 @@ bool AkVCam::ServicePrivate::init()
 
     SECURITY_ATTRIBUTES securityAttributes;
     PSECURITY_DESCRIPTOR securityDescriptor =
-            malloc(SECURITY_DESCRIPTOR_MIN_LENGTH);
+            LocalAlloc(LPTR, SECURITY_DESCRIPTOR_MIN_LENGTH);
 
     if (!securityDescriptor)
         goto init_failed;
@@ -311,13 +350,15 @@ bool AkVCam::ServicePrivate::init()
 init_failed:
 
     if (securityDescriptor)
-        free(securityDescriptor);
+        LocalFree(securityDescriptor);
 
     return ok;
 }
 
 void AkVCam::ServicePrivate::uninit()
 {
+    AkServicePrivateLogMethod();
+
     if (this->m_finnishEvent != INVALID_HANDLE_VALUE)
         CloseHandle(this->m_finnishEvent);
 
@@ -329,10 +370,10 @@ void AkVCam::ServicePrivate::sendStatus(DWORD currentState,
                                         DWORD exitCode,
                                         DWORD wait)
 {
-    if (currentState == SERVICE_START_PENDING)
-        this->m_status.dwControlsAccepted =
-                currentState == SERVICE_START_PENDING? 0: SERVICE_ACCEPT_STOP;
+    AkServicePrivateLogMethod();
 
+    this->m_status.dwControlsAccepted =
+            currentState == SERVICE_START_PENDING? 0: SERVICE_ACCEPT_STOP;
     this->m_status.dwCurrentState = currentState;
     this->m_status.dwWin32ExitCode = exitCode;
     this->m_status.dwWaitHint = wait;
@@ -350,6 +391,8 @@ bool AkVCam::ServicePrivate::readMessage(HANDLE *events,
                                          char **data,
                                          uint32_t *dataSize)
 {
+    AkServicePrivateLogMethod();
+
     // Read message header
     Message message;
     memset(&message, 0, sizeof(Message));
@@ -413,6 +456,7 @@ DWORD WINAPI controlHandler(DWORD control,
     UNUSED(eventType)
     UNUSED(eventData)
     UNUSED(context)
+    AkLoggerLog("controlHandler()");
 
     DWORD result = ERROR_CALL_NOT_IMPLEMENTED;
 
@@ -445,6 +489,8 @@ DWORD WINAPI controlHandler(DWORD control,
 
 BOOL WINAPI controlDebugHandler(DWORD control)
 {
+    AkLoggerLog("controlDebugHandler()");
+
     if (control == CTRL_BREAK_EVENT || control == CTRL_C_EVENT) {
         AkVCam::servicePrivate()->m_running = false;
         SetEvent(AkVCam::servicePrivate()->m_finnishEvent);
@@ -459,7 +505,7 @@ void WINAPI serviceMain(DWORD dwArgc, LPTSTR *lpszArgv)
 {
     UNUSED(dwArgc)
     UNUSED(lpszArgv)
-
+    AkLoggerLog("serviceMain()");
     AkLoggerLog("Setting service control handler");
 
     AkVCam::servicePrivate()->m_statusHandler =

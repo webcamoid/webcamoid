@@ -34,26 +34,33 @@ CONFIG += console c++11
 CONFIG -= app_bundle
 CONFIG -= qt
 
-DESTDIR = $${OUT_PWD}
+DESTDIR = $${OUT_PWD}/../VirtualCamera/bin/$${TARGET_ARCH}
 
 TARGET = $${DSHOW_PLUGIN_ASSISTANT_NAME}
 
 TEMPLATE = app
 
-SOURCES += \
-    src/main.cpp \
-    src/service.cpp
-
 LIBS += \
     -L$${OUT_PWD}/../../VCamUtils -lVCamUtils \
-    -ladvapi32
+    -ladvapi32 \
+    -lole32 \
+    -lshell32 \
+    -lstrmiids \
+    -luuid
+
+SOURCES += \
+    src/main.cpp \
+    src/service.cpp \
+    ../VirtualCamera/src/utils.cpp
+
+HEADERS += \
+    src/service.h \
+    ../VirtualCamera/src/utils.h
 
 INCLUDEPATH += \
-    ../..
+    ../.. \
+    ../VirtualCamera/src
 
 isEmpty(STATIC_BUILD) | isEqual(STATIC_BUILD, 0) {
     win32-g++: QMAKE_LFLAGS = -static -static-libgcc -static-libstdc++
 }
-
-HEADERS += \
-    src/service.h

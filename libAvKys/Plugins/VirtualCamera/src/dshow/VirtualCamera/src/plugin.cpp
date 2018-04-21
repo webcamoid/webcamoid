@@ -42,7 +42,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
     setbuf(stdout, nullptr);
 #endif
 
-    AkLoggerStart(AkVCam::tempPath() + "\\AkVirtualCamera", "log");
+    AkLoggerStart(AkVCam::tempPath() + "\\" DSHOW_PLUGIN_NAME, "log");
     AkLoggerLog(__FUNCTION__, "()");
 
     switch (fdwReason) {

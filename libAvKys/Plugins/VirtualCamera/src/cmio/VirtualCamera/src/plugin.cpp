@@ -32,7 +32,7 @@ extern "C" void *akPluginMain(CFAllocatorRef allocator,
     freopen("/dev/tty", "a", stderr);
 #endif
 
-    AkLoggerStart("/tmp/AkVirtualCamera", "log");
+    AkLoggerStart("/tmp/" CMIO_PLUGIN_NAME, "log");
 
     if (!CFEqual(requestedTypeUUID, kCMIOHardwarePlugInTypeID))
         return nullptr;

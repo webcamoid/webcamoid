@@ -58,7 +58,8 @@ namespace AkVCam
             std::vector<PinPtr> enumPins(IBaseFilter *baseFilter) const;
             std::vector<VideoFormat> enumVideoFormats(IPin *pin) const;
             std::vector<std::wstring> findFiles(const std::wstring &path) const;
-            std::vector<std::wstring> findPlugins(const std::wstring &path) const;
+            std::vector<std::wstring> findFiles(const std::wstring &path,
+                                                const std::wstring &fileName) const;
             std::string regAddLine(const std::string &key,
                                    const std::string &value,
                                    const std::string &data) const;
@@ -298,8 +299,9 @@ std::string AkVCam::IpcBridge::deviceCreate(const std::string &description,
     auto driverInstallPath = programFilesPath() + "\\Webcamoid\\filter";
     std::vector<std::string> installPaths;
 
-    for (auto path: this->d->findPlugins(std::wstring(driverPath.begin(),
-                                                      driverPath.end()))) {
+    for (auto path: this->d->findFiles(std::wstring(driverPath.begin(),
+                                                    driverPath.end()),
+                                       DSHOW_PLUGIN_NAME_L L".dll")) {
         std::string path_(path.begin(), path.end());
         auto installPath = replace(path_, driverPath, driverInstallPath);
 
@@ -316,6 +318,29 @@ std::string AkVCam::IpcBridge::deviceCreate(const std::string &description,
                << std::endl;
 
         installPaths.push_back(installPath);
+    }
+
+    std::vector<std::string> assistantInstallPaths;
+
+    for (auto path: this->d->findFiles(std::wstring(driverPath.begin(),
+                                                    driverPath.end()),
+                                       DSHOW_PLUGIN_ASSISTANT_NAME_L L".exe")) {
+        std::string path_(path.begin(), path.end());
+        auto installPath = replace(path_, driverPath, driverInstallPath);
+
+        if (!isEqualFile(path_, installPath))
+            ss << "mkdir \""
+               << this->d->dirname(installPath)
+               << "\""
+               << std::endl
+               << "copy /y \""
+               << path_
+               << "\" \""
+               << installPath
+               << "\""
+               << std::endl;
+
+        assistantInstallPaths.push_back(installPath);
     }
 
     // List cameras and create a line with the number of cameras.
@@ -388,10 +413,13 @@ std::string AkVCam::IpcBridge::deviceCreate(const std::string &description,
     for (auto path: installPaths)
         ss << "regsvr32 /s \"" << path << "\"" << std::endl;
 
+    for (auto path: assistantInstallPaths)
+        ss << "\"" << path << "\" --install" << std::endl;
+
     // Create the script.
     auto scriptPath = tempPath() + "\\device_create_" + timeStamp() + ".bat";
     std::fstream script;
-    script.open(scriptPath, std::ios_base::out);
+    script.open(scriptPath, std::ios_base::out | std::ios_base::trunc);
 
     if (script.is_open()) {
         script << ss.str();
@@ -426,12 +454,24 @@ void AkVCam::IpcBridge::deviceDestroy(const std::string &deviceId)
     auto driverInstallPath = programFilesPath() + "\\Webcamoid\\filter";
     std::vector<std::string> installPaths;
 
-    for (auto path: this->d->findPlugins(std::wstring(driverPath.begin(),
-                                                      driverPath.end()))) {
+    for (auto path: this->d->findFiles(std::wstring(driverPath.begin(),
+                                                    driverPath.end()),
+                                       DSHOW_PLUGIN_NAME_L L".dll")) {
         std::string path_(path.begin(), path.end());
         auto installPath = replace(path_, driverPath, driverInstallPath);
 
         installPaths.push_back(installPath);
+    }
+
+    std::vector<std::string> assistantInstallPaths;
+
+    for (auto path: this->d->findFiles(std::wstring(driverPath.begin(),
+                                                    driverPath.end()),
+                                       DSHOW_PLUGIN_ASSISTANT_NAME_L L".exe")) {
+        std::string path_(path.begin(), path.end());
+        auto installPath = replace(path_, driverPath, driverInstallPath);
+
+        assistantInstallPaths.push_back(installPath);
     }
 
     // List cameras and create a line with the number of cameras.
@@ -461,6 +501,9 @@ void AkVCam::IpcBridge::deviceDestroy(const std::string &deviceId)
         for (auto path: installPaths)
             ss << "regsvr32 /s /u \"" << path << "\"" << std::endl;
 
+        for (auto path: assistantInstallPaths)
+            ss << "\"" << path << "\" --uninstall" << std::endl;
+
         ss << this->d->regDeleteLine("HKLM\\SOFTWARE\\Webcamoid\\VirtualCamera\\Cameras")
            << std::endl;
 
@@ -474,7 +517,7 @@ void AkVCam::IpcBridge::deviceDestroy(const std::string &deviceId)
 
     auto scriptPath = tempPath() + "\\device_destroy_" + timeStamp() + ".bat";
     std::fstream script;
-    script.open(scriptPath, std::ios_base::out);
+    script.open(scriptPath, std::ios_base::out | std::ios_base::trunc);
 
     if (script.is_open()) {
         script << ss.str();
@@ -502,8 +545,9 @@ bool AkVCam::IpcBridge::changeDescription(const std::string &deviceId,
     auto driverInstallPath = programFilesPath() + "\\Webcamoid\\filter";
     std::vector<std::string> installPaths;
 
-    for (auto path: this->d->findPlugins(std::wstring(driverPath.begin(),
-                                                      driverPath.end()))) {
+    for (auto path: this->d->findFiles(std::wstring(driverPath.begin(),
+                                                    driverPath.end()),
+                                       DSHOW_PLUGIN_NAME_L L".dll")) {
         std::string path_(path.begin(), path.end());
         auto installPath = replace(path_, driverPath, driverInstallPath);
         installPaths.push_back(installPath);
@@ -521,7 +565,7 @@ bool AkVCam::IpcBridge::changeDescription(const std::string &deviceId,
     auto scriptPath = tempPath()
                     + "\\device_change_description_" + timeStamp() + ".bat";
     std::fstream script;
-    script.open(scriptPath, std::ios_base::out);
+    script.open(scriptPath, std::ios_base::out | std::ios_base::trunc);
     bool ok = false;
 
     if (script.is_open()) {
@@ -544,17 +588,22 @@ bool AkVCam::IpcBridge::destroyAllDevices()
 
     auto driverPath = replace(this->d->options["driverPath"], "/", "\\");
     auto driverInstallPath = programFilesPath() + "\\Webcamoid\\filter";
-    std::vector<std::string> installPaths;
 
-    for (auto path: this->d->findPlugins(std::wstring(driverPath.begin(),
-                                                      driverPath.end()))) {
+    for (auto path: this->d->findFiles(std::wstring(driverPath.begin(),
+                                                    driverPath.end()),
+                                       DSHOW_PLUGIN_NAME_L L".dll")) {
         std::string path_(path.begin(), path.end());
         auto installPath = replace(path_, driverPath, driverInstallPath);
-        installPaths.push_back(installPath);
+        ss << "regsvr32 /s /u \"" << installPath << "\"" << std::endl;
     }
 
-    for (auto path: installPaths)
-        ss << "regsvr32 /s /u \"" << path << "\"" << std::endl;
+    for (auto path: this->d->findFiles(std::wstring(driverPath.begin(),
+                                                    driverPath.end()),
+                                       DSHOW_PLUGIN_ASSISTANT_NAME_L L".exe")) {
+        std::string path_(path.begin(), path.end());
+        auto installPath = replace(path_, driverPath, driverInstallPath);
+        ss << "\"" << installPath << "\" --uninstall" << std::endl;
+    }
 
     ss << this->d->regDeleteLine("HKLM\\SOFTWARE\\Webcamoid\\VirtualCamera\\Cameras")
        << std::endl;
@@ -569,7 +618,7 @@ bool AkVCam::IpcBridge::destroyAllDevices()
     auto scriptPath = tempPath()
                     + "\\device_remove_all_" + timeStamp() + ".bat";
     std::fstream script;
-    script.open(scriptPath, std::ios_base::out);
+    script.open(scriptPath, std::ios_base::out | std::ios_base::trunc);
     bool ok = false;
 
     if (script.is_open()) {
@@ -901,16 +950,16 @@ std::vector<std::wstring> AkVCam::IpcBridgePrivate::findFiles(const std::wstring
     return paths;
 }
 
-std::vector<std::wstring> AkVCam::IpcBridgePrivate::findPlugins(const std::wstring &path) const
+std::vector<std::wstring> AkVCam::IpcBridgePrivate::findFiles(const std::wstring &path,
+                                                              const std::wstring &fileName) const
 {
     std::vector<std::wstring> plugins;
-    const WCHAR pluginFileName[] = DSHOW_PLUGIN_NAME_L L".dll";
 
     for (auto file: this->findFiles(path)) {
         auto pos = file.rfind(L"\\");
-        auto fileName = file.substr(pos + 1);
+        auto fName = file.substr(pos + 1);
 
-        if (!lstrcmpi(fileName.c_str(), pluginFileName))
+        if (!lstrcmpi(fName.c_str(), fileName.c_str()))
             plugins.push_back(file);
     }
 
