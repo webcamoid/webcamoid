@@ -274,7 +274,7 @@ class MediaWriterFFmpegGlobal
                 AVCodec *codec = nullptr;
 
                 while ((codec = av_codec_next(codec))) {
-                    if (codec->capabilities & CODEC_CAP_EXPERIMENTAL
+                    if (codec->capabilities & AV_CODEC_CAP_EXPERIMENTAL
                         && CODEC_COMPLIANCE > FF_COMPLIANCE_EXPERIMENTAL)
                         continue;
 

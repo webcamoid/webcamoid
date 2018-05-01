@@ -164,8 +164,10 @@ AbstractStream::AbstractStream(const AVFormatContext *formatContext,
         this->d->m_codecContext->idct_algo = FF_IDCT_AUTO;
         this->d->m_codecContext->error_concealment = FF_EC_GUESS_MVS | FF_EC_DEBLOCK;
 
+#ifdef CODEC_FLAG_EMU_EDGE
         if (this->d->m_codec->capabilities & CODEC_CAP_DR1)
             this->d->m_codecContext->flags |= CODEC_FLAG_EMU_EDGE;
+#endif
 
         av_dict_set(&this->d->m_codecOptions, "refcounted_frames", "0", 0);
     }

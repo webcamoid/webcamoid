@@ -35,6 +35,9 @@ extern "C"
     #include <libavutil/imgutils.h>
     #include <libavutil/pixdesc.h>
     #include <libavutil/mem.h>
+    #ifndef AV_CODEC_FLAG_TRUNCATED
+    #define AV_CODEC_FLAG_TRUNCATED CODEC_FLAG_TRUNCATED
+    #endif
 }
 
 #include "convertvideoffmpeg.h"
@@ -290,11 +293,13 @@ bool ConvertVideoFFmpeg::init(const AkCaps &caps)
     if (!this->d->m_codecContext)
         return false;
 
-    if (codec->capabilities & CODEC_CAP_TRUNCATED)
-        this->d->m_codecContext->flags |= CODEC_FLAG_TRUNCATED;
+    if (codec->capabilities & AV_CODEC_CAP_TRUNCATED)
+        this->d->m_codecContext->flags |= AV_CODEC_FLAG_TRUNCATED;
 
+#ifdef CODEC_FLAG_EMU_EDGE
     if (codec->capabilities & CODEC_CAP_DR1)
         this->d->m_codecContext->flags |= CODEC_FLAG_EMU_EDGE;
+#endif
 
     this->d->m_codecContext->pix_fmt = rawToFF->value(fourcc, AV_PIX_FMT_NONE);
     this->d->m_codecContext->width = caps.property("width").toInt();
