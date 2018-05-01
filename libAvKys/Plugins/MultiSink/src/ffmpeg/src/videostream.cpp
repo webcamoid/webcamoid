@@ -308,8 +308,10 @@ int VideoStream::encodeData(AVFrame *frame)
 {
     auto formatContext = this->formatContext();
 
+#ifdef AVFMT_RAWPICTURE
     if (!frame && formatContext->oformat->flags & AVFMT_RAWPICTURE)
         return AVERROR_EOF;
+#endif
 
     auto codecContext = this->codecContext();
 
@@ -335,6 +337,7 @@ int VideoStream::encodeData(AVFrame *frame)
 
     auto stream = this->stream();
 
+#ifdef AVFMT_RAWPICTURE
     if (formatContext->oformat->flags & AVFMT_RAWPICTURE) {
         // Raw video case - directly store the picture in the packet
         AVPacket pkt;
@@ -350,6 +353,7 @@ int VideoStream::encodeData(AVFrame *frame)
 
         return 0;
     }
+#endif
 
     // encode the image
 #ifdef HAVE_SENDRECV

@@ -298,7 +298,7 @@ void AudioStream::convertPacket(const AkPacket &packet)
     this->deleteFrame(&this->d->m_frame);
     this->d->m_frame = oFrame;
 
-    if (codecContext->codec->capabilities & CODEC_CAP_VARIABLE_FRAME_SIZE
+    if (codecContext->codec->capabilities & AV_CODEC_CAP_VARIABLE_FRAME_SIZE
         || oFrame->nb_samples >= codecContext->frame_size) {
         this->d->m_frameReady.wakeAll();
     }
@@ -311,7 +311,7 @@ int AudioStream::encodeData(AVFrame *frame)
     auto codecContext = this->codecContext();
 
     if (!frame
-        && codecContext->codec->capabilities & CODEC_CAP_VARIABLE_FRAME_SIZE)
+        && codecContext->codec->capabilities & AV_CODEC_CAP_VARIABLE_FRAME_SIZE)
         return AVERROR_EOF;
 
     if (frame) {
@@ -397,7 +397,7 @@ AVFrame *AudioStream::dequeueFrame()
     this->d->m_frameMutex.lock();
 
     if (!this->d->m_frame
-        || (!(codecContext->codec->capabilities & CODEC_CAP_VARIABLE_FRAME_SIZE)
+        || (!(codecContext->codec->capabilities & AV_CODEC_CAP_VARIABLE_FRAME_SIZE)
             && this->d->m_frame->nb_samples < codecContext->frame_size)) {
         if (!this->d->m_frameReady.wait(&this->d->m_frameMutex, THREAD_WAIT_LIMIT)) {
             this->d->m_frameMutex.unlock();
@@ -408,7 +408,7 @@ AVFrame *AudioStream::dequeueFrame()
 
     AVFrame *oFrame = nullptr;
 
-    if (codecContext->codec->capabilities & CODEC_CAP_VARIABLE_FRAME_SIZE
+    if (codecContext->codec->capabilities & AV_CODEC_CAP_VARIABLE_FRAME_SIZE
         || this->d->m_frame->nb_samples == codecContext->frame_size) {
         oFrame = this->d->m_frame;
         this->d->m_frame = nullptr;

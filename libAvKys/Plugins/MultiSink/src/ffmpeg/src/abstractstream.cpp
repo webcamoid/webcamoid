@@ -110,7 +110,7 @@ AbstractStream::AbstractStream(const AVFormatContext *formatContext,
 
     // Some formats want stream headers to be separate.
     if (formatContext->oformat->flags & AVFMT_GLOBALHEADER)
-        this->d->m_codecContext->flags |= CODEC_FLAG_GLOBAL_HEADER;
+        this->d->m_codecContext->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
 
     this->d->m_codecContext->strict_std_compliance = CODEC_COMPLIANCE;
 

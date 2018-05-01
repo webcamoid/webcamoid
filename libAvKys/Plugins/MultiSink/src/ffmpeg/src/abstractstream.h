@@ -26,6 +26,15 @@ extern "C"
 {
     #include <libavformat/avformat.h>
     #include <libavcodec/avcodec.h>
+    #ifndef AV_CODEC_CAP_EXPERIMENTAL
+    #define AV_CODEC_CAP_EXPERIMENTAL CODEC_CAP_EXPERIMENTAL
+    #endif
+    #ifndef AV_CODEC_CAP_VARIABLE_FRAME_SIZE
+    #define AV_CODEC_CAP_VARIABLE_FRAME_SIZE CODEC_CAP_VARIABLE_FRAME_SIZE
+    #endif
+    #ifndef AV_CODEC_FLAG_GLOBAL_HEADER
+    #define AV_CODEC_FLAG_GLOBAL_HEADER CODEC_FLAG_GLOBAL_HEADER
+    #endif
 }
 
 #define CODEC_COMPLIANCE FF_COMPLIANCE_VERY_STRICT
