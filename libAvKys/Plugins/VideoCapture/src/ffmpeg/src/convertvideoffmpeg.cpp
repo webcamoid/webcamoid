@@ -35,6 +35,9 @@ extern "C"
     #include <libavutil/imgutils.h>
     #include <libavutil/pixdesc.h>
     #include <libavutil/mem.h>
+    #ifndef AV_CODEC_CAP_TRUNCATED
+    #define AV_CODEC_CAP_TRUNCATED CODEC_CAP_TRUNCATED
+    #endif
     #ifndef AV_CODEC_FLAG_TRUNCATED
     #define AV_CODEC_FLAG_TRUNCATED CODEC_FLAG_TRUNCATED
     #endif
