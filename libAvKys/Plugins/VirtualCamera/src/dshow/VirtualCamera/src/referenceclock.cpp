@@ -26,10 +26,6 @@
 #include <thread>
 #include <vector>
 
-#ifndef NOMINMAX
-# define NOMINMAX
-#endif
-
 #include "referenceclock.h"
 #include "utils.h"
 #include "VCamUtils/src/utils.h"
@@ -125,7 +121,7 @@ HRESULT AkVCam::ReferenceClock::AdviseTime(REFERENCE_TIME baseTime,
 
     const REFERENCE_TIME time = baseTime + streamTime;
 
-    if (time <= 0 || time == std::numeric_limits<LONGLONG>::max())
+    if (time <= 0 || time == (std::numeric_limits<LONGLONG>::max)())
         return E_INVALIDARG;
 
     auto adviseCookie = new AdviseCookiePrivate(this);
@@ -151,7 +147,7 @@ HRESULT AkVCam::ReferenceClock::AdvisePeriodic(REFERENCE_TIME startTime,
 
     if (startTime <= 0
         || periodTime <= 0
-        || startTime == std::numeric_limits<LONGLONG>::max())
+        || startTime == (std::numeric_limits<LONGLONG>::max)())
         return E_INVALIDARG;
 
     auto adviseCookie = new AdviseCookiePrivate(this);

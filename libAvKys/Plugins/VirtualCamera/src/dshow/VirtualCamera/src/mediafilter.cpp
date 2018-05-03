@@ -96,6 +96,8 @@ HRESULT AkVCam::MediaFilter::Stop()
             result = r;
     }
 
+    this->stateChanged(this->d->m_state);
+
     return result;
 }
 
@@ -111,6 +113,8 @@ HRESULT AkVCam::MediaFilter::Pause()
         if (r != S_OK)
             result = r;
     }
+
+    this->stateChanged(this->d->m_state);
 
     return result;
 }
@@ -128,6 +132,8 @@ HRESULT AkVCam::MediaFilter::Run(REFERENCE_TIME tStart)
         if (r != S_OK)
             result = r;
     }
+
+    this->stateChanged(this->d->m_state);
 
     return result;
 }
@@ -175,4 +181,9 @@ HRESULT AkVCam::MediaFilter::GetSyncSource(IReferenceClock **pClock)
         (*pClock)->AddRef();
 
     return S_OK;
+}
+
+void AkVCam::MediaFilter::stateChanged(FILTER_STATE state)
+{
+    UNUSED(state)
 }

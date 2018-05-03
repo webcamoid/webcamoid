@@ -18,7 +18,7 @@
  */
 
 #include "rcnode.h"
-#include "../cstream/cstream.h"
+#include "../cstream/cstreamread.h"
 
 AkVCam::RcNode::RcNode()
 {

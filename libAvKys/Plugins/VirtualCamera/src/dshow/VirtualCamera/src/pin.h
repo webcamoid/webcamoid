@@ -23,6 +23,7 @@
 #include <string>
 #include <vector>
 
+#include "VCamUtils/src/image/videoframetypes.h"
 #include "streamconfig.h"
 
 namespace AkVCam
@@ -30,6 +31,7 @@ namespace AkVCam
     class PinPrivate;
     class BaseFilter;
     class VideoFormat;
+    class VideoFrame;
 
     class Pin:
             public IPin,
@@ -44,6 +46,11 @@ namespace AkVCam
             BaseFilter *baseFilter() const;
             void setBaseFilter(BaseFilter *baseFilter);
             static HRESULT stateChanged(void *userData, FILTER_STATE state);
+            void frameReady(const VideoFrame &frame);
+            void setBroadcasting(bool broadcasting);
+            void setMirror(bool horizontalMirror, bool verticalMirror);
+            void setScaling(Scaling scaling);
+            void setAspectRatio(AspectRatio aspectRatio);
             bool horizontalFlip() const;
             void setHorizontalFlip(bool flip);
             bool verticalFlip() const;

@@ -50,12 +50,15 @@ LIBS += \
 
 SOURCES += \
     src/main.cpp \
+    src/messageserver.cpp \
     src/service.cpp \
-    ../VirtualCamera/src/utils.cpp
+    ../VirtualCamera/src/utils.cpp 
 
 HEADERS += \
+    src/assistantglobals.h \
+    src/messageserver.h \
     src/service.h \
-    ../VirtualCamera/src/utils.h
+    ../VirtualCamera/src/utils.h 
 
 INCLUDEPATH += \
     ../.. \

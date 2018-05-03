@@ -43,7 +43,7 @@ namespace AkVCam
             PluginInterface *self;
             ULONG m_ref;
             ULONG m_reserved;
-            AkVCam::IpcBridge m_ipcBridge;
+            IpcBridge m_ipcBridge;
 
             static HRESULT QueryInterface(void *self,
                                           REFIID uuid,

@@ -57,11 +57,11 @@ namespace AkVCam
             {
             }
 
-            inline bool startTimer();
-            inline void stopTimer();
-            inline static void streamLoop(CFRunLoopTimerRef timer, void *info);
-            inline void sendFrame(const VideoFrame &frame);
-            inline void updateTestFrame();
+            bool startTimer();
+            void stopTimer();
+            static void streamLoop(CFRunLoopTimerRef timer, void *info);
+            void sendFrame(const VideoFrame &frame);
+            void updateTestFrame();
     };
 }
 

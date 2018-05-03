@@ -21,12 +21,17 @@
 #include <cmath>
 #include <memory>
 #include <sstream>
+#include <thread>
 #include <dshow.h>
 
 #include "ipcbridge.h"
 #include "utils.h"
+#include "assistantglobals.h"
+#include "messageserver.h"
 #include "VCamUtils/src/utils.h"
 #include "VCamUtils/src/image/videoformat.h"
+#include "VCamUtils/src/cstream/cstreamread.h"
+#include "VCamUtils/src/cstream/cstreamwrite.h"
 
 #define AkIpcBridgeLogMethod() \
     AkLoggerLog("IpcBridge::", __FUNCTION__, "()")
@@ -43,7 +48,17 @@ namespace AkVCam
     {
         public:
             std::vector<std::string> devices;
+            IpcBridge::FrameReadyCallback frameReadyCallback;
+            IpcBridge::DeviceChangedCallback deviceAddedCallback;
+            IpcBridge::DeviceChangedCallback deviceRemovedCallback;
+            IpcBridge::BroadcastingChangedCallback broadcastingChangedCallback;
+            IpcBridge::MirrorChangedCallback mirrorChangedCallback;
+            IpcBridge::ScalingChangedCallback scalingChangedCallback;
+            IpcBridge::AspectRatioChangedCallback aspectRatioChangedCallback;
+            IpcBridge::ListenersChangedCallback listenersChangedCallback;
             std::map<std::string, std::string> options;
+            MessageServer messageServer;
+            std::string portName;
 
             std::vector<MonikerPtr> listCameras() const;
             static void deleteUnknown(IUnknown *unknown);
@@ -161,12 +176,72 @@ bool AkVCam::IpcBridge::registerPeer(bool asClient)
 {
     AkIpcBridgeLogMethod();
 
-    return false;
+    Message message;
+    message.messageId = AKVCAM_ASSISTANT_MSG_REQUEST_PORT;
+    message.dataSize = sizeof(MsgRequestPort);
+    auto requestData = messageData<MsgRequestPort>(&message);
+    requestData->client = asClient;
+
+    if (!MessageServer::sendMessage(L"\\\\.\\pipe\\" DSHOW_PLUGIN_ASSISTANT_NAME_L,
+                                    &message))
+        return false;
+
+    std::string portName(requestData->port);
+    std::string pipeName = "\\\\.\\pipe\\" + portName;
+    this->d->messageServer.setPipeName(std::wstring(pipeName.begin(),
+                                                    pipeName.end()));
+
+    if (!this->d->messageServer.start())
+        return false;
+
+    message.clear();
+    message.messageId = AKVCAM_ASSISTANT_MSG_ADD_PORT;
+    message.dataSize = sizeof(MsgAddPort);
+    auto addData = messageData<MsgAddPort>(&message);
+    memcpy(addData->port,
+           portName.c_str(),
+           (std::min<size_t>)(portName.size(), MAX_STRING));
+    memcpy(addData->pipeName,
+           pipeName.c_str(),
+           (std::min<size_t>)(pipeName.size(), MAX_STRING));
+
+    if (!MessageServer::sendMessage(L"\\\\.\\pipe\\" DSHOW_PLUGIN_ASSISTANT_NAME_L,
+                                    &message)) {
+        this->d->messageServer.stop(true);
+
+        return false;
+    }
+
+    if (!addData->status) {
+        this->d->messageServer.stop(true);
+
+        return false;
+    }
+
+    this->d->portName = portName;
+    AkLoggerLog("SUCCESSFUL");
+
+    return true;
 }
 
 void AkVCam::IpcBridge::unregisterPeer()
 {
     AkIpcBridgeLogMethod();
+
+    if (this->d->portName.empty())
+        return;
+
+    Message message;
+    message.messageId = AKVCAM_ASSISTANT_MSG_REMOVE_PORT;
+    message.dataSize = sizeof(MsgRemovePort);
+    auto data = messageData<MsgRemovePort>(&message);
+    memcpy(data->port,
+           this->d->portName.c_str(),
+           (std::min<size_t>)(this->d->portName.size(), MAX_STRING));
+    MessageServer::sendMessage(L"\\\\.\\pipe\\" DSHOW_PLUGIN_ASSISTANT_NAME_L,
+                               &message);
+    this->d->messageServer.stop(true);
+    this->d->portName.clear();
 }
 
 std::vector<std::string> AkVCam::IpcBridge::listDevices(bool all) const
@@ -691,30 +766,37 @@ bool AkVCam::IpcBridge::removeListener(const std::string &deviceId)
 
 void AkVCam::IpcBridge::setFrameReadyCallback(FrameReadyCallback callback)
 {
+    this->d->frameReadyCallback = callback;
 }
 
 void AkVCam::IpcBridge::setDeviceAddedCallback(DeviceChangedCallback callback)
 {
+    this->d->deviceAddedCallback = callback;
 }
 
 void AkVCam::IpcBridge::setDeviceRemovedCallback(DeviceChangedCallback callback)
 {
+    this->d->deviceRemovedCallback = callback;
 }
 
 void AkVCam::IpcBridge::setBroadcastingChangedCallback(BroadcastingChangedCallback callback)
 {
+    this->d->broadcastingChangedCallback = callback;
 }
 
 void AkVCam::IpcBridge::setMirrorChangedCallback(AkVCam::IpcBridge::MirrorChangedCallback callback)
 {
+    this->d->mirrorChangedCallback = callback;
 }
 
 void AkVCam::IpcBridge::setScalingChangedCallback(AkVCam::IpcBridge::ScalingChangedCallback callback)
 {
+    this->d->scalingChangedCallback = callback;
 }
 
 void AkVCam::IpcBridge::setAspectRatioChangedCallback(AkVCam::IpcBridge::AspectRatioChangedCallback callback)
 {
+    this->d->aspectRatioChangedCallback = callback;
 }
 
 std::vector<AkVCam::MonikerPtr> AkVCam::IpcBridgePrivate::listCameras() const

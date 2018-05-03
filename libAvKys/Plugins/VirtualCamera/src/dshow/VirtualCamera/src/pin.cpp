@@ -36,6 +36,7 @@
 #include "referenceclock.h"
 #include "utils.h"
 #include "VCamUtils/src/image/videoformat.h"
+#include "VCamUtils/src/image/videoframe.h"
 #include "VCamUtils/src/utils.h"
 
 #define AK_CUR_INTERFACE "Pin"
@@ -63,12 +64,22 @@ namespace AkVCam
             HANDLE m_sendFrameEvent;
             std::thread m_sendFrameThread;
             std::atomic<bool> m_running;
-            bool m_horizontalFlip;
+            VideoFrame m_currentFrame;
+            VideoFrame m_testFrame;
+            VideoFrame m_testFrameAdapted;
+            bool m_broadcasting;
+            bool m_horizontalFlip;   // Controlled by client
             bool m_verticalFlip;
+            bool m_horizontalMirror; // Controlled by server
+            bool m_verticalMirror;
+            Scaling m_scaling;
+            AspectRatio m_aspectRatio;
+            std::mutex m_mutex;
 
             void sendFrameOneShot();
             void sendFrameLoop();
             HRESULT sendFrame();
+            void updateTestFrame();
     };
 }
 
@@ -102,6 +113,12 @@ AkVCam::Pin::Pin(BaseFilter *baseFilter,
     this->d->m_adviseCookie = 0;
     this->d->m_sendFrameEvent = nullptr;
     this->d->m_running = false;
+    this->d->m_broadcasting = false;
+    this->d->m_testFrame = {":/VirtualCamera/share/TestFrame/TestFrame.bmp"};
+    this->d->m_horizontalMirror = false;
+    this->d->m_verticalMirror = false;
+    this->d->m_scaling = ScalingFast;
+    this->d->m_aspectRatio = AspectRatioIgnore;
 }
 
 AkVCam::Pin::~Pin()
@@ -147,6 +164,8 @@ HRESULT AkVCam::Pin::stateChanged(void *userData, FILTER_STATE state)
         if (FAILED(self->d->m_memAllocator->Commit()))
             return VFW_E_NOT_COMMITTED;
 
+        self->d->updateTestFrame();
+        self->d->m_currentFrame = self->d->m_testFrameAdapted;
         self->d->m_pts = -1;
         self->d->m_ptsDrift = 0;
 
@@ -182,11 +201,99 @@ HRESULT AkVCam::Pin::stateChanged(void *userData, FILTER_STATE state)
         CloseHandle(self->d->m_sendFrameEvent);
         self->d->m_sendFrameEvent = nullptr;
         self->d->m_memAllocator->Decommit();
+        self->d->m_currentFrame.clear();
+        self->d->m_testFrameAdapted.clear();
     }
 
     self->d->m_prevState = state;
 
     return S_OK;
+}
+
+void AkVCam::Pin::frameReady(const VideoFrame &frame)
+{
+    AkLogMethod();
+    AkLoggerLog("Running: ", this->d->m_running);
+    AkLoggerLog("Broadcasting: ", this->d->m_broadcasting);
+
+    if (!this->d->m_running)
+        return;
+
+    this->d->m_mutex.lock();
+
+    if (this->d->m_broadcasting) {
+        AM_MEDIA_TYPE *mediaType = nullptr;
+
+        if (SUCCEEDED(this->GetFormat(&mediaType))) {
+            auto format = formatFromMediaType(mediaType);
+            deleteMediaType(&mediaType);
+            FourCC fourcc = format.fourcc();
+            int width = format.width();
+            int height = format.height();
+
+            this->d->m_currentFrame =
+                    frame
+                    .mirror(this->d->m_horizontalMirror,
+                            this->d->m_verticalMirror)
+                    .scaled(width, height,
+                            this->d->m_scaling,
+                            this->d->m_aspectRatio)
+                    .convert(fourcc);
+        }
+    }
+
+    this->d->m_mutex.unlock();
+}
+
+void AkVCam::Pin::setBroadcasting(bool broadcasting)
+{
+    AkLogMethod();
+
+    if (this->d->m_broadcasting == broadcasting)
+        return;
+
+    this->d->m_mutex.lock();
+    this->d->m_broadcasting = broadcasting;
+
+    if (!broadcasting)
+        this->d->m_currentFrame = this->d->m_testFrameAdapted;
+
+    this->d->m_mutex.unlock();
+}
+
+void AkVCam::Pin::setMirror(bool horizontalMirror, bool verticalMirror)
+{
+    AkLogMethod();
+
+    if (this->d->m_horizontalMirror == horizontalMirror
+        && this->d->m_verticalMirror == verticalMirror)
+        return;
+
+    this->d->m_horizontalMirror = horizontalMirror;
+    this->d->m_verticalMirror = verticalMirror;
+    this->d->updateTestFrame();
+}
+
+void AkVCam::Pin::setScaling(Scaling scaling)
+{
+    AkLogMethod();
+
+    if (this->d->m_scaling == scaling)
+        return;
+
+    this->d->m_scaling = scaling;
+    this->d->updateTestFrame();
+}
+
+void AkVCam::Pin::setAspectRatio(AspectRatio aspectRatio)
+{
+    AkLogMethod();
+
+    if (this->d->m_aspectRatio == aspectRatio)
+        return;
+
+    this->d->m_aspectRatio = aspectRatio;
+    this->d->updateTestFrame();
 }
 
 bool AkVCam::Pin::horizontalFlip() const
@@ -706,8 +813,13 @@ HRESULT AkVCam::PinPrivate::sendFrame()
         return E_FAIL;
     }
 
-    for (LONG i = 0; i < size; i++)
-        buffer[i] = rand() % 255;
+    this->m_mutex.lock();
+    auto copyBytes = (std::min<size_t>)(size, this->m_currentFrame.dataSize());
+
+    if (copyBytes > 0)
+        memcpy(buffer, this->m_currentFrame.data().get(), copyBytes);
+
+    this->m_mutex.unlock();
 
     REFERENCE_TIME clock = 0;
     this->m_baseFilter->referenceClock()->GetTime(&clock);
@@ -747,4 +859,27 @@ HRESULT AkVCam::PinPrivate::sendFrame()
     sample->Release();
 
     return result;
+}
+
+void AkVCam::PinPrivate::updateTestFrame()
+{
+    AM_MEDIA_TYPE *mediaType = nullptr;
+
+    if (FAILED(this->self->GetFormat(&mediaType)))
+        return;
+
+    auto format = formatFromMediaType(mediaType);
+    deleteMediaType(&mediaType);
+    FourCC fourcc = format.fourcc();
+    int width = format.width();
+    int height = format.height();
+
+    this->m_testFrameAdapted =
+            this->m_testFrame
+            .mirror(this->m_horizontalMirror != this->m_horizontalFlip,
+                    this->m_verticalMirror != this->m_verticalFlip)
+            .scaled(width, height,
+                    this->m_scaling,
+                    this->m_aspectRatio)
+            .convert(fourcc);
 }

@@ -43,10 +43,12 @@ LIBS = \
 
 SOURCES = \
     src/ipcbridge.cpp \
+    ../Assistant/src/messageserver.cpp \
     ../VirtualCamera/src/utils.cpp
 
 HEADERS =  \
     ../../ipcbridge.h \
+    ../Assistant/src/messageserver.h \
     ../VirtualCamera/src/utils.h
 
 INCLUDEPATH += \

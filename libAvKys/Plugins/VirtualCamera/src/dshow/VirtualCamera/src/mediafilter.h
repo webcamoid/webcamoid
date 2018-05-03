@@ -56,6 +56,9 @@ namespace AkVCam
 
         private:
             MediaFilterPrivate *d;
+
+        protected:
+            virtual void stateChanged(FILTER_STATE state);
     };
 }
 

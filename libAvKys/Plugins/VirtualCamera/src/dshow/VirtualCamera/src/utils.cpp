@@ -883,6 +883,16 @@ std::wstring AkVCam::cameraPath(DWORD cameraIndex)
     return std::wstring(path);
 }
 
+std::wstring AkVCam::cameraPath(const CLSID &clsid)
+{
+    auto camera = cameraFromId(clsid);
+
+    if (camera < 0)
+        return {};
+
+    return cameraPath(camera);
+}
+
 DWORD AkVCam::formatsCount(DWORD cameraIndex)
 {
     std::wstringstream ss;

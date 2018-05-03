@@ -64,6 +64,9 @@ namespace AkVCam
 
         private:
             BaseFilterPrivate *d;
+
+        protected:
+            void stateChanged(FILTER_STATE state);
     };
 }
 

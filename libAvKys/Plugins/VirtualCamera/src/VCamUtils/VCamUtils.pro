@@ -38,29 +38,31 @@ TARGET = VCamUtils
 TEMPLATE = lib
 
 SOURCES += \
-    src/cstream/cstream.cpp \
+    src/cstream/cstreamread.cpp \
+    src/cstream/cstreamwrite.cpp \
     src/image/videoformat.cpp \
+    src/image/videoframe.cpp \
     src/logger/logger.cpp \
     src/resources/rcdata.cpp \
     src/resources/rcloader.cpp \
     src/resources/rcname.cpp \
     src/resources/rcnode.cpp \
-    src/image/videoframe.cpp \
-    src/utils.cpp
+    src/utils.cpp 
 
 HEADERS += \
-    src/utils.h \
-    src/cstream/cstream.h \
+    src/cstream/cstreamread.h \
+    src/cstream/cstreamwrite.h \
     src/image/color.h \
     src/image/videoformat.h \
+    src/image/videoframe.h \
+    src/image/videoframetypes.h \
+    src/image/videoformattypes.h \
     src/logger/logger.h \
     src/resources/rcdata.h \
     src/resources/rcloader.h \
     src/resources/rcname.h \
     src/resources/rcnode.h \
-    src/image/videoframe.h \
-    src/image/videoformattypes.h \
-    src/image/videoframetypes.h
+    src/utils.h
 
 isEmpty(STATIC_BUILD) | isEqual(STATIC_BUILD, 0) {
     win32-g++: QMAKE_LFLAGS = -static -static-libgcc -static-libstdc++

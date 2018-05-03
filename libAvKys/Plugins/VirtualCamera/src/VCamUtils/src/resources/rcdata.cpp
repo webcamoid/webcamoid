@@ -18,7 +18,7 @@
  */
 
 #include "rcdata.h"
-#include "../cstream/cstream.h"
+#include "../cstream/cstreamread.h"
 
 uint32_t AkVCam::RcData::size() const
 {

@@ -18,7 +18,7 @@
  */
 
 #include "rcname.h"
-#include "../cstream/cstream.h"
+#include "../cstream/cstreamread.h"
 
 std::string AkVCam::RcName::read(const unsigned char *rcName)
 {

@@ -32,9 +32,9 @@ namespace AkVCam
     class EnumPinsPrivate
     {
         public:
-        std::vector<IPin *> m_pins;
-        size_t m_position;
-        bool m_changed;
+            std::vector<IPin *> m_pins;
+            size_t m_position;
+            bool m_changed;
     };
 }
 

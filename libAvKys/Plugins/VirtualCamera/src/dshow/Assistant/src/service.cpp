@@ -17,16 +17,23 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <algorithm>
 #include <iostream>
+#include <map>
 #include <memory>
 #include <string>
 #include <thread>
+#include <vector>
 #include <windows.h>
 #include <shellapi.h>
 #include <sddl.h>
 
 #include "service.h"
-#include "VCamUtils/src/cstream/cstream.h"
+#include "messageserver.h"
+#include "VCamUtils/src/cstream/cstreamread.h"
+#include "VCamUtils/src/cstream/cstreamwrite.h"
+#include "VCamUtils/src/image/videoformat.h"
+#include "VCamUtils/src/image/videoframe.h"
 #include "VCamUtils/src/utils.h"
 
 #define AkServiceLogMethod() \
@@ -37,31 +44,45 @@
 
 namespace AkVCam
 {
+    struct AssistantDevice
+    {
+        std::string deviceId;
+        std::string description;
+        std::vector<VideoFormat> formats;
+        int listeners;
+        bool broadcasting;
+        bool horizontalMirror;
+        bool verticalMirror;
+        Scaling scaling;
+        AspectRatio aspectRatio;
+    };
+
+    struct AssistantServer
+    {
+        std::string pipeName;
+        std::vector<AssistantDevice> devices;
+    };
+
+    typedef std::map<std::string, AssistantServer> AssistantServers;
+    typedef std::map<std::string, std::string> AssistantClients;
+
     class ServicePrivate
     {
         public:
             SERVICE_STATUS m_status;
             SERVICE_STATUS_HANDLE m_statusHandler;
-            HANDLE m_pipe;
-            HANDLE m_finnishEvent;
-            std::thread m_thread;
-            bool m_running;
+            MessageServer m_messageServer;
+            AssistantServers m_servers;
+            AssistantClients m_clients;
 
             ServicePrivate();
-            bool main();
-            bool init();
-            void uninit();
+            static void stateChanged(State state, void *userData);
             void sendStatus(DWORD currentState, DWORD exitCode, DWORD wait);
-            bool readMessage(HANDLE *events,
-                             uint32_t *messageId,
-                             char **data,
-                             uint32_t *dataSize);
-    };
-
-    struct Message
-    {
-        uint32_t messageId;
-        uint32_t dataSize;
+            inline static uint64_t id();
+            void removePortByName(const std::string &portName);
+            void requestPort(Message *message);
+            void addPort(Message *message);
+            void removePort(Message *message);
     };
 
     GLOBAL_STATIC(ServicePrivate, servicePrivate)
@@ -92,10 +113,7 @@ bool AkVCam::Service::install()
        return false;
     }
 
-    auto scManager =
-            OpenSCManager(nullptr,
-                          nullptr,
-                          SC_MANAGER_CONNECT | SC_MANAGER_CREATE_SERVICE);
+    auto scManager = OpenSCManager(nullptr, nullptr, SC_MANAGER_ALL_ACCESS);
 
     if (!scManager) {
         AkLoggerLog("Can't open SCManager");
@@ -109,7 +127,7 @@ bool AkVCam::Service::install()
                           TEXT(DSHOW_PLUGIN_ASSISTANT_DESCRIPTION),
                           SERVICE_ALL_ACCESS,
                           SERVICE_WIN32_OWN_PROCESS,
-                          SERVICE_DEMAND_START,
+                          SERVICE_AUTO_START,
                           SERVICE_ERROR_NORMAL,
                           fileName,
                           nullptr,
@@ -131,8 +149,8 @@ bool AkVCam::Service::install()
     auto result =
             ChangeServiceConfig2(service,
                                  SERVICE_CONFIG_DESCRIPTION,
-                                 &serviceDescription);
-
+                                 &serviceDescription);    
+    StartService(service, 0, nullptr);
     CloseServiceHandle(service);
     CloseServiceHandle(scManager);
 
@@ -142,7 +160,7 @@ bool AkVCam::Service::install()
 void AkVCam::Service::uninstall()
 {
     AkServiceLogMethod();
-    auto scManager = OpenSCManager(nullptr, nullptr, SC_MANAGER_CONNECT);
+    auto scManager = OpenSCManager(nullptr, nullptr, SC_MANAGER_ALL_ACCESS);
 
     if (!scManager) {
         AkLoggerLog("Can't open SCManager");
@@ -152,7 +170,7 @@ void AkVCam::Service::uninstall()
 
     auto sevice = OpenService(scManager,
                               TEXT(DSHOW_PLUGIN_ASSISTANT_NAME),
-                              DELETE | SERVICE_STOP | SERVICE_QUERY_STATUS);
+                              SERVICE_ALL_ACCESS);
 
     if (sevice) {
         if (ControlService(sevice,
@@ -181,11 +199,7 @@ void AkVCam::Service::debug()
 {
     AkServiceLogMethod();
     SetConsoleCtrlHandler(controlDebugHandler, TRUE);
-
-    if (servicePrivate()->init()) {
-        servicePrivate()->m_thread.join();
-        servicePrivate()->uninit();
-    }
+    servicePrivate()->m_messageServer.start(true);
 }
 
 void AkVCam::Service::showHelp(int argc, char **argv)
@@ -229,141 +243,35 @@ AkVCam::ServicePrivate::ServicePrivate()
         0
     };
     this->m_statusHandler = nullptr;
-    this->m_pipe = INVALID_HANDLE_VALUE;
-    this->m_finnishEvent = INVALID_HANDLE_VALUE;
-    this->m_running = false;
+    this->m_messageServer.setPipeName(L"\\\\.\\pipe\\" DSHOW_PLUGIN_ASSISTANT_NAME_L);
+    this->m_messageServer.setHandlers({
+        {AKVCAM_ASSISTANT_MSG_REQUEST_PORT          , AKVCAM_BIND_FUNC(ServicePrivate::requestPort)    },
+        {AKVCAM_ASSISTANT_MSG_ADD_PORT              , AKVCAM_BIND_FUNC(ServicePrivate::addPort)        },
+        {AKVCAM_ASSISTANT_MSG_REMOVE_PORT           , AKVCAM_BIND_FUNC(ServicePrivate::removePort)     },
+    });
 }
 
-bool AkVCam::ServicePrivate::main()
+void AkVCam::ServicePrivate::stateChanged(AkVCam::State state, void *userData)
 {
-    AkServicePrivateLogMethod();
+    UNUSED(userData)
 
-    HANDLE events[] = {
-        this->m_finnishEvent,
-        CreateEvent(nullptr, TRUE, FALSE, nullptr)
-    };
+    switch (state) {
+    case StateAboutToStart:
+        AkVCam::servicePrivate()->sendStatus(SERVICE_START_PENDING, NO_ERROR, 3000);
+        break;
 
-    if (!events[1])
-        return false;
+    case StateStarted:
+        AkVCam::servicePrivate()->sendStatus(SERVICE_RUNNING, NO_ERROR, 0);
+        break;
 
-    while (this->m_running) {
-        OVERLAPPED overlaped;
-        memset(&overlaped, 0, sizeof(OVERLAPPED));
-        overlaped.hEvent = events[1];
-        ResetEvent(overlaped.hEvent);
+    case StateAboutToStop:
+        AkVCam::servicePrivate()->sendStatus(SERVICE_STOP_PENDING, NO_ERROR, 0);
+        break;
 
-        // Wait for a connection.
-        ConnectNamedPipe(this->m_pipe, &overlaped);
-
-        if (GetLastError() == ERROR_IO_PENDING
-            && WaitForMultipleObjects(2, events, FALSE, INFINITE) != WAIT_OBJECT_0 + 1)
-            break;
-
-        uint32_t messageId = 0;
-        char *data = nullptr;
-        uint32_t dataSize = 0;
-        this->readMessage(events, &messageId, &data, &dataSize);
-        std::shared_ptr<char> buffer(data, [](char *data) { delete [] data; });
-        CStreamRead stream(buffer.get());
-
-        // Process message.
-
-        DisconnectNamedPipe(this->m_pipe);
+    case StateStopped:
+        AkVCam::servicePrivate()->sendStatus(SERVICE_STOPPED, NO_ERROR, 0);
+        break;
     }
-
-    if (events[1])
-       CloseHandle(events[1]);
-
-    return true;
-}
-
-bool AkVCam::ServicePrivate::init()
-{
-    AkServicePrivateLogMethod();
-    bool ok = false;
-
-    // Define who can read and write from pipe.
-
-    /* Define the SDDL for the DACL.
-     *
-     * https://msdn.microsoft.com/en-us/library/windows/desktop/aa379570(v=vs.85).aspx
-     */
-    WCHAR descriptor[] =
-            L"D:"                   // Discretionary ACL
-            L"(D;OICI;GA;;;BG)"     // Deny access to Built-in Guests
-            L"(D;OICI;GA;;;AN)"     // Deny access to Anonymous Logon
-            L"(A;OICI;GRGWGX;;;AU)" // Allow read/write/execute to Authenticated Users
-            L"(A;OICI;GA;;;BA)";    // Allow full control to Administrators
-
-    std::wstring pipeName = L"\\\\.\\pipe\\";
-    pipeName += DSHOW_PLUGIN_ASSISTANT_NAME_L;
-
-    SECURITY_ATTRIBUTES securityAttributes;
-    PSECURITY_DESCRIPTOR securityDescriptor =
-            LocalAlloc(LPTR, SECURITY_DESCRIPTOR_MIN_LENGTH);
-
-    if (!securityDescriptor)
-        goto init_failed;
-
-    if (!InitializeSecurityDescriptor(securityDescriptor,
-                                      SECURITY_DESCRIPTOR_REVISION))
-        goto init_failed;
-
-    if (!ConvertStringSecurityDescriptorToSecurityDescriptor(descriptor,
-                                                             SDDL_REVISION_1,
-                                                             &securityDescriptor,
-                                                             nullptr))
-        goto init_failed;
-
-    securityAttributes.nLength = sizeof(SECURITY_ATTRIBUTES);
-    securityAttributes.lpSecurityDescriptor = securityDescriptor;
-    securityAttributes.bInheritHandle = TRUE;
-
-    // Create a read/write message type pipe.
-    this->m_pipe = CreateNamedPipe(pipeName.c_str(),
-                                   FILE_FLAG_OVERLAPPED
-                                   | PIPE_ACCESS_DUPLEX,
-                                   PIPE_TYPE_MESSAGE
-                                   | PIPE_READMODE_MESSAGE
-                                   | PIPE_WAIT,
-                                   1,
-                                   0,
-                                   0,
-                                   1000,
-                                   &securityAttributes);
-
-    if (this->m_pipe == INVALID_HANDLE_VALUE)
-        goto init_failed;
-
-    this->m_finnishEvent = CreateEvent(nullptr, TRUE, FALSE, nullptr);
-
-    if (this->m_finnishEvent == INVALID_HANDLE_VALUE)
-        goto init_failed;
-
-    ResetEvent(this->m_finnishEvent);
-
-    // Launch service thread.
-    this->m_running = true;
-    this->m_thread = std::thread(&ServicePrivate::main, this);
-    ok = true;
-
-init_failed:
-
-    if (securityDescriptor)
-        LocalFree(securityDescriptor);
-
-    return ok;
-}
-
-void AkVCam::ServicePrivate::uninit()
-{
-    AkServicePrivateLogMethod();
-
-    if (this->m_finnishEvent != INVALID_HANDLE_VALUE)
-        CloseHandle(this->m_finnishEvent);
-
-    if (this->m_pipe != INVALID_HANDLE_VALUE)
-        CloseHandle(this->m_pipe);
 }
 
 void AkVCam::ServicePrivate::sendStatus(DWORD currentState,
@@ -386,66 +294,91 @@ void AkVCam::ServicePrivate::sendStatus(DWORD currentState,
     SetServiceStatus(this->m_statusHandler, &this->m_status);
 }
 
-bool AkVCam::ServicePrivate::readMessage(HANDLE *events,
-                                         uint32_t *messageId,
-                                         char **data,
-                                         uint32_t *dataSize)
+uint64_t AkVCam::ServicePrivate::id()
+{
+    static uint64_t id = 0;
+
+    return id++;
+}
+
+void AkVCam::ServicePrivate::removePortByName(const std::string &portName)
+{
+    AkServicePrivateLogMethod();
+    AkLoggerLog("Port: ", portName);
+
+    for (auto &server: this->m_servers)
+        if (server.first == portName) {
+            this->m_servers.erase(portName);
+
+            break;
+        }
+
+    for (auto &client: this->m_clients)
+        if (client.first == portName) {
+            this->m_clients.erase(portName);
+
+            break;
+        }
+}
+
+void AkVCam::ServicePrivate::requestPort(AkVCam::Message *message)
 {
     AkServicePrivateLogMethod();
 
-    // Read message header
-    Message message;
-    memset(&message, 0, sizeof(Message));
+    auto data = messageData<MsgRequestPort>(message);
+    std::string portName = data->client?
+                AKVCAM_ASSISTANT_CLIENT_NAME:
+                AKVCAM_ASSISTANT_SERVER_NAME;
+    portName += std::to_string(this->id());
 
-    DWORD bytesRead = 0;
+    AkLoggerLog("Returning Port: ", portName);
+    memcpy(data->port,
+           portName.c_str(),
+           (std::min<size_t>)(portName.size(), MAX_STRING));
+}
 
-    OVERLAPPED overlaped;
-    memset(&overlaped, 0, sizeof(OVERLAPPED));
-    overlaped.hEvent = events[1];
-    ResetEvent(overlaped.hEvent);
+void AkVCam::ServicePrivate::addPort(AkVCam::Message *message)
+{
+    AkServicePrivateLogMethod();
 
-    auto ok = ReadFile(this->m_pipe,
-                       &message,
-                       sizeof(Message),
-                       &bytesRead,
-                       &overlaped);
+    auto data = messageData<MsgAddPort>(message);
+    std::string portName(data->port);
+    std::string pipeName(data->pipeName);
+    bool ok = true;
 
-    if (!ok
-        && GetLastError() == ERROR_IO_PENDING
-        && WaitForMultipleObjects(2, events, FALSE, INFINITE) != WAIT_OBJECT_0 + 1)
-        return false;
+    if (portName.find(AKVCAM_ASSISTANT_CLIENT_NAME) != std::string::npos) {
+        for (auto &client: this->m_clients)
+            if (client.first == portName) {
+                ok = false;
 
-    // Read message body
-    char *buffer = new char[message.dataSize];
+                break ;
+            }
 
-    memset(&overlaped, 0, sizeof(OVERLAPPED));
-    overlaped.hEvent = events[1];
-    ResetEvent(overlaped.hEvent);
+        if (ok) {
+            AkLoggerLog("Adding Client: ", portName);
+            this->m_clients[portName] = pipeName;
+        }
+    } else {
+        for (auto &server: this->m_servers)
+            if (server.first == portName) {
+                ok = false;
 
-    ok = ReadFile(this->m_pipe,
-                  buffer,
-                  message.dataSize,
-                  &bytesRead,
-                  &overlaped);
+                break ;
+            }
 
-    if (!ok
-        && GetLastError() == ERROR_IO_PENDING
-        && WaitForMultipleObjects(2, events, FALSE, INFINITE) != WAIT_OBJECT_0 + 1) {
-        delete [] buffer;
-
-        return false;
+        if (ok) {
+            AkLoggerLog("Adding Server: ", portName);
+            this->m_servers[portName] = {pipeName, {}};
+        }
     }
 
-    if (messageId)
-        *messageId = message.messageId;
+    data->status = ok;
+}
 
-    if (data)
-        *data = buffer;
-
-    if (dataSize)
-        *dataSize = message.dataSize;
-
-    return true;
+void AkVCam::ServicePrivate::removePort(AkVCam::Message *message)
+{
+    auto data = messageData<MsgRemovePort>(message);
+    this->removePortByName(data->port);
 }
 
 DWORD WINAPI controlHandler(DWORD control,
@@ -466,8 +399,7 @@ DWORD WINAPI controlHandler(DWORD control,
             AkVCam::servicePrivate()->sendStatus(SERVICE_STOP_PENDING,
                                                  NO_ERROR,
                                                  0);
-            AkVCam::servicePrivate()->m_running = false;
-            SetEvent(AkVCam::servicePrivate()->m_finnishEvent);
+            AkVCam::servicePrivate()->m_messageServer.stop();
             result = NO_ERROR;
 
             break;
@@ -492,8 +424,7 @@ BOOL WINAPI controlDebugHandler(DWORD control)
     AkLoggerLog("controlDebugHandler()");
 
     if (control == CTRL_BREAK_EVENT || control == CTRL_C_EVENT) {
-        AkVCam::servicePrivate()->m_running = false;
-        SetEvent(AkVCam::servicePrivate()->m_finnishEvent);
+        AkVCam::servicePrivate()->m_messageServer.stop();
 
         return TRUE;
     }
@@ -519,16 +450,8 @@ void WINAPI serviceMain(DWORD dwArgc, LPTSTR *lpszArgv)
     AkVCam::servicePrivate()->sendStatus(SERVICE_START_PENDING, NO_ERROR, 3000);
 
     AkLoggerLog("Setting up service");
-
-    if (AkVCam::servicePrivate()->init()) {
-        AkVCam::servicePrivate()->sendStatus(SERVICE_RUNNING, NO_ERROR, 0);
-        AkLoggerLog("Service started");
-        AkVCam::servicePrivate()->m_thread.join();
-        AkLoggerLog("Stopping service");
-        AkVCam::servicePrivate()->sendStatus(SERVICE_STOP_PENDING, NO_ERROR, 0);
-        AkVCam::servicePrivate()->uninit();
-    }
-
-    AkLoggerLog("Service stopped");
-    AkVCam::servicePrivate()->sendStatus(SERVICE_STOPPED, NO_ERROR, 0);
+    AkVCam::servicePrivate()->m_messageServer
+            .setStateChangedCallBack(&AkVCam::ServicePrivate::stateChanged,
+                                     AkVCam::servicePrivate());
+    AkVCam::servicePrivate()->m_messageServer.start(true);
 }

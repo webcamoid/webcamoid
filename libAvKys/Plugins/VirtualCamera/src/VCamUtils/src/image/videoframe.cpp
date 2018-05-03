@@ -23,7 +23,7 @@
 #include "videoframe.h"
 #include "videoformat.h"
 #include "../utils.h"
-#include "../cstream/cstream.h"
+#include "../cstream/cstreamread.h"
 #include "../resources/rcloader.h"
 
 namespace AkVCam

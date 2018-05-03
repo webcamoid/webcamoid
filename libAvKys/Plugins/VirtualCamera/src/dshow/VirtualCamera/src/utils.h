@@ -76,6 +76,7 @@ namespace AkVCam
     int cameraFromId(const CLSID &clsid);
     std::wstring cameraDescription(DWORD cameraId);
     std::wstring cameraPath(DWORD cameraIndex);
+    std::wstring cameraPath(const CLSID &clsid);
     DWORD formatsCount(DWORD cameraIndex);
     VideoFormat cameraFormat(DWORD cameraIndex, DWORD formatId);
     std::vector<VideoFormat> cameraFormats(DWORD cameraIndex);
