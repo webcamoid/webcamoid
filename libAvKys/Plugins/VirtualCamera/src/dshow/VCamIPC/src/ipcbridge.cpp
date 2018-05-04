@@ -25,13 +25,12 @@
 #include <dshow.h>
 
 #include "ipcbridge.h"
-#include "utils.h"
-#include "assistantglobals.h"
-#include "messageserver.h"
-#include "VCamUtils/src/utils.h"
-#include "VCamUtils/src/image/videoformat.h"
+#include "PlatformUtils/src/messageserver.h"
+#include "PlatformUtils/src/utils.h"
 #include "VCamUtils/src/cstream/cstreamread.h"
 #include "VCamUtils/src/cstream/cstreamwrite.h"
+#include "VCamUtils/src/image/videoformat.h"
+#include "VCamUtils/src/utils.h"
 
 #define AkIpcBridgeLogMethod() \
     AkLoggerLog("IpcBridge::", __FUNCTION__, "()")

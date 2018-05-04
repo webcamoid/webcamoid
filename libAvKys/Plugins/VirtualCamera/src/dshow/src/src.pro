@@ -45,6 +45,7 @@ OTHER_FILES += ../pspec.json
 
 LIBS += \
     -L$${OUT_PWD}/../VCamIPC -lVCamIPC \
+    -L$${OUT_PWD}/../PlatformUtils -lPlatformUtils \
     -L$${OUT_PWD}/../../VCamUtils -lVCamUtils \
     -ladvapi32 \
     -lstrmiids \

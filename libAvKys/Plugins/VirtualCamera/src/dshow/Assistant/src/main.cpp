@@ -21,7 +21,7 @@
 #include <windows.h>
 
 #include "service.h"
-#include "utils.h"
+#include "PlatformUtils/src/utils.h"
 #include "VCamUtils/src/utils.h"
 
 int main(int argc, char **argv)

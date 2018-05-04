@@ -28,8 +28,8 @@
 #include "specifypropertypages.h"
 #include "videocontrol.h"
 #include "videoprocamp.h"
-#include "utils.h"
 #include "ipcbridge.h"
+#include "PlatformUtils/src/utils.h"
 #include "VCamUtils/src/image/videoformat.h"
 #include "VCamUtils/src/utils.h"
 

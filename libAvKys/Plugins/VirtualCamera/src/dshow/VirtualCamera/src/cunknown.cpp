@@ -20,7 +20,7 @@
 #include <atomic>
 
 #include "cunknown.h"
-#include "utils.h"
+#include "PlatformUtils/src/utils.h"
 #include "VCamUtils/src/utils.h"
 
 #define AkCUnknownLogMethod() \

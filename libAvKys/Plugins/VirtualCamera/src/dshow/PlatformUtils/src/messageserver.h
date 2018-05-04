@@ -22,7 +22,7 @@
 
 #include <map>
 
-#include "assistantglobals.h"
+#include "messagecommons.h"
 
 namespace AkVCam
 {

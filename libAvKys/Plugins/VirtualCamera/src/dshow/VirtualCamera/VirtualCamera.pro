@@ -40,6 +40,7 @@ INCLUDEPATH += \
 LIBS += \
     -L$${OUT_PWD}/../../VCamUtils -lVCamUtils \
     -L$${OUT_PWD}/../VCamIPC -lVCamIPC \
+    -L$${OUT_PWD}/../PlatformUtils -lPlatformUtils \
     -ladvapi32 \
     -lkernel32 \
     -lole32 \
@@ -70,15 +71,14 @@ HEADERS += \
     src/pin.h \
     src/plugin.h \
     src/plugininterface.h \
+    src/propertyset.h \
     src/pushsource.h \
+    src/qualitycontrol.h \
     src/referenceclock.h \
     src/specifypropertypages.h \
     src/streamconfig.h \
-    src/utils.h \
-    src/videoprocamp.h \
-    src/propertyset.h \
     src/videocontrol.h \
-    src/qualitycontrol.h
+    src/videoprocamp.h
 
 SOURCES += \
     src/basefilter.cpp \
@@ -97,15 +97,14 @@ SOURCES += \
     src/pin.cpp \
     src/plugin.cpp \
     src/plugininterface.cpp \
+    src/propertyset.cpp \
     src/pushsource.cpp \
+    src/qualitycontrol.cpp \
     src/referenceclock.cpp \
     src/specifypropertypages.cpp \
     src/streamconfig.cpp \
-    src/utils.cpp \
-    src/videoprocamp.cpp \
-    src/propertyset.cpp \
     src/videocontrol.cpp \
-    src/qualitycontrol.cpp
+    src/videoprocamp.cpp
 
 DESTDIR = $${OUT_PWD}/bin/$${TARGET_ARCH}
 

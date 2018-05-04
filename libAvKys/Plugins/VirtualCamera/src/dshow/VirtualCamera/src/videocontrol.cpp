@@ -27,7 +27,7 @@
 #include "enumpins.h"
 #include "pin.h"
 #include "referenceclock.h"
-#include "utils.h"
+#include "PlatformUtils/src/utils.h"
 #include "VCamUtils/src/utils.h"
 #include "VCamUtils/src/image/videoformat.h"
 

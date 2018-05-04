@@ -29,7 +29,7 @@
 #include <sddl.h>
 
 #include "service.h"
-#include "messageserver.h"
+#include "PlatformUtils/src/messageserver.h"
 #include "VCamUtils/src/cstream/cstreamread.h"
 #include "VCamUtils/src/cstream/cstreamwrite.h"
 #include "VCamUtils/src/image/videoformat.h"

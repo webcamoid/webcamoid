@@ -25,7 +25,7 @@
 #include "specifypropertypages.h"
 #include "basefilter.h"
 #include "pin.h"
-#include "utils.h"
+#include "PlatformUtils/src/utils.h"
 #include "VCamUtils/src/utils.h"
 
 #define AK_CUR_INTERFACE "SpecifyPropertyPages"

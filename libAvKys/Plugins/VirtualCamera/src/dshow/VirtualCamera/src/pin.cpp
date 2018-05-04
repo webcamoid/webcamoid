@@ -34,7 +34,7 @@
 #include "pushsource.h"
 #include "qualitycontrol.h"
 #include "referenceclock.h"
-#include "utils.h"
+#include "PlatformUtils/src/utils.h"
 #include "VCamUtils/src/image/videoformat.h"
 #include "VCamUtils/src/image/videoframe.h"
 #include "VCamUtils/src/utils.h"

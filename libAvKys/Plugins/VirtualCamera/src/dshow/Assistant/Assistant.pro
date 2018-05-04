@@ -42,6 +42,7 @@ TEMPLATE = app
 
 LIBS += \
     -L$${OUT_PWD}/../../VCamUtils -lVCamUtils \
+    -L$${OUT_PWD}/../PlatformUtils -lPlatformUtils \
     -ladvapi32 \
     -lole32 \
     -lshell32 \
@@ -50,19 +51,14 @@ LIBS += \
 
 SOURCES += \
     src/main.cpp \
-    src/messageserver.cpp \
-    src/service.cpp \
-    ../VirtualCamera/src/utils.cpp 
+    src/service.cpp
 
 HEADERS += \
-    src/assistantglobals.h \
-    src/messageserver.h \
-    src/service.h \
-    ../VirtualCamera/src/utils.h 
+    src/service.h
 
 INCLUDEPATH += \
-    ../.. \
-    ../VirtualCamera/src
+    .. \
+    ../..
 
 isEmpty(STATIC_BUILD) | isEqual(STATIC_BUILD, 0) {
     win32-g++: QMAKE_LFLAGS = -static -static-libgcc -static-libstdc++

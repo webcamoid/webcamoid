@@ -20,7 +20,7 @@
 #include "plugin.h"
 #include "plugininterface.h"
 #include "classfactory.h"
-#include "utils.h"
+#include "PlatformUtils/src/utils.h"
 #include "VCamUtils/src/utils.h"
 
 inline AkVCam::PluginInterface *pluginInterface()

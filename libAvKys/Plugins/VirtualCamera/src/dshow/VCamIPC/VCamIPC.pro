@@ -39,19 +39,15 @@ TEMPLATE = lib
 
 LIBS = \
     -L$${OUT_PWD}/../../VCamUtils -lVCamUtils \
+    -L$${OUT_PWD}/../PlatformUtils -lPlatformUtils \
     -ladvapi32
 
 SOURCES = \
-    src/ipcbridge.cpp \
-    ../Assistant/src/messageserver.cpp \
-    ../VirtualCamera/src/utils.cpp
+    src/ipcbridge.cpp
 
 HEADERS =  \
-    ../../ipcbridge.h \
-    ../Assistant/src/messageserver.h \
-    ../VirtualCamera/src/utils.h
+    ../../ipcbridge.h
 
 INCLUDEPATH += \
-    ../.. \
-    ../Assistant/src \
-    ../VirtualCamera/src
+    .. \
+    ../..

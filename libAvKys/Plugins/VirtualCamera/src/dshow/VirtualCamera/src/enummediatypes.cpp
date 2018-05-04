@@ -20,7 +20,7 @@
 #include <dshow.h>
 
 #include "enummediatypes.h"
-#include "utils.h"
+#include "PlatformUtils/src/utils.h"
 #include "VCamUtils/src/image/videoformat.h"
 #include "VCamUtils/src/utils.h"
 
