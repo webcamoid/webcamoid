@@ -17,6 +17,7 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <cstring>
 #include <vector>
 
 #include "cstreamwrite.h"

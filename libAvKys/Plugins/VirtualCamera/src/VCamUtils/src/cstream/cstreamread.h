@@ -21,6 +21,7 @@
 #define AKVCAMUTILS_CSTREAMREAD_H
 
 #include <algorithm>
+#include <cstring>
 #include <string>
 
 namespace AkVCam
