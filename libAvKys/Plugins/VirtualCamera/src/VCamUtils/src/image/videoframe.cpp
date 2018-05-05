@@ -17,6 +17,7 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <cmath>
 #include <cstring>
 #include <algorithm>
 
@@ -154,9 +155,20 @@ namespace AkVCam
             }
 
             template<typename T>
-            inline static T bound(T min, T value, T max)
+            static inline T bound(T min, T value, T max)
             {
                 return value < min? min: value > max? max: value;
+            }
+
+            template<typename T>
+            inline T mod(T value, T mod)
+            {
+                return ((value < 0? mod: 0) + value) % mod;
+            }
+
+            inline int grayval(int r, int g, int b)
+            {
+                return (11 * r + 16 * g + 5 * b) >> 5;
             }
 
             inline static uint8_t rgb_y(int r, int g, int b);
@@ -167,23 +179,23 @@ namespace AkVCam
             inline static uint8_t yuv_b(int y, int u, int v);
 
             // RGB formats
-            inline static size_t rgb24_to_rgb32(void *dst, const void *src, int width, int height);
-            inline static size_t rgb24_to_rgb16(void *dst, const void *src, int width, int height);
-            inline static size_t rgb24_to_rgb15(void *dst, const void *src, int width, int height);
+            static size_t rgb24_to_rgb32(void *dst, const void *src, int width, int height);
+            static size_t rgb24_to_rgb16(void *dst, const void *src, int width, int height);
+            static size_t rgb24_to_rgb15(void *dst, const void *src, int width, int height);
 
             // BGR formats
-            inline static size_t rgb24_to_bgr32(void *dst, const void *src, int width, int height);
-            inline static size_t rgb24_to_bgr24(void *dst, const void *src, int width, int height);
-            inline static size_t rgb24_to_bgr16(void *dst, const void *src, int width, int height);
-            inline static size_t rgb24_to_bgr15(void *dst, const void *src, int width, int height);
+            static size_t rgb24_to_bgr32(void *dst, const void *src, int width, int height);
+            static size_t rgb24_to_bgr24(void *dst, const void *src, int width, int height);
+            static size_t rgb24_to_bgr16(void *dst, const void *src, int width, int height);
+            static size_t rgb24_to_bgr15(void *dst, const void *src, int width, int height);
 
             // Luminance+Chrominance formats
-            inline static size_t rgb24_to_uyvy(void *dst, const void *src, int width, int height);
-            inline static size_t rgb24_to_yuy2(void *dst, const void *src, int width, int height);
+            static size_t rgb24_to_uyvy(void *dst, const void *src, int width, int height);
+            static size_t rgb24_to_yuy2(void *dst, const void *src, int width, int height);
 
             // two planes -- one Y, one Cr + Cb interleaved
-            inline static size_t rgb24_to_nv12(void *dst, const void *src, int width, int height);
-            inline static size_t rgb24_to_nv21(void *dst, const void *src, int width, int height);
+            static size_t rgb24_to_nv12(void *dst, const void *src, int width, int height);
+            static size_t rgb24_to_nv21(void *dst, const void *src, int width, int height);
 
             inline static void extrapolateUp(int dstCoord,
                                              int num, int den, int s,
@@ -203,7 +215,25 @@ namespace AkVCam
                                           int kNumX, int kDenX,
                                           int yMin, int yMax,
                                           int kNumY, int kDenY) const;
+            inline void rgbToHsl(int r, int g, int b, int *h, int *s, int *l);
+            inline void hslToRgb(int h, int s, int l, int *r, int *g, int *b);
     };
+
+    std::vector<uint8_t> initGammaTable();
+
+    inline std::vector<uint8_t> *gammaTable() {
+        static auto gammaTable = initGammaTable();
+
+        return &gammaTable;
+    }
+
+    std::vector<uint8_t> initContrastTable();
+
+    inline std::vector<uint8_t> *contrastTable() {
+        static auto contrastTable = initContrastTable();
+
+        return &contrastTable;
+    }
 }
 
 AkVCam::VideoFrame::VideoFrame()
@@ -592,6 +622,213 @@ AkVCam::VideoFrame AkVCam::VideoFrame::convert(AkVCam::FourCC fourcc) const
                        this->d->m_data.get(),
                        this->d->m_format.width(),
                        this->d->m_format.height());
+
+    return VideoFrame(format, data, dataSize);
+}
+
+AkVCam::VideoFrame AkVCam::VideoFrame::adjustHsl(int hue,
+                                                 int saturation,
+                                                 int luminance)
+{
+    if (this->d->m_format.fourcc() != PixelFormatRGB24)
+        return {};
+
+    if (hue == 0 && saturation == 0 && luminance == 0)
+        return *this;
+
+    auto format = this->d->m_format;
+    int width = format.width();
+    int height = format.height();
+    auto len = size_t(width * height);
+    size_t dataSize = this->d->m_dataSize;
+    auto data = std::shared_ptr<uint8_t>(new uint8_t[dataSize]);
+    auto dataSrc = reinterpret_cast<RGB24 *>(this->d->m_data.get());
+    auto dataDst = reinterpret_cast<RGB24 *>(data.get());
+
+    for (size_t i = 0; i < len; i++) {
+        int h;
+        int s;
+        int l;
+        this->d->rgbToHsl(dataSrc[i].r, dataSrc[i].g, dataSrc[i].b, &h, &s, &l);
+
+        h = this->d->bound(0, h + hue, 359);
+        s = this->d->bound(0, s + saturation, 255);
+        l = this->d->bound(0, l + luminance, 255);
+
+        int r;
+        int g;
+        int b;
+        this->d->hslToRgb(h, s, l, &r, &g, &b);
+
+        dataDst[i].r = uint8_t(r);
+        dataDst[i].g = uint8_t(g);
+        dataDst[i].b = uint8_t(b);
+    }
+
+    return VideoFrame(format, data, dataSize);
+}
+
+AkVCam::VideoFrame AkVCam::VideoFrame::adjustGamma(int gamma)
+{
+    if (this->d->m_format.fourcc() != PixelFormatRGB24)
+        return {};
+
+    if (gamma == 0)
+        return *this;
+
+    auto format = this->d->m_format;
+    int width = format.width();
+    int height = format.height();
+    auto len = size_t(width * height);
+    size_t dataSize = this->d->m_dataSize;
+    auto data = std::shared_ptr<uint8_t>(new uint8_t[dataSize]);
+    auto dataSrc = reinterpret_cast<RGB24 *>(this->d->m_data.get());
+    auto dataDst = reinterpret_cast<RGB24 *>(data.get());
+    auto dataGt = gammaTable()->data();
+
+    gamma = this->d->bound(-255, gamma, 255);
+    size_t gammaOffset = size_t(gamma + 255) << 8;
+
+    for (size_t i = 0; i < len; i++) {
+        dataDst[i].r = dataGt[gammaOffset | dataSrc[i].r];
+        dataDst[i].g = dataGt[gammaOffset | dataSrc[i].g];
+        dataDst[i].b = dataGt[gammaOffset | dataSrc[i].b];
+    }
+
+    return VideoFrame(format, data, dataSize);
+}
+
+AkVCam::VideoFrame AkVCam::VideoFrame::adjustContrast(int contrast)
+{
+    if (this->d->m_format.fourcc() != PixelFormatRGB24)
+        return {};
+
+    if (contrast == 0)
+        return *this;
+
+    auto format = this->d->m_format;
+    int width = format.width();
+    int height = format.height();
+    auto len = size_t(width * height);
+    size_t dataSize = this->d->m_dataSize;
+    auto data = std::shared_ptr<uint8_t>(new uint8_t[dataSize]);
+    auto dataSrc = reinterpret_cast<RGB24 *>(this->d->m_data.get());
+    auto dataDst = reinterpret_cast<RGB24 *>(data.get());
+    auto dataCt = contrastTable()->data();
+
+    contrast = this->d->bound(-255, contrast, 255);
+    size_t contrastOffset = size_t(contrast + 255) << 8;
+
+    for (size_t i = 0; i < len; i++) {
+        dataDst[i].r = dataCt[contrastOffset | dataSrc[i].r];
+        dataDst[i].g = dataCt[contrastOffset | dataSrc[i].g];
+        dataDst[i].b = dataCt[contrastOffset | dataSrc[i].b];
+    }
+
+    return VideoFrame(format, data, dataSize);
+}
+
+AkVCam::VideoFrame AkVCam::VideoFrame::toGrayScale()
+{
+    if (this->d->m_format.fourcc() != PixelFormatRGB24)
+        return {};
+
+    auto format = this->d->m_format;
+    int width = format.width();
+    int height = format.height();
+    auto len = size_t(width * height);
+    size_t dataSize = this->d->m_dataSize;
+    auto data = std::shared_ptr<uint8_t>(new uint8_t[dataSize]);
+    auto dataSrc = reinterpret_cast<RGB24 *>(this->d->m_data.get());
+    auto dataDst = reinterpret_cast<RGB24 *>(data.get());
+
+    for (size_t i = 0; i < len; i++) {
+        int luma = this->d->grayval(dataSrc[i].r, dataSrc[i].g, dataSrc[i].b);
+
+        dataDst[i].r = uint8_t(luma);
+        dataDst[i].g = uint8_t(luma);
+        dataDst[i].b = uint8_t(luma);
+    }
+
+    return VideoFrame(format, data, dataSize);
+}
+
+AkVCam::VideoFrame AkVCam::VideoFrame::adjust(int hue,
+                                              int saturation,
+                                              int luminance,
+                                              int gamma,
+                                              int contrast,
+                                              bool gray)
+{
+    if (this->d->m_format.fourcc() != PixelFormatRGB24)
+        return {};
+
+    if (hue == 0
+        && saturation == 0
+        && luminance == 0
+        && gamma == 0
+        && contrast == 0
+        && !gray)
+        return *this;
+
+    auto format = this->d->m_format;
+    int width = format.width();
+    int height = format.height();
+    auto len = size_t(width * height);
+    size_t dataSize = this->d->m_dataSize;
+    auto data = std::shared_ptr<uint8_t>(new uint8_t[dataSize]);
+    auto dataSrc = reinterpret_cast<RGB24 *>(this->d->m_data.get());
+    auto dataDst = reinterpret_cast<RGB24 *>(data.get());
+    auto dataGt = gammaTable()->data();
+    auto dataCt = contrastTable()->data();
+
+    gamma = this->d->bound(-255, gamma, 255);
+    size_t gammaOffset = size_t(gamma + 255) << 8;
+
+    contrast = this->d->bound(-255, contrast, 255);
+    size_t contrastOffset = size_t(contrast + 255) << 8;
+
+    for (size_t i = 0; i < len; i++) {
+        int r = dataSrc[i].r;
+        int g = dataSrc[i].g;
+        int b = dataSrc[i].b;
+
+        if (hue != 0 || saturation != 0 ||  luminance != 0) {
+            int h;
+            int s;
+            int l;
+            this->d->rgbToHsl(r, g, b, &h, &s, &l);
+
+            h = this->d->bound(0, h + hue, 359);
+            s = this->d->bound(0, s + saturation, 255);
+            l = this->d->bound(0, l + luminance, 255);
+            this->d->hslToRgb(h, s, l, &r, &g, &b);
+        }
+
+        if (gamma != 0) {
+            r = dataGt[gammaOffset | size_t(r)];
+            g = dataGt[gammaOffset | size_t(g)];
+            b = dataGt[gammaOffset | size_t(b)];
+        }
+
+        if (contrast != 0) {
+            r = dataCt[contrastOffset | size_t(r)];
+            g = dataCt[contrastOffset | size_t(g)];
+            b = dataCt[contrastOffset | size_t(b)];
+        }
+
+        if (gray) {
+            int luma = this->d->grayval(r, g, b);
+
+            r = luma;
+            g = luma;
+            b = luma;
+        }
+
+        dataDst[i].r = uint8_t(r);
+        dataDst[i].g = uint8_t(g);
+        dataDst[i].b = uint8_t(b);
+    }
 
     return VideoFrame(format, data, dataSize);
 }
@@ -1002,4 +1239,108 @@ AkVCam::RGB24 AkVCam::VideoFramePrivate::extrapolateColor(int xMin, int xMax,
     auto colorMax = extrapolateColor(maxLine[xMin], maxLine[xMax], kNumX, kDenX);
 
     return extrapolateColor(colorMin, colorMax, kNumY, kDenY);
+}
+
+// https://en.wikipedia.org/wiki/HSL_and_HSV
+void AkVCam::VideoFramePrivate::rgbToHsl(int r, int g, int b, int *h, int *s, int *l)
+{
+    int max = std::max(r, std::max(g, b));
+    int min = std::min(r, std::min(g, b));
+    int c = max - min;
+
+    *l = (max + min) / 2;
+
+    if (!c) {
+        *h = 0;
+        *s = 0;
+    } else {
+        if (max == r)
+            *h = this->mod(g - b, 6 * c);
+        else if (max == g)
+            *h = b - r + 2 * c;
+        else
+            *h = r - g + 4 * c;
+
+        *h = 60 * (*h) / c;
+        *s = 255 * c / (255 - abs(max + min - 255));
+    }
+}
+
+void AkVCam::VideoFramePrivate::hslToRgb(int h, int s, int l, int *r, int *g, int *b)
+{
+    int c = s * (255 - abs(2 * l - 255)) / 255;
+    int x = c * (60 - abs((h % 120) - 60)) / 60;
+
+    if (h >= 0 && h < 60) {
+        *r = c;
+        *g = x;
+        *b = 0;
+    } else if (h >= 60 && h < 120) {
+        *r = x;
+        *g = c;
+        *b = 0;
+    } else if (h >= 120 && h < 180) {
+        *r = 0;
+        *g = c;
+        *b = x;
+    } else if (h >= 180 && h < 240) {
+        *r = 0;
+        *g = x;
+        *b = c;
+    } else if (h >= 240 && h < 300) {
+        *r = x;
+        *g = 0;
+        *b = c;
+    } else if (h >= 300 && h < 360) {
+        *r = c;
+        *g = 0;
+        *b = x;
+    } else {
+        *r = 0;
+        *g = 0;
+        *b = 0;
+    }
+
+    int m = 2 * l - c;
+
+    *r = (2 * (*r) + m) / 2;
+    *g = (2 * (*g) + m) / 2;
+    *b = (2 * (*b) + m) / 2;
+}
+
+std::vector<uint8_t> AkVCam::initGammaTable()
+{
+    std::vector<uint8_t> gammaTable;
+
+    for (int i = 0; i < 256; i++) {
+        uint8_t ig = uint8_t(255. * pow(i / 255., 255));
+        gammaTable.push_back(ig);
+    }
+
+    for (int gamma = -254; gamma < 256; gamma++) {
+        double k = 255. / (gamma + 255);
+
+        for (int i = 0; i < 256; i++) {
+            uint8_t ig = uint8_t(255. * pow(i / 255., k));
+            gammaTable.push_back(ig);
+        }
+    }
+
+    return gammaTable;
+}
+
+std::vector<uint8_t> AkVCam::initContrastTable()
+{
+    std::vector<uint8_t> contrastTable;
+
+    for (int contrast = -255; contrast < 256; contrast++) {
+        double f = 259. * (255 + contrast) / (255. * (259 - contrast));
+
+        for (int i = 0; i < 256; i++) {
+            int ic = int(f * (i - 128) + 128.);
+            contrastTable.push_back(uint8_t(VideoFramePrivate::bound(0, ic, 255)));
+        }
+    }
+
+    return contrastTable;
 }

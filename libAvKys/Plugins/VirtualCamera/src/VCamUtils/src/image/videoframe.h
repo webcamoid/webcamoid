@@ -61,6 +61,16 @@ namespace AkVCam
                               AspectRatio aspectRatio=AspectRatioIgnore) const;
             bool canConvert(FourCC input, FourCC output) const;
             VideoFrame convert(FourCC fourcc) const;
+            VideoFrame adjustHsl(int hue, int saturation, int luminance);
+            VideoFrame adjustGamma(int gamma);
+            VideoFrame adjustContrast(int contrast);
+            VideoFrame toGrayScale();
+            VideoFrame adjust(int hue,
+                              int saturation,
+                              int luminance,
+                              int gamma,
+                              int contrast,
+                              bool gray);
 
         private:
             VideoFramePrivate *d;
