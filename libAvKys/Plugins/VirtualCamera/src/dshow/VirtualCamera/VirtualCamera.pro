@@ -38,9 +38,9 @@ INCLUDEPATH += \
     ../..
 
 LIBS += \
-    -L$${OUT_PWD}/../../VCamUtils -lVCamUtils \
     -L$${OUT_PWD}/../VCamIPC -lVCamIPC \
     -L$${OUT_PWD}/../PlatformUtils -lPlatformUtils \
+    -L$${OUT_PWD}/../../VCamUtils -lVCamUtils \
     -ladvapi32 \
     -lkernel32 \
     -lole32 \
