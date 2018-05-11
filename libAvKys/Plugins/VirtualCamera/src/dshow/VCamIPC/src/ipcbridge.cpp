@@ -1015,7 +1015,7 @@ void AkVCam::IpcBridge::setAspectRatioChangedCallback(AkVCam::IpcBridge::AspectR
 
 AkVCam::IpcBridgePrivate::IpcBridgePrivate()
 {
-    this->messageHandlers = {
+    this->messageHandlers = std::map<uint32_t, MessageHandler> {
         {AKVCAM_ASSISTANT_MSG_ISALIVE                    , AKVCAM_BIND_FUNC(IpcBridgePrivate::isAlive)            },
         {AKVCAM_ASSISTANT_MSG_FRAME_READY                , AKVCAM_BIND_FUNC(IpcBridgePrivate::frameReady)         },
         {AKVCAM_ASSISTANT_MSG_DEVICE_BROADCASTING_CHANGED, AKVCAM_BIND_FUNC(IpcBridgePrivate::broadcastingChanged)},
