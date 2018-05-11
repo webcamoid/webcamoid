@@ -184,6 +184,13 @@ void AkVCam::MessageServer::stop(bool wait)
         this->d->m_thread.join();
 }
 
+bool AkVCam::MessageServer::sendMessage(const std::string &pipeName,
+                                        AkVCam::Message *message)
+{
+    return sendMessage(std::wstring(pipeName.begin(), pipeName.end()),
+                       message);
+}
+
 bool AkVCam::MessageServer::sendMessage(const std::wstring &pipeName,
                                         AkVCam::Message *message)
 {

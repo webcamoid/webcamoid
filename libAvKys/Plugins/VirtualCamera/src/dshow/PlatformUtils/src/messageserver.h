@@ -52,6 +52,8 @@ namespace AkVCam
                                          void *userData);
             bool start(bool wait=false);
             void stop(bool wait=false);
+            static bool sendMessage(const std::string &pipeName,
+                                    Message *message);
             static bool sendMessage(const std::wstring &pipeName,
                                     Message *message);
             static bool sendMessage(const std::wstring &pipeName,

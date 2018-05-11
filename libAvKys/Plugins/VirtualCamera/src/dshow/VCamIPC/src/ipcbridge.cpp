@@ -55,10 +55,13 @@ namespace AkVCam
             IpcBridge::ScalingChangedCallback scalingChangedCallback;
             IpcBridge::AspectRatioChangedCallback aspectRatioChangedCallback;
             IpcBridge::ListenersChangedCallback listenersChangedCallback;
+            std::map<uint32_t, MessageHandler> messageHandlers;
+            std::vector<std::string> broadcasting;
             std::map<std::string, std::string> options;
             MessageServer messageServer;
             std::string portName;
 
+            IpcBridgePrivate();
             std::vector<MonikerPtr> listCameras() const;
             static void deleteUnknown(IUnknown *unknown);
             BaseFilterPtr filter(IMoniker *moniker) const;
@@ -86,6 +89,15 @@ namespace AkVCam
             std::string regMoveLine(const std::string &fromKey,
                                     const std::string &toKey) const;
             std::string dirname(const std::string &path) const;
+
+            // Message handling methods
+            void isAlive(Message *message);
+            void frameReady(Message *message);
+            void broadcastingChanged(Message *message);
+            void mirrorChanged(Message *message);
+            void scalingChanged(Message *message);
+            void aspectRatioChanged(Message *message);
+            void listenersChanged(Message *message);
     };
 }
 
@@ -189,6 +201,7 @@ bool AkVCam::IpcBridge::registerPeer(bool asClient)
     std::string pipeName = "\\\\.\\pipe\\" + portName;
     this->d->messageServer.setPipeName(std::wstring(pipeName.begin(),
                                                     pipeName.end()));
+    this->d->messageServer.setHandlers(this->d->messageHandlers);
 
     if (!this->d->messageServer.start())
         return false;
@@ -314,42 +327,137 @@ bool AkVCam::IpcBridge::broadcasting(const std::string &deviceId) const
 {
     AkIpcBridgeLogMethod();
 
-    return false;
+    Message message;
+    message.messageId = AKVCAM_ASSISTANT_MSG_DEVICE_BROADCASTING;
+    message.dataSize = sizeof(MsgBroadcasting);
+    auto data = messageData<MsgBroadcasting>(&message);
+    memcpy(data->device,
+           deviceId.c_str(),
+           (std::min<size_t>)(deviceId.size(), MAX_STRING));
+
+    if (!MessageServer::sendMessage(L"\\\\.\\pipe\\" DSHOW_PLUGIN_ASSISTANT_NAME_L,
+                                    &message))
+        return false;
+
+    if (!data->status)
+        return false;
+
+    std::string owner(data->owner);
+
+    AkLoggerLog("Device: ", deviceId);
+    AkLoggerLog("Broadcasting: ", !owner.empty());
+
+    return !owner.empty();
 }
 
 bool AkVCam::IpcBridge::isHorizontalMirrored(const std::string &deviceId)
 {
     AkIpcBridgeLogMethod();
 
-    return false;
+    Message message;
+    message.messageId = AKVCAM_ASSISTANT_MSG_DEVICE_MIRRORING;
+    message.dataSize = sizeof(MsgMirroring);
+    auto data = messageData<MsgMirroring>(&message);
+    memcpy(data->device,
+           deviceId.c_str(),
+           (std::min<size_t>)(deviceId.size(), MAX_STRING));
+
+    if (!MessageServer::sendMessage(L"\\\\.\\pipe\\" DSHOW_PLUGIN_ASSISTANT_NAME_L,
+                                    &message))
+        return false;
+
+    if (!data->status)
+        return false;
+
+    return data->hmirror;
 }
 
 bool AkVCam::IpcBridge::isVerticalMirrored(const std::string &deviceId)
 {
     AkIpcBridgeLogMethod();
 
-    return false;
+    Message message;
+    message.messageId = AKVCAM_ASSISTANT_MSG_DEVICE_MIRRORING;
+    message.dataSize = sizeof(MsgMirroring);
+    auto data = messageData<MsgMirroring>(&message);
+    memcpy(data->device,
+           deviceId.c_str(),
+           (std::min<size_t>)(deviceId.size(), MAX_STRING));
+
+    if (!MessageServer::sendMessage(L"\\\\.\\pipe\\" DSHOW_PLUGIN_ASSISTANT_NAME_L,
+                                    &message))
+        return false;
+
+    if (!data->status)
+        return false;
+
+    return data->vmirror;
 }
 
 AkVCam::Scaling AkVCam::IpcBridge::scalingMode(const std::string &deviceId)
 {
     AkIpcBridgeLogMethod();
 
-    return AkVCam::Scaling(0);
+    Message message;
+    message.messageId = AKVCAM_ASSISTANT_MSG_DEVICE_SCALING;
+    message.dataSize = sizeof(MsgScaling);
+    auto data = messageData<MsgScaling>(&message);
+    memcpy(data->device,
+           deviceId.c_str(),
+           (std::min<size_t>)(deviceId.size(), MAX_STRING));
+
+    if (!MessageServer::sendMessage(L"\\\\.\\pipe\\" DSHOW_PLUGIN_ASSISTANT_NAME_L,
+                                    &message))
+        return ScalingFast;
+
+    if (!data->status)
+        return ScalingFast;
+
+    return data->scaling;
 }
 
 AkVCam::AspectRatio AkVCam::IpcBridge::aspectRatioMode(const std::string &deviceId)
 {
     AkIpcBridgeLogMethod();
 
-    return AkVCam::AspectRatio(0);
+    Message message;
+    message.messageId = AKVCAM_ASSISTANT_MSG_DEVICE_ASPECTRATIO;
+    message.dataSize = sizeof(MsgAspectRatio);
+    auto data = messageData<MsgAspectRatio>(&message);
+    memcpy(data->device,
+           deviceId.c_str(),
+           (std::min<size_t>)(deviceId.size(), MAX_STRING));
+
+    if (!MessageServer::sendMessage(L"\\\\.\\pipe\\" DSHOW_PLUGIN_ASSISTANT_NAME_L,
+                                    &message))
+        return AspectRatioIgnore;
+
+    if (!data->status)
+        return AspectRatioIgnore;
+
+    return data->aspect;
 }
 
 int AkVCam::IpcBridge::listeners(const std::string &deviceId)
 {
     AkIpcBridgeLogMethod();
 
-    return 0;
+    Message message;
+    message.messageId = AKVCAM_ASSISTANT_MSG_LISTENERS;
+    message.dataSize = sizeof(MsgListeners);
+    auto data = messageData<MsgListeners>(&message);
+    memcpy(data->device,
+           deviceId.c_str(),
+           (std::min<size_t>)(deviceId.size(), MAX_STRING));
+
+    if (!MessageServer::sendMessage(L"\\\\.\\pipe\\" DSHOW_PLUGIN_ASSISTANT_NAME_L,
+                                    &message))
+        return 0;
+
+    if (!data->status)
+        return 0;
+
+    return data->listeners;
 }
 
 std::string AkVCam::IpcBridge::deviceCreate(const std::string &description,
@@ -710,12 +818,57 @@ bool AkVCam::IpcBridge::deviceStart(const std::string &deviceId)
 {
     AkIpcBridgeLogMethod();
 
-    return false;
+    auto it = std::find(this->d->broadcasting.begin(),
+                        this->d->broadcasting.end(),
+                        deviceId);
+
+    if (it != this->d->broadcasting.end())
+        return false;
+
+    Message message;
+    message.messageId = AKVCAM_ASSISTANT_MSG_DEVICE_SETBROADCASTING;
+    message.dataSize = sizeof(MsgBroadcasting);
+    auto data = messageData<MsgBroadcasting>(&message);
+    memcpy(data->device,
+           deviceId.c_str(),
+           (std::min<size_t>)(deviceId.size(), MAX_STRING));
+    memcpy(data->owner,
+           this->d->portName.c_str(),
+           (std::min<size_t>)(this->d->portName.size(), MAX_STRING));
+
+    if (!MessageServer::sendMessage(L"\\\\.\\pipe\\" DSHOW_PLUGIN_ASSISTANT_NAME_L,
+                                    &message))
+        return false;
+
+    this->d->broadcasting.push_back(deviceId);
+
+    return data->status;
 }
 
 void AkVCam::IpcBridge::deviceStop(const std::string &deviceId)
 {
     AkIpcBridgeLogMethod();
+
+    auto it = std::find(this->d->broadcasting.begin(),
+                        this->d->broadcasting.end(),
+                        deviceId);
+
+    if (it == this->d->broadcasting.end())
+        return;
+
+    Message message;
+    message.messageId = AKVCAM_ASSISTANT_MSG_DEVICE_SETBROADCASTING;
+    message.dataSize = sizeof(MsgBroadcasting);
+    auto data = messageData<MsgBroadcasting>(&message);
+    memcpy(data->device,
+           deviceId.c_str(),
+           (std::min<size_t>)(deviceId.size(), MAX_STRING));
+
+    MessageServer::sendMessage(L"\\\\.\\pipe\\" DSHOW_PLUGIN_ASSISTANT_NAME_L,
+                               &message);
+    this->d->broadcasting.erase(it);
+
+    return;
 }
 
 bool AkVCam::IpcBridge::write(const std::string &deviceId,
@@ -731,36 +884,98 @@ void AkVCam::IpcBridge::setMirroring(const std::string &deviceId,
                                      bool verticalMirrored)
 {
     AkIpcBridgeLogMethod();
+
+    Message message;
+    message.messageId = AKVCAM_ASSISTANT_MSG_DEVICE_SETMIRRORING;
+    message.dataSize = sizeof(MsgMirroring);
+    auto data = messageData<MsgMirroring>(&message);
+    memcpy(data->device,
+           deviceId.c_str(),
+           (std::min<size_t>)(deviceId.size(), MAX_STRING));
+    data->hmirror = horizontalMirrored;
+    data->vmirror = verticalMirrored;
+
+    MessageServer::sendMessage(L"\\\\.\\pipe\\" DSHOW_PLUGIN_ASSISTANT_NAME_L,
+                               &message);
 }
 
 void AkVCam::IpcBridge::setScaling(const std::string &deviceId,
                                    Scaling scaling)
 {
     AkIpcBridgeLogMethod();
+
+    Message message;
+    message.messageId = AKVCAM_ASSISTANT_MSG_DEVICE_SETSCALING;
+    message.dataSize = sizeof(MsgScaling);
+    auto data = messageData<MsgScaling>(&message);
+    memcpy(data->device,
+           deviceId.c_str(),
+           (std::min<size_t>)(deviceId.size(), MAX_STRING));
+    data->scaling = scaling;
+
+    MessageServer::sendMessage(L"\\\\.\\pipe\\" DSHOW_PLUGIN_ASSISTANT_NAME_L,
+                               &message);
 }
 
 void AkVCam::IpcBridge::setAspectRatio(const std::string &deviceId,
                                        AspectRatio aspectRatio)
 {
     AkIpcBridgeLogMethod();
+
+    Message message;
+    message.messageId = AKVCAM_ASSISTANT_MSG_DEVICE_SETASPECTRATIO;
+    message.dataSize = sizeof(MsgAspectRatio);
+    auto data = messageData<MsgAspectRatio>(&message);
+    memcpy(data->device,
+           deviceId.c_str(),
+           (std::min<size_t>)(deviceId.size(), MAX_STRING));
+    data->aspect = aspectRatio;
+
+    MessageServer::sendMessage(L"\\\\.\\pipe\\" DSHOW_PLUGIN_ASSISTANT_NAME_L,
+                               &message);
 }
 
 void AkVCam::IpcBridge::setListenersChangedCallback(ListenersChangedCallback callback)
 {
+    this->d->listenersChangedCallback = callback;
 }
 
 bool AkVCam::IpcBridge::addListener(const std::string &deviceId)
 {
     AkIpcBridgeLogMethod();
 
-    return false;
+    Message message;
+    message.messageId = AKVCAM_ASSISTANT_MSG_ADD_LISTENER;
+    message.dataSize = sizeof(MsgListeners);
+    auto data = messageData<MsgListeners>(&message);
+    memcpy(data->device,
+           deviceId.c_str(),
+           (std::min<size_t>)(deviceId.size(), MAX_STRING));
+
+    if (!MessageServer::sendMessage(L"\\\\.\\pipe\\" DSHOW_PLUGIN_ASSISTANT_NAME_L,
+                                    &message))
+        return false;
+
+    return data->status;
 }
 
 bool AkVCam::IpcBridge::removeListener(const std::string &deviceId)
 {
     AkIpcBridgeLogMethod();
 
-    return true;
+    Message message;
+    message.messageId = AKVCAM_ASSISTANT_MSG_REMOVE_LISTENER;
+    message.dataSize = sizeof(MsgListeners);
+    auto data = messageData<MsgListeners>(&message);
+    memcpy(data->device,
+           deviceId.c_str(),
+           (std::min<size_t>)(deviceId.size(), MAX_STRING));
+
+    if (!MessageServer::sendMessage(L"\\\\.\\pipe\\" DSHOW_PLUGIN_ASSISTANT_NAME_L,
+                                    &message))
+        return false;
+
+    return data->status;
 }
 
 void AkVCam::IpcBridge::setFrameReadyCallback(FrameReadyCallback callback)
@@ -796,6 +1011,19 @@ void AkVCam::IpcBridge::setScalingChangedCallback(AkVCam::IpcBridge::ScalingChan
 void AkVCam::IpcBridge::setAspectRatioChangedCallback(AkVCam::IpcBridge::AspectRatioChangedCallback callback)
 {
     this->d->aspectRatioChangedCallback = callback;
+}
+
+AkVCam::IpcBridgePrivate::IpcBridgePrivate()
+{
+    this->messageHandlers = {
+        {AKVCAM_ASSISTANT_MSG_ISALIVE                    , AKVCAM_BIND_FUNC(IpcBridgePrivate::isAlive)            },
+        {AKVCAM_ASSISTANT_MSG_FRAME_READY                , AKVCAM_BIND_FUNC(IpcBridgePrivate::frameReady)         },
+        {AKVCAM_ASSISTANT_MSG_DEVICE_BROADCASTING_CHANGED, AKVCAM_BIND_FUNC(IpcBridgePrivate::broadcastingChanged)},
+        {AKVCAM_ASSISTANT_MSG_DEVICE_MIRRORING_CHANGED   , AKVCAM_BIND_FUNC(IpcBridgePrivate::mirrorChanged)      },
+        {AKVCAM_ASSISTANT_MSG_DEVICE_SCALING_CHANGED     , AKVCAM_BIND_FUNC(IpcBridgePrivate::scalingChanged)     },
+        {AKVCAM_ASSISTANT_MSG_DEVICE_ASPECTRATIO_CHANGED , AKVCAM_BIND_FUNC(IpcBridgePrivate::aspectRatioChanged) },
+        {AKVCAM_ASSISTANT_MSG_LISTENERS_CHANGED          , AKVCAM_BIND_FUNC(IpcBridgePrivate::listenersChanged)   },
+    };
 }
 
 std::vector<AkVCam::MonikerPtr> AkVCam::IpcBridgePrivate::listCameras() const
@@ -1105,4 +1333,61 @@ std::string AkVCam::IpcBridgePrivate::regMoveLine(const std::string &fromKey,
 std::string AkVCam::IpcBridgePrivate::dirname(const std::string &path) const
 {
     return path.substr(0, path.rfind("\\"));
+}
+
+void AkVCam::IpcBridgePrivate::isAlive(AkVCam::Message *message)
+{
+    auto data = messageData<MsgIsAlive>(message);
+    data->alive = true;
+}
+
+void AkVCam::IpcBridgePrivate::frameReady(AkVCam::Message *message)
+{
+
+}
+
+void AkVCam::IpcBridgePrivate::broadcastingChanged(AkVCam::Message *message)
+{
+    auto data = messageData<MsgBroadcasting>(message);
+    std::string deviceId(data->device);
+    std::string owner(data->owner);
+
+    if (this->broadcastingChangedCallback)
+        this->broadcastingChangedCallback(deviceId, !owner.empty());
+}
+
+void AkVCam::IpcBridgePrivate::mirrorChanged(AkVCam::Message *message)
+{
+    auto data = messageData<MsgMirroring>(message);
+    std::string deviceId(data->device);
+
+    if (this->mirrorChangedCallback)
+        this->mirrorChangedCallback(deviceId, data->hmirror, data->vmirror);
+}
+
+void AkVCam::IpcBridgePrivate::scalingChanged(AkVCam::Message *message)
+{
+    auto data = messageData<MsgScaling>(message);
+    std::string deviceId(data->device);
+
+    if (this->scalingChangedCallback)
+        this->scalingChangedCallback(deviceId, data->scaling);
+}
+
+void AkVCam::IpcBridgePrivate::aspectRatioChanged(AkVCam::Message *message)
+{
+    auto data = messageData<MsgAspectRatio>(message);
+    std::string deviceId(data->device);
+
+    if (this->aspectRatioChangedCallback)
+        this->aspectRatioChangedCallback(deviceId, data->aspect);
+}
+
+void AkVCam::IpcBridgePrivate::listenersChanged(AkVCam::Message *message)
+{
+    auto data = messageData<MsgListeners>(message);
+    std::string deviceId(data->device);
+
+    if (this->listenersChangedCallback)
+        this->listenersChangedCallback(deviceId, data->listeners);
 }

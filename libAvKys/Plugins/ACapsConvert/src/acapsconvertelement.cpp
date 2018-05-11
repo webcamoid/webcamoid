@@ -19,13 +19,13 @@
 
 #include <QSharedPointer>
 #include <QMutex>
+#include <akcaps.h>
+#include <akpacket.h>
+#include <akaudiocaps.h>
 
 #include "acapsconvertelement.h"
 #include "acapsconvertglobals.h"
 #include "convertaudio.h"
-#include "akcaps.h"
-#include "akpacket.h"
-#include "akaudiocaps.h"
 
 Q_GLOBAL_STATIC(ACapsConvertGlobals, globalACapsConvert)
 

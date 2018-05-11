@@ -46,25 +46,16 @@ namespace AkVCam
 {
     struct AssistantDevice
     {
-        std::string deviceId;
-        std::string description;
-        std::vector<VideoFormat> formats;
+        std::string owner;
         int listeners;
-        bool broadcasting;
         bool horizontalMirror;
         bool verticalMirror;
         Scaling scaling;
         AspectRatio aspectRatio;
     };
 
-    struct AssistantServer
-    {
-        std::string pipeName;
-        std::vector<AssistantDevice> devices;
-    };
-
-    typedef std::map<std::string, AssistantServer> AssistantServers;
-    typedef std::map<std::string, std::string> AssistantClients;
+    typedef std::map<std::string, std::string> AssistantPeers;
+    typedef std::map<std::string, AssistantDevice> DeviceConfigs;
 
     class ServicePrivate
     {
@@ -72,8 +63,9 @@ namespace AkVCam
             SERVICE_STATUS m_status;
             SERVICE_STATUS_HANDLE m_statusHandler;
             MessageServer m_messageServer;
-            AssistantServers m_servers;
-            AssistantClients m_clients;
+            AssistantPeers m_servers;
+            AssistantPeers m_clients;
+            DeviceConfigs m_deviceConfigs;
 
             ServicePrivate();
             static void stateChanged(State state, void *userData);
@@ -83,6 +75,18 @@ namespace AkVCam
             void requestPort(Message *message);
             void addPort(Message *message);
             void removePort(Message *message);
+            void setBroadCasting(Message *message);
+            void setMirroring(Message *message);
+            void setScaling(Message *message);
+            void setAspectRatio(Message *message);
+            void frameReady(Message *message);
+            void listeners(Message *message);
+            void broadcasting(Message *message);
+            void mirroring(Message *message);
+            void scaling(Message *message);
+            void aspectRatio(Message *message);
+            void addListener(Message *message);
+            void removeListener(Message *message);
     };
 
     GLOBAL_STATIC(ServicePrivate, servicePrivate)
@@ -248,6 +252,18 @@ AkVCam::ServicePrivate::ServicePrivate()
         {AKVCAM_ASSISTANT_MSG_REQUEST_PORT          , AKVCAM_BIND_FUNC(ServicePrivate::requestPort)    },
         {AKVCAM_ASSISTANT_MSG_ADD_PORT              , AKVCAM_BIND_FUNC(ServicePrivate::addPort)        },
         {AKVCAM_ASSISTANT_MSG_REMOVE_PORT           , AKVCAM_BIND_FUNC(ServicePrivate::removePort)     },
+        {AKVCAM_ASSISTANT_MSG_DEVICE_SETBROADCASTING, AKVCAM_BIND_FUNC(ServicePrivate::setBroadCasting)},
+        {AKVCAM_ASSISTANT_MSG_DEVICE_SETMIRRORING   , AKVCAM_BIND_FUNC(ServicePrivate::setMirroring)   },
+        {AKVCAM_ASSISTANT_MSG_DEVICE_SETSCALING     , AKVCAM_BIND_FUNC(ServicePrivate::setScaling)     },
+        {AKVCAM_ASSISTANT_MSG_DEVICE_SETASPECTRATIO , AKVCAM_BIND_FUNC(ServicePrivate::setAspectRatio) },
+        {AKVCAM_ASSISTANT_MSG_FRAME_READY           , AKVCAM_BIND_FUNC(ServicePrivate::frameReady)     },
+        {AKVCAM_ASSISTANT_MSG_LISTENERS             , AKVCAM_BIND_FUNC(ServicePrivate::listeners)      },
+        {AKVCAM_ASSISTANT_MSG_DEVICE_BROADCASTING   , AKVCAM_BIND_FUNC(ServicePrivate::broadcasting)   },
+        {AKVCAM_ASSISTANT_MSG_DEVICE_MIRRORING      , AKVCAM_BIND_FUNC(ServicePrivate::mirroring)      },
+        {AKVCAM_ASSISTANT_MSG_DEVICE_SCALING        , AKVCAM_BIND_FUNC(ServicePrivate::scaling)        },
+        {AKVCAM_ASSISTANT_MSG_DEVICE_ASPECTRATIO    , AKVCAM_BIND_FUNC(ServicePrivate::aspectRatio)    },
+        {AKVCAM_ASSISTANT_MSG_ADD_LISTENER          , AKVCAM_BIND_FUNC(ServicePrivate::addListener)    },
+        {AKVCAM_ASSISTANT_MSG_REMOVE_LISTENER       , AKVCAM_BIND_FUNC(ServicePrivate::removeListener) },
     });
 }
 
@@ -346,30 +362,23 @@ void AkVCam::ServicePrivate::addPort(AkVCam::Message *message)
     std::string pipeName(data->pipeName);
     bool ok = true;
 
-    if (portName.find(AKVCAM_ASSISTANT_CLIENT_NAME) != std::string::npos) {
-        for (auto &client: this->m_clients)
-            if (client.first == portName) {
-                ok = false;
+    AssistantPeers *peers;
 
-                break ;
-            }
+    if (portName.find(AKVCAM_ASSISTANT_CLIENT_NAME) != std::string::npos)
+        peers = &this->m_clients;
+    else
+        peers = &this->m_servers;
 
-        if (ok) {
-            AkLoggerLog("Adding Client: ", portName);
-            this->m_clients[portName] = pipeName;
+    for (auto &peer: *peers)
+        if (peer.first == portName) {
+            ok = false;
+
+            break ;
         }
-    } else {
-        for (auto &server: this->m_servers)
-            if (server.first == portName) {
-                ok = false;
 
-                break ;
-            }
-
-        if (ok) {
-            AkLoggerLog("Adding Server: ", portName);
-            this->m_servers[portName] = {pipeName, {}};
-        }
+    if (ok) {
+        AkLoggerLog("Adding Peer: ", portName);
+        peers->at(portName) = pipeName;
     }
 
     data->status = ok;
@@ -377,8 +386,251 @@ void AkVCam::ServicePrivate::addPort(AkVCam::Message *message)
 
 void AkVCam::ServicePrivate::removePort(AkVCam::Message *message)
 {
+    AkServicePrivateLogMethod();
+
     auto data = messageData<MsgRemovePort>(message);
     this->removePortByName(data->port);
+}
+
+void AkVCam::ServicePrivate::setBroadCasting(AkVCam::Message *message)
+{
+    AkServicePrivateLogMethod();
+    auto data = messageData<MsgBroadcasting>(message);
+    std::string deviceId(data->device);
+    data->status = false;
+
+    for (auto &device: this->m_deviceConfigs)
+        if (device.first == deviceId) {
+            std::string owner(data->owner);
+
+            if (device.second.owner == owner)
+                break;
+
+            AkLoggerLog("Device: ", deviceId);
+            AkLoggerLog("Owner: ", owner);
+            device.second.owner = owner;
+            data->status = true;
+
+            Message msg(message);
+            msg.messageId = AKVCAM_ASSISTANT_MSG_DEVICE_BROADCASTING_CHANGED;
+
+            for (auto &client: this->m_clients)
+                MessageServer::sendMessage(client.second, &msg);
+
+            break;
+        }
+}
+
+void AkVCam::ServicePrivate::setMirroring(AkVCam::Message *message)
+{
+    AkServicePrivateLogMethod();
+    auto data = messageData<MsgMirroring>(message);
+    std::string deviceId(data->device);
+    data->status = false;
+
+    for (auto &device: this->m_deviceConfigs)
+        if (device.first == deviceId) {
+            if (device.second.horizontalMirror == data->hmirror
+                && device.second.verticalMirror == data->vmirror)
+                break;
+
+            device.second.horizontalMirror = data->hmirror;
+            device.second.verticalMirror = data->vmirror;
+            data->status = true;
+
+            Message msg(message);
+            msg.messageId = AKVCAM_ASSISTANT_MSG_DEVICE_MIRRORING_CHANGED;
+
+            for (auto &client: this->m_clients)
+                MessageServer::sendMessage(client.second, &msg);
+
+            break;
+        }
+}
+
+void AkVCam::ServicePrivate::setScaling(AkVCam::Message *message)
+{
+    AkServicePrivateLogMethod();
+    auto data = messageData<MsgScaling>(message);
+    std::string deviceId(data->device);
+    data->status = false;
+
+    for (auto &device: this->m_deviceConfigs)
+        if (device.first == deviceId) {
+            if (device.second.scaling == data->scaling)
+                break;
+
+            device.second.scaling = data->scaling;
+            data->status = true;
+
+            Message msg(message);
+            msg.messageId = AKVCAM_ASSISTANT_MSG_DEVICE_SCALING_CHANGED;
+
+            for (auto &client: this->m_clients)
+                MessageServer::sendMessage(client.second, &msg);
+
+            break;
+        }
+}
+
+void AkVCam::ServicePrivate::setAspectRatio(AkVCam::Message *message)
+{
+    AkServicePrivateLogMethod();
+    auto data = messageData<MsgAspectRatio>(message);
+    std::string deviceId(data->device);
+    data->status = false;
+
+    for (auto &device: this->m_deviceConfigs)
+        if (device.first == deviceId) {
+            if (device.second.aspectRatio == data->aspect)
+                break;
+
+            device.second.aspectRatio = data->aspect;
+            data->status = true;
+
+            Message msg(message);
+            msg.messageId = AKVCAM_ASSISTANT_MSG_DEVICE_ASPECTRATIO_CHANGED;
+
+            for (auto &client: this->m_clients)
+                MessageServer::sendMessage(client.second, &msg);
+
+            break;
+        }
+}
+
+void AkVCam::ServicePrivate::frameReady(AkVCam::Message *message)
+{
+    AkServicePrivateLogMethod();
+
+    for (auto &client: this->m_clients)
+        MessageServer::sendMessage(client.second, message);
+}
+
+void AkVCam::ServicePrivate::listeners(AkVCam::Message *message)
+{
+    AkServicePrivateLogMethod();
+    auto data = messageData<MsgListeners>(message);
+    std::string deviceId(data->device);
+    data->status = false;
+
+    for (auto &device: this->m_deviceConfigs)
+        if (device.first == deviceId) {
+            data->listeners = device.second.listeners;
+            data->status = true;
+
+            break;
+        }
+}
+
+void AkVCam::ServicePrivate::broadcasting(AkVCam::Message *message)
+{
+    AkServicePrivateLogMethod();
+    auto data = messageData<MsgBroadcasting>(message);
+    std::string deviceId(data->device);
+    data->status = false;
+
+    for (auto &device: this->m_deviceConfigs)
+        if (device.first == deviceId) {
+            memcpy(data->owner,
+                   device.second.owner.c_str(),
+                   std::min<size_t>(device.second.owner.size(), MAX_STRING));
+            data->status = true;
+
+            break;
+        }
+}
+
+void AkVCam::ServicePrivate::mirroring(AkVCam::Message *message)
+{
+    AkServicePrivateLogMethod();
+    auto data = messageData<MsgMirroring>(message);
+    std::string deviceId(data->device);
+    data->status = false;
+
+    for (auto &device: this->m_deviceConfigs)
+        if (device.first == deviceId) {
+            data->hmirror = device.second.horizontalMirror;
+            data->vmirror = device.second.verticalMirror;
+            data->status = true;
+
+            break;
+        }
+}
+
+void AkVCam::ServicePrivate::scaling(AkVCam::Message *message)
+{
+    AkServicePrivateLogMethod();
+    auto data = messageData<MsgScaling>(message);
+    std::string deviceId(data->device);
+    data->status = false;
+
+    for (auto &device: this->m_deviceConfigs)
+        if (device.first == deviceId) {
+            data->scaling = device.second.scaling;
+            data->status = true;
+
+            break;
+        }
+}
+
+void AkVCam::ServicePrivate::aspectRatio(AkVCam::Message *message)
+{
+    AkServicePrivateLogMethod();
+    auto data = messageData<MsgAspectRatio>(message);
+    std::string deviceId(data->device);
+    data->status = false;
+
+    for (auto &device: this->m_deviceConfigs)
+        if (device.first == deviceId) {
+            data->aspect = device.second.aspectRatio;
+            data->status = true;
+
+            break;
+        }
+}
+
+void AkVCam::ServicePrivate::addListener(AkVCam::Message *message)
+{
+    AkServicePrivateLogMethod();
+    auto data = messageData<MsgListeners>(message);
+    std::string deviceId(data->device);
+    data->status = false;
+
+    for (auto &device: this->m_deviceConfigs)
+        if (device.first == deviceId) {
+            device.second.listeners++;
+            data->status = true;
+
+            Message msg(message);
+            msg.messageId = AKVCAM_ASSISTANT_MSG_LISTENERS_CHANGED;
+
+            for (auto &client: this->m_clients)
+                MessageServer::sendMessage(client.second, &msg);
+
+            break;
+        }
+}
+
+void AkVCam::ServicePrivate::removeListener(AkVCam::Message *message)
+{
+    AkServicePrivateLogMethod();
+    auto data = messageData<MsgListeners>(message);
+    std::string deviceId(data->device);
+    data->status = false;
+
+    for (auto &device: this->m_deviceConfigs)
+        if (device.first == deviceId) {
+            device.second.listeners--;
+            data->status = true;
+
+            Message msg(message);
+            msg.messageId = AKVCAM_ASSISTANT_MSG_LISTENERS_CHANGED;
+
+            for (auto &client: this->m_clients)
+                MessageServer::sendMessage(client.second, &msg);
+
+            break;
+        }
 }
 
 DWORD WINAPI controlHandler(DWORD control,

@@ -24,6 +24,8 @@
 #include <cstring>
 #include <functional>
 
+#include "VCamUtils/src/image/videoframetypes.h"
+
 #define AKVCAM_ASSISTANT_CLIENT_NAME "AkVCam\\Client"
 #define AKVCAM_ASSISTANT_SERVER_NAME "AkVCam\\Server"
 
@@ -82,6 +84,31 @@ namespace AkVCam
             memset(this->data, 0, MSG_BUFFER_SIZE);
         }
 
+        Message(const Message &other):
+            messageId(other.messageId),
+            dataSize(other.dataSize)
+        {
+            memcpy(this->data, other.data, MSG_BUFFER_SIZE);
+        }
+
+        Message(const Message *other):
+            messageId(other->messageId),
+            dataSize(other->dataSize)
+        {
+            memcpy(this->data, other->data, MSG_BUFFER_SIZE);
+        }
+
+        Message &operator =(const Message &other)
+        {
+            if (this != &other) {
+                this->messageId = other.messageId;
+                this->dataSize = other.dataSize;
+                memcpy(this->data, other.data, MSG_BUFFER_SIZE);
+            }
+
+            return *this;
+        }
+
         inline void clear()
         {
             this->messageId = 0;
@@ -100,27 +127,61 @@ namespace AkVCam
 
     struct MsgRequestPort
     {
-        // Q
         bool client;
-
-        // A
         char port[MAX_STRING];
     };
 
     struct MsgAddPort
     {
-        // Q
         char port[MAX_STRING];
         char pipeName[MAX_STRING];
-
-        // A
         bool status;
     };
 
     struct MsgRemovePort
     {
-        // Q
         char port[MAX_STRING];
+    };
+
+    struct MsgBroadcasting
+    {
+        char device[MAX_STRING];
+        char owner[MAX_STRING];
+        bool status;
+    };
+
+    struct MsgMirroring
+    {
+        char device[MAX_STRING];
+        bool hmirror;
+        bool vmirror;
+        bool status;
+    };
+
+    struct MsgScaling
+    {
+        char device[MAX_STRING];
+        Scaling scaling;
+        bool status;
+    };
+
+    struct MsgAspectRatio
+    {
+        char device[MAX_STRING];
+        AspectRatio aspect;
+        bool status;
+    };
+
+    struct MsgListeners
+    {
+        char device[MAX_STRING];
+        int listeners;
+        bool status;
+    };
+
+    struct MsgIsAlive
+    {
+        bool alive;
     };
 }
 

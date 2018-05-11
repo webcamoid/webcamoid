@@ -19,9 +19,9 @@
 
 #include <akaudiocaps.h>
 #include <akaudiopacket.h>
+#include <akpacket.h>
 
 #include "convertaudio.h"
-#include "akpacket.h"
 
 ConvertAudio::ConvertAudio(QObject *parent):
     QObject(parent)

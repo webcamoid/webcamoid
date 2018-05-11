@@ -20,7 +20,7 @@
 #ifndef ACAPSCONVERTELEMENT_H
 #define ACAPSCONVERTELEMENT_H
 
-#include "akelement.h"
+#include <akelement.h>
 
 class ACapsConvertElementPrivate;
 class AkCaps;
