@@ -148,7 +148,7 @@ elif [ "${DOCKERSYS}" = fedora ]; then
         pulseaudio-libs-devel \
         jack-audio-connection-kit-devel
 elif [ "${DOCKERSYS}" = opensuse ]; then
-    ${EXEC} zypper -n update
+    ${EXEC} zypper -n dup
 
     ${EXEC} zypper -n in \
         which \
