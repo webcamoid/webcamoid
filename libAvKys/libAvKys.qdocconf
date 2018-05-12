@@ -66,6 +66,6 @@ macro.emptyspan.DITAXML    = " "
 dita.metadata.default.author      = Gonzalo Exequiel Pedone
 dita.metadata.default.permissions = all
 dita.metadata.default.publisher   = Gonzalo Exequiel Pedone
-dita.metadata.default.copyryear   = 2011-2017
+dita.metadata.default.copyryear   = 2016
 dita.metadata.default.copyrholder = Gonzalo Exequiel Pedone
 dita.metadata.default.audience    = user

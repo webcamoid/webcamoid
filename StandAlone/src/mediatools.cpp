@@ -1,5 +1,5 @@
 /* Webcamoid, webcam capture application.
- * Copyright (C) 2011-2017  Gonzalo Exequiel Pedone
+ * Copyright (C) 2015  Gonzalo Exequiel Pedone
  *
  * Webcamoid is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,7 +50,7 @@
 #define COMMONS_PROJECT_LICENSE_URL "https://raw.githubusercontent.com/webcamoid/webcamoid/master/COPYING"
 #define COMMONS_PROJECT_DOWNLOADS_URL "https://webcamoid.github.io/#downloads"
 #define COMMONS_PROJECT_ISSUES_URL "https://github.com/webcamoid/webcamoid/issues"
-#define COMMONS_COPYRIGHT_NOTICE "Copyright (C) 2011-2017  Gonzalo Exequiel Pedone"
+#define COMMONS_COPYRIGHT_NOTICE "Copyright (C) 2011-2018  Gonzalo Exequiel Pedone"
 
 class MediaToolsPrivate
 {
@@ -62,19 +62,19 @@ class MediaToolsPrivate
         VideoEffectsPtr m_videoEffects;
         RecordingPtr m_recording;
         UpdatesPtr m_updates;
-        int m_windowWidth;
-        int m_windowHeight;
-        bool m_enableVirtualCamera;
         AkElementPtr m_virtualCamera;
         QSystemTrayIcon *m_trayIcon;
         CliOptions m_cliOptions;
+        int m_windowWidth;
+        int m_windowHeight;
+        bool m_enableVirtualCamera;
 
         MediaToolsPrivate():
             m_engine(nullptr),
+            m_trayIcon(nullptr),
             m_windowWidth(0),
             m_windowHeight(0),
-            m_enableVirtualCamera(false),
-            m_trayIcon(nullptr)
+            m_enableVirtualCamera(false)
         {
         }
 
