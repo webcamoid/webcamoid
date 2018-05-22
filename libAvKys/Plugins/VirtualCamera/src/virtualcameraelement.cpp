@@ -81,6 +81,8 @@ class VirtualCameraElementPrivate
             m_streamIndex(-1)
         {
         }
+
+        inline QImage swapChannels(const QImage &image) const;
 };
 
 VirtualCameraElement::VirtualCameraElement():
@@ -285,6 +287,25 @@ bool VirtualCameraElement::removeAllWebcams(const QString &password)
         return false;
 
     return this->d->m_cameraOut->removeAllWebcams(password);
+}
+
+QImage VirtualCameraElementPrivate::swapChannels(const QImage &image) const
+{
+    QImage swapped(image.size(), image.format());
+
+    for (int y = 0; y < image.height(); y++) {
+        auto src = reinterpret_cast<const XRGB *>(image.constScanLine(y));
+        auto dst = reinterpret_cast<BGRX *>(swapped.scanLine(y));
+
+        for (int x = 0; x < image.width(); x++) {
+            dst[x].x = src[x].x;
+            dst[x].r = src[x].r;
+            dst[x].g = src[x].g;
+            dst[x].b = src[x].b;
+        }
+    }
+
+    return swapped;
 }
 
 QString VirtualCameraElement::controlInterfaceProvide(const QString &controlId) const
