@@ -147,6 +147,7 @@ bool AkVCam::Service::install()
         return false;
     }
 
+    // Add detailed description to the service.
     SERVICE_DESCRIPTION serviceDescription;
     WCHAR description[] = TEXT(DSHOW_PLUGIN_DESCRIPTION_EXT);
     serviceDescription.lpDescription = description;
@@ -154,6 +155,28 @@ bool AkVCam::Service::install()
             ChangeServiceConfig2(service,
                                  SERVICE_CONFIG_DESCRIPTION,
                                  &serviceDescription);
+
+    // Configure the service so it will restart if fail.
+    WCHAR rebootMsg[] = L"Service failed restarting...";
+
+    std::vector<SC_ACTION> actions {
+        {SC_ACTION_RESTART, 5000}
+    };
+
+    SERVICE_FAILURE_ACTIONS failureActions {
+        INFINITE,
+        rebootMsg,
+        nullptr,
+        actions.size(),
+        actions.data()
+    };
+
+    result =
+        ChangeServiceConfig2(service,
+                             SERVICE_CONFIG_FAILURE_ACTIONS,
+                             &failureActions);
+
+    // Run the service
     StartService(service, 0, nullptr);
     CloseServiceHandle(service);
     CloseServiceHandle(scManager);
