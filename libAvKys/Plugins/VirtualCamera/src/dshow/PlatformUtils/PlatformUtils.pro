@@ -43,12 +43,16 @@ LIBS = \
 
 SOURCES = \
     src/messageserver.cpp \
-    src/utils.cpp
+    src/mutex.cpp \
+    src/utils.cpp \
+    src/sharedmemory.cpp
 
 HEADERS =  \
+    src/messagecommons.h \
     src/messageserver.h \
+    src/mutex.h \
     src/utils.h \
-    src/messagecommons.h
+    src/sharedmemory.h
 
 INCLUDEPATH += \
     ../..

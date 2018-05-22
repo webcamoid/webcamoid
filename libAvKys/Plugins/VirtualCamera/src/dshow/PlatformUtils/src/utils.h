@@ -74,6 +74,8 @@ namespace AkVCam
     std::wstring createDevicePath();
     int cameraFromId(const std::wstring &path);
     int cameraFromId(const CLSID &clsid);
+    bool cameraExists(const std::string &path);
+    bool cameraExists(const std::wstring &path);
     std::wstring cameraDescription(DWORD cameraId);
     std::wstring cameraPath(DWORD cameraIndex);
     std::wstring cameraPath(const CLSID &clsid);

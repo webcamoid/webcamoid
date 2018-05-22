@@ -26,8 +26,8 @@
 
 #include "VCamUtils/src/image/videoframetypes.h"
 
-#define AKVCAM_ASSISTANT_CLIENT_NAME "AkVCam\\Client"
-#define AKVCAM_ASSISTANT_SERVER_NAME "AkVCam\\Server"
+#define AKVCAM_ASSISTANT_CLIENT_NAME "AkVCam_Client"
+#define AKVCAM_ASSISTANT_SERVER_NAME "AkVCam_Server"
 
 // General messages
 #define AKVCAM_ASSISTANT_MSG_REQUEST_PORT                0x000
@@ -70,7 +70,16 @@
     std::bind(&member, this, std::placeholders::_1)
 
 namespace AkVCam
-{
+{    
+    struct Frame
+    {
+        uint32_t format;
+        int32_t width;
+        int32_t height;
+        uint32_t size;
+        uint8_t data[4];
+    };
+
     struct Message
     {
         uint32_t messageId;
@@ -182,6 +191,12 @@ namespace AkVCam
     struct MsgIsAlive
     {
         bool alive;
+    };
+
+    struct MsgFrameReady
+    {
+        char device[MAX_STRING];
+        char port[MAX_STRING];
     };
 }
 

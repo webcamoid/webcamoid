@@ -30,9 +30,7 @@
 #include "convertvideo.h"
 #include "cameraout.h"
 
-#ifdef Q_OS_WIN32
-    #define PREFERRED_FORMAT AkVideoCaps::Format_0rgb
-#elif defined(Q_OS_OSX)
+#if defined(Q_OS_OSX) || defined(Q_OS_WIN32)
     #define PREFERRED_FORMAT AkVideoCaps::Format_rgb24
 #else
     #define PREFERRED_FORMAT AkVideoCaps::Format_yuv420p
@@ -83,8 +81,6 @@ class VirtualCameraElementPrivate
             m_streamIndex(-1)
         {
         }
-
-        inline QImage swapChannels(const QImage &image) const;
 };
 
 VirtualCameraElement::VirtualCameraElement():
@@ -289,25 +285,6 @@ bool VirtualCameraElement::removeAllWebcams(const QString &password)
         return false;
 
     return this->d->m_cameraOut->removeAllWebcams(password);
-}
-
-QImage VirtualCameraElementPrivate::swapChannels(const QImage &image) const
-{
-    QImage swapped(image.size(), image.format());
-
-    for (int y = 0; y < image.height(); y++) {
-        auto src = reinterpret_cast<const XRGB *>(image.constScanLine(y));
-        auto dst = reinterpret_cast<BGRX *>(swapped.scanLine(y));
-
-        for (int x = 0; x < image.width(); x++) {
-            dst[x].x = src[x].x;
-            dst[x].r = src[x].r;
-            dst[x].g = src[x].g;
-            dst[x].b = src[x].b;
-        }
-    }
-
-    return swapped;
 }
 
 QString VirtualCameraElement::controlInterfaceProvide(const QString &controlId) const
@@ -515,10 +492,7 @@ AkPacket VirtualCameraElement::iStream(const AkPacket &packet)
         image = image.convertToFormat(QImage::Format_RGB32);
         AkPacket oPacket;
 
-#ifdef Q_OS_WIN32
-        oPacket = AkUtils::roundSizeTo(AkUtils::imageToPacket(image, packet),
-                                       PREFERRED_ROUNDING);
-#elif defined(Q_OS_OSX)
+#if defined(Q_OS_OSX) || defined(Q_OS_WIN32)
         image = image.convertToFormat(QImage::Format_RGB888);
         oPacket = AkUtils::roundSizeTo(AkUtils::imageToPacket(image, packet),
                                        PREFERRED_ROUNDING);

@@ -59,6 +59,9 @@ namespace AkVCam
                               int height,
                               Scaling mode=ScalingFast,
                               AspectRatio aspectRatio=AspectRatioIgnore) const;
+            VideoFrame scaled(size_t maxArea,
+                              Scaling mode=ScalingFast,
+                              int align=32) const;
             bool canConvert(FourCC input, FourCC output) const;
             VideoFrame convert(FourCC fourcc) const;
             VideoFrame adjustHsl(int hue, int saturation, int luminance);

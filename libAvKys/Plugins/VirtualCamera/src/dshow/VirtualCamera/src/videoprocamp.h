@@ -27,6 +27,10 @@
 namespace AkVCam
 {
     class VideoProcAmpPrivate;
+    typedef void (* PropertyChangedCallback)(void *userData,
+                                             LONG Property,
+                                             LONG lValue,
+                                             LONG Flags);
 
     class VideoProcAmp:
             public IAMVideoProcAmp,
@@ -35,6 +39,11 @@ namespace AkVCam
         public:
             VideoProcAmp();
             virtual ~VideoProcAmp();
+
+            void subscribePropertyChanged(void *userData,
+                                          PropertyChangedCallback callback);
+            void unsubscribePropertyChanged(void *userData,
+                                            PropertyChangedCallback callback);
 
             DECLARE_IUNKNOWN(IID_IAMVideoProcAmp)
 

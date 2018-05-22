@@ -22,6 +22,7 @@
 #include <sddl.h>
 
 #include "messageserver.h"
+#include "VCamUtils/src/utils.h"
 
 namespace AkVCam
 {
@@ -150,7 +151,6 @@ bool AkVCam::MessageServer::start(bool wait)
     if (this->d->m_stateChangedCallBack)
         this->d->m_stateChangedCallBack(StateStarted, this->d->m_userData);
 
-
     this->d->m_running = true;
 
     if (wait)
@@ -163,8 +163,12 @@ bool AkVCam::MessageServer::start(bool wait)
 
 init_failed:
 
-    if (!ok && this->d->m_stateChangedCallBack)
-        this->d->m_stateChangedCallBack(StateStopped, this->d->m_userData);
+    if (!ok) {
+        AkLoggerLog("Error starting server: ", GetLastError());
+
+        if (this->d->m_stateChangedCallBack)
+            this->d->m_stateChangedCallBack(StateStopped, this->d->m_userData);
+    }
 
     if (securityDescriptor)
         LocalFree(securityDescriptor);

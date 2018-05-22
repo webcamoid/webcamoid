@@ -26,10 +26,13 @@
 
 #include "ipcbridge.h"
 #include "PlatformUtils/src/messageserver.h"
+#include "PlatformUtils/src/mutex.h"
+#include "PlatformUtils/src/sharedmemory.h"
 #include "PlatformUtils/src/utils.h"
 #include "VCamUtils/src/cstream/cstreamread.h"
 #include "VCamUtils/src/cstream/cstreamwrite.h"
 #include "VCamUtils/src/image/videoformat.h"
+#include "VCamUtils/src/image/videoframe.h"
 #include "VCamUtils/src/utils.h"
 
 #define AkIpcBridgeLogMethod() \
@@ -43,10 +46,16 @@ namespace AkVCam
     typedef std::shared_ptr<IPin> PinPtr;
     typedef std::shared_ptr<AM_MEDIA_TYPE> MediaTypePtr;
 
+    struct DeviceSharedProperties
+    {
+        SharedMemory sharedMemory;
+        Mutex mutex;
+    };
+
     class IpcBridgePrivate
     {
         public:
-            std::vector<std::string> devices;
+            std::map<std::string, DeviceSharedProperties> devices;
             IpcBridge::FrameReadyCallback frameReadyCallback;
             IpcBridge::DeviceChangedCallback deviceAddedCallback;
             IpcBridge::DeviceChangedCallback deviceRemovedCallback;
@@ -59,6 +68,8 @@ namespace AkVCam
             std::vector<std::string> broadcasting;
             std::map<std::string, std::string> options;
             MessageServer messageServer;
+            SharedMemory sharedMemory;
+            Mutex globalMutex;
             std::string portName;
 
             IpcBridgePrivate();
@@ -89,6 +100,9 @@ namespace AkVCam
             std::string regMoveLine(const std::string &fromKey,
                                     const std::string &toKey) const;
             std::string dirname(const std::string &path) const;
+            void updateDeviceSharedProperties();
+            void updateDeviceSharedProperties(const std::string &deviceId,
+                                              const std::string &owner);
 
             // Message handling methods
             void isAlive(Message *message);
@@ -99,6 +113,12 @@ namespace AkVCam
             void aspectRatioChanged(Message *message);
             void listenersChanged(Message *message);
     };
+
+    static const int maxFrameWidth = 1920;
+    static const int maxFrameHeight = 1080;
+    static const size_t maxFrameSize = maxFrameWidth * maxFrameHeight;
+
+    static const size_t maxBufferSize = sizeof(Frame) + 3 * maxFrameSize;
 }
 
 AkVCam::IpcBridge::IpcBridge()
@@ -202,9 +222,13 @@ bool AkVCam::IpcBridge::registerPeer(bool asClient)
     this->d->messageServer.setPipeName(std::wstring(pipeName.begin(),
                                                     pipeName.end()));
     this->d->messageServer.setHandlers(this->d->messageHandlers);
+    AkLoggerLog("Recommended port name: ", portName);
 
-    if (!this->d->messageServer.start())
+    if (!this->d->messageServer.start()) {
+        AkLoggerLog("Can't start message server");
+
         return false;
+    }
 
     message.clear();
     message.messageId = AKVCAM_ASSISTANT_MSG_ADD_PORT;
@@ -216,6 +240,8 @@ bool AkVCam::IpcBridge::registerPeer(bool asClient)
     memcpy(addData->pipeName,
            pipeName.c_str(),
            (std::min<size_t>)(pipeName.size(), MAX_STRING));
+
+    AkLoggerLog("Registering port name: ", portName);
 
     if (!MessageServer::sendMessage(L"\\\\.\\pipe\\" DSHOW_PLUGIN_ASSISTANT_NAME_L,
                                     &message)) {
@@ -230,8 +256,13 @@ bool AkVCam::IpcBridge::registerPeer(bool asClient)
         return false;
     }
 
+    this->d->sharedMemory.setName(L"Local\\"
+                                  + std::wstring(portName.begin(), portName.end())
+                                  + L".data");
+    this->d->globalMutex = Mutex(std::wstring(portName.begin(), portName.end())
+                                  + L".mutex");
     this->d->portName = portName;
-    AkLoggerLog("SUCCESSFUL");
+    AkLoggerLog("Peer registered as ", portName);
 
     return true;
 }
@@ -243,6 +274,7 @@ void AkVCam::IpcBridge::unregisterPeer()
     if (this->d->portName.empty())
         return;
 
+    this->d->sharedMemory.setName({});
     Message message;
     message.messageId = AKVCAM_ASSISTANT_MSG_REMOVE_PORT;
     message.dataSize = sizeof(MsgRemovePort);
@@ -258,11 +290,8 @@ void AkVCam::IpcBridge::unregisterPeer()
 
 std::vector<std::string> AkVCam::IpcBridge::listDevices(bool all) const
 {
+    UNUSED(all)
     AkIpcBridgeLogMethod();
-
-    if (!all)
-        return this->d->devices;
-
     std::vector<std::string> devices;
 
     for (auto camera: this->d->listCameras())
@@ -825,6 +854,14 @@ bool AkVCam::IpcBridge::deviceStart(const std::string &deviceId)
     if (it != this->d->broadcasting.end())
         return false;
 
+    std::wstring portName(this->d->portName.begin(),
+                          this->d->portName.end());
+    this->d->sharedMemory.setName(L"Local\\" + portName + L".data");
+    this->d->globalMutex = Mutex(portName + L".mutex");
+
+    if (!this->d->sharedMemory.open(maxBufferSize, SharedMemory::OpenModeWrite))
+        return false;
+
     Message message;
     message.messageId = AKVCAM_ASSISTANT_MSG_DEVICE_SETBROADCASTING;
     message.dataSize = sizeof(MsgBroadcasting);
@@ -837,12 +874,18 @@ bool AkVCam::IpcBridge::deviceStart(const std::string &deviceId)
            (std::min<size_t>)(this->d->portName.size(), MAX_STRING));
 
     if (!MessageServer::sendMessage(L"\\\\.\\pipe\\" DSHOW_PLUGIN_ASSISTANT_NAME_L,
-                                    &message))
+                                    &message)) {
+        this->d->sharedMemory.close();
+
+        return false;
+    }
+
+    if (!data->status)
         return false;
 
     this->d->broadcasting.push_back(deviceId);
 
-    return data->status;
+    return true;
 }
 
 void AkVCam::IpcBridge::deviceStop(const std::string &deviceId)
@@ -866,6 +909,7 @@ void AkVCam::IpcBridge::deviceStop(const std::string &deviceId)
 
     MessageServer::sendMessage(L"\\\\.\\pipe\\" DSHOW_PLUGIN_ASSISTANT_NAME_L,
                                &message);
+    this->d->sharedMemory.close();
     this->d->broadcasting.erase(it);
 
     return;
@@ -876,7 +920,45 @@ bool AkVCam::IpcBridge::write(const std::string &deviceId,
 {
     AkIpcBridgeLogMethod();
 
-    return false;
+    if (!frame.format())
+        return false;
+
+    auto buffer =
+            reinterpret_cast<Frame *>(this->d->sharedMemory.lock(&this->d->globalMutex));
+
+    if (!buffer)
+        return false;
+
+    if (size_t(frame.format().width() * frame.format().height()) > maxFrameSize) {
+        auto scaledFrame = frame.scaled(maxFrameSize);
+        buffer->format = scaledFrame.format().fourcc();
+        buffer->width = scaledFrame.format().width();
+        buffer->height = scaledFrame.format().height();
+        buffer->size = uint32_t(frame.dataSize());
+        memcpy(buffer->data, scaledFrame.data().get(), scaledFrame.dataSize());
+    } else {
+        buffer->format = frame.format().fourcc();
+        buffer->width = frame.format().width();
+        buffer->height = frame.format().height();
+        buffer->size = uint32_t(frame.dataSize());
+        memcpy(buffer->data, frame.data().get(), frame.dataSize());
+    }
+
+    this->d->sharedMemory.unlock(&this->d->globalMutex);
+
+    Message message;
+    message.messageId = AKVCAM_ASSISTANT_MSG_FRAME_READY;
+    message.dataSize = sizeof(MsgFrameReady);
+    auto data = messageData<MsgFrameReady>(&message);
+    memcpy(data->device,
+           deviceId.c_str(),
+           (std::min<size_t>)(deviceId.size(), MAX_STRING));
+    memcpy(data->port,
+           this->d->portName.c_str(),
+           (std::min<size_t>)(this->d->portName.size(), MAX_STRING));
+
+    return MessageServer::sendMessage(L"\\\\.\\pipe\\" DSHOW_PLUGIN_ASSISTANT_NAME_L,
+                                      &message);
 }
 
 void AkVCam::IpcBridge::setMirroring(const std::string &deviceId,
@@ -1015,6 +1097,8 @@ void AkVCam::IpcBridge::setAspectRatioChangedCallback(AkVCam::IpcBridge::AspectR
 
 AkVCam::IpcBridgePrivate::IpcBridgePrivate()
 {
+    this->updateDeviceSharedProperties();
+
     this->messageHandlers = std::map<uint32_t, MessageHandler> {
         {AKVCAM_ASSISTANT_MSG_ISALIVE                    , AKVCAM_BIND_FUNC(IpcBridgePrivate::isAlive)            },
         {AKVCAM_ASSISTANT_MSG_FRAME_READY                , AKVCAM_BIND_FUNC(IpcBridgePrivate::frameReady)         },
@@ -1335,6 +1419,43 @@ std::string AkVCam::IpcBridgePrivate::dirname(const std::string &path) const
     return path.substr(0, path.rfind("\\"));
 }
 
+void AkVCam::IpcBridgePrivate::updateDeviceSharedProperties()
+{
+    for (DWORD i = 0; i < camerasCount(); i++) {
+        auto cameraPath = AkVCam::cameraPath(i);
+        std::string deviceId(cameraPath.begin(), cameraPath.end());
+
+        Message message;
+        message.messageId = AKVCAM_ASSISTANT_MSG_DEVICE_BROADCASTING;
+        message.dataSize = sizeof(MsgBroadcasting);
+        auto data = messageData<MsgBroadcasting>(&message);
+        memcpy(data->device,
+               deviceId.c_str(),
+               (std::min<size_t>)(deviceId.size(), MAX_STRING));
+        MessageServer::sendMessage(L"\\\\.\\pipe\\" DSHOW_PLUGIN_ASSISTANT_NAME_L,
+                                   &message);
+        this->updateDeviceSharedProperties(deviceId,
+                                           std::string(data->owner));
+    }
+}
+
+void AkVCam::IpcBridgePrivate::updateDeviceSharedProperties(const std::string &deviceId,
+                                                            const std::string &owner)
+{
+    if (owner.empty()) {
+        this->devices[deviceId] = {SharedMemory(), Mutex()};
+    } else {
+        Mutex mutex(std::wstring(owner.begin(), owner.end()) + L".mutex");
+        SharedMemory sharedMemory;
+        sharedMemory.setName(L"Local\\"
+                             + std::wstring(owner.begin(), owner.end())
+                             + L".data");
+
+        if (sharedMemory.open())
+            this->devices[deviceId] = {sharedMemory, mutex};
+    }
+}
+
 void AkVCam::IpcBridgePrivate::isAlive(AkVCam::Message *message)
 {
     auto data = messageData<MsgIsAlive>(message);
@@ -1343,7 +1464,29 @@ void AkVCam::IpcBridgePrivate::isAlive(AkVCam::Message *message)
 
 void AkVCam::IpcBridgePrivate::frameReady(AkVCam::Message *message)
 {
+    auto data = messageData<MsgFrameReady>(message);
+    std::string deviceId(data->device);
 
+    if (this->devices.count(deviceId) < 1) {
+        this->updateDeviceSharedProperties(deviceId, std::string(data->port));
+
+        return;
+    }
+
+    auto frame =
+            reinterpret_cast<Frame *>(this->devices[deviceId]
+                                      .sharedMemory
+                                      .lock(&this->devices[deviceId].mutex));
+
+    if (!frame)
+        return;
+
+    AkVCam::VideoFrame videoFrame({frame->format, frame->width, frame->height},
+                                  frame->data, frame->size);
+    this->devices[deviceId].sharedMemory.unlock(&this->devices[deviceId].mutex);
+
+    if (this->frameReadyCallback)
+        this->frameReadyCallback(deviceId, videoFrame);
 }
 
 void AkVCam::IpcBridgePrivate::broadcastingChanged(AkVCam::Message *message)
@@ -1351,6 +1494,7 @@ void AkVCam::IpcBridgePrivate::broadcastingChanged(AkVCam::Message *message)
     auto data = messageData<MsgBroadcasting>(message);
     std::string deviceId(data->device);
     std::string owner(data->owner);
+    this->updateDeviceSharedProperties(deviceId, owner);
 
     if (this->broadcastingChangedCallback)
         this->broadcastingChangedCallback(deviceId, !owner.empty());

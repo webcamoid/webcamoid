@@ -839,6 +839,20 @@ int AkVCam::cameraFromId(const CLSID &clsid)
     return -1;
 }
 
+bool AkVCam::cameraExists(const std::string &path)
+{
+    return cameraExists(std::wstring(path.begin(), path.end()));
+}
+
+bool AkVCam::cameraExists(const std::wstring &path)
+{
+    for (DWORD i = 0; i < camerasCount(); i++)
+        if (cameraPath(i) == path)
+            return true;
+
+    return false;
+}
+
 std::wstring AkVCam::cameraDescription(DWORD cameraIndex)
 {
     std::wstringstream ss;
@@ -890,7 +904,7 @@ std::wstring AkVCam::cameraPath(const CLSID &clsid)
     if (camera < 0)
         return {};
 
-    return cameraPath(camera);
+    return cameraPath(DWORD(camera));
 }
 
 DWORD AkVCam::formatsCount(DWORD cameraIndex)

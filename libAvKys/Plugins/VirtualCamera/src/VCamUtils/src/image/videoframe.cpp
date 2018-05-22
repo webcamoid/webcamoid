@@ -581,6 +581,22 @@ AkVCam::VideoFrame AkVCam::VideoFrame::scaled(int width,
     return VideoFrame(format, data, dataSize);
 }
 
+AkVCam::VideoFrame AkVCam::VideoFrame::scaled(size_t maxArea,
+                                              AkVCam::Scaling mode,
+                                              int align) const
+{
+    auto width = int(sqrt(maxArea
+                          * size_t(this->d->m_format.width())
+                          / size_t(this->d->m_format.height())));
+    auto height = int(sqrt(maxArea
+                           * size_t(this->d->m_format.height())
+                           / size_t(this->d->m_format.width())));
+    int owidth = align * int(width / align);
+    int oheight = height * owidth / width;
+
+    return this->scaled(owidth, oheight, mode);
+}
+
 bool AkVCam::VideoFrame::canConvert(FourCC input, FourCC output) const
 {
     for (auto &convert: this->d->m_convert)
