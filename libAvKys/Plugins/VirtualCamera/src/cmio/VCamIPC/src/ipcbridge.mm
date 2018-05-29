@@ -54,6 +54,7 @@ namespace AkVCam
             IpcBridge::MirrorChangedCallback mirrorChangedCallback;
             IpcBridge::ScalingChangedCallback scalingChangedCallback;
             IpcBridge::AspectRatioChangedCallback aspectRatioChangedCallback;
+            IpcBridge::SwapRgbChangedCallback swapRgbChangedCallback;
             IpcBridge::ListenersChangedCallback listenersChangedCallback;
             std::map<int64_t, XpcMessage> m_messageHandlers;
             std::vector<std::string> broadcasting;
@@ -75,6 +76,7 @@ namespace AkVCam
             void mirrorChanged(xpc_connection_t client, xpc_object_t event);
             void scalingChanged(xpc_connection_t client, xpc_object_t event);
             void aspectRatioChanged(xpc_connection_t client, xpc_object_t event);
+            void swapRgbChanged(xpc_connection_t client, xpc_object_t event);
             void listenersChanged(xpc_connection_t client, xpc_object_t event);
             void messageReceived(xpc_connection_t client, xpc_object_t event);
 
@@ -549,6 +551,33 @@ AkVCam::AspectRatio AkVCam::IpcBridge::aspectRatioMode(const std::string &device
     return aspectRatio;
 }
 
+bool AkVCam::IpcBridge::swapRgb(const std::string &deviceId)
+{
+    AkIpcBridgeLogMethod();
+
+    if (!this->d->serverMessagePort)
+        return false;
+
+    auto dictionary = xpc_dictionary_create(NULL, NULL, 0);
+    xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_SWAPRGB);
+    xpc_dictionary_set_string(dictionary, "device", deviceId.c_str());
+    auto reply = xpc_connection_send_message_with_reply_sync(this->d->serverMessagePort,
+                                                             dictionary);
+    xpc_release(dictionary);
+    auto replyType = xpc_get_type(reply);
+
+    if (replyType != XPC_TYPE_DICTIONARY) {
+        xpc_release(reply);
+
+        return false;
+    }
+
+    auto swap = xpc_dictionary_get_bool(reply, "swap");
+    xpc_release(reply);
+
+    return swap;
+}
+
 int AkVCam::IpcBridge::listeners(const std::string &deviceId)
 {
     AkIpcBridgeLogMethod();
@@ -875,6 +904,23 @@ void AkVCam::IpcBridge::setAspectRatio(const std::string &deviceId,
     xpc_release(reply);
 }
 
+void AkVCam::IpcBridge::setSwapRgb(const std::string &deviceId, bool swap)
+{
+    AkIpcBridgeLogMethod();
+
+    if (!this->d->serverMessagePort)
+        return;
+
+    auto dictionary = xpc_dictionary_create(NULL, NULL, 0);
+    xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_SETSWAPRGB);
+    xpc_dictionary_set_string(dictionary, "device", deviceId.c_str());
+    xpc_dictionary_set_bool(dictionary, "swap", swap);
+    auto reply = xpc_connection_send_message_with_reply_sync(this->d->serverMessagePort,
+                                                             dictionary);
+    xpc_release(dictionary);
+    xpc_release(reply);
+}
+
 void AkVCam::IpcBridge::setListenersChangedCallback(ListenersChangedCallback callback)
 {
     this->d->listenersChangedCallback = callback;
@@ -954,19 +1000,24 @@ void AkVCam::IpcBridge::setBroadcastingChangedCallback(BroadcastingChangedCallba
     this->d->broadcastingChangedCallback = callback;
 }
 
-void AkVCam::IpcBridge::setMirrorChangedCallback(AkVCam::IpcBridge::MirrorChangedCallback callback)
+void AkVCam::IpcBridge::setMirrorChangedCallback(MirrorChangedCallback callback)
 {
     this->d->mirrorChangedCallback = callback;
 }
 
-void AkVCam::IpcBridge::setScalingChangedCallback(AkVCam::IpcBridge::ScalingChangedCallback callback)
+void AkVCam::IpcBridge::setScalingChangedCallback(ScalingChangedCallback callback)
 {
     this->d->scalingChangedCallback = callback;
 }
 
-void AkVCam::IpcBridge::setAspectRatioChangedCallback(AkVCam::IpcBridge::AspectRatioChangedCallback callback)
+void AkVCam::IpcBridge::setAspectRatioChangedCallback(AspectRatioChangedCallback callback)
 {
     this->d->aspectRatioChangedCallback = callback;
+}
+
+void AkVCam::IpcBridge::setSwapRgbChangedCallback(SwapRgbChangedCallback callback)
+{
+    this->d->swapRgbChangedCallback = callback;
 }
 
 AkVCam::IpcBridgePrivate::IpcBridgePrivate(IpcBridge *parent):
@@ -984,6 +1035,7 @@ AkVCam::IpcBridgePrivate::IpcBridgePrivate(IpcBridge *parent):
         {AKVCAM_ASSISTANT_MSG_DEVICE_MIRRORING_CHANGED   , AKVCAM_BIND_FUNC(IpcBridgePrivate::mirrorChanged)      },
         {AKVCAM_ASSISTANT_MSG_DEVICE_SCALING_CHANGED     , AKVCAM_BIND_FUNC(IpcBridgePrivate::scalingChanged)     },
         {AKVCAM_ASSISTANT_MSG_DEVICE_ASPECTRATIO_CHANGED , AKVCAM_BIND_FUNC(IpcBridgePrivate::aspectRatioChanged) },
+        {AKVCAM_ASSISTANT_MSG_DEVICE_SWAPRGB_CHANGED     , AKVCAM_BIND_FUNC(IpcBridgePrivate::swapRgbChanged)     },
         {AKVCAM_ASSISTANT_MSG_LISTENERS_CHANGED          , AKVCAM_BIND_FUNC(IpcBridgePrivate::listenersChanged)   },
     };
 }
@@ -1090,8 +1142,7 @@ void AkVCam::IpcBridgePrivate::broadcastingChanged(xpc_connection_t client,
 
     for (auto bridge: this->m_bridges)
         if (bridge->d->broadcastingChangedCallback)
-            bridge->d->broadcastingChangedCallback(deviceId,
-                                                   broadcasting);
+            bridge->d->broadcastingChangedCallback(deviceId, broadcasting);
 }
 
 void AkVCam::IpcBridgePrivate::mirrorChanged(xpc_connection_t client,
@@ -1143,8 +1194,22 @@ void AkVCam::IpcBridgePrivate::aspectRatioChanged(xpc_connection_t client,
 
     for (auto bridge: this->m_bridges)
         if (bridge->d->aspectRatioChangedCallback)
-            bridge->d->aspectRatioChangedCallback(deviceId,
-                                                  aspectRatio);
+            bridge->d->aspectRatioChangedCallback(deviceId, aspectRatio);
+}
+
+void AkVCam::IpcBridgePrivate::swapRgbChanged(xpc_connection_t client,
+                                              xpc_object_t event)
+{
+    UNUSED(client)
+    AkLoggerLog("IpcBridgePrivate::swapRgbChanged");
+
+    std::string deviceId =
+            xpc_dictionary_get_string(event, "device");
+    auto swap = xpc_dictionary_get_bool(event, "swap");
+
+    for (auto bridge: this->m_bridges)
+        if (bridge->d->swapRgbChangedCallback)
+            bridge->d->swapRgbChangedCallback(deviceId, swap);
 }
 
 void AkVCam::IpcBridgePrivate::listenersChanged(xpc_connection_t client,
@@ -1159,8 +1224,7 @@ void AkVCam::IpcBridgePrivate::listenersChanged(xpc_connection_t client,
 
     for (auto bridge: this->m_bridges)
         if (bridge->d->listenersChangedCallback)
-            bridge->d->listenersChangedCallback(deviceId,
-                                                int(listeners));
+            bridge->d->listenersChangedCallback(deviceId, int(listeners));
 }
 
 void AkVCam::IpcBridgePrivate::messageReceived(xpc_connection_t client,

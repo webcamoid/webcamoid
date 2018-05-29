@@ -54,6 +54,7 @@ namespace AkVCam
             void setMirror(bool horizontalMirror, bool verticalMirror);
             void setScaling(Scaling scaling);
             void setAspectRatio(AspectRatio aspectRatio);
+            void setSwapRgb(bool swap);
             void setAddListenerCallback(ListenerCallback callback);
             void setRemoveListenerCallback(ListenerCallback callback);
 

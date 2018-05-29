@@ -306,9 +306,9 @@ void VideoStream::convertPacket(const AkPacket &packet)
 
 int VideoStream::encodeData(AVFrame *frame)
 {
+#ifdef AVFMT_RAWPICTURE
     auto formatContext = this->formatContext();
 
-#ifdef AVFMT_RAWPICTURE
     if (!frame && formatContext->oformat->flags & AVFMT_RAWPICTURE)
         return AVERROR_EOF;
 #endif

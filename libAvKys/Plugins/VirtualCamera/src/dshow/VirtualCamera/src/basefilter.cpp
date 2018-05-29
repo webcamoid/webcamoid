@@ -76,6 +76,8 @@ namespace AkVCam
                             Scaling scaling);
             void setAspectRatio(const std::string &deviceId,
                                 AspectRatio aspectRatio);
+            void setSwapRgb(const std::string &deviceId,
+                            bool swap);
     };
 }
 
@@ -119,27 +121,10 @@ AkVCam::BaseFilter::BaseFilter(const GUID &clsid,
                                                                  this->d,
                                                                  std::placeholders::_1,
                                                                  std::placeholders::_2));
-
-    auto path = cameraPath(clsid);
-    std::string deviceId(path.begin(), path.end());
-
-    AkVCamDevicePinCall(deviceId,
-                        this->d,
-                        setBroadcasting,
-                        this->d->m_ipcBridge.broadcasting(deviceId));
-    AkVCamDevicePinCall(deviceId,
-                        this->d,
-                        setMirror,
-                        this->d->m_ipcBridge.isHorizontalMirrored(deviceId),
-                        this->d->m_ipcBridge.isVerticalMirrored(deviceId));
-    AkVCamDevicePinCall(deviceId,
-                        this->d,
-                        setScaling,
-                        this->d->m_ipcBridge.scalingMode(deviceId));
-    AkVCamDevicePinCall(deviceId,
-                        this->d,
-                        setAspectRatio,
-                        this->d->m_ipcBridge.aspectRatioMode(deviceId));
+    this->d->m_ipcBridge.setSwapRgbChangedCallback(std::bind(&BaseFilterPrivate::setSwapRgb,
+                                                             this->d,
+                                                             std::placeholders::_1,
+                                                             std::placeholders::_2));
 }
 
 AkVCam::BaseFilter::~BaseFilter()
@@ -158,6 +143,39 @@ void AkVCam::BaseFilter::addPin(const std::vector<AkVCam::VideoFormat> &formats,
                                 bool changed)
 {
     this->d->m_pins->addPin(new Pin(this, formats, pinName), changed);
+
+    CLSID clsid;
+    this->GetClassID(&clsid);
+    auto path = cameraPath(clsid);
+    std::string deviceId(path.begin(), path.end());
+
+    auto broadcasting = this->d->m_ipcBridge.broadcasting(deviceId);
+    AkVCamDevicePinCall(deviceId,
+                        this->d,
+                        setBroadcasting,
+                        broadcasting);
+    auto hmirror = this->d->m_ipcBridge.isHorizontalMirrored(deviceId);
+    auto vmirror = this->d->m_ipcBridge.isVerticalMirrored(deviceId);
+    AkVCamDevicePinCall(deviceId,
+                        this->d,
+                        setMirror,
+                        hmirror,
+                        vmirror);
+    auto scaling = this->d->m_ipcBridge.scalingMode(deviceId);
+    AkVCamDevicePinCall(deviceId,
+                        this->d,
+                        setScaling,
+                        scaling);
+    auto aspect = this->d->m_ipcBridge.aspectRatioMode(deviceId);
+    AkVCamDevicePinCall(deviceId,
+                        this->d,
+                        setAspectRatio,
+                        aspect);
+    auto swap = this->d->m_ipcBridge.swapRgb(deviceId);
+    AkVCamDevicePinCall(deviceId,
+                        this->d,
+                        setSwapRgb,
+                        swap);
 }
 
 void AkVCam::BaseFilter::removePin(IPin *pin, bool changed)
@@ -424,15 +442,22 @@ void AkVCam::BaseFilterPrivate::setMirror(const std::string &deviceId,
 }
 
 void AkVCam::BaseFilterPrivate::setScaling(const std::string &deviceId,
-                                           AkVCam::Scaling scaling)
+                                           Scaling scaling)
 {
     AkLogMethod();
     AkVCamDevicePinCall(deviceId, this, setScaling, scaling);
 }
 
 void AkVCam::BaseFilterPrivate::setAspectRatio(const std::string &deviceId,
-                                               AkVCam::AspectRatio aspectRatio)
+                                               AspectRatio aspectRatio)
 {
     AkLogMethod();
     AkVCamDevicePinCall(deviceId, this, setAspectRatio, aspectRatio);
+}
+
+void AkVCam::BaseFilterPrivate::setSwapRgb(const std::string &deviceId,
+                                           bool swap)
+{
+    AkLogMethod();
+    AkVCamDevicePinCall(deviceId, this, setSwapRgb, swap);
 }

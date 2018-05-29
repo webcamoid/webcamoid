@@ -21,6 +21,7 @@
 
 #include "sharedmemory.h"
 #include "mutex.h"
+#include "utils.h"
 #include "VCamUtils/src/utils.h"
 
 namespace AkVCam
@@ -130,7 +131,8 @@ bool AkVCam::SharedMemory::open(size_t pageSize, OpenMode mode)
                     std::string(this->d->m_name.begin(),
                                 this->d->m_name.end()),
                     "): ",
-                    GetLastError());
+                    errorToString(GetLastError()),
+                    " (", GetLastError(), ")");
 
         return false;
     }

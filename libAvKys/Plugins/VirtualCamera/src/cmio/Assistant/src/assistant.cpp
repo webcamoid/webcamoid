@@ -45,6 +45,7 @@ namespace AkVCam
         bool verticalMirror;
         Scaling scaling;
         AspectRatio aspectRatio;
+        bool swapRgb;
     };
 
     struct AssistantServer
@@ -90,6 +91,7 @@ AkVCam::Assistant::Assistant()
         {AKVCAM_ASSISTANT_MSG_DEVICE_SETMIRRORING   , AKVCAM_BIND_FUNC(Assistant::setMirroring)   },
         {AKVCAM_ASSISTANT_MSG_DEVICE_SETSCALING     , AKVCAM_BIND_FUNC(Assistant::setScaling)     },
         {AKVCAM_ASSISTANT_MSG_DEVICE_SETASPECTRATIO , AKVCAM_BIND_FUNC(Assistant::setAspectRatio) },
+        {AKVCAM_ASSISTANT_MSG_DEVICE_SETSWAPRGB     , AKVCAM_BIND_FUNC(Assistant::setSwapRgb)     },
         {AKVCAM_ASSISTANT_MSG_FRAME_READY           , AKVCAM_BIND_FUNC(Assistant::frameReady)     },
         {AKVCAM_ASSISTANT_MSG_LISTENERS             , AKVCAM_BIND_FUNC(Assistant::listeners)      },
         {AKVCAM_ASSISTANT_MSG_DEVICES               , AKVCAM_BIND_FUNC(Assistant::devices)        },
@@ -99,6 +101,7 @@ AkVCam::Assistant::Assistant()
         {AKVCAM_ASSISTANT_MSG_DEVICE_MIRRORING      , AKVCAM_BIND_FUNC(Assistant::mirroring)      },
         {AKVCAM_ASSISTANT_MSG_DEVICE_SCALING        , AKVCAM_BIND_FUNC(Assistant::scaling)        },
         {AKVCAM_ASSISTANT_MSG_DEVICE_ASPECTRATIO    , AKVCAM_BIND_FUNC(Assistant::aspectRatio)    },
+        {AKVCAM_ASSISTANT_MSG_DEVICE_SWAPRGB        , AKVCAM_BIND_FUNC(Assistant::swapRgb)        },
         {AKVCAM_ASSISTANT_MSG_ADD_LISTENER          , AKVCAM_BIND_FUNC(Assistant::addListener)    },
         {AKVCAM_ASSISTANT_MSG_REMOVE_LISTENER       , AKVCAM_BIND_FUNC(Assistant::removeListener) },
     };
@@ -273,7 +276,8 @@ void AkVCam::Assistant::deviceCreate(xpc_connection_t client,
                                              false,
                                              false,
                                              ScalingFast,
-                                             AspectRatioIgnore});
+                                             AspectRatioIgnore,
+                                             false});
 
             auto notification = xpc_dictionary_create(NULL, NULL, 0);
             xpc_dictionary_set_int64(notification, "message", AKVCAM_ASSISTANT_MSG_DEVICE_CREATED);
@@ -474,6 +478,42 @@ setAspectRatio_end:
     xpc_release(reply);
 }
 
+void AkVCam::Assistant::setSwapRgb(xpc_connection_t client, xpc_object_t event)
+{
+    AkAssistantLogMethod();
+    std::string deviceId = xpc_dictionary_get_string(event, "device");
+    bool ok = false;
+
+    for (auto &server: this->d->m_servers)
+        for (auto &device: server.second.devices)
+            if (device.deviceId == deviceId) {
+                auto swap = xpc_dictionary_get_bool(event, "swap");
+
+                if (device.swapRgb == swapRgb)
+                    goto setSwapRgb_end;
+
+                device.swapRgb = swap;
+                auto notification = xpc_dictionary_create(NULL, NULL, 0);
+                xpc_dictionary_set_int64(notification, "message", AKVCAM_ASSISTANT_MSG_DEVICE_SWAPRGB_CHANGED);
+                xpc_dictionary_set_string(notification, "device", deviceId.c_str());
+                xpc_dictionary_set_bool(notification, "swap", swap);
+
+                for (auto &client: this->d->m_clients)
+                    xpc_connection_send_message(client.second, notification);
+
+                ok = true;
+
+                goto setSwapRgb_end;
+            }
+
+setSwapRgb_end:
+
+    auto reply = xpc_dictionary_create_reply(event);
+    xpc_dictionary_set_bool(reply, "status", ok);
+    xpc_connection_send_message(client, reply);
+    xpc_release(reply);
+}
+
 void AkVCam::Assistant::frameReady(xpc_connection_t client,
                                    xpc_object_t event)
 {
@@ -634,7 +674,7 @@ void AkVCam::Assistant::scaling(xpc_connection_t client, xpc_object_t event)
 {
     AkAssistantLogMethod();
     std::string deviceId = xpc_dictionary_get_string(event, "device");
-    bool scaling = false;
+    Scaling scaling = ScalingFast;
 
     for (auto &server: this->d->m_servers)
         for (auto &device: server.second.devices)
@@ -658,7 +698,7 @@ void AkVCam::Assistant::aspectRatio(xpc_connection_t client,
 {
     AkAssistantLogMethod();
     std::string deviceId = xpc_dictionary_get_string(event, "device");
-    bool aspectRatio = false;
+    AspectRatio aspectRatio = AspectRatioIgnore;
 
     for (auto &server: this->d->m_servers)
         for (auto &device: server.second.devices)
@@ -673,6 +713,30 @@ aspectRatio_end:
     AkLoggerLog("Aspect ratio: ", aspectRatio);
     auto reply = xpc_dictionary_create_reply(event);
     xpc_dictionary_set_int64(reply, "aspect", aspectRatio);
+    xpc_connection_send_message(client, reply);
+    xpc_release(reply);
+}
+
+void AkVCam::Assistant::swapRgb(xpc_connection_t client,
+                                xpc_object_t event)
+{
+    AkAssistantLogMethod();
+    std::string deviceId = xpc_dictionary_get_string(event, "device");
+    bool swap = false;
+
+    for (auto &server: this->d->m_servers)
+        for (auto &device: server.second.devices)
+            if (device.deviceId == deviceId) {
+                swap = device.swapRgb;
+
+                goto swapRgb_end;
+            }
+
+swapRgb_end:
+    AkLoggerLog("Device: ", deviceId);
+    AkLoggerLog("Swap RGB: ", swap);
+    auto reply = xpc_dictionary_create_reply(event);
+    xpc_dictionary_set_bool(reply, "swap", swap);
     xpc_connection_send_message(client, reply);
     xpc_release(reply);
 }

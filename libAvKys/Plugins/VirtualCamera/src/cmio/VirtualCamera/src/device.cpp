@@ -213,6 +213,12 @@ void AkVCam::Device::setAspectRatio(AspectRatio aspectRatio)
         stream.second->setAspectRatio(aspectRatio);
 }
 
+void AkVCam::Device::setSwapRgb(bool swap)
+{
+    for (auto &stream: this->m_streams)
+        stream.second->setSwapRgb(swap);
+}
+
 void AkVCam::Device::setAddListenerCallback(AkVCam::Device::ListenerCallback callback)
 {
     this->m_addListenerCallback = callback;

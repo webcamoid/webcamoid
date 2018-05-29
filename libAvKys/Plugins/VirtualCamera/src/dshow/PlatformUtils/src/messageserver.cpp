@@ -22,6 +22,7 @@
 #include <sddl.h>
 
 #include "messageserver.h"
+#include "utils.h"
 #include "VCamUtils/src/utils.h"
 
 namespace AkVCam
@@ -164,7 +165,9 @@ bool AkVCam::MessageServer::start(bool wait)
 init_failed:
 
     if (!ok) {
-        AkLoggerLog("Error starting server: ", GetLastError());
+        AkLoggerLog("Error starting server: ",
+                    errorToString(GetLastError()),
+                    " (", GetLastError(), ")");
 
         if (this->d->m_stateChangedCallBack)
             this->d->m_stateChangedCallBack(StateStopped, this->d->m_userData);
@@ -227,9 +230,7 @@ void AkVCam::MessageServerPrivate::messagesLoop()
         if (!ConnectNamedPipe(this->m_pipe, &this->m_overlapped))
             result = this->waitResult(&bytesTransferred);
 
-        if (result == E_FAIL) {
-            continue;
-        } else if (result == S_OK) {
+        if (result == S_OK) {
             Message message;
 
             if (this->readMessage(&message)) {
@@ -262,7 +263,9 @@ void AkVCam::MessageServerPrivate::messagesLoop()
 
 HRESULT AkVCam::MessageServerPrivate::waitResult(DWORD *bytesTransferred)
 {
-    if (GetLastError() == ERROR_IO_PENDING) {
+    auto lastError = GetLastError();
+
+    if (lastError == ERROR_IO_PENDING) {
         if (WaitForSingleObject(this->m_overlapped.hEvent,
                                 INFINITE) == WAIT_OBJECT_0) {
              if (!GetOverlappedResult(this->m_pipe,
@@ -276,6 +279,10 @@ HRESULT AkVCam::MessageServerPrivate::waitResult(DWORD *bytesTransferred)
              return S_FALSE;
          }
     } else {
+        AkLoggerLog("Wait result failed: ",
+                    errorToString(lastError),
+                    " (", lastError, ")");
+
         return E_FAIL;
     }
 

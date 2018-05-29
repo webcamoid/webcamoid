@@ -580,6 +580,10 @@ AkVCam::PluginInterface::PluginInterface():
                                                                  this,
                                                                  std::placeholders::_1,
                                                                  std::placeholders::_2));
+    this->d->m_ipcBridge.setSwapRgbChangedCallback(std::bind(&PluginInterface::setSwapRgb,
+                                                             this,
+                                                             std::placeholders::_1,
+                                                             std::placeholders::_2));
 }
 
 AkVCam::PluginInterface::~PluginInterface()
@@ -740,6 +744,15 @@ void AkVCam::PluginInterface::setAspectRatio(const std::string &deviceId,
             device->setAspectRatio(aspectRatio);
 }
 
+void AkVCam::PluginInterface::setSwapRgb(const std::string &deviceId, bool swap)
+{
+    AkLoggerLog("AkVCam::PluginInterface::setSwapRgb");
+
+    for (auto device: this->m_devices)
+        if (device->deviceId() == deviceId)
+            device->setSwapRgb(swap);
+}
+
 void AkVCam::PluginInterface::addListener(const std::string &deviceId)
 {
     AkLoggerLog("AkVCam::PluginInterface::addListener");
@@ -834,6 +847,7 @@ bool AkVCam::PluginInterface::createDevice(const std::string &deviceId,
                       this->d->m_ipcBridge.isVerticalMirrored(deviceId));
     device->setScaling(this->d->m_ipcBridge.scalingMode(deviceId));
     device->setAspectRatio(this->d->m_ipcBridge.aspectRatioMode(deviceId));
+    device->setSwapRgb(this->d->m_ipcBridge.swapRgbMode(deviceId));
 
     return true;
 

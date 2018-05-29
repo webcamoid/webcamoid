@@ -48,9 +48,11 @@
 #define AKVCAM_ASSISTANT_MSG_DEVICE_SCALING_CHANGED      0x109
 #define AKVCAM_ASSISTANT_MSG_DEVICE_SETASPECTRATIO       0x10A
 #define AKVCAM_ASSISTANT_MSG_DEVICE_ASPECTRATIO_CHANGED  0x10B
-#define AKVCAM_ASSISTANT_MSG_FRAME_READY                 0x10C
-#define AKVCAM_ASSISTANT_MSG_LISTENERS                   0x10D
-#define AKVCAM_ASSISTANT_MSG_LISTENERS_CHANGED           0x10E
+#define AKVCAM_ASSISTANT_MSG_DEVICE_SETSWAPRGB           0x10C
+#define AKVCAM_ASSISTANT_MSG_DEVICE_SWAPRGB_CHANGED      0x10D
+#define AKVCAM_ASSISTANT_MSG_FRAME_READY                 0x10E
+#define AKVCAM_ASSISTANT_MSG_LISTENERS                   0x10F
+#define AKVCAM_ASSISTANT_MSG_LISTENERS_CHANGED           0x110
 
 // Client messages
 #define AKVCAM_ASSISTANT_MSG_DEVICES                     0x200
@@ -60,8 +62,9 @@
 #define AKVCAM_ASSISTANT_MSG_DEVICE_MIRRORING            0x204
 #define AKVCAM_ASSISTANT_MSG_DEVICE_SCALING              0x205
 #define AKVCAM_ASSISTANT_MSG_DEVICE_ASPECTRATIO          0x206
-#define AKVCAM_ASSISTANT_MSG_ADD_LISTENER                0x207
-#define AKVCAM_ASSISTANT_MSG_REMOVE_LISTENER             0x208
+#define AKVCAM_ASSISTANT_MSG_DEVICE_SWAPRGB              0x207
+#define AKVCAM_ASSISTANT_MSG_ADD_LISTENER                0x208
+#define AKVCAM_ASSISTANT_MSG_REMOVE_LISTENER             0x209
 
 #define MSG_BUFFER_SIZE 4096
 #define MAX_STRING 1024
@@ -178,6 +181,13 @@ namespace AkVCam
     {
         char device[MAX_STRING];
         AspectRatio aspect;
+        bool status;
+    };
+
+    struct MsgSwapRgb
+    {
+        char device[MAX_STRING];
+        bool swap;
         bool status;
     };
 

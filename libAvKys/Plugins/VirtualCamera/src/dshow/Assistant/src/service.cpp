@@ -52,6 +52,7 @@ namespace AkVCam
         bool verticalMirror;
         Scaling scaling;
         AspectRatio aspectRatio;
+        bool swapRgb;
     };
 
     typedef std::map<std::string, std::string> AssistantPeers;
@@ -79,12 +80,14 @@ namespace AkVCam
             void setMirroring(Message *message);
             void setScaling(Message *message);
             void setAspectRatio(Message *message);
+            void setSwapRgb(Message *message);
             void frameReady(Message *message);
             void listeners(Message *message);
             void broadcasting(Message *message);
             void mirroring(Message *message);
             void scaling(Message *message);
             void aspectRatio(Message *message);
+            void swapRgb(Message *message);
             void addListener(Message *message);
             void removeListener(Message *message);
     };
@@ -280,12 +283,14 @@ AkVCam::ServicePrivate::ServicePrivate()
         {AKVCAM_ASSISTANT_MSG_DEVICE_SETMIRRORING   , AKVCAM_BIND_FUNC(ServicePrivate::setMirroring)   },
         {AKVCAM_ASSISTANT_MSG_DEVICE_SETSCALING     , AKVCAM_BIND_FUNC(ServicePrivate::setScaling)     },
         {AKVCAM_ASSISTANT_MSG_DEVICE_SETASPECTRATIO , AKVCAM_BIND_FUNC(ServicePrivate::setAspectRatio) },
+        {AKVCAM_ASSISTANT_MSG_DEVICE_SETSWAPRGB     , AKVCAM_BIND_FUNC(ServicePrivate::setSwapRgb)     },
         {AKVCAM_ASSISTANT_MSG_FRAME_READY           , AKVCAM_BIND_FUNC(ServicePrivate::frameReady)     },
         {AKVCAM_ASSISTANT_MSG_LISTENERS             , AKVCAM_BIND_FUNC(ServicePrivate::listeners)      },
         {AKVCAM_ASSISTANT_MSG_DEVICE_BROADCASTING   , AKVCAM_BIND_FUNC(ServicePrivate::broadcasting)   },
         {AKVCAM_ASSISTANT_MSG_DEVICE_MIRRORING      , AKVCAM_BIND_FUNC(ServicePrivate::mirroring)      },
         {AKVCAM_ASSISTANT_MSG_DEVICE_SCALING        , AKVCAM_BIND_FUNC(ServicePrivate::scaling)        },
         {AKVCAM_ASSISTANT_MSG_DEVICE_ASPECTRATIO    , AKVCAM_BIND_FUNC(ServicePrivate::aspectRatio)    },
+        {AKVCAM_ASSISTANT_MSG_DEVICE_SWAPRGB        , AKVCAM_BIND_FUNC(ServicePrivate::swapRgb)        },
         {AKVCAM_ASSISTANT_MSG_ADD_LISTENER          , AKVCAM_BIND_FUNC(ServicePrivate::addListener)    },
         {AKVCAM_ASSISTANT_MSG_REMOVE_LISTENER       , AKVCAM_BIND_FUNC(ServicePrivate::removeListener) },
     });
@@ -513,6 +518,29 @@ void AkVCam::ServicePrivate::setAspectRatio(AkVCam::Message *message)
         MessageServer::sendMessage(client.second, &msg);
 }
 
+void AkVCam::ServicePrivate::setSwapRgb(AkVCam::Message *message)
+{
+    AkServicePrivateLogMethod();
+    auto data = messageData<MsgSwapRgb>(message);
+    std::string deviceId(data->device);
+    data->status = false;
+
+    if (this->m_deviceConfigs.count(deviceId) < 1)
+        this->m_deviceConfigs[deviceId] = {};
+
+    if (this->m_deviceConfigs[deviceId].swapRgb == data->swap)
+        return;
+
+    this->m_deviceConfigs[deviceId].swapRgb = data->swap;
+    data->status = true;
+
+    Message msg(message);
+    msg.messageId = AKVCAM_ASSISTANT_MSG_DEVICE_SWAPRGB_CHANGED;
+
+    for (auto &client: this->m_clients)
+        MessageServer::sendMessage(client.second, &msg);
+}
+
 void AkVCam::ServicePrivate::frameReady(AkVCam::Message *message)
 {
     AkServicePrivateLogMethod();
@@ -587,6 +615,19 @@ void AkVCam::ServicePrivate::aspectRatio(AkVCam::Message *message)
         this->m_deviceConfigs[deviceId] = {};
 
     data->aspect = this->m_deviceConfigs[deviceId].aspectRatio;
+    data->status = true;
+}
+
+void AkVCam::ServicePrivate::swapRgb(AkVCam::Message *message)
+{
+    AkServicePrivateLogMethod();
+    auto data = messageData<MsgSwapRgb>(message);
+    std::string deviceId(data->device);
+
+    if (this->m_deviceConfigs.count(deviceId) < 1)
+        this->m_deviceConfigs[deviceId] = {};
+
+    data->swap = this->m_deviceConfigs[deviceId].swapRgb;
     data->status = true;
 }
 

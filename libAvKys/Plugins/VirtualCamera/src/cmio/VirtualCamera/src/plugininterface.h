@@ -59,6 +59,7 @@ namespace AkVCam
                             Scaling scaling);
             void setAspectRatio(const std::string &deviceId,
                                 AspectRatio aspectRatio);
+            void setSwapRgb(const std::string &deviceId, bool swap);
             void addListener(const std::string &deviceId);
             void removeListener(const std::string &deviceId);
             bool createDevice(const std::string &deviceId,

@@ -42,6 +42,7 @@ LIBS += \
     -L$${OUT_PWD}/../PlatformUtils -lPlatformUtils \
     -L$${OUT_PWD}/../../VCamUtils -lVCamUtils \
     -ladvapi32 \
+    -lgdi32 \
     -lkernel32 \
     -lole32 \
     -loleaut32 \

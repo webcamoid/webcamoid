@@ -50,6 +50,7 @@ namespace AkVCam
             bool m_verticalMirror;
             Scaling m_scaling;
             AspectRatio m_aspectRatio;
+            bool m_swapRgb;
             std::mutex m_mutex;
 
             StreamPrivate(Stream *self):
@@ -62,6 +63,7 @@ namespace AkVCam
             static void streamLoop(CFRunLoopTimerRef timer, void *info);
             void sendFrame(const VideoFrame &frame);
             void updateTestFrame();
+            VideoFrame applyAdjusts(const VideoFrame &frame);
     };
 }
 
@@ -79,6 +81,7 @@ AkVCam::Stream::Stream(bool registerObject,
     this->d->m_verticalMirror = false;
     this->d->m_scaling = ScalingFast;
     this->d->m_aspectRatio = AspectRatioIgnore;
+    this->d->m_swapRgb = false;
     this->m_className = "Stream";
     this->m_classID = kCMIOStreamClassID;
     this->d->m_testFrame = {":/VirtualCamera/share/TestFrame/TestFrame.bmp"};
@@ -267,20 +270,8 @@ void AkVCam::Stream::frameReady(const AkVCam::VideoFrame &frame)
 
     this->d->m_mutex.lock();
 
-    if (this->d->m_broadcasting) {
-        FourCC fourcc = this->d->m_format.fourcc();
-        int width = this->d->m_format.width();
-        int height = this->d->m_format.height();
-
-        this->d->m_currentFrame =
-                frame
-                .mirror(this->d->m_horizontalMirror,
-                        this->d->m_verticalMirror)
-                .scaled(width, height,
-                        this->d->m_scaling,
-                        this->d->m_aspectRatio)
-                .convert(fourcc);
-    }
+    if (this->d->m_broadcasting)
+        this->d->m_currentFrame = this->d->applyAdjusts(frame);
 
     this->d->m_mutex.unlock();
 }
@@ -333,6 +324,17 @@ void AkVCam::Stream::setAspectRatio(AspectRatio aspectRatio)
         return;
 
     this->d->m_aspectRatio = aspectRatio;
+    this->d->updateTestFrame();
+}
+
+void AkVCam::Stream::setSwapRgb(bool swap)
+{
+    AkObjectLogMethod();
+
+    if (this->d->m_swapRgb == swap)
+        return;
+
+    this->d->m_swapRgb = swap;
     this->d->updateTestFrame();
 }
 
@@ -540,16 +542,30 @@ void AkVCam::StreamPrivate::sendFrame(const VideoFrame &frame)
 
 void AkVCam::StreamPrivate::updateTestFrame()
 {
+    this->m_testFrameAdapted = this->applyAdjusts(this->m_testFrame);
+}
+
+AkVCam::VideoFrame AkVCam::StreamPrivate::applyAdjusts(const VideoFrame &frame)
+{
     FourCC fourcc = this->m_format.fourcc();
     int width = this->m_format.width();
     int height = this->m_format.height();
 
-    this->m_testFrameAdapted =
-            this->m_testFrame
-            .mirror(this->m_horizontalMirror,
-                    this->m_verticalMirror)
-            .scaled(width, height,
-                    this->m_scaling,
-                    this->m_aspectRatio)
-            .convert(fourcc);
+    if (width * height > frame.format().width() * frame.format().height()) {
+        return frame.mirror(this->m_horizontalMirror,
+                            this->m_verticalMirror)
+                    .swapRgb(this->m_swapRgb)
+                    .scaled(width, height,
+                            this->m_scaling,
+                            this->m_aspectRatio)
+                    .convert(fourcc);
+    }
+
+    return frame.scaled(width, height,
+                        this->m_scaling,
+                        this->m_aspectRatio)
+                .mirror(this->m_horizontalMirror,
+                        this->m_verticalMirror)
+                .swapRgb(this->m_swapRgb)
+                .convert(fourcc);
 }

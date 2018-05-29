@@ -35,16 +35,16 @@ namespace AkVCam
     enum PixelFormat
     {
         // RGB formats
-        PixelFormatRGB32 = MKFOURCC('R', 'G', 'B',  32),
-        PixelFormatRGB24 = MKFOURCC('R', 'G', 'B',  24),
-        PixelFormatRGB16 = MKFOURCC('R', 'G', 'B',  16),
-        PixelFormatRGB15 = MKFOURCC('R', 'G', 'B',  15),
+        PixelFormatRGB32 = MKFOURCC('R', 'G', 'B', 32),
+        PixelFormatRGB24 = MKFOURCC('R', 'G', 'B', 24),
+        PixelFormatRGB16 = MKFOURCC('R', 'G', 'B', 16),
+        PixelFormatRGB15 = MKFOURCC('R', 'G', 'B', 15),
 
         // BGR formats
-        PixelFormatBGR32 = MKFOURCC('B', 'G', 'R',  32),
-        PixelFormatBGR24 = MKFOURCC('B', 'G', 'R',  24),
-        PixelFormatBGR16 = MKFOURCC('B', 'G', 'R',  16),
-        PixelFormatBGR15 = MKFOURCC('B', 'G', 'R',  15),
+        PixelFormatBGR32 = MKFOURCC('B', 'G', 'R', 32),
+        PixelFormatBGR24 = MKFOURCC('B', 'G', 'R', 24),
+        PixelFormatBGR16 = MKFOURCC('B', 'G', 'R', 16),
+        PixelFormatBGR15 = MKFOURCC('B', 'G', 'R', 15),
 
         // Luminance+Chrominance formats
         PixelFormatUYVY = MKFOURCC('U', 'Y', 'V', 'Y'),

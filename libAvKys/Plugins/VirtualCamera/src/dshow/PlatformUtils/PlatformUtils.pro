@@ -39,7 +39,8 @@ TEMPLATE = lib
 
 LIBS = \
     -L$${OUT_PWD}/../../VCamUtils -lVCamUtils \
-    -ladvapi32
+    -ladvapi32 \
+    -lgdi32
 
 SOURCES = \
     src/messageserver.cpp \

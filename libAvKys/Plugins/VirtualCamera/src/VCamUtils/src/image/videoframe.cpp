@@ -29,7 +29,6 @@
 
 namespace AkVCam
 {
-    // Little Endian format
     struct RGB32
     {
         uint8_t x;
@@ -62,10 +61,10 @@ namespace AkVCam
 
     struct BGR32
     {
-        uint8_t x;
         uint8_t r;
         uint8_t g;
         uint8_t b;
+        uint8_t x;
     };
 
     struct BGR24
@@ -108,14 +107,14 @@ namespace AkVCam
 
     struct UV
     {
-        uint8_t v;
         uint8_t u;
+        uint8_t v;
     };
 
     struct VU
     {
-        uint8_t u;
         uint8_t v;
+        uint8_t u;
     };
 
     typedef size_t (*VideoConvertFuntion)(void *dst, const void *src,
@@ -135,22 +134,40 @@ namespace AkVCam
             std::shared_ptr<uint8_t> m_data;
             size_t m_dataSize;
             std::vector<VideoConvert> m_convert;
+            std::vector<PixelFormat> m_adjustFormats;
 
             VideoFramePrivate():
                 m_dataSize(0)
             {
                 this->m_convert = {
+                    {PixelFormatBGR24, PixelFormatRGB32, bgr24_to_rgb32},
+                    {PixelFormatBGR24, PixelFormatRGB24, bgr24_to_rgb24},
+                    {PixelFormatBGR24, PixelFormatRGB16, bgr24_to_rgb16},
+                    {PixelFormatBGR24, PixelFormatRGB15, bgr24_to_rgb15},
+                    {PixelFormatBGR24, PixelFormatBGR32, bgr24_to_bgr32},
+                    {PixelFormatBGR24, PixelFormatBGR16, bgr24_to_bgr16},
+                    {PixelFormatBGR24, PixelFormatBGR15, bgr24_to_bgr15},
+                    {PixelFormatBGR24, PixelFormatUYVY , bgr24_to_uyvy },
+                    {PixelFormatBGR24, PixelFormatYUY2 , bgr24_to_yuy2 },
+                    {PixelFormatBGR24, PixelFormatNV12 , bgr24_to_nv12 },
+                    {PixelFormatBGR24, PixelFormatNV21 , bgr24_to_nv21 },
+
                     {PixelFormatRGB24, PixelFormatRGB32, rgb24_to_rgb32},
                     {PixelFormatRGB24, PixelFormatRGB16, rgb24_to_rgb16},
                     {PixelFormatRGB24, PixelFormatRGB15, rgb24_to_rgb15},
                     {PixelFormatRGB24, PixelFormatBGR32, rgb24_to_bgr32},
                     {PixelFormatRGB24, PixelFormatBGR24, rgb24_to_bgr24},
-                    {PixelFormatRGB24, PixelFormatBGR15, rgb24_to_bgr16},
-                    {PixelFormatRGB24, PixelFormatBGR16, rgb24_to_bgr15},
+                    {PixelFormatRGB24, PixelFormatBGR16, rgb24_to_bgr16},
+                    {PixelFormatRGB24, PixelFormatBGR15, rgb24_to_bgr15},
                     {PixelFormatRGB24, PixelFormatUYVY , rgb24_to_uyvy },
                     {PixelFormatRGB24, PixelFormatYUY2 , rgb24_to_yuy2 },
                     {PixelFormatRGB24, PixelFormatNV12 , rgb24_to_nv12 },
                     {PixelFormatRGB24, PixelFormatNV21 , rgb24_to_nv21 }
+                };
+
+                this->m_adjustFormats = {
+                    PixelFormatBGR24,
+                    PixelFormatRGB24
                 };
             }
 
@@ -163,7 +180,7 @@ namespace AkVCam
             template<typename T>
             inline T mod(T value, T mod)
             {
-                return ((value < 0? mod: 0) + value) % mod;
+                return (value % mod + mod) % mod;
             }
 
             inline int grayval(int r, int g, int b)
@@ -178,22 +195,41 @@ namespace AkVCam
             inline static uint8_t yuv_g(int y, int u, int v);
             inline static uint8_t yuv_b(int y, int u, int v);
 
-            // RGB formats
+            // BGR to RGB formats
+            static size_t bgr24_to_rgb32(void *dst, const void *src, int width, int height);
+            static size_t bgr24_to_rgb24(void *dst, const void *src, int width, int height);
+            static size_t bgr24_to_rgb16(void *dst, const void *src, int width, int height);
+            static size_t bgr24_to_rgb15(void *dst, const void *src, int width, int height);
+
+            // BGR to BGR formats
+            static size_t bgr24_to_bgr32(void *dst, const void *src, int width, int height);
+            static size_t bgr24_to_bgr16(void *dst, const void *src, int width, int height);
+            static size_t bgr24_to_bgr15(void *dst, const void *src, int width, int height);
+
+            // BGR to Luminance+Chrominance formats
+            static size_t bgr24_to_uyvy(void *dst, const void *src, int width, int height);
+            static size_t bgr24_to_yuy2(void *dst, const void *src, int width, int height);
+
+            // BGR to two planes -- one Y, one Cr + Cb interleaved
+            static size_t bgr24_to_nv12(void *dst, const void *src, int width, int height);
+            static size_t bgr24_to_nv21(void *dst, const void *src, int width, int height);
+
+            // RGB to RGB formats
             static size_t rgb24_to_rgb32(void *dst, const void *src, int width, int height);
             static size_t rgb24_to_rgb16(void *dst, const void *src, int width, int height);
             static size_t rgb24_to_rgb15(void *dst, const void *src, int width, int height);
 
-            // BGR formats
+            // RGB to BGR formats
             static size_t rgb24_to_bgr32(void *dst, const void *src, int width, int height);
             static size_t rgb24_to_bgr24(void *dst, const void *src, int width, int height);
             static size_t rgb24_to_bgr16(void *dst, const void *src, int width, int height);
             static size_t rgb24_to_bgr15(void *dst, const void *src, int width, int height);
 
-            // Luminance+Chrominance formats
+            // RGB to Luminance+Chrominance formats
             static size_t rgb24_to_uyvy(void *dst, const void *src, int width, int height);
             static size_t rgb24_to_yuy2(void *dst, const void *src, int width, int height);
 
-            // two planes -- one Y, one Cr + Cb interleaved
+            // RGB to two planes -- one Y, one Cr + Cb interleaved
             static size_t rgb24_to_nv12(void *dst, const void *src, int width, int height);
             static size_t rgb24_to_nv21(void *dst, const void *src, int width, int height);
 
@@ -399,6 +435,13 @@ AkVCam::VideoFrame AkVCam::VideoFrame::mirror(bool horizontalMirror,
     if (!horizontalMirror && !verticalMirror)
         return *this;
 
+    auto it = std::find(this->d->m_adjustFormats.begin(),
+                        this->d->m_adjustFormats.end(),
+                        this->d->m_format.fourcc());
+
+    if (it == this->d->m_adjustFormats.end())
+        return {};
+
     auto format = this->d->m_format;
     int width = format.width();
     int height = format.height();
@@ -427,9 +470,7 @@ AkVCam::VideoFrame AkVCam::VideoFrame::mirror(bool horizontalMirror,
         for (int y = 0; y < height; y++) {
             auto srcLine = dataSrc + (height - y - 1) * width;
             auto dstLine = dataDst + y * width;
-
-            for (int x = 0; x < width; x++)
-                dstLine[x] = srcLine[x];
+            memcpy(dstLine, srcLine, size_t(width) * sizeof(RGB24));
         }
     }
 
@@ -445,7 +486,11 @@ AkVCam::VideoFrame AkVCam::VideoFrame::scaled(int width,
         && this->d->m_format.height() == height)
         return *this;
 
-    if (this->d->m_format.fourcc() != PixelFormatRGB24)
+    auto it = std::find(this->d->m_adjustFormats.begin(),
+                        this->d->m_adjustFormats.end(),
+                        this->d->m_format.fourcc());
+
+    if (it == this->d->m_adjustFormats.end())
         return {};
 
     int xDstMin = 0;
@@ -597,8 +642,46 @@ AkVCam::VideoFrame AkVCam::VideoFrame::scaled(size_t maxArea,
     return this->scaled(owidth, oheight, mode);
 }
 
+AkVCam::VideoFrame AkVCam::VideoFrame::swapRgb(bool swap) const
+{
+    if (swap)
+        return this->swapRgb();
+
+    return *this;
+}
+
+AkVCam::VideoFrame AkVCam::VideoFrame::swapRgb() const
+{    
+    auto it = std::find(this->d->m_adjustFormats.begin(),
+                        this->d->m_adjustFormats.end(),
+                        this->d->m_format.fourcc());
+
+    if (it == this->d->m_adjustFormats.end())
+        return {};
+
+    auto format = this->d->m_format;
+    int width = format.width();
+    int height = format.height();
+    auto len = size_t(width * height);
+    size_t dataSize = this->d->m_dataSize;
+    auto data = std::shared_ptr<uint8_t>(new uint8_t[dataSize]);
+    auto dataSrc = reinterpret_cast<RGB24 *>(this->d->m_data.get());
+    auto dataDst = reinterpret_cast<RGB24 *>(data.get());
+
+    for (size_t i = 0; i < len; i++) {
+        dataDst[i].r = dataSrc[i].b;
+        dataDst[i].g = dataSrc[i].g;
+        dataDst[i].b = dataSrc[i].r;
+    }
+
+    return VideoFrame(format, data, dataSize);
+}
+
 bool AkVCam::VideoFrame::canConvert(FourCC input, FourCC output) const
 {
+    if (input == output)
+        return true;
+
     for (auto &convert: this->d->m_convert)
         if (convert.from == input
             && convert.to == output) {
@@ -646,11 +729,15 @@ AkVCam::VideoFrame AkVCam::VideoFrame::adjustHsl(int hue,
                                                  int saturation,
                                                  int luminance)
 {
-    if (this->d->m_format.fourcc() != PixelFormatRGB24)
-        return {};
-
     if (hue == 0 && saturation == 0 && luminance == 0)
         return *this;
+
+    auto it = std::find(this->d->m_adjustFormats.begin(),
+                        this->d->m_adjustFormats.end(),
+                        this->d->m_format.fourcc());
+
+    if (it == this->d->m_adjustFormats.end())
+        return {};
 
     auto format = this->d->m_format;
     int width = format.width();
@@ -667,7 +754,7 @@ AkVCam::VideoFrame AkVCam::VideoFrame::adjustHsl(int hue,
         int l;
         this->d->rgbToHsl(dataSrc[i].r, dataSrc[i].g, dataSrc[i].b, &h, &s, &l);
 
-        h = this->d->bound(0, h + hue, 359);
+        h = this->d->mod(h + hue, 360);
         s = this->d->bound(0, s + saturation, 255);
         l = this->d->bound(0, l + luminance, 255);
 
@@ -686,11 +773,15 @@ AkVCam::VideoFrame AkVCam::VideoFrame::adjustHsl(int hue,
 
 AkVCam::VideoFrame AkVCam::VideoFrame::adjustGamma(int gamma)
 {
-    if (this->d->m_format.fourcc() != PixelFormatRGB24)
-        return {};
-
     if (gamma == 0)
         return *this;
+
+    auto it = std::find(this->d->m_adjustFormats.begin(),
+                        this->d->m_adjustFormats.end(),
+                        this->d->m_format.fourcc());
+
+    if (it == this->d->m_adjustFormats.end())
+        return {};
 
     auto format = this->d->m_format;
     int width = format.width();
@@ -716,11 +807,15 @@ AkVCam::VideoFrame AkVCam::VideoFrame::adjustGamma(int gamma)
 
 AkVCam::VideoFrame AkVCam::VideoFrame::adjustContrast(int contrast)
 {
-    if (this->d->m_format.fourcc() != PixelFormatRGB24)
-        return {};
-
     if (contrast == 0)
         return *this;
+
+    auto it = std::find(this->d->m_adjustFormats.begin(),
+                        this->d->m_adjustFormats.end(),
+                        this->d->m_format.fourcc());
+
+    if (it == this->d->m_adjustFormats.end())
+        return {};
 
     auto format = this->d->m_format;
     int width = format.width();
@@ -746,7 +841,11 @@ AkVCam::VideoFrame AkVCam::VideoFrame::adjustContrast(int contrast)
 
 AkVCam::VideoFrame AkVCam::VideoFrame::toGrayScale()
 {
-    if (this->d->m_format.fourcc() != PixelFormatRGB24)
+    auto it = std::find(this->d->m_adjustFormats.begin(),
+                        this->d->m_adjustFormats.end(),
+                        this->d->m_format.fourcc());
+
+    if (it == this->d->m_adjustFormats.end())
         return {};
 
     auto format = this->d->m_format;
@@ -776,9 +875,6 @@ AkVCam::VideoFrame AkVCam::VideoFrame::adjust(int hue,
                                               int contrast,
                                               bool gray)
 {
-    if (this->d->m_format.fourcc() != PixelFormatRGB24)
-        return {};
-
     if (hue == 0
         && saturation == 0
         && luminance == 0
@@ -786,6 +882,13 @@ AkVCam::VideoFrame AkVCam::VideoFrame::adjust(int hue,
         && contrast == 0
         && !gray)
         return *this;
+
+    auto it = std::find(this->d->m_adjustFormats.begin(),
+                        this->d->m_adjustFormats.end(),
+                        this->d->m_format.fourcc());
+
+    if (it == this->d->m_adjustFormats.end())
+        return {};
 
     auto format = this->d->m_format;
     int width = format.width();
@@ -815,7 +918,7 @@ AkVCam::VideoFrame AkVCam::VideoFrame::adjust(int hue,
             int l;
             this->d->rgbToHsl(r, g, b, &h, &s, &l);
 
-            h = this->d->bound(0, h + hue, 359);
+            h = this->d->mod(h + hue, 360);
             s = this->d->bound(0, s + saturation, 255);
             l = this->d->bound(0, l + luminance, 255);
             this->d->hslToRgb(h, s, l, &r, &g, &b);
@@ -885,6 +988,319 @@ uint8_t AkVCam::VideoFramePrivate::yuv_b(int y, int u, int v)
     int b = (298 * (y - 16) + 516 * (u - 128) + 128) >> 8;
 
     return uint8_t(bound(0, b, 255));
+}
+
+size_t AkVCam::VideoFramePrivate::bgr24_to_rgb32(void *dst, const void *src,
+                                                 int width, int height)
+{
+    size_t len = size_t(width * height);
+    size_t osize = 32 * len / 8;
+
+    if (!dst || !src)
+        return osize;
+
+    auto _src = reinterpret_cast<const BGR24 *>(src);
+    auto _dst = reinterpret_cast<RGB32 *>(dst);
+
+    for (size_t i = 0; i < len; i++) {
+        _dst[i].x = 255;
+        _dst[i].r = _src[i].r;
+        _dst[i].g = _src[i].g;
+        _dst[i].b = _src[i].b;
+    }
+
+    return osize;
+}
+
+size_t AkVCam::VideoFramePrivate::bgr24_to_rgb24(void *dst, const void *src,
+                                                 int width, int height)
+{
+    size_t len = size_t(width * height);
+    size_t osize = 24 * len / 8;
+
+    if (!dst || !src)
+        return osize;
+
+    auto _src = reinterpret_cast<const BGR24 *>(src);
+    auto _dst = reinterpret_cast<RGB24 *>(dst);
+
+    for (size_t i = 0; i < len; i++) {
+        _dst[i].r = _src[i].r;
+        _dst[i].g = _src[i].g;
+        _dst[i].b = _src[i].b;
+    }
+
+    return osize;
+}
+
+size_t AkVCam::VideoFramePrivate::bgr24_to_rgb16(void *dst, const void *src,
+                                                 int width, int height)
+{
+    size_t len = size_t(width * height);
+    size_t osize = 16 * len / 8;
+
+    if (!dst || !src)
+        return osize;
+
+    auto _src = reinterpret_cast<const BGR24 *>(src);
+    auto _dst = reinterpret_cast<RGB16 *>(dst);
+
+    for (size_t i = 0; i < len; i++) {
+        _dst[i].r = _src[i].r >> 3;
+        _dst[i].g = _src[i].g >> 2;
+        _dst[i].b = _src[i].b >> 3;
+    }
+
+    return osize;
+}
+
+size_t AkVCam::VideoFramePrivate::bgr24_to_rgb15(void *dst, const void *src,
+                                                 int width, int height)
+{
+    size_t len = size_t(width * height);
+    size_t osize = 16 * len / 8;
+
+    if (!dst || !src)
+        return osize;
+
+    auto _src = reinterpret_cast<const BGR24 *>(src);
+    auto _dst = reinterpret_cast<RGB15 *>(dst);
+
+    for (size_t i = 0; i < len; i++) {
+        _dst[i].x = 1;
+        _dst[i].r = _src[i].r >> 3;
+        _dst[i].g = _src[i].g >> 3;
+        _dst[i].b = _src[i].b >> 3;
+    }
+
+    return osize;
+}
+
+size_t AkVCam::VideoFramePrivate::bgr24_to_bgr32(void *dst, const void *src,
+                                                 int width, int height)
+{
+    size_t len = size_t(width * height);
+    size_t osize = 32 * len / 8;
+
+    if (!dst || !src)
+        return osize;
+
+    auto _src = reinterpret_cast<const BGR24 *>(src);
+    auto _dst = reinterpret_cast<BGR32 *>(dst);
+
+    for (size_t i = 0; i < len; i++) {
+        _dst[i].x = 255;
+        _dst[i].r = _src[i].r;
+        _dst[i].g = _src[i].g;
+        _dst[i].b = _src[i].b;
+    }
+
+    return osize;
+}
+
+size_t AkVCam::VideoFramePrivate::bgr24_to_bgr16(void *dst, const void *src,
+                                                 int width, int height)
+{
+    size_t len = size_t(width * height);
+    size_t osize = 16 * len / 8;
+
+    if (!dst || !src)
+        return osize;
+
+    auto _src = reinterpret_cast<const BGR24 *>(src);
+    auto _dst = reinterpret_cast<BGR16 *>(dst);
+
+    for (size_t i = 0; i < len; i++) {
+        _dst[i].r = _src[i].r >> 3;
+        _dst[i].g = _src[i].g >> 2;
+        _dst[i].b = _src[i].b >> 3;
+    }
+
+    return osize;
+}
+
+size_t AkVCam::VideoFramePrivate::bgr24_to_bgr15(void *dst, const void *src,
+                                                 int width, int height)
+{
+    size_t len = size_t(width * height);
+    size_t osize = 16 * len / 8;
+
+    if (!dst || !src)
+        return osize;
+
+    auto _src = reinterpret_cast<const BGR24 *>(src);
+    auto _dst = reinterpret_cast<BGR15 *>(dst);
+
+    for (size_t i = 0; i < len; i++) {
+        _dst[i].x = 1;
+        _dst[i].r = _src[i].r >> 3;
+        _dst[i].g = _src[i].g >> 3;
+        _dst[i].b = _src[i].b >> 3;
+    }
+
+    return osize;
+}
+
+size_t AkVCam::VideoFramePrivate::bgr24_to_uyvy(void *dst, const void *src,
+                                                int width, int height)
+{
+    size_t len = size_t(width * height);
+    size_t osize = 16 * len / 8;
+
+    if (!dst || !src)
+        return osize;
+
+    auto _src = reinterpret_cast<const BGR24 *>(src);
+    auto _dst = reinterpret_cast<UYVY *>(dst);
+
+    size_t olen = len / 2;
+
+    for (size_t i = 0; i < olen; i++) {
+        size_t j = 2 * i;
+
+        uint8_t r0 = _src[j].r;
+        uint8_t g0 = _src[j].g;
+        uint8_t b0 = _src[j].b;
+
+        j++;
+
+        uint8_t r1 = _src[j].r;
+        uint8_t g1 = _src[j].g;
+        uint8_t b1 = _src[j].b;
+
+        _dst[i].u0 = rgb_u(r0, g0, b0);
+        _dst[i].y0 = rgb_y(r0, g0, b0);
+        _dst[i].v0 = rgb_v(r0, g0, b0);
+        _dst[i].y1 = rgb_y(r1, g1, b1);
+    }
+
+    return osize;
+}
+
+size_t AkVCam::VideoFramePrivate::bgr24_to_yuy2(void *dst, const void *src,
+                                                int width, int height)
+{
+    size_t len = size_t(width * height);
+    size_t osize = 16 * len / 8;
+
+    if (!dst || !src)
+        return osize;
+
+    auto _src = reinterpret_cast<const BGR24 *>(src);
+    auto _dst = reinterpret_cast<YUY2 *>(dst);
+
+    size_t olen = len / 2;
+
+    for (size_t i = 0; i < olen; i++) {
+        size_t j = 2 * i;
+
+        uint8_t r0 = _src[j].r;
+        uint8_t g0 = _src[j].g;
+        uint8_t b0 = _src[j].b;
+
+        j++;
+
+        uint8_t r1 = _src[j].r;
+        uint8_t g1 = _src[j].g;
+        uint8_t b1 = _src[j].b;
+
+        _dst[i].y0 = rgb_y(r0, g0, b0);
+        _dst[i].u0 = rgb_u(r0, g0, b0);
+        _dst[i].y1 = rgb_y(r1, g1, b1);
+        _dst[i].v0 = rgb_v(r0, g0, b0);
+    }
+
+    return osize;
+}
+
+size_t AkVCam::VideoFramePrivate::bgr24_to_nv12(void *dst, const void *src,
+                                                int width, int height)
+{
+    size_t len = size_t(width * height);
+    size_t osize = 12 * len / 8;
+
+    if (!dst || !src)
+        return osize;
+
+    auto _src = reinterpret_cast<const BGR24 *>(src);
+    auto dst_y = reinterpret_cast<uint8_t *>(dst);
+    auto dst_vu = reinterpret_cast<VU *>(dst_y + len);
+
+    // Write Y plane.
+    for (size_t i = 0; i < len; i++) {
+        uint8_t r = _src[i].r;
+        uint8_t g = _src[i].g;
+        uint8_t b = _src[i].b;
+
+        dst_y[i] = rgb_y(r, g, b);
+    }
+
+    // Write VU planes.
+    int _width = width >> 1;
+    int _height = height >> 1;
+
+    for (int y = 0; y < _height; y++) {
+        auto line = _src + 2 * y * width;
+        auto line_vu = dst_vu + y * _width;
+
+        for (int x = 0; x < _width; x++) {
+            int j = 2 * x;
+
+            uint8_t r = line[j].r;
+            uint8_t g = line[j].g;
+            uint8_t b = line[j].b;
+
+            line_vu[x].v = rgb_v(r, g, b);
+            line_vu[x].u = rgb_u(r, g, b);
+        }
+    }
+
+    return osize;
+}
+
+size_t AkVCam::VideoFramePrivate::bgr24_to_nv21(void *dst, const void *src,
+                                                int width, int height)
+{
+    size_t len = size_t(width * height);
+    size_t osize = 12 * len / 8;
+
+    if (!dst || !src)
+        return osize;
+
+    auto _src = reinterpret_cast<const BGR24 *>(src);
+    auto dst_y = reinterpret_cast<uint8_t *>(dst);
+    auto dst_uv = reinterpret_cast<UV *>(dst_y + len);
+
+    // Write Y plane.
+    for (size_t i = 0; i < len; i++) {
+        uint8_t r = _src[i].r;
+        uint8_t g = _src[i].g;
+        uint8_t b = _src[i].b;
+
+        dst_y[i] = rgb_y(r, g, b);
+    }
+
+    // Write VU planes.
+    int _width = width >> 1;
+    int _height = height >> 1;
+
+    for (int y = 0; y < _height; y++) {
+        auto line = _src + 2 * y * width;
+        auto line_uv = dst_uv + y * _width;
+
+        for (int x = 0; x < _width; x++) {
+            int j = 2 * x;
+
+            uint8_t r = line[j].r;
+            uint8_t g = line[j].g;
+            uint8_t b = line[j].b;
+
+            line_uv[x].u = rgb_u(r, g, b);
+            line_uv[x].v = rgb_v(r, g, b);
+        }
+    }
+
+    return osize;
 }
 
 size_t AkVCam::VideoFramePrivate::rgb24_to_rgb32(void *dst, const void *src,

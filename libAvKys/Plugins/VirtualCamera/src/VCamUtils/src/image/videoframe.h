@@ -62,6 +62,8 @@ namespace AkVCam
             VideoFrame scaled(size_t maxArea,
                               Scaling mode=ScalingFast,
                               int align=32) const;
+            VideoFrame swapRgb(bool swap) const;
+            VideoFrame swapRgb() const;
             bool canConvert(FourCC input, FourCC output) const;
             VideoFrame convert(FourCC fourcc) const;
             VideoFrame adjustHsl(int hue, int saturation, int luminance);

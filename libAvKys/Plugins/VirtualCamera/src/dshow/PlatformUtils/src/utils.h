@@ -40,6 +40,8 @@ namespace AkVCam
     std::string programFilesPath();
     std::wstring moduleFileNameW(HINSTANCE hinstDLL);
     std::string moduleFileName(HINSTANCE hinstDLL);
+    std::wstring errorToStringW(DWORD errorCode);
+    std::string errorToString(DWORD errorCode);
     CLSID createClsidFromStr(const std::string &str);
     CLSID createClsidFromStr(const std::wstring &str);
     std::wstring createClsidWStrFromStr(const std::string &str);

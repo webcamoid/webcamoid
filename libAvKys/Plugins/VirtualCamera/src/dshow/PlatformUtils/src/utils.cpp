@@ -40,17 +40,21 @@ namespace AkVCam
             FourCC pixelFormat;
             DWORD compression;
             GUID guid;
+            const DWORD *masks;
 
             inline static const std::vector<VideoFormatSpecsPrivate> &formats()
             {
+                static const DWORD bits555[] = {0x007c00, 0x0003e0, 0x00001f};
+                static const DWORD bits565[] = {0x00f800, 0x0007e0, 0x00001f};
+
                 static const std::vector<VideoFormatSpecsPrivate> formats {
-                    {PixelFormatRGB32, BI_RGB                        , MEDIASUBTYPE_RGB32 },
-                    {PixelFormatRGB24, BI_RGB                        , MEDIASUBTYPE_RGB24 },
-                    {PixelFormatRGB16, BI_BITFIELDS                  , MEDIASUBTYPE_RGB565},
-                    {PixelFormatRGB15, BI_BITFIELDS                  , MEDIASUBTYPE_RGB555},
-                    {PixelFormatUYVY , MAKEFOURCC('U', 'Y', 'V', 'Y'), MEDIASUBTYPE_UYVY  },
-                    {PixelFormatYUY2 , MAKEFOURCC('Y', 'U', 'Y', '2'), MEDIASUBTYPE_YUY2  },
-                    {PixelFormatNV12 , MAKEFOURCC('N', 'V', '1', '2'), MEDIASUBTYPE_NV12  }
+                    {PixelFormatRGB32, BI_RGB                        , MEDIASUBTYPE_RGB32 , nullptr},
+                    {PixelFormatRGB24, BI_RGB                        , MEDIASUBTYPE_RGB24 , nullptr},
+                    {PixelFormatRGB16, BI_BITFIELDS                  , MEDIASUBTYPE_RGB565, bits565},
+                    {PixelFormatRGB15, BI_BITFIELDS                  , MEDIASUBTYPE_RGB555, bits555},
+                    {PixelFormatUYVY , MAKEFOURCC('U', 'Y', 'V', 'Y'), MEDIASUBTYPE_UYVY  , nullptr},
+                    {PixelFormatYUY2 , MAKEFOURCC('Y', 'U', 'Y', '2'), MEDIASUBTYPE_YUY2  , nullptr},
+                    {PixelFormatNV12 , MAKEFOURCC('N', 'V', '1', '2'), MEDIASUBTYPE_NV12  , nullptr}
                 };
 
                 return formats;
@@ -115,6 +119,31 @@ std::string AkVCam::moduleFileName(HINSTANCE hinstDLL)
     auto fileName = moduleFileNameW(hinstDLL);
 
     return std::string(fileName.begin(), fileName.end());
+}
+
+std::wstring AkVCam::errorToStringW(DWORD errorCode)
+{
+    WCHAR *errorStr = nullptr;
+    auto size = FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER
+                              | FORMAT_MESSAGE_FROM_SYSTEM
+                              | FORMAT_MESSAGE_IGNORE_INSERTS,
+                              nullptr,
+                              errorCode,
+                              MAKELANGID(LANG_NEUTRAL, SUBLANG_NEUTRAL),
+                              reinterpret_cast<LPWSTR>(&errorStr),
+                              0,
+                              nullptr);
+    std::wstring error(errorStr, size);
+    LocalFree(errorStr);
+
+    return error;
+}
+
+std::string AkVCam::errorToString(DWORD errorCode)
+{
+    auto errorStr = errorToStringW(errorCode);
+
+    return std::string(errorStr.begin(), errorStr.end());
 }
 
 // Converts a human redable string to a CLSID using MD5 hash.
@@ -333,8 +362,8 @@ AM_MEDIA_TYPE *AkVCam::mediaTypeFromFormat(const AkVCam::VideoFormat &format)
         return nullptr;
 
     auto videoInfo =
-            reinterpret_cast<VIDEOINFOHEADER *>(CoTaskMemAlloc(sizeof(VIDEOINFOHEADER)));
-    memset(videoInfo, 0, sizeof(VIDEOINFOHEADER));
+            reinterpret_cast<VIDEOINFO *>(CoTaskMemAlloc(sizeof(VIDEOINFO)));
+    memset(videoInfo, 0, sizeof(VIDEOINFO));
 
     // Initialize info header.
     videoInfo->rcSource = {0, 0, 0, 0};
@@ -352,6 +381,44 @@ AM_MEDIA_TYPE *AkVCam::mediaTypeFromFormat(const AkVCam::VideoFormat &format)
     videoInfo->bmiHeader.biCompression = compressionFromFormat(format.fourcc());
     videoInfo->bmiHeader.biSizeImage = DWORD(format.size());
 
+    switch (videoInfo->bmiHeader.biCompression) {
+    case BI_RGB:
+        if (videoInfo->bmiHeader.biBitCount == 8) {
+            videoInfo->bmiHeader.biClrUsed = iPALETTE_COLORS;
+
+            if (HDC hdc = GetDC(nullptr)) {
+                PALETTEENTRY palette[iPALETTE_COLORS];
+
+                if (GetSystemPaletteEntries(hdc,
+                                            0,
+                                            iPALETTE_COLORS,
+                                            palette))
+                    for (int i = 0; i < iPALETTE_COLORS; i++) {
+                        videoInfo->TrueColorInfo.bmiColors[i].rgbRed = palette[i].peRed;
+                        videoInfo->TrueColorInfo.bmiColors[i].rgbBlue = palette[i].peBlue;
+                        videoInfo->TrueColorInfo.bmiColors[i].rgbGreen = palette[i].peGreen;
+                        videoInfo->TrueColorInfo.bmiColors[i].rgbReserved = 0;
+                    }
+
+                ReleaseDC(nullptr, hdc);
+            }
+        }
+
+        break;
+
+    case BI_BITFIELDS: {
+            auto masks = VideoFormatSpecsPrivate::byPixelFormat(format.fourcc())->masks;
+
+            if (masks)
+                memcpy(videoInfo->TrueColorInfo.dwBitMasks, masks, 3);
+        }
+
+        break;
+
+    default:
+        break;
+    }
+
     auto mediaType =
             reinterpret_cast<AM_MEDIA_TYPE *>(CoTaskMemAlloc(sizeof(AM_MEDIA_TYPE)));
     memset(mediaType, 0, sizeof(AM_MEDIA_TYPE));
@@ -363,7 +430,7 @@ AM_MEDIA_TYPE *AkVCam::mediaTypeFromFormat(const AkVCam::VideoFormat &format)
     mediaType->bTemporalCompression = FALSE;
     mediaType->lSampleSize = ULONG(frameSize);
     mediaType->formattype = FORMAT_VideoInfo;
-    mediaType->cbFormat = sizeof(VIDEOINFOHEADER);
+    mediaType->cbFormat = sizeof(VIDEOINFO);
     mediaType->pbFormat = reinterpret_cast<BYTE *>(videoInfo);
 
     return mediaType;
@@ -388,14 +455,14 @@ AkVCam::VideoFormat AkVCam::formatFromMediaType(const AM_MEDIA_TYPE *mediaType)
 
         return VideoFormat(formatFromGuid(mediaType->subtype),
                            format->bmiHeader.biWidth,
-                           format->bmiHeader.biHeight,
+                           std::abs(format->bmiHeader.biHeight),
                            {double(TIME_BASE) / format->AvgTimePerFrame});
     } else if (IsEqualGUID(mediaType->formattype, FORMAT_VideoInfo2)) {
         auto format = reinterpret_cast<VIDEOINFOHEADER2 *>(mediaType->pbFormat);
 
         return VideoFormat(formatFromGuid(mediaType->subtype),
                            format->bmiHeader.biWidth,
-                           format->bmiHeader.biHeight,
+                           std::abs(format->bmiHeader.biHeight),
                            {double(TIME_BASE) / format->AvgTimePerFrame});
     }
 
@@ -632,7 +699,7 @@ std::string AkVCam::stringFromMediaType(const AM_MEDIA_TYPE *mediaType)
            << ", "
            << format->bmiHeader.biHeight;
     } else if (IsEqualGUID(mediaType->formattype, FORMAT_VideoInfo2)) {
-        auto format = reinterpret_cast<VIDEOINFOHEADER *>(mediaType->pbFormat);
+        auto format = reinterpret_cast<VIDEOINFOHEADER2 *>(mediaType->pbFormat);
         ss << ", "
            << format->bmiHeader.biWidth
            << ", "

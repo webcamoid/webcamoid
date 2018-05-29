@@ -49,6 +49,8 @@ namespace AkVCam
         typedef std::function<void (const std::string &deviceId,
                                     AspectRatio aspectRatio)> AspectRatioChangedCallback;
         typedef std::function<void (const std::string &deviceId,
+                                    bool swap)> SwapRgbChangedCallback;
+        typedef std::function<void (const std::string &deviceId,
                                     int listeners)> ListenersChangedCallback;
 
         public:
@@ -97,6 +99,9 @@ namespace AkVCam
             // Aspect ratio mode for frames shown in clients.
             AspectRatio aspectRatioMode(const std::string &deviceId);
 
+            // Check if red and blue channels are swapped.
+            bool swapRgb(const std::string &deviceId);
+
             // How many programs are using the virtual camera now.
             int listeners(const std::string &deviceId);
 
@@ -139,6 +144,9 @@ namespace AkVCam
             void setAspectRatio(const std::string &deviceId,
                                 AspectRatio aspectRatio);
 
+            // Swap red and blue channels.
+            void setSwapRgb(const std::string &deviceId, bool swap);
+
             // Set the function that will be called when the number of listeners
             // changes for a device.
             void setListenersChangedCallback(ListenersChangedCallback callback);
@@ -178,6 +186,10 @@ namespace AkVCam
             // Set the function that will be called when the aspect ratio option
             // changes for a device.
             void setAspectRatioChangedCallback(AspectRatioChangedCallback callback);
+
+            // Set the function that will be called when the swap RGB option
+            // changes for a device.
+            void setSwapRgbChangedCallback(SwapRgbChangedCallback callback);
 
         private:
             IpcBridgePrivate *d;
