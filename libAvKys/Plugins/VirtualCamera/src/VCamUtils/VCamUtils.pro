@@ -47,7 +47,8 @@ SOURCES += \
     src/resources/rcloader.cpp \
     src/resources/rcname.cpp \
     src/resources/rcnode.cpp \
-    src/utils.cpp 
+    src/utils.cpp \ 
+    src/timer.cpp
 
 HEADERS += \
     src/cstream/cstreamread.h \
@@ -62,7 +63,8 @@ HEADERS += \
     src/resources/rcloader.h \
     src/resources/rcname.h \
     src/resources/rcnode.h \
-    src/utils.h
+    src/utils.h \
+    src/timer.h
 
 isEmpty(STATIC_BUILD) | isEqual(STATIC_BUILD, 0) {
     win32-g++: QMAKE_LFLAGS = -static -static-libgcc -static-libstdc++

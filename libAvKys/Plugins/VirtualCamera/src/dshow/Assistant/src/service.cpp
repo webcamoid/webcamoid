@@ -21,6 +21,7 @@
 #include <iostream>
 #include <map>
 #include <memory>
+#include <mutex>
 #include <string>
 #include <thread>
 #include <vector>
@@ -34,6 +35,7 @@
 #include "VCamUtils/src/cstream/cstreamwrite.h"
 #include "VCamUtils/src/image/videoformat.h"
 #include "VCamUtils/src/image/videoframe.h"
+#include "VCamUtils/src/timer.h"
 #include "VCamUtils/src/utils.h"
 
 #define AkServiceLogMethod() \
@@ -67,12 +69,16 @@ namespace AkVCam
             AssistantPeers m_servers;
             AssistantPeers m_clients;
             DeviceConfigs m_deviceConfigs;
+            Timer m_timer;
+            std::mutex m_peerMutex;
 
             ServicePrivate();
             static void stateChanged(State state, void *userData);
+            static void checkPeers(void *userData);
             void sendStatus(DWORD currentState, DWORD exitCode, DWORD wait);
             inline static uint64_t id();
             void removePortByName(const std::string &portName);
+            void releaseDevicesWithOwner(const std::string &portName);
             void requestPort(Message *message);
             void addPort(Message *message);
             void removePort(Message *message);
@@ -294,6 +300,8 @@ AkVCam::ServicePrivate::ServicePrivate()
         {AKVCAM_ASSISTANT_MSG_ADD_LISTENER          , AKVCAM_BIND_FUNC(ServicePrivate::addListener)    },
         {AKVCAM_ASSISTANT_MSG_REMOVE_LISTENER       , AKVCAM_BIND_FUNC(ServicePrivate::removeListener) },
     });
+    this->m_timer.setInterval(60000);
+    this->m_timer.setTimeoutCallback(&ServicePrivate::checkPeers, this);
 }
 
 void AkVCam::ServicePrivate::stateChanged(AkVCam::State state, void *userData)
@@ -316,6 +324,37 @@ void AkVCam::ServicePrivate::stateChanged(AkVCam::State state, void *userData)
     case StateStopped:
         AkVCam::servicePrivate()->sendStatus(SERVICE_STOPPED, NO_ERROR, 0);
         break;
+    }
+}
+
+void AkVCam::ServicePrivate::checkPeers(void *userData)
+{
+    auto self = reinterpret_cast<ServicePrivate *>(userData);
+    std::vector<std::string> removePorts;
+
+    self->m_peerMutex.lock();
+    std::vector<AssistantPeers *> allPeers {
+        &self->m_clients,
+        &self->m_servers
+    };
+
+    for (auto peers: allPeers)
+            for (auto &peer: *peers) {
+                Message message;
+                message.messageId = AKVCAM_ASSISTANT_MSG_ISALIVE;
+                message.dataSize = sizeof(MsgIsAlive);
+                MessageServer::sendMessage(peer.second, &message);
+                auto requestData = messageData<MsgIsAlive>(&message);
+
+                if (!requestData->alive)
+                    removePorts.push_back(peer.first);
+            }
+
+    self->m_peerMutex.unlock();
+
+    for (auto &port: removePorts) {
+        AkLoggerLog(port, " died, removing...");
+        self->removePortByName(port);
     }
 }
 
@@ -351,18 +390,56 @@ void AkVCam::ServicePrivate::removePortByName(const std::string &portName)
     AkServicePrivateLogMethod();
     AkLoggerLog("Port: ", portName);
 
-    for (auto &server: this->m_servers)
-        if (server.first == portName) {
-            this->m_servers.erase(portName);
+    this->m_peerMutex.lock();
 
+    std::vector<AssistantPeers *> allPeers {
+        &this->m_clients,
+        &this->m_servers
+    };
+
+    bool breakLoop = false;
+
+    for (auto peers: allPeers) {
+        for (auto &peer: *peers)
+            if (peer.first == portName) {
+                peers->erase(portName);
+                breakLoop = true;
+
+                break;
+            }
+
+        if (breakLoop)
             break;
-        }
+    }
 
-    for (auto &client: this->m_clients)
-        if (client.first == portName) {
-            this->m_clients.erase(portName);
+    bool peersEmpty = this->m_servers.empty() && this->m_clients.empty();
+    this->m_peerMutex.unlock();
 
-            break;
+    if (peersEmpty)
+        this->m_timer.stop();
+
+    this->releaseDevicesWithOwner(portName);
+}
+
+void AkVCam::ServicePrivate::releaseDevicesWithOwner(const std::string &portName)
+{
+    for (auto &config: this->m_deviceConfigs)
+        if (config.second.owner == portName) {
+            config.second.owner.clear();
+
+            Message message;
+            message.messageId = AKVCAM_ASSISTANT_MSG_DEVICE_SETBROADCASTING;
+            message.dataSize = sizeof(MsgBroadcasting);
+            auto data = messageData<MsgBroadcasting>(&message);
+            memcpy(data->device,
+                   config.first.c_str(),
+                   (std::min<size_t>)(config.first.size(), MAX_STRING));
+            this->m_peerMutex.lock();
+
+            for (auto &client: this->m_clients)
+                MessageServer::sendMessage(client.second, &message);
+
+            this->m_peerMutex.unlock();
         }
 }
 
@@ -391,6 +468,7 @@ void AkVCam::ServicePrivate::addPort(AkVCam::Message *message)
     std::string pipeName(data->pipeName);
     bool ok = true;
 
+    this->m_peerMutex.lock();
     AssistantPeers *peers;
 
     if (portName.find(AKVCAM_ASSISTANT_CLIENT_NAME) != std::string::npos)
@@ -402,13 +480,20 @@ void AkVCam::ServicePrivate::addPort(AkVCam::Message *message)
         if (peer.first == portName) {
             ok = false;
 
-            break ;
+            break;
         }
 
     if (ok) {
         AkLoggerLog("Adding Peer: ", portName);
         (*peers)[portName] = pipeName;
     }
+
+    size_t nPeers = this->m_servers.size() + this->m_clients.size();
+
+    this->m_peerMutex.unlock();
+
+    if (ok && nPeers == 1)
+        this->m_timer.start();
 
     data->status = ok;
 }
@@ -442,9 +527,12 @@ void AkVCam::ServicePrivate::setBroadCasting(AkVCam::Message *message)
 
     Message msg(message);
     msg.messageId = AKVCAM_ASSISTANT_MSG_DEVICE_BROADCASTING_CHANGED;
+    this->m_peerMutex.lock();
 
     for (auto &client: this->m_clients)
         MessageServer::sendMessage(client.second, &msg);
+
+    this->m_peerMutex.unlock();
 }
 
 void AkVCam::ServicePrivate::setMirroring(AkVCam::Message *message)
@@ -467,9 +555,12 @@ void AkVCam::ServicePrivate::setMirroring(AkVCam::Message *message)
 
     Message msg(message);
     msg.messageId = AKVCAM_ASSISTANT_MSG_DEVICE_MIRRORING_CHANGED;
+    this->m_peerMutex.lock();
 
     for (auto &client: this->m_clients)
         MessageServer::sendMessage(client.second, &msg);
+
+    this->m_peerMutex.unlock();
 }
 
 void AkVCam::ServicePrivate::setScaling(AkVCam::Message *message)
@@ -490,9 +581,12 @@ void AkVCam::ServicePrivate::setScaling(AkVCam::Message *message)
 
     Message msg(message);
     msg.messageId = AKVCAM_ASSISTANT_MSG_DEVICE_SCALING_CHANGED;
+    this->m_peerMutex.lock();
 
     for (auto &client: this->m_clients)
         MessageServer::sendMessage(client.second, &msg);
+
+    this->m_peerMutex.unlock();
 }
 
 void AkVCam::ServicePrivate::setAspectRatio(AkVCam::Message *message)
@@ -513,9 +607,12 @@ void AkVCam::ServicePrivate::setAspectRatio(AkVCam::Message *message)
 
     Message msg(message);
     msg.messageId = AKVCAM_ASSISTANT_MSG_DEVICE_ASPECTRATIO_CHANGED;
+    this->m_peerMutex.lock();
 
     for (auto &client: this->m_clients)
         MessageServer::sendMessage(client.second, &msg);
+
+    this->m_peerMutex.unlock();
 }
 
 void AkVCam::ServicePrivate::setSwapRgb(AkVCam::Message *message)
@@ -536,17 +633,23 @@ void AkVCam::ServicePrivate::setSwapRgb(AkVCam::Message *message)
 
     Message msg(message);
     msg.messageId = AKVCAM_ASSISTANT_MSG_DEVICE_SWAPRGB_CHANGED;
+    this->m_peerMutex.lock();
 
     for (auto &client: this->m_clients)
         MessageServer::sendMessage(client.second, &msg);
+
+    this->m_peerMutex.unlock();
 }
 
 void AkVCam::ServicePrivate::frameReady(AkVCam::Message *message)
 {
     AkServicePrivateLogMethod();
+    this->m_peerMutex.lock();
 
     for (auto &client: this->m_clients)
         MessageServer::sendMessage(client.second, message);
+
+    this->m_peerMutex.unlock();
 }
 
 void AkVCam::ServicePrivate::listeners(AkVCam::Message *message)
@@ -645,9 +748,12 @@ void AkVCam::ServicePrivate::addListener(AkVCam::Message *message)
 
     Message msg(message);
     msg.messageId = AKVCAM_ASSISTANT_MSG_LISTENERS_CHANGED;
+    this->m_peerMutex.lock();
 
     for (auto &client: this->m_clients)
         MessageServer::sendMessage(client.second, &msg);
+
+    this->m_peerMutex.unlock();
 }
 
 void AkVCam::ServicePrivate::removeListener(AkVCam::Message *message)
@@ -664,9 +770,12 @@ void AkVCam::ServicePrivate::removeListener(AkVCam::Message *message)
 
     Message msg(message);
     msg.messageId = AKVCAM_ASSISTANT_MSG_LISTENERS_CHANGED;
+    this->m_peerMutex.lock();
 
     for (auto &client: this->m_clients)
         MessageServer::sendMessage(client.second, &msg);
+
+    this->m_peerMutex.unlock();
 }
 
 DWORD WINAPI controlHandler(DWORD control,

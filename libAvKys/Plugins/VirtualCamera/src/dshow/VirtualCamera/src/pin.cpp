@@ -277,6 +277,7 @@ void AkVCam::Pin::frameReady(const VideoFrame &frame)
 void AkVCam::Pin::setBroadcasting(bool broadcasting)
 {
     AkLogMethod();
+    AkLoggerLog("Broadcasting: ", broadcasting);
 
     if (this->d->m_broadcasting == broadcasting)
         return;
