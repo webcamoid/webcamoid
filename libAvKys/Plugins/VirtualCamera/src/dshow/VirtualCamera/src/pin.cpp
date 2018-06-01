@@ -70,7 +70,7 @@ namespace AkVCam
             VideoFrame m_currentFrame;
             VideoFrame m_testFrame;
             VideoFrame m_testFrameAdapted;
-            bool m_broadcasting;
+            std::string m_broadcaster;
             bool m_horizontalFlip;   // Controlled by client
             bool m_verticalFlip;
             bool m_horizontalMirror; // Controlled by server
@@ -127,7 +127,6 @@ AkVCam::Pin::Pin(BaseFilter *baseFilter,
     this->d->m_adviseCookie = 0;
     this->d->m_sendFrameEvent = nullptr;
     this->d->m_running = false;
-    this->d->m_broadcasting = false;
     this->d->m_testFrame = {":/VirtualCamera/share/TestFrame/TestFrame.bmp"};
     this->d->m_horizontalMirror = false;
     this->d->m_verticalMirror = false;
@@ -257,14 +256,14 @@ void AkVCam::Pin::frameReady(const VideoFrame &frame)
 {
     AkLogMethod();
     AkLoggerLog("Running: ", this->d->m_running);
-    AkLoggerLog("Broadcasting: ", this->d->m_broadcasting);
+    AkLoggerLog("Broadcaster: ", this->d->m_broadcaster);
 
     if (!this->d->m_running)
         return;
 
     this->d->m_mutex.lock();
 
-    if (this->d->m_broadcasting) {
+    if (!this->d->m_broadcaster.empty()) {
         auto frameAdjusted = this->d->applyAdjusts(frame);
 
         if (frameAdjusted.format())
@@ -274,18 +273,18 @@ void AkVCam::Pin::frameReady(const VideoFrame &frame)
     this->d->m_mutex.unlock();
 }
 
-void AkVCam::Pin::setBroadcasting(bool broadcasting)
+void AkVCam::Pin::setBroadcasting(const std::string &broadcaster)
 {
     AkLogMethod();
-    AkLoggerLog("Broadcasting: ", broadcasting);
+    AkLoggerLog("Broadcaster: ", broadcaster);
 
-    if (this->d->m_broadcasting == broadcasting)
+    if (this->d->m_broadcaster == broadcaster)
         return;
 
     this->d->m_mutex.lock();
-    this->d->m_broadcasting = broadcasting;
+    this->d->m_broadcaster = broadcaster;
 
-    if (!broadcasting)
+    if (broadcaster.empty())
         this->d->m_currentFrame = this->d->m_testFrameAdapted;
 
     this->d->m_mutex.unlock();

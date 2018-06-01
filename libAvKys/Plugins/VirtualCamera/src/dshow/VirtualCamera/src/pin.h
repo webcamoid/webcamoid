@@ -47,7 +47,7 @@ namespace AkVCam
             void setBaseFilter(BaseFilter *baseFilter);
             static HRESULT stateChanged(void *userData, FILTER_STATE state);
             void frameReady(const VideoFrame &frame);
-            void setBroadcasting(bool broadcasting);
+            void setBroadcasting(const std::string &broadcaster);
             void setMirror(bool horizontalMirror, bool verticalMirror);
             void setScaling(Scaling scaling);
             void setAspectRatio(AspectRatio aspectRatio);

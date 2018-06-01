@@ -702,15 +702,15 @@ void AkVCam::PluginInterface::frameReady(const std::string &deviceId,
 }
 
 void AkVCam::PluginInterface::setBroadcasting(const std::string &deviceId,
-                                              bool broadcasting)
+                                              const std::string &broadcaster)
 {
     AkLoggerLog("AkVCam::PluginInterface::setBroadcasting");
     AkLoggerLog("Device: ", deviceId);
-    AkLoggerLog("Broadcasting: ", broadcasting);
+    AkLoggerLog("Broadcaster: ", broadcaster);
 
     for (auto device: this->m_devices)
         if (device->deviceId() == deviceId)
-            device->setBroadcasting(broadcasting);
+            device->setBroadcasting(broadcaster);
 }
 
 void AkVCam::PluginInterface::setMirror(const std::string &deviceId,
@@ -842,12 +842,12 @@ bool AkVCam::PluginInterface::createDevice(const std::string &deviceId,
         goto createDevice_failed;
     }
 
-    device->setBroadcasting(this->d->m_ipcBridge.broadcasting(deviceId));
+    device->setBroadcasting(this->d->m_ipcBridge.broadcaster(deviceId));
     device->setMirror(this->d->m_ipcBridge.isHorizontalMirrored(deviceId),
                       this->d->m_ipcBridge.isVerticalMirrored(deviceId));
     device->setScaling(this->d->m_ipcBridge.scalingMode(deviceId));
     device->setAspectRatio(this->d->m_ipcBridge.aspectRatioMode(deviceId));
-    device->setSwapRgb(this->d->m_ipcBridge.swapRgbMode(deviceId));
+    device->setSwapRgb(this->d->m_ipcBridge.swapRgb(deviceId));
 
     return true;
 

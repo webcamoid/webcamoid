@@ -36,11 +36,13 @@ namespace AkVCam
 
     class IpcBridge
     {
-        typedef std::function<void (const std::string &deviceId)> DeviceChangedCallback;
         typedef std::function<void (const std::string &deviceId,
                                     const VideoFrame &frame)> FrameReadyCallback;
+        typedef std::function<void (const std::string &deviceId)> DeviceChangedCallback;
         typedef std::function<void (const std::string &deviceId,
-                                    bool broadcasting)> BroadcastingChangedCallback;
+                                    const std::string &listener)> ListenerCallback;
+        typedef std::function<void (const std::string &deviceId,
+                                    const std::string &broadcaster)> BroadcastingChangedCallback;
         typedef std::function<void (const std::string &deviceId,
                                     bool horizontalMirror,
                                     bool verticalMirror)> MirrorChangedCallback;
@@ -50,8 +52,6 @@ namespace AkVCam
                                     AspectRatio aspectRatio)> AspectRatioChangedCallback;
         typedef std::function<void (const std::string &deviceId,
                                     bool swap)> SwapRgbChangedCallback;
-        typedef std::function<void (const std::string &deviceId,
-                                    int listeners)> ListenersChangedCallback;
 
         public:
             IpcBridge();
@@ -85,7 +85,7 @@ namespace AkVCam
             std::vector<VideoFormat> formats(const std::string &deviceId) const;
 
             // Return return the status of the device.
-            bool broadcasting(const std::string &deviceId) const;
+            std::string broadcaster(const std::string &deviceId) const;
 
             // Device is horizontal mirrored,
             bool isHorizontalMirrored(const std::string &deviceId);
@@ -102,8 +102,8 @@ namespace AkVCam
             // Check if red and blue channels are swapped.
             bool swapRgb(const std::string &deviceId);
 
-            // How many programs are using the virtual camera now.
-            int listeners(const std::string &deviceId);
+            // Returns the clients that are capturing from a virtual camera.
+            std::vector<std::string> listeners(const std::string &deviceId);
 
             /* Server */
 
@@ -147,9 +147,13 @@ namespace AkVCam
             // Swap red and blue channels.
             void setSwapRgb(const std::string &deviceId, bool swap);
 
-            // Set the function that will be called when the number of listeners
-            // changes for a device.
-            void setListenersChangedCallback(ListenersChangedCallback callback);
+            // Set the function that will be called when a new listener is added
+            // to a device.
+            void setListenerAddedCallback(ListenerCallback callback);
+
+            // Set the function that will be called when a listener is removed
+            // from a device.
+            void setListenerRemovedCallback(ListenerCallback callback);
 
             /* Client */
 

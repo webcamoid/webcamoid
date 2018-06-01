@@ -189,10 +189,10 @@ void AkVCam::Device::frameReady(const AkVCam::VideoFrame &frame)
         stream.second->frameReady(frame);
 }
 
-void AkVCam::Device::setBroadcasting(bool broadcasting)
+void AkVCam::Device::setBroadcasting(const std::string &broadcaster)
 {
     for (auto &stream: this->m_streams)
-        stream.second->setBroadcasting(broadcasting);
+        stream.second->setBroadcasting(broadcaster);
 }
 
 void AkVCam::Device::setMirror(bool horizontalMirror, bool verticalMirror)

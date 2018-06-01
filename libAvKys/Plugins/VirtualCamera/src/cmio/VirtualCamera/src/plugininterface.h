@@ -51,7 +51,7 @@ namespace AkVCam
             void frameReady(const std::string &deviceId,
                             const VideoFrame &frame);
             void setBroadcasting(const std::string &deviceId,
-                                 bool broadcasting);
+                                 const std::string &broadcaster);
             void setMirror(const std::string &deviceId,
                            bool horizontalMirror,
                            bool verticalMirror);

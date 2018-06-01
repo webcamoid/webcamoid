@@ -45,7 +45,7 @@ namespace AkVCam
             void *m_queueAlteredRefCon;
             CFRunLoopTimerRef m_timer;
             bool m_running;
-            bool m_broadcasting;
+            std::string m_broadcaster;
             bool m_horizontalMirror;
             bool m_verticalMirror;
             Scaling m_scaling;
@@ -76,7 +76,6 @@ AkVCam::Stream::Stream(bool registerObject,
     this->d->m_queueAlteredRefCon = nullptr;
     this->d->m_timer = nullptr;
     this->d->m_running = false;
-    this->d->m_broadcasting = false;
     this->d->m_horizontalMirror = false;
     this->d->m_verticalMirror = false;
     this->d->m_scaling = ScalingFast;
@@ -263,30 +262,30 @@ void AkVCam::Stream::frameReady(const AkVCam::VideoFrame &frame)
 {
     AkObjectLogMethod();
     AkLoggerLog("Running: ", this->d->m_running);
-    AkLoggerLog("Broadcasting: ", this->d->m_broadcasting);
+    AkLoggerLog("Broadcaster: ", this->d->m_broadcaster);
 
     if (!this->d->m_running)
         return;
 
     this->d->m_mutex.lock();
 
-    if (this->d->m_broadcasting)
+    if (!this->d->m_broadcaster.empty())
         this->d->m_currentFrame = this->d->applyAdjusts(frame);
 
     this->d->m_mutex.unlock();
 }
 
-void AkVCam::Stream::setBroadcasting(bool broadcasting)
+void AkVCam::Stream::setBroadcasting(const std::string &broadcaster)
 {
     AkObjectLogMethod();
 
-    if (this->d->m_broadcasting == broadcasting)
+    if (this->d->m_broadcaster == broadcaster)
         return;
 
     this->d->m_mutex.lock();
-    this->d->m_broadcasting = broadcasting;
+    this->d->m_broadcaster = broadcaster;
 
-    if (!broadcasting)
+    if (broadcaster.empty())
         this->d->m_currentFrame = this->d->m_testFrameAdapted;
 
     this->d->m_mutex.unlock();

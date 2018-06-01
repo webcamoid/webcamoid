@@ -68,7 +68,7 @@ namespace AkVCam
             void frameReady(const std::string &deviceId,
                             const VideoFrame &frame);
             void setBroadcasting(const std::string &deviceId,
-                                 bool broadcasting);
+                                 const std::string &broadcasting);
             void setMirror(const std::string &deviceId,
                            bool horizontalMirror,
                            bool verticalMirror);
@@ -149,11 +149,11 @@ void AkVCam::BaseFilter::addPin(const std::vector<AkVCam::VideoFormat> &formats,
     auto path = cameraPath(clsid);
     std::string deviceId(path.begin(), path.end());
 
-    auto broadcasting = this->d->m_ipcBridge.broadcasting(deviceId);
+    auto broadcaster = this->d->m_ipcBridge.broadcaster(deviceId);
     AkVCamDevicePinCall(deviceId,
                         this->d,
                         setBroadcasting,
-                        broadcasting);
+                        broadcaster);
     auto hmirror = this->d->m_ipcBridge.isHorizontalMirrored(deviceId);
     auto vmirror = this->d->m_ipcBridge.isVerticalMirrored(deviceId);
     AkVCamDevicePinCall(deviceId,
@@ -423,10 +423,10 @@ void AkVCam::BaseFilterPrivate::frameReady(const std::string &deviceId,
 }
 
 void AkVCam::BaseFilterPrivate::setBroadcasting(const std::string &deviceId,
-                                                bool broadcasting)
+                                                const std::string &broadcaster)
 {
     AkLogMethod();
-    AkVCamDevicePinCall(deviceId, this, setBroadcasting, broadcasting);
+    AkVCamDevicePinCall(deviceId, this, setBroadcasting, broadcaster);
 }
 
 void AkVCam::BaseFilterPrivate::setMirror(const std::string &deviceId,
