@@ -78,7 +78,7 @@ namespace AkVCam
             void sendStatus(DWORD currentState, DWORD exitCode, DWORD wait);
             inline static uint64_t id();
             void removePortByName(const std::string &portName);
-            void releaseDevicesWithOwner(const std::string &portName);
+            void releaseDevicesFromPeer(const std::string &portName);
             void requestPort(Message *message);
             void addPort(Message *message);
             void removePort(Message *message);
@@ -420,10 +420,10 @@ void AkVCam::ServicePrivate::removePortByName(const std::string &portName)
     if (peersEmpty)
         this->m_timer.stop();
 
-    this->releaseDevicesWithOwner(portName);
+    this->releaseDevicesFromPeer(portName);
 }
 
-void AkVCam::ServicePrivate::releaseDevicesWithOwner(const std::string &portName)
+void AkVCam::ServicePrivate::releaseDevicesFromPeer(const std::string &portName)
 {
     for (auto &config: this->m_deviceConfigs)
         if (config.second.broadcaster == portName) {
@@ -442,6 +442,13 @@ void AkVCam::ServicePrivate::releaseDevicesWithOwner(const std::string &portName
                 MessageServer::sendMessage(client.second, &message);
 
             this->m_peerMutex.unlock();
+        } else {
+            auto it = std::find(config.second.listeners.begin(),
+                                config.second.listeners.end(),
+                                portName);
+
+            if (it != config.second.listeners.end())
+                config.second.listeners.erase(it);
         }
 }
 
