@@ -89,12 +89,12 @@ AkVCam::Assistant::Assistant()
         {AKVCAM_ASSISTANT_MSG_DEVICE_CREATE         , AKVCAM_BIND_FUNC(Assistant::deviceCreate)   },
         {AKVCAM_ASSISTANT_MSG_DEVICE_DESTROY        , AKVCAM_BIND_FUNC(Assistant::deviceDestroy)  },
         {AKVCAM_ASSISTANT_MSG_DEVICES               , AKVCAM_BIND_FUNC(Assistant::devices)        },
-        {AKVCAM_ASSISTANT_MSG_DESCRIPTION           , AKVCAM_BIND_FUNC(Assistant::description)    },
-        {AKVCAM_ASSISTANT_MSG_FORMATS               , AKVCAM_BIND_FUNC(Assistant::formats)        },
-        {AKVCAM_ASSISTANT_MSG_ADD_LISTENER          , AKVCAM_BIND_FUNC(Assistant::addListener)    },
-        {AKVCAM_ASSISTANT_MSG_REMOVE_LISTENER       , AKVCAM_BIND_FUNC(Assistant::removeListener) },
-        {AKVCAM_ASSISTANT_MSG_LISTENERS             , AKVCAM_BIND_FUNC(Assistant::listeners)      },
-        {AKVCAM_ASSISTANT_MSG_LISTENER              , AKVCAM_BIND_FUNC(Assistant::listener)       },
+        {AKVCAM_ASSISTANT_MSG_DEVICE_DESCRIPTION    , AKVCAM_BIND_FUNC(Assistant::description)    },
+        {AKVCAM_ASSISTANT_MSG_DEVICE_FORMATS        , AKVCAM_BIND_FUNC(Assistant::formats)        },
+        {AKVCAM_ASSISTANT_MSG_DEVICE_LISTENER_ADD   , AKVCAM_BIND_FUNC(Assistant::addListener)    },
+        {AKVCAM_ASSISTANT_MSG_DEVICE_LISTENER_REMOVE, AKVCAM_BIND_FUNC(Assistant::removeListener) },
+        {AKVCAM_ASSISTANT_MSG_DEVICE_LISTENERS      , AKVCAM_BIND_FUNC(Assistant::listeners)      },
+        {AKVCAM_ASSISTANT_MSG_DEVICE_LISTENER       , AKVCAM_BIND_FUNC(Assistant::listener)       },
         {AKVCAM_ASSISTANT_MSG_DEVICE_BROADCASTING   , AKVCAM_BIND_FUNC(Assistant::broadcasting)   },
         {AKVCAM_ASSISTANT_MSG_DEVICE_SETBROADCASTING, AKVCAM_BIND_FUNC(Assistant::setBroadcasting)},
         {AKVCAM_ASSISTANT_MSG_DEVICE_MIRRORING      , AKVCAM_BIND_FUNC(Assistant::mirroring)      },
@@ -242,8 +242,9 @@ void AkVCam::Assistant::deviceCreate(xpc_connection_t client,
                                      xpc_object_t event)
 {
     AkAssistantLogMethod();
-
     std::string portName = xpc_dictionary_get_string(event, "port");
+    AkLoggerLog("Port Name: ", portName);
+    std::string deviceId;
 
     for (auto &server: this->d->m_servers)
         if (server.first == portName) {
@@ -268,7 +269,7 @@ void AkVCam::Assistant::deviceCreate(xpc_connection_t client,
 
             std::stringstream ss;
             ss << portName << "/Device" << this->d->id();
-            auto deviceId = ss.str();
+            deviceId = ss.str();
             server.second.devices.push_back({deviceId,
                                              description,
                                              formats,
@@ -278,24 +279,23 @@ void AkVCam::Assistant::deviceCreate(xpc_connection_t client,
                                              false,
                                              ScalingFast,
                                              AspectRatioIgnore,
-                                             false});
-
-            auto notification = xpc_dictionary_create(NULL, NULL, 0);
-            xpc_dictionary_set_int64(notification, "message", AKVCAM_ASSISTANT_MSG_DEVICE_CREATED);
+                                             false});            
+            auto notification = xpc_copy(event);
             xpc_dictionary_set_string(notification, "device", deviceId.c_str());
 
             for (auto &client: this->d->m_clients)
                 xpc_connection_send_message(client.second, notification);
 
             xpc_release(notification);
-
-            auto reply = xpc_dictionary_create_reply(event);
-            xpc_dictionary_set_string(reply, "device", deviceId.c_str());
-            xpc_connection_send_message(client, reply);
-            xpc_release(reply);
+            AkLoggerLog("Device created: ", deviceId);
 
             break;
         }
+
+    auto reply = xpc_dictionary_create_reply(event);
+    xpc_dictionary_set_string(reply, "device", deviceId.c_str());
+    xpc_connection_send_message(client, reply);
+    xpc_release(reply);
 }
 
 void AkVCam::Assistant::deviceDestroyById(const std::string &deviceId)
@@ -304,7 +304,7 @@ void AkVCam::Assistant::deviceDestroyById(const std::string &deviceId)
         for (size_t i = 0; i < server.second.devices.size(); i++)
             if (server.second.devices[i].deviceId == deviceId) {
                 auto notification = xpc_dictionary_create(NULL, NULL, 0);
-                xpc_dictionary_set_int64(notification, "message", AKVCAM_ASSISTANT_MSG_DEVICE_DESTROYED);
+                xpc_dictionary_set_int64(notification, "message", AKVCAM_ASSISTANT_MSG_DEVICE_DESTROY);
                 xpc_dictionary_set_string(notification, "device", deviceId.c_str());
 
                 for (auto &client: this->d->m_clients)
@@ -346,14 +346,12 @@ void AkVCam::Assistant::setBroadcasting(xpc_connection_t client,
                 AkLoggerLog("Device: ", deviceId);
                 AkLoggerLog("Broadcaster: ", broadcaster);
                 device.broadcaster = broadcaster;
-                auto notification = xpc_dictionary_create(NULL, NULL, 0);
-                xpc_dictionary_set_int64(notification, "message", AKVCAM_ASSISTANT_MSG_DEVICE_BROADCASTING_CHANGED);
-                xpc_dictionary_set_string(notification, "device", deviceId.c_str());
-                xpc_dictionary_set_string(notification, "broadcaster", broadcaster.c_str());
+                auto notification = xpc_copy(event);
 
                 for (auto &client: this->d->m_clients)
                     xpc_connection_send_message(client.second, notification);
 
+                xpc_release(notification);
                 ok = true;
 
                 goto setBroadcasting_end;
@@ -385,15 +383,12 @@ void AkVCam::Assistant::setMirroring(xpc_connection_t client, xpc_object_t event
 
                 device.horizontalMirror = horizontalMirror;
                 device.verticalMirror = verticalMirror;
-                auto notification = xpc_dictionary_create(NULL, NULL, 0);
-                xpc_dictionary_set_int64(notification, "message", AKVCAM_ASSISTANT_MSG_DEVICE_MIRRORING_CHANGED);
-                xpc_dictionary_set_string(notification, "device", deviceId.c_str());
-                xpc_dictionary_set_bool(notification, "hmirror", horizontalMirror);
-                xpc_dictionary_set_bool(notification, "vmirror", verticalMirror);
+                auto notification = xpc_copy(event);
 
                 for (auto &client: this->d->m_clients)
                     xpc_connection_send_message(client.second, notification);
 
+                xpc_release(notification);
                 ok = true;
 
                 goto setMirroring_end;
@@ -423,14 +418,12 @@ void AkVCam::Assistant::setScaling(xpc_connection_t client,
                     goto setScaling_end;
 
                 device.scaling = scaling;
-                auto notification = xpc_dictionary_create(NULL, NULL, 0);
-                xpc_dictionary_set_int64(notification, "message", AKVCAM_ASSISTANT_MSG_DEVICE_SCALING_CHANGED);
-                xpc_dictionary_set_string(notification, "device", deviceId.c_str());
-                xpc_dictionary_set_int64(notification, "scaling", scaling);
+                auto notification = xpc_copy(event);
 
                 for (auto &client: this->d->m_clients)
                     xpc_connection_send_message(client.second, notification);
 
+                xpc_release(notification);
                 ok = true;
 
                 goto setScaling_end;
@@ -459,14 +452,12 @@ void AkVCam::Assistant::setAspectRatio(xpc_connection_t client, xpc_object_t eve
                     goto setAspectRatio_end;
 
                 device.aspectRatio = aspectRatio;
-                auto notification = xpc_dictionary_create(NULL, NULL, 0);
-                xpc_dictionary_set_int64(notification, "message", AKVCAM_ASSISTANT_MSG_DEVICE_ASPECTRATIO_CHANGED);
-                xpc_dictionary_set_string(notification, "device", deviceId.c_str());
-                xpc_dictionary_set_int64(notification, "aspect", aspectRatio);
+                auto notification = xpc_copy(event);
 
                 for (auto &client: this->d->m_clients)
                     xpc_connection_send_message(client.second, notification);
 
+                xpc_release(notification);
                 ok = true;
 
                 goto setAspectRatio_end;
@@ -495,14 +486,12 @@ void AkVCam::Assistant::setSwapRgb(xpc_connection_t client, xpc_object_t event)
                     goto setSwapRgb_end;
 
                 device.swapRgb = swap;
-                auto notification = xpc_dictionary_create(NULL, NULL, 0);
-                xpc_dictionary_set_int64(notification, "message", AKVCAM_ASSISTANT_MSG_DEVICE_SWAPRGB_CHANGED);
-                xpc_dictionary_set_string(notification, "device", deviceId.c_str());
-                xpc_dictionary_set_bool(notification, "swap", swap);
+                auto notification = xpc_copy(event);
 
                 for (auto &client: this->d->m_clients)
                     xpc_connection_send_message(client.second, notification);
 
+                xpc_release(notification);
                 ok = true;
 
                 goto setSwapRgb_end;
@@ -792,15 +781,12 @@ void AkVCam::Assistant::addListener(xpc_connection_t client,
 
                 if (it == device.listeners.end()) {
                     device.listeners.push_back(listener);
-
-                    auto notification = xpc_dictionary_create(NULL, NULL, 0);
-                    xpc_dictionary_set_int64(notification, "message", AKVCAM_ASSISTANT_MSG_LISTENER_ADDED);
-                    xpc_dictionary_set_string(notification, "device", deviceId.c_str());
-                    xpc_dictionary_set_string(notification, "listener", listener.c_str());
+                    auto notification = xpc_copy(event);
 
                     for (auto &client: this->d->m_clients)
                         xpc_connection_send_message(client.second, notification);
 
+                    xpc_release(notification);
                     ok = true;
                 }
 
@@ -832,15 +818,12 @@ void AkVCam::Assistant::removeListener(xpc_connection_t client,
 
                 if (it != device.listeners.end()) {
                     device.listeners.erase(it);
-
-                    auto notification = xpc_dictionary_create(NULL, NULL, 0);
-                    xpc_dictionary_set_int64(notification, "message", AKVCAM_ASSISTANT_MSG_LISTENER_REMOVED);
-                    xpc_dictionary_set_string(notification, "device", deviceId.c_str());
-                    xpc_dictionary_set_string(notification, "listener", listener.c_str());
+                    auto notification = xpc_copy(event);
 
                     for (auto &client: this->d->m_clients)
                         xpc_connection_send_message(client.second, notification);
 
+                    xpc_release(notification);
                     ok = true;
                 }
 

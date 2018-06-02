@@ -109,13 +109,13 @@ namespace AkVCam
             // Message handling methods
             void isAlive(Message *message);
             void frameReady(Message *message);
-            void broadcastingChanged(Message *message);
-            void mirrorChanged(Message *message);
-            void scalingChanged(Message *message);
-            void aspectRatioChanged(Message *message);
-            void swapRgbChanged(Message *message);
-            void listenerAdded(Message *message);
-            void listenerRemoved(Message *message);
+            void setBroadcasting(Message *message);
+            void setMirror(Message *message);
+            void setScaling(Message *message);
+            void setAspectRatio(Message *message);
+            void setSwapRgb(Message *message);
+            void listenerAdd(Message *message);
+            void listenerRemove(Message *message);
     };
 
     static const int maxFrameWidth = 1920;
@@ -498,7 +498,7 @@ std::vector<std::string> AkVCam::IpcBridge::listeners(const std::string &deviceI
     AkIpcBridgeLogMethod();
 
     Message message;
-    message.messageId = AKVCAM_ASSISTANT_MSG_LISTENERS;
+    message.messageId = AKVCAM_ASSISTANT_MSG_DEVICE_LISTENERS;
     message.dataSize = sizeof(MsgListeners);
     auto data = messageData<MsgListeners>(&message);
     memcpy(data->device,
@@ -512,7 +512,7 @@ std::vector<std::string> AkVCam::IpcBridge::listeners(const std::string &deviceI
     if (!data->status)
         return {};
 
-    message.messageId = AKVCAM_ASSISTANT_MSG_LISTENER;
+    message.messageId = AKVCAM_ASSISTANT_MSG_DEVICE_LISTENER;
     std::vector<std::string> listeners;
 
     for (size_t i = 0; i < data->nlistener; i++) {
@@ -1091,7 +1091,7 @@ bool AkVCam::IpcBridge::addListener(const std::string &deviceId)
     AkIpcBridgeLogMethod();
 
     Message message;
-    message.messageId = AKVCAM_ASSISTANT_MSG_ADD_LISTENER;
+    message.messageId = AKVCAM_ASSISTANT_MSG_DEVICE_LISTENER_ADD;
     message.dataSize = sizeof(MsgListeners);
     auto data = messageData<MsgListeners>(&message);
     memcpy(data->device,
@@ -1113,7 +1113,7 @@ bool AkVCam::IpcBridge::removeListener(const std::string &deviceId)
     AkIpcBridgeLogMethod();
 
     Message message;
-    message.messageId = AKVCAM_ASSISTANT_MSG_REMOVE_LISTENER;
+    message.messageId = AKVCAM_ASSISTANT_MSG_DEVICE_LISTENER_REMOVE;
     message.dataSize = sizeof(MsgListeners);
     auto data = messageData<MsgListeners>(&message);
     memcpy(data->device,
@@ -1175,15 +1175,15 @@ AkVCam::IpcBridgePrivate::IpcBridgePrivate()
     this->updateDeviceSharedProperties();
 
     this->messageHandlers = std::map<uint32_t, MessageHandler> {
-        {AKVCAM_ASSISTANT_MSG_ISALIVE                    , AKVCAM_BIND_FUNC(IpcBridgePrivate::isAlive)            },
-        {AKVCAM_ASSISTANT_MSG_FRAME_READY                , AKVCAM_BIND_FUNC(IpcBridgePrivate::frameReady)         },
-        {AKVCAM_ASSISTANT_MSG_DEVICE_BROADCASTING_CHANGED, AKVCAM_BIND_FUNC(IpcBridgePrivate::broadcastingChanged)},
-        {AKVCAM_ASSISTANT_MSG_DEVICE_MIRRORING_CHANGED   , AKVCAM_BIND_FUNC(IpcBridgePrivate::mirrorChanged)      },
-        {AKVCAM_ASSISTANT_MSG_DEVICE_SCALING_CHANGED     , AKVCAM_BIND_FUNC(IpcBridgePrivate::scalingChanged)     },
-        {AKVCAM_ASSISTANT_MSG_DEVICE_ASPECTRATIO_CHANGED , AKVCAM_BIND_FUNC(IpcBridgePrivate::aspectRatioChanged) },
-        {AKVCAM_ASSISTANT_MSG_DEVICE_SWAPRGB_CHANGED     , AKVCAM_BIND_FUNC(IpcBridgePrivate::swapRgbChanged)     },
-        {AKVCAM_ASSISTANT_MSG_LISTENER_ADDED             , AKVCAM_BIND_FUNC(IpcBridgePrivate::listenerAdded)      },
-        {AKVCAM_ASSISTANT_MSG_LISTENER_REMOVED           , AKVCAM_BIND_FUNC(IpcBridgePrivate::listenerRemoved)    },
+        {AKVCAM_ASSISTANT_MSG_ISALIVE               , AKVCAM_BIND_FUNC(IpcBridgePrivate::isAlive)        },
+        {AKVCAM_ASSISTANT_MSG_FRAME_READY           , AKVCAM_BIND_FUNC(IpcBridgePrivate::frameReady)     },
+        {AKVCAM_ASSISTANT_MSG_DEVICE_SETBROADCASTING, AKVCAM_BIND_FUNC(IpcBridgePrivate::setBroadcasting)},
+        {AKVCAM_ASSISTANT_MSG_DEVICE_SETMIRRORING   , AKVCAM_BIND_FUNC(IpcBridgePrivate::setMirror)      },
+        {AKVCAM_ASSISTANT_MSG_DEVICE_SETSCALING     , AKVCAM_BIND_FUNC(IpcBridgePrivate::setScaling)     },
+        {AKVCAM_ASSISTANT_MSG_DEVICE_SETASPECTRATIO , AKVCAM_BIND_FUNC(IpcBridgePrivate::setAspectRatio) },
+        {AKVCAM_ASSISTANT_MSG_DEVICE_SETSWAPRGB     , AKVCAM_BIND_FUNC(IpcBridgePrivate::setSwapRgb)     },
+        {AKVCAM_ASSISTANT_MSG_DEVICE_LISTENER_ADD   , AKVCAM_BIND_FUNC(IpcBridgePrivate::listenerAdd)    },
+        {AKVCAM_ASSISTANT_MSG_DEVICE_LISTENER_REMOVE, AKVCAM_BIND_FUNC(IpcBridgePrivate::listenerRemove) },
     };
 }
 
@@ -1566,7 +1566,7 @@ void AkVCam::IpcBridgePrivate::frameReady(Message *message)
         this->frameReadyCallback(deviceId, videoFrame);
 }
 
-void AkVCam::IpcBridgePrivate::broadcastingChanged(Message *message)
+void AkVCam::IpcBridgePrivate::setBroadcasting(Message *message)
 {
     auto data = messageData<MsgBroadcasting>(message);
     std::string deviceId(data->device);
@@ -1577,7 +1577,7 @@ void AkVCam::IpcBridgePrivate::broadcastingChanged(Message *message)
         this->broadcastingChangedCallback(deviceId, broadcaster);
 }
 
-void AkVCam::IpcBridgePrivate::mirrorChanged(Message *message)
+void AkVCam::IpcBridgePrivate::setMirror(Message *message)
 {
     auto data = messageData<MsgMirroring>(message);
     std::string deviceId(data->device);
@@ -1586,7 +1586,7 @@ void AkVCam::IpcBridgePrivate::mirrorChanged(Message *message)
         this->mirrorChangedCallback(deviceId, data->hmirror, data->vmirror);
 }
 
-void AkVCam::IpcBridgePrivate::scalingChanged(Message *message)
+void AkVCam::IpcBridgePrivate::setScaling(Message *message)
 {
     auto data = messageData<MsgScaling>(message);
     std::string deviceId(data->device);
@@ -1595,7 +1595,7 @@ void AkVCam::IpcBridgePrivate::scalingChanged(Message *message)
         this->scalingChangedCallback(deviceId, data->scaling);
 }
 
-void AkVCam::IpcBridgePrivate::aspectRatioChanged(Message *message)
+void AkVCam::IpcBridgePrivate::setAspectRatio(Message *message)
 {
     auto data = messageData<MsgAspectRatio>(message);
     std::string deviceId(data->device);
@@ -1604,7 +1604,7 @@ void AkVCam::IpcBridgePrivate::aspectRatioChanged(Message *message)
         this->aspectRatioChangedCallback(deviceId, data->aspect);
 }
 
-void AkVCam::IpcBridgePrivate::swapRgbChanged(Message *message)
+void AkVCam::IpcBridgePrivate::setSwapRgb(Message *message)
 {
     auto data = messageData<MsgSwapRgb>(message);
     std::string deviceId(data->device);
@@ -1613,7 +1613,7 @@ void AkVCam::IpcBridgePrivate::swapRgbChanged(Message *message)
         this->swapRgbChangedCallback(deviceId, data->swap);
 }
 
-void AkVCam::IpcBridgePrivate::listenerAdded(Message *message)
+void AkVCam::IpcBridgePrivate::listenerAdd(Message *message)
 {
     auto data = messageData<MsgListeners>(message);
     std::string deviceId(data->device);
@@ -1622,7 +1622,7 @@ void AkVCam::IpcBridgePrivate::listenerAdded(Message *message)
         this->listenerAddedCallback(deviceId, std::string(data->listener));
 }
 
-void AkVCam::IpcBridgePrivate::listenerRemoved(Message *message)
+void AkVCam::IpcBridgePrivate::listenerRemove(Message *message)
 {
     auto data = messageData<MsgListeners>(message);
     std::string deviceId(data->device);

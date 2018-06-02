@@ -649,7 +649,7 @@ OSStatus AkVCam::PluginInterface::InitializeWithObjectID(CMIOObjectID objectID)
 
     this->m_objectID = objectID;
 
-#if defined(QT_DEBUG) && 1
+#if defined(QT_DEBUG) && 0
     std::vector<VideoFormat> formats {
         {PixelFormatRGB32, 640, 480, {30.0}}
     };

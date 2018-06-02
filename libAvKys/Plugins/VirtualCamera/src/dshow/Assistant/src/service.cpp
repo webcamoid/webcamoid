@@ -95,8 +95,8 @@ namespace AkVCam
             void scaling(Message *message);
             void aspectRatio(Message *message);
             void swapRgb(Message *message);
-            void addListener(Message *message);
-            void removeListener(Message *message);
+            void listenerAdd(Message *message);
+            void listenerRemove(Message *message);
     };
 
     GLOBAL_STATIC(ServicePrivate, servicePrivate)
@@ -287,10 +287,10 @@ AkVCam::ServicePrivate::ServicePrivate()
         {AKVCAM_ASSISTANT_MSG_REQUEST_PORT          , AKVCAM_BIND_FUNC(ServicePrivate::requestPort)    },
         {AKVCAM_ASSISTANT_MSG_ADD_PORT              , AKVCAM_BIND_FUNC(ServicePrivate::addPort)        },
         {AKVCAM_ASSISTANT_MSG_REMOVE_PORT           , AKVCAM_BIND_FUNC(ServicePrivate::removePort)     },
-        {AKVCAM_ASSISTANT_MSG_ADD_LISTENER          , AKVCAM_BIND_FUNC(ServicePrivate::addListener)    },
-        {AKVCAM_ASSISTANT_MSG_REMOVE_LISTENER       , AKVCAM_BIND_FUNC(ServicePrivate::removeListener) },
-        {AKVCAM_ASSISTANT_MSG_LISTENERS             , AKVCAM_BIND_FUNC(ServicePrivate::listeners)      },
-        {AKVCAM_ASSISTANT_MSG_LISTENER              , AKVCAM_BIND_FUNC(ServicePrivate::listener)       },
+        {AKVCAM_ASSISTANT_MSG_DEVICE_LISTENER_ADD   , AKVCAM_BIND_FUNC(ServicePrivate::listenerAdd)    },
+        {AKVCAM_ASSISTANT_MSG_DEVICE_LISTENER_REMOVE, AKVCAM_BIND_FUNC(ServicePrivate::listenerRemove) },
+        {AKVCAM_ASSISTANT_MSG_DEVICE_LISTENERS      , AKVCAM_BIND_FUNC(ServicePrivate::listeners)      },
+        {AKVCAM_ASSISTANT_MSG_DEVICE_LISTENER       , AKVCAM_BIND_FUNC(ServicePrivate::listener)       },
         {AKVCAM_ASSISTANT_MSG_DEVICE_BROADCASTING   , AKVCAM_BIND_FUNC(ServicePrivate::broadcasting)   },
         {AKVCAM_ASSISTANT_MSG_DEVICE_SETBROADCASTING, AKVCAM_BIND_FUNC(ServicePrivate::setBroadCasting)},
         {AKVCAM_ASSISTANT_MSG_DEVICE_MIRRORING      , AKVCAM_BIND_FUNC(ServicePrivate::mirroring)      },
@@ -527,12 +527,12 @@ void AkVCam::ServicePrivate::setBroadCasting(AkVCam::Message *message)
     this->m_deviceConfigs[deviceId].broadcaster = broadcaster;
     data->status = true;
 
-    Message msg(message);
-    msg.messageId = AKVCAM_ASSISTANT_MSG_DEVICE_BROADCASTING_CHANGED;
     this->m_peerMutex.lock();
 
-    for (auto &client: this->m_clients)
+    for (auto &client: this->m_clients) {
+        Message msg(message);
         MessageServer::sendMessage(client.second, &msg);
+    }
 
     this->m_peerMutex.unlock();
 }
@@ -555,12 +555,12 @@ void AkVCam::ServicePrivate::setMirroring(AkVCam::Message *message)
     this->m_deviceConfigs[deviceId].verticalMirror = data->vmirror;
     data->status = true;
 
-    Message msg(message);
-    msg.messageId = AKVCAM_ASSISTANT_MSG_DEVICE_MIRRORING_CHANGED;
     this->m_peerMutex.lock();
 
-    for (auto &client: this->m_clients)
+    for (auto &client: this->m_clients) {
+        Message msg(message);
         MessageServer::sendMessage(client.second, &msg);
+    }
 
     this->m_peerMutex.unlock();
 }
@@ -581,12 +581,12 @@ void AkVCam::ServicePrivate::setScaling(AkVCam::Message *message)
     this->m_deviceConfigs[deviceId].scaling = data->scaling;
     data->status = true;
 
-    Message msg(message);
-    msg.messageId = AKVCAM_ASSISTANT_MSG_DEVICE_SCALING_CHANGED;
     this->m_peerMutex.lock();
 
-    for (auto &client: this->m_clients)
+    for (auto &client: this->m_clients) {
+        Message msg(message);
         MessageServer::sendMessage(client.second, &msg);
+    }
 
     this->m_peerMutex.unlock();
 }
@@ -607,12 +607,12 @@ void AkVCam::ServicePrivate::setAspectRatio(AkVCam::Message *message)
     this->m_deviceConfigs[deviceId].aspectRatio = data->aspect;
     data->status = true;
 
-    Message msg(message);
-    msg.messageId = AKVCAM_ASSISTANT_MSG_DEVICE_ASPECTRATIO_CHANGED;
     this->m_peerMutex.lock();
 
-    for (auto &client: this->m_clients)
+    for (auto &client: this->m_clients) {
+        Message msg(message);
         MessageServer::sendMessage(client.second, &msg);
+    }
 
     this->m_peerMutex.unlock();
 }
@@ -633,12 +633,12 @@ void AkVCam::ServicePrivate::setSwapRgb(AkVCam::Message *message)
     this->m_deviceConfigs[deviceId].swapRgb = data->swap;
     data->status = true;
 
-    Message msg(message);
-    msg.messageId = AKVCAM_ASSISTANT_MSG_DEVICE_SWAPRGB_CHANGED;
     this->m_peerMutex.lock();
 
-    for (auto &client: this->m_clients)
+    for (auto &client: this->m_clients) {
+        Message msg(message);
         MessageServer::sendMessage(client.second, &msg);
+    }
 
     this->m_peerMutex.unlock();
 }
@@ -769,7 +769,7 @@ void AkVCam::ServicePrivate::swapRgb(AkVCam::Message *message)
     data->status = true;
 }
 
-void AkVCam::ServicePrivate::addListener(AkVCam::Message *message)
+void AkVCam::ServicePrivate::listenerAdd(AkVCam::Message *message)
 {
     AkServicePrivateLogMethod();
     auto data = messageData<MsgListeners>(message);
@@ -787,12 +787,12 @@ void AkVCam::ServicePrivate::addListener(AkVCam::Message *message)
         data->nlistener = listeners.size();
         data->status = true;
 
-        Message msg(message);
-        msg.messageId = AKVCAM_ASSISTANT_MSG_LISTENER_ADDED;
         this->m_peerMutex.lock();
 
-        for (auto &client: this->m_clients)
+        for (auto &client: this->m_clients) {
+            Message msg(message);
             MessageServer::sendMessage(client.second, &msg);
+        }
 
         this->m_peerMutex.unlock();
     } else {
@@ -801,7 +801,7 @@ void AkVCam::ServicePrivate::addListener(AkVCam::Message *message)
     }
 }
 
-void AkVCam::ServicePrivate::removeListener(AkVCam::Message *message)
+void AkVCam::ServicePrivate::listenerRemove(AkVCam::Message *message)
 {
     AkServicePrivateLogMethod();
     auto data = messageData<MsgListeners>(message);
@@ -819,12 +819,12 @@ void AkVCam::ServicePrivate::removeListener(AkVCam::Message *message)
         data->nlistener = listeners.size();
         data->status = true;
 
-        Message msg(message);
-        msg.messageId = AKVCAM_ASSISTANT_MSG_LISTENER_REMOVED;
         this->m_peerMutex.lock();
 
-        for (auto &client: this->m_clients)
+        for (auto &client: this->m_clients) {
+            Message msg(message);
             MessageServer::sendMessage(client.second, &msg);
+        }
 
         this->m_peerMutex.unlock();
     } else {

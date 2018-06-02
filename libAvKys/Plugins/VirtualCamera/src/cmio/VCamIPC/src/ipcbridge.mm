@@ -69,17 +69,17 @@ namespace AkVCam
 
             // Message handling methods
             void isAlive(xpc_connection_t client, xpc_object_t event);
-            void deviceCreated(xpc_connection_t client, xpc_object_t event);
-            void deviceDestroyed(xpc_connection_t client, xpc_object_t event);
+            void deviceCreate(xpc_connection_t client, xpc_object_t event);
+            void deviceDestroy(xpc_connection_t client, xpc_object_t event);
             void frameReady(xpc_connection_t client, xpc_object_t event);
-            void broadcastingChanged(xpc_connection_t client,
+            void setBroadcasting(xpc_connection_t client,
                                      xpc_object_t event);
-            void mirrorChanged(xpc_connection_t client, xpc_object_t event);
-            void scalingChanged(xpc_connection_t client, xpc_object_t event);
-            void aspectRatioChanged(xpc_connection_t client, xpc_object_t event);
-            void swapRgbChanged(xpc_connection_t client, xpc_object_t event);
-            void listenerAdded(xpc_connection_t client, xpc_object_t event);
-            void listenerRemoved(xpc_connection_t client, xpc_object_t event);
+            void setMirror(xpc_connection_t client, xpc_object_t event);
+            void setScaling(xpc_connection_t client, xpc_object_t event);
+            void setAspectRatio(xpc_connection_t client, xpc_object_t event);
+            void setSwapRgb(xpc_connection_t client, xpc_object_t event);
+            void listenerAdd(xpc_connection_t client, xpc_object_t event);
+            void listenerRemove(xpc_connection_t client, xpc_object_t event);
             void messageReceived(xpc_connection_t client, xpc_object_t event);
 
             // Utility methods
@@ -348,7 +348,7 @@ std::string AkVCam::IpcBridge::description(const std::string &deviceId) const
         return {};
 
     auto dictionary = xpc_dictionary_create(NULL, NULL, 0);
-    xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DESCRIPTION);
+    xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_DESCRIPTION);
     xpc_dictionary_set_string(dictionary, "device", deviceId.c_str());
     auto reply = xpc_connection_send_message_with_reply_sync(this->d->serverMessagePort,
                                                              dictionary);
@@ -384,7 +384,7 @@ std::vector<AkVCam::VideoFormat> AkVCam::IpcBridge::formats(const std::string &d
         return {};
 
     auto dictionary = xpc_dictionary_create(NULL, NULL, 0);
-    xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_FORMATS);
+    xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_FORMATS);
     xpc_dictionary_set_string(dictionary, "device", deviceId.c_str());
     auto reply = xpc_connection_send_message_with_reply_sync(this->d->serverMessagePort,
                                                              dictionary);
@@ -588,7 +588,7 @@ std::vector<std::string> AkVCam::IpcBridge::listeners(const std::string &deviceI
         return {};
 
     auto dictionary = xpc_dictionary_create(NULL, NULL, 0);
-    xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_LISTENERS);
+    xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_LISTENERS);
     xpc_dictionary_set_string(dictionary, "device", deviceId.c_str());
     auto reply = xpc_connection_send_message_with_reply_sync(this->d->serverMessagePort,
                                                              dictionary);
@@ -946,7 +946,7 @@ bool AkVCam::IpcBridge::addListener(const std::string &deviceId)
         return false;
 
     auto dictionary = xpc_dictionary_create(NULL, NULL, 0);
-    xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_ADD_LISTENER);
+    xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_LISTENER_ADD);
     xpc_dictionary_set_string(dictionary, "device", deviceId.c_str());
     xpc_dictionary_set_string(dictionary, "listener", this->d->portName.c_str());
     auto reply = xpc_connection_send_message_with_reply_sync(this->d->serverMessagePort,
@@ -974,7 +974,7 @@ bool AkVCam::IpcBridge::removeListener(const std::string &deviceId)
         return true;
 
     auto dictionary = xpc_dictionary_create(NULL, NULL, 0);
-    xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_REMOVE_LISTENER);
+    xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_LISTENER_REMOVE);
     xpc_dictionary_set_string(dictionary, "device", deviceId.c_str());
     xpc_dictionary_set_string(dictionary, "listener", this->d->portName.c_str());
     auto reply = xpc_connection_send_message_with_reply_sync(this->d->serverMessagePort,
@@ -1041,17 +1041,17 @@ AkVCam::IpcBridgePrivate::IpcBridgePrivate(IpcBridge *parent):
     uninstall(true)
 {
     this->m_messageHandlers = {
-        {AKVCAM_ASSISTANT_MSG_ISALIVE                    , AKVCAM_BIND_FUNC(IpcBridgePrivate::isAlive)            },
-        {AKVCAM_ASSISTANT_MSG_FRAME_READY                , AKVCAM_BIND_FUNC(IpcBridgePrivate::frameReady)         },
-        {AKVCAM_ASSISTANT_MSG_DEVICE_CREATED             , AKVCAM_BIND_FUNC(IpcBridgePrivate::deviceCreated)      },
-        {AKVCAM_ASSISTANT_MSG_DEVICE_DESTROYED           , AKVCAM_BIND_FUNC(IpcBridgePrivate::deviceDestroyed)    },
-        {AKVCAM_ASSISTANT_MSG_LISTENER_ADDED             , AKVCAM_BIND_FUNC(IpcBridgePrivate::listenerAdded)      },
-        {AKVCAM_ASSISTANT_MSG_LISTENER_REMOVED           , AKVCAM_BIND_FUNC(IpcBridgePrivate::listenerRemoved)    },
-        {AKVCAM_ASSISTANT_MSG_DEVICE_BROADCASTING_CHANGED, AKVCAM_BIND_FUNC(IpcBridgePrivate::broadcastingChanged)},
-        {AKVCAM_ASSISTANT_MSG_DEVICE_MIRRORING_CHANGED   , AKVCAM_BIND_FUNC(IpcBridgePrivate::mirrorChanged)      },
-        {AKVCAM_ASSISTANT_MSG_DEVICE_SCALING_CHANGED     , AKVCAM_BIND_FUNC(IpcBridgePrivate::scalingChanged)     },
-        {AKVCAM_ASSISTANT_MSG_DEVICE_ASPECTRATIO_CHANGED , AKVCAM_BIND_FUNC(IpcBridgePrivate::aspectRatioChanged) },
-        {AKVCAM_ASSISTANT_MSG_DEVICE_SWAPRGB_CHANGED     , AKVCAM_BIND_FUNC(IpcBridgePrivate::swapRgbChanged)     },
+        {AKVCAM_ASSISTANT_MSG_ISALIVE               , AKVCAM_BIND_FUNC(IpcBridgePrivate::isAlive)        },
+        {AKVCAM_ASSISTANT_MSG_FRAME_READY           , AKVCAM_BIND_FUNC(IpcBridgePrivate::frameReady)     },
+        {AKVCAM_ASSISTANT_MSG_DEVICE_CREATE         , AKVCAM_BIND_FUNC(IpcBridgePrivate::deviceCreate)   },
+        {AKVCAM_ASSISTANT_MSG_DEVICE_DESTROY        , AKVCAM_BIND_FUNC(IpcBridgePrivate::deviceDestroy)  },
+        {AKVCAM_ASSISTANT_MSG_DEVICE_LISTENER_ADD   , AKVCAM_BIND_FUNC(IpcBridgePrivate::listenerAdd)    },
+        {AKVCAM_ASSISTANT_MSG_DEVICE_LISTENER_REMOVE, AKVCAM_BIND_FUNC(IpcBridgePrivate::listenerRemove) },
+        {AKVCAM_ASSISTANT_MSG_DEVICE_SETBROADCASTING, AKVCAM_BIND_FUNC(IpcBridgePrivate::setBroadcasting)},
+        {AKVCAM_ASSISTANT_MSG_DEVICE_SETMIRRORING   , AKVCAM_BIND_FUNC(IpcBridgePrivate::setMirror)      },
+        {AKVCAM_ASSISTANT_MSG_DEVICE_SETSCALING     , AKVCAM_BIND_FUNC(IpcBridgePrivate::setScaling)     },
+        {AKVCAM_ASSISTANT_MSG_DEVICE_SETASPECTRATIO , AKVCAM_BIND_FUNC(IpcBridgePrivate::setAspectRatio) },
+        {AKVCAM_ASSISTANT_MSG_DEVICE_SETSWAPRGB     , AKVCAM_BIND_FUNC(IpcBridgePrivate::setSwapRgb)     },
     };
 }
 
@@ -1086,8 +1086,8 @@ void AkVCam::IpcBridgePrivate::isAlive(xpc_connection_t client,
     xpc_release(reply);
 }
 
-void AkVCam::IpcBridgePrivate::deviceCreated(xpc_connection_t client,
-                                             xpc_object_t event)
+void AkVCam::IpcBridgePrivate::deviceCreate(xpc_connection_t client,
+                                            xpc_object_t event)
 {
     UNUSED(client)
     AkLoggerLog("IpcBridgePrivate::deviceCreated");
@@ -1099,8 +1099,8 @@ void AkVCam::IpcBridgePrivate::deviceCreated(xpc_connection_t client,
             bridge->d->deviceAddedCallback(device);
 }
 
-void AkVCam::IpcBridgePrivate::deviceDestroyed(xpc_connection_t client,
-                                               xpc_object_t event)
+void AkVCam::IpcBridgePrivate::deviceDestroy(xpc_connection_t client,
+                                             xpc_object_t event)
 {
     UNUSED(client)
     AkLoggerLog("IpcBridgePrivate::deviceDestroyed");
@@ -1143,8 +1143,8 @@ void AkVCam::IpcBridgePrivate::frameReady(xpc_connection_t client,
             bridge->d->frameReadyCallback(deviceId, videoFrame);
 }
 
-void AkVCam::IpcBridgePrivate::broadcastingChanged(xpc_connection_t client,
-                                                   xpc_object_t event)
+void AkVCam::IpcBridgePrivate::setBroadcasting(xpc_connection_t client,
+                                               xpc_object_t event)
 {
     UNUSED(client)
     AkLoggerLog("IpcBridgePrivate::broadcastingChanged");
@@ -1159,8 +1159,8 @@ void AkVCam::IpcBridgePrivate::broadcastingChanged(xpc_connection_t client,
             bridge->d->broadcastingChangedCallback(deviceId, broadcaster);
 }
 
-void AkVCam::IpcBridgePrivate::mirrorChanged(xpc_connection_t client,
-                                             xpc_object_t event)
+void AkVCam::IpcBridgePrivate::setMirror(xpc_connection_t client,
+                                         xpc_object_t event)
 {
     UNUSED(client)
     AkLoggerLog("IpcBridgePrivate::mirrorChanged");
@@ -1179,8 +1179,8 @@ void AkVCam::IpcBridgePrivate::mirrorChanged(xpc_connection_t client,
                                              verticalMirror);
 }
 
-void AkVCam::IpcBridgePrivate::scalingChanged(xpc_connection_t client,
-                                              xpc_object_t event)
+void AkVCam::IpcBridgePrivate::setScaling(xpc_connection_t client,
+                                          xpc_object_t event)
 {
     UNUSED(client)
     AkLoggerLog("IpcBridgePrivate::scalingChanged");
@@ -1195,8 +1195,8 @@ void AkVCam::IpcBridgePrivate::scalingChanged(xpc_connection_t client,
             bridge->d->scalingChangedCallback(deviceId, scaling);
 }
 
-void AkVCam::IpcBridgePrivate::aspectRatioChanged(xpc_connection_t client,
-                                                  xpc_object_t event)
+void AkVCam::IpcBridgePrivate::setAspectRatio(xpc_connection_t client,
+                                              xpc_object_t event)
 {
     UNUSED(client)
     AkLoggerLog("IpcBridgePrivate::aspectRatioChanged");
@@ -1211,8 +1211,8 @@ void AkVCam::IpcBridgePrivate::aspectRatioChanged(xpc_connection_t client,
             bridge->d->aspectRatioChangedCallback(deviceId, aspectRatio);
 }
 
-void AkVCam::IpcBridgePrivate::swapRgbChanged(xpc_connection_t client,
-                                              xpc_object_t event)
+void AkVCam::IpcBridgePrivate::setSwapRgb(xpc_connection_t client,
+                                          xpc_object_t event)
 {
     UNUSED(client)
     AkLoggerLog("IpcBridgePrivate::swapRgbChanged");
@@ -1226,8 +1226,8 @@ void AkVCam::IpcBridgePrivate::swapRgbChanged(xpc_connection_t client,
             bridge->d->swapRgbChangedCallback(deviceId, swap);
 }
 
-void AkVCam::IpcBridgePrivate::listenerAdded(xpc_connection_t client,
-                                             xpc_object_t event)
+void AkVCam::IpcBridgePrivate::listenerAdd(xpc_connection_t client,
+                                           xpc_object_t event)
 {
     UNUSED(client)
     AkLoggerLog("IpcBridgePrivate::listenerAdded");
@@ -1240,8 +1240,8 @@ void AkVCam::IpcBridgePrivate::listenerAdded(xpc_connection_t client,
             bridge->d->listenerAddedCallback(deviceId, listener);
 }
 
-void AkVCam::IpcBridgePrivate::listenerRemoved(xpc_connection_t client,
-                                               xpc_object_t event)
+void AkVCam::IpcBridgePrivate::listenerRemove(xpc_connection_t client,
+                                              xpc_object_t event)
 {
     UNUSED(client)
     AkLoggerLog("IpcBridgePrivate::listenerRemoved");
