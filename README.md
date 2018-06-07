@@ -30,6 +30,8 @@ Visit the [wiki](https://github.com/webcamoid/webcamoid/wiki) for a comprehensiv
 [![Translation status](https://hosted.weblate.org/widgets/webcamoid/-/svg-badge.svg)](https://hosted.weblate.org/engage/webcamoid/?utm_source=widget)
 [![Project Stats](https://www.openhub.net/p/Webcamoid/widgets/project_thin_badge.gif)](https://www.openhub.net/p/Webcamoid)
 [![Total Downloads](https://img.shields.io/github/downloads/webcamoid/webcamoid/total.svg)](https://github.com/webcamoid/webcamoid/releases)
+[![Gitlab mirror](https://img.shields.io/badge/mirror-Gitlab-007fff.svg)](https://gitlab.com/hipersayanX/webcamoid/)
+[![SourceForge mirror](https://img.shields.io/badge/mirror-SourceForge-007fff.svg)](https://sourceforge.net/p/webcamoid/)
 [![Softpedia reviews](https://img.shields.io/badge/review-Softpedia-ff69b4.svg)](http://www.softpedia.com/get/Internet/WebCam/Webcamoid.shtml)
 [![alternativeTo reviews](https://img.shields.io/badge/review-alternativeTo-ff69b4.svg)](https://alternativeto.net/software/webcamoid/)
 
