@@ -167,10 +167,10 @@ before_install: |
       docker ps -a
       docker run -it -d -v ${PWD}:/sources -v $HOME/.ccache:/ccache -e CCACHE_DIR=/ccache -w /sources --name ${DOCKERSYS} ${DOCKERIMG} /bin/sh
     elif [ "${TRAVIS_OS_NAME}" = osx ]; then
-      #brew unlink python
-      brew uninstall -f python mercurial
+      brew unlink python
       brew update
       brew upgrade
+      brew link --overwrite numpy
     fi
   fi
 
