@@ -168,7 +168,7 @@ before_install: |
       docker run -it -d -v ${PWD}:/sources -v $HOME/.ccache:/ccache -e CCACHE_DIR=/ccache -w /sources --name ${DOCKERSYS} ${DOCKERIMG} /bin/sh
     elif [ "${TRAVIS_OS_NAME}" = osx ]; then
       #brew unlink python
-      brew uninstall --ignore-dependencies python
+      brew uninstall -f python mercurial
       brew update
       brew upgrade
     fi
