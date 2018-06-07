@@ -61,9 +61,6 @@
 #define AKVCAM_ASSISTANT_MSG_DEVICE_SWAPRGB         0x408
 #define AKVCAM_ASSISTANT_MSG_DEVICE_SETSWAPRGB      0x409
 
-#define AKVCAM_BIND_FUNC(member) \
-    std::bind(&member, this, std::placeholders::_1, std::placeholders::_2)
-
 namespace AkVCam
 {
     typedef std::function<void (xpc_connection_t,

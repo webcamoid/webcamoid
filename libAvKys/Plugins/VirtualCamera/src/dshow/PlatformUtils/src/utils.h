@@ -78,11 +78,11 @@ namespace AkVCam
     int cameraFromId(const CLSID &clsid);
     bool cameraExists(const std::string &path);
     bool cameraExists(const std::wstring &path);
-    std::wstring cameraDescription(DWORD cameraId);
+    std::wstring cameraDescription(DWORD cameraIndex);
     std::wstring cameraPath(DWORD cameraIndex);
     std::wstring cameraPath(const CLSID &clsid);
     DWORD formatsCount(DWORD cameraIndex);
-    VideoFormat cameraFormat(DWORD cameraIndex, DWORD formatId);
+    VideoFormat cameraFormat(DWORD cameraIndex, DWORD formatIndex);
     std::vector<VideoFormat> cameraFormats(DWORD cameraIndex);
 }
 

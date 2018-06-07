@@ -37,6 +37,9 @@
 #define AkIpcBridgeLogMethod() \
     AkLoggerLog("IpcBridge::", __FUNCTION__, "()")
 
+#define AKVCAM_BIND_FUNC(member) \
+    std::bind(&member, this, std::placeholders::_1, std::placeholders::_2)
+
 namespace AkVCam
 {
     class IpcBridgePrivate
@@ -46,7 +49,6 @@ namespace AkVCam
             std::string portName;
             xpc_connection_t messagePort;
             xpc_connection_t serverMessagePort;
-            std::vector<std::string> devices;
             IpcBridge::FrameReadyCallback frameReadyCallback;
             IpcBridge::DeviceChangedCallback deviceAddedCallback;
             IpcBridge::DeviceChangedCallback deviceRemovedCallback;
@@ -306,15 +308,12 @@ void AkVCam::IpcBridge::unregisterPeer()
     this->d->portName.clear();
 }
 
-std::vector<std::string> AkVCam::IpcBridge::listDevices(bool all) const
+std::vector<std::string> AkVCam::IpcBridge::listDevices() const
 {
     AkIpcBridgeLogMethod();
 
     if (!this->d->serverMessagePort)
         return {};
-
-    if (!all)
-        return this->d->devices;
 
     auto dictionary = xpc_dictionary_create(NULL, NULL, 0);
     xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICES);
@@ -371,6 +370,7 @@ std::vector<AkVCam::PixelFormat> AkVCam::IpcBridge::supportedOutputPixelFormats(
 {
     return {
         PixelFormatRGB32,
+        PixelFormatRGB24,
         PixelFormatUYVY,
         PixelFormatYUY2
     };
@@ -657,10 +657,6 @@ std::string AkVCam::IpcBridge::deviceCreate(const std::string &description,
     }
 
     std::string deviceId(xpc_dictionary_get_string(reply, "device"));
-
-    if (!deviceId.empty())
-        this->d->devices.push_back(deviceId);
-
     xpc_release(reply);
 
     return deviceId;
@@ -673,20 +669,12 @@ void AkVCam::IpcBridge::deviceDestroy(const std::string &deviceId)
     if (!this->d->serverMessagePort)
         return;
 
-    auto it = std::find(this->d->devices.begin(),
-                        this->d->devices.end(),
-                        deviceId);
-
-    if (it == this->d->devices.end())
-        return;
-
     auto dictionary = xpc_dictionary_create(NULL, NULL, 0);
     xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_DESTROY);
     xpc_dictionary_set_string(dictionary, "device", deviceId.c_str());
     xpc_connection_send_message(this->d->serverMessagePort,
                                 dictionary);
     xpc_release(dictionary);
-    this->d->devices.erase(it);
 
     // If no devices are registered
     if (this->d->uninstall && listDevices().empty())
@@ -720,7 +708,8 @@ bool AkVCam::IpcBridge::destroyAllDevices()
 {
     AkIpcBridgeLogMethod();
 
-    this->d->uninstallPlugin();
+    for (auto &device: this->listDevices())
+        this->deviceDestroy(device);
 
     return true;
 }

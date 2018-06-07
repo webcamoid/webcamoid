@@ -537,16 +537,16 @@ QString AudioDevCoreAudioPrivate::statusToStr(OSStatus status)
 
 QString AudioDevCoreAudioPrivate::CFStringToString(const CFStringRef &cfstr)
 {
-    CFIndex len = CFStringGetLength(cfstr);
-    const UniChar *data = CFStringGetCharactersPtr(cfstr);
+    auto len = CFStringGetLength(cfstr);
+    auto data = CFStringGetCharactersPtr(cfstr);
 
     if (data)
         return QString(reinterpret_cast<const QChar *>(data), int(len));
 
-    QVector<UniChar> str((int(len)));
-    CFStringGetCharacters(cfstr, CFRangeMake(0, len), str.data());
+    UniChar str[len];
+    CFStringGetCharacters(cfstr, CFRangeMake(0, len), str);
 
-    return QString(reinterpret_cast<const QChar *>(str.data()), str.size());
+    return QString(reinterpret_cast<const QChar *>(str), len);
 }
 
 QString AudioDevCoreAudioPrivate::defaultDevice(bool input, bool *ok)

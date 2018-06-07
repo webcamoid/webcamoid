@@ -292,9 +292,8 @@ void AkVCam::IpcBridge::unregisterPeer()
     this->d->portName.clear();
 }
 
-std::vector<std::string> AkVCam::IpcBridge::listDevices(bool all) const
+std::vector<std::string> AkVCam::IpcBridge::listDevices() const
 {
-    UNUSED(all)
     AkIpcBridgeLogMethod();
     std::vector<std::string> devices;
 

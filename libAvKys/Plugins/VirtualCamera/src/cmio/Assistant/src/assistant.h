@@ -34,32 +34,6 @@ namespace AkVCam
             ~Assistant();
 
             void setTimeout(double timeout);
-            void requestPort(xpc_connection_t client, xpc_object_t event);
-            void addPort(xpc_connection_t client, xpc_object_t event);
-            void removePortByName(const std::string &portName);
-            void removePort(xpc_connection_t client, xpc_object_t event);
-            void deviceCreate(xpc_connection_t client, xpc_object_t event);
-            void deviceDestroyById(const std::string &deviceId);
-            void deviceDestroy(xpc_connection_t client, xpc_object_t event);
-            void setBroadcasting(xpc_connection_t client, xpc_object_t event);
-            void setMirroring(xpc_connection_t client, xpc_object_t event);
-            void setScaling(xpc_connection_t client, xpc_object_t event);
-            void setAspectRatio(xpc_connection_t client, xpc_object_t event);
-            void setSwapRgb(xpc_connection_t client, xpc_object_t event);
-            void frameReady(xpc_connection_t client, xpc_object_t event);
-            void listeners(xpc_connection_t client, xpc_object_t event);
-            void listener(xpc_connection_t client, xpc_object_t event);
-            void devices(xpc_connection_t client, xpc_object_t event);
-            void description(xpc_connection_t client, xpc_object_t event);
-            void formats(xpc_connection_t client, xpc_object_t event);
-            void broadcasting(xpc_connection_t client, xpc_object_t event);
-            void mirroring(xpc_connection_t client, xpc_object_t event);
-            void scaling(xpc_connection_t client, xpc_object_t event);
-            void aspectRatio(xpc_connection_t client, xpc_object_t event);
-            void swapRgb(xpc_connection_t client, xpc_object_t event);
-            void addListener(xpc_connection_t client, xpc_object_t event);
-            void removeListener(xpc_connection_t client, xpc_object_t event);
-            void peerDied();
             void messageReceived(xpc_connection_t client, xpc_object_t event);
 
         private:

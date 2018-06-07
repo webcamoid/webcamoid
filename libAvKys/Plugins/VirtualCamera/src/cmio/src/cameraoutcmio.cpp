@@ -73,7 +73,7 @@ QStringList CameraOutCMIO::webcams() const
 {
     QStringList webcams;
 
-    for (auto device: this->d->m_ipcBridge.listDevices(false))
+    for (auto &device: this->d->m_ipcBridge.listDevices())
         webcams << QString::fromStdString(device);
 
     return webcams;
@@ -86,7 +86,7 @@ int CameraOutCMIO::streamIndex() const
 
 QString CameraOutCMIO::description(const QString &webcam) const
 {
-    for (auto device: this->d->m_ipcBridge.listDevices(false)) {
+    for (auto &device: this->d->m_ipcBridge.listDevices()) {
         auto deviceId = QString::fromStdString(device);
 
         if (deviceId == webcam)
@@ -135,7 +135,7 @@ QString CameraOutCMIO::createWebcam(const QString &description,
                                                   "AvKys Virtual Camera":
                                                   description.toStdString(),
                                               {{AkVCam::PixelFormatRGB32,
-                                                caps.width(), caps.height(),
+                                                640, 480,
                                                 {caps.fps().value()}}});
     auto curWebcams = this->webcams();
 

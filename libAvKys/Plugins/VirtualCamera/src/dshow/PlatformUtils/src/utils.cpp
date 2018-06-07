@@ -872,10 +872,7 @@ std::wstring AkVCam::createDevicePath()
         /* There are no rules for device paths in Windows. Just append an
          * incremental index to a common prefix.
          */
-        std::wstringstream ss;
-        ss << DSHOW_PLUGIN_DEVICE_PREFIX_L << i;
-
-        auto path = ss.str();
+        auto path = CMIO_PLUGIN_DEVICE_PREFIX + std::to_string(i);
 
         // Check if the path is being used, if not return it.
         if (std::find(cameraPaths.begin(),

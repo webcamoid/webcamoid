@@ -71,7 +71,7 @@ QStringList CameraOutDShow::webcams() const
 {
     QStringList webcams;
 
-    for (auto &device: this->d->m_ipcBridge.listDevices(true))
+    for (auto &device: this->d->m_ipcBridge.listDevices())
         webcams << QString::fromStdString(device);
 
     return webcams;
@@ -84,7 +84,7 @@ int CameraOutDShow::streamIndex() const
 
 QString CameraOutDShow::description(const QString &webcam) const
 {
-    for (auto &device: this->d->m_ipcBridge.listDevices(true)) {
+    for (auto &device: this->d->m_ipcBridge.listDevices()) {
         auto deviceId = QString::fromStdString(device);
 
         if (deviceId == webcam)

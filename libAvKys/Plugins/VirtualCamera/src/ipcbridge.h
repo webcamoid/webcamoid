@@ -73,7 +73,7 @@ namespace AkVCam
             void unregisterPeer();
 
             // List available servers.
-            std::vector<std::string> listDevices(bool all=true) const;
+            std::vector<std::string> listDevices() const;
 
             // Return human readable description of the device.
             std::string description(const std::string &deviceId) const;
