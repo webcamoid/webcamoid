@@ -139,6 +139,7 @@ isEmpty(NOLRELEASE): !isEmpty(TRANSLATIONS): CONFIG(debug, debug|release) {
     compiletr.input = TRANSLATIONS
     compiletr.output = ${QMAKE_FILE_PATH}/${QMAKE_FILE_BASE}.qm
     compiletr.commands = $$QMAKE_LRELEASE -removeidentical -compress ${QMAKE_FILE_IN} -qm ${QMAKE_FILE_PATH}/${QMAKE_FILE_BASE}.qm
+    compiletr.clean = dummy_file
     compiletr.CONFIG += no_link
     QMAKE_EXTRA_COMPILERS += compiletr
     PRE_TARGETDEPS += compiler_compiletr_make_all
