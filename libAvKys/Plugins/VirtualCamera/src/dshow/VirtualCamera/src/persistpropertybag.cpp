@@ -73,6 +73,10 @@ HRESULT AkVCam::PersistPropertyBag::QueryInterface(const IID &riid,
             return result;
 
         auto baseFilter = BaseFilter::create(clsid);
+
+        if (!baseFilter)
+            return E_FAIL;
+
         AkLogInterface(IBaseFilter, baseFilter);
         baseFilter->AddRef();
         *ppvObject = baseFilter;

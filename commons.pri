@@ -108,19 +108,20 @@ DEFINES += \
 
 TARGET_ARCH = $${QMAKE_TARGET.arch}
 
-isEmpty(TARGET_ARCH): !msvc {
+mingw {
     TARGET_ARCH = $$system($${QMAKE_CC} -dumpmachine)
     TARGET_ARCH = $$split(TARGET_ARCH, -)
     TARGET_ARCH = $$first(TARGET_ARCH)
 }
 
 CONFIG(debug, debug|release) {
-    COMMONS_BUILD_PATH = build/Qt$${QT_VERSION}/$$basename(QMAKE_CC)/$${TARGET_ARCH}/debug
+    COMMONS_BUILD_PATH = debug/Qt$${QT_VERSION}/$$basename(QMAKE_CC)/$${TARGET_ARCH}
     DEFINES += QT_DEBUG
 } else {
-    COMMONS_BUILD_PATH = build/Qt$${QT_VERSION}/$$basename(QMAKE_CC)/$${TARGET_ARCH}/release
+    COMMONS_BUILD_PATH = release/Qt$${QT_VERSION}/$$basename(QMAKE_CC)/$${TARGET_ARCH}
 }
 
+BIN_DIR = $${COMMONS_BUILD_PATH}/bin
 MOC_DIR = $${COMMONS_BUILD_PATH}/moc
 OBJECTS_DIR = $${COMMONS_BUILD_PATH}/obj
 RCC_DIR = $${COMMONS_BUILD_PATH}/rcc
@@ -172,4 +173,11 @@ lessThan(QT_MAJOR_VERSION, 5) | lessThan(QT_MINOR_VERSION, 7) {
 
 !qtHaveModule(quickcontrols2) {
     error("QtQuick Controls 2 required.")
+}
+
+spec = $$lower($$[QMAKE_SPEC])
+contains(spec, .*win32.*) {
+    CMD_SEP = ^ $$escape_expand(\n\t)
+} else {
+    CMD_SEP = ; $$escape_expand(\n\t)
 }

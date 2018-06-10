@@ -39,14 +39,14 @@ INCLUDEPATH += \
     ../../../../../Lib/src \
     ../../
 
-LIBS += -L$${PWD}/../../../../../Lib/ -l$${COMMONS_TARGET}
+LIBS += -L$${OUT_PWD}/../../../../../Lib/$${BIN_DIR} -l$${COMMONS_TARGET}
 
 OTHER_FILES += ../pspec.json
 
 LIBS += \
-    -L$${OUT_PWD}/../VCamIPC -lVCamIPC \
-    -L$${OUT_PWD}/../PlatformUtils -lPlatformUtils \
-    -L$${OUT_PWD}/../../VCamUtils -lVCamUtils \
+    -L$${OUT_PWD}/../VCamIPC/$${BIN_DIR} -lVCamIPC \
+    -L$${OUT_PWD}/../PlatformUtils/$${BIN_DIR} -lPlatformUtils \
+    -L$${OUT_PWD}/../../VCamUtils/$${BIN_DIR} -lVCamUtils \
     -ladvapi32 \
     -lgdi32 \
     -lstrmiids \
@@ -62,7 +62,7 @@ SOURCES = \
     cameraoutdshow.cpp \
     ../../cameraout.cpp
 
-DESTDIR = $${OUT_PWD}/../../../submodules/VirtualCamera
+DESTDIR = $${OUT_PWD}/../../../$${BIN_DIR}/submodules/VirtualCamera
 
 TARGET = dshow
 

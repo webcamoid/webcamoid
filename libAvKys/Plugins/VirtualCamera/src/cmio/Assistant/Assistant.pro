@@ -29,11 +29,11 @@ exists(akcommons.pri) {
 include(../cmio.pri)
 include(../../VCamUtils/VCamUtils.pri)
 
-CONFIG += console c++11
+CONFIG += console
 CONFIG -= app_bundle
 CONFIG -= qt
 
-DESTDIR = $${OUT_PWD}
+DESTDIR = $${OUT_PWD}/$${BIN_DIR}
 
 TARGET = $${CMIO_PLUGIN_ASSISTANT_NAME}
 
@@ -44,7 +44,7 @@ SOURCES += \
     src/assistant.cpp
 
 LIBS += \
-    -L$${OUT_PWD}/../../VCamUtils -lVCamUtils \
+    -L$${OUT_PWD}/../../VCamUtils/$${BIN_DIR} -lVCamUtils \
     -framework CoreFoundation
 
 HEADERS += \
@@ -53,3 +53,7 @@ HEADERS += \
 
 INCLUDEPATH += \
     ../..
+
+QMAKE_POST_LINK = \
+    $$sprintf($$QMAKE_MKDIR_CMD, $$shell_path($${OUT_PWD}/../VirtualCamera/$${CMIO_PLUGIN_NAME}.plugin/Contents/Resources)) $${CMD_SEP} \
+    $(COPY) $$shell_path($${OUT_PWD}/$${BIN_DIR}/$${CMIO_PLUGIN_ASSISTANT_NAME}) $$shell_path($${OUT_PWD}/../VirtualCamera/$${CMIO_PLUGIN_NAME}.plugin/Contents/Resources)

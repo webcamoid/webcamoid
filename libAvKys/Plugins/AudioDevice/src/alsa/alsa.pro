@@ -37,7 +37,7 @@ INCLUDEPATH += \
     ../../../../Lib/src \
     ../
 
-LIBS += -L$${PWD}/../../../../Lib/ -l$${COMMONS_TARGET}
+LIBS += -L$${OUT_PWD}/../../../../Lib/$${BIN_DIR} -l$${COMMONS_TARGET}
 
 OTHER_FILES += pspec.json
 
@@ -51,7 +51,7 @@ SOURCES = \
     src/audiodevalsa.cpp \
     ../audiodev.cpp
 
-DESTDIR = $${OUT_PWD}/../../submodules/AudioDevice
+DESTDIR = $${OUT_PWD}/../../$${BIN_DIR}/submodules/AudioDevice
 
 TEMPLATE = lib
 

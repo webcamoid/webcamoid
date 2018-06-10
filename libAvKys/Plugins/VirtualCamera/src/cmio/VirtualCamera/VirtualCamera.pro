@@ -35,13 +35,15 @@ CONFIG += \
     unversioned_soname \
     resources
 
+DESTDIR = $${OUT_PWD}/$${BIN_DIR}
+
 INCLUDEPATH += \
     .. \
     ../..
 
 LIBS = \
-    -L$${OUT_PWD}/../../VCamUtils -lVCamUtils \
-    -L$${OUT_PWD}/../VCamIPC -lVCamIPC \
+    -L$${OUT_PWD}/../../VCamUtils/$${BIN_DIR} -lVCamUtils \
+    -L$${OUT_PWD}/../VCamIPC/$${BIN_DIR} -lVCamIPC \
     -framework CoreFoundation \
     -framework CoreMedia \
     -framework CoreMediaIO \
@@ -92,9 +94,6 @@ plugin.path = $${DATAROOTDIR}/$${COMMONS_TARGET}
 plugin.CONFIG += no_check_exist
 
 QMAKE_POST_LINK = \
-    rm -rvf $${TARGET}.plugin && \
-    mkdir -p $${TARGET}.plugin/Contents/MacOS && \
-    mkdir -p $${TARGET}.plugin/Contents/Resources && \
-    cp -vf lib$${TARGET}.dylib $${TARGET}.plugin/Contents/MacOS/$${TARGET} && \
-    cp -vf Info.plist $${TARGET}.plugin/Contents && \
-    cp -rvf ../Assistant/$${CMIO_PLUGIN_ASSISTANT_NAME} $${TARGET}.plugin/Contents/Resources
+    $$sprintf($$QMAKE_MKDIR_CMD, $$shell_path($${OUT_PWD}/$${TARGET}.plugin/Contents/MacOS)) $${CMD_SEP} \
+    $(COPY) $$shell_path($${PWD}/Info.plist) $$shell_path($${OUT_PWD}/$${TARGET}.plugin/Contents) $${CMD_SEP} \
+    $(COPY) $$shell_path($${OUT_PWD}/$${BIN_DIR}/lib$${TARGET}.dylib) $$shell_path($${OUT_PWD}/$${TARGET}.plugin/Contents/MacOS/$${TARGET})

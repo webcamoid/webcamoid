@@ -30,19 +30,19 @@ include(../dshow.pri)
 include(../../VCamUtils/VCamUtils.pri)
 
 TEMPLATE = app
-CONFIG += console c++11
+CONFIG += console
 CONFIG -= app_bundle
 CONFIG -= qt
 
-DESTDIR = $${OUT_PWD}/../VirtualCamera/bin/$${TARGET_ARCH}
+DESTDIR = $${OUT_PWD}/$${BIN_DIR}
 
 TARGET = $${DSHOW_PLUGIN_ASSISTANT_NAME}
 
 TEMPLATE = app
 
 LIBS += \
-    -L$${OUT_PWD}/../PlatformUtils -lPlatformUtils \
-    -L$${OUT_PWD}/../../VCamUtils -lVCamUtils \
+    -L$${OUT_PWD}/../PlatformUtils/$${BIN_DIR} -lPlatformUtils \
+    -L$${OUT_PWD}/../../VCamUtils/$${BIN_DIR} -lVCamUtils \
     -ladvapi32 \
     -lgdi32 \
     -lole32 \
@@ -64,3 +64,7 @@ INCLUDEPATH += \
 isEmpty(STATIC_BUILD) | isEqual(STATIC_BUILD, 0) {
     win32-g++: QMAKE_LFLAGS = -static -static-libgcc -static-libstdc++
 }
+
+QMAKE_POST_LINK = \
+    $$sprintf($$QMAKE_MKDIR_CMD, $$shell_path($${OUT_PWD}/../VirtualCamera/$${DSHOW_PLUGIN_NAME}_plugin/$$normalizedArch(TARGET_ARCH))) $${CMD_SEP} \
+    $(COPY) $$shell_path($${OUT_PWD}/$${BIN_DIR}/$${DSHOW_PLUGIN_ASSISTANT_NAME}.exe) $$shell_path($${OUT_PWD}/../VirtualCamera/$${DSHOW_PLUGIN_NAME}_plugin/$$normalizedArch(TARGET_ARCH))

@@ -37,7 +37,7 @@ INCLUDEPATH += \
     ../../../../Lib/src \
     ../
 
-LIBS += -L$${PWD}/../../../../Lib/ -l$${COMMONS_TARGET}
+LIBS += -L$${OUT_PWD}/../../../../Lib/$${BIN_DIR} -l$${COMMONS_TARGET}
 
 OTHER_FILES += pspec.json
 
@@ -48,7 +48,7 @@ SOURCES += \
     src/cameraoutv4l2.cpp \
     ../cameraout.cpp
 
-DESTDIR = $${OUT_PWD}/../../submodules/VirtualCamera
+DESTDIR = $${OUT_PWD}/../../$${BIN_DIR}/submodules/VirtualCamera
 
 TEMPLATE = lib
 

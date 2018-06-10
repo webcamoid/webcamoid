@@ -30,7 +30,6 @@ CONFIG += qt
 !isEmpty(STATIC_BUILD):!isEqual(STATIC_BUILD, 0): CONFIG += static
 
 DEFINES += \
-    QT_DEPRECATED_WARNINGS \
     AKCOMMONS_LIBRARY \
     QT_INSTALL_QML=\"\\\"$$[QT_INSTALL_QML]\\\"\"
 
@@ -67,7 +66,7 @@ SOURCES = \
 
 win32: LIBS += -lole32
 
-DESTDIR = $${PWD}
+DESTDIR = $${OUT_PWD}/$${BIN_DIR}
 
 TARGET = $${COMMONS_TARGET}
 

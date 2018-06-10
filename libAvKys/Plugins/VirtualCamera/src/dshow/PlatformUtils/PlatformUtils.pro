@@ -28,17 +28,17 @@ exists(akcommons.pri) {
 
 include(../dshow.pri)
 
-CONFIG += staticlib c++11
+CONFIG += staticlib
 CONFIG -= qt
 
-DESTDIR = $${OUT_PWD}
+DESTDIR = $${OUT_PWD}/$${BIN_DIR}
 
 TARGET = PlatformUtils
 
 TEMPLATE = lib
 
 LIBS = \
-    -L$${OUT_PWD}/../../VCamUtils -lVCamUtils \
+    -L$${OUT_PWD}/../../VCamUtils/$${BIN_DIR} -lVCamUtils \
     -ladvapi32 \
     -lgdi32
 

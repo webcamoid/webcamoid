@@ -38,9 +38,9 @@ INCLUDEPATH += \
     ../..
 
 LIBS += \
-    -L$${OUT_PWD}/../VCamIPC -lVCamIPC \
-    -L$${OUT_PWD}/../PlatformUtils -lPlatformUtils \
-    -L$${OUT_PWD}/../../VCamUtils -lVCamUtils \
+    -L$${OUT_PWD}/../VCamIPC/$${BIN_DIR} -lVCamIPC \
+    -L$${OUT_PWD}/../PlatformUtils/$${BIN_DIR} -lPlatformUtils \
+    -L$${OUT_PWD}/../../VCamUtils/$${BIN_DIR} -lVCamUtils \
     -ladvapi32 \
     -lgdi32 \
     -lkernel32 \
@@ -107,7 +107,7 @@ SOURCES += \
     src/videocontrol.cpp \
     src/videoprocamp.cpp
 
-DESTDIR = $${OUT_PWD}/bin/$${TARGET_ARCH}
+DESTDIR = $${OUT_PWD}/$${BIN_DIR}
 
 RESOURCES += \
     ../../../TestFrame.qrc
@@ -127,3 +127,7 @@ isEmpty(STATIC_BUILD) | isEqual(STATIC_BUILD, 0) {
 INSTALLS += target
 
 target.path = $${BINDIR}
+
+QMAKE_POST_LINK = \
+    $$sprintf($$QMAKE_MKDIR_CMD, $$shell_path($${OUT_PWD}/$${TARGET}_plugin/$$normalizedArch(TARGET_ARCH))) $${CMD_SEP} \
+    $(COPY) $$shell_path($${OUT_PWD}/$${BIN_DIR}/$${TARGET}.dll) $$shell_path($${OUT_PWD}/$${TARGET}_plugin/$$normalizedArch(TARGET_ARCH))

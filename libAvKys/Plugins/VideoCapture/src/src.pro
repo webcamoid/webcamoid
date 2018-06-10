@@ -43,7 +43,7 @@ HEADERS = \
 INCLUDEPATH += \
     ../../../Lib/src
 
-LIBS += -L$${PWD}/../../../Lib/ -l$${COMMONS_TARGET}
+LIBS += -L$${OUT_PWD}/../../../Lib/$${BIN_DIR} -l$${COMMONS_TARGET}
 win32: LIBS += -lole32
 
 OTHER_FILES += ../pspec.json
@@ -64,7 +64,7 @@ lupdate_only {
     SOURCES += $$files(../share/qml/*.qml)
 }
 
-DESTDIR = $${OUT_PWD}/..
+DESTDIR = $${OUT_PWD}/../$${BIN_DIR}
 TARGET = VideoCapture
 
 TEMPLATE = lib

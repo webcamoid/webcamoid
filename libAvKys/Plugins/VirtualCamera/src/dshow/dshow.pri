@@ -28,3 +28,13 @@ DEFINES += \
     DSHOW_PLUGIN_DEVICE_PREFIX_L=\"L\\\"$$DSHOW_PLUGIN_DEVICE_PREFIX\\\"\" \
     DSHOW_PLUGIN_VENDOR=\"\\\"$$DSHOW_PLUGIN_VENDOR\\\"\" \
     DSHOW_PLUGIN_VENDOR_L=\"L\\\"$$DSHOW_PLUGIN_VENDOR\\\"\"
+
+defineReplace(normalizedArch) {
+    arch = $$replace($$1, i386, x86)
+    arch = $$replace(arch, i486, x86)
+    arch = $$replace(arch, i586, x86)
+    arch = $$replace(arch, i686, x86)
+    arch = $$replace(arch, x86_64, x64)
+
+    return($$arch)
+}

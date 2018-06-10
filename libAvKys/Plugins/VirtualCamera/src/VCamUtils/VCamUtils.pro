@@ -28,10 +28,10 @@ exists(akcommons.pri) {
 
 include(VCamUtils.pri)
 
-CONFIG += staticlib c++11
+CONFIG += staticlib
 CONFIG -= qt
 
-DESTDIR = $${OUT_PWD}
+DESTDIR = $${OUT_PWD}/$${BIN_DIR}
 
 TARGET = VCamUtils
 
@@ -47,7 +47,7 @@ SOURCES += \
     src/resources/rcloader.cpp \
     src/resources/rcname.cpp \
     src/resources/rcnode.cpp \
-    src/utils.cpp \ 
+    src/utils.cpp \
     src/timer.cpp
 
 HEADERS += \

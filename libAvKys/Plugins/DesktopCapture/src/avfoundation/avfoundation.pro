@@ -38,7 +38,7 @@ INCLUDEPATH += \
     ../../../../Lib/src \
     ../
 
-LIBS += -L$${PWD}/../../../../Lib/ -l$${COMMONS_TARGET}
+LIBS += -L$${OUT_PWD}/../../../../Lib/$${BIN_DIR} -l$${COMMONS_TARGET}
 
 LIBS += \
     -framework Foundation \
@@ -59,7 +59,7 @@ OBJECTIVE_SOURCES = \
     src/avfoundationscreendev.mm \
     src/framegrabber.mm
 
-DESTDIR = $${OUT_PWD}/../../submodules/DesktopCapture
+DESTDIR = $${OUT_PWD}/../../$${BIN_DIR}/submodules/DesktopCapture
 
 TEMPLATE = lib
 

@@ -16,7 +16,7 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-TRANSLATIONS_PRI = $$_PRO_FILE_PWD_/../translations.pri
+TRANSLATIONS_PRI = $${PWD}/../translations.pri
 
 exists(translations.qrc) {
     TRANSLATIONS = $$files(share/ts/*.ts)
@@ -29,15 +29,15 @@ COMMONS_TARGET = $$lower($${COMMONS_APPNAME})
 exists(commons.pri) {
     include(commons.pri)
 } else {
-    exists($$_PRO_FILE_PWD_/../commons.pri) {
-        include($$_PRO_FILE_PWD_/../commons.pri)
+    exists(../commons.pri) {
+        include(../commons.pri)
     } else {
         error("commons.pri file not found.")
     }
 }
 
 !isEmpty(BUILDDOCS):!isEqual(BUILDDOCS, 0) {
-    DOCSOURCES = $$_PRO_FILE_PWD_/../$${COMMONS_APPNAME}.qdocconf
+    DOCSOURCES = ../$${COMMONS_APPNAME}.qdocconf
 
     builddocs.input = DOCSOURCES
     builddocs.output = share/docs_auto/html/$${COMMONS_TARGET}.index
@@ -48,18 +48,6 @@ exists(commons.pri) {
 
     QMAKE_EXTRA_COMPILERS += builddocs
     PRE_TARGETDEPS += compiler_builddocs_make_all
-}
-
-unix {
-    MANPAGESOURCES = share/man/man1/$${COMMONS_TARGET}.1
-
-    buildmanpage.input = MANPAGESOURCES
-    buildmanpage.output = ${QMAKE_FILE_IN}.gz
-    buildmanpage.commands = gzip -c9 ${QMAKE_FILE_IN} > ${QMAKE_FILE_IN}.gz
-    buildmanpage.CONFIG += no_link
-
-    QMAKE_EXTRA_COMPILERS += buildmanpage
-    PRE_TARGETDEPS += compiler_buildmanpage_make_all
 }
 
 CONFIG += qt
@@ -80,7 +68,7 @@ HEADERS = \
 INCLUDEPATH += \
     ../libAvKys/Lib/src
 
-LIBS += -L$${PWD}/../libAvKys/Lib -lavkys
+LIBS += -L$${OUT_PWD}/../libAvKys/Lib/$${BIN_DIR} -lavkys
 win32: LIBS += -lole32
 
 OTHER_FILES = \
@@ -111,7 +99,7 @@ lupdate_only {
     SOURCES += $$files(share/qml/*.qml)
 }
 
-DESTDIR = $${OUT_PWD}
+DESTDIR = $${OUT_PWD}/$${BIN_DIR}
 
 TARGET = $${COMMONS_TARGET}
 
@@ -148,7 +136,7 @@ unix:!macx {
         appIcon256x256 \
         appIconScalable
 
-    manpage.files = share/man/man1/webcamoid.1.gz
+    manpage.files = ${OUT_PWD}/share/man/man1/webcamoid.1.gz
     manpage.path = $${MANDIR}/man1
     manpage.CONFIG += no_check_exist
 
@@ -198,4 +186,10 @@ unix:!macx {
     INSTALLS += desktop
     desktop.files = ../$${COMMONS_TARGET}.desktop
     desktop.path = $${DATAROOTDIR}/applications
+}
+
+unix {
+    QMAKE_POST_LINK = \
+        $(MKDIR) $${OUT_PWD}/share/man/man1 && \
+        gzip -c9 $${PWD}/share/man/man1/$${COMMONS_TARGET}.1 > $${OUT_PWD}/share/man/man1/$${COMMONS_TARGET}.1.gz
 }
