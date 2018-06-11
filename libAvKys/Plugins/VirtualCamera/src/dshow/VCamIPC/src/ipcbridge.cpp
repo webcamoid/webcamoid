@@ -548,7 +548,7 @@ std::string AkVCam::IpcBridge::deviceCreate(const std::string &description,
     ss << "@echo off" << std::endl;
 
     auto driverPath = replace(this->d->options["driverPath"], "/", "\\");
-    auto driverInstallPath = programFilesPath() + "\\Webcamoid\\filter";
+    auto driverInstallPath = programFilesPath() + DSHOW_PLUGIN_NAME + ".plugin";
     std::vector<std::string> installPaths;
 
     for (auto path: this->d->findFiles(std::wstring(driverPath.begin(),

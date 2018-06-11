@@ -66,5 +66,5 @@ isEmpty(STATIC_BUILD) | isEqual(STATIC_BUILD, 0) {
 }
 
 QMAKE_POST_LINK = \
-    $$sprintf($$QMAKE_MKDIR_CMD, $$shell_path($${OUT_PWD}/../VirtualCamera/$${DSHOW_PLUGIN_NAME}_plugin/$$normalizedArch(TARGET_ARCH))) $${CMD_SEP} \
-    $(COPY) $$shell_path($${OUT_PWD}/$${BIN_DIR}/$${DSHOW_PLUGIN_ASSISTANT_NAME}.exe) $$shell_path($${OUT_PWD}/../VirtualCamera/$${DSHOW_PLUGIN_NAME}_plugin/$$normalizedArch(TARGET_ARCH))
+    $$sprintf($$QMAKE_MKDIR_CMD, $$shell_path($${OUT_PWD}/../VirtualCamera/$${DSHOW_PLUGIN_NAME}.plugin/$$normalizedArch(TARGET_ARCH))) $${CMD_SEP} \
+    $(COPY) $$shell_path($${OUT_PWD}/$${BIN_DIR}/$${DSHOW_PLUGIN_ASSISTANT_NAME}.exe) $$shell_path($${OUT_PWD}/../VirtualCamera/$${DSHOW_PLUGIN_NAME}.plugin/$$normalizedArch(TARGET_ARCH))

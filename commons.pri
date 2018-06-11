@@ -177,6 +177,7 @@ lessThan(QT_MAJOR_VERSION, 5) | lessThan(QT_MINOR_VERSION, 7) {
 }
 
 spec = $$lower($$[QMAKE_SPEC])
+
 contains(spec, .*win32.*) {
     CMD_SEP = ^ $$escape_expand(\n\t)
 } else {

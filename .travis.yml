@@ -175,6 +175,7 @@ before_install: |
   fi
 
 install:
+  - chmod +x ports/ci/travis/install_deps.sh
   - ports/ci/travis/install_deps.sh
 
 before_script: |
@@ -196,9 +197,11 @@ before_script: |
   fi
 
 script:
+  - chmod +x ports/ci/travis/build.sh
   - ports/ci/travis/build.sh
 
 after_success:
+  - chmod +x ports/ci/travis/deploy.sh
   - ports/ci/travis/deploy.sh
 
 branches:

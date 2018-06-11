@@ -33,9 +33,13 @@ import threading
 import time
 import zipfile
 
+import deploy
+import tools.qt5
 
-class Deploy:
+
+class Deploy(deploy.Deploy, tools.qt5.DeployToolsQt):
     def __init__(self, rootDir, system, arch):
+        super().__init__()
         self.scanPaths = ['StandAlone\\webcamoid.exe',
                           'StandAlone\\share\\qml',
                           'libAvKys\\Plugins']
@@ -163,8 +167,6 @@ class Deploy:
             shutil.copy(src, dst)
 
     def prepare(self):
-        self.sysQmlPath = self.qmakeQuery('QT_INSTALL_QML')
-        self.sysPluginsPath = self.qmakeQuery('QT_INSTALL_PLUGINS')
         self.tempDir = os.path.join(self.buildDir, 'ports\\deploy\\temp_priv')
         self.installDir = os.environ['INSTALL_PREFIX'] if 'INSTALL_PREFIX' in os.environ else os.path.join(self.tempDir, 'root')
         self.pkgsDir = os.path.join(self.rootDir, 'ports\\deploy\\packages_auto', sys.platform)

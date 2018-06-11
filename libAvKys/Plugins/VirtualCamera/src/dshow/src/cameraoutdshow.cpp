@@ -36,7 +36,9 @@
 
 #define MAX_CAMERAS 64
 
-Q_GLOBAL_STATIC_WITH_ARGS(QString, akVCamDriver, ("filter"))
+Q_GLOBAL_STATIC_WITH_ARGS(QString,
+                          akVCamDriver,
+                          (QString("%1.plugin").arg(DSHOW_PLUGIN_NAME)))
 
 class CameraOutDShowPrivate
 {

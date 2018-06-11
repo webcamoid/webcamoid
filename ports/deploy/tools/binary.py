@@ -1,0 +1,96 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# Webcamoid, webcam capture application.
+# Copyright (C) 2017  Gonzalo Exequiel Pedone
+#
+# Webcamoid is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Webcamoid is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Webcamoid. If not, see <http://www.gnu.org/licenses/>.
+#
+# Web-Site: http://webcamoid.github.io/
+
+import os
+
+import tools
+
+
+class DeployToolsBinary(tools.utils.DeployToolsUtils):
+    def __init__(self):
+        super().__init__()
+        self.stripBin = self.whereBin('strip.exe' if self.system == 'windows' else 'strip')
+
+    def isValid(self, path):
+        return False
+
+    def find(self, path):
+        binaries = []
+
+        for root, dirs, files in os.walk(path):
+            for f in files:
+                binaryPath = os.path.join(root, f)
+
+                if not os.path.islink(binaryPath) and self.isValid(binaryPath):
+                    binaries.append(binaryPath)
+
+        return binaries
+
+    def dependencies(self, binary):
+        return []
+
+    def allDependencies(self, binary):
+        deps = self.dependencies(binary)
+        solved = set()
+
+        while len(deps) > 0:
+            dep = deps.pop()
+
+            for binDep in self.dependencies(dep):
+                if binDep != dep and not binDep in solved:
+                    deps.append(binDep)
+
+            solved.add(dep)
+
+        return solved
+
+    def scanDependencies(self, path):
+        deps = set()
+
+        for binPath in self.find(path):
+            for dep in self.dependencies(binPath):
+                deps.add(dep)
+
+        return deps
+
+    def name(self, binary):
+        return ''
+
+    def strip(self, binary):
+        process = subprocess.Popen([self.stripBin, binary],
+                                   stdout=subprocess.PIPE,
+                                   stderr=subprocess.PIPE)
+        process.communicate()
+
+    def stripSymbols(self, path):
+        threads = []
+
+        for binary in self.find(path):
+            thread = threading.Thread(target=self.strip, args=(binary,))
+            threads.append(thread)
+
+            while threading.active_count() >= self.njobs:
+                time.sleep(0.25)
+
+            thread.start()
+
+        for thread in threads:
+            thread.join()

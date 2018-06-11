@@ -23,79 +23,102 @@ import os
 import sys
 import platform
 
-class Deploy:
+import tools.utils
+
+class Deploy(tools.utils.DeployToolsUtils):
     def __init__(self):
+        super().__init__()
         self.rootDir = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../..'))
+        self.buildDir = os.environ['BUILD_PATH'] if 'BUILD_PATH' in os.environ else self.rootDir
+        self.installDir = os.path.join(self.rootDir, 'ports/deploy/temp_priv/root')
+        self.pkgsDir = os.path.join(self.rootDir,
+                                    'ports/deploy/packages_auto',
+                                    sys.platform if os.name == 'posix' else os.name)
         self.arch = platform.architecture()[0]
-
-        if os.name == 'posix':
-            if sys.platform.startswith('darwin'):
-                self.system = 'mac'
-            else:
-                self.system = 'posix'
-        elif os.name == 'nt' and sys.platform.startswith('win32'):
-            self.system = 'windows'
-        else:
-            self.system = 'unknown'
-
-        fileName, ext = os.path.splitext(os.path.basename(__file__))
-        self.platformDeploy = __import__('_'.join([fileName, self.system])) \
-                                .Deploy(self.rootDir, self.system, self.arch)
-        self.targetSystem = self.platformDeploy.targetSystem
-
-        if self.targetSystem != self.system:
-            self.platformDeploy = __import__('_'.join([fileName, self.system, self.targetSystem])) \
-                                    .Deploy(self.rootDir, self.system, self.targetSystem, self.arch)
-
-        self.scanPaths = self.platformDeploy.scanPaths
-        self.targetArch = self.platformDeploy.targetArch
-        self.programVersion = self.platformDeploy.programVersion
-        self.qmake = self.platformDeploy.qmake
+        self.targetArch = self.arch
+        self.programVersion = ''
+        self.qmake = ''
 
     def __str__(self):
         deployInfo = 'Python version: {}\n' \
                      'Root directory: {}\n' \
+                     'Build directory: {}\n' \
+                     'Install directory: {}\n' \
+                     'Packages directory: {}\n' \
                      'System: {}\n' \
                      'Architecture: {}\n' \
                      'Target system: {}\n' \
                      'Target architecture: {}\n' \
-                     'Scan paths: {}\n' \
+                     'Number of threads: {}\n' \
                      'Program version: {}\n' \
+                     'Make executable: {}\n' \
                      'Qmake executable: {}'. \
                         format(platform.python_version(),
                                self.rootDir,
+                               self.buildDir,
+                               self.installDir,
+                               self.pkgsDir,
                                self.system,
                                self.arch,
                                self.targetSystem,
                                self.targetArch,
-                               self.scanPaths,
+                               self.njobs,
                                self.programVersion,
+                               self.make,
                                self.qmake)
 
         return deployInfo
 
-    def prepare(self):
+    def load(self, system=''):
+        module = __import__('deploy_' + (self.system if system == '' else system))
+
+        if not module:
+            return None
+
+        deploy = module.Deploy()
+
+        if deploy.targetSystem != system:
+            return self.load(deploy.targetSystem)
+
+        return deploy
+
+    def run(self):
+        print('Deploy info\n')
+        print(self)
         print('\nPreparing for software packaging\n')
-        self.platformDeploy.prepare()
+        self.prepare()
+        print('\nSolving package dependencies\n')
+        self.solvedeps()
+        #print('\nFinnishing preparation\n')
+        #self.finish()
+        #print('\nCreating packages\n')
+        #self.package()
+        #print('\nCleaningup...\n')
+        #self.cleanup()
+        #print('\nDeploy finnished\n')
+
+    def redirect(self):
+        return ''
+
+    def prepare(self):
+        pass
 
     def solvedeps(self):
-        self.platformDeploy.solvedeps()
+        pass
 
     def finish(self):
-        self.platformDeploy.finish()
+        pass
 
     def package(self):
-        self.platformDeploy.package()
+        pass
 
     def cleanup(self):
-        self.platformDeploy.cleanup()
+        pass
 
 if __name__ =='__main__':
-    deploy = Deploy()
-    print('\nDeploy info\n')
-    print(deploy)
-    deploy.prepare()
-    deploy.solvedeps()
-    deploy.finish()
-    deploy.package()
-    deploy.cleanup()
+    deploy = Deploy().load()
+
+    if deploy:
+        deploy.run()
+    else:
+        print('No valid deploy script found.')

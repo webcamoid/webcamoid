@@ -129,5 +129,5 @@ INSTALLS += target
 target.path = $${BINDIR}
 
 QMAKE_POST_LINK = \
-    $$sprintf($$QMAKE_MKDIR_CMD, $$shell_path($${OUT_PWD}/$${TARGET}_plugin/$$normalizedArch(TARGET_ARCH))) $${CMD_SEP} \
-    $(COPY) $$shell_path($${OUT_PWD}/$${BIN_DIR}/$${TARGET}.dll) $$shell_path($${OUT_PWD}/$${TARGET}_plugin/$$normalizedArch(TARGET_ARCH))
+    $$sprintf($$QMAKE_MKDIR_CMD, $$shell_path($${OUT_PWD}/$${TARGET}.plugin/$$normalizedArch(TARGET_ARCH))) $${CMD_SEP} \
+    $(COPY) $$shell_path($${OUT_PWD}/$${BIN_DIR}/$${TARGET}.dll) $$shell_path($${OUT_PWD}/$${TARGET}.plugin/$$normalizedArch(TARGET_ARCH))

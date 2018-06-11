@@ -50,6 +50,18 @@ exists(commons.pri) {
     PRE_TARGETDEPS += compiler_builddocs_make_all
 }
 
+unix: CONFIG(debug, debug|release) {
+    MANPAGESOURCES = share/man/man1/$${COMMONS_TARGET}.1
+
+    buildmanpage.input = MANPAGESOURCES
+    buildmanpage.output = ${QMAKE_FILE_IN}.gz
+    buildmanpage.commands = gzip -c9 ${QMAKE_FILE_IN} > ${QMAKE_FILE_IN}.gz
+    buildmanpage.clean = dummy_file
+    buildmanpage.CONFIG += no_link
+    QMAKE_EXTRA_COMPILERS += buildmanpage
+    PRE_TARGETDEPS += compiler_buildmanpage_make_all
+}
+
 CONFIG += qt
 !isEmpty(STATIC_BUILD):!isEqual(STATIC_BUILD, 0): CONFIG += static
 
@@ -136,9 +148,8 @@ unix:!macx {
         appIcon256x256 \
         appIconScalable
 
-    manpage.files = ${OUT_PWD}/share/man/man1/webcamoid.1.gz
+    manpage.files = share/man/man1/webcamoid.1.gz
     manpage.path = $${MANDIR}/man1
-    manpage.CONFIG += no_check_exist
 
     appIcon8x8.files = share/icons/hicolor/8x8/webcamoid.png
     appIcon8x8.path = $${DATAROOTDIR}/icons/hicolor/8x8/apps
@@ -186,10 +197,4 @@ unix:!macx {
     INSTALLS += desktop
     desktop.files = ../$${COMMONS_TARGET}.desktop
     desktop.path = $${DATAROOTDIR}/applications
-}
-
-unix {
-    QMAKE_POST_LINK = \
-        $(MKDIR) $${OUT_PWD}/share/man/man1 && \
-        gzip -c9 $${PWD}/share/man/man1/$${COMMONS_TARGET}.1 > $${OUT_PWD}/share/man/man1/$${COMMONS_TARGET}.1.gz
 }

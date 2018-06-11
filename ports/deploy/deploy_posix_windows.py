@@ -33,9 +33,13 @@ import threading
 import time
 import zipfile
 
+import deploy
+import tools.qt5
 
-class Deploy:
+
+class Deploy(deploy.Deploy, tools.qt5.DeployToolsQt):
     def __init__(self, rootDir, system, targetSystem, arch):
+        super().__init__()
         self.scanPaths = ['StandAlone/webcamoid.exe',
                           'StandAlone/share/qml',
                           'libAvKys/Plugins']
@@ -181,9 +185,6 @@ class Deploy:
             os.remove(afile)
 
     def prepare(self):
-        self.sysBinsPath = self.qmakeQuery('QT_INSTALL_BINS')
-        self.sysQmlPath = self.qmakeQuery('QT_INSTALL_QML')
-        self.sysPluginsPath = self.qmakeQuery('QT_INSTALL_PLUGINS')
         self.installDir = os.path.join(self.rootDir, 'ports/deploy/temp_priv/root')
         self.pkgsDir = os.path.join(self.rootDir, 'ports/deploy/packages_auto/windows')
 
@@ -251,7 +252,6 @@ class Deploy:
                 qmlFiles.add(f)
 
         qmlPath = os.path.join(self.installDir, 'webcamoid/lib/qt/qml')
-        print(qmlPath)
         solved = set()
         solvedImports = set()
 
