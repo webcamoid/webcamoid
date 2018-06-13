@@ -147,7 +147,7 @@ class DeployToolsBinary(tools.binary.DeployToolsBinary):
         for dep in self.dump(binary):
             depPath = self.whereBin(dep)
 
-            if len(depPath) > 0:
+            if len(depPath) > 0 and not self.isExcluded(depPath):
                 deps.append(depPath)
 
         return deps

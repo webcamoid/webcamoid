@@ -20,19 +20,14 @@
 # Web-Site: http://webcamoid.github.io/
 
 import configparser
-import fnmatch
 import math
-import multiprocessing
 import os
 import platform
-import re
 import shutil
-import struct
 import subprocess
 import sys
 import tarfile
 import threading
-import time
 
 import deploy
 import tools.binary_elf
@@ -42,21 +37,38 @@ import tools.qt5
 class Deploy(deploy.Deploy, tools.qt5.DeployToolsQt):
     def __init__(self):
         super().__init__()
+        self.mainBinary = 'webcamoid'
         self.installDir = os.path.join(self.rootDir, 'ports/deploy/temp_priv/root')
         self.pkgsDir = os.path.join(self.rootDir, 'ports/deploy/packages_auto', sys.platform)
-        self.qmlInstallDir = os.path.join(self.installDir, 'usr/lib/qt/qml')
-        self.pluginsInstallDir = os.path.join(self.installDir, 'usr/lib/qt/plugins')
-        self.qmlRootDirs = ['StandAlone/share/qml',
-                            'libAvKys/Plugins']
+        self.rootInstallDir = os.path.join(self.installDir, 'usr')
+        self.binaryInstallDir = os.path.join(self.rootInstallDir, 'bin')
+        self.qmlInstallDir = os.path.join(self.rootInstallDir, 'lib/qt/qml')
+        self.pluginsInstallDir = os.path.join(self.rootInstallDir, 'lib/qt/plugins')
+        self.qtConf = os.path.join(self.binaryInstallDir, 'qt.conf')
+        self.qmlRootDirs = ['StandAlone/share/qml', 'libAvKys/Plugins']
         self.detectQt(os.path.join(self.buildDir, 'StandAlone'))
         self.programVersion = self.detectVersion(os.path.join(self.rootDir, 'commons.pri'))
         self.detectMake()
         self.targetSystem = 'posix_windows' if self.qmakeQuery(var='QMAKE_XSPEC') == 'win32' else 'posix'
         self.binarySolver = tools.binary_elf.DeployToolsBinary()
+        self.binarySolver.readExcludeList(os.path.join(self.rootDir, 'ports/deploy/exclude.{}.{}.txt'.format(os.name, sys.platform)))
         self.appImage = self.detectAppImage()
-        self.excludes = self.readExcludeList()
+        self.packageConfig = os.path.join(self.rootDir, 'ports/deploy/package_info.conf')
         self.dependencies = []
+        self.installerConfig = os.path.join(self.installDir, 'installer/config')
+        self.installerPackages = os.path.join(self.installDir, 'installer/packages')
         self.installerIconSize = 128
+        self.appIcon = os.path.join(self.installDir,
+                                    'usr/share/icons/hicolor/{1}x{1}/apps/{0}.png'.format(self.mainBinary,
+                                                                                          self.installerIconSize))
+        self.licenseFile = os.path.join(self.rootDir, 'COPYING')
+        self.installerRunProgram = '@TargetDir@/' + self.mainBinary + '.sh'
+        self.installerTargetDir = '@HomeDir@/' + self.mainBinary
+        self.installerStript = os.path.join(self.rootDir, 'ports/deploy/installscript.posix.qs')
+        self.changeLog = os.path.join(self.rootDir, 'ChangeLog')
+        self.outPackage = os.path.join(self.pkgsDir,
+                                   'webcamoid-{}-{}.run'.format(self.programVersion,
+                                                                platform.machine()))
 
     def detectAppImage(self):
         if 'APPIMAGETOOL' in os.environ:
@@ -64,75 +76,34 @@ class Deploy(deploy.Deploy, tools.qt5.DeployToolsQt):
 
         return self.whereBin('appimagetool')
 
-    def prepare(self):
-        self.makeInstall(self.buildDir, self.installDir)
-
-    def readExcludeList(self):
-        excludeFile = 'exclude.{}.{}.txt'.format(os.name, sys.platform)
-        excludePath = os.path.join(self.rootDir, 'ports/deploy', excludeFile)
-        excludes = []
-
-        if os.path.exists(excludePath):
-            with open(excludePath) as f:
-                for line in f:
-                    line = line.strip()
-
-                    if len(line) > 0 and line[0] != '#':
-                        i = line.find('#')
-
-                        if i >= 0:
-                            line = line[: i]
-
-                        line = line.strip()
-
-                        if len(line) > 0:
-                            excludes.append(line)
-
-        return excludes
-
-    def isExcluded(self, path):
-        for exclude in self.excludes:
-            if re.search(exclude, path):
-                return True
-
-        return False
-
     def solvedepsLibs(self):
-        print('\nCopying required libs\n')
-        deps = set()
+        for dep in self.binarySolver.scanDependencies(self.installDir):
+            depPath = os.path.join(self.installDir, 'usr/lib', os.path.basename(dep))
+            print('    {} -> {}'.format(dep, depPath))
 
-        for elfPath in self.findElfs(self.installDir):
-            for dep in self.listDependencies(elfPath):
-                deps.add(dep)
-
-        _deps = set()
-
-        for dep in deps:
-            if not self.isExcluded(dep):
-                _deps.add(dep)
-
-        solved = set()
-
-        while len(_deps) > 0:
-            dep = _deps.pop()
-            libPath = os.path.join(self.installDir, 'usr/lib', os.path.basename(dep))
-            print('    {} -> {}'.format(dep, libPath))
-
-            self.copy(dep, libPath)
-
-            for elfDep in self.listDependencies(dep):
-                if elfDep != dep \
-                   and not elfDep in solved \
-                   and not self.isExcluded(elfDep):
-                    _deps.add(elfDep)
-
-            solved.add(dep)
+            self.copy(dep, depPath)
             self.dependencies.append(dep)
 
-    def solvedeps(self):
+    def prepare(self):
+        print('Executing make install')
+        self.makeInstall(self.buildDir, self.installDir)
+        print('Copying Qml modules\n')
         self.solvedepsQml()
+        print('\nCopying required plugins\n')
         self.solvedepsPlugins()
+        print('\nCopying required libs\n')
         self.solvedepsLibs()
+        print('\nWritting qt.conf file')
+        self.writeQtConf()
+        print('Stripping symbols')
+        self.binarySolver.stripSymbols(self.installDir)
+        print('Resetting file permissions')
+        self.binarySolver.resetFilePermissions(self.rootInstallDir,
+                                               self.binaryInstallDir)
+        print('Writting launcher file')
+        self.createLauncher()
+        print('\nWritting build system information\n')
+        self.writeBuildInfo()
 
     def searchPackageFor(self, path):
         os.environ['LC_ALL'] = 'C'
@@ -211,9 +182,7 @@ class Deploy(deploy.Deploy, tools.qt5.DeployToolsQt):
         return info
 
     def writeBuildInfo(self):
-        print('\nWritting build system information\n')
-
-        depsInfoFile = os.path.join(self.installDir, 'usr/share/build-info.txt')
+        depsInfoFile = os.path.join(self.rootInstallDir, 'share/build-info.txt')
         info = self.sysInfo()
 
         with open(depsInfoFile, 'w') as f:
@@ -240,42 +209,10 @@ class Deploy(deploy.Deploy, tools.qt5.DeployToolsQt):
                 print('    ' + packge)
                 f.write(packge + '\n')
 
-    def writeQtConf(self):
-        print('Writting qt.conf file')
-
-        paths = {'Plugins': '../lib/qt/plugins',
-                 'Imports': '../lib/qt/qml',
-                 'Qml2Imports': '../lib/qt/qml'}
-
-        with open(os.path.join(self.installDir, 'usr/bin/qt.conf'), 'w') as qtconf:
-            qtconf.write('[Paths]\n')
-
-            for path in paths:
-                qtconf.write('{} = {}\n'.format(path, paths[path]))
-
-    def resetFilePermissions(self):
-        print('Resetting file permissions')
-        rootPath = os.path.join(self.installDir, 'usr')
-        binariesPath = os.path.join(rootPath, 'bin')
-
-        for root, dirs, files in os.walk(rootPath):
-            for d in dirs:
-                os.chmod(os.path.join(root, d), 0o755)
-
-            for f in files:
-                permissions = 0o644
-                path = os.path.join(root, f)
-
-                if root == binariesPath and self.isElf(path):
-                    permissions = 0o744
-
-                os.chmod(path, permissions)
-
     def createLauncher(self):
-        print('Writting launcher file')
-        path = os.path.join(self.installDir, 'usr/webcamoid')
+        path = os.path.join(self.rootInstallDir, self.mainBinary) + '.sh'
 
-        with open(path + '.sh', 'w') as launcher:
+        with open(path, 'w') as launcher:
             launcher.write('#!/bin/sh\n')
             launcher.write('\n')
             launcher.write('rootdir() {\n')
@@ -295,18 +232,9 @@ class Deploy(deploy.Deploy, tools.qt5.DeployToolsQt):
             launcher.write('export PATH="${ROOTDIR}/bin:$PATH"\n')
             launcher.write('export LD_LIBRARY_PATH="${ROOTDIR}/lib:$LD_LIBRARY_PATH"\n')
             launcher.write('#export QT_DEBUG_PLUGINS=1\n')
-            launcher.write('webcamoid "$@"\n')
+            launcher.write('{} "$@"\n'.format(self.mainBinary))
 
-        os.chmod(path + '.sh', 0o744)
-
-    def finish(self):
-        print('\nCompleting final package structure\n')
-        self.writeQtConf()
-        print('Stripping symbols')
-        self.stripSymbols()
-        self.resetFilePermissions()
-        self.createLauncher()
-        self.writeBuildInfo()
+        os.chmod(path, 0o744)
 
     def hrSize(self, size):
         i = int(math.log(size) // math.log(1024))
@@ -324,143 +252,32 @@ class Deploy(deploy.Deploy, tools.qt5.DeployToolsQt):
               self.hrSize(os.path.getsize(path)))
 
     def createPortable(self, mutex):
-        path = os.path.join(self.installDir, 'usr')
         packagePath = \
             os.path.join(self.pkgsDir,
-                         'webcamoid-portable-{}-{}.tar.xz'.format(self.programVersion,
-                                                                  platform.machine()))
+                         '{}-portable-{}-{}.tar.xz'.format(self.mainBinary,
+                                                           self.programVersion,
+                                                           platform.machine()))
 
         if not os.path.exists(self.pkgsDir):
             os.makedirs(self.pkgsDir)
 
         with tarfile.open(packagePath, 'w:xz') as tar:
-            tar.add(path, 'webcamoid')
+            tar.add(self.rootInstallDir, self.mainBinary)
 
         mutex.acquire()
         print('Created portable package:')
         self.printPackageInfo(packagePath)
         mutex.release()
 
-    def readChangeLog(self, changeLog, version):
-        if os.path.exists(changeLog):
-            with open(changeLog) as f:
-                for line in f:
-                    if not line.startswith('Webcamoid {}:'.format(version)):
-                        continue
+    def createAppInstaller(self, mutex):
+        packagePath = self.createInstaller()
 
-                    # Skip first line.
-                    f.readline()
-                    changeLogText = ''
-
-                    for line in f:
-                        if re.match('Webcamoid \d+\.\d+\.\d+:', line):
-                            # Remove last line.
-                            i = changeLogText.rfind('\n')
-
-                            if i >= 0:
-                                changeLogText = changeLogText[: i]
-
-                            return changeLogText
-
-                        changeLogText += line
-
-        return ''
-
-    def createInstaller(self, mutex):
-        if not os.path.exists(self.qtIFW):
+        if not packagePath:
             return
-
-        # Create layout
-        configDir = os.path.join(self.installDir, 'installer/config')
-        packageDir = os.path.join(self.installDir, 'installer/packages/com.webcamoidprj.webcamoid')
-
-        if not os.path.exists(configDir):
-            os.makedirs(configDir)
-
-        dataDir = os.path.join(packageDir, 'data')
-        metaDir = os.path.join(packageDir, 'meta')
-
-        if not os.path.exists(metaDir):
-            os.makedirs(metaDir)
-
-        appIconSrc = os.path.join(self.installDir, 'usr/share/icons/hicolor/{0}x{0}/apps/webcamoid.png'.format(self.installerIconSize))
-        self.copy(appIconSrc, configDir)
-        self.copy(os.path.join(self.rootDir, 'COPYING'),
-                  os.path.join(metaDir, 'COPYING.txt'))
-
-        try:
-            shutil.copytree(os.path.join(self.installDir, 'usr'), dataDir, True)
-        except:
-            pass
-
-        configXml = os.path.join(configDir, 'config.xml')
-
-        with open(configXml, 'w') as config:
-            config.write('<?xml version="1.0" encoding="UTF-8"?>\n')
-            config.write('<Installer>\n')
-            config.write('    <Name>Webcamoid</Name>\n')
-            config.write('    <Version>{}</Version>\n'.format(self.programVersion))
-            config.write('    <Title>Webcamoid, The ultimate webcam suite!</Title>\n')
-            config.write('    <Publisher>Webcamoid</Publisher>\n')
-            config.write('    <ProductUrl>https://webcamoid.github.io/</ProductUrl>\n')
-            config.write('    <InstallerWindowIcon>webcamoid</InstallerWindowIcon>\n')
-            config.write('    <InstallerApplicationIcon>webcamoid</InstallerApplicationIcon>\n')
-            config.write('    <Logo>webcamoid</Logo>\n')
-            config.write('    <TitleColor>#3F1F7F</TitleColor>\n')
-            config.write('    <RunProgram>@TargetDir@/webcamoid.sh</RunProgram>\n')
-            config.write('    <RunProgramDescription>Launch Webcamoid now!</RunProgramDescription>\n')
-            config.write('    <StartMenuDir>Webcamoid</StartMenuDir>\n')
-            config.write('    <MaintenanceToolName>WebcamoidMaintenanceTool</MaintenanceToolName>\n')
-            config.write('    <AllowNonAsciiCharacters>true</AllowNonAsciiCharacters>\n')
-            config.write('    <TargetDir>@HomeDir@/webcamoid</TargetDir>\n')
-            config.write('</Installer>\n')
-
-        self.copy(os.path.join(self.rootDir, 'ports/deploy/installscript.posix.qs'),
-                  os.path.join(metaDir, 'installscript.qs'))
-
-        with open(os.path.join(metaDir, 'package.xml'), 'w') as f:
-            f.write('<?xml version="1.0"?>\n')
-            f.write('<Package>\n')
-            f.write('    <DisplayName>Webcamoid</DisplayName>\n')
-            f.write('    <Description>The ultimate webcam suite</Description>\n')
-            f.write('    <Version>{}</Version>\n'.format(self.programVersion))
-            f.write('    <ReleaseDate>{}</ReleaseDate>\n'.format(time.strftime('%Y-%m-%d')))
-            f.write('    <Name>com.webcamoidprj.webcamoid</Name>\n')
-            f.write('    <Licenses>\n')
-            f.write('        <License name="GNU General Public License v3.0" file="COPYING.txt" />\n')
-            f.write('    </Licenses>\n')
-            f.write('    <Script>installscript.qs</Script>\n')
-            f.write('    <UpdateText>\n')
-            f.write(self.readChangeLog(os.path.join(self.rootDir, 'ChangeLog'),
-                                       self.programVersion))
-            f.write('    </UpdateText>\n')
-            f.write('    <Default>true</Default>\n')
-            f.write('    <ForcedInstallation>true</ForcedInstallation>\n')
-            f.write('    <Essential>false</Essential>\n')
-            f.write('</Package>\n')
-
-        # Remove old file
-        packagePath = os.path.join(self.pkgsDir,
-                                   'webcamoid-{}-{}.run'.format(self.programVersion,
-                                                                platform.machine()))
-
-        if not os.path.exists(self.pkgsDir):
-            os.makedirs(self.pkgsDir)
-
-        if os.path.exists(packagePath):
-            os.remove(packagePath)
-
-        process = subprocess.Popen([self.qtIFW,
-                                    '-c', configXml,
-                                    '-p', os.path.join(self.installDir,
-                                                       'installer/packages'),
-                                    packagePath],
-                                   stdout=subprocess.PIPE)
-        process.communicate()
 
         mutex.acquire()
         print('Created installable package:')
-        self.printPackageInfo(packagePath)
+        self.printPackageInfo(self.outPackage)
         mutex.release()
 
     def createAppImage(self, mutex):
@@ -469,13 +286,12 @@ class Deploy(deploy.Deploy, tools.qt5.DeployToolsQt):
 
         appDir = \
             os.path.join(self.installDir,
-                         'webcamoid-{}-{}.AppDir'.format(self.programVersion,
-                                                         platform.machine()))
+                         '{}-{}-{}.AppDir'.format(self.mainBinary,
+                                                  self.programVersion,
+                                                  platform.machine()))
 
         try:
-            shutil.copytree(os.path.join(self.installDir, 'usr'),
-                            appDir,
-                            True)
+            shutil.copytree(self.rootInstallDir, appDir, True)
         except:
             pass
 
@@ -507,8 +323,9 @@ class Deploy(deploy.Deploy, tools.qt5.DeployToolsQt):
         # Remove old file
         packagePath = \
             os.path.join(self.pkgsDir,
-                         'webcamoid-{}-{}.AppImage'.format(self.programVersion,
-                                                           platform.machine()))
+                         '{}-{}-{}.AppImage'.format(self.mainBinary,
+                                                    self.programVersion,
+                                                    platform.machine()))
 
         if not os.path.exists(self.pkgsDir):
             os.makedirs(self.pkgsDir)
@@ -532,12 +349,15 @@ class Deploy(deploy.Deploy, tools.qt5.DeployToolsQt):
         mutex.release()
 
     def package(self):
-        print('\nCreating packages\n')
         mutex = threading.Lock()
 
-        threads = [threading.Thread(target=self.createPortable, args=(mutex,)),
-                   threading.Thread(target=self.createInstaller, args=(mutex,)),
-                   threading.Thread(target=self.createAppImage, args=(mutex,))]
+        threads = [threading.Thread(target=self.createPortable, args=(mutex,))]
+
+        if self.qtIFW != '':
+            threads.append(threading.Thread(target=self.createAppInstaller, args=(mutex,)))
+
+        if self.appImage != '':
+            threads.append(threading.Thread(target=self.createAppImage, args=(mutex,)))
 
         for thread in threads:
             thread.start()
@@ -546,5 +366,4 @@ class Deploy(deploy.Deploy, tools.qt5.DeployToolsQt):
             thread.join()
 
     def cleanup(self):
-        shutil.rmtree(os.path.join(self.rootDir, 'ports/deploy/temp_priv'),
-                      True)
+        shutil.rmtree(os.path.join(self.rootDir, 'ports/deploy/temp_priv'), True)

@@ -87,15 +87,11 @@ class Deploy(tools.utils.DeployToolsUtils):
         print(self)
         print('\nPreparing for software packaging\n')
         self.prepare()
-        print('\nSolving package dependencies\n')
-        self.solvedeps()
-        #print('\nFinnishing preparation\n')
-        #self.finish()
-        #print('\nCreating packages\n')
-        #self.package()
-        #print('\nCleaningup...\n')
-        #self.cleanup()
-        #print('\nDeploy finnished\n')
+        print('\nCreating packages\n')
+        self.package()
+        print('\nCleaning up')
+        self.cleanup()
+        print('Deploy finnished\n')
 
     def redirect(self):
         return ''

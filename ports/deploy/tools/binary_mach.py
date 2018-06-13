@@ -155,7 +155,7 @@ class DeployToolsBinary(tools.binary.DeployToolsBinary):
             if solve:
                 mach = self.solveRefpath(mach)
 
-            if len(mach) < 1:
+            if len(mach) < 1 and self.isExcluded(mach):
                 continue
 
             if not mach.startswith('@') and not os.path.exists(mach):

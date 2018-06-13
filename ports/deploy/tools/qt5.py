@@ -19,12 +19,14 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
+import configparser
 import fnmatch
 import os
 import re
 import shutil
 import subprocess
 import sys
+import time
 
 import tools.utils
 
@@ -33,13 +35,15 @@ class DeployToolsQt(tools.utils.DeployToolsUtils):
         super().__init__()
         self.qmake = ''
         self.qtIFW = ''
+        self.qtIFWVersion = ''
         self.qtInstallBins = ''
         self.qtInstallQml = ''
         self.qtInstallPlugins = ''
         self.qmlRootDirs = []
         self.qmlInstallDir = ''
-        self.qtDependencies = []
+        self.dependencies = []
         self.binarySolver = None
+        self.installerConfig = ''
 
     def detectMakeFiles(self, makePath):
         makeFiles = []
@@ -61,6 +65,7 @@ class DeployToolsQt(tools.utils.DeployToolsUtils):
         self.qtInstallQml = self.qmakeQuery(var='QT_INSTALL_QML')
         self.qtInstallPlugins = self.qmakeQuery(var='QT_INSTALL_PLUGINS')
         self.detectQtIFW()
+        self.detectQtIFWVersion()
 
     def detectQmake(self, path=''):
         for makeFile in self.detectMakeFiles(path):
@@ -149,6 +154,35 @@ class DeployToolsQt(tools.utils.DeployToolsUtils):
         # for distribution.
         self.qtIFW = self.whereBin(binCreator)
 
+    def detectQtIFWVersion(self):
+        self.qtIFWVersion = ''
+
+        if self.qtIFW == '':
+            return
+
+        installerBase = os.path.join(os.path.dirname(self.qtIFW),
+                                     'installerbase')
+
+        if self.targetSystem == 'windows' or self.targetSystem == 'posix_windows':
+            installerBase += '.exe'
+
+        self.qtIFWVersion = '2.0.0'
+
+        if not os.path.exists(installerBase):
+            return
+
+        process = subprocess.Popen([installerBase,
+                                    '--version'],
+                                   stdout=subprocess.PIPE,
+                                   stderr=subprocess.PIPE)
+        stdout, stderr = process.communicate()
+
+        for line in stdout.split(b'\n'):
+            if b'IFW Version:' in line:
+                self.qtIFWVersion = line.split(b' ')[2].replace(b'"', b'').decode(sys.getdefaultencoding())
+
+                return
+
     def listQmlFiles(self, path):
         qmlFiles = set()
 
@@ -196,7 +230,6 @@ class DeployToolsQt(tools.utils.DeployToolsUtils):
         return list(imports)
 
     def solvedepsQml(self):
-        print('Copying Qml modules\n')
         qmlFiles = set()
 
         for path in self.qmlRootDirs:
@@ -231,7 +264,7 @@ class DeployToolsQt(tools.utils.DeployToolsUtils):
                         pass
 
                     solvedImports.add(imp)
-                    self.qtDependencies.append(os.path.join(sysModulePath, 'qmldir'))
+                    self.dependencies.append(os.path.join(sysModulePath, 'qmldir'))
 
                     for f in self.listQmlFiles(sysModulePath):
                         if not f in solved:
@@ -240,8 +273,6 @@ class DeployToolsQt(tools.utils.DeployToolsUtils):
             solved.add(qmlFile)
 
     def solvedepsPlugins(self):
-        print('\nCopying required plugins\n')
-
         pluginsMap = {
             'Qt53DRenderer': ['sceneparsers'],
             'Qt5Declarative': ['qml1tooling'],
@@ -304,6 +335,145 @@ class DeployToolsQt(tools.utils.DeployToolsUtils):
                                 qtDeps.add(binDep)
 
                     plugins.append(plugin)
-                    self.qtDependencies.append(sysPluginPath)
+                    self.dependencies.append(sysPluginPath)
 
             solved.add(dep)
+
+    def writeQtConf(self):
+        paths = {'Plugins': os.path.relpath(self.pluginsInstallDir, self.binaryInstallDir),
+                 'Imports': os.path.relpath(self.qmlInstallDir, self.binaryInstallDir),
+                 'Qml2Imports': os.path.relpath(self.qmlInstallDir, self.binaryInstallDir)}
+
+        with open(self.qtConf, 'w') as qtconf:
+            qtconf.write('[Paths]\n')
+
+            for path in paths:
+                qtconf.write('{} = {}\n'.format(path, paths[path]))
+
+    def readChangeLog(self, changeLog, appName, version):
+        if os.path.exists(changeLog):
+            with open(changeLog) as f:
+                for line in f:
+                    if not line.startswith('{0} {1}:'.format(appName, version)):
+                        continue
+
+                    # Skip first line.
+                    f.readline()
+                    changeLogText = ''
+
+                    for line in f:
+                        if re.match('{} \d+\.\d+\.\d+:'.format(appName), line):
+                            # Remove last line.
+                            i = changeLogText.rfind('\n')
+
+                            if i >= 0:
+                                changeLogText = changeLogText[: i]
+
+                            return changeLogText
+
+                        changeLogText += line
+
+        return ''
+
+    def createInstaller(self):
+        if not os.path.exists(self.qtIFW):
+            return False
+
+        # Read package config
+        packageConf = configparser.ConfigParser()
+        packageConf.optionxform=str
+        packageConf.read(self.packageConfig, 'utf-8')
+
+        # Create layout
+        componentName = 'com.{0}prj.{0}'.format(self.mainBinary)
+        packageDir = os.path.join(self.installerPackages, componentName)
+
+        if not os.path.exists(self.installerConfig):
+            os.makedirs(self.installerConfig)
+
+        dataDir = os.path.join(packageDir, 'data')
+        metaDir = os.path.join(packageDir, 'meta')
+
+        if not os.path.exists(metaDir):
+            os.makedirs(metaDir)
+
+        self.copy(self.appIcon, self.installerConfig)
+        iconName = os.path.splitext(os.path.basename(self.appIcon))[0]
+        licenseOutFile = os.path.basename(self.licenseFile)
+
+        if not '.' in licenseOutFile and \
+            (self.targetSystem == 'windows' or \
+                self.targetSystem == 'posix_windows'):
+            licenseOutFile += '.txt'
+
+        self.copy(self.licenseFile, os.path.join(metaDir, licenseOutFile))
+
+        try:
+            shutil.copytree(self.rootInstallDir, dataDir, True)
+        except:
+            pass
+
+        configXml = os.path.join(self.installerConfig, 'config.xml')
+        appName = packageConf['Package']['appName'].strip()
+
+        with open(configXml, 'w') as config:
+            config.write('<?xml version="1.0" encoding="UTF-8"?>\n')
+            config.write('<Installer>\n')
+            config.write('    <Name>{}</Name>\n'.format(appName))
+            config.write('    <Version>{}</Version>\n'.format(self.programVersion))
+            config.write('    <Title>{}</Title>\n'.format(packageConf['Package']['description'].strip()))
+            config.write('    <Publisher>{}</Publisher>\n'.format(appName))
+            config.write('    <ProductUrl>{}</ProductUrl>\n'.format(packageConf['Package']['url'].strip()))
+            config.write('    <InstallerWindowIcon>{}</InstallerWindowIcon>\n'.format(iconName))
+            config.write('    <InstallerApplicationIcon>{}</InstallerApplicationIcon>\n'.format(iconName))
+            config.write('    <Logo>{}</Logo>\n'.format(iconName))
+            config.write('    <TitleColor>{}</TitleColor>\n'.format(packageConf['Package']['titleColor'].strip()))
+            config.write('    <RunProgram>{}</RunProgram>\n'.format(self.installerRunProgram))
+            config.write('    <RunProgramDescription>{}</RunProgramDescription>\n'.format(packageConf['Package']['runMessage'].strip()))
+            config.write('    <StartMenuDir>{}</StartMenuDir>\n'.format(appName))
+            config.write('    <MaintenanceToolName>{}MaintenanceTool</MaintenanceToolName>\n'.format(appName))
+            config.write('    <AllowNonAsciiCharacters>true</AllowNonAsciiCharacters>\n')
+            config.write('    <TargetDir>{}</TargetDir>\n'.format(self.installerTargetDir))
+            config.write('</Installer>\n')
+
+        self.copy(self.installerStript,
+                  os.path.join(metaDir, 'installscript.qs'))
+
+        with open(os.path.join(metaDir, 'package.xml'), 'w') as f:
+            f.write('<?xml version="1.0"?>\n')
+            f.write('<Package>\n')
+            f.write('    <DisplayName>{}</DisplayName>\n'.format(appName))
+            f.write('    <Description>{}</Description>\n'.format(packageConf['Package']['description'].strip()))
+            f.write('    <Version>{}</Version>\n'.format(self.programVersion))
+            f.write('    <ReleaseDate>{}</ReleaseDate>\n'.format(time.strftime('%Y-%m-%d')))
+            f.write('    <Name>{}</Name>\n'.format(componentName))
+            f.write('    <Licenses>\n')
+            f.write('        <License name="{0}" file="{1}" />\n'.format(packageConf['Package']['licenseDescription'].strip(),
+                                                                         licenseOutFile))
+            f.write('    </Licenses>\n')
+            f.write('    <Script>installscript.qs</Script>\n')
+            f.write('    <UpdateText>\n')
+            f.write(self.readChangeLog(self.changeLog,
+                                       appName,
+                                       self.programVersion))
+            f.write('    </UpdateText>\n')
+            f.write('    <Default>true</Default>\n')
+            f.write('    <ForcedInstallation>true</ForcedInstallation>\n')
+            f.write('    <Essential>false</Essential>\n')
+            f.write('</Package>\n')
+
+        # Remove old file
+        if not os.path.exists(self.pkgsDir):
+            os.makedirs(self.pkgsDir)
+
+        if os.path.exists(self.outPackage):
+            os.remove(self.outPackage)
+
+        process = subprocess.Popen([self.qtIFW,
+                                    '-c', configXml,
+                                    '-p', self.installerPackages,
+                                    self.outPackage],
+                                   stdout=subprocess.PIPE)
+        process.communicate()
+
+        return True

@@ -20,6 +20,10 @@
 # Web-Site: http://webcamoid.github.io/
 
 import os
+import re
+import subprocess
+import threading
+import time
 
 import tools
 
@@ -28,6 +32,7 @@ class DeployToolsBinary(tools.utils.DeployToolsUtils):
     def __init__(self):
         super().__init__()
         self.stripBin = self.whereBin('strip.exe' if self.system == 'windows' else 'strip')
+        self.excludes = []
 
     def isValid(self, path):
         return False
@@ -69,7 +74,7 @@ class DeployToolsBinary(tools.utils.DeployToolsUtils):
             for dep in self.dependencies(binPath):
                 deps.add(dep)
 
-        return deps
+        return sorted(deps)
 
     def name(self, binary):
         return ''
@@ -94,3 +99,52 @@ class DeployToolsBinary(tools.utils.DeployToolsUtils):
 
         for thread in threads:
             thread.join()
+
+    def readExcludeList(self, excludeList):
+        self.excludes = []
+
+        if os.path.exists(excludeList):
+            with open(excludeList) as f:
+                for line in f:
+                    line = line.strip()
+
+                    if len(line) > 0 and line[0] != '#':
+                        i = line.find('#')
+
+                        if i >= 0:
+                            line = line[: i]
+
+                        line = line.strip()
+
+                        if len(line) > 0:
+                            self.excludes.append(line)
+
+    def isExcluded(self, path):
+        for exclude in self.excludes:
+            if re.fullmatch(exclude, path):
+                return True
+
+        return False
+
+    def resetFilePermissions(self, rootPath, binariesPath):
+        for root, dirs, files in os.walk(rootPath):
+            for d in dirs:
+                permissions = 0o755
+                path = os.path.join(root, d)
+
+                if self.system == 'mac':
+                    os.chmod(path, permissions, follow_symlinks=False)
+                else:
+                    os.chmod(path, permissions)
+
+            for f in files:
+                permissions = 0o644
+                path = os.path.join(root, f)
+
+                if root == binariesPath and self.isValid(path):
+                    permissions = 0o744
+
+                if self.system == 'mac':
+                    os.chmod(path, permissions, follow_symlinks=False)
+                else:
+                    os.chmod(path, permissions)

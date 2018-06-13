@@ -2,27 +2,36 @@
 
 if [ "${TRAVIS_OS_NAME}" = linux ] && [ "${ANDROID_BUILD}" != 1 ]; then
     mkdir -p .local/bin
+    qtIFW=QtInstallerFramework-linux-x64.run
 
     # Install Qt Installer Framework
-    wget -c http://download.qt.io/official_releases/qt-installer-framework/${QTIFWVER}/QtInstallerFramework-linux-x64.run
-    chmod +x QtInstallerFramework-linux-x64.run
+    wget -c http://download.qt.io/official_releases/qt-installer-framework/${QTIFWVER}/${qtIFW} || true
 
-    QT_QPA_PLATFORM=minimal \
-    ./QtInstallerFramework-linux-x64.run \
-        -v \
-        --script "$PWD/ports/ci/travis/qtifw_non_interactive_install.qs" \
-        --no-force-installations
+    if [ -e ${qtIFW} ]; then
+        chmod +x ${qtIFW}
 
-    cp -vf ~/Qt/QtIFW-${QTIFWVER/-*/}/bin/* .local/bin/
+        QT_QPA_PLATFORM=minimal \
+        ./QtInstallerFramework-linux-x64.run \
+            -v \
+            --script "$PWD/ports/ci/travis/qtifw_non_interactive_install.qs" \
+            --no-force-installations
+
+        cp -vf ~/Qt/QtIFW-${QTIFWVER/-*/}/bin/* .local/bin/
+    fi
+
+    appimage=appimagetool-x86_64.AppImage
 
     # Install AppImageTool
-    wget -c -O .local/bin/appimagetool-x86_64.AppImage https://github.com/AppImage/AppImageKit/releases/download/9/appimagetool-x86_64.AppImage
-    chmod +x .local/bin/appimagetool-x86_64.AppImage
+    wget -c -O .local/bin/appimagetool-x86_64.AppImage https://github.com/AppImage/AppImageKit/releases/download/9/${appimage} || true
 
-    cd .local/bin
-    ./appimagetool-x86_64.AppImage --appimage-extract
-    cp -vf squashfs-root/usr/bin/* .
-    cd ../..
+    if [ -e ${appimage} ]; then
+        chmod +x .local/bin/${appimage}
+
+        cd .local/bin
+        ./${appimage} --appimage-extract
+        cp -vf squashfs-root/usr/bin/* .
+        cd ../..
+    fi
 
     # Set default Docker command
     EXEC="docker exec ${DOCKERSYS}"
@@ -186,14 +195,19 @@ elif [ "${TRAVIS_OS_NAME}" = osx ]; then
         jack \
         libuvc
 
-    # Install Qt Installer Framework
-    wget -c http://download.qt.io/official_releases/qt-installer-framework/${QTIFWVER}/QtInstallerFramework-mac-x64.dmg
-    7z x -oqtifw QtInstallerFramework-mac-x64.dmg
-    7z x -oqtifw qtifw/5.hfsx
-    chmod +x qtifw/QtInstallerFramework-mac-x64/QtInstallerFramework-mac-x64.app/Contents/MacOS/QtInstallerFramework-mac-x64
+    qtIFW=QtInstallerFramework-mac-x64.dmg
 
-    qtifw/QtInstallerFramework-mac-x64/QtInstallerFramework-mac-x64.app/Contents/MacOS/QtInstallerFramework-mac-x64 \
-        -v \
-        --script "$PWD/ports/ci/travis/qtifw_non_interactive_install.qs" \
-        --no-force-installations
+    # Install Qt Installer Framework
+    wget -c http://download.qt.io/official_releases/qt-installer-framework/${QTIFWVER}/${qtIFW} || true
+
+    if [ -e ${qtIFW} ]; then
+        7z x -oqtifw ${qtIFW}
+        7z x -oqtifw qtifw/5.hfsx
+        chmod +x qtifw/QtInstallerFramework-mac-x64/QtInstallerFramework-mac-x64.app/Contents/MacOS/QtInstallerFramework-mac-x64
+
+        qtifw/QtInstallerFramework-mac-x64/QtInstallerFramework-mac-x64.app/Contents/MacOS/QtInstallerFramework-mac-x64 \
+            -v \
+            --script "$PWD/ports/ci/travis/qtifw_non_interactive_install.qs" \
+            --no-force-installations
+    fi
 fi

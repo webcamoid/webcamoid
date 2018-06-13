@@ -297,7 +297,7 @@ class DeployToolsBinary(tools.binary.DeployToolsBinary):
         for lib in elfInfo['imports']:
             libpath = self.libPath(lib, elfInfo['machine'], rpaths, runpaths)
 
-            if len(libpath) > 0:
+            if len(libpath) > 0 and not self.isExcluded(libpath):
                 libs.append(libpath)
 
         return libs
