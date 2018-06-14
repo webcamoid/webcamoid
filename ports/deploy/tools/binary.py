@@ -82,7 +82,7 @@ class DeployToolsBinary(tools.utils.DeployToolsUtils):
     def strip(self, binary):
         if self.stripBin == '':
             return
-        
+
         process = subprocess.Popen([self.stripBin, binary],
                                    stdout=subprocess.PIPE,
                                    stderr=subprocess.PIPE)
@@ -124,6 +124,9 @@ class DeployToolsBinary(tools.utils.DeployToolsUtils):
 
     def isExcluded(self, path):
         for exclude in self.excludes:
+            if self.targetSystem == 'windows' or self.targetSystem == 'posix_windows':
+                path = path.lower().replace('\\', '/')
+
             if re.fullmatch(exclude, path):
                 return True
 

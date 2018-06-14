@@ -31,6 +31,7 @@ class Deploy(tools.utils.DeployToolsUtils):
         self.rootDir = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../..'))
         self.buildDir = os.environ['BUILD_PATH'] if 'BUILD_PATH' in os.environ else self.rootDir
         self.installDir = os.path.join(self.rootDir, 'ports/deploy/temp_priv/root')
+        self.rootInstallDir = ''
         self.pkgsDir = os.path.join(self.rootDir,
                                     'ports/deploy/packages_auto',
                                     sys.platform if os.name == 'posix' else os.name)
@@ -85,22 +86,20 @@ class Deploy(tools.utils.DeployToolsUtils):
         print(self)
         print('\nPreparing for software packaging\n')
         self.prepare()
+        print('\nPackaged data info\n')
+        self.printPackageDataInfo()
         print('\nCreating packages\n')
         self.package()
         print('\nCleaning up')
         self.cleanup()
         print('Deploy finnished\n')
 
-    def redirect(self):
-        return ''
+    def printPackageDataInfo(self):
+        for root, dirs, files in os.walk(self.rootInstallDir):
+            for f in files:
+                print('    ' + os.path.join(root, f))
 
     def prepare(self):
-        pass
-
-    def solvedeps(self):
-        pass
-
-    def finish(self):
         pass
 
     def package(self):

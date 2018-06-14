@@ -47,6 +47,7 @@ class Deploy(deploy.Deploy, tools.qt5.DeployToolsQt):
         self.qmlRootDirs = ['StandAlone/share/qml', 'libAvKys/Plugins']
         self.mainBinary = os.path.join(self.binaryInstallDir, 'webcamoid.exe')
         self.programName = os.path.splitext(os.path.basename(self.mainBinary))[0]
+        self.detectTargetArch()
         self.detectQt(os.path.join(self.buildDir, 'StandAlone'))
         self.programVersion = self.detectVersion(os.path.join(self.rootDir, 'commons.pri'))
         self.detectMake()

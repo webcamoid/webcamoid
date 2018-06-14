@@ -110,7 +110,10 @@ class DeployToolsBinary(tools.binary.DeployToolsBinary):
             # Read 'idata' directory table.
             while True:
                 # Read DLL entries.
-                dllImport = struct.unpack('IIIII', f.read(20))
+                try:
+                    dllImport = struct.unpack('IIIII', f.read(20))
+                except:
+                    break
 
                 # Null directory entry.
                 if dllImport[0] | dllImport[1] | dllImport[2] | dllImport[3] | dllImport[4] == 0:
