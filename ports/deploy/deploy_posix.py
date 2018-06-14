@@ -48,7 +48,6 @@ class Deploy(deploy.Deploy, tools.qt5.DeployToolsQt):
         self.qmlRootDirs = ['StandAlone/share/qml', 'libAvKys/Plugins']
         self.mainBinary = os.path.join(self.binaryInstallDir, 'webcamoid')
         self.programName = os.path.basename(self.mainBinary)
-        self.detectTargetArch()
         self.detectQt(os.path.join(self.buildDir, 'StandAlone'))
         self.programVersion = self.detectVersion(os.path.join(self.rootDir, 'commons.pri'))
         self.detectMake()
@@ -90,6 +89,7 @@ class Deploy(deploy.Deploy, tools.qt5.DeployToolsQt):
     def prepare(self):
         print('Executing make install')
         self.makeInstall(self.buildDir, self.installDir)
+        self.detectTargetArch()
         print('Copying Qml modules\n')
         self.solvedepsQml()
         print('\nCopying required plugins\n')

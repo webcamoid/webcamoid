@@ -47,7 +47,6 @@ class Deploy(deploy.Deploy, tools.qt5.DeployToolsQt):
         self.qmlRootDirs = ['StandAlone/share/qml', 'libAvKys/Plugins']
         self.mainBinary = os.path.join(self.binaryInstallDir, 'webcamoid.exe')
         self.programName = os.path.splitext(os.path.basename(self.mainBinary))[0]
-        self.detectTargetArch()
         self.detectQt(os.path.join(self.buildDir, 'StandAlone'))
         self.programVersion = self.detectVersion(os.path.join(self.rootDir, 'commons.pri'))
         self.detectMake()
@@ -59,10 +58,18 @@ class Deploy(deploy.Deploy, tools.qt5.DeployToolsQt):
         self.installerPackages = os.path.join(self.installDir, 'installer/packages')
         self.installerIconSize = 256
         self.appIcon = os.path.join(self.rootDir,
-                                    'StandAlone/share/icons/hicolor/{1}x{1}/{0}.ico'.format(self.mainBinary,
+                                    'StandAlone/share/icons/hicolor/{1}x{1}/{0}.ico'.format(self.programName,
                                                                                             self.installerIconSize))
         self.licenseFile = os.path.join(self.rootDir, 'COPYING')
-        self.installerRunProgram = '@TargetDir@/bin/' + self.mainBinary + '.exe'
+        self.installerRunProgram = '@TargetDir@/bin/' + self.programName + '.exe'
+        self.installerTargetDir = appsDir + '/' + self.programName
+        self.installerStript = os.path.join(self.rootDir, 'ports/deploy/installscript.windows.qs')
+        self.changeLog = os.path.join(self.rootDir, 'ChangeLog')
+
+    def prepare(self):
+        print('Executing make install')
+        self.makeInstall(self.buildDir)
+        self.detectTargetArch()
 
         if self.qtIFWVersion == '' or int(self.qtIFWVersion.split('.')[0]) < 3:
             appsDir = '@ApplicationsDir@'
@@ -72,17 +79,11 @@ class Deploy(deploy.Deploy, tools.qt5.DeployToolsQt):
             else:
                 appsDir = '@ApplicationsDirX64@'
 
-        self.installerTargetDir = appsDir + '/' + self.mainBinary
-        self.installerStript = os.path.join(self.rootDir, 'ports/deploy/installscript.windows.qs')
-        self.changeLog = os.path.join(self.rootDir, 'ChangeLog')
         arch = 'win32' if self.targetArch == '32bit' else 'win64'
         self.outPackage = os.path.join(self.pkgsDir,
                                        'webcamoid-{}-{}.exe'.format(self.programVersion,
                                                                     arch))
 
-    def prepare(self):
-        print('Executing make install')
-        self.makeInstall(self.buildDir)
         print('Copying Qml modules\n')
         self.solvedepsQml()
         print('\nCopying required plugins\n')
