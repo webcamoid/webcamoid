@@ -37,15 +37,17 @@ import tools.qt5
 class Deploy(deploy.Deploy, tools.qt5.DeployToolsQt):
     def __init__(self):
         super().__init__()
-        self.mainBinary = 'webcamoid'
         self.installDir = os.path.join(self.rootDir, 'ports/deploy/temp_priv/root')
         self.pkgsDir = os.path.join(self.rootDir, 'ports/deploy/packages_auto', sys.platform)
         self.rootInstallDir = os.path.join(self.installDir, 'usr')
         self.binaryInstallDir = os.path.join(self.rootInstallDir, 'bin')
-        self.qmlInstallDir = os.path.join(self.rootInstallDir, 'lib/qt/qml')
-        self.pluginsInstallDir = os.path.join(self.rootInstallDir, 'lib/qt/plugins')
+        self.libQtInstallDir = os.path.join(self.rootInstallDir, 'lib/qt')
+        self.qmlInstallDir = os.path.join(self.libQtInstallDir, 'qml')
+        self.pluginsInstallDir = os.path.join(self.libQtInstallDir, 'plugins')
         self.qtConf = os.path.join(self.binaryInstallDir, 'qt.conf')
         self.qmlRootDirs = ['StandAlone/share/qml', 'libAvKys/Plugins']
+        self.mainBinary = os.path.join(self.binaryInstallDir, 'webcamoid')
+        self.programName = os.path.basename(self.mainBinary)
         self.detectQt(os.path.join(self.buildDir, 'StandAlone'))
         self.programVersion = self.detectVersion(os.path.join(self.rootDir, 'commons.pri'))
         self.detectMake()
@@ -59,11 +61,11 @@ class Deploy(deploy.Deploy, tools.qt5.DeployToolsQt):
         self.installerPackages = os.path.join(self.installDir, 'installer/packages')
         self.installerIconSize = 128
         self.appIcon = os.path.join(self.installDir,
-                                    'usr/share/icons/hicolor/{1}x{1}/apps/{0}.png'.format(self.mainBinary,
+                                    'usr/share/icons/hicolor/{1}x{1}/apps/{0}.png'.format(self.programName,
                                                                                           self.installerIconSize))
         self.licenseFile = os.path.join(self.rootDir, 'COPYING')
-        self.installerRunProgram = '@TargetDir@/' + self.mainBinary + '.sh'
-        self.installerTargetDir = '@HomeDir@/' + self.mainBinary
+        self.installerRunProgram = '@TargetDir@/' + self.programName + '.sh'
+        self.installerTargetDir = '@HomeDir@/' + self.programName
         self.installerStript = os.path.join(self.rootDir, 'ports/deploy/installscript.posix.qs')
         self.changeLog = os.path.join(self.rootDir, 'ChangeLog')
         self.outPackage = os.path.join(self.pkgsDir,
@@ -78,7 +80,7 @@ class Deploy(deploy.Deploy, tools.qt5.DeployToolsQt):
 
     def solvedepsLibs(self):
         for dep in self.binarySolver.scanDependencies(self.installDir):
-            depPath = os.path.join(self.installDir, 'usr/lib', os.path.basename(dep))
+            depPath = os.path.join(self.rootInstallDir, 'lib', os.path.basename(dep))
             print('    {} -> {}'.format(dep, depPath))
 
             self.copy(dep, depPath)
@@ -210,7 +212,7 @@ class Deploy(deploy.Deploy, tools.qt5.DeployToolsQt):
                 f.write(packge + '\n')
 
     def createLauncher(self):
-        path = os.path.join(self.rootInstallDir, self.mainBinary) + '.sh'
+        path = os.path.join(self.rootInstallDir, self.programName) + '.sh'
 
         with open(path, 'w') as launcher:
             launcher.write('#!/bin/sh\n')
@@ -232,7 +234,7 @@ class Deploy(deploy.Deploy, tools.qt5.DeployToolsQt):
             launcher.write('export PATH="${ROOTDIR}/bin:$PATH"\n')
             launcher.write('export LD_LIBRARY_PATH="${ROOTDIR}/lib:$LD_LIBRARY_PATH"\n')
             launcher.write('#export QT_DEBUG_PLUGINS=1\n')
-            launcher.write('{} "$@"\n'.format(self.mainBinary))
+            launcher.write('{} "$@"\n'.format(self.programName))
 
         os.chmod(path, 0o744)
 
@@ -254,7 +256,7 @@ class Deploy(deploy.Deploy, tools.qt5.DeployToolsQt):
     def createPortable(self, mutex):
         packagePath = \
             os.path.join(self.pkgsDir,
-                         '{}-portable-{}-{}.tar.xz'.format(self.mainBinary,
+                         '{}-portable-{}-{}.tar.xz'.format(self.programName,
                                                            self.programVersion,
                                                            platform.machine()))
 
@@ -262,7 +264,7 @@ class Deploy(deploy.Deploy, tools.qt5.DeployToolsQt):
             os.makedirs(self.pkgsDir)
 
         with tarfile.open(packagePath, 'w:xz') as tar:
-            tar.add(self.rootInstallDir, self.mainBinary)
+            tar.add(self.rootInstallDir, self.programName)
 
         mutex.acquire()
         print('Created portable package:')
@@ -286,7 +288,7 @@ class Deploy(deploy.Deploy, tools.qt5.DeployToolsQt):
 
         appDir = \
             os.path.join(self.installDir,
-                         '{}-{}-{}.AppDir'.format(self.mainBinary,
+                         '{}-{}-{}.AppDir'.format(self.programName,
                                                   self.programVersion,
                                                   platform.machine()))
 
@@ -323,7 +325,7 @@ class Deploy(deploy.Deploy, tools.qt5.DeployToolsQt):
         # Remove old file
         packagePath = \
             os.path.join(self.pkgsDir,
-                         '{}-{}-{}.AppImage'.format(self.mainBinary,
+                         '{}-{}-{}.AppImage'.format(self.programName,
                                                     self.programVersion,
                                                     platform.machine()))
 

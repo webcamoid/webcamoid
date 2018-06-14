@@ -115,6 +115,8 @@ AkVCamAssistant
 # Ignore Directories #
 ######################
 build
+debug
+release
 
 # Ignore Auto Generated Files #
 ###############################

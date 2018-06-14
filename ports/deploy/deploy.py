@@ -34,8 +34,6 @@ class Deploy(tools.utils.DeployToolsUtils):
         self.pkgsDir = os.path.join(self.rootDir,
                                     'ports/deploy/packages_auto',
                                     sys.platform if os.name == 'posix' else os.name)
-        self.arch = platform.architecture()[0]
-        self.targetArch = self.arch
         self.programVersion = ''
         self.qmake = ''
 

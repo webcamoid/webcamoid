@@ -87,11 +87,10 @@ QMAKE_RESOURCE_FLAGS += \
 OTHER_FILES = \
     Info.plist
 
-INSTALLS += plugin
-
-plugin.files = $${TARGET}.plugin
-plugin.path = $${DATAROOTDIR}/$${COMMONS_TARGET}
-plugin.CONFIG += no_check_exist
+INSTALLS += vcam
+vcam.files = $${OUT_PWD}/$${TARGET}.plugin
+vcam.path = $${DATAROOTDIR}/$${COMMONS_TARGET}
+vcam.CONFIG += no_check_exist
 
 QMAKE_POST_LINK = \
     $$sprintf($$QMAKE_MKDIR_CMD, $$shell_path($${OUT_PWD}/$${TARGET}.plugin/Contents/MacOS)) $${CMD_SEP} \

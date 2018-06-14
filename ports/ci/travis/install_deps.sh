@@ -22,9 +22,9 @@ if [ "${TRAVIS_OS_NAME}" = linux ] && [ "${ANDROID_BUILD}" != 1 ]; then
     appimage=appimagetool-x86_64.AppImage
 
     # Install AppImageTool
-    wget -c -O .local/bin/appimagetool-x86_64.AppImage https://github.com/AppImage/AppImageKit/releases/download/9/${appimage} || true
+    wget -c -O .local/bin/${appimage} https://github.com/AppImage/AppImageKit/releases/download/9/${appimage} || true
 
-    if [ -e ${appimage} ]; then
+    if [ -e .local/bin/${appimage} ]; then
         chmod +x .local/bin/${appimage}
 
         cd .local/bin

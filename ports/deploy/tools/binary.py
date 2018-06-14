@@ -80,6 +80,9 @@ class DeployToolsBinary(tools.utils.DeployToolsUtils):
         return ''
 
     def strip(self, binary):
+        if self.stripBin == '':
+            return
+        
         process = subprocess.Popen([self.stripBin, binary],
                                    stdout=subprocess.PIPE,
                                    stderr=subprocess.PIPE)

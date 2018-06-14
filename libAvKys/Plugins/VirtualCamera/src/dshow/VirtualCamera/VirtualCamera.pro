@@ -124,9 +124,10 @@ isEmpty(STATIC_BUILD) | isEqual(STATIC_BUILD, 0) {
     win32-g++: QMAKE_LFLAGS = -static -static-libgcc -static-libstdc++
 }
 
-INSTALLS += target
-
-target.path = $${BINDIR}
+INSTALLS += vcam
+vcam.files = $${OUT_PWD}/$${TARGET}.plugin
+vcam.path = $${BINDIR}/
+vcam.CONFIG += no_check_exist
 
 QMAKE_POST_LINK = \
     $$sprintf($$QMAKE_MKDIR_CMD, $$shell_path($${OUT_PWD}/$${TARGET}.plugin/$$normalizedArch(TARGET_ARCH))) $${CMD_SEP} \

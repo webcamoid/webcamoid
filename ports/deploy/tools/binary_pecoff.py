@@ -19,6 +19,11 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
+import mimetypes
+import os
+import struct
+import sys
+
 import tools.binary
 
 

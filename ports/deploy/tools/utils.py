@@ -22,6 +22,7 @@
 import fnmatch
 import multiprocessing
 import os
+import platform
 import shutil
 import subprocess
 import sys
@@ -39,6 +40,8 @@ class DeployToolsUtils:
         else:
             self.system = ''
 
+        self.arch = platform.architecture()[0]
+        self.targetArch = self.arch
         self.targetSystem = self.system
         pathSep = ';' if self.system == 'windows' else ':'
         self.sysBinsPath = []
@@ -51,6 +54,9 @@ class DeployToolsUtils:
 
         if self.njobs < 4:
             self.njobs = 4
+
+    def detectTargetArch(self):
+        self.targetArch = platform.architecture(self.mainBinary)[0]
 
     def whereBin(self, binary):
         for path in self.sysBinsPath:
@@ -65,6 +71,7 @@ class DeployToolsUtils:
         if not os.path.exists(src):
             return
 
+        dst = dst.replace('/', os.sep)
         basename = os.path.basename(src)
         dstpath = os.path.join(dst, basename) if os.path.isdir(dst) else dst
         dstdir = dst if os.path.isdir(dst) else os.path.dirname(dst)

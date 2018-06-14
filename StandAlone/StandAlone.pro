@@ -127,10 +127,8 @@ INSTALLS += target
 
 target.path = $${BINDIR}
 
-!unix {
-    INSTALLS += \
-        appIcon
-
+win32 {
+    INSTALLS += appIcon
     appIcon.files = share/icons/hicolor/256x256/webcamoid.ico
     appIcon.path = $${PREFIX}
 }

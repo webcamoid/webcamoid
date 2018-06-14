@@ -142,7 +142,7 @@ class DeployToolsQt(tools.utils.DeployToolsUtils):
         if self.targetSystem == 'windows' or self.targetSystem == 'posix_windows':
             binCreator += '.exe'
 
-        for root, dirs, files in os.walk(os.path.expanduser(homeQt)):
+        for root, dirs, files in os.walk(homeQt):
             for f in files:
                 if f == binCreator:
                     self.qtIFW = os.path.join(root, f)
@@ -385,7 +385,7 @@ class DeployToolsQt(tools.utils.DeployToolsUtils):
         packageConf.read(self.packageConfig, 'utf-8')
 
         # Create layout
-        componentName = 'com.{0}prj.{0}'.format(self.mainBinary)
+        componentName = 'com.{0}prj.{0}'.format(self.programName)
         packageDir = os.path.join(self.installerPackages, componentName)
 
         if not os.path.exists(self.installerConfig):
