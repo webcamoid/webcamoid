@@ -63,6 +63,7 @@ unix: CONFIG(debug, debug|release) {
 }
 
 CONFIG += qt
+macx: CONFIG -= app_bundle
 !isEmpty(STATIC_BUILD):!isEqual(STATIC_BUILD, 0): CONFIG += static
 
 HEADERS = \
@@ -83,9 +84,9 @@ INCLUDEPATH += \
 LIBS += -L$${OUT_PWD}/../libAvKys/Lib/$${BIN_DIR} -lavkys
 win32: LIBS += -lole32
 
-OTHER_FILES = \
-    share/effects.xml
+OTHER_FILES += share/effects.xml
 unix: OTHER_FILES += $${MANPAGESOURCES}
+macx: OTHER_FILES += Info.plist
 
 QT += qml quick opengl widgets svg
 
@@ -124,18 +125,24 @@ CODECFORTR = UTF-8
 CODECFORSRC = UTF-8
 
 INSTALLS += target
-
 target.path = $${BINDIR}
+
+unix: !isEmpty(NOAPPBUNDLE) {
+    INSTALLS += manpage
+    manpage.files = share/man/man1/webcamoid.1.gz
+    manpage.path = $${MANDIR}/man1
+}
 
 win32 {
     INSTALLS += appIcon
     appIcon.files = share/icons/hicolor/256x256/webcamoid.ico
     appIcon.path = $${PREFIX}
-}
-
-unix:!macx {
+} else: macx: isEmpty(NOAPPBUNDLE) {
+    INSTALLS += appIcon
+    appIcon.files = share/icons/webcamoid.icns
+    appIcon.path = $${DATAROOTDIR}
+} else: unix: !macx {
     INSTALLS += \
-        manpage \
         appIcon8x8 \
         appIcon16x16 \
         appIcon22x22 \
@@ -145,9 +152,6 @@ unix:!macx {
         appIcon128x128 \
         appIcon256x256 \
         appIconScalable
-
-    manpage.files = share/man/man1/webcamoid.1.gz
-    manpage.path = $${MANDIR}/man1
 
     appIcon8x8.files = share/icons/hicolor/8x8/webcamoid.png
     appIcon8x8.path = $${DATAROOTDIR}/icons/hicolor/8x8/apps
@@ -177,22 +181,27 @@ unix:!macx {
     appIconScalable.path = $${DATAROOTDIR}/icons/hicolor/scalable/apps
 }
 
-!isEmpty(BUILDDOCS):!isEqual(BUILDDOCS, 0) {
+!isEmpty(BUILDDOCS): !isEqual(BUILDDOCS, 0) {
     INSTALLS += docs
-
     docs.files = share/docs_auto/html
     docs.path = $${HTMLDIR}
     docs.CONFIG += no_check_exist
 }
 
-INSTALLS += \
-    license
+!macx | !isEmpty(NOAPPBUNDLE) {
+    INSTALLS += license
+    license.files = ../COPYING
+    license.path = $${LICENSEDIR}
+}
 
-license.files = ../COPYING
-license.path = $${LICENSEDIR}
-
-unix:!macx {
+unix: !macx {
     INSTALLS += desktop
     desktop.files = ../$${COMMONS_TARGET}.desktop
     desktop.path = $${DATAROOTDIR}/applications
+}
+
+macx: isEmpty(NOAPPBUNDLE) {
+    INSTALLS += infoPlist
+    infoPlist.files = Info.plist
+    infoPlist.path = $${EXECPREFIX}
 }

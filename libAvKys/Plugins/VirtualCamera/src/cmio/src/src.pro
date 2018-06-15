@@ -30,6 +30,8 @@ include(../cmio.pri)
 
 CONFIG += plugin
 
+!isEmpty(NOAPPBUNDLE): DEFINES += AKVCAM_NOAPPBUNDLE
+
 HEADERS = \
     plugin.h \
     cameraoutcmio.h \
@@ -68,5 +70,4 @@ TARGET = cmio
 TEMPLATE = lib
 
 INSTALLS += target
-
-target.path = $${LIBDIR}/$${COMMONS_TARGET}/submodules/VirtualCamera
+target.path = $${INSTALLPLUGINSDIR}/submodules/VirtualCamera

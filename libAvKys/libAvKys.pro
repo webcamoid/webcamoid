@@ -112,15 +112,14 @@ SUBDIRS += \
 
 # Install rules
 
-INSTALLS += \
-    license
+!macx | !isEmpty(NOAPPBUNDLE) {
+    INSTALLS += license
+    license.files = ../COPYING
+    license.path = $${LICENSEDIR}
+}
 
-license.files = ../COPYING
-license.path = $${LICENSEDIR}
-
-!isEmpty(BUILDDOCS):!isEqual(BUILDDOCS, 0) {
+!isEmpty(BUILDDOCS): !isEqual(BUILDDOCS, 0) {
     INSTALLS += docs
-
     docs.files = share/docs_auto/html
     docs.path = $${HTMLDIR}
     docs.CONFIG += no_check_exist

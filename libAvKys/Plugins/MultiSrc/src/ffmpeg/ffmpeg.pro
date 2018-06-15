@@ -93,5 +93,4 @@ DESTDIR = $${OUT_PWD}/../../$${BIN_DIR}/submodules/MultiSrc
 TEMPLATE = lib
 
 INSTALLS += target
-
-target.path = $${LIBDIR}/$${COMMONS_TARGET}/submodules/MultiSrc
+target.path = $${INSTALLPLUGINSDIR}/submodules/MultiSrc

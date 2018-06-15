@@ -41,7 +41,8 @@ class Deploy(deploy.Deploy, tools.qt5.DeployToolsQt):
         self.pkgsDir = os.path.join(self.rootDir, 'ports/deploy/packages_auto', sys.platform)
         self.rootInstallDir = os.path.join(self.installDir, 'usr')
         self.binaryInstallDir = os.path.join(self.rootInstallDir, 'bin')
-        self.libQtInstallDir = os.path.join(self.rootInstallDir, 'lib/qt')
+        self.libInstallDir = os.path.join(self.rootInstallDir, 'lib')
+        self.libQtInstallDir = os.path.join(self.libInstallDir, 'qt')
         self.qmlInstallDir = os.path.join(self.libQtInstallDir, 'qml')
         self.pluginsInstallDir = os.path.join(self.libQtInstallDir, 'plugins')
         self.qtConf = os.path.join(self.binaryInstallDir, 'qt.conf')
@@ -80,7 +81,7 @@ class Deploy(deploy.Deploy, tools.qt5.DeployToolsQt):
 
     def solvedepsLibs(self):
         for dep in self.binarySolver.scanDependencies(self.installDir):
-            depPath = os.path.join(self.rootInstallDir, 'lib', os.path.basename(dep))
+            depPath = os.path.join(self.libInstallDir, os.path.basename(dep))
             print('    {} -> {}'.format(dep, depPath))
 
             self.copy(dep, depPath)
@@ -369,4 +370,5 @@ class Deploy(deploy.Deploy, tools.qt5.DeployToolsQt):
             thread.join()
 
     def cleanup(self):
-        shutil.rmtree(os.path.join(self.rootDir, 'ports/deploy/temp_priv'), True)
+        shutil.rmtree(os.path.join(self.rootDir, 'ports/deploy/temp_priv'),
+                      True)

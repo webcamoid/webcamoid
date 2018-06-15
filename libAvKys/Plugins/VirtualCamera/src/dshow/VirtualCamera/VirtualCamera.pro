@@ -126,7 +126,7 @@ isEmpty(STATIC_BUILD) | isEqual(STATIC_BUILD, 0) {
 
 INSTALLS += vcam
 vcam.files = $${OUT_PWD}/$${TARGET}.plugin
-vcam.path = $${BINDIR}/
+vcam.path = $${DATAROOTDIR}
 vcam.CONFIG += no_check_exist
 
 QMAKE_POST_LINK = \

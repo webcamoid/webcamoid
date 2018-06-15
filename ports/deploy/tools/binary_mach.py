@@ -19,6 +19,10 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
+import os
+import struct
+import sys
+
 import tools.binary
 
 
@@ -144,7 +148,7 @@ class DeployToolsBinary(tools.binary.DeployToolsBinary):
         return ''
 
     def dependencies(self, binary):
-        machInfo = self.dump(path)
+        machInfo = self.dump(binary)
 
         if not machInfo:
             return []
@@ -152,13 +156,9 @@ class DeployToolsBinary(tools.binary.DeployToolsBinary):
         libs = []
 
         for mach in machInfo['imports']:
-            if solve:
-                mach = self.solveRefpath(mach)
+            mach = self.solveRefpath(mach)
 
-            if len(mach) < 1 and self.isExcluded(mach):
-                continue
-
-            if not mach.startswith('@') and not os.path.exists(mach):
+            if mach == '' or self.isExcluded(mach) or not os.path.exists(mach):
                 continue
 
             libs.append(mach)
@@ -166,7 +166,7 @@ class DeployToolsBinary(tools.binary.DeployToolsBinary):
         return libs
 
     def name(self, binary):
-        dep = os.path.basename(lib)
+        dep = os.path.basename(binary)
         i = dep.find('.')
 
         if i >= 0:

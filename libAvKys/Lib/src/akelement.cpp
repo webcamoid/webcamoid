@@ -70,28 +70,18 @@ class AkElementPrivate
         {
             this->m_recursiveSearchPaths = false;
             this->m_pluginsScanned = false;
-
-            this->m_defaultPluginsSearchPaths << QString("%1/%2")
-                                                 .arg(LIBDIR)
-                                                 .arg(COMMONS_TARGET);
+            this->m_defaultPluginsSearchPaths << INSTALLPLUGINSDIR;
+            this->m_defaultPluginsSearchPaths
+                    << this->convertToAbsolute(QString("%1/../lib/%2")
+                                               .arg(QCoreApplication::applicationDirPath())
+                                               .arg(COMMONS_TARGET));
 
 #ifdef Q_OS_OSX
-            QString defaultPath;
-
-            if (QCoreApplication::applicationDirPath()
-                    .endsWith(".app/Contents/MacOS")) {
-                QDir appDir(QCoreApplication::applicationDirPath());
-                appDir.cd(QString("../Plugins/%1").arg(COMMONS_TARGET));
-                defaultPath = appDir.absolutePath();
-            }
-#else
-            QString defaultPath = QString("%1/../lib/%2")
-                                  .arg(QCoreApplication::applicationDirPath())
-                                  .arg(COMMONS_TARGET);
+            this->m_defaultPluginsSearchPaths
+                    << this->convertToAbsolute(QString("%1/../Plugins/%2")
+                                               .arg(QCoreApplication::applicationDirPath())
+                                               .arg(COMMONS_TARGET));
 #endif
-
-            if (!defaultPath.isEmpty())
-                this->m_defaultPluginsSearchPaths << this->convertToAbsolute(defaultPath);
 
             this->m_applicationDir.setPath(QCoreApplication::applicationDirPath());
             this->m_subModulesPath = SUBMODULES_PATH;

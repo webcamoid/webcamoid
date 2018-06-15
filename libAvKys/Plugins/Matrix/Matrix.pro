@@ -65,5 +65,4 @@ DESTDIR = $${OUT_PWD}/$${BIN_DIR}
 TEMPLATE = lib
 
 INSTALLS += target
-
-target.path = $${LIBDIR}/$${COMMONS_TARGET}
+target.path = $${INSTALLPLUGINSDIR}

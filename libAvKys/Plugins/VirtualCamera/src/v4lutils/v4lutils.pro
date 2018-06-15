@@ -57,5 +57,4 @@ DESTDIR = $${OUT_PWD}/../../$${BIN_DIR}/submodules/VirtualCamera
 TEMPLATE = lib
 
 INSTALLS += target
-
-target.path = $${LIBDIR}/$${COMMONS_TARGET}/submodules/VirtualCamera
+target.path = $${INSTALLPLUGINSDIR}/submodules/VirtualCamera

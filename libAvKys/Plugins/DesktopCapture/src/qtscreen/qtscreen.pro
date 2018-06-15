@@ -53,5 +53,4 @@ DESTDIR = $${OUT_PWD}/../../$${BIN_DIR}/submodules/DesktopCapture
 TEMPLATE = lib
 
 INSTALLS += target
-
-target.path = $${LIBDIR}/$${COMMONS_TARGET}/submodules/DesktopCapture
+target.path = $${INSTALLPLUGINSDIR}/submodules/DesktopCapture

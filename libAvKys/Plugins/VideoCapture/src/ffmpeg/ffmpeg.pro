@@ -80,5 +80,4 @@ DESTDIR = $${OUT_PWD}/../../$${BIN_DIR}/submodules/VideoCapture
 TEMPLATE = lib
 
 INSTALLS += target
-
-target.path = $${LIBDIR}/$${COMMONS_TARGET}/submodules/VideoCapture
+target.path = $${INSTALLPLUGINSDIR}/submodules/VideoCapture

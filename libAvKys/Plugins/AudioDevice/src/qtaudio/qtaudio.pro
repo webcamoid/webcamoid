@@ -56,4 +56,4 @@ TEMPLATE = lib
 
 INSTALLS += target
 
-target.path = $${LIBDIR}/$${COMMONS_TARGET}/submodules/AudioDevice
+target.path = $${INSTALLPLUGINSDIR}/submodules/AudioDevice

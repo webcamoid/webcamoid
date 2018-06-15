@@ -69,5 +69,4 @@ TARGET = dshow
 TEMPLATE = lib
 
 INSTALLS += target
-
-target.path = $${LIBDIR}/$${COMMONS_TARGET}/submodules/VirtualCamera
+target.path = $${INSTALLPLUGINSDIR}/submodules/VirtualCamera

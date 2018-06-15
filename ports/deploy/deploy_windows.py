@@ -40,7 +40,8 @@ class Deploy(deploy.Deploy, tools.qt5.DeployToolsQt):
         self.pkgsDir = os.path.join(self.rootDir, 'ports/deploy/packages_auto', sys.platform)
         self.rootInstallDir = os.path.join(self.installDir, 'usr')
         self.binaryInstallDir = os.path.join(self.rootInstallDir, 'bin')
-        self.libQtInstallDir = os.path.join(self.rootInstallDir, 'lib/qt')
+        self.libInstallDir = os.path.join(self.rootInstallDir, 'lib')
+        self.libQtInstallDir = os.path.join(self.libInstallDir, 'qt')
         self.qmlInstallDir = os.path.join(self.libQtInstallDir, 'qml')
         self.pluginsInstallDir = os.path.join(self.libQtInstallDir, 'plugins')
         self.qtConf = os.path.join(self.binaryInstallDir, 'qt.conf')
@@ -62,7 +63,6 @@ class Deploy(deploy.Deploy, tools.qt5.DeployToolsQt):
                                                                                             self.installerIconSize))
         self.licenseFile = os.path.join(self.rootDir, 'COPYING')
         self.installerRunProgram = '@TargetDir@/bin/' + self.programName + '.exe'
-        self.installerTargetDir = appsDir + '/' + self.programName
         self.installerStript = os.path.join(self.rootDir, 'ports/deploy/installscript.windows.qs')
         self.changeLog = os.path.join(self.rootDir, 'ChangeLog')
 
@@ -79,6 +79,7 @@ class Deploy(deploy.Deploy, tools.qt5.DeployToolsQt):
             else:
                 appsDir = '@ApplicationsDirX64@'
 
+        self.installerTargetDir = appsDir + '/' + self.programName
         arch = 'win32' if self.targetArch == '32bit' else 'win64'
         self.outPackage = os.path.join(self.pkgsDir,
                                        'webcamoid-{}-{}.exe'.format(self.programVersion,

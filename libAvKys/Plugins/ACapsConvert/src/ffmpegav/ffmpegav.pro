@@ -67,5 +67,4 @@ DESTDIR = $${OUT_PWD}/../../$${BIN_DIR}/submodules/ACapsConvert
 TEMPLATE = lib
 
 INSTALLS += target
-
-target.path = $${LIBDIR}/$${COMMONS_TARGET}/submodules/ACapsConvert
+target.path = $${INSTALLPLUGINSDIR}/submodules/ACapsConvert

@@ -47,16 +47,37 @@ win32 {
     } else {
         DEFAULT_PREFIX = C:/$${COMMONS_APPNAME}
     }
+} else: macx: isEmpty(NOAPPBUNDLE) {
+    DEFAULT_PREFIX = /Applications
 } else {
     DEFAULT_PREFIX = /usr
 }
 
+isEmpty(BUNDLENAME): BUNDLENAME = webcamoid
 isEmpty(PREFIX): PREFIX = $${DEFAULT_PREFIX}
-isEmpty(EXECPREFIX): EXECPREFIX = $${PREFIX}
-isEmpty(BINDIR): BINDIR = $${EXECPREFIX}/bin
+isEmpty(EXECPREFIX) {
+    macx: isEmpty(NOAPPBUNDLE) {
+        EXECPREFIX = $${PREFIX}/$${BUNDLENAME}.app/Contents
+    } else {
+        EXECPREFIX = $${PREFIX}
+    }
+}
+isEmpty(BINDIR) {
+    macx: isEmpty(NOAPPBUNDLE) {
+        BINDIR = $${EXECPREFIX}/MacOS
+    } else {
+        BINDIR = $${EXECPREFIX}/bin
+    }
+}
 isEmpty(SBINDIR): SBINDIR = $${EXECPREFIX}/sbin
 isEmpty(LIBEXECDIR): LIBEXECDIR = $${EXECPREFIX}/libexec
-isEmpty(DATAROOTDIR): DATAROOTDIR = $${PREFIX}/share
+isEmpty(DATAROOTDIR) {
+    macx: isEmpty(NOAPPBUNDLE) {
+        DATAROOTDIR = $${EXECPREFIX}/Resources
+    } else {
+        DATAROOTDIR = $${PREFIX}/share
+    }
+}
 isEmpty(DATDIR): DATDIR = $${DATAROOTDIR}/$${COMMONS_TARGET}
 isEmpty(SYSCONFDIR): SYSCONFDIR = $${PREFIX}/etc
 isEmpty(SHAREDSTATEDIR): SHAREDSTATEDIR = $${PREFIX}/com
@@ -68,13 +89,40 @@ isEmpty(HTMLDIR): HTMLDIR = $${DOCDIR}/html
 isEmpty(DVIDIR): DVIDIR = $${DOCDIR}/dvi
 isEmpty(PDFDIR): PDFDIR = $${DOCDIR}/pdf
 isEmpty(PSDIR): PSDIR = $${DOCDIR}/ps
-isEmpty(LIBDIR): LIBDIR = $${EXECPREFIX}/lib
+isEmpty(LIBDIR) {
+    macx: isEmpty(NOAPPBUNDLE) {
+        LIBDIR = $${EXECPREFIX}/Frameworks
+    } else: win32 {
+        LIBDIR = $${BINDIR}
+    } else {
+        LIBDIR = $${EXECPREFIX}/lib
+    }
+}
 isEmpty(LOCALEDIR): LOCALEDIR = $${DATAROOTDIR}/locale
 isEmpty(MANDIR): MANDIR = $${DATAROOTDIR}/man
 isEmpty(LICENSEDIR): LICENSEDIR = $${DATAROOTDIR}/licenses/$${COMMONS_TARGET}
 isEmpty(LOCALDIR): LOCALDIR = $${PREFIX}/local
 isEmpty(LOCALLIBDIR): LOCALLIBDIR = $${LOCALDIR}/lib
-isEmpty(INSTALLQMLDIR): INSTALLQMLDIR = $${LIBDIR}/qt/qml
+isEmpty(INSTALLQMLDIR) {
+    macx: isEmpty(NOAPPBUNDLE) {
+        INSTALLQMLDIR = $${DATAROOTDIR}/qml
+    } else: win32 {
+        INSTALLQMLDIR = $${EXECPREFIX}/lib/qt/qml
+    } else {
+        INSTALLQMLDIR = $${LIBDIR}/qt/qml
+    }
+}
+isEmpty(INSTALLPLUGINSDIR) {
+    macx: isEmpty(NOAPPBUNDLE) {
+        INSTALLPLUGINSDIR = $${EXECPREFIX}/Plugins/$${COMMONS_TARGET}
+    } else: win32 {
+        INSTALLPLUGINSDIR = $${EXECPREFIX}/lib/$${COMMONS_TARGET}
+    } else {
+        INSTALLPLUGINSDIR = $${LIBDIR}/$${COMMONS_TARGET}
+    }
+}
+
+macx: !isEmpty(NOAPPBUNDLE): DEFINES += NOAPPBUNDLE
 
 DEFINES += \
     COMMONS_APPNAME=\"\\\"$$COMMONS_APPNAME\\\"\" \
@@ -104,7 +152,8 @@ DEFINES += \
     LICENSEDIR=\"\\\"$$LICENSEDIR\\\"\" \
     LOCALDIR=\"\\\"$$LOCALDIR\\\"\" \
     LOCALLIBDIR=\"\\\"$$LOCALLIBDIR\\\"\" \
-    INSTALLQMLDIR=\"\\\"$$INSTALLQMLDIR\\\"\"
+    INSTALLQMLDIR=\"\\\"$$INSTALLQMLDIR\\\"\" \
+    INSTALLPLUGINSDIR=\"\\\"$$INSTALLPLUGINSDIR\\\"\"
 
 TARGET_ARCH = $${QMAKE_TARGET.arch}
 

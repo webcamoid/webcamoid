@@ -35,9 +35,15 @@
 
 #define MAX_CAMERAS 64
 
+#ifdef AKVCAM_NOAPPBUNDLE
 Q_GLOBAL_STATIC_WITH_ARGS(QString,
                           akVCamDriver,
                           (QString("../Resources/%1.plugin").arg(CMIO_PLUGIN_NAME)))
+#else
+Q_GLOBAL_STATIC_WITH_ARGS(QString,
+                          akVCamDriver,
+                          (QString("../share/%1.plugin").arg(CMIO_PLUGIN_NAME)))
+#endif
 
 class CameraOutCMIOPrivate
 {

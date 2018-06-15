@@ -56,5 +56,4 @@ DESTDIR = $${OUT_PWD}/../../$${BIN_DIR}/submodules/AudioDevice
 TEMPLATE = lib
 
 INSTALLS += target
-
-target.path = $${LIBDIR}/$${COMMONS_TARGET}/submodules/AudioDevice
+target.path = $${INSTALLPLUGINSDIR}/submodules/AudioDevice

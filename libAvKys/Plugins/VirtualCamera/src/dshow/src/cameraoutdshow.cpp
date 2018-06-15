@@ -38,7 +38,7 @@
 
 Q_GLOBAL_STATIC_WITH_ARGS(QString,
                           akVCamDriver,
-                          (QString("%1.plugin").arg(DSHOW_PLUGIN_NAME)))
+                          (QString("../share/%1.plugin").arg(DSHOW_PLUGIN_NAME)))
 
 class CameraOutDShowPrivate
 {

@@ -89,7 +89,7 @@ OTHER_FILES = \
 
 INSTALLS += vcam
 vcam.files = $${OUT_PWD}/$${TARGET}.plugin
-vcam.path = $${DATAROOTDIR}/$${COMMONS_TARGET}
+vcam.path = $${DATAROOTDIR}
 vcam.CONFIG += no_check_exist
 
 QMAKE_POST_LINK = \

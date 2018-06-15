@@ -69,5 +69,4 @@ DESTDIR = $${OUT_PWD}/../../$${BIN_DIR}/submodules/MultiSink
 TEMPLATE = lib
 
 INSTALLS += target
-
-target.path = $${LIBDIR}/$${COMMONS_TARGET}/submodules/MultiSink
+target.path = $${INSTALLPLUGINSDIR}/submodules/MultiSink
