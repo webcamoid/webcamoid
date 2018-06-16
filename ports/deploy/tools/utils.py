@@ -99,10 +99,11 @@ class DeployToolsUtils:
 
             dirname = os.path.dirname(dst)
 
-            try:
-                os.makedirs(dirname)
-            except:
-                pass
+            if not os.path.exists(dirname):
+                try:
+                    os.makedirs(dirname)
+                except:
+                    return False
 
             if os.path.exists(dst):
                 try:
