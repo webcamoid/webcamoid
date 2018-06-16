@@ -307,6 +307,10 @@ class DeployToolsQt(tools.utils.DeployToolsUtils):
                 if not plugin in plugins:
                     sysPluginPath = os.path.join(self.qtInstallPlugins, plugin)
                     pluginPath = os.path.join(self.pluginsInstallDir, plugin)
+
+                    if not os.path.exists(sysPluginPath):
+                        continue
+
                     print('    {} -> {}'.format(sysPluginPath, pluginPath))
                     self.copy(sysPluginPath, pluginPath)
                     plugins.append(plugin)

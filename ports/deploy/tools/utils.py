@@ -105,7 +105,10 @@ class DeployToolsUtils:
                 pass
 
             if os.path.exists(dst):
-                os.remove(dst)
+                try:
+                    os.remove(dst)
+                except:
+                    return False
 
             if copyReals and os.path.islink(src):
                 realpath = os.path.realpath(src)
@@ -119,7 +122,7 @@ class DeployToolsUtils:
                     else:
                         shutil.copy(src, dst, follow_symlinks=False)
                 except:
-                    pass
+                    return False
 
         return True
 
