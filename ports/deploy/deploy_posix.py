@@ -83,8 +83,7 @@ class Deploy(deploy.Deploy, tools.qt5.DeployToolsQt):
         for dep in self.binarySolver.scanDependencies(self.installDir):
             depPath = os.path.join(self.libInstallDir, os.path.basename(dep))
             print('    {} -> {}'.format(dep, depPath))
-
-            self.copy(dep, depPath)
+            self.copy(dep, depPath, True)
             self.dependencies.append(dep)
 
     def prepare(self):
@@ -294,11 +293,7 @@ class Deploy(deploy.Deploy, tools.qt5.DeployToolsQt):
                                                   self.programVersion,
                                                   platform.machine()))
 
-        try:
-            shutil.copytree(self.rootInstallDir, appDir, True)
-        except:
-            pass
-
+        self.copy(self.rootInstallDir, appDir)
         launcher = os.path.join(appDir, 'AppRun')
 
         if not os.path.exists(launcher):

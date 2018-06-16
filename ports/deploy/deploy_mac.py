@@ -26,6 +26,7 @@ import shutil
 import subprocess
 import sys
 import threading
+import time
 
 import deploy
 import tools.binary_mach
@@ -36,10 +37,11 @@ class Deploy(deploy.Deploy, tools.qt5.DeployToolsQt):
     def __init__(self):
         super().__init__()
         self.installDir = os.path.join(self.rootDir, 'ports/deploy/temp_priv/root')
-        self.pkgsDir = os.path.join(self.rootDir, 'ports/deploy/packages_auto', sys.platform)
+        self.pkgsDir = os.path.join(self.rootDir, 'ports/deploy/packages_auto', self.targetSystem)
         self.rootInstallDir = os.path.join(self.installDir, 'Applications')
         self.programName = 'webcamoid'
-        self.execPrefixDir = os.path.join(self.rootInstallDir, '{}.app/Contents'.format(self.programName))
+        self.appBundleDir = os.path.join(self.rootInstallDir, self.programName + '.app')
+        self.execPrefixDir = os.path.join(self.appBundleDir, 'Contents')
         self.binaryInstallDir = os.path.join(self.execPrefixDir, 'MacOS')
         self.libInstallDir = os.path.join(self.execPrefixDir, 'Frameworks')
         self.qmlInstallDir = os.path.join(self.execPrefixDir, 'Resources/qml')
@@ -84,7 +86,7 @@ class Deploy(deploy.Deploy, tools.qt5.DeployToolsQt):
         self.binarySolver.resetFilePermissions(self.rootInstallDir,
                                                self.binaryInstallDir)
         print('Removing unnecessary files')
-        self.removeUnneededFiles(os.path.join(self.appInstallPath, 'Contents/Frameworks'))
+        self.removeUnneededFiles(self.libInstallDir)
         print('Fixing rpaths\n')
         self.fixRpaths()
 
@@ -92,8 +94,7 @@ class Deploy(deploy.Deploy, tools.qt5.DeployToolsQt):
         for dep in self.binarySolver.scanDependencies(self.installDir):
             depPath = os.path.join(self.libInstallDir, os.path.basename(dep))
             print('    {} -> {}'.format(dep, depPath))
-
-            #self.copy(dep, depPath)
+            self.copy(dep, depPath, not dep.endswith('.framework'))
             self.dependencies.append(dep)
 
     def removeUnneededFiles(self, path):
@@ -125,15 +126,14 @@ class Deploy(deploy.Deploy, tools.qt5.DeployToolsQt):
                 pass
 
     def fixLibRpath(self, mutex, mach):
-        path = os.path.join(self.appInstallPath, 'Contents')
-        binariesPath = os.path.join(path, 'MacOS')
-        frameworksPath = os.path.join(path, 'Frameworks')
-        rpath = os.path.join('@executable_path', os.path.relpath(frameworksPath, binariesPath))
+        rpath = os.path.join('@executable_path',
+                             os.path.relpath(self.libInstallDir,
+                                             self.binaryInstallDir))
         log = '\tFixed {}\n\n'.format(mach)
-        machInfo = self.machDump(mach)
+        machInfo = self.binarySolver.dump(mach)
 
         # Change rpath
-        if mach.startswith(binariesPath):
+        if mach.startswith(self.binaryInstallDir):
             log += '\t\tChanging rpath to {}\n'.format(rpath)
 
             for oldRpath in machInfo['rpaths']:
@@ -148,10 +148,10 @@ class Deploy(deploy.Deploy, tools.qt5.DeployToolsQt):
             process.communicate()
 
         # Change ID
-        if mach.startswith(binariesPath):
+        if mach.startswith(self.binaryInstallDir):
             newMachId = machInfo['id']
-        elif mach.startswith(frameworksPath):
-            newMachId = mach.replace(frameworksPath, rpath)
+        elif mach.startswith(self.libInstallDir):
+            newMachId = mach.replace(self.libInstallDir, rpath)
         else:
             newMachId = os.path.basename(mach)
 
@@ -168,7 +168,7 @@ class Deploy(deploy.Deploy, tools.qt5.DeployToolsQt):
             if dep.startswith(rpath):
                 continue
 
-            if self.isExcluded(dep):
+            if self.binarySolver.isExcluded(dep):
                 continue
 
             basename = os.path.basename(dep)
@@ -195,12 +195,11 @@ class Deploy(deploy.Deploy, tools.qt5.DeployToolsQt):
         mutex.release()
 
     def fixRpaths(self):
-        print('Fixing rpaths\n')
-        path = os.path.join(self.appInstallPath, 'Contents')
+        path = os.path.join(self.execPrefixDir)
         mutex = threading.Lock()
         threads = []
 
-        for mach in self.findMachs(path):
+        for mach in self.binarySolver.find(path):
             thread = threading.Thread(target=self.fixLibRpath, args=(mutex, mach,))
             threads.append(thread)
 
@@ -246,17 +245,12 @@ class Deploy(deploy.Deploy, tools.qt5.DeployToolsQt):
         if not os.path.exists(staggingDir):
             os.makedirs(staggingDir)
 
-        try:
-            shutil.copytree(self.appInstallPath,
-                            os.path.join(staggingDir, self.programName + '.app'),
-                            True)
-        except:
-            pass
-
+        self.copy(self.appBundleDir,
+                  os.path.join(staggingDir, self.programName + '.app'))
         imageSize = self.dirSize(staggingDir)
         tmpDmg = os.path.join(self.installDir, self.programName + '_tmp.dmg')
         volumeName = "{}-portable-{}".format(self.programName,
-                                    self.programVersion)
+                                             self.programVersion)
 
         process = subprocess.Popen(['hdiutil', 'create',
                                     '-srcfolder', staggingDir,
@@ -294,8 +288,7 @@ class Deploy(deploy.Deploy, tools.qt5.DeployToolsQt):
         time.sleep(2)
         volumePath = os.path.join('/Volumes', volumeName)
         volumeIcon = os.path.join(volumePath, '.VolumeIcon.icns')
-        self.copy(os.path.join(self.rootDir, 'StandAlone/share/icons/webcamoid.icns'),
-                  volumeIcon)
+        self.copy(self.appIcon, volumeIcon)
 
         process = subprocess.Popen(['SetFile',
                                     '-c', 'icnC',
@@ -348,12 +341,22 @@ class Deploy(deploy.Deploy, tools.qt5.DeployToolsQt):
         self.printPackageInfo(packagePath)
         mutex.release()
 
+    def createAppInstaller(self, mutex):
+        packagePath = self.createInstaller()
+
+        if not packagePath:
+            return
+
+        mutex.acquire()
+        print('Created installable package:')
+        self.printPackageInfo(self.outPackage)
+        mutex.release()
+
     def package(self):
-        print('\nCreating packages\n')
         mutex = threading.Lock()
 
         threads = [threading.Thread(target=self.createPortable, args=(mutex,)),
-                   threading.Thread(target=self.createInstaller, args=(mutex,))]
+                   threading.Thread(target=self.createAppInstaller, args=(mutex,))]
 
         for thread in threads:
             thread.start()

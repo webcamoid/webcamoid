@@ -124,7 +124,6 @@ class Deploy(deploy.Deploy, tools.qt5.DeployToolsQt):
         for dep in deps:
             depPath = os.path.join(self.binaryInstallDir, os.path.basename(dep))
             print('    {} -> {}'.format(dep, depPath))
-
             self.copy(dep, depPath)
             self.dependencies.append(dep)
 

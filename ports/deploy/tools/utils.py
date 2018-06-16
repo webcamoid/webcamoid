@@ -67,27 +67,61 @@ class DeployToolsUtils:
 
         return ''
 
-    def copy(self, src, dst):
+    def copy(self, src, dst='.', copyReals=False):
         if not os.path.exists(src):
-            return
+            return False
 
-        dst = dst.replace('/', os.sep)
-        basename = os.path.basename(src)
-        dstpath = os.path.join(dst, basename) if os.path.isdir(dst) else dst
-        dstdir = dst if os.path.isdir(dst) else os.path.dirname(dst)
+        if os.path.isdir(src):
+            if os.path.isfile(dst):
+                return False
 
-        if os.path.islink(src):
-            rsrc = os.path.realpath(src)
-            rbasename = os.path.basename(rsrc)
-            rdstpath = os.path.join(dstdir, rbasename)
+            for root, dirs, files in os.walk(src):
+                for f in files:
+                    fromF = os.path.join(root, f)
+                    toF = os.path.relpath(fromF, src)
+                    toF = os.path.join(dst, toF)
+                    toF = os.path.normpath(toF)
+                    self.copy(fromF, toF)
 
-            if not os.path.exists(rdstpath):
-                shutil.copy(rsrc, rdstpath)
+                for d in dirs:
+                    fromD = os.path.join(root, d)
+                    toD = os.path.relpath(fromD, src)
+                    toD = os.path.join(dst, toD)
 
-            if not os.path.exists(dstpath):
-                os.symlink(os.path.join('.', rbasename), dstpath)
-        elif not os.path.exists(dstpath):
-            shutil.copy(src, dst)
+                    try:
+                        os.makedirs(os.path.normpath(toD))
+                    except:
+                        pass
+        elif os.path.isfile(src):
+            if os.path.isdir(dst):
+                dst = os.path.realpath(dst)
+                dst = os.path.join(dst, os.path.basename(src))
+
+            dirname = os.path.dirname(dst)
+
+            try:
+                os.makedirs(dirname)
+            except:
+                pass
+
+            if os.path.exists(dst):
+                os.remove(dst)
+
+            if copyReals and os.path.islink(src):
+                realpath = os.path.realpath(src)
+                basename = os.path.basename(realpath)
+                os.symlink(os.path.join('.', basename), dst)
+                self.copy(realpath, os.path.join(dirname, basename))
+            else:
+                try:
+                    if self.system == 'windows':
+                        shutil.copy(src, dst)
+                    else:
+                        shutil.copy(src, dst, follow_symlinks=False)
+                except:
+                    pass
+
+        return True
 
     def detectMake(self):
         if 'MAKE_PATH' in os.environ:

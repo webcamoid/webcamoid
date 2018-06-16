@@ -161,7 +161,10 @@ class DeployToolsBinary(tools.binary.DeployToolsBinary):
             if mach == '' or self.isExcluded(mach) or not os.path.exists(mach):
                 continue
 
-            libs.append(mach)
+            dirName = os.path.dirname(mach)
+            dirName = os.path.realpath(dirName)
+            baseName = os.path.basename(mach)
+            libs.append(os.path.join(dirName, baseName))
 
         return libs
 

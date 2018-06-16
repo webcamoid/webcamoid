@@ -253,16 +253,7 @@ class DeployToolsQt(tools.utils.DeployToolsUtils):
 
                 if os.path.exists(sysModulePath):
                     print('    {} -> {}'.format(sysModulePath, installModulePath))
-                    path = installModulePath[: installModulePath.rfind(os.sep)]
-
-                    if not os.path.exists(path):
-                        os.makedirs(path)
-
-                    try:
-                        shutil.copytree(sysModulePath, installModulePath, True)
-                    except:
-                        pass
-
+                    self.copy(sysModulePath, installModulePath)
                     solvedImports.add(imp)
                     self.dependencies.append(os.path.join(sysModulePath, 'qmldir'))
 
@@ -274,10 +265,17 @@ class DeployToolsQt(tools.utils.DeployToolsUtils):
 
     def solvedepsPlugins(self):
         pluginsMap = {
-            'Qt53DRenderer': ['sceneparsers'],
+            'Qt53DRenderer': ['sceneparsers', 'geometryloaders'],
+            'Qt53DQuickRenderer': ['renderplugins'],
             'Qt5Declarative': ['qml1tooling'],
             'Qt5EglFSDeviceIntegration': ['egldeviceintegrations'],
-            'Qt5Gui': ['accessible', 'generic', 'iconengines', 'imageformats', 'platforms', 'platforminputcontexts'],
+            'Qt5Gui': ['accessible',
+                       'generic',
+                       'iconengines',
+                       'imageformats',
+                       'platforms',
+                       'platforminputcontexts',
+                       'styles'],
             'Qt5Location': ['geoservices'],
             'Qt5Multimedia': ['audio', 'mediaservice', 'playlistformats'],
             'Qt5Network': ['bearer'],
@@ -292,52 +290,27 @@ class DeployToolsQt(tools.utils.DeployToolsUtils):
             'Qt5WebEngine': ['qtwebengine'],
             'Qt5WebEngineCore': ['qtwebengine'],
             'Qt5WebEngineWidgets': ['qtwebengine'],
+            'Qt5WebView': ['webview'],
             'Qt5XcbQpa': ['xcbglintegrations']
         }
 
         pluginsMap.update({lib + 'd': pluginsMap[lib] for lib in pluginsMap})
-        qtDeps = set()
-
-        for binPath in self.binarySolver.find(self.installDir):
-            for dep in self.binarySolver.dependencies(binPath):
-                if self.binarySolver.name(dep) in pluginsMap:
-                    qtDeps.add(dep)
-
-        solved = set()
         plugins = []
 
-        while len(qtDeps) > 0:
-            dep = qtDeps.pop()
+        for dep in self.binarySolver.scanDependencies(self.installDir):
+            libName = self.binarySolver.name(dep)
 
-            for qtDep in self.binarySolver.dependencies(dep):
-                if self.binarySolver.name(qtDep) in pluginsMap and not qtDep in solved:
-                    qtDeps.add(qtDep)
+            if not libName in pluginsMap:
+                continue
 
-            for plugin in pluginsMap[self.binarySolver.name(dep)]:
+            for plugin in pluginsMap[libName]:
                 if not plugin in plugins:
                     sysPluginPath = os.path.join(self.qtInstallPlugins, plugin)
                     pluginPath = os.path.join(self.pluginsInstallDir, plugin)
                     print('    {} -> {}'.format(sysPluginPath, pluginPath))
-
-                    if not os.path.exists(self.pluginsInstallDir):
-                        os.makedirs(self.pluginsInstallDir)
-
-                    try:
-                        shutil.copytree(sysPluginPath, pluginPath, True)
-                    except:
-                        pass
-
-                    for binPath in self.binarySolver.find(sysPluginPath):
-                        for binDep in self.binarySolver.dependencies(binPath):
-                            if self.binarySolver.name(binDep) in pluginsMap \
-                               and binDep != dep \
-                               and not binDep in solved:
-                                qtDeps.add(binDep)
-
+                    self.copy(sysPluginPath, pluginPath)
                     plugins.append(plugin)
                     self.dependencies.append(sysPluginPath)
-
-            solved.add(dep)
 
     def writeQtConf(self):
         paths = {'Plugins': os.path.relpath(self.pluginsInstallDir, self.binaryInstallDir),
@@ -394,6 +367,9 @@ class DeployToolsQt(tools.utils.DeployToolsUtils):
         dataDir = os.path.join(packageDir, 'data')
         metaDir = os.path.join(packageDir, 'meta')
 
+        if not os.path.exists(dataDir):
+            os.makedirs(dataDir)
+
         if not os.path.exists(metaDir):
             os.makedirs(metaDir)
 
@@ -407,11 +383,7 @@ class DeployToolsQt(tools.utils.DeployToolsUtils):
             licenseOutFile += '.txt'
 
         self.copy(self.licenseFile, os.path.join(metaDir, licenseOutFile))
-
-        try:
-            shutil.copytree(self.rootInstallDir, dataDir, True)
-        except:
-            pass
+        self.copy(self.rootInstallDir, dataDir)
 
         configXml = os.path.join(self.installerConfig, 'config.xml')
         appName = packageConf['Package']['appName'].strip()

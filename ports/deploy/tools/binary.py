@@ -49,6 +49,9 @@ class DeployToolsBinary(tools.utils.DeployToolsUtils):
 
         return binaries
 
+    def dump(self):
+        return {}
+
     def dependencies(self, binary):
         return []
 
@@ -63,6 +66,12 @@ class DeployToolsBinary(tools.utils.DeployToolsUtils):
                 if binDep != dep and not binDep in solved:
                     deps.append(binDep)
 
+            if self.system == 'mac':
+                i = dep.rfind('.framework/')
+
+                if i >= 0:
+                    dep = dep[: i] + '.framework'
+
             solved.add(dep)
 
         return solved
@@ -71,7 +80,7 @@ class DeployToolsBinary(tools.utils.DeployToolsUtils):
         deps = set()
 
         for binPath in self.find(path):
-            for dep in self.dependencies(binPath):
+            for dep in self.allDependencies(binPath):
                 deps.add(dep)
 
         return sorted(deps)
