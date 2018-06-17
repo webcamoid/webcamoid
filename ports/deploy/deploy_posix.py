@@ -23,21 +23,20 @@ import configparser
 import math
 import os
 import platform
-import shutil
 import subprocess
 import sys
 import tarfile
 import threading
 
-import deploy
+import deploy_base
 import tools.binary_elf
 import tools.qt5
 
 
-class Deploy(deploy.Deploy, tools.qt5.DeployToolsQt):
+class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
     def __init__(self):
         super().__init__()
-        self.installDir = os.path.join(self.rootDir, 'ports/deploy/temp_priv/root')
+        self.installDir = os.path.join(self.rootDir, 'ports/deploy/temp_priv')
         self.pkgsDir = os.path.join(self.rootDir, 'ports/deploy/packages_auto', sys.platform)
         self.rootInstallDir = os.path.join(self.installDir, 'usr')
         self.binaryInstallDir = os.path.join(self.rootInstallDir, 'bin')
@@ -52,7 +51,7 @@ class Deploy(deploy.Deploy, tools.qt5.DeployToolsQt):
         self.detectQt(os.path.join(self.buildDir, 'StandAlone'))
         self.programVersion = self.detectVersion(os.path.join(self.rootDir, 'commons.pri'))
         self.detectMake()
-        self.targetSystem = 'posix_windows' if self.qmakeQuery(var='QMAKE_XSPEC') == 'win32' else 'posix'
+        self.targetSystem = 'posix_windows' if 'win32' in self.qmakeQuery(var='QMAKE_XSPEC') else 'posix'
         self.binarySolver = tools.binary_elf.DeployToolsBinary()
         self.binarySolver.readExcludeList(os.path.join(self.rootDir, 'ports/deploy/exclude.{}.{}.txt'.format(os.name, sys.platform)))
         self.appImage = self.detectAppImage()
@@ -67,7 +66,7 @@ class Deploy(deploy.Deploy, tools.qt5.DeployToolsQt):
         self.licenseFile = os.path.join(self.rootDir, 'COPYING')
         self.installerRunProgram = '@TargetDir@/' + self.programName + '.sh'
         self.installerTargetDir = '@HomeDir@/' + self.programName
-        self.installerStript = os.path.join(self.rootDir, 'ports/deploy/installscript.posix.qs')
+        self.installerScript = os.path.join(self.rootDir, 'ports/deploy/installscript.posix.qs')
         self.changeLog = os.path.join(self.rootDir, 'ChangeLog')
         self.outPackage = os.path.join(self.pkgsDir,
                                    'webcamoid-{}-{}.run'.format(self.programVersion,
@@ -363,7 +362,3 @@ class Deploy(deploy.Deploy, tools.qt5.DeployToolsQt):
 
         for thread in threads:
             thread.join()
-
-    def cleanup(self):
-        shutil.rmtree(os.path.join(self.rootDir, 'ports/deploy/temp_priv'),
-                      True)

@@ -37,7 +37,22 @@ class DeployToolsBinary(tools.binary.DeployToolsBinary):
         if mimetype == 'application/x-msdownload':
             return True
 
-        return False
+        if mimetype != 'application/octet-stream':
+            return False
+
+        with open(path, 'rb') as f:
+            if f.read(2) != b'MZ':
+                return []
+
+            f.seek(0x3c, os.SEEK_SET)
+            peHeaderOffset = struct.unpack('I', f.read(4))
+            f.seek(peHeaderOffset[0], os.SEEK_SET)
+            peSignatue = f.read(4)
+
+            if peSignatue != b'PE\x00\x00':
+                return False
+
+        return True
 
     # https://msdn.microsoft.com/en-us/library/windows/desktop/ms680547(v=vs.85).aspx
     # https://upload.wikimedia.org/wikipedia/commons/1/1b/Portable_Executable_32_bit_Structure_in_SVG_fixed.svg

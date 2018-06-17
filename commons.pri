@@ -35,17 +35,19 @@ isEmpty(QMAKE_LUPDATE) {
     !unix: QMAKE_LUPDATE = $$[QT_INSTALL_LIBEXECS]/lupdate
 }
 
+isEmpty(BUNDLENAME): BUNDLENAME = webcamoid
+
 win32 {
     host_name = $$lower($$QMAKE_HOST.os)
 
     !isEmpty(ProgramW6432) {
-        DEFAULT_PREFIX = $(ProgramW6432)/$${COMMONS_APPNAME}
+        DEFAULT_PREFIX = $(ProgramW6432)/$${BUNDLENAME}
     } else: !isEmpty(ProgramFiles) {
-        DEFAULT_PREFIX = $(ProgramFiles)/$${COMMONS_APPNAME}
+        DEFAULT_PREFIX = $(ProgramFiles)/$${BUNDLENAME}
     } else: contains(host_name, linux) {
-        DEFAULT_PREFIX = /$${COMMONS_APPNAME}
+        DEFAULT_PREFIX = /$${BUNDLENAME}
     } else {
-        DEFAULT_PREFIX = C:/$${COMMONS_APPNAME}
+        DEFAULT_PREFIX = C:/$${BUNDLENAME}
     }
 } else: macx: isEmpty(NOAPPBUNDLE) {
     DEFAULT_PREFIX = /Applications
@@ -53,7 +55,6 @@ win32 {
     DEFAULT_PREFIX = /usr
 }
 
-isEmpty(BUNDLENAME): BUNDLENAME = webcamoid
 isEmpty(PREFIX): PREFIX = $${DEFAULT_PREFIX}
 isEmpty(EXECPREFIX) {
     macx: isEmpty(NOAPPBUNDLE) {

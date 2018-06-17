@@ -22,21 +22,20 @@
 import math
 import os
 import platform
-import shutil
 import subprocess
 import sys
 import threading
 import zipfile
 
-import deploy
+import deploy_base
 import tools.binary_pecoff
 import tools.qt5
 
 
-class Deploy(deploy.Deploy, tools.qt5.DeployToolsQt):
+class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
     def __init__(self):
         super().__init__()
-        self.installDir = os.path.join(self.rootDir, 'ports/deploy/temp_priv/root')
+        self.installDir = os.path.join(self.rootDir, 'ports/deploy/temp_priv')
         self.pkgsDir = os.path.join(self.rootDir, 'ports/deploy/packages_auto', sys.platform)
         self.rootInstallDir = os.path.join(self.installDir, 'usr')
         self.binaryInstallDir = os.path.join(self.rootInstallDir, 'bin')
@@ -63,7 +62,7 @@ class Deploy(deploy.Deploy, tools.qt5.DeployToolsQt):
                                                                                             self.installerIconSize))
         self.licenseFile = os.path.join(self.rootDir, 'COPYING')
         self.installerRunProgram = '@TargetDir@/bin/' + self.programName + '.exe'
-        self.installerStript = os.path.join(self.rootDir, 'ports/deploy/installscript.windows.qs')
+        self.installerScript = os.path.join(self.rootDir, 'ports/deploy/installscript.windows.qs')
         self.changeLog = os.path.join(self.rootDir, 'ChangeLog')
 
     def prepare(self):
@@ -237,7 +236,3 @@ class Deploy(deploy.Deploy, tools.qt5.DeployToolsQt):
 
         for thread in threads:
             thread.join()
-
-    def cleanup(self):
-        shutil.rmtree(os.path.join(self.rootDir, 'ports/deploy/temp_priv'),
-                      True)

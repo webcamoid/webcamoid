@@ -23,7 +23,6 @@ import configparser
 import fnmatch
 import os
 import re
-import shutil
 import subprocess
 import sys
 import time
@@ -171,15 +170,25 @@ class DeployToolsQt(tools.utils.DeployToolsUtils):
         if not os.path.exists(installerBase):
             return
 
-        process = subprocess.Popen([installerBase,
-                                    '--version'],
-                                   stdout=subprocess.PIPE,
-                                   stderr=subprocess.PIPE)
-        stdout, stderr = process.communicate()
+        if self.targetSystem == 'posix_windows':
+            installerBase = 'Z:' + installerBase.replace('/', '\\')
+            process = subprocess.Popen(['wine',
+                                        installerBase,
+                                        '--version'],
+                                    stdin=subprocess.PIPE,
+                                    stdout=subprocess.PIPE,
+                                    stderr=subprocess.PIPE)
+            stdout, stderr = process.communicate(input=b'\n')
+        else:
+            process = subprocess.Popen([installerBase,
+                                        '--version'],
+                                    stdout=subprocess.PIPE,
+                                    stderr=subprocess.PIPE)
+            stdout, stderr = process.communicate()
 
         for line in stdout.split(b'\n'):
             if b'IFW Version:' in line:
-                self.qtIFWVersion = line.split(b' ')[2].replace(b'"', b'').decode(sys.getdefaultencoding())
+                self.qtIFWVersion = line.split(b' ')[2].replace(b'"', b'').replace(b',', b'').decode(sys.getdefaultencoding())
 
                 return
 
@@ -412,7 +421,7 @@ class DeployToolsQt(tools.utils.DeployToolsUtils):
             config.write('    <TargetDir>{}</TargetDir>\n'.format(self.installerTargetDir))
             config.write('</Installer>\n')
 
-        self.copy(self.installerStript,
+        self.copy(self.installerScript,
                   os.path.join(metaDir, 'installscript.qs'))
 
         with open(os.path.join(metaDir, 'package.xml'), 'w') as f:
@@ -449,7 +458,8 @@ class DeployToolsQt(tools.utils.DeployToolsUtils):
                                     '-c', configXml,
                                     '-p', self.installerPackages,
                                     self.outPackage],
-                                   stdout=subprocess.PIPE)
+                                   stdout=subprocess.PIPE,
+                                   stderr=subprocess.PIPE)
         process.communicate()
 
         return True

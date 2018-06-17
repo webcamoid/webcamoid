@@ -19,99 +19,23 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-import os
-import sys
-import platform
-
 import tools.utils
 
-class Deploy(tools.utils.DeployToolsUtils):
-    def __init__(self):
-        super().__init__()
-        self.rootDir = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../..'))
-        self.buildDir = os.environ['BUILD_PATH'] if 'BUILD_PATH' in os.environ else self.rootDir
-        self.installDir = os.path.join(self.rootDir, 'ports/deploy/temp_priv/root')
-        self.rootInstallDir = ''
-        self.pkgsDir = os.path.join(self.rootDir,
-                                    'ports/deploy/packages_auto',
-                                    sys.platform if os.name == 'posix' else os.name)
-        self.programVersion = ''
-        self.qmake = ''
-
-    def __str__(self):
-        deployInfo = 'Python version: {}\n' \
-                     'Root directory: {}\n' \
-                     'Build directory: {}\n' \
-                     'Install directory: {}\n' \
-                     'Packages directory: {}\n' \
-                     'System: {}\n' \
-                     'Architecture: {}\n' \
-                     'Target system: {}\n' \
-                     'Target architecture: {}\n' \
-                     'Number of threads: {}\n' \
-                     'Program version: {}\n' \
-                     'Make executable: {}\n' \
-                     'Qmake executable: {}'. \
-                        format(platform.python_version(),
-                               self.rootDir,
-                               self.buildDir,
-                               self.installDir,
-                               self.pkgsDir,
-                               self.system,
-                               self.arch,
-                               self.targetSystem,
-                               self.targetArch,
-                               self.njobs,
-                               self.programVersion,
-                               self.make,
-                               self.qmake)
-
-        return deployInfo
-
-    def load(self, system=''):
-        module = __import__('deploy_' + (self.system if system == '' else system))
-
-        if not module:
-            return None
-
-        deploy = module.Deploy()
-
-        if deploy.targetSystem != system:
-            return self.load(deploy.targetSystem)
-
-        return deploy
-
-    def run(self):
-        print('Deploy info\n')
-        print(self)
-        print('\nPreparing for software packaging\n')
-        self.prepare()
-        print('\nPackaged data info\n')
-        self.printPackageDataInfo()
-        print('\nCreating packages\n')
-        self.package()
-        print('\nCleaning up')
-        self.cleanup()
-        print('Deploy finnished\n')
-
-    def printPackageDataInfo(self):
-        for root, dirs, files in os.walk(self.rootInstallDir):
-            for f in files:
-                print('    ' + os.path.join(root, f))
-
-    def prepare(self):
-        pass
-
-    def package(self):
-        pass
-
-    def cleanup(self):
-        pass
 
 if __name__ =='__main__':
-    deploy = Deploy().load()
+    system = tools.utils.DeployToolsUtils().system
 
-    if deploy:
-        deploy.run()
-    else:
-        print('No valid deploy script found.')
+    while True:
+        try:
+            deploy = __import__('deploy_' + system).Deploy()
+        except:
+            print('No valid deploy script found.')
+
+            exit()
+
+        if system == deploy.targetSystem:
+            deploy.run()
+
+            exit()
+
+        system = deploy.targetSystem

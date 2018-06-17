@@ -31,7 +31,7 @@ import tools
 class DeployToolsBinary(tools.utils.DeployToolsUtils):
     def __init__(self):
         super().__init__()
-        self.stripBin = self.whereBin('strip.exe' if self.system == 'windows' else 'strip')
+        self.detectStrip()
         self.excludes = []
 
     def isValid(self, path):
@@ -87,6 +87,9 @@ class DeployToolsBinary(tools.utils.DeployToolsUtils):
 
     def name(self, binary):
         return ''
+
+    def detectStrip(self):
+        self.stripBin = self.whereBin('strip.exe' if self.system == 'windows' else 'strip')
 
     def strip(self, binary):
         if self.stripBin == '':

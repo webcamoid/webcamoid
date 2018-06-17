@@ -28,15 +28,15 @@ import sys
 import threading
 import time
 
-import deploy
+import deploy_base
 import tools.binary_mach
 import tools.qt5
 
 
-class Deploy(deploy.Deploy, tools.qt5.DeployToolsQt):
+class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
     def __init__(self):
         super().__init__()
-        self.installDir = os.path.join(self.rootDir, 'ports/deploy/temp_priv/root')
+        self.installDir = os.path.join(self.rootDir, 'ports/deploy/temp_priv')
         self.pkgsDir = os.path.join(self.rootDir, 'ports/deploy/packages_auto', self.targetSystem)
         self.rootInstallDir = os.path.join(self.installDir, 'Applications')
         self.programName = 'webcamoid'
@@ -62,7 +62,7 @@ class Deploy(deploy.Deploy, tools.qt5.DeployToolsQt):
         self.licenseFile = os.path.join(self.rootDir, 'COPYING')
         self.installerRunProgram = '@TargetDir@/{0}.app/Contents/MacOS/{0}'.format(self.programName)
         self.installerTargetDir = '@ApplicationsDir@/' + self.programName
-        self.installerStript = os.path.join(self.rootDir, 'ports/deploy/installscript.mac.qs')
+        self.installerScript = os.path.join(self.rootDir, 'ports/deploy/installscript.mac.qs')
         self.changeLog = os.path.join(self.rootDir, 'ChangeLog')
         self.outPackage = os.path.join(self.pkgsDir,
                                    '{}-{}.dmg'.format(self.programName,
@@ -363,7 +363,3 @@ class Deploy(deploy.Deploy, tools.qt5.DeployToolsQt):
 
         for thread in threads:
             thread.join()
-
-    def cleanup(self):
-        shutil.rmtree(os.path.join(self.rootDir, 'ports/deploy/temp_priv'),
-                      True)

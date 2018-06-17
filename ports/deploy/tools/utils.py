@@ -47,7 +47,7 @@ class DeployToolsUtils:
         self.sysBinsPath = []
 
         if 'PATH' in os.environ:
-            self.sysBinsPath = \
+            self.sysBinsPath += \
                 [path.strip() for path in os.environ['PATH'].split(pathSep)]
 
         self.njobs = multiprocessing.cpu_count()
@@ -55,8 +55,11 @@ class DeployToolsUtils:
         if self.njobs < 4:
             self.njobs = 4
 
-    def detectTargetArch(self):
-        self.targetArch = platform.architecture(self.mainBinary)[0]
+    def detectTargetArch(self, binary=''):
+        if binary == '':
+            binary = self.mainBinary
+
+        self.targetArch = platform.architecture(binary)[0]
 
     def whereBin(self, binary):
         for path in self.sysBinsPath:
