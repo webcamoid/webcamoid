@@ -1525,9 +1525,9 @@ std::string AkVCam::IpcBridgePrivate::locateDriverPath() const
 {
     std::string driverPath;
 
-    for (auto it = this->driverPaths.end();
-         it != this->driverPaths.begin();
-         it--) {
+    for (auto it = this->driverPaths.rbegin();
+         it != this->driverPaths.rend();
+         it++) {
         auto path = *it;
         path = replace(path, "/", "\\");
 

@@ -547,7 +547,9 @@ void MediaTools::loadConfigs()
     }
 
     if (this->d->m_virtualCamera)
-        this->d->m_virtualCamera->setProperty("addDriverPaths", driverPaths);
+        QMetaObject::invokeMethod(this->d->m_virtualCamera.data(),
+                                  "addDriverPaths",
+                                  Q_ARG(QStringList, driverPaths));
 
     config.endGroup();
 }

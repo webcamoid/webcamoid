@@ -37,6 +37,9 @@
 #define AkIpcBridgeLogMethod() \
     AkLoggerLog("IpcBridge::", __FUNCTION__, "()")
 
+#define AkIpcBridgePrivateLogMethod() \
+    AkLoggerLog("IpcBridgePrivate::", __FUNCTION__, "()")
+
 #define AKVCAM_BIND_FUNC(member) \
     std::bind(&member, this, std::placeholders::_1, std::placeholders::_2)
 
@@ -116,7 +119,7 @@ AkVCam::IpcBridge::IpcBridge()
 {
     AkIpcBridgeLogMethod();
 
-    this->d = new IpcBridgePrivate(this);
+    this->d = new IpcBridgePrivate;
     ipcBridgePrivate()->add(this);
 }
 
@@ -1045,7 +1048,7 @@ std::vector<AkVCam::IpcBridge *> &AkVCam::IpcBridgePrivate::bridges()
 void AkVCam::IpcBridgePrivate::isAlive(xpc_connection_t client,
                                        xpc_object_t event)
 {
-    AkLoggerLog("IpcBridgePrivate::isAlive");
+    AkIpcBridgePrivateLogMethod();
 
     auto reply = xpc_dictionary_create_reply(event);
     xpc_dictionary_set_bool(reply, "alive", true);
@@ -1057,8 +1060,7 @@ void AkVCam::IpcBridgePrivate::deviceCreate(xpc_connection_t client,
                                             xpc_object_t event)
 {
     UNUSED(client)
-    AkLoggerLog("IpcBridgePrivate::deviceCreated");
-
+    AkIpcBridgePrivateLogMethod();
     std::string device = xpc_dictionary_get_string(event, "device");
 
     for (auto bridge: this->m_bridges)
@@ -1070,7 +1072,7 @@ void AkVCam::IpcBridgePrivate::deviceDestroy(xpc_connection_t client,
                                              xpc_object_t event)
 {
     UNUSED(client)
-    AkLoggerLog("IpcBridgePrivate::deviceDestroyed");
+    AkIpcBridgePrivateLogMethod();
 
     std::string device = xpc_dictionary_get_string(event, "device");
 
@@ -1083,7 +1085,7 @@ void AkVCam::IpcBridgePrivate::frameReady(xpc_connection_t client,
                                           xpc_object_t event)
 {
     UNUSED(client)
-    AkLoggerLog("IpcBridgePrivate::frameReady");
+    AkIpcBridgePrivateLogMethod();
 
     std::string deviceId =
             xpc_dictionary_get_string(event, "device");
@@ -1114,7 +1116,7 @@ void AkVCam::IpcBridgePrivate::setBroadcasting(xpc_connection_t client,
                                                xpc_object_t event)
 {
     UNUSED(client)
-    AkLoggerLog("IpcBridgePrivate::broadcastingChanged");
+    AkIpcBridgePrivateLogMethod();
 
     std::string deviceId =
             xpc_dictionary_get_string(event, "device");
@@ -1130,7 +1132,7 @@ void AkVCam::IpcBridgePrivate::setMirror(xpc_connection_t client,
                                          xpc_object_t event)
 {
     UNUSED(client)
-    AkLoggerLog("IpcBridgePrivate::mirrorChanged");
+    AkIpcBridgePrivateLogMethod();
 
     std::string deviceId =
             xpc_dictionary_get_string(event, "device");
@@ -1150,7 +1152,7 @@ void AkVCam::IpcBridgePrivate::setScaling(xpc_connection_t client,
                                           xpc_object_t event)
 {
     UNUSED(client)
-    AkLoggerLog("IpcBridgePrivate::scalingChanged");
+    AkIpcBridgePrivateLogMethod();
 
     std::string deviceId =
             xpc_dictionary_get_string(event, "device");
@@ -1166,7 +1168,7 @@ void AkVCam::IpcBridgePrivate::setAspectRatio(xpc_connection_t client,
                                               xpc_object_t event)
 {
     UNUSED(client)
-    AkLoggerLog("IpcBridgePrivate::aspectRatioChanged");
+    AkIpcBridgePrivateLogMethod();
 
     std::string deviceId =
             xpc_dictionary_get_string(event, "device");
@@ -1182,7 +1184,7 @@ void AkVCam::IpcBridgePrivate::setSwapRgb(xpc_connection_t client,
                                           xpc_object_t event)
 {
     UNUSED(client)
-    AkLoggerLog("IpcBridgePrivate::swapRgbChanged");
+    AkIpcBridgePrivateLogMethod();
 
     std::string deviceId =
             xpc_dictionary_get_string(event, "device");
@@ -1197,7 +1199,7 @@ void AkVCam::IpcBridgePrivate::listenerAdd(xpc_connection_t client,
                                            xpc_object_t event)
 {
     UNUSED(client)
-    AkLoggerLog("IpcBridgePrivate::listenerAdded");
+    AkIpcBridgePrivateLogMethod();
 
     std::string deviceId = xpc_dictionary_get_string(event, "device");
     std::string listener = xpc_dictionary_get_string(event, "listener");
@@ -1211,7 +1213,7 @@ void AkVCam::IpcBridgePrivate::listenerRemove(xpc_connection_t client,
                                               xpc_object_t event)
 {
     UNUSED(client)
-    AkLoggerLog("IpcBridgePrivate::listenerRemoved");
+    AkIpcBridgePrivateLogMethod();
 
     std::string deviceId = xpc_dictionary_get_string(event, "device");
     std::string listener = xpc_dictionary_get_string(event, "listener");
@@ -1319,6 +1321,7 @@ bool AkVCam::IpcBridgePrivate::rm(const std::string &path) const
 
 bool AkVCam::IpcBridgePrivate::createDaemonPlist(const std::string &fileName) const
 {
+    AkIpcBridgePrivateLogMethod();
     std::fstream plistFile;
     plistFile.open(fileName, std::ios_base::out);
 
@@ -1369,6 +1372,7 @@ bool AkVCam::IpcBridgePrivate::createDaemonPlist(const std::string &fileName) co
 
 bool AkVCam::IpcBridgePrivate::loadDaemon() const
 {
+    AkIpcBridgePrivateLogMethod();
     auto launchctl = popen("launchctl list " AKVCAM_ASSISTANT_NAME, "r");
 
     if (launchctl && !pclose(launchctl))
@@ -1388,6 +1392,7 @@ bool AkVCam::IpcBridgePrivate::loadDaemon() const
 
 void AkVCam::IpcBridgePrivate::unloadDaemon() const
 {
+    AkIpcBridgePrivateLogMethod();
     std::string daemonPlist = AKVCAM_ASSISTANT_NAME ".plist";
     auto daemonsPath = replace(CMIO_DAEMONS_PATH, "~", this->homePath());
     auto dstDaemonsPath = daemonsPath + "/" + daemonPlist;
@@ -1403,6 +1408,7 @@ void AkVCam::IpcBridgePrivate::unloadDaemon() const
 
 bool AkVCam::IpcBridgePrivate::checkDaemon()
 {
+    AkIpcBridgePrivateLogMethod();
     auto driverPath = this->locateDriverPath();
 
     if (driverPath.empty())
@@ -1432,6 +1438,8 @@ bool AkVCam::IpcBridgePrivate::checkDaemon()
 
 void AkVCam::IpcBridgePrivate::uninstallPlugin()
 {
+    AkIpcBridgePrivateLogMethod();
+
     // Stop the daemon
     this->unloadDaemon();
 
@@ -1453,11 +1461,12 @@ void AkVCam::IpcBridgePrivate::uninstallPlugin()
 
 std::string AkVCam::IpcBridgePrivate::locateDriverPath() const
 {
+    AkIpcBridgePrivateLogMethod();
     std::string driverPath;
 
-    for (auto it = this->driverPaths.end();
-         it != this->driverPaths.begin();
-         it--) {
+    for (auto it = this->driverPaths.rbegin();
+         it != this->driverPaths.rend();
+         it++) {
         auto path = *it;
         path = replace(path, "\\", "/");
 
@@ -1482,6 +1491,7 @@ std::string AkVCam::IpcBridgePrivate::locateDriverPath() const
 
 int AkVCam::IpcBridgePrivate::sudo(const std::vector<std::string> &parameters)
 {
+    AkIpcBridgePrivateLogMethod();
     std::stringstream ss;
     ss << "osascript -e \"do shell script \\\"";
 

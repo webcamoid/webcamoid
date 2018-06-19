@@ -50,6 +50,7 @@ CameraOutCMIO::CameraOutCMIO(QObject *parent):
     this->d = new CameraOutCMIOPrivate;
     QObject::connect(this,
                      &CameraOut::driverPathsChanged,
+                     this,
                      &CameraOutCMIO::updateDriverPaths);
     this->resetDriverPaths();
     this->d->m_ipcBridge.registerPeer(false);
