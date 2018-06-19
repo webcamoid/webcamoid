@@ -29,11 +29,11 @@ typedef QSharedPointer<CameraOut> CameraOutPtr;
 class CameraOut: public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QString driverPath
-               READ driverPath
-               WRITE setDriverPath
-               RESET resetDriverPath
-               NOTIFY driverPathChanged)
+    Q_PROPERTY(QStringList driverPaths
+               READ driverPaths
+               WRITE setDriverPaths
+               RESET resetDriverPaths
+               NOTIFY driverPathsChanged)
     Q_PROPERTY(QStringList webcams
                READ webcams
                NOTIFY webcamsChanged)
@@ -69,7 +69,7 @@ class CameraOut: public QObject
         explicit CameraOut(QObject *parent=nullptr);
         virtual ~CameraOut();
 
-        Q_INVOKABLE virtual QString driverPath() const;
+        Q_INVOKABLE virtual QStringList driverPaths() const;
         Q_INVOKABLE virtual QStringList webcams() const;
         Q_INVOKABLE virtual QString device() const;
         Q_INVOKABLE virtual int streamIndex() const;
@@ -90,14 +90,14 @@ class CameraOut: public QObject
         Q_INVOKABLE virtual bool removeAllWebcams(const QString &password="");
 
     protected:
-        QString m_driverPath;
+        QStringList m_driverPaths;
         QString m_device;
         AkCaps m_caps;
         int m_passwordTimeout;
         QString m_rootMethod;
 
     signals:
-        void driverPathChanged(const QString &driverPath);
+        void driverPathsChanged(const QStringList &driverPaths);
         void webcamsChanged(const QStringList &webcams) const;
         void deviceChanged(const QString &device);
         void capsChanged(const AkCaps &caps);
@@ -109,12 +109,16 @@ class CameraOut: public QObject
     public slots:
         virtual bool init(int streamIndex);
         virtual void uninit();
-        virtual void setDriverPath(const QString &driverPath);
+        virtual bool setDriverPaths(const QStringList &driverPaths);
+        virtual bool addDriverPath(const QString &driverPath);
+        virtual bool addDriverPaths(const QStringList &driverPaths);
+        virtual bool removeDriverPath(const QString &driverPath);
+        virtual bool removeDriverPaths(const QStringList &driverPaths);
         virtual void setDevice(const QString &device);
         virtual void setCaps(const AkCaps &caps);
         virtual void setPasswordTimeout(int passwordTimeout);
         virtual void setRootMethod(const QString &rootMethod);
-        virtual void resetDriverPath();
+        virtual void resetDriverPaths();
         virtual void resetDevice();
         virtual void resetCaps();
         virtual void resetPasswordTimeout();

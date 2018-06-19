@@ -51,6 +51,9 @@ namespace AkVCam
     std::string replace(const std::string &str,
                         const std::string &from,
                         const std::string &to);
+    std::wstring replace(const std::wstring &str,
+                         const std::wstring &from,
+                         const std::wstring &to);
     bool isEqualFile(const std::string &file1, const std::string &file2);
 }
 

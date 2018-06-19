@@ -513,27 +513,41 @@ void MediaTools::loadConfigs()
 
     config.endGroup();
 
-    config.beginGroup("OutputConfigs");
-    this->setEnableVirtualCamera(config.value("enableVirtualCamera", false).toBool());
-    config.endGroup();
-
     config.beginGroup("GeneralConfigs");
     QSize windowSize = config.value("windowSize", QSize(1024, 600)).toSize();
     this->d->m_windowWidth = windowSize.width();
     this->d->m_windowHeight = windowSize.height();
+    config.endGroup();
 
-    if (this->d->m_virtualCamera) {
-        QString driverPath;
+    config.beginGroup("VirtualCamera");
+    this->setEnableVirtualCamera(config.value("enable", false).toBool());
 
-        if (this->d->m_cliOptions.isSet(this->d->m_cliOptions.vcamPathOpt()))
-            driverPath = this->d->m_cliOptions.value(this->d->m_cliOptions.vcamPathOpt());
-        else
-            driverPath = config.value("virtualCameraDriverPath").toString();
+    QStringList driverPaths;
+    int size = config.beginReadArray("driverPath");
 
-        if (!driverPath.isEmpty() && QFileInfo(driverPath).exists())
-            this->d->m_virtualCamera->setProperty("driverPath",
-                                                  this->convertToAbsolute(driverPath));
+    for (int i = 0; i < size; i++) {
+        config.setArrayIndex(i);
+        auto path = config.value("path").toString();
+        path = this->convertToAbsolute(path);
+
+        if (QFileInfo(path).exists())
+            driverPaths << path;
     }
+
+    config.endArray();
+
+    auto optPaths =
+            this->d->m_cliOptions.value(this->d->m_cliOptions.vcamPathOpt()).split(';');
+
+    for (auto path: optPaths) {
+        path = this->convertToAbsolute(path);
+
+        if (QFileInfo(path).exists())
+            driverPaths << path;
+    }
+
+    if (this->d->m_virtualCamera)
+        this->d->m_virtualCamera->setProperty("addDriverPaths", driverPaths);
 
     config.endGroup();
 }
@@ -566,20 +580,29 @@ void MediaTools::saveConfigs()
 {
     QSettings config;
 
-    config.beginGroup("OutputConfigs");
-    config.setValue("enableVirtualCamera", this->enableVirtualCamera());
-    config.endGroup();
-
     config.beginGroup("GeneralConfigs");
     config.setValue("windowSize", QSize(this->d->m_windowWidth,
                                         this->d->m_windowHeight));
+    config.endGroup();
 
-    if (this->d->m_virtualCamera) {
-        auto driverPath = this->d->m_virtualCamera->property("driverPath").toString();
-        static const QDir applicationDir(QCoreApplication::applicationDirPath());
-        config.setValue("virtualCameraDriverPath", applicationDir.relativeFilePath(driverPath));
+    config.beginGroup("VirtualCamera");
+    config.setValue("enable", this->enableVirtualCamera());
+
+    QStringList driverPaths;
+
+    if (this->d->m_virtualCamera)
+        driverPaths = this->d->m_virtualCamera->property("driverPaths").toStringList();
+
+    config.beginWriteArray("driverPath");
+    int i = 0;
+
+    for (auto &path: driverPaths) {
+        config.setArrayIndex(i);
+        config.setValue("path", path);
+        i++;
     }
 
+    config.endArray();
     config.endGroup();
 
     config.beginGroup("Libraries");

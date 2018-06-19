@@ -72,10 +72,10 @@ class VirtualCameraElementPrivate
     public:
         ConvertVideoPtr m_convertVideo;
         CameraOutPtr m_cameraOut;
-        int m_streamIndex;
         AkCaps m_streamCaps;
         QMutex m_mutex;
         QMutex m_mutexLib;
+        int m_streamIndex;
 
         VirtualCameraElementPrivate():
             m_streamIndex(-1)
@@ -122,12 +122,12 @@ VirtualCameraElement::~VirtualCameraElement()
     delete this->d;
 }
 
-QString VirtualCameraElement::driverPath() const
+QStringList VirtualCameraElement::driverPaths() const
 {
     if (!this->d->m_cameraOut)
         return {};
 
-    return this->d->m_cameraOut->driverPath();
+    return this->d->m_cameraOut->driverPaths();
 }
 
 QStringList VirtualCameraElement::medias() const
@@ -334,14 +334,44 @@ void VirtualCameraElement::controlInterfaceConfigure(QQmlContext *context,
 #endif
 }
 
-void VirtualCameraElement::setDriverPath(const QString &driverPath)
+void VirtualCameraElement::setDriverPaths(const QStringList &driverPaths)
 {
-    if (!this->d->m_cameraOut
-        || this->d->m_cameraOut->driverPath() == driverPath)
+    if (!this->d->m_cameraOut)
         return;
 
-    this->d->m_cameraOut->setDriverPath(driverPath);
-    emit this->driverPathChanged(driverPath);
+    this->d->m_cameraOut->setDriverPaths(driverPaths);
+}
+
+bool VirtualCameraElement::addDriverPath(const QString &driverPath)
+{
+    if (!this->d->m_cameraOut)
+        return false;
+
+    return this->d->m_cameraOut->addDriverPath(driverPath);
+}
+
+bool VirtualCameraElement::addDriverPaths(const QStringList &driverPaths)
+{
+    if (!this->d->m_cameraOut)
+        return false;
+
+    return this->d->m_cameraOut->addDriverPaths(driverPaths);
+}
+
+bool VirtualCameraElement::removeDriverPath(const QString &driverPath)
+{
+    if (!this->d->m_cameraOut)
+        return false;
+
+    return this->d->m_cameraOut->removeDriverPath(driverPath);
+}
+
+bool VirtualCameraElement::removeDriverPaths(const QStringList &driverPaths)
+{
+    if (!this->d->m_cameraOut)
+        return false;
+
+    return this->d->m_cameraOut->removeDriverPaths(driverPaths);
 }
 
 void VirtualCameraElement::setMedia(const QString &media)
@@ -375,10 +405,10 @@ void VirtualCameraElement::setOutputLib(const QString &outputLib)
     globalVirtualCamera->setOutputLib(outputLib);
 }
 
-void VirtualCameraElement::resetDriverPath()
+void VirtualCameraElement::resetDriverPaths()
 {
     if (this->d->m_cameraOut)
-        this->d->m_cameraOut->resetDriverPath();
+        this->d->m_cameraOut->resetDriverPaths();
 }
 
 void VirtualCameraElement::resetMedia()
@@ -510,19 +540,20 @@ AkPacket VirtualCameraElement::iStream(const AkPacket &packet)
 
     if (this->state() == AkElement::ElementStatePlaying) {
         QImage image = AkUtils::packetToImage(packet);
-        image = image.convertToFormat(QImage::Format_RGB32);
-        AkPacket oPacket;
 
 #if defined(Q_OS_OSX) || defined(Q_OS_WIN32)
         image = image.convertToFormat(QImage::Format_RGB888);
-        oPacket = AkUtils::roundSizeTo(AkUtils::imageToPacket(image, packet),
-                                       PREFERRED_ROUNDING);
+        auto oPacket =
+                AkUtils::roundSizeTo(AkUtils::imageToPacket(image, packet),
+                                     PREFERRED_ROUNDING);
 #else
+        image = image.convertToFormat(QImage::Format_RGB32);
         image = this->d->swapChannels(image);
 
         this->d->m_mutexLib.lock();
-        oPacket = this->d->m_convertVideo->convert(AkUtils::imageToPacket(image, packet),
-                                                   this->d->m_cameraOut->caps());
+        auto oPacket =
+                this->d->m_convertVideo->convert(AkUtils::imageToPacket(image, packet),
+                                                 this->d->m_cameraOut->caps());
         this->d->m_mutexLib.unlock();
 #endif
 
@@ -568,9 +599,9 @@ void VirtualCameraElement::outputLibUpdated(const QString &outputLib)
     }
 
     QObject::connect(this->d->m_cameraOut.data(),
-                     &CameraOut::driverPathChanged,
+                     &CameraOut::driverPathsChanged,
                      this,
-                     &VirtualCameraElement::driverPathChanged);
+                     &VirtualCameraElement::driverPathsChanged);
     QObject::connect(this->d->m_cameraOut.data(),
                      &CameraOut::error,
                      this,
@@ -586,7 +617,7 @@ void VirtualCameraElement::outputLibUpdated(const QString &outputLib)
 
     this->d->m_mutexLib.unlock();
 
-    emit this->driverPathChanged(this->driverPath());
+    emit this->driverPathsChanged(this->driverPaths());
     emit this->mediasChanged(this->medias());
     emit this->mediaChanged(this->media());
     emit this->streamsChanged(this->streams());

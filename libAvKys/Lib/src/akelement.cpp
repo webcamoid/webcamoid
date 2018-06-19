@@ -66,194 +66,14 @@ class AkElementPrivate
         bool m_recursiveSearchPaths;
         bool m_pluginsScanned;
 
-        AkElementPrivate()
-        {
-            this->m_recursiveSearchPaths = false;
-            this->m_pluginsScanned = false;
-            this->m_defaultPluginsSearchPaths << INSTALLPLUGINSDIR;
-            this->m_defaultPluginsSearchPaths
-                    << this->convertToAbsolute(QString("%1/../lib/%2")
-                                               .arg(QCoreApplication::applicationDirPath())
-                                               .arg(COMMONS_TARGET));
-
-#ifdef Q_OS_OSX
-            this->m_defaultPluginsSearchPaths
-                    << this->convertToAbsolute(QString("%1/../Plugins/%2")
-                                               .arg(QCoreApplication::applicationDirPath())
-                                               .arg(COMMONS_TARGET));
-#endif
-
-            this->m_applicationDir.setPath(QCoreApplication::applicationDirPath());
-            this->m_subModulesPath = SUBMODULES_PATH;
-
-#ifdef Q_OS_OSX
-            this->m_pluginFilePattern = "lib*.dylib";
-#elif defined(Q_OS_WIN32)
-            this->m_pluginFilePattern = "*.dll";
-#else
-            this->m_pluginFilePattern = "lib*.so";
-#endif
-        }
-
-        static inline QList<QMetaMethod> methodsByName(const QObject *object,
-                                                       const QString &methodName)
-        {
-            QList<QMetaMethod> methods;
-            QStringList methodSignatures;
-
-            for (int i = 0; i < object->metaObject()->methodCount(); i++) {
-                QMetaMethod method = object->metaObject()->method(i);
-                QString signature(method.methodSignature());
-
-                if (QRegExp(QString("\\s*%1\\s*\\(.*").arg(methodName))
-                    .exactMatch(signature))
-                    if (!methodSignatures.contains(signature)) {
-                        methods << method;
-                        methodSignatures << signature;
-                    }
-            }
-
-            return methods;
-        }
-
-        static inline bool methodCompat(const QMetaMethod &method1,
-                                        const QMetaMethod &method2)
-        {
-            if (method1.parameterTypes() == method2.parameterTypes())
-                return true;
-
-            return false;
-        }
-
-        static inline QString pluginId(const QString &fileName)
-        {
-            auto pluginId = QFileInfo(fileName).baseName();
-
-#ifdef Q_OS_WIN32
-            return pluginId;
-                                              ;
-#else
-            return pluginId.remove(QRegExp("^lib"));
-#endif
-        }
-
-        inline QString convertToAbsolute(const QString &path) const
-        {
-            if (!QDir::isRelativePath(path))
-                return QDir::cleanPath(path);
-
-            QString absPath = this->m_applicationDir.absoluteFilePath(path);
-
-            return QDir::cleanPath(absPath);
-        }
-
-        inline void listPlugins()
-        {
-            QVector<QStringList *> sPaths {
-                &this->m_pluginsSearchPaths,
-                &this->m_defaultPluginsSearchPaths
-            };
-
-            for (auto sPath: sPaths)
-                for (int i = sPath->length() - 1; i >= 0; i--) {
-                    QString searchDir(sPath->at(i));
-
-                    searchDir.replace(QRegExp("((\\\\/?)|(/\\\\?))+"),
-                                      QDir::separator());
-
-                    while (searchDir.endsWith(QDir::separator()))
-                        searchDir.resize(searchDir.size() - 1);
-
-                    QStringList searchPaths(searchDir);
-
-                    while (!searchPaths.isEmpty()) {
-                        QString path = searchPaths.takeFirst();
-
-                        if (this->m_pluginsBlackList.contains(path))
-                            continue;
-
-                        auto pluginId = this->pluginId(path);
-                        bool found = false;
-
-                        for (auto &pluginInfo: this->m_pluginsList)
-                            if (pluginInfo.m_path == path) {
-                                if (pluginInfo.m_metaData.isEmpty()) {
-                                    QPluginLoader pluginLoader(path);
-
-                                    if (pluginLoader.load()) {
-                                        if (pluginInfo.m_id.isEmpty())
-                                            pluginInfo.m_id = pluginId;
-
-                                        pluginInfo.m_metaData =
-                                                pluginLoader.metaData().toVariantMap();
-                                        pluginInfo.m_used = true;
-
-                                        pluginLoader.unload();
-                                    }
-                                } else {
-                                    if (pluginInfo.m_id.isEmpty())
-                                        pluginInfo.m_id = pluginId;
-
-                                    pluginInfo.m_used = true;
-                                }
-
-                                found = true;
-
-                                break;
-                            }
-
-                        if (found)
-                            continue;
-
-                        if (QFileInfo(path).isFile()) {
-                            QString fileName = QFileInfo(path).fileName();
-
-                            if (QRegExp(this->m_pluginFilePattern,
-                                        Qt::CaseSensitive,
-                                        QRegExp::Wildcard).exactMatch(fileName)) {
-                                QPluginLoader pluginLoader(path);
-
-                                if (pluginLoader.load()) {
-                                    auto metaData = pluginLoader.metaData();
-
-                                    if (metaData["MetaData"].toObject().contains("pluginType")
-                                        && metaData["MetaData"].toObject()["pluginType"] == AK_PLUGIN_TYPE_ELEMENT) {
-                                        this->m_pluginsList <<
-                                            AkPluginInfoPrivate {
-                                                pluginId,
-                                                path,
-                                                metaData.toVariantMap(),
-                                                true
-                                            };
-                                    }
-
-                                    pluginLoader.unload();
-                                }
-                            }
-                        } else {
-                            QDir dir(path);
-                            auto fileList = dir.entryList({this->m_pluginFilePattern},
-                                                          QDir::Files
-                                                          | QDir::CaseSensitive,
-                                                          QDir::Name);
-
-                            for (const QString &file: fileList)
-                                searchPaths << dir.absoluteFilePath(file);
-
-                            if (this->m_recursiveSearchPaths) {
-                                auto dirList = dir.entryList(QDir::Dirs
-                                                             | QDir::NoDotAndDotDot,
-                                                             QDir::Name);
-
-                                for (const QString &path: dirList)
-                                    searchPaths << dir.absoluteFilePath(path);
-                            }
-                        }
-                    }
-                }
-
-            this->m_pluginsScanned = true;
-        }
+        AkElementPrivate();
+        static QList<QMetaMethod> methodsByName(const QObject *object,
+                                                const QString &methodName);
+        static bool methodCompat(const QMetaMethod &method1,
+                                 const QMetaMethod &method2);
+        static QString pluginId(const QString &fileName);
+        QString convertToAbsolute(const QString &path) const;
+        void listPlugins();
 };
 
 Q_GLOBAL_STATIC(AkElementPrivate, akElementGlobalStuff)
@@ -945,6 +765,195 @@ bool AkElement::setState(AkElement::ElementState state)
 void AkElement::resetState()
 {
     this->setState(ElementStateNull);
+}
+
+AkElementPrivate::AkElementPrivate()
+{
+    this->m_recursiveSearchPaths = false;
+    this->m_pluginsScanned = false;
+    this->m_defaultPluginsSearchPaths << INSTALLPLUGINSDIR;
+    this->m_defaultPluginsSearchPaths
+            << this->convertToAbsolute(QString("%1/../lib/%2")
+                                       .arg(QCoreApplication::applicationDirPath())
+                                       .arg(COMMONS_TARGET));
+
+#ifdef Q_OS_OSX
+    this->m_defaultPluginsSearchPaths
+            << this->convertToAbsolute(QString("%1/../Plugins/%2")
+                                       .arg(QCoreApplication::applicationDirPath())
+                                       .arg(COMMONS_TARGET));
+#endif
+
+    this->m_applicationDir.setPath(QCoreApplication::applicationDirPath());
+    this->m_subModulesPath = SUBMODULES_PATH;
+
+#ifdef Q_OS_OSX
+    this->m_pluginFilePattern = "lib*.dylib";
+#elif defined(Q_OS_WIN32)
+    this->m_pluginFilePattern = "*.dll";
+#else
+    this->m_pluginFilePattern = "lib*.so";
+#endif
+}
+
+QList<QMetaMethod> AkElementPrivate::methodsByName(const QObject *object,
+                                                   const QString &methodName)
+{
+    QList<QMetaMethod> methods;
+    QStringList methodSignatures;
+
+    for (int i = 0; i < object->metaObject()->methodCount(); i++) {
+        QMetaMethod method = object->metaObject()->method(i);
+        QString signature(method.methodSignature());
+
+        if (QRegExp(QString("\\s*%1\\s*\\(.*").arg(methodName))
+            .exactMatch(signature))
+            if (!methodSignatures.contains(signature)) {
+                methods << method;
+                methodSignatures << signature;
+            }
+    }
+
+    return methods;
+}
+
+bool AkElementPrivate::methodCompat(const QMetaMethod &method1,
+                                    const QMetaMethod &method2)
+{
+    if (method1.parameterTypes() == method2.parameterTypes())
+        return true;
+
+    return false;
+}
+
+QString AkElementPrivate::pluginId(const QString &fileName)
+{
+    auto pluginId = QFileInfo(fileName).baseName();
+
+#ifdef Q_OS_WIN32
+    return pluginId;
+    ;
+#else
+    return pluginId.remove(QRegExp("^lib"));
+#endif
+}
+
+QString AkElementPrivate::convertToAbsolute(const QString &path) const
+{
+    if (!QDir::isRelativePath(path))
+        return QDir::cleanPath(path);
+
+    QString absPath = this->m_applicationDir.absoluteFilePath(path);
+
+    return QDir::cleanPath(absPath);
+}
+
+void AkElementPrivate::listPlugins()
+{
+    QVector<QStringList *> sPaths {
+        &this->m_pluginsSearchPaths,
+                &this->m_defaultPluginsSearchPaths
+    };
+
+    for (auto sPath: sPaths)
+        for (int i = sPath->length() - 1; i >= 0; i--) {
+            QString searchDir(sPath->at(i));
+
+            searchDir.replace(QRegExp("((\\\\/?)|(/\\\\?))+"),
+                              QDir::separator());
+
+            while (searchDir.endsWith(QDir::separator()))
+                searchDir.resize(searchDir.size() - 1);
+
+            QStringList searchPaths(searchDir);
+
+            while (!searchPaths.isEmpty()) {
+                QString path = searchPaths.takeFirst();
+
+                if (this->m_pluginsBlackList.contains(path))
+                    continue;
+
+                auto pluginId = this->pluginId(path);
+                bool found = false;
+
+                for (auto &pluginInfo: this->m_pluginsList)
+                    if (pluginInfo.m_path == path) {
+                        if (pluginInfo.m_metaData.isEmpty()) {
+                            QPluginLoader pluginLoader(path);
+
+                            if (pluginLoader.load()) {
+                                if (pluginInfo.m_id.isEmpty())
+                                    pluginInfo.m_id = pluginId;
+
+                                pluginInfo.m_metaData =
+                                        pluginLoader.metaData().toVariantMap();
+                                pluginInfo.m_used = true;
+
+                                pluginLoader.unload();
+                            }
+                        } else {
+                            if (pluginInfo.m_id.isEmpty())
+                                pluginInfo.m_id = pluginId;
+
+                            pluginInfo.m_used = true;
+                        }
+
+                        found = true;
+
+                        break;
+                    }
+
+                if (found)
+                    continue;
+
+                if (QFileInfo(path).isFile()) {
+                    QString fileName = QFileInfo(path).fileName();
+
+                    if (QRegExp(this->m_pluginFilePattern,
+                                Qt::CaseSensitive,
+                                QRegExp::Wildcard).exactMatch(fileName)) {
+                        QPluginLoader pluginLoader(path);
+
+                        if (pluginLoader.load()) {
+                            auto metaData = pluginLoader.metaData();
+
+                            if (metaData["MetaData"].toObject().contains("pluginType")
+                                && metaData["MetaData"].toObject()["pluginType"] == AK_PLUGIN_TYPE_ELEMENT) {
+                                this->m_pluginsList <<
+                                                       AkPluginInfoPrivate {
+                                                       pluginId,
+                                                       path,
+                                                       metaData.toVariantMap(),
+                                                       true
+                            };
+                            }
+
+                            pluginLoader.unload();
+                        }
+                    }
+                } else {
+                    QDir dir(path);
+                    auto fileList = dir.entryList({this->m_pluginFilePattern},
+                                                  QDir::Files
+                                                  | QDir::CaseSensitive,
+                                                  QDir::Name);
+
+                    for (const QString &file: fileList)
+                        searchPaths << dir.absoluteFilePath(file);
+
+                    if (this->m_recursiveSearchPaths) {
+                        auto dirList = dir.entryList(QDir::Dirs
+                                                     | QDir::NoDotAndDotDot,
+                                                     QDir::Name);
+
+                        for (const QString &path: dirList)
+                            searchPaths << dir.absoluteFilePath(path);
+                    }
+                }
+            }
+        }
+
+    this->m_pluginsScanned = true;
 }
 
 QDataStream &operator >>(QDataStream &istream, AkElement::ElementState &state)

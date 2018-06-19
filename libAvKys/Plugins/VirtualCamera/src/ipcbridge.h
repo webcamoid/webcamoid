@@ -62,9 +62,11 @@ namespace AkVCam
             // Pass extra options to the bridge.
             void setOption(const std::string &key, const std::string &value);
 
-            // Execute commands with elevated privileges.
-            int sudo(const std::vector<std::string> &parameters,
-                     const std::map<std::string, std::string> &options={});
+            // Driver search paths
+            std::vector<std::string> driverPaths() const;
+
+            // Set driver search paths
+            void setDriverPaths(const std::vector<std::string> &driverPaths);
 
             // Register the peer to the global server.
             bool registerPeer(bool asClient);
@@ -72,7 +74,7 @@ namespace AkVCam
             // Unregister the peer to the global server.
             void unregisterPeer();
 
-            // List available servers.
+            // List available devices.
             std::vector<std::string> listDevices() const;
 
             // Return human readable description of the device.

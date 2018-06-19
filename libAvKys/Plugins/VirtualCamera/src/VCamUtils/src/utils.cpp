@@ -53,6 +53,20 @@ std::string AkVCam::replace(const std::string &str,
     return newStr;
 }
 
+std::wstring AkVCam::replace(const std::wstring &str,
+                             const std::wstring &from,
+                             const std::wstring &to)
+{
+    auto newStr = str;
+
+    for (auto pos = newStr.find(from);
+         pos != std::wstring::npos;
+         pos = newStr.find(from))
+        newStr.replace(pos, from.size(), to);
+
+    return newStr;
+}
+
 bool AkVCam::isEqualFile(const std::string &file1, const std::string &file2)
 {
     if (file1 == file2)

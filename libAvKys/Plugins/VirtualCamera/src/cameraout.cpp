@@ -33,9 +33,9 @@ CameraOut::~CameraOut()
 {
 }
 
-QString CameraOut::driverPath() const
+QStringList CameraOut::driverPaths() const
 {
-    return this->m_driverPath;
+    return this->m_driverPaths;
 }
 
 QStringList CameraOut::webcams() const
@@ -137,13 +137,69 @@ void CameraOut::uninit()
 {
 }
 
-void CameraOut::setDriverPath(const QString &driverPath)
+bool CameraOut::setDriverPaths(const QStringList &driverPaths)
 {
-    if (this->m_driverPath == driverPath)
-        return;
+    if (this->m_driverPaths == driverPaths)
+        return false;
 
-    this->m_driverPath = driverPath;
-    emit this->driverPathChanged(this->m_driverPath);
+    this->m_driverPaths = driverPaths;
+    emit this->driverPathsChanged(this->m_driverPaths);
+
+    return true;
+}
+
+bool CameraOut::addDriverPath(const QString &driverPath)
+{
+    if (driverPath.isEmpty() || this->m_driverPaths.contains(driverPath))
+        return false;
+
+    this->m_driverPaths << driverPath;
+    emit this->driverPathsChanged(this->m_driverPaths);
+
+    return true;
+}
+
+bool CameraOut::addDriverPaths(const QStringList &driverPaths)
+{
+    bool added = false;
+
+    for (auto path: driverPaths)
+        if (!path.isEmpty() && !this->m_driverPaths.contains(path)) {
+            this->m_driverPaths << path;
+            added = true;
+        }
+
+    if (added)
+        emit this->driverPathsChanged(this->m_driverPaths);
+
+    return added;
+}
+
+bool CameraOut::removeDriverPath(const QString &driverPath)
+{
+    if (driverPath.isEmpty() || !this->m_driverPaths.contains(driverPath))
+        return false;
+
+    this->m_driverPaths.removeAll(driverPath);
+    emit this->driverPathsChanged(this->m_driverPaths);
+
+    return true;
+}
+
+bool CameraOut::removeDriverPaths(const QStringList &driverPaths)
+{
+    bool removed = false;
+
+    for (auto path: driverPaths)
+        if (!path.isEmpty() && this->m_driverPaths.contains(path)) {
+            this->m_driverPaths.removeAll(path);
+            removed = true;
+        }
+
+    if (removed)
+        emit this->driverPathsChanged(this->m_driverPaths);
+
+    return removed;
 }
 
 void CameraOut::setDevice(const QString &device)
@@ -182,9 +238,13 @@ void CameraOut::setRootMethod(const QString &rootMethod)
     emit this->rootMethodChanged(this->m_rootMethod);
 }
 
-void CameraOut::resetDriverPath()
+void CameraOut::resetDriverPaths()
 {
-    this->setDriverPath("");
+    if (this->m_driverPaths.isEmpty())
+        return
+
+    this->m_driverPaths.clear();
+    emit this->driverPathsChanged(this->m_driverPaths);
 }
 
 void CameraOut::resetDevice()

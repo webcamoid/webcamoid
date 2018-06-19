@@ -40,11 +40,11 @@ class MediaSourcePrivate
         AkCaps m_audioCaps;
         AkCaps m_videoCaps;
         AkElement::ElementState m_inputState;
-        bool m_playOnStart;
         AkElementPtr m_pipeline;
         AkElementPtr m_cameraCapture;
         AkElementPtr m_desktopCapture;
         AkElementPtr m_uriCapture;
+        bool m_playOnStart;
 
         MediaSourcePrivate():
             m_engine(nullptr),

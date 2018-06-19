@@ -52,7 +52,10 @@ class CameraOutCMIO: public CameraOut
     public slots:
         bool init(int streamIndex);
         void uninit();
-        void resetDriverPath();
+        void resetDriverPaths();
+
+    private slots:
+        void updateDriverPaths(const QStringList &driverPaths);
 };
 
 #endif // CAMERAOUTCMIO_H

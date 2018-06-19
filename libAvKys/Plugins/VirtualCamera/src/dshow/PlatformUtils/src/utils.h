@@ -17,8 +17,8 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef UTILS_H
-#define UTILS_H
+#ifndef PLATFORM_UTILS_H
+#define PLATFORM_UTILS_H
 
 #include <string>
 #include <vector>
@@ -86,4 +86,4 @@ namespace AkVCam
     std::vector<VideoFormat> cameraFormats(DWORD cameraIndex);
 }
 
-#endif // UTILS_H
+#endif // PLATFORM_UTILS_H

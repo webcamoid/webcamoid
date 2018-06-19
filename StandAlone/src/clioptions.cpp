@@ -70,8 +70,10 @@ CliOptions::CliOptions():
 
     this->m_vcamPathOpt =
             new QCommandLineOption(QString("vcam"),
-                                   QObject::tr("virtual camera driver path"),
-                                   "PATH", "");
+                                   QObject::tr("Semi-colon separated list of "
+                                               "paths to search for virtual "
+                                               "camera driver"),
+                                   "PATH1;PATH2;PATH3;...");
     this->addOption(*this->m_vcamPathOpt);
 
     this->process(*QCoreApplication::instance());

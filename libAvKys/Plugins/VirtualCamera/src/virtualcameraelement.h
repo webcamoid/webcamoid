@@ -29,11 +29,11 @@ class AkCaps;
 class VirtualCameraElement: public AkElement
 {
     Q_OBJECT
-    Q_PROPERTY(QString driverPath
-               READ driverPath
-               WRITE setDriverPath
-               RESET resetDriverPath
-               NOTIFY driverPathChanged)
+    Q_PROPERTY(QStringList driverPaths
+               READ driverPaths
+               WRITE setDriverPaths
+               RESET resetDriverPaths
+               NOTIFY driverPathsChanged)
     Q_PROPERTY(QStringList medias
                READ medias
                NOTIFY mediasChanged)
@@ -79,7 +79,7 @@ class VirtualCameraElement: public AkElement
         explicit VirtualCameraElement();
         ~VirtualCameraElement();
 
-        Q_INVOKABLE QString driverPath() const;
+        Q_INVOKABLE QStringList driverPaths() const;
         Q_INVOKABLE QStringList medias() const;
         Q_INVOKABLE QString media() const;
         Q_INVOKABLE QList<int> streams() const;
@@ -117,7 +117,7 @@ class VirtualCameraElement: public AkElement
                                        const QString &controlId) const;
 
     signals:
-        void driverPathChanged(const QString &driverPath);
+        void driverPathsChanged(const QStringList &driverPaths);
         void mediasChanged(const QStringList &medias) const;
         void mediaChanged(const QString &media);
         void streamsChanged(const QList<int> &streams);
@@ -131,13 +131,17 @@ class VirtualCameraElement: public AkElement
         void error(const QString &message);
 
     public slots:
-        void setDriverPath(const QString &driverPath);
+        void setDriverPaths(const QStringList &driverPaths);
+        bool addDriverPath(const QString &driverPath);
+        bool addDriverPaths(const QStringList &driverPaths);
+        bool removeDriverPath(const QString &driverPath);
+        bool removeDriverPaths(const QStringList &driverPaths);
         void setMedia(const QString &media);
         void setPasswordTimeout(int passwordTimeout);
         void setRootMethod(const QString &rootMethod);
         void setConvertLib(const QString &convertLib);
         void setOutputLib(const QString &outputLib);
-        void resetDriverPath();
+        void resetDriverPaths();
         void resetMedia();
         void resetPasswordTimeout();
         void resetRootMethod();

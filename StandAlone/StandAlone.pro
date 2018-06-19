@@ -36,7 +36,7 @@ exists(commons.pri) {
     }
 }
 
-!isEmpty(BUILDDOCS):!isEqual(BUILDDOCS, 0) {
+!isEmpty(BUILDDOCS): !isEqual(BUILDDOCS, 0) {
     DOCSOURCES = ../$${COMMONS_APPNAME}.qdocconf
 
     builddocs.input = DOCSOURCES

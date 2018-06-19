@@ -69,6 +69,7 @@ namespace AkVCam
             std::map<uint32_t, MessageHandler> messageHandlers;
             std::vector<std::string> broadcasting;
             std::map<std::string, std::string> options;
+            std::vector<std::string> driverPaths;
             MessageServer messageServer;
             SharedMemory sharedMemory;
             Mutex globalMutex;
@@ -88,6 +89,8 @@ namespace AkVCam
             std::vector<PinPtr> enumPins(IBaseFilter *baseFilter) const;
             std::vector<VideoFormat> enumVideoFormats(IPin *pin) const;
             std::vector<std::wstring> findFiles(const std::wstring &path) const;
+            std::vector<std::string> findFiles(const std::string &path,
+                                               const std::string &fileName) const;
             std::vector<std::wstring> findFiles(const std::wstring &path,
                                                 const std::wstring &fileName) const;
             std::string regAddLine(const std::string &key,
@@ -105,6 +108,7 @@ namespace AkVCam
             void updateDeviceSharedProperties();
             void updateDeviceSharedProperties(const std::string &deviceId,
                                               const std::string &owner);
+            std::string locateDriverPath() const;
 
             // Message handling methods
             void isAlive(Message *message);
@@ -116,6 +120,11 @@ namespace AkVCam
             void setSwapRgb(Message *message);
             void listenerAdd(Message *message);
             void listenerRemove(Message *message);
+
+            // Execute commands with elevated privileges.
+            int sudo(const std::vector<std::string> &parameters,
+                     const std::wstring &directory={},
+                     bool show=false);
     };
 
     static const int maxFrameWidth = 1920;
@@ -147,64 +156,17 @@ void AkVCam::IpcBridge::setOption(const std::string &key, const std::string &val
         this->d->options[key] = value;
 }
 
-int AkVCam::IpcBridge::sudo(const std::vector<std::string> &parameters,
-                            const std::map<std::string, std::string> &options)
+std::vector<std::string> AkVCam::IpcBridge::driverPaths() const
 {
     AkIpcBridgeLogMethod();
 
-    if (parameters.size() < 1)
-        return E_FAIL;
+    return this->d->driverPaths;
+}
 
-    auto command = parameters[0];
-    std::wstring wcommand(command.begin(), command.end());
-
-    std::wstring wparameters;
-
-    for (size_t i = 1; i < parameters.size(); i++) {
-        auto param = parameters[i];
-
-        if (i > 1)
-            wparameters += L" ";
-
-        wparameters += std::wstring(param.begin(), param.end());
-    }
-
-    std::wstring wdirectory;
-
-    if (options.count("directory") > 0) {
-        auto directory = options.at("directory");
-        wdirectory = std::wstring(directory.begin(), directory.end());
-    }
-
-    bool show = false;
-
-    if (options.count("show") > 0)
-        show = true;
-
-    SHELLEXECUTEINFO execInfo;
-    memset(&execInfo, 0, sizeof(SHELLEXECUTEINFO));
-
-    execInfo.cbSize = sizeof(SHELLEXECUTEINFO);
-    execInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
-    execInfo.hwnd = nullptr;
-    execInfo.lpVerb = L"runas";
-    execInfo.lpFile = wcommand.data();
-    execInfo.lpParameters = wparameters.data();
-    execInfo.lpDirectory = wdirectory.data();
-    execInfo.nShow = show? SW_SHOWNORMAL: SW_HIDE;
-    execInfo.hInstApp = nullptr;
-    ShellExecuteEx(&execInfo);
-
-    if (!execInfo.hProcess)
-        return E_FAIL;
-
-    WaitForSingleObject(execInfo.hProcess, INFINITE);
-
-    DWORD exitCode;
-    GetExitCodeProcess(execInfo.hProcess, &exitCode);
-    CloseHandle(execInfo.hProcess);
-
-    return int(exitCode);
+void AkVCam::IpcBridge::setDriverPaths(const std::vector<std::string> &driverPaths)
+{
+    AkIpcBridgeLogMethod();
+    this->d->driverPaths = driverPaths;
 }
 
 bool AkVCam::IpcBridge::registerPeer(bool asClient)
@@ -535,7 +497,9 @@ std::string AkVCam::IpcBridge::deviceCreate(const std::string &description,
 {
     AkIpcBridgeLogMethod();
 
-    if (this->d->options.count("driverPath") < 1)
+    auto driverPath = this->d->locateDriverPath();
+
+    if (driverPath.empty())
         return {};
 
     // Create a device path for the new device and add it's entry.
@@ -547,7 +511,6 @@ std::string AkVCam::IpcBridge::deviceCreate(const std::string &description,
     std::stringstream ss;
     ss << "@echo off" << std::endl;
 
-    auto driverPath = replace(this->d->options["driverPath"], "/", "\\");
     auto driverInstallPath = programFilesPath() + DSHOW_PLUGIN_NAME + ".plugin";
     std::vector<std::string> installPaths;
 
@@ -678,7 +641,7 @@ std::string AkVCam::IpcBridge::deviceCreate(const std::string &description,
         script.close();
 
         // Execute the script with elevated privileges.
-        if (this->sudo({"cmd", "/c", scriptPath}))
+        if (this->d->sudo({"cmd", "/c", scriptPath}))
             devicePath.clear();
 
         std::wstring wScriptPath(scriptPath.begin(), scriptPath.end());
@@ -699,10 +662,14 @@ void AkVCam::IpcBridge::deviceDestroy(const std::string &deviceId)
     if (camera < 0)
         return;
 
+    auto driverPath = this->d->locateDriverPath();
+
+    if (driverPath.empty())
+        return;
+
     std::stringstream ss;
     ss << "@echo off" << std::endl;
 
-    auto driverPath = replace(this->d->options["driverPath"], "/", "\\");
     auto driverInstallPath = programFilesPath() + "\\Webcamoid\\filter";
     std::vector<std::string> installPaths;
 
@@ -774,7 +741,7 @@ void AkVCam::IpcBridge::deviceDestroy(const std::string &deviceId)
     if (script.is_open()) {
         script << ss.str();
         script.close();
-        this->sudo({"cmd", "/c", scriptPath});
+        this->d->sudo({"cmd", "/c", scriptPath});
         std::wstring wScriptPath(scriptPath.begin(), scriptPath.end());
         DeleteFile(wScriptPath.c_str());
     }
@@ -790,10 +757,14 @@ bool AkVCam::IpcBridge::changeDescription(const std::string &deviceId,
     if (camera < 0)
         return false;
 
+    auto driverPath = this->d->locateDriverPath();
+
+    if (driverPath.empty())
+        return false;
+
     std::stringstream ss;
     ss << "@echo off" << std::endl;
 
-    auto driverPath = replace(this->d->options["driverPath"], "/", "\\");
     auto driverInstallPath = programFilesPath() + "\\Webcamoid\\filter";
     std::vector<std::string> installPaths;
 
@@ -823,7 +794,7 @@ bool AkVCam::IpcBridge::changeDescription(const std::string &deviceId,
     if (script.is_open()) {
         script << ss.str();
         script.close();
-        ok = this->sudo({"cmd", "/c", scriptPath}) == 0;
+        ok = this->d->sudo({"cmd", "/c", scriptPath}) == 0;
         std::wstring wScriptPath(scriptPath.begin(), scriptPath.end());
         DeleteFile(wScriptPath.c_str());
     }
@@ -835,10 +806,14 @@ bool AkVCam::IpcBridge::destroyAllDevices()
 {
     AkIpcBridgeLogMethod();
 
+    auto driverPath = this->d->locateDriverPath();
+
+    if (driverPath.empty())
+        return false;
+
     std::stringstream ss;
     ss << "@echo off" << std::endl;
 
-    auto driverPath = replace(this->d->options["driverPath"], "/", "\\");
     auto driverInstallPath = programFilesPath() + "\\Webcamoid\\filter";
 
     for (auto path: this->d->findFiles(std::wstring(driverPath.begin(),
@@ -876,7 +851,7 @@ bool AkVCam::IpcBridge::destroyAllDevices()
     if (script.is_open()) {
         script << ss.str();
         script.close();
-        ok = this->sudo({"cmd", "/c", scriptPath}) == 0;
+        ok = this->d->sudo({"cmd", "/c", scriptPath}) == 0;
         std::wstring wScriptPath(scriptPath.begin(), scriptPath.end());
         DeleteFile(wScriptPath.c_str());
     }
@@ -1419,6 +1394,20 @@ std::vector<std::wstring> AkVCam::IpcBridgePrivate::findFiles(const std::wstring
     return paths;
 }
 
+std::vector<std::string> AkVCam::IpcBridgePrivate::findFiles(const std::string &path,
+                                                             const std::string &fileName) const
+{
+    auto wfiles = this->findFiles(std::wstring(path.begin(), path.end()),
+                                  std::wstring(fileName.begin(), fileName.end()));
+
+    std::vector<std::string> files;
+
+    for (auto &file: wfiles)
+        files.push_back(std::string(file.begin(), file.end()));
+
+    return files;
+}
+
 std::vector<std::wstring> AkVCam::IpcBridgePrivate::findFiles(const std::wstring &path,
                                                               const std::wstring &fileName) const
 {
@@ -1532,6 +1521,35 @@ void AkVCam::IpcBridgePrivate::updateDeviceSharedProperties(const std::string &d
     }
 }
 
+std::string AkVCam::IpcBridgePrivate::locateDriverPath() const
+{
+    std::string driverPath;
+
+    for (auto it = this->driverPaths.end();
+         it != this->driverPaths.begin();
+         it--) {
+        auto path = *it;
+        path = replace(path, "/", "\\");
+
+        if (path.back() != '\\')
+            path += '\\';
+
+        path += DSHOW_PLUGIN_NAME ".plugin";
+
+        if (this->findFiles(path, DSHOW_PLUGIN_NAME ".dll").empty())
+            continue;
+
+        if (this->findFiles(path, DSHOW_PLUGIN_ASSISTANT_NAME ".exe").empty())
+            continue;
+
+        driverPath = path;
+
+        break;
+    }
+
+    return driverPath;
+}
+
 void AkVCam::IpcBridgePrivate::isAlive(Message *message)
 {
     auto data = messageData<MsgIsAlive>(message);
@@ -1628,4 +1646,50 @@ void AkVCam::IpcBridgePrivate::listenerRemove(Message *message)
 
     if (this->listenerRemovedCallback)
         this->listenerRemovedCallback(deviceId, std::string(data->listener));
+}
+
+int AkVCam::IpcBridgePrivate::sudo(const std::vector<std::string> &parameters,
+                                   const std::wstring &directory,
+                                   bool show)
+{
+    if (parameters.size() < 1)
+        return E_FAIL;
+
+    auto command = parameters[0];
+    std::wstring wcommand(command.begin(), command.end());
+
+    std::wstring wparameters;
+
+    for (size_t i = 1; i < parameters.size(); i++) {
+        auto param = parameters[i];
+
+        if (i > 1)
+            wparameters += L" ";
+
+        wparameters += std::wstring(param.begin(), param.end());
+    }
+
+    SHELLEXECUTEINFO execInfo;
+    memset(&execInfo, 0, sizeof(SHELLEXECUTEINFO));
+    execInfo.cbSize = sizeof(SHELLEXECUTEINFO);
+    execInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
+    execInfo.hwnd = nullptr;
+    execInfo.lpVerb = L"runas";
+    execInfo.lpFile = wcommand.data();
+    execInfo.lpParameters = wparameters.data();
+    execInfo.lpDirectory = directory.data();
+    execInfo.nShow = show? SW_SHOWNORMAL: SW_HIDE;
+    execInfo.hInstApp = nullptr;
+    ShellExecuteEx(&execInfo);
+
+    if (!execInfo.hProcess)
+        return E_FAIL;
+
+    WaitForSingleObject(execInfo.hProcess, INFINITE);
+
+    DWORD exitCode;
+    GetExitCodeProcess(execInfo.hProcess, &exitCode);
+    CloseHandle(execInfo.hProcess);
+
+    return int(exitCode);
 }

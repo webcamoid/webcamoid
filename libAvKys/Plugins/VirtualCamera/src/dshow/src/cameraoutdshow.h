@@ -52,7 +52,10 @@ class CameraOutDShow: public CameraOut
     public slots:
         bool init(int streamIndex);
         void uninit();
-        void resetDriverPath();
+        void resetDriverPaths();
+
+    private slots:
+        void updateDriverPaths(const QStringList &driverPaths);
 };
 
 #endif // CAMERAOUTDSHOW_H

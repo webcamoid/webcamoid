@@ -45,7 +45,6 @@ namespace AkVCam
     class IpcBridgePrivate
     {
         public:
-            IpcBridge *parent;
             std::string portName;
             xpc_connection_t messagePort;
             xpc_connection_t serverMessagePort;
@@ -62,9 +61,10 @@ namespace AkVCam
             std::map<int64_t, XpcMessage> m_messageHandlers;
             std::vector<std::string> broadcasting;
             std::map<std::string, std::string> options;
+            std::vector<std::string> driverPaths;
             bool uninstall;
 
-            IpcBridgePrivate(IpcBridge *parent=nullptr);
+            IpcBridgePrivate();
             inline void add(IpcBridge *bridge);
             void remove(IpcBridge *bridge);
             inline std::vector<IpcBridge *> &bridges();
@@ -95,6 +95,10 @@ namespace AkVCam
             void unloadDaemon() const;
             bool checkDaemon();
             void uninstallPlugin();
+            std::string locateDriverPath() const;
+
+            // Execute commands with elevated privileges.
+            int sudo(const std::vector<std::string> &parameters);
 
         private:
             std::vector<IpcBridge *> m_bridges;
@@ -134,42 +138,17 @@ void AkVCam::IpcBridge::setOption(const std::string &key,
         this->d->options[key] = value;
 }
 
-int AkVCam::IpcBridge::sudo(const std::vector<std::string> &parameters,
-                            const std::map<std::string, std::string> &options)
+std::vector<std::string> AkVCam::IpcBridge::driverPaths() const
 {
-    UNUSED(options)
     AkIpcBridgeLogMethod();
 
-    std::stringstream ss;
-    ss << "osascript -e \"do shell script \\\"";
+    return this->d->driverPaths;
+}
 
-    for (auto param: parameters) {
-        if (param.find(' ') == std::string::npos)
-            ss << param;
-        else
-            ss << "'" << param << "'";
-
-        ss << ' ';
-    }
-
-    ss << "\\\" with administrator privileges\" 2>&1";
-    auto sudo = popen(ss.str().c_str(), "r");
-
-    if (!sudo)
-        return -1;
-
-    std::string output;
-    char buffer[1024];
-
-    while (fgets(buffer, 1024, sudo))
-        output += std::string(buffer);
-
-    auto result = pclose(sudo);
-
-    if (result)
-        AkLoggerLog(output);
-
-    return result;
+void AkVCam::IpcBridge::setDriverPaths(const std::vector<std::string> &driverPaths)
+{
+    AkIpcBridgeLogMethod();
+    this->d->driverPaths = driverPaths;
 }
 
 bool AkVCam::IpcBridge::registerPeer(bool asClient)
@@ -1023,8 +1002,7 @@ void AkVCam::IpcBridge::setSwapRgbChangedCallback(SwapRgbChangedCallback callbac
     this->d->swapRgbChangedCallback = callback;
 }
 
-AkVCam::IpcBridgePrivate::IpcBridgePrivate(IpcBridge *parent):
-    parent(parent),
+AkVCam::IpcBridgePrivate::IpcBridgePrivate():
     messagePort(nullptr),
     serverMessagePort(nullptr),
     uninstall(true)
@@ -1403,7 +1381,7 @@ bool AkVCam::IpcBridgePrivate::loadDaemon() const
         return false;
 
     launchctl = popen(("launchctl load -w '" + dstDaemonsPath + "'").c_str(),
-                      "r");
+                       "r");
 
     return launchctl && !pclose(launchctl);
 }
@@ -1419,19 +1397,23 @@ void AkVCam::IpcBridgePrivate::unloadDaemon() const
 
     auto launchctl =
             popen(("launchctl unload -w '" + dstDaemonsPath + "'").c_str(),
-                  "r");
+                   "r");
     pclose(launchctl);
 }
 
 bool AkVCam::IpcBridgePrivate::checkDaemon()
 {
-    auto driverPath = replace(this->options["driverPath"], "\\", "/");
+    auto driverPath = this->locateDriverPath();
+
+    if (driverPath.empty())
+        return false;
+
     auto plugin = this->fileName(driverPath);
     std::string dstPath = CMIO_PLUGINS_DAL_PATH;
     std::string pluginInstallPath = dstPath + "/" + plugin;
 
     if (!this->fileExists(pluginInstallPath))
-        if (this->parent->sudo({"cp", "-rvf", driverPath, dstPath}))
+        if (this->sudo({"cp", "-rvf", driverPath, dstPath}))
             return false;
 
     auto daemonsPath = replace(CMIO_DAEMONS_PATH, "~", this->homePath());
@@ -1459,8 +1441,75 @@ void AkVCam::IpcBridgePrivate::uninstallPlugin()
     this->rm(daemonsPath + "/" AKVCAM_ASSISTANT_NAME ".plist");
 
     // Remove the plugin
-    auto driverPath = replace(this->options["driverPath"], "\\", "/");
+    auto driverPath = this->locateDriverPath();
+
+    if (driverPath.empty())
+        return;
+
     auto plugin = this->fileName(driverPath);
     std::string dstPath = CMIO_PLUGINS_DAL_PATH;
-    this->parent->sudo({"rm", "-rvf", dstPath + "/" + plugin});
+    this->sudo({"rm", "-rvf", dstPath + "/" + plugin});
+}
+
+std::string AkVCam::IpcBridgePrivate::locateDriverPath() const
+{
+    std::string driverPath;
+
+    for (auto it = this->driverPaths.end();
+         it != this->driverPaths.begin();
+         it--) {
+        auto path = *it;
+        path = replace(path, "\\", "/");
+
+        if (path.back() != '/')
+            path += '/';
+
+        path += CMIO_PLUGIN_NAME ".plugin";
+
+        if (!this->fileExists(path + "/Contents/MacOS/" CMIO_PLUGIN_NAME))
+            continue;
+
+        if (!this->fileExists(path + "/Contents/Resources/" CMIO_PLUGIN_ASSISTANT_NAME))
+            continue;
+
+        driverPath = path;
+
+        break;
+    }
+
+    return driverPath;
+}
+
+int AkVCam::IpcBridgePrivate::sudo(const std::vector<std::string> &parameters)
+{
+    std::stringstream ss;
+    ss << "osascript -e \"do shell script \\\"";
+
+    for (auto param: parameters) {
+        if (param.find(' ') == std::string::npos)
+            ss << param;
+        else
+            ss << "'" << param << "'";
+
+        ss << ' ';
+    }
+
+    ss << "\\\" with administrator privileges\" 2>&1";
+    auto sudo = popen(ss.str().c_str(), "r");
+
+    if (!sudo)
+        return -1;
+
+    std::string output;
+    char buffer[1024];
+
+    while (fgets(buffer, 1024, sudo))
+        output += std::string(buffer);
+
+    auto result = pclose(sudo);
+
+    if (result)
+        AkLoggerLog(output);
+
+    return result;
 }

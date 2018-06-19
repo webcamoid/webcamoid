@@ -19,53 +19,39 @@
 
 #include <QDebug>
 #include <QCoreApplication>
-#include <QProcess>
 #include <QFileInfo>
 #include <QDir>
-#include <QStandardPaths>
-#include <QDomDocument>
 #include <akvideocaps.h>
 #include <akvideopacket.h>
 
 #include "cameraoutcmio.h"
 #include "ipcbridge.h"
-#include "../Assistant/src/assistantglobals.h"
 #include "VCamUtils/src/image/videoformat.h"
 #include "VCamUtils/src/image/videoframe.h"
 
 #define MAX_CAMERAS 64
 
-#ifdef AKVCAM_NOAPPBUNDLE
-Q_GLOBAL_STATIC_WITH_ARGS(QString,
-                          akVCamDriver,
-                          (QString("../Resources/%1.plugin").arg(CMIO_PLUGIN_NAME)))
-#else
-Q_GLOBAL_STATIC_WITH_ARGS(QString,
-                          akVCamDriver,
-                          (QString("../share/%1.plugin").arg(CMIO_PLUGIN_NAME)))
-#endif
-
 class CameraOutCMIOPrivate
 {
     public:
+        QDir m_applicationDir;
         QStringList m_webcams;
         QString m_curDevice;
         AkVCam::IpcBridge m_ipcBridge;
         int m_streamIndex;
 
-        CameraOutCMIOPrivate():
-            m_streamIndex(-1)
-        {
-
-        }
+        CameraOutCMIOPrivate();
+        QString convertToAbsolute(const QString &path) const;
 };
 
 CameraOutCMIO::CameraOutCMIO(QObject *parent):
     CameraOut(parent)
 {
     this->d = new CameraOutCMIOPrivate;
-    QDir applicationDir(QCoreApplication::applicationDirPath());
-    this->m_driverPath = applicationDir.absoluteFilePath(*akVCamDriver());
+    QObject::connect(this,
+                     &CameraOut::driverPathsChanged,
+                     &CameraOutCMIO::updateDriverPaths);
+    this->resetDriverPaths();
     this->d->m_ipcBridge.registerPeer(false);
 }
 
@@ -129,13 +115,8 @@ QString CameraOutCMIO::createWebcam(const QString &description,
 {
     Q_UNUSED(password)
 
-    if (!QFileInfo(this->m_driverPath).exists())
-        return QString();
-
     auto webcams = this->webcams();
     AkVideoCaps caps(this->m_caps);
-    this->d->m_ipcBridge.setOption("driverPath",
-                                   this->m_driverPath.toStdString());
     auto webcam =
             this->d->m_ipcBridge.deviceCreate(description.isEmpty()?
                                                   "AvKys Virtual Camera":
@@ -143,6 +124,10 @@ QString CameraOutCMIO::createWebcam(const QString &description,
                                               {{AkVCam::PixelFormatRGB32,
                                                 640, 480,
                                                 {caps.fps().value()}}});
+
+    if (webcam.size() < 1)
+        return {};
+
     auto curWebcams = this->webcams();
 
     if (curWebcams != webcams)
@@ -162,8 +147,6 @@ bool CameraOutCMIO::changeDescription(const QString &webcam,
     if (!webcams.contains(webcam))
         return false;
 
-    this->d->m_ipcBridge.setOption("driverPath",
-                                   this->m_driverPath.toStdString());
     bool result =
             this->d->m_ipcBridge.changeDescription(webcam.toStdString(),
                                                    description.toStdString());
@@ -186,8 +169,6 @@ bool CameraOutCMIO::removeWebcam(const QString &webcam,
     if (!webcams.contains(webcam))
         return false;
 
-    this->d->m_ipcBridge.setOption("driverPath",
-                                   this->m_driverPath.toStdString());
     this->d->m_ipcBridge.deviceDestroy(webcam.toStdString());
     emit this->webcamsChanged({});
 
@@ -198,8 +179,6 @@ bool CameraOutCMIO::removeAllWebcams(const QString &password)
 {
     Q_UNUSED(password)
 
-    this->d->m_ipcBridge.setOption("driverPath",
-                                   this->m_driverPath.toStdString());
     this->d->m_ipcBridge.destroyAllDevices();
     emit this->webcamsChanged({});
 
@@ -227,10 +206,41 @@ void CameraOutCMIO::uninit()
     this->d->m_curDevice.clear();
 }
 
-void CameraOutCMIO::resetDriverPath()
+void CameraOutCMIO::resetDriverPaths()
 {
-    QDir applicationDir(QCoreApplication::applicationDirPath());
-    this->setDriverPath(applicationDir.absoluteFilePath(*akVCamDriver()));
+    QStringList driverPaths {
+        DATAROOTDIR,
+        this->d->convertToAbsolute(QString("../share")),
+        this->d->convertToAbsolute(QString("../Resources"))
+    };
+
+    this->setDriverPaths(driverPaths);
+}
+
+void CameraOutCMIO::updateDriverPaths(const QStringList &driverPaths)
+{
+    std::vector<std::string> paths;
+
+    for (auto &path: driverPaths)
+        paths.push_back(path.toStdString());
+
+    this->d->m_ipcBridge.setDriverPaths(paths);
+}
+
+CameraOutCMIOPrivate::CameraOutCMIOPrivate():
+    m_streamIndex(-1)
+{
+    this->m_applicationDir.setPath(QCoreApplication::applicationDirPath());
+}
+
+QString CameraOutCMIOPrivate::convertToAbsolute(const QString &path) const
+{
+    if (!QDir::isRelativePath(path))
+        return QDir::cleanPath(path);
+
+    QString absPath = this->m_applicationDir.absoluteFilePath(path);
+
+    return QDir::cleanPath(absPath);
 }
 
 #include "moc_cameraoutcmio.cpp"
