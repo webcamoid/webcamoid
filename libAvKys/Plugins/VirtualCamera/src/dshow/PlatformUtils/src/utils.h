@@ -36,6 +36,7 @@ namespace AkVCam
 {
     class VideoFormat;
 
+    bool isWow64();
     std::string tempPath();
     std::string programFilesPath();
     std::wstring moduleFileNameW(HINSTANCE hinstDLL);
@@ -71,6 +72,13 @@ namespace AkVCam
     std::string stringFromFormatType(const GUID &formatType);
     std::string stringFromMediaType(const AM_MEDIA_TYPE *mediaType);
     std::string stringFromMediaSample(IMediaSample *mediaSample);
+    LONG regGetValue(HKEY hkey,
+                     LPCWSTR lpSubKey,
+                     LPCWSTR lpValue,
+                     DWORD dwFlags,
+                     LPDWORD pdwType,
+                     PVOID pvData,
+                     LPDWORD pcbData);
     std::vector<CLSID> listRegisteredCameras(HINSTANCE hinstDLL);
     DWORD camerasCount();
     std::wstring createDevicePath();

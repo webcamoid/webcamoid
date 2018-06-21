@@ -23,5 +23,6 @@ CONFIG += ordered
 SUBDIRS = \
     VCamIPC \
     Assistant \
-    VirtualCamera \
-    src
+    VirtualCamera
+
+isEmpty(VIRTUALCAMERAONLY): SUBDIRS += src

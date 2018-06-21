@@ -51,3 +51,6 @@ HEADERS =  \
 INCLUDEPATH += \
     .. \
     ../..
+
+DEFINES += \
+    DSHOW_PLUGIN_ARCH=\"\\\"$$normalizedArch(TARGET_ARCH)\\\"\"

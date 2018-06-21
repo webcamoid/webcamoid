@@ -164,6 +164,11 @@ mingw {
     TARGET_ARCH = $$first(TARGET_ARCH)
 }
 
+msvc {
+    TARGET_ARCH = $$basename(TARGET_ARCH)
+    TARGET_ARCH = $$replace(TARGET_ARCH, x64, x86_64)
+}
+
 CONFIG(debug, debug|release) {
     COMMONS_BUILD_PATH = debug/Qt$${QT_VERSION}/$$basename(QMAKE_CC)/$${TARGET_ARCH}
     DEFINES += QT_DEBUG

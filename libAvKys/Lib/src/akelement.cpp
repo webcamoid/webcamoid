@@ -852,12 +852,12 @@ void AkElementPrivate::listPlugins()
 {
     QVector<QStringList *> sPaths {
         &this->m_pluginsSearchPaths,
-                &this->m_defaultPluginsSearchPaths
+        &this->m_defaultPluginsSearchPaths
     };
 
     for (auto sPath: sPaths)
-        for (int i = sPath->length() - 1; i >= 0; i--) {
-            QString searchDir(sPath->at(i));
+        for (auto it = sPath->rbegin(); it != sPath->rend(); it++) {
+            QString searchDir(*it);
 
             searchDir.replace(QRegExp("((\\\\/?)|(/\\\\?))+"),
                               QDir::separator());

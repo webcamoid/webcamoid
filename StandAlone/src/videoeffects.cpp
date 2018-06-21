@@ -256,10 +256,12 @@ void VideoEffects::setState(AkElement::ElementState state)
     this->d->m_mutex.lock();
 
     if (state == AkElement::ElementStatePlaying)
-        for (int i = this->d->m_effects.size() - 1; i >= 0; i--)
-            this->d->m_effects[i]->setState(state);
+        for (auto it = this->d->m_effects.rbegin();
+             it != this->d->m_effects.rend();
+             it++)
+            (*it)->setState(state);
     else
-        for (AkElementPtr &effect: this->d->m_effects)
+        for (auto &effect: this->d->m_effects)
             effect->setState(state);
 
     this->d->m_state = state;

@@ -85,6 +85,16 @@ bool operator <(const CLSID &a, const CLSID &b)
     return AkVCam::stringFromIid(a) < AkVCam::stringFromIid(b);
 }
 
+bool AkVCam::isWow64()
+{
+    BOOL isWow64 = FALSE;
+
+    if (!IsWow64Process(GetCurrentProcess(), &isWow64))
+        return false;
+
+    return isWow64;
+}
+
 std::string AkVCam::tempPath()
 {
     WCHAR tempPath[MAX_PATH];
@@ -750,6 +760,36 @@ std::string AkVCam::stringFromMediaSample(IMediaSample *mediaSample)
     return ss.str();
 }
 
+LONG AkVCam::regGetValue(HKEY hkey,
+                         LPCWSTR lpSubKey,
+                         LPCWSTR lpValue,
+                         DWORD dwFlags,
+                         LPDWORD pdwType,
+                         PVOID pvData,
+                         LPDWORD pcbData)
+{
+    HKEY key = nullptr;
+    auto result = RegOpenKeyEx(hkey,
+                               lpSubKey,
+                               0,
+                               KEY_READ | KEY_WOW64_64KEY,
+                               &key);
+
+    if (result != ERROR_SUCCESS)
+        return result;
+
+    result = RegGetValue(key,
+                         nullptr,
+                         lpValue,
+                         dwFlags,
+                         pdwType,
+                         pvData,
+                         pcbData);
+    RegCloseKey(key);
+
+    return result;
+}
+
 std::vector<CLSID> AkVCam::listRegisteredCameras(HINSTANCE hinstDLL)
 {
     WCHAR *strIID = nullptr;
@@ -847,7 +887,7 @@ DWORD AkVCam::camerasCount()
     DWORD nCameras = 0;
     DWORD nCamerasSize = sizeof(DWORD);
 
-    RegGetValue(HKEY_LOCAL_MACHINE,
+    regGetValue(HKEY_LOCAL_MACHINE,
                 L"SOFTWARE\\Webcamoid\\VirtualCamera\\Cameras",
                 L"size",
                 RRF_RT_REG_DWORD,
@@ -927,7 +967,7 @@ std::wstring AkVCam::cameraDescription(DWORD cameraIndex)
     DWORD descriptionSize = 1024 * sizeof(WCHAR);
     memset(description, 0, descriptionSize);
 
-    if (RegGetValue(HKEY_LOCAL_MACHINE,
+    if (regGetValue(HKEY_LOCAL_MACHINE,
                     ss.str().c_str(),
                     L"description",
                     RRF_RT_REG_SZ,
@@ -949,7 +989,7 @@ std::wstring AkVCam::cameraPath(DWORD cameraIndex)
     DWORD pathSize = 1024 * sizeof(WCHAR);
     memset(path, 0, pathSize);
 
-    if (RegGetValue(HKEY_LOCAL_MACHINE,
+    if (regGetValue(HKEY_LOCAL_MACHINE,
                     ss.str().c_str(),
                     L"path",
                     RRF_RT_REG_SZ,
@@ -982,7 +1022,7 @@ DWORD AkVCam::formatsCount(DWORD cameraIndex)
     DWORD nFormatsSize = sizeof(DWORD);
     memset(&nFormats, 0, nFormatsSize);
 
-    RegGetValue(HKEY_LOCAL_MACHINE,
+    regGetValue(HKEY_LOCAL_MACHINE,
                 ss.str().c_str(),
                 L"size",
                 RRF_RT_REG_DWORD,
@@ -1005,7 +1045,7 @@ AkVCam::VideoFormat AkVCam::cameraFormat(DWORD cameraIndex, DWORD formatIndex)
     DWORD variableSize = 1024 * sizeof(WCHAR);
     memset(formatStr, 0, variableSize);
 
-    if (RegGetValue(HKEY_LOCAL_MACHINE,
+    if (regGetValue(HKEY_LOCAL_MACHINE,
                     ss.str().c_str(),
                     L"format",
                     RRF_RT_REG_SZ,
@@ -1017,7 +1057,7 @@ AkVCam::VideoFormat AkVCam::cameraFormat(DWORD cameraIndex, DWORD formatIndex)
     DWORD width = 0;
     variableSize = sizeof(DWORD);
 
-    if (RegGetValue(HKEY_LOCAL_MACHINE,
+    if (regGetValue(HKEY_LOCAL_MACHINE,
                     ss.str().c_str(),
                     L"width",
                     RRF_RT_REG_DWORD,
@@ -1029,7 +1069,7 @@ AkVCam::VideoFormat AkVCam::cameraFormat(DWORD cameraIndex, DWORD formatIndex)
     DWORD height = 0;
     variableSize = sizeof(DWORD);
 
-    if (RegGetValue(HKEY_LOCAL_MACHINE,
+    if (regGetValue(HKEY_LOCAL_MACHINE,
                     ss.str().c_str(),
                     L"height",
                     RRF_RT_REG_DWORD,
@@ -1041,7 +1081,7 @@ AkVCam::VideoFormat AkVCam::cameraFormat(DWORD cameraIndex, DWORD formatIndex)
     DWORD fps = 0;
     variableSize = sizeof(DWORD);
 
-    if (RegGetValue(HKEY_LOCAL_MACHINE,
+    if (regGetValue(HKEY_LOCAL_MACHINE,
                     ss.str().c_str(),
                     L"fps",
                     RRF_RT_REG_DWORD,

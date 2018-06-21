@@ -69,18 +69,10 @@ class MediaToolsPrivate
         int m_windowHeight;
         bool m_enableVirtualCamera;
 
-        MediaToolsPrivate():
-            m_engine(nullptr),
-            m_trayIcon(nullptr),
-            m_windowWidth(0),
-            m_windowHeight(0),
-            m_enableVirtualCamera(false)
-        {
-        }
-
-        inline bool embedInterface(QQmlApplicationEngine *engine,
-                                   QObject *ctrlInterface,
-                                   const QString &where) const;
+        MediaToolsPrivate();
+        bool embedInterface(QQmlApplicationEngine *engine,
+                            QObject *ctrlInterface,
+                            const QString &where) const;
 };
 
 MediaTools::MediaTools(QObject *parent):
@@ -400,6 +392,15 @@ QString MediaTools::convertToAbsolute(const QString &path)
     QString absPath = applicationDir.absoluteFilePath(path);
 
     return QDir::cleanPath(absPath).replace('/', QDir::separator());
+}
+
+MediaToolsPrivate::MediaToolsPrivate():
+    m_engine(nullptr),
+    m_trayIcon(nullptr),
+    m_windowWidth(0),
+    m_windowHeight(0),
+    m_enableVirtualCamera(false)
+{
 }
 
 bool MediaToolsPrivate::embedInterface(QQmlApplicationEngine *engine,

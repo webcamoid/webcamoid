@@ -511,7 +511,9 @@ std::string AkVCam::IpcBridge::deviceCreate(const std::string &description,
     std::stringstream ss;
     ss << "@echo off" << std::endl;
 
-    auto driverInstallPath = programFilesPath() + DSHOW_PLUGIN_NAME + ".plugin";
+    auto driverInstallPath = programFilesPath() + "\\" DSHOW_PLUGIN_NAME ".plugin";
+
+    // Copy all plugins
     std::vector<std::string> installPaths;
 
     for (auto path: this->d->findFiles(std::wstring(driverPath.begin(),
@@ -535,6 +537,7 @@ std::string AkVCam::IpcBridge::deviceCreate(const std::string &description,
         installPaths.push_back(installPath);
     }
 
+    // Copy all services
     std::vector<std::string> assistantInstallPaths;
 
     for (auto path: this->d->findFiles(std::wstring(driverPath.begin(),
@@ -555,7 +558,8 @@ std::string AkVCam::IpcBridge::deviceCreate(const std::string &description,
                << "\""
                << std::endl;
 
-        assistantInstallPaths.push_back(installPath);
+        if (installPath.find(DSHOW_PLUGIN_ARCH "\\" DSHOW_PLUGIN_ASSISTANT_NAME ".exe") != std::string::npos)
+            assistantInstallPaths.push_back(installPath);
     }
 
     // List cameras and create a line with the number of cameras.
@@ -670,7 +674,7 @@ void AkVCam::IpcBridge::deviceDestroy(const std::string &deviceId)
     std::stringstream ss;
     ss << "@echo off" << std::endl;
 
-    auto driverInstallPath = programFilesPath() + "\\Webcamoid\\filter";
+    auto driverInstallPath = programFilesPath() + "\\" DSHOW_PLUGIN_NAME ".plugin";
     std::vector<std::string> installPaths;
 
     for (auto path: this->d->findFiles(std::wstring(driverPath.begin(),
@@ -765,7 +769,7 @@ bool AkVCam::IpcBridge::changeDescription(const std::string &deviceId,
     std::stringstream ss;
     ss << "@echo off" << std::endl;
 
-    auto driverInstallPath = programFilesPath() + "\\Webcamoid\\filter";
+    auto driverInstallPath = programFilesPath() + "\\" DSHOW_PLUGIN_NAME ".plugin";
     std::vector<std::string> installPaths;
 
     for (auto path: this->d->findFiles(std::wstring(driverPath.begin(),
@@ -814,7 +818,7 @@ bool AkVCam::IpcBridge::destroyAllDevices()
     std::stringstream ss;
     ss << "@echo off" << std::endl;
 
-    auto driverInstallPath = programFilesPath() + "\\Webcamoid\\filter";
+    auto driverInstallPath = programFilesPath() + "\\" DSHOW_PLUGIN_NAME ".plugin";
 
     for (auto path: this->d->findFiles(std::wstring(driverPath.begin(),
                                                     driverPath.end()),
@@ -1657,7 +1661,6 @@ int AkVCam::IpcBridgePrivate::sudo(const std::vector<std::string> &parameters,
 
     auto command = parameters[0];
     std::wstring wcommand(command.begin(), command.end());
-
     std::wstring wparameters;
 
     for (size_t i = 1; i < parameters.size(); i++) {

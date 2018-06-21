@@ -40,6 +40,7 @@ TEMPLATE = lib
 LIBS = \
     -L$${OUT_PWD}/../../VCamUtils/$${BIN_DIR} -lVCamUtils \
     -ladvapi32 \
+    -lkernel32 \
     -lgdi32
 
 SOURCES = \

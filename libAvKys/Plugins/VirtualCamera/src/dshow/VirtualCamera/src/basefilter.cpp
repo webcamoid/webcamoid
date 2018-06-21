@@ -185,12 +185,17 @@ void AkVCam::BaseFilter::removePin(IPin *pin, bool changed)
 
 AkVCam::BaseFilter *AkVCam::BaseFilter::create(const GUID &clsid)
 {
+    AkLoggerLog("BaseFilter::create()");
     auto camera = cameraFromId(clsid);
+    AkLoggerLog("CLSID: ", stringFromClsid(clsid));
+    AkLoggerLog("ID: ", camera);
 
     if (camera < 0)
         return nullptr;
 
     auto description = cameraDescription(DWORD(camera));
+    AkLoggerLog("Description: ", std::string(description.begin(),
+                                             description.end()));
     auto baseFilter = new BaseFilter(clsid,
                                      description,
                                      DSHOW_PLUGIN_VENDOR_L);

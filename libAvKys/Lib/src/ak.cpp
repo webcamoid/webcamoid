@@ -42,84 +42,10 @@ class AkPrivate
         QStringList m_qmlDefaultImportPathList;
         QDir m_applicationDir;
 
-        AkPrivate()
-        {
-            this->m_globalEngine = nullptr;
-
-            qRegisterMetaType<QRgb>("QRgb");
-            qRegisterMetaType<QColor>("QColor");
-            qRegisterMetaType<AkCaps>("AkCaps");
-            qRegisterMetaTypeStreamOperators<AkCaps>("AkCaps");
-            qRegisterMetaType<AkCaps::CapsType>("AkCaps::CapsType");
-            qRegisterMetaType<AkCaps::CapsType>("CapsType");
-            qRegisterMetaType<AkAudioCaps>("AkAudioCaps");
-            qRegisterMetaTypeStreamOperators<AkAudioCaps>("AkAudioCaps");
-            qRegisterMetaType<AkAudioCaps::SampleFormat>("AkAudioCaps::SampleFormat");
-            qRegisterMetaType<AkAudioCaps::SampleFormat>("SampleFormat");
-            qRegisterMetaType<AkAudioCaps::SampleType>("AkAudioCaps::SampleType");
-            qRegisterMetaType<AkAudioCaps::SampleType>("SampleType");
-            qRegisterMetaType<AkAudioCaps::ChannelLayout>("AkAudioCaps::ChannelLayout");
-            qRegisterMetaType<AkAudioCaps::ChannelLayout>("ChannelLayout");
-            qRegisterMetaType<AkVideoCaps>("AkVideoCaps");
-            qRegisterMetaTypeStreamOperators<AkVideoCaps>("AkVideoCaps");
-            qRegisterMetaType<AkVideoCaps::PixelFormat>("AkVideoCaps::PixelFormat");
-            qRegisterMetaType<AkVideoCaps::PixelFormat>("PixelFormat");
-            qRegisterMetaType<AkElement::ElementState>("AkElement::ElementState");
-            qRegisterMetaType<AkElement::ElementState>("ElementState");
-            qRegisterMetaTypeStreamOperators<AkElement::ElementState>("AkElement::ElementState");
-            qRegisterMetaType<AkFrac>("AkFrac");
-            qRegisterMetaTypeStreamOperators<AkFrac>("AkFrac");
-            qRegisterMetaType<AkPacket>("AkPacket");
-            qRegisterMetaType<AkElementPtr>("AkElementPtr");
-
-            this->m_applicationDir.setPath(QCoreApplication::applicationDirPath());
-
-#ifdef Q_OS_WIN32
-            // Initialize the COM library in multithread mode.
-            CoInitializeEx(NULL, COINIT_MULTITHREADED);
-#endif
-        }
-
-        ~AkPrivate()
-        {
-#ifdef Q_OS_WIN32
-            // Close COM library.
-            CoUninitialize();
-#endif
-        }
-
-        inline QString convertToAbsolute(const QString &path) const
-        {
-            if (!QDir::isRelativePath(path))
-                return QDir::cleanPath(path);
-
-            QString absPath = this->m_applicationDir.absoluteFilePath(path);
-
-            return QDir::cleanPath(absPath);
-        }
-
-        inline QStringList qmlImportPaths() const
-        {
-            QStringList importPaths {QString(QT_INSTALL_QML)};
-
-        #ifdef Q_OS_WIN32
-            QString relativePath =
-                    QString("%1/../lib/qt/qml")
-                        .arg(QCoreApplication::applicationDirPath());
-        #elif defined(Q_OS_OSX)
-            QString relativePath =
-                    QString("%1/../Resources/qml")
-                        .arg(QCoreApplication::applicationDirPath());
-        #else
-            QString relativePath =
-                    QString("%1/../lib/qt/qml")
-                        .arg(QCoreApplication::applicationDirPath());
-        #endif
-
-            importPaths << this->convertToAbsolute(relativePath);
-
-            return importPaths;
-        }
+        AkPrivate();
+        ~AkPrivate();
+        QString convertToAbsolute(const QString &path) const;
+        QStringList qmlImportPaths() const;
 };
 
 Q_GLOBAL_STATIC(AkPrivate, akGlobalStuff)
@@ -195,4 +121,83 @@ void Ak::setQmlImportPathList(const QStringList &paths)
 void Ak::resetQmlImportPathList()
 {
     Ak::setQmlImportPathList({});
+}
+
+AkPrivate::AkPrivate()
+{
+    this->m_globalEngine = nullptr;
+
+    qRegisterMetaType<QRgb>("QRgb");
+    qRegisterMetaType<QColor>("QColor");
+    qRegisterMetaType<AkCaps>("AkCaps");
+    qRegisterMetaTypeStreamOperators<AkCaps>("AkCaps");
+    qRegisterMetaType<AkCaps::CapsType>("AkCaps::CapsType");
+    qRegisterMetaType<AkCaps::CapsType>("CapsType");
+    qRegisterMetaType<AkAudioCaps>("AkAudioCaps");
+    qRegisterMetaTypeStreamOperators<AkAudioCaps>("AkAudioCaps");
+    qRegisterMetaType<AkAudioCaps::SampleFormat>("AkAudioCaps::SampleFormat");
+    qRegisterMetaType<AkAudioCaps::SampleFormat>("SampleFormat");
+    qRegisterMetaType<AkAudioCaps::SampleType>("AkAudioCaps::SampleType");
+    qRegisterMetaType<AkAudioCaps::SampleType>("SampleType");
+    qRegisterMetaType<AkAudioCaps::ChannelLayout>("AkAudioCaps::ChannelLayout");
+    qRegisterMetaType<AkAudioCaps::ChannelLayout>("ChannelLayout");
+    qRegisterMetaType<AkVideoCaps>("AkVideoCaps");
+    qRegisterMetaTypeStreamOperators<AkVideoCaps>("AkVideoCaps");
+    qRegisterMetaType<AkVideoCaps::PixelFormat>("AkVideoCaps::PixelFormat");
+    qRegisterMetaType<AkVideoCaps::PixelFormat>("PixelFormat");
+    qRegisterMetaType<AkElement::ElementState>("AkElement::ElementState");
+    qRegisterMetaType<AkElement::ElementState>("ElementState");
+    qRegisterMetaTypeStreamOperators<AkElement::ElementState>("AkElement::ElementState");
+    qRegisterMetaType<AkFrac>("AkFrac");
+    qRegisterMetaTypeStreamOperators<AkFrac>("AkFrac");
+    qRegisterMetaType<AkPacket>("AkPacket");
+    qRegisterMetaType<AkElementPtr>("AkElementPtr");
+
+    this->m_applicationDir.setPath(QCoreApplication::applicationDirPath());
+
+#ifdef Q_OS_WIN32
+    // Initialize the COM library in multithread mode.
+    CoInitializeEx(nullptr, COINIT_MULTITHREADED);
+#endif
+}
+
+AkPrivate::~AkPrivate()
+{
+#ifdef Q_OS_WIN32
+    // Close COM library.
+    CoUninitialize();
+#endif
+}
+
+QString AkPrivate::convertToAbsolute(const QString &path) const
+{
+    if (!QDir::isRelativePath(path))
+        return QDir::cleanPath(path);
+
+    QString absPath = this->m_applicationDir.absoluteFilePath(path);
+
+    return QDir::cleanPath(absPath);
+}
+
+QStringList AkPrivate::qmlImportPaths() const
+{
+    QStringList importPaths {QString(QT_INSTALL_QML)};
+
+#ifdef Q_OS_WIN32
+    QString relativePath =
+            QString("%1/../lib/qt/qml")
+            .arg(QCoreApplication::applicationDirPath());
+#elif defined(Q_OS_OSX)
+    QString relativePath =
+            QString("%1/../Resources/qml")
+            .arg(QCoreApplication::applicationDirPath());
+#else
+    QString relativePath =
+            QString("%1/../lib/qt/qml")
+            .arg(QCoreApplication::applicationDirPath());
+#endif
+
+    importPaths << this->convertToAbsolute(relativePath);
+
+    return importPaths;
 }
