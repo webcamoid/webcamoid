@@ -39,7 +39,6 @@ TEMPLATE = lib
 
 SOURCES += \
     src/cstream/cstreamread.cpp \
-    src/cstream/cstreamwrite.cpp \
     src/image/videoformat.cpp \
     src/image/videoframe.cpp \
     src/logger/logger.cpp \
@@ -52,7 +51,6 @@ SOURCES += \
 
 HEADERS += \
     src/cstream/cstreamread.h \
-    src/cstream/cstreamwrite.h \
     src/image/color.h \
     src/image/videoformat.h \
     src/image/videoframe.h \

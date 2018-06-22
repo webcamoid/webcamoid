@@ -169,6 +169,21 @@ void AkVCam::IpcBridge::setDriverPaths(const std::vector<std::string> &driverPat
     this->d->driverPaths = driverPaths;
 }
 
+std::vector<std::string> AkVCam::IpcBridge::availableRootMethods() const
+{
+    return {"runas"};
+}
+
+std::string AkVCam::IpcBridge::rootMethod() const
+{
+    return {"runas"};
+}
+
+bool AkVCam::IpcBridge::setRootMethod(const std::string &rootMethod)
+{
+    return rootMethod == "runas";
+}
+
 bool AkVCam::IpcBridge::registerPeer(bool asClient)
 {
     AkIpcBridgeLogMethod();
@@ -558,7 +573,9 @@ std::string AkVCam::IpcBridge::deviceCreate(const std::string &description,
                << "\""
                << std::endl;
 
-        if (installPath.find(DSHOW_PLUGIN_ARCH "\\" DSHOW_PLUGIN_ASSISTANT_NAME ".exe") != std::string::npos)
+        std::string arch = isWow64()? "x64": DSHOW_PLUGIN_ARCH;
+
+        if (installPath.find(arch + "\\" DSHOW_PLUGIN_ASSISTANT_NAME ".exe") != std::string::npos)
             assistantInstallPaths.push_back(installPath);
     }
 

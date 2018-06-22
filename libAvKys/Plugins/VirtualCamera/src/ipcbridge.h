@@ -68,6 +68,12 @@ namespace AkVCam
             // Set driver search paths
             void setDriverPaths(const std::vector<std::string> &driverPaths);
 
+            // Configure method to be used for executing commands with elevated
+            // privileges.
+            std::vector<std::string> availableRootMethods() const;
+            std::string rootMethod() const;
+            bool setRootMethod(const std::string &rootMethod);
+
             // Register the peer to the global server.
             bool registerPeer(bool asClient);
 

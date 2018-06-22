@@ -154,6 +154,21 @@ void AkVCam::IpcBridge::setDriverPaths(const std::vector<std::string> &driverPat
     this->d->driverPaths = driverPaths;
 }
 
+std::vector<std::string> AkVCam::IpcBridge::availableRootMethods() const
+{
+    return {"osascript"};
+}
+
+std::string AkVCam::IpcBridge::rootMethod() const
+{
+    return {"osascript"};
+}
+
+bool AkVCam::IpcBridge::setRootMethod(const std::string &rootMethod)
+{
+    return rootMethod == "osascript";
+}
+
 bool AkVCam::IpcBridge::registerPeer(bool asClient)
 {
     AkIpcBridgeLogMethod();
