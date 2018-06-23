@@ -31,7 +31,7 @@ TEMPLATE = lib
 QT += qml quick
 CONFIG += qt plugin
 
-DESTDIR = $${OUT_PWD}/$${BIN_DIR}/AkQml
+DESTDIR = $${OUT_PWD}/$${BIN_DIR}
 
 TARGET = $$qtLibraryTarget(AkQml)
 
@@ -70,5 +70,6 @@ qmldir.files = qmldir
 qmldir.path = $$installPath
 
 QMAKE_POST_LINK = \
-    $$sprintf($$QMAKE_MKDIR_CMD, $$shell_path($${OUT_PWD}/$${BIN_DIR}/AkQml)) $${CMD_SEP} \
-    $(COPY) $$shell_path($${PWD}/qmldir) $$shell_path($${OUT_PWD}/$${BIN_DIR}/AkQml)
+    $(COPY) $$shell_path($${OUT_PWD}/$${BIN_DIR}/*) $$shell_path($${OUT_PWD}) $${CMD_SEP} \
+    $$sprintf($$QMAKE_CHK_EXISTS, $${OUT_PWD}/qmldir) \
+    $(COPY) $$shell_path($${PWD}/qmldir) $$shell_path($${OUT_PWD})

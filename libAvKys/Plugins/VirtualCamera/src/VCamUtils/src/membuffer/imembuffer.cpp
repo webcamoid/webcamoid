@@ -25,9 +25,9 @@ namespace AkVCam
     class IMemBufferPrivate
     {
         public:
-            IMemBuffer::Mode m_mode;
             size_t m_size;
             uint64_t *m_ref;
+            IMemBuffer::Mode m_mode;
             bool m_isBigEndian;
     };
 }

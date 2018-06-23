@@ -21,6 +21,7 @@
 #define AKVCAMUTILS_IMEMBUFFER_H
 
 #include <algorithm>
+#include <cstring>
 #include <streambuf>
 
 namespace AkVCam
