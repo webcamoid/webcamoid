@@ -231,10 +231,11 @@ lessThan(QT_MAJOR_VERSION, 5) | lessThan(QT_MINOR_VERSION, 7) {
     error("QtQuick Controls 2 required.")
 }
 
-spec = $$lower($$[QMAKE_SPEC])
+#spec = $$lower($$[QMAKE_SPEC])
+isEmpty(CMD_SEP): CMD_SEP = $$escape_expand(\n\t)
 
-contains(spec, .*win32.*) {
-    CMD_SEP = ^ $$escape_expand(\n\t)
-} else {
-    CMD_SEP = ; $$escape_expand(\n\t)
-}
+#contains(spec, .*win32.*) {
+#    CMD_SEP = ^ $$escape_expand(\n\t)
+#} else {
+#    CMD_SEP = ; $$escape_expand(\n\t)
+#}
