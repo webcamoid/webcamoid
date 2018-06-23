@@ -53,6 +53,15 @@ namespace AkVCam
         Scaling scaling;
         AspectRatio aspectRatio;
         bool swapRgb;
+
+        AssistantDevice():
+            horizontalMirror(false),
+            verticalMirror(false),
+            scaling(ScalingFast),
+            aspectRatio(AspectRatioIgnore),
+            swapRgb(false)
+        {
+        }
     };
 
     typedef std::map<std::string, xpc_connection_t> AssistantPeers;
@@ -148,7 +157,7 @@ AkVCam::Assistant::Assistant()
 }
 
 AkVCam::Assistant::~Assistant()
-{    
+{
     delete this->d;
 }
 
@@ -830,7 +839,7 @@ void AkVCam::AssistantPrivate::addPort(xpc_connection_t client,
     auto connection = xpc_connection_create_from_endpoint(reinterpret_cast<xpc_endpoint_t>(endpoint));
     xpc_connection_set_event_handler(connection, ^(xpc_object_t) {});
     xpc_connection_resume(connection);
-    bool ok = true;    
+    bool ok = true;
     AssistantPeers *peers;
 
     if (portName.find(AKVCAM_ASSISTANT_CLIENT_NAME) != std::string::npos)

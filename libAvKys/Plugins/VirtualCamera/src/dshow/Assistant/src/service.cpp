@@ -53,6 +53,15 @@ namespace AkVCam
         Scaling scaling;
         AspectRatio aspectRatio;
         bool swapRgb;
+
+        AssistantDevice():
+            horizontalMirror(false),
+            verticalMirror(false),
+            scaling(ScalingFast),
+            aspectRatio(AspectRatioIgnore),
+            swapRgb(false)
+        {
+        }
     };
 
     typedef std::map<std::string, std::string> AssistantPeers;
