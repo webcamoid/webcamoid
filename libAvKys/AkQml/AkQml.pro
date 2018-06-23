@@ -71,5 +71,5 @@ qmldir.path = $$installPath
 
 QMAKE_POST_LINK = \
     $(COPY) $$shell_path($${OUT_PWD}/$${BIN_DIR}/*) $$shell_path($${OUT_PWD}) $${CMD_SEP} \
-    $$sprintf($$QMAKE_CHK_EXISTS, $${OUT_PWD}/qmldir) \
+    $$sprintf($$QMAKE_CHK_EXISTS, $$shell_path($${OUT_PWD}/qmldir)) \
     $(COPY) $$shell_path($${PWD}/qmldir) $$shell_path($${OUT_PWD})

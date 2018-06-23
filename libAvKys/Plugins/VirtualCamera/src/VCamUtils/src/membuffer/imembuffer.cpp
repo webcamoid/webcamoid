@@ -156,8 +156,7 @@ AkVCam::IMemBuffer::IMemBuffer(const unsigned char *stream, bool isBigEndian)
                reinterpret_cast<char *>(const_cast<unsigned char *>(stream)));
 }
 
-AkVCam::IMemBuffer::IMemBuffer(const AkVCam::IMemBuffer &other):
-    std::streambuf(other)
+AkVCam::IMemBuffer::IMemBuffer(const AkVCam::IMemBuffer &other)
 {
     this->d = new IMemBufferPrivate();
     this->d->m_mode = other.d->m_mode;
