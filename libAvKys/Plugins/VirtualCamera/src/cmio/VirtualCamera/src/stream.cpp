@@ -83,7 +83,14 @@ AkVCam::Stream::Stream(bool registerObject,
     this->d->m_swapRgb = false;
     this->m_className = "Stream";
     this->m_classID = kCMIOStreamClassID;
-    this->d->m_testFrame = {":/VirtualCamera/share/TestFrame/TestFrame.bmp"};
+
+    if (!this->d->m_testFrame.load(CMIO_PLUGINS_DAL_PATH
+                                   "/"
+                                   CMIO_PLUGIN_NAME
+                                   ".plugin/Contents/Resources/TestFrame.bmp")) {
+        this->d->m_testFrame.load(":/VirtualCamera/share/TestFrame/TestFrame.bmp");
+    }
+
     this->d->m_clock =
             std::make_shared<Clock>("CMIO::VirtualCamera::Stream",
                                     CMTimeMake(1, 10),

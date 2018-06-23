@@ -127,12 +127,18 @@ AkVCam::Pin::Pin(BaseFilter *baseFilter,
     this->d->m_adviseCookie = 0;
     this->d->m_sendFrameEvent = nullptr;
     this->d->m_running = false;
-    this->d->m_testFrame = {":/VirtualCamera/share/TestFrame/TestFrame.bmp"};
     this->d->m_horizontalMirror = false;
     this->d->m_verticalMirror = false;
     this->d->m_scaling = ScalingFast;
     this->d->m_aspectRatio = AspectRatioIgnore;
     this->d->m_swapRgb = false;
+
+    if (!this->d->m_testFrame.load(programFilesPath()
+                                   + "\\"
+                                   DSHOW_PLUGIN_NAME
+                                   ".plugin\\share\\TestFrame.bmp")) {
+        this->d->m_testFrame.load(":/VirtualCamera/share/TestFrame/TestFrame.bmp");
+    }
 
     baseFilter->QueryInterface(IID_IAMVideoProcAmp,
                                reinterpret_cast<void **>(&this->d->m_videoProcAmp));

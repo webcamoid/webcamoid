@@ -368,18 +368,18 @@ AkVCam::VideoFrame::~VideoFrame()
     delete this->d;
 }
 
-bool AkVCam::VideoFrame::load(const std::string &bmpResource)
+bool AkVCam::VideoFrame::load(const std::string &fileName)
 {
-    if (bmpResource.empty())
+    if (fileName.empty())
         return false;
 
-    if (bmpResource[0] == ':') {
-        auto stream = RcLoader::load(bmpResource);
+    if (fileName[0] == ':') {
+        auto stream = RcLoader::load(fileName);
 
         return this->load(&stream);
     }
 
-    std::ifstream stream(bmpResource);
+    std::ifstream stream(fileName);
 
     if (!stream.is_open())
         return false;

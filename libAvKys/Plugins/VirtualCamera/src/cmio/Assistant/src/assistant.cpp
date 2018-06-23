@@ -735,18 +735,11 @@ void AkVCam::AssistantPrivate::loadCameras()
 {
     AkAssistantPrivateLogMethod();
 
-    for (size_t i = 0; i < this->camerasCount(); i++)
-        this->m_deviceConfigs[this->cameraPath(i)] = {
-            this->cameraDescription(i),
-            this->cameraFormats(i),
-            {},
-            {},
-            false,
-            false,
-            ScalingFast,
-            AspectRatioIgnore,
-            false
-        };
+    for (size_t i = 0; i < this->camerasCount(); i++) {
+        this->m_deviceConfigs[this->cameraPath(i)] = {};
+        this->m_deviceConfigs[this->cameraPath(i)].description = this->cameraDescription(i);
+        this->m_deviceConfigs[this->cameraPath(i)].formats = this->cameraFormats(i);
+    }
 }
 
 void AkVCam::AssistantPrivate::releaseDevicesFromPeer(const std::string &portName)
@@ -929,18 +922,9 @@ void AkVCam::AssistantPrivate::deviceCreate(xpc_connection_t client,
     }
 
     auto deviceId = this->preferencesAddCamera(description, formats);
-
-    this->m_deviceConfigs[deviceId] = {
-        description,
-        formats,
-        {},
-        {},
-        false,
-        false,
-        ScalingFast,
-        AspectRatioIgnore,
-        false
-    };
+    this->m_deviceConfigs[deviceId] = {};
+    this->m_deviceConfigs[deviceId].description = description;
+    this->m_deviceConfigs[deviceId].formats = formats;
 
     auto notification = xpc_copy(event);
     xpc_dictionary_set_string(notification, "device", deviceId.c_str());
