@@ -17,14 +17,15 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <algorithm>
 #include <cmath>
 #include <cstring>
-#include <algorithm>
+#include <fstream>
 
 #include "videoframe.h"
 #include "videoformat.h"
 #include "../utils.h"
-#include "../cstream/cstreamread.h"
+#include "../membuffer/imembuffer.h"
 #include "../resources/rcloader.h"
 
 namespace AkVCam
@@ -270,81 +271,56 @@ namespace AkVCam
 
         return &contrastTable;
     }
+
+    struct BmpHeader
+    {
+        uint32_t size;
+        uint16_t reserved1;
+        uint16_t reserved2;
+        uint32_t offBits;
+    } ;
+
+    struct BmpImageHeader
+    {
+        uint32_t size;
+        uint32_t width;
+        uint32_t height;
+        uint16_t planes;
+        uint16_t bitCount;
+        uint32_t compression;
+        uint32_t sizeImage;
+        uint32_t xPelsPerMeter;
+        uint32_t yPelsPerMeter;
+        uint32_t clrUsed;
+        uint32_t clrImportant;
+    };
 }
 
 AkVCam::VideoFrame::VideoFrame()
 {
     this->d = new VideoFramePrivate;
+    this->d->m_dataSize = 0;
 }
 
-AkVCam::VideoFrame::VideoFrame(const std::string &bmpResource)
+AkVCam::VideoFrame::VideoFrame(const std::string &fileName)
 {
     this->d = new VideoFramePrivate;
+    this->d->m_dataSize = 0;
+    this->load(fileName);
+}
 
-    auto bitmapStream = RcLoader::load(bmpResource);
+AkVCam::VideoFrame::VideoFrame(std::streambuf *stream)
+{
+    this->d = new VideoFramePrivate;
+    this->d->m_dataSize = 0;
+    this->load(stream);
+}
 
-    if (!bitmapStream.data())
-        return;
-
-    if (bitmapStream.read<char>() != 'B'
-        || bitmapStream.read<char>() != 'M')
-        return;
-
-    bitmapStream.seek(8);
-    auto pixelsOffset = bitmapStream.read<uint32_t>();
-    bitmapStream.seek(4);
-    auto width = int(bitmapStream.read<uint32_t>());
-    auto height = int(bitmapStream.read<uint32_t>());
-    bitmapStream.seek(2);
-    auto depth = bitmapStream.read<uint16_t>();
-    bitmapStream.seek(int(pixelsOffset), CStreamRead::SeekSet);
-
-    size_t dataSize = sizeof(RGB24) * size_t(width * height);
-
-    if (!dataSize)
-        return;
-
-    auto data = std::shared_ptr<uint8_t>(new uint8_t[dataSize]);
-
-    switch (depth) {
-        case 24:
-            for (int y = 0; y < height; y++) {
-                auto line = reinterpret_cast<RGB24 *>(data.get()) + width * (height - y - 1);
-
-                for (int x = 0; x < width; x++) {
-                    line[x].r = bitmapStream.read<uint8_t>();
-                    line[x].g = bitmapStream.read<uint8_t>();
-                    line[x].b = bitmapStream.read<uint8_t>();
-                }
-            }
-
-            this->d->m_format = {PixelFormatRGB24, width, height};
-            this->d->m_data = data;
-            this->d->m_dataSize = dataSize;
-
-            break;
-
-        case 32:
-            for (int y = 0; y < height; y++) {
-                auto line = reinterpret_cast<RGB24 *>(data.get()) + width * (height - y - 1);
-
-                for (int x = 0; x < width; x++) {
-                    bitmapStream.seek<uint8_t>();
-                    line[x].r = bitmapStream.read<uint8_t>();
-                    line[x].g = bitmapStream.read<uint8_t>();
-                    line[x].b = bitmapStream.read<uint8_t>();
-                }
-            }
-
-            this->d->m_format = {PixelFormatRGB24, width, height};
-            this->d->m_data = data;
-            this->d->m_dataSize = dataSize;
-
-            break;
-
-        default:
-            break;
-    }
+AkVCam::VideoFrame::VideoFrame(std::istream *stream)
+{
+    this->d = new VideoFramePrivate;
+    this->d->m_dataSize = 0;
+    this->load(stream);
 }
 
 AkVCam::VideoFrame::VideoFrame(const AkVCam::VideoFormat &format,
@@ -390,6 +366,111 @@ AkVCam::VideoFrame &AkVCam::VideoFrame::operator =(const AkVCam::VideoFrame &oth
 AkVCam::VideoFrame::~VideoFrame()
 {
     delete this->d;
+}
+
+bool AkVCam::VideoFrame::load(const std::string &bmpResource)
+{
+    if (bmpResource.empty())
+        return false;
+
+    if (bmpResource[0] == ':') {
+        auto stream = RcLoader::load(bmpResource);
+
+        return this->load(&stream);
+    }
+
+    std::ifstream stream(bmpResource);
+
+    if (!stream.is_open())
+        return false;
+
+    return this->load(&stream);
+}
+
+bool AkVCam::VideoFrame::load(std::streambuf *stream)
+{
+    std::istream stream_(stream);
+
+    return this->load(&stream_);
+}
+
+// http://www.dragonwins.com/domains/getteched/bmp/bmpfileformat.htm
+bool AkVCam::VideoFrame::load(std::istream *stream)
+{
+    char type[2];
+    stream->read(type, 2);
+
+    if (memcmp(type, "BM", 2) != 0)
+        return false;
+
+    BmpHeader header;
+    stream->read(reinterpret_cast<char *>(&header), sizeof(BmpHeader));
+
+    BmpImageHeader imageHeader;
+    stream->read(reinterpret_cast<char *>(&imageHeader), sizeof(BmpImageHeader));
+    size_t dataSize = sizeof(RGB24) * size_t(imageHeader.width
+                                             * imageHeader.height);
+
+    if (!dataSize)
+        return false;
+
+    stream->seekg(header.offBits, std::ios_base::beg);
+    auto data = std::shared_ptr<uint8_t>(new uint8_t[dataSize]);
+
+    switch (imageHeader.bitCount) {
+        case 24:
+            for (uint32_t y = 0; y < imageHeader.height; y++) {
+                auto line =
+                        reinterpret_cast<RGB24 *>(data.get())
+                        + imageHeader.width * (imageHeader.height - y - 1);
+
+                for (uint32_t x = 0; x < imageHeader.width; x++) {
+                    BGR24 pixel;
+                    stream->read(reinterpret_cast<char *>(&pixel),
+                                 sizeof(BGR24));
+                    line[x].r = pixel.r;
+                    line[x].g = pixel.g;
+                    line[x].b = pixel.b;
+                }
+            }
+
+            this->d->m_format = {PixelFormatRGB24,
+                                 int(imageHeader.width),
+                                 int(imageHeader.height)};
+            this->d->m_data = data;
+            this->d->m_dataSize = dataSize;
+
+            break;
+
+        case 32:
+            for (uint32_t y = 0; y < imageHeader.height; y++) {
+                auto line =
+                        reinterpret_cast<RGB24 *>(data.get())
+                        + imageHeader.width * (imageHeader.height - y - 1);
+
+                for (uint32_t x = 0; x < imageHeader.width; x++) {
+                    BGR32 pixel;
+                    stream->read(reinterpret_cast<char *>(&pixel),
+                                 sizeof(BGR32));
+                    line[x].r = pixel.r;
+                    line[x].g = pixel.g;
+                    line[x].b = pixel.b;
+                }
+            }
+
+            this->d->m_format = {PixelFormatRGB24,
+                                 int(imageHeader.width),
+                                 int(imageHeader.height)};
+            this->d->m_data = data;
+            this->d->m_dataSize = dataSize;
+
+            break;
+
+        default:
+            break;
+    }
+
+    return true;
 }
 
 AkVCam::VideoFormat AkVCam::VideoFrame::format() const
@@ -651,7 +732,7 @@ AkVCam::VideoFrame AkVCam::VideoFrame::swapRgb(bool swap) const
 }
 
 AkVCam::VideoFrame AkVCam::VideoFrame::swapRgb() const
-{    
+{
     auto it = std::find(this->d->m_adjustFormats.begin(),
                         this->d->m_adjustFormats.end(),
                         this->d->m_format.fourcc());

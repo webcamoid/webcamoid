@@ -18,11 +18,11 @@
  */
 
 #include "rcname.h"
-#include "../cstream/cstreamread.h"
+#include "../membuffer/imembuffer.h"
 
 std::string AkVCam::RcName::read(const unsigned char *rcName)
 {
-    CStreamRead nameStream(rcName, true);
+    IMemBuffer nameStream(rcName, true);
     auto size = nameStream.read<uint16_t>();
     nameStream.seek<uint32_t>();
     std::wstring wstr;

@@ -18,7 +18,7 @@
  */
 
 #include "rcdata.h"
-#include "../cstream/cstreamread.h"
+#include "../membuffer/imembuffer.h"
 
 uint32_t AkVCam::RcData::size() const
 {
@@ -27,7 +27,7 @@ uint32_t AkVCam::RcData::size() const
 
 AkVCam::RcData AkVCam::RcData::read(const unsigned char *rcData)
 {
-    CStreamRead dataStream(rcData, true);
+    IMemBuffer dataStream(rcData, true);
     RcData data;
     data.m_size = dataStream.read<uint32_t>();
     data.m_data = dataStream.data<unsigned char>();

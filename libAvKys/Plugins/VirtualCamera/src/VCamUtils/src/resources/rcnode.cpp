@@ -18,7 +18,7 @@
  */
 
 #include "rcnode.h"
-#include "../cstream/cstreamread.h"
+#include "../membuffer/imembuffer.h"
 
 AkVCam::RcNode::RcNode()
 {
@@ -48,7 +48,7 @@ AkVCam::RcNode::RcNode(const RcNode &other)
 AkVCam::RcNode AkVCam::RcNode::read(const unsigned char *rcTree,
                                     int rcVersion)
 {
-    CStreamRead treeStream(rcTree, true);
+    IMemBuffer treeStream(rcTree, true);
     RcNode node;
     node.nameOffset = treeStream.read<uint32_t>();
     node.flags = treeStream.read<uint16_t>();

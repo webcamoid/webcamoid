@@ -24,7 +24,7 @@
 #include "rcnode.h"
 #include "rcname.h"
 #include "rcdata.h"
-#include "../cstream/cstreamread.h"
+#include "../membuffer/imembuffer.h"
 
 #ifndef UNUSED
     #define UNUSED(x) (void)(x);
@@ -50,13 +50,13 @@ std::list<std::string> AkVCam::RcLoader::list()
     return resources;
 }
 
-AkVCam::CStreamRead AkVCam::RcLoader::load(const std::string &resource)
+AkVCam::IMemBuffer AkVCam::RcLoader::load(const std::string &resource)
 {
     for (auto &res: *rcLoaderResources())
         if (res.first == resource)
-            return CStreamRead(res.second.m_data, size_t(res.second.m_size));
+            return IMemBuffer(res.second.m_data, size_t(res.second.m_size));
 
-    return CStreamRead();
+    return IMemBuffer();
 }
 
 namespace QT_NAMESPACE

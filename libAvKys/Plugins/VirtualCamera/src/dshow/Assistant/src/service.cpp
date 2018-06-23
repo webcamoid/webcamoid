@@ -31,8 +31,6 @@
 
 #include "service.h"
 #include "PlatformUtils/src/messageserver.h"
-#include "VCamUtils/src/cstream/cstreamread.h"
-#include "VCamUtils/src/cstream/cstreamwrite.h"
 #include "VCamUtils/src/image/videoformat.h"
 #include "VCamUtils/src/image/videoframe.h"
 #include "VCamUtils/src/timer.h"

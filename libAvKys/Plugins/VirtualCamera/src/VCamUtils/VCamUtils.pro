@@ -38,10 +38,10 @@ TARGET = VCamUtils
 TEMPLATE = lib
 
 SOURCES += \
-    src/cstream/cstreamread.cpp \
     src/image/videoformat.cpp \
     src/image/videoframe.cpp \
     src/logger/logger.cpp \
+    src/membuffer/imembuffer.cpp \
     src/resources/rcdata.cpp \
     src/resources/rcloader.cpp \
     src/resources/rcname.cpp \
@@ -50,13 +50,13 @@ SOURCES += \
     src/timer.cpp
 
 HEADERS += \
-    src/cstream/cstreamread.h \
     src/image/color.h \
     src/image/videoformat.h \
     src/image/videoframe.h \
     src/image/videoframetypes.h \
     src/image/videoformattypes.h \
     src/logger/logger.h \
+    src/membuffer/imembuffer.h \
     src/resources/rcdata.h \
     src/resources/rcloader.h \
     src/resources/rcname.h \

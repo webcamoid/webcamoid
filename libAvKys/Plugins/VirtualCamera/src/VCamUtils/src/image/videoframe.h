@@ -35,7 +35,9 @@ namespace AkVCam
     {
         public:
             VideoFrame();
-            VideoFrame(const std::string &bmpResource);
+            VideoFrame(const std::string &fileName);
+            VideoFrame(std::streambuf *stream);
+            VideoFrame(std::istream *stream);
             VideoFrame(const VideoFormat &format,
                        const std::shared_ptr<uint8_t> &data,
                        size_t dataSize);
@@ -46,6 +48,9 @@ namespace AkVCam
             VideoFrame &operator =(const VideoFrame &other);
             ~VideoFrame();
 
+            bool load(const std::string &bmpResource);
+            bool load(std::streambuf *stream);
+            bool load(std::istream *stream);
             VideoFormat format() const;
             VideoFormat &format();
             std::shared_ptr<uint8_t> data() const;

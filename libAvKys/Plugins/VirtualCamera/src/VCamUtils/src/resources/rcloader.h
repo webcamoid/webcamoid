@@ -25,12 +25,12 @@
 
 namespace AkVCam
 {
-    class CStreamRead;
+    class IMemBuffer;
 
     namespace RcLoader
     {
         std::list<std::string> list();
-        CStreamRead load(const std::string &resource);
+        IMemBuffer load(const std::string &resource);
     }
 }
 

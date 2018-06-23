@@ -17,6 +17,7 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <algorithm>
 #include <fstream>
 #include <cmath>
 #include <memory>
@@ -29,8 +30,6 @@
 #include "PlatformUtils/src/mutex.h"
 #include "PlatformUtils/src/sharedmemory.h"
 #include "PlatformUtils/src/utils.h"
-#include "VCamUtils/src/cstream/cstreamread.h"
-#include "VCamUtils/src/cstream/cstreamwrite.h"
 #include "VCamUtils/src/image/videoformat.h"
 #include "VCamUtils/src/image/videoframe.h"
 #include "VCamUtils/src/utils.h"
