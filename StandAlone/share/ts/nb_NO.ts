@@ -934,19 +934,19 @@
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="168"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="157"/>
         <source>Outline</source>
-        <translation type="unfinished"></translation>
+        <translation>Utriss</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="172"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="161"/>
         <source>Force outline</source>
-        <translation type="unfinished"></translation>
+        <translation>Tving utriss</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="176"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="165"/>
         <source>Match</source>
-        <translation type="unfinished"></translation>
+        <translation>Jamfør</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="180"/>
@@ -988,7 +988,7 @@
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="204"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="193"/>
         <source>No font merging</source>
-        <translation type="unfinished"></translation>
+        <translation>Ingen skriftsammenblanding</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="213"/>
@@ -1056,7 +1056,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/ColorFilter/share/qml/main.qml" line="64"/>
         <source>Select the color to filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Velg fargen å filtrere</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorReplace/share/qml/main.qml" line="60"/>
@@ -1159,13 +1159,13 @@
         <location filename="../../../libAvKys/Plugins/Emboss/share/qml/main.qml" line="29"/>
         <location filename="../../../libAvKys/Plugins/PrimariesColors/share/qml/main.qml" line="28"/>
         <source>Factor</source>
-        <translation type="unfinished"></translation>
+        <translation>Faktor</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="167"/>
         <location filename="../../../libAvKys/Plugins/Emboss/share/qml/main.qml" line="43"/>
         <source>Bias</source>
-        <translation type="unfinished"></translation>
+        <translation>Bias</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/DelayGrab/share/qml/main.qml" line="42"/>
@@ -1977,7 +1977,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="159"/>
         <source>Radiation color</source>
-        <translation type="unfinished"></translation>
+        <translation>Strålingsfarge</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="51"/>
@@ -2027,7 +2027,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Shagadelic/share/qml/main.qml" line="33"/>
         <source>Mask</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Maske</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Swirl/share/qml/main.qml" line="38"/>
@@ -2067,7 +2067,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Vignette/share/qml/main.qml" line="106"/>
         <source>Scale</source>
-        <translation type="unfinished"></translation>
+        <translation>Skala</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Vignette/share/qml/main.qml" line="129"/>
@@ -2077,7 +2077,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Vignette/share/qml/main.qml" line="73"/>
         <source>Choose the vignette color</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Velg vignettfarge</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="64"/>
