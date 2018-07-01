@@ -28,7 +28,7 @@
 
 #define MSERVER_TIMEOUT_DEFAULT 0
 #define MSERVER_TIMEOUT_MIN 1
-#define MSERVER_TIMEOUT_MAX std::numeric_limits<uint32_t>::max()
+#define MSERVER_TIMEOUT_MAX (std::numeric_limits<uint32_t>::max)()
 
 namespace AkVCam
 {
@@ -66,7 +66,7 @@ namespace AkVCam
 
             std::wstring pipeName() const;
             std::wstring &pipeName();
-            void setPipeName(const std::wstring &pipeName);            
+            void setPipeName(const std::wstring &pipeName);
             ServerMode mode() const;
             ServerMode &mode();
             void setMode(ServerMode mode);
