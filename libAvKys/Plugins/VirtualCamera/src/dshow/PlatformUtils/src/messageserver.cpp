@@ -17,29 +17,44 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <chrono>
+#include <condition_variable>
+#include <mutex>
 #include <thread>
 #include <windows.h>
 #include <sddl.h>
 
 #include "messageserver.h"
 #include "utils.h"
-#include "VCamUtils/src/utils.h"
+#include "VCamUtils/src/logger/logger.h"
+
+#define AK_CUR_INTERFACE "MessageServer"
 
 namespace AkVCam
 {
     class MessageServerPrivate
     {
         public:
+            MessageServer *self;
             std::wstring m_pipeName;
             std::map<uint32_t, MessageHandler> m_handlers;
-            StateChangedCallBack m_stateChangedCallBack;
-            void *m_userData;
+            MessageServer::ServerMode m_mode;
+            MessageServer::PipeState m_pipeState;
             HANDLE m_pipe;
             OVERLAPPED m_overlapped;
             std::thread m_thread;
+            std::mutex m_mutex;
+            std::condition_variable_any m_exitCheckLoop;
+            int m_checkInterval;
             bool m_running;
 
+            MessageServerPrivate(MessageServer *self);
+            bool startReceive(bool wait=false);
+            void stopReceive(bool wait=false);
+            bool startSend();
+            void stopSend();
             void messagesLoop();
+            void checkLoop();
             HRESULT waitResult(DWORD *bytesTransferred);
             bool readMessage(Message *message);
             bool writeMessage(const Message &message);
@@ -48,12 +63,7 @@ namespace AkVCam
 
 AkVCam::MessageServer::MessageServer()
 {
-    this->d = new MessageServerPrivate;
-    this->d->m_stateChangedCallBack = nullptr;
-    this->d->m_userData = nullptr;
-    this->d->m_pipe = INVALID_HANDLE_VALUE;
-    memset(&this->d->m_overlapped, 0, sizeof(OVERLAPPED));
-    this->d->m_running = false;
+    this->d = new MessageServerPrivate(this);
 }
 
 AkVCam::MessageServer::~MessageServer()
@@ -77,23 +87,138 @@ void AkVCam::MessageServer::setPipeName(const std::wstring &pipeName)
     this->d->m_pipeName = pipeName;
 }
 
+AkVCam::MessageServer::ServerMode AkVCam::MessageServer::mode() const
+{
+    return this->d->m_mode;
+}
+
+AkVCam::MessageServer::ServerMode &AkVCam::MessageServer::mode()
+{
+    return this->d->m_mode;
+}
+
+void AkVCam::MessageServer::setMode(ServerMode mode)
+{
+    this->d->m_mode = mode;
+}
+
+int AkVCam::MessageServer::checkInterval() const
+{
+    return this->d->m_checkInterval;
+}
+
+int &AkVCam::MessageServer::checkInterval()
+{
+    return this->d->m_checkInterval;
+}
+
+void AkVCam::MessageServer::setCheckInterval(int checkInterval)
+{
+    this->d->m_checkInterval = checkInterval;
+}
+
 void AkVCam::MessageServer::setHandlers(const std::map<uint32_t, MessageHandler> &handlers)
 {
     this->d->m_handlers = handlers;
 }
 
-void AkVCam::MessageServer::setStateChangedCallBack(StateChangedCallBack callback,
-                                                    void *userData)
-{
-    this->d->m_stateChangedCallBack = callback;
-    this->d->m_userData = userData;
-}
-
 bool AkVCam::MessageServer::start(bool wait)
 {
-    if (this->d->m_stateChangedCallBack)
-        this->d->m_stateChangedCallBack(StateAboutToStart, this->d->m_userData);
+    AkLogMethod();
 
+    switch (this->d->m_mode) {
+    case ServerModeReceive:
+        AkLoggerLog("Starting mode receive");
+
+        return this->d->startReceive(wait);
+
+    case ServerModeSend:
+        AkLoggerLog("Starting mode send");
+
+        return this->d->startSend();
+
+    default:
+        break;
+    }
+
+    return false;
+}
+
+void AkVCam::MessageServer::stop(bool wait)
+{
+    AkLogMethod();
+
+    if (this->d->m_mode == ServerModeReceive)
+        this->d->stopReceive(wait);
+    else
+        this->d->stopSend();
+}
+
+bool AkVCam::MessageServer::sendMessage(Message *message,
+                                        uint32_t timeout)
+{
+    return this->sendMessage(this->d->m_pipeName, message, timeout);
+}
+
+bool AkVCam::MessageServer::sendMessage(const Message &messageIn,
+                                        Message *messageOut,
+                                        uint32_t timeout)
+{
+    return this->sendMessage(this->d->m_pipeName,
+                             messageIn,
+                             messageOut,
+                             timeout);
+}
+
+bool AkVCam::MessageServer::sendMessage(const std::string &pipeName,
+                                        Message *message,
+                                        uint32_t timeout)
+{
+    return sendMessage(std::wstring(pipeName.begin(), pipeName.end()),
+                       message,
+                       timeout);
+}
+
+bool AkVCam::MessageServer::sendMessage(const std::wstring &pipeName,
+                                        Message *message,
+                                        uint32_t timeout)
+{
+    return sendMessage(pipeName,
+                       *message,
+                       message,
+                       timeout);
+}
+
+bool AkVCam::MessageServer::sendMessage(const std::wstring &pipeName,
+                                        const Message &messageIn,
+                                        Message *messageOut,
+                                        uint32_t timeout)
+{
+    DWORD bytesTransferred = 0;
+
+    return CallNamedPipe(pipeName.c_str(),
+                         const_cast<Message *>(&messageIn),
+                         DWORD(sizeof(Message)),
+                         messageOut,
+                         DWORD(sizeof(Message)),
+                         &bytesTransferred,
+                         timeout);
+}
+
+AkVCam::MessageServerPrivate::MessageServerPrivate(MessageServer *self):
+    self(self),
+    m_mode(MessageServer::ServerModeReceive),
+    m_pipeState(MessageServer::PipeStateGone),
+    m_pipe(INVALID_HANDLE_VALUE),
+    m_checkInterval(5000),
+    m_running(false)
+{
+    memset(&this->m_overlapped, 0, sizeof(OVERLAPPED));
+}
+
+bool AkVCam::MessageServerPrivate::startReceive(bool wait)
+{
+    AKVCAM_EMIT(this->self, StateChanged, MessageServer::StateAboutToStart)
     bool ok = false;
 
     // Define who can read and write from pipe.
@@ -114,63 +239,58 @@ bool AkVCam::MessageServer::start(bool wait)
             LocalAlloc(LPTR, SECURITY_DESCRIPTOR_MIN_LENGTH);
 
     if (!securityDescriptor)
-        goto init_failed;
+        goto startReceive_failed;
 
     if (!InitializeSecurityDescriptor(securityDescriptor,
                                       SECURITY_DESCRIPTOR_REVISION))
-        goto init_failed;
+        goto startReceive_failed;
 
     if (!ConvertStringSecurityDescriptorToSecurityDescriptor(descriptor,
                                                              SDDL_REVISION_1,
                                                              &securityDescriptor,
                                                              nullptr))
-        goto init_failed;
+        goto startReceive_failed;
 
     securityAttributes.nLength = sizeof(SECURITY_ATTRIBUTES);
     securityAttributes.lpSecurityDescriptor = securityDescriptor;
     securityAttributes.bInheritHandle = TRUE;
 
     // Create a read/write message type pipe.
-    this->d->m_pipe = CreateNamedPipe(this->d->m_pipeName.c_str(),
-                                      PIPE_ACCESS_DUPLEX
-                                      | FILE_FLAG_OVERLAPPED,
-                                      PIPE_TYPE_MESSAGE
-                                      | PIPE_READMODE_BYTE
-                                      | PIPE_WAIT,
-                                      PIPE_UNLIMITED_INSTANCES,
-                                      sizeof(Message),
-                                      sizeof(Message),
-                                      NMPWAIT_USE_DEFAULT_WAIT,
-                                      &securityAttributes);
+    this->m_pipe = CreateNamedPipe(this->m_pipeName.c_str(),
+                                   PIPE_ACCESS_DUPLEX
+                                   | FILE_FLAG_OVERLAPPED,
+                                   PIPE_TYPE_MESSAGE
+                                   | PIPE_READMODE_BYTE
+                                   | PIPE_WAIT,
+                                   PIPE_UNLIMITED_INSTANCES,
+                                   sizeof(Message),
+                                   sizeof(Message),
+                                   NMPWAIT_USE_DEFAULT_WAIT,
+                                   &securityAttributes);
 
-    if (this->d->m_pipe == INVALID_HANDLE_VALUE)
-        goto init_failed;
+    if (this->m_pipe == INVALID_HANDLE_VALUE)
+        goto startReceive_failed;
 
-    memset(&this->d->m_overlapped, 0, sizeof(OVERLAPPED));
-    this->d->m_overlapped.hEvent = CreateEvent(nullptr, TRUE, FALSE, nullptr);
-
-    if (this->d->m_stateChangedCallBack)
-        this->d->m_stateChangedCallBack(StateStarted, this->d->m_userData);
-
-    this->d->m_running = true;
+    memset(&this->m_overlapped, 0, sizeof(OVERLAPPED));
+    this->m_overlapped.hEvent = CreateEvent(nullptr, TRUE, FALSE, nullptr);
+    AKVCAM_EMIT(this->self, StateChanged, MessageServer::StateStarted)
+    this->m_running = true;
 
     if (wait)
-        this->d->messagesLoop();
+        this->messagesLoop();
     else
-        this->d->m_thread =
-                std::thread(&MessageServerPrivate::messagesLoop, this->d);
+        this->m_thread =
+            std::thread(&MessageServerPrivate::messagesLoop, this);
 
     ok = true;
 
-init_failed:
+startReceive_failed:
 
     if (!ok) {
         AkLoggerLog("Error starting server: ",
                     errorToString(GetLastError()),
                     " (", GetLastError(), ")");
-
-        if (this->d->m_stateChangedCallBack)
-            this->d->m_stateChangedCallBack(StateStopped, this->d->m_userData);
+        AKVCAM_EMIT(this->self, StateChanged, MessageServer::StateStopped)
     }
 
     if (securityDescriptor)
@@ -179,44 +299,37 @@ init_failed:
     return ok;
 }
 
-void AkVCam::MessageServer::stop(bool wait)
+void AkVCam::MessageServerPrivate::stopReceive(bool wait)
 {
-    if (!this->d->m_running)
+    if (!this->m_running)
         return;
 
-    this->d->m_running = false;
-    SetEvent(this->d->m_overlapped.hEvent);
+    this->m_running = false;
+    SetEvent(this->m_overlapped.hEvent);
 
     if (wait)
-        this->d->m_thread.join();
+        this->m_thread.join();
 }
 
-bool AkVCam::MessageServer::sendMessage(const std::string &pipeName,
-                                        AkVCam::Message *message)
+bool AkVCam::MessageServerPrivate::startSend()
 {
-    return sendMessage(std::wstring(pipeName.begin(), pipeName.end()),
-                       message);
+    this->m_running = true;
+    this->m_thread = std::thread(&MessageServerPrivate::checkLoop, this);
+
+    return true;
 }
 
-bool AkVCam::MessageServer::sendMessage(const std::wstring &pipeName,
-                                        AkVCam::Message *message)
+void AkVCam::MessageServerPrivate::stopSend()
 {
-    return sendMessage(pipeName, *message, message);
-}
+    if (!this->m_running)
+        return;
 
-bool AkVCam::MessageServer::sendMessage(const std::wstring &pipeName,
-                                        const AkVCam::Message &messageIn,
-                                        AkVCam::Message *messageOut)
-{
-    DWORD bytesTransferred = 0;
-
-    return CallNamedPipe(pipeName.c_str(),
-                         const_cast<Message *>(&messageIn),
-                         DWORD(sizeof(Message)),
-                         messageOut,
-                         DWORD(sizeof(Message)),
-                         &bytesTransferred,
-                         NMPWAIT_WAIT_FOREVER);
+    this->m_running = false;
+    this->m_mutex.lock();
+    this->m_exitCheckLoop.notify_all();
+    this->m_mutex.unlock();
+    this->m_thread.join();
+    this->m_pipeState = MessageServer::PipeStateGone;
 }
 
 void AkVCam::MessageServerPrivate::messagesLoop()
@@ -244,8 +357,7 @@ void AkVCam::MessageServerPrivate::messagesLoop()
         DisconnectNamedPipe(this->m_pipe);
     }
 
-    if (this->m_stateChangedCallBack)
-        this->m_stateChangedCallBack(StateStopped, this->m_userData);
+    AKVCAM_EMIT(this->self, StateChanged, MessageServer::StateStopped)
 
     if (this->m_overlapped.hEvent != INVALID_HANDLE_VALUE) {
         CloseHandle(this->m_overlapped.hEvent);
@@ -257,8 +369,39 @@ void AkVCam::MessageServerPrivate::messagesLoop()
         this->m_pipe = INVALID_HANDLE_VALUE;
     }
 
-    if (this->m_stateChangedCallBack)
-        this->m_stateChangedCallBack(StateStopped, this->m_userData);
+    AKVCAM_EMIT(this->self, StateChanged, MessageServer::StateStopped)
+}
+
+void AkVCam::MessageServerPrivate::checkLoop()
+{
+    while (this->m_running) {
+        auto result = WaitNamedPipe(this->m_pipeName.c_str(), NMPWAIT_NOWAIT);
+
+        if (result
+            && this->m_pipeState != AkVCam::MessageServer::PipeStateAvailable) {
+            AkLoggerLog("Pipe Available: ",
+                        std::string(this->m_pipeName.begin(),
+                                    this->m_pipeName.end()));
+            this->m_pipeState = AkVCam::MessageServer::PipeStateAvailable;
+            AKVCAM_EMIT(this->self, PipeStateChanged, this->m_pipeState);
+        } else if (!result
+                   && this->m_pipeState != AkVCam::MessageServer::PipeStateGone
+                   && GetLastError() != ERROR_SEM_TIMEOUT) {
+            AkLoggerLog("Pipe Gone: ",
+                        std::string(this->m_pipeName.begin(),
+                                    this->m_pipeName.end()));
+            this->m_pipeState = AkVCam::MessageServer::PipeStateGone;
+            AKVCAM_EMIT(this->self, PipeStateChanged, this->m_pipeState);
+        }
+
+        if (!this->m_running)
+            break;
+
+        this->m_mutex.lock();
+        this->m_exitCheckLoop.wait_for(this->m_mutex,
+                                       std::chrono::milliseconds(this->m_checkInterval));
+        this->m_mutex.unlock();
+    }
 }
 
 HRESULT AkVCam::MessageServerPrivate::waitResult(DWORD *bytesTransferred)

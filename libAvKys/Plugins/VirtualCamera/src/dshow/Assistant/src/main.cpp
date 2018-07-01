@@ -22,7 +22,7 @@
 
 #include "service.h"
 #include "PlatformUtils/src/utils.h"
-#include "VCamUtils/src/utils.h"
+#include "VCamUtils/src/logger/logger.h"
 
 int main(int argc, char **argv)
 {

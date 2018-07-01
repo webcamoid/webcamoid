@@ -38,6 +38,7 @@ namespace AkVCam
             EnumPins(const EnumPins &other);
             virtual ~EnumPins();
 
+            size_t count() const;
             void addPin(IPin *pin, bool changed=true);
             void removePin(IPin *pin, bool changed=true);
             void setBaseFilter(AkVCam::BaseFilter *baseFilter);

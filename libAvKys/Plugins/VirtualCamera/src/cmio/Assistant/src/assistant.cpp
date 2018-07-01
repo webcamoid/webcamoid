@@ -27,7 +27,7 @@
 #include "assistantglobals.h"
 #include "VCamUtils/src/image/videoformat.h"
 #include "VCamUtils/src/image/videoframe.h"
-#include "VCamUtils/src/utils.h"
+#include "VCamUtils/src/logger/logger.h"
 
 #define AkAssistantLogMethod() \
     AkLoggerLog("Assistant::", __FUNCTION__, "()")

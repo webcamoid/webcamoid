@@ -34,31 +34,33 @@
 class CameraOutCMIOPrivate
 {
     public:
+        CameraOutCMIO *self;
         QDir m_applicationDir;
         QStringList m_webcams;
         QString m_curDevice;
         AkVCam::IpcBridge m_ipcBridge;
         int m_streamIndex;
 
-        CameraOutCMIOPrivate();
+        CameraOutCMIOPrivate(CameraOutCMIO *self);
+        ~CameraOutCMIOPrivate();
         QString convertToAbsolute(const QString &path) const;
+        static void serverStateChanged(void *userData,
+                                       AkVCam::IpcBridge::ServerState state);
 };
 
 CameraOutCMIO::CameraOutCMIO(QObject *parent):
     CameraOut(parent)
 {
-    this->d = new CameraOutCMIOPrivate;
+    this->d = new CameraOutCMIOPrivate(this);
     QObject::connect(this,
                      &CameraOut::driverPathsChanged,
                      this,
                      &CameraOutCMIO::updateDriverPaths);
     this->resetDriverPaths();
-    this->d->m_ipcBridge.registerPeer(false);
 }
 
 CameraOutCMIO::~CameraOutCMIO()
 {
-    this->d->m_ipcBridge.unregisterPeer();
     delete this->d;
 }
 
@@ -228,10 +230,19 @@ void CameraOutCMIO::updateDriverPaths(const QStringList &driverPaths)
     this->d->m_ipcBridge.setDriverPaths(paths);
 }
 
-CameraOutCMIOPrivate::CameraOutCMIOPrivate():
+CameraOutCMIOPrivate::CameraOutCMIOPrivate(CameraOutCMIO *self):
+    self(self),
     m_streamIndex(-1)
 {
     this->m_applicationDir.setPath(QCoreApplication::applicationDirPath());
+    this->m_ipcBridge.connectServerStateChanged(this,
+                                                &CameraOutCMIOPrivate::serverStateChanged);
+    this->m_ipcBridge.connectService(false);
+}
+
+CameraOutCMIOPrivate::~CameraOutCMIOPrivate()
+{
+    this->m_ipcBridge.disconnectService();
 }
 
 QString CameraOutCMIOPrivate::convertToAbsolute(const QString &path) const
@@ -242,6 +253,26 @@ QString CameraOutCMIOPrivate::convertToAbsolute(const QString &path) const
     QString absPath = this->m_applicationDir.absoluteFilePath(path);
 
     return QDir::cleanPath(absPath);
+}
+
+void CameraOutCMIOPrivate::serverStateChanged(void *userData,
+                                              AkVCam::IpcBridge::ServerState state)
+{
+    auto self = reinterpret_cast<CameraOutCMIOPrivate *>(userData);
+
+    switch (state) {
+        case AkVCam::IpcBridge::ServerStateAvailable:
+            if (self->m_streamIndex >= 0) {
+                auto streamIndex = self->m_streamIndex;
+                self->self->uninit();
+                self->self->init(streamIndex);
+            }
+
+            break;
+
+        case AkVCam::IpcBridge::ServerStateGone:
+            break;
+    }
 }
 
 #include "moc_cameraoutcmio.cpp"

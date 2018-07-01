@@ -20,48 +20,82 @@
 #ifndef MESSAGESERVER_H
 #define MESSAGESERVER_H
 
+#include <limits>
 #include <map>
 
 #include "messagecommons.h"
+#include "VCamUtils/src/utils.h"
+
+#define MSERVER_TIMEOUT_DEFAULT 0
+#define MSERVER_TIMEOUT_MIN 1
+#define MSERVER_TIMEOUT_MAX std::numeric_limits<uint32_t>::max()
 
 namespace AkVCam
 {
-    enum State
-    {
-        StateAboutToStart,
-        StateStarted,
-        StateAboutToStop,
-        StateStopped
-    };
-
-    typedef void (*StateChangedCallBack)(State state, void *userData);
-
     class MessageServerPrivate;
 
     class MessageServer
     {
+        public:
+            enum ServerMode
+            {
+                ServerModeReceive,
+                ServerModeSend
+            };
+
+            enum State
+            {
+                StateAboutToStart,
+                StateStarted,
+                StateAboutToStop,
+                StateStopped
+            };
+
+            enum PipeState
+            {
+                PipeStateAvailable,
+                PipeStateGone
+            };
+
+            AKVCAM_SIGNAL(StateChanged, State state)
+            AKVCAM_SIGNAL(PipeStateChanged, PipeState state)
+
         public:
             MessageServer();
             ~MessageServer();
 
             std::wstring pipeName() const;
             std::wstring &pipeName();
-            void setPipeName(const std::wstring &pipeName);
-            void setHandlers(const std::map<uint32_t, MessageHandler> &handlers);
-            void setStateChangedCallBack(StateChangedCallBack callback,
-                                         void *userData);
+            void setPipeName(const std::wstring &pipeName);            
+            ServerMode mode() const;
+            ServerMode &mode();
+            void setMode(ServerMode mode);
+            int checkInterval() const;
+            int &checkInterval();
+            void setCheckInterval(int checkInterval);
+            void setHandlers(const std::map<uint32_t,
+                             MessageHandler> &handlers);
             bool start(bool wait=false);
             void stop(bool wait=false);
+            bool sendMessage(Message *message,
+                             uint32_t timeout=MSERVER_TIMEOUT_MAX);
+            bool sendMessage(const Message &messageIn,
+                             Message *messageOut,
+                             uint32_t timeout=MSERVER_TIMEOUT_MAX);
             static bool sendMessage(const std::string &pipeName,
-                                    Message *message);
+                                    Message *message,
+                                    uint32_t timeout=MSERVER_TIMEOUT_MAX);
             static bool sendMessage(const std::wstring &pipeName,
-                                    Message *message);
+                                    Message *message,
+                                    uint32_t timeout=MSERVER_TIMEOUT_MAX);
             static bool sendMessage(const std::wstring &pipeName,
                                     const Message &messageIn,
-                                    Message *messageOut);
+                                    Message *messageOut,
+                                    uint32_t timeout=MSERVER_TIMEOUT_MAX);
 
         private:
             MessageServerPrivate *d;
+            friend class MessageServerPrivate;
     };
 }
 

@@ -25,6 +25,7 @@
 
 #include "VCamUtils/src/image/videoframetypes.h"
 #include "streamconfig.h"
+#include "ipcbridge.h"
 
 namespace AkVCam
 {
@@ -46,6 +47,7 @@ namespace AkVCam
             BaseFilter *baseFilter() const;
             void setBaseFilter(BaseFilter *baseFilter);
             static HRESULT stateChanged(void *userData, FILTER_STATE state);
+            void serverStateChanged(IpcBridge::ServerState state);
             void frameReady(const VideoFrame &frame);
             void setBroadcasting(const std::string &broadcaster);
             void setMirror(bool horizontalMirror, bool verticalMirror);

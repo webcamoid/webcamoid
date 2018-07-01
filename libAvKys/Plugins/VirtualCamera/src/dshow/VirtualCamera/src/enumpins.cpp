@@ -67,6 +67,11 @@ AkVCam::EnumPins::~EnumPins()
     delete this->d;
 }
 
+size_t AkVCam::EnumPins::count() const
+{
+    return this->d->m_pins.size();
+}
+
 void AkVCam::EnumPins::addPin(IPin *pin, bool changed)
 {
     this->d->m_pins.push_back(pin);

@@ -22,7 +22,7 @@
 #include "sharedmemory.h"
 #include "mutex.h"
 #include "utils.h"
-#include "VCamUtils/src/utils.h"
+#include "VCamUtils/src/logger/logger.h"
 
 namespace AkVCam
 {

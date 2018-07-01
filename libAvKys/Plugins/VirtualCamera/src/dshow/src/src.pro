@@ -26,8 +26,6 @@ exists(akcommons.pri) {
     }
 }
 
-include(../dshow.pri)
-
 CONFIG += plugin
 
 HEADERS = \

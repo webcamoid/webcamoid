@@ -33,7 +33,6 @@ namespace AkVCam
     {
         public:
             std::map<LONG, LONG> m_control;
-            std::vector<std::pair<void *, PropertyChangedCallback>> m_propertyChanged;
     };
 
     class ProcAmpPrivate
@@ -82,30 +81,6 @@ AkVCam::VideoProcAmp::~VideoProcAmp()
     delete this->d;
 }
 
-void AkVCam::VideoProcAmp::subscribePropertyChanged(void *userData,
-                                                    PropertyChangedCallback callback)
-{
-    AkLogMethod();
-    this->d->m_propertyChanged.push_back({userData, callback});
-}
-
-void AkVCam::VideoProcAmp::unsubscribePropertyChanged(void *userData,
-                                                      PropertyChangedCallback callback)
-{
-    AkLogMethod();
-
-    for (auto it = this->d->m_propertyChanged.begin();
-         it != this->d->m_propertyChanged.end();
-         it++) {
-        if (it->first == userData
-            && it->second == callback) {
-            this->d->m_propertyChanged.erase(it);
-
-            break;
-        }
-    }
-}
-
 HRESULT AkVCam::VideoProcAmp::GetRange(LONG Property,
                                        LONG *pMin,
                                        LONG *pMax,
@@ -150,9 +125,7 @@ HRESULT AkVCam::VideoProcAmp::Set(LONG Property, LONG lValue, LONG Flags)
                 return E_INVALIDARG;
 
             this->d->m_control[Property] = lValue;
-
-            for (auto &callback: this->d->m_propertyChanged)
-                callback.second(callback.first, Property, lValue, Flags);
+            AKVCAM_EMIT(this, PropertyChanged, Property, lValue, Flags)
 
             return S_OK;
         }

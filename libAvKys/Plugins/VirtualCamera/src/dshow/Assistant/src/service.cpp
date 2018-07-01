@@ -34,7 +34,7 @@
 #include "VCamUtils/src/image/videoformat.h"
 #include "VCamUtils/src/image/videoframe.h"
 #include "VCamUtils/src/timer.h"
-#include "VCamUtils/src/utils.h"
+#include "VCamUtils/src/logger/logger.h"
 
 #define AkServiceLogMethod() \
     AkLoggerLog("Service::", __FUNCTION__, "()")
@@ -80,7 +80,8 @@ namespace AkVCam
             std::mutex m_peerMutex;
 
             ServicePrivate();
-            static void stateChanged(State state, void *userData);
+            static void stateChanged(void *userData,
+                                     MessageServer::State state);
             static void checkPeers(void *userData);
             void sendStatus(DWORD currentState, DWORD exitCode, DWORD wait);
             inline static uint64_t id();
@@ -310,27 +311,28 @@ AkVCam::ServicePrivate::ServicePrivate()
         {AKVCAM_ASSISTANT_MSG_DEVICE_SETSWAPRGB     , AKVCAM_BIND_FUNC(ServicePrivate::setSwapRgb)     },
     });
     this->m_timer.setInterval(60000);
-    this->m_timer.setTimeoutCallback(&ServicePrivate::checkPeers, this);
+    this->m_timer.connectTimeout(this, &ServicePrivate::checkPeers);
 }
 
-void AkVCam::ServicePrivate::stateChanged(AkVCam::State state, void *userData)
+void AkVCam::ServicePrivate::stateChanged(void *userData,
+                                          MessageServer::State state)
 {
     UNUSED(userData)
 
     switch (state) {
-    case StateAboutToStart:
+    case MessageServer::StateAboutToStart:
         AkVCam::servicePrivate()->sendStatus(SERVICE_START_PENDING, NO_ERROR, 3000);
         break;
 
-    case StateStarted:
+    case MessageServer::StateStarted:
         AkVCam::servicePrivate()->sendStatus(SERVICE_RUNNING, NO_ERROR, 0);
         break;
 
-    case StateAboutToStop:
+    case MessageServer::StateAboutToStop:
         AkVCam::servicePrivate()->sendStatus(SERVICE_STOP_PENDING, NO_ERROR, 0);
         break;
 
-    case StateStopped:
+    case MessageServer::StateStopped:
         AkVCam::servicePrivate()->sendStatus(SERVICE_STOPPED, NO_ERROR, 0);
         break;
     }
@@ -917,7 +919,7 @@ void WINAPI serviceMain(DWORD dwArgc, LPTSTR *lpszArgv)
 
     AkLoggerLog("Setting up service");
     AkVCam::servicePrivate()->m_messageServer
-            .setStateChangedCallBack(&AkVCam::ServicePrivate::stateChanged,
-                                     AkVCam::servicePrivate());
+            .connectStateChanged(AkVCam::servicePrivate(),
+                                 &AkVCam::ServicePrivate::stateChanged);
     AkVCam::servicePrivate()->m_messageServer.start(true);
 }

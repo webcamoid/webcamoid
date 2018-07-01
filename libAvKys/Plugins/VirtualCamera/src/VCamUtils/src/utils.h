@@ -21,8 +21,7 @@
 #define AKVCAMUTILS_UTILS_H
 
 #include <cstdint>
-
-#include "logger/logger.h"
+#include <vector>
 
 #ifndef UNUSED
     #define UNUSED(x) (void)(x);
@@ -43,6 +42,102 @@
         \
         return &_##variableName; \
     }
+
+#define AKVCAM_CALLBACK(CallbackName, ...) \
+    typedef void (*CallbackName##CallbackT)(void *userData, __VA_ARGS__); \
+    typedef std::pair<void *, CallbackName##CallbackT> CallbackName##Callback;
+
+#define AKVCAM_CALLBACK_NOARGS(CallbackName) \
+    typedef void (*CallbackName##CallbackT)(void *userData); \
+    typedef std::pair<void *, CallbackName##CallbackT> CallbackName##Callback;
+
+#define AKVCAM_SIGNAL(CallbackName, ...) \
+    public: \
+        typedef void (*CallbackName##CallbackT)(void *userData, __VA_ARGS__); \
+        typedef std::pair<void *, CallbackName##CallbackT> CallbackName##Callback; \
+        \
+        void connect##CallbackName(void *userData, \
+                                   CallbackName##CallbackT callback) \
+        { \
+            if (!callback) \
+                return; \
+            \
+            for (auto &func: this->m_##CallbackName##Callback) \
+                if (func.first == userData \
+                    && func.second == callback) \
+                    return; \
+            \
+            this->m_##CallbackName##Callback.push_back({userData, callback});\
+        } \
+        \
+        void disconnect##CallbackName(void *userData, \
+                                      CallbackName##CallbackT callback) \
+        { \
+            if (!callback) \
+                return; \
+            \
+            for (auto it = this->m_##CallbackName##Callback.begin(); \
+                it != this->m_##CallbackName##Callback.end(); \
+                it++) \
+                if (it->first == userData \
+                    && it->second == callback) { \
+                    this->m_##CallbackName##Callback.erase(it); \
+                    \
+                    return; \
+                } \
+        } \
+    \
+    private: \
+        std::vector<CallbackName##Callback> m_##CallbackName##Callback;
+
+#define AKVCAM_SIGNAL_NOARGS(CallbackName) \
+    public: \
+        typedef void (*CallbackName##CallbackT)(void *userData); \
+        typedef std::pair<void *, CallbackName##CallbackT> CallbackName##Callback; \
+        \
+        void connect##CallbackName(void *userData, \
+                                   CallbackName##CallbackT callback) \
+        { \
+            if (!callback) \
+                return; \
+            \
+            for (auto &func: this->m_##CallbackName##Callback) \
+                if (func.first == userData \
+                    && func.second == callback) \
+                    return; \
+            \
+            this->m_##CallbackName##Callback.push_back({userData, callback});\
+        } \
+        \
+        void disconnect##CallbackName(void *userData, \
+                                      CallbackName##CallbackT callback) \
+        { \
+            if (!callback) \
+                return; \
+            \
+            for (auto it = this->m_##CallbackName##Callback.begin(); \
+                it != this->m_##CallbackName##Callback.end(); \
+                it++) \
+                if (it->first == userData \
+                    && it->second == callback) { \
+                    this->m_##CallbackName##Callback.erase(it); \
+                    \
+                    return; \
+                } \
+        } \
+    \
+    private: \
+        std::vector<CallbackName##Callback> m_##CallbackName##Callback;
+
+#define AKVCAM_EMIT(owner, CallbackName, ...) \
+    for (auto &callback: owner->m_##CallbackName##Callback) \
+        if (callback.second) \
+            callback.second(callback.first, __VA_ARGS__); \
+
+#define AKVCAM_EMIT_NOARGS(owner, CallbackName) \
+    for (auto &callback: owner->m_##CallbackName##Callback) \
+        if (callback.second) \
+            callback.second(callback.first); \
 
 namespace AkVCam
 {

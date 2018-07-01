@@ -33,6 +33,7 @@
 #include "VCamUtils/src/utils.h"
 #include "VCamUtils/src/image/videoformat.h"
 #include "VCamUtils/src/image/videoframe.h"
+#include "VCamUtils/src/logger/logger.h"
 
 #define AkIpcBridgeLogMethod() \
     AkLoggerLog("IpcBridge::", __FUNCTION__, "()")
@@ -48,26 +49,19 @@ namespace AkVCam
     class IpcBridgePrivate
     {
         public:
+            IpcBridge *self;
             std::string portName;
             xpc_connection_t messagePort;
             xpc_connection_t serverMessagePort;
-            IpcBridge::FrameReadyCallback frameReadyCallback;
-            IpcBridge::DeviceChangedCallback deviceAddedCallback;
-            IpcBridge::DeviceChangedCallback deviceRemovedCallback;
-            IpcBridge::BroadcastingChangedCallback broadcastingChangedCallback;
-            IpcBridge::MirrorChangedCallback mirrorChangedCallback;
-            IpcBridge::ScalingChangedCallback scalingChangedCallback;
-            IpcBridge::AspectRatioChangedCallback aspectRatioChangedCallback;
-            IpcBridge::SwapRgbChangedCallback swapRgbChangedCallback;
-            IpcBridge::ListenerCallback listenerAddedCallback;
-            IpcBridge::ListenerCallback listenerRemovedCallback;
             std::map<int64_t, XpcMessage> m_messageHandlers;
             std::vector<std::string> broadcasting;
             std::map<std::string, std::string> options;
             std::vector<std::string> driverPaths;
+            bool asClient;
             bool uninstall;
 
-            IpcBridgePrivate();
+            IpcBridgePrivate(IpcBridge *self=nullptr);
+            ~IpcBridgePrivate();
             inline void add(IpcBridge *bridge);
             void remove(IpcBridge *bridge);
             inline std::vector<IpcBridge *> &bridges();
@@ -118,8 +112,7 @@ namespace AkVCam
 AkVCam::IpcBridge::IpcBridge()
 {
     AkIpcBridgeLogMethod();
-
-    this->d = new IpcBridgePrivate;
+    this->d = new IpcBridgePrivate(this);
     ipcBridgePrivate()->add(this);
 }
 
@@ -167,6 +160,20 @@ std::string AkVCam::IpcBridge::rootMethod() const
 bool AkVCam::IpcBridge::setRootMethod(const std::string &rootMethod)
 {
     return rootMethod == "osascript";
+}
+
+void AkVCam::IpcBridge::connectService(bool asClient)
+{
+    AkIpcBridgeLogMethod();
+    this->d->asClient = asClient;
+    this->registerPeer(asClient);
+}
+
+void AkVCam::IpcBridge::disconnectService()
+{
+    AkIpcBridgeLogMethod();
+    this->unregisterPeer();
+    this->d->asClient = false;
 }
 
 bool AkVCam::IpcBridge::registerPeer(bool asClient)
@@ -332,6 +339,13 @@ std::vector<std::string> AkVCam::IpcBridge::listDevices() const
         devices.push_back(xpc_array_get_string(devicesList, i));
 
     xpc_release(reply);
+
+#ifdef QT_DEBUG
+    AkLoggerLog("Devices:");
+
+    for (auto &device: devices)
+        AkLoggerLog("    ", device);
+#endif
 
     return devices;
 }
@@ -914,16 +928,6 @@ void AkVCam::IpcBridge::setSwapRgb(const std::string &deviceId, bool swap)
     xpc_release(reply);
 }
 
-void AkVCam::IpcBridge::setListenerAddedCallback(ListenerCallback callback)
-{
-    this->d->listenerAddedCallback = callback;
-}
-
-void AkVCam::IpcBridge::setListenerRemovedCallback(ListenerCallback callback)
-{
-    this->d->listenerRemovedCallback = callback;
-}
-
 bool AkVCam::IpcBridge::addListener(const std::string &deviceId)
 {
     AkIpcBridgeLogMethod();
@@ -980,49 +984,11 @@ bool AkVCam::IpcBridge::removeListener(const std::string &deviceId)
     return status;
 }
 
-void AkVCam::IpcBridge::setFrameReadyCallback(FrameReadyCallback callback)
-{
-    this->d->frameReadyCallback = callback;
-}
-
-void AkVCam::IpcBridge::setDeviceAddedCallback(DeviceChangedCallback callback)
-{
-    this->d->deviceAddedCallback = callback;
-}
-
-void AkVCam::IpcBridge::setDeviceRemovedCallback(DeviceChangedCallback callback)
-{
-    this->d->deviceRemovedCallback = callback;
-}
-
-void AkVCam::IpcBridge::setBroadcastingChangedCallback(BroadcastingChangedCallback callback)
-{
-    this->d->broadcastingChangedCallback = callback;
-}
-
-void AkVCam::IpcBridge::setMirrorChangedCallback(MirrorChangedCallback callback)
-{
-    this->d->mirrorChangedCallback = callback;
-}
-
-void AkVCam::IpcBridge::setScalingChangedCallback(ScalingChangedCallback callback)
-{
-    this->d->scalingChangedCallback = callback;
-}
-
-void AkVCam::IpcBridge::setAspectRatioChangedCallback(AspectRatioChangedCallback callback)
-{
-    this->d->aspectRatioChangedCallback = callback;
-}
-
-void AkVCam::IpcBridge::setSwapRgbChangedCallback(SwapRgbChangedCallback callback)
-{
-    this->d->swapRgbChangedCallback = callback;
-}
-
-AkVCam::IpcBridgePrivate::IpcBridgePrivate():
+AkVCam::IpcBridgePrivate::IpcBridgePrivate(IpcBridge *self):
+    self(self),
     messagePort(nullptr),
     serverMessagePort(nullptr),
+    asClient(false),
     uninstall(true)
 {
     this->m_messageHandlers = {
@@ -1038,6 +1004,11 @@ AkVCam::IpcBridgePrivate::IpcBridgePrivate():
         {AKVCAM_ASSISTANT_MSG_DEVICE_SETASPECTRATIO , AKVCAM_BIND_FUNC(IpcBridgePrivate::setAspectRatio) },
         {AKVCAM_ASSISTANT_MSG_DEVICE_SETSWAPRGB     , AKVCAM_BIND_FUNC(IpcBridgePrivate::setSwapRgb)     },
     };
+}
+
+AkVCam::IpcBridgePrivate::~IpcBridgePrivate()
+{
+
 }
 
 void AkVCam::IpcBridgePrivate::add(IpcBridge *bridge)
@@ -1079,8 +1050,7 @@ void AkVCam::IpcBridgePrivate::deviceCreate(xpc_connection_t client,
     std::string device = xpc_dictionary_get_string(event, "device");
 
     for (auto bridge: this->m_bridges)
-        if (bridge->d->deviceAddedCallback)
-            bridge->d->deviceAddedCallback(device);
+        AKVCAM_EMIT(bridge, DeviceAdded, device)
 }
 
 void AkVCam::IpcBridgePrivate::deviceDestroy(xpc_connection_t client,
@@ -1092,8 +1062,7 @@ void AkVCam::IpcBridgePrivate::deviceDestroy(xpc_connection_t client,
     std::string device = xpc_dictionary_get_string(event, "device");
 
     for (auto bridge: this->m_bridges)
-        if (bridge->d->deviceRemovedCallback)
-            bridge->d->deviceRemovedCallback(device);
+        AKVCAM_EMIT(bridge, DeviceRemoved, device)
 }
 
 void AkVCam::IpcBridgePrivate::frameReady(xpc_connection_t client,
@@ -1123,8 +1092,7 @@ void AkVCam::IpcBridgePrivate::frameReady(xpc_connection_t client,
     CFRelease(surface);
 
     for (auto bridge: this->m_bridges)
-        if (bridge->d->frameReadyCallback)
-            bridge->d->frameReadyCallback(deviceId, videoFrame);
+        AKVCAM_EMIT(bridge, FrameReady, deviceId, videoFrame)
 }
 
 void AkVCam::IpcBridgePrivate::setBroadcasting(xpc_connection_t client,
@@ -1139,8 +1107,7 @@ void AkVCam::IpcBridgePrivate::setBroadcasting(xpc_connection_t client,
             xpc_dictionary_get_string(event, "broadcaster");
 
     for (auto bridge: this->m_bridges)
-        if (bridge->d->broadcastingChangedCallback)
-            bridge->d->broadcastingChangedCallback(deviceId, broadcaster);
+        AKVCAM_EMIT(bridge, BroadcastingChanged, deviceId, broadcaster)
 }
 
 void AkVCam::IpcBridgePrivate::setMirror(xpc_connection_t client,
@@ -1157,10 +1124,11 @@ void AkVCam::IpcBridgePrivate::setMirror(xpc_connection_t client,
             xpc_dictionary_get_bool(event, "vmirror");
 
     for (auto bridge: this->m_bridges)
-        if (bridge->d->mirrorChangedCallback)
-            bridge->d->mirrorChangedCallback(deviceId,
-                                             horizontalMirror,
-                                             verticalMirror);
+        AKVCAM_EMIT(bridge,
+                    MirrorChanged,
+                    deviceId,
+                    horizontalMirror,
+                    verticalMirror)
 }
 
 void AkVCam::IpcBridgePrivate::setScaling(xpc_connection_t client,
@@ -1175,8 +1143,7 @@ void AkVCam::IpcBridgePrivate::setScaling(xpc_connection_t client,
             Scaling(xpc_dictionary_get_int64(event, "scaling"));
 
     for (auto bridge: this->m_bridges)
-        if (bridge->d->scalingChangedCallback)
-            bridge->d->scalingChangedCallback(deviceId, scaling);
+        AKVCAM_EMIT(bridge, ScalingChanged, deviceId, scaling)
 }
 
 void AkVCam::IpcBridgePrivate::setAspectRatio(xpc_connection_t client,
@@ -1191,8 +1158,7 @@ void AkVCam::IpcBridgePrivate::setAspectRatio(xpc_connection_t client,
             AspectRatio(xpc_dictionary_get_int64(event, "aspect"));
 
     for (auto bridge: this->m_bridges)
-        if (bridge->d->aspectRatioChangedCallback)
-            bridge->d->aspectRatioChangedCallback(deviceId, aspectRatio);
+        AKVCAM_EMIT(bridge, AspectRatioChanged, deviceId, aspectRatio)
 }
 
 void AkVCam::IpcBridgePrivate::setSwapRgb(xpc_connection_t client,
@@ -1206,8 +1172,7 @@ void AkVCam::IpcBridgePrivate::setSwapRgb(xpc_connection_t client,
     auto swap = xpc_dictionary_get_bool(event, "swap");
 
     for (auto bridge: this->m_bridges)
-        if (bridge->d->swapRgbChangedCallback)
-            bridge->d->swapRgbChangedCallback(deviceId, swap);
+        AKVCAM_EMIT(bridge, SwapRgbChanged, deviceId, swap)
 }
 
 void AkVCam::IpcBridgePrivate::listenerAdd(xpc_connection_t client,
@@ -1220,8 +1185,7 @@ void AkVCam::IpcBridgePrivate::listenerAdd(xpc_connection_t client,
     std::string listener = xpc_dictionary_get_string(event, "listener");
 
     for (auto bridge: this->m_bridges)
-        if (bridge->d->listenerAddedCallback)
-            bridge->d->listenerAddedCallback(deviceId, listener);
+        AKVCAM_EMIT(bridge, ListenerAdded, deviceId, listener)
 }
 
 void AkVCam::IpcBridgePrivate::listenerRemove(xpc_connection_t client,
@@ -1234,8 +1198,7 @@ void AkVCam::IpcBridgePrivate::listenerRemove(xpc_connection_t client,
     std::string listener = xpc_dictionary_get_string(event, "listener");
 
     for (auto bridge: this->m_bridges)
-        if (bridge->d->listenerRemovedCallback)
-            bridge->d->listenerRemovedCallback(deviceId, listener);
+        AKVCAM_EMIT(bridge, ListenerRemoved, deviceId, listener)
 }
 
 void AkVCam::IpcBridgePrivate::messageReceived(xpc_connection_t client,

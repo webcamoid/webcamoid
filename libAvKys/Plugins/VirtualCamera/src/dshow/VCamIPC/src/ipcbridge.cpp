@@ -21,6 +21,7 @@
 #include <fstream>
 #include <cmath>
 #include <memory>
+#include <mutex>
 #include <sstream>
 #include <thread>
 #include <dshow.h>
@@ -32,10 +33,13 @@
 #include "PlatformUtils/src/utils.h"
 #include "VCamUtils/src/image/videoformat.h"
 #include "VCamUtils/src/image/videoframe.h"
-#include "VCamUtils/src/utils.h"
+#include "VCamUtils/src/logger/logger.h"
 
 #define AkIpcBridgeLogMethod() \
     AkLoggerLog("IpcBridge::", __FUNCTION__, "()")
+
+#define AkIpcBridgePrivateLogMethod() \
+    AkLoggerLog("IpcBridgePrivate::", __FUNCTION__, "()")
 
 namespace AkVCam
 {
@@ -54,27 +58,21 @@ namespace AkVCam
     class IpcBridgePrivate
     {
         public:
-            std::map<std::string, DeviceSharedProperties> devices;
-            IpcBridge::FrameReadyCallback frameReadyCallback;
-            IpcBridge::DeviceChangedCallback deviceAddedCallback;
-            IpcBridge::DeviceChangedCallback deviceRemovedCallback;
-            IpcBridge::BroadcastingChangedCallback broadcastingChangedCallback;
-            IpcBridge::MirrorChangedCallback mirrorChangedCallback;
-            IpcBridge::ScalingChangedCallback scalingChangedCallback;
-            IpcBridge::AspectRatioChangedCallback aspectRatioChangedCallback;
-            IpcBridge::SwapRgbChangedCallback swapRgbChangedCallback;
-            IpcBridge::ListenerCallback listenerAddedCallback;
-            IpcBridge::ListenerCallback listenerRemovedCallback;
-            std::map<uint32_t, MessageHandler> messageHandlers;
-            std::vector<std::string> broadcasting;
-            std::map<std::string, std::string> options;
-            std::vector<std::string> driverPaths;
-            MessageServer messageServer;
-            SharedMemory sharedMemory;
-            Mutex globalMutex;
-            std::string portName;
+            IpcBridge *self;
+            std::map<std::string, DeviceSharedProperties> m_devices;
+            std::map<uint32_t, MessageHandler> m_messageHandlers;
+            std::vector<std::string> m_broadcasting;
+            std::map<std::string, std::string> m_options;
+            std::vector<std::string> m_driverPaths;
+            MessageServer m_messageServer;
+            MessageServer m_mainServer;
+            SharedMemory m_sharedMemory;
+            Mutex m_globalMutex;
+            std::string m_portName;
+            bool m_asClient;
 
-            IpcBridgePrivate();
+            IpcBridgePrivate(IpcBridge *self);
+            ~IpcBridgePrivate();
             std::vector<MonikerPtr> listCameras() const;
             static void deleteUnknown(IUnknown *unknown);
             BaseFilterPtr filter(IMoniker *moniker) const;
@@ -94,20 +92,27 @@ namespace AkVCam
                                                 const std::wstring &fileName) const;
             std::string regAddLine(const std::string &key,
                                    const std::string &value,
-                                   const std::string &data) const;
+                                   const std::string &data,
+                                   bool wow=false) const;
             std::string regAddLine(const std::string &key,
                                    const std::string &value,
-                                   int data) const;
-            std::string regDeleteLine(const std::string &key) const;
+                                   int data,
+                                   bool wow=false) const;
             std::string regDeleteLine(const std::string &key,
-                                      const std::string &value) const;
+                                      bool wow=false) const;
+            std::string regDeleteLine(const std::string &key,
+                                      const std::string &value,
+                                      bool wow=false) const;
             std::string regMoveLine(const std::string &fromKey,
-                                    const std::string &toKey) const;
+                                    const std::string &toKey,
+                                    bool wow=false) const;
             std::string dirname(const std::string &path) const;
             void updateDeviceSharedProperties();
             void updateDeviceSharedProperties(const std::string &deviceId,
                                               const std::string &owner);
-            std::string locateDriverPath() const;
+            std::string locateDriverPath() const;            
+            static void pipeStateChanged(void *userData,
+                                         MessageServer::PipeState state);
 
             // Message handling methods
             void isAlive(Message *message);
@@ -129,19 +134,17 @@ namespace AkVCam
     static const int maxFrameWidth = 1920;
     static const int maxFrameHeight = 1080;
     static const size_t maxFrameSize = maxFrameWidth * maxFrameHeight;
-
     static const size_t maxBufferSize = sizeof(Frame) + 3 * maxFrameSize;
 }
 
 AkVCam::IpcBridge::IpcBridge()
 {
     AkIpcBridgeLogMethod();
-    this->d = new IpcBridgePrivate;
+    this->d = new IpcBridgePrivate(this);
 }
 
 AkVCam::IpcBridge::~IpcBridge()
 {
-    this->unregisterPeer();
     delete this->d;
 }
 
@@ -150,22 +153,22 @@ void AkVCam::IpcBridge::setOption(const std::string &key, const std::string &val
     AkIpcBridgeLogMethod();
 
     if (value.empty())
-        this->d->options.erase(key);
+        this->d->m_options.erase(key);
     else
-        this->d->options[key] = value;
+        this->d->m_options[key] = value;
 }
 
 std::vector<std::string> AkVCam::IpcBridge::driverPaths() const
 {
     AkIpcBridgeLogMethod();
 
-    return this->d->driverPaths;
+    return this->d->m_driverPaths;
 }
 
 void AkVCam::IpcBridge::setDriverPaths(const std::vector<std::string> &driverPaths)
 {
     AkIpcBridgeLogMethod();
-    this->d->driverPaths = driverPaths;
+    this->d->m_driverPaths = driverPaths;
 }
 
 std::vector<std::string> AkVCam::IpcBridge::availableRootMethods() const
@@ -183,6 +186,20 @@ bool AkVCam::IpcBridge::setRootMethod(const std::string &rootMethod)
     return rootMethod == "runas";
 }
 
+void AkVCam::IpcBridge::connectService(bool asClient)
+{
+    AkIpcBridgeLogMethod();
+    this->d->m_asClient = asClient;
+    this->d->m_mainServer.start();
+}
+
+void AkVCam::IpcBridge::disconnectService()
+{
+    AkIpcBridgeLogMethod();
+    this->d->m_mainServer.stop(true);
+    this->d->m_asClient = false;
+}
+
 bool AkVCam::IpcBridge::registerPeer(bool asClient)
 {
     AkIpcBridgeLogMethod();
@@ -198,13 +215,13 @@ bool AkVCam::IpcBridge::registerPeer(bool asClient)
         return false;
 
     std::string portName(requestData->port);
-    std::string pipeName = "\\\\.\\pipe\\" + portName;
-    this->d->messageServer.setPipeName(std::wstring(pipeName.begin(),
-                                                    pipeName.end()));
-    this->d->messageServer.setHandlers(this->d->messageHandlers);
+    auto pipeName = "\\\\.\\pipe\\" + portName;
+    this->d->m_messageServer.setPipeName(std::wstring(pipeName.begin(),
+                                                      pipeName.end()));
+    this->d->m_messageServer.setHandlers(this->d->m_messageHandlers);
     AkLoggerLog("Recommended port name: ", portName);
 
-    if (!this->d->messageServer.start()) {
+    if (!this->d->m_messageServer.start()) {
         AkLoggerLog("Can't start message server");
 
         return false;
@@ -225,23 +242,25 @@ bool AkVCam::IpcBridge::registerPeer(bool asClient)
 
     if (!MessageServer::sendMessage(L"\\\\.\\pipe\\" DSHOW_PLUGIN_ASSISTANT_NAME_L,
                                     &message)) {
-        this->d->messageServer.stop(true);
+        this->d->m_messageServer.stop(true);
 
         return false;
     }
 
     if (!addData->status) {
-        this->d->messageServer.stop(true);
+        this->d->m_messageServer.stop(true);
 
         return false;
     }
 
-    this->d->sharedMemory.setName(L"Local\\"
-                                  + std::wstring(portName.begin(), portName.end())
+    this->d->m_sharedMemory.setName(L"Local\\"
+                                  + std::wstring(portName.begin(),
+                                                 portName.end())
                                   + L".data");
-    this->d->globalMutex = Mutex(std::wstring(portName.begin(), portName.end())
+    this->d->m_globalMutex = Mutex(std::wstring(portName.begin(),
+                                                portName.end())
                                   + L".mutex");
-    this->d->portName = portName;
+    this->d->m_portName = portName;
     AkLoggerLog("Peer registered as ", portName);
 
     return true;
@@ -251,21 +270,21 @@ void AkVCam::IpcBridge::unregisterPeer()
 {
     AkIpcBridgeLogMethod();
 
-    if (this->d->portName.empty())
+    if (this->d->m_portName.empty())
         return;
 
-    this->d->sharedMemory.setName({});
+    this->d->m_sharedMemory.setName({});
     Message message;
     message.messageId = AKVCAM_ASSISTANT_MSG_REMOVE_PORT;
     message.dataSize = sizeof(MsgRemovePort);
     auto data = messageData<MsgRemovePort>(&message);
     memcpy(data->port,
-           this->d->portName.c_str(),
-           (std::min<size_t>)(this->d->portName.size(), MAX_STRING));
+           this->d->m_portName.c_str(),
+           (std::min<size_t>)(this->d->m_portName.size(), MAX_STRING));
     MessageServer::sendMessage(L"\\\\.\\pipe\\" DSHOW_PLUGIN_ASSISTANT_NAME_L,
                                &message);
-    this->d->messageServer.stop(true);
-    this->d->portName.clear();
+    this->d->m_messageServer.stop(true);
+    this->d->m_portName.clear();
 }
 
 std::vector<std::string> AkVCam::IpcBridge::listDevices() const
@@ -276,6 +295,13 @@ std::vector<std::string> AkVCam::IpcBridge::listDevices() const
     for (auto camera: this->d->listCameras())
         if (this->d->isVirtualCamera(camera))
             devices.push_back(this->d->cameraPath(camera));
+
+#ifdef QT_DEBUG
+    AkLoggerLog("Devices:");
+
+    for (auto &device:  devices)
+        AkLoggerLog("    ", device);
+#endif
 
     return devices;
 }
@@ -343,8 +369,7 @@ std::string AkVCam::IpcBridge::broadcaster(const std::string &deviceId) const
            deviceId.c_str(),
            (std::min<size_t>)(deviceId.size(), MAX_STRING));
 
-    if (!MessageServer::sendMessage(L"\\\\.\\pipe\\" DSHOW_PLUGIN_ASSISTANT_NAME_L,
-                                    &message))
+    if (!this->d->m_mainServer.sendMessage(&message))
         return {};
 
     if (!data->status)
@@ -370,8 +395,7 @@ bool AkVCam::IpcBridge::isHorizontalMirrored(const std::string &deviceId)
            deviceId.c_str(),
            (std::min<size_t>)(deviceId.size(), MAX_STRING));
 
-    if (!MessageServer::sendMessage(L"\\\\.\\pipe\\" DSHOW_PLUGIN_ASSISTANT_NAME_L,
-                                    &message))
+    if (!this->d->m_mainServer.sendMessage(&message))
         return false;
 
     if (!data->status)
@@ -392,8 +416,7 @@ bool AkVCam::IpcBridge::isVerticalMirrored(const std::string &deviceId)
            deviceId.c_str(),
            (std::min<size_t>)(deviceId.size(), MAX_STRING));
 
-    if (!MessageServer::sendMessage(L"\\\\.\\pipe\\" DSHOW_PLUGIN_ASSISTANT_NAME_L,
-                                    &message))
+    if (!this->d->m_mainServer.sendMessage(&message))
         return false;
 
     if (!data->status)
@@ -414,8 +437,7 @@ AkVCam::Scaling AkVCam::IpcBridge::scalingMode(const std::string &deviceId)
            deviceId.c_str(),
            (std::min<size_t>)(deviceId.size(), MAX_STRING));
 
-    if (!MessageServer::sendMessage(L"\\\\.\\pipe\\" DSHOW_PLUGIN_ASSISTANT_NAME_L,
-                                    &message))
+    if (!this->d->m_mainServer.sendMessage(&message))
         return ScalingFast;
 
     if (!data->status)
@@ -436,8 +458,7 @@ AkVCam::AspectRatio AkVCam::IpcBridge::aspectRatioMode(const std::string &device
            deviceId.c_str(),
            (std::min<size_t>)(deviceId.size(), MAX_STRING));
 
-    if (!MessageServer::sendMessage(L"\\\\.\\pipe\\" DSHOW_PLUGIN_ASSISTANT_NAME_L,
-                                    &message))
+    if (!this->d->m_mainServer.sendMessage(&message))
         return AspectRatioIgnore;
 
     if (!data->status)
@@ -458,8 +479,7 @@ bool AkVCam::IpcBridge::swapRgb(const std::string &deviceId)
            deviceId.c_str(),
            (std::min<size_t>)(deviceId.size(), MAX_STRING));
 
-    if (!MessageServer::sendMessage(L"\\\\.\\pipe\\" DSHOW_PLUGIN_ASSISTANT_NAME_L,
-                                    &message))
+    if (!this->d->m_mainServer.sendMessage(&message))
         return false;
 
     if (!data->status)
@@ -480,8 +500,7 @@ std::vector<std::string> AkVCam::IpcBridge::listeners(const std::string &deviceI
            deviceId.c_str(),
            (std::min<size_t>)(deviceId.size(), MAX_STRING));
 
-    if (!MessageServer::sendMessage(L"\\\\.\\pipe\\" DSHOW_PLUGIN_ASSISTANT_NAME_L,
-                                    &message))
+    if (!this->d->m_mainServer.sendMessage(&message))
         return {};
 
     if (!data->status)
@@ -493,8 +512,7 @@ std::vector<std::string> AkVCam::IpcBridge::listeners(const std::string &deviceI
     for (size_t i = 0; i < data->nlistener; i++) {
         data->nlistener = i;
 
-        if (!MessageServer::sendMessage(L"\\\\.\\pipe\\" DSHOW_PLUGIN_ASSISTANT_NAME_L,
-                                        &message))
+        if (!this->d->m_mainServer.sendMessage(&message))
             continue;
 
         if (!data->status)
@@ -525,7 +543,8 @@ std::string AkVCam::IpcBridge::deviceCreate(const std::string &description,
     std::stringstream ss;
     ss << "@echo off" << std::endl;
 
-    auto driverInstallPath = programFilesPath() + "\\" DSHOW_PLUGIN_NAME ".plugin";
+    auto driverInstallPath =
+            programFilesPath() + "\\" DSHOW_PLUGIN_NAME ".plugin";
 
     // Copy all plugins
     std::vector<std::string> installPaths;
@@ -572,31 +591,33 @@ std::string AkVCam::IpcBridge::deviceCreate(const std::string &description,
                << "\""
                << std::endl;
 
-        std::string arch = isWow64()? "x64": DSHOW_PLUGIN_ARCH;
-
-        if (installPath.find(arch + "\\" DSHOW_PLUGIN_ASSISTANT_NAME ".exe") != std::string::npos)
-            assistantInstallPaths.push_back(installPath);
+        assistantInstallPaths.push_back(installPath);
     }
+
+    bool wow = isWow64();
 
     // List cameras and create a line with the number of cameras.
     auto nCameras = camerasCount();
 
     ss << this->d->regAddLine("HKLM\\SOFTWARE\\Webcamoid\\VirtualCamera\\Cameras",
                               "size",
-                              int(nCameras + 1))
+                              int(nCameras + 1),
+                              wow)
        << std::endl;
 
     ss << this->d->regAddLine("HKLM\\SOFTWARE\\Webcamoid\\VirtualCamera\\Cameras\\"
                               + std::to_string(nCameras + 1),
                               "path",
-                              std::string(devicePath.begin(), devicePath.end()))
+                              std::string(devicePath.begin(), devicePath.end()),
+                              wow)
        << std::endl;
 
     // Add description line.
     ss << this->d->regAddLine("HKLM\\SOFTWARE\\Webcamoid\\VirtualCamera\\Cameras\\"
                               + std::to_string(nCameras + 1),
                               "description",
-                              description)
+                              description,
+                              wow)
        << std::endl;
 
     // Set number of formats.
@@ -604,7 +625,8 @@ std::string AkVCam::IpcBridge::deviceCreate(const std::string &description,
                               + std::to_string(nCameras + 1)
                               + "\\Formats",
                               "size",
-                              int(formats.size()))
+                              int(formats.size()),
+                              wow)
        << std::endl;
 
     // Setup formats.
@@ -617,7 +639,8 @@ std::string AkVCam::IpcBridge::deviceCreate(const std::string &description,
                                   + "\\Formats\\"
                                   + std::to_string(i + 1),
                                   "format",
-                                  format)
+                                  format,
+                                  wow)
            << std::endl;
 
         ss << this->d->regAddLine("HKLM\\SOFTWARE\\Webcamoid\\VirtualCamera\\Cameras\\"
@@ -625,7 +648,8 @@ std::string AkVCam::IpcBridge::deviceCreate(const std::string &description,
                                   + "\\Formats\\"
                                   + std::to_string(i + 1),
                                   "width",
-                                  videoFormat.width())
+                                  videoFormat.width(),
+                                  wow)
            << std::endl;
 
         ss << this->d->regAddLine("HKLM\\SOFTWARE\\Webcamoid\\VirtualCamera\\Cameras\\"
@@ -633,7 +657,8 @@ std::string AkVCam::IpcBridge::deviceCreate(const std::string &description,
                                   + "\\Formats\\"
                                   + std::to_string(i + 1),
                                   "height",
-                                  videoFormat.height())
+                                  videoFormat.height(),
+                                  wow)
            << std::endl;
 
         ss << this->d->regAddLine("HKLM\\SOFTWARE\\Webcamoid\\VirtualCamera\\Cameras\\"
@@ -641,15 +666,38 @@ std::string AkVCam::IpcBridge::deviceCreate(const std::string &description,
                                   + "\\Formats\\"
                                   + std::to_string(i + 1),
                                   "fps",
-                                  lround(videoFormat.minimumFrameRate()))
+                                  lround(videoFormat.minimumFrameRate()),
+                                  wow)
            << std::endl;
     }
 
     for (auto path: installPaths)
         ss << "regsvr32 /s \"" << path << "\"" << std::endl;
 
-    for (auto path: assistantInstallPaths)
-        ss << "\"" << path << "\" --install" << std::endl;
+    std::vector<std::string> preferredArch;
+
+    if (wow)
+        preferredArch.push_back("x64");
+
+    preferredArch.push_back(DSHOW_PLUGIN_ARCH);
+
+    if (strcmp(DSHOW_PLUGIN_ARCH, "x64") == 0)
+        preferredArch.push_back("x32");
+
+    for (auto &arch: preferredArch) {
+        auto assistantPath = driverInstallPath
+                           + "\\"
+                           + arch
+                           + "\\" DSHOW_PLUGIN_ASSISTANT_NAME ".exe";
+
+        if (std::find(assistantInstallPaths.begin(),
+                      assistantInstallPaths.end(),
+                      assistantPath) != assistantInstallPaths.end()) {
+            ss << "\"" << assistantPath << "\" --install" << std::endl;
+
+            break;
+        }
+    }
 
     // Create the script.
     auto scriptPath = tempPath() + "\\device_create_" + timeStamp() + ".bat";
@@ -690,7 +738,8 @@ void AkVCam::IpcBridge::deviceDestroy(const std::string &deviceId)
     std::stringstream ss;
     ss << "@echo off" << std::endl;
 
-    auto driverInstallPath = programFilesPath() + "\\" DSHOW_PLUGIN_NAME ".plugin";
+    auto driverInstallPath =
+            programFilesPath() + "\\" DSHOW_PLUGIN_NAME ".plugin";
     std::vector<std::string> installPaths;
 
     for (auto path: this->d->findFiles(std::wstring(driverPath.begin(),
@@ -713,24 +762,29 @@ void AkVCam::IpcBridge::deviceDestroy(const std::string &deviceId)
         assistantInstallPaths.push_back(installPath);
     }
 
+    bool wow = isWow64();
+
     // List cameras and create a line with the number of cameras.
     auto nCameras = camerasCount();
 
     if (nCameras > 1) {
         ss << this->d->regAddLine("HKLM\\SOFTWARE\\Webcamoid\\VirtualCamera\\Cameras",
                                   "size",
-                                  int(nCameras - 1))
+                                  int(nCameras - 1),
+                                  wow)
            << std::endl;
 
         ss << this->d->regDeleteLine("HKLM\\SOFTWARE\\Webcamoid\\VirtualCamera\\Cameras\\"
-                                     + std::to_string(camera + 1))
+                                     + std::to_string(camera + 1),
+                                     wow)
            << std::endl;
 
         for (DWORD i = DWORD(camera + 1); i < nCameras; i++) {
             ss << this->d->regMoveLine("HKLM\\SOFTWARE\\Webcamoid\\VirtualCamera\\Cameras\\"
                                        + std::to_string(i + 1),
                                        "HKLM\\SOFTWARE\\Webcamoid\\VirtualCamera\\Cameras\\"
-                                                                          + std::to_string(i))
+                                       + std::to_string(i),
+                                       wow)
                << std::endl;
         }
 
@@ -743,7 +797,8 @@ void AkVCam::IpcBridge::deviceDestroy(const std::string &deviceId)
         for (auto path: assistantInstallPaths)
             ss << "\"" << path << "\" --uninstall" << std::endl;
 
-        ss << this->d->regDeleteLine("HKLM\\SOFTWARE\\Webcamoid\\VirtualCamera\\Cameras")
+        ss << this->d->regDeleteLine("HKLM\\SOFTWARE\\Webcamoid\\VirtualCamera\\Cameras",
+                                     wow)
            << std::endl;
 
         std::wstring wDriverPath(driverPath.begin(), driverPath.end());
@@ -785,7 +840,8 @@ bool AkVCam::IpcBridge::changeDescription(const std::string &deviceId,
     std::stringstream ss;
     ss << "@echo off" << std::endl;
 
-    auto driverInstallPath = programFilesPath() + "\\" DSHOW_PLUGIN_NAME ".plugin";
+    auto driverInstallPath =
+            programFilesPath() + "\\" DSHOW_PLUGIN_NAME ".plugin";
     std::vector<std::string> installPaths;
 
     for (auto path: this->d->findFiles(std::wstring(driverPath.begin(),
@@ -799,7 +855,8 @@ bool AkVCam::IpcBridge::changeDescription(const std::string &deviceId,
     ss << this->d->regAddLine("HKLM\\SOFTWARE\\Webcamoid\\VirtualCamera\\Cameras\\"
                               + std::to_string(camera + 1),
                               "description",
-                              description)
+                              description,
+                              isWow64())
        << std::endl;
 
     for (auto path: installPaths)
@@ -834,7 +891,8 @@ bool AkVCam::IpcBridge::destroyAllDevices()
     std::stringstream ss;
     ss << "@echo off" << std::endl;
 
-    auto driverInstallPath = programFilesPath() + "\\" DSHOW_PLUGIN_NAME ".plugin";
+    auto driverInstallPath =
+            programFilesPath() + "\\" DSHOW_PLUGIN_NAME ".plugin";
 
     for (auto path: this->d->findFiles(std::wstring(driverPath.begin(),
                                                     driverPath.end()),
@@ -852,7 +910,8 @@ bool AkVCam::IpcBridge::destroyAllDevices()
         ss << "\"" << installPath << "\" --uninstall" << std::endl;
     }
 
-    ss << this->d->regDeleteLine("HKLM\\SOFTWARE\\Webcamoid\\VirtualCamera\\Cameras")
+    ss << this->d->regDeleteLine("HKLM\\SOFTWARE\\Webcamoid\\VirtualCamera\\Cameras",
+                                 isWow64())
        << std::endl;
 
     std::wstring wDriverPath(driverPath.begin(), driverPath.end());
@@ -882,20 +941,20 @@ bool AkVCam::IpcBridge::destroyAllDevices()
 bool AkVCam::IpcBridge::deviceStart(const std::string &deviceId)
 {
     AkIpcBridgeLogMethod();
-
-    auto it = std::find(this->d->broadcasting.begin(),
-                        this->d->broadcasting.end(),
+    auto it = std::find(this->d->m_broadcasting.begin(),
+                        this->d->m_broadcasting.end(),
                         deviceId);
 
-    if (it != this->d->broadcasting.end())
+    if (it != this->d->m_broadcasting.end())
         return false;
 
-    std::wstring portName(this->d->portName.begin(),
-                          this->d->portName.end());
-    this->d->sharedMemory.setName(L"Local\\" + portName + L".data");
-    this->d->globalMutex = Mutex(portName + L".mutex");
+    std::wstring portName(this->d->m_portName.begin(),
+                          this->d->m_portName.end());
+    this->d->m_sharedMemory.setName(L"Local\\" + portName + L".data");
+    this->d->m_globalMutex = Mutex(portName + L".mutex");
 
-    if (!this->d->sharedMemory.open(maxBufferSize, SharedMemory::OpenModeWrite))
+    if (!this->d->m_sharedMemory.open(maxBufferSize,
+                                      SharedMemory::OpenModeWrite))
         return false;
 
     Message message;
@@ -906,12 +965,11 @@ bool AkVCam::IpcBridge::deviceStart(const std::string &deviceId)
            deviceId.c_str(),
            (std::min<size_t>)(deviceId.size(), MAX_STRING));
     memcpy(data->broadcaster,
-           this->d->portName.c_str(),
-           (std::min<size_t>)(this->d->portName.size(), MAX_STRING));
+           this->d->m_portName.c_str(),
+           (std::min<size_t>)(this->d->m_portName.size(), MAX_STRING));
 
-    if (!MessageServer::sendMessage(L"\\\\.\\pipe\\" DSHOW_PLUGIN_ASSISTANT_NAME_L,
-                                    &message)) {
-        this->d->sharedMemory.close();
+    if (!this->d->m_mainServer.sendMessage(&message)) {
+        this->d->m_sharedMemory.close();
 
         return false;
     }
@@ -919,7 +977,7 @@ bool AkVCam::IpcBridge::deviceStart(const std::string &deviceId)
     if (!data->status)
         return false;
 
-    this->d->broadcasting.push_back(deviceId);
+    this->d->m_broadcasting.push_back(deviceId);
 
     return true;
 }
@@ -927,12 +985,11 @@ bool AkVCam::IpcBridge::deviceStart(const std::string &deviceId)
 void AkVCam::IpcBridge::deviceStop(const std::string &deviceId)
 {
     AkIpcBridgeLogMethod();
-
-    auto it = std::find(this->d->broadcasting.begin(),
-                        this->d->broadcasting.end(),
+    auto it = std::find(this->d->m_broadcasting.begin(),
+                        this->d->m_broadcasting.end(),
                         deviceId);
 
-    if (it == this->d->broadcasting.end())
+    if (it == this->d->m_broadcasting.end())
         return;
 
     Message message;
@@ -943,10 +1000,9 @@ void AkVCam::IpcBridge::deviceStop(const std::string &deviceId)
            deviceId.c_str(),
            (std::min<size_t>)(deviceId.size(), MAX_STRING));
 
-    MessageServer::sendMessage(L"\\\\.\\pipe\\" DSHOW_PLUGIN_ASSISTANT_NAME_L,
-                               &message);
-    this->d->sharedMemory.close();
-    this->d->broadcasting.erase(it);
+    this->d->m_mainServer.sendMessage(&message);
+    this->d->m_sharedMemory.close();
+    this->d->m_broadcasting.erase(it);
 
     return;
 }
@@ -960,7 +1016,7 @@ bool AkVCam::IpcBridge::write(const std::string &deviceId,
         return false;
 
     auto buffer =
-            reinterpret_cast<Frame *>(this->d->sharedMemory.lock(&this->d->globalMutex));
+            reinterpret_cast<Frame *>(this->d->m_sharedMemory.lock(&this->d->m_globalMutex));
 
     if (!buffer)
         return false;
@@ -980,7 +1036,7 @@ bool AkVCam::IpcBridge::write(const std::string &deviceId,
         memcpy(buffer->data, frame.data().get(), frame.dataSize());
     }
 
-    this->d->sharedMemory.unlock(&this->d->globalMutex);
+    this->d->m_sharedMemory.unlock(&this->d->m_globalMutex);
 
     Message message;
     message.messageId = AKVCAM_ASSISTANT_MSG_FRAME_READY;
@@ -990,11 +1046,10 @@ bool AkVCam::IpcBridge::write(const std::string &deviceId,
            deviceId.c_str(),
            (std::min<size_t>)(deviceId.size(), MAX_STRING));
     memcpy(data->port,
-           this->d->portName.c_str(),
-           (std::min<size_t>)(this->d->portName.size(), MAX_STRING));
+           this->d->m_portName.c_str(),
+           (std::min<size_t>)(this->d->m_portName.size(), MAX_STRING));
 
-    return MessageServer::sendMessage(L"\\\\.\\pipe\\" DSHOW_PLUGIN_ASSISTANT_NAME_L,
-                                      &message);
+    return this->d->m_mainServer.sendMessage(&message);
 }
 
 void AkVCam::IpcBridge::setMirroring(const std::string &deviceId,
@@ -1012,9 +1067,7 @@ void AkVCam::IpcBridge::setMirroring(const std::string &deviceId,
            (std::min<size_t>)(deviceId.size(), MAX_STRING));
     data->hmirror = horizontalMirrored;
     data->vmirror = verticalMirrored;
-
-    MessageServer::sendMessage(L"\\\\.\\pipe\\" DSHOW_PLUGIN_ASSISTANT_NAME_L,
-                               &message);
+    this->d->m_mainServer.sendMessage(&message);
 }
 
 void AkVCam::IpcBridge::setScaling(const std::string &deviceId,
@@ -1030,9 +1083,7 @@ void AkVCam::IpcBridge::setScaling(const std::string &deviceId,
            deviceId.c_str(),
            (std::min<size_t>)(deviceId.size(), MAX_STRING));
     data->scaling = scaling;
-
-    MessageServer::sendMessage(L"\\\\.\\pipe\\" DSHOW_PLUGIN_ASSISTANT_NAME_L,
-                               &message);
+    this->d->m_mainServer.sendMessage(&message);
 }
 
 void AkVCam::IpcBridge::setAspectRatio(const std::string &deviceId,
@@ -1048,9 +1099,7 @@ void AkVCam::IpcBridge::setAspectRatio(const std::string &deviceId,
            deviceId.c_str(),
            (std::min<size_t>)(deviceId.size(), MAX_STRING));
     data->aspect = aspectRatio;
-
-    MessageServer::sendMessage(L"\\\\.\\pipe\\" DSHOW_PLUGIN_ASSISTANT_NAME_L,
-                               &message);
+    this->d->m_mainServer.sendMessage(&message);
 }
 
 void AkVCam::IpcBridge::setSwapRgb(const std::string &deviceId, bool swap)
@@ -1065,19 +1114,7 @@ void AkVCam::IpcBridge::setSwapRgb(const std::string &deviceId, bool swap)
            deviceId.c_str(),
            (std::min<size_t>)(deviceId.size(), MAX_STRING));
     data->swap = swap;
-
-    MessageServer::sendMessage(L"\\\\.\\pipe\\" DSHOW_PLUGIN_ASSISTANT_NAME_L,
-                               &message);
-}
-
-void AkVCam::IpcBridge::setListenerAddedCallback(ListenerCallback callback)
-{
-    this->d->listenerAddedCallback = callback;
-}
-
-void AkVCam::IpcBridge::setListenerRemovedCallback(ListenerCallback callback)
-{
-    this->d->listenerRemovedCallback = callback;
+    this->d->m_mainServer.sendMessage(&message);
 }
 
 bool AkVCam::IpcBridge::addListener(const std::string &deviceId)
@@ -1092,11 +1129,10 @@ bool AkVCam::IpcBridge::addListener(const std::string &deviceId)
            deviceId.c_str(),
            (std::min<size_t>)(deviceId.size(), MAX_STRING));
     memcpy(data->listener,
-           this->d->portName.c_str(),
-           (std::min<size_t>)(this->d->portName.size(), MAX_STRING));
+           this->d->m_portName.c_str(),
+           (std::min<size_t>)(this->d->m_portName.size(), MAX_STRING));
 
-    if (!MessageServer::sendMessage(L"\\\\.\\pipe\\" DSHOW_PLUGIN_ASSISTANT_NAME_L,
-                                    &message))
+    if (!this->d->m_mainServer.sendMessage(&message))
         return false;
 
     return data->status;
@@ -1114,61 +1150,26 @@ bool AkVCam::IpcBridge::removeListener(const std::string &deviceId)
            deviceId.c_str(),
            (std::min<size_t>)(deviceId.size(), MAX_STRING));
     memcpy(data->listener,
-           this->d->portName.c_str(),
-           (std::min<size_t>)(this->d->portName.size(), MAX_STRING));
+           this->d->m_portName.c_str(),
+           (std::min<size_t>)(this->d->m_portName.size(), MAX_STRING));
 
-    if (!MessageServer::sendMessage(L"\\\\.\\pipe\\" DSHOW_PLUGIN_ASSISTANT_NAME_L,
-                                    &message))
+    if (!this->d->m_mainServer.sendMessage(&message))
         return false;
 
     return data->status;
 }
 
-void AkVCam::IpcBridge::setFrameReadyCallback(FrameReadyCallback callback)
+AkVCam::IpcBridgePrivate::IpcBridgePrivate(IpcBridge *self):
+    self(self),
+    m_asClient(false)
 {
-    this->d->frameReadyCallback = callback;
-}
-
-void AkVCam::IpcBridge::setDeviceAddedCallback(DeviceChangedCallback callback)
-{
-    this->d->deviceAddedCallback = callback;
-}
-
-void AkVCam::IpcBridge::setDeviceRemovedCallback(DeviceChangedCallback callback)
-{
-    this->d->deviceRemovedCallback = callback;
-}
-
-void AkVCam::IpcBridge::setBroadcastingChangedCallback(BroadcastingChangedCallback callback)
-{
-    this->d->broadcastingChangedCallback = callback;
-}
-
-void AkVCam::IpcBridge::setMirrorChangedCallback(MirrorChangedCallback callback)
-{
-    this->d->mirrorChangedCallback = callback;
-}
-
-void AkVCam::IpcBridge::setScalingChangedCallback(ScalingChangedCallback callback)
-{
-    this->d->scalingChangedCallback = callback;
-}
-
-void AkVCam::IpcBridge::setAspectRatioChangedCallback(AspectRatioChangedCallback callback)
-{
-    this->d->aspectRatioChangedCallback = callback;
-}
-
-void AkVCam::IpcBridge::setSwapRgbChangedCallback(SwapRgbChangedCallback callback)
-{
-    this->d->swapRgbChangedCallback = callback;
-}
-
-AkVCam::IpcBridgePrivate::IpcBridgePrivate()
-{
+    this->m_mainServer.setPipeName(L"\\\\.\\pipe\\" DSHOW_PLUGIN_ASSISTANT_NAME_L);
+    this->m_mainServer.setMode(MessageServer::ServerModeSend);
+    this->m_mainServer.connectPipeStateChanged(this,
+                                               &IpcBridgePrivate::pipeStateChanged);
     this->updateDeviceSharedProperties();
 
-    this->messageHandlers = std::map<uint32_t, MessageHandler> {
+    this->m_messageHandlers = std::map<uint32_t, MessageHandler> {
         {AKVCAM_ASSISTANT_MSG_ISALIVE               , AKVCAM_BIND_FUNC(IpcBridgePrivate::isAlive)        },
         {AKVCAM_ASSISTANT_MSG_FRAME_READY           , AKVCAM_BIND_FUNC(IpcBridgePrivate::frameReady)     },
         {AKVCAM_ASSISTANT_MSG_DEVICE_SETBROADCASTING, AKVCAM_BIND_FUNC(IpcBridgePrivate::setBroadcasting)},
@@ -1179,6 +1180,11 @@ AkVCam::IpcBridgePrivate::IpcBridgePrivate()
         {AKVCAM_ASSISTANT_MSG_DEVICE_LISTENER_ADD   , AKVCAM_BIND_FUNC(IpcBridgePrivate::listenerAdd)    },
         {AKVCAM_ASSISTANT_MSG_DEVICE_LISTENER_REMOVE, AKVCAM_BIND_FUNC(IpcBridgePrivate::listenerRemove) },
     };
+}
+
+AkVCam::IpcBridgePrivate::~IpcBridgePrivate()
+{
+    this->m_mainServer.stop(true);
 }
 
 std::vector<AkVCam::MonikerPtr> AkVCam::IpcBridgePrivate::listCameras() const
@@ -1446,7 +1452,8 @@ std::vector<std::wstring> AkVCam::IpcBridgePrivate::findFiles(const std::wstring
 
 std::string AkVCam::IpcBridgePrivate::regAddLine(const std::string &key,
                                                  const std::string &value,
-                                                 const std::string &data) const
+                                                 const std::string &data,
+                                                 bool wow) const
 {
     std::stringstream ss;
     ss << "reg add \""
@@ -1457,12 +1464,16 @@ std::string AkVCam::IpcBridgePrivate::regAddLine(const std::string &key,
        << data
        << "\" /f";
 
+    if (wow)
+        ss << " /reg:64";
+
     return ss.str();
 }
 
 std::string AkVCam::IpcBridgePrivate::regAddLine(const std::string &key,
                                                  const std::string &value,
-                                                 int data) const
+                                                 int data,
+                                                 bool wow) const
 {
     std::stringstream ss;
     ss << "reg add \""
@@ -1474,27 +1485,49 @@ std::string AkVCam::IpcBridgePrivate::regAddLine(const std::string &key,
        << data
        << " /f";
 
+    if (wow)
+        ss << " /reg:64";
+
     return ss.str();
 }
 
-std::string AkVCam::IpcBridgePrivate::regDeleteLine(const std::string &key) const
+std::string AkVCam::IpcBridgePrivate::regDeleteLine(const std::string &key,
+                                                    bool wow) const
 {
-    return std::string("reg delete \"" + key + "\" /f");
+    std::stringstream ss;
+    ss << "reg delete \"" + key + "\" /f";
+
+    if (wow)
+        ss << " /reg:64";
+
+    return ss.str();
 }
 
 std::string AkVCam::IpcBridgePrivate::regDeleteLine(const std::string &key,
-                                                    const std::string &value) const
+                                                    const std::string &value,
+                                                    bool wow) const
 {
-    return std::string("reg delete \"" + key + "\" /v \"" + value + "\" /f");
+    std::stringstream ss;
+    ss << "reg delete \"" + key + "\" /v \"" + value + "\" /f";
+
+    if (wow)
+        ss << " /reg:64";
+
+    return ss.str();
 }
 
 std::string AkVCam::IpcBridgePrivate::regMoveLine(const std::string &fromKey,
-                                                  const std::string &toKey) const
+                                                  const std::string &toKey,
+                                                  bool wow) const
 {
     std::stringstream ss;
-    ss << "reg copy \"" << fromKey << "\" \"" << toKey << "\" /s /f"
-       << std::endl
-       << regDeleteLine(fromKey);
+    ss << "reg copy \"" << fromKey << "\" \"" << toKey << "\" /s /f";
+
+    if (wow)
+        ss << " /reg:64";
+
+    ss << std::endl
+       << regDeleteLine(fromKey, wow);
 
     return ss.str();
 }
@@ -1517,8 +1550,7 @@ void AkVCam::IpcBridgePrivate::updateDeviceSharedProperties()
         memcpy(data->device,
                deviceId.c_str(),
                (std::min<size_t>)(deviceId.size(), MAX_STRING));
-        MessageServer::sendMessage(L"\\\\.\\pipe\\" DSHOW_PLUGIN_ASSISTANT_NAME_L,
-                                   &message);
+        this->m_mainServer.sendMessage(&message);
         this->updateDeviceSharedProperties(deviceId,
                                            std::string(data->broadcaster));
     }
@@ -1528,7 +1560,7 @@ void AkVCam::IpcBridgePrivate::updateDeviceSharedProperties(const std::string &d
                                                             const std::string &owner)
 {
     if (owner.empty()) {
-        this->devices[deviceId] = {SharedMemory(), Mutex()};
+        this->m_devices[deviceId] = {SharedMemory(), Mutex()};
     } else {
         Mutex mutex(std::wstring(owner.begin(), owner.end()) + L".mutex");
         SharedMemory sharedMemory;
@@ -1537,7 +1569,7 @@ void AkVCam::IpcBridgePrivate::updateDeviceSharedProperties(const std::string &d
                              + L".data");
 
         if (sharedMemory.open())
-            this->devices[deviceId] = {sharedMemory, mutex};
+            this->m_devices[deviceId] = {sharedMemory, mutex};
     }
 }
 
@@ -1545,8 +1577,8 @@ std::string AkVCam::IpcBridgePrivate::locateDriverPath() const
 {
     std::string driverPath;
 
-    for (auto it = this->driverPaths.rbegin();
-         it != this->driverPaths.rend();
+    for (auto it = this->m_driverPaths.rbegin();
+         it != this->m_driverPaths.rend();
          it++) {
         auto path = *it;
         path = replace(path, "/", "\\");
@@ -1570,6 +1602,35 @@ std::string AkVCam::IpcBridgePrivate::locateDriverPath() const
     return driverPath;
 }
 
+void AkVCam::IpcBridgePrivate::pipeStateChanged(void *userData,
+                                                MessageServer::PipeState state)
+{
+    AkIpcBridgePrivateLogMethod();
+    auto self = reinterpret_cast<IpcBridgePrivate *>(userData);
+
+    switch (state) {
+    case MessageServer::PipeStateAvailable:
+        AkLoggerLog("Server Available");
+
+        if (self->self->registerPeer(self->m_asClient)) {
+            AKVCAM_EMIT(self->self,
+                        ServerStateChanged,
+                        IpcBridge::ServerStateAvailable);
+        }
+
+        break;
+
+    case MessageServer::PipeStateGone:
+        AkLoggerLog("Server Gone");
+        self->self->unregisterPeer();
+        AKVCAM_EMIT(self->self,
+                    ServerStateChanged,
+                    IpcBridge::ServerStateGone);
+
+        break;
+    }
+}
+
 void AkVCam::IpcBridgePrivate::isAlive(Message *message)
 {
     auto data = messageData<MsgIsAlive>(message);
@@ -1581,26 +1642,24 @@ void AkVCam::IpcBridgePrivate::frameReady(Message *message)
     auto data = messageData<MsgFrameReady>(message);
     std::string deviceId(data->device);
 
-    if (this->devices.count(deviceId) < 1) {
+    if (this->m_devices.count(deviceId) < 1) {
         this->updateDeviceSharedProperties(deviceId, std::string(data->port));
 
         return;
     }
 
     auto frame =
-            reinterpret_cast<Frame *>(this->devices[deviceId]
+            reinterpret_cast<Frame *>(this->m_devices[deviceId]
                                       .sharedMemory
-                                      .lock(&this->devices[deviceId].mutex));
+                                      .lock(&this->m_devices[deviceId].mutex));
 
     if (!frame)
         return;
 
     VideoFrame videoFrame({frame->format, frame->width, frame->height},
                           frame->data, frame->size);
-    this->devices[deviceId].sharedMemory.unlock(&this->devices[deviceId].mutex);
-
-    if (this->frameReadyCallback)
-        this->frameReadyCallback(deviceId, videoFrame);
+    this->m_devices[deviceId].sharedMemory.unlock(&this->m_devices[deviceId].mutex);
+    AKVCAM_EMIT(this->self, FrameReady, deviceId, videoFrame)
 }
 
 void AkVCam::IpcBridgePrivate::setBroadcasting(Message *message)
@@ -1609,63 +1668,59 @@ void AkVCam::IpcBridgePrivate::setBroadcasting(Message *message)
     std::string deviceId(data->device);
     std::string broadcaster(data->broadcaster);
     this->updateDeviceSharedProperties(deviceId, broadcaster);
-
-    if (this->broadcastingChangedCallback)
-        this->broadcastingChangedCallback(deviceId, broadcaster);
+    AKVCAM_EMIT(this->self, BroadcastingChanged, deviceId, broadcaster)
 }
 
 void AkVCam::IpcBridgePrivate::setMirror(Message *message)
 {
     auto data = messageData<MsgMirroring>(message);
     std::string deviceId(data->device);
-
-    if (this->mirrorChangedCallback)
-        this->mirrorChangedCallback(deviceId, data->hmirror, data->vmirror);
+    AKVCAM_EMIT(this->self,
+                MirrorChanged,
+                deviceId,
+                data->hmirror,
+                data->vmirror)
 }
 
 void AkVCam::IpcBridgePrivate::setScaling(Message *message)
 {
     auto data = messageData<MsgScaling>(message);
     std::string deviceId(data->device);
-
-    if (this->scalingChangedCallback)
-        this->scalingChangedCallback(deviceId, data->scaling);
+    AKVCAM_EMIT(this->self, ScalingChanged, deviceId, data->scaling)
 }
 
 void AkVCam::IpcBridgePrivate::setAspectRatio(Message *message)
 {
     auto data = messageData<MsgAspectRatio>(message);
     std::string deviceId(data->device);
-
-    if (this->aspectRatioChangedCallback)
-        this->aspectRatioChangedCallback(deviceId, data->aspect);
+    AKVCAM_EMIT(this->self, AspectRatioChanged, deviceId, data->aspect)
 }
 
 void AkVCam::IpcBridgePrivate::setSwapRgb(Message *message)
 {
     auto data = messageData<MsgSwapRgb>(message);
     std::string deviceId(data->device);
-
-    if (this->swapRgbChangedCallback)
-        this->swapRgbChangedCallback(deviceId, data->swap);
+    AKVCAM_EMIT(this->self, SwapRgbChanged, deviceId, data->swap)
 }
 
 void AkVCam::IpcBridgePrivate::listenerAdd(Message *message)
 {
     auto data = messageData<MsgListeners>(message);
     std::string deviceId(data->device);
-
-    if (this->listenerAddedCallback)
-        this->listenerAddedCallback(deviceId, std::string(data->listener));
+    AKVCAM_EMIT(this->self,
+                ListenerAdded,
+                deviceId,
+                std::string(data->listener))
 }
 
 void AkVCam::IpcBridgePrivate::listenerRemove(Message *message)
 {
     auto data = messageData<MsgListeners>(message);
     std::string deviceId(data->device);
-
-    if (this->listenerRemovedCallback)
-        this->listenerRemovedCallback(deviceId, std::string(data->listener));
+    AKVCAM_EMIT(this->self,
+                ListenerRemoved,
+                deviceId,
+                std::string(data->listener))
 }
 
 int AkVCam::IpcBridgePrivate::sudo(const std::vector<std::string> &parameters,

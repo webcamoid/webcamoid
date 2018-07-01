@@ -27,7 +27,7 @@
 namespace AkVCam
 {
     class MediaFilterPrivate;
-    typedef HRESULT (* StateChangedCallback)(void *userData,
+    typedef HRESULT (*StateChangedCallbackT)(void *userData,
                                              FILTER_STATE state);
 
     class MediaFilter:
@@ -38,10 +38,10 @@ namespace AkVCam
             MediaFilter(REFIID classCLSID, IBaseFilter *baseFilter);
             virtual ~MediaFilter();
 
-            void subscribeStateChanged(void *userData,
-                                       StateChangedCallback callback);
-            void unsubscribeStateChanged(void *userData,
-                                         StateChangedCallback callback);
+            void connectStateChanged(void *userData,
+                                     StateChangedCallbackT callback);
+            void disconnectStateChanged(void *userData,
+                                        StateChangedCallbackT callback);
 
             DECLARE_IPERSISTPROPERTYBAG(IID_IMediaFilter)
 
@@ -65,16 +65,16 @@ namespace AkVCam
 #define DECLARE_IMEDIAFILTER_NQ \
     DECLARE_IPERSISTPROPERTYBAG_NQ \
     \
-    void subscribeStateChanged(void *userData, \
-                               StateChangedCallback callback) \
+    void connectStateChanged(void *userData, \
+                             StateChangedCallbackT callback) \
     { \
-        MediaFilter::subscribeStateChanged(userData, callback); \
+        MediaFilter::connectStateChanged(userData, callback); \
     } \
     \
-    void unsubscribeStateChanged(void *userData, \
-                                 StateChangedCallback callback) \
+    void disconnectStateChanged(void *userData, \
+                                StateChangedCallbackT callback) \
     { \
-        MediaFilter::unsubscribeStateChanged(userData, callback); \
+        MediaFilter::disconnectStateChanged(userData, callback); \
     } \
     \
     HRESULT STDMETHODCALLTYPE Stop() \

@@ -41,7 +41,8 @@ LIBS = \
     -L$${OUT_PWD}/../../VCamUtils/$${BIN_DIR} -lVCamUtils \
     -ladvapi32 \
     -lkernel32 \
-    -lgdi32
+    -lgdi32 \
+    -lshell32
 
 SOURCES = \
     src/messageserver.cpp \

@@ -22,6 +22,8 @@
 
 #include <iostream>
 
+#include "../utils.h"
+
 #ifdef QT_DEBUG
     #define AkLoggerStart(...) AkVCam::Logger::start(__VA_ARGS__)
     #define AkLoggerLog(...) AkVCam::Logger::log(__VA_ARGS__)
@@ -31,13 +33,11 @@
     {
         namespace Logger
         {
-            typedef void (*LogCallBack)(const char *data,
-                                        size_t size,
-                                        void *userData);
+            AKVCAM_CALLBACK(Log, const char *data, size_t size)
 
             void start(const std::string &fileName=std::string(),
                        const std::string &extension=std::string());
-            void start(LogCallBack callback, void *userData);
+            void start(LogCallback callback);
             std::string header();
             std::ostream &out();
             void log();

@@ -34,31 +34,33 @@
 class CameraOutDShowPrivate
 {
     public:
+        CameraOutDShow *self;
         QDir m_applicationDir;
         QStringList m_webcams;
         QString m_curDevice;
         AkVCam::IpcBridge m_ipcBridge;
         int m_streamIndex;
 
-        CameraOutDShowPrivate();
+        CameraOutDShowPrivate(CameraOutDShow *self);
+        ~CameraOutDShowPrivate();
         QString convertToAbsolute(const QString &path) const;
+        static void serverStateChanged(void *userData,
+                                       AkVCam::IpcBridge::ServerState state);
 };
 
 CameraOutDShow::CameraOutDShow(QObject *parent):
     CameraOut(parent)
 {
-    this->d = new CameraOutDShowPrivate;
+    this->d = new CameraOutDShowPrivate(this);
     QObject::connect(this,
                      &CameraOut::driverPathsChanged,
                      this,
                      &CameraOutDShow::updateDriverPaths);
     this->resetDriverPaths();
-    this->d->m_ipcBridge.registerPeer(false);
 }
 
 CameraOutDShow::~CameraOutDShow()
 {
-    this->d->m_ipcBridge.unregisterPeer();
     delete this->d;
 }
 
@@ -227,10 +229,19 @@ void CameraOutDShow::updateDriverPaths(const QStringList &driverPaths)
     this->d->m_ipcBridge.setDriverPaths(paths);
 }
 
-CameraOutDShowPrivate::CameraOutDShowPrivate():
+CameraOutDShowPrivate::CameraOutDShowPrivate(CameraOutDShow *self):
+    self(self),
     m_streamIndex(-1)
 {
     this->m_applicationDir.setPath(QCoreApplication::applicationDirPath());
+    this->m_ipcBridge.connectServerStateChanged(this,
+                                                &CameraOutDShowPrivate::serverStateChanged);
+    this->m_ipcBridge.connectService(false);
+}
+
+CameraOutDShowPrivate::~CameraOutDShowPrivate()
+{
+    this->m_ipcBridge.disconnectService();
 }
 
 QString CameraOutDShowPrivate::convertToAbsolute(const QString &path) const
@@ -241,6 +252,26 @@ QString CameraOutDShowPrivate::convertToAbsolute(const QString &path) const
     QString absPath = this->m_applicationDir.absoluteFilePath(path);
 
     return QDir::cleanPath(absPath);
+}
+
+void CameraOutDShowPrivate::serverStateChanged(void *userData,
+                                               AkVCam::IpcBridge::ServerState state)
+{
+    auto self = reinterpret_cast<CameraOutDShowPrivate *>(userData);
+
+    switch (state) {
+        case AkVCam::IpcBridge::ServerStateAvailable:
+            if (self->m_streamIndex >= 0) {
+                auto streamIndex = self->m_streamIndex;
+                self->self->uninit();
+                self->self->init(streamIndex);
+            }
+
+            break;
+
+        case AkVCam::IpcBridge::ServerStateGone:
+            break;
+    }
 }
 
 #include "moc_cameraoutdshow.cpp"

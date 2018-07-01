@@ -108,8 +108,26 @@ std::string AkVCam::tempPath()
 std::string AkVCam::programFilesPath()
 {
     WCHAR programFiles[MAX_PATH];
-    memset(programFiles, 0, MAX_PATH * sizeof(WCHAR));
-    SHGetSpecialFolderPath(nullptr, programFiles, CSIDL_PROGRAM_FILES, FALSE);
+    DWORD programFilesSize = MAX_PATH * sizeof(WCHAR);
+    memset(programFiles, 0, programFilesSize);
+    bool ok = false;
+
+    if (isWow64()
+        && regGetValue(HKEY_LOCAL_MACHINE,
+                       L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion",
+                       L"ProgramFilesDir",
+                       RRF_RT_REG_SZ,
+                       nullptr,
+                       &programFiles,
+                       &programFilesSize) == ERROR_SUCCESS)
+        ok = true;
+
+    if (!ok)
+        SHGetSpecialFolderPath(nullptr,
+                               programFiles,
+                               CSIDL_PROGRAM_FILES,
+                               FALSE);
+
     std::wstring wProgramFilesPath(programFiles);
 
     return std::string(wProgramFilesPath.begin(), wProgramFilesPath.end());

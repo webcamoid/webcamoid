@@ -28,12 +28,14 @@
 
 namespace AkVCam
 {
+    typedef std::pair<void *, StateChangedCallbackT> StateChangedCallback;
+
     class MediaFilterPrivate
     {
         public:
             IBaseFilter *m_baseFilter;
             IReferenceClock *m_clock;
-            std::vector<std::pair<void *, StateChangedCallback>> m_stateChanged;
+            std::vector<StateChangedCallback> m_stateChanged;
             FILTER_STATE m_state;
             REFERENCE_TIME m_start;
     };
@@ -59,15 +61,15 @@ AkVCam::MediaFilter::~MediaFilter()
     delete this->d;
 }
 
-void AkVCam::MediaFilter::subscribeStateChanged(void *userData,
-                                                StateChangedCallback callback)
+void AkVCam::MediaFilter::connectStateChanged(void *userData,
+                                              StateChangedCallbackT callback)
 {
     AkLogMethod();
     this->d->m_stateChanged.push_back({userData, callback});
 }
 
-void AkVCam::MediaFilter::unsubscribeStateChanged(void *userData,
-                                                  StateChangedCallback callback)
+void AkVCam::MediaFilter::disconnectStateChanged(void *userData,
+                                                 StateChangedCallbackT callback)
 {
     AkLogMethod();
 

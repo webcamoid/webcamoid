@@ -21,10 +21,10 @@
 #define PLATFORM_UTILS_H
 
 #include <string>
-#include <vector>
 #include <strmif.h>
 
 #include "VCamUtils/src/image/videoformattypes.h"
+#include "VCamUtils/src/logger/logger.h"
 
 #define AkLogInterface(interface, instance) \
     AkLoggerLog("Returning ", #interface, "(", instance, ")")

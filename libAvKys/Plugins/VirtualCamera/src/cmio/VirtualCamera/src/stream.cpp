@@ -25,6 +25,7 @@
 #include "utils.h"
 #include "VCamUtils/src/image/videoformat.h"
 #include "VCamUtils/src/image/videoframe.h"
+#include "VCamUtils/src/logger/logger.h"
 
 namespace AkVCam
 {

@@ -20,6 +20,7 @@
 #include "plugin.h"
 #include "utils.h"
 #include "ipcbridge.h"
+#include "VCamUtils/src/logger/logger.h"
 
 extern "C" void *akPluginMain(CFAllocatorRef allocator,
                               CFUUIDRef requestedTypeUUID)

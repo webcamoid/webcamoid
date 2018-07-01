@@ -36,8 +36,7 @@ namespace AkVCam
             std::ostream *outs;
             std::string fileName;
             std::fstream logFile;
-            Logger::LogCallBack logCallback;
-            void *userData;
+            Logger::LogCallback logCallback;
 
             LoggerPrivate();
             ~LoggerPrivate();
@@ -62,11 +61,10 @@ void AkVCam::Logger::start(const std::string &fileName,
             fileName + "-" + timeStamp() + "." + extension;
 }
 
-void AkVCam::Logger::start(LogCallBack callback, void *userData)
+void AkVCam::Logger::start(LogCallback callback)
 {
     stop();
     loggerPrivate()->logCallback = callback;
-    loggerPrivate()->userData = userData;
 }
 
 std::string AkVCam::Logger::header()
@@ -86,7 +84,7 @@ std::string AkVCam::Logger::header()
 
 std::ostream &AkVCam::Logger::out()
 {
-    if (loggerPrivate()->logCallback)
+    if (loggerPrivate()->logCallback.second)
         return *loggerPrivate()->outs;
 
     if (loggerPrivate()->fileName.empty())
@@ -120,14 +118,12 @@ void AkVCam::Logger::stop()
     if (loggerPrivate()->logFile.is_open())
         loggerPrivate()->logFile.close();
 
-    loggerPrivate()->logCallback = nullptr;
-    loggerPrivate()->userData = nullptr;
+    loggerPrivate()->logCallback = {nullptr, nullptr};
 }
 
 AkVCam::LoggerPrivate::LoggerPrivate():
     outs(new std::ostream(this)),
-    logCallback(nullptr),
-    userData(nullptr)
+    logCallback({nullptr, nullptr})
 {
 }
 
@@ -138,8 +134,8 @@ AkVCam::LoggerPrivate::~LoggerPrivate()
 
 std::streamsize AkVCam::LoggerPrivate::xsputn(const char *s, std::streamsize n)
 {
-    if (this->logCallback)
-        this->logCallback(s, size_t(n), this->userData);
+    if (this->logCallback.second)
+        this->logCallback.second(this->logCallback.first, s, size_t(n));
 
     return std::streambuf::xsputn(s, n);
 }

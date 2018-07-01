@@ -22,11 +22,10 @@
 
 #include <string>
 #include <map>
-#include <vector>
-#include <functional>
 
 #include "VCamUtils/src/image/videoformattypes.h"
 #include "VCamUtils/src/image/videoframetypes.h"
+#include "VCamUtils/src/utils.h"
 
 namespace AkVCam
 {
@@ -36,24 +35,46 @@ namespace AkVCam
 
     class IpcBridge
     {
-        typedef std::function<void (const std::string &deviceId,
-                                    const VideoFrame &frame)> FrameReadyCallback;
-        typedef std::function<void (const std::string &deviceId)> DeviceChangedCallback;
-        typedef std::function<void (const std::string &deviceId,
-                                    const std::string &listener)> ListenerCallback;
-        typedef std::function<void (const std::string &deviceId,
-                                    const std::string &broadcaster)> BroadcastingChangedCallback;
-        typedef std::function<void (const std::string &deviceId,
-                                    bool horizontalMirror,
-                                    bool verticalMirror)> MirrorChangedCallback;
-        typedef std::function<void (const std::string &deviceId,
-                                    Scaling scaling)> ScalingChangedCallback;
-        typedef std::function<void (const std::string &deviceId,
-                                    AspectRatio aspectRatio)> AspectRatioChangedCallback;
-        typedef std::function<void (const std::string &deviceId,
-                                    bool swap)> SwapRgbChangedCallback;
-
         public:
+            enum ServerState
+            {
+                ServerStateAvailable,
+                ServerStateGone
+            };
+
+            AKVCAM_SIGNAL(ServerStateChanged,
+                          ServerState state)
+            AKVCAM_SIGNAL(FrameReady,
+                          const std::string &deviceId,
+                          const VideoFrame &frame)
+            AKVCAM_SIGNAL(DeviceAdded,
+                          const std::string &deviceId)
+            AKVCAM_SIGNAL(DeviceRemoved,
+                          const std::string &deviceId)
+            AKVCAM_SIGNAL(ListenerAdded,
+                          const std::string &deviceId,
+                          const std::string &listener)
+            AKVCAM_SIGNAL(ListenerRemoved,
+                          const std::string &deviceId,
+                          const std::string &listener)
+            AKVCAM_SIGNAL(BroadcastingChanged,
+                          const std::string &deviceId,
+                          const std::string &broadcaster)
+            AKVCAM_SIGNAL(MirrorChanged,
+                          const std::string &deviceId,
+                          bool horizontalMirror,
+                          bool verticalMirror)
+            AKVCAM_SIGNAL(ScalingChanged,
+                          const std::string &deviceId,
+                          Scaling scaling)
+            AKVCAM_SIGNAL(AspectRatioChanged,
+                          const std::string &deviceId,
+                          AspectRatio aspectRatio)
+            AKVCAM_SIGNAL(SwapRgbChanged,
+                          const std::string &deviceId,
+                          bool swap)
+
+        public:            
             IpcBridge();
             ~IpcBridge();
 
@@ -73,6 +94,10 @@ namespace AkVCam
             std::vector<std::string> availableRootMethods() const;
             std::string rootMethod() const;
             bool setRootMethod(const std::string &rootMethod);
+
+            // Manage main service connection.
+            void connectService(bool asClient);
+            void disconnectService();
 
             // Register the peer to the global server.
             bool registerPeer(bool asClient);
@@ -155,14 +180,6 @@ namespace AkVCam
             // Swap red and blue channels.
             void setSwapRgb(const std::string &deviceId, bool swap);
 
-            // Set the function that will be called when a new listener is added
-            // to a device.
-            void setListenerAddedCallback(ListenerCallback callback);
-
-            // Set the function that will be called when a listener is removed
-            // from a device.
-            void setListenerRemovedCallback(ListenerCallback callback);
-
             /* Client */
 
             // Increment the count of device listeners
@@ -170,38 +187,6 @@ namespace AkVCam
 
             // Decrement the count of device listeners
             bool removeListener(const std::string &deviceId);
-
-            // Set the function that will be called when a new frame
-            // is available to the client.
-            void setFrameReadyCallback(FrameReadyCallback callback);
-
-            // Set the function that will be called when a new device definition
-            // is added.
-            void setDeviceAddedCallback(DeviceChangedCallback callback);
-
-            // Set the function that will be called when a device definition
-            // is removed.
-            void setDeviceRemovedCallback(DeviceChangedCallback callback);
-
-            // Set the function that will be called when a device is transmitting
-            // video frames.
-            void setBroadcastingChangedCallback(BroadcastingChangedCallback callback);
-
-            // Set the function that will be called when the mirroring option
-            // changes for a device.
-            void setMirrorChangedCallback(MirrorChangedCallback callback);
-
-            // Set the function that will be called when the scaling option
-            // changes for a device.
-            void setScalingChangedCallback(ScalingChangedCallback callback);
-
-            // Set the function that will be called when the aspect ratio option
-            // changes for a device.
-            void setAspectRatioChangedCallback(AspectRatioChangedCallback callback);
-
-            // Set the function that will be called when the swap RGB option
-            // changes for a device.
-            void setSwapRgbChangedCallback(SwapRgbChangedCallback callback);
 
         private:
             IpcBridgePrivate *d;

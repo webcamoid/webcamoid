@@ -162,8 +162,8 @@ AkVCam::Pin::Pin(BaseFilter *baseFilter,
                                  &this->d->m_colorenable,
                                  &flags);
 
-    this->d->m_videoProcAmp->subscribePropertyChanged(this->d,
-                                                      PinPrivate::propertyChanged);
+    this->d->m_videoProcAmp->connectPropertyChanged(this->d,
+                                                    &PinPrivate::propertyChanged);
 }
 
 AkVCam::Pin::~Pin()
@@ -256,6 +256,25 @@ HRESULT AkVCam::Pin::stateChanged(void *userData, FILTER_STATE state)
     self->d->m_prevState = state;
 
     return S_OK;
+}
+
+void AkVCam::Pin::serverStateChanged(AkVCam::IpcBridge::ServerState state)
+{
+    AkLogMethod();
+
+    if (state == AkVCam::IpcBridge::ServerStateGone) {
+        this->d->m_broadcaster.clear();
+        this->d->m_horizontalMirror = false;
+        this->d->m_verticalMirror = false;
+        this->d->m_scaling = ScalingFast;
+        this->d->m_aspectRatio = AspectRatioIgnore;
+        this->d->m_swapRgb = false;
+        this->d->updateTestFrame();
+
+        this->d->m_mutex.lock();
+        this->d->m_currentFrame = this->d->m_testFrameAdapted;
+        this->d->m_mutex.unlock();
+    }
 }
 
 void AkVCam::Pin::frameReady(const VideoFrame &frame)
@@ -586,9 +605,7 @@ HRESULT AkVCam::Pin::Connect(IPin *pReceivePin, const AM_MEDIA_TYPE *pmt)
 
     this->d->m_connectedTo = pReceivePin;
     this->d->m_connectedTo->AddRef();
-
-    this->d->m_baseFilter->subscribeStateChanged(this, Pin::stateChanged);
-
+    this->d->m_baseFilter->connectStateChanged(this, &Pin::stateChanged);
     AkLoggerLog("Connected to ", pReceivePin);
 
     return S_OK;
@@ -607,8 +624,7 @@ HRESULT AkVCam::Pin::ReceiveConnection(IPin *pConnector,
 HRESULT AkVCam::Pin::Disconnect()
 {
     AkLogMethod();
-
-    this->d->m_baseFilter->unsubscribeStateChanged(this, Pin::stateChanged);
+    this->d->m_baseFilter->disconnectStateChanged(this, &Pin::stateChanged);
 
     if (this->d->m_baseFilter) {
         FILTER_STATE state;

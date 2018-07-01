@@ -46,22 +46,33 @@ namespace AkVCam
             CMIOObjectID m_objectID;
             std::vector<DevicePtr> m_devices;
 
-            void deviceAdded(const std::string &deviceId);
-            void deviceRemoved(const std::string &deviceId);
-            void frameReady(const std::string &deviceId,
-                            const VideoFrame &frame);
-            void setBroadcasting(const std::string &deviceId,
-                                 const std::string &broadcaster);
-            void setMirror(const std::string &deviceId,
-                           bool horizontalMirror,
-                           bool verticalMirror);
-            void setScaling(const std::string &deviceId,
-                            Scaling scaling);
-            void setAspectRatio(const std::string &deviceId,
-                                AspectRatio aspectRatio);
-            void setSwapRgb(const std::string &deviceId, bool swap);
-            void addListener(const std::string &deviceId);
-            void removeListener(const std::string &deviceId);
+            static void deviceAdded(void *userData,
+                                    const std::string &deviceId);
+            static void deviceRemoved(void *userData,
+                                      const std::string &deviceId);
+            static void frameReady(void *userData,
+                                   const std::string &deviceId,
+                                   const VideoFrame &frame);
+            static void setBroadcasting(void *userData,
+                                        const std::string &deviceId,
+                                        const std::string &broadcaster);
+            static void setMirror(void *userData,
+                                  const std::string &deviceId,
+                                  bool horizontalMirror,
+                                  bool verticalMirror);
+            static void setScaling(void *userData,
+                                   const std::string &deviceId,
+                                   Scaling scaling);
+            static void setAspectRatio(void *userData,
+                                       const std::string &deviceId,
+                                       AspectRatio aspectRatio);
+            static void setSwapRgb(void *userData,
+                                   const std::string &deviceId,
+                                   bool swap);
+            static void addListener(void *userData,
+                                    const std::string &deviceId);
+            static void removeListener(void *userData,
+                                       const std::string &deviceId);
             bool createDevice(const std::string &deviceId,
                               const std::string &description,
                               const std::vector<VideoFormat> &formats);

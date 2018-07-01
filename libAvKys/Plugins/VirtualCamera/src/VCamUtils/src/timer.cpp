@@ -27,23 +27,19 @@ namespace AkVCam
     class TimerPrivate
     {
         public:
+            Timer *self;
             int m_interval;
-            TimerTimeoutCallback m_timerTimeoutCallback;
-            void *m_userData;
             std::thread m_thread;
             bool m_running;
 
+            TimerPrivate(Timer *self);
             void timerLoop();
     };
 }
 
 AkVCam::Timer::Timer()
 {
-    this->d = new TimerPrivate;
-    this->d->m_interval = 0;
-    this->d->m_timerTimeoutCallback = nullptr;
-    this->d->m_userData = nullptr;
-    this->d->m_running = false;
+    this->d = new TimerPrivate(this);
 }
 
 AkVCam::Timer::~Timer()
@@ -83,11 +79,12 @@ void AkVCam::Timer::stop()
     this->d->m_thread.join();
 }
 
-void AkVCam::Timer::setTimeoutCallback(TimerTimeoutCallback callback,
-                                       void *userData)
+AkVCam::TimerPrivate::TimerPrivate(AkVCam::Timer *self):
+    self(self),
+    m_interval(0),
+    m_running(false)
 {
-    this->d->m_timerTimeoutCallback = callback;
-    this->d->m_userData = userData;
+
 }
 
 void AkVCam::TimerPrivate::timerLoop()
@@ -96,7 +93,6 @@ void AkVCam::TimerPrivate::timerLoop()
         if (this->m_interval)
             std::this_thread::sleep_for(std::chrono::milliseconds(this->m_interval));
 
-        if (this->m_timerTimeoutCallback)
-            this->m_timerTimeoutCallback(this->m_userData);
+        AKVCAM_EMIT_NOARGS(this->self, Timeout);
     }
 }

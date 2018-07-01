@@ -23,27 +23,21 @@
 #include <strmif.h>
 
 #include "cunknown.h"
+#include "VCamUtils/src/utils.h"
 
 namespace AkVCam
 {
     class VideoProcAmpPrivate;
-    typedef void (* PropertyChangedCallback)(void *userData,
-                                             LONG Property,
-                                             LONG lValue,
-                                             LONG Flags);
 
     class VideoProcAmp:
             public IAMVideoProcAmp,
             public CUnknown
     {
+        AKVCAM_SIGNAL(PropertyChanged, LONG Property,  LONG lValue, LONG Flags)
+
         public:
             VideoProcAmp();
             virtual ~VideoProcAmp();
-
-            void subscribePropertyChanged(void *userData,
-                                          PropertyChangedCallback callback);
-            void unsubscribePropertyChanged(void *userData,
-                                            PropertyChangedCallback callback);
 
             DECLARE_IUNKNOWN(IID_IAMVideoProcAmp)
 
@@ -63,6 +57,8 @@ namespace AkVCam
 
         private:
             VideoProcAmpPrivate *d;
+
+        friend class VideoProcAmpPrivate;
     };
 }
 

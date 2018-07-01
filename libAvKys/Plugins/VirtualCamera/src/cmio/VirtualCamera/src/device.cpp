@@ -17,10 +17,9 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <vector>
-
 #include "device.h"
 #include "utils.h"
+#include "VCamUtils/src/logger/logger.h"
 
 AkVCam::Device::Device(CMIOHardwarePlugInRef pluginInterface,
                        bool registerObject):
@@ -219,16 +218,6 @@ void AkVCam::Device::setSwapRgb(bool swap)
         stream.second->setSwapRgb(swap);
 }
 
-void AkVCam::Device::setAddListenerCallback(AkVCam::Device::ListenerCallback callback)
-{
-    this->m_addListenerCallback = callback;
-}
-
-void AkVCam::Device::setRemoveListenerCallback(AkVCam::Device::ListenerCallback callback)
-{
-    this->m_removeListenerCallback = callback;
-}
-
 OSStatus AkVCam::Device::suspend()
 {
     AkObjectLogMethod();
@@ -276,8 +265,7 @@ OSStatus AkVCam::Device::startStream(CMIOStreamID stream)
         this->propertyChanged(1, &address);
     }
 
-    if (this->m_addListenerCallback)
-        this->m_addListenerCallback(this->m_deviceId);
+    AKVCAM_EMIT(this, AddListener, this->m_deviceId)
 
     return kCMIOHardwareNoError;
 }
@@ -309,8 +297,7 @@ OSStatus AkVCam::Device::stopStream(CMIOStreamID stream)
         this->propertyChanged(1, &address);
     }
 
-    if (this->m_removeListenerCallback)
-        this->m_removeListenerCallback(this->m_deviceId);
+    AKVCAM_EMIT(this, RemoveListener, this->m_deviceId)
 
     return kCMIOHardwareNoError;
 }

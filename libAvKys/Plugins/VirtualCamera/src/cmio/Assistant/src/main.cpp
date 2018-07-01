@@ -23,7 +23,7 @@
 
 #include "assistant.h"
 #include "assistantglobals.h"
-#include "VCamUtils/src/utils.h"
+#include "VCamUtils/src/logger/logger.h"
 
 GLOBAL_STATIC(AkVCam::Assistant, assistant)
 

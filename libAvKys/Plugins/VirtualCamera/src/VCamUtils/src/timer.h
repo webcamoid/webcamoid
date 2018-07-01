@@ -20,13 +20,16 @@
 #ifndef TIMER_H
 #define TIMER_H
 
+#include "utils.h"
+
 namespace AkVCam
 {
-    typedef void (*TimerTimeoutCallback)(void *userData);
     class TimerPrivate;
 
     class Timer
     {
+        AKVCAM_SIGNAL_NOARGS(Timeout)
+
         public:
             Timer();
             ~Timer();
@@ -36,11 +39,10 @@ namespace AkVCam
             void setInterval(int msec);
             void start();
             void stop();
-            void setTimeoutCallback(TimerTimeoutCallback callback,
-                                    void *userData);
 
         private:
             TimerPrivate *d;
+            friend class TimerPrivate;
     };
 }
 
