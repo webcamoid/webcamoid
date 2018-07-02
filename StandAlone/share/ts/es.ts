@@ -497,7 +497,7 @@
     <message>
         <location filename="../../src/clioptions.cpp" line="73"/>
         <source>Semi-colon separated list of paths to search for virtual camera driver</source>
-        <translation type="unfinished"></translation>
+        <translation>Lista de rutas separadas por punto y coma para buscar el controlador de la cámara virtual</translation>
     </message>
 </context>
 <context>
