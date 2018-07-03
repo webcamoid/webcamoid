@@ -266,6 +266,25 @@ bool AkVCam::Stream::running()
     return this->d->m_running;
 }
 
+void AkVCam::Stream::serverStateChanged(IpcBridge::ServerState state)
+{
+    AkObjectLogMethod();
+
+    if (state == IpcBridge::ServerStateGone) {
+        this->d->m_broadcaster.clear();
+        this->d->m_horizontalMirror = false;
+        this->d->m_verticalMirror = false;
+        this->d->m_scaling = ScalingFast;
+        this->d->m_aspectRatio = AspectRatioIgnore;
+        this->d->m_swapRgb = false;
+        this->d->updateTestFrame();
+
+        this->d->m_mutex.lock();
+        this->d->m_currentFrame = this->d->m_testFrameAdapted;
+        this->d->m_mutex.unlock();
+    }
+}
+
 void AkVCam::Stream::frameReady(const AkVCam::VideoFrame &frame)
 {
     AkObjectLogMethod();

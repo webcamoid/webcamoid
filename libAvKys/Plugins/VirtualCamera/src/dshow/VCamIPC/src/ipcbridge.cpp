@@ -1622,10 +1622,10 @@ void AkVCam::IpcBridgePrivate::pipeStateChanged(void *userData,
 
     case MessageServer::PipeStateGone:
         AkLoggerLog("Server Gone");
-        self->self->unregisterPeer();
         AKVCAM_EMIT(self->self,
                     ServerStateChanged,
                     IpcBridge::ServerStateGone);
+        self->self->unregisterPeer();
 
         break;
     }

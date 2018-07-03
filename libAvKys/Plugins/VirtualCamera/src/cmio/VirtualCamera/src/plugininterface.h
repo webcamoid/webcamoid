@@ -20,6 +20,7 @@
 #ifndef PLUGININTERFACE_H
 #define PLUGININTERFACE_H
 
+#include "ipcbridge.h"
 #include "device.h"
 
 namespace AkVCam
@@ -46,6 +47,8 @@ namespace AkVCam
             CMIOObjectID m_objectID;
             std::vector<DevicePtr> m_devices;
 
+            static void serverStateChanged(void *userData,
+                                           IpcBridge::ServerState state);
             static void deviceAdded(void *userData,
                                     const std::string &deviceId);
             static void deviceRemoved(void *userData,
@@ -77,6 +80,8 @@ namespace AkVCam
                               const std::string &description,
                               const std::vector<VideoFormat> &formats);
             void destroyDevice(const std::string &deviceId);
+
+        friend struct PluginInterfacePrivate;
     };
 }
 

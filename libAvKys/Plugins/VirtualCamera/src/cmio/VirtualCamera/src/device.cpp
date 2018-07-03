@@ -182,6 +182,12 @@ void AkVCam::Device::stopStreams()
         stream.second->stop();
 }
 
+void AkVCam::Device::serverStateChanged(IpcBridge::ServerState state)
+{
+    for (auto &stream: this->m_streams)
+        stream.second->serverStateChanged(state);
+}
+
 void AkVCam::Device::frameReady(const AkVCam::VideoFrame &frame)
 {
     for (auto &stream: this->m_streams)

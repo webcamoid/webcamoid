@@ -258,11 +258,11 @@ HRESULT AkVCam::Pin::stateChanged(void *userData, FILTER_STATE state)
     return S_OK;
 }
 
-void AkVCam::Pin::serverStateChanged(AkVCam::IpcBridge::ServerState state)
+void AkVCam::Pin::serverStateChanged(IpcBridge::ServerState state)
 {
     AkLogMethod();
 
-    if (state == AkVCam::IpcBridge::ServerStateGone) {
+    if (state == IpcBridge::ServerStateGone) {
         this->d->m_broadcaster.clear();
         this->d->m_horizontalMirror = false;
         this->d->m_verticalMirror = false;

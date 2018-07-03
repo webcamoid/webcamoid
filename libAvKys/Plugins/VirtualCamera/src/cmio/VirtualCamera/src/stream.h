@@ -20,6 +20,7 @@
 #ifndef STREAM_H
 #define STREAM_H
 
+#include "ipcbridge.h"
 #include "VCamUtils/src/image/videoframetypes.h"
 #include "object.h"
 #include "queue.h"
@@ -48,6 +49,7 @@ namespace AkVCam
             void stop();
             bool running();
 
+            void serverStateChanged(IpcBridge::ServerState state);
             void frameReady(const VideoFrame &frame);
             void setBroadcasting(const std::string &broadcaster);
             void setMirror(bool horizontalMirror, bool verticalMirror);

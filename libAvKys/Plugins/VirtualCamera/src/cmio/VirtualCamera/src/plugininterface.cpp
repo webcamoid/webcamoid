@@ -46,6 +46,7 @@ namespace AkVCam
             ULONG m_reserved;
             IpcBridge m_ipcBridge;
 
+            void updateDevices();
             static HRESULT QueryInterface(void *self,
                                           REFIID uuid,
                                           LPVOID *interface);
@@ -173,8 +174,9 @@ AkVCam::PluginInterface::PluginInterface():
     struct stat fileInfo;
 
     if (stat(daemon.c_str(), &fileInfo) == 0)
-        this->d->m_ipcBridge.registerPeer(true);
+        this->d->m_ipcBridge.connectService(true);
 
+    this->d->m_ipcBridge.connectServerStateChanged(this, &PluginInterface::serverStateChanged);
     this->d->m_ipcBridge.connectDeviceAdded(this, &PluginInterface::deviceAdded);
     this->d->m_ipcBridge.connectDeviceRemoved(this, &PluginInterface::deviceRemoved);
     this->d->m_ipcBridge.connectFrameReady(this, &PluginInterface::frameReady);
@@ -187,7 +189,7 @@ AkVCam::PluginInterface::PluginInterface():
 
 AkVCam::PluginInterface::~PluginInterface()
 {
-    this->d->m_ipcBridge.unregisterPeer();
+    this->d->m_ipcBridge.disconnectService();
     delete this->d->pluginInterface;
     delete this->d;
 }
@@ -269,6 +271,19 @@ OSStatus AkVCam::PluginInterface::Teardown()
     AkLoggerLog("AkVCam::PluginInterface::Teardown");
 
     return kCMIOHardwareNoError;
+}
+
+void AkVCam::PluginInterface::serverStateChanged(void *userData,
+                                                 IpcBridge::ServerState state)
+{
+    AkLoggerLog("AkVCam::PluginInterface::frameReady");
+    auto self = reinterpret_cast<PluginInterface *>(userData);
+
+    for (auto device: self->m_devices)
+        device->serverStateChanged(state);
+
+    if (state == IpcBridge::ServerStateAvailable)
+        self->d->updateDevices();
 }
 
 void AkVCam::PluginInterface::deviceAdded(void *userData,
@@ -490,6 +505,18 @@ void AkVCam::PluginInterface::destroyDevice(const std::string &deviceId)
 
             break;
         }
+    }
+}
+
+void AkVCam::PluginInterfacePrivate::updateDevices()
+{
+    for (auto &device: this->self->m_devices) {
+        device->setBroadcasting(this->m_ipcBridge.broadcaster(device->deviceId()));
+        device->setMirror(this->m_ipcBridge.isHorizontalMirrored(device->deviceId()),
+                          this->m_ipcBridge.isVerticalMirrored(device->deviceId()));
+        device->setScaling(this->m_ipcBridge.scalingMode(device->deviceId()));
+        device->setAspectRatio(this->m_ipcBridge.aspectRatioMode(device->deviceId()));
+        device->setSwapRgb(this->m_ipcBridge.swapRgb(device->deviceId()));
     }
 }
 
