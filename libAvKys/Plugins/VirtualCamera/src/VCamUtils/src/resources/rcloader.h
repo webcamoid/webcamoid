@@ -30,7 +30,7 @@ namespace AkVCam
     namespace RcLoader
     {
         std::list<std::string> list();
-        IMemBuffer load(const std::string &resource);
+        bool load(const std::string &resource, IMemBuffer *buffer);
     }
 }
 

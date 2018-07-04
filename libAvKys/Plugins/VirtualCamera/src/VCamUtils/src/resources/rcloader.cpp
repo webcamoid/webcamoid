@@ -50,13 +50,20 @@ std::list<std::string> AkVCam::RcLoader::list()
     return resources;
 }
 
-AkVCam::IMemBuffer AkVCam::RcLoader::load(const std::string &resource)
+bool AkVCam::RcLoader::load(const std::string &resource,
+                            IMemBuffer *buffer)
 {
-    for (auto &res: *rcLoaderResources())
-        if (res.first == resource)
-            return IMemBuffer(res.second.m_data, size_t(res.second.m_size));
+    if (!buffer)
+        return false;
 
-    return IMemBuffer();
+    for (auto &res: *rcLoaderResources())
+        if (res.first == resource) {
+            buffer->setMem(res.second.m_data, size_t(res.second.m_size));
+
+            return true;
+        }
+
+    return false;
 }
 
 namespace QT_NAMESPACE

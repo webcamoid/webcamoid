@@ -374,7 +374,10 @@ bool AkVCam::VideoFrame::load(const std::string &fileName)
         return false;
 
     if (fileName[0] == ':') {
-        auto stream = RcLoader::load(fileName);
+        IMemBuffer stream;
+
+        if (!RcLoader::load(fileName, &stream))
+            return false;
 
         return this->load(&stream);
     }

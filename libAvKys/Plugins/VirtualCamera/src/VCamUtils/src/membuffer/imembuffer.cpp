@@ -156,19 +156,6 @@ AkVCam::IMemBuffer::IMemBuffer(const unsigned char *stream, bool isBigEndian)
                reinterpret_cast<char *>(const_cast<unsigned char *>(stream)));
 }
 
-AkVCam::IMemBuffer::IMemBuffer(const AkVCam::IMemBuffer &other)
-{
-    this->d = new IMemBufferPrivate();
-    this->d->m_mode = other.d->m_mode;
-    this->d->m_size = other.d->m_size;
-    this->d->m_ref = other.d->m_ref;
-    this->d->m_isBigEndian = other.d->m_isBigEndian;
-    this->setg(other.eback(), other.gptr(), other.egptr());
-
-    if (this->d->m_mode != ModeRead)
-        (*this->d->m_ref)++;
-}
-
 AkVCam::IMemBuffer::~IMemBuffer()
 {
     if (this->d->m_mode != ModeRead) {
@@ -183,29 +170,94 @@ AkVCam::IMemBuffer::~IMemBuffer()
     delete this->d;
 }
 
-AkVCam::IMemBuffer &AkVCam::IMemBuffer::operator =(const AkVCam::IMemBuffer &other)
+void AkVCam::IMemBuffer::setMem(const char *stream,
+                                size_t size,
+                                bool isBigEndian,
+                                Mode mode)
 {
-    if (this != &other) {
-        if (this->d->m_mode != ModeRead) {
-            (*this->d->m_ref)--;
+    if (this->d->m_mode != ModeRead) {
+        (*this->d->m_ref)--;
 
-            if (!*this->d->m_ref) {
-                delete [] this->eback();
-                delete this->d->m_ref;
-            }
+        if (!*this->d->m_ref) {
+            delete [] this->eback();
+            delete this->d->m_ref;
         }
-
-        this->d->m_mode = other.d->m_mode;
-        this->d->m_size = other.d->m_size;
-        this->d->m_ref = other.d->m_ref;
-        this->d->m_isBigEndian = other.d->m_isBigEndian;
-        this->setg(other.eback(), other.gptr(), other.egptr());
-
-        if (this->d->m_mode != ModeRead)
-            (*this->d->m_ref)++;
     }
 
-    return *this;
+    this->d->m_mode = mode;
+    char *data = nullptr;
+
+    if (mode == ModeRead) {
+        data = const_cast<char *>(stream);
+        this->d->m_ref = nullptr;
+    } else if (mode == ModeHold) {
+        data = const_cast<char *>(stream);
+        this->d->m_ref = new uint64_t(1);
+    } else {
+        data = new char[size];
+        memcpy(data, stream, size);
+        this->d->m_ref = new uint64_t(1);
+    }
+
+    this->d->m_size = size;
+    this->d->m_isBigEndian = isBigEndian;
+    this->setg(data, data, data + size - 1);
+}
+
+void AkVCam::IMemBuffer::setMem(const unsigned char *stream,
+                                size_t size,
+                                bool isBigEndian,
+                                Mode mode)
+{
+    this->setMem(reinterpret_cast<const char *>(stream),
+                 size,
+                 isBigEndian,
+                 mode);
+}
+
+void AkVCam::IMemBuffer::setMem(const char *stream,
+                                size_t size,
+                                Mode mode)
+{
+    this->setMem(stream, size, false, mode);
+}
+
+void AkVCam::IMemBuffer::setMem(const unsigned char *stream,
+                                size_t size,
+                                Mode mode)
+{
+    this->setMem(reinterpret_cast<const char *>(stream), size, mode);
+}
+
+void AkVCam::IMemBuffer::setMem(const char *stream, bool isBigEndian)
+{
+    this->setMem(stream, 0, isBigEndian, ModeRead);
+}
+
+void AkVCam::IMemBuffer::setMem(const unsigned char *stream, bool isBigEndian)
+{
+    this->setMem(reinterpret_cast<const char *>(stream), isBigEndian);
+}
+
+void AkVCam::IMemBuffer::copy(const AkVCam::IMemBuffer &other)
+{
+    if (this->d->m_mode != ModeRead) {
+        (*this->d->m_ref)--;
+
+        if (!*this->d->m_ref) {
+            delete [] this->eback();
+            delete this->d->m_ref;
+        }
+    }
+
+    this->d->m_mode = other.d->m_mode;
+    this->d->m_size = other.d->m_size;
+    this->d->m_ref = other.d->m_ref;
+    this->d->m_isBigEndian = other.d->m_isBigEndian;
+    this->setg(other.eback(), other.gptr(), other.egptr());
+
+    if (this->d->m_mode != ModeRead)
+        (*this->d->m_ref)++;
 }
 
 AkVCam::IMemBuffer::operator bool() const

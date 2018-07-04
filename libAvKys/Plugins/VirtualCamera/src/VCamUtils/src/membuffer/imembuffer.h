@@ -50,10 +50,21 @@ namespace AkVCam
             IMemBuffer(const unsigned char *stream, size_t size, Mode mode);
             IMemBuffer(const char *stream, bool isBigEndian);
             IMemBuffer(const unsigned char *stream, bool isBigEndian);
-            IMemBuffer(const IMemBuffer &other);
             ~IMemBuffer();
-            IMemBuffer &operator =(const IMemBuffer &other);
             operator bool() const;
+            void setMem(const char *stream=nullptr,
+                        size_t size=0,
+                        bool isBigEndian=false,
+                        Mode mode=ModeRead);
+            void setMem(const unsigned char *stream=nullptr,
+                        size_t size=0,
+                        bool isBigEndian=false,
+                        Mode mode=ModeRead);
+            void setMem(const char *stream, size_t size, Mode mode);
+            void setMem(const unsigned char *stream, size_t size, Mode mode);
+            void setMem(const char *stream, bool isBigEndian);
+            void setMem(const unsigned char *stream, bool isBigEndian);
+            void copy(const IMemBuffer &other);
             const char *data() const;
 
             template<typename T>
