@@ -95,17 +95,16 @@ bool AkVCam::isWow64()
     return isWow64;
 }
 
-std::string AkVCam::tempPath()
+std::wstring AkVCam::tempPath()
 {
     WCHAR tempPath[MAX_PATH];
     memset(tempPath, 0, MAX_PATH * sizeof(WCHAR));
     GetTempPath(MAX_PATH, tempPath);
-    std::wstring wTempPath(tempPath);
 
-    return std::string(wTempPath.begin(), wTempPath.end());
+    return std::wstring(tempPath);
 }
 
-std::string AkVCam::programFilesPath()
+std::wstring AkVCam::programFilesPath()
 {
     WCHAR programFiles[MAX_PATH];
     DWORD programFilesSize = MAX_PATH * sizeof(WCHAR);
@@ -128,9 +127,7 @@ std::string AkVCam::programFilesPath()
                                CSIDL_PROGRAM_FILES,
                                FALSE);
 
-    std::wstring wProgramFilesPath(programFiles);
-
-    return std::string(wProgramFilesPath.begin(), wProgramFilesPath.end());
+    return std::wstring(programFiles);
 }
 
 std::wstring AkVCam::moduleFileNameW(HINSTANCE hinstDLL)

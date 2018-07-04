@@ -63,6 +63,7 @@ namespace AkVCam
                                      int align=32);
             static FourCC fourccFromString(const std::string &fourccStr);
             static std::string stringFromFourcc(FourCC fourcc);
+            static std::wstring wstringFromFourcc(FourCC fourcc);
 
         private:
             VideoFormatPrivate *d;

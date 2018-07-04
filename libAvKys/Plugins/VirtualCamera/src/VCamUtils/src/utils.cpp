@@ -67,15 +67,15 @@ std::wstring AkVCam::replace(const std::wstring &str,
     return newStr;
 }
 
-bool AkVCam::isEqualFile(const std::string &file1, const std::string &file2)
+bool AkVCam::isEqualFile(const std::wstring &file1, const std::wstring &file2)
 {
     if (file1 == file2)
         return true;
 
     std::fstream f1;
     std::fstream f2;
-    f1.open(file1, std::ios_base::in);
-    f2.open(file2, std::ios_base::in);
+    f1.open(std::string(file1.begin(), file1.end()), std::ios_base::in);
+    f2.open(std::string(file2.begin(), file2.end()), std::ios_base::in);
 
     if (!f1.is_open() || !f2.is_open())
         return false;

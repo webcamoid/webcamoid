@@ -53,4 +53,5 @@ INCLUDEPATH += \
     ../..
 
 DEFINES += \
-    DSHOW_PLUGIN_ARCH=\"\\\"$$normalizedArch(TARGET_ARCH)\\\"\"
+    DSHOW_PLUGIN_ARCH=\"\\\"$$normalizedArch(TARGET_ARCH)\\\"\" \
+    DSHOW_PLUGIN_ARCH_L=\"L\\\"$$normalizedArch(TARGET_ARCH)\\\"\"

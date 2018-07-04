@@ -21,6 +21,7 @@
 #define AKVCAMUTILS_UTILS_H
 
 #include <cstdint>
+#include <string>
 #include <vector>
 
 #ifndef UNUSED
@@ -149,7 +150,7 @@ namespace AkVCam
     std::wstring replace(const std::wstring &str,
                          const std::wstring &from,
                          const std::wstring &to);
-    bool isEqualFile(const std::string &file1, const std::string &file2);
+    bool isEqualFile(const std::wstring &file1, const std::wstring &file2);
 }
 
 #endif // AKVCAMUTILS_UTILS_H

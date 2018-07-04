@@ -48,6 +48,9 @@ namespace AkVCam
                              const std::string &value,
                              bool isSettable=true);
             bool setProperty(UInt32 property,
+                             const std::wstring &value,
+                             bool isSettable=true);
+            bool setProperty(UInt32 property,
                              UInt32 value,
                              bool isSettable=true);
             bool setProperty(UInt32 property,

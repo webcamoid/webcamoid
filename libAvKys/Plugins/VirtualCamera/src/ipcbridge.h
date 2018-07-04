@@ -74,7 +74,7 @@ namespace AkVCam
                           const std::string &deviceId,
                           bool swap)
 
-        public:            
+        public:
             IpcBridge();
             ~IpcBridge();
 
@@ -84,10 +84,10 @@ namespace AkVCam
             void setOption(const std::string &key, const std::string &value);
 
             // Driver search paths
-            std::vector<std::string> driverPaths() const;
+            std::vector<std::wstring> driverPaths() const;
 
             // Set driver search paths
-            void setDriverPaths(const std::vector<std::string> &driverPaths);
+            void setDriverPaths(const std::vector<std::wstring> &driverPaths);
 
             // Configure method to be used for executing commands with elevated
             // privileges.
@@ -109,7 +109,7 @@ namespace AkVCam
             std::vector<std::string> listDevices() const;
 
             // Return human readable description of the device.
-            std::string description(const std::string &deviceId) const;
+            std::wstring description(const std::string &deviceId) const;
 
             // Output pixel formats supported by the driver.
             std::vector<PixelFormat> supportedOutputPixelFormats() const;
@@ -141,7 +141,7 @@ namespace AkVCam
             /* Server */
 
             // Create a device definition.
-            std::string deviceCreate(const std::string &description,
+            std::string deviceCreate(const std::wstring &description,
                                      const std::vector<VideoFormat> &formats);
 
             // Remove a device definition.
@@ -149,7 +149,7 @@ namespace AkVCam
 
             // Change device description.
             bool changeDescription(const std::string &deviceId,
-                                   const std::string &description);
+                                   const std::wstring &description);
 
             // Remove all device definitions.
             bool destroyAllDevices();

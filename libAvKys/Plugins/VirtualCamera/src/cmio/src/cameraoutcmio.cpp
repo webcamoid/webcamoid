@@ -85,7 +85,7 @@ QString CameraOutCMIO::description(const QString &webcam) const
         auto deviceId = QString::fromStdString(device);
 
         if (deviceId == webcam)
-            return QString::fromStdString(this->d->m_ipcBridge.description(device));
+            return QString::fromStdWString(this->d->m_ipcBridge.description(device));
     }
 
     return {};
@@ -122,8 +122,8 @@ QString CameraOutCMIO::createWebcam(const QString &description,
     AkVideoCaps caps(this->m_caps);
     auto webcam =
             this->d->m_ipcBridge.deviceCreate(description.isEmpty()?
-                                                  "AvKys Virtual Camera":
-                                                  description.toStdString(),
+                                                  L"AvKys Virtual Camera":
+                                                  description.toStdWString(),
                                               {{AkVCam::PixelFormatRGB32,
                                                 640, 480,
                                                 {caps.fps().value()}}});
@@ -152,7 +152,7 @@ bool CameraOutCMIO::changeDescription(const QString &webcam,
 
     bool result =
             this->d->m_ipcBridge.changeDescription(webcam.toStdString(),
-                                                   description.toStdString());
+                                                   description.toStdWString());
 
     auto curWebcams = this->webcams();
 
@@ -222,10 +222,10 @@ void CameraOutCMIO::resetDriverPaths()
 
 void CameraOutCMIO::updateDriverPaths(const QStringList &driverPaths)
 {
-    std::vector<std::string> paths;
+    std::vector<std::wstring> paths;
 
     for (auto &path: driverPaths)
-        paths.push_back(path.toStdString());
+        paths.push_back(path.toStdWString());
 
     this->d->m_ipcBridge.setDriverPaths(paths);
 }

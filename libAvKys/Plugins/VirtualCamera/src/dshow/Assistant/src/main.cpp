@@ -26,7 +26,9 @@
 
 int main(int argc, char **argv)
 {
-    AkLoggerStart(AkVCam::tempPath() + "\\" DSHOW_PLUGIN_ASSISTANT_NAME, "log");
+    auto temp = AkVCam::tempPath();
+    AkLoggerStart(std::string(temp.begin(), temp.end())
+                  + "\\" DSHOW_PLUGIN_ASSISTANT_NAME, "log");
     AkVCam::Service service;
 
     if (argc > 1) {

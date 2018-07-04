@@ -44,7 +44,7 @@ namespace AkVCam
 {
     struct AssistantDevice
     {
-        std::string description;
+        std::wstring description;
         std::vector<VideoFormat> formats;
         std::string broadcaster;
         std::vector<std::string> listeners;
@@ -80,22 +80,27 @@ namespace AkVCam
             AssistantPrivate();
             ~AssistantPrivate();
             inline static uint64_t id();
-            inline bool startTimer();
-            inline void stopTimer();
-            inline static void timerTimeout(CFRunLoopTimerRef timer, void *info);
-            inline std::shared_ptr<CFTypeRef> cfTypeFromStd(const std::string &str) const;
-            inline std::shared_ptr<CFTypeRef> cfTypeFromStd(int num) const;
-            inline std::shared_ptr<CFTypeRef> cfTypeFromStd(double num) const;
-            inline std::string stringFromCFType(CFTypeRef cfType) const;
+            bool startTimer();
+            void stopTimer();
+            static void timerTimeout(CFRunLoopTimerRef timer, void *info);
+            std::shared_ptr<CFTypeRef> cfTypeFromStd(const std::string &str) const;
+            std::shared_ptr<CFTypeRef> cfTypeFromStd(const std::wstring &str) const;
+            std::shared_ptr<CFTypeRef> cfTypeFromStd(int num) const;
+            std::shared_ptr<CFTypeRef> cfTypeFromStd(double num) const;
+            std::string stringFromCFType(CFTypeRef cfType) const;
+            std::wstring wstringFromCFType(CFTypeRef cfType) const;
             std::vector<std::string> preferencesKeys() const;
             void preferencesWrite(const std::string &key,
                                   const std::shared_ptr<CFTypeRef> &value) const;
             void preferencesWrite(const std::string &key,
                                   const std::string &value) const;
+            void preferencesWrite(const std::string &key,
+                                  const std::wstring &value) const;
             void preferencesWrite(const std::string &key, int value) const;
             void preferencesWrite(const std::string &key, double value) const;
             std::shared_ptr<CFTypeRef> preferencesRead(const std::string &key) const;
             std::string preferencesReadString(const std::string &key) const;
+            std::wstring preferencesReadWString(const std::string &key) const;
             int preferencesReadInt(const std::string &key) const;
             double preferencesReadDouble(const std::string &key) const;
             void preferencesDelete(const std::string &key) const;
@@ -105,17 +110,17 @@ namespace AkVCam
             void preferencesMoveAll(const std::string &keyFrom,
                                     const std::string &keyTo) const;
             void preferencesSync() const;
-            std::string preferencesAddCamera(const std::string &description,
+            std::string preferencesAddCamera(const std::wstring &description,
                                              const std::vector<VideoFormat> &formats);
             std::string preferencesAddCamera(const std::string &path,
-                                             const std::string &description,
+                                             const std::wstring &description,
                                              const std::vector<VideoFormat> &formats);
             void preferencesRemoveCamera(const std::string &path);
             size_t camerasCount() const;
             std::string createDevicePath() const;
             int cameraFromPath(const std::string &path) const;
             bool cameraExists(const std::string &path) const;
-            std::string cameraDescription(size_t cameraIndex) const;
+            std::wstring cameraDescription(size_t cameraIndex) const;
             std::string cameraPath(size_t cameraIndex) const;
             size_t formatsCount(size_t cameraIndex) const;
             VideoFormat cameraFormat(size_t cameraIndex, size_t formatIndex) const;
@@ -315,6 +320,21 @@ std::shared_ptr<CFTypeRef> AkVCam::AssistantPrivate::cfTypeFromStd(const std::st
     });
 }
 
+std::shared_ptr<CFTypeRef> AkVCam::AssistantPrivate::cfTypeFromStd(const std::wstring &str) const
+{
+    auto ref =
+            new CFTypeRef(CFStringCreateWithBytes(kCFAllocatorDefault,
+                                                  reinterpret_cast<const UInt8 *>(str.c_str()),
+                                                  CFIndex(str.size() * sizeof(wchar_t)),
+                                                  kCFStringEncodingUTF32LE,
+                                                  false));
+
+    return std::shared_ptr<CFTypeRef>(ref, [] (CFTypeRef *ptr) {
+        CFRelease(*ptr);
+        delete ptr;
+    });
+}
+
 std::shared_ptr<CFTypeRef> AkVCam::AssistantPrivate::cfTypeFromStd(int num) const
 {
     auto ref =
@@ -353,6 +373,40 @@ std::string AkVCam::AssistantPrivate::stringFromCFType(CFTypeRef cfType) const
     CFStringGetCString(CFStringRef(cfType), str, len, kCFStringEncodingUTF8);
 
     return std::string(str, len);
+}
+
+std::wstring AkVCam::AssistantPrivate::wstringFromCFType(CFTypeRef cfType) const
+{
+    auto len = CFStringGetLength(CFStringRef(cfType));
+    auto range = CFRangeMake(0, len);
+    CFIndex bufferLen = 0;
+    auto converted = CFStringGetBytes(CFStringRef(cfType),
+                                      range,
+                                      kCFStringEncodingUTF32LE,
+                                      0,
+                                      false,
+                                      nullptr,
+                                      0,
+                                      &bufferLen);
+
+    if (converted < 1 || bufferLen < 1)
+        return {};
+
+    wchar_t str[bufferLen];
+
+    converted = CFStringGetBytes(CFStringRef(cfType),
+                                 range,
+                                 kCFStringEncodingUTF32LE,
+                                 0,
+                                 false,
+                                 reinterpret_cast<UInt8 *>(str),
+                                 bufferLen,
+                                 nullptr);
+
+    if (converted < 1)
+        return {};
+
+    return std::wstring(str, len);
 }
 
 std::vector<std::string> AkVCam::AssistantPrivate::preferencesKeys() const
@@ -406,6 +460,17 @@ void AkVCam::AssistantPrivate::preferencesWrite(const std::string &key,
 }
 
 void AkVCam::AssistantPrivate::preferencesWrite(const std::string &key,
+                                                const std::wstring &value) const
+{
+    AkAssistantPrivateLogMethod();
+    AkLoggerLog("Writing: ", key, " = ", std::string(value.begin(),
+                                                     value.end()));
+    auto cfKey = cfTypeFromStd(key);
+    auto cfValue = cfTypeFromStd(value);
+    CFPreferencesSetAppValue(CFStringRef(*cfKey), *cfValue, PREFERENCES_ID);
+}
+
+void AkVCam::AssistantPrivate::preferencesWrite(const std::string &key,
                                                 int value) const
 {
     AkAssistantPrivateLogMethod();
@@ -453,6 +518,23 @@ std::string AkVCam::AssistantPrivate::preferencesReadString(const std::string &k
 
     if (cfValue) {
         value = this->stringFromCFType(cfValue);
+        CFRelease(cfValue);
+    }
+
+    return value;
+}
+
+std::wstring AkVCam::AssistantPrivate::preferencesReadWString(const std::string &key) const
+{
+    AkAssistantPrivateLogMethod();
+    auto cfKey = cfTypeFromStd(key);
+    auto cfValue =
+            CFStringRef(CFPreferencesCopyAppValue(CFStringRef(*cfKey),
+                                                  PREFERENCES_ID));
+    std::wstring value;
+
+    if (cfValue) {
+        value = this->wstringFromCFType(cfValue);
         CFRelease(cfValue);
     }
 
@@ -549,14 +631,14 @@ void AkVCam::AssistantPrivate::preferencesSync() const
     CFPreferencesAppSynchronize(PREFERENCES_ID);
 }
 
-std::string AkVCam::AssistantPrivate::preferencesAddCamera(const std::string &description,
+std::string AkVCam::AssistantPrivate::preferencesAddCamera(const std::wstring &description,
                                                            const std::vector<VideoFormat> &formats)
 {
     return this->preferencesAddCamera("", description, formats);
 }
 
 std::string AkVCam::AssistantPrivate::preferencesAddCamera(const std::string &path,
-                                                           const std::string &description,
+                                                           const std::wstring &description,
                                                            const std::vector<VideoFormat> &formats)
 {
     AkAssistantPrivateLogMethod();
@@ -678,11 +760,11 @@ bool AkVCam::AssistantPrivate::cameraExists(const std::string &path) const
     return false;
 }
 
-std::string AkVCam::AssistantPrivate::cameraDescription(size_t cameraIndex) const
+std::wstring AkVCam::AssistantPrivate::cameraDescription(size_t cameraIndex) const
 {
-    return this->preferencesReadString("cameras."
-                                       + std::to_string(cameraIndex)
-                                       + ".description");
+    return this->preferencesReadWString("cameras."
+                                        + std::to_string(cameraIndex)
+                                        + ".description");
 }
 
 std::string AkVCam::AssistantPrivate::cameraPath(size_t cameraIndex) const
@@ -908,7 +990,11 @@ void AkVCam::AssistantPrivate::deviceCreate(xpc_connection_t client,
     AkAssistantPrivateLogMethod();
     std::string portName = xpc_dictionary_get_string(event, "port");
     AkLoggerLog("Port Name: ", portName);
-    std::string description = xpc_dictionary_get_string(event, "description");
+    size_t len = 0;
+    auto data = reinterpret_cast<const wchar_t *>(xpc_dictionary_get_data(event,
+                                                                          "description",
+                                                                          &len));
+    std::wstring description(data, len / sizeof(wchar_t));
     auto formatsArray = xpc_dictionary_get_array(event, "formats");
     std::vector<VideoFormat> formats;
 
@@ -1183,14 +1269,18 @@ void AkVCam::AssistantPrivate::description(xpc_connection_t client,
 {
     AkAssistantPrivateLogMethod();
     std::string deviceId = xpc_dictionary_get_string(event, "device");
-    std::string description;
+    std::wstring description;
 
     if (this->m_deviceConfigs.count(deviceId) > 0)
         description = this->m_deviceConfigs[deviceId].description;
 
-    AkLoggerLog("Description for device ", deviceId, ": ", description);
+    AkLoggerLog("Description for device ", deviceId, ": ",
+                std::string(description.begin(), description.end()));
     auto reply = xpc_dictionary_create_reply(event);
-    xpc_dictionary_set_string(reply, "description", description.c_str());
+    xpc_dictionary_set_data(reply,
+                            "description",
+                            description.c_str(),
+                            description.size() * sizeof(wchar_t));
     xpc_connection_send_message(client, reply);
     xpc_release(reply);
 }

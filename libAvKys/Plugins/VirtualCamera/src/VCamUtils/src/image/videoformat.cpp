@@ -283,3 +283,10 @@ std::string AkVCam::VideoFormat::stringFromFourcc(AkVCam::FourCC fourcc)
 
     return vf? vf->str: std::string();
 }
+
+std::wstring AkVCam::VideoFormat::wstringFromFourcc(AkVCam::FourCC fourcc)
+{
+    auto str = stringFromFourcc(fourcc);
+
+    return std::wstring(str.begin(), str.end());
+}

@@ -132,11 +132,10 @@ AkVCam::Pin::Pin(BaseFilter *baseFilter,
     this->d->m_scaling = ScalingFast;
     this->d->m_aspectRatio = AspectRatioIgnore;
     this->d->m_swapRgb = false;
+    auto bmp = programFilesPath()
+             + L"\\" DSHOW_PLUGIN_NAME_L L".plugin\\share\\TestFrame.bmp";
 
-    if (!this->d->m_testFrame.load(programFilesPath()
-                                   + "\\"
-                                   DSHOW_PLUGIN_NAME
-                                   ".plugin\\share\\TestFrame.bmp")) {
+    if (!this->d->m_testFrame.load(std::string(bmp.begin(), bmp.end()))) {
         this->d->m_testFrame.load(":/VirtualCamera/share/TestFrame/TestFrame.bmp");
     }
 

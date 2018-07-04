@@ -170,7 +170,7 @@ before_install: |
       brew unlink python
       brew update
       brew upgrade
-      brew link --overwrite numpy
+      #brew link --overwrite numpy
     fi
   fi
 
