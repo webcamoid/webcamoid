@@ -28,8 +28,8 @@ namespace AkVCam
     {
         public:
             Timer *self;
-            int m_interval;
             std::thread m_thread;
+            int m_interval;
             bool m_running;
 
             TimerPrivate(Timer *self);

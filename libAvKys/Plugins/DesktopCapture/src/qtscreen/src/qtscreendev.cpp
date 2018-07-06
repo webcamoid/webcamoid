@@ -40,20 +40,21 @@ class QtScreenDevPrivate
         QtScreenDev *self;
         AkFrac m_fps;
         QString m_curScreen;
-        int m_curScreenNumber;
         qint64 m_id;
-        bool m_threadedRead;
         QTimer m_timer;
         QThreadPool m_threadPool;
         QFuture<void> m_threadStatus;
         QMutex m_mutex;
         AkPacket m_curPacket;
+        int m_curScreenNumber;
+        bool m_threadedRead;
 
         QtScreenDevPrivate(QtScreenDev *self):
             self(self),
-            m_curScreenNumber(-1),
+            m_fps(AkFrac(30000, 1001)),
             m_id(-1),
-            m_threadedRead(false)
+            m_curScreenNumber(-1),
+            m_threadedRead(true)
         {
         }
 
@@ -64,24 +65,25 @@ QtScreenDev::QtScreenDev():
     ScreenDev()
 {
     this->d = new QtScreenDevPrivate(this);
-    this->d->m_fps = AkFrac(30000, 1001);
     this->d->m_timer.setInterval(qRound(1.e3 *
                                         this->d->m_fps.invert().value()));
-    this->d->m_curScreenNumber = -1;
-    this->d->m_threadedRead = true;
+    size_t i = 0;
+
+    for (auto screen: QGuiApplication::screens()) {
+        QObject::connect(screen,
+                         &QScreen::geometryChanged,
+                         [=]() { this->srceenResized(int(i)); });
+        i++;
+    }
 
     QObject::connect(qApp,
                      &QGuiApplication::screenAdded,
                      this,
-                     &QtScreenDev::screenCountChanged);
+                     &QtScreenDev::screenAdded);
     QObject::connect(qApp,
                      &QGuiApplication::screenRemoved,
                      this,
-                     &QtScreenDev::screenCountChanged);
-    QObject::connect(QApplication::desktop(),
-                     &QDesktopWidget::resized,
-                     this,
-                     &QtScreenDev::srceenResized);
+                     &QtScreenDev::screenRemoved);
     QObject::connect(&this->d->m_timer,
                      &QTimer::timeout,
                      this,
@@ -301,7 +303,24 @@ void QtScreenDev::readFrame()
     }
 }
 
-void QtScreenDev::screenCountChanged(QScreen *screen)
+void QtScreenDev::screenAdded(QScreen *screen)
+{
+    Q_UNUSED(screen)
+    size_t i = 0;
+
+    for (auto screen_: QGuiApplication::screens()) {
+        if (screen_ == screen)
+            QObject::connect(screen_,
+                             &QScreen::geometryChanged,
+                             [=]() { this->srceenResized(int(i)); });
+
+        i++;
+    }
+
+    emit this->mediasChanged(this->medias());
+}
+
+void QtScreenDev::screenRemoved(QScreen *screen)
 {
     Q_UNUSED(screen)
 
@@ -310,8 +329,8 @@ void QtScreenDev::screenCountChanged(QScreen *screen)
 
 void QtScreenDev::srceenResized(int screen)
 {
-    QString media = QString("screen://%1").arg(screen);
-    QWidget *widget = QApplication::desktop()->screen(screen);
+    auto media = QString("screen://%1").arg(screen);
+    auto widget = QGuiApplication::screens()[screen];
 
     emit this->sizeChanged(media, widget->size());
 }

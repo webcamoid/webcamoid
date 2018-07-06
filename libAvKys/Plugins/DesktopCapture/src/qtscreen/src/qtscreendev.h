@@ -83,7 +83,8 @@ class QtScreenDev: public ScreenDev
 
     private slots:
         void readFrame();
-        void screenCountChanged(QScreen *screen);
+        void screenAdded(QScreen *screen);
+        void screenRemoved(QScreen *screen);
         void srceenResized(int screen);
 };
 

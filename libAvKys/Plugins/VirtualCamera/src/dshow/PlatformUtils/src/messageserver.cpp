@@ -136,9 +136,6 @@ bool AkVCam::MessageServer::start(bool wait)
         AkLoggerLog("Starting mode send");
 
         return this->d->startSend();
-
-    default:
-        break;
     }
 
     return false;

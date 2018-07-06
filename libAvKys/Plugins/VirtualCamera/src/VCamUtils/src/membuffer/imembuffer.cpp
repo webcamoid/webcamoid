@@ -295,7 +295,7 @@ std::streampos AkVCam::IMemBuffer::seekoff(std::streamoff off,
         break;
 
     case std::ios_base::cur:
-        this->gbump(off);
+        this->gbump(int(off));
 
         break;
 
@@ -323,7 +323,9 @@ std::streampos AkVCam::IMemBuffer::seekpos(std::streampos sp,
 
 std::streamsize AkVCam::IMemBuffer::showmanyc()
 {
-    return this->d->m_size - size_t(this->gptr()) + size_t(this->eback());
+    return std::streamsize(this->d->m_size)
+            - std::streamsize(this->gptr())
+            + std::streamsize(this->eback());
 }
 
 std::streamsize AkVCam::IMemBuffer::xsgetn(char *s, std::streamsize n)
@@ -335,7 +337,7 @@ std::streamsize AkVCam::IMemBuffer::xsgetn(char *s, std::streamsize n)
 
     n = std::min(n, std::streamsize(available));
     memcpy(s, this->data(), size_t(n));
-    this->gbump(n);
+    this->gbump(int(n));
 
     return n;
 }
