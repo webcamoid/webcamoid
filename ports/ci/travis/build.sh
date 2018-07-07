@@ -16,12 +16,11 @@ fi
 
 BUILDSCRIPT=dockerbuild.sh
 
-if [ "${DOCKERIMG}" = ubuntu:trusty ] || \
-   [ "${DOCKERIMG}" = ubuntu:xenial ]; then
+if [ "${DOCKERIMG}" = ubuntu:xenial ]; then
     cat << EOF > ${BUILDSCRIPT}
 #!/bin/bash
 
-source /opt/qt${PPAQTVER:0:2}/bin/qt${PPAQTVER:0:2}-env.sh
+source /opt/qt${PPAQTVER}/bin/qt${PPAQTVER}-env.sh
 EOF
 
     chmod +x ${BUILDSCRIPT}
@@ -36,8 +35,7 @@ elif [ "${TRAVIS_OS_NAME}" = linux ]; then
     export PATH=$HOME/.local/bin:$PATH
 
     if [ "${DOCKERSYS}" = debian ]; then
-        if [ "${DOCKERIMG}" = ubuntu:trusty ] || \
-           [ "${DOCKERIMG}" = ubuntu:xenial ]; then
+        if [ "${DOCKERIMG}" = ubuntu:xenial ]; then
            cat << EOF >> ${BUILDSCRIPT}
 qmake -spec ${COMPILESPEC} Webcamoid.pro \
     CONFIG+=silent \

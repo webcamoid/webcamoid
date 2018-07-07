@@ -298,11 +298,9 @@ class MediaWriterFFmpegGlobal
                             default:
                                 break;
                         }
-#ifdef HAVE_EXTRACODECFORMATS
                     } else if (!strcmp(outputFormat->name, "mp4")) {
                         if (codec->id == AV_CODEC_ID_VP9)
                             codecSupported = false;
-#endif
                     } else if (!strcmp(outputFormat->name, "ogg")
                                || !strcmp(outputFormat->name, "ogv")) {
                         switch (codec->id) {
@@ -549,12 +547,7 @@ class MediaWriterFFmpegGlobal
                 }
 
                 codecDefaults[codec->name] = codecParams;
-
-#ifdef HAVE_FREECONTEXT
                 avcodec_free_context(&codecContext);
-#else
-                av_free(codecContext);
-#endif
             }
 
             return codecDefaults;
@@ -773,10 +766,10 @@ QString MediaWriterFFmpeg::defaultCodec(const QString &format,
 
     if (codecId == AV_CODEC_ID_NONE)
         return QString();
-#ifdef HAVE_EXTRACODECFORMATS
+
     if (codecId == AV_CODEC_ID_VP9)
         codecId = AV_CODEC_ID_VP8;
-#endif
+
     AVCodec *codec = avcodec_find_encoder(codecId);
     QString codecName(codec->name);
 
@@ -1524,37 +1517,12 @@ bool MediaWriterFFmpeg::init()
 {
     auto outputFormat = this->d->guessFormat();
 
-#ifdef HAVE_ALLOCOUTPUTCONTEXT
     if (avformat_alloc_output_context2(&this->d->m_formatContext,
                                        nullptr,
                                        this->d->m_outputFormat.isEmpty()?
                                             nullptr: this->d->m_outputFormat.toStdString().c_str(),
                                        this->m_location.toStdString().c_str()) < 0)
         return false;
-#else
-    this->d->m_formatContext = avformat_alloc_context();
-
-    if (!this->d->m_formatContext)
-        return false;
-
-    this->d->m_formatContext->oformat =
-            av_guess_format(this->d->m_outputFormat.isEmpty()?
-                                nullptr: this->d->m_outputFormat.toStdString().c_str(),
-                            this->m_location.toStdString().c_str(),
-                            nullptr);
-
-    if (!this->d->m_formatContext->oformat) {
-        avformat_free_context(this->d->m_formatContext);
-        this->d->m_formatContext = nullptr;
-
-        return false;
-    }
-
-    memset(this->d->m_formatContext->filename, 0, 1024);
-    memcpy(this->d->m_formatContext->filename,
-           this->m_location.toStdString().c_str(),
-           size_t(this->m_location.size()));
-#endif
 
     auto streamConfigs = this->d->m_streamConfigs.toVector();
 

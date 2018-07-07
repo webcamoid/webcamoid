@@ -22,7 +22,7 @@ if [ "${TRAVIS_OS_NAME}" = linux ] && [ "${ANDROID_BUILD}" != 1 ]; then
     appimage=appimagetool-x86_64.AppImage
 
     # Install AppImageTool
-    wget -c -O .local/bin/${appimage} https://github.com/AppImage/AppImageKit/releases/download/9/${appimage} || true
+    wget -c -O .local/bin/${appimage} https://github.com/AppImage/AppImageKit/releases/download/${APPIMAGEVER}/${appimage} || true
 
     if [ -e .local/bin/${appimage} ]; then
         chmod +x .local/bin/${appimage}
@@ -59,12 +59,9 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
 elif [ "${DOCKERSYS}" = debian ]; then
     ${EXEC} apt-get -y update
 
-    if [ "${DOCKERIMG}" = ubuntu:trusty ]; then
+    if [ "${DOCKERIMG}" = ubuntu:xenial ]; then
         ${EXEC} apt-get -y install software-properties-common
-        ${EXEC} add-apt-repository ppa:beineri/opt-qt${PPAQTVER}-trusty
-    elif [ "${DOCKERIMG}" = ubuntu:xenial ]; then
-        ${EXEC} apt-get -y install software-properties-common
-        ${EXEC} add-apt-repository ppa:beineri/opt-qt${PPAQTVER}-xenial
+        ${EXEC} add-apt-repository ppa:beineri/opt-qt-${QTVER}-xenial
     fi
 
     ${EXEC} apt-get -y update
@@ -87,16 +84,15 @@ elif [ "${DOCKERSYS}" = debian ]; then
         libgstreamer-plugins-base1.0-dev
 
     # Install Qt dev
-    if [ "${DOCKERIMG}" = ubuntu:trusty ] || \
-       [ "${DOCKERIMG}" = ubuntu:xenial ]; then
+    if [ "${DOCKERIMG}" = ubuntu:xenial ]; then
         ${EXEC} apt-get -y install \
-            qt${PPAQTVER:0:2}tools \
-            qt${PPAQTVER:0:2}declarative \
-            qt${PPAQTVER:0:2}multimedia \
-            qt${PPAQTVER:0:2}svg \
-            qt${PPAQTVER:0:2}quickcontrols \
-            qt${PPAQTVER:0:2}quickcontrols2 \
-            qt${PPAQTVER:0:2}graphicaleffects
+            qt${PPAQTVER}tools \
+            qt${PPAQTVER}declarative \
+            qt${PPAQTVER}multimedia \
+            qt${PPAQTVER}svg \
+            qt${PPAQTVER}quickcontrols \
+            qt${PPAQTVER}quickcontrols2 \
+            qt${PPAQTVER}graphicaleffects
     else
         ${EXEC} apt-get -y install \
             qt5-qmake \
@@ -123,12 +119,8 @@ elif [ "${DOCKERSYS}" = debian ]; then
         libavformat-dev \
         libavutil-dev \
         libavresample-dev \
-        libswscale-dev
-
-    if [ "${DOCKERIMG}" != ubuntu:trusty ]; then
-        ${EXEC} apt-get -y install \
-            libswresample-dev
-    fi
+        libswscale-dev \
+        libswresample-dev
 elif [ "${DOCKERSYS}" = fedora ]; then
     ${EXEC} dnf install -y https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-${FEDORAVER}.noarch.rpm
     ${EXEC} dnf install -y https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-${FEDORAVER}.noarch.rpm

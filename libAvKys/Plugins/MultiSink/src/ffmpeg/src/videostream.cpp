@@ -159,12 +159,10 @@ VideoStream::VideoStream(const AVFormatContext *formatContext,
     case AV_CODEC_ID_AMV:
         videoCaps.height() = 16 * qRound(videoCaps.height() / 16.);
         break;
-#ifdef HAVE_EXTRACODECFORMATS
     case AV_CODEC_ID_XFACE:
         videoCaps.width() = 48;
         videoCaps.height() = 48;
         break;
-#endif
     default:
         break;
     }
@@ -222,12 +220,7 @@ void VideoStream::convertPacket(const AkPacket &packet)
 
     auto codecContext = this->codecContext();
 
-#ifdef HAVE_FRAMEALLOC
     auto oFrame = av_frame_alloc();
-#else
-    auto oFrame = avcodec_alloc_frame();
-#endif
-
     oFrame->format = codecContext->pix_fmt;
     oFrame->width = codecContext->width;
     oFrame->height = codecContext->height;

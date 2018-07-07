@@ -59,24 +59,12 @@ isEmpty(FFMPEGLIBS) {
         libavutil
 }
 
-CONFIG(config_ffmpeg_avcodec_extracodecformats): \
-    DEFINES += HAVE_EXTRACODECFORMATS
-CONFIG(config_ffmpeg_avcodec_freecontext): \
-    DEFINES += HAVE_FREECONTEXT
-CONFIG(config_ffmpeg_avcodec_packetref): \
-    DEFINES += HAVE_PACKETREF
-CONFIG(config_ffmpeg_avcodec_rescalets): \
-    DEFINES += HAVE_RESCALETS
 CONFIG(config_ffmpeg_avcodec_sendrecv): \
     DEFINES += HAVE_SENDRECV
-CONFIG(config_ffmpeg_avformat_allocoutputcontext): \
-    DEFINES += HAVE_ALLOCOUTPUTCONTEXT
 CONFIG(config_ffmpeg_avformat_codecpar): \
     DEFINES += HAVE_CODECPAR
 CONFIG(config_ffmpeg_avutil_extraoptions): \
     DEFINES += HAVE_EXTRAOPTIONS
-CONFIG(config_ffmpeg_avutil_framealloc): \
-    DEFINES += HAVE_FRAMEALLOC
 
 QT += qml concurrent
 

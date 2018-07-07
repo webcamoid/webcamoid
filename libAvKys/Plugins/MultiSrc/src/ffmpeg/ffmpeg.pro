@@ -61,18 +61,12 @@ isEmpty(FFMPEGLIBS) {
         libavutil
 }
 
-CONFIG(config_ffmpeg_avcodec_freecontext): \
-    DEFINES += HAVE_FREECONTEXT
-CONFIG(config_ffmpeg_avcodec_packetref): \
-    DEFINES += HAVE_PACKETREF
 CONFIG(config_ffmpeg_avcodec_sendrecv): \
     DEFINES += HAVE_SENDRECV
 CONFIG(config_ffmpeg_avcodec_subtitledata): \
     DEFINES += HAVE_SUBTITLEDATA
 CONFIG(config_ffmpeg_avformat_codecpar): \
     DEFINES += HAVE_CODECPAR
-CONFIG(config_ffmpeg_avutil_framealloc): \
-    DEFINES += HAVE_FRAMEALLOC
 CONFIG(config_ffmpeg_avutil_sampleformat64): \
     DEFINES += HAVE_SAMPLEFORMAT64
 

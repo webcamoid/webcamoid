@@ -148,14 +148,8 @@ AbstractStream::~AbstractStream()
 {
     this->uninit();
 
-    if (this->d->m_codecContext) {
-#ifdef HAVE_FREECONTEXT
+    if (this->d->m_codecContext)
         avcodec_free_context(&this->d->m_codecContext);
-#else
-        avcodec_close(this->d->m_codecContext);
-        av_free(this->d->m_codecContext);
-#endif
-    }
 
     delete this->d;
 }
@@ -229,18 +223,7 @@ AVFrame *AbstractStream::dequeueFrame()
 
 void AbstractStream::rescaleTS(AVPacket *pkt, AVRational src, AVRational dst)
 {
-#ifdef HAVE_RESCALETS
     av_packet_rescale_ts(pkt, src, dst);
-#else
-    if (pkt->pts != AV_NOPTS_VALUE)
-        pkt->pts = av_rescale_q(pkt->pts, src, dst);
-
-    if (pkt->dts != AV_NOPTS_VALUE)
-        pkt->dts = av_rescale_q(pkt->dts, src, dst);
-
-    if (pkt->duration > 0)
-        pkt->duration = av_rescale_q(pkt->duration, src, dst);
-#endif
 }
 
 void AbstractStream::deleteFrame(AVFrame **frame)
@@ -250,12 +233,8 @@ void AbstractStream::deleteFrame(AVFrame **frame)
         (*frame)->data[0] = nullptr;
     }
 
-#ifdef HAVE_FRAMEALLOC
     av_frame_unref(*frame);
     av_frame_free(frame);
-#else
-    avcodec_free_frame(frame);
-#endif
 }
 
 void AbstractStreamPrivate::convertLoop()

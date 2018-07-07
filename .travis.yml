@@ -6,8 +6,10 @@ cache:
 
 env:
   global:
-    - PPAQTVER=592
-    - QTIFWVER=3.0.1
+    - QTVER=5.11.1
+    - PPAQTVER=511
+    - QTIFWVER=3.0.4
+    - APPIMAGEVER=9
 
 matrix:
   include:
@@ -73,20 +75,6 @@ matrix:
       - docker
     compiler: gcc
     env:
-      - DOCKERSYS=debian DOCKERIMG=ubuntu:trusty
-  - os: linux
-    sudo: required
-    services:
-      - docker
-    compiler: clang
-    env:
-      - DOCKERSYS=debian DOCKERIMG=ubuntu:trusty
-  - os: linux
-    sudo: required
-    services:
-      - docker
-    compiler: gcc
-    env:
       - DOCKERSYS=debian DOCKERIMG=ubuntu:xenial
   - os: linux
     sudo: required
@@ -135,14 +123,14 @@ matrix:
       components:
         - tools
         - platform-tools
-        - build-tools-22.0.1
-        - android-22
-        - sys-img-armeabi-v7a-android-22
+        - build-tools-27.0.3
+        - android-21
+        - sys-img-armeabi-v7a-android-21
     env:
       - ANDROID_BUILD=1
       - COMPILER=g++
-      - QTVER=5.9.2
-      - NDKVER=r14b
+      - QTVER=5.11.1
+      - NDKVER=r17b
       - TARGET_ARCH=armv7
   - language: android
     jdk: oraclejdk8
@@ -150,14 +138,14 @@ matrix:
       components:
         - tools
         - platform-tools
-        - build-tools-22.0.1
-        - android-22
-        - sys-img-x86-android-22
+        - build-tools-27.0.3
+        - android-21
+        - sys-img-x86-android-21
     env:
       - ANDROID_BUILD=1
       - COMPILER=g++
-      - QTVER=5.9.2
-      - NDKVER=r14b
+      - QTVER=5.11.1
+      - NDKVER=r17b
       - TARGET_ARCH=x86
 
 before_install: |

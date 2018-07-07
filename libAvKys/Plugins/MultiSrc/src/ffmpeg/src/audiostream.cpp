@@ -189,41 +189,26 @@ void AudioStream::processPacket(AVPacket *packet)
 #ifdef HAVE_SENDRECV
     if (avcodec_send_packet(this->codecContext(), packet) >= 0)
         forever {
-    #ifdef HAVE_FRAMEALLOC
             auto iFrame = av_frame_alloc();
-    #else
-            auto iFrame = avcodec_alloc_frame();
-    #endif
             int r = avcodec_receive_frame(this->codecContext(), iFrame);
 
             if (r >= 0)
                 this->dataEnqueue(this->d->copyFrame(iFrame));
-    #ifdef HAVE_FRAMEALLOC
+
             av_frame_free(&iFrame);
-    #else
-            avcodec_free_frame(&iFrame);
-    #endif
 
             if (r < 0)
                 break;
         }
 #else
-    #ifdef HAVE_FRAMEALLOC
         auto iFrame = av_frame_alloc();
-    #else
-        auto iFrame = avcodec_alloc_frame();
-    #endif
         int gotFrame;
         avcodec_decode_audio4(this->codecContext(), iFrame, &gotFrame, packet);
 
         if (gotFrame)
             this->dataEnqueue(this->d->copyFrame(iFrame));
 
-    #ifdef HAVE_FRAMEALLOC
         av_frame_free(&iFrame);
-    #else
-        avcodec_free_frame(&iFrame);
-    #endif
 #endif
 }
 
@@ -261,12 +246,8 @@ bool AudioStreamPrivate::compensate(AVFrame *oFrame,
                         qMin(wantedSamples, iFrame->nb_samples),
                         iChannels,
                         AVSampleFormat(iFrame->format)) < 0) {
-#ifdef HAVE_FRAMEALLOC
         av_freep(&oFrame->data[0]);
         av_frame_unref(oFrame);
-#else
-        avcodec_free_frame(&oFrame);
-#endif
 
         return false;
     }
@@ -385,9 +366,7 @@ AkPacket AudioStreamPrivate::convert(AVFrame *iFrame)
                 if (this->compensate(&oFrame, iFrame, wantedSamples)) {
                     packet = this->frameToPacket(&oFrame);
                     av_freep(&oFrame.data[0]);
-#ifdef HAVE_FRAMEALLOC
                     av_frame_unref(&oFrame);
-#endif
                 }
             }
         }
@@ -408,11 +387,7 @@ AkPacket AudioStreamPrivate::convert(AVFrame *iFrame)
 
 AVFrame *AudioStreamPrivate::copyFrame(AVFrame *frame) const
 {
-#ifdef HAVE_FRAMEALLOC
     auto oFrame = av_frame_alloc();
-#else
-    auto oFrame = avcodec_alloc_frame();
-#endif
     oFrame->format = frame->format;
     oFrame->channel_layout = frame->channel_layout;
     oFrame->sample_rate = frame->sample_rate;

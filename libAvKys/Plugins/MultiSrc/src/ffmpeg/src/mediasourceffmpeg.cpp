@@ -360,11 +360,7 @@ void MediaSourceFFmpegPrivate::readPackets()
         }
 
         if (notuse) {
-#ifdef HAVE_PACKETREF
             av_packet_unref(packet);
-#else
-            av_destruct_packet(packet);
-#endif
             delete packet;
         }
 

@@ -180,14 +180,8 @@ AbstractStream::AbstractStream(const AVFormatContext *formatContext,
 
 AbstractStream::~AbstractStream()
 {
-    if (this->d->m_codecContext) {
-#ifdef HAVE_FREECONTEXT
+    if (this->d->m_codecContext)
         avcodec_free_context(&this->d->m_codecContext);
-#else
-        avcodec_close(this->d->m_codecContext);
-        av_free(this->d->m_codecContext);
-#endif
-    }
 
     delete this->d;
 }
@@ -448,11 +442,7 @@ void AbstractStreamPrivate::dataLoop()
 
 void AbstractStreamPrivate::deletePacket(AVPacket *packet)
 {
-#ifdef HAVE_PACKETREF
     av_packet_unref(packet);
-#else
-    av_destruct_packet(packet);
-#endif
     delete packet;
 }
 
@@ -460,13 +450,8 @@ void AbstractStreamPrivate::deleteFrame(AVFrame *frame)
 {
     av_freep(&frame->data[0]);
     frame->data[0] = nullptr;
-
-#ifdef HAVE_FRAMEALLOC
     av_frame_unref(frame);
     av_frame_free(&frame);
-#else
-    avcodec_free_frame(&frame);
-#endif
 }
 
 void AbstractStreamPrivate::deleteSubtitle(AVSubtitle *subtitle)

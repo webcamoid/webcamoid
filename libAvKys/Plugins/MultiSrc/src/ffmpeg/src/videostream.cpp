@@ -109,32 +109,21 @@ void VideoStream::processPacket(AVPacket *packet)
 #ifdef HAVE_SENDRECV
     if (avcodec_send_packet(this->codecContext(), packet) >= 0)
         forever {
-    #ifdef HAVE_FRAMEALLOC
             auto iFrame = av_frame_alloc();
-    #else
-            auto iFrame = avcodec_alloc_frame();
-    #endif
             int r = avcodec_receive_frame(this->codecContext(), iFrame);
 
             if (r >= 0) {
                 iFrame->pts = this->d->bestEffortTimestamp(iFrame);
                 this->dataEnqueue(this->d->copyFrame(iFrame));
             }
-    #ifdef HAVE_FRAMEALLOC
+
             av_frame_free(&iFrame);
-    #else
-            avcodec_free_frame(&iFrame);
-    #endif
 
             if (r < 0)
                 break;
         }
 #else
-    #ifdef HAVE_FRAMEALLOC
         auto iFrame = av_frame_alloc();
-    #else
-        auto iFrame = avcodec_alloc_frame();
-    #endif
         int gotFrame;
         avcodec_decode_video2(this->codecContext(), iFrame, &gotFrame, packet);
 
@@ -143,11 +132,7 @@ void VideoStream::processPacket(AVPacket *packet)
             this->dataEnqueue(this->d->copyFrame(iFrame));
         }
 
-    #ifdef HAVE_FRAMEALLOC
         av_frame_free(&iFrame);
-    #else
-        avcodec_free_frame(&iFrame);
-    #endif
 #endif
 }
 
@@ -307,11 +292,7 @@ int64_t VideoStreamPrivate::bestEffortTimestamp(const AVFrame *frame) const
 
 AVFrame *VideoStreamPrivate::copyFrame(AVFrame *frame) const
 {
-#ifdef HAVE_FRAMEALLOC
     auto oFrame = av_frame_alloc();
-#else
-    auto oFrame = avcodec_alloc_frame();
-#endif
     oFrame->width = frame->width;
     oFrame->height = frame->height;
     oFrame->format = frame->format;

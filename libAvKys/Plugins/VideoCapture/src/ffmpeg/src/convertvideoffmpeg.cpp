@@ -74,10 +74,8 @@ inline V4l2PixFmtMap initV4l2PixFmtMap()
         {"RGBR", AV_PIX_FMT_RGB565BE},
         {"BGR3", AV_PIX_FMT_BGR24   },
         {"RGB3", AV_PIX_FMT_RGB24   },
-#ifdef HAVE_EXTRAPIXFORMATS
         {"BGR4", AV_PIX_FMT_RGB0    },
         {"RGB4", AV_PIX_FMT_BGR0    },
-#endif
         {"ARGB", AV_PIX_FMT_ARGB    },
         {"RGBA", AV_PIX_FMT_RGBA    },
 
@@ -112,7 +110,6 @@ inline V4l2PixFmtMap initV4l2PixFmtMap()
         // two planes -- one Y, one Cr + Cb interleaved
         {"NV12", AV_PIX_FMT_NV12},
         {"NV21", AV_PIX_FMT_NV21},
-#ifdef HAVE_EXTRAPIXFORMATS
         {"NV16", AV_PIX_FMT_NV16},
 
         // Bayer formats
@@ -123,7 +120,6 @@ inline V4l2PixFmtMap initV4l2PixFmtMap()
 
         // 10bit raw bayer, expanded to 16 bits
         {"BYR2", AV_PIX_FMT_BAYER_BGGR16LE}
-#endif
     };
 
     return rawToFF;
@@ -152,10 +148,8 @@ inline V4l2CodecMap initCompressedMap()
         {"VC1L", AV_CODEC_ID_VC1       },
         {"VP80", AV_CODEC_ID_VP8       },
 
-#ifdef HAVE_EXTRACODECFORMATS
         //  Vendor-specific formats
         {"CPIA", AV_CODEC_ID_CPIA}
-#endif
     };
 
     return compressedToFF;
@@ -308,13 +302,8 @@ bool ConvertVideoFFmpeg::init(const AkCaps &caps)
     this->d->m_codecContext->width = caps.property("width").toInt();
     this->d->m_codecContext->height = caps.property("height").toInt();
     this->d->m_fps = caps.property("fps").toString();
-#ifdef HAVE_CONTEXTFRAMERATE
     this->d->m_codecContext->framerate.num = int(this->d->m_fps.num());
     this->d->m_codecContext->framerate.den = int(this->d->m_fps.den());
-#else
-    this->d->m_codecContext->time_base.num = int(this->d->m_fps.den());
-    this->d->m_codecContext->time_base.den = int(this->d->m_fps.num());
-#endif
     this->d->m_codecContext->workaround_bugs = 1;
     this->d->m_codecContext->idct_algo = FF_IDCT_AUTO;
     this->d->m_codecContext->error_concealment = FF_EC_GUESS_MVS | FF_EC_DEBLOCK;
@@ -407,32 +396,21 @@ void ConvertVideoFFmpegPrivate::packetLoop(ConvertVideoFFmpeg *stream)
 #ifdef HAVE_SENDRECV
             if (avcodec_send_packet(stream->d->m_codecContext, &videoPacket) >= 0)
                 forever {
-    #ifdef HAVE_FRAMEALLOC
                     auto iFrame = av_frame_alloc();
-    #else
-                    auto iFrame = avcodec_alloc_frame();
-    #endif
                     int r = avcodec_receive_frame(stream->d->m_codecContext, iFrame);
 
                     if (r >= 0) {
                         iFrame->pts = stream->d->bestEffortTimestamp(iFrame);
                         stream->dataEnqueue(stream->d->copyFrame(iFrame));
                     }
-    #ifdef HAVE_FRAMEALLOC
+
                     av_frame_free(&iFrame);
-    #else
-                    avcodec_free_frame(&iFrame);
-    #endif
 
                     if (r < 0)
                         break;
                 }
 #else
-    #ifdef HAVE_FRAMEALLOC
-                auto iFrame = av_frame_alloc();
-    #else
-                auto iFrame = avcodec_alloc_frame();
-    #endif
+            auto iFrame = av_frame_alloc();
             int gotFrame;
             avcodec_decode_video2(stream->d->m_codecContext, iFrame, &gotFrame, &videoPacket);
 
@@ -440,11 +418,8 @@ void ConvertVideoFFmpegPrivate::packetLoop(ConvertVideoFFmpeg *stream)
                 iFrame->pts = stream->d->bestEffortTimestamp(iFrame);
                 stream->dataEnqueue(stream->d->copyFrame(iFrame));
             }
-    #ifdef HAVE_FRAMEALLOC
+
             av_frame_free(&iFrame);
-    #else
-            avcodec_free_frame(&iFrame);
-    #endif
 #endif
 
             stream->d->m_packetQueueSize -= packet.buffer().size();
@@ -482,13 +457,8 @@ void ConvertVideoFFmpegPrivate::deleteFrame(AVFrame *frame)
 {
     av_freep(&frame->data[0]);
     frame->data[0] = nullptr;
-
-#ifdef HAVE_FRAMEALLOC
     av_frame_unref(frame);
     av_frame_free(&frame);
-#else
-    avcodec_free_frame(&frame);
-#endif
 }
 
 void ConvertVideoFFmpegPrivate::processData(const FramePtr &frame)
@@ -644,11 +614,7 @@ int64_t ConvertVideoFFmpegPrivate::bestEffortTimestamp(const AVFrame *frame) con
 
 AVFrame *ConvertVideoFFmpegPrivate::copyFrame(AVFrame *frame) const
 {
-#ifdef HAVE_FRAMEALLOC
     auto oFrame = av_frame_alloc();
-#else
-    auto oFrame = avcodec_alloc_frame();
-#endif
     oFrame->width = frame->width;
     oFrame->height = frame->height;
     oFrame->format = frame->format;
