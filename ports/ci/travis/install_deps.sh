@@ -48,7 +48,7 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
     unzip -q android-ndk-${NDKVER}-linux-x86_64.zip
 
     # Install Qt for Android
-    wget -c https://download.qt.io/archive/qt/${QTVER:0:3}/${QTVER}/qt-opensource-linux-x64-${QTVER}.run
+    wget -c https://download.qt.io/archive/qt/${QTVER:0:4}/${QTVER}/qt-opensource-linux-x64-${QTVER}.run
     chmod +x qt-opensource-linux-x64-${QTVER}.run
 
     QT_QPA_PLATFORM=minimal \
@@ -193,7 +193,8 @@ elif [ "${TRAVIS_OS_NAME}" = osx ]; then
     wget -c http://download.qt.io/official_releases/qt-installer-framework/${QTIFWVER}/${qtIFW} || true
 
     if [ -e ${qtIFW} ]; then
-        7z x -oqtifw ${qtIFW}
+        hdiutil convert ${qtIFW} -format UDZO -o qtifw
+        7z x -oqtifw qtifw.dmg
         7z x -oqtifw qtifw/5.hfsx
         chmod +x qtifw/QtInstallerFramework-mac-x64/QtInstallerFramework-mac-x64.app/Contents/MacOS/QtInstallerFramework-mac-x64
 
