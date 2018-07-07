@@ -497,7 +497,7 @@
     <message>
         <location filename="../../src/clioptions.cpp" line="73"/>
         <source>Semi-colon separated list of paths to search for virtual camera driver</source>
-        <translation type="unfinished"></translation>
+        <translation>רשימה עם הפרדה לפסיקים של נתיבים לחיפוש אחר מנהל התקן מצלמה וירטואלית</translation>
     </message>
 </context>
 <context>
