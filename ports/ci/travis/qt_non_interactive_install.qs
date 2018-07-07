@@ -10,7 +10,7 @@ function Controller()
 
 Controller.prototype.WelcomePageCallback = function()
 {
-    gui.clickButton(buttons.NextButton);
+    gui.clickButton(buttons.NextButton, 15000);
 }
 
 Controller.prototype.CredentialsPageCallback = function()
@@ -27,7 +27,6 @@ Controller.prototype.TargetDirectoryPageCallback = function()
 {
     //gui.currentPageWidget().TargetDirectoryLineEdit.setText(installer.value("HomeDir") + "/Qt");
     gui.currentPageWidget().TargetDirectoryLineEdit.setText(installer.value("InstallerDirPath") + "/Qt");
-    //gui.currentPageWidget().TargetDirectoryLineEdit.setText("/scratch/Qt");
     gui.clickButton(buttons.NextButton);
 }
 
@@ -36,8 +35,8 @@ Controller.prototype.ComponentSelectionPageCallback = function()
     var widget = gui.currentPageWidget();
 
     widget.deselectAll();
-    widget.selectComponent("qt.5111.android_armv7");
-    widget.selectComponent("qt.5111.android_x86");
+    widget.selectComponent("qt.qt5.5111.android_armv7");
+    widget.selectComponent("qt.qt5.5111.android_x86");
 
     gui.clickButton(buttons.NextButton);
 }
@@ -46,6 +45,11 @@ Controller.prototype.LicenseAgreementPageCallback = function()
 {
     gui.currentPageWidget().AcceptLicenseRadioButton.setChecked(true);
     gui.clickButton(buttons.NextButton);
+}
+
+Controller.prototype.StartMenuDirectoryPageCallback = function()
+{
+  gui.clickButton(buttons.NextButton);
 }
 
 Controller.prototype.ReadyForInstallationPageCallback = function()
