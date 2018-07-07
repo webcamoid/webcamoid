@@ -36,8 +36,8 @@ Controller.prototype.ComponentSelectionPageCallback = function()
     var widget = gui.currentPageWidget();
 
     widget.deselectAll();
-    widget.selectComponent("qt.592.android_armv7");
-    widget.selectComponent("qt.592.android_x86");
+    widget.selectComponent("qt.5111.android_armv7");
+    widget.selectComponent("qt.5111.android_x86");
 
     gui.clickButton(buttons.NextButton);
 }
