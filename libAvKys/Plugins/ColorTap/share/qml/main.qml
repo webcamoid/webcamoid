@@ -47,8 +47,8 @@ ColumnLayout {
                     table: ":/ColorTap/share/tables/base.bmp"
                 }
                 ListElement {
-                    text: qsTr("Esses")
-                    table: ":/ColorTap/share/tables/esses.bmp"
+                    text: qsTr("Metal")
+                    table: ":/ColorTap/share/tables/metal.bmp"
                 }
                 ListElement {
                     text: qsTr("Heat")

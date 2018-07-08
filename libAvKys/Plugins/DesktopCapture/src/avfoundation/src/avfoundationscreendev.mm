@@ -67,19 +67,23 @@ AVFoundationScreenDev::AVFoundationScreenDev():
     ScreenDev()
 {
     this->d = new AVFoundationScreenDevPrivate();
+    size_t i = 0;
+
+    for (auto screen: QGuiApplication::screens()) {
+        QObject::connect(screen,
+                         &QScreen::geometryChanged,
+                         [=]() { this->srceenResized(int(i)); });
+        i++;
+    }
 
     QObject::connect(qApp,
                      &QGuiApplication::screenAdded,
                      this,
-                     &AVFoundationScreenDev::screenCountChanged);
+                     &AVFoundationScreenDev::screenAdded);
     QObject::connect(qApp,
                      &QGuiApplication::screenRemoved,
                      this,
-                     &AVFoundationScreenDev::screenCountChanged);
-    QObject::connect(QApplication::desktop(),
-                     &QDesktopWidget::resized,
-                     this,
-                     &AVFoundationScreenDev::srceenResized);
+                     &AVFoundationScreenDev::screenRemoved);
 }
 
 AVFoundationScreenDev::~AVFoundationScreenDev()
@@ -346,7 +350,24 @@ bool AVFoundationScreenDev::uninit()
     return true;
 }
 
-void AVFoundationScreenDev::screenCountChanged(QScreen *screen)
+void AVFoundationScreenDev::screenAdded(QScreen *screen)
+{
+    Q_UNUSED(screen)
+    size_t i = 0;
+
+    for (auto screen_: QGuiApplication::screens()) {
+        if (screen_ == screen)
+            QObject::connect(screen_,
+                             &QScreen::geometryChanged,
+                             [=]() { this->srceenResized(int(i)); });
+
+        i++;
+    }
+
+    emit this->mediasChanged(this->medias());
+}
+
+void AVFoundationScreenDev::screenRemoved(QScreen *screen)
 {
     Q_UNUSED(screen)
 
@@ -355,8 +376,8 @@ void AVFoundationScreenDev::screenCountChanged(QScreen *screen)
 
 void AVFoundationScreenDev::srceenResized(int screen)
 {
-    QString media = QString("screen://%1").arg(screen);
-    QWidget *widget = QApplication::desktop()->screen(screen);
+    auto media = QString("screen://%1").arg(screen);
+    auto widget = QGuiApplication::screens()[screen];
 
     emit this->sizeChanged(media, widget->size());
 }

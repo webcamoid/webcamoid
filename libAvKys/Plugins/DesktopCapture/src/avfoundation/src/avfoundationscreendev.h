@@ -92,7 +92,8 @@ class AVFoundationScreenDev: public ScreenDev
         bool uninit();
 
     private slots:
-        void screenCountChanged(QScreen *screen);
+        void screenAdded(QScreen *screen);
+        void screenRemoved(QScreen *screen);
         void srceenResized(int screen);
 };
 

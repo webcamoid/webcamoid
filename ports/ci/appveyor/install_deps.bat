@@ -21,7 +21,7 @@ set FFMPEG_DEV_FILE=ffmpeg-%FFMPEG_VERSION%-%FF_ARCH%-dev.zip
 
 if not exist %FFMPEG_DEV_FILE% curl --retry 10 -kLOC - https://ffmpeg.zeranoe.com/builds/%FF_ARCH%/dev/%FFMPEG_DEV_FILE%
 
-if exist %FFMPEG_DEV_FILE% 7z x %FFMPEG_DEV_FILE% -aoa
+if exist %FFMPEG_DEV_FILE% 7z x %FFMPEG_DEV_FILE% -aoa -bb
 
 set FFMPEG_DEV_PATH=%CD%\ffmpeg-%FFMPEG_VERSION%-%FF_ARCH%-dev
 
@@ -30,7 +30,7 @@ set FFMPEG_BIN_FILE=ffmpeg-%FFMPEG_VERSION%-%FF_ARCH%-shared.zip
 
 if not exist %FFMPEG_BIN_FILE% curl --retry 10 -kLOC - https://ffmpeg.zeranoe.com/builds/%FF_ARCH%/shared/%FFMPEG_BIN_FILE%
 
-if exist %FFMPEG_BIN_FILE% 7z x %FFMPEG_BIN_FILE% -aoa
+if exist %FFMPEG_BIN_FILE% 7z x %FFMPEG_BIN_FILE% -aoa -bb
 
 set PATH=%CD%\ffmpeg-%FFMPEG_VERSION%-%FF_ARCH%-shared\bin;%PATH%
 

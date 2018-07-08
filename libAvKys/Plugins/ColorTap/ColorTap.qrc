@@ -1,8 +1,8 @@
 <RCC>
     <qresource prefix="/ColorTap">
         <file>share/tables/base.bmp</file>
-        <file>share/tables/esses.bmp</file>
         <file>share/tables/heat.bmp</file>
+        <file>share/tables/metal.bmp</file>
         <file>share/tables/oldphoto.bmp</file>
         <file>share/tables/redgreen.bmp</file>
         <file>share/tables/sepia.bmp</file>
