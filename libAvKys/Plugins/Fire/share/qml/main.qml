@@ -116,19 +116,19 @@ GridLayout {
         onRvalueChanged: Fire.cool = rvalue
     }
 
-    // Disolving factor.
+    // Dissolving factor.
     Label {
-        text: qsTr("Disolve")
+        text: qsTr("Dissolve")
     }
     TextField {
-        text: Fire.disolve
+        text: Fire.dissolve
         validator: RegExpValidator {
             regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
         }
         Layout.columnSpan: 2
         Layout.fillWidth: true
 
-        onTextChanged: Fire.disolve = text
+        onTextChanged: Fire.dissolve = text
     }
 
     // Blur.

@@ -1091,8 +1091,8 @@
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="50"/>
-        <source>Esses</source>
-        <translation>Esencias</translation>
+        <source>Metal</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="54"/>
@@ -1694,8 +1694,8 @@
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="121"/>
-        <source>Disolve</source>
-        <translation>Disolver</translation>
+        <source>Dissolve</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="151"/>

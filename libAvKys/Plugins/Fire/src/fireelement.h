@@ -38,11 +38,11 @@ class FireElement: public AkElement
                WRITE setCool
                RESET resetCool
                NOTIFY coolChanged)
-    Q_PROPERTY(qreal disolve
-               READ disolve
-               WRITE setDisolve
-               RESET resetDisolve
-               NOTIFY disolveChanged)
+    Q_PROPERTY(qreal dissolve
+               READ dissolve
+               WRITE setDissolve
+               RESET resetDissolve
+               NOTIFY dissolveChanged)
     Q_PROPERTY(int blur
                READ blur
                WRITE setBlur
@@ -91,7 +91,7 @@ class FireElement: public AkElement
 
         Q_INVOKABLE QString mode() const;
         Q_INVOKABLE int cool() const;
-        Q_INVOKABLE qreal disolve() const;
+        Q_INVOKABLE qreal dissolve() const;
         Q_INVOKABLE int blur() const;
         Q_INVOKABLE qreal zoom() const;
         Q_INVOKABLE int threshold() const;
@@ -111,7 +111,7 @@ class FireElement: public AkElement
     signals:
         void modeChanged(const QString &mode);
         void coolChanged(int cool);
-        void disolveChanged(qreal disolve);
+        void dissolveChanged(qreal dissolve);
         void blurChanged(int blur);
         void zoomChanged(qreal zoom);
         void thresholdChanged(int threshold);
@@ -123,7 +123,7 @@ class FireElement: public AkElement
     public slots:
         void setMode(const QString &mode);
         void setCool(int cool);
-        void setDisolve(qreal disolve);
+        void setDissolve(qreal dissolve);
         void setBlur(int blur);
         void setZoom(qreal zoom);
         void setThreshold(int threshold);
@@ -133,7 +133,7 @@ class FireElement: public AkElement
         void setNColors(int nColors);
         void resetMode();
         void resetCool();
-        void resetDisolve();
+        void resetDissolve();
         void resetBlur();
         void resetZoom();
         void resetThreshold();

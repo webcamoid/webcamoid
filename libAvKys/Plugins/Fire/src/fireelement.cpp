@@ -46,7 +46,7 @@ class FireElementPrivate
     public:
         FireElement::FireMode m_mode;
         int m_cool;
-        qreal m_disolve;
+        qreal m_dissolve;
         qreal m_zoom;
         int m_threshold;
         int m_lumaThreshold;
@@ -62,7 +62,7 @@ class FireElementPrivate
         FireElementPrivate():
             m_mode(FireElement::FireModeHard),
             m_cool(-16),
-            m_disolve(0.01),
+            m_dissolve(0.01),
             m_zoom(0.02),
             m_threshold(15),
             m_lumaThreshold(15),
@@ -82,7 +82,7 @@ class FireElementPrivate
         inline QImage zoomImage(const QImage &src, qreal factor);
         inline void coolImage(QImage &src, int colorDiff);
         inline void imageAlphaDiff(QImage &src, int alphaDiff);
-        inline void disolveImage(QImage &src, qreal amount);
+        inline void dissolveImage(QImage &src, qreal amount);
         inline QImage burn(const QImage &src, const QVector<QRgb> &palette);
         inline QVector<QRgb> createPalette();
 };
@@ -115,9 +115,9 @@ int FireElement::cool() const
     return this->d->m_cool;
 }
 
-qreal FireElement::disolve() const
+qreal FireElement::dissolve() const
 {
-    return this->d->m_disolve;
+    return this->d->m_dissolve;
 }
 
 int FireElement::blur() const
@@ -251,7 +251,7 @@ void FireElementPrivate::imageAlphaDiff(QImage &src, int alphaDiff)
     }
 }
 
-void FireElementPrivate::disolveImage(QImage &src, qreal amount)
+void FireElementPrivate::dissolveImage(QImage &src, qreal amount)
 {
     qint64 videoArea = src.width() * src.height();
     qint64 n = qint64(amount * videoArea);
@@ -341,13 +341,13 @@ void FireElement::setCool(int cool)
     emit this->coolChanged(cool);
 }
 
-void FireElement::setDisolve(qreal disolve)
+void FireElement::setDissolve(qreal dissolve)
 {
-    if (qFuzzyCompare(this->d->m_disolve, disolve))
+    if (qFuzzyCompare(this->d->m_dissolve, dissolve))
         return;
 
-    this->d->m_disolve = disolve;
-    emit this->disolveChanged(disolve);
+    this->d->m_dissolve = dissolve;
+    emit this->dissolveChanged(dissolve);
 }
 
 void FireElement::setBlur(int blur)
@@ -419,9 +419,9 @@ void FireElement::resetCool()
     this->setCool(-16);
 }
 
-void FireElement::resetDisolve()
+void FireElement::resetDissolve()
 {
-    this->setDisolve(0.01);
+    this->setDissolve(0.01);
 }
 
 void FireElement::resetBlur()
@@ -484,7 +484,7 @@ AkPacket FireElement::iStream(const AkPacket &packet)
                                                    this->d->m_zoom);
         this->d->coolImage(this->d->m_fireBuffer, this->d->m_cool);
         this->d->imageAlphaDiff(this->d->m_fireBuffer, this->d->m_alphaDiff);
-        this->d->disolveImage(this->d->m_fireBuffer, this->d->m_disolve);
+        this->d->dissolveImage(this->d->m_fireBuffer, this->d->m_dissolve);
 
         int nColors = this->d->m_nColors > 0? this->d->m_nColors: 1;
 
