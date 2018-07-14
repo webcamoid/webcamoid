@@ -676,12 +676,12 @@
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="142"/>
         <source>Your version of %1 is outdated. Latest version is &lt;b&gt;%2&lt;/b&gt;.</source>
-        <translation></translation>
+        <translation>הגרסה של ה־%1 שלך מיושנת. הגרסה העדכנית ביותר היא &lt;b&gt;%2&lt;/b&gt;.</translation>
     </message>
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="148"/>
         <source>Upgrade Now!</source>
-        <translation></translation>
+        <translation>לשדרג כעת!</translation>
     </message>
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="163"/>
@@ -1092,7 +1092,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="50"/>
         <source>Metal</source>
-        <translation type="unfinished"></translation>
+        <translation>מתכת</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="54"/>
@@ -1695,7 +1695,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="121"/>
         <source>Dissolve</source>
-        <translation type="unfinished"></translation>
+        <translation>התמוססות</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="151"/>
