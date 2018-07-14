@@ -355,7 +355,7 @@
     <message>
         <location filename="../qml/MediaConfig.qml" line="68"/>
         <source>Media UID</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Medie-UID</translation>
     </message>
     <message>
         <location filename="../qml/MediaConfig.qml" line="75"/>
@@ -789,7 +789,7 @@
         <location filename="../../../libAvKys/Plugins/Denoise/share/qml/main.qml" line="43"/>
         <location filename="../../../libAvKys/Plugins/OilPaint/share/qml/main.qml" line="28"/>
         <source>Radius</source>
-        <translation type="unfinished"></translation>
+        <translation>Radius</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="85"/>
