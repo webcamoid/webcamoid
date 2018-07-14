@@ -686,12 +686,12 @@
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="163"/>
         <source>Thanks for using a &lt;b&gt;development version&lt;/b&gt;!&lt;br /&gt;It will be very helpful if you can report any bug and suggestions you have.</source>
-        <translation></translation>
+        <translation>תודה לך על השימוש ב&lt;b&gt;גרסת הפיתוח&lt;/b&gt;!&lt;br /&gt;נודה לך מאוד אם יתאפשר לך לדווח על תקלות או להציע הצעות שיש לך.</translation>
     </message>
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="168"/>
         <source>Report a Bug</source>
-        <translation></translation>
+        <translation>דיווח על תקלה</translation>
     </message>
 </context>
 <context>
@@ -699,88 +699,88 @@
     <message>
         <location filename="../qml/main.qml" line="172"/>
         <source>Recording</source>
-        <translation></translation>
+        <translation>הקלטה</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="111"/>
         <location filename="../qml/main.qml" line="618"/>
         <source>Play</source>
-        <translation></translation>
+        <translation>נגינה</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="652"/>
         <source>Take a photo</source>
-        <translation></translation>
+        <translation>צילום תמונה</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="252"/>
         <source>Picture %1.%2</source>
-        <translation></translation>
+        <translation>תמונה %1.%2</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="71"/>
         <source>New version available!</source>
-        <translation></translation>
+        <translation>יש גרסה חדשה!</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="72"/>
         <source>Download %1 %2 NOW!</source>
-        <translation></translation>
+        <translation>להוריד את %1 %2 כעת!</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="107"/>
         <source>Stop</source>
-        <translation></translation>
+        <translation>עצירה</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="572"/>
         <source>Go back</source>
-        <translation></translation>
+        <translation>חזרה</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="626"/>
         <source>Configure sources</source>
-        <translation></translation>
+        <translation>הגדרת מקורות</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="639"/>
         <source>Configure audio</source>
-        <translation></translation>
+        <translation>הגדרת שמע</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="666"/>
         <source>Record video</source>
-        <translation></translation>
+        <translation>הקלטת וידאו</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="680"/>
         <source>Configure Effects</source>
-        <translation></translation>
+        <translation>הגדרת אפקטים</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="693"/>
         <source>Preferences</source>
-        <translation></translation>
+        <translation>העדפות</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="706"/>
         <source>About</source>
-        <translation></translation>
+        <translation>על אודות</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="261"/>
         <source>Save photo as...</source>
-        <translation></translation>
+        <translation>שמירת התמונה בשם…</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Aging/share/qml/main.qml" line="40"/>
         <source>Number of scratches</source>
-        <translation></translation>
+        <translation>מספר שריטות</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Aging/share/qml/main.qml" line="62"/>
         <source>Add dust</source>
-        <translation></translation>
+        <translation>הוספת אבק</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Blur/share/qml/main.qml" line="40"/>
@@ -789,57 +789,57 @@
         <location filename="../../../libAvKys/Plugins/Denoise/share/qml/main.qml" line="43"/>
         <location filename="../../../libAvKys/Plugins/OilPaint/share/qml/main.qml" line="28"/>
         <source>Radius</source>
-        <translation></translation>
+        <translation>רדיוס</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="85"/>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="256"/>
         <source>N° of colors</source>
-        <translation></translation>
+        <translation>מס׳ צבעים</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="107"/>
         <source>Color difference</source>
-        <translation></translation>
+        <translation>הפרשי צבע</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="128"/>
         <source>Show edges</source>
-        <translation></translation>
+        <translation>הצגת קצוות</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="141"/>
         <source>Threshold low</source>
-        <translation></translation>
+        <translation>סף נמוך</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="166"/>
         <source>Threshold high</source>
-        <translation></translation>
+        <translation>סף גבוה</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="190"/>
         <source>Line color</source>
-        <translation></translation>
+        <translation>צבע הקו</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="205"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="215"/>
         <source>Scan block</source>
-        <translation></translation>
+        <translation>סריקת מקטע</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="195"/>
         <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="163"/>
         <source>Choose a color</source>
-        <translation></translation>
+        <translation>בחירת צבע</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="36"/>
         <location filename="../../../libAvKys/Plugins/ColorTransform/share/qml/main.qml" line="36"/>
         <location filename="../../../libAvKys/Plugins/MatrixTransform/share/qml/main.qml" line="35"/>
         <source>Transform matrix</source>
-        <translation></translation>
+        <translation>טבלת התמרה</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="63"/>
@@ -848,29 +848,29 @@
         <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="63"/>
         <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="41"/>
         <source>Mode</source>
-        <translation></translation>
+        <translation>מצב</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="73"/>
         <source>Natural</source>
-        <translation></translation>
+        <translation>טבעי</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="77"/>
         <source>Fixed</source>
-        <translation></translation>
+        <translation>קבוע</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="86"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="76"/>
         <source>Symbols</source>
-        <translation></translation>
+        <translation>סימנים</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="96"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="85"/>
         <source>Font</source>
-        <translation></translation>
+        <translation>גופן</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="107"/>
@@ -878,13 +878,13 @@
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="526"/>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="140"/>
         <source>Search</source>
-        <translation></translation>
+        <translation>חיפוש</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="115"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="104"/>
         <source>Hinting</source>
-        <translation></translation>
+        <translation>רימוז</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="125"/>
@@ -892,146 +892,146 @@
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="114"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="145"/>
         <source>Default</source>
-        <translation></translation>
+        <translation>בררת מחדל</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="129"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="118"/>
         <source>No hinting</source>
-        <translation></translation>
+        <translation>ללא רימוז</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="133"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="122"/>
         <source>Vertical hinting</source>
-        <translation></translation>
+        <translation>רימוז אנכי</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="137"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="126"/>
         <source>Full hinting</source>
-        <translation></translation>
+        <translation>רימוז מלא</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="146"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="135"/>
         <source>Style</source>
-        <translation></translation>
+        <translation>סגנון</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="160"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="149"/>
         <source>Bitmap</source>
-        <translation></translation>
+        <translation>מפת סיביות</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="164"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="153"/>
         <source>Device</source>
-        <translation></translation>
+        <translation>התקן</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="168"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="157"/>
         <source>Outline</source>
-        <translation></translation>
+        <translation>מתאר</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="172"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="161"/>
         <source>Force outline</source>
-        <translation></translation>
+        <translation>אילוץ מתאר</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="176"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="165"/>
         <source>Match</source>
-        <translation></translation>
+        <translation>התאמה</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="180"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="169"/>
         <source>Quality</source>
-        <translation></translation>
+        <translation>איכות</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="184"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="173"/>
         <source>Antialias</source>
-        <translation></translation>
+        <translation>החלקת קצוות</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="188"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="177"/>
         <source>No antialias</source>
-        <translation></translation>
+        <translation>ללא החלקת קצוות</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="192"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="181"/>
         <source>Compatible with OpenGL</source>
-        <translation></translation>
+        <translation>תואם ל־OpenGL</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="196"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="185"/>
         <source>Force integer metrics</source>
-        <translation></translation>
+        <translation>אילוץ מדידה במספרים שלמים וחיוביים</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="200"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="189"/>
         <source>No subpixel antialias</source>
-        <translation></translation>
+        <translation>ללא החלקה של תת־פיקסל</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="204"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="193"/>
         <source>No font merging</source>
-        <translation></translation>
+        <translation>ללא מיזוג גופנים</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="213"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="212"/>
         <source>Foreground color</source>
-        <translation></translation>
+        <translation>צבע חזית</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="224"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="222"/>
         <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="138"/>
         <source>Background color</source>
-        <translation></translation>
+        <translation>צבע רקע</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="235"/>
         <source>Reversed</source>
-        <translation></translation>
+        <translation>הפוך</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="245"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="294"/>
         <source>Please choose a font</source>
-        <translation></translation>
+        <translation>נא לבחור גופן</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="217"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="216"/>
         <source>Choose the foreground color</source>
-        <translation></translation>
+        <translation>נא לבחור את צבע החזית</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="228"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="226"/>
         <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="142"/>
         <source>Choose the background color</source>
-        <translation></translation>
+        <translation>נא לבחור את צבע הרקע</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Cinema/share/qml/main.qml" line="61"/>
         <location filename="../../../libAvKys/Plugins/Dice/share/qml/main.qml" line="39"/>
         <source>Size</source>
-        <translation></translation>
+        <translation>גודל</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Cinema/share/qml/main.qml" line="84"/>
@@ -1039,55 +1039,55 @@
         <location filename="../../../libAvKys/Plugins/Life/share/qml/main.qml" line="64"/>
         <location filename="../../../libAvKys/Plugins/Vignette/share/qml/main.qml" line="69"/>
         <source>Color</source>
-        <translation></translation>
+        <translation>צבע</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Cinema/share/qml/main.qml" line="88"/>
         <source>Choose the strips color</source>
-        <translation></translation>
+        <translation>נא לבחור את צבע הרצועות</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorFilter/share/qml/main.qml" line="100"/>
         <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/main.qml" line="102"/>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="83"/>
         <source>Soft</source>
-        <translation></translation>
+        <translation>רך</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorFilter/share/qml/main.qml" line="64"/>
         <source>Select the color to filter</source>
-        <translation></translation>
+        <translation>נא לבחור את הצבע לסינון</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorReplace/share/qml/main.qml" line="60"/>
         <source>Old color</source>
-        <translation></translation>
+        <translation>צבע ישן</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorReplace/share/qml/main.qml" line="76"/>
         <source>New color</source>
-        <translation></translation>
+        <translation>צבע חדש</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorReplace/share/qml/main.qml" line="64"/>
         <source>Select the color to replace</source>
-        <translation></translation>
+        <translation>נא לבחור את הצבע להחלפה</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorReplace/share/qml/main.qml" line="80"/>
         <source>Select the new color</source>
-        <translation></translation>
+        <translation>נא לבחור את הצבע החדש</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="37"/>
         <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/main.qml" line="75"/>
         <source>Color table</source>
-        <translation></translation>
+        <translation>טבלת צבעים</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="46"/>
         <source>Base</source>
-        <translation></translation>
+        <translation>בסיס</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="50"/>
@@ -1097,22 +1097,22 @@
     <message>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="54"/>
         <source>Heat</source>
-        <translation></translation>
+        <translation>חום</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="58"/>
         <source>Old Photo</source>
-        <translation></translation>
+        <translation>תמונה ישנה</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="62"/>
         <source>Red &amp; Green</source>
-        <translation></translation>
+        <translation>אדום וירוק</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="66"/>
         <source>Sepia</source>
-        <translation></translation>
+        <translation>ספיה</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="70"/>
@@ -1122,19 +1122,19 @@
     <message>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="74"/>
         <source>X-Ray</source>
-        <translation></translation>
+        <translation>רנטגן</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="78"/>
         <source>Yellow &amp; Blue</source>
-        <translation></translation>
+        <translation>צהוב וכחול</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="82"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="484"/>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="101"/>
         <source>Custom</source>
-        <translation></translation>
+        <translation>התאמה אישית</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="103"/>
@@ -1283,344 +1283,344 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="111"/>
         <source>Haar file</source>
-        <translation></translation>
+        <translation>קובץ Haar</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="121"/>
         <source>Eye</source>
-        <translation></translation>
+        <translation>עין</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="125"/>
         <source>Eye glasses</source>
-        <translation></translation>
+        <translation>משקפיים</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="129"/>
         <source>Frontal face alternative 1</source>
-        <translation></translation>
+        <translation>פנים מקדימה חלופה 1</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="133"/>
         <source>Frontal face alternative 2</source>
-        <translation></translation>
+        <translation>פנים מקדימה חלופה 2</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="137"/>
         <source>Frontal face alternative 3</source>
-        <translation></translation>
+        <translation>פנים מקדימה חלופה 3</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="141"/>
         <source>Frontal face default</source>
-        <translation></translation>
+        <translation>פנים מקדימה כבררת מחדל</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="145"/>
         <source>Full body</source>
-        <translation></translation>
+        <translation>כל הגוף</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="149"/>
         <source>Left Eye 1</source>
-        <translation></translation>
+        <translation>עין שמאל 1</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="153"/>
         <source>Lower body</source>
-        <translation></translation>
+        <translation>פלג הגוף התחתון</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="157"/>
         <source>Eye pair big</source>
-        <translation></translation>
+        <translation>זוג עיניים גדול</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="161"/>
         <source>Eye pair small</source>
-        <translation></translation>
+        <translation>זוג עיניים קטן</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="165"/>
         <source>Left ear</source>
-        <translation></translation>
+        <translation>אוזן שמאל</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="169"/>
         <source>Left eye 2</source>
-        <translation></translation>
+        <translation>עין שמאל 2</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="173"/>
         <source>Mouth</source>
-        <translation></translation>
+        <translation>פה</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="177"/>
         <source>Nose</source>
-        <translation></translation>
+        <translation>אף</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="181"/>
         <source>Right ear</source>
-        <translation></translation>
+        <translation>אוזן ימין</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="185"/>
         <source>Right Eye 1</source>
-        <translation></translation>
+        <translation>עין ימין 1</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="189"/>
         <source>Upper body 1</source>
-        <translation></translation>
+        <translation>פלג גוף עליון 1</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="193"/>
         <source>Profile face</source>
-        <translation></translation>
+        <translation>פנים מהצד</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="197"/>
         <source>Right eye 2</source>
-        <translation></translation>
+        <translation>עין ימין 2</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="201"/>
         <source>Smile</source>
-        <translation></translation>
+        <translation>חיוך</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="205"/>
         <source>Upper body</source>
-        <translation></translation>
+        <translation>פלג גוף עליון</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="229"/>
         <source>Marker type</source>
-        <translation></translation>
+        <translation>סוג סמן</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="239"/>
         <source>Rectangle</source>
-        <translation></translation>
+        <translation>מרובע</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="243"/>
         <source>Ellipse</source>
-        <translation></translation>
+        <translation>אליפסה</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="247"/>
         <source>Image</source>
-        <translation></translation>
+        <translation>תמונה</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="251"/>
         <source>Pixelate</source>
-        <translation></translation>
+        <translation>טשטוש בפיקסלים</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="255"/>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="136"/>
         <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="94"/>
         <source>Blur</source>
-        <translation></translation>
+        <translation>טשטוש</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="265"/>
         <source>Marker style</source>
-        <translation></translation>
+        <translation>סוג סמן</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="275"/>
         <source>Solid</source>
-        <translation></translation>
+        <translation>אחיד</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="279"/>
         <source>Dash</source>
-        <translation></translation>
+        <translation>מקווקוו</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="283"/>
         <source>Dot</source>
-        <translation></translation>
+        <translation>מנוקד</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="287"/>
         <source>Dash dot</source>
-        <translation></translation>
+        <translation>קו נקודה</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="291"/>
         <source>Dash dot dot</source>
-        <translation></translation>
+        <translation>קו נקודה נקודה</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="301"/>
         <source>Marker color</source>
-        <translation></translation>
+        <translation>צבע סמן</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="313"/>
         <source>Marker width</source>
-        <translation></translation>
+        <translation>עובי סמן</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="327"/>
         <source>Masks</source>
-        <translation></translation>
+        <translation>מסכות</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="336"/>
         <source>Angel</source>
-        <translation></translation>
+        <translation>מלאך</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="340"/>
         <source>Bear</source>
-        <translation></translation>
+        <translation>דוב</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="344"/>
         <source>Beaver</source>
-        <translation></translation>
+        <translation>בונה</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="348"/>
         <source>Cat</source>
-        <translation></translation>
+        <translation>חתול</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="352"/>
         <source>Chicken</source>
-        <translation></translation>
+        <translation>תרנגולת</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="356"/>
         <source>Cow</source>
-        <translation></translation>
+        <translation>פרה</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="360"/>
         <source>Devil</source>
-        <translation></translation>
+        <translation>שטן</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="364"/>
         <source>Dog</source>
-        <translation></translation>
+        <translation>כלב</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="368"/>
         <source>Dalmatian dog</source>
-        <translation></translation>
+        <translation>כלב דלמטי</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="372"/>
         <source>Happy dog</source>
-        <translation></translation>
+        <translation>כלב שמח</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="376"/>
         <source>Dragon</source>
-        <translation></translation>
+        <translation>דרקון</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="380"/>
         <source>Elephant 1</source>
-        <translation></translation>
+        <translation>פיל 1</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="384"/>
         <source>Elephant 2</source>
-        <translation></translation>
+        <translation>פיל 2</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="388"/>
         <source>Elk</source>
-        <translation></translation>
+        <translation>אייל</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="392"/>
         <source>Frog</source>
-        <translation></translation>
+        <translation>צפרדע</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="396"/>
         <source>Ghost</source>
-        <translation></translation>
+        <translation>רוח רפאים</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="400"/>
         <source>Giraffe</source>
-        <translation></translation>
+        <translation>ג׳ירפה</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="404"/>
         <source>Gnu</source>
-        <translation></translation>
+        <translation>גנו</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="408"/>
         <source>Goat</source>
-        <translation></translation>
+        <translation>עז</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="412"/>
         <source>Hippo</source>
-        <translation></translation>
+        <translation>היפופוטם</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="416"/>
         <source>Horse</source>
-        <translation></translation>
+        <translation>סוס</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="420"/>
         <source>Gray horse</source>
-        <translation></translation>
+        <translation>סוס אפור</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="424"/>
         <source>Koala</source>
-        <translation></translation>
+        <translation>קואלה</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="428"/>
         <source>Monkey</source>
-        <translation></translation>
+        <translation>קוף</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="432"/>
         <source>Gray mouse</source>
-        <translation></translation>
+        <translation>עכבר אפור</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="436"/>
         <source>White mouse</source>
-        <translation></translation>
+        <translation>עכבר לבן</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="440"/>
         <source>Panda</source>
-        <translation></translation>
+        <translation>פנדה</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="444"/>
         <source>Penguin</source>
-        <translation></translation>
+        <translation>פינגווין</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="448"/>
         <source>Pumpkin 1</source>
-        <translation></translation>
+        <translation>דלעת 1</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="452"/>
         <source>Pumpkin 2</source>
-        <translation></translation>
+        <translation>דלעת 2</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="456"/>
@@ -1630,67 +1630,67 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="460"/>
         <source>Rhino</source>
-        <translation></translation>
+        <translation>קרנף</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="464"/>
         <source>Sheep</source>
-        <translation></translation>
+        <translation>כבשה</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="468"/>
         <source>Skull 1</source>
-        <translation></translation>
+        <translation>גולגולת 1</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="472"/>
         <source>Skull 2</source>
-        <translation></translation>
+        <translation>גולגולת 2</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="476"/>
         <source>Triceratops</source>
-        <translation></translation>
+        <translation>טריצרטופס</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="480"/>
         <source>Zebra</source>
-        <translation></translation>
+        <translation>זברה</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="493"/>
         <source>Marker picture</source>
-        <translation></translation>
+        <translation>תמונת סמן</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="507"/>
         <source>Replace face with this picture.</source>
-        <translation></translation>
+        <translation>החלפת הפנים בתמונה זו.</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="535"/>
         <source>Pixel grid size</source>
-        <translation></translation>
+        <translation>גודל רשת פיקסלים</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="549"/>
         <source>Blur radius</source>
-        <translation></translation>
+        <translation>רדיוס טשטוש</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="305"/>
         <source>Select marker color</source>
-        <translation></translation>
+        <translation>בחירת צבע סמן</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="87"/>
         <source>Hard</source>
-        <translation></translation>
+        <translation>קשיח</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="97"/>
         <source>Cooling</source>
-        <translation></translation>
+        <translation>מתקרר</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="121"/>
@@ -1701,7 +1701,7 @@
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="151"/>
         <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="107"/>
         <source>Zoom</source>
-        <translation></translation>
+        <translation>תקריב</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="166"/>
@@ -1710,7 +1710,7 @@
         <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="120"/>
         <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="90"/>
         <source>Threshold</source>
-        <translation></translation>
+        <translation>סף</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="188"/>
@@ -1722,197 +1722,197 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="210"/>
         <source>Alpha diff</source>
-        <translation></translation>
+        <translation>הפרשי שקיפות</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="234"/>
         <source>Alpha variation</source>
-        <translation></translation>
+        <translation>הגוון שקיפות</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FrameOverlap/share/qml/main.qml" line="43"/>
         <source>Stride</source>
-        <translation></translation>
+        <translation>פסיעה</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="51"/>
         <source>Pattern</source>
-        <translation></translation>
+        <translation>תבנית</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="61"/>
         <source>90° Halftone 6x6</source>
-        <translation></translation>
+        <translation>90° רשת הדפסה 6×6</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="65"/>
         <source>Cluster 3</source>
-        <translation></translation>
+        <translation>צביר 3</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="69"/>
         <source>Cluster 4</source>
-        <translation></translation>
+        <translation>צביר 4</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="73"/>
         <source>Cluster 8</source>
-        <translation></translation>
+        <translation>צביר 8</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="77"/>
         <source>Lines 4x4</source>
-        <translation></translation>
+        <translation>קווים 4×4</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="81"/>
         <source>Magic 2x2</source>
-        <translation></translation>
+        <translation>קסם 2×2</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="85"/>
         <source>Magic 4x4</source>
-        <translation></translation>
+        <translation>קסם 4×4</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="89"/>
         <source>Ordered 4x4</source>
-        <translation></translation>
+        <translation>מסודר 4×4</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="93"/>
         <source>Ordered 6x6</source>
-        <translation></translation>
+        <translation>מסודר 6×6</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="97"/>
         <source>Ordered 8x8</source>
-        <translation></translation>
+        <translation>מסודר 8×8</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="120"/>
         <source>pattern bitmap...</source>
-        <translation></translation>
+        <translation>מפת סיביות לתבנית…</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="149"/>
         <source>Pattern size</source>
-        <translation></translation>
+        <translation>גודל תבנית</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="162"/>
         <source>Lightness</source>
-        <translation></translation>
+        <translation>תאורה</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="175"/>
         <source>Slope</source>
-        <translation></translation>
+        <translation>מדרון</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="188"/>
         <source>Intercept</source>
-        <translation></translation>
+        <translation>עיכוב</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Hypnotic/share/qml/main.qml" line="63"/>
         <source>Spiral 1</source>
-        <translation></translation>
+        <translation>סליל 1</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Hypnotic/share/qml/main.qml" line="67"/>
         <source>Spiral 2</source>
-        <translation></translation>
+        <translation>סליל 2</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Hypnotic/share/qml/main.qml" line="71"/>
         <source>Parabola</source>
-        <translation></translation>
+        <translation>פרבולה</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Hypnotic/share/qml/main.qml" line="75"/>
         <source>Horizontal stripe</source>
-        <translation></translation>
+        <translation>פס אופקי</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Hypnotic/share/qml/main.qml" line="84"/>
         <source>Speed increment</source>
-        <translation></translation>
+        <translation>הגברת מהירות</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Implode/share/qml/main.qml" line="28"/>
         <source>Amount</source>
-        <translation></translation>
+        <translation>כמות</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Life/share/qml/main.qml" line="100"/>
         <source>Luma Threshold</source>
-        <translation></translation>
+        <translation>סף תאורה</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Life/share/qml/main.qml" line="68"/>
         <source>Choose the automata color</source>
-        <translation></translation>
+        <translation>בחירת צבע האוטומטה</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="63"/>
         <source>N° of drops</source>
-        <translation></translation>
+        <translation>מס׳ טיפות</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="96"/>
         <source>Select</source>
-        <translation></translation>
+        <translation>בחירה</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="202"/>
         <source>Cursor color</source>
-        <translation></translation>
+        <translation>צבע מצביע</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="206"/>
         <source>Choose the cursor color</source>
-        <translation></translation>
+        <translation>בחירת צבע המצביע</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="232"/>
         <source>Min. drop length</source>
-        <translation></translation>
+        <translation>גודל טיפה מזערי</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="245"/>
         <source>Max. drop length</source>
-        <translation></translation>
+        <translation>גודל טיפה מרבי</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="258"/>
         <source>Min. speed</source>
-        <translation></translation>
+        <translation>מהירות מזערית</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="271"/>
         <source>Max. speed</source>
-        <translation></translation>
+        <translation>מהירות מרבית</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="284"/>
         <source>Show cursor</source>
-        <translation></translation>
+        <translation>הצגת מצביע</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/main.qml" line="166"/>
         <source>Output format</source>
-        <translation></translation>
+        <translation>תסדיר פלט</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/main.qml" line="195"/>
         <source>File extensions</source>
-        <translation></translation>
+        <translation>סיומות קבצים</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/main.qml" line="201"/>
         <source>This output format has not specific extensions</source>
-        <translation></translation>
+        <translation>לתסדיר פלט זה אין סיומות קבצים מסוימות</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/main.qml" line="207"/>
