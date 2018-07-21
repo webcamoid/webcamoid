@@ -6,7 +6,7 @@
     <message>
         <location filename="../qml/About.qml" line="27"/>
         <source>About %1</source>
-        <translation></translation>
+        <translation>O %1</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="46"/>
@@ -21,17 +21,17 @@
     <message>
         <location filename="../qml/About.qml" line="88"/>
         <source>Using Qt %1</source>
-        <translation></translation>
+        <translation>Za pomocą Qt %1</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="101"/>
         <source>Webcam capture application.</source>
-        <translation></translation>
+        <translation>Aplikacja do przechwytywania kamer internetowych.</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="104"/>
         <source>A simple webcam application for picture and video capture.</source>
-        <translation></translation>
+        <translation>Prosta aplikacja do przechwytywania obrazu i wideo.</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="92"/>
@@ -41,12 +41,12 @@
     <message>
         <location filename="../qml/About.qml" line="50"/>
         <source>License</source>
-        <translation></translation>
+        <translation>Licencja</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="127"/>
         <source>Close</source>
-        <translation></translation>
+        <translation>Zamknij</translation>
     </message>
 </context>
 <context>
@@ -54,7 +54,7 @@
     <message>
         <location filename="../qml/AddMedia.qml" line="28"/>
         <source>Add new media</source>
-        <translation></translation>
+        <translation>Dodaj nowe media</translation>
     </message>
     <message>
         <location filename="../qml/AddMedia.qml" line="67"/>
@@ -74,12 +74,12 @@
     <message>
         <location filename="../qml/AddMedia.qml" line="89"/>
         <source>Select media file</source>
-        <translation></translation>
+        <translation>Wybierz plik multimedialny</translation>
     </message>
     <message>
         <location filename="../qml/AddMedia.qml" line="96"/>
         <source>Search</source>
-        <translation></translation>
+        <translation>Szukaj</translation>
     </message>
     <message>
         <location filename="../qml/AddMedia.qml" line="116"/>
@@ -89,12 +89,12 @@
     <message>
         <location filename="../qml/AddMedia.qml" line="141"/>
         <source>Cancel</source>
-        <translation></translation>
+        <translation>Anuluj</translation>
     </message>
     <message>
         <location filename="../qml/AddMedia.qml" line="151"/>
         <source>Choose the file to add as media</source>
-        <translation></translation>
+        <translation>Wybierz plik, który chcesz dodać jako nośnik</translation>
     </message>
 </context>
 <context>
@@ -102,28 +102,28 @@
     <message>
         <location filename="../qml/AudioConfig.qml" line="117"/>
         <source>Outputs</source>
-        <translation></translation>
+        <translation>Wyjć</translation>
     </message>
     <message>
         <location filename="../qml/AudioConfig.qml" line="121"/>
         <source>Select the output device for audio playing</source>
-        <translation></translation>
+        <translation>Wybierz urządzenie wyjściowe do odtwarzania dźwięku</translation>
     </message>
     <message>
         <location filename="../qml/AudioConfig.qml" line="134"/>
         <source>Inputs</source>
-        <translation></translation>
+        <translation>Wejścia</translation>
     </message>
     <message>
         <location filename="../qml/AudioConfig.qml" line="137"/>
         <source>Select the device for audio capturing</source>
-        <translation></translation>
+        <translation>Wybierz urządzenie do przechwytywania dźwięku</translation>
     </message>
     <message>
         <location filename="../qml/AudioConfig.qml" line="193"/>
         <location filename="../qml/AudioConfig.qml" line="295"/>
         <source>Silence</source>
-        <translation></translation>
+        <translation>Wycisz</translation>
     </message>
 </context>
 <context>
@@ -137,29 +137,29 @@
         <location filename="../qml/AudioInfo.qml" line="202"/>
         <location filename="../qml/AudioInfo.qml" line="209"/>
         <source>Device description</source>
-        <translation></translation>
+        <translation>Opis urządzenia</translation>
     </message>
     <message>
         <location filename="../qml/AudioInfo.qml" line="217"/>
         <location filename="../qml/AudioInfo.qml" line="232"/>
         <location filename="../qml/AudioInfo.qml" line="239"/>
         <source>Device id</source>
-        <translation></translation>
+        <translation>Identyfikator urzadzenia</translation>
     </message>
     <message>
         <location filename="../qml/AudioInfo.qml" line="254"/>
         <source>Sample Format</source>
-        <translation></translation>
+        <translation>Przykładowy format</translation>
     </message>
     <message>
         <location filename="../qml/AudioInfo.qml" line="280"/>
         <source>Channels</source>
-        <translation></translation>
+        <translation>Kanały</translation>
     </message>
     <message>
         <location filename="../qml/AudioInfo.qml" line="306"/>
         <source>Sample Rate</source>
-        <translation></translation>
+        <translation>Częstotliwość próbkowania</translation>
     </message>
 </context>
 <context>
@@ -168,7 +168,7 @@
         <location filename="../../../libAvKys/Plugins/VirtualCamera/src/v4l2sys/src/cameraoutv4l2.cpp" line="315"/>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/src/v4l2sys/src/cameraoutv4l2.cpp" line="369"/>
         <source>Virtual Camera %1</source>
-        <translation></translation>
+        <translation>Wirtualna kamera %1</translation>
     </message>
 </context>
 <context>
@@ -176,12 +176,12 @@
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/CodecConfigs.qml" line="27"/>
         <source>Configure %1</source>
-        <translation></translation>
+        <translation>Skonfiguruj %1</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/CodecConfigs.qml" line="112"/>
         <source>Search option</source>
-        <translation></translation>
+        <translation>Opcja wyszukiwania</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/CodecConfigs.qml" line="126"/>
@@ -191,7 +191,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/CodecConfigs.qml" line="141"/>
         <source>Cancel</source>
-        <translation></translation>
+        <translation>Anuluj</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/CodecConfigs.qml" line="151"/>
@@ -214,12 +214,12 @@
     <message>
         <location filename="../qml/ConfigBar.qml" line="52"/>
         <source>Plugins Configs</source>
-        <translation></translation>
+        <translation>Wtyczki Configs</translation>
     </message>
     <message>
         <location filename="../qml/ConfigBar.qml" line="56"/>
         <source>Updates</source>
-        <translation></translation>
+        <translation>Aktualizacje</translation>
     </message>
 </context>
 <context>
@@ -227,7 +227,7 @@
     <message>
         <location filename="../qml/EffectBar.qml" line="122"/>
         <source>Search effect...</source>
-        <translation></translation>
+        <translation>Efekt wyszukiwania ...</translation>
     </message>
     <message>
         <location filename="../qml/EffectBar.qml" line="168"/>
@@ -256,12 +256,12 @@
     <message>
         <location filename="../qml/EffectConfig.qml" line="119"/>
         <source>Remove</source>
-        <translation></translation>
+        <translation>Usuń</translation>
     </message>
     <message>
         <location filename="../qml/EffectConfig.qml" line="119"/>
         <source>Add</source>
-        <translation></translation>
+        <translation>Dodaj</translation>
     </message>
 </context>
 <context>
@@ -269,42 +269,42 @@
     <message>
         <location filename="../qml/GeneralConfig.qml" line="46"/>
         <source>Play webcam on start</source>
-        <translation></translation>
+        <translation>Uruchom kamerę internetową przy starcie</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="52"/>
         <source>Enable advanced effects mode</source>
-        <translation></translation>
+        <translation>Włącz zaawansowany tryb efektów</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="58"/>
         <source>Frameworks &amp; libraries</source>
-        <translation></translation>
+        <translation>Struktura i biblioteki</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="68"/>
         <source>Video capture</source>
-        <translation></translation>
+        <translation>Przechwytywanie wideo</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="78"/>
         <source>Desktop capture</source>
-        <translation></translation>
+        <translation>Przechwytywanie pulpitu</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="88"/>
         <source>Audio capture/play</source>
-        <translation></translation>
+        <translation>Przechwytywanie/odtwarzanie dźwięku</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="98"/>
         <source>Video convert</source>
-        <translation></translation>
+        <translation>Konwersja wideo</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="108"/>
         <source>Audio convert</source>
-        <translation></translation>
+        <translation>Konwersja audio</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="118"/>
@@ -314,22 +314,22 @@
     <message>
         <location filename="../qml/GeneralConfig.qml" line="128"/>
         <source>Video output convert</source>
-        <translation></translation>
+        <translation>Konwersja wyjścia wideo</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="138"/>
         <source>Video playback</source>
-        <translation></translation>
+        <translation>Odtwarzanie wideo</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="148"/>
         <source>Video record</source>
-        <translation></translation>
+        <translation>Nagrywanie wideo</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="158"/>
         <source>Root method</source>
-        <translation></translation>
+        <translation>Metoda korzeniowa</translation>
     </message>
 </context>
 <context>
@@ -337,7 +337,7 @@
     <message>
         <location filename="../qml/MediaBar.qml" line="62"/>
         <source>No webcams found</source>
-        <translation></translation>
+        <translation>Nie znaleziono kamer internetowych</translation>
     </message>
 </context>
 <context>
@@ -360,17 +360,17 @@
     <message>
         <location filename="../qml/MediaConfig.qml" line="75"/>
         <source>Select media file</source>
-        <translation></translation>
+        <translation>Wybierz plik multimedialny</translation>
     </message>
     <message>
         <location filename="../qml/MediaConfig.qml" line="90"/>
         <source>Edit</source>
-        <translation></translation>
+        <translation>Edycja</translation>
     </message>
     <message>
         <location filename="../qml/MediaConfig.qml" line="98"/>
         <source>Remove</source>
-        <translation></translation>
+        <translation>Usuń</translation>
     </message>
 </context>
 <context>
@@ -378,7 +378,7 @@
     <message>
         <location filename="../qml/OutputConfig.qml" line="55"/>
         <source>Virtual camera</source>
-        <translation></translation>
+        <translation>Wirtualna kamera</translation>
     </message>
 </context>
 <context>
@@ -386,27 +386,27 @@
     <message>
         <location filename="../qml/PhotoWidget.qml" line="35"/>
         <source>%1 seconds</source>
-        <translation></translation>
+        <translation>%1 sekund</translation>
     </message>
     <message>
         <location filename="../qml/PhotoWidget.qml" line="56"/>
         <source>Now</source>
-        <translation></translation>
+        <translation>Teraz</translation>
     </message>
     <message>
         <location filename="../qml/PhotoWidget.qml" line="80"/>
         <source>Cancel</source>
-        <translation></translation>
+        <translation>Anuluj</translation>
     </message>
     <message>
         <location filename="../qml/PhotoWidget.qml" line="80"/>
         <source>Shot!</source>
-        <translation></translation>
+        <translation>Strzał!</translation>
     </message>
     <message>
         <location filename="../qml/PhotoWidget.qml" line="111"/>
         <source>Use flash</source>
-        <translation></translation>
+        <translation>Skorzystaj z lampy błyskowej</translation>
     </message>
 </context>
 <context>
@@ -414,27 +414,27 @@
     <message>
         <location filename="../qml/PluginConfig.qml" line="110"/>
         <source>Use this page for configuring the plugins search paths.&lt;br /&gt;&lt;b&gt;Don&apos;t touch nothing unless you know what you are doing&lt;/b&gt;.</source>
-        <translation></translation>
+        <translation>Ta strona służy do konfigurowania ścieżek wyszukiwania wtyczek.&lt;br /&gt;&lt;b&gt;Nie dotykaj niczego, jeśli nie wiesz, co robisz&lt;/b&gt;.</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="115"/>
         <source>Extra search paths</source>
-        <translation></translation>
+        <translation>Dodatkowe ścieżki wyszukiwania</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="124"/>
         <source>Search plugins in subfolders.</source>
-        <translation></translation>
+        <translation>Wyszukaj wtyczki w podfolderach.</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="134"/>
         <source>Add</source>
-        <translation></translation>
+        <translation>Dodaj</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="141"/>
         <source>Remove</source>
-        <translation></translation>
+        <translation>Usuń</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="207"/>
@@ -444,22 +444,22 @@
     <message>
         <location filename="../qml/PluginConfig.qml" line="216"/>
         <source>Refresh</source>
-        <translation></translation>
+        <translation>Odśwież</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="226"/>
         <source>Disable</source>
-        <translation></translation>
+        <translation>Wyłącz</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="226"/>
         <source>Enable</source>
-        <translation></translation>
+        <translation>Włącz</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="308"/>
         <source>Add plugins search path</source>
-        <translation></translation>
+        <translation>Dodaj ścieżkę wyszukiwania wtyczek</translation>
     </message>
 </context>
 <context>
@@ -467,37 +467,37 @@
     <message>
         <location filename="../../src/clioptions.cpp" line="32"/>
         <source>Webcam capture application.</source>
-        <translation></translation>
+        <translation>Aplikacja do przechwytywania kamer internetowych.</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="36"/>
         <source>Load settings from PATH. If PATH is empty, load configs from application directory.</source>
-        <translation></translation>
+        <translation>Załaduj ustawienia z PATH. Jeśli PATH jest pusta, załaduj configs z katalogu aplikacji.</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="44"/>
         <source>Semi-colon separated list of paths to search the Qml interface.</source>
-        <translation></translation>
+        <translation>Lista rozdzielona średnikami, zawierająca ścieżki do przeszukiwania interfejsu Qml.</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="53"/>
         <source>Search in the specified plugins paths recursively.</source>
-        <translation></translation>
+        <translation>Szukaj w określonych ścieżkach wtyczek rekurencyjnie.</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="59"/>
         <source>Semi-colon separated list of paths to search for plugins.</source>
-        <translation></translation>
+        <translation>Lista rozdzielona średnikami, zawierająca ścieżki do wyszukiwania wtyczek.</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="66"/>
         <source>Semi-colon separated list of paths to avoid loading.</source>
-        <translation></translation>
+        <translation>Lista ścieżek rozdzielona średnikami, aby uniknąć ładowania.</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="73"/>
         <source>Semi-colon separated list of paths to search for virtual camera driver</source>
-        <translation type="unfinished"></translation>
+        <translation>Lista rozdzielonych średnikami wykazów ścieżek wyszukiwania wirtualnego sterownika kamery</translation>
     </message>
 </context>
 <context>
@@ -505,7 +505,7 @@
     <message>
         <location filename="../qml/RecordBar.qml" line="101"/>
         <source>Search format...</source>
-        <translation></translation>
+        <translation>Wyszukaj format ...</translation>
     </message>
 </context>
 <context>
@@ -518,13 +518,13 @@
     <message>
         <location filename="../qml/RecordConfig.qml" line="88"/>
         <source>Stop recording video</source>
-        <translation></translation>
+        <translation>Zatrzymaj nagrywanie wideo</translation>
     </message>
     <message>
         <location filename="../qml/RecordConfig.qml" line="91"/>
         <location filename="../qml/RecordConfig.qml" line="128"/>
         <source>Start recording video</source>
-        <translation></translation>
+        <translation>Rozpocznij nagrywanie wideo</translation>
     </message>
     <message>
         <location filename="../qml/RecordConfig.qml" line="99"/>
@@ -539,7 +539,7 @@
     <message>
         <location filename="../qml/RecordConfig.qml" line="193"/>
         <source>Save video as...</source>
-        <translation></translation>
+        <translation>Zapisz wideo jako ...</translation>
     </message>
 </context>
 <context>
@@ -557,7 +557,7 @@
     <message>
         <location filename="../../src/recording.cpp" line="607"/>
         <source>Subtitle</source>
-        <translation></translation>
+        <translation>Napisy</translation>
     </message>
     <message>
         <location filename="../../src/recording.cpp" line="662"/>
@@ -575,7 +575,7 @@
         <location filename="../../src/recording.cpp" line="664"/>
         <location filename="../../src/recording.cpp" line="830"/>
         <source>subtitle</source>
-        <translation></translation>
+        <translation>napisy</translation>
     </message>
 </context>
 <context>
@@ -583,17 +583,17 @@
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/StreamOptions.qml" line="28"/>
         <source>Stream #%1 (%2)</source>
-        <translation></translation>
+        <translation>Strumień #%1 (%2)</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/StreamOptions.qml" line="29"/>
         <source>Stream #%1</source>
-        <translation></translation>
+        <translation>Strumień #%1</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/StreamOptions.qml" line="64"/>
         <source>Codec</source>
-        <translation></translation>
+        <translation>Kodek</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/StreamOptions.qml" line="85"/>
@@ -608,22 +608,22 @@
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/StreamOptions.qml" line="110"/>
         <source>Separation between keyframes</source>
-        <translation></translation>
+        <translation>Rozdzielenie między klatkami kluczowymi</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/StreamOptions.qml" line="126"/>
         <source>Advanced Codec Options</source>
-        <translation></translation>
+        <translation>Zaawansowane opcje kodeków</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/StreamOptions.qml" line="150"/>
         <source>Size of the audio (bits) / duration (seconds)</source>
-        <translation></translation>
+        <translation>Rozmiar audio (bitów) / czas trwania (sekundy)</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/StreamOptions.qml" line="171"/>
         <source>Size of the video (bits) / duration (seconds)</source>
-        <translation></translation>
+        <translation>Rozmiar wideo (bitów) / czas trwania (sekundy)</translation>
     </message>
 </context>
 <context>
@@ -631,57 +631,57 @@
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="68"/>
         <source>Notify about new versions</source>
-        <translation></translation>
+        <translation>Powiadamiaj o nowych wersjach</translation>
     </message>
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="82"/>
         <source>Check new versions</source>
-        <translation></translation>
+        <translation>Sprawdź nowe wersje</translation>
     </message>
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="90"/>
         <source>Daily</source>
-        <translation></translation>
+        <translation>Codziennie</translation>
     </message>
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="94"/>
         <source>Every two days</source>
-        <translation></translation>
+        <translation>Co dwa dni</translation>
     </message>
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="98"/>
         <source>Weekly</source>
-        <translation></translation>
+        <translation>Co tydzień</translation>
     </message>
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="102"/>
         <source>Every two weeks</source>
-        <translation></translation>
+        <translation>Co dwa tygodnie</translation>
     </message>
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="106"/>
         <source>Monthly</source>
-        <translation></translation>
+        <translation>Miesięczne</translation>
     </message>
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="110"/>
         <source>Never</source>
-        <translation></translation>
+        <translation>Nigdy</translation>
     </message>
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="121"/>
         <source>Last updated</source>
-        <translation></translation>
+        <translation>Ostatnio zaktualizowany</translation>
     </message>
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="142"/>
         <source>Your version of %1 is outdated. Latest version is &lt;b&gt;%2&lt;/b&gt;.</source>
-        <translation></translation>
+        <translation>Twoja wersja %1 jest nieaktualna. Najnowsza wersja to &lt;b&gt;%2&lt;/b&gt;.</translation>
     </message>
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="148"/>
         <source>Upgrade Now!</source>
-        <translation></translation>
+        <translation>Uaktualnij teraz!</translation>
     </message>
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="163"/>
@@ -691,7 +691,7 @@
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="168"/>
         <source>Report a Bug</source>
-        <translation></translation>
+        <translation>Zgłoś błąd</translation>
     </message>
 </context>
 <context>
@@ -699,13 +699,13 @@
     <message>
         <location filename="../qml/main.qml" line="172"/>
         <source>Recording</source>
-        <translation></translation>
+        <translation>Nagrywanie</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="111"/>
         <location filename="../qml/main.qml" line="618"/>
         <source>Play</source>
-        <translation></translation>
+        <translation>Uruchom</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="652"/>
@@ -1092,7 +1092,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="50"/>
         <source>Metal</source>
-        <translation type="unfinished"></translation>
+        <translation>Metal</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="54"/>
