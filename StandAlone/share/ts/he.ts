@@ -1146,12 +1146,12 @@
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="563"/>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="202"/>
         <source>Please choose an image file</source>
-        <translation></translation>
+        <translation>נא לבחור קובץ תמונה</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="47"/>
         <source>Convolve matrix</source>
-        <translation></translation>
+        <translation>טבלת פיתול</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="153"/>
@@ -1159,44 +1159,44 @@
         <location filename="../../../libAvKys/Plugins/Emboss/share/qml/main.qml" line="29"/>
         <location filename="../../../libAvKys/Plugins/PrimariesColors/share/qml/main.qml" line="28"/>
         <source>Factor</source>
-        <translation></translation>
+        <translation>מקדם</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="167"/>
         <location filename="../../../libAvKys/Plugins/Emboss/share/qml/main.qml" line="43"/>
         <source>Bias</source>
-        <translation></translation>
+        <translation>אלכסון</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/DelayGrab/share/qml/main.qml" line="42"/>
         <source>Grab mode</source>
-        <translation></translation>
+        <translation>מצב לכידה</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/DelayGrab/share/qml/main.qml" line="52"/>
         <source>Random square</source>
-        <translation></translation>
+        <translation>ריבוע אקראי</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/DelayGrab/share/qml/main.qml" line="56"/>
         <source>Vertical increase</source>
-        <translation></translation>
+        <translation>הגדלה אנכית</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/DelayGrab/share/qml/main.qml" line="60"/>
         <source>Horizontal increase</source>
-        <translation></translation>
+        <translation>הגדלה אופקית</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/DelayGrab/share/qml/main.qml" line="64"/>
         <source>Rings increase</source>
-        <translation></translation>
+        <translation>הגדלת טבעות</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/DelayGrab/share/qml/main.qml" line="73"/>
         <location filename="../../../libAvKys/Plugins/Pixelate/share/qml/main.qml" line="41"/>
         <source>Block size</source>
-        <translation></translation>
+        <translation>גודל מקטע</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/DelayGrab/share/qml/main.qml" line="86"/>
@@ -1205,80 +1205,80 @@
         <location filename="../../../libAvKys/Plugins/Quark/share/qml/main.qml" line="28"/>
         <location filename="../../../libAvKys/Plugins/Warhol/share/qml/main.qml" line="28"/>
         <source>N° of frames</source>
-        <translation></translation>
+        <translation>מס׳ שקופיות</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Denoise/share/qml/main.qml" line="78"/>
         <source>Mu</source>
-        <translation></translation>
+        <translation>מו</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Denoise/share/qml/main.qml" line="92"/>
         <source>Sigma</source>
-        <translation></translation>
+        <translation>סיגמא</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/DesktopCapture/share/qml/main.qml" line="48"/>
         <source>Frame rate</source>
-        <translation></translation>
+        <translation>קצב שקופיות</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Distort/share/qml/main.qml" line="29"/>
         <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="64"/>
         <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="70"/>
         <source>Amplitude</source>
-        <translation></translation>
+        <translation>משרעת</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Distort/share/qml/main.qml" line="43"/>
         <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="93"/>
         <source>Frequency</source>
-        <translation></translation>
+        <translation>תדירות</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Distort/share/qml/main.qml" line="57"/>
         <source>Grid size</source>
-        <translation></translation>
+        <translation>גודל רשת</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Dizzy/share/qml/main.qml" line="49"/>
         <source>Speed</source>
-        <translation></translation>
+        <translation>מהירות</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Dizzy/share/qml/main.qml" line="74"/>
         <source>Zoom rate</source>
-        <translation></translation>
+        <translation>רמת תקריב</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Dizzy/share/qml/main.qml" line="97"/>
         <source>Strength</source>
-        <translation></translation>
+        <translation>עצמה</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="44"/>
         <source>Canny mode</source>
-        <translation></translation>
+        <translation>מצב קני</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="57"/>
         <source>Lower Canny threshold</source>
-        <translation></translation>
+        <translation>סף קני נמוך</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="82"/>
         <source>Higger Canny threshold</source>
-        <translation></translation>
+        <translation>סף קני גבוה</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="107"/>
         <source>Equalize</source>
-        <translation></translation>
+        <translation>השוואה</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="119"/>
         <source>Invert</source>
-        <translation></translation>
+        <translation>היפוך</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="111"/>
@@ -1625,7 +1625,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="456"/>
         <source>Raccoon</source>
-        <translation></translation>
+        <translation>דביבון</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="460"/>
@@ -1717,7 +1717,7 @@
         <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="133"/>
         <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="103"/>
         <source>Luma threshold</source>
-        <translation></translation>
+        <translation>סף תאורה</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="210"/>
@@ -1917,247 +1917,247 @@
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/main.qml" line="207"/>
         <source>Advanced Format Options</source>
-        <translation></translation>
+        <translation>אפשרויות תסדיר מתקדמות</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSrc/share/qml/main.qml" line="119"/>
         <source>Video track</source>
-        <translation></translation>
+        <translation>רצועת וידאו</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSrc/share/qml/main.qml" line="132"/>
         <source>Audio track</source>
-        <translation></translation>
+        <translation>רצועת שמע</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSrc/share/qml/main.qml" line="145"/>
         <source>Subtitles track</source>
-        <translation></translation>
+        <translation>רצועת כתוביות</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Nervous/share/qml/main.qml" line="41"/>
         <source>Simple</source>
-        <translation></translation>
+        <translation>פשוט</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Photocopy/share/qml/main.qml" line="28"/>
         <source>Brightness</source>
-        <translation></translation>
+        <translation>בהירות</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Photocopy/share/qml/main.qml" line="41"/>
         <source>Contrast</source>
-        <translation></translation>
+        <translation>ניגוד</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="73"/>
         <source>Soft normal</source>
-        <translation></translation>
+        <translation>רך רגיל</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="77"/>
         <source>Hard normal</source>
-        <translation></translation>
+        <translation>קשה רגיל</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="81"/>
         <source>Soft color</source>
-        <translation></translation>
+        <translation>צבע רך</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="85"/>
         <source>Hard color</source>
-        <translation></translation>
+        <translation>צבע קשה</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="146"/>
         <source>Alpha differential</source>
-        <translation></translation>
+        <translation>שקיפות יחסית</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="159"/>
         <source>Radiation color</source>
-        <translation></translation>
+        <translation>צבע הקרנה</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="51"/>
         <source>Motion detect</source>
-        <translation></translation>
+        <translation>זיהוי תנועה</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="55"/>
         <source>Rain</source>
-        <translation></translation>
+        <translation>גשם</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="77"/>
         <source>Decay</source>
-        <translation></translation>
+        <translation>דעיכה</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ScanLines/share/qml/main.qml" line="54"/>
         <source>Show lines</source>
-        <translation></translation>
+        <translation>הצגת קווים</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ScanLines/share/qml/main.qml" line="67"/>
         <source>Hide lines</source>
-        <translation></translation>
+        <translation>הסתרת קווים</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ScanLines/share/qml/main.qml" line="80"/>
         <source>Hide color</source>
-        <translation></translation>
+        <translation>הסתרת צבע</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ScanLines/share/qml/main.qml" line="84"/>
         <source>Choose the hide color</source>
-        <translation></translation>
+        <translation>נא לבחור את צבע ההסתרה</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Scroll/share/qml/main.qml" line="44"/>
         <source>Vertical Sync</source>
-        <translation></translation>
+        <translation>סנכרון אנכי</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Scroll/share/qml/main.qml" line="69"/>
         <source>Noise</source>
-        <translation></translation>
+        <translation>רעש</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Shagadelic/share/qml/main.qml" line="33"/>
         <source>Mask</source>
-        <translation></translation>
+        <translation>מסכה</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Swirl/share/qml/main.qml" line="38"/>
         <source>Degrees</source>
-        <translation></translation>
+        <translation>מעלות</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Temperature/share/qml/main.qml" line="38"/>
         <source>Temperature</source>
-        <translation></translation>
+        <translation>חום</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="229"/>
         <source>Video format</source>
-        <translation></translation>
+        <translation>תסדיר וידאו</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="272"/>
         <source>Resolution</source>
-        <translation></translation>
+        <translation>רזולוציה</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="312"/>
         <source>FPS</source>
-        <translation></translation>
+        <translation>שקופיות לשנייה</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="339"/>
         <source>Reset</source>
-        <translation></translation>
+        <translation>איפוס</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Vignette/share/qml/main.qml" line="83"/>
         <source>Aspect</source>
-        <translation></translation>
+        <translation>יחס תצוגה</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Vignette/share/qml/main.qml" line="106"/>
         <source>Scale</source>
-        <translation></translation>
+        <translation>קנה מידה</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Vignette/share/qml/main.qml" line="129"/>
         <source>Softness</source>
-        <translation></translation>
+        <translation>רכות</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Vignette/share/qml/main.qml" line="73"/>
         <source>Choose the vignette color</source>
-        <translation></translation>
+        <translation>בחירת צבע העיטור</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="64"/>
         <source>Devices</source>
-        <translation></translation>
+        <translation>התקנים</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="81"/>
         <source>Add</source>
-        <translation></translation>
+        <translation>הוספה</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="92"/>
         <source>Edit</source>
-        <translation></translation>
+        <translation>עריכה</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="105"/>
         <source>Remove</source>
-        <translation></translation>
+        <translation>הסרה</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="116"/>
         <source>Remove All</source>
-        <translation></translation>
+        <translation>הסרת הכול</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="137"/>
         <source>Description</source>
-        <translation></translation>
+        <translation>תיאור</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="143"/>
         <source>Camera name (optional)</source>
-        <translation></translation>
+        <translation>שם המצלמה (רשות)</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="147"/>
         <source>Password</source>
-        <translation></translation>
+        <translation>ססמה</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="154"/>
         <source>Write root password</source>
-        <translation></translation>
+        <translation>נא לכתוב את ססמת העל</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="166"/>
         <source>Ok</source>
-        <translation></translation>
+        <translation>אישור</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="214"/>
         <source>Cancel</source>
-        <translation></translation>
+        <translation>ביטול</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="269"/>
         <source>This system is not supported yet</source>
-        <translation></translation>
+        <translation>אין עדיין תמיכה במערכת הזו</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="291"/>
         <source>Please, install &lt;b&gt;v4l2loopback&lt;/b&gt; for using this option</source>
-        <translation></translation>
+        <translation>נא להתקין את &lt;b&gt;v4l2loopback&lt;/b&gt; כדי להשתמש באפשרות זו</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="305"/>
         <source>Wrong password</source>
-        <translation></translation>
+        <translation>ססמה שגויה</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Warp/share/qml/main.qml" line="28"/>
         <source>Ripples</source>
-        <translation></translation>
+        <translation>קמטים</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="116"/>
         <source>Phase</source>
-        <translation></translation>
+        <translation>פן</translation>
     </message>
 </context>
 </TS>
