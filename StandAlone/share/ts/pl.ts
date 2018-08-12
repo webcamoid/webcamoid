@@ -710,22 +710,22 @@
     <message>
         <location filename="../qml/main.qml" line="652"/>
         <source>Take a photo</source>
-        <translation></translation>
+        <translation>Zrób zdjęcie</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="252"/>
         <source>Picture %1.%2</source>
-        <translation></translation>
+        <translation>Obraz %1.%2</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="71"/>
         <source>New version available!</source>
-        <translation></translation>
+        <translation>Nowa wersja jest dostępna!</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="72"/>
         <source>Download %1 %2 NOW!</source>
-        <translation></translation>
+        <translation>Pobierz już teraz %1 %2 !</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="107"/>
@@ -735,22 +735,22 @@
     <message>
         <location filename="../qml/main.qml" line="572"/>
         <source>Go back</source>
-        <translation></translation>
+        <translation>Wróć</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="626"/>
         <source>Configure sources</source>
-        <translation></translation>
+        <translation>Skonfiguruj źródła</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="639"/>
         <source>Configure audio</source>
-        <translation></translation>
+        <translation>Skonfiguruj dźwięk</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="666"/>
         <source>Record video</source>
-        <translation></translation>
+        <translation>Nagraj wideo</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="680"/>
@@ -1695,7 +1695,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="121"/>
         <source>Dissolve</source>
-        <translation type="unfinished"></translation>
+        <translation>Rozpuść</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="151"/>
