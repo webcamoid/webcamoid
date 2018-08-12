@@ -755,32 +755,32 @@
     <message>
         <location filename="../qml/main.qml" line="680"/>
         <source>Configure Effects</source>
-        <translation></translation>
+        <translation>Skonfiguruj efekty</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="693"/>
         <source>Preferences</source>
-        <translation></translation>
+        <translation>Preferencje</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="706"/>
         <source>About</source>
-        <translation></translation>
+        <translation>O</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="261"/>
         <source>Save photo as...</source>
-        <translation></translation>
+        <translation>Zapisz zdjęcie jako...</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Aging/share/qml/main.qml" line="40"/>
         <source>Number of scratches</source>
-        <translation></translation>
+        <translation>Number of scratchesLiczba zadrapań</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Aging/share/qml/main.qml" line="62"/>
         <source>Add dust</source>
-        <translation></translation>
+        <translation>Dodaj kurz</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Blur/share/qml/main.qml" line="40"/>
@@ -795,51 +795,51 @@
         <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="85"/>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="256"/>
         <source>N° of colors</source>
-        <translation></translation>
+        <translation>Liczba kolorów</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="107"/>
         <source>Color difference</source>
-        <translation></translation>
+        <translation>Różnica barw</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="128"/>
         <source>Show edges</source>
-        <translation></translation>
+        <translation>Pokaż krawędzie</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="141"/>
         <source>Threshold low</source>
-        <translation></translation>
+        <translation>Niski próg</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="166"/>
         <source>Threshold high</source>
-        <translation></translation>
+        <translation>Wysoki próg</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="190"/>
         <source>Line color</source>
-        <translation></translation>
+        <translation>Kolor linii</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="205"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="215"/>
         <source>Scan block</source>
-        <translation></translation>
+        <translation>Skanuj blok</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="195"/>
         <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="163"/>
         <source>Choose a color</source>
-        <translation></translation>
+        <translation>Wybierz kolor</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="36"/>
         <location filename="../../../libAvKys/Plugins/ColorTransform/share/qml/main.qml" line="36"/>
         <location filename="../../../libAvKys/Plugins/MatrixTransform/share/qml/main.qml" line="35"/>
         <source>Transform matrix</source>
-        <translation></translation>
+        <translation>Przekształcenie macierzy</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="63"/>
@@ -853,18 +853,18 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="73"/>
         <source>Natural</source>
-        <translation></translation>
+        <translation>Naturalny</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="77"/>
         <source>Fixed</source>
-        <translation></translation>
+        <translation>Naprawiony</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="86"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="76"/>
         <source>Symbols</source>
-        <translation></translation>
+        <translation>Symbolika</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="96"/>
@@ -878,13 +878,13 @@
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="526"/>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="140"/>
         <source>Search</source>
-        <translation></translation>
+        <translation>Szukaj</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="115"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="104"/>
         <source>Hinting</source>
-        <translation></translation>
+        <translation>Podpowiedź</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="125"/>
@@ -898,19 +898,19 @@
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="129"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="118"/>
         <source>No hinting</source>
-        <translation></translation>
+        <translation>Bez podpowiedzi</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="133"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="122"/>
         <source>Vertical hinting</source>
-        <translation></translation>
+        <translation>Pionowe podpowiedzi</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="137"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="126"/>
         <source>Full hinting</source>
-        <translation></translation>
+        <translation>Pełne podpowiedzi</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="146"/>
