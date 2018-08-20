@@ -928,31 +928,31 @@
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="164"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="153"/>
         <source>Device</source>
-        <translation></translation>
+        <translation>Urządzenie</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="168"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="157"/>
         <source>Outline</source>
-        <translation></translation>
+        <translation>Zarys</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="172"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="161"/>
         <source>Force outline</source>
-        <translation></translation>
+        <translation type="unfinished">Zarys sił</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="176"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="165"/>
         <source>Match</source>
-        <translation></translation>
+        <translation type="unfinished">Mecz</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="180"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="169"/>
         <source>Quality</source>
-        <translation></translation>
+        <translation>Jakość</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="184"/>
@@ -970,43 +970,43 @@
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="192"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="181"/>
         <source>Compatible with OpenGL</source>
-        <translation></translation>
+        <translation>Zgodny z OpenGL</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="196"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="185"/>
         <source>Force integer metrics</source>
-        <translation></translation>
+        <translation>Wymuś liczbę całkowitą</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="200"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="189"/>
         <source>No subpixel antialias</source>
-        <translation></translation>
+        <translation>Brak antialiasów subpikselowych</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="204"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="193"/>
         <source>No font merging</source>
-        <translation></translation>
+        <translation>Brak łączenia czcionek</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="213"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="212"/>
         <source>Foreground color</source>
-        <translation></translation>
+        <translation>Kolor pierwszego planu</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="224"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="222"/>
         <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="138"/>
         <source>Background color</source>
-        <translation></translation>
+        <translation>Kolor tła</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="235"/>
         <source>Reversed</source>
-        <translation></translation>
+        <translation>Odwrócone</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="245"/>
