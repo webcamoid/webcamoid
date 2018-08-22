@@ -6,7 +6,7 @@
     <message>
         <location filename="../qml/About.qml" line="27"/>
         <source>About %1</source>
-        <translation type="unfinished"></translation>
+        <translation>关于</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="46"/>
@@ -21,7 +21,7 @@
     <message>
         <location filename="../qml/About.qml" line="88"/>
         <source>Using Qt %1</source>
-        <translation type="unfinished"></translation>
+        <translation>使用QT</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="101"/>
@@ -102,22 +102,22 @@
     <message>
         <location filename="../qml/AudioConfig.qml" line="117"/>
         <source>Outputs</source>
-        <translation type="unfinished"></translation>
+        <translation>输出</translation>
     </message>
     <message>
         <location filename="../qml/AudioConfig.qml" line="121"/>
         <source>Select the output device for audio playing</source>
-        <translation type="unfinished"></translation>
+        <translation>选择输出音频设备</translation>
     </message>
     <message>
         <location filename="../qml/AudioConfig.qml" line="134"/>
         <source>Inputs</source>
-        <translation type="unfinished"></translation>
+        <translation>输入</translation>
     </message>
     <message>
         <location filename="../qml/AudioConfig.qml" line="137"/>
         <source>Select the device for audio capturing</source>
-        <translation type="unfinished"></translation>
+        <translation>选择音频输入设备（麦克风）</translation>
     </message>
     <message>
         <location filename="../qml/AudioConfig.qml" line="193"/>
@@ -144,7 +144,7 @@
         <location filename="../qml/AudioInfo.qml" line="232"/>
         <location filename="../qml/AudioInfo.qml" line="239"/>
         <source>Device id</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">驱动（硬件）地址</translation>
     </message>
     <message>
         <location filename="../qml/AudioInfo.qml" line="254"/>
@@ -168,7 +168,7 @@
         <location filename="../../../libAvKys/Plugins/VirtualCamera/src/v4l2sys/src/cameraoutv4l2.cpp" line="315"/>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/src/v4l2sys/src/cameraoutv4l2.cpp" line="369"/>
         <source>Virtual Camera %1</source>
-        <translation type="unfinished"></translation>
+        <translation>虚拟摄像机 %1</translation>
     </message>
 </context>
 <context>
@@ -176,7 +176,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/CodecConfigs.qml" line="27"/>
         <source>Configure %1</source>
-        <translation type="unfinished"></translation>
+        <translation>配置 %1</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/CodecConfigs.qml" line="112"/>
@@ -547,12 +547,12 @@
     <message>
         <location filename="../../src/recording.cpp" line="605"/>
         <source>Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>音频</translation>
     </message>
     <message>
         <location filename="../../src/recording.cpp" line="606"/>
         <source>Video</source>
-        <translation type="unfinished"></translation>
+        <translation>视频</translation>
     </message>
     <message>
         <location filename="../../src/recording.cpp" line="607"/>
@@ -563,13 +563,13 @@
         <location filename="../../src/recording.cpp" line="662"/>
         <location filename="../../src/recording.cpp" line="828"/>
         <source>audio</source>
-        <translation type="unfinished"></translation>
+        <translation>音频</translation>
     </message>
     <message>
         <location filename="../../src/recording.cpp" line="663"/>
         <location filename="../../src/recording.cpp" line="829"/>
         <source>video</source>
-        <translation type="unfinished"></translation>
+        <translation>视频</translation>
     </message>
     <message>
         <location filename="../../src/recording.cpp" line="664"/>
@@ -832,7 +832,7 @@
         <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="195"/>
         <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="163"/>
         <source>Choose a color</source>
-        <translation type="unfinished"></translation>
+        <translation>选择一个颜色</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="36"/>
@@ -864,7 +864,7 @@
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="86"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="76"/>
         <source>Symbols</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">象征</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="96"/>
@@ -892,7 +892,7 @@
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="114"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="145"/>
         <source>Default</source>
-        <translation type="unfinished"></translation>
+        <translation>默认</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="129"/>
@@ -916,7 +916,7 @@
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="146"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="135"/>
         <source>Style</source>
-        <translation type="unfinished"></translation>
+        <translation>风格（样式）</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="160"/>
@@ -2082,27 +2082,27 @@
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="64"/>
         <source>Devices</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">驱动</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="81"/>
         <source>Add</source>
-        <translation type="unfinished">添加</translation>
+        <translation>添加</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="92"/>
         <source>Edit</source>
-        <translation type="unfinished">编辑</translation>
+        <translation>编辑</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="105"/>
         <source>Remove</source>
-        <translation type="unfinished">删除</translation>
+        <translation>删除</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="116"/>
         <source>Remove All</source>
-        <translation type="unfinished"></translation>
+        <translation>删除所有</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="137"/>
@@ -2112,17 +2112,17 @@
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="143"/>
         <source>Camera name (optional)</source>
-        <translation type="unfinished"></translation>
+        <translation>摄像头名字（可选）</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="147"/>
         <source>Password</source>
-        <translation type="unfinished"></translation>
+        <translation>密码</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="154"/>
         <source>Write root password</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">输入管理员密码</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="166"/>
@@ -2137,7 +2137,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="269"/>
         <source>This system is not supported yet</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">您所使用的系统并不在支持范围内</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="291"/>
@@ -2147,7 +2147,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="305"/>
         <source>Wrong password</source>
-        <translation type="unfinished"></translation>
+        <translation>密码错误</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Warp/share/qml/main.qml" line="28"/>
