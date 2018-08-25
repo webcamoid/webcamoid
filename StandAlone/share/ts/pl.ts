@@ -1151,7 +1151,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="47"/>
         <source>Convolve matrix</source>
-        <translation></translation>
+        <translation type="unfinished">Rozmywanie/Wyostrzanie matrix</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="153"/>
@@ -1615,37 +1615,37 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="448"/>
         <source>Pumpkin 1</source>
-        <translation></translation>
+        <translation>Dynia 1</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="452"/>
         <source>Pumpkin 2</source>
-        <translation></translation>
+        <translation>Dynia 2</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="456"/>
         <source>Raccoon</source>
-        <translation></translation>
+        <translation>Szop</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="460"/>
         <source>Rhino</source>
-        <translation></translation>
+        <translation>Nosorożec</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="464"/>
         <source>Sheep</source>
-        <translation></translation>
+        <translation>Owca</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="468"/>
         <source>Skull 1</source>
-        <translation></translation>
+        <translation>Czaszka 1</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="472"/>
         <source>Skull 2</source>
-        <translation></translation>
+        <translation>Czaszka 2</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="476"/>
@@ -1660,37 +1660,37 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="493"/>
         <source>Marker picture</source>
-        <translation></translation>
+        <translation>Zdjęcie znacznika</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="507"/>
         <source>Replace face with this picture.</source>
-        <translation></translation>
+        <translation>Zastąp twarz tym obrazem.</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="535"/>
         <source>Pixel grid size</source>
-        <translation></translation>
+        <translation>Rozmiar siatki pikseli</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="549"/>
         <source>Blur radius</source>
-        <translation></translation>
+        <translation>Promień rozmycia</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="305"/>
         <source>Select marker color</source>
-        <translation></translation>
+        <translation>Wybierz kolor znacznika</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="87"/>
         <source>Hard</source>
-        <translation></translation>
+        <translation>Twardy</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="97"/>
         <source>Cooling</source>
-        <translation></translation>
+        <translation>Chłodzenie</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="121"/>
@@ -1710,7 +1710,7 @@
         <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="120"/>
         <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="90"/>
         <source>Threshold</source>
-        <translation></translation>
+        <translation>Próg</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="188"/>
