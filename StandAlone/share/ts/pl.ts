@@ -1717,7 +1717,7 @@
         <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="133"/>
         <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="103"/>
         <source>Luma threshold</source>
-        <translation></translation>
+        <translation>Próg Luma</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="210"/>
@@ -1727,22 +1727,22 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="234"/>
         <source>Alpha variation</source>
-        <translation></translation>
+        <translation>Odmiana alfa</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FrameOverlap/share/qml/main.qml" line="43"/>
         <source>Stride</source>
-        <translation></translation>
+        <translation>Krok</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="51"/>
         <source>Pattern</source>
-        <translation></translation>
+        <translation>Wzór</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="61"/>
         <source>90° Halftone 6x6</source>
-        <translation></translation>
+        <translation>90° półtony 6x6</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="65"/>
@@ -1752,7 +1752,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="69"/>
         <source>Cluster 4</source>
-        <translation></translation>
+        <translation>Grupa 4</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="73"/>
