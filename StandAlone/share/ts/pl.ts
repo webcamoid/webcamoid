@@ -1747,7 +1747,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="65"/>
         <source>Cluster 3</source>
-        <translation></translation>
+        <translation>Grupa 3</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="69"/>
@@ -1757,27 +1757,27 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="73"/>
         <source>Cluster 8</source>
-        <translation></translation>
+        <translation>Grupa 8</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="77"/>
         <source>Lines 4x4</source>
-        <translation></translation>
+        <translation>Linia 4x4</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="81"/>
         <source>Magic 2x2</source>
-        <translation></translation>
+        <translation>Magiczny 2x2</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="85"/>
         <source>Magic 4x4</source>
-        <translation></translation>
+        <translation>Magiczny 4x4</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="89"/>
         <source>Ordered 4x4</source>
-        <translation></translation>
+        <translation>Regulacja 4x4</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="93"/>
@@ -1792,12 +1792,12 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="120"/>
         <source>pattern bitmap...</source>
-        <translation></translation>
+        <translation>wzorzec bitmapy...</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="149"/>
         <source>Pattern size</source>
-        <translation></translation>
+        <translation>Rozmiar wzoru</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="162"/>
