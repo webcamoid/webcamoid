@@ -983,9 +983,6 @@ QVariantList CaptureDShowPrivate::imageControls(IBaseFilter *filter) const
                     else
                         type = "integer";
 
-                    if (value == defaultValue)
-                        defaultValue = (min + max) / 2;
-
                     control << vpapToStr->value(property)
                             << type
                             << min
