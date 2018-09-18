@@ -1060,21 +1060,20 @@ bool CaptureV4L2::init()
     if (this->d->m_ioMethod != IoMethodUnknown)
         return this->d->startCapture();
 
-    if (capabilities.capabilities & V4L2_CAP_READWRITE
-        && this->d->initReadWrite(fmt.fmt.pix.sizeimage))
-        this->d->m_ioMethod = IoMethodReadWrite;
-    else if (capabilities.capabilities & V4L2_CAP_STREAMING) {
+    if (capabilities.capabilities & V4L2_CAP_STREAMING) {
         if (this->d->initMemoryMap())
             this->d->m_ioMethod = IoMethodMemoryMap;
         else if (this->d->initUserPointer(fmt.fmt.pix.sizeimage))
             this->d->m_ioMethod = IoMethodUserPointer;
-        else {
-            this->d->m_ioMethod = IoMethodUnknown;
+    }
 
+    if (this->d->m_ioMethod == IoMethodUnknown) {
+        if (capabilities.capabilities & V4L2_CAP_READWRITE
+            && this->d->initReadWrite(fmt.fmt.pix.sizeimage))
+            this->d->m_ioMethod = IoMethodReadWrite;
+        else
             return false;
-        }
-    } else
-        return false;
+    }
 
     return this->d->startCapture();
 }
