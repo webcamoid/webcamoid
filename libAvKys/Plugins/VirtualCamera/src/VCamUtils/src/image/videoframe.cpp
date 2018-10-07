@@ -184,11 +184,9 @@ namespace AkVCam
                 return (value % mod + mod) % mod;
             }
 
-            inline int grayval(int r, int g, int b)
-            {
-                return (11 * r + 16 * g + 5 * b) >> 5;
-            }
+            inline int grayval(int r, int g, int b);
 
+            // YUV utility functions
             inline static uint8_t rgb_y(int r, int g, int b);
             inline static uint8_t rgb_u(int r, int g, int b);
             inline static uint8_t rgb_v(int r, int g, int b);
@@ -278,7 +276,7 @@ namespace AkVCam
         uint16_t reserved1;
         uint16_t reserved2;
         uint32_t offBits;
-    } ;
+    };
 
     struct BmpImageHeader
     {
@@ -542,7 +540,7 @@ AkVCam::VideoFrame AkVCam::VideoFrame::mirror(bool horizontalMirror,
             for (int x = 0; x < width; x++)
                 dstLine[x] = srcLine[width - x - 1];
         }
-    } if (horizontalMirror) {
+    } else if (horizontalMirror) {
         for (int y = 0; y < height; y++) {
             auto srcLine = dataSrc + y * width;
             auto dstLine = dataDst + y * width;
@@ -550,7 +548,7 @@ AkVCam::VideoFrame AkVCam::VideoFrame::mirror(bool horizontalMirror,
             for (int x = 0; x < width; x++)
                 dstLine[x] = srcLine[width - x - 1];
         }
-    } if (verticalMirror) {
+    } else if (verticalMirror) {
         for (int y = 0; y < height; y++) {
             auto srcLine = dataSrc + (height - y - 1) * width;
             auto dstLine = dataDst + y * width;
@@ -1034,6 +1032,11 @@ AkVCam::VideoFrame AkVCam::VideoFrame::adjust(int hue,
     }
 
     return VideoFrame(format, data, dataSize);
+}
+
+int AkVCam::VideoFramePrivate::grayval(int r, int g, int b)
+{
+    return (11 * r + 16 * g + 5 * b) >> 5;
 }
 
 uint8_t AkVCam::VideoFramePrivate::rgb_y(int r, int g, int b)
