@@ -51,14 +51,8 @@ class CameraOut: public QObject
                NOTIFY capsChanged)
     Q_PROPERTY(int maxCameras
                READ maxCameras)
-    Q_PROPERTY(bool needRoot
-               READ needRoot
-               NOTIFY needRootChanged)
-    Q_PROPERTY(int passwordTimeout
-               READ passwordTimeout
-               WRITE setPasswordTimeout
-               RESET resetPasswordTimeout
-               NOTIFY passwordTimeoutChanged)
+    Q_PROPERTY(QStringList availableRootMethods
+               READ availableRootMethods)
     Q_PROPERTY(QString rootMethod
                READ rootMethod
                WRITE setRootMethod
@@ -77,32 +71,24 @@ class CameraOut: public QObject
         Q_INVOKABLE virtual QString description(const QString &webcam) const;
         Q_INVOKABLE virtual void writeFrame(const AkPacket &frame);
         Q_INVOKABLE virtual int maxCameras() const;
-        Q_INVOKABLE virtual bool needRoot() const;
-        Q_INVOKABLE virtual int passwordTimeout() const;
+        Q_INVOKABLE virtual QStringList availableRootMethods() const;
         Q_INVOKABLE virtual QString rootMethod() const;
-        Q_INVOKABLE virtual QString createWebcam(const QString &description="",
-                                                 const QString &password="");
+        Q_INVOKABLE virtual QString createWebcam(const QString &description="");
         Q_INVOKABLE virtual bool changeDescription(const QString &webcam,
-                                                   const QString &description="",
-                                                   const QString &password="");
-        Q_INVOKABLE virtual bool removeWebcam(const QString &webcam,
-                                              const QString &password="");
-        Q_INVOKABLE virtual bool removeAllWebcams(const QString &password="");
+                                                   const QString &description="");
+        Q_INVOKABLE virtual bool removeWebcam(const QString &webcam);
+        Q_INVOKABLE virtual bool removeAllWebcams();
 
     protected:
         QStringList m_driverPaths;
         QString m_device;
         AkCaps m_caps;
-        int m_passwordTimeout;
-        QString m_rootMethod;
 
     signals:
         void driverPathsChanged(const QStringList &driverPaths);
         void webcamsChanged(const QStringList &webcams) const;
         void deviceChanged(const QString &device);
         void capsChanged(const AkCaps &caps);
-        void needRootChanged(bool needRoot);
-        void passwordTimeoutChanged(int passwordTimeout);
         void rootMethodChanged(const QString &rootMethod);
         void error(const QString &message);
 
@@ -116,12 +102,10 @@ class CameraOut: public QObject
         virtual bool removeDriverPaths(const QStringList &driverPaths);
         virtual void setDevice(const QString &device);
         virtual void setCaps(const AkCaps &caps);
-        virtual void setPasswordTimeout(int passwordTimeout);
         virtual void setRootMethod(const QString &rootMethod);
         virtual void resetDriverPaths();
         virtual void resetDevice();
         virtual void resetCaps();
-        virtual void resetPasswordTimeout();
         virtual void resetRootMethod();
 };
 

@@ -105,10 +105,6 @@ MediaTools::MediaTools(QObject *parent):
                          this,
                          SIGNAL(virtualCameraStateChanged(AkElement::ElementState)));
         QObject::connect(this->d->m_virtualCamera.data(),
-                         SIGNAL(convertLibChanged(const QString &)),
-                         this,
-                         SLOT(saveVirtualCameraConvertLib(const QString &)));
-        QObject::connect(this->d->m_virtualCamera.data(),
                          SIGNAL(outputLibChanged(const QString &)),
                          this,
                          SLOT(saveVirtualCameraOutputLib(const QString &)));
@@ -501,9 +497,6 @@ void MediaTools::loadConfigs()
     config.beginGroup("Libraries");
 
     if (this->d->m_virtualCamera) {
-        this->d->m_virtualCamera->setProperty("convertLib",
-                                              config.value("VirtualCamera.convertLib",
-                                                           this->d->m_virtualCamera->property("convertLib")));
         this->d->m_virtualCamera->setProperty("outputLib",
                                               config.value("VirtualCamera.outputLib",
                                                            this->d->m_virtualCamera->property("outputLib")));
@@ -555,14 +548,6 @@ void MediaTools::loadConfigs()
     config.endGroup();
 }
 
-void MediaTools::saveVirtualCameraConvertLib(const QString &convertLib)
-{
-    QSettings config;
-    config.beginGroup("Libraries");
-    config.setValue("VirtualCamera.convertLib", convertLib);
-    config.endGroup();
-}
-
 void MediaTools::saveVirtualCameraOutputLib(const QString &outputLib)
 {
     QSettings config;
@@ -611,7 +596,6 @@ void MediaTools::saveConfigs()
     config.beginGroup("Libraries");
 
     if (this->d->m_virtualCamera) {
-        config.setValue("VirtualCamera.convertLib", this->d->m_virtualCamera->property("convertLib"));
         config.setValue("VirtualCamera.outputLib", this->d->m_virtualCamera->property("outputLib"));
         config.setValue("VirtualCamera.rootMethod", this->d->m_virtualCamera->property("rootMethod"));
     }

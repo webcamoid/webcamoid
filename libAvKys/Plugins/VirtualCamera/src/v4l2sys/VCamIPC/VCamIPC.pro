@@ -1,5 +1,5 @@
 # Webcamoid, webcam capture application.
-# Copyright (C) 2017  Gonzalo Exequiel Pedone
+# Copyright (C) 2018  Gonzalo Exequiel Pedone
 #
 # Webcamoid is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,42 +19,30 @@
 exists(akcommons.pri) {
     include(akcommons.pri)
 } else {
-    exists(../../../../akcommons.pri) {
-        include(../../../../akcommons.pri)
+    exists(../../../../../akcommons.pri) {
+        include(../../../../../akcommons.pri)
     } else {
         error("akcommons.pri file not found.")
     }
 }
 
-CONFIG += plugin
+CONFIG += staticlib
 
-HEADERS += \
-    ../v4l2sys/src/plugin.h \
-    ../v4l2sys/src/cameraoutv4l2.h \
-    ../cameraout.h
+DESTDIR = $${OUT_PWD}/$${BIN_DIR}
 
-INCLUDEPATH += \
-    ../../../../Lib/src \
-    ../
-
-LIBS += -L$${OUT_PWD}/../../../../Lib/$${BIN_DIR} -l$${COMMONS_TARGET}
-
-OTHER_FILES += pspec.json
-
-DEFINES += HAVE_V4LUTILS
-CONFIG += link_pkgconfig
-PKGCONFIG += libv4l2
-
-QT += qml
-
-SOURCES += \
-    ../v4l2sys/src/plugin.cpp \
-    ../v4l2sys/src/cameraoutv4l2.cpp \
-    ../cameraout.cpp
-
-DESTDIR = $${OUT_PWD}/../../$${BIN_DIR}/submodules/VirtualCamera
+TARGET = VCamIPC
 
 TEMPLATE = lib
 
-INSTALLS += target
-target.path = $${INSTALLPLUGINSDIR}/submodules/VirtualCamera
+LIBS = \
+    -L$${OUT_PWD}/../../VCamUtils/$${BIN_DIR} -lVCamUtils
+
+SOURCES = \
+    src/ipcbridge.cpp
+
+HEADERS =  \
+    ../../ipcbridge.h
+
+INCLUDEPATH += \
+    .. \
+    ../..

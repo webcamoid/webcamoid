@@ -1,5 +1,5 @@
 # Webcamoid, webcam capture application.
-# Copyright (C) 2016  Gonzalo Exequiel Pedone
+# Copyright (C) 2017  Gonzalo Exequiel Pedone
 #
 # Webcamoid is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,8 +19,8 @@
 exists(akcommons.pri) {
     include(akcommons.pri)
 } else {
-    exists(../../../../akcommons.pri) {
-        include(../../../../akcommons.pri)
+    exists(../../../../../akcommons.pri) {
+        include(../../../../../akcommons.pri)
     } else {
         error("akcommons.pri file not found.")
     }
@@ -28,38 +28,33 @@ exists(akcommons.pri) {
 
 CONFIG += plugin
 
-HEADERS += \
-    src/plugin.h \
-    src/convertvideogstreamer.h \
-    ../convertvideo.h
+HEADERS = \
+    plugin.h \
+    cameraoutv4l2.h \
+    ../../cameraout.h
 
 INCLUDEPATH += \
-    ../../../../Lib/src \
-    ../
+    ../../../../../Lib/src \
+    ../../
 
-LIBS += -L$${OUT_PWD}/../../../../Lib/$${BIN_DIR} -l$${COMMONS_TARGET}
+LIBS += -L$${OUT_PWD}/../../../../../Lib/$${BIN_DIR} -l$${COMMONS_TARGET}
 
-OTHER_FILES += pspec.json
+OTHER_FILES += ../pspec.json
 
-!isEmpty(GSTREAMERINCLUDES): INCLUDEPATH += $${GSTREAMERINCLUDES}
-!isEmpty(GSTREAMERLIBS): LIBS += $${GSTREAMERLIBS}
-
-isEmpty(GSTREAMERLIBS) {
-    CONFIG += link_pkgconfig
-
-    PKGCONFIG += \
-        gstreamer-1.0 \
-        gstreamer-video-1.0
-}
+LIBS += \
+    -L$${OUT_PWD}/../VCamIPC/$${BIN_DIR} -lVCamIPC \
+    -L$${OUT_PWD}/../../VCamUtils/$${BIN_DIR} -lVCamUtils
 
 QT += qml
 
-SOURCES += \
-    src/plugin.cpp \
-    src/convertvideogstreamer.cpp \
-    ../convertvideo.cpp
+SOURCES = \
+    plugin.cpp \
+    cameraoutv4l2.cpp \
+    ../../cameraout.cpp
 
-DESTDIR = $${OUT_PWD}/../../$${BIN_DIR}/submodules/VirtualCamera
+DESTDIR = $${OUT_PWD}/../../../$${BIN_DIR}/submodules/VirtualCamera
+
+TARGET = v4l2sys
 
 TEMPLATE = lib
 

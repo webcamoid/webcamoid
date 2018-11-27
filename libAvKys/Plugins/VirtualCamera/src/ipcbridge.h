@@ -155,7 +155,8 @@ namespace AkVCam
             bool destroyAllDevices();
 
             // Start frame transfer to the device.
-            bool deviceStart(const std::string &deviceId);
+            bool deviceStart(const std::string &deviceId,
+                             const VideoFormat &format);
 
             // Stop frame transfer to the device.
             void deviceStop(const std::string &deviceId);

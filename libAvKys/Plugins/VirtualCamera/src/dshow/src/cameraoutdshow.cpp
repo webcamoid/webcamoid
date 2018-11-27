@@ -113,11 +113,23 @@ int CameraOutDShow::maxCameras() const
     return MAX_CAMERAS;
 }
 
-QString CameraOutDShow::createWebcam(const QString &description,
-                                     const QString &password)
+QStringList CameraOutDShow::availableRootMethods() const
 {
-    Q_UNUSED(password)
+    QStringList methods;
 
+    for (auto &method: this->d->m_ipcBridge.availableRootMethods())
+        methods << QString::fromStdString(method);
+
+    return methods;
+}
+
+QString CameraOutDShow::rootMethod() const
+{
+    return QString::fromStdString(this->d->m_ipcBridge.rootMethod());
+}
+
+QString CameraOutDShow::createWebcam(const QString &description)
+{
     auto webcams = this->webcams();
     AkVideoCaps caps(this->m_caps);
     auto webcam =
@@ -140,11 +152,8 @@ QString CameraOutDShow::createWebcam(const QString &description,
 }
 
 bool CameraOutDShow::changeDescription(const QString &webcam,
-                                       const QString &description,
-                                       const QString &password)
+                                       const QString &description)
 {
-    Q_UNUSED(password)
-
     QStringList webcams = this->webcams();
 
     if (!webcams.contains(webcam))
@@ -162,11 +171,8 @@ bool CameraOutDShow::changeDescription(const QString &webcam,
     return result;
 }
 
-bool CameraOutDShow::removeWebcam(const QString &webcam,
-                                  const QString &password)
+bool CameraOutDShow::removeWebcam(const QString &webcam)
 {
-    Q_UNUSED(password)
-
     QStringList webcams = this->webcams();
 
     if (!webcams.contains(webcam))
@@ -178,10 +184,8 @@ bool CameraOutDShow::removeWebcam(const QString &webcam,
     return true;
 }
 
-bool CameraOutDShow::removeAllWebcams(const QString &password)
+bool CameraOutDShow::removeAllWebcams()
 {
-    Q_UNUSED(password)
-
     this->d->m_ipcBridge.destroyAllDevices();
     emit this->webcamsChanged({});
 
@@ -190,7 +194,14 @@ bool CameraOutDShow::removeAllWebcams(const QString &password)
 
 bool CameraOutDShow::init(int streamIndex)
 {
-    if (!this->d->m_ipcBridge.deviceStart(this->m_device.toStdString()))
+    AkVideoCaps caps = this->m_caps;
+    AkVCam::VideoFormat format(AkVCam::PixelFormatRGB24,
+                               caps.width(),
+                               caps.height(),
+                               {caps.fps().value()});
+
+    if (!this->d->m_ipcBridge.deviceStart(this->m_device.toStdString(),
+                                          format))
         return false;
 
     this->d->m_streamIndex = streamIndex;
@@ -207,6 +218,11 @@ void CameraOutDShow::uninit()
     this->d->m_ipcBridge.deviceStop(this->d->m_curDevice.toStdString());
     this->d->m_streamIndex = -1;
     this->d->m_curDevice.clear();
+}
+
+void CameraOutDShow::setRootMethod(const QString &rootMethod)
+{
+    this->d->m_ipcBridge.setRootMethod(rootMethod.toStdString());
 }
 
 void CameraOutDShow::resetDriverPaths()

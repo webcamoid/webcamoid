@@ -21,11 +21,8 @@
 
 #include "cameraout.h"
 
-#define PASSWORD_TIMEOUT 2500
-
 CameraOut::CameraOut(QObject *parent):
-    QObject(parent),
-    m_passwordTimeout(PASSWORD_TIMEOUT)
+    QObject(parent)
 {
 }
 
@@ -75,54 +72,41 @@ int CameraOut::maxCameras() const
     return 0;
 }
 
-bool CameraOut::needRoot() const
+QStringList CameraOut::availableRootMethods() const
 {
-    return false;
-}
-
-int CameraOut::passwordTimeout() const
-{
-    return this->m_passwordTimeout;
+    return {};
 }
 
 QString CameraOut::rootMethod() const
 {
-    return this->m_rootMethod;
+    return {};
 }
 
-QString CameraOut::createWebcam(const QString &description,
-                                const QString &password)
+QString CameraOut::createWebcam(const QString &description)
 {
     Q_UNUSED(description)
-    Q_UNUSED(password)
 
     return QString();
 }
 
 bool CameraOut::changeDescription(const QString &webcam,
-                                  const QString &description,
-                                  const QString &password)
+                                  const QString &description)
 {
     Q_UNUSED(webcam)
     Q_UNUSED(description)
-    Q_UNUSED(password)
 
     return false;
 }
 
-bool CameraOut::removeWebcam(const QString &webcam,
-                             const QString &password)
+bool CameraOut::removeWebcam(const QString &webcam)
 {
     Q_UNUSED(webcam)
-    Q_UNUSED(password)
 
     return false;
 }
 
-bool CameraOut::removeAllWebcams(const QString &password)
+bool CameraOut::removeAllWebcams()
 {
-    Q_UNUSED(password)
-
     return true;
 }
 
@@ -220,22 +204,9 @@ void CameraOut::setCaps(const AkCaps &caps)
     emit this->capsChanged(this->m_caps);
 }
 
-void CameraOut::setPasswordTimeout(int passwordTimeout)
-{
-    if (this->m_passwordTimeout == passwordTimeout)
-        return;
-
-    this->m_passwordTimeout = passwordTimeout;
-    emit this->passwordTimeoutChanged(this->m_passwordTimeout);
-}
-
 void CameraOut::setRootMethod(const QString &rootMethod)
 {
-    if (this->m_rootMethod == rootMethod)
-        return;
-
-    this->m_rootMethod = rootMethod;
-    emit this->rootMethodChanged(this->m_rootMethod);
+    Q_UNUSED(rootMethod)
 }
 
 void CameraOut::resetDriverPaths()
@@ -255,11 +226,6 @@ void CameraOut::resetDevice()
 void CameraOut::resetCaps()
 {
     this->setCaps(AkCaps());
-}
-
-void CameraOut::resetPasswordTimeout()
-{
-    this->setPasswordTimeout(PASSWORD_TIMEOUT);
 }
 
 void CameraOut::resetRootMethod()

@@ -143,17 +143,6 @@ GridLayout {
             placeholderText: qsTr("Camera name (optional)")
             visible: false
         }
-        Label {
-            text: qsTr("Password")
-            visible: VirtualCamera.needRoot
-        }
-        TextField {
-            id: txtPassword
-            echoMode: TextInput.Password
-            Layout.fillWidth: true
-            placeholderText: qsTr("Write root password")
-            visible: VirtualCamera.needRoot
-        }
 
         RowLayout {
             Layout.columnSpan: 2
@@ -180,31 +169,26 @@ GridLayout {
                     }
 
                     if (glyCommitChanges.operation == "add") {
-                        newWebcam = VirtualCamera.createWebcam(txtDescription.text,
-                                                               txtPassword.text)
+                        newWebcam = VirtualCamera.createWebcam(txtDescription.text)
                         result = newWebcam != ""
                     } else if (glyCommitChanges.operation == "edit") {
                         result = VirtualCamera.changeDescription(webcam,
-                                                                 txtDescription.text,
-                                                                 txtPassword.text)
+                                                                 txtDescription.text)
                     } else if (glyCommitChanges.operation == "remove") {
-                        result = VirtualCamera.removeWebcam(webcam,
-                                                            txtPassword.text)
+                        result = VirtualCamera.removeWebcam(webcam)
                     } else if (glyCommitChanges.operation == "removeAll") {
-                        result = VirtualCamera.removeAllWebcams(txtPassword.text)
+                        result = VirtualCamera.removeAllWebcams()
                     } else
                         return
 
                     if (result) {
                         recCameraControls.state = ""
                         txtDescription.text = ""
-                        txtPassword.text = ""
 
                         if (newWebcam != "")
                             cbxDevices.currentIndex = VirtualCamera.medias.indexOf(newWebcam)
                     } else {
-                        recCameraControls.state = "passwordError"
-                        txtPassword.text = ""
+                        recCameraControls.state = "driverError"
                     }
                 }
 
@@ -217,7 +201,6 @@ GridLayout {
                 onClicked: {
                     recCameraControls.state = ""
                     txtDescription.text = ""
-                    txtPassword.text = ""
                 }
             }
         }
@@ -293,7 +276,7 @@ GridLayout {
             }
         },
         State {
-            name: "passwordError"
+            name: "driverError"
 
             PropertyChanges {
                 target: glyCommitChanges
@@ -302,7 +285,7 @@ GridLayout {
             PropertyChanges {
                 target: message
                 visible: true
-                text: qsTr("Wrong password")
+                text: qsTr("Error creating camera")
                 color: "#ff0000"
                 style: Text.Raised
             }

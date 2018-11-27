@@ -55,8 +55,14 @@ namespace AkVCam
             std::vector<std::pair<double, double>> frameRateRanges() const;
             double minimumFrameRate() const;
             size_t bpp() const;
+            size_t bypl(size_t plane) const;
             size_t size() const;
+            size_t planes() const;
+            size_t offset(size_t plane) const;
+            size_t planeSize(size_t plane) const;
+            bool isValid() const;
             void clear();
+            VideoFormat nearest(const std::vector<VideoFormat> &formats) const;
 
             static void roundNearest(int width, int height,
                                      int *owidth, int *oheight,

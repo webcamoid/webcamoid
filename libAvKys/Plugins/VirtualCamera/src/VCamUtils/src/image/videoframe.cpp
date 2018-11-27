@@ -118,8 +118,7 @@ namespace AkVCam
         uint8_t u;
     };
 
-    typedef size_t (*VideoConvertFuntion)(void *dst, const void *src,
-                                          int width, int height);
+    typedef VideoFrame (*VideoConvertFuntion)(const VideoFrame *src);
 
     struct VideoConvert
     {
@@ -195,42 +194,42 @@ namespace AkVCam
             inline static uint8_t yuv_b(int y, int u, int v);
 
             // BGR to RGB formats
-            static size_t bgr24_to_rgb32(void *dst, const void *src, int width, int height);
-            static size_t bgr24_to_rgb24(void *dst, const void *src, int width, int height);
-            static size_t bgr24_to_rgb16(void *dst, const void *src, int width, int height);
-            static size_t bgr24_to_rgb15(void *dst, const void *src, int width, int height);
+            static VideoFrame bgr24_to_rgb32(const VideoFrame *src);
+            static VideoFrame bgr24_to_rgb24(const VideoFrame *src);
+            static VideoFrame bgr24_to_rgb16(const VideoFrame *src);
+            static VideoFrame bgr24_to_rgb15(const VideoFrame *src);
 
             // BGR to BGR formats
-            static size_t bgr24_to_bgr32(void *dst, const void *src, int width, int height);
-            static size_t bgr24_to_bgr16(void *dst, const void *src, int width, int height);
-            static size_t bgr24_to_bgr15(void *dst, const void *src, int width, int height);
+            static VideoFrame bgr24_to_bgr32(const VideoFrame *src);
+            static VideoFrame bgr24_to_bgr16(const VideoFrame *src);
+            static VideoFrame bgr24_to_bgr15(const VideoFrame *src);
 
             // BGR to Luminance+Chrominance formats
-            static size_t bgr24_to_uyvy(void *dst, const void *src, int width, int height);
-            static size_t bgr24_to_yuy2(void *dst, const void *src, int width, int height);
+            static VideoFrame bgr24_to_uyvy(const VideoFrame *src);
+            static VideoFrame bgr24_to_yuy2(const VideoFrame *src);
 
             // BGR to two planes -- one Y, one Cr + Cb interleaved
-            static size_t bgr24_to_nv12(void *dst, const void *src, int width, int height);
-            static size_t bgr24_to_nv21(void *dst, const void *src, int width, int height);
+            static VideoFrame bgr24_to_nv12(const VideoFrame *src);
+            static VideoFrame bgr24_to_nv21(const VideoFrame *src);
 
             // RGB to RGB formats
-            static size_t rgb24_to_rgb32(void *dst, const void *src, int width, int height);
-            static size_t rgb24_to_rgb16(void *dst, const void *src, int width, int height);
-            static size_t rgb24_to_rgb15(void *dst, const void *src, int width, int height);
+            static VideoFrame rgb24_to_rgb32(const VideoFrame *src);
+            static VideoFrame rgb24_to_rgb16(const VideoFrame *src);
+            static VideoFrame rgb24_to_rgb15(const VideoFrame *src);
 
             // RGB to BGR formats
-            static size_t rgb24_to_bgr32(void *dst, const void *src, int width, int height);
-            static size_t rgb24_to_bgr24(void *dst, const void *src, int width, int height);
-            static size_t rgb24_to_bgr16(void *dst, const void *src, int width, int height);
-            static size_t rgb24_to_bgr15(void *dst, const void *src, int width, int height);
+            static VideoFrame rgb24_to_bgr32(const VideoFrame *src);
+            static VideoFrame rgb24_to_bgr24(const VideoFrame *src);
+            static VideoFrame rgb24_to_bgr16(const VideoFrame *src);
+            static VideoFrame rgb24_to_bgr15(const VideoFrame *src);
 
             // RGB to Luminance+Chrominance formats
-            static size_t rgb24_to_uyvy(void *dst, const void *src, int width, int height);
-            static size_t rgb24_to_yuy2(void *dst, const void *src, int width, int height);
+            static VideoFrame rgb24_to_uyvy(const VideoFrame *src);
+            static VideoFrame rgb24_to_yuy2(const VideoFrame *src);
 
             // RGB to two planes -- one Y, one Cr + Cb interleaved
-            static size_t rgb24_to_nv12(void *dst, const void *src, int width, int height);
-            static size_t rgb24_to_nv21(void *dst, const void *src, int width, int height);
+            static VideoFrame rgb24_to_nv12(const VideoFrame *src);
+            static VideoFrame rgb24_to_nv21(const VideoFrame *src);
 
             inline static void extrapolateUp(int dstCoord,
                                              int num, int den, int s,
@@ -502,6 +501,13 @@ size_t AkVCam::VideoFrame::dataSize() const
 size_t &AkVCam::VideoFrame::dataSize()
 {
     return this->d->m_dataSize;
+}
+
+uint8_t *AkVCam::VideoFrame::line(size_t plane, size_t y) const
+{
+    return this->d->m_data.get()
+            + this->d->m_format.offset(plane)
+            + y * this->d->m_format.bypl(plane);
 }
 
 void AkVCam::VideoFrame::clear()
@@ -791,20 +797,7 @@ AkVCam::VideoFrame AkVCam::VideoFrame::convert(AkVCam::FourCC fourcc) const
     if (!converter)
         return {};
 
-    auto format = this->d->m_format;
-    format.fourcc() = fourcc;
-    auto dataSize =
-            converter->convert(nullptr,
-                               nullptr,
-                               this->d->m_format.width(),
-                               this->d->m_format.height());
-    auto data = std::shared_ptr<uint8_t>(new uint8_t[dataSize]);
-    converter->convert(data.get(),
-                       this->d->m_data.get(),
-                       this->d->m_format.width(),
-                       this->d->m_format.height());
-
-    return VideoFrame(format, data, dataSize);
+    return converter->convert(this);
 }
 
 AkVCam::VideoFrame AkVCam::VideoFrame::adjustHsl(int hue,
@@ -1077,630 +1070,624 @@ uint8_t AkVCam::VideoFramePrivate::yuv_b(int y, int u, int v)
     return uint8_t(bound(0, b, 255));
 }
 
-size_t AkVCam::VideoFramePrivate::bgr24_to_rgb32(void *dst, const void *src,
-                                                 int width, int height)
+AkVCam::VideoFrame AkVCam::VideoFramePrivate::bgr24_to_rgb32(const VideoFrame *src)
 {
-    size_t len = size_t(width * height);
-    size_t osize = 32 * len / 8;
-
-    if (!dst || !src)
-        return osize;
-
-    auto _src = reinterpret_cast<const BGR24 *>(src);
-    auto _dst = reinterpret_cast<RGB32 *>(dst);
-
-    for (size_t i = 0; i < len; i++) {
-        _dst[i].x = 255;
-        _dst[i].r = _src[i].r;
-        _dst[i].g = _src[i].g;
-        _dst[i].b = _src[i].b;
-    }
-
-    return osize;
-}
-
-size_t AkVCam::VideoFramePrivate::bgr24_to_rgb24(void *dst, const void *src,
-                                                 int width, int height)
-{
-    size_t len = size_t(width * height);
-    size_t osize = 24 * len / 8;
-
-    if (!dst || !src)
-        return osize;
-
-    auto _src = reinterpret_cast<const BGR24 *>(src);
-    auto _dst = reinterpret_cast<RGB24 *>(dst);
-
-    for (size_t i = 0; i < len; i++) {
-        _dst[i].r = _src[i].r;
-        _dst[i].g = _src[i].g;
-        _dst[i].b = _src[i].b;
-    }
-
-    return osize;
-}
-
-size_t AkVCam::VideoFramePrivate::bgr24_to_rgb16(void *dst, const void *src,
-                                                 int width, int height)
-{
-    size_t len = size_t(width * height);
-    size_t osize = 16 * len / 8;
-
-    if (!dst || !src)
-        return osize;
-
-    auto _src = reinterpret_cast<const BGR24 *>(src);
-    auto _dst = reinterpret_cast<RGB16 *>(dst);
-
-    for (size_t i = 0; i < len; i++) {
-        _dst[i].r = _src[i].r >> 3;
-        _dst[i].g = _src[i].g >> 2;
-        _dst[i].b = _src[i].b >> 3;
-    }
-
-    return osize;
-}
-
-size_t AkVCam::VideoFramePrivate::bgr24_to_rgb15(void *dst, const void *src,
-                                                 int width, int height)
-{
-    size_t len = size_t(width * height);
-    size_t osize = 16 * len / 8;
-
-    if (!dst || !src)
-        return osize;
-
-    auto _src = reinterpret_cast<const BGR24 *>(src);
-    auto _dst = reinterpret_cast<RGB15 *>(dst);
-
-    for (size_t i = 0; i < len; i++) {
-        _dst[i].x = 1;
-        _dst[i].r = _src[i].r >> 3;
-        _dst[i].g = _src[i].g >> 3;
-        _dst[i].b = _src[i].b >> 3;
-    }
-
-    return osize;
-}
-
-size_t AkVCam::VideoFramePrivate::bgr24_to_bgr32(void *dst, const void *src,
-                                                 int width, int height)
-{
-    size_t len = size_t(width * height);
-    size_t osize = 32 * len / 8;
-
-    if (!dst || !src)
-        return osize;
-
-    auto _src = reinterpret_cast<const BGR24 *>(src);
-    auto _dst = reinterpret_cast<BGR32 *>(dst);
-
-    for (size_t i = 0; i < len; i++) {
-        _dst[i].x = 255;
-        _dst[i].r = _src[i].r;
-        _dst[i].g = _src[i].g;
-        _dst[i].b = _src[i].b;
-    }
-
-    return osize;
-}
-
-size_t AkVCam::VideoFramePrivate::bgr24_to_bgr16(void *dst, const void *src,
-                                                 int width, int height)
-{
-    size_t len = size_t(width * height);
-    size_t osize = 16 * len / 8;
-
-    if (!dst || !src)
-        return osize;
-
-    auto _src = reinterpret_cast<const BGR24 *>(src);
-    auto _dst = reinterpret_cast<BGR16 *>(dst);
-
-    for (size_t i = 0; i < len; i++) {
-        _dst[i].r = _src[i].r >> 3;
-        _dst[i].g = _src[i].g >> 2;
-        _dst[i].b = _src[i].b >> 3;
-    }
-
-    return osize;
-}
-
-size_t AkVCam::VideoFramePrivate::bgr24_to_bgr15(void *dst, const void *src,
-                                                 int width, int height)
-{
-    size_t len = size_t(width * height);
-    size_t osize = 16 * len / 8;
-
-    if (!dst || !src)
-        return osize;
-
-    auto _src = reinterpret_cast<const BGR24 *>(src);
-    auto _dst = reinterpret_cast<BGR15 *>(dst);
-
-    for (size_t i = 0; i < len; i++) {
-        _dst[i].x = 1;
-        _dst[i].r = _src[i].r >> 3;
-        _dst[i].g = _src[i].g >> 3;
-        _dst[i].b = _src[i].b >> 3;
-    }
-
-    return osize;
-}
-
-size_t AkVCam::VideoFramePrivate::bgr24_to_uyvy(void *dst, const void *src,
-                                                int width, int height)
-{
-    size_t len = size_t(width * height);
-    size_t osize = 16 * len / 8;
-
-    if (!dst || !src)
-        return osize;
-
-    auto _src = reinterpret_cast<const BGR24 *>(src);
-    auto _dst = reinterpret_cast<UYVY *>(dst);
-
-    size_t olen = len / 2;
-
-    for (size_t i = 0; i < olen; i++) {
-        size_t j = 2 * i;
-
-        uint8_t r0 = _src[j].r;
-        uint8_t g0 = _src[j].g;
-        uint8_t b0 = _src[j].b;
-
-        j++;
-
-        uint8_t r1 = _src[j].r;
-        uint8_t g1 = _src[j].g;
-        uint8_t b1 = _src[j].b;
-
-        _dst[i].u0 = rgb_u(r0, g0, b0);
-        _dst[i].y0 = rgb_y(r0, g0, b0);
-        _dst[i].v0 = rgb_v(r0, g0, b0);
-        _dst[i].y1 = rgb_y(r1, g1, b1);
-    }
-
-    return osize;
-}
-
-size_t AkVCam::VideoFramePrivate::bgr24_to_yuy2(void *dst, const void *src,
-                                                int width, int height)
-{
-    size_t len = size_t(width * height);
-    size_t osize = 16 * len / 8;
-
-    if (!dst || !src)
-        return osize;
-
-    auto _src = reinterpret_cast<const BGR24 *>(src);
-    auto _dst = reinterpret_cast<YUY2 *>(dst);
-
-    size_t olen = len / 2;
-
-    for (size_t i = 0; i < olen; i++) {
-        size_t j = 2 * i;
-
-        uint8_t r0 = _src[j].r;
-        uint8_t g0 = _src[j].g;
-        uint8_t b0 = _src[j].b;
-
-        j++;
-
-        uint8_t r1 = _src[j].r;
-        uint8_t g1 = _src[j].g;
-        uint8_t b1 = _src[j].b;
-
-        _dst[i].y0 = rgb_y(r0, g0, b0);
-        _dst[i].u0 = rgb_u(r0, g0, b0);
-        _dst[i].y1 = rgb_y(r1, g1, b1);
-        _dst[i].v0 = rgb_v(r0, g0, b0);
-    }
-
-    return osize;
-}
-
-size_t AkVCam::VideoFramePrivate::bgr24_to_nv12(void *dst, const void *src,
-                                                int width, int height)
-{
-    size_t len = size_t(width * height);
-    size_t osize = 12 * len / 8;
-
-    if (!dst || !src)
-        return osize;
-
-    auto _src = reinterpret_cast<const BGR24 *>(src);
-    auto dst_y = reinterpret_cast<uint8_t *>(dst);
-    auto dst_vu = reinterpret_cast<VU *>(dst_y + len);
-
-    // Write Y plane.
-    for (size_t i = 0; i < len; i++) {
-        uint8_t r = _src[i].r;
-        uint8_t g = _src[i].g;
-        uint8_t b = _src[i].b;
-
-        dst_y[i] = rgb_y(r, g, b);
-    }
-
-    // Write VU planes.
-    int _width = width >> 1;
-    int _height = height >> 1;
-
-    for (int y = 0; y < _height; y++) {
-        auto line = _src + 2 * y * width;
-        auto line_vu = dst_vu + y * _width;
-
-        for (int x = 0; x < _width; x++) {
-            int j = 2 * x;
-
-            uint8_t r = line[j].r;
-            uint8_t g = line[j].g;
-            uint8_t b = line[j].b;
-
-            line_vu[x].v = rgb_v(r, g, b);
-            line_vu[x].u = rgb_u(r, g, b);
+    auto format = src->format();
+    format.fourcc() = PixelFormatRGB32;
+    VideoFrame dst(format,
+                   std::shared_ptr<uint8_t>(new uint8_t[format.size()]),
+                   format.size());
+    auto width = src->format().width();
+    auto height = src->format().height();
+
+    for (int y = 0; y < height; y++) {
+        auto src_line = reinterpret_cast<const BGR24 *>(src->line(0, size_t(y)));
+        auto dst_line = reinterpret_cast<RGB32 *>(dst.line(0, size_t(y)));
+
+        for (int x = 0; x < width; x++) {
+            dst_line[x].x = 255;
+            dst_line[x].r = src_line[x].r;
+            dst_line[x].g = src_line[x].g;
+            dst_line[x].b = src_line[x].b;
         }
     }
 
-    return osize;
+    return dst;
 }
 
-size_t AkVCam::VideoFramePrivate::bgr24_to_nv21(void *dst, const void *src,
-                                                int width, int height)
+AkVCam::VideoFrame AkVCam::VideoFramePrivate::bgr24_to_rgb24(const VideoFrame *src)
 {
-    size_t len = size_t(width * height);
-    size_t osize = 12 * len / 8;
+    auto format = src->format();
+    format.fourcc() = PixelFormatRGB24;
+    VideoFrame dst(format,
+                   std::shared_ptr<uint8_t>(new uint8_t[format.size()]),
+                   format.size());
+    auto width = src->format().width();
+    auto height = src->format().height();
 
-    if (!dst || !src)
-        return osize;
+    for (int y = 0; y < height; y++) {
+        auto src_line = reinterpret_cast<const BGR24 *>(src->line(0, size_t(y)));
+        auto dst_line = reinterpret_cast<RGB24 *>(dst.line(0, size_t(y)));
 
-    auto _src = reinterpret_cast<const BGR24 *>(src);
-    auto dst_y = reinterpret_cast<uint8_t *>(dst);
-    auto dst_uv = reinterpret_cast<UV *>(dst_y + len);
-
-    // Write Y plane.
-    for (size_t i = 0; i < len; i++) {
-        uint8_t r = _src[i].r;
-        uint8_t g = _src[i].g;
-        uint8_t b = _src[i].b;
-
-        dst_y[i] = rgb_y(r, g, b);
-    }
-
-    // Write VU planes.
-    int _width = width >> 1;
-    int _height = height >> 1;
-
-    for (int y = 0; y < _height; y++) {
-        auto line = _src + 2 * y * width;
-        auto line_uv = dst_uv + y * _width;
-
-        for (int x = 0; x < _width; x++) {
-            int j = 2 * x;
-
-            uint8_t r = line[j].r;
-            uint8_t g = line[j].g;
-            uint8_t b = line[j].b;
-
-            line_uv[x].u = rgb_u(r, g, b);
-            line_uv[x].v = rgb_v(r, g, b);
+        for (int x = 0; x < width; x++) {
+            dst_line[x].r = src_line[x].r;
+            dst_line[x].g = src_line[x].g;
+            dst_line[x].b = src_line[x].b;
         }
     }
 
-    return osize;
+    return dst;
 }
 
-size_t AkVCam::VideoFramePrivate::rgb24_to_rgb32(void *dst, const void *src,
-                                                 int width, int height)
+AkVCam::VideoFrame AkVCam::VideoFramePrivate::bgr24_to_rgb16(const VideoFrame *src)
 {
-    size_t len = size_t(width * height);
-    size_t osize = 32 * len / 8;
-
-    if (!dst || !src)
-        return osize;
-
-    auto _src = reinterpret_cast<const RGB24 *>(src);
-    auto _dst = reinterpret_cast<RGB32 *>(dst);
-
-    for (size_t i = 0; i < len; i++) {
-        _dst[i].x = 255;
-        _dst[i].r = _src[i].r;
-        _dst[i].g = _src[i].g;
-        _dst[i].b = _src[i].b;
-    }
-
-    return osize;
-}
-
-size_t AkVCam::VideoFramePrivate::rgb24_to_rgb16(void *dst, const void *src,
-                                                 int width, int height)
-{
-    size_t len = size_t(width * height);
-    size_t osize = 16 * len / 8;
-
-    if (!dst || !src)
-        return osize;
-
-    auto _src = reinterpret_cast<const RGB24 *>(src);
-    auto _dst = reinterpret_cast<RGB16 *>(dst);
-
-    for (size_t i = 0; i < len; i++) {
-        _dst[i].r = _src[i].r >> 3;
-        _dst[i].g = _src[i].g >> 2;
-        _dst[i].b = _src[i].b >> 3;
-    }
-
-    return osize;
-}
-
-size_t AkVCam::VideoFramePrivate::rgb24_to_rgb15(void *dst, const void *src,
-                                                 int width, int height)
-{
-    size_t len = size_t(width * height);
-    size_t osize = 16 * len / 8;
-
-    if (!dst || !src)
-        return osize;
-
-    auto _src = reinterpret_cast<const RGB24 *>(src);
-    auto _dst = reinterpret_cast<RGB15 *>(dst);
-
-    for (size_t i = 0; i < len; i++) {
-        _dst[i].x = 1;
-        _dst[i].r = _src[i].r >> 3;
-        _dst[i].g = _src[i].g >> 3;
-        _dst[i].b = _src[i].b >> 3;
-    }
-
-    return osize;
-}
-
-size_t AkVCam::VideoFramePrivate::rgb24_to_bgr32(void *dst, const void *src,
-                                                 int width, int height)
-{
-    size_t len = size_t(width * height);
-    size_t osize = 32 * len / 8;
-
-    if (!dst || !src)
-        return osize;
-
-    auto _src = reinterpret_cast<const RGB24 *>(src);
-    auto _dst = reinterpret_cast<BGR32 *>(dst);
-
-    for (size_t i = 0; i < len; i++) {
-        _dst[i].x = 255;
-        _dst[i].r = _src[i].r;
-        _dst[i].g = _src[i].g;
-        _dst[i].b = _src[i].b;
-    }
-
-    return osize;
-}
-
-size_t AkVCam::VideoFramePrivate::rgb24_to_bgr24(void *dst, const void *src,
-                                                 int width, int height)
-{
-    size_t len = size_t(width * height);
-    size_t osize = 24 * len / 8;
-
-    if (!dst || !src)
-        return osize;
-
-    auto _src = reinterpret_cast<const RGB24 *>(src);
-    auto _dst = reinterpret_cast<BGR24 *>(dst);
-
-    for (size_t i = 0; i < len; i++) {
-        _dst[i].r = _src[i].r;
-        _dst[i].g = _src[i].g;
-        _dst[i].b = _src[i].b;
-    }
-
-    return osize;
-}
-
-size_t AkVCam::VideoFramePrivate::rgb24_to_bgr16(void *dst, const void *src,
-                                                 int width, int height)
-{
-    size_t len = size_t(width * height);
-    size_t osize = 16 * len / 8;
-
-    if (!dst || !src)
-        return osize;
-
-    auto _src = reinterpret_cast<const RGB24 *>(src);
-    auto _dst = reinterpret_cast<BGR16 *>(dst);
-
-    for (size_t i = 0; i < len; i++) {
-        _dst[i].r = _src[i].r >> 3;
-        _dst[i].g = _src[i].g >> 2;
-        _dst[i].b = _src[i].b >> 3;
-    }
-
-    return osize;
-}
-
-size_t AkVCam::VideoFramePrivate::rgb24_to_bgr15(void *dst, const void *src,
-                                                 int width, int height)
-{
-    size_t len = size_t(width * height);
-    size_t osize = 16 * len / 8;
-
-    if (!dst || !src)
-        return osize;
-
-    auto _src = reinterpret_cast<const RGB24 *>(src);
-    auto _dst = reinterpret_cast<BGR15 *>(dst);
-
-    for (size_t i = 0; i < len; i++) {
-        _dst[i].x = 1;
-        _dst[i].r = _src[i].r >> 3;
-        _dst[i].g = _src[i].g >> 3;
-        _dst[i].b = _src[i].b >> 3;
-    }
-
-    return osize;
-}
-
-size_t AkVCam::VideoFramePrivate::rgb24_to_uyvy(void *dst, const void *src,
-                                                int width, int height)
-{
-    size_t len = size_t(width * height);
-    size_t osize = 16 * len / 8;
-
-    if (!dst || !src)
-        return osize;
-
-    auto _src = reinterpret_cast<const RGB24 *>(src);
-    auto _dst = reinterpret_cast<UYVY *>(dst);
-
-    size_t olen = len / 2;
-
-    for (size_t i = 0; i < olen; i++) {
-        size_t j = 2 * i;
-
-        uint8_t r0 = _src[j].r;
-        uint8_t g0 = _src[j].g;
-        uint8_t b0 = _src[j].b;
-
-        j++;
-
-        uint8_t r1 = _src[j].r;
-        uint8_t g1 = _src[j].g;
-        uint8_t b1 = _src[j].b;
-
-        _dst[i].u0 = rgb_u(r0, g0, b0);
-        _dst[i].y0 = rgb_y(r0, g0, b0);
-        _dst[i].v0 = rgb_v(r0, g0, b0);
-        _dst[i].y1 = rgb_y(r1, g1, b1);
-    }
-
-    return osize;
-}
-
-size_t AkVCam::VideoFramePrivate::rgb24_to_yuy2(void *dst, const void *src,
-                                                int width, int height)
-{
-    size_t len = size_t(width * height);
-    size_t osize = 16 * len / 8;
-
-    if (!dst || !src)
-        return osize;
-
-    auto _src = reinterpret_cast<const RGB24 *>(src);
-    auto _dst = reinterpret_cast<YUY2 *>(dst);
-
-    size_t olen = len / 2;
-
-    for (size_t i = 0; i < olen; i++) {
-        size_t j = 2 * i;
-
-        uint8_t r0 = _src[j].r;
-        uint8_t g0 = _src[j].g;
-        uint8_t b0 = _src[j].b;
-
-        j++;
-
-        uint8_t r1 = _src[j].r;
-        uint8_t g1 = _src[j].g;
-        uint8_t b1 = _src[j].b;
-
-        _dst[i].y0 = rgb_y(r0, g0, b0);
-        _dst[i].u0 = rgb_u(r0, g0, b0);
-        _dst[i].y1 = rgb_y(r1, g1, b1);
-        _dst[i].v0 = rgb_v(r0, g0, b0);
-    }
-
-    return osize;
-}
-
-size_t AkVCam::VideoFramePrivate::rgb24_to_nv12(void *dst, const void *src,
-                                                int width, int height)
-{
-    size_t len = size_t(width * height);
-    size_t osize = 12 * len / 8;
-
-    if (!dst || !src)
-        return osize;
-
-    auto _src = reinterpret_cast<const RGB24 *>(src);
-    auto dst_y = reinterpret_cast<uint8_t *>(dst);
-    auto dst_vu = reinterpret_cast<VU *>(dst_y + len);
-
-    // Write Y plane.
-    for (size_t i = 0; i < len; i++) {
-        uint8_t r = _src[i].r;
-        uint8_t g = _src[i].g;
-        uint8_t b = _src[i].b;
-
-        dst_y[i] = rgb_y(r, g, b);
-    }
-
-    // Write VU planes.
-    int _width = width >> 1;
-    int _height = height >> 1;
-
-    for (int y = 0; y < _height; y++) {
-        auto line = _src + 2 * y * width;
-        auto line_vu = dst_vu + y * _width;
-
-        for (int x = 0; x < _width; x++) {
-            int j = 2 * x;
-
-            uint8_t r = line[j].r;
-            uint8_t g = line[j].g;
-            uint8_t b = line[j].b;
-
-            line_vu[x].v = rgb_v(r, g, b);
-            line_vu[x].u = rgb_u(r, g, b);
+    auto format = src->format();
+    format.fourcc() = PixelFormatRGB16;
+    VideoFrame dst(format,
+                   std::shared_ptr<uint8_t>(new uint8_t[format.size()]),
+                   format.size());
+    auto width = src->format().width();
+    auto height = src->format().height();
+
+    for (int y = 0; y < height; y++) {
+        auto src_line = reinterpret_cast<const BGR24 *>(src->line(0, size_t(y)));
+        auto dst_line = reinterpret_cast<RGB16 *>(dst.line(0, size_t(y)));
+
+        for (int x = 0; x < width; x++) {
+            dst_line[x].r = src_line[x].r >> 3;
+            dst_line[x].g = src_line[x].g >> 2;
+            dst_line[x].b = src_line[x].b >> 3;
         }
     }
 
-    return osize;
+    return dst;
 }
 
-size_t AkVCam::VideoFramePrivate::rgb24_to_nv21(void *dst, const void *src,
-                                                int width, int height)
+AkVCam::VideoFrame AkVCam::VideoFramePrivate::bgr24_to_rgb15(const VideoFrame *src)
 {
-    size_t len = size_t(width * height);
-    size_t osize = 12 * len / 8;
+    auto format = src->format();
+    format.fourcc() = PixelFormatRGB15;
+    VideoFrame dst(format,
+                   std::shared_ptr<uint8_t>(new uint8_t[format.size()]),
+                   format.size());
+    auto width = src->format().width();
+    auto height = src->format().height();
 
-    if (!dst || !src)
-        return osize;
+    for (int y = 0; y < height; y++) {
+        auto src_line = reinterpret_cast<const BGR24 *>(src->line(0, size_t(y)));
+        auto dst_line = reinterpret_cast<RGB15 *>(dst.line(0, size_t(y)));
 
-    auto _src = reinterpret_cast<const RGB24 *>(src);
-    auto dst_y = reinterpret_cast<uint8_t *>(dst);
-    auto dst_uv = reinterpret_cast<UV *>(dst_y + len);
-
-    // Write Y plane.
-    for (size_t i = 0; i < len; i++) {
-        uint8_t r = _src[i].r;
-        uint8_t g = _src[i].g;
-        uint8_t b = _src[i].b;
-
-        dst_y[i] = rgb_y(r, g, b);
-    }
-
-    // Write VU planes.
-    int _width = width >> 1;
-    int _height = height >> 1;
-
-    for (int y = 0; y < _height; y++) {
-        auto line = _src + 2 * y * width;
-        auto line_uv = dst_uv + y * _width;
-
-        for (int x = 0; x < _width; x++) {
-            int j = 2 * x;
-
-            uint8_t r = line[j].r;
-            uint8_t g = line[j].g;
-            uint8_t b = line[j].b;
-
-            line_uv[x].u = rgb_u(r, g, b);
-            line_uv[x].v = rgb_v(r, g, b);
+        for (int x = 0; x < width; x++) {
+            dst_line[x].x = 1;
+            dst_line[x].r = src_line[x].r >> 3;
+            dst_line[x].g = src_line[x].g >> 3;
+            dst_line[x].b = src_line[x].b >> 3;
         }
     }
 
-    return osize;
+    return dst;
+}
+
+AkVCam::VideoFrame AkVCam::VideoFramePrivate::bgr24_to_bgr32(const VideoFrame *src)
+{
+    auto format = src->format();
+    format.fourcc() = PixelFormatBGR32;
+    VideoFrame dst(format,
+                   std::shared_ptr<uint8_t>(new uint8_t[format.size()]),
+                   format.size());
+    auto width = src->format().width();
+    auto height = src->format().height();
+
+    for (int y = 0; y < height; y++) {
+        auto src_line = reinterpret_cast<const BGR24 *>(src->line(0, size_t(y)));
+        auto dst_line = reinterpret_cast<RGB32 *>(dst.line(0, size_t(y)));
+
+        for (int x = 0; x < width; x++) {
+            dst_line[x].x = 255;
+            dst_line[x].r = src_line[x].r;
+            dst_line[x].g = src_line[x].g;
+            dst_line[x].b = src_line[x].b;
+        }
+    }
+
+    return dst;
+}
+
+AkVCam::VideoFrame AkVCam::VideoFramePrivate::bgr24_to_bgr16(const VideoFrame *src)
+{
+    auto format = src->format();
+    format.fourcc() = PixelFormatBGR16;
+    VideoFrame dst(format,
+                   std::shared_ptr<uint8_t>(new uint8_t[format.size()]),
+                   format.size());
+    auto width = src->format().width();
+    auto height = src->format().height();
+
+    for (int y = 0; y < height; y++) {
+        auto src_line = reinterpret_cast<const BGR24 *>(src->line(0, size_t(y)));
+        auto dst_line = reinterpret_cast<BGR16 *>(dst.line(0, size_t(y)));
+
+        for (int x = 0; x < width; x++) {
+            dst_line[x].r = src_line[x].r >> 3;
+            dst_line[x].g = src_line[x].g >> 2;
+            dst_line[x].b = src_line[x].b >> 3;
+        }
+    }
+
+    return dst;
+}
+
+AkVCam::VideoFrame AkVCam::VideoFramePrivate::bgr24_to_bgr15(const VideoFrame *src)
+{
+    auto format = src->format();
+    format.fourcc() = PixelFormatBGR15;
+    VideoFrame dst(format,
+                   std::shared_ptr<uint8_t>(new uint8_t[format.size()]),
+                   format.size());
+    auto width = src->format().width();
+    auto height = src->format().height();
+
+    for (int y = 0; y < height; y++) {
+        auto src_line = reinterpret_cast<const BGR24 *>(src->line(0, size_t(y)));
+        auto dst_line = reinterpret_cast<BGR15 *>(dst.line(0, size_t(y)));
+
+        for (int x = 0; x < width; x++) {
+            dst_line[x].x = 1;
+            dst_line[x].r = src_line[x].r >> 3;
+            dst_line[x].g = src_line[x].g >> 3;
+            dst_line[x].b = src_line[x].b >> 3;
+        }
+    }
+
+    return dst;
+}
+
+AkVCam::VideoFrame AkVCam::VideoFramePrivate::bgr24_to_uyvy(const VideoFrame *src)
+{
+    auto format = src->format();
+    format.fourcc() = PixelFormatUYVY;
+    VideoFrame dst(format,
+                   std::shared_ptr<uint8_t>(new uint8_t[format.size()]),
+                   format.size());
+    auto width = src->format().width();
+    auto height = src->format().height();
+
+    for (int y = 0; y < height; y++) {
+        auto src_line = reinterpret_cast<const BGR24 *>(src->line(0, size_t(y)));
+        auto dst_line = reinterpret_cast<UYVY *>(dst.line(0, size_t(y)));
+
+        for (int x = 0; x < width; x++) {
+            auto x_yuv = x / 2;
+
+            auto r0 = src_line[x].r;
+            auto g0 = src_line[x].g;
+            auto b0 = src_line[x].b;
+
+            x++;
+
+            int r1 = src_line[x].r;
+            int g1 = src_line[x].g;
+            int b1 = src_line[x].b;
+
+            dst_line[x_yuv].u0 = rgb_u(r0, g0, b0);
+            dst_line[x_yuv].y0 = rgb_y(r0, g0, b0);
+            dst_line[x_yuv].v0 = rgb_v(r0, g0, b0);
+            dst_line[x_yuv].y1 = rgb_y(r1, g1, b1);
+        }
+    }
+
+    return dst;
+}
+
+AkVCam::VideoFrame AkVCam::VideoFramePrivate::bgr24_to_yuy2(const VideoFrame *src)
+{
+    auto format = src->format();
+    format.fourcc() = PixelFormatYUY2;
+    VideoFrame dst(format,
+                   std::shared_ptr<uint8_t>(new uint8_t[format.size()]),
+                   format.size());
+    auto width = src->format().width();
+    auto height = src->format().height();
+
+    for (int y = 0; y < height; y++) {
+        auto src_line = reinterpret_cast<const BGR24 *>(src->line(0, size_t(y)));
+        auto dst_line = reinterpret_cast<YUY2 *>(dst.line(0, size_t(y)));
+
+        for (int x = 0; x < width; x++) {
+            auto x_yuv = x / 2;
+
+            auto r0 = src_line[x].r;
+            auto g0 = src_line[x].g;
+            auto b0 = src_line[x].b;
+
+            x++;
+
+            auto r1 = src_line[x].r;
+            auto g1 = src_line[x].g;
+            auto b1 = src_line[x].b;
+
+            dst_line[x_yuv].y0 = rgb_y(r0, g0, b0);
+            dst_line[x_yuv].u0 = rgb_u(r0, g0, b0);
+            dst_line[x_yuv].y1 = rgb_y(r1, g1, b1);
+            dst_line[x_yuv].v0 = rgb_v(r0, g0, b0);
+        }
+    }
+
+    return dst;
+}
+
+AkVCam::VideoFrame AkVCam::VideoFramePrivate::bgr24_to_nv12(const VideoFrame *src)
+{
+    auto format = src->format();
+    format.fourcc() = PixelFormatNV12;
+    VideoFrame dst(format,
+                   std::shared_ptr<uint8_t>(new uint8_t[format.size()]),
+                   format.size());
+    auto width = src->format().width();
+    auto height = src->format().height();
+
+    for (int y = 0; y < height; y++) {
+        auto src_line = reinterpret_cast<const BGR24 *>(src->line(0, size_t(y)));
+        auto dst_line_y = dst.line(0, size_t(y));
+        auto dst_line_vu = reinterpret_cast<VU *>(dst.line(1, size_t(y) / 2));
+
+        for (int x = 0; x < width; x++) {
+            auto r = src_line[x].r;
+            auto g = src_line[x].g;
+            auto b = src_line[x].b;
+
+            dst_line_y[y] = rgb_y(r, g, b);
+
+            if (!(x & 0x1) && !(y & 0x1)) {
+                dst_line_vu[x / 2].v = rgb_v(r, g, b);
+                dst_line_vu[x / 2].u = rgb_u(r, g, b);
+            }
+        }
+    }
+
+    return dst;
+}
+
+AkVCam::VideoFrame AkVCam::VideoFramePrivate::bgr24_to_nv21(const VideoFrame *src)
+{
+    auto format = src->format();
+    format.fourcc() = PixelFormatNV21;
+    VideoFrame dst(format,
+                   std::shared_ptr<uint8_t>(new uint8_t[format.size()]),
+                   format.size());
+    auto width = src->format().width();
+    auto height = src->format().height();
+
+    for (int y = 0; y < height; y++) {
+        auto src_line = reinterpret_cast<const BGR24 *>(src->line(0, size_t(y)));
+        auto dst_line_y = dst.line(0, size_t(y));
+        auto dst_line_vu = reinterpret_cast<UV *>(dst.line(1, size_t(y) / 2));
+
+        for (int x = 0; x < width; x++) {
+            auto r = src_line[x].r;
+            auto g = src_line[x].g;
+            auto b = src_line[x].b;
+
+            dst_line_y[y] = rgb_y(r, g, b);
+
+            if (!(x & 0x1) && !(y & 0x1)) {
+                dst_line_vu[x / 2].v = rgb_v(r, g, b);
+                dst_line_vu[x / 2].u = rgb_u(r, g, b);
+            }
+        }
+    }
+
+    return dst;
+}
+
+AkVCam::VideoFrame AkVCam::VideoFramePrivate::rgb24_to_rgb32(const VideoFrame *src)
+{
+    auto format = src->format();
+    format.fourcc() = PixelFormatRGB32;
+    VideoFrame dst(format,
+                   std::shared_ptr<uint8_t>(new uint8_t[format.size()]),
+                   format.size());
+    auto width = src->format().width();
+    auto height = src->format().height();
+
+    for (int y = 0; y < height; y++) {
+        auto src_line = reinterpret_cast<const RGB24 *>(src->line(0, size_t(y)));
+        auto dst_line = reinterpret_cast<RGB32 *>(dst.line(0, size_t(y)));
+
+        for (int x = 0; x < width; x++) {
+            dst_line[x].x = 255;
+            dst_line[x].r = src_line[x].r;
+            dst_line[x].g = src_line[x].g;
+            dst_line[x].b = src_line[x].b;
+        }
+    }
+
+    return dst;
+}
+
+AkVCam::VideoFrame AkVCam::VideoFramePrivate::rgb24_to_rgb16(const VideoFrame *src)
+{
+    auto format = src->format();
+    format.fourcc() = PixelFormatRGB16;
+    VideoFrame dst(format,
+                   std::shared_ptr<uint8_t>(new uint8_t[format.size()]),
+                   format.size());
+    auto width = src->format().width();
+    auto height = src->format().height();
+
+    for (int y = 0; y < height; y++) {
+        auto src_line = reinterpret_cast<const RGB24 *>(src->line(0, size_t(y)));
+        auto dst_line = reinterpret_cast<RGB16 *>(dst.line(0, size_t(y)));
+
+        for (int x = 0; x < width; x++) {
+            dst_line[x].r = src_line[x].r >> 3;
+            dst_line[x].g = src_line[x].g >> 2;
+            dst_line[x].b = src_line[x].b >> 3;
+        }
+    }
+
+    return dst;
+}
+
+AkVCam::VideoFrame AkVCam::VideoFramePrivate::rgb24_to_rgb15(const VideoFrame *src)
+{
+    auto format = src->format();
+    format.fourcc() = PixelFormatRGB15;
+    VideoFrame dst(format,
+                   std::shared_ptr<uint8_t>(new uint8_t[format.size()]),
+                   format.size());
+    auto width = src->format().width();
+    auto height = src->format().height();
+
+    for (int y = 0; y < height; y++) {
+        auto src_line = reinterpret_cast<const RGB24 *>(src->line(0, size_t(y)));
+        auto dst_line = reinterpret_cast<RGB15 *>(dst.line(0, size_t(y)));
+
+        for (int x = 0; x < width; x++) {
+            dst_line[x].x = 1;
+            dst_line[x].r = src_line[x].r >> 3;
+            dst_line[x].g = src_line[x].g >> 3;
+            dst_line[x].b = src_line[x].b >> 3;
+        }
+    }
+
+    return dst;
+}
+
+AkVCam::VideoFrame AkVCam::VideoFramePrivate::rgb24_to_bgr32(const VideoFrame *src)
+{
+    auto format = src->format();
+    format.fourcc() = PixelFormatBGR32;
+    VideoFrame dst(format,
+                   std::shared_ptr<uint8_t>(new uint8_t[format.size()]),
+                   format.size());
+    auto width = src->format().width();
+    auto height = src->format().height();
+
+    for (int y = 0; y < height; y++) {
+        auto src_line = reinterpret_cast<const RGB24 *>(src->line(0, size_t(y)));
+        auto dst_line = reinterpret_cast<RGB32 *>(dst.line(0, size_t(y)));
+
+        for (int x = 0; x < width; x++) {
+            dst_line[x].x = 255;
+            dst_line[x].r = src_line[x].r;
+            dst_line[x].g = src_line[x].g;
+            dst_line[x].b = src_line[x].b;
+        }
+    }
+
+    return dst;
+}
+
+AkVCam::VideoFrame AkVCam::VideoFramePrivate::rgb24_to_bgr24(const VideoFrame *src)
+{
+    auto format = src->format();
+    format.fourcc() = PixelFormatBGR24;
+    VideoFrame dst(format,
+                   std::shared_ptr<uint8_t>(new uint8_t[format.size()]),
+                   format.size());
+    auto width = src->format().width();
+    auto height = src->format().height();
+
+    for (int y = 0; y < height; y++) {
+        auto src_line = reinterpret_cast<const RGB24 *>(src->line(0, size_t(y)));
+        auto dst_line = reinterpret_cast<BGR24 *>(dst.line(0, size_t(y)));
+
+        for (int x = 0; x < width; x++) {
+            dst_line[x].r = src_line[x].r;
+            dst_line[x].g = src_line[x].g;
+            dst_line[x].b = src_line[x].b;
+        }
+    }
+
+    return dst;
+}
+
+AkVCam::VideoFrame AkVCam::VideoFramePrivate::rgb24_to_bgr16(const VideoFrame *src)
+{
+    auto format = src->format();
+    format.fourcc() = PixelFormatBGR16;
+    VideoFrame dst(format,
+                   std::shared_ptr<uint8_t>(new uint8_t[format.size()]),
+                   format.size());
+    auto width = src->format().width();
+    auto height = src->format().height();
+
+    for (int y = 0; y < height; y++) {
+        auto src_line = reinterpret_cast<const RGB24 *>(src->line(0, size_t(y)));
+        auto dst_line = reinterpret_cast<BGR16 *>(dst.line(0, size_t(y)));
+
+        for (int x = 0; x < width; x++) {
+            dst_line[x].r = src_line[x].r >> 3;
+            dst_line[x].g = src_line[x].g >> 2;
+            dst_line[x].b = src_line[x].b >> 3;
+        }
+    }
+
+    return dst;
+}
+
+AkVCam::VideoFrame AkVCam::VideoFramePrivate::rgb24_to_bgr15(const VideoFrame *src)
+{
+    auto format = src->format();
+    format.fourcc() = PixelFormatBGR15;
+    VideoFrame dst(format,
+                   std::shared_ptr<uint8_t>(new uint8_t[format.size()]),
+                   format.size());
+    auto width = src->format().width();
+    auto height = src->format().height();
+
+    for (int y = 0; y < height; y++) {
+        auto src_line = reinterpret_cast<const RGB24 *>(src->line(0, size_t(y)));
+        auto dst_line = reinterpret_cast<BGR15 *>(dst.line(0, size_t(y)));
+
+        for (int x = 0; x < width; x++) {
+            dst_line[x].x = 1;
+            dst_line[x].r = src_line[x].r >> 3;
+            dst_line[x].g = src_line[x].g >> 3;
+            dst_line[x].b = src_line[x].b >> 3;
+        }
+    }
+
+    return dst;
+}
+
+AkVCam::VideoFrame AkVCam::VideoFramePrivate::rgb24_to_uyvy(const VideoFrame *src)
+{
+    auto format = src->format();
+    format.fourcc() = PixelFormatUYVY;
+    VideoFrame dst(format,
+                   std::shared_ptr<uint8_t>(new uint8_t[format.size()]),
+                   format.size());
+    auto width = src->format().width();
+    auto height = src->format().height();
+
+    for (int y = 0; y < height; y++) {
+        auto src_line = reinterpret_cast<const RGB24 *>(src->line(0, size_t(y)));
+        auto dst_line = reinterpret_cast<UYVY *>(dst.line(0, size_t(y)));
+
+        for (int x = 0; x < width; x++) {
+            auto x_yuv = x / 2;
+
+            auto r0 = src_line[x].r;
+            auto g0 = src_line[x].g;
+            auto b0 = src_line[x].b;
+
+            x++;
+
+            int r1 = src_line[x].r;
+            int g1 = src_line[x].g;
+            int b1 = src_line[x].b;
+
+            dst_line[x_yuv].u0 = rgb_u(r0, g0, b0);
+            dst_line[x_yuv].y0 = rgb_y(r0, g0, b0);
+            dst_line[x_yuv].v0 = rgb_v(r0, g0, b0);
+            dst_line[x_yuv].y1 = rgb_y(r1, g1, b1);
+        }
+    }
+
+    return dst;
+}
+
+AkVCam::VideoFrame AkVCam::VideoFramePrivate::rgb24_to_yuy2(const VideoFrame *src)
+{
+    auto format = src->format();
+    format.fourcc() = PixelFormatYUY2;
+    VideoFrame dst(format,
+                   std::shared_ptr<uint8_t>(new uint8_t[format.size()]),
+                   format.size());
+    auto width = src->format().width();
+    auto height = src->format().height();
+
+    for (int y = 0; y < height; y++) {
+        auto src_line = reinterpret_cast<const RGB24 *>(src->line(0, size_t(y)));
+        auto dst_line = reinterpret_cast<YUY2 *>(dst.line(0, size_t(y)));
+
+        for (int x = 0; x < width; x++) {
+            auto x_yuv = x / 2;
+
+            auto r0 = src_line[x].r;
+            auto g0 = src_line[x].g;
+            auto b0 = src_line[x].b;
+
+            x++;
+
+            auto r1 = src_line[x].r;
+            auto g1 = src_line[x].g;
+            auto b1 = src_line[x].b;
+
+            dst_line[x_yuv].y0 = rgb_y(r0, g0, b0);
+            dst_line[x_yuv].u0 = rgb_u(r0, g0, b0);
+            dst_line[x_yuv].y1 = rgb_y(r1, g1, b1);
+            dst_line[x_yuv].v0 = rgb_v(r0, g0, b0);
+        }
+    }
+
+    return dst;
+}
+
+AkVCam::VideoFrame AkVCam::VideoFramePrivate::rgb24_to_nv12(const VideoFrame *src)
+{
+    auto format = src->format();
+    format.fourcc() = PixelFormatNV12;
+    VideoFrame dst(format,
+                   std::shared_ptr<uint8_t>(new uint8_t[format.size()]),
+                   format.size());
+    auto width = src->format().width();
+    auto height = src->format().height();
+
+    for (int y = 0; y < height; y++) {
+        auto src_line = reinterpret_cast<const RGB24 *>(src->line(0, size_t(y)));
+        auto dst_line_y = dst.line(0, size_t(y));
+        auto dst_line_vu = reinterpret_cast<VU *>(dst.line(1, size_t(y) / 2));
+
+        for (int x = 0; x < width; x++) {
+            auto r = src_line[x].r;
+            auto g = src_line[x].g;
+            auto b = src_line[x].b;
+
+            dst_line_y[y] = rgb_y(r, g, b);
+
+            if (!(x & 0x1) && !(y & 0x1)) {
+                dst_line_vu[x / 2].v = rgb_v(r, g, b);
+                dst_line_vu[x / 2].u = rgb_u(r, g, b);
+            }
+        }
+    }
+
+    return dst;
+}
+
+AkVCam::VideoFrame AkVCam::VideoFramePrivate::rgb24_to_nv21(const VideoFrame *src)
+{
+    auto format = src->format();
+    format.fourcc() = PixelFormatNV21;
+    VideoFrame dst(format,
+                   std::shared_ptr<uint8_t>(new uint8_t[format.size()]),
+                   format.size());
+    auto width = src->format().width();
+    auto height = src->format().height();
+
+    for (int y = 0; y < height; y++) {
+        auto src_line = reinterpret_cast<const RGB24 *>(src->line(0, size_t(y)));
+        auto dst_line_y = dst.line(0, size_t(y));
+        auto dst_line_vu = reinterpret_cast<UV *>(dst.line(1, size_t(y) / 2));
+
+        for (int x = 0; x < width; x++) {
+            auto r = src_line[x].r;
+            auto g = src_line[x].g;
+            auto b = src_line[x].b;
+
+            dst_line_y[y] = rgb_y(r, g, b);
+
+            if (!(x & 0x1) && !(y & 0x1)) {
+                dst_line_vu[x / 2].v = rgb_v(r, g, b);
+                dst_line_vu[x / 2].u = rgb_u(r, g, b);
+            }
+        }
+    }
+
+    return dst;
 }
 
 void AkVCam::VideoFramePrivate::extrapolateUp(int dstCoord,

@@ -21,6 +21,7 @@
 #include <algorithm>
 
 #include "videoformat.h"
+#include "../utils.h"
 
 namespace AkVCam
 {
@@ -32,68 +33,42 @@ namespace AkVCam
             int m_height;
             std::vector<double> m_frameRates;
 
-            VideoFormatPrivate():
-                m_fourcc(0),
-                m_width(0),
-                m_height(0)
-            {
-            }
-
+            VideoFormatPrivate();
             VideoFormatPrivate(FourCC fourcc,
                                int width,
                                int height,
-                               const std::vector<double> &frameRates):
-                m_fourcc(fourcc),
-                m_width(width),
-                m_height(height),
-                m_frameRates(frameRates)
-            {
-            }
+                               const std::vector<double> &frameRates);
     };
+
+    typedef size_t (*PlaneOffsetFunc)(size_t plane, size_t width, size_t height);
+    typedef size_t (*ByplFunc)(size_t plane, size_t width);
 
     class VideoFormatGlobals
     {
         public:
             PixelFormat format;
             size_t bpp;
+            size_t planes;
+            PlaneOffsetFunc planeOffset;
+            ByplFunc bypl;
             std::string str;
 
-            inline static const std::vector<VideoFormatGlobals> &formats()
-            {
-                static const std::vector<VideoFormatGlobals> formats {
-                    {PixelFormatRGB32, 32, "RGB32"},
-                    {PixelFormatRGB24, 24, "RGB24"},
-                    {PixelFormatRGB16, 16, "RGB16"},
-                    {PixelFormatRGB15, 16, "RGB15"},
-                    {PixelFormatBGR32, 32, "BGR32"},
-                    {PixelFormatBGR24, 24, "BGR24"},
-                    {PixelFormatBGR16, 16, "BGR16"},
-                    {PixelFormatBGR15, 16, "BGR15"},
-                    {PixelFormatUYVY , 16, "UYVY" },
-                    {PixelFormatYUY2 , 16, "YUY2" },
-                    {PixelFormatNV12 , 12, "NV12" },
-                    {PixelFormatNV21 , 12, "NV21" }
-                };
+            inline static const std::vector<VideoFormatGlobals> &formats();
+            static inline const VideoFormatGlobals *byPixelFormat(PixelFormat pixelFormat);
+            static inline const VideoFormatGlobals *byStr(const std::string str);
+            static size_t offsetNV(size_t plane, size_t width, size_t height);
+            static size_t byplNV(size_t plane, size_t width);
 
-                return formats;
+            template<typename T>
+            static inline T alignUp(const T &value, const T &align)
+            {
+                return (value + align - 1) & ~(align - 1);
             }
 
-            static inline const VideoFormatGlobals *byPixelFormat(PixelFormat pixelFormat)
+            template<typename T>
+            static inline T align32(const T &value)
             {
-                for (auto &format: formats())
-                    if (format.format == pixelFormat)
-                        return &format;
-
-                return nullptr;
-            }
-
-            static inline const VideoFormatGlobals *byStr(const std::string str)
-            {
-                for (auto &format: formats())
-                    if (format.str == str)
-                        return &format;
-
-                return nullptr;
+                return alignUp<T>(value, 32);
             }
     };
 }
@@ -149,7 +124,7 @@ bool AkVCam::VideoFormat::operator !=(const AkVCam::VideoFormat &other) const
 
 AkVCam::VideoFormat::operator bool() const
 {
-    return this->size() != 0;
+    return this->isValid();
 }
 
 AkVCam::VideoFormat::~VideoFormat()
@@ -228,9 +203,77 @@ size_t AkVCam::VideoFormat::bpp() const
     return vf? vf->bpp: 0;
 }
 
+size_t AkVCam::VideoFormat::bypl(size_t plane) const
+{
+    auto vf = VideoFormatGlobals::byPixelFormat(PixelFormat(this->d->m_fourcc));
+
+    if (!vf)
+        return 0;
+
+    if (vf->bypl)
+        return vf->bypl(plane, size_t(this->d->m_width));
+
+    return size_t(VideoFormatGlobals::align32(this->d->m_width
+                                              * ssize_t(vf->bpp))) / 8;
+}
+
 size_t AkVCam::VideoFormat::size() const
 {
-    return size_t(this->d->m_width * this->d->m_height) * this->bpp() / 8;
+    auto vf = VideoFormatGlobals::byPixelFormat(PixelFormat(this->d->m_fourcc));
+
+    if (!vf)
+        return 0;
+
+    if (vf->planeOffset)
+        return vf->planeOffset(vf->planes,
+                               size_t(this->d->m_width),
+                               size_t(this->d->m_height));
+
+    return size_t(this->d->m_height
+                  * VideoFormatGlobals::align32(this->d->m_width
+                                                * ssize_t(vf->bpp))) / 8;
+}
+
+size_t AkVCam::VideoFormat::planes() const
+{
+    auto vf = VideoFormatGlobals::byPixelFormat(PixelFormat(this->d->m_fourcc));
+
+    return vf? vf->planes: 0;
+}
+
+size_t AkVCam::VideoFormat::offset(size_t plane) const
+{
+    auto vf = VideoFormatGlobals::byPixelFormat(PixelFormat(this->d->m_fourcc));
+
+    if (!vf)
+        return 0;
+
+    if (vf->planeOffset)
+        return vf->planeOffset(plane,
+                               size_t(this->d->m_width),
+                               size_t(this->d->m_height));
+
+    return 0;
+}
+
+size_t AkVCam::VideoFormat::planeSize(size_t plane) const
+{
+    return size_t(this->d->m_height) * this->bypl( plane);
+}
+
+bool AkVCam::VideoFormat::isValid() const
+{
+    if (this->size() <= 0)
+        return false;
+
+    if (this->d->m_frameRates.empty())
+        return false;
+
+    for (auto &fps: this->d->m_frameRates)
+        if (fps < 1.0)
+            return false;
+
+    return true;
 }
 
 void AkVCam::VideoFormat::clear()
@@ -239,6 +282,35 @@ void AkVCam::VideoFormat::clear()
     this->d->m_width = 0;
     this->d->m_height = 0;
     this->d->m_frameRates.clear();
+}
+
+AkVCam::VideoFormat AkVCam::VideoFormat::nearest(const std::vector<VideoFormat> &formats) const
+{
+    VideoFormat nearestFormat;
+    auto q = std::numeric_limits<uint64_t>::max();
+    auto svf = VideoFormatGlobals::byPixelFormat(PixelFormat(this->d->m_fourcc));
+
+    for (auto &format: formats) {
+        auto vf = VideoFormatGlobals::byPixelFormat(PixelFormat(format.d->m_fourcc));
+        uint64_t diffFourcc = format.d->m_fourcc == this->d->m_fourcc? 0: 1;
+        auto diffWidth = format.d->m_width - this->d->m_width;
+        auto diffHeight = format.d->m_height - this->d->m_height;
+        auto diffBpp = vf->bpp - svf->bpp;
+        auto diffPlanes = vf->planes - svf->planes;
+
+        uint64_t k = diffFourcc
+                   + uint64_t(diffWidth * diffWidth)
+                   + uint64_t(diffHeight * diffHeight)
+                   + diffBpp * diffBpp
+                   + diffPlanes * diffPlanes;
+
+        if (k < q) {
+            nearestFormat = format;
+            q = k;
+        }
+    }
+
+    return nearestFormat;
 }
 
 void AkVCam::VideoFormat::roundNearest(int width, int height,
@@ -289,4 +361,78 @@ std::wstring AkVCam::VideoFormat::wstringFromFourcc(AkVCam::FourCC fourcc)
     auto str = stringFromFourcc(fourcc);
 
     return std::wstring(str.begin(), str.end());
+}
+
+AkVCam::VideoFormatPrivate::VideoFormatPrivate():
+    m_fourcc(0),
+    m_width(0),
+    m_height(0)
+{
+}
+
+AkVCam::VideoFormatPrivate::VideoFormatPrivate(FourCC fourcc,
+                                               int width,
+                                               int height,
+                                               const std::vector<double> &frameRates):
+    m_fourcc(fourcc),
+    m_width(width),
+    m_height(height),
+    m_frameRates(frameRates)
+{
+}
+
+const std::vector<AkVCam::VideoFormatGlobals> &AkVCam::VideoFormatGlobals::formats()
+{
+    static const std::vector<VideoFormatGlobals> formats {
+        {PixelFormatRGB32, 32, 1,  nullptr, nullptr, "RGB32"},
+        {PixelFormatRGB24, 24, 1,  nullptr, nullptr, "RGB24"},
+        {PixelFormatRGB16, 16, 1,  nullptr, nullptr, "RGB16"},
+        {PixelFormatRGB15, 16, 1,  nullptr, nullptr, "RGB15"},
+        {PixelFormatBGR32, 32, 1,  nullptr, nullptr, "BGR32"},
+        {PixelFormatBGR24, 24, 1,  nullptr, nullptr, "BGR24"},
+        {PixelFormatBGR16, 16, 1,  nullptr, nullptr, "BGR16"},
+        {PixelFormatBGR15, 16, 1,  nullptr, nullptr, "BGR15"},
+        {PixelFormatUYVY , 16, 1,  nullptr, nullptr,  "UYVY"},
+        {PixelFormatYUY2 , 16, 1,  nullptr, nullptr,  "YUY2"},
+        {PixelFormatNV12 , 12, 2, offsetNV,  byplNV,  "NV12"},
+        {PixelFormatNV21 , 12, 2, offsetNV,  byplNV,  "NV21"}
+    };
+
+    return formats;
+}
+
+const AkVCam::VideoFormatGlobals *AkVCam::VideoFormatGlobals::byPixelFormat(PixelFormat pixelFormat)
+{
+    for (auto &format: formats())
+        if (format.format == pixelFormat)
+            return &format;
+
+    return nullptr;
+}
+
+const AkVCam::VideoFormatGlobals *AkVCam::VideoFormatGlobals::byStr(const std::string str)
+{
+    for (auto &format: formats())
+        if (format.str == str)
+            return &format;
+
+    return nullptr;
+}
+
+size_t AkVCam::VideoFormatGlobals::offsetNV(size_t plane, size_t width, size_t height)
+{
+    size_t offset[] = {
+        0,
+        size_t(align32(ssize_t(width))) * height,
+        5 * size_t(align32(ssize_t(width))) * height / 4
+    };
+
+    return offset[plane];
+}
+
+size_t AkVCam::VideoFormatGlobals::byplNV(size_t plane, size_t width)
+{
+    UNUSED(plane)
+
+    return size_t(align32(ssize_t(width)));
 }

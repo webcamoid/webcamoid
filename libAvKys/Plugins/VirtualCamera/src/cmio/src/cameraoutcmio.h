@@ -37,14 +37,13 @@ class CameraOutCMIO: public CameraOut
         Q_INVOKABLE QString description(const QString &webcam) const;
         Q_INVOKABLE void writeFrame(const AkPacket &frame);
         Q_INVOKABLE int maxCameras() const;
-        Q_INVOKABLE QString createWebcam(const QString &description,
-                                         const QString &password);
+        Q_INVOKABLE QStringList availableRootMethods() const;
+        Q_INVOKABLE QString rootMethod() const;
+        Q_INVOKABLE QString createWebcam(const QString &description);
         Q_INVOKABLE bool changeDescription(const QString &webcam,
-                                           const QString &description,
-                                           const QString &password);
-        Q_INVOKABLE bool removeWebcam(const QString &webcam,
-                                      const QString &password);
-        Q_INVOKABLE bool removeAllWebcams(const QString &password);
+                                           const QString &description);
+        Q_INVOKABLE bool removeWebcam(const QString &webcam);
+        Q_INVOKABLE bool removeAllWebcams();
 
     private:
         CameraOutCMIOPrivate *d;
@@ -52,6 +51,7 @@ class CameraOutCMIO: public CameraOut
     public slots:
         bool init(int streamIndex);
         void uninit();
+        void setRootMethod(const QString &rootMethod);
         void resetDriverPaths();
 
     private slots:

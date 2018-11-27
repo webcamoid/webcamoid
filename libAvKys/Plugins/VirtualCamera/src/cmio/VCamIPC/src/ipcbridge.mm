@@ -738,8 +738,10 @@ bool AkVCam::IpcBridge::destroyAllDevices()
     return true;
 }
 
-bool AkVCam::IpcBridge::deviceStart(const std::string &deviceId)
+bool AkVCam::IpcBridge::deviceStart(const std::string &deviceId,
+                                    const VideoFormat &format)
 {
+    UNUSED(format)
     AkIpcBridgeLogMethod();
 
     if (!this->d->m_serverMessagePort)

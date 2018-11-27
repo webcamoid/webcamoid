@@ -104,7 +104,6 @@ class MediaTools: public QObject
         void resetEnableVirtualCamera();
         void resetVirtualCameraState();
         void loadConfigs();
-        void saveVirtualCameraConvertLib(const QString &convertLib);
         void saveVirtualCameraOutputLib(const QString &outputLib);
         void saveVirtualCameraRootMethod(const QString &rootMethod);
         void saveConfigs();

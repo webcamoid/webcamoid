@@ -125,16 +125,6 @@ AkScrollView {
                 onCurrentIndexChanged: virtualCamera.outputLib = model[currentIndex]
             }
             Label {
-                text: qsTr("Video output convert")
-            }
-            ComboBox {
-                Layout.fillWidth: true
-                model: virtualCamera.listSubModules(["convert"])
-                currentIndex: model.indexOf(virtualCamera.convertLib)
-
-                onCurrentIndexChanged: virtualCamera.convertLib = model[currentIndex]
-            }
-            Label {
                 text: qsTr("Video playback")
             }
             ComboBox {

@@ -23,8 +23,8 @@
 #include <string>
 #include <memory>
 
-#include "videoformattypes.h"
 #include "videoframetypes.h"
+#include "videoformattypes.h"
 
 namespace AkVCam
 {
@@ -57,6 +57,7 @@ namespace AkVCam
             std::shared_ptr<uint8_t> &data();
             size_t dataSize() const;
             size_t &dataSize();
+            uint8_t *line(size_t plane, size_t y) const;
             void clear();
 
             VideoFrame mirror(bool horizontalMirror, bool verticalMirror) const;

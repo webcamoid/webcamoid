@@ -943,8 +943,10 @@ bool AkVCam::IpcBridge::destroyAllDevices()
     return ok;
 }
 
-bool AkVCam::IpcBridge::deviceStart(const std::string &deviceId)
+bool AkVCam::IpcBridge::deviceStart(const std::string &deviceId,
+                                    const VideoFormat &format)
 {
+    UNUSED(format)
     AkIpcBridgeLogMethod();
     auto it = std::find(this->d->m_broadcasting.begin(),
                         this->d->m_broadcasting.end(),
@@ -1008,8 +1010,6 @@ void AkVCam::IpcBridge::deviceStop(const std::string &deviceId)
     this->d->m_mainServer.sendMessage(&message);
     this->d->m_sharedMemory.close();
     this->d->m_broadcasting.erase(it);
-
-    return;
 }
 
 bool AkVCam::IpcBridge::write(const std::string &deviceId,

@@ -48,14 +48,6 @@ class VirtualCameraElement: public AkElement
     Q_PROPERTY(int maxCameras
                READ maxCameras
                NOTIFY maxCamerasChanged)
-    Q_PROPERTY(bool needRoot
-               READ needRoot
-               NOTIFY needRootChanged)
-    Q_PROPERTY(int passwordTimeout
-               READ passwordTimeout
-               WRITE setPasswordTimeout
-               RESET resetPasswordTimeout
-               NOTIFY passwordTimeoutChanged)
     Q_PROPERTY(QString rootMethod
                READ rootMethod
                WRITE setRootMethod
@@ -64,11 +56,6 @@ class VirtualCameraElement: public AkElement
     Q_PROPERTY(QStringList availableMethods
                READ availableMethods
                NOTIFY availableMethodsChanged)
-    Q_PROPERTY(QString convertLib
-               READ convertLib
-               WRITE setConvertLib
-               RESET resetConvertLib
-               NOTIFY convertLibChanged)
     Q_PROPERTY(QString outputLib
                READ outputLib
                WRITE setOutputLib
@@ -84,11 +71,8 @@ class VirtualCameraElement: public AkElement
         Q_INVOKABLE QString media() const;
         Q_INVOKABLE QList<int> streams() const;
         Q_INVOKABLE int maxCameras() const;
-        Q_INVOKABLE bool needRoot() const;
-        Q_INVOKABLE int passwordTimeout() const;
         Q_INVOKABLE QString rootMethod() const;
         Q_INVOKABLE QStringList availableMethods() const;
-        Q_INVOKABLE QString convertLib() const;
         Q_INVOKABLE QString outputLib() const;
 
         Q_INVOKABLE int defaultStream(const QString &mimeType) const;
@@ -99,14 +83,11 @@ class VirtualCameraElement: public AkElement
                                           const QVariantMap &streamParams=QVariantMap());
         Q_INVOKABLE QVariantMap updateStream(int streamIndex,
                                              const QVariantMap &streamParams=QVariantMap());
-        Q_INVOKABLE QString createWebcam(const QString &description="",
-                                         const QString &password="");
+        Q_INVOKABLE QString createWebcam(const QString &description="");
         Q_INVOKABLE bool changeDescription(const QString &webcam,
-                                           const QString &description="",
-                                           const QString &password="") const;
-        Q_INVOKABLE bool removeWebcam(const QString &webcam,
-                                      const QString &password="");
-        Q_INVOKABLE bool removeAllWebcams(const QString &password="");
+                                           const QString &description="") const;
+        Q_INVOKABLE bool removeWebcam(const QString &webcam);
+        Q_INVOKABLE bool removeAllWebcams();
 
     private:
         VirtualCameraElementPrivate *d;
@@ -122,11 +103,8 @@ class VirtualCameraElement: public AkElement
         void mediaChanged(const QString &media);
         void streamsChanged(const QList<int> &streams);
         void maxCamerasChanged(int maxCameras);
-        void needRootChanged(bool needRoot);
-        void passwordTimeoutChanged(int passwordTimeout);
         void rootMethodChanged(const QString &rootMethod);
         void availableMethodsChanged(const QStringList &availableMethods);
-        void convertLibChanged(const QString &convertLib);
         void outputLibChanged(const QString &outputLib);
         void error(const QString &message);
 
@@ -137,15 +115,11 @@ class VirtualCameraElement: public AkElement
         bool removeDriverPath(const QString &driverPath);
         bool removeDriverPaths(const QStringList &driverPaths);
         void setMedia(const QString &media);
-        void setPasswordTimeout(int passwordTimeout);
         void setRootMethod(const QString &rootMethod);
-        void setConvertLib(const QString &convertLib);
         void setOutputLib(const QString &outputLib);
         void resetDriverPaths();
         void resetMedia();
-        void resetPasswordTimeout();
         void resetRootMethod();
-        void resetConvertLib();
         void resetOutputLib();
         void clearStreams();
 
@@ -153,7 +127,6 @@ class VirtualCameraElement: public AkElement
         AkPacket iStream(const AkPacket &packet);
 
     private slots:
-        void convertLibUpdated(const QString &convertLib);
         void outputLibUpdated(const QString &outputLib);
         void rootMethodUpdated(const QString &rootMethod);
 };

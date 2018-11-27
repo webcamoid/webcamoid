@@ -163,15 +163,6 @@
     </message>
 </context>
 <context>
-    <name>CameraOutV4L2</name>
-    <message>
-        <location filename="../../../libAvKys/Plugins/VirtualCamera/src/v4l2sys/src/cameraoutv4l2.cpp" line="315"/>
-        <location filename="../../../libAvKys/Plugins/VirtualCamera/src/v4l2sys/src/cameraoutv4l2.cpp" line="369"/>
-        <source>Virtual Camera %1</source>
-        <translation>Cámara virtual %1</translation>
-    </message>
-</context>
-<context>
     <name>CodecConfigs</name>
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/CodecConfigs.qml" line="27"/>
@@ -313,21 +304,16 @@
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="128"/>
-        <source>Video output convert</source>
-        <translation>Conversión de salida de vídeo</translation>
-    </message>
-    <message>
-        <location filename="../qml/GeneralConfig.qml" line="138"/>
         <source>Video playback</source>
         <translation>Reproducción de vídeo</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="148"/>
+        <location filename="../qml/GeneralConfig.qml" line="138"/>
         <source>Video record</source>
         <translation>Grabación de vídeo</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="158"/>
+        <location filename="../qml/GeneralConfig.qml" line="148"/>
         <source>Root method</source>
         <translation>Método inicial</translation>
     </message>
@@ -2115,39 +2101,29 @@
         <translation>Nombre de la cámara (opcional)</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="147"/>
-        <source>Password</source>
-        <translation>Contraseña</translation>
+        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="288"/>
+        <source>Error creating camera</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="154"/>
-        <source>Write root password</source>
-        <translation>Escribir contraseña inicial</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="166"/>
+        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="155"/>
         <source>Ok</source>
         <translation>Aceptar</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="214"/>
+        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="198"/>
         <source>Cancel</source>
         <translation>Cancelar</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="269"/>
+        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="252"/>
         <source>This system is not supported yet</source>
         <translation>Este sistema aún no es compatible</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="291"/>
+        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="274"/>
         <source>Please, install &lt;b&gt;v4l2loopback&lt;/b&gt; for using this option</source>
         <translation>Por favor, instale &lt;b&gt;v4l2loopback&lt;/b&gt; para usar esta opción</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="305"/>
-        <source>Wrong password</source>
-        <translation>Contraseña incorrecta</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Warp/share/qml/main.qml" line="28"/>

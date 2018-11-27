@@ -30,12 +30,6 @@
 #include "convertvideo.h"
 #include "cameraout.h"
 
-#if defined(Q_OS_OSX) || defined(Q_OS_WIN32)
-    #define PREFERRED_FORMAT AkVideoCaps::Format_rgb24
-#else
-    #define PREFERRED_FORMAT AkVideoCaps::Format_yuv420p
-#endif
-
 Q_GLOBAL_STATIC(VirtualCameraGlobals, globalVirtualCamera)
 
 template<typename T>
@@ -51,26 +45,9 @@ inline int roundTo(int value, int n)
     return n * qRound(value / qreal(n));
 }
 
-struct XRGB
-{
-    quint8 x;
-    quint8 r;
-    quint8 g;
-    quint8 b;
-};
-
-struct BGRX
-{
-    quint8 b;
-    quint8 g;
-    quint8 r;
-    quint8 x;
-};
-
 class VirtualCameraElementPrivate
 {
     public:
-        ConvertVideoPtr m_convertVideo;
         CameraOutPtr m_cameraOut;
         AkCaps m_streamCaps;
         QMutex m_mutex;
@@ -81,8 +58,6 @@ class VirtualCameraElementPrivate
             m_streamIndex(-1)
         {
         }
-
-        inline QImage swapChannels(const QImage &image) const;
 };
 
 VirtualCameraElement::VirtualCameraElement():
@@ -91,14 +66,6 @@ VirtualCameraElement::VirtualCameraElement():
     this->d = new VirtualCameraElementPrivate;
 
     QObject::connect(globalVirtualCamera,
-                     SIGNAL(convertLibChanged(const QString &)),
-                     this,
-                     SIGNAL(convertLibChanged(const QString &)));
-    QObject::connect(globalVirtualCamera,
-                     SIGNAL(convertLibChanged(const QString &)),
-                     this,
-                     SLOT(convertLibUpdated(const QString &)));
-    QObject::connect(globalVirtualCamera,
                      SIGNAL(outputLibChanged(const QString &)),
                      this,
                      SIGNAL(outputLibChanged(const QString &)));
@@ -106,14 +73,8 @@ VirtualCameraElement::VirtualCameraElement():
                      SIGNAL(outputLibChanged(const QString &)),
                      this,
                      SLOT(outputLibUpdated(const QString &)));
-    QObject::connect(globalVirtualCamera,
-                     SIGNAL(rootMethodChanged(const QString &)),
-                     this,
-                     SLOT(rootMethodUpdated(const QString &)));
 
-    this->convertLibUpdated(globalVirtualCamera->convertLib());
     this->outputLibUpdated(globalVirtualCamera->outputLib());
-    this->rootMethodUpdated(globalVirtualCamera->rootMethod());
 }
 
 VirtualCameraElement::~VirtualCameraElement()
@@ -162,35 +123,20 @@ int VirtualCameraElement::maxCameras() const
     return this->d->m_cameraOut->maxCameras();
 }
 
-bool VirtualCameraElement::needRoot() const
-{
-    if (!this->d->m_cameraOut)
-        return false;
-
-    return this->d->m_cameraOut->needRoot();
-}
-
-int VirtualCameraElement::passwordTimeout() const
-{
-    if (!this->d->m_cameraOut)
-        return 0;
-
-    return this->d->m_cameraOut->passwordTimeout();
-}
-
 QString VirtualCameraElement::rootMethod() const
 {
-    return globalVirtualCamera->rootMethod();
+    if (!this->d->m_cameraOut)
+        return {};
+
+    return this->d->m_cameraOut->rootMethod();
 }
 
 QStringList VirtualCameraElement::availableMethods() const
 {
-    return globalVirtualCamera->availableMethods();
-}
+    if (!this->d->m_cameraOut)
+        return {};
 
-QString VirtualCameraElement::convertLib() const
-{
-    return globalVirtualCamera->convertLib();
+    return this->d->m_cameraOut->availableRootMethods();
 }
 
 QString VirtualCameraElement::outputLib() const
@@ -232,8 +178,8 @@ QVariantMap VirtualCameraElement::addStream(int streamIndex,
         return {};
 
     AkVideoCaps videoCaps(streamCaps);
-    videoCaps.format() = PREFERRED_FORMAT;
-    videoCaps.bpp() = AkVideoCaps::bitsPerPixel(PREFERRED_FORMAT);
+    videoCaps.format() = AkVideoCaps::Format_rgb24;
+    videoCaps.bpp() = AkVideoCaps::bitsPerPixel(AkVideoCaps::Format_rgb24);
     videoCaps.width() = roundTo(videoCaps.width(), PREFERRED_ROUNDING);
     videoCaps.height() = roundTo(videoCaps.height(), PREFERRED_ROUNDING);
 
@@ -253,59 +199,37 @@ QVariantMap VirtualCameraElement::updateStream(int streamIndex,
     return QVariantMap();
 }
 
-QString VirtualCameraElement::createWebcam(const QString &description,
-                                           const QString &password)
+QString VirtualCameraElement::createWebcam(const QString &description)
 {
     if (!this->d->m_cameraOut)
         return {};
 
-    return this->d->m_cameraOut->createWebcam(description, password);
+    return this->d->m_cameraOut->createWebcam(description);
 }
 
 bool VirtualCameraElement::changeDescription(const QString &webcam,
-                                             const QString &description,
-                                             const QString &password) const
+                                             const QString &description) const
 {
     if (!this->d->m_cameraOut)
         return false;
 
-    return this->d->m_cameraOut->changeDescription(webcam, description, password);
+    return this->d->m_cameraOut->changeDescription(webcam, description);
 }
 
-bool VirtualCameraElement::removeWebcam(const QString &webcam,
-                                        const QString &password)
+bool VirtualCameraElement::removeWebcam(const QString &webcam)
 {
     if (!this->d->m_cameraOut)
         return false;
 
-    return this->d->m_cameraOut->removeWebcam(webcam, password);
+    return this->d->m_cameraOut->removeWebcam(webcam);
 }
 
-bool VirtualCameraElement::removeAllWebcams(const QString &password)
+bool VirtualCameraElement::removeAllWebcams()
 {
     if (!this->d->m_cameraOut)
         return false;
 
-    return this->d->m_cameraOut->removeAllWebcams(password);
-}
-
-QImage VirtualCameraElementPrivate::swapChannels(const QImage &image) const
-{
-    QImage swapped(image.size(), image.format());
-
-    for (int y = 0; y < image.height(); y++) {
-        auto src = reinterpret_cast<const XRGB *>(image.constScanLine(y));
-        auto dst = reinterpret_cast<BGRX *>(swapped.scanLine(y));
-
-        for (int x = 0; x < image.width(); x++) {
-            dst[x].x = src[x].x;
-            dst[x].r = src[x].r;
-            dst[x].g = src[x].g;
-            dst[x].b = src[x].b;
-        }
-    }
-
-    return swapped;
+    return this->d->m_cameraOut->removeAllWebcams();
 }
 
 QString VirtualCameraElement::controlInterfaceProvide(const QString &controlId) const
@@ -384,20 +308,10 @@ void VirtualCameraElement::setMedia(const QString &media)
     emit this->mediaChanged(media);
 }
 
-void VirtualCameraElement::setPasswordTimeout(int passwordTimeout)
-{
-    if (this->d->m_cameraOut)
-        this->d->m_cameraOut->setPasswordTimeout(passwordTimeout);
-}
-
 void VirtualCameraElement::setRootMethod(const QString &rootMethod)
 {
-    globalVirtualCamera->setRootMethod(rootMethod);
-}
-
-void VirtualCameraElement::setConvertLib(const QString &convertLib)
-{
-    globalVirtualCamera->setConvertLib(convertLib);
+    if (this->d->m_cameraOut)
+        this->d->m_cameraOut->setRootMethod(rootMethod);
 }
 
 void VirtualCameraElement::setOutputLib(const QString &outputLib)
@@ -423,20 +337,10 @@ void VirtualCameraElement::resetMedia()
         emit this->mediaChanged(this->d->m_cameraOut->device());
 }
 
-void VirtualCameraElement::resetPasswordTimeout()
-{
-    if (this->d->m_cameraOut)
-        this->d->m_cameraOut->resetPasswordTimeout();
-}
-
 void VirtualCameraElement::resetRootMethod()
 {
-    globalVirtualCamera->resetRootMethod();
-}
-
-void VirtualCameraElement::resetConvertLib()
-{
-    globalVirtualCamera->resetConvertLib();
+    if (this->d->m_cameraOut)
+        this->d->m_cameraOut->resetRootMethod();
 }
 
 void VirtualCameraElement::resetOutputLib()
@@ -452,7 +356,7 @@ void VirtualCameraElement::clearStreams()
 
 bool VirtualCameraElement::setState(AkElement::ElementState state)
 {
-    if (!this->d->m_convertVideo || !this->d->m_cameraOut)
+    if (!this->d->m_cameraOut)
         return false;
 
     AkElement::ElementState curState = this->state();
@@ -533,29 +437,17 @@ bool VirtualCameraElement::setState(AkElement::ElementState state)
 
 AkPacket VirtualCameraElement::iStream(const AkPacket &packet)
 {
-    if (!this->d->m_convertVideo || !this->d->m_cameraOut)
+    if (!this->d->m_cameraOut)
         return AkPacket();
 
     this->d->m_mutex.lock();
 
     if (this->state() == AkElement::ElementStatePlaying) {
         QImage image = AkUtils::packetToImage(packet);
-
-#if defined(Q_OS_OSX) || defined(Q_OS_WIN32)
         image = image.convertToFormat(QImage::Format_RGB888);
         auto oPacket =
                 AkUtils::roundSizeTo(AkUtils::imageToPacket(image, packet),
                                      PREFERRED_ROUNDING);
-#else
-        image = image.convertToFormat(QImage::Format_RGB32);
-        image = this->d->swapChannels(image);
-
-        this->d->m_mutexLib.lock();
-        auto oPacket =
-                this->d->m_convertVideo->convert(AkUtils::imageToPacket(image, packet),
-                                                 this->d->m_cameraOut->caps());
-        this->d->m_mutexLib.unlock();
-#endif
 
         this->d->m_mutexLib.lock();
         this->d->m_cameraOut->writeFrame(oPacket);
@@ -565,21 +457,6 @@ AkPacket VirtualCameraElement::iStream(const AkPacket &packet)
     this->d->m_mutex.unlock();
 
     akSend(packet)
-}
-
-void VirtualCameraElement::convertLibUpdated(const QString &convertLib)
-{
-    auto state = this->state();
-    this->setState(AkElement::ElementStateNull);
-
-    this->d->m_mutexLib.lock();
-
-    this->d->m_convertVideo =
-            ptr_cast<ConvertVideo>(this->loadSubModule("VirtualCamera", convertLib));
-
-    this->d->m_mutexLib.unlock();
-
-    this->setState(state);
 }
 
 void VirtualCameraElement::outputLibUpdated(const QString &outputLib)
@@ -610,10 +487,6 @@ void VirtualCameraElement::outputLibUpdated(const QString &outputLib)
                      &CameraOut::webcamsChanged,
                      this,
                      &VirtualCameraElement::mediasChanged);
-    QObject::connect(this->d->m_cameraOut.data(),
-                     &CameraOut::passwordTimeoutChanged,
-                     this,
-                     &VirtualCameraElement::passwordTimeoutChanged);
 
     this->d->m_mutexLib.unlock();
 
@@ -621,8 +494,6 @@ void VirtualCameraElement::outputLibUpdated(const QString &outputLib)
     emit this->mediasChanged(this->medias());
     emit this->mediaChanged(this->media());
     emit this->streamsChanged(this->streams());
-    emit this->needRootChanged(this->needRoot());
-    emit this->passwordTimeoutChanged(this->passwordTimeout());
     emit this->rootMethodChanged(this->rootMethod());
 
     this->setState(state);
