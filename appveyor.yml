@@ -18,29 +18,29 @@ branches:
 
 environment:
   global:
-    FFMPEG_VERSION: 4.0
-    GSTREAMER_VERSION: 1.14.1
+    FFMPEG_VERSION: 4.1
+    GSTREAMER_VERSION: 1.14.4
     QMAKESPEC: win32-g++
     MAKETOOL: mingw32-make
     INSTALL_PREFIX: C:/projects/webcamoid/ports/deploy/temp_priv/root/usr
 
   matrix:
-    - QTDIR: C:\Qt\5.11.1\mingw53_32
+    - QTDIR: C:\Qt\5.11.2\mingw53_32
       TOOLSDIR: C:\Qt\Tools\mingw492_32
-    - QTDIR: C:\Qt\5.11.1\mingw53_32
+    - QTDIR: C:\Qt\5.11.2\mingw53_32
       TOOLSDIR: C:\Qt\Tools\mingw530_32
-    - QTDIR: C:\Qt\5.11.1\msvc2015
+    - QTDIR: C:\Qt\5.11.2\msvc2015
       TOOLSDIR: C:\Qt\Tools\QtCreator
       QMAKESPEC: win32-msvc
       VSPATH: C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC
       MAKETOOL: jom
-    - QTDIR: C:\Qt\5.11.1\msvc2015_64
+    - QTDIR: C:\Qt\5.11.2\msvc2015_64
       TOOLSDIR: C:\Qt\Tools\QtCreator
       QMAKESPEC: win32-msvc
       PLATFORM: x64
       VSPATH: C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC
       MAKETOOL: jom
-    - QTDIR: C:\Qt\5.11.1\msvc2017_64
+    - QTDIR: C:\Qt\5.11.2\msvc2017_64
       TOOLSDIR: C:\Qt\Tools\QtCreator
       QMAKESPEC: win32-msvc
       PLATFORM: x64
