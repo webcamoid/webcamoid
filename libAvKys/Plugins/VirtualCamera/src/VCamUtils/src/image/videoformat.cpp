@@ -213,8 +213,7 @@ size_t AkVCam::VideoFormat::bypl(size_t plane) const
     if (vf->bypl)
         return vf->bypl(plane, size_t(this->d->m_width));
 
-    return size_t(VideoFormatGlobals::align32(this->d->m_width
-                                              * ssize_t(vf->bpp))) / 8;
+    return VideoFormatGlobals::align32(size_t(this->d->m_width) * vf->bpp) / 8;
 }
 
 size_t AkVCam::VideoFormat::size() const
@@ -229,9 +228,9 @@ size_t AkVCam::VideoFormat::size() const
                                size_t(this->d->m_width),
                                size_t(this->d->m_height));
 
-    return size_t(this->d->m_height
-                  * VideoFormatGlobals::align32(this->d->m_width
-                                                * ssize_t(vf->bpp))) / 8;
+    return size_t(this->d->m_height)
+           * VideoFormatGlobals::align32(size_t(this->d->m_width)
+                                         * vf->bpp) / 8;
 }
 
 size_t AkVCam::VideoFormat::planes() const
@@ -423,8 +422,8 @@ size_t AkVCam::VideoFormatGlobals::offsetNV(size_t plane, size_t width, size_t h
 {
     size_t offset[] = {
         0,
-        size_t(align32(ssize_t(width))) * height,
-        5 * size_t(align32(ssize_t(width))) * height / 4
+        align32(size_t(width)) * height,
+        5 * align32(size_t(width)) * height / 4
     };
 
     return offset[plane];
@@ -434,5 +433,5 @@ size_t AkVCam::VideoFormatGlobals::byplNV(size_t plane, size_t width)
 {
     UNUSED(plane)
 
-    return size_t(align32(ssize_t(width)));
+    return align32(size_t(width));
 }
