@@ -663,7 +663,7 @@ std::string AkVCam::IpcBridge::deviceCreate(const std::wstring &description,
                                   + L"\\Formats\\"
                                   + std::to_wstring(i + 1),
                                   L"fps",
-                                  lround(videoFormat.minimumFrameRate()),
+                                  videoFormat.minimumFrameRate().toWString(),
                                   wow)
            << std::endl;
     }
@@ -1017,7 +1017,7 @@ bool AkVCam::IpcBridge::write(const std::string &deviceId,
 {
     AkIpcBridgeLogMethod();
 
-    if (!frame.format())
+    if (frame.format().size() < 1)
         return false;
 
     auto buffer =
@@ -1377,7 +1377,7 @@ std::vector<AkVCam::VideoFormat> AkVCam::IpcBridgePrivate::enumVideoFormats(IPin
         auto format = formatFromMediaType(mediaType);
         deleteMediaType(&mediaType);
 
-        if (format)
+        if (format.size() > 0)
             mediaTypes.push_back(format);
     }
 

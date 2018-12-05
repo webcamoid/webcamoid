@@ -38,6 +38,7 @@ TARGET = VCamUtils
 TEMPLATE = lib
 
 SOURCES += \
+    src/fraction.cpp \
     src/image/videoformat.cpp \
     src/image/videoframe.cpp \
     src/logger/logger.cpp \
@@ -46,10 +47,11 @@ SOURCES += \
     src/resources/rcloader.cpp \
     src/resources/rcname.cpp \
     src/resources/rcnode.cpp \
-    src/utils.cpp \
-    src/timer.cpp
+    src/timer.cpp \
+    src/utils.cpp
 
 HEADERS += \
+    src/fraction.h \
     src/image/color.h \
     src/image/videoformat.h \
     src/image/videoframe.h \
@@ -61,8 +63,8 @@ HEADERS += \
     src/resources/rcloader.h \
     src/resources/rcname.h \
     src/resources/rcnode.h \
-    src/utils.h \
-    src/timer.h
+    src/timer.h \
+    src/utils.h
 
 isEmpty(STATIC_BUILD) | isEqual(STATIC_BUILD, 0) {
     win32-g++: QMAKE_LFLAGS = -static -static-libgcc -static-libstdc++

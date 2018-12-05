@@ -232,8 +232,10 @@ HRESULT AkVCam::Pin::stateChanged(void *userData, FILTER_STATE state)
         self->GetFormat(&mediaType);
         auto videoFormat = formatFromMediaType(mediaType);
         deleteMediaType(&mediaType);
+        auto fps = videoFormat.minimumFrameRate();
         auto period = REFERENCE_TIME(TIME_BASE
-                                     / videoFormat.minimumFrameRate());
+                                     * fps.den()
+                                     / fps.num());
 
         clock->AdvisePeriodic(now,
                               period,
@@ -290,7 +292,7 @@ void AkVCam::Pin::frameReady(const VideoFrame &frame)
     if (!this->d->m_broadcaster.empty()) {
         auto frameAdjusted = this->d->applyAdjusts(frame);
 
-        if (frameAdjusted.format())
+        if (frameAdjusted.format().size() > 0)
             this->d->m_currentFrame = frameAdjusted;
     }
 
@@ -889,7 +891,10 @@ HRESULT AkVCam::PinPrivate::sendFrame()
     self->GetFormat(&mediaType);
     auto format = formatFromMediaType(mediaType);
     deleteMediaType(&mediaType);
-    auto duration = REFERENCE_TIME(TIME_BASE / format.minimumFrameRate());
+    auto fps = format.minimumFrameRate();
+    auto duration = REFERENCE_TIME(TIME_BASE
+                                   * fps.den()
+                                   / fps.num());
 
     if (this->m_pts < 0) {
         this->m_pts = 0;
@@ -926,7 +931,7 @@ void AkVCam::PinPrivate::updateTestFrame()
 {
     auto frame = this->applyAdjusts(this->m_testFrame);
 
-    if (!frame.format())
+    if (frame.format().size() < 1)
         return;
 
     this->m_testFrameAdapted = frame;

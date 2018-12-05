@@ -23,8 +23,10 @@
 #include <vector>
 #include <string>
 #include <CoreMediaIO/CMIOHardwareObject.h>
+#include <CoreAudio/CoreAudioTypes.h>
 
 #include "clock.h"
+#include "VCamUtils/src/fraction.h"
 
 namespace AkVCam
 {
@@ -75,10 +77,13 @@ namespace AkVCam
                              const std::vector<Float64> &value,
                              bool isSettable=true);
             bool setProperty(UInt32 property,
+                             const std::vector<Fraction> &value,
+                             bool isSettable=true);
+            bool setProperty(UInt32 property,
                              const std::vector<AudioValueRange> &value,
                              bool isSettable=true);
             bool setProperty(UInt32 property,
-                             const std::vector<std::pair<double, double>> &value,
+                             const std::vector<FractionRange> &value,
                              bool isSettable=true);
             bool setProperty(UInt32 property,
                              const ClockPtr &value,

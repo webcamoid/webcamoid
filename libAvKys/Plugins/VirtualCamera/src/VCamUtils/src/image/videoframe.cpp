@@ -408,21 +408,23 @@ bool AkVCam::VideoFrame::load(std::istream *stream)
 
     BmpImageHeader imageHeader;
     stream->read(reinterpret_cast<char *>(&imageHeader), sizeof(BmpImageHeader));
-    size_t dataSize = sizeof(RGB24) * size_t(imageHeader.width
-                                             * imageHeader.height);
+    VideoFormat format(PixelFormatRGB24,
+                       int(imageHeader.width),
+                       int(imageHeader.height));
 
-    if (!dataSize)
+    if (format.size() < 1)
         return false;
 
     stream->seekg(header.offBits, std::ios_base::beg);
-    auto data = std::shared_ptr<uint8_t>(new uint8_t[dataSize]);
+    this->d->m_format = format;
+    this->d->m_data = std::shared_ptr<uint8_t>(new uint8_t[format.size()]);
+    this->d->m_dataSize = format.size();
 
     switch (imageHeader.bitCount) {
         case 24:
             for (uint32_t y = 0; y < imageHeader.height; y++) {
-                auto line =
-                        reinterpret_cast<RGB24 *>(data.get())
-                        + imageHeader.width * (imageHeader.height - y - 1);
+                auto line = reinterpret_cast<RGB24 *>
+                            (this->line(0, size_t(imageHeader.height - y - 1)));
 
                 for (uint32_t x = 0; x < imageHeader.width; x++) {
                     BGR24 pixel;
@@ -434,19 +436,12 @@ bool AkVCam::VideoFrame::load(std::istream *stream)
                 }
             }
 
-            this->d->m_format = {PixelFormatRGB24,
-                                 int(imageHeader.width),
-                                 int(imageHeader.height)};
-            this->d->m_data = data;
-            this->d->m_dataSize = dataSize;
-
             break;
 
         case 32:
             for (uint32_t y = 0; y < imageHeader.height; y++) {
-                auto line =
-                        reinterpret_cast<RGB24 *>(data.get())
-                        + imageHeader.width * (imageHeader.height - y - 1);
+                auto line = reinterpret_cast<RGB24 *>
+                            (this->line(0, size_t(imageHeader.height - y - 1)));
 
                 for (uint32_t x = 0; x < imageHeader.width; x++) {
                     BGR32 pixel;
@@ -458,16 +453,14 @@ bool AkVCam::VideoFrame::load(std::istream *stream)
                 }
             }
 
-            this->d->m_format = {PixelFormatRGB24,
-                                 int(imageHeader.width),
-                                 int(imageHeader.height)};
-            this->d->m_data = data;
-            this->d->m_dataSize = dataSize;
-
             break;
 
-        default:
-            break;
+        default:        
+            this->d->m_format.clear();
+            this->d->m_data.reset();
+            this->d->m_dataSize = 0;
+
+            return false;
     }
 
     return true;

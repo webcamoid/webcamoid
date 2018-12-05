@@ -97,10 +97,12 @@ void CameraOutDShow::writeFrame(const AkPacket &frame)
         return;
 
     AkVideoPacket videoFrame(frame);
+    auto fps = AkVCam::Fraction {uint32_t(videoFrame.caps().fps().num()),
+                                 uint32_t(videoFrame.caps().fps().den())};
     AkVCam::VideoFormat format(videoFrame.caps().fourCC(),
                                videoFrame.caps().width(),
                                videoFrame.caps().height(),
-                               {videoFrame.caps().fps().value()});
+                               {fps});
 
     this->d->m_ipcBridge.write(this->d->m_curDevice.toStdString(),
                                AkVCam::VideoFrame(format,
@@ -131,14 +133,13 @@ QString CameraOutDShow::rootMethod() const
 QString CameraOutDShow::createWebcam(const QString &description)
 {
     auto webcams = this->webcams();
-    AkVideoCaps caps(this->m_caps);
     auto webcam =
             this->d->m_ipcBridge.deviceCreate(description.isEmpty()?
                                                   L"AvKys Virtual Camera":
                                                   description.toStdWString(),
                                               {{AkVCam::PixelFormatRGB24,
                                                 640, 480,
-                                                {caps.fps().value()}}});
+                                                {AkVCam::Fraction {30, 1}}}});
 
     if (webcam.size() < 1)
         return {};
@@ -195,10 +196,12 @@ bool CameraOutDShow::removeAllWebcams()
 bool CameraOutDShow::init(int streamIndex)
 {
     AkVideoCaps caps = this->m_caps;
+    auto fps = AkVCam::Fraction {uint32_t(caps.fps().num()),
+                                 uint32_t(caps.fps().den())};
     AkVCam::VideoFormat format(AkVCam::PixelFormatRGB24,
                                caps.width(),
                                caps.height(),
-                               {caps.fps().value()});
+                               {fps});
 
     if (!this->d->m_ipcBridge.deviceStart(this->m_device.toStdString(),
                                           format))

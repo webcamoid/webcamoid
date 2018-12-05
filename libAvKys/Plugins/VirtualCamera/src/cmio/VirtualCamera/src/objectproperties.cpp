@@ -218,6 +218,22 @@ bool AkVCam::ObjectProperties::setProperty(UInt32 property,
 }
 
 bool AkVCam::ObjectProperties::setProperty(UInt32 property,
+                                           const std::vector<Fraction> &value,
+                                           bool isSettable)
+{
+    std::vector<Float64> fvalue;
+
+    for (auto &v: value)
+        fvalue.push_back(v.value());
+
+    this->d->m_properties[property].type = PropertyTypeFloat64Vector;
+    this->d->m_properties[property].isSettable = isSettable;
+    this->d->m_properties[property].float64Vector = fvalue;
+
+    return true;
+}
+
+bool AkVCam::ObjectProperties::setProperty(UInt32 property,
                                            const std::vector<AudioValueRange> &value,
                                            bool isSettable)
 {
@@ -229,13 +245,13 @@ bool AkVCam::ObjectProperties::setProperty(UInt32 property,
 }
 
 bool AkVCam::ObjectProperties::setProperty(UInt32 property,
-                                           const std::vector<std::pair<double, double> > &value,
+                                           const std::vector<FractionRange> &value,
                                            bool isSettable)
 {
     std::vector<AudioValueRange> valueRanges;
 
     for (auto &range: value)
-        valueRanges.push_back({range.first, range.second});
+        valueRanges.push_back({range.first.value(), range.second.value()});
 
     return this->setProperty(property, valueRanges, isSettable);
 }

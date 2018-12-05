@@ -389,13 +389,18 @@ AM_MEDIA_TYPE *AkVCam::mediaTypeFromFormat(const AkVCam::VideoFormat &format)
     auto videoInfo =
             reinterpret_cast<VIDEOINFO *>(CoTaskMemAlloc(sizeof(VIDEOINFO)));
     memset(videoInfo, 0, sizeof(VIDEOINFO));
+    auto fps = format.minimumFrameRate();
 
     // Initialize info header.
     videoInfo->rcSource = {0, 0, 0, 0};
     videoInfo->rcTarget = videoInfo->rcSource;
-    videoInfo->dwBitRate = DWORD(8 * frameSize * format.minimumFrameRate());
-    videoInfo->AvgTimePerFrame =
-            REFERENCE_TIME(TIME_BASE / format.minimumFrameRate());
+    videoInfo->dwBitRate = DWORD(8
+                                 * frameSize
+                                 * fps.num()
+                                 / fps.den());
+    videoInfo->AvgTimePerFrame = REFERENCE_TIME(TIME_BASE
+                                                * fps.den()
+                                                / fps.num());
 
     // Initialize bitmap header.
     videoInfo->bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
@@ -477,18 +482,22 @@ AkVCam::VideoFormat AkVCam::formatFromMediaType(const AM_MEDIA_TYPE *mediaType)
 
     if (IsEqualGUID(mediaType->formattype, FORMAT_VideoInfo)) {
         auto format = reinterpret_cast<VIDEOINFOHEADER *>(mediaType->pbFormat);
+        auto fps = Fraction {uint32_t(TIME_BASE),
+                             uint32_t(format->AvgTimePerFrame)};
 
         return VideoFormat(formatFromGuid(mediaType->subtype),
                            format->bmiHeader.biWidth,
                            std::abs(format->bmiHeader.biHeight),
-                           {double(TIME_BASE) / format->AvgTimePerFrame});
+                           {fps});
     } else if (IsEqualGUID(mediaType->formattype, FORMAT_VideoInfo2)) {
         auto format = reinterpret_cast<VIDEOINFOHEADER2 *>(mediaType->pbFormat);
+        auto fps = Fraction {uint32_t(TIME_BASE),
+                             uint32_t(format->AvgTimePerFrame)};
 
         return VideoFormat(formatFromGuid(mediaType->subtype),
                            format->bmiHeader.biWidth,
                            std::abs(format->bmiHeader.biHeight),
-                           {double(TIME_BASE) / format->AvgTimePerFrame});
+                           {fps});
     }
 
     return VideoFormat();
@@ -1093,15 +1102,16 @@ AkVCam::VideoFormat AkVCam::cameraFormat(DWORD cameraIndex, DWORD formatIndex)
                     &variableSize) != ERROR_SUCCESS)
         return {};
 
-    DWORD fps = 0;
-    variableSize = sizeof(DWORD);
+    WCHAR fpsStr[1024];
+    variableSize = 1024 * sizeof(WCHAR);
+    memset(fpsStr, 0, variableSize);
 
     if (regGetValue(HKEY_LOCAL_MACHINE,
                     ss.str().c_str(),
                     L"fps",
-                    RRF_RT_REG_DWORD,
+                    RRF_RT_REG_SZ,
                     nullptr,
-                    &fps,
+                    &fpsStr,
                     &variableSize) != ERROR_SUCCESS)
         return {};
 
@@ -1109,7 +1119,10 @@ AkVCam::VideoFormat AkVCam::cameraFormat(DWORD cameraIndex, DWORD formatIndex)
     auto fourcc = VideoFormat::fourccFromString(std::string(format.begin(),
                                                             format.end()));
 
-    return VideoFormat(fourcc, int(width), int(height), {double(fps)});
+    return VideoFormat(fourcc,
+                       int(width),
+                       int(height),
+                       {Fraction(fpsStr)});
 }
 
 std::vector<AkVCam::VideoFormat> AkVCam::cameraFormats(DWORD cameraIndex)
@@ -1119,7 +1132,7 @@ std::vector<AkVCam::VideoFormat> AkVCam::cameraFormats(DWORD cameraIndex)
     for (DWORD i = 0; i < formatsCount(cameraIndex); i++) {
         auto videoFormat = cameraFormat(cameraIndex, i);
 
-        if (videoFormat)
+        if (videoFormat > 0)
             formats.push_back(videoFormat);
     }
 

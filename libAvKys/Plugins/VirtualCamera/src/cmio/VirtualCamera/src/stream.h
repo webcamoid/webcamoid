@@ -22,6 +22,7 @@
 
 #include "ipcbridge.h"
 #include "VCamUtils/src/image/videoframetypes.h"
+#include "VCamUtils/src/fraction.h"
 #include "object.h"
 #include "queue.h"
 
@@ -44,7 +45,7 @@ namespace AkVCam
             OSStatus registerObject(bool regist=true);
             void setFormats(const std::vector<VideoFormat> &formats);
             void setFormat(const VideoFormat &format);
-            void setFrameRate(Float64 frameRate);
+            void setFrameRate(const Fraction &frameRate);
             bool start();
             void stop();
             bool running();

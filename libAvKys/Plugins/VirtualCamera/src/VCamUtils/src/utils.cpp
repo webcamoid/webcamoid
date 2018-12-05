@@ -96,3 +96,63 @@ bool AkVCam::isEqualFile(const std::wstring &file1, const std::wstring &file2)
 
     return true;
 }
+
+std::string AkVCam::trimmed(const std::string &str)
+{
+    auto left = uint64_t(str.size());
+    auto right = uint64_t(str.size());
+
+    for (size_t i = 0; i < str.size(); i++)
+        if (!isspace(str[i])) {
+            left = uint64_t(i);
+
+            break;
+        }
+
+    auto strippedLen = str.size();
+
+    if (left == str.size()) {
+        strippedLen = 0;
+    } else {
+        for (int64_t i = str.size() - 1; i >= 0; i--)
+            if (!isspace(str[size_t(i)])) {
+                right = uint64_t(i);
+
+                break;
+            }
+
+        strippedLen = size_t(right - left + 1);
+    }
+
+    return str.substr(size_t(left), strippedLen);
+}
+
+std::wstring AkVCam::trimmed(const std::wstring &str)
+{
+    auto left = uint64_t(str.size());
+    auto right = uint64_t(str.size());
+
+    for (size_t i = 0; i < str.size(); i++)
+        if (!iswspace(str[i])) {
+            left = uint64_t(i);
+
+            break;
+        }
+
+    auto strippedLen = str.size();
+
+    if (left == str.size()) {
+        strippedLen = 0;
+    } else {
+        for (int64_t i = str.size() - 1; i >= 0; i--)
+            if (!iswspace(str[size_t(i)])) {
+                right = uint64_t(i);
+
+                break;
+            }
+
+        strippedLen = size_t(right - left + 1);
+    }
+
+    return str.substr(size_t(left), strippedLen);
+}

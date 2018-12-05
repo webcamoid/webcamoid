@@ -31,13 +31,13 @@ namespace AkVCam
             FourCC m_fourcc;
             int m_width;
             int m_height;
-            std::vector<double> m_frameRates;
+            std::vector<Fraction> m_frameRates;
 
             VideoFormatPrivate();
             VideoFormatPrivate(FourCC fourcc,
                                int width,
                                int height,
-                               const std::vector<double> &frameRates);
+                               const std::vector<Fraction> &frameRates);
     };
 
     typedef size_t (*PlaneOffsetFunc)(size_t plane, size_t width, size_t height);
@@ -81,7 +81,7 @@ AkVCam::VideoFormat::VideoFormat()
 AkVCam::VideoFormat::VideoFormat(FourCC fourcc,
                                  int width,
                                  int height,
-                                 const std::vector<double> &frameRates)
+                                 const std::vector<Fraction> &frameRates)
 {
     this->d = new VideoFormatPrivate(fourcc, width, height, frameRates);
 }
@@ -92,6 +92,11 @@ AkVCam::VideoFormat::VideoFormat(const VideoFormat &other)
                                      other.d->m_width,
                                      other.d->m_height,
                                      other.d->m_frameRates);
+}
+
+AkVCam::VideoFormat::~VideoFormat()
+{
+    delete this->d;
 }
 
 AkVCam::VideoFormat &AkVCam::VideoFormat::operator =(const VideoFormat &other)
@@ -127,11 +132,6 @@ AkVCam::VideoFormat::operator bool() const
     return this->isValid();
 }
 
-AkVCam::VideoFormat::~VideoFormat()
-{
-    delete this->d;
-}
-
 AkVCam::FourCC AkVCam::VideoFormat::fourcc() const
 {
     return this->d->m_fourcc;
@@ -162,19 +162,19 @@ int &AkVCam::VideoFormat::height()
     return this->d->m_height;
 }
 
-std::vector<double> AkVCam::VideoFormat::frameRates() const
+std::vector<AkVCam::Fraction> AkVCam::VideoFormat::frameRates() const
 {
     return this->d->m_frameRates;
 }
 
-std::vector<double> &AkVCam::VideoFormat::frameRates()
+std::vector<AkVCam::Fraction> &AkVCam::VideoFormat::frameRates()
 {
     return this->d->m_frameRates;
 }
 
-std::vector<std::pair<double, double>> AkVCam::VideoFormat::frameRateRanges() const
+std::vector<AkVCam::FractionRange> AkVCam::VideoFormat::frameRateRanges() const
 {
-    std::vector<std::pair<double, double>> ranges;
+    std::vector<FractionRange> ranges;
 
     if (!this->d->m_frameRates.empty()) {
         auto min = *std::min_element(this->d->m_frameRates.begin(),
@@ -187,10 +187,10 @@ std::vector<std::pair<double, double>> AkVCam::VideoFormat::frameRateRanges() co
     return ranges;
 }
 
-double AkVCam::VideoFormat::minimumFrameRate() const
+AkVCam::Fraction AkVCam::VideoFormat::minimumFrameRate() const
 {
     if (this->d->m_frameRates.empty())
-        return 0.0;
+        return {0, 0};
 
     return *std::min_element(this->d->m_frameRates.begin(),
                              this->d->m_frameRates.end());
@@ -269,7 +269,7 @@ bool AkVCam::VideoFormat::isValid() const
         return false;
 
     for (auto &fps: this->d->m_frameRates)
-        if (fps < 1.0)
+        if (fps.num() < 1 || fps.den() < 1)
             return false;
 
     return true;
@@ -372,7 +372,7 @@ AkVCam::VideoFormatPrivate::VideoFormatPrivate():
 AkVCam::VideoFormatPrivate::VideoFormatPrivate(FourCC fourcc,
                                                int width,
                                                int height,
-                                               const std::vector<double> &frameRates):
+                                               const std::vector<Fraction> &frameRates):
     m_fourcc(fourcc),
     m_width(width),
     m_height(height),

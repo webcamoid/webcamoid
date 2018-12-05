@@ -116,7 +116,7 @@ AkFrac &AkFrac::operator =(const AkFrac &other)
 
 bool AkFrac::operator ==(const AkFrac &other) const
 {
-    return this->toString() == other.toString();
+    return this->d->m_num * other.d->m_den == this->d->m_den * other.d->m_num;
 }
 
 bool AkFrac::operator !=(const AkFrac &other) const
@@ -157,15 +157,12 @@ bool AkFrac::isValid() const
 
 QString AkFrac::toString() const
 {
-    return QString("%1/%2")
-            .arg(this->d->m_num)
-            .arg(this->d->m_den);
+    return QString("%1/%2").arg(this->d->m_num).arg(this->d->m_den);
 }
 
 AkFrac AkFrac::invert() const
 {
-    return AkFrac(this->d->m_den,
-                  this->d->m_num);
+    return AkFrac(this->d->m_den, this->d->m_num);
 }
 
 void AkFrac::setNumDen(qint64 num, qint64 den)
@@ -247,7 +244,6 @@ void AkFrac::setNumDen(const QString &fracString)
 
     QStringList fracChunks = fracString.split(QRegExp("\\s*/\\s*"),
                                               QString::SkipEmptyParts);
-
     qint64 num = fracChunks[0].trimmed().toInt();
     qint64 den = fracChunks[1].trimmed().toInt();
 

@@ -426,7 +426,7 @@ std::vector<AkVCam::VideoFormat> AkVCam::IpcBridge::formats(const std::string &d
         auto fourcc = FourCC(xpc_dictionary_get_uint64(format, "fourcc"));
         auto width = int(xpc_dictionary_get_int64(format, "width"));
         auto height = int(xpc_dictionary_get_int64(format, "height"));
-        double fps = xpc_dictionary_get_double(format, "fps");
+        auto fps = Fraction(xpc_dictionary_get_string(format, "fps"));
 
         formats.push_back(VideoFormat(fourcc, width, height, {fps}));
     }
@@ -663,7 +663,7 @@ std::string AkVCam::IpcBridge::deviceCreate(const std::wstring &description,
         xpc_dictionary_set_uint64(dictFormat, "fourcc", format.fourcc());
         xpc_dictionary_set_int64(dictFormat, "width", format.width());
         xpc_dictionary_set_int64(dictFormat, "height", format.height());
-        xpc_dictionary_set_double(dictFormat, "fps", format.minimumFrameRate());
+        xpc_dictionary_set_string(dictFormat, "fps", format.minimumFrameRate().toString().c_str());
         xpc_array_append_value(formatsList, dictFormat);
     }
 

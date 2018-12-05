@@ -461,10 +461,10 @@ AkPacket CaptureAvFoundation::readFrame()
                                             CaptureAvFoundationPrivate::fourccToStr(format));
     } else if (dataBuffer) {
         size_t dataSize = 0;
-        char *data = NULL;
+        char *data = nullptr;
         CMBlockBufferGetDataPointer(dataBuffer,
                                     0,
-                                    NULL,
+                                    nullptr,
                                     &dataSize,
                                     &data);
         oBuffer.resize(int(dataSize));
@@ -485,7 +485,7 @@ AkPacket CaptureAvFoundation::readFrame()
         timeBase = AkFrac(1, timingInfo.presentationTimeStamp.timescale);
     } else {
         timeval timestamp;
-        gettimeofday(&timestamp, NULL);
+        gettimeofday(&timestamp, nullptr);
         pts = qint64((timestamp.tv_sec
                       + 1e-6 * timestamp.tv_usec)
                      * this->d->m_timeBase.invert().value());
@@ -601,7 +601,7 @@ bool CaptureAvFoundation::init()
     this->d->m_dataOutput.videoSettings = nil;
     this->d->m_dataOutput.alwaysDiscardsLateVideoFrames = YES;
 
-    dispatch_queue_t queue = dispatch_queue_create("frameQueue", NULL);
+    dispatch_queue_t queue = dispatch_queue_create("frameQueue", nullptr);
     [this->d->m_dataOutput
      setSampleBufferDelegate: this->d->m_deviceObserver
      queue: queue];

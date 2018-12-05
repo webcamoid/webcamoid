@@ -363,16 +363,18 @@ std::shared_ptr<CFTypeRef> AkVCam::AssistantPrivate::cfTypeFromStd(double num) c
 
 std::string AkVCam::AssistantPrivate::stringFromCFType(CFTypeRef cfType) const
 {
-    auto len = CFStringGetLength(CFStringRef(cfType));
+    auto len = size_t(CFStringGetLength(CFStringRef(cfType)));
     auto data = CFStringGetCStringPtr(CFStringRef(cfType), kCFStringEncodingUTF8);
 
     if (data)
         return std::string(data, len);
 
-    char str[len];
-    CFStringGetCString(CFStringRef(cfType), str, len, kCFStringEncodingUTF8);
+    auto cstr = new char[len];
+    CFStringGetCString(CFStringRef(cfType), cstr, CFIndex(len), kCFStringEncodingUTF8);
+    std::string str(cstr, len);
+    delete [] cstr;
 
-    return std::string(str, len);
+    return str;
 }
 
 std::wstring AkVCam::AssistantPrivate::wstringFromCFType(CFTypeRef cfType) const
@@ -392,21 +394,21 @@ std::wstring AkVCam::AssistantPrivate::wstringFromCFType(CFTypeRef cfType) const
     if (converted < 1 || bufferLen < 1)
         return {};
 
-    wchar_t str[bufferLen];
+    wchar_t cstr[bufferLen];
 
     converted = CFStringGetBytes(CFStringRef(cfType),
                                  range,
                                  kCFStringEncodingUTF32LE,
                                  0,
                                  false,
-                                 reinterpret_cast<UInt8 *>(str),
+                                 reinterpret_cast<UInt8 *>(cstr),
                                  bufferLen,
                                  nullptr);
 
     if (converted < 1)
         return {};
 
-    return std::wstring(str, len);
+    return std::wstring(cstr, size_t(len));
 }
 
 std::vector<std::string> AkVCam::AssistantPrivate::preferencesKeys() const
@@ -673,7 +675,7 @@ std::string AkVCam::AssistantPrivate::preferencesAddCamera(const std::string &pa
         this->preferencesWrite(prefix + ".format", formatStr);
         this->preferencesWrite(prefix + ".width", format.width());
         this->preferencesWrite(prefix + ".height", format.height());
-        this->preferencesWrite(prefix + ".fps", format.minimumFrameRate());
+        this->preferencesWrite(prefix + ".fps", format.minimumFrameRate().toString());
     }
 
     this->preferencesSync();
@@ -693,7 +695,7 @@ void AkVCam::AssistantPrivate::preferencesRemoveCamera(const std::string &path)
     auto nCameras = this->camerasCount();
     this->preferencesDeleteAll("cameras." + std::to_string(cameraIndex));
 
-    for (size_t i = cameraIndex + 1; i < nCameras; i++)
+    for (auto i = size_t(cameraIndex + 1); i < nCameras; i++)
         this->preferencesMoveAll("cameras." + std::to_string(i),
                                  "cameras." + std::to_string(i - 1));
 
@@ -793,7 +795,7 @@ AkVCam::VideoFormat AkVCam::AssistantPrivate::cameraFormat(size_t cameraIndex,
     auto fourcc = VideoFormat::fourccFromString(format);
     int width = this->preferencesReadInt(prefix + ".width");
     int height = this->preferencesReadInt(prefix + ".height");
-    double fps = this->preferencesReadDouble(prefix + ".fps");
+    auto fps = Fraction(this->preferencesReadString(prefix + ".fps"));
 
     return VideoFormat(fourcc, width, height, {fps});
 }
@@ -832,7 +834,7 @@ void AkVCam::AssistantPrivate::releaseDevicesFromPeer(const std::string &portNam
         if (config.second.broadcaster == portName) {
             config.second.broadcaster.clear();
 
-            auto dictionary = xpc_dictionary_create(NULL, NULL, 0);
+            auto dictionary = xpc_dictionary_create(nullptr, nullptr, 0);
             xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_SETBROADCASTING);
             xpc_dictionary_set_string(dictionary, "device", config.first.c_str());
             xpc_dictionary_set_string(dictionary, "broadcaster", "");
@@ -866,7 +868,7 @@ void AkVCam::AssistantPrivate::peerDied()
 
     for (auto peers: allPeers) {
         for (auto &peer: *peers) {
-            auto dictionary = xpc_dictionary_create(NULL, NULL, 0);
+            auto dictionary = xpc_dictionary_create(nullptr, nullptr, 0);
             xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_ISALIVE);
             auto reply = xpc_connection_send_message_with_reply_sync(peer.second,
                                                                      dictionary);
@@ -1003,7 +1005,7 @@ void AkVCam::AssistantPrivate::deviceCreate(xpc_connection_t client,
         auto fourcc = FourCC(xpc_dictionary_get_uint64(format, "fourcc"));
         auto width = int(xpc_dictionary_get_int64(format, "width"));
         auto height = int(xpc_dictionary_get_int64(format, "height"));
-        double frameRate = xpc_dictionary_get_double(format, "fps");
+        auto frameRate = Fraction(xpc_dictionary_get_string(format, "fps"));
         formats.push_back(VideoFormat {fourcc, width, height, {frameRate}});
     }
 
@@ -1035,7 +1037,7 @@ void AkVCam::AssistantPrivate::deviceDestroyById(const std::string &deviceId)
     if (it != this->m_deviceConfigs.end()) {
         this->m_deviceConfigs.erase(it);
 
-        auto notification = xpc_dictionary_create(NULL, NULL, 0);
+        auto notification = xpc_dictionary_create(nullptr, nullptr, 0);
         xpc_dictionary_set_int64(notification, "message", AKVCAM_ASSISTANT_MSG_DEVICE_DESTROY);
         xpc_dictionary_set_string(notification, "device", deviceId.c_str());
 
@@ -1207,7 +1209,7 @@ void AkVCam::AssistantPrivate::listeners(xpc_connection_t client,
 {
     AkAssistantPrivateLogMethod();
     std::string deviceId = xpc_dictionary_get_string(event, "device");
-    auto listeners = xpc_array_create(NULL, 0);
+    auto listeners = xpc_array_create(nullptr, 0);
 
     if (this->m_deviceConfigs.count(deviceId) > 0)
         for (auto &listener: this->m_deviceConfigs[deviceId].listeners) {
@@ -1251,7 +1253,7 @@ void AkVCam::AssistantPrivate::devices(xpc_connection_t client,
                                        xpc_object_t event)
 {
     AkAssistantPrivateLogMethod();
-    auto devices = xpc_array_create(NULL, 0);
+    auto devices = xpc_array_create(nullptr, 0);
 
     for (auto &device: this->m_deviceConfigs) {
         auto deviceObj = xpc_string_create(device.first.c_str());
@@ -1290,7 +1292,7 @@ void AkVCam::AssistantPrivate::formats(xpc_connection_t client,
 {
     AkAssistantPrivateLogMethod();
     std::string deviceId = xpc_dictionary_get_string(event, "device");
-    auto formats = xpc_array_create(NULL, 0);
+    auto formats = xpc_array_create(nullptr, 0);
 
     if (this->m_deviceConfigs.count(deviceId) > 0)
         for (auto &format: this->m_deviceConfigs[deviceId].formats) {
@@ -1298,7 +1300,7 @@ void AkVCam::AssistantPrivate::formats(xpc_connection_t client,
             xpc_dictionary_set_uint64(dictFormat, "fourcc", format.fourcc());
             xpc_dictionary_set_int64(dictFormat, "width", format.width());
             xpc_dictionary_set_int64(dictFormat, "height", format.height());
-            xpc_dictionary_set_double(dictFormat, "fps", format.minimumFrameRate());
+            xpc_dictionary_set_string(dictFormat, "fps", format.minimumFrameRate().toString().c_str());
             xpc_array_append_value(formats, dictFormat);
         }
 

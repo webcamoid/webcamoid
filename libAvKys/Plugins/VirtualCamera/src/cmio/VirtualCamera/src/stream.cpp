@@ -39,7 +39,7 @@ namespace AkVCam
             SampleBufferQueuePtr m_queue;
             CMIODeviceStreamQueueAlteredProc m_queueAltered;
             VideoFormat m_format;
-            double m_fps;
+            Fraction m_fps;
             VideoFrame m_currentFrame;
             VideoFrame m_testFrame;
             VideoFrame m_testFrameAdapted;
@@ -214,20 +214,19 @@ void AkVCam::Stream::setFormat(const VideoFormat &format)
                                    format.frameRates());
     this->m_properties.setProperty(kCMIOStreamPropertyFrameRateRanges,
                                    format.frameRateRanges());
-
     this->m_properties.setProperty(kCMIOStreamPropertyMinimumFrameRate,
-                                   format.minimumFrameRate());
+                                   format.minimumFrameRate().value());
 
     if (!format.frameRates().empty())
-        this->setFrameRate(format.frameRates()[0]);
+        this->setFrameRate(format.frameRates().front());
 
     this->d->m_format = format;
 }
 
-void AkVCam::Stream::setFrameRate(Float64 frameRate)
+void AkVCam::Stream::setFrameRate(const Fraction &frameRate)
 {
     this->m_properties.setProperty(kCMIOStreamPropertyFrameRate,
-                                   frameRate);
+                                   frameRate.value());
     this->d->m_fps = frameRate;
 }
 
@@ -426,7 +425,7 @@ bool AkVCam::StreamPrivate::startTimer()
     if (this->m_timer)
         return false;
 
-    CFTimeInterval interval = 1.0 / this->m_fps;
+    CFTimeInterval interval = 1.0 / this->m_fps.value();
     CFRunLoopTimerContext context {0, this, nullptr, nullptr, nullptr};
     this->m_timer =
             CFRunLoopTimerCreate(kCFAllocatorDefault,
@@ -505,7 +504,7 @@ void AkVCam::StreamPrivate::sendFrame(const VideoFrame &frame)
         return;
     if (CMTIME_IS_INVALID(this->m_pts)
         || ptsDiff < 0
-        || ptsDiff > 2. / this->m_fps) {
+        || ptsDiff > 2. / this->m_fps.value()) {
         this->m_pts = pts;
         resync = true;
     }
@@ -536,7 +535,7 @@ void AkVCam::StreamPrivate::sendFrame(const VideoFrame &frame)
                                                  imageBuffer,
                                                  &format);
 
-    auto duration = CMTimeMake(1, int32_t(this->m_fps));
+    auto duration = CMTimeMake(this->m_fps.den(), int32_t(this->m_fps.num()));
     CMSampleTimingInfo timingInfo {
         duration,
         this->m_pts,

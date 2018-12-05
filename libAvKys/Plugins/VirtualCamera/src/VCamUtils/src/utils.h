@@ -151,6 +151,8 @@ namespace AkVCam
                          const std::wstring &from,
                          const std::wstring &to);
     bool isEqualFile(const std::wstring &file1, const std::wstring &file2);
+    std::string trimmed(const std::string &str);
+    std::wstring trimmed(const std::wstring &str);
 }
 
 #endif // AKVCAMUTILS_UTILS_H

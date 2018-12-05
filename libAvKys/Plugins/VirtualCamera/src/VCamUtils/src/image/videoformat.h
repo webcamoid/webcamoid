@@ -24,6 +24,7 @@
 #include <vector>
 
 #include "videoformattypes.h"
+#include "../fraction.h"
 
 namespace AkVCam
 {
@@ -36,13 +37,13 @@ namespace AkVCam
             VideoFormat(FourCC fourcc,
                         int width,
                         int height,
-                        const std::vector<double> &frameRates={});
+                        const std::vector<Fraction> &frameRates={});
             VideoFormat(const VideoFormat &other);
+            ~VideoFormat();
             VideoFormat &operator =(const VideoFormat &other);
             bool operator ==(const VideoFormat &other) const;
             bool operator !=(const VideoFormat &other) const;
             operator bool() const;
-            ~VideoFormat();
 
             FourCC fourcc() const;
             FourCC &fourcc();
@@ -50,10 +51,10 @@ namespace AkVCam
             int &width();
             int height() const;
             int &height();
-            std::vector<double> frameRates() const;
-            std::vector<double> &frameRates();
-            std::vector<std::pair<double, double>> frameRateRanges() const;
-            double minimumFrameRate() const;
+            std::vector<Fraction> frameRates() const;
+            std::vector<Fraction> &frameRates();
+            std::vector<FractionRange> frameRateRanges() const;
+            Fraction minimumFrameRate() const;
             size_t bpp() const;
             size_t bypl(size_t plane) const;
             size_t size() const;
