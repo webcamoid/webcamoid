@@ -160,16 +160,14 @@ bool CameraOutV4L2::changeDescription(const QString &webcam,
     if (!webcams.contains(webcam))
         return false;
 
-    bool result =
+    bool ok =
             this->d->m_ipcBridge.changeDescription(webcam.toStdString(),
                                                    description.toStdWString());
 
-    auto curWebcams = this->webcams();
+    if (ok)
+        emit this->webcamsChanged(webcams);
 
-    if (curWebcams != webcams)
-        emit this->webcamsChanged(curWebcams);
-
-    return result;
+    return ok;
 }
 
 bool CameraOutV4L2::removeWebcam(const QString &webcam)

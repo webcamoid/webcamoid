@@ -515,23 +515,12 @@ void MediaTools::loadConfigs()
 
     config.beginGroup("VirtualCamera");
     this->setEnableVirtualCamera(config.value("enable", false).toBool());
-
-    QStringList driverPaths;
-    int size = config.beginReadArray("driverPath");
-
-    for (int i = 0; i < size; i++) {
-        config.setArrayIndex(i);
-        auto path = config.value("path").toString();
-        path = this->convertToAbsolute(path);
-
-        if (QFileInfo(path).exists())
-            driverPaths << path;
-    }
-
-    config.endArray();
+    config.endGroup();
 
     auto optPaths =
             this->d->m_cliOptions.value(this->d->m_cliOptions.vcamPathOpt()).split(';');
+
+    QStringList driverPaths;
 
     for (auto path: optPaths) {
         path = this->convertToAbsolute(path);
@@ -544,8 +533,6 @@ void MediaTools::loadConfigs()
         QMetaObject::invokeMethod(this->d->m_virtualCamera.data(),
                                   "addDriverPaths",
                                   Q_ARG(QStringList, driverPaths));
-
-    config.endGroup();
 }
 
 void MediaTools::saveVirtualCameraOutputLib(const QString &outputLib)
@@ -575,22 +562,6 @@ void MediaTools::saveConfigs()
 
     config.beginGroup("VirtualCamera");
     config.setValue("enable", this->enableVirtualCamera());
-
-    QStringList driverPaths;
-
-    if (this->d->m_virtualCamera)
-        driverPaths = this->d->m_virtualCamera->property("driverPaths").toStringList();
-
-    config.beginWriteArray("driverPath");
-    int i = 0;
-
-    for (auto &path: driverPaths) {
-        config.setArrayIndex(i);
-        config.setValue("path", path);
-        i++;
-    }
-
-    config.endArray();
     config.endGroup();
 
     config.beginGroup("Libraries");

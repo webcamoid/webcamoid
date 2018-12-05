@@ -53,7 +53,7 @@ namespace AkVCam
     typedef std::function<std::string
                           (const std::wstring &description,
                            const std::vector<VideoFormat> &formats)> DeviceCreateFunc;
-    typedef std::function<void
+    typedef std::function<bool
                           (const std::string &deviceId)> DeviceDestroyFunc;
     typedef std::function<bool (const std::string &deviceId,
                                 const std::wstring &description)> ChangeDescriptionFunc;
@@ -178,20 +178,21 @@ namespace AkVCam
             QString locateDriverPath() const;
             QString compileDriver(const QString &path);
             QString currentDriver(const std::string &deviceId={});
+            QString cleanDescription(const std::wstring &description) const;
             QString cleanDescription(const QString &description) const;
             bool isModuleLoaded(const QString &driver) const;
             bool canHandleAkVCam(const std::string &deviceId);
-            QList<DeviceInfo> devicesInfo() const;
+            QList<DeviceInfo> devicesInfo(const QString &driverName) const;
             std::string deviceCreateAkVCam(const std::wstring &description,
                                            const std::vector<VideoFormat> &formats);
-            void deviceDestroyAkVCam(const std::string &deviceId);
+            bool deviceDestroyAkVCam(const std::string &deviceId);
             bool changeDescriptionAkVCam(const std::string &deviceId,
                                          const std::wstring &description);
             QString destroyAllDevicesAkVCam();
             bool canHandleV4L2Loopback(const std::string &deviceId);
             std::string deviceCreateV4L2Loopback(const std::wstring &description,
                                                  const std::vector<VideoFormat> &formats);
-            void deviceDestroyV4L2Loopback(const std::string &deviceId);
+            bool deviceDestroyV4L2Loopback(const std::string &deviceId);
             bool changeDescriptionV4L2Loopback(const std::string &deviceId,
                                                const std::wstring &description);
             QString destroyAllDevicesV4L2Loopback();
@@ -686,7 +687,12 @@ std::string AkVCam::IpcBridge::deviceCreate(const std::wstring &description,
     if (!functions)
         return {};
 
-    return functions->deviceCreate(description, formats);
+    auto deviceId = functions->deviceCreate(description, formats);
+
+    if (!deviceId.empty())
+        this->d->updateDevices();
+
+    return deviceId;
 }
 
 void AkVCam::IpcBridge::deviceDestroy(const std::string &deviceId)
@@ -701,7 +707,8 @@ void AkVCam::IpcBridge::deviceDestroy(const std::string &deviceId)
     if (!functions)
         return;
 
-    return functions->deviceDestroy(deviceId);
+    if (functions->deviceDestroy(deviceId))
+        this->d->updateDevices();
 }
 
 bool AkVCam::IpcBridge::changeDescription(const std::string &deviceId,
@@ -717,7 +724,12 @@ bool AkVCam::IpcBridge::changeDescription(const std::string &deviceId,
     if (!functions)
         return false;
 
-    return functions->changeDescription(deviceId, description);
+    if (!functions->changeDescription(deviceId, description))
+        return false;
+
+    this->d->updateDevices();
+
+    return true;
 }
 
 bool AkVCam::IpcBridge::destroyAllDevices()
@@ -738,7 +750,12 @@ bool AkVCam::IpcBridge::destroyAllDevices()
 
         cmds.close();
 
-        return this->d->sudo(this->d->m_rootMethod, {"sh", cmds.fileName()});
+        if (!this->d->sudo(this->d->m_rootMethod, {"sh", cmds.fileName()}))
+            return false;
+
+        this->d->updateDevices();
+
+        return true;
     }
 
     return false;
@@ -2153,6 +2170,11 @@ QString AkVCam::IpcBridgePrivate::currentDriver(const std::string &deviceId)
     return {};
 }
 
+QString AkVCam::IpcBridgePrivate::cleanDescription(const std::wstring &description) const
+{
+    return this->cleanDescription(QString::fromStdWString(description));
+}
+
 QString AkVCam::IpcBridgePrivate::cleanDescription(const QString &description) const
 {
     QString desc;
@@ -2206,7 +2228,7 @@ bool AkVCam::IpcBridgePrivate::canHandleAkVCam(const std::string &deviceId)
     return driver == "akvcam";
 }
 
-QList<AkVCam::DeviceInfo> AkVCam::IpcBridgePrivate::devicesInfo() const
+QList<AkVCam::DeviceInfo> AkVCam::IpcBridgePrivate::devicesInfo(const QString &driverName) const
 {
     QList<DeviceInfo> devices;
     QDir devicesDir("/dev");
@@ -2232,14 +2254,15 @@ QList<AkVCam::DeviceInfo> AkVCam::IpcBridgePrivate::devicesInfo() const
         if (this->xioctl(fd, VIDIOC_QUERYCAP, &capability) >= 0) {
             QString driver = reinterpret_cast<const char *>(capability.driver);
 
-            if (capability.capabilities & V4L2_CAP_VIDEO_OUTPUT
-                && driver == "v4l2 loopback") {
-                devices << DeviceInfo {QString(fileName).remove("/dev/video").toInt(),
-                                       fileName,
-                                       reinterpret_cast<const char *>(capability.card),
-                                       reinterpret_cast<const char *>(capability.driver),
-                                       reinterpret_cast<const char *>(capability.bus_info),
-                                       {}};
+            if (driver == driverName) {
+                devices << DeviceInfo {
+                           QString(fileName).remove("/dev/video").toInt(),
+                           fileName,
+                           reinterpret_cast<const char *>(capability.card),
+                           reinterpret_cast<const char *>(capability.driver),
+                           reinterpret_cast<const char *>(capability.bus_info),
+                           {}
+                };
             }
         }
 
@@ -2255,8 +2278,9 @@ std::string AkVCam::IpcBridgePrivate::deviceCreateAkVCam(const std::wstring &des
     return {};
 }
 
-void AkVCam::IpcBridgePrivate::deviceDestroyAkVCam(const std::string &deviceId)
+bool AkVCam::IpcBridgePrivate::deviceDestroyAkVCam(const std::string &deviceId)
 {
+    return false;
 }
 
 bool AkVCam::IpcBridgePrivate::changeDescriptionAkVCam(const std::string &deviceId,
@@ -2268,6 +2292,13 @@ bool AkVCam::IpcBridgePrivate::changeDescriptionAkVCam(const std::string &device
 QString AkVCam::IpcBridgePrivate::destroyAllDevicesAkVCam()
 {
     return {};
+    // return {"rmmod akvcam 2>/dev/null\n"
+    //         "sed -i '/akvcam/d' /etc/modules 2>/dev/null\n"
+    //         "sed -i '/akvcam/d' /etc/modules-load.d/*.conf 2>/dev/null\n"
+    //         "sed -i '/akvcam/d' /etc/modprobe.d/*.conf 2>/dev/null\n"
+    //         "rm -f /etc/modules-load.d/akvcam.conf\n"
+    //         "rm -f /etc/modprobe.d/akvcam.conf\n"
+    //         "rm -f /etc/akvcam/config.ini\n"};
 }
 
 bool AkVCam::IpcBridgePrivate::canHandleV4L2Loopback(const std::string &deviceId)
@@ -2308,23 +2339,10 @@ std::string AkVCam::IpcBridgePrivate::deviceCreateV4L2Loopback(const std::wstrin
     if (deviceNR < 0)
         return {};
 
-    QTemporaryDir tempDir;
-    QFile cmds(tempDir.path() + "/akvcam_exec.sh");
-
-    if (!cmds.open(QIODevice::WriteOnly | QIODevice::Text))
-        return {};
-
-    cmds.setPermissions(QFileDevice::ReadOwner
-                        | QFileDevice::WriteOwner
-                        | QFileDevice::ExeOwner
-                        | QFileDevice::ReadUser
-                        | QFileDevice::WriteUser
-                        | QFileDevice::ExeUser);
-
-    auto devices = this->devicesInfo();
+    auto devices = this->devicesInfo("v4l2 loopback");
     devices << DeviceInfo {deviceNR,
                            devicePath,
-                           QString::fromStdWString(description),
+                           this->cleanDescription(description),
                            "",
                            "",
                            {}};
@@ -2341,9 +2359,21 @@ std::string AkVCam::IpcBridgePrivate::deviceCreateV4L2Loopback(const std::wstrin
         if (!cardLabel.isEmpty())
             cardLabel += ',';
 
-        cardLabel += this->cleanDescription(device.description);
+        cardLabel += device.description;
     }
 
+    QTemporaryDir tempDir;
+    QFile cmds(tempDir.path() + "/akvcam_exec.sh");
+
+    if (!cmds.open(QIODevice::WriteOnly | QIODevice::Text))
+        return {};
+
+    cmds.setPermissions(QFileDevice::ReadOwner
+                        | QFileDevice::WriteOwner
+                        | QFileDevice::ExeOwner
+                        | QFileDevice::ReadUser
+                        | QFileDevice::WriteUser
+                        | QFileDevice::ExeUser);
     cmds.write("rmmod v4l2loopback 2>/dev/null\n");
 
     if (this->m_driverPath.isEmpty()) {
@@ -2398,7 +2428,7 @@ std::string AkVCam::IpcBridgePrivate::deviceCreateV4L2Loopback(const std::wstrin
     int i = 0;
     int j = 0;
 
-    for (auto &device: this->devicesInfo()) {
+    for (auto &device: this->devicesInfo("v4l2 loopback")) {
         if (device.path == devicePath)
             device.formats =
                     QVector<VideoFormat>::fromStdVector(formats).toList();
@@ -2444,116 +2474,164 @@ std::string AkVCam::IpcBridgePrivate::deviceCreateV4L2Loopback(const std::wstrin
     return devicePath.toStdString();
 }
 
-void AkVCam::IpcBridgePrivate::deviceDestroyV4L2Loopback(const std::string &deviceId)
+bool AkVCam::IpcBridgePrivate::deviceDestroyV4L2Loopback(const std::string &deviceId)
 {
-    /*
-    if ((this->m_rootMethod == "su" || this->m_rootMethod == "sudo")
-        && password.isEmpty())
+    auto devices = this->devicesInfo("v4l2 loopback");
+    auto it = std::find_if(devices.begin(),
+                           devices.end(),
+                           [&deviceId] (const DeviceInfo &device) {
+                               return device.path == QString::fromStdString(deviceId);
+                           });
+
+    if (it == devices.end())
         return false;
 
-    if (!QRegExp("/dev/video[0-9]+").exactMatch(webcam))
-        return false;
+    devices.erase(it);
 
-    QStringList webcams = this->webcams();
+    QString videoNR;
+    QString cardLabel;
 
-    if (webcams.isEmpty()
-        || !webcams.contains(webcam))
-        return false;
+    for (auto &device: devices) {
+        if (!videoNR.isEmpty())
+            videoNR += ',';
 
-    QStringList webcamDescriptions;
-    QStringList webcamIds;
+        videoNR += QString("%1").arg(device.nr);
 
-    for (const QString &webcam: webcams) {
-        webcamDescriptions << this->description(webcam);
-        int id = webcam.indexOf(QRegExp("[0-9]+"));
-        webcamIds << webcam.mid(id);
+        if (!cardLabel.isEmpty())
+            cardLabel += ',';
+
+        cardLabel += device.description;
     }
 
-    int id = webcam.indexOf(QRegExp("[0-9]+"));
-    bool ok = false;
-    id = webcam.mid(id).toInt(&ok);
+    QTemporaryDir tempDir;
+    QFile cmds(tempDir.path() + "/akvcam_exec.sh");
 
-    if (!ok)
+    if (!cmds.open(QIODevice::WriteOnly | QIODevice::Text))
         return false;
 
-    int index = webcamIds.indexOf(QString("%1").arg(id));
+    cmds.setPermissions(QFileDevice::ReadOwner
+                        | QFileDevice::WriteOwner
+                        | QFileDevice::ExeOwner
+                        | QFileDevice::ReadUser
+                        | QFileDevice::WriteUser
+                        | QFileDevice::ExeUser);
+    cmds.write("rmmod v4l2loopback 2>/dev/null\n");
 
-    if (index < 0)
-        return false;
+    if (this->m_driverPath.isEmpty()) {
+        cmds.write("sed -i '/v4l2loopback/d' /etc/modules 2>/dev/null\n");
+        cmds.write("sed -i '/v4l2loopback/d' /etc/modules-load.d/*.conf 2>/dev/null\n");
+        cmds.write("sed -i '/v4l2loopback/d' /etc/modprobe.d/*.conf 2>/dev/null\n");
 
-    webcamDescriptions.removeAt(index);
-    webcamIds.removeAt(index);
+        if (!devices.empty()) {
+            cmds.write("echo v4l2loopback > /etc/modules-load.d/v4l2loopback.conf\n");
+            cmds.write(QString("echo options v4l2loopback devices=%1 'card_label=\"%2\"' "
+                               "> /etc/modprobe.d/v4l2loopback.conf\n")
+                       .arg(devices.size()).arg(cardLabel).toUtf8());
+            cmds.write(QString("modprobe v4l2loopback video_nr=%1 card_label=\"%2\"\n")
+                       .arg(videoNR).arg(cardLabel).toUtf8());
+        }
+    } else {
+        QFileInfo info(this->m_driverPath);
+        auto dir = info.dir().canonicalPath();
+        cmds.write(QString("cd '%1'\n").arg(dir).toUtf8());
 
-    if (!this->d->updateCameras(webcamIds, webcamDescriptions, password))
-        return false;
+        if (!this->isModuleLoaded("videodev"))
+            cmds.write("modprobe videodev\n");
 
-    QStringList curWebcams = this->webcams();
+        if (!devices.empty())
+            cmds.write(QString("insmod v4l2loopback.ko video_nr=%1 card_label=\"%2\"\n")
+                       .arg(videoNR).arg(cardLabel).toUtf8());
+    }
 
-    if (curWebcams != webcams)
-        emit this->webcamsChanged(curWebcams);
+    cmds.close();
 
-    return true;
-    */
+    return this->sudo(this->m_rootMethod, {"sh", cmds.fileName()});
 }
 
 bool AkVCam::IpcBridgePrivate::changeDescriptionV4L2Loopback(const std::string &deviceId,
                                                              const std::wstring &description)
 {
-    /*
-    if ((this->m_rootMethod == "su" || this->m_rootMethod == "sudo")
-        && password.isEmpty())
-        return false;
+    auto devices = this->devicesInfo("v4l2 loopback");
 
-    if (!QRegExp("/dev/video[0-9]+").exactMatch(webcam))
-        return false;
+    QString videoNR;
+    QString cardLabel;
 
-    QStringList webcams = this->webcams();
+    for (auto &device: devices) {
+        if (!videoNR.isEmpty())
+            videoNR += ',';
 
-    if (webcams.isEmpty()
-        || !webcams.contains(webcam))
-        return false;
+        videoNR += QString("%1").arg(device.nr);
 
-    QStringList webcamDescriptions;
-    QStringList webcamIds;
+        if (!cardLabel.isEmpty())
+            cardLabel += ',';
 
-    for (const QString &webcam: webcams) {
-        webcamDescriptions << this->description(webcam);
-        int id = webcam.indexOf(QRegExp("[0-9]+"));
-        webcamIds << webcam.mid(id);
+        if (device.path == QString::fromStdString(deviceId))
+            cardLabel += this->cleanDescription(description);
+        else
+            cardLabel += device.description;
     }
 
-    int id = webcam.indexOf(QRegExp("[0-9]+"));
-    bool ok = false;
-    id = webcam.mid(id).toInt(&ok);
+    QTemporaryDir tempDir;
+    QFile cmds(tempDir.path() + "/akvcam_exec.sh");
 
-    if (!ok)
+    if (!cmds.open(QIODevice::WriteOnly | QIODevice::Text))
         return false;
 
-    QString deviceDescription;
+    cmds.setPermissions(QFileDevice::ReadOwner
+                        | QFileDevice::WriteOwner
+                        | QFileDevice::ExeOwner
+                        | QFileDevice::ReadUser
+                        | QFileDevice::WriteUser
+                        | QFileDevice::ExeUser);
+    cmds.write("rmmod v4l2loopback 2>/dev/null\n");
 
-    if (description.isEmpty())
-        deviceDescription = QString(tr("Virtual Camera %1")).arg(id);
-    else
-        deviceDescription = this->d->cleanupDescription(description);
+    if (this->m_driverPath.isEmpty()) {
+        cmds.write("sed -i '/v4l2loopback/d' /etc/modules 2>/dev/null\n");
+        cmds.write("sed -i '/v4l2loopback/d' /etc/modules-load.d/*.conf 2>/dev/null\n");
+        cmds.write("sed -i '/v4l2loopback/d' /etc/modprobe.d/*.conf 2>/dev/null\n");
+        cmds.write("echo v4l2loopback > /etc/modules-load.d/v4l2loopback.conf\n");
+        cmds.write(QString("echo options v4l2loopback devices=%1 'card_label=\"%2\"' "
+                           "> /etc/modprobe.d/v4l2loopback.conf\n")
+                   .arg(devices.size()).arg(cardLabel).toUtf8());
+        cmds.write(QString("modprobe v4l2loopback video_nr=%1 card_label=\"%2\"\n")
+                   .arg(videoNR).arg(cardLabel).toUtf8());
+    } else {
+        QFileInfo info(this->m_driverPath);
+        auto dir = info.dir().canonicalPath();
+        cmds.write(QString("cd '%1'\n").arg(dir).toUtf8());
 
-    int index = webcamIds.indexOf(QString("%1").arg(id));
+        if (!this->isModuleLoaded("videodev"))
+            cmds.write("modprobe videodev\n");
 
-    if (index < 0)
+        cmds.write(QString("insmod v4l2loopback.ko video_nr=%1 card_label=\"%2\"\n")
+                   .arg(videoNR).arg(cardLabel).toUtf8());
+    }
+
+    cmds.close();
+
+    if (!this->sudo(this->m_rootMethod, {"sh", cmds.fileName()}))
         return false;
 
-    webcamDescriptions[index] = deviceDescription;
+    /* udev can take some time to give proper file permissions to the device,
+     * so we wait until el character device become fully accesible.
+     */
+    int fd = -1;
 
-    if (!this->d->updateCameras(webcamIds, webcamDescriptions, password))
+    forever {
+        fd = open(deviceId.c_str(), O_RDWR | O_NONBLOCK, 0);
+
+        if (fd != -EPERM)
+            break;
+
+        QThread::msleep(500);
+    }
+
+    if (fd < 0)
         return false;
 
-    QStringList curWebcams = this->webcams();
-
-    if (curWebcams != webcams)
-        emit this->webcamsChanged(curWebcams);
+    close(fd);
 
     return true;
-    */
-    return false;
 }
 
 QString AkVCam::IpcBridgePrivate::destroyAllDevicesV4L2Loopback()
