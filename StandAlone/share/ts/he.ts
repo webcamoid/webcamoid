@@ -2103,7 +2103,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="288"/>
         <source>Error creating camera</source>
-        <translation type="unfinished"></translation>
+        <translation>שגיאה ביצירת המצלמה</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="155"/>
