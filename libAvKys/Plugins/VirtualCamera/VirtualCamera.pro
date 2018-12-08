@@ -17,7 +17,6 @@
 # Web-Site: http://webcamoid.github.io/
 
 TEMPLATE = subdirs
-
 CONFIG += ordered
 
 isEmpty(VIRTUALCAMERAONLY) {
@@ -30,4 +29,5 @@ isEmpty(VIRTUALCAMERAONLY) {
     SUBDIRS = src/VCamUtils
     macx: SUBDIRS += src/cmio
     win32: SUBDIRS += src/dshow
+    unix: !macx: SUBDIRS += src/v4l2sys
 }

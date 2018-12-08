@@ -17,7 +17,6 @@
 # Web-Site: http://webcamoid.github.io/
 
 TEMPLATE = subdirs
-
 CONFIG += ordered
 
 SUBDIRS = \

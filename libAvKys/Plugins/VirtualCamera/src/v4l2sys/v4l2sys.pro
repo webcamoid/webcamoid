@@ -17,9 +17,9 @@
 # Web-Site: http://webcamoid.github.io/
 
 TEMPLATE = subdirs
-
 CONFIG += ordered
 
 SUBDIRS = \
-    VCamIPC \
-    src
+    VCamIPC
+
+isEmpty(VIRTUALCAMERAONLY): SUBDIRS += src

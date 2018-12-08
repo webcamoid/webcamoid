@@ -18,6 +18,7 @@
  */
 
 #include <sstream>
+#include <string>
 
 #include "fraction.h"
 #include "utils.h"

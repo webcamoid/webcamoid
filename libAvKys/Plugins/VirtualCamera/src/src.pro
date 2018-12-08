@@ -50,8 +50,8 @@ OTHER_FILES += pspec.json
 
 QT += qml concurrent
 
-RESOURCES = \
-    ../VirtualCamera.qrc
+RESOURCES = ../VirtualCamera.qrc
+unix: !macx: RESOURCES += ../TestFrame.qrc
 
 SOURCES = \
     virtualcamera.cpp \

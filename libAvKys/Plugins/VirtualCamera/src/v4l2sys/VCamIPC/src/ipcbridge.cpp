@@ -24,6 +24,7 @@
 #include <QProcessEnvironment>
 #include <QSettings>
 #include <QTemporaryDir>
+#include <QTextCodec>
 #include <QThread>
 #include <errno.h>
 #include <fcntl.h>
@@ -45,8 +46,13 @@
 #define AKVCAM_CID_ASPECT_RATIO (AKVCAM_CID_BASE + 1)
 #define AKVCAM_CID_SWAP_RGB     (AKVCAM_CID_BASE + 2)
 
+#define AKVCAM_RW_MODE_READWRITE 0x1U
+#define AKVCAM_RW_MODE_MMAP      0x2U
+#define AKVCAM_RW_MODE_USERPTR   0x4U
+
 namespace AkVCam
 {
+    typedef __u32 RwMode;
     typedef QList<VideoFormat> FormatsList;
     typedef QMap<uint32_t, PixelFormat> PixFmtFourccMap;
     typedef std::function<bool (const std::string &deviceId)> CanHandleFunc;
@@ -97,6 +103,9 @@ namespace AkVCam
         QString driver;
         QString bus;
         FormatsList formats;
+        QStringList connectedDevices;
+        DeviceType type;
+        RwMode mode;
     };
 
     struct DeviceConfig
@@ -180,6 +189,9 @@ namespace AkVCam
             QString currentDriver(const std::string &deviceId={});
             QString cleanDescription(const std::wstring &description) const;
             QString cleanDescription(const QString &description) const;
+            QVector<int> requestDeviceNR(size_t count) const;
+            bool waitFroDevice(const std::string &deviceId) const;
+            bool waitFroDevice(const QString &deviceId) const;
             bool isModuleLoaded(const QString &driver) const;
             bool canHandleAkVCam(const std::string &deviceId);
             QList<DeviceInfo> devicesInfo(const QString &driverName) const;
@@ -1522,11 +1534,27 @@ AkVCam::FormatsList AkVCam::IpcBridgePrivate::formatFps(int fd,
 AkVCam::FormatsList AkVCam::IpcBridgePrivate::formats(int fd) const
 {
     FormatsList formats;
+    v4l2_capability capability;
+    memset(&capability, 0, sizeof(v4l2_capability));
+
+    if (this->xioctl(fd, VIDIOC_QUERYCAP, &capability) < 0)
+        return {};
+
+    v4l2_buf_type type;
+
+    if (capability.capabilities & V4L2_CAP_VIDEO_CAPTURE)
+        type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+    else if (capability.capabilities & V4L2_CAP_VIDEO_CAPTURE_MPLANE)
+        type = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
+    else if (capability.capabilities & V4L2_CAP_VIDEO_OUTPUT)
+        type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
+    else
+        type = V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE;
 
 #ifndef VIDIOC_ENUM_FRAMESIZES
     v4l2_format fmt;
     memset(&fmt, 0, sizeof(v4l2_format));
-    fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+    fmt.type = type;
     uint width = 0;
     uint height = 0;
 
@@ -1543,7 +1571,7 @@ AkVCam::FormatsList AkVCam::IpcBridgePrivate::formats(int fd) const
     // Enumerate all supported formats.
     v4l2_fmtdesc fmtdesc;
     memset(&fmtdesc, 0, sizeof(v4l2_fmtdesc));
-    fmtdesc.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+    fmtdesc.type = type;
 
     for (fmtdesc.index = 0;
          this->xioctl(fd, VIDIOC_ENUM_FMT, &fmtdesc) >= 0;
@@ -1707,7 +1735,10 @@ QList<AkVCam::DeviceInfo> AkVCam::IpcBridgePrivate::readDevicesConfigs() const
                                    description,
                                    driver,
                                    bus,
-                                   formatsList};
+                                   formatsList,
+                                   {},
+                                   DeviceTypeCapture,
+                                   0};
     }
 
     settings.endArray();
@@ -2180,7 +2211,7 @@ QString AkVCam::IpcBridgePrivate::cleanDescription(const QString &description) c
     QString desc;
 
     for (auto &c: description)
-        if (QString("'\"\\,$`").contains(c))
+        if (c < ' ' || QString("'\"\\,$`").contains(c))
             desc += ' ';
         else
             desc += c;
@@ -2191,6 +2222,48 @@ QString AkVCam::IpcBridgePrivate::cleanDescription(const QString &description) c
         desc = "Virtual Camera";
 
     return desc;
+}
+
+QVector<int> AkVCam::IpcBridgePrivate::requestDeviceNR(size_t count) const
+{
+    QVector<int> nrs;
+
+    for (int i = 0; i < MAX_CAMERAS && count > 0; i++)
+        if (!QFileInfo::exists(QString("/dev/video%1").arg(i))) {
+            nrs << i;
+            count--;
+        }
+
+    return nrs;
+}
+
+bool AkVCam::IpcBridgePrivate::waitFroDevice(const std::string &deviceId) const
+{
+    return this->waitFroDevice(QString::fromStdString(deviceId));
+}
+
+bool AkVCam::IpcBridgePrivate::waitFroDevice(const QString &deviceId) const
+{
+    /* udev can take some time to give proper file permissions to the device,
+     * so we wait until el character device become fully accesible.
+     */
+    int fd = -1;
+
+    forever {
+        fd = open(deviceId.toStdString().c_str(), O_RDWR | O_NONBLOCK, 0);
+
+        if (fd != -EPERM)
+            break;
+
+        QThread::msleep(500);
+    }
+
+    if (fd < 0)
+        return false;
+
+    close(fd);
+
+    return true;
 }
 
 bool AkVCam::IpcBridgePrivate::isModuleLoaded(const QString &driver) const
@@ -2254,16 +2327,21 @@ QList<AkVCam::DeviceInfo> AkVCam::IpcBridgePrivate::devicesInfo(const QString &d
         if (this->xioctl(fd, VIDIOC_QUERYCAP, &capability) >= 0) {
             QString driver = reinterpret_cast<const char *>(capability.driver);
 
-            if (driver == driverName) {
+            if (driver == driverName)
                 devices << DeviceInfo {
-                           QString(fileName).remove("/dev/video").toInt(),
-                           fileName,
-                           reinterpret_cast<const char *>(capability.card),
-                           reinterpret_cast<const char *>(capability.driver),
-                           reinterpret_cast<const char *>(capability.bus_info),
-                           {}
+                    QString(fileName).remove("/dev/video").toInt(),
+                    fileName,
+                    reinterpret_cast<const char *>(capability.card),
+                    reinterpret_cast<const char *>(capability.driver),
+                    reinterpret_cast<const char *>(capability.bus_info),
+                    {},
+                    {},
+                    capability.capabilities
+                    & (V4L2_CAP_VIDEO_CAPTURE | V4L2_CAP_VIDEO_CAPTURE_MPLANE)?
+                        DeviceTypeCapture: DeviceTypeOutput,
+                    capability.capabilities & V4L2_CAP_READWRITE?
+                        AKVCAM_RW_MODE_READWRITE: 0
                 };
-            }
         }
 
         close(fd);
@@ -2275,30 +2353,745 @@ QList<AkVCam::DeviceInfo> AkVCam::IpcBridgePrivate::devicesInfo(const QString &d
 std::string AkVCam::IpcBridgePrivate::deviceCreateAkVCam(const std::wstring &description,
                                                          const std::vector<VideoFormat> &formats)
 {
-    return {};
+    auto deviceNR = requestDeviceNR(2);
+
+    if (deviceNR.count() < 2)
+        return {};
+
+    auto devices = this->devicesInfo("akvcam");
+
+    for (auto &device: devices) {
+        int fd = open(device.path.toStdString().c_str(),
+                      O_RDWR | O_NONBLOCK, 0);
+
+        if (fd < 0)
+            continue;
+
+        device.formats = this->formats(fd);
+        close(fd);
+
+        auto sysfsControls = this->sysfsControls(device.path);
+        auto modesControls = sysfsControls + "/modes";
+
+        if (QFileInfo::exists(modesControls)) {
+            QFile deviceModes(modesControls);
+
+            if (deviceModes.open(QIODevice::ReadOnly | QIODevice::Text)) {
+                auto modes = deviceModes.readAll().split('\n');
+                std::transform(modes.begin(),
+                               modes.end(),
+                               modes.begin(),
+                               [] (const QByteArray &mode) {
+                    return mode.trimmed();
+                });
+
+                if (modes.contains("rw"))
+                    device.mode |= AKVCAM_RW_MODE_READWRITE;
+
+                if (modes.contains("mmap"))
+                    device.mode |= AKVCAM_RW_MODE_MMAP;
+
+                if (modes.contains("userptr"))
+                    device.mode |= AKVCAM_RW_MODE_USERPTR;
+            }
+        }
+
+        auto connectedDevicesControls = sysfsControls + "/connected_devices";
+
+        if (QFileInfo::exists(connectedDevicesControls)) {
+            QFile connectedDevices(connectedDevicesControls);
+
+            if (connectedDevices.open(QIODevice::ReadOnly | QIODevice::Text))
+                device.connectedDevices =
+                        QString(connectedDevices.readAll()).split('\n');
+        }
+    }
+
+    auto deviceFormats = QVector<VideoFormat>::fromStdVector(formats).toList();
+
+    // Create output device.
+    devices << DeviceInfo {deviceNR[0],
+                           QString("/dev/video%1").arg(deviceNR[0]),
+                           this->cleanDescription(description) + " (out)",
+                           "",
+                           "",
+                           deviceFormats,
+                           {QString("/dev/video%1").arg(deviceNR[1])},
+                           DeviceTypeOutput,
+                           AKVCAM_RW_MODE_MMAP | AKVCAM_RW_MODE_USERPTR};
+
+    // Create capture device.
+    devices << DeviceInfo {deviceNR[1],
+                           QString("/dev/video%1").arg(deviceNR[1]),
+                           this->cleanDescription(description),
+                           "",
+                           "",
+                           deviceFormats,
+                           {},
+                           DeviceTypeCapture,
+                           AKVCAM_RW_MODE_MMAP | AKVCAM_RW_MODE_USERPTR};
+
+    QTemporaryDir tempDir;
+    QSettings settings(tempDir.path() + "/config.ini", QSettings::IniFormat);
+    auto codec = QTextCodec::codecForLocale();
+
+    if (codec)
+        settings.setIniCodec(codec->name());
+    else
+        settings.setIniCodec("UTF-8");
+
+    int i = 0;
+    int j = 0;
+    int con = 0;
+
+    for (auto &device: devices) {
+        QStringList formatsIndex;
+
+        for (int i = 0; i < device.formats.size(); i++)
+            formatsIndex << QString("%1").arg(i + j + 1);
+
+        settings.beginGroup("Cameras");
+        settings.beginWriteArray("cameras");
+        settings.setArrayIndex(i);
+        settings.setValue("type", device.type == DeviceTypeCapture?
+                                  "capture": "output");
+        QStringList mode;
+
+        if (device.mode & AKVCAM_RW_MODE_READWRITE)
+            mode << "rw";
+
+        if (device.mode & AKVCAM_RW_MODE_MMAP)
+            mode << "mmap";
+
+        if (device.mode & AKVCAM_RW_MODE_USERPTR)
+            mode << "userptr";
+
+        if (!mode.isEmpty())
+            settings.setValue("mode", mode);
+
+        settings.setValue("description", device.description);
+        settings.setValue("formats", formatsIndex);
+        settings.endArray();
+        settings.endGroup();
+
+        settings.beginGroup("Formats");
+        settings.beginWriteArray("formats");
+
+        for (auto &format: device.formats) {
+            settings.setArrayIndex(j);
+            settings.setValue("format", VideoFormat::stringFromFourcc(format.fourcc()).c_str());
+            settings.setValue("width", format.width());
+            settings.setValue("height", format.height());
+            settings.setValue("fps", format.minimumFrameRate().toString().c_str());
+            j++;
+        }
+
+        settings.endArray();
+        settings.endGroup();
+
+        if (device.type == DeviceTypeOutput) {
+            settings.beginGroup("Connections");
+            settings.beginWriteArray("connections");
+            QStringList connectionStr = {QString("%1").arg(i + 1)};
+
+            for (auto &connection: device.connectedDevices) {
+                auto it = std::find_if(devices.begin(),
+                                       devices.end(),
+                                       [&connection] (const DeviceInfo &device) {
+                                           return device.path == connection;
+                                       });
+
+                if (it == devices.end())
+                    continue;
+
+                connectionStr <<
+                    QString("%1").arg(std::distance(devices.begin(), it) + 1);
+            }
+
+            if (connectionStr.count() > 1) {
+                settings.setArrayIndex(con);
+                settings.setValue("connection", connectionStr.join(':'));
+                con++;
+            }
+
+            settings.endArray();
+            settings.endGroup();
+        }
+
+        i++;
+    }
+
+    settings.setValue("default_frame", "/etc/akvcam/default_frame.bmp");
+    settings.sync();
+
+    auto defaultFrame = tempDir.path() + "/default_frame.bmp";
+    QFile::copy(":/VirtualCamera/share/TestFrame/TestFrame.bmp", defaultFrame);
+
+    QFile cmds(tempDir.path() + "/akvcam_exec.sh");
+
+    if (!cmds.open(QIODevice::WriteOnly | QIODevice::Text))
+        return {};
+
+    cmds.setPermissions(QFileDevice::ReadOwner
+                        | QFileDevice::WriteOwner
+                        | QFileDevice::ExeOwner
+                        | QFileDevice::ReadUser
+                        | QFileDevice::WriteUser
+                        | QFileDevice::ExeUser);
+    cmds.write("rmmod akvcam 2>/dev/null\n");
+
+    if (this->m_driverPath.isEmpty()) {
+        cmds.write("sed -i '/akvcam/d' /etc/modules 2>/dev/null\n");
+        cmds.write("sed -i '/akvcam/d' /etc/modules-load.d/*.conf 2>/dev/null\n");
+        cmds.write("sed -i '/akvcam/d' /etc/modprobe.d/*.conf 2>/dev/null\n");
+        cmds.write("echo akvcam > /etc/modules-load.d/akvcam.conf\n");
+
+#ifdef QT_DEBUG
+        cmds.write("echo options akvcam loglevel=7 > /etc/modprobe.d/akvcam.conf\n");
+#endif
+
+        cmds.write("rm -f /etc/modprobe.d/akvcam.conf\n");
+        cmds.write("mkdir -p /etc/akvcam\n");
+        cmds.write(QString("cp -f %1 /etc/akvcam/default_frame.bmp\n")
+                   .arg(defaultFrame).toUtf8());
+        cmds.write(QString("cp -f %1 /etc/akvcam/config.ini\n")
+                   .arg(settings.fileName()).toUtf8());
+        cmds.write("chmod 600 /etc/akvcam/config.ini\n");
+
+#ifdef QT_DEBUG
+        cmds.write("modprobe akvcam loglevel=7\n");
+#else
+        cmds.write("modprobe akvcam\n");
+#endif
+    } else {
+        QFileInfo info(this->m_driverPath);
+        auto dir = info.dir().canonicalPath();
+        cmds.write(QString("cd '%1'\n").arg(dir).toUtf8());
+
+        if (!this->isModuleLoaded("videodev"))
+            cmds.write("modprobe videodev\n");
+
+        cmds.write("mkdir -p /etc/akvcam\n");
+        cmds.write(QString("cp -f %1 /etc/akvcam/default_frame.bmp\n")
+                   .arg(defaultFrame).toUtf8());
+        cmds.write(QString("cp -f %1 /etc/akvcam/config.ini\n")
+                   .arg(settings.fileName()).toUtf8());
+        cmds.write("chmod 600 /etc/akvcam/config.ini\n");
+
+#ifdef QT_DEBUG
+        cmds.write("insmod akvcam.ko loglevel=7\n");
+#else
+        cmds.write("insmod akvcam.ko\n");
+#endif
+    }
+
+    cmds.close();
+
+    if (!this->sudo(this->m_rootMethod, {"sh", cmds.fileName()}))
+        return {};
+
+    auto devicePath = QString("/dev/video%1").arg(deviceNR[1]);
+
+    if (!this->waitFroDevice(devicePath))
+        return {};
+
+    return devicePath.toStdString();
 }
 
 bool AkVCam::IpcBridgePrivate::deviceDestroyAkVCam(const std::string &deviceId)
 {
-    return false;
+    auto outputs = this->connectedDevices(deviceId);
+
+    if (outputs.isEmpty())
+        return false;
+
+    auto outputDevice = outputs.first();
+    auto devices = this->devicesInfo("akvcam");
+
+    auto deleteDevice = [] (QList<DeviceInfo> &devices,
+                            const QString &deviceId) -> bool {
+        auto it = std::find_if(devices.begin(),
+                               devices.end(),
+                               [&deviceId] (const DeviceInfo &device) {
+                                   return device.path == deviceId;
+                               });
+
+        if (it == devices.end())
+            return false;
+
+        devices.erase(it);
+
+        return true;
+    };
+
+    if (!deleteDevice(devices, QString::fromStdString(deviceId)))
+        return false;
+
+    deleteDevice(devices, outputDevice);
+
+    if (devices.isEmpty()) {
+        QTemporaryDir tempDir;
+        QFile cmds(tempDir.path() + "/akvcam_exec.sh");
+
+        if (!cmds.open(QIODevice::WriteOnly | QIODevice::Text))
+            return false;
+
+        cmds.setPermissions(QFileDevice::ReadOwner
+                            | QFileDevice::WriteOwner
+                            | QFileDevice::ExeOwner
+                            | QFileDevice::ReadUser
+                            | QFileDevice::WriteUser
+                            | QFileDevice::ExeUser);
+
+        cmds.write(this->destroyAllDevicesAkVCam().toUtf8());
+        cmds.close();
+
+        return this->sudo(this->m_rootMethod, {"sh", cmds.fileName()});
+    }
+
+    for (auto &device: devices) {
+        int fd = open(device.path.toStdString().c_str(),
+                      O_RDWR | O_NONBLOCK, 0);
+
+        if (fd < 0)
+            continue;
+
+        device.formats = this->formats(fd);
+        close(fd);
+
+        auto sysfsControls = this->sysfsControls(device.path);
+        auto modesControls = sysfsControls + "/modes";
+
+        if (QFileInfo::exists(modesControls)) {
+            QFile deviceModes(modesControls);
+
+            if (deviceModes.open(QIODevice::ReadOnly | QIODevice::Text)) {
+                auto modes = deviceModes.readAll().split('\n');
+                std::transform(modes.begin(),
+                               modes.end(),
+                               modes.begin(),
+                               [] (const QByteArray &mode) {
+                    return mode.trimmed();
+                });
+
+                if (modes.contains("rw"))
+                    device.mode |= AKVCAM_RW_MODE_READWRITE;
+
+                if (modes.contains("mmap"))
+                    device.mode |= AKVCAM_RW_MODE_MMAP;
+
+                if (modes.contains("userptr"))
+                    device.mode |= AKVCAM_RW_MODE_USERPTR;
+            }
+        }
+
+        auto connectedDevicesControls = sysfsControls + "/connected_devices";
+
+        if (QFileInfo::exists(connectedDevicesControls)) {
+            QFile connectedDevices(connectedDevicesControls);
+
+            if (connectedDevices.open(QIODevice::ReadOnly | QIODevice::Text))
+                device.connectedDevices =
+                        QString(connectedDevices.readAll()).split('\n');
+        }
+    }
+
+    QTemporaryDir tempDir;
+    QSettings settings(tempDir.path() + "/config.ini", QSettings::IniFormat);
+    auto codec = QTextCodec::codecForLocale();
+
+    if (codec)
+        settings.setIniCodec(codec->name());
+    else
+        settings.setIniCodec("UTF-8");
+
+    int i = 0;
+    int j = 0;
+    int con = 0;
+
+    for (auto &device: devices) {
+        QStringList formatsIndex;
+
+        for (int i = 0; i < device.formats.size(); i++)
+            formatsIndex << QString("%1").arg(i + j + 1);
+
+        settings.beginGroup("Cameras");
+        settings.beginWriteArray("cameras");
+        settings.setArrayIndex(i);
+        settings.setValue("type", device.type == DeviceTypeCapture?
+                                  "capture": "output");
+        QStringList mode;
+
+        if (device.mode & AKVCAM_RW_MODE_READWRITE)
+            mode << "rw";
+
+        if (device.mode & AKVCAM_RW_MODE_MMAP)
+            mode << "mmap";
+
+        if (device.mode & AKVCAM_RW_MODE_USERPTR)
+            mode << "userptr";
+
+        if (!mode.isEmpty())
+            settings.setValue("mode", mode);
+
+        settings.setValue("description", device.description);
+        settings.setValue("formats", formatsIndex);
+        settings.endArray();
+        settings.endGroup();
+
+        settings.beginGroup("Formats");
+        settings.beginWriteArray("formats");
+
+        for (auto &format: device.formats) {
+            settings.setArrayIndex(j);
+            settings.setValue("format", VideoFormat::stringFromFourcc(format.fourcc()).c_str());
+            settings.setValue("width", format.width());
+            settings.setValue("height", format.height());
+            settings.setValue("fps", format.minimumFrameRate().toString().c_str());
+            j++;
+        }
+
+        settings.endArray();
+        settings.endGroup();
+
+        if (device.type == DeviceTypeOutput) {
+            settings.beginGroup("Connections");
+            settings.beginWriteArray("connections");
+            QStringList connectionStr = {QString("%1").arg(i + 1)};
+
+            for (auto &connection: device.connectedDevices) {
+                auto it = std::find_if(devices.begin(),
+                                       devices.end(),
+                                       [&connection] (const DeviceInfo &device) {
+                                           return device.path == connection;
+                                       });
+
+                if (it == devices.end())
+                    continue;
+
+                connectionStr <<
+                    QString("%1").arg(std::distance(devices.begin(), it) + 1);
+            }
+
+            if (connectionStr.count() > 1) {
+                settings.setArrayIndex(con);
+                settings.setValue("connection", connectionStr.join(':'));
+                con++;
+            }
+
+            settings.endArray();
+            settings.endGroup();
+        }
+
+        i++;
+    }
+
+    settings.setValue("default_frame", "/etc/akvcam/default_frame.bmp");
+    settings.sync();
+
+    auto defaultFrame = tempDir.path() + "/default_frame.bmp";
+    QFile::copy(":/VirtualCamera/share/TestFrame/TestFrame.bmp", defaultFrame);
+    QFile cmds(tempDir.path() + "/akvcam_exec.sh");
+
+    if (!cmds.open(QIODevice::WriteOnly | QIODevice::Text))
+        return false;
+
+    cmds.setPermissions(QFileDevice::ReadOwner
+                        | QFileDevice::WriteOwner
+                        | QFileDevice::ExeOwner
+                        | QFileDevice::ReadUser
+                        | QFileDevice::WriteUser
+                        | QFileDevice::ExeUser);
+    cmds.write("rmmod akvcam 2>/dev/null\n");
+
+    if (this->m_driverPath.isEmpty()) {
+        cmds.write("sed -i '/akvcam/d' /etc/modules 2>/dev/null\n");
+        cmds.write("sed -i '/akvcam/d' /etc/modules-load.d/*.conf 2>/dev/null\n");
+        cmds.write("sed -i '/akvcam/d' /etc/modprobe.d/*.conf 2>/dev/null\n");
+        cmds.write("echo akvcam > /etc/modules-load.d/akvcam.conf\n");
+
+#ifdef QT_DEBUG
+        cmds.write("echo options akvcam loglevel=7 > /etc/modprobe.d/akvcam.conf\n");
+#endif
+
+        cmds.write("rm -f /etc/modprobe.d/akvcam.conf\n");
+        cmds.write("mkdir -p /etc/akvcam\n");
+        cmds.write(QString("cp -f %1 /etc/akvcam/default_frame.bmp\n")
+                   .arg(defaultFrame).toUtf8());
+        cmds.write(QString("cp -f %1 /etc/akvcam/config.ini\n")
+                   .arg(settings.fileName()).toUtf8());
+        cmds.write("chmod 600 /etc/akvcam/config.ini\n");
+
+#ifdef QT_DEBUG
+        cmds.write("modprobe akvcam loglevel=7\n");
+#else
+        cmds.write("modprobe akvcam\n");
+#endif
+    } else {
+        QFileInfo info(this->m_driverPath);
+        auto dir = info.dir().canonicalPath();
+        cmds.write(QString("cd '%1'\n").arg(dir).toUtf8());
+
+        if (!this->isModuleLoaded("videodev"))
+            cmds.write("modprobe videodev\n");
+
+        cmds.write("mkdir -p /etc/akvcam\n");
+        cmds.write(QString("cp -f %1 /etc/akvcam/default_frame.bmp\n")
+                   .arg(defaultFrame).toUtf8());
+        cmds.write(QString("cp -f %1 /etc/akvcam/config.ini\n")
+                   .arg(settings.fileName()).toUtf8());
+        cmds.write("chmod 600 /etc/akvcam/config.ini\n");
+
+#ifdef QT_DEBUG
+        cmds.write("insmod akvcam.ko loglevel=7\n");
+#else
+        cmds.write("insmod akvcam.ko\n");
+#endif
+    }
+
+    cmds.close();
+
+    return this->sudo(this->m_rootMethod, {"sh", cmds.fileName()});
 }
 
 bool AkVCam::IpcBridgePrivate::changeDescriptionAkVCam(const std::string &deviceId,
                                                        const std::wstring &description)
 {
-    return false;
+    auto outputs = this->connectedDevices(deviceId);
+
+    if (outputs.isEmpty())
+        return false;
+
+    auto outputDevice = outputs.first();
+    auto devices = this->devicesInfo("akvcam");
+
+    for (auto &device: devices) {
+        int fd = open(device.path.toStdString().c_str(),
+                      O_RDWR | O_NONBLOCK, 0);
+
+        if (fd < 0)
+            continue;
+
+        device.formats = this->formats(fd);
+        close(fd);
+
+        if (device.path == QString::fromStdString(deviceId))
+            device.description = QString::fromStdWString(description);
+        else if (device.path == outputDevice)
+            device.description = QString::fromStdWString(description)
+                                 + " (out)";
+
+        auto sysfsControls = this->sysfsControls(device.path);
+        auto modesControls = sysfsControls + "/modes";
+
+        if (QFileInfo::exists(modesControls)) {
+            QFile deviceModes(modesControls);
+
+            if (deviceModes.open(QIODevice::ReadOnly | QIODevice::Text)) {
+                auto modes = deviceModes.readAll().split('\n');
+                std::transform(modes.begin(),
+                               modes.end(),
+                               modes.begin(),
+                               [] (const QByteArray &mode) {
+                    return mode.trimmed();
+                });
+
+                if (modes.contains("rw"))
+                    device.mode |= AKVCAM_RW_MODE_READWRITE;
+
+                if (modes.contains("mmap"))
+                    device.mode |= AKVCAM_RW_MODE_MMAP;
+
+                if (modes.contains("userptr"))
+                    device.mode |= AKVCAM_RW_MODE_USERPTR;
+            }
+        }
+
+        auto connectedDevicesControls = sysfsControls + "/connected_devices";
+
+        if (QFileInfo::exists(connectedDevicesControls)) {
+            QFile connectedDevices(connectedDevicesControls);
+
+            if (connectedDevices.open(QIODevice::ReadOnly | QIODevice::Text))
+                device.connectedDevices =
+                        QString(connectedDevices.readAll()).split('\n');
+        }
+    }
+
+    QTemporaryDir tempDir;
+    QSettings settings(tempDir.path() + "/config.ini", QSettings::IniFormat);
+    auto codec = QTextCodec::codecForLocale();
+
+    if (codec)
+        settings.setIniCodec(codec->name());
+    else
+        settings.setIniCodec("UTF-8");
+
+    int i = 0;
+    int j = 0;
+    int con = 0;
+
+    for (auto &device: devices) {
+        QStringList formatsIndex;
+
+        for (int i = 0; i < device.formats.size(); i++)
+            formatsIndex << QString("%1").arg(i + j + 1);
+
+        settings.beginGroup("Cameras");
+        settings.beginWriteArray("cameras");
+        settings.setArrayIndex(i);
+        settings.setValue("type", device.type == DeviceTypeCapture?
+                                  "capture": "output");
+        QStringList mode;
+
+        if (device.mode & AKVCAM_RW_MODE_READWRITE)
+            mode << "rw";
+
+        if (device.mode & AKVCAM_RW_MODE_MMAP)
+            mode << "mmap";
+
+        if (device.mode & AKVCAM_RW_MODE_USERPTR)
+            mode << "userptr";
+
+        if (!mode.isEmpty())
+            settings.setValue("mode", mode);
+
+        settings.setValue("description", device.description);
+        settings.setValue("formats", formatsIndex);
+        settings.endArray();
+        settings.endGroup();
+
+        settings.beginGroup("Formats");
+        settings.beginWriteArray("formats");
+
+        for (auto &format: device.formats) {
+            settings.setArrayIndex(j);
+            settings.setValue("format", VideoFormat::stringFromFourcc(format.fourcc()).c_str());
+            settings.setValue("width", format.width());
+            settings.setValue("height", format.height());
+            settings.setValue("fps", format.minimumFrameRate().toString().c_str());
+            j++;
+        }
+
+        settings.endArray();
+        settings.endGroup();
+
+        if (device.type == DeviceTypeOutput) {
+            settings.beginGroup("Connections");
+            settings.beginWriteArray("connections");
+            QStringList connectionStr = {QString("%1").arg(i + 1)};
+
+            for (auto &connection: device.connectedDevices) {
+                auto it = std::find_if(devices.begin(),
+                                       devices.end(),
+                                       [&connection] (const DeviceInfo &device) {
+                                           return device.path == connection;
+                                       });
+
+                if (it == devices.end())
+                    continue;
+
+                connectionStr <<
+                    QString("%1").arg(std::distance(devices.begin(), it) + 1);
+            }
+
+            if (connectionStr.count() > 1) {
+                settings.setArrayIndex(con);
+                settings.setValue("connection", connectionStr.join(':'));
+                con++;
+            }
+
+            settings.endArray();
+            settings.endGroup();
+        }
+
+        i++;
+    }
+
+    settings.setValue("default_frame", "/etc/akvcam/default_frame.bmp");
+    settings.sync();
+
+    auto defaultFrame = tempDir.path() + "/default_frame.bmp";
+    QFile::copy(":/VirtualCamera/share/TestFrame/TestFrame.bmp", defaultFrame);
+
+    QFile cmds(tempDir.path() + "/akvcam_exec.sh");
+
+    if (!cmds.open(QIODevice::WriteOnly | QIODevice::Text))
+        return false;
+
+    cmds.setPermissions(QFileDevice::ReadOwner
+                        | QFileDevice::WriteOwner
+                        | QFileDevice::ExeOwner
+                        | QFileDevice::ReadUser
+                        | QFileDevice::WriteUser
+                        | QFileDevice::ExeUser);
+    cmds.write("rmmod akvcam 2>/dev/null\n");
+
+    if (this->m_driverPath.isEmpty()) {
+        cmds.write("sed -i '/akvcam/d' /etc/modules 2>/dev/null\n");
+        cmds.write("sed -i '/akvcam/d' /etc/modules-load.d/*.conf 2>/dev/null\n");
+        cmds.write("sed -i '/akvcam/d' /etc/modprobe.d/*.conf 2>/dev/null\n");
+        cmds.write("echo akvcam > /etc/modules-load.d/akvcam.conf\n");
+
+#ifdef QT_DEBUG
+        cmds.write("echo options akvcam loglevel=7 > /etc/modprobe.d/akvcam.conf\n");
+#endif
+
+        cmds.write("rm -f /etc/modprobe.d/akvcam.conf\n");
+        cmds.write("mkdir -p /etc/akvcam\n");
+        cmds.write(QString("cp -f %1 /etc/akvcam/default_frame.bmp\n")
+                   .arg(defaultFrame).toUtf8());
+        cmds.write(QString("cp -f %1 /etc/akvcam/config.ini\n")
+                   .arg(settings.fileName()).toUtf8());
+        cmds.write("chmod 600 /etc/akvcam/config.ini\n");
+
+#ifdef QT_DEBUG
+        cmds.write("modprobe akvcam loglevel=7\n");
+#else
+        cmds.write("modprobe akvcam\n");
+#endif
+    } else {
+        QFileInfo info(this->m_driverPath);
+        auto dir = info.dir().canonicalPath();
+        cmds.write(QString("cd '%1'\n").arg(dir).toUtf8());
+
+        if (!this->isModuleLoaded("videodev"))
+            cmds.write("modprobe videodev\n");
+
+        cmds.write("mkdir -p /etc/akvcam\n");
+        cmds.write(QString("cp -f %1 /etc/akvcam/default_frame.bmp\n")
+                   .arg(defaultFrame).toUtf8());
+        cmds.write(QString("cp -f %1 /etc/akvcam/config.ini\n")
+                   .arg(settings.fileName()).toUtf8());
+        cmds.write("chmod 600 /etc/akvcam/config.ini\n");
+
+#ifdef QT_DEBUG
+        cmds.write("insmod akvcam.ko loglevel=7\n");
+#else
+        cmds.write("insmod akvcam.ko\n");
+#endif
+    }
+
+    cmds.close();
+
+    if (!this->sudo(this->m_rootMethod, {"sh", cmds.fileName()}))
+        return false;
+
+    if (!this->waitFroDevice(deviceId))
+        return false;
+
+    return true;
 }
 
 QString AkVCam::IpcBridgePrivate::destroyAllDevicesAkVCam()
 {
-    return {};
-    // return {"rmmod akvcam 2>/dev/null\n"
-    //         "sed -i '/akvcam/d' /etc/modules 2>/dev/null\n"
-    //         "sed -i '/akvcam/d' /etc/modules-load.d/*.conf 2>/dev/null\n"
-    //         "sed -i '/akvcam/d' /etc/modprobe.d/*.conf 2>/dev/null\n"
-    //         "rm -f /etc/modules-load.d/akvcam.conf\n"
-    //         "rm -f /etc/modprobe.d/akvcam.conf\n"
-    //         "rm -f /etc/akvcam/config.ini\n"};
+    return {"rmmod akvcam 2>/dev/null\n"
+            "sed -i '/akvcam/d' /etc/modules 2>/dev/null\n"
+            "sed -i '/akvcam/d' /etc/modules-load.d/*.conf 2>/dev/null\n"
+            "sed -i '/akvcam/d' /etc/modprobe.d/*.conf 2>/dev/null\n"
+            "rm -f /etc/modules-load.d/akvcam.conf\n"
+            "rm -f /etc/modprobe.d/akvcam.conf\n"
+            "rm -f /etc/akvcam/config.ini\n"};
 }
 
 bool AkVCam::IpcBridgePrivate::canHandleV4L2Loopback(const std::string &deviceId)
@@ -2323,29 +3116,22 @@ bool AkVCam::IpcBridgePrivate::canHandleV4L2Loopback(const std::string &deviceId
 std::string AkVCam::IpcBridgePrivate::deviceCreateV4L2Loopback(const std::wstring &description,
                                                                const std::vector<VideoFormat> &formats)
 {
-    int deviceNR = -1;
-    QString devicePath;
+    auto deviceNR = requestDeviceNR(1);
 
-    for (int i = 0; i < MAX_CAMERAS; i++) {
-        devicePath = QString("/dev/video%1").arg(i);
-
-        if (!QFileInfo::exists(devicePath)) {
-            deviceNR = i;
-
-            break;
-        }
-    }
-
-    if (deviceNR < 0)
+    if (deviceNR.count() < 1)
         return {};
 
+    auto devicePath = QString("/dev/video%1").arg(deviceNR.front());
     auto devices = this->devicesInfo("v4l2 loopback");
-    devices << DeviceInfo {deviceNR,
+    devices << DeviceInfo {deviceNR.front(),
                            devicePath,
                            this->cleanDescription(description),
                            "",
                            "",
-                           {}};
+                           {},
+                           {},
+                           DeviceTypeCapture,
+                           0};
 
     QString videoNR;
     QString cardLabel;
@@ -2403,24 +3189,8 @@ std::string AkVCam::IpcBridgePrivate::deviceCreateV4L2Loopback(const std::wstrin
     if (!this->sudo(this->m_rootMethod, {"sh", cmds.fileName()}))
         return {};
 
-    /* udev can take some time to give proper file permissions to the device,
-     * so we wait until el character device become fully accesible.
-     */
-    int fd = -1;
-
-    forever {
-        fd = open(devicePath.toStdString().c_str(), O_RDWR | O_NONBLOCK, 0);
-
-        if (fd != -EPERM)
-            break;
-
-        QThread::msleep(500);
-    }
-
-    if (fd < 0)
+    if (!this->waitFroDevice(devicePath))
         return {};
-
-    close(fd);
 
     auto devicesInfo = this->readDevicesConfigs();
     QSettings settings(QCoreApplication::organizationName(),
@@ -2612,26 +3382,7 @@ bool AkVCam::IpcBridgePrivate::changeDescriptionV4L2Loopback(const std::string &
     if (!this->sudo(this->m_rootMethod, {"sh", cmds.fileName()}))
         return false;
 
-    /* udev can take some time to give proper file permissions to the device,
-     * so we wait until el character device become fully accesible.
-     */
-    int fd = -1;
-
-    forever {
-        fd = open(deviceId.c_str(), O_RDWR | O_NONBLOCK, 0);
-
-        if (fd != -EPERM)
-            break;
-
-        QThread::msleep(500);
-    }
-
-    if (fd < 0)
-        return false;
-
-    close(fd);
-
-    return true;
+    return this->waitFroDevice(deviceId);
 }
 
 QString AkVCam::IpcBridgePrivate::destroyAllDevicesV4L2Loopback()
