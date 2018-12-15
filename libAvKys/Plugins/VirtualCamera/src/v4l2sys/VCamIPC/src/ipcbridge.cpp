@@ -1398,9 +1398,8 @@ const AkVCam::DriverFunctions *AkVCam::IpcBridgePrivate::functionsForDriver(cons
 QStringList AkVCam::IpcBridgePrivate::supportedDrivers()
 {
     QStringList drivers;
-    auto functions = driverFunctions();
 
-    for (auto &functions: *functions)
+    for (auto &functions: *driverFunctions())
         drivers << functions.driver;
 
     return drivers;
