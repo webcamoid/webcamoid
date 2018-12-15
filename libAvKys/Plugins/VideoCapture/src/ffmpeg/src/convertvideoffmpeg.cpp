@@ -74,6 +74,7 @@ inline V4l2PixFmtMap initV4l2PixFmtMap()
         {"RGBR", AV_PIX_FMT_RGB565BE},
         {"BGR3", AV_PIX_FMT_BGR24   },
         {"RGB3", AV_PIX_FMT_RGB24   },
+        {"BGR0", AV_PIX_FMT_BGR0    },
         {"BGR4", AV_PIX_FMT_RGB0    },
         {"RGB4", AV_PIX_FMT_0RGB    },
         {"ARGB", AV_PIX_FMT_ARGB    },

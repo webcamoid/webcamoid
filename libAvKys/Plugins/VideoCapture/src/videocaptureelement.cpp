@@ -40,23 +40,28 @@
 #ifdef Q_OS_WIN32
 #include <combaseapi.h>
 
-inline QStringList initMirrorFormats()
+inline const QStringList *mirrorFormats()
 {
-    QStringList mirrorFormats = {"RGB3", "RGB4", "RGBP", "RGBO"};
+    static const QStringList mirrorFormats = {
+        "RGB3",
+        "RGB4",
+        "RGBP",
+        "RGBO",
+        "BGR0"
+    };
 
-    return mirrorFormats;
+    return &mirrorFormats;
 }
 
-Q_GLOBAL_STATIC_WITH_ARGS(QStringList, mirrorFormats, (initMirrorFormats()))
-
-inline QStringList initSwapRgbFormats()
+inline const QStringList *swapRgbFormats()
 {
-    QStringList swapRgbFormats = {"RGB3", "YV12"};
+    static const QStringList swapRgbFormats = {
+        "RGB3",
+        "YV12"
+    };
 
-    return swapRgbFormats;
+    return &swapRgbFormats;
 }
-
-Q_GLOBAL_STATIC_WITH_ARGS(QStringList, swapRgbFormats, (initSwapRgbFormats()))
 #endif
 
 Q_GLOBAL_STATIC(VideoCaptureGlobals, globalVideoCapture)
@@ -332,8 +337,8 @@ void VideoCaptureElementPrivate::cameraLoop()
 
 #ifdef Q_OS_WIN32
                 QString fourcc = caps.property("fourcc").toString();
-                this->m_mirror = mirrorFormats->contains(fourcc);
-                this->m_swapRgb = swapRgbFormats->contains(fourcc);
+                this->m_mirror = mirrorFormats()->contains(fourcc);
+                this->m_swapRgb = swapRgbFormats()->contains(fourcc);
 #endif
 
                 if (!this->m_convertVideo->init(caps))
