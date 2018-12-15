@@ -63,7 +63,6 @@ namespace AkVCam
             std::map<uint32_t, MessageHandler> m_messageHandlers;
             std::vector<std::string> m_broadcasting;
             std::map<std::string, std::string> m_options;
-            std::vector<std::wstring> m_driverPaths;
             MessageServer m_messageServer;
             MessageServer m_mainServer;
             SharedMemory m_sharedMemory;
@@ -73,6 +72,8 @@ namespace AkVCam
 
             IpcBridgePrivate(IpcBridge *self);
             ~IpcBridgePrivate();
+
+            static inline std::vector<std::wstring> *driverPaths();
             std::vector<MonikerPtr> listCameras() const;
             static void deleteUnknown(IUnknown *unknown);
             BaseFilterPtr filter(IMoniker *moniker) const;
@@ -162,13 +163,28 @@ std::vector<std::wstring> AkVCam::IpcBridge::driverPaths() const
 {
     AkIpcBridgeLogMethod();
 
-    return this->d->m_driverPaths;
+    return *this->d->driverPaths();
 }
 
 void AkVCam::IpcBridge::setDriverPaths(const std::vector<std::wstring> &driverPaths)
 {
     AkIpcBridgeLogMethod();
-    this->d->m_driverPaths = driverPaths;
+    *this->d->driverPaths() = driverPaths;
+}
+
+std::vector<std::string> AkVCam::IpcBridge::availableDrivers() const
+{
+    return {"AkVirtualCamera"};
+}
+
+std::string AkVCam::IpcBridge::driver() const
+{
+    return {"AkVirtualCamera"};
+}
+
+bool AkVCam::IpcBridge::setDriver(const std::string &driver)
+{
+    return driver == "AkVirtualCamera";
 }
 
 std::vector<std::string> AkVCam::IpcBridge::availableRootMethods() const
@@ -723,19 +739,19 @@ std::string AkVCam::IpcBridge::deviceCreate(const std::wstring &description,
     return std::string(devicePath.begin(), devicePath.end());
 }
 
-void AkVCam::IpcBridge::deviceDestroy(const std::string &deviceId)
+bool AkVCam::IpcBridge::deviceDestroy(const std::string &deviceId)
 {
     AkIpcBridgeLogMethod();
 
     auto camera = cameraFromId(std::wstring(deviceId.begin(), deviceId.end()));
 
     if (camera < 0)
-        return;
+        return false;
 
     auto driverPath = this->d->locateDriverPath();
 
     if (driverPath.empty())
-        return;
+        return false;
 
     std::wstringstream ss;
     ss << L"@echo off" << std::endl;
@@ -822,6 +838,8 @@ void AkVCam::IpcBridge::deviceDestroy(const std::string &deviceId)
         std::wstring wScriptPath(scriptPath.begin(), scriptPath.end());
         DeleteFile(wScriptPath.c_str());
     }
+
+    return true;
 }
 
 bool AkVCam::IpcBridge::changeDescription(const std::string &deviceId,
@@ -1190,6 +1208,13 @@ AkVCam::IpcBridgePrivate::IpcBridgePrivate(IpcBridge *self):
 AkVCam::IpcBridgePrivate::~IpcBridgePrivate()
 {
     this->m_mainServer.stop(true);
+}
+
+std::vector<std::wstring> *AkVCam::IpcBridgePrivate::driverPaths()
+{
+    static std::vector<std::wstring> paths;
+
+    return &paths;
 }
 
 std::vector<AkVCam::MonikerPtr> AkVCam::IpcBridgePrivate::listCameras() const
@@ -1581,8 +1606,8 @@ std::wstring AkVCam::IpcBridgePrivate::locateDriverPath() const
 {
     std::wstring driverPath;
 
-    for (auto it = this->m_driverPaths.rbegin();
-         it != this->m_driverPaths.rend();
+    for (auto it = this->driverPaths()->rbegin();
+         it != this->driverPaths()->rend();
          it++) {
         auto path = *it;
         path = replace(path, L"/", L"\\");

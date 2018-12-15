@@ -17,6 +17,8 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <cstdlib>
+#include <cwchar>
 #include <sstream>
 #include <string>
 
@@ -56,13 +58,13 @@ AkVCam::Fraction::Fraction(const std::string &str)
 
     if (pos == std::string::npos) {
         auto strCpy = trimmed(str);
-        this->d->m_num = uint32_t(std::stoi(strCpy));
+        this->d->m_num = uint32_t(strtol(strCpy.c_str(), nullptr, 10));
     } else {
         auto numStr = trimmed(str.substr(0, pos));
         auto denStr = trimmed(str.substr(pos + 1));
 
-        this->d->m_num = uint32_t(std::stoi(numStr));
-        this->d->m_den = uint32_t(std::stoi(denStr));
+        this->d->m_num = uint32_t(strtol(numStr.c_str(), nullptr, 10));
+        this->d->m_den = uint32_t(strtol(denStr.c_str(), nullptr, 10));
 
         if (this->d->m_den < 1) {
             this->d->m_num = 0;
@@ -80,13 +82,14 @@ AkVCam::Fraction::Fraction(const std::wstring &str)
 
     if (pos == std::wstring::npos) {
         auto strCpy = trimmed(str);
-        this->d->m_num = uint32_t(std::stoi(strCpy));
+
+        this->d->m_num = uint32_t(wcstol(strCpy.c_str(), nullptr, 10));
     } else {
         auto numStr = trimmed(str.substr(0, pos));
         auto denStr = trimmed(str.substr(pos + 1));
 
-        this->d->m_num = uint32_t(std::stoi(numStr));
-        this->d->m_den = uint32_t(std::stoi(denStr));
+        this->d->m_num = uint32_t(wcstol(numStr.c_str(), nullptr, 10));
+        this->d->m_den = uint32_t(wcstol(denStr.c_str(), nullptr, 10));
 
         if (this->d->m_den < 1) {
             this->d->m_num = 0;

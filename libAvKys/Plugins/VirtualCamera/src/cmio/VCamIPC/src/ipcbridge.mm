@@ -56,12 +56,13 @@ namespace AkVCam
             std::map<int64_t, XpcMessage> m_messageHandlers;
             std::vector<std::string> m_broadcasting;
             std::map<std::string, std::string> m_options;
-            std::vector<std::wstring> m_driverPaths;
             bool m_asClient;
             bool m_uninstall;
 
             IpcBridgePrivate(IpcBridge *self=nullptr);
             ~IpcBridgePrivate();
+
+            static inline std::vector<std::wstring> *driverPaths();
             inline void add(IpcBridge *bridge);
             void remove(IpcBridge *bridge);
             inline std::vector<IpcBridge *> &bridges();
@@ -140,13 +141,28 @@ std::vector<std::wstring> AkVCam::IpcBridge::driverPaths() const
 {
     AkIpcBridgeLogMethod();
 
-    return this->d->m_driverPaths;
+    return *this->d->driverPaths();
 }
 
 void AkVCam::IpcBridge::setDriverPaths(const std::vector<std::wstring> &driverPaths)
 {
     AkIpcBridgeLogMethod();
-    this->d->m_driverPaths = driverPaths;
+    *this->d->driverPaths() = driverPaths;
+}
+
+std::vector<std::string> AkVCam::IpcBridge::availableDrivers() const
+{
+    return {"AkVirtualCamera"};
+}
+
+std::string AkVCam::IpcBridge::driver() const
+{
+    return {"AkVirtualCamera"};
+}
+
+bool AkVCam::IpcBridge::setDriver(const std::string &driver)
+{
+    return driver == "AkVirtualCamera";
 }
 
 std::vector<std::string> AkVCam::IpcBridge::availableRootMethods() const
@@ -686,12 +702,12 @@ std::string AkVCam::IpcBridge::deviceCreate(const std::wstring &description,
     return deviceId;
 }
 
-void AkVCam::IpcBridge::deviceDestroy(const std::string &deviceId)
+bool AkVCam::IpcBridge::deviceDestroy(const std::string &deviceId)
 {
     AkIpcBridgeLogMethod();
 
     if (!this->d->m_serverMessagePort)
-        return;
+        return false;
 
     auto dictionary = xpc_dictionary_create(NULL, NULL, 0);
     xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_DESTROY);
@@ -703,6 +719,8 @@ void AkVCam::IpcBridge::deviceDestroy(const std::string &deviceId)
     // If no devices are registered
     if (this->d->m_uninstall && listDevices().empty())
         this->d->uninstallPlugin();
+
+    return true;
 }
 
 bool AkVCam::IpcBridge::changeDescription(const std::string &deviceId,
@@ -1024,6 +1042,13 @@ AkVCam::IpcBridgePrivate::IpcBridgePrivate(IpcBridge *self):
 AkVCam::IpcBridgePrivate::~IpcBridgePrivate()
 {
 
+}
+
+std::vector<std::wstring> *AkVCam::IpcBridgePrivate::driverPaths()
+{
+    static std::vector<std::wstring> paths;
+
+    return &paths;
 }
 
 void AkVCam::IpcBridgePrivate::add(IpcBridge *bridge)
@@ -1483,8 +1508,8 @@ std::wstring AkVCam::IpcBridgePrivate::locateDriverPath() const
     AkIpcBridgePrivateLogMethod();
     std::wstring driverPath;
 
-    for (auto it = this->m_driverPaths.rbegin();
-         it != this->m_driverPaths.rend();
+    for (auto it = this->driverPaths()->rbegin();
+         it != this->driverPaths()->rend();
          it++) {
         auto path = *it;
         path = replace(path, L"\\", L"/");

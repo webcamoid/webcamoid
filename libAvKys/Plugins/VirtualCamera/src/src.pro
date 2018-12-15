@@ -33,32 +33,50 @@ exists(akcommons.pri) {
 
 CONFIG += plugin
 
-HEADERS = \
-    virtualcamera.h \
-    virtualcameraelement.h \
-    ipcbridge.h \
-    cameraout.h \
-    convertvideo.h \
-    virtualcameraglobals.h
-
 INCLUDEPATH += \
     ../../../Lib/src
 
-LIBS += -L$${OUT_PWD}/../../../Lib/$${BIN_DIR} -l$${COMMONS_TARGET}
-
-OTHER_FILES += pspec.json
-
-QT += qml concurrent
-
-RESOURCES = ../VirtualCamera.qrc
-unix: !macx: RESOURCES += ../TestFrame.qrc
+HEADERS = \
+    virtualcamera.h \
+    virtualcameraelement.h \
+    ipcbridge.h
 
 SOURCES = \
     virtualcamera.cpp \
-    virtualcameraelement.cpp \
-    cameraout.cpp \
-    convertvideo.cpp \
-    virtualcameraglobals.cpp
+    virtualcameraelement.cpp
+
+LIBS += \
+    -L$${OUT_PWD}/../../../Lib/$${BIN_DIR} -l$${COMMONS_TARGET}
+win32: LIBS += \
+    -L$${OUT_PWD}/dshow/VCamIPC/$${BIN_DIR} -lVCamIPC \
+    -L$${OUT_PWD}/dshow/PlatformUtils/$${BIN_DIR} -lPlatformUtils \
+    -ladvapi32 \
+    -lgdi32 \
+    -lstrmiids \
+    -luuid \
+    -lole32 \
+    -loleaut32 \
+    -lshell32
+macx: LIBS += \
+    -L$${OUT_PWD}/cmio/VCamIPC/$${BIN_DIR} -lVCamIPC \
+    -framework CoreFoundation \
+    -framework CoreMedia \
+    -framework CoreMediaIO \
+    -framework CoreVideo \
+    -framework Foundation \
+    -framework IOKit \
+    -framework IOSurface
+unix: !macx: LIBS += \
+    -L$${OUT_PWD}/v4l2sys/VCamIPC/$${BIN_DIR} -lVCamIPC
+LIBS += \
+    -L$${OUT_PWD}/VCamUtils/$${BIN_DIR} -lVCamUtils
+
+OTHER_FILES += pspec.json
+
+QT += concurrent qml xml
+
+RESOURCES = ../VirtualCamera.qrc
+unix: !macx: RESOURCES += ../TestFrame.qrc
 
 lupdate_only {
     SOURCES += $$files(../share/qml/*.qml)

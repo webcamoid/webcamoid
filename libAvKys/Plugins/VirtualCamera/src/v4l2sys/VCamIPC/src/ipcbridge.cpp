@@ -124,15 +124,12 @@ namespace AkVCam
             QStringList m_devices;
             QMap<QString, QString> m_descriptions;
             QMap<QString, FormatsList> m_devicesFormats;
-            std::string m_rootMethod;
             std::vector<std::string> m_broadcasting;
             std::map<std::string, std::string> m_options;
-            std::vector<std::wstring> m_driverPaths;
             FormatsList m_defaultFormats;
             QMap<QString, DeviceConfig> m_deviceConfigs;
             QFileSystemWatcher *m_fsWatcher;
             QVector<CaptureBuffer> m_buffers;
-            QString m_driverPath;
             VideoFormat m_curFormat;
             IoMethod m_ioMethod;
             int m_fd;
@@ -141,6 +138,8 @@ namespace AkVCam
             IpcBridgePrivate(IpcBridge *self);
             ~IpcBridgePrivate();
 
+            static inline QString *driverPath();
+            static inline std::vector<std::wstring> *driverPaths();
             static inline QMap<Scaling, QString> *scalingToString();
             static inline QMap<AspectRatio, QString> *aspectRatioToString();
             const QVector<AkVCam::DriverFunctions> *driverFunctions();
@@ -183,10 +182,8 @@ namespace AkVCam
             void onDirectoryChanged();
             void onFileChanged();
             QStringList listDrivers();
-            QString preferredDriver() const;
-            QString locateDriverPath() const;
             QString compileDriver(const QString &path);
-            QString currentDriver(const std::string &deviceId={});
+            QString deviceDriver(const std::string &deviceId);
             QString cleanDescription(const std::wstring &description) const;
             QString cleanDescription(const QString &description) const;
             QVector<int> requestDeviceNR(size_t count) const;
@@ -215,8 +212,6 @@ namespace AkVCam
 AkVCam::IpcBridge::IpcBridge()
 {
     this->d = new IpcBridgePrivate(this);
-    auto methods = this->availableRootMethods();
-    this->d->m_rootMethod = methods.front();
     this->d->initDefaultFormats();
     this->d->updateDevices();
 }
@@ -236,12 +231,53 @@ void AkVCam::IpcBridge::setOption(const std::string &key, const std::string &val
 
 std::vector<std::wstring> AkVCam::IpcBridge::driverPaths() const
 {
-    return this->d->m_driverPaths;
+    return *this->d->driverPaths();
 }
 
 void AkVCam::IpcBridge::setDriverPaths(const std::vector<std::wstring> &driverPaths)
 {
-    this->d->m_driverPaths = driverPaths;
+    *this->d->driverPaths() = driverPaths;
+}
+
+std::vector<std::string> AkVCam::IpcBridge::availableDrivers() const
+{
+    std::vector<std::string> drivers;
+
+    for (auto &driver: this->d->listDrivers())
+        drivers.push_back(driver.toStdString());
+
+    return drivers;
+}
+
+std::string AkVCam::IpcBridge::driver() const
+{
+    auto drivers = this->availableDrivers();
+
+    if (drivers.empty())
+        return {};
+
+    QSettings settings(QCoreApplication::organizationName(),
+                       "VirtualCamera");
+    auto driver =
+            settings.value("driver", "akvcam").toString().toStdString();
+
+    if (std::find(drivers.begin(), drivers.end(), driver) == drivers.end())
+        return drivers.front();
+
+    return driver;
+}
+
+bool AkVCam::IpcBridge::setDriver(const std::string &driver)
+{
+    auto drivers = this->availableDrivers();
+
+    if (std::find(drivers.begin(), drivers.end(), driver) == drivers.end())
+        return false;
+
+    QSettings settings(QCoreApplication::organizationName(), "VirtualCamera");
+    settings.setValue("driver", QString::fromStdString(driver));
+
+    return true;
 }
 
 // List of possible graphical sudo methods that can be supported:
@@ -277,20 +313,33 @@ std::vector<std::string> AkVCam::IpcBridge::availableRootMethods() const
 
 std::string AkVCam::IpcBridge::rootMethod() const
 {
-    return this->d->m_rootMethod;
+    auto methods = this->availableRootMethods();
+
+    if (methods.empty())
+        return {};
+
+    QSettings settings(QCoreApplication::organizationName(),
+                       "VirtualCamera");
+    auto method =
+            settings.value("rootMethod", "akvcam").toString().toStdString();
+
+    if (std::find(methods.begin(), methods.end(), method) == methods.end())
+        return methods.front();
+
+    return method;
 }
 
 bool AkVCam::IpcBridge::setRootMethod(const std::string &rootMethod)
 {
     auto methods = this->availableRootMethods();
-    auto it = std::find(methods.begin(), methods.end(), rootMethod);
 
-    if (it == methods.end())
+    if (std::find(methods.begin(), methods.end(), rootMethod) == methods.end())
         return false;
 
-    this->d->m_rootMethod = rootMethod;
+    QSettings settings(QCoreApplication::organizationName(), "VirtualCamera");
+    settings.setValue("rootMethod", QString::fromStdString(rootMethod));
 
-    return false;
+    return true;
 }
 
 void AkVCam::IpcBridge::connectService(bool asClient)
@@ -689,7 +738,7 @@ std::vector<std::string> AkVCam::IpcBridge::listeners(const std::string &deviceI
 std::string AkVCam::IpcBridge::deviceCreate(const std::wstring &description,
                                             const std::vector<VideoFormat> &formats)
 {
-    auto driver = this->d->currentDriver();
+    auto driver = QString::fromStdString(this->driver());
 
     if (driver.isEmpty())
         return {};
@@ -707,26 +756,28 @@ std::string AkVCam::IpcBridge::deviceCreate(const std::wstring &description,
     return deviceId;
 }
 
-void AkVCam::IpcBridge::deviceDestroy(const std::string &deviceId)
+bool AkVCam::IpcBridge::deviceDestroy(const std::string &deviceId)
 {
-    auto driver = this->d->currentDriver(deviceId);
+    auto driver = this->d->deviceDriver(deviceId);
 
     if (driver.isEmpty())
-        return;
+        return false;
 
     auto functions = this->d->functionsForDriver(driver);
 
     if (!functions)
-        return;
+        return false;
 
     if (functions->deviceDestroy(deviceId))
         this->d->updateDevices();
+
+    return true;
 }
 
 bool AkVCam::IpcBridge::changeDescription(const std::string &deviceId,
                                           const std::wstring &description)
 {
-    auto driver = this->d->currentDriver(deviceId);
+    auto driver = this->d->deviceDriver(deviceId);
 
     if (driver.isEmpty())
         return false;
@@ -762,7 +813,7 @@ bool AkVCam::IpcBridge::destroyAllDevices()
 
         cmds.close();
 
-        if (!this->d->sudo(this->d->m_rootMethod, {"sh", cmds.fileName()}))
+        if (!this->d->sudo(this->rootMethod(), {"sh", cmds.fileName()}))
             return false;
 
         this->d->updateDevices();
@@ -1024,8 +1075,7 @@ void AkVCam::IpcBridge::setMirroring(const std::string &deviceId,
                                .toUtf8());
                     cmds.close();
 
-                    this->d->sudo(this->d->m_rootMethod,
-                                  {"sh", cmds.fileName()});
+                    this->d->sudo(this->rootMethod(), {"sh", cmds.fileName()});
 
                     return;
                 }
@@ -1093,7 +1143,7 @@ void AkVCam::IpcBridge::setScaling(const std::string &deviceId,
                                    .toUtf8());
                         cmds.close();
 
-                        this->d->sudo(this->d->m_rootMethod,
+                        this->d->sudo(this->rootMethod(),
                                       {"sh", cmds.fileName()});
 
                         return;
@@ -1162,7 +1212,7 @@ void AkVCam::IpcBridge::setAspectRatio(const std::string &deviceId,
                                    .toUtf8());
                         cmds.close();
 
-                        this->d->sudo(this->d->m_rootMethod,
+                        this->d->sudo(this->rootMethod(),
                                       {"sh", cmds.fileName()});
 
                         return;
@@ -1227,8 +1277,7 @@ void AkVCam::IpcBridge::setSwapRgb(const std::string &deviceId, bool swap)
                                .toUtf8());
                     cmds.close();
 
-                    this->d->sudo(this->d->m_rootMethod,
-                                  {"sh", cmds.fileName()});
+                    this->d->sudo(this->rootMethod(), {"sh", cmds.fileName()});
 
                     return;
                 }
@@ -1282,6 +1331,20 @@ AkVCam::IpcBridgePrivate::~IpcBridgePrivate()
     delete this->m_fsWatcher;
 }
 
+QString *AkVCam::IpcBridgePrivate::driverPath()
+{
+    static QString path;
+
+    return &path;
+}
+
+std::vector<std::wstring> *AkVCam::IpcBridgePrivate::driverPaths()
+{
+    static std::vector<std::wstring> paths;
+
+    return &paths;
+}
+
 QMap<AkVCam::Scaling, QString> *AkVCam::IpcBridgePrivate::scalingToString()
 {
     static QMap<Scaling, QString> scalingMap = {
@@ -1325,9 +1388,7 @@ const QVector<AkVCam::DriverFunctions> *AkVCam::IpcBridgePrivate::driverFunction
 
 const AkVCam::DriverFunctions *AkVCam::IpcBridgePrivate::functionsForDriver(const QString &driver)
 {
-    auto functions = driverFunctions();
-
-    for (auto &functions: *functions)
+    for (auto &functions: *driverFunctions())
         if (functions.driver == driver)
             return &functions;
 
@@ -1364,7 +1425,7 @@ bool AkVCam::IpcBridgePrivate::sudo(const QString &command,
 {
     QProcess su;
 
-    su.start(QString::fromStdString(this->m_rootMethod),
+    su.start(QString::fromStdString(this->self->rootMethod()),
              QStringList {command} << argumments);
     su.waitForFinished(-1);
 
@@ -1934,7 +1995,7 @@ void AkVCam::IpcBridgePrivate::initDefaultFormats()
             this->m_defaultFormats << VideoFormat(format,
                                                   resolution.first,
                                                   resolution.second,
-        {{30, 1}});
+                                                  {{30, 1}});
 }
 
 bool AkVCam::IpcBridgePrivate::startOutput()
@@ -2089,6 +2150,34 @@ void AkVCam::IpcBridgePrivate::onFileChanged()
 
 QStringList AkVCam::IpcBridgePrivate::listDrivers()
 {
+    if (!this->driverPath()->isEmpty()) {
+        QFileInfo fileInfo(*this->driverPath());
+
+        if (fileInfo.exists())
+            return {fileInfo.baseName()};
+    }
+
+    for (auto it = this->driverPaths()->rbegin();
+         it != this->driverPaths()->rend();
+         it++) {
+        auto path = QString::fromStdWString(*it);
+
+        if (!QFileInfo::exists(path + "/Makefile"))
+            continue;
+
+        if (!QFileInfo::exists(path + "/dkms.conf"))
+            continue;
+
+        auto driver = this->compileDriver(path);
+
+        if (!driver.isEmpty()) {
+            *this->driverPath() = path + "/" + driver + ".ko";
+
+            return {driver};
+        }
+    }
+
+    this->driverPath()->clear();
     auto modules = QString("/lib/modules/%1/modules.dep")
                    .arg(QSysInfo::kernelVersion());
     QFile file(modules);
@@ -2120,38 +2209,6 @@ QStringList AkVCam::IpcBridgePrivate::listDrivers()
     return drivers;
 }
 
-QString AkVCam::IpcBridgePrivate::preferredDriver() const
-{
-    QSettings settings(QCoreApplication::organizationName(),
-                       "VirtualCamera");
-
-    // Read 'General' section
-    return settings.value("driver", "akvcam").toString();
-}
-
-QString AkVCam::IpcBridgePrivate::locateDriverPath() const
-{
-    QString driverPath;
-
-    for (auto it = this->m_driverPaths.rbegin();
-         it != this->m_driverPaths.rend();
-         it++) {
-        auto path = QString::fromStdWString(*it);
-
-        if (!QFileInfo::exists(path + "/Makefile"))
-            continue;
-
-        if (!QFileInfo::exists(path + "/dkms.conf"))
-            continue;
-
-        driverPath = path;
-
-        break;
-    }
-
-    return driverPath;
-}
-
 QString AkVCam::IpcBridgePrivate::compileDriver(const QString &path)
 {
     QProcess make;
@@ -2169,34 +2226,11 @@ QString AkVCam::IpcBridgePrivate::compileDriver(const QString &path)
     return {};
 }
 
-QString AkVCam::IpcBridgePrivate::currentDriver(const std::string &deviceId)
+QString AkVCam::IpcBridgePrivate::deviceDriver(const std::string &deviceId)
 {
-    this->m_driverPath.clear();
-
-    if (!deviceId.empty())
-        for (auto &function: *this->driverFunctions())
-            if (function.canHandle(deviceId))
-                return function.driver;
-
-    auto driverPath = this->locateDriverPath();
-
-    if (!driverPath.isEmpty()) {
-        auto driver = this->compileDriver(driverPath);
-
-        if (!driver.isEmpty()) {
-            this->m_driverPath = driverPath + "/" + driver + ".ko";
-
-            return driver;
-        }
-    }
-
-    auto availableDrivers = this->listDrivers();
-    auto preferredDriver = this->preferredDriver();
-
-    if (availableDrivers.contains(preferredDriver))
-        return preferredDriver;
-    else if (!availableDrivers.isEmpty())
-        return availableDrivers.front();
+    for (auto &function: *this->driverFunctions())
+        if (function.canHandle(deviceId))
+            return function.driver;
 
     return {};
 }
@@ -2408,6 +2442,15 @@ std::string AkVCam::IpcBridgePrivate::deviceCreateAkVCam(const std::wstring &des
     }
 
     auto deviceFormats = QVector<VideoFormat>::fromStdVector(formats).toList();
+    QList<VideoFormat> outputFormats;
+
+    for (auto &format: deviceFormats) {
+        auto outFormat = format;
+        outFormat.fourcc() = PixelFormatRGB24;
+
+        if (!outputFormats.contains(outFormat))
+            outputFormats << outFormat;
+    }
 
     // Create output device.
     devices << DeviceInfo {deviceNR[0],
@@ -2415,7 +2458,7 @@ std::string AkVCam::IpcBridgePrivate::deviceCreateAkVCam(const std::wstring &des
                            this->cleanDescription(description) + " (out)",
                            "",
                            "",
-                           deviceFormats,
+                           outputFormats,
                            {QString("/dev/video%1").arg(deviceNR[1])},
                            DeviceTypeOutput,
                            AKVCAM_RW_MODE_MMAP | AKVCAM_RW_MODE_USERPTR};
@@ -2540,7 +2583,7 @@ std::string AkVCam::IpcBridgePrivate::deviceCreateAkVCam(const std::wstring &des
                         | QFileDevice::ExeUser);
     cmds.write("rmmod akvcam 2>/dev/null\n");
 
-    if (this->m_driverPath.isEmpty()) {
+    if (this->driverPath()->isEmpty()) {
         cmds.write("sed -i '/akvcam/d' /etc/modules 2>/dev/null\n");
         cmds.write("sed -i '/akvcam/d' /etc/modules-load.d/*.conf 2>/dev/null\n");
         cmds.write("sed -i '/akvcam/d' /etc/modprobe.d/*.conf 2>/dev/null\n");
@@ -2564,7 +2607,7 @@ std::string AkVCam::IpcBridgePrivate::deviceCreateAkVCam(const std::wstring &des
         cmds.write("modprobe akvcam\n");
 #endif
     } else {
-        QFileInfo info(this->m_driverPath);
+        QFileInfo info(*this->driverPath());
         auto dir = info.dir().canonicalPath();
         cmds.write(QString("cd '%1'\n").arg(dir).toUtf8());
 
@@ -2587,7 +2630,7 @@ std::string AkVCam::IpcBridgePrivate::deviceCreateAkVCam(const std::wstring &des
 
     cmds.close();
 
-    if (!this->sudo(this->m_rootMethod, {"sh", cmds.fileName()}))
+    if (!this->sudo(this->self->rootMethod(), {"sh", cmds.fileName()}))
         return {};
 
     auto devicePath = QString("/dev/video%1").arg(deviceNR[1]);
@@ -2646,7 +2689,7 @@ bool AkVCam::IpcBridgePrivate::deviceDestroyAkVCam(const std::string &deviceId)
         cmds.write(this->destroyAllDevicesAkVCam().toUtf8());
         cmds.close();
 
-        return this->sudo(this->m_rootMethod, {"sh", cmds.fileName()});
+        return this->sudo(this->self->rootMethod(), {"sh", cmds.fileName()});
     }
 
     for (auto &device: devices) {
@@ -2804,7 +2847,7 @@ bool AkVCam::IpcBridgePrivate::deviceDestroyAkVCam(const std::string &deviceId)
                         | QFileDevice::ExeUser);
     cmds.write("rmmod akvcam 2>/dev/null\n");
 
-    if (this->m_driverPath.isEmpty()) {
+    if (this->driverPath()->isEmpty()) {
         cmds.write("sed -i '/akvcam/d' /etc/modules 2>/dev/null\n");
         cmds.write("sed -i '/akvcam/d' /etc/modules-load.d/*.conf 2>/dev/null\n");
         cmds.write("sed -i '/akvcam/d' /etc/modprobe.d/*.conf 2>/dev/null\n");
@@ -2828,7 +2871,7 @@ bool AkVCam::IpcBridgePrivate::deviceDestroyAkVCam(const std::string &deviceId)
         cmds.write("modprobe akvcam\n");
 #endif
     } else {
-        QFileInfo info(this->m_driverPath);
+        QFileInfo info(*this->driverPath());
         auto dir = info.dir().canonicalPath();
         cmds.write(QString("cd '%1'\n").arg(dir).toUtf8());
 
@@ -2851,7 +2894,7 @@ bool AkVCam::IpcBridgePrivate::deviceDestroyAkVCam(const std::string &deviceId)
 
     cmds.close();
 
-    return this->sudo(this->m_rootMethod, {"sh", cmds.fileName()});
+    return this->sudo(this->self->rootMethod(), {"sh", cmds.fileName()});
 }
 
 bool AkVCam::IpcBridgePrivate::changeDescriptionAkVCam(const std::string &deviceId,
@@ -3027,7 +3070,7 @@ bool AkVCam::IpcBridgePrivate::changeDescriptionAkVCam(const std::string &device
                         | QFileDevice::ExeUser);
     cmds.write("rmmod akvcam 2>/dev/null\n");
 
-    if (this->m_driverPath.isEmpty()) {
+    if (this->driverPath()->isEmpty()) {
         cmds.write("sed -i '/akvcam/d' /etc/modules 2>/dev/null\n");
         cmds.write("sed -i '/akvcam/d' /etc/modules-load.d/*.conf 2>/dev/null\n");
         cmds.write("sed -i '/akvcam/d' /etc/modprobe.d/*.conf 2>/dev/null\n");
@@ -3051,7 +3094,7 @@ bool AkVCam::IpcBridgePrivate::changeDescriptionAkVCam(const std::string &device
         cmds.write("modprobe akvcam\n");
 #endif
     } else {
-        QFileInfo info(this->m_driverPath);
+        QFileInfo info(*this->driverPath());
         auto dir = info.dir().canonicalPath();
         cmds.write(QString("cd '%1'\n").arg(dir).toUtf8());
 
@@ -3074,7 +3117,7 @@ bool AkVCam::IpcBridgePrivate::changeDescriptionAkVCam(const std::string &device
 
     cmds.close();
 
-    if (!this->sudo(this->m_rootMethod, {"sh", cmds.fileName()}))
+    if (!this->sudo(this->self->rootMethod(), {"sh", cmds.fileName()}))
         return false;
 
     if (!this->waitFroDevice(deviceId))
@@ -3162,7 +3205,7 @@ std::string AkVCam::IpcBridgePrivate::deviceCreateV4L2Loopback(const std::wstrin
                         | QFileDevice::ExeUser);
     cmds.write("rmmod v4l2loopback 2>/dev/null\n");
 
-    if (this->m_driverPath.isEmpty()) {
+    if (this->driverPath()->isEmpty()) {
         cmds.write("sed -i '/v4l2loopback/d' /etc/modules 2>/dev/null\n");
         cmds.write("sed -i '/v4l2loopback/d' /etc/modules-load.d/*.conf 2>/dev/null\n");
         cmds.write("sed -i '/v4l2loopback/d' /etc/modprobe.d/*.conf 2>/dev/null\n");
@@ -3173,7 +3216,7 @@ std::string AkVCam::IpcBridgePrivate::deviceCreateV4L2Loopback(const std::wstrin
         cmds.write(QString("modprobe v4l2loopback video_nr=%1 card_label=\"%2\"\n")
                    .arg(videoNR).arg(cardLabel).toUtf8());
     } else {
-        QFileInfo info(this->m_driverPath);
+        QFileInfo info(*this->driverPath());
         auto dir = info.dir().canonicalPath();
         cmds.write(QString("cd '%1'\n").arg(dir).toUtf8());
 
@@ -3186,7 +3229,7 @@ std::string AkVCam::IpcBridgePrivate::deviceCreateV4L2Loopback(const std::wstrin
 
     cmds.close();
 
-    if (!this->sudo(this->m_rootMethod, {"sh", cmds.fileName()}))
+    if (!this->sudo(this->self->rootMethod(), {"sh", cmds.fileName()}))
         return {};
 
     if (!this->waitFroDevice(devicePath))
@@ -3287,7 +3330,7 @@ bool AkVCam::IpcBridgePrivate::deviceDestroyV4L2Loopback(const std::string &devi
                         | QFileDevice::ExeUser);
     cmds.write("rmmod v4l2loopback 2>/dev/null\n");
 
-    if (this->m_driverPath.isEmpty()) {
+    if (this->driverPath()->isEmpty()) {
         cmds.write("sed -i '/v4l2loopback/d' /etc/modules 2>/dev/null\n");
         cmds.write("sed -i '/v4l2loopback/d' /etc/modules-load.d/*.conf 2>/dev/null\n");
         cmds.write("sed -i '/v4l2loopback/d' /etc/modprobe.d/*.conf 2>/dev/null\n");
@@ -3301,7 +3344,7 @@ bool AkVCam::IpcBridgePrivate::deviceDestroyV4L2Loopback(const std::string &devi
                        .arg(videoNR).arg(cardLabel).toUtf8());
         }
     } else {
-        QFileInfo info(this->m_driverPath);
+        QFileInfo info(*this->driverPath());
         auto dir = info.dir().canonicalPath();
         cmds.write(QString("cd '%1'\n").arg(dir).toUtf8());
 
@@ -3315,7 +3358,7 @@ bool AkVCam::IpcBridgePrivate::deviceDestroyV4L2Loopback(const std::string &devi
 
     cmds.close();
 
-    return this->sudo(this->m_rootMethod, {"sh", cmds.fileName()});
+    return this->sudo(this->self->rootMethod(), {"sh", cmds.fileName()});
 }
 
 bool AkVCam::IpcBridgePrivate::changeDescriptionV4L2Loopback(const std::string &deviceId,
@@ -3355,7 +3398,7 @@ bool AkVCam::IpcBridgePrivate::changeDescriptionV4L2Loopback(const std::string &
                         | QFileDevice::ExeUser);
     cmds.write("rmmod v4l2loopback 2>/dev/null\n");
 
-    if (this->m_driverPath.isEmpty()) {
+    if (this->driverPath()->isEmpty()) {
         cmds.write("sed -i '/v4l2loopback/d' /etc/modules 2>/dev/null\n");
         cmds.write("sed -i '/v4l2loopback/d' /etc/modules-load.d/*.conf 2>/dev/null\n");
         cmds.write("sed -i '/v4l2loopback/d' /etc/modprobe.d/*.conf 2>/dev/null\n");
@@ -3366,7 +3409,7 @@ bool AkVCam::IpcBridgePrivate::changeDescriptionV4L2Loopback(const std::string &
         cmds.write(QString("modprobe v4l2loopback video_nr=%1 card_label=\"%2\"\n")
                    .arg(videoNR).arg(cardLabel).toUtf8());
     } else {
-        QFileInfo info(this->m_driverPath);
+        QFileInfo info(*this->driverPath());
         auto dir = info.dir().canonicalPath();
         cmds.write(QString("cd '%1'\n").arg(dir).toUtf8());
 
@@ -3379,7 +3422,7 @@ bool AkVCam::IpcBridgePrivate::changeDescriptionV4L2Loopback(const std::string &
 
     cmds.close();
 
-    if (!this->sudo(this->m_rootMethod, {"sh", cmds.fileName()}))
+    if (!this->sudo(this->self->rootMethod(), {"sh", cmds.fileName()}))
         return false;
 
     return this->waitFroDevice(deviceId);

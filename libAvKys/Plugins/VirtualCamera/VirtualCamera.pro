@@ -19,15 +19,8 @@
 TEMPLATE = subdirs
 CONFIG += ordered
 
-isEmpty(VIRTUALCAMERAONLY) {
-    SUBDIRS = src
-    SUBDIRS += src/VCamUtils
-    CONFIG(config_cmio): SUBDIRS += src/cmio
-    CONFIG(config_dshow): SUBDIRS += src/dshow
-    CONFIG(config_v4l2): SUBDIRS += src/v4l2sys
-} else: {
-    SUBDIRS = src/VCamUtils
-    macx: SUBDIRS += src/cmio
-    win32: SUBDIRS += src/dshow
-    unix: !macx: SUBDIRS += src/v4l2sys
-}
+SUBDIRS = src/VCamUtils
+CONFIG(config_cmio): SUBDIRS += src/cmio
+CONFIG(config_dshow): SUBDIRS += src/dshow
+CONFIG(config_v4l2): SUBDIRS += src/v4l2sys
+isEmpty(VIRTUALCAMERAONLY): SUBDIRS += src

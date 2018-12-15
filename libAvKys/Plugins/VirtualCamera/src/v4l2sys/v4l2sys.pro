@@ -21,5 +21,3 @@ CONFIG += ordered
 
 SUBDIRS = \
     VCamIPC
-
-isEmpty(VIRTUALCAMERAONLY): SUBDIRS += src

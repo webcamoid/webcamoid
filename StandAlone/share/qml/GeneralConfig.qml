@@ -115,16 +115,6 @@ AkScrollView {
                 onCurrentIndexChanged: audioConvert.convertLib = model[currentIndex]
             }
             Label {
-                text: qsTr("Video output")
-            }
-            ComboBox {
-                Layout.fillWidth: true
-                model: virtualCamera.listSubModules(["output"])
-                currentIndex: model.indexOf(virtualCamera.outputLib)
-
-                onCurrentIndexChanged: virtualCamera.outputLib = model[currentIndex]
-            }
-            Label {
                 text: qsTr("Video playback")
             }
             ComboBox {
@@ -153,9 +143,19 @@ AkScrollView {
                 model: virtualCamera.availableMethods
                 currentIndex: virtualCamera.availableMethods.length > 0?
                                   model.indexOf(virtualCamera.rootMethod): -1
-                visible: virtualCamera.availableMethods.length > 0
 
                 onCurrentIndexChanged: virtualCamera.rootMethod = model[currentIndex]
+            }
+            Label {
+                text: qsTr("Virtual camera driver")
+            }
+            ComboBox {
+                Layout.fillWidth: true
+                model: virtualCamera.availableDrivers
+                currentIndex: virtualCamera.availableDrivers.length > 0?
+                                  model.indexOf(virtualCamera.driver): -1
+
+                onCurrentIndexChanged: virtualCamera.driver = model[currentIndex]
             }
         }
     }

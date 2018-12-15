@@ -298,22 +298,22 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="118"/>
-        <source>Video output</source>
+        <location filename="../qml/GeneralConfig.qml" line="150"/>
+        <source>Virtual camera driver</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="128"/>
+        <location filename="../qml/GeneralConfig.qml" line="118"/>
         <source>Video playback</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="138"/>
+        <location filename="../qml/GeneralConfig.qml" line="128"/>
         <source>Video record</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="148"/>
+        <location filename="../qml/GeneralConfig.qml" line="138"/>
         <source>Root method</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2066,64 +2066,59 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="64"/>
+        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="61"/>
         <source>Devices</source>
         <translation type="unfinished">驱动</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="81"/>
+        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="78"/>
         <source>Add</source>
         <translation>添加</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="92"/>
+        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="89"/>
         <source>Edit</source>
         <translation>编辑</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="105"/>
+        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="102"/>
         <source>Remove</source>
         <translation>删除</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="116"/>
+        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="113"/>
         <source>Remove All</source>
         <translation>删除所有</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="137"/>
+        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="134"/>
         <source>Description</source>
         <translation type="unfinished">描述</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="143"/>
+        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="140"/>
         <source>Camera name (optional)</source>
         <translation>摄像头名字（可选）</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="288"/>
+        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="263"/>
         <source>Error creating camera</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="155"/>
+        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="152"/>
         <source>Ok</source>
         <translation type="unfinished">确定</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="198"/>
+        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="195"/>
         <source>Cancel</source>
         <translation type="unfinished">取消</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="252"/>
+        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="249"/>
         <source>This system is not supported yet</source>
         <translation type="unfinished">您所使用的系统并不在支持范围内</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="274"/>
-        <source>Please, install &lt;b&gt;v4l2loopback&lt;/b&gt; for using this option</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Warp/share/qml/main.qml" line="28"/>

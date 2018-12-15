@@ -455,7 +455,7 @@ bool AkVCam::VideoFrame::load(std::istream *stream)
 
             break;
 
-        default:        
+        default:
             this->d->m_format.clear();
             this->d->m_data.reset();
             this->d->m_dataSize = 0;
@@ -1173,7 +1173,7 @@ AkVCam::VideoFrame AkVCam::VideoFramePrivate::bgr24_to_bgr32(const VideoFrame *s
 
     for (int y = 0; y < height; y++) {
         auto src_line = reinterpret_cast<const BGR24 *>(src->line(0, size_t(y)));
-        auto dst_line = reinterpret_cast<RGB32 *>(dst.line(0, size_t(y)));
+        auto dst_line = reinterpret_cast<BGR32 *>(dst.line(0, size_t(y)));
 
         for (int x = 0; x < width; x++) {
             dst_line[x].x = 255;
@@ -1459,7 +1459,7 @@ AkVCam::VideoFrame AkVCam::VideoFramePrivate::rgb24_to_bgr32(const VideoFrame *s
 
     for (int y = 0; y < height; y++) {
         auto src_line = reinterpret_cast<const RGB24 *>(src->line(0, size_t(y)));
-        auto dst_line = reinterpret_cast<RGB32 *>(dst.line(0, size_t(y)));
+        auto dst_line = reinterpret_cast<BGR32 *>(dst.line(0, size_t(y)));
 
         for (int x = 0; x < width; x++) {
             dst_line[x].x = 255;

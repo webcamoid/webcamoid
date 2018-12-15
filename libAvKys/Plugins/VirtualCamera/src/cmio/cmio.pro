@@ -23,5 +23,3 @@ SUBDIRS = \
     VCamIPC \
     Assistant \
     VirtualCamera
-
-isEmpty(VIRTUALCAMERAONLY): SUBDIRS += src

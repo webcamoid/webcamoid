@@ -50,10 +50,7 @@ GridLayout {
         onMediasChanged: updateDevices()
     }
     Component.onCompleted: {
-        if (OsName == "linux")
-            recCameraControls.state = VirtualCamera.maxCameras > 0? "": "missing"
-        else
-            recCameraControls.state = VirtualCamera.maxCameras > 0? "": "unsupported"
+        recCameraControls.state = VirtualCamera.maxCameras > 0? "": "unsupported"
 
         if (recCameraControls.state == "")
             updateDevices()
@@ -250,28 +247,6 @@ GridLayout {
                 target: message
                 visible: true
                 text: qsTr("This system is not supported yet")
-                enabled: false
-            }
-        },
-        State {
-            name: "missing"
-
-            PropertyChanges {
-                target: txtDevices
-                visible: false
-            }
-            PropertyChanges {
-                target: cbxDevices
-                visible: false
-            }
-            PropertyChanges {
-                target: glyOptions
-                visible: false
-            }
-            PropertyChanges {
-                target: message
-                visible: true
-                text: qsTr("Please, install <b>v4l2loopback</b> for using this option")
                 enabled: false
             }
         },

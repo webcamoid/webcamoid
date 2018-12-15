@@ -31,8 +31,14 @@ SUBDIRS += \
     MultiSink \
     MultiSrc \
     Probe \
-    VideoCapture \
-    VirtualCamera
+    VideoCapture
+
+isEmpty(NOVCAM): {
+    CONFIG(config_cmio) \
+    | CONFIG(config_dshow) \
+    | CONFIG(config_v4l2): SUBDIRS += \
+        VirtualCamera
+}
 
 # Video effects
 isEmpty(NOVIDEOEFFECTS): SUBDIRS += \

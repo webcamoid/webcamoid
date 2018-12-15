@@ -298,22 +298,22 @@
         <translation>המרת שמע</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="118"/>
-        <source>Video output</source>
-        <translation>פלט וידאו</translation>
+        <location filename="../qml/GeneralConfig.qml" line="150"/>
+        <source>Virtual camera driver</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="128"/>
+        <location filename="../qml/GeneralConfig.qml" line="118"/>
         <source>Video playback</source>
         <translation>נגינת וידאו</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="138"/>
+        <location filename="../qml/GeneralConfig.qml" line="128"/>
         <source>Video record</source>
         <translation>הקלטת וידאו</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="148"/>
+        <location filename="../qml/GeneralConfig.qml" line="138"/>
         <source>Root method</source>
         <translation>שיטת שורש</translation>
     </message>
@@ -2066,64 +2066,59 @@
         <translation>בחירת צבע העיטור</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="64"/>
+        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="61"/>
         <source>Devices</source>
         <translation>התקנים</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="81"/>
+        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="78"/>
         <source>Add</source>
         <translation>הוספה</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="92"/>
+        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="89"/>
         <source>Edit</source>
         <translation>עריכה</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="105"/>
+        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="102"/>
         <source>Remove</source>
         <translation>הסרה</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="116"/>
+        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="113"/>
         <source>Remove All</source>
         <translation>הסרת הכול</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="137"/>
+        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="134"/>
         <source>Description</source>
         <translation>תיאור</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="143"/>
+        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="140"/>
         <source>Camera name (optional)</source>
         <translation>שם המצלמה (רשות)</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="288"/>
+        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="263"/>
         <source>Error creating camera</source>
         <translation>שגיאה ביצירת המצלמה</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="155"/>
+        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="152"/>
         <source>Ok</source>
         <translation>אישור</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="198"/>
+        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="195"/>
         <source>Cancel</source>
         <translation>ביטול</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="252"/>
+        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="249"/>
         <source>This system is not supported yet</source>
         <translation>אין עדיין תמיכה במערכת הזו</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="274"/>
-        <source>Please, install &lt;b&gt;v4l2loopback&lt;/b&gt; for using this option</source>
-        <translation>נא להתקין את &lt;b&gt;v4l2loopback&lt;/b&gt; כדי להשתמש באפשרות זו</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Warp/share/qml/main.qml" line="28"/>

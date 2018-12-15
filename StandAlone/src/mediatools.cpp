@@ -104,14 +104,6 @@ MediaTools::MediaTools(QObject *parent):
                          SIGNAL(stateChanged(AkElement::ElementState)),
                          this,
                          SIGNAL(virtualCameraStateChanged(AkElement::ElementState)));
-        QObject::connect(this->d->m_virtualCamera.data(),
-                         SIGNAL(outputLibChanged(const QString &)),
-                         this,
-                         SLOT(saveVirtualCameraOutputLib(const QString &)));
-        QObject::connect(this->d->m_virtualCamera.data(),
-                         SIGNAL(rootMethodChanged(const QString &)),
-                         this,
-                         SLOT(saveVirtualCameraRootMethod(const QString &)));
     }
 
     AkElement::link(this->d->m_mediaSource.data(),
@@ -494,19 +486,6 @@ void MediaTools::loadConfigs()
 {
     QSettings config;
 
-    config.beginGroup("Libraries");
-
-    if (this->d->m_virtualCamera) {
-        this->d->m_virtualCamera->setProperty("outputLib",
-                                              config.value("VirtualCamera.outputLib",
-                                                           this->d->m_virtualCamera->property("outputLib")));
-        this->d->m_virtualCamera->setProperty("rootMethod",
-                                              config.value("VirtualCamera.rootMethod",
-                                                           this->d->m_virtualCamera->property("rootMethod")));
-    }
-
-    config.endGroup();
-
     config.beginGroup("GeneralConfigs");
     QSize windowSize = config.value("windowSize", QSize(1024, 600)).toSize();
     this->d->m_windowWidth = windowSize.width();
@@ -535,22 +514,6 @@ void MediaTools::loadConfigs()
                                   Q_ARG(QStringList, driverPaths));
 }
 
-void MediaTools::saveVirtualCameraOutputLib(const QString &outputLib)
-{
-    QSettings config;
-    config.beginGroup("Libraries");
-    config.setValue("VirtualCamera.outputLib", outputLib);
-    config.endGroup();
-}
-
-void MediaTools::saveVirtualCameraRootMethod(const QString &rootMethod)
-{
-    QSettings config;
-    config.beginGroup("Libraries");
-    config.setValue("VirtualCamera.rootMethod", rootMethod);
-    config.endGroup();
-}
-
 void MediaTools::saveConfigs()
 {
     QSettings config;
@@ -562,15 +525,6 @@ void MediaTools::saveConfigs()
 
     config.beginGroup("VirtualCamera");
     config.setValue("enable", this->enableVirtualCamera());
-    config.endGroup();
-
-    config.beginGroup("Libraries");
-
-    if (this->d->m_virtualCamera) {
-        config.setValue("VirtualCamera.outputLib", this->d->m_virtualCamera->property("outputLib"));
-        config.setValue("VirtualCamera.rootMethod", this->d->m_virtualCamera->property("rootMethod"));
-    }
-
     config.endGroup();
 }
 
