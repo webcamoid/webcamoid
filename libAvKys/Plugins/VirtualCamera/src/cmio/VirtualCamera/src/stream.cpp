@@ -38,8 +38,6 @@ namespace AkVCam
             CMTime m_pts;
             SampleBufferQueuePtr m_queue;
             CMIODeviceStreamQueueAlteredProc m_queueAltered;
-            VideoFormat m_format;
-            Fraction m_fps;
             VideoFrame m_currentFrame;
             VideoFrame m_testFrame;
             VideoFrame m_testFrameAdapted;
@@ -219,15 +217,12 @@ void AkVCam::Stream::setFormat(const VideoFormat &format)
 
     if (!format.frameRates().empty())
         this->setFrameRate(format.frameRates().front());
-
-    this->d->m_format = format;
 }
 
 void AkVCam::Stream::setFrameRate(const Fraction &frameRate)
 {
     this->m_properties.setProperty(kCMIOStreamPropertyFrameRate,
                                    frameRate.value());
-    this->d->m_fps = frameRate;
 }
 
 bool AkVCam::Stream::start()
@@ -425,7 +420,10 @@ bool AkVCam::StreamPrivate::startTimer()
     if (this->m_timer)
         return false;
 
-    CFTimeInterval interval = 1.0 / this->m_fps.value();
+    Float64 fps = 0;
+    this->self->m_properties.getProperty(kCMIOStreamPropertyFrameRate, &fps);
+
+    CFTimeInterval interval = 1.0 / fps;
     CFRunLoopTimerContext context {0, this, nullptr, nullptr, nullptr};
     this->m_timer =
             CFRunLoopTimerCreate(kCFAllocatorDefault,
@@ -502,9 +500,13 @@ void AkVCam::StreamPrivate::sendFrame(const VideoFrame &frame)
 
     if (CMTimeCompare(pts, this->m_pts) == 0)
         return;
+
+    Float64 fps = 0;
+    this->self->m_properties.getProperty(kCMIOStreamPropertyFrameRate, &fps);
+
     if (CMTIME_IS_INVALID(this->m_pts)
         || ptsDiff < 0
-        || ptsDiff > 2. / this->m_fps.value()) {
+        || ptsDiff > 2. / fps) {
         this->m_pts = pts;
         resync = true;
     }
@@ -535,7 +537,7 @@ void AkVCam::StreamPrivate::sendFrame(const VideoFrame &frame)
                                                  imageBuffer,
                                                  &format);
 
-    auto duration = CMTimeMake(this->m_fps.den(), int32_t(this->m_fps.num()));
+    auto duration = CMTimeMake(1e3, int32_t(1e3 * fps));
     CMSampleTimingInfo timingInfo {
         duration,
         this->m_pts,
@@ -572,9 +574,13 @@ void AkVCam::StreamPrivate::updateTestFrame()
 
 AkVCam::VideoFrame AkVCam::StreamPrivate::applyAdjusts(const VideoFrame &frame)
 {
-    FourCC fourcc = this->m_format.fourcc();
-    int width = this->m_format.width();
-    int height = this->m_format.height();
+    VideoFormat format;
+    this->self->m_properties.getProperty(kCMIOStreamPropertyFormatDescription,
+                                         &format);
+
+    FourCC fourcc = format.fourcc();
+    int width = format.width();
+    int height = format.height();
 
     if (width * height > frame.format().width() * frame.format().height()) {
         return frame.mirror(this->m_horizontalMirror,

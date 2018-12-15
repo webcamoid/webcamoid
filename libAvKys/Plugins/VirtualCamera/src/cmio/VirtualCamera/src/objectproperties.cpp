@@ -382,6 +382,21 @@ bool AkVCam::ObjectProperties::getProperty(UInt32 property, UInt32 *value)
     return true;
 }
 
+bool AkVCam::ObjectProperties::getProperty(UInt32 property, Float64 *value)
+{
+    if (!value || !this->d->m_properties.count(property))
+        return false;
+
+    auto propertyType = this->d->m_properties[property].type;
+
+    if (propertyType != PropertyTypeFloat64)
+        return false;
+
+    *value = this->d->m_properties[property].num.float64;
+
+    return true;
+}
+
 bool AkVCam::ObjectProperties::getProperty(UInt32 property, std::string *value)
 {
     if (!value || !this->d->m_properties.count(property))
@@ -393,6 +408,22 @@ bool AkVCam::ObjectProperties::getProperty(UInt32 property, std::string *value)
         return false;
 
     *value = this->d->m_properties[property].str;
+
+    return true;
+}
+
+bool AkVCam::ObjectProperties::getProperty(UInt32 property,
+                                           AkVCam::VideoFormat *value)
+{
+    if (!value || !this->d->m_properties.count(property))
+        return false;
+
+    auto propertyType = this->d->m_properties[property].type;
+
+    if (propertyType != PropertyTypeVideoFormat)
+        return false;
+
+    *value = this->d->m_properties[property].videoFormat;
 
     return true;
 }

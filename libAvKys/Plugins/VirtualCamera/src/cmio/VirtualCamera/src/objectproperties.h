@@ -99,7 +99,11 @@ namespace AkVCam
             bool getProperty(UInt32 property,
                              UInt32 *value);
             bool getProperty(UInt32 property,
+                             Float64 *value);
+            bool getProperty(UInt32 property,
                              std::string *value);
+            bool getProperty(UInt32 property,
+                             VideoFormat *value);
             bool getProperty(UInt32 property,
                              UInt32 qualifierDataSize=0,
                              const void *qualifierData=nullptr,
