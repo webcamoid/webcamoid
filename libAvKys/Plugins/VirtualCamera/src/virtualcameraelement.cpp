@@ -231,7 +231,7 @@ QString VirtualCameraElement::createWebcam(const QString &description)
     for (auto &format: pixelFormats)
         for (auto &resolution: resolutions)
             formats.push_back({
-                format,
+                AkVCam::FourCC(format),
                 resolution.first,
                 resolution.second,
                 {{30, 1}}
