@@ -355,8 +355,8 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
                                     '--comp', 'xz',
                                     appDir,
                                     packagePath],
-                                    #stdout=subprocess.PIPE,
-                                    #stderr=subprocess.PIPE,
+                                    stdout=subprocess.PIPE,
+                                    stderr=subprocess.PIPE,
                                     env=penv)
         process.communicate()
 
