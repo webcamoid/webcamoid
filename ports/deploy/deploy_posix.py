@@ -337,8 +337,8 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
         if os.path.exists(packagePath):
             os.remove(packagePath)
 
-        os.environ['ARCH'] = platform.machine()
-
+        penv = os.environ.copy()
+        penv['ARCH'] = platform.machine()
         process = subprocess.Popen([self.appImage,
                                     '-v',
                                     '--no-appstream',
@@ -346,7 +346,8 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
                                     appDir,
                                     packagePath],
                                     stdout=subprocess.PIPE,
-                                    stderr=subprocess.PIPE)
+                                    stderr=subprocess.PIPE,
+                                    env=penv)
         process.communicate()
 
         mutex.acquire()
