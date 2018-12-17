@@ -69,8 +69,8 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
         self.installerScript = os.path.join(self.rootDir, 'ports/deploy/installscript.posix.qs')
         self.changeLog = os.path.join(self.rootDir, 'ChangeLog')
         self.outPackage = os.path.join(self.pkgsDir,
-                                   'webcamoid-{}-{}.run'.format(self.programVersion,
-                                                                platform.machine()))
+                                       'webcamoid-installer-{}-{}.run'.format(self.programVersion,
+                                                                              platform.machine()))
 
     def detectAppImage(self):
         if 'APPIMAGETOOL' in os.environ:
@@ -250,8 +250,14 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
         return '{:.2f} {}'.format(sizeKiB, units[i - 1])
 
     def printPackageInfo(self, path):
-        print('   ', os.path.basename(path),
-              self.hrSize(os.path.getsize(path)))
+        if os.path.exists(path):
+            print('   ',
+                  os.path.basename(path),
+                  self.hrSize(os.path.getsize(path)))
+        else:
+            print('   ',
+                  os.path.basename(path),
+                  'FAILED')
 
     def createPortable(self, mutex):
         packagePath = \
@@ -330,6 +336,8 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
 
         if os.path.exists(packagePath):
             os.remove(packagePath)
+
+        os.environ['ARCH'] = platform.machine()
 
         process = subprocess.Popen([self.appImage,
                                     '-v',
