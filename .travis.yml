@@ -6,10 +6,10 @@ cache:
 
 env:
   global:
-    - QTVER=5.11.1
+    - QTVER=5.12.0
     - PPAQTVER=511
-    - QTIFWVER=3.0.4
-    - APPIMAGEVER=9
+    - QTIFWVER=3.0.6
+    - APPIMAGEVER=11
 
 matrix:
   include:
@@ -103,28 +103,42 @@ matrix:
       - docker
     compiler: gcc
     env:
-      - DOCKERSYS=debian DOCKERIMG=ubuntu:artful
+      - DOCKERSYS=debian DOCKERIMG=ubuntu:bionic
   - os: linux
     sudo: required
     services:
       - docker
     compiler: clang
     env:
-      - DOCKERSYS=debian DOCKERIMG=ubuntu:artful
+      - DOCKERSYS=debian DOCKERIMG=ubuntu:bionic
   - os: linux
     sudo: required
     services:
       - docker
     compiler: gcc
     env:
-      - DOCKERSYS=debian DOCKERIMG=ubuntu:bionic
+      - DOCKERSYS=debian DOCKERIMG=ubuntu:cosmic
   - os: linux
     sudo: required
     services:
       - docker
     compiler: clang
     env:
-      - DOCKERSYS=debian DOCKERIMG=ubuntu:bionic
+      - DOCKERSYS=debian DOCKERIMG=ubuntu:cosmic
+  - os: linux
+    sudo: required
+    services:
+      - docker
+    compiler: gcc
+    env:
+      - DOCKERSYS=debian DOCKERIMG=ubuntu:disco
+  - os: linux
+    sudo: required
+    services:
+      - docker
+    compiler: clang
+    env:
+      - DOCKERSYS=debian DOCKERIMG=ubuntu:disco
   - os: osx
     osx_image: xcode9.1
     compiler: clang
@@ -139,20 +153,26 @@ matrix:
     compiler: clang
     env:
       - DISABLE_CCACHE=1
+  - os: osx
+    osx_image: xcode10
+    compiler: clang
+  - os: osx
+    osx_image: xcode10.1
+    compiler: clang
   - language: android
     jdk: oraclejdk8
     android:
       components:
         - tools
         - platform-tools
-        - build-tools-27.0.3
-        - android-21
-        - sys-img-armeabi-v7a-android-21
+        - build-tools-28.0.3
+        - android-22
+        - sys-img-armeabi-v7a-android-24
     env:
       - ANDROID_BUILD=1
-      - COMPILER=g++
-      - QTVER=5.11.1
-      - NDKVER=r17b
+      - COMPILER=clang
+      - QTVER=5.12.0
+      - NDKVER=r18b
       - TARGET_ARCH=armv7
   - language: android
     jdk: oraclejdk8
@@ -160,14 +180,29 @@ matrix:
       components:
         - tools
         - platform-tools
-        - build-tools-27.0.3
-        - android-21
-        - sys-img-x86-android-21
+        - build-tools-28.0.3
+        - android-22
+        - sys-img-arm64-v8a-android-24
     env:
       - ANDROID_BUILD=1
-      - COMPILER=g++
-      - QTVER=5.11.1
-      - NDKVER=r17b
+      - COMPILER=clang
+      - QTVER=5.12.0
+      - NDKVER=r18b
+      - TARGET_ARCH=arm64_v8a
+  - language: android
+    jdk: oraclejdk8
+    android:
+      components:
+        - tools
+        - platform-tools
+        - build-tools-28.0.3
+        - android-22
+        - sys-img-x86-android-24
+    env:
+      - ANDROID_BUILD=1
+      - COMPILER=clang
+      - QTVER=5.12.0
+      - NDKVER=r18b
       - TARGET_ARCH=x86
 
 before_install: |
