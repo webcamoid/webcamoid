@@ -40,15 +40,15 @@ if [ "${TRAVIS_OS_NAME}" = linux ] && [ "${ANDROID_BUILD}" != 1 ]; then
     appimage=appimagetool-x86_64.AppImage
 
     # Install AppImageTool
-    wget -c -O .local/bin/${appimage} https://github.com/AppImage/AppImageKit/releases/download/${APPIMAGEVER}/${appimage} || true
+    wget -c -O .local/${appimage} https://github.com/AppImage/AppImageKit/releases/download/${APPIMAGEVER}/${appimage} || true
 
-    if [ -e .local/bin/${appimage} ]; then
-        chmod +x .local/bin/${appimage}
+    if [ -e .local/${appimage} ]; then
+        chmod +x .local/${appimage}
 
-        cd .local/bin
+        cd .local
         ./${appimage} --appimage-extract
-        cp -vf squashfs-root/usr/bin/* .
-        cd ../..
+        cp -rvf squashfs-root/usr/* .
+        cd ..
     fi
 
     # Set default Docker command

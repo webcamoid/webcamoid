@@ -90,6 +90,7 @@ matrix:
     compiler: gcc
     env:
       - DOCKERSYS=debian DOCKERIMG=ubuntu:xenial
+      - QTVER=5.11.2
   - os: linux
     sudo: required
     services:
@@ -97,6 +98,7 @@ matrix:
     compiler: clang
     env:
       - DOCKERSYS=debian DOCKERIMG=ubuntu:xenial
+      - QTVER=5.11.2
   - os: linux
     sudo: required
     services:
