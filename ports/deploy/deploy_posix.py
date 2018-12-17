@@ -339,8 +339,16 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
 
         penv = os.environ.copy()
         penv['ARCH'] = platform.machine()
-        penv['LD_LIBRARY_PATH'] = ':'.join([os.path.abspath(os.path.join(self.appImage, '../../lib'))]
-                                           + penv['LD_LIBRARY_PATH'].split(':'))
+
+        libPaths = []
+
+        if 'LD_LIBRARY_PATH' in penv:
+            libPaths = penv['LD_LIBRARY_PATH'].split(':')
+
+        penv['LD_LIBRARY_PATH'] = \
+            ':'.join([os.path.abspath(os.path.join(self.appImage, '../../lib'))]
+                     + libPaths)
+
         process = subprocess.Popen([self.appImage,
                                     '-v',
                                     '--no-appstream',
