@@ -213,7 +213,7 @@ elif [ "${TRAVIS_OS_NAME}" = osx ]; then
     if [ -e ${qtIFW} ]; then
         hdiutil convert ${qtIFW} -format UDZO -o qtifw
         7z x -oqtifw qtifw.dmg -bb
-        7z x -oqtifw qtifw/5.hfs -bb
+        7z x -oqtifw qtifw/5.hfsx -bb
         chmod +x qtifw/QtInstallerFramework-mac-x64/QtInstallerFramework-mac-x64.app/Contents/MacOS/QtInstallerFramework-mac-x64
 
         qtifw/QtInstallerFramework-mac-x64/QtInstallerFramework-mac-x64.app/Contents/MacOS/QtInstallerFramework-mac-x64 \
