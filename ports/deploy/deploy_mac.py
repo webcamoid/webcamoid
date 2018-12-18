@@ -89,6 +89,8 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
         self.removeUnneededFiles(self.libInstallDir)
         print('Fixing rpaths\n')
         self.fixRpaths()
+        print('\nWritting build system information\n')
+        self.writeBuildInfo()
 
     def solvedepsLibs(self):
         for dep in self.binarySolver.scanDependencies(self.installDir):
@@ -210,6 +212,61 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
 
         for thread in threads:
             thread.join()
+
+    def searchPackageFor(self, cellarPath, path):
+        if not path.startswith(cellarPath):
+            return ''
+
+        return ' '.join(path.replace(cellarPath + os.sep, '').split(os.sep)[0: 2])
+
+    def sysInfo(self):
+        process = subprocess.Popen(['sw_vers'],
+                                    stdout=subprocess.PIPE,
+                                    stderr=subprocess.PIPE)
+        stdout, stderr = process.communicate()
+
+        return stdout.decode(sys.getdefaultencoding()).strip()
+
+    def writeBuildInfo(self):
+        resourcesDir = os.path.join(self.execPrefixDir, 'Resources')
+        os.makedirs(self.pkgsDir)
+        depsInfoFile = os.path.join(resourcesDir, 'build-info.txt')
+        info = self.sysInfo()
+
+        with open(depsInfoFile, 'w') as f:
+            for line in info.split('\n'):
+                if len(line) > 0:
+                    print('    ' + line)
+                    f.write(line + '\n')
+
+            print()
+            f.write('\n')
+
+        os.environ['LC_ALL'] = 'C'
+        brew = self.whereBin('brew')
+
+        if len(brew) < 1:
+            return
+
+        process = subprocess.Popen([brew, '--cellar'],
+                                    stdout=subprocess.PIPE,
+                                    stderr=subprocess.PIPE)
+        stdout, stderr = process.communicate()
+        cellarPath = stdout.decode(sys.getdefaultencoding()).strip()
+        packages = set()
+
+        for dep in self.dependencies:
+            packageInfo = self.searchPackageFor(cellarPath, dep)
+
+            if len(packageInfo) > 0:
+                packages.add(packageInfo)
+
+        packages = sorted(packages)
+
+        with open(depsInfoFile, 'a') as f:
+            for packge in packages:
+                print('    ' + packge)
+                f.write(packge + '\n')
 
     def hrSize(self, size):
         i = int(math.log(size) // math.log(1024))
