@@ -124,7 +124,7 @@ AkVCam::Service::~Service()
 {
 }
 
-bool AkVCam::Service::install()
+BOOL AkVCam::Service::install()
 {
     AkServiceLogMethod();
     WCHAR fileName[MAX_PATH];

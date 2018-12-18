@@ -22,6 +22,7 @@
 
 #include <limits>
 #include <map>
+#include <minwindef.h>
 
 #include "messagecommons.h"
 #include "VCamUtils/src/utils.h"
@@ -77,18 +78,18 @@ namespace AkVCam
                              MessageHandler> &handlers);
             bool start(bool wait=false);
             void stop(bool wait=false);
-            bool sendMessage(Message *message,
+            BOOL sendMessage(Message *message,
                              uint32_t timeout=MSERVER_TIMEOUT_MAX);
-            bool sendMessage(const Message &messageIn,
+            BOOL sendMessage(const Message &messageIn,
                              Message *messageOut,
                              uint32_t timeout=MSERVER_TIMEOUT_MAX);
-            static bool sendMessage(const std::string &pipeName,
+            static BOOL sendMessage(const std::string &pipeName,
                                     Message *message,
                                     uint32_t timeout=MSERVER_TIMEOUT_MAX);
-            static bool sendMessage(const std::wstring &pipeName,
+            static BOOL sendMessage(const std::wstring &pipeName,
                                     Message *message,
                                     uint32_t timeout=MSERVER_TIMEOUT_MAX);
-            static bool sendMessage(const std::wstring &pipeName,
+            static BOOL sendMessage(const std::wstring &pipeName,
                                     const Message &messageIn,
                                     Message *messageOut,
                                     uint32_t timeout=MSERVER_TIMEOUT_MAX);

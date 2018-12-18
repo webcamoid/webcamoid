@@ -30,7 +30,7 @@ namespace AkVCam
             Service();
             ~Service();
 
-            bool install();
+            BOOL install();
             void uninstall();
             void debug();
             void showHelp(int argc, char **argv);

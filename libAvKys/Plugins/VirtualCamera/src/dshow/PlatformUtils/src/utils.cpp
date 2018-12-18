@@ -85,7 +85,7 @@ bool operator <(const CLSID &a, const CLSID &b)
     return AkVCam::stringFromIid(a) < AkVCam::stringFromIid(b);
 }
 
-bool AkVCam::isWow64()
+BOOL AkVCam::isWow64()
 {
     BOOL isWow64 = FALSE;
 
@@ -1132,7 +1132,7 @@ std::vector<AkVCam::VideoFormat> AkVCam::cameraFormats(DWORD cameraIndex)
     for (DWORD i = 0; i < formatsCount(cameraIndex); i++) {
         auto videoFormat = cameraFormat(cameraIndex, i);
 
-        if (videoFormat > 0)
+        if (videoFormat)
             formats.push_back(videoFormat);
     }
 

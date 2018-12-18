@@ -36,7 +36,7 @@ namespace AkVCam
 {
     class VideoFormat;
 
-    bool isWow64();
+    BOOL isWow64();
     std::wstring tempPath();
     std::wstring programFilesPath();
     std::wstring moduleFileNameW(HINSTANCE hinstDLL);

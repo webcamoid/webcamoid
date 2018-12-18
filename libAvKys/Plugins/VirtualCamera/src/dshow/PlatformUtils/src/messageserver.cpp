@@ -151,13 +151,13 @@ void AkVCam::MessageServer::stop(bool wait)
         this->d->stopSend();
 }
 
-bool AkVCam::MessageServer::sendMessage(Message *message,
+BOOL AkVCam::MessageServer::sendMessage(Message *message,
                                         uint32_t timeout)
 {
     return this->sendMessage(this->d->m_pipeName, message, timeout);
 }
 
-bool AkVCam::MessageServer::sendMessage(const Message &messageIn,
+BOOL AkVCam::MessageServer::sendMessage(const Message &messageIn,
                                         Message *messageOut,
                                         uint32_t timeout)
 {
@@ -167,7 +167,7 @@ bool AkVCam::MessageServer::sendMessage(const Message &messageIn,
                              timeout);
 }
 
-bool AkVCam::MessageServer::sendMessage(const std::string &pipeName,
+BOOL AkVCam::MessageServer::sendMessage(const std::string &pipeName,
                                         Message *message,
                                         uint32_t timeout)
 {
@@ -176,7 +176,7 @@ bool AkVCam::MessageServer::sendMessage(const std::string &pipeName,
                        timeout);
 }
 
-bool AkVCam::MessageServer::sendMessage(const std::wstring &pipeName,
+BOOL AkVCam::MessageServer::sendMessage(const std::wstring &pipeName,
                                         Message *message,
                                         uint32_t timeout)
 {
@@ -186,7 +186,7 @@ bool AkVCam::MessageServer::sendMessage(const std::wstring &pipeName,
                        timeout);
 }
 
-bool AkVCam::MessageServer::sendMessage(const std::wstring &pipeName,
+BOOL AkVCam::MessageServer::sendMessage(const std::wstring &pipeName,
                                         const Message &messageIn,
                                         Message *messageOut,
                                         uint32_t timeout)

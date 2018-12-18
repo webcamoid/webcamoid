@@ -94,19 +94,19 @@ namespace AkVCam
             std::wstring regAddLine(const std::wstring &key,
                                    const std::wstring &value,
                                    const std::wstring &data,
-                                   bool wow=false) const;
+                                   BOOL wow=false) const;
             std::wstring regAddLine(const std::wstring &key,
                                    const std::wstring &value,
                                    int data,
-                                   bool wow=false) const;
+                                   BOOL wow=false) const;
             std::wstring regDeleteLine(const std::wstring &key,
-                                      bool wow=false) const;
+                                      BOOL wow=false) const;
             std::wstring regDeleteLine(const std::wstring &key,
                                       const std::wstring &value,
-                                      bool wow=false) const;
+                                      BOOL wow=false) const;
             std::wstring regMoveLine(const std::wstring &fromKey,
                                     const std::wstring &toKey,
-                                    bool wow=false) const;
+                                    BOOL wow=false) const;
             std::wstring dirname(const std::wstring &path) const;
             void updateDeviceSharedProperties();
             void updateDeviceSharedProperties(const std::string &deviceId,
@@ -607,7 +607,7 @@ std::string AkVCam::IpcBridge::deviceCreate(const std::wstring &description,
         assistantInstallPaths.push_back(installPath);
     }
 
-    bool wow = isWow64();
+    BOOL wow = isWow64();
 
     // List cameras and create a line with the number of cameras.
     auto nCameras = camerasCount();
@@ -779,7 +779,7 @@ bool AkVCam::IpcBridge::deviceDestroy(const std::string &deviceId)
         assistantInstallPaths.push_back(installPath);
     }
 
-    bool wow = isWow64();
+    BOOL wow = isWow64();
 
     // List cameras and create a line with the number of cameras.
     auto nCameras = camerasCount();
@@ -1482,7 +1482,7 @@ std::vector<std::wstring> AkVCam::IpcBridgePrivate::findFiles(const std::wstring
 std::wstring AkVCam::IpcBridgePrivate::regAddLine(const std::wstring &key,
                                                   const std::wstring &value,
                                                   const std::wstring &data,
-                                                  bool wow) const
+                                                  BOOL wow) const
 {
     std::wstringstream ss;
     ss << L"reg add \""
@@ -1502,7 +1502,7 @@ std::wstring AkVCam::IpcBridgePrivate::regAddLine(const std::wstring &key,
 std::wstring AkVCam::IpcBridgePrivate::regAddLine(const std::wstring &key,
                                                   const std::wstring &value,
                                                   int data,
-                                                  bool wow) const
+                                                  BOOL wow) const
 {
     std::wstringstream ss;
     ss << L"reg add \""
@@ -1521,7 +1521,7 @@ std::wstring AkVCam::IpcBridgePrivate::regAddLine(const std::wstring &key,
 }
 
 std::wstring AkVCam::IpcBridgePrivate::regDeleteLine(const std::wstring &key,
-                                                     bool wow) const
+                                                     BOOL wow) const
 {
     std::wstringstream ss;
     ss << L"reg delete \"" + key + L"\" /f";
@@ -1534,7 +1534,7 @@ std::wstring AkVCam::IpcBridgePrivate::regDeleteLine(const std::wstring &key,
 
 std::wstring AkVCam::IpcBridgePrivate::regDeleteLine(const std::wstring &key,
                                                      const std::wstring &value,
-                                                     bool wow) const
+                                                     BOOL wow) const
 {
     std::wstringstream ss;
     ss << L"reg delete \"" + key + L"\" /v \"" + value + L"\" /f";
@@ -1547,7 +1547,7 @@ std::wstring AkVCam::IpcBridgePrivate::regDeleteLine(const std::wstring &key,
 
 std::wstring AkVCam::IpcBridgePrivate::regMoveLine(const std::wstring &fromKey,
                                                    const std::wstring &toKey,
-                                                   bool wow) const
+                                                   BOOL wow) const
 {
     std::wstringstream ss;
     ss << L"reg copy \"" << fromKey << L"\" \"" << toKey << L"\" /s /f";
