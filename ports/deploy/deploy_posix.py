@@ -113,8 +113,8 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
 
         if len(pacman) > 0:
             process = subprocess.Popen([pacman, '-Qo', path],
-                            stdout=subprocess.PIPE,
-                            stderr=subprocess.PIPE)
+                                       stdout=subprocess.PIPE,
+                                       stderr=subprocess.PIPE)
             stdout, stderr = process.communicate()
 
             if process.returncode != 0:

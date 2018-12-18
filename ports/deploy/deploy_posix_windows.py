@@ -124,6 +124,8 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
         self.createLauncher()
         print('Removing unnecessary files')
         self.removeUnneededFiles(self.installDir)
+        print('\nWritting build system information\n')
+        self.writeBuildInfo()
 
     def solvedepsLibs(self):
         deps = set(self.binarySolver.scanDependencies(self.installDir))
@@ -164,6 +166,138 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
 
         for f in dbgFiles:
             os.remove(f)
+
+    def searchPackageFor(self, path):
+        os.environ['LC_ALL'] = 'C'
+        pacman = self.whereBin('pacman')
+
+        if len(pacman) > 0:
+            process = subprocess.Popen([pacman, '-Qo', path],
+                                       stdout=subprocess.PIPE,
+                                       stderr=subprocess.PIPE)
+            stdout, stderr = process.communicate()
+
+            if process.returncode != 0:
+                return ''
+
+            info = stdout.decode(sys.getdefaultencoding()).split(' ')
+
+            if len(info) < 2:
+                return ''
+
+            package, version = info[-2:]
+
+            return ' '.join([package.strip(), version.strip()])
+
+        dpkg = self.whereBin('dpkg')
+
+        if len(dpkg) > 0:
+            process = subprocess.Popen([dpkg, '-S', path],
+                                       stdout=subprocess.PIPE,
+                                       stderr=subprocess.PIPE)
+            stdout, stderr = process.communicate()
+
+            if process.returncode != 0:
+                return ''
+
+            package = stdout.split(b':')[0].decode(sys.getdefaultencoding()).strip()
+
+            process = subprocess.Popen([dpkg, '-s', package],
+                                       stdout=subprocess.PIPE,
+                                       stderr=subprocess.PIPE)
+            stdout, stderr = process.communicate()
+
+            if process.returncode != 0:
+                return ''
+
+            for line in stdout.decode(sys.getdefaultencoding()).split('\n'):
+                line = line.strip()
+
+                if line.startswith('Version:'):
+                    return ' '.join([package, line.split()[1].strip()])
+
+            return ''
+
+        rpm = self.whereBin('rpm')
+
+        if len(rpm) > 0:
+            process = subprocess.Popen([rpm, '-qf', path],
+                                       stdout=subprocess.PIPE,
+                                       stderr=subprocess.PIPE)
+            stdout, stderr = process.communicate()
+
+            if process.returncode != 0:
+                return ''
+
+            return stdout.decode(sys.getdefaultencoding()).strip()
+
+        return ''
+
+    def sysInfo(self):
+        info = ''
+
+        for f in os.listdir('/etc'):
+            if f.endswith('-release'):
+                with open(os.path.join('/etc' , f)) as releaseFile:
+                    info += releaseFile.read()
+
+        return info
+
+    def writeBuildInfo(self):
+        # Write host info.
+
+        shareDir = os.path.join(self.rootInstallDir, 'share')
+        os.makedirs(self.pkgsDir)
+        depsInfoFile = os.path.join(shareDir, 'build-info.txt')
+        info = self.sysInfo()
+
+        with open(depsInfoFile, 'w') as f:
+            for line in info.split('\n'):
+                if len(line) > 0:
+                    print('    ' + line)
+                    f.write(line + '\n')
+
+            print()
+            f.write('\n')
+
+        # Write Wine version and emulated system info.
+
+        process = subprocess.Popen(['wine', '--version'],
+                                    stdout=subprocess.PIPE,
+                                    stderr=subprocess.PIPE)
+        stdout, stderr = process.communicate()
+        wineVersion = stdout.decode(sys.getdefaultencoding()).strip()
+
+        process = subprocess.Popen(['wine', 'cmd', '/c', 'ver'],
+                                    stdout=subprocess.PIPE,
+                                    stderr=subprocess.PIPE)
+        stdout, stderr = process.communicate()
+        fakeWindowsVersion = stdout.decode(sys.getdefaultencoding()).strip()
+
+        with open(depsInfoFile, 'a') as f:
+            print('    Wine Version: {}'.format(wineVersion))
+            f.write('Wine Version: {}\n'.format(wineVersion))
+            print('    Windows Version: {}'.format(fakeWindowsVersion))
+            f.write('Windows Version: {}\n'.format(fakeWindowsVersion))
+            print()
+            f.write('\n')
+
+        # Write binary dependencies info.
+
+        packages = set()
+
+        for dep in self.dependencies:
+            packageInfo = self.searchPackageFor(dep)
+
+            if len(packageInfo) > 0:
+                packages.add(packageInfo)
+
+        packages = sorted(packages)
+
+        with open(depsInfoFile, 'a') as f:
+            for packge in packages:
+                print('    ' + packge)
+                f.write(packge + '\n')
 
     def createLauncher(self):
         path = os.path.join(self.rootInstallDir, self.programName) + '.bat'
