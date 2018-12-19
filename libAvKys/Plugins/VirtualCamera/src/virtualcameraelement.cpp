@@ -18,6 +18,7 @@
  */
 
 #include <QCoreApplication>
+#include <QDateTime>
 #include <QDir>
 #include <QImage>
 #include <QQmlContext>
@@ -237,9 +238,14 @@ QString VirtualCameraElement::createWebcam(const QString &description)
                 {{30, 1}}
             });
 
+    auto defaultDescription =
+            L"Virtual Camera "
+            + QDateTime::currentDateTime()
+                .toString("yyyyMMddHHmms").toStdWString();
+
     auto webcam =
             this->d->m_ipcBridge.deviceCreate(description.isEmpty()?
-                                                  L"AvKys Virtual Camera":
+                                                  defaultDescription:
                                                   description.toStdWString(),
                                               formats);
 
