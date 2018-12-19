@@ -98,8 +98,8 @@ HRESULT AkVCam::VideoControl::SetMode(IPin *pPin, LONG Mode)
     while (this->d->m_enumPins->Next(1, &pin, nullptr) == S_OK) {
         if (pin == pPin) {
             auto cpin = dynamic_cast<Pin *>(pin);
-            cpin->setHorizontalFlip(bool(Mode & VideoControlFlag_FlipHorizontal));
-            cpin->setVerticalFlip(bool(Mode & VideoControlFlag_FlipVertical));
+            cpin->setHorizontalFlip((Mode & VideoControlFlag_FlipHorizontal) != 0);
+            cpin->setVerticalFlip((Mode & VideoControlFlag_FlipVertical) != 0);
             result = S_OK;
             pin->Release();
 

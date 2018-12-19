@@ -1072,7 +1072,7 @@ bool AkVCam::IpcBridge::write(const std::string &deviceId,
            this->d->m_portName.c_str(),
            (std::min<size_t>)(this->d->m_portName.size(), MAX_STRING));
 
-    return this->d->m_mainServer.sendMessage(&message);
+    return this->d->m_mainServer.sendMessage(&message) == TRUE;
 }
 
 void AkVCam::IpcBridge::setMirroring(const std::string &deviceId,
