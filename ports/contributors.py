@@ -18,158 +18,31 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-import os
-import socks
-import urllib.request
-import mimetypes
-import json
-import xml.etree.ElementTree as ET
-import xml.dom.minidom as minidom
-import socket
-import magic
+import subprocess
+import sys
 
-defaultAvatar = ''
-userAgent = 'Mozilla/5.0 (X11; Linux x86_64; rv:52.0) Gecko/20100101 Firefox/52.0'
-useProxy = False
 
-def addResource(qresource, resource):
-    hasResource = False
+process = subprocess.Popen(['git', 'shortlog', '--summary', '-e'],
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE)
+stdout, stderr = process.communicate()
+contributors = stdout.decode(sys.getdefaultencoding()).split('\n')
+contributors_list = []
 
-    for fentry in qresource.findall('file'):
-        if fentry.text == resource:
-            hasResource = True
+exclude = ['hipersayan.x@gmail.com',
+           'noreply@weblate.org']
 
-            break
-
-    if not hasResource:
-        resourceFile = ET.SubElement(qresource, 'file')
-        resourceFile.text = resource
-
-def createQRC(where):
-    tree = ET.ElementTree()
-
-    if os.path.exists(where):
-        tree.parse(where)
-
-    root = tree.getroot()
-
-    if not root:
-        root = ET.Element('RCC')
-        tree._setroot(root)
-
-    qresources = root.findall('qresource')
-
-    if len(qresources) > 0:
-        qresource = qresources[0]
-    else:
-        qresource = ET.SubElement(root,
-                                'qresource',
-                                {'prefix': '/Webcamoid/Contributors'})
-
-    addResource(qresource, 'contributors.json')
-
-    return root, qresource
-
-def writeQRC(where, root):
-    fdir = os.path.dirname(where)
-
-    if not os.path.exists(fdir):
-        os.makedirs(fdir)
-
-    with open(where, 'w') as f:
-        dom = minidom.parseString(ET.tostring(root, 'utf-8'))
-
-        for line in dom.toprettyxml(indent=4 * " ").split('\n')[1:]:
-            if line.strip() != '':
-                f.write('{}\n'.format(line))
-
-if useProxy:
-    socks.set_default_proxy(socks.SOCKS5, "localhost", 9050)
-    socket.socket = socks.socksocket
-
-# Reatrieve contributors info.
-with urllib.request.urlopen(urllib.request.Request('https://api.github.com/users/octocat',
-                                                   data=None,
-                                                   headers={'User-Agent': userAgent})) as urldata:
-    userdata = json.load(urldata)
-    defaultAvatar = userdata["avatar_url"]
-
-with urllib.request.urlopen(urllib.request.Request('https://api.github.com/repos/webcamoid/webcamoid/contributors?anon=1',
-                                                   data=None,
-                                                   headers={'User-Agent': userAgent})) as urldata:
-    data = json.load(urldata)
-
-contributors = []
-
-for user in data:
-    if 'login' in user and user['login'] == 'hipersayanX':
-        continue
-
-    login = ''
-    name = ''
-    avatar = ''
-    website = ''
-
-    if user['type'] == 'Anonymous':
-        login = 'octocat'
-        name = user['name']
-        avatar = defaultAvatar
-        website = 'mailto:{}'.format(user['email'])
-    else:
-        with urllib.request.urlopen(urllib.request.Request('https://api.github.com/users/{}'.format(user['login']),
-                                                           data=None,
-                                                           headers={'User-Agent': userAgent})) as userurldata:
-            userdata = json.load(userurldata)
-            login = user['login']
-            name = userdata['name'] if userdata['name'] else user['login']
-            avatar = userdata['avatar_url']
-            website = userdata['blog'] if userdata['blog'] and userdata['blog'] != '' else 'https://github.com/{}'.format(user['login'])
-
-    contributors.append({'name': name,
-                         'login': login,
-                         'avatar': avatar,
-                         'website': website})
-
-mimetypes.init()
-rootdir = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..'))
-
-# Create QRC file and fill basic tree.
-rccFile = os.path.join(rootdir, 'StandAlone/share/contributors/contributors.qrc')
-root, qresource = createQRC(rccFile)
-_contributors = []
-
-# Read avatars from github and fill QRC file.
 for contributor in contributors:
-    print(contributor)
+    contributor = ' '.join(contributor.split()[1:])
 
-    with urllib.request.urlopen(urllib.request.Request(contributor['avatar'],
-                                                       data=None,
-                                                       headers={'User-Agent': userAgent})) as avatarurl:
-        fdata = avatarurl.read()
-        finfo = magic.detect_from_content(fdata)
-        ext = mimetypes.guess_extension(finfo.mime_type).replace('.jpe', '.jpg')
+    if len(contributor) > 0:
+        mail = contributor[contributor.rfind('<') + 1: ].replace('>', '')
 
-        if ext != '':
-            fname = '{}{}'.format(contributor['login'], ext)
-            fdir = os.path.join(rootdir, 'StandAlone/share/contributors/avatars')
-            fpath = os.path.join(fdir, fname)
-            resource = 'avatars/{}'.format(fname)
-            addResource(qresource, resource)
-            _contributor = contributor.copy()
-            _contributor['avatar'] = resource
-            _contributors.append(_contributor)
+        if not mail in exclude:
+            contributors_list.append(contributor)
 
-            if not os.path.exists(fpath):
-                if not os.path.exists(fdir):
-                    os.makedirs(fdir)
+contributors_list = sorted(contributors_list, key=str.lower)
 
-                with open(fpath, 'wb') as f:
-                    f.write(fdata)
-
-jsonFile = os.path.join(rootdir, 'StandAlone/share/contributors/contributors.json')
-
-with open(jsonFile, 'w') as f:
-    json.dump(_contributors, f, sort_keys=True, indent=4)
-
-# Write QRC file.
-writeQRC(rccFile, root)
+with open('../StandAlone/share/contributors.txt', 'w') as f:
+    for contributor in contributors_list:
+        f.write(contributor  + '\n')

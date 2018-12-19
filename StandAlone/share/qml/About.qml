@@ -45,7 +45,9 @@ ApplicationWindow {
             TabButton {
                 text: qsTr("Information")
             }
-
+            TabButton {
+                text: qsTr("Thanks!")
+            }
             TabButton {
                 text: qsTr("License")
             }
@@ -108,7 +110,27 @@ ApplicationWindow {
                     }
                 }
             }
+            AkScrollView {
+                clip: true
+                contentWidth: clyThanks.childrenRect.width
+                contentHeight: clyThanks.childrenRect.height
 
+                ColumnLayout {
+                    id: clyThanks
+
+                    Label {
+                        text: qsTr("Thanks to all these cool people that helped contributing to Webcamoid all these years.")
+                        wrapMode: Text.WordWrap
+                        Layout.fillWidth: true
+                    }
+                    TextArea {
+                        id: contributorsText
+                        text: Webcamoid.readFile(":/Webcamoid/share/contributors.txt")
+                        font.family: "Courier"
+                        readOnly: true
+                    }
+                }
+            }
             AkScrollView {
                 clip: true
                 contentWidth: licenseText.width

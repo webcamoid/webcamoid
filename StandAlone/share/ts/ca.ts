@@ -11,42 +11,52 @@
     <message>
         <location filename="../qml/About.qml" line="46"/>
         <source>Information</source>
-        <translation>Informació</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="84"/>
+        <location filename="../qml/About.qml" line="49"/>
+        <source>Thanks!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/About.qml" line="52"/>
+        <source>License</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/About.qml" line="86"/>
         <source>Version %1</source>
-        <translation>Versió %1</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="88"/>
+        <location filename="../qml/About.qml" line="90"/>
         <source>Using Qt %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="101"/>
-        <source>Webcam capture application.</source>
-        <translation>Aplicació de captura amb càmera web.</translation>
-    </message>
-    <message>
-        <location filename="../qml/About.qml" line="104"/>
-        <source>A simple webcam application for picture and video capture.</source>
-        <translation>Una aplicació senzilla per capturar imatge i vídeo amb càmera web.</translation>
-    </message>
-    <message>
-        <location filename="../qml/About.qml" line="92"/>
+        <location filename="../qml/About.qml" line="94"/>
         <source>Website</source>
-        <translation>Lloc web</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="50"/>
-        <source>License</source>
-        <translation>Llicència</translation>
+        <location filename="../qml/About.qml" line="103"/>
+        <source>Webcam capture application.</source>
+        <translation type="unfinished">Aplicació de captura amb càmera web.</translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="127"/>
+        <location filename="../qml/About.qml" line="106"/>
+        <source>A simple webcam application for picture and video capture.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/About.qml" line="122"/>
+        <source>Thanks to all these cool people that helped contributing to Webcamoid all these years.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/About.qml" line="149"/>
         <source>Close</source>
-        <translation>Tanca</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

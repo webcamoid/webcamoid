@@ -6,47 +6,57 @@
     <message>
         <location filename="../qml/About.qml" line="27"/>
         <source>About %1</source>
-        <translation>Подробнее о %1</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="46"/>
         <source>Information</source>
-        <translation>Информация</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="84"/>
-        <source>Version %1</source>
-        <translation>Версия %1</translation>
+        <location filename="../qml/About.qml" line="49"/>
+        <source>Thanks!</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="88"/>
-        <source>Using Qt %1</source>
-        <translation type="unfinished">Использование Qt %1</translation>
-    </message>
-    <message>
-        <location filename="../qml/About.qml" line="101"/>
-        <source>Webcam capture application.</source>
-        <translation>Приложение для захвата камеры.</translation>
-    </message>
-    <message>
-        <location filename="../qml/About.qml" line="104"/>
-        <source>A simple webcam application for picture and video capture.</source>
-        <translation>Простое приложение для камеры для захвата изображений и видео.</translation>
-    </message>
-    <message>
-        <location filename="../qml/About.qml" line="92"/>
-        <source>Website</source>
-        <translation>Сайт</translation>
-    </message>
-    <message>
-        <location filename="../qml/About.qml" line="50"/>
+        <location filename="../qml/About.qml" line="52"/>
         <source>License</source>
-        <translation>Лицензия</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="127"/>
+        <location filename="../qml/About.qml" line="86"/>
+        <source>Version %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/About.qml" line="90"/>
+        <source>Using Qt %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/About.qml" line="94"/>
+        <source>Website</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/About.qml" line="103"/>
+        <source>Webcam capture application.</source>
+        <translation type="unfinished">Приложение для захвата камеры.</translation>
+    </message>
+    <message>
+        <location filename="../qml/About.qml" line="106"/>
+        <source>A simple webcam application for picture and video capture.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/About.qml" line="122"/>
+        <source>Thanks to all these cool people that helped contributing to Webcamoid all these years.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/About.qml" line="149"/>
         <source>Close</source>
-        <translation>Закрыть</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

@@ -2,6 +2,7 @@
     <qresource prefix="/Webcamoid">
         <file>share/audiopipeline.json</file>
         <file>share/sourcespipeline.json</file>
+        <file>share/contributors.txt</file>
         <file>../COPYING</file>
     </qresource>
 </RCC>
