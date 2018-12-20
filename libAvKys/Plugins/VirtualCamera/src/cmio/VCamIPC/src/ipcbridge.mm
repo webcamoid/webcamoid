@@ -1457,11 +1457,33 @@ bool AkVCam::IpcBridgePrivate::checkDaemon()
     std::wstring dstPath = CMIO_PLUGINS_DAL_PATH_L;
     std::wstring pluginInstallPath = dstPath + L'/' + plugin;
 
-    if (!this->fileExists(pluginInstallPath))
-        if (this->sudo({"cp", "-rvf",
-                       std::string(driverPath.begin(), driverPath.end()),
-                       std::string(dstPath.begin(), dstPath.end())}))
+    if (!this->fileExists(pluginInstallPath)) {
+        const std::string cmdFileName = "/tmp/akvcam_exec.sh";
+
+        std::wfstream cmds;
+        cmds.open(cmdFileName, std::ios_base::out);
+
+        if (!cmds.is_open())
             return false;
+
+        cmds << L"mkdir -p "
+             << pluginInstallPath
+             << std::endl;
+        cmds << L"cp -rvf '"
+             << driverPath << L"'/* "
+             << pluginInstallPath << L"/"
+             << std::endl;
+        cmds.close();
+        chmod(cmdFileName.c_str(), S_IRWXU | S_IRGRP | S_IROTH);
+
+        if (this->sudo({"sh", cmdFileName})) {
+            this->rm(cmdFileName);
+
+            return false;
+        }
+
+        this->rm(cmdFileName);
+    }
 
     auto daemonsPath = replace(CMIO_DAEMONS_PATH, "~", this->homePath());
     auto dstDaemonsPath = daemonsPath + "/" + AKVCAM_ASSISTANT_NAME + ".plist";
