@@ -37,26 +37,19 @@
 class RecordingPrivate
 {
     public:
-        QQmlApplicationEngine *m_engine;
+        QQmlApplicationEngine *m_engine {nullptr};
         QStringList m_availableFormats;
         AkCaps m_audioCaps;
         AkCaps m_videoCaps;
-        bool m_recordAudio;
+        bool m_recordAudio {true};
         QString m_videoFileName;
-        AkElement::ElementState m_state;
+        AkElement::ElementState m_state {AkElement::ElementStateNull};
         AkElementPtr m_record;
         QMutex m_mutex;
         AkPacket m_curPacket;
         QImage m_photo;
 
-        RecordingPrivate():
-            m_engine(nullptr),
-            m_recordAudio(true),
-            m_state(AkElement::ElementStateNull)
-        {
-        }
-
-        inline QStringList recordingFormats() const;
+        QStringList recordingFormats() const;
 };
 
 Recording::Recording(QQmlApplicationEngine *engine, QObject *parent):
@@ -607,14 +600,21 @@ void Recording::loadStreams(const QString &format)
         {"text/x-raw" , tr("Subtitle")}
     };
 
-    for (int stream = 0; stream < streamCaps.size(); stream++)
-        if (streamCaps[stream]) {
-            config.beginGroup(QString("RecordConfigs_%1_stream_%2_%3")
-                              .arg(format)
-                              .arg(stream? "audio": "video")
-                              .arg(stream? audioCodec: videoCodec));
+    int i = 0;
 
-            auto codec = stream? audioCodec: videoCodec;
+    for (auto &caps: streamCaps) {
+        if (caps) {
+            QString streamType;
+
+            if (i > 0)
+                streamType = "audio";
+            else
+                streamType = "video";
+
+            auto codec = i > 0? audioCodec: videoCodec;
+            config.beginGroup(QString("RecordConfigs_%1_stream_%2_%3")
+                              .arg(format, streamType, codec));
+
             QVariantMap defaultParams;
             QMetaObject::invokeMethod(this->d->m_record.data(),
                                       "defaultCodecParams",
@@ -622,7 +622,7 @@ void Recording::loadStreams(const QString &format)
                                       Q_ARG(QString, codec));
 
             QVariantMap streamParams;
-            QString mimeType = streamCaps[stream].mimeType();
+            QString mimeType = caps.mimeType();
             auto label = config.value("label").toString();
 
             if (label.isEmpty())
@@ -634,18 +634,21 @@ void Recording::loadStreams(const QString &format)
                 {"label"  , label                                                  }
             };
 
-            if (!stream)
+            if (i < 1)
                 streamParams["gop"] = config.value("gop", defaultParams.value("gop"));
 
             QMetaObject::invokeMethod(this->d->m_record.data(),
                                       "addStream",
                                       Q_RETURN_ARG(QVariantMap, streamParams),
-                                      Q_ARG(int, stream),
-                                      Q_ARG(AkCaps, streamCaps[stream]),
+                                      Q_ARG(int, i),
+                                      Q_ARG(AkCaps, caps),
                                       Q_ARG(QVariantMap, streamParams));
 
             config.endGroup();
         }
+
+        i++;
+    }
 }
 
 void Recording::loadCodecOptions(const QVariantList &streams)
@@ -672,7 +675,7 @@ void Recording::loadCodecOptions(const QVariantList &streams)
         auto codec = stream["codec"].toString();
 
         config.beginGroup(QString("RecordConfigs_%1_stream_%2_%3_options")
-                          .arg(format).arg(sType[type]).arg(codec));
+                          .arg(format, sType[type], codec));
 
         QVariantMap codecOptions;
 
@@ -753,7 +756,7 @@ void Recording::saveStreams(const QVariantList &streams)
         config.endGroup();
 
         config.beginGroup(QString("RecordConfigs_%1_stream_%2_%3")
-                          .arg(format).arg(streamType).arg(codec));
+                          .arg(format, streamType, codec));
 
         config.setValue("bitrate", streamMap.value("bitrate"));
         config.setValue("label", streamMap.value("label"));
@@ -788,21 +791,21 @@ void Recording::saveCodecParams()
 
     QSettings config;
 
-    for (int i = 0; i < streams.size(); i++) {
-        auto stream = streams[i].toMap();
-        auto type = stream["caps"].value<AkCaps>().mimeType();
-        auto codec = stream["codec"].toString();
+    for (auto &stream: streams) {
+        auto streamMap = stream.toMap();
+        auto type = streamMap["caps"].value<AkCaps>().mimeType();
+        auto codec = streamMap["codec"].toString();
 
         config.beginGroup(QString("RecordConfigs_%1_stream_%2_%3")
-                          .arg(format).arg(sType[type]).arg(codec));
+                          .arg(format, sType[type], codec));
 
         if (type == "audio/x-raw") {
-            config.setValue("bitrate", stream["bitrate"]);
-            config.setValue("label", stream["label"]);
+            config.setValue("bitrate", streamMap["bitrate"]);
+            config.setValue("label", streamMap["label"]);
         } else {
-            config.setValue("bitrate", stream["bitrate"]);
-            config.setValue("gop", stream["gop"]);
-            config.setValue("label", stream["label"]);
+            config.setValue("bitrate", streamMap["bitrate"]);
+            config.setValue("gop", streamMap["gop"]);
+            config.setValue("label", streamMap["label"]);
         }
 
         config.endGroup();
@@ -838,7 +841,7 @@ void Recording::saveCodecOptions()
         auto codec = stream["codec"].toString();
 
         config.beginGroup(QString("RecordConfigs_%1_stream_%2_%3_options")
-                          .arg(format).arg(sType[type]).arg(codec));
+                          .arg(format, sType[type], codec));
 
         QVariantList codecOptions;
         QMetaObject::invokeMethod(this->d->m_record.data(),

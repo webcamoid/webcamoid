@@ -28,20 +28,20 @@ namespace AkVCam
     class VideoFormatPrivate
     {
         public:
-            FourCC m_fourcc;
-            int m_width;
-            int m_height;
+            FourCC m_fourcc {0};
+            int m_width {0};
+            int m_height {0};
             std::vector<Fraction> m_frameRates;
 
-            VideoFormatPrivate();
+            VideoFormatPrivate() = default;
             VideoFormatPrivate(FourCC fourcc,
                                int width,
                                int height,
                                const std::vector<Fraction> &frameRates);
     };
 
-    typedef size_t (*PlaneOffsetFunc)(size_t plane, size_t width, size_t height);
-    typedef size_t (*ByplFunc)(size_t plane, size_t width);
+    using PlaneOffsetFunc = size_t (*)(size_t plane, size_t width, size_t height);
+    using ByplFunc = size_t (*)(size_t plane, size_t width);
 
     class VideoFormatGlobals
     {
@@ -55,7 +55,7 @@ namespace AkVCam
 
             inline static const std::vector<VideoFormatGlobals> &formats();
             static inline const VideoFormatGlobals *byPixelFormat(PixelFormat pixelFormat);
-            static inline const VideoFormatGlobals *byStr(const std::string str);
+            static inline const VideoFormatGlobals *byStr(const std::string &str);
             static size_t offsetNV(size_t plane, size_t width, size_t height);
             static size_t byplNV(size_t plane, size_t width);
 
@@ -181,7 +181,7 @@ std::vector<AkVCam::FractionRange> AkVCam::VideoFormat::frameRateRanges() const
                                      this->d->m_frameRates.end());
         auto max = *std::max_element(this->d->m_frameRates.begin(),
                                      this->d->m_frameRates.end());
-        ranges.push_back({min, max});
+        ranges.emplace_back(FractionRange {min, max});
     }
 
     return ranges;
@@ -362,13 +362,6 @@ std::wstring AkVCam::VideoFormat::wstringFromFourcc(AkVCam::FourCC fourcc)
     return std::wstring(str.begin(), str.end());
 }
 
-AkVCam::VideoFormatPrivate::VideoFormatPrivate():
-    m_fourcc(0),
-    m_width(0),
-    m_height(0)
-{
-}
-
 AkVCam::VideoFormatPrivate::VideoFormatPrivate(FourCC fourcc,
                                                int width,
                                                int height,
@@ -409,7 +402,7 @@ const AkVCam::VideoFormatGlobals *AkVCam::VideoFormatGlobals::byPixelFormat(Pixe
     return nullptr;
 }
 
-const AkVCam::VideoFormatGlobals *AkVCam::VideoFormatGlobals::byStr(const std::string str)
+const AkVCam::VideoFormatGlobals *AkVCam::VideoFormatGlobals::byStr(const std::string &str)
 {
     for (auto &format: formats())
         if (format.str == str)

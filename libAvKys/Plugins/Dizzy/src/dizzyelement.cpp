@@ -28,25 +28,19 @@
 class DizzyElementPrivate
 {
     public:
-        qreal m_speed;
-        qreal m_zoomRate;
-        qreal m_strength;
+        qreal m_speed {5.0};
+        qreal m_zoomRate {0.02};
+        qreal m_strength {0.75};
         QImage m_prevFrame;
 
-        DizzyElementPrivate():
-            m_speed(5.0),
-            m_zoomRate(0.02),
-            m_strength(0.75)
-        {
-        }
-
-        inline void setParams(int *dx, int *dy,
-                              int *sx, int *sy,
-                              int width, int height,
-                              qreal phase, qreal zoomRate);
+        void setParams(int *dx, int *dy,
+                       int *sx, int *sy,
+                       int width, int height,
+                       qreal phase, qreal zoomRate);
 };
 
-DizzyElement::DizzyElement(): AkElement()
+DizzyElement::DizzyElement():
+    AkElement()
 {
     this->d = new DizzyElementPrivate;
 }

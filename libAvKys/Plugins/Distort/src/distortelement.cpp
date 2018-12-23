@@ -30,21 +30,14 @@
 class DistortElementPrivate
 {
     public:
-        qreal m_amplitude;
-        qreal m_frequency;
-        int m_gridSizeLog;
+        qreal m_amplitude {1.0};
+        qreal m_frequency {1.0};
+        int m_gridSizeLog {1};
 
-        DistortElementPrivate():
-            m_amplitude(1.0),
-            m_frequency(1.0),
-            m_gridSizeLog(1)
-        {
-        }
-
-        inline QPoint plasmaFunction(const QPoint &point, const QSize &size,
-                                     qreal amp, qreal freq, qreal t);
-        inline QVector<QPoint> createGrid(int width, int height,
-                                          int gridSize, qreal time);
+        QPoint plasmaFunction(const QPoint &point, const QSize &size,
+                              qreal amp, qreal freq, qreal t);
+        QVector<QPoint> createGrid(int width, int height,
+                                   int gridSize, qreal time);
 };
 
 DistortElement::DistortElement(): AkElement()
@@ -92,8 +85,7 @@ QPoint DistortElementPrivate::plasmaFunction(const QPoint &point,
     int y = qRound(point.y() + amp * (size.height() / 4.0) * dy
                    * sin(freq * point.x() / size.width() + time));
 
-    return QPoint(qBound(0, x, size.width() - 1),
-                  qBound(0, y, size.height() - 1));
+    return {qBound(0, x, size.width() - 1), qBound(0, y, size.height() - 1)};
 }
 
 QVector<QPoint> DistortElementPrivate::createGrid(int width,

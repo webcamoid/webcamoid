@@ -55,7 +55,7 @@
 class MediaToolsPrivate
 {
     public:
-        QQmlApplicationEngine *m_engine;
+        QQmlApplicationEngine *m_engine {nullptr};
         PluginConfigsPtr m_pluginConfigs;
         MediaSourcePtr m_mediaSource;
         AudioLayerPtr m_audioLayer;
@@ -63,13 +63,12 @@ class MediaToolsPrivate
         RecordingPtr m_recording;
         UpdatesPtr m_updates;
         AkElementPtr m_virtualCamera;
-        QSystemTrayIcon *m_trayIcon;
+        QSystemTrayIcon *m_trayIcon {nullptr};
         CliOptions m_cliOptions;
-        int m_windowWidth;
-        int m_windowHeight;
-        bool m_enableVirtualCamera;
+        int m_windowWidth {0};
+        int m_windowHeight {0};
+        bool m_enableVirtualCamera {false};
 
-        MediaToolsPrivate();
         bool embedInterface(QQmlApplicationEngine *engine,
                             QObject *ctrlInterface,
                             const QString &where) const;
@@ -382,15 +381,6 @@ QString MediaTools::convertToAbsolute(const QString &path)
     return QDir::cleanPath(absPath).replace('/', QDir::separator());
 }
 
-MediaToolsPrivate::MediaToolsPrivate():
-    m_engine(nullptr),
-    m_trayIcon(nullptr),
-    m_windowWidth(0),
-    m_windowHeight(0),
-    m_enableVirtualCamera(false)
-{
-}
-
 bool MediaToolsPrivate::embedInterface(QQmlApplicationEngine *engine,
                                        QObject *ctrlInterface,
                                        const QString &where) const
@@ -504,7 +494,7 @@ void MediaTools::loadConfigs()
     for (auto path: optPaths) {
         path = this->convertToAbsolute(path);
 
-        if (QFileInfo(path).exists())
+        if (QFileInfo::exists(path))
             driverPaths << path;
     }
 

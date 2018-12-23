@@ -26,45 +26,230 @@
 
 #include "edgeelement.h"
 
+class EdgeElementPrivate
+{
+    public:
+        bool m_canny {false};
+        int m_thLow {510};
+        int m_thHi {1020};
+        bool m_equalize {false};
+        bool m_invert {false};
+
+        QVector<quint8> equalize(const QImage &image);
+        void sobel(int width,
+                   int height,
+                   const QVector<quint8> &gray,
+                   QVector<quint16> &gradient,
+                   QVector<quint8> &direction) const;
+        QVector<quint16> thinning(int width, int height,
+                                  const QVector<quint16> &gradient,
+                                  const QVector<quint8> &direction) const;
+        QVector<quint8> threshold(int width,
+                                  int height,
+                                  const QVector<quint16> &image,
+                                  const QVector<int> &thresholds,
+                                  const QVector<int> &map) const;
+        void trace(int width,
+                   int height,
+                   QVector<quint8> &canny,
+                   int x,
+                   int y) const;
+        QVector<quint8> hysteresisThresholding(int width,
+                                               int height,
+                                               const QVector<quint8> &thresholded) const;
+};
+
 EdgeElement::EdgeElement(): AkElement()
 {
-    this->m_canny = false;
-    this->m_thLow = 510;
-    this->m_thHi = 1020;
-    this->m_equalize = false;
-    this->m_invert = false;
+    this->d = new EdgeElementPrivate;
 }
 
 EdgeElement::~EdgeElement()
 {
+    delete this->d;
 }
 
 bool EdgeElement::canny() const
 {
-    return this->m_canny;
+    return this->d->m_canny;
 }
 
 int EdgeElement::thLow() const
 {
-    return this->m_thLow;
+    return this->d->m_thLow;
 }
 
 int EdgeElement::thHi() const
 {
-    return this->m_thHi;
+    return this->d->m_thHi;
 }
 
 bool EdgeElement::equalize() const
 {
-    return this->m_equalize;
+    return this->d->m_equalize;
 }
 
 bool EdgeElement::invert() const
 {
-    return this->m_invert;
+    return this->d->m_invert;
 }
 
-QVector<quint8> EdgeElement::equalize(const QImage &image)
+QString EdgeElement::controlInterfaceProvide(const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    return QString("qrc:/Edge/share/qml/main.qml");
+}
+
+void EdgeElement::controlInterfaceConfigure(QQmlContext *context,
+                                            const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    context->setContextProperty("Edge", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
+    context->setContextProperty("controlId", this->objectName());
+}
+
+void EdgeElement::setCanny(bool canny)
+{
+    if (this->d->m_canny == canny)
+        return;
+
+    this->d->m_canny = canny;
+    emit this->cannyChanged(canny);
+}
+
+void EdgeElement::setThLow(int thLow)
+{
+    if (this->d->m_thLow == thLow)
+        return;
+
+    this->d->m_thLow = thLow;
+    emit this->thLowChanged(thLow);
+}
+
+void EdgeElement::setThHi(int thHi)
+{
+    if (this->d->m_thHi == thHi)
+        return;
+
+    this->d->m_thHi = thHi;
+    emit this->thHiChanged(thHi);
+}
+
+void EdgeElement::setEqualize(bool equalize)
+{
+    if (this->d->m_equalize == equalize)
+        return;
+
+    this->d->m_equalize = equalize;
+    emit this->equalizeChanged(equalize);
+}
+
+void EdgeElement::setInvert(bool invert)
+{
+    if (this->d->m_invert == invert)
+        return;
+
+    this->d->m_invert = invert;
+    emit this->invertChanged(invert);
+}
+
+void EdgeElement::resetCanny()
+{
+    this->setCanny(false);
+}
+
+void EdgeElement::resetThLow()
+{
+    this->setThLow(510);
+}
+
+void EdgeElement::resetThHi()
+{
+    this->setThHi(1020);
+}
+
+void EdgeElement::resetEqualize()
+{
+    this->setEqualize(false);
+}
+
+void EdgeElement::resetInvert()
+{
+    this->setInvert(false);
+}
+
+AkPacket EdgeElement::iStream(const AkPacket &packet)
+{
+    QImage src = AkUtils::packetToImage(packet);
+
+    if (src.isNull())
+        return AkPacket();
+
+    src = src.convertToFormat(QImage::Format_Grayscale8);
+    QImage oFrame(src.size(), src.format());
+
+    QVector<quint8> in;
+
+    if (this->d->m_equalize)
+        in = this->d->equalize(src);
+    else {
+        int videoArea = src.width() * src.height();
+        in.resize(videoArea);
+        memcpy(in.data(), src.constBits(), size_t(videoArea));
+    }
+
+    QVector<quint16> gradient;
+    QVector<quint8> direction;
+    this->d->sobel(src.width(), src.height(), in, gradient, direction);
+
+    if (this->d->m_canny) {
+        auto thinned = this->d->thinning(src.width(),
+                                         src.height(),
+                                         gradient,
+                                         direction);
+
+        QVector<int> thresholds(2);
+        thresholds[0] = this->d->m_thLow;
+        thresholds[1] = this->d->m_thHi;
+
+        QVector<int> colors(3);
+        colors[0] = 0;
+        colors[1] = 127;
+        colors[2] = 255;
+        auto thresholded = this->d->threshold(src.width(),
+                                              src.height(),
+                                              thinned,
+                                              thresholds,
+                                              colors);
+        auto canny = this->d->hysteresisThresholding(src.width(),
+                                                     src.height(),
+                                                     thresholded);
+
+        for (int y = 0; y < src.height(); y++) {
+            const quint8 *srcLine = canny.constData() + y * src.width();
+            quint8 *dstLine = oFrame.scanLine(y);
+
+            for (int x = 0; x < src.width(); x++)
+                dstLine[x] = this->d->m_invert? 255 - srcLine[x]: srcLine[x];
+        }
+    } else
+        for (int y = 0; y < src.height(); y++) {
+            const quint16 *srcLine = gradient.constData() + y * src.width();
+            quint8 *dstLine = oFrame.scanLine(y);
+
+            for (int x = 0; x < src.width(); x++) {
+                int gray = qBound<int>(0, srcLine[x], 255);
+                dstLine[x] = this->d->m_invert? quint8(255 - gray): quint8(gray);
+            }
+        }
+
+    AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
+    akSend(oPacket)
+}
+
+QVector<quint8> EdgeElementPrivate::equalize(const QImage &image)
 {
     int videoArea = image.width() * image.height();
     const quint8 *imgPtr = image.constBits();
@@ -93,9 +278,11 @@ QVector<quint8> EdgeElement::equalize(const QImage &image)
     return out;
 }
 
-void EdgeElement::sobel(int width, int height, const QVector<quint8> &gray,
-                        QVector<quint16> &gradient,
-                        QVector<quint8> &direction) const
+void EdgeElementPrivate::sobel(int width,
+                               int height,
+                               const QVector<quint8> &gray,
+                               QVector<quint16> &gradient,
+                               QVector<quint8> &direction) const
 {
     gradient.resize(gray.size());
     direction.resize(gray.size());
@@ -176,9 +363,10 @@ void EdgeElement::sobel(int width, int height, const QVector<quint8> &gray,
     }
 }
 
-QVector<quint16> EdgeElement::thinning(int width, int height,
-                                       const QVector<quint16> &gradient,
-                                       const QVector<quint8> &direction) const
+QVector<quint16> EdgeElementPrivate::thinning(int width,
+                                              int height,
+                                               const QVector<quint16> &gradient,
+                                               const QVector<quint8> &direction) const
 {
     QVector<quint16> thinned(gradient.size(), 0);
 
@@ -235,10 +423,11 @@ QVector<quint16> EdgeElement::thinning(int width, int height,
     return thinned;
 }
 
-QVector<quint8> EdgeElement::threshold(int width, int height,
-                                       const QVector<quint16> &image,
-                                       const QVector<int> &thresholds,
-                                       const QVector<int> &map) const
+QVector<quint8> EdgeElementPrivate::threshold(int width,
+                                              int height,
+                                              const QVector<quint16> &image,
+                                              const QVector<int> &thresholds,
+                                              const QVector<int> &map) const
 {
     int size = width * height;
     const quint16 *in = image.constData();
@@ -260,8 +449,27 @@ QVector<quint8> EdgeElement::threshold(int width, int height,
     return out;
 }
 
-void EdgeElement::trace(int width, int height, QVector<quint8> &canny,
-                        int x, int y) const
+QVector<quint8> EdgeElementPrivate::hysteresisThresholding(int width,
+                                                           int height,
+                                                           const QVector<quint8> &thresholded) const
+{
+    QVector<quint8> canny = thresholded;
+
+    for (int y = 0; y < height; y++)
+        for (int x = 0; x < width; x++)
+            this->trace(width, height, canny, x, y);
+
+    for (auto &c: canny)
+        if (c == 127)
+            c = 0;
+
+    return canny;
+}
+
+void EdgeElementPrivate::trace(int width,
+                               int height,
+                               QVector<quint8> &canny,
+                               int x, int y) const
 {
     int yOffset = y * width;
     quint8 *cannyLine = canny.data() + yOffset;
@@ -300,172 +508,6 @@ void EdgeElement::trace(int width, int height, QVector<quint8> &canny,
 
     if (isPoint)
         cannyLine[x] = 0;
-}
-
-QVector<quint8> EdgeElement::hysteresisThresholding(int width, int height,
-                                                    const QVector<quint8> &thresholded) const
-{
-    QVector<quint8> canny = thresholded;
-
-    for (int y = 0; y < height; y++)
-        for (int x = 0; x < width; x++)
-            this->trace(width, height, canny, x, y);
-
-    for (int i = 0; i < canny.size(); i++)
-        if (canny[i] == 127)
-            canny[i] = 0;
-
-    return canny;
-}
-
-QString EdgeElement::controlInterfaceProvide(const QString &controlId) const
-{
-    Q_UNUSED(controlId)
-
-    return QString("qrc:/Edge/share/qml/main.qml");
-}
-
-void EdgeElement::controlInterfaceConfigure(QQmlContext *context,
-                                            const QString &controlId) const
-{
-    Q_UNUSED(controlId)
-
-    context->setContextProperty("Edge", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
-    context->setContextProperty("controlId", this->objectName());
-}
-
-void EdgeElement::setCanny(bool canny)
-{
-    if (this->m_canny == canny)
-        return;
-
-    this->m_canny = canny;
-    emit this->cannyChanged(canny);
-}
-
-void EdgeElement::setThLow(int thLow)
-{
-    if (this->m_thLow == thLow)
-        return;
-
-    this->m_thLow = thLow;
-    emit this->thLowChanged(thLow);
-}
-
-void EdgeElement::setThHi(int thHi)
-{
-    if (this->m_thHi == thHi)
-        return;
-
-    this->m_thHi = thHi;
-    emit this->thHiChanged(thHi);
-}
-
-void EdgeElement::setEqualize(bool equalize)
-{
-    if (this->m_equalize == equalize)
-        return;
-
-    this->m_equalize = equalize;
-    emit this->equalizeChanged(equalize);
-}
-
-void EdgeElement::setInvert(bool invert)
-{
-    if (this->m_invert == invert)
-        return;
-
-    this->m_invert = invert;
-    emit this->invertChanged(invert);
-}
-
-void EdgeElement::resetCanny()
-{
-    this->setCanny(false);
-}
-
-void EdgeElement::resetThLow()
-{
-    this->setThLow(510);
-}
-
-void EdgeElement::resetThHi()
-{
-    this->setThHi(1020);
-}
-
-void EdgeElement::resetEqualize()
-{
-    this->setEqualize(false);
-}
-
-void EdgeElement::resetInvert()
-{
-    this->setInvert(false);
-}
-
-AkPacket EdgeElement::iStream(const AkPacket &packet)
-{
-    QImage src = AkUtils::packetToImage(packet);
-
-    if (src.isNull())
-        return AkPacket();
-
-    src = src.convertToFormat(QImage::Format_Grayscale8);
-    QImage oFrame(src.size(), src.format());
-
-    QVector<quint8> in;
-
-    if (this->m_equalize)
-        in = this->equalize(src);
-    else {
-        int videoArea = src.width() * src.height();
-        in.resize(videoArea);
-        memcpy(in.data(), src.constBits(), size_t(videoArea));
-    }
-
-    QVector<quint16> gradient;
-    QVector<quint8> direction;
-    this->sobel(src.width(), src.height(), in, gradient, direction);
-
-    if (this->m_canny) {
-        QVector<quint16> thinned = this->thinning(src.width(), src.height(),
-                                                  gradient, direction);
-
-        QVector<int> thresholds(2);
-        thresholds[0] = this->m_thLow;
-        thresholds[1] = this->m_thHi;
-
-        QVector<int> colors(3);
-        colors[0] = 0;
-        colors[1] = 127;
-        colors[2] = 255;
-        QVector<quint8> thresholded = this->threshold(src.width(), src.height(),
-                                                      thinned, thresholds, colors);
-
-        QVector<quint8> canny = this->hysteresisThresholding(src.width(), src.height(),
-                                                             thresholded);
-
-        for (int y = 0; y < src.height(); y++) {
-            const quint8 *srcLine = canny.constData() + y * src.width();
-            quint8 *dstLine = oFrame.scanLine(y);
-
-            for (int x = 0; x < src.width(); x++)
-                dstLine[x] = this->m_invert? 255 - srcLine[x]: srcLine[x];
-        }
-    } else
-        for (int y = 0; y < src.height(); y++) {
-            const quint16 *srcLine = gradient.constData() + y * src.width();
-            quint8 *dstLine = oFrame.scanLine(y);
-
-            for (int x = 0; x < src.width(); x++) {
-                int gray = qBound<int>(0, srcLine[x], 255);
-                dstLine[x] = this->m_invert? quint8(255 - gray): quint8(gray);
-            }
-        }
-
-    AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
-    akSend(oPacket)
 }
 
 #include "moc_edgeelement.cpp"

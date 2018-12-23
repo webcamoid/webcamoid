@@ -78,7 +78,7 @@ class HaarTree: public QObject
     public:
         explicit HaarTree(QObject *parent=nullptr);
         HaarTree(const HaarTree &other);
-        ~HaarTree();
+        ~HaarTree() = default;
 
         Q_INVOKABLE HaarFeatureVector features() const;
         Q_INVOKABLE HaarFeatureVector &features();

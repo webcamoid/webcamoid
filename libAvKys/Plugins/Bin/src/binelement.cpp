@@ -32,12 +32,7 @@ class BinElementPrivate
         QList<AkElementPtr> m_inputs;
         QList<AkElementPtr> m_outputs;
         Pipeline m_pipelineDescription;
-        bool m_blocking;
-
-        BinElementPrivate():
-            m_blocking(false)
-        {
-        }
+        bool m_blocking {false};
 };
 
 BinElement::BinElement():
@@ -67,7 +62,7 @@ AkElementPtr BinElement::element(const QString &elementName)
     return this->d->m_elements[elementName];
 }
 
-void BinElement::add(AkElementPtr element)
+void BinElement::add(const AkElementPtr &element)
 {
     this->d->m_pipelineDescription.addElement(element);
 }

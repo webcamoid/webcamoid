@@ -29,21 +29,13 @@
 class WaveElementPrivate
 {
     public:
-        qreal m_amplitude;
-        qreal m_frequency;
-        qreal m_phase;
-        QRgb m_background;
+        qreal m_amplitude {0.12};
+        qreal m_frequency {8};
+        qreal m_phase {0.0};
+        QRgb m_background {qRgb(0, 0, 0)};
         QSize m_frameSize;
         QVector<int> m_sineMap;
         QMutex m_mutex;
-
-        WaveElementPrivate():
-            m_amplitude(0.12),
-            m_frequency(8),
-            m_phase(0.0),
-            m_background(qRgb(0, 0, 0))
-        {
-        }
 };
 
 WaveElement::WaveElement(): AkElement()
@@ -185,7 +177,8 @@ AkPacket WaveElement::iStream(const AkPacket &packet)
 
     if (amplitude <= 0.0)
         akSend(packet)
-    else if (amplitude >= 1.0) {
+
+    if (amplitude >= 1.0) {
         AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
         akSend(oPacket)
     }

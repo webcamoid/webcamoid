@@ -461,37 +461,37 @@
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../../src/clioptions.cpp" line="32"/>
+        <location filename="../../src/clioptions.cpp" line="31"/>
         <source>Webcam capture application.</source>
         <translation>Aplikacja do przechwytywania kamer internetowych.</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="36"/>
+        <location filename="../../src/clioptions.cpp" line="35"/>
         <source>Load settings from PATH. If PATH is empty, load configs from application directory.</source>
         <translation>Załaduj ustawienia z PATH. Jeśli PATH jest pusta, załaduj configs z katalogu aplikacji.</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="44"/>
+        <location filename="../../src/clioptions.cpp" line="43"/>
         <source>Semi-colon separated list of paths to search the Qml interface.</source>
         <translation>Lista rozdzielona średnikami, zawierająca ścieżki do przeszukiwania interfejsu Qml.</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="53"/>
+        <location filename="../../src/clioptions.cpp" line="52"/>
         <source>Search in the specified plugins paths recursively.</source>
         <translation>Szukaj w określonych ścieżkach wtyczek rekurencyjnie.</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="59"/>
+        <location filename="../../src/clioptions.cpp" line="58"/>
         <source>Semi-colon separated list of paths to search for plugins.</source>
         <translation>Lista rozdzielona średnikami, zawierająca ścieżki do wyszukiwania wtyczek.</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="66"/>
+        <location filename="../../src/clioptions.cpp" line="65"/>
         <source>Semi-colon separated list of paths to avoid loading.</source>
         <translation>Lista ścieżek rozdzielona średnikami, aby uniknąć ładowania.</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="73"/>
+        <location filename="../../src/clioptions.cpp" line="72"/>
         <source>Semi-colon separated list of paths to search for virtual camera driver</source>
         <translation>Lista rozdzielonych średnikami wykazów ścieżek wyszukiwania wirtualnego sterownika kamery</translation>
     </message>
@@ -541,35 +541,35 @@
 <context>
     <name>Recording</name>
     <message>
-        <location filename="../../src/recording.cpp" line="605"/>
+        <location filename="../../src/recording.cpp" line="598"/>
         <source>Audio</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/recording.cpp" line="606"/>
+        <location filename="../../src/recording.cpp" line="599"/>
         <source>Video</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/recording.cpp" line="607"/>
+        <location filename="../../src/recording.cpp" line="600"/>
         <source>Subtitle</source>
         <translation>Napisy</translation>
     </message>
     <message>
-        <location filename="../../src/recording.cpp" line="662"/>
-        <location filename="../../src/recording.cpp" line="828"/>
+        <location filename="../../src/recording.cpp" line="665"/>
+        <location filename="../../src/recording.cpp" line="831"/>
         <source>audio</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/recording.cpp" line="663"/>
-        <location filename="../../src/recording.cpp" line="829"/>
+        <location filename="../../src/recording.cpp" line="666"/>
+        <location filename="../../src/recording.cpp" line="832"/>
         <source>video</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/recording.cpp" line="664"/>
-        <location filename="../../src/recording.cpp" line="830"/>
+        <location filename="../../src/recording.cpp" line="667"/>
+        <location filename="../../src/recording.cpp" line="833"/>
         <source>subtitle</source>
         <translation>napisy</translation>
     </message>

@@ -31,45 +31,32 @@
 class CartoonElementPrivate
 {
     public:
-        int m_ncolors;
-        int m_colorDiff;
-        bool m_showEdges;
-        int m_thresholdLow;
-        int m_thresholdHi;
-        QRgb m_lineColor;
-        QSize m_scanSize;
+        int m_ncolors {8};
+        int m_colorDiff {95};
+        bool m_showEdges {true};
+        int m_thresholdLow {85};
+        int m_thresholdHi {171};
+        QRgb m_lineColor {qRgb(0, 0, 0)};
+        QSize m_scanSize {320, 240};
         QVector<QRgb> m_palette;
-        qint64 m_id;
-        qint64 m_lastTime;
+        qint64 m_id {-1};
+        qint64 m_lastTime {0};
         QMutex m_mutex;
 
-        CartoonElementPrivate():
-            m_ncolors(8),
-            m_colorDiff(95),
-            m_showEdges(true),
-            m_thresholdLow(85),
-            m_thresholdHi(171),
-            m_lineColor(qRgb(0, 0, 0)),
-            m_scanSize(QSize(320, 240)),
-            m_id(-1),
-            m_lastTime(0)
-        {
-        }
-
-        inline QVector<QRgb> palette(const QImage &img,
-                                     int ncolors,
-                                     int colorDiff);
-        inline QRgb nearestColor(int *index,
-                                 int *diff,
-                                 const QVector<QRgb> &palette,
-                                 QRgb color) const;
-        inline QImage edges(const QImage &src,
-                            int thLow,
-                            int thHi,
-                            QRgb color) const;
-        inline int rgb24Torgb16(QRgb color);
-        inline void rgb16Torgb24(int *r, int *g, int *b, int color);
-        inline QRgb rgb16Torgb24(int color);
+        QVector<QRgb> palette(const QImage &img,
+                              int ncolors,
+                              int colorDiff);
+        QRgb nearestColor(int *index,
+                          int *diff,
+                          const QVector<QRgb> &palette,
+                          QRgb color) const;
+        QImage edges(const QImage &src,
+                     int thLow,
+                     int thHi,
+                     QRgb color) const;
+        int rgb24Torgb16(QRgb color);
+        void rgb16Torgb24(int *r, int *g, int *b, int color);
+        QRgb rgb16Torgb24(int color);
 };
 
 CartoonElement::CartoonElement(): AkElement()

@@ -91,20 +91,12 @@ class VideoCaptureElementPrivate
         QThreadPool m_threadPool;
         QFuture<void> m_cameraLoopResult;
         QMutex m_mutexLib;
-        bool m_runCameraLoop;
-        bool m_pause;
-        bool m_mirror;
-        bool m_swapRgb;
+        bool m_runCameraLoop {false};
+        bool m_pause {false};
+        bool m_mirror {false};
+        bool m_swapRgb {false};
 
-        VideoCaptureElementPrivate():
-            m_runCameraLoop(false),
-            m_pause(false),
-            m_mirror(false),
-            m_swapRgb(false)
-        {
-        }
-
-        inline void cameraLoop();
+        void cameraLoop();
 };
 
 VideoCaptureElement::VideoCaptureElement():
@@ -561,7 +553,8 @@ void VideoCaptureElement::codecLibUpdated(const QString &codecLib)
     this->d->m_mutexLib.lock();
 
     this->d->m_convertVideo =
-            ptr_cast<ConvertVideo>(this->loadSubModule("VideoCapture", codecLib));
+            ptr_cast<ConvertVideo>(VideoCaptureElement::loadSubModule("VideoCapture",
+                                                                      codecLib));
 
     if (this->d->m_convertVideo)
         QObject::connect(this->d->m_convertVideo.data(),
@@ -583,7 +576,8 @@ void VideoCaptureElement::captureLibUpdated(const QString &captureLib)
     this->d->m_mutexLib.lock();
 
     this->d->m_capture =
-            ptr_cast<Capture>(this->loadSubModule("VideoCapture", captureLib));
+            ptr_cast<Capture>(VideoCaptureElement::loadSubModule("VideoCapture",
+                                                                 captureLib));
 
     this->d->m_mutexLib.unlock();
 

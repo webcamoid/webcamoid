@@ -35,9 +35,9 @@
 #include "subtitlestream.h"
 #include "clock.h"
 
-typedef QSharedPointer<AVFormatContext> FormatContextPtr;
-typedef QSharedPointer<AbstractStream> AbstractStreamPtr;
-typedef QMap<AVMediaType, QString> AvMediaTypeStrMap;
+using FormatContextPtr = QSharedPointer<AVFormatContext>;
+using AbstractStreamPtr = QSharedPointer<AbstractStream>;
+using AvMediaTypeStrMap = QMap<AVMediaType, QString>;
 
 inline AvMediaTypeStrMap initAvMediaTypeStrMap()
 {
@@ -291,7 +291,7 @@ qint64 MediaSourceFFmpegPrivate::packetQueueSize()
 {
     qint64 size = 0;
 
-    for (const AbstractStreamPtr &stream: this->m_streamsMap.values())
+    for (auto &stream: this->m_streamsMap)
         size += stream->queueSize();
 
     return size;
@@ -345,7 +345,7 @@ void MediaSourceFFmpegPrivate::readPackets()
                 continue;
             }
 
-        AVPacket *packet = new AVPacket();
+        auto packet = new AVPacket;
         av_init_packet(packet);
         bool notuse = true;
         int r = av_read_frame(this->m_inputContext.data(), packet);
@@ -366,7 +366,7 @@ void MediaSourceFFmpegPrivate::readPackets()
 
         if (r < 0) {
             if (self->loop()) {
-                for (const AbstractStreamPtr &stream: this->m_streamsMap.values())
+                for (auto &stream: this->m_streamsMap)
                     stream->packetEnqueue(nullptr);
             }
 
@@ -663,7 +663,7 @@ bool MediaSourceFFmpeg::initContext()
 
     if (QRegExp("/dev/video\\d*").exactMatch(uri))
         inputFormat = av_find_input_format("v4l2");
-    else if (QRegExp(":\\d+\\.\\d+(?:\\+\\d+,\\d+)?").exactMatch(uri)) {
+    else if (QRegExp(R"(:\d+\.\d+(?:\+\d+,\d+)?)").exactMatch(uri)) {
         inputFormat = av_find_input_format("x11grab");
 
         int width = this->d->roundDown(QApplication::desktop()->width(), 4);
@@ -728,14 +728,14 @@ void MediaSourceFFmpeg::log()
     AbstractStreamPtr audioStream;
     AbstractStreamPtr videoStream;
 
-    for (const int &streamId: this->d->m_streamsMap.keys()) {
-        AVMediaType mediaType = this->d->m_streamsMap[streamId]->mediaType();
+    for (auto &stream: this->d->m_streamsMap) {
+        auto mediaType = stream->mediaType();
 
         if (mediaType == AVMEDIA_TYPE_AUDIO && !audioStream)
-            audioStream = this->d->m_streamsMap[streamId];
+            audioStream = stream;
 
         if (mediaType == AVMEDIA_TYPE_VIDEO && !videoStream)
-            videoStream = this->d->m_streamsMap[streamId];
+            videoStream = stream;
 
         if (audioStream && videoStream)
             break;

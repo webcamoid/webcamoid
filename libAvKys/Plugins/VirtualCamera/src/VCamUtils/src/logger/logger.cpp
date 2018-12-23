@@ -39,10 +39,10 @@ namespace AkVCam
             Logger::LogCallback logCallback;
 
             LoggerPrivate();
-            ~LoggerPrivate();
+            ~LoggerPrivate() override;
 
         protected:
-            std::streamsize xsputn(const char *s, std::streamsize n);
+            std::streamsize xsputn(const char *s, std::streamsize n) override;
     };
 
     inline LoggerPrivate *loggerPrivate()

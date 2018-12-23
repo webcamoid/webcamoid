@@ -26,7 +26,7 @@
 
 #include "rippleelement.h"
 
-typedef QMap<RippleElement::RippleMode, QString> RippleModeToStr;
+using RippleModeToStr = QMap<RippleElement::RippleMode, QString>;
 
 inline RippleModeToStr initRippleModeToStr()
 {
@@ -43,49 +43,32 @@ Q_GLOBAL_STATIC_WITH_ARGS(RippleModeToStr, rippleModeToStr, (initRippleModeToStr
 class RippleElementPrivate
 {
     public:
-        RippleElement::RippleMode m_mode;
-        int m_amplitude;
-        int m_decay;
-        int m_threshold;
-        int m_lumaThreshold;
+        RippleElement::RippleMode m_mode {RippleElement::RippleModeMotionDetect};
+        int m_amplitude {256};
+        int m_decay {8};
+        int m_threshold {15};
+        int m_lumaThreshold {15};
         AkCaps m_caps;
         QImage m_prevFrame;
         QVector<QImage> m_rippleBuffer;
-        int m_curRippleBuffer;
-        int m_period;
-        int m_rainStat;
-        uint m_dropProb;
-        int m_dropProbIncrement;
-        int m_dropsPerFrameMax;
-        int m_dropsPerFrame;
-        int m_dropPower;
+        int m_curRippleBuffer {0};
+        int m_period {0};
+        int m_rainStat {0};
+        uint m_dropProb {0};
+        int m_dropProbIncrement {0};
+        int m_dropsPerFrameMax {0};
+        int m_dropsPerFrame {0};
+        int m_dropPower {0};
 
-        RippleElementPrivate():
-            m_mode(RippleElement::RippleModeMotionDetect),
-            m_amplitude(256),
-            m_decay(8),
-            m_threshold(15),
-            m_lumaThreshold(15),
-            m_curRippleBuffer(0),
-            m_period(0),
-            m_rainStat(0),
-            m_dropProb(0),
-            m_dropProbIncrement(0),
-            m_dropsPerFrameMax(0),
-            m_dropsPerFrame(0),
-            m_dropPower(0)
-        {
-        }
-
-        inline QImage imageDiff(const QImage &img1,
-                                const QImage &img2,
-                                int threshold,
-                                int lumaThreshold, int strength);
-        inline void addDrops(const QImage &buffer, const QImage &drops);
-        inline void ripple(const QImage &buffer1, const QImage &buffer2, int decay);
-        inline QImage applyWater(const QImage &src, const QImage &buffer);
-        inline QImage rainDrop(int width, int height, int strength);
-        inline QImage drop(int width, int height, int power);
+        QImage imageDiff(const QImage &img1,
+                         const QImage &img2,
+                         int threshold,
+                         int lumaThreshold, int strength);
+        void addDrops(const QImage &buffer, const QImage &drops);
+        void ripple(const QImage &buffer1, const QImage &buffer2, int decay);
+        QImage applyWater(const QImage &src, const QImage &buffer);
+        QImage rainDrop(int width, int height, int strength);
+        QImage drop(int width, int height, int power);
 };
 
 RippleElement::RippleElement(): AkElement()
@@ -154,7 +137,7 @@ QImage RippleElementPrivate::imageDiff(const QImage &img1,
             int db = b1 - b2;
 
             int s = dr * dr + dg * dg + db * db;
-            s = int(sqrt(s / 3));
+            s = int(sqrt(s / 3.0));
             s = s < threshold? 0: s;
 
             int gray = qGray(img2Line[x]);

@@ -28,7 +28,7 @@ std::string AkVCam::RcName::read(const unsigned char *rcName)
     std::wstring wstr;
 
     for (decltype(size) i = 0; i < size; i++)
-        wstr += nameStream.read<uint16_t>();
+        wstr += wchar_t(nameStream.read<uint16_t>());
 
     return std::string(wstr.begin(), wstr.end());
 }

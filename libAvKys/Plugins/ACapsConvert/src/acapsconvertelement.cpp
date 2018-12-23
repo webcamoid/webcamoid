@@ -35,7 +35,7 @@ inline QSharedPointer<T> ptr_cast(QObject *obj=nullptr)
     return QSharedPointer<T>(static_cast<T *>(obj));
 }
 
-typedef QSharedPointer<ConvertAudio> ConvertAudioPtr;
+using ConvertAudioPtr = QSharedPointer<ConvertAudio>;
 
 class ACapsConvertElementPrivate
 {
@@ -179,8 +179,8 @@ void ACapsConvertElement::convertLibUpdated(const QString &convertLib)
     this->d->m_mutex.lock();
 
     this->d->m_convertAudio =
-            ptr_cast<ConvertAudio>(this->loadSubModule("ACapsConvert",
-                                                       convertLib));
+            ptr_cast<ConvertAudio>(ACapsConvertElement::loadSubModule("ACapsConvert",
+                                                                      convertLib));
     this->d->m_mutex.unlock();
 
     this->setState(state);

@@ -213,40 +213,40 @@ class VideoFormat
 
         static inline const VideoFormat *byFormat(AkVideoCaps::PixelFormat format)
         {
-            for (int i = 0; i < formats().size(); i++)
-                if (formats()[i].format == format)
-                    return &formats()[i];
+            for (auto &format_: formats())
+                if (format_.format == format)
+                    return &format_;
 
-            return &formats()[0];
+            return &formats().front();
         }
 
         static inline const VideoFormat *byBpp(int bpp)
         {
-            for (int i = 0; i < formats().size(); i++)
-                if (formats()[i].bpp == bpp)
-                    return &formats()[i];
+            for (auto &format: formats())
+                if (format.bpp == bpp)
+                    return &format;
 
-            return &formats()[0];
+            return &formats().front();
         }
 
         static inline const VideoFormat *byFourCC(quint32 fourCC)
         {
-            for (int i = 0; i < formats().size(); i++)
-                if (formats()[i].fourCC == fourCC)
-                    return &formats()[i];
+            for (auto &format: formats())
+                if (format.fourCC == fourCC)
+                    return &format;
 
-            return &formats()[0];
+            return &formats().front();
         }
 };
 
 class AkVideoCapsPrivate
 {
     public:
-        bool m_isValid;
-        AkVideoCaps::PixelFormat m_format;
-        int m_bpp;
-        int m_width;
-        int m_height;
+        bool m_isValid {false};
+        AkVideoCaps::PixelFormat m_format {AkVideoCaps::Format_none};
+        int m_bpp {0};
+        int m_width {0};
+        int m_height {0};
         AkFrac m_fps;
 };
 
@@ -254,21 +254,12 @@ AkVideoCaps::AkVideoCaps(QObject *parent):
     QObject(parent)
 {
     this->d = new AkVideoCapsPrivate();
-    this->d->m_isValid = false;
-    this->d->m_format = AkVideoCaps::Format_none;
-    this->d->m_bpp = 0;
-    this->d->m_width = 0;
-    this->d->m_height = 0;
 }
 
 AkVideoCaps::AkVideoCaps(const QVariantMap &caps)
 {
     this->d = new AkVideoCapsPrivate();
     this->d->m_isValid = true;
-    this->d->m_format = AkVideoCaps::Format_none;
-    this->d->m_bpp = 0;
-    this->d->m_width = 0;
-    this->d->m_height = 0;
 
     this->fromMap(caps);
 }
@@ -276,11 +267,6 @@ AkVideoCaps::AkVideoCaps(const QVariantMap &caps)
 AkVideoCaps::AkVideoCaps(const QString &caps)
 {
     this->d = new AkVideoCapsPrivate();
-    this->d->m_isValid = false;
-    this->d->m_format = AkVideoCaps::Format_none;
-    this->d->m_bpp = 0;
-    this->d->m_width = 0;
-    this->d->m_height = 0;
 
     this->fromString(caps);
 }
@@ -363,7 +349,9 @@ AkVideoCaps &AkVideoCaps::operator =(const AkCaps &caps)
 
 AkVideoCaps &AkVideoCaps::operator =(const QString &caps)
 {
-    return this->operator =(AkCaps(caps));
+    this->operator =(AkCaps(caps));
+
+    return *this;
 }
 
 bool AkVideoCaps::operator ==(const AkVideoCaps &other) const
@@ -408,7 +396,7 @@ AkVideoCaps::PixelFormat &AkVideoCaps::format()
 
 quint32 AkVideoCaps::fourCC() const
 {
-    return this->fourCC(this->d->m_format);
+    return AkVideoCaps::fourCC(this->d->m_format);
 }
 
 int AkVideoCaps::bpp() const
@@ -423,7 +411,7 @@ int &AkVideoCaps::bpp()
 
 QSize AkVideoCaps::size() const
 {
-    return QSize(this->d->m_width, this->d->m_height);
+    return {this->d->m_width, this->d->m_height};
 }
 
 int AkVideoCaps::width() const
@@ -474,14 +462,16 @@ AkVideoCaps &AkVideoCaps::fromMap(const QVariantMap &caps)
         return *this;
     }
 
-    for (const QString &key: caps.keys())
-        if (key == "mimeType") {
-            this->d->m_isValid = caps[key].toString() == "video/x-raw";
+    for (auto it = caps.begin(); it != caps.end(); it++)
+        if (it.key() == "mimeType") {
+            this->d->m_isValid = it.value().toString() == "video/x-raw";
 
             if (!this->d->m_isValid)
                 return *this;
-        } else
-            this->setProperty(key.trimmed().toStdString().c_str(), caps[key]);
+        } else {
+            this->setProperty(it.key().trimmed().toStdString().c_str(),
+                              it.value());
+        }
 
     return *this;
 }
@@ -494,11 +484,11 @@ AkVideoCaps &AkVideoCaps::fromString(const QString &caps)
 QVariantMap AkVideoCaps::toMap() const
 {
     QVariantMap map = {
-        {"format", this->pixelFormatToString(this->d->m_format)},
-        {"bpp"   , this->d->m_bpp                              },
-        {"width" , this->d->m_width                            },
-        {"height", this->d->m_height                           },
-        {"fps"   , QVariant::fromValue(this->d->m_fps)         }
+        {"format", AkVideoCaps::pixelFormatToString(this->d->m_format)},
+        {"bpp"   , this->d->m_bpp                                     },
+        {"width" , this->d->m_width                                   },
+        {"height", this->d->m_height                                  },
+        {"fps"   , QVariant::fromValue(this->d->m_fps)                }
     };
 
     for (const QByteArray &property: this->dynamicPropertyNames()) {
@@ -512,9 +502,9 @@ QVariantMap AkVideoCaps::toMap() const
 QString AkVideoCaps::toString() const
 {
     if (!this->d->m_isValid)
-        return QString();
+        return {};
 
-    QString format = this->pixelFormatToString(this->d->m_format);
+    QString format = AkVideoCaps::pixelFormatToString(this->d->m_format);
 
     QString caps = QString("video/x-raw,"
                            "format=%1,"
@@ -529,14 +519,14 @@ QString AkVideoCaps::toString() const
 
     QStringList properties;
 
-    for (const QByteArray &property: this->dynamicPropertyNames())
+    for (auto &property: this->dynamicPropertyNames())
         properties << QString::fromUtf8(property.constData());
 
     properties.sort();
 
-    for (const QString &property: properties)
-        caps.append(QString(",%1=%2").arg(property)
-                                     .arg(this->property(property.toStdString().c_str()).toString()));
+    for (auto &property: properties)
+        caps.append(QString(",%1=%2").arg(property,
+                                          this->property(property.toStdString().c_str()).toString()));
 
     return caps;
 }
@@ -547,12 +537,11 @@ AkVideoCaps &AkVideoCaps::update(const AkCaps &caps)
         return *this;
 
     this->clear();
+    auto properties = caps.dynamicPropertyNames();
 
-    QList<QByteArray> properties = caps.dynamicPropertyNames();
-
-    for (const QByteArray &property: properties)
+    for (auto &property: properties)
         if (property == "format")
-            this->d->m_format = this->pixelFormatFromString(caps.property(property).toString());
+            this->d->m_format = AkVideoCaps::pixelFormatFromString(caps.property(property).toString());
         else if (property == "bpp")
             this->d->m_bpp = caps.property(property).toInt();
         else if (property == "width")

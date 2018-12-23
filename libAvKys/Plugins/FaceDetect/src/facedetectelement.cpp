@@ -29,7 +29,7 @@
 #include "facedetectelement.h"
 #include "haar/haardetector.h"
 
-typedef QMap<FaceDetectElement::MarkerType, QString> MarkerTypeMap;
+using MarkerTypeMap = QMap<FaceDetectElement::MarkerType, QString>;
 
 inline MarkerTypeMap initMarkerTypeMap()
 {
@@ -46,7 +46,7 @@ inline MarkerTypeMap initMarkerTypeMap()
 
 Q_GLOBAL_STATIC_WITH_ARGS(MarkerTypeMap, markerTypeToStr, (initMarkerTypeMap()))
 
-typedef QMap<Qt::PenStyle, QString> PenStyleMap;
+using PenStyleMap = QMap<Qt::PenStyle, QString>;
 
 inline PenStyleMap initPenStyleMap()
 {
@@ -66,31 +66,25 @@ Q_GLOBAL_STATIC_WITH_ARGS(PenStyleMap, markerStyleToStr, (initPenStyleMap()))
 class FaceDetectElementPrivate
 {
     public:
-        QString m_haarFile;
-        FaceDetectElement::MarkerType m_markerType;
+        QString m_haarFile {":/FaceDetect/share/haarcascades/haarcascade_frontalface_alt.xml"};
+        FaceDetectElement::MarkerType m_markerType {FaceDetectElement::MarkerTypeRectangle};
         QPen m_markerPen;
-        QString m_markerImage;
+        QString m_markerImage {":/FaceDetect/share/masks/cow.png"};
         QImage m_markerImg;
-        QSize m_pixelGridSize;
-        QSize m_scanSize;
-        AkElementPtr m_blurFilter;
+        QSize m_pixelGridSize {32, 32};
+        QSize m_scanSize {160, 120};
+        AkElementPtr m_blurFilter {AkElement::create("Blur")};
         HaarDetector m_cascadeClassifier;
 };
 
 FaceDetectElement::FaceDetectElement(): AkElement()
 {
     this->d = new FaceDetectElementPrivate;
-    this->d->m_haarFile = ":/FaceDetect/share/haarcascades/haarcascade_frontalface_alt.xml";
     this->d->m_cascadeClassifier.loadCascade(this->d->m_haarFile);
-    this->d->m_markerType = MarkerTypeRectangle;
     this->d->m_markerPen.setColor(QColor(255, 0, 0));
     this->d->m_markerPen.setWidth(3);
     this->d->m_markerPen.setStyle(Qt::SolidLine);
-    this->d->m_markerImage = ":/FaceDetect/share/masks/cow.png";
     this->d->m_markerImg = QImage(this->d->m_markerImage);
-    this->d->m_pixelGridSize = QSize(32, 32);
-    this->d->m_scanSize = QSize(160, 120);
-    this->d->m_blurFilter = AkElement::create("Blur");
     this->d->m_blurFilter->setProperty("radius", 32);
 
     QObject::connect(this->d->m_blurFilter.data(),

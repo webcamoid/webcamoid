@@ -46,7 +46,7 @@
 // We use about AUDIO_DIFF_AVG_NB A-V differences to make the average
 #define AUDIO_DIFF_AVG_NB 20
 
-typedef QMap<AudioGenElement::WaveType, QString> WaveTypeMap;
+using WaveTypeMap = QMap<AudioGenElement::WaveType, QString>;
 
 inline WaveTypeMap initWaveTypeMap()
 {
@@ -68,33 +68,20 @@ Q_GLOBAL_STATIC_WITH_ARGS(WaveTypeMap, waveTypeToStr, (initWaveTypeMap()))
 class AudioGenElementPrivate
 {
     public:
-        AkCaps m_caps;
-        AudioGenElement::WaveType m_waveType;
-        qreal m_frequency;
-        qreal m_volume;
-        qreal m_sampleDuration;
-        AkElementPtr m_audioConvert;
+        AkCaps m_caps {"audio/x-raw,format=flt,bps=4,channels=1,rate=44100,layout=mono,align=false"};
+        AudioGenElement::WaveType m_waveType {AudioGenElement::WaveTypeSilence};
+        qreal m_frequency {1000};
+        qreal m_volume {1.0};
+        qreal m_sampleDuration {25.0};
+        AkElementPtr m_audioConvert {AkElement::create("ACapsConvert")};
         QThreadPool m_threadPool;
         QFuture<void> m_readFramesLoopResult;
         QMutex m_mutex;
-        bool m_readFramesLoop;
-        bool m_pause;
-        qint64 m_id;
+        bool m_readFramesLoop {false};
+        bool m_pause {false};
+        qint64 m_id {-1};
 
-        AudioGenElementPrivate():
-            m_caps("audio/x-raw,format=flt,bps=4,channels=1,rate=44100,layout=mono,align=false"),
-            m_waveType(AudioGenElement::WaveTypeSilence),
-            m_frequency(1000),
-            m_volume(1.0),
-            m_sampleDuration(25.0),
-            m_audioConvert(AkElement::create("ACapsConvert")),
-            m_readFramesLoop(false),
-            m_pause(false),
-            m_id(-1)
-        {
-        }
-
-        inline void readFramesLoop();
+        void readFramesLoop();
 };
 
 AudioGenElement::AudioGenElement():
@@ -208,13 +195,13 @@ void AudioGenElementPrivate::readFramesLoop()
             static std::default_random_engine engine;
             static std::uniform_int_distribution<int> distribution(-128, 127);
 
-            for (int i = 0; i < iBuffer.size(); i++)
-                iBuffer[i] = char(distribution(engine));
+            for (auto &c: iBuffer)
+                c = char(distribution(engine));
         } else {
-            qint32 ampMax = qint32(this->m_volume * std::numeric_limits<qint32>::max());
-            qint32 ampMin = qint32(this->m_volume * std::numeric_limits<qint32>::min());
-            qreal t = time;
-            qint32 *buff = reinterpret_cast<qint32 *>(iBuffer.data());
+            auto ampMax = qint32(this->m_volume * std::numeric_limits<qint32>::max());
+            auto ampMin = qint32(this->m_volume * std::numeric_limits<qint32>::min());
+            auto t = time;
+            auto buff = reinterpret_cast<qint32 *>(iBuffer.data());
 
             if (this->m_waveType == AudioGenElement::WaveTypeSine) {
                 for  (int i = 0; i < nSamples; i++, time += tdiff)

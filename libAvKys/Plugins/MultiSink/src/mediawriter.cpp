@@ -28,10 +28,6 @@ MediaWriter::MediaWriter(QObject *parent):
 {
 }
 
-MediaWriter::~MediaWriter()
-{
-}
-
 QString MediaWriter::location() const
 {
     return this->m_location;

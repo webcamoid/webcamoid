@@ -26,12 +26,7 @@ class ClockPrivate
 {
     public:
         QReadWriteLock m_mutex;
-        qreal m_timeDrift;
-
-        ClockPrivate():
-            m_timeDrift(0.0)
-        {
-        }
+        qreal m_timeDrift {0.0};
 };
 
 Clock::Clock(QObject *parent): QObject(parent)

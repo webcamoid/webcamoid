@@ -49,20 +49,13 @@ class AudioDevQtAudioPrivate
         QMap<QString, QList<int>> m_supportedChannels;
         QMap<QString, QList<int>> m_supportedSampleRates;
         AudioDeviceBuffer m_outputDeviceBuffer;
-        QIODevice *m_inputDeviceBuffer;
-        QAudioInput *m_input;
-        QAudioOutput *m_output;
+        QIODevice *m_inputDeviceBuffer {nullptr};
+        QAudioInput *m_input {nullptr};
+        QAudioOutput *m_output {nullptr};
         QMutex m_mutex;
 
-        AudioDevQtAudioPrivate():
-            m_inputDeviceBuffer(nullptr),
-            m_input(nullptr),
-            m_output(nullptr)
-        {
-        }
-
-        inline AkAudioCaps::SampleFormat qtFormatToAk(const QAudioFormat &format) const;
-        inline QAudioFormat qtFormatFromCaps(const AkAudioCaps &caps) const;
+        AkAudioCaps::SampleFormat qtFormatToAk(const QAudioFormat &format) const;
+        QAudioFormat qtFormatFromCaps(const AkAudioCaps &caps) const;
 };
 
 AudioDevQtAudio::AudioDevQtAudio(QObject *parent):

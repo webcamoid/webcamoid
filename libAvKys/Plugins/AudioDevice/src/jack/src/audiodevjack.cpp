@@ -29,7 +29,7 @@
 #include "audiodevjack.h"
 #include "jackserver.h"
 
-typedef QMap<jack_status_t, QString> JackErrorCodes;
+using JackErrorCodes = QMap<jack_status_t, QString>;
 
 inline JackErrorCodes initJackErrorCodes()
 {
@@ -131,7 +131,7 @@ AudioDevJack::AudioDevJack(QObject *parent):
     // Query the number of channels
     this->d->m_sampleRate = int(jack_get_sample_rate(this->d->m_client));
 
-    for (auto deviceId: portTypeMap.keys()) {
+    for (auto &deviceId: portTypeMap.keys()) {
         auto ports = jack_get_ports(this->d->m_client,
                                     nullptr,
                                     JACK_DEFAULT_AUDIO_TYPE,
@@ -280,12 +280,12 @@ bool AudioDevJack::init(const QString &device, const AkAudioCaps &caps)
 
     if (caps.channels() == 1) {
         if (device == ":jackinput:") {
-            for (auto port: this->d->m_devicePorts[device])
+            for (auto &port: this->d->m_devicePorts[device])
                 jack_connect(this->d->m_client,
                              port.toStdString().c_str(),
                              jack_port_name(this->d->m_appPorts.first()));
         } else {
-            for (auto port: this->d->m_devicePorts[device])
+            for (auto &port: this->d->m_devicePorts[device])
                 jack_connect(this->d->m_client,
                              jack_port_name(this->d->m_appPorts.first()),
                              port.toStdString().c_str());

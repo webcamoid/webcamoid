@@ -28,22 +28,18 @@
 class FalseColorElementPrivate
 {
     public:
-        QList<QRgb> m_table;
-        bool m_soft;
+        QList<QRgb> m_table {
+            qRgb(0, 0, 0),
+            qRgb(255, 0, 0),
+            qRgb(255, 255, 255),
+            qRgb(255, 255, 255)
+        };
+        bool m_soft {false};
 };
 
 FalseColorElement::FalseColorElement(): AkElement()
 {
     this->d = new FalseColorElementPrivate;
-
-    this->d->m_table = {
-        qRgb(0, 0, 0),
-        qRgb(255, 0, 0),
-        qRgb(255, 255, 255),
-        qRgb(255, 255, 255)
-    };
-
-    this->d->m_soft = false;
 }
 
 FalseColorElement::~FalseColorElement()

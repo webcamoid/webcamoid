@@ -29,22 +29,14 @@
 class HalftoneElementPrivate
 {
     public:
-        QString m_pattern;
+        QString m_pattern {":/Halftone/share/patterns/ditherCluster8Matrix.bmp"};
         QSize m_patternSize;
-        qreal m_lightness;
-        qreal m_slope;
-        qreal m_intercept;
+        qreal m_lightness {0.5};
+        qreal m_slope {1.0};
+        qreal m_intercept {0.0};
         QMutex m_mutex;
         QSize m_frameSize;
         QImage m_patternImage;
-
-        HalftoneElementPrivate():
-            m_pattern(":/Halftone/share/patterns/ditherCluster8Matrix.bmp"),
-            m_lightness(0.5),
-            m_slope(1.0),
-            m_intercept(0.0)
-        {
-        }
 };
 
 HalftoneElement::HalftoneElement(): AkElement()
@@ -253,7 +245,7 @@ AkPacket HalftoneElement::iStream(const AkPacket &packet)
             int row = y % patternImage.height();
 
             int gray = qGray(iLine[x]);
-            const quint8 *pattern = reinterpret_cast<const quint8 *>(patternImage.constScanLine(row));
+            auto pattern = reinterpret_cast<const quint8 *>(patternImage.constScanLine(row));
             int threshold = pattern[col];
             threshold = int(this->d->m_slope
                             * threshold

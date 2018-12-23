@@ -27,7 +27,7 @@
 
 #include "fireelement.h"
 
-typedef QMap<FireElement::FireMode, QString> FireModeMap;
+using FireModeMap = QMap<FireElement::FireMode, QString>;
 
 inline FireModeMap initFireModeMap()
 {
@@ -44,47 +44,34 @@ Q_GLOBAL_STATIC_WITH_ARGS(FireModeMap, fireModeToStr, (initFireModeMap()))
 class FireElementPrivate
 {
     public:
-        FireElement::FireMode m_mode;
-        int m_cool;
-        qreal m_dissolve;
-        qreal m_zoom;
-        int m_threshold;
-        int m_lumaThreshold;
-        int m_alphaDiff;
-        int m_alphaVariation;
-        int m_nColors;
+        FireElement::FireMode m_mode {FireElement::FireModeHard};
+        int m_cool {-16};
+        qreal m_dissolve {0.01};
+        qreal m_zoom {0.02};
+        int m_threshold {15};
+        int m_lumaThreshold {15};
+        int m_alphaDiff {-12};
+        int m_alphaVariation {127};
+        int m_nColors {8};
         QSize m_framSize;
         QImage m_prevFrame;
         QImage m_fireBuffer;
         QVector<QRgb> m_palette;
         AkElementPtr m_blurFilter;
 
-        FireElementPrivate():
-            m_mode(FireElement::FireModeHard),
-            m_cool(-16),
-            m_dissolve(0.01),
-            m_zoom(0.02),
-            m_threshold(15),
-            m_lumaThreshold(15),
-            m_alphaDiff(-12),
-            m_alphaVariation(127),
-            m_nColors(8)
-        {
-        }
-
-        inline QImage imageDiff(const QImage &img1,
-                                const QImage &img2,
-                                int colors,
-                                int threshold,
-                                int lumaThreshold,
-                                int alphaVariation,
-                                FireElement::FireMode mode);
-        inline QImage zoomImage(const QImage &src, qreal factor);
-        inline void coolImage(QImage &src, int colorDiff);
-        inline void imageAlphaDiff(QImage &src, int alphaDiff);
-        inline void dissolveImage(QImage &src, qreal amount);
-        inline QImage burn(const QImage &src, const QVector<QRgb> &palette);
-        inline QVector<QRgb> createPalette();
+        QImage imageDiff(const QImage &img1,
+                         const QImage &img2,
+                         int colors,
+                         int threshold,
+                         int lumaThreshold,
+                         int alphaVariation,
+                         FireElement::FireMode mode);
+        QImage zoomImage(const QImage &src, qreal factor);
+        void coolImage(QImage &src, int colorDiff);
+        void imageAlphaDiff(QImage &src, int alphaDiff);
+        void dissolveImage(QImage &src, qreal amount);
+        QImage burn(const QImage &src, const QVector<QRgb> &palette);
+        QVector<QRgb> createPalette();
 };
 
 FireElement::FireElement(): AkElement()
@@ -254,7 +241,7 @@ void FireElementPrivate::imageAlphaDiff(QImage &src, int alphaDiff)
 void FireElementPrivate::dissolveImage(QImage &src, qreal amount)
 {
     qint64 videoArea = src.width() * src.height();
-    qint64 n = qint64(amount * videoArea);
+    auto n = qint64(amount * videoArea);
 
     for (qint64 i = 0; i < n; i++) {
         int x = qrand() % src.width();

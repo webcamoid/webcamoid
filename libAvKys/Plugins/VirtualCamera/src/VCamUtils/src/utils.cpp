@@ -90,7 +90,7 @@ bool AkVCam::isEqualFile(const std::wstring &file1, const std::wstring &file2)
         f1.read(buffer1, bufferSize);
         f2.read(buffer2, bufferSize);
 
-        if (memcmp(buffer1, buffer2, bufferSize))
+        if (memcmp(buffer1, buffer2, bufferSize) != 0)
             return false;
     }
 

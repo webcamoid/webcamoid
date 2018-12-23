@@ -54,16 +54,6 @@ Scratch::Scratch(qreal minLife, qreal maxLife,
     this->m_y = int(qrand() * (maxY - minY) / RAND_MAX) + minY;
 }
 
-Scratch::Scratch(const Scratch &other):
-    m_life0(other.m_life0),
-    m_life(other.m_life),
-    m_dlife(other.m_dlife),
-    m_x(other.m_x),
-    m_dx(other.m_dx),
-    m_y(other.m_y)
-{
-}
-
 Scratch &Scratch::operator =(const Scratch &other)
 {
     if (this != &other) {
@@ -138,12 +128,9 @@ int &Scratch::y()
 
 bool Scratch::isAboutToDie() const
 {
-    qreal threshold = 0.75;
+    const qreal threshold = 0.75;
 
-    if (this->m_life <= this->m_dlife * (1.0 + threshold))
-        return true;
-
-    return false;
+    return this->m_life <= this->m_dlife * (1.0 + threshold);
 }
 
 void Scratch::setLife(qreal life)

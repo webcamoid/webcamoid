@@ -43,7 +43,7 @@ class AkPrivate
         QDir m_applicationDir;
 
         AkPrivate();
-        ~AkPrivate();
+        virtual ~AkPrivate();
         QString convertToAbsolute(const QString &path) const;
         QStringList qmlImportPaths() const;
 };

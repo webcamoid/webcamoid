@@ -96,10 +96,6 @@ HaarTree::HaarTree(const HaarTree &other):
     this->m_features = other.m_features;
 }
 
-HaarTree::~HaarTree()
-{
-}
-
 HaarFeatureVector HaarTree::features() const
 {
     return this->m_features;
@@ -121,10 +117,7 @@ HaarTree &HaarTree::operator =(const HaarTree &other)
 
 bool HaarTree::operator ==(const HaarTree &other) const
 {
-    if (this->m_features == other.m_features)
-        return true;
-
-    return false;
+    return this->m_features == other.m_features;
 }
 
 bool HaarTree::operator !=(const HaarTree &other) const

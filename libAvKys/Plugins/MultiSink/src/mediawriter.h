@@ -59,7 +59,7 @@ class MediaWriter: public QObject
 
     public:
         explicit MediaWriter(QObject *parent=nullptr);
-        virtual ~MediaWriter();
+        virtual ~MediaWriter() = default;
 
         Q_INVOKABLE virtual QString location() const;
         Q_INVOKABLE virtual QString outputFormat() const;

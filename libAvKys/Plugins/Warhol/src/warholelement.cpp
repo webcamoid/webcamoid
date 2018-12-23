@@ -27,19 +27,13 @@
 class WarholElementPrivate
 {
     public:
-        int m_nFrames;
+        int m_nFrames {3};
         QVector<quint32> m_colorTable;
-
-        WarholElementPrivate():
-            m_nFrames(3)
-        {
-        }
 };
 
 WarholElement::WarholElement(): AkElement()
 {
     this->d = new WarholElementPrivate;
-
     this->d->m_colorTable = {
         0x000080, 0x008000, 0x800000,
         0x00e000, 0x808000, 0x800080,

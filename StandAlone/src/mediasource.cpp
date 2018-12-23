@@ -30,7 +30,7 @@
 class MediaSourcePrivate
 {
     public:
-        QQmlApplicationEngine *m_engine;
+        QQmlApplicationEngine *m_engine {nullptr};
         QString m_stream;
         QStringList m_streams;
         QStringList m_cameras;
@@ -39,21 +39,14 @@ class MediaSourcePrivate
         QMap<QString, QString> m_descriptions;
         AkCaps m_audioCaps;
         AkCaps m_videoCaps;
-        AkElement::ElementState m_inputState;
+        AkElement::ElementState m_inputState {AkElement::ElementStateNull};
         AkElementPtr m_pipeline;
         AkElementPtr m_cameraCapture;
         AkElementPtr m_desktopCapture;
         AkElementPtr m_uriCapture;
-        bool m_playOnStart;
+        bool m_playOnStart {false};
 
-        MediaSourcePrivate():
-            m_engine(nullptr),
-            m_inputState(AkElement::ElementStateNull),
-            m_playOnStart(false)
-        {
-        }
-
-        inline AkElementPtr sourceElement(const QString &stream) const;
+        AkElementPtr sourceElement(const QString &stream) const;
 };
 
 MediaSource::MediaSource(QQmlApplicationEngine *engine, QObject *parent):
@@ -316,12 +309,14 @@ AkElementPtr MediaSourcePrivate::sourceElement(const QString &stream) const
 {
     if (this->m_cameras.contains(stream))
         return this->m_cameraCapture;
-    else if (this->m_desktops.contains(stream))
+
+    if (this->m_desktops.contains(stream))
         return this->m_desktopCapture;
-    else if (this->m_uris.contains(stream))
+
+    if (this->m_uris.contains(stream))
         return this->m_uriCapture;
 
-    return AkElementPtr();
+    return {};
 }
 
 void MediaSource::setStream(const QString &stream)
@@ -537,7 +532,7 @@ void MediaSource::updateStreams()
         this->d->m_descriptions[camera] = description;
     }
 
-    for (const QString &desktop: desktops) {
+    for (auto &desktop: desktops) {
         QString description;
 
         QMetaObject::invokeMethod(this->d->m_desktopCapture.data(),
@@ -548,8 +543,8 @@ void MediaSource::updateStreams()
         this->d->m_descriptions[desktop] = description;
     }
 
-    for (const QString &uri: this->d->m_uris.keys())
-        this->d->m_descriptions[uri] = this->d->m_uris[uri].toString();
+    for (auto it = this->d->m_uris.begin(); it != this->d->m_uris.end(); it++)
+        this->d->m_descriptions[it.key()] = it.value().toString();
 
     bool isSet = this->setCameras(cameras);
     isSet |= this->setDesktops(desktops);
@@ -684,10 +679,10 @@ void MediaSource::saveUris(const QVariantMap &uris)
 
     int i = 0;
 
-    for (const QString &uri: uris.keys()) {
+    for (auto it = uris.begin(); it != uris.end(); it++) {
         config.setArrayIndex(i);
-        config.setValue("uri", uri);
-        config.setValue("description", uris[uri]);
+        config.setValue("uri", it.key());
+        config.setValue("description", it.value());
         i++;
     }
 
@@ -745,10 +740,12 @@ void MediaSource::saveProperties()
 
     int i = 0;
 
-    for (const QString &uri: this->d->m_uris.keys()) {
+    for (auto it = this->d->m_uris.begin();
+         it != this->d->m_uris.end();
+         it++) {
         config.setArrayIndex(i);
-        config.setValue("uri", uri);
-        config.setValue("description", this->d->m_uris[uri]);
+        config.setValue("uri", it.key());
+        config.setValue("description", it.value());
         i++;
     }
 

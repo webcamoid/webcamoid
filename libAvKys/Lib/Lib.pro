@@ -57,7 +57,6 @@ SOURCES = \
     src/akelement.cpp \
     src/akfrac.cpp \
     src/akpacket.cpp \
-    src/akplugin.cpp \
     src/akmultimediasourceelement.cpp \
     src/akvideocaps.cpp \
     src/akaudiocaps.cpp \

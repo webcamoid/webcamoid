@@ -27,14 +27,9 @@
 class QuarkElementPrivate
 {
     public:
-        int m_nFrames;
+        int m_nFrames {16};
         QVector<QImage> m_frames;
         QSize m_frameSize;
-
-        QuarkElementPrivate():
-            m_nFrames(16)
-        {
-        }
 };
 
 QuarkElement::QuarkElement(): AkElement()

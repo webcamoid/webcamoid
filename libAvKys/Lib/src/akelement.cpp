@@ -137,7 +137,7 @@ QObject *AkElement::controlInterface(QQmlEngine *engine,
     }
 
     // Create a context for the plugin.
-    QQmlContext *context = new QQmlContext(engine->rootContext());
+    auto context = new QQmlContext(engine->rootContext());
     this->controlInterfaceConfigure(context, controlId);
 
     // Create an item with the plugin context.
@@ -158,7 +158,7 @@ QObject *AkElement::controlInterface(QQmlEngine *engine,
 bool AkElement::link(const QObject *dstElement,
                      Qt::ConnectionType connectionType) const
 {
-    return this->link(this, dstElement, connectionType);
+    return AkElement::link(this, dstElement, connectionType);
 }
 
 bool AkElement::link(const AkElementPtr &dstElement, Qt::ConnectionType connectionType) const
@@ -168,7 +168,7 @@ bool AkElement::link(const AkElementPtr &dstElement, Qt::ConnectionType connecti
 
 bool AkElement::unlink(const QObject *dstElement) const
 {
-    return this->unlink(this, dstElement);
+    return AkElement::unlink(this, dstElement);
 }
 
 bool AkElement::unlink(const AkElementPtr &dstElement) const
@@ -258,7 +258,10 @@ AkElement *AkElement::createPtr(const QString &pluginId, const QString &elementN
     QPluginLoader pluginLoader(filePath);
 
     if (!pluginLoader.load()) {
-        qDebug() << "Error loading plugin " << pluginId << ":" << pluginLoader.errorString();
+        qDebug() << "Error loading plugin "
+                 << pluginId
+                 << ":"
+                 << pluginLoader.errorString();
 
         return nullptr;
     }
@@ -395,9 +398,9 @@ QObject *AkElement::loadSubModule(const QString &pluginId,
 
             if (!pluginLoader.load()) {
                 qDebug() << QString("Error loading submodule '%1' for '%2' plugin: %3")
-                                .arg(subModule)
-                                .arg(pluginId)
-                                .arg(pluginLoader.errorString());
+                                .arg(subModule,
+                                     pluginId,
+                                     pluginLoader.errorString());
 
                 return nullptr;
             }
@@ -516,8 +519,7 @@ QStringList AkElement::listPluginPaths(const QString &searchPath)
 
     QString searchDir(searchPath);
 
-    searchDir.replace(QRegExp("((\\\\/?)|(/\\\\?))+"),
-                                  QDir::separator());
+    searchDir.replace(QRegExp(R"(((\\/?)|(/\\?))+)"), QDir::separator());
 
     QStringList files;
 
@@ -672,7 +674,8 @@ AkPacket AkElement::iStream(const AkPacket &packet)
 {
     if (packet.caps().mimeType() == "audio/x-raw")
         return this->iStream(AkAudioPacket(packet));
-    else if (packet.caps().mimeType() == "video/x-raw")
+
+    if (packet.caps().mimeType() == "video/x-raw")
         return this->iStream(AkVideoPacket(packet));
 
     return AkPacket();
@@ -769,19 +772,20 @@ void AkElement::resetState()
 
 AkElementPrivate::AkElementPrivate()
 {
+    this->m_state = AkElement::ElementStateNull;
     this->m_recursiveSearchPaths = false;
     this->m_pluginsScanned = false;
     this->m_defaultPluginsSearchPaths << INSTALLPLUGINSDIR;
     this->m_defaultPluginsSearchPaths
             << this->convertToAbsolute(QString("%1/../lib/%2")
-                                       .arg(QCoreApplication::applicationDirPath())
-                                       .arg(COMMONS_TARGET));
+                                       .arg(QCoreApplication::applicationDirPath(),
+                                            COMMONS_TARGET));
 
 #ifdef Q_OS_OSX
     this->m_defaultPluginsSearchPaths
             << this->convertToAbsolute(QString("%1/../Plugins/%2")
-                                       .arg(QCoreApplication::applicationDirPath())
-                                       .arg(COMMONS_TARGET));
+                                       .arg(QCoreApplication::applicationDirPath(),
+                                            COMMONS_TARGET));
 #endif
 
     this->m_applicationDir.setPath(QCoreApplication::applicationDirPath());
@@ -806,7 +810,7 @@ QList<QMetaMethod> AkElementPrivate::methodsByName(const QObject *object,
         QMetaMethod method = object->metaObject()->method(i);
         QString signature(method.methodSignature());
 
-        if (QRegExp(QString("\\s*%1\\s*\\(.*").arg(methodName))
+        if (QRegExp(QString(R"(\s*%1\s*\(.*)").arg(methodName))
             .exactMatch(signature))
             if (!methodSignatures.contains(signature)) {
                 methods << method;
@@ -820,10 +824,7 @@ QList<QMetaMethod> AkElementPrivate::methodsByName(const QObject *object,
 bool AkElementPrivate::methodCompat(const QMetaMethod &method1,
                                     const QMetaMethod &method2)
 {
-    if (method1.parameterTypes() == method2.parameterTypes())
-        return true;
-
-    return false;
+    return method1.parameterTypes() == method2.parameterTypes();
 }
 
 QString AkElementPrivate::pluginId(const QString &fileName)
@@ -859,7 +860,7 @@ void AkElementPrivate::listPlugins()
         for (auto it = sPath->rbegin(); it != sPath->rend(); it++) {
             QString searchDir(*it);
 
-            searchDir.replace(QRegExp("((\\\\/?)|(/\\\\?))+"),
+            searchDir.replace(QRegExp(R"(((\\/?)|(/\\?))+)"),
                               QDir::separator());
 
             while (searchDir.endsWith(QDir::separator()))

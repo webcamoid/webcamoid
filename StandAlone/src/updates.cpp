@@ -36,30 +36,21 @@
 class UpdatesPrivate
 {
     public:
-        QQmlApplicationEngine *m_engine;
+        QQmlApplicationEngine *m_engine {nullptr};
         QNetworkAccessManager m_manager;
-        bool m_notifyNewVersion;
-        Updates::VersionType m_versionType;
-        QString m_latestVersion;
-        int m_checkInterval;
+        bool m_notifyNewVersion {false};
+        Updates::VersionType m_versionType {Updates::VersionTypeCurrent};
+        QString m_latestVersion {COMMONS_VERSION};
+        int m_checkInterval {0};
         QDateTime m_lastUpdate;
         QTimer m_timer;
 
-        UpdatesPrivate():
-            m_engine(nullptr),
-            m_notifyNewVersion(false),
-            m_versionType(Updates::VersionTypeCurrent),
-            m_latestVersion(COMMONS_VERSION),
-            m_checkInterval(0)
-        {
-        }
-
-        inline QVariantList vectorize(const QString &version) const;
-        inline void normalize(QVariantList &vector1, QVariantList &vector2) const;
+        QVariantList vectorize(const QString &version) const;
+        void normalize(QVariantList &vector1, QVariantList &vector2) const;
         template<typename Functor>
-        inline bool compare(const QString &version1,
-                            const QString &version2,
-                            Functor func) const {
+        bool compare(const QString &version1,
+                     const QString &version2,
+                     Functor func) const {
             auto v1 = this->vectorize(version1);
             auto v2 = this->vectorize(version2);
             this->normalize(v1, v2);
@@ -321,11 +312,12 @@ void Updates::replyFinished(QNetworkReply *reply)
     }
 
     QString html = reply->readAll();
-    QJsonParseError error;
+    QJsonParseError error {0, QJsonParseError::NoError};
     auto json = QJsonDocument::fromJson(html.toUtf8(), &error);
 
     if (error.error != QJsonParseError::NoError) {
-        qDebug() << "Error requesting latest version:" << error.errorString();
+        qDebug() << "Error requesting latest version:"
+                 << error.errorString();
 
         return;
     }

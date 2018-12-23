@@ -53,7 +53,7 @@ void MultiplexElement::setOutputIndex(int params)
     this->m_outputIndex = params;
 }
 
-void MultiplexElement::setCaps(QString caps)
+void MultiplexElement::setCaps(const QString &caps)
 {
     this->m_caps = caps;
 }

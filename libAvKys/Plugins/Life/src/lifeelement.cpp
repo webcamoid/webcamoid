@@ -28,19 +28,12 @@
 class LifeElementPrivate
 {
     public:
-        QRgb m_lifeColor;
-        int m_threshold;
-        int m_lumaThreshold;
+        QRgb m_lifeColor {qRgb(255, 255, 255)};
+        int m_threshold {15};
+        int m_lumaThreshold {15};
         QSize m_frameSize;
         QImage m_prevFrame;
         QImage m_lifeBuffer;
-
-        LifeElementPrivate():
-            m_lifeColor(qRgb(255, 255, 255)),
-            m_threshold(15),
-            m_lumaThreshold(15)
-        {
-        }
 };
 
 LifeElement::LifeElement(): AkElement()
@@ -97,7 +90,7 @@ QImage LifeElement::imageDiff(const QImage &img1,
 
             int colorDiff = dr * dr + dg * dg + db * db;
 
-            lineDiff[x] = sqrt(colorDiff / 3) >= threshold
+            lineDiff[x] = sqrt(colorDiff / 3.0) >= threshold
                           && qGray(line2[x]) >= lumaThreshold? 1: 0;
         }
     }

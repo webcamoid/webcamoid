@@ -44,7 +44,7 @@ class MultiplexElement: public AkElement
     public slots:
         void setInputIndex(int inputIndex);
         void setOutputIndex(int outputIndex);
-        void setCaps(QString caps);
+        void setCaps(const QString &caps);
         void resetInputIndex();
         void resetOutputIndex();
         void resetCaps();

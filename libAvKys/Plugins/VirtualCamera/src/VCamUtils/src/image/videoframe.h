@@ -22,6 +22,7 @@
 
 #include <string>
 #include <memory>
+#include <vector>
 
 #include "videoframetypes.h"
 #include "videoformattypes.h"
@@ -30,6 +31,7 @@ namespace AkVCam
 {
     class VideoFramePrivate;
     class VideoFormat;
+    using VideoData = std::vector<uint8_t>;
 
     class VideoFrame
     {
@@ -38,12 +40,7 @@ namespace AkVCam
             VideoFrame(const std::string &fileName);
             VideoFrame(std::streambuf *stream);
             VideoFrame(std::istream *stream);
-            VideoFrame(const VideoFormat &format,
-                       const std::shared_ptr<uint8_t> &data,
-                       size_t dataSize);
-            VideoFrame(const VideoFormat &format,
-                       const uint8_t *data,
-                       size_t dataSize);
+            VideoFrame(const VideoFormat &format);
             VideoFrame(const VideoFrame &other);
             VideoFrame &operator =(const VideoFrame &other);
             ~VideoFrame();
@@ -53,10 +50,8 @@ namespace AkVCam
             bool load(std::istream *stream);
             VideoFormat format() const;
             VideoFormat &format();
-            std::shared_ptr<uint8_t> data() const;
-            std::shared_ptr<uint8_t> &data();
-            size_t dataSize() const;
-            size_t &dataSize();
+            VideoData data() const;
+            VideoData &data();
             uint8_t *line(size_t plane, size_t y) const;
             void clear();
 

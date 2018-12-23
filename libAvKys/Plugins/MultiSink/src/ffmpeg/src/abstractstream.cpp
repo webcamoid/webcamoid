@@ -49,14 +49,14 @@ class AbstractStreamPrivate
 {
     public:
         AbstractStream *self;
-        uint m_index;
-        int m_streamIndex;
-        AVMediaType m_mediaType;
-        AVFormatContext *m_formatContext;
-        AVCodecContext *m_codecContext;
-        AVStream *m_stream;
+        uint m_index {0};
+        int m_streamIndex {-1};
+        AVMediaType m_mediaType {AVMEDIA_TYPE_UNKNOWN};
+        AVFormatContext *m_formatContext {nullptr};
+        AVCodecContext *m_codecContext {nullptr};
+        AVStream *m_stream {nullptr};
         QThreadPool m_threadPool;
-        AVDictionary *m_codecOptions;
+        AVDictionary *m_codecOptions {nullptr};
 
         // Packet queue and convert loop.
         QQueue<AkPacket> m_packetQueue;
@@ -64,19 +64,19 @@ class AbstractStreamPrivate
         QWaitCondition m_packetQueueNotFull;
         QWaitCondition m_packetQueueNotEmpty;
         QFuture<void> m_convertLoopResult;
-        bool m_runConvertLoop;
+        bool m_runConvertLoop {false};
 
         // Frame queue and encoding loop.
         QFuture<void> m_encodeLoopResult;
-        bool m_runEncodeLoop;
+        bool m_runEncodeLoop {false};
 
         AbstractStreamPrivate(AbstractStream *self):
             self(self)
         {
         }
 
-        inline void convertLoop();
-        inline void encodeLoop();
+        void convertLoop();
+        void encodeLoop();
 };
 
 AbstractStream::AbstractStream(const AVFormatContext *formatContext,
@@ -92,12 +92,8 @@ AbstractStream::AbstractStream(const AVFormatContext *formatContext,
 
     this->d = new AbstractStreamPrivate(this);
     this->m_maxPacketQueueSize = 9;
-    this->d->m_runConvertLoop = false;
-    this->d->m_runEncodeLoop = false;
     this->d->m_index = index;
     this->d->m_streamIndex = streamIndex;
-    this->d->m_mediaType = AVMEDIA_TYPE_UNKNOWN;
-    this->d->m_codecOptions = nullptr;
     this->d->m_formatContext = const_cast<AVFormatContext *>(formatContext);
 
     this->d->m_stream =
@@ -131,11 +127,13 @@ AbstractStream::AbstractStream(const AVFormatContext *formatContext,
             options["preset"] = "ultrafast";
     }
 
-    for (const QString &key: options.keys()) {
-        QString value = options[key].toString();
+    for (auto it = options.begin();
+         it != options.end();
+         it++) {
+        QString value = it.value().toString();
 
         av_dict_set(&this->d->m_codecOptions,
-                    key.toStdString().c_str(),
+                    it.key().toStdString().c_str(),
                     value.toStdString().c_str(),
                     0);
     }
@@ -286,10 +284,10 @@ bool AbstractStream::init()
         return false;
 
 #ifdef HAVE_CODECPAR
-        avcodec_parameters_from_context(this->d->m_stream->codecpar,
-                                        this->d->m_codecContext);
+    avcodec_parameters_from_context(this->d->m_stream->codecpar,
+                                    this->d->m_codecContext);
 #else
-        avcodec_copy_context(this->d->m_stream->codec, this->d->m_codecContext);
+    avcodec_copy_context(this->d->m_stream->codec, this->d->m_codecContext);
 #endif
 
     this->d->m_runEncodeLoop = true;

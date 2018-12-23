@@ -83,47 +83,47 @@ class SampleFormats
 
         static inline const SampleFormats *byFormat(AkAudioCaps::SampleFormat format)
         {
-            for (int i = 0; i < formats().size(); i++)
-                if (formats()[i].format == format)
-                    return &formats()[i];
+            for (auto &format_: formats())
+                if (format_.format == format)
+                    return &format_;
 
-            return &formats()[0];
+            return &formats().front();
         }
 
         static inline const SampleFormats *byType(AkAudioCaps::SampleType type)
         {
-            for (int i = 0; i < formats().size(); i++)
-                if (formats()[i].type == type)
-                    return &formats()[i];
+            for (auto &format: formats())
+                if (format.type == type)
+                    return &format;
 
-            return &formats()[0];
+            return &formats().front();
         }
 
         static inline const SampleFormats *byBps(int bps)
         {
-            for (int i = 0; i < formats().size(); i++)
-                if (formats()[i].bps == bps)
-                    return &formats()[i];
+            for (auto &format: formats())
+                if (format.bps == bps)
+                    return &format;
 
-            return &formats()[0];
+            return &formats().front();
         }
 
         static inline const SampleFormats *byEndianness(int endianness)
         {
-            for (int i = 0; i < formats().size(); i++)
-                if (formats()[i].endianness == endianness)
-                    return &formats()[i];
+            for (auto &format: formats())
+                if (format.endianness == endianness)
+                    return &format;
 
-            return &formats()[0];
+            return &formats().front();
         }
 
         static inline const SampleFormats *byPlanar(bool planar)
         {
-            for (int i = 0; i < formats().size(); i++)
-                if (formats()[i].planar == planar)
-                    return &formats()[i];
+            for (auto &format: formats())
+                if (format.planar == planar)
+                    return &format;
 
-            return &formats()[0];
+            return &formats().front();
         }
 };
 
@@ -173,29 +173,29 @@ class ChannelLayouts
 
         static inline const ChannelLayouts *byLayout(AkAudioCaps::ChannelLayout layout)
         {
-            for (int i = 0; i < layouts().size(); i++)
-                if (layouts()[i].layout == layout)
-                    return &layouts()[i];
+            for (auto &layout_: layouts())
+                if (layout_.layout == layout)
+                    return &layout_;
 
-            return &layouts()[0];
+            return &layouts().front();
         }
 
         static inline const ChannelLayouts *byChannels(int channels)
         {
-            for (int i = 0; i < layouts().size(); i++)
-                if (layouts()[i].channels == channels)
-                    return &layouts()[i];
+            for (auto &layout: layouts())
+                if (layout.channels == channels)
+                    return &layout;
 
-            return &layouts()[0];
+            return &layouts().front();
         }
 
         static inline const ChannelLayouts *byDescription(const QString &description)
         {
-            for (int i = 0; i < layouts().size(); i++)
-                if (layouts()[i].description == description)
-                    return &layouts()[i];
+            for (auto &layout: layouts())
+                if (layout.description == description)
+                    return &layout;
 
-            return &layouts()[0];
+            return &layouts().front();
         }
 };
 
@@ -260,7 +260,8 @@ AkAudioCaps::AkAudioCaps(const AkCaps &caps)
     if (caps.mimeType() == "audio/x-raw") {
         this->d->m_isValid = caps.isValid();
 
-        this->d->m_format = this->sampleFormatFromString(caps.property("format").toString());
+        this->d->m_format =
+                AkAudioCaps::sampleFormatFromString(caps.property("format").toString());
         this->d->m_bps = caps.property("bps").toInt();
         this->d->m_channels = caps.property("channels").toInt();
         this->d->m_rate = caps.property("rate").toInt();
@@ -303,10 +304,10 @@ AkAudioCaps::AkAudioCaps(AkAudioCaps::SampleFormat format,
     this->d = new AkAudioCapsPrivate();
     this->d->m_format = format;
     this->d->m_isValid = this->d->m_format != SampleFormat_none;
-    this->d->m_bps = this->bitsPerSample(format);
+    this->d->m_bps = AkAudioCaps::bitsPerSample(format);
     this->d->m_channels = channels;
     this->d->m_rate = rate;
-    this->d->m_layout = this->defaultChannelLayout(channels);
+    this->d->m_layout = AkAudioCaps::defaultChannelLayout(channels);
     this->d->m_samples = 0;
     this->d->m_align = false;
 }
@@ -337,7 +338,8 @@ AkAudioCaps &AkAudioCaps::operator =(const AkCaps &caps)
     if (caps.mimeType() == "audio/x-raw") {
         this->d->m_isValid = caps.isValid();
 
-        this->d->m_format = this->sampleFormatFromString(caps.property("format").toString());
+        this->d->m_format =
+                AkAudioCaps::sampleFormatFromString(caps.property("format").toString());
         this->d->m_bps = caps.property("bps").toInt();
         this->d->m_channels = caps.property("channels").toInt();
         this->d->m_rate = caps.property("rate").toInt();
@@ -363,7 +365,9 @@ AkAudioCaps &AkAudioCaps::operator =(const AkCaps &caps)
 
 AkAudioCaps &AkAudioCaps::operator =(const QString &caps)
 {
-    return this->operator =(AkCaps(caps));
+    this->operator =(AkCaps(caps));
+
+    return *this;
 }
 
 bool AkAudioCaps::operator ==(const AkAudioCaps &other) const
@@ -510,7 +514,7 @@ QString AkAudioCaps::toString() const
     if (!this->d->m_isValid)
         return QString();
 
-    QString sampleFormat = this->sampleFormatToString(this->d->m_format);
+    QString sampleFormat = AkAudioCaps::sampleFormatToString(this->d->m_format);
     QString layout = ChannelLayouts::byLayout(this->d->m_layout)->description;
 
     return QString("audio/x-raw,"
@@ -535,7 +539,8 @@ AkAudioCaps &AkAudioCaps::update(const AkCaps &caps)
         return *this;
 
     if (caps.contains("format"))
-        this->d->m_format = this->sampleFormatFromString(caps.property("format").toString());
+        this->d->m_format =
+            AkAudioCaps::sampleFormatFromString(caps.property("format").toString());
 
     if (caps.contains("bps"))
         this->d->m_bps = caps.property("bps").toInt();

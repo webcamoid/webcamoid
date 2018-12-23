@@ -45,7 +45,7 @@ class BinElement: public AkElement
         Q_INVOKABLE QString description() const;
         Q_INVOKABLE bool blocking() const;
         Q_INVOKABLE AkElementPtr element(const QString &elementName);
-        Q_INVOKABLE void add(AkElementPtr element);
+        Q_INVOKABLE void add(const AkElementPtr &element);
         Q_INVOKABLE void remove(const QString &elementName);
 
     private:

@@ -25,7 +25,7 @@
 
 #include "radioactiveelement.h"
 
-typedef QMap<RadioactiveElement::RadiationMode, QString> RadiationModeMap;
+using RadiationModeMap = QMap<RadioactiveElement::RadiationMode, QString>;
 
 inline RadiationModeMap initRadiationModeMap()
 {
@@ -44,34 +44,24 @@ Q_GLOBAL_STATIC_WITH_ARGS(RadiationModeMap, radiationModeToStr, (initRadiationMo
 class RadioactiveElementPrivate
 {
     public:
-        RadioactiveElement::RadiationMode m_mode;
-        qreal m_zoom;
-        int m_threshold;
-        int m_lumaThreshold;
-        int m_alphaDiff;
-        QRgb m_radColor;
+        RadioactiveElement::RadiationMode m_mode {RadioactiveElement::RadiationModeSoftNormal};
+        qreal m_zoom {1.1};
+        int m_threshold {31};
+        int m_lumaThreshold {95};
+        int m_alphaDiff {-8};
+        QRgb m_radColor {qRgb(0, 255, 0)};
         QSize m_frameSize;
         QImage m_prevFrame;
         QImage m_blurZoomBuffer;
         AkElementPtr m_blurFilter;
 
-        RadioactiveElementPrivate():
-            m_mode(RadioactiveElement::RadiationModeSoftNormal),
-            m_zoom(1.1),
-            m_threshold(31),
-            m_lumaThreshold(95),
-            m_alphaDiff(-8),
-            m_radColor(qRgb(0, 255, 0))
-        {
-        }
-
-        inline QImage imageDiff(const QImage &img1,
-                                const QImage &img2,
-                                int threshold,
-                                int lumaThreshold,
-                                QRgb radColor,
-                                RadioactiveElement::RadiationMode mode);
-        inline QImage imageAlphaDiff(const QImage &src, int alphaDiff);
+        QImage imageDiff(const QImage &img1,
+                         const QImage &img2,
+                         int threshold,
+                         int lumaThreshold,
+                         QRgb radColor,
+                         RadioactiveElement::RadiationMode mode);
+        QImage imageAlphaDiff(const QImage &src, int alphaDiff);
 };
 
 RadioactiveElement::RadioactiveElement(): AkElement()
@@ -156,7 +146,7 @@ QImage RadioactiveElementPrivate::imageDiff(const QImage &img1,
             int db = b1 - b2;
 
             int alpha = dr * dr + dg * dg + db * db;
-            alpha = int(sqrt(alpha / 3));
+            alpha = int(sqrt(alpha / 3.0));
 
             if (mode == RadioactiveElement::RadiationModeSoftNormal
                 || mode == RadioactiveElement::RadiationModeSoftColor)

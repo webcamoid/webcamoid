@@ -529,7 +529,7 @@ void AkVCam::StreamPrivate::sendFrame(const VideoFrame &frame)
 
     CVPixelBufferLockBaseAddress(imageBuffer, 0);
     auto data = CVPixelBufferGetBaseAddress(imageBuffer);
-    memcpy(data, frame.data().get(), frame.dataSize());
+    memcpy(data, frame.data().data(), frame.data().size());
     CVPixelBufferUnlockBaseAddress(imageBuffer, 0);
 
     CMVideoFormatDescriptionRef format = nullptr;

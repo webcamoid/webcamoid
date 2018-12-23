@@ -34,10 +34,6 @@ AkQml::AkQml(QQuickItem *parent):
     // setFlag(ItemHasContents, true);
 }
 
-AkQml::~AkQml()
-{
-}
-
 qint64 AkQml::id() const
 {
     return Ak::id();

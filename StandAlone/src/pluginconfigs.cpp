@@ -30,15 +30,10 @@
 class PluginConfigsPrivate
 {
     public:
-        QQmlApplicationEngine *m_engine;
+        QQmlApplicationEngine *m_engine {nullptr};
         QStringList m_plugins;
 
-        PluginConfigsPrivate():
-            m_engine(nullptr)
-        {
-        }
-
-        inline QString convertToAbsolute(const QString &path) const;
+        QString convertToAbsolute(const QString &path) const;
 };
 
 PluginConfigs::PluginConfigs(QQmlApplicationEngine *engine, QObject *parent):
@@ -137,7 +132,7 @@ void PluginConfigs::loadProperties(const CliOptions &cliOptions)
 
     if (cliOptions.isSet(cliOptions.qmlPathOpt())) {
         for (auto &path: cliOptions.value(cliOptions.qmlPathOpt()).split(';'))
-            if (QFileInfo(path).exists())
+            if (QFileInfo::exists(path))
                 qmlImportPaths << path;
     } else {
         int size = config.beginReadArray("qmlPaths");
@@ -152,7 +147,7 @@ void PluginConfigs::loadProperties(const CliOptions &cliOptions)
 
             path = QDir::toNativeSeparators(path);
 
-            if (!qmlImportPaths.contains(path) && QFileInfo(path).exists())
+            if (!qmlImportPaths.contains(path) && QFileInfo::exists(path))
                 qmlImportPaths << path;
         }
 
@@ -331,8 +326,8 @@ void PluginConfigs::saveProperties()
         cacheConfig.beginGroup(QString("Plugin_%1").arg(pluginId));
         auto pluginInfo = AkElement::pluginInfo(pluginId);
 
-        for (auto &key: pluginInfo.keys())
-            cacheConfig.setValue(key, pluginInfo[key]);
+        for (auto it = pluginInfo.begin(); it != pluginInfo.end(); it++)
+            cacheConfig.setValue(it.key(), it.value());
 
         cacheConfig.endGroup();
     }

@@ -28,33 +28,19 @@
 class ShagadelicElementPrivate
 {
     public:
-        quint32 m_mask;
-        int m_rx;
-        int m_ry;
-        int m_bx;
-        int m_by;
-        int m_rvx;
-        int m_rvy;
-        int m_bvx;
-        int m_bvy;
-        uchar m_phase;
+        quint32 m_mask {0xffffff};
+        int m_rx {0};
+        int m_ry {0};
+        int m_bx {0};
+        int m_by {0};
+        int m_rvx {0};
+        int m_rvy {0};
+        int m_bvx {0};
+        int m_bvy {0};
+        uchar m_phase {0};
         QImage m_ripple;
         QImage m_spiral;
         QSize m_curSize;
-
-        ShagadelicElementPrivate():
-            m_mask(0xffffff),
-            m_rx(0),
-            m_ry(0),
-            m_bx(0),
-            m_by(0),
-            m_rvx(0),
-            m_rvy(0),
-            m_bvx(0),
-            m_bvy(0),
-            m_phase(0)
-        {
-        }
 };
 
 ShagadelicElement::ShagadelicElement(): AkElement()
@@ -78,7 +64,7 @@ QImage ShagadelicElement::makeRipple(const QSize &size) const
 
     for (int y = 0; y < ripple.height(); y++) {
         qreal yy = qreal(y) / size.width() - 1.0;
-        quint8 *oLine = reinterpret_cast<quint8 *>(ripple.scanLine(y));
+        auto oLine = reinterpret_cast<quint8 *>(ripple.scanLine(y));
 
         for (int x = 0; x < ripple.width(); x++) {
             qreal xx = qreal(x) / size.width() - 1.0;
@@ -96,7 +82,7 @@ QImage ShagadelicElement::makeSpiral(const QSize &size) const
 
     for (int y = 0; y < spiral.height(); y++) {
         qreal yy = qreal(y - yc) / spiral.width();
-        quint8 *oLine = reinterpret_cast<quint8 *>(spiral.scanLine(y));
+        auto oLine = reinterpret_cast<quint8 *>(spiral.scanLine(y));
 
         for (int x = 0; x < spiral.width(); x++) {
             qreal xx = qreal(x) / spiral.width() - 0.5;

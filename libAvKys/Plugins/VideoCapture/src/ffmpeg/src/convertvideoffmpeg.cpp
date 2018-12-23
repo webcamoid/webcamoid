@@ -60,7 +60,7 @@ extern "C"
 // no AV correction is done if too big error
 #define AV_NOSYNC_THRESHOLD 10.0
 
-typedef QMap<QString, AVPixelFormat> V4l2PixFmtMap;
+using V4l2PixFmtMap = QMap<QString, AVPixelFormat>;
 
 inline V4l2PixFmtMap initV4l2PixFmtMap()
 {
@@ -128,7 +128,7 @@ inline V4l2PixFmtMap initV4l2PixFmtMap()
 
 Q_GLOBAL_STATIC_WITH_ARGS(V4l2PixFmtMap, rawToFF, (initV4l2PixFmtMap()))
 
-typedef QMap<QString, AVCodecID> V4l2CodecMap;
+using V4l2CodecMap = QMap<QString, AVCodecID>;
 
 inline V4l2CodecMap initCompressedMap()
 {
@@ -158,7 +158,7 @@ inline V4l2CodecMap initCompressedMap()
 
 Q_GLOBAL_STATIC_WITH_ARGS(V4l2CodecMap, compressedToFF, (initCompressedMap()))
 
-typedef QSharedPointer<AVFrame> FramePtr;
+using FramePtr = QSharedPointer<AVFrame>;
 
 class ConvertVideoFFmpegPrivate
 {
@@ -268,7 +268,8 @@ void ConvertVideoFFmpeg::dataEnqueue(AVFrame *frame)
     if (this->d->m_frames.size() >= this->d->m_maxData)
         this->d->m_dataQueueNotFull.wait(&this->d->m_dataMutex);
 
-    this->d->m_frames.enqueue(FramePtr(frame, this->d->deleteFrame));
+    this->d->m_frames.enqueue(FramePtr(frame,
+                                       ConvertVideoFFmpegPrivate::deleteFrame));
     this->d->m_dataQueueNotEmpty.wakeAll();
     this->d->m_dataMutex.unlock();
 }
@@ -336,11 +337,11 @@ bool ConvertVideoFFmpeg::init(const AkCaps &caps)
     this->d->m_globalClock.setClock(0.);
     this->d->m_packetLoopResult =
             QtConcurrent::run(&this->d->m_threadPool,
-                              this->d->packetLoop,
+                              ConvertVideoFFmpegPrivate::packetLoop,
                               this);
     this->d->m_dataLoopResult =
             QtConcurrent::run(&this->d->m_threadPool,
-                              this->d->dataLoop,
+                              ConvertVideoFFmpegPrivate::dataLoop,
                               this);
 
     return true;
@@ -485,7 +486,9 @@ void ConvertVideoFFmpegPrivate::processData(const FramePtr &frame)
                 this->m_lastPts = pts;
 
                 break;
-            } else if (diff > syncThreshold) {
+            }
+
+            if (diff > syncThreshold) {
                 // video is ahead the external clock.
                 QThread::usleep(ulong(1e6 * (diff - syncThreshold)));
 

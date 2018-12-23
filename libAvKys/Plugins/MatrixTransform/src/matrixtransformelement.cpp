@@ -84,7 +84,7 @@ void MatrixTransformElement::setKernel(const QVariantList &kernel)
     if (this->d->m_kernel == k)
         return;
 
-    QMutexLocker(&this->d->m_mutex);
+    QMutexLocker locker(&this->d->m_mutex);
     this->d->m_kernel = k;
     emit this->kernelChanged(kernel);
 }

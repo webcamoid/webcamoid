@@ -30,16 +30,9 @@ class NervousElementPrivate
     public:
         QVector<QImage> m_frames;
         QSize m_frameSize;
-        int m_nFrames;
-        int m_stride;
-        bool m_simple;
-
-        NervousElementPrivate():
-            m_nFrames(32),
-            m_stride(0),
-            m_simple(false)
-        {
-        }
+        int m_nFrames {32};
+        int m_stride {0};
+        bool m_simple {false};
 };
 
 NervousElement::NervousElement(): AkElement()
@@ -145,8 +138,9 @@ AkPacket NervousElement::iStream(const AkPacket &packet)
 
             timer = qrand() % 6 + 2;
         }
-    } else if(this->d->m_frames.size() > 0)
+    } else if(!this->d->m_frames.isEmpty()) {
         nFrame = qrand() % this->d->m_frames.size();
+    }
 
     QImage oFrame = this->d->m_frames[nFrame];
 

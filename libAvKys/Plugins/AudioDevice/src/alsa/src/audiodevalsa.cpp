@@ -29,7 +29,7 @@
 
 #include "audiodevalsa.h"
 
-typedef QMap<AkAudioCaps::SampleFormat, snd_pcm_format_t> SampleFormatMap;
+using SampleFormatMap = QMap<AkAudioCaps::SampleFormat, snd_pcm_format_t>;
 
 inline SampleFormatMap initSampleFormatMap()
 {

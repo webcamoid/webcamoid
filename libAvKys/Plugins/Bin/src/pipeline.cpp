@@ -45,10 +45,10 @@ class PipelinePrivate
         QVariantMap m_properties;
         QString m_error;
 
-        inline QMetaMethod methodByName(QObject *object,
-                                        const QString &methodName,
-                                        QMetaMethod::MethodType methodType);
-        inline QVariant solveProperty(const QVariant &property) const;
+        QMetaMethod methodByName(QObject *object,
+                                 const QString &methodName,
+                                 QMetaMethod::MethodType methodType);
+        QVariant solveProperty(const QVariant &property) const;
 };
 
 Pipeline::Pipeline(QObject *parent):
@@ -65,7 +65,7 @@ Pipeline::~Pipeline()
 bool Pipeline::parse(const QString &description)
 {
     this->cleanAll();
-    QJsonDocument jsonFile = QJsonDocument::fromJson(description.toUtf8());
+    auto jsonFile = QJsonDocument::fromJson(description.toUtf8());
 
     if (!jsonFile.isArray()) {
         this->d->m_error =
@@ -76,15 +76,15 @@ bool Pipeline::parse(const QString &description)
     }
 
     // Parse main array.
-    for (const QJsonValue &pipe: jsonFile.array()) {
+    for (auto pipe: jsonFile.array()) {
         if (pipe.isArray()) {
-            QJsonArray pipeArray = pipe.toArray();
+            auto pipeArray = pipe.toArray();
             QStringList pipeStr;
 
             // parse a pipe.
             for (int element = 0; element < pipeArray.size(); element++)
                 if (pipeArray[element].isObject()) {
-                    QJsonObject elementObject = pipeArray[element].toObject();
+                    auto elementObject = pipeArray[element].toObject();
 
                     if (elementObject.contains("pluginId")) {
                         if (!elementObject["pluginId"].isString()) {
@@ -100,7 +100,7 @@ bool Pipeline::parse(const QString &description)
                             return false;
                         }
 
-                        AkElementPtr element = AkElement::create(elementObject["pluginId"].toString());
+                        auto element = AkElement::create(elementObject["pluginId"].toString());
 
                         if (!element) {
                             this->d->m_error =
@@ -124,16 +124,18 @@ bool Pipeline::parse(const QString &description)
                                 return false;
                             }
 
-                            QVariantMap properties = elementObject["properties"]
-                                                     .toObject()
-                                                     .toVariantMap();
+                            auto properties = elementObject["properties"]
+                                              .toObject()
+                                              .toVariantMap();
 
-                            for (const QString &key: properties.keys())
-                                element->setProperty(key.toStdString().c_str(),
-                                                     this->d->solveProperty(properties[key]));
+                            for (auto it = properties.begin();
+                                 it != properties.end();
+                                 it++)
+                                element->setProperty(it.key().toStdString().c_str(),
+                                                     this->d->solveProperty(it.value()));
                         }
 
-                        QString objectName = this->addElement(element);
+                        auto objectName = this->addElement(element);
 
                         if (elementObject.contains("connections")) {
                             if (!elementObject["connections"].isArray()) {
@@ -149,12 +151,12 @@ bool Pipeline::parse(const QString &description)
                                 return false;
                             }
 
-                            QVariantList connections = elementObject["connections"]
-                                                       .toArray()
-                                                       .toVariantList();
+                            auto connections = elementObject["connections"]
+                                               .toArray()
+                                               .toVariantList();
 
-                            for (const QVariant &connection: connections) {
-                                QStringList connectionStr = connection.toStringList();
+                            for (auto &connection: connections) {
+                                auto connectionStr = connection.toStringList();
 
                                 if (connectionStr.size() != 4) {
                                     QString error;
@@ -193,7 +195,7 @@ bool Pipeline::parse(const QString &description)
                             return false;
                         }
 
-                        QString ref = elementObject["alias"].toString();
+                        auto ref = elementObject["alias"].toString();
 
                         if (ref == "IN") {
                             if (element != 0) {
@@ -230,7 +232,7 @@ bool Pipeline::parse(const QString &description)
                         return false;
                     }
                 } else if (pipeArray[element].isString()) {
-                    QString connectionType = pipeArray[element].toString();
+                    auto connectionType = pipeArray[element].toString();
 
                     if (element == pipeArray.size() - 1) {
                         this->d->m_error =
@@ -316,7 +318,7 @@ void Pipeline::removeElement(const QString &elementName)
 {
     auto connections = this->d->m_connections;
 
-    for (const QStringList &connection: connections)
+    for (auto &connection: connections)
         if (connection[0] == elementName
             || connection[2] == elementName) {
             auto sender = this->d->m_elements[connection[0]].data();
@@ -335,7 +337,7 @@ void Pipeline::removeElement(const QString &elementName)
 
     auto links = this->d->m_links;
 
-    for (const QStringList &link: links)
+    for (auto &link: links)
         if (link[0] == elementName
             || link[1] == elementName) {
             this->d->m_elements[link[0]]->unlink(this->d->m_elements[link[1]]);
@@ -349,7 +351,7 @@ QList<AkElementPtr> Pipeline::inputs() const
 {
     QList<AkElementPtr> inputs;
 
-    for (const QStringList &link: this->d->m_links)
+    for (auto &link: this->d->m_links)
         if (link[0] == "IN.")
             inputs << this->d->m_elements[link[1]];
 
@@ -360,7 +362,7 @@ QList<AkElementPtr> Pipeline::outputs() const
 {
     QList<AkElementPtr> outputs;
 
-    for (const QStringList &link: this->d->m_links)
+    for (auto &link: this->d->m_links)
         if (link[1] == "OUT.")
             outputs << this->d->m_elements[link[0]];
 
@@ -371,10 +373,10 @@ QList<Qt::ConnectionType> Pipeline::outputConnectionTypes() const
 {
     QList<Qt::ConnectionType> outputoutputConnectionTypes;
 
-    int index = this->staticQtMetaObject.indexOfEnumerator("ConnectionType");
-    QMetaEnum enumerator = this->staticQtMetaObject.enumerator(index);
+    int index = Pipeline::staticQtMetaObject.indexOfEnumerator("ConnectionType");
+    auto enumerator = Pipeline::staticQtMetaObject.enumerator(index);
 
-    for (const QStringList &link: this->d->m_links)
+    for (auto &link: this->d->m_links)
         if (link[1] == "OUT.") {
             QString connectionTypeString;
 
@@ -424,54 +426,67 @@ QVariant PipelinePrivate::solveProperty(const QVariant &property) const
     if (property.type() != QVariant::List)
         return property;
 
-    QVariantList propList = property.toList();
+    auto propList = property.toList();
 
-    if (propList.size() < 1)
+    if (propList.isEmpty())
         return QVariant(QVariantList());
 
-    QString type = propList[0].toString();
+    auto type = propList[0].toString();
 
-    if (type == "") {
+    if (type.isEmpty()) {
         QVariantList list;
 
         for (int i = 1; i < propList.size(); i++)
             list << this->solveProperty(propList[i]);
 
         return QVariant(list);
-    } else if (type == "frac") {
+    }
+
+    if (type == "frac") {
         if (propList.size() < 3)
             return QVariant::fromValue(AkFrac());
 
         return QVariant::fromValue(AkFrac(qint64(propList[1].toDouble()),
                                           qint64(propList[2].toDouble())));
-    } else if (type == "size") {
+    }
+
+    if (type == "size") {
         if (propList.size() < 3)
             return QVariant::fromValue(QSize());
 
         return QVariant::fromValue(QSize(int(propList[1].toDouble()),
                                          int(propList[2].toDouble())));
-    } else if (type == "sizeF") {
+    }
+
+    if (type == "sizeF") {
         if (propList.size() < 3)
             return QVariant::fromValue(QSizeF());
 
         return QVariant::fromValue(QSizeF(propList[1].toDouble(),
                                           propList[2].toDouble()));
-    } else if (type == "point") {
+    }
+
+    if (type == "point") {
         if (propList.size() < 3)
             return QVariant::fromValue(QPoint());
 
         return QVariant::fromValue(QPoint(int(propList[1].toDouble()),
                                           int(propList[2].toDouble())));
-    } else if (type == "pointF") {
+    }
+
+    if (type == "pointF") {
         if (propList.size() < 3)
             return QVariant::fromValue(QPointF());
 
         return QVariant::fromValue(QPointF(propList[1].toDouble(),
                                            propList[2].toDouble()));
-    } else if (type == "rect") {
+    }
+
+    if (type == "rect") {
         if (propList.size() < 3)
             return QVariant::fromValue(QRect());
-        else if (propList.size() == 3) {
+
+        if (propList.size() == 3) {
             QVariant arg1 = this->solveProperty(propList[1]);
 
             if (arg1.type() != QVariant::Point)
@@ -480,22 +495,30 @@ QVariant PipelinePrivate::solveProperty(const QVariant &property) const
             QVariant arg2 = this->solveProperty(propList[2]);
 
             if (arg2.type() == QVariant::Point)
-                return QVariant::fromValue(QRect(arg1.toPoint(), arg2.toPoint()));
-            else if (arg2.type() == QVariant::Size)
-                return QVariant::fromValue(QRect(arg1.toPoint(), arg2.toSize()));
+                return QVariant::fromValue(QRect(arg1.toPoint(),
+                                                 arg2.toPoint()));
+
+            if (arg2.type() == QVariant::Size)
+                return QVariant::fromValue(QRect(arg1.toPoint(),
+                                                 arg2.toSize()));
 
             return QVariant::fromValue(QRect());
-        } else if (propList.size() > 4)
+        }
+
+        if (propList.size() > 4)
             return QVariant::fromValue(QRect(int(propList[1].toDouble()),
                                              int(propList[2].toDouble()),
                                              int(propList[3].toDouble()),
                                              int(propList[4].toDouble())));
 
         return QVariant::fromValue(QRect());
-    } else if (type == "rectF") {
+    }
+
+    if (type == "rectF") {
         if (propList.size() < 3)
             return QVariant::fromValue(QRectF());
-        else if (propList.size() == 3) {
+
+        if (propList.size() == 3) {
             QVariant arg1 = this->solveProperty(propList[1]);
 
             if (arg1.type() != QVariant::PointF)
@@ -504,22 +527,30 @@ QVariant PipelinePrivate::solveProperty(const QVariant &property) const
             QVariant arg2 = this->solveProperty(propList[2]);
 
             if (arg2.type() == QVariant::PointF)
-                return QVariant::fromValue(QRectF(arg1.toPointF(), arg2.toPointF()));
-            else if (arg2.type() == QVariant::SizeF)
-                return QVariant::fromValue(QRectF(arg1.toPointF(), arg2.toSizeF()));
+                return QVariant::fromValue(QRectF(arg1.toPointF(),
+                                                  arg2.toPointF()));
+
+            if (arg2.type() == QVariant::SizeF)
+                return QVariant::fromValue(QRectF(arg1.toPointF(),
+                                                  arg2.toSizeF()));
 
             return QVariant::fromValue(QRectF());
-        } else if (propList.size() > 4)
+        }
+
+        if (propList.size() > 4)
             return QVariant::fromValue(QRectF(propList[1].toDouble(),
                                               propList[2].toDouble(),
                                               propList[3].toDouble(),
                                               propList[4].toDouble()));
 
         return QVariant::fromValue(QRectF());
-    } else if (type == "line") {
+    }
+
+    if (type == "line") {
         if (propList.size() < 3)
             return QVariant::fromValue(QLine());
-        else if (propList.size() == 3) {
+
+        if (propList.size() == 3) {
             QVariant arg1 = this->solveProperty(propList[1]);
 
             if (arg1.type() != QVariant::Point)
@@ -528,20 +559,26 @@ QVariant PipelinePrivate::solveProperty(const QVariant &property) const
             QVariant arg2 = this->solveProperty(propList[2]);
 
             if (arg2.type() == QVariant::Point)
-                return QVariant::fromValue(QLine(arg1.toPoint(), arg2.toPoint()));
+                return QVariant::fromValue(QLine(arg1.toPoint(),
+                                                 arg2.toPoint()));
 
             return QVariant::fromValue(QLine());
-        } else if (propList.size() > 4)
+        }
+
+        if (propList.size() > 4)
             return QVariant::fromValue(QLine(int(propList[1].toDouble()),
                                              int(propList[2].toDouble()),
                                              int(propList[3].toDouble()),
                                              int(propList[4].toDouble())));
 
         return QVariant::fromValue(QLine());
-    } else if (type == "lineF") {
+    }
+
+    if (type == "lineF") {
         if (propList.size() < 3)
             return QVariant::fromValue(QLineF());
-        else if (propList.size() == 3) {
+
+        if (propList.size() == 3) {
             QVariant arg1 = this->solveProperty(propList[1]);
 
             if (arg1.type() != QVariant::PointF)
@@ -550,41 +587,53 @@ QVariant PipelinePrivate::solveProperty(const QVariant &property) const
             QVariant arg2 = this->solveProperty(propList[2]);
 
             if (arg2.type() == QVariant::PointF)
-                return QVariant::fromValue(QLineF(arg1.toPointF(), arg2.toPointF()));
+                return QVariant::fromValue(QLineF(arg1.toPointF(),
+                                                  arg2.toPointF()));
 
             return QVariant::fromValue(QLineF());
-        } else if (propList.size() > 4)
+        }
+
+        if (propList.size() > 4)
             return QVariant::fromValue(QLineF(propList[1].toDouble(),
                                               propList[2].toDouble(),
                                               propList[3].toDouble(),
                                               propList[4].toDouble()));
 
         return QVariant::fromValue(QLineF());
-    } else if (type == "date") {
+    }
+
+    if (type == "date") {
         if (propList.size() < 4)
             return QVariant::fromValue(QDate());
 
         return QVariant::fromValue(QDate(int(propList[1].toDouble()),
                                          int(propList[2].toDouble()),
                                          int(propList[3].toDouble())));
-    } else if (type == "time") {
+    }
+
+    if (type == "time") {
         if (propList.size() < 3)
             return QVariant::fromValue(QTime());
-        else if (propList.size() == 3)
+
+        if (propList.size() == 3)
             return QVariant::fromValue(QTime(int(propList[1].toDouble()),
                                              int(propList[2].toDouble())));
-        else if (propList.size() == 4)
+
+        if (propList.size() == 4)
             return QVariant::fromValue(QTime(int(propList[1].toDouble()),
                                              int(propList[2].toDouble()),
                                              int(propList[3].toDouble())));
-        else if (propList.size() > 4)
+
+        if (propList.size() > 4)
             return QVariant::fromValue(QTime(int(propList[1].toDouble()),
                                              int(propList[2].toDouble()),
                                              int(propList[3].toDouble()),
                                              int(propList[4].toDouble())));
 
         return QVariant::fromValue(QTime());
-    } else if (type == "dateTime") {
+    }
+
+    if (type == "dateTime") {
         if (propList.size() < 2)
             return QVariant::fromValue(QDateTime());
 
@@ -597,39 +646,51 @@ QVariant PipelinePrivate::solveProperty(const QVariant &property) const
 
         return QVariant::fromValue(QDateTime(arg1.toDate(),
                                              arg2.toTime()));
-    } else if (type == "rgb") {
+    }
+
+    if (type == "rgb") {
         if (propList.size() < 2)
             return QVariant::fromValue(qRgba(0, 0, 0, 0));
-        else if (propList.size() == 2)
+
+        if (propList.size() == 2)
             return QVariant::fromValue(QColor(propList[1].toString()).rgba());
-        else if (propList.size() == 4)
+
+        if (propList.size() == 4)
             return QVariant::fromValue(qRgb(int(propList[1].toDouble()),
                                             int(propList[2].toDouble()),
                                             int(propList[3].toDouble())));
-        else if (propList.size() > 4)
+
+        if (propList.size() > 4)
             return QVariant::fromValue(qRgba(int(propList[1].toDouble()),
                                              int(propList[2].toDouble()),
                                              int(propList[3].toDouble()),
                                              int(propList[4].toDouble())));
 
         return QVariant::fromValue(qRgba(0, 0, 0, 0));
-    } else if (type == "color") {
+    }
+
+    if (type == "color") {
         if (propList.size() < 2)
             return QVariant::fromValue(QColor());
-        else if (propList.size() == 2)
+
+        if (propList.size() == 2)
             return QVariant::fromValue(QColor(propList[1].toString()));
-        else if (propList.size() == 4)
+
+        if (propList.size() == 4)
             return QVariant::fromValue(QColor(int(propList[1].toDouble()),
                                               int(propList[2].toDouble()),
                                               int(propList[3].toDouble())));
-        else if (propList.size() > 4)
+
+        if (propList.size() > 4)
             return QVariant::fromValue(QColor(int(propList[1].toDouble()),
                                               int(propList[2].toDouble()),
                                               int(propList[3].toDouble()),
                                               int(propList[4].toDouble())));
 
         return QVariant::fromValue(QColor());
-    } else if (type == "bits") {
+    }
+
+    if (type == "bits") {
         if (propList.size() < 2)
             return QVariant::fromValue(QBitArray());
 
@@ -642,13 +703,16 @@ QVariant PipelinePrivate::solveProperty(const QVariant &property) const
             bits.resize(bitsString.length());
 
             for (int i = 0; i < bitsString.length(); i++)
-                bits.setBit(i, (bitsString[i] == '0')? false: true);
+                bits.setBit(i, bitsString[i] != '0');
         }
 
         return QVariant::fromValue(bits);
-    } else if (type == "bytes")
+    }
+
+    if (type == "bytes")
         return QVariant::fromValue(propList[1].toByteArray());
-    else if (type == "url")
+
+    if (type == "url")
         return QVariant::fromValue(propList[1].toUrl());
 
     return QVariant(QVariantList());
@@ -659,7 +723,7 @@ void Pipeline::addLinks(const QStringList &links)
     QStringList link;
     QString connectionType = "AutoConnection";
 
-    for (QString element:  links) {
+    for (auto element:  links) {
         if (element.endsWith("?"))
             connectionType = element.remove("?");
         else
@@ -676,44 +740,46 @@ void Pipeline::addLinks(const QStringList &links)
 
 bool Pipeline::linkAll()
 {
-    for (const QStringList &link: this->d->m_links)
+    for (auto &link: this->d->m_links)
         if (link[0] != "IN." && link[1] != "OUT.") {
             if (!this->d->m_elements.contains(link[0])) {
                 this->d->m_error =
                         QString("No element named '%1'").arg(link[0]);
 
                 return false;
-            } else if (!this->d->m_elements.contains(link[1])) {
+            }
+
+            if (!this->d->m_elements.contains(link[1])) {
                 this->d->m_error =
                         QString("No element named '%1'").arg(link[1]);
 
                 return false;
-            } else {
-                QString connectionTypeString;
-
-                if (link.length() > 2)
-                    connectionTypeString = link[2];
-                else
-                    connectionTypeString = "AutoConnection";
-
-                int index = this->staticQtMetaObject.indexOfEnumerator("ConnectionType");
-                QMetaEnum enumerator = this->staticQtMetaObject.enumerator(index);
-
-                int value = enumerator.keyToValue(connectionTypeString.toStdString().c_str());
-
-                if (value < 0) {
-                    this->d->m_error =
-                            QString("Invalid connection type: '%1'")
-                            .arg(connectionTypeString);
-
-                    return false;
-                }
-
-                Qt::ConnectionType connectionType = static_cast<Qt::ConnectionType>(value);
-
-                this->d->m_elements[link[0]]->link(this->d->m_elements[link[1]],
-                        connectionType);
             }
+
+            QString connectionTypeString;
+
+            if (link.length() > 2)
+                connectionTypeString = link[2];
+            else
+                connectionTypeString = "AutoConnection";
+
+            int index = Pipeline::staticQtMetaObject.indexOfEnumerator("ConnectionType");
+            auto enumerator = Pipeline::staticQtMetaObject.enumerator(index);
+
+            int value = enumerator.keyToValue(connectionTypeString.toStdString().c_str());
+
+            if (value < 0) {
+                this->d->m_error =
+                        QString("Invalid connection type: '%1'")
+                        .arg(connectionTypeString);
+
+                return false;
+            }
+
+            auto connectionType = static_cast<Qt::ConnectionType>(value);
+
+            this->d->m_elements[link[0]]->link(this->d->m_elements[link[1]],
+                    connectionType);
         }
 
     return true;
@@ -721,7 +787,7 @@ bool Pipeline::linkAll()
 
 bool Pipeline::unlinkAll()
 {
-    for (const QStringList &link: this->d->m_links)
+    for (auto &link: this->d->m_links)
         if (link[0] != "IN."
             && link[1] != "OUT.") {
             if (!this->d->m_elements.contains(link[0])) {
@@ -729,13 +795,16 @@ bool Pipeline::unlinkAll()
                         QString("No element named '%1'").arg(link[0]);
 
                 return false;
-            } else if (!this->d->m_elements.contains(link[1])) {
+            }
+
+            if (!this->d->m_elements.contains(link[1])) {
                 this->d->m_error =
                         QString("No element named '%1'").arg(link[1]);
 
                 return false;
-            } else
-                this->d->m_elements[link[0]]->unlink(this->d->m_elements[link[1]]);
+            }
+
+            this->d->m_elements[link[0]]->unlink(this->d->m_elements[link[1]]);
         }
 
     return true;
@@ -743,9 +812,9 @@ bool Pipeline::unlinkAll()
 
 bool Pipeline::connectAll()
 {
-    for (const QStringList &connection: this->d->m_connections) {
-        AkElement *sender = this->d->m_elements[connection[0]].data();
-        AkElement *receiver = this->d->m_elements[connection[2]].data();
+    for (auto &connection: this->d->m_connections) {
+        auto sender = this->d->m_elements[connection[0]].data();
+        auto receiver = this->d->m_elements[connection[2]].data();
 
         if (!sender) {
             this->d->m_error =
@@ -775,7 +844,7 @@ bool Pipeline::connectAll()
 
 bool Pipeline::disconnectAll()
 {
-    for (const QStringList &connection: this->d->m_connections) {
+    for (auto &connection: this->d->m_connections) {
         auto sender = this->d->m_elements[connection[0]].data();
         auto receiver = this->d->m_elements[connection[2]].data();
 
@@ -839,22 +908,22 @@ void Pipeline::setError(const QString &error)
 
 void Pipeline::resetElements()
 {
-    this->setElements(QMap<QString, AkElementPtr>());
+    this->setElements({});
 }
 
 void Pipeline::resetLinks()
 {
-    this->setLinks(QList<QStringList>());
+    this->setLinks({});
 }
 
 void Pipeline::resetProperties()
 {
-    this->setProperties(QVariantMap());
+    this->setProperties({});
 }
 
 void Pipeline::resetError()
 {
-    this->setError("");
+    this->setError({});
 }
 
 #include "moc_pipeline.cpp"

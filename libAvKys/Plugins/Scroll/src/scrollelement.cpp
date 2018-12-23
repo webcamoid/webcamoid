@@ -28,17 +28,10 @@
 class ScrollElementPrivate
 {
     public:
-        qreal m_speed;
-        qreal m_noise;
-        qreal m_offset;
+        qreal m_speed {0.25};
+        qreal m_noise {0.1};
+        qreal m_offset {0.0};
         QSize m_curSize;
-
-        ScrollElementPrivate():
-            m_speed(0.25),
-            m_noise(0.1),
-            m_offset(0.0)
-        {
-        }
 };
 
 ScrollElement::ScrollElement(): AkElement()

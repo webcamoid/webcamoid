@@ -28,26 +28,26 @@ class RainDropPrivate
     public:
         QSize m_textArea;
         QString m_line;
-        int m_length;
+        int m_length {0};
         QString m_charTable;
         QFont m_font;
         QSize m_fontSize;
-        QRgb m_cursorColor;
-        QRgb m_startColor;
-        QRgb m_endColor;
+        QRgb m_cursorColor {qRgb(255, 255, 255)};
+        QRgb m_startColor {qRgb(0, 255, 0)};
+        QRgb m_endColor {qRgb(0, 0, 0)};
         QPointF m_pos;
         QPoint m_prevPos;
-        qreal m_speed;
+        qreal m_speed {0.0};
         QImage m_sprite;
 
-        inline int randInt(int a, int b);
-        inline qreal randReal(qreal a, qreal b);
-        inline int gradientColor(int i, int from, int to, int length);
-        inline QRgb gradientRgb(int i, QRgb from, QRgb to, int length);
-        inline QRgb gradient(int i, QRgb from, QRgb mid, QRgb to, int length);
-        inline QImage drawChar(const QChar &chr,
-                               const QFont &font, const QSize &fontSize,
-                               QRgb foreground, QRgb background) const;
+        int randInt(int a, int b);
+        qreal randReal(qreal a, qreal b);
+        int gradientColor(int i, int from, int to, int length);
+        QRgb gradientRgb(int i, QRgb from, QRgb to, int length);
+        QRgb gradient(int i, QRgb from, QRgb mid, QRgb to, int length);
+        QImage drawChar(const QChar &chr,
+                        const QFont &font, const QSize &fontSize,
+                        QRgb foreground, QRgb background) const;
 };
 
 RainDrop::RainDrop(const QSize &textArea,
@@ -237,14 +237,14 @@ QPoint RainDrop::pos() const
     int y = int(this->d->m_pos.y() + 1 - this->d->m_length)
             * this->d->m_fontSize.height();
 
-    return QPoint(x, y);
+    return {x, y};
 }
 
 QPoint RainDrop::tail() const
 {
     int y = int(this->d->m_pos.y() - this->d->m_length);
 
-    return QPoint(int(this->d->m_pos.x()), y);
+    return {int(this->d->m_pos.x()), y};
 }
 
 QImage RainDropPrivate::drawChar(const QChar &chr,

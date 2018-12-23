@@ -26,10 +26,6 @@ MediaSource::MediaSource(QObject *parent):
 {
 }
 
-MediaSource::~MediaSource()
-{
-}
-
 QStringList MediaSource::medias() const
 {
     return QStringList();

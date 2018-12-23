@@ -33,7 +33,7 @@ class ConvertAudio: public QObject
 
     public:
         explicit ConvertAudio(QObject *parent=nullptr);
-        virtual ~ConvertAudio();
+        virtual ~ConvertAudio() = default;
 
         virtual bool init(const AkAudioCaps &caps);
         virtual AkPacket convert(const AkAudioPacket &packet);

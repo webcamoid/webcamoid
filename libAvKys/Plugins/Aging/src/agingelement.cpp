@@ -34,15 +34,11 @@ class AgingElementPrivate
     public:
         QVector<Scratch> m_scratches;
         QMutex m_mutex;
-        bool m_addDust;
-
-        AgingElementPrivate():
-            m_addDust(true)
-        {
-        }
+        bool m_addDust {true};
 };
 
-AgingElement::AgingElement(): AkElement()
+AgingElement::AgingElement():
+    AkElement()
 {
     this->d = new AgingElementPrivate;
     this->d->m_scratches.resize(7);
@@ -74,8 +70,8 @@ QImage AgingElement::colorAging(const QImage &src)
     int luma = -32 + qrand() % lumaVariance;
 
     for (int y = 0; y < src.height(); y++) {
-        const QRgb *srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
-        QRgb *dstLine = reinterpret_cast<QRgb *>(dst.scanLine(y));
+        auto srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
+        auto dstLine = reinterpret_cast<QRgb *>(dst.scanLine(y));
 
         for (int x = 0; x < src.width(); x++) {
             int c = qrand() % colorVariance;
@@ -98,32 +94,31 @@ void AgingElement::scratching(QImage &dest)
 {
     QMutexLocker locker(&this->d->m_mutex);
 
-    for (int i = 0; i < this->d->m_scratches.size(); i++) {
-        if (this->d->m_scratches[i].life() < 1.0) {
+    for (auto &scratch: this->d->m_scratches) {
+        if (scratch.life() < 1.0) {
             if (qrand() <= 0.06 * RAND_MAX) {
-                this->d->m_scratches[i] =
-                        Scratch(2.0, 33.0,
-                                1.0, 1.0,
-                                0.0, dest.width() - 1,
-                                0.0, 512.0,
-                                0.0, dest.height() - 1);
-            } else
+                scratch = Scratch(2.0, 33.0,
+                                  1.0, 1.0,
+                                  0.0, dest.width() - 1,
+                                  0.0, 512.0,
+                                  0, dest.height() - 1);
+            } else {
                 continue;
+            }
         }
 
-        if (this->d->m_scratches[i].x() < 0.0
-            || this->d->m_scratches[i].x() >= dest.width()) {
-            this->d->m_scratches[i]++;
+        if (scratch.x() < 0.0 || scratch.x() >= dest.width()) {
+            scratch++;
 
             continue;
         }
 
         int lumaVariance = 8;
         int luma = 32 + qrand() % lumaVariance;
-        int x = int(this->d->m_scratches[i].x());
+        int x = int(scratch.x());
 
-        int y1 = this->d->m_scratches[i].y();
-        int y2 = this->d->m_scratches[i].isAboutToDie()?
+        int y1 = scratch.y();
+        int y2 = scratch.isAboutToDie()?
                      qrand() % dest.height():
                      dest.height();
 
@@ -140,7 +135,7 @@ void AgingElement::scratching(QImage &dest)
             line[x] = qRgba(r, g, b, qAlpha(line[x]));
         }
 
-        this->d->m_scratches[i]++;
+        scratch++;
     }
 }
 

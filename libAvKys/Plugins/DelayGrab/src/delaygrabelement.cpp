@@ -29,7 +29,7 @@
 
 #include "delaygrabelement.h"
 
-typedef QMap<DelayGrabElement::DelayGrabMode, QString> DelayGrabModeMap;
+using DelayGrabModeMap = QMap<DelayGrabElement::DelayGrabMode, QString>;
 
 inline DelayGrabModeMap initDelayGrabModeMap()
 {
@@ -49,20 +49,13 @@ Q_GLOBAL_STATIC_WITH_ARGS(DelayGrabModeMap, modeToStr, (initDelayGrabModeMap()))
 class DelayGrabElementPrivate
 {
     public:
-        DelayGrabElement::DelayGrabMode m_mode;
-        int m_blockSize;
-        int m_nFrames;
+        DelayGrabElement::DelayGrabMode m_mode {DelayGrabElement::DelayGrabModeRingsIncrease};
+        int m_blockSize {2};
+        int m_nFrames {71};
         QMutex m_mutex;
         QSize m_frameSize;
         QVector<QImage> m_frames;
         QVector<int> m_delayMap;
-
-        DelayGrabElementPrivate():
-            m_mode(DelayGrabElement::DelayGrabModeRingsIncrease),
-            m_blockSize(2),
-            m_nFrames(71)
-        {
-        }
 };
 
 DelayGrabElement::DelayGrabElement(): AkElement()
@@ -130,7 +123,7 @@ void DelayGrabElement::setMode(const QString &mode)
     if (this->d->m_mode == modeEnum)
         return;
 
-    QMutexLocker(&this->d->m_mutex);
+    QMutexLocker locker(&this->d->m_mutex);
     this->d->m_mode = modeEnum;
     emit this->modeChanged(mode);
 }
@@ -140,7 +133,7 @@ void DelayGrabElement::setBlockSize(int blockSize)
     if (this->d->m_blockSize == blockSize)
         return;
 
-    QMutexLocker(&this->d->m_mutex);
+    QMutexLocker locker(&this->d->m_mutex);
     this->d->m_blockSize = blockSize;
     emit this->blockSizeChanged(blockSize);
 }
@@ -150,7 +143,7 @@ void DelayGrabElement::setNFrames(int nFrames)
     if (this->d->m_nFrames == nFrames)
         return;
 
-    QMutexLocker(&this->d->m_mutex);
+    QMutexLocker locker(&this->d->m_mutex);
     this->d->m_nFrames = nFrames;
     emit this->nFramesChanged(nFrames);
 }
@@ -239,7 +232,7 @@ AkPacket DelayGrabElement::iStream(const AkPacket &packet)
 
 void DelayGrabElement::updateDelaymap()
 {
-    QMutexLocker(&this->d->m_mutex);
+    QMutexLocker locker(&this->d->m_mutex);
 
     if (this->d->m_frameSize.isEmpty())
         return;
@@ -265,9 +258,9 @@ void DelayGrabElement::updateDelaymap()
                 qreal d = qreal(qrand()) / RAND_MAX;
                 value = 16.0 * d * d;
             } else if (this->d->m_mode == DelayGrabModeVerticalIncrease) {
-                value = qAbs(x) / 2;
+                value = qAbs(x) / 2.0;
             } else if (this->d->m_mode == DelayGrabModeHorizontalIncrease) {
-                value = qAbs(y) / 2;
+                value = qAbs(y) / 2.0;
             } else {
                 // Rings of increasing delay outward from center
                 value = sqrt(x * x + y * y) / 2;

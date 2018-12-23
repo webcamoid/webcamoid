@@ -248,7 +248,7 @@ bool JackServer::setValue(jackctl_parameter_t *parameter, const QVariant &value)
         break;
     }
     case JackParamBool:
-        jvalue.b = value.value<decltype(jvalue.b)>();
+        jvalue.b = value.toBool();
 
         break;
     }

@@ -1049,14 +1049,18 @@ bool AkVCam::IpcBridge::write(const std::string &deviceId,
         buffer->format = scaledFrame.format().fourcc();
         buffer->width = scaledFrame.format().width();
         buffer->height = scaledFrame.format().height();
-        buffer->size = uint32_t(frame.dataSize());
-        memcpy(buffer->data, scaledFrame.data().get(), scaledFrame.dataSize());
+        buffer->size = uint32_t(frame.data().size());
+        memcpy(buffer->data,
+               scaledFrame.data().data(),
+               scaledFrame.data().size());
     } else {
         buffer->format = frame.format().fourcc();
         buffer->width = frame.format().width();
         buffer->height = frame.format().height();
-        buffer->size = uint32_t(frame.dataSize());
-        memcpy(buffer->data, frame.data().get(), frame.dataSize());
+        buffer->size = uint32_t(frame.data().size());
+        memcpy(buffer->data,
+               frame.data().data(),
+               frame.data().size());
     }
 
     this->d->m_sharedMemory.unlock(&this->d->m_globalMutex);
@@ -1685,8 +1689,9 @@ void AkVCam::IpcBridgePrivate::frameReady(Message *message)
     if (!frame)
         return;
 
-    VideoFrame videoFrame({frame->format, frame->width, frame->height},
-                          frame->data, frame->size);
+    VideoFormat videoFormat(frame->format, frame->width, frame->height);
+    VideoFrame videoFrame(videoFormat);
+    memcpy(videoFrame.data().data(), frame->data, frame->size);
     this->m_devices[deviceId].sharedMemory.unlock(&this->m_devices[deviceId].mutex);
     AKVCAM_EMIT(this->self, FrameReady, deviceId, videoFrame)
 }

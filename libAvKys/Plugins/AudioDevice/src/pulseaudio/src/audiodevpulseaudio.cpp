@@ -31,7 +31,7 @@
 
 #include "audiodevpulseaudio.h"
 
-typedef QMap<AkAudioCaps::SampleFormat, pa_sample_format_t> SampleFormatMap;
+using SampleFormatMap = QMap<AkAudioCaps::SampleFormat, pa_sample_format_t>;
 
 inline SampleFormatMap initSampleFormatMap()
 {
@@ -444,7 +444,7 @@ void AudioDevPulseAudioPrivate::deviceUpdateCallback(pa_context *context,
                                                      uint32_t index,
                                                      void *userData)
 {
-    AudioDevPulseAudio *audioDevice = static_cast<AudioDevPulseAudio *>(userData);
+    auto audioDevice = static_cast<AudioDevPulseAudio *>(userData);
 
     int type = eventType & PA_SUBSCRIPTION_EVENT_TYPE_MASK;
     int facility = eventType & PA_SUBSCRIPTION_EVENT_FACILITY_MASK;

@@ -36,7 +36,7 @@
 
 #define BUFFER_SIZE 1024 // In samples
 
-typedef QMap<AkAudioCaps::SampleFormat, int> SampleFormatMap;
+using SampleFormatMap = QMap<AkAudioCaps::SampleFormat, int>;
 
 inline SampleFormatMap initSampleFormatMap()
 {
@@ -418,7 +418,7 @@ void AudioDevOSS::updateDevices()
         }
 
         mixerFile.close();
-        description = QString("%1, %2").arg(mixerInfo.id).arg(mixerInfo.name);
+        description = QString("%1, %2").arg(mixerInfo.id, mixerInfo.name);
 
         QList<AkAudioCaps::SampleFormat> _supportedFormats;
         QList<int> _supportedChannels;

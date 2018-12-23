@@ -46,7 +46,7 @@ inline QSharedPointer<T> ptr_cast(QObject *obj=nullptr)
     return QSharedPointer<T>(static_cast<T *>(obj));
 }
 
-typedef QSharedPointer<AudioDev> AudioDevPtr;
+using AudioDevPtr = QSharedPointer<AudioDev>;
 
 class AudioDeviceElementPrivate
 {
@@ -567,8 +567,8 @@ void AudioDeviceElement::audioLibUpdated(const QString &audioLib)
     this->d->m_mutexLib.lock();
 
     this->d->m_audioDevice =
-            ptr_cast<AudioDev>(this->loadSubModule("AudioDevice",
-                                                   audioLib));
+            ptr_cast<AudioDev>(AudioDeviceElement::loadSubModule("AudioDevice",
+                                                                 audioLib));
 
     if (!this->d->m_audioDevice) {
         this->d->m_mutexLib.unlock();

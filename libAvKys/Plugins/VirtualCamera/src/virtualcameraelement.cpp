@@ -50,8 +50,8 @@ class VirtualCameraElementPrivate
         QMutex m_mutex;
         QString m_curDevice;
         QDir m_applicationDir;
-        int m_streamIndex;
-        bool m_playing;
+        int m_streamIndex {-1};
+        bool m_playing {false};
 
         VirtualCameraElementPrivate();
         ~VirtualCameraElementPrivate();
@@ -570,10 +570,11 @@ AkPacket VirtualCameraElement::iStream(const AkPacket &packet)
                                    videoFrame.caps().width(),
                                    videoFrame.caps().height(),
                                    {fps});
-        this->d->m_ipcBridge.write(this->d->m_curDevice.toStdString(),
-                                   AkVCam::VideoFrame(format,
-                                                      reinterpret_cast<const uint8_t *>(videoFrame.buffer().constData()),
-                                                      size_t(videoFrame.buffer().size())));
+        AkVCam::VideoFrame frame(format);
+        memcpy(frame.data().data(),
+               videoFrame.buffer().constData(),
+               size_t(videoFrame.buffer().size()));
+        this->d->m_ipcBridge.write(this->d->m_curDevice.toStdString(), frame);
     }
 
     this->d->m_mutex.unlock();
@@ -586,9 +587,7 @@ void VirtualCameraElement::rootMethodUpdated(const QString &rootMethod)
     this->d->m_ipcBridge.setRootMethod(rootMethod.toStdString());
 }
 
-VirtualCameraElementPrivate::VirtualCameraElementPrivate():
-    m_streamIndex(-1),
-    m_playing(false)
+VirtualCameraElementPrivate::VirtualCameraElementPrivate()
 {
     this->m_applicationDir.setPath(QCoreApplication::applicationDirPath());
     this->m_ipcBridge.connectServerStateChanged(this,

@@ -29,7 +29,7 @@
 
 #include "convertvideogstreamer.h"
 
-typedef QMap<QString, QString> StringStringMap;
+using StringStringMap = QMap<QString, QString>;
 
 inline StringStringMap initFourCCToGst()
 {
@@ -101,32 +101,21 @@ class ConvertVideoGStreamerPrivate
 {
     public:
         QThreadPool m_threadPool;
-        GstElement *m_pipeline;
-        GstElement *m_source;
-        GstElement *m_sink;
-        GMainLoop *m_mainLoop;
-        guint m_busWatchId;
-        qint64 m_id;
-        qint64 m_ptsDiff;
+        GstElement *m_pipeline {nullptr};
+        GstElement *m_source {nullptr};
+        GstElement *m_sink {nullptr};
+        GMainLoop *m_mainLoop {nullptr};
+        guint m_busWatchId {0};
+        qint64 m_id {-1};
+        qint64 m_ptsDiff {AkNoPts<qint64>()};
 
-        ConvertVideoGStreamerPrivate():
-            m_pipeline(nullptr),
-            m_source(nullptr),
-            m_sink(nullptr),
-            m_mainLoop(nullptr),
-            m_busWatchId(0),
-            m_id(-1),
-            m_ptsDiff(AkNoPts<qint64>())
-        {
-        }
-
-        inline GstElement *decoderFromCaps(const GstCaps *caps) const;
-        inline void waitState(GstState state);
-        inline static gboolean busCallback(GstBus *bus,
-                                           GstMessage *message,
-                                           gpointer userData);
-        inline static GstFlowReturn videoBufferCallback(GstElement *videoOutput,
-                                                        gpointer userData);
+        GstElement *decoderFromCaps(const GstCaps *caps) const;
+        void waitState(GstState state);
+        static gboolean busCallback(GstBus *bus,
+                                    GstMessage *message,
+                                    gpointer userData);
+        static GstFlowReturn videoBufferCallback(GstElement *videoOutput,
+                                                 gpointer userData);
 };
 
 ConvertVideoGStreamer::ConvertVideoGStreamer(QObject *parent):
@@ -299,8 +288,8 @@ GstElement *ConvertVideoGStreamerPrivate::decoderFromCaps(const GstCaps *caps) c
                                                           GST_PAD_SINK,
                                                           FALSE);
 
-        for (GList *decoderItem = decoders; decoderItem; decoderItem = g_list_next(decoderItem)) {
-            GstElementFactory *decoderFactory = (GstElementFactory *) decoderItem->data;
+        for (auto decoderItem = decoders; decoderItem; decoderItem = g_list_next(decoderItem)) {
+            auto decoderFactory = reinterpret_cast<GstElementFactory *>(decoderItem->data);
             decoder = gst_element_factory_make(GST_OBJECT_NAME(decoderFactory), nullptr);
 
             break;
@@ -481,7 +470,7 @@ gboolean ConvertVideoGStreamerPrivate::busCallback(GstBus *bus,
         guint64 timestamp;
         guint64 duration;
         gst_message_parse_qos(message, &live, &runningTime, &streamTime, &timestamp, &duration);
-        qDebug() << "    Is live stream =" << (live? true: false);
+        qDebug() << "    Is live stream =" << live;
         qDebug() << "    Runninng time =" << runningTime;
         qDebug() << "    Stream time =" << streamTime;
         qDebug() << "    Timestamp =" << timestamp;

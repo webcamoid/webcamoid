@@ -56,7 +56,7 @@
 #include "capturev4l2.h"
 #include "capturebuffer.h"
 
-typedef QMap<v4l2_ctrl_type, QString> V4l2CtrlTypeMap;
+using V4l2CtrlTypeMap = QMap<v4l2_ctrl_type, QString>;
 
 inline V4l2CtrlTypeMap initV4l2CtrlTypeMap()
 {
@@ -80,7 +80,7 @@ inline V4l2CtrlTypeMap initV4l2CtrlTypeMap()
 
 Q_GLOBAL_STATIC_WITH_ARGS(V4l2CtrlTypeMap, ctrlTypeToStr, (initV4l2CtrlTypeMap()))
 
-typedef QMap<CaptureV4L2::IoMethod, QString> IoMethodMap;
+using IoMethodMap = QMap<CaptureV4L2::IoMethod, QString>;
 
 inline IoMethodMap initIoMethodMap()
 {
@@ -245,9 +245,9 @@ QString CaptureV4L2::capsDescription(const AkCaps &caps) const
     AkFrac fps = caps.property("fps").toString();
 
     return QString("%1, %2x%3, %4 FPS")
-                .arg(caps.property("fourcc").toString())
-                .arg(caps.property("width").toString())
-                .arg(caps.property("height").toString())
+                .arg(caps.property("fourcc").toString(),
+                     caps.property("width").toString(),
+                     caps.property("height").toString())
                 .arg(qRound(fps.value()));
 }
 
@@ -401,20 +401,20 @@ AkPacket CaptureV4L2::readFrame()
                    this->d->m_buffers[0].length) < 0)
             return AkPacket();
 
-        timeval timestamp;
+        timeval timestamp {};
         gettimeofday(&timestamp, nullptr);
 
-        qint64 pts = qint64((timestamp.tv_sec
-                             + 1e-6 * timestamp.tv_usec)
-                            * this->d->m_fps.value());
+        auto pts = qint64((timestamp.tv_sec + 1e-6 * timestamp.tv_usec)
+                          * this->d->m_fps.value());
 
         return this->d->processFrame(this->d->m_buffers[0].start,
                                      this->d->m_buffers[0].length,
                                      pts);
-    } else if (this->d->m_ioMethod == IoMethodMemoryMap
-               || this->d->m_ioMethod == IoMethodUserPointer) {
-        v4l2_buffer buffer;
-        memset(&buffer, 0, sizeof(buffer));
+    }
+
+    if (this->d->m_ioMethod == IoMethodMemoryMap
+        || this->d->m_ioMethod == IoMethodUserPointer) {
+        v4l2_buffer buffer {};
         buffer.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
         buffer.memory = (this->d->m_ioMethod == IoMethodMemoryMap)?
                             V4L2_MEMORY_MMAP:
@@ -426,9 +426,9 @@ AkPacket CaptureV4L2::readFrame()
         if (buffer.index >= quint32(this->d->m_buffers.size()))
             return AkPacket();
 
-        qint64 pts = qint64((buffer.timestamp.tv_sec
-                             + 1e-6 * buffer.timestamp.tv_usec)
-                            * this->d->m_fps.value());
+        auto pts = qint64((buffer.timestamp.tv_sec
+                           + 1e-6 * buffer.timestamp.tv_usec)
+                          * this->d->m_fps.value());
 
         AkPacket packet =
                 this->d->processFrame(this->d->m_buffers[int(buffer.index)].start,
@@ -452,8 +452,7 @@ QVariantList CaptureV4L2Private::capsFps(int fd,
     QVariantList caps;
 
 #ifdef VIDIOC_ENUM_FRAMEINTERVALS
-    struct v4l2_frmivalenum frmival;
-    memset(&frmival, 0, sizeof(frmival));
+    v4l2_frmivalenum frmival {};
     frmival.pixel_format = format.pixelformat;
     frmival.width = width;
     frmival.height = height;
@@ -525,16 +524,14 @@ QVariantList CaptureV4L2Private::caps(int fd) const
 #endif
 
     // Enumerate all supported formats.
-    v4l2_fmtdesc fmtdesc;
-    memset(&fmtdesc, 0, sizeof(v4l2_fmtdesc));
+    v4l2_fmtdesc fmtdesc {};
     fmtdesc.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 
     for (fmtdesc.index = 0;
          this->xioctl(fd, VIDIOC_ENUM_FMT, &fmtdesc) >= 0;
          fmtdesc.index++) {
 #ifdef VIDIOC_ENUM_FRAMESIZES
-        v4l2_frmsizeenum frmsize;
-        memset(&frmsize, 0, sizeof(v4l2_frmsizeenum));
+        v4l2_frmsizeenum frmsize {};
         frmsize.pixel_format = fmtdesc.pixelformat;
 
         // Enumerate frame sizes.
@@ -576,8 +573,7 @@ QVariantList CaptureV4L2Private::caps(int fd) const
 AkFrac CaptureV4L2Private::fps(int fd) const
 {
     AkFrac fps(30, 1);
-    v4l2_streamparm streamparm;
-    memset(&streamparm, 0, sizeof(streamparm));
+    v4l2_streamparm streamparm {};
     streamparm.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 
     if (this->xioctl(fd, VIDIOC_G_PARM, &streamparm) >= 0) {
@@ -591,8 +587,7 @@ AkFrac CaptureV4L2Private::fps(int fd) const
 
 void CaptureV4L2Private::setFps(int fd, const AkFrac &fps)
 {
-    v4l2_streamparm streamparm;
-    memset(&streamparm, 0, sizeof(streamparm));
+    v4l2_streamparm streamparm {};
     streamparm.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 
     if (this->xioctl(fd, VIDIOC_G_PARM, &streamparm) >= 0)
@@ -610,8 +605,7 @@ QVariantList CaptureV4L2Private::controls(int fd, quint32 controlClass) const
     if (fd < 0)
         return controls;
 
-    v4l2_queryctrl queryctrl;
-    memset(&queryctrl, 0, sizeof(v4l2_queryctrl));
+    v4l2_queryctrl queryctrl {};
     queryctrl.id = V4L2_CTRL_FLAG_NEXT_CTRL;
 
     while (this->xioctl(fd, VIDIOC_QUERYCTRL, &queryctrl) == 0) {
@@ -661,7 +655,7 @@ bool CaptureV4L2Private::setControls(int fd,
     QVector<v4l2_ext_control> userCtrls;
 
     for (const QString &control: controls.keys()) {
-        v4l2_ext_control ctrl;
+        v4l2_ext_control ctrl {};
         ctrl.id = ctrl2id[control];
         ctrl.value = controls[control].toInt();
 
@@ -672,16 +666,14 @@ bool CaptureV4L2Private::setControls(int fd,
     }
 
     for (const v4l2_ext_control &user_ctrl: userCtrls) {
-        v4l2_control ctrl;
-        memset(&ctrl, 0, sizeof(v4l2_control));
+        v4l2_control ctrl {};
         ctrl.id = user_ctrl.id;
         ctrl.value = user_ctrl.value;
         this->xioctl(fd, VIDIOC_S_CTRL, &ctrl);
     }
 
     if (!mpegCtrls.isEmpty()) {
-        v4l2_ext_controls ctrls;
-        memset(&ctrls, 0, sizeof(v4l2_ext_control));
+        v4l2_ext_controls ctrls {};
         ctrls.ctrl_class = V4L2_CTRL_CLASS_MPEG;
         ctrls.count = __u32(mpegCtrls.size());
         ctrls.controls = &mpegCtrls[0];
@@ -701,12 +693,10 @@ QVariantList CaptureV4L2Private::queryControl(int handle,
     if (V4L2_CTRL_ID2CLASS(queryctrl->id) != controlClass)
         return QVariantList();
 
-    v4l2_ext_control ext_ctrl;
-    memset(&ext_ctrl, 0, sizeof(v4l2_ext_control));
+    v4l2_ext_control ext_ctrl {};
     ext_ctrl.id = queryctrl->id;
 
-    v4l2_ext_controls ctrls;
-    memset(&ctrls, 0, sizeof(v4l2_ext_controls));
+    v4l2_ext_controls ctrls {};
     ctrls.ctrl_class = V4L2_CTRL_ID2CLASS(queryctrl->id);
     ctrls.count = 1;
     ctrls.controls = &ext_ctrl;
@@ -716,8 +706,7 @@ QVariantList CaptureV4L2Private::queryControl(int handle,
         if (this->xioctl(handle, VIDIOC_G_EXT_CTRLS, &ctrls))
             return QVariantList();
     } else {
-        v4l2_control ctrl;
-        memset(&ctrl, 0, sizeof(v4l2_control));
+        v4l2_control ctrl {};
         ctrl.id = queryctrl->id;
 
         if (this->xioctl(handle, VIDIOC_G_CTRL, &ctrl))
@@ -726,8 +715,7 @@ QVariantList CaptureV4L2Private::queryControl(int handle,
         ext_ctrl.value = ctrl.value;
     }
 
-    v4l2_querymenu qmenu;
-    memset(&qmenu, 0, sizeof(v4l2_querymenu));
+    v4l2_querymenu qmenu {};
     qmenu.id = queryctrl->id;
     QStringList menu;
 
@@ -741,7 +729,7 @@ QVariantList CaptureV4L2Private::queryControl(int handle,
             menu << QString(reinterpret_cast<const char *>(qmenu.name));
         }
 
-    v4l2_ctrl_type type = static_cast<v4l2_ctrl_type>(queryctrl->type);
+    auto type = static_cast<v4l2_ctrl_type>(queryctrl->type);
 
     return QVariantList {
         QString(reinterpret_cast<const char *>(queryctrl->name)),
@@ -758,8 +746,7 @@ QVariantList CaptureV4L2Private::queryControl(int handle,
 QMap<QString, quint32> CaptureV4L2Private::findControls(int handle,
                                                         quint32 controlClass) const
 {
-    v4l2_queryctrl qctrl;
-    memset(&qctrl, 0, sizeof(v4l2_queryctrl));
+    v4l2_queryctrl qctrl {};
     qctrl.id = V4L2_CTRL_FLAG_NEXT_CTRL;
     QMap<QString, quint32> controls;
 
@@ -816,9 +803,7 @@ bool CaptureV4L2Private::initReadWrite(quint32 bufferSize)
 
 bool CaptureV4L2Private::initMemoryMap()
 {
-    v4l2_requestbuffers requestBuffers;
-    memset(&requestBuffers, 0, sizeof(requestBuffers));
-
+    v4l2_requestbuffers requestBuffers {};
     requestBuffers.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
     requestBuffers.memory = V4L2_MEMORY_MMAP;
     requestBuffers.count = __u32(this->m_nBuffers);
@@ -833,9 +818,7 @@ bool CaptureV4L2Private::initMemoryMap()
     bool error = false;
 
     for (int i = 0; i < int(requestBuffers.count); i++) {
-        v4l2_buffer buffer;
-        memset(&buffer, 0, sizeof(buffer));
-
+        v4l2_buffer buffer {};
         buffer.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
         buffer.memory = V4L2_MEMORY_MMAP;
         buffer.index = __u32(i);
@@ -863,8 +846,8 @@ bool CaptureV4L2Private::initMemoryMap()
     }
 
     if (error) {
-        for (qint32 i = 0; i < this->m_buffers.size(); i++)
-            x_munmap(this->m_buffers[i].start, this->m_buffers[i].length);
+        for (auto &buffer: this->m_buffers)
+            x_munmap(buffer.start, buffer.length);
 
         this->m_buffers.clear();
 
@@ -876,9 +859,7 @@ bool CaptureV4L2Private::initMemoryMap()
 
 bool CaptureV4L2Private::initUserPointer(quint32 bufferSize)
 {
-    v4l2_requestbuffers requestBuffers;
-    memset(&requestBuffers, 0, sizeof(requestBuffers));
-
+    v4l2_requestbuffers requestBuffers {};
     requestBuffers.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
     requestBuffers.memory = V4L2_MEMORY_USERPTR;
     requestBuffers.count = __u32(this->m_nBuffers);
@@ -905,8 +886,8 @@ bool CaptureV4L2Private::initUserPointer(quint32 bufferSize)
     }
 
     if (error) {
-        for (qint32 i = 0; i < this->m_buffers.size(); i++)
-            delete [] this->m_buffers[i].start;
+        for (auto &buffer: this->m_buffers)
+            delete [] buffer.start;
 
         this->m_buffers.clear();
 
@@ -922,9 +903,7 @@ bool CaptureV4L2Private::startCapture()
 
     if (this->m_ioMethod == CaptureV4L2::IoMethodMemoryMap) {
         for (int i = 0; i < this->m_buffers.size(); i++) {
-            v4l2_buffer buffer;
-            memset(&buffer, 0, sizeof(buffer));
-
+            v4l2_buffer buffer {};
             buffer.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
             buffer.memory = V4L2_MEMORY_MMAP;
             buffer.index = __u32(i);
@@ -939,9 +918,7 @@ bool CaptureV4L2Private::startCapture()
             error = true;
     } else if (this->m_ioMethod == CaptureV4L2::IoMethodUserPointer) {
         for (int i = 0; i < this->m_buffers.size(); i++) {
-            v4l2_buffer buffer;
-            memset(&buffer, 0, sizeof(buffer));
-
+            v4l2_buffer buffer {};
             buffer.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
             buffer.memory = V4L2_MEMORY_USERPTR;
             buffer.index = __u32(i);
@@ -1033,8 +1010,7 @@ bool CaptureV4L2::init()
     if (this->d->m_fd < 0)
         return false;
 
-    v4l2_capability capabilities;
-    memset(&capabilities, 0, sizeof(v4l2_capability));
+    v4l2_capability capabilities {};
 
     if (this->d->xioctl(this->d->m_fd, VIDIOC_QUERYCAP, &capabilities) < 0) {
         qDebug() << "VideoCapture: Can't query capabilities.";
@@ -1054,8 +1030,7 @@ bool CaptureV4L2::init()
 
     QVariantList supportedCaps = this->caps(this->d->m_device);
     AkCaps caps = supportedCaps[streams[0]].value<AkCaps>();
-    v4l2_format fmt;
-    memset(&fmt, 0, sizeof(v4l2_format));
+    v4l2_format fmt {};
     fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 
     this->d->xioctl(this->d->m_fd, VIDIOC_G_FMT, &fmt);
@@ -1118,12 +1093,11 @@ void CaptureV4L2::uninit()
         if (this->d->m_ioMethod == IoMethodReadWrite)
             delete [] this->d->m_buffers[0].start;
         else if (this->d->m_ioMethod == IoMethodMemoryMap)
-            for (qint32 i = 0; i < this->d->m_buffers.size(); i++)
-                x_munmap(this->d->m_buffers[i].start,
-                         this->d->m_buffers[i].length);
+            for (auto &buffer: this->d->m_buffers)
+                x_munmap(buffer.start, buffer.length);
         else if (this->d->m_ioMethod == IoMethodUserPointer)
-            for (qint32 i = 0; i < this->d->m_buffers.size(); i++)
-                delete [] this->d->m_buffers[i].start;
+            for (auto &buffer: this->d->m_buffers)
+                delete [] buffer.start;
     }
 
     x_close(this->d->m_fd);
@@ -1252,8 +1226,7 @@ void CaptureV4L2::updateDevices()
         auto caps = this->d->caps(fd);
 
         if (!caps.empty()) {
-            v4l2_capability capability;
-            memset(&capability, 0, sizeof(v4l2_capability));
+            v4l2_capability capability {};
             QString description;
 
             if (this->d->xioctl(fd, VIDIOC_QUERYCAP, &capability) >= 0)

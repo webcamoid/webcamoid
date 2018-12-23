@@ -197,8 +197,8 @@ void HaarDetectorPrivate::computeGray(const QImage &src, bool equalize,
 
     int diffGray = maxGray - minGray;
 
-    for (int i = 0; i < gray.size(); i++)
-        gray[i] = quint8(255 * (gray[i] - minGray) / diffGray);
+    for (auto &g: gray)
+        g = quint8(255 * (g - minGray) / diffGray);
 }
 
 void HaarDetectorPrivate::computeIntegral(int width, int height,
@@ -216,10 +216,9 @@ void HaarDetectorPrivate::computeIntegral(int width, int height,
     const quint32 *integralPrevLine = integral.constData();
 
     for (int y = 1; y < height; y++) {
-        size_t yOffset = size_t(y * width);
-        const quint8 *imageLine = image.constData() + yOffset;
-        quint32 *integralLine = integral.data() + yOffset;
-
+        auto yOffset = size_t(y * width);
+        auto imageLine = image.constData() + yOffset;
+        auto integralLine = integral.data() + yOffset;
         sum = 0;
 
         for (int x = 0; x < width; x++) {
@@ -240,7 +239,7 @@ void HaarDetectorPrivate::computeIntegral(int width, int height,
         paddingTL = 0;
 
     integral.resize((width + paddingTL) * (height + paddingTL));
-    quint32 *integralData = integral.data();
+    auto integralData = integral.data();
 
     if (paddingTL)
         integralData += paddingTL * (width + paddingTL + 1);
@@ -255,10 +254,9 @@ void HaarDetectorPrivate::computeIntegral(int width, int height,
     const quint32 *integralPrevLine = integralData;
 
     for (int y = 1; y < height; y++) {
-        size_t yOffset = size_t(y * width);
-        const quint8 *imageLine = image.data() + yOffset;
-        quint32 *integralLine = integralData + yOffset + paddingTL * y;
-
+        auto yOffset = size_t(y * width);
+        auto imageLine = image.data() + yOffset;
+        auto integralLine = integralData + yOffset + paddingTL * y;
         quint32 sum = 0;
 
         for (int x = 0; x < width; x++) {
@@ -288,14 +286,14 @@ void HaarDetectorPrivate::computeIntegral(int width, int height,
         integral2[x] = sum2;
     }
 
-    const quint32 *integralPrevLine = integral.constData();
-    const quint64 *integral2PrevLine = integral2.constData();
+    auto integralPrevLine = integral.constData();
+    auto integral2PrevLine = integral2.constData();
 
     for (int y = 1; y < height; y++) {
-        size_t yOffset = size_t(y * width);
-        const quint8 *imageLine = image.constData() + yOffset;
-        quint32 *integralLine = integral.data() + yOffset;
-        quint64 *integral2Line = integral2.data() + yOffset;
+        auto yOffset = size_t(y * width);
+        auto imageLine = image.constData() + yOffset;
+        auto integralLine = integral.data() + yOffset;
+        auto integral2Line = integral2.data() + yOffset;
 
         sum = 0;
         sum2 = 0;
@@ -484,8 +482,8 @@ void HaarDetectorPrivate::denoise(int width, int height,
                          - integral2_p2[x]
                          - integral2_p3[x];
 
-            quint8 mean = quint8(sum / uint(kernelSize2));
-            quint8 stdev = quint8(sqrt(sum2 / uint(kernelSize2) - mean * mean));
+            auto mean = quint8(sum / uint(kernelSize2));
+            auto stdev = quint8(sqrt(sum2 / uint(kernelSize2) - mean * mean));
 
             mean = quint8(qBound(0, mean + mu, 255));
             stdev = quint8(qBound(0, stdev + sigma, 255));
@@ -522,7 +520,7 @@ void HaarDetectorPrivate::sobel(int width, int height,
     direction.resize(gray.size());
 
     for (int y = 0; y < height; y++) {
-        size_t yOffset = size_t(y * width);
+        auto yOffset = size_t(y * width);
         const quint8 *grayLine = gray.constData() + yOffset;
 
         const quint8 *grayLine_m1 = y < 1? grayLine: grayLine - width;
@@ -614,8 +612,8 @@ QVector<qreal> HaarDetectorPrivate::otsuTable(int width, int height,
                                               const QVector<int> &histogram,
                                               int levels) const
 {
-    qreal **P = new qreal *[levels];
-    qreal **S = new qreal *[levels];
+    auto P = new qreal *[levels];
+    auto S = new qreal *[levels];
     QVector<qreal> H(levels * levels, 0);
 
     // initialize
@@ -851,9 +849,9 @@ QVector<quint8> HaarDetectorPrivate::hysteresisThresholding(int width, int heigh
         for (int x = 0; x < width; x++)
             this->trace(width, height, canny, x, y);
 
-    for (int i = 0; i < canny.size(); i++)
-        if (canny[i] == 127)
-            canny[i] = 0;
+    for (auto &c: canny)
+        if (c == 127)
+            c = 0;
 
     return canny;
 }
@@ -1211,19 +1209,19 @@ QVector<QRect> HaarDetector::detect(const QImage &image, qreal scaleFactor,
         int endX = qRound((image.width() - windowWidth) / step);
         int endY = qRound((image.height() - windowHeight) / step);
 
-        HaarCascadeHID *cascade = new HaarCascadeHID(this->d->m_cascade,
-                                                     startX, endX, startY, endY,
-                                                     windowWidth, windowHeight,
-                                                     oWidth,
-                                                     integral.constData(),
-                                                     tiltedIntegral.constData(),
-                                                     step,
-                                                     invArea,
-                                                     scale,
-                                                     cannyPruning,
-                                                     p, pq, ip, icp,
-                                                     &roi,
-                                                     &mutex);
+        auto cascade = new HaarCascadeHID(this->d->m_cascade,
+                                          startX, endX, startY, endY,
+                                          windowWidth, windowHeight,
+                                          oWidth,
+                                          integral.constData(),
+                                          tiltedIntegral.constData(),
+                                          step,
+                                          invArea,
+                                          scale,
+                                          cannyPruning,
+                                          p, pq, ip, icp,
+                                          &roi,
+                                          &mutex);
 
         QtConcurrent::run(&threadPool, HaarCascadeHID::run, cascade);
     }

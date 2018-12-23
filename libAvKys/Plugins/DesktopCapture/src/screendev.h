@@ -33,7 +33,7 @@ class ScreenDev: public QObject
 
     public:
         explicit ScreenDev(QObject *parent=nullptr);
-        virtual ~ScreenDev();
+        virtual ~ScreenDev() = default;
 
         Q_INVOKABLE virtual AkFrac fps() const;
         Q_INVOKABLE virtual QStringList medias();

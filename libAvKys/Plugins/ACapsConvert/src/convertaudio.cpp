@@ -28,10 +28,6 @@ ConvertAudio::ConvertAudio(QObject *parent):
 {
 }
 
-ConvertAudio::~ConvertAudio()
-{
-}
-
 bool ConvertAudio::init(const AkAudioCaps &caps)
 {
     Q_UNUSED(caps)

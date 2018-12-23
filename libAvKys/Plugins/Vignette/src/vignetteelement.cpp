@@ -29,21 +29,13 @@
 class VignetteElementPrivate
 {
     public:
-        QRgb m_color;
-        qreal m_aspect;
-        qreal m_scale;
-        qreal m_softness;
+        QRgb m_color {qRgb(0, 0, 0)};
+        qreal m_aspect {3.0 / 7.0};
+        qreal m_scale {0.5};
+        qreal m_softness {0.5};
         QSize m_curSize;
         QImage m_vignette;
         QMutex m_mutex;
-
-        VignetteElementPrivate():
-            m_color(qRgb(0, 0, 0)),
-            m_aspect(3.0 / 7.0),
-            m_scale(0.5),
-            m_softness(0.5)
-        {
-        }
 
         inline qreal radius(qreal x, qreal y)
         {

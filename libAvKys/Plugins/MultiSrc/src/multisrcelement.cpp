@@ -34,7 +34,7 @@ inline QSharedPointer<T> ptr_cast(QObject *obj=nullptr)
     return QSharedPointer<T>(static_cast<T *>(obj));
 }
 
-typedef QSharedPointer<MediaSource> MediaSourcePtr;
+using MediaSourcePtr = QSharedPointer<MediaSource>;
 
 class MultiSrcElementPrivate
 {
@@ -271,7 +271,8 @@ void MultiSrcElement::codecLibUpdated(const QString &codecLib)
     this->d->m_mutexLib.lock();
 
     this->d->m_mediaSource =
-            ptr_cast<MediaSource>(this->loadSubModule("MultiSrc", codecLib));
+            ptr_cast<MediaSource>(MultiSrcElement::loadSubModule("MultiSrc",
+                                                                 codecLib));
 
     if (!this->d->m_mediaSource) {
         this->d->m_mutexLib.unlock();

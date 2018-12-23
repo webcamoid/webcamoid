@@ -29,12 +29,7 @@ class VideoDisplayPrivate
     public:
         QImage m_frame;
         QMutex m_mutex;
-        bool m_fillDisplay;
-
-        VideoDisplayPrivate():
-            m_fillDisplay(false)
-        {
-        }
+        bool m_fillDisplay {false};
 };
 
 VideoDisplay::VideoDisplay(QQuickItem *parent):
@@ -86,12 +81,11 @@ QSGNode *VideoDisplay::updatePaintNode(QSGNode *oldNode,
 
     auto videoFrame = this->window()->createTextureFromImage(frame);
 
-    if (!videoFrame || videoFrame->textureSize().isEmpty()) {
-        if (oldNode)
-            delete oldNode;
+    if (!videoFrame)
+        return nullptr;
 
-        if (videoFrame)
-            delete videoFrame;
+    if (videoFrame->textureSize().isEmpty()) {
+        delete videoFrame;
 
         return nullptr;
     }
@@ -99,7 +93,7 @@ QSGNode *VideoDisplay::updatePaintNode(QSGNode *oldNode,
     QSGSimpleTextureNode *node = nullptr;
 
     if (oldNode)
-        node = static_cast<QSGSimpleTextureNode *>(oldNode);
+        node = dynamic_cast<QSGSimpleTextureNode *>(oldNode);
     else
         node = new QSGSimpleTextureNode();
 

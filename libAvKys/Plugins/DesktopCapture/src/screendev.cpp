@@ -27,10 +27,6 @@ ScreenDev::ScreenDev(QObject *parent):
 {
 }
 
-ScreenDev::~ScreenDev()
-{
-}
-
 AkFrac ScreenDev::fps() const
 {
     return AkFrac();

@@ -30,29 +30,20 @@
 class DenoiseElementPrivate
 {
     public:
-        int m_radius;
-        int m_factor;
-        int m_mu;
-        qreal m_sigma;
-        int *m_weight;
+        int m_radius {1};
+        int m_factor {1024};
+        int m_mu {0};
+        qreal m_sigma {1.0};
+        int *m_weight {nullptr};
 
-        DenoiseElementPrivate():
-            m_radius(1),
-            m_factor(1024),
-            m_mu(0),
-            m_sigma(1.0),
-            m_weight(nullptr)
-        {
-        }
-
-        inline void makeTable(int factor);
-        inline void integralImage(const QImage &image,
-                                  int oWidth, int oHeight,
-                                  PixelU8 *planes,
-                                  PixelU32 *integral,
-                                  PixelU64 *integral2);
-        inline static void denoise(const DenoiseStaticParams &staticParams,
-                                   const DenoiseParams *params);
+        void makeTable(int factor);
+        void integralImage(const QImage &image,
+                           int oWidth, int oHeight,
+                           PixelU8 *planes,
+                           PixelU32 *integral,
+                           PixelU64 *integral2);
+        static void denoise(const DenoiseStaticParams &staticParams,
+                            const DenoiseParams *params);
 };
 
 DenoiseElement::DenoiseElement(): AkElement()
@@ -134,7 +125,7 @@ void DenoiseElementPrivate::denoise(const DenoiseStaticParams &staticParams,
                                params->xp, params->yp, params->kw, params->kh);
     PixelU64 sum2 = integralSum(staticParams.integral2, staticParams.oWidth,
                                 params->xp, params->yp, params->kw, params->kh);
-    quint32 ks = quint32(params->kw * params->kh);
+    auto ks = quint32(params->kw * params->kh);
 
     PixelU32 mean = sum / ks;
     PixelU32 dev = sqrt(ks * sum2 - pow2(sum)) / ks;
@@ -299,14 +290,14 @@ AkPacket DenoiseElement::iStream(const AkPacket &packet)
 
     int oWidth = src.width() + 1;
     int oHeight = src.height() + 1;
-    PixelU8 *planes = new PixelU8[oWidth * oHeight];
-    PixelU32 *integral = new PixelU32[oWidth * oHeight];
-    PixelU64 *integral2 = new PixelU64[oWidth * oHeight];
+    auto planes = new PixelU8[oWidth * oHeight];
+    auto integral = new PixelU32[oWidth * oHeight];
+    auto integral2 = new PixelU64[oWidth * oHeight];
     this->d->integralImage(src,
                            oWidth, oHeight,
                            planes, integral, integral2);
 
-    DenoiseStaticParams staticParams;
+    DenoiseStaticParams staticParams {};
     staticParams.planes = planes;
     staticParams.integral = integral;
     staticParams.integral2 = integral2;

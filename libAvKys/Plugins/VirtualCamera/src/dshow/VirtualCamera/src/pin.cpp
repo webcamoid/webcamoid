@@ -877,10 +877,11 @@ HRESULT AkVCam::PinPrivate::sendFrame()
     }
 
     this->m_mutex.lock();
-    auto copyBytes = (std::min)(size_t(size), this->m_currentFrame.dataSize());
+    auto copyBytes = (std::min)(size_t(size),
+                                this->m_currentFrame.data().size());
 
     if (copyBytes > 0)
-        memcpy(buffer, this->m_currentFrame.data().get(), copyBytes);
+        memcpy(buffer, this->m_currentFrame.data().data(), copyBytes);
 
     this->m_mutex.unlock();
 

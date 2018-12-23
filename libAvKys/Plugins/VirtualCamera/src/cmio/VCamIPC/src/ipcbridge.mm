@@ -844,7 +844,7 @@ bool AkVCam::IpcBridge::write(const std::string &deviceId,
     auto fourcc = frame.format().fourcc();
     auto width = frame.format().width();
     auto height = frame.format().height();
-    auto dataSize = int64_t(frame.dataSize());
+    auto dataSize = int64_t(frame.data().size());
 
     std::vector<CFNumberRef> values {
         CFNumberCreate(kCFAllocatorDefault, kCFNumberSInt32Type, &fourcc),
@@ -873,7 +873,7 @@ bool AkVCam::IpcBridge::write(const std::string &deviceId,
     uint32_t surfaceSeed = 0;
     IOSurfaceLock(surface, 0, &surfaceSeed);
     auto data = IOSurfaceGetBaseAddress(surface);
-    memcpy(data, frame.data().get(), frame.dataSize());
+    memcpy(data, frame.data().data(), frame.data().size());
     IOSurfaceUnlock(surface, 0, &surfaceSeed);
 
     auto dictionary = xpc_dictionary_create(NULL, NULL, 0);
@@ -1126,8 +1126,9 @@ void AkVCam::IpcBridgePrivate::frameReady(xpc_connection_t client,
     int height = int(IOSurfaceGetHeight(surface));
     size_t size = IOSurfaceGetAllocSize(surface);
     auto data = reinterpret_cast<uint8_t *>(IOSurfaceGetBaseAddress(surface));
-    AkVCam::VideoFrame videoFrame({fourcc, width, height},
-                                  data, size);
+    VideoFormat videoFormat(fourcc, width, height);
+    VideoFrame videoFrame(videoFormat);
+    memcpy(videoFrame.data().data(), data, size);
     IOSurfaceUnlock(surface, kIOSurfaceLockReadOnly, &surfaceSeed);
     CFRelease(surface);
 

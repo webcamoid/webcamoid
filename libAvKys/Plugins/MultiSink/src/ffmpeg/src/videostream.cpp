@@ -57,22 +57,14 @@ struct BGRX
 class VideoStreamPrivate
 {
     public:
-        AVFrame *m_frame;
-        SwsContext *m_scaleContext;
+        AVFrame *m_frame {nullptr};
+        SwsContext *m_scaleContext {nullptr};
         QMutex m_frameMutex;
-        int64_t m_lastPts;
-        int64_t m_refPts;
+        int64_t m_lastPts {AV_NOPTS_VALUE};
+        int64_t m_refPts {AV_NOPTS_VALUE};
         QWaitCondition m_frameReady;
 
-        VideoStreamPrivate():
-            m_frame(nullptr),
-            m_scaleContext(nullptr),
-            m_lastPts(AV_NOPTS_VALUE),
-            m_refPts(AV_NOPTS_VALUE)
-        {
-        }
-
-        inline QImage swapChannels(const QImage &image) const;
+        QImage swapChannels(const QImage &image) const;
 };
 
 VideoStream::VideoStream(const AVFormatContext *formatContext,
@@ -354,7 +346,8 @@ int VideoStream::encodeData(AVFrame *frame)
 
     if (result == AVERROR_EOF || result == AVERROR(EAGAIN))
         return result;
-    else if (result < 0) {
+
+    if (result < 0) {
         char errorStr[1024];
         av_strerror(AVERROR(result), errorStr, 1024);
         qDebug() << "Error encoding packets: " << errorStr;

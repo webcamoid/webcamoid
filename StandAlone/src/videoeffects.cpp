@@ -30,21 +30,14 @@
 class VideoEffectsPrivate
 {
     public:
-        QQmlApplicationEngine *m_engine;
+        QQmlApplicationEngine *m_engine {nullptr};
         QStringList m_availableEffects;
-        AkElement::ElementState m_state;
-        bool m_advancedMode;
+        AkElement::ElementState m_state {AkElement::ElementStateNull};
+        bool m_advancedMode {false};
         QList<AkElementPtr> m_effects;
         QStringList m_effectsId;
         AkElementPtr m_videoMux;
         QMutex m_mutex;
-
-        VideoEffectsPrivate():
-            m_engine(nullptr),
-            m_state(AkElement::ElementStateNull),
-            m_advancedMode(false)
-        {
-        }
 };
 
 VideoEffects::VideoEffects(QQmlApplicationEngine *engine, QObject *parent):
@@ -551,7 +544,7 @@ void VideoEffects::setQmlEngine(QQmlApplicationEngine *engine)
 
 void VideoEffects::advancedModeUpdated(bool advancedMode)
 {
-    if (advancedMode || this->d->m_effects.size() < 1)
+    if (advancedMode || this->d->m_effects.isEmpty())
         return;
 
     auto effect = this->d->m_effects.last();

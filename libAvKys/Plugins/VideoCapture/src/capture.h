@@ -52,7 +52,7 @@ class Capture: public QObject
 
     public:
         explicit Capture(QObject *parent=nullptr);
-        virtual ~Capture();
+        virtual ~Capture() = default;
 
         Q_INVOKABLE virtual QStringList webcams() const;
         Q_INVOKABLE virtual QString device() const;

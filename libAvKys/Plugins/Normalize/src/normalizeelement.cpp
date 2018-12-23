@@ -54,7 +54,7 @@ AkPacket NormalizeElement::iStream(const AkPacket &packet)
 
     // find the histogram boundaries by locating the .01 percent levels.
     ShortPixel high, low;
-    qint32 thresholdIntensity = qint32(oFrame.width() * oFrame.height() / 1e3);
+    auto thresholdIntensity = qint32(oFrame.width() * oFrame.height() / 1e3);
     IntegerPixel intensity;
 
     for (low.red = 0; low.red < 256; low.red++) {

@@ -30,15 +30,10 @@
 class DiceElementPrivate
 {
     public:
-        int m_diceSize;
+        int m_diceSize {24};
         QMutex m_mutex;
         QImage m_diceMap;
         QSize m_frameSize;
-
-        DiceElementPrivate():
-            m_diceSize(24)
-        {
-        }
 };
 
 DiceElement::DiceElement(): AkElement()
@@ -152,7 +147,7 @@ void DiceElement::updateDiceMap()
     QImage diceMap(width, height, QImage::Format_Grayscale8);
 
     for (int y = 0; y < diceMap.height(); y++) {
-        quint8 *oLine = reinterpret_cast<quint8 *>(diceMap.scanLine(y));
+        auto oLine = reinterpret_cast<quint8 *>(diceMap.scanLine(y));
 
         for (int x = 0; x < diceMap.width(); x++)
             oLine[x] = qrand() % 4;

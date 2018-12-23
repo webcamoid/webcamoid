@@ -27,16 +27,10 @@
 class FrameOverlapElementPrivate
 {
     public:
-        int m_nFrames;
-        int m_stride;
+        int m_nFrames {16};
+        int m_stride {4};
         QVector<QImage> m_frames;
         QSize m_frameSize;
-
-        FrameOverlapElementPrivate():
-            m_nFrames(16),
-            m_stride(4)
-        {
-        }
 };
 
 FrameOverlapElement::FrameOverlapElement(): AkElement()

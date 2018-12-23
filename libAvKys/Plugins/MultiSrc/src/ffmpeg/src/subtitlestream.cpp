@@ -53,7 +53,7 @@ void SubtitleStream::processPacket(AVPacket *packet)
         return;
     }
 
-    AVSubtitle *subtitle = new AVSubtitle();
+    auto subtitle = new AVSubtitle;
     int gotSubtitle;
 
     avcodec_decode_subtitle2(this->codecContext(),

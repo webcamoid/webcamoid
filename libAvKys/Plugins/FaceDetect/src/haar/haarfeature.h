@@ -77,7 +77,7 @@ class HaarFeature: public QObject
     public:
         explicit HaarFeature(QObject *parent=nullptr);
         HaarFeature(const HaarFeature &other);
-        ~HaarFeature();
+        ~HaarFeature() = default;
 
         Q_INVOKABLE RectVector rects() const;
         Q_INVOKABLE RealVector weight() const;

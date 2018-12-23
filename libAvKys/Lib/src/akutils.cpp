@@ -28,7 +28,7 @@
 #include "akpacket.h"
 #include "akvideopacket.h"
 
-typedef QMap<QImage::Format, AkVideoCaps::PixelFormat> ImageToPixelFormatMap;
+using ImageToPixelFormatMap = QMap<QImage::Format, AkVideoCaps::PixelFormat>;
 
 inline ImageToPixelFormatMap initImageToPixelFormatMap()
 {

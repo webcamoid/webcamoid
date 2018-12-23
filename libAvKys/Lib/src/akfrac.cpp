@@ -24,7 +24,7 @@
 
 #include "akfrac.h"
 
-#define SIGN(n) ((n < 0)? -1: 1)
+#define SIGN(n) (((n) < 0)? -1: 1)
 
 class AkFracPrivate
 {
@@ -184,7 +184,7 @@ void AkFrac::setNumDen(qint64 num, qint64 den)
             emit this->denChanged();
         }
 
-        if (this->d->m_isValid != false) {
+        if (this->d->m_isValid) {
             this->d->m_isValid = false;
             changed = true;
 
@@ -217,7 +217,7 @@ void AkFrac::setNumDen(qint64 num, qint64 den)
         emit this->denChanged();
     }
 
-    if (this->d->m_isValid != true) {
+    if (!this->d->m_isValid) {
         this->d->m_isValid = true;
         changed = true;
 

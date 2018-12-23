@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
     QIcon fallbackIcon(":/icons/hicolor/scalable/webcamoid.svg");
 #endif
 
-    app.setWindowIcon(QIcon::fromTheme("webcamoid", fallbackIcon));
+    QApplication::setWindowIcon(QIcon::fromTheme("webcamoid", fallbackIcon));
 
 #if defined(Q_OS_WIN32) || 0
     // NOTE: OpenGL detection in Qt is quite buggy, so use software render by default.
@@ -75,5 +75,5 @@ int main(int argc, char *argv[])
     MediaTools mediaTools;
     mediaTools.show();
 
-    return app.exec();
+    return QApplication::exec();
 }

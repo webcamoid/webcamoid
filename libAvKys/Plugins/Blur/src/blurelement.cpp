@@ -28,16 +28,11 @@
 class BlurElementPrivate
 {
     public:
-        int m_radius;
+        int m_radius {5};
 
-        BlurElementPrivate():
-            m_radius(5)
-        {
-        }
-
-        inline void integralImage(const QImage &image,
-                                  int oWidth, int oHeight,
-                                  PixelU32 *integral);
+        void integralImage(const QImage &image,
+                           int oWidth, int oHeight,
+                           PixelU32 *integral);
 };
 
 BlurElement::BlurElement():
@@ -127,7 +122,7 @@ AkPacket BlurElement::iStream(const AkPacket &packet)
 
     int oWidth = src.width() + 1;
     int oHeight = src.height() + 1;
-    PixelU32 *integral = new PixelU32[oWidth * oHeight];
+    auto integral = new PixelU32[oWidth * oHeight];
     this->d->integralImage(src, oWidth, oHeight, integral);
 
     int radius = this->d->m_radius;

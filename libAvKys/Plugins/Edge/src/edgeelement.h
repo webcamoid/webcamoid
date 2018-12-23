@@ -22,6 +22,8 @@
 
 #include <akelement.h>
 
+class EdgeElementPrivate;
+
 class EdgeElement: public AkElement
 {
     Q_OBJECT
@@ -62,26 +64,7 @@ class EdgeElement: public AkElement
         Q_INVOKABLE bool invert() const;
 
     private:
-        bool m_canny;
-        int m_thLow;
-        int m_thHi;
-        bool m_equalize;
-        bool m_invert;
-
-        QVector<quint8> equalize(const QImage &image);
-        void sobel(int width, int height, const QVector<quint8> &gray,
-                   QVector<quint16> &gradient, QVector<quint8> &direction) const;
-        QVector<quint16> thinning(int width, int height,
-                                  const QVector<quint16> &gradient,
-                                  const QVector<quint8> &direction) const;
-        QVector<quint8> threshold(int width, int height,
-                                  const QVector<quint16> &image,
-                                  const QVector<int> &thresholds,
-                                  const QVector<int> &map) const;
-        void trace(int width, int height, QVector<quint8> &canny,
-                   int x, int y) const;
-        QVector<quint8> hysteresisThresholding(int width, int height,
-                                               const QVector<quint8> &thresholded) const;
+        EdgeElementPrivate *d;
 
     protected:
         QString controlInterfaceProvide(const QString &controlId) const;

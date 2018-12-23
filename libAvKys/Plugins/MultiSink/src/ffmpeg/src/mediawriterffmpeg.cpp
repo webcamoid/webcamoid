@@ -49,10 +49,10 @@ extern "C"
     #include <libavutil/mathematics.h>
 }
 
-typedef QMap<AVMediaType, QString> AvMediaTypeStrMap;
-typedef QVector<AkVideoCaps> VectorVideoCaps;
-typedef QMap<AVOptionType, QString> OptionTypeStrMap;
-typedef QMap<QString, QMap<AVMediaType, QStringList>> SupportedCodecsType;
+using AvMediaTypeStrMap = QMap<AVMediaType, QString>;
+using VectorVideoCaps = QVector<AkVideoCaps>;
+using OptionTypeStrMap = QMap<AVOptionType, QString>;
+using SupportedCodecsType = QMap<QString, QMap<AVMediaType, QStringList>>;
 
 class MediaWriterFFmpegGlobal
 {
@@ -651,9 +651,11 @@ QStringList MediaWriterFFmpeg::supportedFormats()
 {
     QStringList formats;
 
-    for (auto &format: mediaWriterFFmpegGlobal->m_supportedCodecs.keys())
-        if (!this->m_formatsBlackList.contains(format))
-            formats << format;
+    for (auto it = mediaWriterFFmpegGlobal->m_supportedCodecs.begin();
+         it != mediaWriterFFmpegGlobal->m_supportedCodecs.end();
+         it++)
+        if (!this->m_formatsBlackList.contains(it.key()))
+            formats << it.key();
 
     return formats;
 }
@@ -963,16 +965,16 @@ QVariantList MediaWriterFFmpeg::codecOptions(int index)
     if (codec == "libvpx") {
         quint8 r = 0;
 
-        for (int i = 0; i < options.size(); i++) {
-            auto option = options[i].toList();
+        for (auto &opt: options) {
+            auto option = opt.toList();
 
             if (option[0] == "deadline") {
                 option[6] = option[7] = "realtime";
-                options[i] = option;
+                opt = option;
                 r |= 0x1;
             } else if (option[0] == "quality") {
                 option[6] = option[7] = "realtime";
-                options[i] = option;
+                opt = option;
                 r |= 0x2;
             }
 
@@ -980,12 +982,12 @@ QVariantList MediaWriterFFmpeg::codecOptions(int index)
                 break;
         }
     } else if (codec == "libx265") {
-        for (int i = 0; i < options.size(); i++) {
-            auto option = options[i].toList();
+        for (auto &opt: options) {
+            auto option = opt.toList();
 
             if (option[0] == "preset") {
                 option[6] = option[7] = "ultrafast";
-                options[i] = option;
+                opt = option;
 
                 break;
             }
@@ -1084,7 +1086,10 @@ QVariantList MediaWriterFFmpegPrivate::parseOptions(const AVClass *avClass) cons
             case AV_OPT_TYPE_COLOR: {
                 uint8_t color[4];
 
-                if (av_parse_color(color, option->default_val.str, -1, NULL) < 0)
+                if (av_parse_color(color,
+                                   option->default_val.str,
+                                   -1,
+                                   nullptr) < 0)
                     value = qRgba(0, 0, 0, 0);
 
                 value = qRgba(color[0], color[1], color[2], color[3]);
@@ -1235,18 +1240,20 @@ AVDictionary *MediaWriterFFmpegPrivate::formatContextOptions(AVFormatContext *fo
 
     AVDictionary *formatOptions = nullptr;
 
-    for (const QString &key: options.keys()) {
+    for (auto it = options.begin();
+         it != options.end();
+         it++) {
         QString value;
 
-        if (flagType.contains(key)) {
-            auto flags = options[key].toStringList();
+        if (flagType.contains(it.key())) {
+            auto flags = it.value().toStringList();
             value = flags.join('+');
         } else {
-            value = options[key].toString();
+            value = it.value().toString();
         }
 
         av_dict_set(&formatOptions,
-                    key.toStdString().c_str(),
+                    it.key().toStdString().c_str(),
                     value.toStdString().c_str(),
                     0);
     }
@@ -1414,9 +1421,11 @@ void MediaWriterFFmpeg::setFormatOptions(const QVariantMap &formatOptions)
     auto outputFormat = this->d->guessFormat();
     bool modified = false;
 
-    for (auto &key: formatOptions.keys())
-        if (formatOptions[key] != this->d->m_formatOptions.value(outputFormat).value(key)) {
-            this->d->m_formatOptions[outputFormat][key] = formatOptions[key];
+    for (auto it = formatOptions.begin();
+         it != formatOptions.end();
+         it++)
+        if (it.value() != this->d->m_formatOptions.value(outputFormat).value(it.key())) {
+            this->d->m_formatOptions[outputFormat][it.key()] = it.value();
             modified = true;
         }
 
@@ -1440,9 +1449,11 @@ void MediaWriterFFmpeg::setCodecOptions(int index,
     auto optKey = QString("%1/%2/%3").arg(outputFormat).arg(index).arg(codec);
     bool modified = false;
 
-    for (auto &key: codecOptions.keys())
-        if (codecOptions[key] != this->d->m_codecOptions.value(optKey).value(key)) {
-            this->d->m_codecOptions[optKey][key] = codecOptions[key];
+    for (auto it = codecOptions.begin();
+         it != codecOptions.end();
+         it++)
+        if (it.value() != this->d->m_codecOptions.value(optKey).value(it.key())) {
+            this->d->m_codecOptions[optKey][it.key()] = it.value();
             modified = true;
         }
 

@@ -43,7 +43,7 @@ extern "C"
 // We use about AUDIO_DIFF_AVG_NB A-V differences to make the average
 #define AUDIO_DIFF_AVG_NB 20
 
-typedef QMap<AVSampleFormat, AkAudioCaps::SampleFormat> SampleFormatMap;
+using SampleFormatMap = QMap<AVSampleFormat, AkAudioCaps::SampleFormat>;
 
 inline SampleFormatMap initSampleFormatMap()
 {
@@ -70,7 +70,7 @@ inline SampleFormatMap initSampleFormatMap()
 
 Q_GLOBAL_STATIC_WITH_ARGS(SampleFormatMap, sampleFormats, (initSampleFormatMap()))
 
-typedef QMap<AkAudioCaps::ChannelLayout, uint64_t> ChannelLayoutsMap;
+using ChannelLayoutsMap = QMap<AkAudioCaps::ChannelLayout, uint64_t>;
 
 inline ChannelLayoutsMap initChannelFormatsMap()
 {
@@ -154,8 +154,8 @@ AudioStream::~AudioStream()
 
 AkCaps AudioStream::caps() const
 {
-    AVSampleFormat iFormat = AVSampleFormat(this->codecContext()->sample_fmt);
-    AVSampleFormat oFormat = av_get_packed_sample_fmt(iFormat);
+    auto iFormat = AVSampleFormat(this->codecContext()->sample_fmt);
+    auto oFormat = av_get_packed_sample_fmt(iFormat);
     oFormat = sampleFormats->contains(oFormat)? oFormat: AV_SAMPLE_FMT_FLT;
 
     AkAudioCaps::ChannelLayout layout = channelLayouts->key(this->codecContext()->channel_layout,

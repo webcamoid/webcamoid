@@ -22,7 +22,10 @@
 
 #include <akelement.h>
 
-class TemperatureElement: public AkElement
+class TemperatureElementPrivate;
+
+class TemperatureElement:
+        public AkElement
 {
     Q_OBJECT
     Q_PROPERTY(qreal temperature
@@ -33,14 +36,12 @@ class TemperatureElement: public AkElement
 
     public:
         explicit TemperatureElement();
+        ~TemperatureElement();
 
         Q_INVOKABLE qreal temperature() const;
 
     private:
-        qreal m_temperature;
-        qreal m_kr;
-        qreal m_kg;
-        qreal m_kb;
+        TemperatureElementPrivate *d;
 
     protected:
         QString controlInterfaceProvide(const QString &controlId) const;

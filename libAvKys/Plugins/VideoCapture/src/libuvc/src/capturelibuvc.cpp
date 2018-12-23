@@ -112,15 +112,15 @@ class UvcControl
         static inline const UvcControl *bySelector(int controlType,
                                                    uint8_t selector)
         {
-            for (int i = 0; i < controls().size(); i++)
-                if (controls()[i].controlType == controlType
-                    && controls()[i].selector == selector)
-                    return &controls()[i];
+            for (auto &control: controls())
+                if (control.controlType == controlType
+                    && control.selector == selector)
+                    return &control;
 
             // Returns default for control type.
-            for (int i = 0; i < controls().size(); i++)
-                if (controls()[i].controlType == controlType)
-                    return &controls()[i];
+            for (auto &control: controls())
+                if (control.controlType == controlType)
+                    return &control;
 
             return &controls().first();
         }
@@ -139,7 +139,7 @@ class UvcControl
 
 Q_GLOBAL_STATIC(UsbGlobals, usbGlobals)
 
-typedef QMap<QString, uvc_frame_format> PixFmtToUvcMap;
+using PixFmtToUvcMap = QMap<QString, uvc_frame_format>;
 
 inline PixFmtToUvcMap initPixFmtToUvcMap()
 {
@@ -172,32 +172,25 @@ class CaptureLibUVCPrivate
         QMap<QString, QVariantList> m_cameraControls;
         QString m_curDevice;
         AkPacket m_curPacket;
-        uvc_context_t *m_uvcContext;
-        uvc_device_handle_t *m_deviceHnd;
+        uvc_context_t *m_uvcContext {nullptr};
+        uvc_device_handle_t *m_deviceHnd {nullptr};
         QThreadPool m_threadPool;
         QWaitCondition m_packetNotReady;
         QMutex m_mutex;
-        qint64 m_id;
+        qint64 m_id {-1};
         AkFrac m_fps;
 
-        CaptureLibUVCPrivate():
-            m_uvcContext(nullptr),
-            m_deviceHnd(nullptr),
-            m_id(-1)
-        {
-        }
-
-        inline QVariantList controlsList(uvc_device_handle_t *deviceHnd,
-                                         uint8_t unit,
-                                         uint8_t control,
-                                         int controlType) const;
-        inline void setControls(uvc_device_handle_t *deviceHnd,
-                                uint8_t unit,
-                                uint8_t control,
-                                int controlType,
-                                const QVariantMap &values);
-        inline static void frameCallback(struct uvc_frame *frame, void *userData);
-        inline QString fourccToStr(const uint8_t *format) const;
+        QVariantList controlsList(uvc_device_handle_t *deviceHnd,
+                                  uint8_t unit,
+                                  uint8_t control,
+                                  int controlType) const;
+        void setControls(uvc_device_handle_t *deviceHnd,
+                         uint8_t unit,
+                         uint8_t control,
+                         int controlType,
+                         const QVariantMap &values);
+        static void frameCallback(struct uvc_frame *frame, void *userData);
+        QString fourccToStr(const uint8_t *format) const;
 };
 
 CaptureLibUVC::CaptureLibUVC(QObject *parent):

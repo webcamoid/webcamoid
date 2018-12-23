@@ -31,7 +31,7 @@ class Scratch
                 qreal minX, qreal maxX,
                 qreal minDX, qreal maxDX,
                 int minY, int maxY);
-        Scratch(const Scratch &other);
+        Scratch(const Scratch &other) = default;
         Scratch &operator =(const Scratch &other);
         Scratch operator ++(int);
 

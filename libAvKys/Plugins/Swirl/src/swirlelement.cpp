@@ -82,9 +82,9 @@ AkPacket SwirlElement::iStream(const AkPacket &packet)
     qreal radius = qMax(xCenter, yCenter);
 
     if (src.width() > src.height())
-        yScale = qreal(src.width() / src.height());
+        yScale = qreal(src.width()) / src.height();
     else if (src.width() < src.height())
-        xScale = qreal(src.height() / src.width());
+        xScale = qreal(src.height()) / src.width();
 
     qreal degrees = M_PI * this->m_degrees / 180.0;
 

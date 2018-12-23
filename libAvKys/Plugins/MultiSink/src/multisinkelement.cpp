@@ -34,13 +34,13 @@ inline QSharedPointer<T> ptr_cast(QObject *obj=nullptr)
     return QSharedPointer<T>(static_cast<T *>(obj));
 }
 
-typedef QSharedPointer<MediaWriter> MediaWriterPtr;
+using MediaWriterPtr = QSharedPointer<MediaWriter>;
 
 class MultiSinkElementPrivate
 {
     public:
         QString m_location;
-        bool m_showFormatOptions;
+        bool m_showFormatOptions {false};
         QVariantList m_userControls;
         QVariantMap m_userControlsValues;
         MediaWriterPtr m_mediaWriter;
@@ -55,11 +55,6 @@ class MultiSinkElementPrivate
         QMap<QString, QString> m_codecDescription;
         QMap<QString, QString> m_codecType;
         QMap<QString, QVariantMap> m_defaultCodecParams;
-
-        MultiSinkElementPrivate():
-            m_showFormatOptions(false)
-        {
-        }
 };
 
 MultiSinkElement::MultiSinkElement():
@@ -427,7 +422,8 @@ void MultiSinkElement::codecLibUpdated(const QString &codecLib)
         location = this->d->m_mediaWriter->location();
 
     this->d->m_mediaWriter =
-            ptr_cast<MediaWriter>(this->loadSubModule("MultiSink", codecLib));
+            ptr_cast<MediaWriter>(MultiSinkElement::loadSubModule("MultiSink",
+                                                                  codecLib));
 
     if (!this->d->m_mediaWriter)
         return;

@@ -34,7 +34,7 @@ inline QSharedPointer<T> ptr_cast(QObject *obj=nullptr)
     return QSharedPointer<T>(static_cast<T *>(obj));
 }
 
-typedef QSharedPointer<ScreenDev> ScreenDevPtr;
+using ScreenDevPtr = QSharedPointer<ScreenDev>;
 
 class DesktopCaptureElementPrivate
 {
@@ -238,8 +238,8 @@ void DesktopCaptureElement::captureLibUpdated(const QString &captureLib)
     this->setState(AkElement::ElementStateNull);
 
     this->d->m_screenCapture =
-            ptr_cast<ScreenDev>(this->loadSubModule("DesktopCapture",
-                                                    captureLib));
+            ptr_cast<ScreenDev>(DesktopCaptureElement::loadSubModule("DesktopCapture",
+                                                                     captureLib));
 
     if (!this->d->m_screenCapture)
         return;

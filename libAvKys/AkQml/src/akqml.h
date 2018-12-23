@@ -34,7 +34,7 @@ class AkQml: public QQuickItem
 
     public:
         AkQml(QQuickItem *parent=nullptr);
-        ~AkQml();
+        ~AkQml() = default;
 
         Q_INVOKABLE qint64 id() const;
 

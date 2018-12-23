@@ -28,14 +28,9 @@
 class WarpElementPrivate
 {
     public:
-        qreal m_ripples;
+        qreal m_ripples {4};
         QSize m_frameSize;
         QVector<qreal> m_phiTable;
-
-        WarpElementPrivate():
-            m_ripples(4)
-        {
-        }
 };
 
 WarpElement::WarpElement(): AkElement()

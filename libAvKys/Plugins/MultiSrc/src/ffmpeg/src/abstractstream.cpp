@@ -42,9 +42,9 @@ inline void waitLoop(const QFuture<T> &loop)
     }
 }
 
-typedef QSharedPointer<AVPacket> PacketPtr;
-typedef QSharedPointer<AVFrame> FramePtr;
-typedef QSharedPointer<AVSubtitle> SubtitlePtr;
+using PacketPtr = QSharedPointer<AVPacket>;
+using FramePtr = QSharedPointer<AVFrame>;
+using SubtitlePtr = QSharedPointer<AVSubtitle>;
 
 class AbstractStreamPrivate
 {
@@ -249,7 +249,8 @@ void AbstractStream::packetEnqueue(AVPacket *packet)
     this->d->m_packetMutex.lock();
 
     if (packet) {
-        this->d->m_packets.enqueue(PacketPtr(packet, this->d->deletePacket));
+        this->d->m_packets.enqueue(PacketPtr(packet,
+                                             AbstractStreamPrivate::deletePacket));
         this->d->m_packetQueueSize += packet->size;
     } else
         this->d->m_packets.enqueue(PacketPtr());
@@ -266,7 +267,8 @@ void AbstractStream::dataEnqueue(AVFrame *frame)
         this->d->m_dataQueueNotFull.wait(&this->d->m_dataMutex);
 
     if (frame)
-        this->d->m_frames.enqueue(FramePtr(frame, this->d->deleteFrame));
+        this->d->m_frames.enqueue(FramePtr(frame,
+                                           AbstractStreamPrivate::deleteFrame));
     else
         this->d->m_frames.enqueue(FramePtr());
 
@@ -283,7 +285,7 @@ void AbstractStream::subtitleEnqueue(AVSubtitle *subtitle)
 
     if (subtitle)
         this->d->m_subtitles.enqueue(SubtitlePtr(subtitle,
-                                                 this->d->deleteSubtitle));
+                                                 AbstractStreamPrivate::deleteSubtitle));
     else
         this->d->m_subtitles.enqueue(SubtitlePtr());
 

@@ -26,7 +26,7 @@
 
 #include "charifyelement.h"
 
-typedef QMap<CharifyElement::ColorMode, QString> ColorModeToStr;
+using ColorModeToStr = QMap<CharifyElement::ColorMode, QString>;
 
 inline ColorModeToStr initColorModeToStr()
 {
@@ -42,7 +42,7 @@ Q_GLOBAL_STATIC_WITH_ARGS(ColorModeToStr,
                           colorModeToStr,
                           (initColorModeToStr()))
 
-typedef QMap<QFont::HintingPreference, QString> HintingPreferenceToStr;
+using HintingPreferenceToStr = QMap<QFont::HintingPreference, QString>;
 
 inline HintingPreferenceToStr initHintingPreferenceToStr()
 {
@@ -60,7 +60,7 @@ Q_GLOBAL_STATIC_WITH_ARGS(HintingPreferenceToStr,
                           hintingPreferenceToStr,
                           (initHintingPreferenceToStr()))
 
-typedef QMap<QFont::StyleStrategy, QString> StyleStrategyToStr;
+using StyleStrategyToStr = QMap<QFont::StyleStrategy, QString>;
 
 inline StyleStrategyToStr initStyleStrategyToStr()
 {
@@ -90,24 +90,15 @@ Q_GLOBAL_STATIC_WITH_ARGS(StyleStrategyToStr,
 class CharifyElementPrivate
 {
     public:
-        CharifyElement::ColorMode m_mode;
+        CharifyElement::ColorMode m_mode {CharifyElement::ColorModeNatural};
         QString m_charTable;
-        QFont m_font;
-        QRgb m_foregroundColor;
-        QRgb m_backgroundColor;
+        QFont m_font {QApplication::font()};
+        QRgb m_foregroundColor {qRgb(255, 255, 255)};
+        QRgb m_backgroundColor {qRgb(0, 0, 0)};
         QVector<Character> m_characters;
         QSize m_fontSize;
         QMutex m_mutex;
-        bool m_reversed;
-
-        CharifyElementPrivate():
-            m_mode(CharifyElement::ColorModeNatural),
-            m_font(QApplication::font()),
-            m_foregroundColor(qRgb(255, 255, 255)),
-            m_backgroundColor(qRgb(0, 0, 0)),
-            m_reversed(false)
-        {
-        }
+        bool m_reversed {false};
 };
 
 CharifyElement::CharifyElement(): AkElement()
@@ -219,7 +210,7 @@ QSize CharifyElement::fontSize(const QString &chrTable, const QFont &font) const
             height = size.height();
     }
 
-    return QSize(width, height);
+    return {width, height};
 }
 
 QImage CharifyElement::drawChar(const QChar &chr, const QFont &font,
@@ -500,7 +491,7 @@ void CharifyElement::updateCharTable()
             characters.append(Character(chr, QImage(), weight));
     }
 
-    QMutexLocker(&this->d->m_mutex);
+    QMutexLocker locker(&this->d->m_mutex);
 
     this->d->m_fontSize = fontSize;
 

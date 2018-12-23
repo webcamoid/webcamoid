@@ -29,19 +29,16 @@ class AkPacketPrivate
         AkCaps m_caps;
         QVariant m_data;
         QByteArray m_buffer;
-        qint64 m_pts;
+        qint64 m_pts {0};
         AkFrac m_timeBase;
-        int m_index;
-        qint64 m_id;
+        int m_index {-1};
+        qint64 m_id {-1};
 };
 
 AkPacket::AkPacket(QObject *parent):
     QObject(parent)
 {
     this->d = new AkPacketPrivate();
-    this->d->m_pts = 0;
-    this->d->m_index = -1;
-    this->d->m_id = -1;
 }
 
 AkPacket::AkPacket(const AkCaps &caps,

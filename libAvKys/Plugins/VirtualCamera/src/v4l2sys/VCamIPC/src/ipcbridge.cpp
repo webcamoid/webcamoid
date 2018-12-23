@@ -17,6 +17,7 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <cerrno>
 #include <QCoreApplication>
 #include <QDebug>
 #include <QDir>
@@ -26,7 +27,6 @@
 #include <QTemporaryDir>
 #include <QTextCodec>
 #include <QThread>
-#include <errno.h>
 #include <fcntl.h>
 #include <limits>
 #include <linux/videodev2.h>
@@ -52,18 +52,18 @@
 
 namespace AkVCam
 {
-    typedef __u32 RwMode;
-    typedef QList<VideoFormat> FormatsList;
-    typedef QMap<uint32_t, PixelFormat> PixFmtFourccMap;
-    typedef std::function<bool (const std::string &deviceId)> CanHandleFunc;
-    typedef std::function<std::string
-                          (const std::wstring &description,
-                           const std::vector<VideoFormat> &formats)> DeviceCreateFunc;
-    typedef std::function<bool
-                          (const std::string &deviceId)> DeviceDestroyFunc;
-    typedef std::function<bool (const std::string &deviceId,
-                                const std::wstring &description)> ChangeDescriptionFunc;
-    typedef std::function<QString (void)> DestroyAllDevicesFunc;
+    using RwMode = __u32;
+    using FormatsList = QList<VideoFormat>;
+    using PixFmtFourccMap = QMap<uint32_t, PixelFormat>;
+    using CanHandleFunc = std::function<bool (const std::string &deviceId)>;
+    using DeviceCreateFunc =
+        std::function<std::string (const std::wstring &description,
+                                   const std::vector<VideoFormat> &formats)>;
+    using DeviceDestroyFunc = std::function<bool (const std::string &deviceId)>;
+    using ChangeDescriptionFunc =
+        std::function<bool (const std::string &deviceId,
+                            const std::wstring &description)>;
+    using DestroyAllDevicesFunc = std::function<QString (void)>;
 
     enum IoMethod
     {
@@ -441,8 +441,7 @@ bool AkVCam::IpcBridge::isHorizontalMirrored(const std::string &deviceId)
         int fd = open(output.toStdString().c_str(), O_RDWR | O_NONBLOCK, 0);
 
         if (fd >= 0) {
-            v4l2_control control;
-            memset(&control, 0, sizeof(v4l2_control));
+            v4l2_control control {};
             control.id = V4L2_CID_HFLIP;
 
             if (this->d->xioctl(fd, VIDIOC_G_CTRL, &control) >= 0) {
@@ -493,8 +492,7 @@ bool AkVCam::IpcBridge::isVerticalMirrored(const std::string &deviceId)
         int fd = open(output.toStdString().c_str(), O_RDWR | O_NONBLOCK, 0);
 
         if (fd >= 0) {
-            v4l2_control control;
-            memset(&control, 0, sizeof(v4l2_control));
+            v4l2_control control {};
             control.id = V4L2_CID_VFLIP;
 
             if (this->d->xioctl(fd, VIDIOC_G_CTRL, &control) >= 0) {
@@ -545,8 +543,7 @@ AkVCam::Scaling AkVCam::IpcBridge::scalingMode(const std::string &deviceId)
         int fd = open(output.toStdString().c_str(), O_RDWR | O_NONBLOCK, 0);
 
         if (fd >= 0) {
-            v4l2_control control;
-            memset(&control, 0, sizeof(v4l2_control));
+            v4l2_control control {};
             control.id = AKVCAM_CID_SCALING;
 
             if (this->d->xioctl(fd, VIDIOC_G_CTRL, &control) >= 0) {
@@ -602,8 +599,7 @@ AkVCam::AspectRatio AkVCam::IpcBridge::aspectRatioMode(const std::string &device
         int fd = open(output.toStdString().c_str(), O_RDWR | O_NONBLOCK, 0);
 
         if (fd >= 0) {
-            v4l2_control control;
-            memset(&control, 0, sizeof(v4l2_control));
+            v4l2_control control {};
             control.id = AKVCAM_CID_ASPECT_RATIO;
 
             if (this->d->xioctl(fd, VIDIOC_G_CTRL, &control) >= 0) {
@@ -659,8 +655,7 @@ bool AkVCam::IpcBridge::swapRgb(const std::string &deviceId)
         int fd = open(output.toStdString().c_str(), O_RDWR | O_NONBLOCK, 0);
 
         if (fd >= 0) {
-            v4l2_control control;
-            memset(&control, 0, sizeof(v4l2_control));
+            v4l2_control control {};
             control.id = AKVCAM_CID_SWAP_RGB;
 
             if (this->d->xioctl(fd, VIDIOC_G_CTRL, &control) >= 0) {
@@ -849,8 +844,7 @@ bool AkVCam::IpcBridge::deviceStart(const std::string &deviceId,
     if (this->d->m_fd < 0)
         return false;
 
-    v4l2_capability capabilities;
-    memset(&capabilities, 0, sizeof(v4l2_capability));
+    v4l2_capability capabilities {};
 
     if (this->d->xioctl(this->d->m_fd, VIDIOC_QUERYCAP, &capabilities) < 0) {
         qDebug() << "VirtualCamera:  Can't query capabilities.";
@@ -861,7 +855,7 @@ bool AkVCam::IpcBridge::deviceStart(const std::string &deviceId,
     }
 
     auto fmtToFourcc = this->d->v4l2PixFmtFourccMap();
-    struct v4l2_format fmt;
+    struct v4l2_format fmt {};
     fmt.type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
     this->d->xioctl(this->d->m_fd, VIDIOC_G_FMT, &fmt);
 
@@ -946,12 +940,11 @@ void AkVCam::IpcBridge::deviceStop(const std::string &deviceId)
         if (this->d->m_ioMethod == IoMethodReadWrite)
             delete [] this->d->m_buffers[0].start;
         else if (this->d->m_ioMethod == IoMethodMemoryMap)
-            for (qint32 i = 0; i < this->d->m_buffers.size(); i++)
-                munmap(this->d->m_buffers[i].start,
-                       this->d->m_buffers[i].length);
+            for (auto &buffer: this->d->m_buffers)
+                munmap(buffer.start, buffer.length);
         else if (this->d->m_ioMethod == IoMethodUserPointer)
-            for (qint32 i = 0; i < this->d->m_buffers.size(); i++)
-                delete [] this->d->m_buffers[i].start;
+            for (auto &buffer: this->d->m_buffers)
+                delete [] buffer.start;
     }
 
     close(this->d->m_fd);
@@ -980,17 +973,18 @@ bool AkVCam::IpcBridge::write(const std::string &deviceId,
 
     if (this->d->m_ioMethod == IoMethodReadWrite) {
         memcpy(this->d->m_buffers[0].start,
-               scaled.data().get(),
+               scaled.data().data(),
                qMin(this->d->m_buffers[0].length,
-                    scaled.dataSize()));
+                    scaled.data().size()));
 
         return ::write(this->d->m_fd,
                        this->d->m_buffers[0].start,
                        this->d->m_buffers[0].length) >= 0;
-    } else if (this->d->m_ioMethod == IoMethodMemoryMap
-               || this->d->m_ioMethod == IoMethodUserPointer) {
-        v4l2_buffer buffer;
-        memset(&buffer, 0, sizeof(buffer));
+    }
+
+    if (this->d->m_ioMethod == IoMethodMemoryMap
+        || this->d->m_ioMethod == IoMethodUserPointer) {
+        v4l2_buffer buffer {};
         buffer.type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
         buffer.memory = (this->d->m_ioMethod == IoMethodMemoryMap)?
                             V4L2_MEMORY_MMAP:
@@ -1003,9 +997,9 @@ bool AkVCam::IpcBridge::write(const std::string &deviceId,
             return false;
 
         memcpy(this->d->m_buffers[int(buffer.index)].start,
-               scaled.data().get(),
+               scaled.data().data(),
                qMin(size_t(buffer.bytesused),
-                    scaled.dataSize()));
+                    scaled.data().size()));
 
         return this->d->xioctl(this->d->m_fd, VIDIOC_QBUF, &buffer) >= 0;
     }
@@ -1026,13 +1020,11 @@ void AkVCam::IpcBridge::setMirroring(const std::string &deviceId,
         int fd = open(output.toStdString().c_str(), O_RDWR | O_NONBLOCK, 0);
 
         if (fd >= 0) {
-            v4l2_control hflipControl;
-            memset(&hflipControl, 0, sizeof(v4l2_control));
+            v4l2_control hflipControl {};
             hflipControl.id = V4L2_CID_HFLIP;
             hflipControl.value = horizontalMirrored;
 
-            v4l2_control vflipControl;
-            memset(&vflipControl, 0, sizeof(v4l2_control));
+            v4l2_control vflipControl {};
             vflipControl.id = V4L2_CID_VFLIP;
             vflipControl.value = verticalMirrored;
 
@@ -1103,8 +1095,7 @@ void AkVCam::IpcBridge::setScaling(const std::string &deviceId,
         int fd = open(output.toStdString().c_str(), O_RDWR | O_NONBLOCK, 0);
 
         if (fd >= 0) {
-            v4l2_control control;
-            memset(&control, 0, sizeof(v4l2_control));
+            v4l2_control control {};
             control.id = AKVCAM_CID_SCALING;
             control.value = scaling;
 
@@ -1138,8 +1129,8 @@ void AkVCam::IpcBridge::setScaling(const std::string &deviceId,
 
                     if (scalingToString->contains(scaling)) {
                         cmds.write(QString("echo %1 > %2\n")
-                                   .arg(scalingToString->value(scaling))
-                                   .arg(sysfsControls)
+                                   .arg(scalingToString->value(scaling),
+                                        sysfsControls)
                                    .toUtf8());
                         cmds.close();
 
@@ -1172,8 +1163,7 @@ void AkVCam::IpcBridge::setAspectRatio(const std::string &deviceId,
         int fd = open(output.toStdString().c_str(), O_RDWR | O_NONBLOCK, 0);
 
         if (fd >= 0) {
-            v4l2_control control;
-            memset(&control, 0, sizeof(v4l2_control));
+            v4l2_control control {};
             control.id = AKVCAM_CID_ASPECT_RATIO;
             control.value = aspectRatio;
 
@@ -1207,8 +1197,8 @@ void AkVCam::IpcBridge::setAspectRatio(const std::string &deviceId,
 
                     if (aspectRatioToString->contains(aspectRatio)) {
                         cmds.write(QString("echo %1 > %2\n")
-                                   .arg(aspectRatioToString->value(aspectRatio))
-                                   .arg(sysfsControls)
+                                   .arg(aspectRatioToString->value(aspectRatio),
+                                        sysfsControls)
                                    .toUtf8());
                         cmds.close();
 
@@ -1240,8 +1230,7 @@ void AkVCam::IpcBridge::setSwapRgb(const std::string &deviceId, bool swap)
         int fd = open(output.toStdString().c_str(), O_RDWR | O_NONBLOCK, 0);
 
         if (fd >= 0) {
-            v4l2_control control;
-            memset(&control, 0, sizeof(v4l2_control));
+            v4l2_control control {};
             control.id = AKVCAM_CID_SWAP_RGB;
             control.value = swap;
 
@@ -1544,8 +1533,7 @@ AkVCam::FormatsList AkVCam::IpcBridgePrivate::formatFps(int fd,
     FormatsList formats;
 
 #ifdef VIDIOC_ENUM_FRAMEINTERVALS
-    struct v4l2_frmivalenum frmival;
-    memset(&frmival, 0, sizeof(frmival));
+    struct v4l2_frmivalenum frmival {};
     frmival.pixel_format = format.pixelformat;
     frmival.width = width;
     frmival.height = height;
@@ -1594,8 +1582,7 @@ AkVCam::FormatsList AkVCam::IpcBridgePrivate::formatFps(int fd,
 AkVCam::FormatsList AkVCam::IpcBridgePrivate::formats(int fd) const
 {
     FormatsList formats;
-    v4l2_capability capability;
-    memset(&capability, 0, sizeof(v4l2_capability));
+    v4l2_capability capability {};
 
     if (this->xioctl(fd, VIDIOC_QUERYCAP, &capability) < 0)
         return {};
@@ -1629,16 +1616,14 @@ AkVCam::FormatsList AkVCam::IpcBridgePrivate::formats(int fd) const
 #endif
 
     // Enumerate all supported formats.
-    v4l2_fmtdesc fmtdesc;
-    memset(&fmtdesc, 0, sizeof(v4l2_fmtdesc));
+    v4l2_fmtdesc fmtdesc {};
     fmtdesc.type = type;
 
     for (fmtdesc.index = 0;
          this->xioctl(fd, VIDIOC_ENUM_FMT, &fmtdesc) >= 0;
          fmtdesc.index++) {
 #ifdef VIDIOC_ENUM_FRAMESIZES
-        v4l2_frmsizeenum frmsize;
-        memset(&frmsize, 0, sizeof(v4l2_frmsizeenum));
+        v4l2_frmsizeenum frmsize {};
         frmsize.pixel_format = fmtdesc.pixelformat;
 
         // Enumerate frame sizes.
@@ -1818,8 +1803,7 @@ AkVCam::FormatsList AkVCam::IpcBridgePrivate::formatsFromSettings(const QString 
     QString driver;
     QString description;
     QString bus;
-    v4l2_capability capability;
-    memset(&capability, 0, sizeof(v4l2_capability));
+    v4l2_capability capability {};
 
     if (this->xioctl(fd, VIDIOC_QUERYCAP, &capability) >= 0) {
         driver = reinterpret_cast<const char *>(capability.driver);
@@ -1846,8 +1830,7 @@ AkVCam::FormatsList AkVCam::IpcBridgePrivate::formatsFromSettings(const QString 
 
 void AkVCam::IpcBridgePrivate::setFps(int fd, const v4l2_fract &fps)
 {
-    v4l2_streamparm streamparm;
-    memset(&streamparm, 0, sizeof(streamparm));
+    v4l2_streamparm streamparm {};
     streamparm.type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
 
     if (this->xioctl(fd, VIDIOC_G_PARM, &streamparm) >= 0)
@@ -1877,8 +1860,7 @@ bool AkVCam::IpcBridgePrivate::initReadWrite(quint32 bufferSize)
 
 bool AkVCam::IpcBridgePrivate::initMemoryMap()
 {
-    v4l2_requestbuffers requestBuffers;
-    memset(&requestBuffers, 0, sizeof(requestBuffers));
+    v4l2_requestbuffers requestBuffers {};
     requestBuffers.type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
     requestBuffers.memory = V4L2_MEMORY_MMAP;
     requestBuffers.count = __u32(this->m_nBuffers);
@@ -1893,8 +1875,7 @@ bool AkVCam::IpcBridgePrivate::initMemoryMap()
     bool error = false;
 
     for (int i = 0; i < int(requestBuffers.count); i++) {
-        v4l2_buffer buffer;
-        memset(&buffer, 0, sizeof(buffer));
+        v4l2_buffer buffer {};
         buffer.type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
         buffer.memory = V4L2_MEMORY_MMAP;
         buffer.index = __u32(i);
@@ -1922,8 +1903,8 @@ bool AkVCam::IpcBridgePrivate::initMemoryMap()
     }
 
     if (error) {
-        for (qint32 i = 0; i < this->m_buffers.size(); i++)
-            munmap(this->m_buffers[i].start, this->m_buffers[i].length);
+        for (auto &buffer: this->m_buffers)
+            munmap(buffer.start, buffer.length);
 
         this->m_buffers.clear();
 
@@ -1935,8 +1916,7 @@ bool AkVCam::IpcBridgePrivate::initMemoryMap()
 
 bool AkVCam::IpcBridgePrivate::initUserPointer(quint32 bufferSize)
 {
-    v4l2_requestbuffers requestBuffers;
-    memset(&requestBuffers, 0, sizeof(requestBuffers));
+    v4l2_requestbuffers requestBuffers {};
     requestBuffers.type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
     requestBuffers.memory = V4L2_MEMORY_USERPTR;
     requestBuffers.count = __u32(this->m_nBuffers);
@@ -1961,8 +1941,8 @@ bool AkVCam::IpcBridgePrivate::initUserPointer(quint32 bufferSize)
     }
 
     if (error) {
-        for (qint32 i = 0; i < this->m_buffers.size(); i++)
-            delete [] this->m_buffers[i].start;
+        for (auto &buffer: this->m_buffers)
+            delete [] buffer.start;
 
         this->m_buffers.clear();
 
@@ -2003,8 +1983,7 @@ bool AkVCam::IpcBridgePrivate::startOutput()
 
     if (this->m_ioMethod == IoMethodMemoryMap) {
         for (int i = 0; i < this->m_buffers.size(); i++) {
-            v4l2_buffer buffer;
-            memset(&buffer, 0, sizeof(buffer));
+            v4l2_buffer buffer {};
             buffer.type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
             buffer.memory = V4L2_MEMORY_MMAP;
             buffer.index = __u32(i);
@@ -2019,8 +1998,7 @@ bool AkVCam::IpcBridgePrivate::startOutput()
             error = true;
     } else if (this->m_ioMethod == IoMethodUserPointer) {
         for (int i = 0; i < this->m_buffers.size(); i++) {
-            v4l2_buffer buffer;
-            memset(&buffer, 0, sizeof(buffer));
+            v4l2_buffer buffer {};
             buffer.type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
             buffer.memory = V4L2_MEMORY_USERPTR;
             buffer.index = __u32(i);
@@ -2077,8 +2055,7 @@ void AkVCam::IpcBridgePrivate::updateDevices()
         if (fd < 0)
             continue;
 
-        v4l2_capability capability;
-        memset(&capability, 0, sizeof(v4l2_capability));
+        v4l2_capability capability {};
 
         if (this->xioctl(fd, VIDIOC_QUERYCAP, &capability) >= 0
             && capability.capabilities & V4L2_CAP_VIDEO_OUTPUT) {
@@ -2109,8 +2086,7 @@ void AkVCam::IpcBridgePrivate::updateDevices()
             formats = this->m_defaultFormats;
 
         if (!formats.empty()) {
-            v4l2_capability capability;
-            memset(&capability, 0, sizeof(v4l2_capability));
+            v4l2_capability capability {};
             QString description;
 
             if (this->xioctl(fd, VIDIOC_QUERYCAP, &capability) >= 0)
@@ -2323,8 +2299,7 @@ bool AkVCam::IpcBridgePrivate::canHandleAkVCam(const std::string &deviceId)
         return false;
 
     QString driver;
-    v4l2_capability capability;
-    memset(&capability, 0, sizeof(v4l2_capability));
+    v4l2_capability capability {};
 
     if (this->xioctl(fd, VIDIOC_QUERYCAP, &capability) >= 0)
         driver = reinterpret_cast<const char *>(capability.driver);
@@ -2354,8 +2329,7 @@ QList<AkVCam::DeviceInfo> AkVCam::IpcBridgePrivate::devicesInfo(const QString &d
         if (fd < 0)
             continue;
 
-        v4l2_capability capability;
-        memset(&capability, 0, sizeof(v4l2_capability));
+        v4l2_capability capability {};
 
         if (this->xioctl(fd, VIDIOC_QUERYCAP, &capability) >= 0) {
             QString driver = reinterpret_cast<const char *>(capability.driver);
@@ -3144,8 +3118,7 @@ bool AkVCam::IpcBridgePrivate::canHandleV4L2Loopback(const std::string &deviceId
         return false;
 
     QString driver;
-    v4l2_capability capability;
-    memset(&capability, 0, sizeof(v4l2_capability));
+    v4l2_capability capability {};
 
     if (this->xioctl(fd, VIDIOC_QUERYCAP, &capability) >= 0)
         driver = reinterpret_cast<const char *>(capability.driver);
@@ -3213,7 +3186,7 @@ std::string AkVCam::IpcBridgePrivate::deviceCreateV4L2Loopback(const std::wstrin
                            "> /etc/modprobe.d/v4l2loopback.conf\n")
                    .arg(devices.size()).arg(cardLabel).toUtf8());
         cmds.write(QString("modprobe v4l2loopback video_nr=%1 card_label=\"%2\"\n")
-                   .arg(videoNR).arg(cardLabel).toUtf8());
+                   .arg(videoNR, cardLabel).toUtf8());
     } else {
         QFileInfo info(*this->driverPath());
         auto dir = info.dir().canonicalPath();
@@ -3223,7 +3196,7 @@ std::string AkVCam::IpcBridgePrivate::deviceCreateV4L2Loopback(const std::wstrin
             cmds.write("modprobe videodev\n");
 
         cmds.write(QString("insmod v4l2loopback.ko video_nr=%1 card_label=\"%2\"\n")
-                   .arg(videoNR).arg(cardLabel).toUtf8());
+                   .arg(videoNR, cardLabel).toUtf8());
     }
 
     cmds.close();
@@ -3340,7 +3313,7 @@ bool AkVCam::IpcBridgePrivate::deviceDestroyV4L2Loopback(const std::string &devi
                                "> /etc/modprobe.d/v4l2loopback.conf\n")
                        .arg(devices.size()).arg(cardLabel).toUtf8());
             cmds.write(QString("modprobe v4l2loopback video_nr=%1 card_label=\"%2\"\n")
-                       .arg(videoNR).arg(cardLabel).toUtf8());
+                       .arg(videoNR, cardLabel).toUtf8());
         }
     } else {
         QFileInfo info(*this->driverPath());
@@ -3352,7 +3325,7 @@ bool AkVCam::IpcBridgePrivate::deviceDestroyV4L2Loopback(const std::string &devi
 
         if (!devices.empty())
             cmds.write(QString("insmod v4l2loopback.ko video_nr=%1 card_label=\"%2\"\n")
-                       .arg(videoNR).arg(cardLabel).toUtf8());
+                       .arg(videoNR, cardLabel).toUtf8());
     }
 
     cmds.close();
@@ -3406,7 +3379,7 @@ bool AkVCam::IpcBridgePrivate::changeDescriptionV4L2Loopback(const std::string &
                            "> /etc/modprobe.d/v4l2loopback.conf\n")
                    .arg(devices.size()).arg(cardLabel).toUtf8());
         cmds.write(QString("modprobe v4l2loopback video_nr=%1 card_label=\"%2\"\n")
-                   .arg(videoNR).arg(cardLabel).toUtf8());
+                   .arg(videoNR, cardLabel).toUtf8());
     } else {
         QFileInfo info(*this->driverPath());
         auto dir = info.dir().canonicalPath();
@@ -3416,7 +3389,7 @@ bool AkVCam::IpcBridgePrivate::changeDescriptionV4L2Loopback(const std::string &
             cmds.write("modprobe videodev\n");
 
         cmds.write(QString("insmod v4l2loopback.ko video_nr=%1 card_label=\"%2\"\n")
-                   .arg(videoNR).arg(cardLabel).toUtf8());
+                   .arg(videoNR, cardLabel).toUtf8());
     }
 
     cmds.close();

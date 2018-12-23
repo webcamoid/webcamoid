@@ -100,7 +100,7 @@ class HaarCascade: public QObject
     public:
         explicit HaarCascade(QObject *parent=nullptr);
         HaarCascade(const HaarCascade &other);
-        ~HaarCascade();
+        ~HaarCascade() = default;
 
         Q_INVOKABLE QString name() const;
         Q_INVOKABLE QString &name();

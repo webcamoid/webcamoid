@@ -118,7 +118,7 @@ namespace AkVCam
         uint8_t u;
     };
 
-    typedef VideoFrame (*VideoConvertFuntion)(const VideoFrame *src);
+    using VideoConvertFuntion = VideoFrame (*)(const VideoFrame *src);
 
     struct VideoConvert
     {
@@ -130,14 +130,14 @@ namespace AkVCam
     class VideoFramePrivate
     {
         public:
+            VideoFrame *self;
             VideoFormat m_format;
-            std::shared_ptr<uint8_t> m_data;
-            size_t m_dataSize;
+            VideoData m_data;
             std::vector<VideoConvert> m_convert;
             std::vector<PixelFormat> m_adjustFormats;
 
-            VideoFramePrivate():
-                m_dataSize(0)
+            VideoFramePrivate(VideoFrame *self):
+                self(self)
             {
                 this->m_convert = {
                     {PixelFormatBGR24, PixelFormatRGB32, bgr24_to_rgb32},
@@ -295,58 +295,41 @@ namespace AkVCam
 
 AkVCam::VideoFrame::VideoFrame()
 {
-    this->d = new VideoFramePrivate;
-    this->d->m_dataSize = 0;
+    this->d = new VideoFramePrivate(this);
 }
 
 AkVCam::VideoFrame::VideoFrame(const std::string &fileName)
 {
-    this->d = new VideoFramePrivate;
-    this->d->m_dataSize = 0;
+    this->d = new VideoFramePrivate(this);
     this->load(fileName);
 }
 
 AkVCam::VideoFrame::VideoFrame(std::streambuf *stream)
 {
-    this->d = new VideoFramePrivate;
-    this->d->m_dataSize = 0;
+    this->d = new VideoFramePrivate(this);
     this->load(stream);
 }
 
 AkVCam::VideoFrame::VideoFrame(std::istream *stream)
 {
-    this->d = new VideoFramePrivate;
-    this->d->m_dataSize = 0;
+    this->d = new VideoFramePrivate(this);
     this->load(stream);
 }
 
-AkVCam::VideoFrame::VideoFrame(const AkVCam::VideoFormat &format,
-                               const std::shared_ptr<uint8_t> &data,
-                               size_t dataSize)
+AkVCam::VideoFrame::VideoFrame(const AkVCam::VideoFormat &format)
 {
-    this->d = new VideoFramePrivate;
+    this->d = new VideoFramePrivate(this);
     this->d->m_format = format;
-    this->d->m_data = data;
-    this->d->m_dataSize = dataSize;
-}
 
-AkVCam::VideoFrame::VideoFrame(const AkVCam::VideoFormat &format,
-                               const uint8_t *data,
-                               size_t dataSize)
-{
-    this->d = new VideoFramePrivate;
-    this->d->m_format = format;
-    this->d->m_data = std::shared_ptr<uint8_t>(new uint8_t[dataSize]);
-    memcpy(this->d->m_data.get(), data, dataSize);
-    this->d->m_dataSize = dataSize;
+    if (format.size() > 0)
+        this->d->m_data.resize(format.size());
 }
 
 AkVCam::VideoFrame::VideoFrame(const AkVCam::VideoFrame &other)
 {
-    this->d = new VideoFramePrivate;
+    this->d = new VideoFramePrivate(this);
     this->d->m_format = other.d->m_format;
     this->d->m_data = other.d->m_data;
-    this->d->m_dataSize = other.d->m_dataSize;
 }
 
 AkVCam::VideoFrame &AkVCam::VideoFrame::operator =(const AkVCam::VideoFrame &other)
@@ -354,7 +337,6 @@ AkVCam::VideoFrame &AkVCam::VideoFrame::operator =(const AkVCam::VideoFrame &oth
     if (this != &other) {
         this->d->m_format = other.d->m_format;
         this->d->m_data = other.d->m_data;
-        this->d->m_dataSize = other.d->m_dataSize;
     }
 
     return *this;
@@ -403,10 +385,10 @@ bool AkVCam::VideoFrame::load(std::istream *stream)
     if (memcmp(type, "BM", 2) != 0)
         return false;
 
-    BmpHeader header;
+    BmpHeader header {};
     stream->read(reinterpret_cast<char *>(&header), sizeof(BmpHeader));
 
-    BmpImageHeader imageHeader;
+    BmpImageHeader imageHeader {};
     stream->read(reinterpret_cast<char *>(&imageHeader), sizeof(BmpImageHeader));
     VideoFormat format(PixelFormatRGB24,
                        int(imageHeader.width),
@@ -417,8 +399,7 @@ bool AkVCam::VideoFrame::load(std::istream *stream)
 
     stream->seekg(header.offBits, std::ios_base::beg);
     this->d->m_format = format;
-    this->d->m_data = std::shared_ptr<uint8_t>(new uint8_t[format.size()]);
-    this->d->m_dataSize = format.size();
+    this->d->m_data.resize(format.size());
 
     switch (imageHeader.bitCount) {
         case 24:
@@ -427,7 +408,7 @@ bool AkVCam::VideoFrame::load(std::istream *stream)
                             (this->line(0, size_t(imageHeader.height - y - 1)));
 
                 for (uint32_t x = 0; x < imageHeader.width; x++) {
-                    BGR24 pixel;
+                    BGR24 pixel {};
                     stream->read(reinterpret_cast<char *>(&pixel),
                                  sizeof(BGR24));
                     line[x].r = pixel.r;
@@ -444,7 +425,7 @@ bool AkVCam::VideoFrame::load(std::istream *stream)
                             (this->line(0, size_t(imageHeader.height - y - 1)));
 
                 for (uint32_t x = 0; x < imageHeader.width; x++) {
-                    BGR32 pixel;
+                    BGR32 pixel {};
                     stream->read(reinterpret_cast<char *>(&pixel),
                                  sizeof(BGR32));
                     line[x].r = pixel.r;
@@ -457,8 +438,7 @@ bool AkVCam::VideoFrame::load(std::istream *stream)
 
         default:
             this->d->m_format.clear();
-            this->d->m_data.reset();
-            this->d->m_dataSize = 0;
+            this->d->m_data.clear();
 
             return false;
     }
@@ -476,29 +456,19 @@ AkVCam::VideoFormat &AkVCam::VideoFrame::format()
     return this->d->m_format;
 }
 
-std::shared_ptr<uint8_t> AkVCam::VideoFrame::data() const
+AkVCam::VideoData AkVCam::VideoFrame::data() const
 {
     return this->d->m_data;
 }
 
-std::shared_ptr<uint8_t> &AkVCam::VideoFrame::data()
+AkVCam::VideoData &AkVCam::VideoFrame::data()
 {
     return this->d->m_data;
-}
-
-size_t AkVCam::VideoFrame::dataSize() const
-{
-    return this->d->m_dataSize;
-}
-
-size_t &AkVCam::VideoFrame::dataSize()
-{
-    return this->d->m_dataSize;
 }
 
 uint8_t *AkVCam::VideoFrame::line(size_t plane, size_t y) const
 {
-    return this->d->m_data.get()
+    return this->d->m_data.data()
             + this->d->m_format.offset(plane)
             + y * this->d->m_format.bypl(plane);
 }
@@ -506,8 +476,7 @@ uint8_t *AkVCam::VideoFrame::line(size_t plane, size_t y) const
 void AkVCam::VideoFrame::clear()
 {
     this->d->m_format.clear();
-    this->d->m_data.reset();
-    this->d->m_dataSize = 0;
+    this->d->m_data.clear();
 }
 
 AkVCam::VideoFrame AkVCam::VideoFrame::mirror(bool horizontalMirror,
@@ -523,39 +492,35 @@ AkVCam::VideoFrame AkVCam::VideoFrame::mirror(bool horizontalMirror,
     if (it == this->d->m_adjustFormats.end())
         return {};
 
-    auto format = this->d->m_format;
-    int width = format.width();
-    int height = format.height();
-    size_t dataSize = this->d->m_dataSize;
-    auto data = std::shared_ptr<uint8_t>(new uint8_t[dataSize]);
-    auto dataSrc = reinterpret_cast<RGB24 *>(this->d->m_data.get());
-    auto dataDst = reinterpret_cast<RGB24 *>(data.get());
+    VideoFrame dst(this->d->m_format);
+    int width = this->d->m_format.width();
+    int height = this->d->m_format.height();
 
     if (horizontalMirror && verticalMirror) {
         for (int y = 0; y < height; y++) {
-            auto srcLine = dataSrc + (height - y - 1) * width;
-            auto dstLine = dataDst + y * width;
+            auto srcLine = reinterpret_cast<RGB24 *>(this->line(0, size_t(height - y - 1)));
+            auto dstLine = reinterpret_cast<RGB24 *>(dst.line(0, size_t(y)));
 
             for (int x = 0; x < width; x++)
                 dstLine[x] = srcLine[width - x - 1];
         }
     } else if (horizontalMirror) {
         for (int y = 0; y < height; y++) {
-            auto srcLine = dataSrc + y * width;
-            auto dstLine = dataDst + y * width;
+            auto srcLine = reinterpret_cast<RGB24 *>(this->line(0, size_t(y)));
+            auto dstLine = reinterpret_cast<RGB24 *>(dst.line(0, size_t(y)));
 
             for (int x = 0; x < width; x++)
                 dstLine[x] = srcLine[width - x - 1];
         }
     } else if (verticalMirror) {
         for (int y = 0; y < height; y++) {
-            auto srcLine = dataSrc + (height - y - 1) * width;
-            auto dstLine = dataDst + y * width;
+            auto srcLine = reinterpret_cast<RGB24 *>(this->line(0, size_t(height - y - 1)));
+            auto dstLine = reinterpret_cast<RGB24 *>(dst.line(0, size_t(y)));
             memcpy(dstLine, srcLine, size_t(width) * sizeof(RGB24));
         }
     }
 
-    return VideoFrame(format, data, dataSize);
+    return dst;
 }
 
 AkVCam::VideoFrame AkVCam::VideoFrame::scaled(int width,
@@ -638,18 +603,14 @@ AkVCam::VideoFrame AkVCam::VideoFrame::scaled(int width,
     auto format = this->d->m_format;
     format.width() = width;
     format.height() = height;
-    size_t dataSize = sizeof(RGB24) * size_t(width * height);
-    auto data = std::shared_ptr<uint8_t>(new uint8_t[dataSize]);
-    memset(data.get(), 0, dataSize);
-    auto dataSrc = reinterpret_cast<RGB24 *>(this->d->m_data.get());
-    auto dataDst = reinterpret_cast<RGB24 *>(data.get());
+    VideoFrame dst(format);
 
     switch (mode) {
         case ScalingFast:
             for (int y = yDstMin; y < yDstMax; y++) {
                 auto srcY = (yNum * (y - yDstMin) + ys) / yDen;
-                auto srcLine = dataSrc + srcY * this->d->m_format.width();
-                auto dstLine = dataDst + y * width;
+                auto srcLine = reinterpret_cast<RGB24 *>(this->line(0, size_t(srcY)));
+                auto dstLine = reinterpret_cast<RGB24 *>(dst.line(0, size_t(y)));
 
                 for (int x = xDstMin; x < xDstMax; x++) {
                     auto srcX = (xNum * (x - xDstMin) + xs) / xDen;
@@ -657,7 +618,7 @@ AkVCam::VideoFrame AkVCam::VideoFrame::scaled(int width,
                 }
             }
 
-            return VideoFrame(format, data, dataSize);
+            return dst;
 
         case ScalingLinear: {
             auto extrapolateX =
@@ -670,7 +631,7 @@ AkVCam::VideoFrame AkVCam::VideoFrame::scaled(int width,
                         &VideoFramePrivate::extrapolateDown;
 
             for (int y = yDstMin; y < yDstMax; y++) {
-                auto dstLine = dataDst + y * width;
+                auto dstLine = reinterpret_cast<RGB24 *>(dst.line(0, size_t(y)));
                 int yMin;
                 int yMax;
                 int kNumY;
@@ -698,13 +659,11 @@ AkVCam::VideoFrame AkVCam::VideoFrame::scaled(int width,
                 }
             }
 
-            return VideoFrame(format, data, dataSize);
+            return dst;
         }
     }
 
-    memset(data.get(), 0, dataSize);
-
-    return VideoFrame(format, data, dataSize);
+    return dst;
 }
 
 AkVCam::VideoFrame AkVCam::VideoFrame::scaled(size_t maxArea,
@@ -740,22 +699,20 @@ AkVCam::VideoFrame AkVCam::VideoFrame::swapRgb() const
     if (it == this->d->m_adjustFormats.end())
         return {};
 
-    auto format = this->d->m_format;
-    int width = format.width();
-    int height = format.height();
-    auto len = size_t(width * height);
-    size_t dataSize = this->d->m_dataSize;
-    auto data = std::shared_ptr<uint8_t>(new uint8_t[dataSize]);
-    auto dataSrc = reinterpret_cast<RGB24 *>(this->d->m_data.get());
-    auto dataDst = reinterpret_cast<RGB24 *>(data.get());
+    VideoFrame dst(this->d->m_format);
 
-    for (size_t i = 0; i < len; i++) {
-        dataDst[i].r = dataSrc[i].b;
-        dataDst[i].g = dataSrc[i].g;
-        dataDst[i].b = dataSrc[i].r;
+    for (int y = 0; y < this->d->m_format.height(); y++) {
+        auto srcLine = reinterpret_cast<RGB24 *>(this->line(0, size_t(y)));
+        auto destLine = reinterpret_cast<RGB24 *>(dst.line(0, size_t(y)));
+
+        for (int x = 0; x < this->d->m_format.width(); x++) {
+            destLine[x].r = srcLine[x].b;
+            destLine[x].g = srcLine[x].g;
+            destLine[x].b = srcLine[x].r;
+        }
     }
 
-    return VideoFrame(format, data, dataSize);
+    return dst;
 }
 
 bool AkVCam::VideoFrame::canConvert(FourCC input, FourCC output) const
@@ -807,36 +764,35 @@ AkVCam::VideoFrame AkVCam::VideoFrame::adjustHsl(int hue,
     if (it == this->d->m_adjustFormats.end())
         return {};
 
-    auto format = this->d->m_format;
-    int width = format.width();
-    int height = format.height();
-    auto len = size_t(width * height);
-    size_t dataSize = this->d->m_dataSize;
-    auto data = std::shared_ptr<uint8_t>(new uint8_t[dataSize]);
-    auto dataSrc = reinterpret_cast<RGB24 *>(this->d->m_data.get());
-    auto dataDst = reinterpret_cast<RGB24 *>(data.get());
+    VideoFrame dst(this->d->m_format);
 
-    for (size_t i = 0; i < len; i++) {
-        int h;
-        int s;
-        int l;
-        this->d->rgbToHsl(dataSrc[i].r, dataSrc[i].g, dataSrc[i].b, &h, &s, &l);
+    for (int y = 0; y < this->d->m_format.height(); y++) {
+        auto srcLine = reinterpret_cast<RGB24 *>(this->line(0, size_t(y)));
+        auto destLine = reinterpret_cast<RGB24 *>(dst.line(0, size_t(y)));
 
-        h = this->d->mod(h + hue, 360);
-        s = this->d->bound(0, s + saturation, 255);
-        l = this->d->bound(0, l + luminance, 255);
+        for (int x = 0; x < this->d->m_format.width(); x++) {
+            int h;
+            int s;
+            int l;
+            this->d->rgbToHsl(srcLine[x].r, srcLine[x].g, srcLine[x].b,
+                              &h, &s, &l);
 
-        int r;
-        int g;
-        int b;
-        this->d->hslToRgb(h, s, l, &r, &g, &b);
+            h = this->d->mod(h + hue, 360);
+            s = VideoFramePrivate::bound(0, s + saturation, 255);
+            l = VideoFramePrivate::bound(0, l + luminance, 255);
 
-        dataDst[i].r = uint8_t(r);
-        dataDst[i].g = uint8_t(g);
-        dataDst[i].b = uint8_t(b);
+            int r;
+            int g;
+            int b;
+            this->d->hslToRgb(h, s, l, &r, &g, &b);
+
+            destLine[x].r = uint8_t(r);
+            destLine[x].g = uint8_t(g);
+            destLine[x].b = uint8_t(b);
+        }
     }
 
-    return VideoFrame(format, data, dataSize);
+    return dst;
 }
 
 AkVCam::VideoFrame AkVCam::VideoFrame::adjustGamma(int gamma)
@@ -851,26 +807,23 @@ AkVCam::VideoFrame AkVCam::VideoFrame::adjustGamma(int gamma)
     if (it == this->d->m_adjustFormats.end())
         return {};
 
-    auto format = this->d->m_format;
-    int width = format.width();
-    int height = format.height();
-    auto len = size_t(width * height);
-    size_t dataSize = this->d->m_dataSize;
-    auto data = std::shared_ptr<uint8_t>(new uint8_t[dataSize]);
-    auto dataSrc = reinterpret_cast<RGB24 *>(this->d->m_data.get());
-    auto dataDst = reinterpret_cast<RGB24 *>(data.get());
+    VideoFrame dst(this->d->m_format);
     auto dataGt = gammaTable()->data();
-
-    gamma = this->d->bound(-255, gamma, 255);
+    gamma = VideoFramePrivate::bound(-255, gamma, 255);
     size_t gammaOffset = size_t(gamma + 255) << 8;
 
-    for (size_t i = 0; i < len; i++) {
-        dataDst[i].r = dataGt[gammaOffset | dataSrc[i].r];
-        dataDst[i].g = dataGt[gammaOffset | dataSrc[i].g];
-        dataDst[i].b = dataGt[gammaOffset | dataSrc[i].b];
+    for (int y = 0; y < this->d->m_format.height(); y++) {
+        auto srcLine = reinterpret_cast<RGB24 *>(this->line(0, size_t(y)));
+        auto destLine = reinterpret_cast<RGB24 *>(dst.line(0, size_t(y)));
+
+        for (int x = 0; x < this->d->m_format.width(); x++) {
+            destLine[x].r = dataGt[gammaOffset | srcLine[x].r];
+            destLine[x].g = dataGt[gammaOffset | srcLine[x].g];
+            destLine[x].b = dataGt[gammaOffset | srcLine[x].b];
+        }
     }
 
-    return VideoFrame(format, data, dataSize);
+    return dst;
 }
 
 AkVCam::VideoFrame AkVCam::VideoFrame::adjustContrast(int contrast)
@@ -885,26 +838,23 @@ AkVCam::VideoFrame AkVCam::VideoFrame::adjustContrast(int contrast)
     if (it == this->d->m_adjustFormats.end())
         return {};
 
-    auto format = this->d->m_format;
-    int width = format.width();
-    int height = format.height();
-    auto len = size_t(width * height);
-    size_t dataSize = this->d->m_dataSize;
-    auto data = std::shared_ptr<uint8_t>(new uint8_t[dataSize]);
-    auto dataSrc = reinterpret_cast<RGB24 *>(this->d->m_data.get());
-    auto dataDst = reinterpret_cast<RGB24 *>(data.get());
+    VideoFrame dst(this->d->m_format);
     auto dataCt = contrastTable()->data();
-
-    contrast = this->d->bound(-255, contrast, 255);
+    contrast = VideoFramePrivate::bound(-255, contrast, 255);
     size_t contrastOffset = size_t(contrast + 255) << 8;
 
-    for (size_t i = 0; i < len; i++) {
-        dataDst[i].r = dataCt[contrastOffset | dataSrc[i].r];
-        dataDst[i].g = dataCt[contrastOffset | dataSrc[i].g];
-        dataDst[i].b = dataCt[contrastOffset | dataSrc[i].b];
+    for (int y = 0; y < this->d->m_format.height(); y++) {
+        auto srcLine = reinterpret_cast<RGB24 *>(this->line(0, size_t(y)));
+        auto destLine = reinterpret_cast<RGB24 *>(dst.line(0, size_t(y)));
+
+        for (int x = 0; x < this->d->m_format.width(); x++) {
+            destLine[x].r = dataCt[contrastOffset | srcLine[x].r];
+            destLine[x].g = dataCt[contrastOffset | srcLine[x].g];
+            destLine[x].b = dataCt[contrastOffset | srcLine[x].b];
+        }
     }
 
-    return VideoFrame(format, data, dataSize);
+    return dst;
 }
 
 AkVCam::VideoFrame AkVCam::VideoFrame::toGrayScale()
@@ -916,24 +866,24 @@ AkVCam::VideoFrame AkVCam::VideoFrame::toGrayScale()
     if (it == this->d->m_adjustFormats.end())
         return {};
 
-    auto format = this->d->m_format;
-    int width = format.width();
-    int height = format.height();
-    auto len = size_t(width * height);
-    size_t dataSize = this->d->m_dataSize;
-    auto data = std::shared_ptr<uint8_t>(new uint8_t[dataSize]);
-    auto dataSrc = reinterpret_cast<RGB24 *>(this->d->m_data.get());
-    auto dataDst = reinterpret_cast<RGB24 *>(data.get());
+    VideoFrame dst(this->d->m_format);
 
-    for (size_t i = 0; i < len; i++) {
-        int luma = this->d->grayval(dataSrc[i].r, dataSrc[i].g, dataSrc[i].b);
+    for (int y = 0; y < this->d->m_format.height(); y++) {
+        auto srcLine = reinterpret_cast<RGB24 *>(this->line(0, size_t(y)));
+        auto destLine = reinterpret_cast<RGB24 *>(dst.line(0, size_t(y)));
 
-        dataDst[i].r = uint8_t(luma);
-        dataDst[i].g = uint8_t(luma);
-        dataDst[i].b = uint8_t(luma);
+        for (int x = 0; x < this->d->m_format.width(); x++) {
+            int luma = this->d->grayval(srcLine[x].r,
+                                        srcLine[x].g,
+                                        srcLine[x].b);
+
+            destLine[x].r = uint8_t(luma);
+            destLine[x].g = uint8_t(luma);
+            destLine[x].b = uint8_t(luma);
+        }
     }
 
-    return VideoFrame(format, data, dataSize);
+    return dst;
 }
 
 AkVCam::VideoFrame AkVCam::VideoFrame::adjust(int hue,
@@ -958,66 +908,64 @@ AkVCam::VideoFrame AkVCam::VideoFrame::adjust(int hue,
     if (it == this->d->m_adjustFormats.end())
         return {};
 
-    auto format = this->d->m_format;
-    int width = format.width();
-    int height = format.height();
-    auto len = size_t(width * height);
-    size_t dataSize = this->d->m_dataSize;
-    auto data = std::shared_ptr<uint8_t>(new uint8_t[dataSize]);
-    auto dataSrc = reinterpret_cast<RGB24 *>(this->d->m_data.get());
-    auto dataDst = reinterpret_cast<RGB24 *>(data.get());
+    VideoFrame dst(this->d->m_format);
     auto dataGt = gammaTable()->data();
     auto dataCt = contrastTable()->data();
 
-    gamma = this->d->bound(-255, gamma, 255);
+    gamma = VideoFramePrivate::bound(-255, gamma, 255);
     size_t gammaOffset = size_t(gamma + 255) << 8;
 
-    contrast = this->d->bound(-255, contrast, 255);
+    contrast = VideoFramePrivate::bound(-255, contrast, 255);
     size_t contrastOffset = size_t(contrast + 255) << 8;
 
-    for (size_t i = 0; i < len; i++) {
-        int r = dataSrc[i].r;
-        int g = dataSrc[i].g;
-        int b = dataSrc[i].b;
+    for (int y = 0; y < this->d->m_format.height(); y++) {
+        auto srcLine = reinterpret_cast<RGB24 *>(this->line(0, size_t(y)));
+        auto destLine = reinterpret_cast<RGB24 *>(dst.line(0, size_t(y)));
 
-        if (hue != 0 || saturation != 0 ||  luminance != 0) {
-            int h;
-            int s;
-            int l;
-            this->d->rgbToHsl(r, g, b, &h, &s, &l);
+        for (int x = 0; x < this->d->m_format.width(); x++) {
+            int r = srcLine[x].r;
+            int g = srcLine[x].g;
+            int b = srcLine[x].b;
 
-            h = this->d->mod(h + hue, 360);
-            s = this->d->bound(0, s + saturation, 255);
-            l = this->d->bound(0, l + luminance, 255);
-            this->d->hslToRgb(h, s, l, &r, &g, &b);
+            if (hue != 0 || saturation != 0 ||  luminance != 0) {
+                int h;
+                int s;
+                int l;
+                this->d->rgbToHsl(r, g, b, &h, &s, &l);
+
+                h = this->d->mod(h + hue, 360);
+                s = VideoFramePrivate::bound(0, s + saturation, 255);
+                l = VideoFramePrivate::bound(0, l + luminance, 255);
+                this->d->hslToRgb(h, s, l, &r, &g, &b);
+            }
+
+            if (gamma != 0) {
+                r = dataGt[gammaOffset | size_t(r)];
+                g = dataGt[gammaOffset | size_t(g)];
+                b = dataGt[gammaOffset | size_t(b)];
+            }
+
+            if (contrast != 0) {
+                r = dataCt[contrastOffset | size_t(r)];
+                g = dataCt[contrastOffset | size_t(g)];
+                b = dataCt[contrastOffset | size_t(b)];
+            }
+
+            if (gray) {
+                int luma = this->d->grayval(r, g, b);
+
+                r = luma;
+                g = luma;
+                b = luma;
+            }
+
+            destLine[x].r = uint8_t(r);
+            destLine[x].g = uint8_t(g);
+            destLine[x].b = uint8_t(b);
         }
-
-        if (gamma != 0) {
-            r = dataGt[gammaOffset | size_t(r)];
-            g = dataGt[gammaOffset | size_t(g)];
-            b = dataGt[gammaOffset | size_t(b)];
-        }
-
-        if (contrast != 0) {
-            r = dataCt[contrastOffset | size_t(r)];
-            g = dataCt[contrastOffset | size_t(g)];
-            b = dataCt[contrastOffset | size_t(b)];
-        }
-
-        if (gray) {
-            int luma = this->d->grayval(r, g, b);
-
-            r = luma;
-            g = luma;
-            b = luma;
-        }
-
-        dataDst[i].r = uint8_t(r);
-        dataDst[i].g = uint8_t(g);
-        dataDst[i].b = uint8_t(b);
     }
 
-    return VideoFrame(format, data, dataSize);
+    return dst;
 }
 
 int AkVCam::VideoFramePrivate::grayval(int r, int g, int b)
@@ -1067,9 +1015,7 @@ AkVCam::VideoFrame AkVCam::VideoFramePrivate::bgr24_to_rgb32(const VideoFrame *s
 {
     auto format = src->format();
     format.fourcc() = PixelFormatRGB32;
-    VideoFrame dst(format,
-                   std::shared_ptr<uint8_t>(new uint8_t[format.size()]),
-                   format.size());
+    VideoFrame dst(format);
     auto width = src->format().width();
     auto height = src->format().height();
 
@@ -1092,9 +1038,7 @@ AkVCam::VideoFrame AkVCam::VideoFramePrivate::bgr24_to_rgb24(const VideoFrame *s
 {
     auto format = src->format();
     format.fourcc() = PixelFormatRGB24;
-    VideoFrame dst(format,
-                   std::shared_ptr<uint8_t>(new uint8_t[format.size()]),
-                   format.size());
+    VideoFrame dst(format);
     auto width = src->format().width();
     auto height = src->format().height();
 
@@ -1116,9 +1060,7 @@ AkVCam::VideoFrame AkVCam::VideoFramePrivate::bgr24_to_rgb16(const VideoFrame *s
 {
     auto format = src->format();
     format.fourcc() = PixelFormatRGB16;
-    VideoFrame dst(format,
-                   std::shared_ptr<uint8_t>(new uint8_t[format.size()]),
-                   format.size());
+    VideoFrame dst(format);
     auto width = src->format().width();
     auto height = src->format().height();
 
@@ -1140,9 +1082,7 @@ AkVCam::VideoFrame AkVCam::VideoFramePrivate::bgr24_to_rgb15(const VideoFrame *s
 {
     auto format = src->format();
     format.fourcc() = PixelFormatRGB15;
-    VideoFrame dst(format,
-                   std::shared_ptr<uint8_t>(new uint8_t[format.size()]),
-                   format.size());
+    VideoFrame dst(format);
     auto width = src->format().width();
     auto height = src->format().height();
 
@@ -1165,9 +1105,7 @@ AkVCam::VideoFrame AkVCam::VideoFramePrivate::bgr24_to_bgr32(const VideoFrame *s
 {
     auto format = src->format();
     format.fourcc() = PixelFormatBGR32;
-    VideoFrame dst(format,
-                   std::shared_ptr<uint8_t>(new uint8_t[format.size()]),
-                   format.size());
+    VideoFrame dst(format);
     auto width = src->format().width();
     auto height = src->format().height();
 
@@ -1190,9 +1128,7 @@ AkVCam::VideoFrame AkVCam::VideoFramePrivate::bgr24_to_bgr16(const VideoFrame *s
 {
     auto format = src->format();
     format.fourcc() = PixelFormatBGR16;
-    VideoFrame dst(format,
-                   std::shared_ptr<uint8_t>(new uint8_t[format.size()]),
-                   format.size());
+    VideoFrame dst(format);
     auto width = src->format().width();
     auto height = src->format().height();
 
@@ -1214,9 +1150,7 @@ AkVCam::VideoFrame AkVCam::VideoFramePrivate::bgr24_to_bgr15(const VideoFrame *s
 {
     auto format = src->format();
     format.fourcc() = PixelFormatBGR15;
-    VideoFrame dst(format,
-                   std::shared_ptr<uint8_t>(new uint8_t[format.size()]),
-                   format.size());
+    VideoFrame dst(format);
     auto width = src->format().width();
     auto height = src->format().height();
 
@@ -1239,9 +1173,7 @@ AkVCam::VideoFrame AkVCam::VideoFramePrivate::bgr24_to_uyvy(const VideoFrame *sr
 {
     auto format = src->format();
     format.fourcc() = PixelFormatUYVY;
-    VideoFrame dst(format,
-                   std::shared_ptr<uint8_t>(new uint8_t[format.size()]),
-                   format.size());
+    VideoFrame dst(format);
     auto width = src->format().width();
     auto height = src->format().height();
 
@@ -1276,9 +1208,7 @@ AkVCam::VideoFrame AkVCam::VideoFramePrivate::bgr24_to_yuy2(const VideoFrame *sr
 {
     auto format = src->format();
     format.fourcc() = PixelFormatYUY2;
-    VideoFrame dst(format,
-                   std::shared_ptr<uint8_t>(new uint8_t[format.size()]),
-                   format.size());
+    VideoFrame dst(format);
     auto width = src->format().width();
     auto height = src->format().height();
 
@@ -1313,9 +1243,7 @@ AkVCam::VideoFrame AkVCam::VideoFramePrivate::bgr24_to_nv12(const VideoFrame *sr
 {
     auto format = src->format();
     format.fourcc() = PixelFormatNV12;
-    VideoFrame dst(format,
-                   std::shared_ptr<uint8_t>(new uint8_t[format.size()]),
-                   format.size());
+    VideoFrame dst(format);
     auto width = src->format().width();
     auto height = src->format().height();
 
@@ -1345,9 +1273,7 @@ AkVCam::VideoFrame AkVCam::VideoFramePrivate::bgr24_to_nv21(const VideoFrame *sr
 {
     auto format = src->format();
     format.fourcc() = PixelFormatNV21;
-    VideoFrame dst(format,
-                   std::shared_ptr<uint8_t>(new uint8_t[format.size()]),
-                   format.size());
+    VideoFrame dst(format);
     auto width = src->format().width();
     auto height = src->format().height();
 
@@ -1377,9 +1303,7 @@ AkVCam::VideoFrame AkVCam::VideoFramePrivate::rgb24_to_rgb32(const VideoFrame *s
 {
     auto format = src->format();
     format.fourcc() = PixelFormatRGB32;
-    VideoFrame dst(format,
-                   std::shared_ptr<uint8_t>(new uint8_t[format.size()]),
-                   format.size());
+    VideoFrame dst(format);
     auto width = src->format().width();
     auto height = src->format().height();
 
@@ -1402,9 +1326,7 @@ AkVCam::VideoFrame AkVCam::VideoFramePrivate::rgb24_to_rgb16(const VideoFrame *s
 {
     auto format = src->format();
     format.fourcc() = PixelFormatRGB16;
-    VideoFrame dst(format,
-                   std::shared_ptr<uint8_t>(new uint8_t[format.size()]),
-                   format.size());
+    VideoFrame dst(format);
     auto width = src->format().width();
     auto height = src->format().height();
 
@@ -1426,9 +1348,7 @@ AkVCam::VideoFrame AkVCam::VideoFramePrivate::rgb24_to_rgb15(const VideoFrame *s
 {
     auto format = src->format();
     format.fourcc() = PixelFormatRGB15;
-    VideoFrame dst(format,
-                   std::shared_ptr<uint8_t>(new uint8_t[format.size()]),
-                   format.size());
+    VideoFrame dst(format);
     auto width = src->format().width();
     auto height = src->format().height();
 
@@ -1451,9 +1371,7 @@ AkVCam::VideoFrame AkVCam::VideoFramePrivate::rgb24_to_bgr32(const VideoFrame *s
 {
     auto format = src->format();
     format.fourcc() = PixelFormatBGR32;
-    VideoFrame dst(format,
-                   std::shared_ptr<uint8_t>(new uint8_t[format.size()]),
-                   format.size());
+    VideoFrame dst(format);
     auto width = src->format().width();
     auto height = src->format().height();
 
@@ -1476,9 +1394,7 @@ AkVCam::VideoFrame AkVCam::VideoFramePrivate::rgb24_to_bgr24(const VideoFrame *s
 {
     auto format = src->format();
     format.fourcc() = PixelFormatBGR24;
-    VideoFrame dst(format,
-                   std::shared_ptr<uint8_t>(new uint8_t[format.size()]),
-                   format.size());
+    VideoFrame dst(format);
     auto width = src->format().width();
     auto height = src->format().height();
 
@@ -1500,9 +1416,7 @@ AkVCam::VideoFrame AkVCam::VideoFramePrivate::rgb24_to_bgr16(const VideoFrame *s
 {
     auto format = src->format();
     format.fourcc() = PixelFormatBGR16;
-    VideoFrame dst(format,
-                   std::shared_ptr<uint8_t>(new uint8_t[format.size()]),
-                   format.size());
+    VideoFrame dst(format);
     auto width = src->format().width();
     auto height = src->format().height();
 
@@ -1524,9 +1438,7 @@ AkVCam::VideoFrame AkVCam::VideoFramePrivate::rgb24_to_bgr15(const VideoFrame *s
 {
     auto format = src->format();
     format.fourcc() = PixelFormatBGR15;
-    VideoFrame dst(format,
-                   std::shared_ptr<uint8_t>(new uint8_t[format.size()]),
-                   format.size());
+    VideoFrame dst(format);
     auto width = src->format().width();
     auto height = src->format().height();
 
@@ -1549,9 +1461,7 @@ AkVCam::VideoFrame AkVCam::VideoFramePrivate::rgb24_to_uyvy(const VideoFrame *sr
 {
     auto format = src->format();
     format.fourcc() = PixelFormatUYVY;
-    VideoFrame dst(format,
-                   std::shared_ptr<uint8_t>(new uint8_t[format.size()]),
-                   format.size());
+    VideoFrame dst(format);
     auto width = src->format().width();
     auto height = src->format().height();
 
@@ -1586,9 +1496,7 @@ AkVCam::VideoFrame AkVCam::VideoFramePrivate::rgb24_to_yuy2(const VideoFrame *sr
 {
     auto format = src->format();
     format.fourcc() = PixelFormatYUY2;
-    VideoFrame dst(format,
-                   std::shared_ptr<uint8_t>(new uint8_t[format.size()]),
-                   format.size());
+    VideoFrame dst(format);
     auto width = src->format().width();
     auto height = src->format().height();
 
@@ -1623,9 +1531,7 @@ AkVCam::VideoFrame AkVCam::VideoFramePrivate::rgb24_to_nv12(const VideoFrame *sr
 {
     auto format = src->format();
     format.fourcc() = PixelFormatNV12;
-    VideoFrame dst(format,
-                   std::shared_ptr<uint8_t>(new uint8_t[format.size()]),
-                   format.size());
+    VideoFrame dst(format);
     auto width = src->format().width();
     auto height = src->format().height();
 
@@ -1655,9 +1561,7 @@ AkVCam::VideoFrame AkVCam::VideoFramePrivate::rgb24_to_nv21(const VideoFrame *sr
 {
     auto format = src->format();
     format.fourcc() = PixelFormatNV21;
-    VideoFrame dst(format,
-                   std::shared_ptr<uint8_t>(new uint8_t[format.size()]),
-                   format.size());
+    VideoFrame dst(format);
     auto width = src->format().width();
     auto height = src->format().height();
 
@@ -1730,10 +1634,8 @@ AkVCam::RGB24 AkVCam::VideoFramePrivate::extrapolateColor(int xMin, int xMax,
                                                           int yMin, int yMax,
                                                           int kNumY, int kDenY) const
 {
-    auto minLine = reinterpret_cast<RGB24 *>(this->m_data.get())
-                 + yMin * this->m_format.width();
-    auto maxLine = reinterpret_cast<RGB24 *>(this->m_data.get())
-                 + yMax * this->m_format.width();
+    auto minLine = reinterpret_cast<RGB24 *>(this->self->line(0, size_t(yMin)));
+    auto maxLine = reinterpret_cast<RGB24 *>(this->self->line(0, size_t(yMax)));
     auto colorMin = extrapolateColor(minLine[xMin], minLine[xMax], kNumX, kDenX);
     auto colorMax = extrapolateColor(maxLine[xMin], maxLine[xMax], kNumX, kDenX);
 
@@ -1812,7 +1714,7 @@ std::vector<uint8_t> AkVCam::initGammaTable()
     std::vector<uint8_t> gammaTable;
 
     for (int i = 0; i < 256; i++) {
-        uint8_t ig = uint8_t(255. * pow(i / 255., 255));
+        auto ig = uint8_t(255. * pow(i / 255., 255));
         gammaTable.push_back(ig);
     }
 
@@ -1820,7 +1722,7 @@ std::vector<uint8_t> AkVCam::initGammaTable()
         double k = 255. / (gamma + 255);
 
         for (int i = 0; i < 256; i++) {
-            uint8_t ig = uint8_t(255. * pow(i / 255., k));
+            auto ig = uint8_t(255. * pow(i / 255., k));
             gammaTable.push_back(ig);
         }
     }

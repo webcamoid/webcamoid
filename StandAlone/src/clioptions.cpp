@@ -24,8 +24,7 @@
 
 #include "clioptions.h"
 
-CliOptions::CliOptions():
-    QCommandLineParser()
+CliOptions::CliOptions()
 {
     this->addHelpOption();
     this->addVersionOption();

@@ -26,14 +26,13 @@ class AkMultimediaSourceElementPrivate
         QStringList m_medias;
         QString m_media;
         QList<int> m_streams;
-        bool m_loop;
+        bool m_loop {false};
 };
 
 AkMultimediaSourceElement::AkMultimediaSourceElement(QObject *parent):
     AkElement(parent)
 {
     this->d = new AkMultimediaSourceElementPrivate();
-    this->d->m_loop = false;
 }
 
 AkMultimediaSourceElement::~AkMultimediaSourceElement()

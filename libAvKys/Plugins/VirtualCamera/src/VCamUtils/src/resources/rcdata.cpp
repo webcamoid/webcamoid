@@ -28,7 +28,7 @@ uint32_t AkVCam::RcData::size() const
 AkVCam::RcData AkVCam::RcData::read(const unsigned char *rcData)
 {
     IMemBuffer dataStream(rcData, true);
-    RcData data;
+    RcData data {};
     data.m_size = dataStream.read<uint32_t>();
     data.m_data = dataStream.data<unsigned char>();
 

@@ -26,8 +26,8 @@
 
 #include "hypnoticelement.h"
 
-typedef QMap<HypnoticElement::OpticMode, QString> OpticModeMap;
-typedef QMap<HypnoticElement::OpticMode, QImage> OpticalMap;
+using OpticModeMap = QMap<HypnoticElement::OpticMode, QString>;
+using OpticalMap = QMap<HypnoticElement::OpticMode, QImage>;
 
 inline OpticModeMap initOpticModeMap()
 {
@@ -46,25 +46,18 @@ Q_GLOBAL_STATIC_WITH_ARGS(OpticModeMap, opticModeToStr, (initOpticModeMap()))
 class HypnoticElementPrivate
 {
     public:
-        HypnoticElement::OpticMode m_mode;
-        int m_speedInc;
-        int m_threshold;
+        HypnoticElement::OpticMode m_mode {HypnoticElement::OpticModeSpiral1};
+        int m_speedInc {0};
+        int m_threshold {127};
         QSize m_frameSize;
         QVector<QRgb> m_palette;
         OpticalMap m_opticalMap;
-        quint8 m_speed;
-        quint8 m_phase;
+        quint8 m_speed {16};
+        quint8 m_phase {0};
 
-        HypnoticElementPrivate():
-            m_mode(HypnoticElement::OpticModeSpiral1),
-            m_speedInc(0),
-            m_threshold(127)
-        {
-        }
-
-        inline QVector<QRgb> createPalette();
-        inline OpticalMap createOpticalMap(const QSize &size);
-        inline QImage imageThreshold(const QImage &src, int threshold);
+        QVector<QRgb> createPalette();
+        OpticalMap createOpticalMap(const QSize &size);
+        QImage imageThreshold(const QImage &src, int threshold);
 };
 
 HypnoticElement::HypnoticElement(): AkElement()
@@ -147,7 +140,7 @@ OpticalMap HypnoticElementPrivate::createOpticalMap(const QSize &size)
             qreal rr = r * 300 - j * 32;
 
             j *= 64;
-            j += (rr > 28)? (rr - 28) * 16: 0;
+            j += (rr > 28.0)? qRound((rr - 28.0) * 16.0): 0;
 
             spiral2Line[x] = (uint((at / M_PI * 4096) + (r * 1600) - j)) & 255;
             parabolaLine[x] = (uint(yy / (xx * xx * 0.3 + 0.1) * 400)) & 255;

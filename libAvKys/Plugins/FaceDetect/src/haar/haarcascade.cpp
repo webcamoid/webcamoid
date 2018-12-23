@@ -144,7 +144,7 @@ void HaarCascadeHID::run(HaarCascadeHID *cascade)
 
         for (int i = cascade->m_startX; i < cascade->m_endX; i += iStep) {
             int x = qRound(i * cascade->m_step);
-            size_t offset = size_t(x + y * cascade->m_oWidth);
+            auto offset = size_t(x + y * cascade->m_oWidth);
 
             if (cascade->m_cannyPruning) {
                 quint32 sum = cascade->m_ip[0][offset]
@@ -237,10 +237,6 @@ HaarCascade::HaarCascade(const HaarCascade &other):
     this->m_isTree = other.m_isTree;
 }
 
-HaarCascade::~HaarCascade()
-{
-}
-
 QString HaarCascade::name() const
 {
     return this->m_name;
@@ -297,7 +293,7 @@ bool HaarCascade::load(const QString &fileName)
     this->m_isTree = false;
 
     while (!haarReader.atEnd()) {
-        QXmlStreamReader::TokenType token = haarReader.readNext();
+        auto token = haarReader.readNext();
 
         if (token == QXmlStreamReader::Invalid) {
             if (this->m_errorString != haarReader.errorString()) {
@@ -306,13 +302,15 @@ bool HaarCascade::load(const QString &fileName)
             }
 
             return false;
-        } else if (token == QXmlStreamReader::StartElement) {
+        }
+
+        if (token == QXmlStreamReader::StartElement) {
             pathList << haarReader.name().toString();
 
-            if (path.isEmpty()
-                && haarReader.name() != "opencv_storage")
+            if (path.isEmpty() && haarReader.name() != "opencv_storage")
                 return false;
-            else if (path == "opencv_storage")
+
+            if (path == "opencv_storage")
                 this->m_name = haarReader.name().toString();
             else if (path == QString("opencv_storage/%1/stages").arg(this->m_name)
                      && haarReader.name() == "_") {

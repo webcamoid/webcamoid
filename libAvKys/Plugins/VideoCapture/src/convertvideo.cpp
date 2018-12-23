@@ -27,10 +27,6 @@ ConvertVideo::ConvertVideo(QObject *parent):
 {
 }
 
-ConvertVideo::~ConvertVideo()
-{
-}
-
 void ConvertVideo::packetEnqueue(const AkPacket &packet)
 {
     Q_UNUSED(packet)

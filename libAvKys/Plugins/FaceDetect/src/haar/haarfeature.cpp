@@ -154,10 +154,6 @@ HaarFeature::HaarFeature(const HaarFeature &other):
     }
 }
 
-HaarFeature::~HaarFeature()
-{
-}
-
 RectVector HaarFeature::rects() const
 {
     RectVector rects(this->m_count);

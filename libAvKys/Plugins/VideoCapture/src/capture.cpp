@@ -28,10 +28,6 @@ Capture::Capture(QObject *parent):
 {
 }
 
-Capture::~Capture()
-{
-}
-
 QStringList Capture::webcams() const
 {
     return QStringList();

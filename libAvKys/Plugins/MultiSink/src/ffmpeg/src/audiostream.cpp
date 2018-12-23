@@ -35,7 +35,7 @@ extern "C"
 #include "audiostream.h"
 #include "mediawriterffmpeg.h"
 
-typedef QMap<AkAudioCaps::ChannelLayout, uint64_t> AkFFChannelLayoutsMap;
+using AkFFChannelLayoutsMap = QMap<AkAudioCaps::ChannelLayout, uint64_t>;
 
 inline AkFFChannelLayoutsMap initAkFFChannelFormatsMap()
 {
@@ -81,16 +81,10 @@ class AudioStreamPrivate
 {
     public:
         AkElementPtr m_convert;
-        AVFrame *m_frame;
+        AVFrame *m_frame {nullptr};
         QMutex m_frameMutex;
-        int64_t m_pts;
+        int64_t m_pts {0};
         QWaitCondition m_frameReady;
-
-        AudioStreamPrivate():
-            m_frame(nullptr),
-            m_pts(0)
-        {
-        }
 };
 
 AudioStream::AudioStream(const AVFormatContext *formatContext,

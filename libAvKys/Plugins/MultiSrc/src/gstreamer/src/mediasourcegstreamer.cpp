@@ -39,54 +39,36 @@ class MediaSourceGStreamerPrivate
     public:
         QString m_media;
         QList<int> m_streams;
-        bool m_loop;
-        bool m_run;
-        AkElement::ElementState m_curState;
-        qint64 m_maxPacketQueueSize;
-        bool m_showLog;
+        bool m_loop {false};
+        bool m_run {false};
+        AkElement::ElementState m_curState {AkElement::ElementStateNull};
+        qint64 m_maxPacketQueueSize {15 * 1024 * 1024};
+        bool m_showLog {false};
         QThreadPool m_threadPool;
-        GstElement *m_pipeline;
-        GMainLoop *m_mainLoop;
-        guint m_busWatchId;
-        qint64 m_audioIndex;
-        qint64 m_videoIndex;
-        qint64 m_subtitlesIndex;
-        qint64 m_audioId;
-        qint64 m_videoId;
-        qint64 m_subtitlesId;
+        GstElement *m_pipeline {nullptr};
+        GMainLoop *m_mainLoop {nullptr};
+        guint m_busWatchId {0};
+        qint64 m_audioIndex {-1};
+        qint64 m_videoIndex {-1};
+        qint64 m_subtitlesIndex {-1};
+        qint64 m_audioId {-1};
+        qint64 m_videoId {-1};
+        qint64 m_subtitlesId {-1};
         QList<Stream> m_streamInfo;
 
-        MediaSourceGStreamerPrivate():
-            m_loop(false),
-            m_run(false),
-            m_curState(AkElement::ElementStateNull),
-            m_maxPacketQueueSize(15 * 1024 * 1024),
-            m_showLog(false),
-            m_pipeline(nullptr),
-            m_mainLoop(nullptr),
-            m_busWatchId(0),
-            m_audioIndex(-1),
-            m_videoIndex(-1),
-            m_subtitlesIndex(-1),
-            m_audioId(-1),
-            m_videoId(-1),
-            m_subtitlesId(-1)
-        {
-        }
-
-        inline void waitState(GstState state);
-        inline static gboolean busCallback(GstBus *bus,
-                                           GstMessage *message,
-                                           gpointer userData);
-        inline static GstFlowReturn audioBufferCallback(GstElement *audioOutput,
-                                                        gpointer userData);
-        inline static GstFlowReturn videoBufferCallback(GstElement *videoOutput,
-                                                        gpointer userData);
-        inline static GstFlowReturn subtitlesBufferCallback(GstElement *subtitlesOutput,
-                                                            gpointer userData);
-        inline static void aboutToFinish(GstElement *object, gpointer userData);
-        inline QStringList languageCodes(const QString &type);
-        inline QStringList languageCodes();
+        void waitState(GstState state);
+        static gboolean busCallback(GstBus *bus,
+                                    GstMessage *message,
+                                    gpointer userData);
+        static GstFlowReturn audioBufferCallback(GstElement *audioOutput,
+                                                 gpointer userData);
+        static GstFlowReturn videoBufferCallback(GstElement *videoOutput,
+                                                 gpointer userData);
+        static GstFlowReturn subtitlesBufferCallback(GstElement *subtitlesOutput,
+                                                     gpointer userData);
+        static void aboutToFinish(GstElement *object, gpointer userData);
+        QStringList languageCodes(const QString &type);
+        QStringList languageCodes();
 };
 
 MediaSourceGStreamer::MediaSourceGStreamer(QObject *parent):
@@ -242,7 +224,7 @@ gboolean MediaSourceGStreamerPrivate::busCallback(GstBus *bus,
                                                   gpointer userData)
 {
     Q_UNUSED(bus)
-    MediaSourceGStreamer *self = static_cast<MediaSourceGStreamer *>(userData);
+    auto self = static_cast<MediaSourceGStreamer *>(userData);
 
     switch (GST_MESSAGE_TYPE(message)) {
     case GST_MESSAGE_ERROR: {
@@ -366,7 +348,7 @@ gboolean MediaSourceGStreamerPrivate::busCallback(GstBus *bus,
         guint64 timestamp;
         guint64 duration;
         gst_message_parse_qos(message, &live, &runningTime, &streamTime, &timestamp, &duration);
-        qDebug() << "    Is live stream =" << (live? true: false);
+        qDebug() << "    Is live stream =" << live;
         qDebug() << "    Runninng time =" << runningTime;
         qDebug() << "    Stream time =" << streamTime;
         qDebug() << "    Timestamp =" << timestamp;
@@ -385,7 +367,7 @@ gboolean MediaSourceGStreamerPrivate::busCallback(GstBus *bus,
 GstFlowReturn MediaSourceGStreamerPrivate::audioBufferCallback(GstElement *audioOutput,
                                                                gpointer userData)
 {
-    MediaSourceGStreamer *self = static_cast<MediaSourceGStreamer *>(userData);
+    auto self = static_cast<MediaSourceGStreamer *>(userData);
 
     if (self->d->m_audioIndex < 0)
         return GST_FLOW_OK;
@@ -485,7 +467,7 @@ GstFlowReturn MediaSourceGStreamerPrivate::videoBufferCallback(GstElement *video
 GstFlowReturn MediaSourceGStreamerPrivate::subtitlesBufferCallback(GstElement *subtitlesOutput,
                                                                    gpointer userData)
 {
-    MediaSourceGStreamer *self = static_cast<MediaSourceGStreamer *>(userData);
+    auto self = static_cast<MediaSourceGStreamer *>(userData);
 
     if (self->d->m_subtitlesIndex < 0)
         return GST_FLOW_OK;
@@ -529,7 +511,7 @@ GstFlowReturn MediaSourceGStreamerPrivate::subtitlesBufferCallback(GstElement *s
 void MediaSourceGStreamerPrivate::aboutToFinish(GstElement *object,
                                                 gpointer userData)
 {
-    MediaSourceGStreamer *self = static_cast<MediaSourceGStreamer *>(userData);
+    auto self = static_cast<MediaSourceGStreamer *>(userData);
 
     if (!self->d->m_loop)
         return;

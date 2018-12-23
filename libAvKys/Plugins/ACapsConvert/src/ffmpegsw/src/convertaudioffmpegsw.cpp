@@ -32,7 +32,7 @@ extern "C"
 
 #include "convertaudioffmpegsw.h"
 
-typedef QMap<AkAudioCaps::ChannelLayout, int64_t> ChannelLayoutsMap;
+using ChannelLayoutsMap = QMap<AkAudioCaps::ChannelLayout, int64_t>;
 
 inline ChannelLayoutsMap initChannelFormatsMap()
 {
@@ -76,13 +76,8 @@ class ConvertAudioFFmpegSWPrivate
 {
     public:
         AkAudioCaps m_caps;
-        SwrContext *m_resampleContext;
+        SwrContext *m_resampleContext {nullptr};
         QMutex m_mutex;
-
-        ConvertAudioFFmpegSWPrivate():
-            m_resampleContext(nullptr)
-        {
-        }
 };
 
 ConvertAudioFFmpegSW::ConvertAudioFFmpegSW(QObject *parent):

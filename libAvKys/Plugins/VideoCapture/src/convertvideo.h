@@ -34,7 +34,7 @@ class ConvertVideo: public QObject
 
     public:
         explicit ConvertVideo(QObject *parent=nullptr);
-        virtual ~ConvertVideo();
+        virtual ~ConvertVideo() = default;
 
         Q_INVOKABLE virtual void packetEnqueue(const AkPacket &packet);
         Q_INVOKABLE virtual bool init(const AkCaps &caps);

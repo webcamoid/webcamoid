@@ -62,7 +62,7 @@ class HaarStage: public QObject
     public:
         explicit HaarStage(QObject *parent=nullptr);
         HaarStage(const HaarStage &other);
-        ~HaarStage();
+        ~HaarStage() = default;
 
         Q_INVOKABLE HaarTreeVector trees() const;
         Q_INVOKABLE HaarTreeVector &trees();

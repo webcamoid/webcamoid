@@ -32,17 +32,10 @@ class ConvolveElementPrivate
 {
     public:
         QVector<int> m_kernel;
-        QSize m_kernelSize;
-        AkFrac m_factor;
+        QSize m_kernelSize {3, 3};
+        AkFrac m_factor {1, 1};
         QMutex m_mutex;
-        int m_bias;
-
-        ConvolveElementPrivate():
-            m_kernelSize(QSize(3, 3)),
-            m_factor(AkFrac(1, 1)),
-            m_bias(0)
-        {
-        }
+        int m_bias {0};
 };
 
 ConvolveElement::ConvolveElement(): AkElement()
@@ -112,7 +105,7 @@ void ConvolveElement::setKernel(const QVariantList &kernel)
     if (this->d->m_kernel == k)
         return;
 
-    QMutexLocker(&this->d->m_mutex);
+    QMutexLocker locker(&this->d->m_mutex);
     this->d->m_kernel = k;
     emit this->kernelChanged(kernel);
 }
@@ -122,7 +115,7 @@ void ConvolveElement::setKernelSize(const QSize &kernelSize)
     if (this->d->m_kernelSize == kernelSize)
         return;
 
-    QMutexLocker(&this->d->m_mutex);
+    QMutexLocker locker(&this->d->m_mutex);
     this->d->m_kernelSize = kernelSize;
     emit this->kernelSizeChanged(kernelSize);
 }
@@ -132,7 +125,7 @@ void ConvolveElement::setFactor(const AkFrac &factor)
     if (this->d->m_factor == factor)
         return;
 
-    QMutexLocker(&this->d->m_mutex);
+    QMutexLocker locker(&this->d->m_mutex);
     this->d->m_factor = factor;
     emit this->factorChanged(factor);
 }
@@ -142,7 +135,7 @@ void ConvolveElement::setBias(int bias)
     if (this->d->m_bias == bias)
         return;
 
-    QMutexLocker(&this->d->m_mutex);
+    QMutexLocker locker(&this->d->m_mutex);
     this->d->m_bias = bias;
     emit this->biasChanged(bias);
 }

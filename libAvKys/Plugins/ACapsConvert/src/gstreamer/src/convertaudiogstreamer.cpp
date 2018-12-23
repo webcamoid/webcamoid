@@ -31,7 +31,7 @@
 
 #include "convertaudiogstreamer.h"
 
-typedef QMap<QString, QString> StringStringMap;
+using StringStringMap = QMap<QString, QString>;
 
 inline StringStringMap initGstToFF()
 {
@@ -92,21 +92,12 @@ class ConvertAudioGStreamerPrivate
     public:
         AkAudioCaps m_caps;
         QThreadPool m_threadPool;
-        GstElement *m_pipeline;
-        GstElement *m_source;
-        GstElement *m_sink;
-        GMainLoop *m_mainLoop;
-        guint m_busWatchId;
+        GstElement *m_pipeline {nullptr};
+        GstElement *m_source {nullptr};
+        GstElement *m_sink {nullptr};
+        GMainLoop *m_mainLoop {nullptr};
+        guint m_busWatchId {0};
         QMutex m_mutex;
-
-        ConvertAudioGStreamerPrivate():
-            m_pipeline(nullptr),
-            m_source(nullptr),
-            m_sink(nullptr),
-            m_mainLoop(nullptr),
-            m_busWatchId(0)
-        {
-        }
 
         inline void waitState(GstState state);
         inline static gboolean busCallback(GstBus *bus,
@@ -150,7 +141,6 @@ bool ConvertAudioGStreamer::init(const AkAudioCaps &caps)
                      audioConvert,
                      this->d->m_sink,
                      nullptr);
-
     gst_element_link_many(this->d->m_source,
                           audioResample,
                           audioRate,
@@ -160,7 +150,10 @@ bool ConvertAudioGStreamer::init(const AkAudioCaps &caps)
 
     // Configure the message bus.
     GstBus *bus = gst_pipeline_get_bus(GST_PIPELINE(this->d->m_pipeline));
-    this->d->m_busWatchId = gst_bus_add_watch(bus, this->d->busCallback, this);
+    this->d->m_busWatchId =
+            gst_bus_add_watch(bus,
+                              ConvertAudioGStreamerPrivate::busCallback,
+                              this);
     gst_object_unref(bus);
 
     this->d->m_caps = caps;
@@ -194,12 +187,12 @@ AkPacket ConvertAudioGStreamer::convert(const AkAudioPacket &packet)
             AkAudioCaps::isPlanar(packet.caps().format())?
                 "non-interleaved": "interleaved";
 
-    GstCaps *inCaps = gst_caps_new_simple("audio/x-raw",
-                                          "format", G_TYPE_STRING, gstIFormat.toStdString().c_str(),
-                                          "layout", G_TYPE_STRING, gstInLayout,
-                                          "rate", G_TYPE_INT, packet.caps().rate(),
-                                          "channels", G_TYPE_INT, packet.caps().channels(),
-                                          nullptr);
+    auto inCaps = gst_caps_new_simple("audio/x-raw",
+                                      "format", G_TYPE_STRING, gstIFormat.toStdString().c_str(),
+                                      "layout", G_TYPE_STRING, gstInLayout,
+                                      "rate", G_TYPE_INT, packet.caps().rate(),
+                                      "channels", G_TYPE_INT, packet.caps().channels(),
+                                      nullptr);
 
     inCaps = gst_caps_fixate(inCaps);
     GstCaps *sourceCaps = gst_app_src_get_caps(GST_APP_SRC(this->d->m_source));
@@ -222,12 +215,12 @@ AkPacket ConvertAudioGStreamer::convert(const AkAudioPacket &packet)
             AkAudioCaps::isPlanar(this->d->m_caps.format())?
                 "non-interleaved": "interleaved";
 
-    GstCaps *outCaps = gst_caps_new_simple("audio/x-raw",
-                                           "format", G_TYPE_STRING, gstOFormat.toStdString().c_str(),
-                                           "layout", G_TYPE_STRING, gstOutLayout,
-                                           "rate", G_TYPE_INT, this->d->m_caps.rate(),
-                                           "channels", G_TYPE_INT, this->d->m_caps.channels(),
-                                           nullptr);
+    auto outCaps = gst_caps_new_simple("audio/x-raw",
+                                       "format", G_TYPE_STRING, gstOFormat.toStdString().c_str(),
+                                       "layout", G_TYPE_STRING, gstOutLayout,
+                                       "rate", G_TYPE_INT, this->d->m_caps.rate(),
+                                       "channels", G_TYPE_INT, this->d->m_caps.channels(),
+                                       nullptr);
 
     outCaps = gst_caps_fixate(outCaps);
     GstCaps *sinkCaps = gst_app_sink_get_caps(GST_APP_SINK(this->d->m_sink));
@@ -347,7 +340,7 @@ gboolean ConvertAudioGStreamerPrivate::busCallback(GstBus *bus,
                                                    gpointer userData)
 {
     Q_UNUSED(bus)
-    ConvertAudioGStreamer *self = static_cast<ConvertAudioGStreamer *>(userData);
+    auto self = static_cast<ConvertAudioGStreamer *>(userData);
 
     switch (GST_MESSAGE_TYPE(message)) {
     case GST_MESSAGE_ERROR: {
@@ -492,7 +485,7 @@ gboolean ConvertAudioGStreamerPrivate::busCallback(GstBus *bus,
         guint64 timestamp;
         guint64 duration;
         gst_message_parse_qos(message, &live, &runningTime, &streamTime, &timestamp, &duration);
-        qDebug() << "    Is live stream =" << (live? true: false);
+        qDebug() << "    Is live stream =" << live;
         qDebug() << "    Runninng time =" << runningTime;
         qDebug() << "    Stream time =" << streamTime;
         qDebug() << "    Timestamp =" << timestamp;

@@ -44,7 +44,7 @@
 // NOTE: Disabled because GStreamer crash when setting an invalid bitrate.
 //#define SET_CODEC_BITRATE
 
-typedef QMap<QString, QString> StringStringMap;
+using StringStringMap = QMap<QString, QString>;
 
 inline StringStringMap initGstToFF()
 {
@@ -162,7 +162,7 @@ inline StringStringMap initGstToFF()
 
 Q_GLOBAL_STATIC_WITH_ARGS(StringStringMap, gstToFF, (initGstToFF()))
 
-typedef QVector<AkVideoCaps> VectorVideoCaps;
+using VectorVideoCaps = QVector<AkVideoCaps>;
 
 inline VectorVideoCaps initDVSupportedCaps()
 {
@@ -189,7 +189,7 @@ inline VectorVideoCaps initDVSupportedCaps()
 
 Q_GLOBAL_STATIC_WITH_ARGS(VectorVideoCaps, dvSupportedCaps, (initDVSupportedCaps()))
 
-typedef QVector<QSize> VectorSize;
+using VectorSize = QVector<QSize>;
 
 inline VectorSize initH263SupportedSize()
 {
@@ -206,8 +206,8 @@ inline VectorSize initH263SupportedSize()
 
 Q_GLOBAL_STATIC_WITH_ARGS(VectorSize, h263SupportedSize, (initH263SupportedSize()))
 
-typedef QVector<int> VectorInt;
-typedef QMap<QString, VectorInt> StringVectorIntMap;
+using VectorInt = QVector<int>;
+using StringVectorIntMap = QMap<QString, VectorInt>;
 
 inline StringVectorIntMap initFLVSupportedSampleRates()
 {
@@ -227,7 +227,7 @@ inline StringVectorIntMap initFLVSupportedSampleRates()
 
 Q_GLOBAL_STATIC_WITH_ARGS(StringVectorIntMap, flvSupportedSampleRates, (initFLVSupportedSampleRates()))
 
-typedef QMap<GType, QString> OptionTypeStrMap;
+using OptionTypeStrMap = QMap<GType, QString>;
 
 inline OptionTypeStrMap initGstOptionTypeStrMap()
 {
@@ -279,18 +279,18 @@ class MediaWriterGStreamerPrivate
         {
         }
 
-        inline QString guessFormat(const QString &fileName);
-        inline QStringList readCaps(const QString &element);
-        inline QVariantList parseOptions(const GstElement *element) const;
-        inline void waitState(GstState state);
-        inline static gboolean busCallback(GstBus *bus,
-                                           GstMessage *message,
-                                           gpointer userData);
-        inline void setElementOptions(GstElement *element, const QVariantMap &options);
-        inline AkVideoCaps nearestDVCaps(const AkVideoCaps &caps) const;
-        inline AkVideoCaps nearestH263Caps(const AkVideoCaps &caps) const;
-        inline AkAudioCaps nearestFLVAudioCaps(const AkAudioCaps &caps,
-                                               const QString &codec) const;
+        QString guessFormat(const QString &fileName);
+        QStringList readCaps(const QString &element);
+        QVariantList parseOptions(const GstElement *element) const;
+        void waitState(GstState state);
+        static gboolean busCallback(GstBus *bus,
+                                    GstMessage *message,
+                                    gpointer userData);
+        void setElementOptions(GstElement *element, const QVariantMap &options);
+        AkVideoCaps nearestDVCaps(const AkVideoCaps &caps) const;
+        AkVideoCaps nearestH263Caps(const AkVideoCaps &caps) const;
+        AkAudioCaps nearestFLVAudioCaps(const AkAudioCaps &caps,
+                                        const QString &codec) const;
 };
 
 MediaWriterGStreamer::MediaWriterGStreamer(QObject *parent):
@@ -331,7 +331,7 @@ QVariantList MediaWriterGStreamer::streams() const
 {
     QVariantList streams;
 
-    for (const QVariantMap &stream: this->d->m_streamConfigs)
+    for (auto &stream: this->d->m_streamConfigs)
         streams << stream;
 
     return streams;
@@ -344,7 +344,9 @@ QStringList MediaWriterGStreamer::supportedFormats()
             gst_element_factory_list_get_elements(GST_ELEMENT_FACTORY_TYPE_MUXER,
                                                   MINIMUM_PLUGIN_RANK);
 
-    for (GList *featureItem = factoryList; featureItem; featureItem = g_list_next(featureItem)) {
+    for (auto featureItem = factoryList;
+         featureItem;
+         featureItem = g_list_next(featureItem)) {
         if (G_UNLIKELY(featureItem->data == nullptr))
           continue;
 
@@ -390,7 +392,7 @@ QStringList MediaWriterGStreamer::fileExtensions(const QString &format)
                                                        nullptr);
         gst_caps_unref(caps);
 
-        const gchar *extension =
+        auto extension =
                 gst_encoding_profile_get_file_extension(reinterpret_cast<GstEncodingProfile *>(prof));
 
         if (extension && !extensions.contains(extension))
@@ -407,12 +409,12 @@ QString MediaWriterGStreamer::formatDescription(const QString &format)
     auto factory = gst_element_factory_find(format.toStdString().c_str());
 
     if (!factory)
-        return QString();
+        return {};
 
     factory = GST_ELEMENT_FACTORY(gst_plugin_feature_load(GST_PLUGIN_FEATURE(factory)));
 
     if (!factory)
-        return QString();
+        return {};
 
     auto longName =
             gst_element_factory_get_metadata(factory,
@@ -430,13 +432,13 @@ QVariantList MediaWriterGStreamer::formatOptions()
                                this->d->m_outputFormat;
 
     if (outputFormat.isEmpty())
-        return QVariantList();
+        return {};
 
     auto element = gst_element_factory_make(outputFormat.toStdString().c_str(),
                                             nullptr);
 
     if (!element)
-        return QVariantList();
+        return {};
 
     auto options = this->d->parseOptions(element);
     gst_object_unref(element);
@@ -482,15 +484,15 @@ QStringList MediaWriterGStreamer::supportedCodecs(const QString &format,
                             "subpicture/x-dvd;"
                             "subpicture/x-pgs");
 
-    GstCaps *rawCaps = gst_static_caps_get(&staticRawCaps);
-    GList *encodersList =
+    auto rawCaps = gst_static_caps_get(&staticRawCaps);
+    auto encodersList =
             gst_element_factory_list_get_elements(GST_ELEMENT_FACTORY_TYPE_ENCODER,
                                                   MINIMUM_PLUGIN_RANK);
 
-    const GList *pads = gst_element_factory_get_static_pad_templates(factory);
+    auto pads = gst_element_factory_get_static_pad_templates(factory);
     QStringList supportedCodecs;
 
-    for (const GList *padItem = pads; padItem; padItem = g_list_next(padItem)) {
+    for (auto padItem = pads; padItem; padItem = g_list_next(padItem)) {
         auto padtemplate =
                 reinterpret_cast<GstStaticPadTemplate *>(padItem->data);
 
@@ -498,11 +500,11 @@ QStringList MediaWriterGStreamer::supportedCodecs(const QString &format,
             auto caps = gst_caps_from_string(padtemplate->static_caps.string);
 
             for (guint i = 0; i < gst_caps_get_size(caps); i++) {
-                GstStructure *capsStructure = gst_caps_get_structure(caps, i);
+                auto capsStructure = gst_caps_get_structure(caps, i);
                 auto structureName = gst_structure_get_name(capsStructure);
                 QString structureType(structureName);
-                gchar *structureStr = gst_structure_to_string(capsStructure);
-                GstCaps *compCaps = gst_caps_from_string(structureStr);
+                auto structureStr = gst_structure_to_string(capsStructure);
+                auto compCaps = gst_caps_from_string(structureStr);
 
                 if (gst_caps_can_intersect(compCaps, rawCaps)) {
                     if (!type.isEmpty() && structureType != type) {
@@ -518,21 +520,22 @@ QStringList MediaWriterGStreamer::supportedCodecs(const QString &format,
                         GType fieldType = gst_structure_get_field_type(capsStructure, "format");
 
                         if (fieldType == G_TYPE_STRING) {
-                            const gchar *format = gst_structure_get_string(capsStructure, "format");
-                            QString codecId = QString("identity/%1/%2").arg(codecType).arg(format);
+                            auto format = gst_structure_get_string(capsStructure, "format");
+                            auto codecId = QString("identity/%1/%2")
+                                           .arg(codecType,format);
 
                             if (!supportedCodecs.contains(codecId)
                                 && !this->m_codecsBlackList.contains(codecId))
                                 supportedCodecs << codecId;
                         } else if (fieldType == GST_TYPE_LIST) {
-                            const GValue *formats = gst_structure_get_value(capsStructure, "format");
+                            auto formats = gst_structure_get_value(capsStructure, "format");
 
                             for (guint i = 0; i < gst_value_list_get_size(formats); i++) {
-                                const GValue *format = gst_value_list_get_value(formats, i);
+                                auto format = gst_value_list_get_value(formats, i);
                                 auto codecId =
                                         QString("identity/%1/%2")
-                                            .arg(codecType)
-                                            .arg(g_value_get_string(format));
+                                            .arg(codecType,
+                                                 g_value_get_string(format));
 
                                 if (!supportedCodecs.contains(codecId)
                                     && !this->m_codecsBlackList.contains(codecId))
@@ -541,13 +544,13 @@ QStringList MediaWriterGStreamer::supportedCodecs(const QString &format,
                         }
                     }
                 } else {
-                    GList *encoders =
+                    auto encoders =
                             gst_element_factory_list_filter(encodersList,
                                                             caps,
                                                             GST_PAD_SRC,
                                                             FALSE);
 
-                    for (GList *encoderItem = encoders;
+                    for (auto encoderItem = encoders;
                          encoderItem;
                          encoderItem = g_list_next(encoderItem)) {
                         auto encoder =
@@ -597,8 +600,7 @@ QStringList MediaWriterGStreamer::supportedCodecs(const QString &format,
         {"*"          , {"avenc_alac", "mpeg2enc"}},
     };
 
-    for (const QString &codec: unsupportedCodecs.value(format)
-                             + unsupportedCodecs["*"])
+    for (auto &codec: unsupportedCodecs.value(format) + unsupportedCodecs["*"])
         supportedCodecs.removeAll(codec);
 
     return supportedCodecs;
@@ -607,10 +609,10 @@ QStringList MediaWriterGStreamer::supportedCodecs(const QString &format,
 QString MediaWriterGStreamer::defaultCodec(const QString &format,
                                            const QString &type)
 {
-    QStringList codecs = this->supportedCodecs(format, type);
+    auto codecs = this->supportedCodecs(format, type);
 
     if (codecs.isEmpty())
-        return QString();
+        return {};
 
     return codecs.first();
 }
@@ -620,7 +622,7 @@ QString MediaWriterGStreamer::codecDescription(const QString &codec)
     if (codec.startsWith("identity/")) {
         QStringList parts = codec.split("/");
 
-        return QString("%1 (%2)").arg(parts[0]).arg(parts[2]);
+        return QString("%1 (%2)").arg(parts[0], parts[2]);
     }
 
     auto factory = gst_element_factory_find(codec.toStdString().c_str());
@@ -645,23 +647,26 @@ QString MediaWriterGStreamer::codecDescription(const QString &codec)
 QString MediaWriterGStreamer::codecType(const QString &codec)
 {
     if (codec.startsWith("identity/audio"))
-        return QString("audio/x-raw");
-    else if (codec.startsWith("identity/video"))
-        return QString("video/x-raw");
-    else if (codec.startsWith("identity/text"))
-        return QString("text/x-raw");
+        return {"audio/x-raw"};
+
+    if (codec.startsWith("identity/video"))
+        return {"video/x-raw"};
+
+    if (codec.startsWith("identity/text"))
+        return {"text/x-raw"};
 
     auto factory = gst_element_factory_find(codec.toStdString().c_str());
 
     if (!factory)
-        return QString();
+        return {};
 
     factory = GST_ELEMENT_FACTORY(gst_plugin_feature_load(GST_PLUGIN_FEATURE(factory)));
 
     if (!factory)
-        return QString();
+        return {};
 
-    const gchar *klass = gst_element_factory_get_metadata(factory, GST_ELEMENT_METADATA_KLASS);
+    auto klass = gst_element_factory_get_metadata(factory,
+                                                  GST_ELEMENT_METADATA_KLASS);
     QString codecType = !strcmp(klass, "Codec/Encoder/Audio")?
                             "audio/x-raw":
                         (strcmp(klass, "Codec/Encoder/Video")
@@ -684,11 +689,11 @@ QVariantMap MediaWriterGStreamer::defaultCodecParams(const QString &codec)
                                                          "subpicture/x-dvd;"
                                                          "subpicture/x-pgs");
 
-    GstCaps *rawCaps = gst_static_caps_get(&staticRawCaps);
+    auto rawCaps = gst_static_caps_get(&staticRawCaps);
 
     if (codecType == "audio/x-raw") {
         if (codec.startsWith("identity/audio")) {
-            QString sampleFormat = gstToFF->value(codec.split("/").at(2), "s16");
+            auto sampleFormat = gstToFF->value(codec.split("/").at(2), "s16");
             codecParams["defaultBitRate"] = 128000;
             codecParams["supportedSampleFormats"] = QStringList {sampleFormat};
             codecParams["supportedChannelLayouts"] = QStringList {"mono", "stereo"};
@@ -713,7 +718,7 @@ QVariantMap MediaWriterGStreamer::defaultCodecParams(const QString &codec)
                 gst_object_unref(factory);
                 gst_caps_unref(rawCaps);
 
-                return QVariantMap();
+                return {};
             }
 
             QStringList supportedSampleFormats;
@@ -801,7 +806,7 @@ QVariantMap MediaWriterGStreamer::defaultCodecParams(const QString &codec)
                                     if (!supportedChannelLayouts.contains(layout))
                                         supportedChannelLayouts << layout;
                                 } else if (fieldType == GST_TYPE_INT_RANGE) {
-                                    const GValue *channels = gst_structure_get_value(capsStructure, "channels");
+                                    auto channels = gst_structure_get_value(capsStructure, "channels");
 
                                     int min = gst_value_get_int_range_min(channels);
                                     int max = gst_value_get_int_range_max(channels) + 1;
@@ -817,7 +822,7 @@ QVariantMap MediaWriterGStreamer::defaultCodecParams(const QString &codec)
                                     const GValue *channels = gst_structure_get_value(capsStructure, "channels");
 
                                     for (guint i = 0; i < gst_value_list_get_size(channels); i++) {
-                                        const GValue *nchannels = gst_value_list_get_value(channels, i);
+                                        auto nchannels = gst_value_list_get_value(channels, i);
                                         gint nchannelsId = g_value_get_int(nchannels);
                                         QString layout = AkAudioCaps::defaultChannelLayoutString(nchannelsId);
 
@@ -836,13 +841,13 @@ QVariantMap MediaWriterGStreamer::defaultCodecParams(const QString &codec)
                 }
             }
 
-            GstElement *element = gst_element_factory_create(factory, nullptr);
+            auto element = gst_element_factory_create(factory, nullptr);
 
             if (!element) {
                 gst_object_unref(factory);
                 gst_caps_unref(rawCaps);
 
-                return QVariantMap();
+                return {};
             }
 
             int bitrate = 0;
@@ -883,12 +888,12 @@ QVariantMap MediaWriterGStreamer::defaultCodecParams(const QString &codec)
             codecParams["supportedPixelFormats"] = QStringList() << pixelFormat;
             codecParams["defaultPixelFormat"] = pixelFormat;
         } else {
-            GstElementFactory *factory = gst_element_factory_find(codec.toStdString().c_str());
+            auto factory = gst_element_factory_find(codec.toStdString().c_str());
 
             if (!factory) {
                 gst_caps_unref(rawCaps);
 
-                return QVariantMap();
+                return {};
             }
 
             factory = GST_ELEMENT_FACTORY(gst_plugin_feature_load(GST_PLUGIN_FEATURE(factory)));
@@ -897,7 +902,7 @@ QVariantMap MediaWriterGStreamer::defaultCodecParams(const QString &codec)
                 gst_object_unref(factory);
                 gst_caps_unref(rawCaps);
 
-                return QVariantMap();
+                return {};
             }
 
             QStringList supportedPixelFormats;
@@ -911,12 +916,12 @@ QVariantMap MediaWriterGStreamer::defaultCodecParams(const QString &codec)
 
                 if (padtemplate->direction == GST_PAD_SINK
                     && padtemplate->presence == GST_PAD_ALWAYS) {
-                    GstCaps *caps = gst_caps_from_string(padtemplate->static_caps.string);
+                    auto caps = gst_caps_from_string(padtemplate->static_caps.string);
 
                     for (guint i = 0; i < gst_caps_get_size(caps); i++) {
-                        GstStructure *capsStructure = gst_caps_get_structure(caps, i);
-                        gchar *structureStr = gst_structure_to_string(capsStructure);
-                        GstCaps *compCaps = gst_caps_from_string(structureStr);
+                        auto capsStructure = gst_caps_get_structure(caps, i);
+                        auto structureStr = gst_structure_to_string(capsStructure);
+                        auto compCaps = gst_caps_from_string(structureStr);
 
                         if (gst_caps_can_intersect(compCaps, rawCaps)) {
                             // Get supported formats
@@ -924,18 +929,18 @@ QVariantMap MediaWriterGStreamer::defaultCodecParams(const QString &codec)
                                 GType fieldType = gst_structure_get_field_type(capsStructure, "format");
 
                                 if (fieldType == G_TYPE_STRING) {
-                                    const gchar *format = gst_structure_get_string(capsStructure, "format");
-                                    QString formatFF = gstToFF->value(format, "");
+                                    auto format = gst_structure_get_string(capsStructure, "format");
+                                    auto formatFF = gstToFF->value(format, "");
 
                                     if (!formatFF.isEmpty() && !supportedPixelFormats.contains(formatFF))
                                         supportedPixelFormats << formatFF;
                                 } else if (fieldType == GST_TYPE_LIST) {
-                                    const GValue *formats = gst_structure_get_value(capsStructure, "format");
+                                    auto formats = gst_structure_get_value(capsStructure, "format");
 
                                     for (guint i = 0; i < gst_value_list_get_size(formats); i++) {
-                                        const GValue *format = gst_value_list_get_value(formats, i);
-                                        const gchar *formatId = g_value_get_string(format);
-                                        QString formatFF = gstToFF->value(formatId, "");
+                                        auto format = gst_value_list_get_value(formats, i);
+                                        auto formatId = g_value_get_string(format);
+                                        auto formatFF = gstToFF->value(formatId, "");
 
                                         if (!formatFF.isEmpty() && !supportedPixelFormats.contains(formatFF))
                                             supportedPixelFormats << formatFF;
@@ -949,14 +954,14 @@ QVariantMap MediaWriterGStreamer::defaultCodecParams(const QString &codec)
 
                                 if (fieldType == GST_TYPE_FRACTION_RANGE) {
                                 } else if (fieldType == GST_TYPE_LIST) {
-                                    const GValue *framerates = gst_structure_get_value(capsStructure, "framerate");
+                                    auto framerates = gst_structure_get_value(capsStructure, "framerate");
 
                                     for (guint i = 0; i < gst_value_list_get_size(framerates); i++) {
-                                        const GValue *frate = gst_value_list_get_value(framerates, i);
-                                        gint num = gst_value_get_fraction_numerator(frate);
-                                        gint den = gst_value_get_fraction_denominator(frate);
+                                        auto frate = gst_value_list_get_value(framerates, i);
+                                        auto num = gst_value_get_fraction_numerator(frate);
+                                        auto den = gst_value_get_fraction_denominator(frate);
                                         AkFrac framerate(num, den);
-                                        QVariant fps = QVariant::fromValue(framerate);
+                                        auto fps = QVariant::fromValue(framerate);
 
                                          if (!supportedFramerates.contains(fps))
                                              supportedFramerates << fps;
@@ -969,7 +974,7 @@ QVariantMap MediaWriterGStreamer::defaultCodecParams(const QString &codec)
                                                                &num,
                                                                &den);
                                    AkFrac framerate(num, den);
-                                   QVariant fps = QVariant::fromValue(framerate);
+                                   auto fps = QVariant::fromValue(framerate);
 
                                     if (!supportedFramerates.contains(fps))
                                         supportedFramerates << fps;
@@ -985,13 +990,13 @@ QVariantMap MediaWriterGStreamer::defaultCodecParams(const QString &codec)
                 }
             }
 
-            GstElement *element = gst_element_factory_create(factory, nullptr);
+            auto element = gst_element_factory_create(factory, nullptr);
 
             if (!element) {
                 gst_object_unref(factory);
                 gst_caps_unref(rawCaps);
 
-                return QVariantMap();
+                return {};
             }
 
             // Read default bitrate
@@ -1456,7 +1461,7 @@ QStringList MediaWriterGStreamerPrivate::readCaps(const QString &element)
     QStringList elementCaps;
 
     for (auto padItem = pads; padItem; padItem = g_list_next(padItem)) {
-        GstStaticPadTemplate *padtemplate =
+        auto padtemplate =
                 reinterpret_cast<GstStaticPadTemplate *>(padItem->data);
 
         if (padtemplate->direction == GST_PAD_SRC
@@ -1888,7 +1893,7 @@ gboolean MediaWriterGStreamerPrivate::busCallback(GstBus *bus,
                               &streamTime,
                               &timestamp,
                               &duration);
-        qDebug() << "    Is live stream =" << (live? true: false);
+        qDebug() << "    Is live stream =" << live;
         qDebug() << "    Runninng time =" << runningTime;
         qDebug() << "    Stream time =" << streamTime;
         qDebug() << "    Timestamp =" << timestamp;
@@ -2241,8 +2246,8 @@ bool MediaWriterGStreamer::init()
             gst_caps_unref(gstAudioCaps);
             gst_element_link_many(audioCodec, queue, muxer, nullptr);
         } else if (streamCaps.mimeType() == "video/x-raw") {
-            QString sourceName = QString("video_%1").arg(i);
-            GstElement *source = gst_element_factory_make("appsrc", sourceName.toStdString().c_str());
+            auto sourceName = QString("video_%1").arg(i);
+            auto source = gst_element_factory_make("appsrc", sourceName.toStdString().c_str());
             gst_app_src_set_stream_type(GST_APP_SRC(source), GST_APP_STREAM_TYPE_STREAM);
             g_object_set(G_OBJECT(source), "format", GST_FORMAT_TIME, nullptr);
 
@@ -2534,15 +2539,16 @@ void MediaWriterGStreamer::writeVideoPacket(const AkVideoPacket &packet)
     gst_caps_unref(inputCaps);
     gst_caps_unref(sourceCaps);
 
-    size_t size = size_t(videoPacket.buffer().size());
-
-    GstBuffer *buffer = gst_buffer_new_allocate(nullptr, size, nullptr);
+    auto size = size_t(videoPacket.buffer().size());
+    auto buffer = gst_buffer_new_allocate(nullptr, size, nullptr);
     GstMapInfo info;
     gst_buffer_map(buffer, &info, GST_MAP_WRITE);
     memcpy(info.data, videoPacket.buffer().constData(), size);
     gst_buffer_unmap(buffer, &info);
 
-    qint64 pts = qint64(videoPacket.pts() * videoPacket.timeBase().value() * GST_SECOND);
+    auto pts = qint64(videoPacket.pts()
+                      * videoPacket.timeBase().value()
+                      * GST_SECOND);
 
 #if 0
     GST_BUFFER_PTS(buffer) = GST_BUFFER_DTS(buffer) = this->m_streamParams[streamIndex].nextPts(pts, packet.id());

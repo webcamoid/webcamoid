@@ -159,7 +159,9 @@ void VideoStream::processData(AVFrame *frame)
                 this->d->m_lastPts = pts;
 
                 break;
-            } else if (diff > syncThreshold) {
+            }
+
+            if (diff > syncThreshold) {
                 // Video is ahead the external clock.
                 QThread::usleep(ulong(1e6 * (diff - syncThreshold)));
 
