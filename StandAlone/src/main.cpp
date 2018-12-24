@@ -58,13 +58,13 @@ int main(int argc, char *argv[])
 
     QApplication::setWindowIcon(QIcon::fromTheme("webcamoid", fallbackIcon));
 
-#if defined(Q_OS_WIN32) || 0
+#if defined(Q_OS_WIN32) || defined(Q_OS_OSX)
     // NOTE: OpenGL detection in Qt is quite buggy, so use software render by default.
     auto quickBackend = qgetenv("QT_QUICK_BACKEND");
 
     if (quickBackend.isEmpty())
         qputenv("QT_QUICK_BACKEND", "software");
-#elif defined(Q_OS_BSD4) || 0
+#elif defined(Q_OS_BSD4)
     // NOTE: Text is not rendered with QQC2 in FreeBSD, use native rendering.
     auto distanceField = qgetenv("QML_DISABLE_DISTANCEFIELD");
 
