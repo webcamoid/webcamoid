@@ -198,12 +198,12 @@ class CaptureDShowPrivate
         QStringList m_webcams;
         QString m_device;
         QList<int> m_streams;
-        qint64 m_id;
+        qint64 m_id {-1};
         AkFrac m_timeBase;
-        CaptureDShow::IoMethod m_ioMethod;
+        CaptureDShow::IoMethod m_ioMethod {CaptureDShow::IoMethodGrabSample};
         QMap<QString, QSize> m_resolution;
         BaseFilterPtr m_webcamFilter;
-        IGraphBuilder *m_graph;
+        IGraphBuilder *m_graph {nullptr};
         SampleGrabberPtr m_grabber;
         FrameGrabber m_frameGrabber;
         QByteArray m_curBuffer;
@@ -215,43 +215,36 @@ class CaptureDShowPrivate
         QVariantMap m_localImageControls;
         QVariantMap m_localCameraControls;
 
-        CaptureDShowPrivate():
-            m_id(-1),
-            m_ioMethod(CaptureDShow::IoMethodGrabSample),
-            m_graph(nullptr)
-        {
-        }
-
-        inline AkCaps capsFromMediaType(const AM_MEDIA_TYPE *mediaType) const;
-        inline AkCaps capsFromMediaType(const MediaTypePtr &mediaType) const;
-        inline HRESULT enumerateCameras(IEnumMoniker **ppEnum) const;
-        inline MonikersMap listMonikers() const;
-        inline MonikerPtr findMoniker(const QString &webcam) const;
-        inline IBaseFilter *findFilterP(const QString &webcam) const;
-        inline BaseFilterPtr findFilter(const QString &webcam) const;
-        inline MediaTypesList listMediaTypes(const QString &webcam) const;
-        inline MediaTypesList listMediaTypes(IBaseFilter *filter) const;
-        inline bool isPinConnected(IPin *pPin, bool *ok=nullptr) const;
-        inline PinPtr findUnconnectedPin(IBaseFilter *pFilter,
-                                         PIN_DIRECTION PinDir) const;
-        inline bool connectFilters(IGraphBuilder *pGraph,
-                                   IBaseFilter *pSrc,
-                                   IBaseFilter *pDest) const;
-        inline PinList enumPins(IBaseFilter *filter,
-                                PIN_DIRECTION direction) const;
-        inline static void deleteUnknown(IUnknown *unknown);
-        inline static void freeMediaType(AM_MEDIA_TYPE &mediaType);
-        inline static void deleteMediaType(AM_MEDIA_TYPE *mediaType);
-        inline static void deletePin(IPin *pin);
-        inline QVariantList imageControls(IBaseFilter *filter) const;
-        inline bool setImageControls(IBaseFilter *filter,
-                                     const QVariantMap &imageControls) const;
-        inline QVariantList cameraControls(IBaseFilter *filter) const;
-        inline bool setCameraControls(IBaseFilter *filter,
-                                      const QVariantMap &cameraControls) const;
-        inline QVariantMap controlStatus(const QVariantList &controls) const;
-        inline QVariantMap mapDiff(const QVariantMap &map1,
-                                   const QVariantMap &map2) const;
+        AkCaps capsFromMediaType(const AM_MEDIA_TYPE *mediaType) const;
+        AkCaps capsFromMediaType(const MediaTypePtr &mediaType) const;
+        HRESULT enumerateCameras(IEnumMoniker **ppEnum) const;
+        MonikersMap listMonikers() const;
+        MonikerPtr findMoniker(const QString &webcam) const;
+        IBaseFilter *findFilterP(const QString &webcam) const;
+        BaseFilterPtr findFilter(const QString &webcam) const;
+        MediaTypesList listMediaTypes(const QString &webcam) const;
+        MediaTypesList listMediaTypes(IBaseFilter *filter) const;
+        bool isPinConnected(IPin *pPin, bool *ok=nullptr) const;
+        PinPtr findUnconnectedPin(IBaseFilter *pFilter,
+                                  PIN_DIRECTION PinDir) const;
+        bool connectFilters(IGraphBuilder *pGraph,
+                            IBaseFilter *pSrc,
+                            IBaseFilter *pDest) const;
+        PinList enumPins(IBaseFilter *filter,
+                         PIN_DIRECTION direction) const;
+        static void deleteUnknown(IUnknown *unknown);
+        static void freeMediaType(AM_MEDIA_TYPE &mediaType);
+        static void deleteMediaType(AM_MEDIA_TYPE *mediaType);
+        static void deletePin(IPin *pin);
+        QVariantList imageControls(IBaseFilter *filter) const;
+        bool setImageControls(IBaseFilter *filter,
+                              const QVariantMap &imageControls) const;
+        QVariantList cameraControls(IBaseFilter *filter) const;
+        bool setCameraControls(IBaseFilter *filter,
+                               const QVariantMap &cameraControls) const;
+        QVariantMap controlStatus(const QVariantList &controls) const;
+        QVariantMap mapDiff(const QVariantMap &map1,
+                            const QVariantMap &map2) const;
 };
 
 CaptureDShow::CaptureDShow(QObject *parent):
@@ -1104,7 +1097,7 @@ QVariantMap CaptureDShowPrivate::controlStatus(const QVariantList &controls) con
 {
     QVariantMap controlStatus;
 
-    for (const QVariant &control: controls) {
+    for (auto &control: controls) {
         QVariantList params = control.toList();
         QString controlName = params[0].toString();
         controlStatus[controlName] = params[6];
@@ -1118,7 +1111,7 @@ QVariantMap CaptureDShowPrivate::mapDiff(const QVariantMap &map1,
 {
     QVariantMap map;
 
-    for (const QString &control: map2.keys())
+    for (auto &control: map2.keys())
         if (!map1.contains(control)
             || map1[control] != map2[control]) {
             map[control] = map2[control];
@@ -1382,8 +1375,8 @@ void CaptureDShow::setDevice(const QString &device)
     }
 
     this->d->m_controlsMutex.lock();
-    QVariantMap imageStatus = this->d->controlStatus(this->d->m_globalImageControls);
-    QVariantMap cameraStatus = this->d->controlStatus(this->d->m_globalCameraControls);
+    auto imageStatus = this->d->controlStatus(this->d->m_globalImageControls);
+    auto cameraStatus = this->d->controlStatus(this->d->m_globalCameraControls);
     this->d->m_controlsMutex.unlock();
 
     emit this->deviceChanged(device);
