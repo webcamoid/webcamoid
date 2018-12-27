@@ -536,7 +536,6 @@ void AudioDevPulseAudioPrivate::serverInfoCallback(pa_context *context,
 
     audioDevice->d->m_mutex.unlock();
 
-
     // Return as soon as possible.
     pa_threaded_mainloop_signal(audioDevice->d->m_mainLoop, 0);
 }

@@ -120,7 +120,7 @@ AkPacket ConvertAudioFFmpegAV::convert(const AkAudioPacket &packet)
 {
     QMutexLocker mutexLocker(&this->d->m_mutex);
 
-    if (!this->d->m_caps)
+    if (!this->d->m_caps || packet.buffer().size() < 1)
         return AkPacket();
 
     uint64_t iSampleLayout = channelLayouts->value(packet.caps().layout(), 0);
@@ -158,6 +158,9 @@ AkPacket ConvertAudioFFmpegAV::convert(const AkAudioPacket &packet)
                                                 iSampleFormat,
                                                 1);
 
+    if (iFrameSize < 1)
+        return AkPacket();
+
     if (avcodec_fill_audio_frame(&iFrame,
                                  iNChannels,
                                  iSampleFormat,
@@ -186,6 +189,9 @@ AkPacket ConvertAudioFFmpegAV::convert(const AkAudioPacket &packet)
                                                 oFrame.nb_samples,
                                                 oSampleFormat,
                                                 1);
+
+    if (oFrameSize < 1)
+        return AkPacket();
 
     QByteArray oBuffer(oFrameSize, 0);
 
