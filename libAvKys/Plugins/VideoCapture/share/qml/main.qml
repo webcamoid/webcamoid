@@ -36,11 +36,9 @@ GridLayout {
 
         for (var i in recCameraControls.caps) {
             var videoCaps = recCameraControls.caps[i]
-
             var caps = {fourcc: videoCaps.fourcc,
                         size: Qt.size(videoCaps.width, videoCaps.height),
                         fps: videoCaps.fps}
-
             var pass = false
 
             for (var filterProp in filters)
@@ -55,10 +53,8 @@ GridLayout {
 
             var val = caps[prop]
 
-            if (vals.indexOf(val) >= 0)
-                continue
-
-            vals.push(val)
+            if (vals.indexOf(val) < 0)
+                vals.push(val)
         }
 
         return vals
@@ -88,18 +84,20 @@ GridLayout {
 
     function createModel(list, prop)
     {
-        var maps = {fourcc: function (value) {
-                        return {description: value,
-                                value: value}
-                    },
-                    size: function (value) {
-                        return {description: value.width + "x" + value.height,
-                                value: value}
-                    },
-                    fps: function (value) {
-                        return {description: Number(Ak.newFrac(value).value.toFixed(2)),
-                                value: value}
-                    }}
+        var maps = {
+            fourcc: function (value) {
+                return {description: value,
+                        value: value}
+            },
+            size: function (value) {
+                return {description: value.width + "x" + value.height,
+                        value: value}
+            },
+            fps: function (value) {
+                return {description: Number(Ak.newFrac(value).value.toFixed(2)),
+                        value: value}
+            }
+        }
 
         return list.map(maps[prop])
     }

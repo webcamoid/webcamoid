@@ -2036,22 +2036,22 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="229"/>
+        <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="227"/>
         <source>Video format</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="272"/>
+        <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="270"/>
         <source>Resolution</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="312"/>
+        <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="310"/>
         <source>FPS</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="339"/>
+        <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="337"/>
         <source>Reset</source>
         <translation type="unfinished"></translation>
     </message>
