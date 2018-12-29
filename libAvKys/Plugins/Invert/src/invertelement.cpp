@@ -18,8 +18,7 @@
  */
 
 #include <QImage>
-#include <akutils.h>
-#include <akpacket.h>
+#include <akvideopacket.h>
 
 #include "invertelement.h"
 
@@ -29,7 +28,8 @@ InvertElement::InvertElement(): AkElement()
 
 AkPacket InvertElement::iStream(const AkPacket &packet)
 {
-    QImage src = AkUtils::packetToImage(packet);
+    AkVideoPacket videoPacket(packet);
+    auto src = videoPacket.toImage();
 
     if (src.isNull())
         return AkPacket();
@@ -37,7 +37,7 @@ AkPacket InvertElement::iStream(const AkPacket &packet)
     QImage oFrame = src.convertToFormat(QImage::Format_ARGB32);
     oFrame.invertPixels();
 
-    AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
+    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
     akSend(oPacket)
 }
 

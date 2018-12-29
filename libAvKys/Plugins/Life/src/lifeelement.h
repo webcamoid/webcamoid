@@ -55,12 +55,6 @@ class LifeElement: public AkElement
     private:
         LifeElementPrivate *d;
 
-        QImage imageDiff(const QImage &img1,
-                         const QImage &img2,
-                         int threshold,
-                         int lumaThreshold);
-        void updateLife();
-
     protected:
         QString controlInterfaceProvide(const QString &controlId) const;
         void controlInterfaceConfigure(QQmlContext *context,

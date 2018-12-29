@@ -22,18 +22,20 @@
 
 #include <QQuickImageProvider>
 
+class IconsProviderPrivate;
+
 class IconsProvider: public QQuickImageProvider
 {
     public:
         IconsProvider();
-        QPixmap requestPixmap(const QString &id, QSize *size, const QSize &requestedSize);
+        ~IconsProvider();
+
+        QPixmap requestPixmap(const QString &id,
+                              QSize *size,
+                              const QSize &requestedSize);
 
     private:
-        QList<QSize> m_availableSizes;
-
-        QSize nearestSize(const QSize &requestedSize);
-        QSize nearestSize(const QList<QSize> &availableSizes,
-                          const QSize &requestedSize);
+        IconsProviderPrivate *d;
 };
 
 #endif // ICONSPROVIDER_H

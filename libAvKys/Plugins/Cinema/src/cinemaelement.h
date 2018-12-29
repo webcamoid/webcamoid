@@ -23,6 +23,8 @@
 #include <qrgb.h>
 #include <akelement.h>
 
+class CinemaElementPrivate;
+
 class CinemaElement: public AkElement
 {
     Q_OBJECT
@@ -39,13 +41,13 @@ class CinemaElement: public AkElement
 
     public:
         explicit CinemaElement();
+        ~CinemaElement();
 
         Q_INVOKABLE qreal stripSize() const;
         Q_INVOKABLE QRgb stripColor() const;
 
     private:
-        qreal m_stripSize;
-        QRgb m_stripColor;
+        CinemaElementPrivate *d;
 
     protected:
         QString controlInterfaceProvide(const QString &controlId) const;

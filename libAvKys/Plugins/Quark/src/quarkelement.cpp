@@ -19,17 +19,16 @@
 
 #include <QImage>
 #include <QQmlContext>
-#include <akutils.h>
-#include <akpacket.h>
+#include <akvideopacket.h>
 
 #include "quarkelement.h"
 
 class QuarkElementPrivate
 {
     public:
-        int m_nFrames {16};
         QVector<QImage> m_frames;
         QSize m_frameSize;
+        int m_nFrames {16};
 };
 
 QuarkElement::QuarkElement(): AkElement()
@@ -78,7 +77,8 @@ void QuarkElement::resetNFrames()
 
 AkPacket QuarkElement::iStream(const AkPacket &packet)
 {
-    QImage src = AkUtils::packetToImage(packet);
+    AkVideoPacket videoPacket(packet);
+    auto src = videoPacket.toImage();
 
     if (src.isNull())
         return AkPacket();
@@ -107,7 +107,7 @@ AkPacket QuarkElement::iStream(const AkPacket &packet)
         }
     }
 
-    AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
+    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
     akSend(oPacket)
 }
 

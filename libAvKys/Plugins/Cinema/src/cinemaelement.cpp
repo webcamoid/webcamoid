@@ -20,25 +20,35 @@
 #include <QImage>
 #include <QQmlContext>
 #include <QtMath>
-#include <akutils.h>
-#include <akpacket.h>
+#include <akvideopacket.h>
 
 #include "cinemaelement.h"
 
+class CinemaElementPrivate
+{
+    public:
+        qreal m_stripSize {0.5};
+        QRgb m_stripColor {qRgb(0, 0, 0)};
+};
+
 CinemaElement::CinemaElement(): AkElement()
 {
-    this->m_stripSize = 0.5;
-    this->m_stripColor = qRgb(0, 0, 0);
+    this->d = new CinemaElementPrivate;
+}
+
+CinemaElement::~CinemaElement()
+{
+    delete this->d;
 }
 
 qreal CinemaElement::stripSize() const
 {
-    return this->m_stripSize;
+    return this->d->m_stripSize;
 }
 
 QRgb CinemaElement::stripColor() const
 {
-    return this->m_stripColor;
+    return this->d->m_stripColor;
 }
 
 QString CinemaElement::controlInterfaceProvide(const QString &controlId) const
@@ -59,19 +69,19 @@ void CinemaElement::controlInterfaceConfigure(QQmlContext *context,
 
 void CinemaElement::setStripSize(qreal stripSize)
 {
-    if (qFuzzyCompare(this->m_stripSize, stripSize))
+    if (qFuzzyCompare(this->d->m_stripSize, stripSize))
         return;
 
-    this->m_stripSize = stripSize;
+    this->d->m_stripSize = stripSize;
     emit this->stripSizeChanged(stripSize);
 }
 
 void CinemaElement::setStripColor(QRgb hideColor)
 {
-    if (this->m_stripColor == hideColor)
+    if (this->d->m_stripColor == hideColor)
         return;
 
-    this->m_stripColor = hideColor;
+    this->d->m_stripColor = hideColor;
     emit this->stripColorChanged(hideColor);
 }
 
@@ -87,7 +97,8 @@ void CinemaElement::resetStripColor()
 
 AkPacket CinemaElement::iStream(const AkPacket &packet)
 {
-    QImage src = AkUtils::packetToImage(packet);
+    AkVideoPacket videoPacket(packet);
+    auto src = videoPacket.toImage();
 
     if (src.isNull())
         return AkPacket();
@@ -99,23 +110,23 @@ AkPacket CinemaElement::iStream(const AkPacket &packet)
     for (int y = 0; y < src.height(); y++) {
         qreal k = 1.0 - qAbs(y - cy) / qreal(cy);
         auto iLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
-        QRgb *oLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
+        auto oLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
 
-        if (k > this->m_stripSize)
+        if (k > this->d->m_stripSize)
             memcpy(oLine, iLine, size_t(src.bytesPerLine()));
         else
             for (int x = 0; x < src.width(); x++) {
-                qreal a = qAlpha(this->m_stripColor) / 255.0;
+                qreal a = qAlpha(this->d->m_stripColor) / 255.0;
 
-                int r = int(a * (qRed(this->m_stripColor) - qRed(iLine[x])) + qRed(iLine[x]));
-                int g = int(a * (qGreen(this->m_stripColor) - qGreen(iLine[x])) + qGreen(iLine[x]));
-                int b = int(a * (qBlue(this->m_stripColor) - qBlue(iLine[x])) + qBlue(iLine[x]));
+                int r = int(a * (qRed(this->d->m_stripColor) - qRed(iLine[x])) + qRed(iLine[x]));
+                int g = int(a * (qGreen(this->d->m_stripColor) - qGreen(iLine[x])) + qGreen(iLine[x]));
+                int b = int(a * (qBlue(this->d->m_stripColor) - qBlue(iLine[x])) + qBlue(iLine[x]));
 
                 oLine[x] = qRgba(r, g, b, qAlpha(iLine[x]));
             }
     }
 
-    AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
+    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
     akSend(oPacket)
 }
 

@@ -18,8 +18,7 @@
  */
 
 #include <QImage>
-#include <akutils.h>
-#include <akpacket.h>
+#include <akvideopacket.h>
 
 #include "grayscaleelement.h"
 
@@ -29,13 +28,9 @@ GrayScaleElement::GrayScaleElement(): AkElement()
 
 AkPacket GrayScaleElement::iStream(const AkPacket &packet)
 {
-    QImage src = AkUtils::packetToImage(packet);
-
-    if (src.isNull())
-        return AkPacket();
-
-    QImage oFrame = src.convertToFormat(QImage::Format_Grayscale8);
-    AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
+    auto oPacket = AkVideoPacket(packet)
+                   .convert(AkVideoCaps::Format_gray)
+                   .toPacket();;
     akSend(oPacket)
 }
 

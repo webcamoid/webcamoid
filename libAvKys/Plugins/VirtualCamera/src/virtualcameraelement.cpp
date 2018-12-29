@@ -24,7 +24,6 @@
 #include <QQmlContext>
 #include <QSharedPointer>
 #include <QMutex>
-#include <akutils.h>
 #include <akcaps.h>
 #include <akpacket.h>
 #include <akvideopacket.h>
@@ -558,22 +557,19 @@ AkPacket VirtualCameraElement::iStream(const AkPacket &packet)
     this->d->m_mutex.lock();
 
     if (this->state() == AkElement::ElementStatePlaying) {
-        QImage image = AkUtils::packetToImage(packet);
-        image = image.convertToFormat(QImage::Format_RGB888);
-        auto oPacket =
-                AkUtils::roundSizeTo(AkUtils::imageToPacket(image, packet),
-                                     PREFERRED_ROUNDING);
-        AkVideoPacket videoFrame(oPacket);
-        auto fps = AkVCam::Fraction {uint32_t(videoFrame.caps().fps().num()),
-                                     uint32_t(videoFrame.caps().fps().den())};
-        AkVCam::VideoFormat format(videoFrame.caps().fourCC(),
-                                   videoFrame.caps().width(),
-                                   videoFrame.caps().height(),
+        auto videoPacket = AkVideoPacket(packet)
+                           .convert(AkVideoCaps::Format_rgb24)
+                           .roundSizeTo(PREFERRED_ROUNDING);
+        auto fps = AkVCam::Fraction {uint32_t(videoPacket.caps().fps().num()),
+                                     uint32_t(videoPacket.caps().fps().den())};
+        AkVCam::VideoFormat format(videoPacket.caps().fourCC(),
+                                   videoPacket.caps().width(),
+                                   videoPacket.caps().height(),
                                    {fps});
         AkVCam::VideoFrame frame(format);
         memcpy(frame.data().data(),
-               videoFrame.buffer().constData(),
-               size_t(videoFrame.buffer().size()));
+               videoPacket.buffer().constData(),
+               size_t(videoPacket.buffer().size()));
         this->d->m_ipcBridge.write(this->d->m_curDevice.toStdString(), frame);
     }
 

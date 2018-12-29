@@ -22,8 +22,7 @@
 #include <QPainter>
 #include <QQmlContext>
 #include <QtMath>
-#include <akutils.h>
-#include <akpacket.h>
+#include <akvideopacket.h>
 
 #include "fireelement.h"
 
@@ -448,7 +447,8 @@ void FireElement::resetNColors()
 
 AkPacket FireElement::iStream(const AkPacket &packet)
 {
-    QImage src = AkUtils::packetToImage(packet);
+    AkVideoPacket videoPacket(packet);
+    auto src = videoPacket.toImage();
 
     if (src.isNull())
         return AkPacket();
@@ -491,9 +491,10 @@ AkPacket FireElement::iStream(const AkPacket &packet)
         painter.drawImage(0, 0, diff);
         painter.end();
 
-        auto firePacket = AkUtils::imageToPacket(this->d->m_fireBuffer, packet);
-        auto blurPacket = this->d->m_blurFilter->iStream(firePacket);
-        this->d->m_fireBuffer = AkUtils::packetToImage(blurPacket);
+        auto firePacket = AkVideoPacket::fromImage(this->d->m_fireBuffer,
+                                                   videoPacket);
+        auto blurPacket = this->d->m_blurFilter->iStream(firePacket.toPacket());
+        this->d->m_fireBuffer = AkVideoPacket(blurPacket).toImage();
 
         // Apply buffer.
         painter.begin(&oFrame);
@@ -505,7 +506,7 @@ AkPacket FireElement::iStream(const AkPacket &packet)
 
     this->d->m_prevFrame = src.copy();
 
-    AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
+    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
     akSend(oPacket)
 }
 

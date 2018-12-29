@@ -21,8 +21,7 @@
 #include <QQmlContext>
 #include <QtMath>
 #include <QMutex>
-#include <akutils.h>
-#include <akpacket.h>
+#include <akvideopacket.h>
 
 #include "vignetteelement.h"
 
@@ -168,7 +167,8 @@ void VignetteElement::resetSoftness()
 
 AkPacket VignetteElement::iStream(const AkPacket &packet)
 {
-    QImage src = AkUtils::packetToImage(packet);
+    AkVideoPacket videoPacket(packet);
+    auto src = videoPacket.toImage();
 
     if (src.isNull())
         return AkPacket();
@@ -189,7 +189,7 @@ AkPacket VignetteElement::iStream(const AkPacket &packet)
     painter.drawImage(0, 0, vignette);
     painter.end();
 
-    AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
+    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
     akSend(oPacket)
 }
 

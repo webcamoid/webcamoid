@@ -20,8 +20,7 @@
 #include <QVariant>
 #include <QImage>
 #include <QQmlContext>
-#include <akutils.h>
-#include <akpacket.h>
+#include <akvideopacket.h>
 
 #include "changehslelement.h"
 
@@ -103,7 +102,8 @@ AkPacket ChangeHSLElement::iStream(const AkPacket &packet)
     if (this->d->m_kernel.size() < 12)
         akSend(packet)
 
-    QImage src = AkUtils::packetToImage(packet);
+    AkVideoPacket videoPacket(packet);
+    auto src = videoPacket.toImage();
 
     if (src.isNull())
         return AkPacket();
@@ -113,8 +113,8 @@ AkPacket ChangeHSLElement::iStream(const AkPacket &packet)
     QVector<qreal> kernel = this->d->m_kernel;
 
     for (int y = 0; y < src.height(); y++) {
-        const QRgb *srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
-        QRgb *dstLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
+        auto srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
+        auto dstLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
 
         for (int x = 0; x < src.width(); x++) {
             int h;
@@ -139,7 +139,7 @@ AkPacket ChangeHSLElement::iStream(const AkPacket &packet)
         }
     }
 
-    AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
+    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
     akSend(oPacket)
 }
 

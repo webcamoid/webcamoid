@@ -20,7 +20,10 @@
 #ifndef AKVIDEOPACKET_H
 #define AKVIDEOPACKET_H
 
+#include <QSize>
+
 #include "akpacket.h"
+#include "akvideocaps.h"
 
 class AkVideoPacketPrivate;
 class AkVideoCaps;
@@ -51,9 +54,14 @@ class AKCOMMONS_EXPORT AkVideoPacket: public AkPacket
 
         Q_INVOKABLE AkVideoCaps caps() const;
         Q_INVOKABLE AkVideoCaps &caps();
-
         Q_INVOKABLE QString toString() const;
         Q_INVOKABLE AkPacket toPacket() const;
+        Q_INVOKABLE QImage toImage() const;
+        Q_INVOKABLE static AkVideoPacket fromImage(const QImage &image,
+                                                   const AkVideoPacket &defaultPacket);
+        Q_INVOKABLE AkVideoPacket roundSizeTo(int align) const;
+        Q_INVOKABLE AkVideoPacket convert(AkVideoCaps::PixelFormat format,
+                                          const QSize &size={}) const;
 
     private:
         AkVideoPacketPrivate *d;

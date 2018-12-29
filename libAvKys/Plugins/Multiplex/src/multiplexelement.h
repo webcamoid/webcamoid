@@ -22,6 +22,8 @@
 
 #include <akelement.h>
 
+class MultiplexElementPrivate;
+
 class MultiplexElement: public AkElement
 {
     Q_OBJECT
@@ -31,15 +33,14 @@ class MultiplexElement: public AkElement
 
     public:
         explicit MultiplexElement();
+         ~MultiplexElement();
 
         Q_INVOKABLE int inputIndex() const;
         Q_INVOKABLE int outputIndex() const;
         Q_INVOKABLE QString caps() const;
 
     private:
-        int m_inputIndex;
-        int m_outputIndex;
-        QString m_caps;
+        MultiplexElementPrivate *d;
 
     public slots:
         void setInputIndex(int inputIndex);

@@ -27,11 +27,11 @@
 #include <QThreadPool>
 #include <QMutex>
 #include <QtMath>
-#include <akutils.h>
 #include <akaudiocaps.h>
 #include <akfrac.h>
 #include <akcaps.h>
 #include <akpacket.h>
+#include <akvideocaps.h>
 
 #include "mediawriterffmpeg.h"
 #include "audiostream.h"

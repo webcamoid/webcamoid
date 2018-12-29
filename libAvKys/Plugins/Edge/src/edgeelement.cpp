@@ -21,17 +21,16 @@
 #include <QQmlContext>
 #include <QVector>
 #include <QtMath>
-#include <akutils.h>
-#include <akpacket.h>
+#include <akvideopacket.h>
 
 #include "edgeelement.h"
 
 class EdgeElementPrivate
 {
     public:
-        bool m_canny {false};
         int m_thLow {510};
         int m_thHi {1020};
+        bool m_canny {false};
         bool m_equalize {false};
         bool m_invert {false};
 
@@ -182,7 +181,8 @@ void EdgeElement::resetInvert()
 
 AkPacket EdgeElement::iStream(const AkPacket &packet)
 {
-    QImage src = AkUtils::packetToImage(packet);
+    AkVideoPacket videoPacket(packet);
+    auto src = videoPacket.toImage();
 
     if (src.isNull())
         return AkPacket();
@@ -245,7 +245,7 @@ AkPacket EdgeElement::iStream(const AkPacket &packet)
             }
         }
 
-    AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
+    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
     akSend(oPacket)
 }
 

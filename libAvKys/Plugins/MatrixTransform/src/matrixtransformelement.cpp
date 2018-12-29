@@ -22,8 +22,7 @@
 #include <QImage>
 #include <QMutex>
 #include <QQmlContext>
-#include <akutils.h>
-#include <akpacket.h>
+#include <akvideopacket.h>
 
 #include "matrixtransformelement.h"
 
@@ -101,7 +100,8 @@ void MatrixTransformElement::resetKernel()
 
 AkPacket MatrixTransformElement::iStream(const AkPacket &packet)
 {
-    QImage src = AkUtils::packetToImage(packet);
+    AkVideoPacket videoPacket(packet);
+    auto src = videoPacket.toImage();
 
     if (src.isNull())
         return AkPacket();
@@ -137,7 +137,7 @@ AkPacket MatrixTransformElement::iStream(const AkPacket &packet)
         }
     }
 
-    AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
+    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
     akSend(oPacket)
 }
 

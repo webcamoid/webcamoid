@@ -25,6 +25,16 @@
 
 #include "iconsprovider.h"
 
+class IconsProviderPrivate
+{
+    public:
+        QList<QSize> m_availableSizes;
+
+        QSize nearestSize(const QSize &requestedSize) const;
+        QSize nearestSize(const QList<QSize> &availableSizes,
+                          const QSize &requestedSize) const;
+};
+
 inline bool operator <(const QSize &a, const QSize &b)
 {
     return a.width() * a.width() + a.height() * a.height()
@@ -34,6 +44,7 @@ inline bool operator <(const QSize &a, const QSize &b)
 IconsProvider::IconsProvider():
     QQuickImageProvider(QQuickImageProvider::Pixmap)
 {
+    this->d = new IconsProviderPrivate;
     QSettings theme(":/icons/hicolor/index.theme", QSettings::IniFormat);
     theme.beginGroup("Icon Theme");
 
@@ -49,17 +60,24 @@ IconsProvider::IconsProvider():
         if (width < 1 || height < 1)
             continue;
 
-        this->m_availableSizes << QSize(width, height);
+        this->d->m_availableSizes << QSize(width, height);
     }
 
     theme.endGroup();
 }
 
-QPixmap IconsProvider::requestPixmap(const QString &id, QSize *size, const QSize &requestedSize)
+IconsProvider::~IconsProvider()
+{
+    delete this->d;
+}
+
+QPixmap IconsProvider::requestPixmap(const QString &id,
+                                     QSize *size,
+                                     const QSize &requestedSize)
 {
     if (!QIcon::hasThemeIcon(id)) {
         // Force icon detection.
-        auto iconSize = this->nearestSize(requestedSize);
+        auto iconSize = this->d->nearestSize(requestedSize);
         *size = iconSize;
 
         if (iconSize.isEmpty())
@@ -76,9 +94,10 @@ QPixmap IconsProvider::requestPixmap(const QString &id, QSize *size, const QSize
     QSize nearestSize;
 
     if (requestedSize.isEmpty())
-        nearestSize = *std::max_element(availableSizes.begin(), availableSizes.end());
+        nearestSize = *std::max_element(availableSizes.begin(),
+                                        availableSizes.end());
     else
-        nearestSize = this->nearestSize(availableSizes, requestedSize);
+        nearestSize = this->d->nearestSize(availableSizes, requestedSize);
 
     QPixmap pixmap = icon.pixmap(nearestSize);
     *size = pixmap.size();
@@ -86,12 +105,13 @@ QPixmap IconsProvider::requestPixmap(const QString &id, QSize *size, const QSize
     return pixmap;
 }
 
-QSize IconsProvider::nearestSize(const QSize &requestedSize)
+QSize IconsProviderPrivate::nearestSize(const QSize &requestedSize) const
 {
     return this->nearestSize(this->m_availableSizes, requestedSize);
 }
 
-QSize IconsProvider::nearestSize(const QList<QSize> &availableSizes, const QSize &requestedSize)
+QSize IconsProviderPrivate::nearestSize(const QList<QSize> &availableSizes,
+                                        const QSize &requestedSize) const
 {
     QSize nearestSize;
     int q = std::numeric_limits<int>::max();

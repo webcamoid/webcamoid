@@ -21,8 +21,7 @@
 #include <QImage>
 #include <QQmlContext>
 #include <QtMath>
-#include <akutils.h>
-#include <akpacket.h>
+#include <akvideopacket.h>
 
 #include "hypnoticelement.h"
 
@@ -228,7 +227,8 @@ void HypnoticElement::resetThreshold()
 
 AkPacket HypnoticElement::iStream(const AkPacket &packet)
 {
-    QImage src = AkUtils::packetToImage(packet);
+    AkVideoPacket videoPacket(packet);
+    auto src = videoPacket.toImage();
 
     if (src.isNull())
         return AkPacket();
@@ -254,14 +254,14 @@ AkPacket HypnoticElement::iStream(const AkPacket &packet)
 
     for (int i = 0, y = 0; y < src.height(); y++) {
         QRgb *oLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
-        const quint8 *optLine = opticalMap.constScanLine(y);
-        const quint8 *diffLine = diff.constScanLine(y);
+        auto optLine = opticalMap.constScanLine(y);
+        auto diffLine = diff.constScanLine(y);
 
         for (int x = 0; x < src.width(); i++, x++)
             oLine[x] = this->d->m_palette[((char(optLine[x] + this->d->m_phase)) ^ diffLine[x]) & 255];
     }
 
-    AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
+    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
     akSend(oPacket)
 }
 

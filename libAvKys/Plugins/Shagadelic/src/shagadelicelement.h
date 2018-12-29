@@ -42,10 +42,6 @@ class ShagadelicElement: public AkElement
     private:
         ShagadelicElementPrivate *d;
 
-        QImage makeRipple(const QSize &size) const;
-        QImage makeSpiral(const QSize &size) const;
-        void init(const QSize &size);
-
     protected:
         QString controlInterfaceProvide(const QString &controlId) const;
         void controlInterfaceConfigure(QQmlContext *context,

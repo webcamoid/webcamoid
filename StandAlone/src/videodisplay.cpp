@@ -20,7 +20,7 @@
 #include <QMutex>
 #include <QQuickWindow>
 #include <QSGSimpleTextureNode>
-#include <akutils.h>
+#include <akvideopacket.h>
 
 #include "videodisplay.h"
 
@@ -119,7 +119,7 @@ QSGNode *VideoDisplay::updatePaintNode(QSGNode *oldNode,
 void VideoDisplay::iStream(const AkPacket &packet)
 {
     this->d->m_mutex.lock();
-    this->d->m_frame = AkUtils::packetToImage(packet);
+    this->d->m_frame = AkVideoPacket(packet).toImage().copy();
     this->d->m_mutex.unlock();
 
     QMetaObject::invokeMethod(this, "update");

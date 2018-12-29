@@ -22,6 +22,8 @@
 
 #include <akelement.h>
 
+class ProbeElementPrivate;
+
 class ProbeElement: public AkElement
 {
     Q_OBJECT
@@ -33,11 +35,12 @@ class ProbeElement: public AkElement
 
     public:
         explicit ProbeElement();
+        ~ProbeElement();
 
         Q_INVOKABLE bool log() const;
 
     private:
-        bool m_log;
+        ProbeElementPrivate *d;
 
     signals:
         void logChanged(bool log);

@@ -48,8 +48,6 @@ class ScrollElement: public AkElement
     private:
         ScrollElementPrivate *d;
 
-        QImage generateNoise(const QSize &size, qreal persent);
-
     protected:
         QString controlInterfaceProvide(const QString &controlId) const;
         void controlInterfaceConfigure(QQmlContext *context,

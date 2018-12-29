@@ -20,37 +20,47 @@
 #include <QImage>
 #include <QQmlContext>
 #include <QtMath>
-#include <akutils.h>
-#include <akpacket.h>
+#include <akvideopacket.h>
 
 #include "colorfilterelement.h"
 
+class ColorFilterElementPrivate
+{
+    public:
+        QRgb m_color {qRgb(0, 0, 0)};
+        qreal m_radius {1.0};
+        bool m_soft {false};
+        bool m_disable {false};
+};
+
 ColorFilterElement::ColorFilterElement(): AkElement()
 {
-    this->m_color = qRgb(0, 0, 0);
-    this->m_radius = 1.0;
-    this->m_soft = false;
-    this->m_disable = false;
+    this->d = new ColorFilterElementPrivate;
+}
+
+ColorFilterElement::~ColorFilterElement()
+{
+    delete this->d;
 }
 
 QRgb ColorFilterElement::color() const
 {
-    return this->m_color;
+    return this->d->m_color;
 }
 
 qreal ColorFilterElement::radius() const
 {
-    return this->m_radius;
+    return this->d->m_radius;
 }
 
 bool ColorFilterElement::soft() const
 {
-    return this->m_soft;
+    return this->d->m_soft;
 }
 
 bool ColorFilterElement::disable() const
 {
-    return this->m_disable;
+    return this->d->m_disable;
 }
 
 QString ColorFilterElement::controlInterfaceProvide(const QString &controlId) const
@@ -71,37 +81,37 @@ void ColorFilterElement::controlInterfaceConfigure(QQmlContext *context,
 
 void ColorFilterElement::setColor(QRgb color)
 {
-    if (this->m_color == color)
+    if (this->d->m_color == color)
         return;
 
-    this->m_color = color;
+    this->d->m_color = color;
     emit this->colorChanged(color);
 }
 
 void ColorFilterElement::setRadius(qreal radius)
 {
-    if (qFuzzyCompare(this->m_radius, radius))
+    if (qFuzzyCompare(this->d->m_radius, radius))
         return;
 
-    this->m_radius = radius;
+    this->d->m_radius = radius;
     emit this->radiusChanged(radius);
 }
 
 void ColorFilterElement::setSoft(bool soft)
 {
-    if (this->m_soft == soft)
+    if (this->d->m_soft == soft)
         return;
 
-    this->m_soft = soft;
+    this->d->m_soft = soft;
     emit this->softChanged(soft);
 }
 
 void ColorFilterElement::setDisable(bool disable)
 {
-    if (this->m_disable == disable)
+    if (this->d->m_disable == disable)
         return;
 
-    this->m_disable = disable;
+    this->d->m_disable = disable;
     emit this->disableChanged(disable);
 }
 
@@ -127,10 +137,11 @@ void ColorFilterElement::resetDisable()
 
 AkPacket ColorFilterElement::iStream(const AkPacket &packet)
 {
-    if (this->m_disable)
+    if (this->d->m_disable)
         akSend(packet)
 
-    QImage src = AkUtils::packetToImage(packet);
+    AkVideoPacket videoPacket(packet);
+    auto src = videoPacket.toImage();
 
     if (src.isNull())
         return AkPacket();
@@ -139,17 +150,17 @@ AkPacket ColorFilterElement::iStream(const AkPacket &packet)
     QImage oFrame(src.size(), src.format());
 
     for (int y = 0; y < src.height(); y++) {
-        const QRgb *srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
-        QRgb *dstLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
+        auto srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
+        auto dstLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
 
         for (int x = 0; x < src.width(); x++) {
             int r = qRed(srcLine[x]);
             int g = qGreen(srcLine[x]);
             int b = qBlue(srcLine[x]);
 
-            int rf = qRed(this->m_color);
-            int gf = qGreen(this->m_color);
-            int bf = qBlue(this->m_color);
+            int rf = qRed(this->d->m_color);
+            int gf = qGreen(this->d->m_color);
+            int bf = qBlue(this->d->m_color);
 
             int rd = r - rf;
             int gd = g - gf;
@@ -157,9 +168,9 @@ AkPacket ColorFilterElement::iStream(const AkPacket &packet)
 
             qreal k = sqrt(rd * rd + gd * gd + bd * bd);
 
-            if (k <= this->m_radius) {
-                if (this->m_soft) {
-                    qreal p = k / this->m_radius;
+            if (k <= this->d->m_radius) {
+                if (this->d->m_soft) {
+                    qreal p = k / this->d->m_radius;
 
                     int gray = qGray(srcLine[x]);
 
@@ -177,7 +188,7 @@ AkPacket ColorFilterElement::iStream(const AkPacket &packet)
         }
     }
 
-    AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
+    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
     akSend(oPacket)
 }
 

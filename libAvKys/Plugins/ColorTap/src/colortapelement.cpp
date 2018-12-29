@@ -21,8 +21,7 @@
 #include <QImage>
 #include <QQmlContext>
 #include <QStandardPaths>
-#include <akutils.h>
-#include <akpacket.h>
+#include <akvideopacket.h>
 
 #include "colortapelement.h"
 
@@ -111,7 +110,8 @@ AkPacket ColorTapElement::iStream(const AkPacket &packet)
         akSend(packet)
     }
 
-    QImage src = AkUtils::packetToImage(packet);
+    AkVideoPacket videoPacket(packet);
+    auto src = videoPacket.toImage();
 
     if (src.isNull()) {
         this->d->m_mutex.unlock();
@@ -142,7 +142,7 @@ AkPacket ColorTapElement::iStream(const AkPacket &packet)
 
     this->d->m_mutex.unlock();
 
-    AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
+    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
     akSend(oPacket)
 }
 

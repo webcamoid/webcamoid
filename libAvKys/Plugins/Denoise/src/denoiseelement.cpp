@@ -21,8 +21,7 @@
 #include <QQmlContext>
 #include <QtConcurrent>
 #include <QtMath>
-#include <akutils.h>
-#include <akpacket.h>
+#include <akvideopacket.h>
 
 #include "denoiseelement.h"
 #include "params.h"
@@ -272,7 +271,8 @@ AkPacket DenoiseElement::iStream(const AkPacket &packet)
     if (radius < 1)
         akSend(packet)
 
-    QImage src = AkUtils::packetToImage(packet);
+    AkVideoPacket videoPacket(packet);
+    auto src = videoPacket.toImage();
 
     if (src.isNull())
         return AkPacket();
@@ -347,7 +347,7 @@ AkPacket DenoiseElement::iStream(const AkPacket &packet)
     delete [] integral;
     delete [] integral2;
 
-    AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
+    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
     akSend(oPacket)
 }
 

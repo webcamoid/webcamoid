@@ -20,8 +20,7 @@
 #include <QVector>
 #include <QImage>
 #include <QQmlContext>
-#include <akutils.h>
-#include <akpacket.h>
+#include <akvideopacket.h>
 
 #include "colortransformelement.h"
 
@@ -103,7 +102,8 @@ AkPacket ColorTransformElement::iStream(const AkPacket &packet)
     if (this->d->m_kernel.size() < 12)
         akSend(packet)
 
-    QImage src = AkUtils::packetToImage(packet);
+    AkVideoPacket videoPacket(packet);
+    auto src = videoPacket.toImage();
 
     if (src.isNull())
         return AkPacket();
@@ -133,7 +133,7 @@ AkPacket ColorTransformElement::iStream(const AkPacket &packet)
         }
     }
 
-    AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
+    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
     akSend(oPacket)
 }
 

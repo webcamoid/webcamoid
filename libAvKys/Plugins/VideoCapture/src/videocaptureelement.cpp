@@ -25,10 +25,10 @@
 #include <QThreadPool>
 #include <QFuture>
 #include <QMutex>
-#include <akutils.h>
 #include <akcaps.h>
 #include <akfrac.h>
 #include <akpacket.h>
+#include <akvideocaps.h>
 
 #include "videocaptureelement.h"
 #include "videocaptureglobals.h"

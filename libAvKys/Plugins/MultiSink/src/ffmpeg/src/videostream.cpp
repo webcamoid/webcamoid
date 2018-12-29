@@ -23,7 +23,6 @@
 #include <QMutex>
 #include <QWaitCondition>
 #include <QtMath>
-#include <akutils.h>
 #include <akcaps.h>
 #include <akfrac.h>
 #include <akpacket.h>
@@ -218,10 +217,11 @@ void VideoStream::convertPacket(const AkPacket &packet)
     oFrame->height = codecContext->height;
     oFrame->pts = packet.pts();
 
-    QImage image = AkUtils::packetToImage(packet);
+    AkVideoPacket videoPacket = packet;
+    auto image = videoPacket.toImage();
     image = image.convertToFormat(QImage::Format_ARGB32);
     image = this->d->swapChannels(image);
-    AkVideoPacket videoPacket(AkUtils::imageToPacket(image, packet));
+    videoPacket = AkVideoPacket::fromImage(image, videoPacket);
 
     QString format = AkVideoCaps::pixelFormatToString(videoPacket.caps().format());
     AVPixelFormat iFormat = av_get_pix_fmt(format.toStdString().c_str());

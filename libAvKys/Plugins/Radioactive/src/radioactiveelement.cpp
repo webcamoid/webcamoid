@@ -20,8 +20,7 @@
 #include <QtMath>
 #include <QPainter>
 #include <QQmlContext>
-#include <akutils.h>
-#include <akpacket.h>
+#include <akvideopacket.h>
 
 #include "radioactiveelement.h"
 
@@ -44,16 +43,16 @@ Q_GLOBAL_STATIC_WITH_ARGS(RadiationModeMap, radiationModeToStr, (initRadiationMo
 class RadioactiveElementPrivate
 {
     public:
-        RadioactiveElement::RadiationMode m_mode {RadioactiveElement::RadiationModeSoftNormal};
-        qreal m_zoom {1.1};
-        int m_threshold {31};
-        int m_lumaThreshold {95};
-        int m_alphaDiff {-8};
-        QRgb m_radColor {qRgb(0, 255, 0)};
         QSize m_frameSize;
         QImage m_prevFrame;
         QImage m_blurZoomBuffer;
         AkElementPtr m_blurFilter;
+        qreal m_zoom {1.1};
+        RadioactiveElement::RadiationMode m_mode {RadioactiveElement::RadiationModeSoftNormal};
+        int m_threshold {31};
+        int m_lumaThreshold {95};
+        int m_alphaDiff {-8};
+        QRgb m_radColor {qRgb(0, 255, 0)};
 
         QImage imageDiff(const QImage &img1,
                          const QImage &img2,
@@ -317,7 +316,8 @@ void RadioactiveElement::resetRadColor()
 
 AkPacket RadioactiveElement::iStream(const AkPacket &packet)
 {
-    QImage src = AkUtils::packetToImage(packet);
+    AkVideoPacket videoPacket(packet);
+    auto src = videoPacket.toImage();
 
     if (src.isNull())
         return AkPacket();
@@ -352,9 +352,10 @@ AkPacket RadioactiveElement::iStream(const AkPacket &packet)
         painter.end();
 
         // Blur buffer.
-        AkPacket blurZoomPacket = AkUtils::imageToPacket(this->d->m_blurZoomBuffer, packet);
-        AkPacket blurPacket = this->d->m_blurFilter->iStream(blurZoomPacket);
-        QImage blur = AkUtils::packetToImage(blurPacket);
+        auto blurZoomPacket = AkVideoPacket::fromImage(this->d->m_blurZoomBuffer,
+                                                       videoPacket);
+        auto blurPacket = this->d->m_blurFilter->iStream(blurZoomPacket.toPacket());
+        auto blur = AkVideoPacket(blurPacket).toImage();
 
         // Zoom buffer.
         QImage blurScaled = blur.scaled(this->d->m_zoom * blur.size());
@@ -382,7 +383,7 @@ AkPacket RadioactiveElement::iStream(const AkPacket &packet)
 
     this->d->m_prevFrame = src.copy();
 
-    AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
+    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
     akSend(oPacket)
 }
 

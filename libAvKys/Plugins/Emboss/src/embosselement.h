@@ -22,6 +22,8 @@
 
 #include <akelement.h>
 
+class EmbossElementPrivate;
+
 class EmbossElement: public AkElement
 {
     Q_OBJECT
@@ -38,13 +40,13 @@ class EmbossElement: public AkElement
 
     public:
         explicit EmbossElement();
+        ~EmbossElement();
 
         Q_INVOKABLE qreal factor() const;
         Q_INVOKABLE qreal bias() const;
 
     private:
-        qreal m_factor;
-        qreal m_bias;
+        EmbossElementPrivate *d;
 
     protected:
         QString controlInterfaceProvide(const QString &controlId) const;

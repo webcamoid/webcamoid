@@ -20,8 +20,7 @@
 #include <QImage>
 #include <QVariant>
 #include <QQmlContext>
-#include <akutils.h>
-#include <akpacket.h>
+#include <akvideopacket.h>
 
 #include "falsecolorelement.h"
 
@@ -123,7 +122,8 @@ AkPacket FalseColorElement::iStream(const AkPacket &packet)
     if (this->d->m_table.isEmpty())
         akSend(packet)
 
-    QImage src = AkUtils::packetToImage(packet);
+    AkVideoPacket videoPacket(packet);
+    auto src = videoPacket.toImage();
 
     if (src.isNull())
         return AkPacket();
@@ -181,7 +181,7 @@ AkPacket FalseColorElement::iStream(const AkPacket &packet)
             dstLine[x] = table[srcLine[x]];
     }
 
-    AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
+    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
     akSend(oPacket)
 }
 

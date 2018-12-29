@@ -22,6 +22,8 @@
 
 #include <akelement.h>
 
+class PrimariesColorsElementPrivate;
+
 class PrimariesColorsElement: public AkElement
 {
     Q_OBJECT
@@ -33,11 +35,12 @@ class PrimariesColorsElement: public AkElement
 
     public:
         explicit PrimariesColorsElement();
+        ~PrimariesColorsElement();
 
         Q_INVOKABLE int factor() const;
 
     private:
-        int m_factor;
+        PrimariesColorsElementPrivate *d;
 
     protected:
         QString controlInterfaceProvide(const QString &controlId) const;

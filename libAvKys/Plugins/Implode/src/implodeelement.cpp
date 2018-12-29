@@ -20,19 +20,29 @@
 #include <QImage>
 #include <QtMath>
 #include <QQmlContext>
-#include <akutils.h>
-#include <akpacket.h>
+#include <akvideopacket.h>
 
 #include "implodeelement.h"
 
+class ImplodeElementPrivate
+{
+    public:
+        qreal m_amount {1.0};
+};
+
 ImplodeElement::ImplodeElement(): AkElement()
 {
-    this->m_amount = 1.0;
+    this->d = new ImplodeElementPrivate;
+}
+
+ImplodeElement::~ImplodeElement()
+{
+    delete this->d;
 }
 
 qreal ImplodeElement::amount() const
 {
-    return this->m_amount;
+    return this->d->m_amount;
 }
 
 QString ImplodeElement::controlInterfaceProvide(const QString &controlId) const
@@ -53,10 +63,10 @@ void ImplodeElement::controlInterfaceConfigure(QQmlContext *context,
 
 void ImplodeElement::setAmount(qreal amount)
 {
-    if (qFuzzyCompare(this->m_amount, amount))
+    if (qFuzzyCompare(this->d->m_amount, amount))
         return;
 
-    this->m_amount = amount;
+    this->d->m_amount = amount;
     emit this->amountChanged(amount);
 }
 
@@ -67,7 +77,8 @@ void ImplodeElement::resetAmount()
 
 AkPacket ImplodeElement::iStream(const AkPacket &packet)
 {
-    QImage src = AkUtils::packetToImage(packet);
+    AkVideoPacket videoPacket(packet);
+    auto src = videoPacket.toImage();
 
     if (src.isNull())
         return AkPacket();
@@ -80,8 +91,8 @@ AkPacket ImplodeElement::iStream(const AkPacket &packet)
     int radius = qMin(xc, yc);
 
     for (int y = 0; y < src.height(); y++) {
-        const QRgb *iLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
-        QRgb *oLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
+        auto iLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
+        auto oLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
         int yDiff = y - yc;
 
         for (int x = 0; x < src.width(); x++) {
@@ -91,7 +102,7 @@ AkPacket ImplodeElement::iStream(const AkPacket &packet)
             if (distance >= radius)
                 oLine[x] = iLine[x];
             else {
-                qreal factor = pow(distance / radius, this->m_amount);
+                qreal factor = pow(distance / radius, this->d->m_amount);
 
                 int xp = int(factor * xDiff + xc);
                 int yp = int(factor * yDiff + yc);
@@ -99,13 +110,13 @@ AkPacket ImplodeElement::iStream(const AkPacket &packet)
                 xp = qBound(0, xp, oFrame.width() - 1);
                 yp = qBound(0, yp, oFrame.height() - 1);
 
-                const QRgb *line = reinterpret_cast<const QRgb *>(src.constScanLine(yp));
+                auto line = reinterpret_cast<const QRgb *>(src.constScanLine(yp));
                 oLine[x] = line[xp];
             }
         }
     }
 
-    AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
+    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
     akSend(oPacket)
 }
 

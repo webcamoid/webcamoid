@@ -20,37 +20,47 @@
 #include <QImage>
 #include <QQmlContext>
 #include <QtMath>
-#include <akutils.h>
-#include <akpacket.h>
+#include <akvideopacket.h>
 
 #include "colorreplaceelement.h"
 
+class ColorReplaceElementPrivate
+{
+    public:
+        QRgb m_from {qRgb(0, 0, 0)};
+        QRgb m_to {qRgb(0, 0, 0)};
+        qreal m_radius {1.0};
+        bool m_disable {false};
+};
+
 ColorReplaceElement::ColorReplaceElement(): AkElement()
 {
-    this->m_from = qRgb(0, 0, 0);
-    this->m_to = qRgb(0, 0, 0);
-    this->m_radius = 1.0;
-    this->m_disable = false;
+    this->d = new ColorReplaceElementPrivate;
+}
+
+ColorReplaceElement::~ColorReplaceElement()
+{
+    delete this->d;
 }
 
 QRgb ColorReplaceElement::from() const
 {
-    return this->m_from;
+    return this->d->m_from;
 }
 
 QRgb ColorReplaceElement::to() const
 {
-    return this->m_to;
+    return this->d->m_to;
 }
 
 qreal ColorReplaceElement::radius() const
 {
-    return this->m_radius;
+    return this->d->m_radius;
 }
 
 bool ColorReplaceElement::disable() const
 {
-    return this->m_disable;
+    return this->d->m_disable;
 }
 
 QString ColorReplaceElement::controlInterfaceProvide(const QString &controlId) const
@@ -71,37 +81,37 @@ void ColorReplaceElement::controlInterfaceConfigure(QQmlContext *context,
 
 void ColorReplaceElement::setFrom(QRgb from)
 {
-    if (this->m_from == from)
+    if (this->d->m_from == from)
         return;
 
-    this->m_from = from;
+    this->d->m_from = from;
     emit this->fromChanged(from);
 }
 
 void ColorReplaceElement::setTo(QRgb to)
 {
-    if (this->m_to == to)
+    if (this->d->m_to == to)
         return;
 
-    this->m_to = to;
+    this->d->m_to = to;
     emit this->toChanged(to);
 }
 
 void ColorReplaceElement::setRadius(qreal radius)
 {
-    if (qFuzzyCompare(this->m_radius, radius))
+    if (qFuzzyCompare(this->d->m_radius, radius))
         return;
 
-    this->m_radius = radius;
+    this->d->m_radius = radius;
     emit this->radiusChanged(radius);
 }
 
 void ColorReplaceElement::setDisable(bool disable)
 {
-    if (this->m_disable == disable)
+    if (this->d->m_disable == disable)
         return;
 
-    this->m_disable = disable;
+    this->d->m_disable = disable;
     emit this->disableChanged(disable);
 }
 
@@ -127,10 +137,11 @@ void ColorReplaceElement::resetDisable()
 
 AkPacket ColorReplaceElement::iStream(const AkPacket &packet)
 {
-    if (this->m_disable)
+    if (this->d->m_disable)
         akSend(packet)
 
-    QImage src = AkUtils::packetToImage(packet);
+    AkVideoPacket videoPacket(packet);
+    auto src = videoPacket.toImage();
 
     if (src.isNull())
         return AkPacket();
@@ -147,9 +158,9 @@ AkPacket ColorReplaceElement::iStream(const AkPacket &packet)
             int g = qGreen(srcLine[x]);
             int b = qBlue(srcLine[x]);
 
-            int rf = qRed(this->m_from);
-            int gf = qGreen(this->m_from);
-            int bf = qBlue(this->m_from);
+            int rf = qRed(this->d->m_from);
+            int gf = qGreen(this->d->m_from);
+            int bf = qBlue(this->d->m_from);
 
             int rd = r - rf;
             int gd = g - gf;
@@ -157,12 +168,12 @@ AkPacket ColorReplaceElement::iStream(const AkPacket &packet)
 
             qreal k = sqrt(rd * rd + gd * gd + bd * bd);
 
-            if (k <= this->m_radius) {
-                qreal p = k / this->m_radius;
+            if (k <= this->d->m_radius) {
+                qreal p = k / this->d->m_radius;
 
-                int rt = qRed(this->m_to);
-                int gt = qGreen(this->m_to);
-                int bt = qBlue(this->m_to);
+                int rt = qRed(this->d->m_to);
+                int gt = qGreen(this->d->m_to);
+                int bt = qBlue(this->d->m_to);
 
                 r = int(p * (r - rt) + rt);
                 g = int(p * (g - gt) + gt);
@@ -174,7 +185,7 @@ AkPacket ColorReplaceElement::iStream(const AkPacket &packet)
         }
     }
 
-    AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
+    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
     akSend(oPacket)
 }
 

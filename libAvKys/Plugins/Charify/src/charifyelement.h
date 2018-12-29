@@ -20,9 +20,8 @@
 #ifndef CHARIFYELEMENT_H
 #define CHARIFYELEMENT_H
 
+#include <qrgb.h>
 #include <akelement.h>
-
-#include "character.h"
 
 class CharifyElementPrivate;
 
@@ -92,13 +91,6 @@ class CharifyElement: public AkElement
 
     private:
         CharifyElementPrivate *d;
-
-        QSize fontSize(const QString &chrTable, const QFont &font) const;
-        QImage drawChar(const QChar &chr, const QFont &font,
-                        const QSize &fontSize,
-                        QRgb foreground, QRgb background) const;
-        int imageWeight(const QImage &image, bool reversed) const;
-        static bool chrLessThan(const Character &chr1, const Character &chr2);
 
     protected:
         QString controlInterfaceProvide(const QString &controlId) const;

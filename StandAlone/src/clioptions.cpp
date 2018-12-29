@@ -24,68 +24,83 @@
 
 #include "clioptions.h"
 
+class CliOptionsPrivate
+{
+    public:
+        QCommandLineOption m_configPathOpt {""};
+        QCommandLineOption m_qmlPathOpt {""};
+        QCommandLineOption m_recursiveOpt {""};
+        QCommandLineOption m_pluginPathsOpt {""};
+        QCommandLineOption m_blackListOpt {""};
+        QCommandLineOption m_vcamPathOpt {""};
+
+        QString convertToAbsolute(const QString &path) const;
+};
+
 CliOptions::CliOptions()
 {
+    this->d = new CliOptionsPrivate;
     this->addHelpOption();
     this->addVersionOption();
     this->setApplicationDescription(QObject::tr("Webcam capture application."));
 
-    this->m_configPathOpt =
-            new QCommandLineOption({"c", "config"},
-                                   QObject::tr("Load settings from PATH. "
-                                               "If PATH is empty, load configs "
-                                               "from application directory."),
-                                   "PATH", "");
-    this->addOption(*this->m_configPathOpt);
+    this->d->m_configPathOpt = {
+        {"c", "config"},
+        QObject::tr("Load settings from PATH. If PATH is empty, load configs "
+                    "from application directory."),
+        "PATH", ""
+    };
+    this->addOption(this->d->m_configPathOpt);
 
-    this->m_qmlPathOpt =
-            new QCommandLineOption({"q", "qmlpaths"},
-                                   QObject::tr("Semi-colon separated list of "
-                                               "paths to search the Qml "
-                                               "interface."),
-                                   "PATH1;PATH2;PATH3;...");
-    this->addOption(*this->m_qmlPathOpt);
+    this->d->m_qmlPathOpt = {
+        {"q", "qmlpaths"},
+        QObject::tr("Semi-colon separated list of paths to search the Qml "
+                    "interface."),
+        "PATH1;PATH2;PATH3;..."
+    };
+    this->addOption(this->d->m_qmlPathOpt);
 
     // Set recursive plugin path search.
-    this->m_recursiveOpt =
-            new QCommandLineOption({"r", "recursive"},
-                                   QObject::tr("Search in the specified "
-                                               "plugins paths recursively."));
-    this->addOption(*this->m_recursiveOpt);
+    this->d->m_recursiveOpt = {
+        {"r", "recursive"},
+        QObject::tr("Search in the specified plugins paths recursively.")
+    };
+    this->addOption(this->d->m_recursiveOpt);
 
-    this->m_pluginPathsOpt =
-            new QCommandLineOption({"p", "paths"},
-                                   QObject::tr("Semi-colon separated list of "
-                                               "paths to search for plugins."),
-                                   "PATH1;PATH2;PATH3;...");
-    this->addOption(*this->m_pluginPathsOpt);
+    this->d->m_pluginPathsOpt = {
+        {"p", "paths"},
+        QObject::tr("Semi-colon separated list of paths to search for "
+                    "plugins."),
+        "PATH1;PATH2;PATH3;..."
+    };
+    this->addOption(this->d->m_pluginPathsOpt);
 
-    this->m_blackListOpt =
-            new QCommandLineOption({"b", "no-load"},
-                                   QObject::tr("Semi-colon separated list of "
-                                               "paths to avoid loading."),
-                                   "PATH1;PATH2;PATH3;...");
-    this->addOption(*this->m_blackListOpt);
+    this->d->m_blackListOpt = {
+        {"b", "no-load"},
+        QObject::tr("Semi-colon separated list of paths to avoid loading."),
+        "PATH1;PATH2;PATH3;..."
+    };
+    this->addOption(this->d->m_blackListOpt);
 
-    this->m_vcamPathOpt =
-            new QCommandLineOption(QString("vcam"),
-                                   QObject::tr("Semi-colon separated list of "
-                                               "paths to search for virtual "
-                                               "camera driver"),
-                                   "PATH1;PATH2;PATH3;...");
-    this->addOption(*this->m_vcamPathOpt);
+    this->d->m_vcamPathOpt = {
+        QString("vcam"),
+        QObject::tr("Semi-colon separated list of paths to search for virtual "
+                    "camera driver"),
+        "PATH1;PATH2;PATH3;..."
+    };
+    this->addOption(this->d->m_vcamPathOpt);
 
     this->process(*QCoreApplication::instance());
 
     // Set path for loading user settings.
-    if (this->isSet(*this->m_configPathOpt)) {
+    if (this->isSet(this->d->m_configPathOpt)) {
         QSettings::setDefaultFormat(QSettings::IniFormat);
-        QString configPath = this->value(*this->m_configPathOpt);
+        QString configPath = this->value(this->d->m_configPathOpt);
 
         if (configPath.isEmpty())
             configPath = QCoreApplication::applicationDirPath();
 
-        configPath = this->convertToAbsolute(configPath);
+        configPath = this->d->convertToAbsolute(configPath);
 
         QSettings::setPath(QSettings::IniFormat,
                            QSettings::UserScope,
@@ -95,45 +110,40 @@ CliOptions::CliOptions()
 
 CliOptions::~CliOptions()
 {
-    delete this->m_configPathOpt;
-    delete this->m_qmlPathOpt;
-    delete this->m_recursiveOpt;
-    delete this->m_pluginPathsOpt;
-    delete this->m_blackListOpt;
-    delete this->m_vcamPathOpt;
+    delete this->d;
 }
 
 QCommandLineOption CliOptions::configPathOpt() const
 {
-    return *this->m_configPathOpt;
+    return this->d->m_configPathOpt;
 }
 
 QCommandLineOption CliOptions::qmlPathOpt() const
 {
-    return *this->m_qmlPathOpt;
+    return this->d->m_qmlPathOpt;
 }
 
 QCommandLineOption CliOptions::recursiveOpt() const
 {
-    return *this->m_recursiveOpt;
+    return this->d->m_recursiveOpt;
 }
 
 QCommandLineOption CliOptions::pluginPathsOpt() const
 {
-    return *this->m_pluginPathsOpt;
+    return this->d->m_pluginPathsOpt;
 }
 
 QCommandLineOption CliOptions::blackListOpt() const
 {
-    return *this->m_blackListOpt;
+    return this->d->m_blackListOpt;
 }
 
 QCommandLineOption CliOptions::vcamPathOpt() const
 {
-    return *this->m_vcamPathOpt;
+    return this->d->m_vcamPathOpt;
 }
 
-QString CliOptions::convertToAbsolute(const QString &path) const
+QString CliOptionsPrivate::convertToAbsolute(const QString &path) const
 {
     if (!QDir::isRelativePath(path))
         return QDir::cleanPath(path);

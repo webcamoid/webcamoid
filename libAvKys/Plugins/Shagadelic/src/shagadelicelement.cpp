@@ -20,14 +20,16 @@
 #include <QImage>
 #include <QQmlContext>
 #include <QtMath>
-#include <akutils.h>
-#include <akpacket.h>
+#include <akvideopacket.h>
 
 #include "shagadelicelement.h"
 
 class ShagadelicElementPrivate
 {
     public:
+        QImage m_ripple;
+        QImage m_spiral;
+        QSize m_curSize;
         quint32 m_mask {0xffffff};
         int m_rx {0};
         int m_ry {0};
@@ -38,9 +40,10 @@ class ShagadelicElementPrivate
         int m_bvx {0};
         int m_bvy {0};
         uchar m_phase {0};
-        QImage m_ripple;
-        QImage m_spiral;
-        QSize m_curSize;
+
+        QImage makeRipple(const QSize &size) const;
+        QImage makeSpiral(const QSize &size) const;
+        void init(const QSize &size);
 };
 
 ShagadelicElement::ShagadelicElement(): AkElement()
@@ -56,62 +59,6 @@ ShagadelicElement::~ShagadelicElement()
 quint32 ShagadelicElement::mask() const
 {
     return this->d->m_mask;
-}
-
-QImage ShagadelicElement::makeRipple(const QSize &size) const
-{
-    QImage ripple(2 * size, QImage::Format_Grayscale8);
-
-    for (int y = 0; y < ripple.height(); y++) {
-        qreal yy = qreal(y) / size.width() - 1.0;
-        auto oLine = reinterpret_cast<quint8 *>(ripple.scanLine(y));
-
-        for (int x = 0; x < ripple.width(); x++) {
-            qreal xx = qreal(x) / size.width() - 1.0;
-            oLine[x] = uint(3000 * sqrt(xx * xx + yy * yy)) & 255;
-        }
-    }
-
-    return ripple;
-}
-
-QImage ShagadelicElement::makeSpiral(const QSize &size) const
-{
-    QImage spiral(size, QImage::Format_Grayscale8);
-    int yc = spiral.height() / 2;
-
-    for (int y = 0; y < spiral.height(); y++) {
-        qreal yy = qreal(y - yc) / spiral.width();
-        auto oLine = reinterpret_cast<quint8 *>(spiral.scanLine(y));
-
-        for (int x = 0; x < spiral.width(); x++) {
-            qreal xx = qreal(x) / spiral.width() - 0.5;
-
-            oLine[x] = uint(256 * 9 * atan2(xx, yy) / M_PI
-                            + 1800 * sqrt(xx * xx + yy * yy))
-                       & 255;
-        }
-    }
-
-    return spiral;
-}
-
-void ShagadelicElement::init(const QSize &size)
-{
-    this->d->m_ripple = this->makeRipple(size);
-    this->d->m_spiral = this->makeSpiral(size);
-
-    this->d->m_rx = qrand() % size.width();
-    this->d->m_ry = qrand() % size.height();
-    this->d->m_bx = qrand() % size.width();
-    this->d->m_by = qrand() % size.height();
-
-    this->d->m_rvx = -2;
-    this->d->m_rvy = -2;
-    this->d->m_bvx = 2;
-    this->d->m_bvy = 2;
-
-    this->d->m_phase = 0;
 }
 
 QString ShagadelicElement::controlInterfaceProvide(const QString &controlId) const
@@ -146,7 +93,8 @@ void ShagadelicElement::resetMask()
 
 AkPacket ShagadelicElement::iStream(const AkPacket &packet)
 {
-    QImage src = AkUtils::packetToImage(packet);
+    AkVideoPacket videoPacket(packet);
+    auto src = videoPacket.toImage();
 
     if (src.isNull())
         return AkPacket();
@@ -155,7 +103,7 @@ AkPacket ShagadelicElement::iStream(const AkPacket &packet)
     QImage oFrame = QImage(src.size(), src.format());
 
     if (src.size() != this->d->m_curSize) {
-        this->init(src.size());
+        this->d->init(src.size());
         this->d->m_curSize = src.size();
     }
 
@@ -205,8 +153,64 @@ AkPacket ShagadelicElement::iStream(const AkPacket &packet)
     this->d->m_bx += this->d->m_bvx;
     this->d->m_by += this->d->m_bvy;
 
-    AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
+    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
     akSend(oPacket)
+}
+
+QImage ShagadelicElementPrivate::makeRipple(const QSize &size) const
+{
+    QImage ripple(2 * size, QImage::Format_Grayscale8);
+
+    for (int y = 0; y < ripple.height(); y++) {
+        qreal yy = qreal(y) / size.width() - 1.0;
+        auto oLine = reinterpret_cast<quint8 *>(ripple.scanLine(y));
+
+        for (int x = 0; x < ripple.width(); x++) {
+            qreal xx = qreal(x) / size.width() - 1.0;
+            oLine[x] = uint(3000 * sqrt(xx * xx + yy * yy)) & 255;
+        }
+    }
+
+    return ripple;
+}
+
+QImage ShagadelicElementPrivate::makeSpiral(const QSize &size) const
+{
+    QImage spiral(size, QImage::Format_Grayscale8);
+    int yc = spiral.height() / 2;
+
+    for (int y = 0; y < spiral.height(); y++) {
+        qreal yy = qreal(y - yc) / spiral.width();
+        auto oLine = reinterpret_cast<quint8 *>(spiral.scanLine(y));
+
+        for (int x = 0; x < spiral.width(); x++) {
+            qreal xx = qreal(x) / spiral.width() - 0.5;
+
+            oLine[x] = uint(256 * 9 * atan2(xx, yy) / M_PI
+                            + 1800 * sqrt(xx * xx + yy * yy))
+                       & 255;
+        }
+    }
+
+    return spiral;
+}
+
+void ShagadelicElementPrivate::init(const QSize &size)
+{
+    this->m_ripple = this->makeRipple(size);
+    this->m_spiral = this->makeSpiral(size);
+
+    this->m_rx = qrand() % size.width();
+    this->m_ry = qrand() % size.height();
+    this->m_bx = qrand() % size.width();
+    this->m_by = qrand() % size.height();
+
+    this->m_rvx = -2;
+    this->m_rvy = -2;
+    this->m_bvx = 2;
+    this->m_bvy = 2;
+
+    this->m_phase = 0;
 }
 
 #include "moc_shagadelicelement.cpp"

@@ -25,7 +25,6 @@
 #include <QFileInfo>
 #include <QtConcurrent>
 #include <QThreadPool>
-#include <akutils.h>
 #include <akfrac.h>
 #include <akcaps.h>
 #include <akaudiocaps.h>
@@ -2512,8 +2511,7 @@ void MediaWriterGStreamer::writeVideoPacket(const AkVideoPacket &packet)
     if (streamIndex < 0)
         return;
 
-    AkVideoPacket videoPacket = AkUtils::roundSizeTo(packet.toPacket(), 4);
-    videoPacket = AkUtils::convertVideo(videoPacket, AkVideoCaps::Format_rgb24);
+    auto videoPacket = packet.roundSizeTo(4).convert(AkVideoCaps::Format_rgb24);
 
     QString souceName = QString("video_%1").arg(streamIndex);
     GstElement *source = gst_bin_get_by_name(GST_BIN(this->d->m_pipeline),

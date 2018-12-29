@@ -31,7 +31,6 @@
 #include <QFileDialog>
 #include <QApplication>
 #include <ak.h>
-#include <akutils.h>
 #include <akcaps.h>
 #include <akvideocaps.h>
 

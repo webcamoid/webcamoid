@@ -20,8 +20,7 @@
 #include <QTime>
 #include <QPainter>
 #include <QQmlContext>
-#include <akutils.h>
-#include <akpacket.h>
+#include <akvideopacket.h>
 
 #include "scrollelement.h"
 
@@ -32,6 +31,8 @@ class ScrollElementPrivate
         qreal m_noise {0.1};
         qreal m_offset {0.0};
         QSize m_curSize;
+
+        QImage generateNoise(const QSize &size, qreal persent) const;
 };
 
 ScrollElement::ScrollElement(): AkElement()
@@ -54,24 +55,6 @@ qreal ScrollElement::speed() const
 qreal ScrollElement::noise() const
 {
     return this->d->m_noise;
-}
-
-QImage ScrollElement::generateNoise(const QSize &size, qreal persent)
-{
-    QImage noise = QImage(size, QImage::Format_ARGB32);
-    noise.fill(0);
-
-    int peper = int(persent * size.width() * size.height());
-
-    for (int i = 0; i < peper; i++) {
-        int gray = qrand() % 256;
-        int alpha = qrand() % 256;
-        int x = qrand() % noise.width();
-        int y = qrand() % noise.height();
-        noise.setPixel(x, y, qRgba(gray, gray, gray, alpha));
-    }
-
-    return noise;
 }
 
 QString ScrollElement::controlInterfaceProvide(const QString &controlId) const
@@ -120,7 +103,8 @@ void ScrollElement::resetNoise()
 
 AkPacket ScrollElement::iStream(const AkPacket &packet)
 {
-    QImage src = AkUtils::packetToImage(packet);
+    AkVideoPacket videoPacket(packet);
+    auto src = videoPacket.toImage();
 
     if (src.isNull())
         return AkPacket();
@@ -145,7 +129,7 @@ AkPacket ScrollElement::iStream(const AkPacket &packet)
 
     QPainter painter;
     painter.begin(&oFrame);
-    QImage noise = this->generateNoise(oFrame.size(), this->d->m_noise);
+    QImage noise = this->d->generateNoise(oFrame.size(), this->d->m_noise);
     painter.drawImage(0, 0, noise);
     painter.end();
 
@@ -156,8 +140,26 @@ AkPacket ScrollElement::iStream(const AkPacket &packet)
     else if (this->d->m_offset < 0.0)
         this->d->m_offset = src.height();
 
-    AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
+    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
     akSend(oPacket)
+}
+
+QImage ScrollElementPrivate::generateNoise(const QSize &size, qreal persent) const
+{
+    QImage noise(size, QImage::Format_ARGB32);
+    noise.fill(0);
+
+    int peper = int(persent * size.width() * size.height());
+
+    for (int i = 0; i < peper; i++) {
+        int gray = qrand() % 256;
+        int alpha = qrand() % 256;
+        int x = qrand() % noise.width();
+        int y = qrand() % noise.height();
+        noise.setPixel(x, y, qRgba(gray, gray, gray, alpha));
+    }
+
+    return noise;
 }
 
 #include "moc_scrollelement.cpp"

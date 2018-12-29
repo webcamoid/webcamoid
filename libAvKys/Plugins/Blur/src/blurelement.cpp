@@ -19,8 +19,7 @@
 
 #include <QImage>
 #include <QQmlContext>
-#include <akutils.h>
-#include <akpacket.h>
+#include <akvideopacket.h>
 
 #include "blurelement.h"
 #include "pixel.h"
@@ -112,7 +111,8 @@ void BlurElement::resetRadius()
 
 AkPacket BlurElement::iStream(const AkPacket &packet)
 {
-    QImage src = AkUtils::packetToImage(packet);
+    AkVideoPacket videoPacket(packet);
+    auto src = videoPacket.toImage();
 
     if (src.isNull())
         return AkPacket();
@@ -145,7 +145,7 @@ AkPacket BlurElement::iStream(const AkPacket &packet)
 
     delete [] integral;
 
-    AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
+    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
     akSend(oPacket)
 }
 

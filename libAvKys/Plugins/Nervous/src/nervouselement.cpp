@@ -20,8 +20,7 @@
 #include <QVector>
 #include <QImage>
 #include <QQmlContext>
-#include <akutils.h>
-#include <akpacket.h>
+#include <akvideopacket.h>
 
 #include "nervouselement.h"
 
@@ -101,7 +100,8 @@ void NervousElement::resetSimple()
 
 AkPacket NervousElement::iStream(const AkPacket &packet)
 {
-    QImage src = AkUtils::packetToImage(packet);
+    AkVideoPacket videoPacket(packet);
+    auto src = videoPacket.toImage();
 
     if (src.isNull())
         return AkPacket();
@@ -142,9 +142,8 @@ AkPacket NervousElement::iStream(const AkPacket &packet)
         nFrame = qrand() % this->d->m_frames.size();
     }
 
-    QImage oFrame = this->d->m_frames[nFrame];
-
-    AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
+    auto oPacket = AkVideoPacket::fromImage(this->d->m_frames[nFrame],
+                                            videoPacket).toPacket();
     akSend(oPacket)
 }
 

@@ -25,9 +25,8 @@
 #include <QQuickItem>
 #include <QQmlProperty>
 #include <QQmlApplicationEngine>
-#include <akutils.h>
 #include <akcaps.h>
-#include <akpacket.h>
+#include <akvideopacket.h>
 
 #include "recording.h"
 
@@ -414,7 +413,7 @@ void Recording::resetState()
 void Recording::takePhoto()
 {
     this->d->m_mutex.lock();
-    this->d->m_photo = AkUtils::packetToImage(this->d->m_curPacket).copy();
+    this->d->m_photo = AkVideoPacket(this->d->m_curPacket).toImage().copy();
     this->d->m_mutex.unlock();
 }
 

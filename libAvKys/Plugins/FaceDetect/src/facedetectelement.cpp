@@ -23,8 +23,7 @@
 #include <QStandardPaths>
 #include <QPainter>
 #include <QQmlContext>
-#include <akutils.h>
-#include <akpacket.h>
+#include <akvideopacket.h>
 
 #include "facedetectelement.h"
 #include "haar/haardetector.h"
@@ -312,7 +311,8 @@ AkPacket FaceDetectElement::iStream(const AkPacket &packet)
         || scanSize.isEmpty())
         akSend(packet)
 
-    QImage src = AkUtils::packetToImage(packet);
+    AkVideoPacket videoPacket(packet);
+    auto src = videoPacket.toImage();
 
     if (src.isNull())
         return AkPacket();
@@ -366,9 +366,9 @@ AkPacket FaceDetectElement::iStream(const AkPacket &packet)
 
             painter.drawImage(rect, imagePixelate);
         } else if (this->d->m_markerType == MarkerTypeBlur) {
-            AkPacket rectPacket = AkUtils::imageToPacket(src.copy(rect), packet);
-            AkPacket blurPacket = this->d->m_blurFilter->iStream(rectPacket);
-            QImage blurImage = AkUtils::packetToImage(blurPacket);
+            auto rectPacket = AkVideoPacket::fromImage(src.copy(rect), videoPacket);
+            AkVideoPacket blurPacket = this->d->m_blurFilter->iStream(rectPacket.toPacket());
+            auto blurImage = blurPacket.toImage();
 
             painter.drawImage(rect, blurImage);
         }
@@ -376,7 +376,7 @@ AkPacket FaceDetectElement::iStream(const AkPacket &packet)
 
     painter.end();
 
-    AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
+    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
     akSend(oPacket)
 }
 

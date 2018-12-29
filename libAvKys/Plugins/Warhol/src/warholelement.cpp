@@ -19,16 +19,15 @@
 
 #include <QImage>
 #include <QQmlContext>
-#include <akutils.h>
-#include <akpacket.h>
+#include <akvideopacket.h>
 
 #include "warholelement.h"
 
 class WarholElementPrivate
 {
     public:
-        int m_nFrames {3};
         QVector<quint32> m_colorTable;
+        int m_nFrames {3};
 };
 
 WarholElement::WarholElement(): AkElement()
@@ -83,7 +82,8 @@ void WarholElement::resetNFrames()
 
 AkPacket WarholElement::iStream(const AkPacket &packet)
 {
-    QImage src = AkUtils::packetToImage(packet);
+    AkVideoPacket videoPacket(packet);
+    auto src = videoPacket.toImage();
 
     if (src.isNull())
         return AkPacket();
@@ -107,7 +107,7 @@ AkPacket WarholElement::iStream(const AkPacket &packet)
         }
     }
 
-    AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
+    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
     akSend(oPacket)
 }
 

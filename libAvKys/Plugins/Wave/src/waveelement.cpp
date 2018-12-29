@@ -21,8 +21,7 @@
 #include <QQmlContext>
 #include <QtMath>
 #include <QMutex>
-#include <akutils.h>
-#include <akpacket.h>
+#include <akvideopacket.h>
 
 #include "waveelement.h"
 
@@ -164,7 +163,8 @@ void WaveElement::resetBackground()
 
 AkPacket WaveElement::iStream(const AkPacket &packet)
 {
-    QImage src = AkUtils::packetToImage(packet);
+    AkVideoPacket videoPacket(packet);
+    auto src = videoPacket.toImage();
 
     if (src.isNull())
         return AkPacket();
@@ -179,7 +179,7 @@ AkPacket WaveElement::iStream(const AkPacket &packet)
         akSend(packet)
 
     if (amplitude >= 1.0) {
-        AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
+        auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
         akSend(oPacket)
     }
 
@@ -217,7 +217,7 @@ AkPacket WaveElement::iStream(const AkPacket &packet)
         }
     }
 
-    AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
+    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
     akSend(oPacket)
 }
 

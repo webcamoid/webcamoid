@@ -66,8 +66,6 @@ class HalftoneElement: public AkElement
     private:
         HalftoneElementPrivate *d;
 
-        void updatePattern();
-
     protected:
         QString controlInterfaceProvide(const QString &controlId) const;
         void controlInterfaceConfigure(QQmlContext *context,

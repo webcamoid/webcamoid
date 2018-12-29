@@ -22,22 +22,33 @@
 
 #include "probeelement.h"
 
+class ProbeElementPrivate
+{
+    public:
+        bool m_log {false};
+};
+
 ProbeElement::ProbeElement(): AkElement()
 {
-    this->m_log = false;
+    this->d = new ProbeElementPrivate;
+}
+
+ProbeElement::~ProbeElement()
+{
+    delete this->d;
 }
 
 bool ProbeElement::log() const
 {
-    return this->m_log;
+    return this->d->m_log;
 }
 
 void ProbeElement::setLog(bool log)
 {
-    if (this->m_log == log)
+    if (this->d->m_log == log)
         return;
 
-    this->m_log = log;
+    this->d->m_log = log;
     emit this->logChanged(log);
 }
 
@@ -48,7 +59,7 @@ void ProbeElement::resetLog()
 
 AkPacket ProbeElement::iStream(const AkPacket &packet)
 {
-    if (this->m_log) {
+    if (this->d->m_log) {
         qDebug().nospace() << "\"" << this->objectName().toStdString().c_str() << "\"";
 
         for (const QString &line: packet.toString().split('\n'))

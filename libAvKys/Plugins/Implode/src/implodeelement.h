@@ -22,6 +22,8 @@
 
 #include <akelement.h>
 
+class ImplodeElementPrivate;
+
 class ImplodeElement: public AkElement
 {
     Q_OBJECT
@@ -33,6 +35,7 @@ class ImplodeElement: public AkElement
 
     public:
         explicit ImplodeElement();
+        ~ImplodeElement();
 
         Q_INVOKABLE qreal amount() const;
 
@@ -42,7 +45,7 @@ class ImplodeElement: public AkElement
                                        const QString &controlId) const;
 
     private:
-        qreal m_amount;
+        ImplodeElementPrivate *d;
 
     signals:
         void amountChanged(qreal amount);

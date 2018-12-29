@@ -23,6 +23,8 @@
 #include <qrgb.h>
 #include <akelement.h>
 
+class ColorFilterElementPrivate;
+
 class ColorFilterElement: public AkElement
 {
     Q_OBJECT
@@ -49,6 +51,7 @@ class ColorFilterElement: public AkElement
 
     public:
         explicit ColorFilterElement();
+        ~ColorFilterElement();
 
         Q_INVOKABLE QRgb color() const;
         Q_INVOKABLE qreal radius() const;
@@ -56,10 +59,7 @@ class ColorFilterElement: public AkElement
         Q_INVOKABLE bool disable() const;
 
     private:
-        QRgb m_color;
-        qreal m_radius;
-        bool m_soft;
-        bool m_disable;
+        ColorFilterElementPrivate *d;
 
     protected:
         QString controlInterfaceProvide(const QString &controlId) const;

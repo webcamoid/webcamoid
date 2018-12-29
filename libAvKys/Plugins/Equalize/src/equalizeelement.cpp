@@ -19,71 +19,35 @@
 
 #include <QImage>
 #include <QVector>
-#include <akutils.h>
-#include <akpacket.h>
+#include <akvideopacket.h>
 
 #include "equalizeelement.h"
 #include "pixelstructs.h"
 
-EqualizeElement::EqualizeElement(): AkElement()
+class EqualizeElementPrivate
 {
-}
+    public:
+        static QVector<quint64> histogram(const QImage &img);
+        static QVector<quint64> cumulativeHistogram(const QVector<quint64> &histogram);
+        static QVector<quint8> equalizationTable(const QImage &img);
+};
 
-QVector<quint64> EqualizeElement::histogram(const QImage &img) const
+EqualizeElement::EqualizeElement():
+    AkElement()
 {
-    QVector<quint64> histogram(256, 0);
-
-    for (int y = 0; y < img.height(); y++) {
-        const QRgb *srcLine = reinterpret_cast<const QRgb *>(img.constScanLine(y));
-
-        for (int x = 0; x < img.width(); x++)
-            histogram[qGray(srcLine[x])]++;
-    }
-
-    return histogram;
-}
-
-QVector<quint64> EqualizeElement::cumulativeHistogram(const QVector<quint64> &histogram) const
-{
-    QVector<quint64> cumulativeHistogram(histogram.size());
-    quint64 sum = 0;
-
-    for (int i = 0; i < histogram.size(); i++) {
-        sum += histogram[i];
-        cumulativeHistogram[i] = sum;
-    }
-
-    return cumulativeHistogram;
-}
-
-QVector<quint8> EqualizeElement::equalizationTable(const QImage &img) const
-{
-    QVector<quint64> cumHist = this->cumulativeHistogram(this->histogram(img));
-    QVector<quint8> equalizationTable(cumHist.size());
-    int maxLevel = cumHist.size() - 1;
-    quint64 q = cumHist[maxLevel] - cumHist[0];
-
-    for (int i = 0; i < cumHist.size(); i++)
-        if (cumHist[i] > cumHist[0])
-            equalizationTable[i] = quint8(qRound(qreal(maxLevel)
-                                                 * (cumHist[i] - cumHist[0])
-                                                 / q));
-        else
-            equalizationTable[i] = 0;
-
-    return equalizationTable;
 }
 
 AkPacket EqualizeElement::iStream(const AkPacket &packet)
 {
-    QImage src = AkUtils::packetToImage(packet);
+    AkVideoPacket videoPacket(packet);
+    auto src = videoPacket.toImage();
 
     if (src.isNull())
         return AkPacket();
 
     src = src.convertToFormat(QImage::Format_ARGB32);
     QImage oFrame(src.size(), src.format());
-    QVector<quint8> equTable = this->equalizationTable(src);
+    QVector<quint8> equTable = EqualizeElementPrivate::equalizationTable(src);
 
     for (int y = 0; y < src.height(); y++) {
         const QRgb *srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
@@ -99,8 +63,54 @@ AkPacket EqualizeElement::iStream(const AkPacket &packet)
         }
     }
 
-    AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
+    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
     akSend(oPacket)
+}
+
+QVector<quint64> EqualizeElementPrivate::histogram(const QImage &img)
+{
+    QVector<quint64> histogram(256, 0);
+
+    for (int y = 0; y < img.height(); y++) {
+        const QRgb *srcLine = reinterpret_cast<const QRgb *>(img.constScanLine(y));
+
+        for (int x = 0; x < img.width(); x++)
+            histogram[qGray(srcLine[x])]++;
+    }
+
+    return histogram;
+}
+
+QVector<quint64> EqualizeElementPrivate::cumulativeHistogram(const QVector<quint64> &histogram)
+{
+    QVector<quint64> cumulativeHistogram(histogram.size());
+    quint64 sum = 0;
+
+    for (int i = 0; i < histogram.size(); i++) {
+        sum += histogram[i];
+        cumulativeHistogram[i] = sum;
+    }
+
+    return cumulativeHistogram;
+}
+
+QVector<quint8> EqualizeElementPrivate::equalizationTable(const QImage &img)
+{
+    auto histogram = EqualizeElementPrivate::histogram(img);
+    auto cumHist = EqualizeElementPrivate::cumulativeHistogram(histogram);
+    QVector<quint8> equalizationTable(cumHist.size());
+    int maxLevel = cumHist.size() - 1;
+    quint64 q = cumHist[maxLevel] - cumHist[0];
+
+    for (int i = 0; i < cumHist.size(); i++)
+        if (cumHist[i] > cumHist[0])
+            equalizationTable[i] = quint8(qRound(qreal(maxLevel)
+                                                 * (cumHist[i] - cumHist[0])
+                                                 / q));
+        else
+            equalizationTable[i] = 0;
+
+    return equalizationTable;
 }
 
 #include "moc_equalizeelement.cpp"

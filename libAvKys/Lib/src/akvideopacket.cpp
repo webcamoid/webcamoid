@@ -18,11 +18,32 @@
  */
 
 #include <QDebug>
+#include <QImage>
 #include <QVariant>
 
 #include "akvideopacket.h"
 #include "akcaps.h"
 #include "akvideocaps.h"
+
+using ImageToPixelFormatMap = QMap<QImage::Format, AkVideoCaps::PixelFormat>;
+
+inline ImageToPixelFormatMap initImageToPixelFormatMap()
+{
+    ImageToPixelFormatMap imageToFormat {
+        {QImage::Format_Mono      , AkVideoCaps::Format_monob   },
+        {QImage::Format_RGB32     , AkVideoCaps::Format_0rgb    },
+        {QImage::Format_ARGB32    , AkVideoCaps::Format_argb    },
+        {QImage::Format_RGB16     , AkVideoCaps::Format_rgb565le},
+        {QImage::Format_RGB555    , AkVideoCaps::Format_rgb555le},
+        {QImage::Format_RGB888    , AkVideoCaps::Format_rgb24   },
+        {QImage::Format_RGB444    , AkVideoCaps::Format_rgb444le},
+        {QImage::Format_Grayscale8, AkVideoCaps::Format_gray    }
+    };
+
+    return imageToFormat;
+}
+
+Q_GLOBAL_STATIC_WITH_ARGS(ImageToPixelFormatMap, AkImageToFormat, (initImageToPixelFormatMap()))
 
 class AkVideoPacketPrivate
 {
@@ -132,31 +153,25 @@ QString AkVideoPacket::toString() const
 
     debug.nospace() << "Caps       : "
                     << this->d->m_caps.toString().toStdString().c_str()
-                    << "\n";
-
-    debug.nospace() << "Data       : "
+                    << "\n"
+                    << "Data       : "
                     << this->data()
-                    << "\n";
-
-    debug.nospace() << "Buffer Size: "
+                    << "\n"
+                    << "Buffer Size: "
                     << this->buffer().size()
-                    << "\n";
-
-    debug.nospace() << "Id         : "
+                    << "\n"
+                    << "Id         : "
                     << this->id()
-                    << "\n";
-
-    debug.nospace() << "Pts        : "
+                    << "\n"
+                    << "Pts        : "
                     << this->pts()
                     << " ("
                     << this->pts() * this->timeBase().value()
-                    << ")\n";
-
-    debug.nospace() << "Time Base  : "
+                    << ")\n"
+                    << "Time Base  : "
                     << this->timeBase().toString().toStdString().c_str()
-                    << "\n";
-
-    debug.nospace() << "Index      : "
+                    << "\n"
+                    << "Index      : "
                     << this->index();
 
     return packetInfo;
@@ -173,6 +188,113 @@ AkPacket AkVideoPacket::toPacket() const
     packet.id() = this->id();
 
     return packet;
+}
+
+QImage AkVideoPacket::toImage() const
+{
+    if (!this->d->m_caps)
+        return {};
+
+    if (!AkImageToFormat->values().contains(this->d->m_caps.format()))
+        return {};
+
+    QImage image(this->d->m_caps.width(),
+                 this->d->m_caps.height(),
+                 AkImageToFormat->key(this->d->m_caps.format()));
+    memcpy(image.bits(),
+           this->buffer().constData(),
+           size_t(this->buffer().size()));
+
+    if (this->d->m_caps.format() == AkVideoCaps::Format_gray)
+        for (int i = 0; i < 256; i++)
+            image.setColor(i, QRgb(i));
+
+    return image;
+}
+
+AkVideoPacket AkVideoPacket::fromImage(const QImage &image,
+                                       const AkVideoPacket &defaultPacket)
+{
+    if (!AkImageToFormat->contains(image.format()))
+        return AkVideoPacket();
+
+    size_t imageSize = size_t(image.bytesPerLine()) * size_t(image.height());
+    QByteArray oBuffer(int(imageSize), 0);
+    memcpy(oBuffer.data(), image.constBits(), imageSize);
+
+    AkVideoPacket packet = defaultPacket;
+    packet.caps().format() = AkImageToFormat->value(image.format());
+    packet.caps().bpp() = AkVideoCaps::bitsPerPixel(packet.caps().format());
+    packet.caps().width() = image.width();
+    packet.caps().height() = image.height();
+    packet.setBuffer(oBuffer);
+
+    return packet;
+}
+
+AkVideoPacket AkVideoPacket::roundSizeTo(int align) const
+{
+    /* Explanation:
+     *
+     * When 'align' is a power of 2, the left most bit will be 1 (the pivot),
+     * while all other bits be 0, if destination width is multiple of 'align'
+     * all bits after pivot position will be 0, then we create a mask
+     * substracting 1 to the align, so all bits after pivot position in the
+     * mask will 1.
+     * Then we negate all bits in the mask so all bits from pivot to the left
+     * will be 1, and then we use that mask to get a width multiple of align.
+     * This give us the lower (floor) width nearest to the original 'width' and
+     * multiple of align. To get the rounded nearest value we add align / 2 to
+     * 'width'.
+     * This is the equivalent of:
+     *
+     * align * round(width / align)
+     */
+    int width = (this->d->m_caps.width() + (align >> 1)) & ~(align - 1);
+
+    /* Find the nearest width:
+     *
+     * round(height * owidth / width)
+     */
+    int height = (2 * this->d->m_caps.height() * width
+                  + this->d->m_caps.width())
+                 / (2 * this->d->m_caps.width());
+
+    if (this->d->m_caps.width() == width
+        && this->d->m_caps.height() == height)
+        return *this;
+
+    auto frame = this->toImage();
+
+    if (frame.isNull())
+        return *this;
+
+    return AkVideoPacket::fromImage(frame.scaled(width, height), *this);
+}
+
+AkVideoPacket AkVideoPacket::convert(AkVideoCaps::PixelFormat format,
+                                     const QSize &size) const
+{
+    if (!AkImageToFormat->values().contains(format))
+        return AkVideoPacket();
+
+    if (this->d->m_caps.format() == format
+        && (size.isEmpty() || this->d->m_caps.size() == size))
+        return *this;
+
+    auto frame = this->toImage();
+
+    if (frame.isNull())
+        return *this;
+
+    QImage convertedFrame;
+
+    if (size.isEmpty())
+        convertedFrame = frame.convertToFormat(AkImageToFormat->key(format));
+    else
+        convertedFrame = frame.convertToFormat(AkImageToFormat->key(format)).scaled(size);
+
+    return AkVideoPacket::fromImage(convertedFrame, *this);
 }
 
 void AkVideoPacket::setCaps(const AkVideoCaps &caps)

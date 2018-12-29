@@ -20,20 +20,25 @@
 #include <QQmlContext>
 #include <QtMath>
 #include <QPainter>
-#include <akutils.h>
-#include <akpacket.h>
+#include <akvideopacket.h>
 
 #include "lifeelement.h"
 
 class LifeElementPrivate
 {
     public:
-        QRgb m_lifeColor {qRgb(255, 255, 255)};
-        int m_threshold {15};
-        int m_lumaThreshold {15};
         QSize m_frameSize;
         QImage m_prevFrame;
         QImage m_lifeBuffer;
+        QRgb m_lifeColor {qRgb(255, 255, 255)};
+        int m_threshold {15};
+        int m_lumaThreshold {15};
+
+        QImage imageDiff(const QImage &img1,
+                         const QImage &img2,
+                         int threshold,
+                         int lumaThreshold);
+        void updateLife();
 };
 
 LifeElement::LifeElement(): AkElement()
@@ -59,76 +64,6 @@ int LifeElement::threshold() const
 int LifeElement::lumaThreshold() const
 {
     return this->d->m_lumaThreshold;
-}
-
-QImage LifeElement::imageDiff(const QImage &img1,
-                              const QImage &img2,
-                              int threshold,
-                              int lumaThreshold)
-{
-    int width = qMin(img1.width(), img2.width());
-    int height = qMin(img1.height(), img2.height());
-    QImage diff(width, height, QImage::Format_Indexed8);
-
-    for (int y = 0; y < height; y++) {
-        const QRgb *line1 = reinterpret_cast<const QRgb *>(img1.constScanLine(y));
-        const QRgb *line2 = reinterpret_cast<const QRgb *>(img2.constScanLine(y));
-        quint8 *lineDiff = diff.scanLine(y);
-
-        for (int x = 0; x < width; x++) {
-            int r1 = qRed(line1[x]);
-            int g1 = qGreen(line1[x]);
-            int b1 = qBlue(line1[x]);
-
-            int r2 = qRed(line2[x]);
-            int g2 = qGreen(line2[x]);
-            int b2 = qBlue(line2[x]);
-
-            int dr = r1 - r2;
-            int dg = g1 - g2;
-            int db = b1 - b2;
-
-            int colorDiff = dr * dr + dg * dg + db * db;
-
-            lineDiff[x] = sqrt(colorDiff / 3.0) >= threshold
-                          && qGray(line2[x]) >= lumaThreshold? 1: 0;
-        }
-    }
-
-    return diff;
-}
-
-void LifeElement::updateLife()
-{
-    QImage lifeBuffer(this->d->m_lifeBuffer.size(),
-                      this->d->m_lifeBuffer.format());
-    lifeBuffer.fill(0);
-
-    for (int y = 1; y < lifeBuffer.height() - 1; y++) {
-        auto iLine = this->d->m_lifeBuffer.constScanLine(y);
-        auto oLine = lifeBuffer.scanLine(y);
-
-        for (int x = 1; x < lifeBuffer.width() - 1; x++) {
-            int count = 0;
-
-            for (int j = -1; j < 2; j++) {
-                auto line = this->d->m_lifeBuffer.constScanLine(y + j);
-
-                for (int i = -1; i < 2; i++)
-                    count += line[x + i];
-            }
-
-            count -= iLine[x];
-
-            if ((iLine[x] && count == 2) || count == 3)
-                oLine[x] = 1;
-        }
-    }
-
-    memcpy(this->d->m_lifeBuffer.bits(),
-           lifeBuffer.constBits(),
-           size_t(lifeBuffer.bytesPerLine())
-           * size_t(lifeBuffer.height()));
 }
 
 QString LifeElement::controlInterfaceProvide(const QString &controlId) const
@@ -191,7 +126,8 @@ void LifeElement::resetLumaThreshold()
 
 AkPacket LifeElement::iStream(const AkPacket &packet)
 {
-    QImage src = AkUtils::packetToImage(packet);
+    AkVideoPacket videoPacket(packet);
+    auto src = videoPacket.toImage();
 
     if (src.isNull())
         return AkPacket();
@@ -214,11 +150,11 @@ AkPacket LifeElement::iStream(const AkPacket &packet)
     else {
         // Compute the difference between previous and current frame,
         // and save it to the buffer.
-        QImage diff =
-                this->imageDiff(this->d->m_prevFrame,
-                                src,
-                                this->d->m_threshold,
-                                this->d->m_lumaThreshold);
+        auto diff =
+                this->d->imageDiff(this->d->m_prevFrame,
+                                   src,
+                                   this->d->m_threshold,
+                                   this->d->m_lumaThreshold);
 
         this->d->m_lifeBuffer.setColor(1, this->d->m_lifeColor);
 
@@ -230,7 +166,7 @@ AkPacket LifeElement::iStream(const AkPacket &packet)
                 lifeBufferLine[x] |= diffLine[x];
         }
 
-        this->updateLife();
+        this->d->updateLife();
 
         QPainter painter;
         painter.begin(&oFrame);
@@ -240,8 +176,77 @@ AkPacket LifeElement::iStream(const AkPacket &packet)
 
     this->d->m_prevFrame = src.copy();
 
-    AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
+    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
     akSend(oPacket)
+}
+
+QImage LifeElementPrivate::imageDiff(const QImage &img1,
+                                     const QImage &img2,
+                                     int threshold,
+                                     int lumaThreshold)
+{
+    int width = qMin(img1.width(), img2.width());
+    int height = qMin(img1.height(), img2.height());
+    QImage diff(width, height, QImage::Format_Indexed8);
+
+    for (int y = 0; y < height; y++) {
+        auto line1 = reinterpret_cast<const QRgb *>(img1.constScanLine(y));
+        auto line2 = reinterpret_cast<const QRgb *>(img2.constScanLine(y));
+        quint8 *lineDiff = diff.scanLine(y);
+
+        for (int x = 0; x < width; x++) {
+            int r1 = qRed(line1[x]);
+            int g1 = qGreen(line1[x]);
+            int b1 = qBlue(line1[x]);
+
+            int r2 = qRed(line2[x]);
+            int g2 = qGreen(line2[x]);
+            int b2 = qBlue(line2[x]);
+
+            int dr = r1 - r2;
+            int dg = g1 - g2;
+            int db = b1 - b2;
+
+            int colorDiff = dr * dr + dg * dg + db * db;
+
+            lineDiff[x] = sqrt(colorDiff / 3.0) >= threshold
+                          && qGray(line2[x]) >= lumaThreshold? 1: 0;
+        }
+    }
+
+    return diff;
+}
+
+void LifeElementPrivate::updateLife()
+{
+    QImage lifeBuffer(this->m_lifeBuffer.size(),
+                      this->m_lifeBuffer.format());
+    lifeBuffer.fill(0);
+
+    for (int y = 1; y < lifeBuffer.height() - 1; y++) {
+        auto iLine = this->m_lifeBuffer.constScanLine(y);
+        auto oLine = lifeBuffer.scanLine(y);
+
+        for (int x = 1; x < lifeBuffer.width() - 1; x++) {
+            int count = 0;
+
+            for (int j = -1; j < 2; j++) {
+                auto line = this->m_lifeBuffer.constScanLine(y + j);
+
+                for (int i = -1; i < 2; i++)
+                    count += line[x + i];
+            }
+
+            count -= iLine[x];
+
+            if ((iLine[x] && count == 2) || count == 3)
+                oLine[x] = 1;
+        }
+    }
+
+    memcpy(this->m_lifeBuffer.bits(),
+           lifeBuffer.constBits(),
+           size_t(lifeBuffer.bytesPerLine()) * size_t(lifeBuffer.height()));
 }
 
 #include "moc_lifeelement.cpp"

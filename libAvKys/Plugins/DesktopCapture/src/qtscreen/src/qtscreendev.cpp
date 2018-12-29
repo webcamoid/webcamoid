@@ -27,10 +27,10 @@
 #include <QFuture>
 #include <QMutex>
 #include <ak.h>
-#include <akutils.h>
 #include <akfrac.h>
 #include <akpacket.h>
 #include <akcaps.h>
+#include <akvideopacket.h>
 
 #include "qtscreendev.h"
 
@@ -273,7 +273,7 @@ void QtScreenDev::readFrame()
                                screen->geometry().width(),
                                screen->geometry().height());
     QImage frameImg = frame.toImage().convertToFormat(QImage::Format_RGB888);
-    AkPacket packet = AkUtils::imageToPacket(frameImg, caps.toCaps());
+    auto packet = AkVideoPacket::fromImage(frameImg, caps).toPacket();
 
     if (!packet)
         return;

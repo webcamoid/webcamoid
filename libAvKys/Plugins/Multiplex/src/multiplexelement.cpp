@@ -22,40 +22,52 @@
 
 #include "multiplexelement.h"
 
+class MultiplexElementPrivate
+{
+    public:
+        int m_inputIndex {-1};
+        int m_outputIndex {-1};
+        QString m_caps;
+};
+
 MultiplexElement::MultiplexElement(): AkElement()
 {
-    this->m_inputIndex = -1;
-    this->m_outputIndex = -1;
+    this->d = new MultiplexElementPrivate;
+}
+
+MultiplexElement::~MultiplexElement()
+{
+    delete this->d;
 }
 
 int MultiplexElement::inputIndex() const
 {
-    return this->m_inputIndex;
+    return this->d->m_inputIndex;
 }
 
 int MultiplexElement::outputIndex() const
 {
-    return this->m_outputIndex;
+    return this->d->m_outputIndex;
 }
 
 QString MultiplexElement::caps() const
 {
-    return this->m_caps;
+    return this->d->m_caps;
 }
 
 void MultiplexElement::setInputIndex(int method)
 {
-    this->m_inputIndex = method;
+    this->d->m_inputIndex = method;
 }
 
 void MultiplexElement::setOutputIndex(int params)
 {
-    this->m_outputIndex = params;
+    this->d->m_outputIndex = params;
 }
 
 void MultiplexElement::setCaps(const QString &caps)
 {
-    this->m_caps = caps;
+    this->d->m_caps = caps;
 }
 
 void MultiplexElement::resetInputIndex()
@@ -75,18 +87,18 @@ void MultiplexElement::resetCaps()
 
 AkPacket MultiplexElement::iStream(const AkPacket &packet)
 {
-    if (this->m_inputIndex >= 0
-        && packet.index() != this->m_inputIndex)
+    if (this->d->m_inputIndex >= 0
+        && packet.index() != this->d->m_inputIndex)
         return AkPacket();
 
-    if (!this->m_caps.isEmpty()
-        && !packet.caps().isCompatible(this->m_caps))
+    if (!this->d->m_caps.isEmpty()
+        && !packet.caps().isCompatible(this->d->m_caps))
         return AkPacket();
 
     AkPacket oPacket(packet);
 
-    if (this->m_outputIndex >= 0)
-        oPacket.setIndex(this->m_outputIndex);
+    if (this->d->m_outputIndex >= 0)
+        oPacket.setIndex(this->d->m_outputIndex);
 
     akSend(oPacket)
 }

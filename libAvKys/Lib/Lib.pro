@@ -35,7 +35,6 @@ DEFINES += \
 
 HEADERS = \
     src/ak.h \
-    src/akutils.h \
     src/akcaps.h \
     src/akcommons.h \
     src/akelement.h \
@@ -52,7 +51,6 @@ QT += qml
 
 SOURCES = \
     src/ak.cpp \
-    src/akutils.cpp \
     src/akcaps.cpp \
     src/akelement.cpp \
     src/akfrac.cpp \

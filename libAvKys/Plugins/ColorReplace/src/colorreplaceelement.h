@@ -23,6 +23,8 @@
 #include <qrgb.h>
 #include <akelement.h>
 
+class ColorReplaceElementPrivate;
+
 class ColorReplaceElement: public AkElement
 {
     Q_OBJECT
@@ -49,6 +51,7 @@ class ColorReplaceElement: public AkElement
 
     public:
         explicit ColorReplaceElement();
+         ~ColorReplaceElement();
 
         Q_INVOKABLE QRgb from() const;
         Q_INVOKABLE QRgb to() const;
@@ -56,10 +59,7 @@ class ColorReplaceElement: public AkElement
         Q_INVOKABLE bool disable() const;
 
     private:
-        QRgb m_from;
-        QRgb m_to;
-        qreal m_radius;
-        bool m_disable;
+        ColorReplaceElementPrivate *d;
 
     protected:
         QString controlInterfaceProvide(const QString &controlId) const;

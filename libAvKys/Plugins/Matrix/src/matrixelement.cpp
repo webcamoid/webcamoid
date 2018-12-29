@@ -22,8 +22,7 @@
 #include <QPainter>
 #include <QFontMetrics>
 #include <QMutex>
-#include <akutils.h>
-#include <akpacket.h>
+#include <akvideopacket.h>
 
 #include "matrixelement.h"
 #include "character.h"
@@ -563,7 +562,8 @@ void MatrixElement::resetShowCursor()
 
 AkPacket MatrixElement::iStream(const AkPacket &packet)
 {
-    QImage src = AkUtils::packetToImage(packet);
+    AkVideoPacket videoPacket(packet);
+    auto src = videoPacket.toImage();
 
     if (src.isNull())
         return AkPacket();
@@ -584,8 +584,8 @@ AkPacket MatrixElement::iStream(const AkPacket &packet)
 
     if (characters.size() < 256) {
         oFrame.fill(this->d->m_backgroundColor);
-        AkPacket oPacket = AkUtils::imageToPacket(oFrame.scaled(src.size()),
-                                                  packet);
+        auto oPacket = AkVideoPacket::fromImage(oFrame.scaled(src.size()),
+                                                videoPacket).toPacket();
         akSend(oPacket)
     }
 
@@ -608,7 +608,7 @@ AkPacket MatrixElement::iStream(const AkPacket &packet)
     painter.drawImage(0, 0, this->d->renderRain(oFrame.size(), textImage));
     painter.end();
 
-    AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
+    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
     akSend(oPacket)
 }
 

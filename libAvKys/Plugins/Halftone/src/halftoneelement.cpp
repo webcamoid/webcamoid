@@ -21,8 +21,7 @@
 #include <QQmlContext>
 #include <QMutex>
 #include <QStandardPaths>
-#include <akutils.h>
-#include <akpacket.h>
+#include <akvideopacket.h>
 
 #include "halftoneelement.h"
 
@@ -37,21 +36,25 @@ class HalftoneElementPrivate
         QMutex m_mutex;
         QSize m_frameSize;
         QImage m_patternImage;
+
+        void updatePattern();
 };
 
 HalftoneElement::HalftoneElement(): AkElement()
 {
     this->d = new HalftoneElementPrivate;
-    this->updatePattern();
+    this->d->updatePattern();
 
     QObject::connect(this,
                      &HalftoneElement::patternChanged,
-                     this,
-                     &HalftoneElement::updatePattern);
+                     [this] () {
+                         this->d->updatePattern();
+                     });
     QObject::connect(this,
                      &HalftoneElement::patternSizeChanged,
-                     this,
-                     &HalftoneElement::updatePattern);
+                     [this] () {
+                         this->d->updatePattern();
+                     });
 }
 
 HalftoneElement::~HalftoneElement()
@@ -82,48 +85,6 @@ qreal HalftoneElement::slope() const
 qreal HalftoneElement::intercept() const
 {
     return this->d->m_intercept;
-}
-
-void HalftoneElement::updatePattern()
-{
-    if (this->d->m_pattern.isEmpty()) {
-        this->d->m_mutex.lock();
-        this->d->m_patternImage = QImage();
-        this->d->m_mutex.unlock();
-
-        return;
-    }
-
-    QImage image(this->d->m_pattern);
-
-    if (image.isNull()) {
-        this->d->m_mutex.lock();
-        this->d->m_patternImage = QImage();
-        this->d->m_mutex.unlock();
-
-        return;
-    }
-
-    QSize patternSize = this->d->m_patternSize.isEmpty()?
-                            image.size(): this->d->m_patternSize;
-    QImage pattern(patternSize, QImage::Format_Indexed8);
-
-    for (int i = 0; i < 256; i++)
-        pattern.setColor(i, qRgb(i, i, i));
-
-    image = image.scaled(patternSize).convertToFormat(QImage::Format_RGB32);
-
-    for (int y = 0; y < patternSize.height(); y++) {
-        auto srcLine = reinterpret_cast<const QRgb *>(image.constScanLine(y));
-        auto dstLine = pattern.scanLine(y);
-
-        for (int x = 0; x < patternSize.width(); x++)
-            dstLine[x] = quint8(qGray(srcLine[x]));
-    }
-
-    this->d->m_mutex.lock();
-    this->d->m_patternImage = pattern;
-    this->d->m_mutex.unlock();
 }
 
 QString HalftoneElement::controlInterfaceProvide(const QString &controlId) const
@@ -217,7 +178,8 @@ void HalftoneElement::resetIntercept()
 
 AkPacket HalftoneElement::iStream(const AkPacket &packet)
 {
-    QImage src = AkUtils::packetToImage(packet);
+    AkVideoPacket videoPacket(packet);
+    auto src = videoPacket.toImage();
 
     if (src.isNull())
         return AkPacket();
@@ -267,8 +229,50 @@ AkPacket HalftoneElement::iStream(const AkPacket &packet)
         }
     }
 
-    AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
+    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
     akSend(oPacket)
+}
+
+void HalftoneElementPrivate::updatePattern()
+{
+    if (this->m_pattern.isEmpty()) {
+        this->m_mutex.lock();
+        this->m_patternImage = QImage();
+        this->m_mutex.unlock();
+
+        return;
+    }
+
+    QImage image(this->m_pattern);
+
+    if (image.isNull()) {
+        this->m_mutex.lock();
+        this->m_patternImage = QImage();
+        this->m_mutex.unlock();
+
+        return;
+    }
+
+    QSize patternSize = this->m_patternSize.isEmpty()?
+                            image.size(): this->m_patternSize;
+    QImage pattern(patternSize, QImage::Format_Indexed8);
+
+    for (int i = 0; i < 256; i++)
+        pattern.setColor(i, qRgb(i, i, i));
+
+    image = image.scaled(patternSize).convertToFormat(QImage::Format_RGB32);
+
+    for (int y = 0; y < patternSize.height(); y++) {
+        auto srcLine = reinterpret_cast<const QRgb *>(image.constScanLine(y));
+        auto dstLine = pattern.scanLine(y);
+
+        for (int x = 0; x < patternSize.width(); x++)
+            dstLine[x] = quint8(qGray(srcLine[x]));
+    }
+
+    this->m_mutex.lock();
+    this->m_patternImage = pattern;
+    this->m_mutex.unlock();
 }
 
 #include "moc_halftoneelement.cpp"

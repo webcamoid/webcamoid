@@ -20,25 +20,37 @@
 #include <QImage>
 #include <QQmlContext>
 #include <QtMath>
-#include <akutils.h>
-#include <akpacket.h>
+#include <akvideopacket.h>
 
 #include "photocopyelement.h"
 
+class PhotocopyElementPrivate
+{
+    public:
+        qreal m_brightness {0.75};
+        qreal m_contrast {20.0};
+
+        inline static int rgbToLuma(int red, int green, int blue);
+};
+
 PhotocopyElement::PhotocopyElement(): AkElement()
 {
-    this->m_brightness = 0.75;
-    this->m_contrast = 20;
+    this->d = new PhotocopyElementPrivate;
+}
+
+PhotocopyElement::~PhotocopyElement()
+{
+    delete this->d;
 }
 
 qreal PhotocopyElement::brightness() const
 {
-    return this->m_brightness;
+    return this->d->m_brightness;
 }
 
 qreal PhotocopyElement::contrast() const
 {
-    return this->m_contrast;
+    return this->d->m_contrast;
 }
 
 QString PhotocopyElement::controlInterfaceProvide(const QString &controlId) const
@@ -59,19 +71,19 @@ void PhotocopyElement::controlInterfaceConfigure(QQmlContext *context,
 
 void PhotocopyElement::setBrightness(qreal brightness)
 {
-    if (qFuzzyCompare(this->m_brightness, brightness))
+    if (qFuzzyCompare(this->d->m_brightness, brightness))
         return;
 
-    this->m_brightness = brightness;
+    this->d->m_brightness = brightness;
     emit this->brightnessChanged(brightness);
 }
 
 void PhotocopyElement::setContrast(qreal contrast)
 {
-    if (qFuzzyCompare(this->m_contrast, contrast))
+    if (qFuzzyCompare(this->d->m_contrast, contrast))
         return;
 
-    this->m_contrast = contrast;
+    this->d->m_contrast = contrast;
     emit this->contrastChanged(contrast);
 }
 
@@ -87,7 +99,8 @@ void PhotocopyElement::resetContrast()
 
 AkPacket PhotocopyElement::iStream(const AkPacket &packet)
 {
-    QImage src = AkUtils::packetToImage(packet);
+    AkVideoPacket videoPacket(packet);
+    auto src = videoPacket.toImage();
 
     if (src.isNull())
         return AkPacket();
@@ -105,20 +118,36 @@ AkPacket PhotocopyElement::iStream(const AkPacket &packet)
             int b = qBlue(srcLine[x]);
 
             //desaturate
-            int luma = this->rgbToLuma(r, g, b);
+            int luma = PhotocopyElementPrivate::rgbToLuma(r, g, b);
 
             //compute sigmoidal transfer
             qreal val = luma / 255.0;
-            val = 255.0 / (1 + exp(this->m_contrast * (0.5 - val)));
-            val = val * this->m_brightness;
+            val = 255.0 / (1 + exp(this->d->m_contrast * (0.5 - val)));
+            val = val * this->d->m_brightness;
             luma = int(qBound(0.0, val, 255.0));
 
             dstLine[x] = qRgba(luma, luma, luma, qAlpha(srcLine[x]));
         }
     }
 
-    AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
+    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
     akSend(oPacket)
+}
+
+int PhotocopyElementPrivate::rgbToLuma(int red, int green, int blue)
+{
+    int min;
+    int max;
+
+    if (red > green) {
+        max = qMax(red, blue);
+        min = qMin(green, blue);
+    } else {
+        max = qMax(green, blue);
+        min = qMin(red, blue);
+    }
+
+    return qRound((max + min) / 2.0);
 }
 
 #include "moc_photocopyelement.cpp"

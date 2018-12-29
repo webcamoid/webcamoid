@@ -23,6 +23,8 @@
 #include <qrgb.h>
 #include <akelement.h>
 
+class ScanLinesElementPrivate;
+
 class ScanLinesElement: public AkElement
 {
     Q_OBJECT
@@ -44,15 +46,14 @@ class ScanLinesElement: public AkElement
 
     public:
         explicit ScanLinesElement();
+        ~ScanLinesElement();
 
         Q_INVOKABLE int showSize() const;
         Q_INVOKABLE int hideSize() const;
         Q_INVOKABLE QRgb hideColor() const;
 
     private:
-        int m_showSize;
-        int m_hideSize;
-        QRgb m_hideColor;
+        ScanLinesElementPrivate *d;
 
     protected:
         QString controlInterfaceProvide(const QString &controlId) const;

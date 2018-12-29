@@ -48,11 +48,6 @@ class AgingElement: public AkElement
     private:
         AgingElementPrivate *d;
 
-        QImage colorAging(const QImage &src);
-        void scratching(QImage &dest);
-        void pits(QImage &dest);
-        void dusts(QImage &dest);
-
     protected:
         QString controlInterfaceProvide(const QString &controlId) const;
         void controlInterfaceConfigure(QQmlContext *context,

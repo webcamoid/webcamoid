@@ -22,18 +22,17 @@
 #include <QQmlContext>
 #include <QMutex>
 #include <QtMath>
-#include <akutils.h>
-#include <akpacket.h>
+#include <akvideopacket.h>
 
 #include "diceelement.h"
 
 class DiceElementPrivate
 {
     public:
-        int m_diceSize {24};
         QMutex m_mutex;
         QImage m_diceMap;
         QSize m_frameSize;
+        int m_diceSize {24};
 };
 
 DiceElement::DiceElement(): AkElement()
@@ -83,7 +82,8 @@ void DiceElement::resetDiceSize()
 
 AkPacket DiceElement::iStream(const AkPacket &packet)
 {
-    QImage src = AkUtils::packetToImage(packet);
+    AkVideoPacket videoPacket(packet);
+    auto src = videoPacket.toImage();
 
     if (src.isNull())
         return AkPacket();
@@ -135,7 +135,7 @@ AkPacket DiceElement::iStream(const AkPacket &packet)
 
     painter.end();
 
-    AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
+    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
     akSend(oPacket)
 }
 

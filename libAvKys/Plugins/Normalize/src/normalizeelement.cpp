@@ -18,8 +18,7 @@
  */
 
 #include <QImage>
-#include <akutils.h>
-#include <akpacket.h>
+#include <akvideopacket.h>
 
 #include "normalizeelement.h"
 #include "pixelstructs.h"
@@ -30,7 +29,8 @@ NormalizeElement::NormalizeElement(): AkElement()
 
 AkPacket NormalizeElement::iStream(const AkPacket &packet)
 {
-    QImage src = AkUtils::packetToImage(packet);
+    AkVideoPacket videoPacket(packet);
+    auto src = videoPacket.toImage();
 
     if (src.isNull())
         return AkPacket();
@@ -164,7 +164,7 @@ AkPacket NormalizeElement::iStream(const AkPacket &packet)
         }
     }
 
-    AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
+    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
     akSend(oPacket)
 }
 

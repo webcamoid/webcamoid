@@ -22,6 +22,8 @@
 
 #include <akelement.h>
 
+class SwirlElementPrivate;
+
 class SwirlElement: public AkElement
 {
     Q_OBJECT
@@ -33,11 +35,12 @@ class SwirlElement: public AkElement
 
     public:
         explicit SwirlElement();
+        ~SwirlElement();
 
         Q_INVOKABLE qreal degrees() const;
 
     private:
-        qreal m_degrees;
+        SwirlElementPrivate *d;
 
     protected:
         QString controlInterfaceProvide(const QString &controlId) const;

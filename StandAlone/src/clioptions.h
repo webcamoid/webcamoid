@@ -22,6 +22,8 @@
 
 #include <QCommandLineParser>
 
+class CliOptionsPrivate;
+
 class CliOptions: public QCommandLineParser
 {
     public:
@@ -36,14 +38,7 @@ class CliOptions: public QCommandLineParser
         QCommandLineOption vcamPathOpt() const;
 
     private:
-        QCommandLineOption *m_configPathOpt;
-        QCommandLineOption *m_qmlPathOpt;
-        QCommandLineOption *m_recursiveOpt;
-        QCommandLineOption *m_pluginPathsOpt;
-        QCommandLineOption *m_blackListOpt;
-        QCommandLineOption *m_vcamPathOpt;
-
-        QString convertToAbsolute(const QString &path) const;
+        CliOptionsPrivate *d;
 };
 
 #endif // CLIOPTIONS_H

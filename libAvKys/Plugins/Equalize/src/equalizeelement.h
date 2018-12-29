@@ -28,11 +28,7 @@ class EqualizeElement: public AkElement
 
     public:
         explicit EqualizeElement();
-
-    private:
-        QVector<quint64> histogram(const QImage &img) const;
-        QVector<quint64> cumulativeHistogram(const QVector<quint64> &histogram) const;
-        QVector<quint8> equalizationTable(const QImage &img) const;
+        ~EqualizeElement();
 
     public slots:
         AkPacket iStream(const AkPacket &packet);

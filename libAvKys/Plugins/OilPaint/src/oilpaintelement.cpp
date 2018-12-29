@@ -19,19 +19,29 @@
 
 #include <QImage>
 #include <QQmlContext>
-#include <akutils.h>
-#include <akpacket.h>
+#include <akvideopacket.h>
 
 #include "oilpaintelement.h"
 
+class OilPaintElementPrivate
+{
+    public:
+        int m_radius {2};
+};
+
 OilPaintElement::OilPaintElement(): AkElement()
 {
-    this->m_radius = 2;
+    this->d = new OilPaintElementPrivate;
+}
+
+OilPaintElement::~OilPaintElement()
+{
+    delete this->d;
 }
 
 int OilPaintElement::radius() const
 {
-    return this->m_radius;
+    return this->d->m_radius;
 }
 
 QString OilPaintElement::controlInterfaceProvide(const QString &controlId) const
@@ -52,10 +62,10 @@ void OilPaintElement::controlInterfaceConfigure(QQmlContext *context,
 
 void OilPaintElement::setRadius(int radius)
 {
-    if (this->m_radius == radius)
+    if (this->d->m_radius == radius)
         return;
 
-    this->m_radius = radius;
+    this->d->m_radius = radius;
     this->radiusChanged(radius);
 }
 
@@ -66,14 +76,15 @@ void OilPaintElement::resetRadius()
 
 AkPacket OilPaintElement::iStream(const AkPacket &packet)
 {
-    QImage src = AkUtils::packetToImage(packet);
+    AkVideoPacket videoPacket(packet);
+    auto src = videoPacket.toImage();
 
     if (src.isNull())
         return AkPacket();
 
     src = src.convertToFormat(QImage::Format_ARGB32);
 
-    int radius = this->m_radius > 0? this->m_radius: 1;
+    int radius = qMax(this->d->m_radius, 1);
     QImage oFrame(src.size(), src.format());
     int histogram[256];
     int scanBlockLen = (radius << 1) + 1;
@@ -116,7 +127,7 @@ AkPacket OilPaintElement::iStream(const AkPacket &packet)
         }
     }
 
-    AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
+    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
     akSend(oPacket)
 }
 

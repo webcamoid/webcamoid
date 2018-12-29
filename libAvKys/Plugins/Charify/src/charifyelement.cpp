@@ -21,10 +21,10 @@
 #include <QPainter>
 #include <QQmlContext>
 #include <QMutex>
-#include <akutils.h>
-#include <akpacket.h>
+#include <akvideopacket.h>
 
 #include "charifyelement.h"
+#include "character.h"
 
 using ColorModeToStr = QMap<CharifyElement::ColorMode, QString>;
 
@@ -99,6 +99,12 @@ class CharifyElementPrivate
         QSize m_fontSize;
         QMutex m_mutex;
         bool m_reversed {false};
+
+        QSize fontSize(const QString &chrTable, const QFont &font) const;
+        QImage drawChar(const QChar &chr, const QFont &font,
+                        const QSize &fontSize,
+                        QRgb foreground, QRgb background) const;
+        int imageWeight(const QImage &image, bool reversed) const;
 };
 
 CharifyElement::CharifyElement(): AkElement()
@@ -192,67 +198,6 @@ QRgb CharifyElement::backgroundColor() const
 bool CharifyElement::reversed() const
 {
     return this->d->m_reversed;
-}
-
-QSize CharifyElement::fontSize(const QString &chrTable, const QFont &font) const
-{
-    QFontMetrics metrics(font);
-    int width = -1;
-    int height = -1;
-
-    for (const QChar &chr: chrTable) {
-        QSize size = metrics.size(Qt::TextSingleLine, chr);
-
-        if (size.width() > width)
-            width = size.width();
-
-        if (size.height() > height)
-            height = size.height();
-    }
-
-    return {width, height};
-}
-
-QImage CharifyElement::drawChar(const QChar &chr, const QFont &font,
-                                const QSize &fontSize,
-                                QRgb foreground, QRgb background) const
-{
-    QImage fontImg(fontSize, QImage::Format_RGB32);
-    fontImg.fill(background);
-
-    QPainter painter;
-
-    painter.begin(&fontImg);
-    painter.setPen(foreground);
-    painter.setFont(font);
-    painter.drawText(fontImg.rect(), chr, Qt::AlignHCenter | Qt::AlignVCenter);
-    painter.end();
-
-    return fontImg;
-}
-
-int CharifyElement::imageWeight(const QImage &image, bool reversed) const
-{
-    int weight = 0;
-
-    for (int y = 0; y < image.height(); y++) {
-        auto imageLine = reinterpret_cast<const QRgb *>(image.constScanLine(y));
-
-        for (int x = 0; x < image.width(); x++)
-            weight += qGray(imageLine[x]);
-    }
-
-    weight /= image.width() * image.height();
-
-    if (reversed)
-        weight = 255 - weight;
-
-    return weight;
-}
-
-bool CharifyElement::chrLessThan(const Character &chr1, const Character &chr2)
-{
-    return chr1.weight < chr2.weight;
 }
 
 QString CharifyElement::controlInterfaceProvide(const QString &controlId) const
@@ -409,7 +354,8 @@ void CharifyElement::resetReversed()
 
 AkPacket CharifyElement::iStream(const AkPacket &packet)
 {
-    QImage src = AkUtils::packetToImage(packet);
+    AkVideoPacket videoPacket(packet);
+    auto src = videoPacket.toImage();
 
     if (src.isNull())
         return AkPacket();
@@ -431,8 +377,8 @@ AkPacket CharifyElement::iStream(const AkPacket &packet)
 
     if (characters.isEmpty()) {
         oFrame.fill(qRgb(0, 0, 0));
-        auto oPacket = AkUtils::imageToPacket(oFrame.scaled(src.size()),
-                                              packet);
+        auto oPacket = AkVideoPacket::fromImage(oFrame.scaled(src.size()),
+                                                videoPacket).toPacket();
         akSend(oPacket)
     }
 
@@ -452,25 +398,25 @@ AkPacket CharifyElement::iStream(const AkPacket &packet)
         else {
             QChar chr = characters[qGray(textImageBits[i])].chr;
             QRgb foreground = textImageBits[i];
-            QImage image = this->drawChar(chr,
-                                          this->d->m_font,
-                                          fontSize,
-                                          foreground,
-                                          this->d->m_backgroundColor);
+            auto image = this->d->drawChar(chr,
+                                           this->d->m_font,
+                                           fontSize,
+                                           foreground,
+                                           this->d->m_backgroundColor);
             painter.drawImage(x, y, image);
         }
     }
 
     painter.end();
 
-    auto oPacket = AkUtils::imageToPacket(oFrame, packet);
+    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
     akSend(oPacket)
 }
 
 void CharifyElement::updateCharTable()
 {
     QList<Character> characters;
-    QSize fontSize = this->fontSize(this->d->m_charTable, this->d->m_font);
+    auto fontSize = this->d->fontSize(this->d->m_charTable, this->d->m_font);
 
     QVector<QRgb> colorTable(256);
 
@@ -478,12 +424,12 @@ void CharifyElement::updateCharTable()
         colorTable[i] = qRgb(i, i, i);
 
     for (const QChar &chr: this->d->m_charTable) {
-        QImage image = this->drawChar(chr,
-                                      this->d->m_font,
-                                      fontSize,
-                                      this->d->m_foregroundColor,
-                                      this->d->m_backgroundColor);
-        int weight = this->imageWeight(image, this->d->m_reversed);
+        auto image = this->d->drawChar(chr,
+                                       this->d->m_font,
+                                       fontSize,
+                                       this->d->m_foregroundColor,
+                                       this->d->m_backgroundColor);
+        int weight = this->d->imageWeight(image, this->d->m_reversed);
 
         if (this->d->m_mode == ColorModeFixed)
             characters.append(Character(chr, image, weight));
@@ -502,12 +448,73 @@ void CharifyElement::updateCharTable()
     }
 
     this->d->m_characters.resize(256);
-    std::sort(characters.begin(), characters.end(), this->chrLessThan);
+    std::sort(characters.begin(),
+              characters.end(),
+              [] (const Character &chr1, const Character &chr2) {
+                  return chr1.weight < chr2.weight;
+              });
 
     for (int i = 0; i < 256; i++) {
         int c = i * (characters.size() - 1) / 255;
         this->d->m_characters[i] = characters[c];
     }
+}
+
+QSize CharifyElementPrivate::fontSize(const QString &chrTable,
+                                      const QFont &font) const
+{
+    QFontMetrics metrics(font);
+    int width = -1;
+    int height = -1;
+
+    for (const QChar &chr: chrTable) {
+        QSize size = metrics.size(Qt::TextSingleLine, chr);
+
+        if (size.width() > width)
+            width = size.width();
+
+        if (size.height() > height)
+            height = size.height();
+    }
+
+    return {width, height};
+}
+
+QImage CharifyElementPrivate::drawChar(const QChar &chr, const QFont &font,
+                                       const QSize &fontSize,
+                                       QRgb foreground, QRgb background) const
+{
+    QImage fontImg(fontSize, QImage::Format_RGB32);
+    fontImg.fill(background);
+
+    QPainter painter;
+
+    painter.begin(&fontImg);
+    painter.setPen(foreground);
+    painter.setFont(font);
+    painter.drawText(fontImg.rect(), chr, Qt::AlignHCenter | Qt::AlignVCenter);
+    painter.end();
+
+    return fontImg;
+}
+
+int CharifyElementPrivate::imageWeight(const QImage &image, bool reversed) const
+{
+    int weight = 0;
+
+    for (int y = 0; y < image.height(); y++) {
+        auto imageLine = reinterpret_cast<const QRgb *>(image.constScanLine(y));
+
+        for (int x = 0; x < image.width(); x++)
+            weight += qGray(imageLine[x]);
+    }
+
+    weight /= image.width() * image.height();
+
+    if (reversed)
+        weight = 255 - weight;
+
+    return weight;
 }
 
 #include "moc_charifyelement.cpp"

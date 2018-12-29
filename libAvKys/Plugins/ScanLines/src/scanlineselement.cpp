@@ -19,31 +19,41 @@
 
 #include <QImage>
 #include <QQmlContext>
-#include <akutils.h>
-#include <akpacket.h>
+#include <akvideopacket.h>
 
 #include "scanlineselement.h"
 
+class ScanLinesElementPrivate
+{
+    public:
+        int m_showSize {1};
+        int m_hideSize {4};
+        QRgb m_hideColor {qRgb(0, 0, 0)};
+};
+
 ScanLinesElement::ScanLinesElement(): AkElement()
 {
-    this->m_showSize = 1;
-    this->m_hideSize = 4;
-    this->m_hideColor = qRgb(0, 0, 0);
+    this->d = new ScanLinesElementPrivate;
+}
+
+ScanLinesElement::~ScanLinesElement()
+{
+    delete this->d;
 }
 
 int ScanLinesElement::showSize() const
 {
-    return this->m_showSize;
+    return this->d->m_showSize;
 }
 
 int ScanLinesElement::hideSize() const
 {
-    return this->m_hideSize;
+    return this->d->m_hideSize;
 }
 
 QRgb ScanLinesElement::hideColor() const
 {
-    return this->m_hideColor;
+    return this->d->m_hideColor;
 }
 
 QString ScanLinesElement::controlInterfaceProvide(const QString &controlId) const
@@ -64,28 +74,28 @@ void ScanLinesElement::controlInterfaceConfigure(QQmlContext *context,
 
 void ScanLinesElement::setShowSize(int showSize)
 {
-    if (this->m_showSize == showSize)
+    if (this->d->m_showSize == showSize)
         return;
 
-    this->m_showSize = showSize;
+    this->d->m_showSize = showSize;
     emit this->showSizeChanged(showSize);
 }
 
 void ScanLinesElement::setHideSize(int hideSize)
 {
-    if (this->m_hideSize == hideSize)
+    if (this->d->m_hideSize == hideSize)
         return;
 
-    this->m_hideSize = hideSize;
+    this->d->m_hideSize = hideSize;
     emit this->hideSizeChanged(hideSize);
 }
 
 void ScanLinesElement::setHideColor(QRgb hideColor)
 {
-    if (this->m_hideColor == hideColor)
+    if (this->d->m_hideColor == hideColor)
         return;
 
-    this->m_hideColor = hideColor;
+    this->d->m_hideColor = hideColor;
     emit this->hideColorChanged(hideColor);
 }
 
@@ -106,7 +116,8 @@ void ScanLinesElement::resetHideColor()
 
 AkPacket ScanLinesElement::iStream(const AkPacket &packet)
 {
-    QImage src = AkUtils::packetToImage(packet);
+    AkVideoPacket videoPacket(packet);
+    auto src = videoPacket.toImage();
 
     if (src.isNull())
         return AkPacket();
@@ -114,8 +125,8 @@ AkPacket ScanLinesElement::iStream(const AkPacket &packet)
     src = src.convertToFormat(QImage::Format_ARGB32);
     QImage oFrame(src.size(), src.format());
 
-    int showSize = this->m_showSize;
-    int hideSize = this->m_hideSize;
+    int showSize = this->d->m_showSize;
+    int hideSize = this->d->m_hideSize;
 
     if (showSize < 1 && hideSize < 1)
         akSend(packet)
@@ -128,13 +139,13 @@ AkPacket ScanLinesElement::iStream(const AkPacket &packet)
             QRgb *line = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
 
             for (int x = 0; x < src.width(); x++)
-                line[x] = this->m_hideColor;
+                line[x] = this->d->m_hideColor;
         }
 
         y--;
     }
 
-    AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
+    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
     akSend(oPacket)
 }
 

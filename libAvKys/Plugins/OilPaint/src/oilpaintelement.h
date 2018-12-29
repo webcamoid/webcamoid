@@ -22,6 +22,8 @@
 
 #include <akelement.h>
 
+class OilPaintElementPrivate;
+
 class OilPaintElement: public AkElement
 {
     Q_OBJECT
@@ -33,11 +35,12 @@ class OilPaintElement: public AkElement
 
     public:
         explicit OilPaintElement();
+        ~OilPaintElement();
 
         Q_INVOKABLE int radius() const;
 
     private:
-        int m_radius;
+        OilPaintElementPrivate *d;
 
     protected:
         QString controlInterfaceProvide(const QString &controlId) const;

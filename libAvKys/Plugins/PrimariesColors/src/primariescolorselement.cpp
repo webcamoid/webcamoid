@@ -19,19 +19,29 @@
 
 #include <QImage>
 #include <QQmlContext>
-#include <akutils.h>
-#include <akpacket.h>
+#include <akvideopacket.h>
 
 #include "primariescolorselement.h"
 
+class PrimariesColorsElementPrivate
+{
+    public:
+        int m_factor {2};
+};
+
 PrimariesColorsElement::PrimariesColorsElement(): AkElement()
 {
-    this->m_factor = 2;
+    this->d = new PrimariesColorsElementPrivate;
+}
+
+PrimariesColorsElement::~PrimariesColorsElement()
+{
+    delete this->d;
 }
 
 int PrimariesColorsElement::factor() const
 {
-    return this->m_factor;
+    return this->d->m_factor;
 }
 
 QString PrimariesColorsElement::controlInterfaceProvide(const QString &controlId) const
@@ -52,10 +62,10 @@ void PrimariesColorsElement::controlInterfaceConfigure(QQmlContext *context,
 
 void PrimariesColorsElement::setFactor(int factor)
 {
-    if (this->m_factor == factor)
+    if (this->d->m_factor == factor)
         return;
 
-    this->m_factor = factor;
+    this->d->m_factor = factor;
     emit this->factorChanged(factor);
 }
 
@@ -66,7 +76,8 @@ void PrimariesColorsElement::resetFactor()
 
 AkPacket PrimariesColorsElement::iStream(const AkPacket &packet)
 {
-    QImage src = AkUtils::packetToImage(packet);
+    AkVideoPacket videoPacket(packet);
+    auto src = videoPacket.toImage();
 
     if (src.isNull())
         return AkPacket();
@@ -74,7 +85,7 @@ AkPacket PrimariesColorsElement::iStream(const AkPacket &packet)
     src = src.convertToFormat(QImage::Format_ARGB32);
     QImage oFrame(src.size(), src.format());
 
-    int f = this->m_factor + 1;
+    int f = this->d->m_factor + 1;
     int factor127 = (f * f - 3) * 127;
     int factorTot = f * f;
 
@@ -84,16 +95,14 @@ AkPacket PrimariesColorsElement::iStream(const AkPacket &packet)
     }
 
     for (int y = 0; y < src.height(); y++) {
-        const QRgb *srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
-        QRgb *destLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
+        auto srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
+        auto destLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
 
         for (int x = 0; x < src.width(); x++) {
             QRgb pixel = srcLine[x];
-
             int ri = qRed(pixel);
             int gi = qGreen(pixel);
             int bi = qBlue(pixel);
-
             int mean;
 
             if (f > 32)
@@ -109,7 +118,7 @@ AkPacket PrimariesColorsElement::iStream(const AkPacket &packet)
         }
     }
 
-    AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
+    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
     akSend(oPacket)
 }
 
