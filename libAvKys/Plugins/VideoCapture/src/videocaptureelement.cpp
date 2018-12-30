@@ -26,9 +26,7 @@
 #include <QFuture>
 #include <QMutex>
 #include <akcaps.h>
-#include <akfrac.h>
-#include <akpacket.h>
-#include <akvideocaps.h>
+#include <akvideopacket.h>
 
 #include "videocaptureelement.h"
 #include "videocaptureglobals.h"
@@ -306,7 +304,7 @@ void VideoCaptureElementPrivate::cameraLoop()
 
 #ifdef Q_OS_WIN32
     // Initialize the COM library in multithread mode.
-    CoInitializeEx(NULL, COINIT_MULTITHREADED);
+    CoInitializeEx(nullptr, COINIT_MULTITHREADED);
 #endif
 
     bool initConvert = true;
@@ -531,7 +529,8 @@ void VideoCaptureElement::frameReady(const AkPacket &packet)
 {
 #ifdef Q_OS_WIN32
     if (this->d->m_mirror || this->d->m_swapRgb) {
-        QImage oImage = AkUtils::packetToImage(packet);
+        AkVideoPacket videoPacket(packet);
+        QImage oImage = videoPacket.toImage();
 
         if (this->d->m_mirror)
             oImage = oImage.mirrored();
@@ -539,7 +538,8 @@ void VideoCaptureElement::frameReady(const AkPacket &packet)
         if (this->d->m_swapRgb)
             oImage = oImage.rgbSwapped();
 
-        emit this->oStream(AkUtils::imageToPacket(oImage, packet));
+        emit this->oStream(AkVideoPacket::fromImage(oImage,
+                                                    videoPacket).toPacket());
     } else
 #endif
         emit this->oStream(packet);
