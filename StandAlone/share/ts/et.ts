@@ -478,22 +478,22 @@
     <message>
         <location filename="../../src/clioptions.cpp" line="66"/>
         <source>Search in the specified plugins paths recursively.</source>
-        <translation type="unfinished"></translation>
+        <translation>Otsi valitud laienduste otsingurajalt rekursiivselt.</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="72"/>
         <source>Semi-colon separated list of paths to search for plugins.</source>
-        <translation type="unfinished"></translation>
+        <translation>Laienduste otsimine semikooloniga eraldatud otsinguradade loendist.</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="80"/>
         <source>Semi-colon separated list of paths to avoid loading.</source>
-        <translation type="unfinished"></translation>
+        <translation>Semikooloniga eraldatud otsingurajad, millelt laadimist vältida.</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="87"/>
         <source>Semi-colon separated list of paths to search for virtual camera driver</source>
-        <translation type="unfinished"></translation>
+        <translation>Semikooloniga eraldatud otsingurajad, millelt otsida virtuaalkaamera ajurit</translation>
     </message>
 </context>
 <context>
@@ -501,7 +501,7 @@
     <message>
         <location filename="../qml/RecordBar.qml" line="101"/>
         <source>Search format...</source>
-        <translation type="unfinished"></translation>
+        <translation>Otsinguvorming...</translation>
     </message>
 </context>
 <context>
@@ -543,35 +543,35 @@
     <message>
         <location filename="../../src/recording.cpp" line="597"/>
         <source>Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Heli</translation>
     </message>
     <message>
         <location filename="../../src/recording.cpp" line="598"/>
         <source>Video</source>
-        <translation type="unfinished"></translation>
+        <translation>Video</translation>
     </message>
     <message>
         <location filename="../../src/recording.cpp" line="599"/>
         <source>Subtitle</source>
-        <translation type="unfinished"></translation>
+        <translation>Subtiitrid</translation>
     </message>
     <message>
         <location filename="../../src/recording.cpp" line="664"/>
         <location filename="../../src/recording.cpp" line="830"/>
         <source>audio</source>
-        <translation type="unfinished"></translation>
+        <translation>heli</translation>
     </message>
     <message>
         <location filename="../../src/recording.cpp" line="665"/>
         <location filename="../../src/recording.cpp" line="831"/>
         <source>video</source>
-        <translation type="unfinished"></translation>
+        <translation>video</translation>
     </message>
     <message>
         <location filename="../../src/recording.cpp" line="666"/>
         <location filename="../../src/recording.cpp" line="832"/>
         <source>subtitle</source>
-        <translation type="unfinished"></translation>
+        <translation>subtiitrid</translation>
     </message>
 </context>
 <context>
@@ -579,47 +579,47 @@
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/StreamOptions.qml" line="28"/>
         <source>Stream #%1 (%2)</source>
-        <translation type="unfinished"></translation>
+        <translation>Voog #%1 (%2)</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/StreamOptions.qml" line="29"/>
         <source>Stream #%1</source>
-        <translation type="unfinished"></translation>
+        <translation>Voog #%1</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/StreamOptions.qml" line="64"/>
         <source>Codec</source>
-        <translation type="unfinished"></translation>
+        <translation>Koodek</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/StreamOptions.qml" line="85"/>
         <source>Bitrate</source>
-        <translation type="unfinished"></translation>
+        <translation>Bitikiirus</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/StreamOptions.qml" line="105"/>
         <source>GOP</source>
-        <translation type="unfinished"></translation>
+        <translation>GOP</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/StreamOptions.qml" line="110"/>
         <source>Separation between keyframes</source>
-        <translation type="unfinished"></translation>
+        <translation>Võtmekaadrite eristamine</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/StreamOptions.qml" line="126"/>
         <source>Advanced Codec Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Koodeki täiendavad sätted</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/StreamOptions.qml" line="150"/>
         <source>Size of the audio (bits) / duration (seconds)</source>
-        <translation type="unfinished"></translation>
+        <translation>Heli suurus (bitti) / kestus (sekundit)</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/StreamOptions.qml" line="171"/>
         <source>Size of the video (bits) / duration (seconds)</source>
-        <translation type="unfinished"></translation>
+        <translation>Video suurus (bitti) / kestus (sekundit)</translation>
     </message>
 </context>
 <context>
@@ -627,7 +627,7 @@
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="68"/>
         <source>Notify about new versions</source>
-        <translation type="unfinished"></translation>
+        <translation>Teavita uutest versioonidest</translation>
     </message>
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="82"/>
