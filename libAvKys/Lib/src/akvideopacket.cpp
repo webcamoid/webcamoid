@@ -202,7 +202,7 @@ QImage AkVideoPacket::toImage() const
                  this->d->m_caps.height(),
                  AkImageToFormat->key(this->d->m_caps.format()));
     auto size = qMin(size_t(this->buffer().size()),
-                     size_t(image.sizeInBytes()));
+                     size_t(image.bytesPerLine()) * size_t(image.height()));
 
     if (size > 0)
         memcpy(image.bits(), this->buffer().constData(), size);
