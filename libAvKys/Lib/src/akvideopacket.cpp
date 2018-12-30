@@ -201,9 +201,11 @@ QImage AkVideoPacket::toImage() const
     QImage image(this->d->m_caps.width(),
                  this->d->m_caps.height(),
                  AkImageToFormat->key(this->d->m_caps.format()));
-    memcpy(image.bits(),
-           this->buffer().constData(),
-           size_t(this->buffer().size()));
+    auto size = qMin(size_t(this->buffer().size()),
+                     size_t(image.sizeInBytes()));
+
+    if (size > 0)
+        memcpy(image.bits(), this->buffer().constData(), size);
 
     if (this->d->m_caps.format() == AkVideoCaps::Format_gray)
         for (int i = 0; i < 256; i++)

@@ -24,7 +24,6 @@
 #include <QtConcurrent>
 #include <QMutex>
 #include <ak.h>
-#include <akutils.h>
 #include <akcaps.h>
 #include <akvideopacket.h>
 #include <CoreGraphics/CoreGraphics.h>
@@ -35,32 +34,15 @@
 class AVFoundationScreenDevPrivate
 {
     public:
-        AVCaptureScreenInput *m_screenInput;
-        AVCaptureSession *m_captureSession;
-        AVCaptureVideoDataOutput *m_videoOutput;
-        id m_frameGrabber;
-        AkFrac m_fps;
+        AVCaptureScreenInput *m_screenInput {nil};
+        AVCaptureSession *m_captureSession {nil};
+        AVCaptureVideoDataOutput *m_videoOutput {nil};
+        id m_frameGrabber {nil};
+        AkFrac m_fps {30000, 1001};
         QString m_curScreen;
-        int m_curScreenNumber;
+        int m_curScreenNumber {-1};
 
-        explicit AVFoundationScreenDevPrivate():
-            m_screenInput(nil),
-            m_captureSession(nil),
-            m_videoOutput(nil),
-            m_frameGrabber(nil),
-            m_fps(AkFrac(30000, 1001)),
-            m_curScreenNumber(-1)
-        {
-        }
-
-        ~AVFoundationScreenDevPrivate()
-        {
-            [this->m_captureSession stopRunning];
-            [this->m_frameGrabber release];
-            [this->m_videoOutput release];
-            [this->m_captureSession release];
-            [this->m_screenInput release];
-        }
+        ~AVFoundationScreenDevPrivate();
 };
 
 AVFoundationScreenDev::AVFoundationScreenDev():
@@ -148,7 +130,7 @@ AkCaps AVFoundationScreenDev::caps(int stream)
         || stream != 0)
         return AkCaps();
 
-    QScreen *screen = QGuiApplication::screens()[this->d->m_curScreenNumber];
+    auto screen = QGuiApplication::screens()[this->d->m_curScreenNumber];
 
     if (!screen)
         return QString();
@@ -171,33 +153,22 @@ void AVFoundationScreenDev::frameReceived(CGDirectDisplayID screen,
                                           qint64 id)
 {
     CGImageRef image = CGDisplayCreateImage(screen);
-    QImage frameImg(int(CGImageGetWidth(image)),
-                    int(CGImageGetHeight(image)),
-                    QImage::Format_RGB32);
-    auto bufferSize = size_t(qMin(buffer.size(),
-                                  frameImg.bytesPerLine()
-                                  * frameImg.height()));
-    memcpy(frameImg.bits(), buffer.constData(), bufferSize);
 
     AkVideoCaps caps;
     caps.isValid() = true;
     caps.format() = AkVideoCaps::Format_argb;
     caps.bpp() = AkVideoCaps::bitsPerPixel(caps.format());
-    caps.width() = frameImg.width();
-    caps.height() = frameImg.height();
+    caps.width() = int(CGImageGetWidth(image));
+    caps.height() = int(CGImageGetHeight(image));
     caps.fps() = fps;
 
-    AkPacket packet = AkUtils::imageToPacket(frameImg, caps.toCaps());
+    AkVideoPacket videoPacket(caps, buffer);
+    videoPacket.setPts(pts);
+    videoPacket.setTimeBase(fps.invert());
+    videoPacket.setIndex(0);
+    videoPacket.setId(id);
 
-    if (!packet)
-        return;
-
-    packet.setPts(pts);
-    packet.setTimeBase(fps.invert());
-    packet.setIndex(0);
-    packet.setId(id);
-
-    emit this->oStream(packet);
+    emit this->oStream(videoPacket.toPacket());
 }
 
 void AVFoundationScreenDev::sendPacket(const AkPacket &packet)
@@ -264,7 +235,7 @@ void AVFoundationScreenDev::resetStreams()
 bool AVFoundationScreenDev::init()
 {
     uint32_t nScreens = 0;
-    CGGetActiveDisplayList(0, NULL, &nScreens);
+    CGGetActiveDisplayList(0, nullptr, &nScreens);
     QVector<CGDirectDisplayID> screens;
     screens.resize(int(nScreens));
     CGGetActiveDisplayList(nScreens, screens.data(), &nScreens);
@@ -312,7 +283,7 @@ bool AVFoundationScreenDev::init()
                                initWithScreenDev: this
                                onScreen: screen
                                withFps: fps];
-    auto queue = dispatch_queue_create("frame_queue", NULL);
+    auto queue = dispatch_queue_create("frame_queue", nullptr);
     [this->d->m_videoOutput setSampleBufferDelegate: this->d->m_frameGrabber queue: queue];
     dispatch_release(queue);
 
@@ -380,6 +351,15 @@ void AVFoundationScreenDev::srceenResized(int screen)
     auto widget = QGuiApplication::screens()[screen];
 
     emit this->sizeChanged(media, widget->size());
+}
+
+AVFoundationScreenDevPrivate::~AVFoundationScreenDevPrivate()
+{
+    [this->m_captureSession stopRunning];
+    [this->m_frameGrabber release];
+    [this->m_videoOutput release];
+    [this->m_captureSession release];
+    [this->m_screenInput release];
 }
 
 #include "moc_avfoundationscreendev.cpp"
