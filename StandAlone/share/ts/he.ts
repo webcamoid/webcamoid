@@ -466,32 +466,45 @@
         <translation>יישומון לכידה ממצלמה.</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="49"/>
+        <location filename="../../src/clioptions.cpp" line="48"/>
         <source>Load settings from PATH. If PATH is empty, load configs from application directory.</source>
         <translation>טעינת הגדרות מ־PATH. אם ה־PATH ריק, יש לטעון הגדרות מתיקיית היישומון.</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="57"/>
+        <location filename="../../src/clioptions.cpp" line="50"/>
+        <source>PATH</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/clioptions.cpp" line="54"/>
         <source>Semi-colon separated list of paths to search the Qml interface.</source>
         <translation>רשימת נתיבים מופרדת בנקודה פסיק של נתיבים בהם יש לחפש את מנשק ה־Qml.</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="66"/>
+        <location filename="../../src/clioptions.cpp" line="56"/>
+        <location filename="../../src/clioptions.cpp" line="68"/>
+        <location filename="../../src/clioptions.cpp" line="74"/>
+        <location filename="../../src/clioptions.cpp" line="80"/>
+        <source>PATH1;PATH2;PATH3;...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/clioptions.cpp" line="61"/>
         <source>Search in the specified plugins paths recursively.</source>
         <translation>חיפוש בנתיבי התוספים האלו באופן רקורסיבי.</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="72"/>
+        <location filename="../../src/clioptions.cpp" line="66"/>
         <source>Semi-colon separated list of paths to search for plugins.</source>
         <translation>רשימה מופרדת בנקודה פסיק לחיפוש אחר תוספים.</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="80"/>
+        <location filename="../../src/clioptions.cpp" line="72"/>
         <source>Semi-colon separated list of paths to avoid loading.</source>
         <translation>רשימה מופרדת בפסיקים של נתיבים אותם אין לטעון.</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="87"/>
+        <location filename="../../src/clioptions.cpp" line="78"/>
         <source>Semi-colon separated list of paths to search for virtual camera driver</source>
         <translation>רשימה עם הפרדה בנקודה פסיק של נתיבים לחיפוש אחר מנהל התקן מצלמה וירטואלית</translation>
     </message>

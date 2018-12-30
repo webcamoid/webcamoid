@@ -466,32 +466,45 @@
         <translation>Aplicación de captura para la webcam.</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="49"/>
+        <location filename="../../src/clioptions.cpp" line="48"/>
         <source>Load settings from PATH. If PATH is empty, load configs from application directory.</source>
         <translation>Cargar configuraciones desde RUTA. Si RUTA está vacío, carga las configuraciones desde el directorio de la aplicación.</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="57"/>
+        <location filename="../../src/clioptions.cpp" line="50"/>
+        <source>PATH</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/clioptions.cpp" line="54"/>
         <source>Semi-colon separated list of paths to search the Qml interface.</source>
         <translation>Lista de rutas separadas por punto y coma para buscar en la interfaz Qml.</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="66"/>
+        <location filename="../../src/clioptions.cpp" line="56"/>
+        <location filename="../../src/clioptions.cpp" line="68"/>
+        <location filename="../../src/clioptions.cpp" line="74"/>
+        <location filename="../../src/clioptions.cpp" line="80"/>
+        <source>PATH1;PATH2;PATH3;...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/clioptions.cpp" line="61"/>
         <source>Search in the specified plugins paths recursively.</source>
         <translation>Busque en las rutas de los plugins especificados recursivamente.</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="72"/>
+        <location filename="../../src/clioptions.cpp" line="66"/>
         <source>Semi-colon separated list of paths to search for plugins.</source>
         <translation>Lista de rutas separadas por dos puntos para buscar plugins.</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="80"/>
+        <location filename="../../src/clioptions.cpp" line="72"/>
         <source>Semi-colon separated list of paths to avoid loading.</source>
         <translation>Lista de rutas separadas por dos puntos para evitar la carga.</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="87"/>
+        <location filename="../../src/clioptions.cpp" line="78"/>
         <source>Semi-colon separated list of paths to search for virtual camera driver</source>
         <translation>Lista de rutas separadas por punto y coma para buscar el controlador de la cámara virtual</translation>
     </message>

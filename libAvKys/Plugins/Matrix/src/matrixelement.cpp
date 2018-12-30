@@ -614,7 +614,9 @@ AkPacket MatrixElement::iStream(const AkPacket &packet)
 
 void MatrixElement::updateCharTable()
 {
-    QMutexLocker locker(&this->d->m_mutex);
+    if (!this->d->m_mutex.tryLock())
+        return;
+
     QList<Character> characters;
     this->d->m_fontSize =
             this->d->fontSize(this->d->m_charTable, this->d->m_font);
@@ -624,7 +626,7 @@ void MatrixElement::updateCharTable()
     for (int i = 0; i < 256; i++)
         colorTable[i] = qRgb(i, i, i);
 
-    for (const QChar &chr: this->d->m_charTable) {
+    for (auto &chr: this->d->m_charTable) {
         QImage image =
                 this->d->drawChar(chr,
                                   this->d->m_font,
@@ -640,8 +642,11 @@ void MatrixElement::updateCharTable()
 
     this->d->m_characters.clear();
 
-    if (characters.isEmpty())
+    if (characters.isEmpty()) {
+        this->d->m_mutex.unlock();
+
         return;
+    }
 
     QVector<QRgb> pallete;
 
@@ -689,6 +694,8 @@ void MatrixElement::updateCharTable()
         characters[c].background = this->d->m_backgroundColor;
         this->d->m_characters.append(characters[c]);
     }
+
+    this->d->m_mutex.unlock();
 }
 
 #include "moc_matrixelement.cpp"

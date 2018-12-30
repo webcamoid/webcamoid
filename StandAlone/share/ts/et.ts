@@ -466,32 +466,45 @@
         <translation>Veebikaamera salvestusprogramm.</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="49"/>
+        <location filename="../../src/clioptions.cpp" line="48"/>
         <source>Load settings from PATH. If PATH is empty, load configs from application directory.</source>
         <translation>Laadi seadistus asukohast PATH. Kui PATH on tühi, laaditakse seadistus rakenduse kataloogist.</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="57"/>
+        <location filename="../../src/clioptions.cpp" line="50"/>
+        <source>PATH</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/clioptions.cpp" line="54"/>
         <source>Semi-colon separated list of paths to search the Qml interface.</source>
         <translation>Semikoolonitega eraldatud asukohtade loetelu, millest otsitakse Qml liidest.</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="66"/>
+        <location filename="../../src/clioptions.cpp" line="56"/>
+        <location filename="../../src/clioptions.cpp" line="68"/>
+        <location filename="../../src/clioptions.cpp" line="74"/>
+        <location filename="../../src/clioptions.cpp" line="80"/>
+        <source>PATH1;PATH2;PATH3;...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/clioptions.cpp" line="61"/>
         <source>Search in the specified plugins paths recursively.</source>
         <translation>Otsi valitud laienduste otsingurajalt rekursiivselt.</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="72"/>
+        <location filename="../../src/clioptions.cpp" line="66"/>
         <source>Semi-colon separated list of paths to search for plugins.</source>
         <translation>Laienduste otsimine semikooloniga eraldatud otsinguradade loendist.</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="80"/>
+        <location filename="../../src/clioptions.cpp" line="72"/>
         <source>Semi-colon separated list of paths to avoid loading.</source>
         <translation>Semikooloniga eraldatud otsingurajad, millelt laadimist vältida.</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="87"/>
+        <location filename="../../src/clioptions.cpp" line="78"/>
         <source>Semi-colon separated list of paths to search for virtual camera driver</source>
         <translation>Semikooloniga eraldatud otsingurajad, millelt otsida virtuaalkaamera ajurit</translation>
     </message>

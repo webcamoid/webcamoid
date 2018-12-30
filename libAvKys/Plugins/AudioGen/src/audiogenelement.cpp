@@ -411,7 +411,6 @@ void AudioGenElementPrivate::readFramesLoop()
         iAudioCaps.samples() = nSamples;
 
         AkAudioPacket iPacket(iAudioCaps, iBuffer);
-
         iPacket.pts() = pts;
         iPacket.timeBase() = AkFrac(1, iAudioCaps.rate());
         iPacket.index() = 0;
