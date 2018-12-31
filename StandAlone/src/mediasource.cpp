@@ -39,11 +39,10 @@ class MediaSourcePrivate
         QMap<QString, QString> m_descriptions;
         AkCaps m_audioCaps;
         AkCaps m_videoCaps;
+        AkElementPtr m_cameraCapture {AkElement::create("VideoCapture")};
+        AkElementPtr m_desktopCapture {AkElement::create("DesktopCapture")};
+        AkElementPtr m_uriCapture {AkElement::create("MultiSrc")};
         AkElement::ElementState m_inputState {AkElement::ElementStateNull};
-        AkElementPtr m_pipeline;
-        AkElementPtr m_cameraCapture;
-        AkElementPtr m_desktopCapture;
-        AkElementPtr m_uriCapture;
         bool m_playOnStart {false};
 
         AkElementPtr sourceElement(const QString &stream) const;
@@ -54,35 +53,6 @@ MediaSource::MediaSource(QQmlApplicationEngine *engine, QObject *parent):
 {
     this->d = new MediaSourcePrivate;
     this->setQmlEngine(engine);
-    this->d->m_pipeline = AkElement::create("Bin", "pipeline");
-
-    if (this->d->m_pipeline) {
-        QFile jsonFile(":/Webcamoid/share/sourcespipeline.json");
-        jsonFile.open(QFile::ReadOnly);
-        QString description(jsonFile.readAll());
-        jsonFile.close();
-
-        this->d->m_pipeline->setProperty("description", description);
-
-        QMetaObject::invokeMethod(this->d->m_pipeline.data(),
-                                  "element",
-                                  Q_RETURN_ARG(AkElementPtr, this->d->m_cameraCapture),
-                                  Q_ARG(QString, "cameraCapture"));
-        QMetaObject::invokeMethod(this->d->m_pipeline.data(),
-                                  "element",
-                                  Q_RETURN_ARG(AkElementPtr, this->d->m_desktopCapture),
-                                  Q_ARG(QString, "desktopCapture"));
-        QMetaObject::invokeMethod(this->d->m_pipeline.data(),
-                                  "element",
-                                  Q_RETURN_ARG(AkElementPtr, this->d->m_uriCapture),
-                                  Q_ARG(QString, "uriCapture"));
-
-        QObject::connect(this->d->m_pipeline.data(),
-                         SIGNAL(oStream(const AkPacket &)),
-                         this,
-                         SIGNAL(oStream(const AkPacket &)),
-                         Qt::DirectConnection);
-    }
 
     QObject::connect(this,
                      &MediaSource::urisChanged,
@@ -103,6 +73,11 @@ MediaSource::MediaSource(QQmlApplicationEngine *engine, QObject *parent):
 
     if (this->d->m_cameraCapture) {
         QObject::connect(this->d->m_cameraCapture.data(),
+                         SIGNAL(oStream(const AkPacket &)),
+                         this,
+                         SIGNAL(oStream(const AkPacket &)),
+                         Qt::DirectConnection);
+        QObject::connect(this->d->m_cameraCapture.data(),
                          SIGNAL(mediasChanged(const QStringList &)),
                          this,
                          SLOT(updateStreams()));
@@ -122,6 +97,11 @@ MediaSource::MediaSource(QQmlApplicationEngine *engine, QObject *parent):
 
     if (this->d->m_desktopCapture) {
         QObject::connect(this->d->m_desktopCapture.data(),
+                         SIGNAL(oStream(const AkPacket &)),
+                         this,
+                         SIGNAL(oStream(const AkPacket &)),
+                         Qt::DirectConnection);
+        QObject::connect(this->d->m_desktopCapture.data(),
                          SIGNAL(mediasChanged(const QStringList &)),
                          this,
                          SLOT(updateStreams()));
@@ -136,6 +116,15 @@ MediaSource::MediaSource(QQmlApplicationEngine *engine, QObject *parent):
     }
 
     if (this->d->m_uriCapture) {
+        this->d->m_uriCapture->setProperty("objectName", "uriCapture");
+        this->d->m_uriCapture->setProperty("loop", true);
+        this->d->m_uriCapture->setProperty("audioAlign", true);
+
+        QObject::connect(this->d->m_uriCapture.data(),
+                         SIGNAL(oStream(const AkPacket &)),
+                         this,
+                         SIGNAL(oStream(const AkPacket &)),
+                         Qt::DirectConnection);
         QObject::connect(this->d->m_uriCapture.data(),
                          SIGNAL(error(const QString &)),
                          this,

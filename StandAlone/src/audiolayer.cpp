@@ -45,15 +45,14 @@ class AudioLayerPrivate
         AkCaps m_inputCaps;
         AkCaps m_outputCaps;
         QString m_inputDescription;
-        AkElement::ElementState m_inputState {AkElement::ElementStateNull};
-        AkElementPtr m_pipeline;
-        AkElementPtr m_audioOut;
-        AkElementPtr m_audioIn;
-        AkElementPtr m_audioConvert;
-        AkElementPtr m_audioGenerator;
-        AkElementPtr m_audioSwitch;
+        AkElementPtr m_audioOut {AkElement::create("AudioDevice")};
+        AkElementPtr m_audioIn {AkElement::create("AudioDevice")};
+        AkElementPtr m_audioConvert {AkElement::create("ACapsConvert")};
+        AkElementPtr m_audioGenerator {AkElement::create("AudioGen")};
+        AkElementPtr m_audioSwitch {AkElement::create("Multiplex")};
         QMutex m_mutex;
         QVector<int> m_commonSampleRates;
+        AkElement::ElementState m_inputState {AkElement::ElementStateNull};
 };
 
 AudioLayer::AudioLayer(QQmlApplicationEngine *engine, QObject *parent):
@@ -78,37 +77,6 @@ AudioLayer::AudioLayer(QQmlApplicationEngine *engine, QObject *parent):
 
     this->d->m_inputState = AkElement::ElementStateNull;
     this->setQmlEngine(engine);
-    this->d->m_pipeline = AkElement::create("Bin", "pipeline");
-
-    if (this->d->m_pipeline) {
-        QFile jsonFile(":/Webcamoid/share/audiopipeline.json");
-        jsonFile.open(QFile::ReadOnly);
-        QString description(jsonFile.readAll());
-        jsonFile.close();
-
-        this->d->m_pipeline->setProperty("description", description);
-
-        QMetaObject::invokeMethod(this->d->m_pipeline.data(),
-                                  "element",
-                                  Q_RETURN_ARG(AkElementPtr, this->d->m_audioOut),
-                                  Q_ARG(QString, "audioOut"));
-        QMetaObject::invokeMethod(this->d->m_pipeline.data(),
-                                  "element",
-                                  Q_RETURN_ARG(AkElementPtr, this->d->m_audioIn),
-                                  Q_ARG(QString, "audioIn"));
-        QMetaObject::invokeMethod(this->d->m_pipeline.data(),
-                                  "element",
-                                  Q_RETURN_ARG(AkElementPtr, this->d->m_audioGenerator),
-                                  Q_ARG(QString, "audioGenerator"));
-        QMetaObject::invokeMethod(this->d->m_pipeline.data(),
-                                  "element",
-                                  Q_RETURN_ARG(AkElementPtr, this->d->m_audioSwitch),
-                                  Q_ARG(QString, "audioSwitch"));
-        QMetaObject::invokeMethod(this->d->m_pipeline.data(),
-                                  "element",
-                                  Q_RETURN_ARG(AkElementPtr, this->d->m_audioConvert),
-                                  Q_ARG(QString, "audioConvert"));
-    }
 
     if (this->d->m_audioOut) {
         QString device = this->d->m_audioOut->property("defaultOutput").toString();
@@ -138,6 +106,7 @@ AudioLayer::AudioLayer(QQmlApplicationEngine *engine, QObject *parent):
         this->d->m_audioInput = QStringList {device};
         this->d->m_inputs = QStringList {DUMMY_INPUT_DEVICE, EXTERNAL_MEDIA_INPUT}
                           + this->d->m_audioIn->property("inputs").toStringList();
+        this->d->m_audioIn->link(this->d->m_audioSwitch, Qt::DirectConnection);
 
         QObject::connect(this->d->m_audioIn.data(),
                          SIGNAL(inputsChanged(const QStringList &)),
@@ -167,11 +136,18 @@ AudioLayer::AudioLayer(QQmlApplicationEngine *engine, QObject *parent):
     this->d->m_outputCaps = this->outputCaps();
 
     if (this->d->m_audioSwitch) {
+        this->d->m_audioSwitch->setProperty("outputIndex", 1);
         QObject::connect(this->d->m_audioSwitch.data(),
                          SIGNAL(oStream(const AkPacket &)),
                          this,
                          SIGNAL(oStream(const AkPacket &)),
                          Qt::DirectConnection);
+    }
+
+    if (this->d->m_audioGenerator) {
+        this->d->m_audioGenerator->setProperty("waveType", "silence");
+        this->d->m_audioGenerator->link(this->d->m_audioSwitch,
+                                        Qt::DirectConnection);
     }
 
     QObject::connect(this,
