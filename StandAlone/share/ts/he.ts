@@ -6,57 +6,57 @@
     <message>
         <location filename="../qml/About.qml" line="27"/>
         <source>About %1</source>
-        <translation type="unfinished"></translation>
+        <translation>על אודות %1</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="46"/>
         <source>Information</source>
-        <translation type="unfinished"></translation>
+        <translation>מידע</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="49"/>
         <source>Thanks!</source>
-        <translation type="unfinished"></translation>
+        <translation>תודה!</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="52"/>
         <source>License</source>
-        <translation type="unfinished"></translation>
+        <translation>רישיון</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="86"/>
         <source>Version %1</source>
-        <translation type="unfinished"></translation>
+        <translation>גרסה %1</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="90"/>
         <source>Using Qt %1</source>
-        <translation type="unfinished"></translation>
+        <translation>על גבי Qt %1</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="94"/>
         <source>Website</source>
-        <translation type="unfinished"></translation>
+        <translation>אתר</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="103"/>
         <source>Webcam capture application.</source>
-        <translation type="unfinished">יישומון לכידה ממצלמה.</translation>
+        <translation>יישומון לכידה ממצלמה.</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="106"/>
         <source>A simple webcam application for picture and video capture.</source>
-        <translation type="unfinished"></translation>
+        <translation>יישומון פשוט לצילום והסרטה מהמצלמה.</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="122"/>
         <source>Thanks to all these cool people that helped contributing to Webcamoid all these years.</source>
-        <translation type="unfinished"></translation>
+        <translation>תודות לכל האנשים הנהדרים שסייעו בתרומתם ל־Webcamoid במהלך כל השנים האלה.</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="149"/>
         <source>Close</source>
-        <translation type="unfinished"></translation>
+        <translation>סגירה</translation>
     </message>
 </context>
 <context>
@@ -310,7 +310,7 @@
     <message>
         <location filename="../qml/GeneralConfig.qml" line="150"/>
         <source>Virtual camera driver</source>
-        <translation type="unfinished"></translation>
+        <translation>מנהל התקן וירטואלי למצלמה</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="118"/>
