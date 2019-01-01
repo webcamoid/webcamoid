@@ -473,7 +473,7 @@
     <message>
         <location filename="../../src/clioptions.cpp" line="50"/>
         <source>PATH</source>
-        <translation type="unfinished"></translation>
+        <translation>PATH</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="54"/>
@@ -486,7 +486,7 @@
         <location filename="../../src/clioptions.cpp" line="74"/>
         <location filename="../../src/clioptions.cpp" line="80"/>
         <source>PATH1;PATH2;PATH3;...</source>
-        <translation type="unfinished"></translation>
+        <translation>PATH1;PATH2;PATH3;...</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="61"/>
