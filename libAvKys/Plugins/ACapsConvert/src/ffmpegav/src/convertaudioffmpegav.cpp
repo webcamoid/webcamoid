@@ -156,7 +156,7 @@ AkPacket ConvertAudioFFmpegAV::convert(const AkAudioPacket &packet)
                                                 iNChannels,
                                                 iFrame.nb_samples,
                                                 iSampleFormat,
-                                                1);
+                                                packet.caps().align());
 
     if (iFrameSize < 1)
         return AkPacket();
@@ -166,7 +166,7 @@ AkPacket ConvertAudioFFmpegAV::convert(const AkAudioPacket &packet)
                                  iSampleFormat,
                                  reinterpret_cast<const uint8_t *>(packet.buffer().constData()),
                                  packet.buffer().size(),
-                                 1) < 0) {
+                                 packet.caps().align()) < 0) {
         return AkPacket();
     }
 
@@ -264,6 +264,7 @@ AkPacket ConvertAudioFFmpegAV::convert(const AkAudioPacket &packet)
     AkAudioPacket oAudioPacket;
     oAudioPacket.caps() = this->d->m_caps;
     oAudioPacket.caps().samples() = oFrame.nb_samples;
+    oAudioPacket.caps().align() = 1;
     oAudioPacket.buffer() = oBuffer;
     oAudioPacket.pts() = oFrame.pts;
     oAudioPacket.timeBase() = AkFrac(1, this->d->m_caps.rate());

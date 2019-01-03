@@ -554,35 +554,35 @@
 <context>
     <name>Recording</name>
     <message>
-        <location filename="../../src/recording.cpp" line="597"/>
+        <location filename="../../src/recording.cpp" line="594"/>
         <source>Audio</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/recording.cpp" line="598"/>
+        <location filename="../../src/recording.cpp" line="595"/>
         <source>Video</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/recording.cpp" line="599"/>
+        <location filename="../../src/recording.cpp" line="596"/>
         <source>Subtitle</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../src/recording.cpp" line="664"/>
-        <location filename="../../src/recording.cpp" line="830"/>
+        <location filename="../../src/recording.cpp" line="661"/>
+        <location filename="../../src/recording.cpp" line="827"/>
         <source>audio</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/recording.cpp" line="665"/>
-        <location filename="../../src/recording.cpp" line="831"/>
+        <location filename="../../src/recording.cpp" line="662"/>
+        <location filename="../../src/recording.cpp" line="828"/>
         <source>video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/recording.cpp" line="666"/>
-        <location filename="../../src/recording.cpp" line="832"/>
+        <location filename="../../src/recording.cpp" line="663"/>
+        <location filename="../../src/recording.cpp" line="829"/>
         <source>subtitle</source>
         <translation type="unfinished"></translation>
     </message>

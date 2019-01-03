@@ -40,13 +40,13 @@ class RecordingPrivate
         QStringList m_availableFormats;
         AkCaps m_audioCaps;
         AkCaps m_videoCaps;
-        bool m_recordAudio {true};
         QString m_videoFileName;
-        AkElement::ElementState m_state {AkElement::ElementStateNull};
-        AkElementPtr m_record;
+        AkElementPtr m_record {AkElement::create("MultiSink")};
         QMutex m_mutex;
         AkPacket m_curPacket;
         QImage m_photo;
+        AkElement::ElementState m_state {AkElement::ElementStateNull};
+        bool m_recordAudio {DEFAULT_RECORD_AUDIO};
 
         QStringList recordingFormats() const;
 };
@@ -55,10 +55,7 @@ Recording::Recording(QQmlApplicationEngine *engine, QObject *parent):
     QObject(parent)
 {
     this->d = new RecordingPrivate;
-    this->d->m_recordAudio = DEFAULT_RECORD_AUDIO;
     this->setQmlEngine(engine);
-
-    this->d->m_record = AkElement::create("MultiSink");
 
     if (this->d->m_record) {
         QObject::connect(this->d->m_record.data(),

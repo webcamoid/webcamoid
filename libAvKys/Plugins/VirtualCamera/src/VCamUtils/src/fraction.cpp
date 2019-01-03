@@ -122,6 +122,12 @@ AkVCam::Fraction &AkVCam::Fraction::operator =(const Fraction &other)
 
 bool AkVCam::Fraction::operator ==(const Fraction &other) const
 {
+    if (this->d->m_den == 0 && other.d->m_den != 0)
+        return false;
+
+    if (this->d->m_den != 0 && other.d->m_den == 0)
+        return false;
+
     return this->d->m_num * other.d->m_den == this->d->m_den * other.d->m_num;
 }
 

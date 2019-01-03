@@ -284,7 +284,7 @@ void MediaSource::removeInterface(const QString &where) const
         if (!item)
             continue;
 
-        QList<decltype(item)> childItems = item->childItems();
+        auto childItems = item->childItems();
 
         for (auto child: childItems) {
             child->setParentItem(nullptr);

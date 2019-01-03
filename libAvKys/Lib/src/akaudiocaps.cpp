@@ -202,28 +202,20 @@ class ChannelLayouts
 class AkAudioCapsPrivate
 {
     public:
-        AkAudioCaps::SampleFormat m_format;
-        int m_bps;
-        int m_channels;
-        int m_rate;
-        AkAudioCaps::ChannelLayout m_layout;
-        int m_samples;
-        bool m_align;
-        bool m_isValid;
+        AkAudioCaps::SampleFormat m_format {AkAudioCaps::SampleFormat_none};
+        int m_bps {0};
+        int m_channels {0};
+        int m_rate {0};
+        AkAudioCaps::ChannelLayout m_layout {AkAudioCaps::Layout_none};
+        int m_samples {false};
+        int m_align {0};
+        bool m_isValid {false};
 };
 
 AkAudioCaps::AkAudioCaps(QObject *parent):
     QObject(parent)
 {
     this->d = new AkAudioCapsPrivate();
-    this->d->m_isValid = false;
-    this->d->m_format = SampleFormat_none;
-    this->d->m_bps = 0;
-    this->d->m_channels = 0;
-    this->d->m_rate = 0;
-    this->d->m_layout = Layout_none;
-    this->d->m_samples = 0;
-    this->d->m_align = false;
 }
 
 AkAudioCaps::AkAudioCaps(const QVariantMap &caps)
@@ -236,20 +228,12 @@ AkAudioCaps::AkAudioCaps(const QVariantMap &caps)
     this->d->m_rate = caps["rate"].toInt();
     this->d->m_layout = caps["layout"].value<ChannelLayout>();
     this->d->m_samples = caps["samples"].toInt();
-    this->d->m_align = caps["align"].toBool();
+    this->d->m_align = caps["align"].toInt();
 }
 
 AkAudioCaps::AkAudioCaps(const QString &caps)
 {
     this->d = new AkAudioCapsPrivate();
-    this->d->m_isValid = false;
-    this->d->m_format = SampleFormat_none;
-    this->d->m_bps = 0;
-    this->d->m_channels = 0;
-    this->d->m_rate = 0;
-    this->d->m_layout = Layout_none;
-    this->d->m_samples = 0;
-    this->d->m_align = false;
     *this = caps;
 }
 
@@ -270,16 +254,7 @@ AkAudioCaps::AkAudioCaps(const AkCaps &caps)
         this->d->m_layout = ChannelLayouts::byDescription(layout)->layout;
 
         this->d->m_samples = caps.property("samples").toInt();
-        this->d->m_align = caps.property("align").toBool();
-    } else {
-        this->d->m_isValid = false;
-        this->d->m_format = SampleFormat_none;
-        this->d->m_bps = 0;
-        this->d->m_channels = 0;
-        this->d->m_rate = 0;
-        this->d->m_layout = Layout_none;
-        this->d->m_samples = 0;
-        this->d->m_align = false;
+        this->d->m_align = caps.property("align").toInt();
     }
 }
 
@@ -308,8 +283,6 @@ AkAudioCaps::AkAudioCaps(AkAudioCaps::SampleFormat format,
     this->d->m_channels = channels;
     this->d->m_rate = rate;
     this->d->m_layout = AkAudioCaps::defaultChannelLayout(channels);
-    this->d->m_samples = 0;
-    this->d->m_align = false;
 }
 
 AkAudioCaps::~AkAudioCaps()
@@ -348,7 +321,7 @@ AkAudioCaps &AkAudioCaps::operator =(const AkCaps &caps)
         this->d->m_layout = ChannelLayouts::byDescription(layout)->layout;
 
         this->d->m_samples = caps.property("samples").toInt();
-        this->d->m_align = caps.property("align").toBool();
+        this->d->m_align = caps.property("align").toInt();
     } else {
         this->d->m_isValid = false;
         this->d->m_format = SampleFormat_none;
@@ -357,7 +330,7 @@ AkAudioCaps &AkAudioCaps::operator =(const AkCaps &caps)
         this->d->m_rate = 0;
         this->d->m_layout = Layout_none;
         this->d->m_samples = 0;
-        this->d->m_align = false;
+        this->d->m_align = 0;
     }
 
     return *this;
@@ -462,12 +435,12 @@ int &AkAudioCaps::samples()
     return this->d->m_samples;
 }
 
-bool AkAudioCaps::align() const
+int AkAudioCaps::align() const
 {
     return this->d->m_align;
 }
 
-bool &AkAudioCaps::align()
+int &AkAudioCaps::align()
 {
     return this->d->m_align;
 }
@@ -481,7 +454,7 @@ AkAudioCaps &AkAudioCaps::fromMap(const QVariantMap &caps)
     this->d->m_rate = caps["rate"].toInt();
     this->d->m_layout = caps["layout"].value<ChannelLayout>();
     this->d->m_samples = caps["samples"].toInt();
-    this->d->m_align = caps["align"].toBool();
+    this->d->m_align = caps["align"].toInt();
 
     return *this;
 }
@@ -560,7 +533,7 @@ AkAudioCaps &AkAudioCaps::update(const AkCaps &caps)
         this->d->m_samples = caps.property("samples").toInt();
 
     if (caps.contains("align"))
-        this->d->m_align = caps.property("align").toBool();
+        this->d->m_align = caps.property("align").toInt();
 
     return *this;
 }
@@ -771,7 +744,7 @@ void AkAudioCaps::setSamples(int samples)
     emit this->samplesChanged(samples);
 }
 
-void AkAudioCaps::setAlign(bool align)
+void AkAudioCaps::setAlign(int align)
 {
     if (this->d->m_align == align)
         return;
@@ -812,7 +785,7 @@ void AkAudioCaps::resetSamples()
 
 void AkAudioCaps::resetAlign()
 {
-    this->setAlign(false);
+    this->setAlign(0);
 }
 
 QDebug operator <<(QDebug debug, const AkAudioCaps &caps)

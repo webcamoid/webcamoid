@@ -315,6 +315,8 @@ void AbstractStream::uninit()
     this->d->m_runEncodeLoop = false;
     waitLoop(this->d->m_encodeLoopResult);
 
+    avcodec_close(this->d->m_codecContext);
+
     if (this->d->m_codecOptions)
         av_dict_free(&this->d->m_codecOptions);
 

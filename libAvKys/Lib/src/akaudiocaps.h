@@ -67,7 +67,7 @@ class AKCOMMONS_EXPORT AkAudioCaps: public QObject
                WRITE setSamples
                RESET resetSamples
                NOTIFY samplesChanged)
-    Q_PROPERTY(bool align
+    Q_PROPERTY(int align
                READ align
                WRITE setAlign
                RESET resetAlign
@@ -228,8 +228,8 @@ class AKCOMMONS_EXPORT AkAudioCaps: public QObject
         Q_INVOKABLE ChannelLayout &layout();
         Q_INVOKABLE int samples() const;
         Q_INVOKABLE int &samples();
-        Q_INVOKABLE bool align() const;
-        Q_INVOKABLE bool &align();
+        Q_INVOKABLE int align() const;
+        Q_INVOKABLE int &align();
 
         Q_INVOKABLE AkAudioCaps &fromMap(const QVariantMap &caps);
         Q_INVOKABLE AkAudioCaps &fromString(const QString &caps);
@@ -279,7 +279,7 @@ class AKCOMMONS_EXPORT AkAudioCaps: public QObject
         void rateChanged(int rate);
         void layoutChanged(ChannelLayout layout);
         void samplesChanged(int samples);
-        void alignChanged(bool align);
+        void alignChanged(int align);
 
     public Q_SLOTS:
         void setFormat(SampleFormat format);
@@ -288,7 +288,7 @@ class AKCOMMONS_EXPORT AkAudioCaps: public QObject
         void setRate(int rate);
         void setLayout(ChannelLayout layout);
         void setSamples(int samples);
-        void setAlign(bool align);
+        void setAlign(int align);
         void resetFormat();
         void resetBps();
         void resetChannels();

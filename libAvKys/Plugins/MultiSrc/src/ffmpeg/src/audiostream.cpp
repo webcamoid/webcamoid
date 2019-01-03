@@ -170,7 +170,6 @@ AkCaps AudioStream::caps() const
     caps.channels() = av_get_channel_layout_nb_channels(channelLayout);
     caps.rate() = this->codecContext()->sample_rate;
     caps.layout() = layout;
-    caps.align() = false;
 
     return caps.toCaps();
 }
@@ -302,7 +301,6 @@ AkPacket AudioStreamPrivate::frameToPacket(AVFrame *iFrame)
                                 iFrame->sample_rate);
     packet.caps().layout() = channelLayouts->key(iFrame->channel_layout);
     packet.caps().samples() = iFrame->nb_samples;
-    packet.caps().align() = false;
 
     packet.buffer() = iBuffer;
     packet.pts() = iFrame->pts;

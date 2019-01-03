@@ -54,7 +54,8 @@ VideoEffects::VideoEffects(QQmlApplicationEngine *engine, QObject *parent):
         QObject::connect(this->d->m_videoMux.data(),
                          SIGNAL(oStream(const AkPacket &)),
                          this,
-                         SIGNAL(oStream(const AkPacket &)));
+                         SIGNAL(oStream(const AkPacket &)),
+                         Qt::DirectConnection);
     }
 
     this->d->m_availableEffects = AkElement::listPlugins("VideoFilter");

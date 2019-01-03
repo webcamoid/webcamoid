@@ -396,6 +396,12 @@ AVFrame *AudioStream::dequeueFrame()
         }
     }
 
+    if (!this->d->m_frame) {
+        this->d->m_frameMutex.unlock();
+
+        return nullptr;
+    }
+
     AVFrame *oFrame = nullptr;
 
     if (codecContext->codec->capabilities & AV_CODEC_CAP_VARIABLE_FRAME_SIZE
@@ -404,7 +410,7 @@ AVFrame *AudioStream::dequeueFrame()
         this->d->m_frame = nullptr;
     } else {
         // Create output buffer.
-        auto oFrame = av_frame_alloc();
+        oFrame = av_frame_alloc();
         oFrame->format = codecContext->sample_fmt;
         oFrame->channel_layout = codecContext->channel_layout;
         oFrame->sample_rate = codecContext->sample_rate;

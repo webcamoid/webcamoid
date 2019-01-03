@@ -315,7 +315,6 @@ void AudioGenElementPrivate::readFramesLoop()
         this->m_mutex.unlock();
 
         AkAudioCaps oAudioCaps(oCaps);
-
         qreal clock = 0.;
         qreal diff = 0.;
 
@@ -405,7 +404,7 @@ void AudioGenElementPrivate::readFramesLoop()
 
         AkAudioCaps iAudioCaps(oAudioCaps);
         iAudioCaps.format() = AkAudioCaps::SampleFormat_s32;
-        iAudioCaps.bps() = sizeof(qint32);
+        iAudioCaps.bps() = AkAudioCaps::bitsPerSample(iAudioCaps.format());
         iAudioCaps.channels() = 1;
         iAudioCaps.layout() = AkAudioCaps::Layout_mono;
         iAudioCaps.samples() = nSamples;

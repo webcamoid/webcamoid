@@ -55,27 +55,23 @@ class AudioDeviceElementPrivate
         QStringList m_inputs;
         QStringList m_outputs;
         QString m_device;
-        int m_bufferSize;
+        int m_bufferSize {1024};
         AkCaps m_caps;
         AudioDevPtr m_audioDevice;
-        AkElementPtr m_convert;
+        AkElementPtr m_convert {AkElement::create("ACapsConvert")};
         QThreadPool m_threadPool;
         QFuture<void> m_readFramesLoopResult;
         QMutex m_mutex;
         QMutex m_mutexLib;
-        bool m_readFramesLoop;
-        bool m_pause;
+        bool m_readFramesLoop {false};
+        bool m_pause {false};
 
         AudioDeviceElementPrivate(AudioDeviceElement *self):
-            self(self),
-            m_bufferSize(1024),
-            m_readFramesLoop(false),
-            m_pause(false)
+            self(self)
         {
-            this->m_convert = AkElement::create("ACapsConvert");
         }
 
-        inline void readFramesLoop();
+        void readFramesLoop();
 };
 
 AudioDeviceElement::AudioDeviceElement():

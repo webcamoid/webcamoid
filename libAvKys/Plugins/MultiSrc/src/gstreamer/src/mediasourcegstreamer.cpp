@@ -389,7 +389,6 @@ GstFlowReturn MediaSourceGStreamerPrivate::audioBufferCallback(GstElement *audio
     packet.caps().channels() = audioInfo->channels;
     packet.caps().rate() = audioInfo->rate;
     packet.caps().layout() = AkAudioCaps::Layout_stereo;
-    packet.caps().align() = false;
 
     GstBuffer *buf = gst_sample_get_buffer(sample);
     GstMapInfo map;
@@ -819,7 +818,6 @@ bool MediaSourceGStreamer::setState(AkElement::ElementState state)
                         audioCaps.channels() = audioInfo->channels;
                         audioCaps.rate() = audioInfo->rate;
                         audioCaps.layout() = AkAudioCaps::Layout_stereo;
-                        audioCaps.align() = false;
                         this->d->m_streamInfo << Stream(audioCaps.toCaps(),
                                                         languages[stream]);
 
