@@ -32,6 +32,7 @@ Rectangle {
     property string iDevice: ""
     property string iDescription: ""
     property string oDescription: ""
+    property bool noUpdate: false
 
     function bound(min, value, max)
     {
@@ -40,6 +41,8 @@ Rectangle {
 
     function updateInputInfo()
     {
+        noUpdate = true;
+
         iDevice = AudioLayer.audioInput.length > 0?
                     AudioLayer.audioInput[0]: "";
         iDescription = AudioLayer.description(iDevice);
@@ -86,10 +89,14 @@ Rectangle {
                 bound(0,
                       supportedSampleRates.indexOf(preferredFormat.rate),
                       cbxISampleRates.model.count - 1);
+
+        noUpdate = false;
     }
 
     function updateOutputInfo()
     {
+        noUpdate = true;
+
         oDescription = AudioLayer.description(AudioLayer.audioOutput);
 
         var audioCaps = Ak.newAudioCaps();
@@ -134,10 +141,15 @@ Rectangle {
                 bound(0,
                       supportedSampleRates.indexOf(preferredFormat.rate),
                       cbxOSampleRates.model.count - 1);
+
+        noUpdate = false;
     }
 
     function updateCaps(isInput)
     {
+        if (noUpdate)
+            return;
+
         var cbxSampleFormats = isInput? cbxISampleFormats: cbxOSampleFormats;
         var cbxChannels = isInput? cbxIChannels: cbxOChannels;
         var cbxSampleRates = isInput? cbxISampleRates: cbxOSampleRates;

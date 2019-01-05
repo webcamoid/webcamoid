@@ -43,7 +43,7 @@ class RecordingPrivate
         QString m_videoFileName;
         AkElementPtr m_record {AkElement::create("MultiSink")};
         QMutex m_mutex;
-        AkPacket m_curPacket;
+        AkVideoPacket m_curPacket;
         QImage m_photo;
         AkElement::ElementState m_state {AkElement::ElementStateNull};
         bool m_recordAudio {DEFAULT_RECORD_AUDIO};
@@ -410,7 +410,7 @@ void Recording::resetState()
 void Recording::takePhoto()
 {
     this->d->m_mutex.lock();
-    this->d->m_photo = AkVideoPacket(this->d->m_curPacket).toImage().copy();
+    this->d->m_photo = this->d->m_curPacket.toImage().copy();
     this->d->m_mutex.unlock();
 }
 

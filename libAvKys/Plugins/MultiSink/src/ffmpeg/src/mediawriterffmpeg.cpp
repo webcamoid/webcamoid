@@ -1685,8 +1685,8 @@ QMap<QString, QVariantMap> MediaWriterFFmpegGlobal::initCodecDefaults()
             codecParams["supportedPixelFormats"] = supportedPixelFormats;
             codecParams["defaultGOP"] = codecContext->gop_size > 0?
                                             codecContext->gop_size: 12;
-            codecParams["defaultBitRate"] = codecContext->bit_rate?
-                                                qint64(codecContext->bit_rate): 200000;
+            codecParams["defaultBitRate"] = qMax<qint64>(codecContext->bit_rate,
+                                                         1500000);
             codecParams["defaultPixelFormat"] = codecContext->pix_fmt != AV_PIX_FMT_NONE?
                                                                              QString(av_get_pix_fmt_name(codecContext->pix_fmt)):
                                                                              supportedPixelFormats.value(0, "yuv420p");

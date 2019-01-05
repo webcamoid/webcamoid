@@ -714,12 +714,12 @@ MonikersMap CaptureDShowPrivate::listMonikers() const
 
 MonikerPtr CaptureDShowPrivate::findMoniker(const QString &webcam) const
 {
-    MonikersMap monikers = this->listMonikers();
+    auto monikers = this->listMonikers();
 
     if (monikers.contains(webcam))
         return monikers[webcam];
-    else
-        return MonikerPtr();
+
+    return {};
 }
 
 IBaseFilter *CaptureDShowPrivate::findFilterP(const QString &webcam) const

@@ -139,35 +139,35 @@
 <context>
     <name>AudioInfo</name>
     <message>
-        <location filename="../qml/AudioInfo.qml" line="187"/>
+        <location filename="../qml/AudioInfo.qml" line="199"/>
         <source>Description</source>
         <translation>說明</translation>
     </message>
     <message>
-        <location filename="../qml/AudioInfo.qml" line="202"/>
-        <location filename="../qml/AudioInfo.qml" line="209"/>
+        <location filename="../qml/AudioInfo.qml" line="214"/>
+        <location filename="../qml/AudioInfo.qml" line="221"/>
         <source>Device description</source>
         <translation>裝置說明</translation>
     </message>
     <message>
-        <location filename="../qml/AudioInfo.qml" line="217"/>
-        <location filename="../qml/AudioInfo.qml" line="232"/>
-        <location filename="../qml/AudioInfo.qml" line="239"/>
+        <location filename="../qml/AudioInfo.qml" line="229"/>
+        <location filename="../qml/AudioInfo.qml" line="244"/>
+        <location filename="../qml/AudioInfo.qml" line="251"/>
         <source>Device id</source>
         <translation>裝置 id</translation>
     </message>
     <message>
-        <location filename="../qml/AudioInfo.qml" line="254"/>
+        <location filename="../qml/AudioInfo.qml" line="266"/>
         <source>Sample Format</source>
         <translation>樣本格式</translation>
     </message>
     <message>
-        <location filename="../qml/AudioInfo.qml" line="280"/>
+        <location filename="../qml/AudioInfo.qml" line="292"/>
         <source>Channels</source>
         <translation>頻道</translation>
     </message>
     <message>
-        <location filename="../qml/AudioInfo.qml" line="306"/>
+        <location filename="../qml/AudioInfo.qml" line="318"/>
         <source>Sample Rate</source>
         <translation>採樣率</translation>
     </message>

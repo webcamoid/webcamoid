@@ -881,7 +881,7 @@ QVariantMap MediaWriterGStreamer::defaultCodecParams(const QString &codec)
     } else if (codecType == "video/x-raw") {
         if (codec.startsWith("identity/video")) {
             QString pixelFormat = gstToFF->value(codec.split("/").at(2), "yuv420p");
-            codecParams["defaultBitRate"] = 200000;
+            codecParams["defaultBitRate"] = 1500000;
             codecParams["defaultGOP"] = 12;
             codecParams["supportedFrameRates"] = QVariantList();
             codecParams["supportedPixelFormats"] = QStringList() << pixelFormat;
@@ -1014,8 +1014,8 @@ QVariantMap MediaWriterGStreamer::defaultCodecParams(const QString &codec)
                 || codec == "theoraenc")
                 bitrate *= 1000;
 
-            if (bitrate < 1)
-                bitrate = 200000;
+            if (bitrate < 1500000)
+                bitrate = 1500000;
 
             // Read default GOP
             int gop = 0;
