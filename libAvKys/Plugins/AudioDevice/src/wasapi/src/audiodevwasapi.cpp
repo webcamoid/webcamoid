@@ -91,36 +91,33 @@ class AudioDevWasapiPrivate
         QMap<QString, QList<AkAudioCaps::SampleFormat>> m_supportedFormats;
         QMap<QString, QList<int>> m_supportedChannels;
         QMap<QString, QList<int>> m_supportedSampleRates;
+        QMap<QString, AkAudioCaps> m_preferredInputCaps;
+        QMap<QString, AkAudioCaps> m_preferredOutputCaps;
         QByteArray m_audioBuffer;
-        IMMDeviceEnumerator *m_deviceEnumerator;
-        IMMDevice *m_pDevice;
-        IAudioClient *m_pAudioClient;
-        IAudioCaptureClient *m_pCaptureClient;
-        IAudioRenderClient *m_pRenderClient;
-        HANDLE m_hEvent;
-        ULONG m_cRef;
+        IMMDeviceEnumerator *m_deviceEnumerator {nullptr};
+        IMMDevice *m_pDevice {nullptr};
+        IAudioClient *m_pAudioClient {nullptr};
+        IAudioCaptureClient *m_pCaptureClient {nullptr};
+        IAudioRenderClient *m_pRenderClient {nullptr};
+        HANDLE m_hEvent {nullptr};
+        ULONG m_cRef {1};
         AkAudioCaps m_curCaps;
         QString m_curDevice;
 
         AudioDevWasapiPrivate(AudioDevWasapi *self):
-            self(self),
-            m_deviceEnumerator(nullptr),
-            m_pDevice(nullptr),
-            m_pAudioClient(nullptr),
-            m_pCaptureClient(nullptr),
-            m_pRenderClient(nullptr),
-            m_hEvent(nullptr),
-            m_cRef(1)
+            self(self)
         {
         }
 
-        inline bool waveFormatFromAk(WAVEFORMATEX *wfx,
-                                     const AkAudioCaps &caps) const;
-        inline void fillDeviceInfo(const QString &device,
-                                   EDataFlow dataFlow,
-                                   QList<AkAudioCaps::SampleFormat> *supportedFormats,
-                                   QList<int> *supportedChannels,
-                                   QList<int> *supportedSampleRates) const;
+        bool waveFormatFromCaps(WAVEFORMATEX *wfx,
+                                const AkAudioCaps &caps) const;
+        AkAudioCaps capsFromWaveFormat(WAVEFORMATEX *wfx) const;
+        void fillDeviceInfo(const QString &device,
+                            QList<AkAudioCaps::SampleFormat> *supportedFormats,
+                            QList<int> *supportedChannels,
+                            QList<int> *supportedSampleRates) const;
+        AkAudioCaps preferredCaps(const QString &device,
+                                  EDataFlow dataFlow) const;
 };
 
 AudioDevWasapi::AudioDevWasapi(QObject *parent):
@@ -191,13 +188,13 @@ QString AudioDevWasapi::description(const QString &device)
 // Get native format for the default audio device.
 AkAudioCaps AudioDevWasapi::preferredFormat(const QString &device)
 {
-    return this->d->m_sinks.contains(device)?
-                AkAudioCaps(AkAudioCaps::SampleFormat_s16,
-                            2,
-                            44100):
-                AkAudioCaps(AkAudioCaps::SampleFormat_u8,
-                            1,
-                            8000);
+    if (this->d->m_preferredOutputCaps.contains(device))
+        return this->d->m_preferredOutputCaps[device];
+
+    if (this->d->m_preferredInputCaps.contains(device))
+        return this->d->m_preferredInputCaps[device];
+
+    return AkAudioCaps();
 }
 
 QList<AkAudioCaps::SampleFormat> AudioDevWasapi::supportedFormats(const QString &device)
@@ -280,21 +277,42 @@ bool AudioDevWasapi::init(const QString &device,
 
     // Set audio device format.
     WAVEFORMATEX wfx;
-    this->d->waveFormatFromAk(&wfx, caps);
-    this->d->m_curCaps = caps;
+    WAVEFORMATEX *ptrWfx = &wfx;
+    WAVEFORMATEX *closestWfx = nullptr;
+    this->d->waveFormatFromCaps(&wfx, caps);
+
+    if (FAILED(this->d->m_pAudioClient->IsFormatSupported(AUDCLNT_SHAREMODE_SHARED,
+                                                          &wfx,
+                                                          &closestWfx))) {
+        this->uninit();
+
+        return false;
+    }
+
+    if (closestWfx)
+        ptrWfx = closestWfx;
+
+    this->d->m_curCaps = this->d->capsFromWaveFormat(ptrWfx);
 
     if (FAILED(hr = this->d->m_pAudioClient->Initialize(AUDCLNT_SHAREMODE_SHARED,
                                                         AUDCLNT_STREAMFLAGS_EVENTCALLBACK,
                                                         hnsRequestedDuration,
                                                         hnsRequestedDuration,
-                                                        &wfx,
+                                                        ptrWfx,
                                                         nullptr))) {
+
+        if (closestWfx)
+            CoTaskMemFree(closestWfx);
+
         this->d->m_error = "Initialize: " + errorCodes->value(hr);
         emit this->errorChanged(this->d->m_error);
         this->uninit();
 
         return false;
     }
+
+    if (closestWfx)
+        CoTaskMemFree(closestWfx);
 
     // Create an event handler for checking when an aundio frame is required
     // for reading or writing.
@@ -593,8 +611,8 @@ ULONG AudioDevWasapi::Release()
     return lRef;
 }
 
-bool AudioDevWasapiPrivate::waveFormatFromAk(WAVEFORMATEX *wfx,
-                                             const AkAudioCaps &caps) const
+bool AudioDevWasapiPrivate::waveFormatFromCaps(WAVEFORMATEX *wfx,
+                                               const AkAudioCaps &caps) const
 {
     if (!wfx)
         return false;
@@ -611,8 +629,27 @@ bool AudioDevWasapiPrivate::waveFormatFromAk(WAVEFORMATEX *wfx,
     return true;
 }
 
+AkAudioCaps AudioDevWasapiPrivate::capsFromWaveFormat(WAVEFORMATEX *wfx) const
+{
+    if (!wfx)
+        return AkAudioCaps();
+
+    auto sampleType =
+        wfx->wFormatTag == WAVE_FORMAT_IEEE_FLOAT?
+            AkAudioCaps::SampleType_float:
+            AkAudioCaps::SampleType_int;
+    auto sampleFormat =
+        AkAudioCaps::sampleFormatFromProperties(sampleType,
+                                                int(wfx->wBitsPerSample),
+                                                Q_BYTE_ORDER,
+                                                false);
+
+    return AkAudioCaps(sampleFormat,
+                       int(wfx->nChannels),
+                       int(wfx->nSamplesPerSec));
+}
+
 void AudioDevWasapiPrivate::fillDeviceInfo(const QString &device,
-                                           EDataFlow dataFlow,
                                            QList<AkAudioCaps::SampleFormat> *supportedFormats,
                                            QList<int> *supportedChannels,
                                            QList<int> *supportedSampleRates) const
@@ -620,22 +657,21 @@ void AudioDevWasapiPrivate::fillDeviceInfo(const QString &device,
     if (!this->m_deviceEnumerator)
         return;
 
-    HRESULT hr;
     IMMDevice *pDevice = nullptr;
     IAudioClient *pAudioClient = nullptr;
 
     // Test if the device is already running,
     if (this->m_curDevice != device) {
         // Get audio device.
-        if (FAILED(hr = this->m_deviceEnumerator->GetDevice(device.toStdWString().c_str(),
-                                                            &pDevice)))
+        if (FAILED(this->m_deviceEnumerator->GetDevice(device.toStdWString().c_str(),
+                                                       &pDevice)))
             return;
 
         // Get an instance for the audio client.
-        if (FAILED(hr = pDevice->Activate(__uuidof(IAudioClient),
-                                          CLSCTX_ALL,
-                                          nullptr,
-                                          reinterpret_cast<void **>(&pAudioClient)))) {
+        if (FAILED(pDevice->Activate(__uuidof(IAudioClient),
+                                     CLSCTX_ALL,
+                                     nullptr,
+                                     reinterpret_cast<void **>(&pAudioClient)))) {
             pDevice->Release();
 
             return;
@@ -652,49 +688,104 @@ void AudioDevWasapiPrivate::fillDeviceInfo(const QString &device,
         AkAudioCaps::SampleFormat_u8
     };
 
-    for (auto &format: preferredFormats) {
-        AkAudioCaps audioCaps(format, 1, 44100);
-        WAVEFORMATEX wfx;
-        WAVEFORMATEX *closestWfx = nullptr;
-        this->waveFormatFromAk(&wfx, audioCaps);
+    for (auto &format: preferredFormats)
+        for (int channels = 1; channels < 3; channels++)
+            for (auto &rate: self->commonSampleRates()) {
+                WAVEFORMATEX wfx;
+                WAVEFORMATEX *closestWfx = nullptr;
+                this->waveFormatFromCaps(&wfx,
+                                         AkAudioCaps(format, channels, rate));
 
-        if (SUCCEEDED(hr = pAudioClient->IsFormatSupported(AUDCLNT_SHAREMODE_SHARED,
-                                                           &wfx,
-                                                           &closestWfx))) {
-            supportedFormats->append(format);
-            CoTaskMemFree(closestWfx);
+                if (SUCCEEDED(pAudioClient->IsFormatSupported(AUDCLNT_SHAREMODE_SHARED,
+                                                              &wfx,
+                                                              &closestWfx))) {
+                    AkAudioCaps::SampleFormat sampleFormat;
+                    int nchannels;
+                    int sampleRate;
+
+                    if (closestWfx) {
+                        auto sampleType =
+                            closestWfx->wFormatTag == WAVE_FORMAT_IEEE_FLOAT?
+                                AkAudioCaps::SampleType_float:
+                                AkAudioCaps::SampleType_int;
+                        sampleFormat =
+                            AkAudioCaps::sampleFormatFromProperties(sampleType,
+                                                                    int(closestWfx->wBitsPerSample),
+                                                                    Q_BYTE_ORDER,
+                                                                    false);
+                        nchannels = int(closestWfx->nChannels);
+                        sampleRate = int(closestWfx->nSamplesPerSec);
+                        CoTaskMemFree(closestWfx);
+                    } else {
+                        sampleFormat = format;
+                        nchannels = channels;
+                        sampleRate = rate;
+                    }
+
+                    if (!supportedFormats->contains(sampleFormat))
+                        supportedFormats->append(sampleFormat);
+
+                    if (!supportedChannels->contains(nchannels))
+                        supportedChannels->append(nchannels);
+
+                    if (!supportedSampleRates->contains(sampleRate))
+                        supportedSampleRates->append(sampleRate);
+                }
+            }
+
+    if (this->m_curDevice != device) {
+        pAudioClient->Release();
+        pDevice->Release();
+    }
+}
+
+AkAudioCaps AudioDevWasapiPrivate::preferredCaps(const QString &device,
+                                                 EDataFlow dataFlow) const
+{
+    if (!this->m_deviceEnumerator)
+        return AkAudioCaps();
+
+    IMMDevice *pDevice = nullptr;
+    IAudioClient *pAudioClient = nullptr;
+
+    // Test if the device is already running,
+    if (this->m_curDevice != device) {
+        // Get audio device.
+        if (FAILED(this->m_deviceEnumerator->GetDevice(device.toStdWString().c_str(),
+                                                       &pDevice)))
+            return AkAudioCaps();
+
+        // Get an instance for the audio client.
+        if (FAILED(pDevice->Activate(__uuidof(IAudioClient),
+                                     CLSCTX_ALL,
+                                     nullptr,
+                                     reinterpret_cast<void **>(&pAudioClient)))) {
+            pDevice->Release();
+
+            return AkAudioCaps();
         }
+    } else {
+        pDevice = this->m_pDevice;
+        pAudioClient = this->m_pAudioClient;
     }
 
-    AkAudioCaps::SampleFormat format =
-            dataFlow == eCapture?
-                AkAudioCaps::SampleFormat_u8:
-                AkAudioCaps::SampleFormat_s16;
+    AkAudioCaps caps = dataFlow == eCapture?
+                AkAudioCaps(AkAudioCaps::SampleFormat_u8,
+                            1,
+                            8000):
+                AkAudioCaps(AkAudioCaps::SampleFormat_s16,
+                            2,
+                            44100);
 
-    for (int channels = 1; channels < 3; channels++) {
-        AkAudioCaps audioCaps(format, channels, 44100);
-        WAVEFORMATEX wfx;
-        WAVEFORMATEX *closestWfx = nullptr;
-        this->waveFormatFromAk(&wfx, audioCaps);
+    WAVEFORMATEX wfx;
+    WAVEFORMATEX *closestWfx = nullptr;
+    this->waveFormatFromCaps(&wfx, caps);
 
-        if (SUCCEEDED(hr = pAudioClient->IsFormatSupported(AUDCLNT_SHAREMODE_SHARED,
-                                                           &wfx,
-                                                           &closestWfx))) {
-            supportedChannels->append(channels);
-            CoTaskMemFree(closestWfx);
-        }
-    }
-
-    for (auto &rate: self->commonSampleRates()) {
-        AkAudioCaps audioCaps(format, 1, rate);
-        WAVEFORMATEX wfx;
-        WAVEFORMATEX *closestWfx = nullptr;
-        this->waveFormatFromAk(&wfx, audioCaps);
-
-        if (SUCCEEDED(hr = pAudioClient->IsFormatSupported(AUDCLNT_SHAREMODE_SHARED,
-                                                           &wfx,
-                                                           &closestWfx))) {
-            supportedSampleRates->append(rate);
+    if (SUCCEEDED(pAudioClient->IsFormatSupported(AUDCLNT_SHAREMODE_SHARED,
+                                      &wfx,
+                                      &closestWfx))) {
+        if (closestWfx) {
+            caps = this->capsFromWaveFormat(closestWfx);
             CoTaskMemFree(closestWfx);
         }
     }
@@ -703,6 +794,8 @@ void AudioDevWasapiPrivate::fillDeviceInfo(const QString &device,
         pAudioClient->Release();
         pDevice->Release();
     }
+
+    return caps;
 }
 
 HRESULT AudioDevWasapi::OnDeviceStateChanged(LPCWSTR pwstrDeviceId,
@@ -780,6 +873,8 @@ void AudioDevWasapi::updateDevices()
     decltype(this->d->m_supportedFormats) supportedFormats;
     decltype(this->d->m_supportedChannels) supportedChannels;
     decltype(this->d->m_supportedSampleRates) supportedSampleRates;
+    decltype(this->d->m_preferredInputCaps) preferredInputCaps;
+    decltype(this->d->m_preferredOutputCaps) preferredOutputCaps;
 
     for (auto &dataFlow: QVector<EDataFlow> {eCapture, eRender}) {
         HRESULT hr;
@@ -831,7 +926,6 @@ void AudioDevWasapi::updateDevices()
                                     QList<int> _supportedChannels;
                                     QList<int> _supportedSampleRates;
                                     this->d->fillDeviceInfo(devId,
-                                                            dataFlow,
                                                             &_supportedFormats,
                                                             &_supportedChannels,
                                                             &_supportedSampleRates);
@@ -851,10 +945,17 @@ void AudioDevWasapi::updateDevices()
                                     if (!_supportedFormats.isEmpty()
                                         && !_supportedChannels.isEmpty()
                                         && !_supportedSampleRates.isEmpty()) {
-                                        if (dataFlow == eCapture)
+                                        if (dataFlow == eCapture) {
                                             inputs << devId;
-                                        else
+                                            preferredInputCaps[devId] =
+                                                this->d->preferredCaps(devId,
+                                                                       dataFlow);
+                                        } else {
                                             outputs << devId;
+                                            preferredOutputCaps[devId] =
+                                                this->d->preferredCaps(devId,
+                                                                       dataFlow);
+                                        }
 
                                         descriptionMap[devId] =
                                                 QString::fromWCharArray(friendlyName.pwszVal);
@@ -891,6 +992,9 @@ void AudioDevWasapi::updateDevices()
 
     if (this->d->m_descriptionMap != descriptionMap)
         this->d->m_descriptionMap = descriptionMap;
+
+    this->d->m_preferredInputCaps = preferredInputCaps;
+    this->d->m_preferredOutputCaps = preferredOutputCaps;
 
     if (this->d->m_sources != inputs) {
         this->d->m_sources = inputs;
