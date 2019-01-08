@@ -40,12 +40,12 @@ class MultiSinkElementPrivate
 {
     public:
         QString m_location;
-        bool m_showFormatOptions {false};
         QVariantList m_userControls;
         QVariantMap m_userControlsValues;
         MediaWriterPtr m_mediaWriter;
         MultiSinkUtils m_utils;
         QList<int> m_inputStreams;
+        bool m_showFormatOptions {false};
 
         // Formats and codecs info cache.
         QStringList m_supportedFormats;

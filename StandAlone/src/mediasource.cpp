@@ -93,6 +93,10 @@ MediaSource::MediaSource(QQmlApplicationEngine *engine, QObject *parent):
                          SIGNAL(captureLibChanged(const QString &)),
                          this,
                          SLOT(saveVideoCaptureCaptureLib(const QString &)));
+        QObject::connect(this->d->m_cameraCapture.data(),
+                         SIGNAL(streamsChanged(const QList<int> &)),
+                         this,
+                         SLOT(webcamStreamsChanged(const QList<int> &)));
     }
 
     if (this->d->m_desktopCapture) {
@@ -510,7 +514,7 @@ void MediaSource::updateStreams()
 
     this->d->m_descriptions.clear();
 
-    for (const QString &camera: cameras) {
+    for (auto &camera: cameras) {
         QString description;
 
         QMetaObject::invokeMethod(this->d->m_cameraCapture.data(),
@@ -755,6 +759,13 @@ void MediaSource::saveProperties()
         config.setValue("MultiSrc.codecLib", this->d->m_uriCapture->property("codecLib"));
 
     config.endGroup();
+}
+
+void MediaSource::webcamStreamsChanged(const QList<int> &streams)
+{
+    Q_UNUSED(streams);
+
+    this->streamUpdated(this->d->m_stream);
 }
 
 #include "moc_mediasource.cpp"

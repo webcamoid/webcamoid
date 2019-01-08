@@ -132,6 +132,7 @@ class MediaSource: public QObject
         void saveDesktopCaptureCaptureLib(const QString &captureLib);
         void saveMultiSrcCodecLib(const QString &codecLib);
         void saveProperties();
+        void webcamStreamsChanged(const QList<int> &streams);
 };
 
 #endif // MEDIASOURCE_H
