@@ -100,6 +100,8 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
         self.createLauncher()
         print('Removing unnecessary files')
         self.removeUnneededFiles(self.installDir)
+        print('\nWritting build system information\n')
+        self.writeBuildInfo()
 
     def solvedepsLibs(self):
         deps = set(self.binarySolver.scanDependencies(self.installDir))
@@ -171,6 +173,46 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
 
         for afile in afiles:
             os.remove(afile)
+
+    def commitHash(self):
+        process = subprocess.Popen(['git', 'rev-parse', 'HEAD'],
+                                    stdout=subprocess.PIPE,
+                                    stderr=subprocess.PIPE,
+                                    cwd=self.rootDir)
+        stdout, stderr = process.communicate()
+
+        if process.returncode != 0:
+            return ''
+
+        return stdout.decode(sys.getdefaultencoding()).strip()
+
+    def writeBuildInfo(self):
+        depsInfoFile = os.path.join(self.rootInstallDir, 'share/build-info.txt')
+
+        # Write repository info.
+
+        commitHash = self.commitHash()
+
+        if len(commitHash) < 1:
+            commitHash = 'Unknown'
+
+        with open(depsInfoFile, 'w') as f:
+            print('    Commit hash: ' + commitHash + '\n')
+            f.write('Commit hash: ' + commitHash + '\n\n')
+
+        # Write host info.
+
+        process = subprocess.Popen(['cmd', '/c', 'ver'],
+                                    stdout=subprocess.PIPE,
+                                    stderr=subprocess.PIPE)
+        stdout, stderr = process.communicate()
+        windowsVersion = stdout.decode(sys.getdefaultencoding()).strip()
+
+        with open(depsInfoFile, 'a') as f:
+            print('    Windows Version: {}'.format(windowsVersion))
+            f.write('Windows Version: {}\n'.format(windowsVersion))
+            print()
+            f.write('\n')
 
     def hrSize(self, size):
         i = int(math.log(size) // math.log(1024))

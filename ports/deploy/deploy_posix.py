@@ -173,6 +173,18 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
 
         return ''
 
+    def commitHash(self):
+        process = subprocess.Popen(['git', 'rev-parse', 'HEAD'],
+                                    stdout=subprocess.PIPE,
+                                    stderr=subprocess.PIPE,
+                                    cwd=self.rootDir)
+        stdout, stderr = process.communicate()
+
+        if process.returncode != 0:
+            return ''
+
+        return stdout.decode(sys.getdefaultencoding()).strip()
+
     def sysInfo(self):
         info = ''
 
@@ -185,9 +197,23 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
 
     def writeBuildInfo(self):
         depsInfoFile = os.path.join(self.rootInstallDir, 'share/build-info.txt')
-        info = self.sysInfo()
+
+        # Write repository info.
+
+        commitHash = self.commitHash()
+
+        if len(commitHash) < 1:
+            commitHash = 'Unknown'
 
         with open(depsInfoFile, 'w') as f:
+            print('    Commit hash: ' + commitHash + '\n')
+            f.write('Commit hash: ' + commitHash + '\n\n')
+
+        # Write host info.
+
+        info = self.sysInfo()
+
+        with open(depsInfoFile, 'a') as f:
             for line in info.split('\n'):
                 if len(line) > 0:
                     print('    ' + line)
@@ -195,6 +221,8 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
 
             print()
             f.write('\n')
+
+        # Write binary dependencies info.
 
         packages = set()
 
