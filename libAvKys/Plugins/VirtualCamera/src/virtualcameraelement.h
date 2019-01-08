@@ -66,7 +66,7 @@ class VirtualCameraElement: public AkElement
                NOTIFY availableMethodsChanged)
 
     public:
-        explicit VirtualCameraElement();
+        VirtualCameraElement();
         ~VirtualCameraElement();
 
         Q_INVOKABLE QStringList driverPaths() const;

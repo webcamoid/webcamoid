@@ -34,7 +34,7 @@ class BlurElement: public AkElement
                NOTIFY radiusChanged)
 
     public:
-        explicit BlurElement();
+        BlurElement();
         ~BlurElement();
 
         Q_INVOKABLE int radius() const;

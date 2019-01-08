@@ -27,7 +27,7 @@ class GrayScaleElement: public AkElement
     Q_OBJECT
 
     public:
-        explicit GrayScaleElement();
+        GrayScaleElement();
 
     public slots:
         AkPacket iStream(const AkPacket &packet);

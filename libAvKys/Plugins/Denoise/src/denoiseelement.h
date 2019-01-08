@@ -49,7 +49,7 @@ class DenoiseElement: public AkElement
                NOTIFY sigmaChanged)
 
     public:
-        explicit DenoiseElement();
+        DenoiseElement();
         ~DenoiseElement();
 
         Q_INVOKABLE int radius() const;

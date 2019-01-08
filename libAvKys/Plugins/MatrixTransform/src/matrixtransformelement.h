@@ -34,7 +34,7 @@ class MatrixTransformElement: public AkElement
                NOTIFY kernelChanged)
 
     public:
-        explicit MatrixTransformElement();
+        MatrixTransformElement();
         ~MatrixTransformElement();
 
         Q_INVOKABLE QVariantList kernel() const;

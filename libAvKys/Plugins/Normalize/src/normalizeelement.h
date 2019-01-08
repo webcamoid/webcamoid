@@ -27,7 +27,7 @@ class NormalizeElement: public AkElement
     Q_OBJECT
 
     public:
-        explicit NormalizeElement();
+        NormalizeElement();
 
     public slots:
         AkPacket iStream(const AkPacket &packet);

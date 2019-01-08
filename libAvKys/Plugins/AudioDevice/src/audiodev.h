@@ -33,7 +33,7 @@ class AudioDev: public QObject
                NOTIFY errorChanged)
 
     public:
-        explicit AudioDev(QObject *parent=nullptr);
+        AudioDev(QObject *parent=nullptr);
         virtual ~AudioDev();
 
         Q_INVOKABLE QVector<int> &commonSampleRates();

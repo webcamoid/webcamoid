@@ -50,7 +50,7 @@ class WaveElement: public AkElement
                NOTIFY backgroundChanged)
 
     public:
-        explicit WaveElement();
+        WaveElement();
         ~WaveElement();
 
         Q_INVOKABLE qreal amplitude() const;

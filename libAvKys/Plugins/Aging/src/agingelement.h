@@ -39,7 +39,7 @@ class AgingElement: public AkElement
                NOTIFY addDustChanged)
 
     public:
-        explicit AgingElement();
+        AgingElement();
         ~AgingElement();
 
         Q_INVOKABLE int nScratches() const;

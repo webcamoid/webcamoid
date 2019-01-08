@@ -86,7 +86,7 @@ class FireElement: public AkElement
             FireModeHard
         };
 
-        explicit FireElement();
+        FireElement();
         ~FireElement();
 
         Q_INVOKABLE QString mode() const;

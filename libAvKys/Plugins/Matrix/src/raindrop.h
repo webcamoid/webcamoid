@@ -31,18 +31,18 @@ class QFont;
 class RainDrop
 {
     public:
-        explicit RainDrop(const QSize &textArea,
-                          const QString &charTable,
-                          const QFont &font,
-                          const QSize &fontSize,
-                          QRgb cursorColor,
-                          QRgb startColor,
-                          QRgb endColor,
-                          int minLength,
-                          int maxLength,
-                          qreal minSpeed,
-                          qreal maxSpeed,
-                          bool randomStart);
+        RainDrop(const QSize &textArea,
+                 const QString &charTable,
+                 const QFont &font,
+                 const QSize &fontSize,
+                 QRgb cursorColor,
+                 QRgb startColor,
+                 QRgb endColor,
+                 int minLength,
+                 int maxLength,
+                 qreal minSpeed,
+                 qreal maxSpeed,
+                 bool randomStart);
         RainDrop(const RainDrop &other);
         ~RainDrop();
         RainDrop &operator =(const RainDrop &other);

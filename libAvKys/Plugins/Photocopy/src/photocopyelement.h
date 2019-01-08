@@ -39,7 +39,7 @@ class PhotocopyElement: public AkElement
                NOTIFY contrastChanged)
 
     public:
-        explicit PhotocopyElement();
+        PhotocopyElement();
         ~PhotocopyElement();
 
         Q_INVOKABLE qreal brightness() const;

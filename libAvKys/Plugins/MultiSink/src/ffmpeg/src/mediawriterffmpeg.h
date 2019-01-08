@@ -32,7 +32,7 @@ class MediaWriterFFmpeg: public MediaWriter
     Q_OBJECT
 
     public:
-        explicit MediaWriterFFmpeg(QObject *parent=nullptr);
+        MediaWriterFFmpeg(QObject *parent=nullptr);
         ~MediaWriterFFmpeg();
 
         Q_INVOKABLE QString outputFormat() const;

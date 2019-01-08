@@ -31,7 +31,7 @@ class MediaWriterGStreamer: public MediaWriter
     Q_OBJECT
 
     public:
-        explicit MediaWriterGStreamer(QObject *parent=nullptr);
+        MediaWriterGStreamer(QObject *parent=nullptr);
         ~MediaWriterGStreamer();
 
         Q_INVOKABLE QString outputFormat() const;

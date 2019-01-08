@@ -53,7 +53,7 @@ class HypnoticElement: public AkElement
             OpticModeHorizontalStripe
         };
 
-        explicit HypnoticElement();
+        HypnoticElement();
         ~HypnoticElement();
 
         Q_INVOKABLE QString mode() const;

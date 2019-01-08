@@ -29,11 +29,11 @@ class VideoStream: public AbstractStream
     Q_OBJECT
 
     public:
-        explicit VideoStream(const AVFormatContext *formatContext=nullptr,
-                             uint index=0, qint64 id=-1,
-                             Clock *globalClock=nullptr,
-                             bool noModify=false,
-                             QObject *parent=nullptr);
+        VideoStream(const AVFormatContext *formatContext=nullptr,
+                    uint index=0, qint64 id=-1,
+                    Clock *globalClock=nullptr,
+                    bool noModify=false,
+                    QObject *parent=nullptr);
         ~VideoStream();
 
         Q_INVOKABLE AkCaps caps() const;

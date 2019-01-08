@@ -67,8 +67,8 @@ class Recording: public QObject
                NOTIFY stateChanged)
 
     public:
-        explicit Recording(QQmlApplicationEngine *engine=nullptr,
-                           QObject *parent=nullptr);
+        Recording(QQmlApplicationEngine *engine=nullptr,
+                  QObject *parent=nullptr);
         ~Recording();
 
         Q_INVOKABLE QStringList availableFormats() const;

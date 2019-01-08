@@ -35,7 +35,7 @@ class TemperatureElement:
                NOTIFY temperatureChanged)
 
     public:
-        explicit TemperatureElement();
+        TemperatureElement();
         ~TemperatureElement();
 
         Q_INVOKABLE qreal temperature() const;

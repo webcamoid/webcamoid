@@ -25,7 +25,7 @@
 template<typename T> class Pixel
 {
     public:
-        explicit Pixel():
+        Pixel():
             r(0), g(0), b(0), a(0)
         {
         }

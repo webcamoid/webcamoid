@@ -25,7 +25,7 @@
 class Stream
 {
     public:
-        explicit Stream()
+        Stream()
         {
         }
 

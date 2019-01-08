@@ -65,7 +65,7 @@ class VideoCaptureElement: public AkMultimediaSourceElement
                NOTIFY captureLibChanged)
 
     public:
-        explicit VideoCaptureElement();
+        VideoCaptureElement();
         ~VideoCaptureElement();
 
         Q_INVOKABLE QStringList medias();

@@ -44,7 +44,7 @@ class DizzyElement: public AkElement
                NOTIFY strengthChanged)
 
     public:
-        explicit DizzyElement();
+        DizzyElement();
         ~DizzyElement();
 
         Q_INVOKABLE qreal speed() const;

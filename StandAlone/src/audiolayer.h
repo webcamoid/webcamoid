@@ -84,8 +84,8 @@ class AudioLayer: public QObject
                NOTIFY inputStateChanged)
 
     public:
-        explicit AudioLayer(QQmlApplicationEngine *engine=nullptr,
-                            QObject *parent=nullptr);
+        AudioLayer(QQmlApplicationEngine *engine=nullptr,
+                   QObject *parent=nullptr);
         ~AudioLayer();
 
         Q_INVOKABLE QStringList audioInput() const;

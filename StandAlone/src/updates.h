@@ -60,8 +60,8 @@ class Updates: public QObject
             VersionTypeDevelopment
         };
 
-        explicit Updates(QQmlApplicationEngine *engine=nullptr,
-                         QObject *parent=nullptr);
+        Updates(QQmlApplicationEngine *engine=nullptr,
+                QObject *parent=nullptr);
         ~Updates();
 
         Q_INVOKABLE bool notifyNewVersion() const;

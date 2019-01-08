@@ -62,7 +62,7 @@ class MultiSrcElement: public AkMultimediaSourceElement
                NOTIFY codecLibChanged)
 
     public:
-        explicit MultiSrcElement();
+        MultiSrcElement();
         ~MultiSrcElement();
 
         Q_INVOKABLE QStringList medias();

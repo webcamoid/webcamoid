@@ -34,7 +34,7 @@ class SwirlElement: public AkElement
                NOTIFY degreesChanged)
 
     public:
-        explicit SwirlElement();
+        SwirlElement();
         ~SwirlElement();
 
         Q_INVOKABLE qreal degrees() const;

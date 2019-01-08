@@ -34,7 +34,7 @@ class DiceElement: public AkElement
                NOTIFY diceSizeChanged)
 
     public:
-        explicit DiceElement();
+        DiceElement();
         ~DiceElement();
 
         Q_INVOKABLE int diceSize() const;

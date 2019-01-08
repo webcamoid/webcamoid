@@ -44,7 +44,7 @@ class DistortElement: public AkElement
                NOTIFY gridSizeLogChanged)
 
     public:
-        explicit DistortElement();
+        DistortElement();
         ~DistortElement();
 
         Q_INVOKABLE qreal amplitude() const;

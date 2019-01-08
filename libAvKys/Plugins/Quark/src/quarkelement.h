@@ -34,7 +34,7 @@ class QuarkElement: public AkElement
                NOTIFY nFramesChanged)
 
     public:
-        explicit QuarkElement();
+        QuarkElement();
         ~QuarkElement();
 
         Q_INVOKABLE int nFrames() const;

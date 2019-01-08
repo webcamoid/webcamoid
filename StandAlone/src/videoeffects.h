@@ -51,8 +51,8 @@ class VideoEffects: public QObject
                NOTIFY advancedModeChanged)
 
     public:
-        explicit VideoEffects(QQmlApplicationEngine *engine=nullptr,
-                              QObject *parent=nullptr);
+        VideoEffects(QQmlApplicationEngine *engine=nullptr,
+                     QObject *parent=nullptr);
         ~VideoEffects();
 
         Q_INVOKABLE QStringList availableEffects() const;

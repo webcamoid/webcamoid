@@ -48,7 +48,7 @@ class AKCOMMONS_EXPORT AkCaps: public QObject
             CapsSubtitle
         };
 
-        explicit AkCaps(QObject *parent=nullptr);
+        AkCaps(QObject *parent=nullptr);
         AkCaps(const QVariantMap &caps);
         AkCaps(const QString &caps);
         AkCaps(const AkCaps &other);

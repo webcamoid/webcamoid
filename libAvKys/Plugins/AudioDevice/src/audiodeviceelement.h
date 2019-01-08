@@ -64,7 +64,7 @@ class AudioDeviceElement: public AkElement
                NOTIFY audioLibChanged)
 
     public:
-        explicit AudioDeviceElement();
+        AudioDeviceElement();
         ~AudioDeviceElement();
 
         Q_INVOKABLE QString defaultInput();

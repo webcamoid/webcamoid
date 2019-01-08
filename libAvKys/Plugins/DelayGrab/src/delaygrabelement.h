@@ -57,7 +57,7 @@ class DelayGrabElement: public AkElement
             DelayGrabModeRingsIncrease
         };
 
-        explicit DelayGrabElement();
+        DelayGrabElement();
         ~DelayGrabElement();
 
         Q_INVOKABLE QString mode() const;

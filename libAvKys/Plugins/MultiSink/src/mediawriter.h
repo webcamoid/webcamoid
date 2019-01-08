@@ -58,7 +58,7 @@ class MediaWriter: public QObject
                NOTIFY codecsBlackListChanged)
 
     public:
-        explicit MediaWriter(QObject *parent=nullptr);
+        MediaWriter(QObject *parent=nullptr);
         virtual ~MediaWriter() = default;
 
         Q_INVOKABLE virtual QString location() const;

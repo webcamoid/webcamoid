@@ -85,7 +85,7 @@ class FaceDetectElement: public AkElement
             MarkerTypeBlur
         };
 
-        explicit FaceDetectElement();
+        FaceDetectElement();
         ~FaceDetectElement();
 
         Q_INVOKABLE QString haarFile() const;

@@ -39,7 +39,7 @@ class FalseColorElement: public AkElement
                NOTIFY softChanged)
 
     public:
-        explicit FalseColorElement();
+        FalseColorElement();
         ~FalseColorElement();
 
         Q_INVOKABLE QVariantList table() const;

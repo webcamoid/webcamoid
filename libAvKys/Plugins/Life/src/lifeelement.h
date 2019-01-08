@@ -45,7 +45,7 @@ class LifeElement: public AkElement
                NOTIFY lumaThresholdChanged)
 
     public:
-        explicit LifeElement();
+        LifeElement();
         ~LifeElement();
 
         Q_INVOKABLE QRgb lifeColor() const;

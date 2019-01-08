@@ -34,7 +34,7 @@ class ChangeHSLElement: public AkElement
                NOTIFY kernelChanged)
 
     public:
-        explicit ChangeHSLElement();
+        ChangeHSLElement();
         ~ChangeHSLElement();
 
         Q_INVOKABLE QVariantList kernel() const;

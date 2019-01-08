@@ -74,7 +74,7 @@ class RadioactiveElement: public AkElement
             RadiationModeHardColor
         };
 
-        explicit RadioactiveElement();
+        RadioactiveElement();
         ~RadioactiveElement();
 
         Q_INVOKABLE QString mode() const;

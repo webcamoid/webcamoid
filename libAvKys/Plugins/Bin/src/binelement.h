@@ -39,7 +39,7 @@ class BinElement: public AkElement
                NOTIFY blockingChanged)
 
     public:
-        explicit BinElement();
+        BinElement();
         ~BinElement();
 
         Q_INVOKABLE QString description() const;

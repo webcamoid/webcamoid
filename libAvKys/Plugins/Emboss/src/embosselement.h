@@ -39,7 +39,7 @@ class EmbossElement: public AkElement
                NOTIFY biasChanged)
 
     public:
-        explicit EmbossElement();
+        EmbossElement();
         ~EmbossElement();
 
         Q_INVOKABLE qreal factor() const;

@@ -34,7 +34,7 @@ class ProbeElement: public AkElement
                NOTIFY logChanged)
 
     public:
-        explicit ProbeElement();
+        ProbeElement();
         ~ProbeElement();
 
         Q_INVOKABLE bool log() const;

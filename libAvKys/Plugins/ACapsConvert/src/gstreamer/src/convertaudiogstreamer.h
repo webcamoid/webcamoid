@@ -29,7 +29,7 @@ class ConvertAudioGStreamer: public ConvertAudio
     Q_OBJECT
 
     public:
-        explicit ConvertAudioGStreamer(QObject *parent=nullptr);
+        ConvertAudioGStreamer(QObject *parent=nullptr);
         ~ConvertAudioGStreamer();
 
         Q_INVOKABLE bool init(const AkAudioCaps &caps);

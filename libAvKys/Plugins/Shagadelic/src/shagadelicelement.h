@@ -34,7 +34,7 @@ class ShagadelicElement: public AkElement
                NOTIFY maskChanged)
 
     public:
-        explicit ShagadelicElement();
+        ShagadelicElement();
         ~ShagadelicElement();
 
         Q_INVOKABLE quint32 mask() const;

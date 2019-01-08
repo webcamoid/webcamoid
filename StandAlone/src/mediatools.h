@@ -51,7 +51,7 @@ class MediaTools: public QObject
                NOTIFY virtualCameraStateChanged)
 
     public:
-        explicit MediaTools(QObject *parent=nullptr);
+        MediaTools(QObject *parent=nullptr);
         ~MediaTools();
 
         Q_INVOKABLE int windowWidth() const;

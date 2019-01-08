@@ -34,7 +34,7 @@ class ColorTransformElement: public AkElement
                NOTIFY kernelChanged)
 
     public:
-        explicit ColorTransformElement();
+        ColorTransformElement();
         ~ColorTransformElement();
 
         Q_INVOKABLE QVariantList kernel() const;

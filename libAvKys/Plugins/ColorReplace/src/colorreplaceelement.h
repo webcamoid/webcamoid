@@ -50,8 +50,8 @@ class ColorReplaceElement: public AkElement
                NOTIFY disableChanged)
 
     public:
-        explicit ColorReplaceElement();
-         ~ColorReplaceElement();
+        ColorReplaceElement();
+        ~ColorReplaceElement();
 
         Q_INVOKABLE QRgb from() const;
         Q_INVOKABLE QRgb to() const;

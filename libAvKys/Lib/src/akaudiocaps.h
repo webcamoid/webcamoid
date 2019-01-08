@@ -199,7 +199,7 @@ class AKCOMMONS_EXPORT AkAudioCaps: public QObject
             Layout_downmix       = Position_StereoLeft | Position_StereoRight
         };
 
-        explicit AkAudioCaps(QObject *parent=nullptr);
+        AkAudioCaps(QObject *parent=nullptr);
         AkAudioCaps(const QVariantMap &caps);
         AkAudioCaps(const QString &caps);
         AkAudioCaps(const AkCaps &caps);

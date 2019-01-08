@@ -53,7 +53,7 @@ class Pipeline: public QObject
                READ outputs)
 
     public:
-        explicit Pipeline(QObject *parent=nullptr);
+        Pipeline(QObject *parent=nullptr);
         ~Pipeline();
 
         Q_INVOKABLE bool parse(const QString &description);

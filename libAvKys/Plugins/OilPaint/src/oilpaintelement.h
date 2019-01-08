@@ -34,7 +34,7 @@ class OilPaintElement: public AkElement
                NOTIFY radiusChanged)
 
     public:
-        explicit OilPaintElement();
+        OilPaintElement();
         ~OilPaintElement();
 
         Q_INVOKABLE int radius() const;

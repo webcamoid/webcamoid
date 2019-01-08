@@ -27,7 +27,7 @@ class EqualizeElement: public AkElement
     Q_OBJECT
 
     public:
-        explicit EqualizeElement();
+        EqualizeElement();
 
     public slots:
         AkPacket iStream(const AkPacket &packet);

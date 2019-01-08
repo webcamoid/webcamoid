@@ -29,26 +29,26 @@ class HaarCascade;
 class HaarCascadeHID
 {
     public:
-        explicit HaarCascadeHID(const HaarCascade &cascade,
-                                int startX,
-                                int endX,
-                                int startY,
-                                int endY,
-                                int windowWidth,
-                                int windowHeight,
-                                int oWidth,
-                                const quint32 *integral,
-                                const quint32 *tiltedIntegral,
-                                qreal step,
-                                qreal invArea,
-                                qreal scale,
-                                bool cannyPruning,
-                                const quint32 **p,
-                                const quint64 **pq,
-                                const quint32 **ip,
-                                const quint32 **icp,
-                                QList<QRect> *roi,
-                                QMutex *mutex);
+        HaarCascadeHID(const HaarCascade &cascade,
+                       int startX,
+                       int endX,
+                       int startY,
+                       int endY,
+                       int windowWidth,
+                       int windowHeight,
+                       int oWidth,
+                       const quint32 *integral,
+                       const quint32 *tiltedIntegral,
+                       qreal step,
+                       qreal invArea,
+                       qreal scale,
+                       bool cannyPruning,
+                       const quint32 **p,
+                       const quint64 **pq,
+                       const quint32 **ip,
+                       const quint32 **icp,
+                       QList<QRect> *roi,
+                       QMutex *mutex);
         ~HaarCascadeHID();
 
         static void run(HaarCascadeHID *cascade);
@@ -98,7 +98,7 @@ class HaarCascade: public QObject
                NOTIFY errorStringChanged)
 
     public:
-        explicit HaarCascade(QObject *parent=nullptr);
+        HaarCascade(QObject *parent=nullptr);
         HaarCascade(const HaarCascade &other);
         ~HaarCascade() = default;
 

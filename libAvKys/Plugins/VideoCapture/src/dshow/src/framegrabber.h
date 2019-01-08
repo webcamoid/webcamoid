@@ -29,7 +29,7 @@ class FrameGrabber: public QObject, public ISampleGrabberCB
     Q_OBJECT
 
     public:
-        explicit FrameGrabber();
+        FrameGrabber();
         virtual ~FrameGrabber();
         STDMETHODIMP_(ULONG) AddRef();
         STDMETHODIMP_(ULONG) Release();

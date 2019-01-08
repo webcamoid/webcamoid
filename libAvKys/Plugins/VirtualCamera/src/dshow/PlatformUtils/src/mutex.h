@@ -29,7 +29,7 @@ namespace AkVCam
     class Mutex
     {
         public:
-            explicit Mutex(const std::wstring &name={});
+            Mutex(const std::wstring &name={});
             Mutex(const Mutex &other);
             ~Mutex();
             Mutex &operator =(const Mutex &other);

@@ -54,7 +54,7 @@ class HalftoneElement: public AkElement
                NOTIFY interceptChanged)
 
     public:
-        explicit HalftoneElement();
+        HalftoneElement();
         ~HalftoneElement();
 
         Q_INVOKABLE QString pattern() const;

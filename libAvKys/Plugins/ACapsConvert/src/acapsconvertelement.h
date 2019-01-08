@@ -40,7 +40,7 @@ class ACapsConvertElement: public AkElement
                NOTIFY convertLibChanged)
 
     public:
-        explicit ACapsConvertElement();
+        ACapsConvertElement();
         ~ACapsConvertElement();
 
         Q_INVOKABLE QString caps() const;

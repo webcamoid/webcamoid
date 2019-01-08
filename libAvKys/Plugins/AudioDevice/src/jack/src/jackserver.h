@@ -42,9 +42,9 @@ class JackServer: public QObject
     Q_OBJECT
 
     public:
-        explicit JackServer(on_device_acquire_t onDeviceAcquire=nullptr,
-                            on_device_release_t onDeviceRelease=nullptr,
-                            QObject *parent=nullptr);
+        JackServer(on_device_acquire_t onDeviceAcquire=nullptr,
+                   on_device_release_t onDeviceRelease=nullptr,
+                   QObject *parent=nullptr);
         ~JackServer();
 
         Q_INVOKABLE bool start(jackctl_driver_t *driver);

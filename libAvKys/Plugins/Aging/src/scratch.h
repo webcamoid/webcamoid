@@ -25,7 +25,7 @@
 class Scratch
 {
     public:
-        explicit Scratch();
+        Scratch();
         Scratch(qreal minLife, qreal maxLife,
                 qreal minDLife, qreal maxDLife,
                 qreal minX, qreal maxX,

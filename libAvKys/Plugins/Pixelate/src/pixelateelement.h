@@ -34,7 +34,7 @@ class PixelateElement: public AkElement
                NOTIFY blockSizeChanged)
 
     public:
-        explicit PixelateElement();
+        PixelateElement();
         ~PixelateElement();
 
         Q_INVOKABLE QSize blockSize() const;

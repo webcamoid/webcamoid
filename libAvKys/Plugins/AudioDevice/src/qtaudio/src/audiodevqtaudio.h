@@ -29,7 +29,7 @@ class AudioDevQtAudio: public AudioDev
     Q_OBJECT
 
     public:
-        explicit AudioDevQtAudio(QObject *parent=nullptr);
+        AudioDevQtAudio(QObject *parent=nullptr);
         ~AudioDevQtAudio();
 
         Q_INVOKABLE QString error() const;

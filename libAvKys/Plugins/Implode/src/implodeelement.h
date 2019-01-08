@@ -34,7 +34,7 @@ class ImplodeElement: public AkElement
                NOTIFY amountChanged)
 
     public:
-        explicit ImplodeElement();
+        ImplodeElement();
         ~ImplodeElement();
 
         Q_INVOKABLE qreal amount() const;

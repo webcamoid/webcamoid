@@ -45,7 +45,7 @@ class ScanLinesElement: public AkElement
                NOTIFY hideColorChanged)
 
     public:
-        explicit ScanLinesElement();
+        ScanLinesElement();
         ~ScanLinesElement();
 
         Q_INVOKABLE int showSize() const;

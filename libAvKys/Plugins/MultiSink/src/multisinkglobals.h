@@ -32,7 +32,7 @@ class MultiSinkGlobals: public QObject
                NOTIFY codecLibChanged)
 
     public:
-        explicit MultiSinkGlobals(QObject *parent=nullptr);
+        MultiSinkGlobals(QObject *parent=nullptr);
 
         Q_INVOKABLE QString codecLib() const;
 

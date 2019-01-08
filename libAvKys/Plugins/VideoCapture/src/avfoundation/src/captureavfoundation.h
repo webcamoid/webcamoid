@@ -38,7 +38,7 @@ class CaptureAvFoundation: public Capture
             IoMethodUserPointer
         };
 
-        explicit CaptureAvFoundation(QObject *parent=nullptr);
+        CaptureAvFoundation(QObject *parent=nullptr);
         ~CaptureAvFoundation();
 
         Q_INVOKABLE QStringList webcams() const;

@@ -27,7 +27,7 @@ class InvertElement: public AkElement
     Q_OBJECT
 
     public:
-        explicit InvertElement();
+        InvertElement();
 
     public slots:
         AkPacket iStream(const AkPacket &packet);

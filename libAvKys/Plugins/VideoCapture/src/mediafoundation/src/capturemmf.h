@@ -40,7 +40,7 @@ class CaptureMMF:
             IoMethodASync
         };
 
-        explicit CaptureMMF(QObject *parent=nullptr);
+        CaptureMMF(QObject *parent=nullptr);
         ~CaptureMMF();
 
         Q_INVOKABLE QStringList webcams() const;

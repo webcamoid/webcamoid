@@ -50,7 +50,7 @@ class ColorFilterElement: public AkElement
                NOTIFY disableChanged)
 
     public:
-        explicit ColorFilterElement();
+        ColorFilterElement();
         ~ColorFilterElement();
 
         Q_INVOKABLE QRgb color() const;

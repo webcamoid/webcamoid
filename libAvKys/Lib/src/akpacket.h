@@ -71,7 +71,7 @@ class AKCOMMONS_EXPORT AkPacket: public QObject
                NOTIFY indexChanged)
 
     public:
-        explicit AkPacket(QObject *parent=nullptr);
+        AkPacket(QObject *parent=nullptr);
         AkPacket(const AkCaps &caps,
                  const QByteArray &buffer=QByteArray(),
                  qint64 pts=0,

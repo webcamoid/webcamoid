@@ -95,7 +95,7 @@ class MatrixElement: public AkElement
                NOTIFY showCursorChanged)
 
     public:
-        explicit MatrixElement();
+        MatrixElement();
         ~MatrixElement();
 
         Q_INVOKABLE int nDrops() const;

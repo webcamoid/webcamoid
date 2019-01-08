@@ -29,7 +29,7 @@ class ConvertVideoGStreamer: public ConvertVideo
     Q_OBJECT
 
     public:
-        explicit ConvertVideoGStreamer(QObject *parent=nullptr);
+        ConvertVideoGStreamer(QObject *parent=nullptr);
         ~ConvertVideoGStreamer();
 
         Q_INVOKABLE void packetEnqueue(const AkPacket &packet);

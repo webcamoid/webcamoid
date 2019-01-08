@@ -35,7 +35,7 @@ class AKCOMMONS_EXPORT AkAudioPacket: public AkPacket
                NOTIFY capsChanged)
 
     public:
-        explicit AkAudioPacket(QObject *parent=nullptr);
+        AkAudioPacket(QObject *parent=nullptr);
         AkAudioPacket(const AkAudioCaps &caps,
                       const QByteArray &buffer=QByteArray(),
                       qint64 pts=0,

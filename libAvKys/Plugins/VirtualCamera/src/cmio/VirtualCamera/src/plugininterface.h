@@ -30,7 +30,7 @@ namespace AkVCam
     class PluginInterface: public ObjectInterface
     {
         public:
-            explicit PluginInterface();
+            PluginInterface();
             ~PluginInterface();
 
             CMIOObjectID objectID() const;

@@ -48,7 +48,7 @@ class QtScreenDev: public ScreenDev
                NOTIFY fpsChanged)
 
     public:
-        explicit QtScreenDev();
+        QtScreenDev();
         ~QtScreenDev();
 
         Q_INVOKABLE AkFrac fps() const;

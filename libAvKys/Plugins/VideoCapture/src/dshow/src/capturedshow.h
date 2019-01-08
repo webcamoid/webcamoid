@@ -39,7 +39,7 @@ class CaptureDShow: public Capture, QAbstractNativeEventFilter
             IoMethodGrabBuffer
         };
 
-        explicit CaptureDShow(QObject *parent=nullptr);
+        CaptureDShow(QObject *parent=nullptr);
         ~CaptureDShow();
 
         Q_INVOKABLE QStringList webcams() const;

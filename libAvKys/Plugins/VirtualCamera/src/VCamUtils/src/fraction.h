@@ -32,7 +32,7 @@ namespace AkVCam
     class Fraction
     {
         public:
-            explicit Fraction();
+            Fraction();
             Fraction(int64_t num, int64_t den);
             Fraction(const std::string &str);
             Fraction(const std::wstring &str);

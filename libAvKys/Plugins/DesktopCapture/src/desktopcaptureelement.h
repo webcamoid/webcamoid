@@ -58,7 +58,7 @@ class DesktopCaptureElement: public AkMultimediaSourceElement
                NOTIFY captureLibChanged)
 
     public:
-        explicit DesktopCaptureElement();
+        DesktopCaptureElement();
         ~DesktopCaptureElement();
 
         Q_INVOKABLE AkFrac fps() const;

@@ -77,7 +77,7 @@ class CharifyElement: public AkElement
             ColorModeFixed
         };
 
-        explicit CharifyElement();
+        CharifyElement();
         ~CharifyElement();
 
         Q_INVOKABLE QString mode() const;

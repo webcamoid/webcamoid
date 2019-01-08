@@ -32,8 +32,8 @@ class MultiplexElement: public AkElement
     Q_PROPERTY(QString caps READ caps WRITE setCaps RESET resetCaps)
 
     public:
-        explicit MultiplexElement();
-         ~MultiplexElement();
+        MultiplexElement();
+        ~MultiplexElement();
 
         Q_INVOKABLE int inputIndex() const;
         Q_INVOKABLE int outputIndex() const;

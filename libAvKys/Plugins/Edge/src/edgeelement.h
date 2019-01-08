@@ -54,7 +54,7 @@ class EdgeElement: public AkElement
                NOTIFY invertChanged)
 
     public:
-        explicit EdgeElement();
+        EdgeElement();
         ~EdgeElement();
 
         Q_INVOKABLE bool canny() const;

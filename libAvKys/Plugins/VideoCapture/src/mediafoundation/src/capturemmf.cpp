@@ -190,9 +190,9 @@ class CaptureMMFPrivate
         QStringList m_webcams;
         QString m_device;
         QList<int> m_streams;
-        qint64 m_id;
-        DWORD m_streamIndex;
-        CaptureMMF::IoMethod m_ioMethod;
+        qint64 m_id {-1};
+        DWORD m_streamIndex {MF_SOURCE_READER_FIRST_VIDEO_STREAM};
+        CaptureMMF::IoMethod m_ioMethod {CaptureMMF::IoMethodSync};
         MediaSourcePtr m_mediaSource;
         SourceReaderPtr m_sourceReader;
         QMutex m_controlsMutex;
@@ -201,7 +201,6 @@ class CaptureMMFPrivate
         QVariantMap m_localImageControls;
         QVariantMap m_localCameraControls;
 
-        CaptureMMFPrivate();
         QVector<ActivatePtr> sources() const;
         ActivatePtr source(const QString &sourceId) const;
         MediaSourcePtr mediaSource(const QString &sourceId) const;
@@ -236,7 +235,6 @@ CaptureMMF::CaptureMMF(QObject *parent):
     QAbstractNativeEventFilter()
 {
     this->d = new CaptureMMFPrivate;
-
     qApp->installNativeEventFilter(this);
 }
 
@@ -400,7 +398,7 @@ bool CaptureMMF::resetImageControls()
 {
     QVariantMap controls;
 
-    for (const QVariant &control: this->imageControls()) {
+    for (auto &control: this->imageControls()) {
         QVariantList params = control.toList();
         controls[params[0].toString()] = params[5].toInt();
     }
@@ -448,9 +446,8 @@ bool CaptureMMF::resetCameraControls()
 {
     QVariantMap controls;
 
-    for (const QVariant &control: this->cameraControls()) {
+    for (auto &control: this->cameraControls()) {
         QVariantList params = control.toList();
-
         controls[params[0].toString()] = params[5].toInt();
     }
 
@@ -702,8 +699,8 @@ void CaptureMMF::setDevice(const QString &device)
     }
 
     this->d->m_controlsMutex.lock();
-    QVariantMap imageStatus = this->d->controlStatus(this->d->m_globalImageControls);
-    QVariantMap cameraStatus = this->d->controlStatus(this->d->m_globalCameraControls);
+    auto imageStatus = this->d->controlStatus(this->d->m_globalImageControls);
+    auto cameraStatus = this->d->controlStatus(this->d->m_globalCameraControls);
     this->d->m_controlsMutex.unlock();
 
     emit this->deviceChanged(device);
@@ -783,12 +780,7 @@ void CaptureMMF::reset()
     this->resetCameraControls();
 }
 
-CaptureMMFPrivate::CaptureMMFPrivate():
-    m_id(-1),
-    m_streamIndex(MF_SOURCE_READER_FIRST_VIDEO_STREAM),
-    m_ioMethod(CaptureMMF::IoMethodSync)
-{
-}
+
 
 QVector<ActivatePtr> CaptureMMFPrivate::sources() const
 {
@@ -853,7 +845,7 @@ MediaSourcePtr CaptureMMFPrivate::mediaSource(const QString &sourceId) const
     auto source = this->source(sourceId);
 
     if (!source)
-        return MediaSourcePtr();
+        return {};
 
     IMFMediaSource *mediaSource = nullptr;
 
@@ -918,12 +910,12 @@ MediaTypeHandlerPtr CaptureMMFPrivate::stream(IMFMediaSource *mediaSource,
                                               DWORD streamIndex) const
 {
     if (!mediaSource)
-        return MediaTypeHandlerPtr();
+        return {};
 
     IMFPresentationDescriptor *presentationDescriptor = nullptr;
 
     if (FAILED(mediaSource->CreatePresentationDescriptor(&presentationDescriptor)))
-        return MediaTypeHandlerPtr();
+        return {};
 
     MediaTypeHandlerPtr stream;
     IMFMediaTypeHandler *mediaTypeHandler = nullptr;
@@ -1115,7 +1107,7 @@ QVariantList CaptureMMFPrivate::imageControls(IUnknown *device) const
 
     if (SUCCEEDED(device->QueryInterface(IID_IAMVideoProcAmp,
                                          reinterpret_cast<void **>(&pProcAmp)))) {
-        for (const VideoProcAmpProperty &property: vpapToStr->keys()) {
+        for (auto &property: vpapToStr->keys()) {
             if (SUCCEEDED(pProcAmp->GetRange(property,
                                              reinterpret_cast<LONG *>(&min),
                                              reinterpret_cast<LONG *>(&max),
@@ -1134,9 +1126,6 @@ QVariantList CaptureMMFPrivate::imageControls(IUnknown *device) const
                         type = "boolean";
                     else
                         type = "integer";
-
-                    if (value == defaultValue)
-                        defaultValue = (min + max) / 2;
 
                     control << vpapToStr->value(property)
                             << type
@@ -1167,7 +1156,7 @@ bool CaptureMMFPrivate::setImageControls(IUnknown *device,
 
     if (SUCCEEDED(device->QueryInterface(IID_IAMVideoProcAmp,
                                          reinterpret_cast<void **>(&pProcAmp)))) {
-        for (const VideoProcAmpProperty &property: vpapToStr->keys()) {
+        for (auto &property: vpapToStr->keys()) {
             QString propertyStr = vpapToStr->value(property);
 
             if (imageControls.contains(propertyStr))
@@ -1199,7 +1188,7 @@ QVariantList CaptureMMFPrivate::cameraControls(IUnknown *device) const
 
     if (SUCCEEDED(device->QueryInterface(IID_IAMCameraControl,
                                          reinterpret_cast<void **>(&pCameraControl)))) {
-        for (const CameraControlProperty &cameraControl: ccToStr->keys()) {
+        for (auto &cameraControl: ccToStr->keys()) {
             if (SUCCEEDED(pCameraControl->GetRange(cameraControl,
                                                    reinterpret_cast<LONG *>(&min),
                                                    reinterpret_cast<LONG *>(&max),
@@ -1240,7 +1229,7 @@ bool CaptureMMFPrivate::setCameraControls(IUnknown *device,
 
     if (SUCCEEDED(device->QueryInterface(IID_IAMCameraControl,
                                          reinterpret_cast<void **>(&pCameraControl)))) {
-        for (const CameraControlProperty &cameraControl: ccToStr->keys()) {
+        for (auto &cameraControl: ccToStr->keys()) {
             QString cameraControlStr = ccToStr->value(cameraControl);
 
             if (cameraControls.contains(cameraControlStr))
@@ -1259,7 +1248,7 @@ QVariantMap CaptureMMFPrivate::controlStatus(const QVariantList &controls) const
 {
     QVariantMap controlStatus;
 
-    for (const QVariant &control: controls) {
+    for (auto &control: controls) {
         QVariantList params = control.toList();
         QString controlName = params[0].toString();
         controlStatus[controlName] = params[6];
@@ -1273,7 +1262,7 @@ QVariantMap CaptureMMFPrivate::mapDiff(const QVariantMap &map1,
 {
     QVariantMap map;
 
-    for (const QString &control: map2.keys())
+    for (auto &control: map2.keys())
         if (!map1.contains(control)
             || map1[control] != map2[control]) {
             map[control] = map2[control];

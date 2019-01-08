@@ -69,8 +69,8 @@ class MediaSource: public QObject
                NOTIFY playOnStartChanged)
 
     public:
-        explicit MediaSource(QQmlApplicationEngine *engine=nullptr,
-                             QObject *parent=nullptr);
+        MediaSource(QQmlApplicationEngine *engine=nullptr,
+                    QObject *parent=nullptr);
         ~MediaSource();
 
         Q_INVOKABLE QString stream() const;

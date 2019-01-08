@@ -27,7 +27,7 @@ class CliOptionsPrivate;
 class CliOptions: public QCommandLineParser
 {
     public:
-        explicit CliOptions();
+        CliOptions();
         ~CliOptions();
 
         QCommandLineOption configPathOpt() const;

@@ -34,7 +34,7 @@ class PrimariesColorsElement: public AkElement
                NOTIFY factorChanged)
 
     public:
-        explicit PrimariesColorsElement();
+        PrimariesColorsElement();
         ~PrimariesColorsElement();
 
         Q_INVOKABLE int factor() const;

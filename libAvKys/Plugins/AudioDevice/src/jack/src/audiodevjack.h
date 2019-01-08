@@ -29,7 +29,7 @@ class AudioDevJack: public AudioDev
     Q_OBJECT
 
     public:
-        explicit AudioDevJack(QObject *parent=nullptr);
+        AudioDevJack(QObject *parent=nullptr);
         ~AudioDevJack();
 
         Q_INVOKABLE QString error() const;

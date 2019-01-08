@@ -39,7 +39,7 @@ class NervousElement: public AkElement
                NOTIFY simpleChanged)
 
     public:
-        explicit NervousElement();
+        NervousElement();
         ~NervousElement();
 
         Q_INVOKABLE int nFrames() const;

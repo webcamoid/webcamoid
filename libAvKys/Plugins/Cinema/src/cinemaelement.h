@@ -40,7 +40,7 @@ class CinemaElement: public AkElement
                NOTIFY stripColorChanged)
 
     public:
-        explicit CinemaElement();
+        CinemaElement();
         ~CinemaElement();
 
         Q_INVOKABLE qreal stripSize() const;

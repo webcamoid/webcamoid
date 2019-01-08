@@ -50,7 +50,7 @@ class VignetteElement: public AkElement
                NOTIFY softnessChanged)
 
     public:
-        explicit VignetteElement();
+        VignetteElement();
         ~VignetteElement();
 
         Q_INVOKABLE QRgb color() const;

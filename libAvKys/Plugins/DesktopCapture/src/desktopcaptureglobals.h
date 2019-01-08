@@ -32,7 +32,7 @@ class DesktopCaptureGlobals: public QObject
                NOTIFY captureLibChanged)
 
     public:
-        explicit DesktopCaptureGlobals(QObject *parent=nullptr);
+        DesktopCaptureGlobals(QObject *parent=nullptr);
 
         Q_INVOKABLE QString captureLib() const;
 

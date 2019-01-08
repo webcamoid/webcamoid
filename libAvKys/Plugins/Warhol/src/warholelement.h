@@ -34,7 +34,7 @@ class WarholElement: public AkElement
                NOTIFY nFramesChanged)
 
     public:
-        explicit WarholElement();
+        WarholElement();
         ~WarholElement();
 
         Q_INVOKABLE int nFrames() const;

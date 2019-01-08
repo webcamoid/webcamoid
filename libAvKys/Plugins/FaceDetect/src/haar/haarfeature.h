@@ -35,12 +35,12 @@ typedef QVector<HaarFeature> HaarFeatureVector;
 class HaarFeatureHID
 {
     public:
-        explicit HaarFeatureHID(const HaarFeature &feature,
-                                int oWidth,
-                                const quint32 *integral,
-                                const quint32 *tiltedIntegral,
-                                qreal invArea,
-                                qreal scale);
+        HaarFeatureHID(const HaarFeature &feature,
+                       int oWidth,
+                       const quint32 *integral,
+                       const quint32 *tiltedIntegral,
+                       qreal invArea,
+                       qreal scale);
 
         int m_count;
         bool m_tilted;
@@ -75,7 +75,7 @@ class HaarFeature: public QObject
     Q_OBJECT
 
     public:
-        explicit HaarFeature(QObject *parent=nullptr);
+        HaarFeature(QObject *parent=nullptr);
         HaarFeature(const HaarFeature &other);
         ~HaarFeature() = default;
 

@@ -65,7 +65,7 @@ class AudioGenElement: public AkElement
             WaveTypeWhiteNoise,
         };
 
-        explicit AudioGenElement();
+        AudioGenElement();
         ~AudioGenElement();
 
         Q_INVOKABLE QString caps() const;

@@ -29,12 +29,12 @@ typedef QVector<HaarTree> HaarTreeVector;
 class HaarTreeHID
 {
     public:
-        explicit HaarTreeHID(const HaarTree &tree,
-                             int oWidth,
-                             const quint32 *integral,
-                             const quint32 *tiltedIntegral,
-                             qreal invArea,
-                             qreal scale);
+        HaarTreeHID(const HaarTree &tree,
+                    int oWidth,
+                    const quint32 *integral,
+                    const quint32 *tiltedIntegral,
+                    qreal invArea,
+                    qreal scale);
         ~HaarTreeHID();
 
         int m_count;
@@ -76,7 +76,7 @@ class HaarTree: public QObject
     Q_OBJECT
 
     public:
-        explicit HaarTree(QObject *parent=nullptr);
+        HaarTree(QObject *parent=nullptr);
         HaarTree(const HaarTree &other);
         ~HaarTree() = default;
 

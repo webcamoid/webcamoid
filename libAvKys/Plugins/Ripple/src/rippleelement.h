@@ -61,7 +61,7 @@ class RippleElement: public AkElement
             RippleModeRain
         };
 
-        explicit RippleElement();
+        RippleElement();
         ~RippleElement();
 
         Q_INVOKABLE QString mode() const;

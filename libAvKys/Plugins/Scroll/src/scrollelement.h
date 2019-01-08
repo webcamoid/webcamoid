@@ -39,7 +39,7 @@ class ScrollElement: public AkElement
                NOTIFY noiseChanged)
 
     public:
-        explicit ScrollElement();
+        ScrollElement();
         ~ScrollElement();
 
         Q_INVOKABLE qreal speed() const;

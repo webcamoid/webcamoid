@@ -34,7 +34,7 @@ class WarpElement: public AkElement
                NOTIFY ripplesChanged)
 
     public:
-        explicit WarpElement();
+        WarpElement();
         ~WarpElement();
 
         Q_INVOKABLE qreal ripples() const;

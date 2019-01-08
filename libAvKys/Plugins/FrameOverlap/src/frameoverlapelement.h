@@ -39,7 +39,7 @@ class FrameOverlapElement: public AkElement
                NOTIFY strideChanged)
 
     public:
-        explicit FrameOverlapElement();
+        FrameOverlapElement();
         ~FrameOverlapElement();
 
         Q_INVOKABLE int nFrames() const;

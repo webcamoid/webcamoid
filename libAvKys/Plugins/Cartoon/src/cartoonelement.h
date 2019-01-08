@@ -65,7 +65,7 @@ class CartoonElement: public AkElement
                NOTIFY scanSizeChanged)
 
     public:
-        explicit CartoonElement();
+        CartoonElement();
         ~CartoonElement();
 
         Q_INVOKABLE int ncolors() const;

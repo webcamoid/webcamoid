@@ -34,7 +34,7 @@ class ColorTapElement: public AkElement
                NOTIFY tableChanged)
 
     public:
-        explicit ColorTapElement();
+        ColorTapElement();
         ~ColorTapElement();
 
         Q_INVOKABLE QString table() const;

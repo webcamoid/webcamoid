@@ -77,7 +77,7 @@ class MultiSinkElement: public AkElement
                NOTIFY codecsBlackListChanged)
 
     public:
-        explicit MultiSinkElement();
+        MultiSinkElement();
         ~MultiSinkElement();
 
         Q_INVOKABLE QString location() const;

@@ -65,7 +65,7 @@ class AKCOMMONS_EXPORT AkElement: public QObject
             ElementStatePlaying
         };
 
-        explicit AkElement(QObject *parent=nullptr);
+        AkElement(QObject *parent=nullptr);
         virtual ~AkElement();
 
         Q_INVOKABLE QString pluginId() const;

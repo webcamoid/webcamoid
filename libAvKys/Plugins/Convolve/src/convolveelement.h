@@ -50,7 +50,7 @@ class ConvolveElement: public AkElement
                NOTIFY biasChanged)
 
     public:
-        explicit ConvolveElement();
+        ConvolveElement();
         ~ConvolveElement();
 
         Q_INVOKABLE QVariantList kernel() const;

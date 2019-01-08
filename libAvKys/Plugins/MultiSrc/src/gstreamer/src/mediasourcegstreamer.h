@@ -39,7 +39,7 @@ class MediaSourceGStreamer: public MediaSource
                NOTIFY showLogChanged)
 
     public:
-        explicit MediaSourceGStreamer(QObject *parent=nullptr);
+        MediaSourceGStreamer(QObject *parent=nullptr);
         ~MediaSourceGStreamer();
 
         Q_INVOKABLE QStringList medias() const;

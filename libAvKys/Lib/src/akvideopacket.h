@@ -38,7 +38,7 @@ class AKCOMMONS_EXPORT AkVideoPacket: public AkPacket
                NOTIFY capsChanged)
 
     public:
-        explicit AkVideoPacket(QObject *parent=nullptr);
+        AkVideoPacket(QObject *parent=nullptr);
         AkVideoPacket(const AkVideoCaps &caps,
                       const QByteArray &buffer=QByteArray(),
                       qint64 pts=0,

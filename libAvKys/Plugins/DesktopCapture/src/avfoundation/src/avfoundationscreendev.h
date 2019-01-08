@@ -50,7 +50,7 @@ class AVFoundationScreenDev: public ScreenDev
                NOTIFY fpsChanged)
 
     public:
-        explicit AVFoundationScreenDev();
+        AVFoundationScreenDev();
         ~AVFoundationScreenDev();
 
         Q_INVOKABLE AkFrac fps() const;

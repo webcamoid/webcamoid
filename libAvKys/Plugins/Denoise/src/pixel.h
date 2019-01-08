@@ -20,12 +20,13 @@
 #ifndef PIXEL_H
 #define PIXEL_H
 
+#include <cmath>
 #include <qrgb.h>
 
 template<typename T> class Pixel
 {
     public:
-        explicit Pixel():
+        Pixel():
             r(0), g(0), b(0)
         {
         }
@@ -36,7 +37,8 @@ template<typename T> class Pixel
 
         template<typename R> Pixel &operator =(const Pixel<R> &other)
         {
-            if ((void *) this != (void *) &other) {
+            if (reinterpret_cast<void *>(this)
+                != reinterpret_cast<const void *>(&other)) {
                 this->r = other.r;
                 this->g = other.g;
                 this->b = other.b;
@@ -143,9 +145,9 @@ template <typename R, typename S> inline Pixel<R> mult(R c, const Pixel<S> &pixe
 
 inline PixelU64 pow2(QRgb pixel)
 {
-    quint8 r = qRed(pixel);
-    quint8 g = qGreen(pixel);
-    quint8 b = qBlue(pixel);
+    auto r = quint8(qRed(pixel));
+    auto g = quint8(qGreen(pixel));
+    auto b = quint8(qBlue(pixel));
 
     return PixelU64(r * r, g * g, b * b);
 }
