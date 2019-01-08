@@ -175,19 +175,24 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
             os.remove(afile)
 
     def commitHash(self):
-        process = subprocess.Popen(['git', 'rev-parse', 'HEAD'],
-                                    stdout=subprocess.PIPE,
-                                    stderr=subprocess.PIPE,
-                                    cwd=self.rootDir)
-        stdout, stderr = process.communicate()
+        try:
+            process = subprocess.Popen(['git', 'rev-parse', 'HEAD'],
+                                        stdout=subprocess.PIPE,
+                                        stderr=subprocess.PIPE,
+                                        cwd=self.rootDir)
+            stdout, stderr = process.communicate()
 
-        if process.returncode != 0:
+            if process.returncode != 0:
+                return ''
+
+            return stdout.decode(sys.getdefaultencoding()).strip()
+        except:
             return ''
 
-        return stdout.decode(sys.getdefaultencoding()).strip()
-
     def writeBuildInfo(self):
-        depsInfoFile = os.path.join(self.rootInstallDir, 'share/build-info.txt')
+        shareDir = os.path.join(self.rootInstallDir, 'share')
+        os.makedirs(shareDir)
+        depsInfoFile = os.path.join(shareDir, 'build-info.txt')
 
         # Write repository info.
 

@@ -7,7 +7,7 @@ cache:
 env:
   global:
     - QTVER=5.12.0
-    - PPAQTVER=511
+    - PPAQTVER=512
     - QTIFWVER=3.0.6
     - APPIMAGEVER=11
 
@@ -90,7 +90,6 @@ matrix:
     compiler: gcc
     env:
       - DOCKERSYS=debian DOCKERIMG=ubuntu:xenial
-      - QTVER=5.11.2
   - os: linux
     sudo: required
     services:
@@ -98,7 +97,6 @@ matrix:
     compiler: clang
     env:
       - DOCKERSYS=debian DOCKERIMG=ubuntu:xenial
-      - QTVER=5.11.2
   - os: linux
     sudo: required
     services:

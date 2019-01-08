@@ -87,6 +87,7 @@ elif [ "${DOCKERSYS}" = debian ]; then
 
     # Install dev tools
     ${EXEC} apt-get -y install \
+        git \
         xvfb \
         g++ \
         clang \
@@ -145,6 +146,7 @@ elif [ "${DOCKERSYS}" = fedora ]; then
     ${EXEC} dnf -y update
 
     ${EXEC} dnf -y install \
+        git \
         file \
         which \
         xorg-x11-xauth \
@@ -170,6 +172,7 @@ elif [ "${DOCKERSYS}" = opensuse ]; then
     ${EXEC} zypper -n dup
 
     ${EXEC} zypper -n in \
+        git \
         which \
         xauth \
         xvfb-run \

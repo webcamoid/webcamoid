@@ -220,16 +220,19 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
         return ' '.join(path.replace(cellarPath + os.sep, '').split(os.sep)[0: 2])
 
     def commitHash(self):
-        process = subprocess.Popen(['git', 'rev-parse', 'HEAD'],
-                                    stdout=subprocess.PIPE,
-                                    stderr=subprocess.PIPE,
-                                    cwd=self.rootDir)
-        stdout, stderr = process.communicate()
+        try:
+            process = subprocess.Popen(['git', 'rev-parse', 'HEAD'],
+                                        stdout=subprocess.PIPE,
+                                        stderr=subprocess.PIPE,
+                                        cwd=self.rootDir)
+            stdout, stderr = process.communicate()
 
-        if process.returncode != 0:
+            if process.returncode != 0:
+                return ''
+
+            return stdout.decode(sys.getdefaultencoding()).strip()
+        except:
             return ''
-
-        return stdout.decode(sys.getdefaultencoding()).strip()
 
     def sysInfo(self):
         process = subprocess.Popen(['sw_vers'],
