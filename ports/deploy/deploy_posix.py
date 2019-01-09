@@ -171,6 +171,19 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
 
             return stdout.decode(sys.getdefaultencoding()).strip()
 
+        pkg = self.whereBin('pkg')
+
+        if len(pkg) > 0:
+            process = subprocess.Popen([pkg, 'which', '-q', path],
+                                       stdout=subprocess.PIPE,
+                                       stderr=subprocess.PIPE)
+            stdout, stderr = process.communicate()
+
+            if process.returncode != 0:
+                return ''
+
+            return stdout.decode(sys.getdefaultencoding()).strip()
+
         return ''
 
     def commitHash(self):
@@ -195,6 +208,9 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
             if f.endswith('-release'):
                 with open(os.path.join('/etc' , f)) as releaseFile:
                     info += releaseFile.read()
+
+        if len(info) < 1:
+            info = ' '.join(platform.uname())
 
         return info
 

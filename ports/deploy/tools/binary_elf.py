@@ -32,7 +32,12 @@ class DeployToolsBinary(tools.binary.DeployToolsBinary):
         super().__init__()
         self.ldLibraryPath = os.environ['LD_LIBRARY_PATH'].split(':') if 'LD_LIBRARY_PATH' in os.environ else []
         self.libsSeachPaths = self.readLdconf() \
-                            + ['/usr/lib', '/usr/lib64', '/lib', '/lib64']
+                            + ['/usr/lib',
+                               '/usr/lib64',
+                               '/lib',
+                               '/lib64',
+                               '/usr/local/lib',
+                               '/usr/local/lib64']
 
     def readLdconf(self, ldconf='/etc/ld.so.conf'):
         if not os.path.exists(ldconf):
