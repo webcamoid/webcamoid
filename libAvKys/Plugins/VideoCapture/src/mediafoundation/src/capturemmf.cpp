@@ -191,7 +191,7 @@ class CaptureMMFPrivate
         QString m_device;
         QList<int> m_streams;
         qint64 m_id {-1};
-        DWORD m_streamIndex {MF_SOURCE_READER_FIRST_VIDEO_STREAM};
+        DWORD m_streamIndex {DWORD(MF_SOURCE_READER_FIRST_VIDEO_STREAM)};
         CaptureMMF::IoMethod m_ioMethod {CaptureMMF::IoMethodSync};
         MediaSourcePtr m_mediaSource;
         SourceReaderPtr m_sourceReader;
