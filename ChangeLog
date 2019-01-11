@@ -1,11 +1,11 @@
 Webcamoid 8.5.0:
 
-- Faster build and smaller binaries.
 - UI ported to QtQuick Controls 2.
 - Reworked virtual camera for GNU/Linux, Mac and Windows.
-- Qt 5.9.0 as mninimum requirement.
+- Qt 5.9.0 as minimum requirement.
+- Faster build and smaller binaries.
 - Added build info.
-- Fidex crash and manyt other bugs in FreeBSD.
+- Fidex crash and many other bugs in FreeBSD.
 - Added support for Microsoft Media Foundation capture.
 - Fixed shadow build.
 - Added support for FFmpeg 4.0.
