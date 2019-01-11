@@ -28,7 +28,11 @@ GridLayout {
     state: controlParams.length > 1? controlParams[1]: ""
 
     property variant controlParams: []
-    property int value: controlParams.length > 6? controlParams[6]: 0
+    property int value: 0
+    property int minimumValue: 0
+    property int maximumValue: 1
+    property int stepSize: 1
+    property variant model: []
     property int minimumLeftWidth: 0
     property int minimumRightWidth: 0
     readonly property alias leftWidth: lblRange.width
@@ -36,11 +40,12 @@ GridLayout {
 
     signal controlChanged(string controlName, int value)
 
-    onValueChanged: {
-        sldRange.value = value
-        spbRange.rvalue = value
-        chkBool.checked = value !== 0
-        cbxMenu.currentIndex = value
+    onControlParamsChanged: {
+        minimumValue = controlParams.length > 2? controlParams[2]: 0
+        maximumValue = controlParams.length > 3? controlParams[3]: 1
+        stepSize = controlParams.length > 4? controlParams[4]: 1
+        model = controlParams.length > 7? controlParams[7]: []
+        value = controlParams.length > 6? controlParams[6]: 0
     }
 
     Label {
@@ -51,9 +56,9 @@ GridLayout {
 
     Slider {
         id: sldRange
-        from: controlParams.length > 2? controlParams[2]: 0
-        to: controlParams.length > 3? controlParams[3]: 0
-        stepSize: controlParams.length > 4? controlParams[4]: 0
+        from: grdCameraControl.minimumValue
+        to: grdCameraControl.maximumValue
+        stepSize: grdCameraControl.stepSize
         value: grdCameraControl.value
         Layout.fillWidth: true
         visible: false
@@ -65,11 +70,12 @@ GridLayout {
             }
         }
     }
+
     AkSpinBox {
         id: spbRange
-        minimumValue: controlParams.length > 2? controlParams[2]: 0
-        maximumValue: controlParams.length > 3? controlParams[3]: 0
-        step: controlParams.length > 4? controlParams[4]: 0
+        minimumValue: grdCameraControl.minimumValue
+        maximumValue: grdCameraControl.maximumValue
+        step: grdCameraControl.stepSize
         rvalue: sldRange.value
         Layout.minimumWidth: minimumRightWidth
         visible: false
@@ -102,7 +108,7 @@ GridLayout {
 
     ComboBox {
         id: cbxMenu
-        model: controlParams.length > 7? controlParams[7]: []
+        model: grdCameraControl.model
         currentIndex: grdCameraControl.value
         Layout.fillWidth: true
         Layout.columnSpan: 2

@@ -2049,22 +2049,22 @@
         <translation>Temperatura</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="227"/>
+        <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="192"/>
         <source>Video format</source>
         <translation>Formato de vídeo</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="270"/>
+        <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="222"/>
         <source>Resolution</source>
         <translation>Resolución</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="310"/>
+        <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="264"/>
         <source>FPS</source>
         <translation>FPS</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="337"/>
+        <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="318"/>
         <source>Reset</source>
         <translation>Restablecer</translation>
     </message>

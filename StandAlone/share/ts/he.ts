@@ -2049,22 +2049,22 @@
         <translation>חום</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="227"/>
+        <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="192"/>
         <source>Video format</source>
         <translation>תסדיר וידאו</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="270"/>
+        <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="222"/>
         <source>Resolution</source>
         <translation>רזולוציה</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="310"/>
+        <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="264"/>
         <source>FPS</source>
         <translation>שקופיות לשנייה</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="337"/>
+        <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="318"/>
         <source>Reset</source>
         <translation>איפוס</translation>
     </message>

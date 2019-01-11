@@ -27,7 +27,7 @@ GridLayout {
     id: recCameraControls
     columns: 3
 
-    property bool locked: false
+    property int lock: 0
     property var caps: []
 
     function filterBy(prop, filters)
@@ -112,19 +112,6 @@ GridLayout {
                                               cbxFps.model[cbxFps.currentIndex].value: Ak.newFrac()})]
     }
 
-    function controlsUpdated(controls)
-    {
-        var controlsCont = [clyImageControls, clyCameraControls]
-
-        for (var where in controlsCont)
-            for (var child in controlsCont[where].children) {
-                var controlName = controlsCont[where].children[child].controlParams[0]
-
-                if (controlName in controls)
-                    controlsCont[where].children[child].value = controls[controlName]
-            }
-    }
-
     function createControls(controls, where)
     {
         var minimumLeftWidth = lblFormat.width
@@ -143,6 +130,8 @@ GridLayout {
 
             var obj = component.createObject(where)
             obj.controlParams = controls[control]
+
+
             obj.onControlChanged.connect(function (controlName, value)
             {
                 var ctrl = {}
@@ -187,28 +176,7 @@ GridLayout {
             rawCaps.push(Ak.newCaps(VideoCapture.rawCaps(i)).toMap())
 
         caps = rawCaps
-    }
-
-    function updateParams(streams)
-    {
-        if (streams.length > 0) {
-            var videoCaps = recCameraControls.caps[streams[0] < 0? 0: streams[0]]
-
-            if (typeof videoCaps == "undefined")
-                return
-
-            cbxFormat.currentIndex = indexBy(cbxFormat.model,
-                                             videoCaps.fourcc)
-            cbxResolution.currentIndex = indexBy(cbxResolution.model,
-                                                 Qt.size(videoCaps.width,
-                                                         videoCaps.height))
-            cbxFps.currentIndex = indexBy(cbxFps.model,
-                                          videoCaps.fps)
-        } else {
-            cbxFormat.currentIndex = -1
-            cbxResolution.currentIndex = -1
-            cbxFps.currentIndex = -1
-        }
+        cbxFormat.update()
     }
 
     Component.onCompleted: createInterface()
@@ -216,10 +184,7 @@ GridLayout {
     Connections {
         target: VideoCapture
 
-        onImageControlsChanged: controlsUpdated(imageControls)
-        onCameraControlsChanged: controlsUpdated(cameraControls)
         onMediaChanged: createInterface()
-        onStreamsChanged: updateParams(streams)
     }
 
     Label {
@@ -231,39 +196,26 @@ GridLayout {
     }
     ComboBox {
         id: cbxFormat
-        model: createModel(filterBy("fourcc"), "fourcc")
+        model: []
         textRole: "description"
         Layout.fillWidth: true
         Layout.columnSpan: 2
 
-        onCurrentIndexChanged: {
-            if (locked)
-                return
+        function update()
+        {
+            lock++;
+            model = []
+            model = createModel(filterBy("fourcc"), "fourcc")
+            currentIndex = -1
 
-            locked = true
+            if (model.length > 0)
+                currentIndex = 0
 
-            cbxResolution.model = model.length < 1?
-                        []: createModel(filterBy("size",
-                                                 {fourcc: model[currentIndex < 0?
-                                                             0: currentIndex].value}),
-                                        "size")
-
-            cbxFps.model = model.length < 1?
-                        []: createModel(filterBy("fps",
-                                                 {fourcc: model[currentIndex < 0?
-                                                             0: currentIndex].value,
-                                                  size: cbxResolution.model[0].value}),
-                                        "fps")
-
-            updateStreams()
-            locked = false
+            lock--;
         }
-        onModelChanged: {
-            cbxResolution.model = model.length < 1?
-                        []: createModel(filterBy("size",
-                                                 {fourcc: model[0].value}),
-                                        "size")
-        }
+
+        onCurrentIndexChanged: cbxResolution.lockedUpdate()
+        onModelChanged: cbxResolution.update()
     }
     Label {
         id: lblResolution
@@ -279,31 +231,33 @@ GridLayout {
         Layout.fillWidth: true
         Layout.columnSpan: 2
 
-        onCurrentIndexChanged: {
-            if (locked)
+        function update()
+        {
+            lock++;
+            model = []
+            model = cbxFormat.model.length < 1?
+                        []: createModel(filterBy("size",
+                                                 {fourcc: cbxFormat.model[cbxFormat.currentIndex < 0?
+                                                             0: cbxFormat.currentIndex].value}),
+                                        "size")
+            currentIndex = -1
+
+            if (model.length > 0)
+                currentIndex = 0
+
+            lock--;
+        }
+
+        function lockedUpdate()
+        {
+            if (lock > 0)
                 return
 
-            locked = true
-
-            cbxFps.model = model.length < 1?
-                        []: createModel(filterBy("fps",
-                                                 {fourcc: cbxFormat.model[cbxFormat.currentIndex < 0?
-                                                                            0: cbxFormat.currentIndex].value,
-                                                  size: model[currentIndex < 0?
-                                                                0: currentIndex].value}),
-                                        "fps")
-
-            updateStreams()
-            locked = false
+            update()
         }
-        onModelChanged: {
-            cbxFps.model = model.length < 1?
-                        []: createModel(filterBy("fps",
-                                                 {fourcc: cbxFormat.model[cbxFormat.currentIndex < 0?
-                                                                            0: cbxFormat.currentIndex].value,
-                                                  size: model[0].value}),
-                                        "fps")
-        }
+
+        onCurrentIndexChanged: cbxFps.lockedUpdate()
+        onModelChanged: cbxFps.update()
     }
     Label {
         id: lblFps
@@ -319,13 +273,40 @@ GridLayout {
         Layout.fillWidth: true
         Layout.columnSpan: 2
 
-        onCurrentIndexChanged: {
-            if (locked)
+        function update()
+        {
+            lock++;
+            model = []
+            model = cbxResolution.model.length < 1?
+                 []: createModel(filterBy("fps",
+                                          {fourcc: cbxFormat.model[cbxFormat.currentIndex < 0?
+                                                      0: cbxFormat.currentIndex].value,
+                                           size: cbxResolution.model[cbxResolution.currentIndex < 0?
+                                                      0: cbxResolution.currentIndex].value}),
+                                 "fps")
+            currentIndex = -1
+
+            if (model.length > 0)
+                currentIndex = 0
+
+            lock--;
+
+            updateStreams()
+        }
+
+        function lockedUpdate()
+        {
+            if (lock > 0)
                 return
 
-            locked = true
+            update()
+        }
+
+        onCurrentIndexChanged: {
+            if (lock > 0)
+                return
+
             updateStreams()
-            locked = false
         }
     }
     Label {
@@ -340,7 +321,10 @@ GridLayout {
 
         property int minimumWidth: 75
 
-        onClicked: VideoCapture.reset()
+        onClicked: {
+            VideoCapture.reset()
+            createInterface()
+        }
     }
 
     ColumnLayout {
