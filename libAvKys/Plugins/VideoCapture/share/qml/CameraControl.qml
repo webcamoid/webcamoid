@@ -25,7 +25,6 @@ import AkQmlControls 1.0
 GridLayout {
     id: grdCameraControl
     columns: 3
-    state: controlParams.length > 1? controlParams[1]: ""
 
     property variant controlParams: []
     property int value: 0
@@ -41,11 +40,13 @@ GridLayout {
     signal controlChanged(string controlName, int value)
 
     onControlParamsChanged: {
+        state = controlParams.length > 1? controlParams[1]: ""
         minimumValue = controlParams.length > 2? controlParams[2]: 0
         maximumValue = controlParams.length > 3? controlParams[3]: 1
         stepSize = controlParams.length > 4? controlParams[4]: 1
         model = controlParams.length > 7? controlParams[7]: []
         value = controlParams.length > 6? controlParams[6]: 0
+        spbRange.rvalue = value
     }
 
     Label {

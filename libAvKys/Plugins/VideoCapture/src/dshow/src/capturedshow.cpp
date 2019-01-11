@@ -1122,6 +1122,9 @@ QVariantMap CaptureDShowPrivate::mapDiff(const QVariantMap &map1,
 
 bool CaptureDShow::init()
 {
+    this->d->m_localImageControls.clear();
+    this->d->m_localCameraControls.clear();
+
     // Create the pipeline.
     if (FAILED(CoCreateInstance(CLSID_FilterGraph,
                                 nullptr,
@@ -1326,9 +1329,6 @@ bool CaptureDShow::init()
     }
 
     control->Release();
-
-    this->d->m_localImageControls.clear();
-    this->d->m_localCameraControls.clear();
 
     return true;
 }

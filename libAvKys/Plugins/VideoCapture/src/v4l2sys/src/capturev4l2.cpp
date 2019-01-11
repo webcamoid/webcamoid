@@ -1030,6 +1030,9 @@ QVariantMap CaptureV4L2Private::mapDiff(const QVariantMap &map1,
 
 bool CaptureV4L2::init()
 {
+    this->d->m_localImageControls.clear();
+    this->d->m_localCameraControls.clear();
+
     // Frames read must be blocking so we does not waste CPU time.
     this->d->m_fd =
             x_open(this->d->m_device.toStdString().c_str(),
@@ -1113,9 +1116,6 @@ bool CaptureV4L2::init()
 
     if (this->d->startCapture())
         return true;
-
-    this->d->m_localImageControls.clear();
-    this->d->m_localCameraControls.clear();
 
     return false;
 }
