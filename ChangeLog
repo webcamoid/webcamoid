@@ -5,7 +5,7 @@ Webcamoid 8.5.0:
 - Qt 5.9.0 as minimum requirement.
 - Faster build and smaller binaries.
 - Added build info.
-- Fidex crash and many other bugs in FreeBSD.
+- Fixed crash and many other bugs in FreeBSD.
 - Added support for Microsoft Media Foundation capture.
 - Fixed shadow build.
 - Added support for FFmpeg 4.0.
@@ -29,7 +29,7 @@ Webcamoid 8.1.0:
   enabled by default again.
 - Added Syphon support for Mac.
 - Added AVFoundation support for desktop capture in Mac.
-- Binany packages size shrinked.
+- Binary packages size shrinked.
 - Hopefully, fixed many segfaults in many platforms.
 
 Webcamoid 8.0.0:
@@ -67,7 +67,7 @@ Webcamoid 7.2.0:
 - Added GIF recording support (FFmpeg only).
 - Improved webcam format selection.
 - UI improvements.
-- Included QtQuick software renderer in intallation (Windows).
+- Included QtQuick software renderer in installation (Windows).
 - Added play on start option.
 - Added C++11 support for Clang build.
 
