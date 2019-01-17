@@ -83,9 +83,16 @@ class DeployBase(tools.utils.DeployToolsUtils):
         print('Deploy finnished\n')
 
     def printPackageDataInfo(self):
+        packagedFiles = []
+
         for root, dirs, files in os.walk(self.rootInstallDir):
             for f in files:
-                print('    ' + os.path.join(root, f))
+                packagedFiles.append(os.path.join(root, f))
+
+        packagedFiles = sorted(packagedFiles)
+
+        for f in packagedFiles:
+            print('    ' + f)
 
     def prepare(self):
         pass

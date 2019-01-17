@@ -111,8 +111,7 @@ elif [ "${DOCKERSYS}" = debian ]; then
             qt${PPAQTVER}svg \
             qt${PPAQTVER}quickcontrols \
             qt${PPAQTVER}quickcontrols2 \
-            qt${PPAQTVER}graphicaleffects \
-            qt${PPAQTVER}x11extras
+            qt${PPAQTVER}graphicaleffects
     else
         ${EXEC} apt-get -y install \
             qt5-qmake \

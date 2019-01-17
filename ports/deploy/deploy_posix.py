@@ -79,6 +79,9 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
         return self.whereBin('appimagetool')
 
     def solvedepsLibs(self):
+        qtLibsPath = self.qmakeQuery(var='QT_INSTALL_LIBS')
+        self.binarySolver.ldLibraryPath.append(qtLibsPath)
+
         for dep in self.binarySolver.scanDependencies(self.installDir):
             depPath = os.path.join(self.libInstallDir, os.path.basename(dep))
             print('    {} -> {}'.format(dep, depPath))
