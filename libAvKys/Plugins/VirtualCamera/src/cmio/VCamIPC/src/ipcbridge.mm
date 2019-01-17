@@ -1469,10 +1469,13 @@ bool AkVCam::IpcBridgePrivate::checkDaemon()
 
         cmds << L"mkdir -p "
              << pluginInstallPath
-             << std::endl;
-        cmds << L"cp -rvf '"
+             << std::endl
+             << L"cp -rvf '"
              << driverPath << L"'/* "
              << pluginInstallPath << L"/"
+             << std::endl
+             << L"chmod +x "
+             << pluginInstallPath << L"/Contents/Resources/" CMIO_PLUGIN_ASSISTANT_NAME_L
              << std::endl;
         cmds.close();
         chmod(cmdFileName.c_str(), S_IRWXU | S_IRGRP | S_IROTH);
