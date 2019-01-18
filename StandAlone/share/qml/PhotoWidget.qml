@@ -24,7 +24,7 @@ import QtQuick.Layouts 1.3
 Rectangle {
     id: recPhotoWidget
     width: 480
-    height: 80
+    height: 90
     color: "#e6000000"
     radius: 4
 
