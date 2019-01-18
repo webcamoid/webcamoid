@@ -75,8 +75,8 @@
 (.*/)*libxcb-dri2.so.[0-9]+
 (.*/)*libxcb-dri3.so.[0-9]+
 (.*/)*libxcb-glx.so.[0-9]+
-# (.*/)*libxcb-icccm.so.[0-9]+
-# (.*/)*libxcb-image.so.[0-9]+
+(.*/)*libxcb-icccm.so.[0-9]+
+(.*/)*libxcb-image.so.[0-9]+
 (.*/)*libxcb-keysyms.so.[0-9]+
 (.*/)*libxcb-present.so.[0-9]+
 (.*/)*libxcb-randr.so.[0-9]+
@@ -85,13 +85,13 @@
 (.*/)*libxcb-shape.so.[0-9]+
 (.*/)*libxcb-shm.so.[0-9]+
 (.*/)*libxcb-sync.so.[0-9]+
-# (.*/)*libxcb-util.so.[0-9]+
+(.*/)*libxcb-util.so.[0-9]+
 (.*/)*libxcb-xfixes.so.[0-9]+
-# (.*/)*libxcb-xinerama.so.[0-9]+
+(.*/)*libxcb-xinerama.so.[0-9]+
 (.*/)*libxcb-xkb.so.[0-9]+
 (.*/)*libxcb.so.[0-9]+
 (.*/)*libxkbcommon-x11.so.[0-9]+
-# (.*/)*libxkbcommon.so.[0-9]+
+(.*/)*libxkbcommon.so.[0-9]+
 (.*/)*libxshmfence.so.[0-9]+
 
 # OpenGL
