@@ -1,6 +1,8 @@
 version: 8.5.0.{build}-{branch}
 os: MinGW
 
+image: Visual Studio 2017
+
 platform:
   - x86
 
@@ -26,8 +28,6 @@ environment:
 
   matrix:
     - MSYS2_BUILD: 1
-    - MSYS2_BUILD: 1
-      QMAKESPEC: win32-clang
     - QTDIR: C:\Qt\5.11.2\mingw53_32
       TOOLSDIR: C:\Qt\Tools\mingw492_32
     - QTDIR: C:\Qt\5.11.2\mingw53_32
@@ -62,7 +62,7 @@ build_script:
   - if "%MSYS2_BUILD%" == "" (
         ports\ci\appveyor\build.bat
     ) else (
-        C:\msys64\usr\bin\bash -lc "cd /c/projects/webcamoid && ./ports/ci/appveyor/build.sh %QMAKESPEC%"
+        C:\msys64\usr\bin\bash -lc "cd /c/projects/webcamoid && ./ports/ci/appveyor/build.sh"
     )
 
 on_success:

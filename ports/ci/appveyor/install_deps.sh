@@ -24,7 +24,6 @@ pacman --noconfirm --needed -S \
     pkg-config \
     python3 \
     mingw-w64-x86_64-pkg-config \
-    mingw-w64-x86_64-clang \
     mingw-w64-x86_64-qt5 \
     mingw-w64-x86_64-ffmpeg \
     mingw-w64-x86_64-gst-plugins-base \
