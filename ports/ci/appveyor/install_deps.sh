@@ -18,11 +18,11 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-#pacman --noconfirm -Syu
 pacman --noconfirm --needed -S \
     git \
     make \
     pkg-config \
+    python3 \
     mingw-w64-x86_64-pkg-config \
     mingw-w64-x86_64-clang \
     mingw-w64-x86_64-qt5 \

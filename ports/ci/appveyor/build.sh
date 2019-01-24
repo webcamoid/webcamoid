@@ -18,8 +18,8 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-export PATH=/mingw64/bin:$PATH
-export PKG_CONFIG_PATH=/mingw64/lib/pkgconfig
+#export PATH=/mingw64/bin:$PATH
+#export PKG_CONFIG_PATH=/mingw64/lib/pkgconfig
 qmake -spec "$1" Webcamoid.pro \
     CONFIG+=silent \
     PREFIX=/webcamoid
