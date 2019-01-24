@@ -52,26 +52,29 @@ environment:
       MAKETOOL: jom
 
 install:
-  - set PATH=C:\msys64\usr\bin;%PATH%
-  - if "%MSYS2_BUILD%" == "" (
-  -     ports\ci\appveyor\install_deps.bat
-  - ) else (
-  -     bash ports\ci\appveyor\install_deps.sh
-  - )
+  - |-
+    set PATH=C:\msys64\usr\bin;%PATH%
+    if "%MSYS2_BUILD%" == "" (
+        ports\ci\appveyor\install_deps.bat
+    ) else (
+        bash ports\ci\appveyor\install_deps.sh
+    )
 
 build_script:
-  - if "%MSYS2_BUILD%" == "" (
-  -     ports\ci\appveyor\build.bat
-  - ) else (
-  -     bash ports\ci\appveyor\build.sh %QMAKESPEC%
-  - )
+  - |-
+    if "%MSYS2_BUILD%" == "" (
+        ports\ci\appveyor\build.bat
+    ) else (
+        bash ports\ci\appveyor\build.sh %QMAKESPEC%
+    )
 
 on_success:
-  - if "%MSYS2_BUILD%" == "" (
-  -     ports\ci\appveyor\deploy.bat
-  - ) else (
-  -     bash ports\ci\appveyor\deploy.sh
-  - )
+  - |-
+    if "%MSYS2_BUILD%" == "" (
+        ports\ci\appveyor\deploy.bat
+    ) else (
+        bash ports\ci\appveyor\deploy.sh
+    )
 
 notifications:
   - provider: Email
