@@ -54,7 +54,7 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
 
         if 'msys' in sys.platform:
             self.targetSystem = 'posix_msys'
-        if 'win32' in self.qmakeQuery(var='QMAKE_XSPEC'):
+        elif 'win32' in self.qmakeQuery(var='QMAKE_XSPEC'):
             self.targetSystem = 'posix_windows'
         else:
             self.targetSystem = 'posix'

@@ -26,14 +26,12 @@ if __name__ =='__main__':
     system = tools.utils.DeployToolsUtils().system
 
     while True:
-        deploy = __import__('deploy_' + system).Deploy()
+        try:
+            deploy = __import__('deploy_' + system).Deploy()
+        except:
+            print('No valid deploy script found.')
 
-        #try:
-            #deploy = __import__('deploy_' + system).Deploy()
-        #except:
-            #print('No valid deploy script found.')
-
-            #exit()
+            exit()
 
         if system == deploy.targetSystem:
             deploy.run()
