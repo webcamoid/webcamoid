@@ -25,13 +25,13 @@ environment:
     INSTALL_PREFIX: C:/projects/webcamoid/ports/deploy/temp_priv/root/usr
 
   matrix:
+    - MSYS2_BUILD: 1
+    - MSYS2_BUILD: 1
+      QMAKESPEC: win32-clang
     - QTDIR: C:\Qt\5.11.2\mingw53_32
       TOOLSDIR: C:\Qt\Tools\mingw492_32
     - QTDIR: C:\Qt\5.11.2\mingw53_32
       TOOLSDIR: C:\Qt\Tools\mingw530_32
-    - MSYS2_BUILD: 1
-    - MSYS2_BUILD: 1
-      QMAKESPEC: win32-clang
     - QTDIR: C:\Qt\5.11.2\msvc2015
       TOOLSDIR: C:\Qt\Tools\QtCreator
       QMAKESPEC: win32-msvc
@@ -52,10 +52,10 @@ environment:
       MAKETOOL: jom
 
 install:
-  - set PATH=C:\msys64\usr\bin;%PATH%
   - if "%MSYS2_BUILD%" == "" (
         ports\ci\appveyor\install_deps.bat
     ) else (
+        set PATH=C:\msys64\usr\bin;%PATH%
         bash ports\ci\appveyor\install_deps.sh
     )
 
