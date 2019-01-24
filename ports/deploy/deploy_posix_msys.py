@@ -86,10 +86,12 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
         print('Executing make install')
         self.makeInstall(self.buildDir, self.installDir)
 
-        if self.targetArch == '32bit':
-            self.binarySolver.sysBinsPath = ['/usr/i686-w64-mingw32/bin']
-        else:
-            self.binarySolver.sysBinsPath = ['/usr/x86_64-w64-mingw32/bin']
+        #if self.targetArch == '32bit':
+            #self.binarySolver.sysBinsPath = ['/usr/i686-w64-mingw32/bin']
+        #else:
+            #self.binarySolver.sysBinsPath = ['/usr/x86_64-w64-mingw32/bin']
+
+        print("SYS_BINS_PATH ", self.binarySolver.sysBinsPath)
 
         self.binarySolver.detectStrip()
 
@@ -189,48 +191,6 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
 
             return ' '.join([package.strip(), version.strip()])
 
-        dpkg = self.whereBin('dpkg')
-
-        if len(dpkg) > 0:
-            process = subprocess.Popen([dpkg, '-S', path],
-                                       stdout=subprocess.PIPE,
-                                       stderr=subprocess.PIPE)
-            stdout, stderr = process.communicate()
-
-            if process.returncode != 0:
-                return ''
-
-            package = stdout.split(b':')[0].decode(sys.getdefaultencoding()).strip()
-
-            process = subprocess.Popen([dpkg, '-s', package],
-                                       stdout=subprocess.PIPE,
-                                       stderr=subprocess.PIPE)
-            stdout, stderr = process.communicate()
-
-            if process.returncode != 0:
-                return ''
-
-            for line in stdout.decode(sys.getdefaultencoding()).split('\n'):
-                line = line.strip()
-
-                if line.startswith('Version:'):
-                    return ' '.join([package, line.split()[1].strip()])
-
-            return ''
-
-        rpm = self.whereBin('rpm')
-
-        if len(rpm) > 0:
-            process = subprocess.Popen([rpm, '-qf', path],
-                                       stdout=subprocess.PIPE,
-                                       stderr=subprocess.PIPE)
-            stdout, stderr = process.communicate()
-
-            if process.returncode != 0:
-                return ''
-
-            return stdout.decode(sys.getdefaultencoding()).strip()
-
         return ''
 
     def commitHash(self):
@@ -249,14 +209,7 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
             return ''
 
     def sysInfo(self):
-        info = ''
-
-        for f in os.listdir('/etc'):
-            if f.endswith('-release'):
-                with open(os.path.join('/etc' , f)) as releaseFile:
-                    info += releaseFile.read()
-
-        return info
+        return ' '.join(platform.uname())
 
     def writeBuildInfo(self):
         shareDir = os.path.join(self.rootInstallDir, 'share')
@@ -289,28 +242,6 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
                     print('    ' + line)
                     f.write(line + '\n')
 
-            print()
-            f.write('\n')
-
-        # Write Wine version and emulated system info.
-
-        process = subprocess.Popen(['wine', '--version'],
-                                    stdout=subprocess.PIPE,
-                                    stderr=subprocess.PIPE)
-        stdout, stderr = process.communicate()
-        wineVersion = stdout.decode(sys.getdefaultencoding()).strip()
-
-        process = subprocess.Popen(['wine', 'cmd', '/c', 'ver'],
-                                    stdout=subprocess.PIPE,
-                                    stderr=subprocess.PIPE)
-        stdout, stderr = process.communicate()
-        fakeWindowsVersion = stdout.decode(sys.getdefaultencoding()).strip()
-
-        with open(depsInfoFile, 'a') as f:
-            print('    Wine Version: {}'.format(wineVersion))
-            f.write('Wine Version: {}\n'.format(wineVersion))
-            print('    Windows Version: {}'.format(fakeWindowsVersion))
-            f.write('Windows Version: {}\n'.format(fakeWindowsVersion))
             print()
             f.write('\n')
 
