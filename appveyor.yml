@@ -55,22 +55,21 @@ install:
   - if "%MSYS2_BUILD%" == "" (
         ports\ci\appveyor\install_deps.bat
     ) else (
-        set PATH=C:\msys64\usr\bin;%PATH%
-        bash ports\ci\appveyor\install_deps.sh
+        C:\msys64\usr\bin\bash -lc "cd /c/projects/webcamoid && ./ports/ci/appveyor/install_deps.sh"
     )
 
 build_script:
   - if "%MSYS2_BUILD%" == "" (
         ports\ci\appveyor\build.bat
     ) else (
-        bash ports\ci\appveyor\build.sh %QMAKESPEC%
+        C:\msys64\usr\bin\bash -lc "cd /c/projects/webcamoid && ./ports/ci/appveyor/build.sh %QMAKESPEC%"
     )
 
 on_success:
   - if "%MSYS2_BUILD%" == "" (
         ports\ci\appveyor\deploy.bat
     ) else (
-        bash ports\ci\appveyor\deploy.sh
+        C:\msys64\usr\bin\bash -lc "cd /c/projects/webcamoid && ./ports/ci/appveyor/deploy.sh"
     )
 
 notifications:
