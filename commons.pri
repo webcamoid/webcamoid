@@ -22,17 +22,38 @@ VER_PAT = 0
 VERSION = $${VER_MAJ}.$${VER_MIN}.$${VER_PAT}
 
 isEmpty(BUILDDOCS): BUILDDOCS = 0
+
 isEmpty(QDOCTOOL): {
-    unix: QDOCTOOL = $$[QT_INSTALL_BINS]/qdoc
-    !unix: QDOCTOOL = $$[QT_INSTALL_LIBEXECS]/qdoc
+    unix: QDOC_FNAME = qdoc
+    win32: QDOC_FNAME = qdoc.exe
+
+    exists($$[QT_INSTALL_LIBEXECS]/$${QDOC_FNAME}) {
+        QDOCTOOL = $$[QT_INSTALL_LIBEXECS]/$${QDOC_FNAME}
+    } else {
+        QDOCTOOL = $$[QT_INSTALL_BINS]/$${QDOC_FNAME}
+    }
 }
+
 isEmpty(QMAKE_LRELEASE) {
-    unix: QMAKE_LRELEASE = $$[QT_INSTALL_BINS]/lrelease
-    !unix: QMAKE_LRELEASE = $$[QT_INSTALL_LIBEXECS]/lrelease
+    unix: LRELEASE_FNAME = lrelease
+    win32: LRELEASE_FNAME = lrelease.exe
+
+    exists($$[QT_INSTALL_LIBEXECS]/$${LRELEASE_FNAME}) {
+        QMAKE_LRELEASE = $$[QT_INSTALL_LIBEXECS]/$${LRELEASE_FNAME}
+    } else {
+        QMAKE_LRELEASE = $$[QT_INSTALL_BINS]/$${LRELEASE_FNAME}
+    }
 }
+
 isEmpty(QMAKE_LUPDATE) {
-    unix: QMAKE_LUPDATE = $$[QT_INSTALL_BINS]/lupdate
-    !unix: QMAKE_LUPDATE = $$[QT_INSTALL_LIBEXECS]/lupdate
+    unix: LUPDATE_FNAME = lupdate
+    win32: LUPDATE_FNAME = lupdate.exe
+
+    exists($$[QT_INSTALL_LIBEXECS]/$${LUPDATE_FNAME}) {
+        QMAKE_LUPDATE = $$[QT_INSTALL_LIBEXECS]/$${LUPDATE_FNAME}
+    } else {
+        QMAKE_LUPDATE = $$[QT_INSTALL_BINS]/$${LUPDATE_FNAME}
+    }
 }
 
 isEmpty(BUNDLENAME): BUNDLENAME = webcamoid

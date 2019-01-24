@@ -50,7 +50,7 @@ exists(commons.pri) {
     PRE_TARGETDEPS += compiler_builddocs_make_all
 }
 
-unix: CONFIG(debug, debug|release) {
+unix: {
     MANPAGESOURCES = share/man/man1/$${COMMONS_TARGET}.1
 
     buildmanpage.input = MANPAGESOURCES
