@@ -262,7 +262,7 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
         shareDir = os.path.join(self.rootInstallDir, 'share')
 
         try:
-            os.makedirs(self.pkgsDir)
+            os.makedirs(shareDir)
         except:
             pass
 
