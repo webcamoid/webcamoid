@@ -66,7 +66,6 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
         self.installerRunProgram = '@TargetDir@/bin/' + self.programName + '.exe'
         self.installerScript = os.path.join(self.rootDir, 'ports/deploy/installscript.windows.qs')
         self.changeLog = os.path.join(self.rootDir, 'ChangeLog')
-        self.targetArch = '64bit' if 'x86_64' in self.qtInstallBins else '32bit'
 
     def removeUnneededFiles(self, path):
         afiles = set()
