@@ -65,6 +65,9 @@ class DeployToolsUtils:
         for path in self.sysBinsPath:
             path = os.path.join(path, binary)
 
+            if 'avformat' in path:
+                print('AVFORMAT: ', path, ' ', os.path.exists(path))
+
             if os.path.exists(path):
                 return path
 
