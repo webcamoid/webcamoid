@@ -62,7 +62,7 @@ build_script:
   - if "%MSYS2_BUILD%" == "" (
         ports\ci\appveyor\build.bat
     ) else (
-        C:\msys64\usr\bin\bash -lc "cd /c/projects/webcamoid && ./ports/ci/appveyor/build.sh"
+        C:\msys64\usr\bin\bash -lc "cd /c/projects/webcamoid && ./ports/ci/appveyor/build.sh '%INSTALL_PREFIX%'"
     )
 
 on_success:

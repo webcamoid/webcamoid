@@ -39,7 +39,7 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
         self.installDir = os.path.join(self.rootDir, 'ports/deploy/temp_priv')
         self.pkgsDir = os.path.join(self.rootDir, 'ports/deploy/packages_auto/windows')
         self.programName = 'webcamoid'
-        self.rootInstallDir = os.path.join(self.installDir, self.programName)
+        self.rootInstallDir = os.path.join(self.installDir, 'usr')
         self.binaryInstallDir = os.path.join(self.rootInstallDir, 'bin')
         self.libInstallDir = os.path.join(self.rootInstallDir, 'lib')
         self.libQtInstallDir = os.path.join(self.libInstallDir, 'qt')
@@ -173,7 +173,15 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
             stdout, stderr = process.communicate()
 
             if process.returncode != 0:
-                return ''
+                prefix = '/c/msys32' if self.targetArch == '32bit' else '/c/msys64'
+                path = path[len(prefix):]
+                process = subprocess.Popen([pacman, '-Qo', path],
+                                        stdout=subprocess.PIPE,
+                                        stderr=subprocess.PIPE)
+                stdout, stderr = process.communicate()
+
+                if process.returncode != 0:
+                    return ''
 
             info = stdout.decode(sys.getdefaultencoding()).split(' ')
 
