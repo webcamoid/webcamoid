@@ -83,7 +83,7 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
 
     def prepare(self):
         print('Executing make install')
-        self.makeInstall(self.buildDir, self.installDir)
+        self.makeInstall(self.buildDir)
         self.binarySolver.sysBinsPath = \
             [self.qtInstallBins] + self.binarySolver.sysBinsPath
         self.binarySolver.detectStrip()
