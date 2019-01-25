@@ -86,16 +86,8 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
         print('Executing make install')
         self.makeInstall(self.buildDir, self.installDir)
 
-        #if self.targetArch == '32bit':
-            #self.binarySolver.sysBinsPath = ['/usr/i686-w64-mingw32/bin']
-        #else:
-            #self.binarySolver.sysBinsPath = ['/usr/x86_64-w64-mingw32/bin']
-
         self.binarySolver.sysBinsPath = \
             [self.qtInstallBins] + self.binarySolver.sysBinsPath
-
-        print("SYS_BINS_PATH ", self.binarySolver.sysBinsPath)
-
         self.binarySolver.detectStrip()
 
         if self.qtIFWVersion == '' or int(self.qtIFWVersion.split('.')[0]) < 3:
