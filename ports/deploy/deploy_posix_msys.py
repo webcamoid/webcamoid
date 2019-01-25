@@ -92,7 +92,7 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
             #self.binarySolver.sysBinsPath = ['/usr/x86_64-w64-mingw32/bin']
 
         self.binarySolver.sysBinsPath = \
-            [self.qmakeQuery(var='QT_INSTALL_BINS')] + self.binarySolver.sysBinsPath
+            [self.qtInstallBins] + self.binarySolver.sysBinsPath
 
         print("SYS_BINS_PATH ", self.binarySolver.sysBinsPath)
 
