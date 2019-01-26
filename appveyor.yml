@@ -24,7 +24,7 @@ environment:
     GSTREAMER_VERSION: 1.14.4
     QMAKESPEC: win32-g++
     MAKETOOL: mingw32-make
-    INSTALL_PREFIX: C:/projects/webcamoid/ports/deploy/temp_priv/root/usr
+    INSTALL_PREFIX: C:/projects/webcamoid/ports/deploy/temp_priv/usr
 
   matrix:
     - MSYS2_BUILD: 1

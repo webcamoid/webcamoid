@@ -16,6 +16,8 @@ REM along with Webcamoid. If not, see <http://www.gnu.org/licenses/>.
 REM
 REM Web-Site: http://webcamoid.github.io/
 
+echo PaTHS: %PATH%
+
 qmake Webcamoid.pro ^
     CONFIG+=%CONFIGURATION% ^
     CONFIG+=silent ^
