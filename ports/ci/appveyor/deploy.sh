@@ -18,4 +18,5 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
+export PATH=/mingw64/bin:$PATH
 python3 ports/deploy/deploy.py

@@ -16,7 +16,18 @@ REM along with Webcamoid. If not, see <http://www.gnu.org/licenses/>.
 REM
 REM Web-Site: http://webcamoid.github.io/
 
-echo PaTHS: %PATH%
+if "%PLATFORM%" == "x86" (
+    set FF_ARCH=win32
+    set GST_ARCH=x86
+    set VC_ARGS=x86
+) else (
+    set FF_ARCH=win64
+    set GST_ARCH=x86_64
+    set VC_ARGS=amd64
+)
+
+set FFMPEG_DEV_PATH=%CD%\ffmpeg-%FFMPEG_VERSION%-%FF_ARCH%-dev
+set GSTREAMER_DEV_PATH=C:\gstreamer\1.0\%GST_ARCH%
 
 qmake Webcamoid.pro ^
     CONFIG+=%CONFIGURATION% ^

@@ -41,8 +41,6 @@ if not exist %FFMPEG_DEV_FILE% curl --retry 10 -kLOC - https://ffmpeg.zeranoe.co
 
 if exist %FFMPEG_DEV_FILE% 7z x %FFMPEG_DEV_FILE% -aoa -bb
 
-set FFMPEG_DEV_PATH=%CD%\ffmpeg-%FFMPEG_VERSION%-%FF_ARCH%-dev
-
 rem Install FFmpeg binaries
 set FFMPEG_BIN_FILE=ffmpeg-%FFMPEG_VERSION%-%FF_ARCH%-shared.zip
 
