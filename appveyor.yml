@@ -52,11 +52,13 @@ environment:
       MAKETOOL: jom
 
 install:
+  - set COMMAND=C:\msys64\usr\bin\bash -lc
+  - set ARGUMENTS=cd /c/projects/webcamoid && ./ports/ci/appveyor/install_deps.sh
   - if "%MSYS2_BUILD%" == "" (
-        ports\ci\appveyor\install_deps.bat
-    ) else (
-        C:\msys64\usr\bin\bash -lc "cd /c/projects/webcamoid && ./ports/ci/appveyor/install_deps.sh"
+        set COMMAND=
+        set ARGUMENTS=ports\ci\appveyor\install_deps.bat
     )
+  - %COMMAND% "%ARGUMENTS%"
 
 build_script:
   - if "%MSYS2_BUILD%" == "" (

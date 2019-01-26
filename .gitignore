@@ -11,6 +11,7 @@
 *.run
 *.AppImage
 *.framework
+*.1.gz
 
 # Packages #
 ############
