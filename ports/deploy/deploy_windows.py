@@ -191,7 +191,12 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
 
     def writeBuildInfo(self):
         shareDir = os.path.join(self.rootInstallDir, 'share')
-        os.makedirs(shareDir)
+
+        try:
+            os.makedirs(shareDir)
+        except:
+            pass
+
         depsInfoFile = os.path.join(shareDir, 'build-info.txt')
 
         # Write repository info.

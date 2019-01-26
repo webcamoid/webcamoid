@@ -29,9 +29,6 @@ if "%PLATFORM%" == "x86" (
 rem Installing various utilities
 choco install -y curl 7zip InnoSetup
 
-rem Visual Studio init
-if not "%VSPATH%" == "" call "%VSPATH%\vcvarsall" %VC_ARGS%
-
 set PATH=%PATH%;"C:\Program Files\7-Zip";"C:\Program Files (x86)\Inno Setup 5";%QTDIR%\bin;%TOOLSDIR%\bin
 
 rem Install FFmpeg development headers and libraries
@@ -47,8 +44,6 @@ set FFMPEG_BIN_FILE=ffmpeg-%FFMPEG_VERSION%-%FF_ARCH%-shared.zip
 if not exist %FFMPEG_BIN_FILE% curl --retry 10 -kLOC - https://ffmpeg.zeranoe.com/builds/%FF_ARCH%/shared/%FFMPEG_BIN_FILE%
 
 if exist %FFMPEG_BIN_FILE% 7z x %FFMPEG_BIN_FILE% -aoa -bb
-
-set PATH=%CD%\ffmpeg-%FFMPEG_VERSION%-%FF_ARCH%-shared\bin;%PATH%
 
 rem Installing GStreamer development headers and libraries
 
@@ -81,7 +76,4 @@ if not exist %GSTREAMER_BIN_FILE% curl --retry 10 -kLOC - https://gstreamer.free
 
 if exist %GSTREAMER_BIN_FILE% (
     start /b /wait msiexec /i %CD%\%GSTREAMER_BIN_FILE% /quiet /qn /norestart
-    set GSTREAMER_BIN_PATH=C:\gstreamer\1.0\%GST_ARCH%
 )
-
-set PATH=%PATH%;%GSTREAMER_BIN_PATH%\bin
