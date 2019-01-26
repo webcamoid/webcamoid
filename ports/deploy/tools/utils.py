@@ -152,11 +152,11 @@ class DeployToolsUtils:
         os.chdir(buildDir)
 
         if installRoot == '':
-            process = subprocess.Popen([self.make, 'install']) #,
-                                       #stdout=subprocess.PIPE)
+            process = subprocess.Popen([self.make, 'install'],
+                                       stdout=subprocess.PIPE)
         else:
-            process = subprocess.Popen([self.make, 'INSTALL_ROOT=' + installRoot, 'install']) #,
-                                       #stdout=subprocess.PIPE)
+            process = subprocess.Popen([self.make, 'INSTALL_ROOT=' + installRoot, 'install'],
+                                       stdout=subprocess.PIPE)
 
         process.communicate()
         os.chdir(previousDir)
