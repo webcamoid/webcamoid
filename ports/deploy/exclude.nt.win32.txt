@@ -1,1 +1,2 @@
-c:/windows/system32/.*
+C:/windows/system32/.*
+C:/Program Files/.*
