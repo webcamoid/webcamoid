@@ -37,12 +37,6 @@ environment:
       QMAKESPEC: win32-msvc
       VSPATH: C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC
       MAKETOOL: jom
-    - QTDIR: C:\Qt\5.11.2\msvc2015_64
-      TOOLSDIR: C:\Qt\Tools\QtCreator
-      QMAKESPEC: win32-msvc
-      PLATFORM: x64
-      VSPATH: C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC
-      MAKETOOL: jom
     - QTDIR: C:\Qt\5.11.2\msvc2017_64
       TOOLSDIR: C:\Qt\Tools\QtCreator
       QMAKESPEC: win32-msvc
