@@ -51,14 +51,7 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
         self.detectQt(os.path.join(self.buildDir, 'StandAlone'))
         self.programVersion = self.detectVersion(os.path.join(self.rootDir, 'commons.pri'))
         self.detectMake()
-
-        if 'msys' in sys.platform:
-            self.targetSystem = 'posix_msys'
-        elif 'win32' in self.qmakeQuery(var='QMAKE_XSPEC'):
-            self.targetSystem = 'posix_windows'
-        else:
-            self.targetSystem = 'posix'
-
+        self.targetSystem = 'posix_windows' if 'win32' in self.qmakeQuery(var='QMAKE_XSPEC') else 'posix'
         self.binarySolver = tools.binary_elf.DeployToolsBinary()
         self.binarySolver.readExcludeList(os.path.join(self.rootDir, 'ports/deploy/exclude.{}.{}.txt'.format(os.name, sys.platform)))
         self.appImage = self.detectAppImage()
@@ -88,8 +81,9 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
     def solvedepsLibs(self):
         qtLibsPath = self.qmakeQuery(var='QT_INSTALL_LIBS')
         self.binarySolver.ldLibraryPath.append(qtLibsPath)
+        deps = sorted(self.binarySolver.scanDependencies(self.installDir))
 
-        for dep in self.binarySolver.scanDependencies(self.installDir):
+        for dep in deps:
             depPath = os.path.join(self.libInstallDir, os.path.basename(dep))
             print('    {} -> {}'.format(dep, depPath))
             self.copy(dep, depPath, True)

@@ -26,7 +26,6 @@ if "%PLATFORM%" == "x86" (
     set VC_ARGS=amd64
 )
 
-
 rem Visual Studio init
 if not "%VSPATH%" == "" call "%VSPATH%\vcvarsall" %VC_ARGS%
 

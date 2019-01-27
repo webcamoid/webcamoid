@@ -93,7 +93,9 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
         self.writeBuildInfo()
 
     def solvedepsLibs(self):
-        for dep in self.binarySolver.scanDependencies(self.installDir):
+        deps = sorted(self.binarySolver.scanDependencies(self.installDir))
+
+        for dep in deps:
             depPath = os.path.join(self.libInstallDir, os.path.basename(dep))
             print('    {} -> {}'.format(dep, depPath))
             self.copy(dep, depPath, not dep.endswith('.framework'))

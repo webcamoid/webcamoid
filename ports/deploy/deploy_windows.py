@@ -179,6 +179,7 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
             os.remove(afile)
 
     def searchPackageFor(self, path):
+        path = path.replace('C:/', '/c/')
         os.environ['LC_ALL'] = 'C'
         pacman = self.whereBin('pacman')
 
