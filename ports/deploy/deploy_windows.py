@@ -52,8 +52,6 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
         self.detectMake()
         self.binarySolver = tools.binary_pecoff.DeployToolsBinary()
         self.binarySolver.readExcludeList(os.path.join(self.rootDir, 'ports/deploy/exclude.{}.{}.txt'.format(os.name, sys.platform)))
-        print('EXCLUDE ', os.path.join(self.rootDir, 'ports/deploy/exclude.{}.{}.txt'.format(os.name, sys.platform)))
-
         self.packageConfig = os.path.join(self.rootDir, 'ports/deploy/package_info.conf')
         self.dependencies = []
         self.installerConfig = os.path.join(self.installDir, 'installer/config')
@@ -124,8 +122,12 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
                 for depPath in self.binarySolver.allDependencies(path):
                     deps.add(depPath)
 
+        deps = sorted(deps)
+
         for dep in deps:
+            dep = dep.replace('\\', '/')
             depPath = os.path.join(self.binaryInstallDir, os.path.basename(dep))
+            depPath = depPath.replace('\\', '/')
             print('    {} -> {}'.format(dep, depPath))
             self.copy(dep, depPath)
             self.dependencies.append(dep)
@@ -176,6 +178,38 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
         for afile in afiles:
             os.remove(afile)
 
+    def searchPackageFor(self, path):
+        os.environ['LC_ALL'] = 'C'
+        pacman = self.whereBin('pacman')
+
+        if len(pacman) > 0:
+            process = subprocess.Popen([pacman, '-Qo', path],
+                                       stdout=subprocess.PIPE,
+                                       stderr=subprocess.PIPE)
+            stdout, stderr = process.communicate()
+
+            if process.returncode != 0:
+                prefix = '/c/msys32' if self.targetArch == '32bit' else '/c/msys64'
+                path = path[len(prefix):]
+                process = subprocess.Popen([pacman, '-Qo', path],
+                                        stdout=subprocess.PIPE,
+                                        stderr=subprocess.PIPE)
+                stdout, stderr = process.communicate()
+
+                if process.returncode != 0:
+                    return ''
+
+            info = stdout.decode(sys.getdefaultencoding()).split(' ')
+
+            if len(info) < 2:
+                return ''
+
+            package, version = info[-2:]
+
+            return ' '.join([package.strip(), version.strip()])
+
+        return ''
+
     def commitHash(self):
         try:
             process = subprocess.Popen(['git', 'rev-parse', 'HEAD'],
@@ -190,6 +224,20 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
             return stdout.decode(sys.getdefaultencoding()).strip()
         except:
             return ''
+
+    def sysInfo(self):
+        try:
+            process = subprocess.Popen(['cmd', '/c', 'ver'],
+                                        stdout=subprocess.PIPE,
+                                        stderr=subprocess.PIPE)
+            stdout, stderr = process.communicate()
+            windowsVersion = stdout.decode(sys.getdefaultencoding()).strip()
+
+            return 'Windows Version: {}\n'.format(windowsVersion)
+        except:
+            pass
+
+        return ' '.join(platform.uname())
 
     def writeBuildInfo(self):
         shareDir = os.path.join(self.rootInstallDir, 'share')
@@ -214,17 +262,33 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
 
         # Write host info.
 
-        process = subprocess.Popen(['cmd', '/c', 'ver'],
-                                    stdout=subprocess.PIPE,
-                                    stderr=subprocess.PIPE)
-        stdout, stderr = process.communicate()
-        windowsVersion = stdout.decode(sys.getdefaultencoding()).strip()
+        info = self.sysInfo()
 
         with open(depsInfoFile, 'a') as f:
-            print('    Windows Version: {}'.format(windowsVersion))
-            f.write('Windows Version: {}\n'.format(windowsVersion))
+            for line in info.split('\n'):
+                if len(line) > 0:
+                    print('    ' + line)
+                    f.write(line + '\n')
+
             print()
             f.write('\n')
+
+        # Write binary dependencies info.
+
+        packages = set()
+
+        for dep in self.dependencies:
+            packageInfo = self.searchPackageFor(dep)
+
+            if len(packageInfo) > 0:
+                packages.add(packageInfo)
+
+        packages = sorted(packages)
+
+        with open(depsInfoFile, 'a') as f:
+            for packge in packages:
+                print('    ' + packge)
+                f.write(packge + '\n')
 
     def hrSize(self, size):
         i = int(math.log(size) // math.log(1024))

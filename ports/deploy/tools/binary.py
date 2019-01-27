@@ -138,6 +138,7 @@ class DeployToolsBinary(tools.utils.DeployToolsUtils):
         for exclude in self.excludes:
             if self.targetSystem == 'windows' or self.targetSystem == 'posix_windows':
                 path = path.lower().replace('\\', '/')
+                exclude = exclude.lower()
 
             if re.fullmatch(exclude, path):
                 return True
