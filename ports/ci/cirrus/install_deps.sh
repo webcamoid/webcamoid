@@ -21,4 +21,5 @@
 pkg update -y
 pkg upgrade -y
 pkg install -y \
-    git
+    qt5-qmake \
+    ffmpeg
