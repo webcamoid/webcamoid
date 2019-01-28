@@ -5,7 +5,7 @@ freebsd_task:
       image: freebsd-11-2-release-amd64
       #image: freebsd-11-1-release-amd64
       #image: freebsd-10-4-release-amd64
-    cpu: 4
+    cpu: 2
     memory: 4G
 
   install_script:
