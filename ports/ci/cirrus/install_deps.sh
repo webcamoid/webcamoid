@@ -21,6 +21,7 @@
 pkg update -y
 pkg upgrade -y
 pkg install -y \
+    python3 \
     qt5-qmake \
-    qt5-quickcontrols \
+    qt5-quickcontrols2 \
     ffmpeg
