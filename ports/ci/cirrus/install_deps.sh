@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # Webcamoid, webcam capture application.
 # Copyright (C) 2017  Gonzalo Exequiel Pedone
