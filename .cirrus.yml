@@ -9,15 +9,13 @@ freebsd_task:
     memory: 4G
 
   install_script:
-    - pwd
-    - ls -l
     - chmod +x ports/ci/cirrus/install_deps.sh
-    - ports/ci/cirrus/install_deps.sh
+    - ./ports/ci/cirrus/install_deps.sh
 
   script:
     - chmod +x ports/ci/cirrus/build.sh
-    - ports/ci/cirrus/build.sh
+    - ./ports/ci/cirrus/build.sh
 
   check_script:
     - chmod +x ports/ci/cirrus/deploy.sh
-    - ports/ci/cirrus/deploy.sh
+    - ./ports/ci/cirrus/deploy.sh
