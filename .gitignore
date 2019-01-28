@@ -11,14 +11,12 @@
 *.run
 *.AppImage
 *.framework
-*.1.gz
 
 # Packages #
 ############
 *.7z
 *.dmg
 *.gz
-!*.1.gz
 *.iso
 *.jar
 *.rar

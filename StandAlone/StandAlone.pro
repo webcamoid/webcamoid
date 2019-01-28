@@ -50,8 +50,8 @@ exists(commons.pri) {
     PRE_TARGETDEPS += compiler_builddocs_make_all
 }
 
-unix: {
-    MANPAGESOURCES = share/man/man1/$${COMMONS_TARGET}.1
+unix: !macx | !isEmpty(NOAPPBUNDLE) {
+    MANPAGESOURCES = share/man/$${COMMONS_TARGET}.1
 
     buildmanpage.input = MANPAGESOURCES
     buildmanpage.output = ${QMAKE_FILE_IN}.gz
@@ -84,7 +84,6 @@ INCLUDEPATH += \
 LIBS += -L$${OUT_PWD}/../libAvKys/Lib/$${BIN_DIR} -lavkys
 win32: LIBS += -lole32
 
-OTHER_FILES += share/effects.xml
 unix: OTHER_FILES += $${MANPAGESOURCES}
 macx: OTHER_FILES += Info.plist
 
@@ -127,10 +126,11 @@ CODECFORSRC = UTF-8
 INSTALLS += target
 target.path = $${BINDIR}
 
-unix: !isEmpty(NOAPPBUNDLE) {
+unix: !macx | !isEmpty(NOAPPBUNDLE) {
     INSTALLS += manpage
-    manpage.files = share/man/man1/webcamoid.1.gz
-    manpage.path = $${MANDIR}/man1
+    manpage.files = share/man/webcamoid.1.gz
+    manpage.path = $${MANDIR}
+    manpage.CONFIG += no_check_exist
 }
 
 win32 {
