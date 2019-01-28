@@ -19,11 +19,18 @@
 # Web-Site: http://webcamoid.github.io/
 
 pkg update -f
-#pkg upgrade -y
 pkg install -y \
     pkgconf \
     python3 \
     qt5-qmake \
     qt5-buildtools \
+    qt5-concurrent \
+    qt5-multimedia \
+    qt5-quickcontrols \
     qt5-quickcontrols2 \
-    ffmpeg
+    ffmpeg \
+    gstreamer1 \
+    alsa-lib \
+    jackit \
+    pulseaudio \
+    libuvc
