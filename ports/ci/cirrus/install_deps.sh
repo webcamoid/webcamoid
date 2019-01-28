@@ -18,8 +18,8 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-pkg update -y
-pkg upgrade -y
+pkg update -f
+#pkg upgrade -y
 pkg install -y \
     python3 \
     qt5-qmake \
