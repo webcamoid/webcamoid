@@ -44,6 +44,7 @@ UsbGlobals::UsbGlobals(QObject *parent):
         return;
     }
 
+#ifdef HAS_HOTPLUG
     if (libusb_has_capability(LIBUSB_CAP_HAS_HOTPLUG)) {
         usbError =
                 libusb_hotplug_register_callback(this->m_context,
@@ -60,15 +61,18 @@ UsbGlobals::UsbGlobals(QObject *parent):
         if (usbError != LIBUSB_SUCCESS)
             qDebug() << "CaptureLibUVC:" << libusb_strerror(libusb_error(usbError));
     }
+#endif
 
     this->startUSBEvents();
 }
 
 UsbGlobals::~UsbGlobals()
 {
+#ifdef HAS_HOTPLUG
     if (libusb_has_capability(LIBUSB_CAP_HAS_HOTPLUG))
         libusb_hotplug_deregister_callback(this->m_context,
                                            this->m_hotplugCallbackHnd);
+#endif
 
     this->stopUSBEvents();
 

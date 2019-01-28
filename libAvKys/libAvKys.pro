@@ -73,6 +73,7 @@ isEmpty(NOLIBUVC) {
     !isEmpty(LIBUVCINCLUDES): cache(LIBUVCINCLUDES)
     !isEmpty(LIBUVCLIBS): cache(LIBUVCLIBS)
     qtCompileTest(libuvc)
+    CONFIG(config_libuvc): qtCompileTest(libusb_has_hotplug)
 }
 
 isEmpty(NOMEDIAFOUNDATION): qtCompileTest(mediafoundation)

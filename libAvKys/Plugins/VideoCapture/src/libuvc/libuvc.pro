@@ -67,6 +67,9 @@ SOURCES = \
 
 DESTDIR = $${OUT_PWD}/../../$${BIN_DIR}/submodules/VideoCapture
 
+CONFIG(config_libusb_has_hotplug): \
+    DEFINES += HAS_HOTPLUG
+
 TEMPLATE = lib
 
 INSTALLS += target
