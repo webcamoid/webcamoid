@@ -22,4 +22,5 @@ pkg update -y
 pkg upgrade -y
 pkg install -y \
     qt5-qmake \
+    qt5-quickcontrols \
     ffmpeg
