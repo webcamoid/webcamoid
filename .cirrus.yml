@@ -18,11 +18,6 @@ build_task:
     - chmod +x ports/ci/cirrus/build.sh
     - ./ports/ci/cirrus/build.sh
 
-deploy_task:
-  depends_on:
-    - build
-  allow_failures: true
-
-  script:
+  deploy_script:
     - chmod +x ports/ci/cirrus/deploy.sh
     - ./ports/ci/cirrus/deploy.sh
