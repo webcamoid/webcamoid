@@ -8,6 +8,8 @@ freebsd_task:
     cpu: 2
     memory: 4G
 
+  timeout_in: 60m
+
   install_script:
     - chmod +x ports/ci/cirrus/install_deps.sh
     - ./ports/ci/cirrus/install_deps.sh
