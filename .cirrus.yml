@@ -1,4 +1,4 @@
-freebsd_task:
+build_task:
   freebsd_instance:
     matrix:
       image: freebsd-12-0-release-amd64
@@ -18,6 +18,11 @@ freebsd_task:
     - chmod +x ports/ci/cirrus/build.sh
     - ./ports/ci/cirrus/build.sh
 
-  check_script:
+deploy_task:
+  depends_on:
+    - build
+  allow_failures: true
+
+  deploy_script:
     - chmod +x ports/ci/cirrus/deploy.sh
     - ./ports/ci/cirrus/deploy.sh
