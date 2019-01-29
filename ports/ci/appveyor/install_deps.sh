@@ -18,6 +18,7 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
+pacman --noconfirm --Syy \
 pacman --noconfirm --needed -S \
     git \
     make \
