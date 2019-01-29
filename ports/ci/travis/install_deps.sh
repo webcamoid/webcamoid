@@ -100,7 +100,14 @@ elif [ "${DOCKERSYS}" = debian ]; then
         libjack-dev \
         libasound2-dev \
         libv4l-dev \
-        libgstreamer-plugins-base1.0-dev
+        libgstreamer-plugins-base1.0-dev \
+        libavcodec-dev \
+        libavdevice-dev \
+        libavformat-dev \
+        libavutil-dev \
+        libavresample-dev \
+        libswscale-dev \
+        libswresample-dev
 
     # Install Qt dev
     if [ "${DOCKERIMG}" = ubuntu:xenial ]; then
@@ -130,16 +137,6 @@ elif [ "${DOCKERSYS}" = debian ]; then
             qml-module-qtquick-privatewidgets \
             qml-module-qtquick-templates2
     fi
-
-    # Install FFmpeg dev
-    ${EXEC} apt-get -y install \
-        libavcodec-dev \
-        libavdevice-dev \
-        libavformat-dev \
-        libavutil-dev \
-        libavresample-dev \
-        libswscale-dev \
-        libswresample-dev
 elif [ "${DOCKERSYS}" = fedora ]; then
     ${EXEC} dnf install -y https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-${FEDORAVER}.noarch.rpm
     ${EXEC} dnf install -y https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-${FEDORAVER}.noarch.rpm

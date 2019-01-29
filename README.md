@@ -28,6 +28,7 @@ Visit the [wiki](https://github.com/webcamoid/webcamoid/wiki) for a comprehensiv
 [![Build Status](https://travis-ci.org/webcamoid/webcamoid.svg?branch=master)](https://travis-ci.org/webcamoid/webcamoid)
 [![Build status](https://ci.appveyor.com/api/projects/status/hrgbf3qe52ysr8gl?svg=true)](https://ci.appveyor.com/project/hipersayanX/webcamoid)
 [![Build status](https://api.cirrus-ci.com/github/webcamoid/webcamoid.svg)](https://cirrus-ci.com/github/webcamoid/webcamoid)
+[![Language Grade: C/C++](https://img.shields.io/lgtm/grade/cpp/g/webcamoid/webcamoid.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/webcamoid/webcamoid/context:cpp)<br/>
 [![Translation status](https://hosted.weblate.org/widgets/webcamoid/-/svg-badge.svg)](https://hosted.weblate.org/engage/webcamoid/?utm_source=widget)
 [![Project Stats](https://www.openhub.net/p/Webcamoid/widgets/project_thin_badge.gif)](https://www.openhub.net/p/Webcamoid)
 [![Total Downloads](https://img.shields.io/github/downloads/webcamoid/webcamoid/total.svg)](https://github.com/webcamoid/webcamoid/releases)
