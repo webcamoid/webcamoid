@@ -21,7 +21,6 @@
 
 import math
 import os
-import platform
 import subprocess
 import sys
 import threading

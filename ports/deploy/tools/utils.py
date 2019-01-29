@@ -19,7 +19,6 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-import fnmatch
 import multiprocessing
 import os
 import platform

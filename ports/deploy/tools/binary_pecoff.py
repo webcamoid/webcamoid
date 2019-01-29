@@ -94,7 +94,6 @@ class DeployToolsBinary(tools.binary.DeployToolsBinary):
             # Move to Sections table.
             f.seek(sectionTablePos, os.SEEK_SET)
             sections = []
-            idataTableVirtual = -1
             idataTablePhysical = -1
 
             # Search for 'idata' section.
@@ -107,7 +106,6 @@ class DeployToolsBinary(tools.binary.DeployToolsBinary):
                 sections += [section]
 
                 if sectionName == b'idata' or sectionName == b'rdata':
-                    idataTableVirtual = section[2]
                     idataTablePhysical = section[4]
 
                     # If import table was defined calculate it's position in

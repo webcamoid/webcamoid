@@ -347,7 +347,7 @@ class DeployToolsQt(tools.utils.DeployToolsUtils):
                     f.readline()
                     changeLogText = ''
 
-                    for line in f:
+                    for line_ in f:
                         if re.match('{} \d+\.\d+\.\d+:'.format(appName), line):
                             # Remove last line.
                             i = changeLogText.rfind('\n')
@@ -357,7 +357,7 @@ class DeployToolsQt(tools.utils.DeployToolsUtils):
 
                             return changeLogText
 
-                        changeLogText += line
+                        changeLogText += line_
 
         return ''
 
