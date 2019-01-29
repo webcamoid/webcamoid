@@ -20,6 +20,7 @@
 
 pkg update -f
 pkg install -y \
+    git \
     pkgconf \
     python3 \
     qt5-qmake \
