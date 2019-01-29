@@ -23,6 +23,6 @@ deploy_task:
     - build
   allow_failures: true
 
-  deploy_script:
+  script:
     - chmod +x ports/ci/cirrus/deploy.sh
     - ./ports/ci/cirrus/deploy.sh
