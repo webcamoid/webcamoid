@@ -103,7 +103,8 @@ matrix:
       - docker
     compiler: gcc
     env:
-      - DOCKERSYS=debian DOCKERIMG=ubuntu:bionic
+      - DOCKERSYS=debian
+      - DOCKERIMG=ubuntu:bionic
       - DAILY_BUILD=1
   - os: linux
     sudo: required
