@@ -100,7 +100,6 @@ elif [ "${DOCKERSYS}" = debian ]; then
         libjack-dev \
         libasound2-dev \
         libv4l-dev \
-        libgstreamer-plugins-base1.0-dev \
         libavcodec-dev \
         libavdevice-dev \
         libavformat-dev \
@@ -108,6 +107,11 @@ elif [ "${DOCKERSYS}" = debian ]; then
         libavresample-dev \
         libswscale-dev \
         libswresample-dev
+
+    if [ -z "${DAILY_BUILD}" ]; then
+        ${EXEC} apt-get -y install \
+            libgstreamer-plugins-base1.0-dev
+    fi
 
     # Install Qt dev
     if [ "${DOCKERIMG}" = ubuntu:xenial ]; then
@@ -198,19 +202,23 @@ elif [ "${TRAVIS_OS_NAME}" = osx ]; then
         ccache \
         pkg-config \
         qt5 \
-        ffmpeg \
-        gstreamer \
-        gst-plugins-base \
-        pulseaudio \
-        jack \
-        libuvc
+        ffmpeg
+
+    if [ -z "${DAILY_BUILD}" ]; then
+        brew install \
+            gstreamer \
+            gst-plugins-base \
+            pulseaudio \
+            jack \
+            libuvc
+    fi
 
     qtIFW=QtInstallerFramework-mac-x64.dmg
 
     # Install Qt Installer Framework
     wget -c http://download.qt.io/official_releases/qt-installer-framework/${QTIFWVER}/${qtIFW} || true
 
-    if [ -e ${qtIFW} ]; then
+    if [ -e "${qtIFW}" ]; then
         hdiutil convert ${qtIFW} -format UDZO -o qtifw
         7z x -oqtifw qtifw.dmg -bb
         7z x -oqtifw qtifw/5.hfsx -bb

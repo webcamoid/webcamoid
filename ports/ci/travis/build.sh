@@ -54,11 +54,22 @@ elif [ "${TRAVIS_OS_NAME}" = linux ]; then
 
     if [ "${DOCKERSYS}" = debian ]; then
         if [ "${DOCKERIMG}" = ubuntu:xenial ]; then
-           cat << EOF >> ${BUILDSCRIPT}
+            if [ -z "${DAILY_BUILD}" ]; then
+                cat << EOF >> ${BUILDSCRIPT}
 qmake -spec ${COMPILESPEC} Webcamoid.pro \
     CONFIG+=silent \
     QMAKE_CXX="${COMPILER}"
 EOF
+            else
+                cat << EOF >> ${BUILDSCRIPT}
+qmake -spec ${COMPILESPEC} Webcamoid.pro \
+    CONFIG+=silent \
+    QMAKE_CXX="${COMPILER}" \
+    NOGSTREAMER=1 \
+    NOQTAUDIO=1
+EOF
+            fi
+
             ${EXEC} bash ${BUILDSCRIPT}
         else
             ${EXEC} qmake -qt=5 -spec ${COMPILESPEC} Webcamoid.pro \
@@ -71,13 +82,20 @@ EOF
             QMAKE_CXX="${COMPILER}"
     fi
 elif [ "${TRAVIS_OS_NAME}" = osx ]; then
-    ${EXEC} qmake -spec ${COMPILESPEC} Webcamoid.pro \
-        CONFIG+=silent \
-        QMAKE_CXX="${COMPILER}" \
-        LIBUSBINCLUDES=/usr/local/opt/libusb/include \
-        LIBUVCINCLUDES=/usr/local/opt/libuvc/include \
-        LIBUVCLIBS=-L/usr/local/opt/libuvc/lib \
-        LIBUVCLIBS+=-luvc
+    if [ -z "${DAILY_BUILD}" ]; then
+        ${EXEC} qmake -spec ${COMPILESPEC} Webcamoid.pro \
+            CONFIG+=silent \
+            QMAKE_CXX="${COMPILER}"
+    else
+        ${EXEC} qmake -spec ${COMPILESPEC} Webcamoid.pro \
+            CONFIG+=silent \
+            QMAKE_CXX="${COMPILER}" \
+            NOGSTREAMER=1 \
+            NOJACK=1 \
+            NOLIBUVC=1 \
+            NOPULSEAUDIO=1 \
+            NOQTAUDIO=1
+    fi
 fi
 
 if [ -z "${NJOBS}" ]; then

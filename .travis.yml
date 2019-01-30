@@ -170,6 +170,9 @@ matrix:
     env:
       - DAILY_BUILD=1
   - os: osx
+    osx_image: xcode9.1
+    compiler: clang
+  - os: osx
     osx_image: xcode9.2
     compiler: clang
   - os: osx
