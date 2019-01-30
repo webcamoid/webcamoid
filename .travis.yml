@@ -293,7 +293,7 @@ deploy:
   key:
     secure: nk14s1Ud2d4mSrUE2GE8LoWBQxGPiQgwnarx4rVAslOcUHRet+Tj9rSeQfW85oUWGT9LSGvob9il+cvbukoZDBbCyw1VyiO4n4XqaUvmz9/Oh9+7It51eYan/sUxxsiANB3D6c0sklpwg3KeZqYWqS/DoYsOIXA4YBelvFGezm+JZoueJokA7MpZv6rjltVD7WkIA3etoOleofXhcHFr5FAYzPtFN0BGgVmuIIunuOxVCkz1nkR/ucaIrcckpt7XU/WHJ4nrKNb8eUWSxVdklbK7F3MBebe+1ZmK5Gd1Vum378PqT6CjHKsLe1LGhEA5exHWtFlI3YR/u+DqJ9WJic1ykQV6d4BNoBGbWicNcVJuljQRTN+aGGPNMGN5mw7FYdasYKz94Lu7IZsDytAPxkitjbiOF9rZIBkGkHybZdcqCc/nkoXVKhfWaTkoKtQ4UHo32lE6fkIL5QMWwnfMY1IyQvcxkhoevzU0woZt2jvxb5/nHr+fHhekzdWqaWDhdLeViF1G0zZMuG7o6rquLIgzbmYieq1XO0Hoj6lSglGDpCXk2iVbkZetO252Bgzf/wype93HABGmSb48DXyp1tRTgBzh12IbTazrtS2fNMmMpCqNOIy4OvkIwWEKXQKrc53Zowcf3sG2OuGDVwCdGil82PtE+LQN9AiA8gBdU8E=
   on:
-    branch: release
+    branch: master
     condition: $DAILY_BUILD = 1
   skip_cleanup: true
   file: "$TRAVIS_BUILD_DIR/.bintray.js"
