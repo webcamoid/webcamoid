@@ -19,84 +19,103 @@ matrix:
       - docker
     compiler: gcc
     env:
-      - DOCKERSYS=debian DOCKERIMG=debian:testing
+      - DOCKERSYS=debian
+      - DOCKERIMG=debian:testing
   - os: linux
     sudo: required
     services:
       - docker
     compiler: clang
     env:
-      - DOCKERSYS=debian DOCKERIMG=debian:testing
+      - DOCKERSYS=debian
+      - DOCKERIMG=debian:testing
   - os: linux
     sudo: required
     services:
       - docker
     compiler: gcc
     env:
-      - DOCKERSYS=fedora DOCKERIMG=fedora:27 FEDORAVER=27
+      - DOCKERSYS=fedora
+      - DOCKERIMG=fedora:27
+      - FEDORAVER=27
   - os: linux
     sudo: required
     services:
       - docker
     compiler: clang
     env:
-      - DOCKERSYS=fedora DOCKERIMG=fedora:27 FEDORAVER=27
+      - DOCKERSYS=fedora
+      - DOCKERIMG=fedora:27
+      - FEDORAVER=27
   - os: linux
     sudo: required
     services:
       - docker
     compiler: gcc
     env:
-      - DOCKERSYS=fedora DOCKERIMG=fedora:28 FEDORAVER=28
+      - DOCKERSYS=fedora
+      - DOCKERIMG=fedora:28
+      - FEDORAVER=28
   - os: linux
     sudo: required
     services:
       - docker
     compiler: clang
     env:
-      - DOCKERSYS=fedora DOCKERIMG=fedora:28 FEDORAVER=28
+      - DOCKERSYS=fedora
+      - DOCKERIMG=fedora:28
+      - FEDORAVER=28
   - os: linux
     sudo: required
     services:
       - docker
     compiler: gcc
     env:
-      - DOCKERSYS=fedora DOCKERIMG=fedora:rawhide FEDORAVER=rawhide
+      - DOCKERSYS=fedora
+      - DOCKERIMG=fedora:rawhide
+      - FEDORAVER=rawhide
   - os: linux
     sudo: required
     services:
       - docker
     compiler: clang
     env:
-      - DOCKERSYS=fedora DOCKERIMG=fedora:rawhide FEDORAVER=rawhide
+      - DOCKERSYS=fedora
+      - DOCKERIMG=fedora:rawhide
+      - FEDORAVER=rawhide
   - os: linux
     sudo: required
     services:
       - docker
     compiler: gcc
     env:
-      - DOCKERSYS=opensuse DOCKERIMG=opensuse:tumbleweed
+      - DOCKERSYS=opensuse
+      - DOCKERIMG=opensuse:tumbleweed
   - os: linux
     sudo: required
     services:
       - docker
     compiler: clang
     env:
-      - DOCKERSYS=opensuse DOCKERIMG=opensuse:tumbleweed
+      - DOCKERSYS=opensuse
+      - DOCKERIMG=opensuse:tumbleweed
   - os: linux
     sudo: required
     services:
       - docker
     compiler: gcc
     env:
-      - DOCKERSYS=debian DOCKERIMG=ubuntu:xenial
+      - DOCKERSYS=debian
+      - DOCKERIMG=ubuntu:xenial
+      - DAILY_BUILD=1
   - os: linux
     sudo: required
     services:
       - docker
     compiler: clang
     env:
-      - DOCKERSYS=debian DOCKERIMG=ubuntu:xenial
+      - DOCKERSYS=debian
+      - DOCKERIMG=ubuntu:xenial
   - os: linux
     sudo: required
     services:
@@ -105,45 +124,51 @@ matrix:
     env:
       - DOCKERSYS=debian
       - DOCKERIMG=ubuntu:bionic
-      - DAILY_BUILD=1
   - os: linux
     sudo: required
     services:
       - docker
     compiler: clang
     env:
-      - DOCKERSYS=debian DOCKERIMG=ubuntu:bionic
+      - DOCKERSYS=debian
+      - DOCKERIMG=ubuntu:bionic
   - os: linux
     sudo: required
     services:
       - docker
     compiler: gcc
     env:
-      - DOCKERSYS=debian DOCKERIMG=ubuntu:cosmic
+      - DOCKERSYS=debian
+      - DOCKERIMG=ubuntu:cosmic
   - os: linux
     sudo: required
     services:
       - docker
     compiler: clang
     env:
-      - DOCKERSYS=debian DOCKERIMG=ubuntu:cosmic
+      - DOCKERSYS=debian
+      - DOCKERIMG=ubuntu:cosmic
   - os: linux
     sudo: required
     services:
       - docker
     compiler: gcc
     env:
-      - DOCKERSYS=debian DOCKERIMG=ubuntu:disco
+      - DOCKERSYS=debian
+      - DOCKERIMG=ubuntu:disco
   - os: linux
     sudo: required
     services:
       - docker
     compiler: clang
     env:
-      - DOCKERSYS=debian DOCKERIMG=ubuntu:disco
+      - DOCKERSYS=debian
+      - DOCKERIMG=ubuntu:disco
   - os: osx
     osx_image: xcode9.1
     compiler: clang
+    env:
+      - DAILY_BUILD=1
   - os: osx
     osx_image: xcode9.2
     compiler: clang
