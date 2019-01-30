@@ -104,7 +104,7 @@ matrix:
     compiler: gcc
     env:
       - DOCKERSYS=debian DOCKERIMG=ubuntu:bionic
-      - DAILY_BUILD = 1
+      - DAILY_BUILD=1
   - os: linux
     sudo: required
     services:
