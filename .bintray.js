@@ -20,7 +20,7 @@
     },
 
     "files": [
-        {"includePattern": "/home/travis/build/webcamoid/webcamoid/ports/deploy/packages_auto/(.*)/(.*)",
+        {"includePattern": "ports/deploy/packages_auto/(.*)/(.*)",
          "uploadPattern": "$1/$2",
          "matrixParams": {"override": 1}}
     ],
