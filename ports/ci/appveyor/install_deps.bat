@@ -27,7 +27,7 @@ if "%PLATFORM%" == "x86" (
 )
 
 rem Installing various utilities
-choco install -y curl 7zip InnoSetup
+choco install -y curl 7zip jfrog-cli InnoSetup
 
 set PATH=%PATH%;"C:\Program Files\7-Zip";"C:\Program Files (x86)\Inno Setup 5";%QTDIR%\bin;%TOOLSDIR%\bin
 
