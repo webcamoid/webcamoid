@@ -31,10 +31,10 @@ environment:
       secure: seneRk4ppI4bquIsdweI8pd8FT0RXUvU2LOUNGSBEA28IhFQijypil2CfC3WtJxa
 
   matrix:
-    - MSYS2_BUILD: 1
     - QTDIR: C:\Qt\5.11.2\mingw53_32
       TOOLSDIR: C:\Qt\Tools\mingw530_32
       DAILY_BUILD: 1
+    - MSYS2_BUILD: 1
     - QTDIR: C:\Qt\5.11.2\mingw53_32
       TOOLSDIR: C:\Qt\Tools\mingw492_32
     - QTDIR: C:\Qt\5.11.2\mingw53_32
