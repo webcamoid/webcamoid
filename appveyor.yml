@@ -74,6 +74,9 @@ after_build:
     )
   - ports\ci\appveyor\push_artifacts.bat
 
+deploy_script:
+  - ports\ci\appveyor\upload.bat
+
 notifications:
   - provider: Email
     to:
