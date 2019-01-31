@@ -26,15 +26,12 @@ if "%PLATFORM%" == "x86" (
     set VC_ARGS=amd64
 )
 
-
 rem Visual Studio init
 if not "%VSPATH%" == "" call "%VSPATH%\vcvarsall" %VC_ARGS%
 
 set FFMPEG_DEV_PATH=%CD%\ffmpeg-%FFMPEG_VERSION%-%FF_ARCH%-dev
 
 if not "%DAILY_BUILD%" == "" goto DailyBuild
-
-:FullBuild
 
 set GSTREAMER_DEV_PATH=C:\gstreamer\1.0\%GST_ARCH%
 set PATH=%QTDIR%\bin;%TOOLSDIR%\bin;%CD%\ffmpeg-%FFMPEG_VERSION%-%FF_ARCH%-shared\bin;%GSTREAMER_DEV_PATH%\bin;%PATH%
