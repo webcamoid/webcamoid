@@ -46,34 +46,35 @@ if not exist %FFMPEG_BIN_FILE% curl --retry 10 -kLOC - https://ffmpeg.zeranoe.co
 if exist %FFMPEG_BIN_FILE% 7z x %FFMPEG_BIN_FILE% -aoa -bb
 
 rem Installing GStreamer development headers and libraries
+if "%DAILY_BUILD%" == "" (
+    set GSTREAMER_DEV_FILE=gstreamer-1.0-devel-%GST_ARCH%-%GSTREAMER_VERSION%.msi
 
-set GSTREAMER_DEV_FILE=gstreamer-1.0-devel-%GST_ARCH%-%GSTREAMER_VERSION%.msi
+    if not exist %GSTREAMER_DEV_FILE% curl --retry 10 -kLOC - https://gstreamer.freedesktop.org/data/pkg/windows/%GSTREAMER_VERSION%/%GSTREAMER_DEV_FILE%
 
-if not exist %GSTREAMER_DEV_FILE% curl --retry 10 -kLOC - https://gstreamer.freedesktop.org/data/pkg/windows/%GSTREAMER_VERSION%/%GSTREAMER_DEV_FILE%
+    if exist %GSTREAMER_DEV_FILE% (
+        start /b /wait msiexec /i %CD%\%GSTREAMER_DEV_FILE% /quiet /qn /norestart
+        set GSTREAMER_DEV_PATH=C:\gstreamer\1.0\%GST_ARCH%
+    )
 
-if exist %GSTREAMER_DEV_FILE% (
-    start /b /wait msiexec /i %CD%\%GSTREAMER_DEV_FILE% /quiet /qn /norestart
-    set GSTREAMER_DEV_PATH=C:\gstreamer\1.0\%GST_ARCH%
-)
+    rem Copy necessary libraries to an alternative path to avoid conflicts with
+    rem Qt's MinGW system libraries
+    if exist %GSTREAMER_DEV_FILE% (
+        xcopy %GSTREAMER_DEV_PATH%\lib\*gobject-2.0.* %GSTREAMER_DEV_PATH%\lib2 /i /y
+        xcopy %GSTREAMER_DEV_PATH%\lib\*glib-2.0.* %GSTREAMER_DEV_PATH%\lib2 /i /y
+        xcopy %GSTREAMER_DEV_PATH%\lib\*gstreamer-1.0.* %GSTREAMER_DEV_PATH%\lib2 /i /y
+        xcopy %GSTREAMER_DEV_PATH%\lib\*gstapp-1.0.* %GSTREAMER_DEV_PATH%\lib2 /i /y
+        xcopy %GSTREAMER_DEV_PATH%\lib\*gstpbutils-1.0.* %GSTREAMER_DEV_PATH%\lib2 /i /y
+        xcopy %GSTREAMER_DEV_PATH%\lib\*gstaudio-1.0.* %GSTREAMER_DEV_PATH%\lib2 /i /y
+        xcopy %GSTREAMER_DEV_PATH%\lib\*gstvideo-1.0.* %GSTREAMER_DEV_PATH%\lib2 /i /y
+    )
 
-rem Copy necessary libraries to an alternative path to avoid conflicts with
-rem Qt's MinGW system libraries
-if exist %GSTREAMER_DEV_FILE% (
-    xcopy %GSTREAMER_DEV_PATH%\lib\*gobject-2.0.* %GSTREAMER_DEV_PATH%\lib2 /i /y
-    xcopy %GSTREAMER_DEV_PATH%\lib\*glib-2.0.* %GSTREAMER_DEV_PATH%\lib2 /i /y
-    xcopy %GSTREAMER_DEV_PATH%\lib\*gstreamer-1.0.* %GSTREAMER_DEV_PATH%\lib2 /i /y
-    xcopy %GSTREAMER_DEV_PATH%\lib\*gstapp-1.0.* %GSTREAMER_DEV_PATH%\lib2 /i /y
-    xcopy %GSTREAMER_DEV_PATH%\lib\*gstpbutils-1.0.* %GSTREAMER_DEV_PATH%\lib2 /i /y
-    xcopy %GSTREAMER_DEV_PATH%\lib\*gstaudio-1.0.* %GSTREAMER_DEV_PATH%\lib2 /i /y
-    xcopy %GSTREAMER_DEV_PATH%\lib\*gstvideo-1.0.* %GSTREAMER_DEV_PATH%\lib2 /i /y
-)
+    rem Installing GStreamer binaries
 
-rem Installing GStreamer binaries
+    set GSTREAMER_BIN_FILE=gstreamer-1.0-%GST_ARCH%-%GSTREAMER_VERSION%.msi
 
-set GSTREAMER_BIN_FILE=gstreamer-1.0-%GST_ARCH%-%GSTREAMER_VERSION%.msi
+    if not exist %GSTREAMER_BIN_FILE% curl --retry 10 -kLOC - https://gstreamer.freedesktop.org/data/pkg/windows/%GSTREAMER_VERSION%/%GSTREAMER_BIN_FILE%
 
-if not exist %GSTREAMER_BIN_FILE% curl --retry 10 -kLOC - https://gstreamer.freedesktop.org/data/pkg/windows/%GSTREAMER_VERSION%/%GSTREAMER_BIN_FILE%
-
-if exist %GSTREAMER_BIN_FILE% (
-    start /b /wait msiexec /i %CD%\%GSTREAMER_BIN_FILE% /quiet /qn /norestart
+    if exist %GSTREAMER_BIN_FILE% (
+        start /b /wait msiexec /i %CD%\%GSTREAMER_BIN_FILE% /quiet /qn /norestart
+    )
 )

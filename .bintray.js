@@ -8,7 +8,7 @@
         "issue_tracker_url": "https://github.com/webcamoid/webcamoid/issues",
         "vcs_url": "https://github.com/webcamoid/webcamoid.git",
         "licenses": ["GPLv3+"],
-        "labels": ["webcam", "virtual-camera", "desktop-capturing"],
+        "labels": ["daily-build"],
         "public_download_numbers": true,
         "public_stats": true
     },

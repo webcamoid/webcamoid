@@ -29,34 +29,52 @@ if "%PLATFORM%" == "x86" (
 rem Visual Studio init
 if not "%VSPATH%" == "" call "%VSPATH%\vcvarsall" %VC_ARGS%
 
-set FFMPEG_DEV_PATH=%CD%\ffmpeg-%FFMPEG_VERSION%-%FF_ARCH%-dev
-set GSTREAMER_DEV_PATH=C:\gstreamer\1.0\%GST_ARCH%
-set PATH=%QTDIR%\bin;%TOOLSDIR%\bin;%CD%\ffmpeg-%FFMPEG_VERSION%-%FF_ARCH%-shared\bin;%GSTREAMER_DEV_PATH%\bin;%PATH%
+if "%DAILY_BUILD%" == "" (
+    set FFMPEG_DEV_PATH=%CD%\ffmpeg-%FFMPEG_VERSION%-%FF_ARCH%-dev
+    set GSTREAMER_DEV_PATH=C:\gstreamer\1.0\%GST_ARCH%
+    set PATH=%QTDIR%\bin;%TOOLSDIR%\bin;%CD%\ffmpeg-%FFMPEG_VERSION%-%FF_ARCH%-shared\bin;%GSTREAMER_DEV_PATH%\bin;%PATH%
 
-qmake Webcamoid.pro ^
-    CONFIG+=%CONFIGURATION% ^
-    CONFIG+=silent ^
-    PREFIX="%INSTALL_PREFIX%" ^
-    FFMPEGINCLUDES="%FFMPEG_DEV_PATH%\include" ^
-    FFMPEGLIBS=-L"%FFMPEG_DEV_PATH%\lib" ^
-    FFMPEGLIBS+=-lavcodec ^
-    FFMPEGLIBS+=-lavdevice ^
-    FFMPEGLIBS+=-lavformat ^
-    FFMPEGLIBS+=-lavutil ^
-    FFMPEGLIBS+=-lswresample ^
-    FFMPEGLIBS+=-lswscale ^
-    GSTREAMERINCLUDES="%GSTREAMER_DEV_PATH%\include" ^
-    GSTREAMERINCLUDES+="%GSTREAMER_DEV_PATH%\include\glib-2.0" ^
-    GSTREAMERINCLUDES+="%GSTREAMER_DEV_PATH%\lib\glib-2.0\include" ^
-    GSTREAMERINCLUDES+="%GSTREAMER_DEV_PATH%\include\gstreamer-1.0" ^
-    GSTREAMERLIBS=-L"%GSTREAMER_DEV_PATH%\lib2" ^
-    GSTREAMERLIBS+=-lgobject-2.0 ^
-    GSTREAMERLIBS+=-lglib-2.0 ^
-    GSTREAMERLIBS+=-lgstreamer-1.0 ^
-    GSTREAMERLIBS+=-lgstapp-1.0 ^
-    GSTREAMERLIBS+=-lgstpbutils-1.0 ^
-    GSTREAMERLIBS+=-lgstaudio-1.0 ^
-    GSTREAMERLIBS+=-lgstvideo-1.0
+    qmake Webcamoid.pro ^
+        CONFIG+=%CONFIGURATION% ^
+        CONFIG+=silent ^
+        PREFIX="%INSTALL_PREFIX%" ^
+        FFMPEGINCLUDES="%FFMPEG_DEV_PATH%\include" ^
+        FFMPEGLIBS=-L"%FFMPEG_DEV_PATH%\lib" ^
+        FFMPEGLIBS+=-lavcodec ^
+        FFMPEGLIBS+=-lavdevice ^
+        FFMPEGLIBS+=-lavformat ^
+        FFMPEGLIBS+=-lavutil ^
+        FFMPEGLIBS+=-lswresample ^
+        FFMPEGLIBS+=-lswscale ^
+        GSTREAMERINCLUDES="%GSTREAMER_DEV_PATH%\include" ^
+        GSTREAMERINCLUDES+="%GSTREAMER_DEV_PATH%\include\glib-2.0" ^
+        GSTREAMERINCLUDES+="%GSTREAMER_DEV_PATH%\lib\glib-2.0\include" ^
+        GSTREAMERINCLUDES+="%GSTREAMER_DEV_PATH%\include\gstreamer-1.0" ^
+        GSTREAMERLIBS=-L"%GSTREAMER_DEV_PATH%\lib2" ^
+        GSTREAMERLIBS+=-lgobject-2.0 ^
+        GSTREAMERLIBS+=-lglib-2.0 ^
+        GSTREAMERLIBS+=-lgstreamer-1.0 ^
+        GSTREAMERLIBS+=-lgstapp-1.0 ^
+        GSTREAMERLIBS+=-lgstpbutils-1.0 ^
+        GSTREAMERLIBS+=-lgstaudio-1.0 ^
+        GSTREAMERLIBS+=-lgstvideo-1.0
+) else (
+    set FFMPEG_DEV_PATH=%CD%\ffmpeg-%FFMPEG_VERSION%-%FF_ARCH%-dev
+    set PATH=%QTDIR%\bin;%TOOLSDIR%\bin;%CD%\ffmpeg-%FFMPEG_VERSION%-%FF_ARCH%-shared\bin;%PATH%
+
+    qmake Webcamoid.pro ^
+        CONFIG+=%CONFIGURATION% ^
+        CONFIG+=silent ^
+        PREFIX="%INSTALL_PREFIX%" ^
+        FFMPEGINCLUDES="%FFMPEG_DEV_PATH%\include" ^
+        FFMPEGLIBS=-L"%FFMPEG_DEV_PATH%\lib" ^
+        FFMPEGLIBS+=-lavcodec ^
+        FFMPEGLIBS+=-lavdevice ^
+        FFMPEGLIBS+=-lavformat ^
+        FFMPEGLIBS+=-lavutil ^
+        FFMPEGLIBS+=-lswresample ^
+        FFMPEGLIBS+=-lswscale
+)
 
 %MAKETOOL% -f Makefile qmake_all
 %MAKETOOL% -j4

@@ -25,6 +25,10 @@ environment:
     QMAKESPEC: win32-g++
     MAKETOOL: mingw32-make
     INSTALL_PREFIX: C:/projects/webcamoid/ports/deploy/temp_priv/usr
+    # api key from https://bintray.com/profile/edit
+    # encrypted in https://ci.appveyor.com/tools/encrypt
+    BT_KEY:
+      secure: seneRk4ppI4bquIsdweI8pd8FT0RXUvU2LOUNGSBEA28IhFQijypil2CfC3WtJxa
 
   matrix:
     - MSYS2_BUILD: 1
@@ -32,6 +36,9 @@ environment:
       TOOLSDIR: C:\Qt\Tools\mingw492_32
     - QTDIR: C:\Qt\5.11.2\mingw53_32
       TOOLSDIR: C:\Qt\Tools\mingw530_32
+    - QTDIR: C:\Qt\5.11.2\mingw53_32
+      TOOLSDIR: C:\Qt\Tools\mingw530_32
+      DAILY_BUILD: 1
     - QTDIR: C:\Qt\5.11.2\msvc2015
       TOOLSDIR: C:\Qt\Tools\QtCreator
       QMAKESPEC: win32-msvc
@@ -59,12 +66,16 @@ build_script:
         C:\msys64\usr\bin\bash -lc "cd /c/projects/webcamoid && ./ports/ci/appveyor/build.sh '%INSTALL_PREFIX%'"
     )
 
-on_success:
+after_build:
   - if "%MSYS2_BUILD%" == "" (
         ports\ci\appveyor\deploy.bat
     ) else (
         C:\msys64\usr\bin\bash -lc "cd /c/projects/webcamoid && ./ports/ci/appveyor/deploy.sh"
     )
+  - ports\ci\appveyor\push_artifacts.bat
+
+deploy_script:
+  - ports\ci\appveyor\upload.bat
 
 notifications:
   - provider: Email
@@ -73,3 +84,18 @@ notifications:
     on_build_success: false
     on_build_failure: false
     on_build_status_changed: true
+
+deploy:
+  - provider: BinTray
+    name: Daily build
+    on:
+      branch: master
+    username: hipersayanx
+    api_key: ${BT_KEY}
+    subject: webcamoid
+    repo: webcamoid
+    package: webcamoid
+    version: daily
+    publish: true
+    override: true
+    explode: false
