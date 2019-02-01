@@ -17,7 +17,7 @@ rem          https://api.bintray.com/content/webcamoid/webcamoid/webcamoid/daily
         --website-url "https://webcamoid.github.io" ^
         --issuetracker-url "https://github.com/webcamoid/webcamoid/issues" ^
         --github-repo "https://github.com/webcamoid/webcamoid" ^
-        ports\deploy\packages_auto\windows\* ^
+        ports/deploy/packages_auto/windows/* ^
         webcamoid/webcamoid/webcamoid/daily ^
         windows/
 )
