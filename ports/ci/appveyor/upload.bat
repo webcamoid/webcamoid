@@ -6,8 +6,8 @@ rem          https://api.bintray.com/content/webcamoid/webcamoid/webcamoid/daily
 
     for %%f in (ports\deploy\packages_auto\windows\*) do (
         jfrog bt upload ^
-            --user hipersayanx ^
-            --key %BT_KEY% ^
+            --user=hipersayanx ^
+            --key=%BT_KEY% ^
             --override=true ^
             --publish=true ^
             --licenses=GPLv3+ ^
