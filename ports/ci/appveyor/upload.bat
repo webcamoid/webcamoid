@@ -8,16 +8,16 @@ rem          https://api.bintray.com/content/webcamoid/webcamoid/webcamoid/daily
         jfrog bt upload ^
             --user hipersayanx ^
             --key %BT_KEY% ^
-            --override true ^
-            --publish true ^
-            --licenses GPLv3+ ^
-            --vcs-url "https://github.com/webcamoid/webcamoid.git" ^
-            --pub-dn true ^
-            --desc "Daily build" ^
-            --labels daily-build ^
-            --website-url "https://webcamoid.github.io" ^
-            --issuetracker-url "https://github.com/webcamoid/webcamoid/issues" ^
-            --github-repo "https://github.com/webcamoid/webcamoid" ^
+            --override=true ^
+            --publish=true ^
+            --licenses=GPLv3+ ^
+            --vcs-url="https://github.com/webcamoid/webcamoid.git" ^
+            --pub-dn=true ^
+            --desc="Daily build" ^
+            --labels=daily-build ^
+            --website-url="https://webcamoid.github.io" ^
+            --issuetracker-url="https://github.com/webcamoid/webcamoid/issues" ^
+            --github-repo="https://github.com/webcamoid/webcamoid" ^
             %%f ^
             webcamoid/webcamoid/webcamoid/daily ^
             windows/
