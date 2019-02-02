@@ -84,18 +84,3 @@ notifications:
     on_build_success: false
     on_build_failure: false
     on_build_status_changed: true
-
-#deploy:
-  #- provider: BinTray
-    #name: Daily build
-    #on:
-      #branch: master
-    #username: hipersayanx
-    #api_key: ${BT_KEY}
-    #subject: webcamoid
-    #repo: webcamoid
-    #package: webcamoid
-    #version: daily
-    #publish: true
-    #override: true
-    #explode: false

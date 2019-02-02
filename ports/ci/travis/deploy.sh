@@ -19,7 +19,11 @@
 # Web-Site: http://webcamoid.github.io/
 
 if [ "${TRAVIS_OS_NAME}" = linux ] && [ -z "${ANDROID_BUILD}" ]; then
-    EXEC="docker exec ${DOCKERSYS}"
+    if [ -z "${DAILY_BUILD}" ]; then
+        EXEC="docker exec ${DOCKERSYS}"
+    else
+        EXEC="docker exec -e DAILY_BUILD=1 ${DOCKERSYS}"
+    fi
 fi
 
 if [ "${ANDROID_BUILD}" = 1 ]; then
