@@ -370,6 +370,14 @@
     </message>
 </context>
 <context>
+    <name>MediaTools</name>
+    <message>
+        <location filename="../../src/mediatools.cpp" line="221"/>
+        <source>Daily Build</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>OutputConfig</name>
     <message>
         <location filename="../qml/OutputConfig.qml" line="55"/>

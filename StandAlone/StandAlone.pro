@@ -52,10 +52,11 @@ exists(commons.pri) {
 
 unix: !macx | !isEmpty(NOAPPBUNDLE) {
     MANPAGESOURCES = share/man/$${COMMONS_TARGET}.1
+    MANPAGEOUT = $${OUT_PWD}/$${MANPAGESOURCES}.gz
 
     buildmanpage.input = MANPAGESOURCES
-    buildmanpage.output = ${QMAKE_FILE_IN}.gz
-    buildmanpage.commands = gzip -c9 ${QMAKE_FILE_IN} > ${QMAKE_FILE_IN}.gz
+    buildmanpage.output = $${MANPAGEOUT}
+    buildmanpage.commands = gzip -c9 ${QMAKE_FILE_IN} > $${MANPAGEOUT}
     buildmanpage.clean = dummy_file
     buildmanpage.CONFIG += no_link
     QMAKE_EXTRA_COMPILERS += buildmanpage
@@ -65,6 +66,9 @@ unix: !macx | !isEmpty(NOAPPBUNDLE) {
 CONFIG += qt
 macx: CONFIG -= app_bundle
 !isEmpty(STATIC_BUILD):!isEqual(STATIC_BUILD, 0): CONFIG += static
+
+DAILY_BUILD = $$(DAILY_BUILD)
+!isEmpty(DAILY_BUILD): DEFINES += DAILY_BUILD
 
 HEADERS = \
     src/mediatools.h \
@@ -128,7 +132,7 @@ target.path = $${BINDIR}
 
 unix: !macx | !isEmpty(NOAPPBUNDLE) {
     INSTALLS += manpage
-    manpage.files = share/man/webcamoid.1.gz
+    manpage.files = $${OUT_PWD}/share/man/$${COMMONS_TARGET}.1.gz
     manpage.path = $${MANDIR}
     manpage.CONFIG += no_check_exist
 }

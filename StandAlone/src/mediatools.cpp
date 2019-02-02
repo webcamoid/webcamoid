@@ -217,7 +217,11 @@ QString MediaTools::applicationName() const
 
 QString MediaTools::applicationVersion() const
 {
+#ifdef DAILY_BUILD
+    return QString(tr("Daily Build"));
+#else
     return QCoreApplication::applicationVersion();
+#endif
 }
 
 QString MediaTools::qtVersion() const

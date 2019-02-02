@@ -35,8 +35,8 @@ import tools.qt5
 class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
     def __init__(self):
         super().__init__()
-        self.installDir = os.path.join(self.rootDir, 'ports/deploy/temp_priv')
-        self.pkgsDir = os.path.join(self.rootDir, 'ports/deploy/packages_auto/windows')
+        self.installDir = os.path.join(self.buildDir, 'ports/deploy/temp_priv')
+        self.pkgsDir = os.path.join(self.buildDir, 'ports/deploy/packages_auto/windows')
         self.rootInstallDir = os.path.join(self.installDir, 'usr')
         self.binaryInstallDir = os.path.join(self.rootInstallDir, 'bin')
         self.libInstallDir = os.path.join(self.rootInstallDir, 'lib')

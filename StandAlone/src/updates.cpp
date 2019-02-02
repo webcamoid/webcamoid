@@ -38,12 +38,12 @@ class UpdatesPrivate
     public:
         QQmlApplicationEngine *m_engine {nullptr};
         QNetworkAccessManager m_manager;
-        bool m_notifyNewVersion {false};
-        Updates::VersionType m_versionType {Updates::VersionTypeCurrent};
         QString m_latestVersion {COMMONS_VERSION};
-        int m_checkInterval {0};
         QDateTime m_lastUpdate;
         QTimer m_timer;
+        Updates::VersionType m_versionType {Updates::VersionTypeCurrent};
+        int m_checkInterval {0};
+        bool m_notifyNewVersion {false};
 
         QVariantList vectorize(const QString &version) const;
         void normalize(QVariantList &vector1, QVariantList &vector2) const;
@@ -84,7 +84,6 @@ Updates::Updates(QQmlApplicationEngine *engine, QObject *parent):
 
     // Check lasUpdate every 10 mins
     this->d->m_timer.setInterval(int(1e3 * 60 * 10));
-
     this->loadProperties();
 
     QObject::connect(&this->d->m_timer,
@@ -331,21 +330,23 @@ void Updates::replyFinished(QNetworkReply *reply)
         return;
 
     auto version = jsonObj.value("tag_name").toString(COMMONS_VERSION);
+    this->setLatestVersion(version);
 
+#ifdef DAILY_BUILD
+    this->setVersionType(VersionTypeDevelopment);
+#else
     auto isOldVersion =
             this->d->compare(version, COMMONS_VERSION,
                              [] (const QVariant &a, const QVariant &b) {
                                    return a > b;
                              });
-
     VersionType versionType = isOldVersion?
                                   VersionTypeOld:
                               version == COMMONS_VERSION?
                                    VersionTypeCurrent:
                                    VersionTypeDevelopment;
-
-    this->setLatestVersion(version);
     this->setVersionType(versionType);
+#endif
     this->setLastUpdate(QDateTime::currentDateTime());
 }
 
@@ -366,12 +367,14 @@ void Updates::loadProperties()
    } else
        this->d->m_timer.stop();
 
+#ifdef DAILY_BUILD
+   this->setVersionType(VersionTypeDevelopment);
+#else
    auto isOldVersion =
            this->d->compare(this->d->m_latestVersion, COMMONS_VERSION,
                             [] (const QVariant &a, const QVariant &b) {
                                   return a > b;
                             });
-
    VersionType versionType = isOldVersion?
                                  VersionTypeOld:
                              this->d->m_latestVersion == COMMONS_VERSION?
@@ -379,6 +382,7 @@ void Updates::loadProperties()
                                   VersionTypeDevelopment;
 
    this->setVersionType(versionType);
+#endif
 }
 
 void Updates::saveNotifyNewVersion(bool notifyNewVersion)

@@ -103,6 +103,9 @@ class DeployToolsQt(tools.utils.DeployToolsUtils):
         return ''
 
     def detectVersion(self, proFile):
+        if 'DAILY_BUILD' in os.environ:
+            return 'daily'
+
         verMaj = '0'
         verMin = '0'
         verPat = '0'
@@ -405,7 +408,12 @@ class DeployToolsQt(tools.utils.DeployToolsUtils):
             config.write('<?xml version="1.0" encoding="UTF-8"?>\n')
             config.write('<Installer>\n')
             config.write('    <Name>{}</Name>\n'.format(appName))
-            config.write('    <Version>{}</Version>\n'.format(self.programVersion))
+
+            if 'DAILY_BUILD' in os.environ:
+                config.write('    <Version>0.0.0</Version>\n')
+            else:
+                config.write('    <Version>{}</Version>\n'.format(self.programVersion))
+
             config.write('    <Title>{}</Title>\n'.format(packageConf['Package']['description'].strip()))
             config.write('    <Publisher>{}</Publisher>\n'.format(appName))
             config.write('    <ProductUrl>{}</ProductUrl>\n'.format(packageConf['Package']['url'].strip()))
@@ -429,7 +437,12 @@ class DeployToolsQt(tools.utils.DeployToolsUtils):
             f.write('<Package>\n')
             f.write('    <DisplayName>{}</DisplayName>\n'.format(appName))
             f.write('    <Description>{}</Description>\n'.format(packageConf['Package']['description'].strip()))
-            f.write('    <Version>{}</Version>\n'.format(self.programVersion))
+
+            if 'DAILY_BUILD' in os.environ:
+                f.write('    <Version>0.0.0</Version>\n')
+            else:
+                f.write('    <Version>{}</Version>\n'.format(self.programVersion))
+
             f.write('    <ReleaseDate>{}</ReleaseDate>\n'.format(time.strftime('%Y-%m-%d')))
             f.write('    <Name>{}</Name>\n'.format(componentName))
             f.write('    <Licenses>\n')
@@ -438,9 +451,12 @@ class DeployToolsQt(tools.utils.DeployToolsUtils):
             f.write('    </Licenses>\n')
             f.write('    <Script>installscript.qs</Script>\n')
             f.write('    <UpdateText>\n')
-            f.write(self.readChangeLog(self.changeLog,
-                                       appName,
-                                       self.programVersion))
+
+            if not 'DAILY_BUILD' in os.environ:
+                f.write(self.readChangeLog(self.changeLog,
+                                        appName,
+                                        self.programVersion))
+
             f.write('    </UpdateText>\n')
             f.write('    <Default>true</Default>\n')
             f.write('    <ForcedInstallation>true</ForcedInstallation>\n')
