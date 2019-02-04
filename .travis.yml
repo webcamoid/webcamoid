@@ -14,7 +14,8 @@ env:
 matrix:
   include:
   - os: linux
-    sudo: required
+    dist: xenial
+    #sudo: required
     compiler: gcc
     env:
       - ARCH_ROOT_BUILD=1
