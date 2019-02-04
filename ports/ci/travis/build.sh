@@ -28,7 +28,9 @@ else
     COMPILER=${CXX}
 fi
 
-if [ "${TRAVIS_OS_NAME}" = linux ] && [ -z "${ANDROID_BUILD}" ]; then
+if [ "${ARCH_ROOT_BUILD}" = 1 ]; then
+    EXEC='sudo ./root.x86_64/bin/arch-chroot root.x86_64'
+elif [ "${TRAVIS_OS_NAME}" = linux ] && [ -z "${ANDROID_BUILD}" ]; then
     if [ -z "${DAILY_BUILD}" ]; then
         EXEC="docker exec ${DOCKERSYS}"
     else
@@ -40,7 +42,7 @@ BUILDSCRIPT=dockerbuild.sh
 
 if [ "${DOCKERIMG}" = ubuntu:xenial ]; then
     cat << EOF > ${BUILDSCRIPT}
-#!/bin/bash
+#!/bin/sh
 
 source /opt/qt${PPAQTVER}/bin/qt${PPAQTVER}-env.sh
 EOF
@@ -53,6 +55,21 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
     export ANDROID_NDK_ROOT=$PWD/build/android-ndk-${NDKVER}
     qmake -spec ${COMPILESPEC} Webcamoid.pro \
         CONFIG+=silent
+elif [ "${ARCH_ROOT_BUILD}" = 1 ]; then
+    sudo mount --bind root.x86_64 root.x86_64
+    sudo mount --bind ${PWD} root.x86_64/home/user/webcamoid
+
+    cat << EOF > root.x86_64/home/user/${BUILDSCRIPT}
+#!/bin/sh
+
+cd /home/user/webcamoid
+qmake -spec ${COMPILESPEC} Webcamoid.pro \
+    CONFIG+=silent \
+    QMAKE_CXX="${COMPILER}"
+EOF
+    chmod +x root.x86_64/home/user/${BUILDSCRIPT}
+
+    ${EXEC} bash /home/user/${BUILDSCRIPT}
 elif [ "${TRAVIS_OS_NAME}" = linux ]; then
     export PATH=$HOME/.local/bin:$PATH
 
@@ -60,12 +77,16 @@ elif [ "${TRAVIS_OS_NAME}" = linux ]; then
         if [ "${DOCKERIMG}" = ubuntu:xenial ]; then
             if [ -z "${DAILY_BUILD}" ]; then
                 cat << EOF >> ${BUILDSCRIPT}
+#!/bin/sh
+
 qmake -spec ${COMPILESPEC} Webcamoid.pro \
     CONFIG+=silent \
     QMAKE_CXX="${COMPILER}"
 EOF
             else
                 cat << EOF >> ${BUILDSCRIPT}
+#!/bin/sh
+
 qmake -spec ${COMPILESPEC} Webcamoid.pro \
     CONFIG+=silent \
     QMAKE_CXX="${COMPILER}" \
@@ -106,4 +127,17 @@ if [ -z "${NJOBS}" ]; then
     NJOBS=4
 fi
 
-${EXEC} make -j${NJOBS}
+if [ "${ARCH_ROOT_BUILD}" = 1 ]; then
+    cat << EOF > root.x86_64/home/user/${BUILDSCRIPT}
+#!/bin/sh
+
+cd /home/user/webcamoid
+make -j${NJOBS}
+EOF
+
+    ${EXEC} bash /home/user/${BUILDSCRIPT}
+    sudo umount root.x86_64/home/user/webcamoid
+    sudo umount root.x86_64
+else
+    ${EXEC} make -j${NJOBS}
+fi

@@ -18,7 +18,9 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-if [ "${TRAVIS_OS_NAME}" = linux ] && [ "${ANDROID_BUILD}" != 1 ]; then
+if [ "${ARCH_ROOT_BUILD}" = 1 ]; then
+    EXEC='sudo ./root.x86_64/bin/arch-chroot root.x86_64'
+elif [ "${TRAVIS_OS_NAME}" = linux ] && [ "${ANDROID_BUILD}" != 1 ]; then
     mkdir -p .local/bin
     qtIFW=QtInstallerFramework-linux-x64.run
 
@@ -74,6 +76,59 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
         -v \
         --script "$PWD/../ports/ci/travis/qt_non_interactive_install.qs" \
         --no-force-installations
+elif [ "${ARCH_ROOT_BUILD}" = 1 ]; then
+    # Download chroot image
+    archImage=archlinux-bootstrap-${ARCH_ROOT_DATE}-x86_64.tar.gz
+    wget -c ${ARCH_ROOT_URL}/iso/${ARCH_ROOT_DATE}/$archImage
+    sudo tar xzvf $archImage
+
+    # Configure mirrors
+    cp -vf root.x86_64/etc/pacman.conf .
+    cat << EOF >> pacman.conf
+
+[multilib]
+Include = /etc/pacman.d/mirrorlist
+
+[ownstuff]
+SigLevel = Optional TrustAll
+Server = http://martchus.no-ip.biz/repo/arch/ownstuff/os/\$arch
+EOF
+    sed -i 's/Required DatabaseOptional/Optional TrustAll/g' pacman.conf
+    sudo cp -vf pacman.conf root.x86_64/etc/pacman.conf
+
+    cp -vf root.x86_64/etc/pacman.d/mirrorlist .
+    cat << EOF >> mirrorlist
+
+Server = ${ARCH_ROOT_URL}/\$repo/os/\$arch
+EOF
+    sudo cp -vf mirrorlist root.x86_64/etc/pacman.d/mirrorlist
+
+    # Install packages
+    sudo mkdir -pv root.x86_64/home/user/webcamoid
+    sudo mount --bind root.x86_64 root.x86_64
+    sudo mount --bind ${PWD} root.x86_64/home/user/webcamoid
+
+    ${EXEC} pacman-key --init
+    ${EXEC} pacman -Syy
+    ${EXEC} pacman --noconfirm --needed -S \
+        ccache \
+        clang \
+        qt5-quickcontrols \
+        qt5-quickcontrols2 \
+        qt5-svg \
+        v4l-utils \
+        qt5-tools \
+        qt5-multimedia \
+        ffmpeg \
+        gst-plugins-base-libs \
+        libpulse \
+        alsa-lib \
+        jack \
+        libuvc
+
+    # Finish
+    sudo umount root.x86_64/home/user/webcamoid
+    sudo umount root.x86_64
 elif [ "${DOCKERSYS}" = debian ]; then
     ${EXEC} apt-get -y update
 
