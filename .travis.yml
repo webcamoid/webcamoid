@@ -20,7 +20,6 @@ matrix:
       - ARCH_ROOT_BUILD=1
       - ARCH_ROOT_DATE=2019.02.01
       - ARCH_ROOT_URL=https://mirror.rackspace.com/archlinux
-  include:
   - os: linux
     sudo: required
     services:
