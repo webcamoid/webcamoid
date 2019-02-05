@@ -10,17 +10,21 @@ env:
     - PPAQTVER=512
     - QTIFWVER=3.0.6
     - APPIMAGEVER=11
+    - ARCH_ROOT_DATE=2019.02.01
+    - ARCH_ROOT_URL=https://mirror.rackspace.com/archlinux
 
 matrix:
   include:
   - os: linux
     dist: xenial
-    #sudo: required
     compiler: gcc
     env:
       - ARCH_ROOT_BUILD=1
-      - ARCH_ROOT_DATE=2019.02.01
-      - ARCH_ROOT_URL=https://mirror.rackspace.com/archlinux
+  - os: linux
+    dist: xenial
+    compiler: clang
+    env:
+      - ARCH_ROOT_BUILD=1
   - os: linux
     sudo: required
     services:

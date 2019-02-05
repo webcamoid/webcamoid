@@ -45,6 +45,8 @@ EOF
     sudo cp -vf ${DEPLOYSCRIPT} root.x86_64/home/user/
 
     ${EXEC} bash /home/user/${DEPLOYSCRIPT}
+    sudo umount root.x86_64/home/user/webcamoid
+    sudo umount root.x86_64
 elif [ "${TRAVIS_OS_NAME}" = linux ]; then
     cat << EOF > ${DEPLOYSCRIPT}
 #!/bin/sh

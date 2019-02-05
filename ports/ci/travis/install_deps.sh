@@ -115,6 +115,7 @@ EOF
         clang \
         make \
         pkgconf \
+        xorg-server-xvfb \
         qt5-quickcontrols \
         qt5-quickcontrols2 \
         qt5-svg \
