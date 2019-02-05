@@ -116,6 +116,7 @@ EOF
     ${EXEC} pacman --noconfirm --needed -S \
         ccache \
         clang \
+        file \
         git \
         make \
         pkgconf \
