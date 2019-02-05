@@ -139,6 +139,8 @@ EOF
             jack
     else
         ${EXEC} pacman --noconfirm --needed -S \
+            sudo \
+            fakeroot \
             wine \
             mingw-w64-pkg-config \
             mingw-w64-gcc \
