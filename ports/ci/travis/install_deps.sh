@@ -114,6 +114,7 @@ EOF
         ccache \
         clang \
         make \
+        pkgconf \
         qt5-quickcontrols \
         qt5-quickcontrols2 \
         qt5-svg \

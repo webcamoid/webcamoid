@@ -18,7 +18,9 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-if [ "${TRAVIS_OS_NAME}" = linux ] && [ -z "${ANDROID_BUILD}" ]; then
+if [ "${ARCH_ROOT_BUILD}" = 1 ]; then
+    EXEC='sudo ./root.x86_64/bin/arch-chroot root.x86_64'
+elif [ "${TRAVIS_OS_NAME}" = linux ] && [ -z "${ANDROID_BUILD}" ]; then
     if [ -z "${DAILY_BUILD}" ]; then
         EXEC="docker exec ${DOCKERSYS}"
     else
