@@ -299,9 +299,9 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
         stdout, stderr = process.communicate()
         wineVersion = stdout.decode(sys.getdefaultencoding()).strip()
 
-        process = subprocess.Popen(['wine', 'cmd', '/c', 'ver']) #,
-                                   #stdout=subprocess.PIPE,
-                                   #stderr=subprocess.PIPE)
+        process = subprocess.Popen(['wine', 'cmd', '/c', 'ver'],
+                                   stdout=subprocess.PIPE,
+                                   stderr=subprocess.PIPE)
         stdout, stderr = process.communicate()
         fakeWindowsVersion = stdout.decode(sys.getdefaultencoding()).strip()
 
@@ -317,10 +317,11 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
 
         packages = set()
 
-        for dep in self.dependencies:
+        for i, dep in enumerate(self.dependencies):
             packageInfo = self.searchPackageFor(dep)
 
             if len(packageInfo) > 0:
+                print('{}%',format(100 * (i + 1) // len(self.dependencies)), end='\r')
                 packages.add(packageInfo)
 
         packages = sorted(packages)
