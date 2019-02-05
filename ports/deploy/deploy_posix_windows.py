@@ -299,6 +299,10 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
         stdout, stderr = process.communicate()
         wineVersion = stdout.decode(sys.getdefaultencoding()).strip()
 
+        with open(depsInfoFile, 'a') as f:
+            print('    Wine Version: {}'.format(wineVersion))
+            f.write('Wine Version: {}\n'.format(wineVersion))
+
         process = subprocess.Popen(['wine', 'cmd', '/c', 'ver'],
                                    stdout=subprocess.PIPE,
                                    stderr=subprocess.PIPE)
@@ -306,8 +310,6 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
         fakeWindowsVersion = stdout.decode(sys.getdefaultencoding()).strip()
 
         with open(depsInfoFile, 'a') as f:
-            print('    Wine Version: {}'.format(wineVersion))
-            f.write('Wine Version: {}\n'.format(wineVersion))
             print('    Windows Version: {}'.format(fakeWindowsVersion))
             f.write('Windows Version: {}\n'.format(fakeWindowsVersion))
             print()
