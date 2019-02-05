@@ -293,15 +293,15 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
 
         # Write Wine version and emulated system info.
 
-        process = subprocess.Popen(['wine', '--version']) #,
-                                    #stdout=subprocess.PIPE,
-                                    #stderr=subprocess.PIPE)
+        process = subprocess.Popen(['wine', '--version'],
+                                   stdout=subprocess.PIPE,
+                                   stderr=subprocess.PIPE)
         stdout, stderr = process.communicate()
         wineVersion = stdout.decode(sys.getdefaultencoding()).strip()
 
         process = subprocess.Popen(['wine', 'cmd', '/c', 'ver']) #,
-                                    #stdout=subprocess.PIPE,
-                                    #stderr=subprocess.PIPE)
+                                   #stdout=subprocess.PIPE,
+                                   #stderr=subprocess.PIPE)
         stdout, stderr = process.communicate()
         fakeWindowsVersion = stdout.decode(sys.getdefaultencoding()).strip()
 
