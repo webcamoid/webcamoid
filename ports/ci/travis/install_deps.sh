@@ -115,6 +115,7 @@ EOF
         clang \
         make \
         pkgconf \
+        python \
         xorg-server-xvfb \
         qt5-quickcontrols \
         qt5-quickcontrols2 \
