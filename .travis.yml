@@ -33,7 +33,7 @@ matrix:
       - ARCH_ROOT_MINGW=x86_64
   - os: linux
     dist: xenial
-    compiler: clang
+    compiler: gcc
     env:
       - ARCH_ROOT_BUILD=1
       - ARCH_ROOT_MINGW=i686
@@ -289,6 +289,7 @@ before_script: |
   if [ "${ANDROID_BUILD}" = 1 ]; then
     export COMPILESPEC=android-${COMPILER}
   elif [ "${ARCH_ROOT_BUILD}" = 1 ] && [ ! -z "${ARCH_ROOT_MINGW}" ]; then
+    export CXX=${ARCH_ROOT_MINGW}-w64-mingw32-g++
     export COMPILESPEC=win32-g++
   elif [ "${TRAVIS_OS_NAME}" = linux ]; then
     if [ "${CXX}" = g++ ]; then
