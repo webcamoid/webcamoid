@@ -253,7 +253,7 @@ matrix:
 
 before_install: |
   if [ -z "${ANDROID_BUILD}" ]; then
-    if [ "${TRAVIS_OS_NAME}" = linux ]; then
+    if [ "${TRAVIS_OS_NAME}" = linux ] && [ "${ARCH_ROOT_BUILD}" != 1 ]; then
       docker pull ${DOCKERIMG}
       docker ps -a
       docker run -it -d -v ${PWD}:/sources -v $HOME/.ccache:/ccache -e CCACHE_DIR=/ccache -w /sources --name ${DOCKERSYS} ${DOCKERIMG} /bin/sh
