@@ -26,6 +26,18 @@ matrix:
     env:
       - ARCH_ROOT_BUILD=1
   - os: linux
+    dist: xenial
+    compiler: gcc
+    env:
+      - ARCH_ROOT_BUILD=1
+      - ARCH_ROOT_MINGW=x86_64
+  - os: linux
+    dist: xenial
+    compiler: clang
+    env:
+      - ARCH_ROOT_BUILD=1
+      - ARCH_ROOT_MINGW=i686
+  - os: linux
     sudo: required
     services:
       - docker
@@ -257,7 +269,7 @@ matrix:
 
 before_install: |
   if [ -z "${ANDROID_BUILD}" ]; then
-    if [ "${TRAVIS_OS_NAME}" = linux ] && [ "${ARCH_ROOT_BUILD}" != 1 ]; then
+    if [ "${TRAVIS_OS_NAME}" = linux ] && [ -z "${ARCH_ROOT_BUILD}" ]; then
       docker pull ${DOCKERIMG}
       docker ps -a
       docker run -it -d -v ${PWD}:/sources -v $HOME/.ccache:/ccache -e CCACHE_DIR=/ccache -w /sources --name ${DOCKERSYS} ${DOCKERIMG} /bin/sh
@@ -276,6 +288,8 @@ install:
 before_script: |
   if [ "${ANDROID_BUILD}" = 1 ]; then
     export COMPILESPEC=android-${COMPILER}
+  elif [ "${ARCH_ROOT_BUILD}" = 1 ] && [ ! -z "${ARCH_ROOT_MINGW}" ]; then
+    export COMPILESPEC=win32-g++
   elif [ "${TRAVIS_OS_NAME}" = linux ]; then
     if [ "${CXX}" = g++ ]; then
       export COMPILESPEC=linux-g++

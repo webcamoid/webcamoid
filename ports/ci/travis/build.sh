@@ -59,12 +59,18 @@ elif [ "${ARCH_ROOT_BUILD}" = 1 ]; then
     sudo mount --bind root.x86_64 root.x86_64
     sudo mount --bind ${PWD} root.x86_64/home/user/webcamoid
 
+    if [ -z "${ARCH_ROOT_MINGW}" ]; then
+        QMAKE_CMD=qmake
+    else
+        QMAKE_CMD=/usr/${ARCH_ROOT_MINGW}-w64-mingw32/lib/qt/bin/qmake
+    fi
+
     cat << EOF > ${BUILDSCRIPT}
 #!/bin/sh
 
 export LC_ALL=C
 cd /home/user/webcamoid
-qmake -spec ${COMPILESPEC} Webcamoid.pro \
+${QMAKE_CMD} -spec ${COMPILESPEC} Webcamoid.pro \
     CONFIG+=silent \
     QMAKE_CXX="${COMPILER}"
 EOF

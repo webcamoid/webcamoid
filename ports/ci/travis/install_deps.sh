@@ -134,6 +134,29 @@ EOF
         alsa-lib \
         jack
 
+    if [ -z "${ARCH_ROOT_MINGW}" ]; then
+        ${EXEC} pacman --noconfirm --needed -S \
+            qt5-quickcontrols \
+            qt5-quickcontrols2 \
+            qt5-svg \
+            v4l-utils \
+            qt5-tools \
+            qt5-multimedia \
+            ffmpeg \
+            gst-plugins-base-libs \
+            libpulse \
+            alsa-lib \
+            jack
+    else
+        ${EXEC} pacman --noconfirm --needed -S \
+            mingw-w64-qt5-multimedia \
+            mingw-w64-qt5-quickcontrols \
+            mingw-w64-qt5-quickcontrols2 \
+            mingw-w64-qt5-svg \
+            mingw-w64-qt5-tools
+            # mingw-w64-ffmpeg-zeranoe
+    fi
+
     # Finish
     sudo umount root.x86_64/home/user/webcamoid
     sudo umount root.x86_64
