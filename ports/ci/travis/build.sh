@@ -59,7 +59,7 @@ elif [ "${ARCH_ROOT_BUILD}" = 1 ]; then
     sudo mount --bind root.x86_64 root.x86_64
     sudo mount --bind ${PWD} root.x86_64/home/user/webcamoid
 
-    cat << EOF > root.x86_64/home/user/${BUILDSCRIPT}
+    cat << EOF > ${BUILDSCRIPT}
 #!/bin/sh
 
 cd /home/user/webcamoid
@@ -67,7 +67,8 @@ qmake -spec ${COMPILESPEC} Webcamoid.pro \
     CONFIG+=silent \
     QMAKE_CXX="${COMPILER}"
 EOF
-    chmod +x root.x86_64/home/user/${BUILDSCRIPT}
+    chmod +x ${BUILDSCRIPT}
+    sudo cp -vf ${BUILDSCRIPT} root.x86_64/home/user/
 
     ${EXEC} bash /home/user/${BUILDSCRIPT}
 elif [ "${TRAVIS_OS_NAME}" = linux ]; then
@@ -128,12 +129,14 @@ if [ -z "${NJOBS}" ]; then
 fi
 
 if [ "${ARCH_ROOT_BUILD}" = 1 ]; then
-    cat << EOF > root.x86_64/home/user/${BUILDSCRIPT}
+    cat << EOF > ${BUILDSCRIPT}
 #!/bin/sh
 
 cd /home/user/webcamoid
 make -j${NJOBS}
 EOF
+    chmod +x ${BUILDSCRIPT}
+    sudo cp -vf ${BUILDSCRIPT} root.x86_64/home/user/
 
     ${EXEC} bash /home/user/${BUILDSCRIPT}
     sudo umount root.x86_64/home/user/webcamoid
