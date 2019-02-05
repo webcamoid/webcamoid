@@ -305,17 +305,17 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
             print()
             f.write('\n')
 
-        #process = subprocess.Popen(['wine', 'cmd', '/c', 'ver'],
-                                   #stdout=subprocess.PIPE,
-                                   #stderr=subprocess.PIPE)
-        #stdout, stderr = process.communicate()
-        #fakeWindowsVersion = stdout.decode(sys.getdefaultencoding()).strip()
+        process = subprocess.Popen(['wine', 'cmd', '/c', 'ver'],
+                                   stdout=subprocess.PIPE,
+                                   stderr=subprocess.PIPE)
+        stdout, stderr = process.communicate()
+        fakeWindowsVersion = stdout.decode(sys.getdefaultencoding()).strip()
 
-        #with open(depsInfoFile, 'a') as f:
-            #print('    Windows Version: {}'.format(fakeWindowsVersion))
-            #f.write('Windows Version: {}\n'.format(fakeWindowsVersion))
-            #print()
-            #f.write('\n')
+        with open(depsInfoFile, 'a') as f:
+            print('    Windows Version: {}'.format(fakeWindowsVersion))
+            f.write('Windows Version: {}\n'.format(fakeWindowsVersion))
+            print()
+            f.write('\n')
 
         # Write binary dependencies info.
 

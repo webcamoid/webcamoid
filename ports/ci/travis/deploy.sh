@@ -42,6 +42,8 @@ elif [ "${ARCH_ROOT_BUILD}" = 1 ]; then
 export LC_ALL=C
 cd /home/user/webcamoid
 export PATH="\$PWD/.local/bin:\$PATH"
+export WINEPREFIX=\$PWD/.wine
+xvfb-run --auto-servernum wineboot -u
 xvfb-run --auto-servernum python ports/deploy/deploy.py
 EOF
     chmod +x ${DEPLOYSCRIPT}
