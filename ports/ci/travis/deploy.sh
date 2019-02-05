@@ -33,6 +33,9 @@ DEPLOYSCRIPT=deployscript.sh
 if [ "${ANDROID_BUILD}" = 1 ]; then
     echo "Deploy not supported for Android"
 elif [ "${ARCH_ROOT_BUILD}" = 1 ]; then
+    sudo mount --bind root.x86_64 root.x86_64
+    sudo mount --bind ${PWD} root.x86_64/home/user/webcamoid
+
     cat << EOF > ${DEPLOYSCRIPT}
 #!/bin/sh
 
