@@ -121,18 +121,7 @@ EOF
         make \
         pkgconf \
         python \
-        xorg-server-xvfb \
-        qt5-quickcontrols \
-        qt5-quickcontrols2 \
-        qt5-svg \
-        v4l-utils \
-        qt5-tools \
-        qt5-multimedia \
-        ffmpeg \
-        gst-plugins-base-libs \
-        libpulse \
-        alsa-lib \
-        jack
+        xorg-server-xvfb
 
     if [ -z "${ARCH_ROOT_MINGW}" ]; then
         ${EXEC} pacman --noconfirm --needed -S \
