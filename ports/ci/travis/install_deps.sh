@@ -80,7 +80,7 @@ elif [ "${ARCH_ROOT_BUILD}" = 1 ]; then
     # Download chroot image
     archImage=archlinux-bootstrap-${ARCH_ROOT_DATE}-x86_64.tar.gz
     wget -c ${ARCH_ROOT_URL}/iso/${ARCH_ROOT_DATE}/$archImage
-    sudo tar xzvf $archImage
+    sudo tar xzf $archImage
 
     # Configure mirrors
     cp -vf root.x86_64/etc/pacman.conf .
@@ -123,8 +123,7 @@ EOF
         gst-plugins-base-libs \
         libpulse \
         alsa-lib \
-        jack \
-        libuvc
+        jack
 
     # Finish
     sudo umount root.x86_64/home/user/webcamoid
