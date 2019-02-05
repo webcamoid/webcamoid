@@ -138,6 +138,7 @@ EOF
             jack
     else
         ${EXEC} pacman --noconfirm --needed -S \
+            wine \
             mingw-w64-pkg-config \
             mingw-w64-gcc \
             mingw-w64-qt5-multimedia \
@@ -145,7 +146,18 @@ EOF
             mingw-w64-qt5-quickcontrols2 \
             mingw-w64-qt5-svg \
             mingw-w64-qt5-tools
-            # mingw-w64-ffmpeg-zeranoe
+
+        svn checkout https://github.com/hipersayanX/ArchPackages/trunk/mingw-w64-ffmpeg-zeranoe
+        BUILDFFMPEG_SCRIPT=build_ffmpeg.sh
+        cat << EOF > ${BUILDFFMPEG_SCRIPT}
+#!/bin/sh
+
+export LC_ALL=C
+cd /home/user/webcamoid/mingw-w64-ffmpeg-zeranoe
+makepkg -sif --noconfirm --needed
+EOF
+        chmod +x ${BUILDFFMPEG_SCRIPT}
+        ${EXEC} bash /home/user/webcamoid/${BUILDFFMPEG_SCRIPT}
     fi
 
     # Finish
