@@ -121,6 +121,7 @@ EOF
         make \
         pkgconf \
         python \
+        sed \
         xorg-server-xvfb
 
     if [ -z "${ARCH_ROOT_MINGW}" ]; then
