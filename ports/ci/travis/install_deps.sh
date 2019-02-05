@@ -149,6 +149,8 @@ EOF
             jack
     else
         ${EXEC} pacman --noconfirm --needed -S \
+            mingw-w64-pkg-config \
+            mingw-w64-gcc \
             mingw-w64-qt5-multimedia \
             mingw-w64-qt5-quickcontrols \
             mingw-w64-qt5-quickcontrols2 \
