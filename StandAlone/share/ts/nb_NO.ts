@@ -6,57 +6,57 @@
     <message>
         <location filename="../qml/About.qml" line="27"/>
         <source>About %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Om %1</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="46"/>
         <source>Information</source>
-        <translation type="unfinished"></translation>
+        <translation>Informasjon</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="49"/>
         <source>Thanks!</source>
-        <translation type="unfinished"></translation>
+        <translation>Takk.</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="52"/>
         <source>License</source>
-        <translation type="unfinished"></translation>
+        <translation>Lisens</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="86"/>
         <source>Version %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Versjon %1</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="90"/>
         <source>Using Qt %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Som gjør bruk av Qt %1</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="94"/>
         <source>Website</source>
-        <translation type="unfinished"></translation>
+        <translation>Nettside</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="103"/>
         <source>Webcam capture application.</source>
-        <translation type="unfinished"></translation>
+        <translation>Vevkameraopptaksprogram.</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="106"/>
         <source>A simple webcam application for picture and video capture.</source>
-        <translation type="unfinished"></translation>
+        <translation>Et enkelt vevkameraprogram for bildetakning og video-opptak.</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="122"/>
         <source>Thanks to all these cool people that helped contributing to Webcamoid all these years.</source>
-        <translation type="unfinished"></translation>
+        <translation>Takk rettes til alle disse kule menneskene, som har bidratt til Webcamoid i årenes løp.</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="149"/>
         <source>Close</source>
-        <translation type="unfinished"></translation>
+        <translation>Lukk</translation>
     </message>
 </context>
 <context>
@@ -310,7 +310,7 @@
     <message>
         <location filename="../qml/GeneralConfig.qml" line="150"/>
         <source>Virtual camera driver</source>
-        <translation type="unfinished"></translation>
+        <translation>Virtuell kameradriver</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="118"/>
@@ -374,7 +374,7 @@
     <message>
         <location filename="../../src/mediatools.cpp" line="221"/>
         <source>Daily Build</source>
-        <translation type="unfinished"></translation>
+        <translation>Dagsbygg</translation>
     </message>
 </context>
 <context>
@@ -481,7 +481,7 @@
     <message>
         <location filename="../../src/clioptions.cpp" line="50"/>
         <source>PATH</source>
-        <translation type="unfinished"></translation>
+        <translation>STI</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="54"/>
@@ -494,7 +494,7 @@
         <location filename="../../src/clioptions.cpp" line="74"/>
         <location filename="../../src/clioptions.cpp" line="80"/>
         <source>PATH1;PATH2;PATH3;...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">STI1;STI2;STI3;…</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="61"/>

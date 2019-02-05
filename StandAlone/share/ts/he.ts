@@ -374,7 +374,7 @@
     <message>
         <location filename="../../src/mediatools.cpp" line="221"/>
         <source>Daily Build</source>
-        <translation type="unfinished"></translation>
+        <translation>מהדורה יומית</translation>
     </message>
 </context>
 <context>
