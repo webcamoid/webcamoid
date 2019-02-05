@@ -62,6 +62,7 @@ elif [ "${ARCH_ROOT_BUILD}" = 1 ]; then
     cat << EOF > ${BUILDSCRIPT}
 #!/bin/sh
 
+export LC_ALL=C
 cd /home/user/webcamoid
 qmake -spec ${COMPILESPEC} Webcamoid.pro \
     CONFIG+=silent \
@@ -132,6 +133,7 @@ if [ "${ARCH_ROOT_BUILD}" = 1 ]; then
     cat << EOF > ${BUILDSCRIPT}
 #!/bin/sh
 
+export LC_ALL=C
 cd /home/user/webcamoid
 make -j${NJOBS}
 EOF

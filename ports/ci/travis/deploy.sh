@@ -34,12 +34,13 @@ elif [ "${ARCH_ROOT_BUILD}" = 1 ]; then
     cat << EOF > ${DEPLOYSCRIPT}
 #!/bin/sh
 
+export LC_ALL=C
 cd /home/user/webcamoid
 export PATH="\$PWD/.local/bin:\$PATH"
 xvfb-run --auto-servernum python ports/deploy/deploy.py
 EOF
     chmod +x ${DEPLOYSCRIPT}
-    cp -vf ${DEPLOYSCRIPT} root.x86_64/home/user/
+    sudo cp -vf ${DEPLOYSCRIPT} root.x86_64/home/user/
 
     ${EXEC} bash /home/user/${DEPLOYSCRIPT}
 elif [ "${TRAVIS_OS_NAME}" = linux ]; then
