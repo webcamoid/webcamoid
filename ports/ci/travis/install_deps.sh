@@ -18,9 +18,7 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-if [ "${ARCH_ROOT_BUILD}" = 1 ]; then
-    EXEC='sudo ./root.x86_64/bin/arch-chroot root.x86_64'
-elif [ "${TRAVIS_OS_NAME}" = linux ] && [ "${ANDROID_BUILD}" != 1 ]; then
+if [ "${TRAVIS_OS_NAME}" = linux ] && [ "${ANDROID_BUILD}" != 1 ]; then
     mkdir -p .local/bin
     qtIFW=QtInstallerFramework-linux-x64.run
 
@@ -36,7 +34,9 @@ elif [ "${TRAVIS_OS_NAME}" = linux ] && [ "${ANDROID_BUILD}" != 1 ]; then
             --script "$PWD/ports/ci/travis/qtifw_non_interactive_install.qs" \
             --no-force-installations
 
-        cp -vf ~/Qt/QtIFW-${QTIFWVER/-*/}/bin/* .local/bin/
+        cd .local
+        cp -rvf ~/Qt/QtIFW-${QTIFWVER/-*/}/* .
+        cd ..
     fi
 
     appimage=appimagetool-x86_64.AppImage
@@ -53,8 +53,11 @@ elif [ "${TRAVIS_OS_NAME}" = linux ] && [ "${ANDROID_BUILD}" != 1 ]; then
         cd ..
     fi
 
-    # Set default Docker command
-    EXEC="docker exec ${DOCKERSYS}"
+    if [ "${ARCH_ROOT_BUILD}" = 1 ]; then
+        EXEC='sudo ./root.x86_64/bin/arch-chroot root.x86_64'
+    else
+        EXEC="docker exec ${DOCKERSYS}"
+    fi
 fi
 
 if [ "${ANDROID_BUILD}" = 1 ]; then
@@ -113,6 +116,7 @@ EOF
     ${EXEC} pacman --noconfirm --needed -S \
         ccache \
         clang \
+        git \
         make \
         pkgconf \
         python \
