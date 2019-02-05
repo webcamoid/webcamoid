@@ -154,6 +154,7 @@ EOF
 
 export LC_ALL=C
 cd /home/user/webcamoid/mingw-w64-ffmpeg-zeranoe
+sed -i '/exit \$E_ROOT/d' /usr/bin/makepkg
 makepkg -sif --noconfirm --needed
 EOF
         chmod +x ${BUILDFFMPEG_SCRIPT}

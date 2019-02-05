@@ -47,7 +47,7 @@ EOF
     chmod +x ${DEPLOYSCRIPT}
     sudo cp -vf ${DEPLOYSCRIPT} root.x86_64/home/user/
 
-    ${EXEC} bash /home/user/${DEPLOYSCRIPT}
+    travis_wait 30 ${EXEC} bash /home/user/${DEPLOYSCRIPT}
     sudo umount root.x86_64/home/user/webcamoid
     sudo umount root.x86_64
 elif [ "${TRAVIS_OS_NAME}" = linux ]; then
