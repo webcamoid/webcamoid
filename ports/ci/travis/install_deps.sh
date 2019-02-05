@@ -113,6 +113,7 @@ EOF
     ${EXEC} pacman --noconfirm --needed -S \
         ccache \
         clang \
+        make \
         qt5-quickcontrols \
         qt5-quickcontrols2 \
         qt5-svg \
