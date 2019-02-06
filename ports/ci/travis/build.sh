@@ -69,6 +69,15 @@ elif [ "${ARCH_ROOT_BUILD}" = 1 ]; then
 #!/bin/sh
 
 export LC_ALL=C
+EOF
+
+    if [ ! -z "${DAILY_BUILD}" ]; then
+        cat << EOF >> ${BUILDSCRIPT}
+export DAILY_BUILD=1
+EOF
+    fi
+
+    cat << EOF >> ${BUILDSCRIPT}
 cd /home/user/webcamoid
 ${QMAKE_CMD} -spec ${COMPILESPEC} Webcamoid.pro \
     CONFIG+=silent \
@@ -140,6 +149,15 @@ if [ "${ARCH_ROOT_BUILD}" = 1 ]; then
 #!/bin/sh
 
 export LC_ALL=C
+EOF
+
+    if [ ! -z "${DAILY_BUILD}" ]; then
+        cat << EOF >> ${BUILDSCRIPT}
+export DAILY_BUILD=1
+EOF
+    fi
+
+    cat << EOF >> ${BUILDSCRIPT}
 cd /home/user/webcamoid
 make -j${NJOBS}
 EOF

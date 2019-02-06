@@ -32,12 +32,14 @@ matrix:
     env:
       - ARCH_ROOT_BUILD=1
       - ARCH_ROOT_MINGW=x86_64
+      - DAILY_BUILD=1
   - os: linux
     dist: xenial
     compiler: gcc
     env:
       - ARCH_ROOT_BUILD=1
       - ARCH_ROOT_MINGW=i686
+      - DAILY_BUILD=1
   - os: linux
     sudo: required
     services:

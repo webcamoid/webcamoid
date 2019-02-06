@@ -43,6 +43,15 @@ export LC_ALL=C
 cd /home/user/webcamoid
 export PATH="\$PWD/.local/bin:\$PATH"
 export WINEPREFIX=\$PWD/.wine
+EOF
+
+    if [ ! -z "${DAILY_BUILD}" ]; then
+        cat << EOF >> ${DEPLOYSCRIPT}
+export DAILY_BUILD=1
+EOF
+    fi
+
+    cat << EOF >> ${DEPLOYSCRIPT}
 xvfb-run --auto-servernum python ports/deploy/deploy.py
 EOF
     chmod +x ${DEPLOYSCRIPT}
