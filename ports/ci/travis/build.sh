@@ -162,7 +162,9 @@ if [ "${ARCH_ROOT_BUILD}" = 1 ] && [ ! -z "${ARCH_ROOT_MINGW}" ]; then
         mingw_compiler=${COMPILER/i686/x86_64}
     fi
 
+    echo
     echo "Building $mingw_arch virtual camera driver"
+    echo
     sudo mount --bind root.x86_64 root.x86_64
     sudo mount --bind ${PWD} root.x86_64/home/user/webcamoid
 

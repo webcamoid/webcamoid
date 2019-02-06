@@ -212,7 +212,7 @@ EOF
             mingw-w64-qt5-svg \
             mingw-w64-qt5-tools
 
-            for mingw_arch in i686 x86_64; then
+            for mingw_arch in i686 x86_64; do
                 if [ "$ARCH_ROOT_MINGW" = x86_64 ]; then
                     ff_arch=win64
                 else
