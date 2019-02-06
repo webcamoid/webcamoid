@@ -244,7 +244,7 @@ EOF
             pkgconfigdir="$libdir"/pkgconfig
             sudo install -d "$pkgconfigdir"
 
-            ls root.x86_64/usr/${ARCH_ROOT_MINGW}-w64-mingw32/lib/*.a | \
+            ls ffmpeg-${FFMPEG_VERSION}-$mingw_arch-dev/lib/*.a | \
             while read lib; do
                 libname=$(basename $lib | sed 's/.dll.a//g' | sed 's/^lib//g')
                 version=$(readversion ffmpeg-${FFMPEG_VERSION}-$mingw_arch-dev/include/lib$libname/version.h $libname)
