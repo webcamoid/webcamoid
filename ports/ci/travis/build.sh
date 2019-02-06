@@ -157,9 +157,11 @@ if [ "${ARCH_ROOT_BUILD}" = 1 ] && [ ! -z "${ARCH_ROOT_MINGW}" ]; then
     if [ "$ARCH_ROOT_MINGW" = x86_64 ]; then
         mingw_arch=i686
         mingw_compiler=${COMPILER/x86_64/i686}
+        mingw_dstdir=x86
     else
         mingw_arch=x86_64
         mingw_compiler=${COMPILER/i686/x86_64}
+        mingw_dstdir=x64
     fi
 
     echo
@@ -186,6 +188,11 @@ EOF
     sudo cp -vf ${BUILDSCRIPT} root.x86_64/home/user/
 
     ${EXEC} bash /home/user/${BUILDSCRIPT}
+
+    sudo mkdir -p libAvKys/Plugins/VirtualCamera/src/dshow/VirtualCamera/AkVirtualCamera.plugin/${mingw_dstdir}
+    sudo cp -rvf \
+        akvcam/src/dshow/VirtualCamera/AkVirtualCamera.plugin/${mingw_dstdir}/* \
+        libAvKys/Plugins/VirtualCamera/src/dshow/VirtualCamera/AkVirtualCamera.plugin/${mingw_dstdir}/
 
     sudo umount root.x86_64/home/user/webcamoid
     sudo umount root.x86_64
