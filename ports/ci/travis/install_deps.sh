@@ -162,6 +162,7 @@ SigLevel = Optional TrustAll
 Server = http://martchus.no-ip.biz/repo/arch/ownstuff/os/\$arch
 EOF
     sed -i 's/Required DatabaseOptional/Optional TrustAll/g' pacman.conf
+    sed -i 's/#TotalDownload/TotalDownload/g' pacman.conf
     sudo cp -vf pacman.conf root.x86_64/etc/pacman.conf
 
     cp -vf root.x86_64/etc/pacman.d/mirrorlist .
@@ -213,7 +214,7 @@ EOF
             mingw-w64-qt5-tools
 
             for mingw_arch in i686 x86_64; do
-                if [ "$ARCH_ROOT_MINGW" = x86_64 ]; then
+                if [ "$mingw_arch" = x86_64 ]; then
                     ff_arch=win64
                 else
                     ff_arch=win32
