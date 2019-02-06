@@ -12,6 +12,7 @@ env:
     - APPIMAGEVER=11
     - ARCH_ROOT_DATE=2019.02.01
     - ARCH_ROOT_URL=https://mirror.rackspace.com/archlinux
+    - FFMPEG_VERSION=4.1
 
 matrix:
   include:

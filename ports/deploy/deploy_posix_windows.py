@@ -145,6 +145,8 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
                 for depPath in self.binarySolver.allDependencies(path):
                     deps.add(depPath)
 
+        deps = sorted(deps)
+
         for dep in deps:
             depPath = os.path.join(self.binaryInstallDir, os.path.basename(dep))
             print('    {} -> {}'.format(dep, depPath))

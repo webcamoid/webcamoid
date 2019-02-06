@@ -18,6 +18,71 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
+readversion() {
+    libname=$(echo $2 | awk '{print toupper($0)}')
+    cat "$1" | \
+    while read line; do
+        _vmajor=$(echo $line | grep "^#define LIB${libname}_VERSION_MAJOR" | awk '{print $3}')
+        _vminor=$(echo $line | grep "^#define LIB${libname}_VERSION_MINOR" | awk '{print $3}')
+        _vmicro=$(echo $line | grep "^#define LIB${libname}_VERSION_MICRO" | awk '{print $3}')
+
+        if [ -n "$_vmajor" ]; then
+            vmajor=$_vmajor
+        fi
+
+        if [ -n "$_vminor" ]; then
+            vminor=$_vminor
+        fi
+
+        if [ -n "$_vmicro" ]; then
+            vmicro=$_vmicro
+        fi
+
+        if [[ -n "$vmajor" && -n "$vminor" && -n "$vmicro" ]]; then
+            echo $vmajor.$vminor.$vmicro
+
+            break
+        fi
+    done
+}
+
+libdescription() {
+    descriptions=('avcodec Encoding/Decoding Library.'
+                  'avdevice Special devices muxing/demuxing library.'
+                  'avfilter Graph-based frame editing library.'
+                  'avformat I/O and Muxing/Demuxing Library'
+                  'avutil Common code shared across all FFmpeg libraries.'
+                  'postproc Video postprocessing library.'
+                  'swresample Audio resampling, sample format conversion and mixing library.'
+                  'swscale Color conversion and scaling library.')
+
+    for description in "${descriptions[@]}"; do
+        if [[ "$description" == $1\ * ]]; then
+            echo ${description#* }
+
+            break
+        fi
+    done
+}
+
+requires() {
+    deps=('avcodec libswresample, libavutil'
+          'avdevice libavfilter, libswscale, libpostproc, libavresample, libavformat, libavcodec, libswresample, libavutil'
+          'avfilter libswscale, libpostproc, libavresample, libavformat, libavcodec, libswresample, libavutil'
+          'avformat libavcodec, libswresample, libavutil'
+          'postproc libavutil'
+          'swresample libavutil'
+          'swscale libavutil')
+
+    for dep in "${deps[@]}"; do
+        if [[ "$dep" == $1\ * ]]; then
+            echo ${dep#* }
+
+            break
+        fi
+    done
+}
+
 if [ "${TRAVIS_OS_NAME}" = linux ] && [ "${ANDROID_BUILD}" != 1 ]; then
     mkdir -p .local/bin
     qtIFW=QtInstallerFramework-linux-x64.run
@@ -139,30 +204,66 @@ EOF
             jack
     else
         ${EXEC} pacman --noconfirm --needed -S \
-            sudo \
-            fakeroot \
             wine \
             mingw-w64-pkg-config \
             mingw-w64-gcc \
-            mingw-w64-qt5-multimedia \
             mingw-w64-qt5-quickcontrols \
             mingw-w64-qt5-quickcontrols2 \
             mingw-w64-qt5-svg \
             mingw-w64-qt5-tools
 
-        svn checkout https://github.com/hipersayanX/ArchPackages/trunk/mingw-w64-ffmpeg-zeranoe
-        BUILDFFMPEG_SCRIPT=build_ffmpeg.sh
-        cat << EOF > ${BUILDFFMPEG_SCRIPT}
-#!/bin/sh
+            if [ "$ARCH_ROOT_MINGW" = x86_64 ]; then
+                mingw_arch=win64
+            else
+                mingw_arch=win32
+            fi
 
-export LC_ALL=C
-cd /home/user/webcamoid/mingw-w64-ffmpeg-zeranoe
-sed -i '/exit \$E_ROOT/d' /usr/bin/makepkg
-export PKGDEST=\$PWD
-makepkg -sif --noconfirm --needed
+            for pkg in dev shared; do
+                package=ffmpeg-${FFMPEG_VERSION}-$mingw_arch-$pkg
+                wget -c "https://ffmpeg.zeranoe.com/builds/$mingw_arch/$pkg/$package.zip"
+                unzip $package.zip
+            done
+
+            # Copy binaries
+            sudo install -d root.x86_64/usr/${ARCH_ROOT_MINGW}-w64-mingw32/bin
+            sudo install -m644 \
+                ffmpeg-${FFMPEG_VERSION}-$mingw_arch-shared/bin/*.dll \
+                root.x86_64/usr/${ARCH_ROOT_MINGW}-w64-mingw32/bin/
+
+            # Copy libraries
+            sudo install -d root.x86_64/usr/${ARCH_ROOT_MINGW}-w64-mingw32/include
+            sudo install -d root.x86_64/usr/${ARCH_ROOT_MINGW}-w64-mingw32/lib
+            sudo cp -rf \
+                ffmpeg-${FFMPEG_VERSION}-$mingw_arch-dev/include/* \
+                root.x86_64/usr/${ARCH_ROOT_MINGW}-w64-mingw32/include/
+            sudo install -m644 \
+                ffmpeg-${FFMPEG_VERSION}-$mingw_arch-dev/lib/*.a \
+                root.x86_64/usr/${ARCH_ROOT_MINGW}-w64-mingw32/lib/
+
+            libdir=root.x86_64/usr/${ARCH_ROOT_MINGW}-w64-mingw32/lib
+            pkgconfigdir="$libdir"/pkgconfig
+            sudo install -d "$pkgconfigdir"
+
+            ls root.x86_64/usr/${ARCH_ROOT_MINGW}-w64-mingw32/lib/*.a | \
+            while read lib; do
+                libname=$(basename $lib | sed 's/.dll.a//g' | sed 's/^lib//g')
+                version=$(readversion ffmpeg-${FFMPEG_VERSION}-$mingw_arch-dev/include/lib$libname/version.h $libname)
+                description=$(libdescription $libname)
+                deps=$(requires $libname)
+
+                cat << EOF > lib$libname.pc
+prefix=/usr/$arch-w64-mingw32
+exec_prefix=\${prefix}
+libdir=\${prefix}/lib
+
+Name: lib$libname
+Description: $description
+Version: $version
+Requires.private: $deps
+Libs: -L\${libdir} -l$libname
 EOF
-        chmod +x ${BUILDFFMPEG_SCRIPT}
-        ${EXEC} bash /home/user/webcamoid/${BUILDFFMPEG_SCRIPT}
+                sudo install -m644 lib$libname.pc "$pkgconfigdir/"
+            done
     fi
 
     # Finish
