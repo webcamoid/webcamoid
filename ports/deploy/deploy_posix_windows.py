@@ -302,8 +302,6 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
         with open(depsInfoFile, 'a') as f:
             print('    Wine Version: {}'.format(wineVersion))
             f.write('Wine Version: {}\n'.format(wineVersion))
-            print()
-            f.write('\n')
 
         process = subprocess.Popen(['wine', 'cmd', '/c', 'ver'],
                                    stdout=subprocess.PIPE,
@@ -321,11 +319,10 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
 
         packages = set()
 
-        for i, dep in enumerate(self.dependencies):
+        for dep in self.dependencies:
             packageInfo = self.searchPackageFor(dep)
 
             if len(packageInfo) > 0:
-                print('{}%',format(100 * (i + 1) // len(self.dependencies)), end='\r')
                 packages.add(packageInfo)
 
         packages = sorted(packages)

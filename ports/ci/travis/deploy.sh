@@ -43,6 +43,7 @@ export LC_ALL=C
 cd /home/user/webcamoid
 export PATH="\$PWD/.local/bin:\$PATH"
 export WINEPREFIX=\$PWD/.wine
+chown root:root /home/user/webcamoid
 xvfb-run --auto-servernum wineboot -u
 xvfb-run --auto-servernum python ports/deploy/deploy.py
 EOF
