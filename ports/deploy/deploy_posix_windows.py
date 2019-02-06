@@ -311,6 +311,9 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
         stdout, stderr = process.communicate()
         fakeWindowsVersion = stdout.decode(sys.getdefaultencoding()).strip()
 
+        if len(fakeWindowsVersion) < 1:
+            fakeWindowsVersion = 'Unknown'
+
         with open(depsInfoFile, 'a') as f:
             print('    Windows Version: {}'.format(fakeWindowsVersion))
             f.write('Windows Version: {}\n'.format(fakeWindowsVersion))

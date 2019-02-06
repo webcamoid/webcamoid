@@ -212,47 +212,48 @@ EOF
             mingw-w64-qt5-svg \
             mingw-w64-qt5-tools
 
-            if [ "$ARCH_ROOT_MINGW" = x86_64 ]; then
-                mingw_arch=win64
-            else
-                mingw_arch=win32
-            fi
+            for mingw_arch in i686 x86_64; then
+                if [ "$ARCH_ROOT_MINGW" = x86_64 ]; then
+                    ff_arch=win64
+                else
+                    ff_arch=win32
+                fi
 
-            for pkg in dev shared; do
-                package=ffmpeg-${FFMPEG_VERSION}-$mingw_arch-$pkg
-                wget -c "https://ffmpeg.zeranoe.com/builds/$mingw_arch/$pkg/$package.zip"
-                unzip $package.zip
-            done
+                for pkg in dev shared; do
+                    package=ffmpeg-${FFMPEG_VERSION}-${ff_arch}-$pkg
+                    wget -c "https://ffmpeg.zeranoe.com/builds/${ff_arch}/$pkg/$package.zip"
+                    unzip $package.zip
+                done
 
-            # Copy binaries
-            sudo install -d root.x86_64/usr/${ARCH_ROOT_MINGW}-w64-mingw32/bin
-            sudo install -m644 \
-                ffmpeg-${FFMPEG_VERSION}-$mingw_arch-shared/bin/*.dll \
-                root.x86_64/usr/${ARCH_ROOT_MINGW}-w64-mingw32/bin/
+                # Copy binaries
+                sudo install -d root.x86_64/usr/${mingw_arch}-w64-mingw32/bin
+                sudo install -m644 \
+                    ffmpeg-${FFMPEG_VERSION}-${ff_arch}-shared/bin/*.dll \
+                    root.x86_64/usr/${mingw_arch}-w64-mingw32/bin/
 
-            # Copy libraries
-            sudo install -d root.x86_64/usr/${ARCH_ROOT_MINGW}-w64-mingw32/include
-            sudo install -d root.x86_64/usr/${ARCH_ROOT_MINGW}-w64-mingw32/lib
-            sudo cp -rf \
-                ffmpeg-${FFMPEG_VERSION}-$mingw_arch-dev/include/* \
-                root.x86_64/usr/${ARCH_ROOT_MINGW}-w64-mingw32/include/
-            sudo install -m644 \
-                ffmpeg-${FFMPEG_VERSION}-$mingw_arch-dev/lib/*.a \
-                root.x86_64/usr/${ARCH_ROOT_MINGW}-w64-mingw32/lib/
+                # Copy libraries
+                sudo install -d root.x86_64/usr/${mingw_arch}-w64-mingw32/include
+                sudo install -d root.x86_64/usr/${mingw_arch}-w64-mingw32/lib
+                sudo cp -rf \
+                    ffmpeg-${FFMPEG_VERSION}-${ff_arch}-dev/include/* \
+                    root.x86_64/usr/${mingw_arch}-w64-mingw32/include/
+                sudo install -m644 \
+                    ffmpeg-${FFMPEG_VERSION}-${ff_arch}-dev/lib/*.a \
+                    root.x86_64/usr/${mingw_arch}-w64-mingw32/lib/
 
-            libdir=root.x86_64/usr/${ARCH_ROOT_MINGW}-w64-mingw32/lib
-            pkgconfigdir="$libdir"/pkgconfig
-            sudo install -d "$pkgconfigdir"
+                libdir=root.x86_64/usr/${mingw_arch}-w64-mingw32/lib
+                pkgconfigdir="$libdir"/pkgconfig
+                sudo install -d "$pkgconfigdir"
 
-            ls ffmpeg-${FFMPEG_VERSION}-$mingw_arch-dev/lib/*.a | \
-            while read lib; do
-                libname=$(basename $lib | sed 's/.dll.a//g' | sed 's/^lib//g')
-                version=$(readversion ffmpeg-${FFMPEG_VERSION}-$mingw_arch-dev/include/lib$libname/version.h $libname)
-                description=$(libdescription $libname)
-                deps=$(requires $libname)
+                ls ffmpeg-${FFMPEG_VERSION}-${ff_arch}-dev/lib/*.a | \
+                while read lib; do
+                    libname=$(basename $lib | sed 's/.dll.a//g' | sed 's/^lib//g')
+                    version=$(readversion ffmpeg-${FFMPEG_VERSION}-${ff_arch}-dev/include/lib$libname/version.h $libname)
+                    description=$(libdescription $libname)
+                    deps=$(requires $libname)
 
-                cat << EOF > lib$libname.pc
-prefix=/usr/$arch-w64-mingw32
+                    cat << EOF > lib$libname.pc
+prefix=/usr/${mingw_arch}-w64-mingw32
 exec_prefix=\${prefix}
 libdir=\${prefix}/lib
 
@@ -262,7 +263,8 @@ Version: $version
 Requires.private: $deps
 Libs: -L\${libdir} -l$libname
 EOF
-                sudo install -m644 lib$libname.pc "$pkgconfigdir/"
+                    sudo install -m644 lib$libname.pc "$pkgconfigdir/"
+                done
             done
     fi
 

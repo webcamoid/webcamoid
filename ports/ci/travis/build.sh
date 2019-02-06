@@ -152,3 +152,39 @@ EOF
 else
     ${EXEC} make -j${NJOBS}
 fi
+
+if [ "${ARCH_ROOT_BUILD}" = 1 ] && [ ! -z "${ARCH_ROOT_MINGW}" ]; then
+    if [ "$ARCH_ROOT_MINGW" = x86_64 ]; then
+        mingw_arch=i686
+        mingw_compiler=${COMPILER/x86_64/i686}
+    else
+        mingw_arch=x86_64
+        mingw_compiler=${COMPILER/i686/x86_64}
+    fi
+
+    echo "Building $mingw_arch virtual camera driver"
+    sudo mount --bind root.x86_64 root.x86_64
+    sudo mount --bind ${PWD} root.x86_64/home/user/webcamoid
+
+    cat << EOF > ${BUILDSCRIPT}
+#!/bin/sh
+
+export LC_ALL=C
+mkdir -p /home/user/webcamoid/akvcam
+cd /home/user/webcamoid/akvcam
+/usr/${mingw_arch}-w64-mingw32/lib/qt/bin/qmake \
+    -spec ${COMPILESPEC} \
+    ../libAvKys/Plugins/VirtualCamera/VirtualCamera.pro \
+    CONFIG+=silent \
+    QMAKE_CXX="${mingw_compiler}" \
+    VIRTUALCAMERAONLY=1
+make -j${NJOBS}
+EOF
+    chmod +x ${BUILDSCRIPT}
+    sudo cp -vf ${BUILDSCRIPT} root.x86_64/home/user/
+
+    ${EXEC} bash /home/user/${BUILDSCRIPT}
+
+    sudo umount root.x86_64/home/user/webcamoid
+    sudo umount root.x86_64
+fi
