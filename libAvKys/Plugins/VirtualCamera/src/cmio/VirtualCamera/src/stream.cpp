@@ -37,22 +37,22 @@ namespace AkVCam
             UInt64 m_sequence;
             CMTime m_pts;
             SampleBufferQueuePtr m_queue;
-            CMIODeviceStreamQueueAlteredProc m_queueAltered;
+            CMIODeviceStreamQueueAlteredProc m_queueAltered {nullptr};
             VideoFrame m_currentFrame;
             VideoFrame m_testFrame;
             VideoFrame m_testFrameAdapted;
-            void *m_queueAlteredRefCon;
-            CFRunLoopTimerRef m_timer;
-            bool m_running;
+            void *m_queueAlteredRefCon {nullptr};
+            CFRunLoopTimerRef m_timer {nullptr};
             std::string m_broadcaster;
-            bool m_horizontalMirror;
-            bool m_verticalMirror;
-            Scaling m_scaling;
-            AspectRatio m_aspectRatio;
-            bool m_swapRgb;
             std::mutex m_mutex;
+            Scaling m_scaling {ScalingFast};
+            AspectRatio m_aspectRatio {AspectRatioIgnore};
+            bool m_running {false};
+            bool m_horizontalMirror {false};
+            bool m_verticalMirror {false};
+            bool m_swapRgb {false};
 
-            StreamPrivate(Stream *self):
+            explicit StreamPrivate(Stream *self):
                 self(self)
             {
             }
@@ -71,15 +71,6 @@ AkVCam::Stream::Stream(bool registerObject,
     Object(parent)
 {
     this->d = new StreamPrivate(this);
-    this->d->m_queueAltered = nullptr;
-    this->d->m_queueAlteredRefCon = nullptr;
-    this->d->m_timer = nullptr;
-    this->d->m_running = false;
-    this->d->m_horizontalMirror = false;
-    this->d->m_verticalMirror = false;
-    this->d->m_scaling = ScalingFast;
-    this->d->m_aspectRatio = AspectRatioIgnore;
-    this->d->m_swapRgb = false;
     this->m_className = "Stream";
     this->m_classID = kCMIOStreamClassID;
 

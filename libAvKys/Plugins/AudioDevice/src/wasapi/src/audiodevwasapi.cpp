@@ -104,7 +104,7 @@ class AudioDevWasapiPrivate
         AkAudioCaps m_curCaps;
         QString m_curDevice;
 
-        AudioDevWasapiPrivate(AudioDevWasapi *self):
+        explicit AudioDevWasapiPrivate(AudioDevWasapi *self):
             self(self)
         {
         }

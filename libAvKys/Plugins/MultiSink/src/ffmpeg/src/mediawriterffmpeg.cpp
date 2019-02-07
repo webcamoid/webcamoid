@@ -105,7 +105,7 @@ class MediaWriterFFmpegPrivate
         QMap<int, AbstractStreamPtr> m_streamsMap;
         bool m_isRecording {false};
 
-        MediaWriterFFmpegPrivate(MediaWriterFFmpeg *self):
+        explicit MediaWriterFFmpegPrivate(MediaWriterFFmpeg *self):
             self(self)
         {
         }
@@ -417,7 +417,7 @@ QVariantMap MediaWriterFFmpeg::updateStream(int index,
     if (codecParams.contains("label")
         && this->d->m_streamConfigs[index]["label"] != codecParams.value("label")) {
         this->d->m_streamConfigs[index]["label"] = codecParams.value("label");
-        streamChanged |= true;
+        streamChanged = true;
     }
 
     AkCaps streamCaps = this->d->m_streamConfigs[index]["caps"].value<AkCaps>();
@@ -425,7 +425,7 @@ QVariantMap MediaWriterFFmpeg::updateStream(int index,
     if (codecParams.contains("caps")
         && this->d->m_streamConfigs[index]["caps"] != codecParams.value("caps")) {
         this->d->m_streamConfigs[index]["caps"] = codecParams.value("caps");
-        streamChanged |= true;
+        streamChanged = true;
     }
 
     QString codec;
@@ -438,7 +438,7 @@ QVariantMap MediaWriterFFmpeg::updateStream(int index,
             codec = this->defaultCodec(outputFormat, streamCaps.mimeType());
 
         this->d->m_streamConfigs[index]["codec"] = codec;
-        streamChanged |= true;
+        streamChanged = true;
     } else
         codec = this->d->m_streamConfigs[index]["codec"].toString();
 
@@ -450,7 +450,7 @@ QVariantMap MediaWriterFFmpeg::updateStream(int index,
         int bitRate = codecParams["bitrate"].toInt();
         this->d->m_streamConfigs[index]["bitrate"] =
                 bitRate > 0? bitRate: codecDefaults["defaultBitRate"].toInt();
-        streamChanged |= true;
+        streamChanged = true;
     }
 
     if (streamCaps.mimeType() == "video/x-raw"
@@ -458,7 +458,7 @@ QVariantMap MediaWriterFFmpeg::updateStream(int index,
         int gop = codecParams["gop"].toInt();
         this->d->m_streamConfigs[index]["gop"] =
                 gop > 0? gop: codecDefaults["defaultGOP"].toInt();
-        streamChanged |= true;
+        streamChanged = true;
     }
 
     if (streamChanged)
@@ -1472,27 +1472,26 @@ SupportedCodecsType MediaWriterFFmpegGlobal::initSupportedCodecs()
 
             if (av_codec_is_encoder(codec) && codecSupported) {
                 if (codec->type == AVMEDIA_TYPE_VIDEO) {
+                    if (!codec->pix_fmts)
+                        continue;
+
                     // Skip Codecs with pixel formats that can't be encoded to.
-                    int unsupported = 0;
-                    int i = 0;
+                    bool isValid = false;
 
-                    if (codec->pix_fmts)
-                        forever {
-                            AVPixelFormat sampleFormat = codec->pix_fmts[i];
+                    for (auto sampleFormat = codec->pix_fmts;
+                         *sampleFormat != AV_PIX_FMT_NONE;
+                         sampleFormat++) {
+                        if (sws_isSupportedOutput(*sampleFormat)) {
+                            /* Keep all codecs that have at least one supported
+                               pixel format. */
+                            isValid = true;
 
-                            if (sampleFormat == AV_PIX_FMT_NONE)
-                                break;
-
-                            if (!sws_isSupportedOutput(sampleFormat))
-                                unsupported++;
-
-                            i++;
+                            break;
                         }
+                    }
 
-                            // Keep all codecs that have at least one supported pixel
-                            // format.
-                            if (unsupported == i)
-                                continue;
+                    if (!isValid)
+                        continue;
                 }
 
                 supportedCodecs[outputFormat->name][codec->type] << codecName;

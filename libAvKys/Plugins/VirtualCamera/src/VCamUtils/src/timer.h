@@ -32,6 +32,7 @@ namespace AkVCam
 
         public:
             Timer();
+            Timer(const Timer &other) = delete;
             ~Timer();
 
             int interval() const;

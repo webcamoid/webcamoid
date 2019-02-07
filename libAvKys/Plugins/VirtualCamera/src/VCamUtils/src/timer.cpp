@@ -32,7 +32,7 @@ namespace AkVCam
             int m_interval;
             bool m_running;
 
-            TimerPrivate(Timer *self);
+            explicit TimerPrivate(Timer *self);
             void timerLoop();
     };
 }

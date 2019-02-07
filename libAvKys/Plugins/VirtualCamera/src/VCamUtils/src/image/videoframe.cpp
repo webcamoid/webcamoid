@@ -136,7 +136,7 @@ namespace AkVCam
             std::vector<VideoConvert> m_convert;
             std::vector<PixelFormat> m_adjustFormats;
 
-            VideoFramePrivate(VideoFrame *self):
+            explicit VideoFramePrivate(VideoFrame *self):
                 self(self)
             {
                 this->m_convert = {

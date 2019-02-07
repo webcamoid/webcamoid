@@ -39,6 +39,7 @@ namespace AkVCam
     {
         public:
             Stream(bool registerObject=false, Object *m_parent=nullptr);
+            Stream(const Stream &other) = delete;
             ~Stream();
 
             OSStatus createObject();

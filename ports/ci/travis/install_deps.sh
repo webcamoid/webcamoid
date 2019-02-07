@@ -20,7 +20,7 @@
 
 readversion() {
     libname=$(echo $2 | awk '{print toupper($0)}')
-    cat "$1" | \
+
     while read line; do
         _vmajor=$(echo $line | grep "^#define LIB${libname}_VERSION_MAJOR" | awk '{print $3}')
         _vminor=$(echo $line | grep "^#define LIB${libname}_VERSION_MINOR" | awk '{print $3}')
@@ -43,7 +43,7 @@ readversion() {
 
             break
         fi
-    done
+    done < "$1"
 }
 
 libdescription() {

@@ -38,17 +38,17 @@ namespace AkVCam
             MessageServer *self;
             std::wstring m_pipeName;
             std::map<uint32_t, MessageHandler> m_handlers;
-            MessageServer::ServerMode m_mode;
-            MessageServer::PipeState m_pipeState;
-            HANDLE m_pipe;
+            MessageServer::ServerMode m_mode {MessageServer::ServerModeReceive};
+            MessageServer::PipeState m_pipeState {MessageServer::PipeStateGone};
+            HANDLE m_pipe {INVALID_HANDLE_VALUE};
             OVERLAPPED m_overlapped;
             std::thread m_thread;
             std::mutex m_mutex;
             std::condition_variable_any m_exitCheckLoop;
-            int m_checkInterval;
-            bool m_running;
+            int m_checkInterval {5000};
+            bool m_running {false};
 
-            MessageServerPrivate(MessageServer *self);
+            explicit MessageServerPrivate(MessageServer *self);
             bool startReceive(bool wait=false);
             void stopReceive(bool wait=false);
             bool startSend();
@@ -203,12 +203,7 @@ BOOL AkVCam::MessageServer::sendMessage(const std::wstring &pipeName,
 }
 
 AkVCam::MessageServerPrivate::MessageServerPrivate(MessageServer *self):
-    self(self),
-    m_mode(MessageServer::ServerModeReceive),
-    m_pipeState(MessageServer::PipeStateGone),
-    m_pipe(INVALID_HANDLE_VALUE),
-    m_checkInterval(5000),
-    m_running(false)
+    self(self)
 {
     memset(&this->m_overlapped, 0, sizeof(OVERLAPPED));
 }

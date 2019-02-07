@@ -35,16 +35,18 @@ extern "C"
     #include <libavutil/imgutils.h>
     #include <libavutil/pixdesc.h>
     #include <libavutil/mem.h>
-    #ifndef AV_CODEC_CAP_TRUNCATED
-    #define AV_CODEC_CAP_TRUNCATED CODEC_CAP_TRUNCATED
-    #endif
-    #ifndef AV_CODEC_FLAG_TRUNCATED
-    #define AV_CODEC_FLAG_TRUNCATED CODEC_FLAG_TRUNCATED
-    #endif
 }
 
 #include "convertvideoffmpeg.h"
 #include "clock.h"
+
+#ifndef AV_CODEC_CAP_TRUNCATED
+#define AV_CODEC_CAP_TRUNCATED CODEC_CAP_TRUNCATED
+#endif
+
+#ifndef AV_CODEC_FLAG_TRUNCATED
+#define AV_CODEC_FLAG_TRUNCATED CODEC_FLAG_TRUNCATED
+#endif
 
 #define THREAD_WAIT_LIMIT 500
 
@@ -163,13 +165,11 @@ using FramePtr = QSharedPointer<AVFrame>;
 class ConvertVideoFFmpegPrivate
 {
     public:
-        ConvertVideoFFmpeg *self;
-        SwsContext *m_scaleContext;
-        AVDictionary *m_codecOptions;
-        AVCodecContext *m_codecContext;
-        qint64 m_maxPacketQueueSize;
-        bool m_showLog;
-        int m_maxData;
+        ConvertVideoFFmpeg *self {nullptr};
+        SwsContext *m_scaleContext {nullptr};
+        AVDictionary *m_codecOptions {nullptr};
+        AVCodecContext *m_codecContext {nullptr};
+        qint64 m_maxPacketQueueSize {15 * 1024 * 1024};
         QThreadPool m_threadPool;
         QMutex m_packetMutex;
         QMutex m_dataMutex;
@@ -179,42 +179,31 @@ class ConvertVideoFFmpegPrivate
         QWaitCondition m_dataQueueNotFull;
         QQueue<AkPacket> m_packets;
         QQueue<FramePtr> m_frames;
-        qint64 m_packetQueueSize;
-        bool m_runPacketLoop;
-        bool m_runDataLoop;
+        qint64 m_packetQueueSize {0};
         QFuture<void> m_packetLoopResult;
         QFuture<void> m_dataLoopResult;
-        qint64 m_id;
+        qint64 m_id {-1};
         Clock m_globalClock;
         AkFrac m_fps;
+        qreal m_lastPts {0};
+        int m_maxData {3};
+        bool m_showLog {false};
+        bool m_runPacketLoop {false};
+        bool m_runDataLoop {false};
 
-        // Sync properties.
-        qreal m_lastPts;
-
-        ConvertVideoFFmpegPrivate(ConvertVideoFFmpeg *self):
-            self(self),
-            m_scaleContext(nullptr),
-            m_codecOptions(nullptr),
-            m_codecContext(nullptr),
-            m_maxPacketQueueSize(15 * 1024 * 1024),
-            m_showLog(false),
-            m_maxData(3),
-            m_packetQueueSize(0),
-            m_runPacketLoop(false),
-            m_runDataLoop(false),
-            m_id(-1),
-            m_lastPts(0)
+        explicit ConvertVideoFFmpegPrivate(ConvertVideoFFmpeg *self):
+            self(self)
         {
         }
 
-        inline static void packetLoop(ConvertVideoFFmpeg *stream);
-        inline static void dataLoop(ConvertVideoFFmpeg *stream);
-        inline static void deleteFrame(AVFrame *frame);
-        inline void processData(const FramePtr &frame);
-        inline void convert(const FramePtr &frame);
-        inline void log(qreal diff);
-        inline int64_t bestEffortTimestamp(const AVFrame *frame) const;
-        inline AVFrame *copyFrame(AVFrame *frame) const;
+        static void packetLoop(ConvertVideoFFmpeg *stream);
+        static void dataLoop(ConvertVideoFFmpeg *stream);
+        static void deleteFrame(AVFrame *frame);
+        void processData(const FramePtr &frame);
+        void convert(const FramePtr &frame);
+        void log(qreal diff);
+        int64_t bestEffortTimestamp(const AVFrame *frame) const;
+        AVFrame *copyFrame(AVFrame *frame) const;
 };
 
 ConvertVideoFFmpeg::ConvertVideoFFmpeg(QObject *parent):

@@ -31,6 +31,7 @@ namespace AkVCam
     {
         public:
             PluginInterface();
+            PluginInterface(const PluginInterface &other) = delete;
             ~PluginInterface();
 
             CMIOObjectID objectID() const;

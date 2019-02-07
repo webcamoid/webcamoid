@@ -63,6 +63,7 @@ namespace AkVCam
 
         public:
             MessageServer();
+            MessageServer(const MessageServer &other) = delete;
             ~MessageServer();
 
             std::wstring pipeName() const;

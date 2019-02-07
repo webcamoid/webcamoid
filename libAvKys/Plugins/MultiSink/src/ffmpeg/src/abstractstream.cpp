@@ -70,7 +70,7 @@ class AbstractStreamPrivate
         QFuture<void> m_encodeLoopResult;
         bool m_runEncodeLoop {false};
 
-        AbstractStreamPrivate(AbstractStream *self):
+        explicit AbstractStreamPrivate(AbstractStream *self):
             self(self)
         {
         }
