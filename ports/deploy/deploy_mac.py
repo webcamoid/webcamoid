@@ -23,7 +23,7 @@ import math
 import os
 import platform
 import shutil
-import subprocess
+import subprocess # nosec
 import sys
 import threading
 import time
@@ -142,12 +142,12 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
             log += '\t\tChanging rpath to {}\n'.format(rpath)
 
             for oldRpath in machInfo['rpaths']:
-                process = subprocess.Popen(['install_name_tool',
+                process = subprocess.Popen(['install_name_tool', # nosec
                                             '-delete_rpath', oldRpath, mach],
                                            stdout=subprocess.PIPE)
                 process.communicate()
 
-            process = subprocess.Popen(['install_name_tool',
+            process = subprocess.Popen(['install_name_tool', # nosec
                                         '-add_rpath', rpath, mach],
                                        stdout=subprocess.PIPE)
             process.communicate()
@@ -163,7 +163,7 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
         if newMachId != machInfo['id']:
             log += '\t\tChanging ID to {}\n'.format(newMachId)
 
-            process = subprocess.Popen(['install_name_tool',
+            process = subprocess.Popen(['install_name_tool', # nosec
                                         '-id', newMachId, mach],
                                        stdout=subprocess.PIPE)
             process.communicate()
@@ -190,7 +190,7 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
             if dep != newDepPath:
                 log += '\t\t{} -> {}\n'.format(dep, newDepPath)
 
-                process = subprocess.Popen(['install_name_tool',
+                process = subprocess.Popen(['install_name_tool', # nosec
                                             '-change', dep, newDepPath, mach],
                                            stdout=subprocess.PIPE)
                 process.communicate()
@@ -225,7 +225,7 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
 
     def commitHash(self):
         try:
-            process = subprocess.Popen(['git', 'rev-parse', 'HEAD'],
+            process = subprocess.Popen(['git', 'rev-parse', 'HEAD'], # nosec
                                         stdout=subprocess.PIPE,
                                         stderr=subprocess.PIPE,
                                         cwd=self.rootDir)
@@ -240,10 +240,10 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
 
     @staticmethod
     def sysInfo():
-        process = subprocess.Popen(['sw_vers'],
+        process = subprocess.Popen(['sw_vers'], # nosec
                                     stdout=subprocess.PIPE,
                                     stderr=subprocess.PIPE)
-        stdout, stderr = process.communicate()
+        stdout, _ = process.communicate()
 
         return stdout.decode(sys.getdefaultencoding()).strip()
 
@@ -282,10 +282,10 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
         if len(brew) < 1:
             return
 
-        process = subprocess.Popen([brew, '--cellar'],
+        process = subprocess.Popen([brew, '--cellar'], # nosec
                                     stdout=subprocess.PIPE,
                                     stderr=subprocess.PIPE)
-        stdout, stderr = process.communicate()
+        stdout, _ = process.communicate()
         cellarPath = stdout.decode(sys.getdefaultencoding()).strip()
 
         # Write binary dependencies info.
@@ -325,7 +325,7 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
     def dirSize(path):
         size = 0
 
-        for root, dirs, files in os.walk(path):
+        for root, _, files in os.walk(path):
             for f in files:
                 fpath = os.path.join(root, f)
 
@@ -348,7 +348,7 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
         volumeName = "{}-portable-{}".format(self.programName,
                                              self.programVersion)
 
-        process = subprocess.Popen(['hdiutil', 'create',
+        process = subprocess.Popen(['hdiutil', 'create', # nosec
                                     '-srcfolder', staggingDir,
                                     '-volname', volumeName,
                                     '-fs', 'HFS+',
@@ -359,13 +359,13 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
                                    stdout=subprocess.PIPE)
         process.communicate()
 
-        process = subprocess.Popen(['hdiutil',
+        process = subprocess.Popen(['hdiutil', # nosec
                                     'attach',
                                     '-readwrite',
                                     '-noverify',
                                     tmpDmg],
                                    stdout=subprocess.PIPE)
-        stdout, stderr = process.communicate()
+        stdout, _ = process.communicate()
         device = ''
 
         for line in stdout.split(b'\n'):
@@ -386,13 +386,13 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
         volumeIcon = os.path.join(volumePath, '.VolumeIcon.icns')
         self.copy(self.appIcon, volumeIcon)
 
-        process = subprocess.Popen(['SetFile',
+        process = subprocess.Popen(['SetFile', # nosec
                                     '-c', 'icnC',
                                     volumeIcon],
                                    stdout=subprocess.PIPE)
         process.communicate()
 
-        process = subprocess.Popen(['SetFile',
+        process = subprocess.Popen(['SetFile', # nosec
                                     '-a', 'C',
                                     volumePath],
                                    stdout=subprocess.PIPE)
@@ -405,7 +405,7 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
 
         os.sync()
 
-        process = subprocess.Popen(['hdiutil',
+        process = subprocess.Popen(['hdiutil', # nosec
                                     'detach',
                                     device],
                                    stdout=subprocess.PIPE)
@@ -423,7 +423,7 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
         if os.path.exists(packagePath):
             os.remove(packagePath)
 
-        process = subprocess.Popen(['hdiutil',
+        process = subprocess.Popen(['hdiutil', # nosec
                                     'convert',
                                     tmpDmg,
                                     '-format', 'UDZO',

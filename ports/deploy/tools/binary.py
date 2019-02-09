@@ -21,7 +21,7 @@
 
 import os
 import re
-import subprocess
+import subprocess # nosec
 import threading
 import time
 
@@ -95,7 +95,7 @@ class DeployToolsBinary(tools.utils.DeployToolsUtils):
         if self.stripBin == '':
             return
 
-        process = subprocess.Popen([self.stripBin, binary],
+        process = subprocess.Popen([self.stripBin, binary], # nosec
                                    stdout=subprocess.PIPE,
                                    stderr=subprocess.PIPE)
         process.communicate()

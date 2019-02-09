@@ -22,7 +22,7 @@
 import math
 import os
 import platform
-import subprocess
+import subprocess # nosec
 import sys
 import threading
 import zipfile
@@ -185,7 +185,7 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
         pacman = self.whereBin('pacman.exe')
 
         if len(pacman) > 0:
-            process = subprocess.Popen([pacman, '-Qo', path],
+            process = subprocess.Popen([pacman, '-Qo', path], # nosec
                                        stdout=subprocess.PIPE,
                                        stderr=subprocess.PIPE)
             stdout, _ = process.communicate()
@@ -193,7 +193,7 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
             if process.returncode != 0:
                 prefix = '/c/msys32' if self.targetArch == '32bit' else '/c/msys64'
                 path = path[len(prefix):]
-                process = subprocess.Popen([pacman, '-Qo', path],
+                process = subprocess.Popen([pacman, '-Qo', path], # nosec
                                         stdout=subprocess.PIPE,
                                         stderr=subprocess.PIPE)
                 stdout, _ = process.communicate()
@@ -214,7 +214,7 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
 
     def commitHash(self):
         try:
-            process = subprocess.Popen(['git', 'rev-parse', 'HEAD'],
+            process = subprocess.Popen(['git', 'rev-parse', 'HEAD'], # nosec
                                         stdout=subprocess.PIPE,
                                         stderr=subprocess.PIPE,
                                         cwd=self.rootDir)
@@ -230,10 +230,10 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
     @staticmethod
     def sysInfo():
         try:
-            process = subprocess.Popen(['cmd', '/c', 'ver'],
+            process = subprocess.Popen(['cmd', '/c', 'ver'], # nosec
                                         stdout=subprocess.PIPE,
                                         stderr=subprocess.PIPE)
-            stdout, stderr = process.communicate()
+            stdout, _ = process.communicate()
             windowsVersion = stdout.decode(sys.getdefaultencoding()).strip()
 
             return 'Windows Version: {}\n'.format(windowsVersion)

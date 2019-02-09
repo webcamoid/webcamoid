@@ -18,14 +18,14 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-import subprocess
+import subprocess # nosec
 import sys
 
 
-process = subprocess.Popen(['git', 'shortlog', '--summary', '-e'],
+process = subprocess.Popen(['git', 'shortlog', '--summary', '-e'], # nosec
                             stdout=subprocess.PIPE,
                             stderr=subprocess.PIPE)
-stdout, stderr = process.communicate()
+stdout, _ = process.communicate()
 contributors = stdout.decode(sys.getdefaultencoding()).split('\n')
 contributors_list = []
 

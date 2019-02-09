@@ -23,7 +23,7 @@ import multiprocessing
 import os
 import platform
 import shutil
-import subprocess
+import subprocess # nosec
 import sys
 
 class DeployToolsUtils:
@@ -151,10 +151,10 @@ class DeployToolsUtils:
         os.chdir(buildDir)
 
         if installRoot == '':
-            process = subprocess.Popen([self.make, 'install'],
+            process = subprocess.Popen([self.make, 'install'], # nosec
                                        stdout=subprocess.PIPE)
         else:
-            process = subprocess.Popen([self.make, 'INSTALL_ROOT=' + installRoot, 'install'],
+            process = subprocess.Popen([self.make, 'INSTALL_ROOT=' + installRoot, 'install'], # nosec
                                        stdout=subprocess.PIPE)
 
         process.communicate()

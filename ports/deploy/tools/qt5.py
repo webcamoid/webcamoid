@@ -23,7 +23,7 @@ import configparser
 import fnmatch
 import os
 import re
-import subprocess
+import subprocess # nosec
 import sys
 import time
 
@@ -92,7 +92,7 @@ class DeployToolsQt(tools.utils.DeployToolsUtils):
             if var != '':
                 args += [var]
 
-            process = subprocess.Popen(args,
+            process = subprocess.Popen(args, # nosec
                                         stdout=subprocess.PIPE,
                                         stderr=subprocess.PIPE)
             stdout, _ = process.communicate()
@@ -177,7 +177,7 @@ class DeployToolsQt(tools.utils.DeployToolsUtils):
 
         if self.targetSystem == 'posix_windows':
             installerBase = 'Z:' + installerBase.replace('/', '\\')
-            process = subprocess.Popen(['wine',
+            process = subprocess.Popen(['wine', # nosec
                                         installerBase,
                                         '--version'],
                                     stdin=subprocess.PIPE,
@@ -185,11 +185,11 @@ class DeployToolsQt(tools.utils.DeployToolsUtils):
                                     stderr=subprocess.PIPE)
             stdout, _ = process.communicate(input=b'\n')
         else:
-            process = subprocess.Popen([installerBase,
+            process = subprocess.Popen([installerBase, # nosec
                                         '--version'],
                                     stdout=subprocess.PIPE,
                                     stderr=subprocess.PIPE)
-            stdout, stderr = process.communicate()
+            stdout, _ = process.communicate()
 
         for line in stdout.split(b'\n'):
             if b'IFW Version:' in line:
@@ -475,7 +475,7 @@ class DeployToolsQt(tools.utils.DeployToolsUtils):
         if os.path.exists(self.outPackage):
             os.remove(self.outPackage)
 
-        process = subprocess.Popen([self.qtIFW,
+        process = subprocess.Popen([self.qtIFW, # nosec
                                     '-c', configXml,
                                     '-p', self.installerPackages,
                                     self.outPackage],

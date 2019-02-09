@@ -21,7 +21,7 @@
 
 import math
 import os
-import subprocess
+import subprocess # nosec
 import sys
 import threading
 import zipfile
@@ -174,7 +174,7 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
         pacman = self.whereBin('pacman')
 
         if len(pacman) > 0:
-            process = subprocess.Popen([pacman, '-Qo', path],
+            process = subprocess.Popen([pacman, '-Qo', path], # nosec
                                        stdout=subprocess.PIPE,
                                        stderr=subprocess.PIPE)
             stdout, _ = process.communicate()
@@ -194,20 +194,20 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
         dpkg = self.whereBin('dpkg')
 
         if len(dpkg) > 0:
-            process = subprocess.Popen([dpkg, '-S', path],
+            process = subprocess.Popen([dpkg, '-S', path], # nosec
                                        stdout=subprocess.PIPE,
                                        stderr=subprocess.PIPE)
-            stdout, stderr = process.communicate()
+            stdout, _ = process.communicate()
 
             if process.returncode != 0:
                 return ''
 
             package = stdout.split(b':')[0].decode(sys.getdefaultencoding()).strip()
 
-            process = subprocess.Popen([dpkg, '-s', package],
+            process = subprocess.Popen([dpkg, '-s', package], # nosec
                                        stdout=subprocess.PIPE,
                                        stderr=subprocess.PIPE)
-            stdout, stderr = process.communicate()
+            stdout, _ = process.communicate()
 
             if process.returncode != 0:
                 return ''
@@ -223,10 +223,10 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
         rpm = self.whereBin('rpm')
 
         if len(rpm) > 0:
-            process = subprocess.Popen([rpm, '-qf', path],
+            process = subprocess.Popen([rpm, '-qf', path], # nosec
                                        stdout=subprocess.PIPE,
                                        stderr=subprocess.PIPE)
-            stdout, stderr = process.communicate()
+            stdout, _ = process.communicate()
 
             if process.returncode != 0:
                 return ''
@@ -237,11 +237,11 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
 
     def commitHash(self):
         try:
-            process = subprocess.Popen(['git', 'rev-parse', 'HEAD'],
+            process = subprocess.Popen(['git', 'rev-parse', 'HEAD'], # nosec
                                         stdout=subprocess.PIPE,
                                         stderr=subprocess.PIPE,
                                         cwd=self.rootDir)
-            stdout, stderr = process.communicate()
+            stdout, _ = process.communicate()
 
             if process.returncode != 0:
                 return ''
@@ -297,20 +297,20 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
 
         # Write Wine version and emulated system info.
 
-        process = subprocess.Popen(['wine', '--version'],
+        process = subprocess.Popen(['wine', '--version'], # nosec
                                    stdout=subprocess.PIPE,
                                    stderr=subprocess.PIPE)
-        stdout, stderr = process.communicate()
+        stdout, _ = process.communicate()
         wineVersion = stdout.decode(sys.getdefaultencoding()).strip()
 
         with open(depsInfoFile, 'a') as f:
             print('    Wine Version: {}'.format(wineVersion))
             f.write('Wine Version: {}\n'.format(wineVersion))
 
-        process = subprocess.Popen(['wine', 'cmd', '/c', 'ver'],
+        process = subprocess.Popen(['wine', 'cmd', '/c', 'ver'], # nosec
                                    stdout=subprocess.PIPE,
                                    stderr=subprocess.PIPE)
-        stdout, stderr = process.communicate()
+        stdout, _ = process.communicate()
         fakeWindowsVersion = stdout.decode(sys.getdefaultencoding()).strip()
 
         if len(fakeWindowsVersion) < 1:

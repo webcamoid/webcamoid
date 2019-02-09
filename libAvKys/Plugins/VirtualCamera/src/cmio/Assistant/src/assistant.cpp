@@ -48,20 +48,11 @@ namespace AkVCam
         std::vector<VideoFormat> formats;
         std::string broadcaster;
         std::vector<std::string> listeners;
-        bool horizontalMirror;
-        bool verticalMirror;
-        Scaling scaling;
-        AspectRatio aspectRatio;
-        bool swapRgb;
-
-        AssistantDevice():
-            horizontalMirror(false),
-            verticalMirror(false),
-            scaling(ScalingFast),
-            aspectRatio(AspectRatioIgnore),
-            swapRgb(false)
-        {
-        }
+        bool horizontalMirror {false};
+        bool verticalMirror {false};
+        Scaling scaling {ScalingFast};
+        AspectRatio aspectRatio {AspectRatioIgnore};
+        bool swapRgb {false};
     };
 
     typedef std::map<std::string, xpc_connection_t> AssistantPeers;
@@ -74,8 +65,8 @@ namespace AkVCam
             AssistantPeers m_clients;
             DeviceConfigs m_deviceConfigs;
             std::map<int64_t, XpcMessage> m_messageHandlers;
-            CFRunLoopTimerRef m_timer;
-            double m_timeout;
+            CFRunLoopTimerRef m_timer {nullptr};
+            double m_timeout {0.0};
 
             AssistantPrivate();
             ~AssistantPrivate();
@@ -195,9 +186,6 @@ void AkVCam::Assistant::messageReceived(xpc_connection_t client,
 
 AkVCam::AssistantPrivate::AssistantPrivate()
 {
-    this->m_timer = nullptr;
-    this->m_timeout = 0;
-
     this->m_messageHandlers = {
         {AKVCAM_ASSISTANT_MSG_FRAME_READY           , AKVCAM_BIND_FUNC(AssistantPrivate::frameReady)     },
         {AKVCAM_ASSISTANT_MSG_REQUEST_PORT          , AKVCAM_BIND_FUNC(AssistantPrivate::requestPort)    },
