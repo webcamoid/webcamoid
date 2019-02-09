@@ -33,8 +33,8 @@ namespace AkVCam
     {
         public:
             std::vector<IPin *> m_pins;
-            size_t m_position;
-            bool m_changed;
+            size_t m_position {0};
+            bool m_changed {false};
     };
 }
 
@@ -42,8 +42,6 @@ AkVCam::EnumPins::EnumPins():
     CUnknown(this, IID_IEnumPins)
 {
     this->d = new EnumPinsPrivate;
-    this->d->m_position = 0;
-    this->d->m_changed = 0;
 }
 
 AkVCam::EnumPins::EnumPins(const EnumPins &other):
@@ -86,6 +84,8 @@ void AkVCam::EnumPins::removePin(IPin *pin, bool changed)
             this->d->m_pins.erase(it);
             pin->Release();
             this->d->m_changed = changed;
+
+            break;
         }
 }
 

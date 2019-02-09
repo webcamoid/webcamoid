@@ -323,9 +323,9 @@ AkPacket FaceDetectElement::iStream(const AkPacket &packet)
     QImage scanFrame(src.scaled(scanSize, Qt::KeepAspectRatio));
 
     if (scanFrame.width() == scanSize.width())
-        scale = qreal(src.width() / scanSize.width());
+        scale = qreal(src.width()) / scanSize.width();
     else
-        scale = qreal(src.height() / scanSize.height());
+        scale = qreal(src.height()) / scanSize.height();
 
     this->d->m_cascadeClassifier.setEqualize(true);
     QVector<QRect> vecFaces = this->d->m_cascadeClassifier.detect(scanFrame);

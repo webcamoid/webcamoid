@@ -59,6 +59,16 @@
 
 #include "haarstage.h"
 
+class HaarStagePrivate
+{
+    public:
+        HaarTreeVector m_trees;
+        qreal m_threshold {0.0};
+        int m_parentStage {-1};
+        int m_nextStage {-1};
+        int m_childStage {-1};
+};
+
 HaarStageHID::HaarStageHID(const HaarStage &stage,
                            int oWidth,
                            const quint32 *integral,
@@ -66,22 +76,18 @@ HaarStageHID::HaarStageHID(const HaarStage &stage,
                            qreal invArea,
                            qreal scale)
 {
-    this->m_count = stage.m_trees.size();
+    this->m_count = stage.d->m_trees.size();
     this->m_trees = new HaarTreeHID *[this->m_count];
     static const qreal thresholdBias = 0.0001;
-    this->m_threshold = stage.m_threshold - thresholdBias;
-
-    this->m_parentStagePtr = nullptr;
-    this->m_nextStagePtr = nullptr;
-    this->m_childStagePtr = nullptr;
+    this->m_threshold = stage.d->m_threshold - thresholdBias;
 
     for (int i = 0; i < this->m_count; i++)
-        this->m_trees[i] = new HaarTreeHID(stage.m_trees[i],
-                                              oWidth,
-                                              integral,
-                                              tiltedIntegral,
-                                              invArea,
-                                              scale);
+        this->m_trees[i] = new HaarTreeHID(stage.d->m_trees[i],
+                                           oWidth,
+                                           integral,
+                                           tiltedIntegral,
+                                           invArea,
+                                           scale);
 }
 
 HaarStageHID::~HaarStageHID()
@@ -95,80 +101,83 @@ HaarStageHID::~HaarStageHID()
 HaarStage::HaarStage(QObject *parent):
     QObject(parent)
 {
-    this->m_threshold = 0;
-    this->m_parentStage = -1;
-    this->m_nextStage = -1;
-    this->m_childStage = -1;
+    this->d = new HaarStagePrivate;
 }
 
 HaarStage::HaarStage(const HaarStage &other):
     QObject(nullptr)
 {
-    this->m_trees = other.m_trees;
-    this->m_threshold = other.m_threshold;
-    this->m_parentStage = other.m_parentStage;
-    this->m_nextStage = other.m_nextStage;
-    this->m_childStage = other.m_childStage;
+    this->d = new HaarStagePrivate;
+    this->d->m_trees = other.d->m_trees;
+    this->d->m_threshold = other.d->m_threshold;
+    this->d->m_parentStage = other.d->m_parentStage;
+    this->d->m_nextStage = other.d->m_nextStage;
+    this->d->m_childStage = other.d->m_childStage;
+}
+
+HaarStage::~HaarStage()
+{
+    delete this->d;
 }
 
 HaarTreeVector HaarStage::trees() const
 {
-    return this->m_trees;
+    return this->d->m_trees;
 }
 
 HaarTreeVector &HaarStage::trees()
 {
-    return this->m_trees;
+    return this->d->m_trees;
 }
 
 qreal HaarStage::threshold() const
 {
-    return this->m_threshold;
+    return this->d->m_threshold;
 }
 
 qreal &HaarStage::threshold()
 {
-    return this->m_threshold;
+    return this->d->m_threshold;
 }
 
 int HaarStage::parentStage() const
 {
-    return this->m_parentStage;
+    return this->d->m_parentStage;
 }
 
 int &HaarStage::parentStage()
 {
-    return this->m_parentStage;
+    return this->d->m_parentStage;
 }
 
 int HaarStage::nextStage() const
 {
-    return this->m_nextStage;
+    return this->d->m_nextStage;
 }
 
 int &HaarStage::nextStage()
 {
-    return this->m_nextStage;
+    return this->d->m_nextStage;
 }
 
 int HaarStage::childStage() const
 {
-    return this->m_childStage;
+    return this->d->m_childStage;
 }
 
 int &HaarStage::childStage()
 {
-    return this->m_childStage;
+    return this->d->m_childStage;
 }
 
 HaarStage &HaarStage::operator =(const HaarStage &other)
 {
     if (this != &other) {
-        this->m_trees = other.m_trees;
-        this->m_threshold = other.m_threshold;
-        this->m_parentStage = other.m_parentStage;
-        this->m_nextStage = other.m_nextStage;
-        this->m_childStage = other.m_childStage;
+        this->d->m_trees = other.d->m_trees;
+        this->d->m_threshold = other.d->m_threshold;
+        this->d->m_parentStage = other.d->m_parentStage;
+        this->d->m_nextStage = other.d->m_nextStage;
+        this->d->m_childStage = other.d->m_childStage;
     }
 
     return *this;
@@ -176,11 +185,11 @@ HaarStage &HaarStage::operator =(const HaarStage &other)
 
 bool HaarStage::operator ==(const HaarStage &other) const
 {
-    return this->m_trees == other.m_trees
-           && qFuzzyCompare(this->m_threshold, other.m_threshold)
-           && this->m_parentStage == other.m_parentStage
-           && this->m_nextStage == other.m_nextStage
-           && this->m_childStage == other.m_childStage;
+    return this->d->m_trees == other.d->m_trees
+           && qFuzzyCompare(this->d->m_threshold, other.d->m_threshold)
+           && this->d->m_parentStage == other.d->m_parentStage
+           && this->d->m_nextStage == other.d->m_nextStage
+           && this->d->m_childStage == other.d->m_childStage;
 }
 
 bool HaarStage::operator !=(const HaarStage &other) const
@@ -190,46 +199,46 @@ bool HaarStage::operator !=(const HaarStage &other) const
 
 void HaarStage::setTrees(const HaarTreeVector &trees)
 {
-    if (this->m_trees == trees)
+    if (this->d->m_trees == trees)
         return;
 
-    this->m_trees = trees;
+    this->d->m_trees = trees;
     emit this->treesChanged(trees);
 }
 
 void HaarStage::setThreshold(qreal threshold)
 {
-    if (qFuzzyCompare(this->m_threshold, threshold))
+    if (qFuzzyCompare(this->d->m_threshold, threshold))
         return;
 
-    this->m_threshold = threshold;
+    this->d->m_threshold = threshold;
     emit this->thresholdChanged(threshold);
 }
 
 void HaarStage::setParentStage(int parentStage)
 {
-    if (this->m_parentStage == parentStage)
+    if (this->d->m_parentStage == parentStage)
         return;
 
-    this->m_parentStage = parentStage;
+    this->d->m_parentStage = parentStage;
     emit this->parentStageChanged(parentStage);
 }
 
 void HaarStage::setNextStage(int nextStage)
 {
-    if (this->m_nextStage == nextStage)
+    if (this->d->m_nextStage == nextStage)
         return;
 
-    this->m_nextStage = nextStage;
+    this->d->m_nextStage = nextStage;
     emit this->nextStageChanged(nextStage);
 }
 
 void HaarStage::setChildStage(int childStage)
 {
-    if (this->m_childStage == childStage)
+    if (this->d->m_childStage == childStage)
         return;
 
-    this->m_childStage = childStage;
+    this->d->m_childStage = childStage;
     emit this->childStageChanged(childStage);
 }
 

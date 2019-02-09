@@ -80,7 +80,7 @@ void VideoCaptureGlobals::resetCodecLib()
 {
     auto subModules = AkElement::listSubModules("VideoCapture", "convert");
 
-    for (const QString &framework: this->m_preferredFramework)
+    for (auto &framework: this->m_preferredFramework)
         if (subModules.contains(framework)) {
             this->setCodecLib(framework);
 
@@ -97,7 +97,7 @@ void VideoCaptureGlobals::resetCaptureLib()
 {
     auto subModules = AkElement::listSubModules("VideoCapture", "capture");
 
-    for (const QString &framework: this->m_preferredLibrary)
+    for (auto &framework: this->m_preferredLibrary)
         if (subModules.contains(framework)) {
             this->setCaptureLib(framework);
 

@@ -172,6 +172,9 @@ bool AudioDevQtAudio::init(const QString &device, const AkAudioCaps &caps)
 
 QByteArray AudioDevQtAudio::read(int samples)
 {
+    if (samples < 1)
+        return {};
+
     QByteArray buffer;
 
     this->d->m_mutex.lock();
@@ -280,7 +283,7 @@ void AudioDevQtAudio::updateDevices()
 
     for (auto &mode: QVector<QAudio::Mode> {QAudio::AudioInput,
                                             QAudio::AudioOutput}) {
-        for (const auto &device: QAudioDeviceInfo::availableDevices(mode)) {
+        for (auto &device: QAudioDeviceInfo::availableDevices(mode)) {
             auto description = device.deviceName();
             auto deviceName = description;
 

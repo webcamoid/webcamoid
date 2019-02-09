@@ -70,19 +70,15 @@ class AudioDevOSSPrivate
         QMap<QString, QList<int>> m_supportedSampleRates;
         AkAudioCaps m_curCaps;
         QFile m_deviceFile;
-        QFileSystemWatcher *m_fsWatcher;
+        QFileSystemWatcher *m_fsWatcher {nullptr};
         QMutex m_mutex;
 
-        AudioDevOSSPrivate(AudioDevOSS *self):
-            self(self)
-        {
-        }
-
-        inline int fragmentSize(const QString &device, const AkAudioCaps &caps);
-        inline void fillDeviceInfo(const QString &device,
-                                   QList<AkAudioCaps::SampleFormat> *supportedFormats,
-                                   QList<int> *supportedChannels,
-                                   QList<int> *supportedSampleRates) const;
+        explicit AudioDevOSSPrivate(AudioDevOSS *self);
+        int fragmentSize(const QString &device, const AkAudioCaps &caps);
+        void fillDeviceInfo(const QString &device,
+                            QList<AkAudioCaps::SampleFormat> *supportedFormats,
+                            QList<int> *supportedChannels,
+                            QList<int> *supportedSampleRates) const;
 };
 
 AudioDevOSS::AudioDevOSS(QObject *parent):
@@ -214,6 +210,9 @@ init_fail:
 
 QByteArray AudioDevOSS::read(int samples)
 {
+    if (samples < 1)
+        return {};
+
     QMutexLocker mutexLockeer(&this->d->m_mutex);
 
     if (!this->d->m_deviceFile.isOpen())
@@ -255,6 +254,11 @@ bool AudioDevOSS::uninit()
     this->d->m_curCaps = AkAudioCaps();
 
     return true;
+}
+
+AudioDevOSSPrivate::AudioDevOSSPrivate(AudioDevOSS *self):
+    self(self)
+{
 }
 
 int AudioDevOSSPrivate::fragmentSize(const QString &device,

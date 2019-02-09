@@ -204,7 +204,7 @@ HRESULT AkVCam::VideoControl::GetMaxAvailableFrameRate(IPin *pPin,
 {
     AkLogMethod();
 
-    if (!pPin || MaxAvailableFrameRate)
+    if (!pPin || !MaxAvailableFrameRate)
         return E_POINTER;
 
     *MaxAvailableFrameRate = 0;

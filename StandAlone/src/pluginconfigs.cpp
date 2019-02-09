@@ -248,7 +248,7 @@ void PluginConfigs::saveProperties()
 
     int i = 0;
 
-    for (const QString &path: AkElement::pluginsBlackList()) {
+    for (auto &path: AkElement::pluginsBlackList()) {
         config.setArrayIndex(i);
 
 #ifdef Q_OS_WIN32
@@ -287,7 +287,7 @@ void PluginConfigs::saveProperties()
 
     i = 0;
 
-    for (const QString &path: AkElement::searchPaths()) {
+    for (auto &path: AkElement::searchPaths()) {
         config.setArrayIndex(i);
 
 #ifdef Q_OS_WIN32

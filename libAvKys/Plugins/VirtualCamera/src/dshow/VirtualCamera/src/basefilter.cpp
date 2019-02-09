@@ -70,6 +70,7 @@ namespace AkVCam
             BaseFilterPrivate(BaseFilter *self,
                               const std::wstring &filterName,
                               const std::wstring &vendor);
+            BaseFilterPrivate(const BaseFilterPrivate &other) = delete;
             ~BaseFilterPrivate();
             IEnumPins *pinsForDevice(const std::string &deviceId);
             void updatePins();

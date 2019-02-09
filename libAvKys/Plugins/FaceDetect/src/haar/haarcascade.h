@@ -49,6 +49,7 @@ class HaarCascadeHID
                        const quint32 **icp,
                        QList<QRect> *roi,
                        QMutex *mutex);
+        HaarCascadeHID(const HaarCascadeHID &other) = delete;
         ~HaarCascadeHID();
 
         static void run(HaarCascadeHID *cascade);

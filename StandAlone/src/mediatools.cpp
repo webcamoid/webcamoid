@@ -138,6 +138,7 @@ MediaTools::MediaTools(QObject *parent):
                      &AudioLayer::setInputCaps);
     QObject::connect(this->d->m_mediaSource.data(),
                      &MediaSource::streamChanged,
+                     this->d->m_audioLayer.data(),
                      [this] (const QString &stream)
                      {
                          this->d->m_audioLayer->setInputDescription(this->d->m_mediaSource->description(stream));
@@ -168,6 +169,7 @@ MediaTools::MediaTools(QObject *parent):
                      &Recording::setVideoCaps);
     QObject::connect(qApp,
                      &QCoreApplication::aboutToQuit,
+                     this->d->m_mediaSource.data(),
                      [this] () {
                         this->d->m_mediaSource->setState(AkElement::ElementStateNull);
                      });
@@ -356,7 +358,7 @@ void MediaTools::removeInterface(const QString &where,
     if (!engine)
         return;
 
-    for (const QObject *obj: engine->rootObjects()) {
+    for (auto &obj: engine->rootObjects()) {
         auto item = obj->findChild<QQuickItem *>(where);
 
         if (!item)
@@ -391,7 +393,7 @@ bool MediaToolsPrivate::embedInterface(QQmlApplicationEngine *engine,
     if (!engine || !ctrlInterface)
         return false;
 
-    for (const QObject *obj: engine->rootObjects()) {
+    for (auto &obj: engine->rootObjects()) {
         // First, find where to embed the UI.
         auto item = obj->findChild<QQuickItem *>(where);
 
@@ -538,7 +540,7 @@ void MediaTools::show()
 
     this->d->m_engine->load(QUrl(QStringLiteral("qrc:/Webcamoid/share/qml/main.qml")));
 
-    for (const QObject *obj: this->d->m_engine->rootObjects()) {
+    for (auto &obj: this->d->m_engine->rootObjects()) {
         // First, find where to enbed the UI.
         auto videoDisplay = obj->findChild<VideoDisplay *>("videoDisplay");
 

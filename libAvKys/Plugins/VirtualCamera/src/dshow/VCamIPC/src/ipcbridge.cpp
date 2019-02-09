@@ -70,7 +70,7 @@ namespace AkVCam
             std::string m_portName;
             bool m_asClient;
 
-            IpcBridgePrivate(IpcBridge *self);
+            explicit IpcBridgePrivate(IpcBridge *self);
             ~IpcBridgePrivate();
 
             static inline std::vector<std::wstring> *driverPaths();

@@ -372,7 +372,7 @@
 <context>
     <name>MediaTools</name>
     <message>
-        <location filename="../../src/mediatools.cpp" line="221"/>
+        <location filename="../../src/mediatools.cpp" line="223"/>
         <source>Daily Build</source>
         <translation>מהדורה יומית</translation>
     </message>

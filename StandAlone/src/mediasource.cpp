@@ -258,7 +258,7 @@ bool MediaSource::embedControls(const QString &where,
     if (!name.isEmpty())
         interface->setObjectName(name);
 
-    for (auto obj: this->d->m_engine->rootObjects()) {
+    for (auto &obj: this->d->m_engine->rootObjects()) {
         // First, find where to embed the UI.
         auto item = obj->findChild<QQuickItem *>(where);
 
@@ -282,7 +282,7 @@ void MediaSource::removeInterface(const QString &where) const
     if (!this->d->m_engine)
         return;
 
-    for (const QObject *obj: this->d->m_engine->rootObjects()) {
+    for (auto &obj: this->d->m_engine->rootObjects()) {
         auto item = obj->findChild<QQuickItem *>(where);
 
         if (!item)

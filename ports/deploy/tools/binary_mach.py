@@ -84,7 +84,7 @@ class DeployToolsBinary(tools.binary.DeployToolsBinary):
             # Move to load commands
             f.seek(8 if is32bits else 12, os.SEEK_CUR)
 
-            for i in range(ncmds):
+            for _ in range(ncmds):
                 # Read a load command and store it's position in the file.
                 loadCommandStart = f.tell()
                 loadCommand = struct.unpack('II', f.read(8))
@@ -121,7 +121,8 @@ class DeployToolsBinary(tools.binary.DeployToolsBinary):
 
         return {'imports': dylibImports, 'rpaths': rpaths, 'id': dylibId}
 
-    def solveRefpath(self, path):
+    @staticmethod
+    def solveRefpath(path):
         if not path.startswith('@'):
             return path
 

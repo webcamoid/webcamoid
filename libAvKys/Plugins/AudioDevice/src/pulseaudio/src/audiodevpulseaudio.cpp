@@ -52,9 +52,9 @@ class AudioDevPulseAudioPrivate
     public:
         AudioDevPulseAudio *self;
         QString m_error;
-        pa_simple *m_paSimple;
-        pa_threaded_mainloop *m_mainLoop;
-        pa_context *m_context;
+        pa_simple *m_paSimple {nullptr};
+        pa_threaded_mainloop *m_mainLoop {nullptr};
+        pa_context *m_context {nullptr};
         QString m_defaultSink;
         QString m_defaultSource;
         QMap<uint32_t, QString> m_sinks;
@@ -62,19 +62,10 @@ class AudioDevPulseAudioPrivate
         QMap<QString, AkAudioCaps> m_pinCapsMap;
         QMap<QString, QString> m_pinDescriptionMap;
         QMutex m_mutex;
-        int m_curBps;
-        int m_curChannels;
+        int m_curBps {0};
+        int m_curChannels {0};
 
-        AudioDevPulseAudioPrivate(AudioDevPulseAudio *self):
-            self(self),
-            m_paSimple(nullptr),
-            m_mainLoop(nullptr),
-            m_context(nullptr),
-            m_curBps(0),
-            m_curChannels(0)
-        {
-        }
-
+        explicit AudioDevPulseAudioPrivate(AudioDevPulseAudio *self);
         static void deviceUpdateCallback(pa_context *context,
                                          pa_subscription_event_type_t eventType,
                                          uint32_t index,
@@ -224,7 +215,7 @@ AudioDevPulseAudio::AudioDevPulseAudio(QObject *parent):
     pa_operation_unref(operation);
 
     pa_context_set_subscribe_callback(this->d->m_context,
-                                      this->d->deviceUpdateCallback,
+                                      AudioDevPulseAudioPrivate::deviceUpdateCallback,
                                       this);
 
     pa_operation_unref(pa_context_subscribe(this->d->m_context,
@@ -346,7 +337,9 @@ bool AudioDevPulseAudio::init(const QString &device, const AkAudioCaps &caps)
     this->d->m_curChannels = caps.channels();
 
     this->d->m_mutex.lock();
-    bool isInput = this->d->m_sources.values().contains(device);
+    bool isInput = std::find(this->d->m_sources.cbegin(),
+                             this->d->m_sources.cend(),
+                             device) != this->d->m_sources.cend();
     this->d->m_mutex.unlock();
 
     this->d->m_paSimple =
@@ -372,8 +365,8 @@ bool AudioDevPulseAudio::init(const QString &device, const AkAudioCaps &caps)
 
 QByteArray AudioDevPulseAudio::read(int samples)
 {
-    if (!this->d->m_paSimple)
-        return QByteArray();
+    if (samples < 1 || !this->d->m_paSimple)
+        return {};
 
     int error;
 
@@ -437,6 +430,11 @@ bool AudioDevPulseAudio::uninit()
     this->d->m_curChannels = 0;
 
     return ok;
+}
+
+AudioDevPulseAudioPrivate::AudioDevPulseAudioPrivate(AudioDevPulseAudio *self):
+    self(self)
+{
 }
 
 void AudioDevPulseAudioPrivate::deviceUpdateCallback(pa_context *context,

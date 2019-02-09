@@ -367,6 +367,9 @@ bool AudioDevWasapi::init(const QString &device,
 
 QByteArray AudioDevWasapi::read(int samples)
 {
+    if (samples < 1)
+        return {};
+
     int bufferSize = samples
                      * this->d->m_curCaps.bps()
                      * this->d->m_curCaps.channels()

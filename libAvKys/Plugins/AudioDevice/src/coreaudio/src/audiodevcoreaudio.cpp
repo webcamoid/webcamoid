@@ -44,57 +44,47 @@ class AudioDevCoreAudioPrivate
         QMap<QString, QList<AkAudioCaps::SampleFormat>> m_supportedFormats;
         QMap<QString, QList<int>> m_supportedChannels;
         QMap<QString, QList<int>> m_supportedSampleRates;
-        AudioUnit m_audioUnit;
-        UInt32 m_bufferSize;
-        AudioBufferList *m_bufferList;
+        AudioUnit m_audioUnit {nullptr};
+        UInt32 m_bufferSize {0};
+        AudioBufferList *m_bufferList {nullptr};
         QByteArray m_buffer;
         QMutex m_mutex;
         QWaitCondition m_canWrite;
         QWaitCondition m_samplesAvailable;
-        int m_maxBufferSize;
         AkAudioCaps m_curCaps;
-        bool m_isInput;
+        int m_maxBufferSize {0};
+        bool m_isInput {false};
 
-        AudioDevCoreAudioPrivate(AudioDevCoreAudio *self):
-            self(self),
-            m_audioUnit(nullptr),
-            m_bufferSize(0),
-            m_bufferList(nullptr),
-            m_maxBufferSize(0),
-            m_isInput(false)
-        {
-
-        }
-
-        inline static QString statusToStr(OSStatus status);
-        inline static QString CFStringToString(const CFStringRef &cfstr);
-        inline static QString defaultDevice(bool input, bool *ok=nullptr);
-        inline void clearBuffer();
-        inline QList<AkAudioCaps::SampleFormat> supportedCAFormats(AudioDeviceID deviceId,
-                                                                   AudioObjectPropertyScope scope);
-        inline QList<int> supportedCAChannels(AudioDeviceID deviceId,
-                                              AudioObjectPropertyScope scope);
-        inline QList<int> supportedCASampleRates(AudioDeviceID deviceId,
-                                                 AudioObjectPropertyScope scope);
-        inline AkAudioCaps::SampleFormat descriptionToSampleFormat(const AudioStreamBasicDescription &streamDescription);
-        inline static OSStatus devicesChangedCallback(AudioObjectID objectId,
-                                                      UInt32 nProps,
-                                                      const AudioObjectPropertyAddress *properties,
-                                                      void *audioDev);
-        inline static OSStatus defaultInputDeviceChangedCallback(AudioObjectID objectId,
-                                                                 UInt32 nProps,
-                                                                 const AudioObjectPropertyAddress *properties,
-                                                                 void *audioDev);
-        inline static OSStatus defaultOutputDeviceChangedCallback(AudioObjectID objectId,
-                                                                  UInt32 nProps,
-                                                                  const AudioObjectPropertyAddress *properties,
-                                                                  void *audioDev);
-        inline static OSStatus audioCallback(void *audioDev,
-                                             AudioUnitRenderActionFlags *actionFlags,
-                                             const AudioTimeStamp *timeStamp,
-                                             UInt32 busNumber,
-                                             UInt32 nFrames,
-                                             AudioBufferList *data);
+        explicit AudioDevCoreAudioPrivate(AudioDevCoreAudio *self);
+        static QString statusToStr(OSStatus status);
+        static QString CFStringToString(const CFStringRef &cfstr);
+        static QString defaultDevice(bool input, bool *ok=nullptr);
+        void clearBuffer();
+        QList<AkAudioCaps::SampleFormat> supportedCAFormats(AudioDeviceID deviceId,
+                                                            AudioObjectPropertyScope scope);
+        QList<int> supportedCAChannels(AudioDeviceID deviceId,
+                                       AudioObjectPropertyScope scope);
+        QList<int> supportedCASampleRates(AudioDeviceID deviceId,
+                                          AudioObjectPropertyScope scope);
+        AkAudioCaps::SampleFormat descriptionToSampleFormat(const AudioStreamBasicDescription &streamDescription);
+        static OSStatus devicesChangedCallback(AudioObjectID objectId,
+                                               UInt32 nProps,
+                                               const AudioObjectPropertyAddress *properties,
+                                               void *audioDev);
+        static OSStatus defaultInputDeviceChangedCallback(AudioObjectID objectId,
+                                                          UInt32 nProps,
+                                                          const AudioObjectPropertyAddress *properties,
+                                                          void *audioDev);
+        static OSStatus defaultOutputDeviceChangedCallback(AudioObjectID objectId,
+                                                           UInt32 nProps,
+                                                           const AudioObjectPropertyAddress *properties,
+                                                           void *audioDev);
+        static OSStatus audioCallback(void *audioDev,
+                                      AudioUnitRenderActionFlags *actionFlags,
+                                      const AudioTimeStamp *timeStamp,
+                                      UInt32 busNumber,
+                                      UInt32 nFrames,
+                                      AudioBufferList *data);
 };
 
 AudioDevCoreAudio::AudioDevCoreAudio(QObject *parent):
@@ -445,8 +435,8 @@ bool AudioDevCoreAudio::init(const QString &device, const AkAudioCaps &caps)
                              * caps.channels()
                              * int(bufferSize) / 8;
 
-    UInt32 nBuffers = streamDescription.mFormatFlags
-                    & kAudioFormatFlagIsNonInterleaved?
+    UInt32 nBuffers = (streamDescription.mFormatFlags
+                       & kAudioFormatFlagIsNonInterleaved)?
                         streamDescription.mChannelsPerFrame: 1;
 
     this->d->m_bufferSize = bufferSize;
@@ -458,8 +448,8 @@ bool AudioDevCoreAudio::init(const QString &device, const AkAudioCaps &caps)
 
     for (UInt32 i = 0; i < nBuffers; i++) {
         this->d->m_bufferList->mBuffers[i].mNumberChannels =
-                streamDescription.mFormatFlags
-                & kAudioFormatFlagIsNonInterleaved?
+                (streamDescription.mFormatFlags
+                 & kAudioFormatFlagIsNonInterleaved)?
                     1: streamDescription.mChannelsPerFrame;
         this->d->m_bufferList->mBuffers[i].mDataByteSize = 0;
         this->d->m_bufferList->mBuffers[i].mData = 0;
@@ -470,6 +460,9 @@ bool AudioDevCoreAudio::init(const QString &device, const AkAudioCaps &caps)
 
 QByteArray AudioDevCoreAudio::read(int samples)
 {
+    if (samples < 1)
+        return {};
+
     int bufferSize = this->d->m_curCaps.bps()
                    * this->d->m_curCaps.channels()
                    * samples / 8;
@@ -525,6 +518,11 @@ bool AudioDevCoreAudio::uninit()
     this->d->m_buffer.clear();
 
     return true;
+}
+
+AudioDevCoreAudioPrivate::AudioDevCoreAudioPrivate(AudioDevCoreAudio *self):
+    self(self)
+{
 }
 
 QString AudioDevCoreAudioPrivate::statusToStr(OSStatus status)
@@ -802,15 +800,15 @@ AkAudioCaps::SampleFormat AudioDevCoreAudioPrivate::descriptionToSampleFormat(co
 {
     UInt32 bps = streamDescription.mBitsPerChannel;
     auto formatType =
-            streamDescription.mFormatFlags & kAudioFormatFlagIsFloat?
+            (streamDescription.mFormatFlags & kAudioFormatFlagIsFloat)?
             AkAudioCaps::SampleType_float:
-            streamDescription.mFormatFlags & kAudioFormatFlagIsSignedInteger?
+            (streamDescription.mFormatFlags & kAudioFormatFlagIsSignedInteger)?
             AkAudioCaps::SampleType_int:
             AkAudioCaps::SampleType_uint;
     int endian =
-            streamDescription.mBitsPerChannel == 8?
+            (streamDescription.mBitsPerChannel == 8)?
             Q_BYTE_ORDER:
-            streamDescription.mFormatFlags & kAudioFormatFlagIsBigEndian?
+            (streamDescription.mFormatFlags & kAudioFormatFlagIsBigEndian)?
             Q_BIG_ENDIAN: Q_LITTLE_ENDIAN;
     bool planar = streamDescription.mFormatFlags & kAudioFormatFlagIsNonInterleaved;
 
@@ -1037,7 +1035,7 @@ void AudioDevCoreAudio::updateDevices()
                             kAudioObjectPropertyName,
                             deviceType == kAudioObjectPropertyScopeInput?
                                 kAudioDevicePropertyScopeInput:
-                                kAudioDevicePropertyScopeInput,
+                                kAudioDevicePropertyScopeOutput,
                             kAudioObjectPropertyElementMaster
                         };
 

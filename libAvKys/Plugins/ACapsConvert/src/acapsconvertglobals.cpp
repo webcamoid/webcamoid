@@ -51,7 +51,7 @@ void ACapsConvertGlobals::resetConvertLib()
 {
     auto subModules = AkElement::listSubModules("ACapsConvert");
 
-    for (const QString &framework: this->m_preferredFramework)
+    for (auto &framework: this->m_preferredFramework)
         if (subModules.contains(framework)) {
             this->setConvertLib(framework);
 

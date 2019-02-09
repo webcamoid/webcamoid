@@ -32,7 +32,7 @@ class DeployToolsBinary(tools.binary.DeployToolsBinary):
         super().__init__()
 
     def isValid(self, path):
-        mimetype, encoding = mimetypes.guess_type(path)
+        mimetype, _ = mimetypes.guess_type(path)
 
         if mimetype == 'application/x-msdownload':
             return True
@@ -97,7 +97,7 @@ class DeployToolsBinary(tools.binary.DeployToolsBinary):
             idataTablePhysical = -1
 
             # Search for 'idata' section.
-            for i in range(nSections):
+            for _ in range(nSections):
                 # Read section.
                 section = struct.unpack('8pIIIIIIHHI', f.read(40))
                 sectionName = section[0].replace(b'\x00', b'')

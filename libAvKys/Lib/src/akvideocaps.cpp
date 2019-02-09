@@ -491,8 +491,8 @@ QVariantMap AkVideoCaps::toMap() const
         {"fps"   , QVariant::fromValue(this->d->m_fps)                }
     };
 
-    for (const QByteArray &property: this->dynamicPropertyNames()) {
-        QString key = QString::fromUtf8(property.constData());
+    for (auto &property: this->dynamicPropertyNames()) {
+        auto key = QString::fromUtf8(property.constData());
         map[key] = this->property(property);
     }
 

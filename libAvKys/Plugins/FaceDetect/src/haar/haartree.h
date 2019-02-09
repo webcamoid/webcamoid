@@ -35,6 +35,7 @@ class HaarTreeHID
                     const quint32 *tiltedIntegral,
                     qreal invArea,
                     qreal scale);
+        HaarTreeHID(const HaarTreeHID &other) = delete;
         ~HaarTreeHID();
 
         int m_count;

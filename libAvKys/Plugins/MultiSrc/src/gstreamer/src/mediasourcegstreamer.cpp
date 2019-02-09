@@ -39,15 +39,9 @@ class MediaSourceGStreamerPrivate
     public:
         QString m_media;
         QList<int> m_streams;
-        bool m_loop {false};
-        bool m_run {false};
-        AkElement::ElementState m_curState {AkElement::ElementStateNull};
-        qint64 m_maxPacketQueueSize {15 * 1024 * 1024};
-        bool m_showLog {false};
         QThreadPool m_threadPool;
         GstElement *m_pipeline {nullptr};
         GMainLoop *m_mainLoop {nullptr};
-        guint m_busWatchId {0};
         qint64 m_audioIndex {-1};
         qint64 m_videoIndex {-1};
         qint64 m_subtitlesIndex {-1};
@@ -55,6 +49,12 @@ class MediaSourceGStreamerPrivate
         qint64 m_videoId {-1};
         qint64 m_subtitlesId {-1};
         QList<Stream> m_streamInfo;
+        qint64 m_maxPacketQueueSize {15 * 1024 * 1024};
+        guint m_busWatchId {0};
+        AkElement::ElementState m_curState {AkElement::ElementStateNull};
+        bool m_loop {false};
+        bool m_run {false};
+        bool m_showLog {false};
 
         void waitState(GstState state);
         static gboolean busCallback(GstBus *bus,
@@ -1039,7 +1039,7 @@ void MediaSourceGStreamer::updateStreams()
         }
 
     } else {
-        for (const int &stream: this->d->m_streams) {
+        for (auto &stream: this->d->m_streams) {
             if (stream < audioTracks) {
                 this->d->m_audioIndex = stream;
 

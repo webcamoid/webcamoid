@@ -51,7 +51,7 @@ QVariantList MatrixTransformElement::kernel() const
 {
     QVariantList kernel;
 
-    for (const qreal &e: this->d->m_kernel)
+    for (auto &e: this->d->m_kernel)
         kernel << e;
 
     return kernel;

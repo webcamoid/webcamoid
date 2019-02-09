@@ -50,7 +50,7 @@ void DesktopCaptureGlobals::resetCaptureLib()
 {
     auto subModules = AkElement::listSubModules("DesktopCapture");
 
-    for (const QString &framework: this->m_preferredLibrary)
+    for (auto &framework: this->m_preferredLibrary)
         if (subModules.contains(framework)) {
             this->setCaptureLib(framework);
 

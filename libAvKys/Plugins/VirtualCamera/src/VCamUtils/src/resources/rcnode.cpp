@@ -20,29 +20,29 @@
 #include "rcnode.h"
 #include "../membuffer/imembuffer.h"
 
-AkVCam::RcNode::RcNode()
+AkVCam::RcNode::RcNode():
+    nameOffset(0),
+    flags(0),
+    lastModified(0)
 {
-    this->nameOffset = 0;
-    this->flags = 0;
     this->fd.count = 0;
     this->fd.locale.country = 0;
     this->fd.locale.language = 0;
     this->firstChild = 0;
     this->dataOffset = 0;
-    this->lastModified = 0;
 }
 
-AkVCam::RcNode::RcNode(const RcNode &other)
+AkVCam::RcNode::RcNode(const RcNode &other):
+    nameOffset(other.nameOffset),
+    flags(other.flags),
+    lastModified(other.lastModified),
+    parent(other.parent)
 {
-    this->nameOffset = other.nameOffset;
-    this->flags = other.flags;
     this->fd.count = other.fd.count;
     this->fd.locale.country = other.fd.locale.country;
     this->fd.locale.language = other.fd.locale.language;
     this->firstChild = other.firstChild;
     this->dataOffset = other.dataOffset;
-    this->lastModified = other.lastModified;
-    this->parent = other.parent;
 }
 
 AkVCam::RcNode AkVCam::RcNode::read(const unsigned char *rcTree,

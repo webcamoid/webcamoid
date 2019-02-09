@@ -101,11 +101,12 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
             self.copy(dep, depPath, not dep.endswith('.framework'))
             self.dependencies.append(dep)
 
-    def removeUnneededFiles(self, path):
+    @staticmethod
+    def removeUnneededFiles(path):
         adirs = set()
         afiles = set()
 
-        for root, dirs, files in os.walk(path):
+        for root, _, files in os.walk(path):
             for d in dirs:
                 if d == 'Headers':
                     adirs.add(os.path.join(root, d))
@@ -215,7 +216,8 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
         for thread in threads:
             thread.join()
 
-    def searchPackageFor(self, cellarPath, path):
+    @staticmethod
+    def searchPackageFor(cellarPath, path):
         if not path.startswith(cellarPath):
             return ''
 
@@ -227,7 +229,7 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
                                         stdout=subprocess.PIPE,
                                         stderr=subprocess.PIPE,
                                         cwd=self.rootDir)
-            stdout, stderr = process.communicate()
+            stdout, _ = process.communicate()
 
             if process.returncode != 0:
                 return ''
@@ -236,7 +238,8 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
         except:
             return ''
 
-    def sysInfo(self):
+    @staticmethod
+    def sysInfo():
         process = subprocess.Popen(['sw_vers'],
                                     stdout=subprocess.PIPE,
                                     stderr=subprocess.PIPE)
@@ -302,7 +305,8 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
                 print('    ' + packge)
                 f.write(packge + '\n')
 
-    def hrSize(self, size):
+    @staticmethod
+    def hrSize(size):
         i = int(math.log(size) // math.log(1024))
 
         if i < 1:
@@ -317,7 +321,8 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
         print('   ', os.path.basename(path),
               self.hrSize(os.path.getsize(path)))
 
-    def dirSize(self, path):
+    @staticmethod
+    def dirSize(path):
         size = 0
 
         for root, dirs, files in os.walk(path):

@@ -80,22 +80,16 @@ class AudioDevAlsaPrivate
         QMap<QString, QList<AkAudioCaps::SampleFormat>> m_supportedFormats;
         QMap<QString, QList<int>> m_supportedChannels;
         QMap<QString, QList<int>> m_supportedSampleRates;
-        snd_pcm_t *m_pcmHnd;
-        QFileSystemWatcher *m_fsWatcher;
+        snd_pcm_t *m_pcmHnd {nullptr};
+        QFileSystemWatcher *m_fsWatcher {nullptr};
         QTimer m_timer;
         QMutex m_mutex;
 
-        AudioDevAlsaPrivate(AudioDevAlsa *self):
-            self(self),
-            m_pcmHnd(nullptr),
-            m_fsWatcher(nullptr)
-        {
-        }
-
-        inline void fillDeviceInfo(const QString &device,
-                                   QList<AkAudioCaps::SampleFormat> *supportedFormats,
-                                   QList<int> *supportedChannels,
-                                   QList<int> *supportedSampleRates) const;
+        explicit AudioDevAlsaPrivate(AudioDevAlsa *self);
+        void fillDeviceInfo(const QString &device,
+                            QList<AkAudioCaps::SampleFormat> *supportedFormats,
+                            QList<int> *supportedChannels,
+                            QList<int> *supportedSampleRates) const;
 };
 
 AudioDevAlsa::AudioDevAlsa(QObject *parent):
@@ -230,6 +224,9 @@ init_fail:
 
 QByteArray AudioDevAlsa::read(int samples)
 {
+    if (samples < 1)
+        return {};
+
     QMutexLocker mutexLockeer(&this->d->m_mutex);
 
     auto bufferSize = snd_pcm_frames_to_bytes(this->d->m_pcmHnd, samples);
@@ -267,8 +264,9 @@ bool AudioDevAlsa::write(const AkAudioPacket &packet)
     if (!this->d->m_pcmHnd)
         return false;
 
-    auto data = packet.buffer().constData();
-    int dataSize = packet.buffer().size();
+    auto buffer = packet.buffer();
+    auto data = buffer.constData();
+    int dataSize = buffer.size();
 
     while (dataSize > 0) {
         auto samples = snd_pcm_bytes_to_frames(this->d->m_pcmHnd, dataSize);
@@ -306,6 +304,11 @@ bool AudioDevAlsa::uninit()
     }
 
     return true;
+}
+
+AudioDevAlsaPrivate::AudioDevAlsaPrivate(AudioDevAlsa *self):
+    self(self)
+{
 }
 
 void AudioDevAlsaPrivate::fillDeviceInfo(const QString &device,

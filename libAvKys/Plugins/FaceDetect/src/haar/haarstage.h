@@ -35,14 +35,15 @@ class HaarStageHID
                      const quint32 *tiltedIntegral,
                      qreal invArea,
                      qreal scale);
+        HaarStageHID(const HaarStageHID &other) = delete;
         ~HaarStageHID();
 
-        int m_count;
-        HaarTreeHID **m_trees;
-        qreal m_threshold;
-        HaarStageHID *m_parentStagePtr;
-        HaarStageHID *m_nextStagePtr;
-        HaarStageHID *m_childStagePtr;
+        int m_count {0};
+        HaarTreeHID **m_trees {nullptr};
+        qreal m_threshold {0.0};
+        HaarStageHID *m_parentStagePtr {nullptr};
+        HaarStageHID *m_nextStagePtr {nullptr};
+        HaarStageHID *m_childStagePtr {nullptr};
 
         inline bool pass(size_t offset, qreal varianceNormFactor) const
         {
@@ -55,6 +56,8 @@ class HaarStageHID
         }
 };
 
+class HaarStagePrivate;
+
 class HaarStage: public QObject
 {
     Q_OBJECT
@@ -62,7 +65,7 @@ class HaarStage: public QObject
     public:
         HaarStage(QObject *parent=nullptr);
         HaarStage(const HaarStage &other);
-        ~HaarStage() = default;
+        ~HaarStage();
 
         Q_INVOKABLE HaarTreeVector trees() const;
         Q_INVOKABLE HaarTreeVector &trees();
@@ -80,14 +83,7 @@ class HaarStage: public QObject
         bool operator !=(const HaarStage &other) const;
 
     private:
-        HaarTreeVector m_trees;
-        qreal m_threshold;
-        int m_parentStage;
-        int m_nextStage;
-        int m_childStage;
-        HaarStage *m_parentStagePtr;
-        HaarStage *m_nextStagePtr;
-        HaarStage *m_childStagePtr;
+        HaarStagePrivate *d;
 
     signals:
         void treesChanged(const HaarTreeVector &trees);

@@ -436,14 +436,14 @@ void MultiSinkElement::codecLibUpdated(const QString &codecLib)
     this->d->m_codecType.clear();
     this->d->m_defaultCodecParams.clear();
 
-    for (const QString &format: this->d->m_mediaWriter->supportedFormats()) {
+    for (auto &format: this->d->m_mediaWriter->supportedFormats()) {
         this->d->m_supportedFormats << format;
         this->d->m_fileExtensions[format] =
                 this->d->m_mediaWriter->fileExtensions(format);
         this->d->m_formatDescription[format] =
                 this->d->m_mediaWriter->formatDescription(format);
 
-        for (const QString &codec: this->d->m_mediaWriter->supportedCodecs(format))
+        for (auto &codec: this->d->m_mediaWriter->supportedCodecs(format))
             if (!this->d->m_supportedCodecs.contains(codec)) {
                 this->d->m_supportedCodecs << codec;
                 this->d->m_codecDescription[codec] =

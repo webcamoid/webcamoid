@@ -172,7 +172,7 @@ QImage FireElementPrivate::imageDiff(const QImage &img1,
             int db = b1 - b2;
 
             int alpha = dr * dr + dg * dg + db * db;
-            alpha = int(sqrt(alpha / 3));
+            alpha = int(sqrt(alpha / 3.0));
 
             if (mode == FireElement::FireModeSoft)
                 alpha = alpha < threshold? 0: alpha;

@@ -131,11 +131,12 @@ namespace AkVCam
             QFileSystemWatcher *m_fsWatcher;
             QVector<CaptureBuffer> m_buffers;
             VideoFormat m_curFormat;
-            IoMethod m_ioMethod;
-            int m_fd;
-            int m_nBuffers;
+            IoMethod m_ioMethod {IoMethodUnknown};
+            int m_fd {-1};
+            int m_nBuffers {32};
 
-            IpcBridgePrivate(IpcBridge *self);
+            explicit IpcBridgePrivate(IpcBridge *self);
+            IpcBridgePrivate(const IpcBridgePrivate &other) = delete;
             ~IpcBridgePrivate();
 
             static inline QString *driverPath();
@@ -205,7 +206,6 @@ namespace AkVCam
             bool changeDescriptionV4L2Loopback(const std::string &deviceId,
                                                const std::wstring &description);
             QString destroyAllDevicesV4L2Loopback();
-
     };
 }
 
@@ -571,7 +571,9 @@ AkVCam::Scaling AkVCam::IpcBridge::scalingMode(const std::string &deviceId)
                         auto scaling = values.first().trimmed();
                         auto scalingToString = this->d->scalingToString();
 
-                        if (scalingToString->values().contains(scaling))
+                        if (std::find(scalingToString->cbegin(),
+                                      scalingToString->cend(),
+                                      scaling) != scalingToString->cend())
                             return scalingToString->key(scaling);
                     }
                 }
@@ -627,7 +629,9 @@ AkVCam::AspectRatio AkVCam::IpcBridge::aspectRatioMode(const std::string &device
                         auto aspectRatio = values.first().trimmed();
                         auto aspectRatioToString = this->d->aspectRatioToString();
 
-                        if (aspectRatioToString->values().contains(aspectRatio))
+                        if (std::find(aspectRatioToString->cbegin(),
+                                      aspectRatioToString->cend(),
+                                      aspectRatio) != aspectRatioToString->cend())
                             return aspectRatioToString->key(aspectRatio);
                     }
                 }
@@ -1299,9 +1303,6 @@ AkVCam::IpcBridgePrivate::IpcBridgePrivate(IpcBridge *self):
     self(self)
 {
     this->m_fsWatcher = new QFileSystemWatcher({"/dev"});
-    this->m_ioMethod = IoMethodUnknown;
-    this->m_fd = -1;
-    this->m_nBuffers = 32;
 
     QObject::connect(this->m_fsWatcher,
                      &QFileSystemWatcher::directoryChanged,
@@ -2322,7 +2323,7 @@ QList<AkVCam::DeviceInfo> AkVCam::IpcBridgePrivate::devicesInfo(const QString &d
                                              | QDir::CaseSensitive,
                                              QDir::Name);
 
-    for (const QString &devicePath: devicesFiles) {
+    for (auto &devicePath: devicesFiles) {
         auto fileName = devicesDir.absoluteFilePath(devicePath);
         int fd = open(fileName.toStdString().c_str(), O_RDWR | O_NONBLOCK, 0);
 
@@ -2343,10 +2344,10 @@ QList<AkVCam::DeviceInfo> AkVCam::IpcBridgePrivate::devicesInfo(const QString &d
                     reinterpret_cast<const char *>(capability.bus_info),
                     {},
                     {},
-                    capability.capabilities
-                    & (V4L2_CAP_VIDEO_CAPTURE | V4L2_CAP_VIDEO_CAPTURE_MPLANE)?
+                    (capability.capabilities
+                     & (V4L2_CAP_VIDEO_CAPTURE | V4L2_CAP_VIDEO_CAPTURE_MPLANE))?
                         DeviceTypeCapture: DeviceTypeOutput,
-                    capability.capabilities & V4L2_CAP_READWRITE?
+                    (capability.capabilities & V4L2_CAP_READWRITE)?
                         AKVCAM_RW_MODE_READWRITE: 0
                 };
         }

@@ -186,8 +186,8 @@ QVariantMap AkCaps::toMap() const
     QVariantMap caps;
     caps["mimeType"] = this->d->m_mimeType;
 
-    for (const QByteArray &property: this->dynamicPropertyNames()) {
-        QString key = QString::fromUtf8(property.constData());
+    for (auto &property: this->dynamicPropertyNames()) {
+        auto key = QString::fromUtf8(property.constData());
         caps[key] = this->property(property.toStdString().c_str());
     }
 
@@ -202,12 +202,12 @@ QString AkCaps::toString() const
     QString caps = this->d->m_mimeType;
     QStringList properties;
 
-    for (const QByteArray &property: this->dynamicPropertyNames())
+    for (auto &property: this->dynamicPropertyNames())
         properties << QString::fromUtf8(property.constData());
 
     properties.sort();
 
-    for (const QString &property: properties)
+    for (auto &property: properties)
         caps.append(QString(",%1=%2").arg(property,
                                           this->property(property.toStdString().c_str()).toString()));
 
@@ -219,7 +219,7 @@ AkCaps &AkCaps::update(const AkCaps &other)
     if (this->d->m_mimeType != other.d->m_mimeType)
         return *this;
 
-    for (const QByteArray &property: other.dynamicPropertyNames())
+    for (auto &property: other.dynamicPropertyNames())
         this->setProperty(property.constData(),
                           other.property(property.constData()));
 
@@ -231,7 +231,7 @@ bool AkCaps::isCompatible(const AkCaps &other) const
     if (this->d->m_mimeType != other.d->m_mimeType)
         return false;
 
-    for (const QByteArray &property: other.dynamicPropertyNames())
+    for (auto &property: other.dynamicPropertyNames())
         if (!this->dynamicPropertyNames().contains(property) ||
             this->property(property.constData()) != other.property(property.constData()))
             return false;

@@ -57,7 +57,7 @@ QVariantList ConvolveElement::kernel() const
 {
     QVariantList kernel;
 
-    for (const int &e: this->d->m_kernel)
+    for (auto &e: this->d->m_kernel)
         kernel << e;
 
     return kernel;

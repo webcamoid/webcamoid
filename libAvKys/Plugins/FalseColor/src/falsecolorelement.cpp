@@ -50,7 +50,7 @@ QVariantList FalseColorElement::table() const
 {
     QVariantList table;
 
-    for (const QRgb &color: this->d->m_table)
+    for (auto &color: this->d->m_table)
         table << color;
 
     return table;

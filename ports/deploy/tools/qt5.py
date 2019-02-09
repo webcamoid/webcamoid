@@ -44,7 +44,8 @@ class DeployToolsQt(tools.utils.DeployToolsUtils):
         self.binarySolver = None
         self.installerConfig = ''
 
-    def detectMakeFiles(self, makePath):
+    @staticmethod
+    def detectMakeFiles(makePath):
         makeFiles = []
 
         try:
@@ -94,7 +95,7 @@ class DeployToolsQt(tools.utils.DeployToolsUtils):
             process = subprocess.Popen(args,
                                         stdout=subprocess.PIPE,
                                         stderr=subprocess.PIPE)
-            stdout, stderr = process.communicate()
+            stdout, _ = process.communicate()
 
             return stdout.strip().decode(sys.getdefaultencoding())
         except:
@@ -102,7 +103,8 @@ class DeployToolsQt(tools.utils.DeployToolsUtils):
 
         return ''
 
-    def detectVersion(self, proFile):
+    @staticmethod
+    def detectVersion(proFile):
         if 'DAILY_BUILD' in os.environ:
             return 'daily'
 
@@ -144,7 +146,7 @@ class DeployToolsQt(tools.utils.DeployToolsUtils):
         if self.targetSystem == 'windows' or self.targetSystem == 'posix_windows':
             binCreator += '.exe'
 
-        for root, dirs, files in os.walk(homeQt):
+        for root, _, files in os.walk(homeQt):
             for f in files:
                 if f == binCreator:
                     self.qtIFW = os.path.join(root, f)
@@ -181,7 +183,7 @@ class DeployToolsQt(tools.utils.DeployToolsUtils):
                                     stdin=subprocess.PIPE,
                                     stdout=subprocess.PIPE,
                                     stderr=subprocess.PIPE)
-            stdout, stderr = process.communicate(input=b'\n')
+            stdout, _ = process.communicate(input=b'\n')
         else:
             process = subprocess.Popen([installerBase,
                                         '--version'],
@@ -195,7 +197,8 @@ class DeployToolsQt(tools.utils.DeployToolsUtils):
 
                 return
 
-    def listQmlFiles(self, path):
+    @staticmethod
+    def listQmlFiles(path):
         qmlFiles = set()
 
         if os.path.isfile(path):
@@ -204,14 +207,15 @@ class DeployToolsQt(tools.utils.DeployToolsUtils):
             if baseName == 'qmldir' or path.endswith('.qml'):
                 qmlFiles.add(path)
         else:
-            for root, dirs, files in os.walk(path):
+            for root, _, files in os.walk(path):
                 for f in files:
                     if f == 'qmldir' or f.endswith('.qml'):
                         qmlFiles.add(os.path.join(root, f))
 
         return list(qmlFiles)
 
-    def modulePath(self, importLine):
+    @staticmethod
+    def modulePath(importLine):
         imp = importLine.strip().split()
         path = imp[1].replace('.', '/')
         majorVersion = imp[2].split('.')[0]
@@ -339,7 +343,8 @@ class DeployToolsQt(tools.utils.DeployToolsUtils):
             for path in paths:
                 qtconf.write('{} = {}\n'.format(path, paths[path]))
 
-    def readChangeLog(self, changeLog, appName, version):
+    @staticmethod
+    def readChangeLog(changeLog, appName, version):
         if os.path.exists(changeLog):
             with open(changeLog) as f:
                 for line in f:

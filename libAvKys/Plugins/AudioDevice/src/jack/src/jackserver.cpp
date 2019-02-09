@@ -93,7 +93,7 @@ QStringList JackServer::driversByName() const
 {
     QStringList drivers;
 
-    for (auto driver: this->drivers())
+    for (auto &driver: this->drivers())
         drivers << this->name(driver);
 
     return drivers;
@@ -101,7 +101,7 @@ QStringList JackServer::driversByName() const
 
 jackctl_driver_t *JackServer::driverByName(const QString &name) const
 {
-    for (auto driver: this->drivers())
+    for (auto &driver: this->drivers())
         if (this->name(driver) == name)
             return  driver;
 
@@ -144,7 +144,7 @@ QStringList JackServer::parametersByName() const
 {
     QStringList parameters;
 
-    for (auto parameter: this->parameters())
+    for (auto &parameter: this->parameters())
         parameters << this->name(parameter);
 
     return parameters;
@@ -154,7 +154,7 @@ QStringList JackServer::parametersByName(jackctl_driver_t *driver) const
 {
     QStringList parameters;
 
-    for (auto parameter: this->parameters(driver))
+    for (auto &parameter: this->parameters(driver))
         parameters << this->name(parameter);
 
     return parameters;
@@ -162,7 +162,7 @@ QStringList JackServer::parametersByName(jackctl_driver_t *driver) const
 
 jackctl_parameter_t *JackServer::parameterByName(const QString &name) const
 {
-    for (auto parameter: this->parameters())
+    for (auto &parameter: this->parameters())
         if (this->name(parameter) == name)
             return  parameter;
 
@@ -172,7 +172,7 @@ jackctl_parameter_t *JackServer::parameterByName(const QString &name) const
 jackctl_parameter_t *JackServer::parameterByName(jackctl_driver_t *driver,
                                                  const QString &name) const
 {
-    for (auto parameter: this->parameters(driver))
+    for (auto &parameter: this->parameters(driver))
         if (this->name(parameter) == name)
             return  parameter;
 

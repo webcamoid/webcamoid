@@ -116,7 +116,7 @@ OpticalMap HypnoticElementPrivate::createOpticalMap(const QSize &size)
     int sci = 640 / size.width();
 
     for (int y = 0; y < size.height(); y++) {
-        qreal yy = qreal(y - size.height() / 2) / size.width();
+        qreal yy = (y - size.height() / 2.0) / size.width();
 
         quint8 *spiral1Line =
                 opticalMap[HypnoticElement::OpticModeSpiral1].scanLine(y);

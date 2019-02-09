@@ -85,7 +85,7 @@ class DeployBase(tools.utils.DeployToolsUtils):
     def printPackageDataInfo(self):
         packagedFiles = []
 
-        for root, dirs, files in os.walk(self.rootInstallDir):
+        for root, _, files in os.walk(self.rootInstallDir):
             for f in files:
                 packagedFiles.append(os.path.join(root, f))
 

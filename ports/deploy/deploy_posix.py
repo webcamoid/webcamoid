@@ -119,7 +119,7 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
             process = subprocess.Popen([pacman, '-Qo', path],
                                        stdout=subprocess.PIPE,
                                        stderr=subprocess.PIPE)
-            stdout, stderr = process.communicate()
+            stdout, _ = process.communicate()
 
             if process.returncode != 0:
                 return ''
@@ -205,7 +205,8 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
         except:
             return ''
 
-    def sysInfo(self):
+    @staticmethod
+    def sysInfo():
         info = ''
 
         for f in os.listdir('/etc'):
@@ -289,7 +290,8 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
 
         os.chmod(path, 0o744)
 
-    def hrSize(self, size):
+    @staticmethod
+    def hrSize(size):
         i = int(math.log(size) // math.log(1024))
 
         if i < 1:

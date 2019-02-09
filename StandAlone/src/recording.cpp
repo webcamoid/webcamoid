@@ -233,7 +233,7 @@ bool Recording::embedControls(const QString &where,
     if (!name.isEmpty())
         ctrlInterface->setObjectName(name);
 
-    for (auto obj: this->d->m_engine->rootObjects()) {
+    for (auto &obj: this->d->m_engine->rootObjects()) {
         // First, find where to embed the UI.
         auto item = obj->findChild<QQuickItem *>(where);
 
@@ -257,7 +257,7 @@ void Recording::removeInterface(const QString &where)
     if (!this->d->m_engine)
         return;
 
-    for (const QObject *obj: this->d->m_engine->rootObjects()) {
+    for (auto &obj: this->d->m_engine->rootObjects()) {
         auto item = obj->findChild<QQuickItem *>(where);
 
         if (!item)

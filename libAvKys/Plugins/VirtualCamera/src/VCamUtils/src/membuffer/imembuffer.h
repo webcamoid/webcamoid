@@ -79,8 +79,10 @@ namespace AkVCam
             template<typename T>
             inline T read()
             {
-                T value;
-                memcpy(&value, this->data(), sizeof(T));
+                T value = 0;
+
+                if (!memcpy(&value, this->data(), sizeof(T)))
+                    return T(0);
 
                 if (this->isBigEndian())
                     std::reverse(reinterpret_cast<char *>(&value),

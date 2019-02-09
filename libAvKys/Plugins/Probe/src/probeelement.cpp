@@ -62,7 +62,7 @@ AkPacket ProbeElement::iStream(const AkPacket &packet)
     if (this->d->m_log) {
         qDebug().nospace() << "\"" << this->objectName().toStdString().c_str() << "\"";
 
-        for (const QString &line: packet.toString().split('\n'))
+        for (auto &line: packet.toString().split('\n'))
             qDebug().nospace() << "\t"
                                << line.toStdString().c_str();
     }

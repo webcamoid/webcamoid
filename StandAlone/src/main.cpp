@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
 
     QApplication app(argc, argv);
 
-    QPalette palette = app.palette();
+    auto palette = QApplication::palette();
     palette.setColor(QPalette::Window, QColor(31, 31, 31));
     palette.setColor(QPalette::WindowText, QColor(255, 255, 255));
     palette.setColor(QPalette::Base, QColor(38, 38, 38));
@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
     palette.setColor(QPalette::HighlightedText, QColor(255, 255, 255));
     palette.setColor(QPalette::Button, QColor(71, 47, 142));
     palette.setColor(QPalette::ButtonText, QColor(255, 255, 255));
-    app.setPalette(palette);
+    QApplication::setPalette(palette);
 
     QCoreApplication::setApplicationName(COMMONS_APPNAME);
     QCoreApplication::setApplicationVersion(COMMONS_VERSION);

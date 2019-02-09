@@ -41,10 +41,9 @@ namespace AkVCam
             std::thread m_thread;
             std::mutex m_mutex;
             std::condition_variable_any m_timeout;
-            std::atomic<bool> m_run;
+            std::atomic<bool> m_run {false};
 
-            AdviseCookiePrivate(IReferenceClock *clock);
-            ~AdviseCookiePrivate();
+            explicit AdviseCookiePrivate(IReferenceClock *clock);
             void adviseTime(REFERENCE_TIME baseTime,
                             REFERENCE_TIME streamTime,
                             HEVENT hEvent);
@@ -65,9 +64,9 @@ namespace AkVCam
         public:
             ReferenceClock *self;
             std::vector<DWORD_PTR> m_cookies;
-            REFERENCE_TIME m_lastTime;
+            REFERENCE_TIME m_lastTime {0};
 
-            ReferenceClockPrivate(ReferenceClock *self);
+            explicit ReferenceClockPrivate(ReferenceClock *self);
             void cleanup();
     };
 }
@@ -179,12 +178,7 @@ HRESULT AkVCam::ReferenceClock::Unadvise(DWORD_PTR dwAdviseCookie)
 }
 
 AkVCam::AdviseCookiePrivate::AdviseCookiePrivate(IReferenceClock *clock):
-    m_clock(clock),
-    m_run(false)
-{
-}
-
-AkVCam::AdviseCookiePrivate::~AdviseCookiePrivate()
+    m_clock(clock)
 {
 }
 
@@ -292,10 +286,8 @@ void AkVCam::AdviseCookiePrivate::unadvise()
 }
 
 AkVCam::ReferenceClockPrivate::ReferenceClockPrivate(ReferenceClock *self):
-    self(self),
-    m_lastTime(0)
+    self(self)
 {
-
 }
 
 void AkVCam::ReferenceClockPrivate::cleanup()

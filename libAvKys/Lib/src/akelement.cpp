@@ -227,8 +227,8 @@ bool AkElement::unlink(const QObject *srcElement, const QObject *dstElement)
     if (!srcElement || !dstElement)
         return false;
 
-    for (const QMetaMethod &signal: AkElementPrivate::methodsByName(srcElement, "oStream"))
-        for (const QMetaMethod &slot: AkElementPrivate::methodsByName(dstElement, "iStream"))
+    for (auto &signal: AkElementPrivate::methodsByName(srcElement, "oStream"))
+        for (auto &slot: AkElementPrivate::methodsByName(dstElement, "iStream"))
             if (AkElementPrivate::methodCompat(signal, slot) &&
                 signal.methodType() == QMetaMethod::Signal &&
                 slot.methodType() == QMetaMethod::Slot)
@@ -708,15 +708,15 @@ bool AkElement::setState(AkElement::ElementState state)
         switch (state) {
         case ElementStatePaused:
             emit this->stateChanged(state);
-            emit this->stateChange(preState, state);
+            this->stateChange(preState, state);
 
             break;
         case ElementStatePlaying:
             emit this->stateChanged(ElementStatePaused);
-            emit this->stateChange(preState, ElementStatePaused);
+            this->stateChange(preState, ElementStatePaused);
 
             emit this->stateChanged(state);
-            emit this->stateChange(ElementStatePaused, state);
+            this->stateChange(ElementStatePaused, state);
 
             break;
         case ElementStateNull:
@@ -730,7 +730,7 @@ bool AkElement::setState(AkElement::ElementState state)
         case ElementStateNull:
         case ElementStatePlaying:
             emit this->stateChanged(state);
-            emit this->stateChange(preState, state);
+            this->stateChange(preState, state);
 
             break;
         case ElementStatePaused:
@@ -743,15 +743,15 @@ bool AkElement::setState(AkElement::ElementState state)
         switch (state) {
         case ElementStateNull:
             emit this->stateChanged(ElementStatePaused);
-            emit this->stateChange(preState, ElementStatePaused);
+            this->stateChange(preState, ElementStatePaused);
 
             emit this->stateChanged(state);
-            emit this->stateChange(ElementStatePaused, state);
+            this->stateChange(ElementStatePaused, state);
 
             break;
         case ElementStatePaused:
             emit this->stateChanged(state);
-            emit this->stateChange(preState, state);
+            this->stateChange(preState, state);
 
             break;
         case ElementStatePlaying:

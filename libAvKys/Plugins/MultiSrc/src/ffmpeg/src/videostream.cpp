@@ -49,20 +49,14 @@ class VideoStreamPrivate
 {
     public:
         VideoStream *self;
-        SwsContext *m_scaleContext;
-        qreal m_lastPts;
+        SwsContext *m_scaleContext {nullptr};
+        qreal m_lastPts {0.0};
 
-        VideoStreamPrivate(VideoStream *self):
-            self(self),
-            m_scaleContext(nullptr),
-            m_lastPts(0.0)
-        {
-        }
-
-        inline AkFrac fps() const;
-        inline AkPacket convert(AVFrame *iFrame);
-        inline int64_t bestEffortTimestamp(const AVFrame *frame) const;
-        inline AVFrame *copyFrame(AVFrame *frame) const;
+        explicit VideoStreamPrivate(VideoStream *self);
+        AkFrac fps() const;
+        AkPacket convert(AVFrame *iFrame);
+        int64_t bestEffortTimestamp(const AVFrame *frame) const;
+        AVFrame *copyFrame(AVFrame *frame) const;
 };
 
 VideoStream::VideoStream(const AVFormatContext *formatContext,
@@ -179,6 +173,11 @@ void VideoStream::processData(AVFrame *frame)
 
         break;
     }
+}
+
+VideoStreamPrivate::VideoStreamPrivate(VideoStream *self):
+    self(self)
+{
 }
 
 AkFrac VideoStreamPrivate::fps() const

@@ -43,7 +43,9 @@ class AkPrivate
         QDir m_applicationDir;
 
         AkPrivate();
+#ifdef Q_OS_WIN32
         virtual ~AkPrivate();
+#endif
         QString convertToAbsolute(const QString &path) const;
         QStringList qmlImportPaths() const;
 };
@@ -161,13 +163,13 @@ AkPrivate::AkPrivate()
 #endif
 }
 
+#ifdef Q_OS_WIN32
 AkPrivate::~AkPrivate()
 {
-#ifdef Q_OS_WIN32
     // Close COM library.
     CoUninitialize();
-#endif
 }
+#endif
 
 QString AkPrivate::convertToAbsolute(const QString &path) const
 {

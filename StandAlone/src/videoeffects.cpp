@@ -97,7 +97,7 @@ QStringList VideoEffects::availableEffects() const
     auto effects = this->d->m_availableEffects;
 
     if (this->d->m_advancedMode)
-        for (const AkElementPtr &effect: this->d->m_effects) {
+        for (auto &effect: this->d->m_effects) {
             int i = effects.indexOf(effect->pluginId());
 
             if (i < 0 || effect->property("preview").toBool())
@@ -124,8 +124,10 @@ QString VideoEffects::effectDescription(const QString &effectId) const
     if (effectId.isEmpty())
         return QString();
 
-    return AkElement::pluginInfo(effectId)["MetaData"].toMap()
-                                          ["description"].toString();
+    auto info = AkElement::pluginInfo(effectId);
+    auto metaData = info["MetaData"].toMap();
+
+    return metaData["description"].toString();
 }
 
 AkElement::ElementState VideoEffects::state() const
@@ -156,7 +158,7 @@ bool VideoEffects::embedControls(const QString &where,
     if (!name.isEmpty())
         interface->setObjectName(name);
 
-    for (auto obj: this->d->m_engine->rootObjects()) {
+    for (auto &obj: this->d->m_engine->rootObjects()) {
         // First, find where to embed the UI.
         auto item = obj->findChild<QQuickItem *>(where);
 
@@ -180,7 +182,7 @@ void VideoEffects::removeInterface(const QString &where) const
     if (!this->d->m_engine)
         return;
 
-    for (const QObject *obj: this->d->m_engine->rootObjects()) {
+    for (auto &obj: this->d->m_engine->rootObjects()) {
         auto item = obj->findChild<QQuickItem *>(where);
 
         if (!item)
@@ -188,7 +190,7 @@ void VideoEffects::removeInterface(const QString &where) const
 
         QList<decltype(item)> childItems = item->childItems();
 
-        for (auto child: childItems) {
+        for (auto &child: childItems) {
             child->setParentItem(nullptr);
             child->setParent(nullptr);
 
@@ -507,7 +509,7 @@ void VideoEffects::updateEffects()
         emit this->availableEffectsChanged(availableEffects);
         QStringList effects;
 
-        for (const QString &effectId: this->d->m_effectsId)
+        for (auto &effectId: this->d->m_effectsId)
             if (availableEffects.contains(effectId))
                 effects << effectId;
 
@@ -585,10 +587,10 @@ void VideoEffects::loadProperties()
 
     this->setEffects(effects, false);
 
-    for (AkElementPtr &effect: this->d->m_effects) {
+    for (auto &effect: this->d->m_effects) {
         config.beginGroup("VideoEffects_" + effect->pluginId());
 
-        for (const QString &key: config.allKeys())
+        for (auto &key: config.allKeys())
             effect->setProperty(key.toStdString().c_str(), config.value(key));
 
         config.endGroup();
@@ -606,7 +608,7 @@ void VideoEffects::saveEffects(const QStringList &effects)
 
     int i = 0;
 
-    for (const AkElementPtr &effect: this->d->m_effects)
+    for (auto &effect: this->d->m_effects)
         if (!effect->property("preview").toBool()) {
             config.setArrayIndex(i);
             config.setValue("effect", effect->pluginId());
@@ -616,7 +618,7 @@ void VideoEffects::saveEffects(const QStringList &effects)
     config.endArray();
     config.endGroup();
 
-    for (const AkElementPtr &effect: this->d->m_effects) {
+    for (auto &effect: this->d->m_effects) {
         config.beginGroup("VideoEffects_" + effect->pluginId());
 
         for (int property = 0;
@@ -654,7 +656,7 @@ void VideoEffects::saveProperties()
 
     int i = 0;
 
-    for (const AkElementPtr &effect: this->d->m_effects)
+    for (auto &effect: this->d->m_effects)
         if (!effect->property("preview").toBool()) {
             config.setArrayIndex(i);
             config.setValue("effect", effect->pluginId());
@@ -664,7 +666,7 @@ void VideoEffects::saveProperties()
     config.endArray();
     config.endGroup();
 
-    for (const AkElementPtr &effect: this->d->m_effects) {
+    for (auto &effect: this->d->m_effects) {
         config.beginGroup("VideoEffects_" + effect->pluginId());
 
         for (int property = 0;

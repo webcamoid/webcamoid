@@ -50,7 +50,7 @@ void MultiSrcGlobals::resetCodecLib()
 {
     auto subModules = AkElement::listSubModules("MultiSrc");
 
-    for (const QString &framework: this->m_preferredFramework)
+    for (auto &framework: this->m_preferredFramework)
         if (subModules.contains(framework)) {
             this->setCodecLib(framework);
 

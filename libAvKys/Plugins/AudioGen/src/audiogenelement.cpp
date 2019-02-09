@@ -375,7 +375,7 @@ void AudioGenElementPrivate::readFramesLoop()
                     buff[i] = qRound(ampMax * qSin(2 * M_PI * this->m_frequency * t));
             } else if (this->m_waveType == AudioGenElement::WaveTypeSquare) {
                 for  (int i = 0; i < nSamples; i++, time += tdiff)
-                    buff[i] = qRound(2 * this->m_frequency * t) & 0x1?
+                    buff[i] = (qRound(2 * this->m_frequency * t) & 0x1)?
                                   ampMin: ampMax;
             } else {
                 qint32 mod = qRound(oAudioCaps.rate() / this->m_frequency);
@@ -394,7 +394,7 @@ void AudioGenElementPrivate::readFramesLoop()
                     for  (int i = 0; i < nSamples; i++, time += tdiff) {
                         qint32 nsample = qRound(t / tdiff);
 
-                        buff[i] = qRound(2 * this->m_frequency * t) & 0x1?
+                        buff[i] = (qRound(2 * this->m_frequency * t) & 0x1)?
                                       qRound(-k * (nsample % mod) + ampMax):
                                       qRound( k * (nsample % mod) + ampMin);
                     }

@@ -7,28 +7,28 @@ Check your code using GDB, Valgrind and similar tools to remove all possible mem
 
 # Pull request
 
-### Type of change
+## Type of change
 
 Is your pull request a bug fix, new feature, code refactor, breaking change, etc.?  
 If your change is too big consider [discussing it](https://github.com/webcamoid/webcamoid/issues) before pulling.
 
-### Summary
+## Summary
 
 Describe your pull request the best as you can.
 
-### Related Issue
+## Related Issue
 
 Is this pull request related to some [issue](https://github.com/webcamoid/webcamoid/issues)? Cite the issue as #NNN, where NNN is the number of issue.
 
-### More info
+## More info
 
 Provide screenshots, logs, etc. if required.
 
-### Added dependencies
+## Added dependencies
 
 Does your pull request add more dependencies to the project? This may require some discussion. Minimal dependencies is a requirement.
 
-### Target Environment
+## Target Environment
 
 Is this pull request specific to a target operating system?
 

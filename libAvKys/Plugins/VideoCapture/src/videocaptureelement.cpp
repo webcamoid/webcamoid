@@ -307,9 +307,9 @@ void VideoCaptureElementPrivate::cameraLoop()
     CoInitializeEx(nullptr, COINIT_MULTITHREADED);
 #endif
 
-    bool initConvert = true;
-
     if (this->m_capture->init()) {
+        bool initConvert = true;
+
         while (this->m_runCameraLoop) {
             if (this->m_pause) {
                 QThread::msleep(PAUSE_TIMEOUT);

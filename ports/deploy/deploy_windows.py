@@ -135,7 +135,7 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
     def removeDebugs(self):
         dbgFiles = set()
 
-        for root, dirs, files in os.walk(self.libQtInstallDir):
+        for root, _, files in os.walk(self.libQtInstallDir):
             for f in files:
                 if f.endswith('.dll'):
                     fname, ext = os.path.splitext(f)
@@ -164,10 +164,11 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
             launcher.write('\n')
             launcher.write('start /b "" "%~dp0bin\\{}" -q "%~dp0lib\\qt\\qml" -p "%~dp0lib\\avkys" -c "%~dp0share\\config"\n'.format(self.programName))
 
-    def removeUnneededFiles(self, path):
+    @staticmethod
+    def removeUnneededFiles(path):
         afiles = set()
 
-        for root, dirs, files in os.walk(path):
+        for root, _, files in os.walk(path):
             for f in files:
                 if f.endswith('.a') \
                     or f.endswith('.static.prl') \
@@ -187,7 +188,7 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
             process = subprocess.Popen([pacman, '-Qo', path],
                                        stdout=subprocess.PIPE,
                                        stderr=subprocess.PIPE)
-            stdout, stderr = process.communicate()
+            stdout, _ = process.communicate()
 
             if process.returncode != 0:
                 prefix = '/c/msys32' if self.targetArch == '32bit' else '/c/msys64'
@@ -195,7 +196,7 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
                 process = subprocess.Popen([pacman, '-Qo', path],
                                         stdout=subprocess.PIPE,
                                         stderr=subprocess.PIPE)
-                stdout, stderr = process.communicate()
+                stdout, _ = process.communicate()
 
                 if process.returncode != 0:
                     return ''
@@ -217,7 +218,7 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
                                         stdout=subprocess.PIPE,
                                         stderr=subprocess.PIPE,
                                         cwd=self.rootDir)
-            stdout, stderr = process.communicate()
+            stdout, _ = process.communicate()
 
             if process.returncode != 0:
                 return ''
@@ -226,7 +227,8 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
         except:
             return ''
 
-    def sysInfo(self):
+    @staticmethod
+    def sysInfo():
         try:
             process = subprocess.Popen(['cmd', '/c', 'ver'],
                                         stdout=subprocess.PIPE,
@@ -291,7 +293,8 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
                 print('    ' + packge)
                 f.write(packge + '\n')
 
-    def hrSize(self, size):
+    @staticmethod
+    def hrSize(size):
         i = int(math.log(size) // math.log(1024))
 
         if i < 1:

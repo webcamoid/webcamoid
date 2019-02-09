@@ -120,11 +120,7 @@ class CaptureV4L2Private
         int m_nBuffers {32};
         int m_fd {-1};
 
-        CaptureV4L2Private(CaptureV4L2 *self):
-            self(self)
-        {
-        }
-
+        explicit CaptureV4L2Private(CaptureV4L2 *self);
         QVariantList capsFps(int fd,
                              const v4l2_fmtdesc &format,
                              __u32 width,
@@ -299,7 +295,7 @@ bool CaptureV4L2::resetImageControls()
 {
     QVariantMap controls;
 
-    for (const QVariant &control: this->imageControls()) {
+    for (auto &control: this->imageControls()) {
         QVariantList params = control.toList();
 
         controls[params[0].toString()] = params[5].toInt();
@@ -348,9 +344,8 @@ bool CaptureV4L2::resetCameraControls()
 {
     QVariantMap controls;
 
-    for (const QVariant &control: this->cameraControls()) {
-        QVariantList params = control.toList();
-
+    for (auto &control: this->cameraControls()) {
+        auto params = control.toList();
         controls[params[0].toString()] = params[5].toInt();
     }
 
@@ -434,6 +429,11 @@ AkPacket CaptureV4L2::readFrame()
     }
 
     return AkPacket();
+}
+
+CaptureV4L2Private::CaptureV4L2Private(CaptureV4L2 *self):
+    self(self)
+{
 }
 
 QVariantList CaptureV4L2Private::capsFps(int fd,
@@ -640,10 +640,10 @@ bool CaptureV4L2Private::setControls(int fd,
     QVector<v4l2_ext_control> mpegCtrls;
     QVector<v4l2_ext_control> userCtrls;
 
-    for (const QString &control: controls.keys()) {
+    for (auto it = controls.cbegin(); it != controls.cend(); it++) {
         v4l2_ext_control ctrl {};
-        ctrl.id = ctrl2id[control];
-        ctrl.value = controls[control].toInt();
+        ctrl.id = ctrl2id[it.key()];
+        ctrl.value = it.value().toInt();
 
         if (V4L2_CTRL_ID2CLASS(ctrl.id) == V4L2_CTRL_CLASS_MPEG)
             mpegCtrls << ctrl;
@@ -651,7 +651,7 @@ bool CaptureV4L2Private::setControls(int fd,
             userCtrls << ctrl;
     }
 
-    for (const v4l2_ext_control &user_ctrl: userCtrls) {
+    for (auto &user_ctrl: userCtrls) {
         v4l2_control ctrl {};
         ctrl.id = user_ctrl.id;
         ctrl.value = user_ctrl.value;
@@ -1019,10 +1019,10 @@ QVariantMap CaptureV4L2Private::mapDiff(const QVariantMap &map1,
 {
     QVariantMap map;
 
-    for (auto &control: map2.keys())
-        if (!map1.contains(control)
-            || map1[control] != map2[control]) {
-            map[control] = map2[control];
+    for (auto it = map2.cbegin(); it != map2.cend(); it++)
+        if (!map1.contains(it.key())
+            || map1[it.key()] != it.value()) {
+            map[it.key()] = it.value();
         }
 
     return map;

@@ -423,7 +423,7 @@ void CharifyElement::updateCharTable()
     for (int i = 0; i < 256; i++)
         colorTable[i] = qRgb(i, i, i);
 
-    for (const QChar &chr: this->d->m_charTable) {
+    for (auto &chr: this->d->m_charTable) {
         auto image = this->d->drawChar(chr,
                                        this->d->m_font,
                                        fontSize,

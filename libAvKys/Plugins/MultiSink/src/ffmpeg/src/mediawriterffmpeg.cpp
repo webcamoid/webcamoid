@@ -163,7 +163,7 @@ QVariantList MediaWriterFFmpeg::streams() const
 {
     QVariantList streams;
 
-    for (const QVariantMap &stream: this->d->m_streamConfigs)
+    for (auto &stream: this->d->m_streamConfigs)
         streams << stream;
 
     return streams;
@@ -689,7 +689,7 @@ QVariantList MediaWriterFFmpegPrivate::parseOptions(const AVClass *avClass) cons
 
     QVariantList options;
 
-    for (auto option: avOptions) {
+    for (auto &option: avOptions) {
         auto unitMap = option.last().toList();
 
         if (!unitMap.isEmpty()) {
@@ -793,7 +793,7 @@ AkVideoCaps MediaWriterFFmpeg::nearestDVCaps(const AkVideoCaps &caps) const
     AkVideoCaps nearestCaps;
     qreal q = std::numeric_limits<qreal>::max();
 
-    for (const AkVideoCaps &sCaps: mediaWriterFFmpegGlobal->m_dvSupportedCaps) {
+    for (auto &sCaps: mediaWriterFFmpegGlobal->m_dvSupportedCaps) {
         qreal dw = sCaps.width() - caps.width();
         qreal dh = sCaps.height() - caps.height();
         qreal df = sCaps.fps().value() - caps.fps().value();
@@ -814,7 +814,7 @@ AkVideoCaps MediaWriterFFmpeg::nearestDNxHDCaps(const AkVideoCaps &caps) const
     AkVideoCaps nearestCaps;
     qreal q = std::numeric_limits<qreal>::max();
 
-    for (const AkVideoCaps &sCaps: mediaWriterFFmpegGlobal->m_dnXhdSupportedCaps) {
+    for (auto &sCaps: mediaWriterFFmpegGlobal->m_dnXhdSupportedCaps) {
         qreal dw = sCaps.width() - caps.width();
         qreal dh = sCaps.height() - caps.height();
         AkFrac fps = sCaps.fps().isValid()? sCaps.fps(): caps.fps();
@@ -838,7 +838,7 @@ AkVideoCaps MediaWriterFFmpeg::nearestH261Caps(const AkVideoCaps &caps) const
     QSize nearestSize;
     qreal q = std::numeric_limits<qreal>::max();
 
-    for (const QSize &size: mediaWriterFFmpegGlobal->m_h261SupportedSize) {
+    for (auto &size: mediaWriterFFmpegGlobal->m_h261SupportedSize) {
         qreal dw = size.width() - caps.width();
         qreal dh = size.height() - caps.height();
         qreal k = dw * dw + dh * dh;
@@ -864,7 +864,7 @@ AkVideoCaps MediaWriterFFmpeg::nearestH263Caps(const AkVideoCaps &caps) const
     QSize nearestSize;
     qreal q = std::numeric_limits<qreal>::max();
 
-    for (const QSize &size: mediaWriterFFmpegGlobal->m_h263SupportedSize) {
+    for (auto &size: mediaWriterFFmpegGlobal->m_h263SupportedSize) {
         qreal dw = size.width() - caps.width();
         qreal dh = size.height() - caps.height();
         qreal k = dw * dw + dh * dh;
@@ -890,7 +890,7 @@ AkVideoCaps MediaWriterFFmpeg::nearestGXFCaps(const AkVideoCaps &caps) const
     QSize nearestSize;
     qreal q = std::numeric_limits<qreal>::max();
 
-    for (const QSize &size: mediaWriterFFmpegGlobal->m_gxfSupportedSize) {
+    for (auto &size: mediaWriterFFmpegGlobal->m_gxfSupportedSize) {
         qreal dw = size.width() - caps.width();
         qreal dh = size.height() - caps.height();
         qreal k = dw * dw + dh * dh;
@@ -916,7 +916,7 @@ AkAudioCaps MediaWriterFFmpeg::nearestSWFCaps(const AkAudioCaps &caps) const
     int nearestSampleRate = 0;
     int q = std::numeric_limits<int>::max();
 
-    for (const int &sampleRate: mediaWriterFFmpegGlobal->m_swfSupportedSampleRates) {
+    for (auto &sampleRate: mediaWriterFFmpegGlobal->m_swfSupportedSampleRates) {
         int k = qAbs(sampleRate - caps.rate());
 
         if (k < q) {

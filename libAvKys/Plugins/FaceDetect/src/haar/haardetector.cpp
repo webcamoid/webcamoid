@@ -483,7 +483,7 @@ void HaarDetectorPrivate::denoise(int width, int height,
                          - integral2_p3[x];
 
             auto mean = quint8(sum / uint(kernelSize2));
-            auto stdev = quint8(sqrt(sum2 / uint(kernelSize2) - mean * mean));
+            auto stdev = quint8(sqrt(qreal(sum2) / kernelSize2 - mean * mean));
 
             mean = quint8(qBound(0, mean + mu, 255));
             stdev = quint8(qBound(0, stdev + sigma, 255));

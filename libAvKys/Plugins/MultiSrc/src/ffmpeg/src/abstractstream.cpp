@@ -50,14 +50,11 @@ class AbstractStreamPrivate
 {
     public:
         AbstractStream *self;
-        uint m_index;
-        qint64 m_id;
         AkFrac m_timeBase;
-        AVMediaType m_mediaType;
-        AVStream *m_stream;
-        AVCodecContext *m_codecContext;
-        AVCodec *m_codec;
-        AVDictionary *m_codecOptions;
+        AVStream *m_stream {nullptr};
+        AVCodecContext *m_codecContext {nullptr};
+        AVCodec *m_codec {nullptr};
+        AVDictionary *m_codecOptions {nullptr};
         QThreadPool m_threadPool;
         QMutex m_packetMutex;
         QMutex m_dataMutex;
@@ -67,34 +64,22 @@ class AbstractStreamPrivate
         QQueue<PacketPtr> m_packets;
         QQueue<FramePtr> m_frames;
         QQueue<SubtitlePtr> m_subtitles;
-        qint64 m_packetQueueSize;
-        Clock *m_globalClock;
-        bool m_runPacketLoop;
-        bool m_runDataLoop;
+        qint64 m_packetQueueSize {-1};
+        Clock *m_globalClock {nullptr};
         QFuture<void> m_packetLoopResult;
         QFuture<void> m_dataLoopResult;
+        qint64 m_id {-1};
+        uint m_index {0};
+        AVMediaType m_mediaType {AVMEDIA_TYPE_UNKNOWN};
+        bool m_runPacketLoop {false};
+        bool m_runDataLoop {false};
 
-        AbstractStreamPrivate(AbstractStream *self):
-            self(self),
-            m_index(0),
-            m_id(-1),
-            m_mediaType(AVMEDIA_TYPE_UNKNOWN),
-            m_stream(nullptr),
-            m_codecContext(nullptr),
-            m_codec(nullptr),
-            m_codecOptions(nullptr),
-            m_packetQueueSize(-1),
-            m_globalClock(nullptr),
-            m_runPacketLoop(false),
-            m_runDataLoop(false)
-        {
-        }
-
-        inline void packetLoop();
-        inline void dataLoop();
-        inline static void deletePacket(AVPacket *packet);
-        inline static void deleteFrame(AVFrame *frame);
-        inline static void deleteSubtitle(AVSubtitle *subtitle);
+        explicit AbstractStreamPrivate(AbstractStream *self);
+        void packetLoop();
+        void dataLoop();
+        static void deletePacket(AVPacket *packet);
+        static void deleteFrame(AVFrame *frame);
+        static void deleteSubtitle(AVSubtitle *subtitle);
 };
 
 AbstractStream::AbstractStream(const AVFormatContext *formatContext,
@@ -338,6 +323,11 @@ void AbstractStream::processData(AVFrame *frame)
 void AbstractStream::processData(AVSubtitle *subtitle)
 {
     Q_UNUSED(subtitle)
+}
+
+AbstractStreamPrivate::AbstractStreamPrivate(AbstractStream *self):
+    self(self)
+{
 }
 
 void AbstractStreamPrivate::packetLoop()

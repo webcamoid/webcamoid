@@ -40,7 +40,7 @@ class DeployToolsBinary(tools.utils.DeployToolsUtils):
     def find(self, path):
         binaries = []
 
-        for root, dirs, files in os.walk(path):
+        for root, _, files in os.walk(path):
             for f in files:
                 binaryPath = os.path.join(root, f)
 
@@ -49,7 +49,7 @@ class DeployToolsBinary(tools.utils.DeployToolsUtils):
 
         return binaries
 
-    def dump(self):
+    def dump(self, binary):
         return {}
 
     def dependencies(self, binary):

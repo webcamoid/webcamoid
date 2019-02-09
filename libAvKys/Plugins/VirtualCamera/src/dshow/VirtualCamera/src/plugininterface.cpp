@@ -33,16 +33,15 @@ namespace AkVCam
     class PluginInterfacePrivate
     {
         public:
-            HINSTANCE m_pluginHinstance;
+            HINSTANCE m_pluginHinstance {nullptr};
 
-            inline LONG deleteTree(HKEY hKey, LPCTSTR lpSubKey);
+            LONG deleteTree(HKEY hKey, LPCTSTR lpSubKey);
     };
 }
 
 AkVCam::PluginInterface::PluginInterface()
 {
     this->d = new PluginInterfacePrivate;
-    this->d->m_pluginHinstance = nullptr;
 }
 
 AkVCam::PluginInterface::~PluginInterface()

@@ -31,6 +31,7 @@ namespace AkVCam
     {
         public:
             Assistant();
+            Assistant(const Assistant &other) = delete;
             ~Assistant();
 
             void setTimeout(double timeout);

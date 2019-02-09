@@ -261,23 +261,15 @@ class MediaWriterGStreamerPrivate
         QString m_outputFormat;
         QMap<QString, QVariantMap> m_formatOptions;
         QMap<QString, QVariantMap> m_codecOptions;
-        bool m_isRecording;
         QList<QVariantMap> m_streamConfigs;
         QList<OutputParams> m_streamParams;
         QThreadPool m_threadPool;
-        GstElement *m_pipeline;
-        GMainLoop *m_mainLoop;
-        guint m_busWatchId;
+        GstElement *m_pipeline {nullptr};
+        GMainLoop *m_mainLoop {nullptr};
+        guint m_busWatchId {0};
+        bool m_isRecording {false};
 
-        MediaWriterGStreamerPrivate(MediaWriterGStreamer *self):
-            self(self),
-            m_isRecording(false),
-            m_pipeline(nullptr),
-            m_mainLoop(nullptr),
-            m_busWatchId(0)
-        {
-        }
-
+        explicit MediaWriterGStreamerPrivate(MediaWriterGStreamer *self);
         QString guessFormat(const QString &fileName);
         QStringList readCaps(const QString &element);
         QVariantList parseOptions(const GstElement *element) const;
@@ -563,8 +555,8 @@ QStringList MediaWriterGStreamer::supportedCodecs(const QString &format,
                                                                  GST_ELEMENT_METADATA_KLASS);
                         QString codecType = !strcmp(klass, "Codec/Encoder/Audio")?
                                                 "audio/x-raw":
-                                            (strcmp(klass, "Codec/Encoder/Video")
-                                             || strcmp(klass, "Codec/Encoder/Image"))?
+                                            (!strcmp(klass, "Codec/Encoder/Video")
+                                             || !strcmp(klass, "Codec/Encoder/Image"))?
                                                  "video/x-raw": "";
 
                         if (!type.isEmpty() && type != codecType)
@@ -668,8 +660,8 @@ QString MediaWriterGStreamer::codecType(const QString &codec)
                                                   GST_ELEMENT_METADATA_KLASS);
     QString codecType = !strcmp(klass, "Codec/Encoder/Audio")?
                             "audio/x-raw":
-                        (strcmp(klass, "Codec/Encoder/Video")
-                         || strcmp(klass, "Codec/Encoder/Image"))?
+                        (!strcmp(klass, "Codec/Encoder/Video")
+                         || !strcmp(klass, "Codec/Encoder/Image"))?
                              "video/x-raw": "";
 
     gst_object_unref(factory);
@@ -1234,7 +1226,7 @@ QVariantMap MediaWriterGStreamer::updateStream(int index,
             codec = this->defaultCodec(outputFormat, streamCaps.mimeType());
 
         this->d->m_streamConfigs[index]["codec"] = codec;
-        streamChanged |= true;
+        streamChanged = true;
 
         // Update sample format.
         QVariantMap codecDefaults = this->defaultCodecParams(codec);
@@ -1377,7 +1369,7 @@ QVariantMap MediaWriterGStreamer::updateStream(int index,
         int bitRate = codecParams["bitrate"].toInt();
         this->d->m_streamConfigs[index]["bitrate"] =
                 bitRate > 0? bitRate: codecDefaults["defaultBitRate"].toInt();
-        streamChanged |= true;
+        streamChanged = true;
     }
 
     if (streamCaps.mimeType() == "video/x-raw"
@@ -1385,7 +1377,7 @@ QVariantMap MediaWriterGStreamer::updateStream(int index,
         int gop = codecParams["gop"].toInt();
         this->d->m_streamConfigs[index]["gop"] =
                 gop > 0? gop: codecDefaults["defaultGOP"].toInt();
-        streamChanged |= true;
+        streamChanged = true;
     }
 
     if (streamChanged)
@@ -1433,11 +1425,16 @@ QVariantList MediaWriterGStreamer::codecOptions(int index)
     return codecOptions;
 }
 
+MediaWriterGStreamerPrivate::MediaWriterGStreamerPrivate(MediaWriterGStreamer *self):
+    self(self)
+{
+}
+
 QString MediaWriterGStreamerPrivate::guessFormat(const QString &fileName)
 {
     QString ext = QFileInfo(fileName).suffix();
 
-    for (const QString &format: self->supportedFormats())
+    for (auto &format: self->supportedFormats())
         if (self->fileExtensions(format).contains(ext))
             return format;
 
@@ -1911,10 +1908,10 @@ gboolean MediaWriterGStreamerPrivate::busCallback(GstBus *bus,
 void MediaWriterGStreamerPrivate::setElementOptions(GstElement *element,
                                                     const QVariantMap &options)
 {
-    for (const QString &key: options.keys()) {
+    for (auto it = options.cbegin(); it != options.cend(); it++) {
         auto paramSpec =
                 g_object_class_find_property(G_OBJECT_GET_CLASS(element),
-                                             key.toStdString().c_str());
+                                             it.key().toStdString().c_str());
 
         if (!paramSpec)
             continue;
@@ -1925,17 +1922,17 @@ void MediaWriterGStreamerPrivate::setElementOptions(GstElement *element,
         QString value;
 
         if (G_IS_PARAM_SPEC_FLAGS(paramSpec)) {
-            auto flags = options[key].toStringList();
+            auto flags = it.value().toStringList();
             value = flags.join('+');
         } else {
-            value = options[key].toString();
+            value = it.value().toString();
         }
 
         if (!gst_value_deserialize(&gValue, value.toStdString().c_str()))
             continue;
 
         g_object_set_property(G_OBJECT(element),
-                              key.toStdString().c_str(),
+                              it.key().toStdString().c_str(),
                               &gValue);
     }
 }
@@ -1945,7 +1942,7 @@ AkVideoCaps MediaWriterGStreamerPrivate::nearestDVCaps(const AkVideoCaps &caps) 
     AkVideoCaps nearestCaps;
     qreal q = std::numeric_limits<qreal>::max();
 
-    for (const AkVideoCaps &sCaps: *dvSupportedCaps) {
+    for (auto &sCaps: *dvSupportedCaps) {
         qreal dw = sCaps.width() - caps.width();
         qreal dh = sCaps.height() - caps.height();
         qreal df = sCaps.fps().value() - caps.fps().value();
@@ -1966,7 +1963,7 @@ AkVideoCaps MediaWriterGStreamerPrivate::nearestH263Caps(const AkVideoCaps &caps
     QSize nearestSize;
     qreal q = std::numeric_limits<qreal>::max();
 
-    for (const QSize &size: *h263SupportedSize) {
+    for (auto &size: *h263SupportedSize) {
         qreal dw = size.width() - caps.width();
         qreal dh = size.height() - caps.height();
         qreal k = dw * dw + dh * dh;
@@ -2027,9 +2024,9 @@ void MediaWriterGStreamer::setFormatOptions(const QVariantMap &formatOptions)
                                this->d->m_outputFormat;
     bool modified = false;
 
-    for (auto &key: formatOptions.keys())
-        if (formatOptions[key] != this->d->m_formatOptions.value(outputFormat).value(key)) {
-            this->d->m_formatOptions[outputFormat][key] = formatOptions[key];
+    for (auto it = formatOptions.cbegin(); it != formatOptions.cend(); it++)
+        if (it.value() != this->d->m_formatOptions.value(outputFormat).value(it.key())) {
+            this->d->m_formatOptions[outputFormat][it.key()] = it.value();
             modified = true;
         }
 
@@ -2055,9 +2052,9 @@ void MediaWriterGStreamer::setCodecOptions(int index,
     auto optKey = QString("%1/%2/%3").arg(outputFormat).arg(index).arg(codec);
     bool modified = false;
 
-    for (auto &key: codecOptions.keys())
-        if (codecOptions[key] != this->d->m_codecOptions.value(optKey).value(key)) {
-            this->d->m_codecOptions[optKey][key] = codecOptions[key];
+    for (auto it = codecOptions.cbegin(); it != codecOptions.cend(); it++)
+        if (it.value() != this->d->m_codecOptions.value(optKey).value(it.key())) {
+            this->d->m_codecOptions[optKey][it.key()] = it.value();
             modified = true;
         }
 

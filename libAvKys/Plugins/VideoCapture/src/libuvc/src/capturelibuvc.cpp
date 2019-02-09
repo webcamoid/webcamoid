@@ -302,7 +302,7 @@ bool CaptureLibUVC::setImageControls(const QVariantMap &imageControls)
 {
     QVariantMap imageControlsDiff;
 
-    for (const auto &control: this->imageControls()) {
+    for (auto &control: this->imageControls()) {
         auto params = control.toList();
         auto ctrlName = params[0].toString();
 
@@ -377,7 +377,7 @@ bool CaptureLibUVC::resetImageControls()
 {
     QVariantMap controls;
 
-    for (const QVariant &control: this->imageControls()) {
+    for (auto &control: this->imageControls()) {
         QVariantList params = control.toList();
 
         controls[params[0].toString()] = params[5].toInt();
@@ -395,7 +395,7 @@ bool CaptureLibUVC::setCameraControls(const QVariantMap &cameraControls)
 {
     QVariantMap cameraControlsDiff;
 
-    for (const auto &control: this->cameraControls()) {
+    for (auto &control: this->cameraControls()) {
         auto params = control.toList();
         auto ctrlName = params[0].toString();
 
@@ -470,7 +470,7 @@ bool CaptureLibUVC::resetCameraControls()
 {
     QVariantMap controls;
 
-    for (const QVariant &control: this->cameraControls()) {
+    for (auto &control: this->cameraControls()) {
         QVariantList params = control.toList();
 
         controls[params[0].toString()] = params[5].toInt();

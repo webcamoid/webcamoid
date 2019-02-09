@@ -62,38 +62,28 @@ class MediaSourceFFmpegPrivate
         MediaSourceFFmpeg *self;
         QString m_media;
         QList<int> m_streams;
-        bool m_loop;
-        bool m_run;
-        AkElement::ElementState m_curState;
         FormatContextPtr m_inputContext;
-        qint64 m_maxPacketQueueSize;
-        bool m_showLog;
+        qint64 m_maxPacketQueueSize {15 * 1024 * 1024};
         QThreadPool m_threadPool;
         QMutex m_dataMutex;
         QWaitCondition m_packetQueueNotFull;
         QWaitCondition m_packetQueueEmpty;
         QMap<int, AbstractStreamPtr> m_streamsMap;
         Clock m_globalClock;
-        qreal m_curClockTime;
+        qreal m_curClockTime {0.0};
         QFuture<void> m_readPacketsLoopResult;
+        AkElement::ElementState m_curState {AkElement::ElementStateNull};
+        bool m_loop {false};
+        bool m_run {false};
+        bool m_showLog {false};
 
-        MediaSourceFFmpegPrivate(MediaSourceFFmpeg *self):
-            self(self),
-            m_loop(false),
-            m_run(false),
-            m_curState(AkElement::ElementStateNull),
-            m_maxPacketQueueSize(15 * 1024 * 1024),
-            m_showLog(false),
-            m_curClockTime(0.0)
-        {
-        }
-
-        inline qint64 packetQueueSize();
-        inline static void deleteFormatContext(AVFormatContext *context);
-        inline AbstractStreamPtr createStream(int index, bool noModify=false);
-        inline void readPackets();
-        inline void unlockQueue();
-        inline int roundDown(int value, int multiply);
+        explicit MediaSourceFFmpegPrivate(MediaSourceFFmpeg *self);
+        qint64 packetQueueSize();
+        static void deleteFormatContext(AVFormatContext *context);
+        AbstractStreamPtr createStream(int index, bool noModify=false);
+        void readPackets();
+        void unlockQueue();
+        int roundDown(int value, int multiply);
 };
 
 MediaSourceFFmpeg::MediaSourceFFmpeg(QObject *parent):
@@ -285,6 +275,11 @@ qint64 MediaSourceFFmpeg::maxPacketQueueSize() const
 bool MediaSourceFFmpeg::showLog() const
 {
     return this->d->m_showLog;
+}
+
+MediaSourceFFmpegPrivate::MediaSourceFFmpegPrivate(MediaSourceFFmpeg *self):
+    self(self)
+{
 }
 
 qint64 MediaSourceFFmpegPrivate::packetQueueSize()
@@ -506,7 +501,7 @@ bool MediaSourceFFmpeg::setState(AkElement::ElementState state)
             else
                 filterStreams = this->d->m_streams;
 
-            for (const int &i: filterStreams) {
+            for (auto &i: filterStreams) {
                 AbstractStreamPtr stream = this->d->createStream(i);
 
                 if (stream) {
@@ -561,7 +556,7 @@ bool MediaSourceFFmpeg::setState(AkElement::ElementState state)
         case AkElement::ElementStateNull: {
             this->d->m_globalClock.setClock(this->d->m_curClockTime);
 
-            for (const AbstractStreamPtr &stream: this->d->m_streamsMap)
+            for (auto &stream: this->d->m_streamsMap)
                 stream->setPaused(false);
 
             this->d->m_run = false;
@@ -572,7 +567,7 @@ bool MediaSourceFFmpeg::setState(AkElement::ElementState state)
             this->d->m_packetQueueEmpty.wakeAll();
             this->d->m_dataMutex.unlock();
 
-            for (const AbstractStreamPtr &stream: this->d->m_streamsMap)
+            for (auto &stream: this->d->m_streamsMap)
                 stream->uninit();
 
             this->d->m_streamsMap.clear();
@@ -584,7 +579,7 @@ bool MediaSourceFFmpeg::setState(AkElement::ElementState state)
         case AkElement::ElementStatePlaying: {
             this->d->m_globalClock.setClock(this->d->m_curClockTime);
 
-            for (const AbstractStreamPtr &stream: this->d->m_streamsMap)
+            for (auto &stream: this->d->m_streamsMap)
                 stream->setPaused(false);
 
             this->d->m_curState = state;
@@ -608,7 +603,7 @@ bool MediaSourceFFmpeg::setState(AkElement::ElementState state)
             this->d->m_packetQueueEmpty.wakeAll();
             this->d->m_dataMutex.unlock();
 
-            for (const AbstractStreamPtr &stream: this->d->m_streamsMap)
+            for (auto &stream: this->d->m_streamsMap)
                 stream->uninit();
 
             this->d->m_streamsMap.clear();
@@ -620,7 +615,7 @@ bool MediaSourceFFmpeg::setState(AkElement::ElementState state)
         case AkElement::ElementStatePaused: {
             this->d->m_curClockTime = this->d->m_globalClock.clock();
 
-            for (const AbstractStreamPtr &stream: this->d->m_streamsMap)
+            for (auto &stream: this->d->m_streamsMap)
                 stream->setPaused(true);
 
             this->d->m_curState = state;
@@ -689,10 +684,10 @@ bool MediaSourceFFmpeg::initContext()
 
     AVFormatContext *inputContext = nullptr;
 
-    for (const QString &scheme: mmsSchemes) {
+    for (auto &scheme: mmsSchemes) {
         QString uriCopy = uri;
 
-        for (const QString &schemer: mmsSchemes)
+        for (auto &schemer: mmsSchemes)
             uriCopy.replace(QRegExp(QString("^%1").arg(schemer)),
                             scheme);
 

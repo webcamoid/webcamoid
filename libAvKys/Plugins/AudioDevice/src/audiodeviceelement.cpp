@@ -55,7 +55,6 @@ class AudioDeviceElementPrivate
         QStringList m_inputs;
         QStringList m_outputs;
         QString m_device;
-        int m_bufferSize {1024};
         AkCaps m_caps;
         AudioDevPtr m_audioDevice;
         AkElementPtr m_convert {AkElement::create("ACapsConvert")};
@@ -63,14 +62,11 @@ class AudioDeviceElementPrivate
         QFuture<void> m_readFramesLoopResult;
         QMutex m_mutex;
         QMutex m_mutexLib;
+        int m_bufferSize {1024};
         bool m_readFramesLoop {false};
         bool m_pause {false};
 
-        AudioDeviceElementPrivate(AudioDeviceElement *self):
-            self(self)
-        {
-        }
-
+        explicit AudioDeviceElementPrivate(AudioDeviceElement *self);
         void readFramesLoop();
 };
 
@@ -247,6 +243,11 @@ QString AudioDeviceElement::audioLib() const
     return globalAudioDevice->audioLib();
 }
 
+AudioDeviceElementPrivate::AudioDeviceElementPrivate(AudioDeviceElement *self):
+    self(self)
+{
+}
+
 void AudioDeviceElementPrivate::readFramesLoop()
 {
     if (!this->m_audioDevice)
@@ -254,7 +255,7 @@ void AudioDeviceElementPrivate::readFramesLoop()
 
 #ifdef Q_OS_WIN32
     // Initialize the COM library in multithread mode.
-    CoInitializeEx(NULL, COINIT_MULTITHREADED);
+    CoInitializeEx(nullptr, COINIT_MULTITHREADED);
 #endif
 
     QString device = this->m_device;

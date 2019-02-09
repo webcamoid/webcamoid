@@ -54,20 +54,6 @@ Scratch::Scratch(qreal minLife, qreal maxLife,
     this->m_y = int(qrand() * (maxY - minY) / RAND_MAX) + minY;
 }
 
-Scratch &Scratch::operator =(const Scratch &other)
-{
-    if (this != &other) {
-        this->m_life = other.m_life;
-        this->m_dlife = other.m_dlife;
-        this->m_x = other.m_x;
-        this->m_dx = other.m_dx;
-        this->m_y = other.m_y;
-        this->m_life0 = other.m_life0;
-    }
-
-    return *this;
-}
-
 Scratch Scratch::operator ++(int)
 {
     this->m_life -= this->m_dlife;

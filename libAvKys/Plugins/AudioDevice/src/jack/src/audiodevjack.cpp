@@ -63,24 +63,15 @@ class AudioDevJackPrivate
         QMap<QString, QStringList> m_devicePorts;
         QList<jack_port_t *> m_appPorts;
         QString m_curDevice;
-        int m_sampleRate;
-        int m_curChannels;
-        int m_maxBufferSize;
-        bool m_isInput;
         QByteArray m_buffer;
-        jack_client_t *m_client;
+        jack_client_t *m_client {nullptr};
         QMutex m_mutex;
         QWaitCondition m_canWrite;
         QWaitCondition m_samplesAvailable;
-
-        AudioDevJackPrivate():
-            m_sampleRate(0),
-            m_curChannels(0),
-            m_maxBufferSize(0),
-            m_isInput(false),
-            m_client(nullptr)
-        {
-        }
+        int m_sampleRate {0};
+        int m_curChannels {0};
+        int m_maxBufferSize {0};
+        bool m_isInput {false};
 
         static int onProcessCallback(jack_nframes_t nframes, void *userData);
         static void onShutdownCallback(void *userData);
@@ -131,21 +122,21 @@ AudioDevJack::AudioDevJack(QObject *parent):
     // Query the number of channels
     this->d->m_sampleRate = int(jack_get_sample_rate(this->d->m_client));
 
-    for (auto &deviceId: portTypeMap.keys()) {
+    for (auto it = portTypeMap.begin(); it != portTypeMap.end(); it++) {
         auto ports = jack_get_ports(this->d->m_client,
                                     nullptr,
                                     JACK_DEFAULT_AUDIO_TYPE,
-                                    JackPortIsPhysical | portTypeMap[deviceId]);
+                                    JackPortIsPhysical | it.value());
         int channels = 0;
 
         for (auto portName = ports; portName && *portName; portName++, channels++)
-            this->d->m_devicePorts[deviceId] << *portName;
+            this->d->m_devicePorts[it.key()] << *portName;
 
         if (ports)
             jack_free(ports);
 
         if (channels > 0)
-            this->d->m_caps[deviceId] =
+            this->d->m_caps[it.key()] =
                     AkAudioCaps(AkAudioCaps::SampleFormat_flt,
                                 channels,
                                 this->d->m_sampleRate);
@@ -319,6 +310,9 @@ bool AudioDevJack::init(const QString &device, const AkAudioCaps &caps)
 
 QByteArray AudioDevJack::read(int samples)
 {
+    if (samples < 1)
+        return {};
+
     int bufferSize = 2
                      * int(sizeof(jack_default_audio_sample_t))
                      * this->d->m_curChannels
@@ -360,7 +354,7 @@ bool AudioDevJack::uninit()
 {
     jack_deactivate(this->d->m_client);
 
-    for (auto port: this->d->m_appPorts)
+    for (auto &port: this->d->m_appPorts)
         jack_port_unregister(this->d->m_client, port);
 
     this->d->m_appPorts.clear();
@@ -379,7 +373,7 @@ int AudioDevJackPrivate::onProcessCallback(jack_nframes_t nframes,
         self->d->m_mutex.lock();
         QVector<const jack_default_audio_sample_t *> ports;
 
-        for (auto port: self->d->m_appPorts)
+        for (auto &port: self->d->m_appPorts)
             ports << reinterpret_cast<const jack_default_audio_sample_t *>(jack_port_get_buffer(port,
                                                                                                 nframes));
 
@@ -412,7 +406,7 @@ int AudioDevJackPrivate::onProcessCallback(jack_nframes_t nframes,
         self->d->m_mutex.lock();
         QVector<jack_default_audio_sample_t *> ports;
 
-        for (auto port: self->d->m_appPorts) {
+        for (auto &port: self->d->m_appPorts) {
             ports << reinterpret_cast<jack_default_audio_sample_t *>(jack_port_get_buffer(port,
                                                                                           nframes));
             std::fill_n(ports.last(), nframes, 0.);

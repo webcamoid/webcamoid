@@ -116,25 +116,17 @@ class AudioStreamPrivate
 {
     public:
         AudioStream *self;
-        qint64 m_pts;
+        qint64 m_pts {0};
         AkElementPtr m_audioConvert;
-        qreal audioDiffCum; // used for AV difference average computation
-        qreal audioDiffAvgCoef;
-        int audioDiffAvgCount;
+        qreal audioDiffCum {0.0}; // used for AV difference average computation
+        qreal audioDiffAvgCoef {exp(log(0.01) / AUDIO_DIFF_AVG_NB)};
+        int audioDiffAvgCount {0};
 
-        AudioStreamPrivate(AudioStream *self):
-            self(self),
-            m_pts(0),
-            audioDiffCum(0.0),
-            audioDiffAvgCoef(exp(log(0.01) / AUDIO_DIFF_AVG_NB)),
-            audioDiffAvgCount(0)
-        {
-        }
-
-        inline bool compensate(AVFrame *oFrame, AVFrame *iFrame, int wantedSamples);
-        inline AkPacket frameToPacket(AVFrame *iFrame);
-        inline AkPacket convert(AVFrame *iFrame);
-        inline AVFrame *copyFrame(AVFrame *frame) const;
+        explicit AudioStreamPrivate(AudioStream *self);
+        bool compensate(AVFrame *oFrame, AVFrame *iFrame, int wantedSamples);
+        AkPacket frameToPacket(AVFrame *iFrame);
+        AkPacket convert(AVFrame *iFrame);
+        AVFrame *copyFrame(AVFrame *frame) const;
 };
 
 AudioStream::AudioStream(const AVFormatContext *formatContext,
@@ -218,6 +210,11 @@ void AudioStream::processData(AVFrame *frame)
     emit this->oStream(oPacket);
     emit this->frameSent();
     this->d->m_pts = frame->pts + frame->nb_samples;
+}
+
+AudioStreamPrivate::AudioStreamPrivate(AudioStream *self):
+    self(self)
+{
 }
 
 bool AudioStreamPrivate::compensate(AVFrame *oFrame,

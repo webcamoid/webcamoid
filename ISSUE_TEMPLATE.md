@@ -17,19 +17,19 @@ Choose one of the templates bellow that fit better your issue.
 
 # Reporting a problem?
 
-### Summary
+## Summary
 
 Write here a brief description of the problem.
 
-### Current Behavior
+## Current Behavior
 
 Describe the problem the best as you can, don't omit information.
 
-### Expected Behavior
+## Expected Behavior
 
 How it should have work?
 
-### Steps to Reproduce
+## Steps to Reproduce
 
 If Webcamoid crashed, try to reproduce the crash several times to be sure where is the problem. Write the steps to reproduce the issue bellow:
 
@@ -38,11 +38,11 @@ If Webcamoid crashed, try to reproduce the crash several times to be sure where 
 3.  Drag those
 4.  ...
 
-### Suggestions and tips
+## Suggestions and tips
 
 How would you solve the problem?
 
-### Your Environment
+## Your Environment
 
 * Webcamoid information: (version) (architecture)
 * Operating System information: (name) (numeric version and codename if applied) (architecture)

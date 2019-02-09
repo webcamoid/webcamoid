@@ -84,7 +84,8 @@ class DeployToolsBinary(tools.binary.DeployToolsBinary):
         with open(path, 'rb') as f:
             return f.read(4) == b'\x7fELF'
 
-    def readString(self, f):
+    @staticmethod
+    def readString(f):
         s = b''
 
         while True:
@@ -97,13 +98,15 @@ class DeployToolsBinary(tools.binary.DeployToolsBinary):
 
         return s
 
-    def readNumber(self, f, arch):
+    @staticmethod
+    def readNumber(f, arch):
         if arch == '32bits':
             return struct.unpack('I', f.read(4))[0]
 
         return struct.unpack('Q', f.read(8))[0]
 
-    def readDynamicEntry(self, f, arch):
+    @staticmethod
+    def readDynamicEntry(f, arch):
         if arch == '32bits':
             return struct.unpack('iI', f.read(8))
 
@@ -250,7 +253,8 @@ class DeployToolsBinary(tools.binary.DeployToolsBinary):
 
         return {}
 
-    def readRpaths(self, elfInfo, binDir):
+    @staticmethod
+    def readRpaths(elfInfo, binDir):
         rpaths = []
         runpaths = []
 
