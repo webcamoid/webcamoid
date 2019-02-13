@@ -238,22 +238,37 @@ void AkFrac::setNumDen(qint64 num, qint64 den)
 
 void AkFrac::setNumDen(const QString &fracString)
 {
+    bool ok = false;
+    auto str = fracString.trimmed();
+    auto index = str.indexOf('/');
 
-    bool match = QRegExp("(\\s*-)?\\s*\\d+\\s*/"
-                              "\\s*\\d+\\s*").exactMatch(fracString);
+    if (index < 1) {
+        qint64 num = str.toLongLong(&ok);
 
-    if (!match) {
-        this->setNumDen(0, 0);
+        if (ok)
+            this->setNumDen(num, 1);
+        else
+            this->setNumDen(0, 0);
+    } else {
+        qint64 num = str.left(index).trimmed().toLongLong(&ok);
 
-        return;
+        if (ok) {
+            auto n = str.size() - index - 1;
+
+            if (n > 0) {
+                qint64 den = str.right(n).trimmed().toLongLong(&ok);
+
+                if (ok && den > 0)
+                    this->setNumDen(num, den);
+                else
+                    this->setNumDen(0, 0);
+            } else {
+                this->setNumDen(0, 0);
+            }
+        } else {
+            this->setNumDen(0, 0);
+        }
     }
-
-    QStringList fracChunks = fracString.split(QRegExp("\\s*/\\s*"),
-                                              QString::SkipEmptyParts);
-    qint64 num = fracChunks[0].trimmed().toInt();
-    qint64 den = fracChunks[1].trimmed().toInt();
-
-    this->setNumDen(num, den);
 }
 
 void AkFrac::setNum(qint64 num)

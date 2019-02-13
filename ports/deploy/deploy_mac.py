@@ -106,7 +106,7 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
         adirs = set()
         afiles = set()
 
-        for root, _, files in os.walk(path):
+        for root, dirs, files in os.walk(path):
             for d in dirs:
                 if d == 'Headers':
                     adirs.add(os.path.join(root, d))

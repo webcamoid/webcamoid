@@ -1192,8 +1192,7 @@ void CaptureV4L2::setStreams(const QList<int> &streams)
     if (stream >= supportedCaps.length())
         return;
 
-    QList<int> inputStreams;
-    inputStreams << stream;
+    QList<int> inputStreams {stream};
 
     if (this->streams() == inputStreams)
         return;

@@ -50,11 +50,15 @@ inline const QStringList *mirrorFormats()
 
     return &mirrorFormats;
 }
+#endif
 
+#if !defined(Q_OS_OSX)
 inline const QStringList *swapRgbFormats()
 {
     static const QStringList swapRgbFormats = {
+#ifdef Q_OS_WIN32
         "RGB3",
+#endif
         "YV12"
     };
 
@@ -325,9 +329,11 @@ void VideoCaptureElementPrivate::cameraLoop()
             if (initConvert) {
                 AkCaps caps = packet.caps();
 
-#ifdef Q_OS_WIN32
+#if !defined(Q_OS_OSX)
                 QString fourcc = caps.property("fourcc").toString();
+#ifdef Q_OS_WIN32
                 this->m_mirror = mirrorFormats()->contains(fourcc);
+#endif
                 this->m_swapRgb = swapRgbFormats()->contains(fourcc);
 #endif
 
@@ -368,8 +374,36 @@ void VideoCaptureElement::controlInterfaceConfigure(QQmlContext *context,
 
 void VideoCaptureElement::setMedia(const QString &media)
 {
-    if (this->d->m_capture)
-        this->d->m_capture->setDevice(media);
+    if (!this->d->m_capture)
+        return;
+
+    this->d->m_capture->setDevice(media);
+    QSettings settings;
+
+    settings.beginGroup("VideoCapture");
+    auto ndevices = settings.beginReadArray("devices");
+    auto deviceDescription = this->d->m_capture->description(media);
+    int streamIndex = 0;
+
+    for (decltype(ndevices) i = 0; i < ndevices; i++) {
+        settings.setArrayIndex(i);
+        auto deviceId = settings.value("id").toString();
+        auto description = settings.value("description").toString();
+
+        if (deviceId == media && description == deviceDescription) {
+            streamIndex = settings.value("stream", 0).toInt();
+            streamIndex = qBound(0,
+                                 streamIndex,
+                                 this->d->m_capture->listTracks({}).size() - 1);
+
+            break;
+        }
+    }
+
+    settings.endArray();
+    settings.endGroup();
+
+    this->d->m_capture->setStreams({streamIndex});
 }
 
 void VideoCaptureElement::setStreams(const QList<int> &streams)
@@ -384,6 +418,34 @@ void VideoCaptureElement::setStreams(const QList<int> &streams)
 
     if (running)
         this->setState(AkElement::ElementStatePlaying);
+
+    QSettings settings;
+
+    settings.beginGroup("VideoCapture");
+    auto ndevices = settings.beginReadArray("devices");
+    auto media = this->d->m_capture->device();
+    auto deviceDescription = this->d->m_capture->description(media);
+    decltype(ndevices) i = 0;
+
+    for (; i < ndevices; i++) {
+        settings.setArrayIndex(i);
+        auto deviceId = settings.value("id").toString();
+        auto description = settings.value("description").toString();
+
+        if (deviceId == media && description == deviceDescription)
+            break;
+    }
+
+    settings.endArray();
+
+    settings.beginWriteArray("devices");
+    settings.setArrayIndex(i);
+    settings.setValue("id", media);
+    settings.setValue("description", deviceDescription);
+    settings.setValue("stream", streams.isEmpty()? 0: streams.first());
+
+    settings.endArray();
+    settings.endGroup();
 }
 
 void VideoCaptureElement::setIoMethod(const QString &ioMethod)
@@ -527,7 +589,6 @@ bool VideoCaptureElement::setState(AkElement::ElementState state)
 
 void VideoCaptureElement::frameReady(const AkPacket &packet)
 {
-#ifdef Q_OS_WIN32
     if (this->d->m_mirror || this->d->m_swapRgb) {
         AkVideoPacket videoPacket(packet);
         QImage oImage = videoPacket.toImage();
@@ -540,9 +601,9 @@ void VideoCaptureElement::frameReady(const AkPacket &packet)
 
         emit this->oStream(AkVideoPacket::fromImage(oImage,
                                                     videoPacket).toPacket());
-    } else
-#endif
+    } else {
         emit this->oStream(packet);
+    }
 }
 
 void VideoCaptureElement::codecLibUpdated(const QString &codecLib)
@@ -604,10 +665,6 @@ void VideoCaptureElement::captureLibUpdated(const QString &captureLib)
                      &Capture::cameraControlsChanged,
                      this,
                      &VideoCaptureElement::cameraControlsChanged);
-    QObject::connect(this->d->m_capture.data(),
-                     &Capture::streamsChanged,
-                     this,
-                     &VideoCaptureElement::streamsChanged);
 
     emit this->mediasChanged(this->medias());
     emit this->streamsChanged(this->streams());

@@ -2057,22 +2057,22 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="192"/>
+        <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="215"/>
         <source>Video format</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="222"/>
+        <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="253"/>
         <source>Resolution</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="264"/>
+        <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="295"/>
         <source>FPS</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="318"/>
+        <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="344"/>
         <source>Reset</source>
         <translation>Lähtesta</translation>
     </message>

@@ -17,6 +17,7 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QSettings>
 #include <QSharedPointer>
 #include <QQmlContext>
 #include <akfrac.h>
@@ -144,8 +145,15 @@ void DesktopCaptureElement::controlInterfaceConfigure(QQmlContext *context,
 
 void DesktopCaptureElement::setFps(const AkFrac &fps)
 {
-    if (this->d->m_screenCapture)
-        this->d->m_screenCapture->setFps(fps);
+    if (!this->d->m_screenCapture)
+        return;
+
+    this->d->m_screenCapture->setFps(fps);
+
+    QSettings settings;
+    settings.beginGroup("DesktopCapture");
+    settings.setValue("fps", fps.toString());
+    settings.endGroup();
 }
 
 void DesktopCaptureElement::resetFps()
@@ -243,6 +251,12 @@ void DesktopCaptureElement::captureLibUpdated(const QString &captureLib)
 
     if (!this->d->m_screenCapture)
         return;
+
+    QSettings settings;
+    settings.beginGroup("DesktopCapture");
+    auto fps = settings.value("fps", 30).toString();
+    this->d->m_screenCapture->setFps(AkFrac(fps));
+    settings.endGroup();
 
     QObject::connect(this->d->m_screenCapture.data(),
                      &ScreenDev::mediasChanged,

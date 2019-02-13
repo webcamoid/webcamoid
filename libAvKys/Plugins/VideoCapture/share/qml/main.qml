@@ -28,6 +28,7 @@ GridLayout {
     columns: 3
 
     property int lock: 0
+    property int lockStreams: 0
     property var caps: []
 
     function filterBy(prop, filters)
@@ -104,12 +105,20 @@ GridLayout {
 
     function updateStreams()
     {
-        VideoCapture.streams = [indexOf({fourcc: cbxFormat.model[cbxFormat.currentIndex]?
-                                                 cbxFormat.model[cbxFormat.currentIndex].value: "",
-                                         size: cbxResolution.model[cbxResolution.currentIndex]?
-                                               cbxResolution.model[cbxResolution.currentIndex].value: Qt.size(-1, -1),
-                                         fps: cbxFps.model[cbxFps.currentIndex]?
-                                              cbxFps.model[cbxFps.currentIndex].value: Ak.newFrac()})]
+        if (lockStreams > 0)
+            return
+
+        var index = indexOf({fourcc: cbxFormat.model[cbxFormat.currentIndex]?
+                                    cbxFormat.model[cbxFormat.currentIndex].value: "",
+                            size: cbxResolution.model[cbxResolution.currentIndex]?
+                                  cbxResolution.model[cbxResolution.currentIndex].value: Qt.size(-1, -1),
+                            fps: cbxFps.model[cbxFps.currentIndex]?
+                                 cbxFps.model[cbxFps.currentIndex].value: Ak.newFrac()});
+
+        if (index < 0)
+            return
+
+        VideoCapture.streams = [index]
     }
 
     function createControls(controls, where)
@@ -176,7 +185,21 @@ GridLayout {
             rawCaps.push(Ak.newCaps(VideoCapture.rawCaps(i)).toMap())
 
         caps = rawCaps
+        var index = VideoCapture.streams.length < 1? 0: VideoCapture.streams[0]
+        var currentCaps = Ak.newCaps(VideoCapture.rawCaps(index)).toMap()
+
+        lock++
+        lockStreams++;
         cbxFormat.update()
+        cbxFormat.currentIndex = indexBy(cbxFormat.model, currentCaps.fourcc)
+        cbxResolution.update()
+        cbxResolution.currentIndex = indexBy(cbxResolution.model,
+                                             Qt.size(currentCaps.width,
+                                                     currentCaps.height))
+        cbxFps.update()
+        cbxFps.currentIndex = indexBy(cbxFps.model, currentCaps.fps)
+        lockStreams--;
+        lock--;
     }
 
     Component.onCompleted: createInterface()
@@ -212,6 +235,14 @@ GridLayout {
                 currentIndex = 0
 
             lock--;
+        }
+
+        function lockedUpdate()
+        {
+            if (lock > 0)
+                return
+
+            update()
         }
 
         onCurrentIndexChanged: cbxResolution.lockedUpdate()
@@ -302,12 +333,7 @@ GridLayout {
             update()
         }
 
-        onCurrentIndexChanged: {
-            if (lock > 0)
-                return
-
-            updateStreams()
-        }
+        onCurrentIndexChanged: updateStreams()
     }
     Label {
         Layout.fillWidth: true
