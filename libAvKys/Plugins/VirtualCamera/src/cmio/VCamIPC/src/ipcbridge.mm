@@ -220,7 +220,7 @@ bool AkVCam::IpcBridge::registerPeer(bool asClient)
 
     auto serverMessagePort =
             xpc_connection_create_mach_service(AKVCAM_ASSISTANT_NAME,
-                                               NULL,
+                                               nullptr,
                                                0);
 
     if (!serverMessagePort)
@@ -233,7 +233,7 @@ bool AkVCam::IpcBridge::registerPeer(bool asClient)
     });
     xpc_connection_resume(serverMessagePort);
 
-    dictionary = xpc_dictionary_create(NULL, NULL, 0);
+    dictionary = xpc_dictionary_create(nullptr, nullptr, 0);
     xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_REQUEST_PORT);
     xpc_dictionary_set_bool(dictionary, "client", asClient);
     reply = xpc_connection_send_message_with_reply_sync(serverMessagePort,
@@ -249,7 +249,7 @@ bool AkVCam::IpcBridge::registerPeer(bool asClient)
     if (replyType != XPC_TYPE_DICTIONARY)
         goto registerEndPoint_failed;
 
-    messagePort = xpc_connection_create(NULL, NULL);
+    messagePort = xpc_connection_create(nullptr, nullptr);
 
     if (!messagePort)
         goto registerEndPoint_failed;
@@ -271,7 +271,7 @@ bool AkVCam::IpcBridge::registerPeer(bool asClient)
 
     xpc_connection_resume(messagePort);
 
-    dictionary = xpc_dictionary_create(NULL, NULL, 0);
+    dictionary = xpc_dictionary_create(nullptr, nullptr, 0);
     xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_ADD_PORT);
     xpc_dictionary_set_string(dictionary, "port", portName.c_str());
     xpc_dictionary_set_connection(dictionary, "connection", messagePort);
@@ -319,7 +319,7 @@ void AkVCam::IpcBridge::unregisterPeer()
 
     if (this->d->m_serverMessagePort) {
         if (!this->d->m_portName.empty()) {
-            auto dictionary = xpc_dictionary_create(NULL, NULL, 0);
+            auto dictionary = xpc_dictionary_create(nullptr, nullptr, 0);
             xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_REMOVE_PORT);
             xpc_dictionary_set_string(dictionary, "port", this->d->m_portName.c_str());
             xpc_connection_send_message(this->d->m_serverMessagePort,
@@ -341,7 +341,7 @@ std::vector<std::string> AkVCam::IpcBridge::listDevices() const
     if (!this->d->m_serverMessagePort)
         return {};
 
-    auto dictionary = xpc_dictionary_create(NULL, NULL, 0);
+    auto dictionary = xpc_dictionary_create(nullptr, nullptr, 0);
     xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICES);
     auto reply = xpc_connection_send_message_with_reply_sync(this->d->m_serverMessagePort,
                                                              dictionary);
@@ -379,7 +379,7 @@ std::wstring AkVCam::IpcBridge::description(const std::string &deviceId) const
     if (!this->d->m_serverMessagePort)
         return {};
 
-    auto dictionary = xpc_dictionary_create(NULL, NULL, 0);
+    auto dictionary = xpc_dictionary_create(nullptr, nullptr, 0);
     xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_DESCRIPTION);
     xpc_dictionary_set_string(dictionary, "device", deviceId.c_str());
     auto reply = xpc_connection_send_message_with_reply_sync(this->d->m_serverMessagePort,
@@ -420,7 +420,7 @@ std::vector<AkVCam::VideoFormat> AkVCam::IpcBridge::formats(const std::string &d
     if (!this->d->m_serverMessagePort)
         return {};
 
-    auto dictionary = xpc_dictionary_create(NULL, NULL, 0);
+    auto dictionary = xpc_dictionary_create(nullptr, nullptr, 0);
     xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_FORMATS);
     xpc_dictionary_set_string(dictionary, "device", deviceId.c_str());
     auto reply = xpc_connection_send_message_with_reply_sync(this->d->m_serverMessagePort,
@@ -459,7 +459,7 @@ std::string AkVCam::IpcBridge::broadcaster(const std::string &deviceId) const
     if (!this->d->m_serverMessagePort)
         return {};
 
-    auto dictionary = xpc_dictionary_create(NULL, NULL, 0);
+    auto dictionary = xpc_dictionary_create(nullptr, nullptr, 0);
     xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_BROADCASTING);
     xpc_dictionary_set_string(dictionary, "device", deviceId.c_str());
     auto reply = xpc_connection_send_message_with_reply_sync(this->d->m_serverMessagePort,
@@ -489,7 +489,7 @@ bool AkVCam::IpcBridge::isHorizontalMirrored(const std::string &deviceId)
     if (!this->d->m_serverMessagePort)
         return false;
 
-    auto dictionary = xpc_dictionary_create(NULL, NULL, 0);
+    auto dictionary = xpc_dictionary_create(nullptr, nullptr, 0);
     xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_MIRRORING);
     xpc_dictionary_set_string(dictionary, "device", deviceId.c_str());
     auto reply = xpc_connection_send_message_with_reply_sync(this->d->m_serverMessagePort,
@@ -516,7 +516,7 @@ bool AkVCam::IpcBridge::isVerticalMirrored(const std::string &deviceId)
     if (!this->d->m_serverMessagePort)
         return false;
 
-    auto dictionary = xpc_dictionary_create(NULL, NULL, 0);
+    auto dictionary = xpc_dictionary_create(nullptr, nullptr, 0);
     xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_MIRRORING);
     xpc_dictionary_set_string(dictionary, "device", deviceId.c_str());
     auto reply = xpc_connection_send_message_with_reply_sync(this->d->m_serverMessagePort,
@@ -543,7 +543,7 @@ AkVCam::Scaling AkVCam::IpcBridge::scalingMode(const std::string &deviceId)
     if (!this->d->m_serverMessagePort)
         return ScalingFast;
 
-    auto dictionary = xpc_dictionary_create(NULL, NULL, 0);
+    auto dictionary = xpc_dictionary_create(nullptr, nullptr, 0);
     xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_SCALING);
     xpc_dictionary_set_string(dictionary, "device", deviceId.c_str());
     auto reply = xpc_connection_send_message_with_reply_sync(this->d->m_serverMessagePort,
@@ -570,7 +570,7 @@ AkVCam::AspectRatio AkVCam::IpcBridge::aspectRatioMode(const std::string &device
     if (!this->d->m_serverMessagePort)
         return AspectRatioIgnore;
 
-    auto dictionary = xpc_dictionary_create(NULL, NULL, 0);
+    auto dictionary = xpc_dictionary_create(nullptr, nullptr, 0);
     xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_ASPECTRATIO);
     xpc_dictionary_set_string(dictionary, "device", deviceId.c_str());
     auto reply = xpc_connection_send_message_with_reply_sync(this->d->m_serverMessagePort,
@@ -597,7 +597,7 @@ bool AkVCam::IpcBridge::swapRgb(const std::string &deviceId)
     if (!this->d->m_serverMessagePort)
         return false;
 
-    auto dictionary = xpc_dictionary_create(NULL, NULL, 0);
+    auto dictionary = xpc_dictionary_create(nullptr, nullptr, 0);
     xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_SWAPRGB);
     xpc_dictionary_set_string(dictionary, "device", deviceId.c_str());
     auto reply = xpc_connection_send_message_with_reply_sync(this->d->m_serverMessagePort,
@@ -624,7 +624,7 @@ std::vector<std::string> AkVCam::IpcBridge::listeners(const std::string &deviceI
     if (!this->d->m_serverMessagePort)
         return {};
 
-    auto dictionary = xpc_dictionary_create(NULL, NULL, 0);
+    auto dictionary = xpc_dictionary_create(nullptr, nullptr, 0);
     xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_LISTENERS);
     xpc_dictionary_set_string(dictionary, "device", deviceId.c_str());
     auto reply = xpc_connection_send_message_with_reply_sync(this->d->m_serverMessagePort,
@@ -665,14 +665,14 @@ std::string AkVCam::IpcBridge::deviceCreate(const std::wstring &description,
     if (!this->d->m_serverMessagePort || !this->d->m_messagePort)
         return {};
 
-    auto dictionary = xpc_dictionary_create(NULL, NULL, 0);
+    auto dictionary = xpc_dictionary_create(nullptr, nullptr, 0);
     xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_CREATE);
     xpc_dictionary_set_string(dictionary, "port", this->d->m_portName.c_str());
     xpc_dictionary_set_data(dictionary,
                             "description",
                             description.c_str(),
                             description.size() * sizeof(wchar_t));
-    auto formatsList = xpc_array_create(NULL, 0);
+    auto formatsList = xpc_array_create(nullptr, 0);
 
     for (auto &format: formats) {
         auto dictFormat = xpc_dictionary_create(nullptr, nullptr, 0);
@@ -709,7 +709,7 @@ bool AkVCam::IpcBridge::deviceDestroy(const std::string &deviceId)
     if (!this->d->m_serverMessagePort)
         return false;
 
-    auto dictionary = xpc_dictionary_create(NULL, NULL, 0);
+    auto dictionary = xpc_dictionary_create(nullptr, nullptr, 0);
     xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_DESTROY);
     xpc_dictionary_set_string(dictionary, "device", deviceId.c_str());
     xpc_connection_send_message(this->d->m_serverMessagePort,
@@ -772,7 +772,7 @@ bool AkVCam::IpcBridge::deviceStart(const std::string &deviceId,
     if (it != this->d->m_broadcasting.end())
         return false;
 
-    auto dictionary = xpc_dictionary_create(NULL, NULL, 0);
+    auto dictionary = xpc_dictionary_create(nullptr, nullptr, 0);
     xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_SETBROADCASTING);
     xpc_dictionary_set_string(dictionary, "device", deviceId.c_str());
     xpc_dictionary_set_string(dictionary, "broadcaster", this->d->m_portName.c_str());
@@ -808,7 +808,7 @@ void AkVCam::IpcBridge::deviceStop(const std::string &deviceId)
     if (it == this->d->m_broadcasting.end())
         return;
 
-    auto dictionary = xpc_dictionary_create(NULL, NULL, 0);
+    auto dictionary = xpc_dictionary_create(nullptr, nullptr, 0);
     xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_SETBROADCASTING);
     xpc_dictionary_set_string(dictionary, "device", deviceId.c_str());
     xpc_dictionary_set_string(dictionary, "broadcaster", "");
@@ -858,11 +858,11 @@ bool AkVCam::IpcBridge::write(const std::string &deviceId,
                                reinterpret_cast<const void **>(keys.data()),
                                reinterpret_cast<const void **>(values.data()),
                                CFIndex(values.size()),
-                               NULL,
-                               NULL);
+                               nullptr,
+                               nullptr);
     auto surface = IOSurfaceCreate(surfaceProperties);
 
-    for (auto value: values)
+    for (auto &value: values)
         CFRelease(value);
 
     CFRelease(surfaceProperties);
@@ -875,14 +875,15 @@ bool AkVCam::IpcBridge::write(const std::string &deviceId,
     auto data = IOSurfaceGetBaseAddress(surface);
     memcpy(data, frame.data().data(), frame.data().size());
     IOSurfaceUnlock(surface, 0, &surfaceSeed);
+    auto surfaceObj = IOSurfaceCreateXPCObject(surface);
 
-    auto dictionary = xpc_dictionary_create(NULL, NULL, 0);
+    auto dictionary = xpc_dictionary_create(nullptr, nullptr, 0);
     xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_FRAME_READY);
     xpc_dictionary_set_string(dictionary, "device", deviceId.c_str());
-    xpc_dictionary_set_value(dictionary, "frame", IOSurfaceCreateXPCObject(surface));
-    xpc_connection_send_message(this->d->m_serverMessagePort,
-                                dictionary);
+    xpc_dictionary_set_value(dictionary, "frame", surfaceObj);
+    xpc_connection_send_message(this->d->m_serverMessagePort, dictionary);
     xpc_release(dictionary);
+    xpc_release(surfaceObj);
     CFRelease(surface);
 
     return true;
@@ -897,7 +898,7 @@ void AkVCam::IpcBridge::setMirroring(const std::string &deviceId,
     if (!this->d->m_serverMessagePort)
         return;
 
-    auto dictionary = xpc_dictionary_create(NULL, NULL, 0);
+    auto dictionary = xpc_dictionary_create(nullptr, nullptr, 0);
     xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_SETMIRRORING);
     xpc_dictionary_set_string(dictionary, "device", deviceId.c_str());
     xpc_dictionary_set_bool(dictionary, "hmirror", horizontalMirrored);
@@ -916,7 +917,7 @@ void AkVCam::IpcBridge::setScaling(const std::string &deviceId,
     if (!this->d->m_serverMessagePort)
         return;
 
-    auto dictionary = xpc_dictionary_create(NULL, NULL, 0);
+    auto dictionary = xpc_dictionary_create(nullptr, nullptr, 0);
     xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_SETSCALING);
     xpc_dictionary_set_string(dictionary, "device", deviceId.c_str());
     xpc_dictionary_set_int64(dictionary, "scaling", scaling);
@@ -934,7 +935,7 @@ void AkVCam::IpcBridge::setAspectRatio(const std::string &deviceId,
     if (!this->d->m_serverMessagePort)
         return;
 
-    auto dictionary = xpc_dictionary_create(NULL, NULL, 0);
+    auto dictionary = xpc_dictionary_create(nullptr, nullptr, 0);
     xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_SETASPECTRATIO);
     xpc_dictionary_set_string(dictionary, "device", deviceId.c_str());
     xpc_dictionary_set_int64(dictionary, "aspect", aspectRatio);
@@ -951,7 +952,7 @@ void AkVCam::IpcBridge::setSwapRgb(const std::string &deviceId, bool swap)
     if (!this->d->m_serverMessagePort)
         return;
 
-    auto dictionary = xpc_dictionary_create(NULL, NULL, 0);
+    auto dictionary = xpc_dictionary_create(nullptr, nullptr, 0);
     xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_SETSWAPRGB);
     xpc_dictionary_set_string(dictionary, "device", deviceId.c_str());
     xpc_dictionary_set_bool(dictionary, "swap", swap);
@@ -968,7 +969,7 @@ bool AkVCam::IpcBridge::addListener(const std::string &deviceId)
     if (!this->d->m_serverMessagePort)
         return false;
 
-    auto dictionary = xpc_dictionary_create(NULL, NULL, 0);
+    auto dictionary = xpc_dictionary_create(nullptr, nullptr, 0);
     xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_LISTENER_ADD);
     xpc_dictionary_set_string(dictionary, "device", deviceId.c_str());
     xpc_dictionary_set_string(dictionary, "listener", this->d->m_portName.c_str());
@@ -996,7 +997,7 @@ bool AkVCam::IpcBridge::removeListener(const std::string &deviceId)
     if (!this->d->m_serverMessagePort)
         return true;
 
-    auto dictionary = xpc_dictionary_create(NULL, NULL, 0);
+    auto dictionary = xpc_dictionary_create(nullptr, nullptr, 0);
     xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_LISTENER_REMOVE);
     xpc_dictionary_set_string(dictionary, "device", deviceId.c_str());
     xpc_dictionary_set_string(dictionary, "listener", this->d->m_portName.c_str());
