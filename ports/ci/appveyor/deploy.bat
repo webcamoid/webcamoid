@@ -20,14 +20,16 @@ if "%PLATFORM%" == "x86" (
     set FF_ARCH=win32
     set GST_ARCH=x86
     set VC_ARGS=x86
+    set PYTHON_PATH=C:\%PYTHON_VERSION%
 ) else (
     set FF_ARCH=win64
     set GST_ARCH=x86_64
     set VC_ARGS=amd64
+    set PYTHON_PATH=C:\%PYTHON_VERSION%-x64
 )
 
 set MAKE_PATH=%TOOLSDIR%\bin\%MAKETOOL%.exe
 set GSTREAMER_DEV_PATH=C:\gstreamer\1.0\%GST_ARCH%
 set PATH=%QTDIR%\bin;%TOOLSDIR%\bin;%CD%\ffmpeg-%FFMPEG_VERSION%-%FF_ARCH%-shared\bin;%GSTREAMER_DEV_PATH%\bin;%PATH%
 
-C:\Python36\python.exe ports\deploy\deploy.py
+%PYTHON_PATH%\python.exe ports\deploy\deploy.py

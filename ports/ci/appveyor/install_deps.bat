@@ -27,9 +27,9 @@ if "%PLATFORM%" == "x86" (
 )
 
 rem Installing various utilities
-choco install -y curl 7zip jfrog-cli InnoSetup
+choco install -y jfrog-cli
 
-set PATH=%PATH%;"C:\Program Files\7-Zip";"C:\Program Files (x86)\Inno Setup 5";%QTDIR%\bin;%TOOLSDIR%\bin
+set PATH=%QTDIR%\bin;%TOOLSDIR%\bin;%PATH%
 
 rem Install FFmpeg development headers and libraries
 set FFMPEG_DEV_FILE=ffmpeg-%FFMPEG_VERSION%-%FF_ARCH%-dev.zip
