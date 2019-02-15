@@ -309,6 +309,11 @@ elif [ "${DOCKERSYS}" = debian ]; then
     if [ -z "${DAILY_BUILD}" ]; then
         ${EXEC} apt-get -y install \
             libgstreamer-plugins-base1.0-dev
+
+        if [ "${DOCKERIMG}" != ubuntu:xenial ]; then
+            ${EXEC} apt-get -y install \
+                libuvc-dev
+        fi
     fi
 
     # Install Qt dev
@@ -369,7 +374,6 @@ elif [ "${DOCKERSYS}" = fedora ]; then
         jack-audio-connection-kit-devel
 elif [ "${DOCKERSYS}" = opensuse ]; then
     ${EXEC} zypper -n dup
-
     ${EXEC} zypper -n in \
         git \
         which \

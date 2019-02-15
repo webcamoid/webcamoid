@@ -57,6 +57,12 @@ class VideoStreamPrivate
         AkPacket convert(AVFrame *iFrame);
         int64_t bestEffortTimestamp(const AVFrame *frame) const;
         AVFrame *copyFrame(AVFrame *frame) const;
+
+        template<typename R, typename S>
+        inline static R align(R value, S align)
+        {
+            return (value + (align >> 1)) & ~(align - 1);
+        }
 };
 
 VideoStream::VideoStream(const AVFormatContext *formatContext,
@@ -198,13 +204,14 @@ AkFrac VideoStreamPrivate::fps() const
 AkPacket VideoStreamPrivate::convert(AVFrame *iFrame)
 {
     AVPixelFormat outPixFormat = AV_PIX_FMT_RGB24;
+    auto width = VideoStreamPrivate::align(iFrame->width, 4);
 
     // Initialize rescaling context.
     this->m_scaleContext = sws_getCachedContext(this->m_scaleContext,
                                                   iFrame->width,
                                                   iFrame->height,
                                                   AVPixelFormat(iFrame->format),
-                                                  iFrame->width,
+                                                  width,
                                                   iFrame->height,
                                                   outPixFormat,
                                                   SWS_FAST_BILINEAR,
@@ -219,7 +226,7 @@ AkPacket VideoStreamPrivate::convert(AVFrame *iFrame)
     AVFrame oFrame;
     memset(&oFrame, 0, sizeof(AVFrame));
 
-    if (av_image_check_size(uint(iFrame->width),
+    if (av_image_check_size(uint(width),
                             uint(iFrame->height),
                             0,
                             nullptr) < 0)
@@ -227,7 +234,7 @@ AkPacket VideoStreamPrivate::convert(AVFrame *iFrame)
 
     if (av_image_fill_linesizes(oFrame.linesize,
                                 outPixFormat,
-                                iFrame->width) < 0)
+                                width) < 0)
         return AkPacket();
 
     uint8_t *data[4];
@@ -261,7 +268,7 @@ AkPacket VideoStreamPrivate::convert(AVFrame *iFrame)
     caps.isValid() = true;
     caps.format() = AkVideoCaps::Format_rgb24;
     caps.bpp() = AkVideoCaps::bitsPerPixel(caps.format());
-    caps.width() = iFrame->width;
+    caps.width() = width;
     caps.height() = iFrame->height;
     caps.fps() = this->fps();
 

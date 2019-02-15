@@ -22,5 +22,4 @@ export PATH=/mingw64/bin:$PATH
 qmake Webcamoid.pro \
     CONFIG+=silent \
     PREFIX="$1"
-make -f Makefile qmake_all
 make -j4

@@ -82,5 +82,4 @@ qmake Webcamoid.pro ^
 
 :Make
 
-%MAKETOOL% -f Makefile qmake_all
 %MAKETOOL% -j4
