@@ -382,7 +382,7 @@ QByteArray AudioDevPulseAudio::read(int samples)
         this->d->m_error = QString(pa_strerror(error));
         emit this->errorChanged(this->d->m_error);
 
-        return QByteArray();
+        return {};
     }
 
     return buffer;

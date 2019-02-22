@@ -312,6 +312,7 @@ elif [ "${DOCKERSYS}" = debian ]; then
 
         if [ "${DOCKERIMG}" != ubuntu:xenial ]; then
             ${EXEC} apt-get -y install \
+                libusb-dev \
                 libuvc-dev
         fi
     fi

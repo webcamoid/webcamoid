@@ -70,7 +70,6 @@ class MediaWriterFFmpegGlobal
         QMap<QString, QVariantMap> m_codecDefaults;
 
         MediaWriterFFmpegGlobal();
-
         inline AvMediaTypeStrMap initAvMediaTypeStrMap();
         inline VectorVideoCaps initDVSupportedCaps();
         inline VectorVideoCaps initDNxHDSupportedCaps();
@@ -105,11 +104,7 @@ class MediaWriterFFmpegPrivate
         QMap<int, AbstractStreamPtr> m_streamsMap;
         bool m_isRecording {false};
 
-        explicit MediaWriterFFmpegPrivate(MediaWriterFFmpeg *self):
-            self(self)
-        {
-        }
-
+        explicit MediaWriterFFmpegPrivate(MediaWriterFFmpeg *self);
         QString guessFormat();
         QVariantList parseOptions(const AVClass *avClass) const;
         AVDictionary *formatContextOptions(AVFormatContext *formatContext,
@@ -183,6 +178,8 @@ QStringList MediaWriterFFmpeg::supportedFormats()
          it++)
         if (!this->m_formatsBlackList.contains(it.key()))
             formats << it.key();
+
+    std::sort(formats.begin(), formats.end());
 
     return formats;
 }
@@ -271,6 +268,8 @@ QStringList MediaWriterFFmpeg::supportedCodecs(const QString &format,
             if (!this->m_codecsBlackList.contains(codec))
                 supportedCodecs << codec;
     }
+
+    std::sort(supportedCodecs.begin(), supportedCodecs.end());
 
     return supportedCodecs;
 }
@@ -532,6 +531,11 @@ QVariantList MediaWriterFFmpeg::codecOptions(int index)
     }
 
     return codecOptions;
+}
+
+MediaWriterFFmpegPrivate::MediaWriterFFmpegPrivate(MediaWriterFFmpeg *self):
+    self(self)
+{
 }
 
 QString MediaWriterFFmpegPrivate::guessFormat()
