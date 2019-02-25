@@ -38,6 +38,7 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
         super().__init__()
         self.installDir = os.path.join(self.buildDir, 'ports/deploy/temp_priv')
         self.pkgsDir = os.path.join(self.buildDir, 'ports/deploy/packages_auto', self.targetSystem)
+        self.detectQt(os.path.join(self.buildDir, 'StandAlone'))
         self.rootInstallDir = os.path.join(self.installDir, 'Applications')
         self.programName = 'webcamoid'
         self.appBundleDir = os.path.join(self.rootInstallDir, self.programName + '.app')
@@ -49,7 +50,6 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
         self.qtConf = os.path.join(self.execPrefixDir, 'Resources/qt.conf')
         self.qmlRootDirs = ['StandAlone/share/qml', 'libAvKys/Plugins']
         self.mainBinary = os.path.join(self.binaryInstallDir, self.programName)
-        self.detectQt(os.path.join(self.buildDir, 'StandAlone'))
         self.programVersion = self.detectVersion(os.path.join(self.rootDir, 'commons.pri'))
         self.detectMake()
         self.binarySolver = tools.binary_mach.DeployToolsBinary()

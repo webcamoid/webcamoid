@@ -581,10 +581,10 @@ void AkElement::setPluginsBlackList(const QStringList &blackList)
 
 QString AkElement::pluginPath(const QString &pluginId)
 {
-    QStringList pluginPaths = AkElement::listPluginPaths();
+    auto pluginPaths = AkElement::listPluginPaths();
 
-    for (const QString &path: pluginPaths) {
-        QString baseName = QFileInfo(path).baseName();
+    for (auto &path: pluginPaths) {
+        auto baseName = QFileInfo(path).baseName();
 
 #ifdef Q_OS_WIN32
         if (baseName == pluginId)
@@ -595,7 +595,7 @@ QString AkElement::pluginPath(const QString &pluginId)
 #endif
     }
 
-    return QString();
+    return {};
 }
 
 QVariantMap AkElement::pluginInfo(const QString &pluginId)
@@ -777,8 +777,9 @@ AkElementPrivate::AkElementPrivate()
     this->m_pluginsScanned = false;
     this->m_defaultPluginsSearchPaths << INSTALLPLUGINSDIR;
     this->m_defaultPluginsSearchPaths
-            << this->convertToAbsolute(QString("%1/../lib/%2")
+            << this->convertToAbsolute(QString("%1/../%2/%3")
                                        .arg(QCoreApplication::applicationDirPath(),
+                                            QString(LIBDIR).remove(EXECPREFIX).mid(1),
                                             COMMONS_TARGET));
 
 #ifdef Q_OS_OSX
@@ -920,13 +921,12 @@ void AkElementPrivate::listPlugins()
 
                             if (metaData["MetaData"].toObject().contains("pluginType")
                                 && metaData["MetaData"].toObject()["pluginType"] == AK_PLUGIN_TYPE_ELEMENT) {
-                                this->m_pluginsList <<
-                                                       AkPluginInfoPrivate {
-                                                       pluginId,
-                                                       path,
-                                                       metaData.toVariantMap(),
-                                                       true
-                            };
+                                this->m_pluginsList << AkPluginInfoPrivate {
+                                   pluginId,
+                                   path,
+                                   metaData.toVariantMap(),
+                                   true
+                                };
                             }
 
                             pluginLoader.unload();

@@ -38,23 +38,30 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
         super().__init__()
         self.installDir = os.path.join(self.buildDir, 'ports/deploy/temp_priv')
         self.pkgsDir = os.path.join(self.buildDir, 'ports/deploy/packages_auto', sys.platform)
-        self.rootInstallDir = os.path.join(self.installDir, 'usr')
+        self.detectQt(os.path.join(self.buildDir, 'StandAlone'))
+        self.rootInstallDir = os.path.join(self.installDir, self.qmakeQuery(var='QT_INSTALL_PREFIX')[1:])
         self.binaryInstallDir = os.path.join(self.rootInstallDir, 'bin')
-        self.libInstallDir = os.path.join(self.rootInstallDir, 'lib')
-        self.libQtInstallDir = os.path.join(self.libInstallDir, 'qt')
-        self.qmlInstallDir = os.path.join(self.libQtInstallDir, 'qml')
-        self.pluginsInstallDir = os.path.join(self.libQtInstallDir, 'plugins')
+        self.libInstallDir = self.qmakeQuery(var='QT_INSTALL_LIBS') \
+                                .replace(self.qmakeQuery(var='QT_INSTALL_PREFIX'),
+                                         self.rootInstallDir)
+        self.libQtInstallDir = self.qmakeQuery(var='QT_INSTALL_ARCHDATA') \
+                                .replace(self.qmakeQuery(var='QT_INSTALL_PREFIX'),
+                                         self.rootInstallDir)
+        self.qmlInstallDir = self.qmakeQuery(var='QT_INSTALL_QML') \
+                                .replace(self.qmakeQuery(var='QT_INSTALL_PREFIX'),
+                                         self.rootInstallDir)
+        self.pluginsInstallDir = self.qmakeQuery(var='QT_INSTALL_PLUGINS') \
+                                .replace(self.qmakeQuery(var='QT_INSTALL_PREFIX'),
+                                         self.rootInstallDir)
         self.qtConf = os.path.join(self.binaryInstallDir, 'qt.conf')
         self.qmlRootDirs = ['StandAlone/share/qml', 'libAvKys/Plugins']
         self.mainBinary = os.path.join(self.binaryInstallDir, 'webcamoid')
         self.programName = os.path.basename(self.mainBinary)
-        self.detectQt(os.path.join(self.buildDir, 'StandAlone'))
         self.programVersion = self.detectVersion(os.path.join(self.rootDir, 'commons.pri'))
         self.detectMake()
         self.targetSystem = 'posix_windows' if 'win32' in self.qmakeQuery(var='QMAKE_XSPEC') else 'posix'
         self.binarySolver = tools.binary_elf.DeployToolsBinary()
         self.binarySolver.readExcludeList(os.path.join(self.rootDir, 'ports/deploy/exclude.{}.{}.txt'.format(os.name, sys.platform)))
-        self.appImage = self.detectAppImage()
         self.packageConfig = os.path.join(self.rootDir, 'ports/deploy/package_info.conf')
         self.dependencies = []
         self.installerConfig = os.path.join(self.installDir, 'installer/config')
@@ -76,7 +83,15 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
         if 'APPIMAGETOOL' in os.environ:
             return os.environ['APPIMAGETOOL']
 
-        return self.whereBin('appimagetool')
+        appimagetool = self.whereBin('appimagetool')
+
+        if len(appimagetool) > 0:
+            return appimagetool
+
+        if self.targetArch == '32bit':
+            return self.whereBin('appimagetool-i686.AppImage')
+
+        return self.whereBin('appimagetool-x86_64.AppImage')
 
     def solvedepsLibs(self):
         qtLibsPath = self.qmakeQuery(var='QT_INSTALL_LIBS')
@@ -93,6 +108,7 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
         print('Executing make install')
         self.makeInstall(self.buildDir, self.installDir)
         self.detectTargetArch()
+        self.appImage = self.detectAppImage()
         print('Copying Qml modules\n')
         self.solvedepsQml()
         print('\nCopying required plugins\n')
@@ -220,7 +236,8 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
         return info
 
     def writeBuildInfo(self):
-        depsInfoFile = os.path.join(self.rootInstallDir, 'share/build-info.txt')
+        shareDir = os.path.join(self.rootInstallDir, 'share')
+        depsInfoFile = os.path.join(shareDir, 'build-info.txt')
 
         # Write repository info.
 
@@ -228,6 +245,9 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
 
         if len(commitHash) < 1:
             commitHash = 'Unknown'
+
+        if not os.path.exists(shareDir):
+            os.makedirs(shareDir)
 
         with open(depsInfoFile, 'w') as f:
             print('    Commit hash: ' + commitHash + '\n')
@@ -265,6 +285,9 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
 
     def createLauncher(self):
         path = os.path.join(self.rootInstallDir, self.programName) + '.sh'
+        libDir = self.qmakeQuery(var='QT_INSTALL_LIBS') \
+                    .replace(self.qmakeQuery(var='QT_INSTALL_PREFIX'),
+                             '${ROOTDIR}')
 
         with open(path, 'w') as launcher:
             launcher.write('#!/bin/sh\n')
@@ -284,7 +307,7 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
             launcher.write('\n')
             launcher.write('ROOTDIR=$(rootdir "$0")\n')
             launcher.write('export PATH="${ROOTDIR}/bin:$PATH"\n')
-            launcher.write('export LD_LIBRARY_PATH="${ROOTDIR}/lib:$LD_LIBRARY_PATH"\n')
+            launcher.write('export LD_LIBRARY_PATH="{}:$LD_LIBRARY_PATH"\n'.format(libDir))
             launcher.write('#export QT_DEBUG_PLUGINS=1\n')
             launcher.write('{} "$@"\n'.format(self.programName))
 
@@ -398,8 +421,11 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
         if 'LD_LIBRARY_PATH' in penv:
             libPaths = penv['LD_LIBRARY_PATH'].split(':')
 
+        libDir = os.path.relpath(self.qmakeQuery(var='QT_INSTALL_LIBS'),
+                                 self.qmakeQuery(var='QT_INSTALL_PREFIX'))
         penv['LD_LIBRARY_PATH'] = \
-            ':'.join([os.path.abspath(os.path.join(self.appImage, '../../lib'))]
+            ':'.join([os.path.abspath(os.path.join(self.appImage, '../..', libDir)),
+                      os.path.abspath(os.path.join(self.appImage, '../../lib'))]
                      + libPaths)
 
         process = subprocess.Popen([self.appImage, # nosec

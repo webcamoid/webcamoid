@@ -24,10 +24,9 @@ VERSION = $${VER_MAJ}.$${VER_MIN}.$${VER_PAT}
 isEmpty(BUILDDOCS): BUILDDOCS = 0
 
 isEmpty(QDOCTOOL): {
-    unix: QDOC_FNAME = qdoc
-    win32: QDOC_FNAME = qdoc.exe
+    QDOC_FNAME = qdoc
 
-    exists($$[QT_INSTALL_LIBEXECS]/$${QDOC_FNAME}) {
+    exists($$[QT_INSTALL_LIBEXECS]/$${QDOC_FNAME}*) {
         QDOCTOOL = $$[QT_INSTALL_LIBEXECS]/$${QDOC_FNAME}
     } else {
         QDOCTOOL = $$[QT_INSTALL_BINS]/$${QDOC_FNAME}
@@ -35,10 +34,9 @@ isEmpty(QDOCTOOL): {
 }
 
 isEmpty(QMAKE_LRELEASE) {
-    unix: LRELEASE_FNAME = lrelease
-    win32: LRELEASE_FNAME = lrelease.exe
+    LRELEASE_FNAME = lrelease
 
-    exists($$[QT_INSTALL_LIBEXECS]/$${LRELEASE_FNAME}) {
+    exists($$[QT_INSTALL_LIBEXECS]/$${LRELEASE_FNAME}*) {
         QMAKE_LRELEASE = $$[QT_INSTALL_LIBEXECS]/$${LRELEASE_FNAME}
     } else {
         QMAKE_LRELEASE = $$[QT_INSTALL_BINS]/$${LRELEASE_FNAME}
@@ -46,10 +44,9 @@ isEmpty(QMAKE_LRELEASE) {
 }
 
 isEmpty(QMAKE_LUPDATE) {
-    unix: LUPDATE_FNAME = lupdate
-    win32: LUPDATE_FNAME = lupdate.exe
+    LUPDATE_FNAME = lupdate
 
-    exists($$[QT_INSTALL_LIBEXECS]/$${LUPDATE_FNAME}) {
+    exists($$[QT_INSTALL_LIBEXECS]/$${LUPDATE_FNAME}*) {
         QMAKE_LUPDATE = $$[QT_INSTALL_LIBEXECS]/$${LUPDATE_FNAME}
     } else {
         QMAKE_LUPDATE = $$[QT_INSTALL_BINS]/$${LUPDATE_FNAME}
@@ -73,7 +70,7 @@ win32 {
 } else: macx: isEmpty(NOAPPBUNDLE) {
     DEFAULT_PREFIX = /Applications
 } else {
-    DEFAULT_PREFIX = /usr
+    DEFAULT_PREFIX = $$[QT_INSTALL_PREFIX]
 }
 
 isEmpty(PREFIX): PREFIX = $${DEFAULT_PREFIX}
@@ -114,10 +111,9 @@ isEmpty(PSDIR): PSDIR = $${DOCDIR}/ps
 isEmpty(LIBDIR) {
     macx: isEmpty(NOAPPBUNDLE) {
         LIBDIR = $${EXECPREFIX}/Frameworks
-    } else: win32 {
-        LIBDIR = $${BINDIR}
     } else {
-        LIBDIR = $${EXECPREFIX}/lib
+        INSTALL_LIBS = $$[QT_INSTALL_LIBS]
+        LIBDIR = $$replace(INSTALL_LIBS, $$[QT_INSTALL_PREFIX], $${EXECPREFIX})
     }
 }
 isEmpty(LOCALEDIR): LOCALEDIR = $${DATAROOTDIR}/locale
@@ -127,18 +123,15 @@ isEmpty(LOCALDIR): LOCALDIR = $${PREFIX}/local
 isEmpty(LOCALLIBDIR): LOCALLIBDIR = $${LOCALDIR}/lib
 isEmpty(INSTALLQMLDIR) {
     macx: isEmpty(NOAPPBUNDLE) {
-        INSTALLQMLDIR = $${DATAROOTDIR}/qml
-    } else: win32 {
-        INSTALLQMLDIR = $${EXECPREFIX}/lib/qt/qml
+        INSTALLQMLDIR = $${INSTALLQTDIR}/qml
     } else {
-        INSTALLQMLDIR = $${LIBDIR}/qt/qml
+        INSTALL_QML = $$[QT_INSTALL_QML]
+        INSTALLQMLDIR = $$replace(INSTALL_QML, $$[QT_INSTALL_LIBS], $${LIBDIR})
     }
 }
 isEmpty(INSTALLPLUGINSDIR) {
     macx: isEmpty(NOAPPBUNDLE) {
         INSTALLPLUGINSDIR = $${EXECPREFIX}/Plugins/$${COMMONS_TARGET}
-    } else: win32 {
-        INSTALLPLUGINSDIR = $${EXECPREFIX}/lib/$${COMMONS_TARGET}
     } else {
         INSTALLPLUGINSDIR = $${LIBDIR}/$${COMMONS_TARGET}
     }
@@ -155,7 +148,7 @@ DEFINES += \
     EXECPREFIX=\"\\\"$$EXECPREFIX\\\"\" \
     BINDIR=\"\\\"$$BINDIR\\\"\" \
     SBINDIR=\"\\\"$$SBINDIR\\\"\" \
-    LIBEXECDIR=\"\\\"LIBEXECDIR\\\"\" \
+    LIBEXECDIR=\"\\\"$$LIBEXECDIR\\\"\" \
     DATAROOTDIR=\"\\\"$$DATAROOTDIR\\\"\" \
     DATDIR=\"\\\"$$DATDIR\\\"\" \
     SYSCONFDIR=\"\\\"$$SYSCONFDIR\\\"\" \

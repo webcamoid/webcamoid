@@ -336,6 +336,10 @@ class DeployToolsQt(tools.utils.DeployToolsUtils):
         paths = {'Plugins': os.path.relpath(self.pluginsInstallDir, self.binaryInstallDir),
                  'Imports': os.path.relpath(self.qmlInstallDir, self.binaryInstallDir),
                  'Qml2Imports': os.path.relpath(self.qmlInstallDir, self.binaryInstallDir)}
+        confPath = os.path.dirname(self.qtConf)
+
+        if not os.path.exists(confPath):
+            os.makedirs(confPath)
 
         with open(self.qtConf, 'w') as qtconf:
             qtconf.write('[Paths]\n')

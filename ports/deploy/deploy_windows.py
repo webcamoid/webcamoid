@@ -37,17 +37,25 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
         super().__init__()
         self.installDir = os.path.join(self.buildDir, 'ports/deploy/temp_priv')
         self.pkgsDir = os.path.join(self.buildDir, 'ports/deploy/packages_auto/windows')
+        self.detectQt(os.path.join(self.buildDir, 'StandAlone'))
         self.rootInstallDir = os.path.join(self.installDir, 'usr')
         self.binaryInstallDir = os.path.join(self.rootInstallDir, 'bin')
-        self.libInstallDir = os.path.join(self.rootInstallDir, 'lib')
-        self.libQtInstallDir = os.path.join(self.libInstallDir, 'qt')
-        self.qmlInstallDir = os.path.join(self.libQtInstallDir, 'qml')
-        self.pluginsInstallDir = os.path.join(self.libQtInstallDir, 'plugins')
+        self.libInstallDir = self.qmakeQuery(var='QT_INSTALL_LIBS') \
+                                .replace(self.qmakeQuery(var='QT_INSTALL_PREFIX'),
+                                         self.rootInstallDir)
+        self.libQtInstallDir = self.qmakeQuery(var='QT_INSTALL_ARCHDATA') \
+                                .replace(self.qmakeQuery(var='QT_INSTALL_PREFIX'),
+                                         self.rootInstallDir)
+        self.qmlInstallDir = self.qmakeQuery(var='QT_INSTALL_QML') \
+                                .replace(self.qmakeQuery(var='QT_INSTALL_PREFIX'),
+                                         self.rootInstallDir)
+        self.pluginsInstallDir = self.qmakeQuery(var='QT_INSTALL_PLUGINS') \
+                                .replace(self.qmakeQuery(var='QT_INSTALL_PREFIX'),
+                                         self.rootInstallDir)
         self.qtConf = os.path.join(self.binaryInstallDir, 'qt.conf')
         self.qmlRootDirs = ['StandAlone/share/qml', 'libAvKys/Plugins']
         self.mainBinary = os.path.join(self.binaryInstallDir, 'webcamoid.exe')
         self.programName = os.path.splitext(os.path.basename(self.mainBinary))[0]
-        self.detectQt(os.path.join(self.buildDir, 'StandAlone'))
         self.programVersion = self.detectVersion(os.path.join(self.rootDir, 'commons.pri'))
         self.detectMake()
         self.binarySolver = tools.binary_pecoff.DeployToolsBinary()
@@ -149,6 +157,8 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
 
     def createLauncher(self):
         path = os.path.join(self.rootInstallDir, self.programName) + '.bat'
+        libDir = os.path.relpath(self.libInstallDir, self.rootInstallDir)
+        qmlDir = os.path.relpath(self.qmlInstallDir, self.rootInstallDir).replace('/', '\\')
 
         with open(path, 'w') as launcher:
             launcher.write('@echo off\n')
@@ -162,7 +172,11 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
             launcher.write('rem Default values: software | d3d12 | openvg\n')
             launcher.write('rem set QT_QUICK_BACKEND=""\n')
             launcher.write('\n')
-            launcher.write('start /b "" "%~dp0bin\\{}" -q "%~dp0lib\\qt\\qml" -p "%~dp0lib\\avkys" -c "%~dp0share\\config"\n'.format(self.programName))
+            launcher.write('start /b "" '
+                           + '"%~dp0bin\\{}" '.format(self.programName)
+                           + '-p "%~dp0{}\\avkys" '.format(libDir)
+                           + '-q "%~dp0{}" '.format(qmlDir)
+                           + '-c "%~dp0share\\config"\n')
 
     @staticmethod
     def removeUnneededFiles(path):

@@ -36,6 +36,7 @@ if not "%DAILY_BUILD%" == "" goto DailyBuild
 set GSTREAMER_DEV_PATH=C:\gstreamer\1.0\%GST_ARCH%
 set PATH=%QTDIR%\bin;%TOOLSDIR%\bin;%CD%\ffmpeg-%FFMPEG_VERSION%-%FF_ARCH%-shared\bin;%GSTREAMER_DEV_PATH%\bin;%PATH%
 
+qmake -query
 qmake Webcamoid.pro ^
     CONFIG+=%CONFIGURATION% ^
     CONFIG+=silent ^

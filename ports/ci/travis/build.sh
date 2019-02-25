@@ -53,6 +53,7 @@ fi
 if [ "${ANDROID_BUILD}" = 1 ]; then
     export PATH=$PWD/build/Qt/${QTVER}/android_${TARGET_ARCH}/bin:$PATH
     export ANDROID_NDK_ROOT=$PWD/build/android-ndk-${NDKVER}
+    qmake -query
     qmake -spec ${COMPILESPEC} Webcamoid.pro \
         CONFIG+=silent
 elif [ "${ARCH_ROOT_BUILD}" = 1 ]; then
@@ -79,6 +80,7 @@ EOF
 
     cat << EOF >> ${BUILDSCRIPT}
 cd /home/user/webcamoid
+${QMAKE_CMD} -query
 ${QMAKE_CMD} -spec ${COMPILESPEC} Webcamoid.pro \
     CONFIG+=silent \
     QMAKE_CXX="${COMPILER}"
@@ -96,6 +98,7 @@ elif [ "${TRAVIS_OS_NAME}" = linux ]; then
                 cat << EOF >> ${BUILDSCRIPT}
 #!/bin/sh
 
+qmake -query
 qmake -spec ${COMPILESPEC} Webcamoid.pro \
     CONFIG+=silent \
     QMAKE_CXX="${COMPILER}"
@@ -104,6 +107,7 @@ EOF
                 cat << EOF >> ${BUILDSCRIPT}
 #!/bin/sh
 
+qmake -query
 qmake -spec ${COMPILESPEC} Webcamoid.pro \
     CONFIG+=silent \
     QMAKE_CXX="${COMPILER}" \
@@ -114,16 +118,20 @@ EOF
 
             ${EXEC} bash ${BUILDSCRIPT}
         else
+            ${EXEC} qmake -query
             ${EXEC} qmake -qt=5 -spec ${COMPILESPEC} Webcamoid.pro \
                 CONFIG+=silent \
                 QMAKE_CXX="${COMPILER}"
         fi
     else
+        ${EXEC} qmake-qt5 -query
         ${EXEC} qmake-qt5 -spec ${COMPILESPEC} Webcamoid.pro \
             CONFIG+=silent \
             QMAKE_CXX="${COMPILER}"
     fi
 elif [ "${TRAVIS_OS_NAME}" = osx ]; then
+    ${EXEC} qmake -query
+
     if [ -z "${DAILY_BUILD}" ]; then
         ${EXEC} qmake -spec ${COMPILESPEC} Webcamoid.pro \
             CONFIG+=silent \

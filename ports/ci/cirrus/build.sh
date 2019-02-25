@@ -18,6 +18,7 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
+qmake -query
 qmake Webcamoid.pro \
     CONFIG+=silent
 
