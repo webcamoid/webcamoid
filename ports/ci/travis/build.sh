@@ -118,7 +118,7 @@ EOF
 
             ${EXEC} bash ${BUILDSCRIPT}
         else
-            ${EXEC} qmake -query
+            ${EXEC} qmake -qt=5 -query
             ${EXEC} qmake -qt=5 -spec ${COMPILESPEC} Webcamoid.pro \
                 CONFIG+=silent \
                 QMAKE_CXX="${COMPILER}"

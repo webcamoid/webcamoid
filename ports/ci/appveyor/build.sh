@@ -19,6 +19,7 @@
 # Web-Site: http://webcamoid.github.io/
 
 export PATH=/mingw64/bin:$PATH
+qmake -query
 qmake Webcamoid.pro \
     CONFIG+=silent \
     PREFIX="$1"

@@ -390,6 +390,7 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
         config.optionxform=str
         config.read(desktopFile, 'utf-8')
         config['Desktop Entry']['Exec'] = 'AppRun'
+        del config['Desktop Entry']['Keywords']
 
         with open(desktopFile, 'w', encoding='utf-8') as configFile:
             config.write(configFile, space_around_delimiters=False)
@@ -399,6 +400,11 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
         if not os.path.exists(icon):
             os.symlink('./share/icons/hicolor/256x256/apps/webcamoid.png',
                        icon)
+
+        usrDir = os.path.join(appDir, 'usr')
+
+        if not os.path.exists(usrDir):
+            os.symlink('.', usrDir)
 
         # Remove old file
         packagePath = \
