@@ -1,3 +1,17 @@
+Webcamoid 8.6.0:
+
+- Now webcam settings are saved.
+- Enabled secondary plugins, and fixed segfaults and  memleaks in GStreamer.
+- Fixed segfaults and memory leaks in MacOS.
+- Fixed GIF playback in FFmpeg.
+- Build now support MSYS2.
+- Added FreeBSD CI support in Cirrus CI.
+- Added static analysis with Codacy.
+- Added daily builds with Bintray.
+- Disabled hotplug support for FreeBSD.
+- Fixed manpage install.
+- Install paths now follow Qt install paths structure.
+
 Webcamoid 8.5.0:
 
 - UI ported to QtQuick Controls 2.

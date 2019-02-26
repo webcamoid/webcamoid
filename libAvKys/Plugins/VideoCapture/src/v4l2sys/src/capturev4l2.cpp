@@ -1305,10 +1305,10 @@ void CaptureV4L2::updateDevices()
             this->d->m_fsWatcher->removePaths(this->d->m_devices);
 
         this->d->m_devices = devices;
-
+#ifndef Q_OS_BSD4
         if (!this->d->m_devices.isEmpty())
             this->d->m_fsWatcher->addPaths(this->d->m_devices);
-
+#endif
         emit this->webcamsChanged(this->d->m_devices);
     }
 }

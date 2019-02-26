@@ -1,4 +1,4 @@
-version: 8.5.0.{build}-{branch}
+version: 8.6.0.{build}-{branch}
 os: MinGW
 
 image: Visual Studio 2017

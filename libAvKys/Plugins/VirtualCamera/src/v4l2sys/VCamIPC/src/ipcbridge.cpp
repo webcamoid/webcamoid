@@ -2109,9 +2109,10 @@ void AkVCam::IpcBridgePrivate::updateDevices()
             this->m_fsWatcher->removePaths(this->m_devices);
 
         this->m_devices = devices;
-
+#ifndef Q_OS_BSD4
         if (!this->m_devices.isEmpty())
             this->m_fsWatcher->addPaths(this->m_devices);
+#endif
     }
 }
 
