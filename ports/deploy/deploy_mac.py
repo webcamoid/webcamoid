@@ -318,8 +318,15 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
         return '{:.2f} {}'.format(sizeKiB, units[i - 1])
 
     def printPackageInfo(self, path):
-        print('   ', os.path.basename(path),
-              self.hrSize(os.path.getsize(path)))
+        if os.path.exists(path):
+            print('   ',
+                  os.path.basename(path),
+                  self.hrSize(os.path.getsize(path)))
+            print('    sha256sum:', Deploy.sha256sum(path))
+        else:
+            print('   ',
+                  os.path.basename(path),
+                  'FAILED')
 
     @staticmethod
     def dirSize(path):

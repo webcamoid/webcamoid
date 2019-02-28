@@ -19,6 +19,7 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
+import hashlib
 import multiprocessing
 import os
 import platform
@@ -161,3 +162,18 @@ class DeployToolsUtils:
         os.chdir(previousDir)
 
         return process.returncode
+
+    @staticmethod
+    def sha256sum(fileName):
+        sha = hashlib.sha256()
+
+        with open(fileName, 'rb') as f:
+            while True:
+                data = f.read(1024)
+
+                if not data:
+                    break
+
+                sha.update(data)
+
+        return sha.hexdigest()

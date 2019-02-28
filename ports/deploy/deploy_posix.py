@@ -330,6 +330,7 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
             print('   ',
                   os.path.basename(path),
                   self.hrSize(os.path.getsize(path)))
+            print('    sha256sum:', Deploy.sha256sum(path))
         else:
             print('   ',
                   os.path.basename(path),

@@ -321,8 +321,14 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
 
     def printPackageInfo(self, path):
         if os.path.exists(path):
-            print('   ', os.path.basename(path),
+            print('   ',
+                  os.path.basename(path),
                   self.hrSize(os.path.getsize(path)))
+            print('    sha256sum:', Deploy.sha256sum(path))
+        else:
+            print('   ',
+                  os.path.basename(path),
+                  'FAILED')
 
     def createPortable(self, mutex):
         arch = 'win32' if self.targetArch == '32bit' else 'win64'
