@@ -6,13 +6,13 @@ cache:
 
 env:
   global:
-    - QTVER=5.12.0
+    - QTVER=5.12.1
     - PPAQTVER=512
     - QTIFWVER=3.0.6
     - APPIMAGEVER=11
     - ARCH_ROOT_DATE=2019.02.01
     - ARCH_ROOT_URL=https://mirror.rackspace.com/archlinux
-    - FFMPEG_VERSION=4.1
+    - FFMPEG_VERSION=4.1.1
 
 matrix:
   include:
@@ -40,6 +40,20 @@ matrix:
       - ARCH_ROOT_BUILD=1
       - ARCH_ROOT_MINGW=i686
       - DAILY_BUILD=1
+  - os: linux
+    dist: xenial
+    compiler: gcc
+    env:
+      - ARCH_ROOT_BUILD=1
+      - ARCH_ROOT_MINGW=x86_64
+      - RELEASE_BUILD=1
+  - os: linux
+    dist: xenial
+    compiler: gcc
+    env:
+      - ARCH_ROOT_BUILD=1
+      - ARCH_ROOT_MINGW=i686
+      - RELEASE_BUILD=1
   - os: linux
     sudo: required
     services:
@@ -135,6 +149,15 @@ matrix:
       - DOCKERSYS=debian
       - DOCKERIMG=ubuntu:xenial
       - DAILY_BUILD=1
+  - os: linux
+    sudo: required
+    services:
+      - docker
+    compiler: gcc
+    env:
+      - DOCKERSYS=debian
+      - DOCKERIMG=ubuntu:xenial
+      - RELEASE_BUILD=1
   - os: linux
     sudo: required
     services:
@@ -204,6 +227,11 @@ matrix:
     compiler: clang
     env:
       - DAILY_BUILD=1
+  - os: osx
+    osx_image: xcode9.1
+    compiler: clang
+    env:
+      - RELEASE_BUILD=1
   - os: osx
     osx_image: xcode9.1
     compiler: clang
@@ -329,12 +357,26 @@ notifications:
     on_failure: change
 
 deploy:
-  provider: bintray
-  user: hipersayanx
-  key:
-    secure: nk14s1Ud2d4mSrUE2GE8LoWBQxGPiQgwnarx4rVAslOcUHRet+Tj9rSeQfW85oUWGT9LSGvob9il+cvbukoZDBbCyw1VyiO4n4XqaUvmz9/Oh9+7It51eYan/sUxxsiANB3D6c0sklpwg3KeZqYWqS/DoYsOIXA4YBelvFGezm+JZoueJokA7MpZv6rjltVD7WkIA3etoOleofXhcHFr5FAYzPtFN0BGgVmuIIunuOxVCkz1nkR/ucaIrcckpt7XU/WHJ4nrKNb8eUWSxVdklbK7F3MBebe+1ZmK5Gd1Vum378PqT6CjHKsLe1LGhEA5exHWtFlI3YR/u+DqJ9WJic1ykQV6d4BNoBGbWicNcVJuljQRTN+aGGPNMGN5mw7FYdasYKz94Lu7IZsDytAPxkitjbiOF9rZIBkGkHybZdcqCc/nkoXVKhfWaTkoKtQ4UHo32lE6fkIL5QMWwnfMY1IyQvcxkhoevzU0woZt2jvxb5/nHr+fHhekzdWqaWDhdLeViF1G0zZMuG7o6rquLIgzbmYieq1XO0Hoj6lSglGDpCXk2iVbkZetO252Bgzf/wype93HABGmSb48DXyp1tRTgBzh12IbTazrtS2fNMmMpCqNOIy4OvkIwWEKXQKrc53Zowcf3sG2OuGDVwCdGil82PtE+LQN9AiA8gBdU8E=
-  on:
-    branch: master
-    condition: $DAILY_BUILD = 1
-  skip_cleanup: true
-  file: "$TRAVIS_BUILD_DIR/.bintray.js"
+  - provider: bintray
+    user: hipersayanx
+    key:
+      secure: nk14s1Ud2d4mSrUE2GE8LoWBQxGPiQgwnarx4rVAslOcUHRet+Tj9rSeQfW85oUWGT9LSGvob9il+cvbukoZDBbCyw1VyiO4n4XqaUvmz9/Oh9+7It51eYan/sUxxsiANB3D6c0sklpwg3KeZqYWqS/DoYsOIXA4YBelvFGezm+JZoueJokA7MpZv6rjltVD7WkIA3etoOleofXhcHFr5FAYzPtFN0BGgVmuIIunuOxVCkz1nkR/ucaIrcckpt7XU/WHJ4nrKNb8eUWSxVdklbK7F3MBebe+1ZmK5Gd1Vum378PqT6CjHKsLe1LGhEA5exHWtFlI3YR/u+DqJ9WJic1ykQV6d4BNoBGbWicNcVJuljQRTN+aGGPNMGN5mw7FYdasYKz94Lu7IZsDytAPxkitjbiOF9rZIBkGkHybZdcqCc/nkoXVKhfWaTkoKtQ4UHo32lE6fkIL5QMWwnfMY1IyQvcxkhoevzU0woZt2jvxb5/nHr+fHhekzdWqaWDhdLeViF1G0zZMuG7o6rquLIgzbmYieq1XO0Hoj6lSglGDpCXk2iVbkZetO252Bgzf/wype93HABGmSb48DXyp1tRTgBzh12IbTazrtS2fNMmMpCqNOIy4OvkIwWEKXQKrc53Zowcf3sG2OuGDVwCdGil82PtE+LQN9AiA8gBdU8E=
+    on:
+      branch: master
+      condition: $DAILY_BUILD = 1
+    skip_cleanup: true
+    file: "$TRAVIS_BUILD_DIR/.bintray.js"
+  - provider: releases
+    api_key:
+      secure: ZmstNQAkYnWdGab437ocr2P613/xqpDLMS2IKOT/n+r3fVCNqhHj7itTTpzSqVQ1LxFRbc5uw22F8Ha6H6kmbtFLs6GETXiTzaqfT6rdwfzzQJa6zZlEF/hWy5fFJzWOQs/e3nYdk2G/eDCWXw3rep4jpzHoxvEYDVlyIUAIkCTloKCYhecUvS/heV88llfZXtqIkYjjNTjQphfgbY67607XcHd0n3ZMxzohGq5DHM4N7KPzo9I/IAzaFz1U5/9hx/r3cogcZmBEpLnXGlRw3pgszdCULlDJVCwqS2b4bYkdWVMWU2T7hDk2K9LUXGjauCbuvMaebNNcitr8K9LHJ8F4OnOKZx3J95NSCMFZhfhlXEW+SLCLzNgKJZ4uldT1xoKTgB0ZdeoCW00yZUT/YWmjin6GaUjkaMXqe2gOGl8S9KcuF/M9VIC4XQawvrYKtgyX5/7jkdKlUTts92hMU6AQ3MT/1oGWsHNrwe9qExYiOUaJss3AiCp6izRFDrSOiG03d8enMDYOZiDZghk8NQ2udRGwFq0c8suPQ+hRB9yNnrnHqlTPAXhKQXHNv78KMo2mGLMiVstx4YTsN3BmZUksfiouB48U3/wy6/cmIw5+Bp/YtAYL2JV2uujG87kUP66Zl/3j6Fs2a6EERWd8WTVYdGZC0TbY4yfPhbpEBUQ=
+    file_glob: true
+    file:
+      - $TRAVIS_BUILD_DIR/ports/deploy/packages_auto/*/*
+    skip_cleanup: true
+    overwrite: true
+    draft: true
+    on:
+      #tags: true
+      branch: master
+      condition: $RELEASE_BUILD = 1
+      repo: webcamoid/webcamoid

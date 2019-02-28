@@ -306,7 +306,7 @@ elif [ "${DOCKERSYS}" = debian ]; then
         libswscale-dev \
         libswresample-dev
 
-    if [ -z "${DAILY_BUILD}" ]; then
+    if [ -z "${DAILY_BUILD}" ] && [ -z "${RELEASE_BUILD}" ]; then
         ${EXEC} apt-get -y install \
             libgstreamer-plugins-base1.0-dev
 
@@ -407,7 +407,7 @@ elif [ "${TRAVIS_OS_NAME}" = osx ]; then
         qt5 \
         ffmpeg
 
-    if [ -z "${DAILY_BUILD}" ]; then
+    if [ -z "${DAILY_BUILD}" ] && [ -z "${RELEASE_BUILD}" ]; then
         brew install \
             gstreamer \
             gst-plugins-base \

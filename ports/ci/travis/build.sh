@@ -94,7 +94,7 @@ elif [ "${TRAVIS_OS_NAME}" = linux ]; then
 
     if [ "${DOCKERSYS}" = debian ]; then
         if [ "${DOCKERIMG}" = ubuntu:xenial ]; then
-            if [ -z "${DAILY_BUILD}" ]; then
+            if [ -z "${DAILY_BUILD}" ] && [ -z "${RELEASE_BUILD}" ]; then
                 cat << EOF >> ${BUILDSCRIPT}
 #!/bin/sh
 
@@ -132,7 +132,7 @@ EOF
 elif [ "${TRAVIS_OS_NAME}" = osx ]; then
     ${EXEC} qmake -query
 
-    if [ -z "${DAILY_BUILD}" ]; then
+    if [ -z "${DAILY_BUILD}" ] && [ -z "${RELEASE_BUILD}" ]; then
         ${EXEC} qmake -spec ${COMPILESPEC} Webcamoid.pro \
             CONFIG+=silent \
             QMAKE_CXX="${COMPILER}"
