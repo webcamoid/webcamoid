@@ -178,6 +178,7 @@ EOF
     sudo mount --bind ${PWD} root.x86_64/home/user/webcamoid
 
     ${EXEC} pacman-key --init
+    ${EXEC} pacman-key --populate archlinux
     ${EXEC} pacman -Syy
     ${EXEC} pacman --noconfirm --needed -S \
         ccache \
