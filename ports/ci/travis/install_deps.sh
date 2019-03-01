@@ -158,10 +158,9 @@ elif [ "${ARCH_ROOT_BUILD}" = 1 ]; then
 Include = /etc/pacman.d/mirrorlist
 
 [ownstuff]
-SigLevel = Optional TrustAll
 Server = http://martchus.no-ip.biz/repo/arch/ownstuff/os/\$arch
 EOF
-    sed -i 's/Required DatabaseOptional/Optional TrustAll/g' pacman.conf
+    sed -i 's/Required DatabaseOptional/Never/g' pacman.conf
     sed -i 's/#TotalDownload/TotalDownload/g' pacman.conf
     sudo cp -vf pacman.conf root.x86_64/etc/pacman.conf
 
