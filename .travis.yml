@@ -376,7 +376,6 @@ deploy:
     overwrite: true
     draft: true
     on:
-#      tags: true
+      tags: true
       branch: master
       condition: $RELEASE_BUILD = 1
-      repo: webcamoid/webcamoid
