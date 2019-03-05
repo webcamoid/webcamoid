@@ -133,7 +133,7 @@ target.path = $${BINDIR}
 unix: !macx | !isEmpty(NOAPPBUNDLE) {
     INSTALLS += manpage
     manpage.files = $${OUT_PWD}/share/man/$${COMMONS_TARGET}.1.gz
-    manpage.path = $${MANDIR}
+    manpage.path = $${MANDIR}/man1
     manpage.CONFIG += no_check_exist
 }
 
