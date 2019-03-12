@@ -123,7 +123,7 @@ isEmpty(LOCALDIR): LOCALDIR = $${PREFIX}/local
 isEmpty(LOCALLIBDIR): LOCALLIBDIR = $${LOCALDIR}/lib
 isEmpty(INSTALLQMLDIR) {
     macx: isEmpty(NOAPPBUNDLE) {
-        INSTALLQMLDIR = $${INSTALLQTDIR}/qml
+        INSTALLQMLDIR = $${DATAROOTDIR}/qml
     } else {
         INSTALL_QML = $$[QT_INSTALL_QML]
         INSTALLQMLDIR = $$replace(INSTALL_QML, $$[QT_INSTALL_LIBS], $${LIBDIR})
