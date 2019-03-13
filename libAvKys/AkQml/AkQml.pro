@@ -64,10 +64,18 @@ INSTALLS += \
     qmldir
 
 installPath = $${INSTALLQMLDIR}/AkQml
-target.path = $$installPath
+android {
+    TARGET = $${installPath}_lib$${TARGET}
+    TARGET = $$replace(TARGET, $${DATAROOTDIR}/, )
+    TARGET = $$replace(TARGET, /, _)
+}
+
+android: target.path = $${LIBDIR}
+!android: target.path = $$installPath
 
 qmldir.files = qmldir
 qmldir.path = $$installPath
+android: qmldir.path = $$replace(installPath, $${DATAROOTDIR}, $${DATAROOTDIR}/--Added-by-androiddeployqt--)
 
 QMAKE_POST_LINK = \
     $(COPY) $$shell_path($${OUT_PWD}/$${BIN_DIR}/*) $$shell_path($${OUT_PWD}) $${CMD_SEP} \

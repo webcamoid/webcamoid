@@ -48,9 +48,16 @@ SOURCES = \
     src/qtscreendev.cpp \
     ../screendev.cpp
 
-DESTDIR = $${OUT_PWD}/../../$${BIN_DIR}/submodules/DesktopCapture
+akModule = DesktopCapture
+DESTDIR = $${OUT_PWD}/../../$${BIN_DIR}/submodules/$${akModule}
 
 TEMPLATE = lib
 
 INSTALLS += target
-target.path = $${INSTALLPLUGINSDIR}/submodules/DesktopCapture
+
+android {
+    TARGET = $${COMMONS_TARGET}_submodules_$${akModule}_lib$${TARGET}
+    target.path = $${LIBDIR}
+} else {
+    target.path = $${INSTALLPLUGINSDIR}/submodules/$${akModule}
+}

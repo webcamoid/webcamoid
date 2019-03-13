@@ -105,10 +105,12 @@ SUBDIRS += \
 
 # Install rules
 
-!macx | !isEmpty(NOAPPBUNDLE) {
-    INSTALLS += license
-    license.files = ../COPYING
-    license.path = $${LICENSEDIR}
+!android {
+    !macx | !isEmpty(NOAPPBUNDLE) {
+        INSTALLS += license
+        license.files = ../COPYING
+        license.path = $${LICENSEDIR}
+    }
 }
 
 !isEmpty(BUILDDOCS): !isEqual(BUILDDOCS, 0) {

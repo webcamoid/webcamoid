@@ -65,12 +65,19 @@ SOURCES = \
     src/usbids.cpp \
     src/usbglobals.cpp
 
-DESTDIR = $${OUT_PWD}/../../$${BIN_DIR}/submodules/VideoCapture
-
 CONFIG(config_libusb_has_hotplug): \
     DEFINES += HAS_HOTPLUG
+
+akModule = VideoCapture
+DESTDIR = $${OUT_PWD}/../../$${BIN_DIR}/submodules/$${akModule}
 
 TEMPLATE = lib
 
 INSTALLS += target
-target.path = $${INSTALLPLUGINSDIR}/submodules/VideoCapture
+
+android {
+    TARGET = $${COMMONS_TARGET}_submodules_$${akModule}_lib$${TARGET}
+    target.path = $${LIBDIR}
+} else {
+    target.path = $${INSTALLPLUGINSDIR}/submodules/$${akModule}
+}

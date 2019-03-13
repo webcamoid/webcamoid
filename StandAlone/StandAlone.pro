@@ -50,7 +50,7 @@ exists(commons.pri) {
     PRE_TARGETDEPS += compiler_builddocs_make_all
 }
 
-unix: !macx | !isEmpty(NOAPPBUNDLE) {
+unix: !android: !macx | !isEmpty(NOAPPBUNDLE) {
     MANPAGESOURCES = share/man/$${COMMONS_TARGET}.1
     MANPAGEOUT = $${OUT_PWD}/$${MANPAGESOURCES}.gz
 
@@ -130,7 +130,7 @@ CODECFORSRC = UTF-8
 INSTALLS += target
 target.path = $${BINDIR}
 
-unix: !macx | !isEmpty(NOAPPBUNDLE) {
+unix: !android: !macx | !isEmpty(NOAPPBUNDLE) {
     INSTALLS += manpage
     manpage.files = $${OUT_PWD}/share/man/$${COMMONS_TARGET}.1.gz
     manpage.path = $${MANDIR}/man1
@@ -145,7 +145,7 @@ win32 {
     INSTALLS += appIcon
     appIcon.files = share/icons/webcamoid.icns
     appIcon.path = $${DATAROOTDIR}
-} else: unix: !macx {
+} else: unix: !android: !macx {
     INSTALLS += \
         appIcon8x8 \
         appIcon16x16 \
@@ -192,13 +192,15 @@ win32 {
     docs.CONFIG += no_check_exist
 }
 
-!macx | !isEmpty(NOAPPBUNDLE) {
-    INSTALLS += license
-    license.files = ../COPYING
-    license.path = $${LICENSEDIR}
+!android {
+    !macx | !isEmpty(NOAPPBUNDLE) {
+        INSTALLS += license
+        license.files = ../COPYING
+        license.path = $${LICENSEDIR}
+    }
 }
 
-unix: !macx {
+unix: !android: !macx {
     INSTALLS += desktop
     desktop.files = ../$${COMMONS_TARGET}.desktop
     desktop.path = $${DATAROOTDIR}/applications

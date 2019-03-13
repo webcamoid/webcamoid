@@ -64,9 +64,16 @@ SOURCES = \
     src/outputparams.cpp \
     ../mediawriter.cpp
 
-DESTDIR = $${OUT_PWD}/../../$${BIN_DIR}/submodules/MultiSink
+akModule = MultiSink
+DESTDIR = $${OUT_PWD}/../../$${BIN_DIR}/submodules/$${akModule}
 
 TEMPLATE = lib
 
 INSTALLS += target
-target.path = $${INSTALLPLUGINSDIR}/submodules/MultiSink
+
+android {
+    TARGET = $${COMMONS_TARGET}_submodules_$${akModule}_lib$${TARGET}
+    target.path = $${LIBDIR}
+} else {
+    target.path = $${INSTALLPLUGINSDIR}/submodules/$${akModule}
+}

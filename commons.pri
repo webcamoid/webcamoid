@@ -69,6 +69,8 @@ win32 {
     }
 } else: macx: isEmpty(NOAPPBUNDLE) {
     DEFAULT_PREFIX = /Applications
+} else: android: {
+    DEFAULT_PREFIX = /.
 } else {
     DEFAULT_PREFIX = $$[QT_INSTALL_PREFIX]
 }
@@ -84,6 +86,8 @@ isEmpty(EXECPREFIX) {
 isEmpty(BINDIR) {
     macx: isEmpty(NOAPPBUNDLE) {
         BINDIR = $${EXECPREFIX}/MacOS
+    } else: android {
+        BINDIR = $${EXECPREFIX}/libs/$$ANDROID_TARGET_ARCH
     } else {
         BINDIR = $${EXECPREFIX}/bin
     }
@@ -93,6 +97,8 @@ isEmpty(LIBEXECDIR): LIBEXECDIR = $${EXECPREFIX}/libexec
 isEmpty(DATAROOTDIR) {
     macx: isEmpty(NOAPPBUNDLE) {
         DATAROOTDIR = $${EXECPREFIX}/Resources
+    } else: android {
+        DATAROOTDIR = $${EXECPREFIX}/assets
     } else {
         DATAROOTDIR = $${PREFIX}/share
     }
@@ -111,6 +117,8 @@ isEmpty(PSDIR): PSDIR = $${DOCDIR}/ps
 isEmpty(LIBDIR) {
     macx: isEmpty(NOAPPBUNDLE) {
         LIBDIR = $${EXECPREFIX}/Frameworks
+    } else: android {
+        LIBDIR = $${BINDIR}
     } else {
         INSTALL_LIBS = $$[QT_INSTALL_LIBS]
         LIBDIR = $$replace(INSTALL_LIBS, $$[QT_INSTALL_PREFIX], $${EXECPREFIX})
@@ -124,6 +132,8 @@ isEmpty(LOCALLIBDIR): LOCALLIBDIR = $${LOCALDIR}/lib
 isEmpty(INSTALLQMLDIR) {
     macx: isEmpty(NOAPPBUNDLE) {
         INSTALLQMLDIR = $${DATAROOTDIR}/qml
+    } else: android {
+        INSTALLQMLDIR = $${DATAROOTDIR}/qml
     } else {
         INSTALL_QML = $$[QT_INSTALL_QML]
         INSTALLQMLDIR = $$replace(INSTALL_QML, $$[QT_INSTALL_LIBS], $${LIBDIR})
@@ -132,6 +142,8 @@ isEmpty(INSTALLQMLDIR) {
 isEmpty(INSTALLPLUGINSDIR) {
     macx: isEmpty(NOAPPBUNDLE) {
         INSTALLPLUGINSDIR = $${EXECPREFIX}/Plugins/$${COMMONS_TARGET}
+    } else: android {
+        INSTALLPLUGINSDIR = $${BINDIR}
     } else {
         INSTALLPLUGINSDIR = $${LIBDIR}/$${COMMONS_TARGET}
     }
@@ -171,6 +183,8 @@ DEFINES += \
     INSTALLPLUGINSDIR=\"\\\"$$INSTALLPLUGINSDIR\\\"\"
 
 TARGET_ARCH = $${QMAKE_TARGET.arch}
+
+android: TARGET_ARCH = $$ANDROID_TARGET_ARCH
 
 mingw {
     TARGET_ARCH = $$system($${QMAKE_CC} -dumpmachine)

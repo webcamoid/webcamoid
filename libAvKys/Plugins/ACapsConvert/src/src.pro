@@ -51,6 +51,7 @@ SOURCES = \
 
 DESTDIR = $${OUT_PWD}/../$${BIN_DIR}
 TARGET = ACapsConvert
+android: TARGET = $${COMMONS_TARGET}_lib$${TARGET}
 
 TEMPLATE = lib
 

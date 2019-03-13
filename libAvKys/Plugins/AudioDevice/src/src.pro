@@ -52,6 +52,7 @@ SOURCES = \
 
 DESTDIR = $${OUT_PWD}/../$${BIN_DIR}
 TARGET = AudioDevice
+android: TARGET = $${COMMONS_TARGET}_lib$${TARGET}
 
 TEMPLATE = lib
 

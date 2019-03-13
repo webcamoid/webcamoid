@@ -66,6 +66,7 @@ lupdate_only {
 
 DESTDIR = $${OUT_PWD}/../$${BIN_DIR}
 TARGET = VideoCapture
+android: TARGET = $${COMMONS_TARGET}_lib$${TARGET}
 
 TEMPLATE = lib
 

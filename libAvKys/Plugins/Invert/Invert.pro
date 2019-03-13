@@ -46,6 +46,7 @@ SOURCES = \
     src/invertelement.cpp
 
 DESTDIR = $${OUT_PWD}/$${BIN_DIR}
+android: TARGET = $${COMMONS_TARGET}_lib$${TARGET}
 
 TEMPLATE = lib
 
