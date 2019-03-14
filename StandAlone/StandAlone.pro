@@ -211,3 +211,16 @@ macx: isEmpty(NOAPPBUNDLE) {
     infoPlist.files = Info.plist
     infoPlist.path = $${EXECPREFIX}
 }
+
+android {
+    DISTFILES += \
+        share/android/AndroidManifest.xml \
+        share/android/res/drawable-hdpi/icon.png \
+        share/android/res/drawable-ldpi/icon.png \
+        share/android/res/drawable-mdpi/icon.png \
+        share/android/res/drawable-xhdpi/icon.png \
+        share/android/res/drawable-xxhdpi/icon.png \
+        share/android/res/drawable-xxxhdpi/icon.png
+
+    ANDROID_PACKAGE_SOURCE_DIR = $$PWD/share/android
+}
