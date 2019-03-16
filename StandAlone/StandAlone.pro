@@ -213,6 +213,8 @@ macx: isEmpty(NOAPPBUNDLE) {
 }
 
 android {
+    QT += concurrent xml
+
     DISTFILES += \
         share/android/AndroidManifest.xml \
         share/android/res/drawable-hdpi/icon.png \
@@ -220,7 +222,8 @@ android {
         share/android/res/drawable-mdpi/icon.png \
         share/android/res/drawable-xhdpi/icon.png \
         share/android/res/drawable-xxhdpi/icon.png \
-        share/android/res/drawable-xxxhdpi/icon.png
+        share/android/res/drawable-xxxhdpi/icon.png \
+        share/android/res/values/libs.xml
 
     ANDROID_PACKAGE_SOURCE_DIR = $$PWD/share/android
 }

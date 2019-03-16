@@ -136,7 +136,6 @@ AkScrollView {
             }
             Label {
                 text: qsTr("Root method")
-                visible: virtualCamera.availableMethods.length > 0
             }
             ComboBox {
                 Layout.fillWidth: true

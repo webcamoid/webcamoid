@@ -308,7 +308,7 @@
         <translation>Audio-Konvertierung</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="150"/>
+        <location filename="../qml/GeneralConfig.qml" line="149"/>
         <source>Virtual camera driver</source>
         <translation type="unfinished"></translation>
     </message>

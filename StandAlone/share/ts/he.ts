@@ -308,7 +308,7 @@
         <translation>המרת שמע</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="150"/>
+        <location filename="../qml/GeneralConfig.qml" line="149"/>
         <source>Virtual camera driver</source>
         <translation>מנהל התקן וירטואלי למצלמה</translation>
     </message>

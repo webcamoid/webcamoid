@@ -72,6 +72,8 @@ class AkElementPrivate
         static bool methodCompat(const QMetaMethod &method1,
                                  const QMetaMethod &method2);
         static QString pluginId(const QString &fileName);
+        static QString submoduleId(const QString &fileName,
+                                   const QString &pluginId);
         QString convertToAbsolute(const QString &path) const;
         void listPlugins();
 };
@@ -161,9 +163,11 @@ bool AkElement::link(const QObject *dstElement,
     return AkElement::link(this, dstElement, connectionType);
 }
 
-bool AkElement::link(const AkElementPtr &dstElement, Qt::ConnectionType connectionType) const
+bool AkElement::link(const AkElementPtr &dstElement,
+                     Qt::ConnectionType connectionType) const
 {
-    return this->link(static_cast<QObject *>(dstElement.data()), connectionType);
+    return this->link(static_cast<QObject *>(dstElement.data()),
+                      connectionType);
 }
 
 bool AkElement::unlink(const QObject *dstElement) const
@@ -197,15 +201,19 @@ bool AkElement::link(const QObject *srcElement,
     if (!srcElement || !dstElement)
         return false;
 
-    QList<QMetaMethod> signalList = AkElementPrivate::methodsByName(srcElement, "oStream");
-    QList<QMetaMethod> slotList = AkElementPrivate::methodsByName(dstElement, "iStream");
+    auto signalList = AkElementPrivate::methodsByName(srcElement, "oStream");
+    auto slotList = AkElementPrivate::methodsByName(dstElement, "iStream");
 
-    for (const QMetaMethod &signal: signalList)
-        for (const QMetaMethod &slot: slotList)
-            if (AkElementPrivate::methodCompat(signal, slot) &&
-                signal.methodType() == QMetaMethod::Signal &&
-                slot.methodType() == QMetaMethod::Slot)
-                QObject::connect(srcElement, signal, dstElement, slot, connectionType);
+    for (auto &signal: signalList)
+        for (auto &slot: slotList)
+            if (AkElementPrivate::methodCompat(signal, slot)
+                && signal.methodType() == QMetaMethod::Signal
+                && slot.methodType() == QMetaMethod::Slot)
+                QObject::connect(srcElement,
+                                 signal,
+                                 dstElement,
+                                 slot,
+                                 connectionType);
 
     return true;
 }
@@ -248,7 +256,8 @@ AkElementPtr AkElement::create(const QString &pluginId,
     return AkElementPtr(element);
 }
 
-AkElement *AkElement::createPtr(const QString &pluginId, const QString &elementName)
+AkElement *AkElement::createPtr(const QString &pluginId,
+                                const QString &elementName)
 {
     QString filePath = AkElement::pluginPath(pluginId);
 
@@ -271,7 +280,9 @@ AkElement *AkElement::createPtr(const QString &pluginId, const QString &elementN
     if (!plugin)
         return nullptr;
 
-    auto element = qobject_cast<AkElement *>(plugin->create(AK_PLUGIN_TYPE_ELEMENT, ""));
+    auto element =
+            qobject_cast<AkElement *>(plugin->create(AK_PLUGIN_TYPE_ELEMENT,
+                                                     ""));
     delete plugin;
 
     if (!element)
@@ -292,19 +303,19 @@ QStringList AkElement::listSubModules(const QString &pluginId,
     QStringList subModules;
     auto subModulesPaths = AkElement::listSubModulesPaths(pluginId);
 
-    for (const QString &path: subModulesPaths) {
+    for (auto &path: subModulesPaths) {
         QPluginLoader pluginLoader(path);
-        QJsonObject metaData = pluginLoader.metaData();
-        QString pluginId = AkElementPrivate::pluginId(path);
+        auto metaData = pluginLoader.metaData();
+        auto submoduleId = AkElementPrivate::submoduleId(path, pluginId);
 
         if (!type.isEmpty()
             && metaData["MetaData"].toObject().contains("type")
             && metaData["MetaData"].toObject()["type"] == type
-            && !subModules.contains(pluginId))
-            subModules << pluginId;
+            && !subModules.contains(submoduleId))
+            subModules << submoduleId;
         else if (type.isEmpty()
-                 && !subModules.contains(pluginId))
-            subModules << pluginId;
+                 && !subModules.contains(submoduleId))
+            subModules << submoduleId;
     }
 
     subModules.sort();
@@ -328,7 +339,7 @@ QStringList AkElement::listSubModules(const QStringList &types)
 
     QStringList subModules;
 
-    for (const QString &type: types)
+    for (auto &type: types)
         subModules << AkElement::listSubModules(pluginId, type);
 
     return subModules;
@@ -343,19 +354,28 @@ QStringList AkElement::listSubModulesPaths(const QString &pluginId)
 
     auto pluginDir = QFileInfo(filePath).absoluteDir();
 
+#ifdef Q_OS_ANDROID
+    auto submoduleFilePattern =
+            QString("lib%1_%2_%3_lib*.so").arg(COMMONS_TARGET,
+                                               SUBMODULES_PATH,
+                                               pluginId);
+#else
     if (!pluginDir.cd(akElementGlobalStuff->m_subModulesPath
                       + QDir::separator()
                       + pluginId))
         return QStringList();
 
+    auto submoduleFilePattern = akElementGlobalStuff->m_pluginFilePattern;
+#endif
+
     QStringList subModulesPaths;
-    auto plugins = pluginDir.entryList({akElementGlobalStuff->m_pluginFilePattern},
+    auto plugins = pluginDir.entryList({submoduleFilePattern},
                                        QDir::Files
                                        | QDir::AllDirs
                                        | QDir::NoDotAndDotDot,
                                        QDir::Name);
 
-    for (const QString &pluginFile: plugins) {
+    for (auto &pluginFile: plugins) {
         auto pluginPath = pluginDir.absoluteFilePath(pluginFile);
         QPluginLoader pluginLoader(pluginPath);
 
@@ -392,8 +412,9 @@ QObject *AkElement::loadSubModule(const QString &pluginId,
 {
     auto subModulesPaths = AkElement::listSubModulesPaths(pluginId);
 
-    for (const QString &subModulesPath: subModulesPaths) {
-        if (AkElementPrivate::pluginId(subModulesPath) == subModule) {
+    for (auto &subModulesPath: subModulesPaths) {
+        if (AkElementPrivate::submoduleId(subModulesPath,
+                                          pluginId) == subModule) {
             QPluginLoader pluginLoader(subModulesPath);
 
             if (!pluginLoader.load()) {
@@ -502,8 +523,7 @@ QStringList AkElement::listPlugins(const QString &type)
             && metaData["type"] == type
             && !plugins.contains(pluginInfo.m_id))
             plugins << pluginInfo.m_id;
-        else if (type.isEmpty()
-                 && !plugins.contains(pluginInfo.m_id))
+        else if (type.isEmpty() && !plugins.contains(pluginInfo.m_id))
             plugins << pluginInfo.m_id;
     }
 
@@ -518,7 +538,6 @@ QStringList AkElement::listPluginPaths(const QString &searchPath)
         akElementGlobalStuff->listPlugins();
 
     QString searchDir(searchPath);
-
     searchDir.replace(QRegExp(R"(((\\/?)|(/\\?))+)"), QDir::separator());
 
     QStringList files;
@@ -588,6 +607,9 @@ QString AkElement::pluginPath(const QString &pluginId)
 
 #ifdef Q_OS_WIN32
         if (baseName == pluginId)
+            return path;
+#elif defined(Q_OS_ANDROID)
+        if (baseName == QString("lib%1_lib%2").arg(COMMONS_TARGET, pluginId))
             return path;
 #else
         if (baseName == QString("lib%1").arg(pluginId))
@@ -776,11 +798,15 @@ AkElementPrivate::AkElementPrivate()
     this->m_recursiveSearchPaths = false;
     this->m_pluginsScanned = false;
     this->m_defaultPluginsSearchPaths << INSTALLPLUGINSDIR;
+#ifdef Q_OS_ANDROID
+    this->m_defaultPluginsSearchPaths << QCoreApplication::applicationDirPath();
+#else
     this->m_defaultPluginsSearchPaths
             << this->convertToAbsolute(QString("%1/../%2/%3")
                                        .arg(QCoreApplication::applicationDirPath(),
                                             QString(LIBDIR).remove(EXECPREFIX).mid(1),
                                             COMMONS_TARGET));
+#endif
 
 #ifdef Q_OS_OSX
     this->m_defaultPluginsSearchPaths
@@ -792,7 +818,9 @@ AkElementPrivate::AkElementPrivate()
     this->m_applicationDir.setPath(QCoreApplication::applicationDirPath());
     this->m_subModulesPath = SUBMODULES_PATH;
 
-#ifdef Q_OS_OSX
+#ifdef Q_OS_ANDROID
+    this->m_pluginFilePattern = QString("lib%1_lib*.so").arg(COMMONS_TARGET);
+#elif defined(Q_OS_OSX)
     this->m_pluginFilePattern = "lib*.dylib";
 #elif defined(Q_OS_WIN32)
     this->m_pluginFilePattern = "*.dll";
@@ -834,9 +862,28 @@ QString AkElementPrivate::pluginId(const QString &fileName)
 
 #ifdef Q_OS_WIN32
     return pluginId;
-    ;
+#elif defined(Q_OS_ANDROID)
+    return pluginId.remove(QRegExp(QString("^lib%1_lib").arg(COMMONS_TARGET)));
 #else
     return pluginId.remove(QRegExp("^lib"));
+#endif
+}
+
+QString AkElementPrivate::submoduleId(const QString &fileName,
+                                      const QString &pluginId)
+{
+#ifdef Q_OS_ANDROID
+    auto submoduleId = QFileInfo(fileName).baseName();
+    auto filePrefix =
+            QString("^lib%1_%2_%3_lib").arg(COMMONS_TARGET,
+                                            SUBMODULES_PATH,
+                                            pluginId);
+
+    return submoduleId.remove(QRegExp(filePrefix));
+#else
+    Q_UNUSED(pluginId)
+
+    return AkElementPrivate::pluginId(fileName);
 #endif
 }
 
@@ -939,7 +986,7 @@ void AkElementPrivate::listPlugins()
                                                   | QDir::CaseSensitive,
                                                   QDir::Name);
 
-                    for (const QString &file: fileList)
+                    for (auto &file: fileList)
                         searchPaths << dir.absoluteFilePath(file);
 
                     if (this->m_recursiveSearchPaths) {
@@ -947,7 +994,7 @@ void AkElementPrivate::listPlugins()
                                                      | QDir::NoDotAndDotDot,
                                                      QDir::Name);
 
-                        for (const QString &path: dirList)
+                        for (auto &path: dirList)
                             searchPaths << dir.absoluteFilePath(path);
                     }
                 }
