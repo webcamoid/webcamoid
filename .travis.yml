@@ -131,7 +131,7 @@ matrix:
     compiler: gcc
     env:
       - DOCKERSYS=opensuse
-      - DOCKERIMG=opensuse:tumbleweed
+      - DOCKERIMG=opensuse/tumbleweed
   - os: linux
     sudo: required
     services:
@@ -139,7 +139,7 @@ matrix:
     compiler: clang
     env:
       - DOCKERSYS=opensuse
-      - DOCKERIMG=opensuse:tumbleweed
+      - DOCKERIMG=opensuse/tumbleweed
   - os: linux
     sudo: required
     services:
@@ -376,6 +376,5 @@ deploy:
     overwrite: true
     draft: true
     on:
-      tags: true
       branch: master
       condition: $RELEASE_BUILD = 1

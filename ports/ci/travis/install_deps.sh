@@ -346,8 +346,8 @@ elif [ "${DOCKERSYS}" = debian ]; then
             qml-module-qtquick-templates2
     fi
 elif [ "${DOCKERSYS}" = fedora ]; then
-    ${EXEC} dnf install -y https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-${FEDORAVER}.noarch.rpm
-    ${EXEC} dnf install -y https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-${FEDORAVER}.noarch.rpm
+    ${EXEC} dnf install -y --skip-broken https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-${FEDORAVER}.noarch.rpm
+    ${EXEC} dnf install -y --skip-broken https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-${FEDORAVER}.noarch.rpm
     ${EXEC} dnf -y update
 
     ${EXEC} dnf -y install \
