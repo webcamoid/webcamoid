@@ -68,6 +68,7 @@ goto Make
 
 set PATH=%QTDIR%\bin;%TOOLSDIR%\bin;%CD%\ffmpeg-%FFMPEG_VERSION%-%FF_ARCH%-shared\bin;%PATH%
 
+qmake -query
 qmake Webcamoid.pro ^
     CONFIG+=%CONFIGURATION% ^
     CONFIG+=silent ^
@@ -100,9 +101,9 @@ echo.
 mkdir akvcam
 cd akvcam
 
+%QTDIR_ALT%\bin\qmake -query
 %QTDIR_ALT%\bin\qmake ^
     ..\libAvKys\Plugins\VirtualCamera\VirtualCamera.pro ^
-    CONFIG+=silent ^
     VIRTUALCAMERAONLY=1
 %TOOLSDIR_ALT%\bin\%MAKETOOL% -j4
 
