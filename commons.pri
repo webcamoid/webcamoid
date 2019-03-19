@@ -187,7 +187,7 @@ TARGET_ARCH = $${QMAKE_TARGET.arch}
 android: TARGET_ARCH = $$ANDROID_TARGET_ARCH
 
 mingw {
-    TARGET_ARCH = $$system($${QMAKE_CC} -dumpmachine)
+    TARGET_ARCH = $$system($${QMAKE_CXX} -dumpmachine)
     TARGET_ARCH = $$split(TARGET_ARCH, -)
     TARGET_ARCH = $$first(TARGET_ARCH)
 }
@@ -198,10 +198,10 @@ msvc {
 }
 
 CONFIG(debug, debug|release) {
-    COMMONS_BUILD_PATH = debug/Qt$${QT_VERSION}/$$basename(QMAKE_CC)/$${TARGET_ARCH}
+    COMMONS_BUILD_PATH = debug/Qt$${QT_VERSION}/$$basename(QMAKE_CXX)/$${TARGET_ARCH}
     DEFINES += QT_DEBUG
 } else {
-    COMMONS_BUILD_PATH = release/Qt$${QT_VERSION}/$$basename(QMAKE_CC)/$${TARGET_ARCH}
+    COMMONS_BUILD_PATH = release/Qt$${QT_VERSION}/$$basename(QMAKE_CXX)/$${TARGET_ARCH}
 }
 
 BIN_DIR = $${COMMONS_BUILD_PATH}/bin
