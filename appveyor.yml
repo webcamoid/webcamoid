@@ -35,6 +35,20 @@ environment:
     - MSYS2_BUILD: 1
     - QTDIR: C:\Qt\5.12.1\mingw73_64
       TOOLSDIR: C:\Qt\Tools\mingw730_64
+    - QTDIR: C:\Qt\5.11.2\mingw53_32
+      TOOLSDIR: C:\Qt\Tools\mingw530_32
+    - PLATFORM: x64
+      QTDIR: C:\Qt\5.12.1\mingw73_64
+      TOOLSDIR: C:\Qt\Tools\mingw730_64
+      QTDIR_ALT: C:\Qt\5.11.2\mingw53_32
+      TOOLSDIR_ALT: C:\Qt\Tools\mingw530_32
+      DAILY_BUILD: 1
+    - PLATFORM: x86
+      QTDIR: C:\Qt\5.11.2\mingw53_32
+      TOOLSDIR: C:\Qt\Tools\mingw530_32
+      QTDIR_ALT: C:\Qt\5.12.1\mingw73_64
+      TOOLSDIR_ALT: C:\Qt\Tools\mingw730_64
+      DAILY_BUILD: 1
     - QTDIR: C:\Qt\5.12.1\msvc2017
       TOOLSDIR: C:\Qt\Tools\QtCreator
       QMAKESPEC: win32-msvc

@@ -84,3 +84,33 @@ qmake Webcamoid.pro ^
 :Make
 
 %MAKETOOL% -j4
+
+if "%DAILY_BUILD%" == "" goto EndScript
+
+if "%PLATFORM%" == "x86" (
+    set DRV_ARCH=x64
+) else (
+    set DRV_ARCH=x86
+)
+
+echo
+echo Building %DRV_ARCH% virtual camera driver
+echo
+
+mkdir %APPVEYOR_BUILD_FOLDER%\akvcam
+cd %APPVEYOR_BUILD_FOLDER%\akvcam
+
+%QTDIR_ALT%\bin\qmake ^
+    ..\libAvKys\Plugins\VirtualCamera\VirtualCamera.pro ^
+    CONFIG+=silent ^
+    VIRTUALCAMERAONLY=1
+%TOOLSDIR_ALT%\bin\%MAKETOOL% -j4
+
+cd ..
+mkdir libAvKys\Plugins\VirtualCamera\src\dshow\VirtualCamera\AkVirtualCamera.plugin\%DRV_ARCH%
+xcopy ^
+    akvcam\src\dshow\VirtualCamera\AkVirtualCamera.plugin\%DRV_ARCH%\* ^
+    libAvKys\Plugins\VirtualCamera\src\dshow\VirtualCamera\AkVirtualCamera.plugin\%DRV_ARCH% ^
+    /i /y
+
+:EndScript

@@ -22,7 +22,7 @@ if not "%DAILY_BUILD%" == "" if "%APPVEYOR_REPO_BRANCH%" == "master" (
         --key=%BT_KEY% ^
         --licenses=GPLv3+
 
-    for %%f in (ports\deploy\packages_auto\windows\*) do (
+    for %%f in (ports\deploy\packages_auto\windows\*.exe) do (
         jfrog bt upload ^
             --user=hipersayanx ^
             --key=%BT_KEY% ^
