@@ -93,12 +93,12 @@ if "%PLATFORM%" == "x86" (
     set DRV_ARCH=x86
 )
 
-echo
+echo.
 echo Building %DRV_ARCH% virtual camera driver
-echo
+echo.
 
-mkdir %APPVEYOR_BUILD_FOLDER%\akvcam
-cd %APPVEYOR_BUILD_FOLDER%\akvcam
+mkdir akvcam
+cd akvcam
 
 %QTDIR_ALT%\bin\qmake ^
     ..\libAvKys\Plugins\VirtualCamera\VirtualCamera.pro ^
