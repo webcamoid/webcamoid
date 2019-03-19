@@ -120,12 +120,13 @@ class DeployToolsUtils:
                 os.symlink(os.path.join('.', basename), dst)
                 self.copy(realpath, os.path.join(dirname, basename))
             else:
-                try:
+                try Exception as e:
                     if self.system == 'windows':
                         shutil.copy(src, dst)
                     else:
                         shutil.copy(src, dst, follow_symlinks=False)
                 except:
+                    print('ERROR: ', src, ': ', str(e))
                     return False
 
         return True
