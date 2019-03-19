@@ -34,6 +34,7 @@ set FFMPEG_DEV_PATH=%CD%\ffmpeg-%FFMPEG_VERSION%-%FF_ARCH%-dev
 if not "%DAILY_BUILD%" == "" goto DailyBuild
 
 set GSTREAMER_DEV_PATH=C:\gstreamer\1.0\%GST_ARCH%
+set PATH_ORIG=%PATH%
 set PATH=%QTDIR%\bin;%TOOLSDIR%\bin;%CD%\ffmpeg-%FFMPEG_VERSION%-%FF_ARCH%-shared\bin;%GSTREAMER_DEV_PATH%\bin;%PATH%
 
 qmake -query
@@ -101,11 +102,12 @@ echo.
 mkdir akvcam
 cd akvcam
 
-%QTDIR_ALT%\bin\qmake -query
-%QTDIR_ALT%\bin\qmake ^
+set PATH=%QTDIR_ALT%\bin;%TOOLSDIR_ALT%\bin;%PATH_ORIG%
+qmake -query
+qmake ^
     ..\libAvKys\Plugins\VirtualCamera\VirtualCamera.pro ^
     VIRTUALCAMERAONLY=1
-%TOOLSDIR_ALT%\bin\%MAKETOOL% -j4
+%MAKETOOL% -j4
 
 cd ..
 mkdir libAvKys\Plugins\VirtualCamera\src\dshow\VirtualCamera\AkVirtualCamera.plugin\%DRV_ARCH%
@@ -115,3 +117,5 @@ xcopy ^
     /i /y
 
 :EndScript
+
+set PATH=%PATH_ORIG%
