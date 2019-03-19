@@ -197,11 +197,14 @@ msvc {
     TARGET_ARCH = $$replace(TARGET_ARCH, x64, x86_64)
 }
 
+COMPILER = $$basename(QMAKE_CXX)
+COMPILER = $$replace(COMPILER, \+\+, pp)
+
 CONFIG(debug, debug|release) {
-    COMMONS_BUILD_PATH = debug/Qt$${QT_VERSION}/$$basename(QMAKE_CXX)/$${TARGET_ARCH}
+    COMMONS_BUILD_PATH = debug/Qt$${QT_VERSION}/$${COMPILER}/$${TARGET_ARCH}
     DEFINES += QT_DEBUG
 } else {
-    COMMONS_BUILD_PATH = release/Qt$${QT_VERSION}/$$basename(QMAKE_CXX)/$${TARGET_ARCH}
+    COMMONS_BUILD_PATH = release/Qt$${QT_VERSION}/$$COMPILER/$${TARGET_ARCH}
 }
 
 BIN_DIR = $${COMMONS_BUILD_PATH}/bin
