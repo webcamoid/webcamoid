@@ -182,19 +182,16 @@ DEFINES += \
     INSTALLQMLDIR=\"\\\"$$INSTALLQMLDIR\\\"\" \
     INSTALLPLUGINSDIR=\"\\\"$$INSTALLPLUGINSDIR\\\"\"
 
-TARGET_ARCH = $${QMAKE_TARGET.arch}
-
-android: TARGET_ARCH = $$ANDROID_TARGET_ARCH
-
-mingw {
+android {
+    TARGET_ARCH = $$ANDROID_TARGET_ARCH
+} else: msvc {
+    TARGET_ARCH = $${QMAKE_TARGET.arch}
+    TARGET_ARCH = $$basename(TARGET_ARCH)
+    TARGET_ARCH = $$replace(TARGET_ARCH, x64, x86_64)
+} else {
     TARGET_ARCH = $$system($${QMAKE_CXX} -dumpmachine)
     TARGET_ARCH = $$split(TARGET_ARCH, -)
     TARGET_ARCH = $$first(TARGET_ARCH)
-}
-
-msvc {
-    TARGET_ARCH = $$basename(TARGET_ARCH)
-    TARGET_ARCH = $$replace(TARGET_ARCH, x64, x86_64)
 }
 
 COMPILER = $$basename(QMAKE_CXX)
