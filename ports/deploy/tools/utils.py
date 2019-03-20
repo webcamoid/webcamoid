@@ -125,7 +125,8 @@ class DeployToolsUtils:
                         shutil.copy(src, dst)
                     else:
                         shutil.copy(src, dst, follow_symlinks=False)
-                except:
+                except Exception as e:
+                    print('ERROR: ', src, ': ', str(e))
                     return False
 
         return True
