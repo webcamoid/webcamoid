@@ -53,7 +53,6 @@ EOF
     fi
 
     cat << EOF >> ${DEPLOYSCRIPT}
-#xvfb-run --auto-servernum python ports/deploy/deploy.py
 python ports/deploy/deploy.py
 EOF
     chmod +x ${DEPLOYSCRIPT}

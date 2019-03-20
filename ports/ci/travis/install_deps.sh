@@ -83,7 +83,9 @@ requires() {
     done
 }
 
-if [ "${TRAVIS_OS_NAME}" = linux ] && [ "${ANDROID_BUILD}" != 1 ]; then
+if [ "${TRAVIS_OS_NAME}" = linux ] &&
+   [ "${ANDROID_BUILD}" != 1 ] &&
+   [ -z "${ARCH_ROOT_MINGW}" ] ; then
     mkdir -p .local/bin
     qtIFW=QtInstallerFramework-linux-x64.run
 
@@ -117,7 +119,9 @@ if [ "${TRAVIS_OS_NAME}" = linux ] && [ "${ANDROID_BUILD}" != 1 ]; then
         cp -rvf squashfs-root/usr/* .
         cd ..
     fi
+fi
 
+if [ "${TRAVIS_OS_NAME}" = linux ] && [ "${ANDROID_BUILD}" != 1 ]; then
     if [ "${ARCH_ROOT_BUILD}" = 1 ]; then
         EXEC='sudo ./root.x86_64/bin/arch-chroot root.x86_64'
     else
@@ -205,7 +209,9 @@ EOF
             jack
     else
         ${EXEC} pacman --noconfirm --needed -S \
+            gst-plugins-base-libs\
             mpg123 \
+            lib32-gst-plugins-base-libs \
             lib32-mpg123 \
             wine \
             mingw-w64-pkg-config \
@@ -269,6 +275,33 @@ EOF
                     sudo install -m644 lib$libname.pc "$pkgconfigdir/"
                 done
             done
+
+        qtIFW=QtInstallerFramework-win-x86.exe
+
+        # Install Qt Installer Framework
+        wget -c http://download.qt.io/official_releases/qt-installer-framework/${QTIFWVER}/${qtIFW} || true
+
+        if [ -e ${qtIFW} ]; then
+            INSTALLSCRIPT=installscript.sh
+
+            cat << EOF > ${INSTALLSCRIPT}
+#!/bin/sh
+
+export LC_ALL=C
+export HOME=$HOME
+export WINEPREFIX=/tmp/.wine
+cd $TRAVIS_BUILD_DIR
+
+wine ./${qtIFW} \
+    -v \
+    --script "ports/ci/travis/qtifw_non_interactive_install.qs" \
+    --no-force-installations
+EOF
+
+            chmod +x ${INSTALLSCRIPT}
+            sudo cp -vf ${INSTALLSCRIPT} root.x86_64/$HOME/
+            ${EXEC} bash $HOME/${INSTALLSCRIPT}
+        fi
     fi
 
     # Finish
