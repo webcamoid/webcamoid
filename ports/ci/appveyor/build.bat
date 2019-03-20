@@ -105,6 +105,7 @@ cd akvcam
 set PATH=%QTDIR_ALT%\bin;%TOOLSDIR_ALT%\bin;%PATH_ORIG%
 qmake -query
 qmake ^
+    CONFIG+=silent ^
     ..\libAvKys\Plugins\VirtualCamera\VirtualCamera.pro ^
     VIRTUALCAMERAONLY=1
 %MAKETOOL% -j4
