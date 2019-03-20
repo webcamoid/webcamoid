@@ -83,6 +83,9 @@ EOF
 cd $TRAVIS_BUILD_DIR
 
 echo WINE_VERSION
+export WINEPREFIX=\$HOME/.wine
+mkdir -p \$PWD/.wine
+chown root:root -R \$PWD/.wine
 wine cmd /c ver
 echo WINE_VERSION
 
