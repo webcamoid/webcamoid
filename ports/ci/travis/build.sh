@@ -81,6 +81,11 @@ EOF
 
     cat << EOF >> ${BUILDSCRIPT}
 cd $TRAVIS_BUILD_DIR
+
+echo WINE_VERSION
+wine cmd /c ver
+echo WINE_VERSION
+
 ${QMAKE_CMD} -query
 ${QMAKE_CMD} -spec ${COMPILESPEC} Webcamoid.pro \
     CONFIG+=silent \
