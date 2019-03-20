@@ -34,17 +34,18 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
     echo "Deploy not supported for Android"
 elif [ "${ARCH_ROOT_BUILD}" = 1 ]; then
     sudo mount --bind root.x86_64 root.x86_64
-    sudo mount --bind ${PWD} root.x86_64/home/user/webcamoid
+    sudo mount --bind /home/user root.x86_64/home/user
 
     cat << EOF > ${DEPLOYSCRIPT}
 #!/bin/sh
 
 export LC_ALL=C
+export HOME=/home/user
 cd /home/user/webcamoid
 export PATH="\$PWD/.local/bin:\$PATH"
-export WINEPREFIX=\$PWD/.wine
-mkdir -p \$PWD/.wine
-chown root:root -R \$PWD/.wine
+export WINEPREFIX=\$HOME/.wine
+#mkdir -p \$PWD/.wine
+#chown root:root -R \$PWD/.wine
 EOF
 
     if [ ! -z "${DAILY_BUILD}" ]; then
@@ -60,7 +61,7 @@ EOF
     sudo cp -vf ${DEPLOYSCRIPT} root.x86_64/home/user/
 
     ${EXEC} bash /home/user/${DEPLOYSCRIPT}
-    sudo umount root.x86_64/home/user/webcamoid
+    sudo umount root.x86_64/home/user
     sudo umount root.x86_64
 elif [ "${TRAVIS_OS_NAME}" = linux ]; then
     cat << EOF > ${DEPLOYSCRIPT}

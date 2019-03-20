@@ -58,7 +58,7 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
         CONFIG+=silent
 elif [ "${ARCH_ROOT_BUILD}" = 1 ]; then
     sudo mount --bind root.x86_64 root.x86_64
-    sudo mount --bind ${PWD} root.x86_64/home/user/webcamoid
+    sudo mount --bind /home/user root.x86_64/home/user
 
     if [ -z "${ARCH_ROOT_MINGW}" ]; then
         QMAKE_CMD=qmake
@@ -70,6 +70,7 @@ elif [ "${ARCH_ROOT_BUILD}" = 1 ]; then
 #!/bin/sh
 
 export LC_ALL=C
+export HOME=/home/user
 EOF
 
     if [ ! -z "${DAILY_BUILD}" ]; then
@@ -157,6 +158,7 @@ if [ "${ARCH_ROOT_BUILD}" = 1 ]; then
 #!/bin/sh
 
 export LC_ALL=C
+export HOME=/home/user
 EOF
 
     if [ ! -z "${DAILY_BUILD}" ]; then
@@ -173,7 +175,7 @@ EOF
     sudo cp -vf ${BUILDSCRIPT} root.x86_64/home/user/
 
     ${EXEC} bash /home/user/${BUILDSCRIPT}
-    sudo umount root.x86_64/home/user/webcamoid
+    sudo umount root.x86_64/home/user
     sudo umount root.x86_64
 else
     ${EXEC} make -j${NJOBS}
@@ -194,12 +196,13 @@ if [ "${ARCH_ROOT_BUILD}" = 1 ] && [ ! -z "${ARCH_ROOT_MINGW}" ]; then
     echo "Building $mingw_arch virtual camera driver"
     echo
     sudo mount --bind root.x86_64 root.x86_64
-    sudo mount --bind ${PWD} root.x86_64/home/user/webcamoid
+    sudo mount --bind /home/user root.x86_64/home/user
 
     cat << EOF > ${BUILDSCRIPT}
 #!/bin/sh
 
 export LC_ALL=C
+export HOME=/home/user
 mkdir -p /home/user/webcamoid/akvcam
 cd /home/user/webcamoid/akvcam
 /usr/${mingw_arch}-w64-mingw32/lib/qt/bin/qmake \
@@ -220,6 +223,6 @@ EOF
         akvcam/src/dshow/VirtualCamera/AkVirtualCamera.plugin/${mingw_dstdir}/* \
         libAvKys/Plugins/VirtualCamera/src/dshow/VirtualCamera/AkVirtualCamera.plugin/${mingw_dstdir}/
 
-    sudo umount root.x86_64/home/user/webcamoid
+    sudo umount root.x86_64/home/user
     sudo umount root.x86_64
 fi

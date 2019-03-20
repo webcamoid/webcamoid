@@ -172,9 +172,9 @@ EOF
     sudo cp -vf mirrorlist root.x86_64/etc/pacman.d/mirrorlist
 
     # Install packages
-    sudo mkdir -pv root.x86_64/home/user/webcamoid
+    sudo mkdir -pv root.x86_64/home/user
     sudo mount --bind root.x86_64 root.x86_64
-    sudo mount --bind ${PWD} root.x86_64/home/user/webcamoid
+    sudo mount --bind /home/user root.x86_64/home/user
 
     ${EXEC} pacman-key --init
     ${EXEC} pacman-key --populate archlinux
@@ -270,7 +270,7 @@ EOF
     fi
 
     # Finish
-    sudo umount root.x86_64/home/user/webcamoid
+    sudo umount root.x86_64/home/user
     sudo umount root.x86_64
 elif [ "${DOCKERSYS}" = debian ]; then
     ${EXEC} apt-get -y update
