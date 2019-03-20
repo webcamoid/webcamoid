@@ -316,8 +316,8 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
             f.write('Wine Version: {}\n'.format(wineVersion))
 
         process = subprocess.Popen(['wine', 'cmd', '/c', 'ver'], # nosec
-                                   stdout=subprocess.PIPE,
-                                   stderr=subprocess.PIPE)
+                                   stdout=subprocess.PIPE) #,
+#                                   stderr=subprocess.PIPE)
         stdout, _ = process.communicate()
         fakeWindowsVersion = stdout.decode(sys.getdefaultencoding()).strip()
 
