@@ -199,6 +199,7 @@ msvc {
 
 COMPILER = $$basename(QMAKE_CXX)
 COMPILER = $$replace(COMPILER, \+\+, pp)
+COMPILER = $$join(COMPILER, _)
 
 CONFIG(debug, debug|release) {
     COMMONS_BUILD_PATH = debug/Qt$${QT_VERSION}/$${COMPILER}/$${TARGET_ARCH}
