@@ -205,6 +205,8 @@ EOF
             jack
     else
         ${EXEC} pacman --noconfirm --needed -S \
+            mpg123 \
+            lib32-mpg123 \
             wine \
             mingw-w64-pkg-config \
             mingw-w64-gcc \
