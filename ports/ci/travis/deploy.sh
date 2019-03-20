@@ -43,6 +43,8 @@ export LC_ALL=C
 cd /home/user/webcamoid
 export PATH="\$PWD/.local/bin:\$PATH"
 export WINEPREFIX=\$PWD/.wine
+mkdir -p \$PWD/.wine
+chown root:root -R \$PWD/.wine
 EOF
 
     if [ ! -z "${DAILY_BUILD}" ]; then
