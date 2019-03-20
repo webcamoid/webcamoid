@@ -53,7 +53,8 @@ EOF
     fi
 
     cat << EOF >> ${DEPLOYSCRIPT}
-xvfb-run --auto-servernum python ports/deploy/deploy.py
+#xvfb-run --auto-servernum python ports/deploy/deploy.py
+python ports/deploy/deploy.py
 EOF
     chmod +x ${DEPLOYSCRIPT}
     sudo cp -vf ${DEPLOYSCRIPT} root.x86_64/$HOME/
