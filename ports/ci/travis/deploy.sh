@@ -34,14 +34,14 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
     echo "Deploy not supported for Android"
 elif [ "${ARCH_ROOT_BUILD}" = 1 ]; then
     sudo mount --bind root.x86_64 root.x86_64
-    sudo mount --bind /home/user root.x86_64/home/user
+    sudo mount --bind $HOME root.x86_64/$HOME
 
     cat << EOF > ${DEPLOYSCRIPT}
 #!/bin/sh
 
 export LC_ALL=C
-export HOME=/home/user
-cd /home/user/webcamoid
+export HOME=$HOME
+cd $TRAVIS_BUILD_DIR
 export PATH="\$PWD/.local/bin:\$PATH"
 export WINEPREFIX=\$HOME/.wine
 #mkdir -p \$PWD/.wine
@@ -58,10 +58,10 @@ EOF
 xvfb-run --auto-servernum python ports/deploy/deploy.py
 EOF
     chmod +x ${DEPLOYSCRIPT}
-    sudo cp -vf ${DEPLOYSCRIPT} root.x86_64/home/user/
+    sudo cp -vf ${DEPLOYSCRIPT} root.x86_64/$HOME/
 
-    ${EXEC} bash /home/user/${DEPLOYSCRIPT}
-    sudo umount root.x86_64/home/user
+    ${EXEC} bash $HOME/${DEPLOYSCRIPT}
+    sudo umount root.x86_64/$HOME
     sudo umount root.x86_64
 elif [ "${TRAVIS_OS_NAME}" = linux ]; then
     cat << EOF > ${DEPLOYSCRIPT}
