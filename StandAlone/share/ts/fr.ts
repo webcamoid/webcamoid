@@ -6,42 +6,42 @@
     <message>
         <location filename="../qml/About.qml" line="27"/>
         <source>About %1</source>
-        <translation type="unfinished"></translation>
+        <translation>À propos de %1</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="46"/>
         <source>Information</source>
-        <translation type="unfinished"></translation>
+        <translation>Information</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="49"/>
         <source>Thanks!</source>
-        <translation type="unfinished"></translation>
+        <translation>Merci !</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="52"/>
         <source>License</source>
-        <translation type="unfinished"></translation>
+        <translation>Licence</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="86"/>
         <source>Version %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Version %1</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="90"/>
         <source>Using Qt %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Avec Qt %1</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="94"/>
         <source>Website</source>
-        <translation type="unfinished"></translation>
+        <translation>Site Web</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="103"/>
         <source>Webcam capture application.</source>
-        <translation type="unfinished">Application de capture de webcam.</translation>
+        <translation>Application de capture de webcam.</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="106"/>
@@ -51,12 +51,12 @@
     <message>
         <location filename="../qml/About.qml" line="122"/>
         <source>Thanks to all these cool people that helped contributing to Webcamoid all these years.</source>
-        <translation type="unfinished"></translation>
+        <translation>Merci à tous ces gens cool qui ont contribué à Webcamoid durant toutes ces années.</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="149"/>
         <source>Close</source>
-        <translation type="unfinished"></translation>
+        <translation>Fermer</translation>
     </message>
 </context>
 <context>
@@ -133,7 +133,7 @@
         <location filename="../qml/AudioConfig.qml" line="193"/>
         <location filename="../qml/AudioConfig.qml" line="295"/>
         <source>Silence</source>
-        <translation type="unfinished"></translation>
+        <translation>Silence</translation>
     </message>
 </context>
 <context>
