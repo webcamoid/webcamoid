@@ -81,15 +81,6 @@ EOF
 
     cat << EOF >> ${BUILDSCRIPT}
 cd $TRAVIS_BUILD_DIR
-
-echo WINE_VERSION
-export WINEPREFIX=/tmp/.wine
-#mkdir -p \$PWD/.wine
-#ls -l \$HOME
-#chown root:root -R \$HOME
-wine cmd /c ver
-echo WINE_VERSION
-
 ${QMAKE_CMD} -query
 ${QMAKE_CMD} -spec ${COMPILESPEC} Webcamoid.pro \
     CONFIG+=silent \

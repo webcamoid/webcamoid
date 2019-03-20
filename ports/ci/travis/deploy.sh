@@ -43,9 +43,7 @@ export LC_ALL=C
 export HOME=$HOME
 cd $TRAVIS_BUILD_DIR
 export PATH="\$PWD/.local/bin:\$PATH"
-export WINEPREFIX=\$HOME/.wine
-#mkdir -p \$PWD/.wine
-#chown root:root -R \$PWD/.wine
+export WINEPREFIX=/tmp/.wine
 EOF
 
     if [ ! -z "${DAILY_BUILD}" ]; then
