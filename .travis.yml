@@ -376,5 +376,6 @@ deploy:
     overwrite: true
     draft: true
     on:
+      tags: true
       branch: master
       condition: $RELEASE_BUILD = 1
