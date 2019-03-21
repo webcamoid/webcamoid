@@ -41,9 +41,9 @@ elif [ "${ARCH_ROOT_BUILD}" = 1 ]; then
 
 export LC_ALL=C
 export HOME=$HOME
-cd $TRAVIS_BUILD_DIR
 export PATH="\$PWD/.local/bin:\$PATH"
 export WINEPREFIX=/tmp/.wine
+cd $TRAVIS_BUILD_DIR
 EOF
 
     if [ ! -z "${DAILY_BUILD}" ]; then

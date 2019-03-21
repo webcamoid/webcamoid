@@ -137,7 +137,11 @@ class DeployToolsQt(tools.utils.DeployToolsUtils):
         if self.targetSystem == 'windows':
             homeQt = 'C:\\Qt'
         elif self.targetSystem == 'posix_windows':
-            homeQt = os.path.expanduser('~/.wine/drive_c/Qt')
+            if 'WINEPREFIX' in os.environ:
+                homeQt = os.path.expanduser(os.path.join(os.environ['WINEPREFIX'],
+                                                         'drive_c/Qt'))
+            else:
+                homeQt = os.path.expanduser('~/.wine/drive_c/Qt')
         else:
             homeQt = os.path.expanduser('~/Qt')
 
