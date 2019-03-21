@@ -483,10 +483,16 @@ class DeployToolsQt(tools.utils.DeployToolsUtils):
         if os.path.exists(self.outPackage):
             os.remove(self.outPackage)
 
-        process = subprocess.Popen([self.qtIFW, # nosec
-                                    '-c', configXml,
-                                    '-p', self.installerPackages,
-                                    self.outPackage],
+        params = []
+
+        if self.targetSystem == 'posix_windows':
+            params = ['wine']
+
+        params += [self.qtIFW,
+                   '-c', configXml,
+                   '-p', self.installerPackages,
+                   self.outPackage]
+        process = subprocess.Popen(params, # nosec
                                    stdout=subprocess.PIPE,
                                    stderr=subprocess.PIPE)
         process.communicate()
