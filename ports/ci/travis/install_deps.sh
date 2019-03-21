@@ -296,6 +296,8 @@ wine ./${qtIFW} \
     -v \
     --script "ports/ci/travis/qtifw_non_interactive_install.qs" \
     --no-force-installations
+
+find /tmp/.wine -iname 'binarycreator.exe'
 EOF
 
             chmod +x ${INSTALLSCRIPT}
