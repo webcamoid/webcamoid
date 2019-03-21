@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Webcamoid, webcam capture application.
 # Copyright (C) 2017  Gonzalo Exequiel Pedone
@@ -18,9 +18,9 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-curl -fL https://getcli.jfrog.io | sh
-
 if [ ! -z "$DAILY_BUILD" ] && [ "$APPVEYOR_REPO_BRANCH" == "master" ]; then
+    curl -fL https://getcli.jfrog.io | sh
+
     ./jfrog bt config \
         --user=hipersayanx \
         --key=$BTKEY \
