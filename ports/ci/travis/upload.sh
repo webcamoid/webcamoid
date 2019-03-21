@@ -18,7 +18,7 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-if [ ! -z "$DAILY_BUILD" ] && [ "$APPVEYOR_REPO_BRANCH" == "master" ]; then
+if [ ! -z "$DAILY_BUILD" ] && [ "$TRAVIS_BRANCH" == "master" ]; then
     curl -fL https://getcli.jfrog.io | sh
 
     ./jfrog bt config \
