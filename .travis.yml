@@ -347,8 +347,8 @@ after_success:
   - chmod +x ports/ci/travis/deploy.sh
   - ports/ci/travis/deploy.sh
 
-deploy:
-  skip_cleanup: true
+# deploy:
+#   skip_cleanup: true
 #   - provider: bintray
 #     user: hipersayanx
 #     key:
