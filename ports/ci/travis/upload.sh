@@ -23,7 +23,7 @@ if [ ! -z "$DAILY_BUILD" ] && [ "$TRAVIS_BRANCH" == "master" ]; then
 
     ./jfrog bt config \
         --user=hipersayanx \
-        --key=$BTKEY \
+        --key=$BT_KEY \
         --licenses=GPLv3+
 
     path=ports/deploy/packages_auto
@@ -36,7 +36,7 @@ if [ ! -z "$DAILY_BUILD" ] && [ "$TRAVIS_BRANCH" == "master" ]; then
 
         ./jfrog bt upload \
             --user=hipersayanx \
-            --key=$BTKEY \
+            --key=$BT_KEY \
             --override=true \
             --publish=$publish \
             $f \
