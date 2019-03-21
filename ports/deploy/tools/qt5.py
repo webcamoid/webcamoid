@@ -150,8 +150,12 @@ class DeployToolsQt(tools.utils.DeployToolsUtils):
         if self.targetSystem == 'windows' or self.targetSystem == 'posix_windows':
             binCreator += '.exe'
 
+        print('HOME_QT', homeQt)
+
         for root, _, files in os.walk(homeQt):
             for f in files:
+                print('FILE', f)
+
                 if f == binCreator:
                     self.qtIFW = os.path.join(root, f)
 
