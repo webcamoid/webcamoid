@@ -289,16 +289,13 @@ EOF
 
 export LC_ALL=C
 export HOME=$HOME
-export WINEPREFIX=/tmp/.wine
+export WINEPREFIX=/opt/.wine
 cd $TRAVIS_BUILD_DIR
 
 wine ./${qtIFW} \
     -v \
     --script "ports/ci/travis/qtifw_non_interactive_install.qs" \
     --no-force-installations
-
-find /tmp/.wine -iname 'binarycreator.exe'
-/tmp/.wine/drive_c/Qt/QtIFW-3.0.6/bin/binarycreator.exe
 EOF
 
             chmod +x ${INSTALLSCRIPT}

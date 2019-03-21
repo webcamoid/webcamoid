@@ -42,7 +42,7 @@ elif [ "${ARCH_ROOT_BUILD}" = 1 ]; then
 export LC_ALL=C
 export HOME=$HOME
 export PATH="\$PWD/.local/bin:\$PATH"
-export WINEPREFIX=/tmp/.wine
+export WINEPREFIX=/opt/.wine
 cd $TRAVIS_BUILD_DIR
 EOF
 
@@ -54,7 +54,7 @@ EOF
 
     cat << EOF >> ${DEPLOYSCRIPT}
 echo BIN_CREATOR
-find /tmp/.wine -iname 'binarycreator.exe'
+find /opt/.wine -iname 'binarycreator.exe'
 echo BIN_CREATOR
 python ports/deploy/deploy.py
 EOF
