@@ -347,6 +347,10 @@ after_success:
   - chmod +x ports/ci/travis/deploy.sh
   - ports/ci/travis/deploy.sh
 
+before_deploy:
+  - chmod +x ports/ci/travis/upload.sh
+  - ports/ci/travis/upload.sh
+
 # deploy:
 #   skip_cleanup: true
 #   - provider: bintray
@@ -369,10 +373,6 @@ after_success:
 #       tags: true
 #       branch: master
 #       condition: $RELEASE_BUILD = 1
-
-after_deploy:
-  - chmod +x ports/ci/travis/upload.sh
-  - ports/ci/travis/upload.sh
 
 branches:
   only:
