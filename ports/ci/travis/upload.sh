@@ -18,17 +18,26 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-if [ ! -z "$DAILY_BUILD" ] && [ "$TRAVIS_BRANCH" == "master" ]; then
+if [[ ( ! -z "$DAILY_BUILD" || ! -z "$RELEASE_BUILD" ) && "$TRAVIS_BRANCH" == "master" ]]; then
     curl -fL https://getcli.jfrog.io | sh
 
     ./jfrog bt config \
         --user=hipersayanx \
         --key=$BT_KEY \
-        --licenses=GPLv3+
+        --licenses=GPL-3.0-or-later
 
     path=ports/deploy/packages_auto
-    version=daily
-    publish=true
+
+    if [ -z "$DAILY_BUILD" ]; then
+        VER_MAJ=$(grep -re '^VER_MAJ[[:space:]]*=[[:space:]]*' commons.pri | awk '{print $3}')
+        VER_MIN=$(grep -re '^VER_MIN[[:space:]]*=[[:space:]]*' commons.pri | awk '{print $3}')
+        VER_PAT=$(grep -re '^VER_PAT[[:space:]]*=[[:space:]]*' commons.pri | awk '{print $3}')
+        version=$VER_MAJ.$VER_MIN.$VER_PAT
+        publish=false
+    else
+        version=daily
+        publish=true
+    fi
 
     for f in $(find $path -type f); do
         packagePath=${f#$path/}
