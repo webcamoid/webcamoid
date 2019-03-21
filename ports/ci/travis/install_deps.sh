@@ -298,6 +298,7 @@ wine ./${qtIFW} \
     --no-force-installations
 
 find /tmp/.wine -iname 'binarycreator.exe'
+/tmp/.wine/drive_c/Qt/QtIFW-3.0.6/bin/binarycreator.exe
 EOF
 
             chmod +x ${INSTALLSCRIPT}

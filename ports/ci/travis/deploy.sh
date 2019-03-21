@@ -53,6 +53,9 @@ EOF
     fi
 
     cat << EOF >> ${DEPLOYSCRIPT}
+echo BIN_CREATOR
+find /tmp/.wine -iname 'binarycreator.exe'
+echo BIN_CREATOR
 python ports/deploy/deploy.py
 EOF
     chmod +x ${DEPLOYSCRIPT}
