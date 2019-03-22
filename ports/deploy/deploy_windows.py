@@ -268,24 +268,26 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
 
         # Write repository info.
 
-        commitHash = self.commitHash()
-
-        if len(commitHash) < 1:
-            commitHash = 'Unknown'
-
         with open(depsInfoFile, 'w') as f:
-            print('    Commit hash: ' + commitHash + '\n')
-            f.write('Commit hash: ' + commitHash + '\n\n')
+            commitHash = self.commitHash()
 
-        # Write host info.
+            if len(commitHash) < 1:
+                commitHash = 'Unknown'
 
-        info = self.sysInfo()
+            print('    Commit hash: ' + commitHash)
+            f.write('Commit hash: ' + commitHash + '\n')
 
-        with open(depsInfoFile, 'a') as f:
-            for line in info.split('\n'):
-                if len(line) > 0:
-                    print('    ' + line)
-                    f.write(line + '\n')
+            buildLogUrl = ''
+
+            if 'TRAVIS_BUILD_WEB_URL' in os.environ:
+                buildLogUrl = os.environ['TRAVIS_BUILD_WEB_URL']
+            elif 'APPVEYOR_REPO_NAME' in os.environ and 'APPVEYOR_JOB_ID' in os.environ:
+                buildLogUrl = 'https://ci.appveyor.com/project/{}/build/job/{}'.format(os.environ['APPVEYOR_REPO_NAME'],
+                                                                                       os.environ['APPVEYOR_JOB_ID'])
+
+            if len(buildLogUrl) > 0:
+                print('    Build log URL: ' + buildLogUrl)
+                f.write('Build log URL: ' + buildLogUrl + '\n')
 
             print()
             f.write('\n')
