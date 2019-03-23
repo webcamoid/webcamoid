@@ -307,20 +307,8 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
         with open(path, 'w') as launcher:
             launcher.write('#!/bin/sh\n')
             launcher.write('\n')
-            launcher.write('rootdir() {\n')
-            launcher.write('    case "$1" in\n')
-            launcher.write('        /*) dirname "$1"\n')
-            launcher.write('            ;;\n')
-            launcher.write('        *)  dir=$(dirname "$PWD/$1")\n')
-            launcher.write('            cwd=$PWD\n')
-            launcher.write('            cd "$dir" 1>/dev/null\n')
-            launcher.write('                echo $PWD\n')
-            launcher.write('            cd "$cwd" 1>/dev/null\n')
-            launcher.write('            ;;\n')
-            launcher.write('    esac\n')
-            launcher.write('}\n')
-            launcher.write('\n')
-            launcher.write('ROOTDIR=$(rootdir "$0")\n')
+            launcher.write('path=$(realpath "$0")\n')
+            launcher.write('ROOTDIR=$(dirname "$path")\n')
             launcher.write('export PATH="${ROOTDIR}/bin:$PATH"\n')
             launcher.write('export LD_LIBRARY_PATH="{}:$LD_LIBRARY_PATH"\n'.format(libDir))
             launcher.write('#export QT_DEBUG_PLUGINS=1\n')
@@ -390,37 +378,41 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
                                                   self.programVersion,
                                                   platform.machine()))
 
-        self.copy(self.rootInstallDir, appDir)
+        usrDir = os.path.join(appDir, 'usr')
+
+        if not os.path.exists(usrDir):
+            os.makedirs(usrDir)
+
+        self.copy(self.rootInstallDir, usrDir)
         launcher = os.path.join(appDir, 'AppRun')
 
         if not os.path.exists(launcher):
-            os.replace(os.path.join(appDir, 'webcamoid.sh'), launcher)
+            os.symlink('./usr/webcamoid.sh', launcher)
 
         desktopFile = os.path.join(appDir, 'webcamoid.desktop')
 
         if os.path.exists(desktopFile):
             os.remove(desktopFile)
 
-        self.copy(os.path.join(appDir, 'share/applications/webcamoid.desktop'), desktopFile)
+        self.copy(os.path.join(usrDir, 'share/applications/webcamoid.desktop'), desktopFile)
         config = configparser.ConfigParser()
         config.optionxform=str
         config.read(desktopFile, 'utf-8')
-        config['Desktop Entry']['Exec'] = 'AppRun'
+        config['Desktop Entry']['Exec'] = 'webcamoid.sh'
         del config['Desktop Entry']['Keywords']
 
         with open(desktopFile, 'w', encoding='utf-8') as configFile:
             config.write(configFile, space_around_delimiters=False)
 
-        icon = os.path.join(appDir, 'webcamoid.png')
+        icons = {'webcamoid.png': '256x256', '.DirIcon': '48x48'}
 
-        if not os.path.exists(icon):
-            os.symlink('./share/icons/hicolor/256x256/apps/webcamoid.png',
-                       icon)
+        for icon in icons:
+            iconPath = os.path.join(appDir, icon)
 
-        usrDir = os.path.join(appDir, 'usr')
-
-        if not os.path.exists(usrDir):
-            os.symlink('.', usrDir)
+            if not os.path.exists(icon):
+                sourceIcon = os.path.join(usrDir, 
+                                          'share/icons/hicolor/{}/apps/webcamoid.png'.format(icons[icon]))
+                self.copy(sourceIcon, iconPath)
 
         # Remove old file
         packagePath = \
