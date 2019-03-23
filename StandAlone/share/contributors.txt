@@ -17,6 +17,7 @@ Kristjan Räts <kristjanrats@gmail.com>
 Livia Andriana Lohanda <chocolate.coffee@outlook.com>
 LL <lu.lecocq@free.fr>
 LNDDYL <lnddyl@outlook.com>
+Luigi Baldoni <aloisio@gmx.com>
 luigino <aloisio@gmx.com>
 Marc Delisle <marc@infomarc.info>
 Michal Čihař <michal@cihar.com>
@@ -30,6 +31,7 @@ WaldiS <admin@sto.ugu.pl>
 Yaron Shahrabani <sh.yaron@gmail.com>
 YFdyh000 <yfdyh000@gmail.com>
 zhcjsjz <zhcj@yeah.net>
+Étienne Gilli <etienne.gilli@gmail.com>
 Володимир Бриняк <bardvv@gmail.com>
 Максим Якимчук <xpinovo@gmail.com>
 Марс Ямбар <mjambarmeta@gmail.com>

@@ -1,3 +1,12 @@
+Webcamoid 8.6.1:
+
+- AppImage now properly show the icon (issue #94).
+- Fix install Qml paths for Mac bundle (issue #156).
+- Use correct subdir for manpage (issue #170, thanks Luigi Baldoni!).
+- Fixed Windows installer (issue #172).
+- Now you can create an Android APK (yes, it works, but no, it does not
+  properly support Android yet).
+
 Webcamoid 8.6.0:
 
 - Now webcam settings are saved.
