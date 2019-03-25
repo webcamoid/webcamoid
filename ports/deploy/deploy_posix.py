@@ -257,9 +257,10 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
 
             if 'TRAVIS_BUILD_WEB_URL' in os.environ:
                 buildLogUrl = os.environ['TRAVIS_BUILD_WEB_URL']
-            elif 'APPVEYOR_REPO_NAME' in os.environ and 'APPVEYOR_JOB_ID' in os.environ:
-                buildLogUrl = 'https://ci.appveyor.com/project/{}/build/job/{}'.format(os.environ['APPVEYOR_REPO_NAME'],
-                                                                                       os.environ['APPVEYOR_JOB_ID'])
+            elif 'APPVEYOR_ACCOUNT_NAME' in os.environ and 'APPVEYOR_PROJECT_NAME' in os.environ and 'APPVEYOR_JOB_ID' in os.environ:
+                buildLogUrl = 'https://ci.appveyor.com/project/{}/{}/build/job/{}'.format(os.environ['APPVEYOR_ACCOUNT_NAME'],
+                                                                                          os.environ['APPVEYOR_PROJECT_SLUG'],
+                                                                                          os.environ['APPVEYOR_JOB_ID'])
 
             if len(buildLogUrl) > 0:
                 print('    Build log URL: ' + buildLogUrl)
@@ -410,7 +411,7 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
             iconPath = os.path.join(appDir, icon)
 
             if not os.path.exists(icon):
-                sourceIcon = os.path.join(usrDir, 
+                sourceIcon = os.path.join(usrDir,
                                           'share/icons/hicolor/{}/apps/webcamoid.png'.format(icons[icon]))
                 self.copy(sourceIcon, iconPath)
 
