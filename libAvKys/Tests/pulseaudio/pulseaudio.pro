@@ -16,7 +16,7 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-macx: QT_CONFIG -= no-pkg-config
+macx | android: QT_CONFIG -= no-pkg-config
 
 SOURCES = \
     test.cpp

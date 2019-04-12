@@ -168,10 +168,9 @@ QVariantMap VirtualCameraElement::addStream(int streamIndex,
         return {};
 
     AkVideoCaps videoCaps(streamCaps);
-    videoCaps.format() = AkVideoCaps::Format_rgb24;
-    videoCaps.bpp() = AkVideoCaps::bitsPerPixel(AkVideoCaps::Format_rgb24);
-    videoCaps.width() = roundTo(videoCaps.width(), PREFERRED_ROUNDING);
-    videoCaps.height() = roundTo(videoCaps.height(), PREFERRED_ROUNDING);
+    videoCaps.setFormat(AkVideoCaps::Format_rgb24);
+    videoCaps.setWidth(roundTo(videoCaps.width(), PREFERRED_ROUNDING));
+    videoCaps.setHeight(roundTo(videoCaps.height(), PREFERRED_ROUNDING));
 
     this->d->m_streamIndex = streamIndex;
     this->d->m_streamCaps = videoCaps.toCaps();
@@ -195,10 +194,9 @@ QVariantMap VirtualCameraElement::updateStream(int streamIndex,
         return {};
 
     AkVideoCaps videoCaps(streamCaps);
-    videoCaps.format() = AkVideoCaps::Format_rgb24;
-    videoCaps.bpp() = AkVideoCaps::bitsPerPixel(AkVideoCaps::Format_rgb24);
-    videoCaps.width() = roundTo(videoCaps.width(), PREFERRED_ROUNDING);
-    videoCaps.height() = roundTo(videoCaps.height(), PREFERRED_ROUNDING);
+    videoCaps.setFormat(AkVideoCaps::Format_rgb24);
+    videoCaps.setWidth(roundTo(videoCaps.width(), PREFERRED_ROUNDING));
+    videoCaps.setHeight(roundTo(videoCaps.height(), PREFERRED_ROUNDING));
 
     this->d->m_streamIndex = streamIndex;
     this->d->m_streamCaps = videoCaps.toCaps();

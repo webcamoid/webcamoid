@@ -151,15 +151,10 @@ AkCaps QtScreenDev::caps(int stream)
     if (!screen)
         return {};
 
-    AkVideoCaps caps;
-    caps.isValid() = true;
-    caps.format() = AkVideoCaps::Format_rgb24;
-    caps.bpp() = AkVideoCaps::bitsPerPixel(caps.format());
-    caps.width() = screen->size().width();
-    caps.height() = screen->size().height();
-    caps.fps() = this->d->m_fps;
-
-    return caps.toCaps();
+    return AkVideoCaps(AkVideoCaps::Format_rgb24,
+                       screen->size().width(),
+                       screen->size().height(),
+                       this->d->m_fps).toCaps();
 }
 
 QtScreenDevPrivate::QtScreenDevPrivate(QtScreenDev *self):
@@ -193,7 +188,7 @@ void QtScreenDev::resetFps()
 void QtScreenDev::setMedia(const QString &media)
 {
     for (int i = 0; i < QGuiApplication::screens().size(); i++) {
-        QString screen = QString("screen://%1").arg(i);
+        auto screen = QString("screen://%1").arg(i);
 
         if (screen == media) {
             if (this->d->m_curScreenNumber == i)
@@ -258,28 +253,24 @@ void QtScreenDev::readFrame()
     auto fps = this->d->m_fps;
     this->d->m_mutex.unlock();
 
-    AkVideoCaps caps;
-    caps.isValid() = true;
-    caps.format() = AkVideoCaps::Format_rgb24;
-    caps.bpp() = AkVideoCaps::bitsPerPixel(caps.format());
-    caps.width() = screen->size().width();
-    caps.height() = screen->size().height();
-    caps.fps() = fps;
-
+    AkVideoCaps caps(AkVideoCaps::Format_rgb24,
+                     screen->size().width(),
+                     screen->size().height(),
+                     fps);
     auto frame =
             screen->grabWindow(QApplication::desktop()->winId(),
                                screen->geometry().x(),
                                screen->geometry().y(),
                                screen->geometry().width(),
                                screen->geometry().height());
-    QImage frameImg = frame.toImage().convertToFormat(QImage::Format_RGB888);
+    auto frameImg = frame.toImage().convertToFormat(QImage::Format_RGB888);
     auto packet = AkVideoPacket::fromImage(frameImg, caps).toPacket();
 
     if (!packet)
         return;
 
-    qint64 pts = qint64(QTime::currentTime().msecsSinceStartOfDay()
-                        * fps.value() / 1e3);
+    auto pts = qint64(QTime::currentTime().msecsSinceStartOfDay()
+                      * fps.value() / 1e3);
 
     packet.setPts(pts);
     packet.setTimeBase(fps.invert());

@@ -135,15 +135,10 @@ AkCaps AVFoundationScreenDev::caps(int stream)
     if (!screen)
         return QString();
 
-    AkVideoCaps caps;
-    caps.isValid() = true;
-    caps.format() = AkVideoCaps::Format_argb;
-    caps.bpp() = AkVideoCaps::bitsPerPixel(caps.format());
-    caps.width() = screen->size().width();
-    caps.height() = screen->size().height();
-    caps.fps() = this->d->m_fps;
-
-    return caps.toCaps();
+    return AkVideoCaps(AkVideoCaps::Format_argb,
+                       screen->size().width(),
+                       screen->size().height(),
+                       this->d->m_fps).toCaps();
 }
 
 void AVFoundationScreenDev::frameReceived(CGDirectDisplayID screen,
@@ -154,19 +149,16 @@ void AVFoundationScreenDev::frameReceived(CGDirectDisplayID screen,
 {
     CGImageRef image = CGDisplayCreateImage(screen);
 
-    AkVideoCaps caps;
-    caps.isValid() = true;
-    caps.format() = AkVideoCaps::Format_argb;
-    caps.bpp() = AkVideoCaps::bitsPerPixel(caps.format());
-    caps.width() = int(CGImageGetWidth(image));
-    caps.height() = int(CGImageGetHeight(image));
-    caps.fps() = fps;
-
-    AkVideoPacket videoPacket(caps, buffer);
-    videoPacket.setPts(pts);
-    videoPacket.setTimeBase(fps.invert());
-    videoPacket.setIndex(0);
-    videoPacket.setId(id);
+    AkVideoPacket videoPacket;
+    videoPacket.caps() = {AkVideoCaps::Format_argb,
+                          int(CGImageGetWidth(image)),
+                          int(CGImageGetHeight(image)),
+                          fps};
+    videoPacket.buffer() = buffer;
+    videoPacket.pts() = pts;
+    videoPacket.timeBase() = fps.invert();
+    videoPacket.index() = 0;
+    videoPacket.id() = id;
 
     emit this->oStream(videoPacket.toPacket());
 }

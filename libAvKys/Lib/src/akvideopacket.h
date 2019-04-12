@@ -39,12 +39,7 @@ class AKCOMMONS_EXPORT AkVideoPacket: public AkPacket
 
     public:
         AkVideoPacket(QObject *parent=nullptr);
-        AkVideoPacket(const AkVideoCaps &caps,
-                      const QByteArray &buffer=QByteArray(),
-                      qint64 pts=0,
-                      const AkFrac &timeBase=AkFrac(),
-                      int index=-1,
-                      qint64 id=-1);
+        AkVideoPacket(const AkVideoCaps &caps);
         AkVideoPacket(const AkPacket &other);
         AkVideoPacket(const AkVideoPacket &other);
         ~AkVideoPacket();
@@ -54,14 +49,20 @@ class AKCOMMONS_EXPORT AkVideoPacket: public AkPacket
 
         Q_INVOKABLE AkVideoCaps caps() const;
         Q_INVOKABLE AkVideoCaps &caps();
+        Q_INVOKABLE const quint8 *constLine(int plane, int y) const;
+        Q_INVOKABLE quint8 *line(int plane, int y);
         Q_INVOKABLE QString toString() const;
         Q_INVOKABLE AkPacket toPacket() const;
         Q_INVOKABLE QImage toImage() const;
         Q_INVOKABLE static AkVideoPacket fromImage(const QImage &image,
                                                    const AkVideoPacket &defaultPacket);
         Q_INVOKABLE AkVideoPacket roundSizeTo(int align) const;
-        Q_INVOKABLE AkVideoPacket convert(AkVideoCaps::PixelFormat format,
-                                          const QSize &size={}) const;
+        Q_INVOKABLE static bool canConvert(AkVideoCaps::PixelFormat input,
+                                    AkVideoCaps::PixelFormat output);
+        Q_INVOKABLE bool canConvert(AkVideoCaps::PixelFormat output) const;
+        Q_INVOKABLE AkVideoPacket convert(AkVideoCaps::PixelFormat format) const;
+        Q_INVOKABLE void copyMetadata(const AkPacket &other);
+        Q_INVOKABLE void copyMetadata(const AkVideoPacket &other);
 
     private:
         AkVideoPacketPrivate *d;

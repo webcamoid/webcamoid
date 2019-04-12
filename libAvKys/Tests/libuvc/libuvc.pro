@@ -18,7 +18,7 @@
 
 CONFIG += console c++11
 
-macx: QT_CONFIG -= no-pkg-config
+macx | android: QT_CONFIG -= no-pkg-config
 
 SOURCES = \
     test.cpp

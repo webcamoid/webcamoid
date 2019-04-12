@@ -86,7 +86,7 @@ isEmpty(NOOSS) {
 isEmpty(NOPULSEAUDIO): qtCompileTest(pulseaudio)
 isEmpty(NOQTAUDIO): qtCompileTest(qtaudio)
 
-isEmpty(NOV4L2) {
+isEmpty(NOV4L2): !android {
     qtCompileTest(v4l2)
     CONFIG(config_v4l2): qtCompileTest(v4l2_extendedcontrols)
     isEmpty(NOV4LUTILS): CONFIG(config_v4l2): qtCompileTest(v4lutils)

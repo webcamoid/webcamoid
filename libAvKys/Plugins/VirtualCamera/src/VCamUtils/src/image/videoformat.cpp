@@ -257,7 +257,7 @@ size_t AkVCam::VideoFormat::offset(size_t plane) const
 
 size_t AkVCam::VideoFormat::planeSize(size_t plane) const
 {
-    return size_t(this->d->m_height) * this->bypl( plane);
+    return size_t(this->d->m_height) * this->bypl(plane);
 }
 
 bool AkVCam::VideoFormat::isValid() const

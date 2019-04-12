@@ -30,7 +30,7 @@ AkPacket GrayScaleElement::iStream(const AkPacket &packet)
 {
     auto oPacket = AkVideoPacket(packet)
                    .convert(AkVideoCaps::Format_gray)
-                   .toPacket();;
+                   .toPacket();
     akSend(oPacket)
 }
 

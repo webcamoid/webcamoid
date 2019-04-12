@@ -148,6 +148,7 @@ isEmpty(INSTALLPLUGINSDIR) {
         INSTALLPLUGINSDIR = $${LIBDIR}/$${COMMONS_TARGET}
     }
 }
+isEmpty(JARDIR): JARDIR = $${EXECPREFIX}/libs
 
 macx: !isEmpty(NOAPPBUNDLE): DEFINES += NOAPPBUNDLE
 
@@ -235,7 +236,7 @@ win32 {
         win32-g++: QMAKE_LFLAGS = -static-libgcc -static-libstdc++
     }
 }
-macx: QT_CONFIG -= no-pkg-config
+macx | android: QT_CONFIG -= no-pkg-config
 
 # Enable c++11 support in all platforms
 !CONFIG(c++11): CONFIG += c++11

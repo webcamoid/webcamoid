@@ -213,7 +213,7 @@ macx: isEmpty(NOAPPBUNDLE) {
 }
 
 android {
-    QT += concurrent xml
+    QT += concurrent xml androidextras
 
     DISTFILES += \
         share/android/AndroidManifest.xml \

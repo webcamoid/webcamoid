@@ -432,23 +432,19 @@ GstFlowReturn MediaSourceGStreamerPrivate::videoBufferCallback(GstElement *video
     GstVideoInfo *videoInfo = gst_video_info_new();
     gst_video_info_from_caps(videoInfo, caps);
 
-    AkVideoPacket packet;
-    packet.caps().isValid() = true;
-    packet.caps().format() = AkVideoCaps::Format_rgb24;
-    packet.caps().bpp() = AkVideoCaps::bitsPerPixel(packet.caps().format());
-    packet.caps().width() = videoInfo->width;
-    packet.caps().height() = videoInfo->height;
-    packet.caps().fps() = AkFrac(videoInfo->fps_n, videoInfo->fps_d);
-
     gst_video_info_free(videoInfo);
 
     GstBuffer *buf = gst_sample_get_buffer(sample);
     GstMapInfo map;
     gst_buffer_map(buf, &map, GST_MAP_READ);
-
-    QByteArray oBuffer(int(map.size), 0);
+    QByteArray oBuffer(int(map.size), Qt::Uninitialized);
     memcpy(oBuffer.data(), map.data, map.size);
 
+    AkVideoPacket packet;
+    packet.caps() = {AkVideoCaps::Format_rgb24,
+                     videoInfo->width,
+                     videoInfo->height,
+                     AkFrac(videoInfo->fps_n, videoInfo->fps_d)};
     packet.buffer() = oBuffer;
     packet.pts() = qint64(GST_BUFFER_PTS(buf));
     packet.timeBase() = AkFrac(1, GST_SECOND);
@@ -851,13 +847,11 @@ bool MediaSourceGStreamer::setState(AkElement::ElementState state)
                         GstVideoInfo *videoInfo = gst_video_info_new();
                         gst_video_info_from_caps(videoInfo, caps);
 
-                        AkVideoCaps videoCaps;
-                        videoCaps.isValid() = true;
-                        videoCaps.format() = AkVideoCaps::Format_rgb24;
-                        videoCaps.bpp() = AkVideoCaps::bitsPerPixel(videoCaps.format());
-                        videoCaps.width() = videoInfo->width;
-                        videoCaps.height() = videoInfo->height;
-                        videoCaps.fps() = AkFrac(videoInfo->fps_n, videoInfo->fps_d);
+                        AkVideoCaps videoCaps(AkVideoCaps::Format_rgb24,
+                                              videoInfo->width,
+                                              videoInfo->height,
+                                              AkFrac(videoInfo->fps_n,
+                                                     videoInfo->fps_d));
                         this->d->m_streamInfo << Stream(videoCaps.toCaps(),
                                                         languages[stream]);
 

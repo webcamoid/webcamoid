@@ -192,15 +192,10 @@ AkCaps VideoCaptureElement::caps(int stream)
     if (!caps)
         return AkCaps();
 
-    AkVideoCaps videoCaps;
-    videoCaps.isValid() = true;
-    videoCaps.format() = AkVideoCaps::Format_rgb24;
-    videoCaps.bpp() = AkVideoCaps::bitsPerPixel(videoCaps.format());
-    videoCaps.width() = caps.property("width").toInt();
-    videoCaps.height() = caps.property("height").toInt();
-    videoCaps.fps() = caps.property("fps").toString();
-
-    return videoCaps;
+    return AkVideoCaps(AkVideoCaps::Format_rgb24,
+                       caps.property("width").toInt(),
+                       caps.property("height").toInt(),
+                       caps.property("fps").toString()).toCaps();
 }
 
 AkCaps VideoCaptureElement::rawCaps(int stream) const

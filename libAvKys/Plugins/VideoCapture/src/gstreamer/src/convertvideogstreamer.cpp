@@ -501,25 +501,22 @@ GstFlowReturn ConvertVideoGStreamerPrivate::videoBufferCallback(GstElement *vide
     GstVideoInfo *videoInfo = gst_video_info_new();
     gst_video_info_from_caps(videoInfo, caps);
 
-    // Create a package and return it.
-    AkVideoPacket oVideoPacket;
-    oVideoPacket.caps().isValid() = true;
-    oVideoPacket.caps().format() = AkVideoCaps::Format_rgb24;
-    oVideoPacket.caps().bpp() = AkVideoCaps::bitsPerPixel(oVideoPacket.caps().format());
-    oVideoPacket.caps().width() = videoInfo->width;
-    oVideoPacket.caps().height() = videoInfo->height;
-    oVideoPacket.caps().fps() = AkFrac(videoInfo->fps_n, videoInfo->fps_d);
-
     gst_video_info_free(videoInfo);
 
     GstBuffer *buffer = gst_sample_get_buffer(sample);
     GstMapInfo info;
     gst_buffer_map(buffer, &info, GST_MAP_READ);
-
-    QByteArray oBuffer(int(info.size), 0);
+    QByteArray oBuffer(int(info.size), Qt::Uninitialized);
     memcpy(oBuffer.data(), info.data, info.size);
 
+    // Create a package and return it.
+    AkVideoPacket oVideoPacket;
+    oVideoPacket.caps() = {AkVideoCaps::Format_rgb24,
+                           videoInfo->width,
+                           videoInfo->height,
+                           AkFrac(videoInfo->fps_n, videoInfo->fps_d)};
     oVideoPacket.buffer() = oBuffer;
+
     oVideoPacket.pts() = qint64(GST_BUFFER_PTS(buffer));
     oVideoPacket.timeBase() = AkFrac(1, GST_SECOND);
     oVideoPacket.index() = 0;

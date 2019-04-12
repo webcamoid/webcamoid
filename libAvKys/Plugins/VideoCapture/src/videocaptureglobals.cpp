@@ -27,21 +27,22 @@ VideoCaptureGlobals::VideoCaptureGlobals(QObject *parent):
     this->m_preferredFramework = QStringList {
         "ffmpeg",
         "gstreamer",
+        "generic",
     };
 
     this->m_preferredLibrary = QStringList {
 #ifdef Q_OS_WIN32
         "dshow",
         "mediafoundation",
-        "libuvc",
 #elif defined(Q_OS_OSX)
         "avfoundation",
-        "libuvc",
+#elif defined(Q_OS_ANDROID)
+        "androicamera",
 #else
         "v4lutils",
         "v4l2sys",
-        "libuvc",
 #endif
+        "libuvc",
     };
 
     this->resetCodecLib();

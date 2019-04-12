@@ -857,8 +857,8 @@ AkVideoCaps MediaWriterFFmpeg::nearestH261Caps(const AkVideoCaps &caps) const
     }
 
     AkVideoCaps nearestCaps(caps);
-    nearestCaps.width() = nearestSize.width();
-    nearestCaps.height() = nearestSize.height();
+    nearestCaps.setWidth(nearestSize.width());
+    nearestCaps.setHeight(nearestSize.height());
 
     return nearestCaps;
 }
@@ -883,8 +883,8 @@ AkVideoCaps MediaWriterFFmpeg::nearestH263Caps(const AkVideoCaps &caps) const
     }
 
     AkVideoCaps nearestCaps(caps);
-    nearestCaps.width() = nearestSize.width();
-    nearestCaps.height() = nearestSize.height();
+    nearestCaps.setWidth(nearestSize.width());
+    nearestCaps.setHeight(nearestSize.height());
 
     return nearestCaps;
 }
@@ -909,8 +909,8 @@ AkVideoCaps MediaWriterFFmpeg::nearestGXFCaps(const AkVideoCaps &caps) const
     }
 
     AkVideoCaps nearestCaps(caps);
-    nearestCaps.width() = nearestSize.width();
-    nearestCaps.height() = nearestSize.height();
+    nearestCaps.setWidth(nearestSize.width());
+    nearestCaps.setHeight(nearestSize.height());
 
     return nearestCaps;
 }

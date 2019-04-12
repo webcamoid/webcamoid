@@ -62,11 +62,11 @@ extern "C"
 // no AV correction is done if too big error
 #define AV_NOSYNC_THRESHOLD 10.0
 
-using V4l2PixFmtMap = QMap<QString, AVPixelFormat>;
+using ImgFmtMap = QMap<QString, AVPixelFormat>;
 
-inline V4l2PixFmtMap initV4l2PixFmtMap()
+inline ImgFmtMap initImgFmtMap()
 {
-    V4l2PixFmtMap rawToFF = {
+    ImgFmtMap rawToFF = {
         // RGB formats
         {"RGB1", AV_PIX_FMT_RGB8    },
         {"R444", AV_PIX_FMT_RGB444LE},
@@ -128,7 +128,7 @@ inline V4l2PixFmtMap initV4l2PixFmtMap()
     return rawToFF;
 }
 
-Q_GLOBAL_STATIC_WITH_ARGS(V4l2PixFmtMap, rawToFF, (initV4l2PixFmtMap()))
+Q_GLOBAL_STATIC_WITH_ARGS(ImgFmtMap, rawToFF, (initImgFmtMap()))
 
 using V4l2CodecMap = QMap<QString, AVCodecID>;
 
@@ -537,7 +537,7 @@ void ConvertVideoFFmpegPrivate::convert(const FramePtr &frame)
                                            nullptr,
                                            oFrame.linesize);
 
-    QByteArray oBuffer(frameSize, 0);
+    QByteArray oBuffer(frameSize, Qt::Uninitialized);
 
     if (av_image_fill_pointers(reinterpret_cast<uint8_t **>(oFrame.data),
                                outPixFormat,
@@ -556,21 +556,16 @@ void ConvertVideoFFmpegPrivate::convert(const FramePtr &frame)
               oFrame.data,
               oFrame.linesize);
 
-    AkVideoCaps caps;
-    caps.isValid() = true;
-    caps.format() = AkVideoCaps::Format_rgb24;
-    caps.bpp() = AkVideoCaps::bitsPerPixel(caps.format());
-    caps.width() = frame->width;
-    caps.height() = frame->height;
-    caps.fps() = this->m_fps;
-
     // Create packet
     AkVideoPacket oPacket;
-    oPacket.caps() = caps;
+    oPacket.caps() = {AkVideoCaps::Format_rgb24,
+                     frame->width,
+                     frame->height,
+                     this->m_fps};
     oPacket.buffer() = oBuffer;
     oPacket.id() = this->m_id;
     oPacket.pts() = frame->pts;
-    oPacket.timeBase() = caps.fps().invert();
+    oPacket.timeBase() = this->m_fps.invert();
     oPacket.index() = 0;
 
     emit self->frameReady(oPacket.toPacket());

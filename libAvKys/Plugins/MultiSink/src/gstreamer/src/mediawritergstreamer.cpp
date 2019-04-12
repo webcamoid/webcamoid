@@ -1554,8 +1554,7 @@ bool MediaWriterGStreamer::init()
 
             if (!supportedPixelFormats.isEmpty() && !supportedPixelFormats.contains(pixelFormat)) {
                 auto defaultPixelFormat = codecDefaults["defaultPixelFormat"].toString();
-                videoCaps.format() = AkVideoCaps::pixelFormatFromString(defaultPixelFormat);
-                videoCaps.bpp() = AkVideoCaps::bitsPerPixel(videoCaps.format());
+                videoCaps.setFormat(AkVideoCaps::pixelFormatFromString(defaultPixelFormat));
             }
 
             auto supportedFrameSizes = codecDefaults["supportedFrameSizes"].value<SizeList>();
@@ -1570,8 +1569,7 @@ bool MediaWriterGStreamer::init()
 
             auto format = AkVideoCaps::pixelFormatToString(videoCaps.format());
             auto gstFormat = gstToFF->key(format, "I420");
-            videoCaps.width() =
-                    MediaWriterGStreamerPrivate::align(videoCaps.width(), 4);
+            videoCaps.setWidth(MediaWriterGStreamerPrivate::align(videoCaps.width(), 4));
 
             auto gstVideoCaps =
                     gst_caps_new_simple("video/x-raw",
@@ -2572,8 +2570,8 @@ AkVideoCaps MediaWriterGStreamerPrivate::nearestFrameSize(const AkVideoCaps &cap
     }
 
     AkVideoCaps nearestCaps(caps);
-    nearestCaps.width() = nearestSize.width();
-    nearestCaps.height() = nearestSize.height();
+    nearestCaps.setWidth(nearestSize.width());
+    nearestCaps.setHeight(nearestSize.height());
 
     return nearestCaps;
 }

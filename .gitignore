@@ -110,7 +110,7 @@ android-*-deployment-settings.json
 # Project Files #
 #################
 Webcamoid
-webcamoid
+bin/webcamoid
 AkVCamAssistant
 
 # Ignore Directories #
