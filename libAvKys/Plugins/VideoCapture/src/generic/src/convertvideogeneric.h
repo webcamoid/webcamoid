@@ -22,8 +22,6 @@
 
 #include "convertvideo.h"
 
-class ConvertVideoGenericPrivate;
-
 class ConvertVideoGeneric: public ConvertVideo
 {
     Q_OBJECT
@@ -35,11 +33,6 @@ class ConvertVideoGeneric: public ConvertVideo
         Q_INVOKABLE void packetEnqueue(const AkPacket &packet);
         Q_INVOKABLE bool init(const AkCaps &caps);
         Q_INVOKABLE void uninit();
-
-    private:
-        ConvertVideoGenericPrivate *d;
-
-        friend class ConvertVideoFFmpegPrivate;
 };
 
 #endif // CONVERTVIDEOFFMPEG_H

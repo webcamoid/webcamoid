@@ -765,7 +765,7 @@ void AkVideoCaps::resetFps()
 
 void AkVideoCaps::resetAlign()
 {
-    this->setHeight(1);
+    this->setAlign(1);
 }
 
 void AkVideoCaps::clear()

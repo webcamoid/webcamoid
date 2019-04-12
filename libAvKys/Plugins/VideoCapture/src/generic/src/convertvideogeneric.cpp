@@ -44,7 +44,7 @@ inline ImgFmtMap initImgFmtMap()
         {"BGR3", AkVideoCaps::Format_bgr24   },
         {"Y800", AkVideoCaps::Format_gray    },
         {"NV16", AkVideoCaps::Format_nv16    },
-        {"NV21", AkVideoCaps::Format_nv21    }, //
+        {"NV21", AkVideoCaps::Format_nv21    },
         {"YUY2", AkVideoCaps::Format_yuyv422 },
         {"YUYV", AkVideoCaps::Format_yuyv422 },
         {"YV12", AkVideoCaps::Format_yuv420p },
@@ -58,32 +58,14 @@ inline ImgFmtMap initImgFmtMap()
 
 Q_GLOBAL_STATIC_WITH_ARGS(ImgFmtMap, fourccToFormat, (initImgFmtMap()))
 
-class ConvertVideoGenericPrivate
-{
-    public:
-        ConvertVideoGeneric *self {nullptr};
-        qint64 m_id {-1};
-        AkFrac m_fps;
-
-        explicit ConvertVideoGenericPrivate(ConvertVideoGeneric *self):
-            self(self)
-        {
-        }
-};
-
 ConvertVideoGeneric::ConvertVideoGeneric(QObject *parent):
     ConvertVideo(parent)
 {
-    this->d = new ConvertVideoGenericPrivate(this);
 }
 
 ConvertVideoGeneric::~ConvertVideoGeneric()
 {
-    this->uninit();
-    delete this->d;
 }
-
-#include <QtDebug>
 
 void ConvertVideoGeneric::packetEnqueue(const AkPacket &packet)
 {
