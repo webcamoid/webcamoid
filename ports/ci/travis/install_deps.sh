@@ -83,6 +83,12 @@ requires() {
     done
 }
 
+if [ ! -z "${USE_WGET}" ]; then
+    export DOWNLOAD_CMD=wget -c
+else
+    export DOWNLOAD_CMD=curl --retry 10 -kLOC -
+fi
+
 if [ "${TRAVIS_OS_NAME}" = linux ] &&
    [ "${ANDROID_BUILD}" != 1 ] &&
    [ -z "${ARCH_ROOT_MINGW}" ] ; then
@@ -90,7 +96,7 @@ if [ "${TRAVIS_OS_NAME}" = linux ] &&
     qtIFW=QtInstallerFramework-linux-x64.run
 
     # Install Qt Installer Framework
-    wget -c http://download.qt.io/official_releases/qt-installer-framework/${QTIFWVER}/${qtIFW} || true
+    ${DOWNLOAD_CMD} http://download.qt.io/official_releases/qt-installer-framework/${QTIFWVER}/${qtIFW} || true
 
     if [ -e ${qtIFW} ]; then
         chmod +x ${qtIFW}
@@ -136,11 +142,11 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
     cd build
 
     # Install Android NDK
-    wget -c https://dl.google.com/android/repository/android-ndk-${NDKVER}-linux-x86_64.zip
+    ${DOWNLOAD_CMD} https://dl.google.com/android/repository/android-ndk-${NDKVER}-linux-x86_64.zip
     unzip -q android-ndk-${NDKVER}-linux-x86_64.zip
 
     # Install Qt for Android
-    wget -c https://download.qt.io/archive/qt/${QTVER:0:4}/${QTVER}/qt-opensource-linux-x64-${QTVER}.run
+    ${DOWNLOAD_CMD} https://download.qt.io/archive/qt/${QTVER:0:4}/${QTVER}/qt-opensource-linux-x64-${QTVER}.run
     chmod +x qt-opensource-linux-x64-${QTVER}.run
 
     QT_QPA_PLATFORM=minimal \
@@ -151,7 +157,7 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
 elif [ "${ARCH_ROOT_BUILD}" = 1 ]; then
     # Download chroot image
     archImage=archlinux-bootstrap-${ARCH_ROOT_DATE}-x86_64.tar.gz
-    wget -c ${ARCH_ROOT_URL}/iso/${ARCH_ROOT_DATE}/$archImage
+    ${DOWNLOAD_CMD} ${ARCH_ROOT_URL}/iso/${ARCH_ROOT_DATE}/$archImage
     sudo tar xzf $archImage
 
     # Configure mirrors
@@ -230,7 +236,7 @@ EOF
 
                 for pkg in dev shared; do
                     package=ffmpeg-${FFMPEG_VERSION}-${ff_arch}-$pkg
-                    wget -c "https://ffmpeg.zeranoe.com/builds/${ff_arch}/$pkg/$package.zip"
+                    ${DOWNLOAD_CMD} "https://ffmpeg.zeranoe.com/builds/${ff_arch}/$pkg/$package.zip"
                     unzip $package.zip
                 done
 
@@ -279,7 +285,7 @@ EOF
         qtIFW=QtInstallerFramework-win-x86.exe
 
         # Install Qt Installer Framework
-        wget -c http://download.qt.io/official_releases/qt-installer-framework/${QTIFWVER}/${qtIFW} || true
+        ${DOWNLOAD_CMD} http://download.qt.io/official_releases/qt-installer-framework/${QTIFWVER}/${qtIFW} || true
 
         if [ -e ${qtIFW} ]; then
             INSTALLSCRIPT=installscript.sh
@@ -454,7 +460,7 @@ elif [ "${TRAVIS_OS_NAME}" = osx ]; then
     qtIFW=QtInstallerFramework-mac-x64.dmg
 
     # Install Qt Installer Framework
-    wget -c http://download.qt.io/official_releases/qt-installer-framework/${QTIFWVER}/${qtIFW} || true
+    ${DOWNLOAD_CMD} http://download.qt.io/official_releases/qt-installer-framework/${QTIFWVER}/${qtIFW} || true
 
     if [ -e "${qtIFW}" ]; then
         hdiutil convert ${qtIFW} -format UDZO -o qtifw

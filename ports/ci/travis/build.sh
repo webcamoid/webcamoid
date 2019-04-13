@@ -52,7 +52,13 @@ fi
 
 if [ "${ANDROID_BUILD}" = 1 ]; then
     export PATH=$PWD/build/Qt/${QTVER}/android_${TARGET_ARCH}/bin:$PATH
-    export ANDROID_NDK_ROOT=$PWD/build/android-ndk-${NDKVER}
+    env | grep ANDROID_
+#     export ANDROID_HOME=/opt/android-sdk
+#     export ANDROID_NDK=/opt/android-ndk
+#     export ANDROID_NDK_HOME=/opt/android-ndk
+#     export ANDROID_NDK_PLATFORM=android-22
+     export ANDROID_NDK_ROOT=$PWD/build/android-ndk-${NDKVER}
+#     export ANDROID_SDK_ROOT=/opt/android-sdk
     qmake -query
     qmake -spec ${COMPILESPEC} Webcamoid.pro \
         CONFIG+=silent

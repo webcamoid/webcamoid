@@ -267,7 +267,7 @@ matrix:
       - ANDROID_BUILD=1
       - COMPILER=clang
       - QTVER=5.12.0
-      - NDKVER=r18b
+      - NDKVER=r19c
       - TARGET_ARCH=armv7
   - language: android
     jdk: oraclejdk8
@@ -282,7 +282,7 @@ matrix:
       - ANDROID_BUILD=1
       - COMPILER=clang
       - QTVER=5.12.0
-      - NDKVER=r18b
+      - NDKVER=r19c
       - TARGET_ARCH=arm64_v8a
   - language: android
     jdk: oraclejdk8
@@ -297,7 +297,7 @@ matrix:
       - ANDROID_BUILD=1
       - COMPILER=clang
       - QTVER=5.12.0
-      - NDKVER=r18b
+      - NDKVER=r19c
       - TARGET_ARCH=x86
 
 before_install: |
