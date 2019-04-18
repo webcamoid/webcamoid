@@ -351,7 +351,7 @@
     <message>
         <location filename="../qml/MediaConfig.qml" line="68"/>
         <source>Media UID</source>
-        <translation type="unfinished"></translation>
+        <translation>UID de media</translation>
     </message>
     <message>
         <location filename="../qml/MediaConfig.qml" line="75"/>
