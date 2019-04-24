@@ -281,7 +281,9 @@ class AKCOMMONS_EXPORT AkVideoCaps: public QObject
             Format_gray14be,
             Format_gray14le,
             Format_grayf32be,
-            Format_grayf32le
+            Format_grayf32le,
+            Format_yuv420p_888be,
+            Format_yuv420p_888le,
         };
 
         AkVideoCaps(QObject *parent=nullptr);

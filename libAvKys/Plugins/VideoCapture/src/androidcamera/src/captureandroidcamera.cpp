@@ -1,4 +1,4 @@
-/* Webcamoid, webcam capture application.
+﻿/* Webcamoid, webcam capture application.
  * Copyright (C) 2017  Gonzalo Exequiel Pedone
  *
  * Webcamoid is free software: you can redistribute it and/or modify
@@ -17,10 +17,13 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QDebug>
 #include <QDateTime>
 #include <QMutex>
+#include <QSet>
+#include <QThread>
+#include <QVariant>
 #include <QWaitCondition>
+#include <QWindow>
 #include <QtAndroid>
 #include <QAndroidJniEnvironment>
 #include <QAndroidJniObject>
@@ -65,30 +68,30 @@ typedef QMap<ImageFormat, QString> ImageFormatToStrMap;
 
 inline const ImageFormatToStrMap initImageFormatToStrMap()
 {
-    const ImageFormatToStrMap fourccToStrMap = {
-        {ImageFormat::UNKNOWN          , "UNKN"},
-        {ImageFormat::RGB_565          , "RGBP"},
-        {ImageFormat::NV16             , "NV16"},
-        {ImageFormat::NV21             , "NV21"},
-        {ImageFormat::YUY2             , "YUY2"},
-        {ImageFormat::RAW_SENSOR       , "RSEN"},
-        {ImageFormat::YUV_420_888      , "I420"},
-        {ImageFormat::PRIVATE          , "PRIV"},
-        {ImageFormat::RAW_PRIVATE      , "RPRI"},
-        {ImageFormat::RAW10            , "BA10"},
-        {ImageFormat::RAW12            , "BA12"},
-        {ImageFormat::YUV_422_888      , "Y422"},
-        {ImageFormat::FLEX_RGB_888     , "R308"},
-        {ImageFormat::FLEX_RGBA_8888   , "R408"},
-        {ImageFormat::JPEG             , "JPEG"},
-        {ImageFormat::DEPTH_POINT_CLOUD, "PCLD"},
-        {ImageFormat::Y8               , "Y800"},
-        {ImageFormat::YV12             , "YV12"},
-        {ImageFormat::DEPTH16          , "DP16"},
-        {ImageFormat::DEPTH_JPEG       , "DJPG"},
+    const ImageFormatToStrMap imgFmtToStrMap = {
+        {ImageFormat::UNKNOWN          , "UNKN"             },
+        {ImageFormat::RGB_565          , "RGB565"           },
+        {ImageFormat::NV16             , "NV16"             },
+        {ImageFormat::NV21             , "NV21"             },
+        {ImageFormat::YUY2             , "YUY2"             },
+        {ImageFormat::RAW_SENSOR       , "RAW_SENSOR"       },
+        {ImageFormat::YUV_420_888      , "YUY420P16_888"    },
+        {ImageFormat::PRIVATE          , "PRIVATE"          },
+        {ImageFormat::RAW_PRIVATE      , "RAW_PRIVATE"      },
+        {ImageFormat::RAW10            , "SGRBG10"          },
+        {ImageFormat::RAW12            , "SGRBG12"          },
+        {ImageFormat::YUV_422_888      , "YUV422P"          },
+        {ImageFormat::FLEX_RGB_888     , "FLEX_RGB_888"     },
+        {ImageFormat::FLEX_RGBA_8888   , "FLEX_RGBA_8888"   },
+        {ImageFormat::JPEG             , "JPEG"             },
+        {ImageFormat::DEPTH_POINT_CLOUD, "DEPTH_POINT_CLOUD"},
+        {ImageFormat::Y8               , "GRAY8"            },
+        {ImageFormat::YV12             , "YV12"             },
+        {ImageFormat::DEPTH16          , "DEPTH16"          },
+        {ImageFormat::DEPTH_JPEG       , "DEPTH_JPEG"       },
     };
 
-    return fourccToStrMap;
+    return imgFmtToStrMap;
 }
 
 Q_GLOBAL_STATIC_WITH_ARGS(ImageFormatToStrMap, imgFmtToStrMap, (initImageFormatToStrMap()))
@@ -966,28 +969,34 @@ bool CaptureAndroidCameraPrivate::setControls(QAndroidJniObject &parameters,
                                               const ControlVector &controls,
                                               const QVariantMap &values)
 {
+    bool ok = true;
+
     for (auto &control: controls) {
         if (!values.contains(control.description))
             continue;
 
-        int value = values.value(control.name).toInt();
+        int value = values.value(control.description).toInt();
 
         switch (control.type) {
         case ControlType::Integer:
-            return this->setControlInteger(parameters, control.name, value);
+            ok &= this->setControlInteger(parameters, control.name, value);
+            break;
 
         case ControlType::Boolean:
-            return this->setControlBoolean(parameters, control.name, value);
+            ok &= this->setControlBoolean(parameters, control.name, value);
+            break;
 
         case ControlType::Menu:
-            return this->setControlMenu(parameters, control.name, value);
+            ok &= this->setControlMenu(parameters, control.name, value);
+            break;
 
         case ControlType::Zoom:
-            return this->setControlZoom(parameters, value);
+            ok &= this->setControlZoom(parameters, value);
+            break;
         }
     }
 
-    return false;
+    return ok;
 }
 
 QVariantList CaptureAndroidCameraPrivate::imageControls(const QAndroidJniObject &parameters) const
@@ -1179,15 +1188,14 @@ bool CaptureAndroidCamera::init()
     if (!this->d->m_previewCallback.isValid())
         goto init_failed;
 
-    this->d->m_camera.callMethod<void>("setPreviewCallback",
-                                       "(Landroid/hardware/Camera$PreviewCallback;)V",
-                                       this->d->m_previewCallback.object());
-
     QtAndroid::runOnAndroidThreadSync([this] {
         this->d->m_surfaceView =
                 QAndroidJniObject("android/view/SurfaceView",
                                   "(Landroid/content/Context;)V",
                                   QtAndroid::androidActivity().object());
+        auto window = QWindow::fromWinId(WId(this->d->m_surfaceView.object()));
+        window->setVisible(true);
+        window->setGeometry(0, 0, 0, 0);
     });
 
     if (!this->d->m_surfaceView.isValid())
@@ -1208,13 +1216,17 @@ bool CaptureAndroidCamera::init()
     if (!surfaceHolder.isValid())
         goto init_failed;
 
-    surfaceHolder.callMethod<void>("addCallback",
-                                   "(Landroid/view/SurfaceHolder$Callback;)V",
-                                   this->d->m_surfaceCallback.object());
+    QThread::sleep(1);
+
     this->d->m_camera.callMethod<void>("setPreviewDisplay",
                                        "(Landroid/view/SurfaceHolder;)V",
                                        surfaceHolder.object());
-
+    surfaceHolder.callMethod<void>("addCallback",
+                                   "(Landroid/view/SurfaceHolder$Callback;)V",
+                                   this->d->m_surfaceCallback.object());
+    this->d->m_camera.callMethod<void>("setPreviewCallback",
+                                       "(Landroid/hardware/Camera$PreviewCallback;)V",
+                                       this->d->m_previewCallback.object());
     parameters =
             this->d->m_camera.callObjectMethod("getParameters",
                                                "()Landroid/hardware/Camera$Parameters;");
@@ -1229,7 +1241,7 @@ bool CaptureAndroidCamera::init()
 
     supportedCaps = this->caps(this->d->m_device);
     caps = supportedCaps[streams[0]].value<AkCaps>();
-    caps.setProperty("align", 32);
+    caps.setProperty("align", 16);
 
     parameters.callMethod<void>("setPreviewFormat",
                                 "(I)V",
@@ -1239,6 +1251,7 @@ bool CaptureAndroidCamera::init()
                                 "(II)V",
                                 caps.property("width").toInt(),
                                 caps.property("height").toInt());
+
     min = 0;
     max = 0;
     fps = caps.property("fps").toString();
@@ -1258,6 +1271,7 @@ bool CaptureAndroidCamera::init()
                                        "(Landroid/hardware/Camera$Parameters;)V",
                                        parameters.object());
     this->d->m_camera.callMethod<void>("startPreview");
+
     this->d->m_id = Ak::id();
     this->d->m_caps = caps;
     this->d->m_fps = fps;
@@ -1305,10 +1319,12 @@ void CaptureAndroidCamera::uninit()
     }
 
     QAndroidJniEnvironment jenv;
-    jclass jclass = jenv.findClass(JCLASS(AkSurfaceHolderCallback));
-    jenv->UnregisterNatives(jclass);
-    jclass = jenv.findClass(JCLASS(AkCameraPreviewCallback));
-    jenv->UnregisterNatives(jclass);
+
+    if (auto jclass = jenv.findClass(JCLASS(AkSurfaceHolderCallback)))
+        jenv->UnregisterNatives(jclass);
+
+    if (auto jclass = jenv.findClass(JCLASS(AkCameraPreviewCallback)))
+        jenv->UnregisterNatives(jclass);
 }
 
 void CaptureAndroidCamera::setDevice(const QString &device)
@@ -1450,9 +1466,9 @@ void CaptureAndroidCamera::updateDevices()
                                                       i,
                                                       cameraInfo.object());
             auto facing = cameraInfo.getField<jint>("facing");
-            auto description = QString("Camera %1 (%2)")
-                               .arg(i)
-                               .arg(facing == CAMERA_FACING_BACK? "back": "front");
+            auto description = QString("%1 Camera %2")
+                               .arg(facing == CAMERA_FACING_BACK? "Back": "Front")
+                               .arg(i);
 
             devices << deviceId;
             descriptions[deviceId] = description;

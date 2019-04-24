@@ -139,26 +139,51 @@ class UvcControl
 
 Q_GLOBAL_STATIC(UsbGlobals, usbGlobals)
 
-using PixFmtToUvcMap = QMap<QString, uvc_frame_format>;
+using PixFmtToStrMap = QMap<uvc_frame_format, QString>;
 
-inline PixFmtToUvcMap initPixFmtToUvcMap()
+inline PixFmtToStrMap initPixFmtToStr()
 {
-    PixFmtToUvcMap fourccToUvc = {
-        {"YUY2", UVC_FRAME_FORMAT_YUYV },
-        {"UYVY", UVC_FRAME_FORMAT_UYVY },
-        {"RGB3", UVC_FRAME_FORMAT_RGB  },
-        {"BGR3", UVC_FRAME_FORMAT_BGR  },
-        {"MJPG", UVC_FRAME_FORMAT_MJPEG},
-        {"Y800", UVC_FRAME_FORMAT_GRAY8},
-#ifdef UVC_FRAME_FORMAT_BY8
-        {"BY8 ", UVC_FRAME_FORMAT_BY8  },
-#endif
+    PixFmtToStrMap pixFmtToStr = {
+        {UVC_FRAME_FORMAT_YUYV  , "YUY2"  },
+        {UVC_FRAME_FORMAT_UYVY  , "UYVY"  },
+        {UVC_FRAME_FORMAT_RGB  ,  "RGB"   },
+        {UVC_FRAME_FORMAT_BGR  ,  "BGR"   },
+        {UVC_FRAME_FORMAT_MJPEG , "MJPG"  },
+        {UVC_FRAME_FORMAT_GRAY8 , "GRAY8" },
+        {UVC_FRAME_FORMAT_GRAY16, "GRAY16"},
+        {UVC_FRAME_FORMAT_BY8   , "BY8"   },
+        {UVC_FRAME_FORMAT_BA81  , "SBGGR8"},
+        {UVC_FRAME_FORMAT_SGRBG8, "SGRBG8"},
+        {UVC_FRAME_FORMAT_SGBRG8, "SGBRG8"},
+        {UVC_FRAME_FORMAT_SRGGB8, "SRGGB8"},
+        {UVC_FRAME_FORMAT_SBGGR8, "SBGGR8"},
     };
 
-    return fourccToUvc;
+    return pixFmtToStr;
 }
 
-Q_GLOBAL_STATIC_WITH_ARGS(PixFmtToUvcMap, fourccToUvc, (initPixFmtToUvcMap()))
+Q_GLOBAL_STATIC_WITH_ARGS(PixFmtToStrMap, pixFmtToStr, (initPixFmtToStr()))
+
+using FourccToStrMap = QMap<QString, QString>;
+
+inline FourccToStrMap initFourccToStr()
+{
+    FourccToStrMap fourccToStr = {
+        {"RGB3", "RGB24" },
+        {"BGR3", "BGR24" },
+        {"Y800", "GRAY8" },
+        {"Y16 ", "GRAY16"},
+        {"BA81", "SBGGR8"},
+        {"GRBG", "SGRBG8"},
+        {"GBRG", "SGBRG8"},
+        {"RGGB", "SRGGB8"},
+        {"BGGR", "SBGGR8"},
+    };
+
+    return fourccToStr;
+}
+
+Q_GLOBAL_STATIC_WITH_ARGS(FourccToStrMap, fourccToStr, (initFourccToStr()))
 
 class CaptureLibUVCPrivate
 {
@@ -653,7 +678,7 @@ void CaptureLibUVCPrivate::frameCallback(uvc_frame *frame, void *userData)
 
     AkCaps caps;
     caps.setMimeType("video/unknown");
-    caps.setProperty("fourcc", fourccToUvc->key(frame->frame_format));
+    caps.setProperty("fourcc", pixFmtToStr->value(frame->frame_format));
     caps.setProperty("width", frame->width);
     caps.setProperty("height", frame->height);
     caps.setProperty("fps", self->d->m_fps.toString());
@@ -730,7 +755,7 @@ bool CaptureLibUVC::init()
     uvc_stream_ctrl_t streamCtrl;
     error = uvc_get_stream_ctrl_format_size(this->d->m_deviceHnd,
                                             &streamCtrl,
-                                            fourccToUvc->value(caps.property("fourcc").toString()),
+                                            pixFmtToStr->key(caps.property("fourcc").toString()),
                                             caps.property("width").toInt(),
                                             caps.property("height").toInt(),
                                             fps);
@@ -945,8 +970,11 @@ void CaptureLibUVC::updateDevices()
 
         for (; formatDescription; formatDescription = formatDescription->next) {
             auto fourCC = this->d->fourccToStr(formatDescription->fourccFormat);
+            fourCC = fourccToStr->value(fourCC, fourCC);
 
-            if (!fourccToUvc->contains(fourCC))
+            if (std::find(pixFmtToStr->cbegin(),
+                          pixFmtToStr->cend(),
+                          fourCC) == pixFmtToStr->cend())
                 continue;
 
             videoCaps.setProperty("fourcc", fourCC);

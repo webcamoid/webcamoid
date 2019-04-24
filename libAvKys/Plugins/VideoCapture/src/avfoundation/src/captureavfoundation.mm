@@ -37,15 +37,15 @@ inline FourCharCodeToStrMap initFourCharCodeToStrMap()
 {
     FourCharCodeToStrMap fourccToStrMap = {
         // Raw formats
-        {kCMPixelFormat_32ARGB         , "BGRA"},
-        {kCMPixelFormat_24RGB          , "RGB3"},
-        {kCMPixelFormat_16BE555        , "RGBQ"},
-        {kCMPixelFormat_16BE565        , "RGBR"},
-        {kCMPixelFormat_16LE555        , "RGBO"},
-        {kCMPixelFormat_16LE565        , "RGBP"},
-        {kCMPixelFormat_16LE5551       , "AR15"},
-        {kCMPixelFormat_422YpCbCr8     , "UYVY"},
-        {kCMPixelFormat_422YpCbCr8_yuvs, "YUY2"},
+        {kCMPixelFormat_32ARGB         , "ARGB"    },
+        {kCMPixelFormat_24RGB          , "RGB"     },
+        {kCMPixelFormat_16BE555        , "RGB555BE"},
+        {kCMPixelFormat_16BE565        , "RGB565BE"},
+        {kCMPixelFormat_16LE555        , "RGB555"  },
+        {kCMPixelFormat_16LE565        , "RGB565"  },
+        {kCMPixelFormat_16LE5551       , "ARGB555" },
+        {kCMPixelFormat_422YpCbCr8     , "UYVY"    },
+        {kCMPixelFormat_422YpCbCr8_yuvs, "YUY2"    },
 
         // Compressed formats
         {kCMVideoCodecType_422YpCbCr8  , "UYVY"},

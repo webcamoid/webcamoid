@@ -22,15 +22,15 @@
 
 #include "capture.h"
 
-class CaptureAndroidCameraPrivate;
+class CaptureNdkCameraPrivate;
 
-class CaptureAndroidCamera: public Capture
+class CaptureNdkCamera: public Capture
 {
     Q_OBJECT
 
     public:
-        CaptureAndroidCamera(QObject *parent=nullptr);
-        ~CaptureAndroidCamera();
+        CaptureNdkCamera(QObject *parent=nullptr);
+        ~CaptureNdkCamera();
 
         Q_INVOKABLE QStringList webcams() const;
         Q_INVOKABLE QString device() const;
@@ -50,7 +50,7 @@ class CaptureAndroidCamera: public Capture
         Q_INVOKABLE AkPacket readFrame();
 
     private:
-        CaptureAndroidCameraPrivate *d;
+        CaptureNdkCameraPrivate *d;
 
     public slots:
         bool init();
@@ -68,7 +68,7 @@ class CaptureAndroidCamera: public Capture
     private slots:
         void updateDevices();
 
-    friend CaptureAndroidCameraPrivate;
+    friend CaptureNdkCameraPrivate;
 };
 
 #endif // CAPTUREV4L2_H

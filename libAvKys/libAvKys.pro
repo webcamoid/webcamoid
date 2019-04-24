@@ -77,6 +77,7 @@ isEmpty(NOLIBUVC) {
 }
 
 isEmpty(NOMEDIAFOUNDATION): qtCompileTest(mediafoundation)
+isEmpty(NONDKCAMERA): qtCompileTest(ndk_camera)
 
 isEmpty(NOOSS) {
     cache(INCLUDEDIR)

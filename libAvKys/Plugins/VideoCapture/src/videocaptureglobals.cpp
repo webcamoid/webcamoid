@@ -38,6 +38,7 @@ VideoCaptureGlobals::VideoCaptureGlobals(QObject *parent):
         "avfoundation",
 #elif defined(Q_OS_ANDROID)
         "androicamera",
+        "ndkcamera",
 #else
         "v4lutils",
         "v4l2sys",

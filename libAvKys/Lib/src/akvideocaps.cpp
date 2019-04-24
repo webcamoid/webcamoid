@@ -143,6 +143,8 @@ class VideoFormat
                 {AkVideoCaps::Format_yuv420p14le   ,  21, AkFourCCS("Y3\xb\xe")    , {16,  8,  8}    , {1, 2, 2}   },
                 {AkVideoCaps::Format_yuv420p16be   ,  24, AkFourCCS("\x10\xb3Y")   , {16,  8,  8}    , {1, 2, 2}   },
                 {AkVideoCaps::Format_yuv420p16le   ,  24, AkFourCCS("Y3\xb\x10")   , {16,  8,  8}    , {1, 2, 2}   },
+                {AkVideoCaps::Format_yuv420p_888be ,  24, AK_FOURCC_NULL           , { 8,  8,  8}    , {1, 2, 2}   },
+                {AkVideoCaps::Format_yuv420p_888le ,  24, AK_FOURCC_NULL           , { 8,  8,  8}    , {1, 2, 2}   },
                 {AkVideoCaps::Format_yuv422p9be    ,  18, AkFourCCS("\x9\xa3Y")    , {16,  8,  8}    , {1, 1, 1}   },
                 {AkVideoCaps::Format_yuv422p9le    ,  18, AkFourCCS("Y3\xa\x9")    , {16,  8,  8}    , {1, 1, 1}   },
                 {AkVideoCaps::Format_yuv422p10be   ,  20, AkFourCCS("\xa\xa3Y")    , {16,  8,  8}    , {1, 1, 1}   },

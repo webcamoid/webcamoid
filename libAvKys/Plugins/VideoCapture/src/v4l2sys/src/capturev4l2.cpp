@@ -96,6 +96,78 @@ inline IoMethodMap initIoMethodMap()
 
 Q_GLOBAL_STATIC_WITH_ARGS(IoMethodMap, ioMethodToStr, (initIoMethodMap()))
 
+using FourccToStrMap = QMap<__u32, QString>;
+
+inline FourccToStrMap initFourccToStr()
+{
+    FourccToStrMap fourccToStr = {
+        {V4L2_PIX_FMT_RGB332      , "RGB332"      },
+        {V4L2_PIX_FMT_RGB444      , "RGB444"      },
+        {V4L2_PIX_FMT_ARGB444     , "ARGB444"     },
+        {V4L2_PIX_FMT_XRGB444     , "XRGB444"     },
+        {V4L2_PIX_FMT_RGB555      , "RGB555"      },
+        {V4L2_PIX_FMT_ARGB555     , "ARGB555"     },
+        {V4L2_PIX_FMT_XRGB555     , "XRGB555"     },
+        {V4L2_PIX_FMT_RGB565      , "RGB565"      },
+        {V4L2_PIX_FMT_RGB555X     , "RGB555BE"    },
+        {V4L2_PIX_FMT_ARGB555X    , "ARGB555BE"   },
+        {V4L2_PIX_FMT_XRGB555X    , "XRGB555BE"   },
+        {V4L2_PIX_FMT_RGB565X     , "RGB565BE"    },
+        {V4L2_PIX_FMT_BGR666      , "BGR666"      },
+        {V4L2_PIX_FMT_BGR24       , "BGR"         },
+        {V4L2_PIX_FMT_RGB24       , "RGB"         },
+        {V4L2_PIX_FMT_BGR32       , "BGRX"        },
+        {V4L2_PIX_FMT_ABGR32      , "ABGR"        },
+        {V4L2_PIX_FMT_XBGR32      , "XBGR"        },
+        {V4L2_PIX_FMT_RGB32       , "RGBA"        },
+        {V4L2_PIX_FMT_ARGB32      , "ARGB"        },
+        {V4L2_PIX_FMT_XRGB32      , "XRGB"        },
+        {V4L2_PIX_FMT_GREY        , "GRAY8"       },
+        {V4L2_PIX_FMT_Y4          , "GRAY4"       },
+        {V4L2_PIX_FMT_Y6          , "GRAY6"       },
+        {V4L2_PIX_FMT_Y10         , "GRAY10"      },
+        {V4L2_PIX_FMT_Y12         , "GRAY12"      },
+        {V4L2_PIX_FMT_Y16         , "GRAY16"      },
+        {V4L2_PIX_FMT_Y16_BE      , "GRAY16BE"    },
+        {V4L2_PIX_FMT_SBGGR8      , "SBGGR8"      },
+        {V4L2_PIX_FMT_SGBRG8      , "SGBRG8"      },
+        {V4L2_PIX_FMT_SGRBG8      , "SGRBG8"      },
+        {V4L2_PIX_FMT_SRGGB8      , "SRGGB8"      },
+        {V4L2_PIX_FMT_SBGGR10     , "SBGGR10"     },
+        {V4L2_PIX_FMT_SGBRG10     , "SGBRG10"     },
+        {V4L2_PIX_FMT_SGRBG10     , "SGRBG10"     },
+        {V4L2_PIX_FMT_SRGGB10     , "SRGGB10"     },
+        {V4L2_PIX_FMT_SBGGR10P    , "SBGGR10P"    },
+        {V4L2_PIX_FMT_SGBRG10P    , "SGBRG10P"    },
+        {V4L2_PIX_FMT_SGRBG10P    , "SGRBG10P"    },
+        {V4L2_PIX_FMT_SRGGB10P    , "SRGGB10P"    },
+        {V4L2_PIX_FMT_SBGGR10ALAW8, "SBGGR10ALAW8"},
+        {V4L2_PIX_FMT_SGBRG10ALAW8, "SGBRG10ALAW8"},
+        {V4L2_PIX_FMT_SGRBG10ALAW8, "SGRBG10ALAW8"},
+        {V4L2_PIX_FMT_SRGGB10ALAW8, "SRGGB10ALAW8"},
+        {V4L2_PIX_FMT_SBGGR10DPCM8, "SBGGR10DPCM8"},
+        {V4L2_PIX_FMT_SGBRG10DPCM8, "SGBRG10DPCM8"},
+        {V4L2_PIX_FMT_SGRBG10DPCM8, "SGRBG10DPCM8"},
+        {V4L2_PIX_FMT_SRGGB10DPCM8, "SRGGB10DPCM8"},
+        {V4L2_PIX_FMT_SBGGR12     , "SBGGR12"     },
+        {V4L2_PIX_FMT_SGBRG12     , "SGBRG12"     },
+        {V4L2_PIX_FMT_SGRBG12     , "SGRBG12"     },
+        {V4L2_PIX_FMT_SRGGB12     , "SRGGB12"     },
+        {V4L2_PIX_FMT_SBGGR12P    , "SBGGR12P"    },
+        {V4L2_PIX_FMT_SGBRG12P    , "SGBRG12P"    },
+        {V4L2_PIX_FMT_SGRBG12P    , "SGRBG12P"    },
+        {V4L2_PIX_FMT_SRGGB12P    , "SRGGB12P"    },
+        {V4L2_PIX_FMT_SBGGR16     , "SBGGR16"     },
+        {V4L2_PIX_FMT_SGBRG16     , "SGBRG16"     },
+        {V4L2_PIX_FMT_SGRBG16     , "SGRBG16"     },
+        {V4L2_PIX_FMT_SRGGB16     , "SRGGB16"     },
+    };
+
+    return fourccToStr;
+}
+
+Q_GLOBAL_STATIC_WITH_ARGS(FourccToStrMap, v4l2FourccToStr, (initFourccToStr()))
+
 class CaptureV4L2Private
 {
     public:
@@ -448,6 +520,9 @@ QVariantList CaptureV4L2Private::capsFps(int fd,
     frmival.pixel_format = format.pixelformat;
     frmival.width = width;
     frmival.height = height;
+    auto fourcc =
+            v4l2FourccToStr->value(format.pixelformat,
+                                   this->fourccToStr(format.pixelformat));
 
     for (frmival.index = 0;
          x_ioctl(fd, VIDIOC_ENUM_FRAMEINTERVALS, &frmival) >= 0;
@@ -458,7 +533,7 @@ QVariantList CaptureV4L2Private::capsFps(int fd,
 
         AkCaps videoCaps;
         videoCaps.setMimeType("video/unknown");
-        videoCaps.setProperty("fourcc", this->fourccToStr(format.pixelformat));
+        videoCaps.setProperty("fourcc", fourcc);
         videoCaps.setProperty("width", width);
         videoCaps.setProperty("height", height);
         AkFrac fps;
@@ -482,7 +557,7 @@ QVariantList CaptureV4L2Private::capsFps(int fd,
         AkCaps videoCaps;
         auto timeperframe = &params.parm.capture.timeperframe;
         videoCaps.setMimeType("video/unknown");
-        videoCaps.setProperty("fourcc", this->fourccToStr(format.pixelformat));
+        videoCaps.setProperty("fourcc", fourcc);
         videoCaps.setProperty("width", width);
         videoCaps.setProperty("height", height);
         videoCaps.setProperty("fps", AkFrac(timeperframe->denominator,
@@ -1066,8 +1141,10 @@ bool CaptureV4L2::init()
     fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 
     x_ioctl(this->d->m_fd, VIDIOC_G_FMT, &fmt);
+    auto fourcc = caps.property("fourcc").toString();
     fmt.fmt.pix.pixelformat =
-            this->d->strToFourCC(caps.property("fourcc").toString());
+            v4l2FourccToStr->key(fourcc,
+                                 this->d->strToFourCC(fourcc));
     fmt.fmt.pix.width = caps.property("width").toUInt();
     fmt.fmt.pix.height = caps.property("height").toUInt();
 

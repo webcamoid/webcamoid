@@ -35,16 +35,15 @@ inline StringStringMap initFourCCToGst()
 {
     StringStringMap fourCCToGst = {
         // RGB formats
-        {"RGBO", "video/x-raw,format=RGB15"},
-        {"RGBP", "video/x-raw,format=RGB16"},
-        {"BGR3", "video/x-raw,format=BGR"  },
-        {"RGB3", "video/x-raw,format=RGB"  },
-        {"BGR4", "video/x-raw,format=BGRx" },
-        {"RGB4", "video/x-raw,format=xRGB" },
+        {"RGB555", "video/x-raw,format=RGB15"},
+        {"RGB565", "video/x-raw,format=RGB16"},
+        {"BGR"   , "video/x-raw,format=BGR"  },
+        {"RGB"   , "video/x-raw,format=RGB"  },
+        {"BGRX"  , "video/x-raw,format=BGRx" },
+        {"XRGB"  , "video/x-raw,format=xRGB" },
 
         // Grey formats
-        {"GREY", "video/x-raw,format=GRAY8"},
-        {"Y04 ", "video/x-raw,format=Y41P" },
+        {"GRAY8", "video/x-raw,format=GRAY8"},
 
         // Luminance+Chrominance formats
         {"YVU9", "video/x-raw,format=YVU9"},
@@ -68,10 +67,10 @@ inline StringStringMap initFourCCToGst()
         {"TM12", "video/x-raw,format=NV12_64Z32"},
 
         // Bayer formats - see http://www.siliconimaging.com/RGB%20Bayer.htm
-        {"BA81", "video/x-bayer,format=bggr"},
-        {"GBRG", "video/x-bayer,format=gbrg"},
-        {"GRBG", "video/x-bayer,format=grbg"},
-        {"RGGB", "video/x-bayer,format=rggb"},
+        {"SBGGR8", "video/x-bayer,format=bggr"},
+        {"SGBRG8", "video/x-bayer,format=gbrg"},
+        {"SGRBG8", "video/x-bayer,format=grbg"},
+        {"SRGGB8", "video/x-bayer,format=rggb"},
 
         // compressed formats
         {"MJPG", "image/jpeg"                                         },

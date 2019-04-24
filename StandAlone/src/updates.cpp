@@ -17,7 +17,6 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QDebug>
 #include <QTimer>
 #include <QDateTime>
 #include <QSettings>

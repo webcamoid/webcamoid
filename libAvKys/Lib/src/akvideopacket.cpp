@@ -25,12 +25,20 @@
 #include "akcaps.h"
 #include "akvideocaps.h"
 
-struct RGB32
+struct RGBX
 {
     uint8_t x;
     uint8_t b;
     uint8_t g;
     uint8_t r;
+};
+
+struct XRGB
+{
+    uint8_t b;
+    uint8_t g;
+    uint8_t r;
+    uint8_t x;
 };
 
 struct RGB24
@@ -55,12 +63,20 @@ struct RGB15
     uint16_t x: 1;
 };
 
-struct BGR32
+struct XBGR
 {
     uint8_t r;
     uint8_t g;
     uint8_t b;
     uint8_t x;
+};
+
+struct BGRX
+{
+    uint8_t x;
+    uint8_t r;
+    uint8_t g;
+    uint8_t b;
 };
 
 struct BGR24
@@ -179,8 +195,11 @@ class AkVideoPacketPrivate
         static AkVideoPacket rgb24_to_nv12(const AkVideoPacket *src);
         static AkVideoPacket rgb24_to_nv21(const AkVideoPacket *src);
 
+        static AkVideoPacket rgba_to_rgb24(const AkVideoPacket *src);
+        static AkVideoPacket rgb0_to_rgb24(const AkVideoPacket *src);
         static AkVideoPacket yuyv422_to_rgb24(const AkVideoPacket *src);
         static AkVideoPacket yuv420p_to_rgb24(const AkVideoPacket *src);
+        static AkVideoPacket yuv420p_888_to_rgb24(const AkVideoPacket *src);
         static AkVideoPacket nv12_to_rgb24(const AkVideoPacket *src);
         static AkVideoPacket nv21_to_rgb24(const AkVideoPacket *src);
 };
@@ -191,35 +210,39 @@ class AkVideoPacketPrivate;
 VideoConvertFuncs initVideoConvertFuncs()
 {
     VideoConvertFuncs convert {
-        {AkVideoCaps::Format_bgr24  , AkVideoCaps::Format_0rgb    , AkVideoPacketPrivate::bgr24_to_0rgb    },
-        {AkVideoCaps::Format_bgr24  , AkVideoCaps::Format_rgb24   , AkVideoPacketPrivate::bgr24_to_rgb24   },
-        {AkVideoCaps::Format_bgr24  , AkVideoCaps::Format_rgb565le, AkVideoPacketPrivate::bgr24_to_rgb565le},
-        {AkVideoCaps::Format_bgr24  , AkVideoCaps::Format_rgb555le, AkVideoPacketPrivate::bgr24_to_rgb555le},
-        {AkVideoCaps::Format_bgr24  , AkVideoCaps::Format_0bgr    , AkVideoPacketPrivate::bgr24_to_0bgr    },
-        {AkVideoCaps::Format_bgr24  , AkVideoCaps::Format_bgr565le, AkVideoPacketPrivate::bgr24_to_bgr565le},
-        {AkVideoCaps::Format_bgr24  , AkVideoCaps::Format_bgr555le, AkVideoPacketPrivate::bgr24_to_bgr555le},
-        {AkVideoCaps::Format_bgr24  , AkVideoCaps::Format_uyvy422 , AkVideoPacketPrivate::bgr24_to_uyvy422 },
-        {AkVideoCaps::Format_bgr24  , AkVideoCaps::Format_yuyv422 , AkVideoPacketPrivate::bgr24_to_yuyv422 },
-        {AkVideoCaps::Format_bgr24  , AkVideoCaps::Format_nv12    , AkVideoPacketPrivate::bgr24_to_nv12    },
-        {AkVideoCaps::Format_bgr24  , AkVideoCaps::Format_nv21    , AkVideoPacketPrivate::bgr24_to_nv21    },
+        {AkVideoCaps::Format_bgr24        , AkVideoCaps::Format_0rgb    , AkVideoPacketPrivate::bgr24_to_0rgb       },
+        {AkVideoCaps::Format_bgr24        , AkVideoCaps::Format_rgb24   , AkVideoPacketPrivate::bgr24_to_rgb24      },
+        {AkVideoCaps::Format_bgr24        , AkVideoCaps::Format_rgb565le, AkVideoPacketPrivate::bgr24_to_rgb565le   },
+        {AkVideoCaps::Format_bgr24        , AkVideoCaps::Format_rgb555le, AkVideoPacketPrivate::bgr24_to_rgb555le   },
+        {AkVideoCaps::Format_bgr24        , AkVideoCaps::Format_0bgr    , AkVideoPacketPrivate::bgr24_to_0bgr       },
+        {AkVideoCaps::Format_bgr24        , AkVideoCaps::Format_bgr565le, AkVideoPacketPrivate::bgr24_to_bgr565le   },
+        {AkVideoCaps::Format_bgr24        , AkVideoCaps::Format_bgr555le, AkVideoPacketPrivate::bgr24_to_bgr555le   },
+        {AkVideoCaps::Format_bgr24        , AkVideoCaps::Format_uyvy422 , AkVideoPacketPrivate::bgr24_to_uyvy422    },
+        {AkVideoCaps::Format_bgr24        , AkVideoCaps::Format_yuyv422 , AkVideoPacketPrivate::bgr24_to_yuyv422    },
+        {AkVideoCaps::Format_bgr24        , AkVideoCaps::Format_nv12    , AkVideoPacketPrivate::bgr24_to_nv12       },
+        {AkVideoCaps::Format_bgr24        , AkVideoCaps::Format_nv21    , AkVideoPacketPrivate::bgr24_to_nv21       },
 
-        {AkVideoCaps::Format_rgb24  , AkVideoCaps::Format_0rgb    , AkVideoPacketPrivate::rgb24_to_0rgb    },
-        {AkVideoCaps::Format_rgb24  , AkVideoCaps::Format_rgb565le, AkVideoPacketPrivate::rgb24_to_rgb565le},
-        {AkVideoCaps::Format_rgb24  , AkVideoCaps::Format_rgb555le, AkVideoPacketPrivate::rgb24_to_rgb555le},
-        {AkVideoCaps::Format_rgb24  , AkVideoCaps::Format_0bgr    , AkVideoPacketPrivate::rgb24_to_0bgr    },
-        {AkVideoCaps::Format_rgb24  , AkVideoCaps::Format_bgr24   , AkVideoPacketPrivate::rgb24_to_bgr24   },
-        {AkVideoCaps::Format_rgb24  , AkVideoCaps::Format_bgr565le, AkVideoPacketPrivate::rgb24_to_bgr565le},
-        {AkVideoCaps::Format_rgb24  , AkVideoCaps::Format_bgr555le, AkVideoPacketPrivate::rgb24_to_bgr555le},
-        {AkVideoCaps::Format_rgb24  , AkVideoCaps::Format_uyvy422 , AkVideoPacketPrivate::rgb24_to_uyvy422 },
-        {AkVideoCaps::Format_rgb24  , AkVideoCaps::Format_yuyv422 , AkVideoPacketPrivate::rgb24_to_yuyv422 },
-        {AkVideoCaps::Format_rgb24  , AkVideoCaps::Format_nv12    , AkVideoPacketPrivate::rgb24_to_nv12    },
-        {AkVideoCaps::Format_rgb24  , AkVideoCaps::Format_nv21    , AkVideoPacketPrivate::rgb24_to_nv21    },
+        {AkVideoCaps::Format_rgb24        , AkVideoCaps::Format_0rgb    , AkVideoPacketPrivate::rgb24_to_0rgb       },
+        {AkVideoCaps::Format_rgb24        , AkVideoCaps::Format_rgb565le, AkVideoPacketPrivate::rgb24_to_rgb565le   },
+        {AkVideoCaps::Format_rgb24        , AkVideoCaps::Format_rgb555le, AkVideoPacketPrivate::rgb24_to_rgb555le   },
+        {AkVideoCaps::Format_rgb24        , AkVideoCaps::Format_0bgr    , AkVideoPacketPrivate::rgb24_to_0bgr       },
+        {AkVideoCaps::Format_rgb24        , AkVideoCaps::Format_bgr24   , AkVideoPacketPrivate::rgb24_to_bgr24      },
+        {AkVideoCaps::Format_rgb24        , AkVideoCaps::Format_bgr565le, AkVideoPacketPrivate::rgb24_to_bgr565le   },
+        {AkVideoCaps::Format_rgb24        , AkVideoCaps::Format_bgr555le, AkVideoPacketPrivate::rgb24_to_bgr555le   },
+        {AkVideoCaps::Format_rgb24        , AkVideoCaps::Format_uyvy422 , AkVideoPacketPrivate::rgb24_to_uyvy422    },
+        {AkVideoCaps::Format_rgb24        , AkVideoCaps::Format_yuyv422 , AkVideoPacketPrivate::rgb24_to_yuyv422    },
+        {AkVideoCaps::Format_rgb24        , AkVideoCaps::Format_nv12    , AkVideoPacketPrivate::rgb24_to_nv12       },
+        {AkVideoCaps::Format_rgb24        , AkVideoCaps::Format_nv21    , AkVideoPacketPrivate::rgb24_to_nv21       },
 
-        {AkVideoCaps::Format_yuyv422, AkVideoCaps::Format_rgb24   , AkVideoPacketPrivate::yuyv422_to_rgb24 },
-        {AkVideoCaps::Format_yuv420p, AkVideoCaps::Format_rgb24   , AkVideoPacketPrivate::yuv420p_to_rgb24 },
-        {AkVideoCaps::Format_nv12   , AkVideoCaps::Format_rgb24   , AkVideoPacketPrivate::nv12_to_rgb24    },
-        {AkVideoCaps::Format_nv16   , AkVideoCaps::Format_rgb24   , AkVideoPacketPrivate::nv12_to_rgb24    },
-        {AkVideoCaps::Format_nv21   , AkVideoCaps::Format_rgb24   , AkVideoPacketPrivate::nv21_to_rgb24    },
+        {AkVideoCaps::Format_rgba         , AkVideoCaps::Format_rgb24   , AkVideoPacketPrivate::rgba_to_rgb24       },
+        {AkVideoCaps::Format_rgb0         , AkVideoCaps::Format_rgb24   , AkVideoPacketPrivate::rgba_to_rgb24       },
+        {AkVideoCaps::Format_yuyv422      , AkVideoCaps::Format_rgb24   , AkVideoPacketPrivate::yuyv422_to_rgb24    },
+        {AkVideoCaps::Format_yuv420p      , AkVideoCaps::Format_rgb24   , AkVideoPacketPrivate::yuv420p_to_rgb24    },
+        {AkVideoCaps::Format_yuv420p_888le, AkVideoCaps::Format_rgb24   , AkVideoPacketPrivate::yuv420p_888_to_rgb24},
+        {AkVideoCaps::Format_yuv422p      , AkVideoCaps::Format_rgb24   , AkVideoPacketPrivate::yuv420p_to_rgb24    },
+        {AkVideoCaps::Format_nv12         , AkVideoCaps::Format_rgb24   , AkVideoPacketPrivate::nv12_to_rgb24       },
+        {AkVideoCaps::Format_nv16         , AkVideoCaps::Format_rgb24   , AkVideoPacketPrivate::nv12_to_rgb24       },
+        {AkVideoCaps::Format_nv21         , AkVideoCaps::Format_rgb24   , AkVideoPacketPrivate::nv21_to_rgb24       },
     };
 
     return convert;
@@ -589,7 +612,7 @@ AkVideoPacket AkVideoPacketPrivate::bgr24_to_0rgb(const AkVideoPacket *src)
 
     for (int y = 0; y < height; y++) {
         auto src_line = reinterpret_cast<const BGR24 *>(src->constLine(0, y));
-        auto dst_line = reinterpret_cast<RGB32 *>(dst.line(0, y));
+        auto dst_line = reinterpret_cast<RGBX *>(dst.line(0, y));
 
         for (int x = 0; x < width; x++) {
             dst_line[x].x = 255;
@@ -683,7 +706,7 @@ AkVideoPacket AkVideoPacketPrivate::bgr24_to_0bgr(const AkVideoPacket *src)
 
     for (int y = 0; y < height; y++) {
         auto src_line = reinterpret_cast<const BGR24 *>(src->constLine(0, y));
-        auto dst_line = reinterpret_cast<BGR32 *>(dst.line(0, y));
+        auto dst_line = reinterpret_cast<XBGR *>(dst.line(0, y));
 
         for (int x = 0; x < width; x++) {
             dst_line[x].x = 255;
@@ -886,7 +909,7 @@ AkVideoPacket AkVideoPacketPrivate::rgb24_to_0rgb(const AkVideoPacket *src)
 
     for (int y = 0; y < height; y++) {
         auto src_line = reinterpret_cast<const RGB24 *>(src->constLine(0, y));
-        auto dst_line = reinterpret_cast<RGB32 *>(dst.line(0, y));
+        auto dst_line = reinterpret_cast<RGBX *>(dst.line(0, y));
 
         for (int x = 0; x < width; x++) {
             dst_line[x].x = 255;
@@ -957,7 +980,7 @@ AkVideoPacket AkVideoPacketPrivate::rgb24_to_0bgr(const AkVideoPacket *src)
 
     for (int y = 0; y < height; y++) {
         auto src_line = reinterpret_cast<const RGB24 *>(src->constLine(0, y));
-        auto dst_line = reinterpret_cast<BGR32 *>(dst.line(0, y));
+        auto dst_line = reinterpret_cast<XBGR *>(dst.line(0, y));
 
         for (int x = 0; x < width; x++) {
             dst_line[x].x = 255;
@@ -1172,6 +1195,52 @@ AkVideoPacket AkVideoPacketPrivate::rgb24_to_nv21(const AkVideoPacket *src)
     return dst;
 }
 
+AkVideoPacket AkVideoPacketPrivate::rgba_to_rgb24(const AkVideoPacket *src)
+{
+    auto caps = src->caps();
+    caps.setFormat(AkVideoCaps::Format_rgb24);
+    AkVideoPacket dst(caps);
+    dst.copyMetadata(*src);
+    auto width = src->caps().width();
+    auto height = src->caps().height();
+
+    for (int y = 0; y < height; y++) {
+        auto src_line = reinterpret_cast<const XRGB *>(src->constLine(0, y));
+        auto dst_line = reinterpret_cast<RGB24 *>(dst.line(0, y));
+
+        for (int x = 0; x < width; x++) {
+            dst_line[x].r = src_line[x].x * src_line[x].r / 255;
+            dst_line[x].g = src_line[x].x * src_line[x].g / 255;
+            dst_line[x].b = src_line[x].x * src_line[x].b / 255;
+        }
+    }
+
+    return dst;
+}
+
+AkVideoPacket AkVideoPacketPrivate::rgb0_to_rgb24(const AkVideoPacket *src)
+{
+    auto caps = src->caps();
+    caps.setFormat(AkVideoCaps::Format_rgb24);
+    AkVideoPacket dst(caps);
+    dst.copyMetadata(*src);
+    auto width = src->caps().width();
+    auto height = src->caps().height();
+
+    for (int y = 0; y < height; y++) {
+        auto src_line = reinterpret_cast<const XRGB *>(src->constLine(0, y));
+        auto dst_line = reinterpret_cast<RGB24 *>(dst.line(0, y));
+
+        for (int x = 0; x < width; x++) {
+            dst_line[x].r = src_line[x].r;
+            dst_line[x].g = src_line[x].g;
+            dst_line[x].b = src_line[x].b;
+        }
+    }
+
+    return dst;
+}
+
 AkVideoPacket AkVideoPacketPrivate::yuyv422_to_rgb24(const AkVideoPacket *src)
 {
     auto caps = src->caps();
@@ -1229,6 +1298,37 @@ AkVideoPacket AkVideoPacketPrivate::yuv420p_to_rgb24(const AkVideoPacket *src)
             auto y = src_line_y[x];
             auto u = src_line_u[x_yuv];
             auto v = src_line_v[x_yuv];
+
+            dst_line[x].r = yuv_r(y, u, v);
+            dst_line[x].g = yuv_g(y, u, v);
+            dst_line[x].b = yuv_b(y, u, v);
+        }
+    }
+
+    return dst;
+}
+
+AkVideoPacket AkVideoPacketPrivate::yuv420p_888_to_rgb24(const AkVideoPacket *src)
+{
+    auto caps = src->caps();
+    caps.setFormat(AkVideoCaps::Format_rgb24);
+    AkVideoPacket dst(caps);
+    dst.copyMetadata(*src);
+    auto width = src->caps().width();
+    auto height = src->caps().height();
+
+    for (int y = 0; y < height; y++) {
+        auto src_line_y = reinterpret_cast<const quint8 *>(src->constLine(0, y));
+        auto src_line_v = reinterpret_cast<const quint16 *>(src->constLine(1, y));
+        auto src_line_u = reinterpret_cast<const quint16 *>(src->constLine(2, y));
+        auto dst_line = reinterpret_cast<RGB24 *>(dst.line(0, y));
+
+        for (int x = 0; x < width; x++) {
+            auto x_yuv = x / 2;
+
+            auto y = src_line_y[x];
+            auto u = src_line_u[x_yuv] & 0xff;
+            auto v = src_line_v[x_yuv] & 0xff;
 
             dst_line[x].r = yuv_r(y, u, v);
             dst_line[x].g = yuv_g(y, u, v);

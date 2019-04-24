@@ -68,26 +68,26 @@ inline ImgFmtMap initImgFmtMap()
 {
     ImgFmtMap rawToFF = {
         // RGB formats
-        {"RGB1", AV_PIX_FMT_RGB8    },
-        {"R444", AV_PIX_FMT_RGB444LE},
-        {"RGBO", AV_PIX_FMT_RGB555LE},
-        {"RGBP", AV_PIX_FMT_RGB565LE},
-        {"RGBQ", AV_PIX_FMT_RGB555BE},
-        {"RGBR", AV_PIX_FMT_RGB565BE},
-        {"BGR3", AV_PIX_FMT_BGR24   },
-        {"RGB3", AV_PIX_FMT_RGB24   },
-        {"BGR0", AV_PIX_FMT_BGR0    },
-        {"BGR4", AV_PIX_FMT_RGB0    },
-        {"RGB4", AV_PIX_FMT_0RGB    },
-        {"ARGB", AV_PIX_FMT_ARGB    },
-        {"RGBA", AV_PIX_FMT_RGBA    },
+        {"RGB332"  , AV_PIX_FMT_RGB8    },
+        {"RGB444"  , AV_PIX_FMT_RGB444LE},
+        {"RGB555"  , AV_PIX_FMT_RGB555LE},
+        {"RGB565"  , AV_PIX_FMT_RGB565LE},
+        {"RGB555BE", AV_PIX_FMT_RGB555BE},
+        {"RGB565BE", AV_PIX_FMT_RGB565BE},
+        {"BGR"     , AV_PIX_FMT_BGR24   },
+        {"RGB"     , AV_PIX_FMT_RGB24   },
+        {"BGR0"    , AV_PIX_FMT_BGR0    },
+        {"BGRX"    , AV_PIX_FMT_RGB0    },
+        {"RGBX"    , AV_PIX_FMT_0RGB    },
+        {"ARGB"    , AV_PIX_FMT_ARGB    },
+        {"RGBA"    , AV_PIX_FMT_RGBA    },
 
         // Grey formats
-        {"Y800", AV_PIX_FMT_GRAY8    },
-        {"GREY", AV_PIX_FMT_GRAY8    },
-        {"Y16 ", AV_PIX_FMT_GRAY16LE },
-        {"B1W0", AV_PIX_FMT_MONOWHITE},
-        {"B0W1", AV_PIX_FMT_MONOBLACK},
+        {"Y800"  , AV_PIX_FMT_GRAY8    },
+        {"GRAY8" , AV_PIX_FMT_GRAY8    },
+        {"GRAY16", AV_PIX_FMT_GRAY16LE },
+        {"B1W0"  , AV_PIX_FMT_MONOWHITE},
+        {"B0W1"  , AV_PIX_FMT_MONOBLACK},
 
         // Palette formats
         {"PAL8", AV_PIX_FMT_PAL8},
@@ -116,13 +116,13 @@ inline ImgFmtMap initImgFmtMap()
         {"NV16", AV_PIX_FMT_NV16},
 
         // Bayer formats
-        {"BA81", AV_PIX_FMT_BAYER_BGGR8},
-        {"GBRG", AV_PIX_FMT_BAYER_GBRG8},
-        {"GRBG", AV_PIX_FMT_BAYER_GRBG8},
-        {"RGGB", AV_PIX_FMT_BAYER_RGGB8},
+        {"SBGGR8", AV_PIX_FMT_BAYER_BGGR8},
+        {"SGBRG8", AV_PIX_FMT_BAYER_GBRG8},
+        {"SGRBG8", AV_PIX_FMT_BAYER_GRBG8},
+        {"SRGGB8", AV_PIX_FMT_BAYER_RGGB8},
 
         // 10bit raw bayer, expanded to 16 bits
-        {"BYR2", AV_PIX_FMT_BAYER_BGGR16LE}
+        {"SBGGR16", AV_PIX_FMT_BAYER_BGGR16LE}
     };
 
     return rawToFF;
