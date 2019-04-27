@@ -26,6 +26,7 @@ DesktopCaptureGlobals::DesktopCaptureGlobals(QObject *parent):
 {
     this->m_preferredLibrary = QStringList {
         "avfoundation",
+        "androidscreen",
         "qtscreen",
     };
 

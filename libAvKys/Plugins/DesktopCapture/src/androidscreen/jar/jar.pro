@@ -16,5 +16,30 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-TEMPLATE = subdirs
-SUBDIRS = jar src
+exists(akcommons.pri) {
+    include(akcommons.pri)
+} else {
+    exists(../../../../../akcommons.pri) {
+        include(../../../../../akcommons.pri)
+    } else {
+        error("akcommons.pri file not found.")
+    }
+}
+
+AK_PLUGIN = DesktopCapture
+AK_SUBMODULE = androidscreen
+
+TARGET = Ak$${AK_PLUGIN}_$${AK_SUBMODULE}
+
+CONFIG += java
+DESTDIR = $${PWD}/../../../../../../StandAlone/share/android/libs
+
+JAVACLASSPATH += \
+    src
+
+JAVASOURCES += \
+    src/org/webcamoid/plugins/$${AK_PLUGIN}/submodules/$${AK_SUBMODULE}/AkAndroidScreenCallbacks.java
+
+# install
+target.path = $${JARDIR}
+INSTALLS += target

@@ -17,8 +17,8 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef CONVERTVIDEOFFMPEG_H
-#define CONVERTVIDEOFFMPEG_H
+#ifndef CONVERTVIDEOGENERIC_H
+#define CONVERTVIDEOGENERIC_H
 
 #include "convertvideo.h"
 
@@ -35,4 +35,4 @@ class ConvertVideoGeneric: public ConvertVideo
         Q_INVOKABLE void uninit();
 };
 
-#endif // CONVERTVIDEOFFMPEG_H
+#endif // CONVERTVIDEOGENERIC_H

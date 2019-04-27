@@ -1,5 +1,5 @@
 # Webcamoid, webcam capture application.
-# Copyright (C) 2017  Gonzalo Exequiel Pedone
+# Copyright (C) 2019  Gonzalo Exequiel Pedone
 #
 # Webcamoid is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -38,8 +38,7 @@ JAVACLASSPATH += \
     src
 
 JAVASOURCES += \
-    src/org/webcamoid/plugins/$${AK_PLUGIN}/submodules/$${AK_SUBMODULE}/AkCameraPreviewCallback.java \
-    src/org/webcamoid/plugins/$${AK_PLUGIN}/submodules/$${AK_SUBMODULE}/AkSurfaceHolderCallback.java
+    src/org/webcamoid/plugins/$${AK_PLUGIN}/submodules/$${AK_SUBMODULE}/AkAndroidCameraCallbacks.java
 
 # install
 target.path = $${JARDIR}

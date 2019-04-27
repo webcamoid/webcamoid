@@ -1,5 +1,5 @@
 /* Webcamoid, webcam capture application.
- * Copyright (C) 2017  Gonzalo Exequiel Pedone
+ * Copyright (C) 2019  Gonzalo Exequiel Pedone
  *
  * Webcamoid is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,8 +17,8 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef CAPTUREV4L2_H
-#define CAPTUREV4L2_H
+#ifndef CAPTUREANDROIDCAMERA_H
+#define CAPTUREANDROIDCAMERA_H
 
 #include "capture.h"
 
@@ -71,4 +71,4 @@ class CaptureAndroidCamera: public Capture
     friend CaptureAndroidCameraPrivate;
 };
 
-#endif // CAPTUREV4L2_H
+#endif // CAPTUREANDROIDCAMERA_H

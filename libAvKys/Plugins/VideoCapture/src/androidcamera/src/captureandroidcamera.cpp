@@ -1,5 +1,5 @@
 /* Webcamoid, webcam capture application.
- * Copyright (C) 2017  Gonzalo Exequiel Pedone
+ * Copyright (C) 2019  Gonzalo Exequiel Pedone
  *
  * Webcamoid is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,18 +35,30 @@
 
 #define JNAMESPACE "org/webcamoid/plugins/VideoCapture/submodules/androidcamera"
 #define JCLASS(jclass) JNAMESPACE "/" #jclass
-#define JLCLASS(jclass) "L" JCLASS(jclass)
 
 #define CAMERA_FACING_BACK  0
 #define CAMERA_FACING_FRONT 1
 
 enum ImageFormat
 {
+    TRANSLUCENT       = -3,
+    TRANSPARENT       = -2,
+    OPAQUE            = -1,
     UNKNOWN           = AK_FOURCC_NULL,
+    RGBA_8888         = 1,
+    RGBX_8888         = 2,
+    RGB_888           = 3,
     RGB_565           = 4,
+    RGBA_5551         = 6,
+    RGBA_4444         = 7,
+    A_8               = 8,
+    L_8               = 9,
+    LA_88             = 10,
+    RGB_332           = 11,
     NV16              = 16,
     NV21              = 17,
     YUY2              = 20,
+    RGBA_F16          = 22,
     RAW_SENSOR        = 32,
     YUV_420_888       = 35,
     PRIVATE           = 34,
@@ -56,6 +68,7 @@ enum ImageFormat
     YUV_422_888       = 39,
     FLEX_RGB_888      = 41,
     FLEX_RGBA_8888    = 42,
+    RGBA_1010102      = 43,
     JPEG              = 256,
     DEPTH_POINT_CLOUD = 257,
     Y8                = AkFourCCR('Y', '8', ' ', ' '),
@@ -69,11 +82,24 @@ typedef QMap<ImageFormat, QString> ImageFormatToStrMap;
 inline const ImageFormatToStrMap initImageFormatToStrMap()
 {
     const ImageFormatToStrMap imgFmtToStrMap = {
-        {ImageFormat::UNKNOWN          , "UNKN"             },
+        {ImageFormat::TRANSLUCENT      , "TRANSLUCENT"      },
+        {ImageFormat::TRANSPARENT      , "TRANSPARENT"      },
+        {ImageFormat::OPAQUE           , "OPAQUE"           },
+        {ImageFormat::UNKNOWN          , "UNKNOWN"          },
+        {ImageFormat::RGBA_8888        , "RGBA"             },
+        {ImageFormat::RGBX_8888        , "RGBX"             },
+        {ImageFormat::RGB_888          , "RGB"              },
         {ImageFormat::RGB_565          , "RGB565"           },
+        {ImageFormat::RGBA_5551        , "RGB555"           },
+        {ImageFormat::RGBA_4444        , "RGBA4444"         },
+        {ImageFormat::A_8              , "GRAY8"            },
+        {ImageFormat::L_8              , "GRAY8"            },
+        {ImageFormat::LA_88            , "GRAYA8"           },
+        {ImageFormat::RGB_332          , "RGB332"           },
         {ImageFormat::NV16             , "NV16"             },
         {ImageFormat::NV21             , "NV21"             },
         {ImageFormat::YUY2             , "YUY2"             },
+        {ImageFormat::RGBA_F16         , "RGBAF16"          },
         {ImageFormat::RAW_SENSOR       , "RAW_SENSOR"       },
         {ImageFormat::YUV_420_888      , "YUY420P16_888"    },
         {ImageFormat::PRIVATE          , "PRIVATE"          },
@@ -83,6 +109,7 @@ inline const ImageFormatToStrMap initImageFormatToStrMap()
         {ImageFormat::YUV_422_888      , "YUV422P"          },
         {ImageFormat::FLEX_RGB_888     , "FLEX_RGB_888"     },
         {ImageFormat::FLEX_RGBA_8888   , "FLEX_RGBA_8888"   },
+        {ImageFormat::RGBA_1010102     , "RGBA_1010102"     },
         {ImageFormat::JPEG             , "JPEG"             },
         {ImageFormat::DEPTH_POINT_CLOUD, "DEPTH_POINT_CLOUD"},
         {ImageFormat::Y8               , "GRAY8"            },
@@ -167,17 +194,17 @@ class CaptureAndroidCameraPrivate
         AkCaps m_caps;
         qint64 m_id {-1};
         QAndroidJniObject m_camera;
-        QAndroidJniObject m_previewCallback;
-        QAndroidJniObject m_surfaceCallback;
+        QAndroidJniObject m_callbacks;
         QAndroidJniObject m_surfaceView;
 
         explicit CaptureAndroidCameraPrivate(CaptureAndroidCamera *self);
-        QVariantList caps(jint device) const;
+        void registerNatives();
+        QVariantList caps(jint device);
         jint deviceId(const QString &device) const;
         bool nearestFpsRangue(const QAndroidJniObject &parameters,
                               const AkFrac &fps,
                               jint &min,
-                              jint &max) const;
+                              jint &max);
         QVariantList controlBoolean(const QAndroidJniObject &parameters,
                                     const QString &name,
                                     const QString &description,
@@ -481,12 +508,37 @@ AkPacket CaptureAndroidCamera::readFrame()
 CaptureAndroidCameraPrivate::CaptureAndroidCameraPrivate(CaptureAndroidCamera *self):
     self(self)
 {
+    this->registerNatives();
+    this->m_callbacks =
+            QAndroidJniObject(JCLASS(AkAndroidCameraCallbacks),
+                              "(J)V",
+                              this);
 }
 
-QVariantList CaptureAndroidCameraPrivate::caps(jint device) const
+void CaptureAndroidCameraPrivate::registerNatives()
 {
+    static bool ready = false;
+
+    if (ready)
+        return;
+
     QAndroidJniEnvironment jenv;
 
+    if (auto jclass = jenv.findClass(JCLASS(AkAndroidCameraCallbacks))) {
+        QVector<JNINativeMethod> methods {
+            {"previewFrameReady"     , "(J[B)V", reinterpret_cast<void *>(CaptureAndroidCameraPrivate::previewFrameReady)},
+            {"notifySurfaceCreated"  , "(J)V"  , reinterpret_cast<void *>(CaptureAndroidCameraPrivate::surfaceCreated)   },
+            {"notifySurfaceDestroyed", "(J)V"  , reinterpret_cast<void *>(CaptureAndroidCameraPrivate::surfaceDestroyed) },
+        };
+
+        jenv->RegisterNatives(jclass, methods.data(), methods.size());
+    }
+
+    ready = true;
+}
+
+QVariantList CaptureAndroidCameraPrivate::caps(jint device)
+{
     auto camera =
             QAndroidJniObject::callStaticObjectMethod("android/hardware/Camera",
                                                       "open",
@@ -545,6 +597,7 @@ QVariantList CaptureAndroidCameraPrivate::caps(jint device) const
     auto frameRates = parameters.callObjectMethod("getSupportedPreviewFpsRange",
                                                   "()Ljava/util/List;");
     auto numFps = frameRates.callMethod<jint>("size");
+    QAndroidJniEnvironment jenv;
 
     for (jint i = 0; i < numFps; i++) {
         auto jfpsRange = frameRates.callObjectMethod("get",
@@ -590,7 +643,7 @@ jint CaptureAndroidCameraPrivate::deviceId(const QString &device) const
 bool CaptureAndroidCameraPrivate::nearestFpsRangue(const QAndroidJniObject &parameters,
                                                    const AkFrac &fps,
                                                    jint &min,
-                                                   jint &max) const
+                                                   jint &max)
 {
     QAndroidJniEnvironment jenv;
     auto frameRates = parameters.callObjectMethod("getSupportedPreviewFpsRange",
@@ -1064,12 +1117,12 @@ void CaptureAndroidCameraPrivate::previewFrameReady(JNIEnv *env,
                             0,
                             dataSize,
                             reinterpret_cast<jbyte *>(buffer.data()));
-    auto self = reinterpret_cast<CaptureAndroidCamera *>(userPtr);
+    auto self = reinterpret_cast<CaptureAndroidCameraPrivate *>(userPtr);
 
-    self->d->m_mutex.lock();
-    self->d->m_curBuffer = buffer;
-    self->d->m_waitCondition.wakeAll();
-    self->d->m_mutex.unlock();
+    self->m_mutex.lock();
+    self->m_curBuffer = buffer;
+    self->m_waitCondition.wakeAll();
+    self->m_mutex.unlock();
 }
 
 void CaptureAndroidCameraPrivate::surfaceCreated(JNIEnv *env,
@@ -1130,9 +1183,6 @@ bool CaptureAndroidCamera::init()
     this->d->m_localCameraControls.clear();
     this->uninit();
 
-    QAndroidJniEnvironment jenv;
-    jclass jclass = jenv.findClass(JCLASS(AkCameraPreviewCallback));
-    QVector<JNINativeMethod> methods;
     QAndroidJniObject surfaceHolder;
     QList<int> streams;
     QVariantList supportedCaps;
@@ -1142,35 +1192,6 @@ bool CaptureAndroidCamera::init()
     jint max = 0;
     AkFrac fps;
 
-    if (!jclass)
-        goto init_failed;
-
-    methods = {
-        {"previewFrameReady", "(J[B)V", reinterpret_cast<void *>(CaptureAndroidCameraPrivate::previewFrameReady)},
-    };
-
-    if (jenv->RegisterNatives(jclass,
-                              methods.data(),
-                              methods.size()) != JNI_OK) {
-        goto init_failed;
-    }
-
-    jclass = jenv.findClass(JCLASS(AkSurfaceHolderCallback));
-
-    if (!jclass)
-        goto init_failed;
-
-    methods = {
-        {"notifySurfaceCreated"  , "(J)V", reinterpret_cast<void *>(CaptureAndroidCameraPrivate::surfaceCreated)  },
-        {"notifySurfaceDestroyed", "(J)V", reinterpret_cast<void *>(CaptureAndroidCameraPrivate::surfaceDestroyed)},
-    };
-
-    if (jenv->RegisterNatives(jclass,
-                             methods.data(),
-                             methods.size()) != JNI_OK) {
-        goto init_failed;
-    }
-
     this->d->m_camera =
             QAndroidJniObject::callStaticObjectMethod("android/hardware/Camera",
                                                       "open",
@@ -1178,14 +1199,6 @@ bool CaptureAndroidCamera::init()
                                                       this->d->deviceId(this->d->m_device));
 
     if (!this->d->m_camera.isValid())
-        goto init_failed;
-
-    this->d->m_previewCallback =
-            QAndroidJniObject(JCLASS(AkCameraPreviewCallback),
-                              "(J)V",
-                              this);
-
-    if (!this->d->m_previewCallback.isValid())
         goto init_failed;
 
     QtAndroid::runOnAndroidThreadSync([this] {
@@ -1199,14 +1212,6 @@ bool CaptureAndroidCamera::init()
     });
 
     if (!this->d->m_surfaceView.isValid())
-        goto init_failed;
-
-    this->d->m_surfaceCallback =
-            QAndroidJniObject(JCLASS(AkSurfaceHolderCallback),
-                              "(J)V",
-                              this);
-
-    if (!this->d->m_surfaceCallback.isValid())
         goto init_failed;
 
     surfaceHolder =
@@ -1223,10 +1228,10 @@ bool CaptureAndroidCamera::init()
                                        surfaceHolder.object());
     surfaceHolder.callMethod<void>("addCallback",
                                    "(Landroid/view/SurfaceHolder$Callback;)V",
-                                   this->d->m_surfaceCallback.object());
+                                   this->d->m_callbacks.object());
     this->d->m_camera.callMethod<void>("setPreviewCallback",
                                        "(Landroid/hardware/Camera$PreviewCallback;)V",
-                                       this->d->m_previewCallback.object());
+                                       this->d->m_callbacks.object());
     parameters =
             this->d->m_camera.callObjectMethod("getParameters",
                                                "()Landroid/hardware/Camera$Parameters;");
@@ -1287,44 +1292,18 @@ init_failed:
 
 void CaptureAndroidCamera::uninit()
 {
-    if (this->d->m_camera.isValid()) {
-        this->d->m_camera.callMethod<void>("stopPreview");
-        this->d->m_camera.callMethod<void>("setPreviewDisplay",
-                                           "(Landroid/view/SurfaceHolder;)V",
-                                           nullptr);
+    if (!this->d->m_camera.isValid())
+        return;
 
-        if (this->d->m_surfaceView.isValid()) {
-            auto surfaceHolder =
-                    this->d->m_surfaceView.callObjectMethod("getHolder",
-                                                            "()Landroid/view/SurfaceHolder;");
+    this->d->m_camera.callMethod<void>("stopPreview");
 
-            if (this->d->m_surfaceCallback.isValid()) {
-                surfaceHolder.callMethod<void>("removeCallback",
-                                               "(Landroid/view/SurfaceHolder$Callback;)V",
-                                               this->d->m_surfaceCallback.object());
-                this->d->m_surfaceCallback = {};
-            }
+    if (this->d->m_surfaceView.isValid())
+        QtAndroid::runOnAndroidThreadSync([this] {
+            this->d->m_surfaceView = {};
+        });
 
-            QtAndroid::runOnAndroidThreadSync([this] {
-                this->d->m_surfaceView = {};
-            });
-        }
-
-        this->d->m_camera.callMethod<void>("setPreviewCallback",
-                                           "(Landroid/hardware/Camera$PreviewCallback;)V",
-                                           nullptr);
-        this->d->m_previewCallback = {};
-        this->d->m_camera.callMethod<void>("release");
-        this->d->m_camera = {};
-    }
-
-    QAndroidJniEnvironment jenv;
-
-    if (auto jclass = jenv.findClass(JCLASS(AkSurfaceHolderCallback)))
-        jenv->UnregisterNatives(jclass);
-
-    if (auto jclass = jenv.findClass(JCLASS(AkCameraPreviewCallback)))
-        jenv->UnregisterNatives(jclass);
+    this->d->m_camera.callMethod<void>("release");
+    this->d->m_camera = {};
 }
 
 void CaptureAndroidCamera::setDevice(const QString &device)

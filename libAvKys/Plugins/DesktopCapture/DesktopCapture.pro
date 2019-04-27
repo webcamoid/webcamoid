@@ -20,5 +20,7 @@ TEMPLATE = subdirs
 
 CONFIG(debug, debug|release): CONFIG += ordered
 
-SUBDIRS = src src/qtscreen
+SUBDIRS = src
+!android: SUBDIRS += src/qtscreen
+android: SUBDIRS += src/androidscreen
 CONFIG(config_avfoundation): SUBDIRS += src/avfoundation

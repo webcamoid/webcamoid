@@ -26,14 +26,14 @@ exists(akcommons.pri) {
     }
 }
 
-TARGET = androidcamera
+TARGET = androidscreen
 
 CONFIG += plugin
 
 HEADERS = \
     plugin.h \
-    captureandroidcamera.h \
-    ../../capture.h
+    androidscreendev.h \
+    ../../screendev.h
 
 INCLUDEPATH += \
     ../../../../../Lib/src \
@@ -43,14 +43,14 @@ LIBS += -L$${OUT_PWD}/../../../../../Lib/$${BIN_DIR} -l$${COMMONS_TARGET}
 
 OTHER_FILES += pspec.json
 
-QT += qml androidextras
+QT += qml concurrent widgets androidextras
 
 SOURCES = \
     plugin.cpp \
-    captureandroidcamera.cpp \
-    ../../capture.cpp
+    androidscreendev.cpp \
+    ../../screendev.cpp
 
-akModule = VideoCapture
+akModule = DesktopCapture
 DESTDIR = $${OUT_PWD}/../../../$${BIN_DIR}/submodules/$${akModule}
 
 TEMPLATE = lib
