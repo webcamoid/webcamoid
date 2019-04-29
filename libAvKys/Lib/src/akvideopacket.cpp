@@ -129,7 +129,8 @@ struct VU
     uint8_t u;
 };
 
-using VideoConvertFuntion = AkVideoPacket (*)(const AkVideoPacket *src);
+using VideoConvertFuntion = AkVideoPacket (*)(const AkVideoPacket *src,
+                                              int align);
 
 struct VideoConvert
 {
@@ -171,39 +172,39 @@ class AkVideoPacketPrivate
         inline static uint8_t yuv_g(int y, int u, int v);
         inline static uint8_t yuv_b(int y, int u, int v);
 
-        static AkVideoPacket bgr24_to_0rgb(const AkVideoPacket *src);
-        static AkVideoPacket bgr24_to_rgb24(const AkVideoPacket *src);
-        static AkVideoPacket bgr24_to_rgb565le(const AkVideoPacket *src);
-        static AkVideoPacket bgr24_to_rgb555le(const AkVideoPacket *src);
-        static AkVideoPacket bgr24_to_0bgr(const AkVideoPacket *src);
-        static AkVideoPacket bgr24_to_bgr565le(const AkVideoPacket *src);
-        static AkVideoPacket bgr24_to_bgr555le(const AkVideoPacket *src);
-        static AkVideoPacket bgr24_to_uyvy422(const AkVideoPacket *src);
-        static AkVideoPacket bgr24_to_yuyv422(const AkVideoPacket *src);
-        static AkVideoPacket bgr24_to_nv12(const AkVideoPacket *src);
-        static AkVideoPacket bgr24_to_nv21(const AkVideoPacket *src);
+        static AkVideoPacket bgr24_to_0rgb(const AkVideoPacket *src, int align);
+        static AkVideoPacket bgr24_to_rgb24(const AkVideoPacket *src, int align);
+        static AkVideoPacket bgr24_to_rgb565le(const AkVideoPacket *src, int align);
+        static AkVideoPacket bgr24_to_rgb555le(const AkVideoPacket *src, int align);
+        static AkVideoPacket bgr24_to_0bgr(const AkVideoPacket *src, int align);
+        static AkVideoPacket bgr24_to_bgr565le(const AkVideoPacket *src, int align);
+        static AkVideoPacket bgr24_to_bgr555le(const AkVideoPacket *src, int align);
+        static AkVideoPacket bgr24_to_uyvy422(const AkVideoPacket *src, int align);
+        static AkVideoPacket bgr24_to_yuyv422(const AkVideoPacket *src, int align);
+        static AkVideoPacket bgr24_to_nv12(const AkVideoPacket *src, int align);
+        static AkVideoPacket bgr24_to_nv21(const AkVideoPacket *src, int align);
 
-        static AkVideoPacket rgb24_to_0rgb(const AkVideoPacket *src);
-        static AkVideoPacket rgb24_to_rgb565le(const AkVideoPacket *src);
-        static AkVideoPacket rgb24_to_rgb555le(const AkVideoPacket *src);
-        static AkVideoPacket rgb24_to_0bgr(const AkVideoPacket *src);
-        static AkVideoPacket rgb24_to_bgr24(const AkVideoPacket *src);
-        static AkVideoPacket rgb24_to_bgr565le(const AkVideoPacket *src);
-        static AkVideoPacket rgb24_to_bgr555le(const AkVideoPacket *src);
-        static AkVideoPacket rgb24_to_uyvy422(const AkVideoPacket *src);
-        static AkVideoPacket rgb24_to_yuyv422(const AkVideoPacket *src);
-        static AkVideoPacket rgb24_to_nv12(const AkVideoPacket *src);
-        static AkVideoPacket rgb24_to_nv21(const AkVideoPacket *src);
+        static AkVideoPacket rgb24_to_0rgb(const AkVideoPacket *src, int align);
+        static AkVideoPacket rgb24_to_rgb565le(const AkVideoPacket *src, int align);
+        static AkVideoPacket rgb24_to_rgb555le(const AkVideoPacket *src, int align);
+        static AkVideoPacket rgb24_to_0bgr(const AkVideoPacket *src, int align);
+        static AkVideoPacket rgb24_to_bgr24(const AkVideoPacket *src, int align);
+        static AkVideoPacket rgb24_to_bgr565le(const AkVideoPacket *src, int align);
+        static AkVideoPacket rgb24_to_bgr555le(const AkVideoPacket *src, int align);
+        static AkVideoPacket rgb24_to_uyvy422(const AkVideoPacket *src, int align);
+        static AkVideoPacket rgb24_to_yuyv422(const AkVideoPacket *src, int align);
+        static AkVideoPacket rgb24_to_nv12(const AkVideoPacket *src, int align);
+        static AkVideoPacket rgb24_to_nv21(const AkVideoPacket *src, int align);
 
-        static AkVideoPacket rgba_to_rgb24(const AkVideoPacket *src);
-        static AkVideoPacket rgb0_to_rgb24(const AkVideoPacket *src);
-        static AkVideoPacket yuyv422_to_rgb24(const AkVideoPacket *src);
-        static AkVideoPacket yuv420p_to_rgb24(const AkVideoPacket *src);
-        static AkVideoPacket yuv420p_888_to_rgb24(const AkVideoPacket *src);
-        static AkVideoPacket nv12_to_rgb24(const AkVideoPacket *src);
-        static AkVideoPacket nv21_to_rgb24(const AkVideoPacket *src);
-        static AkVideoPacket rgbap_to_rgb24(const AkVideoPacket *src);
-        static AkVideoPacket _0bgr_to_rgb24(const AkVideoPacket *src);
+        static AkVideoPacket rgba_to_rgb24(const AkVideoPacket *src, int align);
+        static AkVideoPacket rgb0_to_rgb24(const AkVideoPacket *src, int align);
+        static AkVideoPacket yuyv422_to_rgb24(const AkVideoPacket *src, int align);
+        static AkVideoPacket yuv420p_to_rgb24(const AkVideoPacket *src, int align);
+        static AkVideoPacket yuv420p_888_to_rgb24(const AkVideoPacket *src, int align);
+        static AkVideoPacket nv12_to_rgb24(const AkVideoPacket *src, int align);
+        static AkVideoPacket nv21_to_rgb24(const AkVideoPacket *src, int align);
+        static AkVideoPacket rgbap_to_rgb24(const AkVideoPacket *src, int align);
+        static AkVideoPacket _0bgr_to_rgb24(const AkVideoPacket *src, int align);
 };
 
 using VideoConvertFuncs = QVector<VideoConvert>;
@@ -508,13 +509,19 @@ bool AkVideoPacket::canConvert(AkVideoCaps::PixelFormat output) const
 
 AkVideoPacket AkVideoPacket::convert(AkVideoCaps::PixelFormat format) const
 {
+    return this->convert(format, this->d->m_caps.align());
+}
+
+AkVideoPacket AkVideoPacket::convert(AkVideoCaps::PixelFormat format,
+                                     int align) const
+{
     if (this->d->m_caps.format() == format)
         return *this;
 
     for (auto &convert: *videoConvert)
         if (convert.from == this->d->m_caps.format()
             && convert.to == format) {
-            return convert.convert(this);
+            return convert.convert(this, align);
         }
 
     if (!AkImageToFormat->values().contains(format))
@@ -605,10 +612,12 @@ uint8_t AkVideoPacketPrivate::yuv_b(int y, int u, int v)
     return uint8_t(qBound(0, b, 255));
 }
 
-AkVideoPacket AkVideoPacketPrivate::bgr24_to_0rgb(const AkVideoPacket *src)
+AkVideoPacket AkVideoPacketPrivate::bgr24_to_0rgb(const AkVideoPacket *src,
+                                                  int align)
 {
     auto caps = src->caps();
     caps.setFormat(AkVideoCaps::Format_0rgb);
+    caps.setAlign(align);
     AkVideoPacket dst(caps);
     dst.copyMetadata(*src);
     auto width = src->caps().width();
@@ -629,10 +638,12 @@ AkVideoPacket AkVideoPacketPrivate::bgr24_to_0rgb(const AkVideoPacket *src)
     return dst;
 }
 
-AkVideoPacket AkVideoPacketPrivate::bgr24_to_rgb24(const AkVideoPacket *src)
+AkVideoPacket AkVideoPacketPrivate::bgr24_to_rgb24(const AkVideoPacket *src,
+                                                   int align)
 {
     auto caps = src->caps();
     caps.setFormat(AkVideoCaps::Format_rgb24);
+    caps.setAlign(align);
     AkVideoPacket dst(caps);
     dst.copyMetadata(*src);
     auto width = src->caps().width();
@@ -652,10 +663,12 @@ AkVideoPacket AkVideoPacketPrivate::bgr24_to_rgb24(const AkVideoPacket *src)
     return dst;
 }
 
-AkVideoPacket AkVideoPacketPrivate::bgr24_to_rgb565le(const AkVideoPacket *src)
+AkVideoPacket AkVideoPacketPrivate::bgr24_to_rgb565le(const AkVideoPacket *src,
+                                                      int align)
 {
     auto caps = src->caps();
     caps.setFormat(AkVideoCaps::Format_rgb565le);
+    caps.setAlign(align);
     AkVideoPacket dst(caps);
     dst.copyMetadata(*src);
     auto width = src->caps().width();
@@ -675,10 +688,12 @@ AkVideoPacket AkVideoPacketPrivate::bgr24_to_rgb565le(const AkVideoPacket *src)
     return dst;
 }
 
-AkVideoPacket AkVideoPacketPrivate::bgr24_to_rgb555le(const AkVideoPacket *src)
+AkVideoPacket AkVideoPacketPrivate::bgr24_to_rgb555le(const AkVideoPacket *src,
+                                                      int align)
 {
     auto caps = src->caps();
     caps.setFormat(AkVideoCaps::Format_rgb555le);
+    caps.setAlign(align);
     AkVideoPacket dst(caps);
     dst.copyMetadata(*src);
     auto width = src->caps().width();
@@ -699,10 +714,12 @@ AkVideoPacket AkVideoPacketPrivate::bgr24_to_rgb555le(const AkVideoPacket *src)
     return dst;
 }
 
-AkVideoPacket AkVideoPacketPrivate::bgr24_to_0bgr(const AkVideoPacket *src)
+AkVideoPacket AkVideoPacketPrivate::bgr24_to_0bgr(const AkVideoPacket *src,
+                                                  int align)
 {
     auto caps = src->caps();
     caps.setFormat(AkVideoCaps::Format_0bgr);
+    caps.setAlign(align);
     AkVideoPacket dst(caps);
     dst.copyMetadata(*src);
     auto width = src->caps().width();
@@ -723,10 +740,12 @@ AkVideoPacket AkVideoPacketPrivate::bgr24_to_0bgr(const AkVideoPacket *src)
     return dst;
 }
 
-AkVideoPacket AkVideoPacketPrivate::bgr24_to_bgr565le(const AkVideoPacket *src)
+AkVideoPacket AkVideoPacketPrivate::bgr24_to_bgr565le(const AkVideoPacket *src,
+                                                      int align)
 {
     auto caps = src->caps();
     caps.setFormat(AkVideoCaps::Format_bgr565le);
+    caps.setAlign(align);
     AkVideoPacket dst(caps);
     dst.copyMetadata(*src);
     auto width = src->caps().width();
@@ -746,10 +765,12 @@ AkVideoPacket AkVideoPacketPrivate::bgr24_to_bgr565le(const AkVideoPacket *src)
     return dst;
 }
 
-AkVideoPacket AkVideoPacketPrivate::bgr24_to_bgr555le(const AkVideoPacket *src)
+AkVideoPacket AkVideoPacketPrivate::bgr24_to_bgr555le(const AkVideoPacket *src,
+                                                      int align)
 {
     auto caps = src->caps();
     caps.setFormat(AkVideoCaps::Format_bgr555le);
+    caps.setAlign(align);
     AkVideoPacket dst(caps);
     dst.copyMetadata(*src);
     auto width = src->caps().width();
@@ -770,10 +791,12 @@ AkVideoPacket AkVideoPacketPrivate::bgr24_to_bgr555le(const AkVideoPacket *src)
     return dst;
 }
 
-AkVideoPacket AkVideoPacketPrivate::bgr24_to_uyvy422(const AkVideoPacket *src)
+AkVideoPacket AkVideoPacketPrivate::bgr24_to_uyvy422(const AkVideoPacket *src,
+                                                     int align)
 {
     auto caps = src->caps();
     caps.setFormat(AkVideoCaps::Format_uyvy422);
+    caps.setAlign(align);
     AkVideoPacket dst(caps);
     dst.copyMetadata(*src);
     auto width = src->caps().width();
@@ -806,10 +829,12 @@ AkVideoPacket AkVideoPacketPrivate::bgr24_to_uyvy422(const AkVideoPacket *src)
     return dst;
 }
 
-AkVideoPacket AkVideoPacketPrivate::bgr24_to_yuyv422(const AkVideoPacket *src)
+AkVideoPacket AkVideoPacketPrivate::bgr24_to_yuyv422(const AkVideoPacket *src,
+                                                     int align)
 {
     auto caps = src->caps();
     caps.setFormat(AkVideoCaps::Format_yuyv422);
+    caps.setAlign(align);
     AkVideoPacket dst(caps);
     dst.copyMetadata(*src);
     auto width = src->caps().width();
@@ -842,10 +867,12 @@ AkVideoPacket AkVideoPacketPrivate::bgr24_to_yuyv422(const AkVideoPacket *src)
     return dst;
 }
 
-AkVideoPacket AkVideoPacketPrivate::bgr24_to_nv12(const AkVideoPacket *src)
+AkVideoPacket AkVideoPacketPrivate::bgr24_to_nv12(const AkVideoPacket *src,
+                                                  int align)
 {
     auto caps = src->caps();
     caps.setFormat(AkVideoCaps::Format_nv12);
+    caps.setAlign(align);
     AkVideoPacket dst(caps);
     dst.copyMetadata(*src);
     auto width = src->caps().width();
@@ -872,10 +899,12 @@ AkVideoPacket AkVideoPacketPrivate::bgr24_to_nv12(const AkVideoPacket *src)
     return dst;
 }
 
-AkVideoPacket AkVideoPacketPrivate::bgr24_to_nv21(const AkVideoPacket *src)
+AkVideoPacket AkVideoPacketPrivate::bgr24_to_nv21(const AkVideoPacket *src,
+                                                  int align)
 {
     auto caps = src->caps();
     caps.setFormat(AkVideoCaps::Format_nv21);
+    caps.setAlign(align);
     AkVideoPacket dst(caps);
     dst.copyMetadata(*src);
     auto width = src->caps().width();
@@ -902,10 +931,12 @@ AkVideoPacket AkVideoPacketPrivate::bgr24_to_nv21(const AkVideoPacket *src)
     return dst;
 }
 
-AkVideoPacket AkVideoPacketPrivate::rgb24_to_0rgb(const AkVideoPacket *src)
+AkVideoPacket AkVideoPacketPrivate::rgb24_to_0rgb(const AkVideoPacket *src,
+                                                  int align)
 {
     auto caps = src->caps();
     caps.setFormat(AkVideoCaps::Format_0rgb);
+    caps.setAlign(align);
     AkVideoPacket dst(caps);
     dst.copyMetadata(*src);
     auto width = src->caps().width();
@@ -926,10 +957,12 @@ AkVideoPacket AkVideoPacketPrivate::rgb24_to_0rgb(const AkVideoPacket *src)
     return dst;
 }
 
-AkVideoPacket AkVideoPacketPrivate::rgb24_to_rgb565le(const AkVideoPacket *src)
+AkVideoPacket AkVideoPacketPrivate::rgb24_to_rgb565le(const AkVideoPacket *src,
+                                                      int align)
 {
     auto caps = src->caps();
     caps.setFormat(AkVideoCaps::Format_rgb565le);
+    caps.setAlign(align);
     AkVideoPacket dst(caps);
     dst.copyMetadata(*src);
     auto width = src->caps().width();
@@ -949,10 +982,12 @@ AkVideoPacket AkVideoPacketPrivate::rgb24_to_rgb565le(const AkVideoPacket *src)
     return dst;
 }
 
-AkVideoPacket AkVideoPacketPrivate::rgb24_to_rgb555le(const AkVideoPacket *src)
+AkVideoPacket AkVideoPacketPrivate::rgb24_to_rgb555le(const AkVideoPacket *src,
+                                                      int align)
 {
     auto caps = src->caps();
     caps.setFormat(AkVideoCaps::Format_rgb555le);
+    caps.setAlign(align);
     AkVideoPacket dst(caps);
     dst.copyMetadata(*src);
     auto width = src->caps().width();
@@ -973,10 +1008,12 @@ AkVideoPacket AkVideoPacketPrivate::rgb24_to_rgb555le(const AkVideoPacket *src)
     return dst;
 }
 
-AkVideoPacket AkVideoPacketPrivate::rgb24_to_0bgr(const AkVideoPacket *src)
+AkVideoPacket AkVideoPacketPrivate::rgb24_to_0bgr(const AkVideoPacket *src,
+                                                  int align)
 {
     auto caps = src->caps();
     caps.setFormat(AkVideoCaps::Format_0bgr);
+    caps.setAlign(align);
     AkVideoPacket dst(caps);
     dst.copyMetadata(*src);
     auto width = src->caps().width();
@@ -997,10 +1034,12 @@ AkVideoPacket AkVideoPacketPrivate::rgb24_to_0bgr(const AkVideoPacket *src)
     return dst;
 }
 
-AkVideoPacket AkVideoPacketPrivate::rgb24_to_bgr24(const AkVideoPacket *src)
+AkVideoPacket AkVideoPacketPrivate::rgb24_to_bgr24(const AkVideoPacket *src,
+                                                   int align)
 {
     auto caps = src->caps();
     caps.setFormat(AkVideoCaps::Format_bgr24);
+    caps.setAlign(align);
     AkVideoPacket dst(caps);
     dst.copyMetadata(*src);
     auto width = src->caps().width();
@@ -1020,10 +1059,12 @@ AkVideoPacket AkVideoPacketPrivate::rgb24_to_bgr24(const AkVideoPacket *src)
     return dst;
 }
 
-AkVideoPacket AkVideoPacketPrivate::rgb24_to_bgr565le(const AkVideoPacket *src)
+AkVideoPacket AkVideoPacketPrivate::rgb24_to_bgr565le(const AkVideoPacket *src,
+                                                      int align)
 {
     auto caps = src->caps();
     caps.setFormat(AkVideoCaps::Format_bgr565le);
+    caps.setAlign(align);
     AkVideoPacket dst(caps);
     dst.copyMetadata(*src);
     auto width = src->caps().width();
@@ -1043,10 +1084,12 @@ AkVideoPacket AkVideoPacketPrivate::rgb24_to_bgr565le(const AkVideoPacket *src)
     return dst;
 }
 
-AkVideoPacket AkVideoPacketPrivate::rgb24_to_bgr555le(const AkVideoPacket *src)
+AkVideoPacket AkVideoPacketPrivate::rgb24_to_bgr555le(const AkVideoPacket *src,
+                                                      int align)
 {
     auto caps = src->caps();
     caps.setFormat(AkVideoCaps::Format_bgr555le);
+    caps.setAlign(align);
     AkVideoPacket dst(caps);
     dst.copyMetadata(*src);
     auto width = src->caps().width();
@@ -1067,10 +1110,12 @@ AkVideoPacket AkVideoPacketPrivate::rgb24_to_bgr555le(const AkVideoPacket *src)
     return dst;
 }
 
-AkVideoPacket AkVideoPacketPrivate::rgb24_to_uyvy422(const AkVideoPacket *src)
+AkVideoPacket AkVideoPacketPrivate::rgb24_to_uyvy422(const AkVideoPacket *src,
+                                                     int align)
 {
     auto caps = src->caps();
     caps.setFormat(AkVideoCaps::Format_uyvy422);
+    caps.setAlign(align);
     AkVideoPacket dst(caps);
     dst.copyMetadata(*src);
     auto width = src->caps().width();
@@ -1103,10 +1148,12 @@ AkVideoPacket AkVideoPacketPrivate::rgb24_to_uyvy422(const AkVideoPacket *src)
     return dst;
 }
 
-AkVideoPacket AkVideoPacketPrivate::rgb24_to_yuyv422(const AkVideoPacket *src)
+AkVideoPacket AkVideoPacketPrivate::rgb24_to_yuyv422(const AkVideoPacket *src,
+                                                     int align)
 {
     auto caps = src->caps();
     caps.setFormat(AkVideoCaps::Format_yuyv422);
+    caps.setAlign(align);
     AkVideoPacket dst(caps);
     dst.copyMetadata(*src);
     auto width = src->caps().width();
@@ -1139,10 +1186,12 @@ AkVideoPacket AkVideoPacketPrivate::rgb24_to_yuyv422(const AkVideoPacket *src)
     return dst;
 }
 
-AkVideoPacket AkVideoPacketPrivate::rgb24_to_nv12(const AkVideoPacket *src)
+AkVideoPacket AkVideoPacketPrivate::rgb24_to_nv12(const AkVideoPacket *src,
+                                                  int align)
 {
     auto caps = src->caps();
     caps.setFormat(AkVideoCaps::Format_nv12);
+    caps.setAlign(align);
     AkVideoPacket dst(caps);
     dst.copyMetadata(*src);
     auto width = src->caps().width();
@@ -1169,10 +1218,12 @@ AkVideoPacket AkVideoPacketPrivate::rgb24_to_nv12(const AkVideoPacket *src)
     return dst;
 }
 
-AkVideoPacket AkVideoPacketPrivate::rgb24_to_nv21(const AkVideoPacket *src)
+AkVideoPacket AkVideoPacketPrivate::rgb24_to_nv21(const AkVideoPacket *src,
+                                                  int align)
 {
     auto caps = src->caps();
     caps.setFormat(AkVideoCaps::Format_nv21);
+    caps.setAlign(align);
     AkVideoPacket dst(caps);
     dst.copyMetadata(*src);
     auto width = src->caps().width();
@@ -1199,10 +1250,12 @@ AkVideoPacket AkVideoPacketPrivate::rgb24_to_nv21(const AkVideoPacket *src)
     return dst;
 }
 
-AkVideoPacket AkVideoPacketPrivate::rgba_to_rgb24(const AkVideoPacket *src)
+AkVideoPacket AkVideoPacketPrivate::rgba_to_rgb24(const AkVideoPacket *src,
+                                                  int align)
 {
     auto caps = src->caps();
     caps.setFormat(AkVideoCaps::Format_rgb24);
+    caps.setAlign(align);
     AkVideoPacket dst(caps);
     dst.copyMetadata(*src);
     auto width = src->caps().width();
@@ -1222,10 +1275,12 @@ AkVideoPacket AkVideoPacketPrivate::rgba_to_rgb24(const AkVideoPacket *src)
     return dst;
 }
 
-AkVideoPacket AkVideoPacketPrivate::rgb0_to_rgb24(const AkVideoPacket *src)
+AkVideoPacket AkVideoPacketPrivate::rgb0_to_rgb24(const AkVideoPacket *src,
+                                                  int align)
 {
     auto caps = src->caps();
     caps.setFormat(AkVideoCaps::Format_rgb24);
+    caps.setAlign(align);
     AkVideoPacket dst(caps);
     dst.copyMetadata(*src);
     auto width = src->caps().width();
@@ -1245,10 +1300,12 @@ AkVideoPacket AkVideoPacketPrivate::rgb0_to_rgb24(const AkVideoPacket *src)
     return dst;
 }
 
-AkVideoPacket AkVideoPacketPrivate::yuyv422_to_rgb24(const AkVideoPacket *src)
+AkVideoPacket AkVideoPacketPrivate::yuyv422_to_rgb24(const AkVideoPacket *src,
+                                                     int align)
 {
     auto caps = src->caps();
     caps.setFormat(AkVideoCaps::Format_rgb24);
+    caps.setAlign(align);
     AkVideoPacket dst(caps);
     dst.copyMetadata(*src);
     auto width = src->caps().width();
@@ -1281,10 +1338,12 @@ AkVideoPacket AkVideoPacketPrivate::yuyv422_to_rgb24(const AkVideoPacket *src)
     return dst;
 }
 
-AkVideoPacket AkVideoPacketPrivate::yuv420p_to_rgb24(const AkVideoPacket *src)
+AkVideoPacket AkVideoPacketPrivate::yuv420p_to_rgb24(const AkVideoPacket *src,
+                                                     int align)
 {
     auto caps = src->caps();
     caps.setFormat(AkVideoCaps::Format_rgb24);
+    caps.setAlign(align);
     AkVideoPacket dst(caps);
     dst.copyMetadata(*src);
     auto width = src->caps().width();
@@ -1312,10 +1371,12 @@ AkVideoPacket AkVideoPacketPrivate::yuv420p_to_rgb24(const AkVideoPacket *src)
     return dst;
 }
 
-AkVideoPacket AkVideoPacketPrivate::yuv420p_888_to_rgb24(const AkVideoPacket *src)
+AkVideoPacket AkVideoPacketPrivate::yuv420p_888_to_rgb24(const AkVideoPacket *src,
+                                                         int align)
 {
     auto caps = src->caps();
     caps.setFormat(AkVideoCaps::Format_rgb24);
+    caps.setAlign(align);
     AkVideoPacket dst(caps);
     dst.copyMetadata(*src);
     auto width = src->caps().width();
@@ -1343,10 +1404,12 @@ AkVideoPacket AkVideoPacketPrivate::yuv420p_888_to_rgb24(const AkVideoPacket *sr
     return dst;
 }
 
-AkVideoPacket AkVideoPacketPrivate::nv12_to_rgb24(const AkVideoPacket *src)
+AkVideoPacket AkVideoPacketPrivate::nv12_to_rgb24(const AkVideoPacket *src,
+                                                  int align)
 {
     auto caps = src->caps();
     caps.setFormat(AkVideoCaps::Format_rgb24);
+    caps.setAlign(align);
     AkVideoPacket dst(caps);
     dst.copyMetadata(*src);
     auto width = src->caps().width();
@@ -1373,10 +1436,12 @@ AkVideoPacket AkVideoPacketPrivate::nv12_to_rgb24(const AkVideoPacket *src)
     return dst;
 }
 
-AkVideoPacket AkVideoPacketPrivate::nv21_to_rgb24(const AkVideoPacket *src)
+AkVideoPacket AkVideoPacketPrivate::nv21_to_rgb24(const AkVideoPacket *src,
+                                                  int align)
 {
     auto caps = src->caps();
     caps.setFormat(AkVideoCaps::Format_rgb24);
+    caps.setAlign(align);
     AkVideoPacket dst(caps);
     dst.copyMetadata(*src);
     auto width = src->caps().width();
@@ -1403,10 +1468,12 @@ AkVideoPacket AkVideoPacketPrivate::nv21_to_rgb24(const AkVideoPacket *src)
     return dst;
 }
 
-AkVideoPacket AkVideoPacketPrivate::rgbap_to_rgb24(const AkVideoPacket *src)
+AkVideoPacket AkVideoPacketPrivate::rgbap_to_rgb24(const AkVideoPacket *src,
+                                                   int align)
 {
     auto caps = src->caps();
     caps.setFormat(AkVideoCaps::Format_rgb24);
+    caps.setAlign(align);
     AkVideoPacket dst(caps);
     dst.copyMetadata(*src);
     auto width = src->caps().width();
@@ -1429,10 +1496,12 @@ AkVideoPacket AkVideoPacketPrivate::rgbap_to_rgb24(const AkVideoPacket *src)
     return dst;
 }
 
-AkVideoPacket AkVideoPacketPrivate::_0bgr_to_rgb24(const AkVideoPacket *src)
+AkVideoPacket AkVideoPacketPrivate::_0bgr_to_rgb24(const AkVideoPacket *src,
+                                                   int align)
 {
     auto caps = src->caps();
     caps.setFormat(AkVideoCaps::Format_rgb24);
+    caps.setAlign(align);
     AkVideoPacket dst(caps);
     dst.copyMetadata(*src);
     auto width = src->caps().width();

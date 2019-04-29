@@ -291,7 +291,12 @@ class AKCOMMONS_EXPORT AkVideoCaps: public QObject
         AkVideoCaps(PixelFormat format,
                     int width,
                     int height,
-                    const AkFrac &fps);
+                    const AkFrac &fps,
+                    int align=1);
+        AkVideoCaps(PixelFormat format,
+                    const QSize &size,
+                    const AkFrac &fps,
+                    int align=1);
         AkVideoCaps(const QVariantMap &caps);
         AkVideoCaps(const QString &caps);
         AkVideoCaps(const AkCaps &caps);

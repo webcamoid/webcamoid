@@ -277,7 +277,8 @@ AkVideoCaps::AkVideoCaps(QObject *parent):
 AkVideoCaps::AkVideoCaps(AkVideoCaps::PixelFormat format,
                          int width,
                          int height,
-                         const AkFrac &fps)
+                         const AkFrac &fps,
+                         int align)
 {
     this->d = new AkVideoCapsPrivate();
     this->d->m_isValid = true;
@@ -285,7 +286,16 @@ AkVideoCaps::AkVideoCaps(AkVideoCaps::PixelFormat format,
     this->d->m_width = width;
     this->d->m_height = height;
     this->d->m_fps = fps;
+    this->d->m_align = align;
     this->d->updateParams();
+}
+
+AkVideoCaps::AkVideoCaps(AkVideoCaps::PixelFormat format,
+                         const QSize &size,
+                         const AkFrac &fps,
+                         int align)
+{
+    AkVideoCaps(format, size.width(), size.height(), fps, align);
 }
 
 AkVideoCaps::AkVideoCaps(const QVariantMap &caps)

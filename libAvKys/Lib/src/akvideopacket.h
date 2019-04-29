@@ -61,6 +61,8 @@ class AKCOMMONS_EXPORT AkVideoPacket: public AkPacket
                                     AkVideoCaps::PixelFormat output);
         Q_INVOKABLE bool canConvert(AkVideoCaps::PixelFormat output) const;
         Q_INVOKABLE AkVideoPacket convert(AkVideoCaps::PixelFormat format) const;
+        Q_INVOKABLE AkVideoPacket convert(AkVideoCaps::PixelFormat format,
+                                          int align) const;
         Q_INVOKABLE void copyMetadata(const AkPacket &other);
         Q_INVOKABLE void copyMetadata(const AkVideoPacket &other);
 
