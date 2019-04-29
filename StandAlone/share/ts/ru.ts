@@ -11,17 +11,17 @@
     <message>
         <location filename="../qml/About.qml" line="46"/>
         <source>Information</source>
-        <translation type="unfinished"></translation>
+        <translation>Информация</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="49"/>
         <source>Thanks!</source>
-        <translation type="unfinished"></translation>
+        <translation>Спасибо!</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="52"/>
         <source>License</source>
-        <translation type="unfinished"></translation>
+        <translation>Лицензия</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="86"/>
@@ -36,7 +36,7 @@
     <message>
         <location filename="../qml/About.qml" line="94"/>
         <source>Website</source>
-        <translation type="unfinished"></translation>
+        <translation>Сайт</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="103"/>
@@ -56,7 +56,7 @@
     <message>
         <location filename="../qml/About.qml" line="149"/>
         <source>Close</source>
-        <translation type="unfinished"></translation>
+        <translation>Закрыть</translation>
     </message>
 </context>
 <context>
@@ -64,37 +64,37 @@
     <message>
         <location filename="../qml/AddMedia.qml" line="28"/>
         <source>Add new media</source>
-        <translation type="unfinished"></translation>
+        <translation>Добавить медиа</translation>
     </message>
     <message>
         <location filename="../qml/AddMedia.qml" line="67"/>
         <source>Description</source>
-        <translation type="unfinished"></translation>
+        <translation>Описание</translation>
     </message>
     <message>
         <location filename="../qml/AddMedia.qml" line="74"/>
         <source>Insert media description</source>
-        <translation type="unfinished"></translation>
+        <translation>Добавить описание &quot;медиа&quot;</translation>
     </message>
     <message>
         <location filename="../qml/AddMedia.qml" line="81"/>
         <source>Media file</source>
-        <translation type="unfinished"></translation>
+        <translation>Медиа файл</translation>
     </message>
     <message>
         <location filename="../qml/AddMedia.qml" line="89"/>
         <source>Select media file</source>
-        <translation type="unfinished"></translation>
+        <translation>Выбрать медиа файл</translation>
     </message>
     <message>
         <location filename="../qml/AddMedia.qml" line="96"/>
         <source>Search</source>
-        <translation type="unfinished"></translation>
+        <translation>Поиск</translation>
     </message>
     <message>
         <location filename="../qml/AddMedia.qml" line="116"/>
         <source>Ok</source>
-        <translation type="unfinished"></translation>
+        <translation>Потвердить</translation>
     </message>
     <message>
         <location filename="../qml/AddMedia.qml" line="141"/>
