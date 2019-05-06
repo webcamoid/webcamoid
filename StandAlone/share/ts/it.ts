@@ -486,7 +486,7 @@
     <message>
         <location filename="../../src/clioptions.cpp" line="54"/>
         <source>Semi-colon separated list of paths to search the Qml interface.</source>
-        <translation type="unfinished"></translation>
+        <translation>Lista separata da punto evirgola dei percorsi in cui cercare l&apos;interfaccia Qml.</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="56"/>
