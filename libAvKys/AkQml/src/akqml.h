@@ -54,8 +54,11 @@ class AkQml: public QQuickItem
         Q_INVOKABLE QObject *newAudioCaps(const AkCaps &caps) const;
         Q_INVOKABLE QObject *newAudioCaps(const AkAudioCaps &caps) const;
         Q_INVOKABLE QObject *newAudioCaps(AkAudioCaps::SampleFormat format,
-                                          int channels,
-                                          int rate);
+                                          AkAudioCaps::ChannelLayout layout,
+                                          int rate,
+                                          int samples=0,
+                                          bool planar=false,
+                                          int align=1);
 
         Q_INVOKABLE QObject *newVideoCaps() const;
         Q_INVOKABLE QObject *newVideoCaps(const QVariantMap &caps) const;

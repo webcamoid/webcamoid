@@ -45,7 +45,8 @@ LIBS += \
 
 OTHER_FILES += pspec.json
 
-QT += qml androidextras
+QT += qml
+android: QT += androidextras
 
 SOURCES = \
     src/plugin.cpp \

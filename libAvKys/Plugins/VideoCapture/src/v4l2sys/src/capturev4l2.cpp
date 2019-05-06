@@ -153,6 +153,7 @@ inline FourccToStrMap initFourccToStr()
         {V4L2_PIX_FMT_SGBRG12     , "SGBRG12"     },
         {V4L2_PIX_FMT_SGRBG12     , "SGRBG12"     },
         {V4L2_PIX_FMT_SRGGB12     , "SRGGB12"     },
+#ifdef HAVE_EXTRAFORMATS
         {V4L2_PIX_FMT_SBGGR12P    , "SBGGR12P"    },
         {V4L2_PIX_FMT_SGBRG12P    , "SGBRG12P"    },
         {V4L2_PIX_FMT_SGRBG12P    , "SGRBG12P"    },
@@ -161,6 +162,7 @@ inline FourccToStrMap initFourccToStr()
         {V4L2_PIX_FMT_SGBRG16     , "SGBRG16"     },
         {V4L2_PIX_FMT_SGRBG16     , "SGRBG16"     },
         {V4L2_PIX_FMT_SRGGB16     , "SRGGB16"     },
+#endif
     };
 
     return fourccToStr;

@@ -556,8 +556,7 @@ AkPacket VirtualCameraElement::iStream(const AkPacket &packet)
 
     if (this->state() == AkElement::ElementStatePlaying) {
         auto videoPacket = AkVideoPacket(packet)
-                           .convert(AkVideoCaps::Format_rgb24)
-                           .roundSizeTo(PREFERRED_ROUNDING);
+                           .convert(AkVideoCaps::Format_rgb24, 32);
         auto fps = AkVCam::Fraction {uint32_t(videoPacket.caps().fps().num()),
                                      uint32_t(videoPacket.caps().fps().den())};
         AkVCam::VideoFormat format(videoPacket.caps().fourCC(),

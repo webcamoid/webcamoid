@@ -20,7 +20,7 @@ branches:
 
 environment:
   global:
-    FFMPEG_VERSION: 4.1
+    FFMPEG_VERSION: 4.1.3
     GSTREAMER_VERSION: 1.14.4
     PYTHON_VERSION: Python37
     QMAKESPEC: win32-g++

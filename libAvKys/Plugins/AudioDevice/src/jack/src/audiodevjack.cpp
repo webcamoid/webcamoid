@@ -138,7 +138,7 @@ AudioDevJack::AudioDevJack(QObject *parent):
         if (channels > 0)
             this->d->m_caps[it.key()] =
                     AkAudioCaps(AkAudioCaps::SampleFormat_flt,
-                                channels,
+                                AkAudioCaps::defaultChannelLayout(channels),
                                 this->d->m_sampleRate);
     }
 }

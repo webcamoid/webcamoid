@@ -212,8 +212,7 @@ AkPacket ConvertAudioFFmpegSW::convert(const AkAudioPacket &packet)
 
     AkAudioPacket oAudioPacket;
     oAudioPacket.caps() = this->d->m_caps;
-    oAudioPacket.caps().samples() = oFrame.nb_samples;
-    oAudioPacket.caps().align() = 1;
+    oAudioPacket.caps().setSamples(oFrame.nb_samples);
     oAudioPacket.buffer() = oBuffer;
     oAudioPacket.pts() = oFrame.pts;
     oAudioPacket.timeBase() = AkFrac(1, this->d->m_caps.rate());

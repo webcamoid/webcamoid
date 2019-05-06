@@ -244,8 +244,7 @@ AkAudioCaps::SampleFormat AudioDevQtAudioPrivate::qtFormatToAk(const QAudioForma
                     AkAudioCaps::SampleType_unknown,
                 format.sampleSize(),
                 format.byteOrder() == QAudioFormat::LittleEndian?
-                    Q_LITTLE_ENDIAN: Q_BIG_ENDIAN,
-                false);
+                    Q_LITTLE_ENDIAN: Q_BIG_ENDIAN);
 }
 
 QAudioFormat AudioDevQtAudioPrivate::qtFormatFromCaps(const AkAudioCaps &caps) const
@@ -296,10 +295,11 @@ void AudioDevQtAudio::updateDevices()
             }
 
             auto preferredFormat = device.preferredFormat();
+            auto channels = preferredFormat.channelCount();
 
             pinCapsMap[deviceName] =
                     AkAudioCaps(this->d->qtFormatToAk(preferredFormat),
-                                preferredFormat.channelCount(),
+                                AkAudioCaps::defaultChannelLayout(channels),
                                 preferredFormat.sampleRate());
             pinDescriptionMap[deviceName] = description;
             QList<AkAudioCaps::SampleFormat> _supportedFormats;

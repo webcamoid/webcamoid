@@ -352,7 +352,7 @@ bool AudioDevCoreAudio::init(const QString &device, const AkAudioCaps &caps)
             AkAudioCaps::endianness(caps.format()) == Q_BIG_ENDIAN?
                 kAudioFormatFlagIsBigEndian: 0;
     AudioFormatFlags sampleIsPlanar =
-            AkAudioCaps::isPlanar(caps.format())?
+            caps.planar()?
                 kAudioFormatFlagIsNonInterleaved: 0;
 
     AudioStreamBasicDescription streamDescription;
@@ -630,10 +630,6 @@ QList<AkAudioCaps::SampleFormat> AudioDevCoreAudioPrivate::supportedCAFormats(Au
         AkAudioCaps::SampleFormat_s32,
         AkAudioCaps::SampleFormat_s16,
         AkAudioCaps::SampleFormat_u8
-//      AkAudioCaps::SampleFormat_fltp,
-//      AkAudioCaps::SampleFormat_s32p,
-//      AkAudioCaps::SampleFormat_s16p,
-//      AkAudioCaps::SampleFormat_u8p,
     };
 
     static const QVector<AudioObjectPropertySelector> selectorType {
@@ -810,12 +806,10 @@ AkAudioCaps::SampleFormat AudioDevCoreAudioPrivate::descriptionToSampleFormat(co
             Q_BYTE_ORDER:
             (streamDescription.mFormatFlags & kAudioFormatFlagIsBigEndian)?
             Q_BIG_ENDIAN: Q_LITTLE_ENDIAN;
-    bool planar = streamDescription.mFormatFlags & kAudioFormatFlagIsNonInterleaved;
 
     return AkAudioCaps::sampleFormatFromProperties(formatType,
                                                    int(bps),
-                                                   endian,
-                                                   planar);
+                                                   endian);
 }
 
 OSStatus AudioDevCoreAudioPrivate::devicesChangedCallback(AudioObjectID objectId,
@@ -1081,9 +1075,10 @@ void AudioDevCoreAudio::updateDevices()
                         supportedFormats[devId] = formats;
                         supportedChannels[devId] = channels;
                         supportedSampleRates[devId] = sampleRates;
-                        defaultCaps[devId] = AkAudioCaps(formats.first(),
-                                                         channels.first(),
-                                                         sampleRates.first());
+                        defaultCaps[devId] =
+                                AkAudioCaps(formats.first(),
+                                            AkAudioCaps::defaultChannelLayout(channels.first()),
+                                            sampleRates.first());
                     }
                 }
             }

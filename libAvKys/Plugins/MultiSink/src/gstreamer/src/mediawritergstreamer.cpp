@@ -1450,8 +1450,8 @@ bool MediaWriterGStreamer::init()
 
             if (!supportedSampleFormats.isEmpty() && !supportedSampleFormats.contains(sampleFormat)) {
                 auto defaultSampleFormat = codecDefaults["defaultSampleFormat"].toString();
-                audioCaps.format() = AkAudioCaps::sampleFormatFromString(defaultSampleFormat);
-                audioCaps.bps() = AkAudioCaps::bitsPerSample(defaultSampleFormat);
+                auto format = AkAudioCaps::sampleFormatFromString(defaultSampleFormat);
+                audioCaps.setFormat(format);
             }
 
             auto supportedSampleRates = codecDefaults["supportedSampleRates"].toList();
@@ -1462,18 +1462,16 @@ bool MediaWriterGStreamer::init()
 
             if (!supportedChannelLayouts.isEmpty() && !supportedChannelLayouts.contains(channelLayout)) {
                 auto defaultChannelLayout = codecDefaults["defaultChannelLayout"].toString();
-                audioCaps.layout() = AkAudioCaps::channelLayoutFromString(defaultChannelLayout);
-                audioCaps.channels() = AkAudioCaps::channelCount(defaultChannelLayout);
-            };
+                auto layout = AkAudioCaps::channelLayoutFromString(defaultChannelLayout);
+                audioCaps.setLayout(layout);
+            }
 
             if (outputFormat == "flvmux") {
                 audioCaps = this->d->nearestFLVAudioCaps(audioCaps, codec);
                 QStringList codecs {"speexenc", "avenc_nellymoser"};
 
-                if (codecs.contains(codec)) {
-                    audioCaps.channels() = 1;
-                    audioCaps.layout() = AkAudioCaps::Layout_mono;
-                }
+                if (codecs.contains(codec))
+                    audioCaps.setLayout(AkAudioCaps::Layout_mono);
             } else if (outputFormat == "avmux_dv") {
                 audioCaps.rate() = 48000;
             } else if (outputFormat == "avmux_gxf"
@@ -1839,7 +1837,7 @@ void MediaWriterGStreamer::writeVideoPacket(const AkVideoPacket &packet)
     if (streamIndex < 0)
         return;
 
-    auto videoPacket = packet.roundSizeTo(4).convert(AkVideoCaps::Format_rgb24);
+    auto videoPacket = packet.convert(AkVideoCaps::Format_rgb24, 32);
 
     auto souceName = QString("video_%1").arg(streamIndex);
     auto source = gst_bin_get_by_name(GST_BIN(this->d->m_pipeline),

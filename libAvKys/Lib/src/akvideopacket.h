@@ -56,13 +56,13 @@ class AKCOMMONS_EXPORT AkVideoPacket: public AkPacket
         Q_INVOKABLE QImage toImage() const;
         Q_INVOKABLE static AkVideoPacket fromImage(const QImage &image,
                                                    const AkVideoPacket &defaultPacket);
-        Q_INVOKABLE AkVideoPacket roundSizeTo(int align) const;
         Q_INVOKABLE static bool canConvert(AkVideoCaps::PixelFormat input,
-                                    AkVideoCaps::PixelFormat output);
+                                           AkVideoCaps::PixelFormat output);
         Q_INVOKABLE bool canConvert(AkVideoCaps::PixelFormat output) const;
         Q_INVOKABLE AkVideoPacket convert(AkVideoCaps::PixelFormat format) const;
         Q_INVOKABLE AkVideoPacket convert(AkVideoCaps::PixelFormat format,
                                           int align) const;
+        Q_INVOKABLE AkVideoPacket realign(int align) const;
         Q_INVOKABLE void copyMetadata(const AkPacket &other);
         Q_INVOKABLE void copyMetadata(const AkVideoPacket &other);
 

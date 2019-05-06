@@ -644,11 +644,10 @@ AkAudioCaps AudioDevWasapiPrivate::capsFromWaveFormat(WAVEFORMATEX *wfx) const
     auto sampleFormat =
         AkAudioCaps::sampleFormatFromProperties(sampleType,
                                                 int(wfx->wBitsPerSample),
-                                                Q_BYTE_ORDER,
-                                                false);
+                                                Q_BYTE_ORDER);
 
     return AkAudioCaps(sampleFormat,
-                       int(wfx->nChannels),
+                       AkAudioCaps::defaultChannelLayout(int(wfx->nChannels)),
                        int(wfx->nSamplesPerSec));
 }
 
@@ -696,8 +695,10 @@ void AudioDevWasapiPrivate::fillDeviceInfo(const QString &device,
             for (auto &rate: self->commonSampleRates()) {
                 WAVEFORMATEX wfx;
                 WAVEFORMATEX *closestWfx = nullptr;
-                this->waveFormatFromCaps(&wfx,
-                                         AkAudioCaps(format, channels, rate));
+                AkAudioCaps audioCaps(format,
+                                      AkAudioCaps::defaultChannelLayout(channels),
+                                      rate);
+                this->waveFormatFromCaps(&wfx, audioCaps);
 
                 if (SUCCEEDED(pAudioClient->IsFormatSupported(AUDCLNT_SHAREMODE_SHARED,
                                                               &wfx,
@@ -714,8 +715,7 @@ void AudioDevWasapiPrivate::fillDeviceInfo(const QString &device,
                         sampleFormat =
                             AkAudioCaps::sampleFormatFromProperties(sampleType,
                                                                     int(closestWfx->wBitsPerSample),
-                                                                    Q_BYTE_ORDER,
-                                                                    false);
+                                                                    Q_BYTE_ORDER);
                         nchannels = int(closestWfx->nChannels);
                         sampleRate = int(closestWfx->nSamplesPerSec);
                         CoTaskMemFree(closestWfx);
@@ -774,10 +774,10 @@ AkAudioCaps AudioDevWasapiPrivate::preferredCaps(const QString &device,
 
     AkAudioCaps caps = dataFlow == eCapture?
                 AkAudioCaps(AkAudioCaps::SampleFormat_u8,
-                            1,
+                            AkAudioCaps::Layout_mono,
                             8000):
                 AkAudioCaps(AkAudioCaps::SampleFormat_s16,
-                            2,
+                            AkAudioCaps::Layout_stereo,
                             44100);
 
     WAVEFORMATEX wfx;

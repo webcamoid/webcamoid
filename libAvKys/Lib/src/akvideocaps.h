@@ -103,8 +103,10 @@ class AKCOMMONS_EXPORT AkVideoCaps: public QObject
                WRITE setAlign
                RESET resetAlign
                NOTIFY alignChanged)
-    Q_PROPERTY(int pictureSize
+    Q_PROPERTY(size_t pictureSize
                READ pictureSize)
+    Q_PROPERTY(int planes
+               READ planes)
 
     public:
         enum PixelFormat

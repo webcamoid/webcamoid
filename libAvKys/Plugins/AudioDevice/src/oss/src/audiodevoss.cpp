@@ -41,8 +41,8 @@ using SampleFormatMap = QMap<AkAudioCaps::SampleFormat, int>;
 inline SampleFormatMap initSampleFormatMap()
 {
     SampleFormatMap sampleFormat = {
-        {AkAudioCaps::SampleFormat_s8   , AFMT_S8},
-        {AkAudioCaps::SampleFormat_u8   , AFMT_U8},
+        {AkAudioCaps::SampleFormat_s8   , AFMT_S8    },
+        {AkAudioCaps::SampleFormat_u8   , AFMT_U8    },
         {AkAudioCaps::SampleFormat_s16  , AFMT_S16_NE},
         {AkAudioCaps::SampleFormat_s16le, AFMT_S16_LE},
         {AkAudioCaps::SampleFormat_s16be, AFMT_S16_BE},
@@ -139,10 +139,10 @@ AkAudioCaps AudioDevOSS::preferredFormat(const QString &device)
 {
     return this->d->m_sinks.contains(device)?
                 AkAudioCaps(AkAudioCaps::SampleFormat_s16,
-                            2,
+                            AkAudioCaps::Layout_stereo,
                             44100):
                 AkAudioCaps(AkAudioCaps::SampleFormat_u8,
-                            1,
+                            AkAudioCaps::Layout_mono,
                             8000);
 }
 

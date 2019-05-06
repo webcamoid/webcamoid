@@ -382,13 +382,11 @@ GstFlowReturn MediaSourceGStreamerPrivate::audioBufferCallback(GstElement *audio
     GstAudioInfo *audioInfo = gst_audio_info_new();
     gst_audio_info_from_caps(audioInfo, caps);
 
+    AkAudioCaps audioCaps(AkAudioCaps::SampleFormat_flt,
+                          AkAudioCaps::Layout_stereo,
+                          audioInfo->rate);
     AkAudioPacket packet;
-    packet.caps().isValid() = true;
-    packet.caps().format() = AkAudioCaps::SampleFormat_flt;
-    packet.caps().bps() = 8 * audioInfo->bpf / audioInfo->channels;
-    packet.caps().channels() = audioInfo->channels;
-    packet.caps().rate() = audioInfo->rate;
-    packet.caps().layout() = AkAudioCaps::Layout_stereo;
+    packet.caps() = audioCaps;
 
     GstBuffer *buf = gst_sample_get_buffer(sample);
     GstMapInfo map;
@@ -397,7 +395,7 @@ GstFlowReturn MediaSourceGStreamerPrivate::audioBufferCallback(GstElement *audio
     QByteArray oBuffer(int(map.size), 0);
     memcpy(oBuffer.data(), map.data, map.size);
 
-    packet.caps().samples() = gint(map.size) / audioInfo->bpf;
+    packet.caps().setSamples(gint(map.size) / audioInfo->bpf);
     gst_audio_info_free(audioInfo);
 
     packet.buffer() = oBuffer;
@@ -807,13 +805,9 @@ bool MediaSourceGStreamer::setState(AkElement::ElementState state)
                         GstAudioInfo *audioInfo = gst_audio_info_new();
                         gst_audio_info_from_caps(audioInfo, caps);
 
-                        AkAudioCaps audioCaps;
-                        audioCaps.isValid() = true;
-                        audioCaps.format() = AkAudioCaps::SampleFormat_flt;
-                        audioCaps.bps() = 8 * audioInfo->bpf / audioInfo->channels;
-                        audioCaps.channels() = audioInfo->channels;
-                        audioCaps.rate() = audioInfo->rate;
-                        audioCaps.layout() = AkAudioCaps::Layout_stereo;
+                        AkAudioCaps audioCaps(AkAudioCaps::SampleFormat_flt,
+                                              AkAudioCaps::Layout_stereo,
+                                              audioInfo->rate);
                         this->d->m_streamInfo << Stream(audioCaps.toCaps(),
                                                         languages[stream]);
 

@@ -167,7 +167,7 @@ AkAudioCaps AudioDeviceElement::preferredFormat(const QString &device)
 {
     if (device == DUMMY_OUTPUT_DEVICE)
         return AkAudioCaps(AkAudioCaps::SampleFormat_s16,
-                           2,
+                           AkAudioCaps::Layout_stereo,
                            44100);
 
     AkAudioCaps preferredFormat;
@@ -279,13 +279,13 @@ void AudioDeviceElementPrivate::readFramesLoop()
 
             QByteArray oBuffer(buffer.size(), 0);
             memcpy(oBuffer.data(), buffer.constData(), size_t(buffer.size()));
-
-            caps.samples() = bufferSize;
-            AkAudioPacket packet(caps, oBuffer);
-
             qint64 pts = qint64(QTime::currentTime().msecsSinceStartOfDay()
                                 / timeBase.value() / 1e3);
 
+            caps.setSamples(bufferSize);
+            AkAudioPacket packet;
+            packet.caps() = caps;
+            packet.buffer() = oBuffer;
             packet.setPts(pts);
             packet.setTimeBase(timeBase);
             packet.setIndex(0);

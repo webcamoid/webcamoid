@@ -114,14 +114,14 @@ qint64 AudioDeviceBuffer::size() const
 
 bool AudioDeviceBuffer::waitForBytesWritten(int msecs)
 {
-    Q_UNUSED(msecs);
+    Q_UNUSED(msecs)
 
     return true;
 }
 
 bool AudioDeviceBuffer::waitForReadyRead(int msecs)
 {
-    Q_UNUSED(msecs);
+    Q_UNUSED(msecs)
 
     return true;
 }

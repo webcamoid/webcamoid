@@ -67,7 +67,7 @@ Q_GLOBAL_STATIC_WITH_ARGS(WaveTypeMap, waveTypeToStr, (initWaveTypeMap()))
 class AudioGenElementPrivate
 {
     public:
-        AkCaps m_caps {"audio/x-raw,format=flt,bps=4,channels=1,rate=44100,layout=mono,align=false"};
+        AkCaps m_caps {"audio/x-raw,format=s16,bps=16,channels=1,rate=44100,layout=mono,align=1"};
         AkElementPtr m_audioConvert {AkElement::create("ACapsConvert")};
         QThreadPool m_threadPool;
         QFuture<void> m_readFramesLoopResult;
@@ -184,7 +184,7 @@ void AudioGenElement::setSampleDuration(qreal sampleDuration)
 
 void AudioGenElement::resetCaps()
 {
-    this->setCaps("audio/x-raw,format=flt,bps=4,channels=1,rate=44100,layout=mono,align=false");
+    this->setCaps("audio/x-raw,format=s16,bps=16,channels=1,rate=44100,layout=mono,align=1");
 }
 
 void AudioGenElement::resetWaveType()
@@ -302,6 +302,14 @@ void AudioGenElementPrivate::readFramesLoop()
     qreal avgDiff = 0;
     int frameCount = 0;
 
+    this->m_mutex.lock();
+    int rate = this->m_caps.property("rate").toInt();
+    qreal sampleDuration = this->m_sampleDuration;
+    AkAudioCaps audioCaps(AkAudioCaps::SampleFormat_s32,
+                          AkAudioCaps::Layout_mono,
+                          rate);
+    this->m_mutex.unlock();
+
     while (this->m_readFramesLoop) {
         if (this->m_pause) {
             QThread::msleep(PAUSE_TIMEOUT);
@@ -309,25 +317,19 @@ void AudioGenElementPrivate::readFramesLoop()
             continue;
         }
 
-        this->m_mutex.lock();
-        AkCaps oCaps = this->m_caps;
-        qreal sampleDuration = this->m_sampleDuration;
-        this->m_mutex.unlock();
-
-        AkAudioCaps oAudioCaps(oCaps);
         qreal clock = 0.;
         qreal diff = 0.;
 
         for (int i = 0; i < 2; i++) {
             clock = 1.e-3 * (QTime::currentTime().msecsSinceStartOfDay() - t0);
-            diff = qreal(pts) / oAudioCaps.rate() - clock;
+            diff = qreal(pts) / audioCaps.rate() - clock;
 
             // Sleep until the moment of sending the frame.
             if (!i && diff < 0)
                 QThread::usleep(ulong(1e6 * qAbs(diff)));
         }
 
-        int nSamples = qRound(oAudioCaps.rate() * sampleDuration / 1.e3);
+        int nSamples = qRound(audioCaps.rate() * sampleDuration / 1.e3);
 
         if (qAbs(diff) < AV_NOSYNC_THRESHOLD) {
             avgDiff = avgDiff * (1. - coeff) + qAbs(diff) * coeff;
@@ -335,40 +337,39 @@ void AudioGenElementPrivate::readFramesLoop()
             if (frameCount < AUDIO_DIFF_AVG_NB) {
                 frameCount++;
             } else {
-                qreal diffThreshold = 2. * nSamples / oAudioCaps.rate();
+                qreal diffThreshold = 2. * nSamples / audioCaps.rate();
 
                 if (avgDiff >= diffThreshold) {
-                    int wantedSamples = qRound(nSamples + diff * oAudioCaps.rate());
+                    int wantedSamples = qRound(nSamples + diff * audioCaps.rate());
                     int minSamples = nSamples * (100 - SAMPLE_CORRECTION_PERCENT_MAX) / 100;
                     int maxSamples = nSamples * (100 + SAMPLE_CORRECTION_PERCENT_MAX) / 100;
                     nSamples = qBound(minSamples, wantedSamples, maxSamples);
                 }
             }
         } else {
-            pts = qRound(clock * oAudioCaps.rate());
+            pts = qRound(clock * audioCaps.rate());
             avgDiff = 0.;
             frameCount = 0;
         }
 
-        size_t bufferSize = sizeof(qint32) * size_t(nSamples);
-
-        QByteArray iBuffer(int(bufferSize), 0);
+        audioCaps.setSamples(nSamples);
+        AkAudioPacket iPacket(audioCaps);
         qreal time = QTime::currentTime().msecsSinceStartOfDay() / 1.e3;
-        qreal tdiff = 1. / oAudioCaps.rate();
+        qreal tdiff = 1. / audioCaps.rate();
 
         if (this->m_waveType == AudioGenElement::WaveTypeSilence) {
-            iBuffer.fill(0);
+            iPacket.buffer().fill(0);
         } else if (this->m_waveType == AudioGenElement::WaveTypeWhiteNoise) {
             static std::default_random_engine engine;
             static std::uniform_int_distribution<int> distribution(-128, 127);
 
-            for (auto &c: iBuffer)
+            for (auto &c: iPacket.buffer())
                 c = char(distribution(engine));
         } else {
             auto ampMax = qint32(this->m_volume * std::numeric_limits<qint32>::max());
             auto ampMin = qint32(this->m_volume * std::numeric_limits<qint32>::min());
             auto t = time;
-            auto buff = reinterpret_cast<qint32 *>(iBuffer.data());
+            auto buff = reinterpret_cast<qint32 *>(iPacket.buffer().data());
 
             if (this->m_waveType == AudioGenElement::WaveTypeSine) {
                 for  (int i = 0; i < nSamples; i++, time += tdiff)
@@ -378,7 +379,7 @@ void AudioGenElementPrivate::readFramesLoop()
                     buff[i] = (qRound(2 * this->m_frequency * t) & 0x1)?
                                   ampMin: ampMax;
             } else {
-                qint32 mod = qRound(oAudioCaps.rate() / this->m_frequency);
+                qint32 mod = qRound(audioCaps.rate() / this->m_frequency);
 
                 if (this->m_waveType == AudioGenElement::WaveTypeSawtooth) {
                     qreal k = (qreal(ampMax) - ampMin) / (mod - 1);
@@ -402,16 +403,8 @@ void AudioGenElementPrivate::readFramesLoop()
             }
         }
 
-        AkAudioCaps iAudioCaps(oAudioCaps);
-        iAudioCaps.format() = AkAudioCaps::SampleFormat_s32;
-        iAudioCaps.bps() = AkAudioCaps::bitsPerSample(iAudioCaps.format());
-        iAudioCaps.channels() = 1;
-        iAudioCaps.layout() = AkAudioCaps::Layout_mono;
-        iAudioCaps.samples() = nSamples;
-
-        AkAudioPacket iPacket(iAudioCaps, iBuffer);
         iPacket.pts() = pts;
-        iPacket.timeBase() = AkFrac(1, iAudioCaps.rate());
+        iPacket.timeBase() = AkFrac(1, audioCaps.rate());
         iPacket.index() = 0;
         iPacket.id() = this->m_id;
 

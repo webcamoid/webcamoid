@@ -53,15 +53,9 @@ inline SampleFormatMap initSampleFormatMap()
         {AV_SAMPLE_FMT_S32 , AkAudioCaps::SampleFormat_s32 },
         {AV_SAMPLE_FMT_FLT , AkAudioCaps::SampleFormat_flt },
         {AV_SAMPLE_FMT_DBL , AkAudioCaps::SampleFormat_dbl },
-        {AV_SAMPLE_FMT_U8P , AkAudioCaps::SampleFormat_u8p },
-        {AV_SAMPLE_FMT_S16P, AkAudioCaps::SampleFormat_s16p},
-        {AV_SAMPLE_FMT_S32P, AkAudioCaps::SampleFormat_s32p},
-        {AV_SAMPLE_FMT_FLTP, AkAudioCaps::SampleFormat_fltp},
-        {AV_SAMPLE_FMT_DBLP, AkAudioCaps::SampleFormat_dblp},
 
 #ifdef HAVE_SAMPLEFORMAT64
         {AV_SAMPLE_FMT_S64 , AkAudioCaps::SampleFormat_s64 },
-        {AV_SAMPLE_FMT_S64P, AkAudioCaps::SampleFormat_s64p},
 #endif
     };
 
@@ -150,18 +144,10 @@ AkCaps AudioStream::caps() const
     auto oFormat = av_get_packed_sample_fmt(iFormat);
     oFormat = sampleFormats->contains(oFormat)? oFormat: AV_SAMPLE_FMT_FLT;
 
-    AkAudioCaps::ChannelLayout layout = channelLayouts->key(this->codecContext()->channel_layout,
-                                                            AkAudioCaps::Layout_stereo);
-    uint64_t channelLayout =
-            channelLayouts->value(layout, AV_CH_LAYOUT_STEREO);
-
-    AkAudioCaps caps;
-    caps.isValid() = true;
-    caps.format() = sampleFormats->value(oFormat);;
-    caps.bps() = 8 * av_get_bytes_per_sample(oFormat);
-    caps.channels() = av_get_channel_layout_nb_channels(channelLayout);
-    caps.rate() = this->codecContext()->sample_rate;
-    caps.layout() = layout;
+    AkAudioCaps caps(sampleFormats->value(oFormat),
+                     channelLayouts->key(this->codecContext()->channel_layout,
+                                         AkAudioCaps::Layout_stereo),
+                     this->codecContext()->sample_rate);
 
     return caps.toCaps();
 }
@@ -293,11 +279,11 @@ AkPacket AudioStreamPrivate::frameToPacket(AVFrame *iFrame)
     }
 
     AkAudioPacket packet;
-    packet.caps() = AkAudioCaps(sampleFormats->value(AVSampleFormat(iFrame->format)),
-                                iChannels,
-                                iFrame->sample_rate);
-    packet.caps().layout() = channelLayouts->key(iFrame->channel_layout);
-    packet.caps().samples() = iFrame->nb_samples;
+    packet.caps() =
+            AkAudioCaps(sampleFormats->value(AVSampleFormat(iFrame->format)),
+                        channelLayouts->key(iFrame->channel_layout),
+                        iFrame->sample_rate,
+                        iFrame->nb_samples);
 
     packet.buffer() = iBuffer;
     packet.pts() = iFrame->pts;
@@ -314,15 +300,16 @@ AkPacket AudioStreamPrivate::convert(AVFrame *iFrame)
         auto format = sampleFormats->value(AVSampleFormat(iFrame->format),
                                            AkAudioCaps::SampleFormat_flt);
 
-        if (AkAudioCaps::bitsPerSample(format) > 32
-            || AkAudioCaps::isPlanar(format))
+        if (AkAudioCaps::bitsPerSample(format) > 32)
             format = AkAudioCaps::SampleFormat_flt;
 
         int iChannels =
                 av_get_channel_layout_nb_channels(iFrame->channel_layout);
 
         AkAudioCaps caps(format,
-                         iChannels > 1? 2: 1,
+                         iChannels > 1?
+                             AkAudioCaps::Layout_stereo:
+                             AkAudioCaps::Layout_mono,
                          iFrame->sample_rate);
         this->m_audioConvert->setProperty("caps", caps.toString());
         this->m_audioConvert->setState(AkElement::ElementStatePlaying);

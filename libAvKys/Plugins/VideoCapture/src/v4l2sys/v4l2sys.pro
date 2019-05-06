@@ -43,6 +43,7 @@ LIBS += -L$${OUT_PWD}/../../../../Lib/$${BIN_DIR} -l$${COMMONS_TARGET}
 OTHER_FILES += pspec.json
 
 CONFIG(config_v4l2_extendedcontrols): DEFINES += HAVE_EXTENDEDCONTROLS
+CONFIG(config_v4l2_extraformats): DEFINES += HAVE_EXTRAFORMATS
 
 QT += qml
 

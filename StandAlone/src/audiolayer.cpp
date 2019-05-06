@@ -303,7 +303,9 @@ AkElement::ElementState AudioLayer::outputState() const
 AkAudioCaps AudioLayer::preferredFormat(const QString &device)
 {
     if (device == DUMMY_INPUT_DEVICE)
-        return AkAudioCaps(AkAudioCaps::SampleFormat_s16, 1, 8000);
+        return AkAudioCaps(AkAudioCaps::SampleFormat_s16,
+                           AkAudioCaps::Layout_mono,
+                           8000);
 
     if (device == EXTERNAL_MEDIA_INPUT) {
         if (this->d->m_inputCaps)

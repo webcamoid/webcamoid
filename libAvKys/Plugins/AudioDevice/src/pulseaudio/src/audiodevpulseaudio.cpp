@@ -36,10 +36,12 @@ using SampleFormatMap = QMap<AkAudioCaps::SampleFormat, pa_sample_format_t>;
 inline SampleFormatMap initSampleFormatMap()
 {
     SampleFormatMap sampleFormat = {
-        {AkAudioCaps::SampleFormat_u8 , PA_SAMPLE_U8       },
-        {AkAudioCaps::SampleFormat_s16, PA_SAMPLE_S16LE    },
-        {AkAudioCaps::SampleFormat_s32, PA_SAMPLE_S32LE    },
-        {AkAudioCaps::SampleFormat_flt, PA_SAMPLE_FLOAT32LE}
+        {AkAudioCaps::SampleFormat_u8   , PA_SAMPLE_U8       },
+        {AkAudioCaps::SampleFormat_s16be, PA_SAMPLE_S16BE    },
+        {AkAudioCaps::SampleFormat_s16le, PA_SAMPLE_S16LE    },
+        {AkAudioCaps::SampleFormat_s32be, PA_SAMPLE_S32BE    },
+        {AkAudioCaps::SampleFormat_s32le, PA_SAMPLE_S32LE    },
+        {AkAudioCaps::SampleFormat_flt  , PA_SAMPLE_FLOAT32LE},
     };
 
     return sampleFormat;
@@ -575,7 +577,7 @@ void AudioDevPulseAudioPrivate::sourceInfoCallback(pa_context *context,
 
     audioDevice->d->m_pinCapsMap[info->name] =
             AkAudioCaps(sampleFormats->key(info->sample_spec.format),
-                        info->sample_spec.channels,
+                        AkAudioCaps::defaultChannelLayout(info->sample_spec.channels),
                         int(info->sample_spec.rate));
 
     if (sources != audioDevice->d->m_sources
@@ -623,7 +625,7 @@ void AudioDevPulseAudioPrivate::sinkInfoCallback(pa_context *context,
 
     audioDevice->d->m_pinCapsMap[info->name] =
             AkAudioCaps(sampleFormats->key(info->sample_spec.format),
-                        info->sample_spec.channels,
+                        AkAudioCaps::defaultChannelLayout(info->sample_spec.channels),
                         int(info->sample_spec.rate));
 
     if (sinks != audioDevice->d->m_sinks

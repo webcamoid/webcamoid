@@ -47,6 +47,7 @@ CONFIG += link_pkgconfig
 PKGCONFIG += libv4l2
 
 CONFIG(config_v4l2_extendedcontrols): DEFINES += HAVE_EXTENDEDCONTROLS
+CONFIG(config_v4l2_extraformats): DEFINES += HAVE_EXTRAFORMATS
 
 QT += qml
 

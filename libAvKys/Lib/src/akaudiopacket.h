@@ -21,6 +21,7 @@
 #define AKAUDIOPACKET_H
 
 #include "akpacket.h"
+#include "akaudiocaps.h"
 
 class AkAudioPacketPrivate;
 class AkAudioCaps;
@@ -36,12 +37,7 @@ class AKCOMMONS_EXPORT AkAudioPacket: public AkPacket
 
     public:
         AkAudioPacket(QObject *parent=nullptr);
-        AkAudioPacket(const AkAudioCaps &caps,
-                      const QByteArray &buffer=QByteArray(),
-                      qint64 pts=0,
-                      const AkFrac &timeBase=AkFrac(),
-                      int index=-1,
-                      qint64 id=-1);
+        AkAudioPacket(const AkAudioCaps &caps);
         AkAudioPacket(const AkPacket &other);
         AkAudioPacket(const AkAudioPacket &other);
         ~AkAudioPacket();
@@ -51,9 +47,26 @@ class AKCOMMONS_EXPORT AkAudioPacket: public AkPacket
 
         Q_INVOKABLE AkAudioCaps caps() const;
         Q_INVOKABLE AkAudioCaps &caps();
-
+        Q_INVOKABLE const quint8 *constPlaneData(int plane) const;
+        Q_INVOKABLE quint8 *planeData(int plane);
         Q_INVOKABLE QString toString() const;
         Q_INVOKABLE AkPacket toPacket() const;
+        Q_INVOKABLE static bool canConvert(AkAudioCaps::SampleFormat input,
+                                           AkAudioCaps::SampleFormat output);
+        Q_INVOKABLE bool canConvert(AkAudioCaps::SampleFormat output) const;
+        Q_INVOKABLE AkAudioPacket convert(AkAudioCaps::SampleFormat format) const;
+        Q_INVOKABLE AkAudioPacket convert(AkAudioCaps::SampleFormat format,
+                                          int align) const;
+        Q_INVOKABLE static bool canConvertLayout(AkAudioCaps::ChannelLayout input,
+                                                 AkAudioCaps::ChannelLayout output);
+        Q_INVOKABLE bool canConvertLayout(AkAudioCaps::ChannelLayout output) const;
+        Q_INVOKABLE AkAudioPacket convertLayout(AkAudioCaps::ChannelLayout layout) const;
+        Q_INVOKABLE AkAudioPacket convertLayout(AkAudioCaps::ChannelLayout layout, int align) const;
+        Q_INVOKABLE AkAudioPacket convertPlanar(bool planar) const;
+        Q_INVOKABLE AkAudioPacket convertPlanar(bool planar, int align) const;
+        Q_INVOKABLE AkAudioPacket realign(int align) const;
+        Q_INVOKABLE void copyMetadata(const AkPacket &other);
+        Q_INVOKABLE void copyMetadata(const AkAudioPacket &other);
 
     private:
         AkAudioPacketPrivate *d;

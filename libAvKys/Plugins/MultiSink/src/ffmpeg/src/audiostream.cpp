@@ -128,8 +128,8 @@ AudioStream::AudioStream(const AVFormatContext *formatContext,
 
     if (!supportedSampleFormats.isEmpty() && !supportedSampleFormats.contains(sampleFormat)) {
         QString defaultSampleFormat = defaultCodecParams["defaultSampleFormat"].toString();
-        audioCaps.format() = AkAudioCaps::sampleFormatFromString(defaultSampleFormat);
-        audioCaps.bps() = 8 * av_get_bytes_per_sample(av_get_sample_fmt(defaultSampleFormat.toStdString().c_str()));
+        auto format = AkAudioCaps::sampleFormatFromString(defaultSampleFormat);
+        audioCaps.setFormat(format);
     }
 
     QVariantList supportedSampleRates = defaultCodecParams["supportedSampleRates"].toList();
@@ -159,14 +159,13 @@ AudioStream::AudioStream(const AVFormatContext *formatContext,
 
     if (!supportedChannelLayouts.isEmpty() && !supportedChannelLayouts.contains(channelLayout)) {
         QString defaultChannelLayout = defaultCodecParams["defaultChannelLayout"].toString();
-        audioCaps.layout() = AkAudioCaps::channelLayoutFromString(defaultChannelLayout);
-        audioCaps.channels() = av_get_channel_layout_nb_channels(av_get_channel_layout(defaultChannelLayout.toStdString().c_str()));
+        auto layout = AkAudioCaps::channelLayoutFromString(defaultChannelLayout);
+        audioCaps.setLayout(layout);
     }
 
     if (!strcmp(formatContext->oformat->name, "gxf")) {
         audioCaps.rate() = 48000;
-        audioCaps.layout() = AkAudioCaps::Layout_mono;
-        audioCaps.channels() = 1;
+        audioCaps.setLayout(AkAudioCaps::Layout_mono);
     } else if (!strcmp(formatContext->oformat->name, "mxf")) {
         audioCaps.rate() = 48000;
     } else if (!strcmp(formatContext->oformat->name, "swf")) {
@@ -189,9 +188,8 @@ AudioStream::AudioStream(const AVFormatContext *formatContext,
 
     auto fmtName = av_get_sample_fmt_name(codecContext->sample_fmt);
     AkAudioCaps caps(AkAudioCaps::sampleFormatFromString(fmtName),
-                     codecContext->channels,
+                     akFFChannelLayouts->key(codecContext->channel_layout),
                      codecContext->sample_rate);
-    caps.layout() = akFFChannelLayouts->key(codecContext->channel_layout);
     this->d->m_convert->setProperty("caps", caps.toString());
 }
 

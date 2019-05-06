@@ -23,7 +23,6 @@
 
 #include "akvideopacket.h"
 #include "akcaps.h"
-#include "akvideocaps.h"
 
 struct RGBX
 {
@@ -208,7 +207,6 @@ class AkVideoPacketPrivate
 };
 
 using VideoConvertFuncs = QVector<VideoConvert>;
-class AkVideoPacketPrivate;
 
 VideoConvertFuncs initVideoConvertFuncs()
 {
@@ -442,46 +440,6 @@ AkVideoPacket AkVideoPacket::fromImage(const QImage &image,
     return packet;
 }
 
-AkVideoPacket AkVideoPacket::roundSizeTo(int align) const
-{
-    /* Explanation:
-     *
-     * When 'align' is a power of 2, the left most bit will be 1 (the pivot),
-     * while all other bits be 0, if destination width is multiple of 'align'
-     * all bits after pivot position will be 0, then we create a mask
-     * substracting 1 to the align, so all bits after pivot position in the
-     * mask will 1.
-     * Then we negate all bits in the mask so all bits from pivot to the left
-     * will be 1, and then we use that mask to get a width multiple of align.
-     * This give us the lower (floor) width nearest to the original 'width' and
-     * multiple of align. To get the rounded nearest value we add align / 2 to
-     * 'width'.
-     * This is the equivalent of:
-     *
-     * align * round(width / align)
-     */
-    int width = (this->d->m_caps.width() + (align >> 1)) & ~(align - 1);
-
-    /* Find the nearest width:
-     *
-     * round(height * owidth / width)
-     */
-    int height = (2 * this->d->m_caps.height() * width
-                  + this->d->m_caps.width())
-                 / (2 * this->d->m_caps.width());
-
-    if (this->d->m_caps.width() == width
-        && this->d->m_caps.height() == height)
-        return *this;
-
-    auto frame = this->toImage();
-
-    if (frame.isNull())
-        return *this;
-
-    return AkVideoPacket::fromImage(frame.scaled(width, height), *this);
-}
-
 bool AkVideoPacket::canConvert(AkVideoCaps::PixelFormat input,
                                AkVideoCaps::PixelFormat output)
 {
@@ -515,8 +473,12 @@ AkVideoPacket AkVideoPacket::convert(AkVideoCaps::PixelFormat format) const
 AkVideoPacket AkVideoPacket::convert(AkVideoCaps::PixelFormat format,
                                      int align) const
 {
-    if (this->d->m_caps.format() == format)
+    if (this->d->m_caps.format() == format) {
+        if (this->d->m_caps.align() != align)
+            return this->realign(align);
+
         return *this;
+    }
 
     for (auto &convert: *videoConvert)
         if (convert.from == this->d->m_caps.format()
@@ -525,7 +487,7 @@ AkVideoPacket AkVideoPacket::convert(AkVideoCaps::PixelFormat format,
         }
 
     if (!AkImageToFormat->values().contains(format))
-        return AkVideoPacket();
+        return {};
 
     auto frame = this->toImage();
 
@@ -535,6 +497,31 @@ AkVideoPacket AkVideoPacket::convert(AkVideoCaps::PixelFormat format,
     auto convertedFrame = frame.convertToFormat(AkImageToFormat->key(format));
 
     return AkVideoPacket::fromImage(convertedFrame, *this);
+}
+
+AkVideoPacket AkVideoPacket::realign(int align) const
+{
+    if (this->d->m_caps.align() == align)
+        return *this;
+
+    auto caps = this->d->m_caps;
+    caps.setAlign(align);
+    AkVideoPacket dst(caps);
+    dst.copyMetadata(*this);
+    auto height = this->caps().height();
+
+    for (int plane = 0; plane < caps.planes(); plane++) {
+        auto bypl = qMin(caps.bytesPerLine(plane),
+                         this->d->m_caps.bytesPerLine(plane));
+
+        for (int y = 0; y < height; y++) {
+            auto src_line = this->constLine(plane, y);
+            auto dst_line = dst.line(plane, y);
+            memcpy(dst_line, src_line, bypl);
+        }
+    }
+
+    return dst;
 }
 
 void AkVideoPacket::copyMetadata(const AkPacket &other)

@@ -32,50 +32,37 @@ class SampleFormats
         AkAudioCaps::SampleType type;
         int bps;
         int endianness;
-        bool planar;
 
         static inline const QVector<SampleFormats> &formats()
         {
             static const QVector<SampleFormats> sampleFormats = {
-                {AkAudioCaps::SampleFormat_none , AkAudioCaps::SampleType_unknown,  0, Q_BYTE_ORDER   , false},
-                {AkAudioCaps::SampleFormat_s8   , AkAudioCaps::SampleType_int    ,  8, Q_BYTE_ORDER   , false},
-                {AkAudioCaps::SampleFormat_u8   , AkAudioCaps::SampleType_uint   ,  8, Q_BYTE_ORDER   , false},
-                {AkAudioCaps::SampleFormat_s16  , AkAudioCaps::SampleType_int    , 16, Q_BYTE_ORDER   , false},
-                {AkAudioCaps::SampleFormat_s16le, AkAudioCaps::SampleType_int    , 16, Q_LITTLE_ENDIAN, false},
-                {AkAudioCaps::SampleFormat_s16be, AkAudioCaps::SampleType_int    , 16, Q_BIG_ENDIAN   , false},
-                {AkAudioCaps::SampleFormat_u16  , AkAudioCaps::SampleType_uint   , 16, Q_BYTE_ORDER   , false},
-                {AkAudioCaps::SampleFormat_u16le, AkAudioCaps::SampleType_uint   , 16, Q_LITTLE_ENDIAN, false},
-                {AkAudioCaps::SampleFormat_u16be, AkAudioCaps::SampleType_uint   , 16, Q_BIG_ENDIAN   , false},
-                {AkAudioCaps::SampleFormat_s24  , AkAudioCaps::SampleType_int    , 24, Q_BYTE_ORDER   , false},
-                {AkAudioCaps::SampleFormat_s24le, AkAudioCaps::SampleType_int    , 24, Q_LITTLE_ENDIAN, false},
-                {AkAudioCaps::SampleFormat_s24be, AkAudioCaps::SampleType_int    , 24, Q_BIG_ENDIAN   , false},
-                {AkAudioCaps::SampleFormat_u24  , AkAudioCaps::SampleType_uint   , 24, Q_BYTE_ORDER   , false},
-                {AkAudioCaps::SampleFormat_u24le, AkAudioCaps::SampleType_uint   , 24, Q_LITTLE_ENDIAN, false},
-                {AkAudioCaps::SampleFormat_u24be, AkAudioCaps::SampleType_uint   , 24, Q_BIG_ENDIAN   , false},
-                {AkAudioCaps::SampleFormat_s32  , AkAudioCaps::SampleType_int    , 32, Q_BYTE_ORDER   , false},
-                {AkAudioCaps::SampleFormat_s32le, AkAudioCaps::SampleType_int    , 32, Q_LITTLE_ENDIAN, false},
-                {AkAudioCaps::SampleFormat_s32be, AkAudioCaps::SampleType_int    , 32, Q_BIG_ENDIAN   , false},
-                {AkAudioCaps::SampleFormat_u32  , AkAudioCaps::SampleType_uint   , 32, Q_BYTE_ORDER   , false},
-                {AkAudioCaps::SampleFormat_u32le, AkAudioCaps::SampleType_uint   , 32, Q_LITTLE_ENDIAN, false},
-                {AkAudioCaps::SampleFormat_u32be, AkAudioCaps::SampleType_uint   , 32, Q_BIG_ENDIAN   , false},
-                {AkAudioCaps::SampleFormat_s64  , AkAudioCaps::SampleType_int    , 64, Q_BYTE_ORDER   , false},
-                {AkAudioCaps::SampleFormat_s64le, AkAudioCaps::SampleType_int    , 64, Q_LITTLE_ENDIAN, false},
-                {AkAudioCaps::SampleFormat_s64be, AkAudioCaps::SampleType_int    , 64, Q_BIG_ENDIAN   , false},
-                {AkAudioCaps::SampleFormat_u64  , AkAudioCaps::SampleType_uint   , 64, Q_BYTE_ORDER   , false},
-                {AkAudioCaps::SampleFormat_u64le, AkAudioCaps::SampleType_uint   , 64, Q_LITTLE_ENDIAN, false},
-                {AkAudioCaps::SampleFormat_u64be, AkAudioCaps::SampleType_uint   , 64, Q_BIG_ENDIAN   , false},
-                {AkAudioCaps::SampleFormat_flt  , AkAudioCaps::SampleType_float  , 32, Q_BYTE_ORDER   , false},
-                {AkAudioCaps::SampleFormat_fltle, AkAudioCaps::SampleType_float  , 32, Q_LITTLE_ENDIAN, false},
-                {AkAudioCaps::SampleFormat_fltbe, AkAudioCaps::SampleType_float  , 32, Q_BIG_ENDIAN   , false},
-                {AkAudioCaps::SampleFormat_dbl  , AkAudioCaps::SampleType_float  , 64, Q_BYTE_ORDER   , false},
-                {AkAudioCaps::SampleFormat_dblle, AkAudioCaps::SampleType_float  , 64, Q_LITTLE_ENDIAN, false},
-                {AkAudioCaps::SampleFormat_dblbe, AkAudioCaps::SampleType_float  , 64, Q_BIG_ENDIAN   , false},
-                {AkAudioCaps::SampleFormat_u8p  , AkAudioCaps::SampleType_uint   ,  8, Q_BYTE_ORDER   ,  true},
-                {AkAudioCaps::SampleFormat_s16p , AkAudioCaps::SampleType_int    , 16, Q_BYTE_ORDER   ,  true},
-                {AkAudioCaps::SampleFormat_s32p , AkAudioCaps::SampleType_int    , 32, Q_BYTE_ORDER   ,  true},
-                {AkAudioCaps::SampleFormat_s64p , AkAudioCaps::SampleType_int    , 64, Q_BYTE_ORDER   ,  true},
-                {AkAudioCaps::SampleFormat_fltp , AkAudioCaps::SampleType_float  , 32, Q_BYTE_ORDER   ,  true},
-                {AkAudioCaps::SampleFormat_dblp , AkAudioCaps::SampleType_float  , 64, Q_BYTE_ORDER   ,  true},
+                {AkAudioCaps::SampleFormat_none , AkAudioCaps::SampleType_unknown,  0, Q_BYTE_ORDER   },
+                {AkAudioCaps::SampleFormat_s8   , AkAudioCaps::SampleType_int    ,  8, Q_BYTE_ORDER   },
+                {AkAudioCaps::SampleFormat_u8   , AkAudioCaps::SampleType_uint   ,  8, Q_BYTE_ORDER   },
+                {AkAudioCaps::SampleFormat_s16le, AkAudioCaps::SampleType_int    , 16, Q_LITTLE_ENDIAN},
+                {AkAudioCaps::SampleFormat_s16be, AkAudioCaps::SampleType_int    , 16, Q_BIG_ENDIAN   },
+                {AkAudioCaps::SampleFormat_u16le, AkAudioCaps::SampleType_uint   , 16, Q_LITTLE_ENDIAN},
+                {AkAudioCaps::SampleFormat_u16be, AkAudioCaps::SampleType_uint   , 16, Q_BIG_ENDIAN   },
+                {AkAudioCaps::SampleFormat_s32le, AkAudioCaps::SampleType_int    , 32, Q_LITTLE_ENDIAN},
+                {AkAudioCaps::SampleFormat_s32be, AkAudioCaps::SampleType_int    , 32, Q_BIG_ENDIAN   },
+                {AkAudioCaps::SampleFormat_u32le, AkAudioCaps::SampleType_uint   , 32, Q_LITTLE_ENDIAN},
+                {AkAudioCaps::SampleFormat_u32be, AkAudioCaps::SampleType_uint   , 32, Q_BIG_ENDIAN   },
+                {AkAudioCaps::SampleFormat_s64le, AkAudioCaps::SampleType_int    , 64, Q_LITTLE_ENDIAN},
+                {AkAudioCaps::SampleFormat_s64be, AkAudioCaps::SampleType_int    , 64, Q_BIG_ENDIAN   },
+                {AkAudioCaps::SampleFormat_u64le, AkAudioCaps::SampleType_uint   , 64, Q_LITTLE_ENDIAN},
+                {AkAudioCaps::SampleFormat_u64be, AkAudioCaps::SampleType_uint   , 64, Q_BIG_ENDIAN   },
+                {AkAudioCaps::SampleFormat_fltle, AkAudioCaps::SampleType_float  , 32, Q_LITTLE_ENDIAN},
+                {AkAudioCaps::SampleFormat_fltbe, AkAudioCaps::SampleType_float  , 32, Q_BIG_ENDIAN   },
+                {AkAudioCaps::SampleFormat_dblle, AkAudioCaps::SampleType_float  , 64, Q_LITTLE_ENDIAN},
+                {AkAudioCaps::SampleFormat_dblbe, AkAudioCaps::SampleType_float  , 64, Q_BIG_ENDIAN   },
+                {AkAudioCaps::SampleFormat_s16  , AkAudioCaps::SampleType_int    , 16, Q_BYTE_ORDER   },
+                {AkAudioCaps::SampleFormat_u16  , AkAudioCaps::SampleType_uint   , 16, Q_BYTE_ORDER   },
+                {AkAudioCaps::SampleFormat_s32  , AkAudioCaps::SampleType_int    , 32, Q_BYTE_ORDER   },
+                {AkAudioCaps::SampleFormat_u32  , AkAudioCaps::SampleType_uint   , 32, Q_BYTE_ORDER   },
+                {AkAudioCaps::SampleFormat_s64  , AkAudioCaps::SampleType_int    , 64, Q_BYTE_ORDER   },
+                {AkAudioCaps::SampleFormat_u64  , AkAudioCaps::SampleType_uint   , 64, Q_BYTE_ORDER   },
+                {AkAudioCaps::SampleFormat_flt  , AkAudioCaps::SampleType_float  , 32, Q_BYTE_ORDER   },
+                {AkAudioCaps::SampleFormat_dbl  , AkAudioCaps::SampleType_float  , 64, Q_BYTE_ORDER   },
             };
 
             return sampleFormats;
@@ -117,13 +104,10 @@ class SampleFormats
             return &formats().front();
         }
 
-        static inline const SampleFormats *byPlanar(bool planar)
+        template<typename T>
+        static inline T alignUp(const T &value, const T &align)
         {
-            for (auto &format: formats())
-                if (format.planar == planar)
-                    return &format;
-
-            return &formats().front();
+            return (value + align - 1) & ~(align - 1);
         }
 };
 
@@ -156,7 +140,7 @@ class ChannelLayouts
                 {AkAudioCaps::Layout_6p0_front    ,  6, "6.0(front)"    },
                 {AkAudioCaps::Layout_hexagonal    ,  6, "hexagonal"     },
                 {AkAudioCaps::Layout_6p1          ,  7, "6.1"           },
-                {AkAudioCaps::Layout_6p1_front    ,  7, "6.1(back)"     },
+                {AkAudioCaps::Layout_6p1_back     ,  7, "6.1(back)"     },
                 {AkAudioCaps::Layout_6p1_front    ,  7, "6.1(front)"    },
                 {AkAudioCaps::Layout_7p0          ,  7, "7.0"           },
                 {AkAudioCaps::Layout_7p0_front    ,  7, "7.0(front)"    },
@@ -203,13 +187,16 @@ class AkAudioCapsPrivate
 {
     public:
         AkAudioCaps::SampleFormat m_format {AkAudioCaps::SampleFormat_none};
-        int m_bps {0};
-        int m_channels {0};
-        int m_rate {0};
         AkAudioCaps::ChannelLayout m_layout {AkAudioCaps::Layout_none};
+        size_t m_planeSize {0};
+        QVector<size_t> m_offset;
+        int m_rate {0};
         int m_samples {false};
-        int m_align {0};
+        int m_align {1};
+        bool m_planar {false};
         bool m_isValid {false};
+
+        void updateParams();
 };
 
 AkAudioCaps::AkAudioCaps(QObject *parent):
@@ -218,23 +205,35 @@ AkAudioCaps::AkAudioCaps(QObject *parent):
     this->d = new AkAudioCapsPrivate();
 }
 
+AkAudioCaps::AkAudioCaps(AkAudioCaps::SampleFormat format,
+                         ChannelLayout layout,
+                         int rate,
+                         int samples,
+                         bool planar,
+                         int align)
+{
+    this->d = new AkAudioCapsPrivate();
+    this->d->m_isValid = format != SampleFormat_none;
+    this->d->m_format = format;
+    this->d->m_layout = layout;
+    this->d->m_rate = rate;
+    this->d->m_samples = samples;
+    this->d->m_planar = planar;
+    this->d->m_align = align;
+    this->d->updateParams();
+}
+
 AkAudioCaps::AkAudioCaps(const QVariantMap &caps)
 {
     this->d = new AkAudioCapsPrivate();
-    this->d->m_format = caps["format"].value<SampleFormat>();
-    this->d->m_isValid = this->d->m_format != SampleFormat_none;
-    this->d->m_bps = caps["bps"].toInt();
-    this->d->m_channels = caps["channels"].toInt();
-    this->d->m_rate = caps["rate"].toInt();
-    this->d->m_layout = caps["layout"].value<ChannelLayout>();
-    this->d->m_samples = caps["samples"].toInt();
-    this->d->m_align = caps["align"].toInt();
+    this->d->m_isValid = true;
+    this->fromMap(caps);
 }
 
 AkAudioCaps::AkAudioCaps(const QString &caps)
 {
     this->d = new AkAudioCapsPrivate();
-    *this = caps;
+    this->fromString(caps);
 }
 
 AkAudioCaps::AkAudioCaps(const AkCaps &caps)
@@ -243,18 +242,7 @@ AkAudioCaps::AkAudioCaps(const AkCaps &caps)
 
     if (caps.mimeType() == "audio/x-raw") {
         this->d->m_isValid = caps.isValid();
-
-        this->d->m_format =
-                AkAudioCaps::sampleFormatFromString(caps.property("format").toString());
-        this->d->m_bps = caps.property("bps").toInt();
-        this->d->m_channels = caps.property("channels").toInt();
-        this->d->m_rate = caps.property("rate").toInt();
-
-        QString layout = caps.property("layout").toString();
-        this->d->m_layout = ChannelLayouts::byDescription(layout)->layout;
-
-        this->d->m_samples = caps.property("samples").toInt();
-        this->d->m_align = caps.property("align").toInt();
+        this->update(caps);
     }
 }
 
@@ -264,25 +252,16 @@ AkAudioCaps::AkAudioCaps(const AkAudioCaps &other):
     this->d = new AkAudioCapsPrivate();
     this->d->m_isValid = other.d->m_isValid;
     this->d->m_format = other.d->m_format;
-    this->d->m_bps = other.d->m_bps;
-    this->d->m_channels = other.d->m_channels;
-    this->d->m_rate = other.d->m_rate;
     this->d->m_layout = other.d->m_layout;
+    this->d->m_rate = other.d->m_rate;
     this->d->m_samples = other.d->m_samples;
+    this->d->m_planar = other.d->m_planar;
     this->d->m_align = other.d->m_align;
-}
+    this->d->m_planeSize = other.d->m_planeSize;
+    this->d->m_offset = other.d->m_offset;
 
-AkAudioCaps::AkAudioCaps(AkAudioCaps::SampleFormat format,
-                         int channels,
-                         int rate)
-{
-    this->d = new AkAudioCapsPrivate();
-    this->d->m_format = format;
-    this->d->m_isValid = this->d->m_format != SampleFormat_none;
-    this->d->m_bps = AkAudioCaps::bitsPerSample(format);
-    this->d->m_channels = channels;
-    this->d->m_rate = rate;
-    this->d->m_layout = AkAudioCaps::defaultChannelLayout(channels);
+    for (auto &property: other.dynamicPropertyNames())
+        this->setProperty(property, other.property(property));
 }
 
 AkAudioCaps::~AkAudioCaps()
@@ -295,12 +274,20 @@ AkAudioCaps &AkAudioCaps::operator =(const AkAudioCaps &other)
     if (this != &other) {
         this->d->m_isValid = other.d->m_isValid;
         this->d->m_format = other.d->m_format;
-        this->d->m_bps = other.d->m_bps;
-        this->d->m_channels = other.d->m_channels;
-        this->d->m_rate = other.d->m_rate;
         this->d->m_layout = other.d->m_layout;
+        this->d->m_rate = other.d->m_rate;
         this->d->m_samples = other.d->m_samples;
+        this->d->m_planar = other.d->m_planar;
         this->d->m_align = other.d->m_align;
+        this->d->m_planeSize = other.d->m_planeSize;
+        this->d->m_offset = other.d->m_offset;
+
+        this->clear();
+
+        for (auto &property: other.dynamicPropertyNames())
+            this->setProperty(property, other.property(property));
+
+        this->d->updateParams();
     }
 
     return *this;
@@ -310,27 +297,16 @@ AkAudioCaps &AkAudioCaps::operator =(const AkCaps &caps)
 {
     if (caps.mimeType() == "audio/x-raw") {
         this->d->m_isValid = caps.isValid();
-
-        this->d->m_format =
-                AkAudioCaps::sampleFormatFromString(caps.property("format").toString());
-        this->d->m_bps = caps.property("bps").toInt();
-        this->d->m_channels = caps.property("channels").toInt();
-        this->d->m_rate = caps.property("rate").toInt();
-
-        QString layout = caps.property("layout").toString();
-        this->d->m_layout = ChannelLayouts::byDescription(layout)->layout;
-
-        this->d->m_samples = caps.property("samples").toInt();
-        this->d->m_align = caps.property("align").toInt();
+        this->update(caps);
     } else {
         this->d->m_isValid = false;
         this->d->m_format = SampleFormat_none;
-        this->d->m_bps = 0;
-        this->d->m_channels = 0;
-        this->d->m_rate = 0;
         this->d->m_layout = Layout_none;
+        this->d->m_rate = 0;
         this->d->m_samples = 0;
-        this->d->m_align = 0;
+        this->d->m_planar = false;
+        this->d->m_align = 1;
+        this->d->m_planeSize = 1;
     }
 
     return *this;
@@ -345,19 +321,29 @@ AkAudioCaps &AkAudioCaps::operator =(const QString &caps)
 
 bool AkAudioCaps::operator ==(const AkAudioCaps &other) const
 {
-    return this->d->m_isValid == other.d->m_isValid
-        && this->d->m_format == other.d->m_format
-        && this->d->m_bps == other.d->m_bps
-        && this->d->m_channels == other.d->m_channels
-        && this->d->m_rate == other.d->m_rate
-        && this->d->m_layout == other.d->m_layout
-        && this->d->m_samples == other.d->m_samples
-        && this->d->m_align == other.d->m_align;
+    if (this->dynamicPropertyNames() != other.dynamicPropertyNames())
+        return false;
+
+    for (auto &property: this->dynamicPropertyNames())
+        if (this->property(property) != other.property(property))
+            return false;
+
+    return this->d->m_format == other.d->m_format
+            && this->d->m_layout == other.d->m_layout
+            && this->d->m_rate == other.d->m_rate
+            && this->d->m_samples == other.d->m_samples
+            && this->d->m_planar == other.d->m_planar
+            && this->d->m_align == other.d->m_align;
 }
 
 bool AkAudioCaps::operator !=(const AkAudioCaps &other) const
 {
     return !(*this == other);
+}
+
+AkAudioCaps::operator bool() const
+{
+    return this->d->m_isValid;
 }
 
 AkAudioCaps::operator AkCaps() const
@@ -380,29 +366,19 @@ AkAudioCaps::SampleFormat AkAudioCaps::format() const
     return this->d->m_format;
 }
 
-AkAudioCaps::SampleFormat &AkAudioCaps::format()
+AkAudioCaps::ChannelLayout AkAudioCaps::layout() const
 {
-    return this->d->m_format;
+    return this->d->m_layout;
 }
 
 int AkAudioCaps::bps() const
 {
-    return this->d->m_bps;
-}
-
-int &AkAudioCaps::bps()
-{
-    return this->d->m_bps;
+    return AkAudioCaps::bitsPerSample(this->d->m_format);
 }
 
 int AkAudioCaps::channels() const
 {
-    return this->d->m_channels;
-}
-
-int &AkAudioCaps::channels()
-{
-    return this->d->m_channels;
+    return AkAudioCaps::channelCount(this->d->m_layout);
 }
 
 int AkAudioCaps::rate() const
@@ -415,24 +391,14 @@ int &AkAudioCaps::rate()
     return this->d->m_rate;
 }
 
-AkAudioCaps::ChannelLayout AkAudioCaps::layout() const
-{
-    return this->d->m_layout;
-}
-
-AkAudioCaps::ChannelLayout &AkAudioCaps::layout()
-{
-    return this->d->m_layout;
-}
-
 int AkAudioCaps::samples() const
 {
     return this->d->m_samples;
 }
 
-int &AkAudioCaps::samples()
+bool AkAudioCaps::planar() const
 {
-    return this->d->m_samples;
+    return this->d->m_planar;
 }
 
 int AkAudioCaps::align() const
@@ -440,28 +406,42 @@ int AkAudioCaps::align() const
     return this->d->m_align;
 }
 
-int &AkAudioCaps::align()
+size_t AkAudioCaps::frameSize() const
 {
-    return this->d->m_align;
+    auto af = SampleFormats::byFormat(this->d->m_format);
+
+    if (!af)
+        return 0;
+
+    return size_t(this->d->m_planar? this->channels(): 1)
+            * this->d->m_planeSize;
 }
 
 AkAudioCaps &AkAudioCaps::fromMap(const QVariantMap &caps)
 {
-    this->d->m_format = caps["format"].value<SampleFormat>();
-    this->d->m_isValid = this->d->m_format != AkAudioCaps::SampleFormat_none;
-    this->d->m_bps = caps["bps"].toInt();
-    this->d->m_channels = caps["channels"].toInt();
-    this->d->m_rate = caps["rate"].toInt();
-    this->d->m_layout = caps["layout"].value<ChannelLayout>();
-    this->d->m_samples = caps["samples"].toInt();
-    this->d->m_align = caps["align"].toInt();
+    for (auto &property: this->dynamicPropertyNames())
+        this->setProperty(property, QVariant());
+
+    if (!caps.contains("mimeType")) {
+        this->d->m_isValid = false;
+
+        return *this;
+    }
+
+    for (auto it = caps.begin(); it != caps.end(); it++)
+        if (it.key() == "mimeType") {
+            this->d->m_isValid = it.value().toString() == "audio/x-raw";
+
+            if (!this->d->m_isValid)
+                return *this;
+        } else {
+            this->setProperty(it.key().trimmed().toStdString().c_str(),
+                              it.value());
+        }
+
+    this->d->updateParams();
 
     return *this;
-}
-
-AkAudioCaps::operator bool() const
-{
-    return this->d->m_isValid;
 }
 
 AkAudioCaps &AkAudioCaps::fromString(const QString &caps)
@@ -471,15 +451,23 @@ AkAudioCaps &AkAudioCaps::fromString(const QString &caps)
 
 QVariantMap AkAudioCaps::toMap() const
 {
-    return QVariantMap {
-        {"format"  , this->d->m_format  },
-        {"bps"     , this->d->m_bps     },
-        {"channels", this->d->m_channels},
-        {"rate"    , this->d->m_rate    },
-        {"layout"  , this->d->m_layout  },
-        {"samples" , this->d->m_samples },
-        {"align"   , this->d->m_align   }
+    QVariantMap map {
+        {"format"  , this->d->m_format },
+        {"layout"  , this->d->m_layout },
+        {"bps"     , this->bps()       },
+        {"channels", this->channels()  },
+        {"rate"    , this->d->m_rate   },
+        {"samples" , this->d->m_samples},
+        {"planar"  , this->d->m_planar },
+        {"align"   , this->d->m_align  }
     };
+
+    for (auto &property: this->dynamicPropertyNames()) {
+        auto key = QString::fromUtf8(property.constData());
+        map[key] = this->property(property);
+    }
+
+    return map;
 }
 
 QString AkAudioCaps::toString() const
@@ -490,20 +478,35 @@ QString AkAudioCaps::toString() const
     QString sampleFormat = AkAudioCaps::sampleFormatToString(this->d->m_format);
     QString layout = ChannelLayouts::byLayout(this->d->m_layout)->description;
 
-    return QString("audio/x-raw,"
-                   "format=%1,"
-                   "bps=%2,"
-                   "channels=%3,"
-                   "rate=%4,"
-                   "layout=%5,"
-                   "samples=%6,"
-                   "align=%7").arg(sampleFormat)
-                              .arg(this->d->m_bps)
-                              .arg(this->d->m_channels)
-                              .arg(this->d->m_rate)
-                              .arg(layout)
-                              .arg(this->d->m_samples)
-            .arg(this->d->m_align);
+    auto caps = QString("audio/x-raw,"
+                        "format=%1,"
+                        "layout=%2,"
+                        "bps=%3,"
+                        "channels=%4,"
+                        "rate=%5,"
+                        "samples=%6,"
+                        "planar=%7,"
+                        "align=%8").arg(sampleFormat)
+                                   .arg(layout)
+                                   .arg(this->bps())
+                                   .arg(this->channels())
+                                   .arg(this->d->m_rate)
+                                   .arg(this->d->m_samples)
+                                   .arg(this->d->m_planar)
+                                   .arg(this->d->m_align);
+
+    QStringList properties;
+
+    for (auto &property: this->dynamicPropertyNames())
+        properties << QString::fromUtf8(property.constData());
+
+    properties.sort();
+
+    for (auto &property: properties)
+        caps.append(QString(",%1=%2").arg(property,
+                                          this->property(property.toStdString().c_str()).toString()));
+
+    return caps;
 }
 
 AkAudioCaps &AkAudioCaps::update(const AkCaps &caps)
@@ -511,29 +514,24 @@ AkAudioCaps &AkAudioCaps::update(const AkCaps &caps)
     if (caps.mimeType() != "audio/x-raw")
         return *this;
 
-    if (caps.contains("format"))
-        this->d->m_format =
-            AkAudioCaps::sampleFormatFromString(caps.property("format").toString());
+    this->clear();
 
-    if (caps.contains("bps"))
-        this->d->m_bps = caps.property("bps").toInt();
+    for (auto &property: caps.dynamicPropertyNames()) {
+        int i = this->metaObject()->indexOfProperty(property);
 
-    if (caps.contains("channels"))
-        this->d->m_channels = caps.property("channels").toInt();
+        if (this->metaObject()->property(i).isWritable()) {
+            auto value = caps.property(property);
 
-    if (caps.contains("rate"))
-        this->d->m_rate = caps.property("rate").toInt();
+            if (property == "format")
+                value = AkAudioCaps::sampleFormatFromString(value.toString());
+            else if (property == "layout")
+                value = AkAudioCaps::channelLayoutFromString(value.toString());
 
-    if (caps.contains("layout")) {
-        QString layout = caps.property("layout").toString();
-        this->d->m_layout = ChannelLayouts::byDescription(layout)->layout;
+            this->setProperty(property, value);
+        }
     }
 
-    if (caps.contains("samples"))
-        this->d->m_samples = caps.property("samples").toInt();
-
-    if (caps.contains("align"))
-        this->d->m_align = caps.property("align").toInt();
+    this->d->updateParams();
 
     return *this;
 }
@@ -541,6 +539,27 @@ AkAudioCaps &AkAudioCaps::update(const AkCaps &caps)
 AkCaps AkAudioCaps::toCaps() const
 {
     return AkCaps(this->toString());
+}
+
+size_t AkAudioCaps::planeOffset(int plane) const
+{
+    return this->d->m_offset[plane];
+}
+
+int AkAudioCaps::planes() const
+{
+    auto af = SampleFormats::byFormat(this->d->m_format);
+    auto layouts = ChannelLayouts::byLayout(this->d->m_layout);
+
+    if (!af || !layouts)
+        return 0;
+
+    return this->d->m_planar? layouts->channels: 1;
+}
+
+size_t AkAudioCaps::planeSize() const
+{
+    return this->d->m_planeSize;
 }
 
 int AkAudioCaps::bitsPerSample(AkAudioCaps::SampleFormat sampleFormat)
@@ -577,14 +596,12 @@ AkAudioCaps::SampleFormat AkAudioCaps::sampleFormatFromString(const QString &sam
 
 AkAudioCaps::SampleFormat AkAudioCaps::sampleFormatFromProperties(AkAudioCaps::SampleType type,
                                                                   int bps,
-                                                                  int endianness,
-                                                                  bool planar)
+                                                                  int endianness)
 {
-    for (const SampleFormats &sampleFormat: SampleFormats::formats())
+    for (auto &sampleFormat: SampleFormats::formats())
         if (sampleFormat.type == type
             && sampleFormat.bps == bps
-            && sampleFormat.endianness == endianness
-            && sampleFormat.planar == planar) {
+            && sampleFormat.endianness == endianness) {
             return sampleFormat.format;
         }
 
@@ -594,8 +611,7 @@ AkAudioCaps::SampleFormat AkAudioCaps::sampleFormatFromProperties(AkAudioCaps::S
 bool AkAudioCaps::sampleFormatProperties(AkAudioCaps::SampleFormat sampleFormat,
                                          AkAudioCaps::SampleType *type,
                                          int *bps,
-                                         int *endianness,
-                                         bool *planar)
+                                         int *endianness)
 {
     auto format = SampleFormats::byFormat(sampleFormat);
 
@@ -611,23 +627,18 @@ bool AkAudioCaps::sampleFormatProperties(AkAudioCaps::SampleFormat sampleFormat,
     if (endianness)
         *endianness = format->endianness;
 
-    if (planar)
-        *planar = format->planar;
-
     return true;
 }
 
 bool AkAudioCaps::sampleFormatProperties(const QString &sampleFormat,
                                          AkAudioCaps::SampleType *type,
                                          int *bps,
-                                         int *endianness,
-                                         bool *planar)
+                                         int *endianness)
 {
     return AkAudioCaps::sampleFormatProperties(AkAudioCaps::sampleFormatFromString(sampleFormat),
                                                type,
                                                bps,
-                                               endianness,
-                                               planar);
+                                               endianness);
 }
 
 AkAudioCaps::SampleType AkAudioCaps::sampleType(AkAudioCaps::SampleFormat sampleFormat)
@@ -670,16 +681,6 @@ int AkAudioCaps::endianness(const QString &sampleFormat)
     return AkAudioCaps::endianness(AkAudioCaps::sampleFormatFromString(sampleFormat));
 }
 
-bool AkAudioCaps::isPlanar(AkAudioCaps::SampleFormat sampleFormat)
-{
-    return SampleFormats::byFormat(sampleFormat)->planar;
-}
-
-bool AkAudioCaps::isPlanar(const QString &sampleFormat)
-{
-    return AkAudioCaps::isPlanar(AkAudioCaps::sampleFormatFromString(sampleFormat));
-}
-
 AkAudioCaps::ChannelLayout AkAudioCaps::defaultChannelLayout(int channelCount)
 {
     return ChannelLayouts::byChannels(channelCount)->layout;
@@ -696,25 +697,18 @@ void AkAudioCaps::setFormat(AkAudioCaps::SampleFormat format)
         return;
 
     this->d->m_format = format;
+    this->d->updateParams();
     emit this->formatChanged(format);
 }
 
-void AkAudioCaps::setBps(int bps)
+void AkAudioCaps::setLayout(AkAudioCaps::ChannelLayout layout)
 {
-    if (this->d->m_bps == bps)
+    if (this->d->m_layout == layout)
         return;
 
-    this->d->m_bps = bps;
-    emit this->bpsChanged(bps);
-}
-
-void AkAudioCaps::setChannels(int channels)
-{
-    if (this->d->m_channels == channels)
-        return;
-
-    this->d->m_channels = channels;
-    emit this->channelsChanged(channels);
+    this->d->m_layout = layout;
+    this->d->updateParams();
+    emit this->layoutChanged(layout);
 }
 
 void AkAudioCaps::setRate(int rate)
@@ -726,22 +720,24 @@ void AkAudioCaps::setRate(int rate)
     emit this->rateChanged(rate);
 }
 
-void AkAudioCaps::setLayout(AkAudioCaps::ChannelLayout layout)
-{
-    if (this->d->m_layout == layout)
-        return;
-
-    this->d->m_layout = layout;
-    emit this->layoutChanged(layout);
-}
-
 void AkAudioCaps::setSamples(int samples)
 {
     if (this->d->m_samples == samples)
         return;
 
     this->d->m_samples = samples;
+    this->d->updateParams();
     emit this->samplesChanged(samples);
+}
+
+void AkAudioCaps::setPlanar(bool planar)
+{
+    if (this->d->m_planar == planar)
+        return;
+
+    this->d->m_planar = planar;
+    this->d->updateParams();
+    emit this->planarChanged(planar);
 }
 
 void AkAudioCaps::setAlign(int align)
@@ -750,6 +746,7 @@ void AkAudioCaps::setAlign(int align)
         return;
 
     this->d->m_align = align;
+    this->d->updateParams();
     emit this->alignChanged(align);
 }
 
@@ -758,14 +755,9 @@ void AkAudioCaps::resetFormat()
     this->setFormat(SampleFormat_none);
 }
 
-void AkAudioCaps::resetBps()
+void AkAudioCaps::resetLayout()
 {
-    this->setBps(0);
-}
-
-void AkAudioCaps::resetChannels()
-{
-    this->setChannels(0);
+    this->setLayout(Layout_none);
 }
 
 void AkAudioCaps::resetRate()
@@ -773,19 +765,59 @@ void AkAudioCaps::resetRate()
     this->setRate(0);
 }
 
-void AkAudioCaps::resetLayout()
-{
-    this->setLayout(Layout_none);
-}
-
 void AkAudioCaps::resetSamples()
 {
     this->setSamples(0);
 }
 
+void AkAudioCaps::resetPlanar()
+{
+    this->setPlanar(false);
+}
+
 void AkAudioCaps::resetAlign()
 {
-    this->setAlign(0);
+    this->setAlign(1);
+}
+
+void AkAudioCaps::clear()
+{
+    for (auto &property: this->dynamicPropertyNames())
+        this->setProperty(property.constData(), {});
+}
+
+void AkAudioCapsPrivate::updateParams()
+{
+    auto af = SampleFormats::byFormat(this->m_format);
+    auto layouts = ChannelLayouts::byLayout(this->m_layout);
+
+    if (!af || !layouts) {
+        this->m_planeSize = 0;
+        this->m_offset.clear();
+
+        return;
+    }
+
+    if (this->m_planar) {
+        this->m_planeSize =
+                SampleFormats::alignUp(size_t(af->bps
+                                              * this->m_samples
+                                              / 8),
+                                       size_t(this->m_align));
+    } else {
+        this->m_planeSize =
+                SampleFormats::alignUp(size_t(af->bps
+                                              * layouts->channels
+                                              * this->m_samples
+                                              / 8),
+                                       size_t(this->m_align));
+    }
+
+    this->m_offset.clear();
+    size_t nplanes = this->m_planar? size_t(layouts->channels): 1;
+
+    for (size_t i = 0; i < nplanes; i++)
+        this->m_offset << i * this->m_planeSize;
 }
 
 QDebug operator <<(QDebug debug, const AkAudioCaps &caps)

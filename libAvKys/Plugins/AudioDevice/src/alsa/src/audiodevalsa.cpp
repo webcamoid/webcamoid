@@ -36,30 +36,19 @@ inline SampleFormatMap initSampleFormatMap()
     SampleFormatMap sampleFormat = {
         {AkAudioCaps::SampleFormat_s8   , SND_PCM_FORMAT_S8        },
         {AkAudioCaps::SampleFormat_u8   , SND_PCM_FORMAT_U8        },
-        {AkAudioCaps::SampleFormat_s16  , SND_PCM_FORMAT_S16_LE    },
         {AkAudioCaps::SampleFormat_s16be, SND_PCM_FORMAT_S16_BE    },
         {AkAudioCaps::SampleFormat_u16le, SND_PCM_FORMAT_U16_LE    },
         {AkAudioCaps::SampleFormat_u16be, SND_PCM_FORMAT_U16_BE    },
-        {AkAudioCaps::SampleFormat_s24le, SND_PCM_FORMAT_S24_LE    },
-        {AkAudioCaps::SampleFormat_s24be, SND_PCM_FORMAT_S24_BE    },
-        {AkAudioCaps::SampleFormat_u24le, SND_PCM_FORMAT_U24_LE    },
-        {AkAudioCaps::SampleFormat_u24be, SND_PCM_FORMAT_U24_BE    },
         {AkAudioCaps::SampleFormat_s32le, SND_PCM_FORMAT_S32_LE    },
         {AkAudioCaps::SampleFormat_s32be, SND_PCM_FORMAT_S32_BE    },
         {AkAudioCaps::SampleFormat_u32le, SND_PCM_FORMAT_U32_LE    },
         {AkAudioCaps::SampleFormat_u32be, SND_PCM_FORMAT_U32_BE    },
-        {AkAudioCaps::SampleFormat_fltle, SND_PCM_FORMAT_FLOAT_LE  },
-        {AkAudioCaps::SampleFormat_fltbe, SND_PCM_FORMAT_FLOAT_BE  },
-        {AkAudioCaps::SampleFormat_dblle, SND_PCM_FORMAT_FLOAT64_LE},
-        {AkAudioCaps::SampleFormat_dblbe, SND_PCM_FORMAT_FLOAT64_BE},
+        {AkAudioCaps::SampleFormat_flt  , SND_PCM_FORMAT_FLOAT_LE  },
+        {AkAudioCaps::SampleFormat_dbl  , SND_PCM_FORMAT_FLOAT64_LE},
         {AkAudioCaps::SampleFormat_s16  , SND_PCM_FORMAT_S16       },
         {AkAudioCaps::SampleFormat_u16  , SND_PCM_FORMAT_U16       },
-        {AkAudioCaps::SampleFormat_s24  , SND_PCM_FORMAT_S24       },
-        {AkAudioCaps::SampleFormat_u24  , SND_PCM_FORMAT_U24       },
         {AkAudioCaps::SampleFormat_s32  , SND_PCM_FORMAT_S32       },
         {AkAudioCaps::SampleFormat_u32  , SND_PCM_FORMAT_U32       },
-        {AkAudioCaps::SampleFormat_flt  , SND_PCM_FORMAT_FLOAT     },
-        {AkAudioCaps::SampleFormat_dbl  , SND_PCM_FORMAT_FLOAT64   },
     };
 
     return sampleFormat;
@@ -162,10 +151,10 @@ AkAudioCaps AudioDevAlsa::preferredFormat(const QString &device)
 {
     return this->d->m_sinks.contains(device)?
                 AkAudioCaps(AkAudioCaps::SampleFormat_s16,
-                            2,
+                            AkAudioCaps::Layout_stereo,
                             44100):
                 AkAudioCaps(AkAudioCaps::SampleFormat_u8,
-                            1,
+                            AkAudioCaps::Layout_mono,
                             8000);
 }
 

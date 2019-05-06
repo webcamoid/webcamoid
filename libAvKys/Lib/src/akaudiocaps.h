@@ -42,36 +42,41 @@ class AKCOMMONS_EXPORT AkAudioCaps: public QObject
                WRITE setFormat
                RESET resetFormat
                NOTIFY formatChanged)
-    Q_PROPERTY(int bps
-               READ bps
-               WRITE setBps
-               RESET resetBps
-               NOTIFY bpsChanged)
-    Q_PROPERTY(int channels
-               READ channels
-               WRITE setChannels
-               RESET resetChannels
-               NOTIFY channelsChanged)
-    Q_PROPERTY(int rate
-               READ rate
-               WRITE setRate
-               RESET resetRate
-               NOTIFY rateChanged)
     Q_PROPERTY(ChannelLayout layout
                READ layout
                WRITE setLayout
                RESET resetLayout
                NOTIFY layoutChanged)
+    Q_PROPERTY(int bps
+               READ bps)
+    Q_PROPERTY(int channels
+               READ channels)
+    Q_PROPERTY(int rate
+               READ rate
+               WRITE setRate
+               RESET resetRate
+               NOTIFY rateChanged)
     Q_PROPERTY(int samples
                READ samples
                WRITE setSamples
                RESET resetSamples
                NOTIFY samplesChanged)
+    Q_PROPERTY(bool planar
+               READ planar
+               WRITE setPlanar
+               RESET resetPlanar
+               NOTIFY planarChanged)
     Q_PROPERTY(int align
                READ align
                WRITE setAlign
                RESET resetAlign
                NOTIFY alignChanged)
+    Q_PROPERTY(size_t frameSize
+               READ frameSize)
+    Q_PROPERTY(int planes
+               READ planes)
+    Q_PROPERTY(size_t planeSize
+               READ planeSize)
 
     public:
         enum SampleFormat
@@ -79,42 +84,42 @@ class AKCOMMONS_EXPORT AkAudioCaps: public QObject
             SampleFormat_none = -1,
             SampleFormat_s8,
             SampleFormat_u8,
-            SampleFormat_s16,
             SampleFormat_s16le,
             SampleFormat_s16be,
-            SampleFormat_u16,
             SampleFormat_u16le,
             SampleFormat_u16be,
-            SampleFormat_s24,
-            SampleFormat_s24le,
-            SampleFormat_s24be,
-            SampleFormat_u24,
-            SampleFormat_u24le,
-            SampleFormat_u24be,
-            SampleFormat_s32,
             SampleFormat_s32le,
             SampleFormat_s32be,
-            SampleFormat_u32,
             SampleFormat_u32le,
             SampleFormat_u32be,
-            SampleFormat_s64,
             SampleFormat_s64le,
             SampleFormat_s64be,
-            SampleFormat_u64,
             SampleFormat_u64le,
             SampleFormat_u64be,
-            SampleFormat_flt,
             SampleFormat_fltle,
             SampleFormat_fltbe,
-            SampleFormat_dbl,
             SampleFormat_dblle,
             SampleFormat_dblbe,
-            SampleFormat_u8p,
-            SampleFormat_s16p,
-            SampleFormat_s32p,
-            SampleFormat_s64p,
-            SampleFormat_fltp,
-            SampleFormat_dblp
+
+#if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
+            SampleFormat_s16 = SampleFormat_s16le,
+            SampleFormat_u16 = SampleFormat_s16le,
+            SampleFormat_s32 = SampleFormat_s32le,
+            SampleFormat_u32 = SampleFormat_u32le,
+            SampleFormat_s64 = SampleFormat_s64le,
+            SampleFormat_u64 = SampleFormat_u64le,
+            SampleFormat_flt = SampleFormat_fltle,
+            SampleFormat_dbl = SampleFormat_dblle,
+#else
+            SampleFormat_s16 = SampleFormat_s16be,
+            SampleFormat_u16 = SampleFormat_s16be,
+            SampleFormat_s32 = SampleFormat_s32be,
+            SampleFormat_u32 = SampleFormat_u32be,
+            SampleFormat_s64 = SampleFormat_s64be,
+            SampleFormat_u64 = SampleFormat_u64be,
+            SampleFormat_flt = SampleFormat_fltbe,
+            SampleFormat_dbl = SampleFormat_dblbe,
+#endif
         };
 
         enum SampleType
@@ -122,49 +127,49 @@ class AKCOMMONS_EXPORT AkAudioCaps: public QObject
             SampleType_unknown = -1,
             SampleType_int,
             SampleType_uint,
-            SampleType_float
+            SampleType_float,
         };
 
         enum Position
         {
-            Position_unknown             = 0x00000000,
-            Position_FrontLeft           = 0x00000001,
-            Position_FrontRight          = 0x00000002,
-            Position_FrontCenter         = 0x00000004,
-            Position_LowFrequency1       = 0x00000008,
-            Position_BackLeft            = 0x00000010,
-            Position_BackRight           = 0x00000020,
-            Position_FrontLeftOfCenter   = 0x00000040,
-            Position_FrontRightOfCenter  = 0x00000080,
-            Position_BackCenter          = 0x00000100,
-            Position_LowFrequency2       = 0x00000200,
-            Position_SideLeft            = 0x00000400,
-            Position_SideRight           = 0x00000800,
-            Position_TopCenter           = 0x00001000,
-            Position_TopFrontLeft        = 0x00002000,
-            Position_TopFrontCenter      = 0x00004000,
-            Position_TopFrontRight       = 0x00008000,
-            Position_TopBackLeft         = 0x00010000,
-            Position_TopBackCenter       = 0x00020000,
-            Position_TopBackRight        = 0x00040000,
-            Position_TopSideLeft         = 0x00080000,
-            Position_TopSideRight        = 0x00100000,
-            Position_BottomFrontCenter   = 0x00200000,
-            Position_BottomFrontLeft     = 0x00400000,
-            Position_BottomFrontRight    = 0x00800000,
-            Position_StereoLeft          = 0x01000000,
-            Position_StereoRight         = 0x02000000,
-            Position_WideLeft            = 0x04000000,
-            Position_WideRight           = 0x08000000,
-            Position_SurroundDirectLeft  = 0x10000000,
-            Position_SurroundDirectRight = 0x20000000
+            Position_unknown             = 0      ,
+            Position_FrontLeft           = 1 << 0 ,
+            Position_FrontRight          = 1 << 1 ,
+            Position_FrontCenter         = 1 << 2 ,
+            Position_LowFrequency1       = 1 << 3 ,
+            Position_BackLeft            = 1 << 4 ,
+            Position_BackRight           = 1 << 5 ,
+            Position_FrontLeftOfCenter   = 1 << 6 ,
+            Position_FrontRightOfCenter  = 1 << 7 ,
+            Position_BackCenter          = 1 << 8 ,
+            Position_LowFrequency2       = 1 << 9 ,
+            Position_SideLeft            = 1 << 10,
+            Position_SideRight           = 1 << 11,
+            Position_TopCenter           = 1 << 12,
+            Position_TopFrontLeft        = 1 << 13,
+            Position_TopFrontCenter      = 1 << 14,
+            Position_TopFrontRight       = 1 << 15,
+            Position_TopBackLeft         = 1 << 16,
+            Position_TopBackCenter       = 1 << 17,
+            Position_TopBackRight        = 1 << 18,
+            Position_TopSideLeft         = 1 << 19,
+            Position_TopSideRight        = 1 << 20,
+            Position_BottomFrontCenter   = 1 << 21,
+            Position_BottomFrontLeft     = 1 << 22,
+            Position_BottomFrontRight    = 1 << 23,
+            Position_StereoLeft          = 1 << 24,
+            Position_StereoRight         = 1 << 25,
+            Position_WideLeft            = 1 << 26,
+            Position_WideRight           = 1 << 27,
+            Position_SurroundDirectLeft  = 1 << 28,
+            Position_SurroundDirectRight = 1 << 29,
         };
         Q_DECLARE_FLAGS(Positions, Position)
         Q_FLAG(Positions)
 
         enum ChannelLayout
         {
-            Layout_none          = 0,
+            Layout_none          = Position_unknown,
             Layout_mono          = Position_FrontCenter,
             Layout_stereo        = Position_FrontLeft | Position_FrontRight,
             Layout_2p1           = Layout_stereo | Position_LowFrequency1,
@@ -200,11 +205,16 @@ class AKCOMMONS_EXPORT AkAudioCaps: public QObject
         };
 
         AkAudioCaps(QObject *parent=nullptr);
+        AkAudioCaps(SampleFormat format,
+                    ChannelLayout layout,
+                    int rate,
+                    int samples=0,
+                    bool planar=false,
+                    int align=1);
         AkAudioCaps(const QVariantMap &caps);
         AkAudioCaps(const QString &caps);
         AkAudioCaps(const AkCaps &caps);
         AkAudioCaps(const AkAudioCaps &other);
-        AkAudioCaps(SampleFormat format, int channels, int rate);
          ~AkAudioCaps();
         AkAudioCaps &operator =(const AkAudioCaps &other);
         AkAudioCaps &operator =(const AkCaps &caps);
@@ -217,19 +227,15 @@ class AKCOMMONS_EXPORT AkAudioCaps: public QObject
         Q_INVOKABLE bool isValid() const;
         Q_INVOKABLE bool &isValid();
         Q_INVOKABLE SampleFormat format() const;
-        Q_INVOKABLE SampleFormat &format();
+        Q_INVOKABLE ChannelLayout layout() const;
         Q_INVOKABLE int bps() const;
-        Q_INVOKABLE int &bps();
         Q_INVOKABLE int channels() const;
-        Q_INVOKABLE int &channels();
         Q_INVOKABLE int rate() const;
         Q_INVOKABLE int &rate();
-        Q_INVOKABLE ChannelLayout layout() const;
-        Q_INVOKABLE ChannelLayout &layout();
         Q_INVOKABLE int samples() const;
-        Q_INVOKABLE int &samples();
+        Q_INVOKABLE bool planar() const;
         Q_INVOKABLE int align() const;
-        Q_INVOKABLE int &align();
+        Q_INVOKABLE size_t frameSize() const;
 
         Q_INVOKABLE AkAudioCaps &fromMap(const QVariantMap &caps);
         Q_INVOKABLE AkAudioCaps &fromString(const QString &caps);
@@ -237,6 +243,9 @@ class AKCOMMONS_EXPORT AkAudioCaps: public QObject
         Q_INVOKABLE QString toString() const;
         Q_INVOKABLE AkAudioCaps &update(const AkCaps &caps);
         Q_INVOKABLE AkCaps toCaps() const;
+        Q_INVOKABLE size_t planeOffset(int plane) const;
+        Q_INVOKABLE int planes() const;
+        Q_INVOKABLE size_t planeSize() const;
 
         Q_INVOKABLE static int bitsPerSample(SampleFormat sampleFormat);
         Q_INVOKABLE static int bitsPerSample(const QString &sampleFormat);
@@ -244,18 +253,15 @@ class AKCOMMONS_EXPORT AkAudioCaps: public QObject
         Q_INVOKABLE static SampleFormat sampleFormatFromString(const QString &sampleFormat);
         Q_INVOKABLE static SampleFormat sampleFormatFromProperties(AkAudioCaps::SampleType type,
                                                                    int bps,
-                                                                   int endianness,
-                                                                   bool planar);
+                                                                   int endianness);
         Q_INVOKABLE static bool sampleFormatProperties(SampleFormat sampleFormat,
                                                        AkAudioCaps::SampleType *type=nullptr,
                                                        int *bps=nullptr,
-                                                       int *endianness=nullptr,
-                                                       bool *planar=nullptr);
+                                                       int *endianness=nullptr);
         Q_INVOKABLE static bool sampleFormatProperties(const QString &sampleFormat,
                                                        AkAudioCaps::SampleType *type=nullptr,
                                                        int *bps=nullptr,
-                                                       int *endianness=nullptr,
-                                                       bool *planar=nullptr);
+                                                       int *endianness=nullptr);
         Q_INVOKABLE static SampleType sampleType(SampleFormat sampleFormat);
         Q_INVOKABLE static SampleType sampleType(const QString &sampleFormat);
         Q_INVOKABLE static QString channelLayoutToString(ChannelLayout channelLayout);
@@ -264,8 +270,6 @@ class AKCOMMONS_EXPORT AkAudioCaps: public QObject
         Q_INVOKABLE static int channelCount(const QString &channelLayout);
         Q_INVOKABLE static int endianness(SampleFormat sampleFormat);
         Q_INVOKABLE static int endianness(const QString &sampleFormat);
-        Q_INVOKABLE static bool isPlanar(SampleFormat sampleFormat);
-        Q_INVOKABLE static bool isPlanar(const QString &sampleFormat);
         Q_INVOKABLE static ChannelLayout defaultChannelLayout(int channelCount);
         Q_INVOKABLE static QString defaultChannelLayoutString(int channelCount);
 
@@ -274,28 +278,26 @@ class AKCOMMONS_EXPORT AkAudioCaps: public QObject
 
     Q_SIGNALS:
         void formatChanged(SampleFormat format);
-        void bpsChanged(int bps);
-        void channelsChanged(int channels);
-        void rateChanged(int rate);
         void layoutChanged(ChannelLayout layout);
+        void rateChanged(int rate);
         void samplesChanged(int samples);
+        void planarChanged(bool planar);
         void alignChanged(int align);
 
     public Q_SLOTS:
         void setFormat(SampleFormat format);
-        void setBps(int bps);
-        void setChannels(int channels);
-        void setRate(int rate);
         void setLayout(ChannelLayout layout);
+        void setRate(int rate);
         void setSamples(int samples);
+        void setPlanar(bool planar);
         void setAlign(int align);
         void resetFormat();
-        void resetBps();
-        void resetChannels();
-        void resetRate();
         void resetLayout();
+        void resetRate();
         void resetSamples();
+        void resetPlanar();
         void resetAlign();
+        void clear();
 
         friend QDebug operator <<(QDebug debug, const AkAudioCaps &caps);
         friend QDataStream &operator >>(QDataStream &istream, AkAudioCaps &caps);

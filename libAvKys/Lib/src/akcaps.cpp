@@ -84,7 +84,15 @@ AkCaps &AkCaps::operator =(const QString &other)
 
 bool AkCaps::operator ==(const AkCaps &other) const
 {
-    return this->toString() == other.toString();
+    if (this->dynamicPropertyNames() != other.dynamicPropertyNames())
+        return false;
+
+    for (auto &property: this->dynamicPropertyNames())
+        if (this->property(property) != other.property(property))
+            return false;
+
+    return this->d->m_mimeType == other.d->m_mimeType
+            && this->d->m_isValid == other.d->m_isValid;
 }
 
 bool AkCaps::operator ==(const QString &caps) const
@@ -266,9 +274,7 @@ void AkCaps::clear()
     this->d->m_mimeType.clear();
     this->d->m_isValid = false;
 
-    QList<QByteArray> properties = this->dynamicPropertyNames();
-
-    for (const QByteArray &property: properties)
+    for (auto &property: this->dynamicPropertyNames())
         this->setProperty(property.constData(), QVariant());
 }
 

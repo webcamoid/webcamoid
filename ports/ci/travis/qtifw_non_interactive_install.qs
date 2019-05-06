@@ -8,7 +8,6 @@ function Controller()
     })
 }
 
-
 Controller.prototype.IntroductionPageCallback = function()
 {
     gui.clickButton(buttons.NextButton);

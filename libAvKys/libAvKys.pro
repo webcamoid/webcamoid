@@ -90,6 +90,7 @@ isEmpty(NOQTAUDIO): qtCompileTest(qtaudio)
 isEmpty(NOV4L2): !android {
     qtCompileTest(v4l2)
     CONFIG(config_v4l2): qtCompileTest(v4l2_extendedcontrols)
+    CONFIG(config_v4l2): qtCompileTest(v4l2_extraformats)
     isEmpty(NOV4LUTILS): CONFIG(config_v4l2): qtCompileTest(v4lutils)
 }
 

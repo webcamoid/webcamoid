@@ -43,7 +43,8 @@ LIBS += -L$${OUT_PWD}/../../../../../Lib/$${BIN_DIR} -l$${COMMONS_TARGET}
 
 OTHER_FILES += pspec.json
 
-QT += qml androidextras
+QT += qml
+android: QT += androidextras
 
 SOURCES = \
     plugin.cpp \

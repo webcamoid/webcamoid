@@ -184,7 +184,7 @@ AkPacket ConvertAudioGStreamer::convert(const AkAudioPacket &packet)
         gstIFormat += fEnd;
 
     const char *gstInLayout =
-            AkAudioCaps::isPlanar(packet.caps().format())?
+            packet.caps().planar()?
                 "non-interleaved": "interleaved";
 
     auto inCaps = gst_caps_new_simple("audio/x-raw",
@@ -211,9 +211,8 @@ AkPacket ConvertAudioGStreamer::convert(const AkAudioPacket &packet)
     if (this->d->m_caps.bps() > 8 && !gstOFormat.endsWith(fEnd))
         gstOFormat += fEnd;
 
-    const char *gstOutLayout =
-            AkAudioCaps::isPlanar(this->d->m_caps.format())?
-                "non-interleaved": "interleaved";
+    const char *gstOutLayout = this->d->m_caps.planar()?
+                                   "non-interleaved": "interleaved";
 
     auto outCaps = gst_caps_new_simple("audio/x-raw",
                                        "format", G_TYPE_STRING, gstOFormat.toStdString().c_str(),
@@ -285,7 +284,7 @@ AkPacket ConvertAudioGStreamer::convert(const AkAudioPacket &packet)
 
     AkAudioPacket oAudioPacket;
     oAudioPacket.caps() = this->d->m_caps;
-    oAudioPacket.caps().samples() = nSamples;
+    oAudioPacket.caps().setSamples(nSamples);
     oAudioPacket.buffer() = oBuffer;
     oAudioPacket.pts() = pts;
     oAudioPacket.timeBase() = AkFrac(1, this->d->m_caps.rate());
