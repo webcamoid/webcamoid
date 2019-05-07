@@ -146,12 +146,6 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
         openjdk-8-jre
 
     sudo update-java-alternatives --set java-1.8.0-openjdk-amd64
-    export JAVA_HOME=$(readlink -f /usr/bin/java | sed 's:bin/java::')
-    export PATH="${JAVA_HOME}/bin/java:${PATH}"
-
-    java -version
-    echo JAVA_HOME $JAVA_HOME
-
     mkdir -p build
     cd build
 
@@ -179,9 +173,11 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
         --no-force-installations
 
     # Set environment variables for Android build
+    export JAVA_HOME=$(readlink -f /usr/bin/java | sed 's:bin/java::')
     export ANDROID_HOME="${PWD}/build/android-sdk"
     export ANDROID_NDK="${PWD}/build/android-ndk"
     export ANDROID_NDK_HOME=${ANDROID_NDK}
+    export PATH="${JAVA_HOME}/bin/java:${PATH}"
     export PATH="$PATH:${ANDROID_HOME}/tools:${ANDROID_HOME}/tools/bin"
     export PATH="${PATH}:${ANDROID_HOME}/platform-tools"
     export PATH="${PATH}:${ANDROID_HOME}/emulator"
