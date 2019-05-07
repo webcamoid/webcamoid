@@ -142,7 +142,12 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
     # Install dev tools
     sudo apt-get -y install \
         make \
-        openjdk-8-jdk-headless
+        openjdk-8-jdk \
+        openjdk-8-jre
+
+    java -version
+    sudo update-alternatives --config java
+    echo JAVA_HOME $JAVA_HOME
 
     mkdir -p build
     cd build

@@ -259,6 +259,7 @@ matrix:
     compiler: clang
   - os: linux
     dist: xenial
+    compiler: clang
     env:
       - ANDROID_BUILD=1
       - ANDROID_PLATFORM=23
@@ -269,6 +270,7 @@ matrix:
       - TARGET_ARCH=armv7
   - os: linux
     dist: xenial
+    compiler: clang
     env:
       - ANDROID_BUILD=1
       - ANDROID_PLATFORM=23
@@ -279,6 +281,7 @@ matrix:
       - TARGET_ARCH=arm64_v8a
   - os: linux
     dist: xenial
+    compiler: clang
     env:
       - ANDROID_BUILD=1
       - ANDROID_PLATFORM=23
