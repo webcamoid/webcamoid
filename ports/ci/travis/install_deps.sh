@@ -456,6 +456,7 @@ elif [ "${DOCKERSYS}" = opensuse ]; then
     ${EXEC} zypper -n in \
         git \
         which \
+        gzip \
         xauth \
         xvfb-run \
         python3 \
