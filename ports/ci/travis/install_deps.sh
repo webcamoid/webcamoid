@@ -152,25 +152,27 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
     # Install Android SDK
     fileName="sdk-tools-linux-${SDKVER}.zip"
     ${DOWNLOAD_CMD} "https://dl.google.com/android/repository/${fileName}"
-    mkdir -p build/android-sdk
-    unzip -q -d build/android-sdk ${fileName}
+    mkdir -p android-sdk
+    unzip -q -d android-sdk ${fileName}
 
     # Install Android NDK
     fileName="android-ndk-${NDKVER}-linux-x86_64.zip"
     ${DOWNLOAD_CMD} "https://dl.google.com/android/repository/${fileName}"
-    mkdir -p build
-    unzip -q -d build ${fileName}
-    mv -vf build/android-ndk-${NDKVER} build/android-ndk
+    unzip -q ${fileName}
+    mv -vf android-ndk-${NDKVER} android-ndk
 
     # Install Qt for Android
-    ${DOWNLOAD_CMD} "https://download.qt.io/archive/qt/${QTVER:0:4}/${QTVER}/qt-opensource-linux-x64-${QTVER}.run"
-    chmod +x qt-opensource-linux-x64-${QTVER}.run
+    fileName="qt-opensource-linux-x64-${QTVER}.run"
+    ${DOWNLOAD_CMD} "https://download.qt.io/archive/qt/${QTVER:0:4}/${QTVER}/${fileName}"
+    chmod +x ${fileName}
 
     QT_QPA_PLATFORM=minimal \
     ./qt-opensource-linux-x64-${QTVER}.run \
         -v \
         --script "$PWD/../ports/ci/travis/qt_non_interactive_install.qs" \
         --no-force-installations
+
+    cd ..
 
     # Set environment variables for Android build
     export JAVA_HOME=$(readlink -f /usr/bin/java | sed 's:bin/java::')
@@ -182,8 +184,6 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
     export PATH="${PATH}:${ANDROID_HOME}/platform-tools"
     export PATH="${PATH}:${ANDROID_HOME}/emulator"
     export PATH="${PATH}:${ANDROID_NDK}"
-    echo ANDROID_NDK_ROOT ${ANDROID_NDK}
-    ls "${ANDROID_NDK}"
 
     # Install Android things
     echo y | sdkmanager \

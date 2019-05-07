@@ -64,8 +64,6 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
     export PATH="${PATH}:${ANDROID_HOME}/emulator"
     export PATH="${PATH}:${ANDROID_NDK}"
     export PATH="${PWD}/build/Qt/${QTVER}/android_${TARGET_ARCH}/bin:${PATH}"
-    echo ANDROID_NDK_ROOT ${ANDROID_NDK_ROOT}
-    ls "${ANDROID_NDK_ROOT}"
     qmake -query
     qmake -spec ${COMPILESPEC} Webcamoid.pro \
         CONFIG+=silent
