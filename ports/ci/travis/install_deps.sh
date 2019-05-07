@@ -146,6 +146,8 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
         openjdk-8-jre
 
     sudo update-java-alternatives --set java-1.8.0-openjdk-amd64
+    export JAVA_HOME=$(readlink -f /usr/bin/java | sed 's:bin/java::')
+    export PATH="${JAVA_HOME}/bin/java:${PATH}"
 
     java -version
     echo JAVA_HOME $JAVA_HOME
