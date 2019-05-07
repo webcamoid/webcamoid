@@ -20,16 +20,19 @@ matrix:
   include:
   - os: linux
     dist: xenial
+    sudo: required
     compiler: gcc
     env:
       - ARCH_ROOT_BUILD=1
   - os: linux
     dist: xenial
+    sudo: required
     compiler: clang
     env:
       - ARCH_ROOT_BUILD=1
   - os: linux
     dist: xenial
+    sudo: required
     compiler: gcc
     env:
       - ARCH_ROOT_BUILD=1
@@ -37,6 +40,7 @@ matrix:
       - DAILY_BUILD=1
   - os: linux
     dist: xenial
+    sudo: required
     compiler: gcc
     env:
       - ARCH_ROOT_BUILD=1
@@ -44,6 +48,7 @@ matrix:
       - DAILY_BUILD=1
   - os: linux
     dist: xenial
+    sudo: required
     compiler: gcc
     env:
       - ARCH_ROOT_BUILD=1
@@ -51,6 +56,7 @@ matrix:
       - RELEASE_BUILD=1
   - os: linux
     dist: xenial
+    sudo: required
     compiler: gcc
     env:
       - ARCH_ROOT_BUILD=1
@@ -58,6 +64,7 @@ matrix:
       - RELEASE_BUILD=1
   - os: linux
     dist: xenial
+    sudo: required
     services:
       - docker
     compiler: gcc
@@ -66,6 +73,7 @@ matrix:
       - DOCKERIMG=debian:testing
   - os: linux
     dist: xenial
+    sudo: required
     services:
       - docker
     compiler: clang
@@ -74,6 +82,7 @@ matrix:
       - DOCKERIMG=debian:testing
   - os: linux
     dist: xenial
+    sudo: required
     services:
       - docker
     compiler: gcc
@@ -83,6 +92,7 @@ matrix:
       - FEDORAVER=27
   - os: linux
     dist: xenial
+    sudo: required
     services:
       - docker
     compiler: clang
@@ -92,6 +102,7 @@ matrix:
       - FEDORAVER=27
   - os: linux
     dist: xenial
+    sudo: required
     services:
       - docker
     compiler: gcc
@@ -101,6 +112,7 @@ matrix:
       - FEDORAVER=28
   - os: linux
     dist: xenial
+    sudo: required
     services:
       - docker
     compiler: clang
@@ -110,6 +122,7 @@ matrix:
       - FEDORAVER=28
   - os: linux
     dist: xenial
+    sudo: required
     services:
       - docker
     compiler: gcc
@@ -119,6 +132,7 @@ matrix:
       - FEDORAVER=rawhide
   - os: linux
     dist: xenial
+    sudo: required
     services:
       - docker
     compiler: clang
@@ -128,6 +142,7 @@ matrix:
       - FEDORAVER=rawhide
   - os: linux
     dist: xenial
+    sudo: required
     services:
       - docker
     compiler: gcc
@@ -136,6 +151,7 @@ matrix:
       - DOCKERIMG=opensuse/tumbleweed
   - os: linux
     dist: xenial
+    sudo: required
     services:
       - docker
     compiler: clang
@@ -144,6 +160,7 @@ matrix:
       - DOCKERIMG=opensuse/tumbleweed
   - os: linux
     dist: xenial
+    sudo: required
     services:
       - docker
     compiler: gcc
@@ -153,6 +170,7 @@ matrix:
       - DAILY_BUILD=1
   - os: linux
     dist: xenial
+    sudo: required
     services:
       - docker
     compiler: gcc
@@ -162,6 +180,7 @@ matrix:
       - RELEASE_BUILD=1
   - os: linux
     dist: xenial
+    sudo: required
     services:
       - docker
     compiler: gcc
@@ -170,6 +189,7 @@ matrix:
       - DOCKERIMG=ubuntu:xenial
   - os: linux
     dist: xenial
+    sudo: required
     services:
       - docker
     compiler: clang
@@ -178,6 +198,7 @@ matrix:
       - DOCKERIMG=ubuntu:xenial
   - os: linux
     dist: xenial
+    sudo: required
     services:
       - docker
     compiler: gcc
@@ -186,6 +207,7 @@ matrix:
       - DOCKERIMG=ubuntu:bionic
   - os: linux
     dist: xenial
+    sudo: required
     services:
       - docker
     compiler: clang
@@ -194,6 +216,7 @@ matrix:
       - DOCKERIMG=ubuntu:bionic
   - os: linux
     dist: xenial
+    sudo: required
     services:
       - docker
     compiler: gcc
@@ -202,6 +225,7 @@ matrix:
       - DOCKERIMG=ubuntu:cosmic
   - os: linux
     dist: xenial
+    sudo: required
     services:
       - docker
     compiler: clang
@@ -210,6 +234,7 @@ matrix:
       - DOCKERIMG=ubuntu:cosmic
   - os: linux
     dist: xenial
+    sudo: required
     services:
       - docker
     compiler: gcc
@@ -218,6 +243,7 @@ matrix:
       - DOCKERIMG=ubuntu:disco
   - os: linux
     dist: xenial
+    sudo: required
     services:
       - docker
     compiler: clang
@@ -259,11 +285,12 @@ matrix:
     compiler: clang
   - os: linux
     dist: xenial
+    sudo: required
+    jdk: openjdk8
     addons:
       apt:
         packages:
-          - oracle-java8-installer
-          - oracle-java8-set-default
+          - openjdk-8-jdk-headless
     env:
       - ANDROID_BUILD=1
       - ANDROID_PLATFORM=23
@@ -274,11 +301,12 @@ matrix:
       - TARGET_ARCH=armv7
   - os: linux
     dist: xenial
+    sudo: required
+    jdk: openjdk8
     addons:
       apt:
         packages:
-          - oracle-java8-installer
-          - oracle-java8-set-default
+          - openjdk-8-jdk-headless
     env:
       - ANDROID_BUILD=1
       - ANDROID_PLATFORM=23
@@ -289,11 +317,12 @@ matrix:
       - TARGET_ARCH=arm64_v8a
   - os: linux
     dist: xenial
+    sudo: required
+    jdk: openjdk8
     addons:
       apt:
         packages:
-          - oracle-java8-installer
-          - oracle-java8-set-default
+          - openjdk-8-jdk-headless
     env:
       - ANDROID_BUILD=1
       - ANDROID_PLATFORM=23
