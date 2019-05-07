@@ -136,7 +136,13 @@ if [ "${TRAVIS_OS_NAME}" = linux ] && [ "${ANDROID_BUILD}" != 1 ]; then
 fi
 
 if [ "${ANDROID_BUILD}" = 1 ]; then
-    sudo apt-get -y install make
+    sudo apt-get -y update
+    sudo apt-get -y upgrade
+
+    # Install dev tools
+    sudo apt-get -y install \
+        make \
+        openjdk-8-jdk-headless
 
     mkdir -p build
     cd build
