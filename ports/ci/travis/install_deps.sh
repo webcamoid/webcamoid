@@ -145,8 +145,9 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
         openjdk-8-jdk \
         openjdk-8-jre
 
+    sudo update-java-alternatives --set java-1.8.0-openjdk-amd64
+
     java -version
-    sudo update-alternatives --config java
     echo JAVA_HOME $JAVA_HOME
 
     mkdir -p build
