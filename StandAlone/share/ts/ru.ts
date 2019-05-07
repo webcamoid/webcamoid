@@ -141,7 +141,7 @@
     <message>
         <location filename="../qml/AudioInfo.qml" line="199"/>
         <source>Description</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Описание</translation>
     </message>
     <message>
         <location filename="../qml/AudioInfo.qml" line="214"/>
@@ -247,7 +247,7 @@
     <message>
         <location filename="../qml/EffectConfig.qml" line="83"/>
         <source>Description</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Описание</translation>
     </message>
     <message>
         <location filename="../qml/EffectConfig.qml" line="90"/>
@@ -341,12 +341,12 @@
     <message>
         <location filename="../qml/MediaConfig.qml" line="54"/>
         <source>Description</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Описание</translation>
     </message>
     <message>
         <location filename="../qml/MediaConfig.qml" line="61"/>
         <source>Insert media description</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Добавить описание &quot;медиа&quot;</translation>
     </message>
     <message>
         <location filename="../qml/MediaConfig.qml" line="68"/>
@@ -356,7 +356,7 @@
     <message>
         <location filename="../qml/MediaConfig.qml" line="75"/>
         <source>Select media file</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Выбрать медиа файл</translation>
     </message>
     <message>
         <location filename="../qml/MediaConfig.qml" line="90"/>
@@ -546,7 +546,7 @@
     <message>
         <location filename="../qml/RecordConfig.qml" line="99"/>
         <source>Description</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Описание</translation>
     </message>
     <message>
         <location filename="../qml/RecordConfig.qml" line="106"/>
@@ -895,7 +895,7 @@
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="526"/>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="140"/>
         <source>Search</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Поиск</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="115"/>
@@ -2124,7 +2124,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="134"/>
         <source>Description</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Описание</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="140"/>
@@ -2139,7 +2139,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="152"/>
         <source>Ok</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Потвердить</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="195"/>

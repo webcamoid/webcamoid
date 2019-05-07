@@ -32,7 +32,7 @@ class AkAudioPacketPrivate
     public:
         AkAudioCaps m_caps;
 
-        template<typename InputType, typename OutputType>
+        template<typename InputType, typename OutputType, typename OpType>
         inline static OutputType scaleValue(InputType value)
         {
             InputType xmin;
@@ -69,59 +69,82 @@ class AkAudioPacketPrivate
                 ymax = std::numeric_limits<OutputType>::max();
             }
 
-            return OutputType(((value - xmin) * (ymax - ymin)
-                               + ymin * (xmax - xmin))
-                              / (xmax - xmin));
+            return OutputType((OpType(value - xmin) * OpType(ymax - ymin)
+                               + OpType(ymin) * OpType(xmax - xmin))
+                              / OpType(xmax - xmin));
         }
 
-        template<typename InputType, typename OutputType>
-        inline static OutputType scaleValueI(InputType value)
+        template<typename InputType, typename OutputType, typename OpType>
+        inline static OutputType scaleValueFrom_To_(InputType value)
         {
-            return scaleValue<InputType, OutputType>(value);
+            return scaleValue<InputType, OutputType, OpType>(value);
         }
 
-        template<typename InputType, typename OutputType>
-        inline static OutputType scaleValueFromBEToLE(InputType value)
+        template<typename InputType, typename OutputType, typename OpType>
+        inline static OutputType scaleValueFrom_ToLE(InputType value)
         {
-            return qFromLittleEndian(scaleValue<InputType, OutputType>(qFromBigEndian(value)));
+            return qToLittleEndian(scaleValue<InputType,
+                                              OutputType,
+                                              OpType>(value));
         }
 
-        template<typename InputType, typename OutputType>
-        inline static OutputType scaleValueFromLEToBE(InputType value)
+        template<typename InputType, typename OutputType, typename OpType>
+        inline static OutputType scaleValueFrom_ToBE(InputType value)
         {
-            return qFromBigEndian(scaleValue<InputType, OutputType>(qFromLittleEndian(value)));
+            return qToLittleEndian(scaleValue<InputType,
+                                              OutputType,
+                                              OpType>(value));
         }
 
-        template<typename InputType, typename OutputType>
-        inline static OutputType scaleValueFromBEToBE(InputType value)
+        template<typename InputType, typename OutputType, typename OpType>
+        inline static OutputType scaleValueFromLETo_(InputType value)
         {
-            return qFromBigEndian(scaleValue<InputType, OutputType>(qFromBigEndian(value)));
+            return scaleValue<InputType,
+                              OutputType,
+                              OpType>(qFromLittleEndian(value));
         }
 
-        template<typename InputType, typename OutputType>
+        template<typename InputType, typename OutputType, typename OpType>
         inline static OutputType scaleValueFromLEToLE(InputType value)
         {
-            return qFromLittleEndian(scaleValue<InputType, OutputType>(qFromLittleEndian(value)));
+            return qToLittleEndian(scaleValue
+                                   <InputType,
+                                    OutputType,
+                                    OpType>(qFromLittleEndian(value)));
         }
 
-#define DEFINE_SCALE_VALUES(funcName, func) \
-        template<typename InputType, typename OutputType> \
-        inline static OutputType funcName(InputType value) \
-        { \
-            return func<InputType, OutputType>(value); \
+        template<typename InputType, typename OutputType, typename OpType>
+        inline static OutputType scaleValueFromLEToBE(InputType value)
+        {
+            return qToBigEndian(scaleValue
+                                <InputType,
+                                 OutputType,
+                                 OpType>(qFromLittleEndian(value)));
         }
 
-#if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
-        DEFINE_SCALE_VALUES(scaleValueFromBE, scaleValueFromBEToLE)
-        DEFINE_SCALE_VALUES(scaleValueFromLE, scaleValue          )
-        DEFINE_SCALE_VALUES(scaleValueToBE  , scaleValueFromLEToBE)
-        DEFINE_SCALE_VALUES(scaleValueToLE  , scaleValue          )
-#else
-        DEFINE_SCALE_VALUES(scaleValueFromBE, scaleValue          )
-        DEFINE_SCALE_VALUES(scaleValueFromLE, scaleValueFromLEToBE)
-        DEFINE_SCALE_VALUES(scaleValueToBE  , scaleValue          )
-        DEFINE_SCALE_VALUES(scaleValueToLE  , scaleValueFromBEToLE)
-#endif
+        template<typename InputType, typename OutputType, typename OpType>
+        inline static OutputType scaleValueFromBETo_(InputType value)
+        {
+            return scaleValue<InputType,
+                              OutputType,
+                              OpType>(qFromBigEndian(value));
+        }
+
+        template<typename InputType, typename OutputType, typename OpType>
+        inline static OutputType scaleValueFromBEToLE(InputType value)
+        {
+            return qToLittleEndian(scaleValue<InputType,
+                                              OutputType,
+                                              OpType>(qFromBigEndian(value)));
+        }
+
+        template<typename InputType, typename OutputType, typename OpType>
+        inline static OutputType scaleValueFromBEToBE(InputType value)
+        {
+            return qToBigEndian(scaleValue<InputType,
+                                           OutputType,
+                                           OpType>(qFromBigEndian(value)));
+        }
 
         template<typename InputType,
                  typename OutputType,
@@ -148,14 +171,22 @@ class AkAudioPacketPrivate
             return dst;
         }
 
-#define DEFINE_SAMPLE_CONVERT_FUNCTION(sitype, sotype, itype, otype, scaleFunc) \
+#define DEFINE_SAMPLE_CONVERT_FUNCTION(sitype, \
+                                       sotype, \
+                                       itype, \
+                                       otype, \
+                                       optype, \
+                                       inEndian, \
+                                       outEndian) \
         {AkAudioCaps::SampleFormat_##sitype, \
          AkAudioCaps::SampleFormat_##sotype, \
          [] (const AkAudioPacket &src, int align) -> AkAudioPacket { \
             return AkAudioPacketPrivate::convertSampleFormat<itype, otype> \
                     (src, \
                      AkAudioCaps::SampleFormat_##sotype, \
-                     scaleFunc<itype, otype>, \
+                     scaleValueFrom##inEndian##To##outEndian<itype, \
+                                                             otype, \
+                                                             optype>, \
                      align); \
          }}, \
         {AkAudioCaps::SampleFormat_##sotype, \
@@ -164,40 +195,54 @@ class AkAudioPacketPrivate
              return AkAudioPacketPrivate::convertSampleFormat<otype, itype> \
                     (src, \
                      AkAudioCaps::SampleFormat_##sitype, \
-                     scaleFunc<otype, itype>, \
+                     scaleValueFrom##outEndian##To##inEndian<otype, \
+                                                             itype, \
+                                                             optype>, \
                      align); \
          }}
 
 #define DEFINE_SAMPLE_CONVERT_FUNCTION_8_8 \
-        DEFINE_SAMPLE_CONVERT_FUNCTION(s8, u8, qint8, quint8, scaleValueI)
+        DEFINE_SAMPLE_CONVERT_FUNCTION(s8, u8, qint8, quint8, qint16, _, _)
 
 #define DEFINE_SAMPLE_CONVERT_FUNCTION_S8_M(obits) \
-        DEFINE_SAMPLE_CONVERT_FUNCTION(s8, s##obits##le, qint8, qint##obits , scaleValueToLE), \
-        DEFINE_SAMPLE_CONVERT_FUNCTION(s8, s##obits##be, qint8, qint##obits , scaleValueToBE), \
-        DEFINE_SAMPLE_CONVERT_FUNCTION(s8, u##obits##le, qint8, quint##obits, scaleValueToLE), \
-        DEFINE_SAMPLE_CONVERT_FUNCTION(s8, u##obits##be, qint8, quint##obits, scaleValueToBE)
+        DEFINE_SAMPLE_CONVERT_FUNCTION(s8, s##obits##le, qint8, qint##obits , qint64, _, LE), \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(s8, s##obits##be, qint8, qint##obits , qint64, _, BE), \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(s8, u##obits##le, qint8, quint##obits, qint64, _, LE), \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(s8, u##obits##be, qint8, quint##obits, qint64, _, BE)
 
 #define DEFINE_SAMPLE_CONVERT_FUNCTION_U8_M(obits) \
-        DEFINE_SAMPLE_CONVERT_FUNCTION(u8, s##obits##le, quint8, qint##obits , scaleValueToLE), \
-        DEFINE_SAMPLE_CONVERT_FUNCTION(u8, s##obits##be, quint8, qint##obits , scaleValueToBE), \
-        DEFINE_SAMPLE_CONVERT_FUNCTION(u8, u##obits##le, quint8, quint##obits, scaleValueToLE), \
-        DEFINE_SAMPLE_CONVERT_FUNCTION(u8, u##obits##be, quint8, quint##obits, scaleValueToBE)
+        DEFINE_SAMPLE_CONVERT_FUNCTION(u8, s##obits##le, quint8, qint##obits , qint64, _, LE), \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(u8, s##obits##be, quint8, qint##obits , qint64, _, BE), \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(u8, u##obits##le, quint8, quint##obits, qint64, _, LE), \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(u8, u##obits##be, quint8, quint##obits, qint64, _, BE)
 
 #define DEFINE_SAMPLE_CONVERT_FUNCTION_8_M(obits) \
         DEFINE_SAMPLE_CONVERT_FUNCTION_S8_M(obits), \
         DEFINE_SAMPLE_CONVERT_FUNCTION_U8_M(obits)
 
+#if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
 #define DEFINE_SAMPLE_CONVERT_FUNCTION_S8_F \
-        DEFINE_SAMPLE_CONVERT_FUNCTION(s8, fltle, qint8, float, scaleValueToLE), \
-        DEFINE_SAMPLE_CONVERT_FUNCTION(s8, fltbe, qint8, float, scaleValueToBE), \
-        DEFINE_SAMPLE_CONVERT_FUNCTION(s8, dblle, qint8, qreal, scaleValueToLE), \
-        DEFINE_SAMPLE_CONVERT_FUNCTION(s8, dblbe, qint8, qreal, scaleValueToBE)
-
+        DEFINE_SAMPLE_CONVERT_FUNCTION(s8, fltle, qint8, float, float, _, LE), \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(s8, fltbe, qint8, float, float, _, BE), \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(s8, dblle, qint8, qreal, qreal, _, LE), \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(s8, dblbe, qint8, qreal, qreal, _, BE)
 #define DEFINE_SAMPLE_CONVERT_FUNCTION_U8_F \
-        DEFINE_SAMPLE_CONVERT_FUNCTION(u8, fltle, quint8, float, scaleValueToLE), \
-        DEFINE_SAMPLE_CONVERT_FUNCTION(u8, fltbe, quint8, float, scaleValueToBE), \
-        DEFINE_SAMPLE_CONVERT_FUNCTION(u8, dblle, quint8, qreal, scaleValueToLE), \
-        DEFINE_SAMPLE_CONVERT_FUNCTION(u8, dblbe, quint8, qreal, scaleValueToBE)
+        DEFINE_SAMPLE_CONVERT_FUNCTION(u8, fltle, quint8, float, float, _, LE), \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(u8, fltbe, quint8, float, float, _, BE), \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(u8, dblle, quint8, qreal, qreal, _, LE), \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(u8, dblbe, quint8, qreal, qreal, _, BE)
+#else
+#define DEFINE_SAMPLE_CONVERT_FUNCTION_S8_F \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(s8, fltle, qint8, float, float, _, _), \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(s8, fltbe, qint8, float, float, _, _), \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(s8, dblle, qint8, qreal, qreal, _, _), \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(s8, dblbe, qint8, qreal, qreal, _, _)
+#define DEFINE_SAMPLE_CONVERT_FUNCTION_U8_F \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(u8, fltle, quint8, float, float, _, _), \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(u8, fltbe, quint8, float, float, _, _), \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(u8, dblle, quint8, qreal, qreal, _, _), \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(u8, dblbe, quint8, qreal, qreal, _, _)
+#endif
 
 #define DEFINE_SAMPLE_CONVERT_FUNCTION_8_F \
         DEFINE_SAMPLE_CONVERT_FUNCTION_S8_F, \
@@ -211,42 +256,42 @@ class AkAudioPacketPrivate
         DEFINE_SAMPLE_CONVERT_FUNCTION_8_F
 
 #define DEFINE_SAMPLE_CONVERT_FUNCTION_MS_M(bits) \
-        DEFINE_SAMPLE_CONVERT_FUNCTION(s##bits##le, s##bits##be, qint##bits, qint##bits, scaleValueFromLEToBE), \
-        DEFINE_SAMPLE_CONVERT_FUNCTION(s##bits##le, u##bits##le, qint##bits, qint##bits, scaleValueFromLEToLE), \
-        DEFINE_SAMPLE_CONVERT_FUNCTION(s##bits##le, u##bits##be, qint##bits, qint##bits, scaleValueFromLEToBE)
+        DEFINE_SAMPLE_CONVERT_FUNCTION(s##bits##le, s##bits##be, qint##bits, qint##bits, qint64, LE, BE), \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(s##bits##le, u##bits##le, qint##bits, qint##bits, qint64, LE, LE), \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(s##bits##le, u##bits##be, qint##bits, qint##bits, qint64, LE, BE)
 
 #define DEFINE_SAMPLE_CONVERT_FUNCTION_MU_M(bits) \
-        DEFINE_SAMPLE_CONVERT_FUNCTION(u##bits##le, u##bits##be, qint##bits, qint##bits, scaleValueFromLEToBE), \
-        DEFINE_SAMPLE_CONVERT_FUNCTION(u##bits##le, s##bits##be, qint##bits, qint##bits, scaleValueFromLEToBE), \
-        DEFINE_SAMPLE_CONVERT_FUNCTION(u##bits##be, s##bits##be, qint##bits, qint##bits, scaleValueFromBEToBE)
+        DEFINE_SAMPLE_CONVERT_FUNCTION(u##bits##le, u##bits##be, qint##bits, qint##bits, qint64, LE, BE), \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(u##bits##le, s##bits##be, qint##bits, qint##bits, qint64, LE, BE), \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(u##bits##be, s##bits##be, qint##bits, qint##bits, qint64, BE, BE)
 
 #define DEFINE_SAMPLE_CONVERT_FUNCTION_MSL_M(ibits, obits) \
-        DEFINE_SAMPLE_CONVERT_FUNCTION(s##ibits##le, s##obits##le, qint##ibits, qint##obits , scaleValueFromLEToLE), \
-        DEFINE_SAMPLE_CONVERT_FUNCTION(s##ibits##le, s##obits##be, qint##ibits, qint##obits , scaleValueFromLEToBE), \
-        DEFINE_SAMPLE_CONVERT_FUNCTION(s##ibits##le, u##obits##le, qint##ibits, quint##obits, scaleValueFromLEToLE), \
-        DEFINE_SAMPLE_CONVERT_FUNCTION(s##ibits##le, u##obits##be, qint##ibits, quint##obits, scaleValueFromLEToBE)
+        DEFINE_SAMPLE_CONVERT_FUNCTION(s##ibits##le, s##obits##le, qint##ibits, qint##obits , qint64, LE, LE), \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(s##ibits##le, s##obits##be, qint##ibits, qint##obits , qint64, LE, BE), \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(s##ibits##le, u##obits##le, qint##ibits, quint##obits, qint64, LE, LE), \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(s##ibits##le, u##obits##be, qint##ibits, quint##obits, qint64, LE, BE)
 
 #define DEFINE_SAMPLE_CONVERT_FUNCTION_MUL_M(ibits, obits) \
-        DEFINE_SAMPLE_CONVERT_FUNCTION(u##ibits##le, s##obits##le, quint##ibits, qint##obits , scaleValueFromLEToLE), \
-        DEFINE_SAMPLE_CONVERT_FUNCTION(u##ibits##le, s##obits##be, quint##ibits, qint##obits , scaleValueFromLEToBE), \
-        DEFINE_SAMPLE_CONVERT_FUNCTION(u##ibits##le, u##obits##le, quint##ibits, quint##obits, scaleValueFromLEToLE), \
-        DEFINE_SAMPLE_CONVERT_FUNCTION(u##ibits##le, u##obits##be, quint##ibits, quint##obits, scaleValueFromLEToBE)
+        DEFINE_SAMPLE_CONVERT_FUNCTION(u##ibits##le, s##obits##le, quint##ibits, qint##obits , qint64, LE, LE), \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(u##ibits##le, s##obits##be, quint##ibits, qint##obits , qint64, LE, BE), \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(u##ibits##le, u##obits##le, quint##ibits, quint##obits, qint64, LE, LE), \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(u##ibits##le, u##obits##be, quint##ibits, quint##obits, qint64, LE, BE)
 
 #define DEFINE_SAMPLE_CONVERT_FUNCTION_ML_M(ibits, obits) \
         DEFINE_SAMPLE_CONVERT_FUNCTION_MSL_M(ibits, obits), \
         DEFINE_SAMPLE_CONVERT_FUNCTION_MUL_M(ibits, obits)
 
 #define DEFINE_SAMPLE_CONVERT_FUNCTION_MSB_M(ibits, obits) \
-        DEFINE_SAMPLE_CONVERT_FUNCTION(s##ibits##be, s##obits##le, qint##ibits, qint##obits , scaleValueFromBEToLE), \
-        DEFINE_SAMPLE_CONVERT_FUNCTION(s##ibits##be, s##obits##be, qint##ibits, qint##obits , scaleValueFromBEToBE), \
-        DEFINE_SAMPLE_CONVERT_FUNCTION(s##ibits##be, u##obits##le, qint##ibits, quint##obits, scaleValueFromBEToLE), \
-        DEFINE_SAMPLE_CONVERT_FUNCTION(s##ibits##be, u##obits##be, qint##ibits, quint##obits, scaleValueFromBEToBE)
+        DEFINE_SAMPLE_CONVERT_FUNCTION(s##ibits##be, s##obits##le, qint##ibits, qint##obits , qint64, BE, LE), \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(s##ibits##be, s##obits##be, qint##ibits, qint##obits , qint64, BE, BE), \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(s##ibits##be, u##obits##le, qint##ibits, quint##obits, qint64, BE, LE), \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(s##ibits##be, u##obits##be, qint##ibits, quint##obits, qint64, BE, BE)
 
 #define DEFINE_SAMPLE_CONVERT_FUNCTION_MUB_M(ibits, obits) \
-        DEFINE_SAMPLE_CONVERT_FUNCTION(u##ibits##be, s##obits##le, quint##ibits, qint##obits , scaleValueFromBEToLE), \
-        DEFINE_SAMPLE_CONVERT_FUNCTION(u##ibits##be, s##obits##be, quint##ibits, qint##obits , scaleValueFromBEToBE), \
-        DEFINE_SAMPLE_CONVERT_FUNCTION(u##ibits##be, u##obits##le, quint##ibits, quint##obits, scaleValueFromBEToLE), \
-        DEFINE_SAMPLE_CONVERT_FUNCTION(u##ibits##be, u##obits##be, quint##ibits, quint##obits, scaleValueFromBEToBE)
+        DEFINE_SAMPLE_CONVERT_FUNCTION(u##ibits##be, s##obits##le, quint##ibits, qint##obits , qint64, BE, LE), \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(u##ibits##be, s##obits##be, quint##ibits, qint##obits , qint64, BE, BE), \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(u##ibits##be, u##obits##le, quint##ibits, quint##obits, qint64, BE, LE), \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(u##ibits##be, u##obits##be, quint##ibits, quint##obits, qint64, BE, BE)
 
 #define DEFINE_SAMPLE_CONVERT_FUNCTION_MB_M(ibits, obits) \
         DEFINE_SAMPLE_CONVERT_FUNCTION_MSB_M(ibits, obits), \
@@ -260,29 +305,49 @@ class AkAudioPacketPrivate
         DEFINE_SAMPLE_CONVERT_FUNCTION_ML_M(ibits, obits), \
         DEFINE_SAMPLE_CONVERT_FUNCTION_MB_M(ibits, obits)
 
+#if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
 #define DEFINE_SAMPLE_CONVERT_FUNCTION_MSL_F(bits) \
-        DEFINE_SAMPLE_CONVERT_FUNCTION(s##bits##le, fltle, qint##bits, float, scaleValueFromLEToLE), \
-        DEFINE_SAMPLE_CONVERT_FUNCTION(s##bits##le, fltbe, qint##bits, float, scaleValueFromLEToBE), \
-        DEFINE_SAMPLE_CONVERT_FUNCTION(s##bits##le, dblle, qint##bits, qreal, scaleValueFromLEToLE), \
-        DEFINE_SAMPLE_CONVERT_FUNCTION(s##bits##le, dblbe, qint##bits, qreal, scaleValueFromLEToBE)
-
+        DEFINE_SAMPLE_CONVERT_FUNCTION(s##bits##le, fltle, qint##bits, float, float, LE, LE), \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(s##bits##le, fltbe, qint##bits, float, float, LE, BE), \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(s##bits##le, dblle, qint##bits, qreal, qreal, LE, LE), \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(s##bits##le, dblbe, qint##bits, qreal, qreal, LE, BE)
 #define DEFINE_SAMPLE_CONVERT_FUNCTION_MUL_F(bits) \
-        DEFINE_SAMPLE_CONVERT_FUNCTION(u##bits##le, fltle, quint##bits, float, scaleValueFromLEToLE), \
-        DEFINE_SAMPLE_CONVERT_FUNCTION(u##bits##le, fltbe, quint##bits, float, scaleValueFromLEToBE), \
-        DEFINE_SAMPLE_CONVERT_FUNCTION(u##bits##le, dblle, quint##bits, qreal, scaleValueFromLEToLE), \
-        DEFINE_SAMPLE_CONVERT_FUNCTION(u##bits##le, dblbe, quint##bits, qreal, scaleValueFromLEToBE)
-
+        DEFINE_SAMPLE_CONVERT_FUNCTION(u##bits##le, fltle, quint##bits, float, float, LE, LE), \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(u##bits##le, fltbe, quint##bits, float, float, LE, BE), \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(u##bits##le, dblle, quint##bits, qreal, qreal, LE, LE), \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(u##bits##le, dblbe, quint##bits, qreal, qreal, LE, BE)
 #define DEFINE_SAMPLE_CONVERT_FUNCTION_MSB_F(bits) \
-        DEFINE_SAMPLE_CONVERT_FUNCTION(s##bits##be, fltle, qint##bits, float, scaleValueFromBEToLE), \
-        DEFINE_SAMPLE_CONVERT_FUNCTION(s##bits##be, fltbe, qint##bits, float, scaleValueFromBEToBE), \
-        DEFINE_SAMPLE_CONVERT_FUNCTION(s##bits##be, dblle, qint##bits, qreal, scaleValueFromBEToLE), \
-        DEFINE_SAMPLE_CONVERT_FUNCTION(s##bits##be, dblbe, qint##bits, qreal, scaleValueFromBEToBE)
-
+        DEFINE_SAMPLE_CONVERT_FUNCTION(s##bits##be, fltle, qint##bits, float, float, BE, LE), \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(s##bits##be, fltbe, qint##bits, float, float, BE, BE), \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(s##bits##be, dblle, qint##bits, qreal, qreal, BE, LE), \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(s##bits##be, dblbe, qint##bits, qreal, qreal, BE, BE)
 #define DEFINE_SAMPLE_CONVERT_FUNCTION_MUB_F(bits) \
-        DEFINE_SAMPLE_CONVERT_FUNCTION(u##bits##be, fltle, quint##bits, float, scaleValueFromBEToLE), \
-        DEFINE_SAMPLE_CONVERT_FUNCTION(u##bits##be, fltbe, quint##bits, float, scaleValueFromBEToBE), \
-        DEFINE_SAMPLE_CONVERT_FUNCTION(u##bits##be, dblle, quint##bits, qreal, scaleValueFromBEToLE), \
-        DEFINE_SAMPLE_CONVERT_FUNCTION(u##bits##be, dblbe, quint##bits, qreal, scaleValueFromBEToBE)
+        DEFINE_SAMPLE_CONVERT_FUNCTION(u##bits##be, fltle, quint##bits, float, float, BE, LE), \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(u##bits##be, fltbe, quint##bits, float, float, BE, BE), \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(u##bits##be, dblle, quint##bits, qreal, qreal, BE, LE), \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(u##bits##be, dblbe, quint##bits, qreal, qreal, BE, BE)
+#else
+#define DEFINE_SAMPLE_CONVERT_FUNCTION_MSL_F(bits) \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(s##bits##le, fltle, qint##bits, float, float, LE, _), \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(s##bits##le, fltbe, qint##bits, float, float, LE, _), \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(s##bits##le, dblle, qint##bits, qreal, qreal, LE, _), \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(s##bits##le, dblbe, qint##bits, qreal, qreal, LE, _)
+#define DEFINE_SAMPLE_CONVERT_FUNCTION_MUL_F(bits) \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(u##bits##le, fltle, quint##bits, float, float, LE, _), \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(u##bits##le, fltbe, quint##bits, float, float, LE, _), \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(u##bits##le, dblle, quint##bits, qreal, qreal, LE, _), \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(u##bits##le, dblbe, quint##bits, qreal, qreal, LE, _)
+#define DEFINE_SAMPLE_CONVERT_FUNCTION_MSB_F(bits) \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(s##bits##be, fltle, qint##bits, float, float, BE, _), \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(s##bits##be, fltbe, qint##bits, float, float, BE, _), \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(s##bits##be, dblle, qint##bits, qreal, qreal, BE, _), \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(s##bits##be, dblbe, qint##bits, qreal, qreal, BE, _)
+#define DEFINE_SAMPLE_CONVERT_FUNCTION_MUB_F(bits) \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(u##bits##be, fltle, quint##bits, float, float, BE, _), \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(u##bits##be, fltbe, quint##bits, float, float, BE, _), \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(u##bits##be, dblle, quint##bits, qreal, qreal, BE, _), \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(u##bits##be, dblbe, quint##bits, qreal, qreal, BE, _)
+#endif
 
 #define DEFINE_SAMPLE_CONVERT_FUNCTION_M_F(bits) \
         DEFINE_SAMPLE_CONVERT_FUNCTION_MSL_F(bits), \
@@ -301,13 +366,23 @@ class AkAudioPacketPrivate
         DEFINE_SAMPLE_CONVERT_FUNCTION_M_F(32), \
         DEFINE_SAMPLE_CONVERT_FUNCTION_M_F(64)
 
+#if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
 #define DEFINE_SAMPLE_CONVERT_FUNCTION_F \
-        DEFINE_SAMPLE_CONVERT_FUNCTION(fltle, fltbe, float, float, scaleValueFromLEToBE), \
-        DEFINE_SAMPLE_CONVERT_FUNCTION(fltle, dblle, float, qreal, scaleValueFromLEToLE), \
-        DEFINE_SAMPLE_CONVERT_FUNCTION(fltle, dblbe, float, qreal, scaleValueFromLEToBE), \
-        DEFINE_SAMPLE_CONVERT_FUNCTION(fltbe, dblle, float, qreal, scaleValueFromBEToLE), \
-        DEFINE_SAMPLE_CONVERT_FUNCTION(fltbe, dblbe, float, qreal, scaleValueFromBEToBE), \
-        DEFINE_SAMPLE_CONVERT_FUNCTION(dblle, dblbe, qreal, qreal, scaleValueFromLEToBE)
+        DEFINE_SAMPLE_CONVERT_FUNCTION(fltle, fltbe, float, float, float, LE, BE), \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(fltle, dblle, float, qreal, qreal, LE, LE), \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(fltle, dblbe, float, qreal, qreal, LE, BE), \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(fltbe, dblle, float, qreal, qreal, BE, LE), \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(fltbe, dblbe, float, qreal, qreal, BE, BE), \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(dblle, dblbe, qreal, qreal, qreal, LE, BE)
+#else
+#define DEFINE_SAMPLE_CONVERT_FUNCTION_F \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(fltle, fltbe, float, float, float, _, _), \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(fltle, dblle, float, qreal, qreal, _, _), \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(fltle, dblbe, float, qreal, qreal, _, _), \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(fltbe, dblle, float, qreal, qreal, _, _), \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(fltbe, dblbe, float, qreal, qreal, _, _), \
+        DEFINE_SAMPLE_CONVERT_FUNCTION(dblle, dblbe, qreal, qreal, qreal, _, _)
+#endif
 
         struct AudioSampleFormatConvert
         {
@@ -330,7 +405,7 @@ class AkAudioPacketPrivate
             return convert;
         }
 
-        template<typename InputType, typename OutputType>
+        template<typename InputType, typename OutputType, typename OpType>
         inline static OutputType scaleValue(InputType value,
                                             InputType minValue,
                                             InputType maxValue)
@@ -338,9 +413,9 @@ class AkAudioPacketPrivate
             auto ymin = std::numeric_limits<OutputType>::min();
             auto ymax = std::numeric_limits<OutputType>::max();
 
-            return OutputType(((value - minValue) * (ymax - ymin)
-                               + ymin * (maxValue - minValue))
-                              / (maxValue - minValue));
+            return OutputType((OpType(value - minValue) * OpType(ymax - ymin)
+                               + OpType(ymin) * OpType(maxValue - minValue))
+                              / OpType(maxValue - minValue));
         }
 
         template<typename SampleType, typename SumType>
@@ -378,45 +453,11 @@ class AkAudioPacketPrivate
 
         template<typename SampleType, typename SumType>
         inline static void mixChannels(void *dstFrame,
-                                       const QVector<const void *> &srcFrames,
-                                       int samples)
-        {
-            // Create a summatory sample which type is big enough to contain
-            // the sum of all values.
-            QByteArray sumFrame(samples * int(sizeof(SumType)), 0);
-            auto sumData = reinterpret_cast<SumType *>(sumFrame.data());
-
-            // Add the values.
-            for (auto &frame: srcFrames) {
-                auto data = reinterpret_cast<const SampleType *>(frame);
-
-                for (int i = 0; i < samples; i++)
-                    sumData[i] += SumType(data[i]);
-            }
-
-            SumType smin;
-            SumType smax;
-            scaleSamples<SampleType, SumType>(sumFrame,
-                                              samples,
-                                              smin,
-                                              smax);
-
-            // Recreate frame with the wave scaled to fit it.
-            auto mixedData = reinterpret_cast<SampleType *>(dstFrame);
-
-            for (int i = 0; i < samples; i++)
-                mixedData[i] =
-                        scaleValue<SumType, SampleType>(sumData[i],
-                                                        smin,
-                                                        smax);
-        }
-
-        template<typename SampleType, typename SumType>
-        inline static void mixChannels(void *dstFrame,
-                                       const void *srcFrames,
-                                       const QVector<int> &inputChannels,
                                        int outputChannel,
-                                       int channels,
+                                       int nOutputChannels,
+                                       const QVector<const void *> &srcFrames,
+                                       const QVector<int> &inputChannels,
+                                       int nInputChannels,
                                        int samples)
         {
             // Create a summatory sample which type is big enough to contain
@@ -425,11 +466,21 @@ class AkAudioPacketPrivate
             auto sumData = reinterpret_cast<SumType *>(sumFrame.data());
 
             // Add the values.
-            auto data = reinterpret_cast<const SampleType *>(srcFrames);
+            if (srcFrames.size() > 1) {
+                for (auto &frame: srcFrames) {
+                    auto data = reinterpret_cast<const SampleType *>(frame);
 
-            for (auto &channel: inputChannels) {
-                for (int i = 0; i < samples; i++)
-                    sumData[i] += SumType(data[channel + i * channels]);
+                    for (int i = 0; i < samples; i++)
+                        sumData[i] += SumType(data[i]);
+                }
+            } else {
+                auto data = reinterpret_cast<const SampleType *>(srcFrames.first());
+
+                for (auto &channel: inputChannels) {
+                    for (int i = 0; i < samples; i++)
+                        sumData[i] +=
+                                SumType(data[channel + i * nInputChannels]);
+                }
             }
 
             SumType smin;
@@ -443,45 +494,40 @@ class AkAudioPacketPrivate
             auto mixedData = reinterpret_cast<SampleType *>(dstFrame);
 
             for (int i = 0; i < samples; i++)
-                mixedData[outputChannel + i * channels] =
-                        scaleValue<SumType, SampleType>(sumData[i],
-                                                        smin,
-                                                        smax);
+                mixedData[outputChannel + i * nOutputChannels] =
+                        scaleValue<SumType, SampleType, SumType>(sumData[i],
+                                                                 smin,
+                                                                 smax);
         }
 
 #define DEFIME_MIXER(sampleType, sumType) \
         inline static void mixChannels_##sampleType(void *dstFrame, \
-                                                    const QVector<const void *> &frames, \
-                                                    int samples) \
-        { \
-            mixChannels<sampleType, sumType>(dstFrame, frames, samples); \
-        } \
-        \
-        inline static void mixChannels_##sampleType(void *dstFrame, \
-                                                    const void *frames, \
-                                                    const QVector<int> &inputChannels, \
                                                     int outputChannel, \
-                                                    int channels, \
+                                                    int nOutputChannels, \
+                                                    const QVector<const void *> &srcFrames, \
+                                                    const QVector<int> &inputChannels, \
+                                                    int nInputChannels, \
                                                     int samples) \
         { \
             mixChannels<sampleType, sumType>(dstFrame, \
-                                             frames, \
-                                             inputChannels, \
                                              outputChannel, \
-                                             channels, \
+                                             nOutputChannels, \
+                                             srcFrames, \
+                                             inputChannels, \
+                                             nInputChannels, \
                                              samples); \
         }
 
-        DEFIME_MIXER(qint8, qint16)
-        DEFIME_MIXER(quint8, quint16)
-        DEFIME_MIXER(qint16, qint32)
+        DEFIME_MIXER(qint8  , qint16 )
+        DEFIME_MIXER(quint8 , quint16)
+        DEFIME_MIXER(qint16 , qint32 )
         DEFIME_MIXER(quint16, quint32)
-        DEFIME_MIXER(qint32, qint64)
+        DEFIME_MIXER(qint32 , qint64 )
         DEFIME_MIXER(quint32, quint64)
-        DEFIME_MIXER(qint64, double)
-        DEFIME_MIXER(quint64, double)
-        DEFIME_MIXER(float, qreal)
-        DEFIME_MIXER(qreal, qreal)
+        DEFIME_MIXER(qint64 , qreal  )
+        DEFIME_MIXER(quint64, qreal  )
+        DEFIME_MIXER(float  , qreal  )
+        DEFIME_MIXER(qreal  , qreal  )
 
         struct AudioChannelLayoutConvert
         {
