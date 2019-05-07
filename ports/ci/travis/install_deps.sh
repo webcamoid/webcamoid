@@ -141,12 +141,21 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
     mkdir -p build
     cd build
 
+    # Install Android SDK
+    fileName="sdk-tools-linux-${SDKVER}.zip"
+    ${DOWNLOAD_CMD} "https://dl.google.com/android/repository/${fileName}"
+    mkdir -p build/android-sdk
+    unzip -q -d build/android-sdk ${fileName}
+
     # Install Android NDK
-    ${DOWNLOAD_CMD} https://dl.google.com/android/repository/android-ndk-${NDKVER}-linux-x86_64.zip
-    unzip -q android-ndk-${NDKVER}-linux-x86_64.zip
+    fileName="android-ndk-${NDKVER}-linux-x86_64.zip"
+    ${DOWNLOAD_CMD} "https://dl.google.com/android/repository/${fileName}"
+    mkdir -p build
+    unzip -q -d build ${fileName}
+    mv -f build/android-ndk-${NDKVER} build/android-ndk
 
     # Install Qt for Android
-    ${DOWNLOAD_CMD} https://download.qt.io/archive/qt/${QTVER:0:4}/${QTVER}/qt-opensource-linux-x64-${QTVER}.run
+    ${DOWNLOAD_CMD} "https://download.qt.io/archive/qt/${QTVER:0:4}/${QTVER}/qt-opensource-linux-x64-${QTVER}.run"
     chmod +x qt-opensource-linux-x64-${QTVER}.run
 
     QT_QPA_PLATFORM=minimal \
@@ -154,6 +163,22 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
         -v \
         --script "$PWD/../ports/ci/travis/qt_non_interactive_install.qs" \
         --no-force-installations
+
+    # Set environment variables for Android build
+    export ANDROID_HOME="${PWD}/build/android-sdk"
+    export ANDROID_NDK="${PWD}/build/android-ndk"
+    export ANDROID_NDK_HOME=${ANDROID_NDK}
+    export PATH="$PATH:${ANDROID_HOME}/tools:${ANDROID_HOME}/tools/bin"
+    export PATH="${PATH}:${ANDROID_HOME}/platform-tools"
+    export PATH="${PATH}:${ANDROID_HOME}/emulator"
+    export PATH="${PATH}:${ANDROID_NDK}"
+
+    # Install Android things
+    echo y | sdkmanager \
+        "build-tools;${ANDROID_BUILD_TOOLS_VERSION}" \
+        "platform-tools" \
+        "platforms;android-${ANDROID_PLATFORM}" \
+        "tools"
 elif [ "${ARCH_ROOT_BUILD}" = 1 ]; then
     # Download chroot image
     archImage=archlinux-bootstrap-${ARCH_ROOT_DATE}-x86_64.tar.gz

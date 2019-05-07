@@ -30,7 +30,8 @@ contributors = stdout.decode(sys.getdefaultencoding()).split('\n')
 contributors_list = []
 
 exclude = ['hipersayan.x@gmail.com',
-           'noreply@weblate.org']
+           'noreply@weblate.org',
+           'hosted@weblate.org']
 
 for contributor in contributors:
     contributor = ' '.join(contributor.split()[1:])

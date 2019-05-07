@@ -51,12 +51,17 @@ EOF
 fi
 
 if [ "${ANDROID_BUILD}" = 1 ]; then
-    export PATH=$PWD/build/Qt/${QTVER}/android_${TARGET_ARCH}/bin:$PATH
-    export ANDROID_NDK=$PWD/build/android-ndk-${NDKVER}
+    export ANDROID_HOME="${PWD}/build/android-sdk"
+    export ANDROID_NDK="${PWD}/build/android-ndk"
     export ANDROID_NDK_HOME=${ANDROID_NDK}
-    export ANDROID_NDK_PLATFORM=android-${ANDROID_MINIMUM_PLATFORM}
+    export ANDROID_NDK_PLATFORM=android-${ANDROID_PLATFORM}
     export ANDROID_NDK_ROOT=${ANDROID_NDK}
     export ANDROID_SDK_ROOT=${ANDROID_HOME}
+    export PATH="$PATH:${ANDROID_HOME}/tools:${ANDROID_HOME}/tools/bin"
+    export PATH="${PATH}:${ANDROID_HOME}/platform-tools"
+    export PATH="${PATH}:${ANDROID_HOME}/emulator"
+    export PATH="${PATH}:${ANDROID_NDK}"
+    export PATH="${PWD}/build/Qt/${QTVER}/android_${TARGET_ARCH}/bin:${PATH}"
     qmake -query
     qmake -spec ${COMPILESPEC} Webcamoid.pro \
         CONFIG+=silent
