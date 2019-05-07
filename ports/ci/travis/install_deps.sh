@@ -160,7 +160,7 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
     ${DOWNLOAD_CMD} "https://dl.google.com/android/repository/${fileName}"
     mkdir -p build
     unzip -q -d build ${fileName}
-    mv -f build/android-ndk-${NDKVER} build/android-ndk
+    mv -vf build/android-ndk-${NDKVER} build/android-ndk
 
     # Install Qt for Android
     ${DOWNLOAD_CMD} "https://download.qt.io/archive/qt/${QTVER:0:4}/${QTVER}/qt-opensource-linux-x64-${QTVER}.run"
@@ -182,6 +182,8 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
     export PATH="${PATH}:${ANDROID_HOME}/platform-tools"
     export PATH="${PATH}:${ANDROID_HOME}/emulator"
     export PATH="${PATH}:${ANDROID_NDK}"
+    echo ANDROID_NDK_ROOT ${ANDROID_NDK}
+    ls "${ANDROID_NDK}"
 
     # Install Android things
     echo y | sdkmanager \
