@@ -6,57 +6,57 @@
     <message>
         <location filename="../qml/About.qml" line="27"/>
         <source>About %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Über %1</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="46"/>
         <source>Information</source>
-        <translation type="unfinished"></translation>
+        <translation>Information</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="49"/>
         <source>Thanks!</source>
-        <translation type="unfinished"></translation>
+        <translation>Danke!</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="52"/>
         <source>License</source>
-        <translation type="unfinished"></translation>
+        <translation>Lizenz</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="86"/>
         <source>Version %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Version %1</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="90"/>
         <source>Using Qt %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Verwendet Qt %1</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="94"/>
         <source>Website</source>
-        <translation type="unfinished"></translation>
+        <translation>Website</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="103"/>
         <source>Webcam capture application.</source>
-        <translation type="unfinished">Webcam-Aufnahmeanwendung.</translation>
+        <translation>Webcam-Aufnahmeanwendung.</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="106"/>
         <source>A simple webcam application for picture and video capture.</source>
-        <translation type="unfinished"></translation>
+        <translation>Eine einfache Webcam-Anwendung für die Bild- und Videoaufzeichnung.</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="122"/>
         <source>Thanks to all these cool people that helped contributing to Webcamoid all these years.</source>
-        <translation type="unfinished"></translation>
+        <translation>Vielen Dank an all diese coolen Leute, die all die Jahre dazu beigetragen haben, Webcamoid zu unterstützen.</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="149"/>
         <source>Close</source>
-        <translation type="unfinished"></translation>
+        <translation>Schließen</translation>
     </message>
 </context>
 <context>
@@ -310,7 +310,7 @@
     <message>
         <location filename="../qml/GeneralConfig.qml" line="149"/>
         <source>Virtual camera driver</source>
-        <translation type="unfinished"></translation>
+        <translation>Virtueller Kameratreiber</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="118"/>
@@ -374,7 +374,7 @@
     <message>
         <location filename="../../src/mediatools.cpp" line="223"/>
         <source>Daily Build</source>
-        <translation type="unfinished"></translation>
+        <translation>Täglicher Build</translation>
     </message>
 </context>
 <context>
@@ -481,7 +481,7 @@
     <message>
         <location filename="../../src/clioptions.cpp" line="50"/>
         <source>PATH</source>
-        <translation type="unfinished"></translation>
+        <translation>PFAD</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="54"/>
@@ -494,7 +494,7 @@
         <location filename="../../src/clioptions.cpp" line="74"/>
         <location filename="../../src/clioptions.cpp" line="80"/>
         <source>PATH1;PATH2;PATH3;...</source>
-        <translation type="unfinished"></translation>
+        <translation>PFAD1;PFAD2;PFAD3;...</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="61"/>
@@ -2134,7 +2134,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="263"/>
         <source>Error creating camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Erstellen der Kamera</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="152"/>
