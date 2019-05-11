@@ -146,7 +146,7 @@ class ChannelLayouts
                 {AkAudioCaps::Layout_7p0_front    ,  7, "7.0(front)"    },
                 {AkAudioCaps::Layout_7p1          ,  8, "7.1"           },
                 {AkAudioCaps::Layout_7p1_wide     ,  8, "7.1(wide)"     },
-                {AkAudioCaps::Layout_7p1_wide_side,  8, "7.1(wide-side)"},
+                {AkAudioCaps::Layout_7p1_wide_back,  8, "7.1(wide-back)"},
                 {AkAudioCaps::Layout_octagonal    ,  8, "octagonal"     },
                 {AkAudioCaps::Layout_hexadecagonal, 16, "hexadecagonal" },
                 {AkAudioCaps::Layout_downmix      ,  2, "downmix"       },

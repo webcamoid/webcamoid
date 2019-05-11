@@ -43,6 +43,8 @@ class AKCOMMONS_EXPORT AkAudioPacket: public AkPacket
         ~AkAudioPacket();
         AkAudioPacket &operator =(const AkPacket &other);
         AkAudioPacket &operator =(const AkAudioPacket &other);
+        AkAudioPacket operator +(const AkAudioPacket &other);
+        AkAudioPacket& operator +=(const AkAudioPacket &other);
         operator bool() const;
 
         Q_INVOKABLE AkAudioCaps caps() const;

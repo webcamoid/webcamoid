@@ -172,6 +172,7 @@ class AKCOMMONS_EXPORT AkAudioCaps: public QObject
             Layout_none          = Position_unknown,
             Layout_mono          = Position_FrontCenter,
             Layout_stereo        = Position_FrontLeft | Position_FrontRight,
+            Layout_downmix       = Position_StereoLeft | Position_StereoRight,
             Layout_2p1           = Layout_stereo | Position_LowFrequency1,
             Layout_3p0           = Layout_stereo | Position_FrontCenter,
             Layout_3p0_back      = Layout_stereo | Position_BackCenter,
@@ -194,14 +195,13 @@ class AKCOMMONS_EXPORT AkAudioCaps: public QObject
             Layout_7p0_front     = Layout_5p0_side | Position_FrontLeftOfCenter | Position_FrontRightOfCenter,
             Layout_7p1           = Layout_5p1_side | Position_BackLeft | Position_BackRight,
             Layout_7p1_wide      = Layout_5p1_side | Position_FrontLeftOfCenter | Position_FrontRightOfCenter,
-            Layout_7p1_wide_side = Layout_5p1 | Position_FrontLeftOfCenter | Position_FrontRightOfCenter,
+            Layout_7p1_wide_back = Layout_5p1 | Position_FrontLeftOfCenter | Position_FrontRightOfCenter,
             Layout_octagonal     = Layout_7p0 | Position_BackCenter,
             Layout_hexadecagonal = Layout_octagonal
                                  | Position_WideLeft | Position_WideRight
-                                 | Position_BackLeft | Position_BackRight
+                                 | Position_TopBackLeft | Position_TopBackRight
                                  | Position_TopBackCenter | Position_TopFrontCenter
                                  | Position_TopFrontLeft | Position_TopFrontRight,
-            Layout_downmix       = Position_StereoLeft | Position_StereoRight
         };
 
         AkAudioCaps(QObject *parent=nullptr);

@@ -25,12 +25,10 @@ SUBDIRS += \
     ACapsConvert \
     AudioDevice \
     AudioGen \
-    Bin \
     DesktopCapture \
     Multiplex \
     MultiSink \
     MultiSrc \
-    Probe \
     VideoCapture
 
 isEmpty(NOVCAM): {

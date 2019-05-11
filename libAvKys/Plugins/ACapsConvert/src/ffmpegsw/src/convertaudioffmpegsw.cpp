@@ -61,7 +61,7 @@ inline ChannelLayoutsMap initChannelFormatsMap()
         {AkAudioCaps::Layout_7p0_front    , AV_CH_LAYOUT_7POINT0_FRONT    },
         {AkAudioCaps::Layout_7p1          , AV_CH_LAYOUT_7POINT1          },
         {AkAudioCaps::Layout_7p1_wide     , AV_CH_LAYOUT_7POINT1_WIDE     },
-        {AkAudioCaps::Layout_7p1_wide_side, AV_CH_LAYOUT_7POINT1_WIDE_BACK},
+        {AkAudioCaps::Layout_7p1_wide_back, AV_CH_LAYOUT_7POINT1_WIDE_BACK},
         {AkAudioCaps::Layout_octagonal    , AV_CH_LAYOUT_OCTAGONAL        },
         {AkAudioCaps::Layout_hexadecagonal, AV_CH_LAYOUT_HEXADECAGONAL    },
         {AkAudioCaps::Layout_downmix      , AV_CH_LAYOUT_STEREO_DOWNMIX   },

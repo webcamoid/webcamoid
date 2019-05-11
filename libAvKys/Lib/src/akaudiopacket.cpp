@@ -181,7 +181,7 @@ class AkAudioPacketPrivate
         {AkAudioCaps::SampleFormat_##sitype, \
          AkAudioCaps::SampleFormat_##sotype, \
          [] (const AkAudioPacket &src, int align) -> AkAudioPacket { \
-            return AkAudioPacketPrivate::convertSampleFormat<itype, otype> \
+            return convertSampleFormat<itype, otype> \
                     (src, \
                      AkAudioCaps::SampleFormat_##sotype, \
                      scaleValueFrom##inEndian##To##outEndian<itype, \
@@ -192,7 +192,7 @@ class AkAudioPacketPrivate
         {AkAudioCaps::SampleFormat_##sotype, \
          AkAudioCaps::SampleFormat_##sitype, \
          [] (const AkAudioPacket &src, int align) -> AkAudioPacket { \
-             return AkAudioPacketPrivate::convertSampleFormat<otype, itype> \
+             return convertSampleFormat<otype, itype> \
                     (src, \
                      AkAudioCaps::SampleFormat_##sitype, \
                      scaleValueFrom##outEndian##To##inEndian<otype, \
@@ -452,13 +452,13 @@ class AkAudioPacketPrivate
         }
 
         template<typename SampleType, typename SumType>
-        inline static void mixChannels(void *dstFrame,
-                                       int outputChannel,
-                                       int nOutputChannels,
-                                       const QVector<const void *> &srcFrames,
-                                       const QVector<int> &inputChannels,
-                                       int nInputChannels,
-                                       int samples)
+        inline static void mixChannels_(void *dstFrame,
+                                        int outputChannel,
+                                        int nOutputChannels,
+                                        const QVector<const void *> &srcFrames,
+                                        const QVector<int> &inputChannels,
+                                        int nInputChannels,
+                                        int samples)
         {
             // Create a summatory sample which type is big enough to contain
             // the sum of all values.
@@ -500,34 +500,220 @@ class AkAudioPacketPrivate
                                                                  smax);
         }
 
-#define DEFIME_MIXER(sampleType, sumType) \
-        inline static void mixChannels_##sampleType(void *dstFrame, \
-                                                    int outputChannel, \
-                                                    int nOutputChannels, \
-                                                    const QVector<const void *> &srcFrames, \
-                                                    const QVector<int> &inputChannels, \
-                                                    int nInputChannels, \
-                                                    int samples) \
-        { \
-            mixChannels<sampleType, sumType>(dstFrame, \
-                                             outputChannel, \
-                                             nOutputChannels, \
-                                             srcFrames, \
-                                             inputChannels, \
-                                             nInputChannels, \
-                                             samples); \
+        template<typename SampleType, typename SumType>
+        inline static void mixChannelsLE(void *dstFrame,
+                                         int outputChannel,
+                                         int nOutputChannels,
+                                         const QVector<const void *> &srcFrames,
+                                         const QVector<int> &inputChannels,
+                                         int nInputChannels,
+                                         int samples)
+        {
+            // Create a summatory sample which type is big enough to contain
+            // the sum of all values.
+            QByteArray sumFrame(samples * int(sizeof(SumType)), 0);
+            auto sumData = reinterpret_cast<SumType *>(sumFrame.data());
+
+            // Add the values.
+            if (srcFrames.size() > 1) {
+                for (auto &frame: srcFrames) {
+                    auto data = reinterpret_cast<const SampleType *>(frame);
+
+                    for (int i = 0; i < samples; i++)
+                        sumData[i] += SumType(qFromLittleEndian(data[i]));
+                }
+            } else {
+                auto data = reinterpret_cast<const SampleType *>(srcFrames.first());
+
+                for (auto &channel: inputChannels) {
+                    for (int i = 0; i < samples; i++)
+                        sumData[i] +=
+                                SumType(qFromLittleEndian(data[channel + i * nInputChannels]));
+                }
+            }
+
+            SumType smin;
+            SumType smax;
+            scaleSamples<SampleType, SumType>(sumFrame,
+                                              samples,
+                                              smin,
+                                              smax);
+
+            // Recreate frame with the wave scaled to fit it.
+            auto mixedData = reinterpret_cast<SampleType *>(dstFrame);
+
+            for (int i = 0; i < samples; i++)
+                mixedData[outputChannel + i * nOutputChannels] =
+                        qToLittleEndian(scaleValue<SumType,
+                                                   SampleType,
+                                                   SumType>(sumData[i],
+                                                            smin,
+                                                            smax));
         }
 
-        DEFIME_MIXER(qint8  , qint16 )
-        DEFIME_MIXER(quint8 , quint16)
-        DEFIME_MIXER(qint16 , qint32 )
-        DEFIME_MIXER(quint16, quint32)
-        DEFIME_MIXER(qint32 , qint64 )
-        DEFIME_MIXER(quint32, quint64)
-        DEFIME_MIXER(qint64 , qreal  )
-        DEFIME_MIXER(quint64, qreal  )
-        DEFIME_MIXER(float  , qreal  )
-        DEFIME_MIXER(qreal  , qreal  )
+        template<typename SampleType, typename SumType>
+        inline static void mixChannelsBE(void *dstFrame,
+                                         int outputChannel,
+                                         int nOutputChannels,
+                                         const QVector<const void *> &srcFrames,
+                                         const QVector<int> &inputChannels,
+                                         int nInputChannels,
+                                         int samples)
+        {
+            // Create a summatory sample which type is big enough to contain
+            // the sum of all values.
+            QByteArray sumFrame(samples * int(sizeof(SumType)), 0);
+            auto sumData = reinterpret_cast<SumType *>(sumFrame.data());
+
+            // Add the values.
+            if (srcFrames.size() > 1) {
+                for (auto &frame: srcFrames) {
+                    auto data = reinterpret_cast<const SampleType *>(frame);
+
+                    for (int i = 0; i < samples; i++)
+                        sumData[i] += SumType(qFromBigEndian(data[i]));
+                }
+            } else {
+                auto data = reinterpret_cast<const SampleType *>(srcFrames.first());
+
+                for (auto &channel: inputChannels) {
+                    for (int i = 0; i < samples; i++)
+                        sumData[i] +=
+                                SumType(qFromBigEndian(data[channel + i * nInputChannels]));
+                }
+            }
+
+            SumType smin;
+            SumType smax;
+            scaleSamples<SampleType, SumType>(sumFrame,
+                                              samples,
+                                              smin,
+                                              smax);
+
+            // Recreate frame with the wave scaled to fit it.
+            auto mixedData = reinterpret_cast<SampleType *>(dstFrame);
+
+            for (int i = 0; i < samples; i++)
+                mixedData[outputChannel + i * nOutputChannels] =
+                        qToBigEndian(scaleValue<SumType,
+                                                SampleType,
+                                                SumType>(sumData[i],
+                                                         smin,
+                                                         smax));
+        }
+
+#define HANDLE_CASE(where, sampleFormat, endian, sampleType, sumType) \
+        case AkAudioCaps::SampleFormat_##sampleFormat: \
+            mixFunc = mixChannels##endian<sampleType, sumType>; \
+            break;
+
+        inline static AkAudioPacket mapChannels(AkAudioCaps::ChannelLayout outputLayout,
+                                                const AkAudioPacket &src,
+                                                const QMap<int, QVector<int>> &channelMap,
+                                                int align)
+        {
+            std::function<void (void *dstFrame,
+                                int outputChannel,
+                                int nOutputChannels,
+                                const QVector<const void *> &srcFrames,
+                                const QVector<int> &inputChannels,
+                                int nInputChannels,
+                                int samples)> mixFunc;
+
+            switch (src.caps().format()) {
+            HANDLE_CASE(mixFunc, s8   ,  _, qint8  , qint16 )
+            HANDLE_CASE(mixFunc, u8   ,  _, quint8 , quint16)
+            HANDLE_CASE(mixFunc, s16le, LE, qint16 , qint32 )
+            HANDLE_CASE(mixFunc, s16be, BE, qint16 , qint32 )
+            HANDLE_CASE(mixFunc, u16le, LE, quint16, quint32)
+            HANDLE_CASE(mixFunc, u16be, BE, quint16, quint32)
+            HANDLE_CASE(mixFunc, s32le, LE, qint32 , qint64 )
+            HANDLE_CASE(mixFunc, s32be, BE, qint32 , qint64 )
+            HANDLE_CASE(mixFunc, u32le, LE, quint32, quint64)
+            HANDLE_CASE(mixFunc, u32be, BE, quint32, quint64)
+            HANDLE_CASE(mixFunc, s64le, LE, qint64 , qreal  )
+            HANDLE_CASE(mixFunc, s64be, BE, qint64 , qreal  )
+            HANDLE_CASE(mixFunc, u64le, LE, quint64, qreal  )
+            HANDLE_CASE(mixFunc, u64be, BE, quint64, qreal  )
+#if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
+            HANDLE_CASE(mixFunc, fltle, LE, float  , qreal  )
+            HANDLE_CASE(mixFunc, fltbe, BE, float  , qreal  )
+            HANDLE_CASE(mixFunc, dblle, LE, qreal  , qreal  )
+            HANDLE_CASE(mixFunc, dblbe, BE, qreal  , qreal  )
+#else
+            HANDLE_CASE(mixFunc, fltle,  _, float  , qreal  )
+            HANDLE_CASE(mixFunc, fltbe,  _, float  , qreal  )
+            HANDLE_CASE(mixFunc, dblle,  _, qreal  , qreal  )
+            HANDLE_CASE(mixFunc, dblbe,  _, qreal  , qreal  )
+#endif
+            default:
+                return {};
+            }
+
+            auto caps = src.caps();
+            caps.setLayout(outputLayout);
+            caps.setAlign(align);
+            AkAudioPacket dst(caps);
+            dst.buffer().fill(0);
+
+            for (auto it = channelMap.begin(); it != channelMap.end(); it++) {
+                quint8 *outputFrame;
+                int outputChannel;
+                int nOutputChannels;
+
+                if (dst.caps().planar()) {
+                    outputFrame = dst.planeData(it.key());
+                    outputChannel = 0;
+                    nOutputChannels = 1;
+                } else {
+                    outputFrame = dst.planeData(0);
+                    outputChannel = it.key();
+                    nOutputChannels = dst.caps().channels();
+                }
+
+                QVector<const void *> srcFrames;
+
+                if (src.caps().planar()) {
+                    for (auto &key: it.value())
+                        srcFrames << src.constPlaneData(key);
+                } else {
+                    srcFrames << src.constPlaneData(0);
+                }
+
+                mixFunc(outputFrame,
+                        outputChannel,
+                        nOutputChannels,
+                        srcFrames,
+                        it.value(),
+                        src.caps().channels(),
+                        src.caps().samples());
+            }
+
+            return dst;
+        }
+
+#define DEFINE_LAYOUT_CONVERT_FUNCTION(ilayout, \
+                                       olayout, \
+                                       imap, \
+                                       omap) \
+        {AkAudioCaps::Layout_##ilayout, \
+         AkAudioCaps::Layout_##olayout, \
+         [] (const AkAudioPacket &src, int align) -> AkAudioPacket { \
+            return mapChannels \
+                    (AkAudioCaps::Layout_##olayout, \
+                     src, \
+                     QMap<int, QVector<int>> imap, \
+                     align); \
+         }}, \
+        {AkAudioCaps::Layout_##olayout, \
+         AkAudioCaps::Layout_##ilayout, \
+         [] (const AkAudioPacket &src, int align) -> AkAudioPacket { \
+             return mapChannels \
+                    (AkAudioCaps::Layout_##ilayout, \
+                     src, \
+                     QMap<int, QVector<int>> omap, \
+                     align); \
+         }}
 
         struct AudioChannelLayoutConvert
         {
@@ -541,6 +727,60 @@ class AkAudioPacketPrivate
         inline static const AudioChannelLayoutConvertFuncs &channelLayoutConvert()
         {
             static const AudioChannelLayoutConvertFuncs convert {
+                DEFINE_LAYOUT_CONVERT_FUNCTION(mono, stereo       , ({{0, {0}}, {1, {0}}}), ({{0, {0, 1}}}))                  ,
+                DEFINE_LAYOUT_CONVERT_FUNCTION(mono, downmix      , ({{0, {0}}, {1, {0}}}), ({{0, {0, 1}}}))                  ,
+                DEFINE_LAYOUT_CONVERT_FUNCTION(mono, 2p1          , ({{0, {0}}, {1, {0}}}), ({{0, {0, 1, 2}}}))               ,
+                DEFINE_LAYOUT_CONVERT_FUNCTION(mono, 3p0          , ({{2, {0}}})          , ({{0, {0, 1, 2}}}))               ,
+                DEFINE_LAYOUT_CONVERT_FUNCTION(mono, 3p0_back     , ({{0, {0}}, {1, {0}}}), ({{0, {0, 1, 2}}}))               ,
+                DEFINE_LAYOUT_CONVERT_FUNCTION(mono, 3p1          , ({{2, {0}}})          , ({{0, {0, 1, 2, 3}}}))            ,
+                DEFINE_LAYOUT_CONVERT_FUNCTION(mono, 4p0          , ({{2, {0}}})          , ({{0, {0, 1, 2, 3}}}))            ,
+                DEFINE_LAYOUT_CONVERT_FUNCTION(mono, quad         , ({{0, {0}}, {1, {0}}}), ({{0, {0, 1, 2, 3}}}))            ,
+                DEFINE_LAYOUT_CONVERT_FUNCTION(mono, quad_side    , ({{0, {0}}, {1, {0}}}), ({{0, {0, 1, 2, 3}}}))            ,
+                DEFINE_LAYOUT_CONVERT_FUNCTION(mono, 4p1          , ({{2, {0}}})          , ({{0, {0, 1, 2, 3, 4}}}))         ,
+                DEFINE_LAYOUT_CONVERT_FUNCTION(mono, 5p0          , ({{2, {0}}})          , ({{0, {0, 1, 2, 3, 4}}}))         ,
+                DEFINE_LAYOUT_CONVERT_FUNCTION(mono, 5p0_side     , ({{2, {0}}})          , ({{0, {0, 1, 2, 3, 4}}}))         ,
+                DEFINE_LAYOUT_CONVERT_FUNCTION(mono, 5p1          , ({{2, {0}}})          , ({{0, {0, 1, 2, 3, 4, 5}}}))      ,
+                DEFINE_LAYOUT_CONVERT_FUNCTION(mono, 5p1_side     , ({{2, {0}}})          , ({{0, {0, 1, 2, 3, 4, 5}}}))      ,
+                DEFINE_LAYOUT_CONVERT_FUNCTION(mono, 6p0          , ({{2, {0}}})          , ({{0, {0, 1, 2, 3, 4, 5}}}))      ,
+                DEFINE_LAYOUT_CONVERT_FUNCTION(mono, 6p0_front    , ({{0, {0}}, {1, {0}}}), ({{0, {0, 1, 2, 3, 4, 5}}}))      ,
+                DEFINE_LAYOUT_CONVERT_FUNCTION(mono, hexagonal    , ({{2, {0}}})          , ({{0, {0, 1, 2, 3, 4, 5}}}))      ,
+                DEFINE_LAYOUT_CONVERT_FUNCTION(mono, 6p1          , ({{2, {0}}})          , ({{0, {0, 1, 2, 3, 4, 5, 6}}}))   ,
+                DEFINE_LAYOUT_CONVERT_FUNCTION(mono, 6p1_back     , ({{2, {0}}})          , ({{0, {0, 1, 2, 3, 4, 5, 6}}}))   ,
+                DEFINE_LAYOUT_CONVERT_FUNCTION(mono, 6p1_front    , ({{0, {0}}, {1, {0}}}), ({{0, {0, 1, 2, 3, 4, 5, 6}}}))   ,
+                DEFINE_LAYOUT_CONVERT_FUNCTION(mono, 7p0          , ({{2, {0}}})          , ({{0, {0, 1, 2, 3, 4, 5, 6}}}))   ,
+                DEFINE_LAYOUT_CONVERT_FUNCTION(mono, 7p0_front    , ({{2, {0}}})          , ({{0, {0, 1, 2, 3, 4, 5, 6}}}))   ,
+                DEFINE_LAYOUT_CONVERT_FUNCTION(mono, 7p1          , ({{2, {0}}})          , ({{0, {0, 1, 2, 3, 4, 5, 6, 7}}})),
+                DEFINE_LAYOUT_CONVERT_FUNCTION(mono, 7p1_wide     , ({{2, {0}}})          , ({{0, {0, 1, 2, 3, 4, 5, 6, 7}}})),
+                DEFINE_LAYOUT_CONVERT_FUNCTION(mono, 7p1_wide_back, ({{2, {0}}})          , ({{0, {0, 1, 2, 3, 4, 5, 6, 7}}})),
+                DEFINE_LAYOUT_CONVERT_FUNCTION(mono, octagonal    , ({{2, {0}}})          , ({{0, {0, 1, 2, 3, 4, 5, 6, 7}}})),
+                DEFINE_LAYOUT_CONVERT_FUNCTION(mono, hexadecagonal, ({{2, {0}}})          , ({{0, {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}}})),
+
+                DEFINE_LAYOUT_CONVERT_FUNCTION(stereo, downmix      , ({{0, {0}}, {1, {1}}}), ({{0, {0}}, {1, {1}}}))                        ,
+                DEFINE_LAYOUT_CONVERT_FUNCTION(stereo, 2p1          , ({{0, {0}}, {1, {1}}}), ({{0, {0, 2}}, {1, {1, 2}}}))                  ,
+                DEFINE_LAYOUT_CONVERT_FUNCTION(stereo, 3p0          , ({{0, {0}}, {1, {1}}}), ({{0, {0, 2}}, {1, {1, 2}}}))                  ,
+                DEFINE_LAYOUT_CONVERT_FUNCTION(stereo, 3p0_back     , ({{0, {0}}, {1, {1}}}), ({{0, {0, 2}}, {1, {1, 2}}}))                  ,
+                DEFINE_LAYOUT_CONVERT_FUNCTION(stereo, 3p1          , ({{0, {0}}, {1, {1}}}), ({{0, {0, 2, 3}}, {1, {1, 2, 3}}}))            ,
+                DEFINE_LAYOUT_CONVERT_FUNCTION(stereo, 4p0          , ({{0, {0}}, {1, {1}}}), ({{0, {0, 2, 3}}, {1, {1, 2, 3}}}))            ,
+                DEFINE_LAYOUT_CONVERT_FUNCTION(stereo, quad         , ({{0, {0}}, {1, {1}}}), ({{0, {0, 2}}, {1, {1, 3}}}))                  ,
+                DEFINE_LAYOUT_CONVERT_FUNCTION(stereo, quad_side    , ({{0, {0}}, {1, {1}}}), ({{0, {0, 2}}, {1, {1, 3}}}))                  ,
+                DEFINE_LAYOUT_CONVERT_FUNCTION(stereo, 4p1          , ({{0, {0}}, {1, {1}}}), ({{0, {0, 2, 3, 4}}, {1, {1, 2, 3, 4}}}))      ,
+                DEFINE_LAYOUT_CONVERT_FUNCTION(stereo, 5p0          , ({{0, {0}}, {1, {1}}}), ({{0, {0, 2, 3}}, {1, {1, 2, 4}}}))            ,
+                DEFINE_LAYOUT_CONVERT_FUNCTION(stereo, 5p0_side     , ({{0, {0}}, {1, {1}}}), ({{0, {0, 2, 3}}, {1, {1, 2, 4}}}))            ,
+                DEFINE_LAYOUT_CONVERT_FUNCTION(stereo, 5p1          , ({{0, {0}}, {1, {1}}}), ({{0, {0, 2, 3, 5}}, {1, {1, 2, 4, 5}}}))      ,
+                DEFINE_LAYOUT_CONVERT_FUNCTION(stereo, 5p1_side     , ({{0, {0}}, {1, {1}}}), ({{0, {0, 2, 3, 5}}, {1, {1, 2, 4, 5}}}))      ,
+                DEFINE_LAYOUT_CONVERT_FUNCTION(stereo, 6p0          , ({{0, {0}}, {1, {1}}}), ({{0, {0, 2, 3, 5}}, {1, {1, 2, 4, 5}}}))      ,
+                DEFINE_LAYOUT_CONVERT_FUNCTION(stereo, 6p0_front    , ({{0, {0}}, {1, {1}}}), ({{0, {0, 2, 4}}, {1, {1, 3, 5}}}))            ,
+                DEFINE_LAYOUT_CONVERT_FUNCTION(stereo, hexagonal    , ({{0, {0}}, {1, {1}}}), ({{0, {0, 2, 3, 5}}, {1, {1, 2, 4, 5}}}))      ,
+                DEFINE_LAYOUT_CONVERT_FUNCTION(stereo, 6p1          , ({{0, {0}}, {1, {1}}}), ({{0, {0, 2, 3, 5, 6}}, {1, {1, 2, 4, 5, 6}}})),
+                DEFINE_LAYOUT_CONVERT_FUNCTION(stereo, 6p1_back     , ({{0, {0}}, {1, {1}}}), ({{0, {0, 2, 3, 5, 6}}, {1, {1, 2, 4, 5, 6}}})),
+                DEFINE_LAYOUT_CONVERT_FUNCTION(stereo, 6p1_front    , ({{0, {0}}, {1, {1}}}), ({{0, {0, 2, 4, 6}}, {1, {1, 3, 5, 6}}}))      ,
+                DEFINE_LAYOUT_CONVERT_FUNCTION(stereo, 7p0          , ({{0, {0}}, {1, {1}}}), ({{0, {0, 2, 3, 5}}, {1, {1, 2, 4, 6}}}))      ,
+                DEFINE_LAYOUT_CONVERT_FUNCTION(stereo, 7p0_front    , ({{0, {0}}, {1, {1}}}), ({{0, {0, 2, 3, 5}}, {1, {1, 2, 4, 6}}}))      ,
+                DEFINE_LAYOUT_CONVERT_FUNCTION(stereo, 7p1          , ({{0, {0}}, {1, {1}}}), ({{0, {0, 2, 3, 5, 6}}, {1, {1, 2, 4, 5, 7}}})),
+                DEFINE_LAYOUT_CONVERT_FUNCTION(stereo, 7p1_wide     , ({{0, {0}}, {1, {1}}}), ({{0, {0, 2, 3, 5, 6}}, {1, {1, 2, 4, 5, 7}}})),
+                DEFINE_LAYOUT_CONVERT_FUNCTION(stereo, 7p1_wide_back, ({{0, {0}}, {1, {1}}}), ({{0, {0, 2, 3, 5, 6}}, {1, {1, 2, 4, 5, 7}}})),
+                DEFINE_LAYOUT_CONVERT_FUNCTION(stereo, octagonal    , ({{0, {0}}, {1, {1}}}), ({{0, {0, 2, 3, 5, 7}}, {1, {1, 2, 4, 6, 7}}})),
+                DEFINE_LAYOUT_CONVERT_FUNCTION(stereo, hexadecagonal, ({{0, {0}}, {1, {1}}}), ({{0, {0, 2, 3, 5, 7, 8, 10, 12, 14}}, {1, {1, 2, 4, 6, 7, 9, 11, 13, 15}}})),
             };
 
             return convert;
@@ -615,6 +855,35 @@ AkAudioPacket &AkAudioPacket::operator =(const AkAudioPacket &other)
         this->id() = other.id();
     }
 
+    return *this;
+}
+
+AkAudioPacket AkAudioPacket::operator +(const AkAudioPacket &other)
+{
+    if (this->caps().format() != other.caps().format()
+        || this->caps().layout() != other.caps().layout()
+        || this->caps().rate() != other.caps().rate()
+        || this->caps().planar() != other.caps().planar())
+        return {};
+
+    auto caps = this->caps();
+    caps.setSamples(this->caps().samples() + other.caps().samples());
+    AkAudioPacket packet(caps);
+/*
+    for (int plane = 0; plane < caps.planes(); plane++) {
+        memcpy(this->planeData(plane),
+               other.constPlaneData(plane),
+               );
+        memcpy(packet.planeData(plane),
+               other.constPlaneData(plane),
+               );
+    }
+*/
+    return packet;
+}
+
+AkAudioPacket &AkAudioPacket::operator +=(const AkAudioPacket &other)
+{
     return *this;
 }
 
