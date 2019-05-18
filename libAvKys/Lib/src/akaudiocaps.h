@@ -68,11 +68,11 @@ class AKCOMMONS_EXPORT AkAudioCaps: public QObject
                WRITE setAlign
                RESET resetAlign
                NOTIFY alignChanged)
-    Q_PROPERTY(qsizetype frameSize
+    Q_PROPERTY(size_t frameSize
                READ frameSize)
     Q_PROPERTY(int planes
                READ planes)
-    Q_PROPERTY(qsizetype planeSize
+    Q_PROPERTY(size_t planeSize
                READ planeSize)
 
     public:
@@ -227,14 +227,14 @@ class AKCOMMONS_EXPORT AkAudioCaps: public QObject
         Q_INVOKABLE int samples() const;
         Q_INVOKABLE bool planar() const;
         Q_INVOKABLE int align() const;
-        Q_INVOKABLE qsizetype frameSize() const;
+        Q_INVOKABLE size_t frameSize() const;
 
         Q_INVOKABLE static AkAudioCaps fromMap(const QVariantMap &caps);
         Q_INVOKABLE QVariantMap toMap() const;
         Q_INVOKABLE AkAudioCaps &update(const AkCaps &caps);
-        Q_INVOKABLE qsizetype planeOffset(int plane) const;
+        Q_INVOKABLE size_t planeOffset(int plane) const;
         Q_INVOKABLE int planes() const;
-        Q_INVOKABLE qsizetype planeSize() const;
+        Q_INVOKABLE size_t planeSize() const;
 
         Q_INVOKABLE static int bitsPerSample(SampleFormat sampleFormat);
         Q_INVOKABLE static int bitsPerSample(const QString &sampleFormat);

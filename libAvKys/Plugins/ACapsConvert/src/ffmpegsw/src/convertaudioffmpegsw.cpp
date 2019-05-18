@@ -49,7 +49,9 @@ class ConvertAudioFFmpegSWPrivate
                 {AkAudioCaps::SampleFormat_u8 , AV_SAMPLE_FMT_U8 },
                 {AkAudioCaps::SampleFormat_s16, AV_SAMPLE_FMT_S16},
                 {AkAudioCaps::SampleFormat_s32, AV_SAMPLE_FMT_S32},
+#ifdef HAVE_SAMPLEFORMAT64
                 {AkAudioCaps::SampleFormat_s64, AV_SAMPLE_FMT_S64 },
+#endif
                 {AkAudioCaps::SampleFormat_flt, AV_SAMPLE_FMT_FLT},
                 {AkAudioCaps::SampleFormat_dbl, AV_SAMPLE_FMT_DBL},
             };
@@ -57,7 +59,9 @@ class ConvertAudioFFmpegSWPrivate
                 {AkAudioCaps::SampleFormat_u8 , AV_SAMPLE_FMT_U8P },
                 {AkAudioCaps::SampleFormat_s16, AV_SAMPLE_FMT_S16P},
                 {AkAudioCaps::SampleFormat_s32, AV_SAMPLE_FMT_S32P},
+#ifdef HAVE_SAMPLEFORMAT64
                 {AkAudioCaps::SampleFormat_s64, AV_SAMPLE_FMT_S64P},
+#endif
                 {AkAudioCaps::SampleFormat_flt, AV_SAMPLE_FMT_FLTP},
                 {AkAudioCaps::SampleFormat_dbl, AV_SAMPLE_FMT_DBLP},
             };

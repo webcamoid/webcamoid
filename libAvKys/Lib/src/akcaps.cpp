@@ -193,10 +193,10 @@ QDebug operator <<(QDebug debug, const AkCaps &caps)
 
 QDataStream &operator >>(QDataStream &istream, AkCaps &caps)
 {
-    qsizetype nProperties;
+    int nProperties;
     istream >> nProperties;
 
-    for (qsizetype i = 0; i < nProperties; i++) {
+    for (int i = 0; i < nProperties; i++) {
         QByteArray key;
         QVariant value;
         istream >> key;
@@ -214,7 +214,7 @@ QDataStream &operator <<(QDataStream &ostream, const AkCaps &caps)
         {"mimeType", caps.mimeType()},
     };
 
-    qsizetype nProperties =
+    int nProperties =
             staticProperties.size() + caps.dynamicPropertyNames().size();
     ostream << nProperties;
 

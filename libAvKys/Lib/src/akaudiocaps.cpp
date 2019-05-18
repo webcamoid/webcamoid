@@ -188,8 +188,8 @@ class AkAudioCapsPrivate
     public:
         AkAudioCaps::SampleFormat m_format {AkAudioCaps::SampleFormat_none};
         AkAudioCaps::ChannelLayout m_layout {AkAudioCaps::Layout_none};
-        qsizetype m_planeSize {0};
-        QVector<qsizetype> m_offset;
+        size_t m_planeSize {0};
+        QVector<size_t> m_offset;
         int m_rate {0};
         int m_samples {false};
         int m_align {1};
@@ -385,14 +385,14 @@ int AkAudioCaps::align() const
     return this->d->m_align;
 }
 
-qsizetype AkAudioCaps::frameSize() const
+size_t AkAudioCaps::frameSize() const
 {
     auto af = SampleFormats::byFormat(this->d->m_format);
 
     if (!af)
         return 0;
 
-    return qsizetype(this->d->m_planar? this->channels(): 1)
+    return size_t(this->d->m_planar? this->channels(): 1)
             * this->d->m_planeSize;
 }
 
@@ -454,7 +454,7 @@ AkAudioCaps &AkAudioCaps::update(const AkCaps &caps)
     return *this;
 }
 
-qsizetype AkAudioCaps::planeOffset(int plane) const
+size_t AkAudioCaps::planeOffset(int plane) const
 {
     return this->d->m_offset[plane];
 }
@@ -470,7 +470,7 @@ int AkAudioCaps::planes() const
     return this->d->m_planar? layouts->channels: 1;
 }
 
-qsizetype AkAudioCaps::planeSize() const
+size_t AkAudioCaps::planeSize() const
 {
     return this->d->m_planeSize;
 }
@@ -713,23 +713,23 @@ void AkAudioCapsPrivate::updateParams()
 
     if (this->m_planar) {
         this->m_planeSize =
-                SampleFormats::alignUp(qsizetype(af->bps
+                SampleFormats::alignUp(size_t(af->bps
                                                  * this->m_samples
                                                  / 8),
-                                       qsizetype(this->m_align));
+                                       size_t(this->m_align));
     } else {
         this->m_planeSize =
-                SampleFormats::alignUp(qsizetype(af->bps
+                SampleFormats::alignUp(size_t(af->bps
                                                  * layouts->channels
                                                  * this->m_samples
                                                  / 8),
-                                       qsizetype(this->m_align));
+                                       size_t(this->m_align));
     }
 
     this->m_offset.clear();
-    qsizetype nplanes = this->m_planar? qsizetype(layouts->channels): 1;
+    size_t nplanes = this->m_planar? size_t(layouts->channels): 1;
 
-    for (qsizetype i = 0; i < nplanes; i++)
+    for (size_t i = 0; i < nplanes; i++)
         this->m_offset << i * this->m_planeSize;
 }
 
@@ -807,10 +807,10 @@ QDebug operator <<(QDebug debug, const AkAudioCaps::ChannelLayout &layout)
 
 QDataStream &operator >>(QDataStream &istream, AkAudioCaps &caps)
 {
-    qsizetype nProperties;
+    int nProperties;
     istream >> nProperties;
 
-    for (qsizetype i = 0; i < nProperties; i++) {
+    for (int i = 0; i < nProperties; i++) {
         QByteArray key;
         QVariant value;
         istream >> key;
@@ -833,7 +833,7 @@ QDataStream &operator <<(QDataStream &ostream, const AkAudioCaps &caps)
         {"align"  , caps.align()  },
     };
 
-    qsizetype nProperties =
+    int nProperties =
             staticProperties.size() + caps.dynamicPropertyNames().size();
     ostream << nProperties;
 

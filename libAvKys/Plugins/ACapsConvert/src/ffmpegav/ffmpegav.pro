@@ -55,6 +55,9 @@ isEmpty(FFMPEGLIBS) {
         libavutil
 }
 
+CONFIG(config_ffmpeg_avutil_sampleformat64): \
+    DEFINES += HAVE_SAMPLEFORMAT64
+
 QT += qml
 
 SOURCES = \

@@ -65,6 +65,8 @@ CONFIG(config_ffmpeg_avformat_codecpar): \
     DEFINES += HAVE_CODECPAR
 CONFIG(config_ffmpeg_avutil_extraoptions): \
     DEFINES += HAVE_EXTRAOPTIONS
+CONFIG(config_ffmpeg_avutil_sampleformat64): \
+    DEFINES += HAVE_SAMPLEFORMAT64
 
 QT += qml concurrent
 

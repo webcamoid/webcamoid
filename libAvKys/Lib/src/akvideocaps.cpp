@@ -262,8 +262,8 @@ class AkVideoCapsPrivate
         int m_align {1};
         AkFrac m_fps;
         const QVector<int> *m_planes_div;
-        QVector<qsizetype> m_bypl;
-        QVector<qsizetype> m_offset;
+        QVector<size_t> m_bypl;
+        QVector<size_t> m_offset;
 
         void updateParams();
 };
@@ -451,14 +451,14 @@ int AkVideoCaps::align() const
     return this->d->m_align;
 }
 
-qsizetype AkVideoCaps::pictureSize() const
+size_t AkVideoCaps::pictureSize() const
 {
     auto vf = VideoFormat::byFormat(this->d->m_format);
 
     if (!vf)
         return 0;
 
-    qsizetype size = 0;
+    size_t size = 0;
 
     for (int i = 0; i < vf->planes.size(); i++)
         size += this->planeSize(i);
@@ -523,19 +523,19 @@ AkVideoCaps &AkVideoCaps::update(const AkCaps &caps)
     return *this;
 }
 
-qsizetype AkVideoCaps::planeOffset(int plane) const
+size_t AkVideoCaps::planeOffset(int plane) const
 {
     return this->d->m_offset[plane];
 }
 
-qsizetype AkVideoCaps::lineOffset(int plane, int y) const
+size_t AkVideoCaps::lineOffset(int plane, int y) const
 {
     y /= (*this->d->m_planes_div)[plane];
 
-    return this->planeOffset(plane) + this->bytesPerLine(plane) *  qsizetype(y);
+    return this->planeOffset(plane) + this->bytesPerLine(plane) *  size_t(y);
 }
 
-qsizetype AkVideoCaps::bytesPerLine(int plane) const
+size_t AkVideoCaps::bytesPerLine(int plane) const
 {
     return this->d->m_bypl.value(plane, 0);
 }
@@ -547,7 +547,7 @@ int AkVideoCaps::planes() const
     return vf? vf->planes.size(): 0;
 }
 
-qsizetype AkVideoCaps::planeSize(int plane) const
+size_t AkVideoCaps::planeSize(int plane) const
 {
     auto bypl = this->bytesPerLine(plane);
 
@@ -557,8 +557,8 @@ qsizetype AkVideoCaps::planeSize(int plane) const
     auto vf = VideoFormat::byFormat(this->d->m_format);
 
     return bypl
-            * qsizetype(this->d->m_height)
-            / qsizetype(vf->planes_div[plane]);
+            * size_t(this->d->m_height)
+            / size_t(vf->planes_div[plane]);
 }
 
 int AkVideoCaps::bitsPerPixel(AkVideoCaps::PixelFormat pixelFormat)
@@ -718,16 +718,16 @@ void AkVideoCapsPrivate::updateParams()
     this->m_planes_div = &vf->planes_div;
     this->m_offset.clear();
     this->m_bypl.clear();
-    qsizetype offset = 0;
+    size_t offset = 0;
 
     for (int i = 0; i < vf->planes_div.size(); i++) {
         this->m_offset << offset;
-        auto bypl = VideoFormat::alignUp(qsizetype(vf->planes[i]
+        auto bypl = VideoFormat::alignUp(size_t(vf->planes[i]
                                                 * this->m_width
                                                 / 8),
-                                         qsizetype(this->m_align));
+                                         size_t(this->m_align));
         this->m_bypl << bypl;
-        offset += bypl * qsizetype(this->m_height) / qsizetype(vf->planes_div[i]);
+        offset += bypl * size_t(this->m_height) / size_t(vf->planes_div[i]);
     }
 }
 
@@ -772,10 +772,10 @@ QDebug operator <<(QDebug debug, const AkVideoCaps::PixelFormat &format)
 
 QDataStream &operator >>(QDataStream &istream, AkVideoCaps &caps)
 {
-    qsizetype nProperties;
+    int nProperties;
     istream >> nProperties;
 
-    for (qsizetype i = 0; i < nProperties; i++) {
+    for (int i = 0; i < nProperties; i++) {
         QByteArray key;
         QVariant value;
         istream >> key;
@@ -797,7 +797,7 @@ QDataStream &operator <<(QDataStream &ostream, const AkVideoCaps &caps)
         {"align" , caps.align()                   },
     };
 
-    qsizetype nProperties =
+    int nProperties =
             staticProperties.size() + caps.dynamicPropertyNames().size();
     ostream << nProperties;
 

@@ -80,10 +80,10 @@ class AudioStreamPrivate
                 {AV_SAMPLE_FMT_FLTP, AkAudioCaps::SampleFormat_flt},
                 {AV_SAMPLE_FMT_DBLP, AkAudioCaps::SampleFormat_dbl},
 
-        #ifdef HAVE_SAMPLEFORMAT64
+#ifdef HAVE_SAMPLEFORMAT64
                 {AV_SAMPLE_FMT_S64 , AkAudioCaps::SampleFormat_s64},
                 {AV_SAMPLE_FMT_S64P, AkAudioCaps::SampleFormat_s64},
-        #endif
+#endif
             };
 
             return sampleFormat;
@@ -98,9 +98,9 @@ class AudioStreamPrivate
                 AV_SAMPLE_FMT_FLTP,
                 AV_SAMPLE_FMT_DBLP,
 
-        #ifdef HAVE_SAMPLEFORMAT64
+#ifdef HAVE_SAMPLEFORMAT64
                 AV_SAMPLE_FMT_S64P,
-        #endif
+#endif
             };
 
             return formats;

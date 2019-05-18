@@ -100,7 +100,7 @@ class AKCOMMONS_EXPORT AkVideoCaps: public QObject
                WRITE setAlign
                RESET resetAlign
                NOTIFY alignChanged)
-    Q_PROPERTY(qsizetype pictureSize
+    Q_PROPERTY(size_t pictureSize
                READ pictureSize)
     Q_PROPERTY(int planes
                READ planes)
@@ -315,16 +315,16 @@ class AKCOMMONS_EXPORT AkVideoCaps: public QObject
         Q_INVOKABLE AkFrac fps() const;
         Q_INVOKABLE AkFrac &fps();
         Q_INVOKABLE int align() const;
-        Q_INVOKABLE qsizetype pictureSize() const;
+        Q_INVOKABLE size_t pictureSize() const;
 
         Q_INVOKABLE static AkVideoCaps fromMap(const QVariantMap &caps);
         Q_INVOKABLE QVariantMap toMap() const;
         Q_INVOKABLE AkVideoCaps &update(const AkCaps &caps);
-        Q_INVOKABLE qsizetype planeOffset(int plane) const;
-        Q_INVOKABLE qsizetype lineOffset(int plane, int y) const;
-        Q_INVOKABLE qsizetype bytesPerLine(int plane) const;
+        Q_INVOKABLE size_t planeOffset(int plane) const;
+        Q_INVOKABLE size_t lineOffset(int plane, int y) const;
+        Q_INVOKABLE size_t bytesPerLine(int plane) const;
         Q_INVOKABLE int planes() const;
-        Q_INVOKABLE qsizetype planeSize(int plane) const;
+        Q_INVOKABLE size_t planeSize(int plane) const;
 
         Q_INVOKABLE static int bitsPerPixel(PixelFormat pixelFormat);
         Q_INVOKABLE static int bitsPerPixel(const QString &pixelFormat);

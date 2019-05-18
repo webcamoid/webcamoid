@@ -133,7 +133,6 @@ AkPrivate::AkPrivate()
 {
     this->m_globalEngine = nullptr;
 
-    qRegisterMetaType<qsizetype>("qsizetype");
     qRegisterMetaType<size_t>("size_t");
     qRegisterMetaType<QRgb>("QRgb");
     qRegisterMetaType<QColor>("QColor");
