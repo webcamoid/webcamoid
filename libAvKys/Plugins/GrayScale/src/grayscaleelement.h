@@ -29,8 +29,8 @@ class GrayScaleElement: public AkElement
     public:
         GrayScaleElement();
 
-    public slots:
-        AkPacket iStream(const AkPacket &packet);
+    protected:
+        AkPacket iVideoStream(const AkVideoPacket &packet);
 };
 
 #endif // GRAYSCALEELEMENT_H

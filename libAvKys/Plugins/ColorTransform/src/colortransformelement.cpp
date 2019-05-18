@@ -20,6 +20,7 @@
 #include <QVector>
 #include <QImage>
 #include <QQmlContext>
+#include <akpacket.h>
 #include <akvideopacket.h>
 
 #include "colortransformelement.h"
@@ -72,38 +73,12 @@ void ColorTransformElement::controlInterfaceConfigure(QQmlContext *context,
     context->setContextProperty("controlId", this->objectName());
 }
 
-void ColorTransformElement::setKernel(const QVariantList &kernel)
-{
-    QVector<qreal> k;
-
-    for (const QVariant &e: kernel)
-        k << e.toReal();
-
-    if (this->d->m_kernel == k)
-        return;
-
-    this->d->m_kernel = k;
-    emit this->kernelChanged(kernel);
-}
-
-void ColorTransformElement::resetKernel()
-{
-    QVariantList kernel = {
-        1, 0, 0, 0,
-        0, 1, 0, 0,
-        0, 0, 1, 0
-    };
-
-    this->setKernel(kernel);
-}
-
-AkPacket ColorTransformElement::iStream(const AkPacket &packet)
+AkPacket ColorTransformElement::iVideoStream(const AkVideoPacket &packet)
 {
     if (this->d->m_kernel.size() < 12)
         akSend(packet)
 
-    AkVideoPacket videoPacket(packet);
-    auto src = videoPacket.toImage();
+    auto src = packet.toImage();
 
     if (src.isNull())
         return AkPacket();
@@ -133,8 +108,33 @@ AkPacket ColorTransformElement::iStream(const AkPacket &packet)
         }
     }
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
+    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
     akSend(oPacket)
+}
+
+void ColorTransformElement::setKernel(const QVariantList &kernel)
+{
+    QVector<qreal> k;
+
+    for (const QVariant &e: kernel)
+        k << e.toReal();
+
+    if (this->d->m_kernel == k)
+        return;
+
+    this->d->m_kernel = k;
+    emit this->kernelChanged(kernel);
+}
+
+void ColorTransformElement::resetKernel()
+{
+    QVariantList kernel = {
+        1, 0, 0, 0,
+        0, 1, 0, 0,
+        0, 0, 1, 0
+    };
+
+    this->setKernel(kernel);
 }
 
 #include "moc_colortransformelement.cpp"

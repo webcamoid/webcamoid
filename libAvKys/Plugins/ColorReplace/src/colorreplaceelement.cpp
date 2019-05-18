@@ -20,6 +20,7 @@
 #include <QImage>
 #include <QQmlContext>
 #include <QtMath>
+#include <akpacket.h>
 #include <akvideopacket.h>
 
 #include "colorreplaceelement.h"
@@ -79,6 +80,59 @@ void ColorReplaceElement::controlInterfaceConfigure(QQmlContext *context,
     context->setContextProperty("controlId", this->objectName());
 }
 
+AkPacket ColorReplaceElement::iVideoStream(const AkVideoPacket &packet)
+{
+    if (this->d->m_disable)
+        akSend(packet)
+
+    auto src = packet.toImage();
+
+    if (src.isNull())
+        return AkPacket();
+
+    src = src.convertToFormat(QImage::Format_ARGB32);
+    QImage oFrame(src.size(), src.format());
+
+    for (int y = 0; y < src.height(); y++) {
+        const QRgb *srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
+        QRgb *dstLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
+
+        for (int x = 0; x < src.width(); x++) {
+            int r = qRed(srcLine[x]);
+            int g = qGreen(srcLine[x]);
+            int b = qBlue(srcLine[x]);
+
+            int rf = qRed(this->d->m_from);
+            int gf = qGreen(this->d->m_from);
+            int bf = qBlue(this->d->m_from);
+
+            int rd = r - rf;
+            int gd = g - gf;
+            int bd = b - bf;
+
+            qreal k = sqrt(rd * rd + gd * gd + bd * bd);
+
+            if (k <= this->d->m_radius) {
+                qreal p = k / this->d->m_radius;
+
+                int rt = qRed(this->d->m_to);
+                int gt = qGreen(this->d->m_to);
+                int bt = qBlue(this->d->m_to);
+
+                r = int(p * (r - rt) + rt);
+                g = int(p * (g - gt) + gt);
+                b = int(p * (b - bt) + bt);
+
+                dstLine[x] = qRgba(r, g, b, qAlpha(srcLine[x]));
+            } else
+                dstLine[x] = srcLine[x];
+        }
+    }
+
+    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
+    akSend(oPacket)
+}
+
 void ColorReplaceElement::setFrom(QRgb from)
 {
     if (this->d->m_from == from)
@@ -133,60 +187,6 @@ void ColorReplaceElement::resetRadius()
 void ColorReplaceElement::resetDisable()
 {
     this->setDisable(false);
-}
-
-AkPacket ColorReplaceElement::iStream(const AkPacket &packet)
-{
-    if (this->d->m_disable)
-        akSend(packet)
-
-    AkVideoPacket videoPacket(packet);
-    auto src = videoPacket.toImage();
-
-    if (src.isNull())
-        return AkPacket();
-
-    src = src.convertToFormat(QImage::Format_ARGB32);
-    QImage oFrame(src.size(), src.format());
-
-    for (int y = 0; y < src.height(); y++) {
-        const QRgb *srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
-        QRgb *dstLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
-
-        for (int x = 0; x < src.width(); x++) {
-            int r = qRed(srcLine[x]);
-            int g = qGreen(srcLine[x]);
-            int b = qBlue(srcLine[x]);
-
-            int rf = qRed(this->d->m_from);
-            int gf = qGreen(this->d->m_from);
-            int bf = qBlue(this->d->m_from);
-
-            int rd = r - rf;
-            int gd = g - gf;
-            int bd = b - bf;
-
-            qreal k = sqrt(rd * rd + gd * gd + bd * bd);
-
-            if (k <= this->d->m_radius) {
-                qreal p = k / this->d->m_radius;
-
-                int rt = qRed(this->d->m_to);
-                int gt = qGreen(this->d->m_to);
-                int bt = qBlue(this->d->m_to);
-
-                r = int(p * (r - rt) + rt);
-                g = int(p * (g - gt) + gt);
-                b = int(p * (b - bt) + bt);
-
-                dstLine[x] = qRgba(r, g, b, qAlpha(srcLine[x]));
-            } else
-                dstLine[x] = srcLine[x];
-        }
-    }
-
-    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
-    akSend(oPacket)
 }
 
 #include "moc_colorreplaceelement.cpp"

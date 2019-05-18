@@ -46,6 +46,7 @@ class OilPaintElement: public AkElement
         QString controlInterfaceProvide(const QString &controlId) const;
         void controlInterfaceConfigure(QQmlContext *context,
                                        const QString &controlId) const;
+        AkPacket iVideoStream(const AkVideoPacket &packet);
 
     signals:
         void radiusChanged(int radius);
@@ -53,7 +54,6 @@ class OilPaintElement: public AkElement
     public slots:
         void setRadius(int radius);
         void resetRadius();
-        AkPacket iStream(const AkPacket &packet);
 };
 
 #endif // OILPAINTELEMENT_H

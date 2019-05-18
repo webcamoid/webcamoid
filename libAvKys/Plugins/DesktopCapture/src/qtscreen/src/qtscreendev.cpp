@@ -154,7 +154,7 @@ AkCaps QtScreenDev::caps(int stream)
     return AkVideoCaps(AkVideoCaps::Format_rgb24,
                        screen->size().width(),
                        screen->size().height(),
-                       this->d->m_fps).toCaps();
+                       this->d->m_fps);
 }
 
 QtScreenDevPrivate::QtScreenDevPrivate(QtScreenDev *self):
@@ -253,10 +253,12 @@ void QtScreenDev::readFrame()
     auto fps = this->d->m_fps;
     this->d->m_mutex.unlock();
 
-    AkVideoCaps caps(AkVideoCaps::Format_rgb24,
+    AkVideoPacket packet;
+    packet.caps() = {AkVideoCaps::Format_rgb24,
                      screen->size().width(),
                      screen->size().height(),
-                     fps);
+                     fps};
+
     auto frame =
             screen->grabWindow(QApplication::desktop()->winId(),
                                screen->geometry().x(),
@@ -264,7 +266,7 @@ void QtScreenDev::readFrame()
                                screen->geometry().width(),
                                screen->geometry().height());
     auto frameImg = frame.toImage().convertToFormat(QImage::Format_RGB888);
-    auto packet = AkVideoPacket::fromImage(frameImg, caps).toPacket();
+    packet = AkVideoPacket::fromImage(frameImg, packet);
 
     if (!packet)
         return;

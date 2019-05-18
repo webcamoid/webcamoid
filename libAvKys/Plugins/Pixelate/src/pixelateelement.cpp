@@ -19,6 +19,7 @@
 
 #include <QImage>
 #include <QQmlContext>
+#include <akpacket.h>
 #include <akvideopacket.h>
 
 #include "pixelateelement.h"
@@ -65,29 +66,14 @@ void PixelateElement::controlInterfaceConfigure(QQmlContext *context,
     context->setContextProperty("controlId", this->objectName());
 }
 
-void PixelateElement::setBlockSize(const QSize &blockSize)
-{
-    if (blockSize == this->d->m_blockSize)
-        return;
-
-    this->d->m_blockSize = blockSize;
-    emit this->blockSizeChanged(blockSize);
-}
-
-void PixelateElement::resetBlockSize()
-{
-    this->setBlockSize(QSize(8, 8));
-}
-
-AkPacket PixelateElement::iStream(const AkPacket &packet)
+AkPacket PixelateElement::iVideoStream(const AkVideoPacket &packet)
 {
     QSize blockSize = this->d->m_blockSize;
 
     if (blockSize.isEmpty())
         akSend(packet)
 
-    AkVideoPacket videoPacket(packet);
-    auto src = videoPacket.toImage();
+    auto src = packet.toImage();
 
     if (src.isNull())
         return AkPacket();
@@ -106,8 +92,22 @@ AkPacket PixelateElement::iStream(const AkPacket &packet)
                            Qt::IgnoreAspectRatio,
                            Qt::FastTransformation);
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
+    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
     akSend(oPacket)
+}
+
+void PixelateElement::setBlockSize(const QSize &blockSize)
+{
+    if (blockSize == this->d->m_blockSize)
+        return;
+
+    this->d->m_blockSize = blockSize;
+    emit this->blockSizeChanged(blockSize);
+}
+
+void PixelateElement::resetBlockSize()
+{
+    this->setBlockSize(QSize(8, 8));
 }
 
 #include "moc_pixelateelement.cpp"

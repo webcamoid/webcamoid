@@ -23,6 +23,7 @@
 #include <QDateTime>
 #include <QMutex>
 #include <QQmlContext>
+#include <akpacket.h>
 #include <akvideopacket.h>
 
 #include "cartoonelement.h"
@@ -320,6 +321,60 @@ void CartoonElement::controlInterfaceConfigure(QQmlContext *context,
     context->setContextProperty("controlId", this->objectName());
 }
 
+AkPacket CartoonElement::iVideoStream(const AkVideoPacket &packet)
+{
+    this->d->m_mutex.lock();
+    QSize scanSize(this->d->m_scanSize);
+    this->d->m_mutex.unlock();
+
+    if (scanSize.isEmpty())
+        akSend(packet)
+
+    auto src = packet.toImage();
+
+    if (src.isNull())
+        return AkPacket();
+
+    src = src.convertToFormat(QImage::Format_ARGB32);
+    QImage oFrame(src.size(), src.format());
+
+    if (this->d->m_id != packet.id()) {
+        this->d->m_id = packet.id();
+        this->d->m_palette.clear();
+        this->d->m_lastTime = QDateTime::currentMSecsSinceEpoch();
+    }
+
+    // Palettize image.
+    QVector<QRgb> palette =
+            this->d->palette(src.scaled(scanSize, Qt::KeepAspectRatio),
+                             this->d->m_ncolors,
+                             this->d->m_colorDiff);
+
+    for (int y = 0; y < src.height(); y++) {
+        const QRgb *srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
+        QRgb *dstLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
+
+        for (int x = 0; x < src.width(); x++)
+            dstLine[x] = palette[this->d->rgb24Torgb16(srcLine[x])];
+    }
+
+    // Draw the edges.
+    if (this->d->m_showEdges) {
+        QPainter painter;
+        painter.begin(&oFrame);
+        QImage edges =
+                this->d->edges(src,
+                               this->d->m_thresholdLow,
+                               this->d->m_thresholdHi,
+                               this->d->m_lineColor);
+        painter.drawImage(0, 0, edges);
+        painter.end();
+    }
+
+    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
+    akSend(oPacket)
+}
+
 void CartoonElement::setNColors(int ncolors)
 {
     if (this->d->m_ncolors == ncolors)
@@ -418,61 +473,6 @@ void CartoonElement::resetLineColor()
 void CartoonElement::resetScanSize()
 {
     this->setScanSize(QSize(320, 240));
-}
-
-AkPacket CartoonElement::iStream(const AkPacket &packet)
-{
-    this->d->m_mutex.lock();
-    QSize scanSize(this->d->m_scanSize);
-    this->d->m_mutex.unlock();
-
-    if (scanSize.isEmpty())
-        akSend(packet)
-
-    AkVideoPacket videoPacket(packet);
-    auto src = videoPacket.toImage();
-
-    if (src.isNull())
-        return AkPacket();
-
-    src = src.convertToFormat(QImage::Format_ARGB32);
-    QImage oFrame(src.size(), src.format());
-
-    if (this->d->m_id != packet.id()) {
-        this->d->m_id = packet.id();
-        this->d->m_palette.clear();
-        this->d->m_lastTime = QDateTime::currentMSecsSinceEpoch();
-    }
-
-    // Palettize image.
-    QVector<QRgb> palette =
-            this->d->palette(src.scaled(scanSize, Qt::KeepAspectRatio),
-                             this->d->m_ncolors,
-                             this->d->m_colorDiff);
-
-    for (int y = 0; y < src.height(); y++) {
-        const QRgb *srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
-        QRgb *dstLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
-
-        for (int x = 0; x < src.width(); x++)
-            dstLine[x] = palette[this->d->rgb24Torgb16(srcLine[x])];
-    }
-
-    // Draw the edges.
-    if (this->d->m_showEdges) {
-        QPainter painter;
-        painter.begin(&oFrame);
-        QImage edges =
-                this->d->edges(src,
-                               this->d->m_thresholdLow,
-                               this->d->m_thresholdHi,
-                               this->d->m_lineColor);
-        painter.drawImage(0, 0, edges);
-        painter.end();
-    }
-
-    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
-    akSend(oPacket)
 }
 
 #include "moc_cartoonelement.cpp"

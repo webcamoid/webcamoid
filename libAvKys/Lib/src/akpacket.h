@@ -20,10 +20,13 @@
 #ifndef AKPACKET_H
 #define AKPACKET_H
 
-#include "akfrac.h"
+#include <QObject>
+
+#include "akcommons.h"
 
 class AkPacketPrivate;
 class AkCaps;
+class AkFrac;
 
 template<typename T>
 inline T AkNoPts()
@@ -39,11 +42,6 @@ class AKCOMMONS_EXPORT AkPacket: public QObject
                WRITE setCaps
                RESET resetCaps
                NOTIFY capsChanged)
-    Q_PROPERTY(QVariant data
-               READ data
-               WRITE setData
-               RESET resetData
-               NOTIFY dataChanged)
     Q_PROPERTY(QByteArray buffer
                READ buffer
                WRITE setBuffer
@@ -72,22 +70,14 @@ class AKCOMMONS_EXPORT AkPacket: public QObject
 
     public:
         AkPacket(QObject *parent=nullptr);
-        AkPacket(const AkCaps &caps,
-                 const QByteArray &buffer=QByteArray(),
-                 qint64 pts=0,
-                 const AkFrac &timeBase=AkFrac(),
-                 int index=-1,
-                 qint64 id=-1);
+        AkPacket(const AkCaps &caps);
         AkPacket(const AkPacket &other);
         virtual ~AkPacket();
         AkPacket &operator =(const AkPacket &other);
         operator bool() const;
 
-        Q_INVOKABLE QString toString() const;
         Q_INVOKABLE AkCaps caps() const;
         Q_INVOKABLE AkCaps &caps();
-        Q_INVOKABLE QVariant data() const;
-        Q_INVOKABLE QVariant &data();
         Q_INVOKABLE QByteArray buffer() const;
         Q_INVOKABLE QByteArray &buffer();
         Q_INVOKABLE qint64 id() const;
@@ -98,13 +88,13 @@ class AKCOMMONS_EXPORT AkPacket: public QObject
         Q_INVOKABLE AkFrac &timeBase();
         Q_INVOKABLE int index() const;
         Q_INVOKABLE int &index();
+        Q_INVOKABLE void copyMetadata(const AkPacket &other);
 
     private:
         AkPacketPrivate *d;
 
     Q_SIGNALS:
         void capsChanged(const AkCaps &caps);
-        void dataChanged(const QVariant &data);
         void bufferChanged(const QByteArray &buffer);
         void idChanged(qint64 id);
         void ptsChanged(qint64 pts);
@@ -113,24 +103,20 @@ class AKCOMMONS_EXPORT AkPacket: public QObject
 
     public Q_SLOTS:
         void setCaps(const AkCaps &caps);
-        void setData(const QVariant &data);
         void setBuffer(const QByteArray &buffer);
         void setId(qint64 id);
         void setPts(qint64 pts);
         void setTimeBase(const AkFrac &timeBase);
         void setIndex(int index);
         void resetCaps();
-        void resetData();
         void resetBuffer();
         void resetId();
         void resetPts();
         void resetTimeBase();
         void resetIndex();
-
-    friend QDebug operator <<(QDebug debug, const AkPacket &packet);
 };
 
-QDebug operator <<(QDebug debug, const AkPacket &packet);
+AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, const AkPacket &packet);
 
 Q_DECLARE_METATYPE(AkPacket)
 

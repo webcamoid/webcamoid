@@ -26,6 +26,9 @@
 #include <QQmlProperty>
 #include <QQmlApplicationEngine>
 #include <akcaps.h>
+#include <akaudiocaps.h>
+#include <akvideocaps.h>
+#include <akpacket.h>
 #include <akvideopacket.h>
 
 #include "recording.h"
@@ -38,8 +41,8 @@ class RecordingPrivate
     public:
         QQmlApplicationEngine *m_engine {nullptr};
         QStringList m_availableFormats;
-        AkCaps m_audioCaps;
-        AkCaps m_videoCaps;
+        AkAudioCaps m_audioCaps;
+        AkVideoCaps m_videoCaps;
         QString m_videoFileName;
         AkElementPtr m_record {AkElement::create("MultiSink")};
         QMutex m_mutex;
@@ -166,12 +169,12 @@ QString Recording::format() const
     return QString();
 }
 
-AkCaps Recording::audioCaps() const
+AkAudioCaps Recording::audioCaps() const
 {
     return this->d->m_audioCaps;
 }
 
-AkCaps Recording::videoCaps() const
+AkVideoCaps Recording::videoCaps() const
 {
     return this->d->m_videoCaps;
 }
@@ -321,7 +324,7 @@ void Recording::setFormat(const QString &format)
         this->d->m_record->setProperty("outputFormat", format);
 }
 
-void Recording::setAudioCaps(const AkCaps &audioCaps)
+void Recording::setAudioCaps(const AkAudioCaps &audioCaps)
 {
     if (this->d->m_audioCaps == audioCaps)
         return;
@@ -330,7 +333,7 @@ void Recording::setAudioCaps(const AkCaps &audioCaps)
     emit this->audioCapsChanged(audioCaps);
 }
 
-void Recording::setVideoCaps(const AkCaps &videoCaps)
+void Recording::setVideoCaps(const AkVideoCaps &videoCaps)
 {
     if (this->d->m_videoCaps == videoCaps)
         return;
@@ -384,12 +387,12 @@ void Recording::resetFormat()
 
 void Recording::resetAudioCaps()
 {
-    this->setAudioCaps(AkCaps());
+    this->setAudioCaps({});
 }
 
 void Recording::resetVideoCaps()
 {
-    this->setVideoCaps(AkCaps());
+    this->setVideoCaps({});
 }
 
 void Recording::resetRecordAudio()

@@ -20,6 +20,7 @@
 #include <QImage>
 #include <QQmlContext>
 #include <QtMath>
+#include <akpacket.h>
 #include <akvideopacket.h>
 
 #include "warpelement.h"
@@ -63,24 +64,9 @@ void WarpElement::controlInterfaceConfigure(QQmlContext *context,
     context->setContextProperty("controlId", this->objectName());
 }
 
-void WarpElement::setRipples(qreal ripples)
+AkPacket WarpElement::iVideoStream(const AkVideoPacket &packet)
 {
-    if (qFuzzyCompare(this->d->m_ripples, ripples))
-        return;
-
-    this->d->m_ripples = ripples;
-    emit this->ripplesChanged(ripples);
-}
-
-void WarpElement::resetRipples()
-{
-    this->setRipples(4);
-}
-
-AkPacket WarpElement::iStream(const AkPacket &packet)
-{
-    AkVideoPacket videoPacket(packet);
-    auto src = videoPacket.toImage();
+    auto src = packet.toImage();
 
     if (src.isNull())
         return AkPacket();
@@ -115,7 +101,7 @@ AkPacket WarpElement::iStream(const AkPacket &packet)
     qreal ripples = this->d->m_ripples * sin((tval - 70) * M_PI / 64);
 
     tval = (tval + 1) & 511;
-    qreal *phiTable = this->d->m_phiTable.data();
+    auto phiTable = this->d->m_phiTable.data();
 
     for (int y = 0, i = 0; y < src.height(); y++) {
         auto oLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
@@ -134,8 +120,22 @@ AkPacket WarpElement::iStream(const AkPacket &packet)
         }
     }
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
+    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
     akSend(oPacket)
+}
+
+void WarpElement::setRipples(qreal ripples)
+{
+    if (qFuzzyCompare(this->d->m_ripples, ripples))
+        return;
+
+    this->d->m_ripples = ripples;
+    emit this->ripplesChanged(ripples);
+}
+
+void WarpElement::resetRipples()
+{
+    this->setRipples(4);
 }
 
 #include "moc_warpelement.cpp"

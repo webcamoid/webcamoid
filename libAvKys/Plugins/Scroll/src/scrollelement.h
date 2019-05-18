@@ -52,6 +52,7 @@ class ScrollElement: public AkElement
         QString controlInterfaceProvide(const QString &controlId) const;
         void controlInterfaceConfigure(QQmlContext *context,
                                        const QString &controlId) const;
+        AkPacket iVideoStream(const AkVideoPacket &packet);
 
     signals:
         void speedChanged(qreal speed);
@@ -62,7 +63,6 @@ class ScrollElement: public AkElement
         void setNoise(qreal noise);
         void resetSpeed();
         void resetNoise();
-        AkPacket iStream(const AkPacket &packet);
 };
 
 #endif // SCROLLELEMENT_H

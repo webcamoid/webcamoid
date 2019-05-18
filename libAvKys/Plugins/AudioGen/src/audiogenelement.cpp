@@ -30,6 +30,7 @@
 #include <akelement.h>
 #include <akcaps.h>
 #include <akfrac.h>
+#include <akpacket.h>
 #include <akaudiocaps.h>
 #include <akaudiopacket.h>
 
@@ -67,7 +68,11 @@ Q_GLOBAL_STATIC_WITH_ARGS(WaveTypeMap, waveTypeToStr, (initWaveTypeMap()))
 class AudioGenElementPrivate
 {
     public:
-        AkCaps m_caps {"audio/x-raw,format=s16,bps=16,channels=1,rate=44100,layout=mono,align=1"};
+        AkAudioCaps m_caps {
+            AkAudioCaps::SampleFormat_s16,
+            AkAudioCaps::Layout_mono,
+            44100
+        };
         AkElementPtr m_audioConvert {AkElement::create("ACapsConvert")};
         QThreadPool m_threadPool;
         QFuture<void> m_readFramesLoopResult;
@@ -101,9 +106,9 @@ AudioGenElement::~AudioGenElement()
     delete this->d;
 }
 
-QString AudioGenElement::caps() const
+AkAudioCaps AudioGenElement::caps() const
 {
-    return this->d->m_caps.toString();
+    return this->d->m_caps;
 }
 
 QString AudioGenElement::waveType() const
@@ -126,7 +131,7 @@ qreal AudioGenElement::sampleDuration() const
     return this->d->m_sampleDuration;
 }
 
-void AudioGenElement::setCaps(const QString &caps)
+void AudioGenElement::setCaps(const AkAudioCaps &caps)
 {
     if (this->d->m_caps == caps)
         return;
@@ -136,7 +141,7 @@ void AudioGenElement::setCaps(const QString &caps)
     this->d->m_mutex.unlock();
 
     if (this->d->m_audioConvert)
-        this->d->m_audioConvert->setProperty("caps", caps);
+        this->d->m_audioConvert->setProperty("caps", QVariant::fromValue(caps));
 
     emit this->capsChanged(caps);
 }
@@ -184,7 +189,9 @@ void AudioGenElement::setSampleDuration(qreal sampleDuration)
 
 void AudioGenElement::resetCaps()
 {
-    this->setCaps("audio/x-raw,format=s16,bps=16,channels=1,rate=44100,layout=mono,align=1");
+    this->setCaps({AkAudioCaps::SampleFormat_s16,
+                   AkAudioCaps::Layout_mono,
+                   44100});
 }
 
 void AudioGenElement::resetWaveType()
@@ -303,7 +310,7 @@ void AudioGenElementPrivate::readFramesLoop()
     int frameCount = 0;
 
     this->m_mutex.lock();
-    int rate = this->m_caps.property("rate").toInt();
+    int rate = this->m_caps.rate();
     qreal sampleDuration = this->m_sampleDuration;
     AkAudioCaps audioCaps(AkAudioCaps::SampleFormat_s32,
                           AkAudioCaps::Layout_mono,
@@ -408,7 +415,7 @@ void AudioGenElementPrivate::readFramesLoop()
         iPacket.index() = 0;
         iPacket.id() = this->m_id;
 
-        (*this->m_audioConvert)(iPacket.toPacket());
+        (*this->m_audioConvert)(iPacket);
 
         pts += nSamples;
     }

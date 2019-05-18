@@ -29,8 +29,8 @@ class InvertElement: public AkElement
     public:
         InvertElement();
 
-    public slots:
-        AkPacket iStream(const AkPacket &packet);
+    protected:
+        AkPacket iVideoStream(const AkVideoPacket &packet);
 };
 
 #endif // INVERTELEMENT_H

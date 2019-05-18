@@ -65,6 +65,7 @@ class ColorFilterElement: public AkElement
         QString controlInterfaceProvide(const QString &controlId) const;
         void controlInterfaceConfigure(QQmlContext *context,
                                        const QString &controlId) const;
+        AkPacket iVideoStream(const AkVideoPacket &packet);
 
     signals:
         void colorChanged(QRgb color);
@@ -81,7 +82,6 @@ class ColorFilterElement: public AkElement
         void resetRadius();
         void resetSoft();
         void resetDisable();
-        AkPacket iStream(const AkPacket &packet);
 };
 
 #endif // COLORFILTERELEMENT_H

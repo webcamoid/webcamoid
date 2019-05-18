@@ -568,7 +568,7 @@ void ConvertVideoFFmpegPrivate::convert(const FramePtr &frame)
     oPacket.timeBase() = this->m_fps.invert();
     oPacket.index() = 0;
 
-    emit self->frameReady(oPacket.toPacket());
+    emit self->frameReady(oPacket);
 }
 
 void ConvertVideoFFmpegPrivate::log(qreal diff)

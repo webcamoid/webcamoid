@@ -42,7 +42,7 @@ class AudioDevCoreAudioPrivate
         QMap<QString, QString> m_descriptionMap;
         QMap<QString, AkAudioCaps> m_defaultCaps;
         QMap<QString, QList<AkAudioCaps::SampleFormat>> m_supportedFormats;
-        QMap<QString, QList<int>> m_supportedChannels;
+        QMap<QString, QList<AkAudioCaps::ChannelLayout>> m_supportedLayouts;
         QMap<QString, QList<int>> m_supportedSampleRates;
         AudioUnit m_audioUnit {nullptr};
         UInt32 m_bufferSize {0};
@@ -62,8 +62,8 @@ class AudioDevCoreAudioPrivate
         void clearBuffer();
         QList<AkAudioCaps::SampleFormat> supportedCAFormats(AudioDeviceID deviceId,
                                                             AudioObjectPropertyScope scope);
-        QList<int> supportedCAChannels(AudioDeviceID deviceId,
-                                       AudioObjectPropertyScope scope);
+        QList<AkAudioCaps::ChannelLayout> supportedCALayouts(AudioDeviceID deviceId,
+                                                             AudioObjectPropertyScope scope);
         QList<int> supportedCASampleRates(AudioDeviceID deviceId,
                                           AudioObjectPropertyScope scope);
         AkAudioCaps::SampleFormat descriptionToSampleFormat(const AudioStreamBasicDescription &streamDescription);
@@ -208,9 +208,9 @@ QList<AkAudioCaps::SampleFormat> AudioDevCoreAudio::supportedFormats(const QStri
     return this->d->m_supportedFormats.value(device);
 }
 
-QList<int> AudioDevCoreAudio::supportedChannels(const QString &device)
+QList<AkAudioCaps::ChannelLayout> AudioDevCoreAudio::supportedChannelLayouts(const QString &device)
 {
-    return this->d->m_supportedChannels.value(device);
+    return this->d->m_supportedLayouts.value(device);
 }
 
 QList<int> AudioDevCoreAudio::supportedSampleRates(const QString &device)
@@ -452,7 +452,7 @@ bool AudioDevCoreAudio::init(const QString &device, const AkAudioCaps &caps)
                  & kAudioFormatFlagIsNonInterleaved)?
                     1: streamDescription.mChannelsPerFrame;
         this->d->m_bufferList->mBuffers[i].mDataByteSize = 0;
-        this->d->m_bufferList->mBuffers[i].mData = 0;
+        this->d->m_bufferList->mBuffers[i].mData = nullptr;
     }
 
     return true;
@@ -544,7 +544,7 @@ QString AudioDevCoreAudioPrivate::CFStringToString(const CFStringRef &cfstr)
     UniChar str[len];
     CFStringGetCharacters(cfstr, CFRangeMake(0, len), str);
 
-    return QString(reinterpret_cast<const QChar *>(str), len);
+    return QString(reinterpret_cast<const QChar *>(str), int(len));
 }
 
 QString AudioDevCoreAudioPrivate::defaultDevice(bool input, bool *ok)
@@ -585,7 +585,7 @@ void AudioDevCoreAudioPrivate::clearBuffer()
 {
     for (UInt32 i = 0; i < self->d->m_bufferList->mNumberBuffers; i++) {
         self->d->m_bufferList->mBuffers[i].mDataByteSize = 0;
-        self->d->m_bufferList->mBuffers[i].mData = 0;
+        self->d->m_bufferList->mBuffers[i].mData = nullptr;
     }
 }
 
@@ -610,7 +610,7 @@ QList<AkAudioCaps::SampleFormat> AudioDevCoreAudioPrivate::supportedCAFormats(Au
     int nStreams = propSize / sizeof(AudioStreamID);
 
     if (status != noErr || nStreams < 1)
-        return QList<AkAudioCaps::SampleFormat>();
+        return {};
 
     QVector<AudioStreamID> streams(nStreams);
 
@@ -683,11 +683,13 @@ QList<AkAudioCaps::SampleFormat> AudioDevCoreAudioPrivate::supportedCAFormats(Au
         }
     }
 
+    std::sort(supportedFormats.begin(), supportedFormats.end());
+
     return supportedFormats;
 }
 
-QList<int> AudioDevCoreAudioPrivate::supportedCAChannels(AudioDeviceID deviceId,
-                                                         AudioObjectPropertyScope scope)
+QList<AkAudioCaps::ChannelLayout> AudioDevCoreAudioPrivate::supportedCALayouts(AudioDeviceID deviceId,
+                                                                               AudioObjectPropertyScope scope)
 {
     UInt32 propSize = 0;
     AudioObjectPropertyAddress streamConfiguration = {
@@ -703,12 +705,12 @@ QList<int> AudioDevCoreAudioPrivate::supportedCAChannels(AudioDeviceID deviceId,
                                                  &propSize);
 
     if (status != noErr)
-        return QList<int>();
+        return {};
 
     int nBuffers = propSize / sizeof(AudioBufferList);
 
     if (nBuffers < 1)
-        return QList<int>();
+        return {};
 
     QVector<AudioBufferList> buffers(nBuffers);
 
@@ -720,9 +722,9 @@ QList<int> AudioDevCoreAudioPrivate::supportedCAChannels(AudioDeviceID deviceId,
                                         buffers.data());
 
     if (status != noErr)
-        return QList<int>();
+        return {};
 
-    QList<int> supportedCAChannels;
+    QList<AkAudioCaps::ChannelLayout> supportedCALayouts;
 
     for (auto &buffer: buffers) {
         int channels = 0;
@@ -730,11 +732,14 @@ QList<int> AudioDevCoreAudioPrivate::supportedCAChannels(AudioDeviceID deviceId,
         for (UInt32 i = 0; i < buffer.mNumberBuffers; i++)
             channels += buffer.mBuffers[i].mNumberChannels;
 
-        if (!supportedCAChannels.contains(channels))
-            supportedCAChannels << channels;
+        auto layout = AkAudioCaps::defaultChannelLayout(channels);
+
+        if (layout != AkAudioCaps::Layout_none
+            && !supportedCALayouts.contains(layout))
+            supportedCALayouts << layout;
     }
 
-    return supportedCAChannels;
+    return supportedCALayouts;
 }
 
 QList<int> AudioDevCoreAudioPrivate::supportedCASampleRates(AudioDeviceID deviceId,
@@ -966,7 +971,7 @@ void AudioDevCoreAudio::updateDevices()
     decltype(this->d->m_descriptionMap) descriptionMap;
     decltype(this->d->m_defaultCaps) defaultCaps;
     decltype(this->d->m_supportedFormats) supportedFormats;
-    decltype(this->d->m_supportedChannels) supportedChannels;
+    decltype(this->d->m_supportedLayouts) supportedLayouts;
     decltype(this->d->m_supportedSampleRates) supportedSampleRates;
 
     // List default devices
@@ -1050,13 +1055,13 @@ void AudioDevCoreAudio::updateDevices()
                         CFRelease(name);
                         auto formats = this->d->supportedCAFormats(deviceId,
                                                                    deviceType);
-                        auto channels = this->d->supportedCAChannels(deviceId,
-                                                                     deviceType);
+                        auto layouts = this->d->supportedCALayouts(deviceId,
+                                                                  deviceType);
                         auto sampleRates = this->d->supportedCASampleRates(deviceId,
                                                                            deviceType);
 
                         if (formats.isEmpty()
-                            || channels.isEmpty()
+                            || layouts.isEmpty()
                             || sampleRates.isEmpty())
                             continue;
 
@@ -1073,11 +1078,11 @@ void AudioDevCoreAudio::updateDevices()
 
                         descriptionMap[devId] = description;
                         supportedFormats[devId] = formats;
-                        supportedChannels[devId] = channels;
+                        supportedLayouts[devId] = layouts;
                         supportedSampleRates[devId] = sampleRates;
                         defaultCaps[devId] =
                                 AkAudioCaps(formats.first(),
-                                            AkAudioCaps::defaultChannelLayout(channels.first()),
+                                            AkAudioCaps::defaultChannelLayout(layouts.first()),
                                             sampleRates.first());
                     }
                 }
@@ -1091,8 +1096,8 @@ void AudioDevCoreAudio::updateDevices()
     if (this->d->m_supportedFormats != supportedFormats)
         this->d->m_supportedFormats = supportedFormats;
 
-    if (this->d->m_supportedChannels != supportedChannels)
-        this->d->m_supportedChannels = supportedChannels;
+    if (this->d->m_supportedLayouts != supportedLayouts)
+        this->d->m_supportedLayouts = supportedLayouts;
 
     if (this->d->m_supportedSampleRates != supportedSampleRates)
         this->d->m_supportedSampleRates = supportedSampleRates;

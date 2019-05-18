@@ -92,6 +92,7 @@ class RadioactiveElement: public AkElement
         QString controlInterfaceProvide(const QString &controlId) const;
         void controlInterfaceConfigure(QQmlContext *context,
                                        const QString &controlId) const;
+        AkPacket iVideoStream(const AkVideoPacket &packet);
 
     signals:
         void modeChanged(const QString &mode);
@@ -117,8 +118,6 @@ class RadioactiveElement: public AkElement
         void resetLumaThreshold();
         void resetAlphaDiff();
         void resetRadColor();
-
-        AkPacket iStream(const AkPacket &packet);
 };
 
 #endif // RADIOACTIVEELEMENT_H

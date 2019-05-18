@@ -22,6 +22,8 @@
 #include <QImage>
 #include <QQmlContext>
 #include <QtMath>
+#include <akfrac.h>
+#include <akpacket.h>
 #include <akvideopacket.h>
 
 #include "distortelement.h"
@@ -119,52 +121,9 @@ void DistortElement::controlInterfaceConfigure(QQmlContext *context,
     context->setContextProperty("controlId", this->objectName());
 }
 
-void DistortElement::setAmplitude(qreal amplitude)
+AkPacket DistortElement::iVideoStream(const AkVideoPacket &packet)
 {
-    if (qFuzzyCompare(this->d->m_amplitude, amplitude))
-        return;
-
-    this->d->m_amplitude = amplitude;
-    emit this->amplitudeChanged(amplitude);
-}
-
-void DistortElement::setFrequency(qreal frequency)
-{
-    if (qFuzzyCompare(this->d->m_frequency, frequency))
-        return;
-
-    this->d->m_frequency = frequency;
-    emit this->frequencyChanged(frequency);
-}
-
-void DistortElement::setGridSizeLog(int gridSizeLog)
-{
-    if (this->d->m_gridSizeLog == gridSizeLog)
-        return;
-
-    this->d->m_gridSizeLog = gridSizeLog;
-    emit this->gridSizeLogChanged(gridSizeLog);
-}
-
-void DistortElement::resetAmplitude()
-{
-    this->setAmplitude(1.0);
-}
-
-void DistortElement::resetFrequency()
-{
-    this->setFrequency(1.0);
-}
-
-void DistortElement::resetGridSizeLog()
-{
-    this->setGridSizeLog(1);
-}
-
-AkPacket DistortElement::iStream(const AkPacket &packet)
-{
-    AkVideoPacket videoPacket(packet);
-    auto src = videoPacket.toImage();
+    auto src = packet.toImage();
 
     if (src.isNull())
         return AkPacket();
@@ -237,8 +196,50 @@ AkPacket DistortElement::iStream(const AkPacket &packet)
             }
         }
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
+    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
     akSend(oPacket)
+}
+
+void DistortElement::setAmplitude(qreal amplitude)
+{
+    if (qFuzzyCompare(this->d->m_amplitude, amplitude))
+        return;
+
+    this->d->m_amplitude = amplitude;
+    emit this->amplitudeChanged(amplitude);
+}
+
+void DistortElement::setFrequency(qreal frequency)
+{
+    if (qFuzzyCompare(this->d->m_frequency, frequency))
+        return;
+
+    this->d->m_frequency = frequency;
+    emit this->frequencyChanged(frequency);
+}
+
+void DistortElement::setGridSizeLog(int gridSizeLog)
+{
+    if (this->d->m_gridSizeLog == gridSizeLog)
+        return;
+
+    this->d->m_gridSizeLog = gridSizeLog;
+    emit this->gridSizeLogChanged(gridSizeLog);
+}
+
+void DistortElement::resetAmplitude()
+{
+    this->setAmplitude(1.0);
+}
+
+void DistortElement::resetFrequency()
+{
+    this->setFrequency(1.0);
+}
+
+void DistortElement::resetGridSizeLog()
+{
+    this->setGridSizeLog(1);
 }
 
 #include "moc_distortelement.cpp"

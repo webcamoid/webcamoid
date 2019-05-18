@@ -19,7 +19,6 @@
 
 #include <QDataStream>
 #include <QDebug>
-#include <QRegExp>
 #include <QStringList>
 #include <QVariant>
 
@@ -29,31 +28,19 @@ class AkCapsPrivate
 {
     public:
         QString m_mimeType;
-        bool m_isValid {false};
 };
 
-AkCaps::AkCaps(QObject *parent): QObject(parent)
+AkCaps::AkCaps(const QString &mimeType, QObject *parent):
+    QObject(parent)
 {
     this->d = new AkCapsPrivate();
-}
-
-AkCaps::AkCaps(const QVariantMap &caps)
-{
-    this->d = new AkCapsPrivate();
-    this->fromMap(caps);
-}
-
-AkCaps::AkCaps(const QString &caps)
-{
-    this->d = new AkCapsPrivate();
-    this->fromString(caps);
+    this->d->m_mimeType = mimeType;
 }
 
 AkCaps::AkCaps(const AkCaps &other):
     QObject()
 {
     this->d = new AkCapsPrivate();
-    this->d->m_isValid = other.d->m_isValid;
     this->d->m_mimeType = other.d->m_mimeType;
     this->update(other);
 }
@@ -66,18 +53,10 @@ AkCaps::~AkCaps()
 AkCaps &AkCaps::operator =(const AkCaps &other)
 {
     if (this != &other) {
-        this->clear();
-        this->d->m_isValid = other.d->m_isValid;
         this->d->m_mimeType = other.d->m_mimeType;
+        this->clear();
         this->update(other);
     }
-
-    return *this;
-}
-
-AkCaps &AkCaps::operator =(const QString &other)
-{
-    this->operator =(AkCaps(other));
 
     return *this;
 }
@@ -91,13 +70,7 @@ bool AkCaps::operator ==(const AkCaps &other) const
         if (this->property(property) != other.property(property))
             return false;
 
-    return this->d->m_mimeType == other.d->m_mimeType
-            && this->d->m_isValid == other.d->m_isValid;
-}
-
-bool AkCaps::operator ==(const QString &caps) const
-{
-    return this->toString() == caps;
+    return this->d->m_mimeType == other.d->m_mimeType;
 }
 
 bool AkCaps::operator !=(const AkCaps &other) const
@@ -105,24 +78,9 @@ bool AkCaps::operator !=(const AkCaps &other) const
     return !(*this == other);
 }
 
-bool AkCaps::operator !=(const QString &caps) const
-{
-    return !(*this == caps);
-}
-
 AkCaps::operator bool() const
 {
-    return this->d->m_isValid;
-}
-
-bool AkCaps::isValid() const
-{
-    return this->d->m_isValid;
-}
-
-bool &AkCaps::isValid()
-{
-    return this->d->m_isValid;
+    return !this->d->m_mimeType.isEmpty();
 }
 
 QString AkCaps::mimeType() const
@@ -130,96 +88,31 @@ QString AkCaps::mimeType() const
     return this->d->m_mimeType;
 }
 
-AkCaps &AkCaps::fromMap(const QVariantMap &caps)
+AkCaps AkCaps::fromMap(const QVariantMap &caps)
 {
-    QList<QByteArray> properties = this->dynamicPropertyNames();
+    AkCaps akCaps;
 
-    for (const QByteArray &property: properties)
-        this->setProperty(property, QVariant());
-
-    if (!caps.contains("mimeType")) {
-        this->d->m_isValid = false;
-        this->d->m_mimeType = "";
-
-        return *this;
-    }
+    if (!caps.contains("mimeType"))
+        return akCaps;
 
     for (auto it = caps.begin(); it != caps.end(); it++)
-        if (it.key() == "mimeType") {
-            this->d->m_isValid = QRegExp(R"(\s*[a-z]+/\w+(?:(?:-|\+|\.)\w+)*\s*)")
-                                 .exactMatch(it.value().toString());
-            this->d->m_mimeType = it.value().toString().trimmed();
-        } else
-            this->setProperty(it.key().trimmed().toStdString().c_str(),
-                              it.value());
+        akCaps.setProperty(it.key().toStdString().c_str(), it.value());
 
-    return *this;
-}
-
-AkCaps &AkCaps::fromString(const QString &caps)
-{
-    this->d->m_isValid = QRegExp("\\s*[a-z]+/\\w+(?:(?:-|\\+|\\.)\\w+)*"
-                                 "(?:\\s*,\\s*[a-zA-Z_]\\w*\\s*="
-                                 "\\s*[^,=]+)*\\s*").exactMatch(caps);
-
-    QList<QByteArray> properties = this->dynamicPropertyNames();
-
-    for (const QByteArray &property: properties)
-        this->setProperty(property, QVariant());
-
-    QStringList capsChunks;
-
-    if (this->d->m_isValid)
-        capsChunks = caps.split(QRegExp("\\s*,\\s*"),
-                                      QString::SkipEmptyParts);
-
-    for (int i = 1; i < capsChunks.length(); i++) {
-        QStringList pair = capsChunks[i].split(QRegExp("\\s*=\\s*"),
-                                               QString::SkipEmptyParts);
-
-        this->setProperty(pair[0].trimmed().toStdString().c_str(),
-                          pair[1].trimmed());
-    }
-
-    this->setMimeType(this->d->m_isValid? capsChunks[0].trimmed(): QString(""));
-
-    return *this;
+    return akCaps;
 }
 
 QVariantMap AkCaps::toMap() const
 {
-    if (!this->d->m_isValid)
-        return QVariantMap();
-
-    QVariantMap caps;
-    caps["mimeType"] = this->d->m_mimeType;
+    QVariantMap map {
+        {"mimeType", this->d->m_mimeType},
+    };
 
     for (auto &property: this->dynamicPropertyNames()) {
         auto key = QString::fromUtf8(property.constData());
-        caps[key] = this->property(property.toStdString().c_str());
+        map[key] = this->property(property);
     }
 
-    return caps;
-}
-
-QString AkCaps::toString() const
-{
-    if (!this->d->m_isValid)
-        return QString();
-
-    QString caps = this->d->m_mimeType;
-    QStringList properties;
-
-    for (auto &property: this->dynamicPropertyNames())
-        properties << QString::fromUtf8(property.constData());
-
-    properties.sort();
-
-    for (auto &property: properties)
-        caps.append(QString(",%1=%2").arg(property,
-                                          this->property(property.toStdString().c_str()).toString()));
-
-    return caps;
+    return map;
 }
 
 AkCaps &AkCaps::update(const AkCaps &other)
@@ -254,8 +147,7 @@ bool AkCaps::contains(const QString &property) const
 
 void AkCaps::setMimeType(const QString &mimeType)
 {
-    this->d->m_isValid = QRegExp(R"(\s*[a-z]+/\w+(?:(?:-|\+|\.)\w+)*\s*)").exactMatch(mimeType);
-    QString _mimeType = this->d->m_isValid? mimeType.trimmed(): QString("");
+    QString _mimeType = mimeType.trimmed();
 
     if (this->d->m_mimeType == _mimeType)
         return;
@@ -271,32 +163,65 @@ void AkCaps::resetMimeType()
 
 void AkCaps::clear()
 {
-    this->d->m_mimeType.clear();
-    this->d->m_isValid = false;
-
     for (auto &property: this->dynamicPropertyNames())
         this->setProperty(property.constData(), QVariant());
 }
 
 QDebug operator <<(QDebug debug, const AkCaps &caps)
 {
-    debug.nospace() << caps.toString();
+    debug.nospace() << "AkCaps("
+                    << "mimeType="
+                    << caps.mimeType();
+
+    QStringList properties;
+
+    for (auto &property: caps.dynamicPropertyNames())
+        properties << QString::fromUtf8(property.constData());
+
+    properties.sort();
+
+    for (auto &property: properties)
+        debug.nospace() << ","
+                        << property.toStdString().c_str()
+                        << "="
+                        << caps.property(property.toStdString().c_str());
+
+    debug.nospace() << ")";
 
     return debug.space();
 }
 
 QDataStream &operator >>(QDataStream &istream, AkCaps &caps)
 {
-    QString capsStr;
-    istream >> capsStr;
-    caps.fromString(capsStr);
+    qsizetype nProperties;
+    istream >> nProperties;
+
+    for (qsizetype i = 0; i < nProperties; i++) {
+        QByteArray key;
+        QVariant value;
+        istream >> key;
+        istream >> value;
+
+        caps.setProperty(key.toStdString().c_str(), value);
+    }
 
     return istream;
 }
 
 QDataStream &operator <<(QDataStream &ostream, const AkCaps &caps)
 {
-    ostream << caps.toString();
+    QVariantMap staticProperties {
+        {"mimeType", caps.mimeType()},
+    };
+
+    qsizetype nProperties =
+            staticProperties.size() + caps.dynamicPropertyNames().size();
+    ostream << nProperties;
+
+    for (auto &key: caps.dynamicPropertyNames()) {
+        ostream << key;
+        ostream << caps.property(key);
+    }
 
     return ostream;
 }

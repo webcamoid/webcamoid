@@ -46,7 +46,7 @@ class AudioDevQtAudioPrivate
         QMap<QString, AkAudioCaps> m_pinCapsMap;
         QMap<QString, QString> m_pinDescriptionMap;
         QMap<QString, QList<AkAudioCaps::SampleFormat>> m_supportedFormats;
-        QMap<QString, QList<int>> m_supportedChannels;
+        QMap<QString, QList<AkAudioCaps::ChannelLayout>> m_supportedLayouts;
         QMap<QString, QList<int>> m_supportedSampleRates;
         AudioDeviceBuffer m_outputDeviceBuffer;
         QIODevice *m_inputDeviceBuffer {nullptr};
@@ -111,9 +111,9 @@ QList<AkAudioCaps::SampleFormat> AudioDevQtAudio::supportedFormats(const QString
     return this->d->m_supportedFormats.value(device);
 }
 
-QList<int> AudioDevQtAudio::supportedChannels(const QString &device)
+QList<AkAudioCaps::ChannelLayout> AudioDevQtAudio::supportedChannelLayouts(const QString &device)
 {
-    return this->d->m_supportedChannels.value(device);
+    return this->d->m_supportedLayouts.value(device);
 }
 
 QList<int> AudioDevQtAudio::supportedSampleRates(const QString &device)
@@ -234,6 +234,13 @@ bool AudioDevQtAudio::uninit()
 
 AkAudioCaps::SampleFormat AudioDevQtAudioPrivate::qtFormatToAk(const QAudioFormat &format) const
 {
+    if (Q_BYTE_ORDER == Q_LITTLE_ENDIAN
+        && format.byteOrder() != QAudioFormat::LittleEndian)
+        return  {};
+    else if (Q_BYTE_ORDER == Q_BIG_ENDIAN
+        && format.byteOrder() != QAudioFormat::BigEndian)
+        return  {};
+
     return AkAudioCaps::sampleFormatFromProperties(
                 format.sampleType() == QAudioFormat::SignedInt?
                     AkAudioCaps::SampleType_int:
@@ -277,31 +284,12 @@ void AudioDevQtAudio::updateDevices()
     decltype(this->d->m_pinCapsMap) pinCapsMap;
     decltype(this->d->m_pinDescriptionMap) pinDescriptionMap;
     decltype(this->d->m_supportedFormats) supportedFormats;
-    decltype(this->d->m_supportedChannels) supportedChannels;
+    decltype(this->d->m_supportedLayouts) supportedLayouts;
     decltype(this->d->m_supportedSampleRates) supportedSampleRates;
 
     for (auto &mode: QVector<QAudio::Mode> {QAudio::AudioInput,
                                             QAudio::AudioOutput}) {
         for (auto &device: QAudioDeviceInfo::availableDevices(mode)) {
-            auto description = device.deviceName();
-            auto deviceName = description;
-
-            if (mode == QAudio::AudioInput) {
-                deviceName += ":Input";
-                sources[device] = deviceName;
-            } else {
-                deviceName += ":Output";
-                sinks[device] = deviceName;
-            }
-
-            auto preferredFormat = device.preferredFormat();
-            auto channels = preferredFormat.channelCount();
-
-            pinCapsMap[deviceName] =
-                    AkAudioCaps(this->d->qtFormatToAk(preferredFormat),
-                                AkAudioCaps::defaultChannelLayout(channels),
-                                preferredFormat.sampleRate());
-            pinDescriptionMap[deviceName] = description;
             QList<AkAudioCaps::SampleFormat> _supportedFormats;
             QAudioFormat audioFormat;
             audioFormat.setChannelCount(2);
@@ -316,13 +304,44 @@ void AudioDevQtAudio::updateDevices()
                         audioFormat.setSampleType(sampleType);
                         auto format = this->d->qtFormatToAk(audioFormat);
 
-                        if (format != AkAudioCaps::SampleFormat_none)
+                        if (format != AkAudioCaps::SampleFormat_none
+                            && !_supportedFormats.contains(format))
                             _supportedFormats << format;
                     }
 
-            supportedFormats[deviceName] = _supportedFormats;
-            supportedChannels[deviceName] = device.supportedChannelCounts();
-            supportedSampleRates[deviceName] = device.supportedSampleRates();
+            std::sort(_supportedFormats.begin(), _supportedFormats.end());
+            QList<AkAudioCaps::ChannelLayout> layouts;
+
+            for (auto &channels: device.supportedChannelCounts())
+                layouts << AkAudioCaps::defaultChannelLayout(channels);
+
+            auto rates = device.supportedSampleRates();
+
+            if (!_supportedFormats.isEmpty()
+                && !layouts.isEmpty()
+                && !rates.isEmpty()) {
+                auto deviceName = device.deviceName();
+
+                if (mode == QAudio::AudioInput) {
+                    deviceName += ":Input";
+                    sources[device] = deviceName;
+                } else {
+                    deviceName += ":Output";
+                    sinks[device] = deviceName;
+                }
+
+                auto preferredFormat = device.preferredFormat();
+                auto channels = preferredFormat.channelCount();
+
+                pinDescriptionMap[deviceName] = device.deviceName();
+                pinCapsMap[deviceName] =
+                        AkAudioCaps(this->d->qtFormatToAk(preferredFormat),
+                                    AkAudioCaps::defaultChannelLayout(channels),
+                                    preferredFormat.sampleRate());
+                supportedFormats[deviceName] = _supportedFormats;
+                supportedLayouts[deviceName] = layouts;
+                supportedSampleRates[deviceName] = rates;
+            }
         }
     }
 
@@ -335,8 +354,8 @@ void AudioDevQtAudio::updateDevices()
     if (this->d->m_supportedFormats != supportedFormats)
         this->d->m_supportedFormats = supportedFormats;
 
-    if (this->d->m_supportedChannels != supportedChannels)
-        this->d->m_supportedChannels = supportedChannels;
+    if (this->d->m_supportedLayouts != supportedLayouts)
+        this->d->m_supportedLayouts = supportedLayouts;
 
     if (this->d->m_supportedSampleRates != supportedSampleRates)
         this->d->m_supportedSampleRates = supportedSampleRates;

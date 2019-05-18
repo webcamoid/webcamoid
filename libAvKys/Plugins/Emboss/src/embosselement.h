@@ -52,6 +52,7 @@ class EmbossElement: public AkElement
         QString controlInterfaceProvide(const QString &controlId) const;
         void controlInterfaceConfigure(QQmlContext *context,
                                        const QString &controlId) const;
+        AkPacket iVideoStream(const AkVideoPacket &packet);
 
     signals:
         void factorChanged(qreal factor);
@@ -62,7 +63,6 @@ class EmbossElement: public AkElement
         void setBias(qreal bias);
         void resetFactor();
         void resetBias();
-        AkPacket iStream(const AkPacket &packet);
 };
 
 #endif // EmbossELEMENT_H

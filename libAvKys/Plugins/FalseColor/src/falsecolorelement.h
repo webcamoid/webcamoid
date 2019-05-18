@@ -52,6 +52,7 @@ class FalseColorElement: public AkElement
         QString controlInterfaceProvide(const QString &controlId) const;
         void controlInterfaceConfigure(QQmlContext *context,
                                        const QString &controlId) const;
+        AkPacket iVideoStream(const AkVideoPacket &packet);
 
     signals:
         void tableChanged(const QVariantList &table);
@@ -62,7 +63,6 @@ class FalseColorElement: public AkElement
         void setSoft(bool soft);
         void resetTable();
         void resetSoft();
-        AkPacket iStream(const AkPacket &packet);
 };
 
 #endif // FALSECOLORELEMENT_H

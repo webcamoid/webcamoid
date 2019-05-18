@@ -40,201 +40,13 @@
 
 #define MINIMUM_PLUGIN_RANK GST_RANK_SECONDARY
 
-using StringStringMap = QMap<QString, QString>;
-
-inline StringStringMap initGstToFF()
-{
-    StringStringMap gstToFF {
-        // Audio
-        {"S8"      , "s8"     },
-        {"U8"      , "u8"     },
-        {"S16LE"   , "s16le"  },
-        {"S16BE"   , "s16be"  },
-        {"U16LE"   , "u16le"  },
-        {"U16BE"   , "u16be"  },
-        {"S24_32LE", "s2432le"},
-        {"S24_32BE", "s2432be"},
-        {"U24_32LE", "u2432le"},
-        {"U24_32BE", "u2432be"},
-        {"S32LE"   , "s32le"  },
-        {"S32BE"   , "s32be"  },
-        {"U32LE"   , "u32le"  },
-        {"U32BE"   , "u32be"  },
-        {"S24LE"   , "s24le"  },
-        {"S24BE"   , "s24be"  },
-        {"U24LE"   , "u24le"  },
-        {"U24BE"   , "u24be"  },
-        {"S20LE"   , "s20le"  },
-        {"S20BE"   , "s20be"  },
-        {"U20LE"   , "u20le"  },
-        {"U20BE"   , "u20be"  },
-        {"S18LE"   , "s18le"  },
-        {"S18BE"   , "s18be"  },
-        {"U18LE"   , "u18le"  },
-        {"U18BE"   , "u18le"  },
-        {"F32LE"   , "fltle"  },
-        {"F32BE"   , "fltbe"  },
-        {"F64LE"   , "dblle"  },
-        {"F64BE"   , "dblbe"  },
-        {"S16"     , "s16"    },
-        {"U16"     , "u16"    },
-        {"S24_32"  , "s2432"  },
-        {"U24_32"  , "u2432"  },
-        {"S32"     , "s32"    },
-        {"U32"     , "u32"    },
-        {"S24"     , "s24"    },
-        {"U24"     , "u24"    },
-        {"S20"     , "s20"    },
-        {"U20"     , "u20"    },
-        {"S18"     , "s18"    },
-        {"U18"     , "u18"    },
-        {"F32"     , "flt"    },
-        {"F64"     , "dbl"    },
-
-        // Video
-        {"I420", "yuv420p"},
-        //{"YV12", ""},
-        {"YUY2", "yuyv422"},
-        {"UYVY", "uyvy422"},
-        //{"AYUV", ""},
-        {"RGBx", "rgb0"   },
-        {"BGRx", "bgr0"   },
-        {"xRGB", "0rgb"   },
-        {"xBGR", "0bgr"   },
-        {"RGBA", "rgba"   },
-        {"BGRA", "bgra"   },
-        {"ARGB", "argb"   },
-        {"ABGR", "abgr"   },
-        {"RGB" , "rgb24"  },
-        {"BGR" , "bgr24"  },
-        {"Y41B", "yuv411p"},
-        {"Y42B", "yuv422p"},
-        //{"YVYU", ""},
-        {"Y444"     , "yuv444p" },
-        {"v210"     , "v210"    },
-        {"v216"     , "v216"    },
-        {"NV12"     , "nv12"    },
-        {"NV21"     , "nv21"    },
-        {"GRAY8"    , "gray8"   },
-        {"GRAY16_BE", "gray16be"},
-        {"GRAY16_LE", "gray16le"},
-        {"V308"     , "v308"    },
-        {"RGB16"    , "rgb565"  },
-        {"BGR16"    , "bgr565le"},
-        {"RGB15"    , "rgb555"  },
-        {"BGR15"    , "rgb555le"},
-        //{"UYVP", ""},
-        {"A420" , "yuva420p"},
-        {"RGB8P", "pal8"    },
-        {"YUV9" , "yuv410p" },
-        //{"YVU9"  , ""},
-        //{"IYU1"  , ""},
-        //{"ARGB64", ""},
-        {"AYUV64", "ayuv64le"},
-        //{"r210", ""},
-        {"I420_10BE", "yuv420p10be"},
-        {"I420_10LE", "yuv420p10le"},
-        {"I422_10BE", "yuv422p10be"},
-        {"I422_10LE", "yuv422p10le"},
-        {"Y444_10BE", "yuv444p10be"},
-        {"Y444_10LE", "yuv444p10le"},
-        {"GBR"      , "gbrp"       },
-        {"GBR_10BE" , "gbrp10be"   },
-        {"GBR_10LE" , "gbrp10le"   },
-        {"NV16"     , "nv16"       },
-        //{"NV24"      , ""},
-        //{"NV12_64Z32", ""},
-        {"A420_10BE", "yuva420p10be"},
-        {"A420_10LE", "yuva420p10le"},
-        {"A422_10BE", "yuva422p10be"},
-        {"A422_10LE", "yuva422p10le"},
-        {"A444_10BE", "yuva444p10be"},
-        {"A444_10LE", "yuva444p10le"},
-        //{"NV61", ""},
-    };
-
-    return gstToFF;
-}
-
-Q_GLOBAL_STATIC_WITH_ARGS(StringStringMap, gstToFF, (initGstToFF()))
-
-using VectorVideoCaps = QVector<AkVideoCaps>;
-
-inline VectorVideoCaps initDVSupportedCaps()
-{
-    QStringList supportedCaps = {
-        // Digital Video doesn't support height > 576 yet.
-        /*"video/x-raw,format=yuv422p,width=1440,height=1080,fps=25/1",
-        "video/x-raw,format=yuv422p,width=1280,height=1080,fps=30000/1001",
-        "video/x-raw,format=yuv422p,width=960,height=720,fps=60000/1001",
-        "video/x-raw,format=yuv422p,width=960,height=720,fps=50/1",*/
-        "video/x-raw,format=yuv422p,width=720,height=576,fps=25/1",
-        "video/x-raw,format=yuv420p,width=720,height=576,fps=25/1",
-        "video/x-raw,format=yuv411p,width=720,height=576,fps=25/1",
-        "video/x-raw,format=yuv422p,width=720,height=480,fps=30000/1001",
-        "video/x-raw,format=yuv411p,width=720,height=480,fps=30000/1001"
-    };
-
-    VectorVideoCaps dvSupportedCaps(supportedCaps.size());
-
-    for (int i = 0; i < dvSupportedCaps.size(); i++)
-        dvSupportedCaps[i] = supportedCaps[i];
-
-    return dvSupportedCaps;
-}
-
-Q_GLOBAL_STATIC_WITH_ARGS(VectorVideoCaps, dvSupportedCaps, (initDVSupportedCaps()))
-
 using VectorInt = QVector<int>;
-using StringVectorIntMap = QMap<QString, VectorInt>;
-
-inline StringVectorIntMap initFLVSupportedSampleRates()
-{
-    StringVectorIntMap flvSupportedSampleRates = {
-        {"avenc_adpcm_swf" , {5512, 11025, 22050, 44100              }},
-        {"lamemp3enc"      , {5512, 8000 , 11025, 22050, 44100       }},
-        {"faac"            , {                                       }},
-        {"avenc_nellymoser", {5512, 8000 , 11025, 16000, 22050, 44100}},
-        {"identity"        , {5512, 11025, 22050, 44100              }},
-        {"alawenc"         , {5512, 11025, 22050, 44100              }},
-        {"mulawenc"        , {5512, 11025, 22050, 44100              }},
-        {"speexenc"        , {16000                                  }}
-    };
-
-    return flvSupportedSampleRates;
-}
-
-Q_GLOBAL_STATIC_WITH_ARGS(StringVectorIntMap, flvSupportedSampleRates, (initFLVSupportedSampleRates()))
-
-using OptionTypeStrMap = QMap<GType, QString>;
-
-inline OptionTypeStrMap initGstOptionTypeStrMap()
-{
-    static const OptionTypeStrMap optionTypeStrMap = {
-        {G_TYPE_STRING          , "string" },
-        {G_TYPE_BOOLEAN         , "boolean"},
-        {G_TYPE_ULONG           , "number" },
-        {G_TYPE_LONG            , "number" },
-        {G_TYPE_UINT            , "number" },
-        {G_TYPE_INT             , "number" },
-        {G_TYPE_UINT64          , "number" },
-        {G_TYPE_INT64           , "number" },
-        {G_TYPE_FLOAT           , "number" },
-        {G_TYPE_DOUBLE          , "number" },
-        {G_TYPE_CHAR            , "number" },
-        {G_TYPE_UCHAR           , "number" },
-        {G_TYPE_PARAM_ENUM      , "menu"   },
-        {G_TYPE_PARAM_FLAGS     , "flags"  },
-        {GST_TYPE_CAPS          , "caps"   },
-        {GST_TYPE_PARAM_FRACTION, "frac"   },
-    };
-
-    return optionTypeStrMap;
-}
-
-Q_GLOBAL_STATIC_WITH_ARGS(OptionTypeStrMap, codecGstOptionTypeToStr, (initGstOptionTypeStrMap()))
-
 using SizeList = QList<QSize>;
+using GstToSampleFormatMap = QMap<AkAudioCaps::SampleFormat, QString>;
+using GstToPixelFormatMap = QMap<AkVideoCaps::PixelFormat, QString>;
+using VectorVideoCaps = QVector<AkVideoCaps>;
+using StringVectorIntMap = QMap<QString, VectorInt>;
+using OptionTypeStrMap = QMap<GType, QString>;
 
 class MediaWriterGStreamerPrivate
 {
@@ -274,6 +86,140 @@ class MediaWriterGStreamerPrivate
         AkVideoCaps nearestFrameSize(const AkVideoCaps &caps,
                                      const QList<QSize> &frameSizes) const;
 
+        inline static const GstToSampleFormatMap &gstToSampleFormat()
+        {
+            static const GstToSampleFormatMap gstToFormat {
+                {AkAudioCaps::SampleFormat_s8   , "S8"   },
+                {AkAudioCaps::SampleFormat_u8   , "U8"   },
+                {AkAudioCaps::SampleFormat_s16le, "S16LE"},
+                {AkAudioCaps::SampleFormat_s16be, "S16BE"},
+                {AkAudioCaps::SampleFormat_u16le, "U16LE"},
+                {AkAudioCaps::SampleFormat_u16be, "U16BE"},
+                {AkAudioCaps::SampleFormat_s32le, "S32LE"},
+                {AkAudioCaps::SampleFormat_s32be, "S32BE"},
+                {AkAudioCaps::SampleFormat_u32le, "U32LE"},
+                {AkAudioCaps::SampleFormat_u32be, "U32BE"},
+                {AkAudioCaps::SampleFormat_fltle, "F32LE"},
+                {AkAudioCaps::SampleFormat_fltbe, "F32BE"},
+                {AkAudioCaps::SampleFormat_dblle, "F64LE"},
+                {AkAudioCaps::SampleFormat_dblbe, "F64BE"},
+            };
+
+            return gstToFormat;
+        }
+
+        inline static const GstToPixelFormatMap &gstToPixelFormat()
+        {
+            static const GstToPixelFormatMap gstToFormat {
+                {AkVideoCaps::Format_yuv420p     , "I420"     },
+                {AkVideoCaps::Format_yuyv422     , "YUY2"     },
+                {AkVideoCaps::Format_uyvy422     , "UYVY"     },
+                {AkVideoCaps::Format_rgb0        , "RGBx"     },
+                {AkVideoCaps::Format_bgr0        , "BGRx"     },
+                {AkVideoCaps::Format_0rgb        , "xRGB"     },
+                {AkVideoCaps::Format_0bgr        , "xBGR"     },
+                {AkVideoCaps::Format_rgba        , "RGBA"     },
+                {AkVideoCaps::Format_bgra        , "BGRA"     },
+                {AkVideoCaps::Format_argb        , "ARGB"     },
+                {AkVideoCaps::Format_abgr        , "ABGR"     },
+                {AkVideoCaps::Format_rgb24       , "RGB"      },
+                {AkVideoCaps::Format_bgr24       , "BGR"      },
+                {AkVideoCaps::Format_yuv411p     , "Y41B"     },
+                {AkVideoCaps::Format_yuv422p     , "Y42B"     },
+                {AkVideoCaps::Format_yuv444p     , "Y444"     },
+                {AkVideoCaps::Format_nv12        , "NV12"     },
+                {AkVideoCaps::Format_nv21        , "NV21"     },
+                {AkVideoCaps::Format_gray        , "GRAY8"    },
+                {AkVideoCaps::Format_gray16be    , "GRAY16_BE"},
+                {AkVideoCaps::Format_gray16le    , "GRAY16_LE"},
+                {AkVideoCaps::Format_rgb565le    , "RGB16"    },
+                {AkVideoCaps::Format_bgr565le    , "BGR16"    },
+                {AkVideoCaps::Format_rgb555le    , "RGB15"    },
+                {AkVideoCaps::Format_rgb555le    , "BGR15"    },
+                {AkVideoCaps::Format_yuva420p    , "A420"     },
+                {AkVideoCaps::Format_pal8        , "RGB8P"    },
+                {AkVideoCaps::Format_yuv410p     , "YUV9"     },
+                {AkVideoCaps::Format_ayuv64le    , "AYUV64"   },
+                {AkVideoCaps::Format_yuv420p10be , "I420_10BE"},
+                {AkVideoCaps::Format_yuv420p10le , "I420_10LE"},
+                {AkVideoCaps::Format_yuv422p10be , "I422_10BE"},
+                {AkVideoCaps::Format_yuv422p10le , "I422_10LE"},
+                {AkVideoCaps::Format_yuv444p10be , "Y444_10BE"},
+                {AkVideoCaps::Format_yuv444p10le , "Y444_10LE"},
+                {AkVideoCaps::Format_gbrp        , "GBR"      },
+                {AkVideoCaps::Format_gbrp10be    , "GBR_10BE" },
+                {AkVideoCaps::Format_gbrp10le    , "GBR_10LE" },
+                {AkVideoCaps::Format_nv16        , "NV16"     },
+                {AkVideoCaps::Format_yuva420p10be, "A420_10BE"},
+                {AkVideoCaps::Format_yuva420p10le, "A420_10LE"},
+                {AkVideoCaps::Format_yuva422p10be, "A422_10BE"},
+                {AkVideoCaps::Format_yuva422p10le, "A422_10LE"},
+                {AkVideoCaps::Format_yuva444p10be, "A444_10BE"},
+                {AkVideoCaps::Format_yuva444p10le, "A444_10LE"},
+            };
+
+            return gstToFormat;
+        }
+
+        inline static const VectorVideoCaps &dvSupportedCaps()
+        {
+            static const VectorVideoCaps dvSupportedCaps {
+                // Digital Video doesn't support height > 576 yet.
+                /*
+                {AkVideoCaps::Format_yuv422p, 1440, 1080, {25, 1}      },
+                {AkVideoCaps::Format_yuv422p, 1280, 1080, {30000, 1001}},
+                {AkVideoCaps::Format_yuv422p, 960 , 720 , {60000, 1001}},
+                {AkVideoCaps::Format_yuv422p, 960 , 720 , {50, 1}      },*/
+                {AkVideoCaps::Format_yuv422p, 720 , 576 , {25, 1}      },
+                {AkVideoCaps::Format_yuv420p, 720 , 576 , {25, 1}      },
+                {AkVideoCaps::Format_yuv411p, 720 , 576 , {25, 1}      },
+                {AkVideoCaps::Format_yuv422p, 720 , 480 , {30000, 1001}},
+                {AkVideoCaps::Format_yuv411p, 720 , 480 , {30000, 1001}},
+            };
+
+            return dvSupportedCaps;
+        }
+
+        inline static const StringVectorIntMap &flvSupportedSampleRates()
+        {
+            static const StringVectorIntMap flvSupportedSampleRates {
+                {"avenc_adpcm_swf" , {5512, 11025, 22050, 44100}              },
+                {"lamemp3enc"      , {5512, 8000 , 11025, 22050, 44100}       },
+                {"faac"            , {}                                       },
+                {"avenc_nellymoser", {5512, 8000 , 11025, 16000, 22050, 44100}},
+                {"identity"        , {5512, 11025, 22050, 44100}              },
+                {"alawenc"         , {5512, 11025, 22050, 44100}              },
+                {"mulawenc"        , {5512, 11025, 22050, 44100}              },
+                {"speexenc"        , {16000}                                  },
+            };
+
+            return flvSupportedSampleRates;
+        }
+
+        inline static const OptionTypeStrMap &codecGstOptionTypeToStr()
+        {
+            static const OptionTypeStrMap optionTypeStrMap {
+                {G_TYPE_STRING          , "string" },
+                {G_TYPE_BOOLEAN         , "boolean"},
+                {G_TYPE_ULONG           , "number" },
+                {G_TYPE_LONG            , "number" },
+                {G_TYPE_UINT            , "number" },
+                {G_TYPE_INT             , "number" },
+                {G_TYPE_UINT64          , "number" },
+                {G_TYPE_INT64           , "number" },
+                {G_TYPE_FLOAT           , "number" },
+                {G_TYPE_DOUBLE          , "number" },
+                {G_TYPE_CHAR            , "number" },
+                {G_TYPE_UCHAR           , "number" },
+                {G_TYPE_PARAM_ENUM      , "menu"   },
+                {G_TYPE_PARAM_FLAGS     , "flags"  },
+                {GST_TYPE_CAPS          , "caps"   },
+                {GST_TYPE_PARAM_FRACTION, "frac"   },
+            };
+
+            return optionTypeStrMap;
+        }
+
         template<typename R, typename S>
         inline static R align(R value, S align)
         {
@@ -285,7 +231,6 @@ MediaWriterGStreamer::MediaWriterGStreamer(QObject *parent):
     MediaWriter(parent)
 {
     this->d = new MediaWriterGStreamerPrivate(this);
-
 //    setenv("GST_DEBUG", "2", 1);
     gst_init(nullptr, nullptr);
 
@@ -702,12 +647,16 @@ QVariantMap MediaWriterGStreamer::defaultCodecParams(const QString &codec)
 
     if (codecType == "audio/x-raw") {
         if (codec.startsWith("identity/audio")) {
-            auto sampleFormat = gstToFF->value(codec.split("/").at(2), "s16");
+            auto gstFormat = codec.split("/").at(2);
+            auto sampleFormat =
+                    MediaWriterGStreamerPrivate::gstToSampleFormat().key(gstFormat,
+                                                                         AkAudioCaps::SampleFormat_none);
+            auto sampleFormatStr = AkAudioCaps::sampleFormatToString(sampleFormat);
             codecParams["defaultBitRate"] = 128000;
-            codecParams["supportedSampleFormats"] = QStringList {sampleFormat};
+            codecParams["supportedSampleFormats"] = QStringList {sampleFormatStr};
             codecParams["supportedChannelLayouts"] = QStringList {"mono", "stereo"};
             codecParams["supportedSampleRates"] = QVariantList();
-            codecParams["defaultSampleFormat"] = sampleFormat;
+            codecParams["defaultSampleFormat"] = sampleFormatStr;
             codecParams["defaultChannelLayout"] = "stereo";
             codecParams["defaultChannels"] = 2;
             codecParams["defaultSampleRate"] = 44100;
@@ -758,21 +707,31 @@ QVariantMap MediaWriterGStreamer::defaultCodecParams(const QString &codec)
                                 GType fieldType = gst_structure_get_field_type(capsStructure, "format");
 
                                 if (fieldType == G_TYPE_STRING) {
-                                    const gchar *format = gst_structure_get_string(capsStructure, "format");
-                                    auto formatFF = gstToFF->value(format, "");
+                                    auto format = gst_structure_get_string(capsStructure, "format");
+                                    auto formatFF =
+                                            MediaWriterGStreamerPrivate::gstToSampleFormat().key(format,
+                                                                                                 AkAudioCaps::SampleFormat_none);
+                                    auto formatFFStr = AkAudioCaps::sampleFormatToString(formatFF);
 
-                                    if (!formatFF.isEmpty() && !supportedSampleFormats.contains(formatFF))
-                                        supportedSampleFormats << formatFF;
+                                    if (!formatFFStr.isEmpty()
+                                        && formatFFStr != "none"
+                                        && !supportedSampleFormats.contains(formatFFStr))
+                                        supportedSampleFormats << formatFFStr;
                                 } else if (fieldType == GST_TYPE_LIST) {
                                     const GValue *formats = gst_structure_get_value(capsStructure, "format");
 
                                     for (guint i = 0; i < gst_value_list_get_size(formats); i++) {
                                         auto format = gst_value_list_get_value(formats, i);
                                         auto formatId = g_value_get_string(format);
-                                        auto formatFF = gstToFF->value(formatId, "");
+                                        auto formatFF =
+                                                MediaWriterGStreamerPrivate::gstToSampleFormat().key(formatId,
+                                                                                                     AkAudioCaps::SampleFormat_none);
+                                        auto formatFFStr = AkAudioCaps::sampleFormatToString(formatFF);
 
-                                        if (!formatFF.isEmpty() && !supportedSampleFormats.contains(formatFF))
-                                            supportedSampleFormats << formatFF;
+                                        if (!formatFFStr.isEmpty()
+                                            && formatFFStr != "none"
+                                            && !supportedSampleFormats.contains(formatFFStr))
+                                            supportedSampleFormats << formatFFStr;
                                     }
                                 }
                             }
@@ -877,12 +836,12 @@ QVariantMap MediaWriterGStreamer::defaultCodecParams(const QString &codec)
             codecParams["supportedSampleFormats"] = supportedSampleFormats;
             codecParams["supportedChannelLayouts"] = supportedChannelLayouts;
             codecParams["supportedSampleRates"] = supportedSamplerates;
-
-            codecParams["defaultSampleFormat"] = supportedSampleFormats.isEmpty()?
-                                                     QString("s16"): supportedSampleFormats.at(0);
-
-            QString channelLayout = supportedChannelLayouts.isEmpty()?
-                                        QString("stereo"): supportedChannelLayouts.at(0);
+            codecParams["defaultSampleFormat"] =
+                    supportedSampleFormats.isEmpty()?
+                        QString("s16"): supportedSampleFormats.at(0);
+            QString channelLayout =
+                    supportedChannelLayouts.isEmpty()?
+                        QString("stereo"): supportedChannelLayouts.at(0);
             codecParams["defaultChannelLayout"] = channelLayout;
             codecParams["defaultChannels"] = AkAudioCaps::channelCount(channelLayout);
             codecParams["defaultSampleRate"] = supportedSamplerates.isEmpty()?
@@ -894,13 +853,17 @@ QVariantMap MediaWriterGStreamer::defaultCodecParams(const QString &codec)
         }
     } else if (codecType == "video/x-raw") {
         if (codec.startsWith("identity/video")) {
-            QString pixelFormat = gstToFF->value(codec.split("/").at(2), "yuv420p");
+            auto gstFormat = codec.split("/").at(2);
+            auto pixelFormat =
+                    MediaWriterGStreamerPrivate::gstToPixelFormat().key(gstFormat,
+                                                                        AkVideoCaps::Format_none);
+            auto pixelFormatStr = AkVideoCaps::pixelFormatToString(pixelFormat);
             codecParams["defaultBitRate"] = 1500000;
             codecParams["defaultGOP"] = 12;
             codecParams["supportedFrameRates"] = QVariantList();
-            codecParams["supportedPixelFormats"] = QStringList {pixelFormat};
+            codecParams["supportedPixelFormats"] = QStringList {pixelFormatStr};
             codecParams["supportedFrameSizes"] = QVariantList();
-            codecParams["defaultPixelFormat"] = pixelFormat;
+            codecParams["defaultPixelFormat"] = pixelFormatStr;
         } else {
             auto factory = gst_element_factory_find(codec.toStdString().c_str());
 
@@ -945,20 +908,32 @@ QVariantMap MediaWriterGStreamer::defaultCodecParams(const QString &codec)
 
                                 if (fieldType == G_TYPE_STRING) {
                                     auto format = gst_structure_get_string(capsStructure, "format");
-                                    auto formatFF = gstToFF->value(format, "");
+                                    auto formatFF =
+                                            MediaWriterGStreamerPrivate::gstToPixelFormat()
+                                            .key(format, AkVideoCaps::Format_none);
+                                    auto formatFFStr =
+                                            AkVideoCaps::pixelFormatToString(formatFF);
 
-                                    if (!formatFF.isEmpty() && !supportedPixelFormats.contains(formatFF))
-                                        supportedPixelFormats << formatFF;
+                                    if (!formatFFStr.isEmpty()
+                                        && formatFFStr != "none"
+                                        && !supportedPixelFormats.contains(formatFFStr))
+                                        supportedPixelFormats << formatFFStr;
                                 } else if (fieldType == GST_TYPE_LIST) {
                                     auto formats = gst_structure_get_value(capsStructure, "format");
 
                                     for (guint i = 0; i < gst_value_list_get_size(formats); i++) {
                                         auto format = gst_value_list_get_value(formats, i);
                                         auto formatId = g_value_get_string(format);
-                                        auto formatFF = gstToFF->value(formatId, "");
+                                        auto formatFF =
+                                                MediaWriterGStreamerPrivate::gstToPixelFormat()
+                                                .key(formatId, AkVideoCaps::Format_none);
+                                        auto formatFFStr =
+                                                AkVideoCaps::pixelFormatToString(formatFF);
 
-                                        if (!formatFF.isEmpty() && !supportedPixelFormats.contains(formatFF))
-                                            supportedPixelFormats << formatFF;
+                                        if (!formatFFStr.isEmpty()
+                                            && formatFFStr != "none"
+                                            && !supportedPixelFormats.contains(formatFFStr))
+                                            supportedPixelFormats << formatFFStr;
                                     }
                                 }
                             }
@@ -1482,9 +1457,9 @@ bool MediaWriterGStreamer::init()
                 audioCaps.rate() = qBound(8000, audioCaps.rate(), 96000);
             }
 
-            auto format = AkAudioCaps::sampleFormatToString(audioCaps.format());
-            auto gstFormat = gstToFF->key(format, "S16");
-
+            auto gstFormat =
+                    MediaWriterGStreamerPrivate::gstToSampleFormat()
+                    .value(audioCaps.format(), "S16");
             auto gstAudioCaps =
                     gst_caps_new_simple("audio/x-raw",
                                         "format", G_TYPE_STRING, gstFormat.toStdString().c_str(),
@@ -1565,8 +1540,9 @@ bool MediaWriterGStreamer::init()
             if (codec == "avenc_dvvideo")
                 videoCaps = this->d->nearestDVCaps(videoCaps);
 
-            auto format = AkVideoCaps::pixelFormatToString(videoCaps.format());
-            auto gstFormat = gstToFF->key(format, "I420");
+            auto gstFormat =
+                    MediaWriterGStreamerPrivate::gstToPixelFormat()
+                    .value(videoCaps.format(), "I420");
             videoCaps.setWidth(MediaWriterGStreamerPrivate::align(videoCaps.width(), 4));
 
             auto gstVideoCaps =
@@ -1765,18 +1741,9 @@ void MediaWriterGStreamer::writeAudioPacket(const AkAudioPacket &packet)
         return;
 
     auto sourceCaps = gst_app_src_get_caps(GST_APP_SRC(source));
-
-    auto iFormat = AkAudioCaps::sampleFormatToString(packet.caps().format());
-    iFormat = gstToFF->key(iFormat, "S16");
-
-#if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
-    QString fEnd = "LE";
-#elif Q_BYTE_ORDER == Q_BIG_ENDIAN
-    QString fEnd = "BE";
-#endif
-
-    if (!iFormat.endsWith(fEnd))
-        iFormat += fEnd;
+    auto iFormat =
+            MediaWriterGStreamerPrivate::gstToSampleFormat()
+            .value(packet.caps().format(), "S16LE");
 
     auto inputCaps =
             gst_caps_new_simple("audio/x-raw",
@@ -1847,9 +1814,8 @@ void MediaWriterGStreamer::writeVideoPacket(const AkVideoPacket &packet)
         return;
 
     auto sourceCaps = gst_app_src_get_caps(GST_APP_SRC(source));
-
-    auto iFormat = AkVideoCaps::pixelFormatToString(videoPacket.caps().format());
-    iFormat = gstToFF->key(iFormat, "BGR");
+    auto iFormat = MediaWriterGStreamerPrivate::gstToPixelFormat()
+                   .value(videoPacket.caps().format(), "BGR");
     auto inputCaps =
             gst_caps_new_simple("video/x-raw",
                                 "format", G_TYPE_STRING, iFormat.toStdString().c_str(),
@@ -1996,7 +1962,7 @@ QVariantList MediaWriterGStreamerPrivate::parseOptions(const GstElement *element
         qreal max = 0;
         qreal step = 0;
         QVariantList menu;
-        auto paramType = codecGstOptionTypeToStr->value(param->value_type);
+        auto paramType = MediaWriterGStreamerPrivate::codecGstOptionTypeToStr().value(param->value_type);
 
         GValue gValue;
         memset(&gValue, 0, sizeof(GValue));
@@ -2170,7 +2136,7 @@ QVariantList MediaWriterGStreamerPrivate::parseOptions(const GstElement *element
                     paramType = "frac";
                 } else if (param->value_type == GST_TYPE_CAPS) {
                     auto caps = gst_caps_to_string(gst_value_get_caps(&gValue));
-                    value = QVariant::fromValue(AkCaps(caps));
+                    value = QString(caps);
                     g_free(caps);
                     defaultValue = value;
                     paramType = "caps";
@@ -2426,7 +2392,7 @@ AkVideoCaps MediaWriterGStreamerPrivate::nearestDVCaps(const AkVideoCaps &caps) 
     AkVideoCaps nearestCaps;
     qreal q = std::numeric_limits<qreal>::max();
 
-    for (auto &sCaps: *dvSupportedCaps) {
+    for (auto &sCaps: MediaWriterGStreamerPrivate::dvSupportedCaps()) {
         qreal dw = sCaps.width() - caps.width();
         qreal dh = sCaps.height() - caps.height();
         qreal df = sCaps.fps().value() - caps.fps().value();
@@ -2447,8 +2413,9 @@ AkAudioCaps MediaWriterGStreamerPrivate::nearestFLVAudioCaps(const AkAudioCaps &
 {
     int nearestSampleRate = caps.rate();
     int q = std::numeric_limits<int>::max();
+    auto &sampleRates = MediaWriterGStreamerPrivate::flvSupportedSampleRates();
 
-    for (auto &sampleRate: flvSupportedSampleRates->value(codec)) {
+    for (auto &sampleRate: sampleRates.value(codec)) {
         int k = qAbs(sampleRate - caps.rate());
 
         if (k < q) {

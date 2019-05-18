@@ -21,6 +21,7 @@
 #include <QQmlContext>
 #include <QVector>
 #include <QtMath>
+#include <akpacket.h>
 #include <akvideopacket.h>
 
 #include "edgeelement.h"
@@ -109,6 +110,72 @@ void EdgeElement::controlInterfaceConfigure(QQmlContext *context,
     context->setContextProperty("controlId", this->objectName());
 }
 
+AkPacket EdgeElement::iVideoStream(const AkVideoPacket &packet)
+{
+    auto src = packet.toImage();
+
+    if (src.isNull())
+        return AkPacket();
+
+    src = src.convertToFormat(QImage::Format_Grayscale8);
+    QImage oFrame(src.size(), src.format());
+
+    QVector<quint8> in;
+
+    if (this->d->m_equalize)
+        in = this->d->equalize(src);
+    else {
+        int videoArea = src.width() * src.height();
+        in.resize(videoArea);
+        memcpy(in.data(), src.constBits(), size_t(videoArea));
+    }
+
+    QVector<quint16> gradient;
+    QVector<quint8> direction;
+    this->d->sobel(src.width(), src.height(), in, gradient, direction);
+
+    if (this->d->m_canny) {
+        auto thinned = this->d->thinning(src.width(),
+                                         src.height(),
+                                         gradient,
+                                         direction);
+
+        QVector<int> thresholds(2);
+        thresholds[0] = this->d->m_thLow;
+        thresholds[1] = this->d->m_thHi;
+
+        QVector<int> colors {0, 127, 255};
+        auto thresholded = this->d->threshold(src.width(),
+                                              src.height(),
+                                              thinned,
+                                              thresholds,
+                                              colors);
+        auto canny = this->d->hysteresisThresholding(src.width(),
+                                                     src.height(),
+                                                     thresholded);
+
+        for (int y = 0; y < src.height(); y++) {
+            const quint8 *srcLine = canny.constData() + y * src.width();
+            quint8 *dstLine = oFrame.scanLine(y);
+
+            for (int x = 0; x < src.width(); x++)
+                dstLine[x] = this->d->m_invert? 255 - srcLine[x]: srcLine[x];
+        }
+    } else
+        for (int y = 0; y < src.height(); y++) {
+            const quint16 *srcLine = gradient.constData() + y * src.width();
+            quint8 *dstLine = oFrame.scanLine(y);
+
+            for (int x = 0; x < src.width(); x++) {
+                int gray = qBound<int>(0, srcLine[x], 255);
+                dstLine[x] = this->d->m_invert? quint8(255 - gray): quint8(gray);
+            }
+        }
+
+    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
+    akSend(oPacket)
+}
+
 void EdgeElement::setCanny(bool canny)
 {
     if (this->d->m_canny == canny)
@@ -177,76 +244,6 @@ void EdgeElement::resetEqualize()
 void EdgeElement::resetInvert()
 {
     this->setInvert(false);
-}
-
-AkPacket EdgeElement::iStream(const AkPacket &packet)
-{
-    AkVideoPacket videoPacket(packet);
-    auto src = videoPacket.toImage();
-
-    if (src.isNull())
-        return AkPacket();
-
-    src = src.convertToFormat(QImage::Format_Grayscale8);
-    QImage oFrame(src.size(), src.format());
-
-    QVector<quint8> in;
-
-    if (this->d->m_equalize)
-        in = this->d->equalize(src);
-    else {
-        int videoArea = src.width() * src.height();
-        in.resize(videoArea);
-        memcpy(in.data(), src.constBits(), size_t(videoArea));
-    }
-
-    QVector<quint16> gradient;
-    QVector<quint8> direction;
-    this->d->sobel(src.width(), src.height(), in, gradient, direction);
-
-    if (this->d->m_canny) {
-        auto thinned = this->d->thinning(src.width(),
-                                         src.height(),
-                                         gradient,
-                                         direction);
-
-        QVector<int> thresholds(2);
-        thresholds[0] = this->d->m_thLow;
-        thresholds[1] = this->d->m_thHi;
-
-        QVector<int> colors(3);
-        colors[0] = 0;
-        colors[1] = 127;
-        colors[2] = 255;
-        auto thresholded = this->d->threshold(src.width(),
-                                              src.height(),
-                                              thinned,
-                                              thresholds,
-                                              colors);
-        auto canny = this->d->hysteresisThresholding(src.width(),
-                                                     src.height(),
-                                                     thresholded);
-
-        for (int y = 0; y < src.height(); y++) {
-            const quint8 *srcLine = canny.constData() + y * src.width();
-            quint8 *dstLine = oFrame.scanLine(y);
-
-            for (int x = 0; x < src.width(); x++)
-                dstLine[x] = this->d->m_invert? 255 - srcLine[x]: srcLine[x];
-        }
-    } else
-        for (int y = 0; y < src.height(); y++) {
-            const quint16 *srcLine = gradient.constData() + y * src.width();
-            quint8 *dstLine = oFrame.scanLine(y);
-
-            for (int x = 0; x < src.width(); x++) {
-                int gray = qBound<int>(0, srcLine[x], 255);
-                dstLine[x] = this->d->m_invert? quint8(255 - gray): quint8(gray);
-            }
-        }
-
-    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
-    akSend(oPacket)
 }
 
 QVector<quint8> EdgeElementPrivate::equalize(const QImage &image)

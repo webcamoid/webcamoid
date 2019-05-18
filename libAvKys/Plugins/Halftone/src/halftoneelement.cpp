@@ -21,6 +21,7 @@
 #include <QQmlContext>
 #include <QMutex>
 #include <QStandardPaths>
+#include <akpacket.h>
 #include <akvideopacket.h>
 
 #include "halftoneelement.h"
@@ -106,6 +107,62 @@ void HalftoneElement::controlInterfaceConfigure(QQmlContext *context,
     context->setContextProperty("picturesPath", picturesPath[0]);
 }
 
+AkPacket HalftoneElement::iVideoStream(const AkVideoPacket &packet)
+{
+    auto src = packet.toImage();
+
+    if (src.isNull())
+        return AkPacket();
+
+    src = src.convertToFormat(QImage::Format_ARGB32);
+    QImage oFrame(src.size(), src.format());
+
+    this->d->m_mutex.lock();
+
+    if (this->d->m_patternImage.isNull()) {
+        this->d->m_mutex.unlock();
+        akSend(packet)
+    }
+
+    QImage patternImage = this->d->m_patternImage.copy();
+    this->d->m_mutex.unlock();
+
+    // filter image
+    for (int y = 0; y < src.height(); y++) {
+        const QRgb *iLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
+        QRgb *oLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
+
+        for (int x = 0; x < src.width(); x++) {
+            int col = x % patternImage.width();
+            int row = y % patternImage.height();
+
+            int gray = qGray(iLine[x]);
+            auto pattern = reinterpret_cast<const quint8 *>(patternImage.constScanLine(row));
+            int threshold = pattern[col];
+            threshold = int(this->d->m_slope
+                            * threshold
+                            + this->d->m_intercept);
+            threshold = qBound(0, threshold, 255);
+
+            if (gray > threshold)
+                oLine[x] = iLine[x];
+            else {
+                QColor color(iLine[x]);
+
+                color.setHsl(color.hue(),
+                             color.saturation(),
+                             int(this->d->m_lightness * color.lightness()),
+                             color.alpha());
+
+                oLine[x] = color.rgba();
+            }
+        }
+    }
+
+    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
+    akSend(oPacket)
+}
+
 void HalftoneElement::setPattern(const QString &pattern)
 {
     if (this->d->m_pattern == pattern)
@@ -174,63 +231,6 @@ void HalftoneElement::resetSlope()
 void HalftoneElement::resetIntercept()
 {
     this->setIntercept(0.0);
-}
-
-AkPacket HalftoneElement::iStream(const AkPacket &packet)
-{
-    AkVideoPacket videoPacket(packet);
-    auto src = videoPacket.toImage();
-
-    if (src.isNull())
-        return AkPacket();
-
-    src = src.convertToFormat(QImage::Format_ARGB32);
-    QImage oFrame(src.size(), src.format());
-
-    this->d->m_mutex.lock();
-
-    if (this->d->m_patternImage.isNull()) {
-        this->d->m_mutex.unlock();
-        akSend(packet)
-    }
-
-    QImage patternImage = this->d->m_patternImage.copy();
-    this->d->m_mutex.unlock();
-
-    // filter image
-    for (int y = 0; y < src.height(); y++) {
-        const QRgb *iLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
-        QRgb *oLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
-
-        for (int x = 0; x < src.width(); x++) {
-            int col = x % patternImage.width();
-            int row = y % patternImage.height();
-
-            int gray = qGray(iLine[x]);
-            auto pattern = reinterpret_cast<const quint8 *>(patternImage.constScanLine(row));
-            int threshold = pattern[col];
-            threshold = int(this->d->m_slope
-                            * threshold
-                            + this->d->m_intercept);
-            threshold = qBound(0, threshold, 255);
-
-            if (gray > threshold)
-                oLine[x] = iLine[x];
-            else {
-                QColor color(iLine[x]);
-
-                color.setHsl(color.hue(),
-                             color.saturation(),
-                             int(this->d->m_lightness * color.lightness()),
-                             color.alpha());
-
-                oLine[x] = color.rgba();
-            }
-        }
-    }
-
-    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
-    akSend(oPacket)
 }
 
 void HalftoneElementPrivate::updatePattern()

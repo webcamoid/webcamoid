@@ -20,15 +20,12 @@
 #ifndef AKVIDEOPACKET_H
 #define AKVIDEOPACKET_H
 
-#include <QSize>
-
-#include "akpacket.h"
 #include "akvideocaps.h"
 
 class AkVideoPacketPrivate;
-class AkVideoCaps;
+class AkPacket;
 
-class AKCOMMONS_EXPORT AkVideoPacket: public AkPacket
+class AKCOMMONS_EXPORT AkVideoPacket: public QObject
 {
     Q_OBJECT
     Q_PROPERTY(AkVideoCaps caps
@@ -36,6 +33,31 @@ class AKCOMMONS_EXPORT AkVideoPacket: public AkPacket
                WRITE setCaps
                RESET resetCaps
                NOTIFY capsChanged)
+    Q_PROPERTY(QByteArray buffer
+               READ buffer
+               WRITE setBuffer
+               RESET resetBuffer
+               NOTIFY bufferChanged)
+    Q_PROPERTY(qint64 id
+               READ id
+               WRITE setId
+               RESET resetId
+               NOTIFY idChanged)
+    Q_PROPERTY(qint64 pts
+               READ pts
+               WRITE setPts
+               RESET resetPts
+               NOTIFY ptsChanged)
+    Q_PROPERTY(AkFrac timeBase
+               READ timeBase
+               WRITE setTimeBase
+               RESET resetTimeBase
+               NOTIFY timeBaseChanged)
+    Q_PROPERTY(int index
+               READ index
+               WRITE setIndex
+               RESET resetIndex
+               NOTIFY indexChanged)
 
     public:
         AkVideoPacket(QObject *parent=nullptr);
@@ -46,13 +68,24 @@ class AKCOMMONS_EXPORT AkVideoPacket: public AkPacket
         AkVideoPacket &operator =(const AkPacket &other);
         AkVideoPacket &operator =(const AkVideoPacket &other);
         operator bool() const;
+        operator AkPacket() const;
 
         Q_INVOKABLE AkVideoCaps caps() const;
         Q_INVOKABLE AkVideoCaps &caps();
+        Q_INVOKABLE QByteArray buffer() const;
+        Q_INVOKABLE QByteArray &buffer();
+        Q_INVOKABLE qint64 id() const;
+        Q_INVOKABLE qint64 &id();
+        Q_INVOKABLE qint64 pts() const;
+        Q_INVOKABLE qint64 &pts();
+        Q_INVOKABLE AkFrac timeBase() const;
+        Q_INVOKABLE AkFrac &timeBase();
+        Q_INVOKABLE int index() const;
+        Q_INVOKABLE int &index();
+        Q_INVOKABLE void copyMetadata(const AkVideoPacket &other);
+
         Q_INVOKABLE const quint8 *constLine(int plane, int y) const;
         Q_INVOKABLE quint8 *line(int plane, int y);
-        Q_INVOKABLE QString toString() const;
-        Q_INVOKABLE AkPacket toPacket() const;
         Q_INVOKABLE QImage toImage() const;
         Q_INVOKABLE static AkVideoPacket fromImage(const QImage &image,
                                                    const AkVideoPacket &defaultPacket);
@@ -63,23 +96,34 @@ class AKCOMMONS_EXPORT AkVideoPacket: public AkPacket
         Q_INVOKABLE AkVideoPacket convert(AkVideoCaps::PixelFormat format,
                                           int align) const;
         Q_INVOKABLE AkVideoPacket realign(int align) const;
-        Q_INVOKABLE void copyMetadata(const AkPacket &other);
-        Q_INVOKABLE void copyMetadata(const AkVideoPacket &other);
 
     private:
         AkVideoPacketPrivate *d;
 
     Q_SIGNALS:
         void capsChanged(const AkVideoCaps &caps);
+        void bufferChanged(const QByteArray &buffer);
+        void idChanged(qint64 id);
+        void ptsChanged(qint64 pts);
+        void timeBaseChanged(const AkFrac &timeBase);
+        void indexChanged(int index);
 
     public Q_SLOTS:
         void setCaps(const AkVideoCaps &caps);
+        void setBuffer(const QByteArray &buffer);
+        void setId(qint64 id);
+        void setPts(qint64 pts);
+        void setTimeBase(const AkFrac &timeBase);
+        void setIndex(int index);
         void resetCaps();
-
-        friend QDebug operator <<(QDebug debug, const AkVideoPacket &packet);
+        void resetBuffer();
+        void resetId();
+        void resetPts();
+        void resetTimeBase();
+        void resetIndex();
 };
 
-QDebug operator <<(QDebug debug, const AkVideoPacket &packet);
+AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, const AkVideoPacket &packet);
 
 Q_DECLARE_METATYPE(AkVideoPacket)
 

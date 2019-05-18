@@ -23,12 +23,13 @@
 #include <akelement.h>
 
 class AudioGenElementPrivate;
+class AkAudioCaps;
 
 class AudioGenElement: public AkElement
 {
     Q_OBJECT
     Q_ENUMS(WaveType)
-    Q_PROPERTY(QString caps
+    Q_PROPERTY(AkAudioCaps caps
                READ caps
                WRITE setCaps
                RESET resetCaps
@@ -68,7 +69,7 @@ class AudioGenElement: public AkElement
         AudioGenElement();
         ~AudioGenElement();
 
-        Q_INVOKABLE QString caps() const;
+        Q_INVOKABLE AkAudioCaps caps() const;
         Q_INVOKABLE QString waveType() const;
         Q_INVOKABLE qreal frequency() const;
         Q_INVOKABLE qreal volume() const;
@@ -78,14 +79,14 @@ class AudioGenElement: public AkElement
         AudioGenElementPrivate *d;
 
     signals:
-        void capsChanged(const QString &caps);
+        void capsChanged(const AkAudioCaps &caps);
         void waveTypeChanged(const QString &waveType);
         void frequencyChanged(qreal frequency);
         void volumeChanged(qreal volume);
         void sampleDurationChanged(qreal sampleDuration);
 
     public slots:
-        void setCaps(const QString &caps);
+        void setCaps(const AkAudioCaps &caps);
         void setWaveType(const QString &waveType);
         void setFrequency(qreal frequency);
         void setVolume(qreal volume);

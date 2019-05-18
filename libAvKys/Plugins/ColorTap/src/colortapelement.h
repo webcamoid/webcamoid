@@ -46,6 +46,7 @@ class ColorTapElement: public AkElement
         QString controlInterfaceProvide(const QString &controlId) const;
         void controlInterfaceConfigure(QQmlContext *context,
                                        const QString &controlId) const;
+        AkPacket iVideoStream(const AkVideoPacket &packet);
 
     signals:
         void tableChanged(const QString &table);
@@ -53,7 +54,6 @@ class ColorTapElement: public AkElement
     public slots:
         void setTable(const QString &table);
         void resetTable();
-        AkPacket iStream(const AkPacket &packet);
 };
 
 #endif // COLORTAPELEMENT_H

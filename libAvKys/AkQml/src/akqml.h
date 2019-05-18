@@ -22,10 +22,10 @@
 
 #include <QQuickItem>
 #include <akaudiocaps.h>
+#include <akvideocaps.h>
 
 class AkFrac;
 class AkCaps;
-class AkVideoCaps;
 
 class AkQml: public QQuickItem
 {
@@ -43,14 +43,10 @@ class AkQml: public QQuickItem
         Q_INVOKABLE QObject *newFrac(const QString &frac) const;
         Q_INVOKABLE QObject *newFrac(const AkFrac &frac) const;
 
-        Q_INVOKABLE QObject *newCaps() const;
-        Q_INVOKABLE QObject *newCaps(const QVariantMap &caps) const;
-        Q_INVOKABLE QObject *newCaps(const QString &caps) const;
+        Q_INVOKABLE QObject *newCaps(const QString &mimeType={}) const;
         Q_INVOKABLE QObject *newCaps(const AkCaps &caps) const;
 
         Q_INVOKABLE QObject *newAudioCaps() const;
-        Q_INVOKABLE QObject *newAudioCaps(const QVariantMap &caps) const;
-        Q_INVOKABLE QObject *newAudioCaps(const QString &caps) const;
         Q_INVOKABLE QObject *newAudioCaps(const AkCaps &caps) const;
         Q_INVOKABLE QObject *newAudioCaps(const AkAudioCaps &caps) const;
         Q_INVOKABLE QObject *newAudioCaps(AkAudioCaps::SampleFormat format,
@@ -59,15 +55,40 @@ class AkQml: public QQuickItem
                                           int samples=0,
                                           bool planar=false,
                                           int align=1);
+        Q_INVOKABLE QObject *newAudioCaps(const QString &format,
+                                          const QString &layout,
+                                          int rate,
+                                          int samples=0,
+                                          bool planar=false,
+                                          int align=1);
 
         Q_INVOKABLE QObject *newVideoCaps() const;
-        Q_INVOKABLE QObject *newVideoCaps(const QVariantMap &caps) const;
-        Q_INVOKABLE QObject *newVideoCaps(const QString &caps) const;
         Q_INVOKABLE QObject *newVideoCaps(const AkCaps &caps) const;
         Q_INVOKABLE QObject *newVideoCaps(const AkVideoCaps &caps) const;
+        Q_INVOKABLE QObject *newVideoCaps(AkVideoCaps::PixelFormat format,
+                                          int width,
+                                          int height,
+                                          const AkFrac &fps,
+                                          int align=1) const;
+        Q_INVOKABLE QObject *newVideoCaps(const QString &format,
+                                          int width,
+                                          int height,
+                                          const AkFrac &fps,
+                                          int align=1) const;
+        Q_INVOKABLE QObject *newVideoCaps(AkVideoCaps::PixelFormat format,
+                                          const QSize &size,
+                                          const AkFrac &fps,
+                                          int align=1) const;
+        Q_INVOKABLE QObject *newVideoCaps(const QString &format,
+                                          const QSize &size,
+                                          const AkFrac &fps,
+                                          int align=1) const;
 
         Q_INVOKABLE QObject *newElement(const QString &pluginId,
                                         const QString &elementName={}) const;
+
+        Q_INVOKABLE QVariantList newList(const QList<AkAudioCaps::SampleFormat> &sampleFormats) const;
+        Q_INVOKABLE QVariantList newList(const QList<AkAudioCaps::ChannelLayout> &channelLayouts) const;
 
         Q_INVOKABLE QVariant varFrac(QObject *frac) const;
         Q_INVOKABLE QVariant varFrac(AkFrac *frac) const;
@@ -75,6 +96,12 @@ class AkQml: public QQuickItem
 
         Q_INVOKABLE QVariant varCaps(QObject *caps) const;
         Q_INVOKABLE QVariant varCaps(AkCaps *caps) const;
+
+        Q_INVOKABLE QVariant varAudioCaps(QObject *caps) const;
+        Q_INVOKABLE QVariant varAudioCaps(AkAudioCaps *caps) const;
+
+        Q_INVOKABLE QVariant varVideoCaps(QObject *caps) const;
+        Q_INVOKABLE QVariant varVideoCaps(AkAudioCaps *caps) const;
 };
 
 #endif // AKQML_H

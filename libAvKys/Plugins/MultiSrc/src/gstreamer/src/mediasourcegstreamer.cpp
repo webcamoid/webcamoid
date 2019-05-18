@@ -26,10 +26,12 @@
 #include <gst/audio/audio.h>
 #include <gst/video/video.h>
 #include <ak.h>
-#include <akaudiopacket.h>
-#include <akvideopacket.h>
+#include <akfrac.h>
+#include <akpacket.h>
 #include <akaudiocaps.h>
 #include <akvideocaps.h>
+#include <akaudiopacket.h>
+#include <akvideopacket.h>
 
 #include "mediasourcegstreamer.h"
 #include "stream.h"
@@ -382,7 +384,7 @@ GstFlowReturn MediaSourceGStreamerPrivate::audioBufferCallback(GstElement *audio
     GstAudioInfo *audioInfo = gst_audio_info_new();
     gst_audio_info_from_caps(audioInfo, caps);
 
-    AkAudioCaps audioCaps(AkAudioCaps::SampleFormat_flt,
+    AkAudioCaps audioCaps(AkAudioCaps::SampleFormat_s32,
                           AkAudioCaps::Layout_stereo,
                           audioInfo->rate);
     AkAudioPacket packet;
@@ -407,7 +409,7 @@ GstFlowReturn MediaSourceGStreamerPrivate::audioBufferCallback(GstElement *audio
     gst_buffer_unmap(buf, &map);
     gst_sample_unref(sample);
 
-    emit self->oStream(packet.toPacket());
+    emit self->oStream(packet);
 
     return GST_FLOW_OK;
 }
@@ -452,7 +454,7 @@ GstFlowReturn MediaSourceGStreamerPrivate::videoBufferCallback(GstElement *video
     gst_buffer_unmap(buf, &map);
     gst_sample_unref(sample);
 
-    emit self->oStream(packet.toPacket());
+    emit self->oStream(packet);
 
     return GST_FLOW_OK;
 }
@@ -476,7 +478,6 @@ GstFlowReturn MediaSourceGStreamerPrivate::subtitlesBufferCallback(GstElement *s
     const gchar *format = gst_structure_get_string(capsStructure, "format");
 
     AkPacket packet;
-    packet.caps().isValid() = true;
     packet.caps().setMimeType("text/x-raw");
     packet.caps().setProperty("type", format);
 
@@ -699,10 +700,16 @@ bool MediaSourceGStreamer::setState(AkElement::ElementState state)
             g_object_set(G_OBJECT(videoOutput), "emit-signals", TRUE, nullptr);
             g_object_set(G_OBJECT(subtitlesOutput), "emit-signals", TRUE, nullptr);
 
+#if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
+            const char gstFormat[] = "S32LE";
+#else
+            const char gstFormat[] = "S32BE";
+#endif
+
             // Convert audio to a standard format.
             GstCaps *audioCaps =
                     gst_caps_new_simple("audio/x-raw",
-                                        "format", G_TYPE_STRING, "F32LE",
+                                        "format", G_TYPE_STRING, gstFormat,
                                         "channels", G_TYPE_INT, 2,
                                         "layout", G_TYPE_STRING, "interleaved",
                                         nullptr);
@@ -805,10 +812,10 @@ bool MediaSourceGStreamer::setState(AkElement::ElementState state)
                         GstAudioInfo *audioInfo = gst_audio_info_new();
                         gst_audio_info_from_caps(audioInfo, caps);
 
-                        AkAudioCaps audioCaps(AkAudioCaps::SampleFormat_flt,
+                        AkAudioCaps audioCaps(AkAudioCaps::SampleFormat_s32,
                                               AkAudioCaps::Layout_stereo,
                                               audioInfo->rate);
-                        this->d->m_streamInfo << Stream(audioCaps.toCaps(),
+                        this->d->m_streamInfo << Stream(audioCaps,
                                                         languages[stream]);
 
                         gst_audio_info_free(audioInfo);
@@ -837,19 +844,20 @@ bool MediaSourceGStreamer::setState(AkElement::ElementState state)
                                           &pad);
 
                     if (pad) {
-                        GstCaps *caps = gst_pad_get_current_caps(pad);
-                        GstVideoInfo *videoInfo = gst_video_info_new();
-                        gst_video_info_from_caps(videoInfo, caps);
+                        if (auto caps = gst_pad_get_current_caps(pad)) {
+                            auto videoInfo = gst_video_info_new();
+                            gst_video_info_from_caps(videoInfo, caps);
 
-                        AkVideoCaps videoCaps(AkVideoCaps::Format_rgb24,
-                                              videoInfo->width,
-                                              videoInfo->height,
-                                              AkFrac(videoInfo->fps_n,
-                                                     videoInfo->fps_d));
-                        this->d->m_streamInfo << Stream(videoCaps.toCaps(),
-                                                        languages[stream]);
+                            AkVideoCaps videoCaps(AkVideoCaps::Format_rgb24,
+                                                  videoInfo->width,
+                                                  videoInfo->height,
+                                                  AkFrac(videoInfo->fps_n,
+                                                         videoInfo->fps_d));
+                            this->d->m_streamInfo << Stream(videoCaps,
+                                                            languages[stream]);
 
-                        gst_video_info_free(videoInfo);
+                            gst_video_info_free(videoInfo);
+                        }
                     }
 
                     g_object_set(G_OBJECT(this->d->m_pipeline),
@@ -879,9 +887,7 @@ bool MediaSourceGStreamer::setState(AkElement::ElementState state)
                         GstStructure *capsStructure = gst_caps_get_structure(caps, 0);
                         const gchar *format = gst_structure_get_string(capsStructure, "format");
 
-                        AkCaps subtitlesCaps;
-                        subtitlesCaps.isValid() = true;
-                        subtitlesCaps.setMimeType("text/x-raw");
+                        AkCaps subtitlesCaps("text/x-raw");
                         subtitlesCaps.setProperty("type", format);
                         this->d->m_streamInfo << Stream(subtitlesCaps,
                                                         languages[stream]);

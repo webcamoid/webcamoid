@@ -20,6 +20,7 @@
 #include <QImage>
 #include <QQmlContext>
 #include <QtMath>
+#include <akpacket.h>
 #include <akvideopacket.h>
 
 #include "shagadelicelement.h"
@@ -77,24 +78,9 @@ void ShagadelicElement::controlInterfaceConfigure(QQmlContext *context,
     context->setContextProperty("controlId", this->objectName());
 }
 
-void ShagadelicElement::setMask(quint32 mask)
+AkPacket ShagadelicElement::iVideoStream(const AkVideoPacket &packet)
 {
-    if (this->d->m_mask == mask)
-        return;
-
-    this->d->m_mask = mask;
-    emit this->maskChanged(mask);
-}
-
-void ShagadelicElement::resetMask()
-{
-    this->setMask(0xffffff);
-}
-
-AkPacket ShagadelicElement::iStream(const AkPacket &packet)
-{
-    AkVideoPacket videoPacket(packet);
-    auto src = videoPacket.toImage();
+    auto src = packet.toImage();
 
     if (src.isNull())
         return AkPacket();
@@ -153,8 +139,22 @@ AkPacket ShagadelicElement::iStream(const AkPacket &packet)
     this->d->m_bx += this->d->m_bvx;
     this->d->m_by += this->d->m_bvy;
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
+    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
     akSend(oPacket)
+}
+
+void ShagadelicElement::setMask(quint32 mask)
+{
+    if (this->d->m_mask == mask)
+        return;
+
+    this->d->m_mask = mask;
+    emit this->maskChanged(mask);
+}
+
+void ShagadelicElement::resetMask()
+{
+    this->setMask(0xffffff);
 }
 
 QImage ShagadelicElementPrivate::makeRipple(const QSize &size) const

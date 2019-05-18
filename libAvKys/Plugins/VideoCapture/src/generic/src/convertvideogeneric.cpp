@@ -96,7 +96,7 @@ void ConvertVideoGeneric::packetEnqueue(const AkPacket &packet)
     }
 
     if (videoPacket)
-        emit this->frameReady(videoPacket.toPacket());
+        emit this->frameReady(videoPacket);
 }
 
 bool ConvertVideoGeneric::init(const AkCaps &caps)

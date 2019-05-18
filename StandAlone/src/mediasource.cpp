@@ -24,6 +24,8 @@
 #include <QQmlProperty>
 #include <QQmlApplicationEngine>
 #include <akcaps.h>
+#include <akaudiocaps.h>
+#include <akvideocaps.h>
 
 #include "mediasource.h"
 
@@ -37,8 +39,8 @@ class MediaSourcePrivate
         QStringList m_desktops;
         QVariantMap m_uris;
         QMap<QString, QString> m_descriptions;
-        AkCaps m_audioCaps;
-        AkCaps m_videoCaps;
+        AkAudioCaps m_audioCaps;
+        AkVideoCaps m_videoCaps;
         AkElementPtr m_cameraCapture {AkElement::create("VideoCapture")};
         AkElementPtr m_desktopCapture {AkElement::create("DesktopCapture")};
         AkElementPtr m_uriCapture {AkElement::create("MultiSrc")};
@@ -215,12 +217,12 @@ QVariantMap MediaSource::uris() const
     return this->d->m_uris;
 }
 
-AkCaps MediaSource::audioCaps() const
+AkAudioCaps MediaSource::audioCaps() const
 {
     return this->d->m_audioCaps;
 }
 
-AkCaps MediaSource::videoCaps() const
+AkVideoCaps MediaSource::videoCaps() const
 {
     return this->d->m_videoCaps;
 }
@@ -425,8 +427,8 @@ void MediaSource::streamUpdated(const QString &stream)
     auto source = this->d->sourceElement(stream);
 
     if (!source) {
-        this->setAudioCaps(AkCaps());
-        this->setVideoCaps(AkCaps());
+        this->setAudioCaps({});
+        this->setVideoCaps({});
 
         if (state != AkElement::ElementStateNull)
             emit this->stateChanged(AkElement::ElementStateNull);
@@ -587,7 +589,7 @@ bool MediaSource::setDesktops(const QStringList &desktops)
     return true;
 }
 
-void MediaSource::setAudioCaps(const AkCaps &audioCaps)
+void MediaSource::setAudioCaps(const AkAudioCaps &audioCaps)
 {
     if (this->d->m_audioCaps == audioCaps)
         return;
@@ -596,7 +598,7 @@ void MediaSource::setAudioCaps(const AkCaps &audioCaps)
     emit this->audioCapsChanged(audioCaps);
 }
 
-void MediaSource::setVideoCaps(const AkCaps &videoCaps)
+void MediaSource::setVideoCaps(const AkVideoCaps &videoCaps)
 {
     if (this->d->m_videoCaps == videoCaps)
         return;
@@ -763,7 +765,7 @@ void MediaSource::saveProperties()
 
 void MediaSource::webcamStreamsChanged(const QList<int> &streams)
 {
-    Q_UNUSED(streams);
+    Q_UNUSED(streams)
 
     this->streamUpdated(this->d->m_stream);
 }

@@ -22,6 +22,7 @@
 #include <QQmlContext>
 #include <QMutex>
 #include <QtMath>
+#include <akpacket.h>
 #include <akvideopacket.h>
 
 #include "diceelement.h"
@@ -66,24 +67,9 @@ void DiceElement::controlInterfaceConfigure(QQmlContext *context,
     context->setContextProperty("controlId", this->objectName());
 }
 
-void DiceElement::setDiceSize(int diceSize)
+AkPacket DiceElement::iVideoStream(const AkVideoPacket &packet)
 {
-    if (this->d->m_diceSize == diceSize)
-        return;
-
-    this->d->m_diceSize = diceSize;
-    emit this->diceSizeChanged(diceSize);
-}
-
-void DiceElement::resetDiceSize()
-{
-    this->setDiceSize(24);
-}
-
-AkPacket DiceElement::iStream(const AkPacket &packet)
-{
-    AkVideoPacket videoPacket(packet);
-    auto src = videoPacket.toImage();
+    auto src = packet.toImage();
 
     if (src.isNull())
         return AkPacket();
@@ -135,8 +121,22 @@ AkPacket DiceElement::iStream(const AkPacket &packet)
 
     painter.end();
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
+    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
     akSend(oPacket)
+}
+
+void DiceElement::setDiceSize(int diceSize)
+{
+    if (this->d->m_diceSize == diceSize)
+        return;
+
+    this->d->m_diceSize = diceSize;
+    emit this->diceSizeChanged(diceSize);
+}
+
+void DiceElement::resetDiceSize()
+{
+    this->setDiceSize(24);
 }
 
 void DiceElement::updateDiceMap()

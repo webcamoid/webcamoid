@@ -19,6 +19,7 @@
 
 #include <QImage>
 #include <QQmlContext>
+#include <akpacket.h>
 #include <akvideopacket.h>
 
 #include "oilpaintelement.h"
@@ -60,24 +61,9 @@ void OilPaintElement::controlInterfaceConfigure(QQmlContext *context,
     context->setContextProperty("controlId", this->objectName());
 }
 
-void OilPaintElement::setRadius(int radius)
+AkPacket OilPaintElement::iVideoStream(const AkVideoPacket &packet)
 {
-    if (this->d->m_radius == radius)
-        return;
-
-    this->d->m_radius = radius;
-    this->radiusChanged(radius);
-}
-
-void OilPaintElement::resetRadius()
-{
-    this->setRadius(2);
-}
-
-AkPacket OilPaintElement::iStream(const AkPacket &packet)
-{
-    AkVideoPacket videoPacket(packet);
-    auto src = videoPacket.toImage();
+    auto src = packet.toImage();
 
     if (src.isNull())
         return AkPacket();
@@ -127,8 +113,22 @@ AkPacket OilPaintElement::iStream(const AkPacket &packet)
         }
     }
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
+    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
     akSend(oPacket)
+}
+
+void OilPaintElement::setRadius(int radius)
+{
+    if (this->d->m_radius == radius)
+        return;
+
+    this->d->m_radius = radius;
+    this->radiusChanged(radius);
+}
+
+void OilPaintElement::resetRadius()
+{
+    this->setRadius(2);
 }
 
 #include "moc_oilpaintelement.cpp"

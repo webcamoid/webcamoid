@@ -19,6 +19,7 @@
 
 #include <QImage>
 #include <QQmlContext>
+#include <akpacket.h>
 #include <akvideopacket.h>
 
 #include "scanlineselement.h"
@@ -72,6 +73,40 @@ void ScanLinesElement::controlInterfaceConfigure(QQmlContext *context,
     context->setContextProperty("controlId", this->objectName());
 }
 
+AkPacket ScanLinesElement::iVideoStream(const AkVideoPacket &packet)
+{
+    auto src = packet.toImage();
+
+    if (src.isNull())
+        return AkPacket();
+
+    src = src.convertToFormat(QImage::Format_ARGB32);
+    QImage oFrame(src.size(), src.format());
+
+    int showSize = this->d->m_showSize;
+    int hideSize = this->d->m_hideSize;
+
+    if (showSize < 1 && hideSize < 1)
+        akSend(packet)
+
+    for (int y = 0; y < src.height(); y++) {
+        for (int i = 0; i < showSize && y < src.height(); i++, y++)
+            memcpy(oFrame.scanLine(y), src.scanLine(y), size_t(src.bytesPerLine()));
+
+        for (int j = 0; j < hideSize && y < src.height(); j++, y++) {
+            QRgb *line = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
+
+            for (int x = 0; x < src.width(); x++)
+                line[x] = this->d->m_hideColor;
+        }
+
+        y--;
+    }
+
+    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
+    akSend(oPacket)
+}
+
 void ScanLinesElement::setShowSize(int showSize)
 {
     if (this->d->m_showSize == showSize)
@@ -112,41 +147,6 @@ void ScanLinesElement::resetHideSize()
 void ScanLinesElement::resetHideColor()
 {
     this->setHideColor(qRgb(0, 0, 0));
-}
-
-AkPacket ScanLinesElement::iStream(const AkPacket &packet)
-{
-    AkVideoPacket videoPacket(packet);
-    auto src = videoPacket.toImage();
-
-    if (src.isNull())
-        return AkPacket();
-
-    src = src.convertToFormat(QImage::Format_ARGB32);
-    QImage oFrame(src.size(), src.format());
-
-    int showSize = this->d->m_showSize;
-    int hideSize = this->d->m_hideSize;
-
-    if (showSize < 1 && hideSize < 1)
-        akSend(packet)
-
-    for (int y = 0; y < src.height(); y++) {
-        for (int i = 0; i < showSize && y < src.height(); i++, y++)
-            memcpy(oFrame.scanLine(y), src.scanLine(y), size_t(src.bytesPerLine()));
-
-        for (int j = 0; j < hideSize && y < src.height(); j++, y++) {
-            QRgb *line = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
-
-            for (int x = 0; x < src.width(); x++)
-                line[x] = this->d->m_hideColor;
-        }
-
-        y--;
-    }
-
-    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
-    akSend(oPacket)
 }
 
 #include "moc_scanlineselement.cpp"

@@ -133,8 +133,6 @@ class AKCOMMONS_EXPORT AkElement: public QObject
         Q_INVOKABLE static void clearCache();
 
         virtual AkPacket operator ()(const AkPacket &packet);
-        virtual AkPacket operator ()(const AkAudioPacket &packet);
-        virtual AkPacket operator ()(const AkVideoPacket &packet);
 
     private:
         AkElementPrivate *d;
@@ -144,6 +142,8 @@ class AKCOMMONS_EXPORT AkElement: public QObject
         virtual void controlInterfaceConfigure(QQmlContext *context,
                                                const QString &controlId) const;
         virtual void stateChange(AkElement::ElementState from, AkElement::ElementState to);
+        virtual AkPacket iAudioStream(const AkAudioPacket &packet);
+        virtual AkPacket iVideoStream(const AkVideoPacket &packet);
 
     Q_SIGNALS:
         void stateChanged(AkElement::ElementState state);
@@ -151,14 +151,13 @@ class AKCOMMONS_EXPORT AkElement: public QObject
 
     public Q_SLOTS:
         virtual AkPacket iStream(const AkPacket &packet);
-        virtual AkPacket iStream(const AkAudioPacket &packet);
-        virtual AkPacket iStream(const AkVideoPacket &packet);
         virtual bool setState(AkElement::ElementState state);
         virtual void resetState();
 };
 
-QDataStream &operator >>(QDataStream &istream, AkElement::ElementState &state);
-QDataStream &operator <<(QDataStream &ostream, AkElement::ElementState state);
+AKCOMMONS_EXPORT QDataStream &operator >>(QDataStream &istream, AkElement::ElementState &state);
+AKCOMMONS_EXPORT QDataStream &operator <<(QDataStream &ostream, AkElement::ElementState state);
+
 Q_DECLARE_METATYPE(AkElement::ElementState)
 
 #endif // AKELEMENT_H

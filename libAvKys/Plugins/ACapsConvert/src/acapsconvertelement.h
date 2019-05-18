@@ -23,12 +23,12 @@
 #include <akelement.h>
 
 class ACapsConvertElementPrivate;
-class AkCaps;
+class AkAudioCaps;
 
 class ACapsConvertElement: public AkElement
 {
     Q_OBJECT
-    Q_PROPERTY(QString caps
+    Q_PROPERTY(AkAudioCaps caps
                READ caps
                WRITE setCaps
                RESET resetCaps
@@ -43,23 +43,25 @@ class ACapsConvertElement: public AkElement
         ACapsConvertElement();
         ~ACapsConvertElement();
 
-        Q_INVOKABLE QString caps() const;
+        Q_INVOKABLE AkAudioCaps caps() const;
         Q_INVOKABLE QString convertLib() const;
 
     private:
         ACapsConvertElementPrivate *d;
 
+    protected:
+        AkPacket iAudioStream(const AkAudioPacket &packet);
+
     signals:
-        void capsChanged(const QString &caps);
+        void capsChanged(const AkAudioCaps &caps);
         void convertLibChanged(const QString &convertLib);
 
     public slots:
-        void setCaps(const QString &caps);
+        void setCaps(const AkAudioCaps &caps);
         void setConvertLib(const QString &convertLib);
         void resetCaps();
         void resetConvertLib();
 
-        AkPacket iStream(const AkAudioPacket &packet);
         bool setState(AkElement::ElementState state);
 
     private slots:

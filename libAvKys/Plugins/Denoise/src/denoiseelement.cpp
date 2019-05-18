@@ -21,6 +21,7 @@
 #include <QQmlContext>
 #include <QtConcurrent>
 #include <QtMath>
+#include <akpacket.h>
 #include <akvideopacket.h>
 
 #include "denoiseelement.h"
@@ -208,71 +209,14 @@ void DenoiseElement::controlInterfaceConfigure(QQmlContext *context,
     context->setContextProperty("controlId", this->objectName());
 }
 
-void DenoiseElement::setRadius(int radius)
-{
-    if (this->d->m_radius == radius)
-        return;
-
-    this->d->m_radius = radius;
-    emit this->radiusChanged(radius);
-}
-
-void DenoiseElement::setFactor(int factor)
-{
-    if (this->d->m_factor == factor)
-        return;
-
-    this->d->m_factor = factor;
-    emit this->factorChanged(factor);
-}
-
-void DenoiseElement::setMu(int mu)
-{
-    if (this->d->m_mu == mu)
-        return;
-
-    this->d->m_mu = mu;
-    emit this->muChanged(mu);
-}
-
-void DenoiseElement::setSigma(qreal sigma)
-{
-    if (qFuzzyCompare(this->d->m_sigma, sigma))
-        return;
-
-    this->d->m_sigma = sigma;
-    emit this->sigmaChanged(sigma);
-}
-
-void DenoiseElement::resetRadius()
-{
-    this->setRadius(1);
-}
-
-void DenoiseElement::resetFactor()
-{
-    this->setFactor(1024);
-}
-
-void DenoiseElement::resetMu()
-{
-    this->setMu(0);
-}
-
-void DenoiseElement::resetSigma()
-{
-    this->setSigma(1.0);
-}
-
-AkPacket DenoiseElement::iStream(const AkPacket &packet)
+AkPacket DenoiseElement::iVideoStream(const AkVideoPacket &packet)
 {
     int radius = this->d->m_radius;
 
     if (radius < 1)
         akSend(packet)
 
-    AkVideoPacket videoPacket(packet);
-    auto src = videoPacket.toImage();
+    auto src = packet.toImage();
 
     if (src.isNull())
         return AkPacket();
@@ -347,8 +291,64 @@ AkPacket DenoiseElement::iStream(const AkPacket &packet)
     delete [] integral;
     delete [] integral2;
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
+    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
     akSend(oPacket)
+}
+
+void DenoiseElement::setRadius(int radius)
+{
+    if (this->d->m_radius == radius)
+        return;
+
+    this->d->m_radius = radius;
+    emit this->radiusChanged(radius);
+}
+
+void DenoiseElement::setFactor(int factor)
+{
+    if (this->d->m_factor == factor)
+        return;
+
+    this->d->m_factor = factor;
+    emit this->factorChanged(factor);
+}
+
+void DenoiseElement::setMu(int mu)
+{
+    if (this->d->m_mu == mu)
+        return;
+
+    this->d->m_mu = mu;
+    emit this->muChanged(mu);
+}
+
+void DenoiseElement::setSigma(qreal sigma)
+{
+    if (qFuzzyCompare(this->d->m_sigma, sigma))
+        return;
+
+    this->d->m_sigma = sigma;
+    emit this->sigmaChanged(sigma);
+}
+
+void DenoiseElement::resetRadius()
+{
+    this->setRadius(1);
+}
+
+void DenoiseElement::resetFactor()
+{
+    this->setFactor(1024);
+}
+
+void DenoiseElement::resetMu()
+{
+    this->setMu(0);
+}
+
+void DenoiseElement::resetSigma()
+{
+    this->setSigma(1.0);
 }
 
 #include "moc_denoiseelement.cpp"

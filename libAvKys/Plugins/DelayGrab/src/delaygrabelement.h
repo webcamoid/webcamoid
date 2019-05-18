@@ -71,6 +71,7 @@ class DelayGrabElement: public AkElement
         QString controlInterfaceProvide(const QString &controlId) const;
         void controlInterfaceConfigure(QQmlContext *context,
                                        const QString &controlId) const;
+        AkPacket iVideoStream(const AkVideoPacket &packet);
 
     signals:
         void modeChanged(const QString &mode);
@@ -85,7 +86,6 @@ class DelayGrabElement: public AkElement
         void resetMode();
         void resetBlockSize();
         void resetNFrames();
-        AkPacket iStream(const AkPacket &packet);
 
     private slots:
         void updateDelaymap();

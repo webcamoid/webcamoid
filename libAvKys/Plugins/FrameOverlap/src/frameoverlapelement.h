@@ -52,6 +52,7 @@ class FrameOverlapElement: public AkElement
         QString controlInterfaceProvide(const QString &controlId) const;
         void controlInterfaceConfigure(QQmlContext *context,
                                        const QString &controlId) const;
+        AkPacket iVideoStream(const AkVideoPacket &packet);
 
     signals:
         void nFramesChanged(int nFrames);
@@ -62,7 +63,6 @@ class FrameOverlapElement: public AkElement
         void setStride(int stride);
         void resetNFrames();
         void resetStride();
-        AkPacket iStream(const AkPacket &packet);
 };
 
 #endif // FRAMEOVERLAPELEMENT_H

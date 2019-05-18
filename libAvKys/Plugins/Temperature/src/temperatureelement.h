@@ -47,6 +47,7 @@ class TemperatureElement:
         QString controlInterfaceProvide(const QString &controlId) const;
         void controlInterfaceConfigure(QQmlContext *context,
                                        const QString &controlId) const;
+        AkPacket iVideoStream(const AkVideoPacket &packet);
 
     signals:
         void temperatureChanged(qreal temperature);
@@ -54,7 +55,6 @@ class TemperatureElement:
     public slots:
         void setTemperature(qreal temperature);
         void resetTemperature();
-        AkPacket iStream(const AkPacket &packet);
 };
 
 #endif // TEMPERATUREELEMENT_H

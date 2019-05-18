@@ -21,6 +21,7 @@
 #include <QQmlContext>
 #include <QtMath>
 #include <QMutex>
+#include <akpacket.h>
 #include <akvideopacket.h>
 
 #include "waveelement.h"
@@ -105,6 +106,65 @@ void WaveElement::controlInterfaceConfigure(QQmlContext *context,
     context->setContextProperty("controlId", this->objectName());
 }
 
+AkPacket WaveElement::iVideoStream(const AkVideoPacket &packet)
+{
+    auto src = packet.toImage();
+
+    if (src.isNull())
+        return AkPacket();
+
+    src = src.convertToFormat(QImage::Format_ARGB32);
+    qreal amplitude = this->d->m_amplitude;
+
+    QImage oFrame(src.width(), src.height(), src.format());
+    oFrame.fill(this->d->m_background);
+
+    if (amplitude <= 0.0)
+        akSend(packet)
+
+    if (amplitude >= 1.0) {
+        auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
+        akSend(oPacket)
+    }
+
+    if (src.size() != this->d->m_frameSize) {
+        this->d->m_frameSize = src.size();
+        emit this->frameSizeChanged(src.size());
+    }
+
+    this->d->m_mutex.lock();
+    QVector<int> sineMap(this->d->m_sineMap);
+    this->d->m_mutex.unlock();
+
+    if (sineMap.isEmpty())
+        akSend(packet)
+
+    for (int y = 0; y < oFrame.height(); y++) {
+        // Get input line.
+        int yi = int(y / (1.0 - amplitude));
+
+        if (yi < 0 || yi >= src.height())
+            continue;
+
+        auto iLine = reinterpret_cast<const QRgb *>(src.constScanLine(yi));
+
+        for (int x = 0; x < oFrame.width(); x++) {
+            // Get output line.
+            int yo = y  + sineMap[x];
+
+            if (yo < 0
+                || yo >= src.height())
+                continue;
+
+            QRgb *oLine = reinterpret_cast<QRgb *>(oFrame.scanLine(yo));
+            oLine[x] = iLine[x];
+        }
+    }
+
+    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
+    akSend(oPacket)
+}
+
 void WaveElement::setAmplitude(qreal amplitude)
 {
     if (qFuzzyCompare(amplitude, this->d->m_amplitude))
@@ -159,66 +219,6 @@ void WaveElement::resetPhase()
 void WaveElement::resetBackground()
 {
     this->setBackground(qRgb(0, 0, 0));
-}
-
-AkPacket WaveElement::iStream(const AkPacket &packet)
-{
-    AkVideoPacket videoPacket(packet);
-    auto src = videoPacket.toImage();
-
-    if (src.isNull())
-        return AkPacket();
-
-    src = src.convertToFormat(QImage::Format_ARGB32);
-    qreal amplitude = this->d->m_amplitude;
-
-    QImage oFrame(src.width(), src.height(), src.format());
-    oFrame.fill(this->d->m_background);
-
-    if (amplitude <= 0.0)
-        akSend(packet)
-
-    if (amplitude >= 1.0) {
-        auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
-        akSend(oPacket)
-    }
-
-    if (src.size() != this->d->m_frameSize) {
-        this->d->m_frameSize = src.size();
-        emit this->frameSizeChanged(src.size());
-    }
-
-    this->d->m_mutex.lock();
-    QVector<int> sineMap(this->d->m_sineMap);
-    this->d->m_mutex.unlock();
-
-    if (sineMap.isEmpty())
-        akSend(packet)
-
-    for (int y = 0; y < oFrame.height(); y++) {
-        // Get input line.
-        int yi = int(y / (1.0 - amplitude));
-
-        if (yi < 0 || yi >= src.height())
-            continue;
-
-        auto iLine = reinterpret_cast<const QRgb *>(src.constScanLine(yi));
-
-        for (int x = 0; x < oFrame.width(); x++) {
-            // Get output line.
-            int yo = y  + sineMap[x];
-
-            if (yo < 0
-                || yo >= src.height())
-                continue;
-
-            QRgb *oLine = reinterpret_cast<QRgb *>(oFrame.scanLine(yo));
-            oLine[x] = iLine[x];
-        }
-    }
-
-    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
-    akSend(oPacket)
 }
 
 void WaveElement::updateSineMap()

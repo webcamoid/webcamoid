@@ -138,7 +138,7 @@ AudioDevJack::AudioDevJack(QObject *parent):
         if (channels > 0)
             this->d->m_caps[it.key()] =
                     AkAudioCaps(AkAudioCaps::SampleFormat_flt,
-                                AkAudioCaps::defaultChannelLayout(channels),
+                                AkAudioCaps::defaultChannelLayout(qBound(1, channels, 2)),
                                 this->d->m_sampleRate);
     }
 }
@@ -200,12 +200,16 @@ QList<AkAudioCaps::SampleFormat> AudioDevJack::supportedFormats(const QString &d
     return QList<AkAudioCaps::SampleFormat> {AkAudioCaps::SampleFormat_flt};
 }
 
-QList<int> AudioDevJack::supportedChannels(const QString &device)
+QList<AkAudioCaps::ChannelLayout> AudioDevJack::supportedChannelLayouts(const QString &device)
 {
-    QList<int> supportedChannels;
+    QList<AkAudioCaps::ChannelLayout> supportedChannels;
 
-    for (int i = 0; i < this->d->m_devicePorts.value(device).size(); i++)
-        supportedChannels << i + 1;
+    for (int i = 0; i < this->d->m_devicePorts.value(device).size(); i++) {
+        auto layout = AkAudioCaps::defaultChannelLayout(i + 1);
+
+        if (layout != AkAudioCaps::Layout_none)
+            supportedChannels << layout;
+    }
 
     return supportedChannels;
 }

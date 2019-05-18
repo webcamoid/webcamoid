@@ -46,6 +46,7 @@ class PixelateElement: public AkElement
         QString controlInterfaceProvide(const QString &controlId) const;
         void controlInterfaceConfigure(QQmlContext *context,
                                        const QString &controlId) const;
+        AkPacket iVideoStream(const AkVideoPacket &packet);
 
     signals:
         void blockSizeChanged(const QSize &blockSize);
@@ -53,7 +54,6 @@ class PixelateElement: public AkElement
     public slots:
         void setBlockSize(const QSize &blockSize);
         void resetBlockSize();
-        AkPacket iStream(const AkPacket &packet);
 };
 
 #endif // PIXELATEELEMENT_H

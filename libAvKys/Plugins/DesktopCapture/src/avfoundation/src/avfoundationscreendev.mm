@@ -25,6 +25,7 @@
 #include <QMutex>
 #include <ak.h>
 #include <akcaps.h>
+#include <akpacket.h>
 #include <akvideopacket.h>
 #include <CoreGraphics/CoreGraphics.h>
 
@@ -128,17 +129,17 @@ AkCaps AVFoundationScreenDev::caps(int stream)
 {
     if (this->d->m_curScreenNumber < 0
         || stream != 0)
-        return AkCaps();
+        return {};
 
     auto screen = QGuiApplication::screens()[this->d->m_curScreenNumber];
 
     if (!screen)
-        return QString();
+        return {};
 
     return AkVideoCaps(AkVideoCaps::Format_argb,
                        screen->size().width(),
                        screen->size().height(),
-                       this->d->m_fps).toCaps();
+                       this->d->m_fps);
 }
 
 void AVFoundationScreenDev::frameReceived(CGDirectDisplayID screen,
@@ -160,7 +161,7 @@ void AVFoundationScreenDev::frameReceived(CGDirectDisplayID screen,
     videoPacket.index() = 0;
     videoPacket.id() = id;
 
-    emit this->oStream(videoPacket.toPacket());
+    emit this->oStream(videoPacket);
 }
 
 void AVFoundationScreenDev::sendPacket(const AkPacket &packet)

@@ -29,8 +29,8 @@ class NormalizeElement: public AkElement
     public:
         NormalizeElement();
 
-    public slots:
-        AkPacket iStream(const AkPacket &packet);
+    protected:
+        AkPacket iVideoStream(const AkVideoPacket &packet);
 };
 
 #endif // NORMALIZEELEMENT_H

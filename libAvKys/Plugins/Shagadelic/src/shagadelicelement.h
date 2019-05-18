@@ -46,6 +46,7 @@ class ShagadelicElement: public AkElement
         QString controlInterfaceProvide(const QString &controlId) const;
         void controlInterfaceConfigure(QQmlContext *context,
                                        const QString &controlId) const;
+        AkPacket iVideoStream(const AkVideoPacket &packet);
 
     signals:
         void maskChanged(quint32 mask);
@@ -53,7 +54,6 @@ class ShagadelicElement: public AkElement
     public slots:
         void setMask(quint32 mask);
         void resetMask();
-        AkPacket iStream(const AkPacket &packet);
 };
 
 #endif // SHAGADELICELEMENT_H

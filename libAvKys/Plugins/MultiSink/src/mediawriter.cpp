@@ -179,12 +179,12 @@ void MediaWriter::setLocation(const QString &location)
 
 void MediaWriter::setOutputFormat(const QString &outputFormat)
 {
-    Q_UNUSED(outputFormat);
+    Q_UNUSED(outputFormat)
 }
 
 void MediaWriter::setFormatOptions(const QVariantMap &formatOptions)
 {
-    Q_UNUSED(formatOptions);
+    Q_UNUSED(formatOptions)
 }
 
 void MediaWriter::setCodecOptions(int index, const QVariantMap &codecOptions)
@@ -195,7 +195,7 @@ void MediaWriter::setCodecOptions(int index, const QVariantMap &codecOptions)
 
 void MediaWriter::setMaxPacketQueueSize(qint64 maxPacketQueueSize)
 {
-    Q_UNUSED(maxPacketQueueSize);
+    Q_UNUSED(maxPacketQueueSize)
 }
 
 void MediaWriter::setFormatsBlackList(const QStringList &formatsBlackList)

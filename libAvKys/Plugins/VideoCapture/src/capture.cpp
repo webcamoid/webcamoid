@@ -45,7 +45,7 @@ QList<int> Capture::streams()
 
 QList<int> Capture::listTracks(const QString &mimeType)
 {
-    Q_UNUSED(mimeType);
+    Q_UNUSED(mimeType)
 
     return QList<int>();
 }

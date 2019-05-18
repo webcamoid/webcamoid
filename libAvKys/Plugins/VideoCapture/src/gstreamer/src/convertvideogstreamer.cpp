@@ -21,6 +21,8 @@
 #include <QtConcurrent>
 #include <ak.h>
 #include <akcaps.h>
+#include <akfrac.h>
+#include <akpacket.h>
 #include <akvideocaps.h>
 #include <akvideopacket.h>
 #include <gst/video/video.h>
@@ -31,9 +33,9 @@
 
 using StringStringMap = QMap<QString, QString>;
 
-inline StringStringMap initFourCCToGst()
+inline const StringStringMap &initFourCCToGst()
 {
-    StringStringMap fourCCToGst = {
+    static const StringStringMap fourCCToGst = {
         // RGB formats
         {"RGB555", "video/x-raw,format=RGB15"},
         {"RGB565", "video/x-raw,format=RGB16"},
@@ -163,22 +165,24 @@ bool ConvertVideoGStreamer::init(const AkCaps &caps)
     int height = caps.property("height").toInt();
     AkFrac fps = caps.property("fps").toString();
 
-    AkCaps gstCaps = fourCCToGst->value(fourcc);
-    GstCaps *inCaps = nullptr;
+    auto gstCaps = fourCCToGst->value(fourcc);
 
-    if (gstCaps.mimeType() == "video/x-raw"
-        || gstCaps.mimeType() == "video/x-bayer"
-        || gstCaps.mimeType() == "video/x-pwc1"
-        || gstCaps.mimeType() == "video/x-pwc2"
-        || gstCaps.mimeType() == "video/x-sonix") {
-        gstCaps.setProperty("width", width);
-        gstCaps.setProperty("height", height);
-        gstCaps.setProperty("framerate", fps.toString());
-        inCaps = gst_caps_from_string(gstCaps.toString().toStdString().c_str());
-    } else if (!gstCaps.mimeType().isEmpty()) {
-        inCaps = gst_caps_from_string(gstCaps.toString().toStdString().c_str());
-    } else
+    if (gstCaps.isEmpty())
         return false;
+
+    auto inCaps = gst_caps_from_string(gstCaps.toStdString().c_str());
+
+    if (gstCaps.startsWith("video/x-raw")
+        || gstCaps.startsWith("video/x-bayer")
+        || gstCaps.startsWith("video/x-pwc1")
+        || gstCaps.startsWith("video/x-pwc2")
+        || gstCaps.startsWith("video/x-sonix")) {
+        gst_caps_set_simple(inCaps,
+                            "width", width,
+                            "height", height,
+                            "framerate", fps.toString().toStdString().c_str(),
+                            nullptr);
+    }
 
     inCaps = gst_caps_fixate(inCaps);
 
@@ -524,7 +528,7 @@ GstFlowReturn ConvertVideoGStreamerPrivate::videoBufferCallback(GstElement *vide
     gst_buffer_unmap(buffer, &info);
     gst_sample_unref(sample);
 
-    emit self->frameReady(oVideoPacket.toPacket());
+    emit self->frameReady(oVideoPacket);
 
     return GST_FLOW_OK;
 }

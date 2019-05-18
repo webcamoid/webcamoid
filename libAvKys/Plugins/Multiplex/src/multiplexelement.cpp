@@ -17,17 +17,17 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <akpacket.h>
 #include <akcaps.h>
+#include <akpacket.h>
 
 #include "multiplexelement.h"
 
 class MultiplexElementPrivate
 {
     public:
+        AkCaps m_caps;
         int m_inputIndex {-1};
         int m_outputIndex {-1};
-        QString m_caps;
 };
 
 MultiplexElement::MultiplexElement(): AkElement()
@@ -40,6 +40,11 @@ MultiplexElement::~MultiplexElement()
     delete this->d;
 }
 
+AkCaps MultiplexElement::caps() const
+{
+    return this->d->m_caps;
+}
+
 int MultiplexElement::inputIndex() const
 {
     return this->d->m_inputIndex;
@@ -50,24 +55,36 @@ int MultiplexElement::outputIndex() const
     return this->d->m_outputIndex;
 }
 
-QString MultiplexElement::caps() const
+void MultiplexElement::setCaps(const AkCaps &caps)
 {
-    return this->d->m_caps;
-}
+    if (this->d->m_caps == caps)
+        return;
 
-void MultiplexElement::setInputIndex(int method)
-{
-    this->d->m_inputIndex = method;
-}
-
-void MultiplexElement::setOutputIndex(int params)
-{
-    this->d->m_outputIndex = params;
-}
-
-void MultiplexElement::setCaps(const QString &caps)
-{
     this->d->m_caps = caps;
+    emit this->capsChanged(caps);
+}
+
+void MultiplexElement::setInputIndex(int inputIndex)
+{
+    if (this->d->m_inputIndex == inputIndex)
+        return;
+
+    this->d->m_inputIndex = inputIndex;
+    emit this->inputIndexChanged(inputIndex);
+}
+
+void MultiplexElement::setOutputIndex(int outputIndex)
+{
+    if (this->d->m_outputIndex == outputIndex)
+        return;
+
+    this->d->m_outputIndex = outputIndex;
+    emit this->outputIndexChanged(outputIndex);
+}
+
+void MultiplexElement::resetCaps()
+{
+    this->setCaps({});
 }
 
 void MultiplexElement::resetInputIndex()
@@ -80,20 +97,15 @@ void MultiplexElement::resetOutputIndex()
     this->setOutputIndex(-1);
 }
 
-void MultiplexElement::resetCaps()
-{
-    this->setCaps("");
-}
-
 AkPacket MultiplexElement::iStream(const AkPacket &packet)
 {
     if (this->d->m_inputIndex >= 0
         && packet.index() != this->d->m_inputIndex)
-        return AkPacket();
+        return {};
 
-    if (!this->d->m_caps.isEmpty()
+    if (this->d->m_caps
         && !packet.caps().isCompatible(this->d->m_caps))
-        return AkPacket();
+        return {};
 
     AkPacket oPacket(packet);
 

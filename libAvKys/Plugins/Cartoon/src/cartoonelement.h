@@ -83,6 +83,7 @@ class CartoonElement: public AkElement
         QString controlInterfaceProvide(const QString &controlId) const;
         void controlInterfaceConfigure(QQmlContext *context,
                                        const QString &controlId) const;
+        AkPacket iVideoStream(const AkVideoPacket &packet);
 
     signals:
         void ncolorsChanged(int ncolors);
@@ -108,7 +109,6 @@ class CartoonElement: public AkElement
         void resetThresholdHi();
         void resetLineColor();
         void resetScanSize();
-        AkPacket iStream(const AkPacket &packet);
 };
 
 #endif // CARTOONELEMENT_H

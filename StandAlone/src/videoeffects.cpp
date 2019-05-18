@@ -23,6 +23,7 @@
 #include <QQmlContext>
 #include <QQmlProperty>
 #include <QQmlApplicationEngine>
+#include <akcaps.h>
 #include <akpacket.h>
 
 #include "videoeffects.h"
@@ -48,7 +49,7 @@ VideoEffects::VideoEffects(QQmlApplicationEngine *engine, QObject *parent):
     this->d->m_videoMux = AkElement::create("Multiplex");
 
     if (this->d->m_videoMux) {
-        this->d->m_videoMux->setProperty("caps", "video/x-raw");
+        this->d->m_videoMux->setProperty("caps", QVariant::fromValue(AkCaps("video/x-raw")));
         this->d->m_videoMux->setProperty("outputIndex", 0);
 
         QObject::connect(this->d->m_videoMux.data(),

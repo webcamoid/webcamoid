@@ -70,6 +70,7 @@ class HalftoneElement: public AkElement
         QString controlInterfaceProvide(const QString &controlId) const;
         void controlInterfaceConfigure(QQmlContext *context,
                                        const QString &controlId) const;
+        AkPacket iVideoStream(const AkVideoPacket &packet);
 
     signals:
         void patternChanged(const QString &pattern);
@@ -89,7 +90,6 @@ class HalftoneElement: public AkElement
         void resetLightness();
         void resetSlope();
         void resetIntercept();
-        AkPacket iStream(const AkPacket &packet);
 };
 
 #endif // HALFTONEELEMENT_H

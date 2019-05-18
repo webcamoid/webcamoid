@@ -662,16 +662,6 @@ AkPacket AkElement::operator ()(const AkPacket &packet)
     return this->iStream(packet);
 }
 
-AkPacket AkElement::operator ()(const AkAudioPacket &packet)
-{
-    return this->iStream(packet);
-}
-
-AkPacket AkElement::operator ()(const AkVideoPacket &packet)
-{
-    return this->iStream(packet);
-}
-
 QString AkElement::controlInterfaceProvide(const QString &controlId) const
 {
     Q_UNUSED(controlId)
@@ -692,27 +682,27 @@ void AkElement::stateChange(AkElement::ElementState from, AkElement::ElementStat
     Q_UNUSED(to)
 }
 
+AkPacket AkElement::iAudioStream(const AkAudioPacket &packet)
+{
+    Q_UNUSED(packet)
+
+    return AkPacket();
+}
+
+AkPacket AkElement::iVideoStream(const AkVideoPacket &packet)
+{
+    Q_UNUSED(packet)
+
+    return AkPacket();
+}
+
 AkPacket AkElement::iStream(const AkPacket &packet)
 {
     if (packet.caps().mimeType() == "audio/x-raw")
-        return this->iStream(AkAudioPacket(packet));
+        return this->iAudioStream(packet);
 
     if (packet.caps().mimeType() == "video/x-raw")
-        return this->iStream(AkVideoPacket(packet));
-
-    return AkPacket();
-}
-
-AkPacket AkElement::iStream(const AkAudioPacket &packet)
-{
-    Q_UNUSED(packet)
-
-    return AkPacket();
-}
-
-AkPacket AkElement::iStream(const AkVideoPacket &packet)
-{
-    Q_UNUSED(packet)
+        return this->iVideoStream(packet);
 
     return AkPacket();
 }

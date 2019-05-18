@@ -46,6 +46,7 @@ class WarpElement: public AkElement
         QString controlInterfaceProvide(const QString &controlId) const;
         void controlInterfaceConfigure(QQmlContext *context,
                                        const QString &controlId) const;
+        AkPacket iVideoStream(const AkVideoPacket &packet);
 
     signals:
         void ripplesChanged(qreal ripples);
@@ -54,8 +55,6 @@ class WarpElement: public AkElement
     public slots:
         void setRipples(qreal ripples);
         void resetRipples();
-
-        AkPacket iStream(const AkPacket &packet);
 };
 
 #endif // WARPELEMENT_H

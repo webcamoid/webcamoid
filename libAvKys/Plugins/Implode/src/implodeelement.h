@@ -43,6 +43,7 @@ class ImplodeElement: public AkElement
         QString controlInterfaceProvide(const QString &controlId) const;
         void controlInterfaceConfigure(QQmlContext *context,
                                        const QString &controlId) const;
+        AkPacket iVideoStream(const AkVideoPacket &packet);
 
     private:
         ImplodeElementPrivate *d;
@@ -53,7 +54,6 @@ class ImplodeElement: public AkElement
     public slots:
         void setAmount(qreal amount);
         void resetAmount();
-        AkPacket iStream(const AkPacket &packet);
 };
 
 #endif // IMPLODEELEMENT_H

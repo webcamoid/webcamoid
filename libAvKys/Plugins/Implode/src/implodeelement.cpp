@@ -20,6 +20,7 @@
 #include <QImage>
 #include <QtMath>
 #include <QQmlContext>
+#include <akpacket.h>
 #include <akvideopacket.h>
 
 #include "implodeelement.h"
@@ -61,24 +62,9 @@ void ImplodeElement::controlInterfaceConfigure(QQmlContext *context,
     context->setContextProperty("controlId", this->objectName());
 }
 
-void ImplodeElement::setAmount(qreal amount)
+AkPacket ImplodeElement::iVideoStream(const AkVideoPacket &packet)
 {
-    if (qFuzzyCompare(this->d->m_amount, amount))
-        return;
-
-    this->d->m_amount = amount;
-    emit this->amountChanged(amount);
-}
-
-void ImplodeElement::resetAmount()
-{
-    this->setAmount(1.0);
-}
-
-AkPacket ImplodeElement::iStream(const AkPacket &packet)
-{
-    AkVideoPacket videoPacket(packet);
-    auto src = videoPacket.toImage();
+    auto src = packet.toImage();
 
     if (src.isNull())
         return AkPacket();
@@ -116,8 +102,22 @@ AkPacket ImplodeElement::iStream(const AkPacket &packet)
         }
     }
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
+    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
     akSend(oPacket)
+}
+
+void ImplodeElement::setAmount(qreal amount)
+{
+    if (qFuzzyCompare(this->d->m_amount, amount))
+        return;
+
+    this->d->m_amount = amount;
+    emit this->amountChanged(amount);
+}
+
+void ImplodeElement::resetAmount()
+{
+    this->setAmount(1.0);
 }
 
 #include "moc_implodeelement.cpp"

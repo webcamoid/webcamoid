@@ -20,6 +20,7 @@
 #include <QImage>
 #include <QQmlContext>
 #include <QtMath>
+#include <akpacket.h>
 #include <akvideopacket.h>
 
 #include "cinemaelement.h"
@@ -67,38 +68,9 @@ void CinemaElement::controlInterfaceConfigure(QQmlContext *context,
     context->setContextProperty("controlId", this->objectName());
 }
 
-void CinemaElement::setStripSize(qreal stripSize)
+AkPacket CinemaElement::iVideoStream(const AkVideoPacket &packet)
 {
-    if (qFuzzyCompare(this->d->m_stripSize, stripSize))
-        return;
-
-    this->d->m_stripSize = stripSize;
-    emit this->stripSizeChanged(stripSize);
-}
-
-void CinemaElement::setStripColor(QRgb hideColor)
-{
-    if (this->d->m_stripColor == hideColor)
-        return;
-
-    this->d->m_stripColor = hideColor;
-    emit this->stripColorChanged(hideColor);
-}
-
-void CinemaElement::resetStripSize()
-{
-    this->setStripSize(0.5);
-}
-
-void CinemaElement::resetStripColor()
-{
-    this->setStripColor(qRgb(0, 0, 0));
-}
-
-AkPacket CinemaElement::iStream(const AkPacket &packet)
-{
-    AkVideoPacket videoPacket(packet);
-    auto src = videoPacket.toImage();
+    auto src = packet.toImage();
 
     if (src.isNull())
         return AkPacket();
@@ -126,8 +98,36 @@ AkPacket CinemaElement::iStream(const AkPacket &packet)
             }
     }
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
+    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
     akSend(oPacket)
+}
+
+void CinemaElement::setStripSize(qreal stripSize)
+{
+    if (qFuzzyCompare(this->d->m_stripSize, stripSize))
+        return;
+
+    this->d->m_stripSize = stripSize;
+    emit this->stripSizeChanged(stripSize);
+}
+
+void CinemaElement::setStripColor(QRgb hideColor)
+{
+    if (this->d->m_stripColor == hideColor)
+        return;
+
+    this->d->m_stripColor = hideColor;
+    emit this->stripColorChanged(hideColor);
+}
+
+void CinemaElement::resetStripSize()
+{
+    this->setStripSize(0.5);
+}
+
+void CinemaElement::resetStripColor()
+{
+    this->setStripColor(qRgb(0, 0, 0));
 }
 
 #include "moc_cinemaelement.cpp"

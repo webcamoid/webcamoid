@@ -96,6 +96,7 @@ class CharifyElement: public AkElement
         QString controlInterfaceProvide(const QString &controlId) const;
         void controlInterfaceConfigure(QQmlContext *context,
                                        const QString &controlId) const;
+        AkPacket iVideoStream(const AkVideoPacket &packet);
 
     signals:
         void modeChanged(const QString &mode);
@@ -124,8 +125,6 @@ class CharifyElement: public AkElement
         void resetForegroundColor();
         void resetBackgroundColor();
         void resetReversed();
-
-        AkPacket iStream(const AkPacket &packet);
 
     private slots:
         void updateCharTable();

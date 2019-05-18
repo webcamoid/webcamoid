@@ -23,32 +23,50 @@
 #include <akelement.h>
 
 class MultiplexElementPrivate;
+class AkCaps;
 
 class MultiplexElement: public AkElement
 {
     Q_OBJECT
-    Q_PROPERTY(int inputIndex READ inputIndex WRITE setInputIndex RESET resetInputIndex)
-    Q_PROPERTY(int outputIndex READ outputIndex WRITE setOutputIndex RESET resetOutputIndex)
-    Q_PROPERTY(QString caps READ caps WRITE setCaps RESET resetCaps)
+    Q_PROPERTY(AkCaps caps
+               READ caps
+               WRITE setCaps
+               RESET resetCaps
+               NOTIFY capsChanged)
+    Q_PROPERTY(int inputIndex
+               READ inputIndex
+               WRITE setInputIndex
+               RESET resetInputIndex
+               NOTIFY inputIndexChanged)
+    Q_PROPERTY(int outputIndex
+               READ outputIndex
+               WRITE setOutputIndex
+               RESET resetOutputIndex
+               NOTIFY outputIndexChanged)
 
     public:
         MultiplexElement();
         ~MultiplexElement();
 
+        Q_INVOKABLE AkCaps caps() const;
         Q_INVOKABLE int inputIndex() const;
         Q_INVOKABLE int outputIndex() const;
-        Q_INVOKABLE QString caps() const;
 
     private:
         MultiplexElementPrivate *d;
 
+    signals:
+        void capsChanged(const AkCaps &caps);
+        void inputIndexChanged(int inputIndex);
+        void outputIndexChanged(int outputIndex);
+
     public slots:
+        void setCaps(const AkCaps &caps);
         void setInputIndex(int inputIndex);
         void setOutputIndex(int outputIndex);
-        void setCaps(const QString &caps);
+        void resetCaps();
         void resetInputIndex();
         void resetOutputIndex();
-        void resetCaps();
 
         AkPacket iStream(const AkPacket &packet);
 };

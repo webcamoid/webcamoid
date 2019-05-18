@@ -1034,7 +1034,8 @@ AkPacket CaptureV4L2Private::processFrame(const char *buffer,
                                           size_t bufferSize,
                                           qint64 pts) const
 {
-    AkPacket oPacket(this->m_caps, {buffer, int(bufferSize)});
+    AkPacket oPacket(this->m_caps);
+    oPacket.setBuffer({buffer, int(bufferSize)});
     oPacket.setPts(pts);
     oPacket.setTimeBase(this->m_timeBase);
     oPacket.setIndex(0);

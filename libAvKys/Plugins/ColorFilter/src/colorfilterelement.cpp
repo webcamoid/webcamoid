@@ -20,6 +20,7 @@
 #include <QImage>
 #include <QQmlContext>
 #include <QtMath>
+#include <akpacket.h>
 #include <akvideopacket.h>
 
 #include "colorfilterelement.h"
@@ -79,6 +80,62 @@ void ColorFilterElement::controlInterfaceConfigure(QQmlContext *context,
     context->setContextProperty("controlId", this->objectName());
 }
 
+AkPacket ColorFilterElement::iVideoStream(const AkVideoPacket &packet)
+{
+    if (this->d->m_disable)
+        akSend(packet)
+
+    auto src = packet.toImage();
+
+    if (src.isNull())
+        return AkPacket();
+
+    src = src.convertToFormat(QImage::Format_ARGB32);
+    QImage oFrame(src.size(), src.format());
+
+    for (int y = 0; y < src.height(); y++) {
+        auto srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
+        auto dstLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
+
+        for (int x = 0; x < src.width(); x++) {
+            int r = qRed(srcLine[x]);
+            int g = qGreen(srcLine[x]);
+            int b = qBlue(srcLine[x]);
+
+            int rf = qRed(this->d->m_color);
+            int gf = qGreen(this->d->m_color);
+            int bf = qBlue(this->d->m_color);
+
+            int rd = r - rf;
+            int gd = g - gf;
+            int bd = b - bf;
+
+            qreal k = sqrt(rd * rd + gd * gd + bd * bd);
+
+            if (k <= this->d->m_radius) {
+                if (this->d->m_soft) {
+                    qreal p = k / this->d->m_radius;
+
+                    int gray = qGray(srcLine[x]);
+
+                    r = int(p * (gray - r) + r);
+                    g = int(p * (gray - g) + g);
+                    b = int(p * (gray - b) + b);
+
+                    dstLine[x] = qRgba(r, g, b, qAlpha(srcLine[x]));
+                } else
+                    dstLine[x] = srcLine[x];
+            } else {
+                int gray = qGray(srcLine[x]);
+                dstLine[x] = qRgba(gray, gray, gray, qAlpha(srcLine[x]));
+            }
+        }
+    }
+
+    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
+    akSend(oPacket)
+}
+
 void ColorFilterElement::setColor(QRgb color)
 {
     if (this->d->m_color == color)
@@ -133,63 +190,6 @@ void ColorFilterElement::resetSoft()
 void ColorFilterElement::resetDisable()
 {
     this->setDisable(false);
-}
-
-AkPacket ColorFilterElement::iStream(const AkPacket &packet)
-{
-    if (this->d->m_disable)
-        akSend(packet)
-
-    AkVideoPacket videoPacket(packet);
-    auto src = videoPacket.toImage();
-
-    if (src.isNull())
-        return AkPacket();
-
-    src = src.convertToFormat(QImage::Format_ARGB32);
-    QImage oFrame(src.size(), src.format());
-
-    for (int y = 0; y < src.height(); y++) {
-        auto srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
-        auto dstLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
-
-        for (int x = 0; x < src.width(); x++) {
-            int r = qRed(srcLine[x]);
-            int g = qGreen(srcLine[x]);
-            int b = qBlue(srcLine[x]);
-
-            int rf = qRed(this->d->m_color);
-            int gf = qGreen(this->d->m_color);
-            int bf = qBlue(this->d->m_color);
-
-            int rd = r - rf;
-            int gd = g - gf;
-            int bd = b - bf;
-
-            qreal k = sqrt(rd * rd + gd * gd + bd * bd);
-
-            if (k <= this->d->m_radius) {
-                if (this->d->m_soft) {
-                    qreal p = k / this->d->m_radius;
-
-                    int gray = qGray(srcLine[x]);
-
-                    r = int(p * (gray - r) + r);
-                    g = int(p * (gray - g) + g);
-                    b = int(p * (gray - b) + b);
-
-                    dstLine[x] = qRgba(r, g, b, qAlpha(srcLine[x]));
-                } else
-                    dstLine[x] = srcLine[x];
-            } else {
-                int gray = qGray(srcLine[x]);
-                dstLine[x] = qRgba(gray, gray, gray, qAlpha(srcLine[x]));
-            }
-        }
-    }
-
-    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
-    akSend(oPacket)
 }
 
 #include "moc_colorfilterelement.cpp"

@@ -37,11 +37,16 @@ inline SampleFormatMap initSampleFormatMap()
 {
     SampleFormatMap sampleFormat = {
         {AkAudioCaps::SampleFormat_u8   , PA_SAMPLE_U8       },
-        {AkAudioCaps::SampleFormat_s16be, PA_SAMPLE_S16BE    },
-        {AkAudioCaps::SampleFormat_s16le, PA_SAMPLE_S16LE    },
-        {AkAudioCaps::SampleFormat_s32be, PA_SAMPLE_S32BE    },
-        {AkAudioCaps::SampleFormat_s32le, PA_SAMPLE_S32LE    },
-        {AkAudioCaps::SampleFormat_flt  , PA_SAMPLE_FLOAT32LE},
+
+#if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
+        {AkAudioCaps::SampleFormat_s16, PA_SAMPLE_S16LE    },
+        {AkAudioCaps::SampleFormat_s32, PA_SAMPLE_S32LE    },
+        {AkAudioCaps::SampleFormat_flt, PA_SAMPLE_FLOAT32LE},
+#else
+        {AkAudioCaps::SampleFormat_s16, PA_SAMPLE_S16BE    },
+        {AkAudioCaps::SampleFormat_s32, PA_SAMPLE_S32BE    },
+        {AkAudioCaps::SampleFormat_flt, PA_SAMPLE_FLOAT32BE},
+#endif
     };
 
     return sampleFormat;
@@ -313,11 +318,11 @@ QList<AkAudioCaps::SampleFormat> AudioDevPulseAudio::supportedFormats(const QStr
     return sampleFormats->keys();
 }
 
-QList<int> AudioDevPulseAudio::supportedChannels(const QString &device)
+QList<AkAudioCaps::ChannelLayout> AudioDevPulseAudio::supportedChannelLayouts(const QString &device)
 {
     Q_UNUSED(device)
 
-    return QList<int> {1, 2};
+    return {AkAudioCaps::Layout_mono, AkAudioCaps::Layout_stereo};
 }
 
 QList<int> AudioDevPulseAudio::supportedSampleRates(const QString &device)

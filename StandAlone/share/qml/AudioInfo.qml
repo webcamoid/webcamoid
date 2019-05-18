@@ -48,25 +48,21 @@ Rectangle {
         iDescription = AudioLayer.description(iDevice);
 
         var audioCaps = Ak.newAudioCaps();
-        var supportedFormats = AudioLayer.supportedFormats(iDevice);
+        var supportedFormats =
+                Ak.newList(AudioLayer.supportedFormats(iDevice));
         iSampleFormats.clear();
 
         for (var format in supportedFormats)
-            iSampleFormats.append({format: audioCaps.sampleFormatFromString(supportedFormats[format]),
-                                   description: supportedFormats[format]});
+            iSampleFormats.append({format: supportedFormats[format],
+                                   description: audioCaps.sampleFormatToString(supportedFormats[format])});
 
-        var supportedChannels = AudioLayer.supportedChannels(iDevice);
-        iChannels.clear();
+        var supportedChannelLayouts =
+                Ak.newList(AudioLayer.supportedChannelLayouts(iDevice));
+        iChannelLayouts.clear();
 
-        for (var channels in supportedChannels) {
-            var description =
-                    supportedChannels[channels]
-                    + " - "
-                    + audioCaps.defaultChannelLayoutString(supportedChannels[channels]);
-
-            iChannels.append({channels: supportedChannels[channels],
-                              description: description});
-        }
+        for (var layout in supportedChannelLayouts)
+            iChannelLayouts.append({layout: supportedChannelLayouts[layout],
+                                    description: audioCaps.channelLayoutToString(supportedChannelLayouts[layout])});
 
         var supportedSampleRates = AudioLayer.supportedSampleRates(iDevice);
         iSampleRates.clear();
@@ -79,12 +75,12 @@ Rectangle {
 
         cbxISampleFormats.currentIndex =
                 bound(0,
-                      supportedFormats.indexOf(audioCaps.sampleFormatToString(preferredFormat.format)),
+                      supportedFormats.indexOf(preferredFormat.format),
                       cbxISampleFormats.model.count - 1);
-        cbxIChannels.currentIndex =
+        cbxIChannelLayouts.currentIndex =
                 bound(0,
-                      supportedChannels.indexOf(preferredFormat.channels),
-                      cbxIChannels.model.count - 1);
+                      supportedChannelLayouts.indexOf(preferredFormat.layouts),
+                      cbxIChannelLayouts.model.count - 1);
         cbxISampleRates.currentIndex =
                 bound(0,
                       supportedSampleRates.indexOf(preferredFormat.rate),
@@ -100,27 +96,24 @@ Rectangle {
         oDescription = AudioLayer.description(AudioLayer.audioOutput);
 
         var audioCaps = Ak.newAudioCaps();
-        var supportedFormats = AudioLayer.supportedFormats(AudioLayer.audioOutput);
+        var supportedFormats =
+                Ak.newList(AudioLayer.supportedFormats(AudioLayer.audioOutput));
         oSampleFormats.clear();
 
         for (var format in supportedFormats)
-            oSampleFormats.append({format: audioCaps.sampleFormatFromString(supportedFormats[format]),
-                                   description: supportedFormats[format]});
+            oSampleFormats.append({format: supportedFormats[format],
+                                   description: audioCaps.sampleFormatToString(supportedFormats[format])});
 
-        var supportedChannels = AudioLayer.supportedChannels(AudioLayer.audioOutput);
-        oChannels.clear();
+        var supportedChannelLayouts =
+                Ak.newList(AudioLayer.supportedChannelLayouts(AudioLayer.audioOutput));
+        oChannelLayouts.clear();
 
-        for (var channels in supportedChannels) {
-            var description =
-                    supportedChannels[channels]
-                    + " - "
-                    + audioCaps.defaultChannelLayoutString(supportedChannels[channels]);
+        for (var layout in supportedChannelLayouts)
+            oChannelLayouts.append({layout: supportedChannelLayouts[layout],
+                                    description: audioCaps.channelLayoutToString(supportedChannelLayouts[layout])});
 
-            oChannels.append({channels: supportedChannels[channels],
-                              description: description});
-        }
-
-        var supportedSampleRates = AudioLayer.supportedSampleRates(AudioLayer.audioOutput);
+        var supportedSampleRates =
+                AudioLayer.supportedSampleRates(AudioLayer.audioOutput);
         oSampleRates.clear();
 
         for (var rate in supportedSampleRates)
@@ -131,12 +124,12 @@ Rectangle {
 
         cbxOSampleFormats.currentIndex =
                 bound(0,
-                      supportedFormats.indexOf(audioCaps.sampleFormatToString(preferredFormat.format)),
+                      supportedFormats.indexOf(preferredFormat.format),
                       cbxOSampleFormats.model.count - 1);
-        cbxOChannels.currentIndex =
+        cbxOChannelLayouts.currentIndex =
                 bound(0,
-                      supportedChannels.indexOf(preferredFormat.channels),
-                      cbxOChannels.model.count - 1);
+                      supportedChannelLayouts.indexOf(preferredFormat.layout),
+                      cbxOChannelLayouts.model.count - 1);
         cbxOSampleRates.currentIndex =
                 bound(0,
                       supportedSampleRates.indexOf(preferredFormat.rate),
@@ -151,33 +144,33 @@ Rectangle {
             return;
 
         var cbxSampleFormats = isInput? cbxISampleFormats: cbxOSampleFormats;
-        var cbxChannels = isInput? cbxIChannels: cbxOChannels;
+        var cbxChannelLayouts = isInput? cbxIChannelLayouts: cbxOChannelLayouts;
         var cbxSampleRates = isInput? cbxISampleRates: cbxOSampleRates;
 
         var audioCaps = Ak.newAudioCaps()
 
         if (cbxSampleFormats.model.count > 0
-            && cbxChannels.model.count > 0
+            && cbxChannelLayouts.model.count > 0
             && cbxSampleRates.model.count > 0) {
             var sampleFormatsCI = bound(0, cbxSampleFormats.currentIndex, cbxSampleFormats.model.count - 1);
-            var channelsCI = bound(0, cbxChannels.currentIndex, cbxChannels.model.count - 1);
+            var channelLayoutsCI = bound(0, cbxChannelLayouts.currentIndex, cbxChannelLayouts.model.count - 1);
             var sampleRatesCI = bound(0, cbxSampleRates.currentIndex, cbxSampleRates.model.count - 1);
 
             audioCaps =
                     Ak.newAudioCaps(cbxSampleFormats.model.get(sampleFormatsCI).format,
-                                    cbxChannels.model.get(channelsCI).channels,
+                                    cbxChannelLayouts.model.get(channelLayoutsCI).layout,
                                     cbxSampleRates.model.get(sampleRatesCI).sampleRate);
         }
 
         if (isInput) {
             var state = AudioLayer.inputState;
             AudioLayer.inputState = AkElement.ElementStateNull;
-            AudioLayer.inputDeviceCaps = audioCaps.toCaps();
+            AudioLayer.inputDeviceCaps = Ak.varAudioCaps(audioCaps);
             AudioLayer.inputState = state;
         } else {
             var state = AudioLayer.outputState;
             AudioLayer.outputState = AkElement.ElementStateNull;
-            AudioLayer.outputDeviceCaps = audioCaps.toCaps();
+            AudioLayer.outputDeviceCaps = Ak.varAudioCaps(audioCaps);
             AudioLayer.outputState = state;
         }
     }
@@ -293,9 +286,9 @@ Rectangle {
         }
         ColumnLayout {
             ComboBox {
-                id: cbxOChannels
+                id: cbxOChannelLayouts
                 model: ListModel {
-                    id: oChannels
+                    id: oChannelLayouts
                 }
                 textRole: "description"
                 Layout.fillWidth: true
@@ -303,9 +296,9 @@ Rectangle {
                 onCurrentIndexChanged: updateCaps(false)
             }
             ComboBox {
-                id: cbxIChannels
+                id: cbxIChannelLayouts
                 model: ListModel {
-                    id: iChannels
+                    id: iChannelLayouts
                 }
                 textRole: "description"
                 Layout.fillWidth: true
@@ -374,11 +367,11 @@ Rectangle {
                 visible: true
             }
             PropertyChanges {
-                target: cbxOChannels
+                target: cbxOChannelLayouts
                 visible: false
             }
             PropertyChanges {
-                target: cbxIChannels
+                target: cbxIChannelLayouts
                 visible: true
             }
             PropertyChanges {

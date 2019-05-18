@@ -65,6 +65,7 @@ class VignetteElement: public AkElement
         QString controlInterfaceProvide(const QString &controlId) const;
         void controlInterfaceConfigure(QQmlContext *context,
                                        const QString &controlId) const;
+        AkPacket iVideoStream(const AkVideoPacket &packet);
 
     signals:
         void colorChanged(QRgb color);
@@ -82,7 +83,6 @@ class VignetteElement: public AkElement
         void resetAspect();
         void resetScale();
         void resetSoftness();
-        AkPacket iStream(const AkPacket &packet);
 
     private slots:
         void updateVignette();

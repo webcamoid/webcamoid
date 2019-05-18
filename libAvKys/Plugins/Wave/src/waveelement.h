@@ -65,6 +65,7 @@ class WaveElement: public AkElement
         QString controlInterfaceProvide(const QString &controlId) const;
         void controlInterfaceConfigure(QQmlContext *context,
                                        const QString &controlId) const;
+        AkPacket iVideoStream(const AkVideoPacket &packet);
 
     signals:
         void amplitudeChanged(qreal amplitude);
@@ -82,7 +83,6 @@ class WaveElement: public AkElement
         void resetFrequency();
         void resetPhase();
         void resetBackground();
-        AkPacket iStream(const AkPacket &packet);
 
     private slots:
         void updateSineMap();

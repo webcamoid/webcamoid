@@ -59,6 +59,7 @@ class ScanLinesElement: public AkElement
         QString controlInterfaceProvide(const QString &controlId) const;
         void controlInterfaceConfigure(QQmlContext *context,
                                        const QString &controlId) const;
+        AkPacket iVideoStream(const AkVideoPacket &packet);
 
     signals:
         void showSizeChanged(int showSize);
@@ -72,8 +73,6 @@ class ScanLinesElement: public AkElement
         void resetShowSize();
         void resetHideSize();
         void resetHideColor();
-
-        AkPacket iStream(const AkPacket &packet);
 };
 
 #endif // SCANLINESELEMENT_H

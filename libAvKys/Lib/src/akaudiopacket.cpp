@@ -22,7 +22,9 @@
 #include <QtEndian>
 
 #include "akaudiopacket.h"
+#include "akpacket.h"
 #include "akcaps.h"
+#include "akfrac.h"
 
 using AudioConvertFuntion =
     std::function<AkAudioPacket (const AkAudioPacket &src, int align)>;
@@ -31,6 +33,11 @@ class AkAudioPacketPrivate
 {
     public:
         AkAudioCaps m_caps;
+        QByteArray m_buffer;
+        qint64 m_pts {0};
+        AkFrac m_timeBase;
+        qint64 m_id {-1};
+        int m_index {-1};
 
         template<typename InputType, typename OutputType, typename OpType>
         inline static OutputType scaleValue(InputType value)
@@ -788,7 +795,7 @@ class AkAudioPacketPrivate
 };
 
 AkAudioPacket::AkAudioPacket(QObject *parent):
-    AkPacket(parent)
+    QObject(parent)
 {
     this->d = new AkAudioPacketPrivate();
 }
@@ -797,32 +804,30 @@ AkAudioPacket::AkAudioPacket(const AkAudioCaps &caps)
 {
     this->d = new AkAudioPacketPrivate();
     this->d->m_caps = caps;
-    this->buffer() = QByteArray(int(caps.frameSize()), Qt::Uninitialized);
+    this->d->m_buffer = QByteArray(int(caps.frameSize()), Qt::Uninitialized);
 }
 
 AkAudioPacket::AkAudioPacket(const AkPacket &other)
 {
     this->d = new AkAudioPacketPrivate();
     this->d->m_caps = other.caps();
-    this->data() = other.data();
-    this->buffer() = other.buffer();
-    this->pts() = other.pts();
-    this->timeBase() = other.timeBase();
-    this->index() = other.index();
-    this->id() = other.id();
+    this->d->m_buffer = other.buffer();
+    this->d->m_pts = other.pts();
+    this->d->m_timeBase = other.timeBase();
+    this->d->m_index = other.index();
+    this->d->m_id = other.id();
 }
 
 AkAudioPacket::AkAudioPacket(const AkAudioPacket &other):
-    AkPacket()
+    QObject()
 {
     this->d = new AkAudioPacketPrivate();
     this->d->m_caps = other.d->m_caps;
-    this->data() = other.data();
-    this->buffer() = other.buffer();
-    this->pts() = other.pts();
-    this->timeBase() = other.timeBase();
-    this->index() = other.index();
-    this->id() = other.id();
+    this->d->m_buffer = other.d->m_buffer;
+    this->d->m_pts = other.d->m_pts;
+    this->d->m_timeBase = other.d->m_timeBase;
+    this->d->m_index = other.d->m_index;
+    this->d->m_id = other.d->m_id;
 }
 
 AkAudioPacket::~AkAudioPacket()
@@ -833,12 +838,11 @@ AkAudioPacket::~AkAudioPacket()
 AkAudioPacket &AkAudioPacket::operator =(const AkPacket &other)
 {
     this->d->m_caps = other.caps();
-    this->data() = other.data();
-    this->buffer() = other.buffer();
-    this->pts() = other.pts();
-    this->timeBase() = other.timeBase();
-    this->index() = other.index();
-    this->id() = other.id();
+    this->d->m_buffer = other.buffer();
+    this->d->m_pts = other.pts();
+    this->d->m_timeBase = other.timeBase();
+    this->d->m_index = other.index();
+    this->d->m_id = other.id();
 
     return *this;
 }
@@ -847,12 +851,11 @@ AkAudioPacket &AkAudioPacket::operator =(const AkAudioPacket &other)
 {
     if (this != &other) {
         this->d->m_caps = other.d->m_caps;
-        this->data() = other.data();
-        this->buffer() = other.buffer();
-        this->pts() = other.pts();
-        this->timeBase() = other.timeBase();
-        this->index() = other.index();
-        this->id() = other.id();
+        this->d->m_buffer = other.d->m_buffer;
+        this->d->m_pts = other.d->m_pts;
+        this->d->m_timeBase = other.d->m_timeBase;
+        this->d->m_index = other.d->m_index;
+        this->d->m_id = other.d->m_id;
     }
 
     return *this;
@@ -887,9 +890,21 @@ AkAudioPacket &AkAudioPacket::operator +=(const AkAudioPacket &other)
     return *this;
 }
 
+AkAudioPacket::operator AkPacket() const
+{
+    AkPacket packet(this->d->m_caps);
+    packet.buffer() = this->d->m_buffer;
+    packet.pts() = this->d->m_pts;
+    packet.timeBase() = this->d->m_timeBase;
+    packet.index() = this->d->m_index;
+    packet.id() = this->d->m_id;
+
+    return packet;
+}
+
 AkAudioPacket::operator bool() const
 {
-    return this->d->m_caps.isValid();
+    return this->d->m_caps;
 }
 
 AkAudioCaps AkAudioPacket::caps() const
@@ -902,60 +917,74 @@ AkAudioCaps &AkAudioPacket::caps()
     return this->d->m_caps;
 }
 
+QByteArray AkAudioPacket::buffer() const
+{
+    return this->d->m_buffer;
+}
+
+QByteArray &AkAudioPacket::buffer()
+{
+    return this->d->m_buffer;
+}
+
+qint64 AkAudioPacket::id() const
+{
+    return this->d->m_id;
+}
+
+qint64 &AkAudioPacket::id()
+{
+    return this->d->m_id;
+}
+
+qint64 AkAudioPacket::pts() const
+{
+    return this->d->m_pts;
+}
+
+qint64 &AkAudioPacket::pts()
+{
+    return this->d->m_pts;
+}
+
+AkFrac AkAudioPacket::timeBase() const
+{
+    return this->d->m_timeBase;
+}
+
+AkFrac &AkAudioPacket::timeBase()
+{
+    return this->d->m_timeBase;
+}
+
+int AkAudioPacket::index() const
+{
+    return this->d->m_index;
+}
+
+int &AkAudioPacket::index()
+{
+    return this->d->m_index;
+}
+
+void AkAudioPacket::copyMetadata(const AkAudioPacket &other)
+{
+    this->d->m_pts = other.d->m_pts;
+    this->d->m_timeBase = other.d->m_timeBase;
+    this->d->m_index = other.d->m_index;
+    this->d->m_id = other.d->m_id;
+}
+
 const quint8 *AkAudioPacket::constPlaneData(int plane) const
 {
-    return reinterpret_cast<const quint8 *>(this->buffer().constData())
+    return reinterpret_cast<const quint8 *>(this->d->m_buffer.constData())
             + this->d->m_caps.planeOffset(plane);
 }
 
 quint8 *AkAudioPacket::planeData(int plane)
 {
-    return reinterpret_cast<quint8 *>(this->buffer().data())
+    return reinterpret_cast<quint8 *>(this->d->m_buffer.data())
             + this->d->m_caps.planeOffset(plane);
-}
-
-QString AkAudioPacket::toString() const
-{
-    QString packetInfo;
-    QDebug debug(&packetInfo);
-
-    debug.nospace() << "Caps       : "
-                    << this->d->m_caps.toString().toStdString().c_str()
-                    << "\n"
-                    << "Data       : "
-                    << this->data()
-                    << "\n"
-                    << "Buffer Size: "
-                    << this->buffer().size()
-                    << "\n"
-                    << "Id         : "
-                    << this->id()
-                    << "\n"
-                    << "Pts        : "
-                    << this->pts()
-                    << " ("
-                    << this->pts() * this->timeBase().value()
-                    << ")\n"
-                    << "Time Base  : "
-                    << this->timeBase().toString().toStdString().c_str()
-                    << "\n"
-                    << "Index      : "
-                    << this->index();
-
-    return packetInfo;
-}
-
-AkPacket AkAudioPacket::toPacket() const
-{
-    AkPacket packet;
-    packet.caps() =  this->d->m_caps.toCaps();
-    packet.buffer() = this->buffer();
-    packet.pts() = this->pts();
-    packet.timeBase() = this->timeBase();
-    packet.index() = this->index();
-    packet.id() = this->id();
-
-    return packet;
 }
 
 bool AkAudioPacket::canConvert(AkAudioCaps::SampleFormat input,
@@ -1115,22 +1144,6 @@ AkAudioPacket AkAudioPacket::realign(int align) const
     return dst;
 }
 
-void AkAudioPacket::copyMetadata(const AkPacket &other)
-{
-    this->pts() = other.pts();
-    this->timeBase() = other.timeBase();
-    this->index() = other.index();
-    this->id() = other.id();
-}
-
-void AkAudioPacket::copyMetadata(const AkAudioPacket &other)
-{
-    this->pts() = other.pts();
-    this->timeBase() = other.timeBase();
-    this->index() = other.index();
-    this->id() = other.id();
-}
-
 void AkAudioPacket::setCaps(const AkAudioCaps &caps)
 {
     if (this->d->m_caps == caps)
@@ -1140,14 +1153,100 @@ void AkAudioPacket::setCaps(const AkAudioCaps &caps)
     emit this->capsChanged(caps);
 }
 
+void AkAudioPacket::setBuffer(const QByteArray &buffer)
+{
+    if (this->d->m_buffer == buffer)
+        return;
+
+    this->d->m_buffer = buffer;
+    emit this->bufferChanged(buffer);
+}
+
+void AkAudioPacket::setId(qint64 id)
+{
+    if (this->d->m_id == id)
+        return;
+
+    this->d->m_id = id;
+    emit this->idChanged(id);
+}
+
+void AkAudioPacket::setPts(qint64 pts)
+{
+    if (this->d->m_pts == pts)
+        return;
+
+    this->d->m_pts = pts;
+    emit this->ptsChanged(pts);
+}
+
+void AkAudioPacket::setTimeBase(const AkFrac &timeBase)
+{
+    if (this->d->m_timeBase == timeBase)
+        return;
+
+    this->d->m_timeBase = timeBase;
+    emit this->timeBaseChanged(timeBase);
+}
+
+void AkAudioPacket::setIndex(int index)
+{
+    if (this->d->m_index == index)
+        return;
+
+    this->d->m_index = index;
+    emit this->indexChanged(index);
+}
+
 void AkAudioPacket::resetCaps()
 {
     this->setCaps(AkAudioCaps());
 }
 
+void AkAudioPacket::resetBuffer()
+{
+    this->setBuffer({});
+}
+
+void AkAudioPacket::resetId()
+{
+    this->setId(-1);
+}
+
+void AkAudioPacket::resetPts()
+{
+    this->setPts(0);
+}
+
+void AkAudioPacket::resetTimeBase()
+{
+    this->setTimeBase({});
+}
+
+void AkAudioPacket::resetIndex()
+{
+    this->setIndex(-1);
+}
+
 QDebug operator <<(QDebug debug, const AkAudioPacket &packet)
 {
-    debug.nospace() << packet.toString().toStdString().c_str();
+    debug.nospace() << "AkAudioPacket("
+                    << "caps="
+                    << packet.caps()
+                    << ",bufferSize="
+                    << packet.buffer().size()
+                    << ",id="
+                    << packet.id()
+                    << ",pts="
+                    << packet.pts()
+                    << "("
+                    << packet.pts() * packet.timeBase().value()
+                    << ")"
+                    << ",timeBase="
+                    << packet.timeBase()
+                    << ",index="
+                    << packet.index()
+                    << ")";
 
     return debug.space();
 }

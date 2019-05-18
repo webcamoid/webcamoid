@@ -204,12 +204,12 @@ void AbstractStream::packetEnqueue(const AkPacket &packet)
 
 void AbstractStream::convertPacket(const AkPacket &packet)
 {
-    Q_UNUSED(packet);
+    Q_UNUSED(packet)
 }
 
 int AbstractStream::encodeData(AVFrame *frame)
 {
-    Q_UNUSED(frame);
+    Q_UNUSED(frame)
 
     return AVERROR_EOF;
 }

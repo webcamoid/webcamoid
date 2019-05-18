@@ -36,18 +36,23 @@
 
 #define BUFFER_SIZE 1024 // In samples
 
+#ifndef AFMT_U16_NE
+#   if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
+#       define AFMT_U16_NE AFMT_U16_LE
+#   else
+#       define AFMT_U16_NE AFMT_U16_BE
+#   endif
+#endif
+
 using SampleFormatMap = QMap<AkAudioCaps::SampleFormat, int>;
 
 inline SampleFormatMap initSampleFormatMap()
 {
     SampleFormatMap sampleFormat = {
-        {AkAudioCaps::SampleFormat_s8   , AFMT_S8    },
-        {AkAudioCaps::SampleFormat_u8   , AFMT_U8    },
-        {AkAudioCaps::SampleFormat_s16  , AFMT_S16_NE},
-        {AkAudioCaps::SampleFormat_s16le, AFMT_S16_LE},
-        {AkAudioCaps::SampleFormat_s16be, AFMT_S16_BE},
-        {AkAudioCaps::SampleFormat_u16le, AFMT_U16_LE},
-        {AkAudioCaps::SampleFormat_u16be, AFMT_U16_BE},
+        {AkAudioCaps::SampleFormat_s8 , AFMT_S8    },
+        {AkAudioCaps::SampleFormat_u8 , AFMT_U8    },
+        {AkAudioCaps::SampleFormat_s16, AFMT_S16_NE},
+        {AkAudioCaps::SampleFormat_u16, AFMT_U16_NE},
     };
 
     return sampleFormat;
@@ -66,7 +71,7 @@ class AudioDevOSSPrivate
         QStringList m_sources;
         QMap<QString, QString> m_pinDescriptionMap;
         QMap<QString, QList<AkAudioCaps::SampleFormat>> m_supportedFormats;
-        QMap<QString, QList<int>> m_supportedChannels;
+        QMap<QString, QList<AkAudioCaps::ChannelLayout>> m_supportedLayouts;
         QMap<QString, QList<int>> m_supportedSampleRates;
         AkAudioCaps m_curCaps;
         QFile m_deviceFile;
@@ -77,7 +82,7 @@ class AudioDevOSSPrivate
         int fragmentSize(const QString &device, const AkAudioCaps &caps);
         void fillDeviceInfo(const QString &device,
                             QList<AkAudioCaps::SampleFormat> *supportedFormats,
-                            QList<int> *supportedChannels,
+                            QList<AkAudioCaps::ChannelLayout> *supportedLayouts,
                             QList<int> *supportedSampleRates) const;
 };
 
@@ -151,9 +156,9 @@ QList<AkAudioCaps::SampleFormat> AudioDevOSS::supportedFormats(const QString &de
     return this->d->m_supportedFormats.value(device);
 }
 
-QList<int> AudioDevOSS::supportedChannels(const QString &device)
+QList<AkAudioCaps::ChannelLayout> AudioDevOSS::supportedChannelLayouts(const QString &device)
 {
-    return this->d->m_supportedChannels.value(device);
+    return this->d->m_supportedLayouts.value(device);
 }
 
 QList<int> AudioDevOSS::supportedSampleRates(const QString &device)
@@ -326,7 +331,7 @@ int AudioDevOSSPrivate::fragmentSize(const QString &device,
 
 void AudioDevOSSPrivate::fillDeviceInfo(const QString &device,
                                         QList<AkAudioCaps::SampleFormat> *supportedFormats,
-                                        QList<int> *supportedChannels,
+                                        QList<AkAudioCaps::ChannelLayout> *supportedLayouts,
                                         QList<int> *supportedSampleRates) const
 {
     QFile pcmFile(QString(device)
@@ -342,10 +347,8 @@ void AudioDevOSSPrivate::fillDeviceInfo(const QString &device,
         goto deviceCaps_fail;
 
     static const QVector<int> preferredFormats = {
-        AFMT_S16_LE,
-        AFMT_S16_BE,
-        AFMT_U16_LE,
-        AFMT_U16_BE,
+        AFMT_S16_NE,
+        AFMT_U16_NE,
         AFMT_S8,
         AFMT_U8
     };
@@ -361,6 +364,8 @@ void AudioDevOSSPrivate::fillDeviceInfo(const QString &device,
             supportedFormats->append(sampleFormats->key(fmt));
         }
 
+    std::sort(supportedFormats->begin(), supportedFormats->end());
+
     if (format == AFMT_QUERY)
         goto deviceCaps_fail;
 
@@ -369,7 +374,7 @@ void AudioDevOSSPrivate::fillDeviceInfo(const QString &device,
 
     for (int channels = 0; channels < 2; channels++)
         if (ioctl(pcmFile.handle(), SNDCTL_DSP_STEREO, &channels) >= 0)
-            supportedChannels->append(channels + 1);
+            supportedLayouts->append(AkAudioCaps::defaultChannelLayout(channels + 1));
 
     for (auto &rate: self->commonSampleRates())
         if (ioctl(pcmFile.handle(), SNDCTL_DSP_SPEED, &rate) >= 0)
@@ -378,14 +383,14 @@ void AudioDevOSSPrivate::fillDeviceInfo(const QString &device,
 deviceCaps_fail:
     pcmFile.close();
 }
-
+#include <QtDebug>
 void AudioDevOSS::updateDevices()
 {
     decltype(this->d->m_sources) inputs;
     decltype(this->d->m_sinks) outputs;
     decltype(this->d->m_pinDescriptionMap) pinDescriptionMap;
     decltype(this->d->m_supportedFormats) supportedFormats;
-    decltype(this->d->m_supportedChannels) supportedChannels;
+    decltype(this->d->m_supportedLayouts) supportedLayouts;
     decltype(this->d->m_supportedSampleRates) supportedSampleRates;
 
     QDir devicesDir("/dev");
@@ -425,60 +430,60 @@ void AudioDevOSS::updateDevices()
         description = QString("%1, %2").arg(mixerInfo.id, mixerInfo.name);
 
         QList<AkAudioCaps::SampleFormat> _supportedFormats;
-        QList<int> _supportedChannels;
+        QList<AkAudioCaps::ChannelLayout> _supportedLayouts;
         QList<int> _supportedSampleRates;
 
         auto input = dspDevice + ":Input";
         this->d->fillDeviceInfo(input,
                                 &_supportedFormats,
-                                &_supportedChannels,
+                                &_supportedLayouts,
                                 &_supportedSampleRates);
 
         if (_supportedFormats.isEmpty())
             _supportedFormats = this->d->m_supportedFormats.value(input);
 
-        if (_supportedChannels.isEmpty())
-            _supportedChannels = this->d->m_supportedChannels.value(input);
+        if (_supportedLayouts.isEmpty())
+            _supportedLayouts = this->d->m_supportedLayouts.value(input);
 
         if (_supportedSampleRates.isEmpty())
             _supportedSampleRates = this->d->m_supportedSampleRates.value(input);
 
         if (!_supportedFormats.isEmpty()
-            && !_supportedChannels.isEmpty()
+            && !_supportedLayouts.isEmpty()
             && !_supportedSampleRates.isEmpty()) {
             inputs << input;
             pinDescriptionMap[input] = description;
             supportedFormats[input] = _supportedFormats;
-            supportedChannels[input] = _supportedChannels;
+            supportedLayouts[input] = _supportedLayouts;
             supportedSampleRates[input] = _supportedSampleRates;
         }
 
         _supportedFormats.clear();
-        _supportedChannels.clear();
+        _supportedLayouts.clear();
         _supportedSampleRates.clear();
 
         auto output = dspDevice + ":Output";
         this->d->fillDeviceInfo(output,
                                 &_supportedFormats,
-                                &_supportedChannels,
+                                &_supportedLayouts,
                                 &_supportedSampleRates);
 
         if (_supportedFormats.isEmpty())
             _supportedFormats = this->d->m_supportedFormats.value(output);
 
-        if (_supportedChannels.isEmpty())
-            _supportedChannels = this->d->m_supportedChannels.value(output);
+        if (_supportedLayouts.isEmpty())
+            _supportedLayouts = this->d->m_supportedLayouts.value(output);
 
         if (_supportedSampleRates.isEmpty())
             _supportedSampleRates = this->d->m_supportedSampleRates.value(output);
 
         if (!_supportedFormats.isEmpty()
-            && !_supportedChannels.isEmpty()
+            && !_supportedLayouts.isEmpty()
             && !_supportedSampleRates.isEmpty()) {
             outputs << output;
             pinDescriptionMap[output] = description;
             supportedFormats[output] = _supportedFormats;
-            supportedChannels[output] = _supportedChannels;
+            supportedLayouts[output] = _supportedLayouts;
             supportedSampleRates[output] = _supportedSampleRates;
         }
     }
@@ -486,8 +491,8 @@ void AudioDevOSS::updateDevices()
     if (this->d->m_supportedFormats != supportedFormats)
         this->d->m_supportedFormats = supportedFormats;
 
-    if (this->d->m_supportedChannels != supportedChannels)
-        this->d->m_supportedChannels = supportedChannels;
+    if (this->d->m_supportedLayouts != supportedLayouts)
+        this->d->m_supportedLayouts = supportedLayouts;
 
     if (this->d->m_supportedSampleRates != supportedSampleRates)
         this->d->m_supportedSampleRates = supportedSampleRates;

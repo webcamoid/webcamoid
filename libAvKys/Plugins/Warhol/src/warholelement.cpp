@@ -19,6 +19,7 @@
 
 #include <QImage>
 #include <QQmlContext>
+#include <akpacket.h>
 #include <akvideopacket.h>
 
 #include "warholelement.h"
@@ -66,6 +67,36 @@ void WarholElement::controlInterfaceConfigure(QQmlContext *context,
     context->setContextProperty("controlId", this->objectName());
 }
 
+AkPacket WarholElement::iVideoStream(const AkVideoPacket &packet)
+{
+    auto src = packet.toImage();
+
+    if (src.isNull())
+        return AkPacket();
+
+    src = src.convertToFormat(QImage::Format_ARGB32);
+    QImage oFrame(src.size(), src.format());
+    int nFrames = this->d->m_nFrames;
+
+    for (int y = 0; y < src.height(); y++) {
+        auto oLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
+
+        for (int x = 0; x < src.width(); x++) {
+            int p = (x * nFrames) % src.width();
+            int q = (y * nFrames) % src.height();
+            int i = ((y * nFrames) / src.height()) * nFrames +
+                    ((x * nFrames) / src.width());
+
+            i = qBound(0, i, this->d->m_colorTable.size() - 1);
+            auto iLine = reinterpret_cast<const QRgb *>(src.constScanLine(q));
+            oLine[x] = (iLine[p] ^ this->d->m_colorTable[i]) | 0xff000000;
+        }
+    }
+
+    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
+    akSend(oPacket)
+}
+
 void WarholElement::setNFrames(int nFrames)
 {
     if (this->d->m_nFrames == nFrames)
@@ -78,37 +109,6 @@ void WarholElement::setNFrames(int nFrames)
 void WarholElement::resetNFrames()
 {
     this->setNFrames(3);
-}
-
-AkPacket WarholElement::iStream(const AkPacket &packet)
-{
-    AkVideoPacket videoPacket(packet);
-    auto src = videoPacket.toImage();
-
-    if (src.isNull())
-        return AkPacket();
-
-    src = src.convertToFormat(QImage::Format_ARGB32);
-    QImage oFrame = QImage(src.size(), src.format());
-    int nFrames = this->d->m_nFrames;
-
-    for (int y = 0; y < src.height(); y++) {
-        QRgb *oLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
-
-        for (int x = 0; x < src.width(); x++) {
-            int p = (x * nFrames) % src.width();
-            int q = (y * nFrames) % src.height();
-            int i = ((y * nFrames) / src.height()) * nFrames +
-                    ((x * nFrames) / src.width());
-
-            i = qBound(0, i, this->d->m_colorTable.size() - 1);
-            const QRgb *iLine = reinterpret_cast<const QRgb *>(src.constScanLine(q));
-            oLine[x] = (iLine[p] ^ this->d->m_colorTable[i]) | 0xff000000;
-        }
-    }
-
-    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
-    akSend(oPacket)
 }
 
 #include "moc_warholelement.cpp"

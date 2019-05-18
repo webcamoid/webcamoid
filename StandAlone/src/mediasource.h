@@ -24,7 +24,8 @@
 
 class MediaSourcePrivate;
 class MediaSource;
-class AkCaps;
+class AkAudioCaps;
+class AkVideoCaps;
 class QQmlApplicationEngine;
 
 typedef QSharedPointer<MediaSource> MediaSourcePtr;
@@ -51,10 +52,10 @@ class MediaSource: public QObject
                WRITE setUris
                RESET resetUris
                NOTIFY urisChanged)
-    Q_PROPERTY(AkCaps audioCaps
+    Q_PROPERTY(AkAudioCaps audioCaps
                READ audioCaps
                NOTIFY audioCapsChanged)
-    Q_PROPERTY(AkCaps videoCaps
+    Q_PROPERTY(AkVideoCaps videoCaps
                READ videoCaps
                NOTIFY videoCapsChanged)
     Q_PROPERTY(AkElement::ElementState state
@@ -78,8 +79,8 @@ class MediaSource: public QObject
         Q_INVOKABLE QStringList cameras() const;
         Q_INVOKABLE QStringList desktops() const;
         Q_INVOKABLE QVariantMap uris() const;
-        Q_INVOKABLE AkCaps audioCaps() const;
-        Q_INVOKABLE AkCaps videoCaps() const;
+        Q_INVOKABLE AkAudioCaps audioCaps() const;
+        Q_INVOKABLE AkVideoCaps videoCaps() const;
         Q_INVOKABLE AkElement::ElementState state() const;
         Q_INVOKABLE bool playOnStart() const;
         Q_INVOKABLE QString description(const QString &stream) const;
@@ -97,8 +98,8 @@ class MediaSource: public QObject
         void camerasChanged(const QStringList &cameras);
         void desktopsChanged(const QStringList &desktops);
         void urisChanged(const QVariantMap &uris);
-        void audioCapsChanged(const AkCaps &audioCaps);
-        void videoCapsChanged(const AkCaps &videoCaps);
+        void audioCapsChanged(const AkAudioCaps &audioCaps);
+        void videoCapsChanged(const AkVideoCaps &videoCaps);
         void stateChanged(AkElement::ElementState state);
         void playOnStartChanged(bool playOnStart);
         void oStream(const AkPacket &packet);
@@ -121,8 +122,8 @@ class MediaSource: public QObject
         bool setStreams(const QStringList &streams);
         bool setCameras(const QStringList &cameras);
         bool setDesktops(const QStringList &desktops);
-        void setAudioCaps(const AkCaps &audioCaps);
-        void setVideoCaps(const AkCaps &videoCaps);
+        void setAudioCaps(const AkAudioCaps &audioCaps);
+        void setVideoCaps(const AkVideoCaps &videoCaps);
         void loadProperties();
         void saveStream(const QString &stream);
         void saveUris(const QVariantMap &uris);

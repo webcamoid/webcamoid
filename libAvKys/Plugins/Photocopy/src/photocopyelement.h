@@ -52,6 +52,7 @@ class PhotocopyElement: public AkElement
         QString controlInterfaceProvide(const QString &controlId) const;
         void controlInterfaceConfigure(QQmlContext *context,
                                        const QString &controlId) const;
+        AkPacket iVideoStream(const AkVideoPacket &packet);
 
     signals:
         void brightnessChanged(qreal brightness);
@@ -62,8 +63,6 @@ class PhotocopyElement: public AkElement
         void setContrast(qreal contrast);
         void resetBrightness();
         void resetContrast();
-
-        AkPacket iStream(const AkPacket &packet);
 };
 
 #endif // PHOTOCOPYELEMENT_H

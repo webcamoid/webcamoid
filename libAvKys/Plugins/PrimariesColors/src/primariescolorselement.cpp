@@ -19,6 +19,7 @@
 
 #include <QImage>
 #include <QQmlContext>
+#include <akpacket.h>
 #include <akvideopacket.h>
 
 #include "primariescolorselement.h"
@@ -60,24 +61,9 @@ void PrimariesColorsElement::controlInterfaceConfigure(QQmlContext *context,
     context->setContextProperty("controlId", this->objectName());
 }
 
-void PrimariesColorsElement::setFactor(int factor)
+AkPacket PrimariesColorsElement::iVideoStream(const AkVideoPacket &packet)
 {
-    if (this->d->m_factor == factor)
-        return;
-
-    this->d->m_factor = factor;
-    emit this->factorChanged(factor);
-}
-
-void PrimariesColorsElement::resetFactor()
-{
-    this->setFactor(2);
-}
-
-AkPacket PrimariesColorsElement::iStream(const AkPacket &packet)
-{
-    AkVideoPacket videoPacket(packet);
-    auto src = videoPacket.toImage();
+    auto src = packet.toImage();
 
     if (src.isNull())
         return AkPacket();
@@ -118,8 +104,22 @@ AkPacket PrimariesColorsElement::iStream(const AkPacket &packet)
         }
     }
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
+    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
     akSend(oPacket)
+}
+
+void PrimariesColorsElement::setFactor(int factor)
+{
+    if (this->d->m_factor == factor)
+        return;
+
+    this->d->m_factor = factor;
+    emit this->factorChanged(factor);
+}
+
+void PrimariesColorsElement::resetFactor()
+{
+    this->setFactor(2);
 }
 
 #include "moc_primariescolorselement.cpp"

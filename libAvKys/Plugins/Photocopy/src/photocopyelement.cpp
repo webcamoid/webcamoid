@@ -20,6 +20,7 @@
 #include <QImage>
 #include <QQmlContext>
 #include <QtMath>
+#include <akpacket.h>
 #include <akvideopacket.h>
 
 #include "photocopyelement.h"
@@ -69,38 +70,9 @@ void PhotocopyElement::controlInterfaceConfigure(QQmlContext *context,
     context->setContextProperty("controlId", this->objectName());
 }
 
-void PhotocopyElement::setBrightness(qreal brightness)
+AkPacket PhotocopyElement::iVideoStream(const AkVideoPacket &packet)
 {
-    if (qFuzzyCompare(this->d->m_brightness, brightness))
-        return;
-
-    this->d->m_brightness = brightness;
-    emit this->brightnessChanged(brightness);
-}
-
-void PhotocopyElement::setContrast(qreal contrast)
-{
-    if (qFuzzyCompare(this->d->m_contrast, contrast))
-        return;
-
-    this->d->m_contrast = contrast;
-    emit this->contrastChanged(contrast);
-}
-
-void PhotocopyElement::resetBrightness()
-{
-    this->setBrightness(0.75);
-}
-
-void PhotocopyElement::resetContrast()
-{
-    this->setContrast(20);
-}
-
-AkPacket PhotocopyElement::iStream(const AkPacket &packet)
-{
-    AkVideoPacket videoPacket(packet);
-    auto src = videoPacket.toImage();
+    auto src = packet.toImage();
 
     if (src.isNull())
         return AkPacket();
@@ -130,8 +102,36 @@ AkPacket PhotocopyElement::iStream(const AkPacket &packet)
         }
     }
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
+    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
     akSend(oPacket)
+}
+
+void PhotocopyElement::setBrightness(qreal brightness)
+{
+    if (qFuzzyCompare(this->d->m_brightness, brightness))
+        return;
+
+    this->d->m_brightness = brightness;
+    emit this->brightnessChanged(brightness);
+}
+
+void PhotocopyElement::setContrast(qreal contrast)
+{
+    if (qFuzzyCompare(this->d->m_contrast, contrast))
+        return;
+
+    this->d->m_contrast = contrast;
+    emit this->contrastChanged(contrast);
+}
+
+void PhotocopyElement::resetBrightness()
+{
+    this->setBrightness(0.75);
+}
+
+void PhotocopyElement::resetContrast()
+{
+    this->setContrast(20);
 }
 
 int PhotocopyElementPrivate::rgbToLuma(int red, int green, int blue)

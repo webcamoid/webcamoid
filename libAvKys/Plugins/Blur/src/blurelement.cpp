@@ -19,6 +19,7 @@
 
 #include <QImage>
 #include <QQmlContext>
+#include <akpacket.h>
 #include <akvideopacket.h>
 
 #include "blurelement.h"
@@ -95,24 +96,9 @@ void BlurElement::controlInterfaceConfigure(QQmlContext *context,
     context->setContextProperty("controlId", this->objectName());
 }
 
-void BlurElement::setRadius(int radius)
+AkPacket BlurElement::iVideoStream(const AkVideoPacket &packet)
 {
-    if (this->d->m_radius == radius)
-        return;
-
-    this->d->m_radius = radius;
-    emit this->radiusChanged(radius);
-}
-
-void BlurElement::resetRadius()
-{
-    this->setRadius(5);
-}
-
-AkPacket BlurElement::iStream(const AkPacket &packet)
-{
-    AkVideoPacket videoPacket(packet);
-    auto src = videoPacket.toImage();
+    auto src = packet.toImage();
 
     if (src.isNull())
         return AkPacket();
@@ -145,8 +131,22 @@ AkPacket BlurElement::iStream(const AkPacket &packet)
 
     delete [] integral;
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
+    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
     akSend(oPacket)
+}
+
+void BlurElement::setRadius(int radius)
+{
+    if (this->d->m_radius == radius)
+        return;
+
+    this->d->m_radius = radius;
+    emit this->radiusChanged(radius);
+}
+
+void BlurElement::resetRadius()
+{
+    this->setRadius(5);
 }
 
 #include "moc_blurelement.cpp"

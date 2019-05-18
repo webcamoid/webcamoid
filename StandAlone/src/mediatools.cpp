@@ -32,6 +32,7 @@
 #include <QApplication>
 #include <ak.h>
 #include <akcaps.h>
+#include <akaudiocaps.h>
 #include <akvideocaps.h>
 
 #include "mediatools.h"

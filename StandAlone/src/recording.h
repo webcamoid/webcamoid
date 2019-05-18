@@ -24,7 +24,8 @@
 
 class RecordingPrivate;
 class Recording;
-class AkCaps;
+class AkAudioCaps;
+class AkVideoCaps;
 class QQmlApplicationEngine;
 
 typedef QSharedPointer<Recording> RecordingPtr;
@@ -40,12 +41,12 @@ class Recording: public QObject
                WRITE setFormat
                RESET resetFormat
                NOTIFY formatChanged)
-    Q_PROPERTY(AkCaps audioCaps
+    Q_PROPERTY(AkAudioCaps audioCaps
                READ audioCaps
                WRITE setAudioCaps
                RESET resetAudioCaps
                NOTIFY audioCapsChanged)
-    Q_PROPERTY(AkCaps videoCaps
+    Q_PROPERTY(AkVideoCaps videoCaps
                READ videoCaps
                WRITE setVideoCaps
                RESET resetVideoCaps
@@ -73,8 +74,8 @@ class Recording: public QObject
 
         Q_INVOKABLE QStringList availableFormats() const;
         Q_INVOKABLE QString format() const;
-        Q_INVOKABLE AkCaps audioCaps() const;
-        Q_INVOKABLE AkCaps videoCaps() const;
+        Q_INVOKABLE AkAudioCaps audioCaps() const;
+        Q_INVOKABLE AkVideoCaps videoCaps() const;
         Q_INVOKABLE bool recordAudio() const;
         Q_INVOKABLE QString videoFileName() const;
         Q_INVOKABLE AkElement::ElementState state() const;
@@ -91,16 +92,16 @@ class Recording: public QObject
     signals:
         void availableFormatsChanged(const QStringList &availableFormats);
         void formatChanged(const QString &format);
-        void audioCapsChanged(const AkCaps &audioCaps);
-        void videoCapsChanged(const AkCaps &videoCaps);
+        void audioCapsChanged(const AkAudioCaps &audioCaps);
+        void videoCapsChanged(const AkVideoCaps &videoCaps);
         void recordAudioChanged(bool recordAudio);
         void videoFileNameChanged(const QString &videoFileName);
         void stateChanged(AkElement::ElementState state);
 
     public slots:
         void setFormat(const QString &format);
-        void setAudioCaps(const AkCaps &audioCaps);
-        void setVideoCaps(const AkCaps &videoCaps);
+        void setAudioCaps(const AkAudioCaps &audioCaps);
+        void setVideoCaps(const AkVideoCaps &videoCaps);
         void setRecordAudio(bool recordAudio);
         void setVideoFileName(const QString &videoFileName);
         void setState(AkElement::ElementState state);

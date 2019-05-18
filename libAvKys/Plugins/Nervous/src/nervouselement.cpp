@@ -20,6 +20,7 @@
 #include <QVector>
 #include <QImage>
 #include <QQmlContext>
+#include <akpacket.h>
 #include <akvideopacket.h>
 
 #include "nervouselement.h"
@@ -70,38 +71,9 @@ void NervousElement::controlInterfaceConfigure(QQmlContext *context,
     context->setContextProperty("controlId", this->objectName());
 }
 
-void NervousElement::setNFrames(int nFrames)
+AkPacket NervousElement::iVideoStream(const AkVideoPacket &packet)
 {
-    if (this->d->m_nFrames == nFrames)
-        return;
-
-    this->d->m_nFrames = nFrames;
-    this->nFramesChanged(nFrames);
-}
-
-void NervousElement::setSimple(bool simple)
-{
-    if (this->d->m_simple == simple)
-        return;
-
-    this->d->m_simple = simple;
-    this->simpleChanged(simple);
-}
-
-void NervousElement::resetNFrames()
-{
-    this->setNFrames(32);
-}
-
-void NervousElement::resetSimple()
-{
-    this->setSimple(false);
-}
-
-AkPacket NervousElement::iStream(const AkPacket &packet)
-{
-    AkVideoPacket videoPacket(packet);
-    auto src = videoPacket.toImage();
+    auto src = packet.toImage();
 
     if (src.isNull())
         return AkPacket();
@@ -142,9 +114,37 @@ AkPacket NervousElement::iStream(const AkPacket &packet)
         nFrame = qrand() % this->d->m_frames.size();
     }
 
-    auto oPacket = AkVideoPacket::fromImage(this->d->m_frames[nFrame],
-                                            videoPacket).toPacket();
+    auto oPacket =
+            AkVideoPacket::fromImage(this->d->m_frames[nFrame], packet);
     akSend(oPacket)
+}
+
+void NervousElement::setNFrames(int nFrames)
+{
+    if (this->d->m_nFrames == nFrames)
+        return;
+
+    this->d->m_nFrames = nFrames;
+    this->nFramesChanged(nFrames);
+}
+
+void NervousElement::setSimple(bool simple)
+{
+    if (this->d->m_simple == simple)
+        return;
+
+    this->d->m_simple = simple;
+    this->simpleChanged(simple);
+}
+
+void NervousElement::resetNFrames()
+{
+    this->setNFrames(32);
+}
+
+void NervousElement::resetSimple()
+{
+    this->setSimple(false);
 }
 
 #include "moc_nervouselement.cpp"

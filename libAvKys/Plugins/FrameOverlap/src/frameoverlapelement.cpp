@@ -19,6 +19,7 @@
 
 #include <QImage>
 #include <QQmlContext>
+#include <akpacket.h>
 #include <akvideopacket.h>
 
 #include "frameoverlapelement.h"
@@ -68,38 +69,9 @@ void FrameOverlapElement::controlInterfaceConfigure(QQmlContext *context,
     context->setContextProperty("controlId", this->objectName());
 }
 
-void FrameOverlapElement::setNFrames(int nFrames)
+AkPacket FrameOverlapElement::iVideoStream(const AkVideoPacket &packet)
 {
-    if (this->d->m_nFrames == nFrames)
-        return;
-
-    this->d->m_nFrames = nFrames;
-    emit this->nFramesChanged(nFrames);
-}
-
-void FrameOverlapElement::setStride(int stride)
-{
-    if (this->d->m_stride == stride)
-        return;
-
-    this->d->m_stride = stride;
-    emit this->strideChanged(stride);
-}
-
-void FrameOverlapElement::resetNFrames()
-{
-    this->setNFrames(16);
-}
-
-void FrameOverlapElement::resetStride()
-{
-    this->setStride(4);
-}
-
-AkPacket FrameOverlapElement::iStream(const AkPacket &packet)
-{
-    AkVideoPacket videoPacket(packet);
-    auto src = videoPacket.toImage();
+    auto src = packet.toImage();
 
     if (src.isNull())
         return AkPacket();
@@ -155,8 +127,36 @@ AkPacket FrameOverlapElement::iStream(const AkPacket &packet)
         }
     }
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
+    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
     akSend(oPacket)
+}
+
+void FrameOverlapElement::setNFrames(int nFrames)
+{
+    if (this->d->m_nFrames == nFrames)
+        return;
+
+    this->d->m_nFrames = nFrames;
+    emit this->nFramesChanged(nFrames);
+}
+
+void FrameOverlapElement::setStride(int stride)
+{
+    if (this->d->m_stride == stride)
+        return;
+
+    this->d->m_stride = stride;
+    emit this->strideChanged(stride);
+}
+
+void FrameOverlapElement::resetNFrames()
+{
+    this->setNFrames(16);
+}
+
+void FrameOverlapElement::resetStride()
+{
+    this->setStride(4);
 }
 
 #include "moc_frameoverlapelement.cpp"

@@ -20,6 +20,7 @@
 #include <QTime>
 #include <QPainter>
 #include <QQmlContext>
+#include <akpacket.h>
 #include <akvideopacket.h>
 
 #include "scrollelement.h"
@@ -73,38 +74,9 @@ void ScrollElement::controlInterfaceConfigure(QQmlContext *context,
     context->setContextProperty("controlId", this->objectName());
 }
 
-void ScrollElement::setSpeed(qreal speed)
+AkPacket ScrollElement::iVideoStream(const AkVideoPacket &packet)
 {
-    if (qFuzzyCompare(speed, this->d->m_speed))
-        return;
-
-    this->d->m_speed = speed;
-    emit this->speedChanged(speed);
-}
-
-void ScrollElement::setNoise(qreal noise)
-{
-    if (qFuzzyCompare(this->d->m_noise, noise))
-        return;
-
-    this->d->m_noise = noise;
-    emit this->noiseChanged(noise);
-}
-
-void ScrollElement::resetSpeed()
-{
-    this->setSpeed(0.25);
-}
-
-void ScrollElement::resetNoise()
-{
-    this->setNoise(0.1);
-}
-
-AkPacket ScrollElement::iStream(const AkPacket &packet)
-{
-    AkVideoPacket videoPacket(packet);
-    auto src = videoPacket.toImage();
+    auto src = packet.toImage();
 
     if (src.isNull())
         return AkPacket();
@@ -140,8 +112,36 @@ AkPacket ScrollElement::iStream(const AkPacket &packet)
     else if (this->d->m_offset < 0.0)
         this->d->m_offset = src.height();
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
+    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
     akSend(oPacket)
+}
+
+void ScrollElement::setSpeed(qreal speed)
+{
+    if (qFuzzyCompare(speed, this->d->m_speed))
+        return;
+
+    this->d->m_speed = speed;
+    emit this->speedChanged(speed);
+}
+
+void ScrollElement::setNoise(qreal noise)
+{
+    if (qFuzzyCompare(this->d->m_noise, noise))
+        return;
+
+    this->d->m_noise = noise;
+    emit this->noiseChanged(noise);
+}
+
+void ScrollElement::resetSpeed()
+{
+    this->setSpeed(0.25);
+}
+
+void ScrollElement::resetNoise()
+{
+    this->setNoise(0.1);
 }
 
 QImage ScrollElementPrivate::generateNoise(const QSize &size, qreal persent) const

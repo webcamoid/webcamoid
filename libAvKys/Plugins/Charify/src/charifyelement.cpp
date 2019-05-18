@@ -21,6 +21,7 @@
 #include <QPainter>
 #include <QQmlContext>
 #include <QMutex>
+#include <akpacket.h>
 #include <akvideopacket.h>
 
 #include "charifyelement.h"
@@ -216,6 +217,66 @@ void CharifyElement::controlInterfaceConfigure(QQmlContext *context,
     context->setContextProperty("controlId", this->objectName());
 }
 
+AkPacket CharifyElement::iVideoStream(const AkVideoPacket &packet)
+{
+    auto src = packet.toImage();
+
+    if (src.isNull())
+        return AkPacket();
+
+    src = src.convertToFormat(QImage::Format_ARGB32);
+
+    this->d->m_mutex.lock();
+    QSize fontSize = this->d->m_fontSize;
+    QVector<Character> characters = this->d->m_characters;
+    this->d->m_mutex.unlock();
+
+    int textWidth = src.width() / fontSize.width();
+    int textHeight = src.height() / fontSize.height();
+
+    int outWidth = textWidth * fontSize.width();
+    int outHeight = textHeight * fontSize.height();
+
+    QImage oFrame(outWidth, outHeight, src.format());
+
+    if (characters.isEmpty()) {
+        oFrame.fill(qRgb(0, 0, 0));
+        auto oPacket = AkVideoPacket::fromImage(oFrame.scaled(src.size()),
+                                                packet);
+        akSend(oPacket)
+    }
+
+    QImage textImage = src.scaled(textWidth, textHeight);
+    const QRgb *textImageBits = reinterpret_cast<const QRgb *>(textImage.constBits());
+    int textArea = textImage.width() * textImage.height();
+    QPainter painter;
+
+    painter.begin(&oFrame);
+
+    for (int i = 0; i < textArea; i++) {
+        int x = fontSize.width() * (i % textWidth);
+        int y = fontSize.height() * (i / textWidth);
+
+        if (this->d->m_mode == ColorModeFixed)
+            painter.drawImage(x, y, characters[qGray(textImageBits[i])].image);
+        else {
+            QChar chr = characters[qGray(textImageBits[i])].chr;
+            QRgb foreground = textImageBits[i];
+            auto image = this->d->drawChar(chr,
+                                           this->d->m_font,
+                                           fontSize,
+                                           foreground,
+                                           this->d->m_backgroundColor);
+            painter.drawImage(x, y, image);
+        }
+    }
+
+    painter.end();
+
+    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
+    akSend(oPacket)
+}
+
 void CharifyElement::setMode(const QString &mode)
 {
     ColorMode modeEnum = colorModeToStr->key(mode, ColorModeNatural);
@@ -350,67 +411,6 @@ void CharifyElement::resetBackgroundColor()
 void CharifyElement::resetReversed()
 {
     this->setReversed(false);
-}
-
-AkPacket CharifyElement::iStream(const AkPacket &packet)
-{
-    AkVideoPacket videoPacket(packet);
-    auto src = videoPacket.toImage();
-
-    if (src.isNull())
-        return AkPacket();
-
-    src = src.convertToFormat(QImage::Format_ARGB32);
-
-    this->d->m_mutex.lock();
-    QSize fontSize = this->d->m_fontSize;
-    QVector<Character> characters = this->d->m_characters;
-    this->d->m_mutex.unlock();
-
-    int textWidth = src.width() / fontSize.width();
-    int textHeight = src.height() / fontSize.height();
-
-    int outWidth = textWidth * fontSize.width();
-    int outHeight = textHeight * fontSize.height();
-
-    QImage oFrame(outWidth, outHeight, src.format());
-
-    if (characters.isEmpty()) {
-        oFrame.fill(qRgb(0, 0, 0));
-        auto oPacket = AkVideoPacket::fromImage(oFrame.scaled(src.size()),
-                                                videoPacket).toPacket();
-        akSend(oPacket)
-    }
-
-    QImage textImage = src.scaled(textWidth, textHeight);
-    const QRgb *textImageBits = reinterpret_cast<const QRgb *>(textImage.constBits());
-    int textArea = textImage.width() * textImage.height();
-    QPainter painter;
-
-    painter.begin(&oFrame);
-
-    for (int i = 0; i < textArea; i++) {
-        int x = fontSize.width() * (i % textWidth);
-        int y = fontSize.height() * (i / textWidth);
-
-        if (this->d->m_mode == ColorModeFixed)
-            painter.drawImage(x, y, characters[qGray(textImageBits[i])].image);
-        else {
-            QChar chr = characters[qGray(textImageBits[i])].chr;
-            QRgb foreground = textImageBits[i];
-            auto image = this->d->drawChar(chr,
-                                           this->d->m_font,
-                                           fontSize,
-                                           foreground,
-                                           this->d->m_backgroundColor);
-            painter.drawImage(x, y, image);
-        }
-    }
-
-    painter.end();
-
-    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
-    akSend(oPacket)
 }
 
 void CharifyElement::updateCharTable()

@@ -20,6 +20,7 @@
 #include <QQmlContext>
 #include <QtMath>
 #include <QPainter>
+#include <akpacket.h>
 #include <akvideopacket.h>
 
 #include "lifeelement.h"
@@ -82,52 +83,9 @@ void LifeElement::controlInterfaceConfigure(QQmlContext *context,
     context->setContextProperty("controlId", this->objectName());
 }
 
-void LifeElement::setLifeColor(QRgb lifeColor)
+AkPacket LifeElement::iVideoStream(const AkVideoPacket &packet)
 {
-    if (this->d->m_lifeColor == lifeColor)
-        return;
-
-    this->d->m_lifeColor = lifeColor;
-    emit this->lifeColorChanged(lifeColor);
-}
-
-void LifeElement::setThreshold(int threshold)
-{
-    if (this->d->m_threshold == threshold)
-        return;
-
-    this->d->m_threshold = threshold;
-    emit this->thresholdChanged(threshold);
-}
-
-void LifeElement::setLumaThreshold(int lumaThreshold)
-{
-    if (this->d->m_lumaThreshold == lumaThreshold)
-        return;
-
-    this->d->m_lumaThreshold = lumaThreshold;
-    emit this->lumaThresholdChanged(lumaThreshold);
-}
-
-void LifeElement::resetLifeColor()
-{
-    this->setLifeColor(qRgb(255, 255, 255));
-}
-
-void LifeElement::resetThreshold()
-{
-    this->setThreshold(15);
-}
-
-void LifeElement::resetLumaThreshold()
-{
-    this->setLumaThreshold(15);
-}
-
-AkPacket LifeElement::iStream(const AkPacket &packet)
-{
-    AkVideoPacket videoPacket(packet);
-    auto src = videoPacket.toImage();
+    auto src = packet.toImage();
 
     if (src.isNull())
         return AkPacket();
@@ -176,8 +134,50 @@ AkPacket LifeElement::iStream(const AkPacket &packet)
 
     this->d->m_prevFrame = src.copy();
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
+    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
     akSend(oPacket)
+}
+
+void LifeElement::setLifeColor(QRgb lifeColor)
+{
+    if (this->d->m_lifeColor == lifeColor)
+        return;
+
+    this->d->m_lifeColor = lifeColor;
+    emit this->lifeColorChanged(lifeColor);
+}
+
+void LifeElement::setThreshold(int threshold)
+{
+    if (this->d->m_threshold == threshold)
+        return;
+
+    this->d->m_threshold = threshold;
+    emit this->thresholdChanged(threshold);
+}
+
+void LifeElement::setLumaThreshold(int lumaThreshold)
+{
+    if (this->d->m_lumaThreshold == lumaThreshold)
+        return;
+
+    this->d->m_lumaThreshold = lumaThreshold;
+    emit this->lumaThresholdChanged(lumaThreshold);
+}
+
+void LifeElement::resetLifeColor()
+{
+    this->setLifeColor(qRgb(255, 255, 255));
+}
+
+void LifeElement::resetThreshold()
+{
+    this->setThreshold(15);
+}
+
+void LifeElement::resetLumaThreshold()
+{
+    this->setLumaThreshold(15);
 }
 
 QImage LifeElementPrivate::imageDiff(const QImage &img1,

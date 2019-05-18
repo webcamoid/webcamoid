@@ -19,6 +19,7 @@
 
 #include <QImage>
 #include <QVector>
+#include <akpacket.h>
 #include <akvideopacket.h>
 
 #include "equalizeelement.h"
@@ -37,10 +38,9 @@ EqualizeElement::EqualizeElement():
 {
 }
 
-AkPacket EqualizeElement::iStream(const AkPacket &packet)
+AkPacket EqualizeElement::iVideoStream(const AkVideoPacket &packet)
 {
-    AkVideoPacket videoPacket(packet);
-    auto src = videoPacket.toImage();
+    auto src = packet.toImage();
 
     if (src.isNull())
         return AkPacket();
@@ -63,7 +63,7 @@ AkPacket EqualizeElement::iStream(const AkPacket &packet)
         }
     }
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
+    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
     akSend(oPacket)
 }
 

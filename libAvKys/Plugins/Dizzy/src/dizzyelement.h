@@ -58,6 +58,7 @@ class DizzyElement: public AkElement
         QString controlInterfaceProvide(const QString &controlId) const;
         void controlInterfaceConfigure(QQmlContext *context,
                                        const QString &controlId) const;
+        AkPacket iVideoStream(const AkVideoPacket &packet);
 
     signals:
         void speedChanged(qreal speed);
@@ -71,7 +72,6 @@ class DizzyElement: public AkElement
         void resetSpeed();
         void resetZoomRate();
         void resetStrength();
-        AkPacket iStream(const AkPacket &packet);
 };
 
 #endif // DIZZYELEMENT_H

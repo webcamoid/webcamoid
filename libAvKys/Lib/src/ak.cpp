@@ -20,6 +20,7 @@
 #include <QColor>
 #include <QCoreApplication>
 #include <QDataStream>
+#include <QDebug>
 #include <QDir>
 #include <QQmlEngine>
 
@@ -30,9 +31,12 @@
 #include "ak.h"
 #include "akcaps.h"
 #include "akelement.h"
+#include "akfrac.h"
 #include "akaudiocaps.h"
 #include "akvideocaps.h"
 #include "akpacket.h"
+#include "akaudiopacket.h"
+#include "akvideopacket.h"
 
 class AkPrivate
 {
@@ -129,6 +133,8 @@ AkPrivate::AkPrivate()
 {
     this->m_globalEngine = nullptr;
 
+    qRegisterMetaType<qsizetype>("qsizetype");
+    qRegisterMetaType<size_t>("size_t");
     qRegisterMetaType<QRgb>("QRgb");
     qRegisterMetaType<QColor>("QColor");
     qRegisterMetaType<AkCaps>("AkCaps");
@@ -139,20 +145,34 @@ AkPrivate::AkPrivate()
     qRegisterMetaTypeStreamOperators<AkAudioCaps>("AkAudioCaps");
     qRegisterMetaType<AkAudioCaps::SampleFormat>("AkAudioCaps::SampleFormat");
     qRegisterMetaType<AkAudioCaps::SampleFormat>("SampleFormat");
+    QMetaType::registerDebugStreamOperator<AkAudioCaps::SampleFormat>();
+    qRegisterMetaType<QList<AkAudioCaps::SampleFormat>>("QList<AkAudioCaps::SampleFormat>");
+    qRegisterMetaType<QList<AkAudioCaps::SampleFormat>>("QList<SampleFormat>");
     qRegisterMetaType<AkAudioCaps::SampleType>("AkAudioCaps::SampleType");
     qRegisterMetaType<AkAudioCaps::SampleType>("SampleType");
+    QMetaType::registerDebugStreamOperator<AkAudioCaps::SampleType>();
+    qRegisterMetaType<AkAudioCaps::Position>("AkAudioCaps::Position");
+    qRegisterMetaType<AkAudioCaps::Position>("Position");
+    QMetaType::registerDebugStreamOperator<AkAudioCaps::Position>();
     qRegisterMetaType<AkAudioCaps::ChannelLayout>("AkAudioCaps::ChannelLayout");
     qRegisterMetaType<AkAudioCaps::ChannelLayout>("ChannelLayout");
+    QMetaType::registerDebugStreamOperator<AkAudioCaps::ChannelLayout>();
+    qRegisterMetaType<QList<AkAudioCaps::ChannelLayout>>("QList<AkAudioCaps::ChannelLayout>");
+    qRegisterMetaType<QList<AkAudioCaps::ChannelLayout>>("QList<ChannelLayout>");
     qRegisterMetaType<AkVideoCaps>("AkVideoCaps");
     qRegisterMetaTypeStreamOperators<AkVideoCaps>("AkVideoCaps");
     qRegisterMetaType<AkVideoCaps::PixelFormat>("AkVideoCaps::PixelFormat");
     qRegisterMetaType<AkVideoCaps::PixelFormat>("PixelFormat");
+    QMetaType::registerDebugStreamOperator<AkVideoCaps::PixelFormat>();
     qRegisterMetaType<AkElement::ElementState>("AkElement::ElementState");
     qRegisterMetaType<AkElement::ElementState>("ElementState");
     qRegisterMetaTypeStreamOperators<AkElement::ElementState>("AkElement::ElementState");
     qRegisterMetaType<AkFrac>("AkFrac");
     qRegisterMetaTypeStreamOperators<AkFrac>("AkFrac");
+    QMetaType::registerDebugStreamOperator<AkFrac>();
     qRegisterMetaType<AkPacket>("AkPacket");
+    qRegisterMetaType<AkAudioPacket>("AkAudioPacket");
+    qRegisterMetaType<AkVideoPacket>("AkVideoPacket");
     qRegisterMetaType<AkElementPtr>("AkElementPtr");
 
     this->m_applicationDir.setPath(QCoreApplication::applicationDirPath());

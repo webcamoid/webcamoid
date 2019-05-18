@@ -53,6 +53,7 @@ class CinemaElement: public AkElement
         QString controlInterfaceProvide(const QString &controlId) const;
         void controlInterfaceConfigure(QQmlContext *context,
                                        const QString &controlId) const;
+        AkPacket iVideoStream(const AkVideoPacket &packet);
 
     signals:
         void stripSizeChanged(qreal stripSize);
@@ -63,8 +64,6 @@ class CinemaElement: public AkElement
         void setStripColor(QRgb stripColor);
         void resetStripSize();
         void resetStripColor();
-
-        AkPacket iStream(const AkPacket &packet);
 };
 
 #endif // CINEMAELEMENT_H

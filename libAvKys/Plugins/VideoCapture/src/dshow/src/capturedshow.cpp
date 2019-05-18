@@ -283,12 +283,12 @@ QList<int> CaptureDShow::streams()
     if (!this->d->m_streams.isEmpty())
         return this->d->m_streams;
 
-    QVariantList caps = this->caps(this->d->m_device);
+    auto caps = this->caps(this->d->m_device);
 
     if (caps.isEmpty())
-        return QList<int>();
+        return {};
 
-    return QList<int>() << 0;
+    return {0};
 }
 
 QList<int> CaptureDShow::listTracks(const QString &mimeType)
@@ -359,8 +359,8 @@ QVariantList CaptureDShow::caps(const QString &webcam) const
     QVariantList caps;
     MediaTypesList mediaTypes = this->d->listMediaTypes(webcam);
 
-    for (const MediaTypePtr &mediaType: mediaTypes) {
-        AkCaps videoCaps = this->d->capsFromMediaType(mediaType);
+    for (auto &mediaType: mediaTypes) {
+        auto videoCaps = this->d->capsFromMediaType(mediaType);
 
         if (!videoCaps)
             continue;
@@ -542,7 +542,8 @@ AkPacket CaptureDShow::readFrame()
                    this->d->m_curBuffer.constData(),
                    size_t(bufferSize));
 
-            packet = AkPacket(caps, oBuffer);
+            packet = AkPacket(caps);
+            packet.setBuffer(oBuffer);
             packet.setPts(pts);
             packet.setTimeBase(this->d->m_timeBase);
             packet.setIndex(0);
@@ -566,7 +567,8 @@ AkPacket CaptureDShow::readFrame()
         if (FAILED(hr))
             return AkPacket();
 
-        packet = AkPacket(caps, oBuffer);
+        packet = AkPacket(caps);
+        packet.setBuffer(oBuffer);
         packet.setPts(pts);
         packet.setTimeBase(this->d->m_timeBase);
         packet.setIndex(0);
@@ -580,7 +582,7 @@ bool CaptureDShow::nativeEventFilter(const QByteArray &eventType,
                                      void *message,
                                      long *result)
 {
-    Q_UNUSED(eventType);
+    Q_UNUSED(eventType)
 
     if (!message)
         return false;
@@ -700,7 +702,7 @@ MonikersMap CaptureDShowPrivate::listMonikers() const
             else
                 devicePath = QString("/dev/video%1").arg(i);
 
-            monikers[devicePath] = MonikerPtr(pMoniker, this->deleteUnknown);
+            monikers[devicePath] = MonikerPtr(pMoniker, CaptureDShowPrivate::deleteUnknown);
 
             VariantClear(&var);
             pPropBag->Release();
@@ -749,7 +751,7 @@ BaseFilterPtr CaptureDShowPrivate::findFilter(const QString &webcam) const
     if (!filter)
         return BaseFilterPtr();
 
-    return BaseFilterPtr(filter, this->deleteUnknown);
+    return BaseFilterPtr(filter, CaptureDShowPrivate::deleteUnknown);
 }
 
 MediaTypesList CaptureDShowPrivate::listMediaTypes(const QString &webcam) const
@@ -891,7 +893,7 @@ PinList CaptureDShowPrivate::enumPins(IBaseFilter *filter,
 
             if (SUCCEEDED(pin->QueryDirection(&pinDir))
                 && pinDir == direction) {
-                pinList << PinPtr(pin, this->deleteUnknown);
+                pinList << PinPtr(pin, CaptureDShowPrivate::deleteUnknown);
 
                 continue;
             }
@@ -1421,7 +1423,7 @@ void CaptureDShow::setIoMethod(const QString &ioMethod)
 
 void CaptureDShow::setNBuffers(int nBuffers)
 {
-    Q_UNUSED(nBuffers);
+    Q_UNUSED(nBuffers)
 }
 
 void CaptureDShow::resetDevice()

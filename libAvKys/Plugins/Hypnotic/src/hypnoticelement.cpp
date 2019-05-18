@@ -21,6 +21,7 @@
 #include <QImage>
 #include <QQmlContext>
 #include <QtMath>
+#include <akpacket.h>
 #include <akvideopacket.h>
 
 #include "hypnoticelement.h"
@@ -181,6 +182,45 @@ void HypnoticElement::controlInterfaceConfigure(QQmlContext *context,
     context->setContextProperty("controlId", this->objectName());
 }
 
+AkPacket HypnoticElement::iVideoStream(const AkVideoPacket &packet)
+{
+    auto src = packet.toImage();
+
+    if (src.isNull())
+        return AkPacket();
+
+    src = src.convertToFormat(QImage::Format_ARGB32);
+    QImage oFrame(src.size(), src.format());
+
+    if (src.size() != this->d->m_frameSize) {
+        this->d->m_speed = 16;
+        this->d->m_phase = 0;
+        this->d->m_opticalMap = this->d->createOpticalMap(src.size());
+        this->d->m_frameSize = src.size();
+    }
+
+    QImage opticalMap =
+            this->d->m_opticalMap.value(this->d->m_mode,
+                                        this->d->m_opticalMap[OpticModeSpiral1]);
+
+    this->d->m_speed += this->d->m_speedInc;
+    this->d->m_phase -= this->d->m_speed;
+
+    QImage diff = this->d->imageThreshold(src, this->d->m_threshold);
+
+    for (int i = 0, y = 0; y < src.height(); y++) {
+        QRgb *oLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
+        auto optLine = opticalMap.constScanLine(y);
+        auto diffLine = diff.constScanLine(y);
+
+        for (int x = 0; x < src.width(); i++, x++)
+            oLine[x] = this->d->m_palette[((char(optLine[x] + this->d->m_phase)) ^ diffLine[x]) & 255];
+    }
+
+    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
+    akSend(oPacket)
+}
+
 void HypnoticElement::setMode(const QString &mode)
 {
     OpticMode opticMode = opticModeToStr->key(mode, OpticModeSpiral1);
@@ -223,46 +263,6 @@ void HypnoticElement::resetSpeedInc()
 void HypnoticElement::resetThreshold()
 {
     this->setThreshold(127);
-}
-
-AkPacket HypnoticElement::iStream(const AkPacket &packet)
-{
-    AkVideoPacket videoPacket(packet);
-    auto src = videoPacket.toImage();
-
-    if (src.isNull())
-        return AkPacket();
-
-    src = src.convertToFormat(QImage::Format_ARGB32);
-    QImage oFrame(src.size(), src.format());
-
-    if (src.size() != this->d->m_frameSize) {
-        this->d->m_speed = 16;
-        this->d->m_phase = 0;
-        this->d->m_opticalMap = this->d->createOpticalMap(src.size());
-        this->d->m_frameSize = src.size();
-    }
-
-    QImage opticalMap =
-            this->d->m_opticalMap.value(this->d->m_mode,
-                                        this->d->m_opticalMap[OpticModeSpiral1]);
-
-    this->d->m_speed += this->d->m_speedInc;
-    this->d->m_phase -= this->d->m_speed;
-
-    QImage diff = this->d->imageThreshold(src, this->d->m_threshold);
-
-    for (int i = 0, y = 0; y < src.height(); y++) {
-        QRgb *oLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
-        auto optLine = opticalMap.constScanLine(y);
-        auto diffLine = diff.constScanLine(y);
-
-        for (int x = 0; x < src.width(); i++, x++)
-            oLine[x] = this->d->m_palette[((char(optLine[x] + this->d->m_phase)) ^ diffLine[x]) & 255];
-    }
-
-    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
-    akSend(oPacket)
 }
 
 #include "moc_hypnoticelement.cpp"

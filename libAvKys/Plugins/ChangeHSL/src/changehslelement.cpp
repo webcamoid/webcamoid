@@ -20,6 +20,7 @@
 #include <QVariant>
 #include <QImage>
 #include <QQmlContext>
+#include <akpacket.h>
 #include <akvideopacket.h>
 
 #include "changehslelement.h"
@@ -72,38 +73,12 @@ void ChangeHSLElement::controlInterfaceConfigure(QQmlContext *context,
     context->setContextProperty("controlId", this->objectName());
 }
 
-void ChangeHSLElement::setKernel(const QVariantList &kernel)
-{
-    QVector<qreal> k;
-
-    for (const QVariant &e: kernel)
-        k << e.toReal();
-
-    if (this->d->m_kernel == k)
-        return;
-
-    this->d->m_kernel = k;
-    emit this->kernelChanged(kernel);
-}
-
-void ChangeHSLElement::resetKernel()
-{
-    static const QVariantList kernel = {
-        1, 0, 0, 0,
-        0, 1, 0, 0,
-        0, 0, 1, 0
-    };
-
-    this->setKernel(kernel);
-}
-
-AkPacket ChangeHSLElement::iStream(const AkPacket &packet)
+AkPacket ChangeHSLElement::iVideoStream(const AkVideoPacket &packet)
 {
     if (this->d->m_kernel.size() < 12)
         akSend(packet)
 
-    AkVideoPacket videoPacket(packet);
-    auto src = videoPacket.toImage();
+    auto src = packet.toImage();
 
     if (src.isNull())
         return AkPacket();
@@ -139,8 +114,33 @@ AkPacket ChangeHSLElement::iStream(const AkPacket &packet)
         }
     }
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
+    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
     akSend(oPacket)
+}
+
+void ChangeHSLElement::setKernel(const QVariantList &kernel)
+{
+    QVector<qreal> k;
+
+    for (const QVariant &e: kernel)
+        k << e.toReal();
+
+    if (this->d->m_kernel == k)
+        return;
+
+    this->d->m_kernel = k;
+    emit this->kernelChanged(kernel);
+}
+
+void ChangeHSLElement::resetKernel()
+{
+    static const QVariantList kernel = {
+        1, 0, 0, 0,
+        0, 1, 0, 0,
+        0, 0, 1, 0
+    };
+
+    this->setKernel(kernel);
 }
 
 #include "moc_changehslelement.cpp"

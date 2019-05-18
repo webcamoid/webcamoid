@@ -21,6 +21,7 @@
 #include <QQmlContext>
 #include <QtMath>
 #include <QMutex>
+#include <akpacket.h>
 #include <akvideopacket.h>
 
 #include "vignetteelement.h"
@@ -109,6 +110,33 @@ void VignetteElement::controlInterfaceConfigure(QQmlContext *context,
     context->setContextProperty("controlId", this->objectName());
 }
 
+AkPacket VignetteElement::iVideoStream(const AkVideoPacket &packet)
+{
+    auto src = packet.toImage();
+
+    if (src.isNull())
+        return AkPacket();
+
+    QImage oFrame = src.convertToFormat(QImage::Format_ARGB32);
+
+    if (src.size() != this->d->m_curSize) {
+        this->d->m_curSize = src.size();
+        emit this->curSizeChanged(this->d->m_curSize);
+    }
+
+    this->d->m_mutex.lock();
+    QImage vignette = this->d->m_vignette;
+    this->d->m_mutex.unlock();
+
+    QPainter painter;
+    painter.begin(&oFrame);
+    painter.drawImage(0, 0, vignette);
+    painter.end();
+
+    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
+    akSend(oPacket)
+}
+
 void VignetteElement::setColor(QRgb color)
 {
     if (this->d->m_color == color)
@@ -163,34 +191,6 @@ void VignetteElement::resetScale()
 void VignetteElement::resetSoftness()
 {
     this->setSoftness(0.5);
-}
-
-AkPacket VignetteElement::iStream(const AkPacket &packet)
-{
-    AkVideoPacket videoPacket(packet);
-    auto src = videoPacket.toImage();
-
-    if (src.isNull())
-        return AkPacket();
-
-    QImage oFrame = src.convertToFormat(QImage::Format_ARGB32);
-
-    if (src.size() != this->d->m_curSize) {
-        this->d->m_curSize = src.size();
-        emit this->curSizeChanged(this->d->m_curSize);
-    }
-
-    this->d->m_mutex.lock();
-    QImage vignette = this->d->m_vignette;
-    this->d->m_mutex.unlock();
-
-    QPainter painter;
-    painter.begin(&oFrame);
-    painter.drawImage(0, 0, vignette);
-    painter.end();
-
-    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
-    akSend(oPacket)
 }
 
 void VignetteElement::updateVignette()

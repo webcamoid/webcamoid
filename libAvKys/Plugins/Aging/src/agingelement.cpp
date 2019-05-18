@@ -23,6 +23,7 @@
 #include <QTime>
 #include <QMutex>
 #include <QQmlContext>
+#include <akpacket.h>
 #include <akvideopacket.h>
 
 #include "agingelement.h"
@@ -81,6 +82,25 @@ void AgingElement::controlInterfaceConfigure(QQmlContext *context,
     context->setContextProperty("controlId", this->objectName());
 }
 
+AkPacket AgingElement::iVideoStream(const AkVideoPacket &packet)
+{
+    auto src = packet.toImage();
+
+    if (src.isNull())
+        return AkPacket();
+
+    QImage oFrame = src.convertToFormat(QImage::Format_ARGB32);
+    oFrame = this->d->colorAging(oFrame);
+    this->d->scratching(oFrame);
+    this->d->pits(oFrame);
+
+    if (this->d->m_addDust)
+        this->d->dusts(oFrame);
+
+    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
+    akSend(oPacket)
+}
+
 void AgingElement::setNScratches(int nScratches)
 {
     if (this->d->m_scratches.size() == nScratches)
@@ -108,26 +128,6 @@ void AgingElement::resetNScratches()
 void AgingElement::resetAddDust()
 {
     this->setAddDust(true);
-}
-
-AkPacket AgingElement::iStream(const AkPacket &packet)
-{
-    AkVideoPacket videoPacket(packet);
-    auto src = videoPacket.toImage();
-
-    if (src.isNull())
-        return AkPacket();
-
-    QImage oFrame = src.convertToFormat(QImage::Format_ARGB32);
-    oFrame = this->d->colorAging(oFrame);
-    this->d->scratching(oFrame);
-    this->d->pits(oFrame);
-
-    if (this->d->m_addDust)
-        this->d->dusts(oFrame);
-
-    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
-    akSend(oPacket)
 }
 
 QImage AgingElementPrivate::colorAging(const QImage &src)

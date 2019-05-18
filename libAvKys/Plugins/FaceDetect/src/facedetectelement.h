@@ -105,6 +105,7 @@ class FaceDetectElement: public AkElement
         QString controlInterfaceProvide(const QString &controlId) const;
         void controlInterfaceConfigure(QQmlContext *context,
                                        const QString &controlId) const;
+        AkPacket iVideoStream(const AkVideoPacket &packet);
 
     signals:
         void haarFileChanged(const QString &haarFile);
@@ -136,7 +137,6 @@ class FaceDetectElement: public AkElement
         void resetPixelGridSize();
         void resetBlurRadius();
         void resetScanSize();
-        AkPacket iStream(const AkPacket &packet);
 };
 
 #endif // FACEDETECTELEMENT_H

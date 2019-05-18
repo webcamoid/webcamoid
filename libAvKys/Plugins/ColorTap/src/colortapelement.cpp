@@ -21,6 +21,7 @@
 #include <QImage>
 #include <QQmlContext>
 #include <QStandardPaths>
+#include <akpacket.h>
 #include <akvideopacket.h>
 
 #include "colortapelement.h"
@@ -69,39 +70,7 @@ void ColorTapElement::controlInterfaceConfigure(QQmlContext *context,
     context->setContextProperty("picturesPath", picturesPath[0]);
 }
 
-void ColorTapElement::setTable(const QString &table)
-{
-    if (this->d->m_tableName == table)
-        return;
-
-    QString tableName;
-    QImage tableImg;
-
-    if (!table.isEmpty()) {
-        tableImg = QImage(table);
-
-        if (tableImg.isNull()) {
-            if (this->d->m_tableName.isNull())
-                return;
-        } else {
-            tableName = table;
-            tableImg = tableImg.scaled(16, 16);
-        }
-    }
-
-    this->d->m_tableName = tableName;
-    this->d->m_mutex.lock();
-    this->d->m_table = tableImg;
-    this->d->m_mutex.unlock();
-    emit this->tableChanged(this->d->m_tableName);
-}
-
-void ColorTapElement::resetTable()
-{
-    this->setTable(":/ColorTap/share/tables/base.bmp");
-}
-
-AkPacket ColorTapElement::iStream(const AkPacket &packet)
+AkPacket ColorTapElement::iVideoStream(const AkVideoPacket &packet)
 {
     this->d->m_mutex.lock();
 
@@ -110,8 +79,7 @@ AkPacket ColorTapElement::iStream(const AkPacket &packet)
         akSend(packet)
     }
 
-    AkVideoPacket videoPacket(packet);
-    auto src = videoPacket.toImage();
+    auto src = packet.toImage();
 
     if (src.isNull()) {
         this->d->m_mutex.unlock();
@@ -142,8 +110,40 @@ AkPacket ColorTapElement::iStream(const AkPacket &packet)
 
     this->d->m_mutex.unlock();
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
+    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
     akSend(oPacket)
+}
+
+void ColorTapElement::setTable(const QString &table)
+{
+    if (this->d->m_tableName == table)
+        return;
+
+    QString tableName;
+    QImage tableImg;
+
+    if (!table.isEmpty()) {
+        tableImg = QImage(table);
+
+        if (tableImg.isNull()) {
+            if (this->d->m_tableName.isNull())
+                return;
+        } else {
+            tableName = table;
+            tableImg = tableImg.scaled(16, 16);
+        }
+    }
+
+    this->d->m_tableName = tableName;
+    this->d->m_mutex.lock();
+    this->d->m_table = tableImg;
+    this->d->m_mutex.unlock();
+    emit this->tableChanged(this->d->m_tableName);
+}
+
+void ColorTapElement::resetTable()
+{
+    this->setTable(":/ColorTap/share/tables/base.bmp");
 }
 
 #include "moc_colortapelement.cpp"

@@ -21,8 +21,9 @@
 #include <QtConcurrent>
 #include <QThreadPool>
 #include <QMutex>
-#include <akaudiocaps.h>
+#include <akfrac.h>
 #include <akpacket.h>
+#include <akaudiocaps.h>
 #include <akaudiopacket.h>
 
 #include <gst/audio/audio.h>
@@ -31,61 +32,7 @@
 
 #include "convertaudiogstreamer.h"
 
-using StringStringMap = QMap<QString, QString>;
-
-inline StringStringMap initGstToFF()
-{
-    StringStringMap gstToFF = {
-        {"S8"      , "s8"     },
-        {"U8"      , "u8"     },
-        {"S16LE"   , "s16le"  },
-        {"S16BE"   , "s16be"  },
-        {"U16LE"   , "u16le"  },
-        {"U16BE"   , "u16be"  },
-        {"S24_32LE", "s2432le"},
-        {"S24_32BE", "s2432be"},
-        {"U24_32LE", "u2432le"},
-        {"U24_32BE", "u2432be"},
-        {"S32LE"   , "s32le"  },
-        {"S32BE"   , "s32be"  },
-        {"U32LE"   , "u32le"  },
-        {"U32BE"   , "u32be"  },
-        {"S24LE"   , "s24le"  },
-        {"S24BE"   , "s24be"  },
-        {"U24LE"   , "u24le"  },
-        {"U24BE"   , "u24be"  },
-        {"S20LE"   , "s20le"  },
-        {"S20BE"   , "s20be"  },
-        {"U20LE"   , "u20le"  },
-        {"U20BE"   , "u20be"  },
-        {"S18LE"   , "s18le"  },
-        {"S18BE"   , "s18be"  },
-        {"U18LE"   , "u18le"  },
-        {"U18BE"   , "u18le"  },
-        {"F32LE"   , "fltle"  },
-        {"F32BE"   , "fltbe"  },
-        {"F64LE"   , "dblle"  },
-        {"F64BE"   , "dblbe"  },
-        {"S16"     , "s16"    },
-        {"U16"     , "u16"    },
-        {"S24_32"  , "s2432"  },
-        {"U24_32"  , "u2432"  },
-        {"S32"     , "s32"    },
-        {"U32"     , "u32"    },
-        {"S24"     , "s24"    },
-        {"U24"     , "u24"    },
-        {"S20"     , "s20"    },
-        {"U20"     , "u20"    },
-        {"S18"     , "s18"    },
-        {"U18"     , "u18"    },
-        {"F32"     , "flt"    },
-        {"F64"     , "dbl"    }
-    };
-
-    return gstToFF;
-}
-
-Q_GLOBAL_STATIC_WITH_ARGS(StringStringMap, gstToFF, (initGstToFF()))
+using GstFormatMap = QMap<AkAudioCaps::SampleFormat, QString>;
 
 class ConvertAudioGStreamerPrivate
 {
@@ -96,13 +43,35 @@ class ConvertAudioGStreamerPrivate
         GstElement *m_source {nullptr};
         GstElement *m_sink {nullptr};
         GMainLoop *m_mainLoop {nullptr};
-        guint m_busWatchId {0};
         QMutex m_mutex;
+        guint m_busWatchId {0};
 
         inline void waitState(GstState state);
         inline static gboolean busCallback(GstBus *bus,
                                            GstMessage *message,
                                            gpointer userData);
+
+        inline static const GstFormatMap &gstToFormat()
+        {
+            static const GstFormatMap gstToFormat {
+                {AkAudioCaps::SampleFormat_s8   , "S8"   },
+                {AkAudioCaps::SampleFormat_u8   , "U8"   },
+                {AkAudioCaps::SampleFormat_s16le, "S16LE"},
+                {AkAudioCaps::SampleFormat_s16be, "S16BE"},
+                {AkAudioCaps::SampleFormat_u16le, "U16LE"},
+                {AkAudioCaps::SampleFormat_u16be, "U16BE"},
+                {AkAudioCaps::SampleFormat_s32le, "S32LE"},
+                {AkAudioCaps::SampleFormat_s32be, "S32BE"},
+                {AkAudioCaps::SampleFormat_u32le, "U32LE"},
+                {AkAudioCaps::SampleFormat_u32be, "U32BE"},
+                {AkAudioCaps::SampleFormat_fltle, "F32LE"},
+                {AkAudioCaps::SampleFormat_fltbe, "F32BE"},
+                {AkAudioCaps::SampleFormat_dblle, "F64LE"},
+                {AkAudioCaps::SampleFormat_dblbe, "F64BE"},
+            };
+
+            return gstToFormat;
+        }
 };
 
 ConvertAudioGStreamer::ConvertAudioGStreamer(QObject *parent):
@@ -126,12 +95,16 @@ bool ConvertAudioGStreamer::init(const AkAudioCaps &caps)
     this->d->m_pipeline = gst_pipeline_new(nullptr);
 
     this->d->m_source = gst_element_factory_make("appsrc", nullptr);
-    gst_app_src_set_stream_type(GST_APP_SRC(this->d->m_source), GST_APP_STREAM_TYPE_STREAM);
-    g_object_set(G_OBJECT(this->d->m_source), "format", GST_FORMAT_TIME, nullptr);
+    gst_app_src_set_stream_type(GST_APP_SRC(this->d->m_source),
+                                GST_APP_STREAM_TYPE_STREAM);
+    g_object_set(G_OBJECT(this->d->m_source),
+                 "format",
+                 GST_FORMAT_TIME,
+                 nullptr);
 
-    GstElement *audioConvert = gst_element_factory_make("audioconvert", nullptr);
-    GstElement *audioResample = gst_element_factory_make("audioresample", nullptr);
-    GstElement *audioRate = gst_element_factory_make("audiorate", nullptr);
+    auto audioConvert = gst_element_factory_make("audioconvert", nullptr);
+    auto audioResample = gst_element_factory_make("audioresample", nullptr);
+    auto audioRate = gst_element_factory_make("audiorate", nullptr);
     this->d->m_sink = gst_element_factory_make("appsink", nullptr);
 
     gst_bin_add_many(GST_BIN(this->d->m_pipeline),
@@ -171,31 +144,23 @@ AkPacket ConvertAudioGStreamer::convert(const AkAudioPacket &packet)
         || !this->d->m_caps)
         return AkPacket();
 
-    QString iFormat = AkAudioCaps::sampleFormatToString(packet.caps().format());
-    QString gstIFormat = gstToFF->key(iFormat, "S16");
-
-#if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
-    QString fEnd = "LE";
-#elif Q_BYTE_ORDER == Q_BIG_ENDIAN
-    QString fEnd = "BE";
-#endif
-
-    if (packet.caps().bps() > 8 && !gstIFormat.endsWith(fEnd))
-        gstIFormat += fEnd;
+    auto gstIFormat =
+            ConvertAudioGStreamerPrivate::gstToFormat().value(packet.caps().format());
 
     const char *gstInLayout =
             packet.caps().planar()?
                 "non-interleaved": "interleaved";
 
-    auto inCaps = gst_caps_new_simple("audio/x-raw",
-                                      "format", G_TYPE_STRING, gstIFormat.toStdString().c_str(),
-                                      "layout", G_TYPE_STRING, gstInLayout,
-                                      "rate", G_TYPE_INT, packet.caps().rate(),
-                                      "channels", G_TYPE_INT, packet.caps().channels(),
-                                      nullptr);
+    auto inCaps =
+            gst_caps_new_simple("audio/x-raw",
+                                "format", G_TYPE_STRING, gstIFormat.toStdString().c_str(),
+                                "layout", G_TYPE_STRING, gstInLayout,
+                                "rate", G_TYPE_INT, packet.caps().rate(),
+                                "channels", G_TYPE_INT, packet.caps().channels(),
+                                nullptr);
 
     inCaps = gst_caps_fixate(inCaps);
-    GstCaps *sourceCaps = gst_app_src_get_caps(GST_APP_SRC(this->d->m_source));
+    auto sourceCaps = gst_app_src_get_caps(GST_APP_SRC(this->d->m_source));
 
     if (!sourceCaps || !gst_caps_is_equal(sourceCaps, inCaps))
         gst_app_src_set_caps(GST_APP_SRC(this->d->m_source), inCaps);
@@ -205,21 +170,19 @@ AkPacket ConvertAudioGStreamer::convert(const AkAudioPacket &packet)
     if (sourceCaps)
         gst_caps_unref(sourceCaps);
 
-    QString oFormat = AkAudioCaps::sampleFormatToString(this->d->m_caps.format());
-    QString gstOFormat = gstToFF->key(oFormat, "S16");
-
-    if (this->d->m_caps.bps() > 8 && !gstOFormat.endsWith(fEnd))
-        gstOFormat += fEnd;
+    auto gstOFormat =
+            ConvertAudioGStreamerPrivate::gstToFormat().value(this->d->m_caps.format());
 
     const char *gstOutLayout = this->d->m_caps.planar()?
                                    "non-interleaved": "interleaved";
 
-    auto outCaps = gst_caps_new_simple("audio/x-raw",
-                                       "format", G_TYPE_STRING, gstOFormat.toStdString().c_str(),
-                                       "layout", G_TYPE_STRING, gstOutLayout,
-                                       "rate", G_TYPE_INT, this->d->m_caps.rate(),
-                                       "channels", G_TYPE_INT, this->d->m_caps.channels(),
-                                       nullptr);
+    auto outCaps =
+            gst_caps_new_simple("audio/x-raw",
+                                "format", G_TYPE_STRING, gstOFormat.toStdString().c_str(),
+                                "layout", G_TYPE_STRING, gstOutLayout,
+                                "rate", G_TYPE_INT, this->d->m_caps.rate(),
+                                "channels", G_TYPE_INT, this->d->m_caps.channels(),
+                                nullptr);
 
     outCaps = gst_caps_fixate(outCaps);
     GstCaps *sinkCaps = gst_app_sink_get_caps(GST_APP_SINK(this->d->m_sink));
@@ -242,7 +205,9 @@ AkPacket ConvertAudioGStreamer::convert(const AkAudioPacket &packet)
     if (state != GST_STATE_PLAYING) {
         // Run the main GStreamer loop.
         this->d->m_mainLoop = g_main_loop_new(nullptr, FALSE);
-        QtConcurrent::run(&this->d->m_threadPool, g_main_loop_run, this->d->m_mainLoop);
+        QtConcurrent::run(&this->d->m_threadPool,
+                          g_main_loop_run,
+                          this->d->m_mainLoop);
         gst_element_set_state(this->d->m_pipeline, GST_STATE_PLAYING);
     }
 
@@ -255,7 +220,8 @@ AkPacket ConvertAudioGStreamer::convert(const AkAudioPacket &packet)
     memcpy(info.data, packet.buffer().constData(), info.size);
     gst_buffer_unmap(buffer, &info);
 
-    GST_BUFFER_PTS(buffer) = GstClockTime(packet.pts() * packet.timeBase().value() * GST_SECOND);
+    GST_BUFFER_PTS(buffer) =
+            GstClockTime(packet.pts() * packet.timeBase().value() * GST_SECOND);
     GST_BUFFER_DTS(buffer) = GST_CLOCK_TIME_NONE;
     GST_BUFFER_DURATION(buffer) = GST_CLOCK_TIME_NONE;
     GST_BUFFER_OFFSET(buffer) = GST_BUFFER_OFFSET_NONE;
@@ -274,7 +240,7 @@ AkPacket ConvertAudioGStreamer::convert(const AkAudioPacket &packet)
     QByteArray oBuffer(int(info.size), 0);
     memcpy(oBuffer.data(), info.data, info.size);
     gst_buffer_unmap(buffer, &info);
-    qint64 pts = qint64(GST_BUFFER_PTS(buffer) / packet.timeBase().value() / GST_SECOND);
+    auto pts = qint64(GST_BUFFER_PTS(buffer) / packet.timeBase().value() / GST_SECOND);
     gst_sample_unref(sample);
 
     // Create a package and return it.
@@ -291,7 +257,7 @@ AkPacket ConvertAudioGStreamer::convert(const AkAudioPacket &packet)
     oAudioPacket.index() = packet.index();
     oAudioPacket.id() = packet.id();
 
-    return oAudioPacket.toPacket();
+    return oAudioPacket;
 }
 
 void ConvertAudioGStreamer::uninit()
@@ -392,7 +358,10 @@ gboolean ConvertAudioGStreamerPrivate::busCallback(GstBus *bus,
         GstState oldstate;
         GstState newstate;
         GstState pending;
-        gst_message_parse_state_changed(message, &oldstate, &newstate, &pending);
+        gst_message_parse_state_changed(message,
+                                        &oldstate,
+                                        &newstate,
+                                        &pending);
         qDebug() << "State changed from"
                  << gst_element_state_get_name(oldstate)
                  << "to"
@@ -452,8 +421,8 @@ gboolean ConvertAudioGStreamerPrivate::busCallback(GstBus *bus,
         break;
     }
     case GST_MESSAGE_ELEMENT: {
-        const GstStructure *messageStructure = gst_message_get_structure(message);
-        gchar *structure = gst_structure_to_string(messageStructure);
+        auto messageStructure = gst_message_get_structure(message);
+        auto structure = gst_structure_to_string(messageStructure);
 //        qDebug() << structure;
         g_free(structure);
         break;
@@ -483,7 +452,12 @@ gboolean ConvertAudioGStreamerPrivate::busCallback(GstBus *bus,
         guint64 streamTime;
         guint64 timestamp;
         guint64 duration;
-        gst_message_parse_qos(message, &live, &runningTime, &streamTime, &timestamp, &duration);
+        gst_message_parse_qos(message,
+                              &live,
+                              &runningTime,
+                              &streamTime,
+                              &timestamp,
+                              &duration);
         qDebug() << "    Is live stream =" << live;
         qDebug() << "    Runninng time =" << runningTime;
         qDebug() << "    Stream time =" << streamTime;

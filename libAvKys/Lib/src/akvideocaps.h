@@ -63,14 +63,11 @@ inline quint32 AkFourCCRS(const QString &fourcc)
 class AkVideoCapsPrivate;
 class AkCaps;
 class AkFrac;
-class QDataStream;
 
 class AKCOMMONS_EXPORT AkVideoCaps: public QObject
 {
     Q_OBJECT
     Q_ENUMS(PixelFormat)
-    Q_PROPERTY(bool isValid
-               READ isValid)
     Q_PROPERTY(PixelFormat format
                READ format
                WRITE setFormat
@@ -103,7 +100,7 @@ class AKCOMMONS_EXPORT AkVideoCaps: public QObject
                WRITE setAlign
                RESET resetAlign
                NOTIFY alignChanged)
-    Q_PROPERTY(size_t pictureSize
+    Q_PROPERTY(qsizetype pictureSize
                READ pictureSize)
     Q_PROPERTY(int planes
                READ planes)
@@ -299,21 +296,16 @@ class AKCOMMONS_EXPORT AkVideoCaps: public QObject
                     const QSize &size,
                     const AkFrac &fps,
                     int align=1);
-        AkVideoCaps(const QVariantMap &caps);
-        AkVideoCaps(const QString &caps);
         AkVideoCaps(const AkCaps &caps);
         AkVideoCaps(const AkVideoCaps &other);
         ~AkVideoCaps();
         AkVideoCaps &operator =(const AkVideoCaps &other);
         AkVideoCaps &operator =(const AkCaps &caps);
-        AkVideoCaps &operator =(const QString &caps);
         bool operator ==(const AkVideoCaps &other) const;
         bool operator !=(const AkVideoCaps &other) const;
         operator bool() const;
         operator AkCaps() const;
 
-        Q_INVOKABLE bool isValid() const;
-        Q_INVOKABLE bool &isValid();
         Q_INVOKABLE PixelFormat format() const;
         Q_INVOKABLE quint32 fourCC() const;
         Q_INVOKABLE int bpp() const;
@@ -323,19 +315,16 @@ class AKCOMMONS_EXPORT AkVideoCaps: public QObject
         Q_INVOKABLE AkFrac fps() const;
         Q_INVOKABLE AkFrac &fps();
         Q_INVOKABLE int align() const;
-        Q_INVOKABLE size_t pictureSize() const;
+        Q_INVOKABLE qsizetype pictureSize() const;
 
-        Q_INVOKABLE AkVideoCaps &fromMap(const QVariantMap &caps);
-        Q_INVOKABLE AkVideoCaps &fromString(const QString &caps);
+        Q_INVOKABLE static AkVideoCaps fromMap(const QVariantMap &caps);
         Q_INVOKABLE QVariantMap toMap() const;
-        Q_INVOKABLE QString toString() const;
         Q_INVOKABLE AkVideoCaps &update(const AkCaps &caps);
-        Q_INVOKABLE AkCaps toCaps() const;
-        Q_INVOKABLE size_t planeOffset(int plane) const;
-        Q_INVOKABLE size_t lineOffset(int plane, int y) const;
-        Q_INVOKABLE size_t bytesPerLine(int plane) const;
+        Q_INVOKABLE qsizetype planeOffset(int plane) const;
+        Q_INVOKABLE qsizetype lineOffset(int plane, int y) const;
+        Q_INVOKABLE qsizetype bytesPerLine(int plane) const;
         Q_INVOKABLE int planes() const;
-        Q_INVOKABLE size_t planeSize(int plane) const;
+        Q_INVOKABLE qsizetype planeSize(int plane) const;
 
         Q_INVOKABLE static int bitsPerPixel(PixelFormat pixelFormat);
         Q_INVOKABLE static int bitsPerPixel(const QString &pixelFormat);
@@ -369,15 +358,12 @@ class AKCOMMONS_EXPORT AkVideoCaps: public QObject
         void resetFps();
         void resetAlign();
         void clear();
-
-    friend QDebug operator <<(QDebug debug, const AkVideoCaps &caps);
-    friend QDataStream &operator >>(QDataStream &istream, AkVideoCaps &caps);
-    friend QDataStream &operator <<(QDataStream &ostream, const AkVideoCaps &caps);
 };
 
-QDebug operator <<(QDebug debug, const AkVideoCaps &caps);
-QDataStream &operator >>(QDataStream &istream, AkVideoCaps &caps);
-QDataStream &operator <<(QDataStream &ostream, const AkVideoCaps &caps);
+AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, const AkVideoCaps &caps);
+AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, const AkVideoCaps::PixelFormat &format);
+AKCOMMONS_EXPORT QDataStream &operator >>(QDataStream &istream, AkVideoCaps &caps);
+AKCOMMONS_EXPORT QDataStream &operator <<(QDataStream &ostream, const AkVideoCaps &caps);
 
 Q_DECLARE_METATYPE(AkVideoCaps)
 Q_DECLARE_METATYPE(AkVideoCaps::PixelFormat)

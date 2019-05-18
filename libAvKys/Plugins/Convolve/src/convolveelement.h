@@ -65,6 +65,7 @@ class ConvolveElement: public AkElement
         QString controlInterfaceProvide(const QString &controlId) const;
         void controlInterfaceConfigure(QQmlContext *context,
                                        const QString &controlId) const;
+        AkPacket iVideoStream(const AkVideoPacket &packet);
 
     signals:
         void kernelChanged(const QVariantList &kernel);
@@ -81,7 +82,6 @@ class ConvolveElement: public AkElement
         void resetKernelSize();
         void resetFactor();
         void resetBias();
-        AkPacket iStream(const AkPacket &packet);
 };
 
 #endif // CONVOLVEELEMENT_H

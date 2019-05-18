@@ -218,7 +218,7 @@ AkCaps AndroidScreenDev::caps(int stream)
     return AkVideoCaps(AkVideoCaps::Format_rgb24,
                        screen->size().width(),
                        screen->size().height(),
-                       this->d->m_fps).toCaps();
+                       this->d->m_fps);
 }
 
 AndroidScreenDevPrivate::AndroidScreenDevPrivate(AndroidScreenDev *self):
@@ -396,7 +396,7 @@ void AndroidScreenDevPrivate::imageAvailable(JNIEnv *env,
     packet = packet.convert(AkVideoCaps::Format_rgb24);
 
     self->m_mutex.lock();
-    self->m_curPacket = packet.toPacket();
+    self->m_curPacket = packet;
     self->m_packetReady.wakeAll();
     self->m_mutex.unlock();
 }

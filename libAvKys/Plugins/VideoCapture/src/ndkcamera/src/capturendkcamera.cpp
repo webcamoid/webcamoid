@@ -26,6 +26,8 @@
 #include <QtAndroid>
 #include <ak.h>
 #include <akcaps.h>
+#include <akfrac.h>
+#include <akpacket.h>
 #include <akvideopacket.h>
 #include <camera/NdkCameraManager.h>
 #include <media/NdkImageReader.h>
@@ -461,7 +463,8 @@ void CaptureNdkCameraPrivate::imageAvailable(void *context,
     caps.setProperty("height", height);
     caps.setProperty("fps", self->m_fps.toString());
 
-    packet = AkPacket(caps, oBuffer);
+    packet = AkPacket(caps);
+    packet.setBuffer(oBuffer);
     packet.setPts(pts);
     packet.setTimeBase(self->m_timeBase);
     packet.setIndex(0);

@@ -65,6 +65,7 @@ class ColorReplaceElement: public AkElement
         QString controlInterfaceProvide(const QString &controlId) const;
         void controlInterfaceConfigure(QQmlContext *context,
                                        const QString &controlId) const;
+        AkPacket iVideoStream(const AkVideoPacket &packet);
 
     signals:
         void fromChanged(QRgb from);
@@ -81,7 +82,6 @@ class ColorReplaceElement: public AkElement
         void resetTo();
         void resetRadius();
         void resetDisable();
-        AkPacket iStream(const AkPacket &packet);
 };
 
 #endif // COLORREPLACEELEMENT_H

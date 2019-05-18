@@ -29,8 +29,8 @@ class EqualizeElement: public AkElement
     public:
         EqualizeElement();
 
-    public slots:
-        AkPacket iStream(const AkPacket &packet);
+    protected:
+        AkPacket iVideoStream(const AkVideoPacket &packet);
 };
 
 #endif // EQUALIZEELEMENT_H

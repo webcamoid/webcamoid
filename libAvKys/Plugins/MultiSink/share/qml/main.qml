@@ -61,7 +61,6 @@ ColumnLayout {
             var streamConfig = streams[stream]
             var streamOptions = classStreamOptions.createObject(clyStreamOptions)
             streamOptions.Layout.fillWidth = true
-
             var streamCaps = Ak.newCaps(streamConfig.caps)
 
             if (streamCaps.mimeType === "audio/x-raw")

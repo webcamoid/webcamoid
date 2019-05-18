@@ -24,16 +24,19 @@
 
 #include "akfrac.h"
 
-#define SIGN(n) (((n) < 0)? -1: 1)
-
 class AkFracPrivate
 {
     public:
         qint64 m_num;
         qint64 m_den;
-        bool m_isValid;
 
-        static inline qint64 gcd(qint64 num, qint64 den)
+        template<typename T>
+        inline static T sign(T n)
+        {
+            return (n < 0)? -1: 1;
+        }
+
+        inline static qint64 gcd(qint64 num, qint64 den)
         {
             num = qAbs(num);
             den = qAbs(den);
@@ -47,7 +50,7 @@ class AkFracPrivate
             return den;
         }
 
-        static inline void reduce(qint64 *num, qint64 *den)
+        inline static void reduce(qint64 *num, qint64 *den)
         {
             qint64 gcd = AkFracPrivate::gcd(*num, *den);
 
@@ -64,7 +67,6 @@ AkFrac::AkFrac(QObject *parent):
     this->d = new AkFracPrivate();
     this->d->m_num = 0;
     this->d->m_den = 0;
-    this->d->m_isValid = false;
 }
 
 AkFrac::AkFrac(qint64 num, qint64 den):
@@ -73,7 +75,6 @@ AkFrac::AkFrac(qint64 num, qint64 den):
     this->d = new AkFracPrivate();
     this->d->m_num = 0;
     this->d->m_den = 0;
-    this->d->m_isValid = false;
 
     this->setNumDen(num, den);
 }
@@ -84,7 +85,6 @@ AkFrac::AkFrac(const QString &fracString):
     this->d = new AkFracPrivate();
     this->d->m_num = 0;
     this->d->m_den = 0;
-    this->d->m_isValid = false;
 
     this->setNumDen(fracString);
 }
@@ -95,7 +95,6 @@ AkFrac::AkFrac(const AkFrac &other):
     this->d = new AkFracPrivate();
     this->d->m_num = other.d->m_num;
     this->d->m_den = other.d->m_den;
-    this->d->m_isValid = other.d->m_isValid;
 }
 
 AkFrac::~AkFrac()
@@ -108,7 +107,6 @@ AkFrac &AkFrac::operator =(const AkFrac &other)
     if (this != &other) {
         this->d->m_num = other.d->m_num;
         this->d->m_den = other.d->m_den;
-        this->d->m_isValid = other.d->m_isValid;
     }
 
     return *this;
@@ -136,6 +134,16 @@ AkFrac AkFrac::operator *(const AkFrac &other) const
                   this->d->m_den * other.d->m_den);
 }
 
+AkFrac::operator bool() const
+{
+    return this->d->m_den != 0;
+}
+
+AkFrac::operator QString() const
+{
+    return QString("%1/%2").arg(this->d->m_num).arg(this->d->m_den);
+}
+
 qint64 AkFrac::num() const
 {
     return this->d->m_num;
@@ -148,22 +156,28 @@ qint64 AkFrac::den() const
 
 qreal AkFrac::value() const
 {
-    return this->d->m_num / qreal(this->d->m_den);
+    if (!this->d->m_den)
+        return qQNaN();
+
+    return qreal(this->d->m_num) / this->d->m_den;
 }
 
 qint64 AkFrac::fastValue() const
 {
+    if (!this->d->m_den)
+        return 0;
+
     return this->d->m_num / this->d->m_den;
 }
 
 bool AkFrac::isValid() const
 {
-    return this->d->m_isValid;
+    return *this;
 }
 
 QString AkFrac::toString() const
 {
-    return QString("%1/%2").arg(this->d->m_num).arg(this->d->m_den);
+    return *this;
 }
 
 AkFrac AkFrac::invert() const
@@ -179,60 +193,46 @@ void AkFrac::setNumDen(qint64 num, qint64 den)
         if (this->d->m_num != 0) {
             this->d->m_num = 0;
             changed = true;
-
-            emit this->numChanged();
+            emit this->numChanged(0);
         }
 
         if (this->d->m_den != 0) {
             this->d->m_den = 0;
             changed = true;
-
-            emit this->denChanged();
-        }
-
-        if (this->d->m_isValid) {
-            this->d->m_isValid = false;
-            changed = true;
-
-            emit this->isValidChanged();
+            emit this->denChanged(0);
+            emit this->isValidChanged(false);
         }
 
         if (changed) {
-            emit this->valueChanged();
-            emit this->stringChanged();
+            emit this->valueChanged(qQNaN());
+            emit this->stringChanged("0/0");
         }
 
         return;
     }
 
-    num = SIGN(den) * num;
+    num = AkFracPrivate::sign(den) * num;
     den = qAbs(den);
     AkFracPrivate::reduce(&num, &den);
 
     if (this->d->m_num != num) {
         this->d->m_num = num;
         changed = true;
-
-        emit this->numChanged();
+        emit this->numChanged(num);
     }
 
     if (this->d->m_den != den) {
+        if (!this->d->m_den)
+            emit this->isValidChanged(true);
+
         this->d->m_den = den;
         changed = true;
-
-        emit this->denChanged();
-    }
-
-    if (!this->d->m_isValid) {
-        this->d->m_isValid = true;
-        changed = true;
-
-        emit this->isValidChanged();
+        emit this->denChanged(den);
     }
 
     if (changed) {
-        emit this->valueChanged();
-        emit this->stringChanged();
+        emit this->valueChanged(this->value());
+        emit this->stringChanged(*this);
     }
 }
 
@@ -293,32 +293,38 @@ void AkFrac::resetDen()
 
 QDebug operator <<(QDebug debug, const AkFrac &frac)
 {
-    debug.nospace() << frac.toString();
+    debug.nospace() << "AkFrac("
+                    << frac.num()
+                    << ","
+                    << frac.den()
+                     << ")";
 
     return debug.space();
 }
 
 QDataStream &operator >>(QDataStream &istream, AkFrac &frac)
 {
-    istream >> frac.d->m_num;
-    istream >> frac.d->m_den;
-    istream >> frac.d->m_isValid;
+    qint64 num;
+    qint64 den;
+    istream >> num;
+    istream >> den;
+    frac.setNum(num);
+    frac.setDen(den);
 
     return istream;
 }
 
 QDataStream &operator <<(QDataStream &ostream, const AkFrac &frac)
 {
-    ostream << frac.d->m_num;
-    ostream << frac.d->m_den;
-    ostream << frac.d->m_isValid;
+    ostream << frac.num();
+    ostream << frac.den();
 
     return ostream;
 }
 
 AkFrac operator *(int number, const AkFrac &frac)
 {
-    return AkFrac(number * frac.d->m_num, frac.d->m_den);
+    return {number * frac.num(), frac.den()};
 }
 
 AkFrac operator /(int number, const AkFrac &frac)
@@ -326,25 +332,22 @@ AkFrac operator /(int number, const AkFrac &frac)
     return number * frac.invert();
 }
 
-
 AkFrac operator /(const AkFrac &fracNum, const AkFrac &fracDen)
 {
-    return AkFrac(fracNum.d->m_num * fracDen.d->m_den,
-                  fracNum.d->m_den * fracDen.d->m_num);
+    return {fracNum.num() * fracDen.den(),
+            fracNum.den() * fracDen.num()};
 }
 
 AkFrac operator +(const AkFrac &frac1, const AkFrac &frac2)
 {
-    return AkFrac(frac1.d->m_num * frac2.d->m_den
-                  + frac2.d->m_num * frac1.d->m_den,
-                  frac1.d->m_den * frac2.d->m_den);
+    return {frac1.num() * frac2.den() + frac2.num() * frac1.den(),
+            frac1.den() * frac2.den()};
 }
 
 AkFrac operator -(const AkFrac &frac1, const AkFrac &frac2)
 {
-    return AkFrac(frac1.d->m_num * frac2.d->m_den
-                  - frac2.d->m_num * frac1.d->m_den,
-                  frac1.d->m_den * frac2.d->m_den);
+    return {frac1.num() * frac2.den() - frac2.num() * frac1.den(),
+            frac1.den() * frac2.den()};
 }
 
 #include "moc_akfrac.cpp"

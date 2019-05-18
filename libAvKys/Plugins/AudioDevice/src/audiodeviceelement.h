@@ -24,7 +24,6 @@
 #include <akaudiocaps.h>
 
 class AudioDeviceElementPrivate;
-class AkCaps;
 
 class AudioDeviceElement: public AkElement
 {
@@ -52,7 +51,7 @@ class AudioDeviceElement: public AkElement
                WRITE setBufferSize
                RESET resetBufferSize
                NOTIFY bufferSizeChanged)
-    Q_PROPERTY(AkCaps caps
+    Q_PROPERTY(AkAudioCaps caps
                READ caps
                WRITE setCaps
                RESET resetCaps
@@ -74,15 +73,18 @@ class AudioDeviceElement: public AkElement
         Q_INVOKABLE QString description(const QString &device);
         Q_INVOKABLE QString device() const;
         Q_INVOKABLE int bufferSize() const;
-        Q_INVOKABLE AkCaps caps() const;
+        Q_INVOKABLE AkAudioCaps caps() const;
         Q_INVOKABLE AkAudioCaps preferredFormat(const QString &device);
         Q_INVOKABLE QList<AkAudioCaps::SampleFormat> supportedFormats(const QString &device);
-        Q_INVOKABLE QList<int> supportedChannels(const QString &device);
+        Q_INVOKABLE QList<AkAudioCaps::ChannelLayout> supportedChannelLayouts(const QString &device);
         Q_INVOKABLE QList<int> supportedSampleRates(const QString &device);
         Q_INVOKABLE QString audioLib() const;
 
     private:
         AudioDeviceElementPrivate *d;
+
+    protected:
+        AkPacket iAudioStream(const AkAudioPacket &packet);
 
     signals:
         void defaultInputChanged(const QString &defaultInput);
@@ -91,19 +93,18 @@ class AudioDeviceElement: public AkElement
         void outputsChanged(const QStringList &outputs);
         void deviceChanged(const QString &device);
         void bufferSizeChanged(int bufferSize);
-        void capsChanged(const AkCaps &caps);
+        void capsChanged(const AkAudioCaps &caps);
         void audioLibChanged(const QString &audioLib);
 
     public slots:
         void setDevice(const QString &device);
         void setBufferSize(int bufferSize);
-        void setCaps(const AkCaps &caps);
+        void setCaps(const AkAudioCaps &caps);
         void setAudioLib(const QString &audioLib);
         void resetDevice();
         void resetBufferSize();
         void resetCaps();
         void resetAudioLib();
-        AkPacket iStream(const AkAudioPacket &packet);
         bool setState(AkElement::ElementState state);
 
     private slots:

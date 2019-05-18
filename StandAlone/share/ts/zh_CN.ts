@@ -139,35 +139,35 @@
 <context>
     <name>AudioInfo</name>
     <message>
-        <location filename="../qml/AudioInfo.qml" line="199"/>
+        <location filename="../qml/AudioInfo.qml" line="192"/>
         <source>Description</source>
         <translation type="unfinished">描述</translation>
     </message>
     <message>
+        <location filename="../qml/AudioInfo.qml" line="207"/>
         <location filename="../qml/AudioInfo.qml" line="214"/>
-        <location filename="../qml/AudioInfo.qml" line="221"/>
         <source>Device description</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/AudioInfo.qml" line="229"/>
+        <location filename="../qml/AudioInfo.qml" line="222"/>
+        <location filename="../qml/AudioInfo.qml" line="237"/>
         <location filename="../qml/AudioInfo.qml" line="244"/>
-        <location filename="../qml/AudioInfo.qml" line="251"/>
         <source>Device id</source>
         <translation type="unfinished">驱动（硬件）地址</translation>
     </message>
     <message>
-        <location filename="../qml/AudioInfo.qml" line="266"/>
+        <location filename="../qml/AudioInfo.qml" line="259"/>
         <source>Sample Format</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/AudioInfo.qml" line="292"/>
+        <location filename="../qml/AudioInfo.qml" line="285"/>
         <source>Channels</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/AudioInfo.qml" line="318"/>
+        <location filename="../qml/AudioInfo.qml" line="311"/>
         <source>Sample Rate</source>
         <translation type="unfinished"></translation>
     </message>
@@ -372,7 +372,7 @@
 <context>
     <name>MediaTools</name>
     <message>
-        <location filename="../../src/mediatools.cpp" line="223"/>
+        <location filename="../../src/mediatools.cpp" line="224"/>
         <source>Daily Build</source>
         <translation type="unfinished"></translation>
     </message>
@@ -562,35 +562,35 @@
 <context>
     <name>Recording</name>
     <message>
-        <location filename="../../src/recording.cpp" line="594"/>
+        <location filename="../../src/recording.cpp" line="597"/>
         <source>Audio</source>
         <translation>音频</translation>
     </message>
     <message>
-        <location filename="../../src/recording.cpp" line="595"/>
+        <location filename="../../src/recording.cpp" line="598"/>
         <source>Video</source>
         <translation>视频</translation>
     </message>
     <message>
-        <location filename="../../src/recording.cpp" line="596"/>
+        <location filename="../../src/recording.cpp" line="599"/>
         <source>Subtitle</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/recording.cpp" line="661"/>
-        <location filename="../../src/recording.cpp" line="827"/>
+        <location filename="../../src/recording.cpp" line="664"/>
+        <location filename="../../src/recording.cpp" line="830"/>
         <source>audio</source>
         <translation>音频</translation>
     </message>
     <message>
-        <location filename="../../src/recording.cpp" line="662"/>
-        <location filename="../../src/recording.cpp" line="828"/>
+        <location filename="../../src/recording.cpp" line="665"/>
+        <location filename="../../src/recording.cpp" line="831"/>
         <source>video</source>
         <translation>视频</translation>
     </message>
     <message>
-        <location filename="../../src/recording.cpp" line="663"/>
-        <location filename="../../src/recording.cpp" line="829"/>
+        <location filename="../../src/recording.cpp" line="666"/>
+        <location filename="../../src/recording.cpp" line="832"/>
         <source>subtitle</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1917,22 +1917,22 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/main.qml" line="166"/>
+        <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/main.qml" line="165"/>
         <source>Output format</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/main.qml" line="195"/>
+        <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/main.qml" line="194"/>
         <source>File extensions</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/main.qml" line="201"/>
+        <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/main.qml" line="200"/>
         <source>This output format has not specific extensions</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/main.qml" line="207"/>
+        <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/main.qml" line="206"/>
         <source>Advanced Format Options</source>
         <translation type="unfinished"></translation>
     </message>

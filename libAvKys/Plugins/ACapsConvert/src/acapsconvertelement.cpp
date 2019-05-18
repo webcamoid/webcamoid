@@ -40,7 +40,7 @@ using ConvertAudioPtr = QSharedPointer<ConvertAudio>;
 class ACapsConvertElementPrivate
 {
     public:
-        AkCaps m_caps;
+        AkAudioCaps m_caps;
         ConvertAudioPtr m_convertAudio;
         QMutex m_mutex;
 };
@@ -67,9 +67,9 @@ ACapsConvertElement::~ACapsConvertElement()
     delete this->d;
 }
 
-QString ACapsConvertElement::caps() const
+AkAudioCaps ACapsConvertElement::caps() const
 {
-    return this->d->m_caps.toString();
+    return this->d->m_caps;
 }
 
 QString ACapsConvertElement::convertLib() const
@@ -77,7 +77,21 @@ QString ACapsConvertElement::convertLib() const
     return globalACapsConvert->convertLib();
 }
 
-void ACapsConvertElement::setCaps(const QString &caps)
+AkPacket ACapsConvertElement::iAudioStream(const AkAudioPacket &packet)
+{
+    AkPacket oPacket;
+
+    this->d->m_mutex.lock();
+
+    if (this->d->m_convertAudio)
+        oPacket = this->d->m_convertAudio->convert(packet);
+
+    this->d->m_mutex.unlock();
+
+    akSend(oPacket)
+}
+
+void ACapsConvertElement::setCaps(const AkAudioCaps &caps)
 {
     if (this->d->m_caps == caps)
         return;
@@ -93,26 +107,12 @@ void ACapsConvertElement::setConvertLib(const QString &convertLib)
 
 void ACapsConvertElement::resetCaps()
 {
-    this->setCaps("");
+    this->setCaps({});
 }
 
 void ACapsConvertElement::resetConvertLib()
 {
     globalACapsConvert->resetConvertLib();
-}
-
-AkPacket ACapsConvertElement::iStream(const AkAudioPacket &packet)
-{
-    AkPacket oPacket;
-
-    this->d->m_mutex.lock();
-
-    if (this->d->m_convertAudio)
-        oPacket = this->d->m_convertAudio->convert(packet);
-
-    this->d->m_mutex.unlock();
-
-    akSend(oPacket)
 }
 
 bool ACapsConvertElement::setState(AkElement::ElementState state)

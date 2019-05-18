@@ -67,17 +67,13 @@ QSGNode *VideoDisplay::updatePaintNode(QSGNode *oldNode,
                      this->d->m_frame.convertToFormat(QImage::Format_ARGB32);
     this->d->m_mutex.unlock();
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 8, 0)
     if (this->window()->rendererInterface()->graphicsApi() == QSGRendererInterface::Software) {
-#endif
         frame = frame.scaled(this->boundingRect().size().toSize(),
                              this->d->m_fillDisplay?
                                  Qt::IgnoreAspectRatio:
                                  Qt::KeepAspectRatio,
                              Qt::SmoothTransformation);
-#if QT_VERSION >= QT_VERSION_CHECK(5, 8, 0)
     }
-#endif
 
     auto videoFrame = this->window()->createTextureFromImage(frame);
 

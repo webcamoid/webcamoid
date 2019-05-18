@@ -63,62 +63,62 @@ QVector<int> &AudioDev::commonSampleRates()
 
 QString AudioDev::error() const
 {
-    return QString();
+    return {};
 }
 
 QString AudioDev::defaultInput()
 {
-    return QString();
+    return {};
 }
 
 QString AudioDev::defaultOutput()
 {
-    return QString();
+    return {};
 }
 
 QStringList AudioDev::inputs()
 {
-    return QStringList();
+    return {};
 }
 
 QStringList AudioDev::outputs()
 {
-    return QStringList();
+    return {};
 }
 
 QString AudioDev::description(const QString &device)
 {
     Q_UNUSED(device)
 
-    return QString();
+    return {};
 }
 
 AkAudioCaps AudioDev::preferredFormat(const QString &device)
 {
     Q_UNUSED(device)
 
-    return AkAudioCaps();
+    return {};
 }
 
 QList<AkAudioCaps::SampleFormat> AudioDev::supportedFormats(const QString &device)
 {
     Q_UNUSED(device)
 
-    return QList<AkAudioCaps::SampleFormat>();
+    return {};
 }
 
-QList<int> AudioDev::supportedChannels(const QString &device)
+QList<AkAudioCaps::ChannelLayout> AudioDev::supportedChannelLayouts(const QString &device)
 {
     Q_UNUSED(device)
 
-    return QList<int>();
+    return {AkAudioCaps::Layout_mono, AkAudioCaps::Layout_stereo};
 }
 
 QList<int> AudioDev::supportedSampleRates(const QString &device)
 {
     Q_UNUSED(device)
 
-    return QList<int>();
+    return {};
 }
 
 bool AudioDev::init(const QString &device, const AkAudioCaps &caps)
@@ -133,7 +133,7 @@ QByteArray AudioDev::read(int samples)
 {
     Q_UNUSED(samples)
 
-    return QByteArray();
+    return {};
 }
 
 bool AudioDev::write(const AkAudioPacket &packet)

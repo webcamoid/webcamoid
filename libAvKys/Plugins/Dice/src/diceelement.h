@@ -46,6 +46,7 @@ class DiceElement: public AkElement
         QString controlInterfaceProvide(const QString &controlId) const;
         void controlInterfaceConfigure(QQmlContext *context,
                                        const QString &controlId) const;
+        AkPacket iVideoStream(const AkVideoPacket &packet);
 
     signals:
         void diceSizeChanged(int diceSize);
@@ -54,7 +55,6 @@ class DiceElement: public AkElement
     public slots:
         void setDiceSize(int diceSize);
         void resetDiceSize();
-        AkPacket iStream(const AkPacket &packet);
 
     private slots:
         void updateDiceMap();

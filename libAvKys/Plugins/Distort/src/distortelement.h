@@ -58,6 +58,7 @@ class DistortElement: public AkElement
         QString controlInterfaceProvide(const QString &controlId) const;
         void controlInterfaceConfigure(QQmlContext *context,
                                        const QString &controlId) const;
+        AkPacket iVideoStream(const AkVideoPacket &packet);
 
     signals:
         void amplitudeChanged(qreal amplitude);
@@ -71,7 +72,6 @@ class DistortElement: public AkElement
         void resetAmplitude();
         void resetFrequency();
         void resetGridSizeLog();
-        AkPacket iStream(const AkPacket &packet);
 };
 
 #endif // DISTORTELEMENT_H

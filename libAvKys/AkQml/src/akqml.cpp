@@ -21,7 +21,6 @@
 #include "ak.h"
 #include "akfrac.h"
 #include "akcaps.h"
-#include "akvideocaps.h"
 #include "akelement.h"
 
 AkQml::AkQml(QQuickItem *parent):
@@ -59,19 +58,9 @@ QObject *AkQml::newFrac(const AkFrac &frac) const
     return new AkFrac(frac);
 }
 
-QObject *AkQml::newCaps() const
+QObject *AkQml::newCaps(const QString &mimeType) const
 {
-    return new AkCaps();
-}
-
-QObject *AkQml::newCaps(const QVariantMap &caps) const
-{
-    return new AkCaps(caps);
-}
-
-QObject *AkQml::newCaps(const QString &caps) const
-{
-    return new AkCaps(caps);
+    return new AkCaps(mimeType);
 }
 
 QObject *AkQml::newCaps(const AkCaps &caps) const
@@ -82,16 +71,6 @@ QObject *AkQml::newCaps(const AkCaps &caps) const
 QObject *AkQml::newAudioCaps() const
 {
     return new AkAudioCaps();
-}
-
-QObject *AkQml::newAudioCaps(const QVariantMap &caps) const
-{
-    return new AkAudioCaps(caps);
-}
-
-QObject *AkQml::newAudioCaps(const QString &caps) const
-{
-    return new AkAudioCaps(caps);
 }
 
 QObject *AkQml::newAudioCaps(const AkCaps &caps) const
@@ -114,19 +93,24 @@ QObject *AkQml::newAudioCaps(AkAudioCaps::SampleFormat format,
     return new AkAudioCaps(format, layout, rate, samples, planar, align);
 }
 
+QObject *AkQml::newAudioCaps(const QString &format,
+                             const QString &layout,
+                             int rate,
+                             int samples,
+                             bool planar,
+                             int align)
+{
+    return new AkAudioCaps(AkAudioCaps::sampleFormatFromString(format),
+                           AkAudioCaps::channelLayoutFromString(layout),
+                           rate,
+                           samples,
+                           planar,
+                           align);
+}
+
 QObject *AkQml::newVideoCaps() const
 {
     return new AkVideoCaps();
-}
-
-QObject *AkQml::newVideoCaps(const QVariantMap &caps) const
-{
-    return new AkVideoCaps(caps);
-}
-
-QObject *AkQml::newVideoCaps(const QString &caps) const
-{
-    return new AkVideoCaps(caps);
 }
 
 QObject *AkQml::newVideoCaps(const AkCaps &caps) const
@@ -139,10 +123,71 @@ QObject *AkQml::newVideoCaps(const AkVideoCaps &caps) const
     return new AkVideoCaps(caps);
 }
 
+QObject *AkQml::newVideoCaps(AkVideoCaps::PixelFormat format,
+                             int width,
+                             int height,
+                             const AkFrac &fps,
+                             int align) const
+{
+    return new AkVideoCaps(format, width, height, fps, align);
+}
+
+QObject *AkQml::newVideoCaps(const QString &format,
+                             int width,
+                             int height,
+                             const AkFrac &fps,
+                             int align) const
+{
+    return new AkVideoCaps(AkVideoCaps::pixelFormatFromString(format),
+                           width,
+                           height,
+                           fps,
+                           align);
+}
+
+QObject *AkQml::newVideoCaps(AkVideoCaps::PixelFormat format,
+                             const QSize &size,
+                             const AkFrac &fps,
+                             int align) const
+{
+    return new AkVideoCaps(format, size, fps, align);
+}
+
+QObject *AkQml::newVideoCaps(const QString &format,
+                             const QSize &size,
+                             const AkFrac &fps,
+                             int align) const
+{
+    return new AkVideoCaps(AkVideoCaps::pixelFormatFromString(format),
+                           size,
+                           fps,
+                           align);
+}
+
 QObject *AkQml::newElement(const QString &pluginId,
                            const QString &elementName) const
 {
     return AkElement::createPtr(pluginId, elementName);
+}
+
+QVariantList AkQml::newList(const QList<AkAudioCaps::SampleFormat> &sampleFormats) const
+{
+   QVariantList list;
+
+   for (auto &format: sampleFormats)
+       list << format;
+
+   return list;
+}
+
+QVariantList AkQml::newList(const QList<AkAudioCaps::ChannelLayout> &channelLayouts) const
+{
+    QVariantList list;
+
+    for (auto &layout: channelLayouts)
+        list << layout;
+
+    return list;
 }
 
 QVariant AkQml::varFrac(QObject *frac) const
@@ -166,6 +211,26 @@ QVariant AkQml::varCaps(QObject *caps) const
 }
 
 QVariant AkQml::varCaps(AkCaps *caps) const
+{
+    return QVariant::fromValue(*caps);
+}
+
+QVariant AkQml::varAudioCaps(QObject *caps) const
+{
+    return QVariant::fromValue(*qobject_cast<AkAudioCaps *>(caps));
+}
+
+QVariant AkQml::varAudioCaps(AkAudioCaps *caps) const
+{
+    return QVariant::fromValue(*caps);
+}
+
+QVariant AkQml::varVideoCaps(QObject *caps) const
+{
+    return QVariant::fromValue(*qobject_cast<AkVideoCaps *>(caps));
+}
+
+QVariant AkQml::varVideoCaps(AkAudioCaps *caps) const
 {
     return QVariant::fromValue(*caps);
 }

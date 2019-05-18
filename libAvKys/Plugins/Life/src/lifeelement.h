@@ -59,6 +59,7 @@ class LifeElement: public AkElement
         QString controlInterfaceProvide(const QString &controlId) const;
         void controlInterfaceConfigure(QQmlContext *context,
                                        const QString &controlId) const;
+        AkPacket iVideoStream(const AkVideoPacket &packet);
 
     signals:
         void lifeColorChanged(QRgb lifeColor);
@@ -72,8 +73,6 @@ class LifeElement: public AkElement
         void resetLifeColor();
         void resetThreshold();
         void resetLumaThreshold();
-
-        AkPacket iStream(const AkPacket &packet);
 };
 
 #endif // LIFEELEMENT_H

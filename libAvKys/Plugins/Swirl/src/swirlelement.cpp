@@ -20,6 +20,7 @@
 #include <QImage>
 #include <QQmlContext>
 #include <QtMath>
+#include <akpacket.h>
 #include <akvideopacket.h>
 
 #include "swirlelement.h"
@@ -61,24 +62,9 @@ void SwirlElement::controlInterfaceConfigure(QQmlContext *context,
     context->setContextProperty("controlId", this->objectName());
 }
 
-void SwirlElement::setDegrees(qreal degrees)
+AkPacket SwirlElement::iVideoStream(const AkVideoPacket &packet)
 {
-    if (qFuzzyCompare(this->d->m_degrees, degrees))
-        return;
-
-    this->d->m_degrees = degrees;
-    emit this->degreesChanged(degrees);
-}
-
-void SwirlElement::resetDegrees()
-{
-    this->setDegrees(60);
-}
-
-AkPacket SwirlElement::iStream(const AkPacket &packet)
-{
-    AkVideoPacket videoPacket(packet);
-    auto src = videoPacket.toImage();
+    auto src = packet.toImage();
 
     if (src.isNull())
         return AkPacket();
@@ -127,8 +113,22 @@ AkPacket SwirlElement::iStream(const AkPacket &packet)
         }
     }
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
+    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
     akSend(oPacket)
+}
+
+void SwirlElement::setDegrees(qreal degrees)
+{
+    if (qFuzzyCompare(this->d->m_degrees, degrees))
+        return;
+
+    this->d->m_degrees = degrees;
+    emit this->degreesChanged(degrees);
+}
+
+void SwirlElement::resetDegrees()
+{
+    this->setDegrees(60);
 }
 
 #include "moc_swirlelement.cpp"

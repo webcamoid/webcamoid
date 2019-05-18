@@ -52,7 +52,7 @@ typedef QMap<VideoProcAmpProperty, QString> VideoProcAmpPropertyMap;
 
 inline VideoProcAmpPropertyMap initVideoProcAmpPropertyMap()
 {
-    VideoProcAmpPropertyMap vpapToStr = {
+    VideoProcAmpPropertyMap vpapToStr {
         {VideoProcAmp_Brightness           , "Brightness"            },
         {VideoProcAmp_Contrast             , "Contrast"              },
         {VideoProcAmp_Hue                  , "Hue"                   },
@@ -74,7 +74,7 @@ typedef QMap<CameraControlProperty, QString> CameraControlMap;
 
 inline CameraControlMap initCameraControlMap()
 {
-    CameraControlMap ccToStr = {
+    CameraControlMap ccToStr {
         {CameraControl_Pan     , "Pan"     },
         {CameraControl_Tilt    , "Tilt"    },
         {CameraControl_Roll    , "Roll"    },
@@ -93,7 +93,7 @@ typedef QMap<GUID, QString> GuidToStrMap;
 
 inline GuidToStrMap initGuidToStrMap()
 {
-    GuidToStrMap guidToStr = {
+    GuidToStrMap guidToStr {
         {MEDIASUBTYPE_CLPL               , "CLPL"},
         {MEDIASUBTYPE_YUYV               , "YUYV"},
         {MEDIASUBTYPE_IYUV               , "IYUV"},
@@ -168,7 +168,7 @@ typedef QMap<CaptureMMF::IoMethod, QString> IoMethodMap;
 
 inline IoMethodMap initIoMethodMap()
 {
-    IoMethodMap ioMethodToStr = {
+    IoMethodMap ioMethodToStr {
         {CaptureMMF::IoMethodSync , "sync" },
         {CaptureMMF::IoMethodASync, "async"}
     };
@@ -540,7 +540,8 @@ AkPacket CaptureMMF::readFrame()
     sample->Release();
 
     // Send packet.
-    AkPacket packet(caps, oBuffer);
+    AkPacket packet(caps);
+    packet.setBuffer(oBuffer);
     packet.setPts(sampleTime);
     packet.setTimeBase(AkFrac(1, TIME_BASE));
     packet.setIndex(0);
@@ -553,7 +554,7 @@ bool CaptureMMF::nativeEventFilter(const QByteArray &eventType,
                                      void *message,
                                      long *result)
 {
-    Q_UNUSED(eventType);
+    Q_UNUSED(eventType)
 
     if (!message)
         return false;
@@ -745,7 +746,7 @@ void CaptureMMF::setIoMethod(const QString &ioMethod)
 
 void CaptureMMF::setNBuffers(int nBuffers)
 {
-    Q_UNUSED(nBuffers);
+    Q_UNUSED(nBuffers)
 }
 
 void CaptureMMF::resetDevice()

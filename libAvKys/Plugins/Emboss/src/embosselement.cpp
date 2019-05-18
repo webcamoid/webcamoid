@@ -20,6 +20,7 @@
 #include <QImage>
 #include <QQmlContext>
 #include <QtMath>
+#include <akpacket.h>
 #include <akvideopacket.h>
 
 #include "embosselement.h"
@@ -67,38 +68,9 @@ void EmbossElement::controlInterfaceConfigure(QQmlContext *context,
     context->setContextProperty("controlId", this->objectName());
 }
 
-void EmbossElement::setFactor(qreal factor)
+AkPacket EmbossElement::iVideoStream(const AkVideoPacket &packet)
 {
-    if (qFuzzyCompare(this->d->m_factor, factor))
-        return;
-
-    this->d->m_factor = factor;
-    emit this->factorChanged(factor);
-}
-
-void EmbossElement::setBias(qreal bias)
-{
-    if (qFuzzyCompare(this->d->m_bias, bias))
-        return;
-
-    this->d->m_bias = bias;
-    emit this->biasChanged(bias);
-}
-
-void EmbossElement::resetFactor()
-{
-    this->setFactor(1);
-}
-
-void EmbossElement::resetBias()
-{
-    this->setBias(128);
-}
-
-AkPacket EmbossElement::iStream(const AkPacket &packet)
-{
-    AkVideoPacket videoPacket(packet);
-    auto src = videoPacket.toImage();
+    auto src = packet.toImage();
 
     if (src.isNull())
         return AkPacket();
@@ -143,8 +115,36 @@ AkPacket EmbossElement::iStream(const AkPacket &packet)
         }
     }
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
+    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
     akSend(oPacket)
+}
+
+void EmbossElement::setFactor(qreal factor)
+{
+    if (qFuzzyCompare(this->d->m_factor, factor))
+        return;
+
+    this->d->m_factor = factor;
+    emit this->factorChanged(factor);
+}
+
+void EmbossElement::setBias(qreal bias)
+{
+    if (qFuzzyCompare(this->d->m_bias, bias))
+        return;
+
+    this->d->m_bias = bias;
+    emit this->biasChanged(bias);
+}
+
+void EmbossElement::resetFactor()
+{
+    this->setFactor(1);
+}
+
+void EmbossElement::resetBias()
+{
+    this->setBias(128);
 }
 
 #include "moc_embosselement.cpp"

@@ -22,17 +22,17 @@
 
 #include "akpacket.h"
 #include "akcaps.h"
+#include "akfrac.h"
 
 class AkPacketPrivate
 {
     public:
         AkCaps m_caps;
-        QVariant m_data;
         QByteArray m_buffer;
         qint64 m_pts {0};
         AkFrac m_timeBase;
-        int m_index {-1};
         qint64 m_id {-1};
+        int m_index {-1};
 };
 
 AkPacket::AkPacket(QObject *parent):
@@ -41,21 +41,10 @@ AkPacket::AkPacket(QObject *parent):
     this->d = new AkPacketPrivate();
 }
 
-AkPacket::AkPacket(const AkCaps &caps,
-                   const QByteArray &buffer,
-                   qint64 pts,
-                   const AkFrac &timeBase,
-                   int index,
-                   qint64 id)
+AkPacket::AkPacket(const AkCaps &caps)
 {
     this->d = new AkPacketPrivate();
     this->d->m_caps = caps;
-    bool isValid = this->d->m_caps.isValid();
-    this->d->m_buffer = isValid? buffer: QByteArray();
-    this->d->m_pts = isValid? pts: 0;
-    this->d->m_timeBase = isValid? timeBase: AkFrac();
-    this->d->m_index = isValid? index: -1;
-    this->d->m_id = isValid? id: -1;
 }
 
 AkPacket::AkPacket(const AkPacket &other):
@@ -63,7 +52,6 @@ AkPacket::AkPacket(const AkPacket &other):
 {
     this->d = new AkPacketPrivate();
     this->d->m_caps = other.d->m_caps;
-    this->d->m_data = other.d->m_data;
     this->d->m_buffer = other.d->m_buffer;
     this->d->m_pts = other.d->m_pts;
     this->d->m_timeBase = other.d->m_timeBase;
@@ -80,7 +68,6 @@ AkPacket &AkPacket::operator =(const AkPacket &other)
 {
     if (this != &other) {
         this->d->m_caps = other.d->m_caps;
-        this->d->m_data = other.d->m_data;
         this->d->m_buffer = other.d->m_buffer;
         this->d->m_pts = other.d->m_pts;
         this->d->m_timeBase = other.d->m_timeBase;
@@ -93,44 +80,7 @@ AkPacket &AkPacket::operator =(const AkPacket &other)
 
 AkPacket::operator bool() const
 {
-    return this->d->m_caps.isValid();
-}
-
-QString AkPacket::toString() const
-{
-    QString packetInfo;
-    QDebug debug(&packetInfo);
-
-    debug.nospace() << "Caps       : "
-                    << this->d->m_caps.toString().toStdString().c_str()
-                    << "\n";
-
-    debug.nospace() << "Data       : "
-                    << this->d->m_data
-                    << "\n";
-
-    debug.nospace() << "Buffer Size: "
-                    << this->d->m_buffer.size()
-                    << "\n";
-
-    debug.nospace() << "Id         : "
-                    << this->d->m_id
-                    << "\n";
-
-    debug.nospace() << "Pts        : "
-                    << this->d->m_pts
-                    << " ("
-                    << this->d->m_pts * this->d->m_timeBase.value()
-                    << ")\n";
-
-    debug.nospace() << "Time Base  : "
-                    << this->d->m_timeBase.toString().toStdString().c_str()
-                    << "\n";
-
-    debug.nospace() << "Index      : "
-                    << this->d->m_index;
-
-    return packetInfo;
+    return this->d->m_caps && !this->d->m_buffer.isEmpty();
 }
 
 AkCaps AkPacket::caps() const
@@ -141,16 +91,6 @@ AkCaps AkPacket::caps() const
 AkCaps &AkPacket::caps()
 {
     return this->d->m_caps;
-}
-
-QVariant AkPacket::data() const
-{
-    return this->d->m_data;
-}
-
-QVariant &AkPacket::data()
-{
-    return this->d->m_data;
 }
 
 QByteArray AkPacket::buffer() const
@@ -203,6 +143,14 @@ int &AkPacket::index()
     return this->d->m_index;
 }
 
+void AkPacket::copyMetadata(const AkPacket &other)
+{
+    this->d->m_pts = other.d->m_pts;
+    this->d->m_timeBase = other.d->m_timeBase;
+    this->d->m_index = other.d->m_index;
+    this->d->m_id = other.d->m_id;
+}
+
 void AkPacket::setCaps(const AkCaps &caps)
 {
     if (this->d->m_caps == caps)
@@ -210,15 +158,6 @@ void AkPacket::setCaps(const AkCaps &caps)
 
     this->d->m_caps = caps;
     emit this->capsChanged(caps);
-}
-
-void AkPacket::setData(const QVariant &data)
-{
-    if (this->d->m_data == data)
-        return;
-
-    this->d->m_data = data;
-    emit this->dataChanged(data);
 }
 
 void AkPacket::setBuffer(const QByteArray &buffer)
@@ -271,14 +210,9 @@ void AkPacket::resetCaps()
     this->setCaps(AkCaps());
 }
 
-void AkPacket::resetData()
-{
-    this->setData(QVariant());
-}
-
 void AkPacket::resetBuffer()
 {
-    this->setBuffer(QByteArray());
+    this->setBuffer({});
 }
 
 void AkPacket::resetId()
@@ -293,7 +227,7 @@ void AkPacket::resetPts()
 
 void AkPacket::resetTimeBase()
 {
-    this->setTimeBase(AkFrac());
+    this->setTimeBase({});
 }
 
 void AkPacket::resetIndex()
@@ -303,7 +237,23 @@ void AkPacket::resetIndex()
 
 QDebug operator <<(QDebug debug, const AkPacket &packet)
 {
-    debug.nospace() << packet.toString().toStdString().c_str();
+    debug.nospace() << "AkPacket("
+                    << "caps="
+                    << packet.caps()
+                    << ",bufferSize="
+                    << packet.buffer().size()
+                    << ",id="
+                    << packet.id()
+                    << ",pts="
+                    << packet.pts()
+                    << "("
+                    << packet.pts() * packet.timeBase().value()
+                    << ")"
+                    << ",timeBase="
+                    << packet.timeBase()
+                    << ",index="
+                    << packet.index()
+                    << ")";
 
     return debug.space();
 }

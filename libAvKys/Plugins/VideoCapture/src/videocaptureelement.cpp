@@ -25,7 +25,9 @@
 #include <QThreadPool>
 #include <QFuture>
 #include <QMutex>
+#include <akfrac.h>
 #include <akcaps.h>
+#include <akpacket.h>
 #include <akvideopacket.h>
 
 #include "videocaptureelement.h"
@@ -195,7 +197,7 @@ AkCaps VideoCaptureElement::caps(int stream)
     return AkVideoCaps(AkVideoCaps::Format_rgb24,
                        caps.property("width").toInt(),
                        caps.property("height").toInt(),
-                       caps.property("fps").toString()).toCaps();
+                       caps.property("fps").toString());
 }
 
 AkCaps VideoCaptureElement::rawCaps(int stream) const
@@ -316,7 +318,7 @@ void VideoCaptureElementPrivate::cameraLoop()
                 continue;
             }
 
-            AkPacket packet = this->m_capture->readFrame();
+            auto packet = this->m_capture->readFrame();
 
             if (!packet)
                 continue;
@@ -594,8 +596,7 @@ void VideoCaptureElement::frameReady(const AkPacket &packet)
         if (this->d->m_swapRgb)
             oImage = oImage.rgbSwapped();
 
-        emit this->oStream(AkVideoPacket::fromImage(oImage,
-                                                    videoPacket).toPacket());
+        emit this->oStream(AkVideoPacket::fromImage(oImage, videoPacket));
     } else {
         emit this->oStream(packet);
     }

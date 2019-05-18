@@ -461,7 +461,8 @@ AkPacket CaptureAvFoundation::readFrame()
     }
 
     // Create package.
-    AkPacket packet(caps, oBuffer);
+    AkPacket packet(caps);
+    packet.setBuffer(oBuffer);
     packet.setPts(pts);
     packet.setTimeBase(this->d->m_timeBase);
     packet.setIndex(0);

@@ -20,6 +20,8 @@
 #include <QtMath>
 #include <QPainter>
 #include <QQmlContext>
+#include <akfrac.h>
+#include <akpacket.h>
 #include <akvideopacket.h>
 
 #include "dizzyelement.h"
@@ -80,6 +82,49 @@ void DizzyElement::controlInterfaceConfigure(QQmlContext *context,
     context->setContextProperty("controlId", this->objectName());
 }
 
+AkPacket DizzyElement::iVideoStream(const AkVideoPacket &packet)
+{
+    auto src = packet.toImage();
+
+    if (src.isNull())
+        return AkPacket();
+
+    src = src.convertToFormat(QImage::Format_ARGB32);
+    QImage oFrame(src.size(), src.format());
+    oFrame.fill(0);
+
+    if (this->d->m_prevFrame.isNull()) {
+        this->d->m_prevFrame = QImage(src.size(), src.format());
+        this->d->m_prevFrame.fill(0);
+    }
+
+    qreal pts = 2 * M_PI * packet.pts() * packet.timeBase().value()
+                / this->d->m_speed;
+
+    qreal angle = (2 * M_PI / 180) * sin(pts) + (M_PI / 180) * sin(pts + 2.5);
+    qreal scale = 1.0 + this->d->m_zoomRate;
+
+    QTransform transform;
+    transform.scale(scale, scale);
+    transform.rotateRadians(angle);
+    this->d->m_prevFrame = this->d->m_prevFrame.transformed(transform);
+
+    QRect rect(this->d->m_prevFrame.rect());
+    rect.moveCenter(oFrame.rect().center());
+
+    QPainter painter;
+    painter.begin(&oFrame);
+    painter.drawImage(rect, this->d->m_prevFrame);
+    painter.setOpacity(1.0 - this->d->m_strength);
+    painter.drawImage(0, 0, src);
+    painter.end();
+
+    this->d->m_prevFrame = oFrame;
+
+    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
+    akSend(oPacket)
+}
+
 void DizzyElement::setSpeed(qreal speed)
 {
     if (qFuzzyCompare(this->d->m_speed, speed))
@@ -120,50 +165,6 @@ void DizzyElement::resetZoomRate()
 void DizzyElement::resetStrength()
 {
     this->setStrength(0.15);
-}
-
-AkPacket DizzyElement::iStream(const AkPacket &packet)
-{
-    AkVideoPacket videoPacket(packet);
-    auto src = videoPacket.toImage();
-
-    if (src.isNull())
-        return AkPacket();
-
-    src = src.convertToFormat(QImage::Format_ARGB32);
-    QImage oFrame(src.size(), src.format());
-    oFrame.fill(0);
-
-    if (this->d->m_prevFrame.isNull()) {
-        this->d->m_prevFrame = QImage(src.size(), src.format());
-        this->d->m_prevFrame.fill(0);
-    }
-
-    qreal pts = 2 * M_PI * packet.pts() * packet.timeBase().value()
-                / this->d->m_speed;
-
-    qreal angle = (2 * M_PI / 180) * sin(pts) + (M_PI / 180) * sin(pts + 2.5);
-    qreal scale = 1.0 + this->d->m_zoomRate;
-
-    QTransform transform;
-    transform.scale(scale, scale);
-    transform.rotateRadians(angle);
-    this->d->m_prevFrame = this->d->m_prevFrame.transformed(transform);
-
-    QRect rect(this->d->m_prevFrame.rect());
-    rect.moveCenter(oFrame.rect().center());
-
-    QPainter painter;
-    painter.begin(&oFrame);
-    painter.drawImage(rect, this->d->m_prevFrame);
-    painter.setOpacity(1.0 - this->d->m_strength);
-    painter.drawImage(0, 0, src);
-    painter.end();
-
-    this->d->m_prevFrame = oFrame;
-
-    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
-    akSend(oPacket)
 }
 
 #include "moc_dizzyelement.cpp"

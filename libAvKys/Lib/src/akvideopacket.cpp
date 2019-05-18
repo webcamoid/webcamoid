@@ -18,11 +18,13 @@
  */
 
 #include <QDebug>
-#include <QImage>
 #include <QVariant>
+#include <QImage>
 
 #include "akvideopacket.h"
+#include "akpacket.h"
 #include "akcaps.h"
+#include "akfrac.h"
 
 struct RGBX
 {
@@ -162,6 +164,11 @@ class AkVideoPacketPrivate
 {
     public:
         AkVideoCaps m_caps;
+        QByteArray m_buffer;
+        qint64 m_pts {0};
+        AkFrac m_timeBase;
+        qint64 m_id {-1};
+        int m_index {-1};
 
         // YUV utility functions
         inline static uint8_t rgb_y(int r, int g, int b);
@@ -254,7 +261,7 @@ VideoConvertFuncs initVideoConvertFuncs()
 Q_GLOBAL_STATIC_WITH_ARGS(VideoConvertFuncs, videoConvert, (initVideoConvertFuncs()))
 
 AkVideoPacket::AkVideoPacket(QObject *parent):
-    AkPacket(parent)
+    QObject(parent)
 {
     this->d = new AkVideoPacketPrivate();
 }
@@ -263,32 +270,30 @@ AkVideoPacket::AkVideoPacket(const AkVideoCaps &caps)
 {
     this->d = new AkVideoPacketPrivate();
     this->d->m_caps = caps;
-    this->buffer() = QByteArray(int(caps.pictureSize()), Qt::Uninitialized);
+    this->d->m_buffer = QByteArray(int(caps.pictureSize()), Qt::Uninitialized);
 }
 
 AkVideoPacket::AkVideoPacket(const AkPacket &other)
 {
     this->d = new AkVideoPacketPrivate();
     this->d->m_caps = other.caps();
-    this->data() = other.data();
-    this->buffer() = other.buffer();
-    this->pts() = other.pts();
-    this->timeBase() = other.timeBase();
-    this->index() = other.index();
-    this->id() = other.id();
+    this->d->m_buffer = other.buffer();
+    this->d->m_pts = other.pts();
+    this->d->m_timeBase = other.timeBase();
+    this->d->m_index = other.index();
+    this->d->m_id = other.id();
 }
 
 AkVideoPacket::AkVideoPacket(const AkVideoPacket &other):
-    AkPacket()
+    QObject()
 {
     this->d = new AkVideoPacketPrivate();
     this->d->m_caps = other.d->m_caps;
-    this->data() = other.data();
-    this->buffer() = other.buffer();
-    this->pts() = other.pts();
-    this->timeBase() = other.timeBase();
-    this->index() = other.index();
-    this->id() = other.id();
+    this->d->m_buffer = other.d->m_buffer;
+    this->d->m_pts = other.d->m_pts;
+    this->d->m_timeBase = other.d->m_timeBase;
+    this->d->m_index = other.d->m_index;
+    this->d->m_id = other.d->m_id;
 }
 
 AkVideoPacket::~AkVideoPacket()
@@ -299,12 +304,11 @@ AkVideoPacket::~AkVideoPacket()
 AkVideoPacket &AkVideoPacket::operator =(const AkPacket &other)
 {
     this->d->m_caps = other.caps();
-    this->data() = other.data();
-    this->buffer() = other.buffer();
-    this->pts() = other.pts();
-    this->timeBase() = other.timeBase();
-    this->index() = other.index();
-    this->id() = other.id();
+    this->d->m_buffer = other.buffer();
+    this->d->m_pts = other.pts();
+    this->d->m_timeBase = other.timeBase();
+    this->d->m_index = other.index();
+    this->d->m_id = other.id();
 
     return *this;
 }
@@ -313,20 +317,31 @@ AkVideoPacket &AkVideoPacket::operator =(const AkVideoPacket &other)
 {
     if (this != &other) {
         this->d->m_caps = other.d->m_caps;
-        this->data() = other.data();
-        this->buffer() = other.buffer();
-        this->pts() = other.pts();
-        this->timeBase() = other.timeBase();
-        this->index() = other.index();
-        this->id() = other.id();
+        this->d->m_buffer = other.d->m_buffer;
+        this->d->m_pts = other.d->m_pts;
+        this->d->m_timeBase = other.d->m_timeBase;
+        this->d->m_index = other.d->m_index;
+        this->d->m_id = other.d->m_id;
     }
 
     return *this;
 }
 
+AkVideoPacket::operator AkPacket() const
+{
+    AkPacket packet(this->d->m_caps);
+    packet.buffer() = this->d->m_buffer;
+    packet.pts() = this->d->m_pts;
+    packet.timeBase() = this->d->m_timeBase;
+    packet.index() = this->d->m_index;
+    packet.id() = this->d->m_id;
+
+    return packet;
+}
+
 AkVideoPacket::operator bool() const
 {
-    return this->d->m_caps.isValid();
+    return this->d->m_caps && !this->d->m_buffer.isEmpty();
 }
 
 AkVideoCaps AkVideoPacket::caps() const
@@ -339,60 +354,74 @@ AkVideoCaps &AkVideoPacket::caps()
     return this->d->m_caps;
 }
 
+QByteArray AkVideoPacket::buffer() const
+{
+    return this->d->m_buffer;
+}
+
+QByteArray &AkVideoPacket::buffer()
+{
+    return this->d->m_buffer;
+}
+
+qint64 AkVideoPacket::id() const
+{
+    return this->d->m_id;
+}
+
+qint64 &AkVideoPacket::id()
+{
+    return this->d->m_id;
+}
+
+qint64 AkVideoPacket::pts() const
+{
+    return this->d->m_pts;
+}
+
+qint64 &AkVideoPacket::pts()
+{
+    return this->d->m_pts;
+}
+
+AkFrac AkVideoPacket::timeBase() const
+{
+    return this->d->m_timeBase;
+}
+
+AkFrac &AkVideoPacket::timeBase()
+{
+    return this->d->m_timeBase;
+}
+
+int AkVideoPacket::index() const
+{
+    return this->d->m_index;
+}
+
+int &AkVideoPacket::index()
+{
+    return this->d->m_index;
+}
+
+void AkVideoPacket::copyMetadata(const AkVideoPacket &other)
+{
+    this->d->m_pts = other.d->m_pts;
+    this->d->m_timeBase = other.d->m_timeBase;
+    this->d->m_index = other.d->m_index;
+    this->d->m_id = other.d->m_id;
+}
+
 const quint8 *AkVideoPacket::constLine(int plane, int y) const
 {
-    return reinterpret_cast<const quint8 *>(this->buffer().constData())
+    return reinterpret_cast<const quint8 *>(this->d->m_buffer.constData())
             + this->d->m_caps.lineOffset(plane, y);
 }
 
 quint8 *AkVideoPacket::line(int plane, int y)
 {
-    return reinterpret_cast<quint8 *>(this->buffer().data())
+    return reinterpret_cast<quint8 *>(this->d->m_buffer.data())
             + this->d->m_caps.lineOffset(plane, y);
-}
-
-QString AkVideoPacket::toString() const
-{
-    QString packetInfo;
-    QDebug debug(&packetInfo);
-
-    debug.nospace() << "Caps       : "
-                    << this->d->m_caps.toString().toStdString().c_str()
-                    << "\n"
-                    << "Data       : "
-                    << this->data()
-                    << "\n"
-                    << "Buffer Size: "
-                    << this->buffer().size()
-                    << "\n"
-                    << "Id         : "
-                    << this->id()
-                    << "\n"
-                    << "Pts        : "
-                    << this->pts()
-                    << " ("
-                    << this->pts() * this->timeBase().value()
-                    << ")\n"
-                    << "Time Base  : "
-                    << this->timeBase().toString().toStdString().c_str()
-                    << "\n"
-                    << "Index      : "
-                    << this->index();
-
-    return packetInfo;
-}
-
-AkPacket AkVideoPacket::toPacket() const
-{
-    AkPacket packet;
-    packet.caps() =  this->d->m_caps.toCaps();
-    packet.buffer() = this->buffer();
-    packet.pts() = this->pts();
-    packet.timeBase() = this->timeBase();
-    packet.index() = this->index();
-    packet.id() = this->id();
-
-    return packet;
 }
 
 QImage AkVideoPacket::toImage() const
@@ -406,11 +435,11 @@ QImage AkVideoPacket::toImage() const
     QImage image(this->d->m_caps.width(),
                  this->d->m_caps.height(),
                  AkImageToFormat->key(this->d->m_caps.format()));
-    auto size = qMin(size_t(this->buffer().size()),
+    auto size = qMin(size_t(this->d->m_buffer.size()),
                      size_t(image.bytesPerLine()) * size_t(image.height()));
 
     if (size > 0)
-        memcpy(image.bits(), this->buffer().constData(), size);
+        memcpy(image.bits(), this->d->m_buffer.constData(), size);
 
     if (this->d->m_caps.format() == AkVideoCaps::Format_gray)
         for (int i = 0; i < 256; i++)
@@ -430,11 +459,11 @@ AkVideoPacket AkVideoPacket::fromImage(const QImage &image,
     memcpy(oBuffer.data(), image.constBits(), size_t(imageSize));
 
     AkVideoPacket packet;
-    packet.caps() = {AkImageToFormat->value(image.format()),
-                    image.width(),
-                    image.height(),
-                    defaultPacket.caps().fps()};
-    packet.buffer() = oBuffer;
+    packet.d->m_caps = {AkImageToFormat->value(image.format()),
+                        image.width(),
+                        image.height(),
+                        defaultPacket.caps().fps()};
+    packet.d->m_buffer = oBuffer;
     packet.copyMetadata(defaultPacket);
 
     return packet;
@@ -508,7 +537,7 @@ AkVideoPacket AkVideoPacket::realign(int align) const
     caps.setAlign(align);
     AkVideoPacket dst(caps);
     dst.copyMetadata(*this);
-    auto height = this->caps().height();
+    auto height = caps.height();
 
     for (int plane = 0; plane < caps.planes(); plane++) {
         auto bypl = qMin(caps.bytesPerLine(plane),
@@ -524,22 +553,6 @@ AkVideoPacket AkVideoPacket::realign(int align) const
     return dst;
 }
 
-void AkVideoPacket::copyMetadata(const AkPacket &other)
-{
-    this->pts() = other.pts();
-    this->timeBase() = other.timeBase();
-    this->index() = other.index();
-    this->id() = other.id();
-}
-
-void AkVideoPacket::copyMetadata(const AkVideoPacket &other)
-{
-    this->pts() = other.pts();
-    this->timeBase() = other.timeBase();
-    this->index() = other.index();
-    this->id() = other.id();
-}
-
 void AkVideoPacket::setCaps(const AkVideoCaps &caps)
 {
     if (this->d->m_caps == caps)
@@ -549,14 +562,100 @@ void AkVideoPacket::setCaps(const AkVideoCaps &caps)
     emit this->capsChanged(caps);
 }
 
+void AkVideoPacket::setBuffer(const QByteArray &buffer)
+{
+    if (this->d->m_buffer == buffer)
+        return;
+
+    this->d->m_buffer = buffer;
+    emit this->bufferChanged(buffer);
+}
+
+void AkVideoPacket::setId(qint64 id)
+{
+    if (this->d->m_id == id)
+        return;
+
+    this->d->m_id = id;
+    emit this->idChanged(id);
+}
+
+void AkVideoPacket::setPts(qint64 pts)
+{
+    if (this->d->m_pts == pts)
+        return;
+
+    this->d->m_pts = pts;
+    emit this->ptsChanged(pts);
+}
+
+void AkVideoPacket::setTimeBase(const AkFrac &timeBase)
+{
+    if (this->d->m_timeBase == timeBase)
+        return;
+
+    this->d->m_timeBase = timeBase;
+    emit this->timeBaseChanged(timeBase);
+}
+
+void AkVideoPacket::setIndex(int index)
+{
+    if (this->d->m_index == index)
+        return;
+
+    this->d->m_index = index;
+    emit this->indexChanged(index);
+}
+
 void AkVideoPacket::resetCaps()
 {
     this->setCaps(AkVideoCaps());
 }
 
+void AkVideoPacket::resetBuffer()
+{
+    this->setBuffer({});
+}
+
+void AkVideoPacket::resetId()
+{
+    this->setId(-1);
+}
+
+void AkVideoPacket::resetPts()
+{
+    this->setPts(0);
+}
+
+void AkVideoPacket::resetTimeBase()
+{
+    this->setTimeBase({});
+}
+
+void AkVideoPacket::resetIndex()
+{
+    this->setIndex(-1);
+}
+
 QDebug operator <<(QDebug debug, const AkVideoPacket &packet)
 {
-    debug.nospace() << packet.toString().toStdString().c_str();
+    debug.nospace() << "AkVideoPacket("
+                    << "caps="
+                    << packet.caps()
+                    << ",bufferSize="
+                    << packet.buffer().size()
+                    << ",id="
+                    << packet.id()
+                    << ",pts="
+                    << packet.pts()
+                    << "("
+                    << packet.pts() * packet.timeBase().value()
+                    << ")"
+                    << ",timeBase="
+                    << packet.timeBase()
+                    << ",index="
+                    << packet.index()
+                    << ")";
 
     return debug.space();
 }

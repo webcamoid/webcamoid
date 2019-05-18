@@ -29,6 +29,8 @@
 #include <QAndroidJniObject>
 #include <ak.h>
 #include <akcaps.h>
+#include <akfrac.h>
+#include <akpacket.h>
 #include <akvideopacket.h>
 
 #include "captureandroidcamera.h"
@@ -492,7 +494,8 @@ AkPacket CaptureAndroidCamera::readFrame()
                this->d->m_curBuffer.constData(),
                size_t(bufferSize));
 
-        packet = AkPacket(this->d->m_caps, oBuffer);
+        packet = AkPacket(this->d->m_caps);
+        packet.setBuffer(oBuffer);
         packet.setPts(pts);
         packet.setTimeBase(this->d->m_timeBase);
         packet.setIndex(0);

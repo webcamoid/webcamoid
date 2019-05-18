@@ -676,8 +676,7 @@ void CaptureLibUVCPrivate::frameCallback(uvc_frame *frame, void *userData)
 
     self->d->m_mutex.lock();
 
-    AkCaps caps;
-    caps.setMimeType("video/unknown");
+    AkCaps caps("video/unknown");
     caps.setProperty("fourcc", pixFmtToStr->value(frame->frame_format));
     caps.setProperty("width", frame->width);
     caps.setProperty("height", frame->height);
@@ -689,7 +688,8 @@ void CaptureLibUVCPrivate::frameCallback(uvc_frame *frame, void *userData)
     auto pts = qint64(QTime::currentTime().msecsSinceStartOfDay()
                       * self->d->m_fps.value() / 1e3);
 
-    AkPacket packet(caps, buffer);
+    AkPacket packet(caps);
+    packet.setBuffer(buffer);
     packet.setPts(pts);
     packet.setTimeBase(self->d->m_fps.invert());
     packet.setIndex(0);

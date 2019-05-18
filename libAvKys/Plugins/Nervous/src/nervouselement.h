@@ -52,6 +52,7 @@ class NervousElement: public AkElement
         QString controlInterfaceProvide(const QString &controlId) const;
         void controlInterfaceConfigure(QQmlContext *context,
                                        const QString &controlId) const;
+        AkPacket iVideoStream(const AkVideoPacket &packet);
 
     signals:
         void nFramesChanged(int nFrames);
@@ -62,7 +63,6 @@ class NervousElement: public AkElement
         void setSimple(bool simple);
         void resetNFrames();
         void resetSimple();
-        AkPacket iStream(const AkPacket &packet);
 };
 
 #endif // NERVOUSELEMENT_H

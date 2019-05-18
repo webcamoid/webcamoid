@@ -60,6 +60,8 @@ class AKCOMMONS_EXPORT AkFrac: public QObject
         bool operator ==(const AkFrac &other) const;
         bool operator !=(const AkFrac &other) const;
         AkFrac operator *(const AkFrac &other) const;
+        operator bool() const;
+        operator QString() const;
 
         Q_INVOKABLE qint64 num() const;
         Q_INVOKABLE qint64 den() const;
@@ -73,11 +75,11 @@ class AKCOMMONS_EXPORT AkFrac: public QObject
         AkFracPrivate *d;
 
     Q_SIGNALS:
-        void numChanged();
-        void denChanged();
-        void isValidChanged();
-        void valueChanged();
-        void stringChanged();
+        void numChanged(qint64 num);
+        void denChanged(qint64 den);
+        void isValidChanged(bool valid);
+        void valueChanged(qreal value);
+        void stringChanged(const QString &string);
 
     public Q_SLOTS:
         void setNumDen(qint64 num, qint64 den);
@@ -86,24 +88,16 @@ class AKCOMMONS_EXPORT AkFrac: public QObject
         void setDen(qint64 den);
         void resetNum();
         void resetDen();
-
-    friend QDebug operator <<(QDebug debug, const AkFrac &frac);
-    friend QDataStream &operator >>(QDataStream &istream, AkFrac &frac);
-    friend QDataStream &operator <<(QDataStream &ostream, const AkFrac &frac);
-    friend AkFrac operator *(int number, const AkFrac &frac);
-    friend AkFrac operator /(const AkFrac &fracNum, const AkFrac &fracDen);
-    friend AkFrac operator +(const AkFrac &frac1, const AkFrac &frac2);
-    friend AkFrac operator -(const AkFrac &frac1, const AkFrac &frac2);
 };
 
-QDebug operator <<(QDebug debug, const AkFrac &frac);
-QDataStream &operator >>(QDataStream &istream, AkFrac &frac);
-QDataStream &operator <<(QDataStream &ostream, const AkFrac &frac);
-AkFrac operator *(int number, const AkFrac &frac);
-AkFrac operator /(int number, const AkFrac &frac);
-AkFrac operator /(const AkFrac &fracNum, const AkFrac &fracDen);
-AkFrac operator +(const AkFrac &frac1, const AkFrac &frac2);
-AkFrac operator -(const AkFrac &frac1, const AkFrac &frac2);
+AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, const AkFrac &frac);
+AKCOMMONS_EXPORT QDataStream &operator >>(QDataStream &istream, AkFrac &frac);
+AKCOMMONS_EXPORT QDataStream &operator <<(QDataStream &ostream, const AkFrac &frac);
+AKCOMMONS_EXPORT AkFrac operator *(int number, const AkFrac &frac);
+AKCOMMONS_EXPORT AkFrac operator /(int number, const AkFrac &frac);
+AKCOMMONS_EXPORT AkFrac operator /(const AkFrac &fracNum, const AkFrac &fracDen);
+AKCOMMONS_EXPORT AkFrac operator +(const AkFrac &frac1, const AkFrac &frac2);
+AKCOMMONS_EXPORT AkFrac operator -(const AkFrac &frac1, const AkFrac &frac2);
 
 Q_DECLARE_METATYPE(AkFrac)
 

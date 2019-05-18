@@ -46,6 +46,7 @@ class QuarkElement: public AkElement
         QString controlInterfaceProvide(const QString &controlId) const;
         void controlInterfaceConfigure(QQmlContext *context,
                                        const QString &controlId) const;
+        AkPacket iVideoStream(const AkVideoPacket &packet);
 
     signals:
         void nFramesChanged(int nFrames);
@@ -53,8 +54,6 @@ class QuarkElement: public AkElement
     public slots:
         void setNFrames(int nFrames);
         void resetNFrames();
-
-        AkPacket iStream(const AkPacket &packet);
 };
 
 #endif // QUARKELEMENT_H

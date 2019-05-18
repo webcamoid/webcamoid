@@ -70,6 +70,7 @@ class EdgeElement: public AkElement
         QString controlInterfaceProvide(const QString &controlId) const;
         void controlInterfaceConfigure(QQmlContext *context,
                                        const QString &controlId) const;
+        AkPacket iVideoStream(const AkVideoPacket &packet);
 
     signals:
         void cannyChanged(bool canny);
@@ -89,7 +90,6 @@ class EdgeElement: public AkElement
         void resetThHi();
         void resetEqualize();
         void resetInvert();
-        AkPacket iStream(const AkPacket &packet);
 };
 
 #endif // EDGEELEMENT_H

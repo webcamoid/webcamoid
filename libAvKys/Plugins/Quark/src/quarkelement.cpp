@@ -19,6 +19,7 @@
 
 #include <QImage>
 #include <QQmlContext>
+#include <akpacket.h>
 #include <akvideopacket.h>
 
 #include "quarkelement.h"
@@ -61,24 +62,9 @@ void QuarkElement::controlInterfaceConfigure(QQmlContext *context, const QString
     context->setContextProperty("controlId", this->objectName());
 }
 
-void QuarkElement::setNFrames(int nFrames)
+AkPacket QuarkElement::iVideoStream(const AkVideoPacket &packet)
 {
-    if (this->d->m_nFrames == nFrames)
-        return;
-
-    this->d->m_nFrames = nFrames;
-    emit this->nFramesChanged(nFrames);
-}
-
-void QuarkElement::resetNFrames()
-{
-    this->setNFrames(16);
-}
-
-AkPacket QuarkElement::iStream(const AkPacket &packet)
-{
-    AkVideoPacket videoPacket(packet);
-    auto src = videoPacket.toImage();
+    auto src = packet.toImage();
 
     if (src.isNull())
         return AkPacket();
@@ -107,8 +93,22 @@ AkPacket QuarkElement::iStream(const AkPacket &packet)
         }
     }
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
+    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
     akSend(oPacket)
+}
+
+void QuarkElement::setNFrames(int nFrames)
+{
+    if (this->d->m_nFrames == nFrames)
+        return;
+
+    this->d->m_nFrames = nFrames;
+    emit this->nFramesChanged(nFrames);
+}
+
+void QuarkElement::resetNFrames()
+{
+    this->setNFrames(16);
 }
 
 #include "moc_quarkelement.cpp"

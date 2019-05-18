@@ -20,8 +20,8 @@
 #include <QThread>
 #include <akfrac.h>
 #include <akcaps.h>
-#include <akvideocaps.h>
 #include <akpacket.h>
+#include <akvideocaps.h>
 #include <akvideopacket.h>
 
 extern "C"
@@ -87,7 +87,7 @@ AkCaps VideoStream::caps() const
     return AkVideoCaps(AkVideoCaps::Format_rgb24,
                        this->codecContext()->width,
                        this->codecContext()->height,
-                       this->d->fps()).toCaps();
+                       this->d->fps());
 }
 
 void VideoStream::processPacket(AVPacket *packet)
@@ -166,7 +166,7 @@ void VideoStream::processData(AVFrame *frame)
             this->globalClock()->setClock(pts);
 
         this->m_clockDiff = diff;
-        AkPacket oPacket = this->d->convert(frame);
+        auto oPacket = this->d->convert(frame);
         emit this->oStream(oPacket);
         emit this->frameSent();
 
@@ -272,7 +272,7 @@ AkPacket VideoStreamPrivate::convert(AVFrame *iFrame)
     oPacket.index() = int(self->index());
     oPacket.id() = self->id();
 
-    return oPacket.toPacket();
+    return oPacket;
 }
 
 int64_t VideoStreamPrivate::bestEffortTimestamp(const AVFrame *frame) const

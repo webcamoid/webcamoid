@@ -46,6 +46,7 @@ class ColorTransformElement: public AkElement
         QString controlInterfaceProvide(const QString &controlId) const;
         void controlInterfaceConfigure(QQmlContext *context,
                                        const QString &controlId) const;
+        AkPacket iVideoStream(const AkVideoPacket &packet);
 
     signals:
         void kernelChanged(const QVariantList &kernel);
@@ -53,7 +54,6 @@ class ColorTransformElement: public AkElement
     public slots:
         void setKernel(const QVariantList &kernel);
         void resetKernel();
-        AkPacket iStream(const AkPacket &packet);
 };
 
 #endif // COLORTRANSFORMELEMENT_H

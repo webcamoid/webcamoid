@@ -21,10 +21,10 @@
 #define AUDIOLAYER_H
 
 #include <akelement.h>
+#include <akaudiocaps.h>
 
 class AudioLayerPrivate;
 class AudioLayer;
-class AkCaps;
 class AkAudioCaps;
 class QQmlApplicationEngine;
 
@@ -49,20 +49,20 @@ class AudioLayer: public QObject
     Q_PROPERTY(QStringList outputs
                READ outputs
                NOTIFY outputsChanged)
-    Q_PROPERTY(AkCaps inputCaps
+    Q_PROPERTY(AkAudioCaps inputCaps
                READ inputCaps
                WRITE setInputCaps
                RESET resetInputCaps
                NOTIFY inputCapsChanged)
-    Q_PROPERTY(AkCaps outputCaps
+    Q_PROPERTY(AkAudioCaps outputCaps
                READ outputCaps
                NOTIFY outputCapsChanged)
-    Q_PROPERTY(AkCaps inputDeviceCaps
+    Q_PROPERTY(AkAudioCaps inputDeviceCaps
                READ inputDeviceCaps
                WRITE setInputDeviceCaps
                RESET resetInputDeviceCaps
                NOTIFY inputDeviceCapsChanged)
-    Q_PROPERTY(AkCaps outputDeviceCaps
+    Q_PROPERTY(AkAudioCaps outputDeviceCaps
                READ outputDeviceCaps
                WRITE setOutputDeviceCaps
                RESET resetOutputDeviceCaps
@@ -92,18 +92,18 @@ class AudioLayer: public QObject
         Q_INVOKABLE QString audioOutput() const;
         Q_INVOKABLE QStringList inputs() const;
         Q_INVOKABLE QStringList outputs() const;
-        Q_INVOKABLE AkCaps inputCaps() const;
-        Q_INVOKABLE AkCaps outputCaps() const;
-        Q_INVOKABLE AkCaps inputDeviceCaps() const;
-        Q_INVOKABLE AkCaps outputDeviceCaps() const;
+        Q_INVOKABLE AkAudioCaps inputCaps() const;
+        Q_INVOKABLE AkAudioCaps outputCaps() const;
+        Q_INVOKABLE AkAudioCaps inputDeviceCaps() const;
+        Q_INVOKABLE AkAudioCaps outputDeviceCaps() const;
         Q_INVOKABLE QString inputDescription() const;
         Q_INVOKABLE QString description(const QString &device) const;
         Q_INVOKABLE AkElement::ElementState inputState() const;
         Q_INVOKABLE AkElement::ElementState outputState() const;
         Q_INVOKABLE AkAudioCaps preferredFormat(const QString &device);
-        Q_INVOKABLE QStringList supportedFormats(const QString &device);
-        Q_INVOKABLE QList<int> supportedChannels(const QString &device);
-        Q_INVOKABLE QList<int> supportedSampleRates(const QString &device);
+        Q_INVOKABLE QList<AkAudioCaps::SampleFormat> supportedFormats(const QString &device) const;
+        Q_INVOKABLE QList<AkAudioCaps::ChannelLayout> supportedChannelLayouts(const QString &device) const;
+        Q_INVOKABLE QList<int> supportedSampleRates(const QString &device) const;
 
     private:
         AudioLayerPrivate *d;
@@ -113,10 +113,10 @@ class AudioLayer: public QObject
         void audioOutputChanged(const QString &audioOutput);
         void inputsChanged(const QStringList &inputs);
         void outputsChanged(const QStringList &outputs);
-        void inputCapsChanged(const AkCaps &inputCaps);
-        void outputCapsChanged(const AkCaps &outputCaps);
-        void inputDeviceCapsChanged(const AkCaps &inputDeviceCaps);
-        void outputDeviceCapsChanged(const AkCaps &outputDeviceCaps);
+        void inputCapsChanged(const AkAudioCaps &inputCaps);
+        void outputCapsChanged(const AkAudioCaps &outputCaps);
+        void inputDeviceCapsChanged(const AkAudioCaps &inputDeviceCaps);
+        void outputDeviceCapsChanged(const AkAudioCaps &outputDeviceCaps);
         void inputDescriptionChanged(const QString &inputDescription);
         void inputStateChanged(AkElement::ElementState inputState);
         void outputStateChanged(AkElement::ElementState outputState);
@@ -125,9 +125,9 @@ class AudioLayer: public QObject
     public slots:
         void setAudioInput(const QStringList &audioInput);
         void setAudioOutput(const QString &audioOutput);
-        void setInputCaps(const AkCaps &inputCaps);
-        void setInputDeviceCaps(const AkCaps &inputDeviceCaps);
-        void setOutputDeviceCaps(const AkCaps &outputDeviceCaps);
+        void setInputCaps(const AkAudioCaps &inputCaps);
+        void setInputDeviceCaps(const AkAudioCaps &inputDeviceCaps);
+        void setOutputDeviceCaps(const AkAudioCaps &outputDeviceCaps);
         void setInputDescription(const QString &inputDescription);
         void setInputState(AkElement::ElementState inputState);
         bool setOutputState(AkElement::ElementState outputState);

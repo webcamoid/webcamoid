@@ -100,6 +100,7 @@ class VirtualCameraElement: public AkElement
         QString controlInterfaceProvide(const QString &controlId) const;
         void controlInterfaceConfigure(QQmlContext *context,
                                        const QString &controlId) const;
+        AkPacket iVideoStream(const AkVideoPacket &packet);
 
     signals:
         void driverPathsChanged(const QStringList &driverPaths);
@@ -129,7 +130,6 @@ class VirtualCameraElement: public AkElement
         void clearStreams();
 
         bool setState(AkElement::ElementState state);
-        AkPacket iStream(const AkPacket &packet);
 
     private slots:
         void rootMethodUpdated(const QString &rootMethod);

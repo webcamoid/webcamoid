@@ -20,6 +20,7 @@
 #include <QImage>
 #include <QQmlContext>
 #include <QtMath>
+#include <akpacket.h>
 #include <akvideopacket.h>
 
 #include "temperatureelement.h"
@@ -73,6 +74,37 @@ void TemperatureElement::controlInterfaceConfigure(QQmlContext *context,
     context->setContextProperty("controlId", this->objectName());
 }
 
+AkPacket TemperatureElement::iVideoStream(const AkVideoPacket &packet)
+{
+    auto src = packet.toImage();
+
+    if (src.isNull())
+        return AkPacket();
+
+    src = src.convertToFormat(QImage::Format_ARGB32);
+    QImage oFrame(src.size(), src.format());
+
+    for (int y = 0; y < src.height(); y++) {
+        auto srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
+        auto destLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
+
+        for (int x = 0; x < src.width(); x++) {
+            int r = int(this->d->m_kr * qRed(srcLine[x]));
+            int g = int(this->d->m_kg * qGreen(srcLine[x]));
+            int b = int(this->d->m_kb * qBlue(srcLine[x]));
+
+            r = qBound(0, r, 255);
+            g = qBound(0, g, 255);
+            b = qBound(0, b, 255);
+
+            destLine[x] = qRgba(r, g, b, qAlpha(srcLine[x]));
+        }
+    }
+
+    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
+    akSend(oPacket)
+}
+
 void TemperatureElement::setTemperature(qreal temperature)
 {
     if (qFuzzyCompare(this->d->m_temperature, temperature))
@@ -89,38 +121,6 @@ void TemperatureElement::setTemperature(qreal temperature)
 void TemperatureElement::resetTemperature()
 {
     this->setTemperature(6500);
-}
-
-AkPacket TemperatureElement::iStream(const AkPacket &packet)
-{
-    AkVideoPacket videoPacket(packet);
-    auto src = videoPacket.toImage();
-
-    if (src.isNull())
-        return AkPacket();
-
-    src = src.convertToFormat(QImage::Format_ARGB32);
-    QImage oFrame(src.size(), src.format());
-
-    for (int y = 0; y < src.height(); y++) {
-        const QRgb *srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
-        QRgb *destLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
-
-        for (int x = 0; x < src.width(); x++) {
-            int r = int(this->d->m_kr * qRed(srcLine[x]));
-            int g = int(this->d->m_kg * qGreen(srcLine[x]));
-            int b = int(this->d->m_kb * qBlue(srcLine[x]));
-
-            r = qBound(0, r, 255);
-            g = qBound(0, g, 255);
-            b = qBound(0, b, 255);
-
-            destLine[x] = qRgba(r, g, b, qAlpha(srcLine[x]));
-        }
-    }
-
-    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
-    akSend(oPacket)
 }
 
 void TemperatureElementPrivate::colorFromTemperature(qreal temperature,

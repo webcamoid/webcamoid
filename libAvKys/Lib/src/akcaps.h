@@ -31,8 +31,6 @@ class AKCOMMONS_EXPORT AkCaps: public QObject
 {
     Q_OBJECT
     Q_ENUMS(CapsType)
-    Q_PROPERTY(bool isValid
-               READ isValid)
     Q_PROPERTY(QString mimeType
                READ mimeType
                WRITE setMimeType
@@ -48,26 +46,17 @@ class AKCOMMONS_EXPORT AkCaps: public QObject
             CapsSubtitle
         };
 
-        AkCaps(QObject *parent=nullptr);
-        AkCaps(const QVariantMap &caps);
-        AkCaps(const QString &caps);
+        AkCaps(const QString &mimeType={}, QObject *parent=nullptr);
         AkCaps(const AkCaps &other);
         virtual ~AkCaps();
         AkCaps &operator =(const AkCaps &other);
-        AkCaps &operator =(const QString &other);
         bool operator ==(const AkCaps &other) const;
-        bool operator ==(const QString &caps) const;
         bool operator !=(const AkCaps &other) const;
-        bool operator !=(const QString &caps) const;
         operator bool() const;
 
-        Q_INVOKABLE virtual bool isValid() const;
-        Q_INVOKABLE virtual bool &isValid();
         Q_INVOKABLE virtual QString mimeType() const;
-        Q_INVOKABLE AkCaps &fromMap(const QVariantMap &caps);
-        Q_INVOKABLE AkCaps &fromString(const QString &caps);
+        Q_INVOKABLE static AkCaps fromMap(const QVariantMap &caps);
         Q_INVOKABLE QVariantMap toMap() const;
-        Q_INVOKABLE virtual QString toString() const;
         Q_INVOKABLE AkCaps &update(const AkCaps &other);
         Q_INVOKABLE bool isCompatible(const AkCaps &other) const;
         Q_INVOKABLE bool contains(const QString &property) const;
@@ -82,15 +71,11 @@ class AKCOMMONS_EXPORT AkCaps: public QObject
         virtual void setMimeType(const QString &mimeType);
         virtual void resetMimeType();
         void clear();
-
-    friend QDebug operator <<(QDebug debug, const AkCaps &caps);
-    friend QDataStream &operator >>(QDataStream &istream, AkCaps &caps);
-    friend QDataStream &operator <<(QDataStream &ostream, const AkCaps &caps);
 };
 
-QDebug operator <<(QDebug debug, const AkCaps &caps);
-QDataStream &operator >>(QDataStream &istream, AkCaps &caps);
-QDataStream &operator <<(QDataStream &ostream, const AkCaps &caps);
+AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, const AkCaps &caps);
+AKCOMMONS_EXPORT QDataStream &operator >>(QDataStream &istream, AkCaps &caps);
+AKCOMMONS_EXPORT QDataStream &operator <<(QDataStream &ostream, const AkCaps &caps);
 
 Q_DECLARE_METATYPE(AkCaps)
 Q_DECLARE_METATYPE(AkCaps::CapsType)

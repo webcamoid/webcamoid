@@ -119,6 +119,7 @@ class MatrixElement: public AkElement
         QString controlInterfaceProvide(const QString &controlId) const;
         void controlInterfaceConfigure(QQmlContext *context,
                                        const QString &controlId) const;
+        AkPacket iVideoStream(const AkVideoPacket &packet);
 
     signals:
         void nDropsChanged(int nDrops);
@@ -162,8 +163,6 @@ class MatrixElement: public AkElement
         void resetMinSpeed();
         void resetMaxSpeed();
         void resetShowCursor();
-
-        AkPacket iStream(const AkPacket &packet);
 
     private slots:
         void updateCharTable();

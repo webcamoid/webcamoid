@@ -20,13 +20,13 @@
 #ifndef AKAUDIOPACKET_H
 #define AKAUDIOPACKET_H
 
-#include "akpacket.h"
 #include "akaudiocaps.h"
 
 class AkAudioPacketPrivate;
-class AkAudioCaps;
+class AkPacket;
+class AkFrac;
 
-class AKCOMMONS_EXPORT AkAudioPacket: public AkPacket
+class AKCOMMONS_EXPORT AkAudioPacket: public QObject
 {
     Q_OBJECT
     Q_PROPERTY(AkAudioCaps caps
@@ -34,6 +34,31 @@ class AKCOMMONS_EXPORT AkAudioPacket: public AkPacket
                WRITE setCaps
                RESET resetCaps
                NOTIFY capsChanged)
+    Q_PROPERTY(QByteArray buffer
+               READ buffer
+               WRITE setBuffer
+               RESET resetBuffer
+               NOTIFY bufferChanged)
+    Q_PROPERTY(qint64 id
+               READ id
+               WRITE setId
+               RESET resetId
+               NOTIFY idChanged)
+    Q_PROPERTY(qint64 pts
+               READ pts
+               WRITE setPts
+               RESET resetPts
+               NOTIFY ptsChanged)
+    Q_PROPERTY(AkFrac timeBase
+               READ timeBase
+               WRITE setTimeBase
+               RESET resetTimeBase
+               NOTIFY timeBaseChanged)
+    Q_PROPERTY(int index
+               READ index
+               WRITE setIndex
+               RESET resetIndex
+               NOTIFY indexChanged)
 
     public:
         AkAudioPacket(QObject *parent=nullptr);
@@ -46,13 +71,24 @@ class AKCOMMONS_EXPORT AkAudioPacket: public AkPacket
         AkAudioPacket operator +(const AkAudioPacket &other);
         AkAudioPacket& operator +=(const AkAudioPacket &other);
         operator bool() const;
+        operator AkPacket() const;
 
         Q_INVOKABLE AkAudioCaps caps() const;
         Q_INVOKABLE AkAudioCaps &caps();
+        Q_INVOKABLE QByteArray buffer() const;
+        Q_INVOKABLE QByteArray &buffer();
+        Q_INVOKABLE qint64 id() const;
+        Q_INVOKABLE qint64 &id();
+        Q_INVOKABLE qint64 pts() const;
+        Q_INVOKABLE qint64 &pts();
+        Q_INVOKABLE AkFrac timeBase() const;
+        Q_INVOKABLE AkFrac &timeBase();
+        Q_INVOKABLE int index() const;
+        Q_INVOKABLE int &index();
+        Q_INVOKABLE void copyMetadata(const AkAudioPacket &other);
+
         Q_INVOKABLE const quint8 *constPlaneData(int plane) const;
         Q_INVOKABLE quint8 *planeData(int plane);
-        Q_INVOKABLE QString toString() const;
-        Q_INVOKABLE AkPacket toPacket() const;
         Q_INVOKABLE static bool canConvert(AkAudioCaps::SampleFormat input,
                                            AkAudioCaps::SampleFormat output);
         Q_INVOKABLE bool canConvert(AkAudioCaps::SampleFormat output) const;
@@ -67,23 +103,34 @@ class AKCOMMONS_EXPORT AkAudioPacket: public AkPacket
         Q_INVOKABLE AkAudioPacket convertPlanar(bool planar) const;
         Q_INVOKABLE AkAudioPacket convertPlanar(bool planar, int align) const;
         Q_INVOKABLE AkAudioPacket realign(int align) const;
-        Q_INVOKABLE void copyMetadata(const AkPacket &other);
-        Q_INVOKABLE void copyMetadata(const AkAudioPacket &other);
 
     private:
         AkAudioPacketPrivate *d;
 
     Q_SIGNALS:
         void capsChanged(const AkAudioCaps &caps);
+        void bufferChanged(const QByteArray &buffer);
+        void idChanged(qint64 id);
+        void ptsChanged(qint64 pts);
+        void timeBaseChanged(const AkFrac &timeBase);
+        void indexChanged(int index);
 
     public Q_SLOTS:
         void setCaps(const AkAudioCaps &caps);
+        void setBuffer(const QByteArray &buffer);
+        void setId(qint64 id);
+        void setPts(qint64 pts);
+        void setTimeBase(const AkFrac &timeBase);
+        void setIndex(int index);
         void resetCaps();
-
-        friend QDebug operator <<(QDebug debug, const AkAudioPacket &packet);
+        void resetBuffer();
+        void resetId();
+        void resetPts();
+        void resetTimeBase();
+        void resetIndex();
 };
 
-QDebug operator <<(QDebug debug, const AkAudioPacket &packet);
+AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, const AkAudioPacket &packet);
 
 Q_DECLARE_METATYPE(AkAudioPacket)
 

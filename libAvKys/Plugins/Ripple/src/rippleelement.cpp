@@ -21,6 +21,7 @@
 #include <QImage>
 #include <QQmlContext>
 #include <akcaps.h>
+#include <akpacket.h>
 #include <akvideopacket.h>
 
 #include "rippleelement.h"
@@ -383,6 +384,70 @@ void RippleElement::controlInterfaceConfigure(QQmlContext *context,
     context->setContextProperty("controlId", this->objectName());
 }
 
+AkPacket RippleElement::iVideoStream(const AkVideoPacket &packet)
+{
+    auto src = packet.toImage();
+
+    if (src.isNull())
+        return AkPacket();
+
+    src = src.convertToFormat(QImage::Format_ARGB32);
+    QImage oFrame(src.size(), src.format());
+
+    if (packet.caps() != this->d->m_caps) {
+        this->d->m_prevFrame = QImage();
+        this->d->m_period = 0;
+        this->d->m_rainStat = 0;
+        this->d->m_dropProb = 0;
+        this->d->m_dropProbIncrement = 0;
+        this->d->m_dropsPerFrameMax = 0;
+        this->d->m_dropsPerFrame = 0;
+        this->d->m_dropPower = 0;
+        this->d->m_caps = packet.caps();
+    }
+
+    if (this->d->m_prevFrame.isNull()) {
+        oFrame = src;
+        this->d->m_rippleBuffer.clear();
+        this->d->m_rippleBuffer << QImage(src.size(), src.format());
+        this->d->m_rippleBuffer[0].fill(qRgba(0, 0, 0, 0));
+        this->d->m_rippleBuffer << QImage(src.size(), src.format());
+        this->d->m_rippleBuffer[1].fill(qRgba(0, 0, 0, 0));
+        this->d->m_curRippleBuffer = 0;
+    } else {
+        QImage drops;
+
+        if (this->d->m_mode == RippleModeMotionDetect)
+            // Compute the difference between previous and current frame,
+            // and save it to the buffer.
+            drops = this->d->imageDiff(this->d->m_prevFrame,
+                                       src,
+                                       this->d->m_threshold,
+                                       this->d->m_lumaThreshold,
+                                       this->d->m_amplitude);
+        else
+            drops = this->d->rainDrop(src.width(),
+                                      src.height(),
+                                      this->d->m_amplitude);
+
+        this->d->addDrops(this->d->m_rippleBuffer[this->d->m_curRippleBuffer], drops);
+        this->d->addDrops(this->d->m_rippleBuffer[1 - this->d->m_curRippleBuffer], drops);
+
+        this->d->ripple(this->d->m_rippleBuffer[this->d->m_curRippleBuffer],
+                        this->d->m_rippleBuffer[1 - this->d->m_curRippleBuffer],
+                        this->d->m_decay);
+
+        // Apply buffer.
+        oFrame = this->d->applyWater(src,
+                                     this->d->m_rippleBuffer[this->d->m_curRippleBuffer]);
+        this->d->m_curRippleBuffer = 1 - this->d->m_curRippleBuffer;
+    }
+
+    this->d->m_prevFrame = src.copy();
+    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
+    akSend(oPacket)
+}
+
 void RippleElement::setMode(const QString &mode)
 {
     RippleMode modeEnum = rippleModeToStr->key(mode, RippleModeMotionDetect);
@@ -453,71 +518,6 @@ void RippleElement::resetThreshold()
 void RippleElement::resetLumaThreshold()
 {
     this->setLumaThreshold(15);
-}
-
-AkPacket RippleElement::iStream(const AkPacket &packet)
-{
-    AkVideoPacket videoPacket(packet);
-    auto src = videoPacket.toImage();
-
-    if (src.isNull())
-        return AkPacket();
-
-    src = src.convertToFormat(QImage::Format_ARGB32);
-    QImage oFrame(src.size(), src.format());
-
-    if (packet.caps() != this->d->m_caps) {
-        this->d->m_prevFrame = QImage();
-        this->d->m_period = 0;
-        this->d->m_rainStat = 0;
-        this->d->m_dropProb = 0;
-        this->d->m_dropProbIncrement = 0;
-        this->d->m_dropsPerFrameMax = 0;
-        this->d->m_dropsPerFrame = 0;
-        this->d->m_dropPower = 0;
-        this->d->m_caps = packet.caps();
-    }
-
-    if (this->d->m_prevFrame.isNull()) {
-        oFrame = src;
-        this->d->m_rippleBuffer.clear();
-        this->d->m_rippleBuffer << QImage(src.size(), src.format());
-        this->d->m_rippleBuffer[0].fill(qRgba(0, 0, 0, 0));
-        this->d->m_rippleBuffer << QImage(src.size(), src.format());
-        this->d->m_rippleBuffer[1].fill(qRgba(0, 0, 0, 0));
-        this->d->m_curRippleBuffer = 0;
-    } else {
-        QImage drops;
-
-        if (this->d->m_mode == RippleModeMotionDetect)
-            // Compute the difference between previous and current frame,
-            // and save it to the buffer.
-            drops = this->d->imageDiff(this->d->m_prevFrame,
-                                       src,
-                                       this->d->m_threshold,
-                                       this->d->m_lumaThreshold,
-                                       this->d->m_amplitude);
-        else
-            drops = this->d->rainDrop(src.width(),
-                                      src.height(),
-                                      this->d->m_amplitude);
-
-        this->d->addDrops(this->d->m_rippleBuffer[this->d->m_curRippleBuffer], drops);
-        this->d->addDrops(this->d->m_rippleBuffer[1 - this->d->m_curRippleBuffer], drops);
-
-        this->d->ripple(this->d->m_rippleBuffer[this->d->m_curRippleBuffer],
-                        this->d->m_rippleBuffer[1 - this->d->m_curRippleBuffer],
-                        this->d->m_decay);
-
-        // Apply buffer.
-        oFrame = this->d->applyWater(src,
-                                     this->d->m_rippleBuffer[this->d->m_curRippleBuffer]);
-        this->d->m_curRippleBuffer = 1 - this->d->m_curRippleBuffer;
-    }
-
-    this->d->m_prevFrame = src.copy();
-    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
-    akSend(oPacket)
 }
 
 #include "moc_rippleelement.cpp"

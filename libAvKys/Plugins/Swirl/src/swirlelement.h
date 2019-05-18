@@ -46,6 +46,7 @@ class SwirlElement: public AkElement
         QString controlInterfaceProvide(const QString &controlId) const;
         void controlInterfaceConfigure(QQmlContext *context,
                                        const QString &controlId) const;
+        AkPacket iVideoStream(const AkVideoPacket &packet);
 
     signals:
         void degreesChanged(qreal degrees);
@@ -53,7 +54,6 @@ class SwirlElement: public AkElement
     public slots:
         void setDegrees(qreal degrees);
         void resetDegrees();
-        AkPacket iStream(const AkPacket &packet);
 };
 
 #endif // SWIRLELEMENT_H

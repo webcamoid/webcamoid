@@ -52,6 +52,7 @@ class AgingElement: public AkElement
         QString controlInterfaceProvide(const QString &controlId) const;
         void controlInterfaceConfigure(QQmlContext *context,
                                        const QString &controlId) const;
+        AkPacket iVideoStream(const AkVideoPacket &packet);
 
     signals:
         void nScratchesChanged(int nScratches);
@@ -62,8 +63,6 @@ class AgingElement: public AkElement
         void setAddDust(bool addDust);
         void resetNScratches();
         void resetAddDust();
-
-        AkPacket iStream(const AkPacket &packet);
 };
 
 #endif // AGINGELEMENT_H

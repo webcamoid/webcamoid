@@ -26,7 +26,6 @@
 
 class AkAudioCapsPrivate;
 class AkCaps;
-class QDataStream;
 
 class AKCOMMONS_EXPORT AkAudioCaps: public QObject
 {
@@ -35,8 +34,6 @@ class AKCOMMONS_EXPORT AkAudioCaps: public QObject
     Q_ENUMS(SampleType)
     Q_ENUMS(Position)
     Q_ENUMS(ChannelLayout)
-    Q_PROPERTY(bool isValid
-               READ isValid)
     Q_PROPERTY(SampleFormat format
                READ format
                WRITE setFormat
@@ -71,11 +68,11 @@ class AKCOMMONS_EXPORT AkAudioCaps: public QObject
                WRITE setAlign
                RESET resetAlign
                NOTIFY alignChanged)
-    Q_PROPERTY(size_t frameSize
+    Q_PROPERTY(qsizetype frameSize
                READ frameSize)
     Q_PROPERTY(int planes
                READ planes)
-    Q_PROPERTY(size_t planeSize
+    Q_PROPERTY(qsizetype planeSize
                READ planeSize)
 
     public:
@@ -211,21 +208,16 @@ class AKCOMMONS_EXPORT AkAudioCaps: public QObject
                     int samples=0,
                     bool planar=false,
                     int align=1);
-        AkAudioCaps(const QVariantMap &caps);
-        AkAudioCaps(const QString &caps);
         AkAudioCaps(const AkCaps &caps);
         AkAudioCaps(const AkAudioCaps &other);
          ~AkAudioCaps();
         AkAudioCaps &operator =(const AkAudioCaps &other);
         AkAudioCaps &operator =(const AkCaps &caps);
-        AkAudioCaps &operator =(const QString &caps);
         bool operator ==(const AkAudioCaps &other) const;
         bool operator !=(const AkAudioCaps &other) const;
         operator bool() const;
         operator AkCaps() const;
 
-        Q_INVOKABLE bool isValid() const;
-        Q_INVOKABLE bool &isValid();
         Q_INVOKABLE SampleFormat format() const;
         Q_INVOKABLE ChannelLayout layout() const;
         Q_INVOKABLE int bps() const;
@@ -235,17 +227,14 @@ class AKCOMMONS_EXPORT AkAudioCaps: public QObject
         Q_INVOKABLE int samples() const;
         Q_INVOKABLE bool planar() const;
         Q_INVOKABLE int align() const;
-        Q_INVOKABLE size_t frameSize() const;
+        Q_INVOKABLE qsizetype frameSize() const;
 
-        Q_INVOKABLE AkAudioCaps &fromMap(const QVariantMap &caps);
-        Q_INVOKABLE AkAudioCaps &fromString(const QString &caps);
+        Q_INVOKABLE static AkAudioCaps fromMap(const QVariantMap &caps);
         Q_INVOKABLE QVariantMap toMap() const;
-        Q_INVOKABLE QString toString() const;
         Q_INVOKABLE AkAudioCaps &update(const AkCaps &caps);
-        Q_INVOKABLE AkCaps toCaps() const;
-        Q_INVOKABLE size_t planeOffset(int plane) const;
+        Q_INVOKABLE qsizetype planeOffset(int plane) const;
         Q_INVOKABLE int planes() const;
-        Q_INVOKABLE size_t planeSize() const;
+        Q_INVOKABLE qsizetype planeSize() const;
 
         Q_INVOKABLE static int bitsPerSample(SampleFormat sampleFormat);
         Q_INVOKABLE static int bitsPerSample(const QString &sampleFormat);
@@ -298,19 +287,23 @@ class AKCOMMONS_EXPORT AkAudioCaps: public QObject
         void resetPlanar();
         void resetAlign();
         void clear();
-
-        friend QDebug operator <<(QDebug debug, const AkAudioCaps &caps);
-        friend QDataStream &operator >>(QDataStream &istream, AkAudioCaps &caps);
-        friend QDataStream &operator <<(QDataStream &ostream, const AkAudioCaps &caps);
 };
 
-QDebug operator <<(QDebug debug, const AkAudioCaps &caps);
-QDataStream &operator >>(QDataStream &istream, AkAudioCaps &caps);
-QDataStream &operator <<(QDataStream &ostream, const AkAudioCaps &caps);
+AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, const AkAudioCaps &caps);
+AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, const AkAudioCaps::SampleFormat &format);
+AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, const AkAudioCaps::SampleType &sampleType);
+AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, const AkAudioCaps::Position &position);
+AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, const AkAudioCaps::ChannelLayout &layout);
+AKCOMMONS_EXPORT QDataStream &operator >>(QDataStream &istream, AkAudioCaps &caps);
+AKCOMMONS_EXPORT QDataStream &operator <<(QDataStream &ostream, const AkAudioCaps &caps);
 
 Q_DECLARE_METATYPE(AkAudioCaps)
 Q_DECLARE_METATYPE(AkAudioCaps::SampleFormat)
+Q_DECLARE_METATYPE(AkAudioCaps::SampleType)
+Q_DECLARE_METATYPE(AkAudioCaps::Position)
 Q_DECLARE_METATYPE(AkAudioCaps::ChannelLayout)
+Q_DECLARE_METATYPE(QList<AkAudioCaps::SampleFormat>)
+Q_DECLARE_METATYPE(QList<AkAudioCaps::ChannelLayout>)
 Q_DECLARE_OPERATORS_FOR_FLAGS(AkAudioCaps::Positions)
 
 #endif // AKAUDIOCAPS_H

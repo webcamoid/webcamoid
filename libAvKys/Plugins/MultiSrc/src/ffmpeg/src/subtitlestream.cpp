@@ -19,6 +19,7 @@
 
 #include <QVariant>
 #include <akcaps.h>
+#include <akfrac.h>
 #include <akpacket.h>
 
 extern "C"
@@ -39,7 +40,7 @@ SubtitleStream::SubtitleStream(const AVFormatContext *formatContext,
 
 AkCaps SubtitleStream::caps() const
 {
-    return AkCaps("text/x-raw");
+    return {"text/x-raw"};
 }
 
 void SubtitleStream::processPacket(AVPacket *packet)
@@ -74,8 +75,8 @@ void SubtitleStream::processPacket(AVPacket *packet)
     QByteArray oBuffer(packet->size, 0);
     memcpy(oBuffer.data(), packet->data, size_t(packet->size));
 
-    AkPacket oPacket(caps, oBuffer);
-
+    AkPacket oPacket(caps);
+    oPacket.setBuffer(oBuffer);
     oPacket.setPts(packet->pts);
     oPacket.setTimeBase(this->timeBase());
     oPacket.setIndex(int(this->index()));
@@ -167,7 +168,8 @@ void SubtitleStream::processData(AVSubtitle *subtitle)
             memcpy(oBuffer.data(), subtitle->rects[i]->ass, size_t(assLenght));
         }
 
-        AkPacket oPacket(caps, oBuffer);
+        AkPacket oPacket(caps);
+        oPacket.setBuffer(oBuffer);
         oPacket.setPts(subtitle->pts);
         oPacket.setTimeBase(this->timeBase());
         oPacket.setIndex(int(this->index()));

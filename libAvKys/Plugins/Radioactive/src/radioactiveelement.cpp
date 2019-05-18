@@ -20,6 +20,7 @@
 #include <QtMath>
 #include <QPainter>
 #include <QQmlContext>
+#include <akpacket.h>
 #include <akvideopacket.h>
 
 #include "radioactiveelement.h"
@@ -217,6 +218,78 @@ void RadioactiveElement::controlInterfaceConfigure(QQmlContext *context,
     context->setContextProperty("controlId", this->objectName());
 }
 
+AkPacket RadioactiveElement::iVideoStream(const AkVideoPacket &packet)
+{
+    auto src = packet.toImage();
+
+    if (src.isNull())
+        return AkPacket();
+
+    src = src.convertToFormat(QImage::Format_ARGB32);
+    QImage oFrame(src.size(), src.format());
+
+    if (src.size() != this->d->m_frameSize) {
+        this->d->m_blurZoomBuffer = QImage();
+        this->d->m_prevFrame = QImage();
+        this->d->m_frameSize = src.size();
+    }
+
+    if (this->d->m_prevFrame.isNull()) {
+        oFrame = src;
+        this->d->m_blurZoomBuffer = QImage(src.size(), src.format());
+        this->d->m_blurZoomBuffer.fill(qRgba(0, 0, 0, 0));
+    } else {
+        // Compute the difference between previous and current frame,
+        // and save it to the buffer.
+        QImage diff =
+                this->d->imageDiff(this->d->m_prevFrame,
+                                   src,
+                                   this->d->m_threshold,
+                                   this->d->m_lumaThreshold,
+                                   this->d->m_radColor,
+                                   this->d->m_mode);
+
+        QPainter painter;
+        painter.begin(&this->d->m_blurZoomBuffer);
+        painter.drawImage(0, 0, diff);
+        painter.end();
+
+        // Blur buffer.
+        auto blurZoomPacket =
+                AkVideoPacket::fromImage(this->d->m_blurZoomBuffer, packet);
+        auto blurPacket = this->d->m_blurFilter->iStream(blurZoomPacket);
+        auto blur = AkVideoPacket(blurPacket).toImage();
+
+        // Zoom buffer.
+        QImage blurScaled = blur.scaled(this->d->m_zoom * blur.size());
+        QSize diffSize = blur.size() - blurScaled.size();
+        QPoint p(diffSize.width() >> 1,
+                 diffSize.height() >> 1);
+
+        QImage zoom(blur.size(), blur.format());
+        zoom.fill(qRgba(0, 0, 0, 0));
+
+        painter.begin(&zoom);
+        painter.drawImage(p, blurScaled);
+        painter.end();
+
+        // Reduce alpha.
+        QImage alphaDiff = this->d->imageAlphaDiff(zoom, this->d->m_alphaDiff);
+        this->d->m_blurZoomBuffer = alphaDiff;
+
+        // Apply buffer.
+        painter.begin(&oFrame);
+        painter.drawImage(0, 0, src);
+        painter.drawImage(0, 0, this->d->m_blurZoomBuffer);
+        painter.end();
+    }
+
+    this->d->m_prevFrame = src.copy();
+
+    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
+    akSend(oPacket)
+}
+
 void RadioactiveElement::setMode(const QString &mode)
 {
     RadiationMode modeEnum = radiationModeToStr->key(mode,
@@ -312,79 +385,6 @@ void RadioactiveElement::resetAlphaDiff()
 void RadioactiveElement::resetRadColor()
 {
     this->setRadColor(qRgb(0, 255, 0));
-}
-
-AkPacket RadioactiveElement::iStream(const AkPacket &packet)
-{
-    AkVideoPacket videoPacket(packet);
-    auto src = videoPacket.toImage();
-
-    if (src.isNull())
-        return AkPacket();
-
-    src = src.convertToFormat(QImage::Format_ARGB32);
-    QImage oFrame(src.size(), src.format());
-
-    if (src.size() != this->d->m_frameSize) {
-        this->d->m_blurZoomBuffer = QImage();
-        this->d->m_prevFrame = QImage();
-        this->d->m_frameSize = src.size();
-    }
-
-    if (this->d->m_prevFrame.isNull()) {
-        oFrame = src;
-        this->d->m_blurZoomBuffer = QImage(src.size(), src.format());
-        this->d->m_blurZoomBuffer.fill(qRgba(0, 0, 0, 0));
-    } else {
-        // Compute the difference between previous and current frame,
-        // and save it to the buffer.
-        QImage diff =
-                this->d->imageDiff(this->d->m_prevFrame,
-                                   src,
-                                   this->d->m_threshold,
-                                   this->d->m_lumaThreshold,
-                                   this->d->m_radColor,
-                                   this->d->m_mode);
-
-        QPainter painter;
-        painter.begin(&this->d->m_blurZoomBuffer);
-        painter.drawImage(0, 0, diff);
-        painter.end();
-
-        // Blur buffer.
-        auto blurZoomPacket = AkVideoPacket::fromImage(this->d->m_blurZoomBuffer,
-                                                       videoPacket);
-        auto blurPacket = this->d->m_blurFilter->iStream(blurZoomPacket.toPacket());
-        auto blur = AkVideoPacket(blurPacket).toImage();
-
-        // Zoom buffer.
-        QImage blurScaled = blur.scaled(this->d->m_zoom * blur.size());
-        QSize diffSize = blur.size() - blurScaled.size();
-        QPoint p(diffSize.width() >> 1,
-                 diffSize.height() >> 1);
-
-        QImage zoom(blur.size(), blur.format());
-        zoom.fill(qRgba(0, 0, 0, 0));
-
-        painter.begin(&zoom);
-        painter.drawImage(p, blurScaled);
-        painter.end();
-
-        // Reduce alpha.
-        QImage alphaDiff = this->d->imageAlphaDiff(zoom, this->d->m_alphaDiff);
-        this->d->m_blurZoomBuffer = alphaDiff;
-
-        // Apply buffer.
-        painter.begin(&oFrame);
-        painter.drawImage(0, 0, src);
-        painter.drawImage(0, 0, this->d->m_blurZoomBuffer);
-        painter.end();
-    }
-
-    this->d->m_prevFrame = src.copy();
-
-    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
-    akSend(oPacket)
 }
 
 #include "moc_radioactiveelement.cpp"

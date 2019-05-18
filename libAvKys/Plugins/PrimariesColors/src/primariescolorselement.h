@@ -46,6 +46,7 @@ class PrimariesColorsElement: public AkElement
         QString controlInterfaceProvide(const QString &controlId) const;
         void controlInterfaceConfigure(QQmlContext *context,
                                        const QString &controlId) const;
+        AkPacket iVideoStream(const AkVideoPacket &packet);
 
     signals:
         void factorChanged(int factor);
@@ -53,8 +54,6 @@ class PrimariesColorsElement: public AkElement
     public slots:
         void setFactor(int factor);
         void resetFactor();
-
-        AkPacket iStream(const AkPacket &packet);
 };
 
 #endif // PRIMARIESCOLORSELEMENT_H

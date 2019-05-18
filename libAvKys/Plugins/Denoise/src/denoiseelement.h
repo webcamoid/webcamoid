@@ -64,6 +64,7 @@ class DenoiseElement: public AkElement
         QString controlInterfaceProvide(const QString &controlId) const;
         void controlInterfaceConfigure(QQmlContext *context,
                                        const QString &controlId) const;
+        AkPacket iVideoStream(const AkVideoPacket &packet);
 
     signals:
         void radiusChanged(int radius);
@@ -80,7 +81,6 @@ class DenoiseElement: public AkElement
         void resetFactor();
         void resetMu();
         void resetSigma();
-        AkPacket iStream(const AkPacket &packet);
 };
 
 #endif // DENOISEELEMENT_H

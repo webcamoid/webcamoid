@@ -77,6 +77,7 @@ class RippleElement: public AkElement
         QString controlInterfaceProvide(const QString &controlId) const;
         void controlInterfaceConfigure(QQmlContext *context,
                                        const QString &controlId) const;
+        AkPacket iVideoStream(const AkVideoPacket &packet);
 
     signals:
         void modeChanged(const QString &mode);
@@ -96,8 +97,6 @@ class RippleElement: public AkElement
         void resetDecay();
         void resetThreshold();
         void resetLumaThreshold();
-
-        AkPacket iStream(const AkPacket &packet);
 };
 
 #endif // RIPPLEELEMENT_H

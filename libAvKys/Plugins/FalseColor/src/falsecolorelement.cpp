@@ -20,6 +20,8 @@
 #include <QImage>
 #include <QVariant>
 #include <QQmlContext>
+#include <akpacket.h>
+#include <akpacket.h>
 #include <akvideopacket.h>
 
 #include "falsecolorelement.h"
@@ -77,53 +79,12 @@ void FalseColorElement::controlInterfaceConfigure(QQmlContext *context,
     context->setContextProperty("controlId", this->objectName());
 }
 
-void FalseColorElement::setTable(const QVariantList &table)
-{
-    QList<QRgb> tableRgb;
-
-    for (const QVariant &color: table)
-        tableRgb << color.value<QRgb>();
-
-    if (this->d->m_table == tableRgb)
-        return;
-
-    this->d->m_table = tableRgb;
-    emit this->tableChanged(table);
-}
-
-void FalseColorElement::setSoft(bool soft)
-{
-    if (this->d->m_soft == soft)
-        return;
-
-    this->d->m_soft = soft;
-    emit this->softChanged(soft);
-}
-
-void FalseColorElement::resetTable()
-{
-    static const QVariantList table = {
-        qRgb(0, 0, 0),
-        qRgb(255, 0, 0),
-        qRgb(255, 255, 255),
-        qRgb(255, 255, 255)
-    };
-
-    this->setTable(table);
-}
-
-void FalseColorElement::resetSoft()
-{
-    this->setSoft(false);
-}
-
-AkPacket FalseColorElement::iStream(const AkPacket &packet)
+AkPacket FalseColorElement::iVideoStream(const AkVideoPacket &packet)
 {
     if (this->d->m_table.isEmpty())
         akSend(packet)
 
-    AkVideoPacket videoPacket(packet);
-    auto src = videoPacket.toImage();
+    auto src = packet.toImage();
 
     if (src.isNull())
         return AkPacket();
@@ -181,8 +142,48 @@ AkPacket FalseColorElement::iStream(const AkPacket &packet)
             dstLine[x] = table[srcLine[x]];
     }
 
-    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
+    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
     akSend(oPacket)
+}
+
+void FalseColorElement::setTable(const QVariantList &table)
+{
+    QList<QRgb> tableRgb;
+
+    for (const QVariant &color: table)
+        tableRgb << color.value<QRgb>();
+
+    if (this->d->m_table == tableRgb)
+        return;
+
+    this->d->m_table = tableRgb;
+    emit this->tableChanged(table);
+}
+
+void FalseColorElement::setSoft(bool soft)
+{
+    if (this->d->m_soft == soft)
+        return;
+
+    this->d->m_soft = soft;
+    emit this->softChanged(soft);
+}
+
+void FalseColorElement::resetTable()
+{
+    static const QVariantList table = {
+        qRgb(0, 0, 0),
+        qRgb(255, 0, 0),
+        qRgb(255, 255, 255),
+        qRgb(255, 255, 255)
+    };
+
+    this->setTable(table);
+}
+
+void FalseColorElement::resetSoft()
+{
+    this->setSoft(false);
 }
 
 #include "moc_falsecolorelement.cpp"

@@ -23,6 +23,7 @@
 #include <QImage>
 #include <QQmlContext>
 #include <akfrac.h>
+#include <akpacket.h>
 #include <akvideopacket.h>
 
 #include "convolveelement.h"
@@ -94,6 +95,77 @@ void ConvolveElement::controlInterfaceConfigure(QQmlContext *context,
     context->setContextProperty("controlId", this->objectName());
 }
 
+AkPacket ConvolveElement::iVideoStream(const AkVideoPacket &packet)
+{
+    auto src = packet.toImage();
+
+    if (src.isNull())
+        return AkPacket();
+
+    src = src.convertToFormat(QImage::Format_ARGB32);
+    QImage oFrame(src.size(), src.format());
+
+    this->d->m_mutex.lock();
+    QVector<int> kernel = this->d->m_kernel;
+    const int *kernelBits = kernel.constData();
+    qint64 factorNum = this->d->m_factor.num();
+    qint64 factorDen = this->d->m_factor.den();
+    int kernelWidth = this->d->m_kernelSize.width();
+    int kernelHeight = this->d->m_kernelSize.height();
+    this->d->m_mutex.unlock();
+
+    int minI = -(kernelWidth - 1) / 2;
+    int maxI = (kernelWidth + 1) / 2;
+    int minJ = -(kernelHeight - 1) / 2;
+    int maxJ = (kernelHeight + 1) / 2;
+
+    for (int y = 0; y < src.height(); y++) {
+        auto iLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
+        auto oLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
+
+        for (int x = 0; x < src.width(); x++) {
+            int r = 0;
+            int g = 0;
+            int b = 0;
+
+            for (int j = minJ, k = 0; j < maxJ; j++) {
+                int yp = qBound(0, y + j, src.height() - 1);
+                auto iLine =
+                        reinterpret_cast<const QRgb *>(src.constScanLine(yp));
+
+                for (int i = minI; i < maxI; i++, k++) {
+                    int xp = qBound(0, x + i, src.width() - 1);
+
+                    if (kernelBits[k]) {
+                        r += kernelBits[k] * qRed(iLine[xp]);
+                        g += kernelBits[k] * qGreen(iLine[xp]);
+                        b += kernelBits[k] * qBlue(iLine[xp]);
+                    }
+                }
+            }
+
+            if (factorNum) {
+                r = int(factorNum * r / factorDen + this->d->m_bias);
+                g = int(factorNum * g / factorDen + this->d->m_bias);
+                b = int(factorNum * b / factorDen + this->d->m_bias);
+
+                r = qBound(0, r, 255);
+                g = qBound(0, g, 255);
+                b = qBound(0, b, 255);
+            } else {
+                r = 255;
+                g = 255;
+                b = 255;
+            }
+
+            oLine[x] = qRgba(r, g, b, qAlpha(iLine[x]));
+        }
+    }
+
+    auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
+    akSend(oPacket)
+}
+
 void ConvolveElement::setKernel(const QVariantList &kernel)
 {
     QVector<int> k;
@@ -163,78 +235,6 @@ void ConvolveElement::resetFactor()
 void ConvolveElement::resetBias()
 {
     this->setBias(0);
-}
-
-AkPacket ConvolveElement::iStream(const AkPacket &packet)
-{
-    AkVideoPacket videoPacket(packet);
-    auto src = videoPacket.toImage();
-
-    if (src.isNull())
-        return AkPacket();
-
-    src = src.convertToFormat(QImage::Format_ARGB32);
-    QImage oFrame(src.size(), src.format());
-
-    this->d->m_mutex.lock();
-    QVector<int> kernel = this->d->m_kernel;
-    const int *kernelBits = kernel.constData();
-    qint64 factorNum = this->d->m_factor.num();
-    qint64 factorDen = this->d->m_factor.den();
-    int kernelWidth = this->d->m_kernelSize.width();
-    int kernelHeight = this->d->m_kernelSize.height();
-    this->d->m_mutex.unlock();
-
-    int minI = -(kernelWidth - 1) / 2;
-    int maxI = (kernelWidth + 1) / 2;
-    int minJ = -(kernelHeight - 1) / 2;
-    int maxJ = (kernelHeight + 1) / 2;
-
-    for (int y = 0; y < src.height(); y++) {
-        auto iLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
-        auto oLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
-
-        for (int x = 0; x < src.width(); x++) {
-            int r = 0;
-            int g = 0;
-            int b = 0;
-
-            for (int j = minJ, k = 0; j < maxJ; j++) {
-                int yp = qBound(0, y + j, src.height() - 1);
-                auto iLine =
-                        reinterpret_cast<const QRgb *>(src.constScanLine(yp));
-
-                for (int i = minI; i < maxI; i++, k++) {
-                    int xp = qBound(0, x + i, src.width() - 1);
-
-                    if (kernelBits[k]) {
-                        r += kernelBits[k] * qRed(iLine[xp]);
-                        g += kernelBits[k] * qGreen(iLine[xp]);
-                        b += kernelBits[k] * qBlue(iLine[xp]);
-                    }
-                }
-            }
-
-            if (factorNum) {
-                r = int(factorNum * r / factorDen + this->d->m_bias);
-                g = int(factorNum * g / factorDen + this->d->m_bias);
-                b = int(factorNum * b / factorDen + this->d->m_bias);
-
-                r = qBound(0, r, 255);
-                g = qBound(0, g, 255);
-                b = qBound(0, b, 255);
-            } else {
-                r = 255;
-                g = 255;
-                b = 255;
-            }
-
-            oLine[x] = qRgba(r, g, b, qAlpha(iLine[x]));
-        }
-    }
-
-    auto oPacket = AkVideoPacket::fromImage(oFrame, videoPacket).toPacket();
-    akSend(oPacket)
 }
 
 #include "moc_convolveelement.cpp"
