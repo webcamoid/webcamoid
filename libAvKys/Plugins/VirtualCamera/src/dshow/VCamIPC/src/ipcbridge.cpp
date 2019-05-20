@@ -75,7 +75,6 @@ namespace AkVCam
 
             static inline std::vector<std::wstring> *driverPaths();
             std::vector<MonikerPtr> listCameras() const;
-            static void deleteUnknown(IUnknown *unknown);
             BaseFilterPtr filter(IMoniker *moniker) const;
             PropertyBagPtr propertyBag(IMoniker *moniker) const;
             bool isVirtualCamera(const MonikerPtr &moniker) const;
@@ -1246,8 +1245,9 @@ std::vector<AkVCam::MonikerPtr> AkVCam::IpcBridgePrivate::listCameras() const
         IMoniker *moniker = nullptr;
 
         while (enumMoniker->Next(1, &moniker, nullptr) == S_OK)
-            cameras.push_back(MonikerPtr(moniker,
-                                         IpcBridgePrivate::deleteUnknown));
+            cameras.push_back(MonikerPtr(moniker, [](IMoniker *moniker) {
+                moniker->Release();
+            }));
 
         enumMoniker->Release();
     }
@@ -1257,16 +1257,10 @@ std::vector<AkVCam::MonikerPtr> AkVCam::IpcBridgePrivate::listCameras() const
     return cameras;
 }
 
-void AkVCam::IpcBridgePrivate::deleteUnknown(IUnknown *unknown)
-{
-    if (unknown)
-        unknown->Release();
-}
-
 AkVCam::BaseFilterPtr AkVCam::IpcBridgePrivate::filter(IMoniker *moniker) const
 {
     if (!moniker)
-        return BaseFilterPtr();
+        return {};
 
     IBaseFilter *baseFilter = nullptr;
 
@@ -1274,16 +1268,18 @@ AkVCam::BaseFilterPtr AkVCam::IpcBridgePrivate::filter(IMoniker *moniker) const
                                      nullptr,
                                      IID_IBaseFilter,
                                      reinterpret_cast<void **>(&baseFilter)))) {
-        return BaseFilterPtr();
+        return {};
     }
 
-    return BaseFilterPtr(baseFilter, IpcBridgePrivate::deleteUnknown);
+    return BaseFilterPtr(baseFilter, [] (IBaseFilter *baseFilter) {
+        baseFilter->Release();
+    });
 }
 
 AkVCam::PropertyBagPtr AkVCam::IpcBridgePrivate::propertyBag(IMoniker *moniker) const
 {
     if (!moniker)
-        return PropertyBagPtr();
+        return {};
 
     IPropertyBag *propertyBag = nullptr;
 
@@ -1291,10 +1287,12 @@ AkVCam::PropertyBagPtr AkVCam::IpcBridgePrivate::propertyBag(IMoniker *moniker) 
                                       nullptr,
                                       IID_IPropertyBag,
                                       reinterpret_cast<void **>(&propertyBag)))) {
-        return PropertyBagPtr();
+        return {};
     }
 
-    return PropertyBagPtr(propertyBag, IpcBridgePrivate::deleteUnknown);
+    return PropertyBagPtr(propertyBag, [] (IPropertyBag *propertyBag) {
+        propertyBag->Release();
+    });
 }
 
 bool AkVCam::IpcBridgePrivate::isVirtualCamera(const MonikerPtr &moniker) const
@@ -1335,7 +1333,7 @@ std::string AkVCam::IpcBridgePrivate::cameraPath(IPropertyBag *propertyBag) cons
         return std::string();
 
     std::wstring wstr(var.bstrVal);
-    std::string devicePath = std::string(wstr.begin(), wstr.end());
+    std::string devicePath(wstr.begin(), wstr.end());
     VariantClear(&var);
 
     return devicePath;
@@ -1377,7 +1375,9 @@ std::vector<AkVCam::PinPtr> AkVCam::IpcBridgePrivate::enumPins(IBaseFilter *base
 
             if (SUCCEEDED(pin->QueryDirection(&direction))
                 && direction == PINDIR_OUTPUT) {
-                pins.push_back(PinPtr(pin, IpcBridgePrivate::deleteUnknown));
+                pins.push_back(PinPtr(pin, [] (IPin *pin) {
+                    pin->Release();
+                }));
 
                 continue;
             }
@@ -1456,8 +1456,9 @@ std::vector<std::wstring> AkVCam::IpcBridgePrivate::findFiles(const std::wstring
 std::vector<std::string> AkVCam::IpcBridgePrivate::findFiles(const std::string &path,
                                                              const std::string &fileName) const
 {
-    auto wfiles = this->findFiles(std::wstring(path.begin(), path.end()),
-                                  std::wstring(fileName.begin(), fileName.end()));
+    auto wfiles =
+            this->findFiles(std::wstring(path.begin(), path.end()),
+                            std::wstring(fileName.begin(), fileName.end()));
 
     std::vector<std::string> files;
 
@@ -1648,7 +1649,7 @@ void AkVCam::IpcBridgePrivate::pipeStateChanged(void *userData,
         if (self->self->registerPeer(self->m_asClient)) {
             AKVCAM_EMIT(self->self,
                         ServerStateChanged,
-                        IpcBridge::ServerStateAvailable);
+                        IpcBridge::ServerStateAvailable)
         }
 
         break;
@@ -1657,7 +1658,7 @@ void AkVCam::IpcBridgePrivate::pipeStateChanged(void *userData,
         AkLoggerLog("Server Gone");
         AKVCAM_EMIT(self->self,
                     ServerStateChanged,
-                    IpcBridge::ServerStateGone);
+                    IpcBridge::ServerStateGone)
         self->self->unregisterPeer();
 
         break;

@@ -259,7 +259,7 @@ AkElementPtr AkElement::create(const QString &pluginId,
 AkElement *AkElement::createPtr(const QString &pluginId,
                                 const QString &elementName)
 {
-    QString filePath = AkElement::pluginPath(pluginId);
+    auto filePath = AkElement::pluginPath(pluginId);
 
     if (filePath.isEmpty())
         return nullptr;

@@ -72,11 +72,6 @@ class CaptureV4L2: public Capture
         void resetIoMethod();
         void resetNBuffers();
         void reset();
-
-    private slots:
-        void updateDevices();
-        void onDirectoryChanged(const QString &path);
-        void onFileChanged(const QString &fileName);
 };
 
 #endif // CAPTUREV4L2_H

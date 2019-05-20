@@ -64,11 +64,6 @@ class CaptureNdkCamera: public Capture
         void resetIoMethod();
         void resetNBuffers();
         void reset();
-
-    private slots:
-        void updateDevices();
-
-    friend CaptureNdkCameraPrivate;
 };
 
 #endif // CAPTURENDKCAMERA_H

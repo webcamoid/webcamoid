@@ -24,6 +24,7 @@
 
 class CaptureAvFoundationPrivate;
 class QWaitCondition;
+class QMutex;
 
 class CaptureAvFoundation: public Capture
 {

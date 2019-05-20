@@ -64,11 +64,6 @@ class CaptureAndroidCamera: public Capture
         void resetIoMethod();
         void resetNBuffers();
         void reset();
-
-    private slots:
-        void updateDevices();
-
-    friend CaptureAndroidCameraPrivate;
 };
 
 #endif // CAPTUREANDROIDCAMERA_H

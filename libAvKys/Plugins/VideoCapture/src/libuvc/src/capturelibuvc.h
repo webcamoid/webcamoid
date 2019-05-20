@@ -88,11 +88,6 @@ class CaptureLibUVC: public Capture
         void resetIoMethod();
         void resetNBuffers();
         void reset();
-
-    private slots:
-        void updateDevices();
-
-        friend class CaptureLibUVCPrivate;
 };
 
 #endif // CAPTURELIBUVC_H

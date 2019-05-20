@@ -112,6 +112,7 @@ class CaptureNdkCameraPrivate
         static void sessionActive(void *context,
                                   ACameraCaptureSession *session);
         static bool canUseCamera();
+        void updateDevices();
 };
 
 CaptureNdkCamera::CaptureNdkCamera(QObject *parent):
@@ -119,13 +120,13 @@ CaptureNdkCamera::CaptureNdkCamera(QObject *parent):
 {
     this->d = new CaptureNdkCameraPrivate(this);
     ACameraManager_AvailabilityCallbacks availabilityCb = {
-        this,
+        this->d,
         CaptureNdkCameraPrivate::onCamerasChanged,
         CaptureNdkCameraPrivate::onCamerasChanged,
     };
     ACameraManager_registerAvailabilityCallback(this->d->m_manager.data(),
                                                 &availabilityCb);
-    this->updateDevices();
+    this->d->updateDevices();
 }
 
 CaptureNdkCamera::~CaptureNdkCamera()
@@ -384,8 +385,7 @@ void CaptureNdkCameraPrivate::onCamerasChanged(void *context,
                                                const char *cameraId)
 {
     Q_UNUSED(cameraId)
-    auto self = reinterpret_cast<CaptureNdkCamera *>(context);
-
+    auto self = reinterpret_cast<CaptureNdkCameraPrivate *>(context);
     self->updateDevices();
 }
 
@@ -532,6 +532,136 @@ bool CaptureNdkCameraPrivate::canUseCamera()
     result = true;
 
     return true;
+}
+
+void CaptureNdkCameraPrivate::updateDevices()
+{
+    if (!this->canUseCamera())
+        return;
+
+    decltype(this->m_devices) devices;
+    decltype(this->m_descriptions) descriptions;
+    decltype(this->m_devicesCaps) devicesCaps;
+
+    ACameraIdList *cameras = nullptr;
+
+    if (ACameraManager_getCameraIdList(this->m_manager.data(),
+                                       &cameras) == ACAMERA_OK) {
+        QVector<AIMAGE_FORMATS> unsupportedFormats {
+            AIMAGE_FORMAT_RAW_PRIVATE,
+            AIMAGE_FORMAT_DEPTH16,
+            AIMAGE_FORMAT_DEPTH_POINT_CLOUD,
+            AIMAGE_FORMAT_PRIVATE,
+        };
+
+        QMap<acamera_metadata_enum_android_lens_facing_t, QString> facingToStr {
+            {ACAMERA_LENS_FACING_FRONT   , "Front"},
+            {ACAMERA_LENS_FACING_BACK    , "Back"},
+            {ACAMERA_LENS_FACING_EXTERNAL, "External"},
+        };
+
+        for (int i = 0; i < cameras->numCameras; i++) {
+            QString cameraId = cameras->cameraIds[i];
+            ACameraMetadata *metaData = nullptr;
+
+            if (ACameraManager_getCameraCharacteristics(this->m_manager.data(),
+                                                        cameras->cameraIds[i],
+                                                        &metaData) != ACAMERA_OK) {
+                continue;
+            }
+
+            ACameraMetadata_const_entry frameRates;
+
+            if (ACameraMetadata_getConstEntry(metaData,
+                                              ACAMERA_CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES,
+                                              &frameRates) != ACAMERA_OK) {
+                continue;
+            }
+
+            QList<AkFrac> supportedFrameRates;
+
+            for (uint32_t i = 0; i < frameRates.count; i += 2) {
+                AkFrac fps(frameRates.data.i32[i + 0]
+                           + frameRates.data.i32[i + 1],
+                           2);
+
+                if (!supportedFrameRates.contains(fps))
+                    supportedFrameRates << fps;
+            }
+
+            ACameraMetadata_const_entry formats;
+
+            if (ACameraMetadata_getConstEntry(metaData,
+                                              ACAMERA_SCALER_AVAILABLE_STREAM_CONFIGURATIONS,
+                                              &formats) != ACAMERA_OK) {
+                continue;
+            }
+
+            QList<AkCaps> supportedFormats;
+
+            for (uint32_t i = 0; i < formats.count; i += 4) {
+                if (formats.data.i32[i + 3])
+                    continue;
+
+                auto width = formats.data.i32[i + 1];
+                auto height = formats.data.i32[i + 2];
+
+                if (width < 1 || height < 1)
+                    continue;
+
+                auto format = AIMAGE_FORMATS(formats.data.i32[i + 0]);
+
+                if (unsupportedFormats.contains(format))
+                    continue;
+
+                AkCaps videoCaps;
+                videoCaps.setMimeType("video/unknown");
+                videoCaps.setProperty("fourcc", imgFmtToStrMap->value(format));
+                videoCaps.setProperty("width", width);
+                videoCaps.setProperty("height", height);
+
+                if (!supportedFormats.contains(videoCaps))
+                    supportedFormats << videoCaps;
+            }
+
+            QVariantList caps;
+
+            for (auto &format: supportedFormats)
+                for (auto &fps: supportedFrameRates) {
+                    auto videoCaps = format;
+                    videoCaps.setProperty("fps", fps.toString());
+                    caps << QVariant::fromValue(videoCaps);
+                }
+
+            if (!caps.isEmpty()) {
+                auto deviceId = "NdkCamera:" + cameraId;
+                ACameraMetadata_const_entry lensFacing;
+                ACameraMetadata_getConstEntry(metaData,
+                                              ACAMERA_LENS_FACING,
+                                              &lensFacing);
+                auto facing =
+                        acamera_metadata_enum_android_lens_facing_t(lensFacing.data.u8[0]);
+                auto description = QString("%1 Camera %2")
+                                   .arg(facingToStr[facing])
+                                   .arg(cameraId);
+                devices << deviceId;
+                descriptions[deviceId] = description;
+                devicesCaps[deviceId] = caps;
+            }
+
+            ACameraMetadata_free(metaData);
+        }
+
+        ACameraManager_deleteCameraIdList(cameras);
+    }
+
+    this->m_descriptions = descriptions;
+    this->m_devicesCaps = devicesCaps;
+
+    if (this->m_devices != devices) {
+        this->m_devices = devices;
+        emit self->webcamsChanged(this->m_devices);
+    }
 }
 
 bool CaptureNdkCamera::init()
@@ -820,136 +950,6 @@ void CaptureNdkCamera::reset()
     this->resetStreams();
     this->resetImageControls();
     this->resetCameraControls();
-}
-
-void CaptureNdkCamera::updateDevices()
-{
-    if (!this->d->canUseCamera())
-        return;
-
-    decltype(this->d->m_devices) devices;
-    decltype(this->d->m_descriptions) descriptions;
-    decltype(this->d->m_devicesCaps) devicesCaps;
-
-    ACameraIdList *cameras = nullptr;
-
-    if (ACameraManager_getCameraIdList(this->d->m_manager.data(),
-                                       &cameras) == ACAMERA_OK) {
-        QVector<AIMAGE_FORMATS> unsupportedFormats {
-            AIMAGE_FORMAT_RAW_PRIVATE,
-            AIMAGE_FORMAT_DEPTH16,
-            AIMAGE_FORMAT_DEPTH_POINT_CLOUD,
-            AIMAGE_FORMAT_PRIVATE,
-        };
-
-        QMap<acamera_metadata_enum_android_lens_facing_t, QString> facingToStr {
-            {ACAMERA_LENS_FACING_FRONT   , "Front"},
-            {ACAMERA_LENS_FACING_BACK    , "Back"},
-            {ACAMERA_LENS_FACING_EXTERNAL, "External"},
-        };
-
-        for (int i = 0; i < cameras->numCameras; i++) {
-            QString cameraId = cameras->cameraIds[i];
-            ACameraMetadata *metaData = nullptr;
-
-            if (ACameraManager_getCameraCharacteristics(this->d->m_manager.data(),
-                                                        cameras->cameraIds[i],
-                                                        &metaData) != ACAMERA_OK) {
-                continue;
-            }
-
-            ACameraMetadata_const_entry frameRates;
-
-            if (ACameraMetadata_getConstEntry(metaData,
-                                              ACAMERA_CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES,
-                                              &frameRates) != ACAMERA_OK) {
-                continue;
-            }
-
-            QList<AkFrac> supportedFrameRates;
-
-            for (uint32_t i = 0; i < frameRates.count; i += 2) {
-                AkFrac fps(frameRates.data.i32[i + 0]
-                           + frameRates.data.i32[i + 1],
-                           2);
-
-                if (!supportedFrameRates.contains(fps))
-                    supportedFrameRates << fps;
-            }
-
-            ACameraMetadata_const_entry formats;
-
-            if (ACameraMetadata_getConstEntry(metaData,
-                                              ACAMERA_SCALER_AVAILABLE_STREAM_CONFIGURATIONS,
-                                              &formats) != ACAMERA_OK) {
-                continue;
-            }
-
-            QList<AkCaps> supportedFormats;
-
-            for (uint32_t i = 0; i < formats.count; i += 4) {
-                if (formats.data.i32[i + 3])
-                    continue;
-
-                auto width = formats.data.i32[i + 1];
-                auto height = formats.data.i32[i + 2];
-
-                if (width < 1 || height < 1)
-                    continue;
-
-                auto format = AIMAGE_FORMATS(formats.data.i32[i + 0]);
-
-                if (unsupportedFormats.contains(format))
-                    continue;
-
-                AkCaps videoCaps;
-                videoCaps.setMimeType("video/unknown");
-                videoCaps.setProperty("fourcc", imgFmtToStrMap->value(format));
-                videoCaps.setProperty("width", width);
-                videoCaps.setProperty("height", height);
-
-                if (!supportedFormats.contains(videoCaps))
-                    supportedFormats << videoCaps;
-            }
-
-            QVariantList caps;
-
-            for (auto &format: supportedFormats)
-                for (auto &fps: supportedFrameRates) {
-                    auto videoCaps = format;
-                    videoCaps.setProperty("fps", fps.toString());
-                    caps << QVariant::fromValue(videoCaps);
-                }
-
-            if (!caps.isEmpty()) {
-                auto deviceId = "NdkCamera:" + cameraId;
-                ACameraMetadata_const_entry lensFacing;
-                ACameraMetadata_getConstEntry(metaData,
-                                              ACAMERA_LENS_FACING,
-                                              &lensFacing);
-                auto facing =
-                        acamera_metadata_enum_android_lens_facing_t(lensFacing.data.u8[0]);
-                auto description = QString("%1 Camera %2")
-                                   .arg(facingToStr[facing])
-                                   .arg(cameraId);
-                devices << deviceId;
-                descriptions[deviceId] = description;
-                devicesCaps[deviceId] = caps;
-            }
-
-            ACameraMetadata_free(metaData);
-        }
-
-        ACameraManager_deleteCameraIdList(cameras);
-    }
-
-    this->d->m_descriptions = descriptions;
-    this->d->m_devicesCaps = devicesCaps;
-
-    if (this->d->m_devices != devices) {
-        this->d->m_devices = devices;
-        emit this->webcamsChanged(this->d->m_devices);
-    }
 }
 
 #include "moc_capturendkcamera.cpp"

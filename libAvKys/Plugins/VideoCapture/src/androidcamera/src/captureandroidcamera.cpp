@@ -253,13 +253,14 @@ class CaptureAndroidCameraPrivate
         static void surfaceCreated(JNIEnv *env, jobject obj, jlong userPtr);
         static void surfaceDestroyed(JNIEnv *env, jobject obj, jlong userPtr);
         static bool canUseCamera();
+        void updateDevices();
 };
 
 CaptureAndroidCamera::CaptureAndroidCamera(QObject *parent):
     Capture(parent)
 {
     this->d = new CaptureAndroidCameraPrivate(this);
-    this->updateDevices();
+    this->d->updateDevices();
 }
 
 CaptureAndroidCamera::~CaptureAndroidCamera()
@@ -282,21 +283,21 @@ QList<int> CaptureAndroidCamera::streams()
     if (!this->d->m_streams.isEmpty())
         return this->d->m_streams;
 
-    QVariantList caps = this->caps(this->d->m_device);
+    auto caps = this->caps(this->d->m_device);
 
     if (caps.isEmpty())
-        return QList<int>();
+        return {};
 
-    return QList<int> {0};
+    return {0};
 }
 
 QList<int> CaptureAndroidCamera::listTracks(const QString &mimeType)
 {
     if (mimeType != "video/x-raw"
         && !mimeType.isEmpty())
-        return QList<int>();
+        return {};
 
-    QVariantList caps = this->caps(this->d->m_device);
+    auto caps = this->caps(this->d->m_device);
     QList<int> streams;
 
     for (int i = 0; i < caps.count(); i++)
@@ -328,7 +329,7 @@ QVariantList CaptureAndroidCamera::caps(const QString &webcam) const
 QString CaptureAndroidCamera::capsDescription(const AkCaps &caps) const
 {
     if (caps.mimeType() != "video/unknown")
-        return QString();
+        return {};
 
     AkFrac fps = caps.property("fps").toString();
 
@@ -351,8 +352,8 @@ bool CaptureAndroidCamera::setImageControls(const QVariantMap &imageControls)
     this->d->m_controlsMutex.unlock();
 
     for (int i = 0; i < globalImageControls.count(); i++) {
-        QVariantList control = globalImageControls[i].toList();
-        QString controlName = control[0].toString();
+        auto control = globalImageControls[i].toList();
+        auto controlName = control[0].toString();
 
         if (imageControls.contains(controlName)) {
             control[6] = imageControls[controlName];
@@ -381,8 +382,7 @@ bool CaptureAndroidCamera::resetImageControls()
     QVariantMap controls;
 
     for (auto &control: this->imageControls()) {
-        QVariantList params = control.toList();
-
+        auto params = control.toList();
         controls[params[0].toString()] = params[5].toInt();
     }
 
@@ -401,8 +401,8 @@ bool CaptureAndroidCamera::setCameraControls(const QVariantMap &cameraControls)
     this->d->m_controlsMutex.unlock();
 
     for (int i = 0; i < globalCameraControls.count(); i++) {
-        QVariantList control = globalCameraControls[i].toList();
-        QString controlName = control[0].toString();
+        auto control = globalCameraControls[i].toList();
+        auto controlName = control[0].toString();
 
         if (cameraControls.contains(controlName)) {
             control[6] = cameraControls[controlName];
@@ -440,7 +440,7 @@ bool CaptureAndroidCamera::resetCameraControls()
 AkPacket CaptureAndroidCamera::readFrame()
 {
     if (this->d->m_camera.isValid()) {
-        QAndroidJniObject parameters =
+        auto parameters =
                 this->d->m_camera.callObjectMethod("getParameters",
                                                    "()Landroid/hardware/Camera$Parameters;");
 
@@ -606,8 +606,8 @@ QVariantList CaptureAndroidCameraPrivate::caps(jint device)
         auto jfpsRange = frameRates.callObjectMethod("get",
                                                      "(I)Ljava/lang/Object;",
                                                      i);
-        jintArray jrange = static_cast<jintArray>(jfpsRange.object());
-        jint *range = jenv->GetIntArrayElements(jrange, nullptr);
+        auto jrange = static_cast<jintArray>(jfpsRange.object());
+        auto range = jenv->GetIntArrayElements(jrange, nullptr);
         AkFrac fps(range[0] + range[1], 2000);
 
         if (!supportedFrameRates.contains(fps))
@@ -661,8 +661,8 @@ bool CaptureAndroidCameraPrivate::nearestFpsRangue(const QAndroidJniObject &para
         auto jfpsRange = frameRates.callObjectMethod("get",
                                                      "(I)Ljava/lang/Object;",
                                                      i);
-        jintArray jrange = static_cast<jintArray>(jfpsRange.object());
-        jint *range = jenv->GetIntArrayElements(jrange, nullptr);
+        auto jrange = static_cast<jintArray>(jfpsRange.object());
+        auto range = jenv->GetIntArrayElements(jrange, nullptr);
 
         if (1e3 * fpsValue >= qreal(range[0])
             && 1e3 * fpsValue <= qreal(range[1])) {
@@ -1082,8 +1082,8 @@ QVariantMap CaptureAndroidCameraPrivate::controlStatus(const QVariantList &contr
     QVariantMap controlStatus;
 
     for (auto &control: controls) {
-        QVariantList params = control.toList();
-        QString controlName = params[0].toString();
+        auto params = control.toList();
+        auto controlName = params[0].toString();
         controlStatus[controlName] = params[6];
     }
 
@@ -1178,6 +1178,50 @@ bool CaptureAndroidCameraPrivate::canUseCamera()
     result = true;
 
     return true;
+}
+
+void CaptureAndroidCameraPrivate::updateDevices()
+{
+    if (!this->canUseCamera())
+        return;
+
+    decltype(this->m_devices) devices;
+    decltype(this->m_descriptions) descriptions;
+    decltype(this->m_devicesCaps) devicesCaps;
+
+    auto numCameras =
+            QAndroidJniObject::callStaticMethod<jint>("android/hardware/Camera",
+                                                      "getNumberOfCameras");
+
+    for (jint i = 0; i < numCameras; i++) {
+        auto caps = this->caps(i);
+
+        if (!caps.empty()) {
+            auto deviceId = QString("/dev/video%1").arg(i);
+            QAndroidJniObject cameraInfo("android/hardware/Camera$CameraInfo");
+            QAndroidJniObject::callStaticMethod<void>("android/hardware/Camera",
+                                                      "getCameraInfo",
+                                                      "(ILandroid/hardware/Camera$CameraInfo;)V",
+                                                      i,
+                                                      cameraInfo.object());
+            auto facing = cameraInfo.getField<jint>("facing");
+            auto description = QString("%1 Camera %2")
+                               .arg(facing == CAMERA_FACING_BACK? "Back": "Front")
+                               .arg(i);
+
+            devices << deviceId;
+            descriptions[deviceId] = description;
+            devicesCaps[deviceId] = caps;
+        }
+    }
+
+    this->m_descriptions = descriptions;
+    this->m_devicesCaps = devicesCaps;
+
+    if (this->m_devices != devices) {
+        this->m_devices = devices;
+        emit self->webcamsChanged(this->m_devices);
+    }
 }
 
 bool CaptureAndroidCamera::init()
@@ -1397,7 +1441,7 @@ void CaptureAndroidCamera::resetDevice()
 
 void CaptureAndroidCamera::resetStreams()
 {
-    QVariantList supportedCaps = this->caps(this->d->m_device);
+    auto supportedCaps = this->caps(this->d->m_device);
     QList<int> streams;
 
     if (!supportedCaps.isEmpty())
@@ -1421,50 +1465,6 @@ void CaptureAndroidCamera::reset()
     this->resetStreams();
     this->resetImageControls();
     this->resetCameraControls();
-}
-
-void CaptureAndroidCamera::updateDevices()
-{
-    if (!this->d->canUseCamera())
-        return;
-
-    decltype(this->d->m_devices) devices;
-    decltype(this->d->m_descriptions) descriptions;
-    decltype(this->d->m_devicesCaps) devicesCaps;
-
-    auto numCameras =
-            QAndroidJniObject::callStaticMethod<jint>("android/hardware/Camera",
-                                                      "getNumberOfCameras");
-
-    for (jint i = 0; i < numCameras; i++) {
-        auto caps = this->d->caps(i);
-
-        if (!caps.empty()) {
-            auto deviceId = QString("/dev/video%1").arg(i);
-            QAndroidJniObject cameraInfo("android/hardware/Camera$CameraInfo");
-            QAndroidJniObject::callStaticMethod<void>("android/hardware/Camera",
-                                                      "getCameraInfo",
-                                                      "(ILandroid/hardware/Camera$CameraInfo;)V",
-                                                      i,
-                                                      cameraInfo.object());
-            auto facing = cameraInfo.getField<jint>("facing");
-            auto description = QString("%1 Camera %2")
-                               .arg(facing == CAMERA_FACING_BACK? "Back": "Front")
-                               .arg(i);
-
-            devices << deviceId;
-            descriptions[deviceId] = description;
-            devicesCaps[deviceId] = caps;
-        }
-    }
-
-    this->d->m_descriptions = descriptions;
-    this->d->m_devicesCaps = devicesCaps;
-
-    if (this->d->m_devices != devices) {
-        this->d->m_devices = devices;
-        emit this->webcamsChanged(this->d->m_devices);
-    }
 }
 
 #include "moc_captureandroidcamera.cpp"

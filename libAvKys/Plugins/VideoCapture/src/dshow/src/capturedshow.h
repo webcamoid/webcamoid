@@ -78,9 +78,6 @@ class CaptureDShow: public Capture, QAbstractNativeEventFilter
         void resetIoMethod();
         void resetNBuffers();
         void reset();
-
-    private slots:
-        void frameReceived(qreal time, const QByteArray &buffer);
 };
 
 #endif // CAPTUREDSHOW_H

@@ -183,11 +183,12 @@ inline FourccToStrMap initFourccToStr()
     return fourccToStr;
 }
 
-Q_GLOBAL_STATIC_WITH_ARGS(FourccToStrMap, fourccToStr, (initFourccToStr()))
+Q_GLOBAL_STATIC_WITH_ARGS(FourccToStrMap, v4l2FourccToStr, (initFourccToStr()))
 
 class CaptureLibUVCPrivate
 {
     public:
+        CaptureLibUVC *self;
         QString m_device;
         QList<int> m_streams;
         QMap<quint32, QString> m_devices;
@@ -205,6 +206,7 @@ class CaptureLibUVCPrivate
         qint64 m_id {-1};
         AkFrac m_fps;
 
+        explicit CaptureLibUVCPrivate(CaptureLibUVC *self);
         QVariantList controlsList(uvc_device_handle_t *deviceHnd,
                                   uint8_t unit,
                                   uint8_t control,
@@ -216,12 +218,13 @@ class CaptureLibUVCPrivate
                          const QVariantMap &values);
         static void frameCallback(struct uvc_frame *frame, void *userData);
         QString fourccToStr(const uint8_t *format) const;
+        void updateDevices();
 };
 
 CaptureLibUVC::CaptureLibUVC(QObject *parent):
     Capture(parent)
 {
-    this->d = new CaptureLibUVCPrivate;
+    this->d = new CaptureLibUVCPrivate(this);
     auto uvcError = uvc_init(&this->d->m_uvcContext, usbGlobals->context());
 
     if (uvcError != UVC_SUCCESS) {
@@ -232,10 +235,10 @@ CaptureLibUVC::CaptureLibUVC(QObject *parent):
 
     QObject::connect(usbGlobals,
                      &UsbGlobals::devicesUpdated,
-                     this,
-                     &CaptureLibUVC::updateDevices);
-
-    this->updateDevices();
+                     [this] () {
+                        this->d->updateDevices();
+                     });
+    this->d->updateDevices();
 }
 
 CaptureLibUVC::~CaptureLibUVC()
@@ -530,6 +533,12 @@ QString CaptureLibUVC::uvcId(quint16 vendorId, quint16 productId) const
             .arg(productId, 4, 16, QChar('0'));
 }
 
+CaptureLibUVCPrivate::CaptureLibUVCPrivate(CaptureLibUVC *self):
+    self(self)
+{
+
+}
+
 QVariantList CaptureLibUVCPrivate::controlsList(uvc_device_handle_t *deviceHnd,
                                                 uint8_t unit,
                                                 uint8_t control,
@@ -672,32 +681,32 @@ void CaptureLibUVCPrivate::frameCallback(uvc_frame *frame, void *userData)
     if (!frame || !userData)
         return;
 
-    auto self = reinterpret_cast<CaptureLibUVC *>(userData);
+    auto self = reinterpret_cast<CaptureLibUVCPrivate *>(userData);
 
-    self->d->m_mutex.lock();
+    self->m_mutex.lock();
 
     AkCaps caps("video/unknown");
     caps.setProperty("fourcc", pixFmtToStr->value(frame->frame_format));
     caps.setProperty("width", frame->width);
     caps.setProperty("height", frame->height);
-    caps.setProperty("fps", self->d->m_fps.toString());
+    caps.setProperty("fps", self->m_fps.toString());
 
     QByteArray buffer(reinterpret_cast<const char *>(frame->data),
                        int(frame->data_bytes));
 
     auto pts = qint64(QTime::currentTime().msecsSinceStartOfDay()
-                      * self->d->m_fps.value() / 1e3);
+                      * self->m_fps.value() / 1e3);
 
     AkPacket packet(caps);
     packet.setBuffer(buffer);
     packet.setPts(pts);
-    packet.setTimeBase(self->d->m_fps.invert());
+    packet.setTimeBase(self->m_fps.invert());
     packet.setIndex(0);
-    packet.setId(self->d->m_id);
+    packet.setId(self->m_id);
 
-    self->d->m_curPacket = packet;
-    self->d->m_packetNotReady.wakeAll();
-    self->d->m_mutex.unlock();
+    self->m_curPacket = packet;
+    self->m_packetNotReady.wakeAll();
+    self->m_mutex.unlock();
 }
 
 QString CaptureLibUVCPrivate::fourccToStr(const uint8_t *format) const
@@ -707,6 +716,204 @@ QString CaptureLibUVCPrivate::fourccToStr(const uint8_t *format) const
     fourcc[4] = 0;
 
     return QString(fourcc);
+}
+
+void CaptureLibUVCPrivate::updateDevices()
+{
+    if (!this->m_uvcContext)
+        return;
+
+    decltype(this->m_devices) devicesList;
+    decltype(this->m_descriptions) descriptions;
+    decltype(this->m_devicesCaps) devicesCaps;
+    decltype(this->m_imageControls) imageControls;
+    decltype(this->m_cameraControls) cameraControls;
+
+    uvc_device_t **devices = nullptr;
+    auto error = uvc_get_device_list(this->m_uvcContext, &devices);
+
+    if (error != UVC_SUCCESS) {
+        qDebug() << "CaptureLibUVC:" << uvc_strerror(error);
+
+        goto updateDevices_failed;
+    }
+
+    for (int i = 0; devices[i] != nullptr; i++) {
+        uvc_device_descriptor_t *descriptor = nullptr;
+        error = uvc_get_device_descriptor(devices[i], &descriptor);
+
+        if (error != UVC_SUCCESS) {
+            qDebug() << "CaptureLibUVC:" << uvc_strerror(error);
+
+            continue;
+        }
+
+        auto deviceId = self->uvcId(descriptor->idVendor,
+                                    descriptor->idProduct);
+        uvc_device_handle_t *deviceHnd = nullptr;
+
+        if (this->m_deviceHnd && this->m_curDevice == deviceId)
+            deviceHnd = this->m_deviceHnd;
+        else {
+            error = uvc_open(devices[i], &deviceHnd);
+
+            if (error != UVC_SUCCESS) {
+                qDebug() << "CaptureLibUVC:" << uvc_strerror(error);
+                uvc_free_device_descriptor(descriptor);
+
+                continue;
+            }
+        }
+
+        auto formatDescription = uvc_get_format_descs(deviceHnd);
+
+        if (!formatDescription) {
+            qDebug() << "CaptureLibUVC: Can't read format description";
+
+            if (!this->m_deviceHnd || this->m_curDevice != deviceId)
+                uvc_close(deviceHnd);
+
+            uvc_free_device_descriptor(descriptor);
+
+            continue;
+        }
+
+        auto description =
+                usbIds->description(descriptor->idVendor, descriptor->idProduct);
+
+        if (description.isEmpty()) {
+            if (QString(descriptor->manufacturer).isEmpty())
+                description += QString("Vendor 0x%1")
+                               .arg(descriptor->idVendor, 4, 16, QChar('0'));
+            else
+                description += QString(descriptor->manufacturer);
+
+            description += ", ";
+
+            if (QString(descriptor->product).isEmpty())
+                description += QString("Product 0x%1")
+                               .arg(descriptor->idProduct, 4, 16, QChar('0'));
+            else
+                description += QString(descriptor->product);
+        }
+
+        devicesList[quint32((descriptor->idVendor << 16)
+                            | descriptor->idProduct)] = deviceId;
+        descriptions[deviceId] = description;
+        devicesCaps[deviceId] = QVariantList();
+        AkCaps videoCaps;
+        videoCaps.setMimeType("video/unknown");
+
+        for (; formatDescription; formatDescription = formatDescription->next) {
+            auto fourCC = this->fourccToStr(formatDescription->fourccFormat);
+            fourCC = v4l2FourccToStr->value(fourCC, fourCC);
+
+            if (std::find(pixFmtToStr->cbegin(),
+                          pixFmtToStr->cend(),
+                          fourCC) == pixFmtToStr->cend())
+                continue;
+
+            videoCaps.setProperty("fourcc", fourCC);
+
+            for (auto description = formatDescription->frame_descs;
+                 description;
+                 description = description->next) {
+                videoCaps.setProperty("width", description->wWidth);
+                videoCaps.setProperty("height", description->wHeight);
+
+                if (description->intervals) {
+                    int prevInterval = 0;
+
+                    for (auto interval = description->intervals; interval && *interval; interval++) {
+                        auto fps = AkFrac(100e5, *interval);
+                        auto fpsValue = qRound(fps.value());
+
+                        if (prevInterval != fpsValue) {
+                            videoCaps.setProperty("fps", fps.toString());
+                            devicesCaps[deviceId] << QVariant::fromValue(videoCaps);
+                        }
+
+                        prevInterval = fpsValue;
+                    }
+                } else if (description->dwFrameIntervalStep > 0
+                         && description->dwMinFrameInterval != description->dwMaxFrameInterval) {
+                    int prevInterval = 0;
+
+                    for (auto interval = description->dwMinFrameInterval;
+                         interval <= description->dwMaxFrameInterval;
+                         interval += description->dwFrameIntervalStep) {
+                        auto fps = AkFrac(100e5, interval);
+                        auto fpsValue = qRound(fps.value());
+
+                        if (prevInterval != fpsValue) {
+                            videoCaps.setProperty("fps", fps.toString());
+                            devicesCaps[deviceId] << QVariant::fromValue(videoCaps);
+                        }
+
+                        prevInterval = fpsValue;
+                    }
+                } else {
+                    auto fps = AkFrac(100e5, description->dwDefaultFrameInterval);
+                    videoCaps.setProperty("fps", fps.toString());
+                    devicesCaps[deviceId] << QVariant::fromValue(videoCaps);
+                }
+            }
+        }
+
+        QVariantList deviceControls;
+
+        for (auto pu = uvc_get_processing_units(deviceHnd); pu; pu = pu->next) {
+            for (auto &control: UvcControl::allSelectors(PROCESSING_UNIT))
+                if (pu->bmControls & control) {
+                    auto controls =
+                            this->controlsList(deviceHnd,
+                                               pu->bUnitID,
+                                               control,
+                                               PROCESSING_UNIT);
+
+                    if (!controls.isEmpty())
+                        deviceControls << QVariant(controls);
+                }
+        }
+
+        imageControls[deviceId] = deviceControls;
+        deviceControls.clear();
+
+        for (auto ca = uvc_get_input_terminals(deviceHnd); ca; ca = ca->next) {
+            for (auto &control: UvcControl::allSelectors(CAMERA_TERMINAL))
+                if (ca->bmControls & control) {
+                    auto controls =
+                            this->controlsList(deviceHnd,
+                                               ca->bTerminalID,
+                                               control,
+                                               CAMERA_TERMINAL);
+
+                    if (!controls.isEmpty())
+                        deviceControls << QVariant(controls);
+                }
+        }
+
+        cameraControls[deviceId] = deviceControls;
+
+        if (!this->m_deviceHnd || this->m_curDevice != deviceId)
+            uvc_close(deviceHnd);
+
+        uvc_free_device_descriptor(descriptor);
+    }
+
+updateDevices_failed:
+    if (devices)
+        uvc_free_device_list(devices, 1);
+
+    this->m_descriptions = descriptions;
+    this->m_devicesCaps = devicesCaps;
+    this->m_imageControls = imageControls;
+    this->m_cameraControls = cameraControls;
+
+    if (this->m_devices != devicesList) {
+        this->m_devices = devicesList;
+        emit self->webcamsChanged(this->m_devices.values());
+    }
 }
 
 bool CaptureLibUVC::init()
@@ -769,7 +976,7 @@ bool CaptureLibUVC::init()
     error = uvc_start_streaming(this->d->m_deviceHnd,
                                 &streamCtrl,
                                 this->d->frameCallback,
-                                this,
+                                this->d,
                                 0);
 
     if (error != UVC_SUCCESS) {
@@ -880,204 +1087,6 @@ void CaptureLibUVC::reset()
     this->resetStreams();
     this->resetImageControls();
     this->resetCameraControls();
-}
-
-void CaptureLibUVC::updateDevices()
-{
-    if (!this->d->m_uvcContext)
-        return;
-
-    decltype(this->d->m_devices) devicesList;
-    decltype(this->d->m_descriptions) descriptions;
-    decltype(this->d->m_devicesCaps) devicesCaps;
-    decltype(this->d->m_imageControls) imageControls;
-    decltype(this->d->m_cameraControls) cameraControls;
-
-    uvc_device_t **devices = nullptr;
-    auto error = uvc_get_device_list(this->d->m_uvcContext, &devices);
-
-    if (error != UVC_SUCCESS) {
-        qDebug() << "CaptureLibUVC:" << uvc_strerror(error);
-
-        goto updateDevices_failed;
-    }
-
-    for (int i = 0; devices[i] != nullptr; i++) {
-        uvc_device_descriptor_t *descriptor = nullptr;
-        error = uvc_get_device_descriptor(devices[i], &descriptor);
-
-        if (error != UVC_SUCCESS) {
-            qDebug() << "CaptureLibUVC:" << uvc_strerror(error);
-
-            continue;
-        }
-
-        auto deviceId = this->uvcId(descriptor->idVendor,
-                                    descriptor->idProduct);
-        uvc_device_handle_t *deviceHnd = nullptr;
-
-        if (this->d->m_deviceHnd && this->d->m_curDevice == deviceId)
-            deviceHnd = this->d->m_deviceHnd;
-        else {
-            error = uvc_open(devices[i], &deviceHnd);
-
-            if (error != UVC_SUCCESS) {
-                qDebug() << "CaptureLibUVC:" << uvc_strerror(error);
-                uvc_free_device_descriptor(descriptor);
-
-                continue;
-            }
-        }
-
-        auto formatDescription = uvc_get_format_descs(deviceHnd);
-
-        if (!formatDescription) {
-            qDebug() << "CaptureLibUVC: Can't read format description";
-
-            if (!this->d->m_deviceHnd || this->d->m_curDevice != deviceId)
-                uvc_close(deviceHnd);
-
-            uvc_free_device_descriptor(descriptor);
-
-            continue;
-        }
-
-        auto description =
-                usbIds->description(descriptor->idVendor, descriptor->idProduct);
-
-        if (description.isEmpty()) {
-            if (QString(descriptor->manufacturer).isEmpty())
-                description += QString("Vendor 0x%1")
-                               .arg(descriptor->idVendor, 4, 16, QChar('0'));
-            else
-                description += QString(descriptor->manufacturer);
-
-            description += ", ";
-
-            if (QString(descriptor->product).isEmpty())
-                description += QString("Product 0x%1")
-                               .arg(descriptor->idProduct, 4, 16, QChar('0'));
-            else
-                description += QString(descriptor->product);
-        }
-
-        devicesList[quint32((descriptor->idVendor << 16)
-                            | descriptor->idProduct)] = deviceId;
-        descriptions[deviceId] = description;
-        devicesCaps[deviceId] = QVariantList();
-        AkCaps videoCaps;
-        videoCaps.setMimeType("video/unknown");
-
-        for (; formatDescription; formatDescription = formatDescription->next) {
-            auto fourCC = this->d->fourccToStr(formatDescription->fourccFormat);
-            fourCC = fourccToStr->value(fourCC, fourCC);
-
-            if (std::find(pixFmtToStr->cbegin(),
-                          pixFmtToStr->cend(),
-                          fourCC) == pixFmtToStr->cend())
-                continue;
-
-            videoCaps.setProperty("fourcc", fourCC);
-
-            for (auto description = formatDescription->frame_descs;
-                 description;
-                 description = description->next) {
-                videoCaps.setProperty("width", description->wWidth);
-                videoCaps.setProperty("height", description->wHeight);
-
-                if (description->intervals) {
-                    int prevInterval = 0;
-
-                    for (auto interval = description->intervals; interval && *interval; interval++) {
-                        auto fps = AkFrac(100e5, *interval);
-                        auto fpsValue = qRound(fps.value());
-
-                        if (prevInterval != fpsValue) {
-                            videoCaps.setProperty("fps", fps.toString());
-                            devicesCaps[deviceId] << QVariant::fromValue(videoCaps);
-                        }
-
-                        prevInterval = fpsValue;
-                    }
-                } else if (description->dwFrameIntervalStep > 0
-                         && description->dwMinFrameInterval != description->dwMaxFrameInterval) {
-                    int prevInterval = 0;
-
-                    for (auto interval = description->dwMinFrameInterval;
-                         interval <= description->dwMaxFrameInterval;
-                         interval += description->dwFrameIntervalStep) {
-                        auto fps = AkFrac(100e5, interval);
-                        auto fpsValue = qRound(fps.value());
-
-                        if (prevInterval != fpsValue) {
-                            videoCaps.setProperty("fps", fps.toString());
-                            devicesCaps[deviceId] << QVariant::fromValue(videoCaps);
-                        }
-
-                        prevInterval = fpsValue;
-                    }
-                } else {
-                    auto fps = AkFrac(100e5, description->dwDefaultFrameInterval);
-                    videoCaps.setProperty("fps", fps.toString());
-                    devicesCaps[deviceId] << QVariant::fromValue(videoCaps);
-                }
-            }
-        }
-
-        QVariantList deviceControls;
-
-        for (auto pu = uvc_get_processing_units(deviceHnd); pu; pu = pu->next) {
-            for (auto &control: UvcControl::allSelectors(PROCESSING_UNIT))
-                if (pu->bmControls & control) {
-                    auto controls =
-                            this->d->controlsList(deviceHnd,
-                                                  pu->bUnitID,
-                                                  control,
-                                                  PROCESSING_UNIT);
-
-                    if (!controls.isEmpty())
-                        deviceControls << QVariant(controls);
-                }
-        }
-
-        imageControls[deviceId] = deviceControls;
-        deviceControls.clear();
-
-        for (auto ca = uvc_get_input_terminals(deviceHnd); ca; ca = ca->next) {
-            for (auto &control: UvcControl::allSelectors(CAMERA_TERMINAL))
-                if (ca->bmControls & control) {
-                    auto controls =
-                            this->d->controlsList(deviceHnd,
-                                                  ca->bTerminalID,
-                                                  control,
-                                                  CAMERA_TERMINAL);
-
-                    if (!controls.isEmpty())
-                        deviceControls << QVariant(controls);
-                }
-        }
-
-        cameraControls[deviceId] = deviceControls;
-
-        if (!this->d->m_deviceHnd || this->d->m_curDevice != deviceId)
-            uvc_close(deviceHnd);
-
-        uvc_free_device_descriptor(descriptor);
-    }
-
-updateDevices_failed:
-    if (devices)
-        uvc_free_device_list(devices, 1);
-
-    this->d->m_descriptions = descriptions;
-    this->d->m_devicesCaps = devicesCaps;
-    this->d->m_imageControls = imageControls;
-    this->d->m_cameraControls = cameraControls;
-
-    if (this->d->m_devices != devicesList) {
-        this->d->m_devices = devicesList;
-        emit this->webcamsChanged(this->d->m_devices.values());
-    }
 }
 
 #include "moc_capturelibuvc.cpp"

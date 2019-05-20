@@ -230,6 +230,7 @@ class CaptureV4L2Private
         QVariantMap controlStatus(const QVariantList &controls) const;
         QVariantMap mapDiff(const QVariantMap &map1,
                             const QVariantMap &map2) const;
+        void updateDevices();
 };
 
 CaptureV4L2::CaptureV4L2(QObject *parent):
@@ -237,17 +238,12 @@ CaptureV4L2::CaptureV4L2(QObject *parent):
 {
     this->d = new CaptureV4L2Private(this);
     this->d->m_fsWatcher = new QFileSystemWatcher({"/dev"}, this);
-
     QObject::connect(this->d->m_fsWatcher,
                      &QFileSystemWatcher::directoryChanged,
-                     this,
-                     &CaptureV4L2::onDirectoryChanged);
-    QObject::connect(this->d->m_fsWatcher,
-                     &QFileSystemWatcher::fileChanged,
-                     this,
-                     &CaptureV4L2::onFileChanged);
-
-    this->updateDevices();
+                     [this] () {
+                         this->d->updateDevices();
+                     });
+    this->d->updateDevices();
 }
 
 CaptureV4L2::~CaptureV4L2()
@@ -271,12 +267,12 @@ QList<int> CaptureV4L2::streams()
     if (!this->d->m_streams.isEmpty())
         return this->d->m_streams;
 
-    QVariantList caps = this->caps(this->d->m_device);
+    auto caps = this->caps(this->d->m_device);
 
     if (caps.isEmpty())
-        return QList<int>();
+        return {};
 
-    return QList<int> {0};
+    return {0};
 }
 
 QList<int> CaptureV4L2::listTracks(const QString &mimeType)
@@ -371,7 +367,6 @@ bool CaptureV4L2::resetImageControls()
 
     for (auto &control: this->imageControls()) {
         QVariantList params = control.toList();
-
         controls[params[0].toString()] = params[5].toInt();
     }
 
@@ -1106,6 +1101,62 @@ QVariantMap CaptureV4L2Private::mapDiff(const QVariantMap &map1,
     return map;
 }
 
+void CaptureV4L2Private::updateDevices()
+{
+    decltype(this->m_devices) devices;
+    decltype(this->m_descriptions) descriptions;
+    decltype(this->m_devicesCaps) devicesCaps;
+    QDir devicesDir("/dev");
+
+    auto devicesFiles = devicesDir.entryList(QStringList() << "video*",
+                                             QDir::System
+                                             | QDir::Readable
+                                             | QDir::Writable
+                                             | QDir::NoSymLinks
+                                             | QDir::NoDotAndDotDot
+                                             | QDir::CaseSensitive,
+                                             QDir::Name);
+
+    for (const QString &devicePath: devicesFiles) {
+        auto fileName = devicesDir.absoluteFilePath(devicePath);
+        int fd = x_open(fileName.toStdString().c_str(), O_RDWR | O_NONBLOCK, 0);
+
+        if (fd < 0)
+            continue;
+
+        auto caps = this->caps(fd);
+
+        if (!caps.empty()) {
+            v4l2_capability capability {};
+            QString description;
+
+            if (x_ioctl(fd, VIDIOC_QUERYCAP, &capability) >= 0)
+                description = reinterpret_cast<const char *>(capability.card);
+
+            devices << fileName;
+            descriptions[fileName] = description;
+            devicesCaps[fileName] = caps;
+        }
+
+        x_close(fd);
+    }
+
+    this->m_descriptions = descriptions;
+    this->m_devicesCaps = devicesCaps;
+
+    if (this->m_devices != devices) {
+        if (!this->m_devices.isEmpty())
+            this->m_fsWatcher->removePaths(this->m_devices);
+
+        this->m_devices = devices;
+#ifndef Q_OS_BSD4
+        if (!this->m_devices.isEmpty())
+            this->m_fsWatcher->addPaths(this->m_devices);
+#endif
+        emit self->webcamsChanged(this->m_devices);
+    }
+}
+
 bool CaptureV4L2::init()
 {
     this->d->m_localImageControls.clear();
@@ -1335,74 +1386,6 @@ void CaptureV4L2::reset()
     this->resetStreams();
     this->resetImageControls();
     this->resetCameraControls();
-}
-
-void CaptureV4L2::updateDevices()
-{
-    decltype(this->d->m_devices) devices;
-    decltype(this->d->m_descriptions) descriptions;
-    decltype(this->d->m_devicesCaps) devicesCaps;
-    QDir devicesDir("/dev");
-
-    auto devicesFiles = devicesDir.entryList(QStringList() << "video*",
-                                             QDir::System
-                                             | QDir::Readable
-                                             | QDir::Writable
-                                             | QDir::NoSymLinks
-                                             | QDir::NoDotAndDotDot
-                                             | QDir::CaseSensitive,
-                                             QDir::Name);
-
-    for (const QString &devicePath: devicesFiles) {
-        auto fileName = devicesDir.absoluteFilePath(devicePath);
-        int fd = x_open(fileName.toStdString().c_str(), O_RDWR | O_NONBLOCK, 0);
-
-        if (fd < 0)
-            continue;
-
-        auto caps = this->d->caps(fd);
-
-        if (!caps.empty()) {
-            v4l2_capability capability {};
-            QString description;
-
-            if (x_ioctl(fd, VIDIOC_QUERYCAP, &capability) >= 0)
-                description = reinterpret_cast<const char *>(capability.card);
-
-            devices << fileName;
-            descriptions[fileName] = description;
-            devicesCaps[fileName] = caps;
-        }
-
-        x_close(fd);
-    }
-
-    this->d->m_descriptions = descriptions;
-    this->d->m_devicesCaps = devicesCaps;
-
-    if (this->d->m_devices != devices) {
-        if (!this->d->m_devices.isEmpty())
-            this->d->m_fsWatcher->removePaths(this->d->m_devices);
-
-        this->d->m_devices = devices;
-#ifndef Q_OS_BSD4
-        if (!this->d->m_devices.isEmpty())
-            this->d->m_fsWatcher->addPaths(this->d->m_devices);
-#endif
-        emit this->webcamsChanged(this->d->m_devices);
-    }
-}
-
-void CaptureV4L2::onDirectoryChanged(const QString &path)
-{
-    Q_UNUSED(path)
-
-    this->updateDevices();
-}
-
-void CaptureV4L2::onFileChanged(const QString &fileName)
-{
-    Q_UNUSED(fileName)
 }
 
 #include "moc_capturev4l2.cpp"
