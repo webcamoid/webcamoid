@@ -33,18 +33,12 @@ class ACapsConvertElement: public AkElement
                WRITE setCaps
                RESET resetCaps
                NOTIFY capsChanged)
-    Q_PROPERTY(QString convertLib
-               READ convertLib
-               WRITE setConvertLib
-               RESET resetConvertLib
-               NOTIFY convertLibChanged)
 
     public:
         ACapsConvertElement();
         ~ACapsConvertElement();
 
         Q_INVOKABLE AkAudioCaps caps() const;
-        Q_INVOKABLE QString convertLib() const;
 
     private:
         ACapsConvertElementPrivate *d;
@@ -54,18 +48,12 @@ class ACapsConvertElement: public AkElement
 
     signals:
         void capsChanged(const AkAudioCaps &caps);
-        void convertLibChanged(const QString &convertLib);
 
     public slots:
         void setCaps(const AkAudioCaps &caps);
-        void setConvertLib(const QString &convertLib);
         void resetCaps();
-        void resetConvertLib();
 
         bool setState(AkElement::ElementState state);
-
-    private slots:
-        void convertLibUpdated(const QString &convertLib);
 };
 
 #endif // ACAPSCONVERTELEMENT_H

@@ -53,16 +53,6 @@ class VideoCaptureElement: public AkMultimediaSourceElement
                READ nBuffers
                WRITE setNBuffers
                RESET resetNBuffers)
-    Q_PROPERTY(QString codecLib
-               READ codecLib
-               WRITE setCodecLib
-               RESET resetCodecLib
-               NOTIFY codecLibChanged)
-    Q_PROPERTY(QString captureLib
-               READ captureLib
-               WRITE setCaptureLib
-               RESET resetCaptureLib
-               NOTIFY captureLibChanged)
 
     public:
         VideoCaptureElement();
@@ -71,7 +61,7 @@ class VideoCaptureElement: public AkMultimediaSourceElement
         Q_INVOKABLE QStringList medias();
         Q_INVOKABLE QString media() const;
         Q_INVOKABLE QList<int> streams();
-        Q_INVOKABLE QList<int> listTracks(const QString &mimeType="");
+        Q_INVOKABLE QList<int> listTracks(const QString &mimeType={});
         Q_INVOKABLE int defaultStream(const QString &mimeType);
         Q_INVOKABLE QString description(const QString &media);
         Q_INVOKABLE AkCaps caps(int stream);
@@ -79,8 +69,6 @@ class VideoCaptureElement: public AkMultimediaSourceElement
         Q_INVOKABLE QStringList listCapsDescription() const;
         Q_INVOKABLE QString ioMethod() const;
         Q_INVOKABLE int nBuffers() const;
-        Q_INVOKABLE QString codecLib() const;
-        Q_INVOKABLE QString captureLib() const;
         Q_INVOKABLE QVariantList imageControls() const;
         Q_INVOKABLE bool setImageControls(const QVariantMap &imageControls);
         Q_INVOKABLE bool resetImageControls();
@@ -102,8 +90,6 @@ class VideoCaptureElement: public AkMultimediaSourceElement
         void streamsChanged(const QList<int> &streams);
         void loopChanged(bool loop);
         void error(const QString &message);
-        void codecLibChanged(const QString &codecLib);
-        void captureLibChanged(const QString &captureLib);
         void imageControlsChanged(const QVariantMap &imageControls) const;
         void cameraControlsChanged(const QVariantMap &cameraControls) const;
 
@@ -112,21 +98,12 @@ class VideoCaptureElement: public AkMultimediaSourceElement
         void setStreams(const QList<int> &streams);
         void setIoMethod(const QString &ioMethod);
         void setNBuffers(int nBuffers);
-        void setCodecLib(const QString &codecLib);
-        void setCaptureLib(const QString &captureLib);
         void resetMedia();
         void resetStreams();
         void resetIoMethod();
         void resetNBuffers();
-        void resetCodecLib();
-        void resetCaptureLib();
         void reset();
         bool setState(AkElement::ElementState state);
-        void frameReady(const AkPacket &packet);
-
-    private slots:
-        void codecLibUpdated(const QString &codecLib);
-        void captureLibUpdated(const QString &captureLib);
 };
 
 #endif // VIDEOCAPTUREELEMENT_H

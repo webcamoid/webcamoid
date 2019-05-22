@@ -31,8 +31,9 @@ CONFIG += plugin
 HEADERS = \
     acapsconvert.h \
     acapsconvertelement.h \
-    convertaudio.h \
-    acapsconvertglobals.h
+    acapsconvertelementsettings.h \
+    acapsconvertglobals.h \
+    convertaudio.h
 
 INCLUDEPATH += \
     ../../../Lib/src
@@ -46,8 +47,9 @@ QT += qml
 SOURCES = \
     acapsconvert.cpp \
     acapsconvertelement.cpp \
-    convertaudio.cpp \
-    acapsconvertglobals.cpp
+    acapsconvertelementsettings.cpp \
+    acapsconvertglobals.cpp \
+    convertaudio.cpp
 
 DESTDIR = $${OUT_PWD}/../$${BIN_DIR}
 TARGET = ACapsConvert

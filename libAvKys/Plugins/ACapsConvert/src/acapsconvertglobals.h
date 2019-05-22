@@ -22,6 +22,8 @@
 
 #include <QObject>
 
+class ACapsConvertGlobalsPrivate;
+
 class ACapsConvertGlobals: public QObject
 {
     Q_OBJECT
@@ -30,15 +32,18 @@ class ACapsConvertGlobals: public QObject
                WRITE setConvertLib
                RESET resetConvertLib
                NOTIFY convertLibChanged)
+    Q_PROPERTY(QStringList subModules
+               READ subModules)
 
     public:
         ACapsConvertGlobals(QObject *parent=nullptr);
+        ~ACapsConvertGlobals();
 
         Q_INVOKABLE QString convertLib() const;
+        Q_INVOKABLE QStringList subModules() const;
 
     private:
-        QString m_convertLib;
-        QStringList m_preferredFramework;
+        ACapsConvertGlobalsPrivate *d;
 
     signals:
         void convertLibChanged(const QString &convertLib);

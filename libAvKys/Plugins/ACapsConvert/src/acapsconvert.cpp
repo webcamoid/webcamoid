@@ -19,6 +19,7 @@
 
 #include "acapsconvert.h"
 #include "acapsconvertelement.h"
+#include "acapsconvertelementsettings.h"
 
 QObject *ACapsConvert::create(const QString &key, const QString &specification)
 {
@@ -26,13 +27,16 @@ QObject *ACapsConvert::create(const QString &key, const QString &specification)
 
     if (key == AK_PLUGIN_TYPE_ELEMENT)
         return new ACapsConvertElement();
+    else if (key == AK_PLUGIN_TYPE_ELEMENT_SETTINGS)
+        return new ACapsConvertElementSettings();
 
     return nullptr;
 }
 
 QStringList ACapsConvert::keys() const
 {
-    return QStringList();
+    return {AK_PLUGIN_TYPE_ELEMENT,
+            AK_PLUGIN_TYPE_ELEMENT_SETTINGS};
 }
 
 #include "moc_acapsconvert.cpp"

@@ -21,45 +21,70 @@
 
 #include "desktopcaptureglobals.h"
 
+class DesktopCaptureGlobalsPrivate
+{
+    public:
+        QString m_captureLib;
+        QStringList m_preferredLibrary;
+
+        DesktopCaptureGlobalsPrivate();
+};
+
 DesktopCaptureGlobals::DesktopCaptureGlobals(QObject *parent):
     QObject(parent)
 {
-    this->m_preferredLibrary = QStringList {
-        "avfoundation",
-        "androidscreen",
-        "qtscreen",
-    };
-
+    this->d = new DesktopCaptureGlobalsPrivate;
     this->resetCaptureLib();
+}
+
+DesktopCaptureGlobals::~DesktopCaptureGlobals()
+{
+    delete this->d;
 }
 
 QString DesktopCaptureGlobals::captureLib() const
 {
-    return this->m_captureLib;
+    return this->d->m_captureLib;
 }
 
-void DesktopCaptureGlobals::setCaptureLib(const QString &audioLib)
+QStringList DesktopCaptureGlobals::subModules() const
 {
-    if (this->m_captureLib == audioLib)
+    return AkElement::listSubModules("DesktopCapture");
+}
+
+void DesktopCaptureGlobals::setCaptureLib(const QString &captureLib)
+{
+    if (this->d->m_captureLib == captureLib)
         return;
 
-    this->m_captureLib = audioLib;
-    emit this->captureLibChanged(audioLib);
+    this->d->m_captureLib = captureLib;
+    emit this->captureLibChanged(captureLib);
 }
 
 void DesktopCaptureGlobals::resetCaptureLib()
 {
     auto subModules = AkElement::listSubModules("DesktopCapture");
 
-    for (auto &framework: this->m_preferredLibrary)
+    for (auto &framework: this->d->m_preferredLibrary)
         if (subModules.contains(framework)) {
             this->setCaptureLib(framework);
 
             return;
         }
 
-    if (this->m_captureLib.isEmpty() && !subModules.isEmpty())
+    if (this->d->m_captureLib.isEmpty() && !subModules.isEmpty())
         this->setCaptureLib(subModules.first());
     else
         this->setCaptureLib("");
 }
+
+DesktopCaptureGlobalsPrivate::DesktopCaptureGlobalsPrivate()
+{
+    this->m_preferredLibrary = QStringList {
+        "avfoundation",
+        "androidscreen",
+        "qtscreen",
+    };
+}
+
+#include "moc_desktopcaptureglobals.cpp"

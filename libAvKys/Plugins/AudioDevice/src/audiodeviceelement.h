@@ -56,11 +56,6 @@ class AudioDeviceElement: public AkElement
                WRITE setCaps
                RESET resetCaps
                NOTIFY capsChanged)
-    Q_PROPERTY(QString audioLib
-               READ audioLib
-               WRITE setAudioLib
-               RESET resetAudioLib
-               NOTIFY audioLibChanged)
 
     public:
         AudioDeviceElement();
@@ -78,7 +73,6 @@ class AudioDeviceElement: public AkElement
         Q_INVOKABLE QList<AkAudioCaps::SampleFormat> supportedFormats(const QString &device);
         Q_INVOKABLE QList<AkAudioCaps::ChannelLayout> supportedChannelLayouts(const QString &device);
         Q_INVOKABLE QList<int> supportedSampleRates(const QString &device);
-        Q_INVOKABLE QString audioLib() const;
 
     private:
         AudioDeviceElementPrivate *d;
@@ -94,23 +88,15 @@ class AudioDeviceElement: public AkElement
         void deviceChanged(const QString &device);
         void bufferSizeChanged(int bufferSize);
         void capsChanged(const AkAudioCaps &caps);
-        void audioLibChanged(const QString &audioLib);
 
     public slots:
         void setDevice(const QString &device);
         void setBufferSize(int bufferSize);
         void setCaps(const AkAudioCaps &caps);
-        void setAudioLib(const QString &audioLib);
         void resetDevice();
         void resetBufferSize();
         void resetCaps();
-        void resetAudioLib();
         bool setState(AkElement::ElementState state);
-
-    private slots:
-        void setInputs(const QStringList &inputs);
-        void setOutputs(const QStringList &outputs);
-        void audioLibUpdated(const QString &audioLib);
 };
 
 #endif // AUDIODEVICEELEMENT_H

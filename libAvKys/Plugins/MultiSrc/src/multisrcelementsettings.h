@@ -17,14 +17,12 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef VIDEOCAPTUREGLOBALS_H
-#define VIDEOCAPTUREGLOBALS_H
+#ifndef MULTISRCELEMENTSETTINGS_H
+#define MULTISRCELEMENTSETTINGS_H
 
 #include <QObject>
 
-class VideoCaptureGlobalsPrivate;
-
-class VideoCaptureGlobals: public QObject
+class MultiSrcElementSettings: public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString codecLib
@@ -32,37 +30,23 @@ class VideoCaptureGlobals: public QObject
                WRITE setCodecLib
                RESET resetCodecLib
                NOTIFY codecLibChanged)
-    Q_PROPERTY(QString captureLib
-               READ captureLib
-               WRITE setCaptureLib
-               RESET resetCaptureLib
-               NOTIFY captureLibChanged)
-    Q_PROPERTY(QStringList codecSubModules
-               READ codecSubModules)
-    Q_PROPERTY(QStringList captureSubModules
-               READ captureSubModules)
+    Q_PROPERTY(QStringList subModules
+               READ subModules
+               NOTIFY subModulesChanged)
 
     public:
-        VideoCaptureGlobals(QObject *parent=nullptr);
-        ~VideoCaptureGlobals();
+        MultiSrcElementSettings(QObject *parent=nullptr);
 
         Q_INVOKABLE QString codecLib() const;
-        Q_INVOKABLE QString captureLib() const;
-        Q_INVOKABLE QStringList codecSubModules() const;
-        Q_INVOKABLE QStringList captureSubModules() const;
-
-    private:
-        VideoCaptureGlobalsPrivate *d;
+        Q_INVOKABLE QStringList subModules() const;
 
     signals:
         void codecLibChanged(const QString &codecLib);
-        void captureLibChanged(const QString &captureLib);
+        void subModulesChanged(const QStringList &subModules);
 
     public slots:
         void setCodecLib(const QString &codecLib);
-        void setCaptureLib(const QString &captureLib);
         void resetCodecLib();
-        void resetCaptureLib();
 };
 
-#endif // VIDEOCAPTUREGLOBALS_H
+#endif // MULTISRCELEMENTSETTINGS_H

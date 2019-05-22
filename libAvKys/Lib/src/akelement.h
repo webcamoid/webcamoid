@@ -68,7 +68,7 @@ class AKCOMMONS_EXPORT AkElement: public QObject
         AkElement(QObject *parent=nullptr);
         virtual ~AkElement();
 
-        Q_INVOKABLE QString pluginId() const;
+        Q_INVOKABLE virtual QString pluginId() const;
         Q_INVOKABLE static QString pluginId(const QString &path);
         Q_INVOKABLE QString pluginPath() const;
         Q_INVOKABLE virtual AkElement::ElementState state() const;
@@ -99,12 +99,23 @@ class AKCOMMONS_EXPORT AkElement: public QObject
                                        const AkElementPtr &dstElement);
         Q_INVOKABLE static bool unlink(const QObject *srcElement,
                                        const QObject *dstElement);
+        template<typename T>
+        static inline QSharedPointer<T> create(const QString &pluginId,
+                                               const QString &pluginSub={})
+        {
+            auto object = AkElement::createPtr(pluginId, pluginSub);
+
+            if (!object)
+                return {};
+
+            return QSharedPointer<T>(reinterpret_cast<T *>(object));
+        }
         Q_INVOKABLE static AkElementPtr create(const QString &pluginId,
-                                               const QString &elementName={});
-        Q_INVOKABLE static AkElement *createPtr(const QString &pluginId,
-                                                const QString &elementName={});
+                                               const QString &pluginSub={});
+        Q_INVOKABLE static QObject *createPtr(const QString &pluginId,
+                                              const QString &pluginSub={});
         Q_INVOKABLE static QStringList listSubModules(const QString &pluginId,
-                                                      const QString &type="");
+                                                      const QString &type={});
         Q_INVOKABLE QStringList listSubModules(const QStringList &types={});
         Q_INVOKABLE static QStringList listSubModulesPaths(const QString &pluginId);
         Q_INVOKABLE QStringList listSubModulesPaths();

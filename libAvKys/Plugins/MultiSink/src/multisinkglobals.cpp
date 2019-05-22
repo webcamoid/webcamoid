@@ -21,28 +21,43 @@
 
 #include "multisinkglobals.h"
 
+class MultiSinkGlobalsPrivate
+{
+    public:
+        QString m_codecLib;
+        QStringList m_preferredFramework;
+
+        MultiSinkGlobalsPrivate();
+};
+
 MultiSinkGlobals::MultiSinkGlobals(QObject *parent):
     QObject(parent)
 {
-    this->m_preferredFramework = QStringList {
-        "ffmpeg",
-        "gstreamer"
-    };
-
+    this->d = new MultiSinkGlobalsPrivate;
     this->resetCodecLib();
+}
+
+MultiSinkGlobals::~MultiSinkGlobals()
+{
+    delete this->d;
 }
 
 QString MultiSinkGlobals::codecLib() const
 {
-    return this->m_codecLib;
+    return this->d->m_codecLib;
+}
+
+QStringList MultiSinkGlobals::subModules() const
+{
+    return AkElement::listSubModules("MultiSink");
 }
 
 void MultiSinkGlobals::setCodecLib(const QString &codecLib)
 {
-    if (this->m_codecLib == codecLib)
+    if (this->d->m_codecLib == codecLib)
         return;
 
-    this->m_codecLib = codecLib;
+    this->d->m_codecLib = codecLib;
     emit this->codecLibChanged(codecLib);
 }
 
@@ -50,15 +65,25 @@ void MultiSinkGlobals::resetCodecLib()
 {
     auto subModules = AkElement::listSubModules("MultiSink");
 
-    for (auto &framework: this->m_preferredFramework)
+    for (auto &framework: this->d->m_preferredFramework)
         if (subModules.contains(framework)) {
             this->setCodecLib(framework);
 
             return;
         }
 
-    if (this->m_codecLib.isEmpty() && !subModules.isEmpty())
+    if (this->d->m_codecLib.isEmpty() && !subModules.isEmpty())
         this->setCodecLib(subModules.first());
     else
         this->setCodecLib("");
 }
+
+MultiSinkGlobalsPrivate::MultiSinkGlobalsPrivate()
+{
+    this->m_preferredFramework = QStringList {
+        "ffmpeg",
+        "gstreamer"
+    };
+}
+
+#include "moc_multisinkglobals.cpp"

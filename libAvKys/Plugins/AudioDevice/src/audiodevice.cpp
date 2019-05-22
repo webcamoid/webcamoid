@@ -19,6 +19,7 @@
 
 #include "audiodevice.h"
 #include "audiodeviceelement.h"
+#include "audiodeviceelementsettings.h"
 
 QObject *AudioDevice::create(const QString &key, const QString &specification)
 {
@@ -26,13 +27,16 @@ QObject *AudioDevice::create(const QString &key, const QString &specification)
 
     if (key == AK_PLUGIN_TYPE_ELEMENT)
         return new AudioDeviceElement();
+    else if (key == AK_PLUGIN_TYPE_ELEMENT_SETTINGS)
+        return new AudioDeviceElementSettings();
 
     return nullptr;
 }
 
 QStringList AudioDevice::keys() const
 {
-    return QStringList();
+    return {AK_PLUGIN_TYPE_ELEMENT,
+            AK_PLUGIN_TYPE_ELEMENT_SETTINGS};
 }
 
 #include "moc_audiodevice.cpp"

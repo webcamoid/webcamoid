@@ -30,11 +30,14 @@
 #include <akvideocaps.h>
 #include <akpacket.h>
 #include <akvideopacket.h>
+#include <akplugin.h>
 
 #include "recording.h"
 
 #define DEFAULT_RECORD_AUDIO true
 #define AUDIO_RECORDING_KEY "Enable audio recording"
+
+using ObjectPtr = QSharedPointer<QObject>;
 
 class RecordingPrivate
 {
@@ -45,6 +48,10 @@ class RecordingPrivate
         AkVideoCaps m_videoCaps;
         QString m_videoFileName;
         AkElementPtr m_record {AkElement::create("MultiSink")};
+        ObjectPtr m_recordSettings {
+             AkElement::create<QObject>("MultiSink",
+                                        AK_PLUGIN_TYPE_ELEMENT_SETTINGS)
+        };
         QMutex m_mutex;
         AkVideoPacket m_curPacket;
         QImage m_photo;
@@ -105,7 +112,10 @@ Recording::Recording(QQmlApplicationEngine *engine, QObject *parent):
                          SIGNAL(supportedFormatsChanged(const QStringList &)),
                          this,
                          SLOT(updateFormat()));
-        QObject::connect(this->d->m_record.data(),
+    }
+
+    if (this->d->m_recordSettings) {
+        QObject::connect(this->d->m_recordSettings.data(),
                          SIGNAL(codecLibChanged(const QString &)),
                          this,
                          SLOT(saveMultiSinkCodecLib(const QString &)));
@@ -377,10 +387,11 @@ void Recording::resetFormat()
 {
     QString defaultFormat;
 
-    if (this->d->m_record)
-        defaultFormat =
-                this->d->m_record->property("codecLib").toString() == "gstreamer"?
-                    "webmmux": "webm";
+    if (this->d->m_recordSettings) {
+        auto codecLib =
+                this->d->m_recordSettings->property("codecLib").toString();
+        defaultFormat = codecLib == "gstreamer"? "webmmux": "webm";
+    }
 
     this->setFormat(defaultFormat);
 }
@@ -487,10 +498,11 @@ void Recording::capsUpdated()
 
 void Recording::updateFormat()
 {
-    if (!this->d->m_record)
+    if (!this->d->m_recordSettings)
         return;
 
-    auto codecLib = this->d->m_record->property("codecLib").toString();
+    auto codecLib =
+            this->d->m_recordSettings->property("codecLib").toString();
 
     if (codecLib.isEmpty())
         return;
@@ -504,19 +516,22 @@ void Recording::loadProperties()
 
     config.beginGroup("Libraries");
 
-    if (this->d->m_record)
-        this->d->m_record->setProperty("codecLib",
-                                       config.value("MultiSink.codecLib",
-                                                    this->d->m_record->property("codecLib")));
+    if (this->d->m_recordSettings) {
+        auto codecLib =
+                config.value("MultiSink.codecLib",
+                             this->d->m_recordSettings->property("codecLib"));
+        this->d->m_recordSettings->setProperty("codecLib", codecLib);
+    }
 
     config.endGroup();
 
     QString defaultFormat;
 
-    if (this->d->m_record)
-        defaultFormat =
-                this->d->m_record->property("codecLib").toString() == "gstreamer"?
-                    "webmmux": "webm";
+    if (this->d->m_recordSettings) {
+        auto codecLib =
+                this->d->m_recordSettings->property("codecLib").toString();
+        defaultFormat = codecLib == "gstreamer"? "webmmux": "webm";
+    }
 
     QString preferredFormat =
             this->d->m_availableFormats.isEmpty()
@@ -878,9 +893,10 @@ void Recording::saveProperties()
     QSettings config;
     config.beginGroup("Libraries");
 
-    if (this->d->m_record)
-        config.setValue("MultiSink.codecLib",
-                        this->d->m_record->property("codecLib"));
+    if (this->d->m_recordSettings) {
+        auto codecLib = this->d->m_recordSettings->property("codecLib");
+        config.setValue("MultiSink.codecLib", codecLib);
+    }
 
     config.endGroup();
 }

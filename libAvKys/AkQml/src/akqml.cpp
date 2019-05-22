@@ -165,9 +165,9 @@ QObject *AkQml::newVideoCaps(const QString &format,
 }
 
 QObject *AkQml::newElement(const QString &pluginId,
-                           const QString &elementName) const
+                           const QString &pluginSub) const
 {
-    return AkElement::createPtr(pluginId, elementName);
+    return AkElement::createPtr(pluginId, pluginSub);
 }
 
 QVariantList AkQml::newList(const QList<AkAudioCaps::SampleFormat> &sampleFormats) const

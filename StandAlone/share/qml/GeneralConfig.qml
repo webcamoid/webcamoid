@@ -28,13 +28,19 @@ AkScrollView {
     clip: true
     contentHeight: generalConfigs.height
 
-    property variant videoCapture: Ak.newElement("VideoCapture")
-    property variant desktopCapture: Ak.newElement("DesktopCapture")
-    property variant audioDevice: Ak.newElement("AudioDevice")
-    property variant audioConvert: Ak.newElement("ACapsConvert")
+    property variant videoCapture: Ak.newElement("VideoCapture",
+                                                 "Ak.Element.Settings")
+    property variant desktopCapture: Ak.newElement("DesktopCapture",
+                                                   "Ak.Element.Settings")
+    property variant audioDevice: Ak.newElement("AudioDevice",
+                                                "Ak.Element.Settings")
+    property variant audioConvert: Ak.newElement("ACapsConvert",
+                                                 "Ak.Element.Settings")
     property variant virtualCamera: Ak.newElement("VirtualCamera")
-    property variant multiSrc: Ak.newElement("MultiSrc")
-    property variant multiSink: Ak.newElement("MultiSink")
+    property variant multiSrc: Ak.newElement("MultiSrc",
+                                             "Ak.Element.Settings")
+    property variant multiSink: Ak.newElement("MultiSink",
+                                              "Ak.Element.Settings")
 
     ColumnLayout {
         id: generalConfigs
@@ -69,7 +75,7 @@ AkScrollView {
             }
             ComboBox {
                 Layout.fillWidth: true
-                model: videoCapture.listSubModules(["capture"])
+                model: videoCapture.captureSubModules
                 currentIndex: model.indexOf(videoCapture.captureLib)
 
                 onCurrentIndexChanged: videoCapture.captureLib = model[currentIndex]
@@ -79,7 +85,7 @@ AkScrollView {
             }
             ComboBox {
                 Layout.fillWidth: true
-                model: desktopCapture.listSubModules()
+                model: desktopCapture.subModules
                 currentIndex: model.indexOf(desktopCapture.captureLib)
 
                 onCurrentIndexChanged: desktopCapture.captureLib = model[currentIndex]
@@ -89,7 +95,7 @@ AkScrollView {
             }
             ComboBox {
                 Layout.fillWidth: true
-                model: audioDevice.listSubModules()
+                model: audioDevice.subModules
                 currentIndex: model.indexOf(audioDevice.audioLib)
 
                 onCurrentIndexChanged: audioDevice.audioLib = model[currentIndex]
@@ -99,7 +105,7 @@ AkScrollView {
             }
             ComboBox {
                 Layout.fillWidth: true
-                model: videoCapture.listSubModules(["convert"])
+                model: videoCapture.codecSubModules
                 currentIndex: model.indexOf(videoCapture.codecLib)
 
                 onCurrentIndexChanged: videoCapture.codecLib = model[currentIndex]
@@ -109,7 +115,7 @@ AkScrollView {
             }
             ComboBox {
                 Layout.fillWidth: true
-                model: audioConvert.listSubModules()
+                model: audioConvert.subModules
                 currentIndex: model.indexOf(audioConvert.convertLib)
 
                 onCurrentIndexChanged: audioConvert.convertLib = model[currentIndex]
@@ -119,7 +125,7 @@ AkScrollView {
             }
             ComboBox {
                 Layout.fillWidth: true
-                model: multiSrc.listSubModules()
+                model: multiSrc.subModules
                 currentIndex: model.indexOf(multiSrc.codecLib)
 
                 onCurrentIndexChanged: multiSrc.codecLib = model[currentIndex]
@@ -129,7 +135,7 @@ AkScrollView {
             }
             ComboBox {
                 Layout.fillWidth: true
-                model: multiSink.listSubModules()
+                model: multiSink.subModules
                 currentIndex: model.indexOf(multiSink.codecLib)
 
                 onCurrentIndexChanged: multiSink.codecLib = model[currentIndex]

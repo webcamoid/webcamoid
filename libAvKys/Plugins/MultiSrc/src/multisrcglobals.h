@@ -22,6 +22,8 @@
 
 #include <QObject>
 
+class MultiSrcGlobalsPrivate;
+
 class MultiSrcGlobals: public QObject
 {
     Q_OBJECT
@@ -30,15 +32,18 @@ class MultiSrcGlobals: public QObject
                WRITE setCodecLib
                RESET resetCodecLib
                NOTIFY codecLibChanged)
+    Q_PROPERTY(QStringList subModules
+               READ subModules)
 
     public:
         MultiSrcGlobals(QObject *parent=nullptr);
+        ~MultiSrcGlobals();
 
         Q_INVOKABLE QString codecLib() const;
+        Q_INVOKABLE QStringList subModules() const;
 
     private:
-        QString m_codecLib;
-        QStringList m_preferredFramework;
+        MultiSrcGlobalsPrivate *d;
 
     signals:
         void codecLibChanged(const QString &codecLib);

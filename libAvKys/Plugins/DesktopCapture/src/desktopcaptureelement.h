@@ -51,11 +51,6 @@ class DesktopCaptureElement: public AkMultimediaSourceElement
                WRITE setFps
                RESET resetFps
                NOTIFY fpsChanged)
-    Q_PROPERTY(QString captureLib
-               READ captureLib
-               WRITE setCaptureLib
-               RESET resetCaptureLib
-               NOTIFY captureLibChanged)
 
     public:
         DesktopCaptureElement();
@@ -68,7 +63,6 @@ class DesktopCaptureElement: public AkMultimediaSourceElement
         Q_INVOKABLE int defaultStream(const QString &mimeType);
         Q_INVOKABLE QString description(const QString &media);
         Q_INVOKABLE AkCaps caps(int stream);
-        Q_INVOKABLE QString captureLib() const;
 
     private:
         DesktopCaptureElementPrivate *d;
@@ -86,19 +80,13 @@ class DesktopCaptureElement: public AkMultimediaSourceElement
         void fpsChanged(const AkFrac &fps);
         void sizeChanged(const QString &media, const QSize &size);
         void error(const QString &message);
-        void captureLibChanged(const QString &captureLib);
 
     public slots:
         void setFps(const AkFrac &fps);
         void resetFps();
         void setMedia(const QString &media);
         void resetMedia();
-        void setCaptureLib(const QString &captureLib);
-        void resetCaptureLib();
         bool setState(AkElement::ElementState state);
-
-    private slots:
-        void captureLibUpdated(const QString &captureLib);
 };
 
 #endif // DESKTOPCAPTUREELEMENT_H

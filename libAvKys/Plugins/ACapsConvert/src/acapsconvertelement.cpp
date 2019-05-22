@@ -24,10 +24,8 @@
 #include <akaudiocaps.h>
 
 #include "acapsconvertelement.h"
-#include "acapsconvertglobals.h"
+#include "acapsconvertelementsettings.h"
 #include "convertaudio.h"
-
-Q_GLOBAL_STATIC(ACapsConvertGlobals, globalACapsConvert)
 
 template<typename T>
 inline QSharedPointer<T> ptr_cast(QObject *obj=nullptr)
@@ -40,26 +38,27 @@ using ConvertAudioPtr = QSharedPointer<ConvertAudio>;
 class ACapsConvertElementPrivate
 {
     public:
+        ACapsConvertElement *self;
+        ACapsConvertElementSettings m_settings;
         AkAudioCaps m_caps;
         ConvertAudioPtr m_convertAudio;
         QMutex m_mutex;
+
+        explicit ACapsConvertElementPrivate(ACapsConvertElement *self);
+        void convertLibUpdated(const QString &convertLib);
 };
 
 ACapsConvertElement::ACapsConvertElement():
     AkElement()
 {
-    this->d = new ACapsConvertElementPrivate;
+    this->d = new ACapsConvertElementPrivate(this);
+    QObject::connect(&this->d->m_settings,
+                     &ACapsConvertElementSettings::convertLibChanged,
+                     [this] (const QString &convertLib) {
+                        this->d->convertLibUpdated(convertLib);
+                     });
 
-    QObject::connect(globalACapsConvert,
-                     SIGNAL(convertLibChanged(const QString &)),
-                     this,
-                     SIGNAL(convertLibChanged(const QString &)));
-    QObject::connect(globalACapsConvert,
-                     SIGNAL(convertLibChanged(const QString &)),
-                     this,
-                     SLOT(convertLibUpdated(const QString &)));
-
-    this->convertLibUpdated(globalACapsConvert->convertLib());
+    this->d->convertLibUpdated(this->d->m_settings.convertLib());
 }
 
 ACapsConvertElement::~ACapsConvertElement()
@@ -70,11 +69,6 @@ ACapsConvertElement::~ACapsConvertElement()
 AkAudioCaps ACapsConvertElement::caps() const
 {
     return this->d->m_caps;
-}
-
-QString ACapsConvertElement::convertLib() const
-{
-    return globalACapsConvert->convertLib();
 }
 
 AkPacket ACapsConvertElement::iAudioStream(const AkAudioPacket &packet)
@@ -100,19 +94,9 @@ void ACapsConvertElement::setCaps(const AkAudioCaps &caps)
     emit this->capsChanged(caps);
 }
 
-void ACapsConvertElement::setConvertLib(const QString &convertLib)
-{
-    globalACapsConvert->setConvertLib(convertLib);
-}
-
 void ACapsConvertElement::resetCaps()
 {
     this->setCaps({});
-}
-
-void ACapsConvertElement::resetConvertLib()
-{
-    globalACapsConvert->resetConvertLib();
 }
 
 bool ACapsConvertElement::setState(AkElement::ElementState state)
@@ -171,19 +155,24 @@ bool ACapsConvertElement::setState(AkElement::ElementState state)
     return false;
 }
 
-void ACapsConvertElement::convertLibUpdated(const QString &convertLib)
+ACapsConvertElementPrivate::ACapsConvertElementPrivate(ACapsConvertElement *self):
+    self(self)
 {
-    auto state = this->state();
-    this->setState(AkElement::ElementStateNull);
 
-    this->d->m_mutex.lock();
+}
 
-    this->d->m_convertAudio =
+void ACapsConvertElementPrivate::convertLibUpdated(const QString &convertLib)
+{
+    auto state = self->state();
+    self->setState(AkElement::ElementStateNull);
+
+    this->m_mutex.lock();
+    this->m_convertAudio =
             ptr_cast<ConvertAudio>(ACapsConvertElement::loadSubModule("ACapsConvert",
                                                                       convertLib));
-    this->d->m_mutex.unlock();
+    this->m_mutex.unlock();
 
-    this->setState(state);
+    self->setState(state);
 }
 
 #include "moc_acapsconvertelement.cpp"

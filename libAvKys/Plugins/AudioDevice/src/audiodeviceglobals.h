@@ -22,6 +22,8 @@
 
 #include <QObject>
 
+class AudioDeviceGlobalsPrivate;
+
 class AudioDeviceGlobals: public QObject
 {
     Q_OBJECT
@@ -30,15 +32,18 @@ class AudioDeviceGlobals: public QObject
                WRITE setAudioLib
                RESET resetAudioLib
                NOTIFY audioLibChanged)
+    Q_PROPERTY(QStringList subModules
+               READ subModules)
 
     public:
         AudioDeviceGlobals(QObject *parent=nullptr);
+        ~AudioDeviceGlobals();
 
         Q_INVOKABLE QString audioLib() const;
+        Q_INVOKABLE QStringList subModules() const;
 
     private:
-        QString m_audioLib;
-        QStringList m_preferredLibrary;
+        AudioDeviceGlobalsPrivate *d;
 
     signals:
         void audioLibChanged(const QString &audioLib);

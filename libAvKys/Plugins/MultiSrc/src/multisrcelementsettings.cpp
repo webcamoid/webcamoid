@@ -17,26 +17,38 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include "multisrc.h"
-#include "multisrcelement.h"
 #include "multisrcelementsettings.h"
+#include "multisrcglobals.h"
 
-QObject *MultiSrc::create(const QString &key, const QString &specification)
+Q_GLOBAL_STATIC(MultiSrcGlobals, globalMultiSrc)
+
+MultiSrcElementSettings::MultiSrcElementSettings(QObject *parent):
+    QObject(parent)
 {
-    Q_UNUSED(specification)
-
-    if (key == AK_PLUGIN_TYPE_ELEMENT)
-        return new MultiSrcElement();
-    else if (key == AK_PLUGIN_TYPE_ELEMENT_SETTINGS)
-        return new MultiSrcElementSettings();
-
-    return nullptr;
+    QObject::connect(globalMultiSrc,
+                     &MultiSrcGlobals::codecLibChanged,
+                     this,
+                     &MultiSrcElementSettings::codecLibChanged);
 }
 
-QStringList MultiSrc::keys() const
+QString MultiSrcElementSettings::codecLib() const
 {
-    return {AK_PLUGIN_TYPE_ELEMENT,
-            AK_PLUGIN_TYPE_ELEMENT_SETTINGS};
+    return globalMultiSrc->codecLib();
 }
 
-#include "moc_multisrc.cpp"
+QStringList MultiSrcElementSettings::subModules() const
+{
+    return globalMultiSrc->subModules();
+}
+
+void MultiSrcElementSettings::setCodecLib(const QString &codecLib)
+{
+    globalMultiSrc->setCodecLib(codecLib);
+}
+
+void MultiSrcElementSettings::resetCodecLib()
+{
+    globalMultiSrc->resetCodecLib();
+}
+
+#include "moc_multisrcelementsettings.cpp"

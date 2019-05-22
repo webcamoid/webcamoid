@@ -36,6 +36,7 @@ CONFIG += plugin
 HEADERS = \
     desktopcapture.h \
     desktopcaptureelement.h \
+    desktopcaptureelementsettings.h \
     desktopcaptureglobals.h \
     screendev.h
 
@@ -55,6 +56,7 @@ RESOURCES = \
 SOURCES = \
     desktopcapture.cpp \
     desktopcaptureelement.cpp \
+    desktopcaptureelementsettings.cpp \
     desktopcaptureglobals.cpp \
     screendev.cpp
 

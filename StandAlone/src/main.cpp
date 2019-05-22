@@ -16,7 +16,7 @@
  *
  * Web-Site: http://webcamoid.github.io/
  */
-
+#include <QtDebug>
 #include <QApplication>
 #include <QTranslator>
 #include <QPalette>

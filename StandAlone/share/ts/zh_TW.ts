@@ -268,62 +268,62 @@
 <context>
     <name>GeneralConfig</name>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="46"/>
+        <location filename="../qml/GeneralConfig.qml" line="52"/>
         <source>Play webcam on start</source>
         <translation>在開始時播放網路攝影機</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="52"/>
+        <location filename="../qml/GeneralConfig.qml" line="58"/>
         <source>Enable advanced effects mode</source>
         <translation>啟用進階效果模式</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="58"/>
+        <location filename="../qml/GeneralConfig.qml" line="64"/>
         <source>Frameworks &amp; libraries</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="68"/>
+        <location filename="../qml/GeneralConfig.qml" line="74"/>
         <source>Video capture</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="78"/>
+        <location filename="../qml/GeneralConfig.qml" line="84"/>
         <source>Desktop capture</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="88"/>
+        <location filename="../qml/GeneralConfig.qml" line="94"/>
         <source>Audio capture/play</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="98"/>
+        <location filename="../qml/GeneralConfig.qml" line="104"/>
         <source>Video convert</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="108"/>
+        <location filename="../qml/GeneralConfig.qml" line="114"/>
         <source>Audio convert</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="149"/>
+        <location filename="../qml/GeneralConfig.qml" line="155"/>
         <source>Virtual camera driver</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="118"/>
+        <location filename="../qml/GeneralConfig.qml" line="124"/>
         <source>Video playback</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="128"/>
+        <location filename="../qml/GeneralConfig.qml" line="134"/>
         <source>Video record</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="138"/>
+        <location filename="../qml/GeneralConfig.qml" line="144"/>
         <source>Root method</source>
         <translation type="unfinished"></translation>
     </message>
@@ -562,35 +562,35 @@
 <context>
     <name>Recording</name>
     <message>
-        <location filename="../../src/recording.cpp" line="597"/>
+        <location filename="../../src/recording.cpp" line="612"/>
         <source>Audio</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/recording.cpp" line="598"/>
+        <location filename="../../src/recording.cpp" line="613"/>
         <source>Video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/recording.cpp" line="599"/>
+        <location filename="../../src/recording.cpp" line="614"/>
         <source>Subtitle</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/recording.cpp" line="664"/>
-        <location filename="../../src/recording.cpp" line="830"/>
+        <location filename="../../src/recording.cpp" line="679"/>
+        <location filename="../../src/recording.cpp" line="845"/>
         <source>audio</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/recording.cpp" line="665"/>
-        <location filename="../../src/recording.cpp" line="831"/>
+        <location filename="../../src/recording.cpp" line="680"/>
+        <location filename="../../src/recording.cpp" line="846"/>
         <source>video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/recording.cpp" line="666"/>
-        <location filename="../../src/recording.cpp" line="832"/>
+        <location filename="../../src/recording.cpp" line="681"/>
+        <location filename="../../src/recording.cpp" line="847"/>
         <source>subtitle</source>
         <translation type="unfinished"></translation>
     </message>

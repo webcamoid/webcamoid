@@ -22,11 +22,9 @@
 #include <akpacket.h>
 
 #include "multisinkelement.h"
-#include "multisinkglobals.h"
+#include "multisinkelementsettings.h"
 #include "mediawriter.h"
 #include "multisinkutils.h"
-
-Q_GLOBAL_STATIC(MultiSinkGlobals, globalMultiSink)
 
 template<typename T>
 inline QSharedPointer<T> ptr_cast(QObject *obj=nullptr)
@@ -39,6 +37,8 @@ using MediaWriterPtr = QSharedPointer<MediaWriter>;
 class MultiSinkElementPrivate
 {
     public:
+        MultiSinkElement *self;
+        MultiSinkElementSettings m_settings;
         QString m_location;
         QVariantList m_userControls;
         QVariantMap m_userControlsValues;
@@ -55,23 +55,22 @@ class MultiSinkElementPrivate
         QMap<QString, QString> m_codecDescription;
         QMap<QString, QString> m_codecType;
         QMap<QString, QVariantMap> m_defaultCodecParams;
+
+        explicit MultiSinkElementPrivate(MultiSinkElement *self);
+        void codecLibUpdated(const QString &codecLib);
 };
 
 MultiSinkElement::MultiSinkElement():
     AkElement()
 {
-    this->d = new MultiSinkElementPrivate;
+    this->d = new MultiSinkElementPrivate(this);
+    QObject::connect(&this->d->m_settings,
+                     &MultiSinkElementSettings::codecLibChanged,
+                     [this] (const QString &codecLib) {
+                        this->d->codecLibUpdated(codecLib);
+                     });
 
-    QObject::connect(globalMultiSink,
-                     SIGNAL(codecLibChanged(const QString &)),
-                     this,
-                     SIGNAL(codecLibChanged(const QString &)));
-    QObject::connect(globalMultiSink,
-                     SIGNAL(codecLibChanged(const QString &)),
-                     this,
-                     SLOT(codecLibUpdated(const QString &)));
-
-    this->codecLibUpdated(globalMultiSink->codecLib());
+    this->d->codecLibUpdated(this->d->m_settings.codecLib());
 }
 
 MultiSinkElement::~MultiSinkElement()
@@ -104,11 +103,6 @@ QVariantList MultiSinkElement::streams()
         return {};
 
     return this->d->m_mediaWriter->streams();
-}
-
-QString MultiSinkElement::codecLib() const
-{
-    return globalMultiSink->codecLib();
 }
 
 bool MultiSinkElement::showFormatOptions() const
@@ -273,11 +267,6 @@ void MultiSinkElement::setCodecOptions(int index,
         this->d->m_mediaWriter->setCodecOptions(index, codecOptions);
 }
 
-void MultiSinkElement::setCodecLib(const QString &codecLib)
-{
-    globalMultiSink->setCodecLib(codecLib);
-}
-
 void MultiSinkElement::setShowFormatOptions(bool showFormatOptions)
 {
     if (this->d->m_showFormatOptions == showFormatOptions)
@@ -338,11 +327,6 @@ void MultiSinkElement::resetCodecOptions(int index)
 {
     if (this->d->m_mediaWriter)
         this->d->m_mediaWriter->resetCodecOptions(index);
-}
-
-void MultiSinkElement::resetCodecLib()
-{
-    globalMultiSink->resetCodecLib();
 }
 
 void MultiSinkElement::resetShowFormatOptions()
@@ -411,91 +395,97 @@ bool MultiSinkElement::setState(AkElement::ElementState state)
     return AkElement::setState(state);
 }
 
-void MultiSinkElement::codecLibUpdated(const QString &codecLib)
+MultiSinkElementPrivate::MultiSinkElementPrivate(MultiSinkElement *self):
+    self(self)
 {
-    auto state = this->state();
-    this->setState(AkElement::ElementStateNull);
+
+}
+
+void MultiSinkElementPrivate::codecLibUpdated(const QString &codecLib)
+{
+    auto state = self->state();
+    self->setState(AkElement::ElementStateNull);
 
     QString location;
 
-    if (this->d->m_mediaWriter)
-        location = this->d->m_mediaWriter->location();
+    if (this->m_mediaWriter)
+        location = this->m_mediaWriter->location();
 
-    this->d->m_mediaWriter =
+    this->m_mediaWriter =
             ptr_cast<MediaWriter>(MultiSinkElement::loadSubModule("MultiSink",
                                                                   codecLib));
 
-    if (!this->d->m_mediaWriter)
+    if (!this->m_mediaWriter)
         return;
 
-    this->d->m_supportedFormats.clear();
-    this->d->m_fileExtensions.clear();
-    this->d->m_formatDescription.clear();
-    this->d->m_supportedCodecs.clear();
-    this->d->m_codecDescription.clear();
-    this->d->m_codecType.clear();
-    this->d->m_defaultCodecParams.clear();
+    this->m_supportedFormats.clear();
+    this->m_fileExtensions.clear();
+    this->m_formatDescription.clear();
+    this->m_supportedCodecs.clear();
+    this->m_codecDescription.clear();
+    this->m_codecType.clear();
+    this->m_defaultCodecParams.clear();
 
-    for (auto &format: this->d->m_mediaWriter->supportedFormats()) {
-        this->d->m_supportedFormats << format;
-        this->d->m_fileExtensions[format] =
-                this->d->m_mediaWriter->fileExtensions(format);
-        this->d->m_formatDescription[format] =
-                this->d->m_mediaWriter->formatDescription(format);
+    for (auto &format: this->m_mediaWriter->supportedFormats()) {
+        this->m_supportedFormats << format;
+        this->m_fileExtensions[format] =
+                this->m_mediaWriter->fileExtensions(format);
+        this->m_formatDescription[format] =
+                this->m_mediaWriter->formatDescription(format);
 
-        for (auto &codec: this->d->m_mediaWriter->supportedCodecs(format))
-            if (!this->d->m_supportedCodecs.contains(codec)) {
-                this->d->m_supportedCodecs << codec;
-                this->d->m_codecDescription[codec] =
-                        this->d->m_mediaWriter->codecDescription(codec);
-                this->d->m_codecType[codec] =
-                        this->d->m_mediaWriter->codecType(codec);
-                this->d->m_defaultCodecParams[codec] =
-                        this->d->m_mediaWriter->defaultCodecParams(codec);
+        for (auto &codec: this->m_mediaWriter->supportedCodecs(format))
+            if (!this->m_supportedCodecs.contains(codec)) {
+                this->m_supportedCodecs << codec;
+                this->m_codecDescription[codec] =
+                        this->m_mediaWriter->codecDescription(codec);
+                this->m_codecType[codec] =
+                        this->m_mediaWriter->codecType(codec);
+                this->m_defaultCodecParams[codec] =
+                        this->m_mediaWriter->defaultCodecParams(codec);
             }
     }
 
-    QObject::connect(this->d->m_mediaWriter.data(),
+    QObject::connect(this->m_mediaWriter.data(),
                      &MediaWriter::locationChanged,
-                     this,
+                     self,
                      &MultiSinkElement::locationChanged);
-    QObject::connect(this->d->m_mediaWriter.data(),
+    QObject::connect(this->m_mediaWriter.data(),
                      &MediaWriter::outputFormatChanged,
-                     this,
+                     self,
                      &MultiSinkElement::outputFormatChanged);
-    QObject::connect(this->d->m_mediaWriter.data(),
+    QObject::connect(this->m_mediaWriter.data(),
                      &MediaWriter::formatOptionsChanged,
-                     this,
+                     self,
                      &MultiSinkElement::formatOptionsChanged);
-    QObject::connect(this->d->m_mediaWriter.data(),
+    QObject::connect(this->m_mediaWriter.data(),
                      &MediaWriter::codecOptionsChanged,
-                     this,
+                     self,
                      &MultiSinkElement::codecOptionsChanged);
-    QObject::connect(this->d->m_mediaWriter.data(),
+    QObject::connect(this->m_mediaWriter.data(),
                      &MediaWriter::streamsChanged,
-                     this,
+                     self,
                      &MultiSinkElement::streamsChanged);
-    QObject::connect(this->d->m_mediaWriter.data(),
+    QObject::connect(this->m_mediaWriter.data(),
                      &MediaWriter::formatsBlackListChanged,
-                     this,
+                     self,
                      &MultiSinkElement::formatsBlackListChanged);
-    QObject::connect(this->d->m_mediaWriter.data(),
+    QObject::connect(this->m_mediaWriter.data(),
                      &MediaWriter::codecsBlackListChanged,
-                     this,
+                     self,
                      &MultiSinkElement::formatsBlackListChanged);
-    QObject::connect(this,
+    QObject::connect(self,
                      &MultiSinkElement::locationChanged,
-                     this->d->m_mediaWriter.data(),
+                     this->m_mediaWriter.data(),
                      &MediaWriter::setLocation);
-    QObject::connect(this,
+    QObject::connect(self,
                      &MultiSinkElement::formatOptionsChanged,
-                     this->d->m_mediaWriter.data(),
+                     this->m_mediaWriter.data(),
                      &MediaWriter::setFormatOptions);
 
-    this->d->m_mediaWriter->setLocation(location);
-    emit this->supportedFormatsChanged(this->supportedFormats());
+    this->m_mediaWriter->setLocation(location);
+    emit self->supportedFormatsChanged(self->supportedFormats());
 
-    this->setState(state);
+    self->setState(state);
 }
 
 #include "moc_multisinkelement.cpp"

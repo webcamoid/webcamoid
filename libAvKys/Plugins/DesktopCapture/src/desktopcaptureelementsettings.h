@@ -1,5 +1,5 @@
 /* Webcamoid, webcam capture application.
- * Copyright (C) 2016  Gonzalo Exequiel Pedone
+ * Copyright (C) 2017  Gonzalo Exequiel Pedone
  *
  * Webcamoid is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,52 +17,36 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef VIDEOCAPTUREGLOBALS_H
-#define VIDEOCAPTUREGLOBALS_H
+#ifndef DESKTOPCAPTUREELEMENTSETTINGS_H
+#define DESKTOPCAPTUREELEMENTSETTINGS_H
 
 #include <QObject>
 
-class VideoCaptureGlobalsPrivate;
-
-class VideoCaptureGlobals: public QObject
+class DesktopCaptureElementSettings: public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QString codecLib
-               READ codecLib
-               WRITE setCodecLib
-               RESET resetCodecLib
-               NOTIFY codecLibChanged)
     Q_PROPERTY(QString captureLib
                READ captureLib
                WRITE setCaptureLib
                RESET resetCaptureLib
                NOTIFY captureLibChanged)
-    Q_PROPERTY(QStringList codecSubModules
-               READ codecSubModules)
-    Q_PROPERTY(QStringList captureSubModules
-               READ captureSubModules)
+    Q_PROPERTY(QStringList subModules
+               READ subModules
+               NOTIFY subModulesChanged)
 
     public:
-        VideoCaptureGlobals(QObject *parent=nullptr);
-        ~VideoCaptureGlobals();
+        DesktopCaptureElementSettings(QObject *parent=nullptr);
 
-        Q_INVOKABLE QString codecLib() const;
         Q_INVOKABLE QString captureLib() const;
-        Q_INVOKABLE QStringList codecSubModules() const;
-        Q_INVOKABLE QStringList captureSubModules() const;
-
-    private:
-        VideoCaptureGlobalsPrivate *d;
+        Q_INVOKABLE QStringList subModules() const;
 
     signals:
-        void codecLibChanged(const QString &codecLib);
         void captureLibChanged(const QString &captureLib);
+        void subModulesChanged(const QStringList &subModules);
 
     public slots:
-        void setCodecLib(const QString &codecLib);
-        void setCaptureLib(const QString &captureLib);
-        void resetCodecLib();
+        void setCaptureLib(const QString &captueLib);
         void resetCaptureLib();
 };
 
-#endif // VIDEOCAPTUREGLOBALS_H
+#endif // DESKTOPCAPTUREELEMENTSETTINGS_H

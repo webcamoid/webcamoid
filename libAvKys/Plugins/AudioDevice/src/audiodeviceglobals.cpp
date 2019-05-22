@@ -21,8 +21,64 @@
 
 #include "audiodeviceglobals.h"
 
+class AudioDeviceGlobalsPrivate
+{
+    public:
+        QString m_audioLib;
+        QStringList m_preferredLibrary;
+
+        AudioDeviceGlobalsPrivate();
+};
+
 AudioDeviceGlobals::AudioDeviceGlobals(QObject *parent):
     QObject(parent)
+{
+    this->d = new AudioDeviceGlobalsPrivate;
+    this->resetAudioLib();
+}
+
+AudioDeviceGlobals::~AudioDeviceGlobals()
+{
+    delete this->d;
+}
+
+QString AudioDeviceGlobals::audioLib() const
+{
+    return this->d->m_audioLib;
+}
+
+QStringList AudioDeviceGlobals::subModules() const
+{
+    return AkElement::listSubModules("AudioDevice");
+}
+
+void AudioDeviceGlobals::setAudioLib(const QString &audioLib)
+{
+    if (this->d->m_audioLib == audioLib)
+        return;
+
+    this->d->m_audioLib = audioLib;
+    emit this->audioLibChanged(audioLib);
+}
+
+void AudioDeviceGlobals::resetAudioLib()
+{
+    auto subModules = AkElement::listSubModules("AudioDevice");
+
+    for (auto &framework: this->d->m_preferredLibrary)
+        if (subModules.contains(framework)) {
+            this->setAudioLib(framework);
+
+            return;
+        }
+
+    if (this->d->m_audioLib.isEmpty() && !subModules.isEmpty())
+        this->setAudioLib(subModules.first());
+    else
+        this->setAudioLib("");
+}
+
+AudioDeviceGlobalsPrivate::AudioDeviceGlobalsPrivate()
 {
     this->m_preferredLibrary = QStringList {
 #ifdef Q_OS_WIN32
@@ -41,37 +97,6 @@ AudioDeviceGlobals::AudioDeviceGlobals(QObject *parent):
         "qtaudio"
 #endif
     };
-
-    this->resetAudioLib();
 }
 
-QString AudioDeviceGlobals::audioLib() const
-{
-    return this->m_audioLib;
-}
-
-void AudioDeviceGlobals::setAudioLib(const QString &audioLib)
-{
-    if (this->m_audioLib == audioLib)
-        return;
-
-    this->m_audioLib = audioLib;
-    emit this->audioLibChanged(audioLib);
-}
-
-void AudioDeviceGlobals::resetAudioLib()
-{
-    auto subModules = AkElement::listSubModules("AudioDevice");
-
-    for (auto &framework: this->m_preferredLibrary)
-        if (subModules.contains(framework)) {
-            this->setAudioLib(framework);
-
-            return;
-        }
-
-    if (this->m_audioLib.isEmpty() && !subModules.isEmpty())
-        this->setAudioLib(subModules.first());
-    else
-        this->setAudioLib("");
-}
+#include "moc_audiodeviceglobals.cpp"

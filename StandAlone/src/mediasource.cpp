@@ -26,8 +26,11 @@
 #include <akcaps.h>
 #include <akaudiocaps.h>
 #include <akvideocaps.h>
+#include <akplugin.h>
 
 #include "mediasource.h"
+
+using ObjectPtr = QSharedPointer<QObject>;
 
 class MediaSourcePrivate
 {
@@ -42,8 +45,20 @@ class MediaSourcePrivate
         AkAudioCaps m_audioCaps;
         AkVideoCaps m_videoCaps;
         AkElementPtr m_cameraCapture {AkElement::create("VideoCapture")};
+        ObjectPtr m_cameraCaptureSettings {
+            AkElement::create<QObject>("VideoCapture",
+                                       AK_PLUGIN_TYPE_ELEMENT_SETTINGS)
+        };
         AkElementPtr m_desktopCapture {AkElement::create("DesktopCapture")};
+        ObjectPtr m_desktopCaptureSettings {
+            AkElement::create<QObject>("DesktopCapture",
+                                       AK_PLUGIN_TYPE_ELEMENT_SETTINGS)
+        };
         AkElementPtr m_uriCapture {AkElement::create("MultiSrc")};
+        ObjectPtr m_uriCaptureSettings {
+            AkElement::create<QObject>("MultiSrc",
+                                       AK_PLUGIN_TYPE_ELEMENT_SETTINGS)
+        };
         AkElement::ElementState m_inputState {AkElement::ElementStateNull};
         bool m_playOnStart {false};
 
@@ -88,17 +103,20 @@ MediaSource::MediaSource(QQmlApplicationEngine *engine, QObject *parent):
                          this,
                          SIGNAL(error(const QString &)));
         QObject::connect(this->d->m_cameraCapture.data(),
-                         SIGNAL(codecLibChanged(const QString &)),
-                         this,
-                         SLOT(saveVideoCaptureCodecLib(const QString &)));
-        QObject::connect(this->d->m_cameraCapture.data(),
-                         SIGNAL(captureLibChanged(const QString &)),
-                         this,
-                         SLOT(saveVideoCaptureCaptureLib(const QString &)));
-        QObject::connect(this->d->m_cameraCapture.data(),
                          SIGNAL(streamsChanged(const QList<int> &)),
                          this,
                          SLOT(webcamStreamsChanged(const QList<int> &)));
+    }
+
+    if (this->d->m_cameraCaptureSettings) {
+        QObject::connect(this->d->m_cameraCaptureSettings.data(),
+                         SIGNAL(codecLibChanged(const QString &)),
+                         this,
+                         SLOT(saveVideoCaptureCodecLib(const QString &)));
+        QObject::connect(this->d->m_cameraCaptureSettings.data(),
+                         SIGNAL(captureLibChanged(const QString &)),
+                         this,
+                         SLOT(saveVideoCaptureCaptureLib(const QString &)));
     }
 
     if (this->d->m_desktopCapture) {
@@ -115,7 +133,10 @@ MediaSource::MediaSource(QQmlApplicationEngine *engine, QObject *parent):
                          SIGNAL(error(const QString &)),
                          this,
                          SIGNAL(error(const QString &)));
-        QObject::connect(this->d->m_desktopCapture.data(),
+    }
+
+    if (this->d->m_desktopCaptureSettings) {
+        QObject::connect(this->d->m_desktopCaptureSettings.data(),
                          SIGNAL(captureLibChanged(const QString &)),
                          this,
                          SLOT(saveDesktopCaptureCaptureLib(const QString &)));
@@ -135,7 +156,10 @@ MediaSource::MediaSource(QQmlApplicationEngine *engine, QObject *parent):
                          SIGNAL(error(const QString &)),
                          this,
                          SIGNAL(error(const QString &)));
-        QObject::connect(this->d->m_uriCapture.data(),
+    }
+
+    if (this->d->m_uriCaptureSettings) {
+        QObject::connect(this->d->m_uriCaptureSettings.data(),
                          SIGNAL(codecLibChanged(const QString &)),
                          this,
                          SLOT(saveMultiSrcCodecLib(const QString &)));
@@ -613,24 +637,32 @@ void MediaSource::loadProperties()
 
     config.beginGroup("Libraries");
 
-    if (this->d->m_cameraCapture) {
-        this->d->m_cameraCapture->setProperty("codecLib",
-                                              config.value("VideoCapture.codecLib",
-                                                           this->d->m_cameraCapture->property("codecLib")));
-        this->d->m_cameraCapture->setProperty("captureLib",
-                                              config.value("VideoCapture.captureLib",
-                                                           this->d->m_cameraCapture->property("captureLib")));
+    if (this->d->m_cameraCaptureSettings) {
+        auto codecLib =
+                config.value("VideoCapture.codecLib",
+                             this->d->m_cameraCaptureSettings->property("codecLib"));
+        this->d->m_cameraCaptureSettings->setProperty("codecLib", codecLib);
+        auto captureLib =
+                config.value("VideoCapture.captureLib",
+                             this->d->m_cameraCaptureSettings->property("captureLib"));
+        this->d->m_cameraCaptureSettings->setProperty("captureLib",
+                                                      captureLib);
     }
 
-    if (this->d->m_desktopCapture)
-        this->d->m_desktopCapture->setProperty("captureLib",
-                                               config.value("DesktopCapture.captureLib",
-                                                            this->d->m_desktopCapture->property("captureLib")));
+    if (this->d->m_desktopCaptureSettings) {
+        auto captureLib =
+                config.value("DesktopCapture.captureLib",
+                             this->d->m_desktopCaptureSettings->property("captureLib"));
+        this->d->m_desktopCaptureSettings->setProperty("captureLib",
+                                                       captureLib);
+    }
 
-    if (this->d->m_uriCapture)
-        this->d->m_uriCapture->setProperty("codecLib",
-                                           config.value("MultiSrc.codecLib",
-                                                        this->d->m_uriCapture->property("codecLib")));
+    if (this->d->m_uriCaptureSettings) {
+        auto codecLib =
+                config.value("MultiSrc.codecLib",
+                             this->d->m_uriCaptureSettings->property("codecLib"));
+        this->d->m_uriCapture->setProperty("codecLib", codecLib);
+    }
 
     config.endGroup();
 
@@ -749,16 +781,20 @@ void MediaSource::saveProperties()
 
     config.beginGroup("Libraries");
 
-    if (this->d->m_cameraCapture) {
-        config.setValue("VideoCapture.codecLib", this->d->m_cameraCapture->property("codecLib"));
-        config.setValue("VideoCapture.captureLib", this->d->m_cameraCapture->property("captureLib"));
+    if (this->d->m_cameraCaptureSettings) {
+        config.setValue("VideoCapture.codecLib",
+                        this->d->m_cameraCaptureSettings->property("codecLib"));
+        config.setValue("VideoCapture.captureLib",
+                        this->d->m_cameraCaptureSettings->property("captureLib"));
     }
 
-    if (this->d->m_desktopCapture)
-        config.setValue("DesktopCapture.captureLib", this->d->m_desktopCapture->property("captureLib"));
+    if (this->d->m_desktopCaptureSettings)
+        config.setValue("DesktopCapture.captureLib",
+                        this->d->m_desktopCaptureSettings->property("captureLib"));
 
-    if (this->d->m_uriCapture)
-        config.setValue("MultiSrc.codecLib", this->d->m_uriCapture->property("codecLib"));
+    if (this->d->m_uriCaptureSettings)
+        config.setValue("MultiSrc.codecLib",
+                        this->d->m_uriCaptureSettings->property("codecLib"));
 
     config.endGroup();
 }

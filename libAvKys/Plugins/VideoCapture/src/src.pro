@@ -36,9 +36,10 @@ CONFIG += plugin
 HEADERS = \
     videocapture.h \
     videocaptureelement.h \
+    videocaptureelementsettings.h \
+    videocaptureglobals.h \
     capture.h \
-    convertvideo.h \
-    videocaptureglobals.h
+    convertvideo.h
 
 INCLUDEPATH += \
     ../../../Lib/src
@@ -56,9 +57,10 @@ RESOURCES = \
 SOURCES = \
     videocapture.cpp \
     videocaptureelement.cpp \
+    videocaptureelementsettings.cpp \
+    videocaptureglobals.cpp \
     capture.cpp \
-    convertvideo.cpp \
-    videocaptureglobals.cpp
+    convertvideo.cpp
 
 lupdate_only {
     SOURCES += $$files(../share/qml/*.qml)

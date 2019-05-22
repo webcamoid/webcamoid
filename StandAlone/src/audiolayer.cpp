@@ -28,12 +28,15 @@
 #include <QQmlApplicationEngine>
 #include <akcaps.h>
 #include <akpacket.h>
+#include <akplugin.h>
 
 #include "audiolayer.h"
 
 #define DUMMY_INPUT_DEVICE ":dummyin:"
 #define EXTERNAL_MEDIA_INPUT ":externalinput:"
 #define MAX_SAMPLE_RATE 512e3
+
+using ObjectPtr = QSharedPointer<QObject>;
 
 class AudioLayerPrivate
 {
@@ -45,8 +48,20 @@ class AudioLayerPrivate
         AkAudioCaps m_outputCaps;
         QString m_inputDescription;
         AkElementPtr m_audioOut {AkElement::create("AudioDevice")};
+        ObjectPtr m_audioOutSettings {
+            AkElement::create<QObject>("AudioDevice",
+                                       AK_PLUGIN_TYPE_ELEMENT_SETTINGS)
+        };
         AkElementPtr m_audioIn {AkElement::create("AudioDevice")};
+        ObjectPtr m_audioInSettings {
+            AkElement::create<QObject>("AudioDevice",
+                                       AK_PLUGIN_TYPE_ELEMENT_SETTINGS)
+        };
         AkElementPtr m_audioConvert {AkElement::create("ACapsConvert")};
+        ObjectPtr m_audioConvertSettings {
+            AkElement::create<QObject>("ACapsConvert",
+                                       AK_PLUGIN_TYPE_ELEMENT_SETTINGS)
+        };
         AkElementPtr m_audioGenerator {AkElement::create("AudioGen")};
         AkElementPtr m_audioSwitch {AkElement::create("Multiplex")};
         QMutex m_mutex;
@@ -113,20 +128,20 @@ AudioLayer::AudioLayer(QQmlApplicationEngine *engine, QObject *parent):
                          SLOT(privInputsChanged(const QStringList &)));
     }
 
-    if (this->d->m_audioOut) {
-        QObject::connect(this->d->m_audioOut.data(),
+    if (this->d->m_audioOutSettings) {
+        QObject::connect(this->d->m_audioOutSettings.data(),
                          SIGNAL(audioLibChanged(const QString &)),
                          this,
                          SLOT(saveAudioDeviceAudioLib(const QString &)));
-    } else if (this->d->m_audioIn) {
-        QObject::connect(this->d->m_audioIn.data(),
+    } else if (this->d->m_audioInSettings) {
+        QObject::connect(this->d->m_audioInSettings.data(),
                          SIGNAL(audioLibChanged(const QString &)),
                          this,
                          SLOT(saveAudioDeviceAudioLib(const QString &)));
     }
 
-    if (this->d->m_audioConvert) {
-        QObject::connect(this->d->m_audioConvert.data(),
+    if (this->d->m_audioConvertSettings) {
+        QObject::connect(this->d->m_audioConvertSettings.data(),
                          SIGNAL(convertLibChanged(const QString &)),
                          this,
                          SLOT(saveAudioConvertConvertLib(const QString &)));
@@ -685,18 +700,20 @@ void AudioLayer::loadProperties()
     QSettings config;
 
     config.beginGroup("Libraries");
-    auto audioDev = this->d->m_audioOut?
-                        this->d->m_audioOut: this->d->m_audioIn;
+    auto audioDev = this->d->m_audioOutSettings?
+                        this->d->m_audioOutSettings: this->d->m_audioInSettings;
 
     if (audioDev)
         audioDev->setProperty("audioLib",
                               config.value("AudioDevice.audioLib",
                                            audioDev->property("audioLib")));
 
-    if (this->d->m_audioConvert)
-        this->d->m_audioConvert->setProperty("convertLib",
-                                             config.value("AudioConvert.convertLib",
-                                                          this->d->m_audioConvert->property("convertLib")));
+    if (this->d->m_audioConvertSettings) {
+        auto convertLib =
+                config.value("AudioConvert.convertLib",
+                             this->d->m_audioConvertSettings->property("convertLib"));
+        this->d->m_audioConvertSettings->setProperty("convertLib", convertLib);
+    }
 
     config.endGroup();
 
@@ -755,15 +772,17 @@ void AudioLayer::saveProperties()
     config.endGroup();
 
     config.beginGroup("Libraries");
-    auto audioDev = this->d->m_audioOut?
-                        this->d->m_audioOut: this->d->m_audioIn;
+    auto audioDev = this->d->m_audioOutSettings?
+                        this->d->m_audioOutSettings: this->d->m_audioInSettings;
 
     if (audioDev)
         config.setValue("AudioDevice.audioLib", audioDev->property("audioLib"));
 
-    if (this->d->m_audioConvert)
-        config.setValue("AudioConvert.convertLib",
-                        this->d->m_audioConvert->property("convertLib"));
+    if (this->d->m_audioConvertSettings) {
+        auto convertLib =
+                this->d->m_audioConvertSettings->property("convertLib");
+        config.setValue("AudioConvert.convertLib", convertLib);
+    }
 
     config.endGroup();
 }

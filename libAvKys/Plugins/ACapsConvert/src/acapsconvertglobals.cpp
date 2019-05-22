@@ -21,29 +21,43 @@
 
 #include "acapsconvertglobals.h"
 
+class ACapsConvertGlobalsPrivate
+{
+    public:
+        QString m_convertLib;
+        QStringList m_preferredFramework;
+
+        ACapsConvertGlobalsPrivate();
+};
+
 ACapsConvertGlobals::ACapsConvertGlobals(QObject *parent):
     QObject(parent)
 {
-    this->m_preferredFramework = QStringList {
-        "ffmpegsw",
-        "ffmpegav",
-        "gstreamer"
-    };
-
+    this->d = new ACapsConvertGlobalsPrivate;
     this->resetConvertLib();
+}
+
+ACapsConvertGlobals::~ACapsConvertGlobals()
+{
+    delete this->d;
 }
 
 QString ACapsConvertGlobals::convertLib() const
 {
-    return this->m_convertLib;
+    return this->d->m_convertLib;
+}
+
+QStringList ACapsConvertGlobals::subModules() const
+{
+    return AkElement::listSubModules("ACapsConvert");
 }
 
 void ACapsConvertGlobals::setConvertLib(const QString &convertLib)
 {
-    if (this->m_convertLib == convertLib)
+    if (this->d->m_convertLib == convertLib)
         return;
 
-    this->m_convertLib = convertLib;
+    this->d->m_convertLib = convertLib;
     emit this->convertLibChanged(convertLib);
 }
 
@@ -51,15 +65,26 @@ void ACapsConvertGlobals::resetConvertLib()
 {
     auto subModules = AkElement::listSubModules("ACapsConvert");
 
-    for (auto &framework: this->m_preferredFramework)
+    for (auto &framework: this->d->m_preferredFramework)
         if (subModules.contains(framework)) {
             this->setConvertLib(framework);
 
             return;
         }
 
-    if (this->m_convertLib.isEmpty() && !subModules.isEmpty())
+    if (this->d->m_convertLib.isEmpty() && !subModules.isEmpty())
         this->setConvertLib(subModules.first());
     else
         this->setConvertLib("");
 }
+
+ACapsConvertGlobalsPrivate::ACapsConvertGlobalsPrivate()
+{
+    this->m_preferredFramework = QStringList {
+        "ffmpegsw",
+        "ffmpegav",
+        "gstreamer"
+    };
+}
+
+#include "moc_acapsconvertglobals.cpp"

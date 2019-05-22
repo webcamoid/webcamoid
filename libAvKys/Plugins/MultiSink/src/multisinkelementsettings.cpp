@@ -17,26 +17,38 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include "multisink.h"
-#include "multisinkelement.h"
 #include "multisinkelementsettings.h"
+#include "multisinkglobals.h"
 
-QObject *MultiSink::create(const QString &key, const QString &specification)
+Q_GLOBAL_STATIC(MultiSinkGlobals, globalMultiSink)
+
+MultiSinkElementSettings::MultiSinkElementSettings(QObject *parent):
+    QObject(parent)
 {
-    Q_UNUSED(specification)
-
-    if (key == AK_PLUGIN_TYPE_ELEMENT)
-        return new MultiSinkElement();
-    else if (key == AK_PLUGIN_TYPE_ELEMENT_SETTINGS)
-        return new MultiSinkElementSettings();
-
-    return nullptr;
+    QObject::connect(globalMultiSink,
+                     &MultiSinkGlobals::codecLibChanged,
+                     this,
+                     &MultiSinkElementSettings::codecLibChanged);
 }
 
-QStringList MultiSink::keys() const
+QString MultiSinkElementSettings::codecLib() const
 {
-    return {AK_PLUGIN_TYPE_ELEMENT,
-            AK_PLUGIN_TYPE_ELEMENT_SETTINGS};
+    return globalMultiSink->codecLib();
 }
 
-#include "moc_multisink.cpp"
+QStringList MultiSinkElementSettings::subModules() const
+{
+    return globalMultiSink->subModules();
+}
+
+void MultiSinkElementSettings::setCodecLib(const QString &codecLib)
+{
+    globalMultiSink->setCodecLib(codecLib);
+}
+
+void MultiSinkElementSettings::resetCodecLib()
+{
+    globalMultiSink->resetCodecLib();
+}
+
+#include "moc_multisinkelementsettings.cpp"

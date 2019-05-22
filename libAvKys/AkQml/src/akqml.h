@@ -85,7 +85,7 @@ class AkQml: public QQuickItem
                                           int align=1) const;
 
         Q_INVOKABLE QObject *newElement(const QString &pluginId,
-                                        const QString &elementName={}) const;
+                                        const QString &pluginSub={}) const;
 
         Q_INVOKABLE QVariantList newList(const QList<AkAudioCaps::SampleFormat> &sampleFormats) const;
         Q_INVOKABLE QVariantList newList(const QList<AkAudioCaps::ChannelLayout> &channelLayouts) const;

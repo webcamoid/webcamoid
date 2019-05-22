@@ -45,11 +45,6 @@ class MultiSinkElement: public AkElement
     Q_PROPERTY(QVariantList streams
                READ streams
                NOTIFY streamsChanged)
-    Q_PROPERTY(QString codecLib
-               READ codecLib
-               WRITE setCodecLib
-               RESET resetCodecLib
-               NOTIFY codecLibChanged)
     Q_PROPERTY(bool showFormatOptions
                READ showFormatOptions
                WRITE setShowFormatOptions
@@ -84,7 +79,6 @@ class MultiSinkElement: public AkElement
         Q_INVOKABLE QStringList supportedFormats() const;
         Q_INVOKABLE QString outputFormat() const;
         Q_INVOKABLE QVariantList streams();
-        Q_INVOKABLE QString codecLib() const;
         Q_INVOKABLE bool showFormatOptions() const;
         Q_INVOKABLE QVariantList userControls() const;
         Q_INVOKABLE QVariantMap userControlsValues() const;
@@ -123,7 +117,6 @@ class MultiSinkElement: public AkElement
         void codecOptionsChanged(const QString &key,
                                  const QVariantMap &codecOptions);
         void streamsChanged(const QVariantList &streams);
-        void codecLibChanged(const QString &codecLib);
         void showFormatOptionsChanged(bool showFormatOptions);
         void userControlsChanged(const QVariantList &userControls);
         void userControlsValuesChanged(const QVariantMap &userControlsValues);
@@ -135,7 +128,6 @@ class MultiSinkElement: public AkElement
         void setOutputFormat(const QString &outputFormat);
         void setFormatOptions(const QVariantMap &formatOptions);
         void setCodecOptions(int index, const QVariantMap &codecOptions);
-        void setCodecLib(const QString &codecLib);
         void setShowFormatOptions(bool showFormatOptions);
         void setUserControls(const QVariantList &userControls);
         void setUserControlsValues(const QVariantMap &userControlsValues);
@@ -145,7 +137,6 @@ class MultiSinkElement: public AkElement
         void resetOutputFormat();
         void resetFormatOptions();
         void resetCodecOptions(int index);
-        void resetCodecLib();
         void resetShowFormatOptions();
         void resetUserControls();
         void resetUserControlsValues();
@@ -155,9 +146,6 @@ class MultiSinkElement: public AkElement
 
         AkPacket iStream(const AkPacket &packet);
         bool setState(AkElement::ElementState state);
-
-    private slots:
-        void codecLibUpdated(const QString &codecLib);
 };
 
 #endif // MULTISINKELEMENT_H

@@ -36,8 +36,9 @@ CONFIG += plugin
 HEADERS = \
     multisrc.h \
     multisrcelement.h \
-    mediasource.h \
-    multisrcglobals.h
+    multisrcelementsettings.h \
+    multisrcglobals.h \
+    mediasource.h
 
 INCLUDEPATH += \
     ../../../Lib/src
@@ -54,8 +55,9 @@ RESOURCES = \
 SOURCES = \
     multisrc.cpp \
     multisrcelement.cpp \
-    mediasource.cpp \
-    multisrcglobals.cpp
+    multisrcelementsettings.cpp \
+    multisrcglobals.cpp \
+    mediasource.cpp
 
 lupdate_only {
     SOURCES += $$files(../share/qml/*.qml)
