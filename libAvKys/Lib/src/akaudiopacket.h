@@ -89,15 +89,14 @@ class AKCOMMONS_EXPORT AkAudioPacket: public QObject
 
         Q_INVOKABLE const quint8 *constPlaneData(int plane) const;
         Q_INVOKABLE quint8 *planeData(int plane);
+        Q_INVOKABLE const quint8 *constSample(int channel, int i) const;
+        Q_INVOKABLE quint8 *sample(int channel, int i);
         Q_INVOKABLE static bool canConvert(AkAudioCaps::SampleFormat input,
                                            AkAudioCaps::SampleFormat output);
         Q_INVOKABLE bool canConvert(AkAudioCaps::SampleFormat output) const;
         Q_INVOKABLE AkAudioPacket convert(AkAudioCaps::SampleFormat format) const;
         Q_INVOKABLE AkAudioPacket convert(AkAudioCaps::SampleFormat format,
                                           int align) const;
-        Q_INVOKABLE static bool canConvertLayout(AkAudioCaps::ChannelLayout input,
-                                                 AkAudioCaps::ChannelLayout output);
-        Q_INVOKABLE bool canConvertLayout(AkAudioCaps::ChannelLayout output) const;
         Q_INVOKABLE AkAudioPacket convertLayout(AkAudioCaps::ChannelLayout layout) const;
         Q_INVOKABLE AkAudioPacket convertLayout(AkAudioCaps::ChannelLayout layout, int align) const;
         Q_INVOKABLE AkAudioPacket convertPlanar(bool planar) const;

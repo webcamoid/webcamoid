@@ -21,6 +21,7 @@
 #include <QDebug>
 #include <QMetaEnum>
 #include <QVector>
+#include <QtMath>
 
 #include "akaudiocaps.h"
 #include "akcaps.h"
@@ -35,7 +36,7 @@ class SampleFormats
 
         static inline const QVector<SampleFormats> &formats()
         {
-            static const QVector<SampleFormats> sampleFormats = {
+            static const QVector<SampleFormats> sampleFormats {
                 {AkAudioCaps::SampleFormat_none , AkAudioCaps::SampleType_unknown,  0, Q_BYTE_ORDER   },
                 {AkAudioCaps::SampleFormat_s8   , AkAudioCaps::SampleType_int    ,  8, Q_BYTE_ORDER   },
                 {AkAudioCaps::SampleFormat_u8   , AkAudioCaps::SampleType_uint   ,  8, Q_BYTE_ORDER   },
@@ -55,14 +56,6 @@ class SampleFormats
                 {AkAudioCaps::SampleFormat_fltbe, AkAudioCaps::SampleType_float  , 32, Q_BIG_ENDIAN   },
                 {AkAudioCaps::SampleFormat_dblle, AkAudioCaps::SampleType_float  , 64, Q_LITTLE_ENDIAN},
                 {AkAudioCaps::SampleFormat_dblbe, AkAudioCaps::SampleType_float  , 64, Q_BIG_ENDIAN   },
-                {AkAudioCaps::SampleFormat_s16  , AkAudioCaps::SampleType_int    , 16, Q_BYTE_ORDER   },
-                {AkAudioCaps::SampleFormat_u16  , AkAudioCaps::SampleType_uint   , 16, Q_BYTE_ORDER   },
-                {AkAudioCaps::SampleFormat_s32  , AkAudioCaps::SampleType_int    , 32, Q_BYTE_ORDER   },
-                {AkAudioCaps::SampleFormat_u32  , AkAudioCaps::SampleType_uint   , 32, Q_BYTE_ORDER   },
-                {AkAudioCaps::SampleFormat_s64  , AkAudioCaps::SampleType_int    , 64, Q_BYTE_ORDER   },
-                {AkAudioCaps::SampleFormat_u64  , AkAudioCaps::SampleType_uint   , 64, Q_BYTE_ORDER   },
-                {AkAudioCaps::SampleFormat_flt  , AkAudioCaps::SampleType_float  , 32, Q_BYTE_ORDER   },
-                {AkAudioCaps::SampleFormat_dbl  , AkAudioCaps::SampleType_float  , 64, Q_BYTE_ORDER   },
             };
 
             return sampleFormats;
@@ -111,45 +104,164 @@ class SampleFormats
         }
 };
 
+class SpeakerPositions
+{
+    public:
+        AkAudioCaps::Position position;
+        qreal azimuth;
+        qreal elevation;
+
+        static inline const QVector<SpeakerPositions> &positions()
+        {
+            /* Speakers positions based on:
+             *
+             * https://mediaarea.net/AudioChannelLayout
+             */
+            static const QVector<SpeakerPositions> positions {
+                {AkAudioCaps::Position_unknown            ,    0.0,   0.0},
+                {AkAudioCaps::Position_FrontCenter        ,    0.0,   0.0},
+                {AkAudioCaps::Position_FrontLeft          ,   45.0,   0.0},
+                {AkAudioCaps::Position_FrontRight         ,  -45.0,   0.0},
+                {AkAudioCaps::Position_BackCenter         ,  180.0,   0.0},
+                {AkAudioCaps::Position_BackLeft           ,  150.0,   0.0},
+                {AkAudioCaps::Position_BackRight          , -150.0,   0.0},
+                {AkAudioCaps::Position_FrontLeftOfCenter  ,   15.0,   0.0},
+                {AkAudioCaps::Position_FrontRightOfCenter ,  -15.0,   0.0},
+                {AkAudioCaps::Position_WideLeft           ,   60.0,   0.0},
+                {AkAudioCaps::Position_WideRight          ,  -60.0,   0.0},
+                {AkAudioCaps::Position_SideLeft           ,   90.0,   0.0},
+                {AkAudioCaps::Position_SideRight          ,  -90.0,   0.0},
+                {AkAudioCaps::Position_LowFrequency1      ,   60.0, -30.0},
+                {AkAudioCaps::Position_LowFrequency2      ,  -60.0, -30.0},
+                {AkAudioCaps::Position_TopCenter          ,    0.0,  90.0},
+                {AkAudioCaps::Position_TopFrontCenter     ,    0.0,  45.0},
+                {AkAudioCaps::Position_TopFrontLeft       ,   45.0,  45.0},
+                {AkAudioCaps::Position_TopFrontRight      ,  -45.0,  45.0},
+                {AkAudioCaps::Position_TopBackCenter      ,  180.0,  45.0},
+                {AkAudioCaps::Position_TopBackLeft        ,  135.0,  45.0},
+                {AkAudioCaps::Position_TopBackRight       , -135.0,  45.0},
+                {AkAudioCaps::Position_TopSideLeft        ,   90.0,  45.0},
+                {AkAudioCaps::Position_TopSideRight       ,  -90.0,  45.0},
+                {AkAudioCaps::Position_BottomFrontCenter  ,    0.0, -30.0},
+                {AkAudioCaps::Position_BottomFrontLeft    ,   45.0, -30.0},
+                {AkAudioCaps::Position_BottomFrontRight   ,  -45.0, -30.0},
+                {AkAudioCaps::Position_StereoLeft         ,  110.0,   0.0},
+                {AkAudioCaps::Position_StereoRight        , -110.0,   0.0},
+                {AkAudioCaps::Position_SurroundDirectLeft ,   90.0,   0.0},
+                {AkAudioCaps::Position_SurroundDirectRight,  -90.0,   0.0},
+            };
+
+            return positions;
+        }
+
+        static inline const SpeakerPositions *byPosition(AkAudioCaps::Position position)
+        {
+            for (auto &position_: positions())
+                if (position_.position == position)
+                    return &position_;
+
+            return &positions().front();
+        }
+};
+
+#define LAYOUT_MONO          AkAudioCaps::Position_FrontCenter
+#define LAYOUT_STEREO        AkAudioCaps::Position_FrontLeft, \
+                             AkAudioCaps::Position_FrontRight
+#define LAYOUT_DOWNMIX       AkAudioCaps::Position_StereoLeft, \
+                             AkAudioCaps::Position_StereoRight
+#define LAYOUT_2P1           LAYOUT_STEREO, AkAudioCaps::Position_LowFrequency1
+#define LAYOUT_3P0           LAYOUT_STEREO, AkAudioCaps::Position_FrontCenter
+#define LAYOUT_3P0_BACK      LAYOUT_STEREO, AkAudioCaps::Position_BackCenter
+#define LAYOUT_3P1           LAYOUT_3P0, AkAudioCaps::Position_LowFrequency1
+#define LAYOUT_4P0           LAYOUT_3P0, AkAudioCaps::Position_BackCenter
+#define LAYOUT_QUAD          LAYOUT_STEREO, \
+                             AkAudioCaps::Position_BackLeft, \
+                             AkAudioCaps::Position_BackRight
+#define LAYOUT_QUAD_SIDE     LAYOUT_STEREO, \
+                             AkAudioCaps::Position_SideLeft, \
+                             AkAudioCaps::Position_SideRight
+#define LAYOUT_4P1           LAYOUT_4P0, AkAudioCaps::Position_LowFrequency1
+#define LAYOUT_5P0           LAYOUT_3P0, AkAudioCaps::Position_BackLeft, \
+                             AkAudioCaps::Position_BackRight
+#define LAYOUT_5P0_SIDE      LAYOUT_3P0, AkAudioCaps::Position_SideLeft, \
+                             AkAudioCaps::AkAudioCaps::Position_SideRight
+#define LAYOUT_5P1           LAYOUT_5P0, AkAudioCaps::Position_LowFrequency1
+#define LAYOUT_5P1_SIDE      LAYOUT_5P0_SIDE, \
+                             AkAudioCaps::Position_LowFrequency1
+#define LAYOUT_6P0           LAYOUT_5P0_SIDE, AkAudioCaps::Position_BackCenter
+#define LAYOUT_6P0_FRONT     LAYOUT_QUAD_SIDE, \
+                             AkAudioCaps::Position_FrontLeftOfCenter, \
+                             AkAudioCaps::Position_FrontRightOfCenter
+#define LAYOUT_HEXAGONAL     LAYOUT_5P0, AkAudioCaps::Position_BackCenter
+#define LAYOUT_6P1           LAYOUT_5P1_SIDE, AkAudioCaps::Position_BackCenter
+#define LAYOUT_6P1_BACK      LAYOUT_5P1, AkAudioCaps::Position_BackCenter
+#define LAYOUT_6P1_FRONT     LAYOUT_6P0_FRONT, \
+                             AkAudioCaps::Position_LowFrequency1
+#define LAYOUT_7P0           LAYOUT_5P0_SIDE, \
+                             AkAudioCaps::Position_BackLeft, \
+                             AkAudioCaps::Position_BackRight
+#define LAYOUT_7P0_FRONT     LAYOUT_5P0_SIDE, \
+                             AkAudioCaps::Position_FrontLeftOfCenter, \
+                             AkAudioCaps::Position_FrontRightOfCenter
+#define LAYOUT_7P1           LAYOUT_5P1_SIDE, \
+                             AkAudioCaps::Position_BackLeft, \
+                             AkAudioCaps::Position_BackRight
+#define LAYOUT_7P1_WIDE      LAYOUT_5P1_SIDE, \
+                             AkAudioCaps::Position_FrontLeftOfCenter, \
+                             AkAudioCaps::Position_FrontRightOfCenter
+#define LAYOUT_7P1_WIDE_BACK LAYOUT_5P1, \
+                             AkAudioCaps::Position_FrontLeftOfCenter, \
+                             AkAudioCaps::Position_FrontRightOfCenter
+#define LAYOUT_OCTAGONAL     LAYOUT_7P0, AkAudioCaps::Position_BackCenter
+#define LAYOUT_HEXADECAGONAL LAYOUT_OCTAGONAL, \
+                             AkAudioCaps::Position_WideLeft, \
+                             AkAudioCaps::Position_WideRight, \
+                             AkAudioCaps::Position_TopBackLeft, \
+                             AkAudioCaps::Position_TopBackRight, \
+                             AkAudioCaps::Position_TopBackCenter, \
+                             AkAudioCaps::Position_TopFrontCenter, \
+                             AkAudioCaps::Position_TopFrontLeft, \
+                             AkAudioCaps::Position_TopFrontRight
+
 class ChannelLayouts
 {
     public:
         AkAudioCaps::ChannelLayout layout;
-        int channels;
+        QVector<AkAudioCaps::Position> channels;
         QString description;
 
         static inline const QVector<ChannelLayouts> &layouts()
         {
-            static const QVector<ChannelLayouts> channelLayouts = {
-                {AkAudioCaps::Layout_none         ,  0, "none"          },
-                {AkAudioCaps::Layout_mono         ,  1, "mono"          },
-                {AkAudioCaps::Layout_stereo       ,  2, "stereo"        },
-                {AkAudioCaps::Layout_2p1          ,  3, "2.1"           },
-                {AkAudioCaps::Layout_3p0          ,  3, "3.0"           },
-                {AkAudioCaps::Layout_3p0_back     ,  3, "3.0(back)"     },
-                {AkAudioCaps::Layout_3p1          ,  4, "3.1"           },
-                {AkAudioCaps::Layout_4p0          ,  4, "4.0"           },
-                {AkAudioCaps::Layout_quad         ,  4, "quad"          },
-                {AkAudioCaps::Layout_quad_side    ,  4, "quad(side)"    },
-                {AkAudioCaps::Layout_4p1          ,  5, "4.1"           },
-                {AkAudioCaps::Layout_5p0          ,  5, "5.0"           },
-                {AkAudioCaps::Layout_5p0_side     ,  5, "5.0(side)"     },
-                {AkAudioCaps::Layout_5p1          ,  6, "5.1"           },
-                {AkAudioCaps::Layout_5p1_side     ,  6, "5.1(side)"     },
-                {AkAudioCaps::Layout_6p0          ,  6, "6.0"           },
-                {AkAudioCaps::Layout_6p0_front    ,  6, "6.0(front)"    },
-                {AkAudioCaps::Layout_hexagonal    ,  6, "hexagonal"     },
-                {AkAudioCaps::Layout_6p1          ,  7, "6.1"           },
-                {AkAudioCaps::Layout_6p1_back     ,  7, "6.1(back)"     },
-                {AkAudioCaps::Layout_6p1_front    ,  7, "6.1(front)"    },
-                {AkAudioCaps::Layout_7p0          ,  7, "7.0"           },
-                {AkAudioCaps::Layout_7p0_front    ,  7, "7.0(front)"    },
-                {AkAudioCaps::Layout_7p1          ,  8, "7.1"           },
-                {AkAudioCaps::Layout_7p1_wide     ,  8, "7.1(wide)"     },
-                {AkAudioCaps::Layout_7p1_wide_back,  8, "7.1(wide-back)"},
-                {AkAudioCaps::Layout_octagonal    ,  8, "octagonal"     },
-                {AkAudioCaps::Layout_hexadecagonal, 16, "hexadecagonal" },
-                {AkAudioCaps::Layout_downmix      ,  2, "downmix"       },
+            static const QVector<ChannelLayouts> channelLayouts {
+                {AkAudioCaps::Layout_none         , {}                    , "none"         },
+                {AkAudioCaps::Layout_mono         , {LAYOUT_MONO}         , "mono"          },
+                {AkAudioCaps::Layout_stereo       , {LAYOUT_STEREO}       , "stereo"        },
+                {AkAudioCaps::Layout_2p1          , {LAYOUT_DOWNMIX}      , "2.1"           },
+                {AkAudioCaps::Layout_3p0          , {LAYOUT_2P1}          , "3.0"           },
+                {AkAudioCaps::Layout_3p0_back     , {LAYOUT_3P0}          , "3.0(back)"     },
+                {AkAudioCaps::Layout_3p1          , {LAYOUT_3P0_BACK}     , "3.1"           },
+                {AkAudioCaps::Layout_4p0          , {LAYOUT_3P1}          , "4.0"           },
+                {AkAudioCaps::Layout_quad         , {LAYOUT_4P0}          , "quad"          },
+                {AkAudioCaps::Layout_quad_side    , {LAYOUT_QUAD}         , "quad(side)"    },
+                {AkAudioCaps::Layout_4p1          , {LAYOUT_QUAD_SIDE}    , "4.1"           },
+                {AkAudioCaps::Layout_5p0          , {LAYOUT_4P1}          , "5.0"           },
+                {AkAudioCaps::Layout_5p0_side     , {LAYOUT_5P0}          , "5.0(side)"     },
+                {AkAudioCaps::Layout_5p1          , {LAYOUT_5P0_SIDE}     , "5.1"           },
+                {AkAudioCaps::Layout_5p1_side     , {LAYOUT_5P1}          , "5.1(side)"     },
+                {AkAudioCaps::Layout_6p0          , {LAYOUT_5P1_SIDE}     , "6.0"           },
+                {AkAudioCaps::Layout_6p0_front    , {LAYOUT_6P0}          , "6.0(front)"    },
+                {AkAudioCaps::Layout_hexagonal    , {LAYOUT_6P0_FRONT}    , "hexagonal"     },
+                {AkAudioCaps::Layout_6p1          , {LAYOUT_HEXAGONAL}    , "6.1"           },
+                {AkAudioCaps::Layout_6p1_back     , {LAYOUT_6P1}          , "6.1(back)"     },
+                {AkAudioCaps::Layout_6p1_front    , {LAYOUT_6P1_BACK}     , "6.1(front)"    },
+                {AkAudioCaps::Layout_7p0          , {LAYOUT_6P1_FRONT}    , "7.0"           },
+                {AkAudioCaps::Layout_7p0_front    , {LAYOUT_7P0}          , "7.0(front)"    },
+                {AkAudioCaps::Layout_7p1          , {LAYOUT_7P0_FRONT}    , "7.1"           },
+                {AkAudioCaps::Layout_7p1_wide     , {LAYOUT_7P1}          , "7.1(wide)"     },
+                {AkAudioCaps::Layout_7p1_wide_back, {LAYOUT_7P1_WIDE}     , "7.1(wide-back)"},
+                {AkAudioCaps::Layout_octagonal    , {LAYOUT_7P1_WIDE_BACK}, "octagonal"     },
+                {AkAudioCaps::Layout_hexadecagonal, {LAYOUT_OCTAGONAL}    , "hexadecagonal" },
+                {AkAudioCaps::Layout_downmix      , {LAYOUT_HEXADECAGONAL}, "downmix"       },
             };
 
             return channelLayouts;
@@ -164,10 +276,10 @@ class ChannelLayouts
             return &layouts().front();
         }
 
-        static inline const ChannelLayouts *byChannels(int channels)
+        static inline const ChannelLayouts *byChannelCount(int channels)
         {
             for (auto &layout: layouts())
-                if (layout.channels == channels)
+                if (layout.channels.size() == channels)
                     return &layout;
 
             return &layouts().front();
@@ -204,7 +316,7 @@ AkAudioCaps::AkAudioCaps(QObject *parent):
     this->d = new AkAudioCapsPrivate();
 }
 
-AkAudioCaps::AkAudioCaps(AkAudioCaps::SampleFormat format,
+AkAudioCaps::AkAudioCaps(SampleFormat format,
                          ChannelLayout layout,
                          int rate,
                          int samples,
@@ -396,6 +508,19 @@ size_t AkAudioCaps::frameSize() const
             * this->d->m_planeSize;
 }
 
+const QVector<AkAudioCaps::Position> AkAudioCaps::positions() const
+{
+    auto layouts = ChannelLayouts::byLayout(this->d->m_layout);
+
+    if (!layouts)
+        return {};
+
+    if (layouts->layout == Layout_none)
+        return {};
+
+    return layouts->channels;
+}
+
 AkAudioCaps AkAudioCaps::fromMap(const QVariantMap &caps)
 {
     AkAudioCaps audioCaps;
@@ -467,7 +592,7 @@ int AkAudioCaps::planes() const
     if (!af || !layouts)
         return 0;
 
-    return this->d->m_planar? layouts->channels: 1;
+    return this->d->m_planar? layouts->channels.size(): 1;
 }
 
 size_t AkAudioCaps::planeSize() const
@@ -475,7 +600,7 @@ size_t AkAudioCaps::planeSize() const
     return this->d->m_planeSize;
 }
 
-int AkAudioCaps::bitsPerSample(AkAudioCaps::SampleFormat sampleFormat)
+int AkAudioCaps::bitsPerSample(SampleFormat sampleFormat)
 {
     return SampleFormats::byFormat(sampleFormat)->bps;
 }
@@ -485,7 +610,7 @@ int AkAudioCaps::bitsPerSample(const QString &sampleFormat)
     return AkAudioCaps::bitsPerSample(AkAudioCaps::sampleFormatFromString(sampleFormat));
 }
 
-QString AkAudioCaps::sampleFormatToString(AkAudioCaps::SampleFormat sampleFormat)
+QString AkAudioCaps::sampleFormatToString(SampleFormat sampleFormat)
 {
     AkAudioCaps caps;
     int formatIndex = caps.metaObject()->indexOfEnumerator("SampleFormat");
@@ -507,7 +632,7 @@ AkAudioCaps::SampleFormat AkAudioCaps::sampleFormatFromString(const QString &sam
     return static_cast<SampleFormat>(formatInt);
 }
 
-AkAudioCaps::SampleFormat AkAudioCaps::sampleFormatFromProperties(AkAudioCaps::SampleType type,
+AkAudioCaps::SampleFormat AkAudioCaps::sampleFormatFromProperties(SampleType type,
                                                                   int bps,
                                                                   int endianness)
 {
@@ -521,8 +646,8 @@ AkAudioCaps::SampleFormat AkAudioCaps::sampleFormatFromProperties(AkAudioCaps::S
     return AkAudioCaps::SampleFormat_none;
 }
 
-bool AkAudioCaps::sampleFormatProperties(AkAudioCaps::SampleFormat sampleFormat,
-                                         AkAudioCaps::SampleType *type,
+bool AkAudioCaps::sampleFormatProperties(SampleFormat sampleFormat,
+                                         SampleType *type,
                                          int *bps,
                                          int *endianness)
 {
@@ -544,7 +669,7 @@ bool AkAudioCaps::sampleFormatProperties(AkAudioCaps::SampleFormat sampleFormat,
 }
 
 bool AkAudioCaps::sampleFormatProperties(const QString &sampleFormat,
-                                         AkAudioCaps::SampleType *type,
+                                         SampleType *type,
                                          int *bps,
                                          int *endianness)
 {
@@ -554,7 +679,7 @@ bool AkAudioCaps::sampleFormatProperties(const QString &sampleFormat,
                                                endianness);
 }
 
-AkAudioCaps::SampleType AkAudioCaps::sampleType(AkAudioCaps::SampleFormat sampleFormat)
+AkAudioCaps::SampleType AkAudioCaps::sampleType(SampleFormat sampleFormat)
 {
     return SampleFormats::byFormat(sampleFormat)->type;
 }
@@ -564,7 +689,7 @@ AkAudioCaps::SampleType AkAudioCaps::sampleType(const QString &sampleFormat)
     return AkAudioCaps::sampleType(AkAudioCaps::sampleFormatFromString(sampleFormat));
 }
 
-QString AkAudioCaps::channelLayoutToString(AkAudioCaps::ChannelLayout channelLayout)
+QString AkAudioCaps::channelLayoutToString(ChannelLayout channelLayout)
 {
     return ChannelLayouts::byLayout(channelLayout)->description;
 }
@@ -574,17 +699,17 @@ AkAudioCaps::ChannelLayout AkAudioCaps::channelLayoutFromString(const QString &c
     return ChannelLayouts::byDescription(channelLayout)->layout;
 }
 
-int AkAudioCaps::channelCount(AkAudioCaps::ChannelLayout channelLayout)
+int AkAudioCaps::channelCount(ChannelLayout channelLayout)
 {
-    return ChannelLayouts::byLayout(channelLayout)->channels;
+    return ChannelLayouts::byLayout(channelLayout)->channels.size();
 }
 
 int AkAudioCaps::channelCount(const QString &channelLayout)
 {
-    return ChannelLayouts::byDescription(channelLayout)->channels;
+    return ChannelLayouts::byDescription(channelLayout)->channels.size();
 }
 
-int AkAudioCaps::endianness(AkAudioCaps::SampleFormat sampleFormat)
+int AkAudioCaps::endianness(SampleFormat sampleFormat)
 {
     return SampleFormats::byFormat(sampleFormat)->endianness;
 }
@@ -596,15 +721,37 @@ int AkAudioCaps::endianness(const QString &sampleFormat)
 
 AkAudioCaps::ChannelLayout AkAudioCaps::defaultChannelLayout(int channelCount)
 {
-    return ChannelLayouts::byChannels(channelCount)->layout;
+    return ChannelLayouts::byChannelCount(channelCount)->layout;
 }
 
 QString AkAudioCaps::defaultChannelLayoutString(int channelCount)
 {
-    return ChannelLayouts::byChannels(channelCount)->description;
+    return ChannelLayouts::byChannelCount(channelCount)->description;
 }
 
-void AkAudioCaps::setFormat(AkAudioCaps::SampleFormat format)
+const QVector<AkAudioCaps::Position> &AkAudioCaps::positions(ChannelLayout channelLayout)
+{
+    return ChannelLayouts::byLayout(channelLayout)->channels;
+}
+
+AkAudioCaps::SpeakerPosition AkAudioCaps::position(Position position)
+{
+    auto sp = SpeakerPositions::byPosition(position);
+
+    if (!sp)
+        return {};
+
+    return {sp->azimuth, sp->elevation};
+}
+
+AkAudioCaps::SpeakerPosition AkAudioCaps::position(int channel) const
+{
+    auto positions = AkAudioCaps::positions(this->d->m_layout);
+
+    return AkAudioCaps::position(positions.at(channel));
+}
+
+void AkAudioCaps::setFormat(SampleFormat format)
 {
     if (this->d->m_format == format)
         return;
@@ -614,7 +761,7 @@ void AkAudioCaps::setFormat(AkAudioCaps::SampleFormat format)
     emit this->formatChanged(format);
 }
 
-void AkAudioCaps::setLayout(AkAudioCaps::ChannelLayout layout)
+void AkAudioCaps::setLayout(ChannelLayout layout)
 {
     if (this->d->m_layout == layout)
         return;
@@ -720,17 +867,41 @@ void AkAudioCapsPrivate::updateParams()
     } else {
         this->m_planeSize =
                 SampleFormats::alignUp(size_t(af->bps
-                                                 * layouts->channels
+                                                 * layouts->channels.size()
                                                  * this->m_samples
                                                  / 8),
                                        size_t(this->m_align));
     }
 
     this->m_offset.clear();
-    size_t nplanes = this->m_planar? size_t(layouts->channels): 1;
+    size_t nplanes = this->m_planar? size_t(layouts->channels.size()): 1;
 
     for (size_t i = 0; i < nplanes; i++)
         this->m_offset << i * this->m_planeSize;
+}
+
+qreal operator -(const AkAudioCaps::SpeakerPosition &pos1,
+                  const AkAudioCaps::SpeakerPosition &pos2)
+{
+    auto a1 = pos1.first * M_PI / 180.0;
+    auto e1 = pos1.second * M_PI / 180.0;
+
+    auto x1 = qCos(e1) * qCos(a1);
+    auto y1 = qCos(e1) * qSin(a1);
+    auto z1 = qSin(e1);
+
+    auto a2 = pos2.first * M_PI / 180.0;
+    auto e2 = pos2.second * M_PI / 180.0;
+
+    auto x2 = qCos(e2) * qCos(a2);
+    auto y2 = qCos(e2) * qSin(a2);
+    auto z2 = qSin(e2);
+
+    auto dx = x1 - x2;
+    auto dy = y1 - y2;
+    auto dz = z1 - z2;
+
+    return qSqrt(dx * dx + dy * dy + dz * dz);
 }
 
 QDebug operator <<(QDebug debug, const AkAudioCaps &caps)
