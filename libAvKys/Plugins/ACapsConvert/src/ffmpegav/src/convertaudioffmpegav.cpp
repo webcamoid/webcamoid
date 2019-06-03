@@ -175,17 +175,19 @@ AkPacket ConvertAudioFFmpegAV::convert(const AkAudioPacket &packet)
                                                 iNChannels,
                                                 iFrame.nb_samples,
                                                 iSampleFormat,
-                                                packet.caps().align());
+                                                1);
 
     if (iFrameSize < 1)
         return AkPacket();
 
+    auto tmpPacket = packet.realign(1);
+
     if (avcodec_fill_audio_frame(&iFrame,
                                  iNChannels,
                                  iSampleFormat,
-                                 reinterpret_cast<const uint8_t *>(packet.buffer().constData()),
-                                 packet.buffer().size(),
-                                 packet.caps().align()) < 0) {
+                                 reinterpret_cast<const uint8_t *>(tmpPacket.buffer().constData()),
+                                 tmpPacket.buffer().size(),
+                                 1) < 0) {
         return AkPacket();
     }
 

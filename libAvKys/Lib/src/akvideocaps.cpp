@@ -763,7 +763,7 @@ QDebug operator <<(QDebug debug, const AkVideoCaps &caps)
     return debug.space();
 }
 
-QDebug operator <<(QDebug debug, const AkVideoCaps::PixelFormat &format)
+QDebug operator <<(QDebug debug, AkVideoCaps::PixelFormat format)
 {
     debug.nospace() << AkVideoCaps::pixelFormatToString(format).toStdString().c_str();
 

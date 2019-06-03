@@ -83,7 +83,7 @@ AkPacket SwirlElement::iVideoStream(const AkVideoPacket &packet)
     else if (src.width() < src.height())
         xScale = qreal(src.height()) / src.width();
 
-    qreal degrees = M_PI * this->d->m_degrees / 180.0;
+    auto degrees = qDegreesToRadians(this->d->m_degrees);
 
     for (int y = 0; y < src.height(); y++) {
         auto iLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));

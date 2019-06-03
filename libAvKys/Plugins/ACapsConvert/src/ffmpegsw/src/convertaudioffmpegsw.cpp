@@ -135,7 +135,7 @@ AkPacket ConvertAudioFFmpegSW::convert(const AkAudioPacket &packet)
     QMutexLocker mutexLocker(&this->d->m_mutex);
 
     if (!this->d->m_caps)
-        return AkPacket();
+        return {};
 
     int64_t iSampleLayout =
             ConvertAudioFFmpegSWPrivate::channelLayouts().value(packet.caps().layout(), 0);
@@ -171,7 +171,7 @@ AkPacket ConvertAudioFFmpegSW::convert(const AkAudioPacket &packet)
                                nullptr);
 
     if (!this->d->m_resampleContext)
-        return AkPacket();
+        return {};
 
     // Create input audio frame.
     static AVFrame iFrame;
@@ -182,14 +182,15 @@ AkPacket ConvertAudioFFmpegSW::convert(const AkAudioPacket &packet)
     iFrame.sample_rate = iSampleRate;
     iFrame.nb_samples = iNSamples;
     iFrame.pts = packet.pts();
+    auto tmpPacket = packet.realign(1);
 
     if (avcodec_fill_audio_frame(&iFrame,
                                  iFrame.channels,
                                  iSampleFormat,
-                                 reinterpret_cast<const uint8_t *>(packet.buffer().constData()),
-                                 packet.buffer().size(),
-                                 packet.caps().align()) < 0) {
-        return AkPacket();
+                                 reinterpret_cast<const uint8_t *>(tmpPacket.buffer().constData()),
+                                 tmpPacket.buffer().size(),
+                                 1) < 0) {
+        return {};
     }
 
     // Fill output audio frame.
@@ -221,14 +222,14 @@ AkPacket ConvertAudioFFmpegSW::convert(const AkAudioPacket &packet)
                                  reinterpret_cast<const uint8_t *>(oBuffer.constData()),
                                  oBuffer.size(),
                                  1) < 0) {
-        return AkPacket();
+        return {};
     }
 
     // convert to destination format
     if (swr_convert_frame(this->d->m_resampleContext,
                           &oFrame,
                           &iFrame) < 0)
-        return AkPacket();
+        return {};
 
     frameSize = av_samples_get_buffer_size(oFrame.linesize,
                                            oFrame.channels,

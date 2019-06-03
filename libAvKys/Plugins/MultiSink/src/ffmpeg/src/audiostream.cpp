@@ -178,7 +178,7 @@ AudioStream::AudioStream(const AVFormatContext *formatContext,
                 AudioStreamPrivate::sampleFormats(planar)
                 .key(ffFormat, AkAudioCaps::SampleFormat_none);
         audioCaps.setFormat(format);
-        audioCaps.setPlanar(planar);
+        audioCaps.updatePlaneSize(planar);
     }
 
     auto supportedSampleRates =
