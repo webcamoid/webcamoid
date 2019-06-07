@@ -71,7 +71,7 @@ class AkAudioPacketPrivate
             if (typeid(OutputType) == typeid(float)) {
                 ymin = OutputType(-1.0f);
                 ymax = OutputType(1.0f);
-            } else if (typeid(InputType) == typeid(qreal)) {
+            } else if (typeid(OutputType) == typeid(qreal)) {
                 ymin = OutputType(-1.0);
                 ymax = OutputType(1.0);
             } else {
@@ -79,102 +79,65 @@ class AkAudioPacketPrivate
                 ymax = std::numeric_limits<OutputType>::max();
             }
 
-            return OutputType((OpType(value - xmin) * OpType(ymax - ymin)
-                               + OpType(ymin) * OpType(xmax - xmin))
-                              / OpType(xmax - xmin));
+            return OutputType((OpType(value - xmin)
+                               * (OpType(ymax) - OpType(ymin))
+                               + OpType(ymin) * (OpType(xmax) - OpType(xmin)))
+                              / (OpType(xmax) - OpType(xmin)));
         }
 
         template<typename InputType, typename OutputType, typename OpType>
         inline static OutputType scaleValue(InputType value,
-                                            InputType minValue,
-                                            InputType maxValue)
+                                            InputType xmin,
+                                            InputType xmax,
+                                            OutputType ymin,
+                                            OutputType ymax)
         {
-            auto ymin = std::numeric_limits<OutputType>::min();
-            auto ymax = std::numeric_limits<OutputType>::max();
-
-            return OutputType((OpType(value - minValue) * OpType(ymax - ymin)
-                               + OpType(ymin) * OpType(maxValue - minValue))
-                              / OpType(maxValue - minValue));
+            return OutputType((OpType(value - xmin)
+                               * (OpType(ymax) - OpType(ymin))
+                               + OpType(ymin)
+                               * (OpType(xmax) - OpType(xmin)))
+                              / (OpType(xmax) - OpType(xmin)));
         }
 
-        template<typename InputType, typename OutputType, typename OpType>
-        inline static OutputType scaleValueFrom_To_(InputType value)
-        {
-            return scaleValue<InputType, OutputType, OpType>(value);
+        template<typename T>
+        inline static T from_(T value) {
+            return value;
         }
 
-        template<typename InputType, typename OutputType, typename OpType>
-        inline static OutputType scaleValueFrom_ToLE(InputType value)
-        {
-            return qToLittleEndian(scaleValue<InputType,
-                                              OutputType,
-                                              OpType>(value));
+        template<typename T>
+        inline static T fromLE(T value) {
+            return qFromLittleEndian(value);
         }
 
-        template<typename InputType, typename OutputType, typename OpType>
-        inline static OutputType scaleValueFrom_ToBE(InputType value)
-        {
-            return qToLittleEndian(scaleValue<InputType,
-                                              OutputType,
-                                              OpType>(value));
+        template<typename T>
+        inline static T fromBE(T value) {
+            return qFromBigEndian(value);
         }
 
-        template<typename InputType, typename OutputType, typename OpType>
-        inline static OutputType scaleValueFromLETo_(InputType value)
-        {
-            return scaleValue<InputType,
-                              OutputType,
-                              OpType>(qFromLittleEndian(value));
+        template<typename T>
+        inline static T to_(T value) {
+            return value;
         }
 
-        template<typename InputType, typename OutputType, typename OpType>
-        inline static OutputType scaleValueFromLEToLE(InputType value)
-        {
-            return qToLittleEndian(scaleValue
-                                   <InputType,
-                                    OutputType,
-                                    OpType>(qFromLittleEndian(value)));
+        template<typename T>
+        inline static T toLE(T value) {
+            return qToLittleEndian(value);
         }
 
-        template<typename InputType, typename OutputType, typename OpType>
-        inline static OutputType scaleValueFromLEToBE(InputType value)
-        {
-            return qToBigEndian(scaleValue
-                                <InputType,
-                                 OutputType,
-                                 OpType>(qFromLittleEndian(value)));
-        }
-
-        template<typename InputType, typename OutputType, typename OpType>
-        inline static OutputType scaleValueFromBETo_(InputType value)
-        {
-            return scaleValue<InputType,
-                              OutputType,
-                              OpType>(qFromBigEndian(value));
-        }
-
-        template<typename InputType, typename OutputType, typename OpType>
-        inline static OutputType scaleValueFromBEToLE(InputType value)
-        {
-            return qToLittleEndian(scaleValue<InputType,
-                                              OutputType,
-                                              OpType>(qFromBigEndian(value)));
-        }
-
-        template<typename InputType, typename OutputType, typename OpType>
-        inline static OutputType scaleValueFromBEToBE(InputType value)
-        {
-            return qToBigEndian(scaleValue<InputType,
-                                           OutputType,
-                                           OpType>(qFromBigEndian(value)));
+        template<typename T>
+        inline static T toBE(T value) {
+            return qToBigEndian(value);
         }
 
         template<typename InputType,
                  typename OutputType,
-                 typename ScaleFunc>
+                 typename OpType,
+                 typename TransformFuncType1,
+                 typename TransformFuncType2>
         inline static AkAudioPacket convertSampleFormat(const AkAudioPacket &src,
                                                         AkAudioCaps::SampleFormat format,
-                                                        ScaleFunc scaleFunc)
+                                                        TransformFuncType1 transformFrom,
+                                                        TransformFuncType2 transformTo)
         {
             auto caps = src.caps();
             caps.setFormat(format);
@@ -186,7 +149,10 @@ class AkAudioPacketPrivate
                 auto dst_line = reinterpret_cast<OutputType *>(dst.planeData(plane));
 
                 for (int i = 0; i < caps.samples(); i++)
-                    dst_line[i] = scaleFunc(src_line[i]);
+                    dst_line[i] =
+                            transformTo(scaleValue<InputType,
+                                                   OutputType,
+                                                   OpType>(transformFrom(src_line[i])));
             }
 
             return dst;
@@ -202,22 +168,20 @@ class AkAudioPacketPrivate
         {AkAudioCaps::SampleFormat_##sitype, \
          AkAudioCaps::SampleFormat_##sotype, \
          [] (const AkAudioPacket &src) -> AkAudioPacket { \
-            return convertSampleFormat<itype, otype> \
+            return convertSampleFormat<itype, otype, optype> \
                     (src, \
                      AkAudioCaps::SampleFormat_##sotype, \
-                     scaleValueFrom##inEndian##To##outEndian<itype, \
-                                                             otype, \
-                                                             optype>); \
+                     from##inEndian<itype>, \
+                     to##outEndian<otype>); \
          }}, \
         {AkAudioCaps::SampleFormat_##sotype, \
          AkAudioCaps::SampleFormat_##sitype, \
          [] (const AkAudioPacket &src) -> AkAudioPacket { \
-             return convertSampleFormat<otype, itype> \
+             return convertSampleFormat<otype, itype, optype> \
                     (src, \
                      AkAudioCaps::SampleFormat_##sitype, \
-                     scaleValueFrom##outEndian##To##inEndian<otype, \
-                                                             itype, \
-                                                             optype>); \
+                     from##outEndian<otype>, \
+                     to##inEndian<itype>); \
          }}
 
         struct AudioSampleFormatConvert
@@ -233,79 +197,37 @@ class AkAudioPacketPrivate
         {
             // Convert sample formats
             static const AudioSampleFormatConvertFuncs convert {
-                DEFINE_SAMPLE_CONVERT_FUNCTION(s8   , s64,   qint8, qint64, qint64,  _, _),
-                DEFINE_SAMPLE_CONVERT_FUNCTION(u8   , s64,  quint8, qint64, qint64,  _, _),
-                DEFINE_SAMPLE_CONVERT_FUNCTION(s16le, s64,  qint16, qint64, qint64, LE, _),
-                DEFINE_SAMPLE_CONVERT_FUNCTION(s16be, s64,  qint16, qint64, qint64, BE, _),
-                DEFINE_SAMPLE_CONVERT_FUNCTION(u16le, s64, quint16, qint64, qint64, LE, _),
-                DEFINE_SAMPLE_CONVERT_FUNCTION(u16be, s64, quint16, qint64, qint64, BE, _),
-                DEFINE_SAMPLE_CONVERT_FUNCTION(s32le, s64,  qint32, qint64, qint64, LE, _),
-                DEFINE_SAMPLE_CONVERT_FUNCTION(s32be, s64,  qint32, qint64, qint64, BE, _),
-                DEFINE_SAMPLE_CONVERT_FUNCTION(u32le, s64, quint32, qint64, qint64, LE, _),
-                DEFINE_SAMPLE_CONVERT_FUNCTION(u32be, s64, quint32, qint64, qint64, BE, _),
-                DEFINE_SAMPLE_CONVERT_FUNCTION(s64le, s64,  qint64, qint64,  qreal, LE, _),
-                DEFINE_SAMPLE_CONVERT_FUNCTION(s64be, s64,  qint64, qint64,  qreal, BE, _),
-                DEFINE_SAMPLE_CONVERT_FUNCTION(u64le, s64, quint64, qint64,  qreal, LE, _),
-                DEFINE_SAMPLE_CONVERT_FUNCTION(u64be, s64, quint64, qint64,  qreal, BE, _),
-                DEFINE_SAMPLE_CONVERT_FUNCTION(fltle, s64,   float, qint64,  qreal, LE, _),
-                DEFINE_SAMPLE_CONVERT_FUNCTION(fltbe, s64,   float, qint64,  qreal, BE, _),
-                DEFINE_SAMPLE_CONVERT_FUNCTION(dblle, s64,   qreal, qint64,  qreal, LE, _),
-                DEFINE_SAMPLE_CONVERT_FUNCTION(dblbe, s64,   qreal, qint64,  qreal, BE, _),
+                DEFINE_SAMPLE_CONVERT_FUNCTION(s8   , dbl,   qint8, qreal, qreal,  _, _),
+                DEFINE_SAMPLE_CONVERT_FUNCTION(u8   , dbl,  quint8, qreal, qreal,  _, _),
+                DEFINE_SAMPLE_CONVERT_FUNCTION(s16le, dbl,  qint16, qreal, qreal, LE, _),
+                DEFINE_SAMPLE_CONVERT_FUNCTION(s16be, dbl,  qint16, qreal, qreal, BE, _),
+                DEFINE_SAMPLE_CONVERT_FUNCTION(u16le, dbl, quint16, qreal, qreal, LE, _),
+                DEFINE_SAMPLE_CONVERT_FUNCTION(u16be, dbl, quint16, qreal, qreal, BE, _),
+                DEFINE_SAMPLE_CONVERT_FUNCTION(s32le, dbl,  qint32, qreal, qreal, LE, _),
+                DEFINE_SAMPLE_CONVERT_FUNCTION(s32be, dbl,  qint32, qreal, qreal, BE, _),
+                DEFINE_SAMPLE_CONVERT_FUNCTION(u32le, dbl, quint32, qreal, qreal, LE, _),
+                DEFINE_SAMPLE_CONVERT_FUNCTION(u32be, dbl, quint32, qreal, qreal, BE, _),
+                DEFINE_SAMPLE_CONVERT_FUNCTION(s64le, dbl,  qint64, qreal, qreal, LE, _),
+                DEFINE_SAMPLE_CONVERT_FUNCTION(s64be, dbl,  qint64, qreal, qreal, BE, _),
+                DEFINE_SAMPLE_CONVERT_FUNCTION(u64le, dbl, quint64, qreal, qreal, LE, _),
+                DEFINE_SAMPLE_CONVERT_FUNCTION(u64be, dbl, quint64, qreal, qreal, BE, _),
+                DEFINE_SAMPLE_CONVERT_FUNCTION(fltle, dbl,   float, qreal, qreal, LE, _),
+                DEFINE_SAMPLE_CONVERT_FUNCTION(fltbe, dbl,   float, qreal, qreal, BE, _),
+                DEFINE_SAMPLE_CONVERT_FUNCTION(dblle, dbl,   qreal, qreal, qreal, LE, _),
+                DEFINE_SAMPLE_CONVERT_FUNCTION(dblbe, dbl,   qreal, qreal, qreal, BE, _),
             };
 
             return convert;
         }
 
-        template<typename SampleType>
-        inline static void waveBounds(AkAudioPacket packet,
-                                      SampleType &smin,
-                                      SampleType &smax)
-        {
-            // Find the minimum and maximum values of the sum.
-            smin = std::numeric_limits<SampleType>::max();
-            smax = std::numeric_limits<SampleType>::min();
-
-            for (int channel = 0; channel < packet.caps().channels(); channel++) {
-                for (int sample = 0; sample < packet.caps().samples(); sample++) {
-                    auto data =
-                            *reinterpret_cast<const SampleType *>(packet.constSample(channel,
-                                                                                     sample));
-
-                    if (data < smin)
-                        smin = data;
-
-                    if (data > smax)
-                        smax = data;
-                }
-            }
-
-            // Limit the maximum and the minimum of the wave so it won't get
-            // out of the bounds.
-            SampleType minValue;
-            SampleType maxValue;
-
-            if (typeid(SampleType) == typeid(float)) {
-                minValue = SampleType(-1.0f);
-                maxValue = SampleType(1.0f);
-            } else if (typeid(SampleType) == typeid(qreal)) {
-                minValue = SampleType(-1.0);
-                maxValue = SampleType(1.0);
-            } else {
-                minValue = std::numeric_limits<SampleType>::min();
-                maxValue = std::numeric_limits<SampleType>::max();
-            }
-
-            if (smin > SampleType(minValue))
-                smin = SampleType(minValue);
-
-            if (smax < SampleType(maxValue))
-                smax = SampleType(maxValue);
-        }
-
-        template<typename SampleType, typename SumType>
-        inline static AkAudioPacket mixChannels_(AkAudioCaps::SampleFormat sumFormat,
-                                                 AkAudioCaps::ChannelLayout outputLayout,
-                                                 const AkAudioPacket &src)
+        template<typename SampleType,
+                 typename SumType,
+                 typename TransformFuncType>
+        inline static AkAudioPacket mixChannels(AkAudioCaps::SampleFormat sumFormat,
+                                                AkAudioCaps::ChannelLayout outputLayout,
+                                                const AkAudioPacket &src,
+                                                TransformFuncType transformFrom,
+                                                TransformFuncType transformTo)
         {
             // Create a summatory packet which type is big enough to contain
             // the sum of all values.
@@ -315,192 +237,68 @@ class AkAudioPacketPrivate
             AkAudioPacket sumPacket(caps);
             sumPacket.buffer().fill(0);
 
-            for (int sample = 0; sample < caps.samples(); sample++) {
-                for (int ochannel = 0; ochannel < caps.channels(); ochannel++) {
-                    auto oposition = sumPacket.caps().position(ochannel);
+            // Create output packet.
+            caps = src.caps();
+            caps.setLayout(outputLayout);
+            AkAudioPacket dst(caps);
+            dst.copyMetadata(src);
 
-                    for (int ichannel = 0; ichannel < src.caps().channels(); ichannel++) {
-                        /* We use inverse square law to sum the samples
-                         * according to the speaker position in the sound dome.
-                         *
-                         * http://digitalsoundandmusic.com/4-3-4-the-mathematics-of-the-inverse-square-law-and-pag-equations/
-                         */
-                        auto iposition = src.caps().position(ichannel);
-                        auto d = 1.0 + (oposition - iposition);
-                        auto k = d * d;
+            for (int ochannel = 0; ochannel < sumPacket.caps().channels(); ochannel++) {
+                auto oposition = sumPacket.caps().position(ochannel);
 
+                // Wave limits
+                auto xmin = std::numeric_limits<SumType>::max();
+                auto xmax = std::numeric_limits<SumType>::min();
+                auto ymin = std::numeric_limits<SampleType>::max();
+                auto ymax = std::numeric_limits<SampleType>::min();
+
+                for (int ichannel = 0; ichannel < src.caps().channels(); ichannel++) {
+                    /* We use inverse square law to sum the samples
+                     * according to the speaker position in the sound dome.
+                     *
+                     * http://digitalsoundandmusic.com/4-3-4-the-mathematics-of-the-inverse-square-law-and-pag-equations/
+                     */
+                    auto iposition = src.caps().position(ichannel);
+                    auto d = 1.0 + (oposition - iposition);
+                    auto k = d * d;
+
+                    for (int sample = 0; sample < sumPacket.caps().samples(); sample++) {
                         auto inSample =
                                 reinterpret_cast<const SampleType *>(src.constSample(ichannel,
                                                                                      sample));
                         auto outSample =
                                 reinterpret_cast<SumType *>(sumPacket.sample(ochannel,
                                                                              sample));
-                        *outSample += SumType(qreal(*inSample) / k);
+                        auto isample = SumType(qreal(transformFrom(*inSample)) / k);
+                        *outSample += isample;
+
+                        // Calculate minimum and maximum values of the wave.
+                        if (ichannel == src.caps().channels() - 1) {
+                            xmin = qMin(xmin, *outSample);
+                            xmax = qMax(xmax, *outSample);
+                        }
+
+                        ymin = qMin(ymin, *inSample);
+                        ymax = qMax(ymax, *inSample);
                     }
                 }
-            }
 
-            // Calculate minimum and maximum values of the wave.
-            SumType smin;
-            SumType smax;
-            waveBounds<SumType>(sumPacket, smin, smax);
-
-            caps = src.caps();
-            caps.setLayout(outputLayout);
-            AkAudioPacket dst(caps);
-            dst.copyMetadata(src);
-
-            // Recreate frame with the wave scaled to fit it.
-            for (int channel = 0; channel < dst.caps().channels(); channel++) {
+                // Recreate frame with the wave scaled to fit it.
                 for (int sample = 0; sample < dst.caps().samples(); sample++) {
                     auto idata =
-                            reinterpret_cast<const SumType *>(sumPacket.constSample(channel,
+                            reinterpret_cast<const SumType *>(sumPacket.constSample(ochannel,
                                                                                     sample));
                     auto odata =
-                            reinterpret_cast<SampleType *>(dst.sample(channel,
+                            reinterpret_cast<SampleType *>(dst.sample(ochannel,
                                                                       sample));
 
-                    *odata = scaleValue<SumType, SampleType, SumType>(*idata,
-                                                                      smin,
-                                                                      smax);
-                }
-            }
-
-            return dst;
-        }
-
-        template<typename SampleType, typename SumType>
-        inline static AkAudioPacket mixChannelsLE(AkAudioCaps::SampleFormat sumFormat,
-                                                  AkAudioCaps::ChannelLayout outputLayout,
-                                                  const AkAudioPacket &src)
-        {
-            // Create a summatory packet which type is big enough to contain
-            // the sum of all values.
-            auto caps = src.caps();
-            caps.setFormat(sumFormat);
-            caps.setLayout(outputLayout);
-            AkAudioPacket sumPacket(caps);
-            sumPacket.buffer().fill(0);
-
-            for (int sample = 0; sample < caps.samples(); sample++) {
-                for (int ochannel = 0; ochannel < caps.channels(); ochannel++) {
-                    auto oposition = sumPacket.caps().position(ochannel);
-
-                    for (int ichannel = 0; ichannel < src.caps().channels(); ichannel++) {
-                        /* We use inverse square law to sum the samples
-                         * according to the speaker position in the sound dome.
-                         *
-                         * http://digitalsoundandmusic.com/4-3-4-the-mathematics-of-the-inverse-square-law-and-pag-equations/
-                         */
-                        auto iposition = src.caps().position(ichannel);
-                        auto d = 1.0 + (oposition - iposition);
-                        auto k = d * d;
-
-                        auto inSample =
-                                reinterpret_cast<const SampleType *>(src.constSample(ichannel,
-                                                                                     sample));
-                        auto outSample =
-                                reinterpret_cast<SumType *>(sumPacket.sample(ochannel,
-                                                                             sample));
-                        *outSample += SumType(qreal(qFromLittleEndian(*inSample)) / k);
-                    }
-                }
-            }
-
-            // Calculate minimum and maximum values of the wave.
-            SumType smin;
-            SumType smax;
-            waveBounds<SumType>(sumPacket, smin, smax);
-
-            caps = src.caps();
-            caps.setLayout(outputLayout);
-            AkAudioPacket dst(caps);
-            dst.copyMetadata(src);
-
-            // Recreate frame with the wave scaled to fit it.
-            for (int channel = 0; channel < dst.caps().channels(); channel++) {
-                for (int sample = 0; sample < dst.caps().samples(); sample++) {
-                    auto idata =
-                            reinterpret_cast<const SumType *>(sumPacket.constSample(channel,
-                                                                                    sample));
-                    auto odata =
-                            reinterpret_cast<SampleType *>(dst.sample(channel,
-                                                                      sample));
-
-                    *odata = qToLittleEndian(scaleValue<SumType,
-                                                        SampleType,
-                                                        SumType>(*idata,
-                                                                 smin,
-                                                                 smax));
-                }
-            }
-
-            return dst;
-        }
-
-        template<typename SampleType, typename SumType>
-        inline static AkAudioPacket mixChannelsBE(AkAudioCaps::SampleFormat sumFormat,
-                                                  AkAudioCaps::ChannelLayout outputLayout,
-                                                  const AkAudioPacket &src)
-        {
-            // Create a summatory packet which type is big enough to contain
-            // the sum of all values.
-            auto caps = src.caps();
-            caps.setFormat(sumFormat);
-            caps.setLayout(outputLayout);
-            AkAudioPacket sumPacket(caps);
-            sumPacket.buffer().fill(0);
-
-            for (int sample = 0; sample < caps.samples(); sample++) {
-                for (int ochannel = 0; ochannel < caps.channels(); ochannel++) {
-                    auto oposition = sumPacket.caps().position(ochannel);
-
-                    for (int ichannel = 0; ichannel < src.caps().channels(); ichannel++) {
-                        /* We use inverse square law to sum the samples
-                         * according to the speaker position in the sound dome.
-                         *
-                         * http://digitalsoundandmusic.com/4-3-4-the-mathematics-of-the-inverse-square-law-and-pag-equations/
-                         */
-                        auto iposition = src.caps().position(ichannel);
-                        auto d = 1.0 + (oposition - iposition);
-                        auto k = d * d;
-
-                        auto inSample =
-                                reinterpret_cast<const SampleType *>(src.constSample(ichannel,
-                                                                                     sample));
-                        auto outSample =
-                                reinterpret_cast<SumType *>(sumPacket.sample(ochannel,
-                                                                             sample));
-                        *outSample += SumType(qreal(qFromBigEndian(*inSample)) / k);
-                    }
-                }
-            }
-
-            // Calculate minimum and maximum values of the wave.
-            SumType smin;
-            SumType smax;
-            waveBounds<SumType>(sumPacket, smin, smax);
-
-            caps = src.caps();
-            caps.setLayout(outputLayout);
-            AkAudioPacket dst(caps);
-            dst.copyMetadata(src);
-
-            // Recreate frame with the wave scaled to fit it.
-            for (int channel = 0; channel < dst.caps().channels(); channel++) {
-                for (int sample = 0; sample < dst.caps().samples(); sample++) {
-                    auto idata =
-                            reinterpret_cast<const SumType *>(sumPacket.constSample(channel,
-                                                                                    sample));
-                    auto odata =
-                            reinterpret_cast<SampleType *>(dst.sample(channel,
-                                                                      sample));
-
-                    *odata = qToBigEndian(scaleValue<SumType,
-                                                     SampleType,
-                                                     SumType>(*idata,
-                                                              smin,
-                                                              smax));
+                    *odata = transformTo(scaleValue<SumType,
+                                                    SampleType,
+                                                    SumType>(*idata,
+                                                             xmin,
+                                                             xmax,
+                                                             ymin,
+                                                             ymax));
                 }
             }
 
@@ -511,155 +309,140 @@ class AkAudioPacketPrivate
                                    src, \
                                    format, \
                                    sumFormat, \
-                                   endian, \
                                    sampleType, \
-                                   sumType) \
+                                   sumType, \
+                                   endian) \
         case AkAudioCaps::SampleFormat_##format: \
-            return mixChannels##endian<sampleType, sumType> \
-                    (AkAudioCaps::SampleFormat_##sumFormat, olayout, src);
+            return mixChannels<sampleType, sumType> \
+                    (AkAudioCaps::SampleFormat_##sumFormat, \
+                     olayout, \
+                     src, \
+                     from##endian<sampleType>, \
+                     to##endian<sampleType>);
 
         inline static AkAudioPacket convertChannels(AkAudioCaps::ChannelLayout outputLayout,
                                                     const AkAudioPacket &src)
         {
             switch (src.caps().format()) {
-            HANDLE_CASE_CONVERT_LAYOUT(outputLayout, src, s8   , s16,  _, qint8  , qint16 )
-            HANDLE_CASE_CONVERT_LAYOUT(outputLayout, src, u8   , u16,  _, quint8 , quint16)
-            HANDLE_CASE_CONVERT_LAYOUT(outputLayout, src, s16le, s32, LE, qint16 , qint32 )
-            HANDLE_CASE_CONVERT_LAYOUT(outputLayout, src, s16be, s32, BE, qint16 , qint32 )
-            HANDLE_CASE_CONVERT_LAYOUT(outputLayout, src, u16le, u32, LE, quint16, quint32)
-            HANDLE_CASE_CONVERT_LAYOUT(outputLayout, src, u16be, u32, BE, quint16, quint32)
-            HANDLE_CASE_CONVERT_LAYOUT(outputLayout, src, s32le, s64, LE, qint32 , qint64 )
-            HANDLE_CASE_CONVERT_LAYOUT(outputLayout, src, s32be, s64, BE, qint32 , qint64 )
-            HANDLE_CASE_CONVERT_LAYOUT(outputLayout, src, u32le, u64, LE, quint32, quint64)
-            HANDLE_CASE_CONVERT_LAYOUT(outputLayout, src, u32be, u64, BE, quint32, quint64)
-            HANDLE_CASE_CONVERT_LAYOUT(outputLayout, src, s64le, dbl, LE, qint64 , qreal  )
-            HANDLE_CASE_CONVERT_LAYOUT(outputLayout, src, s64be, dbl, BE, qint64 , qreal  )
-            HANDLE_CASE_CONVERT_LAYOUT(outputLayout, src, u64le, dbl, LE, quint64, qreal  )
-            HANDLE_CASE_CONVERT_LAYOUT(outputLayout, src, u64be, dbl, BE, quint64, qreal  )
+            HANDLE_CASE_CONVERT_LAYOUT(outputLayout, src, s8   , dbl, qint8  , qreal,  _)
+            HANDLE_CASE_CONVERT_LAYOUT(outputLayout, src, u8   , dbl, quint8 , qreal,  _)
+            HANDLE_CASE_CONVERT_LAYOUT(outputLayout, src, s16le, dbl, qint16 , qreal, LE)
+            HANDLE_CASE_CONVERT_LAYOUT(outputLayout, src, s16be, dbl, qint16 , qreal, BE)
+            HANDLE_CASE_CONVERT_LAYOUT(outputLayout, src, u16le, dbl, quint16, qreal, LE)
+            HANDLE_CASE_CONVERT_LAYOUT(outputLayout, src, u16be, dbl, quint16, qreal, BE)
+            HANDLE_CASE_CONVERT_LAYOUT(outputLayout, src, s32le, dbl, qint32 , qreal, LE)
+            HANDLE_CASE_CONVERT_LAYOUT(outputLayout, src, s32be, dbl, qint32 , qreal, BE)
+            HANDLE_CASE_CONVERT_LAYOUT(outputLayout, src, u32le, dbl, quint32, qreal, LE)
+            HANDLE_CASE_CONVERT_LAYOUT(outputLayout, src, u32be, dbl, quint32, qreal, BE)
+            HANDLE_CASE_CONVERT_LAYOUT(outputLayout, src, s64le, dbl, qint64 , qreal, LE)
+            HANDLE_CASE_CONVERT_LAYOUT(outputLayout, src, s64be, dbl, qint64 , qreal, BE)
+            HANDLE_CASE_CONVERT_LAYOUT(outputLayout, src, u64le, dbl, quint64, qreal, LE)
+            HANDLE_CASE_CONVERT_LAYOUT(outputLayout, src, u64be, dbl, quint64, qreal, BE)
 #if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
-            HANDLE_CASE_CONVERT_LAYOUT(outputLayout, src, fltle, dbl, LE, float  , qreal  )
-            HANDLE_CASE_CONVERT_LAYOUT(outputLayout, src, fltbe, dbl, BE, float  , qreal  )
-            HANDLE_CASE_CONVERT_LAYOUT(outputLayout, src, dblle, dbl, LE, qreal  , qreal  )
-            HANDLE_CASE_CONVERT_LAYOUT(outputLayout, src, dblbe, dbl, BE, qreal  , qreal  )
+            HANDLE_CASE_CONVERT_LAYOUT(outputLayout, src, fltle, dbl, float  , qreal, LE)
+            HANDLE_CASE_CONVERT_LAYOUT(outputLayout, src, fltbe, dbl, float  , qreal, BE)
+            HANDLE_CASE_CONVERT_LAYOUT(outputLayout, src, dblle, dbl, qreal  , qreal, LE)
+            HANDLE_CASE_CONVERT_LAYOUT(outputLayout, src, dblbe, dbl, qreal  , qreal, BE)
 #else
-            HANDLE_CASE_CONVERT_LAYOUT(outputLayout, src, fltle, dbl,  _, float  , qreal  )
-            HANDLE_CASE_CONVERT_LAYOUT(outputLayout, src, fltbe, dbl,  _, float  , qreal  )
-            HANDLE_CASE_CONVERT_LAYOUT(outputLayout, src, dblle, dbl,  _, qreal  , qreal  )
-            HANDLE_CASE_CONVERT_LAYOUT(outputLayout, src, dblbe, dbl,  _, qreal  , qreal  )
+            HANDLE_CASE_CONVERT_LAYOUT(outputLayout, src, fltle, dbl, float  , qreal,  _)
+            HANDLE_CASE_CONVERT_LAYOUT(outputLayout, src, fltbe, dbl, float  , qreal,  _)
+            HANDLE_CASE_CONVERT_LAYOUT(outputLayout, src, dblle, dbl, qreal  , qreal,  _)
+            HANDLE_CASE_CONVERT_LAYOUT(outputLayout, src, dblbe, dbl, qreal  , qreal,  _)
 #endif
             default:
                 return {};
             }
         }
 
-        template<typename SampleType, typename SumType>
-        inline static SampleType interpolate_(const AkAudioPacket &packet,
-                                              int channel,
-                                              qreal isample,
-                                              int sample1,
-                                              int sample2)
+        enum SampleEndianness
         {
+            SampleEndianness_,
+            SampleEndiannessLE,
+            SampleEndiannessBE
+        };
+
+        template<typename SampleType,
+                 typename SumType>
+        inline static SampleType interpolate(const AkAudioPacket &packet,
+                                             int channel,
+                                             qreal isample,
+                                             int sample1,
+                                             int sample2,
+                                             SampleEndianness endianness)
+        {
+            std::function<SampleType (SampleType value)> transformFrom;
+            std::function<SampleType (SampleType value)> transformTo;
+
+            switch (endianness) {
+            case SampleEndiannessLE:
+                transformFrom = fromLE<SampleType>;
+                transformTo = toLE<SampleType>;
+
+                break;
+
+            case SampleEndiannessBE:
+                transformFrom = fromBE<SampleType>;
+                transformTo = toBE<SampleType>;
+
+                break;
+
+            default:
+                transformFrom = from_<SampleType>;
+                transformTo = to_<SampleType>;
+
+                break;
+            }
+
             auto minValue = *reinterpret_cast<const SampleType *>(packet.constSample(channel, sample1));
             auto maxValue = *reinterpret_cast<const SampleType *>(packet.constSample(channel, sample2));
+            minValue = transformFrom(minValue);
+            maxValue = transformFrom(maxValue);
             auto value = (SumType(isample - sample1) * SumType(maxValue - minValue)
                           + SumType(minValue) * SumType(sample2 - sample1))
                          / (sample2 - sample1);
 
-            return SampleType(value);
+            return transformTo(SampleType(value));
         }
 
-        template<typename SampleType, typename SumType>
-        inline static SampleType interpolateLE(const AkAudioPacket &packet,
-                                               int channel,
-                                               qreal isample,
-                                               int sample1,
-                                               int sample2)
+        template<typename SampleType,
+                 typename SumType>
+        inline static SampleType interpolate(const AkAudioPacket &packet,
+                                             int channel,
+                                             qreal isample,
+                                             int sample1,
+                                             int sample2,
+                                             int sample3,
+                                             SampleEndianness endianness)
         {
-            auto minValue = *reinterpret_cast<const SampleType *>(packet.constSample(channel, sample1));
-            auto maxValue = *reinterpret_cast<const SampleType *>(packet.constSample(channel, sample2));
-            minValue = qFromLittleEndian(minValue);
-            maxValue = qFromLittleEndian(maxValue);
-            auto value = (SumType(isample - sample1) * SumType(maxValue - minValue)
-                          + SumType(minValue) * SumType(sample2 - sample1))
-                         / (sample2 - sample1);
+            std::function<SampleType (SampleType value)> transformFrom;
+            std::function<SampleType (SampleType value)> transformTo;
 
-            return SampleType(qToLittleEndian(value));
-        }
+            switch (endianness) {
+            case SampleEndiannessLE:
+                transformFrom = fromLE<SampleType>;
+                transformTo = toLE<SampleType>;
 
-        template<typename SampleType, typename SumType>
-        inline static SampleType interpolateBE(const AkAudioPacket &packet,
-                                               int channel,
-                                               qreal isample,
-                                               int sample1,
-                                               int sample2)
-        {
-            auto minValue = *reinterpret_cast<const SampleType *>(packet.constSample(channel, sample1));
-            auto maxValue = *reinterpret_cast<const SampleType *>(packet.constSample(channel, sample2));
-            minValue = qFromBigEndian(minValue);
-            maxValue = qFromBigEndian(maxValue);
-            auto value = (SumType(isample - sample1) * SumType(maxValue - minValue)
-                          + SumType(minValue) * SumType(sample2 - sample1))
-                         / (sample2 - sample1);
+                break;
 
-            return SampleType(qToBigEndian(value));
-        }
+            case SampleEndiannessBE:
+                transformFrom = fromBE<SampleType>;
+                transformTo = toBE<SampleType>;
 
-        template<typename SampleType, typename SumType>
-        inline static SampleType interpolate_(const AkAudioPacket &packet,
-                                              int channel,
-                                              qreal isample,
-                                              int sample1,
-                                              int sample2,
-                                              int sample3)
-        {
+                break;
+
+            default:
+                transformFrom = from_<SampleType>;
+                transformTo = to_<SampleType>;
+
+                break;
+            }
+
             auto minValue = *reinterpret_cast<const SampleType *>(packet.constSample(channel, sample1));
             auto midValue = *reinterpret_cast<const SampleType *>(packet.constSample(channel, sample2));
             auto maxValue = *reinterpret_cast<const SampleType *>(packet.constSample(channel, sample3));
-            auto sample21 = sample1;
-            auto sample22 = sample2;
-            auto sample23 = sample3;
-            /* y = a * x ^ 2 + b * x + c
-             *
-             * |a|   |x0^2 x0 1|^-1 |y0|;
-             * |b| = |x1^2 x1 1|    |y1|;
-             * |c|   |x2^2 x2 1|    |y2|;
-             */
-            auto det = sample21 * SumType(sample2 - sample3) - sample1 * SumType(sample22 - sample23) + SumType(sample22 * sample3 - sample23 * sample2)
-                     - sample22 * SumType(sample2 - sample3) + sample2 * SumType(sample21 - sample23) - SumType(sample21 * sample3 - sample23 * sample1)
-                     + sample23 * SumType(sample1 - sample2) - sample1 * SumType(sample21 - sample22) + SumType(sample21 * sample2 - sample22 * sample1);
-            const SumType matrixValues[] {
-                sample2 - sample3, sample23 - sample22, sample22 * sample3 - sample23 * sample2,
-                sample3 - sample1, sample21 - sample23, sample23 * sample1 - sample21 * sample3,
-                sample1 - sample2, sample22 - sample21, sample21 * sample2 - sample22 * sample1,
-            };
-            QGenericMatrix<3, 3, SumType> inv(matrixValues);
-            const SumType yMatrixValues[] {
-                minValue,
-                midValue,
-                maxValue,
-            };
-            QGenericMatrix<1, 3, SumType> valuesMatrix(yMatrixValues);
-            auto coef = inv * valuesMatrix;
-            auto value = (coef(0, 0) * isample * isample + coef(1, 0) * isample + coef(2, 0))
-                       / det;
-
-            return SampleType(value);
-        }
-
-        template<typename SampleType, typename SumType>
-        inline static SampleType interpolateLE(const AkAudioPacket &packet,
-                                               int channel,
-                                               qreal isample,
-                                               int sample1,
-                                               int sample2,
-                                               int sample3)
-        {
-            auto minValue = *reinterpret_cast<const SampleType *>(packet.constSample(channel, sample1));
-            auto midValue = *reinterpret_cast<const SampleType *>(packet.constSample(channel, sample2));
-            auto maxValue = *reinterpret_cast<const SampleType *>(packet.constSample(channel, sample3));
-            minValue = qFromLittleEndian(minValue);
-            midValue = qFromLittleEndian(midValue);
-            maxValue = qFromLittleEndian(maxValue);
+            minValue = transformFrom(minValue);
+            midValue = transformFrom(midValue);
+            maxValue = transformFrom(maxValue);
             auto sample21 = SumType(sample1);
             auto sample22 = SumType(sample2);
             auto sample23 = SumType(sample3);
@@ -688,52 +471,7 @@ class AkAudioPacketPrivate
             auto value = (coef(0, 0) * isample * isample + coef(1, 0) * isample + coef(2, 0))
                        / det;
 
-            return SampleType(qToLittleEndian(value));
-        }
-
-        template<typename SampleType, typename SumType>
-        inline static SampleType interpolateBE(const AkAudioPacket &packet,
-                                               int channel,
-                                               qreal isample,
-                                               int sample1,
-                                               int sample2,
-                                               int sample3)
-        {
-            auto minValue = *reinterpret_cast<const SampleType *>(packet.constSample(channel, sample1));
-            auto midValue = *reinterpret_cast<const SampleType *>(packet.constSample(channel, sample2));
-            auto maxValue = *reinterpret_cast<const SampleType *>(packet.constSample(channel, sample3));
-            minValue = qFromBigEndian(minValue);
-            midValue = qFromBigEndian(midValue);
-            maxValue = qFromBigEndian(maxValue);
-            auto sample21 = SumType(sample1);
-            auto sample22 = SumType(sample2);
-            auto sample23 = SumType(sample3);
-            /* y = a * x ^ 2 + b * x + c
-             *
-             * |a|   |x0^2 x0 1|^-1 |y0|;
-             * |b| = |x1^2 x1 1|    |y1|;
-             * |c|   |x2^2 x2 1|    |y2|;
-             */
-            auto det = sample21 * SumType(sample2 - sample3) - sample1 * SumType(sample22 - sample23) + SumType(sample22 * sample3 - sample23 * sample2)
-                     - sample22 * SumType(sample2 - sample3) + sample2 * SumType(sample21 - sample23) - SumType(sample21 * sample3 - sample23 * sample1)
-                     + sample23 * SumType(sample1 - sample2) - sample1 * SumType(sample21 - sample22) + SumType(sample21 * sample2 - sample22 * sample1);
-            const SumType matrixValues[] {
-                SumType(sample2 - sample3), sample23 - sample22, sample22 * sample3 - sample23 * sample2,
-                SumType(sample3 - sample1), sample21 - sample23, sample23 * sample1 - sample21 * sample3,
-                SumType(sample1 - sample2), sample22 - sample21, sample21 * sample2 - sample22 * sample1,
-            };
-            QGenericMatrix<3, 3, SumType> inv(matrixValues);
-            const SumType yMatrixValues[] {
-                SumType(minValue),
-                SumType(midValue),
-                SumType(maxValue),
-            };
-            QGenericMatrix<1, 3, SumType> valuesMatrix(yMatrixValues);
-            auto coef = inv * valuesMatrix;
-            auto value = (coef(0, 0) * isample * isample + coef(1, 0) * isample + coef(2, 0))
-                       / det;
-
-            return SampleType(qToBigEndian(value));
+            return transformTo(SampleType(value));
         }
 
         using InterpolateLinearFunction =
@@ -764,8 +502,13 @@ class AkAudioPacketPrivate
              int sample2, \
              quint8 *osample) { \
             auto value = \
-                interpolate##endian<itype, optype> \
-                    (packet, channel, isample, sample1, sample2); \
+                interpolate<itype, optype> \
+                    (packet, \
+                     channel, \
+                     isample, \
+                     sample1, \
+                     sample2, \
+                     SampleEndianness##endian); \
             memcpy(osample, &value, sizeof(itype)); \
          }, \
          [] (const AkAudioPacket &packet, \
@@ -776,8 +519,14 @@ class AkAudioPacketPrivate
              int sample3, \
              quint8 *osample) { \
             auto value = \
-                interpolate##endian<itype, optype> \
-                    (packet, channel, isample, sample1, sample2, sample3); \
+                interpolate<itype, optype> \
+                    (packet, \
+                     channel, \
+                     isample, \
+                     sample1, \
+                     sample2, \
+                     sample3, \
+                     SampleEndianness##endian); \
             memcpy(osample, &value, sizeof(itype)); \
          }}
 
@@ -1434,10 +1183,10 @@ AkAudioPacket AkAudioPacket::convertPlanar(bool planar) const
     auto channels = caps.channels();
 
     if (planar) {
-        auto src_line = reinterpret_cast<const qint8 *>(this->constPlaneData(0));
+        auto src_line = this->constPlaneData(0);
 
         for (int plane = 0; plane < caps.planes(); plane++) {
-            auto dst_line = reinterpret_cast<qint8 *>(dst.planeData(plane));
+            auto dst_line = dst.planeData(plane);
 
             for (int i = 0; i < caps.samples(); i++)
                 memcpy(dst_line + byps * i,
@@ -1445,10 +1194,10 @@ AkAudioPacket AkAudioPacket::convertPlanar(bool planar) const
                        size_t(byps));
         }
     } else {
-        auto dst_line = reinterpret_cast<qint8 *>(dst.planeData(0));
+        auto dst_line = dst.planeData(0);
 
-        for (int plane = 0; plane < caps.planes(); plane++) {
-            auto src_line = reinterpret_cast<const qint8 *>(this->constPlaneData(plane));
+        for (int plane = 0; plane < this->d->m_caps.planes(); plane++) {
+            auto src_line = this->constPlaneData(plane);
 
             for (int i = 0; i < caps.samples(); i++)
                 memcpy(dst_line + byps * (i * channels + plane),
@@ -1603,6 +1352,7 @@ void AkAudioPacket::resetIndex()
 
 QDebug operator <<(QDebug debug, const AkAudioPacket &packet)
 {
+    QDebugStateSaver saver(debug);
     debug.nospace() << "AkAudioPacket("
                     << "caps="
                     << packet.caps()
@@ -1621,7 +1371,7 @@ QDebug operator <<(QDebug debug, const AkAudioPacket &packet)
                     << packet.index()
                     << ")";
 
-    return debug.space();
+    return debug;
 }
 
 QDebug operator <<(QDebug debug, AkAudioPacket::ResampleMethod method)
@@ -1631,9 +1381,10 @@ QDebug operator <<(QDebug debug, AkAudioPacket::ResampleMethod method)
     QMetaEnum resampleMethodEnum = packet.metaObject()->enumerator(resampleMethodIndex);
     QString resampleMethodStr(resampleMethodEnum.valueToKey(method));
     resampleMethodStr.remove("ResampleMethod_");
+    QDebugStateSaver saver(debug);
     debug.nospace() << resampleMethodStr.toStdString().c_str();
 
-    return debug.space();
+    return debug;
 }
 
 #include "moc_akaudiopacket.cpp"

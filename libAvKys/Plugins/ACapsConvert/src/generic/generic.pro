@@ -30,8 +30,8 @@ CONFIG += plugin
 
 HEADERS = \
     src/plugin.h \
-    src/convertvideogeneric.h \
-    ../convertvideo.h
+    src/convertaudiogeneric.h \
+    ../convertaudio.h
 
 INCLUDEPATH += \
     ../../../../Lib/src \
@@ -41,12 +41,14 @@ LIBS += -L$${OUT_PWD}/../../../../Lib/$${BIN_DIR} -l$${COMMONS_TARGET}
 
 OTHER_FILES += pspec.json
 
+QT += qml
+
 SOURCES = \
     src/plugin.cpp \
-    src/convertvideogeneric.cpp \
-    ../convertvideo.cpp
+    src/convertaudiogeneric.cpp \
+    ../convertaudio.cpp
 
-akModule = VideoCapture
+akModule = ACapsConvert
 DESTDIR = $${OUT_PWD}/../../$${BIN_DIR}/submodules/$${akModule}
 
 TEMPLATE = lib

@@ -17,22 +17,27 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include "plugin.h"
-#include "convertvideogeneric.h"
+#ifndef CONVERTAUDIOGENERIC_H
+#define CONVERTAUDIOGENERIC_H
 
-QObject *Plugin::create(const QString &key, const QString &specification)
+#include "convertaudio.h"
+
+class ConvertAudioGenericPrivate;
+
+class ConvertAudioGeneric: public ConvertAudio
 {
-    Q_UNUSED(specification)
+    Q_OBJECT
 
-    if (key == AK_PLUGIN_TYPE_SUBMODULE)
-        return new ConvertVideoGeneric();
+    public:
+        ConvertAudioGeneric(QObject *parent=nullptr);
+        ~ConvertAudioGeneric();
 
-    return nullptr;
-}
+        Q_INVOKABLE bool init(const AkAudioCaps &caps);
+        Q_INVOKABLE AkPacket convert(const AkAudioPacket &packet);
+        Q_INVOKABLE void uninit();
 
-QStringList Plugin::keys() const
-{
-    return QStringList();
-}
+    private:
+        ConvertAudioGenericPrivate *d;
+};
 
-#include "moc_plugin.cpp"
+#endif // CONVERTAUDIOGENERIC_H

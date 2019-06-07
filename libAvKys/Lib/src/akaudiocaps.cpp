@@ -913,6 +913,7 @@ qreal operator -(const AkAudioCaps::SpeakerPosition &pos1,
 
 QDebug operator <<(QDebug debug, const AkAudioCaps &caps)
 {
+    QDebugStateSaver saver(debug);
     debug.nospace() << "AkAudioCaps("
                     << "format="
                     << caps.format()
@@ -933,21 +934,22 @@ QDebug operator <<(QDebug debug, const AkAudioCaps &caps)
     properties.sort();
 
     for (auto &property: properties)
-        debug.nospace() << ","
-                        << property.toStdString().c_str()
-                        << "="
-                        << caps.property(property.toStdString().c_str());
+        debug << ","
+              << property.toStdString().c_str()
+              << "="
+              << caps.property(property.toStdString().c_str());
 
-    debug.nospace() << ")";
+    debug << ")";
 
-    return debug.space();
+    return debug;
 }
 
 QDebug operator <<(QDebug debug, AkAudioCaps::SampleFormat format)
 {
+    QDebugStateSaver saver(debug);
     debug.nospace() << AkAudioCaps::sampleFormatToString(format).toStdString().c_str();
 
-    return debug.space();
+    return debug;
 }
 
 QDebug operator <<(QDebug debug, AkAudioCaps::SampleType sampleType)
@@ -957,9 +959,10 @@ QDebug operator <<(QDebug debug, AkAudioCaps::SampleType sampleType)
     QMetaEnum sampleTypeEnum = caps.metaObject()->enumerator(sampleTypeIndex);
     QString sampleTypeStr(sampleTypeEnum.valueToKey(sampleType));
     sampleTypeStr.remove("SampleType_");
+    QDebugStateSaver saver(debug);
     debug.nospace() << sampleTypeStr.toStdString().c_str();
 
-    return debug.space();
+    return debug;
 }
 
 QDebug operator <<(QDebug debug, AkAudioCaps::Position position)
@@ -969,16 +972,18 @@ QDebug operator <<(QDebug debug, AkAudioCaps::Position position)
     QMetaEnum positionEnum = caps.metaObject()->enumerator(positionIndex);
     QString positionStr(positionEnum.valueToKey(position));
     positionStr.remove("Position_");
+    QDebugStateSaver saver(debug);
     debug.nospace() << positionStr.toStdString().c_str();
 
-    return debug.space();
+    return debug;
 }
 
 QDebug operator <<(QDebug debug, AkAudioCaps::ChannelLayout layout)
 {
+    QDebugStateSaver saver(debug);
     debug.nospace() << AkAudioCaps::channelLayoutToString(layout).toStdString().c_str();
 
-    return debug.space();
+    return debug;
 }
 
 QDataStream &operator >>(QDataStream &istream, AkAudioCaps &caps)

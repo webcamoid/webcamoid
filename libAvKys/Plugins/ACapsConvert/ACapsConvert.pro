@@ -20,7 +20,7 @@ TEMPLATE = subdirs
 
 CONFIG(debug, debug|release): CONFIG += ordered
 
-SUBDIRS = src
+SUBDIRS = src src/generic
 CONFIG(config_ffmpeg_avresample): SUBDIRS += src/ffmpegav
 CONFIG(config_ffmpeg_swresample): SUBDIRS += src/ffmpegsw
 CONFIG(config_gstreamer): SUBDIRS += src/gstreamer

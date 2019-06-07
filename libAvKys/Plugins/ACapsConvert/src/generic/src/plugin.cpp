@@ -18,14 +18,14 @@
  */
 
 #include "plugin.h"
-#include "convertvideogeneric.h"
+#include "convertaudiogeneric.h"
 
 QObject *Plugin::create(const QString &key, const QString &specification)
 {
     Q_UNUSED(specification)
 
     if (key == AK_PLUGIN_TYPE_SUBMODULE)
-        return new ConvertVideoGeneric();
+        return new ConvertAudioGeneric();
 
     return nullptr;
 }
