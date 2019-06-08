@@ -82,6 +82,16 @@ class AudioLayer: public QObject
                WRITE setInputState
                RESET resetInputState
                NOTIFY inputStateChanged)
+    Q_PROPERTY(int inputLatency
+               READ inputLatency
+               WRITE setInputLatency
+               RESET resetInputLatency
+               NOTIFY inputLatencyChanged)
+    Q_PROPERTY(int outputLatency
+               READ outputLatency
+               WRITE setOutputLatency
+               RESET resetOutputLatency
+               NOTIFY outputLatencyChanged)
 
     public:
         AudioLayer(QQmlApplicationEngine *engine=nullptr,
@@ -100,6 +110,8 @@ class AudioLayer: public QObject
         Q_INVOKABLE QString description(const QString &device) const;
         Q_INVOKABLE AkElement::ElementState inputState() const;
         Q_INVOKABLE AkElement::ElementState outputState() const;
+        Q_INVOKABLE int inputLatency() const;
+        Q_INVOKABLE int outputLatency() const;
         Q_INVOKABLE AkAudioCaps preferredFormat(const QString &device);
         Q_INVOKABLE QList<AkAudioCaps::SampleFormat> supportedFormats(const QString &device) const;
         Q_INVOKABLE QList<AkAudioCaps::ChannelLayout> supportedChannelLayouts(const QString &device) const;
@@ -120,6 +132,8 @@ class AudioLayer: public QObject
         void inputDescriptionChanged(const QString &inputDescription);
         void inputStateChanged(AkElement::ElementState inputState);
         void outputStateChanged(AkElement::ElementState outputState);
+        void inputLatencyChanged(int inputLatency);
+        void outputLatencyChanged(int outputLatency);
         void oStream(const AkPacket &packet);
 
     public slots:
@@ -131,6 +145,8 @@ class AudioLayer: public QObject
         void setInputDescription(const QString &inputDescription);
         void setInputState(AkElement::ElementState inputState);
         bool setOutputState(AkElement::ElementState outputState);
+        void setInputLatency(int inputLatency);
+        void setOutputLatency(int outputLatency);
         void resetAudioInput();
         void resetAudioOutput();
         void resetInputCaps();
@@ -139,6 +155,8 @@ class AudioLayer: public QObject
         void resetInputDescription();
         void resetInputState();
         void resetOutputState();
+        void resetInputLatency();
+        void resetOutputLatency();
         AkPacket iStream(const AkPacket &packet);
         void setQmlEngine(QQmlApplicationEngine *engine=nullptr);
 

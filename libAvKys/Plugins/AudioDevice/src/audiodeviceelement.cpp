@@ -61,7 +61,7 @@ class AudioDeviceElementPrivate
         QFuture<void> m_readFramesLoopResult;
         QMutex m_mutex;
         QMutex m_mutexLib;
-        int m_bufferSize {1024};
+        int m_latency {1};
         bool m_readFramesLoop {false};
         bool m_pause {false};
 
@@ -151,9 +151,9 @@ QString AudioDeviceElement::device() const
     return this->d->m_device;
 }
 
-int AudioDeviceElement::bufferSize() const
+int AudioDeviceElement::latency() const
 {
-    return this->d->m_bufferSize;
+    return this->d->m_latency;
 }
 
 AkAudioCaps AudioDeviceElement::caps() const
@@ -267,18 +267,18 @@ void AudioDeviceElementPrivate::readFramesLoop()
                 continue;
             }
 
-            int bufferSize = this->m_bufferSize;
-            QByteArray buffer = this->m_audioDevice->read(bufferSize);
+            int samples = qMax(this->m_latency * caps.rate() / 1000, 1);
+            auto buffer = this->m_audioDevice->read(samples);
 
             if (buffer.isEmpty())
                 return;
 
             QByteArray oBuffer(buffer.size(), 0);
             memcpy(oBuffer.data(), buffer.constData(), size_t(buffer.size()));
-            qint64 pts = qint64(QTime::currentTime().msecsSinceStartOfDay()
-                                / timeBase.value() / 1e3);
+            auto pts = qint64(QTime::currentTime().msecsSinceStartOfDay()
+                              / timeBase.value() / 1e3);
 
-            caps.setSamples(bufferSize);
+            caps.setSamples(samples);
             AkAudioPacket packet;
             packet.caps() = caps;
             packet.buffer() = oBuffer;
@@ -423,13 +423,13 @@ void AudioDeviceElement::setDevice(const QString &device)
     emit this->deviceChanged(device);
 }
 
-void AudioDeviceElement::setBufferSize(int bufferSize)
+void AudioDeviceElement::setLatency(int latency)
 {
-    if (this->d->m_bufferSize == bufferSize)
+    if (this->d->m_latency == latency)
         return;
 
-    this->d->m_bufferSize = bufferSize;
-    emit this->bufferSizeChanged(bufferSize);
+    this->d->m_latency = latency;
+    emit this->latencyChanged(latency);
 }
 
 void AudioDeviceElement::setCaps(const AkAudioCaps &caps)
@@ -447,9 +447,9 @@ void AudioDeviceElement::resetDevice()
     this->setDevice("");
 }
 
-void AudioDeviceElement::resetBufferSize()
+void AudioDeviceElement::resetLatency()
 {
-    this->setBufferSize(1024);
+    this->setLatency(1);
 }
 
 void AudioDeviceElement::resetCaps()
@@ -476,9 +476,10 @@ bool AudioDeviceElement::setState(AkElement::ElementState state)
                 this->d->m_convert->setState(state);
                 this->d->m_pause = true;
                 this->d->m_readFramesLoop = true;
-                this->d->m_readFramesLoopResult = QtConcurrent::run(&this->d->m_threadPool,
-                                                                     this->d,
-                                                                     &AudioDeviceElementPrivate::readFramesLoop);
+                this->d->m_readFramesLoopResult =
+                        QtConcurrent::run(&this->d->m_threadPool,
+                                          this->d,
+                                          &AudioDeviceElementPrivate::readFramesLoop);
             }
 
             return AkElement::setState(state);
@@ -488,9 +489,10 @@ bool AudioDeviceElement::setState(AkElement::ElementState state)
                 this->d->m_convert->setState(state);
                 this->d->m_pause = false;
                 this->d->m_readFramesLoop = true;
-                this->d->m_readFramesLoopResult = QtConcurrent::run(&this->d->m_threadPool,
-                                                                     this->d,
-                                                                     &AudioDeviceElementPrivate::readFramesLoop);
+                this->d->m_readFramesLoopResult =
+                        QtConcurrent::run(&this->d->m_threadPool,
+                                          this->d,
+                                          &AudioDeviceElementPrivate::readFramesLoop);
             } else if (this->d->m_device != DUMMY_OUTPUT_DEVICE
                        && this->d->m_outputs.contains(this->d->m_device)) {
                 this->d->m_convert->setState(state);

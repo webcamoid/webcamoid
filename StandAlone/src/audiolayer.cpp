@@ -112,6 +112,10 @@ AudioLayer::AudioLayer(QQmlApplicationEngine *engine, QObject *parent):
                          SIGNAL(stateChanged(AkElement::ElementState)),
                          this,
                          SIGNAL(outputStateChanged(AkElement::ElementState)));
+        QObject::connect(this->d->m_audioOut.data(),
+                         SIGNAL(latencyChanged(int)),
+                         this,
+                         SIGNAL(outputLatencyChanged(int)));
     }
 
     if (this->d->m_audioIn) {
@@ -126,6 +130,10 @@ AudioLayer::AudioLayer(QQmlApplicationEngine *engine, QObject *parent):
                          SIGNAL(inputsChanged(const QStringList &)),
                          this,
                          SLOT(privInputsChanged(const QStringList &)));
+        QObject::connect(this->d->m_audioIn.data(),
+                         SIGNAL(latencyChanged(int)),
+                         this,
+                         SIGNAL(inputLatencyChanged(int)));
     }
 
     if (this->d->m_audioOutSettings) {
@@ -309,6 +317,22 @@ AkElement::ElementState AudioLayer::outputState() const
         return this->d->m_audioOut->property("state").value<AkElement::ElementState>();
 
     return AkElement::ElementStateNull;
+}
+
+int AudioLayer::inputLatency() const
+{
+    if (this->d->m_audioIn)
+        return this->d->m_audioIn->property("latency").toInt();
+
+    return 1;
+}
+
+int AudioLayer::outputLatency() const
+{
+    if (this->d->m_audioOut)
+        return this->d->m_audioOut->property("latency").toInt();
+
+    return 1;
 }
 
 AkAudioCaps AudioLayer::preferredFormat(const QString &device)
@@ -558,6 +582,18 @@ bool AudioLayer::setOutputState(AkElement::ElementState outputState)
     return false;
 }
 
+void AudioLayer::setInputLatency(int inputLatency)
+{
+    if (this->d->m_audioIn)
+        this->d->m_audioIn->setProperty("latency", inputLatency);
+}
+
+void AudioLayer::setOutputLatency(int outputLatency)
+{
+    if (this->d->m_audioOut)
+        this->d->m_audioOut->setProperty("latency", outputLatency);
+}
+
 void AudioLayer::resetAudioInput()
 {
     QStringList devices;
@@ -613,6 +649,16 @@ void AudioLayer::resetInputState()
 void AudioLayer::resetOutputState()
 {
     this->setOutputState(AkElement::ElementStateNull);
+}
+
+void AudioLayer::resetInputLatency()
+{
+    this->setInputLatency(1);
+}
+
+void AudioLayer::resetOutputLatency()
+{
+    this->setOutputLatency(1);
 }
 
 AkPacket AudioLayer::iStream(const AkPacket &packet)

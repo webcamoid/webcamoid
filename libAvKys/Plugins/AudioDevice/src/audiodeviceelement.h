@@ -45,12 +45,12 @@ class AudioDeviceElement: public AkElement
                WRITE setDevice
                RESET resetDevice
                NOTIFY deviceChanged)
-    // Buffer size in samples.
-    Q_PROPERTY(int bufferSize
-               READ bufferSize
-               WRITE setBufferSize
-               RESET resetBufferSize
-               NOTIFY bufferSizeChanged)
+    // In milliseconds
+    Q_PROPERTY(int latency
+               READ latency
+               WRITE setLatency
+               RESET resetLatency
+               NOTIFY latencyChanged)
     Q_PROPERTY(AkAudioCaps caps
                READ caps
                WRITE setCaps
@@ -67,7 +67,7 @@ class AudioDeviceElement: public AkElement
         Q_INVOKABLE QStringList outputs();
         Q_INVOKABLE QString description(const QString &device);
         Q_INVOKABLE QString device() const;
-        Q_INVOKABLE int bufferSize() const;
+        Q_INVOKABLE int latency() const;
         Q_INVOKABLE AkAudioCaps caps() const;
         Q_INVOKABLE AkAudioCaps preferredFormat(const QString &device);
         Q_INVOKABLE QList<AkAudioCaps::SampleFormat> supportedFormats(const QString &device);
@@ -86,15 +86,15 @@ class AudioDeviceElement: public AkElement
         void inputsChanged(const QStringList &inputs);
         void outputsChanged(const QStringList &outputs);
         void deviceChanged(const QString &device);
-        void bufferSizeChanged(int bufferSize);
+        void latencyChanged(int latency);
         void capsChanged(const AkAudioCaps &caps);
 
     public slots:
         void setDevice(const QString &device);
-        void setBufferSize(int bufferSize);
+        void setLatency(int latency);
         void setCaps(const AkAudioCaps &caps);
         void resetDevice();
-        void resetBufferSize();
+        void resetLatency();
         void resetCaps();
         bool setState(AkElement::ElementState state);
 };

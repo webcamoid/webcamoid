@@ -139,37 +139,42 @@
 <context>
     <name>AudioInfo</name>
     <message>
-        <location filename="../qml/AudioInfo.qml" line="192"/>
+        <location filename="../qml/AudioInfo.qml" line="193"/>
         <source>Description</source>
         <translation>Omschrijving</translation>
     </message>
     <message>
-        <location filename="../qml/AudioInfo.qml" line="207"/>
-        <location filename="../qml/AudioInfo.qml" line="214"/>
+        <location filename="../qml/AudioInfo.qml" line="208"/>
+        <location filename="../qml/AudioInfo.qml" line="215"/>
         <source>Device description</source>
         <translation>Apparaatomschrijving</translation>
     </message>
     <message>
-        <location filename="../qml/AudioInfo.qml" line="222"/>
-        <location filename="../qml/AudioInfo.qml" line="237"/>
-        <location filename="../qml/AudioInfo.qml" line="244"/>
+        <location filename="../qml/AudioInfo.qml" line="223"/>
+        <location filename="../qml/AudioInfo.qml" line="238"/>
+        <location filename="../qml/AudioInfo.qml" line="245"/>
         <source>Device id</source>
         <translation>Apparaat-ID</translation>
     </message>
     <message>
-        <location filename="../qml/AudioInfo.qml" line="259"/>
+        <location filename="../qml/AudioInfo.qml" line="260"/>
         <source>Sample Format</source>
         <translation>Sampleformaat</translation>
     </message>
     <message>
-        <location filename="../qml/AudioInfo.qml" line="285"/>
+        <location filename="../qml/AudioInfo.qml" line="286"/>
         <source>Channels</source>
         <translation>Kanalen</translation>
     </message>
     <message>
-        <location filename="../qml/AudioInfo.qml" line="311"/>
+        <location filename="../qml/AudioInfo.qml" line="312"/>
         <source>Sample Rate</source>
         <translation>Samplesnelheid</translation>
+    </message>
+    <message>
+        <location filename="../qml/AudioInfo.qml" line="338"/>
+        <source>Latency (ms)</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

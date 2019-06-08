@@ -21,6 +21,7 @@ import QtQuick 2.7
 import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.3
 import AkQml 1.0
+import AkQmlControls 1.0
 
 Rectangle {
     id: recAudioConfig
@@ -334,6 +335,53 @@ Rectangle {
             }
         }
         Label {
+            text: qsTr("Latency (ms)")
+        }
+        RowLayout {
+            Slider {
+                id: sldOLatency
+                value: AudioLayer.outputLatency
+                stepSize: 1
+                from: 1
+                to: 32768
+                Layout.fillWidth: true
+                visible: true
+
+                onValueChanged: AudioLayer.outputLatency = value
+            }
+            SpinBox {
+                id: spbOLatency
+                value: AudioLayer.outputLatency
+                from: sldOLatency.from
+                to: sldOLatency.to
+                stepSize: sldOLatency.stepSize
+                visible: true
+
+                onValueChanged: AudioLayer.outputLatency = value
+            }
+            Slider {
+                id: sldILatency
+                value: AudioLayer.inputLatency
+                stepSize: 1
+                from: 1
+                to: 32768
+                Layout.fillWidth: true
+                visible: false
+
+                onValueChanged: AudioLayer.inputLatency = value
+            }
+            SpinBox {
+                id: spbILatency
+                value: AudioLayer.inputLatency
+                from: sldILatency.from
+                to: sldILatency.to
+                stepSize: sldILatency.stepSize
+                visible: false
+
+                onValueChanged: AudioLayer.inputLatency = value
+            }
+        }
+        Label {
             Layout.fillHeight: true
         }
     }
@@ -380,6 +428,22 @@ Rectangle {
             }
             PropertyChanges {
                 target: cbxISampleRates
+                visible: true
+            }
+            PropertyChanges {
+                target: sldOLatency
+                visible: false
+            }
+            PropertyChanges {
+                target: spbOLatency
+                visible: false
+            }
+            PropertyChanges {
+                target: sldILatency
+                visible: true
+            }
+            PropertyChanges {
+                target: spbILatency
                 visible: true
             }
         }
