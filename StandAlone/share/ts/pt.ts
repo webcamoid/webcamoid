@@ -848,7 +848,7 @@
         <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="205"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="215"/>
         <source>Scan block</source>
-        <translation type="unfinished"></translation>
+        <translation>Bloco de digitalização</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="195"/>
@@ -906,7 +906,7 @@
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="115"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="104"/>
         <source>Hinting</source>
-        <translation type="unfinished"></translation>
+        <translation>Sugestão</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="125"/>
@@ -920,19 +920,19 @@
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="129"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="118"/>
         <source>No hinting</source>
-        <translation type="unfinished"></translation>
+        <translation>Sem sugestão</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="133"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="122"/>
         <source>Vertical hinting</source>
-        <translation type="unfinished"></translation>
+        <translation>Sugestão vertical</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="137"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="126"/>
         <source>Full hinting</source>
-        <translation type="unfinished"></translation>
+        <translation>Sugestão completa</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="146"/>
@@ -1202,17 +1202,17 @@
     <message>
         <location filename="../../../libAvKys/Plugins/DelayGrab/share/qml/main.qml" line="56"/>
         <source>Vertical increase</source>
-        <translation type="unfinished"></translation>
+        <translation>Aumento vertical</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/DelayGrab/share/qml/main.qml" line="60"/>
         <source>Horizontal increase</source>
-        <translation type="unfinished"></translation>
+        <translation>Aumento horizontal</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/DelayGrab/share/qml/main.qml" line="64"/>
         <source>Rings increase</source>
-        <translation type="unfinished"></translation>
+        <translation>Aumento de anéis</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/DelayGrab/share/qml/main.qml" line="73"/>
@@ -1232,12 +1232,12 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Denoise/share/qml/main.qml" line="78"/>
         <source>Mu</source>
-        <translation type="unfinished"></translation>
+        <translation>Mu</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Denoise/share/qml/main.qml" line="92"/>
         <source>Sigma</source>
-        <translation type="unfinished"></translation>
+        <translation>Sigma</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/DesktopCapture/share/qml/main.qml" line="48"/>
@@ -1280,17 +1280,17 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="44"/>
         <source>Canny mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Modo Canny</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="57"/>
         <source>Lower Canny threshold</source>
-        <translation type="unfinished"></translation>
+        <translation>Limiar inferior do Canny</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="82"/>
         <source>Higger Canny threshold</source>
-        <translation type="unfinished"></translation>
+        <translation>Limiar superior do Canny</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="107"/>
@@ -1305,7 +1305,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="111"/>
         <source>Haar file</source>
-        <translation type="unfinished"></translation>
+        <translation>Ficheiro Haar</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="121"/>
@@ -1315,7 +1315,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="125"/>
         <source>Eye glasses</source>
-        <translation type="unfinished"></translation>
+        <translation>Óculos dos olhos</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="129"/>
@@ -1754,7 +1754,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FrameOverlap/share/qml/main.qml" line="43"/>
         <source>Stride</source>
-        <translation type="unfinished"></translation>
+        <translation>Passo</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="51"/>
