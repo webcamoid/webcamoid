@@ -211,10 +211,18 @@ class AkAudioPacketPrivate
                 DEFINE_SAMPLE_CONVERT_FUNCTION(s64be, dbl,  qint64, qreal, qreal, BE, _),
                 DEFINE_SAMPLE_CONVERT_FUNCTION(u64le, dbl, quint64, qreal, qreal, LE, _),
                 DEFINE_SAMPLE_CONVERT_FUNCTION(u64be, dbl, quint64, qreal, qreal, BE, _),
+
+#if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
                 DEFINE_SAMPLE_CONVERT_FUNCTION(fltle, dbl,   float, qreal, qreal, LE, _),
                 DEFINE_SAMPLE_CONVERT_FUNCTION(fltbe, dbl,   float, qreal, qreal, BE, _),
                 DEFINE_SAMPLE_CONVERT_FUNCTION(dblle, dbl,   qreal, qreal, qreal, LE, _),
                 DEFINE_SAMPLE_CONVERT_FUNCTION(dblbe, dbl,   qreal, qreal, qreal, BE, _),
+#else
+                DEFINE_SAMPLE_CONVERT_FUNCTION(fltle, dbl,   float, qreal, qreal, _, _),
+                DEFINE_SAMPLE_CONVERT_FUNCTION(fltbe, dbl,   float, qreal, qreal, _, _),
+                DEFINE_SAMPLE_CONVERT_FUNCTION(dblle, dbl,   qreal, qreal, qreal, _, _),
+                DEFINE_SAMPLE_CONVERT_FUNCTION(dblbe, dbl,   qreal, qreal, qreal, _, _),
+#endif
             };
 
             return convert;
@@ -556,10 +564,18 @@ class AkAudioPacketPrivate
                 DEFINE_SAMPLE_INTERPOLATION_FUNCTION(s64be,  qint64,  qreal, BE),
                 DEFINE_SAMPLE_INTERPOLATION_FUNCTION(u64le, quint64,  qreal, LE),
                 DEFINE_SAMPLE_INTERPOLATION_FUNCTION(u64be, quint64,  qreal, BE),
+
+#if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
                 DEFINE_SAMPLE_INTERPOLATION_FUNCTION(fltle,   float,  qreal, LE),
                 DEFINE_SAMPLE_INTERPOLATION_FUNCTION(fltbe,   float,  qreal, BE),
                 DEFINE_SAMPLE_INTERPOLATION_FUNCTION(dblle,   qreal,  qreal, LE),
                 DEFINE_SAMPLE_INTERPOLATION_FUNCTION(dblbe,   qreal,  qreal, BE),
+#else
+                DEFINE_SAMPLE_INTERPOLATION_FUNCTION(fltle,   float,  qreal, _),
+                DEFINE_SAMPLE_INTERPOLATION_FUNCTION(fltbe,   float,  qreal, _),
+                DEFINE_SAMPLE_INTERPOLATION_FUNCTION(dblle,   qreal,  qreal, _),
+                DEFINE_SAMPLE_INTERPOLATION_FUNCTION(dblbe,   qreal,  qreal, _),
+#endif
             };
 
             return interpolation;
