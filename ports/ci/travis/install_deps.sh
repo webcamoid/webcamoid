@@ -244,7 +244,6 @@ EOF
             qt5-svg \
             v4l-utils \
             qt5-tools \
-            qt5-multimedia \
             ffmpeg \
             gst-plugins-base-libs \
             libpulse \
@@ -400,7 +399,6 @@ elif [ "${DOCKERSYS}" = debian ]; then
         ${EXEC} apt-get -y install \
             qt${PPAQTVER}tools \
             qt${PPAQTVER}declarative \
-            qt${PPAQTVER}multimedia \
             qt${PPAQTVER}svg \
             qt${PPAQTVER}quickcontrols \
             qt${PPAQTVER}quickcontrols2 \
@@ -409,7 +407,6 @@ elif [ "${DOCKERSYS}" = debian ]; then
         ${EXEC} apt-get -y install \
             qt5-qmake \
             qtdeclarative5-dev \
-            qtmultimedia5-dev \
             libqt5opengl5-dev \
             libqt5svg5-dev \
             qtquickcontrols2-5-dev \
@@ -440,7 +437,6 @@ elif [ "${DOCKERSYS}" = fedora ]; then
         gcc-c++ \
         qt5-qttools-devel \
         qt5-qtdeclarative-devel \
-        qt5-qtmultimedia-devel \
         qt5-qtsvg-devel \
         qt5-qtquickcontrols \
         qt5-qtquickcontrols2-devel \
@@ -465,7 +461,6 @@ elif [ "${DOCKERSYS}" = opensuse ]; then
         libqt5-linguist \
         libqt5-qtbase-devel \
         libqt5-qtdeclarative-devel \
-        libqt5-qtmultimedia-devel \
         libqt5-qtsvg-devel \
         libqt5-qtquickcontrols \
         libqt5-qtquickcontrols2 \

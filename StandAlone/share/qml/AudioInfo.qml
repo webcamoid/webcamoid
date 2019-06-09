@@ -343,7 +343,7 @@ Rectangle {
                 value: AudioLayer.outputLatency
                 stepSize: 1
                 from: 1
-                to: 32768
+                to: 2048
                 Layout.fillWidth: true
                 visible: true
 
@@ -364,7 +364,7 @@ Rectangle {
                 value: AudioLayer.inputLatency
                 stepSize: 1
                 from: 1
-                to: 32768
+                to: 2048
                 Layout.fillWidth: true
                 visible: false
 

@@ -61,7 +61,6 @@ class AudioDeviceElementPrivate
         QFuture<void> m_readFramesLoopResult;
         QMutex m_mutex;
         QMutex m_mutexLib;
-        int m_latency {1};
         bool m_readFramesLoop {false};
         bool m_pause {false};
 
@@ -153,7 +152,10 @@ QString AudioDeviceElement::device() const
 
 int AudioDeviceElement::latency() const
 {
-    return this->d->m_latency;
+    if (this->d->m_audioDevice)
+        return  this->d->m_audioDevice->latency();
+
+    return 25;
 }
 
 AkAudioCaps AudioDeviceElement::caps() const
@@ -215,7 +217,8 @@ QList<AkAudioCaps::ChannelLayout> AudioDeviceElement::supportedChannelLayouts(co
     this->d->m_mutexLib.lock();
 
     if (this->d->m_audioDevice)
-        supportedChannelLayouts = this->d->m_audioDevice->supportedChannelLayouts(device);
+        supportedChannelLayouts =
+                this->d->m_audioDevice->supportedChannelLayouts(device);
 
     this->d->m_mutexLib.unlock();
 
@@ -267,7 +270,8 @@ void AudioDeviceElementPrivate::readFramesLoop()
                 continue;
             }
 
-            int samples = qMax(this->m_latency * caps.rate() / 1000, 1);
+            int latency = this->m_audioDevice->latency();
+            int samples = qMax(latency * caps.rate() / 1000, 1);
             auto buffer = this->m_audioDevice->read(samples);
 
             if (buffer.isEmpty())
@@ -325,6 +329,10 @@ void AudioDeviceElementPrivate::audioLibUpdated(const QString &audioLib)
     bool isInput = this->m_inputs.contains(this->m_device);
 
     this->m_mutexLib.lock();
+    int latency = 25;
+
+    if (this->m_audioDevice)
+        latency = this->m_audioDevice->latency();
 
     this->m_audioDevice =
             ptr_cast<AudioDev>(AudioDeviceElement::loadSubModule("AudioDevice",
@@ -347,6 +355,10 @@ void AudioDeviceElementPrivate::audioLibUpdated(const QString &audioLib)
                      self,
                      &AudioDeviceElement::defaultOutputChanged);
     QObject::connect(this->m_audioDevice.data(),
+                     &AudioDev::latencyChanged,
+                     self,
+                     &AudioDeviceElement::latencyChanged);
+    QObject::connect(this->m_audioDevice.data(),
                      &AudioDev::inputsChanged,
                      [this] (const QStringList &inputs) {
                         this->setInputs(inputs);
@@ -357,6 +369,7 @@ void AudioDeviceElementPrivate::audioLibUpdated(const QString &audioLib)
                         this->setOutputs(outputs);
                      });
 
+    this->m_audioDevice->setLatency(latency);
     this->setInputs(this->m_audioDevice->inputs());
     this->setOutputs(this->m_audioDevice->outputs());
     emit self->defaultInputChanged(this->m_audioDevice->defaultInput());
@@ -425,11 +438,8 @@ void AudioDeviceElement::setDevice(const QString &device)
 
 void AudioDeviceElement::setLatency(int latency)
 {
-    if (this->d->m_latency == latency)
-        return;
-
-    this->d->m_latency = latency;
-    emit this->latencyChanged(latency);
+    if (this->d->m_audioDevice)
+        this->d->m_audioDevice->setLatency(latency);
 }
 
 void AudioDeviceElement::setCaps(const AkAudioCaps &caps)
@@ -449,7 +459,8 @@ void AudioDeviceElement::resetDevice()
 
 void AudioDeviceElement::resetLatency()
 {
-    this->setLatency(1);
+    if (this->d->m_audioDevice)
+        this->d->m_audioDevice->resetLatency();
 }
 
 void AudioDeviceElement::resetCaps()

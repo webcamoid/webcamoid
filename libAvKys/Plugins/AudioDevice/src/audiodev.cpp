@@ -28,6 +28,7 @@ class AudioDevPrivate
 {
     public:
         QVector<int> m_commonSampleRates;
+        int m_latency {25};
 };
 
 AudioDev::AudioDev(QObject *parent):
@@ -56,7 +57,12 @@ AudioDev::~AudioDev()
     delete this->d;
 }
 
-QVector<int> &AudioDev::commonSampleRates()
+int AudioDev::latency() const
+{
+    return this->d->m_latency;
+}
+
+const QVector<int> &AudioDev::commonSampleRates() const
 {
     return this->d->m_commonSampleRates;
 }
@@ -146,6 +152,20 @@ bool AudioDev::write(const AkAudioPacket &packet)
 bool AudioDev::uninit()
 {
     return true;
+}
+
+void AudioDev::setLatency(int latency)
+{
+    if (this->d->m_latency == latency)
+        return;
+
+    this->d->m_latency = latency;
+    Q_EMIT this->latencyChanged(latency);
+}
+
+void AudioDev::resetLatency()
+{
+    this->setLatency(25);
 }
 
 #include "moc_audiodev.cpp"

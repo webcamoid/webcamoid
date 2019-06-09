@@ -83,18 +83,14 @@ AudioDeviceGlobalsPrivate::AudioDeviceGlobalsPrivate()
     this->m_preferredLibrary = QStringList {
 #ifdef Q_OS_WIN32
         "wasapi",
-        "qtaudio"
 #elif defined(Q_OS_OSX)
         "coreaudio",
         "pulseaudio",
         "jack",
-        "qtaudio"
 #else
         "pulseaudio",
         "alsa",
-        "oss",
         "jack",
-        "qtaudio"
 #endif
     };
 }

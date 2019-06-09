@@ -28,6 +28,11 @@ class AkAudioPacket;
 class AudioDev: public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(int latency
+               READ latency
+               WRITE setLatency
+               RESET resetLatency
+               NOTIFY latencyChanged)
     Q_PROPERTY(QString error
                READ error
                NOTIFY errorChanged)
@@ -36,7 +41,8 @@ class AudioDev: public QObject
         AudioDev(QObject *parent=nullptr);
         virtual ~AudioDev();
 
-        Q_INVOKABLE QVector<int> &commonSampleRates();
+        Q_INVOKABLE int latency() const;
+        Q_INVOKABLE const QVector<int> &commonSampleRates() const;
         Q_INVOKABLE virtual QString error() const;
         Q_INVOKABLE virtual QString defaultInput();
         Q_INVOKABLE virtual QString defaultOutput();
@@ -56,11 +62,16 @@ class AudioDev: public QObject
         AudioDevPrivate *d;
 
     Q_SIGNALS:
+        void latencyChanged(int latency);
         void errorChanged(const QString &error);
         void defaultInputChanged(const QString &defaultInput);
         void defaultOutputChanged(const QString &defaultOutput);
         void inputsChanged(const QStringList &inputs);
         void outputsChanged(const QStringList &outputs);
+
+    public Q_SLOTS:
+        void setLatency(int latency);
+        void resetLatency();
 };
 
 #endif // AUDIODEV_H

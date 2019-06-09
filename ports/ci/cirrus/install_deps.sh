@@ -26,7 +26,6 @@ pkg install -y \
     qt5-qmake \
     qt5-buildtools \
     qt5-concurrent \
-    qt5-multimedia \
     qt5-quickcontrols \
     qt5-quickcontrols2 \
     qt5-svg \

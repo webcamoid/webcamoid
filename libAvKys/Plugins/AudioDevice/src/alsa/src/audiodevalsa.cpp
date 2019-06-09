@@ -31,23 +31,21 @@
 
 using SampleFormatMap = QMap<AkAudioCaps::SampleFormat, snd_pcm_format_t>;
 
-inline SampleFormatMap initSampleFormatMap()
+inline const SampleFormatMap &sampleFormats()
 {
-    SampleFormatMap sampleFormat = {
-        {AkAudioCaps::SampleFormat_s8   , SND_PCM_FORMAT_S8     },
-        {AkAudioCaps::SampleFormat_u8   , SND_PCM_FORMAT_U8     },
-        {AkAudioCaps::SampleFormat_s16  , SND_PCM_FORMAT_S16    },
-        {AkAudioCaps::SampleFormat_u16  , SND_PCM_FORMAT_U16    },
-        {AkAudioCaps::SampleFormat_s32  , SND_PCM_FORMAT_S32    },
-        {AkAudioCaps::SampleFormat_u32  , SND_PCM_FORMAT_U32    },
-        {AkAudioCaps::SampleFormat_flt  , SND_PCM_FORMAT_FLOAT  },
-        {AkAudioCaps::SampleFormat_dbl  , SND_PCM_FORMAT_FLOAT64},
+    static const SampleFormatMap sampleFormat {
+        {AkAudioCaps::SampleFormat_s8 , SND_PCM_FORMAT_S8     },
+        {AkAudioCaps::SampleFormat_u8 , SND_PCM_FORMAT_U8     },
+        {AkAudioCaps::SampleFormat_s16, SND_PCM_FORMAT_S16    },
+        {AkAudioCaps::SampleFormat_u16, SND_PCM_FORMAT_U16    },
+        {AkAudioCaps::SampleFormat_s32, SND_PCM_FORMAT_S32    },
+        {AkAudioCaps::SampleFormat_u32, SND_PCM_FORMAT_U32    },
+        {AkAudioCaps::SampleFormat_flt, SND_PCM_FORMAT_FLOAT  },
+        {AkAudioCaps::SampleFormat_dbl, SND_PCM_FORMAT_FLOAT64},
     };
 
     return sampleFormat;
 }
-
-Q_GLOBAL_STATIC_WITH_ARGS(SampleFormatMap, sampleFormats, (initSampleFormatMap()))
 
 class AudioDevAlsaPrivate
 {
@@ -143,7 +141,7 @@ QString AudioDevAlsa::description(const QString &device)
 AkAudioCaps AudioDevAlsa::preferredFormat(const QString &device)
 {
     return this->d->m_sinks.contains(device)?
-                AkAudioCaps(AkAudioCaps::SampleFormat_s16,
+                AkAudioCaps(AkAudioCaps::SampleFormat_s32,
                             AkAudioCaps::Layout_stereo,
                             44100):
                 AkAudioCaps(AkAudioCaps::SampleFormat_u8,
@@ -171,25 +169,26 @@ bool AudioDevAlsa::init(const QString &device, const AkAudioCaps &caps)
     QMutexLocker mutexLockeer(&this->d->m_mutex);
 
     this->d->m_pcmHnd = nullptr;
-    int error = snd_pcm_open(&this->d->m_pcmHnd,
-                             QString(device)
-                                 .remove(QRegExp(":Input$|:Output$"))
-                                 .toStdString().c_str(),
-                             device.endsWith(":Input")?
-                                 SND_PCM_STREAM_CAPTURE: SND_PCM_STREAM_PLAYBACK,
-                             SND_PCM_NONBLOCK);
+    int error =
+            snd_pcm_open(&this->d->m_pcmHnd,
+                         QString(device)
+                             .remove(QRegExp(":Input$|:Output$"))
+                             .toStdString().c_str(),
+                         device.endsWith(":Input")?
+                             SND_PCM_STREAM_CAPTURE: SND_PCM_STREAM_PLAYBACK,
+                         SND_PCM_NONBLOCK);
 
     if (error < 0)
         goto init_fail;
 
     error = snd_pcm_set_params(this->d->m_pcmHnd,
-                               sampleFormats->value(caps.format(),
-                                                    SND_PCM_FORMAT_UNKNOWN),
+                               sampleFormats().value(caps.format(),
+                                                     SND_PCM_FORMAT_UNKNOWN),
                                SND_PCM_ACCESS_RW_INTERLEAVED,
                                uint(caps.channels()),
                                uint(caps.rate()),
                                1,
-                               500000);
+                               uint(1000 * this->latency()));
 
     if (error < 0)
         goto init_fail;
@@ -232,7 +231,7 @@ QByteArray AudioDevAlsa::read(int samples)
                 continue;
             }
 
-            return QByteArray();
+            return {};
         }
     }
 
@@ -310,6 +309,8 @@ void AudioDevAlsaPrivate::fillDeviceInfo(const QString &device,
     if (error < 0)
         return;
 
+    uint maxChannels = 0;
+
     snd_pcm_hw_params_t *hwParams = nullptr;
     snd_pcm_hw_params_malloc(&hwParams);
     snd_pcm_hw_params_any(pcmHnd, hwParams);
@@ -333,7 +334,7 @@ void AudioDevAlsaPrivate::fillDeviceInfo(const QString &device,
 
     for (auto fmt: preferredFormats)
         if (snd_pcm_hw_params_test_format(pcmHnd, hwParams, fmt) >= 0) {
-            auto format = sampleFormats->key(fmt);
+            auto format = sampleFormats().key(fmt);
 
             if (!supportedFormats->contains(format))
                 supportedFormats->append(format);
@@ -341,9 +342,18 @@ void AudioDevAlsaPrivate::fillDeviceInfo(const QString &device,
 
     std::sort(supportedFormats->begin(), supportedFormats->end());
 
-    for (int channels = 1; channels < 3; channels++)
-        if (snd_pcm_hw_params_test_channels(pcmHnd, hwParams, uint(channels)) >= 0)
-            supportedLayouts->append(AkAudioCaps::defaultChannelLayout(channels));
+    if (snd_pcm_hw_params_get_channels_max(hwParams, &maxChannels) < 0)
+        maxChannels = 3;
+    else
+        maxChannels = qBound<uint>(1, maxChannels, 16) + 1;
+
+    for (uint channels = 1; channels < maxChannels; channels++)
+        if (snd_pcm_hw_params_test_channels(pcmHnd, hwParams, channels) >= 0) {
+            auto layout = AkAudioCaps::defaultChannelLayout(int(channels));
+
+            if (layout != AkAudioCaps::Layout_none)
+                supportedLayouts->append(layout);
+        }
 
     for (auto &rate: self->commonSampleRates())
         if (snd_pcm_hw_params_test_rate(pcmHnd, hwParams, uint(rate), 0) >= 0)

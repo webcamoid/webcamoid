@@ -459,15 +459,23 @@ void AudioDevPulseAudioPrivate::deviceUpdateCallback(pa_context *context,
     case PA_SUBSCRIPTION_EVENT_CHANGE:
         switch (facility) {
         case PA_SUBSCRIPTION_EVENT_SERVER:
-            pa_operation_unref(pa_context_get_server_info(context, serverInfoCallback, userData));
+            pa_operation_unref(pa_context_get_server_info(context,
+                                                          serverInfoCallback,
+                                                          userData));
 
             break;
         case PA_SUBSCRIPTION_EVENT_SINK:
-            pa_operation_unref(pa_context_get_sink_info_by_index(context, index, sinkInfoCallback, userData));
+            pa_operation_unref(pa_context_get_sink_info_by_index(context,
+                                                                 index,
+                                                                 sinkInfoCallback,
+                                                                 userData));
 
             break;
         case PA_SUBSCRIPTION_EVENT_SOURCE:
-            pa_operation_unref(pa_context_get_source_info_by_index(context, index, sourceInfoCallback, userData));
+            pa_operation_unref(pa_context_get_source_info_by_index(context,
+                                                                   index,
+                                                                   sourceInfoCallback,
+                                                                   userData));
 
             break;
         default:
@@ -553,7 +561,8 @@ void AudioDevPulseAudioPrivate::sourceInfoCallback(pa_context *context,
     auto audioDevice = reinterpret_cast<AudioDevPulseAudio *>(userdata);
 
     if (isLast < 0) {
-        audioDevice->d->m_error = QString(pa_strerror(pa_context_errno(context)));
+        audioDevice->d->m_error =
+                QString(pa_strerror(pa_context_errno(context)));
         emit audioDevice->errorChanged(audioDevice->d->m_error);
 
         return;
@@ -570,9 +579,9 @@ void AudioDevPulseAudioPrivate::sourceInfoCallback(pa_context *context,
     // Get info for the pin.
     audioDevice->d->m_mutex.lock();
 
-    QMap<uint32_t, QString> sources = audioDevice->d->m_sources;
-    QMap<QString, AkAudioCaps> pinCapsMap = audioDevice->d->m_pinCapsMap;
-    QMap<QString, QString> pinDescriptionMap = audioDevice->d->m_pinDescriptionMap;
+    auto sources = audioDevice->d->m_sources;
+    auto pinCapsMap = audioDevice->d->m_pinCapsMap;
+    auto pinDescriptionMap = audioDevice->d->m_pinDescriptionMap;
 
     audioDevice->d->m_sources[info->index] = info->name;
 
@@ -601,7 +610,8 @@ void AudioDevPulseAudioPrivate::sinkInfoCallback(pa_context *context,
     auto audioDevice = reinterpret_cast<AudioDevPulseAudio *>(userdata);
 
     if (isLast < 0) {
-        audioDevice->d->m_error = QString(pa_strerror(pa_context_errno(context)));
+        audioDevice->d->m_error =
+                QString(pa_strerror(pa_context_errno(context)));
         emit audioDevice->errorChanged(audioDevice->d->m_error);
 
         return;
