@@ -16,14 +16,8 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-TEMPLATE = subdirs
+SOURCES = \
+    test.cpp
 
-CONFIG(debug, debug|release): CONFIG += ordered
-
-SUBDIRS = src
-CONFIG(config_alsa): SUBDIRS += src/alsa
-CONFIG(config_coreaudio): SUBDIRS += src/coreaudio
-CONFIG(config_jack): SUBDIRS += src/jack
-CONFIG(config_opensl): SUBDIRS += src/opensl
-CONFIG(config_pulseaudio): SUBDIRS += src/pulseaudio
-CONFIG(config_wasapi): SUBDIRS += src/wasapi
+LIBS += -lOpenSLES
+TARGET = test_auto

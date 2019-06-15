@@ -95,7 +95,7 @@ class AKCOMMONS_EXPORT AkAudioCaps: public QObject
 
 #if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
             SampleFormat_s16 = SampleFormat_s16le,
-            SampleFormat_u16 = SampleFormat_s16le,
+            SampleFormat_u16 = SampleFormat_u16le,
             SampleFormat_s32 = SampleFormat_s32le,
             SampleFormat_u32 = SampleFormat_u32le,
             SampleFormat_s64 = SampleFormat_s64le,
@@ -104,7 +104,7 @@ class AKCOMMONS_EXPORT AkAudioCaps: public QObject
             SampleFormat_dbl = SampleFormat_dblle,
 #else
             SampleFormat_s16 = SampleFormat_s16be,
-            SampleFormat_u16 = SampleFormat_s16be,
+            SampleFormat_u16 = SampleFormat_u16be,
             SampleFormat_s32 = SampleFormat_s32be,
             SampleFormat_u32 = SampleFormat_u32be,
             SampleFormat_s64 = SampleFormat_s64be,
@@ -254,6 +254,7 @@ class AKCOMMONS_EXPORT AkAudioCaps: public QObject
         Q_INVOKABLE static SampleType sampleType(const QString &sampleFormat);
         Q_INVOKABLE static QString channelLayoutToString(ChannelLayout channelLayout);
         Q_INVOKABLE static ChannelLayout channelLayoutFromString(const QString &channelLayout);
+        Q_INVOKABLE static ChannelLayout channelLayoutFromPositions(const QVector<Position> &positions);
         Q_INVOKABLE static int channelCount(ChannelLayout channelLayout);
         Q_INVOKABLE static int channelCount(const QString &channelLayout);
         Q_INVOKABLE static int endianness(SampleFormat sampleFormat);

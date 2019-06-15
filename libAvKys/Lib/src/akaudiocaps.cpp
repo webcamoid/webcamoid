@@ -756,6 +756,28 @@ AkAudioCaps::ChannelLayout AkAudioCaps::channelLayoutFromString(const QString &c
     return ChannelLayouts::byDescription(channelLayout)->layout;
 }
 
+AkAudioCaps::ChannelLayout AkAudioCaps::channelLayoutFromPositions(const QVector<Position> &positions)
+{
+    for (auto &layout: ChannelLayouts::layouts()) {
+        if (layout.channels.size() != positions.size())
+            continue;
+
+        bool found = true;
+
+        for (int i = 0; i < layout.channels.size(); i++)
+            if (!qFuzzyIsNull(qreal(layout.channels[i] - positions[i]))) {
+                found = false;
+
+                break;
+            }
+
+        if (found)
+            return layout.layout;
+    }
+
+    return Layout_none;
+}
+
 int AkAudioCaps::channelCount(ChannelLayout channelLayout)
 {
     return ChannelLayouts::byLayout(channelLayout)->channels.size();

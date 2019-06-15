@@ -78,7 +78,7 @@ isEmpty(NOLIBUVC) {
 
 isEmpty(NOMEDIAFOUNDATION): qtCompileTest(mediafoundation)
 isEmpty(NONDKCAMERA): qtCompileTest(ndk_camera)
-
+isEmpty(NOOPENSL): qtCompileTest(opensl)
 isEmpty(NOPULSEAUDIO): qtCompileTest(pulseaudio)
 
 isEmpty(NOV4L2): !android {
