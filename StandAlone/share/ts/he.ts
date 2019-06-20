@@ -174,7 +174,7 @@
     <message>
         <location filename="../qml/AudioInfo.qml" line="338"/>
         <source>Latency (ms)</source>
-        <translation type="unfinished"></translation>
+        <translation>השהיה (מילישניות)</translation>
     </message>
 </context>
 <context>
