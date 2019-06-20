@@ -52,6 +52,7 @@ class AudioDevCoreAudioPrivate
         QWaitCondition m_canWrite;
         QWaitCondition m_samplesAvailable;
         AkAudioCaps m_curCaps;
+        int m_samples {0};
         int m_maxBufferSize {0};
         bool m_isInput {false};
 
@@ -455,17 +456,16 @@ bool AudioDevCoreAudio::init(const QString &device, const AkAudioCaps &caps)
         this->d->m_bufferList->mBuffers[i].mData = nullptr;
     }
 
+    this->d->m_samples = qMax(this->latency() * caps.rate() / 1000, 1);
+
     return true;
 }
 
-QByteArray AudioDevCoreAudio::read(int samples)
+QByteArray AudioDevCoreAudio::read()
 {
-    if (samples < 1)
-        return {};
-
     int bufferSize = this->d->m_curCaps.bps()
                    * this->d->m_curCaps.channels()
-                   * samples / 8;
+                   * this->d->m_samples / 8;
     QByteArray audioData;
 
     this->d->m_mutex.lock();

@@ -64,6 +64,7 @@ class AudioDevAlsaPrivate
         QFileSystemWatcher *m_fsWatcher {nullptr};
         QTimer m_timer;
         QMutex m_mutex;
+        int m_samples {0};
 
         explicit AudioDevAlsaPrivate(AudioDevAlsa *self);
         void fillDeviceInfo(const QString &device,
@@ -193,6 +194,8 @@ bool AudioDevAlsa::init(const QString &device, const AkAudioCaps &caps)
     if (error < 0)
         goto init_fail;
 
+    this->d->m_samples = qMax(this->latency() * caps.rate() / 1000, 1);
+
     return true;
 
 init_fail:
@@ -203,13 +206,11 @@ init_fail:
     return false;
 }
 
-QByteArray AudioDevAlsa::read(int samples)
+QByteArray AudioDevAlsa::read()
 {
-    if (samples < 1)
-        return {};
+    int samples = this->d->m_samples;
 
     QMutexLocker mutexLockeer(&this->d->m_mutex);
-
     auto bufferSize = snd_pcm_frames_to_bytes(this->d->m_pcmHnd, samples);
     QByteArray buffer(int(bufferSize), 0);
     auto data = buffer.data();

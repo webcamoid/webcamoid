@@ -270,9 +270,7 @@ void AudioDeviceElementPrivate::readFramesLoop()
                 continue;
             }
 
-            int latency = this->m_audioDevice->latency();
-            int samples = qMax(latency * caps.rate() / 1000, 1);
-            auto buffer = this->m_audioDevice->read(samples);
+            auto buffer = this->m_audioDevice->read();
 
             if (buffer.isEmpty())
                 return;
@@ -281,8 +279,7 @@ void AudioDeviceElementPrivate::readFramesLoop()
             memcpy(oBuffer.data(), buffer.constData(), size_t(buffer.size()));
             auto pts = qint64(QTime::currentTime().msecsSinceStartOfDay()
                               / timeBase.value() / 1e3);
-
-            caps.setSamples(samples);
+            caps.setSamples(8 * buffer.size() / (caps.channels() * caps.bps()));
             AkAudioPacket packet;
             packet.caps() = caps;
             packet.buffer() = oBuffer;

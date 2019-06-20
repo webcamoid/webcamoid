@@ -68,6 +68,7 @@ class AudioDevJackPrivate
         QMutex m_mutex;
         QWaitCondition m_canWrite;
         QWaitCondition m_samplesAvailable;
+        int m_samples {0};
         int m_sampleRate {0};
         int m_curChannels {0};
         int m_maxBufferSize {0};
@@ -308,19 +309,17 @@ bool AudioDevJack::init(const QString &device, const AkAudioCaps &caps)
                              * uint(caps.channels())
                              * bufferSize);
     this->d->m_isInput = device == ":jackinput:";
+    this->d->m_samples = qMax(this->latency() * caps.rate() / 1000, 1);
 
     return true;
 }
 
-QByteArray AudioDevJack::read(int samples)
+QByteArray AudioDevJack::read()
 {
-    if (samples < 1)
-        return {};
-
     int bufferSize = 2
                      * int(sizeof(jack_default_audio_sample_t))
                      * this->d->m_curChannels
-                     * samples;
+                     * this->d->m_samples;
 
     QByteArray audioData;
 

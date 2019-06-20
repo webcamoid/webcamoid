@@ -135,10 +135,8 @@ bool AudioDev::init(const QString &device, const AkAudioCaps &caps)
     return false;
 }
 
-QByteArray AudioDev::read(int samples)
+QByteArray AudioDev::read()
 {
-    Q_UNUSED(samples)
-
     return {};
 }
 

@@ -94,6 +94,8 @@ class AudioDevWasapiPrivate
         QMap<QString, AkAudioCaps> m_preferredInputCaps;
         QMap<QString, AkAudioCaps> m_preferredOutputCaps;
         QByteArray m_audioBuffer;
+        AkAudioCaps m_curCaps;
+        QString m_curDevice;
         IMMDeviceEnumerator *m_deviceEnumerator {nullptr};
         IMMDevice *m_pDevice {nullptr};
         IAudioClient *m_pAudioClient {nullptr};
@@ -101,8 +103,7 @@ class AudioDevWasapiPrivate
         IAudioRenderClient *m_pRenderClient {nullptr};
         HANDLE m_hEvent {nullptr};
         ULONG m_cRef {1};
-        AkAudioCaps m_curCaps;
-        QString m_curDevice;
+        int m_samples {0};
 
         explicit AudioDevWasapiPrivate(AudioDevWasapi *self);
         bool waveFormatFromCaps(WAVEFORMATEX *wfx,
@@ -357,16 +358,14 @@ bool AudioDevWasapi::init(const QString &device,
     }
 
     this->d->m_curDevice = device;
+    this->d->m_samples = qMax(this->latency() * caps.rate() / 1000, 1);
 
     return true;
 }
 
-QByteArray AudioDevWasapi::read(int samples)
+QByteArray AudioDevWasapi::read()
 {
-    if (samples < 1)
-        return {};
-
-    int bufferSize = samples
+    int bufferSize = this->d->m_samples
                      * this->d->m_curCaps.bps()
                      * this->d->m_curCaps.channels()
                      / 8;

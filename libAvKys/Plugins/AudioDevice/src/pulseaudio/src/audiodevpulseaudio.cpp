@@ -69,6 +69,7 @@ class AudioDevPulseAudioPrivate
         QMap<QString, AkAudioCaps> m_pinCapsMap;
         QMap<QString, QString> m_pinDescriptionMap;
         QMutex m_mutex;
+        int m_samples {0};
         int m_curBps {0};
         int m_curChannels {0};
 
@@ -367,17 +368,19 @@ bool AudioDevPulseAudio::init(const QString &device, const AkAudioCaps &caps)
         return false;
     }
 
+    this->d->m_samples = qMax(this->latency() * caps.rate() / 1000, 1);
+
     return true;
 }
 
-QByteArray AudioDevPulseAudio::read(int samples)
+QByteArray AudioDevPulseAudio::read()
 {
-    if (samples < 1 || !this->d->m_paSimple)
+    if (!this->d->m_paSimple)
         return {};
 
     int error;
 
-    QByteArray buffer(samples
+    QByteArray buffer(this->d->m_samples
                       * this->d->m_curBps
                       * this->d->m_curChannels,
                       0);

@@ -54,7 +54,7 @@ class AudioDev: public QObject
         Q_INVOKABLE virtual QList<AkAudioCaps::ChannelLayout> supportedChannelLayouts(const QString &device);
         Q_INVOKABLE virtual QList<int> supportedSampleRates(const QString &device);
         Q_INVOKABLE virtual bool init(const QString &device, const AkAudioCaps &caps);
-        Q_INVOKABLE virtual QByteArray read(int samples);
+        Q_INVOKABLE virtual QByteArray read();
         Q_INVOKABLE virtual bool write(const AkAudioPacket &packet);
         Q_INVOKABLE virtual bool uninit();
 
