@@ -77,6 +77,7 @@ isEmpty(NOLIBUVC) {
 }
 
 isEmpty(NOMEDIAFOUNDATION): qtCompileTest(mediafoundation)
+isEmpty(NONDKAUDIO): qtCompileTest(ndk_audio)
 isEmpty(NONDKCAMERA): qtCompileTest(ndk_camera)
 isEmpty(NOOPENSL): qtCompileTest(opensl)
 isEmpty(NOPULSEAUDIO): qtCompileTest(pulseaudio)

@@ -1,5 +1,5 @@
 /* Webcamoid, webcam capture application.
- * Copyright (C) 2019  Gonzalo Exequiel Pedone
+ * Copyright (C) 2016  Gonzalo Exequiel Pedone
  *
  * Webcamoid is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,22 +17,9 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include "plugin.h"
-#include "audiodevopensl.h"
+#include <aaudio/AAudio.h>
 
-QObject *Plugin::create(const QString &key, const QString &specification)
+int main()
 {
-    Q_UNUSED(specification)
-
-    if (key == AK_PLUGIN_TYPE_SUBMODULE)
-        return new AudioDevOpenSL();
-
-    return nullptr;
+    return 0;
 }
-
-QStringList Plugin::keys() const
-{
-    return {};
-}
-
-#include "moc_plugin.cpp"

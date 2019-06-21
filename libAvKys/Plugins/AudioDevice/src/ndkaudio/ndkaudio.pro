@@ -30,7 +30,7 @@ CONFIG += plugin
 
 HEADERS = \
     src/plugin.h \
-    src/audiodevopensl.h \
+    src/audiodevndkaudio.h \
     ../audiodev.h
 
 INCLUDEPATH += \
@@ -38,7 +38,7 @@ INCLUDEPATH += \
     ../
 
 LIBS += -L$${OUT_PWD}/../../../../Lib/$${BIN_DIR} -l$${COMMONS_TARGET}
-LIBS += -lOpenSLES
+LIBS += -laaudio
 
 OTHER_FILES += pspec.json
 
@@ -46,7 +46,7 @@ QT += qml
 
 SOURCES = \
     src/plugin.cpp \
-    src/audiodevopensl.cpp \
+    src/audiodevndkaudio.cpp \
     ../audiodev.cpp
 
 akModule = AudioDevice

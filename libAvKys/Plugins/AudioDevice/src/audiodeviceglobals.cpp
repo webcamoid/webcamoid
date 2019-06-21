@@ -87,6 +87,9 @@ AudioDeviceGlobalsPrivate::AudioDeviceGlobalsPrivate()
         "coreaudio",
         "pulseaudio",
         "jack",
+#elif defined(Q_OS_ANDROID)
+        "ndkaudio",
+        "opensl",
 #else
         "pulseaudio",
         "alsa",

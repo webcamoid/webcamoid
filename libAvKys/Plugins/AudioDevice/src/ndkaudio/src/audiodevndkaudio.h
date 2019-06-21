@@ -17,20 +17,20 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef AUDIODEVOPENSL_H
-#define AUDIODEVOPENSL_H
+#ifndef AUDIODEVNDKAUDIO_H
+#define AUDIODEVNDKAUDIO_H
 
 #include "audiodev.h"
 
-class AudioDevOpenSLPrivate;
+class AudioDevNDKAudioPrivate;
 
-class AudioDevOpenSL: public AudioDev
+class AudioDevNDKAudio: public AudioDev
 {
     Q_OBJECT
 
     public:
-        AudioDevOpenSL(QObject *parent=nullptr);
-        ~AudioDevOpenSL();
+        AudioDevNDKAudio(QObject *parent=nullptr);
+        ~AudioDevNDKAudio();
 
         Q_INVOKABLE QString error() const;
         Q_INVOKABLE QString defaultInput();
@@ -48,9 +48,9 @@ class AudioDevOpenSL: public AudioDev
         Q_INVOKABLE bool uninit();
 
     private:
-        AudioDevOpenSLPrivate *d;
+        AudioDevNDKAudioPrivate *d;
 
-        friend class AudioDevOpenSLPrivate;
+        friend class AudioDevNDKAudioPrivate;
 };
 
-#endif // AUDIODEVOPENSL_H
+#endif // AUDIODEVNDKAUDIO_H

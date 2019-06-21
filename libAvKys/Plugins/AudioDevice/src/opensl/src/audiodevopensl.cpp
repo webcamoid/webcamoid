@@ -1,5 +1,5 @@
 /* Webcamoid, webcam capture application.
- * Copyright (C) 2016  Gonzalo Exequiel Pedone
+ * Copyright (C) 2019  Gonzalo Exequiel Pedone
  *
  * Webcamoid is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,8 +50,6 @@ class AudioDevOpenSLPrivate
         QByteArray m_tmpBuffer;
         AkAudioCaps m_curCaps;
         int m_samples {0};
-        int m_curBps {0};
-        int m_curChannels {0};
 
         explicit AudioDevOpenSLPrivate(AudioDevOpenSL *self);
         static SLObjectItf createEngine();

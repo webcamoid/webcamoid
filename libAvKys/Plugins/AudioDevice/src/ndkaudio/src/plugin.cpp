@@ -18,14 +18,14 @@
  */
 
 #include "plugin.h"
-#include "audiodevopensl.h"
+#include "audiodevndkaudio.h"
 
 QObject *Plugin::create(const QString &key, const QString &specification)
 {
     Q_UNUSED(specification)
 
     if (key == AK_PLUGIN_TYPE_SUBMODULE)
-        return new AudioDevOpenSL();
+        return new AudioDevNDKAudio();
 
     return nullptr;
 }
