@@ -40,7 +40,7 @@ class QDataStream;
 class QQmlEngine;
 class QQmlContext;
 
-typedef QSharedPointer<AkElement> AkElementPtr;
+using AkElementPtr = QSharedPointer<AkElement>;
 
 /// Plugin template.
 class AKCOMMONS_EXPORT AkElement: public QObject

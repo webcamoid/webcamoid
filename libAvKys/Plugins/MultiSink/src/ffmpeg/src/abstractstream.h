@@ -46,7 +46,7 @@ class MediaWriterFFmpeg;
 class AbstractStream;
 class AkPacket;
 
-typedef QSharedPointer<AbstractStream> AbstractStreamPtr;
+using AbstractStreamPtr = QSharedPointer<AbstractStream>;
 
 class AbstractStream: public QObject
 {

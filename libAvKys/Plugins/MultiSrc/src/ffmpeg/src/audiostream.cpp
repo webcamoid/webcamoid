@@ -64,7 +64,6 @@ class AudioStreamPrivate
         AkPacket convert(AVFrame *iFrame);
         AVFrame *copyFrame(AVFrame *frame) const;
 
-
         inline static const SampleFormatMap &sampleFormats()
         {
             static const SampleFormatMap sampleFormat {

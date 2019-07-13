@@ -27,7 +27,7 @@ namespace AkVCam
 {
     class Fraction;
     class FractionPrivate;
-    typedef std::pair<Fraction, Fraction> FractionRange;
+    using FractionRange = std::pair<Fraction, Fraction>;
 
     class Fraction
     {

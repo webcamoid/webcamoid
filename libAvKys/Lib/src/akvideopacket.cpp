@@ -206,7 +206,7 @@ class AkVideoPacketPrivate
         static AkVideoPacket rgb0_to_rgb24(const AkVideoPacket *src, int align);
         static AkVideoPacket yuyv422_to_rgb24(const AkVideoPacket *src, int align);
         static AkVideoPacket yuv420p_to_rgb24(const AkVideoPacket *src, int align);
-        static AkVideoPacket yuv420p_888_to_rgb24(const AkVideoPacket *src, int align);
+        static AkVideoPacket yvu420p_to_rgb24(const AkVideoPacket *src, int align);
         static AkVideoPacket nv12_to_rgb24(const AkVideoPacket *src, int align);
         static AkVideoPacket nv21_to_rgb24(const AkVideoPacket *src, int align);
         static AkVideoPacket rgbap_to_rgb24(const AkVideoPacket *src, int align);
@@ -246,7 +246,7 @@ VideoConvertFuncs initVideoConvertFuncs()
         {AkVideoCaps::Format_rgb0         , AkVideoCaps::Format_rgb24   , AkVideoPacketPrivate::rgba_to_rgb24       },
         {AkVideoCaps::Format_yuyv422      , AkVideoCaps::Format_rgb24   , AkVideoPacketPrivate::yuyv422_to_rgb24    },
         {AkVideoCaps::Format_yuv420p      , AkVideoCaps::Format_rgb24   , AkVideoPacketPrivate::yuv420p_to_rgb24    },
-        {AkVideoCaps::Format_yuv420p_888le, AkVideoCaps::Format_rgb24   , AkVideoPacketPrivate::yuv420p_888_to_rgb24},
+        {AkVideoCaps::Format_yvu420p      , AkVideoCaps::Format_rgb24   , AkVideoPacketPrivate::yvu420p_to_rgb24    },
         {AkVideoCaps::Format_yuv422p      , AkVideoCaps::Format_rgb24   , AkVideoPacketPrivate::yuv420p_to_rgb24    },
         {AkVideoCaps::Format_nv12         , AkVideoCaps::Format_rgb24   , AkVideoPacketPrivate::nv12_to_rgb24       },
         {AkVideoCaps::Format_nv16         , AkVideoCaps::Format_rgb24   , AkVideoPacketPrivate::nv12_to_rgb24       },
@@ -1457,8 +1457,7 @@ AkVideoPacket AkVideoPacketPrivate::yuv420p_to_rgb24(const AkVideoPacket *src,
     return dst;
 }
 
-AkVideoPacket AkVideoPacketPrivate::yuv420p_888_to_rgb24(const AkVideoPacket *src,
-                                                         int align)
+AkVideoPacket AkVideoPacketPrivate::yvu420p_to_rgb24(const AkVideoPacket *src, int align)
 {
     auto caps = src->caps();
     caps.setFormat(AkVideoCaps::Format_rgb24);
@@ -1470,16 +1469,16 @@ AkVideoPacket AkVideoPacketPrivate::yuv420p_888_to_rgb24(const AkVideoPacket *sr
 
     for (int y = 0; y < height; y++) {
         auto src_line_y = reinterpret_cast<const quint8 *>(src->constLine(0, y));
-        auto src_line_v = reinterpret_cast<const quint16 *>(src->constLine(1, y));
-        auto src_line_u = reinterpret_cast<const quint16 *>(src->constLine(2, y));
+        auto src_line_u = reinterpret_cast<const quint8 *>(src->constLine(1, y));
+        auto src_line_v = reinterpret_cast<const quint8 *>(src->constLine(2, y));
         auto dst_line = reinterpret_cast<RGB24 *>(dst.line(0, y));
 
         for (int x = 0; x < width; x++) {
             auto x_yuv = x / 2;
 
             auto y = src_line_y[x];
-            auto u = src_line_u[x_yuv] & 0xff;
-            auto v = src_line_v[x_yuv] & 0xff;
+            auto u = src_line_u[x_yuv];
+            auto v = src_line_v[x_yuv];
 
             dst_line[x].r = yuv_r(y, u, v);
             dst_line[x].g = yuv_g(y, u, v);

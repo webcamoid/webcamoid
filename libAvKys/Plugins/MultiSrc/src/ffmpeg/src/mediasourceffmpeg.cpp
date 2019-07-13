@@ -30,10 +30,10 @@
 #include <akcaps.h>
 
 #include "mediasourceffmpeg.h"
-#include "videostream.h"
 #include "audiostream.h"
-#include "subtitlestream.h"
 #include "clock.h"
+#include "subtitlestream.h"
+#include "videostream.h"
 
 using FormatContextPtr = QSharedPointer<AVFormatContext>;
 using AbstractStreamPtr = QSharedPointer<AbstractStream>;
@@ -300,28 +300,32 @@ void MediaSourceFFmpegPrivate::deleteFormatContext(AVFormatContext *context)
 AbstractStreamPtr MediaSourceFFmpegPrivate::createStream(int index,
                                                          bool noModify)
 {
-    AVMediaType type = AbstractStream::type(this->m_inputContext.data(), uint(index));
+    auto type = AbstractStream::type(this->m_inputContext.data(), uint(index));
     AbstractStreamPtr stream;
-    qint64 id = Ak::id();
+    auto id = Ak::id();
 
     if (type == AVMEDIA_TYPE_VIDEO)
         stream = AbstractStreamPtr(new VideoStream(this->m_inputContext.data(),
-                                                   uint(index), id,
+                                                   uint(index),
+                                                   id,
                                                    &this->m_globalClock,
                                                    noModify));
     else if (type == AVMEDIA_TYPE_AUDIO)
         stream = AbstractStreamPtr(new AudioStream(this->m_inputContext.data(),
-                                                   uint(index), id,
+                                                   uint(index),
+                                                   id,
                                                    &this->m_globalClock,
                                                    noModify));
     else if (type == AVMEDIA_TYPE_SUBTITLE)
         stream = AbstractStreamPtr(new SubtitleStream(this->m_inputContext.data(),
-                                                      uint(index), id,
+                                                      uint(index),
+                                                      id,
                                                       &this->m_globalClock,
                                                       noModify));
     else
         stream = AbstractStreamPtr(new AbstractStream(this->m_inputContext.data(),
-                                                      uint(index), id,
+                                                      uint(index),
+                                                      id,
                                                       &this->m_globalClock,
                                                       noModify));
 
@@ -334,7 +338,8 @@ void MediaSourceFFmpegPrivate::readPackets()
         this->m_dataMutex.lock();
 
         if (this->packetQueueSize() >= this->m_maxPacketQueueSize)
-            if (!this->m_packetQueueNotFull.wait(&this->m_dataMutex, THREAD_WAIT_LIMIT)) {
+            if (!this->m_packetQueueNotFull.wait(&this->m_dataMutex,
+                                                 THREAD_WAIT_LIMIT)) {
                 this->m_dataMutex.unlock();
 
                 continue;
@@ -502,7 +507,7 @@ bool MediaSourceFFmpeg::setState(AkElement::ElementState state)
                 filterStreams = this->d->m_streams;
 
             for (auto &i: filterStreams) {
-                AbstractStreamPtr stream = this->d->createStream(i);
+                auto stream = this->d->createStream(i);
 
                 if (stream) {
                     this->d->m_streamsMap[i] = stream;
@@ -512,17 +517,14 @@ bool MediaSourceFFmpeg::setState(AkElement::ElementState state)
                                      this,
                                      SIGNAL(oStream(AkPacket)),
                                      Qt::DirectConnection);
-
                     QObject::connect(stream.data(),
                                      SIGNAL(notify()),
                                      this,
                                      SLOT(packetConsumed()));
-
                     QObject::connect(stream.data(),
                                      SIGNAL(frameSent()),
                                      this,
                                      SLOT(log()));
-
                     QObject::connect(stream.data(),
                                      SIGNAL(eof()),
                                      this,

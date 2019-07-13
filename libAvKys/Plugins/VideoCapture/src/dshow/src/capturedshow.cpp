@@ -49,7 +49,7 @@ __inline bool operator <(REFGUID guid1, REFGUID guid2)
     return guid1.Data1 < guid2.Data1;
 }
 
-typedef QMap<VideoProcAmpProperty, QString> VideoProcAmpPropertyMap;
+using VideoProcAmpPropertyMap = QMap<VideoProcAmpProperty, QString>;
 
 inline VideoProcAmpPropertyMap initVideoProcAmpPropertyMap()
 {
@@ -71,7 +71,7 @@ inline VideoProcAmpPropertyMap initVideoProcAmpPropertyMap()
 
 Q_GLOBAL_STATIC_WITH_ARGS(VideoProcAmpPropertyMap, vpapToStr, (initVideoProcAmpPropertyMap()))
 
-typedef QMap<CameraControlProperty, QString> CameraControlMap;
+using CameraControlMap = QMap<CameraControlProperty, QString>;
 
 inline CameraControlMap initCameraControlMap()
 {
@@ -90,7 +90,7 @@ inline CameraControlMap initCameraControlMap()
 
 Q_GLOBAL_STATIC_WITH_ARGS(CameraControlMap, ccToStr, (initCameraControlMap()))
 
-typedef QMap<GUID, QString> GuidToStrMap;
+using GuidToStrMap = QMap<GUID, QString>;
 
 inline GuidToStrMap initGuidToStrMap()
 {
@@ -165,7 +165,7 @@ inline GuidToStrMap initGuidToStrMap()
 
 Q_GLOBAL_STATIC_WITH_ARGS(GuidToStrMap, guidToStr, (initGuidToStrMap()))
 
-typedef QMap<CaptureDShow::IoMethod, QString> IoMethodMap;
+using IoMethodMap = QMap<CaptureDShow::IoMethod, QString>;
 
 inline IoMethodMap initIoMethodMap()
 {
@@ -180,14 +180,14 @@ inline IoMethodMap initIoMethodMap()
 
 Q_GLOBAL_STATIC_WITH_ARGS(IoMethodMap, ioMethodToStr, (initIoMethodMap()))
 
-typedef QSharedPointer<IBaseFilter> BaseFilterPtr;
-typedef QSharedPointer<ISampleGrabber> SampleGrabberPtr;
-typedef QSharedPointer<IMoniker> MonikerPtr;
-typedef QMap<QString, MonikerPtr> MonikersMap;
-typedef QSharedPointer<AM_MEDIA_TYPE> MediaTypePtr;
-typedef QList<MediaTypePtr> MediaTypesList;
-typedef QSharedPointer<IPin> PinPtr;
-typedef QList<PinPtr> PinList;
+using BaseFilterPtr = QSharedPointer<IBaseFilter>;
+using SampleGrabberPtr = QSharedPointer<ISampleGrabber>;
+using MonikerPtr = QSharedPointer<IMoniker>;
+using MonikersMap = QMap<QString, MonikerPtr>;
+using MediaTypePtr = QSharedPointer<AM_MEDIA_TYPE>;
+using MediaTypesList = QList<MediaTypePtr>;
+using PinPtr = QSharedPointer<IPin>;
+using PinList = QList<PinPtr>;
 
 class CaptureDShowPrivate
 {

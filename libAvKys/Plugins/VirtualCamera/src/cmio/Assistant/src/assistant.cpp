@@ -55,8 +55,8 @@ namespace AkVCam
         bool swapRgb {false};
     };
 
-    typedef std::map<std::string, xpc_connection_t> AssistantPeers;
-    typedef std::map<std::string, AssistantDevice> DeviceConfigs;
+    using AssistantPeers = std::map<std::string, xpc_connection_t>;
+    using DeviceConfigs = std::map<std::string, AssistantDevice>;
 
     class AssistantPrivate
     {

@@ -98,7 +98,7 @@ template<typename T> inline Pixel<T> integralSum(const Pixel<T> *integral,
     return *p0 + *p3 - *p1 - *p2;
 }
 
-typedef Pixel<quint32> PixelU32;
-typedef Pixel<qreal> PixelReal;
+using PixelU32 = Pixel<quint32>;
+using PixelReal = Pixel<qreal>;
 
 #endif // INTEGRAL_H

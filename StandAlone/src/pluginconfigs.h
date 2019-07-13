@@ -27,7 +27,7 @@ class PluginConfigs;
 class CliOptions;
 class QQmlApplicationEngine;
 
-typedef QSharedPointer<PluginConfigs> PluginConfigsPtr;
+using PluginConfigsPtr = QSharedPointer<PluginConfigs>;
 
 class PluginConfigs: public QObject
 {

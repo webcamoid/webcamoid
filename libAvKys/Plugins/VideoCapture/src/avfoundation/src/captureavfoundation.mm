@@ -31,7 +31,7 @@
 #include "captureavfoundation.h"
 #include "deviceobserver.h"
 
-typedef QMap<FourCharCode, QString> FourCharCodeToStrMap;
+using FourCharCodeToStrMap = QMap<FourCharCode, QString>;
 
 inline FourCharCodeToStrMap initFourCharCodeToStrMap()
 {

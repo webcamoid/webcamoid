@@ -28,7 +28,7 @@ class AkAudioCaps;
 class AkVideoCaps;
 class QQmlApplicationEngine;
 
-typedef QSharedPointer<MediaSource> MediaSourcePtr;
+using MediaSourcePtr = QSharedPointer<MediaSource>;
 
 class MediaSource: public QObject
 {

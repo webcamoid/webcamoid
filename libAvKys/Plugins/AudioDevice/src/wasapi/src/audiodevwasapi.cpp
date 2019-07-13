@@ -32,7 +32,7 @@ DEFINE_PROPERTYKEY(PKEY_Device_FriendlyName, 0xa45c254e, 0xdf1c, 0x4efd, 0x80, 0
 #define MAX_ERRORS_READ_WRITE 5
 #define EVENT_TIMEOUT 1000
 
-typedef QMap<HRESULT, QString> ErrorCodesMap;
+using ErrorCodesMap = QMap<HRESULT, QString>;
 
 inline ErrorCodesMap initErrorCodesMap()
 {

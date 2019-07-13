@@ -82,7 +82,8 @@ MultiSrcGlobalsPrivate::MultiSrcGlobalsPrivate()
 {
     this->m_preferredFramework = QStringList {
         "ffmpeg",
-        "gstreamer"
+        "gstreamer",
+        "ndkmedia",
     };
 }
 

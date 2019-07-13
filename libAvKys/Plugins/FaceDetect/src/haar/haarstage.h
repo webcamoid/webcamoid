@@ -24,7 +24,7 @@
 
 class HaarStage;
 
-typedef QVector<HaarStage> HaarStageVector;
+using HaarStageVector = QVector<HaarStage>;
 
 class HaarStageHID
 {

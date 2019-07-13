@@ -17,31 +17,10 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef CONVERTVIDEO_H
-#define CONVERTVIDEO_H
+#include <media/NdkMediaExtractor.h>
+#include <media/NdkMediaMuxer.h>
 
-#include <QObject>
-
-class ConvertVideo;
-class AkCaps;
-class AkPacket;
-
-using ConvertVideoPtr = QSharedPointer<ConvertVideo>;
-
-class ConvertVideo: public QObject
+int main()
 {
-    Q_OBJECT
-
-    public:
-        ConvertVideo(QObject *parent=nullptr);
-        virtual ~ConvertVideo() = default;
-
-        Q_INVOKABLE virtual void packetEnqueue(const AkPacket &packet);
-        Q_INVOKABLE virtual bool init(const AkCaps &caps);
-        Q_INVOKABLE virtual void uninit();
-
-    signals:
-        void frameReady(const AkPacket &packet);
-};
-
-#endif // CONVERTVIDEO_H
+    return 0;
+}

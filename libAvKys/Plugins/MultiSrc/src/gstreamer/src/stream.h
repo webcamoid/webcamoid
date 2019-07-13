@@ -17,8 +17,8 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef STREAM
-#define STREAM
+#ifndef STREAM_H
+#define STREAM_H
 
 #include <akcaps.h>
 
@@ -30,9 +30,9 @@ class Stream
         }
 
         Stream(const AkCaps &caps,
-               const QString &description):
+               const QString &language):
             caps(caps),
-            language(description)
+            language(language)
         {
         }
 
@@ -40,5 +40,4 @@ class Stream
         QString language;
 };
 
-#endif // STREAM
-
+#endif // STREAM_H

@@ -34,7 +34,7 @@
 
 #include "capturendkcamera.h"
 
-typedef QMap<AIMAGE_FORMATS, QString> ImageFormatToStrMap;
+using ImageFormatToStrMap = QMap<AIMAGE_FORMATS, QString>;
 
 inline const ImageFormatToStrMap initImageFormatToStrMap()
 {
@@ -44,7 +44,7 @@ inline const ImageFormatToStrMap initImageFormatToStrMap()
         {AIMAGE_FORMAT_RGB_888          , "RGB"              },
         {AIMAGE_FORMAT_RGB_565          , "RGB565"           },
         {AIMAGE_FORMAT_RGBA_FP16        , "RGBA_FP16"        },
-        {AIMAGE_FORMAT_YUV_420_888      , "YUV420P_888"      },
+        {AIMAGE_FORMAT_YUV_420_888      , "YU12"             },
         {AIMAGE_FORMAT_JPEG             , "JPEG"             },
         {AIMAGE_FORMAT_RAW16            , "SGRBG16"          },
         {AIMAGE_FORMAT_RAW_PRIVATE      , "RAW_PRIVATE"      },
@@ -80,7 +80,6 @@ class CaptureNdkCameraPrivate
         AkPacket m_curPacket;
         QWaitCondition m_waitCondition;
         AkFrac m_fps;
-        AkFrac m_timeBase;
         AkCaps m_caps;
         qint64 m_id {-1};
         CameraManagerPtr m_manager;
@@ -112,6 +111,7 @@ class CaptureNdkCameraPrivate
         static void sessionActive(void *context,
                                   ACameraCaptureSession *session);
         static bool canUseCamera();
+        static QByteArray readBuffer(AImage *image);
         void updateDevices();
 };
 
@@ -414,11 +414,9 @@ void CaptureNdkCameraPrivate::imageAvailable(void *context,
     int32_t width = 0;
     int32_t height = 0;
     int64_t timestampNs = 0;
-    int32_t numPlanes = 0;
     QByteArray oBuffer;
     AkCaps caps;
     AkPacket packet;
-    qint64 pts;
 
     if (AImageReader_acquireLatestImage(reader, &image) != AMEDIA_OK)
         return;
@@ -435,27 +433,10 @@ void CaptureNdkCameraPrivate::imageAvailable(void *context,
     if (AImage_getTimestamp(image, &timestampNs) != AMEDIA_OK)
         goto imageAvailable_error;
 
-    if (AImage_getNumberOfPlanes(image, &numPlanes) != AMEDIA_OK)
+    oBuffer = CaptureNdkCameraPrivate::readBuffer(image);
+
+    if (oBuffer.isEmpty())
         goto imageAvailable_error;
-
-    for (int32_t i = 0; i < numPlanes; i++) {
-        uint8_t *data = nullptr;
-        int dataLength = 0;
-
-        if (AImage_getPlaneData(image, i, &data, &dataLength) != AMEDIA_OK)
-            continue;
-
-        QByteArray buffer(reinterpret_cast<char *>(data), dataLength);
-
-        if (format == AIMAGE_FORMAT_YUV_420_888 && i > 0)
-            buffer.resize(buffer.size() + 1);
-
-        oBuffer += buffer;
-    }
-
-    pts = qint64(timestampNs
-                 * self->m_timeBase.invert().value()
-                 / 1e9);
 
     caps.setMimeType("video/unknown");
     caps.setProperty("fourcc", imgFmtToStrMap->value(AIMAGE_FORMATS(format)));
@@ -465,8 +446,8 @@ void CaptureNdkCameraPrivate::imageAvailable(void *context,
 
     packet = AkPacket(caps);
     packet.setBuffer(oBuffer);
-    packet.setPts(pts);
-    packet.setTimeBase(self->m_timeBase);
+    packet.setPts(timestampNs);
+    packet.setTimeBase({1, qint64(1e9)});
     packet.setIndex(0);
     packet.setId(self->m_id);
 
@@ -532,6 +513,60 @@ bool CaptureNdkCameraPrivate::canUseCamera()
     result = true;
 
     return true;
+}
+
+QByteArray CaptureNdkCameraPrivate::readBuffer(AImage *image)
+{
+    int32_t format = 0;
+    AImage_getFormat(image, &format);
+    int32_t width = 0;
+    AImage_getWidth(image, &width);
+    int32_t height = 0;
+    AImage_getHeight(image, &height);
+    int32_t numPlanes = 0;
+    AImage_getNumberOfPlanes(image, &numPlanes);
+    QByteArray oBuffer;
+
+    if (format == AIMAGE_FORMAT_YUV_420_888) {
+        for (int32_t i = 0; i < numPlanes; i++) {
+            uint8_t *data = nullptr;
+            int dataLength = 0;
+
+            if (AImage_getPlaneData(image, i, &data, &dataLength) != AMEDIA_OK)
+                continue;
+
+            int32_t pixelStride = 0;
+            int32_t rowStride = 0;
+            AImage_getPlanePixelStride(image, i, &pixelStride);
+            AImage_getPlaneRowStride(image, i, &rowStride);
+            auto _width = width / (i > 0? 2: 1);
+            auto _height = height / (i > 0? 2: 1);
+            QByteArray buffer(_width * _height, Qt::Uninitialized);
+
+            for (int y = 0; y < _height; y++) {
+                auto srcLine = data + y * rowStride;
+                auto dstLine = reinterpret_cast<quint8 *>(buffer.data())
+                               + y * _width;
+
+                for (int x = 0; x < _width; x++)
+                    dstLine[x] = srcLine[pixelStride * x];
+            }
+
+            oBuffer += buffer;
+        }
+    } else {
+        for (int32_t i = 0; i < numPlanes; i++) {
+            uint8_t *data = nullptr;
+            int dataLength = 0;
+
+            if (AImage_getPlaneData(image, i, &data, &dataLength) != AMEDIA_OK)
+                continue;
+
+            oBuffer += QByteArray(reinterpret_cast<char *>(data), dataLength);
+        }
+    }
+
+    return oBuffer;
 }
 
 void CaptureNdkCameraPrivate::updateDevices()
@@ -793,7 +828,6 @@ bool CaptureNdkCamera::init()
     this->d->m_id = Ak::id();
     this->d->m_caps = caps;
     this->d->m_fps = fps;
-    this->d->m_timeBase = this->d->m_fps.invert();
 
     return true;
 

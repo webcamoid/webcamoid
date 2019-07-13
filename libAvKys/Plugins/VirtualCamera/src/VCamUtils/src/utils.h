@@ -45,17 +45,17 @@
     }
 
 #define AKVCAM_CALLBACK(CallbackName, ...) \
-    typedef void (*CallbackName##CallbackT)(void *userData, __VA_ARGS__); \
-    typedef std::pair<void *, CallbackName##CallbackT> CallbackName##Callback;
+    using CallbackName##CallbackT = void (*)(void *userData, __VA_ARGS__); \
+    using CallbackName##Callback = std::pair<void *, CallbackName##CallbackT>;
 
 #define AKVCAM_CALLBACK_NOARGS(CallbackName) \
-    typedef void (*CallbackName##CallbackT)(void *userData); \
-    typedef std::pair<void *, CallbackName##CallbackT> CallbackName##Callback;
+    using CallbackName##CallbackT = void (*)(void *userData); \
+    using CallbackName##Callback = std::pair<void *, CallbackName##CallbackT>;
 
 #define AKVCAM_SIGNAL(CallbackName, ...) \
     public: \
-        typedef void (*CallbackName##CallbackT)(void *userData, __VA_ARGS__); \
-        typedef std::pair<void *, CallbackName##CallbackT> CallbackName##Callback; \
+        using CallbackName##CallbackT = void (*)(void *userData, __VA_ARGS__); \
+        using CallbackName##Callback = std::pair<void *, CallbackName##CallbackT>; \
         \
         void connect##CallbackName(void *userData, \
                                    CallbackName##CallbackT callback) \
@@ -93,8 +93,8 @@
 
 #define AKVCAM_SIGNAL_NOARGS(CallbackName) \
     public: \
-        typedef void (*CallbackName##CallbackT)(void *userData); \
-        typedef std::pair<void *, CallbackName##CallbackT> CallbackName##Callback; \
+        using CallbackName##CallbackT = void (*)(void *userData); \
+        using CallbackName##Callback = std::pair<void *, CallbackName##CallbackT>; \
         \
         void connect##CallbackName(void *userData, \
                                    CallbackName##CallbackT callback) \

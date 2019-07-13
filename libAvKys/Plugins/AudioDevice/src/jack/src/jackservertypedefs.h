@@ -48,8 +48,8 @@ typedef enum
     JackParamBool
 } jackctl_param_type_t;
 
-typedef struct jackctl_server jackctl_server_t;
-typedef struct jackctl_driver jackctl_driver_t;
-typedef struct jackctl_parameter jackctl_parameter_t;
+using jackctl_server_t = struct jackctl_server;
+using jackctl_driver_t = struct jackctl_driver;
+using jackctl_parameter_t = struct jackctl_parameter;
 
 #endif // JACKSERVERTYPEDEFS_H

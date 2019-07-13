@@ -132,7 +132,7 @@ namespace AkVCam
         return reinterpret_cast<T *>(message->data);
     }
 
-    typedef std::function<void (Message *message)> MessageHandler;
+    using MessageHandler = std::function<void (Message *message)>;
 
     struct MsgRequestPort
     {

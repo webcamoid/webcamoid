@@ -24,7 +24,7 @@
 
 class HaarTree;
 
-typedef QVector<HaarTree> HaarTreeVector;
+using HaarTreeVector = QVector<HaarTree>;
 
 class HaarTreeHID
 {

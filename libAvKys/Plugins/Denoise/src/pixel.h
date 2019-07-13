@@ -128,19 +128,17 @@ template<typename T> class Pixel
         T b;
 };
 
-typedef Pixel<qint8> PixelI8;
-typedef Pixel<quint8> PixelU8;
-typedef Pixel<qint32> PixelI32;
-typedef Pixel<quint32> PixelU32;
-typedef Pixel<qint64> PixelI64;
-typedef Pixel<quint64> PixelU64;
-typedef Pixel<qreal> PixelReal;
+using PixelI8 = Pixel<qint8>;
+using PixelU8 = Pixel<quint8>;
+using PixelI32 = Pixel<qint32>;
+using PixelU32 = Pixel<quint32>;
+using PixelI64 = Pixel<qint64>;
+using PixelU64 = Pixel<quint64>;
+using PixelReal = Pixel<qreal>;
 
 template <typename R, typename S> inline Pixel<R> mult(R c, const Pixel<S> &pixel)
 {
-    return Pixel<R>(c * pixel.r,
-                    c * pixel.g,
-                    c * pixel.b);
+    return Pixel<R>(c * pixel.r, c * pixel.g, c * pixel.b);
 }
 
 inline PixelU64 pow2(QRgb pixel)

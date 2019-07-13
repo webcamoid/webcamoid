@@ -30,12 +30,12 @@ class QDataStream;
 class AKCOMMONS_EXPORT AkFrac: public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(int num
+    Q_PROPERTY(qint64 num
                READ num
                WRITE setNum
                RESET resetNum
                NOTIFY numChanged)
-    Q_PROPERTY(int den
+    Q_PROPERTY(qint64 den
                READ den
                WRITE setDen
                RESET resetDen

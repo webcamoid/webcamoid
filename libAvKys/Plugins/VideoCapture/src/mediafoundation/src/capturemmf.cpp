@@ -48,7 +48,7 @@ __inline bool operator <(REFGUID guid1, REFGUID guid2)
     return guid1.Data1 < guid2.Data1;
 }
 
-typedef QMap<VideoProcAmpProperty, QString> VideoProcAmpPropertyMap;
+using VideoProcAmpPropertyMap = QMap<VideoProcAmpProperty, QString>;
 
 inline VideoProcAmpPropertyMap initVideoProcAmpPropertyMap()
 {
@@ -70,7 +70,7 @@ inline VideoProcAmpPropertyMap initVideoProcAmpPropertyMap()
 
 Q_GLOBAL_STATIC_WITH_ARGS(VideoProcAmpPropertyMap, vpapToStr, (initVideoProcAmpPropertyMap()))
 
-typedef QMap<CameraControlProperty, QString> CameraControlMap;
+using CameraControlMap = QMap<CameraControlProperty, QString>;
 
 inline CameraControlMap initCameraControlMap()
 {
@@ -89,7 +89,7 @@ inline CameraControlMap initCameraControlMap()
 
 Q_GLOBAL_STATIC_WITH_ARGS(CameraControlMap, ccToStr, (initCameraControlMap()))
 
-typedef QMap<GUID, QString> GuidToStrMap;
+using GuidToStrMap = QMap<GUID, QString>;
 
 inline GuidToStrMap initGuidToStrMap()
 {
@@ -164,7 +164,7 @@ inline GuidToStrMap initGuidToStrMap()
 
 Q_GLOBAL_STATIC_WITH_ARGS(GuidToStrMap, guidToStr, (initGuidToStrMap()))
 
-typedef QMap<CaptureMMF::IoMethod, QString> IoMethodMap;
+using IoMethodMap = QMap<CaptureMMF::IoMethod, QString>;
 
 inline IoMethodMap initIoMethodMap()
 {
@@ -178,11 +178,11 @@ inline IoMethodMap initIoMethodMap()
 
 Q_GLOBAL_STATIC_WITH_ARGS(IoMethodMap, ioMethodToStr, (initIoMethodMap()))
 
-typedef QSharedPointer<IMFActivate> ActivatePtr;
-typedef QSharedPointer<IMFMediaSource> MediaSourcePtr;
-typedef QSharedPointer<IMFSourceReader> SourceReaderPtr;
-typedef QSharedPointer<IMFMediaTypeHandler> MediaTypeHandlerPtr;
-typedef QSharedPointer<IMFMediaType> MediaTypePtr;
+using ActivatePtr = QSharedPointer<IMFActivate>;
+using MediaSourcePtr = QSharedPointer<IMFMediaSource>;
+using SourceReaderPtr = QSharedPointer<IMFSourceReader>;
+using MediaTypeHandlerPtr = QSharedPointer<IMFMediaTypeHandler>;
+using MediaTypePtr = QSharedPointer<IMFMediaType>;
 
 class CaptureMMFPrivate
 {

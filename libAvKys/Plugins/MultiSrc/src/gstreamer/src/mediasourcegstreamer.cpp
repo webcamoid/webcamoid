@@ -116,11 +116,14 @@ QList<int> MediaSourceGStreamer::listTracks(const QString &mimeType)
         this->setState(AkElement::ElementStatePaused);
 
     QList<int> tracks;
+    int i = 0;
 
-    for (int stream = 0; stream < this->d->m_streamInfo.size(); stream++)
-        if (mimeType.isEmpty()
-            || this->d->m_streamInfo[stream].caps.mimeType() == mimeType)
-            tracks << stream;
+    for (auto &streamInfo: this->d->m_streamInfo) {
+        if (mimeType.isEmpty() || streamInfo.caps.mimeType() == mimeType)
+            tracks << i;
+
+        i++;
+    }
 
     if (!isRunning)
         this->setState(AkElement::ElementStateNull);
@@ -135,7 +138,7 @@ QString MediaSourceGStreamer::streamLanguage(int stream)
     if (!isRunning)
         this->setState(AkElement::ElementStatePaused);
 
-    Stream streamInfo = this->d->m_streamInfo.value(stream, Stream());
+    auto streamInfo = this->d->m_streamInfo.value(stream, Stream());
 
     if (!isRunning)
         this->setState(AkElement::ElementStateNull);
@@ -156,13 +159,17 @@ int MediaSourceGStreamer::defaultStream(const QString &mimeType)
         this->setState(AkElement::ElementStatePaused);
 
     int defaultStream = -1;
+    int i = 0;
 
-    for (int stream = 0; stream < this->d->m_streamInfo.size(); stream++)
-        if (this->d->m_streamInfo[stream].caps.mimeType() == mimeType) {
-            defaultStream = stream;
+    for (auto &streamInfo: this->d->m_streamInfo) {
+        if (streamInfo.caps.mimeType() == mimeType) {
+            defaultStream = i;
 
             break;
         }
+
+        i++;
+    }
 
     if (!isRunning)
         this->setState(AkElement::ElementStateNull);

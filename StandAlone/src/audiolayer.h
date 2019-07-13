@@ -28,7 +28,7 @@ class AudioLayer;
 class AkAudioCaps;
 class QQmlApplicationEngine;
 
-typedef QSharedPointer<AudioLayer> AudioLayerPtr;
+using AudioLayerPtr = QSharedPointer<AudioLayer>;
 
 class AudioLayer: public QObject
 {

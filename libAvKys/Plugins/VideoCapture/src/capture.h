@@ -26,7 +26,7 @@ class Capture;
 class AkCaps;
 class AkPacket;
 
-typedef QSharedPointer<Capture> CapturePtr;
+using CapturePtr = QSharedPointer<Capture>;
 
 class Capture: public QObject
 {

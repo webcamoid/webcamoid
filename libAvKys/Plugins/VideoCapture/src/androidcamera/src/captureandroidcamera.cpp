@@ -79,7 +79,7 @@ enum ImageFormat
     DEPTH_JPEG        = AkFourCCR('c', 'i', 'e', 'i'),
 };
 
-typedef QMap<ImageFormat, QString> ImageFormatToStrMap;
+using ImageFormatToStrMap = QMap<ImageFormat, QString>;
 
 inline const ImageFormatToStrMap initImageFormatToStrMap()
 {
@@ -103,7 +103,7 @@ inline const ImageFormatToStrMap initImageFormatToStrMap()
         {ImageFormat::YUY2             , "YUY2"             },
         {ImageFormat::RGBA_F16         , "RGBAF16"          },
         {ImageFormat::RAW_SENSOR       , "RAW_SENSOR"       },
-        {ImageFormat::YUV_420_888      , "YUY420P16_888"    },
+        {ImageFormat::YUV_420_888      , "YU12"             },
         {ImageFormat::PRIVATE          , "PRIVATE"          },
         {ImageFormat::RAW_PRIVATE      , "RAW_PRIVATE"      },
         {ImageFormat::RAW10            , "SGRBG10"          },

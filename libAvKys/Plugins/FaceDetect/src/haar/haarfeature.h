@@ -28,9 +28,9 @@
 
 class HaarFeature;
 
-typedef QVector<QRect> RectVector;
-typedef QVector<qreal> RealVector;
-typedef QVector<HaarFeature> HaarFeatureVector;
+using RectVector = QVector<QRect>;
+using RealVector = QVector<qreal>;
+using HaarFeatureVector = QVector<HaarFeature>;
 
 class HaarFeatureHID
 {

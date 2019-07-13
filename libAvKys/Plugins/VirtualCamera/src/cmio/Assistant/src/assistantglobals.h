@@ -63,8 +63,7 @@
 
 namespace AkVCam
 {
-    typedef std::function<void (xpc_connection_t,
-                                xpc_object_t)> XpcMessage;
+    using XpcMessage = std::function<void (xpc_connection_t, xpc_object_t)>;
 }
 
 #endif // ASSISTANTGLOBALS_H

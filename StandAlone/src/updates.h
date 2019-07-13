@@ -27,7 +27,7 @@ class Updates;
 class QQmlApplicationEngine;
 class QNetworkReply;
 
-typedef QSharedPointer<Updates> UpdatesPtr;
+using UpdatesPtr = QSharedPointer<Updates>;
 
 class Updates: public QObject
 {

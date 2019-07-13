@@ -28,7 +28,7 @@ class AkAudioCaps;
 class AkVideoCaps;
 class QQmlApplicationEngine;
 
-typedef QSharedPointer<Recording> RecordingPtr;
+using RecordingPtr = QSharedPointer<Recording>;
 
 class Recording: public QObject
 {

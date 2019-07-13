@@ -26,7 +26,7 @@ class VideoEffectsPrivate;
 class VideoEffects;
 class QQmlApplicationEngine;
 
-typedef QSharedPointer<VideoEffects> VideoEffectsPtr;
+using VideoEffectsPtr = QSharedPointer<VideoEffects>;
 
 class VideoEffects: public QObject
 {

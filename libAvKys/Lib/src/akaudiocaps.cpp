@@ -758,20 +758,13 @@ AkAudioCaps::ChannelLayout AkAudioCaps::channelLayoutFromString(const QString &c
 
 AkAudioCaps::ChannelLayout AkAudioCaps::channelLayoutFromPositions(const QVector<Position> &positions)
 {
+    auto positionsSet = QSet<Position>::fromList(positions.toList());
+
     for (auto &layout: ChannelLayouts::layouts()) {
         if (layout.channels.size() != positions.size())
             continue;
 
-        bool found = true;
-
-        for (int i = 0; i < layout.channels.size(); i++)
-            if (!qFuzzyIsNull(qreal(layout.channels[i] - positions[i]))) {
-                found = false;
-
-                break;
-            }
-
-        if (found)
+        if (positionsSet == QSet<Position>::fromList(layout.channels.toList()))
             return layout.layout;
     }
 

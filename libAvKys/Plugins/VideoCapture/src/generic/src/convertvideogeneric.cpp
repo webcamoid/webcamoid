@@ -34,26 +34,26 @@ using ImgFmtMap = QMap<QString, AkVideoCaps::PixelFormat>;
 inline ImgFmtMap initImgFmtMap()
 {
     ImgFmtMap rawToFF = {
-        {"B0W1"       , AkVideoCaps::Format_monob        },
-        {"XRGB"       , AkVideoCaps::Format_0rgb         },
-        {"ARGB"       , AkVideoCaps::Format_argb         },
-        {"RGBA"       , AkVideoCaps::Format_rgba         },
-        {"RGBX"       , AkVideoCaps::Format_rgb0         },
-        {"RGB565"     , AkVideoCaps::Format_rgb565le     },
-        {"RGB555"     , AkVideoCaps::Format_rgb555le     },
-        {"RGB"        , AkVideoCaps::Format_rgb24        },
-        {"RGB444"     , AkVideoCaps::Format_rgb444le     },
-        {"BGR"        , AkVideoCaps::Format_bgr24        },
-        {"GRAY8"      , AkVideoCaps::Format_gray         },
-        {"NV16"       , AkVideoCaps::Format_nv16         },
-        {"NV21"       , AkVideoCaps::Format_nv21         },
-        {"YUY2"       , AkVideoCaps::Format_yuyv422      },
-        {"YUYV"       , AkVideoCaps::Format_yuyv422      },
-        {"YV12"       , AkVideoCaps::Format_yuv420p      },
-        {"Y422"       , AkVideoCaps::Format_yuv422p      },
-        {"YU12"       , AkVideoCaps::Format_yuv420p      },
-        {"I420"       , AkVideoCaps::Format_yuv420p      },
-        {"YUV420P_888", AkVideoCaps::Format_yuv420p_888le}
+        {"B0W1"       , AkVideoCaps::Format_monob   },
+        {"XRGB"       , AkVideoCaps::Format_0rgb    },
+        {"ARGB"       , AkVideoCaps::Format_argb    },
+        {"RGBA"       , AkVideoCaps::Format_rgba    },
+        {"RGBX"       , AkVideoCaps::Format_rgb0    },
+        {"RGB565"     , AkVideoCaps::Format_rgb565le},
+        {"RGB555"     , AkVideoCaps::Format_rgb555le},
+        {"RGB"        , AkVideoCaps::Format_rgb24   },
+        {"RGB444"     , AkVideoCaps::Format_rgb444le},
+        {"BGR"        , AkVideoCaps::Format_bgr24   },
+        {"GRAY8"      , AkVideoCaps::Format_gray    },
+        {"NV16"       , AkVideoCaps::Format_nv16    },
+        {"NV21"       , AkVideoCaps::Format_nv21    },
+        {"YUY2"       , AkVideoCaps::Format_yuyv422 },
+        {"YUYV"       , AkVideoCaps::Format_yuyv422 },
+        {"YV12"       , AkVideoCaps::Format_yuv420p },
+        {"Y422"       , AkVideoCaps::Format_yuv422p },
+        {"YU12"       , AkVideoCaps::Format_yuv420p },
+        {"I420"       , AkVideoCaps::Format_yuv420p },
+        {"YUV420P_888", AkVideoCaps::Format_yuv420p }
     };
 
     return rawToFF;

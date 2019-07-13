@@ -16,11 +16,10 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-TEMPLATE = subdirs
+SOURCES = \
+    test.cpp
 
-CONFIG(debug, debug|release): CONFIG += ordered
+LIBS += \
+    -lmediandk
 
-SUBDIRS = src
-CONFIG(config_ffmpeg): SUBDIRS += src/ffmpeg
-CONFIG(config_gstreamer): SUBDIRS += src/gstreamer
-CONFIG(config_ndk_media): SUBDIRS += src/ndkmedia
+TARGET = test_auto

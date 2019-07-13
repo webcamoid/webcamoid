@@ -1,5 +1,5 @@
 /* Webcamoid, webcam capture application.
- * Copyright (C) 2016  Gonzalo Exequiel Pedone
+ * Copyright (C) 2019  Gonzalo Exequiel Pedone
  *
  * Webcamoid is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,20 +22,16 @@
 
 #include <QObject>
 
-extern "C"
-{
-    #include <libavformat/avformat.h>
-}
-
-#ifdef PixelFormat
-#undef PixelFormat
-#endif
-
+class AbstractStream;
 class AbstractStreamPrivate;
 class AkFrac;
 class AkCaps;
 class AkPacket;
 class Clock;
+struct AMediaExtractor;
+struct AMediaFormat;
+struct AMediaCodec;
+using AbstractStreamPtr = QSharedPointer<AbstractStream>;
 
 class AbstractStream: public QObject
 {
@@ -47,10 +43,9 @@ class AbstractStream: public QObject
                NOTIFY pausedChanged)
 
     public:
-        AbstractStream(const AVFormatContext *formatContext=nullptr,
+        AbstractStream(AMediaExtractor *mediaExtractor=nullptr,
                        uint index=0, qint64 id=-1,
                        Clock *globalClock=nullptr,
-                       bool noModify=false,
                        QObject *parent=nullptr);
         virtual ~AbstractStream();
 
@@ -59,22 +54,19 @@ class AbstractStream: public QObject
         Q_INVOKABLE uint index() const;
         Q_INVOKABLE qint64 id() const;
         Q_INVOKABLE AkFrac timeBase() const;
-        Q_INVOKABLE AVMediaType mediaType() const;
-        Q_INVOKABLE AVStream *stream() const;
-        Q_INVOKABLE AVCodecContext *codecContext() const;
-        Q_INVOKABLE AVCodec *codec() const;
-        Q_INVOKABLE AVDictionary *codecOptions() const;
+        Q_INVOKABLE QString mimeType() const;
+        Q_INVOKABLE AMediaCodec *codec() const;
+        Q_INVOKABLE AMediaFormat *mediaFormat() const;
         Q_INVOKABLE virtual AkCaps caps() const;
-        Q_INVOKABLE void packetEnqueue(AVPacket *packet);
-        Q_INVOKABLE void dataEnqueue(AVFrame *frame);
-        Q_INVOKABLE void subtitleEnqueue(AVSubtitle *subtitle);
+        Q_INVOKABLE bool packetEnqueue(bool eos=false);
+        Q_INVOKABLE void avPacketEnqueue(const AkPacket &packet);
         Q_INVOKABLE qint64 queueSize();
         Q_INVOKABLE Clock *globalClock();
         Q_INVOKABLE qreal clockDiff() const;
         Q_INVOKABLE qreal &clockDiff();
-
-        static AVMediaType type(const AVFormatContext *formatContext,
-                                uint index);
+        Q_INVOKABLE virtual bool decodeData();
+        Q_INVOKABLE static QString mimeType(AMediaExtractor *mediaExtractor,
+                                            uint index);
 
     protected:
         bool m_paused;
@@ -82,9 +74,7 @@ class AbstractStream: public QObject
         qreal m_clockDiff;
         int m_maxData;
 
-        virtual void processPacket(AVPacket *packet);
-        virtual void processData(AVFrame *frame);
-        virtual void processData(AVSubtitle *subtitle);
+        virtual void processPacket(const AkPacket &packet);
 
     private:
         AbstractStreamPrivate *d;
@@ -92,8 +82,6 @@ class AbstractStream: public QObject
     signals:
         void pausedChanged(bool paused);
         void oStream(const AkPacket &packet);
-        void notify();
-        void frameSent();
         void eof();
 
     public slots:

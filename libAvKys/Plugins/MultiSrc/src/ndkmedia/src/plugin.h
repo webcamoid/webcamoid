@@ -1,5 +1,5 @@
 /* Webcamoid, webcam capture application.
- * Copyright (C) 2016  Gonzalo Exequiel Pedone
+ * Copyright (C) 2019  Gonzalo Exequiel Pedone
  *
  * Webcamoid is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,31 +17,20 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef CONVERTVIDEO_H
-#define CONVERTVIDEO_H
+#ifndef PLUGIN_H
+#define PLUGIN_H
 
-#include <QObject>
+#include <akplugin.h>
 
-class ConvertVideo;
-class AkCaps;
-class AkPacket;
-
-using ConvertVideoPtr = QSharedPointer<ConvertVideo>;
-
-class ConvertVideo: public QObject
+class Plugin: public QObject, public AkPlugin
 {
     Q_OBJECT
+    Q_INTERFACES(AkPlugin)
+    Q_PLUGIN_METADATA(IID "org.avkys.plugin" FILE "pspec.json")
 
     public:
-        ConvertVideo(QObject *parent=nullptr);
-        virtual ~ConvertVideo() = default;
-
-        Q_INVOKABLE virtual void packetEnqueue(const AkPacket &packet);
-        Q_INVOKABLE virtual bool init(const AkCaps &caps);
-        Q_INVOKABLE virtual void uninit();
-
-    signals:
-        void frameReady(const AkPacket &packet);
+        QObject *create(const QString &key, const QString &specification);
+        QStringList keys() const;
 };
 
-#endif // CONVERTVIDEO_H
+#endif // PLUGIN_H

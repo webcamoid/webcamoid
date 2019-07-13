@@ -34,8 +34,8 @@
 #define LOAD_FUNC(library, func) \
     m_##func = reinterpret_cast<func##_t *>(library.resolve(#func))
 
-typedef bool (*on_device_acquire_t)(const char *device_name);
-typedef void (*on_device_release_t)(const char *device_name);
+using on_device_acquire_t = bool (*)(const char *device_name);
+using on_device_release_t = void (*)(const char *device_name);
 
 class JackServer: public QObject
 {
