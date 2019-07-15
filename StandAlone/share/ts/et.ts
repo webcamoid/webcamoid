@@ -174,6 +174,7 @@
     <message>
         <location filename="../qml/AudioInfo.qml" line="338"/>
         <source>Latency (ms)</source>
+        <translatorcomment>Is the amount of accumulated audio ready to play, measured in time. Higher latency == smoother audio playback, but more desynchronization with the video; Lowerer latency == audio desynchronization near to the video, but glitchy audio playback. https://en.wikipedia.org/wiki/Latency_(audio)</translatorcomment>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -625,6 +626,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/StreamOptions.qml" line="105"/>
         <source>GOP</source>
+        <translatorcomment>Group of pictures. https://en.wikipedia.org/wiki/Group_of_pictures</translatorcomment>
         <translation>GOP</translation>
     </message>
     <message>
@@ -861,6 +863,7 @@
         <location filename="../../../libAvKys/Plugins/ColorTransform/share/qml/main.qml" line="36"/>
         <location filename="../../../libAvKys/Plugins/MatrixTransform/share/qml/main.qml" line="35"/>
         <source>Transform matrix</source>
+        <translatorcomment>https://en.wikipedia.org/wiki/Transformation_matrix</translatorcomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -938,6 +941,7 @@
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="146"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="135"/>
         <source>Style</source>
+        <translatorcomment>Different font rendering strategies</translatorcomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1109,6 +1113,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="46"/>
         <source>Base</source>
+        <translatorcomment>Base color, show the image without modifications</translatorcomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1119,6 +1124,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="54"/>
         <source>Heat</source>
+        <translatorcomment>https://en.wikipedia.org/wiki/Heat_map</translatorcomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1134,6 +1140,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="66"/>
         <source>Sepia</source>
+        <translatorcomment>https://en.wikipedia.org/wiki/Sepia_(color)</translatorcomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1173,6 +1180,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="47"/>
         <source>Convolve matrix</source>
+        <translatorcomment>https://en.wikipedia.org/wiki/Kernel_(image_processing)</translatorcomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1232,11 +1240,13 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Denoise/share/qml/main.qml" line="78"/>
         <source>Mu</source>
+        <translatorcomment>Mu factor (µ letter from greek), represents the average of a group of values (https://en.wikipedia.org/wiki/Arithmetic_mean)</translatorcomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Denoise/share/qml/main.qml" line="92"/>
         <source>Sigma</source>
+        <translatorcomment>Sigma factor (σ letter from greek), represents the standard deviation of a group of values (https://en.wikipedia.org/wiki/Standard_deviation)</translatorcomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1280,6 +1290,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="44"/>
         <source>Canny mode</source>
+        <translatorcomment>https://en.wikipedia.org/wiki/Canny_edge_detector</translatorcomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1305,6 +1316,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="111"/>
         <source>Haar file</source>
+        <translatorcomment>https://en.wikipedia.org/wiki/Haar-like_feature</translatorcomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1739,16 +1751,19 @@
         <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="133"/>
         <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="103"/>
         <source>Luma threshold</source>
+        <translatorcomment>Minimum luminance/light/white level/intensity in a gray or black and white picture (https://en.wikipedia.org/wiki/Luma_(video))</translatorcomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="210"/>
         <source>Alpha diff</source>
+        <translatorcomment>Alpha channel, also known as the transparency component of a pixel in an image</translatorcomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="234"/>
         <source>Alpha variation</source>
+        <translatorcomment>Alpha channel, also known as the transparency component of a pixel in an image</translatorcomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1869,11 +1884,13 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Life/share/qml/main.qml" line="100"/>
         <source>Luma Threshold</source>
+        <translatorcomment>Minimum luminance/light/white level/intensity in a gray or black and white picture (https://en.wikipedia.org/wiki/Luma_(video))</translatorcomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Life/share/qml/main.qml" line="68"/>
         <source>Choose the automata color</source>
+        <translatorcomment>https://en.wikipedia.org/wiki/Life-like_cellular_automaton</translatorcomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1994,6 +2011,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="146"/>
         <source>Alpha differential</source>
+        <translatorcomment>Alpha channel, also known as the transparency component of a pixel in an image</translatorcomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
