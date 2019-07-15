@@ -175,7 +175,7 @@
         <location filename="../qml/AudioInfo.qml" line="338"/>
         <source>Latency (ms)</source>
         <translatorcomment>Is the amount of accumulated audio ready to play, measured in time. Higher latency == smoother audio playback, but more desynchronization with the video; Lowerer latency == audio desynchronization near to the video, but glitchy audio playback. https://en.wikipedia.org/wiki/Latency_(audio)</translatorcomment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Latens (ms)</translation>
     </message>
 </context>
 <context>
@@ -627,7 +627,7 @@
         <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/StreamOptions.qml" line="105"/>
         <source>GOP</source>
         <translatorcomment>Group of pictures. https://en.wikipedia.org/wiki/Group_of_pictures</translatorcomment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Bildegruppe</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/StreamOptions.qml" line="110"/>
@@ -864,7 +864,7 @@
         <location filename="../../../libAvKys/Plugins/MatrixTransform/share/qml/main.qml" line="35"/>
         <source>Transform matrix</source>
         <translatorcomment>https://en.wikipedia.org/wiki/Transformation_matrix</translatorcomment>
-        <translation type="unfinished"></translation>
+        <translation>Transformasjonsmatrise</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="63"/>
@@ -1114,7 +1114,7 @@
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="46"/>
         <source>Base</source>
         <translatorcomment>Base color, show the image without modifications</translatorcomment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Grunnfarge</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="50"/>
@@ -1125,7 +1125,7 @@
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="54"/>
         <source>Heat</source>
         <translatorcomment>https://en.wikipedia.org/wiki/Heat_map</translatorcomment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fargediagram</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="58"/>
@@ -1141,7 +1141,7 @@
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="66"/>
         <source>Sepia</source>
         <translatorcomment>https://en.wikipedia.org/wiki/Sepia_(color)</translatorcomment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Sepia</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="70"/>
@@ -1151,7 +1151,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="74"/>
         <source>X-Ray</source>
-        <translation type="unfinished"></translation>
+        <translation>Røntgen</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="78"/>
@@ -1181,7 +1181,7 @@
         <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="47"/>
         <source>Convolve matrix</source>
         <translatorcomment>https://en.wikipedia.org/wiki/Kernel_(image_processing)</translatorcomment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Foldingsmatrise</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="153"/>
@@ -1241,13 +1241,13 @@
         <location filename="../../../libAvKys/Plugins/Denoise/share/qml/main.qml" line="78"/>
         <source>Mu</source>
         <translatorcomment>Mu factor (µ letter from greek), represents the average of a group of values (https://en.wikipedia.org/wiki/Arithmetic_mean)</translatorcomment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Aritmetisk gjennomsnitt (Mu)</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Denoise/share/qml/main.qml" line="92"/>
         <source>Sigma</source>
         <translatorcomment>Sigma factor (σ letter from greek), represents the standard deviation of a group of values (https://en.wikipedia.org/wiki/Standard_deviation)</translatorcomment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Standardavvik (Sigma)</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/DesktopCapture/share/qml/main.qml" line="48"/>
@@ -1291,17 +1291,17 @@
         <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="44"/>
         <source>Canny mode</source>
         <translatorcomment>https://en.wikipedia.org/wiki/Canny_edge_detector</translatorcomment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Canny-modus</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="57"/>
         <source>Lower Canny threshold</source>
-        <translation type="unfinished"></translation>
+        <translation>Nedre Canny-terskel</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="82"/>
         <source>Higger Canny threshold</source>
-        <translation type="unfinished"></translation>
+        <translation>Øvre Canny-terskel</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="107"/>
@@ -1459,7 +1459,7 @@
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="136"/>
         <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="94"/>
         <source>Blur</source>
-        <translation type="unfinished"></translation>
+        <translation>Tilsløring</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="265"/>
@@ -1709,7 +1709,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="549"/>
         <source>Blur radius</source>
-        <translation type="unfinished"></translation>
+        <translation>Tilsløringsradius</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="305"/>
