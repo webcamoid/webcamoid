@@ -16,7 +16,7 @@
     <message>
         <location filename="../qml/About.qml" line="49"/>
         <source>Thanks!</source>
-        <translation type="unfinished"></translation>
+        <translation>谢谢！</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="52"/>
@@ -198,7 +198,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/CodecConfigs.qml" line="141"/>
         <source>Cancel</source>
-        <translation type="unfinished">取消</translation>
+        <translation>取消</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/CodecConfigs.qml" line="151"/>
