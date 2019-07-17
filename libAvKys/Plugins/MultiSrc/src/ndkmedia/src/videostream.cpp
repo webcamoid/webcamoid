@@ -288,7 +288,7 @@ VideoStreamPrivate::VideoStreamPrivate(VideoStream *self):
 AkPacket VideoStreamPrivate::readPacket(size_t bufferIndex,
                                         const AMediaCodecBufferInfo &info)
 {
-    auto format = AMediaCodec_getBufferFormat(self->codec(), bufferIndex);
+    auto format = AMediaCodec_getOutputFormat(self->codec());
     int32_t colorFormat = 0;
     AMediaFormat_getInt32(format,
                           AMEDIAFORMAT_KEY_COLOR_FORMAT,

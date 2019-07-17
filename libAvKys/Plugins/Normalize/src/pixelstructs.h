@@ -25,27 +25,22 @@
 template<typename T>
 struct Pixel
 {
-    Pixel():
-        red(0), green(0), blue(0), alpha(0)
-    {
-    }
+    T red;
+    T green;
+    T blue;
+    T alpha;
 
-    Pixel(T red, T green, T blue, T alpha):
+    inline Pixel(T red=0, T green=0, T blue=0, T alpha=0):
         red(red), green(green), blue(blue), alpha(alpha)
     {
     }
 
-    void clear() {
+    inline void clear() {
         this->red = 0;
         this->green = 0;
         this->blue = 0;
         this->alpha = 0;
     }
-
-    T red;
-    T green;
-    T blue;
-    T alpha;
 };
 
 // These are used as accumulators
