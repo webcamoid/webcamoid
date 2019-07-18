@@ -362,45 +362,17 @@ class AkAudioPacketPrivate
             }
         }
 
-        enum SampleEndianness
-        {
-            SampleEndianness_,
-            SampleEndiannessLE,
-            SampleEndiannessBE
-        };
-
         template<typename SampleType,
-                 typename SumType>
+                 typename SumType,
+                 typename TransformFuncType>
         inline static SampleType interpolate(const AkAudioPacket &packet,
                                              int channel,
                                              qreal isample,
                                              int sample1,
                                              int sample2,
-                                             SampleEndianness endianness)
+                                             TransformFuncType transformFrom,
+                                             TransformFuncType transformTo)
         {
-            std::function<SampleType (SampleType value)> transformFrom;
-            std::function<SampleType (SampleType value)> transformTo;
-
-            switch (endianness) {
-            case SampleEndiannessLE:
-                transformFrom = fromLE<SampleType>;
-                transformTo = toLE<SampleType>;
-
-                break;
-
-            case SampleEndiannessBE:
-                transformFrom = fromBE<SampleType>;
-                transformTo = toBE<SampleType>;
-
-                break;
-
-            default:
-                transformFrom = from_<SampleType>;
-                transformTo = to_<SampleType>;
-
-                break;
-            }
-
             auto minValue = *reinterpret_cast<const SampleType *>(packet.constSample(channel, sample1));
             auto maxValue = *reinterpret_cast<const SampleType *>(packet.constSample(channel, sample2));
             minValue = transformFrom(minValue);
@@ -413,38 +385,17 @@ class AkAudioPacketPrivate
         }
 
         template<typename SampleType,
-                 typename SumType>
+                 typename SumType,
+                 typename TransformFuncType>
         inline static SampleType interpolate(const AkAudioPacket &packet,
                                              int channel,
                                              qreal isample,
                                              int sample1,
                                              int sample2,
                                              int sample3,
-                                             SampleEndianness endianness)
+                                             TransformFuncType transformFrom,
+                                             TransformFuncType transformTo)
         {
-            std::function<SampleType (SampleType value)> transformFrom;
-            std::function<SampleType (SampleType value)> transformTo;
-
-            switch (endianness) {
-            case SampleEndiannessLE:
-                transformFrom = fromLE<SampleType>;
-                transformTo = toLE<SampleType>;
-
-                break;
-
-            case SampleEndiannessBE:
-                transformFrom = fromBE<SampleType>;
-                transformTo = toBE<SampleType>;
-
-                break;
-
-            default:
-                transformFrom = from_<SampleType>;
-                transformTo = to_<SampleType>;
-
-                break;
-            }
-
             auto minValue = *reinterpret_cast<const SampleType *>(packet.constSample(channel, sample1));
             auto midValue = *reinterpret_cast<const SampleType *>(packet.constSample(channel, sample2));
             auto maxValue = *reinterpret_cast<const SampleType *>(packet.constSample(channel, sample3));
@@ -516,7 +467,8 @@ class AkAudioPacketPrivate
                      isample, \
                      sample1, \
                      sample2, \
-                     SampleEndianness##endian); \
+                     from##endian<itype>, \
+                     to##endian<itype>); \
             memcpy(osample, &value, sizeof(itype)); \
          }, \
          [] (const AkAudioPacket &packet, \
@@ -534,7 +486,8 @@ class AkAudioPacketPrivate
                      sample1, \
                      sample2, \
                      sample3, \
-                     SampleEndianness##endian); \
+                     from##endian<itype>, \
+                     to##endian<itype>); \
             memcpy(osample, &value, sizeof(itype)); \
          }}
 
@@ -1338,7 +1291,7 @@ void AkAudioPacket::setIndex(int index)
 
 void AkAudioPacket::resetCaps()
 {
-    this->setCaps(AkAudioCaps());
+    this->setCaps({});
 }
 
 void AkAudioPacket::resetBuffer()

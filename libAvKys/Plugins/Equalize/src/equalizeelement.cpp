@@ -47,11 +47,11 @@ AkPacket EqualizeElement::iVideoStream(const AkVideoPacket &packet)
 
     src = src.convertToFormat(QImage::Format_ARGB32);
     QImage oFrame(src.size(), src.format());
-    QVector<quint8> equTable = EqualizeElementPrivate::equalizationTable(src);
+    auto equTable = EqualizeElementPrivate::equalizationTable(src);
 
     for (int y = 0; y < src.height(); y++) {
-        const QRgb *srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
-        QRgb *dstLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
+        auto srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
+        auto dstLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
 
         for (int x = 0; x < src.width(); x++){
             int r = equTable[qRed(srcLine[x])];
@@ -72,7 +72,7 @@ QVector<quint64> EqualizeElementPrivate::histogram(const QImage &img)
     QVector<quint64> histogram(256, 0);
 
     for (int y = 0; y < img.height(); y++) {
-        const QRgb *srcLine = reinterpret_cast<const QRgb *>(img.constScanLine(y));
+        auto srcLine = reinterpret_cast<const QRgb *>(img.constScanLine(y));
 
         for (int x = 0; x < img.width(); x++)
             histogram[qGray(srcLine[x])]++;

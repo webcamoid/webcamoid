@@ -33,9 +33,9 @@ AkPacket NormalizeElement::iVideoStream(const AkVideoPacket &packet)
     auto src = packet.toImage();
 
     if (src.isNull())
-        return AkPacket();
+        return {};
 
-    QImage oFrame = src.convertToFormat(QImage::Format_ARGB32);
+    auto oFrame = src.convertToFormat(QImage::Format_ARGB32);
 
     // form histogram
     QVector<HistogramListItem> histogram(256, HistogramListItem());
@@ -44,11 +44,11 @@ AkPacket NormalizeElement::iVideoStream(const AkVideoPacket &packet)
         const QRgb *dstLine = reinterpret_cast<const QRgb *>(oFrame.constScanLine(y));
 
         for (int x = 0; x < oFrame.width(); x++) {
-            QRgb pixel = dstLine[x];
-            histogram[qRed(pixel)].red++;
-            histogram[qGreen(pixel)].green++;
-            histogram[qBlue(pixel)].blue++;
-            histogram[qAlpha(pixel)].alpha++;
+            auto pixel = dstLine[x];
+            histogram[qRed(pixel)].r++;
+            histogram[qGreen(pixel)].g++;
+            histogram[qBlue(pixel)].b++;
+            histogram[qAlpha(pixel)].a++;
         }
     }
 
@@ -57,55 +57,55 @@ AkPacket NormalizeElement::iVideoStream(const AkVideoPacket &packet)
     auto thresholdIntensity = qint32(oFrame.width() * oFrame.height() / 1e3);
     IntegerPixel intensity;
 
-    for (low.red = 0; low.red < 256; low.red++) {
-        intensity.red += histogram[low.red].red;
+    for (low.r = 0; low.r < 256; low.r++) {
+        intensity.r += histogram[low.r].r;
 
-        if (intensity.red > thresholdIntensity)
+        if (intensity.r > thresholdIntensity)
             break;
     }
 
     intensity.clear();
 
-    for (high.red = 255; high.red > 0; high.red--) {
-        intensity.red += histogram[high.red].red;
+    for (high.r = 255; high.r > 0; high.r--) {
+        intensity.r += histogram[high.r].r;
 
-        if (intensity.red > thresholdIntensity)
+        if (intensity.r > thresholdIntensity)
             break;
     }
 
     intensity.clear();
 
-    for (low.green = low.red; low.green < high.red; low.green++) {
-        intensity.green += histogram[low.green].green;
+    for (low.g = low.r; low.g < high.r; low.g++) {
+        intensity.g += histogram[low.g].g;
 
-        if (intensity.green > thresholdIntensity)
+        if (intensity.g > thresholdIntensity)
             break;
     }
 
     intensity.clear();
 
-    for (high.green = high.red; high.green != low.red; high.green--) {
-        intensity.green += histogram[high.green].green;
+    for (high.g = high.r; high.g != low.r; high.g--) {
+        intensity.g += histogram[high.g].g;
 
-        if (intensity.green > thresholdIntensity)
+        if (intensity.g > thresholdIntensity)
             break;
     }
 
     intensity.clear();
 
-    for (low.blue = low.green; low.blue < high.green; low.blue++) {
-        intensity.blue += histogram[low.blue].blue;
+    for (low.b = low.g; low.b < high.g; low.b++) {
+        intensity.b += histogram[low.b].b;
 
-        if (intensity.blue > thresholdIntensity)
+        if (intensity.b > thresholdIntensity)
             break;
     }
 
     intensity.clear();
 
-    for (high.blue = high.green; high.blue != low.green; high.blue--) {
-        intensity.blue += histogram[high.blue].blue;
+    for (high.b = high.g; high.b != low.g; high.b--) {
+        intensity.b += histogram[high.b].b;
 
-        if (intensity.blue > thresholdIntensity)
+        if (intensity.b > thresholdIntensity)
             break;
     }
 
@@ -113,51 +113,51 @@ AkPacket NormalizeElement::iVideoStream(const AkVideoPacket &packet)
     QVector<IntegerPixel> normalizeMap(256);
 
     for (int i = 0; i < 256; i++) {
-        if(i < low.red)
-            normalizeMap[i].red = 0;
+        if(i < low.r)
+            normalizeMap[i].r = 0;
         else {
-            if (i > high.red)
-                normalizeMap[i].red = 255;
-            else if (low.red != high.red)
-                normalizeMap[i].red = (255 * (i - low.red)) /
-                    (high.red - low.red);
+            if (i > high.r)
+                normalizeMap[i].r = 255;
+            else if (low.r != high.r)
+                normalizeMap[i].r = (255 * (i - low.r)) /
+                    (high.r - low.r);
         }
 
-        if (i < low.green)
-            normalizeMap[i].green = 0;
+        if (i < low.g)
+            normalizeMap[i].g = 0;
         else {
-            if(i > high.green)
-                normalizeMap[i].green = 255;
-            else if(low.green != high.green)
-                normalizeMap[i].green = (255 * (i - low.green)) /
-                    (high.green - low.green);
+            if(i > high.g)
+                normalizeMap[i].g = 255;
+            else if(low.g != high.g)
+                normalizeMap[i].g = (255 * (i - low.g)) /
+                    (high.g - low.g);
         }
 
-        if (i < low.blue)
-            normalizeMap[i].blue = 0;
+        if (i < low.b)
+            normalizeMap[i].b = 0;
         else {
-            if (i > high.blue)
-                normalizeMap[i].blue = 255;
-            else if (low.blue != high.blue)
-                normalizeMap[i].blue = (255*(i-low.blue)) /
-                    (high.blue - low.blue);
+            if (i > high.b)
+                normalizeMap[i].b = 255;
+            else if (low.b != high.b)
+                normalizeMap[i].b = (255*(i-low.b)) /
+                    (high.b - low.b);
         }
     }
 
     // write
     for (int y = 0; y < oFrame.height(); y++) {
-        QRgb *oLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
+        auto oLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
 
         for (int x = 0; x < oFrame.width(); x++) {
-            QRgb pixel = oLine[x];
+            auto pixel = oLine[x];
 
-            int r = (low.red != high.red)? normalizeMap[qRed(pixel)].red:
+            int r = (low.r != high.r)? normalizeMap[qRed(pixel)].r:
                     qRed(pixel);
 
-            int g = (low.green != high.green)? normalizeMap[qGreen(pixel)].green:
+            int g = (low.g != high.g)? normalizeMap[qGreen(pixel)].g:
                         qGreen(pixel);
 
-            int b = (low.blue != high.blue)?  normalizeMap[qBlue(pixel)].blue:
+            int b = (low.b != high.b)?  normalizeMap[qBlue(pixel)].b:
                         qBlue(pixel);
 
             oLine[x] = qRgba(r, g, b, qAlpha(pixel));

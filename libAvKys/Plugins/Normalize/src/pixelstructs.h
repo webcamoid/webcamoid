@@ -25,29 +25,29 @@
 template<typename T>
 struct Pixel
 {
-    T red;
-    T green;
-    T blue;
-    T alpha;
+    T r;
+    T g;
+    T b;
+    T a;
 
-    inline Pixel(T red=0, T green=0, T blue=0, T alpha=0):
-        red(red), green(green), blue(blue), alpha(alpha)
+    inline Pixel(T r=0, T g=0, T b=0, T a=0):
+        r(r), g(g), b(b), a(a)
     {
     }
 
     inline void clear() {
-        this->red = 0;
-        this->green = 0;
-        this->blue = 0;
-        this->alpha = 0;
+        this->r = 0;
+        this->g = 0;
+        this->b = 0;
+        this->a = 0;
     }
 };
 
 // These are used as accumulators
-using IntegerPixel = struct Pixel<qint32>;
-using UIntegerPixel = struct Pixel<quint32>;
-using ShortPixel = struct Pixel<quint16>;
-using CharPixel = struct Pixel<quint8>;
-using HistogramListItem = IntegerPixel;
+typedef Pixel<qint32> IntegerPixel;
+typedef Pixel<quint32> UIntegerPixel;
+typedef Pixel<quint16> ShortPixel;
+typedef Pixel<quint8> CharPixel;
+typedef IntegerPixel HistogramListItem;
 
 #endif // PIXELSTRUCTS_H

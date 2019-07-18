@@ -53,10 +53,10 @@ struct Pixel
 };
 
 // These are used as accumulators
-using Integer64Pixel = struct Pixel<quint64>;
-using IntegerPixel = struct Pixel<quint32>;
-using ShortPixel = struct Pixel<quint16>;
-using CharPixel = struct Pixel<quint8>;
-using HistogramListItem = IntegerPixel;
+typedef Pixel<quint64> Integer64Pixel;
+typedef Pixel<quint32> IntegerPixel;
+typedef Pixel<quint16> ShortPixel;
+typedef Pixel<quint8> CharPixel;
+typedef IntegerPixel HistogramListItem;
 
 #endif // PIXELSTRUCTS_H
