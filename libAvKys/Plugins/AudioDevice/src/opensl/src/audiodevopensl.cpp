@@ -136,8 +136,9 @@ bool AudioDevOpenSL::init(const QString &device, const AkAudioCaps &caps)
     if (!this->d->m_engine)
         return false;
 
-    auto bufferCaps = caps;
-    bufferCaps.setSamples(this->latency() * caps.rate() / 1000);
+    this->d->m_samples = qMax(this->latency() * caps.rate() / 1000, 1);
+    this->d->m_curCaps = caps;
+    this->d->m_curCaps.setSamples(this->latency() * caps.rate() / 1000);
 
     if (device == ":openslinput:") {
         this->d->m_audioRecorder =
@@ -163,7 +164,7 @@ bool AudioDevOpenSL::init(const QString &device, const AkAudioCaps &caps)
 
         if ((*bufferQueue)->RegisterCallback(bufferQueue,
                                              AudioDevOpenSLPrivate::sampleProcess,
-                                             nullptr) != SL_RESULT_SUCCESS)
+                                             this->d) != SL_RESULT_SUCCESS)
             goto init_failed;
 
         auto bufferSize = this->d->self->latency()
@@ -208,8 +209,8 @@ bool AudioDevOpenSL::init(const QString &device, const AkAudioCaps &caps)
 
         if ((*bufferQueue)->RegisterCallback(bufferQueue,
                                              AudioDevOpenSLPrivate::sampleProcess,
-                                             nullptr) != SL_RESULT_SUCCESS)
-            return false;
+                                             this->d) != SL_RESULT_SUCCESS)
+            goto init_failed;
 
         if ((*audioPlayer)->SetPlayState(audioPlayer,
                                          SL_PLAYSTATE_PLAYING) != SL_RESULT_SUCCESS)
@@ -217,9 +218,6 @@ bool AudioDevOpenSL::init(const QString &device, const AkAudioCaps &caps)
 
         AudioDevOpenSLPrivate::sampleProcess(bufferQueue, this->d);
     }
-
-    this->d->m_samples = qMax(this->latency() * caps.rate() / 1000, 1);
-    this->d->m_curCaps = caps;
 
     return true;
 
@@ -581,13 +579,14 @@ void AudioDevOpenSLPrivate::sampleProcess(SLAndroidSimpleBufferQueueItf bufferQu
     QByteArray buffer;
 
     if (self->m_audioPlayer) {
+
         self->m_mutex.lock();
         if (self->m_audioBuffers.isEmpty()) {
             auto bufferSize = self->self->latency()
                               * self->m_curCaps.bps()
                               * self->m_curCaps.channels()
                               * self->m_curCaps.rate()
-                              / 1000;
+                              / 8000;
             buffer = {bufferSize, Qt::Uninitialized};
         } else {
             buffer = self->m_audioBuffers.takeFirst();
