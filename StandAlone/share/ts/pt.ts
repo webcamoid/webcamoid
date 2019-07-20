@@ -175,7 +175,7 @@
         <location filename="../qml/AudioInfo.qml" line="338"/>
         <source>Latency (ms)</source>
         <translatorcomment>Is the amount of accumulated audio ready to play, measured in time. Higher latency == smoother audio playback, but more desynchronization with the video; Lowerer latency == audio desynchronization near to the video, but glitchy audio playback. https://en.wikipedia.org/wiki/Latency_(audio)</translatorcomment>
-        <translation type="unfinished"></translation>
+        <translation>Latência (ms)</translation>
     </message>
 </context>
 <context>
