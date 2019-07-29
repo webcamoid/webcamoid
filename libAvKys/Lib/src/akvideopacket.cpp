@@ -528,6 +528,12 @@ AkVideoPacket AkVideoPacket::convert(AkVideoCaps::PixelFormat format,
     return AkVideoPacket::fromImage(convertedFrame, *this);
 }
 
+AkVideoPacket AkVideoPacket::scaled(int width, int height) const
+{
+    return AkVideoPacket::fromImage(this->toImage().scaled(width, height),
+                                    *this);
+}
+
 AkVideoPacket AkVideoPacket::realign(int align) const
 {
     if (this->d->m_caps.align() == align)

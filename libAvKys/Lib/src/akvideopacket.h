@@ -95,6 +95,7 @@ class AKCOMMONS_EXPORT AkVideoPacket: public QObject
         Q_INVOKABLE AkVideoPacket convert(AkVideoCaps::PixelFormat format) const;
         Q_INVOKABLE AkVideoPacket convert(AkVideoCaps::PixelFormat format,
                                           int align) const;
+        Q_INVOKABLE AkVideoPacket scaled(int width, int height) const;
         Q_INVOKABLE AkVideoPacket realign(int align) const;
 
     private:

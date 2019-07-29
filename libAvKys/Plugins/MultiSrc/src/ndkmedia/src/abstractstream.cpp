@@ -60,7 +60,7 @@ class AbstractStreamPrivate
         qint64 m_packetQueueSize {-1};
         Clock *m_globalClock {nullptr};
         QFuture<void> m_dataLoopResult;
-        QString m_mediaType;
+        QString m_mimeType;
         qint64 m_id {-1};
         uint m_index {0};
         bool m_runDataLoop {false};
@@ -96,14 +96,14 @@ AbstractStream::AbstractStream(AMediaExtractor *mediaExtractor,
         return;
 
     if (QString(mime).startsWith("audio/")) {
-        this->d->m_mediaType = "audio/x-raw";
+        this->d->m_mimeType = "audio/x-raw";
         int32_t rate = 0;
         AMediaFormat_getInt32(this->d->m_mediaFormat,
                               AMEDIAFORMAT_KEY_SAMPLE_RATE,
                               &rate);
         this->d->m_timeBase = AkFrac(1, rate);
     } else if (QString(mime).startsWith("video/")) {
-        this->d->m_mediaType = "video/x-raw";
+        this->d->m_mimeType = "video/x-raw";
         int32_t frameRate;
         AMediaFormat_getInt32(this->d->m_mediaFormat,
                               AMEDIAFORMAT_KEY_FRAME_RATE,
@@ -158,7 +158,7 @@ AkFrac AbstractStream::timeBase() const
 
 QString AbstractStream::mimeType() const
 {
-    return this->d->m_mediaType;
+    return this->d->m_mimeType;
 }
 
 AMediaCodec *AbstractStream::codec() const
@@ -295,8 +295,8 @@ AbstractStreamPrivate::AbstractStreamPrivate(AbstractStream *self):
 
 void AbstractStreamPrivate::dataLoop()
 {
-    if (this->m_mediaType == "audio/x-raw"
-        || this->m_mediaType == "video/x-raw") {
+    if (this->m_mimeType == "audio/x-raw"
+        || this->m_mimeType == "video/x-raw") {
         while (this->m_runDataLoop) {
             this->m_dataMutex.lock();
             bool gotFrame = true;

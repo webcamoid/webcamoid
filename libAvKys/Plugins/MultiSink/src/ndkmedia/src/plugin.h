@@ -17,36 +17,20 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef AUDIOSTREAM_H
-#define AUDIOSTREAM_H
+#ifndef PLUGIN_H
+#define PLUGIN_H
 
-#include <akaudiocaps.h>
+#include <akplugin.h>
 
-#include "abstractstream.h"
-
-class AudioStreamPrivate;
-
-class AudioStream: public AbstractStream
+class Plugin: public QObject, public AkPlugin
 {
     Q_OBJECT
+    Q_INTERFACES(AkPlugin)
+    Q_PLUGIN_METADATA(IID "org.avkys.plugin" FILE "pspec.json")
 
     public:
-        AudioStream(AMediaExtractor *mediaExtractor=nullptr,
-                    uint index=0, qint64 id=-1,
-                    Clock *globalClock=nullptr,
-                    QObject *parent=nullptr);
-        ~AudioStream();
-
-        Q_INVOKABLE AkCaps caps() const;
-        Q_INVOKABLE static AkAudioCaps::SampleFormat sampleFormatFromEncoding(int32_t encoding);
-        Q_INVOKABLE static AkAudioCaps::ChannelLayout layoutFromChannelMask(int32_t channelMask);
-        Q_INVOKABLE bool decodeData();
-
-    protected:
-        void processPacket(const AkPacket &packet);
-
-    private:
-        AudioStreamPrivate *d;
+        QObject *create(const QString &key, const QString &specification);
+        QStringList keys() const;
 };
 
-#endif // AUDIOSTREAM_H
+#endif // PLUGIN_H

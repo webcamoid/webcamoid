@@ -23,3 +23,4 @@ CONFIG(debug, debug|release): CONFIG += ordered
 SUBDIRS = src
 CONFIG(config_ffmpeg): SUBDIRS += src/ffmpeg
 CONFIG(config_gstreamer): SUBDIRS += src/gstreamer
+CONFIG(config_ndk_media): SUBDIRS += src/ndkmedia

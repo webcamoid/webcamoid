@@ -120,7 +120,7 @@ AkCaps AudioStream::caps() const
     if (AMediaFormat_getInt32(this->mediaFormat(),
                               AMEDIAFORMAT_KEY_PCM_ENCODING,
                               &pcmEncoding))
-        sampleFormat = AudioStream::encodingToSampleFormat(pcmEncoding);
+        sampleFormat = AudioStream::sampleFormatFromEncoding(pcmEncoding);
 #endif
     AkAudioCaps::ChannelLayout layout = AkAudioCaps::Layout_none;
     int32_t channelMask = 0;
@@ -145,15 +145,15 @@ AkCaps AudioStream::caps() const
     return AkAudioCaps(sampleFormat, layout, rate);
 }
 
-AkAudioCaps::SampleFormat AudioStream::encodingToSampleFormat(int32_t encoding)
+AkAudioCaps::SampleFormat AudioStream::sampleFormatFromEncoding(int32_t encoding)
 {
-    static const QMap<int32_t, AkAudioCaps::SampleFormat> encodingToSampleFormat {
+    static const QMap<int32_t, AkAudioCaps::SampleFormat> sampleFormatFromEncoding {
         {ENCODING_PCM_8BIT , AkAudioCaps::SampleFormat_u8 },
         {ENCODING_PCM_16BIT, AkAudioCaps::SampleFormat_s16},
         {ENCODING_PCM_FLOAT, AkAudioCaps::SampleFormat_flt},
     };
 
-    return encodingToSampleFormat.value(encoding);
+    return sampleFormatFromEncoding.value(encoding);
 }
 
 AkAudioCaps::ChannelLayout AudioStream::layoutFromChannelMask(int32_t channelMask)
@@ -225,7 +225,7 @@ AkPacket AudioStreamPrivate::readPacket(size_t bufferIndex,
     if (AMediaFormat_getInt32(format,
                               AMEDIAFORMAT_KEY_PCM_ENCODING,
                               &pcmEncoding))
-        sampleFormat = AudioStream::encodingToSampleFormat(pcmEncoding);
+        sampleFormat = AudioStream::sampleFormatFromEncoding(pcmEncoding);
 #endif
     AkAudioCaps::ChannelLayout layout = AkAudioCaps::Layout_none;
     int32_t channelMask = 0;

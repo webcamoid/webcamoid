@@ -587,7 +587,7 @@ void AudioDevOpenSLPrivate::sampleProcess(SLAndroidSimpleBufferQueueItf bufferQu
                               * self->m_curCaps.channels()
                               * self->m_curCaps.rate()
                               / 8000;
-            buffer = {bufferSize, Qt::Uninitialized};
+            buffer = {bufferSize, 0};
         } else {
             buffer = self->m_audioBuffers.takeFirst();
         }

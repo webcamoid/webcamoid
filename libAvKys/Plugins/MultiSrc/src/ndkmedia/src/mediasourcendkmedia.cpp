@@ -511,7 +511,7 @@ AkCaps MediaSourceNDKMediaPrivate::capsFromMediaFormat(AMediaFormat *mediaFormat
         if (AMediaFormat_getInt32(mediaFormat,
                                   AMEDIAFORMAT_KEY_PCM_ENCODING,
                                   &pcmEncoding))
-            sampleFormat = AudioStream::encodingToSampleFormat(pcmEncoding);
+            sampleFormat = AudioStream::sampleFormatFromEncoding(pcmEncoding);
 #endif
         AkAudioCaps::ChannelLayout layout = AkAudioCaps::Layout_none;
         int32_t channelMask = 0;
