@@ -247,6 +247,19 @@ MediaWriterGStreamer::~MediaWriterGStreamer()
     delete this->d;
 }
 
+QString MediaWriterGStreamer::defaultFormat()
+{
+    auto formats = this->supportedFormats();
+
+    if (formats.isEmpty())
+        return {};
+
+    if (formats.contains("webmmux"))
+        return QStringLiteral("webmmux");
+
+    return formats.first();
+}
+
 QString MediaWriterGStreamer::outputFormat() const
 {
     return this->d->m_outputFormat;

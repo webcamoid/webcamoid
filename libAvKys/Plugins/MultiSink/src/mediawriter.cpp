@@ -33,14 +33,19 @@ QString MediaWriter::location() const
     return this->m_location;
 }
 
+QString MediaWriter::defaultFormat()
+{
+    return {};
+}
+
 QString MediaWriter::outputFormat() const
 {
-    return QString();
+    return {};
 }
 
 QVariantList MediaWriter::streams() const
 {
-    return QVariantList();
+    return {};
 }
 
 qint64 MediaWriter::maxPacketQueueSize() const
@@ -60,33 +65,33 @@ QStringList MediaWriter::codecsBlackList() const
 
 QStringList MediaWriter::supportedFormats()
 {
-    return QStringList();
+    return {};
 }
 
 QStringList MediaWriter::fileExtensions(const QString &format)
 {
     Q_UNUSED(format)
 
-    return QStringList();
+    return {};
 }
 
 QString MediaWriter::formatDescription(const QString &format)
 {
     Q_UNUSED(format)
 
-    return QString();
+    return {};
 }
 
 QVariantList MediaWriter::formatOptions()
 {
-    return QVariantList();
+    return {};
 }
 
 QStringList MediaWriter::supportedCodecs(const QString &format)
 {
     Q_UNUSED(format)
 
-    return QStringList();
+    return {};
 }
 
 QStringList MediaWriter::supportedCodecs(const QString &format,
@@ -95,7 +100,7 @@ QStringList MediaWriter::supportedCodecs(const QString &format,
     Q_UNUSED(format)
     Q_UNUSED(type)
 
-    return QStringList();
+    return {};
 }
 
 QString MediaWriter::defaultCodec(const QString &format, const QString &type)
@@ -110,21 +115,21 @@ QString MediaWriter::codecDescription(const QString &codec)
 {
     Q_UNUSED(codec)
 
-    return QString();
+    return {};
 }
 
 QString MediaWriter::codecType(const QString &codec)
 {
     Q_UNUSED(codec)
 
-    return QString();
+    return {};
 }
 
 QVariantMap MediaWriter::defaultCodecParams(const QString &codec)
 {
     Q_UNUSED(codec)
 
-    return QVariantMap();
+    return {};
 }
 
 QVariantMap MediaWriter::addStream(int streamIndex, const AkCaps &streamCaps)
@@ -132,7 +137,7 @@ QVariantMap MediaWriter::addStream(int streamIndex, const AkCaps &streamCaps)
     Q_UNUSED(streamIndex)
     Q_UNUSED(streamCaps)
 
-    return QVariantMap();
+    return {};
 }
 
 QVariantMap MediaWriter::addStream(int streamIndex,
@@ -143,14 +148,14 @@ QVariantMap MediaWriter::addStream(int streamIndex,
     Q_UNUSED(streamCaps)
     Q_UNUSED(codecParams)
 
-    return QVariantMap();
+    return {};
 }
 
 QVariantMap MediaWriter::updateStream(int index)
 {
     Q_UNUSED(index)
 
-    return QVariantMap();
+    return {};
 }
 
 QVariantMap MediaWriter::updateStream(int index, const QVariantMap &codecParams)
@@ -158,14 +163,14 @@ QVariantMap MediaWriter::updateStream(int index, const QVariantMap &codecParams)
     Q_UNUSED(index)
     Q_UNUSED(codecParams)
 
-    return QVariantMap();
+    return {};
 }
 
 QVariantList MediaWriter::codecOptions(int index)
 {
     Q_UNUSED(index)
 
-    return QVariantList();
+    return {};
 }
 
 void MediaWriter::setLocation(const QString &location)

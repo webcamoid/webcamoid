@@ -75,16 +75,17 @@ class AbstractStreamPrivate
         explicit AbstractStreamPrivate(AbstractStream *self);
         void convertLoop();
         void encodeLoop();
-        static AMediaFormat *mediaFormatFromCaps(const AkCaps &caps,
-                                                 const QString &codec);
 };
 
 AbstractStream::AbstractStream(AMediaMuxer *mediaMuxer,
                                uint index, int streamIndex,
                                const QVariantMap &configs,
+                               MediaWriterNDKMedia *mediaWriter,
                                QObject *parent):
     QObject(parent)
 {
+    Q_UNUSED(mediaWriter)
+
     this->d = new AbstractStreamPrivate(this);
     this->m_maxPacketQueueSize = 9;
     this->d->m_index = index;
@@ -93,9 +94,11 @@ AbstractStream::AbstractStream(AMediaMuxer *mediaMuxer,
     this->d->m_caps = configs["caps"].value<AkCaps>();
 
     QString codecName = configs["codec"].toString();
-    this->d->m_mediaFormat =
-            AbstractStreamPrivate::mediaFormatFromCaps(this->d->m_caps,
-                                                       codecName);
+    this->d->m_mediaFormat = AMediaFormat_new();
+    AMediaFormat_setString(this->d->m_mediaFormat,
+                           AMEDIAFORMAT_KEY_MIME,
+                           codecName.toStdString().c_str());
+
     auto bitrate = configs["bitrate"].toInt();
 
     if (bitrate < 1)
@@ -110,8 +113,6 @@ AbstractStream::AbstractStream(AMediaMuxer *mediaMuxer,
     AMediaFormat_setString(this->d->m_mediaFormat,
                            AMEDIAFORMAT_KEY_LANGUAGE,
                            "und");
-    AMediaMuxer_addTrack(this->d->m_mediaMuxer, this->d->m_mediaFormat);
-
     this->d->m_codec =
             AMediaCodec_createEncoderByType(codecName.toStdString().c_str());
 
@@ -236,61 +237,20 @@ void AbstractStreamPrivate::encodeLoop()
     self->encodeData(true);
 }
 
-AMediaFormat *AbstractStreamPrivate::mediaFormatFromCaps(const AkCaps &caps,
-                                                         const QString &codec)
-{
-    auto mediaFormat = AMediaFormat_new();
-    AMediaFormat_setString(mediaFormat,
-                           AMEDIAFORMAT_KEY_MIME,
-                           codec.toStdString().c_str());
-
-    if (caps.mimeType() == "audio/x-raw") {
-        AkAudioCaps audioCaps(caps);
-
-#if __ANDROID_API__ >= 28
-        AMediaFormat_setInt32(mediaFormat,
-                              AMEDIAFORMAT_KEY_PCM_ENCODING,
-                              AudioStream::encodingFromSampleFormat(audioCaps.format()));
-#endif
-        AMediaFormat_setInt32(mediaFormat,
-                              AMEDIAFORMAT_KEY_CHANNEL_MASK,
-                              AudioStream::channelMaskFromLayout(audioCaps.layout()));
-        AMediaFormat_setInt32(mediaFormat,
-                              AMEDIAFORMAT_KEY_CHANNEL_COUNT,
-                              audioCaps.channels());
-        AMediaFormat_setInt32(mediaFormat,
-                              AMEDIAFORMAT_KEY_SAMPLE_RATE,
-                              audioCaps.rate());
-    } else if (caps.mimeType() == "audio/x-raw") {
-        AkVideoCaps videoCaps(caps);
-
-        AMediaFormat_setInt32(mediaFormat,
-                              AMEDIAFORMAT_KEY_COLOR_FORMAT,
-                              VideoStream::colorFormatFromPixelFormat(videoCaps.format()));
-        AMediaFormat_setInt32(mediaFormat,
-                              AMEDIAFORMAT_KEY_WIDTH,
-                              videoCaps.width());
-        AMediaFormat_setInt32(mediaFormat,
-                              AMEDIAFORMAT_KEY_HEIGHT,
-                              videoCaps.height());
-        AMediaFormat_setInt32(mediaFormat,
-                              AMEDIAFORMAT_KEY_FRAME_RATE,
-                              qRound(videoCaps.fps().value()));
-    }
-
-    return mediaFormat;
-}
-
 bool AbstractStream::init()
 {
     if (!this->d->m_codec)
+        return false;
+
+    if (AMediaMuxer_addTrack(this->d->m_mediaMuxer,
+                             this->d->m_mediaFormat) < 0)
         return false;
 
     if (AMediaCodec_configure(this->d->m_codec,
                               this->d->m_mediaFormat,
                               nullptr,
                               nullptr,
-                              0) != AMEDIA_OK)
+                              AMEDIACODEC_CONFIGURE_FLAG_ENCODE) != AMEDIA_OK)
         return false;
 
     if (AMediaCodec_start(this->d->m_codec) != AMEDIA_OK)

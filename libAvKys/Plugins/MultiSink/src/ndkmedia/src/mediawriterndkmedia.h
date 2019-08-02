@@ -34,10 +34,10 @@ class MediaWriterNDKMedia: public MediaWriter
         MediaWriterNDKMedia(QObject *parent=nullptr);
         ~MediaWriterNDKMedia();
 
+        Q_INVOKABLE QString defaultFormat();
         Q_INVOKABLE QString outputFormat() const;
         Q_INVOKABLE QVariantList streams() const;
         Q_INVOKABLE qint64 maxPacketQueueSize() const;
-
         Q_INVOKABLE QStringList supportedFormats();
         Q_INVOKABLE QStringList fileExtensions(const QString &format);
         Q_INVOKABLE QString formatDescription(const QString &format);

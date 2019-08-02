@@ -19,14 +19,14 @@
 
 #include <limits>
 #include <qrgb.h>
-#include <QDebug>
 #include <QFileInfo>
+#include <QLibrary>
+#include <QMutex>
 #include <QSharedPointer>
 #include <QSize>
-#include <QVector>
-#include <QLibrary>
+#include <QTemporaryFile>
 #include <QThreadPool>
-#include <QMutex>
+#include <QVector>
 #include <QtMath>
 #include <akfrac.h>
 #include <akcaps.h>
@@ -39,6 +39,7 @@
 
 class OutputFormatsInfo;
 using OutputFormatsInfoVector = QVector<OutputFormatsInfo>;
+using SupportedCodecsType = QMap<QString, QMap<QString, QStringList>>;
 
 class OutputFormatsInfo
 {
@@ -47,11 +48,10 @@ class OutputFormatsInfo
         OutputFormat format;
         QString description;
         QStringList fileExtensions;
-        QStringList audioCodecs;
-        QStringList videoCodecs;
 
         inline static const OutputFormatsInfoVector &info();
         inline static const OutputFormatsInfo *byMimeType(const QString &mimeType);
+        inline static const OutputFormatsInfo *byFormat(OutputFormat format);
 };
 
 class CodecsInfo;
@@ -62,8 +62,6 @@ class CodecsInfo
     public:
         QString mimeType;
         QString description;
-        QString type;
-        QVariantMap params;
 
         inline static const CodecsInfoVector &info();
         inline static const CodecsInfo *byMimeType(const QString &mimeType);
@@ -85,22 +83,37 @@ class MediaWriterNDKMediaPrivate
         QMutex m_subtitleMutex;
         QMutex m_writeMutex;
         QMap<int, AbstractStreamPtr> m_streamsMap;
+        SupportedCodecsType m_supportedCodecs;
         bool m_isRecording {false};
 
         explicit MediaWriterNDKMediaPrivate(MediaWriterNDKMedia *self);
         QString guessFormat();
+        static const QStringList &availableCodecs();
+        static const SupportedCodecsType &supportedCodecs();
 };
 
 MediaWriterNDKMedia::MediaWriterNDKMedia(QObject *parent):
     MediaWriter(parent)
 {
     this->d = new MediaWriterNDKMediaPrivate(this);
+    this->d->m_supportedCodecs = MediaWriterNDKMediaPrivate::supportedCodecs();
 }
 
 MediaWriterNDKMedia::~MediaWriterNDKMedia()
 {
     this->uninit();
     delete this->d;
+}
+
+QString MediaWriterNDKMedia::defaultFormat()
+{
+    if (this->d->m_supportedCodecs.isEmpty())
+        return {};
+
+    if (this->d->m_supportedCodecs.contains("video/webm"))
+        return QStringLiteral("video/webm");
+
+    return this->d->m_supportedCodecs.firstKey();
 }
 
 QString MediaWriterNDKMedia::outputFormat() const
@@ -127,8 +140,11 @@ QStringList MediaWriterNDKMedia::supportedFormats()
 {
     QStringList formats;
 
-    for (auto &info: OutputFormatsInfo::info())
-        formats << info.mimeType;
+    for (auto it = this->d->m_supportedCodecs.constBegin();
+         it != this->d->m_supportedCodecs.constEnd();
+         it++)
+        if (!this->m_formatsBlackList.contains(it.key()))
+            formats << it.key();
 
     std::sort(formats.begin(), formats.end());
 
@@ -168,19 +184,21 @@ QStringList MediaWriterNDKMedia::supportedCodecs(const QString &format)
 QStringList MediaWriterNDKMedia::supportedCodecs(const QString &format,
                                                  const QString &type)
 {
-    auto info = OutputFormatsInfo::byMimeType(format);
-
-    if (!info)
-        return {};
-
     QStringList supportedCodecs;
 
-    if (type.isEmpty())
-        supportedCodecs = info->audioCodecs + info->videoCodecs;
-    else if (type == "audio/x-raw")
-        supportedCodecs = info->audioCodecs;
-    else if (type == "video/x-raw")
-        supportedCodecs = info->videoCodecs;
+    if (type.isEmpty()) {
+        for (auto &codecs: this->d->m_supportedCodecs.value(format)) {
+            for (auto &codec: codecs)
+                if (!this->m_codecsBlackList.contains(codec))
+                    supportedCodecs << codec;
+        }
+    } else {
+        auto codecs = this->d->m_supportedCodecs.value(format).value(type);
+
+        for (auto &codec: codecs)
+            if (!this->m_codecsBlackList.contains(codec))
+                supportedCodecs << codec;
+    }
 
     std::sort(supportedCodecs.begin(), supportedCodecs.end());
 
@@ -190,15 +208,11 @@ QStringList MediaWriterNDKMedia::supportedCodecs(const QString &format,
 QString MediaWriterNDKMedia::defaultCodec(const QString &format,
                                           const QString &type)
 {
-    auto info = OutputFormatsInfo::byMimeType(format);
+    auto codecs = this->d->m_supportedCodecs.value(format).value(type);
 
-    if (!info)
-        return {};
-
-    if (type == "audio/x-raw")
-        return info->audioCodecs.first();
-    else if (type == "video/x-raw")
-        return info->videoCodecs.first();
+    for (auto &codec: codecs)
+        if (!this->m_codecsBlackList.contains(codec))
+            return codec;
 
     return {};
 }
@@ -220,7 +234,9 @@ QString MediaWriterNDKMedia::codecType(const QString &codec)
     if (!info)
         return {};
 
-    return info->type;
+    return info->mimeType.startsWith("audio/")?
+                QStringLiteral("audio/x-raw"):
+                QStringLiteral("video/x-raw");
 }
 
 QVariantMap MediaWriterNDKMedia::defaultCodecParams(const QString &codec)
@@ -230,7 +246,30 @@ QVariantMap MediaWriterNDKMedia::defaultCodecParams(const QString &codec)
     if (!info)
         return {};
 
-    return info->params;
+    QVariantMap codecParams;
+
+    if (info->mimeType.startsWith("audio/")) {
+        static const QStringList supportedSampleFormats {"s16"};
+
+        codecParams["supportedSampleFormats"] = supportedSampleFormats;
+        codecParams["supportedSampleRates"] = QVariantList();
+        codecParams["supportedChannelLayouts"] = QVariantList();
+        codecParams["defaultSampleFormat"] = supportedSampleFormats.first();
+        codecParams["defaultBitRate"] = 128000;
+        codecParams["defaultSampleRate"] = 44100;
+        codecParams["defaultChannelLayout"] = "stereo";
+        codecParams["defaultChannels"] = 2;
+    } else {
+        static const QStringList supportedPixelFormats {"yuv420p", "nv12"};
+
+        codecParams["supportedPixelFormats"] = supportedPixelFormats;
+        codecParams["supportedFrameRates"] = QVariantList();
+        codecParams["defaultGOP"] = 12;
+        codecParams["defaultBitRate"] = 1500000;
+        codecParams["defaultPixelFormat"] = supportedPixelFormats.first();
+    }
+
+    return codecParams;
 }
 
 QVariantMap MediaWriterNDKMedia::addStream(int streamIndex,
@@ -389,6 +428,111 @@ QString MediaWriterNDKMediaPrivate::guessFormat()
     return {};
 }
 
+const QStringList &MediaWriterNDKMediaPrivate::availableCodecs()
+{
+    auto &codecsInfo = CodecsInfo::info();
+    static QStringList availableCodecs;
+
+    if (!availableCodecs.isEmpty())
+        return availableCodecs;
+
+    for (auto it = codecsInfo.constBegin(); it != codecsInfo.constEnd(); it++)
+        if (auto codec = AMediaCodec_createEncoderByType(it->mimeType.toStdString().c_str())) {
+            availableCodecs << it->mimeType;
+            AMediaCodec_delete(codec);
+        }
+
+    return availableCodecs;
+}
+
+const SupportedCodecsType &MediaWriterNDKMediaPrivate::supportedCodecs()
+{
+    static SupportedCodecsType supportedCodecs;
+
+    if (!supportedCodecs.isEmpty())
+        return supportedCodecs;
+
+    auto &codecs = MediaWriterNDKMediaPrivate::availableCodecs();
+
+    auto audioMediaFormat = AMediaFormat_new();
+    AMediaFormat_setInt32(audioMediaFormat,
+                          AMEDIAFORMAT_KEY_BIT_RATE,
+                          128000);
+#if __ANDROID_API__ >= 28
+    AMediaFormat_setInt32(audioMediaFormat,
+                          AMEDIAFORMAT_KEY_PCM_ENCODING,
+                          0x2); // s16
+#endif
+    AMediaFormat_setInt32(audioMediaFormat,
+                          AMEDIAFORMAT_KEY_CHANNEL_MASK,
+                          0x4 | 0x8); // stereo
+    AMediaFormat_setInt32(audioMediaFormat,
+                          AMEDIAFORMAT_KEY_CHANNEL_COUNT,
+                          2);
+    AMediaFormat_setInt32(audioMediaFormat,
+                          AMEDIAFORMAT_KEY_SAMPLE_RATE,
+                          44100);
+
+    auto videoMediaFormat = AMediaFormat_new();
+    AMediaFormat_setInt32(videoMediaFormat,
+                          AMEDIAFORMAT_KEY_BIT_RATE,
+                          1500000);
+    AMediaFormat_setInt32(videoMediaFormat,
+                          AMEDIAFORMAT_KEY_COLOR_FORMAT,
+                          19); // yuv420p
+    AMediaFormat_setInt32(videoMediaFormat,
+                          AMEDIAFORMAT_KEY_WIDTH,
+                          640);
+    AMediaFormat_setInt32(videoMediaFormat,
+                          AMEDIAFORMAT_KEY_HEIGHT,
+                          480);
+    AMediaFormat_setInt32(videoMediaFormat,
+                          AMEDIAFORMAT_KEY_FRAME_RATE,
+                          30);
+    AMediaFormat_setInt32(videoMediaFormat,
+                          AMEDIAFORMAT_KEY_I_FRAME_INTERVAL,
+                          1);
+
+    auto &formatsInfo = OutputFormatsInfo::info();
+
+    for (auto &format: formatsInfo) {
+        for (auto codec: codecs) {
+            QTemporaryFile tempFile;
+            tempFile.setAutoRemove(true);
+
+            if (tempFile.open()) {
+                if (auto muxer = AMediaMuxer_new(tempFile.handle(), format.format)) {
+                    AMediaFormat *mediaFormat = nullptr;
+                    QString mimeType;
+
+                    if (codec.startsWith("audio/")) {
+                        mediaFormat = audioMediaFormat;
+                        mimeType = "audio/x-raw";
+                    } else {
+                        mediaFormat = videoMediaFormat;
+                        mimeType = "video/x-raw";
+                    }
+
+                    AMediaFormat_setString(mediaFormat,
+                                           AMEDIAFORMAT_KEY_MIME,
+                                           codec.toStdString().c_str());
+
+                    if (AMediaMuxer_addTrack(muxer, mediaFormat) >= 0)
+                        supportedCodecs[format.mimeType][mimeType] << codec;
+
+                    AMediaMuxer_start(muxer);
+                    AMediaMuxer_delete(muxer);
+                }
+            }
+        }
+    }
+
+    AMediaFormat_delete(audioMediaFormat);
+    AMediaFormat_delete(videoMediaFormat);
+
+    return supportedCodecs;
+}
+
 void MediaWriterNDKMedia::setOutputFormat(const QString &outputFormat)
 {
     if (this->d->m_outputFormat == outputFormat)
@@ -507,12 +651,18 @@ bool MediaWriterNDKMedia::init()
             this->d->m_streamsMap[inputId] = mediaStream;
 
             QObject::connect(mediaStream.data(),
-                             SIGNAL(packetReady(AVPacket *)),
+                             SIGNAL(packetReady(const AkPacket &)),
                              this,
-                             SLOT(writePacket(AVPacket *)),
+                             SLOT(writePacket(const AkPacket &)),
                              Qt::DirectConnection);
 
-            mediaStream->init();
+            if (!mediaStream->init()) {
+                AMediaMuxer_delete(this->d->m_mediaMuxer);
+                this->d->m_mediaMuxer = nullptr;
+                this->d->m_outputFile.close();
+
+                return false;
+            }
         }
     }
 
@@ -574,8 +724,8 @@ void MediaWriterNDKMedia::writePacket(const AkPacket &packet)
 const OutputFormatsInfoVector &OutputFormatsInfo::info()
 {
     static const OutputFormatsInfoVector formatsInfo {
-        {"video/webm", AMEDIAMUXER_OUTPUT_FORMAT_WEBM  , "WEBM", {"webm"}, {"audio/vorbis", "audio/opus"}                   , {"video/x-vnd.on2.vp8", "video/x-vnd.on2.vp9"}            },
-        {"video/mp4" , AMEDIAMUXER_OUTPUT_FORMAT_MPEG_4,  "MP4", {"mp4"} , {"audio/mp4a-latm", "audio/amr-wb", "audio/3gpp"}, {"video/avc", "video/hevc", "video/mp4v-es", "video/3gpp"}},
+        {"video/webm", AMEDIAMUXER_OUTPUT_FORMAT_WEBM  , "WEBM", {"webm"}},
+        {"video/mp4" , AMEDIAMUXER_OUTPUT_FORMAT_MPEG_4,  "MP4",  {"mp4"}},
     };
 
     return formatsInfo;
@@ -590,23 +740,51 @@ const OutputFormatsInfo *OutputFormatsInfo::byMimeType(const QString &mimeType)
     return nullptr;
 }
 
+const OutputFormatsInfo *OutputFormatsInfo::byFormat(OutputFormat format)
+{
+    for (auto &info: info())
+        if (info.format == format)
+            return &info;
+
+    return nullptr;
+}
+
 const CodecsInfoVector &CodecsInfo::info()
 {
     static const CodecsInfoVector codecsInfo {
-        // Audio
-        {"audio/vorbis"   , "Vorbis", "audio/x-raw", {}},
-        {"audio/opus"     , "Opus"  , "audio/x-raw", {}},
-        {"audio/mp4a-latm", "AAC"   , "audio/x-raw", {}},
-        {"audio/amr-wb"   , "AMR WB", "audio/x-raw", {}},
-        {"audio/3gpp"     , "AMR NB", "audio/x-raw", {}},
-
         // Video
-        {"video/x-vnd.on2.vp8", "VP8"       , "video/x-raw", {}},
-        {"video/x-vnd.on2.vp9", "VP9"       , "video/x-raw", {}},
-        {"video/avc"          , "H.264 AVC" , "video/x-raw", {}},
-        {"video/hevc"         , "H.265 HEVC", "video/x-raw", {}},
-        {"video/mp4v-es"      , "MPEG4"     , "video/x-raw", {}},
-        {"video/3gpp"         , "H.263"     , "video/x-raw", {}},
+        {"video/x-vnd.on2.vp8", "VP8"         },
+        {"video/x-vnd.on2.vp9", "VP9"         },
+        {"video/avc"          , "H.264 AVC"   },
+        {"video/hevc"         , "H.265 HEVC"  },
+        {"video/mp4v-es"      , "MPEG4"       },
+        {"video/3gpp"         , "H.263"       },
+        {"video/mpeg2"        , "MPEG-2"      },
+        {"video/raw"          , "RAW"         },
+        {"video/dolby-vision" , "Dolby Vision"},
+        {"video/scrambled"    , "Scrambled"   },
+
+        // Audio
+        {"audio/3gpp"     , "AMR NB"       },
+        {"audio/amr-wb"   , "AMR WB"       },
+        {"audio/mpeg"     , "MPEG"         },
+        {"audio/mpeg-L1"  , "MPEG Layer I" },
+        {"audio/mpeg-L2"  , "MPEG Layer II"},
+        {"audio/midi"     , "MIDI"         },
+        {"audio/mp4a-latm", "AAC"          },
+        {"audio/qcelp"    , "QCELP"        },
+        {"audio/vorbis"   , "Vorbis"       },
+        {"audio/opus"     , "Opus"         },
+        {"audio/g711-alaw", "G.711 a-law"  },
+        {"audio/g711-mlaw", "G.711 mu-law" },
+        {"audio/raw"      , "RAW"          },
+        {"audio/flac"     , "FLAC"         },
+        {"audio/aac-adts" , "AAC ADTS"     },
+        {"audio/gsm"      , "MS GSM"       },
+        {"audio/ac3"      , "AC3"          },
+        {"audio/eac3"     , "EAC3"         },
+        {"audio/scrambled", "Scrambled"    },
+        {"audio/alac"     , "ALAC"         },
     };
 
     return codecsInfo;

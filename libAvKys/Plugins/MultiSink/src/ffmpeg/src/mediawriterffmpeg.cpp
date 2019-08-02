@@ -120,7 +120,7 @@ MediaWriterFFmpeg::MediaWriterFFmpeg(QObject *parent):
         // This codec fail.
         "vc2",
 
-        // The codecs are too slow for real time recording.
+        // These codecs are too slow for real time recording.
         "ayuv",
         "cinepak",
         "dpx",
@@ -147,6 +147,17 @@ MediaWriterFFmpeg::~MediaWriterFFmpeg()
     this->uninit();
     avformat_network_deinit();
     delete this->d;
+}
+
+QString MediaWriterFFmpeg::defaultFormat()
+{
+    if (mediaWriterFFmpegGlobal->m_supportedCodecs.isEmpty())
+        return {};
+
+    if (mediaWriterFFmpegGlobal->m_supportedCodecs.contains("webm"))
+        return QStringLiteral("webm");
+
+    return mediaWriterFFmpegGlobal->m_supportedCodecs.firstKey();
 }
 
 QString MediaWriterFFmpeg::outputFormat() const

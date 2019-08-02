@@ -84,6 +84,14 @@ QString MultiSinkElement::location() const
     return this->d->m_location;
 }
 
+QString MultiSinkElement::defaultFormat() const
+{
+    if (!this->d->m_mediaWriter)
+        return {};
+
+    return this->d->m_mediaWriter->defaultFormat();
+}
+
 QStringList MultiSinkElement::supportedFormats() const
 {
     return this->d->m_supportedFormats;
@@ -449,6 +457,10 @@ void MultiSinkElementPrivate::codecLibUpdated(const QString &codecLib)
                      &MediaWriter::locationChanged,
                      self,
                      &MultiSinkElement::locationChanged);
+    QObject::connect(this->m_mediaWriter.data(),
+                     &MediaWriter::defaultFormatChanged,
+                     self,
+                     &MultiSinkElement::defaultFormatChanged);
     QObject::connect(this->m_mediaWriter.data(),
                      &MediaWriter::outputFormatChanged,
                      self,

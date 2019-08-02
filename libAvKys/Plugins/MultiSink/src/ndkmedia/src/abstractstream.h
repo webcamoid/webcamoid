@@ -26,6 +26,7 @@
 
 class AbstractStream;
 class AbstractStreamPrivate;
+class MediaWriterNDKMedia;
 class AkCaps;
 class AkPacket;
 struct AMediaMuxer;
@@ -41,6 +42,7 @@ class AbstractStream: public QObject
         AbstractStream(AMediaMuxer *mediaMuxer=nullptr,
                        uint index=0, int streamIndex=-1,
                        const QVariantMap &configs={},
+                       MediaWriterNDKMedia *mediaWriter=nullptr,
                        QObject *parent=nullptr);
         virtual ~AbstractStream();
 

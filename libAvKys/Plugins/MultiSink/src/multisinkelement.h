@@ -34,6 +34,9 @@ class MultiSinkElement: public AkElement
                WRITE setLocation
                RESET resetLocation
                NOTIFY locationChanged)
+    Q_PROPERTY(QString defaultFormat
+               READ defaultFormat
+               NOTIFY defaultFormatChanged)
     Q_PROPERTY(QStringList supportedFormats
                READ supportedFormats
                NOTIFY supportedFormatsChanged)
@@ -76,6 +79,7 @@ class MultiSinkElement: public AkElement
         ~MultiSinkElement();
 
         Q_INVOKABLE QString location() const;
+        Q_INVOKABLE QString defaultFormat() const;
         Q_INVOKABLE QStringList supportedFormats() const;
         Q_INVOKABLE QString outputFormat() const;
         Q_INVOKABLE QVariantList streams();
@@ -111,6 +115,7 @@ class MultiSinkElement: public AkElement
 
     signals:
         void locationChanged(const QString &location);
+        void defaultFormatChanged(const QString &defaultFormat);
         void supportedFormatsChanged(const QStringList &supportedFormats);
         void outputFormatChanged(const QString &outputFormat);
         void formatOptionsChanged(const QVariantMap &formatOptions);

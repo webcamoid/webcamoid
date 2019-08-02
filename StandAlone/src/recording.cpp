@@ -17,6 +17,7 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QtGlobal>
 #include <QImage>
 #include <QMutex>
 #include <QFile>
@@ -298,7 +299,7 @@ QStringList RecordingPrivate::recordingFormats() const
                               "supportedFormats",
                               Q_RETURN_ARG(QStringList, supportedFormats));
 
-    for (const QString &format: supportedFormats) {
+    for (auto &format: supportedFormats) {
         QStringList audioCodecs;
         QMetaObject::invokeMethod(this->m_record.data(),
                                   "supportedCodecs",
@@ -319,10 +320,15 @@ QStringList RecordingPrivate::recordingFormats() const
                                   Q_RETURN_ARG(QStringList, extensions),
                                   Q_ARG(QString, format));
 
+#ifdef Q_OS_ANDROID
+        if (!videoCodecs.isEmpty() && !extensions.isEmpty())
+            formats << format;
+#else
         if ((format == "gif" || !audioCodecs.isEmpty())
             && !videoCodecs.isEmpty()
             && !extensions.isEmpty())
             formats << format;
+#endif
     }
 
     return formats;
@@ -387,11 +393,10 @@ void Recording::resetFormat()
 {
     QString defaultFormat;
 
-    if (this->d->m_recordSettings) {
-        auto codecLib =
-                this->d->m_recordSettings->property("codecLib").toString();
-        defaultFormat = codecLib == "gstreamer"? "webmmux": "webm";
-    }
+    if (this->d->m_record)
+        QMetaObject::invokeMethod(this->d->m_record.data(),
+                                  "defaultFormat",
+                                  Q_RETURN_ARG(QString, defaultFormat));
 
     this->setFormat(defaultFormat);
 }
@@ -498,16 +503,14 @@ void Recording::capsUpdated()
 
 void Recording::updateFormat()
 {
-    if (!this->d->m_recordSettings)
+    if (!this->d->m_record)
         return;
 
-    auto codecLib =
-            this->d->m_recordSettings->property("codecLib").toString();
-
-    if (codecLib.isEmpty())
-        return;
-
-    this->setFormat(codecLib == "gstreamer"? "webmmux": "webm");
+    QString defaultFormat;
+    QMetaObject::invokeMethod(this->d->m_record.data(),
+                              "defaultFormat",
+                              Q_RETURN_ARG(QString, defaultFormat));
+    this->setFormat(defaultFormat);
 }
 
 void Recording::loadProperties()
@@ -527,10 +530,11 @@ void Recording::loadProperties()
 
     QString defaultFormat;
 
-    if (this->d->m_recordSettings) {
-        auto codecLib =
-                this->d->m_recordSettings->property("codecLib").toString();
-        defaultFormat = codecLib == "gstreamer"? "webmmux": "webm";
+    if (this->d->m_record) {
+        QString defaultFormat;
+        QMetaObject::invokeMethod(this->d->m_record.data(),
+                                  "defaultFormat",
+                                  Q_RETURN_ARG(QString, defaultFormat));
     }
 
     QString preferredFormat =

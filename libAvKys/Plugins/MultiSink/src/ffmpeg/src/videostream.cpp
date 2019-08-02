@@ -91,15 +91,18 @@ VideoStream::VideoStream(const AVFormatContext *formatContext,
 
     AkVideoCaps videoCaps(configs["caps"].value<AkCaps>());
 
-    QString pixelFormat = AkVideoCaps::pixelFormatToString(videoCaps.format());
-    QStringList supportedPixelFormats = defaultCodecParams["supportedPixelFormats"].toStringList();
+    auto pixelFormat = AkVideoCaps::pixelFormatToString(videoCaps.format());
+    auto supportedPixelFormats =
+            defaultCodecParams["supportedPixelFormats"].toStringList();
 
-    if (!supportedPixelFormats.isEmpty() && !supportedPixelFormats.contains(pixelFormat)) {
+    if (!supportedPixelFormats.isEmpty()
+        && !supportedPixelFormats.contains(pixelFormat)) {
         auto defaultPixelFormat = defaultCodecParams["defaultPixelFormat"].toString();
         videoCaps.setFormat(AkVideoCaps::pixelFormatFromString(defaultPixelFormat));
     }
 
-    QVariantList supportedFrameRates = defaultCodecParams["supportedFrameRates"].toList();
+    auto supportedFrameRates =
+            defaultCodecParams["supportedFrameRates"].toList();
 
     if (!supportedFrameRates.isEmpty()) {
         AkFrac frameRate;
@@ -160,7 +163,7 @@ VideoStream::VideoStream(const AVFormatContext *formatContext,
     if (!strcmp(formatContext->oformat->name, "gxf"))
         videoCaps = mediaWriter->nearestGXFCaps(videoCaps);
 
-    QString pixelFormatStr = AkVideoCaps::pixelFormatToString(videoCaps.format());
+    auto pixelFormatStr = AkVideoCaps::pixelFormatToString(videoCaps.format());
     codecContext->pix_fmt = av_get_pix_fmt(pixelFormatStr.toStdString().c_str());
     codecContext->width = videoCaps.width();
     codecContext->height = videoCaps.height();

@@ -35,6 +35,7 @@ class MediaWriterFFmpeg: public MediaWriter
         MediaWriterFFmpeg(QObject *parent=nullptr);
         ~MediaWriterFFmpeg();
 
+        Q_INVOKABLE QString defaultFormat();
         Q_INVOKABLE QString outputFormat() const;
         Q_INVOKABLE QVariantList streams() const;
         Q_INVOKABLE qint64 maxPacketQueueSize() const;

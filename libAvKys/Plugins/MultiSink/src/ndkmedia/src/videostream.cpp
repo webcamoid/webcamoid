@@ -17,7 +17,6 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QDebug>
 #include <QDateTime>
 #include <QImage>
 #include <QMutex>
@@ -110,7 +109,7 @@ inline const ImageFormatToPixelFormatMap &imageFormatToPixelFormat()
         {COLOR_FormatYUV411PackedPlanar       , AkVideoCaps::Format_yuv411p    },
         {COLOR_FormatYUV420Planar             , AkVideoCaps::Format_yuv420p    },
         {COLOR_FormatYUV420PackedPlanar       , AkVideoCaps::Format_yuv420p    },
-        {COLOR_FormatYUV420SemiPlanar         , AkVideoCaps::Format_yuv420p    },
+        {COLOR_FormatYUV420SemiPlanar         , AkVideoCaps::Format_nv12       },
         {COLOR_FormatYUV422Planar             , AkVideoCaps::Format_yuv422p    },
         {COLOR_FormatYUV422PackedPlanar       , AkVideoCaps::Format_yuv422p    },
         {COLOR_FormatYUV422SemiPlanar         , AkVideoCaps::Format_yuv422p    },
@@ -136,9 +135,9 @@ inline const ImageFormatToPixelFormatMap &imageFormatToPixelFormat()
 //        {COLOR_TI_FormatYUV420PackedSemiPlanar, AkVideoCaps::Format_           },
 //        {COLOR_FormatSurface                  , AkVideoCaps::Format_           },
         {COLOR_Format32bitABGR8888            , AkVideoCaps::Format_abgr       },
-//        {COLOR_FormatYUV420Flexible           , AkVideoCaps::Format_           },
-//        {COLOR_FormatYUV422Flexible           , AkVideoCaps::Format_           },
-//        {COLOR_FormatYUV444Flexible           , AkVideoCaps::Format_           },
+        {COLOR_FormatYUV420Flexible           , AkVideoCaps::Format_yuv420p    },
+        {COLOR_FormatYUV422Flexible           , AkVideoCaps::Format_yuv422p    },
+        {COLOR_FormatYUV444Flexible           , AkVideoCaps::Format_yuv444p    },
         {COLOR_FormatRGBFlexible              , AkVideoCaps::Format_rgbp       },
         {COLOR_FormatRGBAFlexible             , AkVideoCaps::Format_rgbap      },
 //        {COLOR_QCOM_FormatYUV420SemiPlanar    , AkVideoCaps::Format_           },
@@ -164,13 +163,49 @@ VideoStream::VideoStream(AMediaMuxer *mediaMuxerformatContext,
                          uint index,
                          int streamIndex,
                          const QVariantMap &configs,
+                         MediaWriterNDKMedia *mediaWriter,
                          QObject *parent):
     AbstractStream(mediaMuxerformatContext,
                    index, streamIndex,
                    configs,
+                   mediaWriter,
                    parent)
 {
     this->d = new VideoStreamPrivate(this);
+    auto codecName = configs["codec"].toString();
+    auto defaultCodecParams = mediaWriter->defaultCodecParams(codecName);
+    AkVideoCaps videoCaps(this->caps());
+    auto pixelFormat = AkVideoCaps::pixelFormatToString(videoCaps.format());
+    auto supportedPixelFormats =
+            defaultCodecParams["supportedPixelFormats"].toStringList();
+
+    if (!supportedPixelFormats.isEmpty()
+        && !supportedPixelFormats.contains(pixelFormat)) {
+        auto defaultPixelFormat = defaultCodecParams["defaultPixelFormat"].toString();
+        videoCaps.setFormat(AkVideoCaps::pixelFormatFromString(defaultPixelFormat));
+    }
+
+    int32_t interval =
+            qRound(configs["gop"].toInt() / videoCaps.fps().value());
+
+    if (interval < 1)
+        interval = 1;
+
+    AMediaFormat_setInt32(this->mediaFormat(),
+                          AMEDIAFORMAT_KEY_COLOR_FORMAT,
+                          VideoStream::colorFormatFromPixelFormat(videoCaps.format()));
+    AMediaFormat_setInt32(this->mediaFormat(),
+                          AMEDIAFORMAT_KEY_WIDTH,
+                          videoCaps.width());
+    AMediaFormat_setInt32(this->mediaFormat(),
+                          AMEDIAFORMAT_KEY_HEIGHT,
+                          videoCaps.height());
+    AMediaFormat_setInt32(this->mediaFormat(),
+                          AMEDIAFORMAT_KEY_FRAME_RATE,
+                          qRound(videoCaps.fps().value()));
+    AMediaFormat_setInt32(this->mediaFormat(),
+                          AMEDIAFORMAT_KEY_I_FRAME_INTERVAL,
+                          interval);
 }
 
 VideoStream::~VideoStream()

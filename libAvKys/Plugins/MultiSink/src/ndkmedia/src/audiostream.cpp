@@ -17,7 +17,6 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QDebug>
 #include <QSharedPointer>
 #include <QMutex>
 #include <QWaitCondition>
@@ -90,13 +89,32 @@ AudioStream::AudioStream(AMediaMuxer *mediaMuxer,
                          uint index,
                          int streamIndex,
                          const QVariantMap &configs,
+                         MediaWriterNDKMedia *mediaWriter,
                          QObject *parent):
     AbstractStream(mediaMuxer,
                    index, streamIndex,
                    configs,
+                   mediaWriter,
                    parent)
 {
     this->d = new AudioStreamPrivate(this);
+    AkAudioCaps audioCaps(this->caps());
+
+#if __ANDROID_API__ >= 28
+    AMediaFormat_setInt32(this->mediaFormat(),
+                          AMEDIAFORMAT_KEY_PCM_ENCODING,
+                          AudioStream::encodingFromSampleFormat(audioCaps.format()));
+#endif
+    AMediaFormat_setInt32(this->mediaFormat(),
+                          AMEDIAFORMAT_KEY_CHANNEL_MASK,
+                          AudioStream::channelMaskFromLayout(audioCaps.layout()));
+    AMediaFormat_setInt32(this->mediaFormat(),
+                          AMEDIAFORMAT_KEY_CHANNEL_COUNT,
+                          audioCaps.channels());
+    AMediaFormat_setInt32(this->mediaFormat(),
+                          AMEDIAFORMAT_KEY_SAMPLE_RATE,
+                          audioCaps.rate());
+
     this->d->m_convert = AkElement::create("ACapsConvert");
     this->d->m_convert->setProperty("caps", QVariant::fromValue(this->caps()));
 }

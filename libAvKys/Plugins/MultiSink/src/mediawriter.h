@@ -33,6 +33,9 @@ class MediaWriter: public QObject
                WRITE setLocation
                RESET resetLocation
                NOTIFY locationChanged)
+    Q_PROPERTY(QString defaultFormat
+               READ defaultFormat
+               NOTIFY defaultFormatChanged)
     Q_PROPERTY(QString outputFormat
                READ outputFormat
                WRITE setOutputFormat
@@ -62,6 +65,7 @@ class MediaWriter: public QObject
         virtual ~MediaWriter() = default;
 
         Q_INVOKABLE virtual QString location() const;
+        Q_INVOKABLE virtual QString defaultFormat();
         Q_INVOKABLE virtual QString outputFormat() const;
         Q_INVOKABLE virtual QVariantList streams() const;
         Q_INVOKABLE virtual qint64 maxPacketQueueSize() const;
@@ -97,6 +101,7 @@ class MediaWriter: public QObject
 
     signals:
         void locationChanged(const QString &location);
+        void defaultFormatChanged(const QString &defaultFormat);
         void outputFormatChanged(const QString &outputFormat);
         void formatOptionsChanged(const QVariantMap &formatOptions);
         void codecOptionsChanged(const QString &key,
