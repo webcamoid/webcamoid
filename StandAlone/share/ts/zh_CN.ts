@@ -36,7 +36,7 @@
     <message>
         <location filename="../qml/About.qml" line="94"/>
         <source>Website</source>
-        <translation type="unfinished"></translation>
+        <translation>网站</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="103"/>
@@ -396,17 +396,17 @@
     <message>
         <location filename="../qml/PhotoWidget.qml" line="35"/>
         <source>%1 seconds</source>
-        <translation type="unfinished"></translation>
+        <translation>%1秒</translation>
     </message>
     <message>
         <location filename="../qml/PhotoWidget.qml" line="56"/>
         <source>Now</source>
-        <translation type="unfinished"></translation>
+        <translation>现在</translation>
     </message>
     <message>
         <location filename="../qml/PhotoWidget.qml" line="80"/>
         <source>Cancel</source>
-        <translation type="unfinished">取消</translation>
+        <translation>取消</translation>
     </message>
     <message>
         <location filename="../qml/PhotoWidget.qml" line="80"/>
@@ -627,7 +627,7 @@
         <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/StreamOptions.qml" line="105"/>
         <source>GOP</source>
         <translatorcomment>Group of pictures. https://en.wikipedia.org/wiki/Group_of_pictures</translatorcomment>
-        <translation type="unfinished"></translation>
+        <translation>图像群组（Group of pictures，GOP）</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/StreamOptions.qml" line="110"/>
@@ -749,7 +749,7 @@
     <message>
         <location filename="../qml/main.qml" line="72"/>
         <source>Download %1 %2 NOW!</source>
-        <translation type="unfinished"></translation>
+        <translation>现在下载%1 %2吧！</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="107"/>
@@ -864,7 +864,7 @@
         <location filename="../../../libAvKys/Plugins/MatrixTransform/share/qml/main.qml" line="35"/>
         <source>Transform matrix</source>
         <translatorcomment>https://en.wikipedia.org/wiki/Transformation_matrix</translatorcomment>
-        <translation type="unfinished"></translation>
+        <translation>变换矩阵</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="63"/>
@@ -1065,7 +1065,7 @@
         <location filename="../../../libAvKys/Plugins/Life/share/qml/main.qml" line="64"/>
         <location filename="../../../libAvKys/Plugins/Vignette/share/qml/main.qml" line="69"/>
         <source>Color</source>
-        <translation type="unfinished"></translation>
+        <translation>颜色</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Cinema/share/qml/main.qml" line="88"/>
@@ -1092,7 +1092,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/ColorReplace/share/qml/main.qml" line="76"/>
         <source>New color</source>
-        <translation type="unfinished"></translation>
+        <translation>新颜色</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorReplace/share/qml/main.qml" line="64"/>
@@ -1130,12 +1130,12 @@
     <message>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="58"/>
         <source>Old Photo</source>
-        <translation type="unfinished"></translation>
+        <translation>老照片</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="62"/>
         <source>Red &amp; Green</source>
-        <translation type="unfinished"></translation>
+        <translation>红色和绿色</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="66"/>
@@ -1156,7 +1156,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="78"/>
         <source>Yellow &amp; Blue</source>
-        <translation type="unfinished"></translation>
+        <translation>黄色和蓝色</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="82"/>
@@ -1322,7 +1322,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="121"/>
         <source>Eye</source>
-        <translation type="unfinished"></translation>
+        <translation>眼睛</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="125"/>
@@ -1357,7 +1357,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="149"/>
         <source>Left Eye 1</source>
-        <translation type="unfinished"></translation>
+        <translation>左眼睛1</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="153"/>
@@ -1377,12 +1377,12 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="165"/>
         <source>Left ear</source>
-        <translation type="unfinished"></translation>
+        <translation>左耳朵</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="169"/>
         <source>Left eye 2</source>
-        <translation type="unfinished"></translation>
+        <translation>左眼睛2</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="173"/>
@@ -1392,17 +1392,17 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="177"/>
         <source>Nose</source>
-        <translation type="unfinished"></translation>
+        <translation>鼻子</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="181"/>
         <source>Right ear</source>
-        <translation type="unfinished"></translation>
+        <translation>右耳朵</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="185"/>
         <source>Right Eye 1</source>
-        <translation type="unfinished"></translation>
+        <translation>右眼睛1</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="189"/>
@@ -1417,12 +1417,12 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="197"/>
         <source>Right eye 2</source>
-        <translation type="unfinished"></translation>
+        <translation>右眼睛2</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="201"/>
         <source>Smile</source>
-        <translation type="unfinished"></translation>
+        <translation>笑眯眯</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="205"/>
@@ -1514,7 +1514,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="340"/>
         <source>Bear</source>
-        <translation type="unfinished"></translation>
+        <translation>熊</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="344"/>
@@ -1524,17 +1524,17 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="348"/>
         <source>Cat</source>
-        <translation type="unfinished"></translation>
+        <translation>猫</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="352"/>
         <source>Chicken</source>
-        <translation type="unfinished"></translation>
+        <translation>鸡</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="356"/>
         <source>Cow</source>
-        <translation type="unfinished"></translation>
+        <translation>牛</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="360"/>
@@ -1544,7 +1544,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="364"/>
         <source>Dog</source>
-        <translation type="unfinished"></translation>
+        <translation>狗</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="368"/>
@@ -1554,12 +1554,12 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="372"/>
         <source>Happy dog</source>
-        <translation type="unfinished"></translation>
+        <translation>高兴的狗</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="376"/>
         <source>Dragon</source>
-        <translation type="unfinished"></translation>
+        <translation>龙</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="380"/>
@@ -1609,12 +1609,12 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="416"/>
         <source>Horse</source>
-        <translation type="unfinished"></translation>
+        <translation>马</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="420"/>
         <source>Gray horse</source>
-        <translation type="unfinished"></translation>
+        <translation>灰色的马</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="424"/>
@@ -1624,7 +1624,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="428"/>
         <source>Monkey</source>
-        <translation type="unfinished"></translation>
+        <translation>猴</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="432"/>
@@ -1639,7 +1639,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="440"/>
         <source>Panda</source>
-        <translation type="unfinished"></translation>
+        <translation>熊猫</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="444"/>
@@ -1649,12 +1649,12 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="448"/>
         <source>Pumpkin 1</source>
-        <translation type="unfinished"></translation>
+        <translation>南瓜1</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="452"/>
         <source>Pumpkin 2</source>
-        <translation type="unfinished"></translation>
+        <translation>南瓜2</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="456"/>
@@ -1669,7 +1669,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="464"/>
         <source>Sheep</source>
-        <translation type="unfinished"></translation>
+        <translation>羊</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="468"/>
@@ -2027,7 +2027,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="55"/>
         <source>Rain</source>
-        <translation type="unfinished"></translation>
+        <translation>雨</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="77"/>
@@ -2077,7 +2077,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Temperature/share/qml/main.qml" line="38"/>
         <source>Temperature</source>
-        <translation type="unfinished"></translation>
+        <translation>温度</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="215"/>
@@ -2092,7 +2092,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="295"/>
         <source>FPS</source>
-        <translation type="unfinished"></translation>
+        <translation>FPS</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="344"/>
@@ -2167,7 +2167,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="195"/>
         <source>Cancel</source>
-        <translation type="unfinished">取消</translation>
+        <translation>取消</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="249"/>
