@@ -19,6 +19,7 @@
 
 #include <QSharedPointer>
 #include <QMutex>
+#include <QVector>
 #include <QWaitCondition>
 #include <akelement.h>
 #include <akfrac.h>
