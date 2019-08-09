@@ -22,6 +22,8 @@
 
 #include <QObject>
 
+class OutputParamsPrivate;
+
 class OutputParams: public QObject
 {
     Q_OBJECT
@@ -50,12 +52,7 @@ class OutputParams: public QObject
         Q_INVOKABLE qint64 nextPts(qint64 pts, qint64 id);
 
     private:
-        int m_inputIndex;
-        quint64 m_nFrame;
-        qint64 m_id;
-        qint64 m_pts;
-        qint64 m_ptsDiff;
-        qint64 m_ptsDrift;
+        OutputParamsPrivate *d;
 
     signals:
         void inputIndexChanged(int inputIndex);

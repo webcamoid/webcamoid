@@ -146,6 +146,19 @@ inline const ImageFormatToPixelFormatMap &imageFormatToPixelFormat()
     return imgFmtToPixFmt;
 }
 
+const QVector<QSize> &h263SupportedSize()
+{
+    static const QVector<QSize> supportedSize {
+        QSize(1408, 1152),
+        QSize( 704,  576),
+        QSize( 352,  288),
+        QSize( 176,  144),
+        QSize( 128,   96)
+    };
+
+    return supportedSize;
+}
+
 class VideoStreamPrivate
 {
     public:
@@ -153,10 +166,10 @@ class VideoStreamPrivate
         AkVideoPacket m_frame;
         QMutex m_frameMutex;
         QWaitCondition m_frameReady;
+        AkVideoCaps m_caps;
 
         explicit VideoStreamPrivate(VideoStream *self);
-        AkPacket readPacket(size_t bufferIndex,
-                            const AMediaCodecBufferInfo &info);
+        static AkVideoCaps nearestH263Caps(const AkVideoCaps &caps);
 };
 
 VideoStream::VideoStream(AMediaMuxer *mediaMuxerformatContext,
@@ -172,37 +185,40 @@ VideoStream::VideoStream(AMediaMuxer *mediaMuxerformatContext,
                    parent)
 {
     this->d = new VideoStreamPrivate(this);
+    this->d->m_caps = configs["caps"].value<AkCaps>();
     auto codecName = configs["codec"].toString();
     auto defaultCodecParams = mediaWriter->defaultCodecParams(codecName);
-    AkVideoCaps videoCaps(this->caps());
-    auto pixelFormat = AkVideoCaps::pixelFormatToString(videoCaps.format());
+    auto pixelFormat = AkVideoCaps::pixelFormatToString(this->d->m_caps.format());
     auto supportedPixelFormats =
             defaultCodecParams["supportedPixelFormats"].toStringList();
 
     if (!supportedPixelFormats.isEmpty()
         && !supportedPixelFormats.contains(pixelFormat)) {
         auto defaultPixelFormat = defaultCodecParams["defaultPixelFormat"].toString();
-        videoCaps.setFormat(AkVideoCaps::pixelFormatFromString(defaultPixelFormat));
+        this->d->m_caps.setFormat(AkVideoCaps::pixelFormatFromString(defaultPixelFormat));
     }
 
+    if (codecName == "video/3gpp")
+        this->d->m_caps = VideoStreamPrivate::nearestH263Caps(this->d->m_caps);
+
     int32_t interval =
-            qRound(configs["gop"].toInt() / videoCaps.fps().value());
+            qRound(configs["gop"].toInt() / this->d->m_caps.fps().value());
 
     if (interval < 1)
         interval = 1;
 
     AMediaFormat_setInt32(this->mediaFormat(),
                           AMEDIAFORMAT_KEY_COLOR_FORMAT,
-                          VideoStream::colorFormatFromPixelFormat(videoCaps.format()));
+                          VideoStream::colorFormatFromPixelFormat(this->d->m_caps.format()));
     AMediaFormat_setInt32(this->mediaFormat(),
                           AMEDIAFORMAT_KEY_WIDTH,
-                          videoCaps.width());
+                          this->d->m_caps.width());
     AMediaFormat_setInt32(this->mediaFormat(),
                           AMEDIAFORMAT_KEY_HEIGHT,
-                          videoCaps.height());
+                          this->d->m_caps.height());
     AMediaFormat_setInt32(this->mediaFormat(),
                           AMEDIAFORMAT_KEY_FRAME_RATE,
-                          qRound(videoCaps.fps().value()));
+                          qRound(this->d->m_caps.fps().value()));
     AMediaFormat_setInt32(this->mediaFormat(),
                           AMEDIAFORMAT_KEY_I_FRAME_INTERVAL,
                           interval);
@@ -225,80 +241,14 @@ void VideoStream::convertPacket(const AkPacket &packet)
         return;
 
     AkVideoPacket videoPacket(packet);
-    AkVideoCaps caps = this->caps();
-    videoPacket = videoPacket.scaled(caps.width(), caps.height());
-    videoPacket = videoPacket.convert(caps.format());
+    videoPacket = videoPacket.scaled(this->d->m_caps.width(),
+                                     this->d->m_caps.height());
+    videoPacket = videoPacket.convert(this->d->m_caps.format());
 
     this->d->m_frameMutex.lock();
     this->d->m_frame = videoPacket;
     this->d->m_frameReady.wakeAll();
     this->d->m_frameMutex.unlock();
-}
-
-bool VideoStream::encodeData(bool eos)
-{
-    ssize_t timeOut = 5000;
-
-    if (eos)  {
-        auto bufferIndex =
-                AMediaCodec_dequeueInputBuffer(this->codec(), timeOut);
-
-        if (bufferIndex < 0)
-            return false;
-
-        AMediaCodec_queueInputBuffer(this->codec(),
-                                     size_t(bufferIndex),
-                                     0,
-                                     0,
-                                     0,
-                                     AMEDIACODEC_BUFFER_FLAG_END_OF_STREAM);
-    } else {
-        auto packet = this->avPacketDequeue();
-
-        if (!packet)
-            return false;
-
-        auto bufferIndex =
-                AMediaCodec_dequeueInputBuffer(this->codec(), timeOut);
-
-        if (bufferIndex < 0)
-            return false;
-
-        size_t buffersize = 0;
-        auto buffer = AMediaCodec_getInputBuffer(this->codec(),
-                                                 size_t(bufferIndex),
-                                                 &buffersize);
-
-        if (!buffer)
-            return false;
-
-        buffersize = qMin(size_t(packet.buffer().size()), buffersize);
-        memcpy(buffer, packet.buffer().constData(), buffersize);
-        auto presentationTimeUs =
-                qRound(1e6 * packet.pts() * packet.timeBase().value());
-        AMediaCodec_queueInputBuffer(codec(),
-                                     size_t(bufferIndex),
-                                     0,
-                                     buffersize,
-                                     uint64_t(presentationTimeUs),
-                                     0);
-    }
-
-    AMediaCodecBufferInfo info;
-    memset(&info, 0, sizeof(AMediaCodecBufferInfo));
-    auto bufferIndex =
-            AMediaCodec_dequeueOutputBuffer(this->codec(), &info, timeOut);
-
-    if (bufferIndex >= 0) {
-        auto packet = this->d->readPacket(size_t(bufferIndex), info);
-
-        AMediaCodec_releaseOutputBuffer(this->codec(),
-                                        size_t(bufferIndex),
-                                        info.size != 0);
-        emit this->packetReady(packet);
-    }
-
-    return true;
 }
 
 AkPacket VideoStream::avPacketDequeue()
@@ -326,26 +276,30 @@ VideoStreamPrivate::VideoStreamPrivate(VideoStream *self):
 
 }
 
-AkPacket VideoStreamPrivate::readPacket(size_t bufferIndex,
-                                        const AMediaCodecBufferInfo &info)
+AkVideoCaps VideoStreamPrivate::nearestH263Caps(const AkVideoCaps &caps)
 {
-    size_t bufferSize = 0;
-    auto data = AMediaCodec_getOutputBuffer(self->codec(),
-                                            bufferIndex,
-                                            &bufferSize);
-    bufferSize = qMin(bufferSize, size_t(info.size));
-    QByteArray oBuffer(int(bufferSize), Qt::Uninitialized);
-    memcpy(oBuffer.data(), data + info.offset, bufferSize);
+    QSize nearestSize;
+    auto q = std::numeric_limits<qreal>::max();
 
-    AkCaps caps("binary/data");
-    AkPacket packet(caps);
-    packet.setBuffer(oBuffer);
-    packet.setPts(info.presentationTimeUs);
-    packet.setTimeBase({1, qint64(1e6)});
-    packet.setIndex(int(self->index()));
-    packet.setId(0);
+    for (auto &size: h263SupportedSize()) {
+        qreal dw = size.width() - caps.width();
+        qreal dh = size.height() - caps.height();
+        qreal k = dw * dw + dh * dh;
 
-    return packet;
+        if (k < q) {
+            nearestSize = size;
+            q = k;
+
+            if (k == 0.)
+                break;
+        }
+    }
+
+    AkVideoCaps nearestCaps(caps);
+    nearestCaps.setWidth(nearestSize.width());
+    nearestCaps.setHeight(nearestSize.height());
+
+    return nearestCaps;
 }
 
 #include "moc_videostream.cpp"

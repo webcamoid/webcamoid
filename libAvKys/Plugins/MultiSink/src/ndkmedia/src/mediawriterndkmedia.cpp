@@ -82,9 +82,11 @@ class MediaWriterNDKMediaPrivate
         QMutex m_videoMutex;
         QMutex m_subtitleMutex;
         QMutex m_writeMutex;
+        QMutex m_startMuxingMutex;
         QMap<int, AbstractStreamPtr> m_streamsMap;
         SupportedCodecsType m_supportedCodecs;
         bool m_isRecording {false};
+        bool m_muxingStarted {false};
 
         explicit MediaWriterNDKMediaPrivate(MediaWriterNDKMedia *self);
         QString guessFormat();
@@ -608,7 +610,8 @@ bool MediaWriterNDKMedia::init()
 
     this->d->m_outputFile.setFileName(this->m_location);
 
-    if (!this->d->m_outputFile.open(QIODevice::WriteOnly))
+    if (!this->d->m_outputFile.open(QIODevice::ReadWrite
+                                    | QIODevice::Truncate))
         return false;
 
     this->d->m_mediaMuxer =
@@ -651,28 +654,27 @@ bool MediaWriterNDKMedia::init()
             this->d->m_streamsMap[inputId] = mediaStream;
 
             QObject::connect(mediaStream.data(),
-                             SIGNAL(packetReady(const AkPacket &)),
+                             SIGNAL(packetReady(size_t,
+                                                const uint8_t *,
+                                                const AMediaCodecBufferInfo *)),
                              this,
-                             SLOT(writePacket(const AkPacket &)),
+                             SLOT(writePacket(size_t,
+                                              const uint8_t *,
+                                              const AMediaCodecBufferInfo *)),
                              Qt::DirectConnection);
-
-            if (!mediaStream->init()) {
-                AMediaMuxer_delete(this->d->m_mediaMuxer);
-                this->d->m_mediaMuxer = nullptr;
-                this->d->m_outputFile.close();
-
-                return false;
-            }
         }
     }
 
-    if (AMediaMuxer_start(this->d->m_mediaMuxer) != AMEDIA_OK) {
-        AMediaMuxer_delete(this->d->m_mediaMuxer);
-        this->d->m_mediaMuxer = nullptr;
-        this->d->m_outputFile.close();
+    for (auto &mediaStream: this->d->m_streamsMap)
+        if (!mediaStream->init()) {
+            this->d->m_streamsMap.clear();
+            AMediaMuxer_stop(this->d->m_mediaMuxer);
+            AMediaMuxer_delete(this->d->m_mediaMuxer);
+            this->d->m_mediaMuxer = nullptr;
+            this->d->m_outputFile.close();
 
-        return false;
-    }
+            return false;
+        }
 
     this->d->m_isRecording = true;
 
@@ -686,37 +688,53 @@ void MediaWriterNDKMedia::uninit()
 
     this->d->m_isRecording = false;
     this->d->m_streamsMap.clear();
-
     AMediaMuxer_stop(this->d->m_mediaMuxer);
     AMediaMuxer_delete(this->d->m_mediaMuxer);
     this->d->m_mediaMuxer = nullptr;
     this->d->m_outputFile.close();
+    this->d->m_muxingStarted = false;
 }
 
-void MediaWriterNDKMedia::writePacket(const AkPacket &packet)
+bool MediaWriterNDKMedia::startMuxing()
 {
-    AMediaCodecBufferInfo info;
-    memset(&info, 0, sizeof(AMediaCodecBufferInfo));
+    this->d->m_startMuxingMutex.lock();
 
+    if (!this->d->m_muxingStarted) {
+        for (auto &stream: this->d->m_streamsMap)
+            if (!stream->ready()) {
+                this->d->m_startMuxingMutex.unlock();
+
+                return false;
+            }
+
+        for (auto &stream: this->d->m_streamsMap)
+            AMediaMuxer_addTrack(this->d->m_mediaMuxer, stream->mediaFormat());
+
+        if (AMediaMuxer_start(this->d->m_mediaMuxer) != AMEDIA_OK) {
+            this->d->m_startMuxingMutex.unlock();
+
+            return false;
+        }
+
+        this->d->m_muxingStarted = true;
+    }
+
+    this->d->m_startMuxingMutex.unlock();
+
+    return true;
+}
+
+void MediaWriterNDKMedia::writePacket(size_t trackIdx,
+                                      const uint8_t *data,
+                                      const AMediaCodecBufferInfo *info)
+{
     this->d->m_writeMutex.lock();
 
-    if (packet) {
-        info.size = packet.buffer().size();
-        info.presentationTimeUs = qRound(1e6
-                                         * packet.pts()
-                                         * packet.timeBase().value());
-        info.flags = 0;
+    if (this->d->m_muxingStarted)
         AMediaMuxer_writeSampleData(this->d->m_mediaMuxer,
-                                    size_t(packet.index()),
-                                    reinterpret_cast<const uint8_t *>(packet.buffer().constData()),
-                                    &info);
-    } else {
-        info.flags = AMEDIACODEC_BUFFER_FLAG_END_OF_STREAM;
-        AMediaMuxer_writeSampleData(this->d->m_mediaMuxer,
-                                    size_t(packet.index()),
-                                    nullptr,
-                                    &info);
-    }
+                                    trackIdx,
+                                    data,
+                                    info);
 
     this->d->m_writeMutex.unlock();
 }

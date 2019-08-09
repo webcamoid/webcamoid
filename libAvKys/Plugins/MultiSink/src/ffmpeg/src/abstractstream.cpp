@@ -308,7 +308,6 @@ bool AbstractStream::init()
 
 void AbstractStream::uninit()
 {
-
     this->d->m_runConvertLoop = false;
     waitLoop(this->d->m_convertLoopResult);
 

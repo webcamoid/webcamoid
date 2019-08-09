@@ -80,10 +80,9 @@ class AudioStreamPrivate
         QMutex m_frameMutex;
         int64_t m_pts {0};
         QWaitCondition m_frameReady;
+        AkAudioCaps m_caps;
 
         explicit AudioStreamPrivate(AudioStream *self);
-        AkPacket readPacket(size_t bufferIndex,
-                            const AMediaCodecBufferInfo &info);
 };
 
 AudioStream::AudioStream(AMediaMuxer *mediaMuxer,
@@ -99,25 +98,25 @@ AudioStream::AudioStream(AMediaMuxer *mediaMuxer,
                    parent)
 {
     this->d = new AudioStreamPrivate(this);
-    AkAudioCaps audioCaps(this->caps());
+    this->d->m_caps = configs["caps"].value<AkCaps>();
 
 #if __ANDROID_API__ >= 28
     AMediaFormat_setInt32(this->mediaFormat(),
                           AMEDIAFORMAT_KEY_PCM_ENCODING,
-                          AudioStream::encodingFromSampleFormat(audioCaps.format()));
+                          AudioStream::encodingFromSampleFormat(this->d->m_caps.format()));
 #endif
     AMediaFormat_setInt32(this->mediaFormat(),
                           AMEDIAFORMAT_KEY_CHANNEL_MASK,
-                          AudioStream::channelMaskFromLayout(audioCaps.layout()));
+                          AudioStream::channelMaskFromLayout(this->d->m_caps.layout()));
     AMediaFormat_setInt32(this->mediaFormat(),
                           AMEDIAFORMAT_KEY_CHANNEL_COUNT,
-                          audioCaps.channels());
+                          this->d->m_caps.channels());
     AMediaFormat_setInt32(this->mediaFormat(),
                           AMEDIAFORMAT_KEY_SAMPLE_RATE,
-                          audioCaps.rate());
+                          this->d->m_caps.rate());
 
     this->d->m_convert = AkElement::create("ACapsConvert");
-    this->d->m_convert->setProperty("caps", QVariant::fromValue(this->caps()));
+    this->d->m_convert->setProperty("caps", QVariant::fromValue(this->d->m_caps));
 }
 
 AudioStream::~AudioStream()
@@ -163,72 +162,6 @@ void AudioStream::convertPacket(const AkPacket &packet)
     this->d->m_frameMutex.unlock();
 }
 
-bool AudioStream::encodeData(bool eos)
-{
-    ssize_t timeOut = 5000;
-
-    if (eos)  {
-        auto bufferIndex =
-                AMediaCodec_dequeueInputBuffer(this->codec(), timeOut);
-
-        if (bufferIndex < 0)
-            return false;
-
-        AMediaCodec_queueInputBuffer(this->codec(),
-                                     size_t(bufferIndex),
-                                     0,
-                                     0,
-                                     0,
-                                     AMEDIACODEC_BUFFER_FLAG_END_OF_STREAM);
-    } else {
-        auto packet = this->avPacketDequeue();
-
-        if (!packet)
-            return false;
-
-        auto bufferIndex =
-                AMediaCodec_dequeueInputBuffer(this->codec(), timeOut);
-
-        if (bufferIndex < 0)
-            return false;
-
-        size_t buffersize = 0;
-        auto buffer = AMediaCodec_getInputBuffer(this->codec(),
-                                                 size_t(bufferIndex),
-                                                 &buffersize);
-
-        if (!buffer)
-            return false;
-
-        buffersize = qMin(size_t(packet.buffer().size()), buffersize);
-        memcpy(buffer, packet.buffer().constData(), buffersize);
-        auto presentationTimeUs =
-                qRound(1e6 * packet.pts() * packet.timeBase().value());
-        AMediaCodec_queueInputBuffer(codec(),
-                                     size_t(bufferIndex),
-                                     0,
-                                     buffersize,
-                                     uint64_t(presentationTimeUs),
-                                     0);
-    }
-
-    AMediaCodecBufferInfo info;
-    memset(&info, 0, sizeof(AMediaCodecBufferInfo));
-    auto bufferIndex =
-            AMediaCodec_dequeueOutputBuffer(this->codec(), &info, timeOut);
-
-    if (bufferIndex >= 0) {
-        auto packet = this->d->readPacket(size_t(bufferIndex), info);
-
-        AMediaCodec_releaseOutputBuffer(this->codec(),
-                                        size_t(bufferIndex),
-                                        info.size != 0);
-        emit this->packetReady(packet);
-    }
-
-    return true;
-}
-
 AkPacket AudioStream::avPacketDequeue()
 {
     this->d->m_frameMutex.lock();
@@ -269,28 +202,6 @@ AudioStreamPrivate::AudioStreamPrivate(AudioStream *self):
     self(self)
 {
 
-}
-
-AkPacket AudioStreamPrivate::readPacket(size_t bufferIndex,
-                                        const AMediaCodecBufferInfo &info)
-{
-    size_t bufferSize = 0;
-    auto data = AMediaCodec_getOutputBuffer(self->codec(),
-                                            bufferIndex,
-                                            &bufferSize);
-    bufferSize = qMin(bufferSize, size_t(info.size));
-    QByteArray oBuffer(int(bufferSize), Qt::Uninitialized);
-    memcpy(oBuffer.data(), data + info.offset, bufferSize);
-
-    AkCaps caps("binary/data");
-    AkPacket packet(caps);
-    packet.setBuffer(oBuffer);
-    packet.setPts(info.presentationTimeUs);
-    packet.setTimeBase({1, qint64(1e6)});
-    packet.setIndex(int(self->index()));
-    packet.setId(0);
-
-    return packet;
 }
 
 #include "moc_audiostream.cpp"

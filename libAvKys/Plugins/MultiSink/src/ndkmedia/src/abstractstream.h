@@ -32,6 +32,7 @@ class AkPacket;
 struct AMediaMuxer;
 struct AMediaFormat;
 struct AMediaCodec;
+struct AMediaCodecBufferInfo;
 using AbstractStreamPtr = QSharedPointer<AbstractStream>;
 
 class AbstractStream: public QObject
@@ -51,21 +52,22 @@ class AbstractStream: public QObject
         Q_INVOKABLE QString mimeType() const;
         Q_INVOKABLE AMediaCodec *codec() const;
         Q_INVOKABLE AMediaFormat *mediaFormat() const;
-        Q_INVOKABLE AkCaps caps() const;
         Q_INVOKABLE void packetEnqueue(const AkPacket &packet);
+        Q_INVOKABLE bool ready() const;
 
     protected:
         int m_maxPacketQueueSize;
 
         virtual void convertPacket(const AkPacket &packet);
-        virtual bool encodeData(bool eos=false);
         virtual AkPacket avPacketDequeue();
 
     private:
         AbstractStreamPrivate *d;
 
     signals:
-        void packetReady(const AkPacket &packet);
+        void packetReady(size_t trackIdx,
+                         const uint8_t *data,
+                         const AMediaCodecBufferInfo *info);
 
     public slots:
         virtual bool init();

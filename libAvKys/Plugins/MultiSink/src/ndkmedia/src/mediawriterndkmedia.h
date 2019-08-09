@@ -25,6 +25,8 @@
 class MediaWriterNDKMediaPrivate;
 class AkAudioCaps;
 class AkVideoCaps;
+struct AMediaCodecBufferInfo;
+struct AMediaFormat;
 
 class MediaWriterNDKMedia: public MediaWriter
 {
@@ -76,9 +78,12 @@ class MediaWriterNDKMedia: public MediaWriter
         void clearStreams();
         bool init();
         void uninit();
+        bool startMuxing();
 
     private slots:
-        void writePacket(const AkPacket &packet);
+        void writePacket(size_t trackIdx,
+                         const uint8_t *data,
+                         const AMediaCodecBufferInfo *info);
 
     friend class VideoStream;
     friend class AudioStream;

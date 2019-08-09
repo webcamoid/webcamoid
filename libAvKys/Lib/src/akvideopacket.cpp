@@ -201,6 +201,7 @@ class AkVideoPacketPrivate
         static AkVideoPacket rgb24_to_yuyv422(const AkVideoPacket *src, int align);
         static AkVideoPacket rgb24_to_nv12(const AkVideoPacket *src, int align);
         static AkVideoPacket rgb24_to_nv21(const AkVideoPacket *src, int align);
+        static AkVideoPacket rgb24_to_yuv420p(const AkVideoPacket *src, int align);
 
         static AkVideoPacket rgba_to_rgb24(const AkVideoPacket *src, int align);
         static AkVideoPacket rgb0_to_rgb24(const AkVideoPacket *src, int align);
@@ -218,41 +219,42 @@ using VideoConvertFuncs = QVector<VideoConvert>;
 VideoConvertFuncs initVideoConvertFuncs()
 {
     VideoConvertFuncs convert {
-        {AkVideoCaps::Format_bgr24        , AkVideoCaps::Format_0rgb    , AkVideoPacketPrivate::bgr24_to_0rgb       },
-        {AkVideoCaps::Format_bgr24        , AkVideoCaps::Format_rgb24   , AkVideoPacketPrivate::bgr24_to_rgb24      },
-        {AkVideoCaps::Format_bgr24        , AkVideoCaps::Format_rgb565le, AkVideoPacketPrivate::bgr24_to_rgb565le   },
-        {AkVideoCaps::Format_bgr24        , AkVideoCaps::Format_rgb555le, AkVideoPacketPrivate::bgr24_to_rgb555le   },
-        {AkVideoCaps::Format_bgr24        , AkVideoCaps::Format_0bgr    , AkVideoPacketPrivate::bgr24_to_0bgr       },
-        {AkVideoCaps::Format_bgr24        , AkVideoCaps::Format_bgr565le, AkVideoPacketPrivate::bgr24_to_bgr565le   },
-        {AkVideoCaps::Format_bgr24        , AkVideoCaps::Format_bgr555le, AkVideoPacketPrivate::bgr24_to_bgr555le   },
-        {AkVideoCaps::Format_bgr24        , AkVideoCaps::Format_uyvy422 , AkVideoPacketPrivate::bgr24_to_uyvy422    },
-        {AkVideoCaps::Format_bgr24        , AkVideoCaps::Format_yuyv422 , AkVideoPacketPrivate::bgr24_to_yuyv422    },
-        {AkVideoCaps::Format_bgr24        , AkVideoCaps::Format_nv12    , AkVideoPacketPrivate::bgr24_to_nv12       },
-        {AkVideoCaps::Format_bgr24        , AkVideoCaps::Format_nv21    , AkVideoPacketPrivate::bgr24_to_nv21       },
+        {AkVideoCaps::Format_bgr24  , AkVideoCaps::Format_0rgb    , AkVideoPacketPrivate::bgr24_to_0rgb    },
+        {AkVideoCaps::Format_bgr24  , AkVideoCaps::Format_rgb24   , AkVideoPacketPrivate::bgr24_to_rgb24   },
+        {AkVideoCaps::Format_bgr24  , AkVideoCaps::Format_rgb565le, AkVideoPacketPrivate::bgr24_to_rgb565le},
+        {AkVideoCaps::Format_bgr24  , AkVideoCaps::Format_rgb555le, AkVideoPacketPrivate::bgr24_to_rgb555le},
+        {AkVideoCaps::Format_bgr24  , AkVideoCaps::Format_0bgr    , AkVideoPacketPrivate::bgr24_to_0bgr    },
+        {AkVideoCaps::Format_bgr24  , AkVideoCaps::Format_bgr565le, AkVideoPacketPrivate::bgr24_to_bgr565le},
+        {AkVideoCaps::Format_bgr24  , AkVideoCaps::Format_bgr555le, AkVideoPacketPrivate::bgr24_to_bgr555le},
+        {AkVideoCaps::Format_bgr24  , AkVideoCaps::Format_uyvy422 , AkVideoPacketPrivate::bgr24_to_uyvy422 },
+        {AkVideoCaps::Format_bgr24  , AkVideoCaps::Format_yuyv422 , AkVideoPacketPrivate::bgr24_to_yuyv422 },
+        {AkVideoCaps::Format_bgr24  , AkVideoCaps::Format_nv12    , AkVideoPacketPrivate::bgr24_to_nv12    },
+        {AkVideoCaps::Format_bgr24  , AkVideoCaps::Format_nv21    , AkVideoPacketPrivate::bgr24_to_nv21    },
 
-        {AkVideoCaps::Format_rgb24        , AkVideoCaps::Format_0rgb    , AkVideoPacketPrivate::rgb24_to_0rgb       },
-        {AkVideoCaps::Format_rgb24        , AkVideoCaps::Format_rgb565le, AkVideoPacketPrivate::rgb24_to_rgb565le   },
-        {AkVideoCaps::Format_rgb24        , AkVideoCaps::Format_rgb555le, AkVideoPacketPrivate::rgb24_to_rgb555le   },
-        {AkVideoCaps::Format_rgb24        , AkVideoCaps::Format_0bgr    , AkVideoPacketPrivate::rgb24_to_0bgr       },
-        {AkVideoCaps::Format_rgb24        , AkVideoCaps::Format_bgr24   , AkVideoPacketPrivate::rgb24_to_bgr24      },
-        {AkVideoCaps::Format_rgb24        , AkVideoCaps::Format_bgr565le, AkVideoPacketPrivate::rgb24_to_bgr565le   },
-        {AkVideoCaps::Format_rgb24        , AkVideoCaps::Format_bgr555le, AkVideoPacketPrivate::rgb24_to_bgr555le   },
-        {AkVideoCaps::Format_rgb24        , AkVideoCaps::Format_uyvy422 , AkVideoPacketPrivate::rgb24_to_uyvy422    },
-        {AkVideoCaps::Format_rgb24        , AkVideoCaps::Format_yuyv422 , AkVideoPacketPrivate::rgb24_to_yuyv422    },
-        {AkVideoCaps::Format_rgb24        , AkVideoCaps::Format_nv12    , AkVideoPacketPrivate::rgb24_to_nv12       },
-        {AkVideoCaps::Format_rgb24        , AkVideoCaps::Format_nv21    , AkVideoPacketPrivate::rgb24_to_nv21       },
+        {AkVideoCaps::Format_rgb24  , AkVideoCaps::Format_0rgb    , AkVideoPacketPrivate::rgb24_to_0rgb    },
+        {AkVideoCaps::Format_rgb24  , AkVideoCaps::Format_rgb565le, AkVideoPacketPrivate::rgb24_to_rgb565le},
+        {AkVideoCaps::Format_rgb24  , AkVideoCaps::Format_rgb555le, AkVideoPacketPrivate::rgb24_to_rgb555le},
+        {AkVideoCaps::Format_rgb24  , AkVideoCaps::Format_0bgr    , AkVideoPacketPrivate::rgb24_to_0bgr    },
+        {AkVideoCaps::Format_rgb24  , AkVideoCaps::Format_bgr24   , AkVideoPacketPrivate::rgb24_to_bgr24   },
+        {AkVideoCaps::Format_rgb24  , AkVideoCaps::Format_bgr565le, AkVideoPacketPrivate::rgb24_to_bgr565le},
+        {AkVideoCaps::Format_rgb24  , AkVideoCaps::Format_bgr555le, AkVideoPacketPrivate::rgb24_to_bgr555le},
+        {AkVideoCaps::Format_rgb24  , AkVideoCaps::Format_uyvy422 , AkVideoPacketPrivate::rgb24_to_uyvy422 },
+        {AkVideoCaps::Format_rgb24  , AkVideoCaps::Format_yuyv422 , AkVideoPacketPrivate::rgb24_to_yuyv422 },
+        {AkVideoCaps::Format_rgb24  , AkVideoCaps::Format_nv12    , AkVideoPacketPrivate::rgb24_to_nv12    },
+        {AkVideoCaps::Format_rgb24  , AkVideoCaps::Format_nv21    , AkVideoPacketPrivate::rgb24_to_nv21    },
+        {AkVideoCaps::Format_rgb24  , AkVideoCaps::Format_yuv420p , AkVideoPacketPrivate::rgb24_to_yuv420p },
 
-        {AkVideoCaps::Format_rgba         , AkVideoCaps::Format_rgb24   , AkVideoPacketPrivate::rgba_to_rgb24       },
-        {AkVideoCaps::Format_rgb0         , AkVideoCaps::Format_rgb24   , AkVideoPacketPrivate::rgba_to_rgb24       },
-        {AkVideoCaps::Format_yuyv422      , AkVideoCaps::Format_rgb24   , AkVideoPacketPrivate::yuyv422_to_rgb24    },
-        {AkVideoCaps::Format_yuv420p      , AkVideoCaps::Format_rgb24   , AkVideoPacketPrivate::yuv420p_to_rgb24    },
-        {AkVideoCaps::Format_yvu420p      , AkVideoCaps::Format_rgb24   , AkVideoPacketPrivate::yvu420p_to_rgb24    },
-        {AkVideoCaps::Format_yuv422p      , AkVideoCaps::Format_rgb24   , AkVideoPacketPrivate::yuv420p_to_rgb24    },
-        {AkVideoCaps::Format_nv12         , AkVideoCaps::Format_rgb24   , AkVideoPacketPrivate::nv12_to_rgb24       },
-        {AkVideoCaps::Format_nv16         , AkVideoCaps::Format_rgb24   , AkVideoPacketPrivate::nv12_to_rgb24       },
-        {AkVideoCaps::Format_nv21         , AkVideoCaps::Format_rgb24   , AkVideoPacketPrivate::nv21_to_rgb24       },
-        {AkVideoCaps::Format_rgbap        , AkVideoCaps::Format_rgb24   , AkVideoPacketPrivate::rgbap_to_rgb24      },
-        {AkVideoCaps::Format_0bgr         , AkVideoCaps::Format_rgb24   , AkVideoPacketPrivate::_0bgr_to_rgb24      },
+        {AkVideoCaps::Format_rgba   , AkVideoCaps::Format_rgb24   , AkVideoPacketPrivate::rgba_to_rgb24    },
+        {AkVideoCaps::Format_rgb0   , AkVideoCaps::Format_rgb24   , AkVideoPacketPrivate::rgba_to_rgb24    },
+        {AkVideoCaps::Format_yuyv422, AkVideoCaps::Format_rgb24   , AkVideoPacketPrivate::yuyv422_to_rgb24 },
+        {AkVideoCaps::Format_yuv420p, AkVideoCaps::Format_rgb24   , AkVideoPacketPrivate::yuv420p_to_rgb24 },
+        {AkVideoCaps::Format_yvu420p, AkVideoCaps::Format_rgb24   , AkVideoPacketPrivate::yvu420p_to_rgb24 },
+        {AkVideoCaps::Format_yuv422p, AkVideoCaps::Format_rgb24   , AkVideoPacketPrivate::yuv420p_to_rgb24 },
+        {AkVideoCaps::Format_nv12   , AkVideoCaps::Format_rgb24   , AkVideoPacketPrivate::nv12_to_rgb24    },
+        {AkVideoCaps::Format_nv16   , AkVideoCaps::Format_rgb24   , AkVideoPacketPrivate::nv12_to_rgb24    },
+        {AkVideoCaps::Format_nv21   , AkVideoCaps::Format_rgb24   , AkVideoPacketPrivate::nv21_to_rgb24    },
+        {AkVideoCaps::Format_rgbap  , AkVideoCaps::Format_rgb24   , AkVideoPacketPrivate::rgbap_to_rgb24   },
+        {AkVideoCaps::Format_0bgr   , AkVideoCaps::Format_rgb24   , AkVideoPacketPrivate::_0bgr_to_rgb24   },
     };
 
     return convert;
@@ -1336,6 +1338,39 @@ AkVideoPacket AkVideoPacketPrivate::rgb24_to_nv21(const AkVideoPacket *src,
             dst_line_y[y] = rgb_y(r, g, b);
             dst_line_uv[x_yuv].v = rgb_v(r, g, b);
             dst_line_uv[x_yuv].u = rgb_u(r, g, b);
+        }
+    }
+
+    return dst;
+}
+
+AkVideoPacket AkVideoPacketPrivate::rgb24_to_yuv420p(const AkVideoPacket *src,
+                                                     int align)
+{
+    auto caps = src->caps();
+    caps.setFormat(AkVideoCaps::Format_yuv420p);
+    caps.setAlign(align);
+    AkVideoPacket dst(caps);
+    dst.copyMetadata(*src);
+    auto width = src->caps().width();
+    auto height = src->caps().height();
+
+    for (int y = 0; y < height; y++) {
+        auto src_line = reinterpret_cast<const RGB24 *>(src->constLine(0, y));
+        auto dst_line_y = reinterpret_cast<quint8 *>(dst.line(0, y));
+        auto dst_line_v = reinterpret_cast<quint8 *>(dst.line(1, y));
+        auto dst_line_u = reinterpret_cast<quint8 *>(dst.line(2, y));
+
+        for (int x = 0; x < width; x++) {
+            auto x_yuv = x / 2;
+
+            auto r = src_line[x].r;
+            auto g = src_line[x].g;
+            auto b = src_line[x].b;
+
+            dst_line_y[x] = rgb_y(r, g, b);
+            dst_line_u[x_yuv] = rgb_u(r, g, b);
+            dst_line_v[x_yuv] = rgb_v(r, g, b);
         }
     }
 

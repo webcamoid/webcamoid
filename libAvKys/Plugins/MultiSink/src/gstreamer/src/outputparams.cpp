@@ -19,41 +19,50 @@
 
 #include "outputparams.h"
 
-OutputParams::OutputParams(int inputIndex, QObject *parent):
-    QObject(parent),
-    m_inputIndex(inputIndex),
-    m_nFrame(0),
-    m_id(-1),
-    m_pts(0),
-    m_ptsDiff(0),
-    m_ptsDrift(0)
+class OutputParamsPrivate
 {
+    public:
+        int m_inputIndex {-1};
+        quint64 m_nFrame {0};
+        qint64 m_id {-1};
+        qint64 m_pts {0};
+        qint64 m_ptsDiff {0};
+        qint64 m_ptsDrift {0};
+};
+
+OutputParams::OutputParams(int inputIndex, QObject *parent):
+    QObject(parent)
+{
+    this->d = new OutputParamsPrivate;
+    this->d->m_inputIndex = inputIndex;
 }
 
 OutputParams::OutputParams(const OutputParams &other):
-    QObject(other.parent()),
-    m_inputIndex(other.m_inputIndex),
-    m_nFrame(other.m_nFrame),
-    m_id(other.m_id),
-    m_pts(other.m_pts),
-    m_ptsDiff(other.m_ptsDiff),
-    m_ptsDrift(other.m_ptsDrift)
+    QObject(other.parent())
 {
+    this->d = new OutputParamsPrivate;
+    this->d->m_inputIndex = other.d->m_inputIndex;
+    this->d->m_nFrame = other.d->m_nFrame;
+    this->d->m_id = other.d->m_id;
+    this->d->m_pts = other.d->m_pts;
+    this->d->m_ptsDiff = other.d->m_ptsDiff;
+    this->d->m_ptsDrift = other.d->m_ptsDrift;
 }
 
 OutputParams::~OutputParams()
 {
+    delete this->d;
 }
 
 OutputParams &OutputParams::operator =(const OutputParams &other)
 {
     if (this != &other) {
-        this->m_inputIndex = other.m_inputIndex;
-        this->m_nFrame = other.m_nFrame;
-        this->m_id = other.m_id;
-        this->m_pts = other.m_pts;
-        this->m_ptsDiff = other.m_ptsDiff;
-        this->m_ptsDrift = other.m_ptsDrift;
+        this->d->m_inputIndex = other.d->m_inputIndex;
+        this->d->m_nFrame = other.d->m_nFrame;
+        this->d->m_id = other.d->m_id;
+        this->d->m_pts = other.d->m_pts;
+        this->d->m_ptsDiff = other.d->m_ptsDiff;
+        this->d->m_ptsDrift = other.d->m_ptsDrift;
     }
 
     return *this;
@@ -61,63 +70,63 @@ OutputParams &OutputParams::operator =(const OutputParams &other)
 
 int OutputParams::inputIndex() const
 {
-    return this->m_inputIndex;
+    return this->d->m_inputIndex;
 }
 
 int &OutputParams::inputIndex()
 {
-    return this->m_inputIndex;
+    return this->d->m_inputIndex;
 }
 
 quint64 OutputParams::nFrame() const
 {
-    return this->m_nFrame;
+    return this->d->m_nFrame;
 }
 
 quint64 &OutputParams::nFrame()
 {
-    return this->m_nFrame;
+    return this->d->m_nFrame;
 }
 
 qint64 OutputParams::nextPts(qint64 pts, qint64 id)
 {
-    if (this->m_pts < 0 || this->m_id < 0) {
-        this->m_ptsDrift = -pts;
-        this->m_pts = pts;
-        this->m_id = id;
+    if (this->d->m_pts < 0 || this->d->m_id < 0) {
+        this->d->m_ptsDrift = -pts;
+        this->d->m_pts = pts;
+        this->d->m_id = id;
 
         return 0;
     }
 
-    if (pts <= this->m_pts || id != this->m_id) {
-        this->m_ptsDrift += this->m_pts - pts + this->m_ptsDiff;
-        this->m_pts = pts;
-        this->m_id = id;
+    if (pts <= this->d->m_pts || id != this->d->m_id) {
+        this->d->m_ptsDrift += this->d->m_pts - pts + this->d->m_ptsDiff;
+        this->d->m_pts = pts;
+        this->d->m_id = id;
 
-        return pts + this->m_ptsDrift;
+        return pts + this->d->m_ptsDrift;
     }
 
-    this->m_ptsDiff = pts - this->m_pts;
-    this->m_pts = pts;
+    this->d->m_ptsDiff = pts - this->d->m_pts;
+    this->d->m_pts = pts;
 
-    return pts + this->m_ptsDrift;
+    return pts + this->d->m_ptsDrift;
 }
 
 void OutputParams::setInputIndex(int inputIndex)
 {
-    if (this->m_inputIndex == inputIndex)
+    if (this->d->m_inputIndex == inputIndex)
         return;
 
-    this->m_inputIndex = inputIndex;
+    this->d->m_inputIndex = inputIndex;
     emit this->inputIndexChanged(inputIndex);
 }
 
 void OutputParams::setNFrame(quint64 nFrame)
 {
-    if (this->m_nFrame == nFrame)
+    if (this->d->m_nFrame == nFrame)
         return;
 
-    this->m_nFrame = nFrame;
+    this->d->m_nFrame = nFrame;
     emit this->nFrameChanged(nFrame);
 }
 

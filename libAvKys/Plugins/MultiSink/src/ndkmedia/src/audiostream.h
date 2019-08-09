@@ -45,7 +45,6 @@ class AudioStream: public AbstractStream
 
     protected:
         void convertPacket(const AkPacket &packet);
-        bool encodeData(bool eos);
         AkPacket avPacketDequeue();
 
     public slots:
