@@ -175,12 +175,18 @@ QByteArray AudioDevNDKAudio::read()
                       * AAudioStream_getChannelCount(this->d->m_stream)
                       * samples;
     QByteArray buffer(bufferSize, Qt::Uninitialized);
+    samples = AAudioStream_read(this->d->m_stream,
+                                buffer.data(),
+                                samples,
+                                500e6);
 
-    if (AAudioStream_read(this->d->m_stream,
-                          buffer.data(),
-                          samples,
-                          500e6) != AAUDIO_OK)
+    if (samples < 1)
         return {};
+
+    bufferSize = int(fmtToSampleSize.value(format))
+                 * AAudioStream_getChannelCount(this->d->m_stream)
+                 * samples;
+    buffer.resize(bufferSize);
 
     return buffer;
 }
@@ -322,9 +328,9 @@ void AudioDevNDKAudioPrivate::updateDevices()
         this->m_sources = QStringList {":aaudioinput:"};
         this->m_pinDescriptionMap[":aaudioinput:"] = "Android Audio Input";
         this->m_preferredCaps[":aaudioinput:"] = {
-            AkAudioCaps::SampleFormat_s32,
+            AkAudioCaps::SampleFormat_s16,
             AkAudioCaps::Layout_mono,
-            48000,
+            44100,
         };
     }
 
@@ -356,10 +362,10 @@ void AudioDevNDKAudioPrivate::updateDevices()
         && this->m_supportedSampleRates.contains(":aaudiooutput:")) {
         this->m_sinks = QStringList {":aaudiooutput:"};
         this->m_pinDescriptionMap[":aaudiooutput:"] = "Android Audio Output";
-        this->m_preferredCaps[":aaudioinput:"] = {
-            AkAudioCaps::SampleFormat_s32,
+        this->m_preferredCaps[":aaudiooutput:"] = {
+            AkAudioCaps::SampleFormat_s16,
             AkAudioCaps::Layout_stereo,
-            48000,
+            44100,
         };
     }
 

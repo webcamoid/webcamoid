@@ -192,8 +192,10 @@ void AbstractStream::convertPacket(const AkPacket &packet)
     Q_UNUSED(packet)
 }
 
-AkPacket AbstractStream::avPacketDequeue()
+AkPacket AbstractStream::avPacketDequeue(size_t bufferSize)
 {
+    Q_UNUSED(bufferSize)
+
     return {};
 }
 
@@ -245,7 +247,7 @@ void AbstractStreamPrivate::equeueLoop()
         AkPacket packet;
 
         do {
-            packet = self->avPacketDequeue();
+            packet = self->avPacketDequeue(bufferSize);
         } while (!packet && this->m_runEqueueLoop);
 
         if (this->m_runEqueueLoop) {

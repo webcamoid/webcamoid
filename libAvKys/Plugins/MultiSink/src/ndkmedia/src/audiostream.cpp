@@ -157,25 +157,40 @@ void AudioStream::convertPacket(const AkPacket &packet)
         return;
 
     this->d->m_frameMutex.lock();
-    this->d->m_frame += iPacket;
+
+    if (this->d->m_frame)
+        this->d->m_frame += iPacket;
+    else
+        this->d->m_frame = iPacket;
+
     this->d->m_frameReady.wakeAll();
     this->d->m_frameMutex.unlock();
 }
 
-AkPacket AudioStream::avPacketDequeue()
+AkPacket AudioStream::avPacketDequeue(size_t bufferSize)
 {
-    this->d->m_frameMutex.lock();
+    if (bufferSize < 1)
+        return {};
 
-    if (!this->d->m_frame)
+    this->d->m_frameMutex.lock();
+    int samples = 8 * int(bufferSize)
+                  / (this->d->m_caps.bps()
+                     * this->d->m_caps.channels());
+
+    if (this->d->m_frame.caps().samples() < samples) {
         if (!this->d->m_frameReady.wait(&this->d->m_frameMutex,
                                         THREAD_WAIT_LIMIT)) {
             this->d->m_frameMutex.unlock();
 
-            return nullptr;
-        }
+            return {};
+        } else if (this->d->m_frame.caps().samples() < samples) {
+            this->d->m_frameMutex.unlock();
 
-    auto frame = this->d->m_frame;
-    this->d->m_frame = AkAudioPacket();
+            return {};
+        }
+    }
+
+    auto frame = this->d->m_frame.pop(samples);
     this->d->m_frameMutex.unlock();
 
     return frame;

@@ -143,7 +143,7 @@ ColumnLayout {
     Connections {
         target: MultiSink
 
-        onSupportedFormatsChanged : updateSupportedFormats(supportedFormats)
+        onSupportedFormatsChanged: updateSupportedFormats(supportedFormats)
         onOutputFormatChanged: {
             btnFormatOptions.enabled = MultiSink.formatOptions().length > 0;
 

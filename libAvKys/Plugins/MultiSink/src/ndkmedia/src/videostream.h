@@ -45,7 +45,7 @@ class VideoStream: public AbstractStream
 
     protected:
         void convertPacket(const AkPacket &packet);
-        AkPacket avPacketDequeue();
+        AkPacket avPacketDequeue(size_t bufferSize);
 };
 
 #endif // VIDEOSTREAM_H

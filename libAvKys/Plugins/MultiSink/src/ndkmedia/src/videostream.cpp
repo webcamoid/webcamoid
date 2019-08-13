@@ -251,8 +251,10 @@ void VideoStream::convertPacket(const AkPacket &packet)
     this->d->m_frameMutex.unlock();
 }
 
-AkPacket VideoStream::avPacketDequeue()
+AkPacket VideoStream::avPacketDequeue(size_t bufferSize)
 {
+    Q_UNUSED(bufferSize)
+
     this->d->m_frameMutex.lock();
 
     if (!this->d->m_frame)

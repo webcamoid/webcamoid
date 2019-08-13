@@ -45,7 +45,7 @@ class AudioStream: public AbstractStream
 
     protected:
         void convertPacket(const AkPacket &packet);
-        AkPacket avPacketDequeue();
+        AkPacket avPacketDequeue(size_t bufferSize);
 
     public slots:
         bool init();

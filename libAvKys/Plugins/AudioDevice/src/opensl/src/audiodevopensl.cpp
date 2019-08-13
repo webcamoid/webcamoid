@@ -681,9 +681,9 @@ void AudioDevOpenSLPrivate::updateDevices()
         this->m_sources = QStringList {":openslinput:"};
         this->m_pinDescriptionMap[":openslinput:"] = "OpenSL ES Input";
         this->m_preferredCaps[":openslinput:"] = {
-            AkAudioCaps::SampleFormat_s32,
+            AkAudioCaps::SampleFormat_s16,
             AkAudioCaps::Layout_mono,
-            48000,
+            44100,
         };
     }
 
@@ -719,10 +719,10 @@ void AudioDevOpenSLPrivate::updateDevices()
             && this->m_supportedSampleRates.contains(":opensloutput:")) {
             this->m_sinks = QStringList {":opensloutput:"};
             this->m_pinDescriptionMap[":opensloutput:"] = "OpenSL ES Output";
-            this->m_preferredCaps[":openslinput:"] = {
-                AkAudioCaps::SampleFormat_s32,
+            this->m_preferredCaps[":opensloutput:"] = {
+                AkAudioCaps::SampleFormat_s16,
                 AkAudioCaps::Layout_stereo,
-                48000,
+                44100,
             };
         }
 
