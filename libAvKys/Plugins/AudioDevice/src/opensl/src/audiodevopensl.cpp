@@ -579,8 +579,8 @@ void AudioDevOpenSLPrivate::sampleProcess(SLAndroidSimpleBufferQueueItf bufferQu
     QByteArray buffer;
 
     if (self->m_audioPlayer) {
-
         self->m_mutex.lock();
+
         if (self->m_audioBuffers.isEmpty()) {
             auto bufferSize = self->self->latency()
                               * self->m_curCaps.bps()

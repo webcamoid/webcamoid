@@ -232,6 +232,8 @@ void AbstractStreamPrivate::equeueLoop()
 {
     const ssize_t timeOut = 5000;
     bool eosSent = false;
+    qint64 pts = 0;
+    qint64 ptsDiff = 0;
 
     while (this->m_runEqueueLoop) {
         auto bufferIndex =
@@ -262,12 +264,15 @@ void AbstractStreamPrivate::equeueLoop()
                                          bufferSize,
                                          size_t(presentationTimeUs),
                                          0);
+            ptsDiff = presentationTimeUs - pts;
+            pts = presentationTimeUs;
         } else {
+            auto presentationTimeUs = pts + ptsDiff;
             AMediaCodec_queueInputBuffer(this->m_codec,
                                          size_t(bufferIndex),
                                          0,
                                          0,
-                                         0,
+                                         size_t(presentationTimeUs),
                                          AMEDIACODEC_BUFFER_FLAG_END_OF_STREAM);
             eosSent = true;
         }
@@ -302,6 +307,9 @@ void AbstractStreamPrivate::dequeueLoop()
                                                            timeOut);
 
         if (bufferIndex < 0)
+            continue;
+
+        if (info.flags & AMEDIACODEC_BUFFER_FLAG_CODEC_CONFIG)
             continue;
 
         if (info.flags & AMEDIACODEC_BUFFER_FLAG_END_OF_STREAM)
