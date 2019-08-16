@@ -1323,7 +1323,7 @@ void MediaWriterGStreamer::setCodecOptions(int index,
         }
 
     if (modified)
-        emit this->codecOptionsChanged(optKey, this->d->m_formatOptions.value(optKey));
+        emit this->codecOptionsChanged(optKey, this->d->m_codecOptions.value(optKey));
 }
 
 void MediaWriterGStreamer::resetOutputFormat()

@@ -89,11 +89,13 @@ AudioStream::AudioStream(AMediaMuxer *mediaMuxer,
                          uint index,
                          int streamIndex,
                          const QVariantMap &configs,
+                         const QMap<QString, QVariantMap> &codecOptions,
                          MediaWriterNDKMedia *mediaWriter,
                          QObject *parent):
     AbstractStream(mediaMuxer,
                    index, streamIndex,
                    configs,
+                   codecOptions,
                    mediaWriter,
                    parent)
 {

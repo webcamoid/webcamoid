@@ -86,6 +86,7 @@ class AbstractStreamPrivate
 AbstractStream::AbstractStream(AMediaMuxer *mediaMuxer,
                                uint index, int streamIndex,
                                const QVariantMap &configs,
+                               const QMap<QString, QVariantMap> &codecOptions,
                                MediaWriterNDKMedia *mediaWriter,
                                QObject *parent):
     QObject(parent)
@@ -119,6 +120,18 @@ AbstractStream::AbstractStream(AMediaMuxer *mediaMuxer,
     AMediaFormat_setString(this->d->m_mediaFormat,
                            AMEDIAFORMAT_KEY_LANGUAGE,
                            "und");
+
+    // Set codec options.
+    auto optKey =
+            QString("%1/%2/%3").arg(this->d->m_mediaWriter->outputFormat())
+                               .arg(streamIndex)
+                               .arg(codecName);
+    auto options = codecOptions.value(optKey);
+
+    for (auto it = options.begin(); it != options.end(); it++)
+        AMediaFormat_setInt32(this->d->m_mediaFormat,
+                              it.key().toStdString().c_str(),
+                              it.value().toInt());
 
     if (this->d->m_threadPool.maxThreadCount() < 4)
         this->d->m_threadPool.setMaxThreadCount(4);

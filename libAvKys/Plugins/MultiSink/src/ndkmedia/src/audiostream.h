@@ -34,6 +34,7 @@ class AudioStream: public AbstractStream
         AudioStream(AMediaMuxer *mediaMuxer=nullptr,
                     uint index=0, int streamIndex=-1,
                     const QVariantMap &configs={},
+                    const QMap<QString, QVariantMap> &codecOptions={},
                     MediaWriterNDKMedia *mediaWriter=nullptr,
                     QObject *parent=nullptr);
         ~AudioStream();

@@ -43,6 +43,7 @@ class AbstractStream: public QObject
         AbstractStream(AMediaMuxer *mediaMuxer=nullptr,
                        uint index=0, int streamIndex=-1,
                        const QVariantMap &configs={},
+                       const QMap<QString, QVariantMap> &codecOptions={},
                        MediaWriterNDKMedia *mediaWriter=nullptr,
                        QObject *parent=nullptr);
         virtual ~AbstractStream();

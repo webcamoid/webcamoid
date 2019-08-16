@@ -114,7 +114,7 @@ AbstractStream::AbstractStream(const AVFormatContext *formatContext,
     auto optKey = QString("%1/%2/%3").arg(formatContext->oformat->name)
                                      .arg(streamIndex)
                                      .arg(codecName);
-    QVariantMap options = codecOptions.value(optKey);
+    auto options = codecOptions.value(optKey);
 
     if (codecName == "libvpx") {
         if (!options.contains("deadline"))
@@ -127,9 +127,7 @@ AbstractStream::AbstractStream(const AVFormatContext *formatContext,
             options["preset"] = "ultrafast";
     }
 
-    for (auto it = options.begin();
-         it != options.end();
-         it++) {
+    for (auto it = options.begin(); it != options.end(); it++) {
         QString value = it.value().toString();
 
         av_dict_set(&this->d->m_codecOptions,
