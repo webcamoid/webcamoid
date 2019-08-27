@@ -58,6 +58,11 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
         self.programName = os.path.splitext(os.path.basename(self.mainBinary))[0]
         self.programVersion = self.detectVersion(os.path.join(self.rootDir, 'commons.pri'))
         self.detectMake()
+        xspec = self.qmakeQuery(var='QMAKE_XSPEC')
+
+        if 'android' in xspec:
+            self.targetSystem = 'android'
+
         self.binarySolver = tools.binary_pecoff.DeployToolsBinary()
         self.binarySolver.readExcludeList(os.path.join(self.rootDir, 'ports/deploy/exclude.{}.{}.txt'.format(os.name, sys.platform)))
         self.packageConfig = os.path.join(self.rootDir, 'ports/deploy/package_info.conf')
@@ -136,9 +141,11 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
             dep = dep.replace('\\', '/')
             depPath = os.path.join(self.binaryInstallDir, os.path.basename(dep))
             depPath = depPath.replace('\\', '/')
-            print('    {} -> {}'.format(dep, depPath))
-            self.copy(dep, depPath)
-            self.dependencies.append(dep)
+
+            if dep != depPath:
+                print('    {} -> {}'.format(dep, depPath))
+                self.copy(dep, depPath)
+                self.dependencies.append(dep)
 
     def removeDebugs(self):
         dbgFiles = set()

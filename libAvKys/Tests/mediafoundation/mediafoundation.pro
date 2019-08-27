@@ -16,7 +16,7 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-CONFIG += console c++11
+include(../tests.pri)
 
 LIBS += \
     -lmf \
@@ -29,4 +29,5 @@ LIBS += \
 SOURCES = \
     test.cpp
 
+DESTDIR = $${OUT_PWD}/$${BIN_DIR}
 TARGET = test_auto

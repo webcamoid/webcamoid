@@ -16,6 +16,8 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
+include(../tests.pri)
+
 macx | android: QT_CONFIG -= no-pkg-config
 
 SOURCES = \
@@ -24,4 +26,5 @@ SOURCES = \
 CONFIG += link_pkgconfig
 PKGCONFIG += libpulse-simple
 
+DESTDIR = $${OUT_PWD}/$${BIN_DIR}
 TARGET = test_auto

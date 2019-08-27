@@ -19,6 +19,7 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
+import fnmatch
 import hashlib
 import multiprocessing
 import os
@@ -70,7 +71,7 @@ class DeployToolsUtils:
 
         return ''
 
-    def copy(self, src, dst='.', copyReals=False):
+    def copy(self, src, dst='.', copyReals=False, overwrite=True):
         if not os.path.exists(src):
             return False
 
@@ -84,7 +85,74 @@ class DeployToolsUtils:
                     toF = os.path.relpath(fromF, src)
                     toF = os.path.join(dst, toF)
                     toF = os.path.normpath(toF)
-                    self.copy(fromF, toF)
+                    self.copy(fromF, toF, copyReals, overwrite)
+
+                for d in dirs:
+                    fromD = os.path.join(root, d)
+                    toD = os.path.relpath(fromD, src)
+                    toD = os.path.join(dst, toD)
+
+                    try:
+                        os.makedirs(os.path.normpath(toD))
+                    except:
+                        pass
+        elif os.path.isfile(src):
+            if os.path.isdir(dst):
+                dst = os.path.realpath(dst)
+                dst = os.path.join(dst, os.path.basename(src))
+
+            dirname = os.path.dirname(dst)
+
+            if not os.path.exists(dirname):
+                try:
+                    os.makedirs(dirname)
+                except:
+                    return False
+
+            if os.path.exists(dst):
+                if not overwrite:
+                    return True
+
+                try:
+                    os.remove(dst)
+                except:
+                    return False
+
+            if copyReals and os.path.islink(src):
+                realpath = os.path.realpath(src)
+                basename = os.path.basename(realpath)
+                os.symlink(os.path.join('.', basename), dst)
+                self.copy(realpath,
+                          os.path.join(dirname, basename),
+                          copyReals,
+                          overwrite)
+            else:
+                try:
+                    if self.system == 'windows':
+                        shutil.copy(src, dst)
+                    else:
+                        shutil.copy(src, dst, follow_symlinks=False)
+                except:
+                    return False
+
+        return True
+
+
+    def move(self, src, dst='.', moveReals=False):
+        if not os.path.exists(src):
+            return False
+
+        if os.path.isdir(src):
+            if os.path.isfile(dst):
+                return False
+
+            for root, dirs, files in os.walk(src):
+                for f in files:
+                    fromF = os.path.join(root, f)
+                    toF = os.path.relpath(fromF, src)
+                    toF = os.path.join(dst, toF)
+                    toF = os.path.normpath(toF)
+                    self.move(fromF, toF, moveReals)
 
                 for d in dirs:
                     fromD = os.path.join(root, d)
@@ -114,17 +182,14 @@ class DeployToolsUtils:
                 except:
                     return False
 
-            if copyReals and os.path.islink(src):
+            if moveReals and os.path.islink(src):
                 realpath = os.path.realpath(src)
                 basename = os.path.basename(realpath)
                 os.symlink(os.path.join('.', basename), dst)
-                self.copy(realpath, os.path.join(dirname, basename))
+                self.move(realpath, os.path.join(dirname, basename), moveReals)
             else:
                 try:
-                    if self.system == 'windows':
-                        shutil.copy(src, dst)
-                    else:
-                        shutil.copy(src, dst, follow_symlinks=False)
+                    shutil.move(src, dst)
                 except:
                     return False
 
@@ -177,3 +242,18 @@ class DeployToolsUtils:
                 sha.update(data)
 
         return sha.hexdigest()
+
+    @staticmethod
+    def detectMakeFiles(makePath):
+        makeFiles = []
+
+        try:
+            for f in os.listdir(makePath):
+                path = os.path.join(makePath, f)
+
+                if os.path.isfile(path) and fnmatch.fnmatch(f.lower(), 'makefile*'):
+                    makeFiles += [path]
+        except:
+            pass
+
+        return makeFiles

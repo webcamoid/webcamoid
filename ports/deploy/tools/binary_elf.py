@@ -21,6 +21,7 @@
 
 import fnmatch
 import os
+import re
 import struct
 import sys
 
@@ -38,6 +39,10 @@ class DeployToolsBinary(tools.binary.DeployToolsBinary):
                                '/lib64',
                                '/usr/local/lib',
                                '/usr/local/lib64']
+        self.emCodes = {3  : '386',
+                        40 : 'ARM',
+                        62 : 'X86_64',
+                        183: 'AARCH64'}
 
     def readLdconf(self, ldconf='/etc/ld.so.conf'):
         if not os.path.exists(ldconf):
@@ -289,8 +294,11 @@ class DeployToolsBinary(tools.binary.DeployToolsBinary):
             if os.path.exists(path):
                 depElfInfo = self.dump(path)
 
-                if depElfInfo and depElfInfo['machine'] == machine:
-                    return path
+                if depElfInfo:
+                    if 'machine' in depElfInfo and (machine == 0 or depElfInfo['machine'] == machine):
+                        return path
+                    elif 'links' in depElfInfo and len(depElfInfo['links']) > 0:
+                        return path
 
         return ''
 
@@ -302,9 +310,20 @@ class DeployToolsBinary(tools.binary.DeployToolsBinary):
 
         rpaths, runpaths = self.readRpaths(elfInfo, os.path.dirname(binary))
         libs = []
+        deps = []
 
-        for lib in elfInfo['imports']:
-            libpath = self.libPath(lib, elfInfo['machine'], rpaths, runpaths)
+        if 'imports' in elfInfo:
+            deps = elfInfo['imports']
+        elif 'links' in elfInfo:
+            deps = elfInfo['links']
+
+        machine = 0
+
+        if 'machine' in elfInfo:
+            machine = elfInfo['machine']
+
+        for lib in deps:
+            libpath = self.libPath(lib, machine, rpaths, runpaths)
 
             if len(libpath) > 0 and not self.isExcluded(libpath):
                 libs.append(libpath)
@@ -315,3 +334,12 @@ class DeployToolsBinary(tools.binary.DeployToolsBinary):
         dep = os.path.basename(binary)[3:]
 
         return dep[: dep.find('.')]
+
+    def machineEMCode(self, binary):
+        info = self.dump(binary)
+
+        if 'machine' in info:
+            if info['machine'] in self.emCodes:
+                return self.emCodes[info['machine']]
+
+        return 'UNKNOWN'

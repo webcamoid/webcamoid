@@ -20,14 +20,18 @@
 # Web-Site: http://webcamoid.github.io/
 
 import configparser
-import fnmatch
+import json
 import os
+import platform
 import re
+import shutil
 import subprocess # nosec
 import sys
 import time
+import xml.etree.ElementTree as ET
 
 import tools.utils
+
 
 class DeployToolsQt(tools.utils.DeployToolsUtils):
     def __init__(self):
@@ -43,21 +47,6 @@ class DeployToolsQt(tools.utils.DeployToolsUtils):
         self.dependencies = []
         self.binarySolver = None
         self.installerConfig = ''
-
-    @staticmethod
-    def detectMakeFiles(makePath):
-        makeFiles = []
-
-        try:
-            for f in os.listdir(makePath):
-                path = os.path.join(makePath, f)
-
-                if os.path.isfile(path) and fnmatch.fnmatch(f.lower(), 'makefile*'):
-                    makeFiles += [path]
-        except:
-            pass
-
-        return makeFiles
 
     def detectQt(self, path=''):
         self.detectQmake(path)
@@ -78,6 +67,15 @@ class DeployToolsQt(tools.utils.DeployToolsUtils):
 
         if 'QMAKE_PATH' in os.environ:
             self.qmake = os.environ['QMAKE_PATH']
+
+    def detectTargetBinaryFromQt5Make(self, path=''):
+        for makeFile in self.detectMakeFiles(path):
+            with open(makeFile) as f:
+                for line in f:
+                    if line.startswith('TARGET') and '=' in line:
+                        return os.path.join(path, line.split('=')[1].strip())
+
+        return ''
 
     def qmakeQuery(self, qmake='', var=''):
         if qmake == '':
@@ -336,6 +334,110 @@ class DeployToolsQt(tools.utils.DeployToolsUtils):
                     plugins.append(plugin)
                     self.dependencies.append(sysPluginPath)
 
+    def solvedepsAndroid(self):
+        installPrefix = self.qmakeQuery(var='QT_INSTALL_PREFIX')
+        qtLibsPath = self.qmakeQuery(var='QT_INSTALL_LIBS')
+        jars = []
+        permissions = set()
+        features = set()
+        initClasses = set()
+        libs = set()
+
+        for f in os.listdir(self.libInstallDir):
+            basename = os.path.basename(f)[3:]
+            basename = os.path.splitext(basename)[0]
+            depFile = os.path.join(qtLibsPath,
+                                   basename + '-android-dependencies.xml')
+
+            if os.path.exists(depFile):
+                tree = ET.parse(depFile)
+                root = tree.getroot()
+
+                for jar in root.iter('jar'):
+                    jars.append(jar.attrib['file'])
+
+                    if 'initClass' in jar.attrib:
+                        initClasses.append(jar.attrib['initClass'])
+
+                for permission in root.iter('permission'):
+                    permissions.add(permission.attrib['name'])
+
+                for feature in root.iter('feature'):
+                    features.add(feature.attrib['name'])
+
+                for lib in root.iter('lib'):
+                    if 'file' in lib.attrib:
+                        libs.add(lib.attrib['file'])
+
+        print('Copying jar files\n')
+
+        for jar in sorted(jars):
+            srcPath = os.path.join(installPrefix, jar)
+            dstPath = os.path.join(self.rootInstallDir,
+                                   'libs',
+                                   os.path.basename(jar))
+            print('    {} -> {}'.format(srcPath, dstPath))
+            self.copy(srcPath, dstPath)
+
+        manifest = os.path.join(self.rootInstallDir, 'AndroidManifest.xml')
+        manifestTemp = os.path.join(self.rootInstallDir, 'AndroidManifestTemp.xml')
+        tree = ET.parse(manifest)
+        root = tree.getroot()
+        oldFeatures = set()
+        oldPermissions = set()
+
+        for element in root:
+            if element.tag == 'uses-feature':
+                for key in element.attrib:
+                    if key.endswith('name'):
+                        oldFeatures.add(element.attrib[key])
+            elif element.tag == 'uses-permission':
+                for key in element.attrib:
+                    if key.endswith('name'):
+                        oldPermissions.add(element.attrib[key])
+
+        features -= oldFeatures
+        permissions -= oldPermissions
+        featuresWritten = len(features) < 1
+        permissionsWritten = len(permissions) < 1
+        replace = {'-- %%INSERT_INIT_CLASSES%% --' : ':'.join(sorted(initClasses)),
+                   '-- %%BUNDLE_LOCAL_QT_LIBS%% --': '1',
+                   '-- %%USE_LOCAL_QT_LIBS%% --'   : '1',
+                   '-- %%INSERT_LOCAL_LIBS%% --'   : ':'.join(sorted(libs)),
+                   '-- %%INSERT_LOCAL_JARS%% --'   : ':'.join(sorted(jars))}
+
+        with open(manifest) as inFile:
+            with open(manifestTemp, 'w') as outFile:
+                for line in inFile:
+                    for key in replace:
+                        line = line.replace(key, replace[key])
+
+                    outFile.write(line)
+                    spaces = len(line)
+                    line = line.lstrip()
+                    spaces -= len(line)
+
+                    if line.startswith('<uses-feature') and not featuresWritten:
+                        print('\nUpdating features\n')
+
+                        for feature in features:
+                            print('    ' + feature)
+                            outFile.write(spaces * ' ' + '<uses-feature android:name="{}"/>\n'.format(feature))
+
+                        featuresWritten = True
+
+                    if line.startswith('<uses-permission') and not permissionsWritten:
+                        print('\nUpdating permissions\n')
+
+                        for permission in permissions:
+                            print('    ' + permission)
+                            outFile.write(spaces * ' ' + '<uses-permission android:name="{}"/>\n'.format(permission))
+
+                        permissionsWritten = True
+
+        os.remove(manifest)
+        shutil.move(manifestTemp, manifest)
+
     def writeQtConf(self):
         paths = {'Plugins': os.path.relpath(self.pluginsInstallDir, self.binaryInstallDir),
                  'Imports': os.path.relpath(self.qmlInstallDir, self.binaryInstallDir),
@@ -498,3 +600,30 @@ class DeployToolsQt(tools.utils.DeployToolsUtils):
         process.communicate()
 
         return True
+
+    def copyAndroidTemplates(self):
+        installPrefix = self.qmakeQuery(var='QT_INSTALL_PREFIX')
+        sourcesPath = os.path.join(installPrefix, 'src')
+        templates = [os.path.join(sourcesPath, '3rdparty/gradle'),
+                     os.path.join(sourcesPath, 'android/templates')]
+
+        for template in templates:
+            self.copy(template, self.rootInstallDir, overwrite=False)
+
+        deploymentSettingsPath = os.path.join(self.standAloneDir,
+                                              'android-libwebcamoid.so-deployment-settings.json')
+
+        with open(deploymentSettingsPath) as f:
+            deploymentSettings = json.load(f)
+
+        properties = os.path.join(self.rootInstallDir, 'gradle.properties')
+        platform = self.androidPlatform.replace('android-', '')
+        javaDir = os.path.join(sourcesPath, 'android','java')
+
+        with open(properties, 'w') as f:
+            if 'sdkBuildToolsRevision' in deploymentSettings:
+                f.write('androidBuildToolsVersion={}\n'.format(deploymentSettings['sdkBuildToolsRevision']))
+
+            f.write('androidCompileSdkVersion={}\n'.format(platform))
+            f.write('buildDir=build\n')
+            f.write('qt5AndroidDir={}\n'.format(javaDir))

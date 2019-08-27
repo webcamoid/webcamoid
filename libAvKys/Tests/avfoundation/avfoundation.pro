@@ -16,6 +16,8 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
+include(../tests.pri)
+
 OBJECTIVE_SOURCES = \
     test.mm
 
@@ -25,4 +27,5 @@ LIBS += \
     -framework Foundation \
     -framework AVFoundation
 
+DESTDIR = $${OUT_PWD}/$${BIN_DIR}
 TARGET = test_auto

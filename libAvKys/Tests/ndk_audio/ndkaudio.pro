@@ -16,10 +16,13 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
+include(../tests.pri)
+
 SOURCES = \
     test.cpp
 
 LIBS += \
     -laaudio
 
+DESTDIR = $${OUT_PWD}/$${BIN_DIR}
 TARGET = test_auto

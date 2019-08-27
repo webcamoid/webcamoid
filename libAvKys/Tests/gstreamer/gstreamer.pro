@@ -16,7 +16,7 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-CONFIG += console c++11
+include(../tests.pri)
 
 macx | android: QT_CONFIG -= no-pkg-config
 
@@ -37,4 +37,5 @@ isEmpty(GSTREAMERLIBS) {
 SOURCES = \
     test.cpp
 
+DESTDIR = $${OUT_PWD}/$${BIN_DIR}
 TARGET = test_auto

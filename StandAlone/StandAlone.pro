@@ -192,12 +192,10 @@ win32 {
     docs.CONFIG += no_check_exist
 }
 
-!android {
-    !macx | !isEmpty(NOAPPBUNDLE) {
-        INSTALLS += license
-        license.files = ../COPYING
-        license.path = $${LICENSEDIR}
-    }
+!macx | !isEmpty(NOAPPBUNDLE) {
+    INSTALLS += license
+    license.files = ../COPYING
+    license.path = $${LICENSEDIR}
 }
 
 unix: !android: !macx {
@@ -226,4 +224,10 @@ android {
         share/android/res/values/libs.xml
 
     ANDROID_PACKAGE_SOURCE_DIR = $$PWD/share/android
+
+    INSTALLS += \
+        androidFiles
+
+    androidFiles.files = share/android/*
+    androidFiles.path = $${EXECPREFIX}
 }

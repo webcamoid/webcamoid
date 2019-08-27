@@ -59,7 +59,13 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
         self.programName = os.path.basename(self.mainBinary)
         self.programVersion = self.detectVersion(os.path.join(self.rootDir, 'commons.pri'))
         self.detectMake()
-        self.targetSystem = 'posix_windows' if 'win32' in self.qmakeQuery(var='QMAKE_XSPEC') else 'posix'
+        xspec = self.qmakeQuery(var='QMAKE_XSPEC')
+
+        if 'win32' in xspec:
+            self.targetSystem = 'posix_windows'
+        elif 'android' in xspec:
+            self.targetSystem = 'android'
+
         self.binarySolver = tools.binary_elf.DeployToolsBinary()
         self.binarySolver.readExcludeList(os.path.join(self.rootDir, 'ports/deploy/exclude.{}.{}.txt'.format(os.name, sys.platform)))
         self.packageConfig = os.path.join(self.rootDir, 'ports/deploy/package_info.conf')
@@ -100,9 +106,11 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
 
         for dep in deps:
             depPath = os.path.join(self.libInstallDir, os.path.basename(dep))
-            print('    {} -> {}'.format(dep, depPath))
-            self.copy(dep, depPath, True)
-            self.dependencies.append(dep)
+
+            if dep != depPath:
+                print('    {} -> {}'.format(dep, depPath))
+                self.copy(dep, depPath, True)
+                self.dependencies.append(dep)
 
     def prepare(self):
         print('Executing make install')
@@ -237,6 +245,12 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
 
     def writeBuildInfo(self):
         shareDir = os.path.join(self.rootInstallDir, 'share')
+
+        try:
+            os.makedirs(self.pkgsDir)
+        except:
+            pass
+
         depsInfoFile = os.path.join(shareDir, 'build-info.txt')
 
         if not os.path.exists(shareDir):

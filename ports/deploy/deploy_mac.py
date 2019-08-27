@@ -52,6 +52,11 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
         self.mainBinary = os.path.join(self.binaryInstallDir, self.programName)
         self.programVersion = self.detectVersion(os.path.join(self.rootDir, 'commons.pri'))
         self.detectMake()
+        xspec = self.qmakeQuery(var='QMAKE_XSPEC')
+
+        if 'android' in xspec:
+            self.targetSystem = 'android'
+
         self.binarySolver = tools.binary_mach.DeployToolsBinary()
         self.binarySolver.readExcludeList(os.path.join(self.rootDir, 'ports/deploy/exclude.{}.{}.txt'.format(os.name, sys.platform)))
         self.packageConfig = os.path.join(self.rootDir, 'ports/deploy/package_info.conf')
@@ -97,9 +102,11 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
 
         for dep in deps:
             depPath = os.path.join(self.libInstallDir, os.path.basename(dep))
-            print('    {} -> {}'.format(dep, depPath))
-            self.copy(dep, depPath, not dep.endswith('.framework'))
-            self.dependencies.append(dep)
+
+            if dep != depPath:
+                print('    {} -> {}'.format(dep, depPath))
+                self.copy(dep, depPath, not dep.endswith('.framework'))
+                self.dependencies.append(dep)
 
     @staticmethod
     def removeUnneededFiles(path):

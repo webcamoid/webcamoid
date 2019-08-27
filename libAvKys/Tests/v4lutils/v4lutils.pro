@@ -16,10 +16,13 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
+include(../tests.pri)
+
 SOURCES = \
     test.cpp
 
 CONFIG += link_pkgconfig
 PKGCONFIG += libv4l2
 
+DESTDIR = $${OUT_PWD}/$${BIN_DIR}
 TARGET = test_auto

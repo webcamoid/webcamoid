@@ -126,7 +126,13 @@ isEmpty(LIBDIR) {
 }
 isEmpty(LOCALEDIR): LOCALEDIR = $${DATAROOTDIR}/locale
 isEmpty(MANDIR): MANDIR = $${DATAROOTDIR}/man
-isEmpty(LICENSEDIR): LICENSEDIR = $${DATAROOTDIR}/licenses/$${COMMONS_TARGET}
+isEmpty(LICENSEDIR) {
+    android {
+        LICENSEDIR = $${DATAROOTDIR}
+    } else {
+        LICENSEDIR = $${DATAROOTDIR}/licenses/$${COMMONS_TARGET}
+    }
+}
 isEmpty(LOCALDIR): LOCALDIR = $${PREFIX}/local
 isEmpty(LOCALLIBDIR): LOCALLIBDIR = $${LOCALDIR}/lib
 isEmpty(INSTALLQMLDIR) {

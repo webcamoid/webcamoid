@@ -16,6 +16,8 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
+include(../tests.pri)
+
 OBJECTIVE_SOURCES = \
     test.mm
 
@@ -27,4 +29,5 @@ LIBS += \
     -framework IOKit \
     -framework IOSurface
 
+DESTDIR = $${OUT_PWD}/$${BIN_DIR}
 TARGET = test_auto

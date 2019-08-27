@@ -16,8 +16,11 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
+include(../tests.pri)
+
 SOURCES = \
     test.cpp
 
 LIBS += -lOpenSLES
+DESTDIR = $${OUT_PWD}/$${BIN_DIR}
 TARGET = test_auto
