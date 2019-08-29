@@ -19,6 +19,7 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
+import json
 import math
 import os
 import shutil
@@ -354,6 +355,162 @@ class Deploy(deploy_base.DeployBase,
                   os.path.basename(path),
                   'FAILED')
 
+    def alignPackage(self, package):
+        deploymentSettingsPath = os.path.join(self.standAloneDir,
+                                              'android-lib{}.so-deployment-settings.json'.format(self.programName))
+
+        with open(deploymentSettingsPath) as f:
+            deploymentSettings = json.load(f)
+
+        zipalign = os.path.join(self.androidSDK,
+                                'build-tools',
+                                deploymentSettings['sdkBuildToolsRevision'],
+                                'zipalign')
+
+        if self.system == 'windows':
+            zipalign += '.exe'
+
+        alignedPackage = os.path.join(os.path.dirname(package),
+                                      'aligned-' + os.path.basename(package))
+        process = subprocess.Popen([zipalign, # nosec
+                                    '-v',
+                                    '-f', '4',
+                                    package,
+                                    alignedPackage],
+                                    stdout=subprocess.PIPE,
+                                    stderr=subprocess.PIPE)
+        process.communicate()
+
+        if process.returncode != 0:
+            return False
+
+        self.move(alignedPackage, package)
+
+        return True
+
+    def apkSignPackage(self, package, keystore):
+        if not self.alignPackage(package):
+            return False
+
+        deploymentSettingsPath = os.path.join(self.standAloneDir,
+                                              'android-lib{}.so-deployment-settings.json'.format(self.programName))
+
+        with open(deploymentSettingsPath) as f:
+            deploymentSettings = json.load(f)
+
+        apkSigner = os.path.join(self.androidSDK,
+                                 'build-tools',
+                                 deploymentSettings['sdkBuildToolsRevision'],
+                                 'apksigner')
+
+        if self.system == 'windows':
+            apkSigner += '.exe'
+
+        process = subprocess.Popen([apkSigner, # nosec
+                                    'sign',
+                                    '-v',
+                                    '--ks', keystore,
+                                    '--ks-pass', 'pass:android',
+                                    '--ks-key-alias', 'androiddebugkey',
+                                    '--key-pass', 'pass:android',
+                                    package],
+                                    stdout=subprocess.PIPE,
+                                    stderr=subprocess.PIPE)
+        process.communicate()
+
+        return process.returncode == 0
+
+    def jarSignPackage(self, package, keystore):
+        jarSigner = 'jarsigner'
+
+        if self.system == 'windows':
+            jarSigner += '.exe'
+
+        jarSignerPath = ''
+
+        if 'JAVA_HOME' in os.environ:
+            jarSignerPath = os.path.join(os.environ['JAVA_HOME'],
+                                         'bin',
+                                         jarSigner)
+
+        if len(jarSignerPath) < 1 or not os.path.exists(jarSignerPath):
+            jarSignerPath = self.whereBin(jarSigner)
+
+            if len(jarSignerPath) < 1:
+                return False
+
+        signedPackage = os.path.join(os.path.dirname(package),
+                                     'signed-' + os.path.basename(package))
+        process = subprocess.Popen([jarSignerPath, # nosec
+                                    '-verbose',
+                                    '-keystore', keystore,
+                                    '-storepass', 'android',
+                                    '-keypass', 'android',
+                                    '-sigalg', 'SHA1withRSA',
+                                    '-digestalg', 'SHA1',
+                                    '-sigfile', 'CERT',
+                                    '-signedjar', signedPackage,
+                                    package,
+                                    'androiddebugkey'],
+                                    stdout=subprocess.PIPE,
+                                    stderr=subprocess.PIPE)
+        process.communicate()
+
+        if process.returncode != 0:
+            return False
+
+        self.move(signedPackage, package)
+
+        return self.alignPackage(package)
+
+    def signPackage(self, package):
+        keytool = 'keytool'
+
+        if self.system == 'windows':
+            keytool += '.exe'
+
+        keytoolPath = ''
+
+        if 'JAVA_HOME' in os.environ:
+            keytoolPath = os.path.join(os.environ['JAVA_HOME'], 'bin', keytool)
+
+        if len(keytoolPath) < 1 or not os.path.exists(keytoolPath):
+            keytoolPath = self.whereBin(keytool)
+
+            if len(keytoolPath) < 1:
+                return False
+
+        keystore = os.path.join(self.rootInstallDir, 'debug.keystore')
+
+        try:
+            os.remove(keystore)
+        except:
+            pass
+
+        process = subprocess.Popen([keytoolPath, # nosec
+                                    '-genkey',
+                                    '-v',
+                                    '-storetype', 'pkcs12',
+                                    '-keystore', keystore,
+                                    '-storepass', 'android',
+                                    '-alias', 'androiddebugkey',
+                                    '-keypass', 'android',
+                                    '-keyalg', 'RSA',
+                                    '-keysize', '2048',
+                                    '-validity', '10000',
+                                    '-dname', 'CN=Android Debug,O=Android,C=US'],
+                                    stdout=subprocess.PIPE,
+                                    stderr=subprocess.PIPE)
+        process.communicate()
+
+        if process.returncode != 0:
+            return False
+
+        if self.apkSignPackage(package, keystore):
+            return True
+
+        return self.jarSignPackage(package, keystore)
+
     def package(self):
         if not os.path.exists(self.pkgsDir):
             os.makedirs(self.pkgsDir)
@@ -377,7 +534,8 @@ class Deploy(deploy_base.DeployBase,
                            'outputs',
                            'apk',
                            'release',
-                           'webcamoid-release-unsigned.apk')
+                           '{}-release-unsigned.apk'.format(self.programName))
+        self.signPackage(apk)
         self.copy(apk, self.outPackage)
 
         print('Created APK package:')

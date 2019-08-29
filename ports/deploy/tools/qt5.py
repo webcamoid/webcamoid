@@ -611,7 +611,7 @@ class DeployToolsQt(tools.utils.DeployToolsUtils):
             self.copy(template, self.rootInstallDir, overwrite=False)
 
         deploymentSettingsPath = os.path.join(self.standAloneDir,
-                                              'android-libwebcamoid.so-deployment-settings.json')
+                                              'android-lib{}.so-deployment-settings.json'.format(self.programName))
 
         with open(deploymentSettingsPath) as f:
             deploymentSettings = json.load(f)
