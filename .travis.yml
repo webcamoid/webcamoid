@@ -290,6 +290,17 @@ matrix:
       - SDKVER=4333796
       - NDKVER=r19c
       - TARGET_ARCH=x86
+  - os: linux
+    dist: xenial
+    compiler: clang
+    env:
+      - ANDROID_BUILD=1
+      - ANDROID_PLATFORM=23
+      - ANDROID_BUILD_TOOLS_VERSION=28.0.3
+      - COMPILER=clang
+      - SDKVER=4333796
+      - NDKVER=r19c
+      - TARGET_ARCH=armv7:arm64_v8a:x86
 
 before_install: |
   if [ -z "${ANDROID_BUILD}" ]; then

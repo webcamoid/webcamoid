@@ -43,9 +43,44 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
     export PATH="${PATH}:${ANDROID_HOME}/platform-tools"
     export PATH="${PATH}:${ANDROID_HOME}/emulator"
     export PATH="${PATH}:${ANDROID_NDK}"
-    export PATH="${PWD}/build/Qt/${QTVER}/android_${TARGET_ARCH}/bin:${PWD}/.local/bin:${PATH}"
+    export ORIG_PATH="${PATH}"
+    nArchs=$(echo "${TARGET_ARCH}" | tr ':' ' ' | wc -w)
+    lastArch=$(echo "${TARGET_ARCH}" | awk -F: '{print $NF}')
 
-    python3 ports/deploy/deploy.py
+    if [ "${nArchs}" = 1 ]; then
+        export PATH="${PWD}/build/Qt/${QTVER}/android_${lastArch}/bin:${PWD}/.local/bin:${ORIG_PATH}"
+        export BUILD_PATH=${PWD}/build-webcamoid-${lastArch}
+
+        python3 ports/deploy/deploy.py
+    else
+        pkgMerge=
+
+        for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
+            if [ ! -z "${pkgMerge}" ]; then
+                pkgMerge=${pkgMerge}:
+            fi
+
+            pkgMerge=${pkgMerge}${PWD}/build-webcamoid-${arch_}
+        done
+
+        for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
+            export PATH="${PWD}/build/Qt/${QTVER}/android_${arch_}/bin:${PWD}/.local/bin:${ORIG_PATH}"
+            export BUILD_PATH=${PWD}/build-webcamoid-${arch_}
+
+            if [ "${arch_}" = "${lastArch}" ]; then
+                export PACKAGES_PREPARE_ONLY=0
+                export PACKAGES_MERGE="${pkgMerge}"
+            else
+                export PACKAGES_PREPARE_ONLY=1
+            fi
+
+            python3 ports/deploy/deploy.py
+        done
+    fi
+
+    mkdir -p "${PWD}/ports/deploy/packages_auto"
+    cp -vf "${PWD}/build-webcamoid-${lastArch}/ports/deploy/packages_auto"/* \
+           "${PWD}/ports/deploy/packages_auto"
 elif [ "${ARCH_ROOT_BUILD}" = 1 ]; then
     sudo mount --bind root.x86_64 root.x86_64
     sudo mount --bind $HOME root.x86_64/$HOME

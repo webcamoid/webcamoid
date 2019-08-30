@@ -63,10 +63,17 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
     export PATH="${PATH}:${ANDROID_HOME}/platform-tools"
     export PATH="${PATH}:${ANDROID_HOME}/emulator"
     export PATH="${PATH}:${ANDROID_NDK}"
-    export PATH="${PWD}/build/Qt/${QTVER}/android_${TARGET_ARCH}/bin:${PATH}"
-    qmake -query
-    qmake -spec ${COMPILESPEC} Webcamoid.pro \
-        CONFIG+=silent
+    export ORIG_PATH="${PATH}"
+
+    for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
+        export PATH="${PWD}/build/Qt/${QTVER}/android_${arch_}/bin:${ORIG_PATH}"
+        mkdir build-webcamoid-${arch_}
+        cd build-webcamoid-${arch_}
+        qmake -query
+        qmake -spec ${COMPILESPEC} ../Webcamoid.pro \
+            CONFIG+=silent
+        cd ..
+    done
 elif [ "${ARCH_ROOT_BUILD}" = 1 ]; then
     sudo mount --bind root.x86_64 root.x86_64
     sudo mount --bind $HOME root.x86_64/$HOME
@@ -164,7 +171,14 @@ if [ -z "${NJOBS}" ]; then
     NJOBS=4
 fi
 
-if [ "${ARCH_ROOT_BUILD}" = 1 ]; then
+if [ "${ANDROID_BUILD}" = 1 ]; then
+    for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
+        export PATH="${PWD}/build/Qt/${QTVER}/android_${arch_}/bin:${ORIG_PATH}"
+        cd build-webcamoid-${arch_}
+        make -j${NJOBS}
+        cd ..
+    done
+elif [ "${ARCH_ROOT_BUILD}" = 1 ]; then
     cat << EOF > ${BUILDSCRIPT}
 #!/bin/sh
 

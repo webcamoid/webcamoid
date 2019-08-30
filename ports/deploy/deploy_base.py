@@ -76,11 +76,16 @@ class DeployBase(tools.utils.DeployToolsUtils):
         self.prepare()
         print('\nPackaged data info\n')
         self.printPackageDataInfo()
-        print('\nCreating packages\n')
-        self.package()
-        print('\nCleaning up')
-        self.cleanup()
-        print('Deploy finnished\n')
+
+        if 'PACKAGES_PREPARE_ONLY' in os.environ \
+            and os.environ['PACKAGES_PREPARE_ONLY'] == 1:
+            print('\nPackage data is ready for merging\n')
+        else:
+            print('\nCreating packages\n')
+            self.package()
+            print('\nCleaning up')
+            self.cleanup()
+            print('Deploy finnished\n')
 
     def printPackageDataInfo(self):
         packagedFiles = []

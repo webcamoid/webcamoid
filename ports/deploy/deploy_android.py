@@ -49,13 +49,13 @@ class Deploy(deploy_base.DeployBase,
         self.detectAndroidPlatform(self.standAloneDir)
         binary = self.detectTargetBinaryFromQt5Make(self.standAloneDir)
         self.targetArch = self.binarySolver.machineEMCode(binary)
-        archMap = {'AARCH64': 'arm64-v8a',
-                   'ARM'    : 'armeabi-v7a',
-                   '386'    : 'x86',
-                   'X86_64' : 'x86_64'}
+        self.androidArchMap = {'AARCH64': 'arm64-v8a',
+                               'ARM'    : 'armeabi-v7a',
+                               '386'    : 'x86',
+                               'X86_64' : 'x86_64'}
 
-        if self.targetArch in archMap:
-            self.targetArch = archMap[self.targetArch]
+        if self.targetArch in self.androidArchMap:
+            self.targetArch = self.androidArchMap[self.targetArch]
 
         self.binarySolver.sysBinsPath = self.detectBinPaths() + self.binarySolver.sysBinsPath
         self.binarySolver.libsSeachPaths = self.detectLibPaths()
@@ -95,10 +95,18 @@ class Deploy(deploy_base.DeployBase,
         print('Executing make install')
         self.makeInstall(self.buildDir, self.rootInstallDir)
         self.binarySolver.detectStrip()
-        self.outPackage = os.path.join(self.pkgsDir,
-                                       '{}-{}-{}.apk'.format(self.programName,
-                                                             self.programVersion,
-                                                             self.targetArch))
+
+        if 'PACKAGES_MERGE' in os.environ \
+            and len(os.environ['PACKAGES_MERGE']) > 0:
+            self.outPackage = \
+                os.path.join(self.pkgsDir,
+                             '{}-{}.apk'.format(self.programName,
+                                                self.programVersion))
+        self.outPackage = \
+            os.path.join(self.pkgsDir,
+                         '{}-{}-{}.apk'.format(self.programName,
+                                               self.programVersion,
+                                               self.targetArch))
 
         print('Copying Qml modules\n')
         self.solvedepsQml()
@@ -512,6 +520,38 @@ class Deploy(deploy_base.DeployBase,
         return self.jarSignPackage(package, keystore)
 
     def package(self):
+        if 'PACKAGES_MERGE' in os.environ:
+            print('Merging package data:\n')
+
+            for path in os.environ['PACKAGES_MERGE'].split(':'):
+                path = path.strip()
+
+                if os.path.exists(path) and os.path.isdir(path):
+                    if path == self.buildDir:
+                        continue
+
+                    standAlonePath = os.path.join(path,
+                                                  os.path.relpath(self.standAloneDir,
+                                                                  self.buildDir))
+                    binary = self.detectTargetBinaryFromQt5Make(standAlonePath)
+                    targetArch = self.binarySolver.machineEMCode(binary)
+
+                    if targetArch in self.androidArchMap:
+                        targetArch = self.androidArchMap[targetArch]
+
+                    libsPath = os.path.join(path,
+                                            os.path.relpath(self.rootInstallDir,
+                                                            self.buildDir),
+                                            'libs',
+                                            targetArch)
+                    dstLibPath = os.path.join(self.rootInstallDir,
+                                              'libs',
+                                              targetArch)
+                    print('    {} -> {}'.format(libsPath, dstLibPath))
+                    self.copy(libsPath, dstLibPath)
+
+            print()
+
         if not os.path.exists(self.pkgsDir):
             os.makedirs(self.pkgsDir)
 
