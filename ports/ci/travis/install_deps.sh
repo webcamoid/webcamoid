@@ -89,6 +89,8 @@ else
     export DOWNLOAD_CMD="curl --retry 10 -kLOC -"
 fi
 
+# qtIinstallerVerbose=-v
+
 if [ "${TRAVIS_OS_NAME}" = linux ] &&
    [ "${ANDROID_BUILD}" != 1 ] &&
    [ -z "${ARCH_ROOT_MINGW}" ] ; then
@@ -103,7 +105,7 @@ if [ "${TRAVIS_OS_NAME}" = linux ] &&
 
         QT_QPA_PLATFORM=minimal \
         ./QtInstallerFramework-linux-x64.run \
-            -v \
+            ${qtIinstallerVerbose} \
             --script "$PWD/ports/ci/travis/qtifw_non_interactive_install.qs" \
             --no-force-installations
 
@@ -136,11 +138,11 @@ if [ "${TRAVIS_OS_NAME}" = linux ] && [ "${ANDROID_BUILD}" != 1 ]; then
 fi
 
 if [ "${ANDROID_BUILD}" = 1 ]; then
-    sudo apt-get -y update
-    sudo apt-get -y upgrade
+    sudo apt-get -qq -y update
+    sudo apt-get -qq -y upgrade
 
     # Install dev tools
-    sudo apt-get -y install \
+    sudo apt-get -qq -y install \
         make \
         openjdk-8-jdk \
         openjdk-8-jre
@@ -168,7 +170,7 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
 
     QT_QPA_PLATFORM=minimal \
     ./qt-opensource-linux-x64-${QTVER}.run \
-        -v \
+        ${qtIinstallerVerbose} \
         --script "$PWD/../ports/ci/travis/qt_non_interactive_install.qs" \
         --no-force-installations
 
@@ -335,7 +337,7 @@ export WINEPREFIX=/opt/.wine
 cd $TRAVIS_BUILD_DIR
 
 wine ./${qtIFW} \
-    -v \
+    ${qtIinstallerVerbose} \
     --script "ports/ci/travis/qtifw_non_interactive_install.qs" \
     --no-force-installations
 EOF
@@ -502,7 +504,7 @@ elif [ "${TRAVIS_OS_NAME}" = osx ]; then
         chmod +x qtifw/QtInstallerFramework-mac-x64/QtInstallerFramework-mac-x64.app/Contents/MacOS/QtInstallerFramework-mac-x64
 
         qtifw/QtInstallerFramework-mac-x64/QtInstallerFramework-mac-x64.app/Contents/MacOS/QtInstallerFramework-mac-x64 \
-            -v \
+            ${qtIinstallerVerbose} \
             --script "$PWD/ports/ci/travis/qtifw_non_interactive_install.qs" \
             --no-force-installations
     fi
