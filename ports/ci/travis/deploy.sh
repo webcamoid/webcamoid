@@ -44,6 +44,7 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
     export PATH="${PATH}:${ANDROID_HOME}/emulator"
     export PATH="${PATH}:${ANDROID_NDK}"
     export ORIG_PATH="${PATH}"
+    export KEYSTORE_PATH="${PWD}/keystores/debug.keystore"
     nArchs=$(echo "${TARGET_ARCH}" | tr ':' ' ' | wc -w)
     lastArch=$(echo "${TARGET_ARCH}" | awk -F: '{print $NF}')
 

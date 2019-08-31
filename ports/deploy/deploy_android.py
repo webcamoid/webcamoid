@@ -491,29 +491,33 @@ class Deploy(deploy_base.DeployBase,
 
         keystore = os.path.join(self.rootInstallDir, 'debug.keystore')
 
-        try:
-            os.remove(keystore)
-        except:
-            pass
+        if 'KEYSTORE_PATH' in os.environ:
+            keystore = os.environ['KEYSTORE_PATH']
 
-        process = subprocess.Popen([keytoolPath, # nosec
-                                    '-genkey',
-                                    '-v',
-                                    '-storetype', 'pkcs12',
-                                    '-keystore', keystore,
-                                    '-storepass', 'android',
-                                    '-alias', 'androiddebugkey',
-                                    '-keypass', 'android',
-                                    '-keyalg', 'RSA',
-                                    '-keysize', '2048',
-                                    '-validity', '10000',
-                                    '-dname', 'CN=Android Debug,O=Android,C=US'],
-                                    stdout=subprocess.PIPE,
-                                    stderr=subprocess.PIPE)
-        process.communicate()
+        if not os.path.exists(keystore):
+            try:
+                os.makedirs(os.path.dirname(keystore))
+            except:
+                pass
 
-        if process.returncode != 0:
-            return False
+            process = subprocess.Popen([keytoolPath, # nosec
+                                        '-genkey',
+                                        '-v',
+                                        '-storetype', 'pkcs12',
+                                        '-keystore', keystore,
+                                        '-storepass', 'android',
+                                        '-alias', 'androiddebugkey',
+                                        '-keypass', 'android',
+                                        '-keyalg', 'RSA',
+                                        '-keysize', '2048',
+                                        '-validity', '10000',
+                                        '-dname', 'CN=Android Debug,O=Android,C=US'],
+                                        stdout=subprocess.PIPE,
+                                        stderr=subprocess.PIPE)
+            process.communicate()
+
+            if process.returncode != 0:
+                return False
 
         if self.apkSignPackage(package, keystore):
             return True
