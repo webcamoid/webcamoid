@@ -102,11 +102,12 @@ class Deploy(deploy_base.DeployBase,
                 os.path.join(self.pkgsDir,
                              '{}-{}.apk'.format(self.programName,
                                                 self.programVersion))
-        self.outPackage = \
-            os.path.join(self.pkgsDir,
-                         '{}-{}-{}.apk'.format(self.programName,
-                                               self.programVersion,
-                                               self.targetArch))
+        else:
+            self.outPackage = \
+                os.path.join(self.pkgsDir,
+                            '{}-{}-{}.apk'.format(self.programName,
+                                                  self.programVersion,
+                                                  self.targetArch))
 
         print('Copying Qml modules\n')
         self.solvedepsQml()

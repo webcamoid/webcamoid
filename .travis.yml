@@ -301,6 +301,7 @@ matrix:
       - SDKVER=4333796
       - NDKVER=r19c
       - TARGET_ARCH=armv7:arm64_v8a:x86
+      - DAILY_BUILD=1
 
 before_install: |
   if [ -z "${ANDROID_BUILD}" ]; then
