@@ -74,11 +74,14 @@ class DeployBase(tools.utils.DeployToolsUtils):
         print(self)
         print('\nPreparing for software packaging\n')
         self.prepare()
-        print('\nPackaged data info\n')
-        self.printPackageDataInfo()
+
+        if not 'NO_SHOW_PKG_DATA_INFO' in os.environ \
+            or os.environ['NO_SHOW_PKG_DATA_INFO'] != '1':
+            print('\nPackaged data info\n')
+            self.printPackageDataInfo()
 
         if 'PACKAGES_PREPARE_ONLY' in os.environ \
-            and os.environ['PACKAGES_PREPARE_ONLY'] == 1:
+            and os.environ['PACKAGES_PREPARE_ONLY'] == '1':
             print('\nPackage data is ready for merging\n')
         else:
             print('\nCreating packages\n')

@@ -74,13 +74,15 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
                 export PACKAGES_PREPARE_ONLY=1
             fi
 
+            export NO_SHOW_PKG_DATA_INFO=1
+
             python3 ports/deploy/deploy.py
         done
     fi
 
     mkdir -p "${PWD}/ports/deploy/packages_auto"
-    cp -vf "${PWD}/build-webcamoid-${lastArch}/ports/deploy/packages_auto"/* \
-           "${PWD}/ports/deploy/packages_auto"
+    cp -rvf "${PWD}/build-webcamoid-${lastArch}/ports/deploy/packages_auto"/* \
+            "${PWD}/ports/deploy/packages_auto"
 elif [ "${ARCH_ROOT_BUILD}" = 1 ]; then
     sudo mount --bind root.x86_64 root.x86_64
     sudo mount --bind $HOME root.x86_64/$HOME
