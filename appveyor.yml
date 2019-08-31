@@ -20,8 +20,8 @@ branches:
 
 environment:
   global:
-    FFMPEG_VERSION: 4.1.3
-    GSTREAMER_VERSION: 1.14.4
+    FFMPEG_VERSION: 4.2
+    GSTREAMER_VERSION: 1.16.0
     PYTHON_VERSION: Python37
     QMAKESPEC: win32-g++
     MAKETOOL: mingw32-make
@@ -33,15 +33,15 @@ environment:
 
   matrix:
     - MSYS2_BUILD: 1
-    - QTDIR: C:\Qt\5.12\mingw73_64
+    - QTDIR: C:\Qt\5.13\mingw73_64
       TOOLSDIR: C:\Qt\Tools\mingw730_64
-    - QTDIR: C:\Qt\5.12\msvc2017
+    - QTDIR: C:\Qt\5.13\msvc2017
       TOOLSDIR: C:\Qt\Tools\QtCreator
       QMAKESPEC: win32-msvc
       VSPATH: C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build
       MAKETOOL: jom
       PLATFORM: x86
-    - QTDIR: C:\Qt\5.12\msvc2017_64
+    - QTDIR: C:\Qt\5.13\msvc2017_64
       TOOLSDIR: C:\Qt\Tools\QtCreator
       QMAKESPEC: win32-msvc
       VSPATH: C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build
