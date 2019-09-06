@@ -27,23 +27,19 @@ GridLayout {
     id: recCameraControls
     columns: 3
 
-    property int lock: 0
-    property int lockStreams: 0
-    property var caps: []
-
-    function filterBy(prop, filters)
+    function filterBy(caps, prop, filters)
     {
         var vals = []
 
-        for (var i in recCameraControls.caps) {
-            var videoCaps = recCameraControls.caps[i]
-            var caps = {fourcc: videoCaps.fourcc,
-                        size: Qt.size(videoCaps.width, videoCaps.height),
-                        fps: videoCaps.fps}
+        for (var i in caps) {
+            var videoCaps = caps[i]
+            var filterCaps = {fourcc: videoCaps.fourcc,
+                              size: Qt.size(videoCaps.width, videoCaps.height),
+                              fps: videoCaps.fps}
             var pass = false
 
             for (var filterProp in filters)
-                if (caps[filterProp] != filters[filterProp]) {
+                if (filterCaps[filterProp] != filters[filterProp]) {
                     pass = true
 
                     break
@@ -52,7 +48,7 @@ GridLayout {
             if (pass)
                 continue
 
-            var val = caps[prop]
+            var val = filterCaps[prop]
 
             if (vals.indexOf(val) < 0)
                 vals.push(val)
@@ -61,10 +57,35 @@ GridLayout {
         return vals
     }
 
-    function indexOf(caps)
+    function filterCaps(caps, filters)
     {
-        for (var i in recCameraControls.caps) {
-            var videoCaps = recCameraControls.caps[i]
+        for (var i in caps) {
+            var videoCaps = caps[i]
+            var filterCaps = {fourcc: videoCaps.fourcc,
+                              size: Qt.size(videoCaps.width, videoCaps.height),
+                              fps: videoCaps.fps}
+            var pass = false
+
+            for (var filterProp in filters)
+                if (filterCaps[filterProp] != filters[filterProp]) {
+                    pass = true
+
+                    break
+                }
+
+            if (pass)
+                continue
+
+            return i
+        }
+
+        return -1
+    }
+
+    function indexOf(capsList, caps)
+    {
+        for (var i in capsList) {
+            var videoCaps = capsList[i]
             var size = Qt.size(videoCaps.width, videoCaps.height)
 
             if (videoCaps.fourcc == caps.fourcc
@@ -103,22 +124,78 @@ GridLayout {
         return list.map(maps[prop])
     }
 
-    function updateStreams()
+    function updateFormatControls(mediaChanged)
     {
-        if (lockStreams > 0)
-            return
+        cbxFormat.onCurrentIndexChanged.disconnect(cbxFormat.update)
+        cbxResolution.onCurrentIndexChanged.disconnect(cbxResolution.update)
+        cbxFps.onCurrentIndexChanged.disconnect(cbxFps.update)
 
-        var index = indexOf({fourcc: cbxFormat.model[cbxFormat.currentIndex]?
-                                    cbxFormat.model[cbxFormat.currentIndex].value: "",
-                            size: cbxResolution.model[cbxResolution.currentIndex]?
-                                  cbxResolution.model[cbxResolution.currentIndex].value: Qt.size(-1, -1),
-                            fps: cbxFps.model[cbxFps.currentIndex]?
-                                 cbxFps.model[cbxFps.currentIndex].value: Ak.newFrac()});
+        var ncaps = VideoCapture.listTracks().length
+        var rawCaps = []
+
+        for (var i = 0; i < ncaps; i++)
+            rawCaps.push(Ak.newCaps(VideoCapture.rawCaps(i)).toMap())
+
+        var index = mediaChanged || VideoCapture.streams.length < 1?
+                    0: VideoCapture.streams[0]
+
+        if (index >= ncaps)
+            index = 0;
+
+        var currentCaps = Ak.newCaps(VideoCapture.rawCaps(index)).toMap()
+
+        var filters = {}
+        cbxFormat.model = createModel(filterBy(rawCaps, "fourcc", filters),
+                                      "fourcc")
+        filters.fourcc = currentCaps.fourcc
+        cbxResolution.model = createModel(filterBy(rawCaps, "size", filters),
+                                          "size")
+        filters.size = Qt.size(currentCaps.width, currentCaps.height)
+        cbxFps.model = createModel(filterBy(rawCaps, "fps", filters), "fps")
+
+        cbxFormat.currentIndex = indexBy(cbxFormat.model, currentCaps.fourcc)
+        cbxResolution.currentIndex = indexBy(cbxResolution.model,
+                                             Qt.size(currentCaps.width,
+                                                     currentCaps.height))
+        cbxFps.currentIndex = indexBy(cbxFps.model, currentCaps.fps)
+
+        cbxFormat.onCurrentIndexChanged.connect(cbxFormat.update)
+        cbxResolution.onCurrentIndexChanged.connect(cbxResolution.update)
+        cbxFps.onCurrentIndexChanged.connect(cbxFps.update)
+    }
+
+    function updateStreams(filters)
+    {
+        var ncaps = VideoCapture.listTracks().length
+        var rawCaps = []
+
+        for (var i = 0; i < ncaps; i++)
+            rawCaps.push(Ak.newCaps(VideoCapture.rawCaps(i)).toMap())
+
+        var maps = {
+            fourcc: cbxFormat.model[cbxFormat.currentIndex]?
+                    cbxFormat.model[cbxFormat.currentIndex].value:
+                    cbxFormat.model[0].value,
+            size: cbxResolution.model[cbxResolution.currentIndex]?
+                    cbxResolution.model[cbxResolution.currentIndex].value:
+                    cbxResolution.model[0].value,
+            fps: cbxFps.model[cbxFps.currentIndex]?
+                    cbxFps.model[cbxFps.currentIndex].value:
+                    cbxFps.model[0].value
+        }
+
+        var capsFilters = {}
+
+        for (var i in filters)
+            capsFilters[filters[i]] = maps[filters[i]]
+
+        var index = filterCaps(rawCaps, capsFilters);
 
         if (index < 0)
             return
 
         VideoCapture.streams = [index]
+        updateFormatControls(false)
     }
 
     function createControls(controls, where)
@@ -159,55 +236,46 @@ GridLayout {
         return [minimumLeftWidth, minimumRightWidth]
     }
 
-    function createInterface()
+    function createCameraControls()
     {
-        var minimumImageWidth = createControls(VideoCapture.imageControls(), clyImageControls)
-        var minimumCameraWidth = createControls(VideoCapture.cameraControls(), clyCameraControls)
+        var minimumImageWidth =
+                recCameraControls.createControls(VideoCapture.imageControls(),
+                                                 clyImageControls)
+        var minimumCameraWidth =
+                recCameraControls.createControls(VideoCapture.cameraControls(),
+                                                 clyCameraControls)
 
-        var minimumLeftWidth = Math.max(minimumImageWidth[0], minimumCameraWidth[0])
-        var minimumRightWidth = Math.max(minimumImageWidth[1], minimumCameraWidth[1])
+        var minimumLeftWidth = Math.max(minimumImageWidth[0],
+                                        minimumCameraWidth[0])
+        var minimumRightWidth = Math.max(minimumImageWidth[1],
+                                         minimumCameraWidth[1])
 
         var controls = [clyImageControls, clyCameraControls]
 
         for (var where in controls)
             for (var child in controls[where].children) {
-                controls[where].children[child].minimumLeftWidth = minimumLeftWidth
-                controls[where].children[child].minimumRightWidth = minimumRightWidth
+                controls[where].children[child].minimumLeftWidth =
+                        minimumLeftWidth
+                controls[where].children[child].minimumRightWidth =
+                        minimumRightWidth
             }
 
         lblFormat.minimumWidth = minimumLeftWidth
         btnReset.minimumWidth = minimumRightWidth
-
-        var ncaps = VideoCapture.listTracks().length
-        var rawCaps = []
-
-        for (var i = 0; i < ncaps; i++)
-            rawCaps.push(Ak.newCaps(VideoCapture.rawCaps(i)).toMap())
-
-        caps = rawCaps
-        var index = VideoCapture.streams.length < 1? 0: VideoCapture.streams[0]
-        var currentCaps = Ak.newCaps(VideoCapture.rawCaps(index)).toMap()
-
-        lock++
-        lockStreams++;
-        cbxFormat.update()
-        cbxFormat.currentIndex = indexBy(cbxFormat.model, currentCaps.fourcc)
-        cbxResolution.update()
-        cbxResolution.currentIndex = indexBy(cbxResolution.model,
-                                             Qt.size(currentCaps.width,
-                                                     currentCaps.height))
-        cbxFps.update()
-        cbxFps.currentIndex = indexBy(cbxFps.model, currentCaps.fps)
-        lockStreams--;
-        lock--;
     }
 
-    Component.onCompleted: createInterface()
+    Component.onCompleted: {
+        createCameraControls()
+        updateFormatControls(false)
+    }
 
     Connections {
         target: VideoCapture
 
-        onMediaChanged: createInterface()
+        onMediaChanged: {
+            recCameraControls.createCameraControls()
+            recCameraControls.updateFormatControls(true)
+        }
     }
 
     Label {
@@ -226,27 +294,8 @@ GridLayout {
 
         function update()
         {
-            lock++;
-            model = []
-            model = createModel(filterBy("fourcc"), "fourcc")
-            currentIndex = -1
-
-            if (model.length > 0)
-                currentIndex = 0
-
-            lock--;
+            recCameraControls.updateStreams(["fourcc"])
         }
-
-        function lockedUpdate()
-        {
-            if (lock > 0)
-                return
-
-            update()
-        }
-
-        onCurrentIndexChanged: cbxResolution.lockedUpdate()
-        onModelChanged: cbxResolution.update()
     }
     Label {
         id: lblResolution
@@ -264,31 +313,8 @@ GridLayout {
 
         function update()
         {
-            lock++;
-            model = []
-            model = cbxFormat.model.length < 1?
-                        []: createModel(filterBy("size",
-                                                 {fourcc: cbxFormat.model[cbxFormat.currentIndex < 0?
-                                                             0: cbxFormat.currentIndex].value}),
-                                        "size")
-            currentIndex = -1
-
-            if (model.length > 0)
-                currentIndex = 0
-
-            lock--;
+            recCameraControls.updateStreams(["fourcc", "size"])
         }
-
-        function lockedUpdate()
-        {
-            if (lock > 0)
-                return
-
-            update()
-        }
-
-        onCurrentIndexChanged: cbxFps.lockedUpdate()
-        onModelChanged: cbxFps.update()
     }
     Label {
         id: lblFps
@@ -306,34 +332,8 @@ GridLayout {
 
         function update()
         {
-            lock++;
-            model = []
-            model = cbxResolution.model.length < 1?
-                 []: createModel(filterBy("fps",
-                                          {fourcc: cbxFormat.model[cbxFormat.currentIndex < 0?
-                                                      0: cbxFormat.currentIndex].value,
-                                           size: cbxResolution.model[cbxResolution.currentIndex < 0?
-                                                      0: cbxResolution.currentIndex].value}),
-                                 "fps")
-            currentIndex = -1
-
-            if (model.length > 0)
-                currentIndex = 0
-
-            lock--;
-
-            updateStreams()
+            recCameraControls.updateStreams(["fourcc", "size", "fps"])
         }
-
-        function lockedUpdate()
-        {
-            if (lock > 0)
-                return
-
-            update()
-        }
-
-        onCurrentIndexChanged: updateStreams()
     }
     Label {
         Layout.fillWidth: true
@@ -349,7 +349,8 @@ GridLayout {
 
         onClicked: {
             VideoCapture.reset()
-            createInterface()
+            createCameraControls()
+            updateFormatControls(false)
         }
     }
 

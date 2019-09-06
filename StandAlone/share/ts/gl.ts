@@ -2080,22 +2080,22 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="215"/>
+        <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="284"/>
         <source>Video format</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="253"/>
+        <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="303"/>
         <source>Resolution</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="295"/>
+        <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="322"/>
         <source>FPS</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="344"/>
+        <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="345"/>
         <source>Reset</source>
         <translation type="unfinished"></translation>
     </message>

@@ -565,8 +565,44 @@ void VideoCaptureElement::resetNBuffers()
 
 void VideoCaptureElement::reset()
 {
+    bool running = this->d->m_runCameraLoop;
+    this->setState(AkElement::ElementStateNull);
+
     if (this->d->m_capture)
         this->d->m_capture->reset();
+
+    if (running)
+        this->setState(AkElement::ElementStatePlaying);
+
+    QSettings settings;
+
+    settings.beginGroup("VideoCapture");
+    auto ndevices = settings.beginReadArray("devices");
+    auto media = this->d->m_capture->device();
+    auto deviceDescription = this->d->m_capture->description(media);
+    decltype(ndevices) i = 0;
+
+    for (; i < ndevices; i++) {
+        settings.setArrayIndex(i);
+        auto deviceId = settings.value("id").toString();
+        auto description = settings.value("description").toString();
+
+        if (deviceId == media && description == deviceDescription)
+            break;
+    }
+
+    auto streams = this->d->m_capture->streams();
+
+    settings.endArray();
+
+    settings.beginWriteArray("devices");
+    settings.setArrayIndex(i);
+    settings.setValue("id", media);
+    settings.setValue("description", deviceDescription);
+    settings.setValue("stream", streams.isEmpty()? 0: streams.first());
+
+    settings.endArray();
+    settings.endGroup();
 }
 
 bool VideoCaptureElement::setState(AkElement::ElementState state)

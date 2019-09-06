@@ -1245,10 +1245,7 @@ bool CaptureV4L2::init()
             return false;
     }
 
-    if (this->d->startCapture())
-        return true;
-
-    return false;
+    return this->d->startCapture();
 }
 
 void CaptureV4L2::uninit()
