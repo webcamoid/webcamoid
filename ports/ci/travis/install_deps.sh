@@ -228,11 +228,10 @@ EOF
     sudo mount --bind root.x86_64 root.x86_64
     sudo mount --bind $HOME root.x86_64/$HOME
 
-    ${EXEC} env | grep COLUMNS=
-
     ${EXEC} pacman-key --init
     ${EXEC} pacman-key --populate archlinux
     ${EXEC} pacman -Syy
+
     ${EXEC} pacman --noconfirm --needed -S \
         ccache \
         clang \
@@ -257,60 +256,79 @@ EOF
             alsa-lib \
             jack
     else
-        ${EXEC} pacman --noconfirm --needed -S \
-            gst-plugins-base-libs\
-            mpg123 \
-            lib32-gst-plugins-base-libs \
-            lib32-mpg123 \
-            wine \
-            mingw-w64-pkg-config \
-            mingw-w64-gcc \
-            mingw-w64-qt5-quickcontrols \
-            mingw-w64-qt5-quickcontrols2 \
-            mingw-w64-qt5-svg \
-            mingw-w64-qt5-tools
+        # Two step packages download, this may fix the problem with slow
+        # servers and the download getting stuck for >= 10 minutes.
 
-            for mingw_arch in i686 x86_64; do
-                if [ "$mingw_arch" = x86_64 ]; then
-                    ff_arch=win64
-                else
-                    ff_arch=win32
-                fi
+        packages="
+            gst-plugins-base-libs
+            mpg123
+            lib32-gst-plugins-base-libs
+            lib32-mpg123
+            wine
+            mingw-w64-pkg-config
+            mingw-w64-gcc
+            mingw-w64-qt5-quickcontrols
+            mingw-w64-qt5-quickcontrols2
+            mingw-w64-qt5-svg
+            mingw-w64-qt5-tools"
 
-                for pkg in dev shared; do
-                    package=ffmpeg-${FFMPEG_VERSION}-${ff_arch}-$pkg
-                    ${DOWNLOAD_CMD} "https://ffmpeg.zeranoe.com/builds/${ff_arch}/$pkg/$package.zip"
-                    unzip $package.zip
-                done
+        ${EXEC} pacman -Sp $packages | \
+        while read url; do
+            cat << EOF > download.sh
+#!/bin/sh
 
-                # Copy binaries
-                sudo install -d root.x86_64/usr/${mingw_arch}-w64-mingw32/bin
-                sudo install -m644 \
-                    ffmpeg-${FFMPEG_VERSION}-${ff_arch}-shared/bin/*.dll \
-                    root.x86_64/usr/${mingw_arch}-w64-mingw32/bin/
+export LC_ALL=C
+export HOME=$HOME
+cd /var/cache/pacman/pkg
+curl --retry 10 -kLOC - $url
+EOF
 
-                # Copy libraries
-                sudo install -d root.x86_64/usr/${mingw_arch}-w64-mingw32/include
-                sudo install -d root.x86_64/usr/${mingw_arch}-w64-mingw32/lib
-                sudo cp -rf \
-                    ffmpeg-${FFMPEG_VERSION}-${ff_arch}-dev/include/* \
-                    root.x86_64/usr/${mingw_arch}-w64-mingw32/include/
-                sudo install -m644 \
-                    ffmpeg-${FFMPEG_VERSION}-${ff_arch}-dev/lib/*.a \
-                    root.x86_64/usr/${mingw_arch}-w64-mingw32/lib/
+            ${EXEC} bash download.sh
+        done
 
-                libdir=root.x86_64/usr/${mingw_arch}-w64-mingw32/lib
-                pkgconfigdir="$libdir"/pkgconfig
-                sudo install -d "$pkgconfigdir"
+        ${EXEC} pacman --noconfirm --needed -S $packages
 
-                ls ffmpeg-${FFMPEG_VERSION}-${ff_arch}-dev/lib/*.a | \
-                while read lib; do
-                    libname=$(basename $lib | sed 's/.dll.a//g' | sed 's/^lib//g')
-                    version=$(readversion ffmpeg-${FFMPEG_VERSION}-${ff_arch}-dev/include/lib$libname/version.h $libname)
-                    description=$(libdescription $libname)
-                    deps=$(requires $libname)
+        for mingw_arch in i686 x86_64; do
+            if [ "$mingw_arch" = x86_64 ]; then
+                ff_arch=win64
+            else
+                ff_arch=win32
+            fi
 
-                    cat << EOF > lib$libname.pc
+            for pkg in dev shared; do
+                package=ffmpeg-${FFMPEG_VERSION}-${ff_arch}-$pkg
+                ${DOWNLOAD_CMD} "https://ffmpeg.zeranoe.com/builds/${ff_arch}/$pkg/$package.zip"
+                unzip $package.zip
+            done
+
+            # Copy binaries
+            sudo install -d root.x86_64/usr/${mingw_arch}-w64-mingw32/bin
+            sudo install -m644 \
+                ffmpeg-${FFMPEG_VERSION}-${ff_arch}-shared/bin/*.dll \
+                root.x86_64/usr/${mingw_arch}-w64-mingw32/bin/
+
+            # Copy libraries
+            sudo install -d root.x86_64/usr/${mingw_arch}-w64-mingw32/include
+            sudo install -d root.x86_64/usr/${mingw_arch}-w64-mingw32/lib
+            sudo cp -rf \
+                ffmpeg-${FFMPEG_VERSION}-${ff_arch}-dev/include/* \
+                root.x86_64/usr/${mingw_arch}-w64-mingw32/include/
+            sudo install -m644 \
+                ffmpeg-${FFMPEG_VERSION}-${ff_arch}-dev/lib/*.a \
+                root.x86_64/usr/${mingw_arch}-w64-mingw32/lib/
+
+            libdir=root.x86_64/usr/${mingw_arch}-w64-mingw32/lib
+            pkgconfigdir="$libdir"/pkgconfig
+            sudo install -d "$pkgconfigdir"
+
+            ls ffmpeg-${FFMPEG_VERSION}-${ff_arch}-dev/lib/*.a | \
+            while read lib; do
+                libname=$(basename $lib | sed 's/.dll.a//g' | sed 's/^lib//g')
+                version=$(readversion ffmpeg-${FFMPEG_VERSION}-${ff_arch}-dev/include/lib$libname/version.h $libname)
+                description=$(libdescription $libname)
+                deps=$(requires $libname)
+
+                cat << EOF > lib$libname.pc
 prefix=/usr/${mingw_arch}-w64-mingw32
 exec_prefix=\${prefix}
 libdir=\${prefix}/lib
@@ -321,9 +339,9 @@ Version: $version
 Requires.private: $deps
 Libs: -L\${libdir} -l$libname
 EOF
-                    sudo install -m644 lib$libname.pc "$pkgconfigdir/"
-                done
+                sudo install -m644 lib$libname.pc "$pkgconfigdir/"
             done
+        done
 
         qtIFW=QtInstallerFramework-win-x86.exe
 
