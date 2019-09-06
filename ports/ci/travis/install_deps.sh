@@ -226,6 +226,8 @@ EOF
     sudo mount --bind root.x86_64 root.x86_64
     sudo mount --bind $HOME root.x86_64/$HOME
 
+    ${EXEC} env | grep COLUMNS=
+
     ${EXEC} pacman-key --init
     ${EXEC} pacman-key --populate archlinux
     ${EXEC} pacman -Syy
