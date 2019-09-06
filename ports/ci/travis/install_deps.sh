@@ -219,16 +219,12 @@ EOF
 Server = ${ARCH_ROOT_URL}/\$repo/os/\$arch
 EOF
     sudo cp -vf mirrorlist root.x86_64/etc/pacman.d/mirrorlist
+    echo export COLUMNS=80 >> $HOME/.bashrc
 
     # Install packages
     sudo mkdir -pv root.x86_64/$HOME
     sudo mount --bind root.x86_64 root.x86_64
     sudo mount --bind $HOME root.x86_64/$HOME
-
-    export COLUMNS=80
-    ${EXEC} sh --help
-    ${EXEC} sh -c 'echo ${HOME}'
-    ${EXEC} sh -c 'echo ${COLUMNS}'
 
     ${EXEC} pacman-key --init
     ${EXEC} pacman-key --populate archlinux
