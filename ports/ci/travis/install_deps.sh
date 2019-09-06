@@ -254,39 +254,18 @@ EOF
             alsa-lib \
             jack
     else
-        # Two step packages download, this may fix the problem with slow
-        # servers and the download getting stuck for >= 10 minutes.
-
-        packages="
-            gst-plugins-base-libs
-            mpg123
-            lib32-gst-plugins-base-libs
-            lib32-mpg123
-            wine
-            mingw-w64-pkg-config
-            mingw-w64-gcc
-            mingw-w64-qt5-quickcontrols
-            mingw-w64-qt5-quickcontrols2
-            mingw-w64-qt5-svg
-            mingw-w64-qt5-tools"
-
-        ${EXEC} pacman -Sp $packages | \
-        while read url; do
-            cat << EOF > $HOME/download.sh
-#!/bin/sh
-
-export LC_ALL=C
-export HOME=$HOME
-cd /var/cache/pacman/pkg
-echo downloading $url...
-curl --retry 10 -kLOC - $url
-EOF
-
-            chmod +x $HOME/download.sh
-            ${EXEC} bash $HOME/download.sh
-        done
-
-        ${EXEC} pacman --noconfirm --needed -S $packages
+        ${EXEC} pacman --noconfirm --needed -S \
+            gst-plugins-base-libs \
+            mpg123 \
+            lib32-gst-plugins-base-libs \
+            lib32-mpg123 \
+            wine \
+            mingw-w64-pkg-config \
+            mingw-w64-gcc \
+            mingw-w64-qt5-quickcontrols \
+            mingw-w64-qt5-quickcontrols2 \
+            mingw-w64-qt5-svg \
+            mingw-w64-qt5-tools
 
         for mingw_arch in i686 x86_64; do
             if [ "$mingw_arch" = x86_64 ]; then
