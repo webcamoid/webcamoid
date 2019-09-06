@@ -280,6 +280,7 @@ EOF
 export LC_ALL=C
 export HOME=$HOME
 cd /var/cache/pacman/pkg
+echo downloading $url...
 curl --retry 10 -kLOC - $url
 EOF
 
