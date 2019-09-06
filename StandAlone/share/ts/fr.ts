@@ -16,7 +16,7 @@
     <message>
         <location filename="../qml/About.qml" line="49"/>
         <source>Thanks!</source>
-        <translation>Merci !</translation>
+        <translation>Merci&#xa0;!</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="52"/>
@@ -2079,24 +2079,24 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="284"/>
+        <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="283"/>
         <source>Video format</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="303"/>
+        <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="302"/>
         <source>Resolution</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="322"/>
+        <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="321"/>
         <source>FPS</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="345"/>
+        <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="344"/>
         <source>Reset</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Réinitialiser</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Vignette/share/qml/main.qml" line="83"/>

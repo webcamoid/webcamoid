@@ -225,6 +225,11 @@ EOF
     sudo mount --bind root.x86_64 root.x86_64
     sudo mount --bind $HOME root.x86_64/$HOME
 
+    export COLUMNS=80
+    ${EXEC} sh --help
+    ${EXEC} sh -c 'echo ${HOME}'
+    ${EXEC} sh -c 'echo ${COLUMNS}'
+
     ${EXEC} pacman-key --init
     ${EXEC} pacman-key --populate archlinux
     ${EXEC} pacman -Syy
