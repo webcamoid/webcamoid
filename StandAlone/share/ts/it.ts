@@ -754,7 +754,7 @@
     <message>
         <location filename="../qml/main.qml" line="107"/>
         <source>Stop</source>
-        <translation>Stop</translation>
+        <translation>Ferma</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="572"/>
@@ -819,7 +819,7 @@
         <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="85"/>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="256"/>
         <source>N° of colors</source>
-        <translation>N° di colori</translation>
+        <translation>Numero di colori</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="107"/>
