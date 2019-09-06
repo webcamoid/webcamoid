@@ -274,7 +274,7 @@ EOF
 
         ${EXEC} pacman -Sp $packages | \
         while read url; do
-            cat << EOF > download.sh
+            cat << EOF > $HOME/download.sh
 #!/bin/sh
 
 export LC_ALL=C
@@ -283,7 +283,7 @@ cd /var/cache/pacman/pkg
 curl --retry 10 -kLOC - $url
 EOF
 
-            chmod +x download.sh
+            chmod +x $HOME/download.sh
             ${EXEC} bash $HOME/download.sh
         done
 
