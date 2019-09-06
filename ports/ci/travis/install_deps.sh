@@ -219,6 +219,8 @@ EOF
 Server = ${ARCH_ROOT_URL}/\$repo/os/\$arch
 EOF
     sudo cp -vf mirrorlist root.x86_64/etc/pacman.d/mirrorlist
+
+    export COLUMNS=80
     echo export COLUMNS=80 >> $HOME/.bashrc
 
     # Install packages
