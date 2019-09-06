@@ -283,7 +283,8 @@ cd /var/cache/pacman/pkg
 curl --retry 10 -kLOC - $url
 EOF
 
-            ${EXEC} bash download.sh
+            chmod +x download.sh
+            ${EXEC} bash $HOME/download.sh
         done
 
         ${EXEC} pacman --noconfirm --needed -S $packages
