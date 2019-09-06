@@ -207,7 +207,8 @@ elif [ "${ARCH_ROOT_BUILD}" = 1 ]; then
 Include = /etc/pacman.d/mirrorlist
 
 [ownstuff]
-Server = http://martchus.no-ip.biz/repo/arch/ownstuff/os/\$arch
+Server = https://ftp.f3l.de/~martchus/\$repo/os/\$arch
+Server = http://martchus.no-ip.biz/repo/arch/\$repo/os/\$arch
 EOF
     sed -i 's/Required DatabaseOptional/Never/g' pacman.conf
     sed -i 's/#TotalDownload/TotalDownload/g' pacman.conf
@@ -219,9 +220,6 @@ EOF
 Server = ${ARCH_ROOT_URL}/\$repo/os/\$arch
 EOF
     sudo cp -vf mirrorlist root.x86_64/etc/pacman.d/mirrorlist
-
-    export COLUMNS=80
-    echo export COLUMNS=80 >> $HOME/.bashrc
 
     # Install packages
     sudo mkdir -pv root.x86_64/$HOME
