@@ -42,12 +42,11 @@
 
 inline const QStringList *mirrorFormats()
 {
-    static const QStringList mirrorFormats = {
-        "RGB3",
-        "RGB4",
-        "RGBP",
-        "RGBO",
-        "BGR0"
+    static const QStringList mirrorFormats {
+        "RGB",
+        "RGB565",
+        "RGB555",
+        "BGR0",
     };
 
     return &mirrorFormats;
@@ -57,9 +56,9 @@ inline const QStringList *mirrorFormats()
 #if !defined(Q_OS_OSX)
 inline const QStringList *swapRgbFormats()
 {
-    static const QStringList swapRgbFormats = {
+    static const QStringList swapRgbFormats {
 #ifdef Q_OS_WIN32
-        "RGB3",
+        "RGB",
 #endif
         "YV12"
     };
