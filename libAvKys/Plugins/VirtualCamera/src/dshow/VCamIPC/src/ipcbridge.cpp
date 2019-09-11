@@ -68,6 +68,7 @@ namespace AkVCam
             SharedMemory m_sharedMemory;
             Mutex m_globalMutex;
             std::string m_portName;
+            std::wstring m_error;
             bool m_asClient;
 
             explicit IpcBridgePrivate(IpcBridge *self);
@@ -146,6 +147,11 @@ AkVCam::IpcBridge::IpcBridge()
 AkVCam::IpcBridge::~IpcBridge()
 {
     delete this->d;
+}
+
+std::wstring AkVCam::IpcBridge::errorMessage() const
+{
+    return this->d->m_error;
 }
 
 void AkVCam::IpcBridge::setOption(const std::string &key, const std::string &value)
@@ -546,14 +552,20 @@ std::string AkVCam::IpcBridge::deviceCreate(const std::wstring &description,
 
     auto driverPath = this->d->locateDriverPath();
 
-    if (driverPath.empty())
+    if (driverPath.empty()) {
+        this->d->m_error = L"Driver not found";
+
         return {};
+    }
 
     // Create a device path for the new device and add it's entry.
     auto devicePath = createDevicePath();
 
-    if (devicePath.empty())
+    if (devicePath.empty()) {
+        this->d->m_error = L"Can't create a device";
+
         return {};
+    }
 
     std::wstringstream ss;
     ss << L"@echo off" << std::endl;
@@ -1791,14 +1803,20 @@ int AkVCam::IpcBridgePrivate::sudo(const std::vector<std::string> &parameters,
     execInfo.hInstApp = nullptr;
     ShellExecuteEx(&execInfo);
 
-    if (!execInfo.hProcess)
+    if (!execInfo.hProcess) {
+        this->m_error = L"Failed executing script";
+
         return E_FAIL;
+    }
 
     WaitForSingleObject(execInfo.hProcess, INFINITE);
 
     DWORD exitCode;
     GetExitCodeProcess(execInfo.hProcess, &exitCode);
     CloseHandle(execInfo.hProcess);
+
+    if (FAILED(exitCode))
+        this->m_error = L"Script failed with code " + std::to_wstring(exitCode);
 
     return int(exitCode);
 }

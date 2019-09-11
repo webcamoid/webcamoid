@@ -80,6 +80,9 @@ namespace AkVCam
 
             /* Server & Client */
 
+            // Get the last error message.
+            std::wstring errorMessage() const;
+
             // Pass extra options to the bridge.
             void setOption(const std::string &key, const std::string &value);
 

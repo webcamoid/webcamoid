@@ -131,6 +131,7 @@ namespace AkVCam
             QFileSystemWatcher *m_fsWatcher;
             QVector<CaptureBuffer> m_buffers;
             VideoFormat m_curFormat;
+            std::wstring m_error;
             IoMethod m_ioMethod {IoMethodUnknown};
             int m_fd {-1};
             int m_nBuffers {32};
@@ -148,9 +149,9 @@ namespace AkVCam
             QStringList supportedDrivers();
             inline int xioctl(int fd, ulong request, void *arg) const;
             bool sudo(const QString &command,
-                      const QStringList &argumments) const;
+                      const QStringList &argumments);
             bool sudo(const std::string &command,
-                      const QStringList &argumments) const;
+                      const QStringList &argumments);
             QString sysfsControls(const QString &deviceId) const;
             QString sysfsControls(const std::string &deviceId) const;
             bool isSplitDevice(const QString &deviceId) const;
@@ -219,6 +220,11 @@ AkVCam::IpcBridge::IpcBridge()
 AkVCam::IpcBridge::~IpcBridge()
 {
     delete this->d;
+}
+
+std::wstring AkVCam::IpcBridge::errorMessage() const
+{
+    return this->d->m_error;
 }
 
 void AkVCam::IpcBridge::setOption(const std::string &key, const std::string &value)
@@ -1410,7 +1416,7 @@ int AkVCam::IpcBridgePrivate::xioctl(int fd, ulong request, void *arg) const
 }
 
 bool AkVCam::IpcBridgePrivate::sudo(const QString &command,
-                                    const QStringList &argumments) const
+                                    const QStringList &argumments)
 {
     QProcess su;
 
@@ -1419,15 +1425,20 @@ bool AkVCam::IpcBridgePrivate::sudo(const QString &command,
     su.waitForFinished(-1);
 
     if (su.exitCode()) {
-        QByteArray outMsg = su.readAllStandardOutput();
+        auto outMsg = su.readAllStandardOutput();
+        this->m_error = {};
 
-        if (!outMsg.isEmpty())
+        if (!outMsg.isEmpty()) {
             qDebug() << outMsg.toStdString().c_str();
+            this->m_error += QString(outMsg).toStdWString() + L" ";
+        }
 
-        QByteArray errorMsg = su.readAllStandardError();
+        auto errorMsg = su.readAllStandardError();
 
-        if (!errorMsg.isEmpty())
+        if (!errorMsg.isEmpty()) {
             qDebug() << errorMsg.toStdString().c_str();
+            this->m_error += QString(outMsg).toStdWString();
+        }
 
         return false;
     }
@@ -1436,7 +1447,7 @@ bool AkVCam::IpcBridgePrivate::sudo(const QString &command,
 }
 
 bool AkVCam::IpcBridgePrivate::sudo(const std::string &command,
-                                    const QStringList &argumments) const
+                                    const QStringList &argumments)
 {
     return this->sudo(QString::fromStdString(command), argumments);
 }
@@ -2364,8 +2375,11 @@ std::string AkVCam::IpcBridgePrivate::deviceCreateAkVCam(const std::wstring &des
 {
     auto deviceNR = requestDeviceNR(2);
 
-    if (deviceNR.count() < 2)
+    if (deviceNR.count() < 2) {
+        this->m_error = L"No available devices to create a virtual camera";
+
         return {};
+    }
 
     auto devices = this->devicesInfo("akvcam");
 
@@ -2547,8 +2561,11 @@ std::string AkVCam::IpcBridgePrivate::deviceCreateAkVCam(const std::wstring &des
 
     QFile cmds(tempDir.path() + "/akvcam_exec.sh");
 
-    if (!cmds.open(QIODevice::WriteOnly | QIODevice::Text))
+    if (!cmds.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        this->m_error = L"Can't create install script";
+
         return {};
+    }
 
     cmds.setPermissions(QFileDevice::ReadOwner
                         | QFileDevice::WriteOwner
@@ -2610,8 +2627,11 @@ std::string AkVCam::IpcBridgePrivate::deviceCreateAkVCam(const std::wstring &des
 
     auto devicePath = QString("/dev/video%1").arg(deviceNR[1]);
 
-    if (!this->waitFroDevice(devicePath))
+    if (!this->waitFroDevice(devicePath)) {
+        this->m_error = L"Time exceeded while waiting for the device";
+
         return {};
+    }
 
     return devicePath.toStdString();
 }
@@ -3135,8 +3155,11 @@ std::string AkVCam::IpcBridgePrivate::deviceCreateV4L2Loopback(const std::wstrin
 {
     auto deviceNR = requestDeviceNR(1);
 
-    if (deviceNR.count() < 1)
+    if (deviceNR.count() < 1) {
+        this->m_error = L"No available devices to create a virtual camera";
+
         return {};
+    }
 
     auto devicePath = QString("/dev/video%1").arg(deviceNR.front());
     auto devices = this->devicesInfo("v4l2 loopback");
@@ -3168,8 +3191,11 @@ std::string AkVCam::IpcBridgePrivate::deviceCreateV4L2Loopback(const std::wstrin
     QTemporaryDir tempDir;
     QFile cmds(tempDir.path() + "/akvcam_exec.sh");
 
-    if (!cmds.open(QIODevice::WriteOnly | QIODevice::Text))
+    if (!cmds.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        this->m_error = L"Can't create install script";
+
         return {};
+    }
 
     cmds.setPermissions(QFileDevice::ReadOwner
                         | QFileDevice::WriteOwner
@@ -3206,8 +3232,11 @@ std::string AkVCam::IpcBridgePrivate::deviceCreateV4L2Loopback(const std::wstrin
     if (!this->sudo(this->self->rootMethod(), {"sh", cmds.fileName()}))
         return {};
 
-    if (!this->waitFroDevice(devicePath))
+    if (!this->waitFroDevice(devicePath)) {
+        this->m_error = L"Time exceeded while waiting for the device";
+
         return {};
+    }
 
     auto devicesInfo = this->readDevicesConfigs();
     QSettings settings(QCoreApplication::organizationName(),

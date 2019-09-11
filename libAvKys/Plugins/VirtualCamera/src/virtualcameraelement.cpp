@@ -73,6 +73,11 @@ VirtualCameraElement::~VirtualCameraElement()
     delete this->d;
 }
 
+QString VirtualCameraElement::errorMessage() const
+{
+    return QString::fromStdWString(this->d->m_ipcBridge.errorMessage());
+}
+
 QStringList VirtualCameraElement::driverPaths() const
 {
     QStringList driverPaths;
@@ -247,8 +252,12 @@ QString VirtualCameraElement::createWebcam(const QString &description)
                                                   description.toStdWString(),
                                               formats);
 
-    if (webcam.empty())
+    if (webcam.empty()) {
+        auto error = this->d->m_ipcBridge.errorMessage();
+        emit this->errorMessageChanged(QString::fromStdWString(error));
+
         return {};
+    }
 
     emit this->mediasChanged(this->medias());
 

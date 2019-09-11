@@ -219,8 +219,9 @@ GridLayout {
     }
     Label {
         id: message
-        Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+        Layout.fillWidth: true
         Layout.columnSpan: 2
+        wrapMode: Text.WordWrap
         visible: false
     }
     Label {
@@ -260,7 +261,7 @@ GridLayout {
             PropertyChanges {
                 target: message
                 visible: true
-                text: qsTr("Error creating camera")
+                text: qsTr("Error creating camera: ") + VirtualCamera.errorMessage
                 color: "#ff0000"
                 style: Text.Raised
             }
