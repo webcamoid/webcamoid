@@ -2155,7 +2155,7 @@
         <translation>Nome videocamera (opzionale)</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="263"/>
+        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="264"/>
         <source>Error creating camera: </source>
         <translation type="unfinished"></translation>
     </message>
@@ -2170,7 +2170,7 @@
         <translation type="unfinished">Cancella</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="249"/>
+        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="250"/>
         <source>This system is not supported yet</source>
         <translation>Questo sistema non è ancora supportato</translation>
     </message>

@@ -2155,7 +2155,7 @@
         <translation>摄像头名字（可选）</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="263"/>
+        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="264"/>
         <source>Error creating camera: </source>
         <translation type="unfinished"></translation>
     </message>
@@ -2170,7 +2170,7 @@
         <translation>取消</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="249"/>
+        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="250"/>
         <source>This system is not supported yet</source>
         <translation type="unfinished">您所使用的系统并不在支持范围内</translation>
     </message>

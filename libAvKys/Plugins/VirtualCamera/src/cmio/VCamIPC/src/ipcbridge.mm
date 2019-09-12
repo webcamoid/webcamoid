@@ -92,7 +92,7 @@ namespace AkVCam
             bool mkpath(const std::string &path) const;
             bool rm(const std::string &path) const;
             bool createDaemonPlist(const std::string &fileName) const;
-            bool loadDaemon() const;
+            bool loadDaemon();
             void unloadDaemon() const;
             bool checkDaemon();
             void uninstallPlugin();
@@ -669,7 +669,7 @@ std::string AkVCam::IpcBridge::deviceCreate(const std::wstring &description,
     this->registerPeer(false);
 
     if (!this->d->m_serverMessagePort || !this->d->m_messagePort) {
-        this->m_error = L"Can't register peer";
+        this->d->m_error = L"Can't register peer";
 
         return {};
     }
@@ -700,7 +700,7 @@ std::string AkVCam::IpcBridge::deviceCreate(const std::wstring &description,
     auto replyType = xpc_get_type(reply);
 
     if (replyType != XPC_TYPE_DICTIONARY) {
-        this->m_error = L"Can't set virtual camera formats";
+        this->d->m_error = L"Can't set virtual camera formats";
         xpc_release(reply);
 
         return {};
@@ -1421,7 +1421,7 @@ bool AkVCam::IpcBridgePrivate::createDaemonPlist(const std::string &fileName) co
     return true;
 }
 
-bool AkVCam::IpcBridgePrivate::loadDaemon() const
+bool AkVCam::IpcBridgePrivate::loadDaemon()
 {
     AkIpcBridgePrivateLogMethod();
     auto launchctl = popen("launchctl list " AKVCAM_ASSISTANT_NAME, "r");
