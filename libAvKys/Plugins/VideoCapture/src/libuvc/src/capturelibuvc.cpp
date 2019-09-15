@@ -64,7 +64,7 @@ class UvcControl
                 {PROCESSING_UNIT, UVC_PU_GAMMA_CONTROL                         , "Gamma"                         , "integer", false, {}},
                 {PROCESSING_UNIT, UVC_PU_WHITE_BALANCE_TEMPERATURE_CONTROL     , "White Balance Temperature"     , "integer", false, {}},
                 {PROCESSING_UNIT, UVC_PU_WHITE_BALANCE_TEMPERATURE_AUTO_CONTROL, "White Balance Temperature Auto", "boolean", false, {}},
-                {PROCESSING_UNIT, UVC_PU_WHITE_BALANCE_COMPONENT_CONTROL       , "White Balance Component"       , "integer", false, {}},
+                //{PROCESSING_UNIT, UVC_PU_WHITE_BALANCE_COMPONENT_CONTROL       , "White Balance Component"       , "integer", false, {}},
                 {PROCESSING_UNIT, UVC_PU_WHITE_BALANCE_COMPONENT_AUTO_CONTROL  , "White Balance Component Auto"  , "boolean", false, {}},
                 {PROCESSING_UNIT, UVC_PU_DIGITAL_MULTIPLIER_CONTROL            , "Digital Multiplier"            , "integer", false, {}},
                 {PROCESSING_UNIT, UVC_PU_DIGITAL_MULTIPLIER_LIMIT_CONTROL      , "Digital Multiplier Limit"      , "integer", false, {}},

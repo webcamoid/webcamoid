@@ -29,10 +29,11 @@ exists(akcommons.pri) {
 CONFIG += plugin
 
 HEADERS = \
+    ../capture.h \
     src/plugin.h \
     src/captureavfoundation.h \
     src/deviceobserver.h \
-    ../capture.h
+    src/devicecontrols.h
 
 INCLUDEPATH += \
     ../../../../Lib/src \
@@ -51,8 +52,9 @@ LIBS += \
 QT += qml
 
 SOURCES = \
+    ../capture.cpp \
     src/plugin.cpp \
-    ../capture.cpp
+    src/devicecontrols.cpp
 
 OBJECTIVE_SOURCES = \
     src/captureavfoundation.mm \

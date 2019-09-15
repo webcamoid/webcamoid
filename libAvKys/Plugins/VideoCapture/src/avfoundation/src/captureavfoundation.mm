@@ -30,171 +30,51 @@
 
 #include "captureavfoundation.h"
 #include "deviceobserver.h"
+#include "devicecontrols.h"
 
 using FourCharCodeToStrMap = QMap<FourCharCode, QString>;
-
-inline FourCharCodeToStrMap initFourCharCodeToStrMap()
-{
-    FourCharCodeToStrMap fourccToStrMap = {
-        // Raw formats
-        {kCMPixelFormat_32ARGB         , "ARGB"    },
-        {kCMPixelFormat_24RGB          , "RGB"     },
-        {kCMPixelFormat_16BE555        , "RGB555BE"},
-        {kCMPixelFormat_16BE565        , "RGB565BE"},
-        {kCMPixelFormat_16LE555        , "RGB555"  },
-        {kCMPixelFormat_16LE565        , "RGB565"  },
-        {kCMPixelFormat_16LE5551       , "ARGB555" },
-        {kCMPixelFormat_422YpCbCr8     , "UYVY"    },
-        {kCMPixelFormat_422YpCbCr8_yuvs, "YUY2"    },
-
-        // Compressed formats
-        {kCMVideoCodecType_422YpCbCr8  , "UYVY"},
-        {kCMVideoCodecType_JPEG        , "JPEG"},
-        {kCMVideoCodecType_JPEG_OpenDML, "MJPG"},
-        {kCMVideoCodecType_H263        , "H263"},
-        {kCMVideoCodecType_H264        , "H264"},
-        {kCMVideoCodecType_HEVC        , "HEVC"},
-        {kCMVideoCodecType_MPEG4Video  , "MPG4"},
-        {kCMVideoCodecType_MPEG2Video  , "MPG2"},
-        {kCMVideoCodecType_MPEG1Video  , "MPG1"}
-    };
-
-    return fourccToStrMap;
-}
-
-Q_GLOBAL_STATIC_WITH_ARGS(FourCharCodeToStrMap, fourccToStrMap, (initFourCharCodeToStrMap()))
 
 class CaptureAvFoundationPrivate
 {
     public:
-        id m_deviceObserver;
-        AVCaptureDeviceInput *m_deviceInput;
-        AVCaptureVideoDataOutput *m_dataOutput;
-        AVCaptureSession *m_session;
-        CMSampleBufferRef m_curFrame;
+        id m_deviceObserver {nil};
+        AVCaptureDeviceInput *m_deviceInput {nil};
+        AVCaptureVideoDataOutput *m_dataOutput {nil};
+        AVCaptureSession *m_session {nil};
+        CMSampleBufferRef m_curFrame {nil};
         QString m_device;
         QList<int> m_streams;
         QStringList m_devices;
         QMap<QString, quint32> m_modelId;
         QMap<QString, QString> m_descriptions;
         QMap<QString, QVariantList> m_devicesCaps;
-        CaptureAvFoundation::IoMethod m_ioMethod;
-        int m_nBuffers;
+        DeviceControls m_controls;
+        CaptureAvFoundation::IoMethod m_ioMethod {CaptureAvFoundation::IoMethodUnknown};
+        int m_nBuffers {32};
         QMutex m_mutex;
         QMutex m_controlsMutex;
         QWaitCondition m_frameReady;
         AkFrac m_fps;
         AkFrac m_timeBase;
         AkCaps m_caps;
-        qint64 m_id;
+        qint64 m_id {-1};
         QVariantList m_globalImageControls;
         QVariantList m_globalCameraControls;
         QVariantMap m_localImageControls;
         QVariantMap m_localCameraControls;
 
-        CaptureAvFoundationPrivate():
-            m_deviceObserver(nil),
-            m_deviceInput(nil),
-            m_dataOutput(nil),
-            m_session(nil),
-            m_curFrame(nil),
-            m_ioMethod(CaptureAvFoundation::IoMethodUnknown),
-            m_nBuffers(32),
-            m_id(-1)
-        {
-
-        }
-
-        static inline QString fourccToStr(FourCharCode format)
-        {
-            char fourcc[5];
-            memcpy(fourcc, &format, sizeof(FourCharCode));
-            fourcc[4] = 0;
-
-            return QString(fourcc);
-        }
-
-        static inline FourCharCode strToFourCC(const QString &format)
-        {
-            FourCharCode fourcc;
-            memcpy(&fourcc, format.toStdString().c_str(), sizeof(FourCharCode));
-
-            return fourcc;
-        }
-
-        static inline QVariantList imageControls(AVCaptureDevice *camera)
-        {
-            QVariantList controls;
-
-            if ([camera lockForConfiguration: nil] == NO)
-                return controls;
-
-            // This controls will be not implemented since Apple doesn't
-            // provides an interface for controlling camera controls
-            // (ie. UVC controls).
-
-            [camera unlockForConfiguration];
-
-            return controls;
-        }
-
-        static inline QVariantList cameraControls(AVCaptureDevice *camera)
-        {
-            QVariantList controls;
-
-            if ([camera lockForConfiguration: nil] == NO)
-                return controls;
-
-            // Same as above.
-
-            [camera unlockForConfiguration];
-
-            return controls;
-        }
-
+        CaptureAvFoundationPrivate();
+        static inline QString fourccToStr(FourCharCode format);
+        static inline FourCharCode strToFourCC(const QString &format);
         static inline AVCaptureDeviceFormat *formatFromCaps(AVCaptureDevice *camera,
-                                                            const AkCaps &caps)
-        {
-            for (AVCaptureDeviceFormat *format in camera.formats) {
-                if ([format.mediaType isEqualToString: AVMediaTypeVideo] == NO)
-                    continue;
-
-                FourCharCode fourCC = CMFormatDescriptionGetMediaSubType(format.formatDescription);
-                CMVideoDimensions size =
-                        CMVideoFormatDescriptionGetDimensions(format.formatDescription);
-
-                QString fourccStr =
-                        fourccToStrMap->value(fourCC,
-                                              CaptureAvFoundationPrivate::fourccToStr(fourCC));
-
-                AkCaps videoCaps;
-                videoCaps.setMimeType("video/unknown");
-                videoCaps.setProperty("fourcc", fourccStr);
-                videoCaps.setProperty("width", size.width);
-                videoCaps.setProperty("height", size.height);
-
-                for (AVFrameRateRange *fpsRange in format.videoSupportedFrameRateRanges) {
-                    videoCaps.setProperty("fps", AkFrac(qRound(1e3 * fpsRange.maxFrameRate), 1e3).toString());
-
-                    if (videoCaps == caps)
-                        return format;
-                }
-            }
-
-            return nil;
-        }
-
+                                                            const AkCaps &caps);
         static inline AVFrameRateRange *frameRateRangeFromFps(AVCaptureDeviceFormat *format,
-                                                              const AkFrac &fps)
-        {
-            for (AVFrameRateRange *fpsRange in format.videoSupportedFrameRateRanges)
-                if (AkFrac(qRound(1e3 * fpsRange.maxFrameRate), 1e3) == fps)
-                    return fpsRange;
-
-            return nil;
-        }
-
+                                                              const AkFrac &fps);
+        static inline const FourCharCodeToStrMap &fourccToStrMap();
         AkCaps capsFromFrameSampleBuffer(const CMSampleBufferRef sampleBuffer) const;
+        QVariantMap controlStatus(const QVariantList &controls) const;
+        QVariantMap mapDiff(const QVariantMap &map1,
+                            const QVariantMap &map2) const;
 };
 
 CaptureAvFoundation::CaptureAvFoundation(QObject *parent):
@@ -345,7 +225,7 @@ bool CaptureAvFoundation::resetImageControls()
 {
     QVariantMap controls;
 
-    for (const QVariant &control: this->imageControls()) {
+    for (auto &control: this->imageControls()) {
         QVariantList params = control.toList();
         controls[params[0].toString()] = params[5].toInt();
     }
@@ -406,6 +286,28 @@ bool CaptureAvFoundation::resetCameraControls()
 AkPacket CaptureAvFoundation::readFrame()
 {
     this->d->m_mutex.lock();
+
+    this->d->m_controlsMutex.lock();
+    auto imageControls = this->d->controlStatus(this->d->m_globalImageControls);
+    this->d->m_controlsMutex.unlock();
+
+    if (this->d->m_localImageControls != imageControls) {
+        auto controls = this->d->mapDiff(this->d->m_localImageControls,
+                                         imageControls);
+        this->d->m_controls.setImageControls(controls);
+        this->d->m_localImageControls = imageControls;
+    }
+
+    this->d->m_controlsMutex.lock();
+    auto cameraControls = this->d->controlStatus(this->d->m_globalCameraControls);
+    this->d->m_controlsMutex.unlock();
+
+    if (this->d->m_localCameraControls != cameraControls) {
+        auto controls = this->d->mapDiff(this->d->m_localCameraControls,
+                                         cameraControls);
+        this->d->m_controls.setCameraControls(controls);
+        this->d->m_localCameraControls = cameraControls;
+    }
 
     if (!this->d->m_curFrame)
         if (!this->d->m_frameReady.wait(&this->d->m_mutex, 1000)) {
@@ -500,7 +402,7 @@ QVariantMap CaptureAvFoundation::controlStatus(const QVariantList &controls) con
 {
     QVariantMap controlStatus;
 
-    for (const QVariant &control: controls) {
+    for (auto &control: controls) {
         QVariantList params = control.toList();
         QString controlName = params[0].toString();
         controlStatus[controlName] = params[0];
@@ -511,6 +413,9 @@ QVariantMap CaptureAvFoundation::controlStatus(const QVariantList &controls) con
 
 bool CaptureAvFoundation::init()
 {
+    this->d->m_localImageControls.clear();
+    this->d->m_localCameraControls.clear();
+
     QString webcam = this->d->m_device;
 
     if (webcam.isEmpty())
@@ -597,6 +502,7 @@ bool CaptureAvFoundation::init()
         return false;
     }
 
+    this->d->m_controls.open(webcam);
     AkFrac fps = caps.property("fps").toString();
     auto fpsRange = CaptureAvFoundationPrivate::frameRateRangeFromFps(format,
                                                                       fps);
@@ -652,6 +558,8 @@ void CaptureAvFoundation::uninit()
     }
 
     this->d->m_mutex.unlock();
+
+    this->d->m_controls.close();
 }
 
 void CaptureAvFoundation::setDevice(const QString &device)
@@ -660,7 +568,33 @@ void CaptureAvFoundation::setDevice(const QString &device)
         return;
 
     this->d->m_device = device;
+
+    if (device.isEmpty()) {
+        this->d->m_controlsMutex.lock();
+        this->d->m_globalImageControls.clear();
+        this->d->m_globalCameraControls.clear();
+        this->d->m_controlsMutex.unlock();
+    } else {
+        this->d->m_controlsMutex.lock();
+        DeviceControls controls;
+
+        if (controls.open(device)) {
+            this->d->m_globalImageControls = controls.imageControls();
+            this->d->m_globalCameraControls = controls.cameraControls();
+            controls.close();
+        }
+
+        this->d->m_controlsMutex.unlock();
+    }
+
+    this->d->m_controlsMutex.lock();
+    auto imageStatus = this->d->controlStatus(this->d->m_globalImageControls);
+    auto cameraStatus = this->d->controlStatus(this->d->m_globalCameraControls);
+    this->d->m_controlsMutex.unlock();
+
     emit this->deviceChanged(device);
+    emit this->imageControlsChanged(imageStatus);
+    emit this->cameraControlsChanged(cameraStatus);
 }
 
 void CaptureAvFoundation::setStreams(const QList<int> &streams)
@@ -782,10 +716,10 @@ void CaptureAvFoundation::updateDevices()
             FourCharCode fourCC = CMFormatDescriptionGetMediaSubType(format.formatDescription);
             CMVideoDimensions size =
                     CMVideoFormatDescriptionGetDimensions(format.formatDescription);
-
+            auto &map = CaptureAvFoundationPrivate::fourccToStrMap();
             QString fourccStr =
-                    fourccToStrMap->value(fourCC,
-                                          CaptureAvFoundationPrivate::fourccToStr(fourCC));
+                    map.value(fourCC,
+                              CaptureAvFoundationPrivate::fourccToStr(fourCC));
 
             AkCaps videoCaps;
             videoCaps.setMimeType("video/unknown");
@@ -812,6 +746,99 @@ void CaptureAvFoundation::updateDevices()
     this->d->m_devicesCaps = devicesCaps;
 }
 
+CaptureAvFoundationPrivate::CaptureAvFoundationPrivate()
+{
+
+}
+
+QString CaptureAvFoundationPrivate::fourccToStr(FourCharCode format)
+{
+    char fourcc[5];
+    memcpy(fourcc, &format, sizeof(FourCharCode));
+    fourcc[4] = 0;
+
+    return QString(fourcc);
+}
+
+FourCharCode CaptureAvFoundationPrivate::strToFourCC(const QString &format)
+{
+    FourCharCode fourcc;
+    memcpy(&fourcc, format.toStdString().c_str(), sizeof(FourCharCode));
+
+    return fourcc;
+}
+
+AVCaptureDeviceFormat *CaptureAvFoundationPrivate::formatFromCaps(AVCaptureDevice *camera,
+                                                                  const AkCaps &caps)
+{
+    for (AVCaptureDeviceFormat *format in camera.formats) {
+        if ([format.mediaType isEqualToString: AVMediaTypeVideo] == NO)
+            continue;
+
+        FourCharCode fourCC = CMFormatDescriptionGetMediaSubType(format.formatDescription);
+        CMVideoDimensions size =
+                CMVideoFormatDescriptionGetDimensions(format.formatDescription);
+        auto &map = CaptureAvFoundationPrivate::fourccToStrMap();
+        QString fourccStr =
+                map.value(fourCC,
+                           CaptureAvFoundationPrivate::fourccToStr(fourCC));
+
+        AkCaps videoCaps;
+        videoCaps.setMimeType("video/unknown");
+        videoCaps.setProperty("fourcc", fourccStr);
+        videoCaps.setProperty("width", size.width);
+        videoCaps.setProperty("height", size.height);
+
+        for (AVFrameRateRange *fpsRange in format.videoSupportedFrameRateRanges) {
+            videoCaps.setProperty("fps", AkFrac(qRound(1e3 * fpsRange.maxFrameRate), 1e3).toString());
+
+            if (videoCaps == caps)
+                return format;
+        }
+    }
+
+    return nil;
+}
+
+AVFrameRateRange *CaptureAvFoundationPrivate::frameRateRangeFromFps(AVCaptureDeviceFormat *format,
+                                                                    const AkFrac &fps)
+{
+    for (AVFrameRateRange *fpsRange in format.videoSupportedFrameRateRanges)
+        if (AkFrac(qRound(1e3 * fpsRange.maxFrameRate), 1e3) == fps)
+            return fpsRange;
+
+    return nil;
+}
+
+const FourCharCodeToStrMap &CaptureAvFoundationPrivate::fourccToStrMap()
+{
+    static const FourCharCodeToStrMap fourccToStrMap {
+        // Raw formats
+        {kCMPixelFormat_32ARGB         , "ARGB"    },
+        {kCMPixelFormat_24RGB          , "RGB"     },
+        {kCMPixelFormat_16BE555        , "RGB555BE"},
+        {kCMPixelFormat_16BE565        , "RGB565BE"},
+        {kCMPixelFormat_16LE555        , "RGB555"  },
+        {kCMPixelFormat_16LE565        , "RGB565"  },
+        {kCMPixelFormat_16LE5551       , "ARGB555" },
+        {kCMPixelFormat_422YpCbCr8     , "UYVY"    },
+        {kCMPixelFormat_422YpCbCr8_yuvs, "YUY2"    },
+
+        // Compressed formats
+        {kCMVideoCodecType_422YpCbCr8  , "UYVY"},
+        {kCMVideoCodecType_JPEG        , "JPEG"},
+        {kCMVideoCodecType_JPEG_OpenDML, "MJPG"},
+        {kCMVideoCodecType_H263        , "H263"},
+        {kCMVideoCodecType_H264        , "H264"},
+        {kCMVideoCodecType_HEVC        , "HEVC"},
+        {kCMVideoCodecType_MPEG4Video  , "MPG4"},
+        {kCMVideoCodecType_MPEG2Video  , "MPG2"},
+        {kCMVideoCodecType_MPEG1Video  , "MPG1"}
+    };
+
+    return fourccToStrMap;
+}
+
 AkCaps CaptureAvFoundationPrivate::capsFromFrameSampleBuffer(const CMSampleBufferRef sampleBuffer) const
 {
     auto formatDesc = CMSampleBufferGetFormatDescription(sampleBuffer);
@@ -820,8 +847,10 @@ AkCaps CaptureAvFoundationPrivate::capsFromFrameSampleBuffer(const CMSampleBuffe
     videoCaps.setMimeType("video/unknown");
 
     auto fourCC = CMFormatDescriptionGetMediaSubType(formatDesc);
-    videoCaps.setProperty("fourcc", fourccToStrMap->value(fourCC,
-                                                          CaptureAvFoundationPrivate::fourccToStr(fourCC)));
+    auto &map = CaptureAvFoundationPrivate::fourccToStrMap();
+    videoCaps.setProperty("fourcc",
+                          map.value(fourCC,
+                                    CaptureAvFoundationPrivate::fourccToStr(fourCC)));
 
     auto size = CMVideoFormatDescriptionGetDimensions(formatDesc);
     videoCaps.setProperty("width", size.width);
@@ -831,6 +860,33 @@ AkCaps CaptureAvFoundationPrivate::capsFromFrameSampleBuffer(const CMSampleBuffe
     videoCaps.setProperty("fps", AkFrac(time.timescale, time.value).toString());
 
     return videoCaps;
+}
+
+QVariantMap CaptureAvFoundationPrivate::controlStatus(const QVariantList &controls) const
+{
+    QVariantMap controlStatus;
+
+    for (auto &control: controls) {
+        QVariantList params = control.toList();
+        QString controlName = params[0].toString();
+        controlStatus[controlName] = params[6];
+    }
+
+    return controlStatus;
+}
+
+QVariantMap CaptureAvFoundationPrivate::mapDiff(const QVariantMap &map1,
+                                                const QVariantMap &map2) const
+{
+    QVariantMap map;
+
+    for (auto it = map2.cbegin(); it != map2.cend(); it++)
+        if (!map1.contains(it.key())
+            || map1[it.key()] != it.value()) {
+            map[it.key()] = it.value();
+        }
+
+    return map;
 }
 
 #include "moc_captureavfoundation.cpp"
