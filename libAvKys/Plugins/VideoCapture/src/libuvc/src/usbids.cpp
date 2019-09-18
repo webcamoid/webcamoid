@@ -70,7 +70,7 @@ UsbIds::UsbIds(QObject *parent):
 
 const UsbIdsElement *UsbIds::operator [](quint16 vendorId) const
 {
-    for (const auto &id: this->m_ids)
+    for (auto &id: this->m_ids)
         if (id.vendorId == vendorId)
             return &id;
 
@@ -82,7 +82,7 @@ QString UsbIds::description(quint16 vendorId, quint16 productId) const
     auto element = this->operator[](vendorId);
 
     if (!element)
-        return QString();
+        return {};
 
     if (element->products.contains(productId))
         return element->products[productId];

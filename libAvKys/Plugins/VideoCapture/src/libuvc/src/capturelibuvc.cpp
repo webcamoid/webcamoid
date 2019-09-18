@@ -45,145 +45,16 @@ class UvcControl
         bool signd;
         QStringList menu;
 
-        inline static const QVector<UvcControl> &controls()
-        {
-            static const QVector<UvcControl> controls {
-                // Processing Units
-                {PROCESSING_UNIT, UVC_PU_CONTROL_UNDEFINED                     , ""                              , ""       , false, {}},
-                {PROCESSING_UNIT, UVC_PU_BACKLIGHT_COMPENSATION_CONTROL        , "Backlight Compensation"        , "integer", false, {}},
-                {PROCESSING_UNIT, UVC_PU_BRIGHTNESS_CONTROL                    , "Brightness"                    , "integer", true , {}},
-                {PROCESSING_UNIT, UVC_PU_CONTRAST_CONTROL                      , "Contrast"                      , "integer", false, {}},
-                {PROCESSING_UNIT, UVC_PU_GAIN_CONTROL                          , "Gain"                          , "integer", false, {}},
-                {PROCESSING_UNIT, UVC_PU_POWER_LINE_FREQUENCY_CONTROL          , "Power Line Frequency"          , "menu"   , false, {"Disabled",
-                                                                                                                                      "50 Hz",
-                                                                                                                                      "60 Hz",
-                                                                                                                                      "Auto"}},
-                {PROCESSING_UNIT, UVC_PU_HUE_CONTROL                           , "Hue"                           , "integer", true , {}},
-                {PROCESSING_UNIT, UVC_PU_SATURATION_CONTROL                    , "Saturation"                    , "integer", false, {}},
-                {PROCESSING_UNIT, UVC_PU_SHARPNESS_CONTROL                     , "Sharpness"                     , "integer", false, {}},
-                {PROCESSING_UNIT, UVC_PU_GAMMA_CONTROL                         , "Gamma"                         , "integer", false, {}},
-                {PROCESSING_UNIT, UVC_PU_WHITE_BALANCE_TEMPERATURE_CONTROL     , "White Balance Temperature"     , "integer", false, {}},
-                {PROCESSING_UNIT, UVC_PU_WHITE_BALANCE_TEMPERATURE_AUTO_CONTROL, "White Balance Temperature Auto", "boolean", false, {}},
-                //{PROCESSING_UNIT, UVC_PU_WHITE_BALANCE_COMPONENT_CONTROL       , "White Balance Component"       , "integer", false, {}},
-                {PROCESSING_UNIT, UVC_PU_WHITE_BALANCE_COMPONENT_AUTO_CONTROL  , "White Balance Component Auto"  , "boolean", false, {}},
-                {PROCESSING_UNIT, UVC_PU_DIGITAL_MULTIPLIER_CONTROL            , "Digital Multiplier"            , "integer", false, {}},
-                {PROCESSING_UNIT, UVC_PU_DIGITAL_MULTIPLIER_LIMIT_CONTROL      , "Digital Multiplier Limit"      , "integer", false, {}},
-                {PROCESSING_UNIT, UVC_PU_HUE_AUTO_CONTROL                      , "Hue Auto"                      , "boolean", false, {}},
-                {PROCESSING_UNIT, UVC_PU_ANALOG_VIDEO_STANDARD_CONTROL         , "Analog Video Standard"         , "menu"   , false, {"None",
-                                                                                                                                      "NTSC - 525/60",
-                                                                                                                                      "PAL - 625/50",
-                                                                                                                                      "SECAM - 625/50",
-                                                                                                                                      "NTSC - 625/50",
-                                                                                                                                      "PAL - 525/60"}},
-                {PROCESSING_UNIT, UVC_PU_ANALOG_LOCK_STATUS_CONTROL            , "Analog Lock Status"            , "menu"   , false, {"Locked",
-                                                                                                                                      "Unlocked"}},
-                {PROCESSING_UNIT, UVC_PU_CONTRAST_AUTO_CONTROL                 , "Contrast Auto"                 , "boolean", false, {}},
-
-                // Camera Terminals
-                {CAMERA_TERMINAL, UVC_CT_CONTROL_UNDEFINED                     , ""                              , ""       , false, {}},
-                {CAMERA_TERMINAL, UVC_CT_SCANNING_MODE_CONTROL                 , "Scanning Mode"                 , "boolean", false, {}},
-                //{CAMERA_TERMINAL, UVC_CT_AE_MODE_CONTROL                       , "AE Mode"                       , "", false, {}},
-                //{CAMERA_TERMINAL, UVC_CT_AE_PRIORITY_CONTROL                   , "AE Priority"                   , "", false, {}},
-                //{CAMERA_TERMINAL, UVC_CT_EXPOSURE_TIME_ABSOLUTE_CONTROL        , "Exposure Time Absolute"        , "", false, {}},
-                //{CAMERA_TERMINAL, UVC_CT_EXPOSURE_TIME_RELATIVE_CONTROL        , "Exposure Time Relative"        , "", false, {}},
-                {CAMERA_TERMINAL, UVC_CT_FOCUS_ABSOLUTE_CONTROL                , "Focus Absolute"                , "integer", false, {}},
-                //{CAMERA_TERMINAL, UVC_CT_FOCUS_RELATIVE_CONTROL                , "Focus Relative"                , "", false, {}},
-                {CAMERA_TERMINAL, UVC_CT_FOCUS_AUTO_CONTROL                    , "Focus Auto"                    , "boolean", false, {}},
-                {CAMERA_TERMINAL, UVC_CT_IRIS_ABSOLUTE_CONTROL                 , "Iris Absolute"                 , "integer", false, {}},
-                //{CAMERA_TERMINAL, UVC_CT_IRIS_RELATIVE_CONTROL                 , "Iris Relative"                 , "", false, {}},
-                {CAMERA_TERMINAL, UVC_CT_ZOOM_ABSOLUTE_CONTROL                 , "Zoom Absolute"                 , "integer", false, {}},
-                //{CAMERA_TERMINAL, UVC_CT_ZOOM_RELATIVE_CONTROL                 , "Zoom Relative"                 , "", false, {}},
-                //{CAMERA_TERMINAL, UVC_CT_PANTILT_ABSOLUTE_CONTROL              , "Pantilt Absolute"              , "", false, {}},
-                //{CAMERA_TERMINAL, UVC_CT_PANTILT_RELATIVE_CONTROL              , "Pantilt Relative"              , "", false, {}},
-                {CAMERA_TERMINAL, UVC_CT_ROLL_ABSOLUTE_CONTROL                 , "Roll Absolute"                 , "integer", true, {}},
-                //{CAMERA_TERMINAL, UVC_CT_ROLL_RELATIVE_CONTROL                 , "Roll Relative"                 , "", false, {}},
-                {CAMERA_TERMINAL, UVC_CT_PRIVACY_CONTROL                       , "Privacy"                       , "boolean", false, {}},
-                {CAMERA_TERMINAL, UVC_CT_FOCUS_SIMPLE_CONTROL                  , "Focus Simple"                  , "menu"   , false, {"Full Range",
-                                                                                                                                      "Macro",
-                                                                                                                                      "People",
-                                                                                                                                      "Scene"}},
-                //{CAMERA_TERMINAL, UVC_CT_DIGITAL_WINDOW_CONTROL                , "Digital Window"                , "", false, {}},
-                //{CAMERA_TERMINAL, UVC_CT_REGION_OF_INTEREST_CONTROL            , "Region of Interest"            , "", false, {}}
-            };
-
-            return controls;
-        }
-
-        static inline const UvcControl *bySelector(int controlType,
-                                                   uint8_t selector)
-        {
-            for (auto &control: controls())
-                if (control.controlType == controlType
-                    && control.selector == selector)
-                    return &control;
-
-            // Returns default for control type.
-            for (auto &control: controls())
-                if (control.controlType == controlType)
-                    return &control;
-
-            return &controls().first();
-        }
-
-        static inline QVector<decltype(selector)> allSelectors(int controlType)
-        {
-            QVector<decltype(selector)> selectors;
-
-            for (int i = 1; i < controls().size(); i++)
-                if (controls()[i].controlType == controlType)
-                    selectors << controls()[i].selector;
-
-            return selectors;
-        }
+        inline static const QVector<UvcControl> &controls();
+        inline static const UvcControl *bySelector(int controlType,
+                                                   uint8_t selector);
+        inline static QVector<uint8_t> allSelectors(int controlType);
 };
 
 Q_GLOBAL_STATIC(UsbGlobals, usbGlobals)
 
 using PixFmtToStrMap = QMap<uvc_frame_format, QString>;
-
-inline PixFmtToStrMap initPixFmtToStr()
-{
-    PixFmtToStrMap pixFmtToStr = {
-        {UVC_FRAME_FORMAT_YUYV  , "YUY2"  },
-        {UVC_FRAME_FORMAT_UYVY  , "UYVY"  },
-        {UVC_FRAME_FORMAT_RGB  ,  "RGB"   },
-        {UVC_FRAME_FORMAT_BGR  ,  "BGR"   },
-        {UVC_FRAME_FORMAT_MJPEG , "MJPG"  },
-        {UVC_FRAME_FORMAT_GRAY8 , "GRAY8" },
-        {UVC_FRAME_FORMAT_GRAY16, "GRAY16"},
-        {UVC_FRAME_FORMAT_BY8   , "BY8"   },
-        {UVC_FRAME_FORMAT_BA81  , "SBGGR8"},
-        {UVC_FRAME_FORMAT_SGRBG8, "SGRBG8"},
-        {UVC_FRAME_FORMAT_SGBRG8, "SGBRG8"},
-        {UVC_FRAME_FORMAT_SRGGB8, "SRGGB8"},
-        {UVC_FRAME_FORMAT_SBGGR8, "SBGGR8"},
-    };
-
-    return pixFmtToStr;
-}
-
-Q_GLOBAL_STATIC_WITH_ARGS(PixFmtToStrMap, pixFmtToStr, (initPixFmtToStr()))
-
 using FourccToStrMap = QMap<QString, QString>;
-
-inline FourccToStrMap initFourccToStr()
-{
-    FourccToStrMap fourccToStr = {
-        {"RGB3", "RGB24" },
-        {"BGR3", "BGR24" },
-        {"Y800", "GRAY8" },
-        {"Y16 ", "GRAY16"},
-        {"BA81", "SBGGR8"},
-        {"GRBG", "SGRBG8"},
-        {"GBRG", "SGBRG8"},
-        {"RGGB", "SRGGB8"},
-        {"BGGR", "SBGGR8"},
-    };
-
-    return fourccToStr;
-}
-
-Q_GLOBAL_STATIC_WITH_ARGS(FourccToStrMap, v4l2FourccToStr, (initFourccToStr()))
 
 class CaptureLibUVCPrivate
 {
@@ -211,14 +82,16 @@ class CaptureLibUVCPrivate
                                   uint8_t unit,
                                   uint8_t control,
                                   int controlType) const;
-        void setControls(uvc_device_handle_t *deviceHnd,
-                         uint8_t unit,
-                         uint8_t control,
-                         int controlType,
-                         const QVariantMap &values);
+        int setControls(uvc_device_handle_t *deviceHnd,
+                        uint8_t unit,
+                        uint8_t control,
+                        int controlType,
+                        const QVariantMap &values);
         static void frameCallback(struct uvc_frame *frame, void *userData);
         QString fourccToStr(const uint8_t *format) const;
         void updateDevices();
+        inline static const PixFmtToStrMap &pixFmtToStr();
+        inline static const FourccToStrMap &v4l2FourccToStr();
 };
 
 CaptureLibUVC::CaptureLibUVC(QObject *parent):
@@ -406,8 +279,7 @@ bool CaptureLibUVC::resetImageControls()
     QVariantMap controls;
 
     for (auto &control: this->imageControls()) {
-        QVariantList params = control.toList();
-
+        auto params = control.toList();
         controls[params[0].toString()] = params[5].toInt();
     }
 
@@ -499,8 +371,7 @@ bool CaptureLibUVC::resetCameraControls()
     QVariantMap controls;
 
     for (auto &control: this->cameraControls()) {
-        QVariantList params = control.toList();
-
+        auto params = control.toList();
         controls[params[0].toString()] = params[5].toInt();
     }
 
@@ -515,11 +386,11 @@ AkPacket CaptureLibUVC::readFrame()
         if (!this->d->m_packetNotReady.wait(&this->d->m_mutex, TIME_OUT)) {
             this->d->m_mutex.unlock();
 
-            return AkPacket();
+            return {};
         }
 
     auto packet = this->d->m_curPacket;
-    this->d->m_curPacket = AkPacket();
+    this->d->m_curPacket = {};
 
     this->d->m_mutex.unlock();
 
@@ -556,7 +427,7 @@ QVariantList CaptureLibUVCPrivate::controlsList(uvc_device_handle_t *deviceHnd,
             int16_t val = 0;
 
             if (uvc_get_ctrl(deviceHnd, unit, control, &val, sizeof(int16_t), UVC_GET_CUR) < 0)
-                return QVariantList();
+                return {};
 
             value = val;
             uvc_get_ctrl(deviceHnd, unit, control, &val, sizeof(int16_t), UVC_GET_MIN);
@@ -571,7 +442,7 @@ QVariantList CaptureLibUVCPrivate::controlsList(uvc_device_handle_t *deviceHnd,
             uint16_t val = 0;
 
             if (uvc_get_ctrl(deviceHnd, unit, control, &val, sizeof(int16_t), UVC_GET_CUR) < 0)
-                return QVariantList();
+                return {};
 
             value = val;
             uvc_get_ctrl(deviceHnd, unit, control, &val, sizeof(uint16_t), UVC_GET_MIN);
@@ -587,7 +458,7 @@ QVariantList CaptureLibUVCPrivate::controlsList(uvc_device_handle_t *deviceHnd,
         uint8_t val = false;
 
         if (uvc_get_ctrl(deviceHnd, unit, control, &val, sizeof(int16_t), UVC_GET_CUR) < 0)
-            return QVariantList();
+            return {};
 
         value = val;
         uvc_get_ctrl(deviceHnd, unit, control, &val, sizeof(uint8_t), UVC_GET_MIN);
@@ -602,7 +473,7 @@ QVariantList CaptureLibUVCPrivate::controlsList(uvc_device_handle_t *deviceHnd,
         uint8_t val = 0;
 
         if (uvc_get_ctrl(deviceHnd, unit, control, &val, sizeof(int16_t), UVC_GET_CUR) < 0)
-            return QVariantList();
+            return {};
 
         value = val;
         uvc_get_ctrl(deviceHnd, unit, control, &val, sizeof(uint8_t), UVC_GET_MIN);
@@ -627,53 +498,53 @@ QVariantList CaptureLibUVCPrivate::controlsList(uvc_device_handle_t *deviceHnd,
     };
 }
 
-void CaptureLibUVCPrivate::setControls(uvc_device_handle_t *deviceHnd,
-                                       uint8_t unit,
-                                       uint8_t control,
-                                       int controlType,
-                                       const QVariantMap &values)
+int CaptureLibUVCPrivate::setControls(uvc_device_handle_t *deviceHnd,
+                                      uint8_t unit,
+                                      uint8_t control,
+                                      int controlType,
+                                      const QVariantMap &values)
 {
     auto selector = UvcControl::bySelector(controlType,
                                            control);
 
     if (!values.contains(selector->description))
-        return;
+        return -1;
+
+    int result = -1;
 
     if (selector->type == "integer") {
         if (selector->signd) {
             auto val = int16_t(values[selector->description].toInt());
-
-            uvc_set_ctrl(deviceHnd,
-                         unit,
-                         control,
-                         &val,
-                         sizeof(int16_t));
+            result = uvc_set_ctrl(deviceHnd,
+                                  unit,
+                                  control,
+                                  &val,
+                                  sizeof(int16_t));
         } else {
             auto val = uint16_t(values[selector->description].toUInt());
-
-            uvc_set_ctrl(deviceHnd,
-                         unit,
-                         control,
-                         &val,
-                         sizeof(uint16_t));
+            result = uvc_set_ctrl(deviceHnd,
+                                  unit,
+                                  control,
+                                  &val,
+                                  sizeof(uint16_t));
         }
     } else if (selector->type == "boolean") {
         uint8_t val = values[selector->description].toBool();
-
-        uvc_set_ctrl(deviceHnd,
-                     unit,
-                     control,
-                     &val,
-                     sizeof(uint8_t));
+        result = uvc_set_ctrl(deviceHnd,
+                              unit,
+                              control,
+                              &val,
+                              sizeof(uint8_t));
     } else if (selector->type == "menu") {
         auto val = uint8_t(values[selector->description].toUInt());
-
-        uvc_set_ctrl(deviceHnd,
-                     unit,
-                     control,
-                     &val,
-                     sizeof(uint8_t));
+        result = uvc_set_ctrl(deviceHnd,
+                              unit,
+                              control,
+                              &val,
+                              sizeof(uint8_t));
     }
+
+    return result;
 }
 
 void CaptureLibUVCPrivate::frameCallback(uvc_frame *frame, void *userData)
@@ -686,7 +557,7 @@ void CaptureLibUVCPrivate::frameCallback(uvc_frame *frame, void *userData)
     self->m_mutex.lock();
 
     AkCaps caps("video/unknown");
-    caps.setProperty("fourcc", pixFmtToStr->value(frame->frame_format));
+    caps.setProperty("fourcc", CaptureLibUVCPrivate::pixFmtToStr().value(frame->frame_format));
     caps.setProperty("width", frame->width);
     caps.setProperty("height", frame->height);
     caps.setProperty("fps", self->m_fps.toString());
@@ -806,11 +677,12 @@ void CaptureLibUVCPrivate::updateDevices()
 
         for (; formatDescription; formatDescription = formatDescription->next) {
             auto fourCC = this->fourccToStr(formatDescription->fourccFormat);
-            fourCC = v4l2FourccToStr->value(fourCC, fourCC);
+            fourCC = CaptureLibUVCPrivate::v4l2FourccToStr().value(fourCC,
+                                                                   fourCC);
 
-            if (std::find(pixFmtToStr->cbegin(),
-                          pixFmtToStr->cend(),
-                          fourCC) == pixFmtToStr->cend())
+            if (std::find(CaptureLibUVCPrivate::pixFmtToStr().cbegin(),
+                          CaptureLibUVCPrivate::pixFmtToStr().cend(),
+                          fourCC) == CaptureLibUVCPrivate::pixFmtToStr().cend())
                 continue;
 
             videoCaps.setProperty("fourcc", fourCC);
@@ -916,6 +788,44 @@ updateDevices_failed:
     }
 }
 
+const PixFmtToStrMap &CaptureLibUVCPrivate::pixFmtToStr()
+{
+    static const PixFmtToStrMap &pixFmtToStr {
+        {UVC_FRAME_FORMAT_YUYV  , "YUY2"  },
+        {UVC_FRAME_FORMAT_UYVY  , "UYVY"  },
+        {UVC_FRAME_FORMAT_RGB  ,  "RGB"   },
+        {UVC_FRAME_FORMAT_BGR  ,  "BGR"   },
+        {UVC_FRAME_FORMAT_MJPEG , "MJPG"  },
+        {UVC_FRAME_FORMAT_GRAY8 , "GRAY8" },
+        {UVC_FRAME_FORMAT_GRAY16, "GRAY16"},
+        {UVC_FRAME_FORMAT_BY8   , "BY8"   },
+        {UVC_FRAME_FORMAT_BA81  , "SBGGR8"},
+        {UVC_FRAME_FORMAT_SGRBG8, "SGRBG8"},
+        {UVC_FRAME_FORMAT_SGBRG8, "SGBRG8"},
+        {UVC_FRAME_FORMAT_SRGGB8, "SRGGB8"},
+        {UVC_FRAME_FORMAT_SBGGR8, "SBGGR8"},
+    };
+
+    return pixFmtToStr;
+}
+
+const FourccToStrMap &CaptureLibUVCPrivate::v4l2FourccToStr()
+{
+    static const FourccToStrMap fourccToStr {
+        {"RGB3", "RGB24" },
+        {"BGR3", "BGR24" },
+        {"Y800", "GRAY8" },
+        {"Y16 ", "GRAY16"},
+        {"BA81", "SBGGR8"},
+        {"GRBG", "SGRBG8"},
+        {"GBRG", "SGBRG8"},
+        {"RGGB", "SRGGB8"},
+        {"BGGR", "SBGGR8"},
+    };
+
+    return fourccToStr;
+}
+
 bool CaptureLibUVC::init()
 {
     if (this->d->m_devices.isEmpty() || this->d->m_device.isEmpty())
@@ -962,7 +872,7 @@ bool CaptureLibUVC::init()
     uvc_stream_ctrl_t streamCtrl;
     error = uvc_get_stream_ctrl_format_size(this->d->m_deviceHnd,
                                             &streamCtrl,
-                                            pixFmtToStr->key(caps.property("fourcc").toString()),
+                                            CaptureLibUVCPrivate::pixFmtToStr().key(caps.property("fourcc").toString()),
                                             caps.property("width").toInt(),
                                             caps.property("height").toInt(),
                                             fps);
@@ -1034,7 +944,7 @@ void CaptureLibUVC::setStreams(const QList<int> &streams)
     if (stream < 0)
         return;
 
-    QVariantList supportedCaps = this->caps(this->d->m_device);
+    auto supportedCaps = this->caps(this->d->m_device);
 
     if (stream >= supportedCaps.length())
         return;
@@ -1065,7 +975,7 @@ void CaptureLibUVC::resetDevice()
 
 void CaptureLibUVC::resetStreams()
 {
-    QVariantList supportedCaps = this->caps(this->d->m_device);
+    auto supportedCaps = this->caps(this->d->m_device);
     QList<int> streams;
 
     if (!supportedCaps.isEmpty())
@@ -1087,6 +997,96 @@ void CaptureLibUVC::reset()
     this->resetStreams();
     this->resetImageControls();
     this->resetCameraControls();
+}
+
+const QVector<UvcControl> &UvcControl::controls()
+{
+    static const QVector<UvcControl> controls {
+        // Processing Units
+        {PROCESSING_UNIT, UVC_PU_CONTROL_UNDEFINED                     , ""                              , ""       , false, {}},
+        {PROCESSING_UNIT, UVC_PU_BACKLIGHT_COMPENSATION_CONTROL        , "Backlight Compensation"        , "integer", false, {}},
+        {PROCESSING_UNIT, UVC_PU_BRIGHTNESS_CONTROL                    , "Brightness"                    , "integer", true , {}},
+        {PROCESSING_UNIT, UVC_PU_CONTRAST_CONTROL                      , "Contrast"                      , "integer", false, {}},
+        {PROCESSING_UNIT, UVC_PU_GAIN_CONTROL                          , "Gain"                          , "integer", false, {}},
+        {PROCESSING_UNIT, UVC_PU_POWER_LINE_FREQUENCY_CONTROL          , "Power Line Frequency"          , "menu"   , false, {"Disabled",
+                                                                                                                              "50 Hz",
+                                                                                                                              "60 Hz",
+                                                                                                                              "Auto"}},
+        {PROCESSING_UNIT, UVC_PU_HUE_CONTROL                           , "Hue"                           , "integer", true , {}},
+        {PROCESSING_UNIT, UVC_PU_SATURATION_CONTROL                    , "Saturation"                    , "integer", false, {}},
+        {PROCESSING_UNIT, UVC_PU_SHARPNESS_CONTROL                     , "Sharpness"                     , "integer", false, {}},
+        {PROCESSING_UNIT, UVC_PU_GAMMA_CONTROL                         , "Gamma"                         , "integer", false, {}},
+        {PROCESSING_UNIT, UVC_PU_WHITE_BALANCE_TEMPERATURE_CONTROL     , "White Balance Temperature"     , "integer", false, {}},
+        {PROCESSING_UNIT, UVC_PU_WHITE_BALANCE_TEMPERATURE_AUTO_CONTROL, "White Balance Temperature Auto", "boolean", false, {}},
+        //{PROCESSING_UNIT, UVC_PU_WHITE_BALANCE_COMPONENT_CONTROL       , "White Balance Component"       , "integer", false, {}},
+        {PROCESSING_UNIT, UVC_PU_WHITE_BALANCE_COMPONENT_AUTO_CONTROL  , "White Balance Component Auto"  , "boolean", false, {}},
+        {PROCESSING_UNIT, UVC_PU_DIGITAL_MULTIPLIER_CONTROL            , "Digital Multiplier"            , "integer", false, {}},
+        {PROCESSING_UNIT, UVC_PU_DIGITAL_MULTIPLIER_LIMIT_CONTROL      , "Digital Multiplier Limit"      , "integer", false, {}},
+        {PROCESSING_UNIT, UVC_PU_HUE_AUTO_CONTROL                      , "Hue Auto"                      , "boolean", false, {}},
+        {PROCESSING_UNIT, UVC_PU_ANALOG_VIDEO_STANDARD_CONTROL         , "Analog Video Standard"         , "menu"   , false, {"None",
+                                                                                                                              "NTSC - 525/60",
+                                                                                                                              "PAL - 625/50",
+                                                                                                                              "SECAM - 625/50",
+                                                                                                                              "NTSC - 625/50",
+                                                                                                                              "PAL - 525/60"}},
+        {PROCESSING_UNIT, UVC_PU_ANALOG_LOCK_STATUS_CONTROL            , "Analog Lock Status"            , "menu"   , false, {"Locked",
+                                                                                                                              "Unlocked"}},
+        {PROCESSING_UNIT, UVC_PU_CONTRAST_AUTO_CONTROL                 , "Contrast Auto"                 , "boolean", false, {}},
+
+        // Camera Terminals
+        {CAMERA_TERMINAL, UVC_CT_CONTROL_UNDEFINED                     , ""                              , ""       , false, {}},
+        {CAMERA_TERMINAL, UVC_CT_SCANNING_MODE_CONTROL                 , "Scanning Mode"                 , "boolean", false, {}},
+        //{CAMERA_TERMINAL, UVC_CT_AE_MODE_CONTROL                       , "AE Mode"                       , "", false, {}},
+        //{CAMERA_TERMINAL, UVC_CT_AE_PRIORITY_CONTROL                   , "AE Priority"                   , "", false, {}},
+        //{CAMERA_TERMINAL, UVC_CT_EXPOSURE_TIME_ABSOLUTE_CONTROL        , "Exposure Time Absolute"        , "", false, {}},
+        //{CAMERA_TERMINAL, UVC_CT_EXPOSURE_TIME_RELATIVE_CONTROL        , "Exposure Time Relative"        , "", false, {}},
+        {CAMERA_TERMINAL, UVC_CT_FOCUS_ABSOLUTE_CONTROL                , "Focus Absolute"                , "integer", false, {}},
+        //{CAMERA_TERMINAL, UVC_CT_FOCUS_RELATIVE_CONTROL                , "Focus Relative"                , "", false, {}},
+        {CAMERA_TERMINAL, UVC_CT_FOCUS_AUTO_CONTROL                    , "Focus Auto"                    , "boolean", false, {}},
+        {CAMERA_TERMINAL, UVC_CT_IRIS_ABSOLUTE_CONTROL                 , "Iris Absolute"                 , "integer", false, {}},
+        //{CAMERA_TERMINAL, UVC_CT_IRIS_RELATIVE_CONTROL                 , "Iris Relative"                 , "", false, {}},
+        {CAMERA_TERMINAL, UVC_CT_ZOOM_ABSOLUTE_CONTROL                 , "Zoom Absolute"                 , "integer", false, {}},
+        //{CAMERA_TERMINAL, UVC_CT_ZOOM_RELATIVE_CONTROL                 , "Zoom Relative"                 , "", false, {}},
+        //{CAMERA_TERMINAL, UVC_CT_PANTILT_ABSOLUTE_CONTROL              , "Pantilt Absolute"              , "", false, {}},
+        //{CAMERA_TERMINAL, UVC_CT_PANTILT_RELATIVE_CONTROL              , "Pantilt Relative"              , "", false, {}},
+        {CAMERA_TERMINAL, UVC_CT_ROLL_ABSOLUTE_CONTROL                 , "Roll Absolute"                 , "integer", true, {}},
+        //{CAMERA_TERMINAL, UVC_CT_ROLL_RELATIVE_CONTROL                 , "Roll Relative"                 , "", false, {}},
+        {CAMERA_TERMINAL, UVC_CT_PRIVACY_CONTROL                       , "Privacy"                       , "boolean", false, {}},
+        {CAMERA_TERMINAL, UVC_CT_FOCUS_SIMPLE_CONTROL                  , "Focus Simple"                  , "menu"   , false, {"Full Range",
+                                                                                                                              "Macro",
+                                                                                                                              "People",
+                                                                                                                              "Scene"}},
+        //{CAMERA_TERMINAL, UVC_CT_DIGITAL_WINDOW_CONTROL                , "Digital Window"                , "", false, {}},
+        //{CAMERA_TERMINAL, UVC_CT_REGION_OF_INTEREST_CONTROL            , "Region of Interest"            , "", false, {}}
+    };
+
+    return controls;
+}
+
+const UvcControl *UvcControl::bySelector(int controlType, uint8_t selector)
+{
+    for (auto &control: controls())
+        if (control.controlType == controlType
+            && control.selector == selector)
+            return &control;
+
+    // Returns default for control type.
+    for (auto &control: controls())
+        if (control.controlType == controlType)
+            return &control;
+
+    return &controls().first();
+}
+
+QVector<uint8_t> UvcControl::allSelectors(int controlType)
+{
+    QVector<uint8_t> selectors;
+
+    for (int i = 1; i < controls().size(); i++)
+        if (controls()[i].controlType == controlType)
+            selectors << controls()[i].selector;
+
+    return selectors;
 }
 
 #include "moc_capturelibuvc.cpp"
