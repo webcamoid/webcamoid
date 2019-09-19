@@ -20,5 +20,7 @@
         <string>NSApplication</string>
         <key>NSSupportsAutomaticGraphicsSwitching</key>
         <true/>
+        <key>NSCameraUsageDescription</key>
+        <string>Webcamoid needs permissions for camera capture</string>
     </dict>
 </plist>

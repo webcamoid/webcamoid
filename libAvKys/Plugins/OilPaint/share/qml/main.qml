@@ -34,6 +34,6 @@ GridLayout {
         }
         Layout.fillWidth: true
 
-        onTextChanged: OilPaint.radius = text
+        onTextChanged: OilPaint.radius = Number(text)
     }
 }

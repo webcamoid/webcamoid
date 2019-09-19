@@ -80,7 +80,7 @@ AkPacket OilPaintElement::iVideoStream(const AkVideoPacket &packet)
         QRgb *oLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
 
         for (int j = 0, pos = y - radius; j < scanBlockLen; j++, pos++) {
-            int yp = qBound(0, pos, src.height());
+            int yp = qBound(0, pos, src.height() - 1);
             scanBlock[j] = reinterpret_cast<const QRgb *>(src.constScanLine(yp));
         }
 

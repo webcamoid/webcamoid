@@ -112,8 +112,8 @@ AkPacket WarpElement::iVideoStream(const AkVideoPacket &packet)
             int xOrig = int(dx * cos(phi) + x);
             int yOrig = int(dy * sin(phi) + y);
 
-            xOrig = qBound(0, xOrig, src.width());
-            yOrig = qBound(0, yOrig, src.height());
+            xOrig = qBound(0, xOrig, src.width() - 1);
+            yOrig = qBound(0, yOrig, src.height() - 1);
 
             auto iLine = reinterpret_cast<const QRgb *>(src.constScanLine(yOrig));
             oLine[x] = iLine[xOrig];
