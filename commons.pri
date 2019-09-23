@@ -17,8 +17,8 @@
 # Web-Site: http://webcamoid.github.io/
 
 VER_MAJ = 8
-VER_MIN = 6
-VER_PAT = 1
+VER_MIN = 7
+VER_PAT = 0
 VERSION = $${VER_MAJ}.$${VER_MIN}.$${VER_PAT}
 
 isEmpty(BUILDDOCS): BUILDDOCS = 0

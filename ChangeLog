@@ -1,3 +1,15 @@
+Webcamoid 8.7.0:
+
+- Android port more or less working, but not usable yet, you can test it in the
+  daily builds. There in not an official release yet.
+- Removed unnecessary Bin and Probe plugins.
+- Added audio latency control.
+- Removed OSS and QtAudio submodules.
+- Fixed a bug that happened when changing the format, resolution or FPS of the
+  camera (commit 41448aa).
+- Improved error messages for the virtual camera (issue #187).
+- Fixed segfaults.
+
 Webcamoid 8.6.1:
 
 - AppImage now properly show the icon (issue #94).
