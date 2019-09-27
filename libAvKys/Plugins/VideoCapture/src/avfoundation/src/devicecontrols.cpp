@@ -17,6 +17,7 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QVector>
 #include <IOKit/IOKitLib.h>
 #include <IOKit/usb/IOUSBLib.h>
 #include <IOKit/IOCFPlugIn.h>
@@ -501,7 +502,7 @@ int DeviceControlsPrivate::writeData(USBInterfacePtr *interface,
                                      quint16 controlType,
                                      quint16 selector,
                                      T *data) const
-{    
+{
     IOUSBDevRequest controlRequest;
     controlRequest.bmRequestType =
             USBmakebmRequestType(kUSBOut, kUSBClass, kUSBInterface);
