@@ -1322,7 +1322,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="121"/>
         <source>Eye</source>
-        <translation type="unfinished"></translation>
+        <translation>Øye</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="125"/>
@@ -1432,7 +1432,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="229"/>
         <source>Marker type</source>
-        <translation type="unfinished"></translation>
+        <translation>Markørtype</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="239"/>
@@ -1464,7 +1464,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="265"/>
         <source>Marker style</source>
-        <translation type="unfinished"></translation>
+        <translation>Markørstil</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="275"/>
@@ -1474,27 +1474,27 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="279"/>
         <source>Dash</source>
-        <translation type="unfinished"></translation>
+        <translation>Bindestrek</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="283"/>
         <source>Dot</source>
-        <translation type="unfinished"></translation>
+        <translation>Punktum</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="287"/>
         <source>Dash dot</source>
-        <translation type="unfinished"></translation>
+        <translation>Bindestrek og punktum</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="291"/>
         <source>Dash dot dot</source>
-        <translation type="unfinished"></translation>
+        <translation>Bindestrek punktum punktum</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="301"/>
         <source>Marker color</source>
-        <translation type="unfinished"></translation>
+        <translation>Markørfarge</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="313"/>
@@ -1504,7 +1504,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="327"/>
         <source>Masks</source>
-        <translation type="unfinished"></translation>
+        <translation>Masker</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="336"/>
@@ -1694,7 +1694,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="493"/>
         <source>Marker picture</source>
-        <translation type="unfinished"></translation>
+        <translation>Markørbilde</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="507"/>
@@ -1704,7 +1704,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="535"/>
         <source>Pixel grid size</source>
-        <translation type="unfinished"></translation>
+        <translation>Pikselrutenettsstørrelse</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="549"/>
@@ -1714,7 +1714,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="305"/>
         <source>Select marker color</source>
-        <translation type="unfinished"></translation>
+        <translation>Velg markørfarge</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="87"/>
@@ -1729,7 +1729,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="121"/>
         <source>Dissolve</source>
-        <translation type="unfinished"></translation>
+        <translation>Oppløs</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="151"/>
