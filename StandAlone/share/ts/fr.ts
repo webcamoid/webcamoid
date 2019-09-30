@@ -1305,6 +1305,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="107"/>
         <source>Equalize</source>
+        <translatorcomment>https://en.wikipedia.org/wiki/Histogram_equalization</translatorcomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
