@@ -1318,7 +1318,7 @@
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="111"/>
         <source>Haar file</source>
         <translatorcomment>https://en.wikipedia.org/wiki/Haar-like_feature</translatorcomment>
-        <translation type="unfinished"></translation>
+        <translation>Haar-fil</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="121"/>
