@@ -18,6 +18,7 @@
  */
 
 #include <thread>
+#include <random>
 #include <CoreMediaIO/CMIOSampleBuffer.h>
 
 #include "stream.h"
@@ -52,17 +53,14 @@ namespace AkVCam
             bool m_verticalMirror {false};
             bool m_swapRgb {false};
 
-            explicit StreamPrivate(Stream *self):
-                self(self)
-            {
-            }
-
+            explicit StreamPrivate(Stream *self);
             bool startTimer();
             void stopTimer();
             static void streamLoop(CFRunLoopTimerRef timer, void *info);
             void sendFrame(const VideoFrame &frame);
             void updateTestFrame();
             VideoFrame applyAdjusts(const VideoFrame &frame);
+            VideoFrame randomFrame();
     };
 }
 
@@ -73,13 +71,10 @@ AkVCam::Stream::Stream(bool registerObject,
     this->d = new StreamPrivate(this);
     this->m_className = "Stream";
     this->m_classID = kCMIOStreamClassID;
-
-    if (!this->d->m_testFrame.load(CMIO_PLUGINS_DAL_PATH
-                                   "/"
-                                   CMIO_PLUGIN_NAME
-                                   ".plugin/Contents/Resources/TestFrame.bmp")) {
-        this->d->m_testFrame.load(":/VirtualCamera/share/TestFrame/TestFrame.bmp");
-    }
+    this->d->m_testFrame.load(CMIO_PLUGINS_DAL_PATH
+                              "/"
+                              CMIO_PLUGIN_NAME
+                              ".plugin/Contents/Resources/TestFrame.bmp");
 
     this->d->m_clock =
             std::make_shared<Clock>("CMIO::VirtualCamera::Stream",
@@ -404,6 +399,11 @@ OSStatus AkVCam::Stream::deckCueTo(Float64 frameNumber, Boolean playOnCue)
     return kCMIOHardwareUnspecifiedError;
 }
 
+AkVCam::StreamPrivate::StreamPrivate(AkVCam::Stream *self):
+    self(self)
+{
+}
+
 bool AkVCam::StreamPrivate::startTimer()
 {
     AkLoggerLog("AkVCam::StreamPrivate::startTimer()");
@@ -462,7 +462,12 @@ void AkVCam::StreamPrivate::streamLoop(CFRunLoopTimerRef timer, void *info)
         return;
 
     self->m_mutex.lock();
-    self->sendFrame(self->m_currentFrame);
+
+    if (self->m_currentFrame.format().size() < 1)
+        self->sendFrame(self->randomFrame());
+    else
+        self->sendFrame(self->m_currentFrame);
+
     self->m_mutex.unlock();
 }
 
@@ -589,5 +594,25 @@ AkVCam::VideoFrame AkVCam::StreamPrivate::applyAdjusts(const VideoFrame &frame)
                 .mirror(this->m_horizontalMirror,
                         this->m_verticalMirror)
                 .swapRgb(this->m_swapRgb)
-                .convert(fourcc);
+            .convert(fourcc);
+}
+
+AkVCam::VideoFrame AkVCam::StreamPrivate::randomFrame()
+{
+    VideoFormat format;
+    this->self->m_properties.getProperty(kCMIOStreamPropertyFormatDescription,
+                                         &format);
+    VideoData data(format.size());
+    static std::uniform_int_distribution<uint8_t> distribution(std::numeric_limits<uint8_t>::min(),
+                                                               std::numeric_limits<uint8_t>::max());
+    static std::default_random_engine engine;
+    std::generate(data.begin(), data.end(), [] () {
+        return distribution(engine);
+    });
+
+    VideoFrame frame;
+    frame.format() = format;
+    frame.data() = data;
+
+    return frame;
 }

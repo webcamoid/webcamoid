@@ -32,8 +32,7 @@ include(../../VCamUtils/VCamUtils.pri)
 CONFIG -= qt
 CONFIG += \
     unversioned_libname \
-    unversioned_soname \
-    resources
+    unversioned_soname
 
 DESTDIR = $${OUT_PWD}/$${BIN_DIR}
 
@@ -78,12 +77,6 @@ SOURCES += \
     src/objectproperties.cpp \
     src/clock.cpp
 
-RESOURCES += \
-    ../../../TestFrame.qrc
-
-QMAKE_RESOURCE_FLAGS += \
-    --no-compress
-
 OTHER_FILES = \
     Info.plist
 
@@ -94,5 +87,7 @@ vcam.CONFIG += no_check_exist
 
 QMAKE_POST_LINK = \
     $$sprintf($$QMAKE_MKDIR_CMD, $$shell_path($${OUT_PWD}/$${TARGET}.plugin/Contents/MacOS)) $${CMD_SEP} \
+    $$sprintf($$QMAKE_MKDIR_CMD, $$shell_path($${OUT_PWD}/$${TARGET}.plugin/Contents/Resources)) $${CMD_SEP} \
     $(COPY) $$shell_path($${PWD}/Info.plist) $$shell_path($${OUT_PWD}/$${TARGET}.plugin/Contents) $${CMD_SEP} \
-    $(COPY) $$shell_path($${OUT_PWD}/$${BIN_DIR}/lib$${TARGET}.dylib) $$shell_path($${OUT_PWD}/$${TARGET}.plugin/Contents/MacOS/$${TARGET})
+    $(COPY) $$shell_path($${OUT_PWD}/$${BIN_DIR}/lib$${TARGET}.dylib) $$shell_path($${OUT_PWD}/$${TARGET}.plugin/Contents/MacOS/$${TARGET}) $${CMD_SEP} \
+    $(COPY) $$shell_path($${PWD}/../../../share/TestFrame/TestFrame.bmp) $$shell_path($${OUT_PWD}/$${TARGET}.plugin/Contents/Resources)

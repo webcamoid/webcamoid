@@ -105,11 +105,11 @@ namespace AkVCam
             std::vector<IpcBridge *> m_bridges;
     };
 
-    inline IpcBridgePrivate *ipcBridgePrivate()
+    inline IpcBridgePrivate &ipcBridgePrivate()
     {
         static IpcBridgePrivate ipcBridgePrivate;
 
-        return &ipcBridgePrivate;
+        return ipcBridgePrivate;
     }
 }
 
@@ -117,13 +117,13 @@ AkVCam::IpcBridge::IpcBridge()
 {
     AkIpcBridgeLogMethod();
     this->d = new IpcBridgePrivate(this);
-    ipcBridgePrivate()->add(this);
+    ipcBridgePrivate().add(this);
 }
 
 AkVCam::IpcBridge::~IpcBridge()
 {
     this->unregisterPeer();
-    ipcBridgePrivate()->remove(this);
+    ipcBridgePrivate().remove(this);
     delete this->d;
 }
 
@@ -234,7 +234,7 @@ bool AkVCam::IpcBridge::registerPeer(bool asClient)
 
     xpc_connection_set_event_handler(serverMessagePort, ^(xpc_object_t event) {
         if (event == XPC_ERROR_CONNECTION_INTERRUPTED) {
-            ipcBridgePrivate()->connectionInterrupted();
+            ipcBridgePrivate().connectionInterrupted();
         }
     });
     xpc_connection_resume(serverMessagePort);
@@ -269,7 +269,7 @@ bool AkVCam::IpcBridge::registerPeer(bool asClient)
         auto client = reinterpret_cast<xpc_connection_t>(event);
 
         xpc_connection_set_event_handler(client, ^(xpc_object_t event) {
-            ipcBridgePrivate()->messageReceived(client, event);
+            ipcBridgePrivate().messageReceived(client, event);
         });
 
         xpc_connection_resume(client);

@@ -17,6 +17,7 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QCoreApplication>
 #include <QMap>
 #include <QVariant>
 #include <QWaitCondition>
@@ -64,6 +65,7 @@ class CaptureAvFoundationPrivate
         QVariantMap m_localCameraControls;
 
         CaptureAvFoundationPrivate();
+        static bool canUseCamera();
         static inline QString fourccToStr(FourCharCode format);
         static inline FourCharCode strToFourCC(const QString &format);
         static inline AVCaptureDeviceFormat *formatFromCaps(AVCaptureDevice *camera,
@@ -139,7 +141,7 @@ QList<int> CaptureAvFoundation::listTracks(const QString &mimeType)
 {
     if (mimeType != "video/x-raw"
         && !mimeType.isEmpty())
-        return QList<int>();
+        return {};
 
     auto caps = this->caps(this->d->m_device);
     QList<int> streams;
@@ -152,7 +154,7 @@ QList<int> CaptureAvFoundation::listTracks(const QString &mimeType)
 
 QString CaptureAvFoundation::ioMethod() const
 {
-    return QString();
+    return {};
 }
 
 int CaptureAvFoundation::nBuffers() const
@@ -196,8 +198,8 @@ bool CaptureAvFoundation::setImageControls(const QVariantMap &imageControls)
     this->d->m_controlsMutex.unlock();
 
     for (int i = 0; i < globalImageControls.count(); i++) {
-        QVariantList control = globalImageControls[i].toList();
-        QString controlName = control[0].toString();
+        auto control = globalImageControls[i].toList();
+        auto controlName = control[0].toString();
 
         if (imageControls.contains(controlName)) {
             control[6] = imageControls[controlName];
@@ -226,7 +228,7 @@ bool CaptureAvFoundation::resetImageControls()
     QVariantMap controls;
 
     for (auto &control: this->imageControls()) {
-        QVariantList params = control.toList();
+        auto params = control.toList();
         controls[params[0].toString()] = params[5].toInt();
     }
 
@@ -245,8 +247,8 @@ bool CaptureAvFoundation::setCameraControls(const QVariantMap &cameraControls)
     this->d->m_controlsMutex.unlock();
 
     for (int i = 0; i < globalCameraControls.count(); i++) {
-        QVariantList control = globalCameraControls[i].toList();
-        QString controlName = control[0].toString();
+        auto control = globalCameraControls[i].toList();
+        auto controlName = control[0].toString();
 
         if (cameraControls.contains(controlName)) {
             control[6] = cameraControls[controlName];
@@ -274,9 +276,8 @@ bool CaptureAvFoundation::resetCameraControls()
 {
     QVariantMap controls;
 
-    for (const QVariant &control: this->cameraControls()) {
-        QVariantList params = control.toList();
-
+    for (auto &control: this->cameraControls()) {
+        auto params = control.toList();
         controls[params[0].toString()] = params[5].toInt();
     }
 
@@ -313,13 +314,13 @@ AkPacket CaptureAvFoundation::readFrame()
         if (!this->d->m_frameReady.wait(&this->d->m_mutex, 1000)) {
             this->d->m_mutex.unlock();
 
-            return AkPacket();
+            return {};
         }
 
     // Read frame data.
     QByteArray oBuffer;
-    CVImageBufferRef imageBuffer = CMSampleBufferGetImageBuffer(this->d->m_curFrame);
-    CMBlockBufferRef dataBuffer = CMSampleBufferGetDataBuffer(this->d->m_curFrame);
+    auto imageBuffer = CMSampleBufferGetImageBuffer(this->d->m_curFrame);
+    auto dataBuffer = CMSampleBufferGetDataBuffer(this->d->m_curFrame);
     auto caps = this->d->capsFromFrameSampleBuffer(this->d->m_curFrame);
 
     if (imageBuffer) {
@@ -403,8 +404,8 @@ QVariantMap CaptureAvFoundation::controlStatus(const QVariantList &controls) con
     QVariantMap controlStatus;
 
     for (auto &control: controls) {
-        QVariantList params = control.toList();
-        QString controlName = params[0].toString();
+        auto params = control.toList();
+        auto controlName = params[0].toString();
         controlStatus[controlName] = params[0];
     }
 
@@ -416,7 +417,7 @@ bool CaptureAvFoundation::init()
     this->d->m_localImageControls.clear();
     this->d->m_localCameraControls.clear();
 
-    QString webcam = this->d->m_device;
+    auto webcam = this->d->m_device;
 
     if (webcam.isEmpty())
         return false;
@@ -437,9 +438,9 @@ bool CaptureAvFoundation::init()
                     supportedCaps.first().value<AkCaps>();
 
     // Get camera input.
-    NSString *uniqueID = [[NSString alloc]
-                          initWithUTF8String: webcam.toStdString().c_str()];
-    AVCaptureDevice *camera = [AVCaptureDevice deviceWithUniqueID: uniqueID];
+    auto uniqueID = [[NSString alloc]
+                     initWithUTF8String: webcam.toStdString().c_str()];
+    auto camera = [AVCaptureDevice deviceWithUniqueID: uniqueID];
     [uniqueID release];
 
     if (!camera)
@@ -681,12 +682,15 @@ void CaptureAvFoundation::cameraDisconnected()
 
 void CaptureAvFoundation::updateDevices()
 {
+    if (!CaptureAvFoundationPrivate::canUseCamera())
+        return;
+
     decltype(this->d->m_devices) devices;
     decltype(this->d->m_modelId) modelId;
     decltype(this->d->m_descriptions) descriptions;
     decltype(this->d->m_devicesCaps) devicesCaps;
 
-    NSArray *cameras = [AVCaptureDevice devicesWithMediaType: AVMediaTypeVideo];
+    auto cameras = [AVCaptureDevice devicesWithMediaType: AVMediaTypeVideo];
 
     for (AVCaptureDevice *camera in cameras) {
         QString deviceId = camera.uniqueID.UTF8String;
@@ -713,7 +717,7 @@ void CaptureAvFoundation::updateDevices()
 
         // List supported frame formats.
         for (AVCaptureDeviceFormat *format in camera.formats) {
-            FourCharCode fourCC = CMFormatDescriptionGetMediaSubType(format.formatDescription);
+            auto fourCC = CMFormatDescriptionGetMediaSubType(format.formatDescription);
             CMVideoDimensions size =
                     CMVideoFormatDescriptionGetDimensions(format.formatDescription);
             auto &map = CaptureAvFoundationPrivate::fourccToStrMap();
@@ -751,6 +755,34 @@ CaptureAvFoundationPrivate::CaptureAvFoundationPrivate()
 
 }
 
+bool CaptureAvFoundationPrivate::canUseCamera()
+{
+    if (@available(macOS 10.14, *)) {
+        auto status = [AVCaptureDevice authorizationStatusForMediaType: AVMediaTypeVideo];
+
+        if (status == AVAuthorizationStatusAuthorized)
+            return true;
+
+        static bool done;
+        static bool result = false;
+        done = false;
+
+        [AVCaptureDevice
+         requestAccessForMediaType: AVMediaTypeVideo
+         completionHandler: ^(BOOL granted) {
+            done = true;
+            result = granted;
+        }];
+
+        while (!done)
+            qApp->processEvents();
+
+        return result;
+    }
+
+    return true;
+}
+
 QString CaptureAvFoundationPrivate::fourccToStr(FourCharCode format)
 {
     char fourcc[5];
@@ -775,7 +807,7 @@ AVCaptureDeviceFormat *CaptureAvFoundationPrivate::formatFromCaps(AVCaptureDevic
         if ([format.mediaType isEqualToString: AVMediaTypeVideo] == NO)
             continue;
 
-        FourCharCode fourCC = CMFormatDescriptionGetMediaSubType(format.formatDescription);
+        auto fourCC = CMFormatDescriptionGetMediaSubType(format.formatDescription);
         CMVideoDimensions size =
                 CMVideoFormatDescriptionGetDimensions(format.formatDescription);
         auto &map = CaptureAvFoundationPrivate::fourccToStrMap();
@@ -790,7 +822,9 @@ AVCaptureDeviceFormat *CaptureAvFoundationPrivate::formatFromCaps(AVCaptureDevic
         videoCaps.setProperty("height", size.height);
 
         for (AVFrameRateRange *fpsRange in format.videoSupportedFrameRateRanges) {
-            videoCaps.setProperty("fps", AkFrac(qRound(1e3 * fpsRange.maxFrameRate), 1e3).toString());
+            videoCaps.setProperty("fps",
+                                  AkFrac(qRound(1e3 * fpsRange.maxFrameRate),
+                                         1e3).toString());
 
             if (videoCaps == caps)
                 return format;
@@ -867,8 +901,8 @@ QVariantMap CaptureAvFoundationPrivate::controlStatus(const QVariantList &contro
     QVariantMap controlStatus;
 
     for (auto &control: controls) {
-        QVariantList params = control.toList();
-        QString controlName = params[0].toString();
+        auto params = control.toList();
+        auto controlName = params[0].toString();
         controlStatus[controlName] = params[6];
     }
 
