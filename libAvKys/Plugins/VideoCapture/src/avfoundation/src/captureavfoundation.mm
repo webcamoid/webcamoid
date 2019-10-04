@@ -33,6 +33,8 @@
 #include "deviceobserver.h"
 #include "devicecontrols.h"
 
+#define ENABLE_CONTROLS 0
+
 using FourCharCodeToStrMap = QMap<FourCharCode, QString>;
 
 class CaptureAvFoundationPrivate
@@ -288,6 +290,7 @@ AkPacket CaptureAvFoundation::readFrame()
 {
     this->d->m_mutex.lock();
 
+#if defined(ENABLE_CONTROLS) && ENABLE_CONTROLS != 0
     this->d->m_controlsMutex.lock();
     auto imageControls = this->d->controlStatus(this->d->m_globalImageControls);
     this->d->m_controlsMutex.unlock();
@@ -309,6 +312,7 @@ AkPacket CaptureAvFoundation::readFrame()
         this->d->m_controls.setCameraControls(controls);
         this->d->m_localCameraControls = cameraControls;
     }
+#endif
 
     if (!this->d->m_curFrame)
         if (!this->d->m_frameReady.wait(&this->d->m_mutex, 1000)) {
@@ -503,7 +507,9 @@ bool CaptureAvFoundation::init()
         return false;
     }
 
+#if defined(ENABLE_CONTROLS) && ENABLE_CONTROLS != 0
     this->d->m_controls.open(webcam);
+#endif
     AkFrac fps = caps.property("fps").toString();
     auto fpsRange = CaptureAvFoundationPrivate::frameRateRangeFromFps(format,
                                                                       fps);
@@ -560,7 +566,9 @@ void CaptureAvFoundation::uninit()
 
     this->d->m_mutex.unlock();
 
+#if defined(ENABLE_CONTROLS) && ENABLE_CONTROLS != 0
     this->d->m_controls.close();
+#endif
 }
 
 void CaptureAvFoundation::setDevice(const QString &device)
@@ -577,6 +585,8 @@ void CaptureAvFoundation::setDevice(const QString &device)
         this->d->m_controlsMutex.unlock();
     } else {
         this->d->m_controlsMutex.lock();
+
+#if defined(ENABLE_CONTROLS) && ENABLE_CONTROLS != 0
         DeviceControls controls;
 
         if (controls.open(device)) {
@@ -584,6 +594,7 @@ void CaptureAvFoundation::setDevice(const QString &device)
             this->d->m_globalCameraControls = controls.cameraControls();
             controls.close();
         }
+#endif
 
         this->d->m_controlsMutex.unlock();
     }
