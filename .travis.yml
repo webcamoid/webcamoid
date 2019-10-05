@@ -194,18 +194,15 @@ matrix:
       - DOCKERSYS=debian
       - DOCKERIMG=ubuntu:eoan
   - os: osx
-    osx_image: xcode9.2
+    osx_image: xcode9.3
     compiler: clang
     env:
       - DAILY_BUILD=1
   - os: osx
-    osx_image: xcode9.2
+    osx_image: xcode9.3
     compiler: clang
     env:
       - RELEASE_BUILD=1
-  - os: osx
-    osx_image: xcode9.3
-    compiler: clang
   - os: osx
     osx_image: xcode9.4
     compiler: clang
