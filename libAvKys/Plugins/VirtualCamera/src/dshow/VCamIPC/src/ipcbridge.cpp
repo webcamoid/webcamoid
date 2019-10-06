@@ -618,6 +618,23 @@ std::string AkVCam::IpcBridge::deviceCreate(const std::wstring &description,
         assistantInstallPaths.push_back(installPath);
     }
 
+    // Copy shared files
+    for (auto path: this->d->findFiles(driverPath + L"/share")) {
+        auto installPath = replace(path, driverPath, driverInstallPath);
+
+        if (!isEqualFile(path, installPath))
+            ss << L"mkdir \""
+               << this->d->dirname(installPath)
+               << L"\""
+               << std::endl
+               << L"copy /y \""
+               << path
+               << L"\" \""
+               << installPath
+               << L"\""
+               << std::endl;
+    }
+
     BOOL wow = isWow64();
 
     // List cameras and create a line with the number of cameras.
@@ -761,8 +778,11 @@ bool AkVCam::IpcBridge::deviceDestroy(const std::string &deviceId)
 
     auto driverPath = this->d->locateDriverPath();
 
-    if (driverPath.empty())
+    if (driverPath.empty()) {
+        this->d->m_error = L"Driver not found";
+
         return false;
+    }
 
     std::wstringstream ss;
     ss << L"@echo off" << std::endl;
@@ -865,8 +885,11 @@ bool AkVCam::IpcBridge::changeDescription(const std::string &deviceId,
 
     auto driverPath = this->d->locateDriverPath();
 
-    if (driverPath.empty())
+    if (driverPath.empty()) {
+        this->d->m_error = L"Driver not found";
+
         return false;
+    }
 
     std::wstringstream ss;
     ss << L"@echo off" << std::endl;
@@ -920,8 +943,11 @@ bool AkVCam::IpcBridge::destroyAllDevices()
 
     auto driverPath = this->d->locateDriverPath();
 
-    if (driverPath.empty())
+    if (driverPath.empty()) {
+        this->d->m_error = L"Driver not found";
+
         return false;
+    }
 
     std::wstringstream ss;
     ss << L"@echo off" << std::endl;

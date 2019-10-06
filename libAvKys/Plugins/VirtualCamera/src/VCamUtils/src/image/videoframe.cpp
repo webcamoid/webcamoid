@@ -25,8 +25,6 @@
 #include "videoframe.h"
 #include "videoformat.h"
 #include "../utils.h"
-#include "../membuffer/imembuffer.h"
-#include "../resources/rcloader.h"
 
 namespace AkVCam
 {
@@ -304,18 +302,6 @@ AkVCam::VideoFrame::VideoFrame(const std::string &fileName)
     this->load(fileName);
 }
 
-AkVCam::VideoFrame::VideoFrame(std::streambuf *stream)
-{
-    this->d = new VideoFramePrivate(this);
-    this->load(stream);
-}
-
-AkVCam::VideoFrame::VideoFrame(std::istream *stream)
-{
-    this->d = new VideoFramePrivate(this);
-    this->load(stream);
-}
-
 AkVCam::VideoFrame::VideoFrame(const AkVCam::VideoFormat &format)
 {
     this->d = new VideoFramePrivate(this);
@@ -347,49 +333,28 @@ AkVCam::VideoFrame::~VideoFrame()
     delete this->d;
 }
 
+// http://www.dragonwins.com/domains/getteched/bmp/bmpfileformat.htm
 bool AkVCam::VideoFrame::load(const std::string &fileName)
 {
     if (fileName.empty())
         return false;
-
-    if (fileName[0] == ':') {
-        IMemBuffer stream;
-
-        if (!RcLoader::load(fileName, &stream))
-            return false;
-
-        return this->load(&stream);
-    }
 
     std::ifstream stream(fileName);
 
     if (!stream.is_open())
         return false;
 
-    return this->load(&stream);
-}
-
-bool AkVCam::VideoFrame::load(std::streambuf *stream)
-{
-    std::istream stream_(stream);
-
-    return this->load(&stream_);
-}
-
-// http://www.dragonwins.com/domains/getteched/bmp/bmpfileformat.htm
-bool AkVCam::VideoFrame::load(std::istream *stream)
-{
     char type[2];
-    stream->read(type, 2);
+    stream.read(type, 2);
 
     if (memcmp(type, "BM", 2) != 0)
         return false;
 
     BmpHeader header {};
-    stream->read(reinterpret_cast<char *>(&header), sizeof(BmpHeader));
+    stream.read(reinterpret_cast<char *>(&header), sizeof(BmpHeader));
 
     BmpImageHeader imageHeader {};
-    stream->read(reinterpret_cast<char *>(&imageHeader), sizeof(BmpImageHeader));
+    stream.read(reinterpret_cast<char *>(&imageHeader), sizeof(BmpImageHeader));
     VideoFormat format(PixelFormatRGB24,
                        int(imageHeader.width),
                        int(imageHeader.height));
@@ -397,50 +362,62 @@ bool AkVCam::VideoFrame::load(std::istream *stream)
     if (format.size() < 1)
         return false;
 
-    stream->seekg(header.offBits, std::ios_base::beg);
+    stream.seekg(header.offBits, std::ios_base::beg);
     this->d->m_format = format;
     this->d->m_data.resize(format.size());
 
+    VideoData data(imageHeader.sizeImage);
+    stream.read(reinterpret_cast<char *>(data.data()),
+                imageHeader.sizeImage);
+
     switch (imageHeader.bitCount) {
-        case 24:
-            for (uint32_t y = 0; y < imageHeader.height; y++) {
-                auto line = reinterpret_cast<RGB24 *>
-                            (this->line(0, size_t(imageHeader.height - y - 1)));
+    case 24: {
+        VideoFormat bmpFormat(PixelFormatBGR24,
+                              int(imageHeader.width),
+                              int(imageHeader.height));
 
-                for (uint32_t x = 0; x < imageHeader.width; x++) {
-                    BGR24 pixel {};
-                    stream->read(reinterpret_cast<char *>(&pixel),
-                                 sizeof(BGR24));
-                    line[x].r = pixel.r;
-                    line[x].g = pixel.g;
-                    line[x].b = pixel.b;
-                }
+        for (uint32_t y = 0; y < imageHeader.height; y++) {
+            auto srcLine = reinterpret_cast<const BGR24 *>
+                           (data.data() + y * bmpFormat.bypl(0));
+            auto dstLine = reinterpret_cast<RGB24 *>
+                           (this->line(0, size_t(imageHeader.height - y - 1)));
+
+            for (uint32_t x = 0; x < imageHeader.width; x++) {
+                dstLine[x].r = srcLine[x].r;
+                dstLine[x].g = srcLine[x].g;
+                dstLine[x].b = srcLine[x].b;
             }
+        }
 
-            break;
+        break;
+    }
 
-        case 32:
-            for (uint32_t y = 0; y < imageHeader.height; y++) {
-                auto line = reinterpret_cast<RGB24 *>
-                            (this->line(0, size_t(imageHeader.height - y - 1)));
+    case 32: {
+        VideoFormat bmpFormat(PixelFormatBGR32,
+                              int(imageHeader.width),
+                              int(imageHeader.height));
 
-                for (uint32_t x = 0; x < imageHeader.width; x++) {
-                    BGR32 pixel {};
-                    stream->read(reinterpret_cast<char *>(&pixel),
-                                 sizeof(BGR32));
-                    line[x].r = pixel.r;
-                    line[x].g = pixel.g;
-                    line[x].b = pixel.b;
-                }
+        for (uint32_t y = 0; y < imageHeader.height; y++) {
+            auto srcLine = reinterpret_cast<const BGR32 *>
+                           (data.data() + y * bmpFormat.bypl(0));
+            auto dstLine = reinterpret_cast<RGB24 *>
+                           (this->line(0, size_t(imageHeader.height - y - 1)));
+
+            for (uint32_t x = 0; x < imageHeader.width; x++) {
+                dstLine[x].r = srcLine[x].r;
+                dstLine[x].g = srcLine[x].g;
+                dstLine[x].b = srcLine[x].b;
             }
+        }
 
-            break;
+        break;
+    }
 
-        default:
-            this->d->m_format.clear();
-            this->d->m_data.clear();
+    default:
+        this->d->m_format.clear();
+        this->d->m_data.clear();
 
-            return false;
+        return false;
     }
 
     return true;

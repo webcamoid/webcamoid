@@ -52,7 +52,8 @@ RESOURCES += \
 
 SOURCES = \
     src/charify.cpp \
-    src/charifyelement.cpp
+    src/charifyelement.cpp \
+    src/character.cpp
 
 lupdate_only {
     SOURCES += $$files(share/qml/*.qml)

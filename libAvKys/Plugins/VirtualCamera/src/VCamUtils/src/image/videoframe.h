@@ -38,16 +38,12 @@ namespace AkVCam
         public:
             VideoFrame();
             VideoFrame(const std::string &fileName);
-            VideoFrame(std::streambuf *stream);
-            VideoFrame(std::istream *stream);
             VideoFrame(const VideoFormat &format);
             VideoFrame(const VideoFrame &other);
             VideoFrame &operator =(const VideoFrame &other);
             ~VideoFrame();
 
             bool load(const std::string &fileName);
-            bool load(std::streambuf *stream);
-            bool load(std::istream *stream);
             VideoFormat format() const;
             VideoFormat &format();
             VideoData data() const;

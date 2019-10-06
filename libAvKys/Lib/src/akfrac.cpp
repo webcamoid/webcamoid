@@ -31,34 +31,9 @@ class AkFracPrivate
         qint64 m_den;
 
         template<typename T>
-        inline static T sign(T n)
-        {
-            return (n < 0)? -1: 1;
-        }
-
-        inline static qint64 gcd(qint64 num, qint64 den)
-        {
-            num = qAbs(num);
-            den = qAbs(den);
-
-            while (num > 0) {
-                qint64 tmp = num;
-                num = den % num;
-                den = tmp;
-            }
-
-            return den;
-        }
-
-        inline static void reduce(qint64 *num, qint64 *den)
-        {
-            qint64 gcd = AkFracPrivate::gcd(*num, *den);
-
-            if (gcd) {
-                *num /= gcd;
-                *den /= gcd;
-            }
-        }
+        inline static T sign(T n);
+        inline static qint64 gcd(qint64 num, qint64 den);
+        inline static void reduce(qint64 *num, qint64 *den);
 };
 
 AkFrac::AkFrac(QObject *parent):
@@ -348,6 +323,36 @@ AkFrac operator -(const AkFrac &frac1, const AkFrac &frac2)
 {
     return {frac1.num() * frac2.den() - frac2.num() * frac1.den(),
             frac1.den() * frac2.den()};
+}
+
+template<typename T>
+T AkFracPrivate::sign(T n)
+{
+    return (n < 0)? -1: 1;
+}
+
+qint64 AkFracPrivate::gcd(qint64 num, qint64 den)
+{
+    num = qAbs(num);
+    den = qAbs(den);
+
+    while (num > 0) {
+        qint64 tmp = num;
+        num = den % num;
+        den = tmp;
+    }
+
+    return den;
+}
+
+void AkFracPrivate::reduce(qint64 *num, qint64 *den)
+{
+    qint64 gcd = AkFracPrivate::gcd(*num, *den);
+
+    if (gcd) {
+        *num /= gcd;
+        *den /= gcd;
+    }
 }
 
 #include "moc_akfrac.cpp"

@@ -46,7 +46,7 @@ inline const QStringList *mirrorFormats()
         "RGB",
         "RGB565",
         "RGB555",
-        "BGR0",
+        "BGRX",
     };
 
     return &mirrorFormats;
@@ -59,6 +59,7 @@ inline const QStringList *swapRgbFormats()
     static const QStringList swapRgbFormats {
 #ifdef Q_OS_WIN32
         "RGB",
+        "BGRX",
 #endif
         "YV12"
     };

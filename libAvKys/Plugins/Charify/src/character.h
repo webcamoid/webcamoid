@@ -20,29 +20,28 @@
 #ifndef CHARACTER_H
 #define CHARACTER_H
 
-#include <QImage>
+class CharacterPrivate;
+class QChar;
+class QImage;
 
 class Character
 {
     public:
-        Character():
-            weight(0)
-        {
-        }
+        Character();
+        Character(const QChar &chr, const QImage &image, int weight);
+        Character(const Character &other);
+        ~Character();
+        Character &operator =(const Character &other);
 
-        Character(const QChar &chr, const QImage &image, int weight):
-            chr(chr), image(image), weight(weight)
-        {
-        }
+        QChar &chr();
+        QChar chr() const;
+        QImage &image();
+        QImage image() const;
+        int &weight();
+        int weight() const;
 
-        Character(const Character &other):
-            chr(other.chr), image(other.image), weight(other.weight)
-        {
-        }
-
-        QChar chr;
-        QImage image;
-        int weight;
+    private:
+        CharacterPrivate *d;
 };
 
 #endif // CHARACTER_H

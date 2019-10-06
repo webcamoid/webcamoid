@@ -109,12 +109,6 @@ SOURCES += \
 
 DESTDIR = $${OUT_PWD}/$${BIN_DIR}
 
-RESOURCES += \
-    ../../../TestFrame.qrc
-
-QMAKE_RESOURCE_FLAGS += \
-    --no-compress
-
 OTHER_FILES = \
     VirtualCamera.def
 
@@ -131,4 +125,6 @@ vcam.CONFIG += no_check_exist
 
 QMAKE_POST_LINK = \
     $$sprintf($$QMAKE_MKDIR_CMD, $$shell_path($${OUT_PWD}/$${TARGET}.plugin/$$normalizedArch(TARGET_ARCH))) $${CMD_SEP} \
-    $(COPY) $$shell_path($${OUT_PWD}/$${BIN_DIR}/$${TARGET}.dll) $$shell_path($${OUT_PWD}/$${TARGET}.plugin/$$normalizedArch(TARGET_ARCH))
+    $$sprintf($$QMAKE_MKDIR_CMD, $$shell_path($${OUT_PWD}/$${TARGET}.plugin/share)) $${CMD_SEP} \
+    $(COPY) $$shell_path($${OUT_PWD}/$${BIN_DIR}/$${TARGET}.dll) $$shell_path($${OUT_PWD}/$${TARGET}.plugin/$$normalizedArch(TARGET_ARCH)) $${CMD_SEP} \
+    $(COPY) $$shell_path($${PWD}/../../../share/TestFrame/TestFrame.bmp) $$shell_path($${OUT_PWD}/$${TARGET}.plugin/share)

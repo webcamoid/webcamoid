@@ -42,11 +42,6 @@ SOURCES += \
     src/image/videoformat.cpp \
     src/image/videoframe.cpp \
     src/logger/logger.cpp \
-    src/membuffer/imembuffer.cpp \
-    src/resources/rcdata.cpp \
-    src/resources/rcloader.cpp \
-    src/resources/rcname.cpp \
-    src/resources/rcnode.cpp \
     src/timer.cpp \
     src/utils.cpp
 
@@ -58,11 +53,6 @@ HEADERS += \
     src/image/videoframetypes.h \
     src/image/videoformattypes.h \
     src/logger/logger.h \
-    src/membuffer/imembuffer.h \
-    src/resources/rcdata.h \
-    src/resources/rcloader.h \
-    src/resources/rcname.h \
-    src/resources/rcnode.h \
     src/timer.h \
     src/utils.h
 

@@ -258,9 +258,9 @@ AkPacket CharifyElement::iVideoStream(const AkVideoPacket &packet)
         int y = fontSize.height() * (i / textWidth);
 
         if (this->d->m_mode == ColorModeFixed)
-            painter.drawImage(x, y, characters[qGray(textImageBits[i])].image);
+            painter.drawImage(x, y, characters[qGray(textImageBits[i])].image());
         else {
-            QChar chr = characters[qGray(textImageBits[i])].chr;
+            QChar chr = characters[qGray(textImageBits[i])].chr();
             QRgb foreground = textImageBits[i];
             auto image = this->d->drawChar(chr,
                                            this->d->m_font,
@@ -451,7 +451,7 @@ void CharifyElement::updateCharTable()
     std::sort(characters.begin(),
               characters.end(),
               [] (const Character &chr1, const Character &chr2) {
-                  return chr1.weight < chr2.weight;
+                  return chr1.weight() < chr2.weight();
               });
 
     for (int i = 0; i < 256; i++) {

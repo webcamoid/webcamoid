@@ -22,6 +22,7 @@
 #include <functional>
 #include <limits>
 #include <mutex>
+#include <random>
 #include <sstream>
 #include <thread>
 #include <dshow.h>
@@ -94,6 +95,7 @@ namespace AkVCam
                                         LONG Property,
                                         LONG lValue,
                                         LONG Flags);
+            VideoFrame randomFrame();
     };
 }
 
@@ -134,10 +136,7 @@ AkVCam::Pin::Pin(BaseFilter *baseFilter,
     this->d->m_swapRgb = false;
     auto bmp = programFilesPath()
              + L"\\" DSHOW_PLUGIN_NAME_L L".plugin\\share\\TestFrame.bmp";
-
-    if (!this->d->m_testFrame.load(std::string(bmp.begin(), bmp.end()))) {
-        this->d->m_testFrame.load(":/VirtualCamera/share/TestFrame/TestFrame.bmp");
-    }
+    this->d->m_testFrame.load(std::string(bmp.begin(), bmp.end()));
 
     baseFilter->QueryInterface(IID_IAMVideoProcAmp,
                                reinterpret_cast<void **>(&this->d->m_videoProcAmp));
@@ -877,11 +876,21 @@ HRESULT AkVCam::PinPrivate::sendFrame()
     }
 
     this->m_mutex.lock();
-    auto copyBytes = (std::min)(size_t(size),
-                                this->m_currentFrame.data().size());
 
-    if (copyBytes > 0)
-        memcpy(buffer, this->m_currentFrame.data().data(), copyBytes);
+    if (this->m_currentFrame.format().size() > 0) {
+        auto copyBytes = (std::min)(size_t(size),
+                                    this->m_currentFrame.data().size());
+
+        if (copyBytes > 0)
+            memcpy(buffer, this->m_currentFrame.data().data(), copyBytes);
+    } else {
+        auto frame = this->randomFrame();
+        auto copyBytes = (std::min)(size_t(size),
+                                    frame.data().size());
+
+        if (copyBytes > 0)
+            memcpy(buffer, frame.data().data(), copyBytes);
+    }
 
     this->m_mutex.unlock();
 
@@ -1059,4 +1068,36 @@ void AkVCam::PinPrivate::propertyChanged(void *userData,
     self->m_mutex.lock();
     self->m_currentFrame = self->m_testFrameAdapted;
     self->m_mutex.unlock();
+}
+
+AkVCam::VideoFrame AkVCam::PinPrivate::randomFrame()
+{
+    AM_MEDIA_TYPE *mediaType = nullptr;
+
+    if (FAILED(this->self->GetFormat(&mediaType)))
+        return {};
+
+    auto format = formatFromMediaType(mediaType);
+    deleteMediaType(&mediaType);
+
+    VideoFormat rgbFormat(PixelFormatRGB24, format.width(), format.height());
+    VideoData data(rgbFormat.size());
+    static std::uniform_int_distribution<uint8_t> distribution(std::numeric_limits<uint8_t>::min(),
+                                                               std::numeric_limits<uint8_t>::max());
+    static std::default_random_engine engine;
+    std::generate(data.begin(), data.end(), [] () {
+        return distribution(engine);
+    });
+
+    VideoFrame rgbFrame;
+    rgbFrame.format() = rgbFormat;
+    rgbFrame.data() = data;
+
+    return rgbFrame.adjust(this->m_hue,
+                           this->m_saturation,
+                           this->m_brightness,
+                           this->m_gamma,
+                           this->m_contrast,
+                           !this->m_colorenable)
+                   .convert(format.fourcc());
 }
