@@ -891,8 +891,10 @@ bool AkVCam::IpcBridge::write(const std::string &deviceId,
     xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_FRAME_READY);
     xpc_dictionary_set_string(dictionary, "device", deviceId.c_str());
     xpc_dictionary_set_value(dictionary, "frame", surfaceObj);
-    xpc_connection_send_message(this->d->m_serverMessagePort, dictionary);
+    auto reply = xpc_connection_send_message_with_reply_sync(this->d->m_serverMessagePort,
+                                                             dictionary);
     xpc_release(dictionary);
+    xpc_release(reply);
     xpc_release(surfaceObj);
     CFRelease(surface);
 
@@ -1127,24 +1129,28 @@ void AkVCam::IpcBridgePrivate::frameReady(xpc_connection_t client,
     auto frame = xpc_dictionary_get_value(event, "frame");
     auto surface = IOSurfaceLookupFromXPCObject(frame);
 
-    if (!surface)
-        return;
+    if (surface) {
+        uint32_t surfaceSeed = 0;
+        IOSurfaceLock(surface, kIOSurfaceLockReadOnly, &surfaceSeed);
+        FourCC fourcc = IOSurfaceGetPixelFormat(surface);
+        int width = int(IOSurfaceGetWidth(surface));
+        int height = int(IOSurfaceGetHeight(surface));
+        size_t size = IOSurfaceGetAllocSize(surface);
+        auto data = reinterpret_cast<uint8_t *>(IOSurfaceGetBaseAddress(surface));
+        VideoFormat videoFormat(fourcc, width, height);
+        VideoFrame videoFrame(videoFormat);
+        memcpy(videoFrame.data().data(), data, size);
+        IOSurfaceUnlock(surface, kIOSurfaceLockReadOnly, &surfaceSeed);
+        CFRelease(surface);
 
-    uint32_t surfaceSeed = 0;
-    IOSurfaceLock(surface, kIOSurfaceLockReadOnly, &surfaceSeed);
-    FourCC fourcc = IOSurfaceGetPixelFormat(surface);
-    int width = int(IOSurfaceGetWidth(surface));
-    int height = int(IOSurfaceGetHeight(surface));
-    size_t size = IOSurfaceGetAllocSize(surface);
-    auto data = reinterpret_cast<uint8_t *>(IOSurfaceGetBaseAddress(surface));
-    VideoFormat videoFormat(fourcc, width, height);
-    VideoFrame videoFrame(videoFormat);
-    memcpy(videoFrame.data().data(), data, size);
-    IOSurfaceUnlock(surface, kIOSurfaceLockReadOnly, &surfaceSeed);
-    CFRelease(surface);
+        for (auto bridge: this->m_bridges)
+            AKVCAM_EMIT(bridge, FrameReady, deviceId, videoFrame)
+    }
 
-    for (auto bridge: this->m_bridges)
-        AKVCAM_EMIT(bridge, FrameReady, deviceId, videoFrame)
+    auto reply = xpc_dictionary_create_reply(event);
+    xpc_dictionary_set_bool(reply, "status", surface? true: false);
+    xpc_connection_send_message(client, reply);
+    xpc_release(reply);
 }
 
 void AkVCam::IpcBridgePrivate::setBroadcasting(xpc_connection_t client,

@@ -1187,9 +1187,25 @@ void AkVCam::AssistantPrivate::frameReady(xpc_connection_t client,
 {
     UNUSED(client)
     AkAssistantPrivateLogMethod();
+    auto reply = xpc_dictionary_create_reply(event);
+    bool ok = true;
 
-    for (auto &client: this->m_clients)
-        xpc_connection_send_message(client.second, event);
+    for (auto &client: this->m_clients) {
+        auto reply = xpc_connection_send_message_with_reply_sync(client.second,
+                                                                 event);
+        auto replyType = xpc_get_type(reply);
+        bool isOk = false;
+
+        if (replyType == XPC_TYPE_DICTIONARY)
+            isOk = xpc_dictionary_get_bool(reply, "status");
+
+        ok &= isOk;
+        xpc_release(reply);
+    }
+
+    xpc_dictionary_set_bool(reply, "status", ok);
+    xpc_connection_send_message(client, reply);
+    xpc_release(reply);
 }
 
 void AkVCam::AssistantPrivate::listeners(xpc_connection_t client,
