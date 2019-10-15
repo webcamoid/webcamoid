@@ -1,3 +1,10 @@
+Webcamoid 8.7.1:
+
+- Fixed memory grow when using the virtual camera in Mac.
+- Disabled camera controls in Mac.
+- Request access permissions for capturing from webcam when necessary in Mac.
+- Load virtual camera default frame from file instead of resources.
+
 Webcamoid 8.7.0:
 
 - Android port more or less working, but not usable yet, you can test it in the

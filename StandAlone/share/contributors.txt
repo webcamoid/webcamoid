@@ -15,6 +15,7 @@ Jan Beich <jbeich@FreeBSD.org>
 John Vandenberg <jayvdb@gmail.com>
 josep constanti <jconstanti@yahoo.es>
 Knusper <cherenz@aip.de>
+Kozioł Marcin <koziol.martin@gmail.com>
 Kristjan Räts <kristjanrats@gmail.com>
 Livia Andriana Lohanda <chocolate.coffee@outlook.com>
 LL <lu.lecocq@free.fr>
