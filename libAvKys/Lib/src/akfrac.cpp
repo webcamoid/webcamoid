@@ -272,7 +272,7 @@ QDebug operator <<(QDebug debug, const AkFrac &frac)
                     << frac.num()
                     << ","
                     << frac.den()
-                     << ")";
+                    << ")";
 
     return debug.space();
 }

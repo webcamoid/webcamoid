@@ -16,6 +16,7 @@
  *
  * Web-Site: http://webcamoid.github.io/
  */
+
 #include <QtDebug>
 #include <QApplication>
 #include <QTranslator>
@@ -34,6 +35,8 @@ int main(int argc, char *argv[])
     qputenv("QT_QUICK_CONTROLS_UNIVERSAL_FOREGROUND", "#FFFFFF");
     qputenv("QT_QUICK_CONTROLS_UNIVERSAL_BACKGROUND", "#262626");
 
+    QApplication::setAttribute(Qt::AA_EnableHighDpiScaling, true);
+    QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps, true);
     QApplication app(argc, argv);
 
     auto palette = QApplication::palette();

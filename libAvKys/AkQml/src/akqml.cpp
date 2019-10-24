@@ -17,11 +17,20 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QWindow>
+
 #include "akqml.h"
 #include "ak.h"
 #include "akfrac.h"
 #include "akcaps.h"
 #include "akelement.h"
+
+class AkQmlPrivate
+{
+    public:
+        static QString matchClassName(const QObject *obj,
+                                      const QStringList &classes);
+};
 
 AkQml::AkQml(QQuickItem *parent):
     QQuickItem(parent)
@@ -164,6 +173,46 @@ QObject *AkQml::newVideoCaps(const QString &format,
                            align);
 }
 
+QObject *AkQml::newUnit(qreal value, AkUnit::Unit unit)
+{
+    return new AkUnit(value, unit);
+}
+
+QObject *AkQml::newUnit(qreal value, const QString &unit)
+{
+    return new AkUnit(value, unit);
+}
+
+QObject *AkQml::newUnit(qreal value, AkUnit::Unit unit, QObject *parent)
+{
+    auto className =
+            AkQmlPrivate::matchClassName(parent,
+                                         {"QWindow",
+                                          "QQuickItem"});
+
+    if (className == "QWindow")
+        return new AkUnit(value, unit, qobject_cast<QWindow *>(parent));
+    else if (className == "QQuickItem")
+        return new AkUnit(value, unit, qobject_cast<QQuickItem *>(parent));
+
+    return new AkUnit(value, unit);
+}
+
+QObject *AkQml::newUnit(qreal value, const QString &unit, QObject *parent)
+{
+    auto className =
+            AkQmlPrivate::matchClassName(parent,
+                                         {"QWindow",
+                                          "QQuickItem"});
+
+    if (className == "QWindow")
+        return new AkUnit(value, unit, qobject_cast<QWindow *>(parent));
+    else if (className == "QQuickItem")
+        return new AkUnit(value, unit, qobject_cast<QQuickItem *>(parent));
+
+    return new AkUnit(value, unit);
+}
+
 QObject *AkQml::newElement(const QString &pluginId,
                            const QString &pluginSub) const
 {
@@ -233,6 +282,29 @@ QVariant AkQml::varVideoCaps(QObject *caps) const
 QVariant AkQml::varVideoCaps(AkAudioCaps *caps) const
 {
     return QVariant::fromValue(*caps);
+}
+
+QVariant AkQml::varUnit(QObject *caps) const
+{
+    return QVariant::fromValue(*qobject_cast<AkUnit *>(caps));
+}
+
+QVariant AkQml::varUnit(AkUnit *caps) const
+{
+    return QVariant::fromValue(*caps);
+}
+
+QString AkQmlPrivate::matchClassName(const QObject *obj,
+                                     const QStringList &classes)
+{
+    if (!obj)
+        return {};
+
+    for (auto mobj = obj->metaObject(); mobj; mobj = mobj->superClass())
+        if (classes.contains(mobj->className()))
+            return {mobj->className()};
+
+    return {};
 }
 
 #include "moc_akqml.cpp"

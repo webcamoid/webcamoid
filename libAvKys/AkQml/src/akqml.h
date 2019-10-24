@@ -23,6 +23,7 @@
 #include <QQuickItem>
 #include <akaudiocaps.h>
 #include <akvideocaps.h>
+#include <akunit.h>
 
 class AkFrac;
 class AkCaps;
@@ -84,6 +85,17 @@ class AkQml: public QQuickItem
                                           const AkFrac &fps,
                                           int align=1) const;
 
+        Q_INVOKABLE QObject *newUnit(qreal value=0.0,
+                                     AkUnit::Unit unit=AkUnit::px);
+        Q_INVOKABLE QObject *newUnit(qreal value,
+                                     const QString &unit);
+        Q_INVOKABLE QObject *newUnit(qreal value,
+                                     AkUnit::Unit unit,
+                                     QObject *parent);
+        Q_INVOKABLE QObject *newUnit(qreal value,
+                                     const QString &unit,
+                                     QObject *parent);
+
         Q_INVOKABLE QObject *newElement(const QString &pluginId,
                                         const QString &pluginSub={}) const;
 
@@ -102,6 +114,9 @@ class AkQml: public QQuickItem
 
         Q_INVOKABLE QVariant varVideoCaps(QObject *caps) const;
         Q_INVOKABLE QVariant varVideoCaps(AkAudioCaps *caps) const;
+
+        Q_INVOKABLE QVariant varUnit(QObject *caps) const;
+        Q_INVOKABLE QVariant varUnit(AkUnit *caps) const;
 };
 
 #endif // AKQML_H

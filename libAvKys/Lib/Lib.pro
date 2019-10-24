@@ -42,12 +42,13 @@ HEADERS = \
     src/akpacket.h \
     src/akplugin.h \
     src/akmultimediasourceelement.h \
+    src/akunit.h \
     src/akvideocaps.h \
     src/akaudiocaps.h \
     src/akvideopacket.h \
     src/akaudiopacket.h
 
-QT += qml
+QT += gui qml quick
 
 SOURCES = \
     src/ak.cpp \
@@ -56,6 +57,7 @@ SOURCES = \
     src/akfrac.cpp \
     src/akpacket.cpp \
     src/akmultimediasourceelement.cpp \
+    src/akunit.cpp \
     src/akvideocaps.cpp \
     src/akaudiocaps.cpp \
     src/akvideopacket.cpp \

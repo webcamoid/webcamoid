@@ -29,13 +29,14 @@
 #endif
 
 #include "ak.h"
+#include "akaudiocaps.h"
+#include "akaudiopacket.h"
 #include "akcaps.h"
 #include "akelement.h"
 #include "akfrac.h"
-#include "akaudiocaps.h"
-#include "akvideocaps.h"
 #include "akpacket.h"
-#include "akaudiopacket.h"
+#include "akunit.h"
+#include "akvideocaps.h"
 #include "akvideopacket.h"
 
 class AkPrivate
@@ -169,6 +170,11 @@ AkPrivate::AkPrivate()
     qRegisterMetaType<AkFrac>("AkFrac");
     qRegisterMetaTypeStreamOperators<AkFrac>("AkFrac");
     QMetaType::registerDebugStreamOperator<AkFrac>();
+    qRegisterMetaType<AkUnit>("AkUnit");
+    qRegisterMetaTypeStreamOperators<AkUnit>("AkUnit");
+    QMetaType::registerDebugStreamOperator<AkUnit>();
+    qRegisterMetaType<AkUnit::Unit>("AkUnit::Unit");
+    qRegisterMetaType<AkUnit::Unit>("Unit");
     qRegisterMetaType<AkPacket>("AkPacket");
     qRegisterMetaType<AkAudioPacket>("AkAudioPacket");
     qRegisterMetaType<AkVideoPacket>("AkVideoPacket");
