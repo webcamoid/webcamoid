@@ -4,57 +4,57 @@
 <context>
     <name>About</name>
     <message>
-        <location filename="../qml/About.qml" line="27"/>
+        <location filename="../qml/About.qml" line="26"/>
         <source>About %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="46"/>
+        <location filename="../qml/About.qml" line="45"/>
         <source>Information</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="49"/>
+        <location filename="../qml/About.qml" line="48"/>
         <source>Thanks!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="52"/>
+        <location filename="../qml/About.qml" line="51"/>
         <source>License</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="86"/>
+        <location filename="../qml/About.qml" line="87"/>
         <source>Version %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="90"/>
+        <location filename="../qml/About.qml" line="91"/>
         <source>Using Qt %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="94"/>
+        <location filename="../qml/About.qml" line="95"/>
         <source>Website</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="103"/>
+        <location filename="../qml/About.qml" line="104"/>
         <source>Webcam capture application.</source>
         <translation type="unfinished">Aplicación de captura para la webcam.</translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="106"/>
+        <location filename="../qml/About.qml" line="107"/>
         <source>A simple webcam application for picture and video capture.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="122"/>
+        <location filename="../qml/About.qml" line="125"/>
         <source>Thanks to all these cool people that helped contributing to Webcamoid all these years.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="149"/>
+        <location filename="../qml/About.qml" line="154"/>
         <source>Close</source>
         <translation type="unfinished"></translation>
     </message>
@@ -62,47 +62,47 @@
 <context>
     <name>AddMedia</name>
     <message>
-        <location filename="../qml/AddMedia.qml" line="28"/>
+        <location filename="../qml/AddMedia.qml" line="27"/>
         <source>Add new media</source>
         <translation>Añadir nuevo medio</translation>
     </message>
     <message>
-        <location filename="../qml/AddMedia.qml" line="67"/>
+        <location filename="../qml/AddMedia.qml" line="66"/>
         <source>Description</source>
         <translation>Descripción</translation>
     </message>
     <message>
-        <location filename="../qml/AddMedia.qml" line="74"/>
+        <location filename="../qml/AddMedia.qml" line="73"/>
         <source>Insert media description</source>
         <translation>Ingresar descripción del medio</translation>
     </message>
     <message>
-        <location filename="../qml/AddMedia.qml" line="81"/>
+        <location filename="../qml/AddMedia.qml" line="80"/>
         <source>Media file</source>
         <translation>Archivo de medios</translation>
     </message>
     <message>
-        <location filename="../qml/AddMedia.qml" line="89"/>
+        <location filename="../qml/AddMedia.qml" line="88"/>
         <source>Select media file</source>
         <translation>Seleccionar archivo de medios</translation>
     </message>
     <message>
-        <location filename="../qml/AddMedia.qml" line="96"/>
+        <location filename="../qml/AddMedia.qml" line="95"/>
         <source>Search</source>
         <translation>Buscar</translation>
     </message>
     <message>
-        <location filename="../qml/AddMedia.qml" line="116"/>
+        <location filename="../qml/AddMedia.qml" line="115"/>
         <source>Ok</source>
         <translation>Aceptar</translation>
     </message>
     <message>
-        <location filename="../qml/AddMedia.qml" line="141"/>
+        <location filename="../qml/AddMedia.qml" line="140"/>
         <source>Cancel</source>
         <translation>Cancelar</translation>
     </message>
     <message>
-        <location filename="../qml/AddMedia.qml" line="151"/>
+        <location filename="../qml/AddMedia.qml" line="150"/>
         <source>Choose the file to add as media</source>
         <translation>Escoja el archivo de medios</translation>
     </message>
@@ -110,12 +110,12 @@
 <context>
     <name>AudioConfig</name>
     <message>
-        <location filename="../qml/AudioConfig.qml" line="117"/>
+        <location filename="../qml/AudioConfig.qml" line="116"/>
         <source>Outputs</source>
-        <translation>Salidas</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/AudioConfig.qml" line="121"/>
+        <location filename="../qml/AudioConfig.qml" line="120"/>
         <source>Select the output device for audio playing</source>
         <translation>Seleccione el dispositivo de salida para reproducir el audio</translation>
     </message>
@@ -130,8 +130,8 @@
         <translation>Seleccione el dispositivo para la captura del audio</translation>
     </message>
     <message>
-        <location filename="../qml/AudioConfig.qml" line="193"/>
-        <location filename="../qml/AudioConfig.qml" line="295"/>
+        <location filename="../qml/AudioConfig.qml" line="194"/>
+        <location filename="../qml/AudioConfig.qml" line="296"/>
         <source>Silence</source>
         <translation>Silenciar</translation>
     </message>
@@ -181,27 +181,27 @@
 <context>
     <name>CodecConfigs</name>
     <message>
-        <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/CodecConfigs.qml" line="27"/>
+        <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/CodecConfigs.qml" line="26"/>
         <source>Configure %1</source>
         <translation>Configuración %1</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/CodecConfigs.qml" line="112"/>
+        <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/CodecConfigs.qml" line="113"/>
         <source>Search option</source>
         <translation>Opciones de búsqueda</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/CodecConfigs.qml" line="126"/>
+        <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/CodecConfigs.qml" line="127"/>
         <source>Reset</source>
         <translation>Restablecer</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/CodecConfigs.qml" line="141"/>
+        <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/CodecConfigs.qml" line="143"/>
         <source>Cancel</source>
         <translation>Cancelar</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/CodecConfigs.qml" line="151"/>
+        <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/CodecConfigs.qml" line="154"/>
         <source>OK</source>
         <translation>Aceptar</translation>
     </message>
@@ -232,12 +232,12 @@
 <context>
     <name>EffectBar</name>
     <message>
-        <location filename="../qml/EffectBar.qml" line="122"/>
+        <location filename="../qml/EffectBar.qml" line="121"/>
         <source>Search effect...</source>
         <translation>Buscar efecto...</translation>
     </message>
     <message>
-        <location filename="../qml/EffectBar.qml" line="168"/>
+        <location filename="../qml/EffectBar.qml" line="167"/>
         <source>None</source>
         <translation>Ninguno</translation>
     </message>
@@ -245,28 +245,28 @@
 <context>
     <name>EffectConfig</name>
     <message>
-        <location filename="../qml/EffectConfig.qml" line="96"/>
-        <location filename="../qml/EffectConfig.qml" line="103"/>
+        <location filename="../qml/EffectConfig.qml" line="95"/>
+        <location filename="../qml/EffectConfig.qml" line="102"/>
         <source>Plugin id</source>
         <translation>Identificación del plugin</translation>
     </message>
     <message>
-        <location filename="../qml/EffectConfig.qml" line="83"/>
+        <location filename="../qml/EffectConfig.qml" line="82"/>
         <source>Description</source>
         <translation>Descripción</translation>
     </message>
     <message>
-        <location filename="../qml/EffectConfig.qml" line="90"/>
+        <location filename="../qml/EffectConfig.qml" line="89"/>
         <source>Plugin description</source>
         <translation>Descripción del plugin</translation>
     </message>
     <message>
-        <location filename="../qml/EffectConfig.qml" line="119"/>
+        <location filename="../qml/EffectConfig.qml" line="118"/>
         <source>Remove</source>
         <translation>Eliminar</translation>
     </message>
     <message>
-        <location filename="../qml/EffectConfig.qml" line="119"/>
+        <location filename="../qml/EffectConfig.qml" line="118"/>
         <source>Add</source>
         <translation>Añadir</translation>
     </message>
@@ -274,62 +274,62 @@
 <context>
     <name>GeneralConfig</name>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="52"/>
+        <location filename="../qml/GeneralConfig.qml" line="53"/>
         <source>Play webcam on start</source>
         <translation>Reproducir webcam al inicio</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="58"/>
+        <location filename="../qml/GeneralConfig.qml" line="59"/>
         <source>Enable advanced effects mode</source>
         <translation>Habilitar el modo de efectos avanzados</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="64"/>
+        <location filename="../qml/GeneralConfig.qml" line="65"/>
         <source>Frameworks &amp; libraries</source>
         <translation>Frameworks y librerías</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="74"/>
+        <location filename="../qml/GeneralConfig.qml" line="75"/>
         <source>Video capture</source>
         <translation>Captura de vídeo</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="84"/>
+        <location filename="../qml/GeneralConfig.qml" line="85"/>
         <source>Desktop capture</source>
         <translation>Captura del escritorio</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="94"/>
+        <location filename="../qml/GeneralConfig.qml" line="95"/>
         <source>Audio capture/play</source>
         <translation>Capturar/Reproducir audio</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="104"/>
+        <location filename="../qml/GeneralConfig.qml" line="105"/>
         <source>Video convert</source>
         <translation>Convertir vídeo</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="114"/>
+        <location filename="../qml/GeneralConfig.qml" line="115"/>
         <source>Audio convert</source>
         <translation>Convertir audio</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="155"/>
+        <location filename="../qml/GeneralConfig.qml" line="156"/>
         <source>Virtual camera driver</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="124"/>
+        <location filename="../qml/GeneralConfig.qml" line="125"/>
         <source>Video playback</source>
         <translation>Reproducción de vídeo</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="134"/>
+        <location filename="../qml/GeneralConfig.qml" line="135"/>
         <source>Video record</source>
         <translation>Grabación de vídeo</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="144"/>
+        <location filename="../qml/GeneralConfig.qml" line="145"/>
         <source>Root method</source>
         <translation>Método inicial</translation>
     </message>
@@ -345,32 +345,32 @@
 <context>
     <name>MediaConfig</name>
     <message>
-        <location filename="../qml/MediaConfig.qml" line="54"/>
+        <location filename="../qml/MediaConfig.qml" line="53"/>
         <source>Description</source>
         <translation>Descripción</translation>
     </message>
     <message>
-        <location filename="../qml/MediaConfig.qml" line="61"/>
+        <location filename="../qml/MediaConfig.qml" line="60"/>
         <source>Insert media description</source>
         <translation>Insertar descripción del medio</translation>
     </message>
     <message>
-        <location filename="../qml/MediaConfig.qml" line="68"/>
+        <location filename="../qml/MediaConfig.qml" line="67"/>
         <source>Media UID</source>
         <translation>UID de medios</translation>
     </message>
     <message>
-        <location filename="../qml/MediaConfig.qml" line="75"/>
+        <location filename="../qml/MediaConfig.qml" line="74"/>
         <source>Select media file</source>
         <translation>Seleccione el archivo de medios</translation>
     </message>
     <message>
-        <location filename="../qml/MediaConfig.qml" line="90"/>
+        <location filename="../qml/MediaConfig.qml" line="89"/>
         <source>Edit</source>
         <translation>Editar</translation>
     </message>
     <message>
-        <location filename="../qml/MediaConfig.qml" line="98"/>
+        <location filename="../qml/MediaConfig.qml" line="97"/>
         <source>Remove</source>
         <translation>Eliminar</translation>
     </message>
@@ -386,7 +386,7 @@
 <context>
     <name>OutputConfig</name>
     <message>
-        <location filename="../qml/OutputConfig.qml" line="55"/>
+        <location filename="../qml/OutputConfig.qml" line="56"/>
         <source>Virtual camera</source>
         <translation>Camara virtual</translation>
     </message>
@@ -422,52 +422,52 @@
 <context>
     <name>PluginConfig</name>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="110"/>
+        <location filename="../qml/PluginConfig.qml" line="111"/>
         <source>Use this page for configuring the plugins search paths.&lt;br /&gt;&lt;b&gt;Don&apos;t touch nothing unless you know what you are doing&lt;/b&gt;.</source>
         <translation>Use esta página para configurar las rutas de búsqueda de plugins.&lt;br /&gt;&lt;b&gt;No modifíque nada a menos que sepa lo que está haciendo&lt;/b&gt;.</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="115"/>
+        <location filename="../qml/PluginConfig.qml" line="116"/>
         <source>Extra search paths</source>
         <translation>Rutas de búsqueda adicionales</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="124"/>
+        <location filename="../qml/PluginConfig.qml" line="125"/>
         <source>Search plugins in subfolders.</source>
         <translation>Buscar plugins en sub-directorios.</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="134"/>
+        <location filename="../qml/PluginConfig.qml" line="135"/>
         <source>Add</source>
         <translation>Añadir</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="141"/>
+        <location filename="../qml/PluginConfig.qml" line="142"/>
         <source>Remove</source>
         <translation>Eliminar</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="207"/>
+        <location filename="../qml/PluginConfig.qml" line="210"/>
         <source>Plugins list</source>
         <translation>Lista de plugins</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="216"/>
+        <location filename="../qml/PluginConfig.qml" line="219"/>
         <source>Refresh</source>
         <translation>Actualizar</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="226"/>
+        <location filename="../qml/PluginConfig.qml" line="229"/>
         <source>Disable</source>
         <translation>Deshabilitar</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="226"/>
+        <location filename="../qml/PluginConfig.qml" line="229"/>
         <source>Enable</source>
         <translation>Habilitar</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="308"/>
+        <location filename="../qml/PluginConfig.qml" line="313"/>
         <source>Add plugins search path</source>
         <translation>Añadir ruta de búsqueda para los plugins</translation>
     </message>
@@ -526,7 +526,7 @@
 <context>
     <name>RecordBar</name>
     <message>
-        <location filename="../qml/RecordBar.qml" line="101"/>
+        <location filename="../qml/RecordBar.qml" line="100"/>
         <source>Search format...</source>
         <translation>Buscar formato...</translation>
     </message>
@@ -534,33 +534,33 @@
 <context>
     <name>RecordConfig</name>
     <message>
-        <location filename="../qml/RecordConfig.qml" line="71"/>
+        <location filename="../qml/RecordConfig.qml" line="70"/>
         <source>Video %1.%2</source>
         <translation>Vídeo %1.%2</translation>
     </message>
     <message>
-        <location filename="../qml/RecordConfig.qml" line="88"/>
+        <location filename="../qml/RecordConfig.qml" line="87"/>
         <source>Stop recording video</source>
         <translation>Detener la grabación de vídeo</translation>
     </message>
     <message>
-        <location filename="../qml/RecordConfig.qml" line="91"/>
-        <location filename="../qml/RecordConfig.qml" line="128"/>
+        <location filename="../qml/RecordConfig.qml" line="90"/>
+        <location filename="../qml/RecordConfig.qml" line="129"/>
         <source>Start recording video</source>
         <translation>Iniciar la grabación de vídeo</translation>
     </message>
     <message>
-        <location filename="../qml/RecordConfig.qml" line="99"/>
+        <location filename="../qml/RecordConfig.qml" line="98"/>
         <source>Description</source>
         <translation>Descripción</translation>
     </message>
     <message>
-        <location filename="../qml/RecordConfig.qml" line="106"/>
+        <location filename="../qml/RecordConfig.qml" line="105"/>
         <source>Insert format description</source>
         <translation>Ingresar la descripción del formato</translation>
     </message>
     <message>
-        <location filename="../qml/RecordConfig.qml" line="193"/>
+        <location filename="../qml/RecordConfig.qml" line="194"/>
         <source>Save video as...</source>
         <translation>Guardar vídeo como...</translation>
     </message>
@@ -604,48 +604,48 @@
 <context>
     <name>StreamOptions</name>
     <message>
-        <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/StreamOptions.qml" line="28"/>
+        <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/StreamOptions.qml" line="27"/>
         <source>Stream #%1 (%2)</source>
         <translation>Flujo #%1 (%2)</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/StreamOptions.qml" line="29"/>
+        <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/StreamOptions.qml" line="28"/>
         <source>Stream #%1</source>
         <translation>Flujo #%1</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/StreamOptions.qml" line="64"/>
+        <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/StreamOptions.qml" line="63"/>
         <source>Codec</source>
         <translation>Códec</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/StreamOptions.qml" line="85"/>
+        <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/StreamOptions.qml" line="84"/>
         <source>Bitrate</source>
         <translation>Bitrate</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/StreamOptions.qml" line="105"/>
+        <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/StreamOptions.qml" line="104"/>
         <source>GOP</source>
         <translatorcomment>Group of pictures. https://en.wikipedia.org/wiki/Group_of_pictures</translatorcomment>
         <translation>GOP</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/StreamOptions.qml" line="110"/>
+        <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/StreamOptions.qml" line="109"/>
         <source>Separation between keyframes</source>
         <translation>Separación entre fotogramas clave</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/StreamOptions.qml" line="126"/>
+        <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/StreamOptions.qml" line="125"/>
         <source>Advanced Codec Options</source>
         <translation>Opciones avanzadas de códec</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/StreamOptions.qml" line="150"/>
+        <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/StreamOptions.qml" line="149"/>
         <source>Size of the audio (bits) / duration (seconds)</source>
         <translation>Tamaño del audio (bits) / duración (segundos)</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/StreamOptions.qml" line="171"/>
+        <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/StreamOptions.qml" line="170"/>
         <source>Size of the video (bits) / duration (seconds)</source>
         <translation>Tamaño del vídeo (bits) / duración (segundos)</translation>
     </message>
@@ -653,149 +653,73 @@
 <context>
     <name>UpdatesConfig</name>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="68"/>
+        <location filename="../qml/UpdatesConfig.qml" line="67"/>
         <source>Notify about new versions</source>
         <translation>Notificar sobre nuevas versiones</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="82"/>
+        <location filename="../qml/UpdatesConfig.qml" line="81"/>
         <source>Check new versions</source>
         <translation>Buscar nuevas versiones</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="90"/>
+        <location filename="../qml/UpdatesConfig.qml" line="89"/>
         <source>Daily</source>
         <translation>Diario</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="94"/>
+        <location filename="../qml/UpdatesConfig.qml" line="93"/>
         <source>Every two days</source>
         <translation>Cada dos días</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="98"/>
+        <location filename="../qml/UpdatesConfig.qml" line="97"/>
         <source>Weekly</source>
         <translation>Semanal</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="102"/>
+        <location filename="../qml/UpdatesConfig.qml" line="101"/>
         <source>Every two weeks</source>
         <translation>Cada dos semanas</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="106"/>
+        <location filename="../qml/UpdatesConfig.qml" line="105"/>
         <source>Monthly</source>
         <translation>Mensual</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="110"/>
+        <location filename="../qml/UpdatesConfig.qml" line="109"/>
         <source>Never</source>
         <translation>Nunca</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="121"/>
+        <location filename="../qml/UpdatesConfig.qml" line="120"/>
         <source>Last updated</source>
         <translation>Última actualización</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="142"/>
+        <location filename="../qml/UpdatesConfig.qml" line="141"/>
         <source>Your version of %1 is outdated. Latest version is &lt;b&gt;%2&lt;/b&gt;.</source>
         <translation>Su versión de %1 está desactualizada. La última versión es &lt;b&gt;%2&lt;/b&gt;.</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="148"/>
+        <location filename="../qml/UpdatesConfig.qml" line="147"/>
         <source>Upgrade Now!</source>
         <translation>¡Actualizar ahora!</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="163"/>
+        <location filename="../qml/UpdatesConfig.qml" line="162"/>
         <source>Thanks for using a &lt;b&gt;development version&lt;/b&gt;!&lt;br /&gt;It will be very helpful if you can report any bug and suggestions you have.</source>
         <translation>¡Gracias por usar un &lt;b&gt;versión de desarrollo&lt;/b&gt;!&lt;br /&gt;Será muy útil si puede informar de cualquier error y sugerencia que tenga.</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="168"/>
+        <location filename="../qml/UpdatesConfig.qml" line="167"/>
         <source>Report a Bug</source>
         <translation>Reportar un error</translation>
     </message>
 </context>
 <context>
     <name>main</name>
-    <message>
-        <location filename="../qml/main.qml" line="172"/>
-        <source>Recording</source>
-        <translation>Grabando</translation>
-    </message>
-    <message>
-        <location filename="../qml/main.qml" line="111"/>
-        <location filename="../qml/main.qml" line="618"/>
-        <source>Play</source>
-        <translation>Reproducir</translation>
-    </message>
-    <message>
-        <location filename="../qml/main.qml" line="652"/>
-        <source>Take a photo</source>
-        <translation>Tomar una foto</translation>
-    </message>
-    <message>
-        <location filename="../qml/main.qml" line="252"/>
-        <source>Picture %1.%2</source>
-        <translation>Imagen %1.%2</translation>
-    </message>
-    <message>
-        <location filename="../qml/main.qml" line="71"/>
-        <source>New version available!</source>
-        <translation>¡Nueva versión disponible!</translation>
-    </message>
-    <message>
-        <location filename="../qml/main.qml" line="72"/>
-        <source>Download %1 %2 NOW!</source>
-        <translation>Descargar %1 %2 ¡AHORA!</translation>
-    </message>
-    <message>
-        <location filename="../qml/main.qml" line="107"/>
-        <source>Stop</source>
-        <translation>Detener</translation>
-    </message>
-    <message>
-        <location filename="../qml/main.qml" line="572"/>
-        <source>Go back</source>
-        <translation>Regresar</translation>
-    </message>
-    <message>
-        <location filename="../qml/main.qml" line="626"/>
-        <source>Configure sources</source>
-        <translation>Configurar fuentes</translation>
-    </message>
-    <message>
-        <location filename="../qml/main.qml" line="639"/>
-        <source>Configure audio</source>
-        <translation>Configurar audio</translation>
-    </message>
-    <message>
-        <location filename="../qml/main.qml" line="666"/>
-        <source>Record video</source>
-        <translation>Grabar vídeo</translation>
-    </message>
-    <message>
-        <location filename="../qml/main.qml" line="680"/>
-        <source>Configure Effects</source>
-        <translation>Configurar efectos</translation>
-    </message>
-    <message>
-        <location filename="../qml/main.qml" line="693"/>
-        <source>Preferences</source>
-        <translation>Preferencias</translation>
-    </message>
-    <message>
-        <location filename="../qml/main.qml" line="706"/>
-        <source>About</source>
-        <translation>Acerca de</translation>
-    </message>
-    <message>
-        <location filename="../qml/main.qml" line="261"/>
-        <source>Save photo as...</source>
-        <translation>Guardar foto como...</translation>
-    </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Aging/share/qml/main.qml" line="40"/>
         <source>Number of scratches</source>
@@ -899,9 +823,9 @@
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="107"/>
-        <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="122"/>
+        <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="121"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="526"/>
-        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="140"/>
+        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="139"/>
         <source>Search</source>
         <translation>Buscar</translation>
     </message>
@@ -1074,7 +998,7 @@
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorFilter/share/qml/main.qml" line="100"/>
-        <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/main.qml" line="102"/>
+        <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/main.qml" line="103"/>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="83"/>
         <source>Soft</source>
         <translation>Suave</translation>
@@ -1105,75 +1029,75 @@
         <translation>Seleccione el nuevo color</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="37"/>
-        <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/main.qml" line="75"/>
+        <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="36"/>
+        <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/main.qml" line="74"/>
         <source>Color table</source>
         <translation>Tabla de colores</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="46"/>
+        <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="45"/>
         <source>Base</source>
         <translatorcomment>Base color, show the image without modifications</translatorcomment>
         <translation>Base</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="50"/>
+        <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="49"/>
         <source>Metal</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="54"/>
+        <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="53"/>
         <source>Heat</source>
         <translatorcomment>https://en.wikipedia.org/wiki/Heat_map</translatorcomment>
         <translation>Intensidad</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="58"/>
+        <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="57"/>
         <source>Old Photo</source>
         <translation>Foto vieja</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="62"/>
+        <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="61"/>
         <source>Red &amp; Green</source>
         <translation>Rojo y verde</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="66"/>
+        <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="65"/>
         <source>Sepia</source>
         <translatorcomment>https://en.wikipedia.org/wiki/Sepia_(color)</translatorcomment>
         <translation>Sepia</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="70"/>
+        <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="69"/>
         <source>X-Pro</source>
         <translation>X-Pro</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="74"/>
+        <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="73"/>
         <source>X-Ray</source>
         <translation>Rayos-X</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="78"/>
+        <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="77"/>
         <source>Yellow &amp; Blue</source>
         <translation>Amarillo y azul</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="82"/>
+        <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="81"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="484"/>
-        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="101"/>
+        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="100"/>
         <source>Custom</source>
         <translation>Personalizado</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="103"/>
+        <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="102"/>
         <source>16x16 bitmap...</source>
         <translation>16x16 mapa de bits...</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="131"/>
+        <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="130"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="563"/>
-        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="202"/>
+        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="201"/>
         <source>Please choose an image file</source>
         <translation>Por favor elija un archivo de imagen</translation>
     </message>
@@ -1773,82 +1697,82 @@
         <translation>Paseo</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="51"/>
+        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="50"/>
         <source>Pattern</source>
         <translation>Patrón</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="61"/>
+        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="60"/>
         <source>90° Halftone 6x6</source>
         <translation>90° semitono 6x6</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="65"/>
+        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="64"/>
         <source>Cluster 3</source>
         <translation>Grupo 3</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="69"/>
+        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="68"/>
         <source>Cluster 4</source>
         <translation>Grupo 4</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="73"/>
+        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="72"/>
         <source>Cluster 8</source>
         <translation>Grupo 8</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="77"/>
+        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="76"/>
         <source>Lines 4x4</source>
         <translation>Líneas 4x4</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="81"/>
+        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="80"/>
         <source>Magic 2x2</source>
         <translation>Mágico 2x2</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="85"/>
+        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="84"/>
         <source>Magic 4x4</source>
         <translation>Mágico 4x4</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="89"/>
+        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="88"/>
         <source>Ordered 4x4</source>
         <translation>Ordenado 4x4</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="93"/>
+        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="92"/>
         <source>Ordered 6x6</source>
         <translation>Ordenado 6x6</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="97"/>
+        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="96"/>
         <source>Ordered 8x8</source>
         <translation>Ordenado 8x8</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="120"/>
+        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="119"/>
         <source>pattern bitmap...</source>
         <translation>mapa de bits de patrón...</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="149"/>
+        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="148"/>
         <source>Pattern size</source>
         <translation>Tamaño del patrón</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="162"/>
+        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="161"/>
         <source>Lightness</source>
         <translation>Ligereza</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="175"/>
+        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="174"/>
         <source>Slope</source>
         <translation>Pendiente</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="188"/>
+        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="187"/>
         <source>Intercept</source>
         <translation>Interceptar</translation>
     </message>
@@ -1940,22 +1864,22 @@
         <translation>Mostrar cursor</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/main.qml" line="165"/>
+        <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/main.qml" line="164"/>
         <source>Output format</source>
         <translation>Formato de salida</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/main.qml" line="194"/>
+        <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/main.qml" line="193"/>
         <source>File extensions</source>
         <translation>Extensiones de archivo</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/main.qml" line="200"/>
+        <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/main.qml" line="199"/>
         <source>This output format has not specific extensions</source>
         <translation>Este formato de salida no tiene extensiones específicas</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/main.qml" line="206"/>
+        <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/main.qml" line="205"/>
         <source>Advanced Format Options</source>
         <translation>Opciones avanzadas de formato</translation>
     </message>
@@ -2081,22 +2005,22 @@
         <translation>Temperatura</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="283"/>
+        <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="282"/>
         <source>Video format</source>
         <translation>Formato de vídeo</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="302"/>
+        <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="301"/>
         <source>Resolution</source>
         <translation>Resolución</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="321"/>
+        <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="320"/>
         <source>FPS</source>
         <translation>FPS</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="344"/>
+        <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="343"/>
         <source>Reset</source>
         <translation>Restablecer</translation>
     </message>
@@ -2121,57 +2045,57 @@
         <translation>Elija el color de la viñeta</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="61"/>
+        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="60"/>
         <source>Devices</source>
         <translation>Dispositivos</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="78"/>
+        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="77"/>
         <source>Add</source>
         <translation>Añadir</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="89"/>
+        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="88"/>
         <source>Edit</source>
         <translation>Editar</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="102"/>
+        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="101"/>
         <source>Remove</source>
         <translation>Eliminar</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="113"/>
+        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="112"/>
         <source>Remove All</source>
         <translation>Eliminar todo</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="134"/>
+        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="133"/>
         <source>Description</source>
         <translation>Descripción</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="140"/>
+        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="139"/>
         <source>Camera name (optional)</source>
         <translation>Nombre de la cámara (opcional)</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="264"/>
+        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="263"/>
         <source>Error creating camera: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="152"/>
+        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="151"/>
         <source>Ok</source>
         <translation>Aceptar</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="195"/>
+        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="194"/>
         <source>Cancel</source>
         <translation>Cancelar</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="250"/>
+        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="249"/>
         <source>This system is not supported yet</source>
         <translation>Este sistema aún no es compatible</translation>
     </message>
@@ -2184,6 +2108,82 @@
         <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="116"/>
         <source>Phase</source>
         <translation>Etapa</translation>
+    </message>
+    <message>
+        <location filename="../qml/main.qml" line="70"/>
+        <source>New version available!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/main.qml" line="71"/>
+        <source>Download %1 %2 NOW!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/main.qml" line="106"/>
+        <source>Stop</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/main.qml" line="110"/>
+        <location filename="../qml/main.qml" line="695"/>
+        <source>Play</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/main.qml" line="171"/>
+        <source>Recording</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/main.qml" line="251"/>
+        <source>Picture %1.%2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/main.qml" line="260"/>
+        <source>Save photo as...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/main.qml" line="649"/>
+        <source>Go back</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/main.qml" line="703"/>
+        <source>Configure sources</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/main.qml" line="716"/>
+        <source>Configure audio</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/main.qml" line="729"/>
+        <source>Take a photo</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/main.qml" line="743"/>
+        <source>Record video</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/main.qml" line="757"/>
+        <source>Configure Effects</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/main.qml" line="770"/>
+        <source>Preferences</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/main.qml" line="783"/>
+        <source>About</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 </TS>

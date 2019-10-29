@@ -91,10 +91,17 @@ win32: LIBS += -lole32
 unix: OTHER_FILES += $${MANPAGESOURCES}
 macx: OTHER_FILES += Info.plist
 
-QT += qml quick opengl widgets svg
+QT += \
+    opengl \
+    qml \
+    quick \
+    quickcontrols2 \
+    svg \
+    widgets
 
 RESOURCES += \
     Webcamoid.qrc \
+    DefaultTheme.qrc \
     qml.qrc \
     share/icons/icons.qrc
 
@@ -113,6 +120,7 @@ SOURCES = \
 
 lupdate_only {
     SOURCES += $$files(share/qml/*.qml)
+    SOURCES += $$files(share/themes/Default/*.qml)
 }
 
 DESTDIR = $${OUT_PWD}/$${BIN_DIR}

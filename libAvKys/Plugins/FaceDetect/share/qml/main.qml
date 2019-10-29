@@ -522,9 +522,9 @@ GridLayout {
                 }
             }
         }
-        AkButton {
-            label: qsTr("Search")
-            iconRc: "image://icons/edit-find"
+        Button {
+            text: qsTr("Search")
+            icon.source: "image://icons/edit-find"
 
             onClicked: pictureDialog.open()
         }

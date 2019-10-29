@@ -19,13 +19,14 @@
 
 import QtQuick 2.7
 import QtQuick.Dialogs 1.2
-import QtQuick.Controls 2.0
+import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
 import AkQml 1.0
-import AkQmlControls 1.0
 
-AkScrollView {
+ScrollView {
     id: scrollView
+    ScrollBar.horizontal.policy: ScrollBar.AsNeeded
+    ScrollBar.vertical.policy: ScrollBar.AsNeeded
     clip: true
     contentHeight: pluginConfigs.height
 
@@ -130,16 +131,16 @@ AkScrollView {
                         refreshCache()
                     }
                 }
-                AkButton {
-                    label: qsTr("Add")
-                    iconRc: "image://icons/add"
+                Button {
+                    text: qsTr("Add")
+                    icon.source: "image://icons/add"
 
                     onClicked: fileDialog.open()
                 }
-                AkButton {
+                Button {
                     id: btnRemove
-                    label: qsTr("Remove")
-                    iconRc: "image://icons/remove"
+                    text: qsTr("Remove")
+                    icon.source: "image://icons/remove"
                     enabled: searchPathsTable.currentIndex >= 0
 
                     onClicked: {
@@ -161,8 +162,10 @@ AkScrollView {
                     Layout.columnSpan: 3
                     Layout.fillWidth: true
 
-                    AkScrollView {
+                    ScrollView {
                         id: searchPathsTableScroll
+                        ScrollBar.horizontal.policy: ScrollBar.AsNeeded
+                        ScrollBar.vertical.policy: ScrollBar.AsNeeded
                         clip: true
                         contentHeight: searchPathsTable.height
                         anchors.fill: parent
@@ -212,9 +215,9 @@ AkScrollView {
                 columns: 3
                 anchors.fill: parent
 
-                AkButton {
-                    label: qsTr("Refresh")
-                    iconRc: "image://icons/reset"
+                Button {
+                    text: qsTr("Refresh")
+                    icon.source: "image://icons/reset"
 
                     onClicked: refreshCache()
                 }
@@ -252,8 +255,10 @@ AkScrollView {
                     Layout.columnSpan: 3
                     Layout.fillWidth: true
 
-                    AkScrollView {
+                    ScrollView {
                         id: pluginsTableScroll
+                        ScrollBar.horizontal.policy: ScrollBar.AsNeeded
+                        ScrollBar.vertical.policy: ScrollBar.AsNeeded
                         clip: true
                         contentHeight: pluginsTable.height
                         anchors.fill: parent

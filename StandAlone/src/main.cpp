@@ -17,44 +17,26 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QtDebug>
 #include <QApplication>
-#include <QTranslator>
-#include <QPalette>
 #include <QIcon>
+#include <QQuickStyle>
+#include <QTranslator>
 
 #include "mediatools.h"
 
 int main(int argc, char *argv[])
 {
-    /* Force a default theme and color scheme for all platforms for UI
-       consistency. */
-    qputenv("QT_QUICK_CONTROLS_STYLE", "Universal");
-    qputenv("QT_QUICK_CONTROLS_UNIVERSAL_THEME", "Dark");
-    qputenv("QT_QUICK_CONTROLS_UNIVERSAL_ACCENT", "#472F8E");
-    qputenv("QT_QUICK_CONTROLS_UNIVERSAL_FOREGROUND", "#FFFFFF");
-    qputenv("QT_QUICK_CONTROLS_UNIVERSAL_BACKGROUND", "#262626");
-
     QApplication::setAttribute(Qt::AA_EnableHighDpiScaling, true);
     QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps, true);
     QApplication app(argc, argv);
 
-    auto palette = QApplication::palette();
-    palette.setColor(QPalette::Window, QColor(31, 31, 31));
-    palette.setColor(QPalette::WindowText, QColor(255, 255, 255));
-    palette.setColor(QPalette::Base, QColor(38, 38, 38));
-    palette.setColor(QPalette::AlternateBase, QColor(31, 31, 31));
-    palette.setColor(QPalette::Text, QColor(255, 255, 255));
-    palette.setColor(QPalette::Highlight, QColor(71, 47, 142));
-    palette.setColor(QPalette::HighlightedText, QColor(255, 255, 255));
-    palette.setColor(QPalette::Button, QColor(71, 47, 142));
-    palette.setColor(QPalette::ButtonText, QColor(255, 255, 255));
-    QApplication::setPalette(palette);
+    QQuickStyle::addStylePath(":/Webcamoid/share/themes");
+    QQuickStyle::setStyle("Default");
 
-    QCoreApplication::setApplicationName(COMMONS_APPNAME);
-    QCoreApplication::setApplicationVersion(COMMONS_VERSION);
-    QCoreApplication::setOrganizationName(COMMONS_APPNAME);
-    QCoreApplication::setOrganizationDomain(QString("%1.com").arg(COMMONS_APPNAME));
+    QApplication::setApplicationName(COMMONS_APPNAME);
+    QApplication::setApplicationVersion(COMMONS_VERSION);
+    QApplication::setOrganizationName(COMMONS_APPNAME);
+    QApplication::setOrganizationDomain(QString("%1.com").arg(COMMONS_APPNAME));
 
     // Install translations.
     QTranslator translator;

@@ -103,9 +103,9 @@ GridLayout {
             font: Charify.font
             Layout.fillWidth: true
         }
-        AkButton {
-            label: qsTr("Search")
-            iconRc: "image://icons/edit-find"
+        Button {
+            text: qsTr("Search")
+            icon.source: "image://icons/edit-find"
 
             onClicked: fontDialog.open()
         }

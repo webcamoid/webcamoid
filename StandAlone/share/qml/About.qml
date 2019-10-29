@@ -18,9 +18,8 @@
  */
 
 import QtQuick 2.7
-import QtQuick.Controls 2.0
+import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
-import AkQmlControls 1.0
 
 ApplicationWindow {
     id: recAbout
@@ -57,7 +56,9 @@ ApplicationWindow {
             currentIndex: aboutTabs.currentIndex
             Layout.fillWidth: true
 
-            AkScrollView {
+            ScrollView {
+                ScrollBar.horizontal.policy: ScrollBar.AsNeeded
+                ScrollBar.vertical.policy: ScrollBar.AsNeeded
                 clip: true
                 contentWidth: clyProgramInfo.childrenRect.width
                 contentHeight: clyProgramInfo.childrenRect.height
@@ -90,9 +91,9 @@ ApplicationWindow {
                                 text: qsTr("Using Qt %1")
                                         .arg(Webcamoid.qtVersion())
                             }
-                            AkButton {
-                                label: qsTr("Website")
-                                iconRc: "image://icons/applications-internet"
+                            Button {
+                                text: qsTr("Website")
+                                icon.source: "image://icons/applications-internet"
 
                                 onClicked: Qt.openUrlExternally(Webcamoid.projectUrl())
                             }
@@ -110,7 +111,9 @@ ApplicationWindow {
                     }
                 }
             }
-            AkScrollView {
+            ScrollView {
+                ScrollBar.horizontal.policy: ScrollBar.AsNeeded
+                ScrollBar.vertical.policy: ScrollBar.AsNeeded
                 clip: true
                 contentWidth: clyThanks.childrenRect.width
                 contentHeight: clyThanks.childrenRect.height
@@ -131,7 +134,9 @@ ApplicationWindow {
                     }
                 }
             }
-            AkScrollView {
+            ScrollView {
+                ScrollBar.horizontal.policy: ScrollBar.AsNeeded
+                ScrollBar.vertical.policy: ScrollBar.AsNeeded
                 clip: true
                 contentWidth: licenseText.width
                 contentHeight: licenseText.height
@@ -145,10 +150,11 @@ ApplicationWindow {
             }
         }
 
-        AkButton {
-            label: qsTr("Close")
-            iconRc: "image://icons/window-close"
+        Button {
+            text: qsTr("Close")
+            icon.source: "image://icons/window-close"
             Layout.alignment: Qt.AlignRight
+
             onClicked: recAbout.close()
         }
     }

@@ -18,8 +18,7 @@
  */
 
 import QtQuick 2.7
-import QtQuick.Controls 2.0
-import AkQmlControls 1.0
+import QtQuick.Controls 2.5
 
 Rectangle {
     id: recRecordBar
@@ -101,8 +100,10 @@ Rectangle {
         placeholderText: qsTr("Search format...")
     }
 
-    AkScrollView {
+    ScrollView {
         id: scrollFormats
+        ScrollBar.horizontal.policy: ScrollBar.AsNeeded
+        ScrollBar.vertical.policy: ScrollBar.AsNeeded
         clip: true
         anchors.top: txtSearchFormat.bottom
         anchors.bottom: parent.bottom

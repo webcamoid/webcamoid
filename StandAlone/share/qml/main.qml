@@ -24,7 +24,6 @@ import QtQuick.Layouts 1.3
 import AkQml 1.0
 import Webcamoid 1.0
 import WebcamoidUpdates 1.0
-import AkQmlControls 1.0
 
 ApplicationWindow {
     id: wdgMainWidget
@@ -276,21 +275,40 @@ ApplicationWindow {
         }
     }
 
-    AkSplitView {
+    Item {
         id: splitView
         anchors.fill: parent
-        orientation: Qt.Horizontal
-        Layout.minimumWidth: 600
 
-        RowLayout {
-            id: leftPanel
-            width: 200
+        property int panelBorder: 2
+        property int dragBorder: 4
+        property int minimumWidth: 100
+
+        onWidthChanged: {
+            paneLeft.width = Math.max(paneLeft.width,
+                                      splitView.minimumWidth)
+            paneLeft.width = Math.min(paneLeft.width,
+                                      splitView.width
+                                      - paneRight.width
+                                      - splitView.panelBorder
+                                      - splitView.dragBorder)
+            paneRight.width = Math.max(paneRight.width,
+                                       splitView.minimumWidth)
+            paneRight.width = Math.min(paneRight.width,
+                                       splitView.width
+                                       - paneLeft.width
+                                       - splitView.panelBorder
+                                       - splitView.dragBorder)
+        }
+
+        Pane {
+            id: paneLeft
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
+            anchors.left: parent.left
             visible: false
 
-            Rectangle {
-                color: rgbChangeAlpha(palette.window, 0.9)
-                Layout.fillWidth: true
-                Layout.fillHeight: true
+            Item {
+                anchors.fill: parent
 
                 MediaBar {
                     id: mdbMediaBar
@@ -342,20 +360,48 @@ ApplicationWindow {
                 }
             }
         }
+        Rectangle {
+            id: rectangleLeft
+            width: splitView.panelBorder
+            color: "#000000"
+            anchors.leftMargin: -splitView.panelBorder / 2
+            anchors.left: paneLeft.right
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
+            visible: paneLeft.visible
+        }
+        MouseArea {
+            cursorShape: Qt.SizeHorCursor
+            width: splitView.panelBorder + 2 * splitView.dragBorder
+            anchors.leftMargin: -width / 2
+            anchors.left: paneLeft.right
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
+            drag.axis: Drag.XAxis
+            visible: paneLeft.visible
 
-        Item {
-            Layout.fillWidth: true
+            onPositionChanged: {
+                paneLeft.width += mouse.x
+                paneLeft.width = Math.max(paneLeft.width,
+                                          splitView.minimumWidth)
+                paneLeft.width = Math.min(paneLeft.width,
+                                          splitView.width
+                                          - paneRight.width
+                                          - splitView.panelBorder
+                                          - splitView.dragBorder)
+            }
         }
 
-        RowLayout {
-            id: rightPanel
+        Pane {
+            id: paneRight
+            implicitWidth: 450
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
+            anchors.right: parent.right
             visible: false
-            width: 400
 
-            Rectangle {
-                color: rgbChangeAlpha(palette.window, 0.9)
-                Layout.fillWidth: true
-                Layout.fillHeight: true
+            Item {
+                anchors.fill: parent
 
                 MediaConfig {
                     id: mediaConfig
@@ -388,16 +434,47 @@ ApplicationWindow {
                 }
             }
         }
+        Rectangle {
+            id: rectangleRight
+            width: splitView.panelBorder
+            color: "#000000"
+            anchors.rightMargin: -splitView.panelBorder / 2
+            anchors.right: paneRight.left
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
+            visible: paneRight.visible
+        }
+        MouseArea {
+            cursorShape: Qt.SizeHorCursor
+            width: splitView.panelBorder + 2 * splitView.dragBorder
+            anchors.rightMargin: -width / 2
+            anchors.right: rectangleRight.left
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
+            drag.axis: Drag.XAxis
+            visible: paneRight.visible
+
+            onPositionChanged: {
+                paneRight.width -= mouse.x
+                paneRight.width = Math.max(paneRight.width,
+                                           splitView.minimumWidth)
+                paneRight.width = Math.min(paneRight.width,
+                                           splitView.width
+                                           - paneLeft.width
+                                           - splitView.panelBorder
+                                           - splitView.dragBorder)
+            }
+        }
 
         states: [
             State {
                 name: "showMediaPanels"
                 PropertyChanges {
-                    target: leftPanel
+                    target: paneLeft
                     visible: true
                 }
                 PropertyChanges {
-                    target: rightPanel
+                    target: paneRight
                     visible: true
                 }
                 PropertyChanges {
@@ -412,11 +489,11 @@ ApplicationWindow {
             State {
                 name: "showAudioPanels"
                 PropertyChanges {
-                    target: leftPanel
+                    target: paneLeft
                     visible: true
                 }
                 PropertyChanges {
-                    target: rightPanel
+                    target: paneRight
                     visible: true
                 }
                 PropertyChanges {
@@ -438,11 +515,11 @@ ApplicationWindow {
             State {
                 name: "showEffectPanels"
                 PropertyChanges {
-                    target: leftPanel
+                    target: paneLeft
                     visible: true
                 }
                 PropertyChanges {
-                    target: rightPanel
+                    target: paneRight
                     visible: true
                 }
                 PropertyChanges {
@@ -457,11 +534,11 @@ ApplicationWindow {
             State {
                 name: "showRecordPanels"
                 PropertyChanges {
-                    target: leftPanel
+                    target: paneLeft
                     visible: true
                 }
                 PropertyChanges {
-                    target: rightPanel
+                    target: paneRight
                     visible: true
                 }
                 PropertyChanges {
@@ -476,11 +553,11 @@ ApplicationWindow {
             State {
                 name: "showConfigPanels"
                 PropertyChanges {
-                    target: leftPanel
+                    target: paneLeft
                     visible: true
                 }
                 PropertyChanges {
-                    target: rightPanel
+                    target: paneRight
                     visible: true
                 }
                 PropertyChanges {

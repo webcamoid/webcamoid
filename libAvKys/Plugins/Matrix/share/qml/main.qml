@@ -92,9 +92,9 @@ GridLayout {
             font: Matrix.font
             Layout.fillWidth: true
         }
-        AkButton {
-            label: qsTr("Select")
-            iconRc: "image://icons/preferences-desktop-font"
+        Button {
+            text: qsTr("Select")
+            icon.source: "image://icons/preferences-desktop-font"
 
             onClicked: fontDialog.open()
         }

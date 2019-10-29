@@ -318,7 +318,7 @@ QString MediaTools::saveFileDialog(const QString &caption,
     return QString();
 }
 
-QString MediaTools::readFile(const QString &fileName) const
+QString MediaTools::readFile(const QString &fileName)
 {
     QFile file(fileName);
     file.open(QIODevice::ReadOnly | QIODevice::Text);

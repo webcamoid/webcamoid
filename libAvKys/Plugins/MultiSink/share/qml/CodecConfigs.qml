@@ -18,9 +18,8 @@
  */
 
 import QtQuick 2.7
-import QtQuick.Controls 2.0
+import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
-import AkQmlControls 1.0
 
 ApplicationWindow {
     id: recAbout
@@ -89,8 +88,10 @@ ApplicationWindow {
     ColumnLayout {
         anchors.fill: parent
 
-        AkScrollView {
+        ScrollView {
             id: scrollControls
+            ScrollBar.horizontal.policy: ScrollBar.AsNeeded
+            ScrollBar.vertical.policy: ScrollBar.AsNeeded
             clip: true
             contentHeight: clyCodecOptions.height
             Layout.fillHeight: true
@@ -122,9 +123,10 @@ ApplicationWindow {
                     }
                 }
             }
-            AkButton {
-                label: qsTr("Reset")
-                iconRc: "image://icons/reset"
+            Button {
+                text: qsTr("Reset")
+                icon.source: "image://icons/reset"
+
                 onClicked: {
                     btnOk.controlValues = {};
 
@@ -137,19 +139,20 @@ ApplicationWindow {
                     updateOptions();
                 }
             }
-            AkButton {
-                label: qsTr("Cancel")
-                iconRc: "image://icons/cancel"
+            Button {
+                text: qsTr("Cancel")
+                icon.source: "image://icons/cancel"
+
                 onClicked: {
                     optionFilter.text = ""
                     recAbout.close()
                     btnOk.controlValues = {};
                 }
             }
-            AkButton {
+            Button {
                 id: btnOk
-                label: qsTr("OK")
-                iconRc: "image://icons/ok"
+                text: qsTr("OK")
+                icon.source: "image://icons/ok"
 
                 property variant controlValues: ({})
 

@@ -1,0 +1,11 @@
+<RCC>
+    <qresource prefix="/Webcamoid">
+        <file>share/themes/Default/qmldir</file>
+        <file>share/themes/Default/ApplicationWindow.qml</file>
+        <file>share/themes/Default/Button.qml</file>
+        <file>share/themes/Default/Label.qml</file>
+        <file>share/themes/Default/Pane.qml</file>
+        <file>share/themes/Default/ToolButton.qml</file>
+        <file>share/themes/Default/ThemeSettings.qml</file>
+    </qresource>
+</RCC>

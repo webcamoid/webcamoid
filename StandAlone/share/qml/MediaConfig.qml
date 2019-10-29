@@ -18,9 +18,8 @@
  */
 
 import QtQuick 2.7
-import QtQuick.Controls 2.0
+import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
-import AkQmlControls 1.0
 
 GridLayout {
     id: recMediaConfig
@@ -85,18 +84,18 @@ GridLayout {
             Layout.fillWidth: true
         }
 
-        AkButton {
+        Button {
             id: btnEdit
-            label: qsTr("Edit")
-            iconRc: "image://icons/edit"
+            text: qsTr("Edit")
+            icon.source: "image://icons/edit"
 
             onClicked: dlgAddMedia.visible = true
         }
 
-        AkButton {
+        Button {
             id: btnRemove
-            label: qsTr("Remove")
-            iconRc: "image://icons/remove"
+            text: qsTr("Remove")
+            icon.source: "image://icons/remove"
 
             onClicked: {
                 var uris = MediaSource.uris
@@ -106,8 +105,10 @@ GridLayout {
         }
     }
 
-    AkScrollView {
+    ScrollView {
         id: scrollControls
+        ScrollBar.horizontal.policy: ScrollBar.AsNeeded
+        ScrollBar.vertical.policy: ScrollBar.AsNeeded
         clip: true
         contentHeight: itmMediaControls.height
         Layout.fillWidth: true

@@ -18,9 +18,8 @@
  */
 
 import QtQuick 2.7
-import QtQuick.Controls 2.0
+import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
-import AkQmlControls 1.0
 
 ColumnLayout {
     id: recEffectConfig
@@ -114,11 +113,10 @@ ColumnLayout {
             Layout.fillWidth: true
         }
 
-        AkButton {
+        Button {
             id: btnAddRemove
-            label: inUse? qsTr("Remove"): qsTr("Add")
-            iconRc: inUse? "image://icons/remove":
-                           "image://icons/add"
+            text: inUse? qsTr("Remove"): qsTr("Add")
+            icon.source: inUse? "image://icons/remove": "image://icons/add"
             enabled: recEffectConfig.curEffect == ""? false: true
 
             onClicked: {
@@ -140,8 +138,10 @@ ColumnLayout {
         }
     }
 
-    AkScrollView {
+    ScrollView {
         id: scrollControls
+        ScrollBar.horizontal.policy: ScrollBar.AsNeeded
+        ScrollBar.vertical.policy: ScrollBar.AsNeeded
         clip: true
         contentHeight: itmEffectControls.height
         Layout.fillWidth: true

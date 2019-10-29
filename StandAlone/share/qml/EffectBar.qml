@@ -18,8 +18,7 @@
  */
 
 import QtQuick 2.7
-import QtQuick.Controls 2.0
-import AkQmlControls 1.0
+import QtQuick.Controls 2.5
 
 Rectangle {
     id: recEffectBar
@@ -231,8 +230,10 @@ Rectangle {
         }
     }
 
-    AkScrollView {
+    ScrollView {
         id: scrollEffects
+        ScrollBar.horizontal.policy: ScrollBar.AsNeeded
+        ScrollBar.vertical.policy: ScrollBar.AsNeeded
         visible: advancedMode? false: true
         clip: true
         contentHeight: lsvEffectList.height

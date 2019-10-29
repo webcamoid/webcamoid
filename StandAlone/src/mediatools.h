@@ -75,7 +75,7 @@ class MediaTools: public QObject
                                            const QString &directory="",
                                            const QString &suffix="",
                                            const QString &filters="") const;
-        Q_INVOKABLE QString readFile(const QString &fileName) const;
+        Q_INVOKABLE static QString readFile(const QString &fileName);
         Q_INVOKABLE QString urlToLocalFile(const QUrl &url) const;
         Q_INVOKABLE bool embedVirtualCameraControls(const QString &where,
                                                     const QString &name="");

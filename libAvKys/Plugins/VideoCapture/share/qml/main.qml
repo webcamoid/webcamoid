@@ -21,7 +21,6 @@ import QtQuick 2.7
 import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.3
 import AkQml 1.0
-import AkQmlControls 1.0
 
 GridLayout {
     id: recCameraControls
@@ -339,10 +338,10 @@ GridLayout {
         Layout.fillWidth: true
         Layout.columnSpan: 2
     }
-    AkButton {
+    Button {
         id: btnReset
-        label: qsTr("Reset")
-        iconRc: "image://icons/reset"
+        text: qsTr("Reset")
+        icon.source: "image://icons/reset"
         Layout.minimumWidth: minimumWidth
 
         property int minimumWidth: 75

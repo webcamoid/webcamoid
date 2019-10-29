@@ -20,7 +20,6 @@
 import QtQuick 2.7
 import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.3
-import AkQmlControls 1.0
 
 GroupBox {
     id: gbxStreamOptions
@@ -121,10 +120,10 @@ GroupBox {
             }
         }
 
-        AkButton {
+        Button {
             id: advancedOptions
-            label: qsTr("Advanced Codec Options")
-            iconRc: "image://icons/configure"
+            text: qsTr("Advanced Codec Options")
+            icon.source: "image://icons/configure"
             Layout.fillWidth: true
             Layout.columnSpan: 2
             enabled: MultiSink.codecOptions(outputIndex).length > 0

@@ -18,9 +18,8 @@
  */
 
 import QtQuick 2.7
-import QtQuick.Controls 2.0
+import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
-import AkQmlControls 1.0
 
 Rectangle {
     id: recAudioConfig
@@ -112,15 +111,16 @@ Rectangle {
         anchors.left: parent.left
         anchors.right: parent.right
 
-        AkToolButton {
+        ToolButton {
             id: btnOutputs
-            label: qsTr("Outputs")
+            text: qsTr("Outputs")
             checked: true
             Layout.fillWidth: true
             ToolTip.visible: hovered
             ToolTip.text: qsTr("Select the output device for audio playing")
             checkable: true
-            iconRc: "image://icons/webcamoid-headphones"
+            icon.source: "image://icons/webcamoid-headphones"
+            display: AbstractButton.IconOnly
 
             onCheckedChanged: {
                 if (checked) {
@@ -129,14 +129,15 @@ Rectangle {
                 }
             }
         }
-        AkToolButton {
+        ToolButton {
             id: btnInputs
-            label: qsTr("Inputs")
+            text: qsTr("Inputs")
             Layout.fillWidth: true
             ToolTip.visible: hovered
             ToolTip.text: qsTr("Select the device for audio capturing")
             checkable: true
-            iconRc: "image://icons/webcamoid-mic"
+            icon.source: "image://icons/webcamoid-mic"
+            display: AbstractButton.IconOnly
 
             onCheckedChanged: {
                 if (checked) {

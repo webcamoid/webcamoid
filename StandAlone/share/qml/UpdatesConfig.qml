@@ -22,7 +22,6 @@ import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.3
 import WebcamoidUpdates 1.0
 import AkQml 1.0
-import AkQmlControls 1.0
 
 GridLayout {
     width: 300
@@ -144,9 +143,9 @@ GridLayout {
             wrapMode: Text.WordWrap
             Layout.fillWidth: true
         }
-        AkButton {
-            label: qsTr("Upgrade Now!")
-            iconRc: "image://icons/applications-internet"
+        Button {
+            text: qsTr("Upgrade Now!")
+            icon.source: "image://icons/applications-internet"
             Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
 
             onClicked: Qt.openUrlExternally(Webcamoid.projectDownloadsUrl())
@@ -164,9 +163,9 @@ GridLayout {
             wrapMode: Text.WordWrap
             Layout.fillWidth: true
         }
-        AkButton {
-            label: qsTr("Report a Bug")
-            iconRc: "image://icons/tools-report-bug"
+        Button {
+            text: qsTr("Report a Bug")
+            icon.source: "image://icons/tools-report-bug"
             Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
 
             onClicked: Qt.openUrlExternally(Webcamoid.projectIssuesUrl())

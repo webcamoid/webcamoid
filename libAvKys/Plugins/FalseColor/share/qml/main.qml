@@ -18,9 +18,8 @@
  */
 
 import QtQuick 2.7
-import QtQuick.Controls 2.0
+import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
-import AkQmlControls 1.0
 
 ColumnLayout {
     function fromRgba(rgba)
@@ -79,7 +78,9 @@ ColumnLayout {
         Layout.fillWidth: true
         color: palette.base
 
-        AkScrollView {
+        ScrollView {
+            ScrollBar.horizontal.policy: ScrollBar.AsNeeded
+            ScrollBar.vertical.policy: ScrollBar.AsNeeded
             clip: true
             anchors.fill: parent
             contentWidth: colorTable.width

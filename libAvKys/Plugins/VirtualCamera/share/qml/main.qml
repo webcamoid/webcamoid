@@ -20,7 +20,6 @@
 import QtQuick 2.7
 import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.3
-import AkQmlControls 1.0
 
 GridLayout {
     id: recCameraControls
@@ -74,9 +73,9 @@ GridLayout {
         Label {
             Layout.fillWidth: true
         }
-        AkButton {
-            label: qsTr("Add")
-            iconRc: "image://icons/add"
+        Button {
+            text: qsTr("Add")
+            icon.source: "image://icons/add"
             enabled: VirtualCamera.medias.length < VirtualCamera.maxCameras
 
             onClicked: {
@@ -85,9 +84,9 @@ GridLayout {
                 recCameraControls.state = "commitChanges"
             }
         }
-        AkButton {
-            label: qsTr("Edit")
-            iconRc: "image://icons/edit"
+        Button {
+            text: qsTr("Edit")
+            icon.source: "image://icons/edit"
             enabled: VirtualCamera.medias.length > 0
 
             onClicked: {
@@ -98,9 +97,9 @@ GridLayout {
         }
         Label {
         }
-        AkButton {
-            label: qsTr("Remove")
-            iconRc: "image://icons/remove"
+        Button {
+            text: qsTr("Remove")
+            icon.source: "image://icons/remove"
             enabled: VirtualCamera.medias.length > 0
 
             onClicked: {
@@ -109,9 +108,9 @@ GridLayout {
                 recCameraControls.state = "commitChanges"
             }
         }
-        AkButton {
-            label: qsTr("Remove All")
-            iconRc: "image://icons/remove"
+        Button {
+            text: qsTr("Remove All")
+            icon.source: "image://icons/remove"
             enabled: VirtualCamera.medias.length > 0
 
             onClicked: {
@@ -147,10 +146,10 @@ GridLayout {
             Label {
                 Layout.fillWidth: true
             }
-            AkButton {
+            Button {
                 id: btnOk
-                label: qsTr("Ok")
-                iconRc: "image://icons/ok"
+                text: qsTr("Ok")
+                icon.source: "image://icons/ok"
 
                 function commitChanges()
                 {
@@ -191,9 +190,9 @@ GridLayout {
 
                 onClicked: commitChanges()
             }
-            AkButton {
-                label: qsTr("Cancel")
-                iconRc: "image://icons/cancel"
+            Button {
+                text: qsTr("Cancel")
+                icon.source: "image://icons/cancel"
 
                 onClicked: {
                     recCameraControls.state = ""

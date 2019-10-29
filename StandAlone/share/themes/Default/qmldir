@@ -1,0 +1,6 @@
+singleton ThemeSettings 1.0 ThemeSettings.qml
+ApplicationWindow 1.0 ApplicationWindow.qml
+Button 1.0 Button.qml
+Label 1.0 Label.qml
+Pane 1.0 Pane.qml
+ToolButton 1.0 ToolButton.qml

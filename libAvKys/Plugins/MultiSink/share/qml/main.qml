@@ -21,7 +21,6 @@ import QtQuick 2.7
 import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.3
 import AkQml 1.0
-import AkQmlControls 1.0
 
 ColumnLayout {
     function updateSupportedFormats(supportedFormats)
@@ -201,10 +200,10 @@ ColumnLayout {
         Layout.fillWidth: true
     }
 
-    AkButton {
+    Button {
         id: btnFormatOptions
-        label: qsTr("Advanced Format Options")
-        iconRc: "image://icons/configure"
+        text: qsTr("Advanced Format Options")
+        icon.source: "image://icons/configure"
         Layout.fillWidth: true
         enabled: MultiSink.formatOptions().length > 0
 

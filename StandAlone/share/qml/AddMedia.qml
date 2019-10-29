@@ -21,7 +21,6 @@ import QtQuick 2.7
 import QtQuick.Dialogs 1.2
 import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.3
-import AkQmlControls 1.0
 
 ApplicationWindow {
     id: recAddMedia
@@ -91,10 +90,10 @@ ApplicationWindow {
                 Layout.fillWidth: true
             }
 
-            AkButton {
+            Button {
                 id: btnAddMedia
-                label: qsTr("Search")
-                iconRc: "image://icons/edit-find"
+                text: qsTr("Search")
+                icon.source: "image://icons/edit-find"
 
                 onClicked: fileDialog.open()
             }
@@ -111,10 +110,10 @@ ApplicationWindow {
                 Layout.fillWidth: true
             }
 
-            AkButton {
+            Button {
                 id: btnOk
-                label: qsTr("Ok")
-                iconRc: "image://icons/ok"
+                text: qsTr("Ok")
+                icon.source: "image://icons/ok"
 
                 onClicked: {
                     if (txtMedia.text.length > 0) {
@@ -136,10 +135,10 @@ ApplicationWindow {
                 }
             }
 
-            AkButton {
+            Button {
                 id: btnCancel
-                label: qsTr("Cancel")
-                iconRc: "image://icons/cancel"
+                text: qsTr("Cancel")
+                icon.source: "image://icons/cancel"
 
                 onClicked: recAddMedia.visible = false
             }
