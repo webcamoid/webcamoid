@@ -112,7 +112,7 @@
     <message>
         <location filename="../qml/AudioConfig.qml" line="116"/>
         <source>Outputs</source>
-        <translation type="unfinished"></translation>
+        <translation>פלטים</translation>
     </message>
     <message>
         <location filename="../qml/AudioConfig.qml" line="120"/>
@@ -2112,78 +2112,78 @@
     <message>
         <location filename="../qml/main.qml" line="70"/>
         <source>New version available!</source>
-        <translation type="unfinished"></translation>
+        <translation>גרסה חדשה זמינה!</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="71"/>
         <source>Download %1 %2 NOW!</source>
-        <translation type="unfinished"></translation>
+        <translation>להוריד את %1 %2 עכשיו!</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="106"/>
         <source>Stop</source>
-        <translation type="unfinished"></translation>
+        <translation>עצירה</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="110"/>
         <location filename="../qml/main.qml" line="695"/>
         <source>Play</source>
-        <translation type="unfinished"></translation>
+        <translation>ניגון</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="171"/>
         <source>Recording</source>
-        <translation type="unfinished"></translation>
+        <translation>הקלטה</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="251"/>
         <source>Picture %1.%2</source>
-        <translation type="unfinished"></translation>
+        <translation>תמונה %1.%2</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="260"/>
         <source>Save photo as...</source>
-        <translation type="unfinished"></translation>
+        <translation>שמירת התמונה בשם…</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="649"/>
         <source>Go back</source>
-        <translation type="unfinished"></translation>
+        <translation>חזרה</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="703"/>
         <source>Configure sources</source>
-        <translation type="unfinished"></translation>
+        <translation>הגדרת מקורות</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="716"/>
         <source>Configure audio</source>
-        <translation type="unfinished"></translation>
+        <translation>הגדרת שמע</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="729"/>
         <source>Take a photo</source>
-        <translation type="unfinished"></translation>
+        <translation>צילום תמונה</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="743"/>
         <source>Record video</source>
-        <translation type="unfinished"></translation>
+        <translation>הקלטת וידאו</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="757"/>
         <source>Configure Effects</source>
-        <translation type="unfinished"></translation>
+        <translation>הגדרת אפקטים</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="770"/>
         <source>Preferences</source>
-        <translation type="unfinished"></translation>
+        <translation>העדפות</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="783"/>
         <source>About</source>
-        <translation type="unfinished"></translation>
+        <translation>על אודות</translation>
     </message>
 </context>
 </TS>
