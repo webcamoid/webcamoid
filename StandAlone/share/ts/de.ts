@@ -2112,7 +2112,7 @@
     <message>
         <location filename="../qml/main.qml" line="70"/>
         <source>New version available!</source>
-        <translation type="unfinished"></translation>
+        <translation>Neue Version verfügbar!</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="71"/>
@@ -2122,7 +2122,7 @@
     <message>
         <location filename="../qml/main.qml" line="106"/>
         <source>Stop</source>
-        <translation type="unfinished"></translation>
+        <translation>Stopp</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="110"/>
@@ -2183,7 +2183,7 @@
     <message>
         <location filename="../qml/main.qml" line="783"/>
         <source>About</source>
-        <translation type="unfinished"></translation>
+        <translation>Über</translation>
     </message>
 </context>
 </TS>
