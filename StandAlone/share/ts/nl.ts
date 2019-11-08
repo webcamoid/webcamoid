@@ -138,7 +138,7 @@
         <location filename="../qml/AudioInfo.qml" line="214"/>
         <location filename="../qml/AudioInfo.qml" line="222"/>
         <source>Device ID</source>
-        <translation type="unfinished"></translation>
+        <translation>Apparaat-id</translation>
     </message>
     <message>
         <location filename="../qml/AudioInfo.qml" line="230"/>
@@ -218,7 +218,7 @@
     <message>
         <location filename="../qml/EffectBar.qml" line="121"/>
         <source>Search effect</source>
-        <translation type="unfinished"></translation>
+        <translation>Effect zoeken</translation>
     </message>
     <message>
         <location filename="../qml/EffectBar.qml" line="166"/>
@@ -236,7 +236,7 @@
     <message>
         <location filename="../qml/EffectConfig.qml" line="90"/>
         <source>Plugin ID</source>
-        <translation type="unfinished"></translation>
+        <translation>Plug-in-id</translation>
     </message>
     <message>
         <location filename="../qml/EffectConfig.qml" line="106"/>
@@ -330,7 +330,7 @@
     <message>
         <location filename="../qml/MediaConfig.qml" line="58"/>
         <source>Media ID</source>
-        <translation type="unfinished"></translation>
+        <translation>Media-id</translation>
     </message>
     <message>
         <location filename="../qml/MediaConfig.qml" line="73"/>
@@ -356,7 +356,7 @@
     <message>
         <location filename="../qml/OutputConfig.qml" line="55"/>
         <source>Enable virtual camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Virtuele camera inschakelen</translation>
     </message>
 </context>
 <context>
@@ -496,7 +496,7 @@
     <message>
         <location filename="../qml/RecordBar.qml" line="100"/>
         <source>Search format</source>
-        <translation type="unfinished"></translation>
+        <translation>Formaat zoeken</translation>
     </message>
 </context>
 <context>
@@ -584,7 +584,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/StreamOptions.qml" line="85"/>
         <source>Bitrate (bits/secs)</source>
-        <translation type="unfinished"></translation>
+        <translation>Bitsnelheid (bits/sec.)</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/StreamOptions.qml" line="101"/>
@@ -1039,7 +1039,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="102"/>
         <source>Source palette</source>
-        <translation type="unfinished"></translation>
+        <translation>Bronpalet</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="130"/>
@@ -1696,7 +1696,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="121"/>
         <source>Bitmap pattern</source>
-        <translation type="unfinished"></translation>
+        <translation>Bitmappatroon</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="151"/>
@@ -1768,42 +1768,42 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="94"/>
         <source>Select</source>
-        <translation type="unfinished"></translation>
+        <translation>Selecteren</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="200"/>
         <source>Cursor color</source>
-        <translation type="unfinished"></translation>
+        <translation>Cursorkleur</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="208"/>
         <source>Choose the cursor color</source>
-        <translation type="unfinished"></translation>
+        <translation>Kies de cursorkleur</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="246"/>
         <source>Min. drop length</source>
-        <translation type="unfinished"></translation>
+        <translation>Min. druppellengte</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="257"/>
         <source>Max. drop length</source>
-        <translation type="unfinished"></translation>
+        <translation>Max. druppellengte</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="268"/>
         <source>Min. speed</source>
-        <translation type="unfinished"></translation>
+        <translation>Min. snelheid</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="279"/>
         <source>Max. speed</source>
-        <translation type="unfinished"></translation>
+        <translation>Max. snelheid</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="290"/>
         <source>Show cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>Cursor tonen</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/main.qml" line="164"/>
@@ -2020,7 +2020,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="133"/>
         <source>Description (optional)</source>
-        <translation type="unfinished"></translation>
+        <translation>Omschrijving (optioneel)</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="185"/>
