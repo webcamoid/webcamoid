@@ -25,6 +25,7 @@ luigino <aloisio@gmx.com>
 Marc Delisle <marc@infomarc.info>
 Michal Čihař <michal@cihar.com>
 MS-PC <jhovanywalas@hotmail.com>
+nautilusx <mail.ka@mailbox.org>
 paperspaceBen <benjamin@paperspace.io>
 pCsOrI <pcsori@gmail.com>
 Peppernrino <pepperandrino@gmail.com>
