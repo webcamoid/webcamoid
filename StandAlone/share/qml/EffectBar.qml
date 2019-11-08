@@ -118,9 +118,8 @@ Rectangle {
         anchors.leftMargin: 8
         anchors.right: parent.right
         anchors.left: parent.left
-        placeholderText: qsTr("Search effect...")
+        placeholderText: qsTr("Search effect")
     }
-
     Rectangle {
         id: effectResetButton
         height: advancedMode? 0: 32

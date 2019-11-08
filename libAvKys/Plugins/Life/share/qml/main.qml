@@ -63,14 +63,19 @@ GridLayout {
     Label {
         text: qsTr("Color")
     }
-    AkColorButton {
-        currentColor: fromRgba(Life.lifeColor)
-        title: qsTr("Choose the automata color")
-        showAlphaChannel: true
+    RowLayout {
+        Layout.columnSpan: 2
 
-        onCurrentColorChanged: Life.lifeColor = toRgba(currentColor)
-    }
-    Label {
+        Item {
+            Layout.fillWidth: true
+        }
+        AkColorButton {
+            currentColor: fromRgba(Life.lifeColor)
+            title: qsTr("Choose the automata color")
+            showAlphaChannel: true
+
+            onCurrentColorChanged: Life.lifeColor = toRgba(currentColor)
+        }
     }
 
     Label {

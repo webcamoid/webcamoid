@@ -21,14 +21,10 @@ import QtQuick 2.7
 import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.3
 
-GridLayout {
-    columns: 2
-
-    Label {
-        text: qsTr("Amount")
-    }
+ColumnLayout {
     TextField {
         text: Implode.amount
+        placeholderText: qsTr("Amount")
         validator: RegExpValidator {
             regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
         }

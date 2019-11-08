@@ -211,14 +211,13 @@ GridLayout {
     }
 
     // Scan block.
-    Label {
-        text: qsTr("Scan block")
-    }
     TextField {
         text: FaceDetect.scanSize.width + "x" + FaceDetect.scanSize.height
+        placeholderText: qsTr("Scan block")
         validator: RegExpValidator {
             regExp: /\d+x\d+/
         }
+        Layout.columnSpan: 2
         Layout.fillWidth: true
 
         onTextChanged: FaceDetect.scanSize = strToSize(text)
@@ -300,23 +299,27 @@ GridLayout {
     Label {
         text: qsTr("Marker color")
     }
-    AkColorButton {
-        currentColor: fromRgba(FaceDetect.markerColor)
-        title: qsTr("Select marker color")
-        showAlphaChannel: true
+    RowLayout {
+        Item {
+            Layout.fillWidth: true
+        }
+        AkColorButton {
+            currentColor: fromRgba(FaceDetect.markerColor)
+            title: qsTr("Select marker color")
+            showAlphaChannel: true
 
-        onCurrentColorChanged: FaceDetect.markerColor = toRgba(currentColor)
+            onCurrentColorChanged: FaceDetect.markerColor = toRgba(currentColor)
+        }
     }
 
     // Marker width.
-    Label {
-        text: qsTr("Marker width")
-    }
     TextField {
         text: FaceDetect.markerWidth
+        placeholderText: qsTr("Marker width")
         validator: RegExpValidator {
             regExp: /\d+/
         }
+        Layout.columnSpan: 2
         Layout.fillWidth: true
 
         onTextChanged: FaceDetect.markerWidth = text
@@ -489,10 +492,9 @@ GridLayout {
         onCurrentIndexChanged: FaceDetect.markerImage = cbxMasks.model.get(currentIndex).mask
     }
 
-    Label {
-        text: qsTr("Marker picture")
-    }
     RowLayout {
+        Layout.columnSpan: 2
+
         Image {
             width: 16
             height: 16
@@ -504,7 +506,7 @@ GridLayout {
         TextField {
             id: txtTable
             text: FaceDetect.markerImage
-            placeholderText: qsTr("Replace face with this picture.")
+            placeholderText: qsTr("Marker picture")
             Layout.fillWidth: true
 
             onTextChanged: {
@@ -531,28 +533,26 @@ GridLayout {
     }
 
     // Pixel grid.
-    Label {
-        text: qsTr("Pixel grid size")
-    }
     TextField {
         text: FaceDetect.pixelGridSize.width + "x" + FaceDetect.pixelGridSize.height
+        placeholderText: qsTr("Pixel grid size")
         validator: RegExpValidator {
             regExp: /\d+x\d+/
         }
+        Layout.columnSpan: 2
         Layout.fillWidth: true
 
         onTextChanged: FaceDetect.pixelGridSize = strToSize(text)
     }
 
     // Blur radius.
-    Label {
-        text: qsTr("Blur radius")
-    }
     TextField {
         text: FaceDetect.blurRadius
+        placeholderText: qsTr("Blur radius")
         validator: RegExpValidator {
             regExp: /\d+/
         }
+        Layout.columnSpan: 2
         Layout.fillWidth: true
 
         onTextChanged: FaceDetect.blurRadius = text

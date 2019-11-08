@@ -67,13 +67,13 @@ GridLayout {
         text: qsTr("Notify about new versions")
     }
     RowLayout {
-        CheckBox {
+        Item {
+            Layout.fillWidth: true
+        }
+        Switch {
             checked: Updates.notifyNewVersion
 
             onCheckedChanged: Updates.notifyNewVersion = checked
-        }
-        Label {
-            Layout.fillWidth: true
         }
     }
 

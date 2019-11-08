@@ -149,15 +149,13 @@ ColumnLayout {
     GridLayout {
         columns: 3
 
-        Label {
-            text: qsTr("Factor")
-        }
         TextField {
             text: Ak.newFrac(Convolve.factor).string
+            placeholderText: qsTr("Factor")
             validator: RegExpValidator {
                 regExp: /-?\d+\/\d+/
             }
-            Layout.columnSpan: 2
+            Layout.columnSpan: 3
             Layout.fillWidth: true
 
             onTextChanged: Convolve.factor = Ak.varFrac(Ak.newFrac(text))

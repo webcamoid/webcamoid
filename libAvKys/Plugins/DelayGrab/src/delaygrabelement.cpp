@@ -190,8 +190,9 @@ void DelayGrabElement::setMode(const QString &mode)
     if (this->d->m_mode == modeEnum)
         return;
 
-    QMutexLocker locker(&this->d->m_mutex);
+    this->d->m_mutex.lock();
     this->d->m_mode = modeEnum;
+    this->d->m_mutex.unlock();
     emit this->modeChanged(mode);
 }
 
@@ -200,8 +201,9 @@ void DelayGrabElement::setBlockSize(int blockSize)
     if (this->d->m_blockSize == blockSize)
         return;
 
-    QMutexLocker locker(&this->d->m_mutex);
+    this->d->m_mutex.lock();
     this->d->m_blockSize = blockSize;
+    this->d->m_mutex.unlock();
     emit this->blockSizeChanged(blockSize);
 }
 
@@ -210,8 +212,9 @@ void DelayGrabElement::setNFrames(int nFrames)
     if (this->d->m_nFrames == nFrames)
         return;
 
-    QMutexLocker locker(&this->d->m_mutex);
+    this->d->m_mutex.lock();
     this->d->m_nFrames = nFrames;
+    this->d->m_mutex.unlock();
     emit this->nFramesChanged(nFrames);
 }
 

@@ -23,21 +23,17 @@ import QtQuick 2.0
 
 QtObject {
     // Palette
-    readonly property color colorMain:      Qt.hsla(0.71, 0.5, 0.33, 1)
-    readonly property color colorSecondary: Qt.hsla(0.42, 1, 0.5, 1)
-    readonly property color colorBack:      Qt.hsla(0, 0, 0.12, 1)
-    readonly property color colorText:      Qt.hsla(0, 0, 1, 1);
+    readonly property color colorPrimary:   Qt.hsla(0.71, 0.5, 0.5, 1)
+    readonly property color colorSecondary: Qt.hsla(0.42,   1, 0.5, 1)
+    readonly property color colorBack:      Qt.hsla(   0,   0, 0.5, 1)
+    readonly property color colorText:      Qt.hsla(   0,   0,   1, 1)
 
-    readonly property color colorWindow:          Qt.lighter(colorBack, 0.9);
-    readonly property color colorButton:          Qt.lighter(colorBack, 2);
-    readonly property color colorButtonHighlight: Qt.lighter(colorMain, 0.5);
-    readonly property color colorShadow:          Qt.lighter(colorBack, 0.01);
+    readonly property real constrolScale: 1.75
 
-    // Transparent palette
-    readonly property color secondaryBaseSo: Qt.hsla(0.42, 1,  0.5,  0.5);
-    readonly property color secondaryHiSo:   Qt.hsla(0.42, 1, 0.75,  0.5);
-    readonly property color secondaryLowSo:  Qt.hsla(0.42, 1, 0.33,  0.5);
-    readonly property color backBaseTs:      Qt.hsla(   0, 0, 0.12, 0.75);
-    readonly property color textSo:          Qt.hsla(   0, 0,  1.0,  0.5);
-    readonly property color shadow:          Qt.hsla(0, 0, 0, 0.75)
+    function lighterAlpha(color, lightness, alpha)
+    {
+        let c = Qt.lighter(color, lightness)
+
+        return Qt.rgba(c.r, c.g, c.b, alpha)
+    }
 }

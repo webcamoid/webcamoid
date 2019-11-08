@@ -37,7 +37,6 @@ ApplicationWindow {
     y: (Screen.desktopAvailableHeight - height) / 2
     width: Webcamoid.windowWidth
     height: Webcamoid.windowHeight
-    color: palette.window
 
     property bool showEffectBar: false
 
@@ -75,9 +74,6 @@ ApplicationWindow {
         }
     }
 
-    SystemPalette {
-        id: palette
-    }
     Timer {
         id: notifyTimer
         repeat: false

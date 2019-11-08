@@ -60,53 +60,46 @@ GridLayout {
         onCurrentIndexChanged: Ripple.mode = cbxMode.model.get(currentIndex).mode
     }
 
-    Label {
-        text: qsTr("Amplitude")
-    }
     TextField {
         text: Ripple.amplitude
+        placeholderText: qsTr("Amplitude")
         validator: RegExpValidator {
             regExp: /\d+/
         }
+        Layout.columnSpan: 2
         Layout.fillWidth: true
 
         onTextChanged: Ripple.amplitude = text
     }
-
-    Label {
-        text: qsTr("Decay")
-    }
     TextField {
         text: Ripple.decay
+        placeholderText: qsTr("Decay")
         validator: RegExpValidator {
             regExp: /\d+/
         }
+        Layout.columnSpan: 2
         Layout.fillWidth: true
 
         onTextChanged: Ripple.decay = text
     }
-
-    Label {
-        text: qsTr("Threshold")
-    }
     TextField {
         text: Ripple.threshold
+        placeholderText: qsTr("Threshold")
         validator: RegExpValidator {
             regExp: /\d+/
         }
+        Layout.columnSpan: 2
         Layout.fillWidth: true
 
         onTextChanged: Ripple.threshold = text
     }
-
-    Label {
-        text: qsTr("Luma threshold")
-    }
     TextField {
         text: Ripple.lumaThreshold
+        placeholderText: qsTr("Luma threshold")
         validator: RegExpValidator {
             regExp: /\d+/
         }
+        Layout.columnSpan: 2
         Layout.fillWidth: true
 
         onTextChanged: Ripple.lumaThreshold = text

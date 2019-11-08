@@ -69,29 +69,27 @@ GridLayout {
         onCurrentIndexChanged: DelayGrab.mode = cbxMode.model.get(currentIndex).mode
     }
 
-    Label {
-        text: qsTr("Block size")
-    }
     TextField {
         text: DelayGrab.blockSize
+        placeholderText: qsTr("Block size")
         validator: RegExpValidator {
             regExp: /\d+/
         }
+        Layout.columnSpan: 2
         Layout.fillWidth: true
 
-        onTextChanged: DelayGrab.blockSize = text
+        onTextChanged: DelayGrab.blockSize = Number(text)
     }
 
-    Label {
-        text: qsTr("N° of frames")
-    }
     TextField {
         text: DelayGrab.nFrames
+        placeholderText: qsTr("N° of frames")
         validator: RegExpValidator {
             regExp: /\d+/
         }
+        Layout.columnSpan: 2
         Layout.fillWidth: true
 
-        onTextChanged: DelayGrab.nFrames = text
+        onTextChanged: DelayGrab.nFrames = Number(text)
     }
 }

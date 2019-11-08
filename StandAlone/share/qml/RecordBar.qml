@@ -97,7 +97,7 @@ Rectangle {
         anchors.leftMargin: 8
         anchors.right: parent.right
         anchors.left: parent.left
-        placeholderText: qsTr("Search format...")
+        placeholderText: qsTr("Search format")
     }
 
     ScrollView {

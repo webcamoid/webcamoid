@@ -43,126 +43,144 @@ ScrollView {
     property variant multiSink: Ak.newElement("MultiSink",
                                               "Ak.Element.Settings")
 
-    ColumnLayout {
+    GridLayout {
         id: generalConfigs
+        columns: 2
         width: scrollView.width
                - (scrollView.ScrollBar.vertical.visible?
                       scrollView.ScrollBar.vertical.width: 0)
 
-        CheckBox {
+        Label {
             text: qsTr("Play webcam on start")
-            checked: MediaSource.playOnStart
-
-            onCheckedChanged: MediaSource.playOnStart = checked
         }
-        CheckBox {
+        RowLayout {
+            Layout.fillWidth: true
+
+            Item {
+                Layout.fillWidth: true
+            }
+            Switch {
+                checked: MediaSource.playOnStart
+
+                onCheckedChanged: MediaSource.playOnStart = checked
+            }
+        }
+        Label {
             text: qsTr("Enable advanced effects mode")
-            checked: VideoEffects.advancedMode
-
-            onCheckedChanged: VideoEffects.advancedMode = checked
         }
+        RowLayout {
+            Layout.fillWidth: true
+
+            Item {
+                Layout.fillWidth: true
+            }
+            Switch {
+                checked: VideoEffects.advancedMode
+
+                onCheckedChanged: VideoEffects.advancedMode = checked
+            }
+        }
+
         Label {
             text: qsTr("Frameworks & libraries")
             font.pointSize: 1.25 * font.pointSize
             font.bold: true
             Layout.topMargin: 10
             Layout.bottomMargin: 10
+            Layout.columnSpan: 2
         }
-        GridLayout {
-            columns: 2
 
-            Label {
-                text: qsTr("Video capture")
-            }
-            ComboBox {
-                Layout.fillWidth: true
-                model: videoCapture.captureSubModules
-                currentIndex: model.indexOf(videoCapture.captureLib)
+        Label {
+            text: qsTr("Video capture")
+        }
+        ComboBox {
+            Layout.fillWidth: true
+            model: videoCapture.captureSubModules
+            currentIndex: model.indexOf(videoCapture.captureLib)
 
-                onCurrentIndexChanged: videoCapture.captureLib = model[currentIndex]
-            }
-            Label {
-                text: qsTr("Desktop capture")
-            }
-            ComboBox {
-                Layout.fillWidth: true
-                model: desktopCapture.subModules
-                currentIndex: model.indexOf(desktopCapture.captureLib)
+            onCurrentIndexChanged: videoCapture.captureLib = model[currentIndex]
+        }
+        Label {
+            text: qsTr("Desktop capture")
+        }
+        ComboBox {
+            Layout.fillWidth: true
+            model: desktopCapture.subModules
+            currentIndex: model.indexOf(desktopCapture.captureLib)
 
-                onCurrentIndexChanged: desktopCapture.captureLib = model[currentIndex]
-            }
-            Label {
-                text: qsTr("Audio capture/play")
-            }
-            ComboBox {
-                Layout.fillWidth: true
-                model: audioDevice.subModules
-                currentIndex: model.indexOf(audioDevice.audioLib)
+            onCurrentIndexChanged: desktopCapture.captureLib = model[currentIndex]
+        }
+        Label {
+            text: qsTr("Audio capture/play")
+        }
+        ComboBox {
+            Layout.fillWidth: true
+            model: audioDevice.subModules
+            currentIndex: model.indexOf(audioDevice.audioLib)
 
-                onCurrentIndexChanged: audioDevice.audioLib = model[currentIndex]
-            }
-            Label {
-                text: qsTr("Video convert")
-            }
-            ComboBox {
-                Layout.fillWidth: true
-                model: videoCapture.codecSubModules
-                currentIndex: model.indexOf(videoCapture.codecLib)
+            onCurrentIndexChanged: audioDevice.audioLib = model[currentIndex]
+        }
+        Label {
+            text: qsTr("Video convert")
+        }
+        ComboBox {
+            Layout.fillWidth: true
+            model: videoCapture.codecSubModules
+            currentIndex: model.indexOf(videoCapture.codecLib)
 
-                onCurrentIndexChanged: videoCapture.codecLib = model[currentIndex]
-            }
-            Label {
-                text: qsTr("Audio convert")
-            }
-            ComboBox {
-                Layout.fillWidth: true
-                model: audioConvert.subModules
-                currentIndex: model.indexOf(audioConvert.convertLib)
+            onCurrentIndexChanged: videoCapture.codecLib = model[currentIndex]
+        }
+        Label {
+            text: qsTr("Audio convert")
+        }
+        ComboBox {
+            Layout.fillWidth: true
+            model: audioConvert.subModules
+            currentIndex: model.indexOf(audioConvert.convertLib)
 
-                onCurrentIndexChanged: audioConvert.convertLib = model[currentIndex]
-            }
-            Label {
-                text: qsTr("Video playback")
-            }
-            ComboBox {
-                Layout.fillWidth: true
-                model: multiSrc.subModules
-                currentIndex: model.indexOf(multiSrc.codecLib)
+            onCurrentIndexChanged: audioConvert.convertLib = model[currentIndex]
+        }
+        Label {
+            text: qsTr("Video playback")
+        }
+        ComboBox {
+            Layout.fillWidth: true
+            model: multiSrc.subModules
+            currentIndex: model.indexOf(multiSrc.codecLib)
 
-                onCurrentIndexChanged: multiSrc.codecLib = model[currentIndex]
-            }
-            Label {
-                text: qsTr("Video record")
-            }
-            ComboBox {
-                Layout.fillWidth: true
-                model: multiSink.subModules
-                currentIndex: model.indexOf(multiSink.codecLib)
+            onCurrentIndexChanged: multiSrc.codecLib = model[currentIndex]
+        }
+        Label {
+            text: qsTr("Video record")
+        }
+        ComboBox {
+            Layout.fillWidth: true
+            model: multiSink.subModules
+            currentIndex: model.indexOf(multiSink.codecLib)
 
-                onCurrentIndexChanged: multiSink.codecLib = model[currentIndex]
-            }
-            Label {
-                text: qsTr("Root method")
-            }
-            ComboBox {
-                Layout.fillWidth: true
-                model: virtualCamera.availableMethods
-                currentIndex: virtualCamera.availableMethods.length > 0?
-                                  model.indexOf(virtualCamera.rootMethod): -1
+            onCurrentIndexChanged: multiSink.codecLib = model[currentIndex]
+        }
+        Label {
+            text: qsTr("Root method")
+        }
+        ComboBox {
+            Layout.fillWidth: true
+            model: virtualCamera.availableMethods
+            currentIndex: virtualCamera.availableMethods.length > 0?
+                              model.indexOf(virtualCamera.rootMethod): -1
 
-                onCurrentIndexChanged: virtualCamera.rootMethod = model[currentIndex]
-            }
-            Label {
-                text: qsTr("Virtual camera driver")
-            }
-            ComboBox {
-                Layout.fillWidth: true
-                model: virtualCamera.availableDrivers
-                currentIndex: virtualCamera.availableDrivers.length > 0?
-                                  model.indexOf(virtualCamera.driver): -1
+            onCurrentIndexChanged: virtualCamera.rootMethod = model[currentIndex]
+        }
+        Label {
+            text: qsTr("Virtual camera driver")
+        }
+        ComboBox {
+            Layout.fillWidth: true
+            model: virtualCamera.availableDrivers
+            currentIndex: virtualCamera.availableDrivers.length > 0?
+                              model.indexOf(virtualCamera.driver): -1
 
-                onCurrentIndexChanged: virtualCamera.driver = model[currentIndex]
-            }
+            onCurrentIndexChanged: virtualCamera.driver = model[currentIndex]
         }
     }
 }

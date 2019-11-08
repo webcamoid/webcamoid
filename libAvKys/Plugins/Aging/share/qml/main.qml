@@ -61,10 +61,18 @@ GridLayout {
     Label {
         text: qsTr("Add dust")
     }
-    CheckBox {
-        id: chkAddDust
-        checked: Aging.addDust
+    RowLayout {
+        Layout.columnSpan: 2
+        Layout.fillWidth: true
 
-        onCheckedChanged: Aging.addDust = checked
+        Item {
+            Layout.fillWidth: true
+        }
+        Switch {
+            id: chkAddDust
+            checked: Aging.addDust
+
+            onCheckedChanged: Aging.addDust = checked
+        }
     }
 }

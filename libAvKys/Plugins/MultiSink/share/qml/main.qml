@@ -163,6 +163,7 @@ ColumnLayout {
     Label {
         text: qsTr("Output format")
         Layout.fillWidth: true
+        visible: MultiSink.showFormatOptions
     }
     ComboBox {
         id: cbxOutputFormats
@@ -185,18 +186,16 @@ ColumnLayout {
         text: lstOutputFormats.get(cbxOutputFormats.currentIndex)?
                   lstOutputFormats.get(cbxOutputFormats.currentIndex).description:
                   ""
+        placeholderText: qsTr("Output format")
         readOnly: true
         Layout.fillWidth: true
     }
 
-    Label {
-        text: qsTr("File extensions")
-        Layout.fillWidth: true
-    }
     TextField {
         id: txtFileExtensions
         readOnly: true
-        placeholderText: qsTr("This output format has not specific extensions")
+        placeholderText: qsTr("File extensions")
+        Layout.columnSpan: 2
         Layout.fillWidth: true
     }
 

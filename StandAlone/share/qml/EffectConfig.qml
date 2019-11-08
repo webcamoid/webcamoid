@@ -77,29 +77,17 @@ ColumnLayout {
         }
     }
 
-    Label {
-        id: lblDescription
-        text: qsTr("Description")
-        font.bold: true
-        Layout.fillWidth: true
-    }
     TextField {
         id: txtDescription
         text: VideoEffects.effectDescription(recEffectConfig.curEffect)
-        placeholderText: qsTr("Plugin description")
+        placeholderText: qsTr("Description")
         readOnly: true
-        Layout.fillWidth: true
-    }
-    Label {
-        id: lblEffect
-        text: qsTr("Plugin id")
-        font.bold: true
         Layout.fillWidth: true
     }
     TextField {
         id: txtEffect
         text: recEffectConfig.curEffect
-        placeholderText: qsTr("Plugin id")
+        placeholderText: qsTr("Plugin ID")
         readOnly: true
         Layout.fillWidth: true
     }

@@ -118,13 +118,15 @@ ScrollView {
             clip: true
 
             GridLayout {
-                columns: 3
+                columns: 4
                 anchors.fill: parent
 
-                CheckBox {
+                Label {
                     text: qsTr("Search plugins in subfolders.")
-                    checked: globalElement.recursiveSearch()
                     Layout.fillWidth: true
+                }
+                Switch {
+                    checked: globalElement.recursiveSearch()
 
                     onCheckedChanged: {
                         globalElement.setRecursiveSearch(checked)
@@ -159,7 +161,7 @@ ScrollView {
                 Rectangle {
                     color: palette.base
                     height: 150
-                    Layout.columnSpan: 3
+                    Layout.columnSpan: 4
                     Layout.fillWidth: true
 
                     ScrollView {

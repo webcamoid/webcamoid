@@ -23,15 +23,15 @@ import QtQuick.Templates 2.0 as T
 
 T.ApplicationWindow {
     id: applicationWindow
-    color: ThemeSettings.colorWindow
+    color: Qt.lighter(ThemeSettings.colorBack, 0.2)
 
     background: Rectangle {
-        color: ThemeSettings.colorWindow
+        color: applicationWindow.color
     }
     overlay.modal: Rectangle {
-        color: ThemeSettings.colorWindow
+        color: applicationWindow.color
     }
     overlay.modeless: Rectangle {
-        color: ThemeSettings.colorWindow
+        color: applicationWindow.color
     }
 }

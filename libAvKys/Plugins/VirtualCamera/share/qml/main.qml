@@ -120,29 +120,20 @@ GridLayout {
             }
         }
     }
-    GridLayout {
+    ColumnLayout {
         id: glyCommitChanges
-        columns: 2
         Layout.columnSpan: 2
         visible: false
 
         property string operation: ""
 
-        Label {
-            id: lblDescription
-            text: qsTr("Description")
-            visible: false
-        }
         TextField {
             id: txtDescription
             Layout.fillWidth: true
-            placeholderText: qsTr("Camera name (optional)")
+            placeholderText: qsTr("Description (optional)")
             visible: false
         }
-
         RowLayout {
-            Layout.columnSpan: 2
-
             Label {
                 Layout.fillWidth: true
             }

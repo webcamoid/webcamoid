@@ -21,7 +21,9 @@ import QtQuick 2.7
 import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
 
-ColumnLayout {
+GridLayout {
+    columns: 2
+
     function fromRgba(rgba)
     {
         var r = ((rgba >> 16) & 0xff)
@@ -65,33 +67,29 @@ ColumnLayout {
         return JSON.stringify(colorTable, null, 4)
     }
 
-    SystemPalette {
-        id: palette
-    }
-
     // Color table.
     Label {
         text: qsTr("Color table")
+        Layout.columnSpan: 2
     }
-    Rectangle {
+    Item {
         height: 400
+        Layout.columnSpan: 2
         Layout.fillWidth: true
-        color: palette.base
 
         ScrollView {
             ScrollBar.horizontal.policy: ScrollBar.AsNeeded
             ScrollBar.vertical.policy: ScrollBar.AsNeeded
-            clip: true
-            anchors.fill: parent
             contentWidth: colorTable.width
             contentHeight: colorTable.height
+            anchors.fill: parent
+            clip: true
 
-            TextEdit {
+            TextArea {
                 id: colorTable
                 text: tableToStr(FalseColor.table)
                 cursorVisible: true
                 wrapMode: TextEdit.Wrap
-                color: palette.text
 
                 onTextChanged: FalseColor.table = tableFromStr(text)
             }
@@ -99,10 +97,17 @@ ColumnLayout {
     }
 
     // Soft gradient.
-    CheckBox {
+    Label {
         text: qsTr("Soft")
-        checked: FalseColor.soft
+    }
+    RowLayout {
+        Item {
+            Layout.fillWidth: true
+        }
+        Switch {
+            checked: FalseColor.soft
 
-        onCheckedChanged: FalseColor.soft = checked
+            onCheckedChanged: FalseColor.soft = checked
+        }
     }
 }

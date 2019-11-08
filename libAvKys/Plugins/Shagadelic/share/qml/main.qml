@@ -21,19 +21,15 @@ import QtQuick 2.7
 import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.3
 
-GridLayout {
-    columns: 2
-
+ColumnLayout {
     function hexToInt(str)
     {
         return str.length < 1? 0: parseInt(str, 16)
     }
 
-    Label {
-        text: qsTr("Mask")
-    }
     TextField {
         text: "0x" + Shagadelic.mask.toString(16)
+        placeholderText: qsTr("Mask")
         validator: RegExpValidator {
             regExp: /(0x)?[0-9a-fA-F]{1,8}/
         }

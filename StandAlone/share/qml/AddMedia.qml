@@ -25,7 +25,6 @@ import QtQuick.Layouts 1.3
 ApplicationWindow {
     id: recAddMedia
     title: qsTr("Add new media")
-    color: palette.window
     flags: Qt.Dialog
     modality: Qt.ApplicationModal
     width: 350
@@ -38,10 +37,6 @@ ApplicationWindow {
         return MediaSource.streams.indexOf(url) < 0?
                     Webcamoid.fileNameFromUri(url):
                     MediaSource.description(url)
-    }
-
-    SystemPalette {
-        id: palette
     }
 
     onVisibleChanged: {
@@ -61,31 +56,17 @@ ApplicationWindow {
         anchors.topMargin: 8
         anchors.fill: parent
 
-        Label {
-            id: lblDescription
-            text: qsTr("Description")
-            font.bold: true
-            Layout.fillWidth: true
-        }
-
         TextField {
             id: txtDescription
-            placeholderText: qsTr("Insert media description")
+            placeholderText: qsTr("Description")
             text: recAddMedia.editMode? MediaSource.description(MediaSource.stream): ""
-            Layout.fillWidth: true
-        }
-
-        Label {
-            id: lblMedia
-            text: qsTr("Media file")
-            font.bold: true
             Layout.fillWidth: true
         }
 
         RowLayout {
             TextField {
                 id: txtMedia
-                placeholderText: qsTr("Select media file")
+                placeholderText: qsTr("Media file")
                 text: recAddMedia.editMode? MediaSource.stream: ""
                 Layout.fillWidth: true
             }

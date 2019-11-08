@@ -28,134 +28,381 @@ import AkQml 1.0
 T.Button {
     id: button
     font.bold: true
-    icon.width: Ak.newUnit(4, "mm").pixels
-    icon.height: Ak.newUnit(4, "mm").pixels
+    icon.width: Ak.newUnit(18 * ThemeSettings.constrolScale, "dp").pixels
+    icon.height: Ak.newUnit(18 * ThemeSettings.constrolScale, "dp").pixels
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             implicitContentWidth + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              implicitContentHeight + topPadding + bottomPadding)
+    spacing: Ak.newUnit(8 * ThemeSettings.constrolScale, "dp").pixels
 
-    readonly property int radius: Ak.newUnit(1, "mm").pixels
+    readonly property int radius: Ak.newUnit(6 * ThemeSettings.constrolScale,
+                                             "dp").pixels
+    readonly property int animationTime: 200
+
+    function pressIndicatorRadius()
+    {
+        let diffX = button.width / 2
+        let diffY = button.height / 2
+        let r2 = diffX * diffX + diffY * diffY
+
+        return Math.sqrt(r2)
+    }
 
     contentItem: Item {
         id: buttonContent
-        implicitWidth: iconLabel.implicitWidth + Ak.newUnit(4, "mm").pixels
+        implicitWidth: iconLabel.implicitWidth
+                       + Ak.newUnit(18 * ThemeSettings.constrolScale,
+                                    "dp").pixels
         implicitHeight: iconLabel.implicitHeight
 
-        GridLayout {
+        IconLabel {
+            id: iconLabel
+            spacing: button.spacing
+            mirrored: button.mirrored
+            display: button.display
             anchors.verticalCenter: buttonContent.verticalCenter
             anchors.horizontalCenter: buttonContent.horizontalCenter
-            rowSpacing: Ak.newUnit(0.5, "mm").pixels
-            columns: 1
-            rows: 2
 
-            IconLabel {
-                id: iconLabel
-                spacing: button.spacing
-                mirrored: button.mirrored
-                display: button.display
-
-                icon: button.icon
-                text: button.text
-                font: button.font
-                color: ThemeSettings.colorText
-                opacity: button.enabled? 1: 0.5
-            }
-            Item {
-                id: focusHighlight
-                Layout.fillWidth: true
-                visible: button.visualFocus
-
-                Rectangle {
-                    width: Ak.newUnit(2, "mm").pixels
-                    height: Ak.newUnit(0.5, "mm").pixels
-                    color: ThemeSettings.colorSecondary
-                    anchors.horizontalCenter: focusHighlight.horizontalCenter
-                }
-            }
+            icon: button.icon
+            text: button.text
+            font: button.font
+            color: button.highlighted?
+                       ThemeSettings.colorText:
+                       Qt.lighter(ThemeSettings.colorPrimary, 1.5)
         }
     }
     background: Item {
         id: back
-        implicitWidth: Ak.newUnit(2.5, "cm").pixels
-        implicitHeight: Ak.newUnit(1, "cm").pixels
+        implicitWidth: Ak.newUnit(64 * ThemeSettings.constrolScale,
+                                  "dp").pixels
+        implicitHeight: Ak.newUnit(36 * ThemeSettings.constrolScale,
+                                   "dp").pixels
 
+        // Shadow
         Rectangle {
-            id: buttonBackground
+            id: buttonShadowRect
             anchors.fill: parent
-            radius: button.flat? 0: button.radius
-            color: button.highlighted || button.checked?
-                       Qt.lighter(ThemeSettings.colorButton, 1.1):
-                       ThemeSettings.colorButton
-
-            Rectangle {
-                id: buttonHighlight
-                height: button.radius
-                color: button.highlighted || button.checked?
-                           Qt.lighter(ThemeSettings.colorButtonHighlight, 2.8):
-                           ThemeSettings.colorButtonHighlight
-                anchors.right: buttonBackground.right
-                anchors.bottom: buttonBackground.bottom
-                anchors.left: buttonBackground.left
-                visible: button.checkable
-            }
+            radius: button.radius
+            color: Qt.hsla(0, 0, 0, 1)
+            visible: false
         }
         DropShadow {
+            id: buttonShadow
             anchors.fill: parent
             cached: true
             horizontalOffset: button.radius / 2
             verticalOffset: button.radius / 2
             radius: button.radius
             samples: 2 * radius + 1
-            color: ThemeSettings.colorShadow
-            source: buttonBackground
-            visible: !button.flat
+            color: Qt.lighter(ThemeSettings.colorBack, 0.01)
+            source: buttonShadowRect
+            visible: button.highlighted && button.enabled
+        }
+
+        // Rectagle below the indicator
+        Rectangle {
+            id: buttonRectangleBelow
+            anchors.fill: parent
+            radius: button.radius
+            color: ThemeSettings.colorPrimary
+            visible: false
+        }
+
+        // Press indicator
+        Rectangle{
+            id: buttonPressIndicatorMask
+            anchors.fill: parent
+            radius: button.radius
+            color: Qt.hsla(0, 0, 0, 1)
+            visible: false
+        }
+        Item {
+            id: buttonPressIndicatorItem
+            anchors.fill: buttonPressIndicatorMask
+            clip: true
+            layer.enabled: true
+            layer.effect: OpacityMask {
+                maskSource: buttonPressIndicatorMask
+            }
+
+            Rectangle {
+                id: buttonPress
+                radius: 0
+                anchors.verticalCenter: buttonPressIndicatorItem.verticalCenter
+                anchors.horizontalCenter: buttonPressIndicatorItem.horizontalCenter
+                width: 2 * radius
+                height: 2 * radius
+                color: ThemeSettings.lighterAlpha(ThemeSettings.colorPrimary,
+                                                  1.5,
+                                                  0.3)
+                opacity: 0
+            }
+        }
+
+        // Rectangle
+        Rectangle {
+            id: buttonRectangle
+            anchors.fill: parent
+            radius: button.radius
+            border.color: button.highlighted || button.flat?
+                              Qt.hsla(0, 0, 0, 0):
+                              ThemeSettings.colorBack
+            border.width: Ak.newUnit(1 * ThemeSettings.constrolScale,
+                                     "dp").pixels
+            color: button.highlighted?
+                       ThemeSettings.colorPrimary:
+                       Qt.hsla(0, 0, 0, 0)
+        }
+
+        // Checked indicator
+        Rectangle {
+            id: buttonCheckableIndicator
+            height: button.radius
+            color: button.checked?
+                       Qt.lighter(ThemeSettings.colorPrimary, 1.5):
+                       Qt.lighter(ThemeSettings.colorPrimary, 0.5)
+            anchors.right: back.right
+            anchors.bottom: back.bottom
+            anchors.left: back.left
+            visible: button.checkable
         }
     }
 
     states: [
         State {
-            name: "HighlightedHovered"
-            when: (button.highlighted || button.checked)
-                  && button.hovered
+            name: "Disabled"
+            when: !button.enabled
+                  && !button.highlighted
+                  && !button.flat
+                  && !button.hovered
+                  && !button.visualFocus
                   && !button.pressed
 
             PropertyChanges {
-                target: buttonBackground
-                color: Qt.lighter(ThemeSettings.colorButton, 2)
+                target: iconLabel
+                color: ThemeSettings.colorBack
             }
             PropertyChanges {
-                target: buttonHighlight
-                color: Qt.lighter(ThemeSettings.colorButtonHighlight, 2.9)
+                target: buttonCheckableIndicator
+                color: Qt.lighter(ThemeSettings.colorBack, 0.3)
             }
         },
         State {
             name: "Hovered"
-            when: !(button.highlighted || button.checked)
+            when: button.enabled
+                  && !button.highlighted
+                  && !button.flat
                   && button.hovered
+                  && !button.visualFocus
                   && !button.pressed
 
             PropertyChanges {
-                target: buttonBackground
-                color: Qt.lighter(ThemeSettings.colorButton, 1.9)
+                target: buttonRectangle
+                color: ThemeSettings.lighterAlpha(ThemeSettings.colorPrimary,
+                                                  1.5,
+                                                  0.2)
             }
+        },
+        State {
+            name: "Focused"
+            when: button.enabled
+                  && !button.highlighted
+                  && !button.flat
+                  && (button.hovered || button.visualFocus)
+                  && !button.pressed
+
             PropertyChanges {
-                target: buttonHighlight
-                color: Qt.lighter(ThemeSettings.colorButtonHighlight, 2.8)
+                target: buttonRectangle
+                color: ThemeSettings.lighterAlpha(ThemeSettings.colorPrimary,
+                                                  1.5,
+                                                  0.3)
             }
         },
         State {
             name: "Pressed"
-            when: button.pressed
+            when: button.enabled
+                  && !button.highlighted
+                  && !button.flat
+                  && button.pressed
 
             PropertyChanges {
-                target: buttonBackground
-                color: Qt.lighter(ThemeSettings.colorButton, 2.1)
+                target: buttonPress
+                radius: button.pressIndicatorRadius()
+                opacity: 1
+            }
+        },
+        State {
+            name: "FlatDisabled"
+            when: !button.enabled
+                  && !button.highlighted
+                  && button.flat
+                  && !button.hovered
+                  && !button.visualFocus
+                  && !button.pressed
+
+            PropertyChanges {
+                target: buttonRectangle
+                border.color: Qt.hsla(0, 0, 0, 0)
             }
             PropertyChanges {
-                target: buttonHighlight
-                color: Qt.lighter(ThemeSettings.colorButtonHighlight, 3)
+                target: iconLabel
+                color: ThemeSettings.colorBack
+            }
+            PropertyChanges {
+                target: buttonCheckableIndicator
+                color: Qt.lighter(ThemeSettings.colorBack, 0.3)
+            }
+        },
+        State {
+            name: "FlatHovered"
+            when: button.enabled
+                  && !button.highlighted
+                  && button.flat
+                  && button.hovered
+                  && !button.visualFocus
+                  && !button.pressed
+
+            PropertyChanges {
+                target: buttonRectangle
+                color: ThemeSettings.lighterAlpha(ThemeSettings.colorPrimary,
+                                                  1.5,
+                                                  0.2)
+                border.color: Qt.hsla(0, 0, 0, 0)
+            }
+        },
+        State {
+            name: "FlatFocused"
+            when: button.enabled
+                  && !button.highlighted
+                  && button.flat
+                  && (button.hovered || button.visualFocus)
+                  && !button.pressed
+
+            PropertyChanges {
+                target: buttonRectangle
+                color: ThemeSettings.lighterAlpha(ThemeSettings.colorPrimary,
+                                                  1.5,
+                                                  0.3)
+                border.color: Qt.hsla(0, 0, 0, 0)
+            }
+        },
+        State {
+            name: "FlatPressed"
+            when: button.enabled
+                  && !button.highlighted
+                  && button.flat
+                  && button.pressed
+
+            PropertyChanges {
+                target: buttonRectangle
+                border.color: Qt.hsla(0, 0, 0, 0)
+            }
+            PropertyChanges {
+                target: buttonPress
+                radius: button.pressIndicatorRadius()
+                opacity: 1
+            }
+        },
+        State {
+            name: "HighlightedDisabled"
+            when: !button.enabled
+                  && button.highlighted
+                  && !button.hovered
+                  && !button.visualFocus
+                  && !button.pressed
+
+            PropertyChanges {
+                target: buttonRectangle
+                border.color: Qt.hsla(0, 0, 0, 0)
+                color: ThemeSettings.colorBack
+
+            }
+            PropertyChanges {
+                target: iconLabel
+                color: Qt.lighter(ThemeSettings.colorBack, 0.3)
+            }
+            PropertyChanges {
+                target: buttonCheckableIndicator
+                color: Qt.lighter(ThemeSettings.colorBack, 0.3)
+            }
+        },
+        State {
+            name: "HighlightedHovered"
+            when: button.enabled
+                  && button.highlighted
+                  && button.hovered
+                  && !button.visualFocus
+                  && !button.pressed
+
+            PropertyChanges {
+                target: buttonRectangle
+                border.color: Qt.hsla(0, 0, 0, 0)
+                color: Qt.lighter(ThemeSettings.colorPrimary, 1.2)
+
+            }
+            PropertyChanges {
+                target: iconLabel
+                color: ThemeSettings.colorText
+            }
+        },
+        State {
+            name: "HighlightedFocused"
+            when: button.enabled
+                  && button.highlighted
+                  && (button.hovered || button.visualFocus)
+                  && !button.pressed
+
+            PropertyChanges {
+                target: buttonRectangle
+                border.color: Qt.hsla(0, 0, 0, 0)
+                color: Qt.lighter(ThemeSettings.colorPrimary, 1.5)
+
+            }
+            PropertyChanges {
+                target: iconLabel
+                color: ThemeSettings.colorText
+            }
+        },
+        State {
+            name: "HighlightedPressed"
+            when: button.enabled
+                  && button.highlighted
+                  && button.pressed
+
+            PropertyChanges {
+                target: buttonPress
+                radius: button.pressIndicatorRadius()
+                opacity: 1
+            }
+            PropertyChanges {
+                target: buttonRectangle
+                visible: false
+            }
+            PropertyChanges {
+                target: buttonRectangleBelow
+                visible: true
+            }
+            PropertyChanges {
+                target: iconLabel
+                color: ThemeSettings.colorText
+            }
+            PropertyChanges {
+                target: buttonShadow
+                radius: 2 * button.radius
             }
         }
     ]
+
+    transitions: Transition {
+        PropertyAnimation {
+            target: buttonPress
+            properties: "radius"
+            duration: button.animationTime
+        }
+        ColorAnimation {
+            target: buttonRectangle
+            duration: button.animationTime
+        }
+    }
 }

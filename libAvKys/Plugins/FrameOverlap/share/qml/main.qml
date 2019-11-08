@@ -21,15 +21,11 @@ import QtQuick 2.7
 import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.3
 
-GridLayout {
-    columns: 2
-
+ColumnLayout {
     // Number of frames to store.
-    Label {
-        text: qsTr("N° of frames")
-    }
     TextField {
         text: FrameOverlap.nFrames
+        placeholderText: qsTr("N° of frames")
         validator: RegExpValidator {
             regExp: /d+/
         }
@@ -39,11 +35,9 @@ GridLayout {
     }
 
     // Stride.
-    Label {
-        text: qsTr("Stride")
-    }
     TextField {
         text: FrameOverlap.stride
+        placeholderText: qsTr("Stride")
         validator: RegExpValidator {
             regExp: /d+/
         }

@@ -94,15 +94,10 @@ ColumnLayout {
 
     }
 
-    Label {
-        text: qsTr("Description")
-        font.bold: true
-        Layout.fillWidth: true
-    }
     TextField {
         id: txtDescription
         text: Recording.formatDescription(Recording.format)
-        placeholderText: qsTr("Insert format description")
+        placeholderText: qsTr("Description")
         readOnly: true
         Layout.fillWidth: true
     }

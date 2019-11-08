@@ -59,6 +59,8 @@ lupdate_only {
     SOURCES += $$files(share/qml/*.qml)
 }
 
+QML_IMPORT_PATH += $$PWD/../../AkQml/share/qml
+
 DESTDIR = $${OUT_PWD}/$${BIN_DIR}
 android: TARGET = $${COMMONS_TARGET}_lib$${TARGET}
 

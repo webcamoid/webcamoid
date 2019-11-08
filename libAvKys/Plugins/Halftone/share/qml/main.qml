@@ -49,61 +49,63 @@ GridLayout {
     Label {
         text: qsTr("Pattern")
     }
-    ColumnLayout {
-        ComboBox {
-            id: cbxPattern
-            textRole: "text"
-            Layout.fillWidth: true
+    ComboBox {
+        id: cbxPattern
+        textRole: "text"
+        Layout.fillWidth: true
 
-            model: ListModel {
-                ListElement {
-                    text: qsTr("90° Halftone 6x6")
-                    pattern: ":/Halftone/share/patterns/dither90Halftone6x6Matrix.bmp"
-                }
-                ListElement {
-                    text: qsTr("Cluster 3")
-                    pattern: ":/Halftone/share/patterns/ditherCluster3Matrix.bmp"
-                }
-                ListElement {
-                    text: qsTr("Cluster 4")
-                    pattern: ":/Halftone/share/patterns/ditherCluster4Matrix.bmp"
-                }
-                ListElement {
-                    text: qsTr("Cluster 8")
-                    pattern: ":/Halftone/share/patterns/ditherCluster8Matrix.bmp"
-                }
-                ListElement {
-                    text: qsTr("Lines 4x4")
-                    pattern: ":/Halftone/share/patterns/ditherLines4x4Matrix.bmp"
-                }
-                ListElement {
-                    text: qsTr("Magic 2x2")
-                    pattern: ":/Halftone/share/patterns/ditherMagic2x2Matrix.bmp"
-                }
-                ListElement {
-                    text: qsTr("Magic 4x4")
-                    pattern: ":/Halftone/share/patterns/ditherMagic4x4Matrix.bmp"
-                }
-                ListElement {
-                    text: qsTr("Ordered 4x4")
-                    pattern: ":/Halftone/share/patterns/ditherOrdered4x4Matrix.bmp"
-                }
-                ListElement {
-                    text: qsTr("Ordered 6x6")
-                    pattern: ":/Halftone/share/patterns/ditherOrdered6x6Matrix.bmp"
-                }
-                ListElement {
-                    text: qsTr("Ordered 8x8")
-                    pattern: ":/Halftone/share/patterns/ditherOrdered8x8Matrix.bmp"
-                }
-                ListElement {
-                    text: qsTr("Custom")
-                    pattern: ""
-                }
+        model: ListModel {
+            ListElement {
+                text: qsTr("90° Halftone 6x6")
+                pattern: ":/Halftone/share/patterns/dither90Halftone6x6Matrix.bmp"
             }
-
-            onCurrentIndexChanged: Halftone.pattern = cbxPattern.model.get(currentIndex).pattern
+            ListElement {
+                text: qsTr("Cluster 3")
+                pattern: ":/Halftone/share/patterns/ditherCluster3Matrix.bmp"
+            }
+            ListElement {
+                text: qsTr("Cluster 4")
+                pattern: ":/Halftone/share/patterns/ditherCluster4Matrix.bmp"
+            }
+            ListElement {
+                text: qsTr("Cluster 8")
+                pattern: ":/Halftone/share/patterns/ditherCluster8Matrix.bmp"
+            }
+            ListElement {
+                text: qsTr("Lines 4x4")
+                pattern: ":/Halftone/share/patterns/ditherLines4x4Matrix.bmp"
+            }
+            ListElement {
+                text: qsTr("Magic 2x2")
+                pattern: ":/Halftone/share/patterns/ditherMagic2x2Matrix.bmp"
+            }
+            ListElement {
+                text: qsTr("Magic 4x4")
+                pattern: ":/Halftone/share/patterns/ditherMagic4x4Matrix.bmp"
+            }
+            ListElement {
+                text: qsTr("Ordered 4x4")
+                pattern: ":/Halftone/share/patterns/ditherOrdered4x4Matrix.bmp"
+            }
+            ListElement {
+                text: qsTr("Ordered 6x6")
+                pattern: ":/Halftone/share/patterns/ditherOrdered6x6Matrix.bmp"
+            }
+            ListElement {
+                text: qsTr("Ordered 8x8")
+                pattern: ":/Halftone/share/patterns/ditherOrdered8x8Matrix.bmp"
+            }
+            ListElement {
+                text: qsTr("Custom")
+                pattern: ""
+            }
         }
+
+        onCurrentIndexChanged: Halftone.pattern = cbxPattern.model.get(currentIndex).pattern
+    }
+    ColumnLayout {
+        Layout.columnSpan: 2
+
         RowLayout {
             Image {
                 width: 16
@@ -116,7 +118,7 @@ GridLayout {
             TextField {
                 id: txtPattern
                 text: Halftone.pattern
-                placeholderText: qsTr("pattern bitmap...")
+                placeholderText: qsTr("Bitmap pattern")
                 Layout.fillWidth: true
 
                 onTextChanged: {
@@ -144,53 +146,46 @@ GridLayout {
         }
     }
 
-    Label {
-        text: qsTr("Pattern size")
-    }
     TextField {
         text: Halftone.patternSize.width + "x" + Halftone.patternSize.height
+        placeholderText: qsTr("Pattern size")
         validator: RegExpValidator {
             regExp: /-?\d+x-?\d+/
         }
+        Layout.columnSpan: 2
         Layout.fillWidth: true
 
         onTextChanged: Halftone.patternSize = strToSize(text)
     }
-
-    Label {
-        text: qsTr("Lightness")
-    }
     TextField {
         text: Halftone.lightness
+        placeholderText: qsTr("Lightness")
         validator: RegExpValidator {
             regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
         }
+        Layout.columnSpan: 2
         Layout.fillWidth: true
 
         onTextChanged: Halftone.lightness = text
     }
-
-    Label {
-        text: qsTr("Slope")
-    }
     TextField {
         text: Halftone.slope
+        placeholderText: qsTr("Slope")
         validator: RegExpValidator {
             regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
         }
+        Layout.columnSpan: 2
         Layout.fillWidth: true
 
         onTextChanged: Halftone.slope = text
     }
-
-    Label {
-        text: qsTr("Intercept")
-    }
     TextField {
         text: Halftone.intercept
+        placeholderText: qsTr("Intercept")
         validator: RegExpValidator {
             regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
         }
+        Layout.columnSpan: 2
         Layout.fillWidth: true
 
         onTextChanged: Halftone.intercept = text

@@ -90,66 +90,57 @@ GridLayout {
         onCurrentIndexChanged: Radioactive.mode = cbxMode.model.get(currentIndex).mode
     }
 
-    Label {
-        text: qsTr("Blur")
-    }
     TextField {
         text: Radioactive.blur
+        placeholderText: qsTr("Blur")
         validator: RegExpValidator {
             regExp: /\d+/
         }
+        Layout.columnSpan: 2
         Layout.fillWidth: true
 
         onTextChanged: Radioactive.blur = text
     }
-
-    Label {
-        text: qsTr("Zoom")
-    }
     TextField {
         text: Radioactive.zoom
+        placeholderText: qsTr("Zoom")
         validator: RegExpValidator {
             regExp: /\d+\.\d+|\d+\.|\.\d+|\d+/
         }
+        Layout.columnSpan: 2
         Layout.fillWidth: true
 
         onTextChanged: Radioactive.zoom = text
     }
-
-    Label {
-        text: qsTr("Threshold")
-    }
     TextField {
         text: Radioactive.threshold
+        placeholderText: qsTr("Threshold")
         validator: RegExpValidator {
             regExp: /\d+/
         }
+        Layout.columnSpan: 2
         Layout.fillWidth: true
 
         onTextChanged: Radioactive.threshold = text
     }
-
-    Label {
-        text: qsTr("Luma threshold")
-    }
     TextField {
         text: Radioactive.lumaThreshold
+        placeholderText: qsTr("Luma threshold")
         validator: RegExpValidator {
             regExp: /\d+/
         }
+        Layout.columnSpan: 2
         Layout.fillWidth: true
 
         onTextChanged: Radioactive.lumaThreshold = text
     }
-
-    Label {
-        text: qsTr("Alpha differential")
-    }
     TextField {
         text: Radioactive.alphaDiff
+        placeholderText: qsTr("Alpha differential")
         validator: RegExpValidator {
             regExp: /-?\d+/
         }
+        Layout.columnSpan: 2
         Layout.fillWidth: true
 
         onTextChanged: Radioactive.alphaDiff = text
@@ -158,11 +149,16 @@ GridLayout {
     Label {
         text: qsTr("Radiation color")
     }
-    AkColorButton {
-        currentColor: fromRgba(Radioactive.radColor)
-        title: qsTr("Choose a color")
-        showAlphaChannel: true
+    RowLayout {
+        Item {
+            Layout.fillWidth: true
+        }
+        AkColorButton {
+            currentColor: fromRgba(Radioactive.radColor)
+            title: qsTr("Choose a color")
+            showAlphaChannel: true
 
-        onCurrentColorChanged: Radioactive.radColor = toRgba(currentColor)
+            onCurrentColorChanged: Radioactive.radColor = toRgba(currentColor)
+        }
     }
 }

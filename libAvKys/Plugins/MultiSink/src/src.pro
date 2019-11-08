@@ -44,6 +44,8 @@ HEADERS = \
 INCLUDEPATH += \
     ../../../Lib/src
 
+QML_IMPORT_PATH += $$PWD/../../AkQml/share/qml
+
 LIBS += -L$${OUT_PWD}/../../../Lib/$${BIN_DIR} -l$${COMMONS_TARGET}
 
 OTHER_FILES += ../pspec.json

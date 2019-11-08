@@ -137,12 +137,17 @@ GridLayout {
     Label {
         text: qsTr("Background color")
     }
-    AkColorButton {
-        currentColor: fromRgba(Wave.background)
-        title: qsTr("Choose the background color")
+    RowLayout {
+        Layout.columnSpan: 2
 
-        onCurrentColorChanged: Wave.background = toRgba(currentColor)
-    }
-    Label {
+        Item {
+            Layout.fillWidth: true
+        }
+        AkColorButton {
+            currentColor: fromRgba(Wave.background)
+            title: qsTr("Choose the background color")
+
+            onCurrentColorChanged: Wave.background = toRgba(currentColor)
+        }
     }
 }

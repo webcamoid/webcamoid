@@ -24,14 +24,13 @@ import QtQuick.Layouts 1.3
 GridLayout {
     columns: 2
 
-    Label {
-        text: qsTr("N° of frames")
-    }
     TextField {
         text: Nervous.nFrames
+        placeholderText: qsTr("N° of frames")
         validator: RegExpValidator {
             regExp: /\d+/
         }
+        Layout.columnSpan: 2
         Layout.fillWidth: true
 
         onTextChanged: Nervous.nFrames = text
@@ -40,9 +39,16 @@ GridLayout {
     Label {
         text: qsTr("Simple")
     }
-    CheckBox {
-        checked: Nervous.simple
+    RowLayout {
+        Layout.fillWidth: true
 
-        onCheckedChanged: Nervous.simple = checked
+        Item {
+            Layout.fillWidth: true
+        }
+        Switch {
+            checked: Nervous.simple
+
+            onCheckedChanged: Nervous.simple = checked
+        }
     }
 }

@@ -82,26 +82,25 @@ GridLayout {
         onCurrentIndexChanged: Charify.mode = cbxMode.model.get(currentIndex).option
     }
 
-    Label {
-        text: qsTr("Symbols")
-    }
     TextField {
         text: Charify.charTable
+        placeholderText: qsTr("Symbols")
+        Layout.columnSpan: 2
         Layout.fillWidth: true
 
         onTextChanged: Charify.charTable = text
     }
 
-    Label {
-        text: qsTr("Font")
-    }
     RowLayout {
+        Layout.columnSpan: 2
+
         TextField {
             id: txtTable
             text: Charify.font.family + " " + Charify.font.pointSize
+            placeholderText: qsTr("Font")
+            Layout.fillWidth: true
             readOnly: true
             font: Charify.font
-            Layout.fillWidth: true
         }
         Button {
             text: qsTr("Search")
@@ -212,32 +211,47 @@ GridLayout {
     Label {
         text: qsTr("Foreground color")
     }
-    AkColorButton {
-        currentColor: fromRgba(Charify.foregroundColor)
-        title: qsTr("Choose the foreground color")
-        showAlphaChannel: true
+    RowLayout {
+        Item {
+            Layout.fillWidth: true
+        }
+        AkColorButton {
+            currentColor: fromRgba(Charify.foregroundColor)
+            title: qsTr("Choose the foreground color")
+            showAlphaChannel: true
 
-        onCurrentColorChanged: Charify.foregroundColor = toRgba(currentColor)
+            onCurrentColorChanged: Charify.foregroundColor = toRgba(currentColor)
+        }
     }
 
     Label {
         text: qsTr("Background color")
     }
-    AkColorButton {
-        currentColor: fromRgba(Charify.backgroundColor)
-        title: qsTr("Choose the background color")
-        showAlphaChannel: true
+    RowLayout {
+        Item {
+            Layout.fillWidth: true
+        }
+        AkColorButton {
+            currentColor: fromRgba(Charify.backgroundColor)
+            title: qsTr("Choose the background color")
+            showAlphaChannel: true
 
-        onCurrentColorChanged: Charify.backgroundColor = toRgba(currentColor)
+            onCurrentColorChanged: Charify.backgroundColor = toRgba(currentColor)
+        }
     }
 
     Label {
         text: qsTr("Reversed")
     }
-    CheckBox {
-        checked: Charify.reversed
+    RowLayout {
+        Item {
+            Layout.fillWidth: true
+        }
+        Switch {
+            checked: Charify.reversed
 
-        onCheckedChanged: Charify.reversed = checked
+            onCheckedChanged: Charify.reversed = checked
+        }
     }
 
     FontDialog {

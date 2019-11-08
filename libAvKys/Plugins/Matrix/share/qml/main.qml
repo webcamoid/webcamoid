@@ -59,35 +59,33 @@ GridLayout {
         return a | r | g | b
     }
 
-    Label {
-        text: qsTr("N° of drops")
-    }
     TextField {
         text: Matrix.nDrops
+        placeholderText: qsTr("N° of drops")
         validator: RegExpValidator {
             regExp: /\d+/
         }
+        Layout.columnSpan: 2
         Layout.fillWidth: true
 
         onTextChanged: Matrix.nDrops = text
     }
-
-    Label {
-        text: qsTr("Symbols")
-    }
     TextField {
         text: Matrix.charTable
-        onTextChanged: Matrix.charTable = text
+        placeholderText: qsTr("Symbols")
+        Layout.columnSpan: 2
         Layout.fillWidth: true
+
+        onTextChanged: Matrix.charTable = text
     }
 
-    Label {
-        text: qsTr("Font")
-    }
     RowLayout {
+        Layout.columnSpan: 2
+
         TextField {
             id: txtTable
             text: Matrix.font.family + " " + Matrix.font.pointSize
+            placeholderText: qsTr("Font")
             readOnly: true
             font: Matrix.font
             Layout.fillWidth: true
@@ -201,80 +199,88 @@ GridLayout {
     Label {
         text: qsTr("Cursor color")
     }
-    AkColorButton {
-        currentColor: fromRgba(Matrix.cursorColor)
-        title: qsTr("Choose the cursor color")
+    RowLayout {
+        Item {
+            Layout.fillWidth: true
+        }
+        AkColorButton {
+            currentColor: fromRgba(Matrix.cursorColor)
+            title: qsTr("Choose the cursor color")
 
-        onCurrentColorChanged: Matrix.cursorColor = toRgba(currentColor)
+            onCurrentColorChanged: Matrix.cursorColor = toRgba(currentColor)
+        }
     }
 
     Label {
         text: qsTr("Foreground color")
     }
-    AkColorButton {
-        currentColor: fromRgba(Matrix.foregroundColor)
-        title: qsTr("Choose the foreground color")
+    RowLayout {
+        Item {
+            Layout.fillWidth: true
+        }
+        AkColorButton {
+            currentColor: fromRgba(Matrix.foregroundColor)
+            title: qsTr("Choose the foreground color")
 
-        onCurrentColorChanged: Matrix.foregroundColor = toRgba(currentColor)
+            onCurrentColorChanged: Matrix.foregroundColor = toRgba(currentColor)
+        }
     }
 
     Label {
         text: qsTr("Background color")
     }
-    AkColorButton {
-        currentColor: fromRgba(Matrix.backgroundColor)
-        title: qsTr("Choose the background color")
+    RowLayout {
+        Item {
+            Layout.fillWidth: true
+        }
+        AkColorButton {
+            currentColor: fromRgba(Matrix.backgroundColor)
+            title: qsTr("Choose the background color")
 
-        onCurrentColorChanged: Matrix.backgroundColor = toRgba(currentColor)
+            onCurrentColorChanged: Matrix.backgroundColor = toRgba(currentColor)
+        }
     }
 
-    Label {
-        text: qsTr("Min. drop length")
-    }
     TextField {
         text: Matrix.minDropLength
+        placeholderText: qsTr("Min. drop length")
         validator: RegExpValidator {
             regExp: /\d+/
         }
+        Layout.columnSpan: 2
         Layout.fillWidth: true
 
         onTextChanged: Matrix.minDropLength = text
     }
-
-    Label {
-        text: qsTr("Max. drop length")
-    }
     TextField {
         text: Matrix.maxDropLength
+        placeholderText: qsTr("Max. drop length")
         validator: RegExpValidator {
             regExp: /\d+/
         }
+        Layout.columnSpan: 2
         Layout.fillWidth: true
 
         onTextChanged: Matrix.maxDropLength = text
     }
-
-    Label {
-        text: qsTr("Min. speed")
-    }
     TextField {
         text: Matrix.minSpeed
+        placeholderText: qsTr("Min. speed")
         validator: RegExpValidator {
             regExp: /\d+\.\d+|\d+\.|\.\d+|\d+/
         }
+        Layout.columnSpan: 2
         Layout.fillWidth: true
 
         onTextChanged: Matrix.minSpeed = text
     }
-
-    Label {
-        text: qsTr("Max. speed")
-    }
     TextField {
         text: Matrix.maxSpeed
+        placeholderText: qsTr("Max. speed")
         validator: RegExpValidator {
             regExp: /\d+\.\d+|\d+\.|\.\d+|\d+/
         }
+        Layout.columnSpan: 2
         Layout.fillWidth: true
 
         onTextChanged: Matrix.maxSpeed = text
@@ -283,10 +289,15 @@ GridLayout {
     Label {
         text: qsTr("Show cursor")
     }
-    CheckBox {
-        checked: Matrix.showCursor
+    RowLayout {
+        Item {
+            Layout.fillWidth: true
+        }
+        Switch {
+            checked: Matrix.showCursor
 
-        onCheckedChanged: Matrix.showCursor = checked
+            onCheckedChanged: Matrix.showCursor = checked
+        }
     }
 
     FontDialog {

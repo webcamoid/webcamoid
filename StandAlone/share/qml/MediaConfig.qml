@@ -21,9 +21,8 @@ import QtQuick 2.7
 import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
 
-GridLayout {
+ColumnLayout {
     id: recMediaConfig
-    columns: 1
 
     function showControls(stream)
     {
@@ -48,30 +47,15 @@ GridLayout {
         onInterfaceLoaded: showControls(MediaSource.stream)
     }
 
-    Label {
-        id: lblDescription
-        text: qsTr("Description")
-        font.bold: true
-        Layout.fillWidth: true
-    }
-
     TextField {
         id: txtDescription
-        placeholderText: qsTr("Insert media description")
+        placeholderText: qsTr("Description")
         readOnly: true
         Layout.fillWidth: true
     }
-
-    Label {
-        id: lblMedia
-        text: qsTr("Media UID")
-        font.bold: true
-        Layout.fillWidth: true
-    }
-
     TextField {
         id: txtMedia
-        placeholderText: qsTr("Select media file")
+        placeholderText: qsTr("Media ID")
         readOnly: true
         Layout.fillWidth: true
     }

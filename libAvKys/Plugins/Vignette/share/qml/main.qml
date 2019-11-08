@@ -68,14 +68,19 @@ GridLayout {
     Label {
         text: qsTr("Color")
     }
-    AkColorButton {
-        currentColor: fromRgba(Vignette.color)
-        title: qsTr("Choose the vignette color")
-        showAlphaChannel: true
+    RowLayout {
+        Layout.columnSpan: 2
 
-        onCurrentColorChanged: Vignette.color = toRgba(currentColor)
-    }
-    Label {
+        Item {
+            Layout.fillWidth: true
+        }
+        AkColorButton {
+            currentColor: fromRgba(Vignette.color)
+            title: qsTr("Choose the vignette color")
+            showAlphaChannel: true
+
+            onCurrentColorChanged: Vignette.color = toRgba(currentColor)
+        }
     }
 
     Label {

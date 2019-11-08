@@ -40,6 +40,9 @@ GridLayout {
     readonly property alias rightWidth: spbRange.width
     readonly property int maxSteps: 4096
     property bool discreteRange: (maximumValue - minimumValue) <= maxSteps * stepSize
+    property bool showLabel: controlParams[2] != "string"
+                             && controlParams[2] != "frac"
+                             && controlParams[2] != "number"
 
     signal controlChanged(string controlName, variant value)
 
@@ -121,12 +124,17 @@ GridLayout {
     Label {
         id: lblControl
         text: controlName
+        Layout.column: showLabel || discreteRange? 0: 1
         Layout.minimumWidth: minimumLeftWidth
+        visible: showLabel || discreteRange
     }
 
     TextField {
         id: txtString
         text: controlParams[2] == "string"? grdCameraControl.value: ""
+        placeholderText: controlName
+        Layout.column: showLabel || discreteRange? 1: 0
+        Layout.columnSpan: 2
         Layout.fillWidth: true
         visible: false
 
@@ -136,6 +144,9 @@ GridLayout {
     TextField {
         id: txtFrac
         text: controlParams[2] == "frac"? grdCameraControl.value: ""
+        placeholderText: controlName
+        Layout.column: showLabel || discreteRange? 1: 0
+        Layout.columnSpan: 2
         Layout.fillWidth: true
         visible: false
         validator: RegExpValidator {
@@ -148,6 +159,8 @@ GridLayout {
     GridLayout {
         id: glyRange
         columns: 2
+        Layout.column: discreteRange? 1: 0
+        Layout.columnSpan: discreteRange? 1: 2
         visible: false
 
         Slider {
@@ -184,6 +197,7 @@ GridLayout {
         TextField {
             id: txtRange
             text: controlParams[2] == "number"? grdCameraControl.value: ""
+            placeholderText: controlName
             Layout.columnSpan: 2
             Layout.fillWidth: true
             visible: !discreteRange
@@ -199,15 +213,21 @@ GridLayout {
         }
     }
 
-    CheckBox {
+    RowLayout {
         id: chkBool
-        checked: grdCameraControl.value !== 0
         Layout.fillWidth: true
         visible: false
 
-        onCheckedChanged: {
-            if (visible)
-                grdCameraControl.controlChanged(controlName, checked)
+        Item {
+            Layout.fillWidth: true
+        }
+        Switch {
+            checked: grdCameraControl.value !== 0
+
+            onCheckedChanged: {
+                if (visible)
+                    grdCameraControl.controlChanged(controlName, checked)
+            }
         }
     }
 
@@ -237,12 +257,14 @@ GridLayout {
 
         ColumnLayout {
             id: clyFlags
+            anchors.fill: parent
         }
 
         Component {
             id: classCheckBox
 
-            CheckBox {
+            SwitchDelegate {
+                Layout.fillWidth: true
             }
         }
     }

@@ -23,9 +23,8 @@ import QtQuick.Layouts 1.3
 import AkQml 1.0
 import AkQmlControls 1.0
 
-Rectangle {
+Item {
     id: recAudioConfig
-    color: Qt.rgba(0, 0, 0, 0)
     clip: true
     width: 200
     height: 400
@@ -188,73 +187,44 @@ Rectangle {
         onAudioOutputChanged: updateOutputInfo()
     }
 
-    Label {
-        id: lblDescription
-        text: qsTr("Description")
-        anchors.right: parent.right
-        anchors.left: parent.left
-        anchors.top: parent.top
-        font.bold: true
-    }
-    ColumnLayout {
-        id: clyDescription
-        anchors.right: parent.right
-        anchors.left: parent.left
-        anchors.top: lblDescription.bottom
+    GridLayout {
+        anchors.fill: parent
+        columns: 2
 
         TextField {
             id: txtODescription
             text: oDescription
-            placeholderText: qsTr("Device description")
+            placeholderText: qsTr("Description")
             readOnly: true
+            Layout.columnSpan: 2
             Layout.fillWidth: true
         }
         TextField {
             id: txtIDescription
             text: iDescription
-            placeholderText: qsTr("Device description")
+            placeholderText: qsTr("Description")
             readOnly: true
+            Layout.columnSpan: 2
             Layout.fillWidth: true
             visible: false
         }
-    }
-    Label {
-        id: lblDevice
-        text: qsTr("Device id")
-        anchors.right: parent.right
-        anchors.left: parent.left
-        anchors.top: clyDescription.bottom
-        font.bold: true
-    }
-    ColumnLayout {
-        id: clyDevice
-        anchors.right: parent.right
-        anchors.left: parent.left
-        anchors.top: lblDevice.bottom
-
         TextField {
             id: txtODevice
             text: AudioLayer.audioOutput
-            placeholderText: qsTr("Device id")
+            placeholderText: qsTr("Device ID")
             readOnly: true
+            Layout.columnSpan: 2
             Layout.fillWidth: true
         }
         TextField {
             id: txtIDevice
             text: AudioLayer.audioInput
-            placeholderText: qsTr("Device id")
+            placeholderText: qsTr("Device ID")
             readOnly: true
+            Layout.columnSpan: 2
             Layout.fillWidth: true
             visible: false
         }
-    }
-
-    GridLayout {
-        anchors.right: parent.right
-        anchors.left: parent.left
-        anchors.bottom: parent.bottom
-        anchors.top: clyDevice.bottom
-        columns: 2
 
         Label {
             text: qsTr("Sample Format")

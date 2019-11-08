@@ -48,15 +48,23 @@ ScrollView {
                - (scrollView.ScrollBar.vertical.visible?
                       scrollView.ScrollBar.vertical.width: 0)
 
+        RowLayout {
+            Layout.fillWidth: true
+
+            Label {
+                text: qsTr("Enable virtual camera")
+                Layout.fillWidth: true
+            }
+            Switch {
+                id: enableVirtualCamera
+                checked: Webcamoid.enableVirtualCamera
+
+                onCheckedChanged: Webcamoid.enableVirtualCamera = checked
+            }
+        }
         GroupBox {
             clip: true
             Layout.fillWidth: true
-            label: CheckBox {
-                id: enableVirtualCamera
-                text: qsTr("Virtual camera")
-                checked: Webcamoid.enableVirtualCamera
-                onCheckedChanged: Webcamoid.enableVirtualCamera = checked
-            }
 
             GridLayout {
                 enabled: enableVirtualCamera.checked

@@ -24,15 +24,10 @@ import QtQuick.Layouts 1.3
 ApplicationWindow {
     id: recAbout
     title: qsTr("About %1").arg(Webcamoid.applicationName())
-    color: palette.window
     flags: Qt.Dialog
     modality: Qt.ApplicationModal
     width: 600
     height: 300
-
-    SystemPalette {
-        id: palette
-    }
 
     ColumnLayout {
         anchors.fill: parent

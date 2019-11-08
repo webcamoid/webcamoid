@@ -21,14 +21,10 @@ import QtQuick 2.7
 import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.3
 
-GridLayout {
-    columns: 2
-
-    Label {
-        text: qsTr("Brightness")
-    }
+ColumnLayout {
     TextField {
         text: Photocopy.brightness
+        placeholderText: qsTr("Brightness")
         validator: RegExpValidator {
             regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
         }
@@ -36,12 +32,9 @@ GridLayout {
 
         onTextChanged: Photocopy.brightness = text
     }
-
-    Label {
-        text: qsTr("Contrast")
-    }
     TextField {
         text: Photocopy.contrast
+        placeholderText: qsTr("Contrast")
         validator: RegExpValidator {
             regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
         }

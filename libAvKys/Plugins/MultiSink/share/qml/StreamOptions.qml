@@ -79,18 +79,15 @@ GroupBox {
             }
         }
 
-        Label {
-            id: lblBitRate
-            text: qsTr("Bitrate")
-            visible: false
-        }
         TextField {
             id: txtBitRate
             text: gbxStreamOptions.bitrate
+            placeholderText: qsTr("Bitrate (bits/secs)")
             validator: RegExpValidator {
                 regExp: /\d+/
             }
             visible: false
+            Layout.columnSpan: 2
             Layout.fillWidth: true
 
             onTextChanged: {
@@ -99,19 +96,15 @@ GroupBox {
             }
         }
 
-        Label {
-            id: lblVideoGOP
-            text: qsTr("GOP")
-            visible: false
-        }
         TextField {
             id: txtVideoGOP
-            placeholderText: qsTr("Separation between keyframes")
+            placeholderText: qsTr("Keyframes stride")
             text: gbxStreamOptions.videoGOP
             validator: RegExpValidator {
                 regExp: /\d+/
             }
             visible: false
+            Layout.columnSpan: 2
             Layout.fillWidth: true
 
             onTextChanged: {
@@ -141,12 +134,7 @@ GroupBox {
             name: "audio"
 
             PropertyChanges {
-                target: lblBitRate
-                visible: true
-            }
-            PropertyChanges {
                 target: txtBitRate
-                placeholderText: qsTr("Size of the audio (bits) / duration (seconds)")
                 visible: true
             }
         },
@@ -154,20 +142,11 @@ GroupBox {
             name: "video"
 
             PropertyChanges {
-                target: lblVideoGOP
-                visible: true
-            }
-            PropertyChanges {
                 target: txtVideoGOP
                 visible: true
             }
             PropertyChanges {
-                target: lblBitRate
-                visible: true
-            }
-            PropertyChanges {
                 target: txtBitRate
-                placeholderText: qsTr("Size of the video (bits) / duration (seconds)")
                 visible: true
             }
         }

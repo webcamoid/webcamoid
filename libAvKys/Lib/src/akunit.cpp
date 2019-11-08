@@ -315,6 +315,8 @@ int AkUnitPrivate::pixels(qreal value, AkUnit::Unit unit) const
         return qRound(value * this->m_physicalDotsPerInch / 72);
     case AkUnit::pc:
         return qRound(12 * value * this->m_physicalDotsPerInch / 72);
+    case AkUnit::dp:
+        return qRound(value * this->m_physicalDotsPerInch / 160);
     case AkUnit::vw:
         return qRound(value * this->m_parentSize.width() / 100);
     case AkUnit::vh:
@@ -344,6 +346,7 @@ const UnitsMap &AkUnitPrivate::unitsMap()
         {"px"  , AkUnit::px  },
         {"pt"  , AkUnit::pt  },
         {"pc"  , AkUnit::pc  },
+        {"dp"  , AkUnit::dp  },
         {"vw"  , AkUnit::vw  },
         {"vh"  , AkUnit::vh  },
         {"vmin", AkUnit::vmin},

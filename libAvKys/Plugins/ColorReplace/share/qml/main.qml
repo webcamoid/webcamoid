@@ -59,32 +59,42 @@ GridLayout {
     Label {
         text: qsTr("Old color")
     }
-    AkColorButton {
-        currentColor: fromRgba(ColorReplace.from)
-        title: qsTr("Select the color to replace")
-        modality: Qt.NonModal
-        showAlphaChannel: true
+    RowLayout {
+        Layout.columnSpan: 2
 
-        onCurrentColorChanged: ColorReplace.from = toRgba(currentColor)
-        onIsOpenChanged: ColorReplace.disable = isOpen
-    }
-    Label {
+        Item {
+            Layout.fillWidth: true
+        }
+        AkColorButton {
+            currentColor: fromRgba(ColorReplace.from)
+            title: qsTr("Select the color to replace")
+            modality: Qt.NonModal
+            showAlphaChannel: true
+
+            onCurrentColorChanged: ColorReplace.from = toRgba(currentColor)
+            onIsOpenChanged: ColorReplace.disable = isOpen
+        }
     }
 
     // Color to replace.
     Label {
         text: qsTr("New color")
     }
-    AkColorButton {
-        currentColor: fromRgba(ColorReplace.to)
-        title: qsTr("Select the new color")
-        modality: Qt.NonModal
-        showAlphaChannel: true
+    RowLayout {
+        Layout.columnSpan: 2
 
-        onCurrentColorChanged: ColorReplace.to = toRgba(currentColor)
-        onIsOpenChanged: ColorReplace.disable = isOpen
-    }
-    Label {
+        Item {
+            Layout.fillWidth: true
+        }
+        AkColorButton {
+            currentColor: fromRgba(ColorReplace.to)
+            title: qsTr("Select the new color")
+            modality: Qt.NonModal
+            showAlphaChannel: true
+
+            onCurrentColorChanged: ColorReplace.to = toRgba(currentColor)
+            onIsOpenChanged: ColorReplace.disable = isOpen
+        }
     }
 
     // Configure color selection radius.

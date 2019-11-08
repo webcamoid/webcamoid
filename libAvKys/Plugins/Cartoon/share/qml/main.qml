@@ -127,12 +127,18 @@ GridLayout {
     Label {
         text: qsTr("Show edges")
     }
-    CheckBox {
-        id: chkShowEdges
-        checked: Cartoon.showEdges
+    RowLayout {
         Layout.columnSpan: 2
 
-        onCheckedChanged: Cartoon.showEdges = checked
+        Item {
+            Layout.fillWidth: true
+        }
+        Switch {
+            id: chkShowEdges
+            checked: Cartoon.showEdges
+
+            onCheckedChanged: Cartoon.showEdges = checked
+        }
     }
 
     // Configure edge thresholds.
@@ -190,23 +196,26 @@ GridLayout {
         text: qsTr("Line color")
         enabled: chkShowEdges.checked
     }
-    AkColorButton {
-        currentColor: fromRgba(Cartoon.lineColor)
-        title: qsTr("Choose a color")
+    RowLayout {
+        Layout.columnSpan: 2
 
-        onCurrentColorChanged: Cartoon.lineColor = toRgba(currentColor)
-        enabled: chkShowEdges.checked
-    }
-    Label {
+        Item {
+            Layout.fillWidth: true
+        }
+        AkColorButton {
+            currentColor: fromRgba(Cartoon.lineColor)
+            title: qsTr("Choose a color")
+            enabled: chkShowEdges.checked
+
+            onCurrentColorChanged: Cartoon.lineColor = toRgba(currentColor)
+        }
     }
 
     // Scan block.
-    Label {
-        text: qsTr("Scan block")
-    }
     TextField {
         text: Cartoon.scanSize.width + "x" + Cartoon.scanSize.height
-        Layout.columnSpan: 2
+        placeholderText: qsTr("Scan block")
+        Layout.columnSpan: 3
         validator: RegExpValidator {
             regExp: /\d+x\d+/
         }

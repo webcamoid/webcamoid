@@ -86,7 +86,10 @@ GridLayout {
         Layout.fillWidth: true
         visible: false
 
-        CheckBox {
+        Item {
+            Layout.fillWidth: true
+        }
+        Switch {
             id: chkBool
             checked: grdCameraControl.value !== 0
 
@@ -94,9 +97,6 @@ GridLayout {
                 if (visible)
                     grdCameraControl.controlChanged(controlParams.length > 0? controlParams[0]: "", checked? 1: 0)
             }
-        }
-        Label {
-            Layout.fillWidth: true
         }
     }
 

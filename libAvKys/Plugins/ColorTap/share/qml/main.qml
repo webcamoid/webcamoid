@@ -99,7 +99,7 @@ ColumnLayout {
         TextField {
             id: txtTable
             text: ColorTap.table
-            placeholderText: qsTr("16x16 bitmap...")
+            placeholderText: qsTr("Source palette")
             Layout.fillWidth: true
 
             onTextChanged: {

@@ -43,13 +43,18 @@ GridLayout {
     Label {
         text: qsTr("Canny mode")
     }
-    CheckBox {
-        id: chkCanny
-        checked: Edge.canny
+    RowLayout {
+        Layout.columnSpan: 2
 
-        onCheckedChanged: Edge.canny = checked
-    }
-    Label {
+        Item {
+            Layout.fillWidth: true
+        }
+        Switch {
+            id: chkCanny
+            checked: Edge.canny
+
+            onCheckedChanged: Edge.canny = checked
+        }
     }
 
     // thLow
@@ -106,23 +111,33 @@ GridLayout {
     Label {
         text: qsTr("Equalize")
     }
-    CheckBox {
-        checked: Edge.equalize
+    RowLayout {
+        Layout.columnSpan: 2
 
-        onCheckedChanged: Edge.equalize = checked
-    }
-    Label {
+        Item {
+            Layout.fillWidth: true
+        }
+        Switch {
+            checked: Edge.equalize
+
+            onCheckedChanged: Edge.equalize = checked
+        }
     }
 
     // Invert
     Label {
         text: qsTr("Invert")
     }
-    CheckBox {
-        checked: Edge.invert
+    RowLayout {
+        Layout.columnSpan: 2
 
-        onCheckedChanged: Edge.invert = checked
-    }
-    Label {
+        Item {
+            Layout.fillWidth: true
+        }
+        Switch {
+            checked: Edge.invert
+
+            onCheckedChanged: Edge.invert = checked
+        }
     }
 }

@@ -103,14 +103,13 @@ Rectangle {
             }
         }
         RowLayout {
-            CheckBox {
-                id: chkFlash
-                checked: true
-            }
             Label {
                 text: qsTr("Use flash")
-                color: "white"
                 Layout.fillWidth: true
+            }
+            Switch {
+                id: chkFlash
+                checked: true
             }
         }
     }

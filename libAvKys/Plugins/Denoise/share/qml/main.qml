@@ -60,32 +60,28 @@ GridLayout {
         onRvalueChanged: Denoise.radius = rvalue
     }
 
-    Label {
-        text: qsTr("Factor")
-    }
     TextField {
         text: Denoise.factor
+        placeholderText: qsTr("Factor")
         validator: RegExpValidator {
             regExp: /-?\d+/
         }
-        Layout.columnSpan: 2
+        Layout.columnSpan: 3
         Layout.fillWidth: true
 
-        onTextChanged: Denoise.factor = text
+        onTextChanged: Denoise.factor = Number(text)
     }
 
-    Label {
-        text: qsTr("Mu")
-    }
     TextField {
         text: Denoise.mu
+        placeholderText: qsTr("Mu")
         validator: RegExpValidator {
             regExp: /-?\d+/
         }
-        Layout.columnSpan: 2
+        Layout.columnSpan: 3
         Layout.fillWidth: true
 
-        onTextChanged: Denoise.mu = text
+        onTextChanged: Denoise.mu = Number(text)
     }
 
     Label {

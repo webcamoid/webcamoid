@@ -106,8 +106,9 @@ void AgingElement::setNScratches(int nScratches)
     if (this->d->m_scratches.size() == nScratches)
         return;
 
-    QMutexLocker locker(&this->d->m_mutex);
+    this->d->m_mutex.lock();
     this->d->m_scratches.resize(nScratches);
+    this->d->m_mutex.unlock();
     emit this->nScratchesChanged(nScratches);
 }
 

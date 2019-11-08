@@ -25,30 +25,28 @@ GridLayout {
     columns: 2
 
     // Configure amplitude.
-    Label {
-        text: qsTr("Factor")
-    }
     TextField {
         text: Emboss.factor
+        placeholderText: qsTr("Factor")
         validator: RegExpValidator {
             regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
         }
+        Layout.columnSpan: 2
         Layout.fillWidth: true
 
-        onTextChanged: Emboss.factor = text
+        onTextChanged: Emboss.factor = Number(text)
     }
 
     // Configure frequency.
-    Label {
-        text: qsTr("Bias")
-    }
     TextField {
         text: Emboss.bias
+        placeholderText: qsTr("Bias")
         validator: RegExpValidator {
             regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
         }
+        Layout.columnSpan: 2
         Layout.fillWidth: true
 
-        onTextChanged: Emboss.bias = text
+        onTextChanged: Emboss.bias = Number(text)
     }
 }

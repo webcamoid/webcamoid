@@ -3,4 +3,8 @@ ApplicationWindow 1.0 ApplicationWindow.qml
 Button 1.0 Button.qml
 Label 1.0 Label.qml
 Pane 1.0 Pane.qml
+Switch 1.0 Switch.qml
+SwitchDelegate 1.0 SwitchDelegate.qml
+TextArea 1.0 TextArea.qml
+TextField 1.0 TextField.qml
 ToolButton 1.0 ToolButton.qml

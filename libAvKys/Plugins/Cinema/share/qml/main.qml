@@ -83,11 +83,18 @@ GridLayout {
     Label {
         text: qsTr("Color")
     }
-    AkColorButton {
-        currentColor: fromRgba(Cinema.stripColor)
-        title: qsTr("Choose the strips color")
-        showAlphaChannel: true
+    RowLayout {
+        Layout.columnSpan: 2
 
-        onCurrentColorChanged: Cinema.stripColor = toRgba(currentColor)
+        Item {
+            Layout.fillWidth: true
+        }
+        AkColorButton {
+            currentColor: fromRgba(Cinema.stripColor)
+            title: qsTr("Choose the strips color")
+            showAlphaChannel: true
+
+            onCurrentColorChanged: Cinema.stripColor = toRgba(currentColor)
+        }
     }
 }

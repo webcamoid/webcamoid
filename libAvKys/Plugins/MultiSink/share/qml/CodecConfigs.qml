@@ -24,7 +24,6 @@ import QtQuick.Layouts 1.3
 ApplicationWindow {
     id: recAbout
     title: qsTr("Configure %1").arg(codecName)
-    color: palette.window
     flags: Qt.Dialog
     modality: Qt.ApplicationModal
     width: 400
@@ -36,10 +35,6 @@ ApplicationWindow {
 
     signal formatControlsChanged(variant controlValues)
     signal codecControlsChanged(int streamIndex, variant controlValues)
-
-    SystemPalette {
-        id: palette
-    }
 
     Component {
         id: classCodecControl

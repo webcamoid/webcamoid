@@ -176,8 +176,9 @@ void ConvolveElement::setKernel(const QVariantList &kernel)
     if (this->d->m_kernel == k)
         return;
 
-    QMutexLocker locker(&this->d->m_mutex);
+    this->d->m_mutex.lock();
     this->d->m_kernel = k;
+    this->d->m_mutex.unlock();
     emit this->kernelChanged(kernel);
 }
 
@@ -186,8 +187,9 @@ void ConvolveElement::setKernelSize(const QSize &kernelSize)
     if (this->d->m_kernelSize == kernelSize)
         return;
 
-    QMutexLocker locker(&this->d->m_mutex);
+    this->d->m_mutex.lock();
     this->d->m_kernelSize = kernelSize;
+    this->d->m_mutex.unlock();
     emit this->kernelSizeChanged(kernelSize);
 }
 
@@ -196,8 +198,9 @@ void ConvolveElement::setFactor(const AkFrac &factor)
     if (this->d->m_factor == factor)
         return;
 
-    QMutexLocker locker(&this->d->m_mutex);
+    this->d->m_mutex.lock();
     this->d->m_factor = factor;
+    this->d->m_mutex.unlock();
     emit this->factorChanged(factor);
 }
 
@@ -206,8 +209,9 @@ void ConvolveElement::setBias(int bias)
     if (this->d->m_bias == bias)
         return;
 
-    QMutexLocker locker(&this->d->m_mutex);
+    this->d->m_mutex.lock();
     this->d->m_bias = bias;
+    this->d->m_mutex.unlock();
     emit this->biasChanged(bias);
 }
 

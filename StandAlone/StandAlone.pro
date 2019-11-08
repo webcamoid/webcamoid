@@ -123,6 +123,8 @@ lupdate_only {
     SOURCES += $$files(share/themes/Default/*.qml)
 }
 
+QML_IMPORT_PATH += $$PWD/../libAvKys/AkQml/share/qml
+
 DESTDIR = $${OUT_PWD}/$${BIN_DIR}
 
 TARGET = $${COMMONS_TARGET}

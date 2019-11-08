@@ -59,16 +59,21 @@ GridLayout {
     Label {
         text: qsTr("Color")
     }
-    AkColorButton {
-        currentColor: fromRgba(ColorFilter.colorf)
-        title: qsTr("Select the color to filter")
-        modality: Qt.NonModal
-        showAlphaChannel: true
+    RowLayout {
+        Layout.columnSpan: 2
 
-        onCurrentColorChanged: ColorFilter.colorf = toRgba(currentColor)
-        onIsOpenChanged: ColorFilter.disable = isOpen
-    }
-    Label {
+        Item {
+            Layout.fillWidth: true
+        }
+        AkColorButton {
+            currentColor: fromRgba(ColorFilter.colorf)
+            title: qsTr("Select the color to filter")
+            modality: Qt.NonModal
+            showAlphaChannel: true
+
+            onCurrentColorChanged: ColorFilter.colorf = toRgba(currentColor)
+            onIsOpenChanged: ColorFilter.disable = isOpen
+        }
     }
 
     // Configure color selection radius.
@@ -99,12 +104,17 @@ GridLayout {
         id: lblSoft
         text: qsTr("Soft")
     }
-    CheckBox {
-        id: chkSoft
-        checked: ColorFilter.soft
+    RowLayout {
+        Layout.columnSpan: 2
 
-        onCheckedChanged: ColorFilter.soft = checked
-    }
-    Label {
+        Item {
+            Layout.fillWidth: true
+        }
+        Switch {
+            id: chkSoft
+            checked: ColorFilter.soft
+
+            onCheckedChanged: ColorFilter.soft = checked
+        }
     }
 }
