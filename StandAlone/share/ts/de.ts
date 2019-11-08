@@ -2045,7 +2045,7 @@
     <message>
         <location filename="../qml/main.qml" line="69"/>
         <source>New version available!</source>
-        <translation type="unfinished"></translation>
+        <translation>Neue Version verfügbar!</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="70"/>
@@ -2055,7 +2055,7 @@
     <message>
         <location filename="../qml/main.qml" line="102"/>
         <source>Stop</source>
-        <translation type="unfinished"></translation>
+        <translation>Stopp</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="106"/>
@@ -2116,7 +2116,7 @@
     <message>
         <location filename="../qml/main.qml" line="779"/>
         <source>About</source>
-        <translation type="unfinished"></translation>
+        <translation>Über</translation>
     </message>
 </context>
 </TS>

@@ -102,7 +102,7 @@
     <message>
         <location filename="../qml/AudioConfig.qml" line="116"/>
         <source>Outputs</source>
-        <translation type="unfinished"></translation>
+        <translation>Uitvoer</translation>
     </message>
     <message>
         <location filename="../qml/AudioConfig.qml" line="120"/>
@@ -2045,78 +2045,78 @@
     <message>
         <location filename="../qml/main.qml" line="69"/>
         <source>New version available!</source>
-        <translation type="unfinished"></translation>
+        <translation>Nieuwe versie beschikbaar!</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="70"/>
         <source>Download %1 %2 NOW!</source>
-        <translation type="unfinished"></translation>
+        <translation>Download %1 %2 NU!</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="102"/>
         <source>Stop</source>
-        <translation type="unfinished"></translation>
+        <translation>Stoppen</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="106"/>
         <location filename="../qml/main.qml" line="691"/>
         <source>Play</source>
-        <translation type="unfinished"></translation>
+        <translation>Afspelen</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="167"/>
         <source>Recording</source>
-        <translation type="unfinished"></translation>
+        <translation>Opnemen</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="247"/>
         <source>Picture %1.%2</source>
-        <translation type="unfinished"></translation>
+        <translation>Afbeelding %1.%2</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="256"/>
         <source>Save photo as...</source>
-        <translation type="unfinished"></translation>
+        <translation>Foto opslaan als...</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="645"/>
         <source>Go back</source>
-        <translation type="unfinished"></translation>
+        <translation>Ga terug</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="699"/>
         <source>Configure sources</source>
-        <translation type="unfinished"></translation>
+        <translation>Bronnen instellen</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="712"/>
         <source>Configure audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Audio instellen</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="725"/>
         <source>Take a photo</source>
-        <translation type="unfinished"></translation>
+        <translation>Foto maken</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="739"/>
         <source>Record video</source>
-        <translation type="unfinished"></translation>
+        <translation>Video opnemen</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="753"/>
         <source>Configure Effects</source>
-        <translation type="unfinished"></translation>
+        <translation>Effecten instellen</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="766"/>
         <source>Preferences</source>
-        <translation type="unfinished"></translation>
+        <translation>Instellingen</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="779"/>
         <source>About</source>
-        <translation type="unfinished"></translation>
+        <translation>Over</translation>
     </message>
 </context>
 </TS>
