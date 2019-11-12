@@ -94,6 +94,10 @@ ColumnLayout {
 
     }
 
+    Label {
+        text: qsTr("Description")
+        font.bold: true
+    }
     TextField {
         id: txtDescription
         text: Recording.formatDescription(Recording.format)
@@ -125,77 +129,28 @@ ColumnLayout {
         font.bold: true
         anchors.horizontalCenter: parent.horizontalCenter
     }
-
-    Rectangle {
-        id: rectangle1
+    Button {
+        icon.width: 32
+        icon.height: 32
+        icon.source: "image://icons/webcamoid-record-start"
         Layout.fillWidth: true
         Layout.preferredHeight: 48
 
-        gradient: Gradient {
-            GradientStop {
-                id: gradTop
-                position: 0
-                color: "#1f1f1f"
-            }
+        onClicked: {
+            if (Recording.state === AkElement.ElementStatePlaying)
+                Recording.state = AkElement.ElementStateNull
+            else {
+                var filters = recRecordConfig.makeFilters()
 
-            GradientStop {
-                id: gradMiddle
-                position: 0.5
-                color: "#000000"
-            }
+                var fileUrl = Webcamoid.saveFileDialog(qsTr("Save video as..."),
+                                         recRecordConfig.makeFileName(),
+                                         Webcamoid.standardLocations("movies")[0],
+                                         "." + recRecordConfig.defaultSuffix(),
+                                         recRecordConfig.makeDefaultFilter())
 
-            GradientStop {
-                id: gradBottom
-                position: 1
-                color: "#1f1f1f"
-            }
-        }
-
-        Image {
-            id: imgRecordIcon
-            width: 32
-            height: 32
-            anchors.verticalCenter: parent.verticalCenter
-            anchors.horizontalCenter: parent.horizontalCenter
-            source: "image://icons/webcamoid-record-start"
-            sourceSize: Qt.size(width, height)
-        }
-
-        MouseArea {
-            id: msaRecord
-            hoverEnabled: true
-            cursorShape: Qt.PointingHandCursor
-            anchors.fill: parent
-
-            onEntered: {
-                gradTop.color = "#2e2e2e"
-                gradMiddle.color = "#0f0f0f"
-                gradBottom.color = "#2e2e2e"
-            }
-            onExited: {
-                gradTop.color = "#1f1f1f"
-                gradMiddle.color = "#000000"
-                gradBottom.color = "#1f1f1f"
-                imgRecordIcon.scale = 1
-            }
-            onPressed: imgRecordIcon.scale = 0.75
-            onReleased: imgRecordIcon.scale = 1
-            onClicked: {
-                if (Recording.state === AkElement.ElementStatePlaying)
-                    Recording.state = AkElement.ElementStateNull
-                else {
-                    var filters = recRecordConfig.makeFilters()
-
-                    var fileUrl = Webcamoid.saveFileDialog(qsTr("Save video as..."),
-                                             recRecordConfig.makeFileName(),
-                                             Webcamoid.standardLocations("movies")[0],
-                                             "." + recRecordConfig.defaultSuffix(),
-                                             recRecordConfig.makeDefaultFilter())
-
-                    if (fileUrl !== "") {
-                        Recording.videoFileName = fileUrl
-                        Recording.state = AkElement.ElementStatePlaying
-                    }
+                if (fileUrl !== "") {
+                    Recording.videoFileName = fileUrl
+                    Recording.state = AkElement.ElementStatePlaying
                 }
             }
         }

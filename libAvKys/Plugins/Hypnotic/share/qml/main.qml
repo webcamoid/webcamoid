@@ -79,16 +79,19 @@ GridLayout {
 
         onCurrentIndexChanged: Hypnotic.mode = cbxMode.model.get(currentIndex).mode
     }
+    Label {
+        text: qsTr("Speed increment")
+    }
     TextField {
         text: Hypnotic.speedInc
         placeholderText: qsTr("Speed increment")
         validator: RegExpValidator {
             regExp: /-?\d+/
         }
-        Layout.columnSpan: 3
+        Layout.columnSpan: 2
         Layout.fillWidth: true
 
-        onTextChanged: Hypnotic.speedInc = text
+        onTextChanged: Hypnotic.speedInc = Number(text)
     }
 
     Label {

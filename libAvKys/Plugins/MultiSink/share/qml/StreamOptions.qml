@@ -79,6 +79,11 @@ GroupBox {
             }
         }
 
+        Label {
+            id: lblBitRate
+            text: qsTr("Bitrate")
+            visible: txtBitRate.visible
+        }
         TextField {
             id: txtBitRate
             text: gbxStreamOptions.bitrate
@@ -87,15 +92,19 @@ GroupBox {
                 regExp: /\d+/
             }
             visible: false
-            Layout.columnSpan: 2
             Layout.fillWidth: true
 
             onTextChanged: {
-                gbxStreamOptions.bitrate = text;
+                gbxStreamOptions.bitrate = Number(text);
                 notifyOptions();
             }
         }
 
+        Label {
+            id: lblVideoGOP
+            text: qsTr("Keyframes stride")
+            visible: txtVideoGOP.visible
+        }
         TextField {
             id: txtVideoGOP
             placeholderText: qsTr("Keyframes stride")
@@ -104,11 +113,10 @@ GroupBox {
                 regExp: /\d+/
             }
             visible: false
-            Layout.columnSpan: 2
             Layout.fillWidth: true
 
             onTextChanged: {
-                gbxStreamOptions.videoGOP = text;
+                gbxStreamOptions.videoGOP = Number(text);
                 notifyOptions();
             }
         }

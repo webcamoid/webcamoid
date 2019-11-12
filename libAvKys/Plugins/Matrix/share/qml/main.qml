@@ -59,29 +59,34 @@ GridLayout {
         return a | r | g | b
     }
 
+    Label {
+        text: qsTr("N° of drops")
+    }
     TextField {
         text: Matrix.nDrops
         placeholderText: qsTr("N° of drops")
         validator: RegExpValidator {
             regExp: /\d+/
         }
-        Layout.columnSpan: 2
         Layout.fillWidth: true
 
-        onTextChanged: Matrix.nDrops = text
+        onTextChanged: Matrix.nDrops = Number(text)
+    }
+    Label {
+        text: qsTr("Symbols")
     }
     TextField {
         text: Matrix.charTable
         placeholderText: qsTr("Symbols")
-        Layout.columnSpan: 2
         Layout.fillWidth: true
 
         onTextChanged: Matrix.charTable = text
     }
 
+    Label {
+        text: qsTr("Font")
+    }
     RowLayout {
-        Layout.columnSpan: 2
-
         TextField {
             id: txtTable
             text: Matrix.font.family + " " + Matrix.font.pointSize
@@ -241,16 +246,21 @@ GridLayout {
         }
     }
 
+    Label {
+        text: qsTr("Min. drop length")
+    }
     TextField {
         text: Matrix.minDropLength
         placeholderText: qsTr("Min. drop length")
         validator: RegExpValidator {
             regExp: /\d+/
         }
-        Layout.columnSpan: 2
         Layout.fillWidth: true
 
-        onTextChanged: Matrix.minDropLength = text
+        onTextChanged: Matrix.minDropLength = Number(text)
+    }
+    Label {
+        text: qsTr("Max. drop length")
     }
     TextField {
         text: Matrix.maxDropLength
@@ -258,10 +268,12 @@ GridLayout {
         validator: RegExpValidator {
             regExp: /\d+/
         }
-        Layout.columnSpan: 2
         Layout.fillWidth: true
 
-        onTextChanged: Matrix.maxDropLength = text
+        onTextChanged: Matrix.maxDropLength = Number(text)
+    }
+    Label {
+        text: qsTr("Min. speed")
     }
     TextField {
         text: Matrix.minSpeed
@@ -269,10 +281,12 @@ GridLayout {
         validator: RegExpValidator {
             regExp: /\d+\.\d+|\d+\.|\.\d+|\d+/
         }
-        Layout.columnSpan: 2
         Layout.fillWidth: true
 
-        onTextChanged: Matrix.minSpeed = text
+        onTextChanged: Matrix.minSpeed = Number(text)
+    }
+    Label {
+        text: qsTr("Max. speed")
     }
     TextField {
         text: Matrix.maxSpeed
@@ -280,10 +294,9 @@ GridLayout {
         validator: RegExpValidator {
             regExp: /\d+\.\d+|\d+\.|\.\d+|\d+/
         }
-        Layout.columnSpan: 2
         Layout.fillWidth: true
 
-        onTextChanged: Matrix.maxSpeed = text
+        onTextChanged: Matrix.maxSpeed = Number(text)
     }
 
     Label {

@@ -21,8 +21,13 @@ import QtQuick 2.7
 import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.3
 
-ColumnLayout {
+GridLayout {
+    columns: 2
+
     // Number of frames to store.
+    Label {
+        text: qsTr("N° of frames")
+    }
     TextField {
         text: FrameOverlap.nFrames
         placeholderText: qsTr("N° of frames")
@@ -31,10 +36,13 @@ ColumnLayout {
         }
         Layout.fillWidth: true
 
-        onTextChanged: FrameOverlap.nFrames = text
+        onTextChanged: FrameOverlap.nFrames = Number(text)
     }
 
     // Stride.
+    Label {
+        text: qsTr("Stride")
+    }
     TextField {
         text: FrameOverlap.stride
         placeholderText: qsTr("Stride")
@@ -43,6 +51,6 @@ ColumnLayout {
         }
         Layout.fillWidth: true
 
-        onTextChanged: FrameOverlap.stride = text
+        onTextChanged: FrameOverlap.stride = Number(text)
     }
 }

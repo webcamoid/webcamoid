@@ -49,39 +49,31 @@ T.TextField {
         Ak.newUnit(4 * ThemeSettings.constrolScale, "dp").pixels
     readonly property int placeHolderFontSize: 8
 
-    Rectangle {
-        id: placeholderRectangle
-        color: Qt.lighter(ThemeSettings.colorBack, 0.2)
-        width: placeholder.contentWidth + 2 * textField.placeHolderPadding
-        height: placeholder.contentHeight
-        x: placeholder.x - textField.placeHolderPadding
-        y: placeholder.y - textField.placeHolderPadding
-        opacity: 0
-        visible: textField.placeholderText.length
-    }
-
     PlaceholderText {
         id: placeholder
         x: textField.leftPadding
         y: textField.topPadding
-
+        width: textField.width - (textField.leftPadding + textField.rightPadding)
+        height: textField.height - (textField.topPadding + textField.bottomPadding)
         text: textField.placeholderText
-        color: ThemeSettings.colorBack
+        font: textField.font
+        color: textField.placeholderTextColor
         verticalAlignment: textField.verticalAlignment
         elide: Text.ElideRight
         renderType: textField.renderType
-        visible: textField.placeholderText.length
+        visible: !textField.length
+                 && !textField.preeditText
+                 && (!textField.activeFocus
+                     || textField.horizontalAlignment !== Qt.AlignHCenter)
     }
 
     background: Rectangle {
         id: textAreaBackground
-        anchors.fill: parent
         color: Qt.hsla(0, 0, 0, 0)
         border.color: ThemeSettings.colorBack
-        border.width: Ak.newUnit(1 * ThemeSettings.constrolScale,
-                                 "dp").pixels
-        radius: Ak.newUnit(8 * ThemeSettings.constrolScale,
-                           "dp").pixels
+        border.width: Ak.newUnit(1 * ThemeSettings.constrolScale, "dp").pixels
+        radius: Ak.newUnit(8 * ThemeSettings.constrolScale, "dp").pixels
+        anchors.fill: parent
     }
 
     states: [
@@ -91,7 +83,6 @@ T.TextField {
                   && !textField.hovered
                   && !textField.activeFocus
                   && !textField.visualFocus
-                  && !textField.length
 
             PropertyChanges {
                 target: textField
@@ -103,7 +94,6 @@ T.TextField {
             when: textField.enabled
                   && textField.hovered
                   && !textField.activeFocus
-                  && !textField.length
 
             PropertyChanges {
                 target: textAreaBackground
@@ -114,7 +104,6 @@ T.TextField {
             name: "Focused"
             when: textField.enabled
                   && textField.activeFocus
-                  && !textField.length
 
             PropertyChanges {
                 target: textAreaBackground
@@ -125,113 +114,13 @@ T.TextField {
             PropertyChanges {
                 target: placeholder
                 color: ThemeSettings.colorPrimary
-            }
-        },
-        State {
-            name: "Active"
-            when: textField.enabled
-                  && !textField.hovered
-                  && !textField.activeFocus
-                  && !textField.visualFocus
-                  && textField.length
-
-            PropertyChanges {
-                target: placeholderRectangle
-                opacity: 1
-            }
-            PropertyChanges {
-                target: placeholder
-                x: textField.leftPadding
-                   + Ak.newUnit(14 * ThemeSettings.constrolScale, "dp").pixels
-                y: - placeholder.contentHeight / 2
-                color: ThemeSettings.colorText
-                font.pointSize: textField.placeHolderFontSize
-            }
-        },
-        State {
-            name: "DisabledActive"
-            when: !textField.enabled
-                  && !textField.hovered
-                  && !textField.activeFocus
-                  && !textField.visualFocus
-                  && textField.length
-
-            PropertyChanges {
-                target: textField
-                opacity: 0.5
-            }
-            PropertyChanges {
-                target: placeholderRectangle
-                opacity: 1
-            }
-            PropertyChanges {
-                target: placeholder
-                x: textField.leftPadding
-                   + Ak.newUnit(14 * ThemeSettings.constrolScale, "dp").pixels
-                y: - placeholder.contentHeight / 2
-                font.pointSize: textField.placeHolderFontSize
-            }
-        },
-        State {
-            name: "HoveredActive"
-            when: textField.enabled
-                  && textField.hovered
-                  && !textField.activeFocus
-                  && textField.length
-
-            PropertyChanges {
-                target: textAreaBackground
-                border.color: Qt.lighter(ThemeSettings.colorBack, 1.5)
-            }
-            PropertyChanges {
-                target: placeholderRectangle
-                opacity: 1
-            }
-            PropertyChanges {
-                target: placeholder
-                x: textField.leftPadding
-                   + Ak.newUnit(14 * ThemeSettings.constrolScale, "dp").pixels
-                y: - placeholder.contentHeight / 2
-                color: ThemeSettings.colorText
-                font.pointSize: textField.placeHolderFontSize
-            }
-        },
-        State {
-            name: "FocusedActive"
-            when: textField.enabled
-                  && textField.activeFocus
-                  && textField.length
-
-            PropertyChanges {
-                target: textAreaBackground
-                border.color: ThemeSettings.colorPrimary
-                border.width: Ak.newUnit(2 * ThemeSettings.constrolScale,
-                                         "dp").pixels
-            }
-            PropertyChanges {
-                target: placeholderRectangle
-                opacity: 1
-            }
-            PropertyChanges {
-                target: placeholder
-                x: textField.leftPadding
-                   + Ak.newUnit(14 * ThemeSettings.constrolScale, "dp").pixels
-                y: - placeholder.contentHeight / 2
-                color: ThemeSettings.colorPrimary
-                font.pointSize: textField.placeHolderFontSize
             }
         }
     ]
 
     transitions: Transition {
-        PropertyAnimation {
-            target: placeholderRectangle
-            properties: "opacity,x,y"
-            duration: textField.animationTime
-        }
-        PropertyAnimation {
+        ColorAnimation {
             target: placeholder
-            properties: "font,opacity,x,y"
             duration: textField.animationTime
         }
         PropertyAnimation {

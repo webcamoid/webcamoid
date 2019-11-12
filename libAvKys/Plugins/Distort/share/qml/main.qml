@@ -25,39 +25,45 @@ GridLayout {
     columns: 2
 
     // Configure amplitude.
+    Label {
+        text: qsTr("Amplitude")
+    }
     TextField {
         text: Distort.amplitude
         placeholderText: qsTr("Amplitude")
         validator: RegExpValidator {
             regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
         }
-        Layout.columnSpan: 2
         Layout.fillWidth: true
 
         onTextChanged: Distort.amplitude = Number(text)
     }
 
     // Configure frequency.
+    Label {
+        text: qsTr("Frequency")
+    }
     TextField {
         text: Distort.frequency
         placeholderText: qsTr("Frequency")
         validator: RegExpValidator {
             regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
         }
-        Layout.columnSpan: 2
         Layout.fillWidth: true
 
         onTextChanged: Distort.frequency = Number(text)
     }
 
     // Configure grid size.
+    Label {
+        text: qsTr("Grid size")
+    }
     TextField {
         text: Distort.gridSizeLog
         placeholderText: qsTr("Grid size")
         validator: RegExpValidator {
             regExp: /\d+/
         }
-        Layout.columnSpan: 2
         Layout.fillWidth: true
 
         onTextChanged: Distort.gridSizeLog = Number(text)

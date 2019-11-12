@@ -82,18 +82,21 @@ GridLayout {
         onCurrentIndexChanged: Charify.mode = cbxMode.model.get(currentIndex).option
     }
 
+    Label {
+        text: qsTr("Symbols")
+    }
     TextField {
         text: Charify.charTable
         placeholderText: qsTr("Symbols")
-        Layout.columnSpan: 2
         Layout.fillWidth: true
 
         onTextChanged: Charify.charTable = text
     }
 
+    Label {
+        text: qsTr("Font")
+    }
     RowLayout {
-        Layout.columnSpan: 2
-
         TextField {
             id: txtTable
             text: Charify.font.family + " " + Charify.font.pointSize

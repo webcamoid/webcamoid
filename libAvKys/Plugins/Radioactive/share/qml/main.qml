@@ -90,16 +90,21 @@ GridLayout {
         onCurrentIndexChanged: Radioactive.mode = cbxMode.model.get(currentIndex).mode
     }
 
+    Label {
+        text: qsTr("Blur")
+    }
     TextField {
         text: Radioactive.blur
         placeholderText: qsTr("Blur")
         validator: RegExpValidator {
             regExp: /\d+/
         }
-        Layout.columnSpan: 2
         Layout.fillWidth: true
 
-        onTextChanged: Radioactive.blur = text
+        onTextChanged: Radioactive.blur = Number(text)
+    }
+    Label {
+        text: qsTr("Zoom")
     }
     TextField {
         text: Radioactive.zoom
@@ -107,10 +112,12 @@ GridLayout {
         validator: RegExpValidator {
             regExp: /\d+\.\d+|\d+\.|\.\d+|\d+/
         }
-        Layout.columnSpan: 2
         Layout.fillWidth: true
 
-        onTextChanged: Radioactive.zoom = text
+        onTextChanged: Radioactive.zoom = Number(text)
+    }
+    Label {
+        text: qsTr("Threshold")
     }
     TextField {
         text: Radioactive.threshold
@@ -118,10 +125,12 @@ GridLayout {
         validator: RegExpValidator {
             regExp: /\d+/
         }
-        Layout.columnSpan: 2
         Layout.fillWidth: true
 
-        onTextChanged: Radioactive.threshold = text
+        onTextChanged: Radioactive.threshold = Number(text)
+    }
+    Label {
+        text: qsTr("Luma threshold")
     }
     TextField {
         text: Radioactive.lumaThreshold
@@ -129,10 +138,12 @@ GridLayout {
         validator: RegExpValidator {
             regExp: /\d+/
         }
-        Layout.columnSpan: 2
         Layout.fillWidth: true
 
-        onTextChanged: Radioactive.lumaThreshold = text
+        onTextChanged: Radioactive.lumaThreshold = Number(text)
+    }
+    Label {
+        text: qsTr("Alpha differential")
     }
     TextField {
         text: Radioactive.alphaDiff
@@ -140,10 +151,9 @@ GridLayout {
         validator: RegExpValidator {
             regExp: /-?\d+/
         }
-        Layout.columnSpan: 2
         Layout.fillWidth: true
 
-        onTextChanged: Radioactive.alphaDiff = text
+        onTextChanged: Radioactive.alphaDiff = Number(text)
     }
 
     Label {

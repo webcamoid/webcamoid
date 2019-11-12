@@ -117,42 +117,51 @@ GridLayout {
     }
 
     // Dissolving factor.
+    Label {
+        text: qsTr("Dissolve")
+    }
     TextField {
         text: Fire.dissolve
         placeholderText: qsTr("Dissolve")
         validator: RegExpValidator {
             regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
         }
-        Layout.columnSpan: 3
+        Layout.columnSpan: 2
         Layout.fillWidth: true
 
-        onTextChanged: Fire.dissolve = text
+        onTextChanged: Fire.dissolve = Number(text)
     }
 
     // Blur.
+    Label {
+        text: qsTr("Blur")
+    }
     TextField {
         text: Fire.blur
         placeholderText: qsTr("Blur")
         validator: RegExpValidator {
             regExp: /\d+/
         }
-        Layout.columnSpan: 3
+        Layout.columnSpan: 2
         Layout.fillWidth: true
 
-        onTextChanged: Fire.blur = text
+        onTextChanged: Fire.blur = Number(text)
     }
 
     // Zoom.
+    Label {
+        text: qsTr("Zoom")
+    }
     TextField {
         text: Fire.zoom
         placeholderText: qsTr("Zoom")
         validator: RegExpValidator {
             regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
         }
-        Layout.columnSpan: 3
+        Layout.columnSpan: 2
         Layout.fillWidth: true
 
-        onTextChanged: Fire.zoom = text
+        onTextChanged: Fire.zoom = Number(text)
     }
 
     // Threshold.

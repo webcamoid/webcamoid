@@ -21,7 +21,12 @@ import QtQuick 2.7
 import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.3
 
-ColumnLayout {
+GridLayout {
+    columns: 2
+
+    Label {
+        text: qsTr("N° of frames")
+    }
     TextField {
         text: Warhol.nFrames
         placeholderText: qsTr("N° of frames")
@@ -30,6 +35,6 @@ ColumnLayout {
         }
         Layout.fillWidth: true
 
-        onTextChanged: Warhol.nFrames = text
+        onTextChanged: Warhol.nFrames = Number(text)
     }
 }

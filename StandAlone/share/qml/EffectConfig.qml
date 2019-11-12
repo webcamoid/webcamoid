@@ -77,12 +77,20 @@ ColumnLayout {
         }
     }
 
+    Label {
+        text: qsTr("Description")
+        font.bold: true
+    }
     TextField {
         id: txtDescription
         text: VideoEffects.effectDescription(recEffectConfig.curEffect)
         placeholderText: qsTr("Description")
         readOnly: true
         Layout.fillWidth: true
+    }
+    Label {
+        text: qsTr("Plugin ID")
+        font.bold: true
     }
     TextField {
         id: txtEffect

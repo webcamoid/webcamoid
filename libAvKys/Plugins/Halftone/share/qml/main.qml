@@ -146,16 +146,21 @@ GridLayout {
         }
     }
 
+    Label {
+        text: qsTr("Pattern size")
+    }
     TextField {
         text: Halftone.patternSize.width + "x" + Halftone.patternSize.height
         placeholderText: qsTr("Pattern size")
         validator: RegExpValidator {
             regExp: /-?\d+x-?\d+/
         }
-        Layout.columnSpan: 2
         Layout.fillWidth: true
 
         onTextChanged: Halftone.patternSize = strToSize(text)
+    }
+    Label {
+        text: qsTr("Lightness")
     }
     TextField {
         text: Halftone.lightness
@@ -163,10 +168,12 @@ GridLayout {
         validator: RegExpValidator {
             regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
         }
-        Layout.columnSpan: 2
         Layout.fillWidth: true
 
-        onTextChanged: Halftone.lightness = text
+        onTextChanged: Halftone.lightness = Number(text)
+    }
+    Label {
+        text: qsTr("Slope")
     }
     TextField {
         text: Halftone.slope
@@ -174,10 +181,12 @@ GridLayout {
         validator: RegExpValidator {
             regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
         }
-        Layout.columnSpan: 2
         Layout.fillWidth: true
 
-        onTextChanged: Halftone.slope = text
+        onTextChanged: Halftone.slope = Number(text)
+    }
+    Label {
+        text: qsTr("Intercept")
     }
     TextField {
         text: Halftone.intercept
@@ -185,10 +194,9 @@ GridLayout {
         validator: RegExpValidator {
             regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
         }
-        Layout.columnSpan: 2
         Layout.fillWidth: true
 
-        onTextChanged: Halftone.intercept = text
+        onTextChanged: Halftone.intercept = Number(text)
     }
 
     FileDialog {

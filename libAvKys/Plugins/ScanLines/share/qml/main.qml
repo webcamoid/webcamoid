@@ -50,16 +50,21 @@ GridLayout {
         return Qt.rgba(1.0 - color.r, 1.0 - color.g, 1.0 - color.b, 1)
     }
 
+    Label {
+        text: qsTr("Show lines")
+    }
     TextField {
         text: ScanLines.showSize
         placeholderText: qsTr("Show lines")
         validator: RegExpValidator {
             regExp: /\d+/
         }
-        Layout.columnSpan: 2
         Layout.fillWidth: true
 
-        onTextChanged: ScanLines.showSize = text
+        onTextChanged: ScanLines.showSize = Number(text)
+    }
+    Label {
+        text: qsTr("Hide lines")
     }
     TextField {
         text: ScanLines.hideSize
@@ -67,10 +72,9 @@ GridLayout {
         validator: RegExpValidator {
             regExp: /\d+/
         }
-        Layout.columnSpan: 2
         Layout.fillWidth: true
 
-        onTextChanged: ScanLines.hideSize = text
+        onTextChanged: ScanLines.hideSize = Number(text)
     }
     Label {
         text: qsTr("Hide color")

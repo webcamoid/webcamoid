@@ -23,11 +23,8 @@ import QtQuick.Layouts 1.3
 import AkQml 1.0
 import AkQmlControls 1.0
 
-Item {
-    id: recAudioConfig
-    clip: true
-    width: 200
-    height: 400
+GridLayout {
+    columns: 2
 
     property string iDevice: ""
     property string iDescription: ""
@@ -187,173 +184,178 @@ Item {
         onAudioOutputChanged: updateOutputInfo()
     }
 
-    GridLayout {
-        anchors.fill: parent
-        columns: 2
+    Label {
+        text: qsTr("Description")
+        font.bold: true
+        Layout.columnSpan: 2
+    }
+    TextField {
+        id: txtODescription
+        text: oDescription
+        placeholderText: qsTr("Device description")
+        readOnly: true
+        Layout.columnSpan: 2
+        Layout.fillWidth: true
+    }
+    TextField {
+        id: txtIDescription
+        text: iDescription
+        placeholderText: qsTr("Device description")
+        readOnly: true
+        Layout.columnSpan: 2
+        Layout.fillWidth: true
+        visible: false
+    }
+    Label {
+        text: qsTr("Device ID")
+        font.bold: true
+        Layout.columnSpan: 2
+    }
+    TextField {
+        id: txtODevice
+        text: AudioLayer.audioOutput
+        placeholderText: qsTr("Device ID")
+        readOnly: true
+        Layout.columnSpan: 2
+        Layout.fillWidth: true
+    }
+    TextField {
+        id: txtIDevice
+        text: AudioLayer.audioInput
+        placeholderText: qsTr("Device ID")
+        readOnly: true
+        Layout.columnSpan: 2
+        Layout.fillWidth: true
+        visible: false
+    }
 
-        TextField {
-            id: txtODescription
-            text: oDescription
-            placeholderText: qsTr("Description")
-            readOnly: true
-            Layout.columnSpan: 2
+    Label {
+        text: qsTr("Sample Format")
+    }
+    ColumnLayout {
+        ComboBox {
+            id: cbxOSampleFormats
+            model: ListModel {
+                id: oSampleFormats
+            }
+            textRole: "description"
             Layout.fillWidth: true
+
+            onCurrentIndexChanged: updateCaps(false)
         }
-        TextField {
-            id: txtIDescription
-            text: iDescription
-            placeholderText: qsTr("Description")
-            readOnly: true
-            Layout.columnSpan: 2
+        ComboBox {
+            id: cbxISampleFormats
+            model: ListModel {
+                id: iSampleFormats
+            }
+            textRole: "description"
             Layout.fillWidth: true
             visible: false
+
+            onCurrentIndexChanged: updateCaps(true)
         }
-        TextField {
-            id: txtODevice
-            text: AudioLayer.audioOutput
-            placeholderText: qsTr("Device ID")
-            readOnly: true
-            Layout.columnSpan: 2
+    }
+    Label {
+        text: qsTr("Channels")
+    }
+    ColumnLayout {
+        ComboBox {
+            id: cbxOChannelLayouts
+            model: ListModel {
+                id: oChannelLayouts
+            }
+            textRole: "description"
             Layout.fillWidth: true
+
+            onCurrentIndexChanged: updateCaps(false)
         }
-        TextField {
-            id: txtIDevice
-            text: AudioLayer.audioInput
-            placeholderText: qsTr("Device ID")
-            readOnly: true
-            Layout.columnSpan: 2
+        ComboBox {
+            id: cbxIChannelLayouts
+            model: ListModel {
+                id: iChannelLayouts
+            }
+            textRole: "description"
             Layout.fillWidth: true
             visible: false
+
+            onCurrentIndexChanged: updateCaps(true)
         }
+    }
+    Label {
+        text: qsTr("Sample Rate")
+    }
+    ColumnLayout {
+        ComboBox {
+            id: cbxOSampleRates
+            model: ListModel {
+                id: oSampleRates
+            }
+            textRole: "description"
+            Layout.fillWidth: true
 
-        Label {
-            text: qsTr("Sample Format")
+            onCurrentIndexChanged: updateCaps(false)
         }
-        ColumnLayout {
-            ComboBox {
-                id: cbxOSampleFormats
-                model: ListModel {
-                    id: oSampleFormats
-                }
-                textRole: "description"
-                Layout.fillWidth: true
-
-                onCurrentIndexChanged: updateCaps(false)
+        ComboBox {
+            id: cbxISampleRates
+            model: ListModel {
+                id: iSampleRates
             }
-            ComboBox {
-                id: cbxISampleFormats
-                model: ListModel {
-                    id: iSampleFormats
-                }
-                textRole: "description"
-                Layout.fillWidth: true
-                visible: false
+            textRole: "description"
+            Layout.fillWidth: true
+            visible: false
 
-                onCurrentIndexChanged: updateCaps(true)
-            }
+            onCurrentIndexChanged: updateCaps(true)
         }
-        Label {
-            text: qsTr("Channels")
+    }
+    Label {
+        text: qsTr("Latency (ms)")
+    }
+    RowLayout {
+        Slider {
+            id: sldOLatency
+            value: AudioLayer.outputLatency
+            stepSize: 1
+            from: 1
+            to: 2048
+            Layout.fillWidth: true
+            visible: true
+
+            onValueChanged: AudioLayer.outputLatency = value
         }
-        ColumnLayout {
-            ComboBox {
-                id: cbxOChannelLayouts
-                model: ListModel {
-                    id: oChannelLayouts
-                }
-                textRole: "description"
-                Layout.fillWidth: true
+        SpinBox {
+            id: spbOLatency
+            value: AudioLayer.outputLatency
+            from: sldOLatency.from
+            to: sldOLatency.to
+            stepSize: sldOLatency.stepSize
+            visible: true
 
-                onCurrentIndexChanged: updateCaps(false)
-            }
-            ComboBox {
-                id: cbxIChannelLayouts
-                model: ListModel {
-                    id: iChannelLayouts
-                }
-                textRole: "description"
-                Layout.fillWidth: true
-                visible: false
-
-                onCurrentIndexChanged: updateCaps(true)
-            }
+            onValueChanged: AudioLayer.outputLatency = value
         }
-        Label {
-            text: qsTr("Sample Rate")
+        Slider {
+            id: sldILatency
+            value: AudioLayer.inputLatency
+            stepSize: 1
+            from: 1
+            to: 2048
+            Layout.fillWidth: true
+            visible: false
+
+            onValueChanged: AudioLayer.inputLatency = value
         }
-        ColumnLayout {
-            ComboBox {
-                id: cbxOSampleRates
-                model: ListModel {
-                    id: oSampleRates
-                }
-                textRole: "description"
-                Layout.fillWidth: true
+        SpinBox {
+            id: spbILatency
+            value: AudioLayer.inputLatency
+            from: sldILatency.from
+            to: sldILatency.to
+            stepSize: sldILatency.stepSize
+            visible: false
 
-                onCurrentIndexChanged: updateCaps(false)
-            }
-            ComboBox {
-                id: cbxISampleRates
-                model: ListModel {
-                    id: iSampleRates
-                }
-                textRole: "description"
-                Layout.fillWidth: true
-                visible: false
-
-                onCurrentIndexChanged: updateCaps(true)
-            }
+            onValueChanged: AudioLayer.inputLatency = value
         }
-        Label {
-            text: qsTr("Latency (ms)")
-        }
-        RowLayout {
-            Slider {
-                id: sldOLatency
-                value: AudioLayer.outputLatency
-                stepSize: 1
-                from: 1
-                to: 2048
-                Layout.fillWidth: true
-                visible: true
-
-                onValueChanged: AudioLayer.outputLatency = value
-            }
-            SpinBox {
-                id: spbOLatency
-                value: AudioLayer.outputLatency
-                from: sldOLatency.from
-                to: sldOLatency.to
-                stepSize: sldOLatency.stepSize
-                visible: true
-
-                onValueChanged: AudioLayer.outputLatency = value
-            }
-            Slider {
-                id: sldILatency
-                value: AudioLayer.inputLatency
-                stepSize: 1
-                from: 1
-                to: 2048
-                Layout.fillWidth: true
-                visible: false
-
-                onValueChanged: AudioLayer.inputLatency = value
-            }
-            SpinBox {
-                id: spbILatency
-                value: AudioLayer.inputLatency
-                from: sldILatency.from
-                to: sldILatency.to
-                stepSize: sldILatency.stepSize
-                visible: false
-
-                onValueChanged: AudioLayer.inputLatency = value
-            }
-        }
-        Label {
-            Layout.fillHeight: true
-        }
+    }
+    Label {
+        Layout.fillHeight: true
     }
 
     states: [

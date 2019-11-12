@@ -21,7 +21,12 @@ import QtQuick 2.7
 import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.3
 
-ColumnLayout {
+GridLayout {
+    columns: 2
+
+    Label {
+        text: qsTr("Brightness")
+    }
     TextField {
         text: Photocopy.brightness
         placeholderText: qsTr("Brightness")
@@ -30,7 +35,10 @@ ColumnLayout {
         }
         Layout.fillWidth: true
 
-        onTextChanged: Photocopy.brightness = text
+        onTextChanged: Photocopy.brightness = Number(text)
+    }
+    Label {
+        text: qsTr("Contrast")
     }
     TextField {
         text: Photocopy.contrast
@@ -40,6 +48,6 @@ ColumnLayout {
         }
         Layout.fillWidth: true
 
-        onTextChanged: Photocopy.contrast = text
+        onTextChanged: Photocopy.contrast = Number(text)
     }
 }

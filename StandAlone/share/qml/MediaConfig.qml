@@ -47,11 +47,19 @@ ColumnLayout {
         onInterfaceLoaded: showControls(MediaSource.stream)
     }
 
+    Label {
+        text: qsTr("Description")
+        font.bold: true
+    }
     TextField {
         id: txtDescription
         placeholderText: qsTr("Description")
         readOnly: true
         Layout.fillWidth: true
+    }
+    Label {
+        text: qsTr("Media ID")
+        font.bold: true
     }
     TextField {
         id: txtMedia

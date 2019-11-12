@@ -56,17 +56,29 @@ ApplicationWindow {
         anchors.topMargin: 8
         anchors.fill: parent
 
+        Label {
+            id: lblDescription
+            text: qsTr("Description")
+            font.bold: true
+            Layout.fillWidth: true
+        }
         TextField {
             id: txtDescription
-            placeholderText: qsTr("Description")
+            placeholderText: qsTr("Insert a media description")
             text: recAddMedia.editMode? MediaSource.description(MediaSource.stream): ""
             Layout.fillWidth: true
         }
 
+        Label {
+            id: lblMedia
+            text: qsTr("Media file")
+            font.bold: true
+            Layout.fillWidth: true
+        }
         RowLayout {
             TextField {
                 id: txtMedia
-                placeholderText: qsTr("Media file")
+                placeholderText: qsTr("Select a media file")
                 text: recAddMedia.editMode? MediaSource.stream: ""
                 Layout.fillWidth: true
             }
