@@ -68,8 +68,8 @@ T.Button {
             text: button.text
             font: button.font
             color: button.highlighted?
-                       ThemeSettings.colorText:
-                       Qt.lighter(ThemeSettings.colorPrimary, 1.5)
+                       ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
+                       ThemeSettings.colorPrimary
         }
     }
     background: Item {
@@ -95,7 +95,7 @@ T.Button {
             verticalOffset: button.radius / 2
             radius: button.radius
             samples: 2 * radius + 1
-            color: Qt.lighter(ThemeSettings.colorBack, 0.01)
+            color: ThemeSettings.constShade(ThemeSettings.colorBack, -0.9)
             source: buttonShadowRect
             visible: button.highlighted && button.enabled
         }
@@ -133,9 +133,13 @@ T.Button {
                 anchors.horizontalCenter: buttonPressIndicatorItem.horizontalCenter
                 width: 2 * radius
                 height: 2 * radius
-                color: ThemeSettings.lighterAlpha(ThemeSettings.colorPrimary,
-                                                  1.5,
-                                                  0.3)
+                color: button.highlighted?
+                           ThemeSettings.constShade(ThemeSettings.colorPrimary,
+                                                    0.3,
+                                                    0.3):
+                           ThemeSettings.constShade(ThemeSettings.colorPrimary,
+                                                    0.1,
+                                                    0.3)
                 opacity: 0
             }
         }
@@ -147,7 +151,7 @@ T.Button {
             radius: button.radius
             border.color: button.highlighted || button.flat?
                               Qt.hsla(0, 0, 0, 0):
-                              ThemeSettings.colorBack
+                              ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
             border.width: Ak.newUnit(1 * ThemeSettings.constrolScale,
                                      "dp").pixels
             color: button.highlighted?
@@ -160,8 +164,9 @@ T.Button {
             id: buttonCheckableIndicator
             height: button.radius
             color: button.checked?
-                       Qt.lighter(ThemeSettings.colorPrimary, 1.5):
-                       Qt.lighter(ThemeSettings.colorPrimary, 0.5)
+                       ThemeSettings.colorPrimary:
+                       ThemeSettings.constShade(ThemeSettings.colorPrimary,
+                                                -0.3)
             anchors.right: back.right
             anchors.bottom: back.bottom
             anchors.left: back.left
@@ -181,11 +186,11 @@ T.Button {
 
             PropertyChanges {
                 target: iconLabel
-                color: ThemeSettings.colorBack
+                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
             }
             PropertyChanges {
                 target: buttonCheckableIndicator
-                color: Qt.lighter(ThemeSettings.colorBack, 0.3)
+                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
             }
         },
         State {
@@ -199,9 +204,9 @@ T.Button {
 
             PropertyChanges {
                 target: buttonRectangle
-                color: ThemeSettings.lighterAlpha(ThemeSettings.colorPrimary,
-                                                  1.5,
-                                                  0.2)
+                color: ThemeSettings.constShade(ThemeSettings.colorPrimary,
+                                                0.1,
+                                                0.2)
             }
         },
         State {
@@ -214,9 +219,9 @@ T.Button {
 
             PropertyChanges {
                 target: buttonRectangle
-                color: ThemeSettings.lighterAlpha(ThemeSettings.colorPrimary,
-                                                  1.5,
-                                                  0.3)
+                color: ThemeSettings.constShade(ThemeSettings.colorPrimary,
+                                                0.1,
+                                                0.3)
             }
         },
         State {
@@ -247,11 +252,11 @@ T.Button {
             }
             PropertyChanges {
                 target: iconLabel
-                color: ThemeSettings.colorBack
+                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
             }
             PropertyChanges {
                 target: buttonCheckableIndicator
-                color: Qt.lighter(ThemeSettings.colorBack, 0.3)
+                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
             }
         },
         State {
@@ -265,9 +270,9 @@ T.Button {
 
             PropertyChanges {
                 target: buttonRectangle
-                color: ThemeSettings.lighterAlpha(ThemeSettings.colorPrimary,
-                                                  1.5,
-                                                  0.2)
+                color: ThemeSettings.constShade(ThemeSettings.colorPrimary,
+                                                0.1,
+                                                0.2)
                 border.color: Qt.hsla(0, 0, 0, 0)
             }
         },
@@ -281,9 +286,9 @@ T.Button {
 
             PropertyChanges {
                 target: buttonRectangle
-                color: ThemeSettings.lighterAlpha(ThemeSettings.colorPrimary,
-                                                  1.5,
-                                                  0.3)
+                color: ThemeSettings.constShade(ThemeSettings.colorPrimary,
+                                                0.1,
+                                                0.3)
                 border.color: Qt.hsla(0, 0, 0, 0)
             }
         },
@@ -315,16 +320,16 @@ T.Button {
             PropertyChanges {
                 target: buttonRectangle
                 border.color: Qt.hsla(0, 0, 0, 0)
-                color: ThemeSettings.colorBack
+                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
 
             }
             PropertyChanges {
                 target: iconLabel
-                color: Qt.lighter(ThemeSettings.colorBack, 0.3)
+                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.3)
             }
             PropertyChanges {
                 target: buttonCheckableIndicator
-                color: Qt.lighter(ThemeSettings.colorBack, 0.3)
+                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
             }
         },
         State {
@@ -338,12 +343,8 @@ T.Button {
             PropertyChanges {
                 target: buttonRectangle
                 border.color: Qt.hsla(0, 0, 0, 0)
-                color: Qt.lighter(ThemeSettings.colorPrimary, 1.2)
+                color: ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.1)
 
-            }
-            PropertyChanges {
-                target: iconLabel
-                color: ThemeSettings.colorText
             }
         },
         State {
@@ -356,12 +357,8 @@ T.Button {
             PropertyChanges {
                 target: buttonRectangle
                 border.color: Qt.hsla(0, 0, 0, 0)
-                color: Qt.lighter(ThemeSettings.colorPrimary, 1.5)
+                color: ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.2)
 
-            }
-            PropertyChanges {
-                target: iconLabel
-                color: ThemeSettings.colorText
             }
         },
         State {
@@ -382,10 +379,6 @@ T.Button {
             PropertyChanges {
                 target: buttonRectangleBelow
                 visible: true
-            }
-            PropertyChanges {
-                target: iconLabel
-                color: ThemeSettings.colorText
             }
             PropertyChanges {
                 target: buttonShadow

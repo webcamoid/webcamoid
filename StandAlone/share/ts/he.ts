@@ -382,27 +382,27 @@
 <context>
     <name>PhotoWidget</name>
     <message>
-        <location filename="../qml/PhotoWidget.qml" line="35"/>
+        <location filename="../qml/PhotoWidget.qml" line="37"/>
         <source>%1 seconds</source>
         <translation>%1 שניות</translation>
     </message>
     <message>
-        <location filename="../qml/PhotoWidget.qml" line="56"/>
+        <location filename="../qml/PhotoWidget.qml" line="69"/>
         <source>Now</source>
         <translation>עכשיו</translation>
     </message>
     <message>
-        <location filename="../qml/PhotoWidget.qml" line="80"/>
+        <location filename="../qml/PhotoWidget.qml" line="93"/>
         <source>Cancel</source>
         <translation>ביטול</translation>
     </message>
     <message>
-        <location filename="../qml/PhotoWidget.qml" line="80"/>
+        <location filename="../qml/PhotoWidget.qml" line="93"/>
         <source>Shot!</source>
         <translation>צילום!</translation>
     </message>
     <message>
-        <location filename="../qml/PhotoWidget.qml" line="107"/>
+        <location filename="../qml/PhotoWidget.qml" line="120"/>
         <source>Use flash</source>
         <translation>עם מבזק</translation>
     </message>

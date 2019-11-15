@@ -21,19 +21,50 @@ pragma Singleton
 
 import QtQuick 2.0
 
-QtObject {
+Item {
     // Palette
-    readonly property color colorPrimary:   Qt.hsla(0.71, 0.5, 0.5, 1)
-    readonly property color colorSecondary: Qt.hsla(0.42,   1, 0.5, 1)
-    readonly property color colorBack:      Qt.hsla(   0,   0, 0.5, 1)
-    readonly property color colorText:      Qt.hsla(   0,   0,   1, 1)
+    readonly property color colorPrimary: palette.highlight
+    readonly property color colorSecondary: complementary(colorPrimary)
+    readonly property color colorBack: palette.window
+    readonly property color colorText: palette.windowText
+    readonly property bool darkScheme:
+        colorText.hslLightness > colorBack.hslLightness
 
     readonly property real constrolScale: 1.75
 
-    function lighterAlpha(color, lightness, alpha)
+    function contrast(color, value=0.5)
     {
-        let c = Qt.lighter(color, lightness)
+        let lightness = (11 * color.r + 16 * color.g + 5 * color.b) / 32;
 
-        return Qt.rgba(c.r, c.g, c.b, alpha)
+        if (lightness < value)
+            return Qt.hsla(0, 0, 1, 1)
+
+        return Qt.hsla(0, 0, 0, 1)
+    }
+
+    function complementary(color)
+    {
+        return Qt.rgba(1 - color.r, 1 - color.g, 1 - color.b, color.a)
+    }
+
+    function constShade(color, value, alpha=1)
+    {
+        let lightness = Math.min(Math.max(0, color.hslLightness + value), 1)
+
+        return Qt.hsla(color.hslHue, color.hslSaturation, lightness, alpha)
+    }
+
+    function shade(color, value, alpha=1)
+    {
+        if (darkScheme)
+            value = -value
+
+        let lightness = Math.min(Math.max(0, color.hslLightness + value), 1)
+
+        return Qt.hsla(color.hslHue, color.hslSaturation, lightness, alpha)
+    }
+
+    SystemPalette {
+        id: palette
     }
 }

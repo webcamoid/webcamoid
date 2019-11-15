@@ -95,8 +95,7 @@ T.ToolButton {
         implicitWidth:
             iconLabel.implicitWidth
             + (button.display == AbstractButton.IconOnly?
-               0:
-               Ak.newUnit(18 * ThemeSettings.constrolScale, "dp").pixels)
+               0: Ak.newUnit(18 * ThemeSettings.constrolScale, "dp").pixels)
         implicitHeight: iconLabel.implicitHeight
 
         IconLabel {
@@ -110,7 +109,9 @@ T.ToolButton {
             icon: button.icon
             text: button.text
             font: button.font
-            color: ThemeSettings.colorText
+            color: button.highlighted?
+                       ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
+                       ThemeSettings.contrast(ThemeSettings.colorBack)
         }
     }
     background: Item {
@@ -123,8 +124,7 @@ T.ToolButton {
             anchors.bottom: parent.bottom
             anchors.bottomMargin:
                 button.highlighted?
-                    0:
-                    Ak.newUnit(1 * ThemeSettings.constrolScale, "dp").pixels
+                    0: Ak.newUnit(1 * ThemeSettings.constrolScale, "dp").pixels
             anchors.left: parent.left
             anchors.leftMargin: anchors.bottomMargin
             anchors.right: parent.right
@@ -148,7 +148,7 @@ T.ToolButton {
                 verticalOffset: button.radius / 2
                 radius: button.radius
                 samples: 2 * radius + 1
-                color: Qt.lighter(ThemeSettings.colorBack, 0.01)
+                color: ThemeSettings.constShade(ThemeSettings.colorBack, -0.9)
                 source: buttonShadowRect
                 visible: button.highlighted && button.enabled
             }
@@ -162,7 +162,7 @@ T.ToolButton {
                             0
                 color: button.highlighted?
                            ThemeSettings.colorPrimary:
-                           Qt.lighter(ThemeSettings.colorBack, 0.4)
+                           ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
                 visible: !button.highlighted
             }
 
@@ -176,7 +176,7 @@ T.ToolButton {
                 anchors.rightMargin: anchors.bottomMargin
                 anchors.topMargin: anchors.bottomMargin
                 radius: height / 2
-                color: Qt.lighter(ThemeSettings.colorBack, 0.6)
+                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.3)
                 visible: false
             }
 
@@ -209,10 +209,10 @@ T.ToolButton {
                     width: 2 * radius
                     height: 2 * radius
                     color: button.highlighted?
-                               ThemeSettings.lighterAlpha(ThemeSettings.colorPrimary,
-                                                          1.5,
-                                                          0.3):
-                               Qt.lighter(ThemeSettings.colorBack, 0.8)
+                               ThemeSettings.constShade(ThemeSettings.colorPrimary,
+                                                        1.5,
+                                                        0.3):
+                               ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
                     opacity: 0
                 }
             }
@@ -258,7 +258,7 @@ T.ToolButton {
 
             PropertyChanges {
                 target: buttonRectangleBelow
-                color: Qt.lighter(ThemeSettings.colorBack, 0.5)
+                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.3)
             }
         },
         State {
@@ -286,7 +286,7 @@ T.ToolButton {
 
             PropertyChanges {
                 target: buttonRectangleBelow
-                color: Qt.lighter(ThemeSettings.colorBack, 0.5)
+                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.3)
             }
             PropertyChanges {
                 target: buttonCheckIndicatorBelow
@@ -302,7 +302,7 @@ T.ToolButton {
 
             PropertyChanges {
                 target: buttonRectangleBelow
-                color: Qt.lighter(ThemeSettings.colorBack, 0.5)
+                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.3)
             }
         },
         State {
@@ -348,11 +348,11 @@ T.ToolButton {
             PropertyChanges {
                 target: buttonRectangle
                 border.color: Qt.hsla(0, 0, 0, 0)
-                color: ThemeSettings.colorBack
+                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
             }
             PropertyChanges {
                 target: iconLabel
-                color: Qt.lighter(ThemeSettings.colorBack, 0.3)
+                color: Qt.lighter(ThemeSettings.colorBack, -0.3)
             }
         },
         State {
@@ -367,7 +367,7 @@ T.ToolButton {
             PropertyChanges {
                 target: buttonRectangle
                 border.color: Qt.hsla(0, 0, 0, 0)
-                color: Qt.lighter(ThemeSettings.colorPrimary, 1.2)
+                color: ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.1)
             }
         },
         State {
@@ -382,7 +382,7 @@ T.ToolButton {
             PropertyChanges {
                 target: buttonRectangle
                 border.color: Qt.hsla(0, 0, 0, 0)
-                color: Qt.lighter(ThemeSettings.colorPrimary, 1.5)
+                color: ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.2)
             }
         },
         State {
@@ -397,7 +397,7 @@ T.ToolButton {
             PropertyChanges {
                 target: buttonRectangle
                 border.color: Qt.hsla(0, 0, 0, 0)
-                color: Qt.lighter(ThemeSettings.colorPrimary, 1.5)
+                color: ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.2)
             }
         },
         State {
@@ -410,7 +410,7 @@ T.ToolButton {
             PropertyChanges {
                 target: buttonRectangle
                 border.color: Qt.hsla(0, 0, 0, 0)
-                color: Qt.lighter(ThemeSettings.colorPrimary, 1.5)
+                color: ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.2)
             }
         },
         State {
@@ -431,10 +431,6 @@ T.ToolButton {
             PropertyChanges {
                 target: buttonRectangleBelow
                 visible: true
-            }
-            PropertyChanges {
-                target: iconLabel
-                color: ThemeSettings.colorText
             }
             PropertyChanges {
                 target: buttonShadow

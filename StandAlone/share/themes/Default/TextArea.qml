@@ -28,10 +28,9 @@ import AkQml 1.0
 T.TextArea {
     id: textArea
     color: ThemeSettings.colorText
-    placeholderTextColor: ThemeSettings.colorBack
+    placeholderTextColor: ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
     selectedTextColor: ThemeSettings.colorText
-    selectionColor: Qt.lighter(ThemeSettings.colorSecondary,
-                               0.65)
+    selectionColor: ThemeSettings.colorSecondary
     padding: Ak.newUnit(12 * ThemeSettings.constrolScale, "dp").pixels
     implicitWidth: Math.max(contentWidth + leftPadding + rightPadding,
                             implicitBackgroundWidth + leftInset + rightInset,
@@ -64,6 +63,6 @@ T.TextArea {
     }
 
     background: Rectangle {
-        color: Qt.lighter(ThemeSettings.colorBack, 0.3)
+        color: ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
     }
 }

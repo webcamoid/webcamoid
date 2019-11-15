@@ -28,10 +28,9 @@ import AkQml 1.0
 T.TextField {
     id: textField
     color: ThemeSettings.colorText
-    placeholderTextColor: ThemeSettings.colorBack
+    placeholderTextColor: ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
     selectedTextColor: ThemeSettings.colorText
-    selectionColor: Qt.lighter(ThemeSettings.colorSecondary,
-                               0.65)
+    selectionColor: ThemeSettings.colorSecondary
     padding: Ak.newUnit(12 * ThemeSettings.constrolScale, "dp").pixels
     implicitWidth: Math.max(contentWidth + leftPadding + rightPadding,
                             implicitBackgroundWidth + leftInset + rightInset,
@@ -70,7 +69,7 @@ T.TextField {
     background: Rectangle {
         id: textAreaBackground
         color: Qt.hsla(0, 0, 0, 0)
-        border.color: ThemeSettings.colorBack
+        border.color: ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
         border.width: Ak.newUnit(1 * ThemeSettings.constrolScale, "dp").pixels
         radius: Ak.newUnit(8 * ThemeSettings.constrolScale, "dp").pixels
         anchors.fill: parent
@@ -97,7 +96,7 @@ T.TextField {
 
             PropertyChanges {
                 target: textAreaBackground
-                border.color: Qt.lighter(ThemeSettings.colorBack, 1.5)
+                border.color: ThemeSettings.shade(ThemeSettings.colorBack, -0.7)
             }
         },
         State {

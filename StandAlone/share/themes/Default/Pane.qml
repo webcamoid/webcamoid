@@ -30,6 +30,9 @@ T.Pane {
     padding: 0
 
     background: Rectangle {
-        color: Qt.lighter(ThemeSettings.colorBack, 0.2)
+        color: Qt.hsla(ThemeSettings.colorBack.hslHue,
+                       ThemeSettings.colorBack.hslSaturation,
+                       ThemeSettings.colorBack.hslLightness,
+                       0.9)
     }
 }

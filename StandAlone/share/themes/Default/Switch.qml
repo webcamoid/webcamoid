@@ -29,7 +29,10 @@ T.Switch {
     id: control
     opacity: enabled? 1: 0.5
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
-                            implicitContentWidth + implicitIndicatorWidth + leftPadding + rightPadding)
+                            implicitContentWidth
+                            + implicitIndicatorWidth
+                            + leftPadding
+                            + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              implicitContentHeight + topPadding + bottomPadding,
                              implicitIndicatorHeight + topPadding + bottomPadding)
@@ -49,7 +52,7 @@ T.Switch {
         Rectangle {
             id: switchTrack
             height: parent.height / 2
-            color: Qt.lighter(ThemeSettings.colorBack, 0.75)
+            color: ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
             radius: height / 2
             anchors.verticalCenter: sliderIndicator.verticalCenter
             anchors.right: sliderIndicator.right
@@ -73,7 +76,7 @@ T.Switch {
             }
             Rectangle {
                 id: shadowRect
-                color: Qt.lighter(ThemeSettings.colorBack, 1.5)
+                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
                 radius: height / 2
                 anchors.fill: parent
                 visible: false
@@ -83,16 +86,15 @@ T.Switch {
                 cached: true
                 horizontalOffset: radius / 2
                 verticalOffset: radius / 2
-                radius: Ak.newUnit(1
-                                   * ThemeSettings.constrolScale, "dp").pixels
+                radius: Ak.newUnit(1 * ThemeSettings.constrolScale, "dp").pixels
                 samples: 2 * radius + 1
-                color: Qt.lighter(ThemeSettings.colorBack, 0.1)
+                color: ThemeSettings.constShade(ThemeSettings.colorBack, -0.9)
                 source: shadowRect
                 visible: !control.flat
             }
             Rectangle {
                 id: switchThumbRect
-                color: Qt.lighter(ThemeSettings.colorBack, 1.5)
+                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
                 radius: height / 2
                 anchors.fill: parent
             }
@@ -132,11 +134,11 @@ T.Switch {
 
             PropertyChanges {
                 target: switchTrack
-                color: Qt.lighter(ThemeSettings.colorPrimary, 1.5)
+                color: ThemeSettings.colorPrimary
             }
             PropertyChanges {
                 target: switchThumbRect
-                color: Qt.lighter(ThemeSettings.colorPrimary, 1.0)
+                color: ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.2)
             }
             PropertyChanges {
                 target: switchThumb
@@ -149,6 +151,14 @@ T.Switch {
                   && control.hovered
                   && !control.pressed
 
+            PropertyChanges {
+                target: switchTrack
+                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.6)
+            }
+            PropertyChanges {
+                target: switchThumbRect
+                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.2)
+            }
             PropertyChanges {
                 target: highlight
                 width: 2 * switchThumb.width
@@ -163,11 +173,11 @@ T.Switch {
 
             PropertyChanges {
                 target: switchTrack
-                color: Qt.lighter(ThemeSettings.colorPrimary, 1.5)
+                color: ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.1)
             }
             PropertyChanges {
                 target: switchThumbRect
-                color: Qt.lighter(ThemeSettings.colorPrimary, 1.0)
+                color: ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.3)
             }
             PropertyChanges {
                 target: switchThumb
@@ -185,6 +195,14 @@ T.Switch {
                   && control.pressed
 
             PropertyChanges {
+                target: switchTrack
+                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.7)
+            }
+            PropertyChanges {
+                target: switchThumbRect
+                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.3)
+            }
+            PropertyChanges {
                 target: highlight
                 width: 2 * switchThumb.width
                 opacity: 0.75
@@ -197,11 +215,11 @@ T.Switch {
 
             PropertyChanges {
                 target: switchTrack
-                color: Qt.lighter(ThemeSettings.colorPrimary, 1.5)
+                color: ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.2)
             }
             PropertyChanges {
                 target: switchThumbRect
-                color: Qt.lighter(ThemeSettings.colorPrimary, 1.0)
+                color: ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.4)
             }
             PropertyChanges {
                 target: switchThumb

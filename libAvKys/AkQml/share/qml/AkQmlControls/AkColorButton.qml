@@ -38,19 +38,14 @@ Rectangle {
     property int modality: Qt.ApplicationModal
     property bool isOpen: false
 
-    function clamp(min, value, max)
-    {
-        var v = Math.min(max, Math.max(value, min));
-
-        return v < (min + max) / 2? min: max;
-    }
-
     function contrast(color)
     {
-        var gray = (11 * color.r + 16 * color.g + 5 * color.b) / 32;
-        gray = 1.0 - clamp(0.0, gray, 1.0);
+        let lightness = (11 * color.r + 16 * color.g + 5 * color.b) / 32;
 
-        return Qt.rgba(gray, gray, gray, 1);
+        if (lightness < 0.5)
+            return Qt.hsla(0, 0, 1, 1)
+
+        return Qt.hsla(0, 0, 0, 1)
     }
 
     SystemPalette {

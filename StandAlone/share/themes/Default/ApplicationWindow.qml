@@ -23,7 +23,7 @@ import QtQuick.Templates 2.0 as T
 
 T.ApplicationWindow {
     id: applicationWindow
-    color: Qt.lighter(ThemeSettings.colorBack, 0.2)
+    color: ThemeSettings.colorBack
 
     background: Rectangle {
         color: applicationWindow.color

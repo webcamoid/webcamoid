@@ -52,7 +52,7 @@ T.SwitchDelegate {
         Rectangle {
             id: switchTrack
             height: parent.height / 2
-            color: Qt.lighter(ThemeSettings.colorBack, 0.75)
+            color: ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
             radius: height / 2
             anchors.verticalCenter: parent.verticalCenter
             anchors.right: parent.right
@@ -76,7 +76,7 @@ T.SwitchDelegate {
             }
             Rectangle {
                 id: shadowRect
-                color: Qt.lighter(ThemeSettings.colorBack, 1.5)
+                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
                 radius: height / 2
                 anchors.fill: parent
                 visible: false
@@ -89,13 +89,13 @@ T.SwitchDelegate {
                 radius: Ak.newUnit(1
                                    * ThemeSettings.constrolScale, "dp").pixels
                 samples: 2 * radius + 1
-                color: Qt.lighter(ThemeSettings.colorBack, 0.2)
+                color: ThemeSettings.constShade(ThemeSettings.colorBack, -0.9)
                 source: shadowRect
                 visible: !control.flat
             }
             Rectangle {
                 id: switchThumbRect
-                color: Qt.lighter(ThemeSettings.colorBack, 1.5)
+                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
                 radius: height / 2
                 anchors.fill: parent
             }
@@ -133,11 +133,11 @@ T.SwitchDelegate {
 
             PropertyChanges {
                 target: switchTrack
-                color: Qt.lighter(ThemeSettings.colorPrimary, 1.5)
+                color: ThemeSettings.colorPrimary
             }
             PropertyChanges {
                 target: switchThumbRect
-                color: Qt.lighter(ThemeSettings.colorPrimary, 1.0)
+                color: ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.2)
             }
             PropertyChanges {
                 target: switchThumb
@@ -150,6 +150,14 @@ T.SwitchDelegate {
                   && control.hovered
                   && !control.pressed
 
+            PropertyChanges {
+                target: switchTrack
+                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.6)
+            }
+            PropertyChanges {
+                target: switchThumbRect
+                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.2)
+            }
             PropertyChanges {
                 target: highlight
                 width: 2 * switchThumb.width
@@ -164,11 +172,11 @@ T.SwitchDelegate {
 
             PropertyChanges {
                 target: switchTrack
-                color: Qt.lighter(ThemeSettings.colorPrimary, 1.5)
+                color: ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.1)
             }
             PropertyChanges {
                 target: switchThumbRect
-                color: Qt.lighter(ThemeSettings.colorPrimary, 1.0)
+                color: ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.3)
             }
             PropertyChanges {
                 target: switchThumb
@@ -186,6 +194,14 @@ T.SwitchDelegate {
                   && control.pressed
 
             PropertyChanges {
+                target: switchTrack
+                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.7)
+            }
+            PropertyChanges {
+                target: switchThumbRect
+                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.3)
+            }
+            PropertyChanges {
                 target: highlight
                 width: 2 * switchThumb.width
                 opacity: 0.75
@@ -198,11 +214,11 @@ T.SwitchDelegate {
 
             PropertyChanges {
                 target: switchTrack
-                color: Qt.lighter(ThemeSettings.colorPrimary, 1.5)
+                color: ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.2)
             }
             PropertyChanges {
                 target: switchThumbRect
-                color: Qt.lighter(ThemeSettings.colorPrimary, 1.0)
+                color: ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.4)
             }
             PropertyChanges {
                 target: switchThumb
