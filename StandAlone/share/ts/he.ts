@@ -74,7 +74,7 @@
     <message>
         <location filename="../qml/AddMedia.qml" line="67"/>
         <source>Insert a media description</source>
-        <translation type="unfinished"></translation>
+        <translation>הוספת תיאור מדיה</translation>
     </message>
     <message>
         <location filename="../qml/AddMedia.qml" line="74"/>
@@ -84,7 +84,7 @@
     <message>
         <location filename="../qml/AddMedia.qml" line="81"/>
         <source>Select a media file</source>
-        <translation type="unfinished"></translation>
+        <translation>בחירת קובץ מדיה</translation>
     </message>
     <message>
         <location filename="../qml/AddMedia.qml" line="88"/>
@@ -147,7 +147,7 @@
         <location filename="../qml/AudioInfo.qml" line="195"/>
         <location filename="../qml/AudioInfo.qml" line="203"/>
         <source>Device description</source>
-        <translation type="unfinished"></translation>
+        <translation>תיאור המכשיר</translation>
     </message>
     <message>
         <location filename="../qml/AudioInfo.qml" line="210"/>
@@ -605,7 +605,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/StreamOptions.qml" line="84"/>
         <source>Bitrate</source>
-        <translation type="unfinished"></translation>
+        <translation>קצב סיביות</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/StreamOptions.qml" line="90"/>
@@ -1625,7 +1625,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="514"/>
         <source>Replace face with this picture</source>
-        <translation type="unfinished"></translation>
+        <translation>החלפת הפנים בתמונה זו</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="542"/>
@@ -2096,12 +2096,12 @@
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="133"/>
         <source>Description</source>
-        <translation type="unfinished">תיאור</translation>
+        <translation>תיאור</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="139"/>
         <source>Camera name (optional)</source>
-        <translation type="unfinished"></translation>
+        <translation>שם המצלמה (רשות)</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="262"/>
