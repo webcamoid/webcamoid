@@ -1,0 +1,481 @@
+/* Webcamoid, webcam capture application.
+ * Copyright (C) 2019  Gonzalo Exequiel Pedone
+ *
+ * Webcamoid is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Webcamoid is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Webcamoid. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Web-Site: http://webcamoid.github.io/
+ */
+
+import QtQuick 2.0
+import QtQuick.Controls 2.5
+import QtQuick.Layouts 1.3
+import QtQuick.Templates 2.5 as T
+import QtGraphicalEffects 1.0
+import QtQuick.Controls.impl 2.12
+import AkQml 1.0
+
+T.SpinBox {
+    id: control
+    implicitWidth: Ak.newUnit(96 * ThemeSettings.constrolScale, "dp").pixels
+    implicitHeight: Ak.newUnit(32 * ThemeSettings.constrolScale, "dp").pixels
+
+    readonly property int animationTime: 200
+
+    function pressIndicatorRadius()
+    {
+        let diffX = control.width - control.height / 2
+        let diffY = control.height / 2
+        let r2 = diffX * diffX + diffY * diffY
+
+        return Math.sqrt(r2)
+    }
+
+    validator: IntValidator {
+        locale: control.locale.name
+        bottom: Math.min(control.from, control.to)
+        top: Math.max(control.from, control.to)
+    }
+
+    contentItem: TextInput {
+        id: controlText
+        text: control.displayText
+        font: control.font
+        color: ThemeSettings.colorText
+        selectionColor: ThemeSettings.colorSecondary
+        selectedTextColor: ThemeSettings.colorText
+        horizontalAlignment: Qt.AlignHCenter
+        verticalAlignment: Qt.AlignVCenter
+        anchors.left: control.mirrored? upIndicator.left: downIndicator.right
+        anchors.right: control.mirrored? downIndicator.right: upIndicator.left
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
+        readOnly: !control.editable
+        validator: control.validator
+        inputMethodHints: control.inputMethodHints
+    }
+
+    up.indicator: Rectangle {
+        id: upIndicator
+        x: control.mirrored? 0 : parent.width - width
+        width: parent.height
+        height: parent.height
+        color: Qt.hsla(0, 0, 0, 0)
+
+        Text {
+            id: upIndicatorText
+            text: "+"
+            font.bold: true
+            font.pixelSize: control.font.pixelSize * 2
+            color: enabled?
+                       ThemeSettings.colorPrimary:
+                       ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
+            anchors.fill: parent
+            fontSizeMode: Text.Fit
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignVCenter
+        }
+    }
+
+    down.indicator: Rectangle {
+        id: downIndicator
+        x: control.mirrored? parent.width - width : 0
+        width: parent.height
+        height: parent.height
+        color: Qt.hsla(0, 0, 0, 0)
+
+        Text {
+            id: downIndicatorText
+            text: "-"
+            font.bold: true
+            font.pixelSize: control.font.pixelSize * 2
+            color: enabled?
+                       ThemeSettings.colorPrimary:
+                       ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
+            anchors.fill: parent
+            fontSizeMode: Text.Fit
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignVCenter
+        }
+    }
+
+    background: Item {
+        id: element
+        anchors.fill: parent
+
+        Rectangle{
+            id: controlMask
+            anchors.fill: parent
+            radius: back.radius
+            color: Qt.hsla(0, 0, 0, 1)
+            visible: false
+        }
+        Item {
+            anchors.fill: parent
+            clip: true
+            layer.enabled: true
+            layer.effect: OpacityMask {
+                maskSource: controlMask
+            }
+
+            Rectangle{
+                id: downPressIndicator
+                radius: 0
+                width: 2 * radius
+                height: 2 * radius
+                color: ThemeSettings.constShade(ThemeSettings.colorPrimary,
+                                                0.1,
+                                                0.3)
+                x: parent.height / 2 - radius
+                y: parent.height / 2 - radius
+                opacity: 0
+            }
+            Rectangle{
+                id: upPressIndicator
+                radius: 0
+                width: 2 * radius
+                height: 2 * radius
+                color: ThemeSettings.constShade(ThemeSettings.colorPrimary,
+                                                0.1,
+                                                0.3)
+                x: parent.width - parent.height / 2 - radius
+                y: parent.height / 2 - radius
+                opacity: 0
+            }
+        }
+        Rectangle {
+            id: back
+            color: Qt.hsla(0, 0, 0, 0)
+            border.color: ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
+            border.width: Ak.newUnit(1 * ThemeSettings.constrolScale, "dp").pixels
+            radius: Ak.newUnit(6 * ThemeSettings.constrolScale, "dp").pixels
+            anchors.fill: parent
+        }
+    }
+
+    states: [
+        State {
+            name: "Disabled"
+            when: !control.enabled
+                  && !control.hovered
+                  && !control.activeFocus
+                  && !control.visualFocus
+
+            PropertyChanges {
+                target: controlText
+                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
+            }
+            PropertyChanges {
+                target: downIndicatorText
+                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
+            }
+            PropertyChanges {
+                target: upIndicatorText
+                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
+            }
+        },
+        State {
+            name: "Hovered"
+            when: control.enabled
+                  && control.hovered
+                  && !control.down.hovered
+                  && !control.up.hovered
+                  && !control.down.pressed
+                  && !control.up.pressed
+                  && !control.activeFocus
+
+            PropertyChanges {
+                target: back
+                border.color: ThemeSettings.shade(ThemeSettings.colorBack, -0.7)
+            }
+        },
+        State {
+            name: "DownDisabledHovered"
+            when: !upIndicator.enabled
+                  && control.down.hovered
+                  && !control.down.pressed
+                  && !control.activeFocus
+
+            PropertyChanges {
+                target: back
+                border.color: ThemeSettings.shade(ThemeSettings.colorBack, -0.7)
+            }
+        },
+        State {
+            name: "DownHovered"
+            when: upIndicator.enabled
+                  && control.down.hovered
+                  && !control.down.pressed
+                  && !control.activeFocus
+
+            PropertyChanges {
+                target: back
+                border.color: ThemeSettings.shade(ThemeSettings.colorBack, -0.7)
+            }
+            PropertyChanges {
+                target: downIndicatorText
+                color: ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.1)
+            }
+        },
+        State {
+            name: "DownPressed"
+            when: upIndicator.enabled
+                  && control.down.pressed
+                  && !control.activeFocus
+
+            PropertyChanges {
+                target: back
+                border.color: ThemeSettings.shade(ThemeSettings.colorBack, -0.7)
+            }
+            PropertyChanges {
+                target: downPressIndicator
+                radius: control.pressIndicatorRadius()
+                opacity: 1.0
+            }
+            PropertyChanges {
+                target: downIndicatorText
+                color: ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.3)
+            }
+        },
+        State {
+            name: "UpDisabledHovered"
+            when: !upIndicator.enabled
+                  && control.up.hovered
+                  && !control.up.pressed
+                  && !control.activeFocus
+
+            PropertyChanges {
+                target: back
+                border.color: ThemeSettings.shade(ThemeSettings.colorBack, -0.7)
+            }
+        },
+        State {
+            name: "UpHovered"
+            when: upIndicator.enabled
+                  && control.up.hovered
+                  && !control.up.pressed
+                  && !control.activeFocus
+
+            PropertyChanges {
+                target: back
+                border.color: ThemeSettings.shade(ThemeSettings.colorBack, -0.7)
+            }
+            PropertyChanges {
+                target: upIndicatorText
+                color: ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.1)
+            }
+        },
+        State {
+            name: "UpPressed"
+            when: upIndicator.enabled
+                  && control.up.pressed
+                  && !control.activeFocus
+
+            PropertyChanges {
+                target: back
+                border.color: ThemeSettings.shade(ThemeSettings.colorBack, -0.7)
+            }
+            PropertyChanges {
+                target: upPressIndicator
+                radius: control.pressIndicatorRadius()
+                opacity: 1.0
+            }
+            PropertyChanges {
+                target: upIndicatorText
+                color: ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.3)
+            }
+        },
+        State {
+            name: "Focused"
+            when: control.enabled
+                  && !control.down.hovered
+                  && !control.up.hovered
+                  && !control.down.pressed
+                  && !control.up.pressed
+                  && control.activeFocus
+
+            PropertyChanges {
+                target: controlText
+                color: ThemeSettings.colorPrimary
+            }
+            PropertyChanges {
+                target: back
+                border.color: ThemeSettings.colorPrimary
+                border.width: Ak.newUnit(2 * ThemeSettings.constrolScale,
+                                         "dp").pixels
+            }
+        },
+        State {
+            name: "DownDisabledFocused"
+            when: !upIndicator.enabled
+                  && control.down.hovered
+                  && !control.down.pressed
+                  && control.activeFocus
+
+            PropertyChanges {
+                target: controlText
+                color: ThemeSettings.colorPrimary
+            }
+            PropertyChanges {
+                target: back
+                border.color: ThemeSettings.colorPrimary
+                border.width: Ak.newUnit(2 * ThemeSettings.constrolScale,
+                                         "dp").pixels
+            }
+        },
+        State {
+            name: "DownFocused"
+            when: upIndicator.enabled
+                  && control.down.hovered
+                  && !control.down.pressed
+                  && control.activeFocus
+
+            PropertyChanges {
+                target: controlText
+                color: ThemeSettings.colorPrimary
+            }
+            PropertyChanges {
+                target: back
+                border.color: ThemeSettings.colorPrimary
+                border.width: Ak.newUnit(2 * ThemeSettings.constrolScale,
+                                         "dp").pixels
+            }
+            PropertyChanges {
+                target: downIndicatorText
+                color: ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.1)
+            }
+        },
+        State {
+            name: "DownFocusedPressed"
+            when: upIndicator.enabled
+                  && control.down.pressed
+                  && control.activeFocus
+
+            PropertyChanges {
+                target: controlText
+                color: ThemeSettings.colorPrimary
+            }
+            PropertyChanges {
+                target: back
+                border.color: ThemeSettings.colorPrimary
+                border.width: Ak.newUnit(2 * ThemeSettings.constrolScale,
+                                         "dp").pixels
+            }
+            PropertyChanges {
+                target: downPressIndicator
+                radius: control.pressIndicatorRadius()
+                opacity: 1.0
+            }
+            PropertyChanges {
+                target: downIndicatorText
+                color: ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.3)
+            }
+        },
+        State {
+            name: "UpDisabledFocused"
+            when: !upIndicator.enabled
+                  && control.up.hovered
+                  && !control.up.pressed
+                  && control.activeFocus
+
+            PropertyChanges {
+                target: controlText
+                color: ThemeSettings.colorPrimary
+            }
+            PropertyChanges {
+                target: back
+                border.color: ThemeSettings.colorPrimary
+                border.width: Ak.newUnit(2 * ThemeSettings.constrolScale,
+                                         "dp").pixels
+            }
+        },
+        State {
+            name: "UpFocused"
+            when: upIndicator.enabled
+                  && control.up.hovered
+                  && !control.up.pressed
+                  && control.activeFocus
+
+            PropertyChanges {
+                target: controlText
+                color: ThemeSettings.colorPrimary
+            }
+            PropertyChanges {
+                target: back
+                border.color: ThemeSettings.colorPrimary
+                border.width: Ak.newUnit(2 * ThemeSettings.constrolScale,
+                                         "dp").pixels
+            }
+            PropertyChanges {
+                target: upIndicatorText
+                color: ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.1)
+            }
+        },
+        State {
+            name: "UpFocusedPressed"
+            when: upIndicator.enabled
+                  && control.up.pressed
+                  && control.activeFocus
+
+            PropertyChanges {
+                target: controlText
+                color: ThemeSettings.colorPrimary
+            }
+            PropertyChanges {
+                target: back
+                border.color: ThemeSettings.colorPrimary
+                border.width: Ak.newUnit(2 * ThemeSettings.constrolScale,
+                                         "dp").pixels
+            }
+            PropertyChanges {
+                target: upPressIndicator
+                radius: control.pressIndicatorRadius()
+                opacity: 1.0
+            }
+            PropertyChanges {
+                target: upIndicatorText
+                color: ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.3)
+            }
+        }
+    ]
+
+    transitions: Transition {
+        ColorAnimation {
+            target: controlText
+            duration: control.animationTime
+        }
+        PropertyAnimation {
+            target: back
+            properties: "border"
+            duration: control.animationTime
+        }
+        ColorAnimation {
+            target: downIndicatorText
+            duration: control.animationTime
+        }
+        ColorAnimation {
+            target: upIndicatorText
+            duration: control.animationTime
+        }
+        PropertyAnimation {
+            target: downPressIndicator
+            properties: "radius,opacity"
+            duration: control.animationTime
+        }
+        PropertyAnimation {
+            target: upPressIndicator
+            properties: "radius,opacity"
+            duration: control.animationTime
+        }
+    }
+}
