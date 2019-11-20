@@ -18,6 +18,8 @@
         <string>10.11</string>
         <key>NSPrincipalClass</key>
         <string>NSApplication</string>
+        <key>NSHighResolutionCapable</key>
+        <true/>
         <key>NSSupportsAutomaticGraphicsSwitching</key>
         <true/>
         <key>NSCameraUsageDescription</key>

@@ -26,7 +26,7 @@ import QtQuick.Controls.impl 2.12
 import AkQml 1.0
 
 T.SpinBox {
-    id: control
+    id: spinBox
     implicitWidth: Ak.newUnit(96 * ThemeSettings.constrolScale, "dp").pixels
     implicitHeight: Ak.newUnit(32 * ThemeSettings.constrolScale, "dp").pixels
 
@@ -34,40 +34,40 @@ T.SpinBox {
 
     function pressIndicatorRadius()
     {
-        let diffX = control.width - control.height / 2
-        let diffY = control.height / 2
+        let diffX = spinBox.width - spinBox.height / 2
+        let diffY = spinBox.height / 2
         let r2 = diffX * diffX + diffY * diffY
 
         return Math.sqrt(r2)
     }
 
     validator: IntValidator {
-        locale: control.locale.name
-        bottom: Math.min(control.from, control.to)
-        top: Math.max(control.from, control.to)
+        locale: spinBox.locale.name
+        bottom: Math.min(spinBox.from, spinBox.to)
+        top: Math.max(spinBox.from, spinBox.to)
     }
 
     contentItem: TextInput {
-        id: controlText
-        text: control.displayText
-        font: control.font
+        id: spinBoxText
+        text: spinBox.displayText
+        font: spinBox.font
         color: ThemeSettings.colorText
         selectionColor: ThemeSettings.colorSecondary
         selectedTextColor: ThemeSettings.colorText
         horizontalAlignment: Qt.AlignHCenter
         verticalAlignment: Qt.AlignVCenter
-        anchors.left: control.mirrored? upIndicator.left: downIndicator.right
-        anchors.right: control.mirrored? downIndicator.right: upIndicator.left
-        anchors.top: parent.top
-        anchors.bottom: parent.bottom
-        readOnly: !control.editable
-        validator: control.validator
-        inputMethodHints: control.inputMethodHints
+        anchors.left: spinBox.mirrored? upIndicator.left: downIndicator.right
+        anchors.right: spinBox.mirrored? downIndicator.right: upIndicator.left
+        anchors.top: spinBox.top
+        anchors.bottom: spinBox.bottom
+        readOnly: !spinBox.editable
+        validator: spinBox.validator
+        inputMethodHints: spinBox.inputMethodHints
     }
 
     up.indicator: Rectangle {
         id: upIndicator
-        x: control.mirrored? 0 : parent.width - width
+        x: spinBox.mirrored? 0 : parent.width - width
         width: parent.height
         height: parent.height
         color: Qt.hsla(0, 0, 0, 0)
@@ -76,7 +76,7 @@ T.SpinBox {
             id: upIndicatorText
             text: "+"
             font.bold: true
-            font.pixelSize: control.font.pixelSize * 2
+            font.pixelSize: spinBox.font.pixelSize * 2
             color: enabled?
                        ThemeSettings.colorPrimary:
                        ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
@@ -89,7 +89,7 @@ T.SpinBox {
 
     down.indicator: Rectangle {
         id: downIndicator
-        x: control.mirrored? parent.width - width : 0
+        x: spinBox.mirrored? parent.width - width : 0
         width: parent.height
         height: parent.height
         color: Qt.hsla(0, 0, 0, 0)
@@ -98,7 +98,7 @@ T.SpinBox {
             id: downIndicatorText
             text: "-"
             font.bold: true
-            font.pixelSize: control.font.pixelSize * 2
+            font.pixelSize: spinBox.font.pixelSize * 2
             color: enabled?
                        ThemeSettings.colorPrimary:
                        ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
@@ -110,13 +110,12 @@ T.SpinBox {
     }
 
     background: Item {
-        id: element
         anchors.fill: parent
 
         Rectangle{
-            id: controlMask
+            id: backgroundMask
             anchors.fill: parent
-            radius: back.radius
+            radius: background.radius
             color: Qt.hsla(0, 0, 0, 1)
             visible: false
         }
@@ -125,7 +124,7 @@ T.SpinBox {
             clip: true
             layer.enabled: true
             layer.effect: OpacityMask {
-                maskSource: controlMask
+                maskSource: backgroundMask
             }
 
             Rectangle{
@@ -154,7 +153,7 @@ T.SpinBox {
             }
         }
         Rectangle {
-            id: back
+            id: background
             color: Qt.hsla(0, 0, 0, 0)
             border.color: ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
             border.width: Ak.newUnit(1 * ThemeSettings.constrolScale, "dp").pixels
@@ -166,13 +165,13 @@ T.SpinBox {
     states: [
         State {
             name: "Disabled"
-            when: !control.enabled
-                  && !control.hovered
-                  && !control.activeFocus
-                  && !control.visualFocus
+            when: !spinBox.enabled
+                  && !spinBox.hovered
+                  && !spinBox.activeFocus
+                  && !spinBox.visualFocus
 
             PropertyChanges {
-                target: controlText
+                target: spinBoxText
                 color: ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
             }
             PropertyChanges {
@@ -186,40 +185,40 @@ T.SpinBox {
         },
         State {
             name: "Hovered"
-            when: control.enabled
-                  && control.hovered
-                  && !control.down.hovered
-                  && !control.up.hovered
-                  && !control.down.pressed
-                  && !control.up.pressed
-                  && !control.activeFocus
+            when: spinBox.enabled
+                  && spinBox.hovered
+                  && !spinBox.down.hovered
+                  && !spinBox.up.hovered
+                  && !spinBox.down.pressed
+                  && !spinBox.up.pressed
+                  && !spinBox.activeFocus
 
             PropertyChanges {
-                target: back
+                target: background
                 border.color: ThemeSettings.shade(ThemeSettings.colorBack, -0.7)
             }
         },
         State {
             name: "DownDisabledHovered"
             when: !upIndicator.enabled
-                  && control.down.hovered
-                  && !control.down.pressed
-                  && !control.activeFocus
+                  && spinBox.down.hovered
+                  && !spinBox.down.pressed
+                  && !spinBox.activeFocus
 
             PropertyChanges {
-                target: back
+                target: background
                 border.color: ThemeSettings.shade(ThemeSettings.colorBack, -0.7)
             }
         },
         State {
             name: "DownHovered"
             when: upIndicator.enabled
-                  && control.down.hovered
-                  && !control.down.pressed
-                  && !control.activeFocus
+                  && spinBox.down.hovered
+                  && !spinBox.down.pressed
+                  && !spinBox.activeFocus
 
             PropertyChanges {
-                target: back
+                target: background
                 border.color: ThemeSettings.shade(ThemeSettings.colorBack, -0.7)
             }
             PropertyChanges {
@@ -230,16 +229,16 @@ T.SpinBox {
         State {
             name: "DownPressed"
             when: upIndicator.enabled
-                  && control.down.pressed
-                  && !control.activeFocus
+                  && spinBox.down.pressed
+                  && !spinBox.activeFocus
 
             PropertyChanges {
-                target: back
+                target: background
                 border.color: ThemeSettings.shade(ThemeSettings.colorBack, -0.7)
             }
             PropertyChanges {
                 target: downPressIndicator
-                radius: control.pressIndicatorRadius()
+                radius: spinBox.pressIndicatorRadius()
                 opacity: 1.0
             }
             PropertyChanges {
@@ -250,24 +249,24 @@ T.SpinBox {
         State {
             name: "UpDisabledHovered"
             when: !upIndicator.enabled
-                  && control.up.hovered
-                  && !control.up.pressed
-                  && !control.activeFocus
+                  && spinBox.up.hovered
+                  && !spinBox.up.pressed
+                  && !spinBox.activeFocus
 
             PropertyChanges {
-                target: back
+                target: background
                 border.color: ThemeSettings.shade(ThemeSettings.colorBack, -0.7)
             }
         },
         State {
             name: "UpHovered"
             when: upIndicator.enabled
-                  && control.up.hovered
-                  && !control.up.pressed
-                  && !control.activeFocus
+                  && spinBox.up.hovered
+                  && !spinBox.up.pressed
+                  && !spinBox.activeFocus
 
             PropertyChanges {
-                target: back
+                target: background
                 border.color: ThemeSettings.shade(ThemeSettings.colorBack, -0.7)
             }
             PropertyChanges {
@@ -278,16 +277,16 @@ T.SpinBox {
         State {
             name: "UpPressed"
             when: upIndicator.enabled
-                  && control.up.pressed
-                  && !control.activeFocus
+                  && spinBox.up.pressed
+                  && !spinBox.activeFocus
 
             PropertyChanges {
-                target: back
+                target: background
                 border.color: ThemeSettings.shade(ThemeSettings.colorBack, -0.7)
             }
             PropertyChanges {
                 target: upPressIndicator
-                radius: control.pressIndicatorRadius()
+                radius: spinBox.pressIndicatorRadius()
                 opacity: 1.0
             }
             PropertyChanges {
@@ -297,19 +296,19 @@ T.SpinBox {
         },
         State {
             name: "Focused"
-            when: control.enabled
-                  && !control.down.hovered
-                  && !control.up.hovered
-                  && !control.down.pressed
-                  && !control.up.pressed
-                  && control.activeFocus
+            when: spinBox.enabled
+                  && !spinBox.down.hovered
+                  && !spinBox.up.hovered
+                  && !spinBox.down.pressed
+                  && !spinBox.up.pressed
+                  && spinBox.activeFocus
 
             PropertyChanges {
-                target: controlText
+                target: spinBoxText
                 color: ThemeSettings.colorPrimary
             }
             PropertyChanges {
-                target: back
+                target: background
                 border.color: ThemeSettings.colorPrimary
                 border.width: Ak.newUnit(2 * ThemeSettings.constrolScale,
                                          "dp").pixels
@@ -318,16 +317,16 @@ T.SpinBox {
         State {
             name: "DownDisabledFocused"
             when: !upIndicator.enabled
-                  && control.down.hovered
-                  && !control.down.pressed
-                  && control.activeFocus
+                  && spinBox.down.hovered
+                  && !spinBox.down.pressed
+                  && spinBox.activeFocus
 
             PropertyChanges {
-                target: controlText
+                target: spinBoxText
                 color: ThemeSettings.colorPrimary
             }
             PropertyChanges {
-                target: back
+                target: background
                 border.color: ThemeSettings.colorPrimary
                 border.width: Ak.newUnit(2 * ThemeSettings.constrolScale,
                                          "dp").pixels
@@ -336,16 +335,16 @@ T.SpinBox {
         State {
             name: "DownFocused"
             when: upIndicator.enabled
-                  && control.down.hovered
-                  && !control.down.pressed
-                  && control.activeFocus
+                  && spinBox.down.hovered
+                  && !spinBox.down.pressed
+                  && spinBox.activeFocus
 
             PropertyChanges {
-                target: controlText
+                target: spinBoxText
                 color: ThemeSettings.colorPrimary
             }
             PropertyChanges {
-                target: back
+                target: background
                 border.color: ThemeSettings.colorPrimary
                 border.width: Ak.newUnit(2 * ThemeSettings.constrolScale,
                                          "dp").pixels
@@ -358,22 +357,22 @@ T.SpinBox {
         State {
             name: "DownFocusedPressed"
             when: upIndicator.enabled
-                  && control.down.pressed
-                  && control.activeFocus
+                  && spinBox.down.pressed
+                  && spinBox.activeFocus
 
             PropertyChanges {
-                target: controlText
+                target: spinBoxText
                 color: ThemeSettings.colorPrimary
             }
             PropertyChanges {
-                target: back
+                target: background
                 border.color: ThemeSettings.colorPrimary
                 border.width: Ak.newUnit(2 * ThemeSettings.constrolScale,
                                          "dp").pixels
             }
             PropertyChanges {
                 target: downPressIndicator
-                radius: control.pressIndicatorRadius()
+                radius: spinBox.pressIndicatorRadius()
                 opacity: 1.0
             }
             PropertyChanges {
@@ -384,16 +383,16 @@ T.SpinBox {
         State {
             name: "UpDisabledFocused"
             when: !upIndicator.enabled
-                  && control.up.hovered
-                  && !control.up.pressed
-                  && control.activeFocus
+                  && spinBox.up.hovered
+                  && !spinBox.up.pressed
+                  && spinBox.activeFocus
 
             PropertyChanges {
-                target: controlText
+                target: spinBoxText
                 color: ThemeSettings.colorPrimary
             }
             PropertyChanges {
-                target: back
+                target: background
                 border.color: ThemeSettings.colorPrimary
                 border.width: Ak.newUnit(2 * ThemeSettings.constrolScale,
                                          "dp").pixels
@@ -402,16 +401,16 @@ T.SpinBox {
         State {
             name: "UpFocused"
             when: upIndicator.enabled
-                  && control.up.hovered
-                  && !control.up.pressed
-                  && control.activeFocus
+                  && spinBox.up.hovered
+                  && !spinBox.up.pressed
+                  && spinBox.activeFocus
 
             PropertyChanges {
-                target: controlText
+                target: spinBoxText
                 color: ThemeSettings.colorPrimary
             }
             PropertyChanges {
-                target: back
+                target: background
                 border.color: ThemeSettings.colorPrimary
                 border.width: Ak.newUnit(2 * ThemeSettings.constrolScale,
                                          "dp").pixels
@@ -424,22 +423,22 @@ T.SpinBox {
         State {
             name: "UpFocusedPressed"
             when: upIndicator.enabled
-                  && control.up.pressed
-                  && control.activeFocus
+                  && spinBox.up.pressed
+                  && spinBox.activeFocus
 
             PropertyChanges {
-                target: controlText
+                target: spinBoxText
                 color: ThemeSettings.colorPrimary
             }
             PropertyChanges {
-                target: back
+                target: background
                 border.color: ThemeSettings.colorPrimary
                 border.width: Ak.newUnit(2 * ThemeSettings.constrolScale,
                                          "dp").pixels
             }
             PropertyChanges {
                 target: upPressIndicator
-                radius: control.pressIndicatorRadius()
+                radius: spinBox.pressIndicatorRadius()
                 opacity: 1.0
             }
             PropertyChanges {
@@ -451,31 +450,31 @@ T.SpinBox {
 
     transitions: Transition {
         ColorAnimation {
-            target: controlText
-            duration: control.animationTime
+            target: spinBoxText
+            duration: spinBox.animationTime
         }
         PropertyAnimation {
-            target: back
+            target: background
             properties: "border"
-            duration: control.animationTime
+            duration: spinBox.animationTime
         }
         ColorAnimation {
             target: downIndicatorText
-            duration: control.animationTime
+            duration: spinBox.animationTime
         }
         ColorAnimation {
             target: upIndicatorText
-            duration: control.animationTime
+            duration: spinBox.animationTime
         }
         PropertyAnimation {
             target: downPressIndicator
             properties: "radius,opacity"
-            duration: control.animationTime
+            duration: spinBox.animationTime
         }
         PropertyAnimation {
             target: upPressIndicator
             properties: "radius,opacity"
-            duration: control.animationTime
+            duration: spinBox.animationTime
         }
     }
 }

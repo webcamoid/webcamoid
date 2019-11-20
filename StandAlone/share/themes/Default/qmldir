@@ -3,6 +3,7 @@ ApplicationWindow 1.0 ApplicationWindow.qml
 Button 1.0 Button.qml
 Label 1.0 Label.qml
 Pane 1.0 Pane.qml
+Slider 1.0 Slider.qml
 SpinBox 1.0 SpinBox.qml
 Switch 1.0 Switch.qml
 SwitchDelegate 1.0 SwitchDelegate.qml
