@@ -74,7 +74,7 @@
     <message>
         <location filename="../qml/AddMedia.qml" line="67"/>
         <source>Insert a media description</source>
-        <translation type="unfinished"></translation>
+        <translation>Medienbeschreibung einfügen</translation>
     </message>
     <message>
         <location filename="../qml/AddMedia.qml" line="74"/>
