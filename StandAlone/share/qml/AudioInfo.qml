@@ -308,6 +308,15 @@ GridLayout {
         }
     }
     Label {
+        /*: The latency is the amount of accumulated audio ready to play,
+            measured in time.
+            Higher latency == smoother audio playback, but more
+            desynchronization with the video.
+            Lowerer latency == audio desynchronization near to the video, but
+            glitchy audio playback.
+
+            https://en.wikipedia.org/wiki/Latency_(audio)
+         */
         text: qsTr("Latency (ms)")
     }
     RowLayout {

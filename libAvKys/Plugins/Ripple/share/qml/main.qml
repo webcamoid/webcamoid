@@ -100,11 +100,17 @@ GridLayout {
         onTextChanged: Ripple.threshold = Number(text)
     }
     Label {
+        id: lumaLabel
+        /*: Minimum luminance/light/white level/intensity in a gray or black and
+            white picture.
+
+            https://en.wikipedia.org/wiki/Luma_(video)
+         */
         text: qsTr("Luma threshold")
     }
     TextField {
         text: Ripple.lumaThreshold
-        placeholderText: qsTr("Luma threshold")
+        placeholderText: lumaLabel.text
         validator: RegExpValidator {
             regExp: /\d+/
         }

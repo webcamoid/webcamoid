@@ -130,11 +130,17 @@ GridLayout {
         onTextChanged: Radioactive.threshold = Number(text)
     }
     Label {
+        id: lumaLabel
+        /*: Minimum luminance/light/white level/intensity in a gray or black and
+            white picture.
+
+            https://en.wikipedia.org/wiki/Luma_(video)
+         */
         text: qsTr("Luma threshold")
     }
     TextField {
         text: Radioactive.lumaThreshold
-        placeholderText: qsTr("Luma threshold")
+        placeholderText: lumaLabel.text
         validator: RegExpValidator {
             regExp: /\d+/
         }
@@ -143,11 +149,15 @@ GridLayout {
         onTextChanged: Radioactive.lumaThreshold = Number(text)
     }
     Label {
+        id: alphaDiffLabel
+        /*: Alpha channel, also known as the transparency component of a pixel
+            in an image.
+         */
         text: qsTr("Alpha differential")
     }
     TextField {
         text: Radioactive.alphaDiff
-        placeholderText: qsTr("Alpha differential")
+        placeholderText: alphaDiffLabel.text
         validator: RegExpValidator {
             regExp: /-?\d+/
         }

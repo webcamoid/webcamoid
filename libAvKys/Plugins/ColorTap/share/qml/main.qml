@@ -42,6 +42,7 @@ ColumnLayout {
 
             model: ListModel {
                 ListElement {
+                    //: Base color, show the image without modifications
                     text: qsTr("Base")
                     table: ":/ColorTap/share/tables/base.bmp"
                 }
@@ -50,6 +51,7 @@ ColumnLayout {
                     table: ":/ColorTap/share/tables/metal.bmp"
                 }
                 ListElement {
+                    //: https://en.wikipedia.org/wiki/Heat_map
                     text: qsTr("Heat")
                     table: ":/ColorTap/share/tables/heat.bmp"
                 }
@@ -62,6 +64,7 @@ ColumnLayout {
                     table: ":/ColorTap/share/tables/redgreen.bmp"
                 }
                 ListElement {
+                    //: https://en.wikipedia.org/wiki/Sepia_(color)
                     text: qsTr("Sepia")
                     table: ":/ColorTap/share/tables/sepia.bmp"
                 }

@@ -41,6 +41,7 @@ GridLayout {
 
     // Canny
     Label {
+        //: https://en.wikipedia.org/wiki/Canny_edge_detector
         text: qsTr("Canny mode")
     }
     RowLayout {
@@ -109,6 +110,7 @@ GridLayout {
 
     // Equalize
     Label {
+        //: https://en.wikipedia.org/wiki/Histogram_equalization
         text: qsTr("Equalize")
     }
     RowLayout {

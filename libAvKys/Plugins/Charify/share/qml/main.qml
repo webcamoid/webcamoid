@@ -145,6 +145,7 @@ GridLayout {
     }
 
     Label {
+        //: Different font rendering strategies
         text: qsTr("Style")
     }
     ComboBox {

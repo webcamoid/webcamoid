@@ -76,11 +76,17 @@ GridLayout {
     }
 
     Label {
+        id: muLabel
+        /*: Mu factor (µ letter from greek), represents the average of a group
+            of values.
+
+            https://en.wikipedia.org/wiki/Arithmetic_mean
+         */
         text: qsTr("Mu")
     }
     TextField {
         text: Denoise.mu
-        placeholderText: qsTr("Mu")
+        placeholderText: muLabel.text
         validator: RegExpValidator {
             regExp: /-?\d+/
         }
@@ -91,6 +97,11 @@ GridLayout {
     }
 
     Label {
+        /*: Sigma factor (σ letter from greek), represents the standard
+            deviation of a group of values.
+
+            https://en.wikipedia.org/wiki/Standard_deviation
+         */
         text: qsTr("Sigma")
     }
     Slider {

@@ -79,13 +79,14 @@ T.TextField {
         State {
             name: "Disabled"
             when: !textField.enabled
-                  && !textField.hovered
-                  && !textField.activeFocus
-                  && !textField.visualFocus
 
             PropertyChanges {
-                target: textField
-                opacity: 0.5
+                target: placeholder
+                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.3)
+            }
+            PropertyChanges {
+                target: textAreaBackground
+                border.color: ThemeSettings.shade(ThemeSettings.colorBack, -0.3)
             }
         },
         State {

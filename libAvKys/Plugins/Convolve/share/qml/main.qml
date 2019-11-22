@@ -44,6 +44,7 @@ ColumnLayout {
     }
 
     Label {
+        //: https://en.wikipedia.org/wiki/Kernel_(image_processing)
         text: qsTr("Convolve matrix")
     }
     GridLayout {

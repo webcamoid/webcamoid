@@ -71,6 +71,7 @@ GridLayout {
         }
         AkColorButton {
             currentColor: fromRgba(Life.lifeColor)
+            //: https://en.wikipedia.org/wiki/Life-like_cellular_automaton
             title: qsTr("Choose the automata color")
             showAlphaChannel: true
 
@@ -101,7 +102,11 @@ GridLayout {
     }
 
     Label {
-        id: lblLumaThreshold
+        /*: Minimum luminance/light/white level/intensity in a gray or black and
+            white picture.
+
+            https://en.wikipedia.org/wiki/Luma_(video)
+         */
         text: qsTr("Luma Threshold")
     }
     Slider {

@@ -188,6 +188,11 @@ GridLayout {
 
     // Luma threshold.
     Label {
+        /*: Minimum luminance/light/white level/intensity in a gray or black and
+            white picture.
+
+            https://en.wikipedia.org/wiki/Luma_(video)
+         */
         text: qsTr("Luma threshold")
     }
     Slider {
@@ -210,6 +215,9 @@ GridLayout {
 
     // Alpha diff.
     Label {
+        /*: Alpha channel, also known as the transparency component of a pixel
+            in an image.
+         */
         text: qsTr("Alpha diff")
     }
     Slider {
@@ -234,6 +242,9 @@ GridLayout {
 
     // Alpha variation.
     Label {
+        /*: Alpha channel, also known as the transparency component of a pixel
+            in an image.
+         */
         text: qsTr("Alpha variation")
     }
     Slider {

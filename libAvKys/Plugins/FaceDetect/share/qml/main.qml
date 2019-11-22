@@ -108,6 +108,7 @@ GridLayout {
 
     // Haar file.
     Label {
+        //: https://en.wikipedia.org/wiki/Haar-like_feature
         text: qsTr("Haar file")
     }
     ComboBox {
