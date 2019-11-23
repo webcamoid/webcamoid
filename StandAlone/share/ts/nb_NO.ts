@@ -41,12 +41,12 @@
     <message>
         <location filename="../qml/About.qml" line="99"/>
         <source>Webcam capture application.</source>
-        <translation>Vevkameraopptaksprogram.</translation>
+        <translation>Nettkameraopptaksprogram.</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="102"/>
         <source>A simple webcam application for picture and video capture.</source>
-        <translation>Et enkelt vevkameraprogram for bildetakning og video-opptak.</translation>
+        <translation>Et enkelt nettkameraprogram for bildeknipsing og videoopptak.</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="120"/>
@@ -64,27 +64,27 @@
     <message>
         <location filename="../qml/AddMedia.qml" line="27"/>
         <source>Add new media</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Legg til ny media</translation>
     </message>
     <message>
         <location filename="../qml/AddMedia.qml" line="61"/>
         <source>Description</source>
-        <translation type="unfinished"></translation>
+        <translation>Beskrivelse</translation>
     </message>
     <message>
         <location filename="../qml/AddMedia.qml" line="67"/>
         <source>Insert a media description</source>
-        <translation type="unfinished"></translation>
+        <translation>Velg mediabeskrivelse</translation>
     </message>
     <message>
         <location filename="../qml/AddMedia.qml" line="74"/>
         <source>Media file</source>
-        <translation type="unfinished"></translation>
+        <translation>Mediafil</translation>
     </message>
     <message>
         <location filename="../qml/AddMedia.qml" line="81"/>
         <source>Select a media file</source>
-        <translation type="unfinished"></translation>
+        <translation>Velg en mediafil</translation>
     </message>
     <message>
         <location filename="../qml/AddMedia.qml" line="88"/>
@@ -104,7 +104,7 @@
     <message>
         <location filename="../qml/AddMedia.qml" line="143"/>
         <source>Choose the file to add as media</source>
-        <translation type="unfinished"></translation>
+        <translation>Velg filen å legge til som media</translation>
     </message>
 </context>
 <context>
@@ -113,29 +113,29 @@
         <location filename="../qml/AudioConfig.qml" line="117"/>
         <source>Outputs</source>
         <extracomment>Output device for audio playback, for example a speaker.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Utgangsenheter</translation>
     </message>
     <message>
         <location filename="../qml/AudioConfig.qml" line="121"/>
         <source>Select the output device for audio playing</source>
-        <translation type="unfinished"></translation>
+        <translation>Velg utgangsenhet for lydavspilling</translation>
     </message>
     <message>
         <location filename="../qml/AudioConfig.qml" line="136"/>
         <source>Inputs</source>
         <extracomment>Input device for audio capturing, for example a microphone.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Opptaksenheter</translation>
     </message>
     <message>
         <location filename="../qml/AudioConfig.qml" line="139"/>
         <source>Select the device for audio capturing</source>
-        <translation type="unfinished"></translation>
+        <translation>Velg enhet for lydopptak</translation>
     </message>
     <message>
         <location filename="../qml/AudioConfig.qml" line="196"/>
         <location filename="../qml/AudioConfig.qml" line="298"/>
         <source>Silence</source>
-        <translation type="unfinished"></translation>
+        <translation>Forstum</translation>
     </message>
 </context>
 <context>
@@ -143,36 +143,36 @@
     <message>
         <location filename="../qml/AudioInfo.qml" line="188"/>
         <source>Description</source>
-        <translation type="unfinished"></translation>
+        <translation>Beskrivelse</translation>
     </message>
     <message>
         <location filename="../qml/AudioInfo.qml" line="195"/>
         <location filename="../qml/AudioInfo.qml" line="203"/>
         <source>Device description</source>
-        <translation type="unfinished"></translation>
+        <translation>Enhetsbeskrivelse</translation>
     </message>
     <message>
         <location filename="../qml/AudioInfo.qml" line="210"/>
         <location filename="../qml/AudioInfo.qml" line="217"/>
         <location filename="../qml/AudioInfo.qml" line="225"/>
         <source>Device ID</source>
-        <translation type="unfinished"></translation>
+        <translation>Enhets-ID</translation>
     </message>
     <message>
         <location filename="../qml/AudioInfo.qml" line="242"/>
         <source>Sample Format</source>
         <extracomment>An sample represents the strength of the wave at a certain time. A sample can be expressed as the number of bits defining it (more bits better sound), the type of data representing it (signed integer, unsigned integer, floating point), and the endianness of the data (big endian, little endian). The sample format is the representation of that information. For example, &apos;s16le&apos; means that each sample format is represented by a 16 bits signed integer arranged as little endian.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Samlingsformat</translation>
     </message>
     <message>
         <location filename="../qml/AudioInfo.qml" line="268"/>
         <source>Channels</source>
-        <translation type="unfinished"></translation>
+        <translation>Kanaler</translation>
     </message>
     <message>
         <location filename="../qml/AudioInfo.qml" line="294"/>
         <source>Sample Rate</source>
-        <translation type="unfinished"></translation>
+        <translation>Samplingstakt</translation>
     </message>
     <message>
         <location filename="../qml/AudioInfo.qml" line="329"/>
@@ -214,22 +214,22 @@
     <message>
         <location filename="../qml/ConfigBar.qml" line="44"/>
         <source>Output</source>
-        <translation type="unfinished"></translation>
+        <translation>Utgang</translation>
     </message>
     <message>
         <location filename="../qml/ConfigBar.qml" line="48"/>
         <source>General Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Generelle innstillinger</translation>
     </message>
     <message>
         <location filename="../qml/ConfigBar.qml" line="52"/>
         <source>Plugins Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Programtilleggsinnstillinger</translation>
     </message>
     <message>
         <location filename="../qml/ConfigBar.qml" line="56"/>
         <source>Updates</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Oppdateringer</translation>
     </message>
 </context>
 <context>
@@ -237,12 +237,12 @@
     <message>
         <location filename="../qml/EffectBar.qml" line="121"/>
         <source>Search effect</source>
-        <translation type="unfinished"></translation>
+        <translation>Søkeeffekt</translation>
     </message>
     <message>
         <location filename="../qml/EffectBar.qml" line="166"/>
         <source>None</source>
-        <translation type="unfinished"></translation>
+        <translation>Ingen</translation>
     </message>
 </context>
 <context>
@@ -251,13 +251,13 @@
         <location filename="../qml/EffectConfig.qml" line="81"/>
         <location filename="../qml/EffectConfig.qml" line="87"/>
         <source>Description</source>
-        <translation type="unfinished"></translation>
+        <translation>Beskrivelse</translation>
     </message>
     <message>
         <location filename="../qml/EffectConfig.qml" line="92"/>
         <location filename="../qml/EffectConfig.qml" line="98"/>
         <source>Plugin ID</source>
-        <translation type="unfinished"></translation>
+        <translation>Programtilleggs-ID</translation>
     </message>
     <message>
         <location filename="../qml/EffectConfig.qml" line="114"/>
@@ -276,37 +276,37 @@
         <location filename="../qml/GeneralConfig.qml" line="55"/>
         <source>Play webcam on start</source>
         <extracomment>Start playing the webcam right after opening Webcamoid.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Start nettkamera ved programstart</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="70"/>
         <source>Enable advanced effects mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Skru på modus for avanserte effekter</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="95"/>
         <source>Video capture</source>
-        <translation type="unfinished"></translation>
+        <translation>Videoopptak</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="105"/>
         <source>Desktop capture</source>
-        <translation type="unfinished"></translation>
+        <translation>Skrivebordsopptak</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="115"/>
         <source>Audio capture/play</source>
-        <translation type="unfinished"></translation>
+        <translation>Lydopptak/avspilling</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="125"/>
         <source>Video convert</source>
-        <translation type="unfinished"></translation>
+        <translation>Videokonvertering</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="135"/>
         <source>Audio convert</source>
-        <translation type="unfinished"></translation>
+        <translation>Lydkonvertering</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="176"/>
@@ -316,7 +316,7 @@
     <message>
         <location filename="../qml/GeneralConfig.qml" line="145"/>
         <source>Video playback</source>
-        <translation type="unfinished"></translation>
+        <translation>Videoavspilling</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="86"/>
@@ -326,12 +326,12 @@
     <message>
         <location filename="../qml/GeneralConfig.qml" line="155"/>
         <source>Video record</source>
-        <translation type="unfinished"></translation>
+        <translation>Videoopptak</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="165"/>
         <source>Root method</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Grunnleggende metode</translation>
     </message>
 </context>
 <context>
@@ -339,7 +339,7 @@
     <message>
         <location filename="../qml/MediaBar.qml" line="62"/>
         <source>No webcams found</source>
-        <translation type="unfinished"></translation>
+        <translation>Fant ingen nettkamera</translation>
     </message>
 </context>
 <context>
@@ -348,13 +348,13 @@
         <location filename="../qml/MediaConfig.qml" line="51"/>
         <location filename="../qml/MediaConfig.qml" line="56"/>
         <source>Description</source>
-        <translation type="unfinished"></translation>
+        <translation>Beskrivelse</translation>
     </message>
     <message>
         <location filename="../qml/MediaConfig.qml" line="61"/>
         <location filename="../qml/MediaConfig.qml" line="66"/>
         <source>Media ID</source>
-        <translation type="unfinished"></translation>
+        <translation>Media-ID</translation>
     </message>
     <message>
         <location filename="../qml/MediaConfig.qml" line="81"/>
@@ -380,7 +380,7 @@
     <message>
         <location filename="../qml/OutputConfig.qml" line="55"/>
         <source>Enable virtual camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Skru på virtuelt kamera</translation>
     </message>
 </context>
 <context>
@@ -388,12 +388,12 @@
     <message>
         <location filename="../qml/PhotoWidget.qml" line="37"/>
         <source>%1 seconds</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 sekunder</translation>
     </message>
     <message>
         <location filename="../qml/PhotoWidget.qml" line="69"/>
         <source>Now</source>
-        <translation type="unfinished"></translation>
+        <translation>Nå</translation>
     </message>
     <message>
         <location filename="../qml/PhotoWidget.qml" line="93"/>
@@ -403,12 +403,12 @@
     <message>
         <location filename="../qml/PhotoWidget.qml" line="93"/>
         <source>Shot!</source>
-        <translation type="unfinished"></translation>
+        <translation>Knips!</translation>
     </message>
     <message>
         <location filename="../qml/PhotoWidget.qml" line="120"/>
         <source>Use flash</source>
-        <translation type="unfinished"></translation>
+        <translation>Bruk blitz</translation>
     </message>
 </context>
 <context>
@@ -416,17 +416,17 @@
     <message>
         <location filename="../qml/PluginConfig.qml" line="111"/>
         <source>Use this page for configuring the plugins search paths.&lt;br /&gt;&lt;b&gt;Don&apos;t touch nothing unless you know what you are doing&lt;/b&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bruk denne siden for å sette opp søkestier for programtillegg.&lt;br /&gt;&lt;b&gt;Ikke rør noe, med mindre du vet hva du gjør&lt;/b&gt;.</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="116"/>
         <source>Extra search paths</source>
-        <translation type="unfinished"></translation>
+        <translation>Ekstra søkestier</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="125"/>
         <source>Search plugins in subfolders.</source>
-        <translation type="unfinished"></translation>
+        <translation>Søk etter programtillegg i undermapper</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="137"/>
@@ -441,27 +441,27 @@
     <message>
         <location filename="../qml/PluginConfig.qml" line="212"/>
         <source>Plugins list</source>
-        <translation type="unfinished"></translation>
+        <translation>Programtilleggsliste</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="221"/>
         <source>Refresh</source>
-        <translation type="unfinished"></translation>
+        <translation>Gjenoppfrisk</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="231"/>
         <source>Disable</source>
-        <translation type="unfinished"></translation>
+        <translation>Skru av</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="231"/>
         <source>Enable</source>
-        <translation type="unfinished"></translation>
+        <translation>Skru på</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="315"/>
         <source>Add plugins search path</source>
-        <translation type="unfinished"></translation>
+        <translation>Legg til søkesti for programtillegg</translation>
     </message>
 </context>
 <context>
@@ -469,12 +469,12 @@
     <message>
         <location filename="../../src/clioptions.cpp" line="45"/>
         <source>Webcam capture application.</source>
-        <translation type="unfinished">Vevkameraopptaksprogram.</translation>
+        <translation>Nettkameraopptaksprogram.</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="48"/>
         <source>Load settings from PATH. If PATH is empty, load configs from application directory.</source>
-        <translation type="unfinished"></translation>
+        <translation>Last inn innstillinger fra PATH. Hvis PATH er tom, last inn oppsett fra programmappe.</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="50"/>
@@ -484,7 +484,7 @@
     <message>
         <location filename="../../src/clioptions.cpp" line="54"/>
         <source>Semi-colon separated list of paths to search the QML interface.</source>
-        <translation type="unfinished"></translation>
+        <translation>Semikolonsinndelt liste over stier å søke etter QML-grensesnitt i.</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="56"/>
@@ -497,17 +497,17 @@
     <message>
         <location filename="../../src/clioptions.cpp" line="61"/>
         <source>Search in the specified plugins paths recursively.</source>
-        <translation type="unfinished"></translation>
+        <translation>Søk i angitte programtilleggsstier rekursivt.</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="66"/>
         <source>Semi-colon separated list of paths to search for plugins.</source>
-        <translation type="unfinished"></translation>
+        <translation>Semikolonsinndelt liste over å søke etter programtillegg i.</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="72"/>
         <source>Semi-colon separated list of paths to avoid loading.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Semikolonsinndelt stisvarteliste.</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="78"/>
@@ -520,7 +520,7 @@
     <message>
         <location filename="../qml/RecordBar.qml" line="100"/>
         <source>Search format</source>
-        <translation type="unfinished"></translation>
+        <translation>Søkeformat</translation>
     </message>
 </context>
 <context>
@@ -528,18 +528,18 @@
     <message>
         <location filename="../qml/RecordConfig.qml" line="70"/>
         <source>Video %1.%2</source>
-        <translation type="unfinished"></translation>
+        <translation>Video</translation>
     </message>
     <message>
         <location filename="../qml/RecordConfig.qml" line="128"/>
         <source>Start recording video</source>
-        <translation type="unfinished"></translation>
+        <translation>Start videoopptak</translation>
     </message>
     <message>
         <location filename="../qml/RecordConfig.qml" line="98"/>
         <location filename="../qml/RecordConfig.qml" line="104"/>
         <source>Description</source>
-        <translation type="unfinished"></translation>
+        <translation>Beskrivelse</translation>
     </message>
     <message>
         <location filename="../qml/RecordConfig.qml" line="87"/>
@@ -554,7 +554,7 @@
     <message>
         <location filename="../qml/RecordConfig.qml" line="145"/>
         <source>Save video as...</source>
-        <translation type="unfinished"></translation>
+        <translation>Lagre video som…</translation>
     </message>
 </context>
 <context>
@@ -562,35 +562,35 @@
     <message>
         <location filename="../../src/recording.cpp" line="616"/>
         <source>Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Lyd</translation>
     </message>
     <message>
         <location filename="../../src/recording.cpp" line="617"/>
         <source>Video</source>
-        <translation type="unfinished"></translation>
+        <translation>Video</translation>
     </message>
     <message>
         <location filename="../../src/recording.cpp" line="618"/>
         <source>Subtitle</source>
-        <translation type="unfinished"></translation>
+        <translation>Undertekst</translation>
     </message>
     <message>
         <location filename="../../src/recording.cpp" line="683"/>
         <location filename="../../src/recording.cpp" line="849"/>
         <source>audio</source>
-        <translation type="unfinished"></translation>
+        <translation>lyd</translation>
     </message>
     <message>
         <location filename="../../src/recording.cpp" line="684"/>
         <location filename="../../src/recording.cpp" line="850"/>
         <source>video</source>
-        <translation type="unfinished"></translation>
+        <translation>video</translation>
     </message>
     <message>
         <location filename="../../src/recording.cpp" line="685"/>
         <location filename="../../src/recording.cpp" line="851"/>
         <source>subtitle</source>
-        <translation type="unfinished"></translation>
+        <translation>undertekst</translation>
     </message>
 </context>
 <context>
@@ -613,12 +613,12 @@
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/StreamOptions.qml" line="84"/>
         <source>Bitrate</source>
-        <translation type="unfinished"></translation>
+        <translation>Bitrate</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/StreamOptions.qml" line="90"/>
         <source>Bitrate (bits/secs)</source>
-        <translation type="unfinished"></translation>
+        <translation>Bitrate (bit/sek)</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/StreamOptions.qml" line="105"/>
@@ -637,67 +637,67 @@
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="67"/>
         <source>Notify about new versions</source>
-        <translation type="unfinished"></translation>
+        <translation>Varsle om nye versjoner</translation>
     </message>
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="81"/>
         <source>Check new versions</source>
-        <translation type="unfinished"></translation>
+        <translation>Se etter nye versjoner</translation>
     </message>
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="89"/>
         <source>Daily</source>
-        <translation type="unfinished"></translation>
+        <translation>Daglig</translation>
     </message>
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="93"/>
         <source>Every two days</source>
-        <translation type="unfinished"></translation>
+        <translation>Annenhver dag</translation>
     </message>
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="97"/>
         <source>Weekly</source>
-        <translation type="unfinished"></translation>
+        <translation>Ukentlig</translation>
     </message>
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="101"/>
         <source>Every two weeks</source>
-        <translation type="unfinished"></translation>
+        <translation>Annenhver uke</translation>
     </message>
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="105"/>
         <source>Monthly</source>
-        <translation type="unfinished"></translation>
+        <translation>Månedlig</translation>
     </message>
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="109"/>
         <source>Never</source>
-        <translation type="unfinished"></translation>
+        <translation>Aldri</translation>
     </message>
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="120"/>
         <source>Last updated</source>
-        <translation type="unfinished"></translation>
+        <translation>Sist oppdatert</translation>
     </message>
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="141"/>
         <source>Your version of %1 is outdated. Latest version is &lt;b&gt;%2&lt;/b&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Din versjon av %1 er utdatert. Siste versjon er &lt;b&gt;%2&lt;/b&gt;.</translation>
     </message>
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="147"/>
         <source>Upgrade Now!</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Oppgrader nå.</translation>
     </message>
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="162"/>
         <source>Thanks for using a &lt;b&gt;development version&lt;/b&gt;!&lt;br /&gt;It will be very helpful if you can report any bug and suggestions you have.</source>
-        <translation type="unfinished"></translation>
+        <translation>Takk for at du bruker &lt;b&gt;utviklingsversjonen&lt;/b&gt;.&lt;br /&gt;Det kan komme godt med når du innrapporterer feil og ønsker.</translation>
     </message>
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="167"/>
         <source>Report a Bug</source>
-        <translation type="unfinished"></translation>
+        <translation>Innrapporter en feil</translation>
     </message>
 </context>
 <context>
@@ -2100,7 +2100,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="133"/>
         <source>Description</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Beskrivelse</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="139"/>
@@ -2172,47 +2172,47 @@
     <message>
         <location filename="../qml/main.qml" line="256"/>
         <source>Save photo as...</source>
-        <translation type="unfinished"></translation>
+        <translation>Lagre bilde som…</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="645"/>
         <source>Go back</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tilbake</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="699"/>
         <source>Configure sources</source>
-        <translation type="unfinished"></translation>
+        <translation>Sett opp kilder</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="712"/>
         <source>Configure audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Sett opp lyd</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="725"/>
         <source>Take a photo</source>
-        <translation type="unfinished"></translation>
+        <translation>Knips et bilde</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="739"/>
         <source>Record video</source>
-        <translation type="unfinished"></translation>
+        <translation>Ta opp video</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="753"/>
         <source>Configure Effects</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Sett opp effekter</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="766"/>
         <source>Preferences</source>
-        <translation type="unfinished"></translation>
+        <translation>Innstillinger</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="779"/>
         <source>About</source>
-        <translation type="unfinished"></translation>
+        <translation>Om</translation>
     </message>
 </context>
 </TS>
