@@ -224,7 +224,7 @@
     <message>
         <location filename="../qml/ConfigBar.qml" line="52"/>
         <source>Plugins Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>הגדרות תוספים</translation>
     </message>
     <message>
         <location filename="../qml/ConfigBar.qml" line="56"/>
@@ -321,7 +321,7 @@
     <message>
         <location filename="../qml/GeneralConfig.qml" line="86"/>
         <source>Frameworks and libraries</source>
-        <translation type="unfinished"></translation>
+        <translation>סביבות עבודה וספריות</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="155"/>
@@ -484,7 +484,7 @@
     <message>
         <location filename="../../src/clioptions.cpp" line="54"/>
         <source>Semi-colon separated list of paths to search the QML interface.</source>
-        <translation type="unfinished"></translation>
+        <translation>רשימת נתיבים לחיפוש מנשק QML עם הפרדה לפסיקים.</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="56"/>
@@ -545,12 +545,12 @@
     <message>
         <location filename="../qml/RecordConfig.qml" line="87"/>
         <source>Stop video recording</source>
-        <translation type="unfinished"></translation>
+        <translation>עצירת הקלטת וידאו</translation>
     </message>
     <message>
         <location filename="../qml/RecordConfig.qml" line="90"/>
         <source>Start video recording</source>
-        <translation type="unfinished"></translation>
+        <translation>התחלת הקלטת וידאו</translation>
     </message>
     <message>
         <location filename="../qml/RecordConfig.qml" line="145"/>
