@@ -555,7 +555,7 @@
     <message>
         <location filename="../qml/RecordConfig.qml" line="145"/>
         <source>Save video as…</source>
-        <translation type="unfinished"></translation>
+        <translation>Video opslaan als…</translation>
     </message>
 </context>
 <context>
