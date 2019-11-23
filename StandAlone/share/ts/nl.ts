@@ -224,7 +224,7 @@
     <message>
         <location filename="../qml/ConfigBar.qml" line="52"/>
         <source>Plugins Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Plug-in-instellingen</translation>
     </message>
     <message>
         <location filename="../qml/ConfigBar.qml" line="56"/>
@@ -321,7 +321,7 @@
     <message>
         <location filename="../qml/GeneralConfig.qml" line="86"/>
         <source>Frameworks and libraries</source>
-        <translation type="unfinished"></translation>
+        <translation>Frameworks en bibliotheken</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="155"/>
@@ -484,7 +484,7 @@
     <message>
         <location filename="../../src/clioptions.cpp" line="54"/>
         <source>Semi-colon separated list of paths to search the QML interface.</source>
-        <translation type="unfinished"></translation>
+        <translation>Puntkommagescheiden lijst met te doorzoeken paden in QML.</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="56"/>
@@ -544,12 +544,12 @@
     <message>
         <location filename="../qml/RecordConfig.qml" line="87"/>
         <source>Stop video recording</source>
-        <translation type="unfinished"></translation>
+        <translation>Video-opname stoppen</translation>
     </message>
     <message>
         <location filename="../qml/RecordConfig.qml" line="90"/>
         <source>Start video recording</source>
-        <translation type="unfinished"></translation>
+        <translation>Video-opname starten</translation>
     </message>
     <message>
         <location filename="../qml/RecordConfig.qml" line="145"/>
