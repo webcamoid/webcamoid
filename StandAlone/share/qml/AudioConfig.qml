@@ -113,6 +113,7 @@ Rectangle {
 
         ToolButton {
             id: btnOutputs
+            //: Output device for audio playback, for example a speaker.
             text: qsTr("Outputs")
             checked: true
             Layout.fillWidth: true
@@ -131,6 +132,7 @@ Rectangle {
         }
         ToolButton {
             id: btnInputs
+            //: Input device for audio capturing, for example a microphone.
             text: qsTr("Inputs")
             Layout.fillWidth: true
             ToolTip.visible: hovered

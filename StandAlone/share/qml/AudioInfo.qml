@@ -230,6 +230,15 @@ GridLayout {
     }
 
     Label {
+        /*: An sample represents the strength of the wave at a certain time.
+            A sample can be expressed as the number of bits defining it (more
+            bits better sound), the type of data representing it (signed
+            integer, unsigned integer, floating point), and the endianness of
+            the data (big endian, little endian).
+            The sample format is the representation of that information.
+            For example, 's16le' means that each sample format is represented by
+            a 16 bits signed integer arranged as little endian.
+         */
         text: qsTr("Sample Format")
     }
     ColumnLayout {

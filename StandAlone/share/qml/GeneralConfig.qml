@@ -51,6 +51,7 @@ ScrollView {
                       scrollView.ScrollBar.vertical.width: 0)
 
         Label {
+            //: Start playing the webcam right after opening Webcamoid.
             text: qsTr("Play webcam on start")
         }
         RowLayout {
@@ -82,7 +83,7 @@ ScrollView {
         }
 
         Label {
-            text: qsTr("Frameworks & libraries")
+            text: qsTr("Frameworks and libraries")
             font.pointSize: 1.25 * font.pointSize
             font.bold: true
             Layout.topMargin: 10

@@ -49,7 +49,7 @@ Rectangle {
             }
             ListElement {
                 option: "plugins"
-                description: qsTr("Plugins Configs")
+                description: qsTr("Plugins Settings")
             }
             ListElement {
                 option: "updates"

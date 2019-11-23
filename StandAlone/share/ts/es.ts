@@ -110,28 +110,30 @@
 <context>
     <name>AudioConfig</name>
     <message>
-        <location filename="../qml/AudioConfig.qml" line="116"/>
+        <location filename="../qml/AudioConfig.qml" line="117"/>
         <source>Outputs</source>
+        <extracomment>Output device for audio playback, for example a speaker.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/AudioConfig.qml" line="120"/>
+        <location filename="../qml/AudioConfig.qml" line="121"/>
         <source>Select the output device for audio playing</source>
         <translation>Seleccione el dispositivo de salida para reproducir el audio</translation>
     </message>
     <message>
-        <location filename="../qml/AudioConfig.qml" line="134"/>
+        <location filename="../qml/AudioConfig.qml" line="136"/>
         <source>Inputs</source>
+        <extracomment>Input device for audio capturing, for example a microphone.</extracomment>
         <translation>Entradas</translation>
     </message>
     <message>
-        <location filename="../qml/AudioConfig.qml" line="137"/>
+        <location filename="../qml/AudioConfig.qml" line="139"/>
         <source>Select the device for audio capturing</source>
         <translation>Seleccione el dispositivo para la captura del audio</translation>
     </message>
     <message>
-        <location filename="../qml/AudioConfig.qml" line="194"/>
-        <location filename="../qml/AudioConfig.qml" line="296"/>
+        <location filename="../qml/AudioConfig.qml" line="196"/>
+        <location filename="../qml/AudioConfig.qml" line="298"/>
         <source>Silence</source>
         <translation>Silenciar</translation>
     </message>
@@ -157,22 +159,23 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/AudioInfo.qml" line="233"/>
+        <location filename="../qml/AudioInfo.qml" line="242"/>
         <source>Sample Format</source>
+        <extracomment>An sample represents the strength of the wave at a certain time. A sample can be expressed as the number of bits defining it (more bits better sound), the type of data representing it (signed integer, unsigned integer, floating point), and the endianness of the data (big endian, little endian). The sample format is the representation of that information. For example, &apos;s16le&apos; means that each sample format is represented by a 16 bits signed integer arranged as little endian.</extracomment>
         <translation>Formato de la muestra</translation>
     </message>
     <message>
-        <location filename="../qml/AudioInfo.qml" line="259"/>
+        <location filename="../qml/AudioInfo.qml" line="268"/>
         <source>Channels</source>
         <translation>Canales</translation>
     </message>
     <message>
-        <location filename="../qml/AudioInfo.qml" line="285"/>
+        <location filename="../qml/AudioInfo.qml" line="294"/>
         <source>Sample Rate</source>
         <translation>Frequencia de muestreo</translation>
     </message>
     <message>
-        <location filename="../qml/AudioInfo.qml" line="320"/>
+        <location filename="../qml/AudioInfo.qml" line="329"/>
         <source>Latency (ms)</source>
         <extracomment>The latency is the amount of accumulated audio ready to play, measured in time. Higher latency == smoother audio playback, but more desynchronization with the video. Lowerer latency == audio desynchronization near to the video, but glitchy audio playback. https://en.wikipedia.org/wiki/Latency_(audio)</extracomment>
         <translation type="unfinished"></translation>
@@ -220,8 +223,8 @@
     </message>
     <message>
         <location filename="../qml/ConfigBar.qml" line="52"/>
-        <source>Plugins Configs</source>
-        <translation>Configuración de plugins</translation>
+        <source>Plugins Settings</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/ConfigBar.qml" line="56"/>
@@ -270,62 +273,63 @@
 <context>
     <name>GeneralConfig</name>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="54"/>
+        <location filename="../qml/GeneralConfig.qml" line="55"/>
         <source>Play webcam on start</source>
+        <extracomment>Start playing the webcam right after opening Webcamoid.</extracomment>
         <translation>Reproducir webcam al inicio</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="69"/>
+        <location filename="../qml/GeneralConfig.qml" line="70"/>
         <source>Enable advanced effects mode</source>
         <translation>Habilitar el modo de efectos avanzados</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="85"/>
-        <source>Frameworks &amp; libraries</source>
-        <translation>Frameworks y librerías</translation>
-    </message>
-    <message>
-        <location filename="../qml/GeneralConfig.qml" line="94"/>
+        <location filename="../qml/GeneralConfig.qml" line="95"/>
         <source>Video capture</source>
         <translation>Captura de vídeo</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="104"/>
+        <location filename="../qml/GeneralConfig.qml" line="105"/>
         <source>Desktop capture</source>
         <translation>Captura del escritorio</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="114"/>
+        <location filename="../qml/GeneralConfig.qml" line="115"/>
         <source>Audio capture/play</source>
         <translation>Capturar/Reproducir audio</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="124"/>
+        <location filename="../qml/GeneralConfig.qml" line="125"/>
         <source>Video convert</source>
         <translation>Convertir vídeo</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="134"/>
+        <location filename="../qml/GeneralConfig.qml" line="135"/>
         <source>Audio convert</source>
         <translation>Convertir audio</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="175"/>
+        <location filename="../qml/GeneralConfig.qml" line="176"/>
         <source>Virtual camera driver</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="144"/>
+        <location filename="../qml/GeneralConfig.qml" line="145"/>
         <source>Video playback</source>
         <translation>Reproducción de vídeo</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="154"/>
+        <location filename="../qml/GeneralConfig.qml" line="86"/>
+        <source>Frameworks and libraries</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/GeneralConfig.qml" line="155"/>
         <source>Video record</source>
         <translation>Grabación de vídeo</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="164"/>
+        <location filename="../qml/GeneralConfig.qml" line="165"/>
         <source>Root method</source>
         <translation>Método inicial</translation>
     </message>
@@ -479,8 +483,8 @@
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="54"/>
-        <source>Semi-colon separated list of paths to search the Qml interface.</source>
-        <translation>Lista de rutas separadas por punto y coma para buscar en la interfaz Qml.</translation>
+        <source>Semi-colon separated list of paths to search the QML interface.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="56"/>
@@ -527,12 +531,6 @@
         <translation>Vídeo %1.%2</translation>
     </message>
     <message>
-        <location filename="../qml/RecordConfig.qml" line="87"/>
-        <source>Stop recording video</source>
-        <translation>Detener la grabación de vídeo</translation>
-    </message>
-    <message>
-        <location filename="../qml/RecordConfig.qml" line="90"/>
         <location filename="../qml/RecordConfig.qml" line="128"/>
         <source>Start recording video</source>
         <translation>Iniciar la grabación de vídeo</translation>
@@ -542,6 +540,16 @@
         <location filename="../qml/RecordConfig.qml" line="104"/>
         <source>Description</source>
         <translation>Descripción</translation>
+    </message>
+    <message>
+        <location filename="../qml/RecordConfig.qml" line="87"/>
+        <source>Stop video recording</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/RecordConfig.qml" line="90"/>
+        <source>Start video recording</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/RecordConfig.qml" line="145"/>

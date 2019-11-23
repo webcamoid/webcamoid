@@ -5,6 +5,7 @@
         <file>share/themes/Default/Button.qml</file>
         <file>share/themes/Default/ComboBox.qml</file>
         <file>share/themes/Default/Label.qml</file>
+        <file>share/themes/Default/MenuItem.qml</file>
         <file>share/themes/Default/Pane.qml</file>
         <file>share/themes/Default/Slider.qml</file>
         <file>share/themes/Default/SpinBox.qml</file>

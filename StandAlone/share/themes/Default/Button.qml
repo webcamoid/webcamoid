@@ -61,15 +61,14 @@ T.Button {
             spacing: button.spacing
             mirrored: button.mirrored
             display: button.display
-            anchors.verticalCenter: buttonContent.verticalCenter
-            anchors.horizontalCenter: buttonContent.horizontalCenter
-
             icon: button.icon
             text: button.text
             font: button.font
             color: button.highlighted?
                        ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
                        ThemeSettings.colorPrimary
+            anchors.verticalCenter: buttonContent.verticalCenter
+            anchors.horizontalCenter: buttonContent.horizontalCenter
         }
     }
     background: Item {

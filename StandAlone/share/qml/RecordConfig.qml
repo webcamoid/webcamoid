@@ -84,10 +84,10 @@ ColumnLayout {
         onFormatChanged: updateFields()
         onStateChanged: {
             if (state === AkElement.ElementStatePlaying) {
-                lblRecordLabel.text = qsTr("Stop recording video")
+                lblRecordLabel.text = qsTr("Stop video recording")
                 imgRecordIcon.source = "image://icons/webcamoid-record-stop"
             } else {
-                lblRecordLabel.text = qsTr("Start recording video")
+                lblRecordLabel.text = qsTr("Start video recording")
                 imgRecordIcon.source = "image://icons/webcamoid-record-start"
             }
         }

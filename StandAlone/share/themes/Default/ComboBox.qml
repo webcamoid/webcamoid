@@ -28,15 +28,15 @@ import AkQml 1.0
 
 T.ComboBox {
     id: comboBox
-    implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
-                            implicitContentWidth + leftPadding + rightPadding,
-                            Ak.newUnit(96 * ThemeSettings.constrolScale,
-                                       "dp").pixels)
-    implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
-                             implicitContentHeight + topPadding + bottomPadding,
-                             implicitIndicatorHeight + topPadding + bottomPadding,
-                             Ak.newUnit(36 * ThemeSettings.constrolScale,
-                                        "dp").pixels)
+    implicitWidth:
+        Math.max(implicitBackgroundWidth + leftInset + rightInset,
+                 implicitContentWidth + leftPadding + rightPadding,
+                 Ak.newUnit(96 * ThemeSettings.constrolScale, "dp").pixels)
+    implicitHeight:
+        Math.max(implicitBackgroundHeight + topInset + bottomInset,
+                 implicitContentHeight + topPadding + bottomPadding,
+                 implicitIndicatorHeight + topPadding + bottomPadding,
+                 Ak.newUnit(36 * ThemeSettings.constrolScale, "dp").pixels)
     padding: Ak.newUnit(8 * ThemeSettings.constrolScale, "dp").pixels
     leftPadding: Ak.newUnit(16 * ThemeSettings.constrolScale, "dp").pixels
     rightPadding: Ak.newUnit(40 * ThemeSettings.constrolScale, "dp").pixels
@@ -186,10 +186,11 @@ T.ComboBox {
 
     // List of elements
     popup: T.Popup {
+        id: popup
         y: comboBox.height
            + Ak.newUnit(4 * ThemeSettings.constrolScale, "dp").pixels
         width: comboBox.width
-        height: contentItem.implicitHeight
+        implicitHeight: contentItem.implicitHeight
         transformOrigin: Item.Top
         topMargin: Ak.newUnit(8 * ThemeSettings.constrolScale, "dp").pixels
         bottomMargin: topMargin
@@ -235,20 +236,18 @@ T.ComboBox {
             implicitHeight: contentHeight
             model: comboBox.delegateModel
             currentIndex: comboBox.highlightedIndex
-
-            T.ScrollIndicator.vertical: ScrollIndicator {
-            }
-
             layer.enabled: true
             layer.effect: OpacityMask {
                 cached: true
                 maskSource: Rectangle {
-                    width: popupBackground.width
-                    height: popupBackground.height
-                    radius: popupBackground.radius
+                    width: popup.width
+                    height: popup.height
+                    radius: comboBox.radius
                     visible: false
                 }
 
+            }
+            T.ScrollIndicator.vertical: ScrollIndicator {
             }
         }
 
@@ -263,7 +262,7 @@ T.ComboBox {
                 cached: true
                 horizontalOffset: popupBackground.radius / 2
                 verticalOffset: popupBackground.radius / 2
-                radius: popupBackground.radius
+                radius: comboBox.radius
                 samples: 2 * radius + 1
                 color: ThemeSettings.constShade(ThemeSettings.colorBack, -0.9)
             }

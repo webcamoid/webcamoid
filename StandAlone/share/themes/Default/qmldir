@@ -3,6 +3,7 @@ ApplicationWindow 1.0 ApplicationWindow.qml
 Button 1.0 Button.qml
 ComboBox 1.0 ComboBox.qml
 Label 1.0 Label.qml
+MenuItem 1.0 MenuItem.qml
 Pane 1.0 Pane.qml
 Slider 1.0 Slider.qml
 SpinBox 1.0 SpinBox.qml

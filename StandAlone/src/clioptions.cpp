@@ -52,7 +52,7 @@ CliOptions::CliOptions()
 
     this->d->m_qmlPathOpt.setDescription(
                 QObject::tr("Semi-colon separated list of paths to search the "
-                            "Qml interface."));
+                            "QML interface."));
     this->d->m_qmlPathOpt.setValueName(QObject::tr("PATH1;PATH2;PATH3;..."));
     this->addOption(this->d->m_qmlPathOpt);
 
