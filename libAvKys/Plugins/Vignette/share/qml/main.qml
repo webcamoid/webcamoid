@@ -85,6 +85,7 @@ GridLayout {
 
     Label {
         id: lblAspect
+        //: Aspect ratio
         text: qsTr("Aspect")
     }
     Slider {

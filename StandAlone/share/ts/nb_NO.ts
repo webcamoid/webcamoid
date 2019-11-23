@@ -489,8 +489,8 @@
     <message>
         <location filename="../../src/clioptions.cpp" line="56"/>
         <location filename="../../src/clioptions.cpp" line="68"/>
-        <location filename="../../src/clioptions.cpp" line="74"/>
-        <location filename="../../src/clioptions.cpp" line="80"/>
+        <location filename="../../src/clioptions.cpp" line="77"/>
+        <location filename="../../src/clioptions.cpp" line="83"/>
         <source>PATH1;PATH2;PATH3;...</source>
         <translation type="unfinished">STI1;STI2;STI3;…</translation>
     </message>
@@ -505,12 +505,13 @@
         <translation>Semikolonsinndelt liste over å søke etter programtillegg i.</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="72"/>
+        <location filename="../../src/clioptions.cpp" line="75"/>
         <source>Semi-colon separated list of paths to avoid loading.</source>
+        <extracomment>Blacklist of plugins that could have conflicts when loading in Webcamoid.</extracomment>
         <translation type="unfinished">Semikolonsinndelt stisvarteliste.</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="78"/>
+        <location filename="../../src/clioptions.cpp" line="81"/>
         <source>Semi-colon separated list of paths to search for virtual camera driver</source>
         <translation>Semikoloninndelt liste over stier det skal søkes etter virtuell kameradriver i</translation>
     </message>
@@ -553,8 +554,8 @@
     </message>
     <message>
         <location filename="../qml/RecordConfig.qml" line="145"/>
-        <source>Save video as...</source>
-        <translation>Lagre video som…</translation>
+        <source>Save video as…</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2053,17 +2054,18 @@
         <translation>Tilbakestill</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Vignette/share/qml/main.qml" line="88"/>
+        <location filename="../../../libAvKys/Plugins/Vignette/share/qml/main.qml" line="89"/>
         <source>Aspect</source>
+        <extracomment>Aspect ratio</extracomment>
         <translation>Bilderetning</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Vignette/share/qml/main.qml" line="111"/>
+        <location filename="../../../libAvKys/Plugins/Vignette/share/qml/main.qml" line="112"/>
         <source>Scale</source>
         <translation>Skala</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Vignette/share/qml/main.qml" line="134"/>
+        <location filename="../../../libAvKys/Plugins/Vignette/share/qml/main.qml" line="135"/>
         <source>Softness</source>
         <translation>Mykhet</translation>
     </message>

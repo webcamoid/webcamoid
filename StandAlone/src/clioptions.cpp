@@ -68,6 +68,9 @@ CliOptions::CliOptions()
     this->d->m_pluginPathsOpt.setValueName(QObject::tr("PATH1;PATH2;PATH3;..."));
     this->addOption(this->d->m_pluginPathsOpt);
 
+    /*: Blacklist of plugins that could have conflicts when loading in
+        Webcamoid.
+     */
     this->d->m_blackListOpt.setDescription(
                 QObject::tr("Semi-colon separated list of paths to avoid "
                             "loading."));

@@ -489,8 +489,8 @@
     <message>
         <location filename="../../src/clioptions.cpp" line="56"/>
         <location filename="../../src/clioptions.cpp" line="68"/>
-        <location filename="../../src/clioptions.cpp" line="74"/>
-        <location filename="../../src/clioptions.cpp" line="80"/>
+        <location filename="../../src/clioptions.cpp" line="77"/>
+        <location filename="../../src/clioptions.cpp" line="83"/>
         <source>PATH1;PATH2;PATH3;...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -505,12 +505,13 @@
         <translation>Lista de rutas separadas por dos puntos para buscar plugins.</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="72"/>
+        <location filename="../../src/clioptions.cpp" line="75"/>
         <source>Semi-colon separated list of paths to avoid loading.</source>
+        <extracomment>Blacklist of plugins that could have conflicts when loading in Webcamoid.</extracomment>
         <translation>Lista de rutas separadas por dos puntos para evitar la carga.</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="78"/>
+        <location filename="../../src/clioptions.cpp" line="81"/>
         <source>Semi-colon separated list of paths to search for virtual camera driver</source>
         <translation>Lista de rutas separadas por punto y coma para buscar el controlador de la cámara virtual</translation>
     </message>
@@ -553,8 +554,8 @@
     </message>
     <message>
         <location filename="../qml/RecordConfig.qml" line="145"/>
-        <source>Save video as...</source>
-        <translation>Guardar vídeo como...</translation>
+        <source>Save video as…</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2053,17 +2054,18 @@
         <translation>Restablecer</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Vignette/share/qml/main.qml" line="88"/>
+        <location filename="../../../libAvKys/Plugins/Vignette/share/qml/main.qml" line="89"/>
         <source>Aspect</source>
+        <extracomment>Aspect ratio</extracomment>
         <translation>Aspecto</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Vignette/share/qml/main.qml" line="111"/>
+        <location filename="../../../libAvKys/Plugins/Vignette/share/qml/main.qml" line="112"/>
         <source>Scale</source>
         <translation>Escala</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Vignette/share/qml/main.qml" line="134"/>
+        <location filename="../../../libAvKys/Plugins/Vignette/share/qml/main.qml" line="135"/>
         <source>Softness</source>
         <translation>Suavidad</translation>
     </message>

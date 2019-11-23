@@ -142,7 +142,7 @@ ColumnLayout {
             else {
                 var filters = recRecordConfig.makeFilters()
 
-                var fileUrl = Webcamoid.saveFileDialog(qsTr("Save video as..."),
+                var fileUrl = Webcamoid.saveFileDialog(qsTr("Save video as…"),
                                          recRecordConfig.makeFileName(),
                                          Webcamoid.standardLocations("movies")[0],
                                          "." + recRecordConfig.defaultSuffix(),
