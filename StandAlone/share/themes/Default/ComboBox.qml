@@ -236,6 +236,7 @@ T.ComboBox {
             implicitHeight: contentHeight
             model: comboBox.delegateModel
             currentIndex: comboBox.highlightedIndex
+            cacheBuffer: 1
             layer.enabled: true
             layer.effect: OpacityMask {
                 cached: true

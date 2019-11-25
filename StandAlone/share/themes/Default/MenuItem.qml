@@ -31,7 +31,7 @@ T.MenuItem {
     implicitWidth:
         Math.max(implicitBackgroundWidth + leftInset + rightInset,
                  implicitContentWidth + leftPadding + rightPadding
-                 + itemMenuArrow.width
+                 + menuItemArrow.width
                  + (menuItem.checkable? Ak.newUnit(20, "dp").pixels: 0)
                  + Ak.newUnit(48, "dp").pixels )
     implicitHeight:
@@ -56,23 +56,48 @@ T.MenuItem {
     }
 
     // Checked indicator
-    indicator: CheckBox {
-        id: checkBox
+    indicator: Item {
+        id: checkMark
         width: menuItem.checkable? Ak.newUnit(24, "dp").pixels: 0
-        height: height
+        height: menuItem.checkable? Ak.newUnit(24, "dp").pixels: 0
         anchors.verticalCenter: parent.verticalCenter
         anchors.left: parent.left
         anchors.leftMargin: Ak.newUnit(16, "dp").pixels
-        checked: menuItem.checked
-        visible: menuItem.checkable
-        enabled: menuItem.enabled
+        visible: menuItem.checkable && menuItem.checked
+
+        Shape {
+            id: shapeChecked
+            width: visible? Ak.newUnit(12, "dp").pixels: 0
+            height: visible? Ak.newUnit(12, "dp").pixels: 0
+            anchors.verticalCenter: checkMark.verticalCenter
+            anchors.horizontalCenter: checkMark.horizontalCenter
+            antialiasing: true
+            smooth: true
+
+            ShapePath {
+                id: shapePathChecked
+                startX: 0 * shapeChecked.width / 3
+                startY: 2 * shapeChecked.height / 3
+                fillColor: "transparent"
+                strokeColor:
+                    menuItem.highlighted?
+                        ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
+                        ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
+                strokeWidth: Ak.newUnit(3, "dp").pixels
+                capStyle: ShapePath.RoundCap
+                joinStyle: ShapePath.RoundJoin
+
+                PathLine { x: 1 * shapeChecked.width / 3; y: 3 * shapeChecked.height / 3 }
+                PathLine { x: 3 * shapeChecked.width / 3; y: 0 * shapeChecked.height / 3 }
+            }
+        }
     }
 
     // >
     arrow: Item {
-        id: itemMenuArrow
+        id: menuItemArrow
         width: visible? Ak.newUnit(24, "dp").pixels: 0
-        height: width
+        height: visible? Ak.newUnit(24, "dp").pixels: 0
         anchors.verticalCenter: parent.verticalCenter
         anchors.right: parent.right
         anchors.rightMargin: Ak.newUnit(16, "dp").pixels
@@ -80,16 +105,19 @@ T.MenuItem {
 
         Shape {
             id: shapeRight
-            width: itemMenuArrow.width / 4
-            height: itemMenuArrow.height / 2
-            anchors.verticalCenter: itemMenuArrow.verticalCenter
-            anchors.horizontalCenter: itemMenuArrow.horizontalCenter
+            width: visible? Ak.newUnit(6, "dp").pixels: 0
+            height: visible? Ak.newUnit(12, "dp").pixels: 0
+            anchors.verticalCenter: menuItemArrow.verticalCenter
+            anchors.horizontalCenter: menuItemArrow.horizontalCenter
 
             ShapePath {
                 id: shapePathRight
                 startX: 0 * shapeRight.width
                 startY: 0 * shapeRight.height
-                fillColor: ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
+                fillColor:
+                    menuItem.highlighted?
+                        ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
+                        ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
                 strokeColor: "transparent"
 
                 PathLine { x: 1 * shapeRight.width; y: 0.5 * shapeRight.height }
@@ -105,11 +133,13 @@ T.MenuItem {
         display: menuItem.display
         icon: menuItem.icon
         text: menuItem.text
-        anchors.left: checkBox.right
+        anchors.left: checkMark.right
         anchors.leftMargin: menuItem.checkable? Ak.newUnit(20, "dp").pixels: 0
-        anchors.right: itemMenuArrow.left
+        anchors.right: menuItemArrow.left
         font: menuItem.font
-        color: ThemeSettings.colorText
+        color: menuItem.highlighted?
+                   ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
+                   ThemeSettings.colorText
         alignment: Qt.AlignLeft
     }
 
@@ -132,7 +162,12 @@ T.MenuItem {
             anchors.horizontalCenter: backgroundItem.horizontalCenter
             width: 2 * radius
             height: 2 * radius
-            color: ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
+            color: menuItem.highlighted?
+                       ThemeSettings.constShade(ThemeSettings.colorPrimary,
+                                                    0.3,
+                                                    0.75):
+                       ThemeSettings.shade(ThemeSettings.colorBack,
+                                               -0.5)
             opacity: 0
             layer.enabled: true
             layer.effect: OpacityMask {
@@ -142,7 +177,9 @@ T.MenuItem {
 
         Rectangle {
             id: background
-            color: "transparent"
+            color: menuItem.highlighted?
+                       ThemeSettings.colorPrimary:
+                       Qt.hsla(0, 0, 0, 0)
             anchors.fill: parent
         }
     }
@@ -157,8 +194,24 @@ T.MenuItem {
                 opacity: 0.5
             }
             PropertyChanges {
+                target: shapePathChecked
+                strokeColor:
+                    menuItem.highlighted?
+                        ThemeSettings.shade(ThemeSettings.colorBack, -0.2):
+                        ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
+            }
+            PropertyChanges {
                 target: shapePathRight
-                fillColor: ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
+                fillColor:
+                    menuItem.highlighted?
+                        ThemeSettings.shade(ThemeSettings.colorBack, -0.2):
+                        ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
+            }
+            PropertyChanges {
+                target: background
+                color: menuItem.highlighted?
+                           ThemeSettings.shade(ThemeSettings.colorBack, -0.3):
+                           Qt.hsla(0, 0, 0, 0)
             }
         },
         State {
@@ -169,12 +222,25 @@ T.MenuItem {
                   && !menuItem.pressed
 
             PropertyChanges {
+                target: shapePathChecked
+                strokeColor:
+                    menuItem.highlighted?
+                        ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
+                        ThemeSettings.shade(ThemeSettings.colorBack, -0.6)
+            }
+            PropertyChanges {
                 target: shapePathRight
-                fillColor: ThemeSettings.shade(ThemeSettings.colorBack, -0.6)
+                fillColor:
+                    menuItem.highlighted?
+                        ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
+                        ThemeSettings.shade(ThemeSettings.colorBack, -0.6)
             }
             PropertyChanges {
                 target: background
-                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
+                color:
+                    menuItem.highlighted?
+                        ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.1):
+                        ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
             }
         },
         State {
@@ -184,12 +250,25 @@ T.MenuItem {
                   && !menuItem.pressed
 
             PropertyChanges {
+                target: shapePathChecked
+                strokeColor:
+                    menuItem.highlighted?
+                        ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
+                        ThemeSettings.shade(ThemeSettings.colorBack, -0.6)
+            }
+            PropertyChanges {
                 target: shapePathRight
-                fillColor: ThemeSettings.shade(ThemeSettings.colorBack, -0.6)
+                fillColor:
+                    menuItem.highlighted?
+                        ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
+                        ThemeSettings.shade(ThemeSettings.colorBack, -0.6)
             }
             PropertyChanges {
                 target: background
-                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.2)
+                color:
+                    menuItem.highlighted?
+                        ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.2):
+                        ThemeSettings.shade(ThemeSettings.colorBack, -0.2)
             }
         },
         State {
@@ -198,13 +277,27 @@ T.MenuItem {
                   && menuItem.pressed
 
             PropertyChanges {
+                target: shapePathChecked
+                strokeColor:
+                    menuItem.highlighted?
+                        ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
+                        ThemeSettings.shade(ThemeSettings.colorBack, -0.7)
+            }
+            PropertyChanges {
                 target: shapePathRight
-                fillColor: ThemeSettings.shade(ThemeSettings.colorBack, -0.7)
+                fillColor:
+                    menuItem.highlighted?
+                        ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
+                        ThemeSettings.shade(ThemeSettings.colorBack, -0.7)
             }
             PropertyChanges {
                 target: menuItemPress
                 radius: menuItem.pressIndicatorRadius()
                 opacity: 1
+            }
+            PropertyChanges {
+                target: background
+                visible: false
             }
         }
     ]
@@ -213,6 +306,11 @@ T.MenuItem {
         PropertyAnimation {
             target: iconLabel
             properties: "opacity"
+            duration: menuItem.animationTime
+        }
+        PropertyAnimation {
+            target: shapePathChecked
+            properties: "strokeColor"
             duration: menuItem.animationTime
         }
         PropertyAnimation {
