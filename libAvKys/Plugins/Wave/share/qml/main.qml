@@ -51,17 +51,17 @@ GridLayout {
 
         onAmplitudeChanged: {
             sldAmplitude.value = amplitude
-            spbAmplitude.rvalue = amplitude
+            spbAmplitude.value = spbAmplitude.multiplier * amplitude
         }
 
         onFrequencyChanged: {
             sldFrequency.value = frequency
-            spbFrequency.rvalue = frequency
+            spbFrequency.value = spbFrequency.multiplier * frequency
         }
 
         onPhaseChanged: {
             sldPhase.value = phase
-            spbPhase.rvalue = phase
+            spbPhase.value = spbPhase.multiplier * phase
         }
     }
 
@@ -69,6 +69,7 @@ GridLayout {
         id: lblAmplitude
         text: qsTr("Amplitude")
     }
+
     Slider {
         id: sldAmplitude
         value: Wave.amplitude
@@ -78,14 +79,28 @@ GridLayout {
 
         onValueChanged: Wave.amplitude = value
     }
-    AkSpinBox {
+    SpinBox {
         id: spbAmplitude
-        decimals: 2
-        rvalue: Wave.amplitude
-        maximumValue: sldAmplitude.to
-        step: sldAmplitude.stepSize
+        value: multiplier * Wave.amplitude
+        to: multiplier * sldAmplitude.to
+        stepSize: multiplier * sldAmplitude.stepSize
+        editable: true
 
-        onRvalueChanged: Wave.amplitude = rvalue
+        readonly property int decimals: 2
+        readonly property int multiplier: Math.pow(10, decimals)
+
+        validator: DoubleValidator {
+            id: val
+            bottom: Math.min(spbAmplitude.from, spbAmplitude.to)
+            top:  Math.max(spbAmplitude.from, spbAmplitude.to)
+        }
+        textFromValue: function(value, locale) {
+            return Number(value / multiplier).toLocaleString(locale, 'f', decimals)
+        }
+        valueFromText: function(text, locale) {
+            return Number.fromLocaleString(locale, text) * multiplier
+        }
+        onValueModified: Wave.amplitude = value / multiplier
     }
 
     Label {
@@ -101,14 +116,27 @@ GridLayout {
 
         onValueChanged: Wave.frequency = value
     }
-    AkSpinBox {
+    SpinBox {
         id: spbFrequency
-        decimals: 2
-        rvalue: Wave.frequency
-        maximumValue: sldFrequency.to
-        step: sldFrequency.stepSize
+        value: multiplier * Wave.frequency
+        to: multiplier * sldFrequency.to
+        stepSize: multiplier * sldFrequency.stepSize
+        editable: true
 
-        onRvalueChanged: Wave.frequency = rvalue
+        readonly property int decimals: 2
+        readonly property int multiplier: Math.pow(10, decimals)
+
+        validator: DoubleValidator {
+            bottom: Math.min(spbFrequency.from, spbFrequency.to)
+            top:  Math.max(spbFrequency.from, spbFrequency.to)
+        }
+        textFromValue: function(value, locale) {
+            return Number(value / multiplier).toLocaleString(locale, 'f', decimals)
+        }
+        valueFromText: function(text, locale) {
+            return Number.fromLocaleString(locale, text) * multiplier
+        }
+        onValueModified: Wave.frequency = value / multiplier
     }
 
     Label {
@@ -124,14 +152,27 @@ GridLayout {
 
         onValueChanged: Wave.phase = value
     }
-    AkSpinBox {
+    SpinBox {
         id: spbPhase
-        decimals: 2
-        rvalue: Wave.phase
-        maximumValue: sldPhase.to
-        step: sldPhase.stepSize
+        value: multiplier * Wave.phase
+        to: multiplier * sldPhase.to
+        stepSize: multiplier * sldPhase.stepSize
+        editable: true
 
-        onRvalueChanged: Wave.phase = rvalue
+        readonly property int decimals: 2
+        readonly property int multiplier: Math.pow(10, decimals)
+
+        validator: DoubleValidator {
+            bottom: Math.min(spbPhase.from, spbPhase.to)
+            top:  Math.max(spbPhase.from, spbPhase.to)
+        }
+        textFromValue: function(value, locale) {
+            return Number(value / multiplier).toLocaleString(locale, 'f', decimals)
+        }
+        valueFromText: function(text, locale) {
+            return Number.fromLocaleString(locale, text) * multiplier
+        }
+        onValueModified: Wave.phase = value / multiplier
     }
 
     Label {

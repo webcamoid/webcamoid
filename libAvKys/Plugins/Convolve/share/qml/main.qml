@@ -21,7 +21,6 @@ import QtQuick 2.7
 import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.3
 import AkQml 1.0
-import AkQmlControls 1.0
 
 ColumnLayout {
     id: configs
@@ -39,7 +38,7 @@ ColumnLayout {
 
         onBiasChanged: {
             sldBias.value = bias
-            spbBias.rvalue = bias
+            spbBias.value = bias
         }
     }
 
@@ -178,14 +177,15 @@ ColumnLayout {
 
             onValueChanged: Convolve.bias = value
         }
-        AkSpinBox {
+        SpinBox {
             id: spbBias
-            rvalue: Convolve.bias
-            step: sldBias.stepSize
-            minimumValue: sldBias.from
-            maximumValue: sldBias.to
+            value: Convolve.bias
+            stepSize: sldBias.stepSize
+            from: sldBias.from
+            to: sldBias.to
+            editable: true
 
-            onRvalueChanged: Convolve.bias = rvalue
+            onValueChanged: Convolve.bias = Number(value)
         }
     }
 }

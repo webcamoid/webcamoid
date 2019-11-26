@@ -1,11 +1,11 @@
 module AkQmlControls
 
 AkColorButton 1.0 AkColorButton.qml
-AkSpinBox     1.0 AkSpinBox.qml
 
 depends QtQuick          2.7
 depends QtQuick.Controls 2.5
 depends QtQuick.Layouts  1.3
 depends QtQuick.Window   2.2
+depends QtQuick.Dialogs  1.2
 
 designersupported

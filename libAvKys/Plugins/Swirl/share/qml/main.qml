@@ -20,7 +20,6 @@
 import QtQuick 2.7
 import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.3
-import AkQmlControls 1.0
 
 GridLayout {
     columns: 3
@@ -30,7 +29,7 @@ GridLayout {
 
         onDegreesChanged: {
             sldDegrees.value = degrees
-            spbDegrees.rvalue = degrees
+            spbDegrees.value = degrees
         }
     }
 
@@ -47,13 +46,14 @@ GridLayout {
 
         onValueChanged: Swirl.degrees = value
     }
-    AkSpinBox {
+    SpinBox {
         id: spbDegrees
-        rvalue: Swirl.degrees
-        minimumValue: sldDegrees.from
-        maximumValue: sldDegrees.to
-        step: sldDegrees.stepSize
+        value: Swirl.degrees
+        from: sldDegrees.from
+        to: sldDegrees.to
+        stepSize: sldDegrees.stepSize
+        editable: true
 
-        onRvalueChanged: Swirl.degrees = rvalue
+        onValueChanged: Swirl.degrees = value
     }
 }

@@ -64,19 +64,19 @@ GridLayout {
 
         onNcolorsChanged: {
             sldNColors.value = ncolors
-            spbNColors.rvalue = ncolors
+            spbNColors.value = ncolors
         }
         onColorDiffChanged: {
             sldColorDiff.value = colorDiff
-            spbColorDiff.rvalue = colorDiff
+            spbColorDiff.value = colorDiff
         }
         onThresholdLowChanged: {
             sldThresholdLow.value = thresholdLow
-            spbThresholdLow.rvalue = thresholdLow
+            spbThresholdLow.value = thresholdLow
         }
         onThresholdHiChanged: {
             sldThresholdHi.value = thresholdHi
-            spbThresholdHi.rvalue = thresholdHi
+            spbThresholdHi.value = thresholdHi
         }
     }
 
@@ -93,13 +93,14 @@ GridLayout {
 
         onValueChanged: Cartoon.ncolors = value
     }
-    AkSpinBox {
+    SpinBox {
         id: spbNColors
-        rvalue: Cartoon.ncolors
-        maximumValue: sldNColors.to
-        step: sldNColors.stepSize
+        value: Cartoon.ncolors
+        to: sldNColors.to
+        stepSize: sldNColors.stepSize
+        editable: true
 
-        onRvalueChanged: Cartoon.ncolors = rvalue
+        onValueChanged: Cartoon.ncolors = Number(value)
     }
 
     Label {
@@ -115,13 +116,14 @@ GridLayout {
 
         onValueChanged: Cartoon.colorDiff = value
     }
-    AkSpinBox {
+    SpinBox {
         id: spbColorDiff
-        rvalue: Cartoon.colorDiff
-        maximumValue: sldColorDiff.to
-        step: sldColorDiff.stepSize
+        value: Cartoon.colorDiff
+        to: sldColorDiff.to
+        stepSize: sldColorDiff.stepSize
+        editable: true
 
-        onRvalueChanged: Cartoon.colorDiff = rvalue
+        onValueChanged: Cartoon.colorDiff = Number(value)
     }
 
     Label {
@@ -157,14 +159,15 @@ GridLayout {
 
         onValueChanged: Cartoon.thresholdLow = value
     }
-    AkSpinBox {
+    SpinBox {
         id: spbThresholdLow
-        rvalue: Cartoon.thresholdLow
-        maximumValue: sldThresholdLow.to
-        step: sldThresholdLow.stepSize
+        value: Cartoon.thresholdLow
+        to: sldThresholdLow.to
+        stepSize: sldThresholdLow.stepSize
         enabled: chkShowEdges.checked
+        editable: true
 
-        onRvalueChanged: Cartoon.thresholdLow = rvalue
+        onValueChanged: Cartoon.thresholdLow = Number(value)
     }
 
     Label {
@@ -182,14 +185,15 @@ GridLayout {
 
         onValueChanged: Cartoon.thresholdHi = value
     }
-    AkSpinBox {
+    SpinBox {
         id: spbThresholdHi
-        rvalue: Cartoon.thresholdHi
-        maximumValue: sldThresholdHi.to
-        step: sldThresholdHi.stepSize
+        value: Cartoon.thresholdHi
+        to: sldThresholdHi.to
+        stepSize: sldThresholdHi.stepSize
         enabled: chkShowEdges.checked
+        editable: true
 
-        onRvalueChanged: Cartoon.thresholdHi = rvalue
+        onValueChanged: Cartoon.thresholdHi = Number(value)
     }
 
     Label {

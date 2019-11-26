@@ -51,7 +51,7 @@ GridLayout {
 
         onRadiusChanged: {
             sldRadius.value = radius
-            spbRadius.rvalue = radius
+            spbRadius.value = radius
         }
     }
 
@@ -90,13 +90,14 @@ GridLayout {
 
         onValueChanged: ColorFilter.radius = value
     }
-    AkSpinBox {
+    SpinBox {
         id: spbRadius
-        rvalue: ColorFilter.radius
-        maximumValue: sldRadius.to
-        step: sldRadius.stepSize
+        value: ColorFilter.radius
+        to: sldRadius.to
+        stepSize: sldRadius.stepSize
+        editable: true
 
-        onRvalueChanged: ColorFilter.radius = rvalue
+        onValueChanged: ColorFilter.radius = Number(value)
     }
 
     // Enable soft color replacing.

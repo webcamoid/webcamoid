@@ -51,12 +51,12 @@ GridLayout {
 
         onThresholdChanged: {
             sldThreshold.value = threshold
-            spbThreshold.rvalue = threshold
+            spbThreshold.value = threshold
         }
 
         onLumaThresholdChanged: {
             sldLumaThreshold.value = lumaThreshold
-            spbLumaThreshold.rvalue = lumaThreshold
+            spbLumaThreshold.value = lumaThreshold
         }
     }
 
@@ -92,13 +92,14 @@ GridLayout {
 
         onValueChanged: Life.threshold = value
     }
-    AkSpinBox {
+    SpinBox {
         id: spbThreshold
-        rvalue: Life.threshold
-        maximumValue: sldThreshold.to
-        step: sldThreshold.stepSize
+        value: Life.threshold
+        to: sldThreshold.to
+        stepSize: sldThreshold.stepSize
+        editable: true
 
-        onRvalueChanged: Life.threshold = rvalue
+        onValueChanged: Life.threshold = value
     }
 
     Label {
@@ -118,12 +119,13 @@ GridLayout {
 
         onValueChanged: Life.lumaThreshold = value
     }
-    AkSpinBox {
+    SpinBox {
         id: spbLumaThreshold
-        rvalue: Life.lumaThreshold
-        maximumValue: sldLumaThreshold.to
-        step: sldLumaThreshold.stepSize
+        value: Life.lumaThreshold
+        to: sldLumaThreshold.to
+        stepSize: sldLumaThreshold.stepSize
+        editable: true
 
-        onRvalueChanged: Life.lumaThreshold = rvalue
+        onValueChanged: Life.lumaThreshold = value
     }
 }

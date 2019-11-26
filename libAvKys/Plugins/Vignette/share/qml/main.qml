@@ -51,17 +51,17 @@ GridLayout {
 
         onAspectChanged: {
             sldAspect.value = aspect
-            spbAspect.rvalue = aspect
+            spbAspect.value = spbAspect.multiplier * aspect
         }
 
         onScaleChanged: {
             sldScale.value = scale
-            spbScale.rvalue = scale
+            spbScale.value = spbScale.multiplier * scale
         }
 
         onSoftnessChanged: {
             sldSoftness.value = softness
-            spbSoftness.rvalue = softness
+            spbSoftness.value = spbSoftness.multiplier * softness
         }
     }
 
@@ -97,14 +97,27 @@ GridLayout {
 
         onValueChanged: Vignette.aspect = value
     }
-    AkSpinBox {
+    SpinBox {
         id: spbAspect
-        decimals: 2
-        rvalue: Vignette.aspect
-        maximumValue: sldAspect.to
-        step: sldAspect.stepSize
+        value: multiplier * Vignette.aspect
+        to: multiplier * sldAspect.to
+        stepSize: multiplier * sldAspect.stepSize
+        editable: true
 
-        onRvalueChanged: Vignette.aspect = rvalue
+        readonly property int decimals: 2
+        readonly property int multiplier: Math.pow(10, decimals)
+
+        validator: DoubleValidator {
+            bottom: Math.min(spbAspect.from, spbAspect.to)
+            top:  Math.max(spbAspect.from, spbAspect.to)
+        }
+        textFromValue: function(value, locale) {
+            return Number(value / multiplier).toLocaleString(locale, 'f', decimals)
+        }
+        valueFromText: function(text, locale) {
+            return Number.fromLocaleString(locale, text) * multiplier
+        }
+        onValueModified: Vignette.aspect = value / multiplier
     }
 
     Label {
@@ -120,14 +133,27 @@ GridLayout {
 
         onValueChanged: Vignette.scale = value
     }
-    AkSpinBox {
+    SpinBox {
         id: spbScale
-        decimals: 2
-        rvalue: Vignette.scale
-        maximumValue: sldScale.to
-        step: sldScale.stepSize
+        value: multiplier * Vignette.scale
+        to: multiplier * sldScale.to
+        stepSize: multiplier * sldScale.stepSize
+        editable: true
 
-        onRvalueChanged: Vignette.scale = rvalue
+        readonly property int decimals: 2
+        readonly property int multiplier: Math.pow(10, decimals)
+
+        validator: DoubleValidator {
+            bottom: Math.min(spbScale.from, spbScale.to)
+            top:  Math.max(spbScale.from, spbScale.to)
+        }
+        textFromValue: function(value, locale) {
+            return Number(value / multiplier).toLocaleString(locale, 'f', decimals)
+        }
+        valueFromText: function(text, locale) {
+            return Number.fromLocaleString(locale, text) * multiplier
+        }
+        onValueModified: Vignette.scale = value / multiplier
     }
 
     Label {
@@ -143,13 +169,26 @@ GridLayout {
 
         onValueChanged: Vignette.softness = value
     }
-    AkSpinBox {
+    SpinBox {
         id: spbSoftness
-        decimals: 2
-        rvalue: Vignette.softness
-        maximumValue: sldSoftness.to
-        step: sldSoftness.stepSize
+        value: multiplier * Vignette.softness
+        to: multiplier * sldSoftness.to
+        stepSize: multiplier * sldSoftness.stepSize
+        editable: true
 
-        onRvalueChanged: Vignette.softness = rvalue
+        readonly property int decimals: 2
+        readonly property int multiplier: Math.pow(10, decimals)
+
+        validator: DoubleValidator {
+            bottom: Math.min(spbSoftness.from, spbSoftness.to)
+            top:  Math.max(spbSoftness.from, spbSoftness.to)
+        }
+        textFromValue: function(value, locale) {
+            return Number(value / multiplier).toLocaleString(locale, 'f', decimals)
+        }
+        valueFromText: function(text, locale) {
+            return Number.fromLocaleString(locale, text) * multiplier
+        }
+        onValueModified: Vignette.softness = value / multiplier
     }
 }

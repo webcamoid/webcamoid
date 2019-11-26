@@ -20,7 +20,6 @@
 import QtQuick 2.7
 import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.3
-import AkQmlControls 1.0
 
 GridLayout {
     columns: 3
@@ -43,27 +42,27 @@ GridLayout {
 
         onCoolChanged: {
             sldCool.value = cool
-            spbCool.rvalue = cool
+            spbCool.value = cool
         }
         onThresholdChanged: {
             sldThreshold.value = threshold
-            spbThreshold.rvalue = threshold
+            spbThreshold.value = threshold
         }
         onLumaThresholdChanged: {
             sldLumaThreshold.value = lumaThreshold
-            spbLumaThreshold.rvalue = lumaThreshold
+            spbLumaThreshold.value = lumaThreshold
         }
         onAlphaDiffChanged: {
             sldAlphaDiff.value = alphaDiff
-            spbAlphaDiff.rvalue = alphaDiff
+            spbAlphaDiff.value = alphaDiff
         }
         onAlphaVariationChanged: {
             sldAlphaVariation.value = alphaVariation
-            spbAlphaVariation.rvalue = alphaVariation
+            spbAlphaVariation.value = alphaVariation
         }
         onNColorsChanged: {
             sldNColors.value = nColors
-            spbNColors.rvalue = nColors
+            spbNColors.value = nColors
         }
     }
 
@@ -106,14 +105,15 @@ GridLayout {
 
         onValueChanged: Fire.cool = value
     }
-    AkSpinBox {
+    SpinBox {
         id: spbCool
-        rvalue: Fire.cool
-        minimumValue: sldCool.from
-        maximumValue: sldCool.to
-        step: sldCool.stepSize
+        value: Fire.cool
+        from: sldCool.from
+        to: sldCool.to
+        stepSize: sldCool.stepSize
+        editable: true
 
-        onRvalueChanged: Fire.cool = rvalue
+        onValueChanged: Fire.cool = value
     }
 
     // Dissolving factor.
@@ -177,13 +177,14 @@ GridLayout {
 
         onValueChanged: Fire.threshold = value
     }
-    AkSpinBox {
+    SpinBox {
         id: spbThreshold
-        rvalue: Fire.threshold
-        maximumValue: sldThreshold.to
-        step: sldThreshold.stepSize
+        value: Fire.threshold
+        to: sldThreshold.to
+        stepSize: sldThreshold.stepSize
+        editable: true
 
-        onRvalueChanged: Fire.threshold = rvalue
+        onValueChanged: Fire.threshold = value
     }
 
     // Luma threshold.
@@ -204,13 +205,14 @@ GridLayout {
 
         onValueChanged: Fire.lumaThreshold = value
     }
-    AkSpinBox {
+    SpinBox {
         id: spbLumaThreshold
-        rvalue: Fire.lumaThreshold
-        maximumValue: sldLumaThreshold.to
-        step: sldLumaThreshold.stepSize
+        value: Fire.lumaThreshold
+        to: sldLumaThreshold.to
+        stepSize: sldLumaThreshold.stepSize
+        editable: true
 
-        onRvalueChanged: Fire.lumaThreshold = rvalue
+        onValueChanged: Fire.lumaThreshold = value
     }
 
     // Alpha diff.
@@ -230,14 +232,15 @@ GridLayout {
 
         onValueChanged: Fire.alphaDiff = value
     }
-    AkSpinBox {
+    SpinBox {
         id: spbAlphaDiff
-        rvalue: Fire.alphaDiff
-        minimumValue: sldAlphaDiff.from
-        maximumValue: sldAlphaDiff.to
-        step: sldAlphaDiff.stepSize
+        value: Fire.alphaDiff
+        from: sldAlphaDiff.from
+        to: sldAlphaDiff.to
+        stepSize: sldAlphaDiff.stepSize
+        editable: true
 
-        onRvalueChanged: Fire.alphaDiff = rvalue
+        onValueChanged: Fire.alphaDiff = value
     }
 
     // Alpha variation.
@@ -256,13 +259,14 @@ GridLayout {
 
         onValueChanged: Fire.alphaVariation = value
     }
-    AkSpinBox {
+    SpinBox {
         id: spbAlphaVariation
-        rvalue: Fire.alphaVariation
-        maximumValue: sldAlphaVariation.to
-        step: sldAlphaVariation.stepSize
+        value: Fire.alphaVariation
+        to: sldAlphaVariation.to
+        stepSize: sldAlphaVariation.stepSize
+        editable: true
 
-        onRvalueChanged: Fire.alphaVariation = rvalue
+        onValueChanged: Fire.alphaVariation = value
     }
 
     // N° of colors.
@@ -278,12 +282,13 @@ GridLayout {
 
         onValueChanged: Fire.nColors = value
     }
-    AkSpinBox {
+    SpinBox {
         id: spbNColors
-        rvalue: Fire.nColors
-        maximumValue: sldNColors.to
-        step: sldNColors.stepSize
+        value: Fire.nColors
+        to: sldNColors.to
+        stepSize: sldNColors.stepSize
+        editable: true
 
-        onRvalueChanged: Fire.nColors = rvalue
+        onValueChanged: Fire.nColors = value
     }
 }

@@ -68,7 +68,7 @@ Rectangle {
     OptionList {
         id: lsvMediaList
         textRole: "description"
-        anchors.bottom: recAddMedia.top
+        anchors.bottom: btnAddMedia.top
         anchors.right: parent.right
         anchors.left: parent.left
         anchors.top: lblNoWebcams.bottom
@@ -84,57 +84,14 @@ Rectangle {
         }
     }
 
-    Rectangle {
-        id: recAddMedia
-        y: 192
-        height: 48
+    Button {
+        id: btnAddMedia
+        text: qsTr("Add media file")
         anchors.bottom: parent.bottom
         anchors.right: parent.right
         anchors.left: parent.left
 
-        property color gradUp: Qt.rgba(0, 0.5, 0, 1)
-        property color gradLow: Qt.rgba(0, 1, 0, 1)
-
-        gradient: Gradient {
-            GradientStop {
-                position: 0
-                color: recAddMedia.gradUp
-            }
-            GradientStop {
-                position: 1
-                color: recAddMedia.gradLow
-            }
-        }
-
-        Image {
-            id: imgAddMedia
-            width: 32
-            height: 32
-            anchors.verticalCenter: parent.verticalCenter
-            anchors.horizontalCenter: parent.horizontalCenter
-            source: "image://icons/webcamoid-add"
-            sourceSize: Qt.size(width, height)
-        }
-
-        MouseArea {
-            id: msaAddMedia
-            hoverEnabled: true
-            cursorShape: Qt.PointingHandCursor
-            anchors.fill: parent
-
-            onEntered: {
-                recAddMedia.gradUp = Qt.rgba(0, 0.75, 0, 1)
-                recAddMedia.gradLow = Qt.rgba(0.25, 1, 0.25, 1)
-            }
-            onExited: {
-                imgAddMedia.scale = 1
-                recAddMedia.gradUp = Qt.rgba(0, 0.5, 0, 1)
-                recAddMedia.gradLow = Qt.rgba(0, 1, 0, 1)
-            }
-            onPressed: imgAddMedia.scale = 0.75
-            onReleased: imgAddMedia.scale = 1
-            onClicked: dlgAddMedia.visible = true
-        }
+        onClicked: dlgAddMedia.visible = true
     }
 
     AddMedia {

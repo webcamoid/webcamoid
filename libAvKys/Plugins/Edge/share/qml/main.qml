@@ -20,7 +20,6 @@
 import QtQuick 2.7
 import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.3
-import AkQmlControls 1.0
 
 GridLayout {
     columns: 3
@@ -30,12 +29,12 @@ GridLayout {
 
         onThLowChanged: {
             sldThLow.value = thLow
-            spbThLow.rvalue = thLow
+            spbThLow.value = thLow
         }
 
         onThHiChanged: {
             sldThHi.value = thHi
-            spbThHi.rvalue = thHi
+            spbThHi.value = thHi
         }
     }
 
@@ -73,14 +72,15 @@ GridLayout {
 
         onValueChanged: Edge.thLow = Math.min(value, Edge.thHi)
     }
-    AkSpinBox {
+    SpinBox {
         id: spbThLow
         enabled: chkCanny.checked
-        rvalue: Edge.thLow
-        maximumValue: sldThLow.to
-        step: sldThLow.stepSize
+        value: Edge.thLow
+        to: sldThLow.to
+        stepSize: sldThLow.stepSize
+        editable: true
 
-        onRvalueChanged: Edge.thLow = Math.min(rvalue, Edge.thHi)
+        onValueChanged: Edge.thLow = Math.min(value, Edge.thHi)
     }
 
     // thHi
@@ -98,14 +98,15 @@ GridLayout {
 
         onValueChanged: Edge.thHi = Math.max(value, Edge.thLow)
     }
-    AkSpinBox {
+    SpinBox {
         id: spbThHi
         enabled: chkCanny.checked
-        rvalue: Edge.thHi
-        maximumValue: sldThHi.to
-        step: sldThHi.stepSize
+        value: Edge.thHi
+        to: sldThHi.to
+        stepSize: sldThHi.stepSize
+        editable: true
 
-        onRvalueChanged: Edge.thHi = Math.max(rvalue, Edge.thLow)
+        onValueChanged: Edge.thHi = Math.max(value, Edge.thLow)
     }
 
     // Equalize

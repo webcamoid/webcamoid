@@ -20,7 +20,6 @@
 import QtQuick 2.7
 import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.3
-import AkQmlControls 1.0
 
 GridLayout {
     columns: 3
@@ -43,7 +42,7 @@ GridLayout {
 
         onThresholdChanged: {
             sldThreshold.value = threshold
-            spbThreshold.rvalue = threshold
+            spbThreshold.value = threshold
         }
     }
 
@@ -106,12 +105,13 @@ GridLayout {
 
         onValueChanged: Hypnotic.threshold = value
     }
-    AkSpinBox {
+    SpinBox {
         id: spbThreshold
-        rvalue: Hypnotic.threshold
-        maximumValue: sldThreshold.to
-        step: sldThreshold.stepSize
+        value: Hypnotic.threshold
+        to: sldThreshold.to
+        stepSize: sldThreshold.stepSize
+        editable: true
 
-        onRvalueChanged: sldThreshold.value = rvalue
+        onValueChanged: sldThreshold.value = value
     }
 }

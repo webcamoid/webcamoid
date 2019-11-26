@@ -20,7 +20,6 @@
 import QtQuick 2.7
 import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.3
-import AkQmlControls 1.0
 
 GridLayout {
     columns: 3
@@ -30,17 +29,17 @@ GridLayout {
 
         onSpeedChanged: {
             sldSpeed.value = speed
-            spbSpeed.rvalue = speed
+            spbSpeed.value = spbSpeed.multiplier * speed
         }
 
         onZoomRateChanged: {
             sldZoomRate.value = zoomRate
-            spbZoomRate.rvalue = zoomRate
+            spbZoomRate.value = spbZoomRate.multiplier * zoomRate
         }
 
         onStrengthChanged: {
             sldStrength.value = strength
-            spbStrength.rvalue = strength
+            spbStrength.value = spbStrength.multiplier * strength
         }
     }
 
@@ -58,15 +57,28 @@ GridLayout {
 
         onValueChanged: Dizzy.speed = value
     }
-    AkSpinBox {
+    SpinBox {
         id: spbSpeed
-        decimals: 2
-        rvalue: Dizzy.speed
-        minimumValue: sldSpeed.from
-        maximumValue: sldSpeed.to
-        step: sldSpeed.stepSize
+        value: multiplier * Dizzy.speed
+        from: multiplier * sldSpeed.from
+        to: multiplier * sldSpeed.to
+        stepSize: multiplier * sldSpeed.stepSize
+        editable: true
 
-        onRvalueChanged: Dizzy.speed = rvalue
+        readonly property int decimals: 2
+        readonly property int multiplier: Math.pow(10, decimals)
+
+        validator: DoubleValidator {
+            bottom: Math.min(spbSpeed.from, spbSpeed.to)
+            top:  Math.max(spbSpeed.from, spbSpeed.to)
+        }
+        textFromValue: function(value, locale) {
+            return Number(value / multiplier).toLocaleString(locale, 'f', decimals)
+        }
+        valueFromText: function(text, locale) {
+            return Number.fromLocaleString(locale, text) * multiplier
+        }
+        onValueModified: Dizzy.speed = value / multiplier
     }
 
     Label {
@@ -82,14 +94,27 @@ GridLayout {
 
         onValueChanged: Dizzy.zoomRate = value
     }
-    AkSpinBox {
+    SpinBox {
         id: spbZoomRate
-        decimals: 3
-        rvalue: Dizzy.zoomRate
-        maximumValue: sldZoomRate.to
-        step: sldZoomRate.stepSize
+        value: multiplier * Dizzy.zoomRate
+        to: multiplier * sldZoomRate.to
+        stepSize: multiplier * sldZoomRate.stepSize
+        editable: true
 
-        onRvalueChanged: Dizzy.zoomRate = rvalue
+        readonly property int decimals: 3
+        readonly property int multiplier: Math.pow(10, decimals)
+
+        validator: DoubleValidator {
+            bottom: Math.min(spbZoomRate.from, spbZoomRate.to)
+            top:  Math.max(spbZoomRate.from, spbZoomRate.to)
+        }
+        textFromValue: function(value, locale) {
+            return Number(value / multiplier).toLocaleString(locale, 'f', decimals)
+        }
+        valueFromText: function(text, locale) {
+            return Number.fromLocaleString(locale, text) * multiplier
+        }
+        onValueModified: Dizzy.zoomRate = value / multiplier
     }
 
     Label {
@@ -105,13 +130,26 @@ GridLayout {
 
         onValueChanged: Dizzy.strength = value
     }
-    AkSpinBox {
+    SpinBox {
         id: spbStrength
-        decimals: 2
-        rvalue: Dizzy.strength
-        maximumValue: sldStrength.to
-        step: sldStrength.stepSize
+        value: multiplier * Dizzy.strength
+        to: multiplier * sldStrength.to
+        stepSize: multiplier * sldStrength.stepSize
+        editable: true
 
-        onRvalueChanged: Dizzy.strength = rvalue
+        readonly property int decimals: 2
+        readonly property int multiplier: Math.pow(10, decimals)
+
+        validator: DoubleValidator {
+            bottom: Math.min(spbStrength.from, spbStrength.to)
+            top:  Math.max(spbStrength.from, spbStrength.to)
+        }
+        textFromValue: function(value, locale) {
+            return Number(value / multiplier).toLocaleString(locale, 'f', decimals)
+        }
+        valueFromText: function(text, locale) {
+            return Number.fromLocaleString(locale, text) * multiplier
+        }
+        onValueModified: Dizzy.strength = value / multiplier
     }
 }

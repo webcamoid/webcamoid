@@ -51,7 +51,7 @@ GridLayout {
 
         onRadiusChanged: {
             sldRadius.value = radius
-            spbRadius.rvalue = radius
+            spbRadius.value = radius
         }
     }
 
@@ -111,12 +111,13 @@ GridLayout {
 
         onValueChanged: ColorReplace.radius = value
     }
-    AkSpinBox {
+    SpinBox {
         id: spbRadius
-        rvalue: ColorReplace.radius
-        maximumValue: sldRadius.to
-        step: sldRadius.stepSize
+        value: ColorReplace.radius
+        to: sldRadius.to
+        stepSize: sldRadius.stepSize
+        editable: true
 
-        onRvalueChanged: ColorReplace.radius = rvalue
+        onValueChanged: ColorReplace.radius = Number(value)
     }
 }

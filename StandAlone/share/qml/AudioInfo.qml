@@ -21,7 +21,6 @@ import QtQuick 2.7
 import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.3
 import AkQml 1.0
-import AkQmlControls 1.0
 
 GridLayout {
     columns: 2
@@ -347,6 +346,7 @@ GridLayout {
             to: sldOLatency.to
             stepSize: sldOLatency.stepSize
             visible: true
+            editable: true
 
             onValueChanged: AudioLayer.outputLatency = value
         }
@@ -368,6 +368,7 @@ GridLayout {
             to: sldILatency.to
             stepSize: sldILatency.stepSize
             visible: false
+            editable: true
 
             onValueChanged: AudioLayer.inputLatency = value
         }

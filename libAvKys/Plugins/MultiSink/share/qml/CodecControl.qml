@@ -20,7 +20,6 @@
 import QtQuick 2.7
 import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.3
-import AkQmlControls 1.0
 
 GridLayout {
     id: grdCameraControl
@@ -161,24 +160,38 @@ GridLayout {
 
             onValueChanged: {
                 if (visible) {
-                    spbRange.rvalue = value
+                    spbRange.value = spbRange.multiplier * value
                     grdCameraControl.controlChanged(controlName, value)
                 }
             }
         }
-        AkSpinBox {
+        SpinBox {
             id: spbRange
-            minimumValue: discreteRange? grdCameraControl.minimumValue: 0
-            maximumValue: discreteRange? grdCameraControl.maximumValue: 1
-            step: discreteRange? grdCameraControl.stepSize: 1
-            decimals: step < 1? 2: 0
-            rvalue: sldRange.value
+            value: multiplier * sldRange.value
+            from: multiplier * (discreteRange? grdCameraControl.minimumValue: 0)
+            to: multiplier * (discreteRange? grdCameraControl.maximumValue: 1)
+            stepSize: multiplier * (discreteRange? grdCameraControl.stepSize: 1)
             Layout.minimumWidth: minimumRightWidth
             visible: discreteRange
+            editable: true
 
-            onRvalueChanged: {
+            readonly property int decimals:
+                discreteRange && grdCameraControl.stepSize < 1? 2: 0
+            readonly property int multiplier: Math.pow(10, decimals)
+
+            validator: DoubleValidator {
+                bottom: Math.min(spbRange.from, spbRange.to)
+                top:  Math.max(spbRange.from, spbRange.to)
+            }
+            textFromValue: function(value, locale) {
+                return Number(value / multiplier).toLocaleString(locale, 'f', decimals)
+            }
+            valueFromText: function(text, locale) {
+                return Number.fromLocaleString(locale, text) * multiplier
+            }
+            onValueModified: {
                 if (visible)
-                    sldRange.value = rvalue
+                    sldRange.value = value / multiplier
             }
         }
         TextField {

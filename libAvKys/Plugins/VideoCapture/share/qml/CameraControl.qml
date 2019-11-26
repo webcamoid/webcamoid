@@ -20,7 +20,6 @@
 import QtQuick 2.7
 import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.3
-import AkQmlControls 1.0
 
 GridLayout {
     id: grdCameraControl
@@ -46,7 +45,7 @@ GridLayout {
         stepSize = controlParams.length > 4? controlParams[4]: 1
         model = controlParams.length > 7? controlParams[7]: []
         value = controlParams.length > 6? controlParams[6]: 0
-        spbRange.rvalue = value
+        spbRange.value = value
     }
 
     Label {
@@ -54,7 +53,6 @@ GridLayout {
         text: controlParams.length > 0? controlParams[0]: ""
         Layout.minimumWidth: minimumLeftWidth
     }
-
     Slider {
         id: sldRange
         from: grdCameraControl.minimumValue
@@ -66,24 +64,24 @@ GridLayout {
 
         onValueChanged: {
             if (visible) {
-                spbRange.rvalue = value
+                spbRange.value = value
                 grdCameraControl.controlChanged(controlParams.length > 0? controlParams[0]: "", value)
             }
         }
     }
-
-    AkSpinBox {
+    SpinBox {
         id: spbRange
-        minimumValue: grdCameraControl.minimumValue
-        maximumValue: grdCameraControl.maximumValue
-        step: grdCameraControl.stepSize
-        rvalue: sldRange.value
+        value: sldRange.value
+        from: grdCameraControl.minimumValue
+        to: grdCameraControl.maximumValue
+        stepSize: grdCameraControl.stepSize
         Layout.minimumWidth: minimumRightWidth
         visible: false
+        editable: true
 
-        onRvalueChanged: {
+        onValueChanged: {
             if (visible)
-                sldRange.value = rvalue
+                sldRange.value = value
         }
     }
 

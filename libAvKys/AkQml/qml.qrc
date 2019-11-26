@@ -1,7 +1,6 @@
 <RCC>
     <qresource prefix="/Ak">
         <file>share/qml/AkQmlControls/AkColorButton.qml</file>
-        <file>share/qml/AkQmlControls/AkSpinBox.qml</file>
         <file>share/qml/AkQmlControls/qmldir</file>
     </qresource>
 </RCC>

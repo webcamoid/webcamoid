@@ -51,7 +51,7 @@ GridLayout {
 
         onStripSizeChanged: {
             sldStripSize.value = stripSize
-            spbStripSize.rvalue = stripSize
+            spbStripSize.value = spbStripSize.multiplier * stripSize
         }
     }
 
@@ -69,14 +69,27 @@ GridLayout {
 
         onValueChanged: Cinema.stripSize = value
     }
-    AkSpinBox {
+    SpinBox {
         id: spbStripSize
-        decimals: 2
-        rvalue: Cinema.stripSize
-        maximumValue: sldStripSize.to
-        step: sldStripSize.stepSize
+        value: multiplier * Cinema.stripSize
+        to: multiplier * sldStripSize.to
+        stepSize: multiplier * sldStripSize.stepSize
+        editable: true
 
-        onRvalueChanged: Cinema.stripSize = rvalue
+        readonly property int decimals: 2
+        readonly property int multiplier: Math.pow(10, decimals)
+
+        validator: DoubleValidator {
+            bottom: Math.min(spbStripSize.from, spbStripSize.to)
+            top:  Math.max(spbStripSize.from, spbStripSize.to)
+        }
+        textFromValue: function(value, locale) {
+            return Number(value / multiplier).toLocaleString(locale, 'f', decimals)
+        }
+        valueFromText: function(text, locale) {
+            return Number.fromLocaleString(locale, text) * multiplier
+        }
+        onValueModified: Cinema.stripSize = value / multiplier
     }
 
     // Configure strip color.

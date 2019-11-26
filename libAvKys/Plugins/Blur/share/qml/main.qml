@@ -20,7 +20,6 @@
 import QtQuick 2.7
 import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.3
-import AkQmlControls 1.0
 
 GridLayout {
     columns: 3
@@ -30,7 +29,7 @@ GridLayout {
 
         onRadiusChanged: {
             sldRadius.value = radius
-            spbRadius.rvalue = radius
+            spbRadius.value = radius
         }
     }
 
@@ -48,12 +47,13 @@ GridLayout {
 
         onValueChanged: Blur.radius = value
     }
-    AkSpinBox {
+    SpinBox {
         id: spbRadius
-        rvalue: Blur.radius
-        maximumValue: sldRadius.to
-        step: sldRadius.stepSize
+        value: Blur.radius
+        to: sldRadius.to
+        stepSize: sldRadius.stepSize
+        editable: true
 
-        onRvalueChanged: Blur.radius = rvalue
+        onValueChanged: Blur.radius = Number(value)
     }
 }

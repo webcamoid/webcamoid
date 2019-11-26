@@ -20,7 +20,6 @@
 import QtQuick 2.7
 import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.3
-import AkQmlControls 1.0
 
 GridLayout {
     id: grdCameraControl
@@ -38,7 +37,7 @@ GridLayout {
 
     onValueChanged: {
         sldRange.value = value
-        spbRange.rvalue = value
+        spbRange.value = value
         chkBool.checked = value !== 0
         cbxMenu.currentIndex = value
     }
@@ -60,23 +59,24 @@ GridLayout {
 
         onValueChanged: {
             if (visible) {
-                spbRange.rvalue = value
+                spbRange.value = value
                 grdCameraControl.controlChanged(controlParams.length > 0? controlParams[0]: "", value)
             }
         }
     }
-    AkSpinBox {
+    SpinBox {
         id: spbRange
-        minimumValue: controlParams.length > 2? controlParams[2]: 0
-        maximumValue: controlParams.length > 3? controlParams[3]: 0
-        step: controlParams.length > 4? controlParams[4]: 0
-        rvalue: sldRange.value
+        value: sldRange.value
+        from: controlParams.length > 2? controlParams[2]: 0
+        to: controlParams.length > 3? controlParams[3]: 0
+        stepSize: controlParams.length > 4? controlParams[4]: 0
         Layout.minimumWidth: minimumRightWidth
         visible: false
+        editable: true
 
-        onRvalueChanged: {
+        onValueChanged: {
             if (visible)
-                sldRange.value = rvalue
+                sldRange.value = value
         }
     }
 

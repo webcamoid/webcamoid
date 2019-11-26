@@ -141,41 +141,41 @@
 <context>
     <name>AudioInfo</name>
     <message>
-        <location filename="../qml/AudioInfo.qml" line="188"/>
+        <location filename="../qml/AudioInfo.qml" line="187"/>
         <source>Description</source>
         <translation>說明</translation>
     </message>
     <message>
-        <location filename="../qml/AudioInfo.qml" line="195"/>
-        <location filename="../qml/AudioInfo.qml" line="203"/>
+        <location filename="../qml/AudioInfo.qml" line="194"/>
+        <location filename="../qml/AudioInfo.qml" line="202"/>
         <source>Device description</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/AudioInfo.qml" line="210"/>
-        <location filename="../qml/AudioInfo.qml" line="217"/>
-        <location filename="../qml/AudioInfo.qml" line="225"/>
+        <location filename="../qml/AudioInfo.qml" line="209"/>
+        <location filename="../qml/AudioInfo.qml" line="216"/>
+        <location filename="../qml/AudioInfo.qml" line="224"/>
         <source>Device ID</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/AudioInfo.qml" line="242"/>
+        <location filename="../qml/AudioInfo.qml" line="241"/>
         <source>Sample Format</source>
         <extracomment>An sample represents the strength of the wave at a certain time. A sample can be expressed as the number of bits defining it (more bits better sound), the type of data representing it (signed integer, unsigned integer, floating point), and the endianness of the data (big endian, little endian). The sample format is the representation of that information. For example, &apos;s16le&apos; means that each sample format is represented by a 16 bits signed integer arranged as little endian.</extracomment>
         <translation>樣本格式</translation>
     </message>
     <message>
-        <location filename="../qml/AudioInfo.qml" line="268"/>
+        <location filename="../qml/AudioInfo.qml" line="267"/>
         <source>Channels</source>
         <translation>頻道</translation>
     </message>
     <message>
-        <location filename="../qml/AudioInfo.qml" line="294"/>
+        <location filename="../qml/AudioInfo.qml" line="293"/>
         <source>Sample Rate</source>
         <translation>採樣率</translation>
     </message>
     <message>
-        <location filename="../qml/AudioInfo.qml" line="329"/>
+        <location filename="../qml/AudioInfo.qml" line="328"/>
         <source>Latency (ms)</source>
         <extracomment>The latency is the amount of accumulated audio ready to play, measured in time. Higher latency == smoother audio playback, but more desynchronization with the video. Lowerer latency == audio desynchronization near to the video, but glitchy audio playback. https://en.wikipedia.org/wiki/Latency_(audio)</extracomment>
         <translation type="unfinished"></translation>
@@ -339,6 +339,11 @@
     <message>
         <location filename="../qml/MediaBar.qml" line="62"/>
         <source>No webcams found</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/MediaBar.qml" line="89"/>
+        <source>Add media file</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -704,7 +709,7 @@
 <context>
     <name>main</name>
     <message>
-        <location filename="../../../libAvKys/Plugins/Aging/share/qml/main.qml" line="40"/>
+        <location filename="../../../libAvKys/Plugins/Aging/share/qml/main.qml" line="39"/>
         <source>Number of scratches</source>
         <translation type="unfinished"></translation>
     </message>
@@ -714,10 +719,10 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Blur/share/qml/main.qml" line="40"/>
+        <location filename="../../../libAvKys/Plugins/Blur/share/qml/main.qml" line="39"/>
         <location filename="../../../libAvKys/Plugins/ColorFilter/share/qml/main.qml" line="82"/>
         <location filename="../../../libAvKys/Plugins/ColorReplace/share/qml/main.qml" line="103"/>
-        <location filename="../../../libAvKys/Plugins/Denoise/share/qml/main.qml" line="43"/>
+        <location filename="../../../libAvKys/Plugins/Denoise/share/qml/main.qml" line="42"/>
         <location filename="../../../libAvKys/Plugins/OilPaint/share/qml/main.qml" line="28"/>
         <location filename="../../../libAvKys/Plugins/OilPaint/share/qml/main.qml" line="32"/>
         <source>Radius</source>
@@ -725,45 +730,45 @@
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="85"/>
-        <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="270"/>
+        <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="274"/>
         <source>N° of colors</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="107"/>
+        <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="108"/>
         <source>Color difference</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="128"/>
+        <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="130"/>
         <source>Show edges</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="147"/>
+        <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="149"/>
         <source>Threshold low</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="172"/>
+        <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="175"/>
         <source>Threshold high</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="196"/>
+        <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="200"/>
         <source>Line color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="216"/>
         <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="220"/>
+        <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="224"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="216"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="220"/>
         <source>Scan block</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="207"/>
+        <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="211"/>
         <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="178"/>
         <source>Choose a color</source>
         <translation type="unfinished"></translation>
@@ -778,8 +783,8 @@
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="63"/>
-        <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="72"/>
-        <location filename="../../../libAvKys/Plugins/Hypnotic/share/qml/main.qml" line="52"/>
+        <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="71"/>
+        <location filename="../../../libAvKys/Plugins/Hypnotic/share/qml/main.qml" line="51"/>
         <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="63"/>
         <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="41"/>
         <source>Mode</source>
@@ -939,7 +944,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="232"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="236"/>
-        <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="138"/>
+        <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="179"/>
         <source>Background color</source>
         <translation type="unfinished"></translation>
     </message>
@@ -963,18 +968,18 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="240"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="244"/>
-        <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="148"/>
+        <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="189"/>
         <source>Choose the background color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Cinema/share/qml/main.qml" line="61"/>
-        <location filename="../../../libAvKys/Plugins/Dice/share/qml/main.qml" line="39"/>
+        <location filename="../../../libAvKys/Plugins/Dice/share/qml/main.qml" line="38"/>
         <source>Size</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Cinema/share/qml/main.qml" line="84"/>
+        <location filename="../../../libAvKys/Plugins/Cinema/share/qml/main.qml" line="97"/>
         <location filename="../../../libAvKys/Plugins/ColorFilter/share/qml/main.qml" line="60"/>
         <location filename="../../../libAvKys/Plugins/Life/share/qml/main.qml" line="64"/>
         <location filename="../../../libAvKys/Plugins/Vignette/share/qml/main.qml" line="69"/>
@@ -982,14 +987,14 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Cinema/share/qml/main.qml" line="94"/>
+        <location filename="../../../libAvKys/Plugins/Cinema/share/qml/main.qml" line="107"/>
         <source>Choose the strips color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorFilter/share/qml/main.qml" line="105"/>
+        <location filename="../../../libAvKys/Plugins/ColorFilter/share/qml/main.qml" line="106"/>
         <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/main.qml" line="101"/>
-        <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="83"/>
+        <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="82"/>
         <source>Soft</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1092,14 +1097,14 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="48"/>
+        <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="47"/>
         <source>Convolve matrix</source>
         <extracomment>https://en.wikipedia.org/wiki/Kernel_(image_processing)</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="154"/>
-        <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="158"/>
+        <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="153"/>
+        <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="157"/>
         <location filename="../../../libAvKys/Plugins/Denoise/share/qml/main.qml" line="64"/>
         <location filename="../../../libAvKys/Plugins/Denoise/share/qml/main.qml" line="68"/>
         <location filename="../../../libAvKys/Plugins/Emboss/share/qml/main.qml" line="29"/>
@@ -1110,7 +1115,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="169"/>
+        <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="168"/>
         <location filename="../../../libAvKys/Plugins/Emboss/share/qml/main.qml" line="44"/>
         <location filename="../../../libAvKys/Plugins/Emboss/share/qml/main.qml" line="48"/>
         <source>Bias</source>
@@ -1192,7 +1197,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Distort/share/qml/main.qml" line="44"/>
         <location filename="../../../libAvKys/Plugins/Distort/share/qml/main.qml" line="48"/>
-        <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="93"/>
+        <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="108"/>
         <source>Frequency</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1203,28 +1208,28 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Dizzy/share/qml/main.qml" line="49"/>
+        <location filename="../../../libAvKys/Plugins/Dizzy/share/qml/main.qml" line="48"/>
         <source>Speed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Dizzy/share/qml/main.qml" line="74"/>
+        <location filename="../../../libAvKys/Plugins/Dizzy/share/qml/main.qml" line="86"/>
         <source>Zoom rate</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Dizzy/share/qml/main.qml" line="97"/>
+        <location filename="../../../libAvKys/Plugins/Dizzy/share/qml/main.qml" line="122"/>
         <source>Strength</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="45"/>
+        <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="44"/>
         <source>Canny mode</source>
         <extracomment>https://en.wikipedia.org/wiki/Canny_edge_detector</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="63"/>
+        <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="62"/>
         <source>Lower Canny threshold</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1234,13 +1239,13 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="114"/>
+        <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="115"/>
         <source>Equalize</source>
         <extracomment>https://en.wikipedia.org/wiki/Histogram_equalization</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="131"/>
+        <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="132"/>
         <source>Invert</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1653,12 +1658,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="87"/>
+        <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="86"/>
         <source>Hard</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="97"/>
+        <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="96"/>
         <source>Cooling</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1678,7 +1683,7 @@
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="169"/>
-        <location filename="../../../libAvKys/Plugins/Hypnotic/share/qml/main.qml" line="98"/>
+        <location filename="../../../libAvKys/Plugins/Hypnotic/share/qml/main.qml" line="97"/>
         <location filename="../../../libAvKys/Plugins/Life/share/qml/main.qml" line="84"/>
         <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="120"/>
         <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="124"/>
@@ -1688,7 +1693,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="196"/>
+        <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="197"/>
         <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="139"/>
         <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="109"/>
         <source>Luma threshold</source>
@@ -1696,13 +1701,13 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="221"/>
+        <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="223"/>
         <source>Alpha diff</source>
         <extracomment>Alpha channel, also known as the transparency component of a pixel in an image.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="248"/>
+        <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="251"/>
         <source>Alpha variation</source>
         <extracomment>Alpha channel, also known as the transparency component of a pixel in an image.</extracomment>
         <translation type="unfinished"></translation>
@@ -1798,28 +1803,28 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Hypnotic/share/qml/main.qml" line="63"/>
+        <location filename="../../../libAvKys/Plugins/Hypnotic/share/qml/main.qml" line="62"/>
         <source>Spiral 1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Hypnotic/share/qml/main.qml" line="67"/>
+        <location filename="../../../libAvKys/Plugins/Hypnotic/share/qml/main.qml" line="66"/>
         <source>Spiral 2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Hypnotic/share/qml/main.qml" line="71"/>
+        <location filename="../../../libAvKys/Plugins/Hypnotic/share/qml/main.qml" line="70"/>
         <source>Parabola</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Hypnotic/share/qml/main.qml" line="75"/>
+        <location filename="../../../libAvKys/Plugins/Hypnotic/share/qml/main.qml" line="74"/>
         <source>Horizontal stripe</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Hypnotic/share/qml/main.qml" line="83"/>
-        <location filename="../../../libAvKys/Plugins/Hypnotic/share/qml/main.qml" line="87"/>
+        <location filename="../../../libAvKys/Plugins/Hypnotic/share/qml/main.qml" line="82"/>
+        <location filename="../../../libAvKys/Plugins/Hypnotic/share/qml/main.qml" line="86"/>
         <source>Speed increment</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1830,7 +1835,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Life/share/qml/main.qml" line="110"/>
+        <location filename="../../../libAvKys/Plugins/Life/share/qml/main.qml" line="111"/>
         <source>Luma Threshold</source>
         <extracomment>Minimum luminance/light/white level/intensity in a gray or black and white picture. https://en.wikipedia.org/wiki/Luma_(video)</extracomment>
         <translation type="unfinished"></translation>
@@ -2008,12 +2013,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Scroll/share/qml/main.qml" line="44"/>
+        <location filename="../../../libAvKys/Plugins/Scroll/share/qml/main.qml" line="43"/>
         <source>Vertical Sync</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Scroll/share/qml/main.qml" line="69"/>
+        <location filename="../../../libAvKys/Plugins/Scroll/share/qml/main.qml" line="81"/>
         <source>Noise</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2024,12 +2029,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Swirl/share/qml/main.qml" line="38"/>
+        <location filename="../../../libAvKys/Plugins/Swirl/share/qml/main.qml" line="37"/>
         <source>Degrees</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Temperature/share/qml/main.qml" line="38"/>
+        <location filename="../../../libAvKys/Plugins/Temperature/share/qml/main.qml" line="37"/>
         <source>Temperature</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2060,12 +2065,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Vignette/share/qml/main.qml" line="112"/>
+        <location filename="../../../libAvKys/Plugins/Vignette/share/qml/main.qml" line="125"/>
         <source>Scale</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Vignette/share/qml/main.qml" line="135"/>
+        <location filename="../../../libAvKys/Plugins/Vignette/share/qml/main.qml" line="161"/>
         <source>Softness</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2136,7 +2141,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="116"/>
+        <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="144"/>
         <source>Phase</source>
         <translation type="unfinished"></translation>
     </message>

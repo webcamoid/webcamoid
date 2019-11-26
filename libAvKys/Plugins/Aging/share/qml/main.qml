@@ -20,7 +20,6 @@
 import QtQuick 2.7
 import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.3
-import AkQmlControls 1.0
 
 GridLayout {
     columns: 3
@@ -30,7 +29,7 @@ GridLayout {
 
         onNScratchesChanged: {
             sldNScratches.value = nScratches
-            spbNScratches.rvalue = nScratches
+            spbNScratches.value = nScratches
         }
     }
 
@@ -48,13 +47,14 @@ GridLayout {
 
         onValueChanged: Aging.nScratches = value
     }
-    AkSpinBox {
+    SpinBox {
         id: spbNScratches
-        rvalue: Aging.nScratches
-        maximumValue: sldNScratches.to
-        step: sldNScratches.stepSize
+        value: Aging.nScratches
+        to: sldNScratches.to
+        stepSize: sldNScratches.stepSize
+        editable: true
 
-        onRvalueChanged: Aging.nScratches = rvalue
+        onValueChanged: Aging.nScratches = Number(value)
     }
 
     // Aging mode.
