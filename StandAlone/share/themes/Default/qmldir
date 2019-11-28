@@ -4,6 +4,7 @@ Button 1.0 Button.qml
 ComboBox 1.0 ComboBox.qml
 Label 1.0 Label.qml
 MenuItem 1.0 MenuItem.qml
+MenuSeparator 1.0 MenuSeparator.qml
 Pane 1.0 Pane.qml
 Slider 1.0 Slider.qml
 SpinBox 1.0 SpinBox.qml
@@ -14,3 +15,4 @@ TabButton 1.0 TabButton.qml
 TextArea 1.0 TextArea.qml
 TextField 1.0 TextField.qml
 ToolButton 1.0 ToolButton.qml
+ToolSeparator 1.0 ToolSeparator.qml

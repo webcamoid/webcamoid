@@ -16,7 +16,7 @@
     <message>
         <location filename="../qml/About.qml" line="43"/>
         <source>Thanks!</source>
-        <translation>Merci !</translation>
+        <translation>Merci&#xa0;!</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="46"/>

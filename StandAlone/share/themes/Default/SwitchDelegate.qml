@@ -54,9 +54,9 @@ T.SwitchDelegate {
             height: parent.height / 2
             color: ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
             radius: height / 2
-            anchors.verticalCenter: parent.verticalCenter
-            anchors.right: parent.right
-            anchors.left: parent.left
+            anchors.verticalCenter: sliderIndicator.verticalCenter
+            anchors.right: sliderIndicator.right
+            anchors.left: sliderIndicator.left
         }
         Item {
             id: switchThumb
@@ -70,8 +70,8 @@ T.SwitchDelegate {
                 height: width
                 color: switchThumbRect.color
                 radius: width / 2
-                anchors.verticalCenter: parent.verticalCenter
-                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.verticalCenter: switchThumb.verticalCenter
+                anchors.horizontalCenter: switchThumb.horizontalCenter
                 opacity: control.visualFocus? 0.5: 0
             }
             Rectangle {
@@ -86,8 +86,7 @@ T.SwitchDelegate {
                 cached: true
                 horizontalOffset: radius / 2
                 verticalOffset: radius / 2
-                radius: Ak.newUnit(1
-                                   * ThemeSettings.constrolScale, "dp").pixels
+                radius: Ak.newUnit(1 * ThemeSettings.constrolScale, "dp").pixels
                 samples: 2 * radius + 1
                 color: ThemeSettings.constShade(ThemeSettings.colorBack, -0.9)
                 source: shadowRect
@@ -102,6 +101,7 @@ T.SwitchDelegate {
         }
     }
     contentItem: Item {
+        id: iconLabelContainer
         anchors.left: parent.left
         anchors.right: sliderIndicator.left
 
@@ -115,7 +115,7 @@ T.SwitchDelegate {
             text: control.text
             font: control.font
             color: ThemeSettings.colorText
-            anchors.verticalCenter: parent.verticalCenter
+            anchors.verticalCenter: iconLabelContainer.verticalCenter
         }
         MouseArea {
             anchors.fill: parent
