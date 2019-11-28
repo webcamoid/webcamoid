@@ -110,30 +110,30 @@
 <context>
     <name>AudioConfig</name>
     <message>
-        <location filename="../qml/AudioConfig.qml" line="117"/>
+        <location filename="../qml/AudioConfig.qml" line="118"/>
         <source>Outputs</source>
         <extracomment>Output device for audio playback, for example a speaker.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/AudioConfig.qml" line="121"/>
+        <location filename="../qml/AudioConfig.qml" line="122"/>
         <source>Select the output device for audio playing</source>
         <translation>Wählen Sie das Ausgabegerät für die Audiowiedergabe aus</translation>
     </message>
     <message>
-        <location filename="../qml/AudioConfig.qml" line="136"/>
+        <location filename="../qml/AudioConfig.qml" line="137"/>
         <source>Inputs</source>
         <extracomment>Input device for audio capturing, for example a microphone.</extracomment>
         <translation>Eingaben</translation>
     </message>
     <message>
-        <location filename="../qml/AudioConfig.qml" line="139"/>
+        <location filename="../qml/AudioConfig.qml" line="140"/>
         <source>Select the device for audio capturing</source>
         <translation>Wählen Sie das Gerät für die Audioaufnahme aus</translation>
     </message>
     <message>
-        <location filename="../qml/AudioConfig.qml" line="196"/>
-        <location filename="../qml/AudioConfig.qml" line="298"/>
+        <location filename="../qml/AudioConfig.qml" line="197"/>
+        <location filename="../qml/AudioConfig.qml" line="299"/>
         <source>Silence</source>
         <translation>Stille</translation>
     </message>

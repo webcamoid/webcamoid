@@ -11,6 +11,8 @@
         <file>share/themes/Default/SpinBox.qml</file>
         <file>share/themes/Default/Switch.qml</file>
         <file>share/themes/Default/SwitchDelegate.qml</file>
+        <file>share/themes/Default/TabBar.qml</file>
+        <file>share/themes/Default/TabButton.qml</file>
         <file>share/themes/Default/TextArea.qml</file>
         <file>share/themes/Default/TextField.qml</file>
         <file>share/themes/Default/ToolButton.qml</file>

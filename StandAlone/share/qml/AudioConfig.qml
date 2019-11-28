@@ -110,6 +110,7 @@ Rectangle {
         id: rlyDevices
         anchors.left: parent.left
         anchors.right: parent.right
+        spacing: 0
 
         ToolButton {
             id: btnOutputs

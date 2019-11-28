@@ -128,7 +128,9 @@ T.SwitchDelegate {
         State {
             name: "Checked"
             when: control.checked
-                  && !control.hovered
+                  && !(control.hovered
+                       || control.visualFocus
+                       || control.activeFocus)
                   && !control.pressed
 
             PropertyChanges {
@@ -147,7 +149,9 @@ T.SwitchDelegate {
         State {
             name: "Hovered"
             when: !control.checked
-                  && control.hovered
+                  && (control.hovered
+                      || control.visualFocus
+                      || control.activeFocus)
                   && !control.pressed
 
             PropertyChanges {
@@ -167,7 +171,9 @@ T.SwitchDelegate {
         State {
             name: "CheckedHovered"
             when: control.checked
-                  && control.hovered
+                  && (control.hovered
+                      || control.visualFocus
+                      || control.activeFocus)
                   && !control.pressed
 
             PropertyChanges {

@@ -27,7 +27,6 @@ import AkQml 1.0
 
 T.ToolButton {
     id: button
-    display: AbstractButton.IconOnly
     font.bold: true
     icon.width:
         button.display == AbstractButton.IconOnly

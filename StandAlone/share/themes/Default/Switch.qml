@@ -129,7 +129,9 @@ T.Switch {
         State {
             name: "Checked"
             when: control.checked
-                  && !control.hovered
+                  && !(control.hovered
+                       || control.visualFocus
+                       || control.activeFocus)
                   && !control.pressed
 
             PropertyChanges {
@@ -148,7 +150,9 @@ T.Switch {
         State {
             name: "Hovered"
             when: !control.checked
-                  && control.hovered
+                  && (control.hovered
+                      || control.visualFocus
+                      || control.activeFocus)
                   && !control.pressed
 
             PropertyChanges {
@@ -168,7 +172,9 @@ T.Switch {
         State {
             name: "CheckedHovered"
             when: control.checked
-                  && control.hovered
+                  && (control.hovered
+                      || control.visualFocus
+                      || control.activeFocus)
                   && !control.pressed
 
             PropertyChanges {
