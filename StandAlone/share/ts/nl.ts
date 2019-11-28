@@ -344,7 +344,7 @@
     <message>
         <location filename="../qml/MediaBar.qml" line="89"/>
         <source>Add media file</source>
-        <translation type="unfinished"></translation>
+        <translation>Mediabestand toevoegen</translation>
     </message>
 </context>
 <context>
