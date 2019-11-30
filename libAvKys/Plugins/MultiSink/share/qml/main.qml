@@ -23,6 +23,8 @@ import QtQuick.Layouts 1.3
 import AkQml 1.0
 
 ColumnLayout {
+    id: multiSink
+
     function updateSupportedFormats(supportedFormats)
     {
         var outputFormatIndex = -1

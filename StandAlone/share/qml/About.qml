@@ -21,136 +21,50 @@ import QtQuick 2.7
 import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
 
-ApplicationWindow {
-    id: recAbout
-    title: qsTr("About %1").arg(Webcamoid.applicationName())
-    flags: Qt.Dialog
-    modality: Qt.ApplicationModal
-    width: 600
-    height: 300
+ColumnLayout {
+    id: clyProgramInfo
 
-    ColumnLayout {
-        anchors.fill: parent
-
-        TabBar {
-            id: aboutTabs
-            Layout.fillWidth: true
-
-            TabButton {
-                text: qsTr("Information")
-            }
-            TabButton {
-                text: qsTr("Thanks!")
-            }
-            TabButton {
-                text: qsTr("License")
-            }
+    RowLayout {
+        Image {
+            fillMode: Image.PreserveAspectFit
+            Layout.minimumWidth: 128
+            Layout.minimumHeight: 128
+            Layout.maximumWidth: 128
+            Layout.maximumHeight: 128
+            source: "image://icons/webcamoid"
+            sourceSize: Qt.size(width, height)
         }
 
-        StackLayout {
-            currentIndex: aboutTabs.currentIndex
-            Layout.fillWidth: true
-
-            ScrollView {
-                ScrollBar.horizontal.policy: ScrollBar.AsNeeded
-                ScrollBar.vertical.policy: ScrollBar.AsNeeded
-                clip: true
-                contentWidth: clyProgramInfo.childrenRect.width
-                contentHeight: clyProgramInfo.childrenRect.height
-
-                ColumnLayout {
-                    id: clyProgramInfo
-
-                    RowLayout {
-                        Image {
-                            fillMode: Image.PreserveAspectFit
-                            Layout.minimumWidth: 128
-                            Layout.minimumHeight: 128
-                            Layout.maximumWidth: 128
-                            Layout.maximumHeight: 128
-                            source: "image://icons/webcamoid"
-                            sourceSize: Qt.size(width, height)
-                        }
-
-                        ColumnLayout {
-                            Label {
-                                text: Webcamoid.applicationName()
-                                font.bold: true
-                                font.pointSize: 12
-                            }
-                            Label {
-                                text: qsTr("Version %1").arg(Webcamoid.applicationVersion())
-                                font.bold: true
-                            }
-                            Label {
-                                text: qsTr("Using Qt %1")
-                                        .arg(Webcamoid.qtVersion())
-                            }
-                            Button {
-                                text: qsTr("Website")
-                                icon.source: "image://icons/applications-internet"
-
-                                onClicked: Qt.openUrlExternally(Webcamoid.projectUrl())
-                            }
-                        }
-                    }
-
-                    Label {
-                        text: qsTr("Webcam capture application.")
-                    }
-                    Label {
-                        text: qsTr("A simple webcam application for picture and video capture.")
-                    }
-                    Label {
-                        text: Webcamoid.copyrightNotice()
-                    }
-                }
+        ColumnLayout {
+            Label {
+                text: Webcamoid.applicationName()
+                font.bold: true
+                font.pointSize: 12
             }
-            ScrollView {
-                ScrollBar.horizontal.policy: ScrollBar.AsNeeded
-                ScrollBar.vertical.policy: ScrollBar.AsNeeded
-                clip: true
-                contentWidth: clyThanks.childrenRect.width
-                contentHeight: clyThanks.childrenRect.height
-
-                ColumnLayout {
-                    id: clyThanks
-
-                    Label {
-                        text: qsTr("Thanks to all these cool people that helped contributing to Webcamoid all these years.")
-                        wrapMode: Text.WordWrap
-                        Layout.fillWidth: true
-                    }
-                    TextArea {
-                        id: contributorsText
-                        text: Webcamoid.readFile(":/Webcamoid/share/contributors.txt")
-                        font.family: "Courier"
-                        readOnly: true
-                    }
-                }
+            Label {
+                text: qsTr("Version %1").arg(Webcamoid.applicationVersion())
+                font.bold: true
             }
-            ScrollView {
-                ScrollBar.horizontal.policy: ScrollBar.AsNeeded
-                ScrollBar.vertical.policy: ScrollBar.AsNeeded
-                clip: true
-                contentWidth: licenseText.width
-                contentHeight: licenseText.height
+            Label {
+                text: qsTr("Using Qt %1")
+                        .arg(Webcamoid.qtVersion())
+            }
+            Button {
+                text: qsTr("Website")
+                icon.source: "image://icons/applications-internet"
 
-                TextArea {
-                    id: licenseText
-                    text: Webcamoid.readFile(":/Webcamoid/COPYING")
-                    font.family: "Courier"
-                    readOnly: true
-                }
+                onClicked: Qt.openUrlExternally(Webcamoid.projectUrl())
             }
         }
+    }
 
-        Button {
-            text: qsTr("Close")
-            icon.source: "image://icons/window-close"
-            Layout.alignment: Qt.AlignRight
-
-            onClicked: recAbout.close()
-        }
+    Label {
+        text: qsTr("Webcam capture application.")
+    }
+    Label {
+        text: qsTr("A simple webcam application for picture and video capture.")
+    }
+    Label {
+        text: Webcamoid.copyrightNotice()
     }
 }

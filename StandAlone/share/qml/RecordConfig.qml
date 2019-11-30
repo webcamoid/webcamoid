@@ -71,27 +71,24 @@ ColumnLayout {
     }
 
     Connections {
-        target: Webcamoid
-
-        onInterfaceLoaded: {
-            Recording.removeInterface("itmRecordControls");
-            Recording.embedControls("itmRecordControls", "");
-        }
-    }
-    Connections {
         target: Recording
 
         onFormatChanged: updateFields()
         onStateChanged: {
             if (state === AkElement.ElementStatePlaying) {
                 lblRecordLabel.text = qsTr("Stop video recording")
-                imgRecordIcon.source = "image://icons/webcamoid-record-stop"
+                imgRecordIcon.icon.source = "image://icons/webcamoid-record-stop"
             } else {
                 lblRecordLabel.text = qsTr("Start video recording")
-                imgRecordIcon.source = "image://icons/webcamoid-record-start"
+                imgRecordIcon.icon.source = "image://icons/webcamoid-record-start"
             }
         }
 
+    }
+
+    Component.onCompleted: {
+        Recording.removeInterface("itmRecordControls");
+        Recording.embedControls("itmRecordControls", "");
     }
 
     Label {
@@ -105,22 +102,10 @@ ColumnLayout {
         readOnly: true
         Layout.fillWidth: true
     }
-    ScrollView {
-        id: scrollControls
-        ScrollBar.horizontal.policy: ScrollBar.AsNeeded
-        ScrollBar.vertical.policy: ScrollBar.AsNeeded
-            clip: true
-        contentHeight: itmRecordControls.height
+    RowLayout {
+        id: itmRecordControls
+        objectName: "itmRecordControls"
         Layout.fillWidth: true
-        Layout.fillHeight: true
-
-        RowLayout {
-            id: itmRecordControls
-            objectName: "itmRecordControls"
-            width: scrollControls.width
-                   - (scrollControls.ScrollBar.vertical.visible?
-                          scrollControls.ScrollBar.vertical.width: 0)
-        }
     }
 
     Label {
@@ -130,6 +115,7 @@ ColumnLayout {
         anchors.horizontalCenter: parent.horizontalCenter
     }
     Button {
+        id: imgRecordIcon
         icon.width: 32
         icon.height: 32
         icon.source: "image://icons/webcamoid-record-start"

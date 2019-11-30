@@ -19,13 +19,10 @@
 
 import QtQuick 2.7
 import QtQuick.Controls 2.5
+import QtQuick.Layouts 1.3
 
-Rectangle {
+ColumnLayout {
     id: recRecordBar
-    color: Qt.rgba(0, 0, 0, 0)
-    clip: true
-    width: 200
-    height: 400
 
     function sort(model, lo, hi)
     {
@@ -91,42 +88,22 @@ Rectangle {
 
     TextField {
         id: txtSearchFormat
-        anchors.top: parent.top
-        anchors.topMargin: 8
-        anchors.rightMargin: 8
-        anchors.leftMargin: 8
-        anchors.right: parent.right
-        anchors.left: parent.left
         placeholderText: qsTr("Search format")
+        Layout.fillWidth: true
     }
+    OptionList {
+        id: lsvRecordingFormatList
+        filter: txtSearchFormat.text
+        textRole: "description"
+        Layout.fillWidth: true
 
-    ScrollView {
-        id: scrollFormats
-        ScrollBar.horizontal.policy: ScrollBar.AsNeeded
-        ScrollBar.vertical.policy: ScrollBar.AsNeeded
-        clip: true
-        anchors.top: txtSearchFormat.bottom
-        anchors.bottom: parent.bottom
-        anchors.right: parent.right
-        anchors.left: parent.left
-        contentHeight: lsvRecordingFormatList.height
+        onCurrentIndexChanged: {
+            var option = model.get(currentIndex);
 
-        OptionList {
-            id: lsvRecordingFormatList
-            filter: txtSearchFormat.text
-            textRole: "description"
-            width: scrollFormats.width
-                   - (scrollFormats.ScrollBar.vertical.visible?
-                          scrollFormats.ScrollBar.vertical.width: 0)
+            if (option)
+                Recording.format = option.format
 
-            onCurrentIndexChanged: {
-                var option = model.get(currentIndex);
-
-                if (option)
-                    Recording.format = option.format
-
-                txtSearchFormat.text = "";
-            }
+            txtSearchFormat.text = "";
         }
     }
 }

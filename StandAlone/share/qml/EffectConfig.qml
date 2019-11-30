@@ -133,22 +133,8 @@ ColumnLayout {
             }
         }
     }
-
-    ScrollView {
-        id: scrollControls
-        ScrollBar.horizontal.policy: ScrollBar.AsNeeded
-        ScrollBar.vertical.policy: ScrollBar.AsNeeded
-        clip: true
-        contentHeight: itmEffectControls.height
-        Layout.fillWidth: true
-        Layout.fillHeight: true
-
-        RowLayout {
-            id: itmEffectControls
-            objectName: "itmEffectControls"
-            width: scrollControls.width
-                   - (scrollControls.ScrollBar.vertical.visible?
-                          scrollControls.ScrollBar.vertical.width: 0)
-        }
+    RowLayout {
+        id: itmEffectControls
+        objectName: "itmEffectControls"
     }
 }

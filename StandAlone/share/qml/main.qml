@@ -19,7 +19,7 @@
 
 import QtQuick 2.7
 import QtQuick.Window 2.2
-import QtQuick.Controls 2.0
+import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
 import AkQml 1.0
 import Webcamoid 1.0
@@ -38,7 +38,7 @@ ApplicationWindow {
     width: Webcamoid.windowWidth
     height: Webcamoid.windowHeight
 
-    property bool showEffectBar: false
+    property string currentOption: ""
 
     function rgbChangeAlpha(color, alpha)
     {
@@ -51,7 +51,7 @@ ApplicationWindow {
             Recording.state = AkElement.ElementStateNull;
             MediaSource.state = AkElement.ElementStateNull;
 
-            if (splitView.state == "showRecordPanels")
+            if (splitView.state == "showPanels")
                 splitView.state = "";
         } else {
             MediaSource.state = AkElement.ElementStatePlaying;
@@ -72,6 +72,23 @@ ApplicationWindow {
                                     .arg(Updates.latestVersion));
             notifyTimer.start();
         }
+    }
+
+    function showPane(pane, widget)
+    {
+        for (let i in pane.children)
+            pane.children[i].destroy()
+
+        let component = Qt.createComponent(widget + ".qml")
+
+        if (component.status === Component.Ready) {
+            let object = component.createObject(pane)
+            object.Layout.fillWidth = true
+
+            return object
+        }
+
+        return null
     }
 
     Timer {
@@ -132,145 +149,20 @@ ApplicationWindow {
         smooth: true
         anchors.fill: parent
     }
-
-    Rectangle {
+    RecordingNotice {
         id: recordingNotice
-        color: "black"
-        width: 128
-        height: 60
-        radius: 4
         anchors.top: parent.top
         anchors.topMargin: 16
         anchors.horizontalCenter: parent.horizontalCenter
         visible: false
-
-        onVisibleChanged: {
-            if (visible) {
-                recordingTimer.startTime = new Date().getTime()
-                recordingTimer.start()
-            } else
-                recordingTimer.stop()
-        }
-
-        Image {
-            id: recordingIcon
-            source: "image://icons/webcamoid-recording"
-            sourceSize: Qt.size(width, height)
-            width: height
-            anchors.left: parent.left
-            anchors.leftMargin: 8
-            anchors.top: parent.top
-            anchors.topMargin: 8
-            anchors.bottom: recordingTime.top
-        }
-        Label {
-            text: qsTr("Recording")
-            color: "white"
-            font.bold: true
-            horizontalAlignment: Text.AlignHCenter
-            verticalAlignment: Text.AlignVCenter
-            anchors.left: recordingIcon.right
-            anchors.leftMargin: 8
-            anchors.right: parent.right
-            anchors.rightMargin: 8
-            anchors.top: parent.top
-            anchors.topMargin: 8
-            anchors.bottom: recordingTime.top
-        }
-        Label {
-            id: recordingTime
-            color: "white"
-            font.bold: true
-            horizontalAlignment: Text.AlignHCenter
-            verticalAlignment: Text.AlignVCenter
-            anchors.right: parent.right
-            anchors.rightMargin: 8
-            anchors.left: parent.left
-            anchors.leftMargin: 8
-            anchors.bottom: parent.bottom
-            anchors.bottomMargin: 8
-        }
-
-        Timer {
-            id: recordingTimer
-            interval: 500
-            repeat: true
-
-            property double startTime: new Date().getTime()
-
-            function pad(x)
-            {
-                return x < 10? "0" + x: x
-            }
-
-            onTriggered: {
-                var diffTime = (new Date().getTime() - startTime) / 1000
-                diffTime = parseInt(diffTime, 10)
-
-                var ss = diffTime % 60;
-                diffTime = (diffTime - ss) / 60;
-                var mm = diffTime % 60;
-                var hh = (diffTime - mm) / 60;
-
-                recordingTime.text = pad(hh) + ":" + pad(mm) + ":" + pad(ss)
-            }
-        }
-
-        SequentialAnimation on opacity {
-            loops: Animation.Infinite
-            running: recordingNotice.visible
-
-            PropertyAnimation {
-                easing.type: Easing.OutSine
-                to: 0
-                duration: 1000
-            }
-            PropertyAnimation {
-                easing.type: Easing.InSine
-                to: 1
-                duration: 1000
-            }
-        }
     }
-
     PhotoWidget {
         id: photoWidget
         anchors.bottom: iconBarRect.top
         anchors.bottomMargin: 16
         anchors.horizontalCenter: parent.horizontalCenter
         visible: false
-
-        function savePhoto()
-        {
-            Recording.takePhoto()
-            var suffix = "png";
-            var fileName = qsTr("Picture %1.%2")
-                                .arg(Webcamoid.currentTime())
-                                .arg(suffix)
-
-            var filters = ["PNG file (*.png)",
-                           "JPEG file (*.jpg)",
-                           "BMP file (*.bmp)",
-                           "GIF file (*.gif)"]
-
-            var fileUrl = Webcamoid.saveFileDialog(qsTr("Save photo as..."),
-                                     fileName,
-                                     Webcamoid.standardLocations("pictures")[0],
-                                     "." + suffix,
-                                     filters.join(";;"))
-
-            if (fileUrl !== "")
-                Recording.savePhoto(fileUrl)
-        }
-
-        onTakePhoto: {
-            if (useFlash)
-                flash.show()
-            else
-                savePhoto()
-        }
     }
-
     Item {
         id: splitView
         anchors.fill: parent
@@ -296,64 +188,19 @@ ApplicationWindow {
                                        - splitView.dragBorder)
         }
 
-        Pane {
+        ScrollView {
             id: paneLeft
+            implicitWidth: 250
             anchors.top: parent.top
             anchors.bottom: parent.bottom
             anchors.left: parent.left
+            contentHeight: paneLeftLayout.height
+            clip: true
             visible: false
 
-            Item {
-                anchors.fill: parent
-
-                MediaBar {
-                    id: mdbMediaBar
-                    visible: false
-                    anchors.fill: parent
-                }
-                AudioConfig {
-                    id: audioConfig
-                    visible: false
-                    anchors.fill: parent
-                }
-                EffectBar {
-                    id: effectBar
-                    visible: false
-                    anchors.fill: parent
-                    onCurEffectChanged: effectConfig.curEffect = curEffect
-                    onCurEffectIndexChanged: effectConfig.curEffectIndex = curEffectIndex
-                }
-                RecordBar {
-                    id: recordBar
-                    visible: false
-                    anchors.fill: parent
-                }
-                ConfigBar {
-                    id: configBar
-                    visible: false
-                    anchors.fill: parent
-
-                    onOptionChanged: {
-                        if (generalConfig.children[0])
-                            generalConfig.children[0].destroy()
-
-                        var options = {
-                            "output": "OutputConfig.qml",
-                            "general": "GeneralConfig.qml",
-                            "plugins": "PluginConfig.qml",
-                            "updates": "UpdatesConfig.qml",
-                        }
-
-                        if (options[option]) {
-                            var component = Qt.createComponent(options[option]);
-
-                            if (component.status === Component.Ready) {
-                                var object = component.createObject(generalConfig);
-                                object.anchors.fill = generalConfig;
-                            }
-                        }
-                    }
-                }
+            ColumnLayout {
+                id: paneLeftLayout
+                width: paneLeft.width
             }
         }
         Rectangle {
@@ -388,46 +235,19 @@ ApplicationWindow {
             }
         }
 
-        Pane {
+        ScrollView {
             id: paneRight
             implicitWidth: 450
             anchors.top: parent.top
             anchors.bottom: parent.bottom
             anchors.right: parent.right
+            clip: true
+            contentHeight: paneRightLayout.height
             visible: false
 
-            Item {
-                anchors.fill: parent
-
-                MediaConfig {
-                    id: mediaConfig
-                    visible: false
-                    anchors.fill: parent
-                }
-                AudioInfo {
-                    id: audioInfo
-                    visible: false
-                    anchors.fill: parent
-                    state: audioConfig.state
-                }
-                EffectConfig {
-                    id: effectConfig
-                    curEffect: effectBar.curEffect
-                    curEffectIndex: effectBar.curEffectIndex
-                    editMode: !effectBar.editMode
-                    visible: false
-                    anchors.fill: parent
-                }
-                RecordConfig {
-                    id: recordConfig
-                    anchors.fill: parent
-                    visible: false
-                }
-                ColumnLayout {
-                    id: generalConfig
-                    anchors.fill: parent
-                    visible: false
-                }
+            ColumnLayout {
+                id: paneRightLayout
+                width: paneRight.width
             }
         }
         Rectangle {
@@ -464,40 +284,14 @@ ApplicationWindow {
 
         states: [
             State {
-                name: "showMediaPanels"
+                name: "showPanels"
+
                 PropertyChanges {
                     target: paneLeft
                     visible: true
                 }
                 PropertyChanges {
                     target: paneRight
-                    visible: true
-                }
-                PropertyChanges {
-                    target: mdbMediaBar
-                    visible: true
-                }
-                PropertyChanges {
-                    target: mediaConfig
-                    visible: true
-                }
-            },
-            State {
-                name: "showAudioPanels"
-                PropertyChanges {
-                    target: paneLeft
-                    visible: true
-                }
-                PropertyChanges {
-                    target: paneRight
-                    visible: true
-                }
-                PropertyChanges {
-                    target: audioConfig
-                    visible: true
-                }
-                PropertyChanges {
-                    target: audioInfo
                     visible: true
                 }
             },
@@ -505,63 +299,6 @@ ApplicationWindow {
                 name: "showPhotoWidget"
                 PropertyChanges {
                     target: photoWidget
-                    visible: true
-                }
-            },
-            State {
-                name: "showEffectPanels"
-                PropertyChanges {
-                    target: paneLeft
-                    visible: true
-                }
-                PropertyChanges {
-                    target: paneRight
-                    visible: true
-                }
-                PropertyChanges {
-                    target: effectBar
-                    visible: true
-                }
-                PropertyChanges {
-                    target: effectConfig
-                    visible: true
-                }
-            },
-            State {
-                name: "showRecordPanels"
-                PropertyChanges {
-                    target: paneLeft
-                    visible: true
-                }
-                PropertyChanges {
-                    target: paneRight
-                    visible: true
-                }
-                PropertyChanges {
-                    target: recordBar
-                    visible: true
-                }
-                PropertyChanges {
-                    target: recordConfig
-                    visible: true
-                }
-            },
-            State {
-                name: "showConfigPanels"
-                PropertyChanges {
-                    target: paneLeft
-                    visible: true
-                }
-                PropertyChanges {
-                    target: paneRight
-                    visible: true
-                }
-                PropertyChanges {
-                    target: configBar
-                    visible: true
-                }
-                PropertyChanges {
-                    target: generalConfig
                     visible: true
                 }
             }
@@ -577,7 +314,7 @@ ApplicationWindow {
         anchors.horizontalCenter: parent.horizontalCenter
         opacity: 0.5
 
-        property real nIcons: 8
+        property real nIcons: 7
 
         gradient: Gradient {
             GradientStop {
@@ -599,82 +336,6 @@ ApplicationWindow {
             hoverEnabled: true
             onEntered: iconBarRect.opacity = 1
             onExited: iconBarRect.opacity = 0.5
-
-            Rectangle {
-                id: btnGoBack
-                height: parent.height
-                width: height
-                color: "#00000000"
-                visible: false
-
-                property int margins: 8
-
-                Component.onCompleted: {
-                    btnGoBack.width = imgGoBack.width + txtGoBack.width + 3 * btnGoBack.margins
-                }
-
-                Rectangle {
-                    id: highlighter
-                    radius: iconBarRect.radius
-                    anchors.fill: parent
-                    visible: false
-                    gradient: Gradient {
-                        GradientStop {
-                            position: 0
-                            color: Qt.rgba(0.67, 0.5, 1, 0.5)
-                        }
-
-                        GradientStop {
-                            position: 1
-                            color: Qt.rgba(0.5, 0.25, 1, 1)
-                        }
-                    }
-                }
-                Image {
-                    id: imgGoBack
-                    height: parent.height - 2 * btnGoBack.margins
-                    anchors.left: parent.left
-                    anchors.leftMargin: btnGoBack.margins
-                    anchors.verticalCenter: parent.verticalCenter
-                    width: height
-                    source: "image://icons/webcamoid-go-back"
-                    sourceSize: Qt.size(width, height)
-                }
-                Label {
-                    id: txtGoBack
-                    text: qsTr("Go back")
-                    anchors.verticalCenter: parent.verticalCenter
-                    anchors.left: imgGoBack.right
-                    anchors.leftMargin: btnGoBack.margins
-                    color: "white"
-                }
-                MouseArea {
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    cursorShape: Qt.PointingHandCursor
-
-                    onClicked: {
-                        iconBarRect.state = ""
-                        splitView.state = ""
-                    }
-                    onPressed: {
-                        imgGoBack.scale = 0.75
-                        txtGoBack.scale = 0.75
-                    }
-                    onReleased: {
-                        imgGoBack.scale = 1
-                        txtGoBack.scale = 1
-                    }
-                    onEntered: {
-                        highlighter.visible = true
-                    }
-                    onExited: {
-                        imgGoBack.scale = 1
-                        txtGoBack.scale = 1
-                        highlighter.visible = false
-                    }
-                }
-            }
 
             Row {
                 id: iconBar
@@ -700,10 +361,17 @@ ApplicationWindow {
                     icon: "image://icons/webcamoid-camera-web"
 
                     onClicked: {
-                        if (splitView.state == "showMediaPanels")
+                        showPane(paneLeftLayout, "MediaBar")
+                        showPane(paneRightLayout, "MediaConfig")
+                        let option = "sources"
+
+                        if (wdgMainWidget.currentOption == option) {
                             splitView.state = ""
-                        else
-                            splitView.state = "showMediaPanels"
+                            wdgMainWidget.currentOption = ""
+                        } else {
+                            splitView.state = "showPanels"
+                            wdgMainWidget.currentOption = option
+                        }
                     }
                 }
                 IconBarItem {
@@ -713,10 +381,22 @@ ApplicationWindow {
                     icon: "image://icons/webcamoid-sound"
 
                     onClicked: {
-                        if (splitView.state == "showAudioPanels")
+                        let audioConfig = showPane(paneLeftLayout, "AudioConfig")
+                        let audioInfo = showPane(paneRightLayout, "AudioInfo")
+                        let option = "audio"
+
+                        if (wdgMainWidget.currentOption == option) {
                             splitView.state = ""
-                        else
-                            splitView.state = "showAudioPanels"
+                            wdgMainWidget.currentOption = ""
+                        } else {
+                            splitView.state = "showPanels"
+                            wdgMainWidget.currentOption = option
+                        }
+
+                        audioInfo.state = audioConfig.state
+                        audioConfig.onStateChanged.connect(function (state) {
+                            audioInfo.state = state
+                        })
                     }
                 }
                 IconBarItem {
@@ -727,10 +407,15 @@ ApplicationWindow {
                     enabled: MediaSource.state === AkElement.ElementStatePlaying
 
                     onClicked: {
-                        if (splitView.state == "showPhotoWidget")
+                        let option = "photo"
+
+                        if (wdgMainWidget.currentOption == option) {
                             splitView.state = ""
-                        else
+                            wdgMainWidget.currentOption = ""
+                        } else {
                             splitView.state = "showPhotoWidget"
+                            wdgMainWidget.currentOption = option
+                        }
                     }
                 }
                 IconBarItem {
@@ -741,10 +426,17 @@ ApplicationWindow {
                     enabled: MediaSource.state === AkElement.ElementStatePlaying
 
                     onClicked: {
-                        if (splitView.state == "showRecordPanels")
+                        showPane(paneLeftLayout, "RecordBar")
+                        showPane(paneRightLayout, "RecordConfig")
+                        let option = "record"
+
+                        if (wdgMainWidget.currentOption == option) {
                             splitView.state = ""
-                        else
-                            splitView.state = "showRecordPanels"
+                            wdgMainWidget.currentOption = ""
+                        } else {
+                            splitView.state = "showPanels"
+                            wdgMainWidget.currentOption = option
+                        }
                     }
                 }
                 IconBarItem {
@@ -754,10 +446,30 @@ ApplicationWindow {
                     icon: "image://icons/webcamoid-effects"
 
                     onClicked: {
-                        if (splitView.state == "showEffectPanels")
+                        let effectBar = showPane(paneLeftLayout, "EffectBar")
+                        let effectConfig = showPane(paneRightLayout, "EffectConfig")
+                        let option = "effects"
+
+                        if (wdgMainWidget.currentOption == option) {
                             splitView.state = ""
-                        else
-                            splitView.state = "showEffectPanels"
+                            wdgMainWidget.currentOption = ""
+                        } else {
+                            splitView.state = "showPanels"
+                            wdgMainWidget.currentOption = option
+                        }
+
+                        effectConfig.curEffect = effectBar.curEffect
+                        effectConfig.curEffectIndex = effectBar.curEffectIndex
+                        effectConfig.editMode = !effectBar.editMode
+                        effectBar.onCurEffectChanged.connect(function () {
+                            effectConfig.curEffect = effectBar.curEffect
+                        })
+                        effectBar.onCurEffectIndexChanged.connect(function () {
+                            effectConfig.curEffectIndex = effectBar.curEffectIndex
+                        })
+                        effectBar.onEditModeChanged.connect(function () {
+                            effectConfig.editMode = !effectBar.editMode
+                        })
                     }
                 }
                 IconBarItem {
@@ -767,49 +479,38 @@ ApplicationWindow {
                     icon: "image://icons/webcamoid-setup"
 
                     onClicked: {
-                        if (splitView.state == "showConfigPanels")
-                            splitView.state = ""
-                        else
-                            splitView.state = "showConfigPanels"
-                    }
-                }
-                IconBarItem {
-                    width: iconBarRect.height
-                    height: iconBarRect.height
-                    text: qsTr("About")
-                    icon: "image://icons/webcamoid-help-about"
+                        let options = {
+                            "output": "OutputConfig",
+                            "general": "GeneralConfig",
+                            "plugins": "PluginConfig",
+                            "updates": "UpdatesConfig",
+                            "about": "About",
+                            "contributors": "Contributors",
+                            "license": "License",
+                            "3rdpartylicenses": "ThirdPartyLicenses"
+                        }
+                        let configBar = showPane(paneLeftLayout, "ConfigBar")
 
-                    onClicked: about.show()
+                        if (options[configBar.option])
+                            showPane(paneRightLayout, options[configBar.option])
+
+                        configBar.onOptionChanged.connect(function () {
+                            if (options[configBar.option])
+                                showPane(paneRightLayout, options[configBar.option])
+                        })
+
+                        let option = "preferences"
+
+                        if (wdgMainWidget.currentOption == option) {
+                            splitView.state = ""
+                            wdgMainWidget.currentOption = ""
+                        } else {
+                            splitView.state = "showPanels"
+                            wdgMainWidget.currentOption = option
+                        }
+                    }
                 }
             }
         }
-
-        states: [
-            State {
-                name: "showOptions"
-                PropertyChanges {
-                    target: iconBarRect
-                    width: btnGoBack.width
-                    radius: 4
-                }
-                PropertyChanges {
-                    target: iconBar
-                    visible: false
-                }
-                PropertyChanges {
-                    target: btnGoBack
-                    visible: true
-                }
-            }
-        ]
-    }
-
-    Flash {
-        id: flash
-
-        onTriggered: photoWidget.savePhoto()
-    }
-    About {
-        id: about
     }
 }

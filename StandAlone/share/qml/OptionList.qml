@@ -22,8 +22,8 @@ import QtQuick.Controls 2.0
 
 ListView {
     id: lsvOptionList
-    width: childrenRect.width
-    height: childrenRect.height
+    implicitWidth: childrenRect.width
+    implicitHeight: childrenRect.height
     clip: true
 
     property string filter: ""

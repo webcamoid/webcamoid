@@ -42,8 +42,8 @@ T.SwitchDelegate {
         id: sliderIndicator
         anchors.rightMargin: Ak.newUnit(1 * ThemeSettings.constrolScale,
                                         "dp").pixels
-        anchors.right: parent.right
-        anchors.verticalCenter: parent.verticalCenter
+        anchors.right: control.right
+        anchors.verticalCenter: control.verticalCenter
         implicitWidth: Ak.newUnit(36 * ThemeSettings.constrolScale,
                                   "dp").pixels
         implicitHeight: Ak.newUnit(20 * ThemeSettings.constrolScale,
@@ -102,7 +102,7 @@ T.SwitchDelegate {
     }
     contentItem: Item {
         id: iconLabelContainer
-        anchors.left: parent.left
+        anchors.left: control.left
         anchors.right: sliderIndicator.left
 
         IconLabel {

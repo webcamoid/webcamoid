@@ -19,13 +19,10 @@
 
 import QtQuick 2.7
 import QtQuick.Controls 2.5
+import QtQuick.Layouts 1.3
 
-Rectangle {
+ColumnLayout {
     id: recEffectBar
-    color: Qt.rgba(0, 0, 0, 0)
-    clip: true
-    width: 200
-    height: 400
 
     property string curEffect: ""
     property int curEffectIndex: -1
@@ -112,106 +109,38 @@ Rectangle {
 
     TextField {
         id: txtSearchEffect
-        anchors.top: parent.top
-        anchors.topMargin: 8
-        anchors.rightMargin: 8
-        anchors.leftMargin: 8
-        anchors.right: parent.right
-        anchors.left: parent.left
         placeholderText: qsTr("Search effect")
+        Layout.fillWidth: true
     }
-    Rectangle {
+    Button {
+        id: btnAddEffect
+        text: qsTr("Add effect")
+        visible: advancedMode
+        Layout.fillWidth: true
+
+        onClicked: {
+            recEffectBar.state = (recEffectBar.state == "")?
+                        "showEffects": ""
+        }
+    }
+    Button {
         id: effectResetButton
-        height: advancedMode? 0: 32
-        anchors.topMargin: 8
-        anchors.right: parent.right
-        anchors.left: parent.left
-        anchors.top: txtSearchEffect.bottom
-        visible: advancedMode? false: true
+        text: qsTr("None")
+        Layout.fillWidth: true
 
-        property bool selected: VideoEffects.effects.length < 1
-
-        property color gradUp: selected?
-                                   Qt.rgba(0.75, 0, 0, 1):
-                                   Qt.rgba(0.25, 0, 0, 1)
-        property color gradLow: selected?
-                                    Qt.rgba(1, 0, 0, 1):
-                                    Qt.rgba(0.5, 0, 0, 1)
-
-        onSelectedChanged: {
-            gradUp = selected?
-                        Qt.rgba(0.75, 0, 0, 1):
-                        Qt.rgba(0.25, 0, 0, 1)
-            gradLow = selected?
-                        Qt.rgba(1, 0, 0, 1):
-                        Qt.rgba(0.5, 0, 0, 1)
-        }
-
-        gradient: Gradient {
-            GradientStop {
-                position: 0
-                color: effectResetButton.gradUp
-            }
-
-            GradientStop {
-                position: 1
-                color: effectResetButton.gradLow
-            }
-        }
-
-        Label {
-            id: txtEffectResetButton
-            anchors.verticalCenter: parent.verticalCenter
-            anchors.horizontalCenter: parent.horizontalCenter
-            text: qsTr("None")
-            color: effectResetButton.selected? Qt.rgba(1, 1, 1, 1): Qt.rgba(0.75, 0.75, 0.75, 1)
-        }
-
-        MouseArea {
-            id: msaEffectResetButton
-            hoverEnabled: true
-            cursorShape: Qt.PointingHandCursor
-            anchors.fill: parent
-
-            onEntered: {
-                txtEffectResetButton.font.bold = true
-                effectResetButton.gradUp = effectResetButton.selected?
-                                            Qt.rgba(1, 0.25, 0.25, 1):
-                                            Qt.rgba(0.5, 0.25, 0.25, 1)
-                effectResetButton.gradLow = effectResetButton.selected?
-                                            Qt.rgba(1, 0.25, 0.25, 1):
-                                            Qt.rgba(0.75, 0.25, 0.25, 1)
-            }
-            onExited: {
-                txtEffectResetButton.font.bold = false
-                txtEffectResetButton.scale = 1
-                effectResetButton.gradUp = effectResetButton.selected?
-                                            Qt.rgba(0.75, 0, 0, 1):
-                                            Qt.rgba(0.25, 0, 0, 1)
-                effectResetButton.gradLow = effectResetButton.selected?
-                                            Qt.rgba(1, 0, 0, 1):
-                                            Qt.rgba(0.5, 0, 0, 1)
-            }
-            onPressed: txtEffectResetButton.scale = 0.75
-            onReleased: txtEffectResetButton.scale = 1
-            onClicked: {
-                lsvEffectList.currentIndex = -1
-                VideoEffects.effects = []
-                recEffectBar.curEffect = ""
-                recEffectBar.curEffectIndex = -1
-            }
+        onClicked: {
+            lsvEffectList.currentIndex = -1
+            VideoEffects.effects = []
+            recEffectBar.curEffect = ""
+            recEffectBar.curEffectIndex = -1
         }
     }
-
     OptionList {
         id: lsvAppliedEffectList
-        anchors.bottom: recAddEffect.top
-        anchors.right: parent.right
-        anchors.left: parent.left
-        anchors.top: effectResetButton.bottom
         textRole: "description"
         filter: txtSearchEffect.text
-        visible: advancedMode? true: false
+        visible: advancedMode
+        Layout.fillWidth: true
 
         onCurrentIndexChanged: {
             var option = model.get(currentIndex)
@@ -229,17 +158,12 @@ Rectangle {
         }
     }
 
-    ScrollView {
-        id: scrollEffects
-        ScrollBar.horizontal.policy: ScrollBar.AsNeeded
-        ScrollBar.vertical.policy: ScrollBar.AsNeeded
-        visible: advancedMode? false: true
-        clip: true
-        contentHeight: lsvEffectList.height
-        anchors.bottom: recAddEffect.top
-        anchors.right: parent.right
-        anchors.left: parent.left
-        anchors.top: effectResetButton.bottom
+    OptionList {
+        id: lsvEffectList
+        textRole: "description"
+        filter: txtSearchEffect.text
+        visible: !advancedMode
+        Layout.fillWidth: true
 
         onVisibleChanged: {
             if (!advancedMode)
@@ -255,113 +179,47 @@ Rectangle {
                 VideoEffects.removeAllPreviews()
         }
 
-        OptionList {
-            id: lsvEffectList
-            filter: txtSearchEffect.text
-            textRole: "description"
-            width: scrollEffects.width
-                   - (scrollEffects.ScrollBar.vertical.visible?
-                          scrollEffects.ScrollBar.vertical.width: 0)
+        onCurrentIndexChanged: {
+            var option = model.get(currentIndex)
 
-            onCurrentIndexChanged: {
-                var option = model.get(currentIndex)
+            if (!option)
+                return
 
-                if (!option)
-                    return
+            recEffectBar.lock = true
+            var effect = option.effect
 
-                recEffectBar.lock = true
-                var effect = option.effect
-
-                if (scrollEffects.visible) {
-                    if (advancedMode)
-                        VideoEffects.showPreview(effect)
-                    else {
-                        VideoEffects.effects = []
-                        VideoEffects.appendEffect(effect, false)
-                    }
-                }
-
-                recEffectBar.curEffect = effect
-
-                if (!advancedMode)
-                    recEffectBar.curEffectIndex = 0
-
-                txtSearchEffect.text = ""
-                recEffectBar.lock = false
+            if (advancedMode)
+                VideoEffects.showPreview(effect)
+            else {
+                VideoEffects.effects = []
+                VideoEffects.appendEffect(effect, false)
             }
-        }
-    }
 
-    Rectangle {
-        id: recAddEffect
-        height: advancedMode? 48: 0
-        anchors.bottom: parent.bottom
-        anchors.right: parent.right
-        anchors.left: parent.left
-        visible: advancedMode? true: false
+            recEffectBar.curEffect = effect
 
-        property color gradUp: Qt.rgba(0, 0.5, 0, 1)
-        property color gradLow: Qt.rgba(0, 1, 0, 1)
+            if (!advancedMode)
+                recEffectBar.curEffectIndex = 0
 
-        gradient: Gradient {
-            GradientStop {
-                position: 0
-                color: recAddEffect.gradUp
-            }
-            GradientStop {
-                position: 1
-                color: recAddEffect.gradLow
-            }
-        }
-
-        Image {
-            id: imgAddEffect
-            width: 32
-            height: 32
-            anchors.verticalCenter: parent.verticalCenter
-            anchors.horizontalCenter: parent.horizontalCenter
-            source: "image://icons/webcamoid-add"
-            sourceSize: Qt.size(width, height)
-        }
-
-        MouseArea {
-            id: msaAddEffect
-            hoverEnabled: true
-            cursorShape: Qt.PointingHandCursor
-            anchors.fill: parent
-
-            onEntered: {
-                recAddEffect.gradUp = Qt.rgba(0, 0.75, 0, 1)
-                recAddEffect.gradLow = Qt.rgba(0.25, 1, 0.25, 1)
-            }
-            onExited: {
-                imgAddEffect.scale = 1
-                recAddEffect.gradUp = Qt.rgba(0, 0.5, 0, 1)
-                recAddEffect.gradLow = Qt.rgba(0, 1, 0, 1)
-            }
-            onPressed: imgAddEffect.scale = 0.75
-            onReleased: imgAddEffect.scale = 1
-            onClicked: {
-                recEffectBar.state = (recEffectBar.state == "")?
-                            "showEffects": ""
-            }
+            txtSearchEffect.text = ""
+            recEffectBar.lock = false
         }
     }
 
     states: [
         State {
             name: "showEffects"
+
             PropertyChanges {
                 target: lsvAppliedEffectList
                 visible: false
             }
             PropertyChanges {
-                target: scrollEffects
+                target: lsvEffectList
                 visible: true
             }
             PropertyChanges {
-                target: imgAddEffect
-                source: "image://icons/webcamoid-down"
+                target: btnAddEffect
+                text: qsTr("Go back")
             }
             PropertyChanges {
                 target: recEffectBar

@@ -41,6 +41,9 @@ Rectangle {
 
             ListElement {
                 option: "output"
+                /*: Configuration for video output, like virtual camera or
+                    streaming.
+                 */
                 description: qsTr("Output")
             }
             ListElement {
@@ -54,6 +57,32 @@ Rectangle {
             ListElement {
                 option: "updates"
                 description: qsTr("Updates")
+            }
+            ListElement {
+                option: "about"
+                /*: Information of the program, like name, description, vesion,
+                    etc..
+                 */
+                description: qsTr("About")
+            }
+            ListElement {
+                option: "contributors"
+                /*: List of people contributing to the project: software
+                    developers, translators, designers, etc..
+                 */
+                description: qsTr("Contributors")
+            }
+            ListElement {
+                option: "license"
+                //: Program license.
+                description: qsTr("License")
+            }
+            ListElement {
+                option: "3rdpartylicenses"
+                /*: License for 3rd party components used in Webcamoid, like
+                    libraries and code snippets.
+                 */
+                description: qsTr("3rd Party Licenses")
             }
         }
 

@@ -22,12 +22,8 @@ import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
 import AkQml 1.0
 
-ScrollView {
-    id: scrollView
-    ScrollBar.horizontal.policy: ScrollBar.AsNeeded
-    ScrollBar.vertical.policy: ScrollBar.AsNeeded
-    clip: true
-    contentHeight: outputConfigs.height
+ColumnLayout {
+    id: outputConfigs
 
     Component.onCompleted: {
         Webcamoid.removeInterface("itmVirtualCameraControls")
@@ -42,38 +38,31 @@ ScrollView {
         }
     }
 
-    ColumnLayout {
-        id: outputConfigs
-        width: scrollView.width
-               - (scrollView.ScrollBar.vertical.visible?
-                      scrollView.ScrollBar.vertical.width: 0)
+    RowLayout {
+        Layout.fillWidth: true
 
-        RowLayout {
+        Label {
+            text: qsTr("Enable virtual camera")
             Layout.fillWidth: true
-
-            Label {
-                text: qsTr("Enable virtual camera")
-                Layout.fillWidth: true
-            }
-            Switch {
-                id: enableVirtualCamera
-                checked: Webcamoid.enableVirtualCamera
-
-                onCheckedChanged: Webcamoid.enableVirtualCamera = checked
-            }
         }
-        GroupBox {
-            clip: true
-            Layout.fillWidth: true
+        Switch {
+            id: enableVirtualCamera
+            checked: Webcamoid.enableVirtualCamera
 
-            GridLayout {
-                enabled: enableVirtualCamera.checked
-                id: itmVirtualCameraControls
-                objectName: "itmVirtualCameraControls"
-                anchors.fill: parent
+            onCheckedChanged: Webcamoid.enableVirtualCamera = checked
+        }
+    }
+    GroupBox {
+        clip: true
+        Layout.fillWidth: true
 
-                onChildrenChanged: children[0].anchors.fill = itmVirtualCameraControls
-            }
+        GridLayout {
+            enabled: enableVirtualCamera.checked
+            id: itmVirtualCameraControls
+            objectName: "itmVirtualCameraControls"
+            anchors.fill: parent
+
+            onChildrenChanged: children[0].anchors.fill = itmVirtualCameraControls
         }
     }
 }

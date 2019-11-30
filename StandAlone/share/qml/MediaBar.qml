@@ -19,14 +19,11 @@
 
 import QtQuick 2.7
 import QtQuick.Controls 2.0
+import QtQuick.Layouts 1.3
 import AkQml 1.0
 
-Rectangle {
+ColumnLayout {
     id: recMediaBar
-    color: Qt.rgba(0, 0, 0, 0)
-    clip: true
-    width: 200
-    height: 400
 
     function updateMediaList() {
         var curStream = MediaSource.stream
@@ -56,22 +53,27 @@ Rectangle {
         onStreamsChanged: recMediaBar.updateMediaList()
     }
 
+    Button {
+        id: btnAddMedia
+        text: qsTr("Add media file")
+        Layout.fillWidth: true
+
+        onClicked: dlgAddMedia.visible = true
+    }
     Label {
         id: lblNoWebcams
         height: visible? 32: 0
         text: qsTr("No webcams found")
         verticalAlignment: Text.AlignVCenter
         anchors.horizontalCenter: parent.horizontalCenter
+        Layout.fillWidth: true
         visible: MediaSource.cameras.length < 1
         enabled: false
     }
     OptionList {
         id: lsvMediaList
         textRole: "description"
-        anchors.bottom: btnAddMedia.top
-        anchors.right: parent.right
-        anchors.left: parent.left
-        anchors.top: lblNoWebcams.bottom
+        Layout.fillWidth: true
 
         onCurrentIndexChanged: {
             var option = model.get(currentIndex)
@@ -82,16 +84,6 @@ Rectangle {
             if (playing)
                 MediaSource.state = AkElement.ElementStatePlaying
         }
-    }
-
-    Button {
-        id: btnAddMedia
-        text: qsTr("Add media file")
-        anchors.bottom: parent.bottom
-        anchors.right: parent.right
-        anchors.left: parent.left
-
-        onClicked: dlgAddMedia.visible = true
     }
 
     AddMedia {

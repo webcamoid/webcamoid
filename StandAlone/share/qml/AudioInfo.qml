@@ -32,7 +32,7 @@ GridLayout {
 
     function bound(min, value, max)
     {
-        return Math.max(min, Math.min(value, max));
+        return Math.max(min, Math.min(value, max))
     }
 
     function updateInputInfo()
@@ -41,139 +41,137 @@ GridLayout {
 
         iDevice = AudioLayer.audioInput.length > 0?
                     AudioLayer.audioInput[0]: "";
-        iDescription = AudioLayer.description(iDevice);
+        iDescription = AudioLayer.description(iDevice)
 
-        var audioCaps = Ak.newAudioCaps();
-        var supportedFormats =
-                Ak.newList(AudioLayer.supportedFormats(iDevice));
-        iSampleFormats.clear();
+        let audioCaps = Ak.newAudioCaps();
+        let supportedFormats = Ak.newList(AudioLayer.supportedFormats(iDevice))
+        iSampleFormats.clear()
 
-        for (var format in supportedFormats)
+        for (let format in supportedFormats)
             iSampleFormats.append({format: supportedFormats[format],
-                                   description: audioCaps.sampleFormatToString(supportedFormats[format])});
+                                   description: audioCaps.sampleFormatToString(supportedFormats[format])})
 
-        var supportedChannelLayouts =
-                Ak.newList(AudioLayer.supportedChannelLayouts(iDevice));
-        iChannelLayouts.clear();
+        let supportedChannelLayouts =
+                Ak.newList(AudioLayer.supportedChannelLayouts(iDevice))
+        iChannelLayouts.clear()
 
-        for (var layout in supportedChannelLayouts)
+        for (let layout in supportedChannelLayouts)
             iChannelLayouts.append({layout: supportedChannelLayouts[layout],
-                                    description: audioCaps.channelLayoutToString(supportedChannelLayouts[layout])});
+                                    description: audioCaps.channelLayoutToString(supportedChannelLayouts[layout])})
 
-        var supportedSampleRates = AudioLayer.supportedSampleRates(iDevice);
-        iSampleRates.clear();
+        let supportedSampleRates = AudioLayer.supportedSampleRates(iDevice)
+        iSampleRates.clear()
 
-        for (var rate in supportedSampleRates)
+        for (let rate in supportedSampleRates)
             iSampleRates.append({sampleRate: supportedSampleRates[rate],
-                                 description: supportedSampleRates[rate]});
+                                 description: supportedSampleRates[rate]})
 
-        var preferredFormat = Ak.newAudioCaps(AudioLayer.inputDeviceCaps);
+        let preferredFormat = Ak.newAudioCaps(AudioLayer.inputDeviceCaps)
 
         cbxISampleFormats.currentIndex =
                 bound(0,
                       supportedFormats.indexOf(preferredFormat.format),
-                      cbxISampleFormats.model.count - 1);
+                      cbxISampleFormats.model.count - 1)
         cbxIChannelLayouts.currentIndex =
                 bound(0,
                       supportedChannelLayouts.indexOf(preferredFormat.layouts),
-                      cbxIChannelLayouts.model.count - 1);
+                      cbxIChannelLayouts.model.count - 1)
         cbxISampleRates.currentIndex =
                 bound(0,
                       supportedSampleRates.indexOf(preferredFormat.rate),
-                      cbxISampleRates.model.count - 1);
+                      cbxISampleRates.model.count - 1)
 
-        noUpdate = false;
+        noUpdate = false
     }
 
     function updateOutputInfo()
     {
         noUpdate = true;
 
-        oDescription = AudioLayer.description(AudioLayer.audioOutput);
+        oDescription = AudioLayer.description(AudioLayer.audioOutput)
 
-        var audioCaps = Ak.newAudioCaps();
+        var audioCaps = Ak.newAudioCaps()
         var supportedFormats =
-                Ak.newList(AudioLayer.supportedFormats(AudioLayer.audioOutput));
-        oSampleFormats.clear();
+                Ak.newList(AudioLayer.supportedFormats(AudioLayer.audioOutput))
+        oSampleFormats.clear()
 
-        for (var format in supportedFormats)
+        for (let format in supportedFormats)
             oSampleFormats.append({format: supportedFormats[format],
-                                   description: audioCaps.sampleFormatToString(supportedFormats[format])});
+                                   description: audioCaps.sampleFormatToString(supportedFormats[format])})
 
         var supportedChannelLayouts =
-                Ak.newList(AudioLayer.supportedChannelLayouts(AudioLayer.audioOutput));
-        oChannelLayouts.clear();
+                Ak.newList(AudioLayer.supportedChannelLayouts(AudioLayer.audioOutput))
+        oChannelLayouts.clear()
 
-        for (var layout in supportedChannelLayouts)
+        for (let layout in supportedChannelLayouts)
             oChannelLayouts.append({layout: supportedChannelLayouts[layout],
-                                    description: audioCaps.channelLayoutToString(supportedChannelLayouts[layout])});
+                                    description: audioCaps.channelLayoutToString(supportedChannelLayouts[layout])})
 
         var supportedSampleRates =
-                AudioLayer.supportedSampleRates(AudioLayer.audioOutput);
-        oSampleRates.clear();
+                AudioLayer.supportedSampleRates(AudioLayer.audioOutput)
+        oSampleRates.clear()
 
-        for (var rate in supportedSampleRates)
+        for (let rate in supportedSampleRates)
             oSampleRates.append({sampleRate: supportedSampleRates[rate],
-                                 description: supportedSampleRates[rate]});
+                                 description: supportedSampleRates[rate]})
 
-        var preferredFormat = Ak.newAudioCaps(AudioLayer.outputDeviceCaps);
+        let preferredFormat = Ak.newAudioCaps(AudioLayer.outputDeviceCaps)
 
         cbxOSampleFormats.currentIndex =
                 bound(0,
                       supportedFormats.indexOf(preferredFormat.format),
-                      cbxOSampleFormats.model.count - 1);
+                      cbxOSampleFormats.model.count - 1)
         cbxOChannelLayouts.currentIndex =
                 bound(0,
                       supportedChannelLayouts.indexOf(preferredFormat.layout),
-                      cbxOChannelLayouts.model.count - 1);
+                      cbxOChannelLayouts.model.count - 1)
         cbxOSampleRates.currentIndex =
                 bound(0,
                       supportedSampleRates.indexOf(preferredFormat.rate),
-                      cbxOSampleRates.model.count - 1);
+                      cbxOSampleRates.model.count - 1)
 
-        noUpdate = false;
+        noUpdate = false
     }
 
     function updateCaps(isInput)
     {
         if (noUpdate)
-            return;
+            return
 
-        var cbxSampleFormats = isInput? cbxISampleFormats: cbxOSampleFormats;
-        var cbxChannelLayouts = isInput? cbxIChannelLayouts: cbxOChannelLayouts;
-        var cbxSampleRates = isInput? cbxISampleRates: cbxOSampleRates;
-
-        var audioCaps = Ak.newAudioCaps()
+        let cbxSampleFormats = isInput? cbxISampleFormats: cbxOSampleFormats
+        let cbxChannelLayouts = isInput? cbxIChannelLayouts: cbxOChannelLayouts
+        let cbxSampleRates = isInput? cbxISampleRates: cbxOSampleRates
+        let audioCaps = Ak.newAudioCaps()
 
         if (cbxSampleFormats.model.count > 0
             && cbxChannelLayouts.model.count > 0
             && cbxSampleRates.model.count > 0) {
-            var sampleFormatsCI = bound(0, cbxSampleFormats.currentIndex, cbxSampleFormats.model.count - 1);
-            var channelLayoutsCI = bound(0, cbxChannelLayouts.currentIndex, cbxChannelLayouts.model.count - 1);
-            var sampleRatesCI = bound(0, cbxSampleRates.currentIndex, cbxSampleRates.model.count - 1);
+            let sampleFormatsCI = bound(0, cbxSampleFormats.currentIndex, cbxSampleFormats.model.count - 1)
+            let channelLayoutsCI = bound(0, cbxChannelLayouts.currentIndex, cbxChannelLayouts.model.count - 1)
+            let sampleRatesCI = bound(0, cbxSampleRates.currentIndex, cbxSampleRates.model.count - 1)
 
             audioCaps =
                     Ak.newAudioCaps(cbxSampleFormats.model.get(sampleFormatsCI).format,
                                     cbxChannelLayouts.model.get(channelLayoutsCI).layout,
-                                    cbxSampleRates.model.get(sampleRatesCI).sampleRate);
+                                    cbxSampleRates.model.get(sampleRatesCI).sampleRate)
         }
 
         if (isInput) {
-            var state = AudioLayer.inputState;
-            AudioLayer.inputState = AkElement.ElementStateNull;
-            AudioLayer.inputDeviceCaps = Ak.varAudioCaps(audioCaps);
-            AudioLayer.inputState = state;
+            let state = AudioLayer.inputState
+            AudioLayer.inputState = AkElement.ElementStateNull
+            AudioLayer.inputDeviceCaps = Ak.varAudioCaps(audioCaps)
+            AudioLayer.inputState = state
         } else {
-            var state = AudioLayer.outputState;
-            AudioLayer.outputState = AkElement.ElementStateNull;
-            AudioLayer.outputDeviceCaps = Ak.varAudioCaps(audioCaps);
-            AudioLayer.outputState = state;
+            let state = AudioLayer.outputState
+            AudioLayer.outputState = AkElement.ElementStateNull
+            AudioLayer.outputDeviceCaps = Ak.varAudioCaps(audioCaps)
+            AudioLayer.outputState = state
         }
     }
 
     Component.onCompleted: {
-        updateInputInfo();
-        updateOutputInfo();
+        updateInputInfo()
+        updateOutputInfo()
     }
 
     Connections {

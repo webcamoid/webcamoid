@@ -1,5 +1,5 @@
 /* Webcamoid, webcam capture application.
- * Copyright (C) 2019  Gonzalo Exequiel Pedone
+ * Copyright (C) 2015  Gonzalo Exequiel Pedone
  *
  * Webcamoid is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,24 +17,23 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-import QtQuick 2.0
+import QtQuick 2.7
 import QtQuick.Controls 2.5
-import QtQuick.Templates 2.5 as T
-import AkQml 1.0
+import QtQuick.Layouts 1.3
 
-T.Pane {
-    id: control
-    implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
-                            contentWidth + leftPadding + rightPadding,
-                            Ak.newUnit(6.5, "cm").pixels)
-    implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
-                             contentHeight + topPadding + bottomPadding)
-    padding: 0
+ColumnLayout {
+    id: clyThanks
 
-    background: Rectangle {
-        color: Qt.hsla(ThemeSettings.colorBack.hslHue,
-                       ThemeSettings.colorBack.hslSaturation,
-                       ThemeSettings.colorBack.hslLightness,
-                       0.9)
+    Label {
+        text: qsTr("Thanks to all these cool people that helped contributing to Webcamoid all these years.")
+        wrapMode: Text.WordWrap
+        Layout.fillWidth: true
+    }
+    TextArea {
+        id: contributorsText
+        text: Webcamoid.readFile(":/Webcamoid/share/contributors.txt")
+        font.family: "Courier"
+        readOnly: true
+        Layout.fillWidth: true
     }
 }

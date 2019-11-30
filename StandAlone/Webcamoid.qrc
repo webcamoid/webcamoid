@@ -2,5 +2,9 @@
     <qresource prefix="/Webcamoid">
         <file>share/contributors.txt</file>
         <file>../COPYING</file>
+        <file>share/3rd-party/licenses/openclipart.txt</file>
+        <file>share/3rd-party/licenses/OpenCV.txt</file>
+        <file>share/3rd-party/licenses/TemperatureAlgorithm.txt</file>
+        <file>share/3rd-party/licenses/UsbIds.txt</file>
     </qresource>
 </RCC>

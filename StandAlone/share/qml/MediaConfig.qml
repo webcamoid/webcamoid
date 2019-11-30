@@ -31,8 +31,8 @@ ColumnLayout {
         btnEdit.enabled = stream in MediaSource.uris
         btnRemove.enabled = btnEdit.enabled
 
-        MediaSource.removeInterface("itmMediaControls");
-        MediaSource.embedControls("itmMediaControls", stream);
+        MediaSource.removeInterface("itmMediaControls")
+        MediaSource.embedControls("itmMediaControls", stream)
     }
 
     Connections {
@@ -46,6 +46,8 @@ ColumnLayout {
 
         onInterfaceLoaded: showControls(MediaSource.stream)
     }
+
+    Component.onCompleted: showControls(MediaSource.stream)
 
     Label {
         text: qsTr("Description")
@@ -96,23 +98,10 @@ ColumnLayout {
             }
         }
     }
-
-    ScrollView {
-        id: scrollControls
-        ScrollBar.horizontal.policy: ScrollBar.AsNeeded
-        ScrollBar.vertical.policy: ScrollBar.AsNeeded
-        clip: true
-        contentHeight: itmMediaControls.height
+    RowLayout {
+        id: itmMediaControls
+        objectName: "itmMediaControls"
         Layout.fillWidth: true
-        Layout.fillHeight: true
-
-        RowLayout {
-            id: itmMediaControls
-            objectName: "itmMediaControls"
-            width: scrollControls.width
-                   - (scrollControls.ScrollBar.vertical.visible?
-                          scrollControls.ScrollBar.vertical.width: 0)
-        }
     }
 
     AddMedia {

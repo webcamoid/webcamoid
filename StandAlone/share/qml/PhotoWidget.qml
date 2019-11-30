@@ -30,7 +30,28 @@ Rectangle {
     radius: 4
     clip: true
 
-    signal takePhoto(bool useFlash)
+    function savePhoto()
+    {
+        Recording.takePhoto()
+        var suffix = "png";
+        var fileName = qsTr("Picture %1.%2")
+                            .arg(Webcamoid.currentTime())
+                            .arg(suffix)
+
+        var filters = ["PNG file (*.png)",
+                       "JPEG file (*.jpg)",
+                       "BMP file (*.bmp)",
+                       "GIF file (*.gif)"]
+
+        var fileUrl = Webcamoid.saveFileDialog(qsTr("Save photo as..."),
+                                 fileName,
+                                 Webcamoid.standardLocations("pictures")[0],
+                                 "." + suffix,
+                                 filters.join(";;"))
+
+        if (fileUrl !== "")
+            Recording.savePhoto(fileUrl)
+    }
 
     Component.onCompleted: {
         for (var i = 5; i < 35; i += 5)
@@ -84,7 +105,11 @@ Rectangle {
                         value = 0
                         cbxTimeShot.enabled = true
                         chkFlash.enabled = true
-                        recPhotoWidget.takePhoto(chkFlash.checked)
+
+                        if (chkFlash.checked)
+                            flash.show()
+                        else
+                            savePhoto()
                     }
                 }
             }
@@ -97,7 +122,10 @@ Rectangle {
 
                 onClicked: {
                     if (cbxTimeShot.currentIndex == 0) {
-                        recPhotoWidget.takePhoto(chkFlash.checked)
+                        if (chkFlash.checked)
+                            flash.show()
+                        else
+                            savePhoto()
 
                         return
                     }
@@ -137,5 +165,11 @@ Rectangle {
             var timeout = 1000 * lstTimeOptions.get(cbxTimeShot.currentIndex).time
             pgbPhotoShot.value = (new Date().getTime() - pgbPhotoShot.start) / timeout
         }
+    }
+
+    Flash {
+        id: flash
+
+        onTriggered: savePhoto()
     }
 }
