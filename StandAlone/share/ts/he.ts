@@ -206,25 +206,25 @@
         <location filename="../qml/ConfigBar.qml" line="66"/>
         <source>About</source>
         <extracomment>Information of the program, like name, description, vesion, etc..</extracomment>
-        <translation type="unfinished">על אודות</translation>
+        <translation>על אודות</translation>
     </message>
     <message>
         <location filename="../qml/ConfigBar.qml" line="73"/>
         <source>Contributors</source>
         <extracomment>List of people contributing to the project: software developers, translators, designers, etc..</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>מתנדבים</translation>
     </message>
     <message>
         <location filename="../qml/ConfigBar.qml" line="78"/>
         <source>License</source>
         <extracomment>Program license.</extracomment>
-        <translation type="unfinished">רישיון</translation>
+        <translation>רישיון</translation>
     </message>
     <message>
         <location filename="../qml/ConfigBar.qml" line="85"/>
         <source>3rd Party Licenses</source>
         <extracomment>License for 3rd party components used in Webcamoid, like libraries and code snippets.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>רישיונות צד־שלישי</translation>
     </message>
 </context>
 <context>
@@ -232,7 +232,7 @@
     <message>
         <location filename="../qml/Contributors.qml" line="28"/>
         <source>Thanks to all these cool people that helped contributing to Webcamoid all these years.</source>
-        <translation type="unfinished">תודות לכל האנשים הנהדרים שסייעו בתרומתם ל־Webcamoid במהלך כל השנים האלה.</translation>
+        <translation>תודות לכל האנשים הנהדרים שסייעו בתרומתם ל־Webcamoid במהלך כל השנים האלה.</translation>
     </message>
 </context>
 <context>
@@ -240,7 +240,7 @@
     <message>
         <location filename="../qml/EffectBar.qml" line="117"/>
         <source>Add effect</source>
-        <translation type="unfinished"></translation>
+        <translation>הוספת אפקט</translation>
     </message>
     <message>
         <location filename="../qml/EffectBar.qml" line="112"/>
@@ -255,7 +255,7 @@
     <message>
         <location filename="../qml/EffectBar.qml" line="222"/>
         <source>Go back</source>
-        <translation type="unfinished"></translation>
+        <translation>חזרה</translation>
     </message>
 </context>
 <context>
@@ -352,12 +352,12 @@
     <message>
         <location filename="../qml/MediaBar.qml" line="66"/>
         <source>No webcams found</source>
-        <translation type="unfinished"></translation>
+        <translation>לא נמצאו מצלמות</translation>
     </message>
     <message>
         <location filename="../qml/MediaBar.qml" line="58"/>
         <source>Add media file</source>
-        <translation type="unfinished"></translation>
+        <translation>הוספת קובץ מדיה</translation>
     </message>
 </context>
 <context>
@@ -406,12 +406,12 @@
     <message>
         <location filename="../qml/PhotoWidget.qml" line="37"/>
         <source>Picture %1.%2</source>
-        <translation type="unfinished">תמונה %1.%2</translation>
+        <translation>תמונה %1.%2</translation>
     </message>
     <message>
         <location filename="../qml/PhotoWidget.qml" line="46"/>
         <source>Save photo as...</source>
-        <translation type="unfinished">שמירת התמונה בשם…</translation>
+        <translation>שמירת התמונה בשם…</translation>
     </message>
     <message>
         <location filename="../qml/PhotoWidget.qml" line="58"/>
@@ -627,7 +627,7 @@
     <message>
         <location filename="../qml/RecordingNotice.qml" line="56"/>
         <source>Recording</source>
-        <translation type="unfinished">הקלטה</translation>
+        <translation>הקלטה</translation>
     </message>
 </context>
 <context>
