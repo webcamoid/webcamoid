@@ -206,25 +206,25 @@
         <location filename="../qml/ConfigBar.qml" line="66"/>
         <source>About</source>
         <extracomment>Information of the program, like name, description, vesion, etc..</extracomment>
-        <translation type="unfinished">Over</translation>
+        <translation>Over</translation>
     </message>
     <message>
         <location filename="../qml/ConfigBar.qml" line="73"/>
         <source>Contributors</source>
         <extracomment>List of people contributing to the project: software developers, translators, designers, etc..</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Bijdragers</translation>
     </message>
     <message>
         <location filename="../qml/ConfigBar.qml" line="78"/>
         <source>License</source>
         <extracomment>Program license.</extracomment>
-        <translation type="unfinished">Licentie</translation>
+        <translation>Licentie</translation>
     </message>
     <message>
         <location filename="../qml/ConfigBar.qml" line="85"/>
         <source>3rd Party Licenses</source>
         <extracomment>License for 3rd party components used in Webcamoid, like libraries and code snippets.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Externe licenties</translation>
     </message>
 </context>
 <context>
@@ -232,7 +232,7 @@
     <message>
         <location filename="../qml/Contributors.qml" line="28"/>
         <source>Thanks to all these cool people that helped contributing to Webcamoid all these years.</source>
-        <translation type="unfinished">Met dank aan al deze coole mensen die al deze jaren hebben bijgedragen aan Webcamoid.</translation>
+        <translation>Met dank aan al deze coole mensen die al deze jaren hebben bijgedragen aan Webcamoid.</translation>
     </message>
 </context>
 <context>
@@ -240,7 +240,7 @@
     <message>
         <location filename="../qml/EffectBar.qml" line="117"/>
         <source>Add effect</source>
-        <translation type="unfinished"></translation>
+        <translation>Effect toevoegen</translation>
     </message>
     <message>
         <location filename="../qml/EffectBar.qml" line="112"/>
@@ -255,7 +255,7 @@
     <message>
         <location filename="../qml/EffectBar.qml" line="222"/>
         <source>Go back</source>
-        <translation type="unfinished"></translation>
+        <translation>Ga terug</translation>
     </message>
 </context>
 <context>
@@ -352,12 +352,12 @@
     <message>
         <location filename="../qml/MediaBar.qml" line="66"/>
         <source>No webcams found</source>
-        <translation type="unfinished"></translation>
+        <translation>Geen webcams aangetroffen</translation>
     </message>
     <message>
         <location filename="../qml/MediaBar.qml" line="58"/>
         <source>Add media file</source>
-        <translation type="unfinished"></translation>
+        <translation>Mediabestand toevoegen</translation>
     </message>
 </context>
 <context>
@@ -406,12 +406,12 @@
     <message>
         <location filename="../qml/PhotoWidget.qml" line="37"/>
         <source>Picture %1.%2</source>
-        <translation type="unfinished">Afbeelding %1.%2</translation>
+        <translation>Afbeelding %1.%2</translation>
     </message>
     <message>
         <location filename="../qml/PhotoWidget.qml" line="46"/>
         <source>Save photo as...</source>
-        <translation type="unfinished">Foto opslaan als...</translation>
+        <translation>Foto opslaan als...</translation>
     </message>
     <message>
         <location filename="../qml/PhotoWidget.qml" line="58"/>
@@ -627,7 +627,7 @@
     <message>
         <location filename="../qml/RecordingNotice.qml" line="56"/>
         <source>Recording</source>
-        <translation type="unfinished">Opnemen</translation>
+        <translation>Opnemen</translation>
     </message>
 </context>
 <context>
@@ -661,7 +661,7 @@
         <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/StreamOptions.qml" line="105"/>
         <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/StreamOptions.qml" line="110"/>
         <source>Keyframes stride</source>
-        <translation type="unfinished"></translation>
+        <translation>Keyframes - stap-voor-stap</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/StreamOptions.qml" line="126"/>
@@ -674,27 +674,27 @@
     <message>
         <location filename="../qml/ThirdPartyLicenses.qml" line="28"/>
         <source>The followings are the licences for 3rd-party work incorporated into Webcamoid. &lt;b&gt;These licences DOES NOT applies to Webcamoid itself.&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>De volgende licenties behoren bij werk van externe projecten die verwerkt zijn in Webcamoid. &lt;b&gt;Deze licenties SLAAN NIET op Webcamoid zelf.&lt;/b&gt;</translation>
     </message>
     <message>
         <location filename="../qml/ThirdPartyLicenses.qml" line="33"/>
         <source>Licence for resources taken from openclipart.org:</source>
-        <translation type="unfinished"></translation>
+        <translation>Licentie voor items van openclipart.org:</translation>
     </message>
     <message>
         <location filename="../qml/ThirdPartyLicenses.qml" line="44"/>
         <source>Licence for code taken from OpenCV:</source>
-        <translation type="unfinished"></translation>
+        <translation>Licentie voor code van OpenCV:</translation>
     </message>
     <message>
         <location filename="../qml/ThirdPartyLicenses.qml" line="55"/>
         <source>Licence for code and algorithms used in Temperature plugin:</source>
-        <translation type="unfinished"></translation>
+        <translation>Licentie voor code en algoritmen van de temperatuurplug-in:</translation>
     </message>
     <message>
         <location filename="../qml/ThirdPartyLicenses.qml" line="66"/>
         <source>Licence for the usb.ids file:</source>
-        <translation type="unfinished"></translation>
+        <translation>Licentie van het usb.ids-bestand:</translation>
     </message>
 </context>
 <context>
