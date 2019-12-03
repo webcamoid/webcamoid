@@ -67,8 +67,8 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
         self.installerPackages = os.path.join(self.installDir, 'installer/packages')
         self.installerIconSize = 256
         self.appIcon = os.path.join(self.rootDir,
-                                    'StandAlone/share/icons/hicolor/{1}x{1}/{0}.ico'.format(self.programName,
-                                                                                            self.installerIconSize))
+                                    'StandAlone/share/themes/Default/icons/hicolor/{1}x{1}/{0}.ico'.format(self.programName,
+                                                                                                           self.installerIconSize))
         self.licenseFile = os.path.join(self.rootDir, 'COPYING')
         self.installerRunProgram = '@TargetDir@/bin/' + self.programName + '.exe'
         self.installerScript = os.path.join(self.rootDir, 'ports/deploy/installscript.windows.qs')

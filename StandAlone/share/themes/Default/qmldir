@@ -17,3 +17,4 @@ TextArea 1.0 TextArea.qml
 TextField 1.0 TextField.qml
 ToolButton 1.0 ToolButton.qml
 ToolSeparator 1.0 ToolSeparator.qml
+ToolTip 1.0 ToolTip.qml

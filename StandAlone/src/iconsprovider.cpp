@@ -45,7 +45,7 @@ IconsProvider::IconsProvider():
     QQuickImageProvider(QQuickImageProvider::Pixmap)
 {
     this->d = new IconsProviderPrivate;
-    QSettings theme(":/icons/hicolor/index.theme", QSettings::IniFormat);
+    QSettings theme(":/Webcamoid/share/themes/Default/icons/hicolor/index.theme", QSettings::IniFormat);
     theme.beginGroup("Icon Theme");
 
     for (auto &size: theme.value("Directories").toStringList()) {
@@ -75,34 +75,16 @@ QPixmap IconsProvider::requestPixmap(const QString &id,
                                      QSize *size,
                                      const QSize &requestedSize)
 {
-    if (!QIcon::hasThemeIcon(id)) {
-        // Force icon detection.
-        auto iconSize = this->d->nearestSize(requestedSize);
-        *size = iconSize;
+    auto iconSize = this->d->nearestSize(requestedSize);
+    *size = iconSize;
 
-        if (iconSize.isEmpty())
-            return QPixmap();
+    if (iconSize.isEmpty())
+        return QPixmap();
 
-        QPixmap icon(QString(":/icons/hicolor/%1x%2/%3.png")
-                     .arg(iconSize.width()).arg(iconSize.height()).arg(id));
+    QPixmap icon(QString(":/Webcamoid/share/themes/Default/icons/hicolor/%1x%2/%3.png")
+                 .arg(iconSize.width()).arg(iconSize.height()).arg(id));
 
-        return icon;
-    }
-
-    QIcon icon = QIcon::fromTheme(id);
-    QList<QSize> availableSizes = icon.availableSizes();
-    QSize nearestSize;
-
-    if (requestedSize.isEmpty())
-        nearestSize = *std::max_element(availableSizes.begin(),
-                                        availableSizes.end());
-    else
-        nearestSize = this->d->nearestSize(availableSizes, requestedSize);
-
-    QPixmap pixmap = icon.pixmap(nearestSize);
-    *size = pixmap.size();
-
-    return pixmap;
+    return icon;
 }
 
 QSize IconsProviderPrivate::nearestSize(const QSize &requestedSize) const

@@ -29,6 +29,7 @@ T.SpinBox {
     id: spinBox
     implicitWidth: Ak.newUnit(96 * ThemeSettings.constrolScale, "dp").pixels
     implicitHeight: Ak.newUnit(32 * ThemeSettings.constrolScale, "dp").pixels
+    hoverEnabled: true
 
     readonly property int animationTime: 200
 

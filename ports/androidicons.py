@@ -15,7 +15,7 @@ for folder, dpi, size in assets:
                       '-density', dpi,
                       '-resize', '{0}x{0}'.format(size),
                       '-background', 'none',
-                      '../StandAlone/share/icons/hicolor/scalable/webcamoid.svg',
+                      '../StandAlone/share/themes/Default/icons/hicolor/scalable/webcamoid.svg',
                       icon]).communicate()
     subprocess.Popen(['optipng',  # nosec
                       '-O7',

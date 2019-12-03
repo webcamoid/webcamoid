@@ -18,6 +18,8 @@
  */
 
 #include <QApplication>
+#include <QDirIterator>
+#include <QFontDatabase>
 #include <QIcon>
 #include <QQuickStyle>
 #include <QTranslator>
@@ -29,10 +31,6 @@ int main(int argc, char *argv[])
     QApplication::setAttribute(Qt::AA_EnableHighDpiScaling, true);
     QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps, true);
     QApplication app(argc, argv);
-
-    QQuickStyle::addStylePath(":/Webcamoid/share/themes");
-    QQuickStyle::setStyle("Default");
-
     QApplication::setApplicationName(COMMONS_APPNAME);
     QApplication::setApplicationVersion(COMMONS_VERSION);
     QApplication::setOrganizationName(COMMONS_APPNAME);
@@ -43,16 +41,25 @@ int main(int argc, char *argv[])
     translator.load(QLocale::system().name(), ":/Webcamoid/share/ts");
     QCoreApplication::installTranslator(&translator);
 
-    // Install fallback icon theme.
-    if (QIcon::themeName().isEmpty())
-        QIcon::setThemeName("hicolor");
+    // Set theme.
+    QQuickStyle::addStylePath(":/Webcamoid/share/themes");
+    QQuickStyle::setStyle("Default");
+    QDirIterator fontsDirIterator(":/Webcamoid/share/themes/Default/fonts",
+                                  QStringList() << "*.ttf",
+                                  QDir::Files
+                                  | QDir::Readable
+                                  | QDir::NoDotAndDotDot,
+                                  QDirIterator::Subdirectories);
+
+    while (fontsDirIterator.hasNext())
+        QFontDatabase::addApplicationFont(fontsDirIterator.next());
 
 #ifdef Q_OS_OSX
-    QIcon fallbackIcon(":/icons/webcamoid.icns");
+    QIcon fallbackIcon(":/Webcamoid/share/themes/Default/icons/webcamoid.icns");
 #elif defined(Q_OS_WIN32)
-    QIcon fallbackIcon(":/icons/hicolor/256x256/webcamoid.ico");
+    QIcon fallbackIcon(":/Webcamoid/share/themes/Default/icons/hicolor/256x256/webcamoid.ico");
 #else
-    QIcon fallbackIcon(":/icons/hicolor/scalable/webcamoid.svg");
+    QIcon fallbackIcon(":/Webcamoid/share/themes/Default/icons/hicolor/scalable/webcamoid.svg");
 #endif
 
     QApplication::setWindowIcon(QIcon::fromTheme("webcamoid", fallbackIcon));

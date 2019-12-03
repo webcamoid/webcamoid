@@ -35,6 +35,7 @@ T.Button {
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              implicitContentHeight + topPadding + bottomPadding)
     spacing: Ak.newUnit(8 * ThemeSettings.constrolScale, "dp").pixels
+    hoverEnabled: true
 
     readonly property int radius: Ak.newUnit(6 * ThemeSettings.constrolScale,
                                              "dp").pixels

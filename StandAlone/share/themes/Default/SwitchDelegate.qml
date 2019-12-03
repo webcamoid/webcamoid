@@ -35,6 +35,7 @@ T.SwitchDelegate {
                              implicitIndicatorHeight + topPadding + bottomPadding)
     padding: Ak.newUnit(1 * ThemeSettings.constrolScale, "dp").pixels
     spacing: Ak.newUnit(2 * ThemeSettings.constrolScale, "dp").pixels
+    hoverEnabled: true
 
     readonly property int animationTime: 100
 

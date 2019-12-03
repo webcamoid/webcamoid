@@ -1117,7 +1117,7 @@ void CaptureV4L2Private::updateDevices()
                                              | QDir::CaseSensitive,
                                              QDir::Name);
 
-    for (const QString &devicePath: devicesFiles) {
+    for (auto &devicePath: devicesFiles) {
         auto fileName = devicesDir.absoluteFilePath(devicePath);
         int fd = x_open(fileName.toStdString().c_str(), O_RDWR | O_NONBLOCK, 0);
 

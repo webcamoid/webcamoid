@@ -31,6 +31,7 @@ T.Slider {
                             implicitHandleWidth + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              implicitHandleHeight + topPadding + bottomPadding)
+    hoverEnabled: true
 
     readonly property int defaultWidth:
         Ak.newUnit(96 * ThemeSettings.constrolScale, "dp").pixels

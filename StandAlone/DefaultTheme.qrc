@@ -20,5 +20,6 @@
         <file>share/themes/Default/ToolButton.qml</file>
         <file>share/themes/Default/ToolSeparator.qml</file>
         <file>share/themes/Default/ThemeSettings.qml</file>
+        <file>share/themes/Default/ToolTip.qml</file>
     </qresource>
 </RCC>

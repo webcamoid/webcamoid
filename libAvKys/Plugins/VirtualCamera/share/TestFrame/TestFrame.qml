@@ -18,20 +18,17 @@
  */
 
 import QtQuick 2.7
+import QtQuick.Window 2.2
+import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
 
-Rectangle {
-    id: rectangle
+ApplicationWindow {
     width: 640
     height: 480
     color: "#3f2a7e"
+    visible: true
 
     property int patternSize: 24
-
-    FontLoader {
-        id: quickSand;
-        source: "Quicksand-Regular.ttf"
-    }
 
     ColumnLayout {
         anchors.verticalCenter: parent.verticalCenter
@@ -48,7 +45,7 @@ Rectangle {
                 height: width
                 sourceSize.width: width
                 sourceSize.height: height
-                source: "webcamoid.png"
+                source: "../../../../../StandAlone/share/themes/Default/icons/hicolor/128x128/webcamoid.png"
             }
 
             ColumnLayout {
@@ -57,7 +54,6 @@ Rectangle {
                     color: "#ffffff"
                     text: "Webcamoid"
                     font.weight: Font.Bold
-                    font.family: quickSand.name
                     font.pixelSize: 40
                 }
 
@@ -66,7 +62,6 @@ Rectangle {
                     text: "The ultimate webcam suite!"
                     leftPadding: 24
                     font.weight: Font.Bold
-                    font.family: quickSand.name
                     font.pixelSize: 0.5 * programName.font.pixelSize
                 }
             }
@@ -80,21 +75,18 @@ Rectangle {
                 Text {
                     text: "R"
                     color: "#ffffff"
-                    font.family: quickSand.name
                     font.pixelSize: 0.3 * programName.font.pixelSize
                     Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                 }
                 Text {
                     text: "G"
                     color: "#ffffff"
-                    font.family: quickSand.name
                     font.pixelSize: 0.3 * programName.font.pixelSize
                     Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                 }
                 Text {
                     text: "B"
                     color: "#ffffff"
-                    font.family: quickSand.name
                     font.pixelSize: 0.3 * programName.font.pixelSize
                     Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                 }
@@ -102,21 +94,18 @@ Rectangle {
                 Text {
                     text: "C"
                     color: "#ffffff"
-                    font.family: quickSand.name
                     font.pixelSize: 0.3 * programName.font.pixelSize
                     Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                 }
                 Text {
                     text: "M"
                     color: "#ffffff"
-                    font.family: quickSand.name
                     font.pixelSize: 0.3 * programName.font.pixelSize
                     Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                 }
                 Text {
                     text: "Y"
                     color: "#ffffff"
-                    font.family: quickSand.name
                     font.pixelSize: 0.3 * programName.font.pixelSize
                     Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                 }
@@ -124,14 +113,12 @@ Rectangle {
                 Text {
                     text: "K"
                     color: "#ffffff"
-                    font.family: quickSand.name
                     font.pixelSize: 0.3 * programName.font.pixelSize
                     Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                 }
                 Text {
                     text: "W"
                     color: "#ffffff"
-                    font.family: quickSand.name
                     font.pixelSize: 0.3 * programName.font.pixelSize
                     Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                 }
@@ -200,7 +187,6 @@ Rectangle {
                 anchors.fill: parent
                 topPadding: 8
                 Layout.columnSpan: 2
-                font.family: quickSand.name
                 font.pixelSize: 0.45 * programName.font.pixelSize
             }
         }
