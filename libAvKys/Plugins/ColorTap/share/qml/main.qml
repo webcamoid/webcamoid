@@ -122,7 +122,7 @@ ColumnLayout {
         }
         Button {
             text: qsTr("Search")
-            icon.source: "image://icons/edit-find"
+            icon.source: "image://icons/search"
 
             onClicked: fileDialog.open()
         }

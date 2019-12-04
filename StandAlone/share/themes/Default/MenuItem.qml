@@ -131,7 +131,13 @@ T.MenuItem {
         spacing: menuItem.spacing
         mirrored: menuItem.mirrored
         display: menuItem.display
-        icon: menuItem.icon
+        icon.name: menuItem.icon.name
+        icon.source: menuItem.icon.source
+        icon.width: menuItem.icon.width
+        icon.height: menuItem.icon.height
+        icon.color: menuItem.highlighted?
+                        ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
+                        ThemeSettings.colorText
         text: menuItem.text
         anchors.left: checkMark.right
         anchors.leftMargin: menuItem.checkable? Ak.newUnit(20, "dp").pixels: 0

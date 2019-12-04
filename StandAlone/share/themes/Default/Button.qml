@@ -62,7 +62,13 @@ T.Button {
             spacing: button.spacing
             mirrored: button.mirrored
             display: button.display
-            icon: button.icon
+            icon.name: button.icon.name
+            icon.source: button.icon.source
+            icon.width: button.icon.width
+            icon.height: button.icon.height
+            icon.color: button.highlighted?
+                            ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
+                            ThemeSettings.colorPrimary
             text: button.text
             font: button.font
             color: button.highlighted?
@@ -186,6 +192,7 @@ T.Button {
 
             PropertyChanges {
                 target: iconLabel
+                icon.color: ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
                 color: ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
             }
             PropertyChanges {
@@ -252,6 +259,7 @@ T.Button {
             }
             PropertyChanges {
                 target: iconLabel
+                icon.color: ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
                 color: ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
             }
             PropertyChanges {
@@ -325,6 +333,7 @@ T.Button {
             }
             PropertyChanges {
                 target: iconLabel
+                icon.color: ThemeSettings.shade(ThemeSettings.colorBack, -0.3)
                 color: ThemeSettings.shade(ThemeSettings.colorBack, -0.3)
             }
             PropertyChanges {

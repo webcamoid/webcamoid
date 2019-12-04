@@ -117,11 +117,11 @@ ApplicationWindow {
         onStateChanged: {
             if (state === AkElement.ElementStatePlaying) {
                 itmPlayStopButton.text = qsTr("Stop")
-                itmPlayStopButton.icon = "image://icons/webcamoid-stop"
+                itmPlayStopButton.icon = "image://icons/stop"
                 videoDisplay.visible = true
             } else {
                 itmPlayStopButton.text = qsTr("Play")
-                itmPlayStopButton.icon = "image://icons/webcamoid-play"
+                itmPlayStopButton.icon = "image://icons/play"
                 videoDisplay.visible = false
             }
         }
@@ -350,7 +350,7 @@ ApplicationWindow {
                     width: iconBarRect.height
                     height: iconBarRect.height
                     text: qsTr("Play")
-                    icon: "image://icons/webcamoid-play"
+                    icon: "image://icons/play"
 
                     onClicked: togglePlay()
                 }
@@ -358,7 +358,7 @@ ApplicationWindow {
                     width: iconBarRect.height
                     height: iconBarRect.height
                     text: qsTr("Configure sources")
-                    icon: "image://icons/webcamoid-camera-web"
+                    icon: "image://icons/webcam"
 
                     onClicked: {
                         showPane(paneLeftLayout, "MediaBar")
@@ -378,7 +378,7 @@ ApplicationWindow {
                     width: iconBarRect.height
                     height: iconBarRect.height
                     text: qsTr("Configure audio")
-                    icon: "image://icons/webcamoid-sound"
+                    icon: "image://icons/sound"
 
                     onClicked: {
                         let audioConfig = showPane(paneLeftLayout, "AudioConfig")
@@ -403,7 +403,7 @@ ApplicationWindow {
                     width: iconBarRect.height
                     height: iconBarRect.height
                     text: qsTr("Take a photo")
-                    icon: "image://icons/webcamoid-picture"
+                    icon: "image://icons/photo"
                     enabled: MediaSource.state === AkElement.ElementStatePlaying
 
                     onClicked: {
@@ -422,7 +422,7 @@ ApplicationWindow {
                     width: iconBarRect.height
                     height: iconBarRect.height
                     text: qsTr("Record video")
-                    icon: "image://icons/webcamoid-video"
+                    icon: "image://icons/video"
                     enabled: MediaSource.state === AkElement.ElementStatePlaying
 
                     onClicked: {
@@ -443,7 +443,7 @@ ApplicationWindow {
                     width: iconBarRect.height
                     height: iconBarRect.height
                     text: qsTr("Configure Effects")
-                    icon: "image://icons/webcamoid-effects"
+                    icon: "image://icons/video-effects"
 
                     onClicked: {
                         let effectBar = showPane(paneLeftLayout, "EffectBar")
@@ -476,7 +476,7 @@ ApplicationWindow {
                     width: iconBarRect.height
                     height: iconBarRect.height
                     text: qsTr("Preferences")
-                    icon: "image://icons/webcamoid-setup"
+                    icon: "image://icons/settings"
 
                     onClicked: {
                         let options = {

@@ -82,6 +82,41 @@ for root, dirs, _ in os.walk('../StandAlone/share/themes/Default/icons'):
                 except:
                     pass
 
+# Optimize SVG files.
+
+for root, _, files in os.walk('../StandAlone/share/themes/Default/icons'):
+    for f in files:
+        if f.endswith('.svg'):
+            filePath = os.path.realpath(os.path.join(root, f))
+            basename, _ = os.path.splitext(f)
+            tmpPath = os.path.realpath(os.path.join(root, basename + '.tmp.svg'))
+
+            if shutil.which('scour'):
+                subprocess.Popen(['scour',
+                                  '--enable-viewboxing',
+                                  '--enable-id-stripping',
+                                  '--enable-comment-stripping',
+                                  '--shorten-ids',
+                                  '--indent=none',
+                                  '-i', filePath,
+                                  '-o', tmpPath]).communicate()
+
+                try:
+                    shutil.move(tmpPath, filePath)
+                except:
+                    pass
+            elif shutil.which('inkscape'):
+                subprocess.Popen(['inkscape',
+                                  '-z',
+                                  '--vacuum-defs',
+                                  '-f', filePath,
+                                  '-l', tmpPath]).communicate()
+
+                try:
+                    shutil.move(tmpPath, filePath)
+                except:
+                    pass
+
 # Generate default theme icons.
 
 for root, _, files in os.walk('../StandAlone/share/themes/Default/icons'):

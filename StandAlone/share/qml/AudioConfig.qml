@@ -121,7 +121,7 @@ Rectangle {
             ToolTip.visible: hovered
             ToolTip.text: qsTr("Select the output device for audio playing")
             checkable: true
-            icon.source: "image://icons/webcamoid-headphones"
+            icon.source: "image://icons/headphones"
             display: AbstractButton.IconOnly
 
             onCheckedChanged: {
@@ -139,7 +139,7 @@ Rectangle {
             ToolTip.visible: hovered
             ToolTip.text: qsTr("Select the device for audio capturing")
             checkable: true
-            icon.source: "image://icons/webcamoid-mic"
+            icon.source: "image://icons/mic"
             display: AbstractButton.IconOnly
 
             onCheckedChanged: {

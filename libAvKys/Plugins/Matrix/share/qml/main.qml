@@ -97,7 +97,7 @@ GridLayout {
         }
         Button {
             text: qsTr("Select")
-            icon.source: "image://icons/preferences-desktop-font"
+            icon.source: "image://icons/fonts"
 
             onClicked: fontDialog.open()
         }

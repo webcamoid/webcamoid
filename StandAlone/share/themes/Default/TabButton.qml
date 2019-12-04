@@ -74,8 +74,11 @@ T.TabButton {
             display: button.display
             anchors.verticalCenter: buttonContent.verticalCenter
             anchors.horizontalCenter: buttonContent.horizontalCenter
-
-            icon: button.icon
+            icon.name: button.icon.name
+            icon.source: button.icon.source
+            icon.width: button.icon.width
+            icon.height: button.icon.height
+            icon.color: ThemeSettings.contrast(ThemeSettings.colorBack)
             text: button.text
             font: button.font
             color: ThemeSettings.contrast(ThemeSettings.colorBack)
@@ -182,6 +185,7 @@ T.TabButton {
 
             PropertyChanges {
                 target: iconLabel
+                icon.color: ThemeSettings.colorPrimary
                 color: ThemeSettings.colorPrimary
             }
         },
@@ -196,6 +200,7 @@ T.TabButton {
 
             PropertyChanges {
                 target: iconLabel
+                icon.color: ThemeSettings.colorPrimary
                 color: ThemeSettings.colorPrimary
             }
             PropertyChanges {
@@ -213,6 +218,7 @@ T.TabButton {
 
             PropertyChanges {
                 target: iconLabel
+                icon.color: ThemeSettings.colorPrimary
                 color: ThemeSettings.colorPrimary
             }
             PropertyChanges {

@@ -89,7 +89,7 @@ ColumnLayout {
         Button {
             id: btnRemove
             text: qsTr("Remove")
-            icon.source: "image://icons/remove"
+            icon.source: "image://icons/no"
 
             onClicked: {
                 var uris = MediaSource.uris

@@ -105,8 +105,13 @@ T.ToolButton {
             display: button.display
             anchors.verticalCenter: buttonContent.verticalCenter
             anchors.horizontalCenter: buttonContent.horizontalCenter
-
-            icon: button.icon
+            icon.name: button.icon.name
+            icon.source: button.icon.source
+            icon.width: button.icon.width
+            icon.height: button.icon.height
+            icon.color: button.highlighted?
+                            ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
+                            ThemeSettings.contrast(ThemeSettings.colorBack)
             text: button.text
             font: button.font
             color: button.highlighted?
@@ -352,7 +357,8 @@ T.ToolButton {
             }
             PropertyChanges {
                 target: iconLabel
-                color: Qt.lighter(ThemeSettings.colorBack, -0.3)
+                icon.color: ThemeSettings.shade(ThemeSettings.colorBack, -0.3)
+                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.3)
             }
         },
         State {

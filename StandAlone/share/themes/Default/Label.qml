@@ -23,8 +23,7 @@ import QtQuick.Templates 2.5 as T
 
 T.Label {
     id: label
-
     opacity: enabled? 1.0: 0.5
     color: ThemeSettings.colorText
-    linkColor: Qt.lighter(ThemeSettings.colorSecondary, 1.1)
+    linkColor: ThemeSettings.constShade(ThemeSettings.colorSecondary, 0.1)
 }

@@ -77,10 +77,10 @@ ColumnLayout {
         onStateChanged: {
             if (state === AkElement.ElementStatePlaying) {
                 lblRecordLabel.text = qsTr("Stop video recording")
-                imgRecordIcon.icon.source = "image://icons/webcamoid-record-stop"
+                imgRecordIcon.icon.source = "image://icons/record-stop"
             } else {
                 lblRecordLabel.text = qsTr("Start video recording")
-                imgRecordIcon.icon.source = "image://icons/webcamoid-record-start"
+                imgRecordIcon.icon.source = "image://icons/record-start"
             }
         }
 
@@ -118,7 +118,7 @@ ColumnLayout {
         id: imgRecordIcon
         icon.width: 32
         icon.height: 32
-        icon.source: "image://icons/webcamoid-record-start"
+        icon.source: "image://icons/record-start"
         Layout.fillWidth: true
         Layout.preferredHeight: 48
 

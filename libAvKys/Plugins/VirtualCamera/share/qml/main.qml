@@ -99,7 +99,7 @@ GridLayout {
         }
         Button {
             text: qsTr("Remove")
-            icon.source: "image://icons/remove"
+            icon.source: "image://icons/no"
             enabled: VirtualCamera.medias.length > 0
 
             onClicked: {
@@ -110,7 +110,7 @@ GridLayout {
         }
         Button {
             text: qsTr("Remove All")
-            icon.source: "image://icons/remove"
+            icon.source: "image://icons/no"
             enabled: VirtualCamera.medias.length > 0
 
             onClicked: {

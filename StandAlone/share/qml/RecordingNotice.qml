@@ -47,7 +47,7 @@ Rectangle {
 
             Image {
                 id: recordingIcon
-                source: "image://icons/webcamoid-recording"
+                source: "image://icons/recording"
                 sourceSize: Qt.size(width, height)
                 width: 32
                 height: 32

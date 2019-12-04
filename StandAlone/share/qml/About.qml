@@ -51,7 +51,7 @@ ColumnLayout {
             }
             Button {
                 text: qsTr("Website")
-                icon.source: "image://icons/applications-internet"
+                icon.source: "image://icons/internet"
 
                 onClicked: Qt.openUrlExternally(Webcamoid.projectUrl())
             }

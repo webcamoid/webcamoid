@@ -206,7 +206,7 @@ ColumnLayout {
     Button {
         id: btnFormatOptions
         text: qsTr("Advanced Format Options")
-        icon.source: "image://icons/configure"
+        icon.source: "image://icons/settings"
         Layout.fillWidth: true
         enabled: MultiSink.formatOptions().length > 0
 

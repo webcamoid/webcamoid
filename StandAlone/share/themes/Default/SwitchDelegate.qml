@@ -28,6 +28,8 @@ import AkQml 1.0
 T.SwitchDelegate {
     id: control
     opacity: enabled? 1: 0.5
+    icon.width: Ak.newUnit(18 * ThemeSettings.constrolScale, "dp").pixels
+    icon.height: Ak.newUnit(18 * ThemeSettings.constrolScale, "dp").pixels
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             implicitContentWidth + implicitIndicatorWidth + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
@@ -111,8 +113,11 @@ T.SwitchDelegate {
             spacing: control.spacing
             mirrored: control.mirrored
             display: control.display
-
-            icon: control.icon
+            icon.name: control.icon.name
+            icon.source: control.icon.source
+            icon.width: control.icon.width
+            icon.height: control.icon.height
+            icon.color: ThemeSettings.colorText
             text: control.text
             font: control.font
             color: ThemeSettings.colorText

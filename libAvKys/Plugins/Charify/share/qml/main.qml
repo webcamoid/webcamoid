@@ -107,7 +107,7 @@ GridLayout {
         }
         Button {
             text: qsTr("Search")
-            icon.source: "image://icons/edit-find"
+            icon.source: "image://icons/fonts"
 
             onClicked: fontDialog.open()
         }

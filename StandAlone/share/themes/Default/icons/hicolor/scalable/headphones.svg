@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg version="1.1" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+<title>Stylized Headphones v2</title>
+<g fill="#7f7f7f">
+<g transform="matrix(.57143 0 0 .57143 -46 -146.81)" fill="#7f7f7f">
+<path d="m128.5 363.58c-11.956 6.9162-20 19.851-20 34.656 0 14.806 8.0441 27.709 20 34.625v-69.281z" color="#000000"/>
+<path d="m130 432.36h10v-91c0-9.4281 11.29-20.635 20-24.243 24.637-10.205 40.363-10.205 65 0 8.7104 3.608 20 14.815 20 24.243v91h10v-91c0-12.018-9.4036-24.329-20-30-29.389-15.729-55.611-15.729-85 0-10.596 5.671-20 17.982-20 30v91z"/>
+<path d="m256.5 363.58c11.956 6.9162 20 19.851 20 34.656 0 14.806-8.0441 27.709-20 34.625v-69.281z" color="#000000"/>
+<rect x="141.41" y="357.7" width="14.768" height="81.047" ry="4.3001" color="#000000"/>
+<rect x="228.74" y="357.7" width="14.768" height="81.047" ry="4.3001" color="#000000"/>
+</g>
+</g>
+<metadata>
+<rdf:RDF>
+<cc:Work>
+<dc:format>image/svg+xml</dc:format>
+<dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+<cc:license rdf:resource="http://creativecommons.org/publicdomain/zero/1.0/"/>
+<dc:publisher>
+<cc:Agent rdf:about="http://openclipart.org/">
+<dc:title>Openclipart</dc:title>
+</cc:Agent>
+</dc:publisher>
+<dc:title>Stylized Headphones v2</dc:title>
+<dc:date>2013-09-14T21:28:59</dc:date>
+<dc:description>stylized or pictogram headphones</dc:description>
+<dc:source>https://openclipart.org/detail/183456/stylized-headphones-v2-by-algotruneman-183456</dc:source>
+<dc:creator>
+<cc:Agent>
+<dc:title>algotruneman</dc:title>
+</cc:Agent>
+</dc:creator>
+<dc:subject>
+<rdf:Bag>
+<rdf:li>cans</rdf:li>
+<rdf:li>headphones</rdf:li>
+<rdf:li>stylized</rdf:li>
+</rdf:Bag>
+</dc:subject>
+</cc:Work>
+<cc:License rdf:about="http://creativecommons.org/publicdomain/zero/1.0/">
+<cc:permits rdf:resource="http://creativecommons.org/ns#Reproduction"/>
+<cc:permits rdf:resource="http://creativecommons.org/ns#Distribution"/>
+<cc:permits rdf:resource="http://creativecommons.org/ns#DerivativeWorks"/>
+</cc:License>
+</rdf:RDF>
+</metadata>
+</svg>

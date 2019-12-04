@@ -532,9 +532,9 @@ GridLayout {
         }
         Button {
             text: qsTr("Search")
-            icon.source: "image://icons/edit-find"
+            icon.source: "image://icons/search"
 
-            onClicked: pictureDialog.open()
+            onClicked: fileDialog.open()
         }
     }
 
@@ -569,7 +569,7 @@ GridLayout {
     }
 
     FileDialog {
-        id: pictureDialog
+        id: fileDialog
         title: qsTr("Please choose an image file")
         nameFilters: ["Image files (*.bmp *.gif *.jpg *.jpeg *.png *.pbm *.pgm *.ppm *.xbm *.xpm)"]
         folder: "file://" + picturesPath

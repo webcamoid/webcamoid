@@ -124,7 +124,7 @@ GroupBox {
         Button {
             id: advancedOptions
             text: qsTr("Advanced Codec Options")
-            icon.source: "image://icons/configure"
+            icon.source: "image://icons/settings"
             Layout.fillWidth: true
             Layout.columnSpan: 2
             enabled: MultiSink.codecOptions(outputIndex).length > 0

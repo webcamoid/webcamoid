@@ -112,7 +112,7 @@ ColumnLayout {
         Button {
             id: btnAddRemove
             text: inUse? qsTr("Remove"): qsTr("Add")
-            icon.source: inUse? "image://icons/remove": "image://icons/add"
+            icon.source: inUse? "image://icons/no": "image://icons/add"
             enabled: recEffectConfig.curEffect == ""? false: true
 
             onClicked: {

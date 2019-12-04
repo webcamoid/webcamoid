@@ -145,7 +145,7 @@ GridLayout {
         }
         Button {
             text: qsTr("Upgrade Now!")
-            icon.source: "image://icons/applications-internet"
+            icon.source: "image://icons/internet"
             Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
 
             onClicked: Qt.openUrlExternally(Webcamoid.projectDownloadsUrl())
@@ -165,7 +165,7 @@ GridLayout {
         }
         Button {
             text: qsTr("Report a Bug")
-            icon.source: "image://icons/tools-report-bug"
+            icon.source: "image://icons/bug"
             Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
 
             onClicked: Qt.openUrlExternally(Webcamoid.projectIssuesUrl())

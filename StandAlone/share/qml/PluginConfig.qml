@@ -132,7 +132,7 @@ ColumnLayout {
             Button {
                 id: btnRemove
                 text: qsTr("Remove")
-                icon.source: "image://icons/remove"
+                icon.source: "image://icons/no"
                 enabled: searchPathsTable.currentIndex >= 0
 
                 onClicked: {

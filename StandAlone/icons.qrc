@@ -1,302 +1,230 @@
 <RCC>
     <qresource prefix="/Webcamoid">
         <file>share/themes/Default/icons/hicolor/128x128/add.png</file>
-        <file>share/themes/Default/icons/hicolor/128x128/applications-internet.png</file>
+        <file>share/themes/Default/icons/hicolor/128x128/bug.png</file>
         <file>share/themes/Default/icons/hicolor/128x128/cancel.png</file>
-        <file>share/themes/Default/icons/hicolor/128x128/configure.png</file>
-        <file>share/themes/Default/icons/hicolor/128x128/edit-find.png</file>
         <file>share/themes/Default/icons/hicolor/128x128/edit.png</file>
+        <file>share/themes/Default/icons/hicolor/128x128/fonts.png</file>
+        <file>share/themes/Default/icons/hicolor/128x128/headphones.png</file>
+        <file>share/themes/Default/icons/hicolor/128x128/internet.png</file>
+        <file>share/themes/Default/icons/hicolor/128x128/mic.png</file>
+        <file>share/themes/Default/icons/hicolor/128x128/no.png</file>
         <file>share/themes/Default/icons/hicolor/128x128/ok.png</file>
-        <file>share/themes/Default/icons/hicolor/128x128/preferences-desktop-font.png</file>
-        <file>share/themes/Default/icons/hicolor/128x128/remove.png</file>
+        <file>share/themes/Default/icons/hicolor/128x128/photo.png</file>
+        <file>share/themes/Default/icons/hicolor/128x128/play.png</file>
+        <file>share/themes/Default/icons/hicolor/128x128/record-start.png</file>
+        <file>share/themes/Default/icons/hicolor/128x128/record-stop.png</file>
+        <file>share/themes/Default/icons/hicolor/128x128/recording.png</file>
         <file>share/themes/Default/icons/hicolor/128x128/reset.png</file>
-        <file>share/themes/Default/icons/hicolor/128x128/tools-report-bug.png</file>
-        <file>share/themes/Default/icons/hicolor/128x128/webcamoid-add.png</file>
-        <file>share/themes/Default/icons/hicolor/128x128/webcamoid-camera-web.png</file>
-        <file>share/themes/Default/icons/hicolor/128x128/webcamoid-down.png</file>
-        <file>share/themes/Default/icons/hicolor/128x128/webcamoid-effects.png</file>
-        <file>share/themes/Default/icons/hicolor/128x128/webcamoid-go-back.png</file>
-        <file>share/themes/Default/icons/hicolor/128x128/webcamoid-headphones.png</file>
-        <file>share/themes/Default/icons/hicolor/128x128/webcamoid-help-about.png</file>
-        <file>share/themes/Default/icons/hicolor/128x128/webcamoid-mic.png</file>
-        <file>share/themes/Default/icons/hicolor/128x128/webcamoid-picture.png</file>
-        <file>share/themes/Default/icons/hicolor/128x128/webcamoid-play.png</file>
-        <file>share/themes/Default/icons/hicolor/128x128/webcamoid-record-start.png</file>
-        <file>share/themes/Default/icons/hicolor/128x128/webcamoid-record-stop.png</file>
-        <file>share/themes/Default/icons/hicolor/128x128/webcamoid-recording.png</file>
-        <file>share/themes/Default/icons/hicolor/128x128/webcamoid-setup.png</file>
-        <file>share/themes/Default/icons/hicolor/128x128/webcamoid-sound.png</file>
-        <file>share/themes/Default/icons/hicolor/128x128/webcamoid-stop.png</file>
-        <file>share/themes/Default/icons/hicolor/128x128/webcamoid-video.png</file>
-        <file>share/themes/Default/icons/hicolor/128x128/webcamoid-view-fullscreen.png</file>
-        <file>share/themes/Default/icons/hicolor/128x128/webcamoid-view-windowed.png</file>
+        <file>share/themes/Default/icons/hicolor/128x128/search.png</file>
+        <file>share/themes/Default/icons/hicolor/128x128/settings.png</file>
+        <file>share/themes/Default/icons/hicolor/128x128/sound.png</file>
+        <file>share/themes/Default/icons/hicolor/128x128/stop.png</file>
+        <file>share/themes/Default/icons/hicolor/128x128/video-effects.png</file>
+        <file>share/themes/Default/icons/hicolor/128x128/video.png</file>
+        <file>share/themes/Default/icons/hicolor/128x128/webcam.png</file>
         <file>share/themes/Default/icons/hicolor/128x128/webcamoid.ico</file>
         <file>share/themes/Default/icons/hicolor/128x128/webcamoid.png</file>
-        <file>share/themes/Default/icons/hicolor/128x128/window-close.png</file>
         <file>share/themes/Default/icons/hicolor/16x16/add.png</file>
-        <file>share/themes/Default/icons/hicolor/16x16/applications-internet.png</file>
+        <file>share/themes/Default/icons/hicolor/16x16/bug.png</file>
         <file>share/themes/Default/icons/hicolor/16x16/cancel.png</file>
-        <file>share/themes/Default/icons/hicolor/16x16/configure.png</file>
-        <file>share/themes/Default/icons/hicolor/16x16/edit-find.png</file>
         <file>share/themes/Default/icons/hicolor/16x16/edit.png</file>
+        <file>share/themes/Default/icons/hicolor/16x16/fonts.png</file>
+        <file>share/themes/Default/icons/hicolor/16x16/headphones.png</file>
+        <file>share/themes/Default/icons/hicolor/16x16/internet.png</file>
+        <file>share/themes/Default/icons/hicolor/16x16/mic.png</file>
+        <file>share/themes/Default/icons/hicolor/16x16/no.png</file>
         <file>share/themes/Default/icons/hicolor/16x16/ok.png</file>
-        <file>share/themes/Default/icons/hicolor/16x16/preferences-desktop-font.png</file>
-        <file>share/themes/Default/icons/hicolor/16x16/remove.png</file>
+        <file>share/themes/Default/icons/hicolor/16x16/photo.png</file>
+        <file>share/themes/Default/icons/hicolor/16x16/play.png</file>
+        <file>share/themes/Default/icons/hicolor/16x16/record-start.png</file>
+        <file>share/themes/Default/icons/hicolor/16x16/record-stop.png</file>
+        <file>share/themes/Default/icons/hicolor/16x16/recording.png</file>
         <file>share/themes/Default/icons/hicolor/16x16/reset.png</file>
-        <file>share/themes/Default/icons/hicolor/16x16/tools-report-bug.png</file>
-        <file>share/themes/Default/icons/hicolor/16x16/webcamoid-add.png</file>
-        <file>share/themes/Default/icons/hicolor/16x16/webcamoid-camera-web.png</file>
-        <file>share/themes/Default/icons/hicolor/16x16/webcamoid-down.png</file>
-        <file>share/themes/Default/icons/hicolor/16x16/webcamoid-effects.png</file>
-        <file>share/themes/Default/icons/hicolor/16x16/webcamoid-go-back.png</file>
-        <file>share/themes/Default/icons/hicolor/16x16/webcamoid-headphones.png</file>
-        <file>share/themes/Default/icons/hicolor/16x16/webcamoid-help-about.png</file>
-        <file>share/themes/Default/icons/hicolor/16x16/webcamoid-mic.png</file>
-        <file>share/themes/Default/icons/hicolor/16x16/webcamoid-picture.png</file>
-        <file>share/themes/Default/icons/hicolor/16x16/webcamoid-play.png</file>
-        <file>share/themes/Default/icons/hicolor/16x16/webcamoid-record-start.png</file>
-        <file>share/themes/Default/icons/hicolor/16x16/webcamoid-record-stop.png</file>
-        <file>share/themes/Default/icons/hicolor/16x16/webcamoid-recording.png</file>
-        <file>share/themes/Default/icons/hicolor/16x16/webcamoid-setup.png</file>
-        <file>share/themes/Default/icons/hicolor/16x16/webcamoid-sound.png</file>
-        <file>share/themes/Default/icons/hicolor/16x16/webcamoid-stop.png</file>
-        <file>share/themes/Default/icons/hicolor/16x16/webcamoid-video.png</file>
-        <file>share/themes/Default/icons/hicolor/16x16/webcamoid-view-fullscreen.png</file>
-        <file>share/themes/Default/icons/hicolor/16x16/webcamoid-view-windowed.png</file>
+        <file>share/themes/Default/icons/hicolor/16x16/search.png</file>
+        <file>share/themes/Default/icons/hicolor/16x16/settings.png</file>
+        <file>share/themes/Default/icons/hicolor/16x16/sound.png</file>
+        <file>share/themes/Default/icons/hicolor/16x16/stop.png</file>
+        <file>share/themes/Default/icons/hicolor/16x16/video-effects.png</file>
+        <file>share/themes/Default/icons/hicolor/16x16/video.png</file>
+        <file>share/themes/Default/icons/hicolor/16x16/webcam.png</file>
         <file>share/themes/Default/icons/hicolor/16x16/webcamoid.ico</file>
         <file>share/themes/Default/icons/hicolor/16x16/webcamoid.png</file>
-        <file>share/themes/Default/icons/hicolor/16x16/window-close.png</file>
         <file>share/themes/Default/icons/hicolor/22x22/add.png</file>
-        <file>share/themes/Default/icons/hicolor/22x22/applications-internet.png</file>
+        <file>share/themes/Default/icons/hicolor/22x22/bug.png</file>
         <file>share/themes/Default/icons/hicolor/22x22/cancel.png</file>
-        <file>share/themes/Default/icons/hicolor/22x22/configure.png</file>
-        <file>share/themes/Default/icons/hicolor/22x22/edit-find.png</file>
         <file>share/themes/Default/icons/hicolor/22x22/edit.png</file>
+        <file>share/themes/Default/icons/hicolor/22x22/fonts.png</file>
+        <file>share/themes/Default/icons/hicolor/22x22/headphones.png</file>
+        <file>share/themes/Default/icons/hicolor/22x22/internet.png</file>
+        <file>share/themes/Default/icons/hicolor/22x22/mic.png</file>
+        <file>share/themes/Default/icons/hicolor/22x22/no.png</file>
         <file>share/themes/Default/icons/hicolor/22x22/ok.png</file>
-        <file>share/themes/Default/icons/hicolor/22x22/preferences-desktop-font.png</file>
-        <file>share/themes/Default/icons/hicolor/22x22/remove.png</file>
+        <file>share/themes/Default/icons/hicolor/22x22/photo.png</file>
+        <file>share/themes/Default/icons/hicolor/22x22/play.png</file>
+        <file>share/themes/Default/icons/hicolor/22x22/record-start.png</file>
+        <file>share/themes/Default/icons/hicolor/22x22/record-stop.png</file>
+        <file>share/themes/Default/icons/hicolor/22x22/recording.png</file>
         <file>share/themes/Default/icons/hicolor/22x22/reset.png</file>
-        <file>share/themes/Default/icons/hicolor/22x22/tools-report-bug.png</file>
-        <file>share/themes/Default/icons/hicolor/22x22/webcamoid-add.png</file>
-        <file>share/themes/Default/icons/hicolor/22x22/webcamoid-camera-web.png</file>
-        <file>share/themes/Default/icons/hicolor/22x22/webcamoid-down.png</file>
-        <file>share/themes/Default/icons/hicolor/22x22/webcamoid-effects.png</file>
-        <file>share/themes/Default/icons/hicolor/22x22/webcamoid-go-back.png</file>
-        <file>share/themes/Default/icons/hicolor/22x22/webcamoid-headphones.png</file>
-        <file>share/themes/Default/icons/hicolor/22x22/webcamoid-help-about.png</file>
-        <file>share/themes/Default/icons/hicolor/22x22/webcamoid-mic.png</file>
-        <file>share/themes/Default/icons/hicolor/22x22/webcamoid-picture.png</file>
-        <file>share/themes/Default/icons/hicolor/22x22/webcamoid-play.png</file>
-        <file>share/themes/Default/icons/hicolor/22x22/webcamoid-record-start.png</file>
-        <file>share/themes/Default/icons/hicolor/22x22/webcamoid-record-stop.png</file>
-        <file>share/themes/Default/icons/hicolor/22x22/webcamoid-recording.png</file>
-        <file>share/themes/Default/icons/hicolor/22x22/webcamoid-setup.png</file>
-        <file>share/themes/Default/icons/hicolor/22x22/webcamoid-sound.png</file>
-        <file>share/themes/Default/icons/hicolor/22x22/webcamoid-stop.png</file>
-        <file>share/themes/Default/icons/hicolor/22x22/webcamoid-video.png</file>
-        <file>share/themes/Default/icons/hicolor/22x22/webcamoid-view-fullscreen.png</file>
-        <file>share/themes/Default/icons/hicolor/22x22/webcamoid-view-windowed.png</file>
+        <file>share/themes/Default/icons/hicolor/22x22/search.png</file>
+        <file>share/themes/Default/icons/hicolor/22x22/settings.png</file>
+        <file>share/themes/Default/icons/hicolor/22x22/sound.png</file>
+        <file>share/themes/Default/icons/hicolor/22x22/stop.png</file>
+        <file>share/themes/Default/icons/hicolor/22x22/video-effects.png</file>
+        <file>share/themes/Default/icons/hicolor/22x22/video.png</file>
+        <file>share/themes/Default/icons/hicolor/22x22/webcam.png</file>
         <file>share/themes/Default/icons/hicolor/22x22/webcamoid.ico</file>
         <file>share/themes/Default/icons/hicolor/22x22/webcamoid.png</file>
-        <file>share/themes/Default/icons/hicolor/22x22/window-close.png</file>
         <file>share/themes/Default/icons/hicolor/256x256/add.png</file>
-        <file>share/themes/Default/icons/hicolor/256x256/applications-internet.png</file>
+        <file>share/themes/Default/icons/hicolor/256x256/bug.png</file>
         <file>share/themes/Default/icons/hicolor/256x256/cancel.png</file>
-        <file>share/themes/Default/icons/hicolor/256x256/configure.png</file>
-        <file>share/themes/Default/icons/hicolor/256x256/edit-find.png</file>
         <file>share/themes/Default/icons/hicolor/256x256/edit.png</file>
+        <file>share/themes/Default/icons/hicolor/256x256/fonts.png</file>
+        <file>share/themes/Default/icons/hicolor/256x256/headphones.png</file>
+        <file>share/themes/Default/icons/hicolor/256x256/internet.png</file>
+        <file>share/themes/Default/icons/hicolor/256x256/mic.png</file>
+        <file>share/themes/Default/icons/hicolor/256x256/no.png</file>
         <file>share/themes/Default/icons/hicolor/256x256/ok.png</file>
-        <file>share/themes/Default/icons/hicolor/256x256/preferences-desktop-font.png</file>
-        <file>share/themes/Default/icons/hicolor/256x256/remove.png</file>
+        <file>share/themes/Default/icons/hicolor/256x256/photo.png</file>
+        <file>share/themes/Default/icons/hicolor/256x256/play.png</file>
+        <file>share/themes/Default/icons/hicolor/256x256/record-start.png</file>
+        <file>share/themes/Default/icons/hicolor/256x256/record-stop.png</file>
+        <file>share/themes/Default/icons/hicolor/256x256/recording.png</file>
         <file>share/themes/Default/icons/hicolor/256x256/reset.png</file>
-        <file>share/themes/Default/icons/hicolor/256x256/tools-report-bug.png</file>
-        <file>share/themes/Default/icons/hicolor/256x256/webcamoid-add.png</file>
-        <file>share/themes/Default/icons/hicolor/256x256/webcamoid-camera-web.png</file>
-        <file>share/themes/Default/icons/hicolor/256x256/webcamoid-down.png</file>
-        <file>share/themes/Default/icons/hicolor/256x256/webcamoid-effects.png</file>
-        <file>share/themes/Default/icons/hicolor/256x256/webcamoid-go-back.png</file>
-        <file>share/themes/Default/icons/hicolor/256x256/webcamoid-headphones.png</file>
-        <file>share/themes/Default/icons/hicolor/256x256/webcamoid-help-about.png</file>
-        <file>share/themes/Default/icons/hicolor/256x256/webcamoid-mic.png</file>
-        <file>share/themes/Default/icons/hicolor/256x256/webcamoid-picture.png</file>
-        <file>share/themes/Default/icons/hicolor/256x256/webcamoid-play.png</file>
-        <file>share/themes/Default/icons/hicolor/256x256/webcamoid-record-start.png</file>
-        <file>share/themes/Default/icons/hicolor/256x256/webcamoid-record-stop.png</file>
-        <file>share/themes/Default/icons/hicolor/256x256/webcamoid-recording.png</file>
-        <file>share/themes/Default/icons/hicolor/256x256/webcamoid-setup.png</file>
-        <file>share/themes/Default/icons/hicolor/256x256/webcamoid-sound.png</file>
-        <file>share/themes/Default/icons/hicolor/256x256/webcamoid-stop.png</file>
-        <file>share/themes/Default/icons/hicolor/256x256/webcamoid-video.png</file>
-        <file>share/themes/Default/icons/hicolor/256x256/webcamoid-view-fullscreen.png</file>
-        <file>share/themes/Default/icons/hicolor/256x256/webcamoid-view-windowed.png</file>
+        <file>share/themes/Default/icons/hicolor/256x256/search.png</file>
+        <file>share/themes/Default/icons/hicolor/256x256/settings.png</file>
+        <file>share/themes/Default/icons/hicolor/256x256/sound.png</file>
+        <file>share/themes/Default/icons/hicolor/256x256/stop.png</file>
+        <file>share/themes/Default/icons/hicolor/256x256/video-effects.png</file>
+        <file>share/themes/Default/icons/hicolor/256x256/video.png</file>
+        <file>share/themes/Default/icons/hicolor/256x256/webcam.png</file>
         <file>share/themes/Default/icons/hicolor/256x256/webcamoid.ico</file>
         <file>share/themes/Default/icons/hicolor/256x256/webcamoid.png</file>
-        <file>share/themes/Default/icons/hicolor/256x256/window-close.png</file>
         <file>share/themes/Default/icons/hicolor/32x32/add.png</file>
-        <file>share/themes/Default/icons/hicolor/32x32/applications-internet.png</file>
+        <file>share/themes/Default/icons/hicolor/32x32/bug.png</file>
         <file>share/themes/Default/icons/hicolor/32x32/cancel.png</file>
-        <file>share/themes/Default/icons/hicolor/32x32/configure.png</file>
-        <file>share/themes/Default/icons/hicolor/32x32/edit-find.png</file>
         <file>share/themes/Default/icons/hicolor/32x32/edit.png</file>
+        <file>share/themes/Default/icons/hicolor/32x32/fonts.png</file>
+        <file>share/themes/Default/icons/hicolor/32x32/headphones.png</file>
+        <file>share/themes/Default/icons/hicolor/32x32/internet.png</file>
+        <file>share/themes/Default/icons/hicolor/32x32/mic.png</file>
+        <file>share/themes/Default/icons/hicolor/32x32/no.png</file>
         <file>share/themes/Default/icons/hicolor/32x32/ok.png</file>
-        <file>share/themes/Default/icons/hicolor/32x32/preferences-desktop-font.png</file>
-        <file>share/themes/Default/icons/hicolor/32x32/remove.png</file>
+        <file>share/themes/Default/icons/hicolor/32x32/photo.png</file>
+        <file>share/themes/Default/icons/hicolor/32x32/play.png</file>
+        <file>share/themes/Default/icons/hicolor/32x32/record-start.png</file>
+        <file>share/themes/Default/icons/hicolor/32x32/record-stop.png</file>
+        <file>share/themes/Default/icons/hicolor/32x32/recording.png</file>
         <file>share/themes/Default/icons/hicolor/32x32/reset.png</file>
-        <file>share/themes/Default/icons/hicolor/32x32/tools-report-bug.png</file>
-        <file>share/themes/Default/icons/hicolor/32x32/webcamoid-add.png</file>
-        <file>share/themes/Default/icons/hicolor/32x32/webcamoid-camera-web.png</file>
-        <file>share/themes/Default/icons/hicolor/32x32/webcamoid-down.png</file>
-        <file>share/themes/Default/icons/hicolor/32x32/webcamoid-effects.png</file>
-        <file>share/themes/Default/icons/hicolor/32x32/webcamoid-go-back.png</file>
-        <file>share/themes/Default/icons/hicolor/32x32/webcamoid-headphones.png</file>
-        <file>share/themes/Default/icons/hicolor/32x32/webcamoid-help-about.png</file>
-        <file>share/themes/Default/icons/hicolor/32x32/webcamoid-mic.png</file>
-        <file>share/themes/Default/icons/hicolor/32x32/webcamoid-picture.png</file>
-        <file>share/themes/Default/icons/hicolor/32x32/webcamoid-play.png</file>
-        <file>share/themes/Default/icons/hicolor/32x32/webcamoid-record-start.png</file>
-        <file>share/themes/Default/icons/hicolor/32x32/webcamoid-record-stop.png</file>
-        <file>share/themes/Default/icons/hicolor/32x32/webcamoid-recording.png</file>
-        <file>share/themes/Default/icons/hicolor/32x32/webcamoid-setup.png</file>
-        <file>share/themes/Default/icons/hicolor/32x32/webcamoid-sound.png</file>
-        <file>share/themes/Default/icons/hicolor/32x32/webcamoid-stop.png</file>
-        <file>share/themes/Default/icons/hicolor/32x32/webcamoid-video.png</file>
-        <file>share/themes/Default/icons/hicolor/32x32/webcamoid-view-fullscreen.png</file>
-        <file>share/themes/Default/icons/hicolor/32x32/webcamoid-view-windowed.png</file>
+        <file>share/themes/Default/icons/hicolor/32x32/search.png</file>
+        <file>share/themes/Default/icons/hicolor/32x32/settings.png</file>
+        <file>share/themes/Default/icons/hicolor/32x32/sound.png</file>
+        <file>share/themes/Default/icons/hicolor/32x32/stop.png</file>
+        <file>share/themes/Default/icons/hicolor/32x32/video-effects.png</file>
+        <file>share/themes/Default/icons/hicolor/32x32/video.png</file>
+        <file>share/themes/Default/icons/hicolor/32x32/webcam.png</file>
         <file>share/themes/Default/icons/hicolor/32x32/webcamoid.ico</file>
         <file>share/themes/Default/icons/hicolor/32x32/webcamoid.png</file>
-        <file>share/themes/Default/icons/hicolor/32x32/window-close.png</file>
         <file>share/themes/Default/icons/hicolor/48x48/add.png</file>
-        <file>share/themes/Default/icons/hicolor/48x48/applications-internet.png</file>
+        <file>share/themes/Default/icons/hicolor/48x48/bug.png</file>
         <file>share/themes/Default/icons/hicolor/48x48/cancel.png</file>
-        <file>share/themes/Default/icons/hicolor/48x48/configure.png</file>
-        <file>share/themes/Default/icons/hicolor/48x48/edit-find.png</file>
         <file>share/themes/Default/icons/hicolor/48x48/edit.png</file>
+        <file>share/themes/Default/icons/hicolor/48x48/fonts.png</file>
+        <file>share/themes/Default/icons/hicolor/48x48/headphones.png</file>
+        <file>share/themes/Default/icons/hicolor/48x48/internet.png</file>
+        <file>share/themes/Default/icons/hicolor/48x48/mic.png</file>
+        <file>share/themes/Default/icons/hicolor/48x48/no.png</file>
         <file>share/themes/Default/icons/hicolor/48x48/ok.png</file>
-        <file>share/themes/Default/icons/hicolor/48x48/preferences-desktop-font.png</file>
-        <file>share/themes/Default/icons/hicolor/48x48/remove.png</file>
+        <file>share/themes/Default/icons/hicolor/48x48/photo.png</file>
+        <file>share/themes/Default/icons/hicolor/48x48/play.png</file>
+        <file>share/themes/Default/icons/hicolor/48x48/record-start.png</file>
+        <file>share/themes/Default/icons/hicolor/48x48/record-stop.png</file>
+        <file>share/themes/Default/icons/hicolor/48x48/recording.png</file>
         <file>share/themes/Default/icons/hicolor/48x48/reset.png</file>
-        <file>share/themes/Default/icons/hicolor/48x48/tools-report-bug.png</file>
-        <file>share/themes/Default/icons/hicolor/48x48/webcamoid-add.png</file>
-        <file>share/themes/Default/icons/hicolor/48x48/webcamoid-camera-web.png</file>
-        <file>share/themes/Default/icons/hicolor/48x48/webcamoid-down.png</file>
-        <file>share/themes/Default/icons/hicolor/48x48/webcamoid-effects.png</file>
-        <file>share/themes/Default/icons/hicolor/48x48/webcamoid-go-back.png</file>
-        <file>share/themes/Default/icons/hicolor/48x48/webcamoid-headphones.png</file>
-        <file>share/themes/Default/icons/hicolor/48x48/webcamoid-help-about.png</file>
-        <file>share/themes/Default/icons/hicolor/48x48/webcamoid-mic.png</file>
-        <file>share/themes/Default/icons/hicolor/48x48/webcamoid-picture.png</file>
-        <file>share/themes/Default/icons/hicolor/48x48/webcamoid-play.png</file>
-        <file>share/themes/Default/icons/hicolor/48x48/webcamoid-record-start.png</file>
-        <file>share/themes/Default/icons/hicolor/48x48/webcamoid-record-stop.png</file>
-        <file>share/themes/Default/icons/hicolor/48x48/webcamoid-recording.png</file>
-        <file>share/themes/Default/icons/hicolor/48x48/webcamoid-setup.png</file>
-        <file>share/themes/Default/icons/hicolor/48x48/webcamoid-sound.png</file>
-        <file>share/themes/Default/icons/hicolor/48x48/webcamoid-stop.png</file>
-        <file>share/themes/Default/icons/hicolor/48x48/webcamoid-video.png</file>
-        <file>share/themes/Default/icons/hicolor/48x48/webcamoid-view-fullscreen.png</file>
-        <file>share/themes/Default/icons/hicolor/48x48/webcamoid-view-windowed.png</file>
+        <file>share/themes/Default/icons/hicolor/48x48/search.png</file>
+        <file>share/themes/Default/icons/hicolor/48x48/settings.png</file>
+        <file>share/themes/Default/icons/hicolor/48x48/sound.png</file>
+        <file>share/themes/Default/icons/hicolor/48x48/stop.png</file>
+        <file>share/themes/Default/icons/hicolor/48x48/video-effects.png</file>
+        <file>share/themes/Default/icons/hicolor/48x48/video.png</file>
+        <file>share/themes/Default/icons/hicolor/48x48/webcam.png</file>
         <file>share/themes/Default/icons/hicolor/48x48/webcamoid.ico</file>
         <file>share/themes/Default/icons/hicolor/48x48/webcamoid.png</file>
-        <file>share/themes/Default/icons/hicolor/48x48/window-close.png</file>
         <file>share/themes/Default/icons/hicolor/64x64/add.png</file>
-        <file>share/themes/Default/icons/hicolor/64x64/applications-internet.png</file>
+        <file>share/themes/Default/icons/hicolor/64x64/bug.png</file>
         <file>share/themes/Default/icons/hicolor/64x64/cancel.png</file>
-        <file>share/themes/Default/icons/hicolor/64x64/configure.png</file>
-        <file>share/themes/Default/icons/hicolor/64x64/edit-find.png</file>
         <file>share/themes/Default/icons/hicolor/64x64/edit.png</file>
+        <file>share/themes/Default/icons/hicolor/64x64/fonts.png</file>
+        <file>share/themes/Default/icons/hicolor/64x64/headphones.png</file>
+        <file>share/themes/Default/icons/hicolor/64x64/internet.png</file>
+        <file>share/themes/Default/icons/hicolor/64x64/mic.png</file>
+        <file>share/themes/Default/icons/hicolor/64x64/no.png</file>
         <file>share/themes/Default/icons/hicolor/64x64/ok.png</file>
-        <file>share/themes/Default/icons/hicolor/64x64/preferences-desktop-font.png</file>
-        <file>share/themes/Default/icons/hicolor/64x64/remove.png</file>
+        <file>share/themes/Default/icons/hicolor/64x64/photo.png</file>
+        <file>share/themes/Default/icons/hicolor/64x64/play.png</file>
+        <file>share/themes/Default/icons/hicolor/64x64/record-start.png</file>
+        <file>share/themes/Default/icons/hicolor/64x64/record-stop.png</file>
+        <file>share/themes/Default/icons/hicolor/64x64/recording.png</file>
         <file>share/themes/Default/icons/hicolor/64x64/reset.png</file>
-        <file>share/themes/Default/icons/hicolor/64x64/tools-report-bug.png</file>
-        <file>share/themes/Default/icons/hicolor/64x64/webcamoid-add.png</file>
-        <file>share/themes/Default/icons/hicolor/64x64/webcamoid-camera-web.png</file>
-        <file>share/themes/Default/icons/hicolor/64x64/webcamoid-down.png</file>
-        <file>share/themes/Default/icons/hicolor/64x64/webcamoid-effects.png</file>
-        <file>share/themes/Default/icons/hicolor/64x64/webcamoid-go-back.png</file>
-        <file>share/themes/Default/icons/hicolor/64x64/webcamoid-headphones.png</file>
-        <file>share/themes/Default/icons/hicolor/64x64/webcamoid-help-about.png</file>
-        <file>share/themes/Default/icons/hicolor/64x64/webcamoid-mic.png</file>
-        <file>share/themes/Default/icons/hicolor/64x64/webcamoid-picture.png</file>
-        <file>share/themes/Default/icons/hicolor/64x64/webcamoid-play.png</file>
-        <file>share/themes/Default/icons/hicolor/64x64/webcamoid-record-start.png</file>
-        <file>share/themes/Default/icons/hicolor/64x64/webcamoid-record-stop.png</file>
-        <file>share/themes/Default/icons/hicolor/64x64/webcamoid-recording.png</file>
-        <file>share/themes/Default/icons/hicolor/64x64/webcamoid-setup.png</file>
-        <file>share/themes/Default/icons/hicolor/64x64/webcamoid-sound.png</file>
-        <file>share/themes/Default/icons/hicolor/64x64/webcamoid-stop.png</file>
-        <file>share/themes/Default/icons/hicolor/64x64/webcamoid-video.png</file>
-        <file>share/themes/Default/icons/hicolor/64x64/webcamoid-view-fullscreen.png</file>
-        <file>share/themes/Default/icons/hicolor/64x64/webcamoid-view-windowed.png</file>
+        <file>share/themes/Default/icons/hicolor/64x64/search.png</file>
+        <file>share/themes/Default/icons/hicolor/64x64/settings.png</file>
+        <file>share/themes/Default/icons/hicolor/64x64/sound.png</file>
+        <file>share/themes/Default/icons/hicolor/64x64/stop.png</file>
+        <file>share/themes/Default/icons/hicolor/64x64/video-effects.png</file>
+        <file>share/themes/Default/icons/hicolor/64x64/video.png</file>
+        <file>share/themes/Default/icons/hicolor/64x64/webcam.png</file>
         <file>share/themes/Default/icons/hicolor/64x64/webcamoid.ico</file>
         <file>share/themes/Default/icons/hicolor/64x64/webcamoid.png</file>
-        <file>share/themes/Default/icons/hicolor/64x64/window-close.png</file>
         <file>share/themes/Default/icons/hicolor/8x8/add.png</file>
-        <file>share/themes/Default/icons/hicolor/8x8/applications-internet.png</file>
+        <file>share/themes/Default/icons/hicolor/8x8/bug.png</file>
         <file>share/themes/Default/icons/hicolor/8x8/cancel.png</file>
-        <file>share/themes/Default/icons/hicolor/8x8/configure.png</file>
-        <file>share/themes/Default/icons/hicolor/8x8/edit-find.png</file>
         <file>share/themes/Default/icons/hicolor/8x8/edit.png</file>
+        <file>share/themes/Default/icons/hicolor/8x8/fonts.png</file>
+        <file>share/themes/Default/icons/hicolor/8x8/headphones.png</file>
+        <file>share/themes/Default/icons/hicolor/8x8/internet.png</file>
+        <file>share/themes/Default/icons/hicolor/8x8/mic.png</file>
+        <file>share/themes/Default/icons/hicolor/8x8/no.png</file>
         <file>share/themes/Default/icons/hicolor/8x8/ok.png</file>
-        <file>share/themes/Default/icons/hicolor/8x8/preferences-desktop-font.png</file>
-        <file>share/themes/Default/icons/hicolor/8x8/remove.png</file>
+        <file>share/themes/Default/icons/hicolor/8x8/photo.png</file>
+        <file>share/themes/Default/icons/hicolor/8x8/play.png</file>
+        <file>share/themes/Default/icons/hicolor/8x8/record-start.png</file>
+        <file>share/themes/Default/icons/hicolor/8x8/record-stop.png</file>
+        <file>share/themes/Default/icons/hicolor/8x8/recording.png</file>
         <file>share/themes/Default/icons/hicolor/8x8/reset.png</file>
-        <file>share/themes/Default/icons/hicolor/8x8/tools-report-bug.png</file>
-        <file>share/themes/Default/icons/hicolor/8x8/webcamoid-add.png</file>
-        <file>share/themes/Default/icons/hicolor/8x8/webcamoid-camera-web.png</file>
-        <file>share/themes/Default/icons/hicolor/8x8/webcamoid-down.png</file>
-        <file>share/themes/Default/icons/hicolor/8x8/webcamoid-effects.png</file>
-        <file>share/themes/Default/icons/hicolor/8x8/webcamoid-go-back.png</file>
-        <file>share/themes/Default/icons/hicolor/8x8/webcamoid-headphones.png</file>
-        <file>share/themes/Default/icons/hicolor/8x8/webcamoid-help-about.png</file>
-        <file>share/themes/Default/icons/hicolor/8x8/webcamoid-mic.png</file>
-        <file>share/themes/Default/icons/hicolor/8x8/webcamoid-picture.png</file>
-        <file>share/themes/Default/icons/hicolor/8x8/webcamoid-play.png</file>
-        <file>share/themes/Default/icons/hicolor/8x8/webcamoid-record-start.png</file>
-        <file>share/themes/Default/icons/hicolor/8x8/webcamoid-record-stop.png</file>
-        <file>share/themes/Default/icons/hicolor/8x8/webcamoid-recording.png</file>
-        <file>share/themes/Default/icons/hicolor/8x8/webcamoid-setup.png</file>
-        <file>share/themes/Default/icons/hicolor/8x8/webcamoid-sound.png</file>
-        <file>share/themes/Default/icons/hicolor/8x8/webcamoid-stop.png</file>
-        <file>share/themes/Default/icons/hicolor/8x8/webcamoid-video.png</file>
-        <file>share/themes/Default/icons/hicolor/8x8/webcamoid-view-fullscreen.png</file>
-        <file>share/themes/Default/icons/hicolor/8x8/webcamoid-view-windowed.png</file>
+        <file>share/themes/Default/icons/hicolor/8x8/search.png</file>
+        <file>share/themes/Default/icons/hicolor/8x8/settings.png</file>
+        <file>share/themes/Default/icons/hicolor/8x8/sound.png</file>
+        <file>share/themes/Default/icons/hicolor/8x8/stop.png</file>
+        <file>share/themes/Default/icons/hicolor/8x8/video-effects.png</file>
+        <file>share/themes/Default/icons/hicolor/8x8/video.png</file>
+        <file>share/themes/Default/icons/hicolor/8x8/webcam.png</file>
         <file>share/themes/Default/icons/hicolor/8x8/webcamoid.ico</file>
         <file>share/themes/Default/icons/hicolor/8x8/webcamoid.png</file>
-        <file>share/themes/Default/icons/hicolor/8x8/window-close.png</file>
         <file>share/themes/Default/icons/hicolor/index.theme</file>
         <file>share/themes/Default/icons/hicolor/scalable/add.svg</file>
-        <file>share/themes/Default/icons/hicolor/scalable/applications-internet.svg</file>
+        <file>share/themes/Default/icons/hicolor/scalable/bug.svg</file>
         <file>share/themes/Default/icons/hicolor/scalable/cancel.svg</file>
-        <file>share/themes/Default/icons/hicolor/scalable/configure.svg</file>
-        <file>share/themes/Default/icons/hicolor/scalable/edit-find.svg</file>
         <file>share/themes/Default/icons/hicolor/scalable/edit.svg</file>
+        <file>share/themes/Default/icons/hicolor/scalable/fonts.svg</file>
+        <file>share/themes/Default/icons/hicolor/scalable/headphones.svg</file>
+        <file>share/themes/Default/icons/hicolor/scalable/internet.svg</file>
+        <file>share/themes/Default/icons/hicolor/scalable/mic.svg</file>
+        <file>share/themes/Default/icons/hicolor/scalable/no.svg</file>
         <file>share/themes/Default/icons/hicolor/scalable/ok.svg</file>
-        <file>share/themes/Default/icons/hicolor/scalable/preferences-desktop-font.svg</file>
-        <file>share/themes/Default/icons/hicolor/scalable/remove.svg</file>
+        <file>share/themes/Default/icons/hicolor/scalable/photo.svg</file>
+        <file>share/themes/Default/icons/hicolor/scalable/play.svg</file>
+        <file>share/themes/Default/icons/hicolor/scalable/record-start.svg</file>
+        <file>share/themes/Default/icons/hicolor/scalable/record-stop.svg</file>
+        <file>share/themes/Default/icons/hicolor/scalable/recording.svg</file>
         <file>share/themes/Default/icons/hicolor/scalable/reset.svg</file>
-        <file>share/themes/Default/icons/hicolor/scalable/tools-report-bug.svg</file>
-        <file>share/themes/Default/icons/hicolor/scalable/webcamoid-add.svg</file>
-        <file>share/themes/Default/icons/hicolor/scalable/webcamoid-camera-web.svg</file>
-        <file>share/themes/Default/icons/hicolor/scalable/webcamoid-down.svg</file>
-        <file>share/themes/Default/icons/hicolor/scalable/webcamoid-effects.svg</file>
-        <file>share/themes/Default/icons/hicolor/scalable/webcamoid-go-back.svg</file>
-        <file>share/themes/Default/icons/hicolor/scalable/webcamoid-headphones.svg</file>
-        <file>share/themes/Default/icons/hicolor/scalable/webcamoid-help-about.svg</file>
-        <file>share/themes/Default/icons/hicolor/scalable/webcamoid-mic.svg</file>
-        <file>share/themes/Default/icons/hicolor/scalable/webcamoid-picture.svg</file>
-        <file>share/themes/Default/icons/hicolor/scalable/webcamoid-play.svg</file>
-        <file>share/themes/Default/icons/hicolor/scalable/webcamoid-record-start.svg</file>
-        <file>share/themes/Default/icons/hicolor/scalable/webcamoid-record-stop.svg</file>
-        <file>share/themes/Default/icons/hicolor/scalable/webcamoid-recording.svg</file>
-        <file>share/themes/Default/icons/hicolor/scalable/webcamoid-setup.svg</file>
-        <file>share/themes/Default/icons/hicolor/scalable/webcamoid-sound.svg</file>
-        <file>share/themes/Default/icons/hicolor/scalable/webcamoid-stop.svg</file>
-        <file>share/themes/Default/icons/hicolor/scalable/webcamoid-video.svg</file>
-        <file>share/themes/Default/icons/hicolor/scalable/webcamoid-view-fullscreen.svg</file>
-        <file>share/themes/Default/icons/hicolor/scalable/webcamoid-view-windowed.svg</file>
+        <file>share/themes/Default/icons/hicolor/scalable/search.svg</file>
+        <file>share/themes/Default/icons/hicolor/scalable/settings.svg</file>
+        <file>share/themes/Default/icons/hicolor/scalable/sound.svg</file>
+        <file>share/themes/Default/icons/hicolor/scalable/stop.svg</file>
+        <file>share/themes/Default/icons/hicolor/scalable/video-effects.svg</file>
+        <file>share/themes/Default/icons/hicolor/scalable/video.svg</file>
+        <file>share/themes/Default/icons/hicolor/scalable/webcam.svg</file>
         <file>share/themes/Default/icons/hicolor/scalable/webcamoid.svg</file>
-        <file>share/themes/Default/icons/hicolor/scalable/window-close.svg</file>
         <file>share/themes/Default/icons/webcamoid.icns</file>
     </qresource>
 </RCC>
