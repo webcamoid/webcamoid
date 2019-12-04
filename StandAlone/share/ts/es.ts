@@ -6,27 +6,27 @@
     <message>
         <location filename="../qml/About.qml" line="45"/>
         <source>Version %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Versión %1</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="49"/>
         <source>Using Qt %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Utiliza Qt %1</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="53"/>
         <source>Website</source>
-        <translation type="unfinished"></translation>
+        <translation>Sitio web</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="62"/>
         <source>Webcam capture application.</source>
-        <translation type="unfinished">Aplicación de captura para la webcam.</translation>
+        <translation>Aplicación de captura con cámara web.</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="65"/>
         <source>A simple webcam application for picture and video capture.</source>
-        <translation type="unfinished"></translation>
+        <translation>Una aplicación sencilla para capturar fotos y vídeos con la cámara web.</translation>
     </message>
 </context>
 <context>
