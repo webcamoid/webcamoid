@@ -2215,43 +2215,43 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="119"/>
+        <location filename="../qml/main.qml" line="120"/>
         <source>Stop</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="123"/>
-        <location filename="../qml/main.qml" line="352"/>
+        <location filename="../qml/main.qml" line="125"/>
+        <location filename="../qml/main.qml" line="333"/>
         <source>Play</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="360"/>
+        <location filename="../qml/main.qml" line="343"/>
         <source>Configure sources</source>
         <translation>Sett opp kilder</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="380"/>
+        <location filename="../qml/main.qml" line="365"/>
         <source>Configure audio</source>
         <translation>Sett opp lyd</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="405"/>
+        <location filename="../qml/main.qml" line="393"/>
         <source>Take a photo</source>
         <translation>Knips et bilde</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="424"/>
+        <location filename="../qml/main.qml" line="414"/>
         <source>Record video</source>
         <translation>Ta opp video</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="445"/>
+        <location filename="../qml/main.qml" line="436"/>
         <source>Configure Effects</source>
         <translation type="unfinished">Sett opp effekter</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="478"/>
+        <location filename="../qml/main.qml" line="471"/>
         <source>Preferences</source>
         <translation>Innstillinger</translation>
     </message>

@@ -11,7 +11,6 @@
         <file>share/qml/EffectConfig.qml</file>
         <file>share/qml/Flash.qml</file>
         <file>share/qml/GeneralConfig.qml</file>
-        <file>share/qml/IconBarItem.qml</file>
         <file>share/qml/License.qml</file>
         <file>share/qml/MediaBar.qml</file>
         <file>share/qml/MediaConfig.qml</file>

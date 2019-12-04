@@ -2215,43 +2215,43 @@
         <translation>להוריד את %1 %2 עכשיו!</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="119"/>
+        <location filename="../qml/main.qml" line="120"/>
         <source>Stop</source>
         <translation>עצירה</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="123"/>
-        <location filename="../qml/main.qml" line="352"/>
+        <location filename="../qml/main.qml" line="125"/>
+        <location filename="../qml/main.qml" line="333"/>
         <source>Play</source>
         <translation>ניגון</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="360"/>
+        <location filename="../qml/main.qml" line="343"/>
         <source>Configure sources</source>
         <translation>הגדרת מקורות</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="380"/>
+        <location filename="../qml/main.qml" line="365"/>
         <source>Configure audio</source>
         <translation>הגדרת שמע</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="405"/>
+        <location filename="../qml/main.qml" line="393"/>
         <source>Take a photo</source>
         <translation>צילום תמונה</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="424"/>
+        <location filename="../qml/main.qml" line="414"/>
         <source>Record video</source>
         <translation>הקלטת וידאו</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="445"/>
+        <location filename="../qml/main.qml" line="436"/>
         <source>Configure Effects</source>
         <translation>הגדרת אפקטים</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="478"/>
+        <location filename="../qml/main.qml" line="471"/>
         <source>Preferences</source>
         <translation>העדפות</translation>
     </message>

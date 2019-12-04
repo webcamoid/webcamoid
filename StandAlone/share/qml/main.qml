@@ -116,12 +116,14 @@ ApplicationWindow {
 
         onStateChanged: {
             if (state === AkElement.ElementStatePlaying) {
+                itmPlayStopButton.checked = true
                 itmPlayStopButton.text = qsTr("Stop")
-                itmPlayStopButton.icon = "image://icons/stop"
+                itmPlayStopButton.icon.source = "image://icons/stop"
                 videoDisplay.visible = true
             } else {
+                itmPlayStopButton.checked = false
                 itmPlayStopButton.text = qsTr("Play")
-                itmPlayStopButton.icon = "image://icons/play"
+                itmPlayStopButton.icon.source = "image://icons/play"
                 videoDisplay.visible = false
             }
         }
@@ -158,14 +160,17 @@ ApplicationWindow {
     }
     PhotoWidget {
         id: photoWidget
-        anchors.bottom: iconBarRect.top
+        anchors.bottom: toolBar.top
         anchors.bottomMargin: 16
         anchors.horizontalCenter: parent.horizontalCenter
         visible: false
     }
     Item {
         id: splitView
-        anchors.fill: parent
+        anchors.right: parent.right
+        anchors.left: parent.left
+        anchors.top: parent.top
+        anchors.bottom: toolBar.top
 
         property int panelBorder: 2
         property int dragBorder: 4
@@ -305,209 +310,196 @@ ApplicationWindow {
         ]
     }
 
-    Rectangle {
-        id: iconBarRect
-        width: height * nIcons
+    ToolBar {
+        id: toolBar
         height: 48
-        radius: height / 2
+        anchors.left: parent.left
+        anchors.right: parent.right
         anchors.bottom: parent.bottom
-        anchors.horizontalCenter: parent.horizontalCenter
-        opacity: 0.5
 
-        property real nIcons: 7
-
-        gradient: Gradient {
-            GradientStop {
-                position: 0
-                color: Qt.rgba(0.25, 0.25, 0.25, 1)
-            }
-            GradientStop {
-                position: 1
-                color: Qt.rgba(0, 0, 0, 1)
-            }
-        }
-
-        MouseArea {
-            id: mouseArea
+        RowLayout {
+            id: iconBar
             anchors.horizontalCenter: parent.horizontalCenter
-            anchors.left: parent.left
             anchors.bottom: parent.bottom
             anchors.top: parent.top
-            hoverEnabled: true
-            onEntered: iconBarRect.opacity = 1
-            onExited: iconBarRect.opacity = 0.5
 
-            Row {
-                id: iconBar
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.left: parent.left
-                anchors.bottom: parent.bottom
-                anchors.top: parent.top
-                objectName: "IconBar"
+            ToolButton {
+                id: itmPlayStopButton
+                width: toolBar.height
+                height: toolBar.height
+                icon.source: "image://icons/play"
+                checkable: true
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Play")
+                display: AbstractButton.IconOnly
 
-                IconBarItem {
-                    id: itmPlayStopButton
-                    width: iconBarRect.height
-                    height: iconBarRect.height
-                    text: qsTr("Play")
-                    icon: "image://icons/play"
+                onClicked: togglePlay()
+            }
+            ToolButton {
+                width: toolBar.height
+                height: toolBar.height
+                icon.source: "image://icons/webcam"
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Configure sources")
+                display: AbstractButton.IconOnly
 
-                    onClicked: togglePlay()
-                }
-                IconBarItem {
-                    width: iconBarRect.height
-                    height: iconBarRect.height
-                    text: qsTr("Configure sources")
-                    icon: "image://icons/webcam"
+                onClicked: {
+                    showPane(paneLeftLayout, "MediaBar")
+                    showPane(paneRightLayout, "MediaConfig")
+                    let option = "sources"
 
-                    onClicked: {
-                        showPane(paneLeftLayout, "MediaBar")
-                        showPane(paneRightLayout, "MediaConfig")
-                        let option = "sources"
-
-                        if (wdgMainWidget.currentOption == option) {
-                            splitView.state = ""
-                            wdgMainWidget.currentOption = ""
-                        } else {
-                            splitView.state = "showPanels"
-                            wdgMainWidget.currentOption = option
-                        }
+                    if (wdgMainWidget.currentOption == option) {
+                        splitView.state = ""
+                        wdgMainWidget.currentOption = ""
+                    } else {
+                        splitView.state = "showPanels"
+                        wdgMainWidget.currentOption = option
                     }
                 }
-                IconBarItem {
-                    width: iconBarRect.height
-                    height: iconBarRect.height
-                    text: qsTr("Configure audio")
-                    icon: "image://icons/sound"
+            }
+            ToolButton {
+                width: toolBar.height
+                height: toolBar.height
+                icon.source: "image://icons/sound"
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Configure audio")
+                display: AbstractButton.IconOnly
 
-                    onClicked: {
-                        let audioConfig = showPane(paneLeftLayout, "AudioConfig")
-                        let audioInfo = showPane(paneRightLayout, "AudioInfo")
-                        let option = "audio"
+                onClicked: {
+                    let audioConfig = showPane(paneLeftLayout, "AudioConfig")
+                    let audioInfo = showPane(paneRightLayout, "AudioInfo")
+                    let option = "audio"
 
-                        if (wdgMainWidget.currentOption == option) {
-                            splitView.state = ""
-                            wdgMainWidget.currentOption = ""
-                        } else {
-                            splitView.state = "showPanels"
-                            wdgMainWidget.currentOption = option
-                        }
+                    if (wdgMainWidget.currentOption == option) {
+                        splitView.state = ""
+                        wdgMainWidget.currentOption = ""
+                    } else {
+                        splitView.state = "showPanels"
+                        wdgMainWidget.currentOption = option
+                    }
 
-                        audioInfo.state = audioConfig.state
-                        audioConfig.onStateChanged.connect(function (state) {
-                            audioInfo.state = state
-                        })
+                    audioInfo.state = audioConfig.state
+                    audioConfig.onStateChanged.connect(function (state) {
+                        audioInfo.state = state
+                    })
+                }
+            }
+            ToolButton {
+                width: toolBar.height
+                height: toolBar.height
+                icon.source: "image://icons/photo"
+                enabled: MediaSource.state === AkElement.ElementStatePlaying
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Take a photo")
+                display: AbstractButton.IconOnly
+
+                onClicked: {
+                    let option = "photo"
+
+                    if (wdgMainWidget.currentOption == option) {
+                        splitView.state = ""
+                        wdgMainWidget.currentOption = ""
+                    } else {
+                        splitView.state = "showPhotoWidget"
+                        wdgMainWidget.currentOption = option
                     }
                 }
-                IconBarItem {
-                    width: iconBarRect.height
-                    height: iconBarRect.height
-                    text: qsTr("Take a photo")
-                    icon: "image://icons/photo"
-                    enabled: MediaSource.state === AkElement.ElementStatePlaying
+            }
+            ToolButton {
+                width: toolBar.height
+                height: toolBar.height
+                icon.source: "image://icons/video"
+                enabled: MediaSource.state === AkElement.ElementStatePlaying
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Record video")
+                display: AbstractButton.IconOnly
 
-                    onClicked: {
-                        let option = "photo"
+                onClicked: {
+                    showPane(paneLeftLayout, "RecordBar")
+                    showPane(paneRightLayout, "RecordConfig")
+                    let option = "record"
 
-                        if (wdgMainWidget.currentOption == option) {
-                            splitView.state = ""
-                            wdgMainWidget.currentOption = ""
-                        } else {
-                            splitView.state = "showPhotoWidget"
-                            wdgMainWidget.currentOption = option
-                        }
+                    if (wdgMainWidget.currentOption == option) {
+                        splitView.state = ""
+                        wdgMainWidget.currentOption = ""
+                    } else {
+                        splitView.state = "showPanels"
+                        wdgMainWidget.currentOption = option
                     }
                 }
-                IconBarItem {
-                    width: iconBarRect.height
-                    height: iconBarRect.height
-                    text: qsTr("Record video")
-                    icon: "image://icons/video"
-                    enabled: MediaSource.state === AkElement.ElementStatePlaying
+            }
+            ToolButton {
+                width: toolBar.height
+                height: toolBar.height
+                icon.source: "image://icons/video-effects"
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Configure Effects")
+                display: AbstractButton.IconOnly
 
-                    onClicked: {
-                        showPane(paneLeftLayout, "RecordBar")
-                        showPane(paneRightLayout, "RecordConfig")
-                        let option = "record"
+                onClicked: {
+                    let effectBar = showPane(paneLeftLayout, "EffectBar")
+                    let effectConfig = showPane(paneRightLayout, "EffectConfig")
+                    let option = "effects"
 
-                        if (wdgMainWidget.currentOption == option) {
-                            splitView.state = ""
-                            wdgMainWidget.currentOption = ""
-                        } else {
-                            splitView.state = "showPanels"
-                            wdgMainWidget.currentOption = option
-                        }
+                    if (wdgMainWidget.currentOption == option) {
+                        splitView.state = ""
+                        wdgMainWidget.currentOption = ""
+                    } else {
+                        splitView.state = "showPanels"
+                        wdgMainWidget.currentOption = option
                     }
-                }
-                IconBarItem {
-                    width: iconBarRect.height
-                    height: iconBarRect.height
-                    text: qsTr("Configure Effects")
-                    icon: "image://icons/video-effects"
 
-                    onClicked: {
-                        let effectBar = showPane(paneLeftLayout, "EffectBar")
-                        let effectConfig = showPane(paneRightLayout, "EffectConfig")
-                        let option = "effects"
-
-                        if (wdgMainWidget.currentOption == option) {
-                            splitView.state = ""
-                            wdgMainWidget.currentOption = ""
-                        } else {
-                            splitView.state = "showPanels"
-                            wdgMainWidget.currentOption = option
-                        }
-
+                    effectConfig.curEffect = effectBar.curEffect
+                    effectConfig.curEffectIndex = effectBar.curEffectIndex
+                    effectConfig.editMode = !effectBar.editMode
+                    effectBar.onCurEffectChanged.connect(function () {
                         effectConfig.curEffect = effectBar.curEffect
+                    })
+                    effectBar.onCurEffectIndexChanged.connect(function () {
                         effectConfig.curEffectIndex = effectBar.curEffectIndex
+                    })
+                    effectBar.onEditModeChanged.connect(function () {
                         effectConfig.editMode = !effectBar.editMode
-                        effectBar.onCurEffectChanged.connect(function () {
-                            effectConfig.curEffect = effectBar.curEffect
-                        })
-                        effectBar.onCurEffectIndexChanged.connect(function () {
-                            effectConfig.curEffectIndex = effectBar.curEffectIndex
-                        })
-                        effectBar.onEditModeChanged.connect(function () {
-                            effectConfig.editMode = !effectBar.editMode
-                        })
-                    }
+                    })
                 }
-                IconBarItem {
-                    width: iconBarRect.height
-                    height: iconBarRect.height
-                    text: qsTr("Preferences")
-                    icon: "image://icons/settings"
+            }
+            ToolButton {
+                width: toolBar.height
+                height: toolBar.height
+                icon.source: "image://icons/settings"
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Preferences")
+                display: AbstractButton.IconOnly
 
-                    onClicked: {
-                        let options = {
-                            "output": "OutputConfig",
-                            "general": "GeneralConfig",
-                            "plugins": "PluginConfig",
-                            "updates": "UpdatesConfig",
-                            "about": "About",
-                            "contributors": "Contributors",
-                            "license": "License",
-                            "3rdpartylicenses": "ThirdPartyLicenses"
-                        }
-                        let configBar = showPane(paneLeftLayout, "ConfigBar")
+                onClicked: {
+                    let options = {
+                        "output": "OutputConfig",
+                        "general": "GeneralConfig",
+                        "plugins": "PluginConfig",
+                        "updates": "UpdatesConfig",
+                        "about": "About",
+                        "contributors": "Contributors",
+                        "license": "License",
+                        "3rdpartylicenses": "ThirdPartyLicenses"
+                    }
+                    let configBar = showPane(paneLeftLayout, "ConfigBar")
 
+                    if (options[configBar.option])
+                        showPane(paneRightLayout, options[configBar.option])
+
+                    configBar.onOptionChanged.connect(function () {
                         if (options[configBar.option])
                             showPane(paneRightLayout, options[configBar.option])
+                    })
 
-                        configBar.onOptionChanged.connect(function () {
-                            if (options[configBar.option])
-                                showPane(paneRightLayout, options[configBar.option])
-                        })
+                    let option = "preferences"
 
-                        let option = "preferences"
-
-                        if (wdgMainWidget.currentOption == option) {
-                            splitView.state = ""
-                            wdgMainWidget.currentOption = ""
-                        } else {
-                            splitView.state = "showPanels"
-                            wdgMainWidget.currentOption = option
-                        }
+                    if (wdgMainWidget.currentOption == option) {
+                        splitView.state = ""
+                        wdgMainWidget.currentOption = ""
+                    } else {
+                        splitView.state = "showPanels"
+                        wdgMainWidget.currentOption = option
                     }
                 }
             }
