@@ -667,27 +667,27 @@
     <message>
         <location filename="../qml/ThirdPartyLicenses.qml" line="28"/>
         <source>The followings are the licences for 3rd-party work incorporated into Webcamoid. &lt;b&gt;These licences DOES NOT applies to Webcamoid itself.&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>אלו הרישיונות של התוצרים ששולבו בתוך Webcamoid. &lt;b&gt;רישיונות אלו אינם תקפים על מיזם Webcamoid עצמו.&lt;/b&gt;</translation>
     </message>
     <message>
         <location filename="../qml/ThirdPartyLicenses.qml" line="33"/>
         <source>Licence for resources taken from openclipart.org:</source>
-        <translation type="unfinished"></translation>
+        <translation>רישיון למשאבים שנלקחו מ־openclipart.org:</translation>
     </message>
     <message>
         <location filename="../qml/ThirdPartyLicenses.qml" line="44"/>
         <source>Licence for code taken from OpenCV:</source>
-        <translation type="unfinished"></translation>
+        <translation>רישיון לקוד שנלקח מ־OpenCV:</translation>
     </message>
     <message>
         <location filename="../qml/ThirdPartyLicenses.qml" line="55"/>
         <source>Licence for code and algorithms used in Temperature plugin:</source>
-        <translation type="unfinished"></translation>
+        <translation>רישיון לקוד ולאלגוריתמים שמשמשים את תוסף הטמפרטורה:</translation>
     </message>
     <message>
         <location filename="../qml/ThirdPartyLicenses.qml" line="66"/>
         <source>Licence for the usb.ids file:</source>
-        <translation type="unfinished"></translation>
+        <translation>רישיון לקובץ usb.ids:</translation>
     </message>
 </context>
 <context>
