@@ -22,9 +22,10 @@ import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.3
 import AkQml 1.0
 
-GridLayout {
-    columns: 2
+ColumnLayout {
+    id: audioInfo
 
+    property int currentIndex: 0
     property string iDevice: ""
     property string iDescription: ""
     property string oDescription: ""
@@ -181,260 +182,227 @@ GridLayout {
         onAudioOutputChanged: updateOutputInfo()
     }
 
-    Label {
-        text: qsTr("Description")
-        font.bold: true
-        Layout.columnSpan: 2
-    }
-    TextField {
-        id: txtODescription
-        text: oDescription
-        placeholderText: qsTr("Device description")
-        readOnly: true
-        Layout.columnSpan: 2
+    StackLayout {
+        currentIndex: audioInfo.currentIndex
         Layout.fillWidth: true
-    }
-    TextField {
-        id: txtIDescription
-        text: iDescription
-        placeholderText: qsTr("Device description")
-        readOnly: true
-        Layout.columnSpan: 2
-        Layout.fillWidth: true
-        visible: false
-    }
-    Label {
-        text: qsTr("Device ID")
-        font.bold: true
-        Layout.columnSpan: 2
-    }
-    TextField {
-        id: txtODevice
-        text: AudioLayer.audioOutput
-        placeholderText: qsTr("Device ID")
-        readOnly: true
-        Layout.columnSpan: 2
-        Layout.fillWidth: true
-    }
-    TextField {
-        id: txtIDevice
-        text: AudioLayer.audioInput
-        placeholderText: qsTr("Device ID")
-        readOnly: true
-        Layout.columnSpan: 2
-        Layout.fillWidth: true
-        visible: false
-    }
 
-    Label {
-        /*: An sample represents the strength of the wave at a certain time.
-            A sample can be expressed as the number of bits defining it (more
-            bits better sound), the type of data representing it (signed
-            integer, unsigned integer, floating point), and the endianness of
-            the data (big endian, little endian).
-            The sample format is the representation of that information.
-            For example, 's16le' means that each sample format is represented by
-            a 16 bits signed integer arranged as little endian.
-         */
-        text: qsTr("Sample Format")
-    }
-    ColumnLayout {
-        ComboBox {
-            id: cbxOSampleFormats
-            model: ListModel {
-                id: oSampleFormats
-            }
-            textRole: "description"
-            Layout.fillWidth: true
+        // Output devices
 
-            onCurrentIndexChanged: updateCaps(false)
-        }
-        ComboBox {
-            id: cbxISampleFormats
-            model: ListModel {
-                id: iSampleFormats
-            }
-            textRole: "description"
-            Layout.fillWidth: true
-            visible: false
+        GridLayout {
+            columns: 2
 
-            onCurrentIndexChanged: updateCaps(true)
-        }
-    }
-    Label {
-        text: qsTr("Channels")
-    }
-    ColumnLayout {
-        ComboBox {
-            id: cbxOChannelLayouts
-            model: ListModel {
-                id: oChannelLayouts
+            Label {
+                id: lblDescription
+                text: qsTr("Description")
+                font.bold: true
+                Layout.columnSpan: 2
             }
-            textRole: "description"
-            Layout.fillWidth: true
+            TextField {
+                id: txtODescription
+                text: oDescription
+                readOnly: true
+                Layout.columnSpan: 2
+                Layout.fillWidth: true
+            }
+            Label {
+                id: lblDeviceID
+                text: qsTr("Device ID")
+                font.bold: true
+                Layout.columnSpan: 2
+            }
+            TextField {
+                id: txtODevice
+                text: AudioLayer.audioOutput
+                readOnly: true
+                Layout.columnSpan: 2
+                Layout.fillWidth: true
+            }
+            Label {
+                id: lblSampleFormat
+                /*: An sample represents the strength of the wave at a certain
+                    time.
+                    A sample can be expressed as the number of bits defining it
+                    (more bits better sound), the type of data representing it
+                    (signed integer, unsigned integer, floating point), and the
+                    endianness of the data (big endian, little endian).
+                    The sample format is the representation of that information.
+                    For example, 's16le' means that each sample format is
+                    represented by a 16 bits signed integer arranged as little
+                    endian.
+                 */
+                text: qsTr("Sample Format")
+            }
+            ComboBox {
+                id: cbxOSampleFormats
+                model: ListModel {
+                    id: oSampleFormats
+                }
+                textRole: "description"
+                Layout.fillWidth: true
 
-            onCurrentIndexChanged: updateCaps(false)
-        }
-        ComboBox {
-            id: cbxIChannelLayouts
-            model: ListModel {
-                id: iChannelLayouts
+                onCurrentIndexChanged: updateCaps(false)
             }
-            textRole: "description"
-            Layout.fillWidth: true
-            visible: false
+            Label {
+                id: lblChannels
+                text: qsTr("Channels")
+            }
+            ComboBox {
+                id: cbxOChannelLayouts
+                model: ListModel {
+                    id: oChannelLayouts
+                }
+                textRole: "description"
+                Layout.fillWidth: true
 
-            onCurrentIndexChanged: updateCaps(true)
-        }
-    }
-    Label {
-        text: qsTr("Sample Rate")
-    }
-    ColumnLayout {
-        ComboBox {
-            id: cbxOSampleRates
-            model: ListModel {
-                id: oSampleRates
+                onCurrentIndexChanged: updateCaps(false)
             }
-            textRole: "description"
-            Layout.fillWidth: true
+            Label {
+                id: lblSampleRate
+                //: Number of audio samples per channel to be played per second.
+                text: qsTr("Sample Rate")
+            }
+            ComboBox {
+                id: cbxOSampleRates
+                model: ListModel {
+                    id: oSampleRates
+                }
+                textRole: "description"
+                Layout.fillWidth: true
 
-            onCurrentIndexChanged: updateCaps(false)
-        }
-        ComboBox {
-            id: cbxISampleRates
-            model: ListModel {
-                id: iSampleRates
+                onCurrentIndexChanged: updateCaps(false)
             }
-            textRole: "description"
-            Layout.fillWidth: true
-            visible: false
+            Label {
+                id: lblLatency
+                /*: The latency is the amount of accumulated audio ready to play,
+                    measured in time.
+                    Higher latency == smoother audio playback, but more
+                    desynchronization with the video.
+                    Lowerer latency == audio desynchronization near to the video, but
+                    glitchy audio playback.
 
-            onCurrentIndexChanged: updateCaps(true)
-        }
-    }
-    Label {
-        /*: The latency is the amount of accumulated audio ready to play,
-            measured in time.
-            Higher latency == smoother audio playback, but more
-            desynchronization with the video.
-            Lowerer latency == audio desynchronization near to the video, but
-            glitchy audio playback.
+                    https://en.wikipedia.org/wiki/Latency_(audio)
+                 */
+                text: qsTr("Latency (ms)")
+            }
+            RowLayout {
+                Slider {
+                    id: sldOLatency
+                    value: AudioLayer.outputLatency
+                    stepSize: 1
+                    from: 1
+                    to: 2048
+                    Layout.fillWidth: true
+                    visible: true
 
-            https://en.wikipedia.org/wiki/Latency_(audio)
-         */
-        text: qsTr("Latency (ms)")
-    }
-    RowLayout {
-        Slider {
-            id: sldOLatency
-            value: AudioLayer.outputLatency
-            stepSize: 1
-            from: 1
-            to: 2048
-            Layout.fillWidth: true
-            visible: true
+                    onValueChanged: AudioLayer.outputLatency = value
+                }
+                SpinBox {
+                    id: spbOLatency
+                    value: AudioLayer.outputLatency
+                    from: sldOLatency.from
+                    to: sldOLatency.to
+                    stepSize: sldOLatency.stepSize
+                    visible: true
+                    editable: true
 
-            onValueChanged: AudioLayer.outputLatency = value
-        }
-        SpinBox {
-            id: spbOLatency
-            value: AudioLayer.outputLatency
-            from: sldOLatency.from
-            to: sldOLatency.to
-            stepSize: sldOLatency.stepSize
-            visible: true
-            editable: true
-
-            onValueChanged: AudioLayer.outputLatency = value
-        }
-        Slider {
-            id: sldILatency
-            value: AudioLayer.inputLatency
-            stepSize: 1
-            from: 1
-            to: 2048
-            Layout.fillWidth: true
-            visible: false
-
-            onValueChanged: AudioLayer.inputLatency = value
-        }
-        SpinBox {
-            id: spbILatency
-            value: AudioLayer.inputLatency
-            from: sldILatency.from
-            to: sldILatency.to
-            stepSize: sldILatency.stepSize
-            visible: false
-            editable: true
-
-            onValueChanged: AudioLayer.inputLatency = value
-        }
-    }
-    Label {
-        Layout.fillHeight: true
-    }
-
-    states: [
-        State {
-            name: "showInputs"
-
-            PropertyChanges {
-                target: txtODescription
-                visible: false
-            }
-            PropertyChanges {
-                target: txtIDescription
-                visible: true
-            }
-            PropertyChanges {
-                target: txtODevice
-                visible: false
-            }
-            PropertyChanges {
-                target: txtIDevice
-                visible: true
-            }
-            PropertyChanges {
-                target: cbxOSampleFormats
-                visible: false
-            }
-            PropertyChanges {
-                target: cbxISampleFormats
-                visible: true
-            }
-            PropertyChanges {
-                target: cbxOChannelLayouts
-                visible: false
-            }
-            PropertyChanges {
-                target: cbxIChannelLayouts
-                visible: true
-            }
-            PropertyChanges {
-                target: cbxOSampleRates
-                visible: false
-            }
-            PropertyChanges {
-                target: cbxISampleRates
-                visible: true
-            }
-            PropertyChanges {
-                target: sldOLatency
-                visible: false
-            }
-            PropertyChanges {
-                target: spbOLatency
-                visible: false
-            }
-            PropertyChanges {
-                target: sldILatency
-                visible: true
-            }
-            PropertyChanges {
-                target: spbILatency
-                visible: true
+                    onValueChanged: AudioLayer.outputLatency = value
+                }
             }
         }
-    ]
+
+        // Input devices
+
+        GridLayout {
+            columns: 2
+
+            Label {
+                text: lblDescription.text
+                font.bold: true
+                Layout.columnSpan: 2
+            }
+            TextField {
+                id: txtIDescription
+                text: iDescription
+                readOnly: true
+                Layout.columnSpan: 2
+                Layout.fillWidth: true
+            }
+            Label {
+                text: lblDeviceID.text
+                font.bold: true
+                Layout.columnSpan: 2
+            }
+            TextField {
+                id: txtIDevice
+                text: AudioLayer.audioInput
+                readOnly: true
+                Layout.columnSpan: 2
+                Layout.fillWidth: true
+            }
+            Label {
+                text: lblSampleFormat.text
+            }
+            ComboBox {
+                id: cbxISampleFormats
+                model: ListModel {
+                    id: iSampleFormats
+                }
+                textRole: "description"
+                Layout.fillWidth: true
+
+                onCurrentIndexChanged: updateCaps(true)
+            }
+            Label {
+                text: lblChannels.text
+            }
+            ComboBox {
+                id: cbxIChannelLayouts
+                model: ListModel {
+                    id: iChannelLayouts
+                }
+                textRole: "description"
+                Layout.fillWidth: true
+
+                onCurrentIndexChanged: updateCaps(true)
+            }
+            Label {
+                text: lblSampleRate.text
+            }
+            ComboBox {
+                id: cbxISampleRates
+                model: ListModel {
+                    id: iSampleRates
+                }
+                textRole: "description"
+                Layout.fillWidth: true
+
+                onCurrentIndexChanged: updateCaps(true)
+            }
+            Label {
+                text: lblLatency.text
+            }
+            RowLayout {
+                Slider {
+                    id: sldILatency
+                    value: AudioLayer.inputLatency
+                    stepSize: 1
+                    from: 1
+                    to: 2048
+                    Layout.fillWidth: true
+
+                    onValueChanged: AudioLayer.inputLatency = value
+                }
+                SpinBox {
+                    id: spbILatency
+                    value: AudioLayer.inputLatency
+                    from: sldILatency.from
+                    to: sldILatency.to
+                    stepSize: sldILatency.stepSize
+                    editable: true
+
+                    onValueChanged: AudioLayer.inputLatency = value
+                }
+            }
+        }
+    }
 }

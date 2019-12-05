@@ -378,9 +378,9 @@ ApplicationWindow {
                         wdgMainWidget.currentOption = option
                     }
 
-                    audioInfo.state = audioConfig.state
-                    audioConfig.onStateChanged.connect(function (state) {
-                        audioInfo.state = state
+                    audioInfo.currentIndex = audioConfig.currentIndex
+                    audioConfig.onCurrentIndexChanged.connect(function () {
+                        audioInfo.currentIndex = audioConfig.currentIndex
                     })
                 }
             }

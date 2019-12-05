@@ -80,30 +80,30 @@
 <context>
     <name>AudioConfig</name>
     <message>
-        <location filename="../qml/AudioConfig.qml" line="118"/>
+        <location filename="../qml/AudioConfig.qml" line="112"/>
         <source>Outputs</source>
         <extracomment>Output device for audio playback, for example a speaker.</extracomment>
         <translation>Utgangsenheter</translation>
     </message>
     <message>
-        <location filename="../qml/AudioConfig.qml" line="122"/>
+        <location filename="../qml/AudioConfig.qml" line="114"/>
         <source>Select the output device for audio playing</source>
         <translation>Velg utgangsenhet for lydavspilling</translation>
     </message>
     <message>
-        <location filename="../qml/AudioConfig.qml" line="137"/>
+        <location filename="../qml/AudioConfig.qml" line="121"/>
         <source>Inputs</source>
         <extracomment>Input device for audio capturing, for example a microphone.</extracomment>
         <translation>Opptaksenheter</translation>
     </message>
     <message>
-        <location filename="../qml/AudioConfig.qml" line="140"/>
+        <location filename="../qml/AudioConfig.qml" line="123"/>
         <source>Select the device for audio capturing</source>
         <translation>Velg enhet for lydopptak</translation>
     </message>
     <message>
-        <location filename="../qml/AudioConfig.qml" line="197"/>
-        <location filename="../qml/AudioConfig.qml" line="299"/>
+        <location filename="../qml/AudioConfig.qml" line="139"/>
+        <location filename="../qml/AudioConfig.qml" line="171"/>
         <source>Silence</source>
         <translation>Forstum</translation>
     </message>
@@ -111,41 +111,34 @@
 <context>
     <name>AudioInfo</name>
     <message>
-        <location filename="../qml/AudioInfo.qml" line="185"/>
+        <location filename="../qml/AudioInfo.qml" line="196"/>
         <source>Description</source>
         <translation>Beskrivelse</translation>
     </message>
     <message>
-        <location filename="../qml/AudioInfo.qml" line="192"/>
-        <location filename="../qml/AudioInfo.qml" line="200"/>
-        <source>Device description</source>
-        <translation>Enhetsbeskrivelse</translation>
-    </message>
-    <message>
-        <location filename="../qml/AudioInfo.qml" line="207"/>
-        <location filename="../qml/AudioInfo.qml" line="214"/>
-        <location filename="../qml/AudioInfo.qml" line="222"/>
+        <location filename="../qml/AudioInfo.qml" line="209"/>
         <source>Device ID</source>
         <translation>Enhets-ID</translation>
     </message>
     <message>
-        <location filename="../qml/AudioInfo.qml" line="239"/>
+        <location filename="../qml/AudioInfo.qml" line="233"/>
         <source>Sample Format</source>
         <extracomment>An sample represents the strength of the wave at a certain time. A sample can be expressed as the number of bits defining it (more bits better sound), the type of data representing it (signed integer, unsigned integer, floating point), and the endianness of the data (big endian, little endian). The sample format is the representation of that information. For example, &apos;s16le&apos; means that each sample format is represented by a 16 bits signed integer arranged as little endian.</extracomment>
         <translation type="unfinished">Samlingsformat</translation>
     </message>
     <message>
-        <location filename="../qml/AudioInfo.qml" line="265"/>
+        <location filename="../qml/AudioInfo.qml" line="247"/>
         <source>Channels</source>
         <translation>Kanaler</translation>
     </message>
     <message>
-        <location filename="../qml/AudioInfo.qml" line="291"/>
+        <location filename="../qml/AudioInfo.qml" line="262"/>
         <source>Sample Rate</source>
+        <extracomment>Number of audio samples per channel to be played per second.</extracomment>
         <translation>Samplingstakt</translation>
     </message>
     <message>
-        <location filename="../qml/AudioInfo.qml" line="326"/>
+        <location filename="../qml/AudioInfo.qml" line="285"/>
         <source>Latency (ms)</source>
         <extracomment>The latency is the amount of accumulated audio ready to play, measured in time. Higher latency == smoother audio playback, but more desynchronization with the video. Lowerer latency == audio desynchronization near to the video, but glitchy audio playback. https://en.wikipedia.org/wiki/Latency_(audio)</extracomment>
         <translation type="unfinished">Latens (ms)</translation>
