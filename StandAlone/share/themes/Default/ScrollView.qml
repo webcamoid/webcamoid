@@ -26,7 +26,7 @@ T.ScrollView {
     id: control
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             contentWidth + leftPadding + rightPadding,
-                            Ak.newUnit(6.5, "cm").pixels)
+                            Ak.newUnit(250 * ThemeSettings.constrolScale, "dp").pixels)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              contentHeight + topPadding + bottomPadding)
     padding: 0

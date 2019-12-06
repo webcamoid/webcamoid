@@ -24,6 +24,5 @@ import QtQuick.Layouts 1.3
 TextArea {
     id: licenseText
     text: Webcamoid.readFile(":/Webcamoid/COPYING")
-    font.family: "Courier"
     readOnly: true
 }

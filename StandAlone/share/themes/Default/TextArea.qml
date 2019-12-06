@@ -28,6 +28,7 @@ import AkQml 1.0
 T.TextArea {
     id: textArea
     color: ThemeSettings.colorText
+    font.family: "Courier"
     placeholderTextColor: ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
     selectedTextColor: ThemeSettings.colorText
     selectionColor: ThemeSettings.colorSecondary

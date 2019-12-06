@@ -29,15 +29,13 @@ T.ToolButton {
     id: button
     font.bold: true
     icon.width:
-        button.display == AbstractButton.IconOnly
-        || button.highlighted?
-            Ak.newUnit(24 * ThemeSettings.constrolScale, "dp").pixels:
-            Ak.newUnit(18 * ThemeSettings.constrolScale, "dp").pixels
+        button.display == AbstractButton.IconOnly?
+            0.8 * Math.min(width, height):
+            0.375 * Math.min(width, height)
     icon.height:
-        button.display == AbstractButton.IconOnly
-        || button.highlighted?
-            Ak.newUnit(24 * ThemeSettings.constrolScale, "dp").pixels:
-            Ak.newUnit(18 * ThemeSettings.constrolScale, "dp").pixels
+        button.display == AbstractButton.IconOnly?
+            0.8 * Math.min(width, height):
+            0.375 * Math.min(width, height)
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             implicitContentWidth + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
@@ -60,24 +58,16 @@ T.ToolButton {
 
     function buttonWidth()
     {
-        if (button.display == AbstractButton.IconOnly) {
-            if (button.highlighted)
-                return Ak.newUnit(40 * ThemeSettings.constrolScale, "dp").pixels
-
+        if (button.display == AbstractButton.IconOnly)
             return Ak.newUnit(48 * ThemeSettings.constrolScale, "dp").pixels
-        }
 
         return Ak.newUnit(64 * ThemeSettings.constrolScale, "dp").pixels
     }
 
     function buttonHeight()
     {
-        if (button.display == AbstractButton.IconOnly) {
-            if (button.highlighted)
-                return Ak.newUnit(40 * ThemeSettings.constrolScale, "dp").pixels
-
+        if (button.display == AbstractButton.IconOnly)
             return Ak.newUnit(48 * ThemeSettings.constrolScale, "dp").pixels
-        }
 
         let defaultHeight =
             button.highlighted?
@@ -109,14 +99,10 @@ T.ToolButton {
             icon.source: button.icon.source
             icon.width: button.icon.width
             icon.height: button.icon.height
-            icon.color: button.highlighted?
-                            ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
-                            ThemeSettings.contrast(ThemeSettings.colorBack)
+            icon.color: ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75)
             text: button.text
             font: button.font
-            color: button.highlighted?
-                       ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
-                       ThemeSettings.contrast(ThemeSettings.colorBack)
+            color: ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75)
         }
     }
     background: Item {
@@ -124,116 +110,46 @@ T.ToolButton {
         implicitWidth: button.buttonWidth()
         implicitHeight: button.buttonHeight()
 
+        // Rectagle below the indicator
+        Rectangle {
+            id: buttonRectangleBelow
+            anchors.fill: parent
+            color: button.highlighted?
+                       ThemeSettings.colorSecondary:
+                       ThemeSettings.shade(ThemeSettings.colorPrimary, 0, 0)
+        }
+
+        // Press indicator
+        Rectangle{
+            id: buttonPressIndicatorMask
+            anchors.fill: parent
+            color: Qt.hsla(0, 0, 0, 1)
+            visible: false
+        }
         Item {
-            id: buttonContainer
-            anchors.bottom: parent.bottom
-            anchors.bottomMargin:
-                button.highlighted?
-                    0: Ak.newUnit(1 * ThemeSettings.constrolScale, "dp").pixels
-            anchors.left: parent.left
-            anchors.leftMargin: anchors.bottomMargin
-            anchors.right: parent.right
-            anchors.rightMargin: anchors.bottomMargin
-            anchors.top: parent.top
-            anchors.topMargin: anchors.bottomMargin
-
-            // Shadow
-            Rectangle {
-                id: buttonShadowRect
-                anchors.fill: parent
-                radius: height / 2
-                color: Qt.hsla(0, 0, 0, 1)
-                visible: false
-            }
-            DropShadow {
-                id: buttonShadow
-                anchors.fill: parent
-                cached: true
-                horizontalOffset: button.radius / 2
-                verticalOffset: button.radius / 2
-                radius: button.radius
-                samples: 2 * radius + 1
-                color: ThemeSettings.constShade(ThemeSettings.colorBack, -0.9)
-                source: buttonShadowRect
-                visible: button.highlighted && button.enabled
+            id: buttonPressIndicatorItem
+            anchors.fill: buttonPressIndicatorMask
+            clip: true
+            layer.enabled: true
+            layer.effect: OpacityMask {
+                maskSource: buttonPressIndicatorMask
             }
 
-            // Rectagle below the indicator
             Rectangle {
-                id: buttonRectangleBelow
-                anchors.fill: parent
-                radius: button.highlighted?
-                            height / 2:
-                            0
+                id: buttonPress
+                radius: 0
+                anchors.verticalCenter:
+                    buttonPressIndicatorItem.verticalCenter
+                anchors.horizontalCenter:
+                    buttonPressIndicatorItem.horizontalCenter
+                width: 2 * radius
+                height: 2 * radius
                 color: button.highlighted?
-                           ThemeSettings.colorPrimary:
-                           ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
-                visible: !button.highlighted
-            }
-
-            // Focus
-            Rectangle {
-                id: buttonCheckIndicatorBelow
-                anchors.fill: parent
-                anchors.bottomMargin:
-                    Ak.newUnit(6 * ThemeSettings.constrolScale, "dp").pixels
-                anchors.leftMargin: anchors.bottomMargin
-                anchors.rightMargin: anchors.bottomMargin
-                anchors.topMargin: anchors.bottomMargin
-                radius: height / 2
-                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.3)
-                visible: false
-            }
-
-            // Press indicator
-            Rectangle{
-                id: buttonPressIndicatorMask
-                anchors.fill: parent
-                radius: button.highlighted?
-                            height / 2:
-                            0
-                color: Qt.hsla(0, 0, 0, 1)
-                visible: false
-            }
-            Item {
-                id: buttonPressIndicatorItem
-                anchors.fill: buttonPressIndicatorMask
-                clip: true
-                layer.enabled: true
-                layer.effect: OpacityMask {
-                    maskSource: buttonPressIndicatorMask
-                }
-
-                Rectangle {
-                    id: buttonPress
-                    radius: 0
-                    anchors.verticalCenter:
-                        buttonPressIndicatorItem.verticalCenter
-                    anchors.horizontalCenter:
-                        buttonPressIndicatorItem.horizontalCenter
-                    width: 2 * radius
-                    height: 2 * radius
-                    color: button.highlighted?
-                               ThemeSettings.constShade(ThemeSettings.colorPrimary,
-                                                        1.5,
-                                                        0.3):
-                               ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
-                    opacity: 0
-                }
-            }
-
-            // Rectangle
-            Rectangle {
-                id: buttonRectangle
-                anchors.fill: parent
-                radius: button.highlighted?
-                            height / 2:
-                            button.radius
-                border.color: ThemeSettings.colorBack
-                border.width:
-                    Ak.newUnit(1 * ThemeSettings.constrolScale, "dp").pixels
-                color: Qt.hsla(0, 0, 0, 0)
-                visible: button.highlighted
+                           ThemeSettings.constShade(ThemeSettings.colorSecondary,
+                                                    0.3):
+                           ThemeSettings.constShade(ThemeSettings.colorPrimary,
+                                                    0.3)
+                opacity: 0
             }
         }
     }
@@ -242,10 +158,6 @@ T.ToolButton {
         State {
             name: "Disabled"
             when: !button.enabled
-                  && !button.highlighted
-                  && !button.hovered
-                  && !button.visualFocus
-                  && !button.pressed
 
             PropertyChanges {
                 target: iconLabel
@@ -256,46 +168,13 @@ T.ToolButton {
             name: "Hovered"
             when: button.enabled
                   && !button.highlighted
-                  && button.hovered
+                  && (button.hovered || button.visualFocus)
                   && !button.checked
-                  && !button.visualFocus
                   && !button.pressed
 
             PropertyChanges {
                 target: buttonRectangleBelow
-                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.3)
-            }
-        },
-        State {
-            name: "Focused"
-            when: button.enabled
-                  && !button.highlighted
-                  && !button.hovered
-                  && !button.checked
-                  && button.visualFocus
-                  && !button.pressed
-
-            PropertyChanges {
-                target: buttonCheckIndicatorBelow
-                visible: true
-            }
-        },
-        State {
-            name: "FocusedHovered"
-            when: button.enabled
-                  && !button.highlighted
-                  && button.hovered
-                  && !button.checked
-                  && button.visualFocus
-                  && !button.pressed
-
-            PropertyChanges {
-                target: buttonRectangleBelow
-                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.3)
-            }
-            PropertyChanges {
-                target: buttonCheckIndicatorBelow
-                visible: true
+                color: ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.1)
             }
         },
         State {
@@ -307,14 +186,12 @@ T.ToolButton {
 
             PropertyChanges {
                 target: buttonRectangleBelow
-                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.3)
+                color: ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.2)
             }
         },
         State {
             name: "Pressed"
-            when: button.enabled
-                  && !button.highlighted
-                  && button.pressed
+            when: button.pressed
 
             PropertyChanges {
                 target: buttonPress
@@ -323,87 +200,16 @@ T.ToolButton {
             }
         },
         State {
-            name: "Highlighted"
+            name: "HighlightedHovered"
             when: button.enabled
                   && button.highlighted
-                  && !button.hovered
+                  && (button.hovered || button.visualFocus)
                   && !button.checked
-                  && !button.visualFocus
                   && !button.pressed
 
             PropertyChanges {
                 target: buttonRectangleBelow
-                visible: false
-            }
-            PropertyChanges {
-                target: buttonRectangle
-                border.color: Qt.hsla(0, 0, 0, 0)
-                color: ThemeSettings.colorPrimary
-                visible: true
-            }
-        },
-        State {
-            name: "HighlightedDisabled"
-            when: !button.enabled
-                  && button.highlighted
-                  && !button.hovered
-                  && !button.visualFocus
-                  && !button.pressed
-
-            PropertyChanges {
-                target: buttonRectangle
-                border.color: Qt.hsla(0, 0, 0, 0)
-                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
-            }
-            PropertyChanges {
-                target: iconLabel
-                icon.color: ThemeSettings.shade(ThemeSettings.colorBack, -0.3)
-                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.3)
-            }
-        },
-        State {
-            name: "HighlightedHovered"
-            when: button.enabled
-                  && button.highlighted
-                  && button.hovered
-                  && !button.checked
-                  && !button.visualFocus
-                  && !button.pressed
-
-            PropertyChanges {
-                target: buttonRectangle
-                border.color: Qt.hsla(0, 0, 0, 0)
-                color: ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.1)
-            }
-        },
-        State {
-            name: "HighlightedFocused"
-            when: button.enabled
-                  && button.highlighted
-                  && !button.hovered
-                  && !button.checked
-                  && button.visualFocus
-                  && !button.pressed
-
-            PropertyChanges {
-                target: buttonRectangle
-                border.color: Qt.hsla(0, 0, 0, 0)
-                color: ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.2)
-            }
-        },
-        State {
-            name: "HighlightedFocusedHovered"
-            when: button.enabled
-                  && button.highlighted
-                  && button.hovered
-                  && !button.checked
-                  && button.visualFocus
-                  && !button.pressed
-
-            PropertyChanges {
-                target: buttonRectangle
-                border.color: Qt.hsla(0, 0, 0, 0)
-                color: ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.2)
+                color: ThemeSettings.constShade(ThemeSettings.colorSecondary, 0.1)
             }
         },
         State {
@@ -414,33 +220,8 @@ T.ToolButton {
                   && !button.pressed
 
             PropertyChanges {
-                target: buttonRectangle
-                border.color: Qt.hsla(0, 0, 0, 0)
-                color: ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.2)
-            }
-        },
-        State {
-            name: "HighlightedPressed"
-            when: button.enabled
-                  && button.highlighted
-                  && button.pressed
-
-            PropertyChanges {
-                target: buttonPress
-                radius: button.pressIndicatorRadius()
-                opacity: 1
-            }
-            PropertyChanges {
-                target: buttonRectangle
-                visible: false
-            }
-            PropertyChanges {
                 target: buttonRectangleBelow
-                visible: true
-            }
-            PropertyChanges {
-                target: buttonShadow
-                radius: 2 * button.radius
+                color: ThemeSettings.constShade(ThemeSettings.colorSecondary, 0.2)
             }
         }
     ]
@@ -448,11 +229,11 @@ T.ToolButton {
     transitions: Transition {
         PropertyAnimation {
             target: buttonPress
-            properties: "radius"
+            properties: "radius,opacity"
             duration: button.animationTime
         }
         ColorAnimation {
-            target: buttonRectangle
+            target: buttonRectangleBelow
             duration: button.animationTime
         }
     }

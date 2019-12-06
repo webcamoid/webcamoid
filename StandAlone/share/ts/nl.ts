@@ -675,17 +675,17 @@
         <translation>Licentie voor items van openclipart.org:</translation>
     </message>
     <message>
-        <location filename="../qml/ThirdPartyLicenses.qml" line="44"/>
+        <location filename="../qml/ThirdPartyLicenses.qml" line="43"/>
         <source>Licence for code taken from OpenCV:</source>
         <translation>Licentie voor code van OpenCV:</translation>
     </message>
     <message>
-        <location filename="../qml/ThirdPartyLicenses.qml" line="55"/>
+        <location filename="../qml/ThirdPartyLicenses.qml" line="53"/>
         <source>Licence for code and algorithms used in Temperature plugin:</source>
         <translation>Licentie voor code en algoritmen van de temperatuurplug-in:</translation>
     </message>
     <message>
-        <location filename="../qml/ThirdPartyLicenses.qml" line="66"/>
+        <location filename="../qml/ThirdPartyLicenses.qml" line="63"/>
         <source>Licence for the usb.ids file:</source>
         <translation>Licentie van het usb.ids-bestand:</translation>
     </message>
@@ -1045,7 +1045,7 @@
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorFilter/share/qml/main.qml" line="106"/>
-        <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/main.qml" line="101"/>
+        <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/main.qml" line="72"/>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="82"/>
         <source>Soft</source>
         <translation>Zacht</translation>
@@ -1077,7 +1077,7 @@
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="36"/>
-        <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/main.qml" line="72"/>
+        <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/main.qml" line="87"/>
         <source>Color table</source>
         <translation>Kleurtabel</translation>
     </message>
@@ -2198,53 +2198,53 @@
         <translation>Fase</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="69"/>
+        <location filename="../qml/main.qml" line="64"/>
         <source>New version available!</source>
         <translation>Nieuwe versie beschikbaar!</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="70"/>
+        <location filename="../qml/main.qml" line="65"/>
         <source>Download %1 %2 NOW!</source>
         <translation>Download %1 %2 NU!</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="120"/>
+        <location filename="../qml/main.qml" line="115"/>
         <source>Stop</source>
         <translation>Stoppen</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="125"/>
-        <location filename="../qml/main.qml" line="333"/>
+        <location filename="../qml/main.qml" line="120"/>
+        <location filename="../qml/main.qml" line="322"/>
         <source>Play</source>
         <translation>Afspelen</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="343"/>
+        <location filename="../qml/main.qml" line="334"/>
         <source>Configure sources</source>
         <translation>Bronnen instellen</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="365"/>
+        <location filename="../qml/main.qml" line="350"/>
         <source>Configure audio</source>
         <translation>Audio instellen</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="393"/>
+        <location filename="../qml/main.qml" line="372"/>
         <source>Take a photo</source>
         <translation>Foto maken</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="414"/>
+        <location filename="../qml/main.qml" line="384"/>
         <source>Record video</source>
         <translation>Video opnemen</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="436"/>
+        <location filename="../qml/main.qml" line="400"/>
         <source>Configure Effects</source>
         <translation>Effecten instellen</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="471"/>
+        <location filename="../qml/main.qml" line="429"/>
         <source>Preferences</source>
         <translation>Instellingen</translation>
     </message>

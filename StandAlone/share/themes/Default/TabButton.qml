@@ -28,8 +28,16 @@ import AkQml 1.0
 T.TabButton {
     id: button
     font.bold: true
-    icon.width: Ak.newUnit(24 * ThemeSettings.constrolScale, "dp").pixels
-    icon.height: Ak.newUnit(24 * ThemeSettings.constrolScale, "dp").pixels
+    icon.width:
+        button.display == AbstractButton.IconOnly
+        || button.highlighted?
+            0.8 * Math.min(width, height):
+            0.375 * Math.min(width, height)
+    icon.height:
+        button.display == AbstractButton.IconOnly
+        || button.highlighted?
+            0.8 * Math.min(width, height):
+            0.375 * Math.min(width, height)
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             implicitContentWidth + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
@@ -78,10 +86,10 @@ T.TabButton {
             icon.source: button.icon.source
             icon.width: button.icon.width
             icon.height: button.icon.height
-            icon.color: ThemeSettings.contrast(ThemeSettings.colorBack)
+            icon.color: ThemeSettings.colorText
             text: button.text
             font: button.font
-            color: ThemeSettings.contrast(ThemeSettings.colorBack)
+            color: ThemeSettings.colorText
         }
     }
 

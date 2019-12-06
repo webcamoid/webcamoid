@@ -43,6 +43,7 @@ int main(int argc, char *argv[])
 
     // Set theme.
     QQuickStyle::addStylePath(":/Webcamoid/share/themes");
+    QQuickStyle::setFallbackStyle("Default");
     QQuickStyle::setStyle("Default");
     QDirIterator fontsDirIterator(":/Webcamoid/share/themes/Default/fonts",
                                   QStringList() << "*.ttf",

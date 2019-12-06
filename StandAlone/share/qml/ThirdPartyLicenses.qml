@@ -36,7 +36,6 @@ ColumnLayout {
     }
     TextArea {
         text: Webcamoid.readFile(":/Webcamoid/share/3rd-party/licenses/openclipart.txt")
-        font.family: "Courier"
         readOnly: true
         Layout.fillWidth: true
     }
@@ -47,7 +46,6 @@ ColumnLayout {
     }
     TextArea {
         text: Webcamoid.readFile(":/Webcamoid/share/3rd-party/licenses/OpenCV.txt")
-        font.family: "Courier"
         readOnly: true
         Layout.fillWidth: true
     }
@@ -58,7 +56,6 @@ ColumnLayout {
     }
     TextArea {
         text: Webcamoid.readFile(":/Webcamoid/share/3rd-party/licenses/TemperatureAlgorithm.txt")
-        font.family: "Courier"
         readOnly: true
         Layout.fillWidth: true
     }
@@ -69,7 +66,6 @@ ColumnLayout {
     }
     TextArea {
         text: Webcamoid.readFile(":/Webcamoid/share/3rd-party/licenses/UsbIds.txt")
-        font.family: "Courier"
         readOnly: true
         Layout.fillWidth: true
     }

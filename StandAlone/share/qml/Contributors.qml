@@ -32,7 +32,6 @@ ColumnLayout {
     TextArea {
         id: contributorsText
         text: Webcamoid.readFile(":/Webcamoid/share/contributors.txt")
-        font.family: "Courier"
         readOnly: true
         Layout.fillWidth: true
     }

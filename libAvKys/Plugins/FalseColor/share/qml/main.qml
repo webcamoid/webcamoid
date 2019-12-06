@@ -67,35 +67,6 @@ GridLayout {
         return JSON.stringify(colorTable, null, 4)
     }
 
-    // Color table.
-    Label {
-        text: qsTr("Color table")
-        Layout.columnSpan: 2
-    }
-    Item {
-        height: 400
-        Layout.columnSpan: 2
-        Layout.fillWidth: true
-
-        ScrollView {
-            ScrollBar.horizontal.policy: ScrollBar.AsNeeded
-            ScrollBar.vertical.policy: ScrollBar.AsNeeded
-            contentWidth: colorTable.width
-            contentHeight: colorTable.height
-            anchors.fill: parent
-            clip: true
-
-            TextArea {
-                id: colorTable
-                text: tableToStr(FalseColor.table)
-                cursorVisible: true
-                wrapMode: TextEdit.Wrap
-
-                onTextChanged: FalseColor.table = tableFromStr(text)
-            }
-        }
-    }
-
     // Soft gradient.
     Label {
         text: qsTr("Soft")
@@ -109,5 +80,21 @@ GridLayout {
 
             onCheckedChanged: FalseColor.soft = checked
         }
+    }
+
+    // Color table.
+    Label {
+        text: qsTr("Color table")
+        Layout.columnSpan: 2
+    }
+    TextArea {
+        id: colorTable
+        text: tableToStr(FalseColor.table)
+        cursorVisible: true
+        wrapMode: TextEdit.Wrap
+        Layout.columnSpan: 2
+        Layout.fillWidth: true
+
+        onTextChanged: FalseColor.table = tableFromStr(text)
     }
 }

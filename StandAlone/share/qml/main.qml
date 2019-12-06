@@ -38,21 +38,16 @@ ApplicationWindow {
     width: Webcamoid.windowWidth
     height: Webcamoid.windowHeight
 
-    property string currentOption: ""
-
-    function rgbChangeAlpha(color, alpha)
-    {
-        return Qt.rgba(color.r, color.g, color.b, alpha);
-    }
-
     function togglePlay() {
         if (MediaSource.state === AkElement.ElementStatePlaying) {
             Webcamoid.virtualCameraState = AkElement.ElementStateNull;
             Recording.state = AkElement.ElementStateNull;
             MediaSource.state = AkElement.ElementStateNull;
 
-            if (splitView.state == "showPanels")
-                splitView.state = "";
+            if (buttonGroup.currentOption == optionRecording) {
+                buttonGroup.currentOption = null
+                optionRecording.checked = false
+            }
         } else {
             MediaSource.state = AkElement.ElementStatePlaying;
 
@@ -117,12 +112,12 @@ ApplicationWindow {
         onStateChanged: {
             if (state === AkElement.ElementStatePlaying) {
                 itmPlayStopButton.checked = true
-                itmPlayStopButton.text = qsTr("Stop")
+                itmPlayStopButton.ToolTip.text = qsTr("Stop")
                 itmPlayStopButton.icon.source = "image://icons/stop"
                 videoDisplay.visible = true
             } else {
                 itmPlayStopButton.checked = false
-                itmPlayStopButton.text = qsTr("Play")
+                itmPlayStopButton.ToolTip.text = qsTr("Play")
                 itmPlayStopButton.icon.source = "image://icons/play"
                 videoDisplay.visible = false
             }
@@ -160,17 +155,14 @@ ApplicationWindow {
     }
     PhotoWidget {
         id: photoWidget
-        anchors.bottom: toolBar.top
+        anchors.bottom: footer.top
         anchors.bottomMargin: 16
         anchors.horizontalCenter: parent.horizontalCenter
-        visible: false
+        visible: optionPhoto.checked
     }
     Item {
         id: splitView
-        anchors.right: parent.right
-        anchors.left: parent.left
-        anchors.top: parent.top
-        anchors.bottom: toolBar.top
+        anchors.fill: parent
 
         property int panelBorder: 2
         property int dragBorder: 4
@@ -201,7 +193,11 @@ ApplicationWindow {
             anchors.left: parent.left
             contentHeight: paneLeftLayout.height
             clip: true
-            visible: false
+            visible: optionWebcam.checked
+                     || optionSound.checked
+                     || optionRecording.checked
+                     || optionEffects.checked
+                     || optionSettings.checked
 
             ColumnLayout {
                 id: paneLeftLayout
@@ -248,7 +244,11 @@ ApplicationWindow {
             anchors.right: parent.right
             clip: true
             contentHeight: paneRightLayout.height
-            visible: false
+            visible: optionWebcam.checked
+                     || optionSound.checked
+                     || optionRecording.checked
+                     || optionEffects.checked
+                     || optionSettings.checked
 
             ColumnLayout {
                 id: paneRightLayout
@@ -286,42 +286,31 @@ ApplicationWindow {
                                            - splitView.dragBorder)
             }
         }
-
-        states: [
-            State {
-                name: "showPanels"
-
-                PropertyChanges {
-                    target: paneLeft
-                    visible: true
-                }
-                PropertyChanges {
-                    target: paneRight
-                    visible: true
-                }
-            },
-            State {
-                name: "showPhotoWidget"
-                PropertyChanges {
-                    target: photoWidget
-                    visible: true
-                }
-            }
-        ]
     }
 
-    ToolBar {
+    footer: ToolBar {
         id: toolBar
-        height: 48
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.bottom: parent.bottom
 
+        ButtonGroup {
+            id: buttonGroup
+
+            property Item currentOption: null
+
+            onClicked: {
+                if (currentOption == button) {
+                    currentOption = null
+                    button.checked = false
+                } else {
+                    currentOption = button
+                }
+            }
+        }
         RowLayout {
             id: iconBar
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.bottom: parent.bottom
             anchors.top: parent.top
+            spacing: 0
 
             ToolButton {
                 id: itmPlayStopButton
@@ -336,47 +325,35 @@ ApplicationWindow {
                 onClicked: togglePlay()
             }
             ToolButton {
+                id: optionWebcam
                 width: toolBar.height
                 height: toolBar.height
                 icon.source: "image://icons/webcam"
+                checkable: true
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Configure sources")
                 display: AbstractButton.IconOnly
+                ButtonGroup.group: buttonGroup
 
                 onClicked: {
                     showPane(paneLeftLayout, "MediaBar")
                     showPane(paneRightLayout, "MediaConfig")
-                    let option = "sources"
-
-                    if (wdgMainWidget.currentOption == option) {
-                        splitView.state = ""
-                        wdgMainWidget.currentOption = ""
-                    } else {
-                        splitView.state = "showPanels"
-                        wdgMainWidget.currentOption = option
-                    }
                 }
             }
             ToolButton {
+                id: optionSound
                 width: toolBar.height
                 height: toolBar.height
                 icon.source: "image://icons/sound"
+                checkable: true
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Configure audio")
                 display: AbstractButton.IconOnly
+                ButtonGroup.group: buttonGroup
 
                 onClicked: {
                     let audioConfig = showPane(paneLeftLayout, "AudioConfig")
                     let audioInfo = showPane(paneRightLayout, "AudioInfo")
-                    let option = "audio"
-
-                    if (wdgMainWidget.currentOption == option) {
-                        splitView.state = ""
-                        wdgMainWidget.currentOption = ""
-                    } else {
-                        splitView.state = "showPanels"
-                        wdgMainWidget.currentOption = option
-                    }
 
                     audioInfo.currentIndex = audioConfig.currentIndex
                     audioConfig.onCurrentIndexChanged.connect(function () {
@@ -385,69 +362,48 @@ ApplicationWindow {
                 }
             }
             ToolButton {
+                id: optionPhoto
                 width: toolBar.height
                 height: toolBar.height
                 icon.source: "image://icons/photo"
+                checkable: true
                 enabled: MediaSource.state === AkElement.ElementStatePlaying
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Take a photo")
                 display: AbstractButton.IconOnly
-
-                onClicked: {
-                    let option = "photo"
-
-                    if (wdgMainWidget.currentOption == option) {
-                        splitView.state = ""
-                        wdgMainWidget.currentOption = ""
-                    } else {
-                        splitView.state = "showPhotoWidget"
-                        wdgMainWidget.currentOption = option
-                    }
-                }
+                ButtonGroup.group: buttonGroup
             }
             ToolButton {
+                id: optionRecording
                 width: toolBar.height
                 height: toolBar.height
                 icon.source: "image://icons/video"
+                checkable: true
                 enabled: MediaSource.state === AkElement.ElementStatePlaying
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Record video")
                 display: AbstractButton.IconOnly
+                ButtonGroup.group: buttonGroup
 
                 onClicked: {
                     showPane(paneLeftLayout, "RecordBar")
                     showPane(paneRightLayout, "RecordConfig")
-                    let option = "record"
-
-                    if (wdgMainWidget.currentOption == option) {
-                        splitView.state = ""
-                        wdgMainWidget.currentOption = ""
-                    } else {
-                        splitView.state = "showPanels"
-                        wdgMainWidget.currentOption = option
-                    }
                 }
             }
             ToolButton {
+                id: optionEffects
                 width: toolBar.height
                 height: toolBar.height
                 icon.source: "image://icons/video-effects"
+                checkable: true
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Configure Effects")
                 display: AbstractButton.IconOnly
+                ButtonGroup.group: buttonGroup
 
                 onClicked: {
                     let effectBar = showPane(paneLeftLayout, "EffectBar")
                     let effectConfig = showPane(paneRightLayout, "EffectConfig")
-                    let option = "effects"
-
-                    if (wdgMainWidget.currentOption == option) {
-                        splitView.state = ""
-                        wdgMainWidget.currentOption = ""
-                    } else {
-                        splitView.state = "showPanels"
-                        wdgMainWidget.currentOption = option
-                    }
 
                     effectConfig.curEffect = effectBar.curEffect
                     effectConfig.curEffectIndex = effectBar.curEffectIndex
@@ -464,12 +420,15 @@ ApplicationWindow {
                 }
             }
             ToolButton {
+                id: optionSettings
                 width: toolBar.height
                 height: toolBar.height
                 icon.source: "image://icons/settings"
+                checkable: true
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Preferences")
                 display: AbstractButton.IconOnly
+                ButtonGroup.group: buttonGroup
 
                 onClicked: {
                     let options = {
@@ -491,16 +450,6 @@ ApplicationWindow {
                         if (options[configBar.option])
                             showPane(paneRightLayout, options[configBar.option])
                     })
-
-                    let option = "preferences"
-
-                    if (wdgMainWidget.currentOption == option) {
-                        splitView.state = ""
-                        wdgMainWidget.currentOption = ""
-                    } else {
-                        splitView.state = "showPanels"
-                        wdgMainWidget.currentOption = option
-                    }
                 }
             }
         }

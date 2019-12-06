@@ -20,21 +20,27 @@
 import QtQuick 2.0
 import QtQuick.Controls 2.5
 import QtQuick.Templates 2.5 as T
+import QtGraphicalEffects 1.0
 import AkQml 1.0
 
-T.Pane {
-    id: control
+T.ToolBar {
+    id: toolBar
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
-                            contentWidth + leftPadding + rightPadding,
-                            Ak.newUnit(250 * ThemeSettings.constrolScale, "dp").pixels)
+                            contentWidth + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              contentHeight + topPadding + bottomPadding)
-    padding: 0
+    spacing: 0
 
     background: Rectangle {
-        color: Qt.hsla(ThemeSettings.colorBack.hslHue,
-                       ThemeSettings.colorBack.hslSaturation,
-                       ThemeSettings.colorBack.hslLightness,
-                       0.9)
+        implicitWidth: Ak.newUnit(360 * ThemeSettings.constrolScale, "dp").pixels
+        implicitHeight: Ak.newUnit(48 * ThemeSettings.constrolScale, "dp").pixels
+        color: ThemeSettings.colorPrimary
+        layer.enabled: position == ToolBar.Header
+        layer.effect: DropShadow {
+            cached: true
+            radius: Ak.newUnit(8 * ThemeSettings.constrolScale, "dp").pixels
+            samples: 2 * radius + 1
+            color: ThemeSettings.constShade(ThemeSettings.colorBack, -0.9)
+        }
     }
 }
