@@ -116,7 +116,7 @@ T.ToolButton {
             anchors.fill: parent
             color: button.highlighted?
                        ThemeSettings.colorSecondary:
-                       ThemeSettings.shade(ThemeSettings.colorPrimary, 0, 0)
+                       ThemeSettings.constShade(ThemeSettings.colorPrimary, 0, 0)
         }
 
         // Press indicator

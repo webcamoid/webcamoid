@@ -175,46 +175,46 @@
 <context>
     <name>ConfigBar</name>
     <message>
-        <location filename="../qml/ConfigBar.qml" line="47"/>
+        <location filename="../qml/ConfigBar.qml" line="44"/>
         <source>Output</source>
         <extracomment>Configuration for video output, like virtual camera or streaming.</extracomment>
         <translation>Uitvoer</translation>
     </message>
     <message>
-        <location filename="../qml/ConfigBar.qml" line="51"/>
+        <location filename="../qml/ConfigBar.qml" line="48"/>
         <source>General Options</source>
         <translation>Algemene opties</translation>
     </message>
     <message>
-        <location filename="../qml/ConfigBar.qml" line="55"/>
+        <location filename="../qml/ConfigBar.qml" line="52"/>
         <source>Plugins Settings</source>
         <translation>Plug-in-instellingen</translation>
     </message>
     <message>
-        <location filename="../qml/ConfigBar.qml" line="59"/>
+        <location filename="../qml/ConfigBar.qml" line="56"/>
         <source>Updates</source>
         <translation>Updates</translation>
     </message>
     <message>
-        <location filename="../qml/ConfigBar.qml" line="66"/>
+        <location filename="../qml/ConfigBar.qml" line="63"/>
         <source>About</source>
         <extracomment>Information of the program, like name, description, vesion, etc..</extracomment>
         <translation>Over</translation>
     </message>
     <message>
-        <location filename="../qml/ConfigBar.qml" line="73"/>
+        <location filename="../qml/ConfigBar.qml" line="70"/>
         <source>Contributors</source>
         <extracomment>List of people contributing to the project: software developers, translators, designers, etc..</extracomment>
         <translation>Bijdragers</translation>
     </message>
     <message>
-        <location filename="../qml/ConfigBar.qml" line="78"/>
+        <location filename="../qml/ConfigBar.qml" line="75"/>
         <source>License</source>
         <extracomment>Program license.</extracomment>
         <translation>Licentie</translation>
     </message>
     <message>
-        <location filename="../qml/ConfigBar.qml" line="85"/>
+        <location filename="../qml/ConfigBar.qml" line="82"/>
         <source>3rd Party Licenses</source>
         <extracomment>License for 3rd party components used in Webcamoid, like libraries and code snippets.</extracomment>
         <translation>Externe licenties</translation>

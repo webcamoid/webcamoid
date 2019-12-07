@@ -44,6 +44,8 @@ T.MenuItem {
     icon.width: Ak.newUnit(24 * ThemeSettings.constrolScale, "dp").pixels
     icon.height: Ak.newUnit(24 * ThemeSettings.constrolScale, "dp").pixels
     clip: true
+    hoverEnabled: true
+
     readonly property int animationTime: 200
 
     function pressIndicatorRadius()
@@ -191,7 +193,7 @@ T.MenuItem {
             id: background
             color: menuItem.highlighted?
                        ThemeSettings.colorPrimary:
-                       ThemeSettings.shade(ThemeSettings.colorPrimary, 0, 0)
+                       ThemeSettings.shade(ThemeSettings.colorBack, -0.1, 0)
             anchors.fill: parent
         }
     }

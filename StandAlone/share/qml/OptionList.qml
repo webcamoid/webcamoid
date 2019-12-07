@@ -47,79 +47,17 @@ ListView {
     model: ListModel {
         id: lstOptions
     }
-    delegate: Rectangle {
-        id: rectOption
-        height: visible? 32: 0
+    delegate: MenuItem {
+        text: index >= 0 && index < lsvOptionList.count?
+                  lsvOptionList.model.get(index)[lsvOptionList.textRole]: ""
         anchors.right: parent.right
         anchors.left: parent.left
         visible: Webcamoid.matches(filter, optionValues(index))
+        highlighted: lsvOptionList.currentItem == this
 
-        property color gradUp: Qt.rgba(0, 0, 0, 0)
-        property color gradLow: Qt.rgba(0, 0, 0, 0)
-
-        gradient: Gradient {
-            GradientStop {
-                position: 0
-                color: rectOption.gradUp
-            }
-            GradientStop {
-                position: 1
-                color: rectOption.gradLow
-            }
-        }
-
-        Label {
-            id: txtOptionText
-            text: index >= 0 && index < lsvOptionList.count?
-                      lsvOptionList.model.get(index)[lsvOptionList.textRole]: ""
-            anchors.verticalCenter: parent.verticalCenter
-            anchors.horizontalCenter: parent.horizontalCenter
-        }
-
-        MouseArea {
-            id: msaOption
-            hoverEnabled: true
-            cursorShape: Qt.PointingHandCursor
-            anchors.fill: parent
-
-            onEntered: {
-                txtOptionText.font.bold = true
-
-                if (index == lsvOptionList.currentIndex) {
-                    rectOption.gradUp = Qt.rgba(0.25, 0.75, 1, 1)
-                    rectOption.gradLow = Qt.rgba(0, 0.5, 1, 1)
-                } else {
-                    rectOption.gradUp = Qt.rgba(0.67, 0.5, 1, 0.5)
-                    rectOption.gradLow = Qt.rgba(0.5, 0.25, 1, 1)
-                }
-            }
-            onExited: {
-                txtOptionText.font.bold = false
-                txtOptionText.scale = 1
-                rectOption.gradUp = Qt.rgba(0, 0, 0, 0)
-                rectOption.gradLow = Qt.rgba(0, 0, 0, 0)
-            }
-            onPressed: txtOptionText.scale = 0.75
-            onReleased: txtOptionText.scale = 1
-            onClicked: {
-                rectOption.gradUp = Qt.rgba(0.25, 0.75, 1, 1)
-                rectOption.gradLow = Qt.rgba(0, 0.5, 1, 1)
-                lsvOptionList.currentIndex = index
-                lsvOptionList.positionViewAtIndex(index, ListView.Contain)
-            }
-        }
-    }
-    highlight: Rectangle {
-        gradient: Gradient {
-            GradientStop {
-                position: 0
-                color: Qt.rgba(1, 0.75, 0.25, 1)
-            }
-
-            GradientStop {
-                position: 1
-                color: Qt.rgba(1, 0.5, 0, 1)
-            }
+        onClicked: {
+            lsvOptionList.currentIndex = index
+            lsvOptionList.positionViewAtIndex(index, ListView.Contain)
         }
     }
 }
