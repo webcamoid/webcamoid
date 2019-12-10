@@ -44,6 +44,8 @@ lupdate_only {
     SOURCES += $$files(share/qml/AkQmlControls/*.qml)
 }
 
+OTHER_FILES = $$files(share/qml/AkQmlControls/*.qml)
+
 HEADERS = \
     src/akqml.h \
     src/akqmlplugin.h

@@ -88,6 +88,10 @@ INCLUDEPATH += \
 LIBS += -L$${OUT_PWD}/../libAvKys/Lib/$${BIN_DIR} -lavkys
 win32: LIBS += -lole32
 
+OTHER_FILES = \
+    $$files(share/qml/*.qml) \
+    $$files(share/themes/Default/*.qml)
+
 unix: OTHER_FILES += $${MANPAGESOURCES}
 macx: OTHER_FILES += Info.plist
 

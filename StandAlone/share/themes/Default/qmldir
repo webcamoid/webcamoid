@@ -2,9 +2,12 @@ singleton ThemeSettings 1.0 ThemeSettings.qml
 ApplicationWindow 1.0 ApplicationWindow.qml
 Button 1.0 Button.qml
 ComboBox 1.0 ComboBox.qml
+Frame 1.0 Frame.qml
+GroupBox 1.0 GroupBox.qml
 Label 1.0 Label.qml
 MenuItem 1.0 MenuItem.qml
 MenuSeparator 1.0 MenuSeparator.qml
+Page 1.0 Page.qml
 Pane 1.0 Pane.qml
 ScrollView 1.0 ScrollView.qml
 Slider 1.0 Slider.qml
@@ -19,3 +22,4 @@ ToolBar 1.0 ToolBar.qml
 ToolButton 1.0 ToolButton.qml
 ToolSeparator 1.0 ToolSeparator.qml
 ToolTip 1.0 ToolTip.qml
+Tumbler 1.0 Tumbler.qml

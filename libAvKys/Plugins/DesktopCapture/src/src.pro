@@ -46,7 +46,9 @@ INCLUDEPATH += \
 LIBS += -L$${OUT_PWD}/../../../Lib/$${BIN_DIR} -l$${COMMONS_TARGET}
 win32: LIBS += -lole32
 
-OTHER_FILES += ../pspec.json
+OTHER_FILES += \
+    ../pspec.json \
+    $$files(../share/qml/*.qml)
 
 QT += qml concurrent
 

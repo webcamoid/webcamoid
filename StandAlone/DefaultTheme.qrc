@@ -4,9 +4,12 @@
         <file>share/themes/Default/ApplicationWindow.qml</file>
         <file>share/themes/Default/Button.qml</file>
         <file>share/themes/Default/ComboBox.qml</file>
+        <file>share/themes/Default/Frame.qml</file>
+        <file>share/themes/Default/GroupBox.qml</file>
         <file>share/themes/Default/Label.qml</file>
         <file>share/themes/Default/MenuItem.qml</file>
         <file>share/themes/Default/MenuSeparator.qml</file>
+        <file>share/themes/Default/Page.qml</file>
         <file>share/themes/Default/Pane.qml</file>
         <file>share/themes/Default/ScrollView.qml</file>
         <file>share/themes/Default/Slider.qml</file>
@@ -22,5 +25,6 @@
         <file>share/themes/Default/ToolSeparator.qml</file>
         <file>share/themes/Default/ThemeSettings.qml</file>
         <file>share/themes/Default/ToolTip.qml</file>
+        <file>share/themes/Default/Tumbler.qml</file>
     </qresource>
 </RCC>

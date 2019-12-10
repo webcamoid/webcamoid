@@ -71,7 +71,9 @@ unix: !macx: LIBS += \
 LIBS += \
     -L$${OUT_PWD}/VCamUtils/$${BIN_DIR} -lVCamUtils
 
-OTHER_FILES += pspec.json
+OTHER_FILES += \
+    pspec.json \
+    $$files(../share/qml/*.qml)
 
 QT += concurrent qml xml
 
