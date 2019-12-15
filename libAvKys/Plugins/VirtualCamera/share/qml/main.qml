@@ -148,7 +148,7 @@ GridLayout {
             Button {
                 id: btnOk
                 text: qsTr("Ok")
-                icon.source: "image://icons/ok"
+                icon.source: "image://icons/check"
 
                 function commitChanges()
                 {

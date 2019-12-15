@@ -147,7 +147,7 @@ ApplicationWindow {
             Button {
                 id: btnOk
                 text: qsTr("OK")
-                icon.source: "image://icons/ok"
+                icon.source: "image://icons/check"
 
                 property variant controlValues: ({})
 

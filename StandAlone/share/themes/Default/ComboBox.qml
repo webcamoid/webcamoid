@@ -19,11 +19,9 @@
 
 import QtQuick 2.0
 import QtQuick.Controls 2.5
-import QtQuick.Layouts 1.3
 import QtQuick.Templates 2.5 as T
 import QtGraphicalEffects 1.0
 import QtQuick.Controls.impl 2.12
-import QtQuick.Shapes 1.0
 import AkQml 1.0
 
 T.ComboBox {
@@ -87,42 +85,27 @@ T.ComboBox {
         width: Ak.newUnit(24 * ThemeSettings.constrolScale, "dp").pixels
         height: width
 
-        Shape {
-            id: shapeUp
+        Item {
+            id: indicatorUp
             width: indicator.width / 2
-            height: indicator.height / 4
+            height: indicator.height / 2
             anchors.verticalCenter: indicator.verticalCenter
             anchors.horizontalCenter: indicator.horizontalCenter
-            visible: !comboBox.down
 
-            ShapePath {
-                id: shapePathUp
-                startX: 0 * shapeUp.width
-                startY: 0 * shapeUp.height
-                fillColor: ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
-                strokeColor: "transparent"
-
-                PathLine { x:   1 * shapeUp.width; y: 0 * shapeUp.height }
-                PathLine { x: 0.5 * shapeUp.width; y: 1 * shapeUp.height }
+            Image {
+                id: indicatorUpImage
+                asynchronous: true
+                cache: true
+                source: comboBox.down? "image://icons/up": "image://icons/down"
+                sourceSize: Qt.size(width, height)
+                visible: false
+                anchors.fill: indicatorUp
             }
-        }
-        Shape {
-            id: shapeDown
-            width: indicator.width / 2
-            height: indicator.height / 4
-            anchors.verticalCenter: indicator.verticalCenter
-            anchors.horizontalCenter: indicator.horizontalCenter
-            visible: comboBox.down
-
-            ShapePath {
-                id: shapePathDown
-                startX: 0 * shapeDown.width
-                startY: 1 * shapeDown.height
-                fillColor: ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
-                strokeColor: "transparent"
-
-                PathLine { x: 0.5 * shapeDown.width; y: 0 * shapeDown.height }
-                PathLine { x:   1 * shapeDown.width; y: 1 * shapeDown.height }
+            ColorOverlay {
+                id: indicatorUpOverlay
+                anchors.fill: indicatorUpImage
+                source: indicatorUpImage
+                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
             }
         }
     }
@@ -293,12 +276,8 @@ T.ComboBox {
                 color: ThemeSettings.shade(ThemeSettings.colorBack, -0.3)
             }
             PropertyChanges {
-                target: shapePathUp
-                fillColor: ThemeSettings.shade(ThemeSettings.colorBack, -0.3)
-            }
-            PropertyChanges {
-                target: shapePathDown
-                fillColor: ThemeSettings.shade(ThemeSettings.colorBack, -0.3)
+                target: indicatorUpOverlay
+                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.3)
             }
             PropertyChanges {
                 target: comboBoxBackground
@@ -314,12 +293,8 @@ T.ComboBox {
                   && !comboBox.pressed
 
             PropertyChanges {
-                target: shapePathUp
-                fillColor: ThemeSettings.shade(ThemeSettings.colorBack, -0.7)
-            }
-            PropertyChanges {
-                target: shapePathDown
-                fillColor: ThemeSettings.shade(ThemeSettings.colorBack, -0.7)
+                target: indicatorUpOverlay
+                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.7)
             }
             PropertyChanges {
                 target: comboBoxBackground
@@ -334,12 +309,8 @@ T.ComboBox {
                   && !comboBox.pressed
 
             PropertyChanges {
-                target: shapePathUp
-                fillColor: ThemeSettings.colorPrimary
-            }
-            PropertyChanges {
-                target: shapePathDown
-                fillColor: ThemeSettings.colorPrimary
+                target: indicatorUpOverlay
+                color: ThemeSettings.colorPrimary
             }
             PropertyChanges {
                 target: comboBoxBackground
@@ -355,13 +326,8 @@ T.ComboBox {
                   && comboBox.pressed
 
             PropertyChanges {
-                target: shapePathUp
-                fillColor:
-                    ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.3)
-            }
-            PropertyChanges {
-                target: shapePathDown
-                fillColor:
+                target: indicatorUpOverlay
+                color:
                     ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.3)
             }
             PropertyChanges {
@@ -387,12 +353,8 @@ T.ComboBox {
                 color: ThemeSettings.shade(ThemeSettings.colorBack, -0.3)
             }
             PropertyChanges {
-                target: shapePathUp
-                fillColor: ThemeSettings.shade(ThemeSettings.colorBack, -0.3)
-            }
-            PropertyChanges {
-                target: shapePathDown
-                fillColor: ThemeSettings.shade(ThemeSettings.colorBack, -0.3)
+                target: indicatorUpOverlay
+                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.3)
             }
         },
         State {
@@ -404,12 +366,8 @@ T.ComboBox {
                   && !comboBox.pressed
 
             PropertyChanges {
-                target: shapePathUp
-                fillColor: ThemeSettings.shade(ThemeSettings.colorBack, -0.7)
-            }
-            PropertyChanges {
-                target: shapePathDown
-                fillColor: ThemeSettings.shade(ThemeSettings.colorBack, -0.7)
+                target: indicatorUpOverlay
+                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.7)
             }
             PropertyChanges {
                 target: comboBoxRectangleBelow
@@ -425,12 +383,8 @@ T.ComboBox {
                   && !comboBox.pressed
 
             PropertyChanges {
-                target: shapePathUp
-                fillColor: ThemeSettings.colorPrimary
-            }
-            PropertyChanges {
-                target: shapePathDown
-                fillColor: ThemeSettings.colorPrimary
+                target: indicatorUpOverlay
+                color: ThemeSettings.colorPrimary
             }
             PropertyChanges {
                 target: comboBoxRectangleBelow
@@ -445,13 +399,8 @@ T.ComboBox {
                   && comboBox.pressed
 
             PropertyChanges {
-                target: shapePathUp
-                fillColor:
-                    ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.3)
-            }
-            PropertyChanges {
-                target: shapePathDown
-                fillColor:
+                target: indicatorUpOverlay
+                color:
                     ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.3)
             }
             PropertyChanges {
@@ -481,14 +430,8 @@ T.ComboBox {
             target: comboBoxRectangleBelow
             duration: comboBox.animationTime
         }
-        PropertyAnimation {
-            target: shapePathUp
-            properties: "fillColor"
-            duration: comboBox.animationTime
-        }
-        PropertyAnimation {
-            target: shapePathDown
-            properties: "fillColor"
+        ColorAnimation {
+            target: indicatorUpOverlay
             duration: comboBox.animationTime
         }
     }

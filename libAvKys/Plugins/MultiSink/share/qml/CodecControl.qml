@@ -44,65 +44,65 @@ GridLayout {
 
     function updateMenu()
     {
-        menuModel.clear();
+        menuModel.clear()
 
         if (controlParams.length < 9 || controlParams[2] != "menu")
-            return;
+            return
 
-        for (var i in controlParams[8]) {
-            var description = controlParams[8][i][0];
+        for (let i in controlParams[8]) {
+            let description = controlParams[8][i][0]
 
             if (controlParams[8][i][1].length > 0)
-                description += " - " + controlParams[8][i][1];
+                description += " - " + controlParams[8][i][1]
 
             menuModel.append({
                 value: controlParams[8][i][0],
                 description: description
-            });
+            })
         }
 
-        cbxMenu.currentIndex = currentMenuIndex(controlParams);
+        cbxMenu.currentIndex = currentMenuIndex(controlParams)
     }
 
     function currentMenuIndex(controlParams)
     {
         if (controlParams.length < 9 || controlParams[2] != "menu")
-            return -1;
+            return -1
 
-        for (var i in controlParams[8])
+        for (let i in controlParams[8])
             if (controlParams[8][i][0] == controlParams[7])
-                return i;
+                return i
 
-        return -1;
+        return -1
     }
 
     function updateFlags()
     {
         // Remove old controls.
-        for(var i = clyFlags.children.length - 1; i >= 0 ; i--)
+        for(let i = clyFlags.children.length - 1; i >= 0; i--)
             clyFlags.children[i].destroy()
 
         if (controlParams.length < 9 || controlParams[2] != "flags")
-            return;
+            return
 
         // Create new ones.
-        for (var i in controlParams[8]) {
-            var flag = classCheckBox.createObject(clyFlags);
-            flag.text = controlParams[8][i][0];
-            flag.checked = controlParams[7].indexOf(flag.text) >= 0;
+        for (let i in controlParams[8]) {
+            let flag = classCheckBox.createObject(clyFlags)
+            flag.children[0].text = controlParams[8][i][0]
+            flag.children[1].checked =
+                    controlParams[7].indexOf(flag.children[0].text) >= 0
 
-            flag.onCheckedChanged.connect(function (checked)
+            flag.children[1].onCheckedChanged.connect(function (checked)
             {
-                var flags = [];
+                var flags = []
 
                 for (var i in clyFlags.children) {
                     if (clyFlags.children[i].checked)
-                        flags += clyFlags.children[i].text;
+                        flags += clyFlags.children[i].text
                 }
 
                 if (gbxFlags.visible)
                     grdCameraControl.controlChanged(controlName, flags)
-
             })
         }
     }
@@ -261,8 +261,12 @@ GridLayout {
         Component {
             id: classCheckBox
 
-            SwitchDelegate {
-                Layout.fillWidth: true
+            RowLayout {
+                Label {
+                    Layout.fillWidth: true
+                }
+                Switch {
+                }
             }
         }
     }

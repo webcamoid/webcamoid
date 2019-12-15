@@ -19,11 +19,9 @@
 
 import QtQuick 2.0
 import QtQuick.Controls 2.5
-import QtQuick.Layouts 1.3
 import QtQuick.Templates 2.5 as T
 import QtGraphicalEffects 1.0
 import QtQuick.Controls.impl 2.12
-import QtQuick.Shapes 1.0
 import AkQml 1.0
 
 T.MenuItem {
@@ -38,7 +36,6 @@ T.MenuItem {
         Math.max(implicitBackgroundHeight + topInset + bottomInset,
                  implicitContentHeight + topPadding + bottomPadding,
                  implicitIndicatorHeight + topPadding + bottomPadding)
-
     rightPadding: Ak.newUnit(16 * ThemeSettings.constrolScale, "dp").pixels
     spacing: Ak.newUnit(20 * ThemeSettings.constrolScale, "dp").pixels
     icon.width: Ak.newUnit(24 * ThemeSettings.constrolScale, "dp").pixels
@@ -59,7 +56,7 @@ T.MenuItem {
 
     // Checked indicator
     indicator: Item {
-        id: checkMark
+        id: menuItemCheck
         width: menuItem.checkable?
                    Ak.newUnit(24 * ThemeSettings.constrolScale, "dp").pixels: 0
         height: menuItem.checkable?
@@ -69,32 +66,29 @@ T.MenuItem {
         anchors.leftMargin: Ak.newUnit(16 * ThemeSettings.constrolScale, "dp").pixels
         visible: menuItem.checkable && menuItem.checked
 
-        Shape {
-            id: shapeChecked
-            width: visible?
-                       Ak.newUnit(12 * ThemeSettings.constrolScale, "dp").pixels: 0
-            height: visible?
-                        Ak.newUnit(12 * ThemeSettings.constrolScale, "dp").pixels: 0
-            anchors.verticalCenter: checkMark.verticalCenter
-            anchors.horizontalCenter: checkMark.horizontalCenter
-            antialiasing: true
-            smooth: true
+        Item {
+            id: checkItem
+            width: menuItemCheck.width / 2
+            height: menuItemCheck.height / 2
+            anchors.verticalCenter: menuItemCheck.verticalCenter
+            anchors.horizontalCenter: menuItemCheck.horizontalCenter
 
-            ShapePath {
-                id: shapePathChecked
-                startX: 0 * shapeChecked.width / 3
-                startY: 2 * shapeChecked.height / 3
-                fillColor: "transparent"
-                strokeColor:
-                    menuItem.highlighted?
-                        ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
-                        ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
-                strokeWidth: Ak.newUnit(3 * ThemeSettings.constrolScale, "dp").pixels
-                capStyle: ShapePath.RoundCap
-                joinStyle: ShapePath.RoundJoin
-
-                PathLine { x: 1 * shapeChecked.width / 3; y: 3 * shapeChecked.height / 3 }
-                PathLine { x: 3 * shapeChecked.width / 3; y: 0 * shapeChecked.height / 3 }
+            Image {
+                id: checkImage
+                asynchronous: true
+                cache: true
+                source: "image://icons/check"
+                sourceSize: Qt.size(width, height)
+                visible: false
+                anchors.fill: checkItem
+            }
+            ColorOverlay {
+                id: checkOverlay
+                anchors.fill: checkImage
+                source: checkImage
+                color: menuItem.highlighted?
+                           ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
+                           ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
             }
         }
     }
@@ -109,25 +103,30 @@ T.MenuItem {
         anchors.rightMargin: Ak.newUnit(16 * ThemeSettings.constrolScale, "dp").pixels
         visible: menuItem.subMenu
 
-        Shape {
-            id: shapeRight
-            width: visible? Ak.newUnit(6 * ThemeSettings.constrolScale, "dp").pixels: 0
-            height: visible? Ak.newUnit(12 * ThemeSettings.constrolScale, "dp").pixels: 0
+        Item {
+            id: arrowItem
+            width: menuItemArrow.width / 2
+            height: menuItemArrow.height / 2
             anchors.verticalCenter: menuItemArrow.verticalCenter
             anchors.horizontalCenter: menuItemArrow.horizontalCenter
 
-            ShapePath {
-                id: shapePathRight
-                startX: 0 * shapeRight.width
-                startY: 0 * shapeRight.height
-                fillColor:
-                    menuItem.highlighted?
-                        ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
-                        ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
-                strokeColor: "transparent"
-
-                PathLine { x: 1 * shapeRight.width; y: 0.5 * shapeRight.height }
-                PathLine { x: 0 * shapeRight.width; y:   1 * shapeRight.height }
+            Image {
+                id: arrowImage
+                asynchronous: true
+                cache: true
+                source: "image://icons/right"
+                sourceSize: Qt.size(width, height)
+                visible: false
+                anchors.fill: arrowItem
+            }
+            ColorOverlay {
+                id: arrowOverlay
+                anchors.fill: arrowImage
+                source: arrowImage
+                color: menuItem.highlighted?
+                           ThemeSettings.contrast(ThemeSettings.colorPrimary,
+                                                  0.75):
+                           ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
             }
         }
     }
@@ -145,7 +144,7 @@ T.MenuItem {
                         ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
                         ThemeSettings.colorText
         text: menuItem.text
-        anchors.left: checkMark.right
+        anchors.left: menuItemCheck.right
         anchors.leftMargin:
             menuItem.checkable?
                 Ak.newUnit(20 * ThemeSettings.constrolScale, "dp").pixels: 0
@@ -178,10 +177,9 @@ T.MenuItem {
             height: 2 * radius
             color: menuItem.highlighted?
                        ThemeSettings.constShade(ThemeSettings.colorPrimary,
-                                                    0.3,
-                                                    0.75):
-                       ThemeSettings.shade(ThemeSettings.colorBack,
-                                               -0.5)
+                                                0.3,
+                                                0.75):
+                       ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
             opacity: 0
             layer.enabled: true
             layer.effect: OpacityMask {
@@ -208,15 +206,15 @@ T.MenuItem {
                 opacity: 0.5
             }
             PropertyChanges {
-                target: shapePathChecked
-                strokeColor:
+                target: checkOverlay
+                color:
                     menuItem.highlighted?
                         ThemeSettings.shade(ThemeSettings.colorBack, -0.2):
                         ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
             }
             PropertyChanges {
-                target: shapePathRight
-                fillColor:
+                target: arrowOverlay
+                color:
                     menuItem.highlighted?
                         ThemeSettings.shade(ThemeSettings.colorBack, -0.2):
                         ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
@@ -236,15 +234,15 @@ T.MenuItem {
                   && !menuItem.pressed
 
             PropertyChanges {
-                target: shapePathChecked
-                strokeColor:
+                target: checkOverlay
+                color:
                     menuItem.highlighted?
                         ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
                         ThemeSettings.shade(ThemeSettings.colorBack, -0.6)
             }
             PropertyChanges {
-                target: shapePathRight
-                fillColor:
+                target: arrowOverlay
+                color:
                     menuItem.highlighted?
                         ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
                         ThemeSettings.shade(ThemeSettings.colorBack, -0.6)
@@ -264,15 +262,15 @@ T.MenuItem {
                   && !menuItem.pressed
 
             PropertyChanges {
-                target: shapePathChecked
-                strokeColor:
+                target: checkOverlay
+                color:
                     menuItem.highlighted?
                         ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
                         ThemeSettings.shade(ThemeSettings.colorBack, -0.6)
             }
             PropertyChanges {
-                target: shapePathRight
-                fillColor:
+                target: arrowOverlay
+                color:
                     menuItem.highlighted?
                         ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
                         ThemeSettings.shade(ThemeSettings.colorBack, -0.6)
@@ -291,15 +289,15 @@ T.MenuItem {
                   && menuItem.pressed
 
             PropertyChanges {
-                target: shapePathChecked
-                strokeColor:
+                target: checkOverlay
+                color:
                     menuItem.highlighted?
                         ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
                         ThemeSettings.shade(ThemeSettings.colorBack, -0.7)
             }
             PropertyChanges {
-                target: shapePathRight
-                fillColor:
+                target: arrowOverlay
+                color:
                     menuItem.highlighted?
                         ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
                         ThemeSettings.shade(ThemeSettings.colorBack, -0.7)
@@ -322,14 +320,12 @@ T.MenuItem {
             properties: "opacity"
             duration: menuItem.animationTime
         }
-        PropertyAnimation {
-            target: shapePathChecked
-            properties: "strokeColor"
+        ColorAnimation {
+            target: checkOverlay
             duration: menuItem.animationTime
         }
-        PropertyAnimation {
-            target: shapePathRight
-            properties: "fillColor"
+        ColorAnimation {
+            target: arrowOverlay
             duration: menuItem.animationTime
         }
         ColorAnimation {

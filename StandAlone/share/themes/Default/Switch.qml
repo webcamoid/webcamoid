@@ -19,7 +19,6 @@
 
 import QtQuick 2.0
 import QtQuick.Controls 2.5
-import QtQuick.Layouts 1.3
 import QtQuick.Templates 2.5 as T
 import QtGraphicalEffects 1.0
 import QtQuick.Controls.impl 2.12
@@ -31,26 +30,28 @@ T.Switch {
     icon.width: Ak.newUnit(18 * ThemeSettings.constrolScale, "dp").pixels
     icon.height: Ak.newUnit(18 * ThemeSettings.constrolScale, "dp").pixels
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
-                            implicitContentWidth
-                            + implicitIndicatorWidth
-                            + leftPadding
-                            + rightPadding)
+                            implicitContentWidth +
+                            implicitIndicatorWidth + implicitIndicatorHeight
+                            + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              implicitContentHeight + topPadding + bottomPadding,
-                             implicitIndicatorHeight + topPadding + bottomPadding)
-    padding: Ak.newUnit(1 * ThemeSettings.constrolScale, "dp").pixels
-    spacing: Ak.newUnit(2 * ThemeSettings.constrolScale, "dp").pixels
+                              2 * implicitIndicatorHeight + topPadding + bottomPadding)
+    padding: Ak.newUnit(4 * ThemeSettings.constrolScale, "dp").pixels
+    spacing: Ak.newUnit(8 * ThemeSettings.constrolScale, "dp").pixels
     hoverEnabled: true
+    clip: true
 
     readonly property int animationTime: 100
 
     indicator: Item {
         id: sliderIndicator
+        anchors.left: control.left
+        anchors.leftMargin: switchThumb.width / 2 + control.leftPadding
         anchors.verticalCenter: control.verticalCenter
-        implicitWidth: Ak.newUnit(36 * ThemeSettings.constrolScale,
-                                  "dp").pixels
-        implicitHeight: Ak.newUnit(20 * ThemeSettings.constrolScale,
-                                   "dp").pixels
+        implicitWidth:
+            Ak.newUnit(36 * ThemeSettings.constrolScale, "dp").pixels
+        implicitHeight:
+            Ak.newUnit(20 * ThemeSettings.constrolScale, "dp").pixels
 
         Rectangle {
             id: switchTrack
@@ -103,32 +104,24 @@ T.Switch {
             }
         }
     }
-    contentItem: Item {
-        id: iconLabelContainer
-        anchors.leftMargin: Ak.newUnit(1 * ThemeSettings.constrolScale,
-                                       "dp").pixels
+    contentItem: IconLabel {
+        id: iconLabel
+        spacing: control.spacing
+        mirrored: control.mirrored
+        display: control.display
+        icon.name: control.icon.name
+        icon.source: control.icon.source
+        icon.width: control.icon.width
+        icon.height: control.icon.height
+        icon.color: ThemeSettings.colorText
+        text: control.text
+        font: control.font
+        color: ThemeSettings.colorText
+        alignment: Qt.AlignLeft
+        anchors.leftMargin: switchThumb.width / 2
         anchors.left: sliderIndicator.right
-
-        IconLabel {
-            id: iconLabel
-            spacing: control.spacing
-            mirrored: control.mirrored
-            display: control.display
-            icon.name: control.icon.name
-            icon.source: control.icon.source
-            icon.width: control.icon.width
-            icon.height: control.icon.height
-            icon.color: ThemeSettings.colorText
-            text: control.text
-            font: control.font
-            color: ThemeSettings.colorText
-            anchors.verticalCenter: iconLabelContainer.verticalCenter
-        }
-        MouseArea {
-            anchors.fill: parent
-
-            onClicked: control.toggle()
-        }
+        anchors.rightMargin: control.rightPadding
+        anchors.right: control.right
     }
 
     states: [
@@ -246,9 +239,8 @@ T.Switch {
     ]
 
     transitions: Transition {
-        PropertyAnimation {
+        ColorAnimation {
             target: switchTrack
-            properties: "color"
             duration: control.animationTime
         }
         PropertyAnimation {
@@ -256,9 +248,8 @@ T.Switch {
             properties: "x"
             duration: control.animationTime
         }
-        PropertyAnimation {
+        ColorAnimation {
             target: switchThumbRect
-            properties: "color"
             duration: control.animationTime
         }
         PropertyAnimation {

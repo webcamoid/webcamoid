@@ -19,7 +19,6 @@
 
 import QtQuick 2.0
 import QtQuick.Controls 2.5
-import QtQuick.Layouts 1.3
 import QtQuick.Templates 2.5 as T
 import QtGraphicalEffects 1.0
 import QtQuick.Controls.impl 2.12
@@ -27,35 +26,46 @@ import AkQml 1.0
 
 T.SwitchDelegate {
     id: control
-    opacity: enabled? 1: 0.5
     icon.width: Ak.newUnit(18 * ThemeSettings.constrolScale, "dp").pixels
     icon.height: Ak.newUnit(18 * ThemeSettings.constrolScale, "dp").pixels
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
-                            implicitContentWidth + implicitIndicatorWidth + leftPadding + rightPadding)
+                            implicitContentWidth + implicitIndicatorWidth
+                            + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              implicitContentHeight + topPadding + bottomPadding,
                              implicitIndicatorHeight + topPadding + bottomPadding)
-    padding: Ak.newUnit(1 * ThemeSettings.constrolScale, "dp").pixels
-    spacing: Ak.newUnit(2 * ThemeSettings.constrolScale, "dp").pixels
+    padding: Ak.newUnit(4 * ThemeSettings.constrolScale, "dp").pixels
+    spacing: Ak.newUnit(8 * ThemeSettings.constrolScale, "dp").pixels
     hoverEnabled: true
+    clip: true
 
     readonly property int animationTime: 100
 
+    function pressIndicatorRadius()
+    {
+        let diffX = control.width / 2
+        let diffY = control.height / 2
+        let r2 = diffX * diffX + diffY * diffY
+
+        return Math.sqrt(r2)
+    }
+
     indicator: Item {
         id: sliderIndicator
-        anchors.rightMargin: Ak.newUnit(1 * ThemeSettings.constrolScale,
-                                        "dp").pixels
         anchors.right: control.right
+        anchors.rightMargin: control.rightPadding
         anchors.verticalCenter: control.verticalCenter
-        implicitWidth: Ak.newUnit(36 * ThemeSettings.constrolScale,
-                                  "dp").pixels
-        implicitHeight: Ak.newUnit(20 * ThemeSettings.constrolScale,
-                                   "dp").pixels
+        implicitWidth:
+            Ak.newUnit(36 * ThemeSettings.constrolScale, "dp").pixels
+        implicitHeight:
+            Ak.newUnit(20 * ThemeSettings.constrolScale, "dp").pixels
 
         Rectangle {
             id: switchTrack
             height: parent.height / 2
-            color: ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
+            color: control.highlighted?
+                       ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
+                       ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
             radius: height / 2
             anchors.verticalCenter: sliderIndicator.verticalCenter
             anchors.right: sliderIndicator.right
@@ -67,16 +77,6 @@ T.SwitchDelegate {
             anchors.bottom: sliderIndicator.bottom
             anchors.top: sliderIndicator.top
 
-            Rectangle {
-                id: highlight
-                width: control.visualFocus? 2 * parent.width: 0
-                height: width
-                color: switchThumbRect.color
-                radius: width / 2
-                anchors.verticalCenter: switchThumb.verticalCenter
-                anchors.horizontalCenter: switchThumb.horizontalCenter
-                opacity: control.visualFocus? 0.5: 0
-            }
             Rectangle {
                 id: shadowRect
                 color: ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
@@ -93,44 +93,105 @@ T.SwitchDelegate {
                 samples: 2 * radius + 1
                 color: ThemeSettings.constShade(ThemeSettings.colorBack, -0.9)
                 source: shadowRect
-                visible: !control.flat
+                visible: !control.highlighted
             }
             Rectangle {
                 id: switchThumbRect
-                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
+                color: control.highlighted?
+                           ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
+                           ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
                 radius: height / 2
                 anchors.fill: parent
             }
         }
     }
-    contentItem: Item {
-        id: iconLabelContainer
+
+    contentItem: IconLabel {
+        id: iconLabel
+        spacing: control.spacing
+        mirrored: control.mirrored
+        display: control.display
+        icon.name: control.icon.name
+        icon.source: control.icon.source
+        icon.width: control.icon.width
+        icon.height: control.icon.height
+        icon.color: ThemeSettings.colorText
+        text: control.text
+        font: control.font
+        color: control.highlighted?
+                   ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
+                   ThemeSettings.colorText
+        alignment: Qt.AlignLeft
+        anchors.leftMargin: control.leftPadding
         anchors.left: control.left
         anchors.right: sliderIndicator.left
+    }
 
-        IconLabel {
-            id: iconLabel
-            spacing: control.spacing
-            mirrored: control.mirrored
-            display: control.display
-            icon.name: control.icon.name
-            icon.source: control.icon.source
-            icon.width: control.icon.width
-            icon.height: control.icon.height
-            icon.color: ThemeSettings.colorText
-            text: control.text
-            font: control.font
-            color: ThemeSettings.colorText
-            anchors.verticalCenter: iconLabelContainer.verticalCenter
-        }
-        MouseArea {
+    background: Item {
+        id: backgroundItem
+        implicitWidth:
+            Ak.newUnit(128 * ThemeSettings.constrolScale, "dp").pixels
+        implicitHeight:
+            Ak.newUnit(48 * ThemeSettings.constrolScale, "dp").pixels
+
+        // Press indicator
+        Rectangle{
+            id: controlPressIndicatorMask
             anchors.fill: parent
+            color: Qt.hsla(0, 0, 0, 1)
+            visible: false
+        }
+        Rectangle {
+            id: controlPress
+            radius: 0
+            anchors.verticalCenter: backgroundItem.verticalCenter
+            anchors.horizontalCenter: backgroundItem.horizontalCenter
+            width: 2 * radius
+            height: 2 * radius
+            color: control.highlighted?
+                       ThemeSettings.constShade(ThemeSettings.colorPrimary,
+                                                0.3,
+                                                0.75):
+                       ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
+            opacity: 0
+            layer.enabled: true
+            layer.effect: OpacityMask {
+                maskSource: controlPressIndicatorMask
+            }
+        }
 
-            onClicked: control.toggle()
+        Rectangle {
+            id: background
+            color: control.highlighted?
+                       ThemeSettings.colorPrimary:
+                       ThemeSettings.shade(ThemeSettings.colorBack, -0.1, 0)
+            anchors.fill: parent
         }
     }
 
     states: [
+        State {
+            name: "Disabled"
+            when: !control.enabled
+
+            PropertyChanges {
+                target: switchTrack
+                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
+            }
+            PropertyChanges {
+                target: switchThumbRect
+                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
+            }
+            PropertyChanges {
+                target: iconLabel
+                icon.color: ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
+                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
+            }
+            PropertyChanges {
+                target: background
+                color: "transparent"
+            }
+        },
         State {
             name: "Checked"
             when: control.checked
@@ -141,11 +202,15 @@ T.SwitchDelegate {
 
             PropertyChanges {
                 target: switchTrack
-                color: ThemeSettings.colorPrimary
+                color: control.highlighted?
+                           ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
+                           ThemeSettings.colorPrimary
             }
             PropertyChanges {
                 target: switchThumbRect
-                color: ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.2)
+                color: control.highlighted?
+                           ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
+                           ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.2)
             }
             PropertyChanges {
                 target: switchThumb
@@ -162,16 +227,23 @@ T.SwitchDelegate {
 
             PropertyChanges {
                 target: switchTrack
-                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.6)
+                color: control.highlighted?
+                           ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
+                           ThemeSettings.shade(ThemeSettings.colorBack, -0.6)
             }
             PropertyChanges {
                 target: switchThumbRect
-                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.2)
+                color: control.highlighted?
+                           ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
+                           ThemeSettings.shade(ThemeSettings.colorBack, -0.2)
             }
             PropertyChanges {
-                target: highlight
-                width: 2 * switchThumb.width
-                opacity: 0.5
+                target: background
+                color:
+                    control.highlighted?
+                        ThemeSettings.constShade(ThemeSettings.colorPrimary,
+                                                 0.1):
+                        ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
             }
         },
         State {
@@ -184,20 +256,27 @@ T.SwitchDelegate {
 
             PropertyChanges {
                 target: switchTrack
-                color: ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.1)
+                color: control.highlighted?
+                           ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
+                           ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.1)
             }
             PropertyChanges {
                 target: switchThumbRect
-                color: ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.3)
+                color: control.highlighted?
+                           ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
+                           ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.3)
             }
             PropertyChanges {
                 target: switchThumb
                 x: sliderIndicator.width - switchThumb.width
             }
             PropertyChanges {
-                target: highlight
-                width: 2 * switchThumb.width
-                opacity: 0.5
+                target: background
+                color:
+                    control.highlighted?
+                        ThemeSettings.constShade(ThemeSettings.colorPrimary,
+                                                 0.1):
+                        ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
             }
         },
         State {
@@ -207,16 +286,24 @@ T.SwitchDelegate {
 
             PropertyChanges {
                 target: switchTrack
-                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.7)
+                color: control.highlighted?
+                           ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
+                           ThemeSettings.shade(ThemeSettings.colorBack, -0.7)
             }
             PropertyChanges {
                 target: switchThumbRect
-                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.3)
+                color: control.highlighted?
+                           ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
+                           ThemeSettings.shade(ThemeSettings.colorBack, -0.3)
             }
             PropertyChanges {
-                target: highlight
-                width: 2 * switchThumb.width
-                opacity: 0.75
+                target: controlPress
+                radius: control.pressIndicatorRadius()
+                opacity: 1
+            }
+            PropertyChanges {
+                target: background
+                visible: false
             }
         },
         State {
@@ -226,20 +313,28 @@ T.SwitchDelegate {
 
             PropertyChanges {
                 target: switchTrack
-                color: ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.2)
+                color: control.highlighted?
+                           ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
+                           ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.2)
             }
             PropertyChanges {
                 target: switchThumbRect
-                color: ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.4)
+                color: control.highlighted?
+                           ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
+                           ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.4)
             }
             PropertyChanges {
                 target: switchThumb
                 x: sliderIndicator.width - switchThumb.width
             }
             PropertyChanges {
-                target: highlight
-                width: 2 * switchThumb.width
-                opacity: 0.75
+                target: controlPress
+                radius: control.pressIndicatorRadius()
+                opacity: 1
+            }
+            PropertyChanges {
+                target: background
+                visible: false
             }
         }
     ]
@@ -260,9 +355,17 @@ T.SwitchDelegate {
             properties: "color"
             duration: control.animationTime
         }
+        ColorAnimation {
+            target: iconLabel
+            duration: control.animationTime
+        }
+        ColorAnimation {
+            target: background
+            duration: control.animationTime
+        }
         PropertyAnimation {
-            target: highlight
-            properties: "width,opacity"
+            target: controlPress
+            properties: "opacity,radius"
             duration: control.animationTime
         }
     }

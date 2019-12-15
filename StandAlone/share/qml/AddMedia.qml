@@ -106,7 +106,7 @@ ApplicationWindow {
             Button {
                 id: btnOk
                 text: qsTr("Ok")
-                icon.source: "image://icons/ok"
+                icon.source: "image://icons/check"
 
                 onClicked: {
                     if (txtMedia.text.length > 0) {

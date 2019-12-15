@@ -47,7 +47,7 @@ ListView {
     model: ListModel {
         id: lstOptions
     }
-    delegate: MenuItem {
+    delegate: ItemDelegate {
         text: index >= 0 && index < lsvOptionList.count?
                   lsvOptionList.model.get(index)[lsvOptionList.textRole]: ""
         anchors.right: parent.right

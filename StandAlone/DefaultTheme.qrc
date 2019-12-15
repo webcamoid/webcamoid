@@ -4,9 +4,12 @@
         <file>share/themes/Default/ApplicationWindow.qml</file>
         <file>share/themes/Default/BusyIndicator.qml</file>
         <file>share/themes/Default/Button.qml</file>
+        <file>share/themes/Default/CheckBox.qml</file>
+        <file>share/themes/Default/CheckDelegate.qml</file>
         <file>share/themes/Default/ComboBox.qml</file>
         <file>share/themes/Default/Frame.qml</file>
         <file>share/themes/Default/GroupBox.qml</file>
+        <file>share/themes/Default/ItemDelegate.qml</file>
         <file>share/themes/Default/Label.qml</file>
         <file>share/themes/Default/MenuItem.qml</file>
         <file>share/themes/Default/MenuSeparator.qml</file>
