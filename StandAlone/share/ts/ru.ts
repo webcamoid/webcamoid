@@ -64,7 +64,7 @@
     <message>
         <location filename="../qml/AddMedia.qml" line="108"/>
         <source>Ok</source>
-        <translation>Потвердить</translation>
+        <translation>Подтвердить</translation>
     </message>
     <message>
         <location filename="../qml/AddMedia.qml" line="133"/>
@@ -2174,7 +2174,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="150"/>
         <source>Ok</source>
-        <translation type="unfinished">Потвердить</translation>
+        <translation type="unfinished">Подтвердить</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="193"/>
