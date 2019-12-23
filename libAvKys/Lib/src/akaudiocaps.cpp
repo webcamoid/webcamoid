@@ -758,13 +758,21 @@ AkAudioCaps::ChannelLayout AkAudioCaps::channelLayoutFromString(const QString &c
 
 AkAudioCaps::ChannelLayout AkAudioCaps::channelLayoutFromPositions(const QVector<Position> &positions)
 {
-    auto positionsSet = QSet<Position>::fromList(positions.toList());
+    QSet<Position> positionsSet;
+
+    for (auto &position: positions)
+        positionsSet << position;
 
     for (auto &layout: ChannelLayouts::layouts()) {
         if (layout.channels.size() != positions.size())
             continue;
 
-        if (positionsSet == QSet<Position>::fromList(layout.channels.toList()))
+        QSet<Position> layoutPositionsSet;
+
+        for (auto &position: layout.channels)
+            layoutPositionsSet << position;
+
+        if (positionsSet == layoutPositionsSet)
             return layout.layout;
     }
 

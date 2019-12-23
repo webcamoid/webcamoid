@@ -28,7 +28,10 @@ exists(akcommons.pri) {
 
 include(../dshow.pri)
 
-CONFIG += staticlib
+CONFIG += \
+    staticlib \
+    create_prl \
+    no_install_prl
 CONFIG -= qt
 
 DESTDIR = $${OUT_PWD}/$${BIN_DIR}

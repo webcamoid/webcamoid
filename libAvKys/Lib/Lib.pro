@@ -26,12 +26,19 @@ exists(akcommons.pri) {
     }
 }
 
-CONFIG += qt
+CONFIG += \
+    qt \
+    create_prl \
+    no_install_prl
+
 !isEmpty(STATIC_BUILD):!isEqual(STATIC_BUILD, 0): CONFIG += static
 
 DEFINES += \
     AKCOMMONS_LIBRARY \
-    QT_INSTALL_QML=\"\\\"$$[QT_INSTALL_QML]\\\"\"
+    QT_INSTALL_QML=\"\\\"$$[QT_INSTALL_QML]\\\"\" \
+    PREFIX_SHLIB=\"\\\"$$QMAKE_PREFIX_SHLIB\\\"\" \
+    PLATFORM_TARGET_SUFFIX=\"\\\"$$qtPlatformTargetSuffix()\\\"\" \
+    EXTENSION_SHLIB=\"\\\"$$QMAKE_EXTENSION_SHLIB\\\"\" \
 
 HEADERS = \
     src/ak.h \
@@ -79,6 +86,8 @@ win32: target.path = $${BINDIR}
 !win32: target.path = $${LIBDIR}
 
 !isEmpty(INSTALLDEVHEADERS):!isEqual(INSTALLDEVHEADERS, 0) {
+    CONFIG += create_pc
+
     INSTALLS += headers
     headers.files = src/*.h
     headers.path = $${INCLUDEDIR}/$${COMMONS_TARGET}

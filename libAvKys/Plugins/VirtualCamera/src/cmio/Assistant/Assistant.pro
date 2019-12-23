@@ -29,7 +29,7 @@ exists(akcommons.pri) {
 include(../cmio.pri)
 include(../../VCamUtils/VCamUtils.pri)
 
-CONFIG += console
+CONFIG += console link_prl
 CONFIG -= app_bundle
 CONFIG -= qt
 

@@ -28,7 +28,10 @@ exists(akcommons.pri) {
 
 include(../dshow.pri)
 
-CONFIG += staticlib
+CONFIG += \
+    staticlib \
+    create_prl \
+    no_install_prl
 CONFIG -= qt
 
 DESTDIR = $${OUT_PWD}/$${BIN_DIR}
@@ -41,6 +44,8 @@ LIBS = \
     -L$${OUT_PWD}/../PlatformUtils/$${BIN_DIR} -lPlatformUtils \
     -L$${OUT_PWD}/../../VCamUtils/$${BIN_DIR} -lVCamUtils \
     -ladvapi32
+
+win32-g++: LIBS += -lssp
 
 SOURCES = \
     src/ipcbridge.cpp

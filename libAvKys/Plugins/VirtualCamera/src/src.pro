@@ -31,7 +31,7 @@ exists(akcommons.pri) {
     }
 }
 
-CONFIG += plugin
+CONFIG += plugin link_prl
 
 INCLUDEPATH += \
     ../../../Lib/src
@@ -46,7 +46,7 @@ SOURCES = \
     virtualcameraelement.cpp
 
 LIBS += \
-    -L$${OUT_PWD}/../../../Lib/$${BIN_DIR} -l$${COMMONS_TARGET}
+    -L$${OUT_PWD}/../../../Lib/$${BIN_DIR} -l$$qtLibraryTarget($${COMMONS_TARGET})
 win32: LIBS += \
     -L$${OUT_PWD}/dshow/VCamIPC/$${BIN_DIR} -lVCamIPC \
     -L$${OUT_PWD}/dshow/PlatformUtils/$${BIN_DIR} -lPlatformUtils \

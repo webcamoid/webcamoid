@@ -26,7 +26,7 @@ exists(akcommons.pri) {
     }
 }
 
-CONFIG += plugin
+CONFIG += plugin link_prl
 
 HEADERS = \
     src/plugin.h \
@@ -38,7 +38,7 @@ INCLUDEPATH += \
     ../
 
 LIBS += \
-    -L$${OUT_PWD}/../../../../Lib/$${BIN_DIR} -l$${COMMONS_TARGET} \
+    -L$${OUT_PWD}/../../../../Lib/$${BIN_DIR} -l$$qtLibraryTarget($${COMMONS_TARGET}) \
     -landroid \
     -lcamera2ndk \
     -lmediandk

@@ -30,8 +30,7 @@ include(../dshow.pri)
 include(../../VCamUtils/VCamUtils.pri)
 
 CONFIG -= qt
-CONFIG += \
-    resources
+CONFIG += link_prl
 
 INCLUDEPATH += \
     .. \

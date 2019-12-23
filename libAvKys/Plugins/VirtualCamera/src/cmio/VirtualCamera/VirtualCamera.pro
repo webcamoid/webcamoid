@@ -29,7 +29,7 @@ exists(akcommons.pri) {
 include(../cmio.pri)
 include(../../VCamUtils/VCamUtils.pri)
 
-CONFIG -= qt
+CONFIG -= qt link_prl
 CONFIG += \
     unversioned_libname \
     unversioned_soname

@@ -63,7 +63,7 @@ unix: !android: !macx | !isEmpty(NOAPPBUNDLE) {
     PRE_TARGETDEPS += compiler_buildmanpage_make_all
 }
 
-CONFIG += qt
+CONFIG += qt link_prl
 macx: CONFIG -= app_bundle
 !isEmpty(STATIC_BUILD):!isEqual(STATIC_BUILD, 0): CONFIG += static
 
@@ -85,7 +85,7 @@ HEADERS = \
 INCLUDEPATH += \
     ../libAvKys/Lib/src
 
-LIBS += -L$${OUT_PWD}/../libAvKys/Lib/$${BIN_DIR} -lavkys
+LIBS += -L$${OUT_PWD}/../libAvKys/Lib/$${BIN_DIR} -l$$qtLibraryTarget(avkys)
 win32: LIBS += -lole32
 
 OTHER_FILES = \

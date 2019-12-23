@@ -29,7 +29,7 @@ exists(akcommons.pri) {
 TEMPLATE = lib
 
 QT += qml quick
-CONFIG += qt plugin
+CONFIG += qt plugin link_prl
 
 DESTDIR = $${OUT_PWD}/$${BIN_DIR}
 
@@ -53,7 +53,7 @@ HEADERS = \
 INCLUDEPATH += \
     ../Lib/src
 
-LIBS += -L$${OUT_PWD}/../Lib/$${BIN_DIR} -l$${COMMONS_TARGET}
+LIBS += -L$${OUT_PWD}/../Lib/$${BIN_DIR} -l$$qtLibraryTarget($${COMMONS_TARGET})
 win32: LIBS += -lole32
 
 RESOURCES += \

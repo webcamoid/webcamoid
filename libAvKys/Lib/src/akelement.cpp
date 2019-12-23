@@ -30,6 +30,7 @@
 #include <QQmlContext>
 #include <QQmlEngine>
 #include <QRegExp>
+#include <QRegularExpression>
 #include <QVector>
 
 #include "akelement.h"
@@ -342,9 +343,10 @@ QStringList AkElement::listSubModulesPaths(const QString &pluginId)
 
 #ifdef Q_OS_ANDROID
     auto submoduleFilePattern =
-            QString("lib%1_%2_%3_lib*.so").arg(COMMONS_TARGET,
-                                               SUBMODULES_PATH,
-                                               pluginId);
+            QString("lib%1_%2_%3_lib*%4.so").arg(COMMONS_TARGET,
+                                                 SUBMODULES_PATH,
+                                                 pluginId,
+                                                 PLATFORM_TARGET_SUFFIX);
 #else
     if (!pluginDir.cd(akElementGlobalStuff->m_subModulesPath
                       + QDir::separator()
@@ -591,14 +593,17 @@ QString AkElement::pluginPath(const QString &pluginId)
     for (auto &path: pluginPaths) {
         auto baseName = QFileInfo(path).baseName();
 
-#ifdef Q_OS_WIN32
-        if (baseName == pluginId)
-            return path;
-#elif defined(Q_OS_ANDROID)
-        if (baseName == QString("lib%1_lib%2").arg(COMMONS_TARGET, pluginId))
+#ifdef Q_OS_ANDROID
+        if (baseName == QString("lib%1_lib%2%3")
+                        .arg(COMMONS_TARGET,
+                             pluginId,
+                             PLATFORM_TARGET_SUFFIX))
             return path;
 #else
-        if (baseName == QString("lib%1").arg(pluginId))
+        if (baseName == QString("%1%2%3")
+                        .arg(PREFIX_SHLIB,
+                             pluginId,
+                             PLATFORM_TARGET_SUFFIX))
             return path;
 #endif
     }
@@ -795,13 +800,16 @@ AkElementPrivate::AkElementPrivate()
     this->m_subModulesPath = SUBMODULES_PATH;
 
 #ifdef Q_OS_ANDROID
-    this->m_pluginFilePattern = QString("lib%1_lib*.so").arg(COMMONS_TARGET);
-#elif defined(Q_OS_OSX)
-    this->m_pluginFilePattern = "lib*.dylib";
-#elif defined(Q_OS_WIN32)
-    this->m_pluginFilePattern = "*.dll";
+    this->m_pluginFilePattern =
+            QString("lib%1_lib*%2.so").arg(COMMONS_TARGET,
+                                           PLATFORM_TARGET_SUFFIX);
 #else
-    this->m_pluginFilePattern = "lib*.so";
+    this->m_pluginFilePattern =
+            QString("%1*%2").arg(PREFIX_SHLIB, PLATFORM_TARGET_SUFFIX);
+
+    if (strlen(EXTENSION_SHLIB) > 1)
+        this->m_pluginFilePattern += "." EXTENSION_SHLIB;
+
 #endif
 }
 
@@ -836,13 +844,18 @@ QString AkElementPrivate::pluginId(const QString &fileName)
 {
     auto pluginId = QFileInfo(fileName).baseName();
 
-#ifdef Q_OS_WIN32
-    return pluginId;
-#elif defined(Q_OS_ANDROID)
-    return pluginId.remove(QRegExp(QString("^lib%1_lib").arg(COMMONS_TARGET)));
+#ifdef Q_OS_ANDROID
+    auto pattern = QString("^lib%1_lib(\\w+)%2$")
+                   .arg(COMMONS_TARGET, PLATFORM_TARGET_SUFFIX);
 #else
-    return pluginId.remove(QRegExp("^lib"));
+    auto pattern = QString("^%1(\\w+)%2$")
+                   .arg(PREFIX_SHLIB, PLATFORM_TARGET_SUFFIX);
 #endif
+
+    QRegularExpression regex(pattern);
+    auto match = regex.match(pluginId);
+
+    return match.captured(1);
 }
 
 QString AkElementPrivate::submoduleId(const QString &fileName,
@@ -850,12 +863,15 @@ QString AkElementPrivate::submoduleId(const QString &fileName,
 {
 #ifdef Q_OS_ANDROID
     auto submoduleId = QFileInfo(fileName).baseName();
-    auto filePrefix =
-            QString("^lib%1_%2_%3_lib").arg(COMMONS_TARGET,
-                                            SUBMODULES_PATH,
-                                            pluginId);
+    auto pattern = QString("^lib%1_%2_%3_lib(\\w+)%4$")
+                   .arg(COMMONS_TARGET,
+                        SUBMODULES_PATH,
+                        pluginId,
+                        PLATFORM_TARGET_SUFFIX);
+    QRegularExpression regex(pattern);
+    auto match = regex.match(submoduleId);
 
-    return submoduleId.remove(QRegExp(filePrefix));
+    return match.captured(1);
 #else
     Q_UNUSED(pluginId)
 

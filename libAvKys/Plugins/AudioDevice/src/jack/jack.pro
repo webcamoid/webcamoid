@@ -26,7 +26,7 @@ exists(akcommons.pri) {
     }
 }
 
-CONFIG += plugin no_keywords
+CONFIG += plugin no_keywords link_prl
 
 HEADERS = \
     src/plugin.h \
@@ -40,7 +40,7 @@ INCLUDEPATH += \
     ../
 
 LIBS += \
-    -L$${OUT_PWD}/../../../../Lib/$${BIN_DIR} -l$${COMMONS_TARGET}
+    -L$${OUT_PWD}/../../../../Lib/$${BIN_DIR} -l$$qtLibraryTarget($${COMMONS_TARGET})
 
 OTHER_FILES += pspec.json
 

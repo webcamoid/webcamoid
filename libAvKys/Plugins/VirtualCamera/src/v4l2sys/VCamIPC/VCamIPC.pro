@@ -26,7 +26,10 @@ exists(akcommons.pri) {
     }
 }
 
-CONFIG += staticlib
+CONFIG += \
+    staticlib \
+    create_prl \
+    no_install_prl
 
 DESTDIR = $${OUT_PWD}/$${BIN_DIR}
 

@@ -31,7 +31,7 @@ exists(akcommons.pri) {
     }
 }
 
-CONFIG += plugin
+CONFIG += plugin link_prl
 
 HEADERS = \
     src/aging.h \
@@ -41,7 +41,7 @@ HEADERS = \
 INCLUDEPATH += \
     ../../Lib/src
 
-LIBS += -L$${OUT_PWD}/../../Lib/$${BIN_DIR} -l$${COMMONS_TARGET}
+LIBS += -L$${OUT_PWD}/../../Lib/$${BIN_DIR} -l$$qtLibraryTarget($${COMMONS_TARGET})
 
 OTHER_FILES += \
     pspec.json \

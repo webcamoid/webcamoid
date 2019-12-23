@@ -30,7 +30,7 @@ include(../dshow.pri)
 include(../../VCamUtils/VCamUtils.pri)
 
 TEMPLATE = app
-CONFIG += console
+CONFIG += console link_prl
 CONFIG -= app_bundle
 CONFIG -= qt
 
@@ -49,6 +49,8 @@ LIBS += \
     -lshell32 \
     -lstrmiids \
     -luuid
+
+win32-g++: LIBS += -lssp
 
 SOURCES += \
     src/main.cpp \
