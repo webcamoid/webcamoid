@@ -33,7 +33,7 @@ CONFIG += qt plugin link_prl
 
 DESTDIR = $${OUT_PWD}/$${BIN_DIR}
 
-TARGET = $$qtLibraryTarget(AkQml)
+TARGET = AkQml
 
 # Input
 SOURCES = \

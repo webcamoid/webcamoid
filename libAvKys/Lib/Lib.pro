@@ -74,7 +74,11 @@ win32: LIBS += -lole32
 
 DESTDIR = $${OUT_PWD}/$${BIN_DIR}
 
-TARGET = $${COMMONS_TARGET}
+android {
+    TARGET = $${COMMONS_TARGET}
+} else {
+    TARGET = $$qtLibraryTarget($${COMMONS_TARGET})
+}
 
 TEMPLATE = lib
 

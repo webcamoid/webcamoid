@@ -600,10 +600,7 @@ QString AkElement::pluginPath(const QString &pluginId)
                              PLATFORM_TARGET_SUFFIX))
             return path;
 #else
-        if (baseName == QString("%1%2%3")
-                        .arg(PREFIX_SHLIB,
-                             pluginId,
-                             PLATFORM_TARGET_SUFFIX))
+        if (baseName == QString("%1%2").arg(PREFIX_SHLIB, pluginId))
             return path;
 #endif
     }
@@ -804,8 +801,7 @@ AkElementPrivate::AkElementPrivate()
             QString("lib%1_lib*%2.so").arg(COMMONS_TARGET,
                                            PLATFORM_TARGET_SUFFIX);
 #else
-    this->m_pluginFilePattern =
-            QString("%1*%2").arg(PREFIX_SHLIB, PLATFORM_TARGET_SUFFIX);
+    this->m_pluginFilePattern = QString("%1*").arg(PREFIX_SHLIB);
 
     if (strlen(EXTENSION_SHLIB) > 1)
         this->m_pluginFilePattern += "." EXTENSION_SHLIB;
@@ -848,8 +844,7 @@ QString AkElementPrivate::pluginId(const QString &fileName)
     auto pattern = QString("^lib%1_lib(\\w+)%2$")
                    .arg(COMMONS_TARGET, PLATFORM_TARGET_SUFFIX);
 #else
-    auto pattern = QString("^%1(\\w+)%2$")
-                   .arg(PREFIX_SHLIB, PLATFORM_TARGET_SUFFIX);
+    auto pattern = QString("^%1(\\w+)$").arg(PREFIX_SHLIB);
 #endif
 
     QRegularExpression regex(pattern);
