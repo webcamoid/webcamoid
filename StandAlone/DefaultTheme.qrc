@@ -15,6 +15,9 @@
         <file>share/themes/Default/MenuSeparator.qml</file>
         <file>share/themes/Default/Page.qml</file>
         <file>share/themes/Default/Pane.qml</file>
+        <file>share/themes/Default/RadioButton.qml</file>
+        <file>share/themes/Default/RadioDelegate.qml</file>
+        <file>share/themes/Default/RoundButton.qml</file>
         <file>share/themes/Default/ScrollView.qml</file>
         <file>share/themes/Default/Slider.qml</file>
         <file>share/themes/Default/SpinBox.qml</file>

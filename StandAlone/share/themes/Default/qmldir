@@ -13,6 +13,9 @@ MenuItem 1.0 MenuItem.qml
 MenuSeparator 1.0 MenuSeparator.qml
 Page 1.0 Page.qml
 Pane 1.0 Pane.qml
+RadioButton 1.0 RadioButton.qml
+RadioDelegate 1.0 RadioDelegate.qml
+RoundButton 1.0 RoundButton.qml
 ScrollView 1.0 ScrollView.qml
 Slider 1.0 Slider.qml
 SpinBox 1.0 SpinBox.qml
