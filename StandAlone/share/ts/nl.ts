@@ -32,47 +32,37 @@
 <context>
     <name>AddMedia</name>
     <message>
-        <location filename="../qml/AddMedia.qml" line="27"/>
+        <location filename="../qml/AddMedia.qml" line="28"/>
         <source>Add new media</source>
         <translation>Nieuwe media toevoegen</translation>
     </message>
     <message>
-        <location filename="../qml/AddMedia.qml" line="61"/>
+        <location filename="../qml/AddMedia.qml" line="54"/>
         <source>Description</source>
         <translation>Omschrijving</translation>
     </message>
     <message>
-        <location filename="../qml/AddMedia.qml" line="67"/>
+        <location filename="../qml/AddMedia.qml" line="60"/>
         <source>Insert a media description</source>
         <translation>Voer een media-omschrijving in</translation>
     </message>
     <message>
-        <location filename="../qml/AddMedia.qml" line="74"/>
+        <location filename="../qml/AddMedia.qml" line="67"/>
         <source>Media file</source>
         <translation>Mediabestand</translation>
     </message>
     <message>
-        <location filename="../qml/AddMedia.qml" line="81"/>
+        <location filename="../qml/AddMedia.qml" line="74"/>
         <source>Select a media file</source>
         <translation>Kies een mediabestand</translation>
     </message>
     <message>
-        <location filename="../qml/AddMedia.qml" line="88"/>
+        <location filename="../qml/AddMedia.qml" line="81"/>
         <source>Search</source>
         <translation>Zoeken</translation>
     </message>
     <message>
-        <location filename="../qml/AddMedia.qml" line="108"/>
-        <source>Ok</source>
-        <translation>Oké</translation>
-    </message>
-    <message>
-        <location filename="../qml/AddMedia.qml" line="133"/>
-        <source>Cancel</source>
-        <translation>Annuleren</translation>
-    </message>
-    <message>
-        <location filename="../qml/AddMedia.qml" line="143"/>
+        <location filename="../qml/AddMedia.qml" line="122"/>
         <source>Choose the file to add as media</source>
         <translation>Kies het toe te voegen mediabestand</translation>
     </message>

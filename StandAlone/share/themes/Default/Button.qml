@@ -409,7 +409,7 @@ T.Button {
         PropertyAnimation {
             target: buttonShadow
             properties: "radius"
-            duration: roundButton.animationTime
+            duration: button.animationTime
         }
     }
 }

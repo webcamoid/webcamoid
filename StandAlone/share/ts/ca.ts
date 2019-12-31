@@ -32,47 +32,37 @@
 <context>
     <name>AddMedia</name>
     <message>
-        <location filename="../qml/AddMedia.qml" line="27"/>
+        <location filename="../qml/AddMedia.qml" line="28"/>
         <source>Add new media</source>
         <translation>Afegeix multimèdia nova</translation>
     </message>
     <message>
-        <location filename="../qml/AddMedia.qml" line="61"/>
+        <location filename="../qml/AddMedia.qml" line="54"/>
         <source>Description</source>
         <translation>Descripció</translation>
     </message>
     <message>
-        <location filename="../qml/AddMedia.qml" line="67"/>
+        <location filename="../qml/AddMedia.qml" line="60"/>
         <source>Insert a media description</source>
         <translation>Inseriu una descripció per al fitxer</translation>
     </message>
     <message>
-        <location filename="../qml/AddMedia.qml" line="74"/>
+        <location filename="../qml/AddMedia.qml" line="67"/>
         <source>Media file</source>
         <translation>Fitxer multimèdia</translation>
     </message>
     <message>
-        <location filename="../qml/AddMedia.qml" line="81"/>
+        <location filename="../qml/AddMedia.qml" line="74"/>
         <source>Select a media file</source>
         <translation>Seleccioneu un fitxer multimèdia</translation>
     </message>
     <message>
-        <location filename="../qml/AddMedia.qml" line="88"/>
+        <location filename="../qml/AddMedia.qml" line="81"/>
         <source>Search</source>
         <translation>Cerca</translation>
     </message>
     <message>
-        <location filename="../qml/AddMedia.qml" line="108"/>
-        <source>Ok</source>
-        <translation>D&apos;acord</translation>
-    </message>
-    <message>
-        <location filename="../qml/AddMedia.qml" line="133"/>
-        <source>Cancel</source>
-        <translation>Cancel·la</translation>
-    </message>
-    <message>
-        <location filename="../qml/AddMedia.qml" line="143"/>
+        <location filename="../qml/AddMedia.qml" line="122"/>
         <source>Choose the file to add as media</source>
         <translation>Seleccioneu el fitxer a afegir com a multimèdia</translation>
     </message>

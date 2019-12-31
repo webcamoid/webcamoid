@@ -7,6 +7,8 @@
         <file>share/themes/Default/CheckBox.qml</file>
         <file>share/themes/Default/CheckDelegate.qml</file>
         <file>share/themes/Default/ComboBox.qml</file>
+        <file>share/themes/Default/Dialog.qml</file>
+        <file>share/themes/Default/DialogButtonBox.qml</file>
         <file>share/themes/Default/Frame.qml</file>
         <file>share/themes/Default/GroupBox.qml</file>
         <file>share/themes/Default/ItemDelegate.qml</file>

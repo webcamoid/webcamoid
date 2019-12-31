@@ -19,16 +19,16 @@
 
 import QtQuick 2.7
 import QtQuick.Dialogs 1.2
-import QtQuick.Controls 2.0
+import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
+import AkQml 1.0
 
-ApplicationWindow {
+Dialog {
     id: recAddMedia
     title: qsTr("Add new media")
-    flags: Qt.Dialog
-    modality: Qt.ApplicationModal
-    width: 350
-    height: 200
+    standardButtons: Dialog.Ok | Dialog.Cancel
+    modal: true
+    height: 300
 
     property bool editMode: false
 
@@ -37,6 +37,57 @@ ApplicationWindow {
         return MediaSource.streams.indexOf(url) < 0?
                     Webcamoid.fileNameFromUri(url):
                     MediaSource.description(url)
+    }
+
+    ScrollView {
+        id: scrollView
+        clip: true
+        contentHeight: layout.height
+        anchors.fill: parent
+
+        ColumnLayout {
+            id: layout
+            width: scrollView.width
+
+            Label {
+                id: lblDescription
+                text: qsTr("Description")
+                font.bold: true
+                Layout.fillWidth: true
+            }
+            TextField {
+                id: txtDescription
+                placeholderText: qsTr("Insert a media description")
+                text: recAddMedia.editMode? MediaSource.description(MediaSource.stream): ""
+                Layout.fillWidth: true
+            }
+
+            Label {
+                id: lblMedia
+                text: qsTr("Media file")
+                font.bold: true
+                Layout.fillWidth: true
+            }
+            RowLayout {
+                TextField {
+                    id: txtMedia
+                    placeholderText: qsTr("Select a media file")
+                    text: recAddMedia.editMode? MediaSource.stream: ""
+                    Layout.fillWidth: true
+                }
+
+                Button {
+                    id: btnAddMedia
+                    text: qsTr("Search")
+                    icon.source: "image://icons/search"
+
+                    onClicked: fileDialog.open()
+                }
+            }
+            Item {
+                Layout.fillHeight: true
+            }
+        }
     }
 
     onVisibleChanged: {
@@ -49,92 +100,20 @@ ApplicationWindow {
                     MediaSource.stream: ""
     }
 
-    ColumnLayout {
-        anchors.rightMargin: 8
-        anchors.leftMargin: 8
-        anchors.bottomMargin: 8
-        anchors.topMargin: 8
-        anchors.fill: parent
+    onAccepted: {
+        if (txtMedia.text.length > 0) {
+            var uris = MediaSource.uris;
 
-        Label {
-            id: lblDescription
-            text: qsTr("Description")
-            font.bold: true
-            Layout.fillWidth: true
-        }
-        TextField {
-            id: txtDescription
-            placeholderText: qsTr("Insert a media description")
-            text: recAddMedia.editMode? MediaSource.description(MediaSource.stream): ""
-            Layout.fillWidth: true
-        }
+            if (recAddMedia.editMode
+                && MediaSource.stream !== txtMedia.text.toString())
+                delete uris[MediaSource.stream];
 
-        Label {
-            id: lblMedia
-            text: qsTr("Media file")
-            font.bold: true
-            Layout.fillWidth: true
-        }
-        RowLayout {
-            TextField {
-                id: txtMedia
-                placeholderText: qsTr("Select a media file")
-                text: recAddMedia.editMode? MediaSource.stream: ""
-                Layout.fillWidth: true
-            }
+            if (txtDescription.text.length < 1)
+                txtDescription.text = recAddMedia.defaultDescription(txtMedia.text);
 
-            Button {
-                id: btnAddMedia
-                text: qsTr("Search")
-                icon.source: "image://icons/search"
-
-                onClicked: fileDialog.open()
-            }
-        }
-
-        Label {
-            Layout.fillHeight: true
-        }
-
-        RowLayout {
-            id: rowControls
-
-            Label {
-                Layout.fillWidth: true
-            }
-
-            Button {
-                id: btnOk
-                text: qsTr("Ok")
-                icon.source: "image://icons/check"
-
-                onClicked: {
-                    if (txtMedia.text.length > 0) {
-                        var uris = MediaSource.uris;
-
-                        if (recAddMedia.editMode
-                            && MediaSource.stream !== txtMedia.text.toString())
-                            delete uris[MediaSource.stream];
-
-                        if (txtDescription.text.length < 1)
-                            txtDescription.text = recAddMedia.defaultDescription(txtMedia.text);
-
-                        uris[txtMedia.text] = txtDescription.text;
-                        MediaSource.uris = uris;
-                        MediaSource.stream = txtMedia.text;
-                    }
-
-                    recAddMedia.visible = false
-                }
-            }
-
-            Button {
-                id: btnCancel
-                text: qsTr("Cancel")
-                icon.source: "image://icons/cancel"
-
-                onClicked: recAddMedia.visible = false
-            }
+            uris[txtMedia.text] = txtDescription.text;
+            MediaSource.uris = uris;
+            MediaSource.stream = txtMedia.text;
         }
     }
 

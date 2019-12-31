@@ -32,47 +32,37 @@
 <context>
     <name>AddMedia</name>
     <message>
-        <location filename="../qml/AddMedia.qml" line="27"/>
+        <location filename="../qml/AddMedia.qml" line="28"/>
         <source>Add new media</source>
         <translation>Adicionar um novo media</translation>
     </message>
     <message>
-        <location filename="../qml/AddMedia.qml" line="61"/>
+        <location filename="../qml/AddMedia.qml" line="54"/>
         <source>Description</source>
         <translation>Descrição</translation>
     </message>
     <message>
-        <location filename="../qml/AddMedia.qml" line="67"/>
+        <location filename="../qml/AddMedia.qml" line="60"/>
         <source>Insert a media description</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/AddMedia.qml" line="74"/>
+        <location filename="../qml/AddMedia.qml" line="67"/>
         <source>Media file</source>
         <translation>Ficheiro de media</translation>
     </message>
     <message>
-        <location filename="../qml/AddMedia.qml" line="81"/>
+        <location filename="../qml/AddMedia.qml" line="74"/>
         <source>Select a media file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/AddMedia.qml" line="88"/>
+        <location filename="../qml/AddMedia.qml" line="81"/>
         <source>Search</source>
         <translation>Procurar</translation>
     </message>
     <message>
-        <location filename="../qml/AddMedia.qml" line="108"/>
-        <source>Ok</source>
-        <translation>OK</translation>
-    </message>
-    <message>
-        <location filename="../qml/AddMedia.qml" line="133"/>
-        <source>Cancel</source>
-        <translation>Cancelar</translation>
-    </message>
-    <message>
-        <location filename="../qml/AddMedia.qml" line="143"/>
+        <location filename="../qml/AddMedia.qml" line="122"/>
         <source>Choose the file to add as media</source>
         <translation>Escolher o ficheiro a adicionar como media</translation>
     </message>

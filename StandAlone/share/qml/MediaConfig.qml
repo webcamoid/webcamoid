@@ -107,5 +107,6 @@ ColumnLayout {
     AddMedia {
         id: dlgAddMedia
         editMode: true
+        anchors.centerIn: Overlay.overlay
     }
 }
