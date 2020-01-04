@@ -29,7 +29,7 @@ T.TextField {
     id: textField
     color: ThemeSettings.colorText
     placeholderTextColor: ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
-    selectedTextColor: ThemeSettings.colorText
+    selectedTextColor: ThemeSettings.contrast(ThemeSettings.colorSecondary, 0.75)
     selectionColor: ThemeSettings.colorSecondary
     padding: Ak.newUnit(12 * ThemeSettings.constrolScale, "dp").pixels
     implicitWidth: Math.max(contentWidth + leftPadding + rightPadding,

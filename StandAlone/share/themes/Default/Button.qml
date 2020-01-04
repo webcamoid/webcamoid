@@ -353,7 +353,6 @@ T.Button {
                 target: buttonRectangle
                 border.color: Qt.hsla(0, 0, 0, 0)
                 color: ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.1)
-
             }
         },
         State {
@@ -367,7 +366,6 @@ T.Button {
                 target: buttonRectangle
                 border.color: Qt.hsla(0, 0, 0, 0)
                 color: ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.2)
-
             }
         },
         State {

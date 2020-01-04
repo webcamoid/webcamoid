@@ -5,6 +5,8 @@ Button 1.0 Button.qml
 CheckBox 1.0 CheckBox.qml
 CheckDelegate 1.0 CheckDelegate.qml
 ComboBox 1.0 ComboBox.qml
+DelayButton 1.0 DelayButton.qml
+Dial 1.0 Dial.qml
 Dialog 1.0 Dialog.qml
 DialogButtonBox 1.0 DialogButtonBox.qml
 Frame 1.0 Frame.qml

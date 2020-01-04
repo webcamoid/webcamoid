@@ -68,7 +68,7 @@ T.ComboBox {
         font: comboBox.font
         color: ThemeSettings.colorText
         selectionColor: ThemeSettings.colorSecondary
-        selectedTextColor: ThemeSettings.colorText
+        selectedTextColor: ThemeSettings.contrast(ThemeSettings.colorSecondary, 0.75)
         verticalAlignment: Text.AlignVCenter
         selectByMouse: true
     }
