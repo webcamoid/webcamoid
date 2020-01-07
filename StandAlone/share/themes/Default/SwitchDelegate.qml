@@ -26,16 +26,16 @@ import AkQml 1.0
 
 T.SwitchDelegate {
     id: control
-    icon.width: Ak.newUnit(18 * ThemeSettings.constrolScale, "dp").pixels
-    icon.height: Ak.newUnit(18 * ThemeSettings.constrolScale, "dp").pixels
+    icon.width: Ak.newUnit(18 * ThemeSettings.controlScale, "dp").pixels
+    icon.height: Ak.newUnit(18 * ThemeSettings.controlScale, "dp").pixels
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             implicitContentWidth + implicitIndicatorWidth
                             + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              implicitContentHeight + topPadding + bottomPadding,
                              implicitIndicatorHeight + topPadding + bottomPadding)
-    padding: Ak.newUnit(4 * ThemeSettings.constrolScale, "dp").pixels
-    spacing: Ak.newUnit(8 * ThemeSettings.constrolScale, "dp").pixels
+    padding: Ak.newUnit(4 * ThemeSettings.controlScale, "dp").pixels
+    spacing: Ak.newUnit(8 * ThemeSettings.controlScale, "dp").pixels
     hoverEnabled: true
     clip: true
 
@@ -56,9 +56,9 @@ T.SwitchDelegate {
         anchors.rightMargin: control.rightPadding
         anchors.verticalCenter: control.verticalCenter
         implicitWidth:
-            Ak.newUnit(36 * ThemeSettings.constrolScale, "dp").pixels
+            Ak.newUnit(36 * ThemeSettings.controlScale, "dp").pixels
         implicitHeight:
-            Ak.newUnit(20 * ThemeSettings.constrolScale, "dp").pixels
+            Ak.newUnit(20 * ThemeSettings.controlScale, "dp").pixels
 
         Rectangle {
             id: switchTrack
@@ -89,7 +89,7 @@ T.SwitchDelegate {
                 cached: true
                 horizontalOffset: radius / 2
                 verticalOffset: radius / 2
-                radius: Ak.newUnit(1 * ThemeSettings.constrolScale, "dp").pixels
+                radius: Ak.newUnit(1 * ThemeSettings.controlScale, "dp").pixels
                 samples: 2 * radius + 1
                 color: ThemeSettings.constShade(ThemeSettings.colorBack, -0.9)
                 source: shadowRect
@@ -130,9 +130,9 @@ T.SwitchDelegate {
     background: Item {
         id: backgroundItem
         implicitWidth:
-            Ak.newUnit(128 * ThemeSettings.constrolScale, "dp").pixels
+            Ak.newUnit(128 * ThemeSettings.controlScale, "dp").pixels
         implicitHeight:
-            Ak.newUnit(48 * ThemeSettings.constrolScale, "dp").pixels
+            Ak.newUnit(48 * ThemeSettings.controlScale, "dp").pixels
 
         // Press indicator
         Rectangle{

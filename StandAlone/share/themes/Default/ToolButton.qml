@@ -40,11 +40,11 @@ T.ToolButton {
                             implicitContentWidth + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              implicitContentHeight + topPadding + bottomPadding)
-    spacing: Ak.newUnit(8 * ThemeSettings.constrolScale, "dp").pixels
+    spacing: Ak.newUnit(8 * ThemeSettings.controlScale, "dp").pixels
     hoverEnabled: true
 
     readonly property int radius:
-        Ak.newUnit(6 * ThemeSettings.constrolScale, "dp").pixels
+        Ak.newUnit(6 * ThemeSettings.controlScale, "dp").pixels
     readonly property int animationTime: 200
 
     function pressIndicatorRadius()
@@ -59,24 +59,24 @@ T.ToolButton {
     function buttonWidth()
     {
         if (button.display == AbstractButton.IconOnly)
-            return Ak.newUnit(48 * ThemeSettings.constrolScale, "dp").pixels
+            return Ak.newUnit(48 * ThemeSettings.controlScale, "dp").pixels
 
-        return Ak.newUnit(64 * ThemeSettings.constrolScale, "dp").pixels
+        return Ak.newUnit(64 * ThemeSettings.controlScale, "dp").pixels
     }
 
     function buttonHeight()
     {
         if (button.display == AbstractButton.IconOnly)
-            return Ak.newUnit(48 * ThemeSettings.constrolScale, "dp").pixels
+            return Ak.newUnit(48 * ThemeSettings.controlScale, "dp").pixels
 
         let defaultHeight =
             button.highlighted?
-                Ak.newUnit(48 * ThemeSettings.constrolScale, "dp").pixels:
-                Ak.newUnit(36 * ThemeSettings.constrolScale, "dp").pixels
+                Ak.newUnit(48 * ThemeSettings.controlScale, "dp").pixels:
+                Ak.newUnit(36 * ThemeSettings.controlScale, "dp").pixels
 
         return Math.max(defaultHeight,
                         iconLabel.height
-                        + Ak.newUnit(18 * ThemeSettings.constrolScale,
+                        + Ak.newUnit(18 * ThemeSettings.controlScale,
                                      "dp").pixels)
     }
 
@@ -85,7 +85,7 @@ T.ToolButton {
         implicitWidth:
             iconLabel.implicitWidth
             + (button.display == AbstractButton.IconOnly?
-               0: Ak.newUnit(18 * ThemeSettings.constrolScale, "dp").pixels)
+               0: Ak.newUnit(18 * ThemeSettings.controlScale, "dp").pixels)
         implicitHeight: iconLabel.implicitHeight
 
         IconLabel {

@@ -44,16 +44,16 @@ T.TabBar {
         highlightFollowsCurrentItem: true
         highlightRangeMode: ListView.ApplyRange
         preferredHighlightBegin:
-            Ak.newUnit(48 * ThemeSettings.constrolScale, "dp").pixels
+            Ak.newUnit(48 * ThemeSettings.controlScale, "dp").pixels
         preferredHighlightEnd:
-            width - Ak.newUnit(48 * ThemeSettings.constrolScale, "dp").pixels
+            width - Ak.newUnit(48 * ThemeSettings.controlScale, "dp").pixels
 
         highlight: Item {
             z: 2
 
             Rectangle {
                 height:
-                    Ak.newUnit(2 * ThemeSettings.constrolScale, "dp").pixels
+                    Ak.newUnit(2 * ThemeSettings.controlScale, "dp").pixels
                 width: parent.width
                 y: tabBar.position === T.TabBar.Footer?
                        0: parent.height - height

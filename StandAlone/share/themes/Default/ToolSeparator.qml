@@ -29,26 +29,26 @@ T.ToolSeparator {
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              implicitContentHeight + topPadding + bottomPadding)
     horizontalPadding: vertical?
-                           Ak.newUnit(12 * ThemeSettings.constrolScale,
+                           Ak.newUnit(12 * ThemeSettings.controlScale,
                                       "dp").pixels:
-                           Ak.newUnit(5 * ThemeSettings.constrolScale,
+                           Ak.newUnit(5 * ThemeSettings.controlScale,
                                       "dp").pixels
     verticalPadding: vertical?
-                         Ak.newUnit(5 * ThemeSettings.constrolScale,
+                         Ak.newUnit(5 * ThemeSettings.controlScale,
                                     "dp").pixels:
-                         Ak.newUnit(12 * ThemeSettings.constrolScale,
+                         Ak.newUnit(12 * ThemeSettings.controlScale,
                                     "dp").pixels
 
     contentItem: Rectangle {
         implicitWidth: vertical?
-                           Ak.newUnit(1 * ThemeSettings.constrolScale,
+                           Ak.newUnit(1 * ThemeSettings.controlScale,
                                       "dp").pixels:
-                           Ak.newUnit(48 * ThemeSettings.constrolScale,
+                           Ak.newUnit(48 * ThemeSettings.controlScale,
                                       "dp").pixels
         implicitHeight: vertical?
-                            Ak.newUnit(48 * ThemeSettings.constrolScale,
+                            Ak.newUnit(48 * ThemeSettings.controlScale,
                                        "dp").pixels:
-                            Ak.newUnit(1 * ThemeSettings.constrolScale,
+                            Ak.newUnit(1 * ThemeSettings.controlScale,
                                        "dp").pixels
         color: ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
     }

@@ -32,13 +32,13 @@ T.ToolBar {
     spacing: 0
 
     background: Rectangle {
-        implicitWidth: Ak.newUnit(360 * ThemeSettings.constrolScale, "dp").pixels
-        implicitHeight: Ak.newUnit(48 * ThemeSettings.constrolScale, "dp").pixels
+        implicitWidth: Ak.newUnit(360 * ThemeSettings.controlScale, "dp").pixels
+        implicitHeight: Ak.newUnit(48 * ThemeSettings.controlScale, "dp").pixels
         color: ThemeSettings.colorPrimary
         layer.enabled: position == ToolBar.Header
         layer.effect: DropShadow {
             cached: true
-            radius: Ak.newUnit(8 * ThemeSettings.constrolScale, "dp").pixels
+            radius: Ak.newUnit(8 * ThemeSettings.controlScale, "dp").pixels
             samples: 2 * radius + 1
             color: ThemeSettings.constShade(ThemeSettings.colorBack, -0.9)
         }

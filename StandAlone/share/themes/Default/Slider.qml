@@ -34,11 +34,11 @@ T.Slider {
     hoverEnabled: true
 
     readonly property int defaultWidth:
-        Ak.newUnit(96 * ThemeSettings.constrolScale, "dp").pixels
+        Ak.newUnit(96 * ThemeSettings.controlScale, "dp").pixels
     readonly property int defaultHeight:
-        Ak.newUnit(20 * ThemeSettings.constrolScale, "dp").pixels
+        Ak.newUnit(20 * ThemeSettings.controlScale, "dp").pixels
     readonly property int trackWidth:
-        Ak.newUnit(4 * ThemeSettings.constrolScale, "dp").pixels
+        Ak.newUnit(4 * ThemeSettings.controlScale, "dp").pixels
     readonly property color tickMarkColorLeft:
         slider.enabled && slider.horizontal?
             ThemeSettings.constShade(ThemeSettings.colorPrimary, -0.1):
@@ -204,7 +204,7 @@ T.Slider {
             cached: true
             horizontalOffset: radius / 2
             verticalOffset: radius / 2
-            radius: Ak.newUnit(1 * ThemeSettings.constrolScale, "dp").pixels
+            radius: Ak.newUnit(1 * ThemeSettings.controlScale, "dp").pixels
             samples: 2 * radius + 1
             color: ThemeSettings.constShade(ThemeSettings.colorBack, -0.9)
             source: shadowRect

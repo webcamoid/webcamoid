@@ -30,7 +30,7 @@ Item {
     readonly property bool darkScheme:
         colorText.hslLightness > colorBack.hslLightness
 
-    readonly property real constrolScale: 1.75
+    readonly property real controlScale: 1.75
 
     function contrast(color, value=0.5)
     {

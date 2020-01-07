@@ -1,5 +1,5 @@
 /* Webcamoid, webcam capture application.
- * Copyright (C) 2019  Gonzalo Exequiel Pedone
+ * Copyright (C) 2020  Gonzalo Exequiel Pedone
  *
  * Webcamoid is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,26 +24,17 @@ import QtGraphicalEffects 1.0
 import QtQuick.Controls.impl 2.12
 import AkQml 1.0
 
-T.Dialog {
+T.Popup {
     id: control
-    implicitWidth:
-        Math.max(implicitBackgroundWidth + leftInset + rightInset,
-                 contentWidth + leftPadding + rightPadding,
-                 implicitHeaderWidth,
-                 implicitFooterWidth,
-                 Ak.newUnit(280 * ThemeSettings.controlScale, "dp").pixels)
-    implicitHeight:
-        Math.max(implicitBackgroundHeight + topInset + bottomInset,
-                 contentHeight + topPadding + bottomPadding
-                 + (implicitHeaderHeight > 0? implicitHeaderHeight + spacing: 0)
-                 + (implicitFooterHeight > 0? implicitFooterHeight + spacing: 0),
-                 Ak.newUnit(182 * ThemeSettings.controlScale, "dp").pixels)
-    leftPadding: Ak.newUnit(24 * ThemeSettings.controlScale, "dp").pixels
-    rightPadding: Ak.newUnit(24 * ThemeSettings.controlScale, "dp").pixels
-    topPadding:
-        title?
-            Ak.newUnit(8 * ThemeSettings.controlScale, "dp").pixels:
-            Ak.newUnit(16 * ThemeSettings.controlScale, "dp").pixels
+    implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
+                            contentWidth + leftPadding + rightPadding,
+                            Ak.newUnit(344 * ThemeSettings.controlScale, "dp").pixels)
+    implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
+                             contentHeight + topPadding + bottomPadding,
+                             Ak.newUnit(148 * ThemeSettings.controlScale, "dp").pixels)
+    leftPadding: Ak.newUnit(16 * ThemeSettings.controlScale, "dp").pixels
+    rightPadding: Ak.newUnit(16 * ThemeSettings.controlScale, "dp").pixels
+    topPadding: applicationWindowk.newUnit(16 * ThemeSettings.controlScale, "dp").pixels
     bottomPadding: Ak.newUnit(8 * ThemeSettings.controlScale, "dp").pixels
 
     // Fade in
@@ -58,47 +49,10 @@ T.Dialog {
         NumberAnimation { property: "opacity"; from: 1.0; to: 0.0; easing.type: Easing.OutCubic; duration: 150 }
     }
 
-    header: Rectangle {
-        id: rectangle
-        color:
-            control.modal?
-                "transparent":
-                ThemeSettings.colorPrimary
-        clip: true
-        visible: control.title
-        height: Ak.newUnit(64 * ThemeSettings.controlScale, "dp").pixels
-
-        Label {
-            text: control.title
-            anchors.verticalCenter: parent.verticalCenter
-            anchors.left: parent.left
-            anchors.leftMargin: control.leftPadding
-            elide: Label.ElideRight
-            font.bold: true
-            font.pointSize: 16
-        }
-
-        Rectangle {
-            color: ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
-            height: Ak.newUnit(1 * ThemeSettings.controlScale, "dp").pixels
-            anchors.left: rectangle.left
-            anchors.right: rectangle.right
-            anchors.bottom: rectangle.bottom
-        }
-    }
-
-    footer: DialogButtonBox {
-        id: dialogButtonBox
-        visible: count > 0
-    }
-
     background: Rectangle {
         color: ThemeSettings.colorBack
         border.color: ThemeSettings.shade(ThemeSettings.colorBack, -0.3)
-        radius:
-            control.modal?
-                Ak.newUnit(8 * ThemeSettings.controlScale, "dp").pixels:
-                0
+        radius: Ak.newUnit(4 * ThemeSettings.controlScale, "dp").pixels
         layer.enabled: control.modal
         layer.effect: DropShadow {
             cached: true

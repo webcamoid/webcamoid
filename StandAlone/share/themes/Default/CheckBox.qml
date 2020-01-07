@@ -26,16 +26,16 @@ import AkQml 1.0
 
 T.CheckBox {
     id: checkBox
-    icon.width: Ak.newUnit(18 * ThemeSettings.constrolScale, "dp").pixels
-    icon.height: Ak.newUnit(18 * ThemeSettings.constrolScale, "dp").pixels
+    icon.width: Ak.newUnit(18 * ThemeSettings.controlScale, "dp").pixels
+    icon.height: Ak.newUnit(18 * ThemeSettings.controlScale, "dp").pixels
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             implicitContentWidth + 2 * implicitIndicatorWidth
                             + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              implicitContentHeight + topPadding + bottomPadding,
                              2 * implicitIndicatorHeight + topPadding + bottomPadding)
-    padding: Ak.newUnit(4 * ThemeSettings.constrolScale, "dp").pixels
-    spacing: Ak.newUnit(8 * ThemeSettings.constrolScale, "dp").pixels
+    padding: Ak.newUnit(4 * ThemeSettings.controlScale, "dp").pixels
+    spacing: Ak.newUnit(8 * ThemeSettings.controlScale, "dp").pixels
     hoverEnabled: true
     clip: true
 
@@ -47,9 +47,9 @@ T.CheckBox {
         anchors.leftMargin: indicatorRect.width / 2 + checkBox.leftPadding
         anchors.verticalCenter: checkBox.verticalCenter
         implicitWidth:
-            Ak.newUnit(24 * ThemeSettings.constrolScale, "dp").pixels
+            Ak.newUnit(24 * ThemeSettings.controlScale, "dp").pixels
         implicitHeight:
-            Ak.newUnit(24 * ThemeSettings.constrolScale, "dp").pixels
+            Ak.newUnit(24 * ThemeSettings.controlScale, "dp").pixels
 
         Rectangle {
             id: highlight
@@ -68,7 +68,7 @@ T.CheckBox {
             id: indicatorRect
             border.width:
                 checkBox.checkState == Qt.Unchecked?
-                    Ak.newUnit(2 * ThemeSettings.constrolScale, "dp").pixels:
+                    Ak.newUnit(2 * ThemeSettings.controlScale, "dp").pixels:
                     0
             border.color:
                 checkBox.checkState == Qt.Unchecked?
@@ -77,7 +77,7 @@ T.CheckBox {
             color: checkBox.checkState == Qt.Unchecked?
                        "transparent":
                        ThemeSettings.colorPrimary
-            radius: Ak.newUnit(4 * ThemeSettings.constrolScale, "dp").pixels
+            radius: Ak.newUnit(4 * ThemeSettings.controlScale, "dp").pixels
             anchors.verticalCenter: checkBoxIndicator.verticalCenter
             anchors.horizontalCenter: checkBoxIndicator.horizontalCenter
             width: Math.min(checkBoxIndicator.width, checkBoxIndicator.height)

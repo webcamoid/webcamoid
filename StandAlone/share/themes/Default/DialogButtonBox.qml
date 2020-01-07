@@ -30,9 +30,9 @@ T.DialogButtonBox {
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              contentHeight + topPadding + bottomPadding)
 
-    spacing: Ak.newUnit(8 * ThemeSettings.constrolScale, "dp").pixels
-    leftPadding: Ak.newUnit(16 * ThemeSettings.constrolScale, "dp").pixels
-    rightPadding: Ak.newUnit(16 * ThemeSettings.constrolScale, "dp").pixels
+    spacing: Ak.newUnit(8 * ThemeSettings.controlScale, "dp").pixels
+    leftPadding: Ak.newUnit(16 * ThemeSettings.controlScale, "dp").pixels
+    rightPadding: Ak.newUnit(16 * ThemeSettings.controlScale, "dp").pixels
     alignment: Qt.AlignRight
 
     delegate: Button {
@@ -50,12 +50,12 @@ T.DialogButtonBox {
     background: Item {
         id: background
         implicitHeight:
-            Ak.newUnit(52 * ThemeSettings.constrolScale, "dp").pixels
+            Ak.newUnit(52 * ThemeSettings.controlScale, "dp").pixels
         clip: true
 
         Rectangle {
             color: ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
-            height: Ak.newUnit(1 * ThemeSettings.constrolScale, "dp").pixels
+            height: Ak.newUnit(1 * ThemeSettings.controlScale, "dp").pixels
             anchors.left: background.left
             anchors.right: background.right
             y: control.position == DialogButtonBox.Footer?

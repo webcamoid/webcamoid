@@ -28,14 +28,14 @@ T.Frame {
                             contentWidth + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              contentHeight + topPadding + bottomPadding)
-    padding: Ak.newUnit(12 * ThemeSettings.constrolScale, "dp").pixels
+    padding: Ak.newUnit(12 * ThemeSettings.controlScale, "dp").pixels
 
     background: Rectangle {
-        radius: Ak.newUnit(4 * ThemeSettings.constrolScale, "dp").pixels
+        radius: Ak.newUnit(4 * ThemeSettings.controlScale, "dp").pixels
         color: ThemeSettings.colorBack
         border.color: enabled?
                           ThemeSettings.shade(ThemeSettings.colorBack, -0.5):
                           ThemeSettings.shade(ThemeSettings.colorBack, -0.5, 0.5)
-        border.width: Ak.newUnit(1 * ThemeSettings.constrolScale, "dp").pixels
+        border.width: Ak.newUnit(1 * ThemeSettings.controlScale, "dp").pixels
     }
 }

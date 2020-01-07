@@ -1,5 +1,5 @@
 /* Webcamoid, webcam capture application.
- * Copyright (C) 2019  Gonzalo Exequiel Pedone
+ * Copyright (C) 2020  Gonzalo Exequiel Pedone
  *
  * Webcamoid is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,41 +23,31 @@ import QtQuick.Templates 2.5 as T
 import QtQuick.Controls.impl 2.12
 import AkQml 1.0
 
-T.Tumbler {
-    id: tumbler
+T.ProgressBar {
+    id: control
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             implicitContentWidth + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              implicitContentHeight + topPadding + bottomPadding)
 
-    delegate: Text {
-        color: ThemeSettings.colorText
-        font: tumbler.font
-        opacity: (1.0 - Math.abs(Tumbler.displacement)
-                  / (tumbler.visibleItemCount / 2))
-                 * (tumbler.enabled? 1: 0.6)
-        horizontalAlignment: Text.AlignHCenter
-        verticalAlignment: Text.AlignVCenter
+    contentItem: ProgressBarImpl {
+        implicitHeight: Ak.newUnit(4 * ThemeSettings.controlScale, "dp").pixels
+        scale: control.mirrored? -1: 1
+        color:
+            control.enabled?
+                ThemeSettings.colorPrimary:
+                ThemeSettings.shade(ThemeSettings.colorBack, -0.3)
+        progress: control.position
+        indeterminate: control.visible && control.indeterminate
     }
 
-    contentItem: TumblerView {
-        id: tumblerView
-        implicitWidth: Ak.newUnit(60 * ThemeSettings.controlScale, "dp").pixels
-        implicitHeight: Ak.newUnit(200 * ThemeSettings.controlScale, "dp").pixels
-        model: tumbler.model
-        delegate: tumbler.delegate
-
-        path: Path {
-            startX: tumblerView.width / 2
-            startY: -tumblerView.delegateHeight / 2
-
-            PathLine {
-                x: tumblerView.width / 2
-                y: (tumbler.visibleItemCount + 1)
-                   * tumblerView.delegateHeight - tumblerView.delegateHeight / 2
-            }
-        }
-
-        property real delegateHeight: tumbler.availableHeight / tumbler.visibleItemCount
+    background: Rectangle {
+        color:
+            control.enabled?
+                ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.0, 0.5):
+                ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
+        implicitWidth: Ak.newUnit(240 * ThemeSettings.controlScale, "dp").pixels
+        implicitHeight: Ak.newUnit(4 * ThemeSettings.controlScale, "dp").pixels
+        y: (control.height - height) / 2
     }
 }

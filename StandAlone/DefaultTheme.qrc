@@ -11,6 +11,7 @@
         <file>share/themes/Default/Dial.qml</file>
         <file>share/themes/Default/Dialog.qml</file>
         <file>share/themes/Default/DialogButtonBox.qml</file>
+        <file>share/themes/Default/Drawer.qml</file>
         <file>share/themes/Default/Frame.qml</file>
         <file>share/themes/Default/GroupBox.qml</file>
         <file>share/themes/Default/ItemDelegate.qml</file>
@@ -18,7 +19,10 @@
         <file>share/themes/Default/MenuItem.qml</file>
         <file>share/themes/Default/MenuSeparator.qml</file>
         <file>share/themes/Default/Page.qml</file>
+        <file>share/themes/Default/PageIndicator.qml</file>
         <file>share/themes/Default/Pane.qml</file>
+        <file>share/themes/Default/Popup.qml</file>
+        <file>share/themes/Default/ProgressBar.qml</file>
         <file>share/themes/Default/RadioButton.qml</file>
         <file>share/themes/Default/RadioDelegate.qml</file>
         <file>share/themes/Default/RoundButton.qml</file>
@@ -31,10 +35,10 @@
         <file>share/themes/Default/TabButton.qml</file>
         <file>share/themes/Default/TextArea.qml</file>
         <file>share/themes/Default/TextField.qml</file>
+        <file>share/themes/Default/ThemeSettings.qml</file>
         <file>share/themes/Default/ToolBar.qml</file>
         <file>share/themes/Default/ToolButton.qml</file>
         <file>share/themes/Default/ToolSeparator.qml</file>
-        <file>share/themes/Default/ThemeSettings.qml</file>
         <file>share/themes/Default/ToolTip.qml</file>
         <file>share/themes/Default/Tumbler.qml</file>
     </qresource>

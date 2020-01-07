@@ -27,8 +27,8 @@ import AkQml 1.0
 
 T.SpinBox {
     id: spinBox
-    implicitWidth: Ak.newUnit(96 * ThemeSettings.constrolScale, "dp").pixels
-    implicitHeight: Ak.newUnit(32 * ThemeSettings.constrolScale, "dp").pixels
+    implicitWidth: Ak.newUnit(96 * ThemeSettings.controlScale, "dp").pixels
+    implicitHeight: Ak.newUnit(32 * ThemeSettings.controlScale, "dp").pixels
     hoverEnabled: true
 
     readonly property int animationTime: 200
@@ -157,8 +157,8 @@ T.SpinBox {
             id: background
             color: Qt.hsla(0, 0, 0, 0)
             border.color: ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
-            border.width: Ak.newUnit(1 * ThemeSettings.constrolScale, "dp").pixels
-            radius: Ak.newUnit(6 * ThemeSettings.constrolScale, "dp").pixels
+            border.width: Ak.newUnit(1 * ThemeSettings.controlScale, "dp").pixels
+            radius: Ak.newUnit(6 * ThemeSettings.controlScale, "dp").pixels
             anchors.fill: parent
         }
     }
@@ -311,7 +311,7 @@ T.SpinBox {
             PropertyChanges {
                 target: background
                 border.color: ThemeSettings.colorPrimary
-                border.width: Ak.newUnit(2 * ThemeSettings.constrolScale,
+                border.width: Ak.newUnit(2 * ThemeSettings.controlScale,
                                          "dp").pixels
             }
         },
@@ -329,7 +329,7 @@ T.SpinBox {
             PropertyChanges {
                 target: background
                 border.color: ThemeSettings.colorPrimary
-                border.width: Ak.newUnit(2 * ThemeSettings.constrolScale,
+                border.width: Ak.newUnit(2 * ThemeSettings.controlScale,
                                          "dp").pixels
             }
         },
@@ -347,7 +347,7 @@ T.SpinBox {
             PropertyChanges {
                 target: background
                 border.color: ThemeSettings.colorPrimary
-                border.width: Ak.newUnit(2 * ThemeSettings.constrolScale,
+                border.width: Ak.newUnit(2 * ThemeSettings.controlScale,
                                          "dp").pixels
             }
             PropertyChanges {
@@ -368,7 +368,7 @@ T.SpinBox {
             PropertyChanges {
                 target: background
                 border.color: ThemeSettings.colorPrimary
-                border.width: Ak.newUnit(2 * ThemeSettings.constrolScale,
+                border.width: Ak.newUnit(2 * ThemeSettings.controlScale,
                                          "dp").pixels
             }
             PropertyChanges {
@@ -395,7 +395,7 @@ T.SpinBox {
             PropertyChanges {
                 target: background
                 border.color: ThemeSettings.colorPrimary
-                border.width: Ak.newUnit(2 * ThemeSettings.constrolScale,
+                border.width: Ak.newUnit(2 * ThemeSettings.controlScale,
                                          "dp").pixels
             }
         },
@@ -413,7 +413,7 @@ T.SpinBox {
             PropertyChanges {
                 target: background
                 border.color: ThemeSettings.colorPrimary
-                border.width: Ak.newUnit(2 * ThemeSettings.constrolScale,
+                border.width: Ak.newUnit(2 * ThemeSettings.controlScale,
                                          "dp").pixels
             }
             PropertyChanges {
@@ -434,7 +434,7 @@ T.SpinBox {
             PropertyChanges {
                 target: background
                 border.color: ThemeSettings.colorPrimary
-                border.width: Ak.newUnit(2 * ThemeSettings.constrolScale,
+                border.width: Ak.newUnit(2 * ThemeSettings.controlScale,
                                          "dp").pixels
             }
             PropertyChanges {

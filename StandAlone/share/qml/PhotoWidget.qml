@@ -25,7 +25,7 @@ import QtGraphicalEffects 1.0
 Rectangle {
     id: recPhotoWidget
     width: 480
-    height: 90
+    height: 120
     color: "transparent"
     radius: 4
     clip: true

@@ -29,11 +29,11 @@ T.BusyIndicator {
                             implicitContentWidth + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              implicitContentHeight + topPadding + bottomPadding)
-    padding: Ak.newUnit(6 * ThemeSettings.constrolScale, "dp").pixels
+    padding: Ak.newUnit(6 * ThemeSettings.controlScale, "dp").pixels
 
     contentItem: Item {
-        implicitWidth: Ak.newUnit(64 * ThemeSettings.constrolScale, "dp").pixels
-        implicitHeight: Ak.newUnit(64 * ThemeSettings.constrolScale, "dp").pixels
+        implicitWidth: Ak.newUnit(64 * ThemeSettings.controlScale, "dp").pixels
+        implicitHeight: Ak.newUnit(64 * ThemeSettings.controlScale, "dp").pixels
 
         Item {
             id: item
@@ -59,13 +59,12 @@ T.BusyIndicator {
                 id: repeater
                 model: nBalls(ballRadiusFactor, 0.75)
 
-                property real ballRadiusFactor: 0.1
+                property real ballRadiusFactor: 0.2
 
                 function nBalls(factor, k=1)
                 {
-                    let r = (2 * Math.pow(factor, 2) - 4 * factor + 1)
-                            / Math.pow(1 - 2 * factor, 2)
-                    let n = Math.PI / Math.acos(r)
+                    let r = factor / (1 - factor)
+                    let n = Math.PI / Math.asin(r)
 
                     return Math.floor(k * n)
                 }
@@ -74,10 +73,10 @@ T.BusyIndicator {
                     id: ball
                     x: (item.width - width) / 2
                     y: (item.height - height) / 2
-                    width: 2 * radius
-                    height: 2 * radius
-                    radius: repeater.ballRadiusFactor
-                            * Math.min(busyIndicator.width, busyIndicator.height)
+                    width: repeater.ballRadiusFactor
+                           * Math.min(busyIndicator.width, busyIndicator.height)
+                    height: width
+                    radius: width / 2
                     color: ThemeSettings.colorPrimary
                     opacity: 1 - index / repeater.count
 

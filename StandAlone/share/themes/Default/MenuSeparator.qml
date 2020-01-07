@@ -28,11 +28,11 @@ T.MenuSeparator {
                             implicitContentWidth + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              implicitContentHeight + topPadding + bottomPadding)
-    verticalPadding: Ak.newUnit(8 * ThemeSettings.constrolScale, "dp").pixels
+    verticalPadding: Ak.newUnit(8 * ThemeSettings.controlScale, "dp").pixels
 
     contentItem: Rectangle {
-        implicitWidth: Ak.newUnit(128 * ThemeSettings.constrolScale, "dp").pixels
-        implicitHeight: Ak.newUnit(1 * ThemeSettings.constrolScale, "dp").pixels
+        implicitWidth: Ak.newUnit(128 * ThemeSettings.controlScale, "dp").pixels
+        implicitHeight: Ak.newUnit(1 * ThemeSettings.controlScale, "dp").pixels
         color: ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
     }
 }

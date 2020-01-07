@@ -1,5 +1,5 @@
 /* Webcamoid, webcam capture application.
- * Copyright (C) 2019  Gonzalo Exequiel Pedone
+ * Copyright (C) 2020  Gonzalo Exequiel Pedone
  *
  * Webcamoid is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,13 +27,13 @@ import AkQml 1.0
 
 T.Dial {
     id: control
-    implicitWidth: Math.max(Ak.newUnit(96 * ThemeSettings.constrolScale, "dp").pixels
+    implicitWidth: Math.max(Ak.newUnit(96 * ThemeSettings.controlScale, "dp").pixels
                             + leftInset + rightInset,
                             implicitContentWidth + leftPadding + rightPadding)
-    implicitHeight: Math.max(Ak.newUnit(96 * ThemeSettings.constrolScale, "dp").pixels
+    implicitHeight: Math.max(Ak.newUnit(96 * ThemeSettings.controlScale, "dp").pixels
                              + topInset + bottomInset,
                              implicitContentHeight + topPadding + bottomPadding)
-    padding: Ak.newUnit(6 * ThemeSettings.constrolScale, "dp").pixels
+    padding: Ak.newUnit(6 * ThemeSettings.controlScale, "dp").pixels
     hoverEnabled: true
     focusPolicy: Qt.WheelFocus
 
@@ -130,7 +130,7 @@ T.Dial {
             anchors.horizontalCenter: parent.horizontalCenter
             horizontalOffset: radius / 2
             verticalOffset: radius / 2
-            radius: Ak.newUnit(6 * ThemeSettings.constrolScale, "dp").pixels
+            radius: Ak.newUnit(6 * ThemeSettings.controlScale, "dp").pixels
             samples: 2 * radius + 1
             color: ThemeSettings.constShade(ThemeSettings.colorBack, -0.9)
             source: buttonShadowRect

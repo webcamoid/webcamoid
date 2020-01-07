@@ -28,16 +28,16 @@ import AkQml 1.0
 T.Button {
     id: button
     font.bold: true
-    icon.width: Ak.newUnit(18 * ThemeSettings.constrolScale, "dp").pixels
-    icon.height: Ak.newUnit(18 * ThemeSettings.constrolScale, "dp").pixels
+    icon.width: Ak.newUnit(18 * ThemeSettings.controlScale, "dp").pixels
+    icon.height: Ak.newUnit(18 * ThemeSettings.controlScale, "dp").pixels
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             implicitContentWidth + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              implicitContentHeight + topPadding + bottomPadding)
-    spacing: Ak.newUnit(8 * ThemeSettings.constrolScale, "dp").pixels
+    spacing: Ak.newUnit(8 * ThemeSettings.controlScale, "dp").pixels
     hoverEnabled: true
 
-    readonly property int radius: Ak.newUnit(6 * ThemeSettings.constrolScale,
+    readonly property int radius: Ak.newUnit(6 * ThemeSettings.controlScale,
                                              "dp").pixels
     readonly property int animationTime: 200
 
@@ -53,7 +53,7 @@ T.Button {
     contentItem: Item {
         id: buttonContent
         implicitWidth: iconLabel.implicitWidth
-                       + Ak.newUnit(18 * ThemeSettings.constrolScale,
+                       + Ak.newUnit(18 * ThemeSettings.controlScale,
                                     "dp").pixels
         implicitHeight: iconLabel.implicitHeight
 
@@ -80,9 +80,9 @@ T.Button {
     }
     background: Item {
         id: back
-        implicitWidth: Ak.newUnit(64 * ThemeSettings.constrolScale,
+        implicitWidth: Ak.newUnit(64 * ThemeSettings.controlScale,
                                   "dp").pixels
-        implicitHeight: Ak.newUnit(36 * ThemeSettings.constrolScale,
+        implicitHeight: Ak.newUnit(36 * ThemeSettings.controlScale,
                                    "dp").pixels
 
         // Shadow
@@ -158,7 +158,7 @@ T.Button {
             border.color: button.highlighted || button.flat?
                               Qt.hsla(0, 0, 0, 0):
                               ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
-            border.width: Ak.newUnit(1 * ThemeSettings.constrolScale,
+            border.width: Ak.newUnit(1 * ThemeSettings.controlScale,
                                      "dp").pixels
             color: button.highlighted?
                        ThemeSettings.colorPrimary:

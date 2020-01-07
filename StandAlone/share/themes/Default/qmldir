@@ -9,6 +9,7 @@ DelayButton 1.0 DelayButton.qml
 Dial 1.0 Dial.qml
 Dialog 1.0 Dialog.qml
 DialogButtonBox 1.0 DialogButtonBox.qml
+Drawer 1.0 Drawer.qml
 Frame 1.0 Frame.qml
 GroupBox 1.0 GroupBox.qml
 ItemDelegate 1.0 ItemDelegate.qml
@@ -16,7 +17,10 @@ Label 1.0 Label.qml
 MenuItem 1.0 MenuItem.qml
 MenuSeparator 1.0 MenuSeparator.qml
 Page 1.0 Page.qml
+PageIndicator 1.0 PageIndicator.qml
 Pane 1.0 Pane.qml
+Popup 1.0 Popup.qml
+ProgressBar 1.0 ProgressBar.qml
 RadioButton 1.0 RadioButton.qml
 RadioDelegate 1.0 RadioDelegate.qml
 RoundButton 1.0 RoundButton.qml

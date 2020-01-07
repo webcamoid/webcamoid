@@ -26,14 +26,14 @@ import AkQml 1.0
 T.ToolTip {
     id: toolTip
     x: parent? (parent.width - implicitWidth) / 2: 0
-    y: -implicitHeight - Ak.newUnit(8 * ThemeSettings.constrolScale, "dp").pixels
+    y: -implicitHeight - Ak.newUnit(8 * ThemeSettings.controlScale, "dp").pixels
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             contentWidth + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              contentHeight + topPadding + bottomPadding)
-    padding: Ak.newUnit(8 * ThemeSettings.constrolScale, "dp").pixels
+    padding: Ak.newUnit(8 * ThemeSettings.controlScale, "dp").pixels
     horizontalPadding: padding
-                       + Ak.newUnit(8 * ThemeSettings.constrolScale, "dp").pixels
+                       + Ak.newUnit(8 * ThemeSettings.controlScale, "dp").pixels
     closePolicy: T.Popup.CloseOnEscape
                  | T.Popup.CloseOnPressOutsideParent
                  | T.Popup.CloseOnReleaseOutsideParent
@@ -65,9 +65,9 @@ T.ToolTip {
     }
 
     background: Rectangle {
-        implicitHeight: Ak.newUnit(24 * ThemeSettings.constrolScale, "dp").pixels
+        implicitHeight: Ak.newUnit(24 * ThemeSettings.controlScale, "dp").pixels
         color: ThemeSettings.shade(ThemeSettings.contrast(ThemeSettings.colorBack),
                                    -0.1)
-        radius: Ak.newUnit(4 * ThemeSettings.constrolScale, "dp").pixels
+        radius: Ak.newUnit(4 * ThemeSettings.controlScale, "dp").pixels
     }
 }

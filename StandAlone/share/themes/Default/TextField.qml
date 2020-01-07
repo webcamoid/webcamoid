@@ -31,22 +31,22 @@ T.TextField {
     placeholderTextColor: ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
     selectedTextColor: ThemeSettings.contrast(ThemeSettings.colorSecondary, 0.75)
     selectionColor: ThemeSettings.colorSecondary
-    padding: Ak.newUnit(12 * ThemeSettings.constrolScale, "dp").pixels
+    padding: Ak.newUnit(12 * ThemeSettings.controlScale, "dp").pixels
     implicitWidth: Math.max(contentWidth + leftPadding + rightPadding,
                             implicitBackgroundWidth + leftInset + rightInset,
                             placeholder.implicitWidth + leftPadding + rightPadding,
-                            Ak.newUnit(280 * ThemeSettings.constrolScale,
+                            Ak.newUnit(280 * ThemeSettings.controlScale,
                                        "dp").pixels)
     implicitHeight: Math.max(contentHeight + topPadding + bottomPadding,
                              implicitBackgroundHeight + topInset + bottomInset,
                              placeholder.implicitHeight + topPadding + bottomPadding,
-                             Ak.newUnit(36 * ThemeSettings.constrolScale,
+                             Ak.newUnit(36 * ThemeSettings.controlScale,
                                         "dp").pixels)
     hoverEnabled: true
 
     readonly property int animationTime: 100
     readonly property int placeHolderPadding:
-        Ak.newUnit(4 * ThemeSettings.constrolScale, "dp").pixels
+        Ak.newUnit(4 * ThemeSettings.controlScale, "dp").pixels
     readonly property int placeHolderFontSize: 8
 
     PlaceholderText {
@@ -71,8 +71,8 @@ T.TextField {
         id: textAreaBackground
         color: Qt.hsla(0, 0, 0, 0)
         border.color: ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
-        border.width: Ak.newUnit(1 * ThemeSettings.constrolScale, "dp").pixels
-        radius: Ak.newUnit(8 * ThemeSettings.constrolScale, "dp").pixels
+        border.width: Ak.newUnit(1 * ThemeSettings.controlScale, "dp").pixels
+        radius: Ak.newUnit(8 * ThemeSettings.controlScale, "dp").pixels
         anchors.fill: parent
     }
 
@@ -109,7 +109,7 @@ T.TextField {
             PropertyChanges {
                 target: textAreaBackground
                 border.color: ThemeSettings.colorPrimary
-                border.width: Ak.newUnit(2 * ThemeSettings.constrolScale,
+                border.width: Ak.newUnit(2 * ThemeSettings.controlScale,
                                          "dp").pixels
             }
             PropertyChanges {

@@ -30,19 +30,19 @@ T.GroupBox {
                             implicitLabelWidth + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              contentHeight + topPadding + bottomPadding)
-    spacing: Ak.newUnit(6 * ThemeSettings.constrolScale, "dp").pixels
-    padding: Ak.newUnit(8 * ThemeSettings.constrolScale, "dp").pixels
+    spacing: Ak.newUnit(6 * ThemeSettings.controlScale, "dp").pixels
+    padding: Ak.newUnit(8 * ThemeSettings.controlScale, "dp").pixels
     topPadding: groupTitle.text?
                     groupTitle.height
                     + titleTopPadding
                     + titleBottomPadding:
-                    Ak.newUnit(8 * ThemeSettings.constrolScale, "dp").pixels
+                    Ak.newUnit(8 * ThemeSettings.controlScale, "dp").pixels
     clip: true
 
     property int titleTopPadding:
-        Ak.newUnit(8 * ThemeSettings.constrolScale, "dp").pixels
+        Ak.newUnit(8 * ThemeSettings.controlScale, "dp").pixels
     property int titleBottomPadding:
-        Ak.newUnit(16 * ThemeSettings.constrolScale, "dp").pixels
+        Ak.newUnit(16 * ThemeSettings.controlScale, "dp").pixels
 
     label: Text {
         id: groupTitle
@@ -73,11 +73,11 @@ T.GroupBox {
     background: Rectangle {
         width: parent.width
         height: parent.height
-        radius: Ak.newUnit(4 * ThemeSettings.constrolScale, "dp").pixels
+        radius: Ak.newUnit(4 * ThemeSettings.controlScale, "dp").pixels
         color: "transparent"
         border.color: enabled?
                           ThemeSettings.shade(ThemeSettings.colorBack, -0.5):
                           ThemeSettings.shade(ThemeSettings.colorBack, -0.5, 0.5)
-        border.width: Ak.newUnit(1 * ThemeSettings.constrolScale, "dp").pixels
+        border.width: Ak.newUnit(1 * ThemeSettings.controlScale, "dp").pixels
     }
 }

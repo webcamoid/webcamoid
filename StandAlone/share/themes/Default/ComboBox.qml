@@ -29,20 +29,20 @@ T.ComboBox {
     implicitWidth:
         Math.max(implicitBackgroundWidth + leftInset + rightInset,
                  implicitContentWidth + leftPadding + rightPadding,
-                 Ak.newUnit(96 * ThemeSettings.constrolScale, "dp").pixels)
+                 Ak.newUnit(96 * ThemeSettings.controlScale, "dp").pixels)
     implicitHeight:
         Math.max(implicitBackgroundHeight + topInset + bottomInset,
                  implicitContentHeight + topPadding + bottomPadding,
                  implicitIndicatorHeight + topPadding + bottomPadding,
-                 Ak.newUnit(36 * ThemeSettings.constrolScale, "dp").pixels)
-    padding: Ak.newUnit(8 * ThemeSettings.constrolScale, "dp").pixels
-    leftPadding: Ak.newUnit(16 * ThemeSettings.constrolScale, "dp").pixels
-    rightPadding: Ak.newUnit(40 * ThemeSettings.constrolScale, "dp").pixels
+                 Ak.newUnit(36 * ThemeSettings.controlScale, "dp").pixels)
+    padding: Ak.newUnit(8 * ThemeSettings.controlScale, "dp").pixels
+    leftPadding: Ak.newUnit(16 * ThemeSettings.controlScale, "dp").pixels
+    rightPadding: Ak.newUnit(40 * ThemeSettings.controlScale, "dp").pixels
     hoverEnabled: true
     clip: true
 
     readonly property int radius:
-        Ak.newUnit(6 * ThemeSettings.constrolScale, "dp").pixels
+        Ak.newUnit(6 * ThemeSettings.controlScale, "dp").pixels
     readonly property int animationTime: 200
 
     function pressIndicatorRadius()
@@ -82,7 +82,7 @@ T.ComboBox {
                - width
                - comboBox.padding
         y: comboBox.topPadding + (comboBox.availableHeight - height) / 2
-        width: Ak.newUnit(24 * ThemeSettings.constrolScale, "dp").pixels
+        width: Ak.newUnit(24 * ThemeSettings.controlScale, "dp").pixels
         height: width
 
         Item {
@@ -160,7 +160,7 @@ T.ComboBox {
             border.color: comboBox.flat?
                               Qt.hsla(0, 0, 0, 0):
                               ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
-            border.width: Ak.newUnit(1 * ThemeSettings.constrolScale,
+            border.width: Ak.newUnit(1 * ThemeSettings.controlScale,
                                      "dp").pixels
             radius: comboBox.flat? 0: comboBox.radius
             anchors.fill: parent
@@ -171,11 +171,11 @@ T.ComboBox {
     popup: T.Popup {
         id: popup
         y: comboBox.height
-           + Ak.newUnit(4 * ThemeSettings.constrolScale, "dp").pixels
+           + Ak.newUnit(4 * ThemeSettings.controlScale, "dp").pixels
         width: comboBox.width
         implicitHeight: contentItem.implicitHeight
         transformOrigin: Item.Top
-        topMargin: Ak.newUnit(8 * ThemeSettings.constrolScale, "dp").pixels
+        topMargin: Ak.newUnit(8 * ThemeSettings.controlScale, "dp").pixels
         bottomMargin: topMargin
 
         // Fade in
@@ -315,7 +315,7 @@ T.ComboBox {
             PropertyChanges {
                 target: comboBoxBackground
                 border.color: ThemeSettings.colorPrimary
-                border.width: Ak.newUnit(2 * ThemeSettings.constrolScale,
+                border.width: Ak.newUnit(2 * ThemeSettings.controlScale,
                                                         "dp").pixels
             }
         },
@@ -335,7 +335,7 @@ T.ComboBox {
                 border.color:
                     ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.3)
                 border.width:
-                    Ak.newUnit(2 * ThemeSettings.constrolScale, "dp").pixels
+                    Ak.newUnit(2 * ThemeSettings.controlScale, "dp").pixels
             }
             PropertyChanges {
                 target: comboBoxPress

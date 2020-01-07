@@ -30,16 +30,16 @@ T.MenuItem {
         Math.max(implicitBackgroundWidth + leftInset + rightInset,
                  implicitContentWidth + leftPadding + rightPadding
                  + menuItemArrow.width
-                 + (menuItem.checkable? Ak.newUnit(20 * ThemeSettings.constrolScale, "dp").pixels: 0)
-                 + Ak.newUnit(48 * ThemeSettings.constrolScale, "dp").pixels )
+                 + (menuItem.checkable? Ak.newUnit(20 * ThemeSettings.controlScale, "dp").pixels: 0)
+                 + Ak.newUnit(48 * ThemeSettings.controlScale, "dp").pixels )
     implicitHeight:
         Math.max(implicitBackgroundHeight + topInset + bottomInset,
                  implicitContentHeight + topPadding + bottomPadding,
                  implicitIndicatorHeight + topPadding + bottomPadding)
-    rightPadding: Ak.newUnit(16 * ThemeSettings.constrolScale, "dp").pixels
-    spacing: Ak.newUnit(20 * ThemeSettings.constrolScale, "dp").pixels
-    icon.width: Ak.newUnit(24 * ThemeSettings.constrolScale, "dp").pixels
-    icon.height: Ak.newUnit(24 * ThemeSettings.constrolScale, "dp").pixels
+    rightPadding: Ak.newUnit(16 * ThemeSettings.controlScale, "dp").pixels
+    spacing: Ak.newUnit(20 * ThemeSettings.controlScale, "dp").pixels
+    icon.width: Ak.newUnit(24 * ThemeSettings.controlScale, "dp").pixels
+    icon.height: Ak.newUnit(24 * ThemeSettings.controlScale, "dp").pixels
     clip: true
     hoverEnabled: true
 
@@ -58,12 +58,12 @@ T.MenuItem {
     indicator: Item {
         id: menuItemCheck
         width: menuItem.checkable?
-                   Ak.newUnit(24 * ThemeSettings.constrolScale, "dp").pixels: 0
+                   Ak.newUnit(24 * ThemeSettings.controlScale, "dp").pixels: 0
         height: menuItem.checkable?
-                    Ak.newUnit(24 * ThemeSettings.constrolScale, "dp").pixels: 0
+                    Ak.newUnit(24 * ThemeSettings.controlScale, "dp").pixels: 0
         anchors.verticalCenter: parent.verticalCenter
         anchors.left: parent.left
-        anchors.leftMargin: Ak.newUnit(16 * ThemeSettings.constrolScale, "dp").pixels
+        anchors.leftMargin: Ak.newUnit(16 * ThemeSettings.controlScale, "dp").pixels
         visible: menuItem.checkable && menuItem.checked
 
         Item {
@@ -96,11 +96,11 @@ T.MenuItem {
     // >
     arrow: Item {
         id: menuItemArrow
-        width: visible? Ak.newUnit(24 * ThemeSettings.constrolScale, "dp").pixels: 0
-        height: visible? Ak.newUnit(24 * ThemeSettings.constrolScale, "dp").pixels: 0
+        width: visible? Ak.newUnit(24 * ThemeSettings.controlScale, "dp").pixels: 0
+        height: visible? Ak.newUnit(24 * ThemeSettings.controlScale, "dp").pixels: 0
         anchors.verticalCenter: parent.verticalCenter
         anchors.right: parent.right
-        anchors.rightMargin: Ak.newUnit(16 * ThemeSettings.constrolScale, "dp").pixels
+        anchors.rightMargin: Ak.newUnit(16 * ThemeSettings.controlScale, "dp").pixels
         visible: menuItem.subMenu
 
         Item {
@@ -147,7 +147,7 @@ T.MenuItem {
         anchors.left: menuItemCheck.right
         anchors.leftMargin:
             menuItem.checkable?
-                Ak.newUnit(20 * ThemeSettings.constrolScale, "dp").pixels: 0
+                Ak.newUnit(20 * ThemeSettings.controlScale, "dp").pixels: 0
         anchors.right: menuItemArrow.left
         font: menuItem.font
         color: menuItem.highlighted?
@@ -158,8 +158,8 @@ T.MenuItem {
 
     background: Item {
         id: backgroundItem
-        implicitWidth: Ak.newUnit(128 * ThemeSettings.constrolScale, "dp").pixels
-        implicitHeight: Ak.newUnit(48 * ThemeSettings.constrolScale, "dp").pixels
+        implicitWidth: Ak.newUnit(128 * ThemeSettings.controlScale, "dp").pixels
+        implicitHeight: Ak.newUnit(48 * ThemeSettings.controlScale, "dp").pixels
 
         // Press indicator
         Rectangle{

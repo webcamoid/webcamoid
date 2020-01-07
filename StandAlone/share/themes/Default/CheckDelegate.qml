@@ -26,16 +26,16 @@ import AkQml 1.0
 
 T.CheckDelegate {
     id: checkBox
-    icon.width: Ak.newUnit(18 * ThemeSettings.constrolScale, "dp").pixels
-    icon.height: Ak.newUnit(18 * ThemeSettings.constrolScale, "dp").pixels
+    icon.width: Ak.newUnit(18 * ThemeSettings.controlScale, "dp").pixels
+    icon.height: Ak.newUnit(18 * ThemeSettings.controlScale, "dp").pixels
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             implicitContentWidth + implicitIndicatorWidth
                             + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              implicitContentHeight + topPadding + bottomPadding,
                              implicitIndicatorHeight + topPadding + bottomPadding)
-    padding: Ak.newUnit(4 * ThemeSettings.constrolScale, "dp").pixels
-    spacing: Ak.newUnit(8 * ThemeSettings.constrolScale, "dp").pixels
+    padding: Ak.newUnit(4 * ThemeSettings.controlScale, "dp").pixels
+    spacing: Ak.newUnit(8 * ThemeSettings.controlScale, "dp").pixels
     hoverEnabled: true
     clip: true
 
@@ -56,16 +56,16 @@ T.CheckDelegate {
         anchors.rightMargin: checkBox.rightPadding
         anchors.verticalCenter: checkBox.verticalCenter
         implicitWidth:
-            Ak.newUnit(24 * ThemeSettings.constrolScale, "dp").pixels
+            Ak.newUnit(24 * ThemeSettings.controlScale, "dp").pixels
         implicitHeight:
-            Ak.newUnit(24 * ThemeSettings.constrolScale, "dp").pixels
+            Ak.newUnit(24 * ThemeSettings.controlScale, "dp").pixels
 
         Rectangle {
             id: indicatorRect
             border.width:
                 checkBox.checkState == Qt.Unchecked
                 || checkBox.highlighted?
-                    Ak.newUnit(2 * ThemeSettings.constrolScale, "dp").pixels:
+                    Ak.newUnit(2 * ThemeSettings.controlScale, "dp").pixels:
                     0
             border.color:
                 checkBox.highlighted?
@@ -77,7 +77,7 @@ T.CheckDelegate {
                    || checkBox.highlighted?
                        "transparent":
                        ThemeSettings.colorPrimary
-            radius: Ak.newUnit(4 * ThemeSettings.constrolScale, "dp").pixels
+            radius: Ak.newUnit(4 * ThemeSettings.controlScale, "dp").pixels
             anchors.verticalCenter: checkBoxIndicator.verticalCenter
             anchors.horizontalCenter: checkBoxIndicator.horizontalCenter
             width: Math.min(checkBoxIndicator.width, checkBoxIndicator.height)
@@ -127,9 +127,9 @@ T.CheckDelegate {
     background: Item {
         id: backgroundItem
         implicitWidth:
-            Ak.newUnit(128 * ThemeSettings.constrolScale, "dp").pixels
+            Ak.newUnit(128 * ThemeSettings.controlScale, "dp").pixels
         implicitHeight:
-            Ak.newUnit(48 * ThemeSettings.constrolScale, "dp").pixels
+            Ak.newUnit(48 * ThemeSettings.controlScale, "dp").pixels
 
         // Press indicator
         Rectangle{

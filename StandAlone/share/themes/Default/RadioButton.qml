@@ -25,16 +25,16 @@ import AkQml 1.0
 
 T.RadioButton {
     id: radioButton
-    icon.width: Ak.newUnit(18 * ThemeSettings.constrolScale, "dp").pixels
-    icon.height: Ak.newUnit(18 * ThemeSettings.constrolScale, "dp").pixels
+    icon.width: Ak.newUnit(18 * ThemeSettings.controlScale, "dp").pixels
+    icon.height: Ak.newUnit(18 * ThemeSettings.controlScale, "dp").pixels
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             implicitContentWidth + 2 * implicitIndicatorWidth
                             + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              implicitContentHeight + topPadding + bottomPadding,
                              2 * implicitIndicatorHeight + topPadding + bottomPadding)
-    padding: Ak.newUnit(4 * ThemeSettings.constrolScale, "dp").pixels
-    spacing: Ak.newUnit(8 * ThemeSettings.constrolScale, "dp").pixels
+    padding: Ak.newUnit(4 * ThemeSettings.controlScale, "dp").pixels
+    spacing: Ak.newUnit(8 * ThemeSettings.controlScale, "dp").pixels
     hoverEnabled: true
     clip: true
 
@@ -46,9 +46,9 @@ T.RadioButton {
         anchors.leftMargin: indicatorRect.width / 2 + radioButton.leftPadding
         anchors.verticalCenter: radioButton.verticalCenter
         implicitWidth:
-            Ak.newUnit(24 * ThemeSettings.constrolScale, "dp").pixels
+            Ak.newUnit(24 * ThemeSettings.controlScale, "dp").pixels
         implicitHeight:
-            Ak.newUnit(24 * ThemeSettings.constrolScale, "dp").pixels
+            Ak.newUnit(24 * ThemeSettings.controlScale, "dp").pixels
 
         Rectangle {
             id: highlight
@@ -65,7 +65,7 @@ T.RadioButton {
         }
         Rectangle {
             id: indicatorRect
-            border.width: Ak.newUnit(2 * ThemeSettings.constrolScale, "dp").pixels
+            border.width: Ak.newUnit(2 * ThemeSettings.controlScale, "dp").pixels
             border.color:
                 radioButton.checked?
                     ThemeSettings.colorPrimary:
@@ -80,8 +80,8 @@ T.RadioButton {
             Rectangle {
                 id: indicatorCheckedMark
                 color: ThemeSettings.colorPrimary
-                width: Ak.newUnit(15 * ThemeSettings.constrolScale, "dp").pixels
-                height: Ak.newUnit(15 * ThemeSettings.constrolScale, "dp").pixels
+                width: Ak.newUnit(15 * ThemeSettings.controlScale, "dp").pixels
+                height: Ak.newUnit(15 * ThemeSettings.controlScale, "dp").pixels
                 radius: Math.min(width, height) / 2
                 anchors.verticalCenter: indicatorRect.verticalCenter
                 anchors.horizontalCenter: indicatorRect.horizontalCenter

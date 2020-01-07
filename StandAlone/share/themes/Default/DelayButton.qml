@@ -1,5 +1,5 @@
 /* Webcamoid, webcam capture application.
- * Copyright (C) 2019  Gonzalo Exequiel Pedone
+ * Copyright (C) 2020  Gonzalo Exequiel Pedone
  *
  * Webcamoid is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,17 +28,17 @@ import AkQml 1.0
 T.DelayButton {
     id: button
     font.bold: true
-    icon.width: Ak.newUnit(18 * ThemeSettings.constrolScale, "dp").pixels
-    icon.height: Ak.newUnit(18 * ThemeSettings.constrolScale, "dp").pixels
+    icon.width: Ak.newUnit(18 * ThemeSettings.controlScale, "dp").pixels
+    icon.height: Ak.newUnit(18 * ThemeSettings.controlScale, "dp").pixels
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             implicitContentWidth + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              implicitContentHeight + topPadding + bottomPadding)
-    spacing: Ak.newUnit(8 * ThemeSettings.constrolScale, "dp").pixels
+    spacing: Ak.newUnit(8 * ThemeSettings.controlScale, "dp").pixels
     hoverEnabled: true
 
     readonly property int radius:
-        Ak.newUnit(6 * ThemeSettings.constrolScale, "dp").pixels
+        Ak.newUnit(6 * ThemeSettings.controlScale, "dp").pixels
     readonly property int animationTime: 200
 
     function pressIndicatorRadius()
@@ -62,7 +62,7 @@ T.DelayButton {
         id: buttonContent
         implicitWidth:
             iconLabel.implicitWidth
-            + Ak.newUnit(18 * ThemeSettings.constrolScale, "dp").pixels
+            + Ak.newUnit(18 * ThemeSettings.controlScale, "dp").pixels
         implicitHeight: iconLabel.implicitHeight
 
         IconLabel {
@@ -84,8 +84,8 @@ T.DelayButton {
     }
     background: Item {
         id: back
-        implicitWidth: Ak.newUnit(64 * ThemeSettings.constrolScale, "dp").pixels
-        implicitHeight: Ak.newUnit(36 * ThemeSettings.constrolScale, "dp").pixels
+        implicitWidth: Ak.newUnit(64 * ThemeSettings.controlScale, "dp").pixels
+        implicitHeight: Ak.newUnit(36 * ThemeSettings.controlScale, "dp").pixels
 
         // Rectagle below the indicator
         Rectangle {
@@ -134,7 +134,7 @@ T.DelayButton {
             radius: button.radius
             border.color: ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
             border.width:
-                Ak.newUnit(1 * ThemeSettings.constrolScale, "dp").pixels
+                Ak.newUnit(1 * ThemeSettings.controlScale, "dp").pixels
             color: Qt.hsla(0, 0, 0, 0)
         }
 

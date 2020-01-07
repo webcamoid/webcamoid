@@ -42,7 +42,7 @@ T.TabButton {
                             implicitContentWidth + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              implicitContentHeight + topPadding + bottomPadding)
-    spacing: Ak.newUnit(8 * ThemeSettings.constrolScale, "dp").pixels
+    spacing: Ak.newUnit(8 * ThemeSettings.controlScale, "dp").pixels
     hoverEnabled: true
 
     readonly property int animationTime: 200
@@ -59,11 +59,11 @@ T.TabButton {
     function buttonHeight()
     {
         let defaultHeight =
-            Ak.newUnit(48 * ThemeSettings.constrolScale, "dp").pixels
+            Ak.newUnit(48 * ThemeSettings.controlScale, "dp").pixels
 
         return Math.max(defaultHeight,
                         iconLabel.height
-                        + Ak.newUnit(18 * ThemeSettings.constrolScale,
+                        + Ak.newUnit(18 * ThemeSettings.controlScale,
                                      "dp").pixels)
     }
 
@@ -72,7 +72,7 @@ T.TabButton {
         implicitWidth:
             iconLabel.implicitWidth
             + (button.display == AbstractButton.IconOnly?
-               0: Ak.newUnit(18 * ThemeSettings.constrolScale, "dp").pixels)
+               0: Ak.newUnit(18 * ThemeSettings.controlScale, "dp").pixels)
         implicitHeight: iconLabel.implicitHeight
 
         IconLabel {
@@ -95,7 +95,7 @@ T.TabButton {
 
     background: Item {
         id: back
-        implicitWidth: Ak.newUnit(90 * ThemeSettings.constrolScale, "dp").pixels
+        implicitWidth: Ak.newUnit(90 * ThemeSettings.controlScale, "dp").pixels
         implicitHeight: button.buttonHeight()
 
         // Rectagle below the indicator

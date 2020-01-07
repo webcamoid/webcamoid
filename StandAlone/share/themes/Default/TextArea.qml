@@ -32,21 +32,21 @@ T.TextArea {
     placeholderTextColor: ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
     selectedTextColor: ThemeSettings.contrast(ThemeSettings.colorSecondary, 0.75)
     selectionColor: ThemeSettings.colorSecondary
-    padding: Ak.newUnit(12 * ThemeSettings.constrolScale, "dp").pixels
+    padding: Ak.newUnit(12 * ThemeSettings.controlScale, "dp").pixels
     implicitWidth: Math.max(contentWidth + leftPadding + rightPadding,
                             implicitBackgroundWidth + leftInset + rightInset,
                             placeholder.implicitWidth + leftPadding + rightPadding,
-                            Ak.newUnit(280 * ThemeSettings.constrolScale,
+                            Ak.newUnit(280 * ThemeSettings.controlScale,
                                        "dp").pixels)
     implicitHeight: Math.max(contentHeight + topPadding + bottomPadding,
                              implicitBackgroundHeight + topInset + bottomInset,
                              placeholder.implicitHeight + topPadding + bottomPadding,
-                             Ak.newUnit(36 * ThemeSettings.constrolScale,
+                             Ak.newUnit(36 * ThemeSettings.controlScale,
                                         "dp").pixels)
 
     readonly property int animationTime: 100
     readonly property real placeHolderPadding:
-        Ak.newUnit(4 * ThemeSettings.constrolScale, "dp").pixels
+        Ak.newUnit(4 * ThemeSettings.controlScale, "dp").pixels
 
     PlaceholderText {
         id: placeholder
