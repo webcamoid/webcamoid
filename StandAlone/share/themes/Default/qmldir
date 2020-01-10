@@ -23,10 +23,13 @@ Popup 1.0 Popup.qml
 ProgressBar 1.0 ProgressBar.qml
 RadioButton 1.0 RadioButton.qml
 RadioDelegate 1.0 RadioDelegate.qml
+RangeSlider 1.0 RangeSlider.qml
 RoundButton 1.0 RoundButton.qml
 ScrollView 1.0 ScrollView.qml
 Slider 1.0 Slider.qml
 SpinBox 1.0 SpinBox.qml
+StackView 1.0 StackView.qml
+SwipeView 1.0 SwipeView.qml
 Switch 1.0 Switch.qml
 SwitchDelegate 1.0 SwitchDelegate.qml
 TabBar 1.0 TabBar.qml

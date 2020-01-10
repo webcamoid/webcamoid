@@ -22,19 +22,18 @@ import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.3
 
 GridLayout {
-    columns: 3
+    columns: 2
 
     Connections {
         target: Edge
 
         onThLowChanged: {
-            sldThLow.value = thLow
-            spbThLow.value = thLow
+            sldThreshold.first.value = thLow
+            spbThresholdLow.value = thLow
         }
-
         onThHiChanged: {
-            sldThHi.value = thHi
-            spbThHi.value = thHi
+            sldThreshold.second.value = thHi
+            spbThresholdHi.value = thHi
         }
     }
 
@@ -44,8 +43,6 @@ GridLayout {
         text: qsTr("Canny mode")
     }
     RowLayout {
-        Layout.columnSpan: 2
-
         Item {
             Layout.fillWidth: true
         }
@@ -57,56 +54,44 @@ GridLayout {
         }
     }
 
-    // thLow
+    // Threshold
     Label {
-        text: qsTr("Lower Canny threshold")
+        text: qsTr("Canny threshold")
         enabled: chkCanny.checked
     }
-    Slider {
-        id: sldThLow
-        enabled: chkCanny.checked
-        value: Edge.thLow
-        stepSize: 1
-        to: 1530
-        Layout.fillWidth: true
+    RowLayout {
+        SpinBox {
+            id: spbThresholdLow
+            value: Edge.thLow
+            to: sldThreshold.to
+            stepSize: sldThreshold.stepSize
+            enabled: chkCanny.checked
+            editable: true
 
-        onValueChanged: Edge.thLow = Math.min(value, Edge.thHi)
-    }
-    SpinBox {
-        id: spbThLow
-        enabled: chkCanny.checked
-        value: Edge.thLow
-        to: sldThLow.to
-        stepSize: sldThLow.stepSize
-        editable: true
+            onValueChanged: Edge.thLow = value
+        }
+        RangeSlider {
+            id: sldThreshold
+            first.value: Edge.thLow
+            second.value: Edge.thHi
+            stepSize: 1
+            to: 1530
+            enabled: chkCanny.checked
+            Layout.fillWidth: true
 
-        onValueChanged: Edge.thLow = Math.min(value, Edge.thHi)
-    }
+            first.onValueChanged: Edge.thLow = first.value
+            second.onValueChanged: Edge.thHi = second.value
+        }
+        SpinBox {
+            id: spbThresholdHi
+            value: Edge.thHi
+            to: sldThreshold.to
+            stepSize: sldThreshold.stepSize
+            enabled: chkCanny.checked
+            editable: true
 
-    // thHi
-    Label {
-        text: qsTr("Higger Canny threshold")
-        enabled: chkCanny.checked
-    }
-    Slider {
-        id: sldThHi
-        enabled: chkCanny.checked
-        value: Edge.thHi
-        stepSize: 1
-        to: 1530
-        Layout.fillWidth: true
-
-        onValueChanged: Edge.thHi = Math.max(value, Edge.thLow)
-    }
-    SpinBox {
-        id: spbThHi
-        enabled: chkCanny.checked
-        value: Edge.thHi
-        to: sldThHi.to
-        stepSize: sldThHi.stepSize
-        editable: true
-
-        onValueChanged: Edge.thHi = Math.max(value, Edge.thLow)
+            onValueChanged: Edge.thHi = Number(value)
+        }
     }
 
     // Equalize
@@ -115,8 +100,6 @@ GridLayout {
         text: qsTr("Equalize")
     }
     RowLayout {
-        Layout.columnSpan: 2
-
         Item {
             Layout.fillWidth: true
         }
@@ -132,8 +115,6 @@ GridLayout {
         text: qsTr("Invert")
     }
     RowLayout {
-        Layout.columnSpan: 2
-
         Item {
             Layout.fillWidth: true
         }

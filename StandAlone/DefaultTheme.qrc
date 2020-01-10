@@ -25,10 +25,13 @@
         <file>share/themes/Default/ProgressBar.qml</file>
         <file>share/themes/Default/RadioButton.qml</file>
         <file>share/themes/Default/RadioDelegate.qml</file>
+        <file>share/themes/Default/RangeSlider.qml</file>
         <file>share/themes/Default/RoundButton.qml</file>
         <file>share/themes/Default/ScrollView.qml</file>
         <file>share/themes/Default/Slider.qml</file>
         <file>share/themes/Default/SpinBox.qml</file>
+        <file>share/themes/Default/StackView.qml</file>
+        <file>share/themes/Default/SwipeView.qml</file>
         <file>share/themes/Default/Switch.qml</file>
         <file>share/themes/Default/SwitchDelegate.qml</file>
         <file>share/themes/Default/TabBar.qml</file>

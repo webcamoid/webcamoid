@@ -787,30 +787,20 @@
         <translation>Mostrar bordes</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="149"/>
-        <source>Threshold low</source>
-        <translation>Umbral bajo</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="175"/>
-        <source>Threshold high</source>
-        <translation>Umbral alto</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="200"/>
+        <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="190"/>
         <source>Line color</source>
         <translation>Color de línea</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="220"/>
-        <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="224"/>
+        <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="210"/>
+        <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="214"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="216"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="220"/>
         <source>Scan block</source>
         <translation>Analizar bloque</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="211"/>
+        <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="201"/>
         <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="178"/>
         <source>Choose a color</source>
         <translation>Elija un color</translation>
@@ -1265,29 +1255,24 @@
         <translation>Fuerza</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="44"/>
+        <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="43"/>
         <source>Canny mode</source>
         <extracomment>https://en.wikipedia.org/wiki/Canny_edge_detector</extracomment>
         <translation>Modo Canny</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="62"/>
-        <source>Lower Canny threshold</source>
-        <translation>Umbral inferior de Canny</translation>
+        <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="59"/>
+        <source>Canny threshold</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="88"/>
-        <source>Higger Canny threshold</source>
-        <translation>Umbral superior de Canny</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="115"/>
+        <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="100"/>
         <source>Equalize</source>
         <extracomment>https://en.wikipedia.org/wiki/Histogram_equalization</extracomment>
         <translation>Igualar</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="132"/>
+        <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="115"/>
         <source>Invert</source>
         <translation>Invertir</translation>
     </message>
@@ -1724,6 +1709,7 @@
         <translation>Zoom</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="149"/>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="169"/>
         <location filename="../../../libAvKys/Plugins/Hypnotic/share/qml/main.qml" line="97"/>
         <location filename="../../../libAvKys/Plugins/Life/share/qml/main.qml" line="84"/>

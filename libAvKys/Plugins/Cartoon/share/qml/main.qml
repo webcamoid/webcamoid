@@ -71,11 +71,11 @@ GridLayout {
             spbColorDiff.value = colorDiff
         }
         onThresholdLowChanged: {
-            sldThresholdLow.value = thresholdLow
+            sldThreshold.first.value = thresholdLow
             spbThresholdLow.value = thresholdLow
         }
         onThresholdHiChanged: {
-            sldThresholdHi.value = thresholdHi
+            sldThreshold.second.value = thresholdHi
             spbThresholdHi.value = thresholdHi
         }
     }
@@ -145,55 +145,45 @@ GridLayout {
 
     // Configure edge thresholds.
     Label {
-        id: lblThresholdLow
-        text: qsTr("Threshold low")
+        id: lblThreshold
+        text: qsTr("Threshold")
         enabled: chkShowEdges.checked
     }
-    Slider {
-        id: sldThresholdLow
-        value: Cartoon.thresholdLow
-        stepSize: 1
-        to: 255
-        enabled: chkShowEdges.checked
-        Layout.fillWidth: true
+    RowLayout {
+        Layout.columnSpan: 2
 
-        onValueChanged: Cartoon.thresholdLow = value
-    }
-    SpinBox {
-        id: spbThresholdLow
-        value: Cartoon.thresholdLow
-        to: sldThresholdLow.to
-        stepSize: sldThresholdLow.stepSize
-        enabled: chkShowEdges.checked
-        editable: true
+        SpinBox {
+            id: spbThresholdLow
+            value: Cartoon.thresholdLow
+            to: sldThreshold.to
+            stepSize: sldThreshold.stepSize
+            enabled: chkShowEdges.checked
+            editable: true
 
-        onValueChanged: Cartoon.thresholdLow = Number(value)
-    }
+            onValueChanged: Cartoon.thresholdLow = Number(value)
+        }
+        RangeSlider {
+            id: sldThreshold
+            first.value: Cartoon.thresholdLow
+            second.value: Cartoon.thresholdHi
+            stepSize: 1
+            to: 255
+            enabled: chkShowEdges.checked
+            Layout.fillWidth: true
 
-    Label {
-        id: lblThresholdHi
-        text: qsTr("Threshold high")
-        enabled: chkShowEdges.checked
-    }
-    Slider {
-        id: sldThresholdHi
-        value: Cartoon.thresholdHi
-        stepSize: 1
-        to: 255
-        enabled: chkShowEdges.checked
-        Layout.fillWidth: true
+            first.onValueChanged: Cartoon.thresholdLow = first.value
+            second.onValueChanged: Cartoon.thresholdHi = second.value
+        }
+        SpinBox {
+            id: spbThresholdHi
+            value: Cartoon.thresholdHi
+            to: sldThreshold.to
+            stepSize: sldThreshold.stepSize
+            enabled: chkShowEdges.checked
+            editable: true
 
-        onValueChanged: Cartoon.thresholdHi = value
-    }
-    SpinBox {
-        id: spbThresholdHi
-        value: Cartoon.thresholdHi
-        to: sldThresholdHi.to
-        stepSize: sldThresholdHi.stepSize
-        enabled: chkShowEdges.checked
-        editable: true
-
-        onValueChanged: Cartoon.thresholdHi = Number(value)
+            onValueChanged: Cartoon.thresholdHi = Number(value)
+        }
     }
 
     Label {
