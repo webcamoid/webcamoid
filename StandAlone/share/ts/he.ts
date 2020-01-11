@@ -1263,7 +1263,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="59"/>
         <source>Canny threshold</source>
-        <translation type="unfinished"></translation>
+        <translation>סף קני</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="100"/>
