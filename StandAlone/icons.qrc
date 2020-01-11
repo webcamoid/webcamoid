@@ -23,6 +23,8 @@
         <file>share/themes/Default/icons/hicolor/128x128/settings.png</file>
         <file>share/themes/Default/icons/hicolor/128x128/sound.png</file>
         <file>share/themes/Default/icons/hicolor/128x128/stop.png</file>
+        <file>share/themes/Default/icons/hicolor/128x128/swipe-left.png</file>
+        <file>share/themes/Default/icons/hicolor/128x128/swipe-right.png</file>
         <file>share/themes/Default/icons/hicolor/128x128/up.png</file>
         <file>share/themes/Default/icons/hicolor/128x128/video-effects.png</file>
         <file>share/themes/Default/icons/hicolor/128x128/video.png</file>
@@ -52,6 +54,8 @@
         <file>share/themes/Default/icons/hicolor/16x16/settings.png</file>
         <file>share/themes/Default/icons/hicolor/16x16/sound.png</file>
         <file>share/themes/Default/icons/hicolor/16x16/stop.png</file>
+        <file>share/themes/Default/icons/hicolor/16x16/swipe-left.png</file>
+        <file>share/themes/Default/icons/hicolor/16x16/swipe-right.png</file>
         <file>share/themes/Default/icons/hicolor/16x16/up.png</file>
         <file>share/themes/Default/icons/hicolor/16x16/video-effects.png</file>
         <file>share/themes/Default/icons/hicolor/16x16/video.png</file>
@@ -81,6 +85,8 @@
         <file>share/themes/Default/icons/hicolor/22x22/settings.png</file>
         <file>share/themes/Default/icons/hicolor/22x22/sound.png</file>
         <file>share/themes/Default/icons/hicolor/22x22/stop.png</file>
+        <file>share/themes/Default/icons/hicolor/22x22/swipe-left.png</file>
+        <file>share/themes/Default/icons/hicolor/22x22/swipe-right.png</file>
         <file>share/themes/Default/icons/hicolor/22x22/up.png</file>
         <file>share/themes/Default/icons/hicolor/22x22/video-effects.png</file>
         <file>share/themes/Default/icons/hicolor/22x22/video.png</file>
@@ -110,6 +116,8 @@
         <file>share/themes/Default/icons/hicolor/256x256/settings.png</file>
         <file>share/themes/Default/icons/hicolor/256x256/sound.png</file>
         <file>share/themes/Default/icons/hicolor/256x256/stop.png</file>
+        <file>share/themes/Default/icons/hicolor/256x256/swipe-left.png</file>
+        <file>share/themes/Default/icons/hicolor/256x256/swipe-right.png</file>
         <file>share/themes/Default/icons/hicolor/256x256/up.png</file>
         <file>share/themes/Default/icons/hicolor/256x256/video-effects.png</file>
         <file>share/themes/Default/icons/hicolor/256x256/video.png</file>
@@ -139,6 +147,8 @@
         <file>share/themes/Default/icons/hicolor/32x32/settings.png</file>
         <file>share/themes/Default/icons/hicolor/32x32/sound.png</file>
         <file>share/themes/Default/icons/hicolor/32x32/stop.png</file>
+        <file>share/themes/Default/icons/hicolor/32x32/swipe-left.png</file>
+        <file>share/themes/Default/icons/hicolor/32x32/swipe-right.png</file>
         <file>share/themes/Default/icons/hicolor/32x32/up.png</file>
         <file>share/themes/Default/icons/hicolor/32x32/video-effects.png</file>
         <file>share/themes/Default/icons/hicolor/32x32/video.png</file>
@@ -168,6 +178,8 @@
         <file>share/themes/Default/icons/hicolor/48x48/settings.png</file>
         <file>share/themes/Default/icons/hicolor/48x48/sound.png</file>
         <file>share/themes/Default/icons/hicolor/48x48/stop.png</file>
+        <file>share/themes/Default/icons/hicolor/48x48/swipe-left.png</file>
+        <file>share/themes/Default/icons/hicolor/48x48/swipe-right.png</file>
         <file>share/themes/Default/icons/hicolor/48x48/up.png</file>
         <file>share/themes/Default/icons/hicolor/48x48/video-effects.png</file>
         <file>share/themes/Default/icons/hicolor/48x48/video.png</file>
@@ -197,6 +209,8 @@
         <file>share/themes/Default/icons/hicolor/64x64/settings.png</file>
         <file>share/themes/Default/icons/hicolor/64x64/sound.png</file>
         <file>share/themes/Default/icons/hicolor/64x64/stop.png</file>
+        <file>share/themes/Default/icons/hicolor/64x64/swipe-left.png</file>
+        <file>share/themes/Default/icons/hicolor/64x64/swipe-right.png</file>
         <file>share/themes/Default/icons/hicolor/64x64/up.png</file>
         <file>share/themes/Default/icons/hicolor/64x64/video-effects.png</file>
         <file>share/themes/Default/icons/hicolor/64x64/video.png</file>
@@ -226,6 +240,8 @@
         <file>share/themes/Default/icons/hicolor/8x8/settings.png</file>
         <file>share/themes/Default/icons/hicolor/8x8/sound.png</file>
         <file>share/themes/Default/icons/hicolor/8x8/stop.png</file>
+        <file>share/themes/Default/icons/hicolor/8x8/swipe-left.png</file>
+        <file>share/themes/Default/icons/hicolor/8x8/swipe-right.png</file>
         <file>share/themes/Default/icons/hicolor/8x8/up.png</file>
         <file>share/themes/Default/icons/hicolor/8x8/video-effects.png</file>
         <file>share/themes/Default/icons/hicolor/8x8/video.png</file>
@@ -256,6 +272,8 @@
         <file>share/themes/Default/icons/hicolor/scalable/settings.svg</file>
         <file>share/themes/Default/icons/hicolor/scalable/sound.svg</file>
         <file>share/themes/Default/icons/hicolor/scalable/stop.svg</file>
+        <file>share/themes/Default/icons/hicolor/scalable/swipe-left.svg</file>
+        <file>share/themes/Default/icons/hicolor/scalable/swipe-right.svg</file>
         <file>share/themes/Default/icons/hicolor/scalable/up.svg</file>
         <file>share/themes/Default/icons/hicolor/scalable/video-effects.svg</file>
         <file>share/themes/Default/icons/hicolor/scalable/video.svg</file>

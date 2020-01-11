@@ -112,7 +112,10 @@ T.CheckDelegate {
         icon.source: checkBox.icon.source
         icon.width: checkBox.icon.width
         icon.height: checkBox.icon.height
-        icon.color: ThemeSettings.colorText
+        icon.color:
+            control.highlighted?
+                ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
+                ThemeSettings.colorText
         text: checkBox.text
         font: checkBox.font
         color: checkBox.highlighted?

@@ -25,10 +25,13 @@ RadioButton 1.0 RadioButton.qml
 RadioDelegate 1.0 RadioDelegate.qml
 RangeSlider 1.0 RangeSlider.qml
 RoundButton 1.0 RoundButton.qml
+ScrollBar 1.0 ScrollBar.qml
+ScrollIndicator 1.0 ScrollIndicator.qml
 ScrollView 1.0 ScrollView.qml
 Slider 1.0 Slider.qml
 SpinBox 1.0 SpinBox.qml
 StackView 1.0 StackView.qml
+SwipeDelegate 1.0 SwipeDelegate.qml
 SwipeView 1.0 SwipeView.qml
 Switch 1.0 Switch.qml
 SwitchDelegate 1.0 SwitchDelegate.qml

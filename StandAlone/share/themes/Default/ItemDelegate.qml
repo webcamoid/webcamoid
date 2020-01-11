@@ -59,7 +59,10 @@ T.ItemDelegate {
         icon.source: control.icon.source
         icon.width: control.icon.width
         icon.height: control.icon.height
-        icon.color: ThemeSettings.colorText
+        icon.color:
+            control.highlighted?
+                ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
+                ThemeSettings.colorText
         text: control.text
         font: control.font
         color: control.highlighted?

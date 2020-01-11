@@ -220,7 +220,7 @@ matrix:
     compiler: clang
     env:
       - ANDROID_BUILD=1
-      - ANDROID_PLATFORM=23
+      - ANDROID_PLATFORM=24
       - COMPILER=clang
       - TARGET_ARCH=armv7
   - os: linux
@@ -228,7 +228,7 @@ matrix:
     compiler: clang
     env:
       - ANDROID_BUILD=1
-      - ANDROID_PLATFORM=23
+      - ANDROID_PLATFORM=24
       - COMPILER=clang
       - TARGET_ARCH=arm64_v8a
   - os: linux
@@ -236,7 +236,7 @@ matrix:
     compiler: clang
     env:
       - ANDROID_BUILD=1
-      - ANDROID_PLATFORM=23
+      - ANDROID_PLATFORM=24
       - COMPILER=clang
       - TARGET_ARCH=x86
   - os: linux
@@ -244,7 +244,7 @@ matrix:
     compiler: clang
     env:
       - ANDROID_BUILD=1
-      - ANDROID_PLATFORM=23
+      - ANDROID_PLATFORM=24
       - COMPILER=clang
       - TARGET_ARCH=armv7:arm64_v8a:x86
       - DAILY_BUILD=1

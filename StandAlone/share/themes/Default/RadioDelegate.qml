@@ -101,7 +101,10 @@ T.RadioDelegate {
         icon.source: radioDelegate.icon.source
         icon.width: radioDelegate.icon.width
         icon.height: radioDelegate.icon.height
-        icon.color: ThemeSettings.colorText
+        icon.color:
+            control.highlighted?
+                ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
+                ThemeSettings.colorText
         text: radioDelegate.text
         font: radioDelegate.font
         color: radioDelegate.highlighted?
