@@ -19,46 +19,26 @@
 
 import QtQuick 2.7
 import QtQuick.Controls 2.0
-import QtQuick.Layouts 1.3
 import QtQuick.Window 2.2
 import QtQuick.Dialogs 1.2
+import QtGraphicalEffects 1.0
 
-Rectangle {
+Button {
     id: button
-    width: 32
-    height: 32
-    color: enabled? currentColor: paletteDisabled.window
-    border.color: contrast(color)
-    border.width: 1
+    text: currentColor
+    layer.enabled: enabled
+    layer.effect: ColorOverlay {
+        cached: true
+        color: Qt.rgba(currentColor.r, currentColor.g, currentColor.b, 0.5)
+    }
 
-    property color currentColor: Qt.rgba(0.0, 0.0, 0.0, 1)
-    property bool enabled: true
+    property color currentColor: "black"
     property string title: ""
     property bool showAlphaChannel: false
     property int modality: Qt.ApplicationModal
     property bool isOpen: false
 
-    function contrast(color)
-    {
-        let lightness = (11 * color.r + 16 * color.g + 5 * color.b) / 32;
-
-        if (lightness < 0.5)
-            return Qt.hsla(0, 0, 1, 1)
-
-        return Qt.hsla(0, 0, 0, 1)
-    }
-
-    SystemPalette {
-        id: paletteDisabled
-        colorGroup: SystemPalette.Disabled
-    }
-
-    MouseArea {
-        anchors.fill: parent
-        enabled: parent.enabled
-
-        onClicked: colorDialog.open()
-    }
+    onClicked: colorDialog.open()
 
     ColorDialog {
         id: colorDialog
