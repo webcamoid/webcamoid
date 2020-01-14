@@ -16,6 +16,9 @@
         <file>share/themes/Default/GroupBox.qml</file>
         <file>share/themes/Default/ItemDelegate.qml</file>
         <file>share/themes/Default/Label.qml</file>
+        <file>share/themes/Default/Menu.qml</file>
+        <file>share/themes/Default/MenuBar.qml</file>
+        <file>share/themes/Default/MenuBarItem.qml</file>
         <file>share/themes/Default/MenuItem.qml</file>
         <file>share/themes/Default/MenuSeparator.qml</file>
         <file>share/themes/Default/Page.qml</file>

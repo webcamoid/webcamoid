@@ -1,5 +1,5 @@
 /* Webcamoid, webcam capture application.
- * Copyright (C) 2019  Gonzalo Exequiel Pedone
+ * Copyright (C) 2020  Gonzalo Exequiel Pedone
  *
  * Webcamoid is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,14 +22,23 @@ import QtQuick.Controls 2.5
 import QtQuick.Templates 2.5 as T
 import AkQml 1.0
 
-T.ToolBar {
-    id: toolBar
+T.MenuBar {
+    id: control
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             contentWidth + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              contentHeight + topPadding + bottomPadding)
     spacing: 0
     hoverEnabled: true
+    delegate: MenuBarItem { }
+
+    contentItem: Row {
+        spacing: control.spacing
+
+        Repeater {
+            model: control.contentModel
+        }
+    }
 
     background: Rectangle {
         implicitWidth: Ak.newUnit(360 * ThemeSettings.controlScale, "dp").pixels

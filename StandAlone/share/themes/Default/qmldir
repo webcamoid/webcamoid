@@ -14,6 +14,9 @@ Frame 1.0 Frame.qml
 GroupBox 1.0 GroupBox.qml
 ItemDelegate 1.0 ItemDelegate.qml
 Label 1.0 Label.qml
+Menu 1.0 Menu.qml
+MenuBar 1.0 MenuBar.qml
+MenuBarItem 1.0 MenuBarItem.qml
 MenuItem 1.0 MenuItem.qml
 MenuSeparator 1.0 MenuSeparator.qml
 Page 1.0 Page.qml
