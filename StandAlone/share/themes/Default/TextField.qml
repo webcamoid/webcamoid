@@ -29,8 +29,8 @@ T.TextField {
     id: textField
     color: ThemeSettings.colorText
     placeholderTextColor: ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
-    selectedTextColor: ThemeSettings.contrast(ThemeSettings.colorSecondary, 0.75)
-    selectionColor: ThemeSettings.colorSecondary
+    selectedTextColor: ThemeSettings.contrast(selectionColor, 0.75)
+    selectionColor: ThemeSettings.colorPrimary
     padding: Ak.newUnit(12 * ThemeSettings.controlScale, "dp").pixels
     implicitWidth: Math.max(contentWidth + leftPadding + rightPadding,
                             implicitBackgroundWidth + leftInset + rightInset,
@@ -43,6 +43,7 @@ T.TextField {
                              Ak.newUnit(36 * ThemeSettings.controlScale,
                                         "dp").pixels)
     hoverEnabled: true
+    selectByMouse: true
 
     readonly property int animationTime: 100
     readonly property int placeHolderPadding:

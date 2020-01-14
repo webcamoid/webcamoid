@@ -450,27 +450,27 @@
         <translation>Suprimeix</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="202"/>
+        <location filename="../qml/PluginConfig.qml" line="187"/>
         <source>Plugins list</source>
         <translation>Llista de connectors</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="211"/>
+        <location filename="../qml/PluginConfig.qml" line="196"/>
         <source>Refresh</source>
         <translation>Actualitza</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="221"/>
+        <location filename="../qml/PluginConfig.qml" line="206"/>
         <source>Disable</source>
         <translation>Desactiva</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="221"/>
+        <location filename="../qml/PluginConfig.qml" line="206"/>
         <source>Enable</source>
         <translation>Activa</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="304"/>
+        <location filename="../qml/PluginConfig.qml" line="274"/>
         <source>Add plugins search path</source>
         <translation>Afegeix camí de cerca de connector</translation>
     </message>

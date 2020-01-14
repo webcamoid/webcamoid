@@ -450,27 +450,27 @@
         <translation type="unfinished">Fjern</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="202"/>
+        <location filename="../qml/PluginConfig.qml" line="187"/>
         <source>Plugins list</source>
         <translation>Programtilleggsliste</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="211"/>
+        <location filename="../qml/PluginConfig.qml" line="196"/>
         <source>Refresh</source>
         <translation>Gjenoppfrisk</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="221"/>
+        <location filename="../qml/PluginConfig.qml" line="206"/>
         <source>Disable</source>
         <translation>Skru av</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="221"/>
+        <location filename="../qml/PluginConfig.qml" line="206"/>
         <source>Enable</source>
         <translation>Skru på</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="304"/>
+        <location filename="../qml/PluginConfig.qml" line="274"/>
         <source>Add plugins search path</source>
         <translation>Legg til søkesti for programtillegg</translation>
     </message>

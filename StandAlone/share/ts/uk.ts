@@ -450,27 +450,27 @@
         <translation>Видалити</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="202"/>
+        <location filename="../qml/PluginConfig.qml" line="187"/>
         <source>Plugins list</source>
         <translation>Список плагінів</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="211"/>
+        <location filename="../qml/PluginConfig.qml" line="196"/>
         <source>Refresh</source>
         <translation>Оновити</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="221"/>
+        <location filename="../qml/PluginConfig.qml" line="206"/>
         <source>Disable</source>
         <translation>Вимкнути</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="221"/>
+        <location filename="../qml/PluginConfig.qml" line="206"/>
         <source>Enable</source>
         <translation>Увімкнути</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="304"/>
+        <location filename="../qml/PluginConfig.qml" line="274"/>
         <source>Add plugins search path</source>
         <translation>Додати шлях пошуку плагінів</translation>
     </message>

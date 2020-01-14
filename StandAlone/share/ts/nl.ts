@@ -450,27 +450,27 @@
         <translation>Verwijderen</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="202"/>
+        <location filename="../qml/PluginConfig.qml" line="187"/>
         <source>Plugins list</source>
         <translation>Plug-inlijst</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="211"/>
+        <location filename="../qml/PluginConfig.qml" line="196"/>
         <source>Refresh</source>
         <translation>Verversen</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="221"/>
+        <location filename="../qml/PluginConfig.qml" line="206"/>
         <source>Disable</source>
         <translation>Uitschakelen</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="221"/>
+        <location filename="../qml/PluginConfig.qml" line="206"/>
         <source>Enable</source>
         <translation>Inschakelen</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="304"/>
+        <location filename="../qml/PluginConfig.qml" line="274"/>
         <source>Add plugins search path</source>
         <translation>Plug-inzoekpad toevoegen</translation>
     </message>

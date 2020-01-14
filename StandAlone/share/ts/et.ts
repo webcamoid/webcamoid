@@ -450,27 +450,27 @@
         <translation>Eemalda</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="202"/>
+        <location filename="../qml/PluginConfig.qml" line="187"/>
         <source>Plugins list</source>
         <translation>Pistikute loetelu</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="211"/>
+        <location filename="../qml/PluginConfig.qml" line="196"/>
         <source>Refresh</source>
         <translation>Värskenda</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="221"/>
+        <location filename="../qml/PluginConfig.qml" line="206"/>
         <source>Disable</source>
         <translation>Keela</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="221"/>
+        <location filename="../qml/PluginConfig.qml" line="206"/>
         <source>Enable</source>
         <translation>Luba</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="304"/>
+        <location filename="../qml/PluginConfig.qml" line="274"/>
         <source>Add plugins search path</source>
         <translation>Lisa pistikud otsingurajale</translation>
     </message>

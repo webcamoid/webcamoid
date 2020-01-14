@@ -115,7 +115,7 @@ T.ToolButton {
             id: buttonRectangleBelow
             anchors.fill: parent
             color: button.highlighted?
-                       ThemeSettings.colorSecondary:
+                       ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.1):
                        ThemeSettings.constShade(ThemeSettings.colorPrimary, 0, 0)
         }
 
@@ -144,11 +144,7 @@ T.ToolButton {
                     buttonPressIndicatorItem.horizontalCenter
                 width: 2 * radius
                 height: 2 * radius
-                color: button.highlighted?
-                           ThemeSettings.constShade(ThemeSettings.colorSecondary,
-                                                    0.3):
-                           ThemeSettings.constShade(ThemeSettings.colorPrimary,
-                                                    0.3)
+                color: ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.3)
                 opacity: 0
             }
         }
@@ -167,26 +163,28 @@ T.ToolButton {
         State {
             name: "Hovered"
             when: button.enabled
-                  && !button.highlighted
                   && (button.hovered || button.visualFocus)
                   && !button.checked
                   && !button.pressed
 
             PropertyChanges {
                 target: buttonRectangleBelow
-                color: ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.1)
+                color:
+                    button.highlighted?
+                        ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.2):
+                        ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.1)
             }
         },
         State {
             name: "Checked"
             when: button.enabled
-                  && !button.highlighted
                   && button.checked
                   && !button.pressed
 
             PropertyChanges {
                 target: buttonRectangleBelow
-                color: ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.2)
+                color:
+                    ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.2)
             }
         },
         State {
@@ -197,31 +195,6 @@ T.ToolButton {
                 target: buttonPress
                 radius: button.pressIndicatorRadius()
                 opacity: 1
-            }
-        },
-        State {
-            name: "HighlightedHovered"
-            when: button.enabled
-                  && button.highlighted
-                  && (button.hovered || button.visualFocus)
-                  && !button.checked
-                  && !button.pressed
-
-            PropertyChanges {
-                target: buttonRectangleBelow
-                color: ThemeSettings.constShade(ThemeSettings.colorSecondary, 0.1)
-            }
-        },
-        State {
-            name: "HighlightedChecked"
-            when: button.enabled
-                  && button.highlighted
-                  && button.checked
-                  && !button.pressed
-
-            PropertyChanges {
-                target: buttonRectangleBelow
-                color: ThemeSettings.constShade(ThemeSettings.colorSecondary, 0.2)
             }
         }
     ]

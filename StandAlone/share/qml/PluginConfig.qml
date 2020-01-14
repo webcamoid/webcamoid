@@ -148,50 +148,35 @@ ColumnLayout {
                     searchPathsTable.currentIndex = -1
                 }
             }
-            Rectangle {
-                color: palette.base
+            ScrollView {
+                id: searchPathsTableScroll
                 height: 150
                 Layout.columnSpan: 4
                 Layout.fillWidth: true
+                contentHeight: searchPathsTable.height
+                ScrollBar.horizontal.policy: ScrollBar.AsNeeded
+                ScrollBar.vertical.policy: ScrollBar.AsNeeded
 
-                ScrollView {
-                    id: searchPathsTableScroll
-                    ScrollBar.horizontal.policy: ScrollBar.AsNeeded
-                    ScrollBar.vertical.policy: ScrollBar.AsNeeded
+                ListView {
+                    id: searchPathsTable
+                    height: contentHeight
+                    width: searchPathsTableScroll.width
+                           - (searchPathsTableScroll.ScrollBar.vertical.visible?
+                                  searchPathsTableScroll.ScrollBar.vertical.width: 0)
                     clip: true
-                    contentHeight: searchPathsTable.height
-                    anchors.fill: parent
 
-                    ListView {
-                        id: searchPathsTable
-                        height: contentHeight
-                        width: searchPathsTableScroll.width
-                               - (searchPathsTableScroll.ScrollBar.vertical.visible?
-                                      searchPathsTableScroll.ScrollBar.vertical.width: 0)
+                    model: ListModel {
+                        id: searchPathsModel
+                    }
+                    delegate: ItemDelegate {
+                        text: path
+                        highlighted: searchPathsTable.currentItem == this
+                        anchors.right: parent.right
+                        anchors.left: parent.left
 
-                        model: ListModel {
-                            id: searchPathsModel
-                        }
-                        delegate: Rectangle {
-                            color: colorForIndex(index, true, searchPathsTable)
-                            width: parent.width
-                            height: lblPluginSearchPath.height
-
-                            Label {
-                                id: lblPluginSearchPath
-                                text: path
-                                elide: Text.ElideLeft
-                                width: parent.width
-                            }
-                            MouseArea {
-                                preventStealing: true
-                                anchors.fill: parent
-
-                                onClicked: {
-                                    searchPathsTable.currentIndex = index
-                                    searchPathsTable.positionViewAtIndex(index, ListView.Contain)
-                                }
-                            }
+                        onClicked: {
+                            searchPathsTable.currentIndex = index
+                            searchPathsTable.positionViewAtIndex(index, ListView.Contain)
                         }
                     }
                 }
@@ -241,58 +226,43 @@ ColumnLayout {
                     pluginsTable.currentIndex = -1
                 }
             }
-            Rectangle {
-                color: palette.base
+            ScrollView {
+                id: pluginsTableScroll
                 height: 150
                 Layout.columnSpan: 3
                 Layout.fillWidth: true
+                contentHeight: pluginsTable.height
+                ScrollBar.horizontal.policy: ScrollBar.AsNeeded
+                ScrollBar.vertical.policy: ScrollBar.AsNeeded
 
-                ScrollView {
-                    id: pluginsTableScroll
-                    ScrollBar.horizontal.policy: ScrollBar.AsNeeded
-                    ScrollBar.vertical.policy: ScrollBar.AsNeeded
+                ListView {
+                    id: pluginsTable
+                    height: contentHeight
+                    width: pluginsTableScroll.width
+                           - (pluginsTableScroll.ScrollBar.vertical.visible?
+                                  pluginsTableScroll.ScrollBar.vertical.width: 0)
                     clip: true
-                    contentHeight: pluginsTable.height
-                    anchors.fill: parent
 
-                    ListView {
-                        id: pluginsTable
-                        height: contentHeight
-                        width: pluginsTableScroll.width
-                               - (pluginsTableScroll.ScrollBar.vertical.visible?
-                                      pluginsTableScroll.ScrollBar.vertical.width: 0)
+                    model: ListModel {
+                        id: pluginsModel
+                    }
 
-                        model: ListModel {
-                            id: pluginsModel
+                    delegate: ItemDelegate {
+                        text: path
+                        highlighted: pluginsTable.currentItem == this
+                        opacity: pluginEnabled? 1.0: 0.5
+                        anchors.right: parent.right
+                        anchors.left: parent.left
+
+                        onClicked: {
+                            pluginsTable.currentIndex = index
+                            pluginsTable.positionViewAtIndex(index, ListView.Contain)
                         }
+                    }
 
-                        delegate: Rectangle {
-                            color: colorForIndex(index, pluginEnabled, pluginsTable)
-                            width: parent.width
-                            height: lblPluginPath.height
-
-                            Label {
-                                id: lblPluginPath
-                                text: path
-                                elide: Text.ElideLeft
-                                width: parent.width
-                                enabled: pluginEnabled
-                            }
-                            MouseArea {
-                                preventStealing: true
-                                anchors.fill: parent
-
-                                onClicked: {
-                                    pluginsTable.currentIndex = index
-                                    pluginsTable.positionViewAtIndex(index, ListView.Contain)
-                                }
-                            }
-                        }
-
-                        onCurrentIndexChanged: {
-                            btnEnableDisable.pluginIsEnabled =
-                                currentIndex < 0? false: pluginsTable.model.get(currentIndex).pluginEnabled
-                        }
+                    onCurrentIndexChanged: {
+                        btnEnableDisable.pluginIsEnabled =
+                            currentIndex < 0? false: pluginsTable.model.get(currentIndex).pluginEnabled
                     }
                 }
             }

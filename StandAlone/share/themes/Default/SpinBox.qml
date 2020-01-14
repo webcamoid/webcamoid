@@ -53,8 +53,8 @@ T.SpinBox {
         text: spinBox.displayText
         font: spinBox.font
         color: ThemeSettings.colorText
-        selectionColor: ThemeSettings.colorSecondary
-        selectedTextColor: ThemeSettings.contrast(ThemeSettings.colorSecondary, 0.75)
+        selectionColor: ThemeSettings.colorPrimary
+        selectedTextColor: ThemeSettings.contrast(selectionColor, 0.75)
         horizontalAlignment: Qt.AlignHCenter
         verticalAlignment: Qt.AlignVCenter
         anchors.left: spinBox.mirrored? upIndicator.left: downIndicator.right
@@ -64,6 +64,7 @@ T.SpinBox {
         readOnly: !spinBox.editable
         validator: spinBox.validator
         inputMethodHints: spinBox.inputMethodHints
+        selectByMouse: true
     }
 
     up.indicator: Rectangle {
