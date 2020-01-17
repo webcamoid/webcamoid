@@ -324,6 +324,29 @@ class AKCOMMONS_EXPORT AkVideoCaps: public QObject
         operator bool() const;
         operator AkCaps() const;
 
+        Q_INVOKABLE static QObject *create();
+        Q_INVOKABLE static QObject *create(const AkCaps &caps);
+        Q_INVOKABLE static QObject *create(const AkVideoCaps &caps);
+        Q_INVOKABLE static QObject *create(AkVideoCaps::PixelFormat format,
+                                           int width,
+                                           int height,
+                                           const AkFrac &fps,
+                                           int align=1);
+        Q_INVOKABLE static QObject *create(const QString &format,
+                                           int width,
+                                           int height,
+                                           const AkFrac &fps,
+                                           int align=1);
+        Q_INVOKABLE static QObject *create(AkVideoCaps::PixelFormat format,
+                                           const QSize &size,
+                                           const AkFrac &fps,
+                                           int align=1);
+        Q_INVOKABLE static QObject *create(const QString &format,
+                                           const QSize &size,
+                                           const AkFrac &fps,
+                                           int align=1);
+        Q_INVOKABLE QVariant toVariant() const;
+
         Q_INVOKABLE PixelFormat format() const;
         Q_INVOKABLE quint32 fourCC() const;
         Q_INVOKABLE int bpp() const;

@@ -20,13 +20,13 @@
 import QtQuick 2.0
 import QtQuick.Controls 2.5
 import QtQuick.Templates 2.5 as T
-import AkQml 1.0
+import Ak 1.0
 
 T.Pane {
     id: control
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             contentWidth + leftPadding + rightPadding,
-                            Ak.newUnit(250 * ThemeSettings.controlScale, "dp").pixels)
+                            AkUnit.create(250 * ThemeSettings.controlScale, "dp").pixels)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              contentHeight + topPadding + bottomPadding)
     padding: 0

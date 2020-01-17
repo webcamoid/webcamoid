@@ -21,7 +21,7 @@ import QtQuick 2.0
 import QtQuick.Controls 2.5
 import QtQuick.Templates 2.5 as T
 import QtQuick.Controls.impl 2.12
-import AkQml 1.0
+import Ak 1.0
 
 T.ScrollBar {
     id: control
@@ -31,9 +31,9 @@ T.ScrollBar {
     implicitHeight:
         Math.max(implicitBackgroundHeight + topInset + bottomInset,
                  implicitContentHeight + topPadding + bottomPadding)
-    padding: Ak.newUnit(2 * ThemeSettings.controlScale, "dp").pixels
-    leftPadding: Ak.newUnit(4 * ThemeSettings.controlScale, "dp").pixels
-    rightPadding: Ak.newUnit(4 * ThemeSettings.controlScale, "dp").pixels
+    padding: AkUnit.create(2 * ThemeSettings.controlScale, "dp").pixels
+    leftPadding: AkUnit.create(4 * ThemeSettings.controlScale, "dp").pixels
+    rightPadding: AkUnit.create(4 * ThemeSettings.controlScale, "dp").pixels
     visible: control.policy !== T.ScrollBar.AlwaysOff
     minimumSize: orientation == Qt.Horizontal?
                      height / width:
@@ -41,8 +41,8 @@ T.ScrollBar {
     hoverEnabled: true
 
     contentItem: Rectangle {
-        implicitWidth: Ak.newUnit(6 * ThemeSettings.controlScale, "dp").pixels
-        implicitHeight: Ak.newUnit(6 * ThemeSettings.controlScale, "dp").pixels
+        implicitWidth: AkUnit.create(6 * ThemeSettings.controlScale, "dp").pixels
+        implicitHeight: AkUnit.create(6 * ThemeSettings.controlScale, "dp").pixels
         radius: Math.min(implicitWidth, implicitHeight) / 2
         color: control.pressed?
                    ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.2):
@@ -53,8 +53,8 @@ T.ScrollBar {
     }
 
     background: Rectangle {
-        implicitWidth: Ak.newUnit(6 * ThemeSettings.controlScale, "dp").pixels
-        implicitHeight: Ak.newUnit(6 * ThemeSettings.controlScale, "dp").pixels
+        implicitWidth: AkUnit.create(6 * ThemeSettings.controlScale, "dp").pixels
+        implicitHeight: AkUnit.create(6 * ThemeSettings.controlScale, "dp").pixels
         color: ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
         opacity: 0
         visible: control.interactive

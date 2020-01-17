@@ -214,6 +214,23 @@ class AKCOMMONS_EXPORT AkAudioCaps: public QObject
         operator bool() const;
         operator AkCaps() const;
 
+        Q_INVOKABLE static QObject *create();
+        Q_INVOKABLE static QObject *create(const AkCaps &caps);
+        Q_INVOKABLE static QObject *create(const AkAudioCaps &caps);
+        Q_INVOKABLE static QObject *create(AkAudioCaps::SampleFormat format,
+                                           AkAudioCaps::ChannelLayout layout,
+                                           int rate,
+                                           int samples=0,
+                                           bool planar=false,
+                                           int align=1);
+        Q_INVOKABLE static QObject *create(const QString &format,
+                                           const QString &layout,
+                                           int rate,
+                                           int samples=0,
+                                           bool planar=false,
+                                           int align=1);
+        Q_INVOKABLE QVariant toVariant() const;
+
         Q_INVOKABLE SampleFormat format() const;
         Q_INVOKABLE ChannelLayout layout() const;
         Q_INVOKABLE int bps() const;

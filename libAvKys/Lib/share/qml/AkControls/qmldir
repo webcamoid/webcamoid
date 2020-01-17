@@ -1,6 +1,6 @@
-module AkQmlControls
+module AkControls
 
-AkColorButton 1.0 AkColorButton.qml
+ColorButton 1.0 ColorButton.qml
 
 depends QtQuick          2.7
 depends QtQuick.Controls 2.5

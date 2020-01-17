@@ -23,17 +23,17 @@ import QtQuick.Layouts 1.3
 import QtQuick.Templates 2.5 as T
 import QtGraphicalEffects 1.0
 import QtQuick.Controls.impl 2.12
-import AkQml 1.0
+import Ak 1.0
 
 T.Dial {
     id: control
-    implicitWidth: Math.max(Ak.newUnit(96 * ThemeSettings.controlScale, "dp").pixels
+    implicitWidth: Math.max(AkUnit.create(96 * ThemeSettings.controlScale, "dp").pixels
                             + leftInset + rightInset,
                             implicitContentWidth + leftPadding + rightPadding)
-    implicitHeight: Math.max(Ak.newUnit(96 * ThemeSettings.controlScale, "dp").pixels
+    implicitHeight: Math.max(AkUnit.create(96 * ThemeSettings.controlScale, "dp").pixels
                              + topInset + bottomInset,
                              implicitContentHeight + topPadding + bottomPadding)
-    padding: Ak.newUnit(6 * ThemeSettings.controlScale, "dp").pixels
+    padding: AkUnit.create(6 * ThemeSettings.controlScale, "dp").pixels
     hoverEnabled: true
     focusPolicy: Qt.WheelFocus
 
@@ -130,7 +130,7 @@ T.Dial {
             anchors.horizontalCenter: parent.horizontalCenter
             horizontalOffset: radius / 2
             verticalOffset: radius / 2
-            radius: Ak.newUnit(6 * ThemeSettings.controlScale, "dp").pixels
+            radius: AkUnit.create(6 * ThemeSettings.controlScale, "dp").pixels
             samples: 2 * radius + 1
             color: ThemeSettings.constShade(ThemeSettings.colorBack, -0.9)
             source: buttonShadowRect

@@ -23,7 +23,7 @@ import QtQuick.Templates 2.5 as T
 import QtGraphicalEffects 1.0
 import QtQuick.Controls.impl 2.12
 import QtQuick.Window 2.5
-import AkQml 1.0
+import Ak 1.0
 
 T.Menu {
     id: control
@@ -88,17 +88,17 @@ T.Menu {
     }
 
     background: Rectangle {
-        implicitWidth: Ak.newUnit(128 * ThemeSettings.controlScale, "dp").pixels
-        implicitHeight: Ak.newUnit(48 * ThemeSettings.controlScale, "dp").pixels
+        implicitWidth: AkUnit.create(128 * ThemeSettings.controlScale, "dp").pixels
+        implicitHeight: AkUnit.create(48 * ThemeSettings.controlScale, "dp").pixels
         color: ThemeSettings.colorBack
         border.color: ThemeSettings.shade(ThemeSettings.colorBack, -0.3)
-        radius: Ak.newUnit(4 * ThemeSettings.controlScale, "dp").pixels
+        radius: AkUnit.create(4 * ThemeSettings.controlScale, "dp").pixels
         layer.enabled: control.modal
         layer.effect: DropShadow {
             cached: true
             horizontalOffset: radius / 2
             verticalOffset: radius / 2
-            radius: Ak.newUnit(8 * ThemeSettings.controlScale, "dp").pixels
+            radius: AkUnit.create(8 * ThemeSettings.controlScale, "dp").pixels
             samples: 2 * radius + 1
             color: ThemeSettings.constShade(ThemeSettings.colorBack, -0.9)
         }

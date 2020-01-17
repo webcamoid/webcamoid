@@ -28,7 +28,6 @@ class CliOptionsPrivate
 {
     public:
         QCommandLineOption m_configPathOpt {{"c", "config"}};
-        QCommandLineOption m_qmlPathOpt {{"q", "qmlpaths"}};
         QCommandLineOption m_recursiveOpt {{"r", "recursive"}};
         QCommandLineOption m_pluginPathsOpt {{"p", "paths"}};
         QCommandLineOption m_blackListOpt {{"b", "no-load"}};
@@ -49,12 +48,6 @@ CliOptions::CliOptions()
                             "configs from application directory."));
     this->d->m_configPathOpt.setValueName(QObject::tr("PATH"));
     this->addOption(this->d->m_configPathOpt);
-
-    this->d->m_qmlPathOpt.setDescription(
-                QObject::tr("Semi-colon separated list of paths to search the "
-                            "QML interface."));
-    this->d->m_qmlPathOpt.setValueName(QObject::tr("PATH1;PATH2;PATH3;..."));
-    this->addOption(this->d->m_qmlPathOpt);
 
     // Set recursive plugin path search.
     this->d->m_recursiveOpt.setDescription(
@@ -109,11 +102,6 @@ CliOptions::~CliOptions()
 QCommandLineOption CliOptions::configPathOpt() const
 {
     return this->d->m_configPathOpt;
-}
-
-QCommandLineOption CliOptions::qmlPathOpt() const
-{
-    return this->d->m_qmlPathOpt;
 }
 
 QCommandLineOption CliOptions::recursiveOpt() const

@@ -57,6 +57,17 @@ class AkPrivate
 
 Q_GLOBAL_STATIC(AkPrivate, akGlobalStuff)
 
+Ak::Ak()
+{
+
+}
+
+Ak::Ak(const Ak &other):
+    QObject()
+{
+    Q_UNUSED(other)
+}
+
 qint64 Ak::id()
 {
     static qint64 id = 0;
@@ -76,6 +87,9 @@ void Ak::setQmlEngine(QQmlEngine *engine)
 
     if (!engine)
         return;
+
+    if (!engine->importPathList().contains(":/Ak/share/qml"))
+        engine->addImportPath(":/Ak/share/qml");
 
     akGlobalStuff->m_globalEngine = engine;
     akGlobalStuff->m_qmlDefaultImportPathList = akGlobalStuff->m_globalEngine->importPathList();
@@ -179,6 +193,86 @@ AkPrivate::AkPrivate()
     qRegisterMetaType<AkAudioPacket>("AkAudioPacket");
     qRegisterMetaType<AkVideoPacket>("AkVideoPacket");
     qRegisterMetaType<AkElementPtr>("AkElementPtr");
+    qmlRegisterSingletonType<AkAudioCaps>("Ak", 1, 0, "Ak",
+                                          [] (QQmlEngine *qmlEngine,
+                                              QJSEngine *jsEngine) -> QObject * {
+        Q_UNUSED(qmlEngine)
+        Q_UNUSED(jsEngine)
+
+        return new Ak();
+    });
+    qmlRegisterSingletonType<AkAudioCaps>("Ak", 1, 0, "AkAudioCaps",
+                                          [] (QQmlEngine *qmlEngine,
+                                              QJSEngine *jsEngine) -> QObject * {
+        Q_UNUSED(qmlEngine)
+        Q_UNUSED(jsEngine)
+
+        return new AkAudioCaps();
+    });
+    qmlRegisterSingletonType<AkAudioPacket>("Ak", 1, 0, "AkAudioPacket",
+                                            [] (QQmlEngine *qmlEngine,
+                                                QJSEngine *jsEngine) -> QObject * {
+        Q_UNUSED(qmlEngine)
+        Q_UNUSED(jsEngine)
+
+        return new AkAudioPacket();
+    });
+    qmlRegisterSingletonType<AkCaps>("Ak", 1, 0, "AkCaps",
+                                     [] (QQmlEngine *qmlEngine,
+                                         QJSEngine *jsEngine) -> QObject * {
+        Q_UNUSED(qmlEngine)
+        Q_UNUSED(jsEngine)
+
+        return new AkCaps();
+    });
+    qmlRegisterSingletonType<AkElement>("Ak", 1, 0, "AkElement",
+                                        [] (QQmlEngine *qmlEngine,
+                                            QJSEngine *jsEngine) -> QObject * {
+        Q_UNUSED(qmlEngine)
+        Q_UNUSED(jsEngine)
+
+        return new AkElement();
+    });
+    qmlRegisterSingletonType<AkFrac>("Ak", 1, 0, "AkFrac",
+                                     [] (QQmlEngine *qmlEngine,
+                                         QJSEngine *jsEngine) -> QObject * {
+        Q_UNUSED(qmlEngine)
+        Q_UNUSED(jsEngine)
+
+        return new AkFrac();
+    });
+    qmlRegisterSingletonType<AkPacket>("Ak", 1, 0, "AkPacket",
+                                       [] (QQmlEngine *qmlEngine,
+                                           QJSEngine *jsEngine) -> QObject * {
+        Q_UNUSED(qmlEngine)
+        Q_UNUSED(jsEngine)
+
+        return new AkPacket();
+    });
+    qmlRegisterSingletonType<AkUnit>("Ak", 1, 0, "AkUnit",
+                                     [] (QQmlEngine *qmlEngine,
+                                         QJSEngine *jsEngine) -> QObject * {
+        Q_UNUSED(qmlEngine)
+        Q_UNUSED(jsEngine)
+
+        return new AkUnit();
+    });
+    qmlRegisterSingletonType<AkVideoCaps>("Ak", 1, 0, "AkVideoCaps",
+                                          [] (QQmlEngine *qmlEngine,
+                                              QJSEngine *jsEngine) -> QObject * {
+        Q_UNUSED(qmlEngine)
+        Q_UNUSED(jsEngine)
+
+        return new AkVideoCaps();
+    });
+    qmlRegisterSingletonType<AkVideoPacket>("Ak", 1, 0, "AkVideoPacket",
+                                            [] (QQmlEngine *qmlEngine,
+                                                QJSEngine *jsEngine) -> QObject * {
+        Q_UNUSED(qmlEngine)
+        Q_UNUSED(jsEngine)
+
+        return new AkVideoPacket();
+    });
 
     this->m_applicationDir.setPath(QCoreApplication::applicationDirPath());
 
@@ -232,3 +326,5 @@ QStringList AkPrivate::qmlImportPaths() const
     return importPaths;
 #endif
 }
+
+#include "moc_ak.cpp"

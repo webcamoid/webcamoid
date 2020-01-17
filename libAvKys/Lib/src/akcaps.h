@@ -54,6 +54,9 @@ class AKCOMMONS_EXPORT AkCaps: public QObject
         bool operator !=(const AkCaps &other) const;
         operator bool() const;
 
+        Q_INVOKABLE static QObject *create(const QString &mimeType={});
+        Q_INVOKABLE static QObject *create(const AkCaps &caps);
+        Q_INVOKABLE QVariant toVariant() const;
         Q_INVOKABLE virtual QString mimeType() const;
         Q_INVOKABLE static AkCaps fromMap(const QVariantMap &caps);
         Q_INVOKABLE QVariantMap toMap() const;

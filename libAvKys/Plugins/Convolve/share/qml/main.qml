@@ -20,7 +20,7 @@
 import QtQuick 2.7
 import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.3
-import AkQml 1.0
+import Ak 1.0
 
 ColumnLayout {
     id: configs
@@ -153,7 +153,7 @@ ColumnLayout {
             text: qsTr("Factor")
         }
         TextField {
-            text: Ak.newFrac(Convolve.factor).string
+            text: AkFrac.create(Convolve.factor).string
             placeholderText: qsTr("Factor")
             validator: RegExpValidator {
                 regExp: /-?\d+\/\d+/
@@ -161,7 +161,7 @@ ColumnLayout {
             Layout.columnSpan: 2
             Layout.fillWidth: true
 
-            onTextChanged: Convolve.factor = Ak.varFrac(Ak.newFrac(text))
+            onTextChanged: Convolve.factor = AkFrac.create(text).toVariant()
         }
 
         Label {

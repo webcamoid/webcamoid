@@ -21,9 +21,8 @@ import QtQuick 2.7
 import QtQuick.Window 2.2
 import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
-import AkQml 1.0
+import Ak 1.0
 import Webcamoid 1.0
-import WebcamoidUpdates 1.0
 
 ApplicationWindow {
     id: wdgMainWidget

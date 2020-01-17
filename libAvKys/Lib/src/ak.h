@@ -20,20 +20,29 @@
 #ifndef AK_H
 #define AK_H
 
+#include <QObject>
+
 #include "akcommons.h"
 
-class QString;
-class QStringList;
 class QQmlEngine;
 
-namespace Ak
+class AKCOMMONS_EXPORT Ak: public QObject
 {
-    AKCOMMONS_EXPORT qint64 id();
-    AKCOMMONS_EXPORT void setQmlEngine(QQmlEngine *engine);
-    AKCOMMONS_EXPORT QStringList qmlImportPathList();
-    AKCOMMONS_EXPORT void addQmlImportPath(const QString &path);
-    AKCOMMONS_EXPORT void setQmlImportPathList(const QStringList &paths);
-    AKCOMMONS_EXPORT void resetQmlImportPathList();
-}
+    Q_OBJECT
+
+    public:
+        Ak();
+        Ak(const Ak &other);
+        ~Ak() = default;
+
+        Q_INVOKABLE static qint64 id();
+        Q_INVOKABLE static void setQmlEngine(QQmlEngine *engine);
+        Q_INVOKABLE static QStringList qmlImportPathList();
+        Q_INVOKABLE static void addQmlImportPath(const QString &path);
+        Q_INVOKABLE static void setQmlImportPathList(const QStringList &paths);
+        Q_INVOKABLE static void resetQmlImportPathList();
+};
+
+Q_DECLARE_METATYPE(Ak)
 
 #endif // AK_H

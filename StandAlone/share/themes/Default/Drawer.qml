@@ -22,7 +22,7 @@ import QtQuick.Controls 2.5
 import QtQuick.Templates 2.5 as T
 import QtGraphicalEffects 1.0
 import QtQuick.Controls.impl 2.12
-import AkQml 1.0
+import Ak 1.0
 
 T.Drawer {
     id: control
@@ -33,14 +33,14 @@ T.Drawer {
     parent: T.Overlay.overlay
 
     background: Rectangle {
-        implicitWidth: Ak.newUnit(256 * ThemeSettings.controlScale, "dp").pixels
-        implicitHeight: Ak.newUnit(256 * ThemeSettings.controlScale, "dp").pixels
+        implicitWidth: AkUnit.create(256 * ThemeSettings.controlScale, "dp").pixels
+        implicitHeight: AkUnit.create(256 * ThemeSettings.controlScale, "dp").pixels
         color: ThemeSettings.colorBack
         layer.enabled: control.modal
         layer.effect: DropShadow {
             cached: true
             horizontalOffset: radius / 2
-            radius: Ak.newUnit(8 * ThemeSettings.controlScale, "dp").pixels
+            radius: AkUnit.create(8 * ThemeSettings.controlScale, "dp").pixels
             samples: 2 * radius + 1
             color: ThemeSettings.constShade(ThemeSettings.colorBack, -0.9)
         }
@@ -56,7 +56,7 @@ T.Drawer {
             readonly property bool horizontal:
                 control.edge === Qt.LeftEdge || control.edge === Qt.RightEdge
             readonly property real handleWidth:
-                Ak.newUnit(1 * ThemeSettings.controlScale, "dp").pixels
+                AkUnit.create(1 * ThemeSettings.controlScale, "dp").pixels
         }
     }
 

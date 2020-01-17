@@ -116,6 +116,8 @@ class AudioLayer: public QObject
         Q_INVOKABLE QList<AkAudioCaps::SampleFormat> supportedFormats(const QString &device) const;
         Q_INVOKABLE QList<AkAudioCaps::ChannelLayout> supportedChannelLayouts(const QString &device) const;
         Q_INVOKABLE QList<int> supportedSampleRates(const QString &device) const;
+        Q_INVOKABLE QVariantList supportedFormatsVariant(const QString &device) const;
+        Q_INVOKABLE QVariantList supportedChannelLayoutsVariant(const QString &device) const;
 
     private:
         AudioLayerPrivate *d;

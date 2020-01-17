@@ -22,13 +22,13 @@ import QtQuick.Controls 2.5
 import QtQuick.Templates 2.5 as T
 import QtGraphicalEffects 1.0
 import QtQuick.Controls.impl 2.12
-import AkQml 1.0
+import Ak 1.0
 
 T.Switch {
     id: control
     opacity: enabled? 1: 0.5
-    icon.width: Ak.newUnit(18 * ThemeSettings.controlScale, "dp").pixels
-    icon.height: Ak.newUnit(18 * ThemeSettings.controlScale, "dp").pixels
+    icon.width: AkUnit.create(18 * ThemeSettings.controlScale, "dp").pixels
+    icon.height: AkUnit.create(18 * ThemeSettings.controlScale, "dp").pixels
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             implicitContentWidth +
                             implicitIndicatorWidth + implicitIndicatorHeight
@@ -36,8 +36,8 @@ T.Switch {
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              implicitContentHeight + topPadding + bottomPadding,
                               2 * implicitIndicatorHeight + topPadding + bottomPadding)
-    padding: Ak.newUnit(4 * ThemeSettings.controlScale, "dp").pixels
-    spacing: Ak.newUnit(8 * ThemeSettings.controlScale, "dp").pixels
+    padding: AkUnit.create(4 * ThemeSettings.controlScale, "dp").pixels
+    spacing: AkUnit.create(8 * ThemeSettings.controlScale, "dp").pixels
     hoverEnabled: true
     clip: true
 
@@ -49,9 +49,9 @@ T.Switch {
         anchors.leftMargin: switchThumb.width / 2 + control.leftPadding
         anchors.verticalCenter: control.verticalCenter
         implicitWidth:
-            Ak.newUnit(36 * ThemeSettings.controlScale, "dp").pixels
+            AkUnit.create(36 * ThemeSettings.controlScale, "dp").pixels
         implicitHeight:
-            Ak.newUnit(20 * ThemeSettings.controlScale, "dp").pixels
+            AkUnit.create(20 * ThemeSettings.controlScale, "dp").pixels
 
         Rectangle {
             id: switchTrack
@@ -90,7 +90,7 @@ T.Switch {
                 cached: true
                 horizontalOffset: radius / 2
                 verticalOffset: radius / 2
-                radius: Ak.newUnit(1 * ThemeSettings.controlScale, "dp").pixels
+                radius: AkUnit.create(1 * ThemeSettings.controlScale, "dp").pixels
                 samples: 2 * radius + 1
                 color: ThemeSettings.constShade(ThemeSettings.colorBack, -0.9)
                 source: shadowRect

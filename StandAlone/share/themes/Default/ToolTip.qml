@@ -21,19 +21,19 @@ import QtQuick 2.0
 import QtQuick.Controls 2.5
 import QtQuick.Templates 2.5 as T
 import QtQuick.Controls.impl 2.12
-import AkQml 1.0
+import Ak 1.0
 
 T.ToolTip {
     id: toolTip
     x: parent? (parent.width - implicitWidth) / 2: 0
-    y: -implicitHeight - Ak.newUnit(8 * ThemeSettings.controlScale, "dp").pixels
+    y: -implicitHeight - AkUnit.create(8 * ThemeSettings.controlScale, "dp").pixels
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             contentWidth + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              contentHeight + topPadding + bottomPadding)
-    padding: Ak.newUnit(8 * ThemeSettings.controlScale, "dp").pixels
+    padding: AkUnit.create(8 * ThemeSettings.controlScale, "dp").pixels
     horizontalPadding: padding
-                       + Ak.newUnit(8 * ThemeSettings.controlScale, "dp").pixels
+                       + AkUnit.create(8 * ThemeSettings.controlScale, "dp").pixels
     closePolicy: T.Popup.CloseOnEscape
                  | T.Popup.CloseOnPressOutsideParent
                  | T.Popup.CloseOnReleaseOutsideParent
@@ -65,9 +65,9 @@ T.ToolTip {
     }
 
     background: Rectangle {
-        implicitHeight: Ak.newUnit(24 * ThemeSettings.controlScale, "dp").pixels
+        implicitHeight: AkUnit.create(24 * ThemeSettings.controlScale, "dp").pixels
         color: ThemeSettings.shade(ThemeSettings.contrast(ThemeSettings.colorBack),
                                    -0.1)
-        radius: Ak.newUnit(4 * ThemeSettings.controlScale, "dp").pixels
+        radius: AkUnit.create(4 * ThemeSettings.controlScale, "dp").pixels
     }
 }

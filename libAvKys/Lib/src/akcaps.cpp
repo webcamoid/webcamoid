@@ -78,6 +78,21 @@ bool AkCaps::operator !=(const AkCaps &other) const
     return !(*this == other);
 }
 
+QObject *AkCaps::create(const QString &mimeType)
+{
+    return new AkCaps(mimeType);
+}
+
+QObject *AkCaps::create(const AkCaps &caps)
+{
+    return new AkCaps(caps);
+}
+
+QVariant AkCaps::toVariant() const
+{
+    return QVariant::fromValue(*this);
+}
+
 AkCaps::operator bool() const
 {
     return !this->d->m_mimeType.isEmpty();

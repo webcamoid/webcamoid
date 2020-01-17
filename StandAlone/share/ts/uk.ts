@@ -32,37 +32,37 @@
 <context>
     <name>AddMedia</name>
     <message>
-        <location filename="../qml/AddMedia.qml" line="28"/>
+        <location filename="../qml/AddMedia.qml" line="27"/>
         <source>Add new media</source>
         <translation>Додати нове медіа</translation>
     </message>
     <message>
-        <location filename="../qml/AddMedia.qml" line="54"/>
+        <location filename="../qml/AddMedia.qml" line="53"/>
         <source>Description</source>
         <translation>Опис</translation>
     </message>
     <message>
-        <location filename="../qml/AddMedia.qml" line="60"/>
+        <location filename="../qml/AddMedia.qml" line="59"/>
         <source>Insert a media description</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/AddMedia.qml" line="67"/>
+        <location filename="../qml/AddMedia.qml" line="66"/>
         <source>Media file</source>
         <translation>Медіа файл</translation>
     </message>
     <message>
-        <location filename="../qml/AddMedia.qml" line="74"/>
+        <location filename="../qml/AddMedia.qml" line="73"/>
         <source>Select a media file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/AddMedia.qml" line="81"/>
+        <location filename="../qml/AddMedia.qml" line="80"/>
         <source>Search</source>
         <translation>Пошук</translation>
     </message>
     <message>
-        <location filename="../qml/AddMedia.qml" line="122"/>
+        <location filename="../qml/AddMedia.qml" line="121"/>
         <source>Choose the file to add as media</source>
         <translation>Виберіть файл, щоб додати як медіа</translation>
     </message>
@@ -269,63 +269,63 @@
 <context>
     <name>GeneralConfig</name>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="45"/>
+        <location filename="../qml/GeneralConfig.qml" line="46"/>
         <source>Play webcam on start</source>
         <extracomment>Start playing the webcam right after opening Webcamoid.</extracomment>
         <translation>Запускати веб-камеру на старті</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="60"/>
+        <location filename="../qml/GeneralConfig.qml" line="61"/>
         <source>Enable advanced effects mode</source>
         <translation>Увімкнути режим додаткових ефектів</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="85"/>
+        <location filename="../qml/GeneralConfig.qml" line="86"/>
         <source>Video capture</source>
         <translation>Захоплення відео</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="95"/>
+        <location filename="../qml/GeneralConfig.qml" line="96"/>
         <source>Desktop capture</source>
         <translation>Захоплення робочого столу</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="105"/>
+        <location filename="../qml/GeneralConfig.qml" line="106"/>
         <source>Audio capture/play</source>
         <translation>Аудіо захоплення/відтворення</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="115"/>
+        <location filename="../qml/GeneralConfig.qml" line="116"/>
         <source>Video convert</source>
         <translation>Конвертувати відео</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="125"/>
+        <location filename="../qml/GeneralConfig.qml" line="126"/>
         <source>Audio convert</source>
         <translation>Конвертувати аудіо</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="166"/>
+        <location filename="../qml/GeneralConfig.qml" line="167"/>
         <source>Virtual camera driver</source>
         <translation>Драйвер віртуальної камери</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="135"/>
+        <location filename="../qml/GeneralConfig.qml" line="136"/>
         <source>Video playback</source>
         <translation>Відтворення відео</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="76"/>
+        <location filename="../qml/GeneralConfig.qml" line="77"/>
         <source>Frameworks and libraries</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="145"/>
+        <location filename="../qml/GeneralConfig.qml" line="146"/>
         <source>Video record</source>
         <translation>Відеозапис</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="155"/>
+        <location filename="../qml/GeneralConfig.qml" line="156"/>
         <source>Root method</source>
         <translation>Кореневий метод</translation>
     </message>
@@ -371,7 +371,7 @@
 <context>
     <name>MediaTools</name>
     <message>
-        <location filename="../../src/mediatools.cpp" line="224"/>
+        <location filename="../../src/mediatools.cpp" line="223"/>
         <source>Daily Build</source>
         <translation>Денна збірка</translation>
     </message>
@@ -379,7 +379,7 @@
 <context>
     <name>OutputConfig</name>
     <message>
-        <location filename="../qml/OutputConfig.qml" line="45"/>
+        <location filename="../qml/OutputConfig.qml" line="44"/>
         <source>Enable virtual camera</source>
         <translation type="unfinished"></translation>
     </message>
@@ -425,52 +425,52 @@
 <context>
     <name>PluginConfig</name>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="101"/>
+        <location filename="../qml/PluginConfig.qml" line="98"/>
         <source>Use this page for configuring the plugins search paths.&lt;br /&gt;&lt;b&gt;Don&apos;t touch nothing unless you know what you are doing&lt;/b&gt;.</source>
         <translation>Використовуйте цю сторінку для налаштування шляхів пошуку плагінів.&lt;br /&gt;&lt;b&gt;Не торкайтесь нічого, якщо не знаєте, що ви робите&lt;/b&gt;.</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="106"/>
+        <location filename="../qml/PluginConfig.qml" line="103"/>
         <source>Extra search paths</source>
         <translation>Додатковий пошук шляхів</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="115"/>
+        <location filename="../qml/PluginConfig.qml" line="112"/>
         <source>Search plugins in subfolders.</source>
         <translation>Пошук плагінів у вкладених папках.</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="127"/>
+        <location filename="../qml/PluginConfig.qml" line="124"/>
         <source>Add</source>
         <translation>Додати</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="134"/>
+        <location filename="../qml/PluginConfig.qml" line="131"/>
         <source>Remove</source>
         <translation>Видалити</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="187"/>
+        <location filename="../qml/PluginConfig.qml" line="184"/>
         <source>Plugins list</source>
         <translation>Список плагінів</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="196"/>
+        <location filename="../qml/PluginConfig.qml" line="193"/>
         <source>Refresh</source>
         <translation>Оновити</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="206"/>
+        <location filename="../qml/PluginConfig.qml" line="203"/>
         <source>Disable</source>
         <translation>Вимкнути</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="206"/>
+        <location filename="../qml/PluginConfig.qml" line="203"/>
         <source>Enable</source>
         <translation>Увімкнути</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="274"/>
+        <location filename="../qml/PluginConfig.qml" line="271"/>
         <source>Add plugins search path</source>
         <translation>Додати шлях пошуку плагінів</translation>
     </message>
@@ -478,51 +478,45 @@
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../../src/clioptions.cpp" line="45"/>
+        <location filename="../../src/clioptions.cpp" line="44"/>
         <source>Webcam capture application.</source>
         <translation>Програма захоплення веб-камери.</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="48"/>
+        <location filename="../../src/clioptions.cpp" line="47"/>
         <source>Load settings from PATH. If PATH is empty, load configs from application directory.</source>
         <translation>Завантажити параметри з PATH. Якщо PATH порожній, завантажте конфігурацію з каталогу додатку.</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="50"/>
+        <location filename="../../src/clioptions.cpp" line="49"/>
         <source>PATH</source>
         <translation>Шлях(PATH)</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="54"/>
-        <source>Semi-colon separated list of paths to search the QML interface.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../src/clioptions.cpp" line="56"/>
-        <location filename="../../src/clioptions.cpp" line="68"/>
-        <location filename="../../src/clioptions.cpp" line="77"/>
-        <location filename="../../src/clioptions.cpp" line="83"/>
+        <location filename="../../src/clioptions.cpp" line="61"/>
+        <location filename="../../src/clioptions.cpp" line="70"/>
+        <location filename="../../src/clioptions.cpp" line="76"/>
         <source>PATH1;PATH2;PATH3;...</source>
         <translation>шлях1;шлях2;шлях3;...</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="61"/>
+        <location filename="../../src/clioptions.cpp" line="54"/>
         <source>Search in the specified plugins paths recursively.</source>
         <translation>Пошук в зазначених шляхах плагінів рекурсивно.</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="66"/>
+        <location filename="../../src/clioptions.cpp" line="59"/>
         <source>Semi-colon separated list of paths to search for plugins.</source>
         <translation>Список шляхів для пошуку плагінів розділений крапка з комою.</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="75"/>
+        <location filename="../../src/clioptions.cpp" line="68"/>
         <source>Semi-colon separated list of paths to avoid loading.</source>
         <extracomment>Blacklist of plugins that could have conflicts when loading in Webcamoid.</extracomment>
         <translation>Розділений крапка з комою список шляхів, щоб уникнути навантаження.</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="81"/>
+        <location filename="../../src/clioptions.cpp" line="74"/>
         <source>Semi-colon separated list of paths to search for virtual camera driver</source>
         <translation>Список шляхів для пошуку драйверів віртуальної камери, через двокрапку</translation>
     </message>
@@ -608,7 +602,7 @@
 <context>
     <name>RecordingNotice</name>
     <message>
-        <location filename="../qml/RecordingNotice.qml" line="56"/>
+        <location filename="../qml/RecordingNotice.qml" line="55"/>
         <source>Recording</source>
         <translation type="unfinished"></translation>
     </message>
@@ -683,67 +677,67 @@
 <context>
     <name>UpdatesConfig</name>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="67"/>
+        <location filename="../qml/UpdatesConfig.qml" line="66"/>
         <source>Notify about new versions</source>
         <translation>Сповіщати про нові версії</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="81"/>
+        <location filename="../qml/UpdatesConfig.qml" line="80"/>
         <source>Check new versions</source>
         <translation>Перевірити нові версії</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="89"/>
+        <location filename="../qml/UpdatesConfig.qml" line="88"/>
         <source>Daily</source>
         <translation>Щоденно</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="93"/>
+        <location filename="../qml/UpdatesConfig.qml" line="92"/>
         <source>Every two days</source>
         <translation>Кожні два дні</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="97"/>
+        <location filename="../qml/UpdatesConfig.qml" line="96"/>
         <source>Weekly</source>
         <translation>Щотижня</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="101"/>
+        <location filename="../qml/UpdatesConfig.qml" line="100"/>
         <source>Every two weeks</source>
         <translation>Кожних два тижні</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="105"/>
+        <location filename="../qml/UpdatesConfig.qml" line="104"/>
         <source>Monthly</source>
         <translation>Щомісяця</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="109"/>
+        <location filename="../qml/UpdatesConfig.qml" line="108"/>
         <source>Never</source>
         <translation>Ніколи</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="120"/>
+        <location filename="../qml/UpdatesConfig.qml" line="119"/>
         <source>Last updated</source>
         <translation>Останнє оновлення</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="141"/>
+        <location filename="../qml/UpdatesConfig.qml" line="140"/>
         <source>Your version of %1 is outdated. Latest version is &lt;b&gt;%2&lt;/b&gt;.</source>
         <translation>Ваша версія %1 застаріла. Остання версія &lt;b&gt;%2&lt;/b&gt;.</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="147"/>
+        <location filename="../qml/UpdatesConfig.qml" line="146"/>
         <source>Upgrade Now!</source>
         <translation>Оновити вже!</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="162"/>
+        <location filename="../qml/UpdatesConfig.qml" line="161"/>
         <source>Thanks for using a &lt;b&gt;development version&lt;/b&gt;!&lt;br /&gt;It will be very helpful if you can report any bug and suggestions you have.</source>
         <translation>Дякуємо за користування &lt;b&gt;версії для розробки&lt;/b&gt;!&lt;br /&gt;Буде дуже корисно, якщо ви зможете повідомити про будь-які помилки та внести пропозиції.</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="167"/>
+        <location filename="../qml/UpdatesConfig.qml" line="166"/>
         <source>Report a Bug</source>
         <translation>Повідомити про помилку</translation>
     </message>
@@ -2174,53 +2168,53 @@
         <translation>Фаза</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="64"/>
+        <location filename="../qml/main.qml" line="63"/>
         <source>New version available!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="65"/>
+        <location filename="../qml/main.qml" line="64"/>
         <source>Download %1 %2 NOW!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="115"/>
+        <location filename="../qml/main.qml" line="114"/>
         <source>Stop</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="120"/>
-        <location filename="../qml/main.qml" line="322"/>
+        <location filename="../qml/main.qml" line="119"/>
+        <location filename="../qml/main.qml" line="321"/>
         <source>Play</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="334"/>
+        <location filename="../qml/main.qml" line="333"/>
         <source>Configure sources</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="350"/>
+        <location filename="../qml/main.qml" line="349"/>
         <source>Configure audio</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="372"/>
+        <location filename="../qml/main.qml" line="371"/>
         <source>Take a photo</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="384"/>
+        <location filename="../qml/main.qml" line="383"/>
         <source>Record video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="400"/>
+        <location filename="../qml/main.qml" line="399"/>
         <source>Configure Effects</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="429"/>
+        <location filename="../qml/main.qml" line="428"/>
         <source>Preferences</source>
         <translation type="unfinished"></translation>
     </message>

@@ -20,7 +20,7 @@
 import QtQuick 2.0
 import QtQuick.Controls 2.5
 import QtQuick.Templates 2.5 as T
-import AkQml 1.0
+import Ak 1.0
 
 T.ToolBar {
     id: toolBar
@@ -32,8 +32,8 @@ T.ToolBar {
     hoverEnabled: true
 
     background: Rectangle {
-        implicitWidth: Ak.newUnit(360 * ThemeSettings.controlScale, "dp").pixels
-        implicitHeight: Ak.newUnit(48 * ThemeSettings.controlScale, "dp").pixels
+        implicitWidth: AkUnit.create(360 * ThemeSettings.controlScale, "dp").pixels
+        implicitHeight: AkUnit.create(48 * ThemeSettings.controlScale, "dp").pixels
         color: ThemeSettings.colorPrimary
     }
 }

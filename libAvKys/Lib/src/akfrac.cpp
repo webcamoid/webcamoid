@@ -109,6 +109,36 @@ AkFrac AkFrac::operator *(const AkFrac &other) const
                   this->d->m_den * other.d->m_den);
 }
 
+QObject *AkFrac::create()
+{
+    return new AkFrac();
+}
+
+QObject *AkFrac::create(qint64 num, qint64 den)
+{
+    return new AkFrac(num, den);
+}
+
+QObject *AkFrac::create(const QString &frac)
+{
+    return new AkFrac(frac);
+}
+
+QObject *AkFrac::create(const AkFrac &frac)
+{
+    return new AkFrac(frac);
+}
+
+QVariant AkFrac::createVariant(qint64 num, qint64 den)
+{
+    return QVariant::fromValue(AkFrac(num, den));
+}
+
+QVariant AkFrac::toVariant() const
+{
+    return QVariant::fromValue(*this);
+}
+
 AkFrac::operator bool() const
 {
     return this->d->m_den != 0;

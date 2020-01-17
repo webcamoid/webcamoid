@@ -23,7 +23,7 @@ import QtQuick.Layouts 1.3
 import QtQuick.Templates 2.5 as T
 import QtGraphicalEffects 1.0
 import QtQuick.Controls.impl 2.12
-import AkQml 1.0
+import Ak 1.0
 
 T.Slider {
     id: slider
@@ -35,11 +35,11 @@ T.Slider {
     hoverEnabled: true
 
     readonly property int defaultWidth:
-        Ak.newUnit(128 * ThemeSettings.controlScale, "dp").pixels
+        AkUnit.create(128 * ThemeSettings.controlScale, "dp").pixels
     readonly property int defaultHeight:
-        Ak.newUnit(20 * ThemeSettings.controlScale, "dp").pixels
+        AkUnit.create(20 * ThemeSettings.controlScale, "dp").pixels
     readonly property int trackWidth:
-        Ak.newUnit(4 * ThemeSettings.controlScale, "dp").pixels
+        AkUnit.create(4 * ThemeSettings.controlScale, "dp").pixels
     readonly property color tickMarkColorLeft:
         slider.enabled && slider.horizontal?
             ThemeSettings.constShade(ThemeSettings.colorPrimary, -0.1):
@@ -207,7 +207,7 @@ T.Slider {
             cached: true
             horizontalOffset: radius / 2
             verticalOffset: radius / 2
-            radius: Ak.newUnit(1 * ThemeSettings.controlScale, "dp").pixels
+            radius: AkUnit.create(1 * ThemeSettings.controlScale, "dp").pixels
             samples: 2 * radius + 1
             color: ThemeSettings.constShade(ThemeSettings.colorBack, -0.9)
             source: shadowRect

@@ -20,7 +20,7 @@
 import QtQuick 2.7
 import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.3
-import AkQml 1.0
+import Ak 1.0
 
 ColumnLayout {
     id: multiSink
@@ -62,7 +62,7 @@ ColumnLayout {
             var streamConfig = streams[stream]
             var streamOptions = classStreamOptions.createObject(clyStreamOptions)
             streamOptions.Layout.fillWidth = true
-            var streamCaps = Ak.newCaps(streamConfig.caps)
+            var streamCaps = AkCaps.create(streamConfig.caps)
 
             if (streamCaps.mimeType === "audio/x-raw")
                 streamOptions.state = "audio"

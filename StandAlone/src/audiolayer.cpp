@@ -456,6 +456,26 @@ QList<int> AudioLayer::supportedSampleRates(const QString &device) const
     return {};
 }
 
+QVariantList AudioLayer::supportedFormatsVariant(const QString &device) const
+{
+    QVariantList list;
+
+    for (auto &format: this->supportedFormats(device))
+        list << format;
+
+    return list;
+}
+
+QVariantList AudioLayer::supportedChannelLayoutsVariant(const QString &device) const
+{
+    QVariantList list;
+
+    for (auto &format: this->supportedChannelLayouts(device))
+        list << format;
+
+    return list;
+}
+
 void AudioLayer::setAudioInput(const QStringList &audioInput)
 {
     if (this->d->m_audioInput == audioInput)

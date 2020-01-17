@@ -23,20 +23,20 @@ import QtQuick.Layouts 1.3
 import QtQuick.Templates 2.5 as T
 import QtGraphicalEffects 1.0
 import QtQuick.Controls.impl 2.12
-import AkQml 1.0
+import Ak 1.0
 
 T.SwipeDelegate {
     id: control
-    icon.width: Ak.newUnit(18 * ThemeSettings.controlScale, "dp").pixels
-    icon.height: Ak.newUnit(18 * ThemeSettings.controlScale, "dp").pixels
+    icon.width: AkUnit.create(18 * ThemeSettings.controlScale, "dp").pixels
+    icon.height: AkUnit.create(18 * ThemeSettings.controlScale, "dp").pixels
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             implicitContentWidth + implicitIndicatorWidth
                             + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              implicitContentHeight + topPadding + bottomPadding,
                              implicitIndicatorHeight + topPadding + bottomPadding)
-    padding: Ak.newUnit(4 * ThemeSettings.controlScale, "dp").pixels
-    spacing: Ak.newUnit(8 * ThemeSettings.controlScale, "dp").pixels
+    padding: AkUnit.create(4 * ThemeSettings.controlScale, "dp").pixels
+    spacing: AkUnit.create(8 * ThemeSettings.controlScale, "dp").pixels
     hoverEnabled: true
     clip: true
     swipe.transition: Transition {
@@ -89,9 +89,9 @@ T.SwipeDelegate {
     background: Rectangle {
         id: backgroundRect
         implicitWidth:
-            Ak.newUnit(128 * ThemeSettings.controlScale, "dp").pixels
+            AkUnit.create(128 * ThemeSettings.controlScale, "dp").pixels
         implicitHeight:
-            Ak.newUnit(48 * ThemeSettings.controlScale, "dp").pixels
+            AkUnit.create(48 * ThemeSettings.controlScale, "dp").pixels
         color: control.highlighted?
                    ThemeSettings.colorPrimary:
                    ThemeSettings.colorBack

@@ -20,7 +20,7 @@
 import QtQuick 2.0
 import QtQuick.Controls 2.5
 import QtQuick.Templates 2.5 as T
-import AkQml 1.0
+import Ak 1.0
 
 T.ToolSeparator {
     id: control
@@ -29,26 +29,26 @@ T.ToolSeparator {
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              implicitContentHeight + topPadding + bottomPadding)
     horizontalPadding: vertical?
-                           Ak.newUnit(12 * ThemeSettings.controlScale,
+                           AkUnit.create(12 * ThemeSettings.controlScale,
                                       "dp").pixels:
-                           Ak.newUnit(5 * ThemeSettings.controlScale,
+                           AkUnit.create(5 * ThemeSettings.controlScale,
                                       "dp").pixels
     verticalPadding: vertical?
-                         Ak.newUnit(5 * ThemeSettings.controlScale,
+                         AkUnit.create(5 * ThemeSettings.controlScale,
                                     "dp").pixels:
-                         Ak.newUnit(12 * ThemeSettings.controlScale,
+                         AkUnit.create(12 * ThemeSettings.controlScale,
                                     "dp").pixels
 
     contentItem: Rectangle {
         implicitWidth: vertical?
-                           Ak.newUnit(1 * ThemeSettings.controlScale,
+                           AkUnit.create(1 * ThemeSettings.controlScale,
                                       "dp").pixels:
-                           Ak.newUnit(48 * ThemeSettings.controlScale,
+                           AkUnit.create(48 * ThemeSettings.controlScale,
                                       "dp").pixels
         implicitHeight: vertical?
-                            Ak.newUnit(48 * ThemeSettings.controlScale,
+                            AkUnit.create(48 * ThemeSettings.controlScale,
                                        "dp").pixels:
-                            Ak.newUnit(1 * ThemeSettings.controlScale,
+                            AkUnit.create(1 * ThemeSettings.controlScale,
                                        "dp").pixels
         color: ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
     }

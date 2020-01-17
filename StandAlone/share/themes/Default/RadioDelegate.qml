@@ -22,20 +22,20 @@ import QtQuick.Controls 2.5
 import QtQuick.Templates 2.5 as T
 import QtGraphicalEffects 1.0
 import QtQuick.Controls.impl 2.12
-import AkQml 1.0
+import Ak 1.0
 
 T.RadioDelegate {
     id: radioDelegate
-    icon.width: Ak.newUnit(18 * ThemeSettings.controlScale, "dp").pixels
-    icon.height: Ak.newUnit(18 * ThemeSettings.controlScale, "dp").pixels
+    icon.width: AkUnit.create(18 * ThemeSettings.controlScale, "dp").pixels
+    icon.height: AkUnit.create(18 * ThemeSettings.controlScale, "dp").pixels
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             implicitContentWidth + implicitIndicatorWidth
                             + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              implicitContentHeight + topPadding + bottomPadding,
                              implicitIndicatorHeight + topPadding + bottomPadding)
-    padding: Ak.newUnit(4 * ThemeSettings.controlScale, "dp").pixels
-    spacing: Ak.newUnit(8 * ThemeSettings.controlScale, "dp").pixels
+    padding: AkUnit.create(4 * ThemeSettings.controlScale, "dp").pixels
+    spacing: AkUnit.create(8 * ThemeSettings.controlScale, "dp").pixels
     hoverEnabled: true
     clip: true
 
@@ -56,13 +56,13 @@ T.RadioDelegate {
         anchors.rightMargin: radioDelegate.rightPadding
         anchors.verticalCenter: radioDelegate.verticalCenter
         implicitWidth:
-            Ak.newUnit(24 * ThemeSettings.controlScale, "dp").pixels
+            AkUnit.create(24 * ThemeSettings.controlScale, "dp").pixels
         implicitHeight:
-            Ak.newUnit(24 * ThemeSettings.controlScale, "dp").pixels
+            AkUnit.create(24 * ThemeSettings.controlScale, "dp").pixels
 
         Rectangle {
             id: indicatorRect
-            border.width: Ak.newUnit(2 * ThemeSettings.controlScale, "dp").pixels
+            border.width: AkUnit.create(2 * ThemeSettings.controlScale, "dp").pixels
             border.color:
                 radioDelegate.highlighted?
                     ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
@@ -82,8 +82,8 @@ T.RadioDelegate {
                     radioDelegate.highlighted?
                         ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
                         ThemeSettings.colorPrimary
-                width: Ak.newUnit(15 * ThemeSettings.controlScale, "dp").pixels
-                height: Ak.newUnit(15 * ThemeSettings.controlScale, "dp").pixels
+                width: AkUnit.create(15 * ThemeSettings.controlScale, "dp").pixels
+                height: AkUnit.create(15 * ThemeSettings.controlScale, "dp").pixels
                 radius: Math.min(width, height) / 2
                 anchors.verticalCenter: indicatorRect.verticalCenter
                 anchors.horizontalCenter: indicatorRect.horizontalCenter
@@ -119,9 +119,9 @@ T.RadioDelegate {
     background: Item {
         id: backgroundItem
         implicitWidth:
-            Ak.newUnit(128 * ThemeSettings.controlScale, "dp").pixels
+            AkUnit.create(128 * ThemeSettings.controlScale, "dp").pixels
         implicitHeight:
-            Ak.newUnit(48 * ThemeSettings.controlScale, "dp").pixels
+            AkUnit.create(48 * ThemeSettings.controlScale, "dp").pixels
 
         // Press indicator
         Rectangle{

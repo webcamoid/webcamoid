@@ -22,7 +22,7 @@ import QtQuick.Controls 2.5
 import QtQuick.Templates 2.5 as T
 import QtGraphicalEffects 1.0
 import QtQuick.Controls.impl 2.12
-import AkQml 1.0
+import Ak 1.0
 
 T.Dialog {
     id: control
@@ -31,20 +31,20 @@ T.Dialog {
                  contentWidth + leftPadding + rightPadding,
                  implicitHeaderWidth,
                  implicitFooterWidth,
-                 Ak.newUnit(280 * ThemeSettings.controlScale, "dp").pixels)
+                 AkUnit.create(280 * ThemeSettings.controlScale, "dp").pixels)
     implicitHeight:
         Math.max(implicitBackgroundHeight + topInset + bottomInset,
                  contentHeight + topPadding + bottomPadding
                  + (implicitHeaderHeight > 0? implicitHeaderHeight + spacing: 0)
                  + (implicitFooterHeight > 0? implicitFooterHeight + spacing: 0),
-                 Ak.newUnit(182 * ThemeSettings.controlScale, "dp").pixels)
-    leftPadding: Ak.newUnit(24 * ThemeSettings.controlScale, "dp").pixels
-    rightPadding: Ak.newUnit(24 * ThemeSettings.controlScale, "dp").pixels
+                 AkUnit.create(182 * ThemeSettings.controlScale, "dp").pixels)
+    leftPadding: AkUnit.create(24 * ThemeSettings.controlScale, "dp").pixels
+    rightPadding: AkUnit.create(24 * ThemeSettings.controlScale, "dp").pixels
     topPadding:
         title?
-            Ak.newUnit(8 * ThemeSettings.controlScale, "dp").pixels:
-            Ak.newUnit(16 * ThemeSettings.controlScale, "dp").pixels
-    bottomPadding: Ak.newUnit(8 * ThemeSettings.controlScale, "dp").pixels
+            AkUnit.create(8 * ThemeSettings.controlScale, "dp").pixels:
+            AkUnit.create(16 * ThemeSettings.controlScale, "dp").pixels
+    bottomPadding: AkUnit.create(8 * ThemeSettings.controlScale, "dp").pixels
 
     // Fade in
     enter: Transition {
@@ -66,7 +66,7 @@ T.Dialog {
                 ThemeSettings.colorPrimary
         clip: true
         visible: control.title
-        height: Ak.newUnit(64 * ThemeSettings.controlScale, "dp").pixels
+        height: AkUnit.create(64 * ThemeSettings.controlScale, "dp").pixels
 
         Label {
             text: control.title
@@ -80,7 +80,7 @@ T.Dialog {
 
         Rectangle {
             color: ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
-            height: Ak.newUnit(1 * ThemeSettings.controlScale, "dp").pixels
+            height: AkUnit.create(1 * ThemeSettings.controlScale, "dp").pixels
             anchors.left: rectangle.left
             anchors.right: rectangle.right
             anchors.bottom: rectangle.bottom
@@ -97,14 +97,14 @@ T.Dialog {
         border.color: ThemeSettings.shade(ThemeSettings.colorBack, -0.3)
         radius:
             control.modal?
-                Ak.newUnit(8 * ThemeSettings.controlScale, "dp").pixels:
+                AkUnit.create(8 * ThemeSettings.controlScale, "dp").pixels:
                 0
         layer.enabled: control.modal
         layer.effect: DropShadow {
             cached: true
             horizontalOffset: radius / 2
             verticalOffset: radius / 2
-            radius: Ak.newUnit(8 * ThemeSettings.controlScale, "dp").pixels
+            radius: AkUnit.create(8 * ThemeSettings.controlScale, "dp").pixels
             samples: 2 * radius + 1
             color: ThemeSettings.constShade(ThemeSettings.colorBack, -0.9)
         }

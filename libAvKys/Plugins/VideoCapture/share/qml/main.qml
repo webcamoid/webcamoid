@@ -20,7 +20,7 @@
 import QtQuick 2.7
 import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.3
-import AkQml 1.0
+import Ak 1.0
 
 GridLayout {
     id: recCameraControls
@@ -115,7 +115,7 @@ GridLayout {
                         value: value}
             },
             fps: function (value) {
-                return {description: Number(Ak.newFrac(value).value.toFixed(2)),
+                return {description: Number(AkFrac.create(value).value.toFixed(2)),
                         value: value}
             }
         }
@@ -133,7 +133,7 @@ GridLayout {
         var rawCaps = []
 
         for (var i = 0; i < ncaps; i++)
-            rawCaps.push(Ak.newCaps(VideoCapture.rawCaps(i)).toMap())
+            rawCaps.push(AkCaps.create(VideoCapture.rawCaps(i)).toMap())
 
         var index = mediaChanged || VideoCapture.streams.length < 1?
                     0: VideoCapture.streams[0]
@@ -141,7 +141,7 @@ GridLayout {
         if (index >= ncaps)
             index = 0;
 
-        var currentCaps = Ak.newCaps(VideoCapture.rawCaps(index)).toMap()
+        var currentCaps = AkCaps.create(VideoCapture.rawCaps(index)).toMap()
 
         var filters = {}
         cbxFormat.model = createModel(filterBy(rawCaps, "fourcc", filters),
@@ -169,7 +169,7 @@ GridLayout {
         var rawCaps = []
 
         for (var i = 0; i < ncaps; i++)
-            rawCaps.push(Ak.newCaps(VideoCapture.rawCaps(i)).toMap())
+            rawCaps.push(AkCaps.create(VideoCapture.rawCaps(i)).toMap())
 
         var maps = {
             fourcc: cbxFormat.model[cbxFormat.currentIndex]?

@@ -21,7 +21,7 @@ import QtQuick 2.0
 import QtQuick.Controls 2.5
 import QtQuick.Templates 2.5 as T
 import QtQuick.Controls.impl 2.12
-import AkQml 1.0
+import Ak 1.0
 
 T.Tumbler {
     id: tumbler
@@ -42,8 +42,8 @@ T.Tumbler {
 
     contentItem: TumblerView {
         id: tumblerView
-        implicitWidth: Ak.newUnit(60 * ThemeSettings.controlScale, "dp").pixels
-        implicitHeight: Ak.newUnit(200 * ThemeSettings.controlScale, "dp").pixels
+        implicitWidth: AkUnit.create(60 * ThemeSettings.controlScale, "dp").pixels
+        implicitHeight: AkUnit.create(200 * ThemeSettings.controlScale, "dp").pixels
         model: tumbler.model
         delegate: tumbler.delegate
 

@@ -49,6 +49,8 @@ class AkUnitPrivate
         static const UnitsMap &unitsMap();
         void updateScreenInfo(bool updatePixels);
         void updatePixels();
+        static QString matchClassName(const QObject *obj,
+                                      const QStringList &classes);
 };
 
 AkUnit::AkUnit(qreal value, Unit unit):
@@ -222,6 +224,51 @@ bool AkUnit::operator ==(const AkUnit &other) const
 bool AkUnit::operator !=(const AkUnit &other) const
 {
     return this->d->m_pixels != other.d->m_pixels;
+}
+
+QObject *AkUnit::create(qreal value, AkUnit::Unit unit)
+{
+    return new AkUnit(value, unit);
+}
+
+QObject *AkUnit::create(qreal value, const QString &unit)
+{
+    return new AkUnit(value, unit);
+}
+
+QObject *AkUnit::create(qreal value, AkUnit::Unit unit, QObject *parent)
+{
+    auto className =
+            AkUnitPrivate::matchClassName(parent,
+                                          {"QWindow",
+                                           "QQuickItem"});
+
+    if (className == "QWindow")
+        return new AkUnit(value, unit, qobject_cast<QWindow *>(parent));
+    else if (className == "QQuickItem")
+        return new AkUnit(value, unit, qobject_cast<QQuickItem *>(parent));
+
+    return new AkUnit(value, unit);
+}
+
+QObject *AkUnit::create(qreal value, const QString &unit, QObject *parent)
+{
+    auto className =
+            AkUnitPrivate::matchClassName(parent,
+                                          {"QWindow",
+                                           "QQuickItem"});
+
+    if (className == "QWindow")
+        return new AkUnit(value, unit, qobject_cast<QWindow *>(parent));
+    else if (className == "QQuickItem")
+        return new AkUnit(value, unit, qobject_cast<QQuickItem *>(parent));
+
+    return new AkUnit(value, unit);
+}
+
+QVariant AkUnit::toVariant() const
+{
+    return QVariant::fromValue(*this);
 }
 
 AkUnit::operator int() const
@@ -399,6 +446,19 @@ void AkUnitPrivate::updatePixels()
 
     this->m_pixels = pixels;
     emit self->pixelsChanged(this->m_pixels);
+}
+
+QString AkUnitPrivate::matchClassName(const QObject *obj,
+                                      const QStringList &classes)
+{
+    if (!obj)
+        return {};
+
+    for (auto mobj = obj->metaObject(); mobj; mobj = mobj->superClass())
+        if (classes.contains(mobj->className()))
+            return {mobj->className()};
+
+    return {};
 }
 
 QDebug operator <<(QDebug debug, const AkUnit &unit)

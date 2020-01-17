@@ -22,20 +22,20 @@ import QtQuick.Controls 2.5
 import QtQuick.Templates 2.5 as T
 import QtGraphicalEffects 1.0
 import QtQuick.Controls.impl 2.12
-import AkQml 1.0
+import Ak 1.0
 
 T.Popup {
     id: control
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             contentWidth + leftPadding + rightPadding,
-                            Ak.newUnit(344 * ThemeSettings.controlScale, "dp").pixels)
+                            AkUnit.create(344 * ThemeSettings.controlScale, "dp").pixels)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              contentHeight + topPadding + bottomPadding,
-                             Ak.newUnit(148 * ThemeSettings.controlScale, "dp").pixels)
-    leftPadding: Ak.newUnit(16 * ThemeSettings.controlScale, "dp").pixels
-    rightPadding: Ak.newUnit(16 * ThemeSettings.controlScale, "dp").pixels
+                             AkUnit.create(148 * ThemeSettings.controlScale, "dp").pixels)
+    leftPadding: AkUnit.create(16 * ThemeSettings.controlScale, "dp").pixels
+    rightPadding: AkUnit.create(16 * ThemeSettings.controlScale, "dp").pixels
     topPadding: applicationWindowk.newUnit(16 * ThemeSettings.controlScale, "dp").pixels
-    bottomPadding: Ak.newUnit(8 * ThemeSettings.controlScale, "dp").pixels
+    bottomPadding: AkUnit.create(8 * ThemeSettings.controlScale, "dp").pixels
 
     // Fade in
     enter: Transition {
@@ -52,13 +52,13 @@ T.Popup {
     background: Rectangle {
         color: ThemeSettings.colorBack
         border.color: ThemeSettings.shade(ThemeSettings.colorBack, -0.3)
-        radius: Ak.newUnit(4 * ThemeSettings.controlScale, "dp").pixels
+        radius: AkUnit.create(4 * ThemeSettings.controlScale, "dp").pixels
         layer.enabled: control.modal
         layer.effect: DropShadow {
             cached: true
             horizontalOffset: radius / 2
             verticalOffset: radius / 2
-            radius: Ak.newUnit(8 * ThemeSettings.controlScale, "dp").pixels
+            radius: AkUnit.create(8 * ThemeSettings.controlScale, "dp").pixels
             samples: 2 * radius + 1
             color: ThemeSettings.constShade(ThemeSettings.colorBack, -0.9)
         }

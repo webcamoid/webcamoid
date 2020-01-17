@@ -20,25 +20,26 @@
 import QtQuick 2.7
 import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
-import AkQml 1.0
+import Ak 1.0
 
 GridLayout {
     id: generalConfigs
     columns: 2
 
-    property variant videoCapture: Ak.newElement("VideoCapture",
-                                                 "Ak.Element.Settings")
-    property variant desktopCapture: Ak.newElement("DesktopCapture",
-                                                   "Ak.Element.Settings")
-    property variant audioDevice: Ak.newElement("AudioDevice",
-                                                "Ak.Element.Settings")
-    property variant audioConvert: Ak.newElement("ACapsConvert",
-                                                 "Ak.Element.Settings")
-    property variant virtualCamera: Ak.newElement("VirtualCamera")
-    property variant multiSrc: Ak.newElement("MultiSrc",
-                                             "Ak.Element.Settings")
-    property variant multiSink: Ak.newElement("MultiSink",
-                                              "Ak.Element.Settings")
+    property variant videoCapture:
+        AkElement.createPtr("VideoCapture", "Ak.Element.Settings")
+    property variant desktopCapture:
+        AkElement.createPtr("DesktopCapture", "Ak.Element.Settings")
+    property variant audioDevice:
+        AkElement.createPtr("AudioDevice", "Ak.Element.Settings")
+    property variant audioConvert:
+        AkElement.createPtr("ACapsConvert", "Ak.Element.Settings")
+    property variant virtualCamera:
+        AkElement.createPtr("VirtualCamera")
+    property variant multiSrc:
+        AkElement.createPtr("MultiSrc", "Ak.Element.Settings")
+    property variant multiSink:
+        AkElement.createPtr("MultiSink", "Ak.Element.Settings")
 
     Label {
         //: Start playing the webcam right after opening Webcamoid.

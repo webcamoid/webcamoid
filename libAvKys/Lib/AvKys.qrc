@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/Ak">
+        <file>share/qml/AkControls/ColorButton.qml</file>
+        <file>share/qml/AkControls/qmldir</file>
+    </qresource>
+</RCC>

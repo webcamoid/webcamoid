@@ -127,36 +127,6 @@ void PluginConfigs::loadProperties(const CliOptions &cliOptions)
 
     config.beginGroup("PluginConfigs");
 
-    // Set Qml plugins search path.
-    QStringList qmlImportPaths;
-
-    if (cliOptions.isSet(cliOptions.qmlPathOpt())) {
-        for (auto &path: cliOptions.value(cliOptions.qmlPathOpt()).split(';'))
-            if (QFileInfo::exists(path))
-                qmlImportPaths << path;
-    } else {
-        int size = config.beginReadArray("qmlPaths");
-
-        for (int i = 0; i < size; i++) {
-            config.setArrayIndex(i);
-            auto path = config.value("path").toString();
-
-#ifdef Q_OS_WIN32
-            path = this->d->convertToAbsolute(path);
-#endif
-
-            path = QDir::toNativeSeparators(path);
-
-            if (!qmlImportPaths.contains(path) && QFileInfo::exists(path))
-                qmlImportPaths << path;
-        }
-
-        config.endArray();
-    }
-
-    if (!qmlImportPaths.isEmpty())
-        Ak::setQmlImportPathList(qmlImportPaths);
-
     // Set recusive search.
     if (cliOptions.isSet(cliOptions.recursiveOpt()))
         AkElement::setRecursiveSearch(true);

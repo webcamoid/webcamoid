@@ -407,6 +407,67 @@ bool AkVideoCaps::operator !=(const AkVideoCaps &other) const
     return !(*this == other);
 }
 
+QObject *AkVideoCaps::create()
+{
+    return new AkVideoCaps();
+}
+
+QObject *AkVideoCaps::create(const AkCaps &caps)
+{
+    return new AkVideoCaps(caps);
+}
+
+QObject *AkVideoCaps::create(const AkVideoCaps &caps)
+{
+    return new AkVideoCaps(caps);
+}
+
+QObject *AkVideoCaps::create(AkVideoCaps::PixelFormat format,
+                             int width,
+                             int height,
+                             const AkFrac &fps,
+                             int align)
+{
+    return new AkVideoCaps(format, width, height, fps, align);
+}
+
+QObject *AkVideoCaps::create(const QString &format,
+                             int width,
+                             int height,
+                             const AkFrac &fps,
+                             int align)
+{
+    return new AkVideoCaps(AkVideoCaps::pixelFormatFromString(format),
+                           width,
+                           height,
+                           fps,
+                           align);
+}
+
+QObject *AkVideoCaps::create(AkVideoCaps::PixelFormat format,
+                             const QSize &size,
+                             const AkFrac &fps,
+                             int align)
+{
+    return new AkVideoCaps(format, size, fps, align);
+}
+
+QObject *AkVideoCaps::create(const QString &format,
+                             const QSize &size,
+                             const AkFrac &fps,
+                             int align)
+{
+    return new AkVideoCaps(AkVideoCaps::pixelFormatFromString(format),
+                           size,
+                           fps,
+                           align);
+}
+
+QVariant AkVideoCaps::toVariant() const
+{
+    return QVariant::fromValue(*this);
+}
+
 AkVideoCaps::operator AkCaps() const
 {
     AkCaps caps("video/x-raw");

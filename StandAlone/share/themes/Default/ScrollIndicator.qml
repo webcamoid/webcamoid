@@ -21,7 +21,7 @@ import QtQuick 2.0
 import QtQuick.Controls 2.5
 import QtQuick.Templates 2.5 as T
 import QtQuick.Controls.impl 2.12
-import AkQml 1.0
+import Ak 1.0
 
 T.ScrollIndicator {
     id: control
@@ -29,17 +29,17 @@ T.ScrollIndicator {
                             implicitContentWidth + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              implicitContentHeight + topPadding + bottomPadding)
-    padding: Ak.newUnit(2 * ThemeSettings.controlScale, "dp").pixels
-    leftPadding: Ak.newUnit(4 * ThemeSettings.controlScale, "dp").pixels
-    rightPadding: Ak.newUnit(4 * ThemeSettings.controlScale, "dp").pixels
+    padding: AkUnit.create(2 * ThemeSettings.controlScale, "dp").pixels
+    leftPadding: AkUnit.create(4 * ThemeSettings.controlScale, "dp").pixels
+    rightPadding: AkUnit.create(4 * ThemeSettings.controlScale, "dp").pixels
 
     readonly property int fadeInTime: 200
     readonly property int fadeOutTime: 450
 
     contentItem: Rectangle {
         id: indicatorRect
-        implicitWidth: Ak.newUnit(6 * ThemeSettings.controlScale, "dp").pixels
-        implicitHeight: Ak.newUnit(6 * ThemeSettings.controlScale, "dp").pixels
+        implicitWidth: AkUnit.create(6 * ThemeSettings.controlScale, "dp").pixels
+        implicitHeight: AkUnit.create(6 * ThemeSettings.controlScale, "dp").pixels
         radius: Math.min(implicitWidth, implicitHeight) / 2
         color: ThemeSettings.colorPrimary
         visible: control.size < 1.0

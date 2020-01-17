@@ -21,7 +21,7 @@ import QtQuick 2.7
 import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.3
 import QtQuick.Dialogs 1.2
-import AkQmlControls 1.0
+import AkControls 1.0 as AK
 
 GridLayout {
     columns: 3
@@ -65,7 +65,7 @@ GridLayout {
         Item {
             Layout.fillWidth: true
         }
-        AkColorButton {
+        AK.ColorButton {
             currentColor: fromRgba(ColorReplace.from)
             title: qsTr("Select the color to replace")
             modality: Qt.NonModal
@@ -86,7 +86,7 @@ GridLayout {
         Item {
             Layout.fillWidth: true
         }
-        AkColorButton {
+        AK.ColorButton {
             currentColor: fromRgba(ColorReplace.to)
             title: qsTr("Select the new color")
             modality: Qt.NonModal

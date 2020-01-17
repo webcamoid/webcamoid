@@ -420,6 +420,51 @@ bool AkAudioCaps::operator !=(const AkAudioCaps &other) const
     return !(*this == other);
 }
 
+QObject *AkAudioCaps::create()
+{
+    return new AkAudioCaps();
+}
+
+QObject *AkAudioCaps::create(const AkCaps &caps)
+{
+    return new AkAudioCaps(caps);
+}
+
+QObject *AkAudioCaps::create(const AkAudioCaps &caps)
+{
+    return new AkAudioCaps(caps);
+}
+
+QObject *AkAudioCaps::create(AkAudioCaps::SampleFormat format,
+                             AkAudioCaps::ChannelLayout layout,
+                             int rate,
+                             int samples,
+                             bool planar,
+                             int align)
+{
+    return new AkAudioCaps(format, layout, rate, samples, planar, align);
+}
+
+QObject *AkAudioCaps::create(const QString &format,
+                             const QString &layout,
+                             int rate,
+                             int samples,
+                             bool planar,
+                             int align)
+{
+    return new AkAudioCaps(AkAudioCaps::sampleFormatFromString(format),
+                           AkAudioCaps::channelLayoutFromString(layout),
+                           rate,
+                           samples,
+                           planar,
+                           align);
+}
+
+QVariant AkAudioCaps::toVariant() const
+{
+    return QVariant::fromValue(*this);
+}
+
 AkAudioCaps::operator AkCaps() const
 {
     AkCaps caps("audio/x-raw");

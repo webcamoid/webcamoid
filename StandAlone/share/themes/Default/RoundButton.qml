@@ -23,24 +23,24 @@ import QtQuick.Layouts 1.3
 import QtQuick.Templates 2.5 as T
 import QtGraphicalEffects 1.0
 import QtQuick.Controls.impl 2.12
-import AkQml 1.0
+import Ak 1.0
 
 T.RoundButton {
     id: roundButton
     font.bold: true
-    icon.width: Ak.newUnit(18 * ThemeSettings.controlScale, "dp").pixels
-    icon.height: Ak.newUnit(18 * ThemeSettings.controlScale, "dp").pixels
+    icon.width: AkUnit.create(18 * ThemeSettings.controlScale, "dp").pixels
+    icon.height: AkUnit.create(18 * ThemeSettings.controlScale, "dp").pixels
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             implicitContentWidth + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              implicitContentHeight + topPadding + bottomPadding)
-    spacing: Ak.newUnit(12 * ThemeSettings.controlScale, "dp").pixels
+    spacing: AkUnit.create(12 * ThemeSettings.controlScale, "dp").pixels
     hoverEnabled: true
     leftPadding:
-        Ak.newUnit(16 * ThemeSettings.controlScale, "dp").pixels
+        AkUnit.create(16 * ThemeSettings.controlScale, "dp").pixels
     rightPadding:
-        Ak.newUnit(16 * ThemeSettings.controlScale, "dp").pixels
-    radius: Ak.newUnit(28 * ThemeSettings.controlScale, "dp").pixels
+        AkUnit.create(16 * ThemeSettings.controlScale, "dp").pixels
+    radius: AkUnit.create(28 * ThemeSettings.controlScale, "dp").pixels
 
     readonly property int animationTime: 200
 
@@ -90,9 +90,9 @@ T.RoundButton {
             id: buttonShadow
             anchors.fill: parent
             cached: true
-            horizontalOffset: Ak.newUnit(3 * ThemeSettings.controlScale, "dp").pixels
-            verticalOffset: Ak.newUnit(3 * ThemeSettings.controlScale, "dp").pixels
-            radius: Ak.newUnit(6 * ThemeSettings.controlScale, "dp").pixels
+            horizontalOffset: AkUnit.create(3 * ThemeSettings.controlScale, "dp").pixels
+            verticalOffset: AkUnit.create(3 * ThemeSettings.controlScale, "dp").pixels
+            radius: AkUnit.create(6 * ThemeSettings.controlScale, "dp").pixels
             samples: 2 * radius + 1
             color: ThemeSettings.constShade(ThemeSettings.colorBack, -0.9)
             source: buttonShadowRect
@@ -162,8 +162,8 @@ T.RoundButton {
                     ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
             border.width:
                 roundButton.checkable?
-                    Ak.newUnit(2 * ThemeSettings.controlScale, "dp").pixels:
-                    Ak.newUnit(1 * ThemeSettings.controlScale, "dp").pixels
+                    AkUnit.create(2 * ThemeSettings.controlScale, "dp").pixels:
+                    AkUnit.create(1 * ThemeSettings.controlScale, "dp").pixels
             color: roundButton.highlighted?
                        ThemeSettings.colorPrimary:
                        "transparent"
@@ -407,15 +407,15 @@ T.RoundButton {
                         "transparent"
                 border.width:
                     roundButton.checkable?
-                        Ak.newUnit(2 * ThemeSettings.controlScale,
+                        AkUnit.create(2 * ThemeSettings.controlScale,
                                                   "dp").pixels:
-                        Ak.newUnit(0 * ThemeSettings.controlScale,
+                        AkUnit.create(0 * ThemeSettings.controlScale,
                                                   "dp").pixels
                 visible: true
             }
             PropertyChanges {
                 target: buttonShadow
-                radius: Ak.newUnit(12 * ThemeSettings.controlScale, "dp").pixels
+                radius: AkUnit.create(12 * ThemeSettings.controlScale, "dp").pixels
             }
         }
     ]

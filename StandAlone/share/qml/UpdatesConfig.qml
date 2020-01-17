@@ -20,8 +20,7 @@
 import QtQuick 2.7
 import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.3
-import WebcamoidUpdates 1.0
-import AkQml 1.0
+import Webcamoid 1.0
 
 GridLayout {
     width: 300

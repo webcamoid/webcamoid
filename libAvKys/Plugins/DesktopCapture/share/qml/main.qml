@@ -20,13 +20,13 @@
 import QtQuick 2.7
 import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.3
-import AkQml 1.0
+import Ak 1.0
 
 GridLayout {
     columns: 2
 
     Component.onCompleted: {
-        var fps = Ak.newFrac(DesktopCapture.fps).value;
+        var fps = AkFrac.create(DesktopCapture.fps).value;
         var q = Infinity;
         var index = -1;
 
@@ -40,7 +40,7 @@ GridLayout {
         }
 
         cbxFps.currentIndex = index;
-        DesktopCapture.fps = Ak.varFrac(cbxFps.model[index], 1);
+        DesktopCapture.fps = AkFrac.createVariant(cbxFps.model[index], 1);
     }
 
     Label {
@@ -73,7 +73,7 @@ GridLayout {
 
         onCurrentIndexChanged: {
             if (currentIndex > -1)
-                DesktopCapture.fps = Ak.varFrac(model[currentIndex], 1);
+                DesktopCapture.fps = AkFrac.createVariant(model[currentIndex], 1);
         }
     }
 }

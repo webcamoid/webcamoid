@@ -20,7 +20,7 @@
 import QtQuick 2.7
 import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.3
-import AkQml 1.0
+import Ak 1.0
 
 ColumnLayout {
     id: audioInfo
@@ -44,8 +44,8 @@ ColumnLayout {
                     AudioLayer.audioInput[0]: "";
         iDescription = AudioLayer.description(iDevice)
 
-        let audioCaps = Ak.newAudioCaps();
-        let supportedFormats = Ak.newList(AudioLayer.supportedFormats(iDevice))
+        let audioCaps = AkAudioCaps.create();
+        let supportedFormats = AudioLayer.supportedFormatsVariant(iDevice)
         iSampleFormats.clear()
 
         for (let format in supportedFormats)
@@ -53,7 +53,7 @@ ColumnLayout {
                                    description: audioCaps.sampleFormatToString(supportedFormats[format])})
 
         let supportedChannelLayouts =
-                Ak.newList(AudioLayer.supportedChannelLayouts(iDevice))
+            AudioLayer.supportedChannelLayoutsVariant(iDevice)
         iChannelLayouts.clear()
 
         for (let layout in supportedChannelLayouts)
@@ -67,7 +67,7 @@ ColumnLayout {
             iSampleRates.append({sampleRate: supportedSampleRates[rate],
                                  description: supportedSampleRates[rate]})
 
-        let preferredFormat = Ak.newAudioCaps(AudioLayer.inputDeviceCaps)
+        let preferredFormat = AkAudioCaps.create(AudioLayer.inputDeviceCaps)
 
         cbxISampleFormats.currentIndex =
                 bound(0,
@@ -91,9 +91,9 @@ ColumnLayout {
 
         oDescription = AudioLayer.description(AudioLayer.audioOutput)
 
-        var audioCaps = Ak.newAudioCaps()
+        var audioCaps = AkAudioCaps.create()
         var supportedFormats =
-                Ak.newList(AudioLayer.supportedFormats(AudioLayer.audioOutput))
+                AudioLayer.supportedFormatsVariant(AudioLayer.audioOutput)
         oSampleFormats.clear()
 
         for (let format in supportedFormats)
@@ -101,7 +101,7 @@ ColumnLayout {
                                    description: audioCaps.sampleFormatToString(supportedFormats[format])})
 
         var supportedChannelLayouts =
-                Ak.newList(AudioLayer.supportedChannelLayouts(AudioLayer.audioOutput))
+                AudioLayer.supportedChannelLayoutsVariant(AudioLayer.audioOutput)
         oChannelLayouts.clear()
 
         for (let layout in supportedChannelLayouts)
@@ -116,7 +116,7 @@ ColumnLayout {
             oSampleRates.append({sampleRate: supportedSampleRates[rate],
                                  description: supportedSampleRates[rate]})
 
-        let preferredFormat = Ak.newAudioCaps(AudioLayer.outputDeviceCaps)
+        let preferredFormat = AkAudioCaps.create(AudioLayer.outputDeviceCaps)
 
         cbxOSampleFormats.currentIndex =
                 bound(0,
@@ -142,7 +142,7 @@ ColumnLayout {
         let cbxSampleFormats = isInput? cbxISampleFormats: cbxOSampleFormats
         let cbxChannelLayouts = isInput? cbxIChannelLayouts: cbxOChannelLayouts
         let cbxSampleRates = isInput? cbxISampleRates: cbxOSampleRates
-        let audioCaps = Ak.newAudioCaps()
+        let audioCaps = AkAudioCaps.create()
 
         if (cbxSampleFormats.model.count > 0
             && cbxChannelLayouts.model.count > 0
@@ -152,7 +152,7 @@ ColumnLayout {
             let sampleRatesCI = bound(0, cbxSampleRates.currentIndex, cbxSampleRates.model.count - 1)
 
             audioCaps =
-                    Ak.newAudioCaps(cbxSampleFormats.model.get(sampleFormatsCI).format,
+                    AkAudioCaps.create(cbxSampleFormats.model.get(sampleFormatsCI).format,
                                     cbxChannelLayouts.model.get(channelLayoutsCI).layout,
                                     cbxSampleRates.model.get(sampleRatesCI).sampleRate)
         }
@@ -160,12 +160,12 @@ ColumnLayout {
         if (isInput) {
             let state = AudioLayer.inputState
             AudioLayer.inputState = AkElement.ElementStateNull
-            AudioLayer.inputDeviceCaps = Ak.varAudioCaps(audioCaps)
+            AudioLayer.inputDeviceCaps = audioCaps.toVariant()
             AudioLayer.inputState = state
         } else {
             let state = AudioLayer.outputState
             AudioLayer.outputState = AkElement.ElementStateNull
-            AudioLayer.outputDeviceCaps = Ak.varAudioCaps(audioCaps)
+            AudioLayer.outputDeviceCaps = audioCaps.toVariant()
             AudioLayer.outputState = state
         }
     }

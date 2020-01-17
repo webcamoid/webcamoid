@@ -83,7 +83,6 @@ MediaTools::MediaTools(QObject *parent):
     this->d->m_trayIcon = new QSystemTrayIcon(QApplication::windowIcon(), this);
     this->d->m_engine = new QQmlApplicationEngine();
     this->d->m_engine->addImageProvider(QLatin1String("icons"), new IconsProvider);
-    this->d->m_engine->addImportPath(":/Ak/share/qml");
     Ak::setQmlEngine(this->d->m_engine);
     this->d->m_pluginConfigs =
             PluginConfigsPtr(new PluginConfigs(this->d->m_cliOptions,

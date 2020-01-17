@@ -45,7 +45,7 @@ HEADERS = \
 INCLUDEPATH += \
     ../../Lib/src
 
-QML_IMPORT_PATH += $$PWD/../../AkQml/share/qml
+QML_IMPORT_PATH += $$PWD/../../Lib/share/qml
 
 LIBS += -L$${OUT_PWD}/../../Lib/$${BIN_DIR} -l$$qtLibraryTarget($${COMMONS_TARGET})
 

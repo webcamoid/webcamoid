@@ -21,7 +21,7 @@ import QtQuick 2.0
 import QtQuick.Controls 2.5
 import QtQuick.Templates 2.5 as T
 import QtQuick.Controls.impl 2.12
-import AkQml 1.0
+import Ak 1.0
 
 T.ProgressBar {
     id: control
@@ -31,7 +31,7 @@ T.ProgressBar {
                              implicitContentHeight + topPadding + bottomPadding)
 
     contentItem: ProgressBarImpl {
-        implicitHeight: Ak.newUnit(4 * ThemeSettings.controlScale, "dp").pixels
+        implicitHeight: AkUnit.create(4 * ThemeSettings.controlScale, "dp").pixels
         scale: control.mirrored? -1: 1
         color:
             control.enabled?
@@ -46,8 +46,8 @@ T.ProgressBar {
             control.enabled?
                 ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.0, 0.5):
                 ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
-        implicitWidth: Ak.newUnit(240 * ThemeSettings.controlScale, "dp").pixels
-        implicitHeight: Ak.newUnit(4 * ThemeSettings.controlScale, "dp").pixels
+        implicitWidth: AkUnit.create(240 * ThemeSettings.controlScale, "dp").pixels
+        implicitHeight: AkUnit.create(4 * ThemeSettings.controlScale, "dp").pixels
         y: (control.height - height) / 2
     }
 }

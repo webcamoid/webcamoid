@@ -70,7 +70,16 @@ SOURCES = \
     src/akvideopacket.cpp \
     src/akaudiopacket.cpp
 
+lupdate_only {
+    SOURCES += $$files(share/qml/AkControls/*.qml)
+}
+
+OTHER_FILES = $$files(share/qml/AkControls/*.qml)
+
 win32: LIBS += -lole32
+
+RESOURCES += \
+    AvKys.qrc
 
 DESTDIR = $${OUT_PWD}/$${BIN_DIR}
 

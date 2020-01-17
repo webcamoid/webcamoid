@@ -23,21 +23,21 @@ import QtQuick.Layouts 1.3
 import QtQuick.Templates 2.5 as T
 import QtGraphicalEffects 1.0
 import QtQuick.Controls.impl 2.12
-import AkQml 1.0
+import Ak 1.0
 
 T.Button {
     id: button
     font.bold: true
-    icon.width: Ak.newUnit(18 * ThemeSettings.controlScale, "dp").pixels
-    icon.height: Ak.newUnit(18 * ThemeSettings.controlScale, "dp").pixels
+    icon.width: AkUnit.create(18 * ThemeSettings.controlScale, "dp").pixels
+    icon.height: AkUnit.create(18 * ThemeSettings.controlScale, "dp").pixels
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             implicitContentWidth + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              implicitContentHeight + topPadding + bottomPadding)
-    spacing: Ak.newUnit(8 * ThemeSettings.controlScale, "dp").pixels
+    spacing: AkUnit.create(8 * ThemeSettings.controlScale, "dp").pixels
     hoverEnabled: true
 
-    readonly property int radius: Ak.newUnit(6 * ThemeSettings.controlScale,
+    readonly property int radius: AkUnit.create(6 * ThemeSettings.controlScale,
                                              "dp").pixels
     readonly property int animationTime: 200
 
@@ -53,7 +53,7 @@ T.Button {
     contentItem: Item {
         id: buttonContent
         implicitWidth: iconLabel.implicitWidth
-                       + Ak.newUnit(18 * ThemeSettings.controlScale,
+                       + AkUnit.create(18 * ThemeSettings.controlScale,
                                     "dp").pixels
         implicitHeight: iconLabel.implicitHeight
 
@@ -80,9 +80,9 @@ T.Button {
     }
     background: Item {
         id: back
-        implicitWidth: Ak.newUnit(64 * ThemeSettings.controlScale,
+        implicitWidth: AkUnit.create(64 * ThemeSettings.controlScale,
                                   "dp").pixels
-        implicitHeight: Ak.newUnit(36 * ThemeSettings.controlScale,
+        implicitHeight: AkUnit.create(36 * ThemeSettings.controlScale,
                                    "dp").pixels
 
         // Shadow
@@ -158,7 +158,7 @@ T.Button {
             border.color: button.highlighted || button.flat?
                               Qt.hsla(0, 0, 0, 0):
                               ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
-            border.width: Ak.newUnit(1 * ThemeSettings.controlScale,
+            border.width: AkUnit.create(1 * ThemeSettings.controlScale,
                                      "dp").pixels
             color: button.highlighted?
                        ThemeSettings.colorPrimary:

@@ -22,7 +22,7 @@ import QtQuick.Controls 2.5
 import QtQuick.Templates 2.5 as T
 import QtGraphicalEffects 1.0
 import QtQuick.Controls.impl 2.12
-import AkQml 1.0
+import Ak 1.0
 
 T.MenuBarItem {
     id: control
@@ -31,10 +31,10 @@ T.MenuBarItem {
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              implicitContentHeight + topPadding + bottomPadding,
                              implicitIndicatorHeight + topPadding + bottomPadding)
-    rightPadding: Ak.newUnit(16 * ThemeSettings.controlScale, "dp").pixels
-    spacing: Ak.newUnit(20 * ThemeSettings.controlScale, "dp").pixels
-    icon.width: Ak.newUnit(24 * ThemeSettings.controlScale, "dp").pixels
-    icon.height: Ak.newUnit(24 * ThemeSettings.controlScale, "dp").pixels
+    rightPadding: AkUnit.create(16 * ThemeSettings.controlScale, "dp").pixels
+    spacing: AkUnit.create(20 * ThemeSettings.controlScale, "dp").pixels
+    icon.width: AkUnit.create(24 * ThemeSettings.controlScale, "dp").pixels
+    icon.height: AkUnit.create(24 * ThemeSettings.controlScale, "dp").pixels
     clip: true
     hoverEnabled: true
 
@@ -67,8 +67,8 @@ T.MenuBarItem {
 
     background: Item {
         id: backgroundItem
-        implicitWidth: Ak.newUnit(64 * ThemeSettings.controlScale, "dp").pixels
-        implicitHeight: Ak.newUnit(48 * ThemeSettings.controlScale, "dp").pixels
+        implicitWidth: AkUnit.create(64 * ThemeSettings.controlScale, "dp").pixels
+        implicitHeight: AkUnit.create(48 * ThemeSettings.controlScale, "dp").pixels
 
         Rectangle {
             id: background

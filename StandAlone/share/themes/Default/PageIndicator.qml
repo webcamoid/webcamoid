@@ -22,7 +22,7 @@ import QtQuick.Controls 2.5
 import QtQuick.Templates 2.5 as T
 import QtGraphicalEffects 1.0
 import QtQuick.Controls.impl 2.12
-import AkQml 1.0
+import Ak 1.0
 
 T.PageIndicator {
     id: control
@@ -32,15 +32,15 @@ T.PageIndicator {
     implicitHeight:
         Math.max(implicitBackgroundHeight + topInset + bottomInset,
                  implicitContentHeight + topPadding + bottomPadding)
-    padding: Ak.newUnit(6 * ThemeSettings.controlScale, "dp").pixels
-    spacing: Ak.newUnit(16 * ThemeSettings.controlScale, "dp").pixels
+    padding: AkUnit.create(6 * ThemeSettings.controlScale, "dp").pixels
+    spacing: AkUnit.create(16 * ThemeSettings.controlScale, "dp").pixels
     hoverEnabled: true
 
     readonly property int animationTime: 200
 
     delegate: Rectangle {
         implicitWidth:
-            Ak.newUnit(12 * ThemeSettings.controlScale, "dp").pixels
+            AkUnit.create(12 * ThemeSettings.controlScale, "dp").pixels
         implicitHeight: implicitWidth
         radius: width / 2
         color:
@@ -56,7 +56,7 @@ T.PageIndicator {
                 ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.1):
                 ThemeSettings.colorPrimary
         border.width:
-            Ak.newUnit(2 * ThemeSettings.controlScale, "dp").pixels
+            AkUnit.create(2 * ThemeSettings.controlScale, "dp").pixels
         opacity: index === control.currentIndex?
                      1:
                  pressed?

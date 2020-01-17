@@ -23,7 +23,7 @@ import QtQuick.Layouts 1.3
 import QtQuick.Templates 2.5 as T
 import QtGraphicalEffects 1.0
 import QtQuick.Controls.impl 2.12
-import AkQml 1.0
+import Ak 1.0
 
 T.TextArea {
     id: textArea
@@ -32,22 +32,22 @@ T.TextArea {
     placeholderTextColor: ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
     selectedTextColor: ThemeSettings.contrast(selectionColor, 0.75)
     selectionColor: ThemeSettings.colorPrimary
-    padding: Ak.newUnit(12 * ThemeSettings.controlScale, "dp").pixels
+    padding: AkUnit.create(12 * ThemeSettings.controlScale, "dp").pixels
     implicitWidth: Math.max(contentWidth + leftPadding + rightPadding,
                             implicitBackgroundWidth + leftInset + rightInset,
                             placeholder.implicitWidth + leftPadding + rightPadding,
-                            Ak.newUnit(280 * ThemeSettings.controlScale,
+                            AkUnit.create(280 * ThemeSettings.controlScale,
                                        "dp").pixels)
     implicitHeight: Math.max(contentHeight + topPadding + bottomPadding,
                              implicitBackgroundHeight + topInset + bottomInset,
                              placeholder.implicitHeight + topPadding + bottomPadding,
-                             Ak.newUnit(36 * ThemeSettings.controlScale,
+                             AkUnit.create(36 * ThemeSettings.controlScale,
                                         "dp").pixels)
     selectByMouse: true
 
     readonly property int animationTime: 100
     readonly property real placeHolderPadding:
-        Ak.newUnit(4 * ThemeSettings.controlScale, "dp").pixels
+        AkUnit.create(4 * ThemeSettings.controlScale, "dp").pixels
 
     PlaceholderText {
         id: placeholder

@@ -21,7 +21,7 @@ import QtQuick 2.7
 import QtQuick.Dialogs 1.2
 import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
-import AkQml 1.0
+import Ak 1.0
 
 ColumnLayout {
     id: pluginConfigs
@@ -29,7 +29,7 @@ ColumnLayout {
     function fillSearchPaths()
     {
         searchPathsTable.model.clear()
-        let searchPaths = globalElement.searchPaths()
+        let searchPaths = AkElement.searchPaths()
 
         for (let path in searchPaths) {
             searchPathsTable.model.append({
@@ -41,7 +41,7 @@ ColumnLayout {
     function fillPluginList()
     {
         pluginsTable.model.clear()
-        let pluginsPaths = globalElement.listPluginPaths()
+        let pluginsPaths = AkElement.listPluginPaths()
 
         for (let path in pluginsPaths) {
             pluginsTable.model.append({
@@ -50,7 +50,7 @@ ColumnLayout {
             })
         }
 
-        let blackList = globalElement.pluginsBlackList()
+        let blackList = AkElement.pluginsBlackList()
 
         for (let path in blackList) {
             pluginsTable.model.append({
@@ -62,7 +62,7 @@ ColumnLayout {
 
     function refreshCache()
     {
-        globalElement.clearCache()
+        AkElement.clearCache()
         fillPluginList()
         PluginConfigs.saveProperties()
     }
@@ -81,9 +81,6 @@ ColumnLayout {
                                pal.alternateBase: pal.base
     }
 
-    AkElement {
-        id: globalElement
-    }
     SystemPalette {
         id: palette
     }
@@ -116,10 +113,10 @@ ColumnLayout {
                 Layout.fillWidth: true
             }
             Switch {
-                checked: globalElement.recursiveSearch()
+                checked: AkElement.recursiveSearch()
 
                 onCheckedChanged: {
-                    globalElement.setRecursiveSearch(checked)
+                    AkElement.setRecursiveSearch(checked)
                     refreshCache()
                 }
             }
@@ -136,14 +133,14 @@ ColumnLayout {
                 enabled: searchPathsTable.currentIndex >= 0
 
                 onClicked: {
-                    let searchPaths = globalElement.searchPaths();
+                    let searchPaths = AkElement.searchPaths();
                     let sp = []
 
                     for (let path in searchPaths)
                         if (path != searchPathsTable.currentIndex)
                             sp.push(searchPaths[path])
 
-                    globalElement.setSearchPaths(sp);
+                    AkElement.setSearchPaths(sp);
                     refreshAll()
                     searchPathsTable.currentIndex = -1
                 }
@@ -209,7 +206,7 @@ ColumnLayout {
                 property bool pluginIsEnabled: false
 
                 onClicked: {
-                    let blackList = globalElement.pluginsBlackList()
+                    let blackList = AkElement.pluginsBlackList()
                     let path = pluginsTable.model.get(pluginsTable.currentIndex).path
                     let index = blackList.indexOf(path)
 
@@ -221,7 +218,7 @@ ColumnLayout {
                             blackList.splice(index, 1)
                     }
 
-                    globalElement.setPluginsBlackList(blackList)
+                    AkElement.setPluginsBlackList(blackList)
                     refreshCache()
                     pluginsTable.currentIndex = -1
                 }
@@ -276,7 +273,7 @@ ColumnLayout {
 
         onAccepted: {
             let path = Webcamoid.urlToLocalFile(folder)
-            globalElement.addSearchPath(path)
+            AkElement.addSearchPath(path)
             refreshAll()
         }
     }

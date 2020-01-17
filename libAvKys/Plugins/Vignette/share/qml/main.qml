@@ -21,7 +21,7 @@ import QtQuick 2.7
 import QtQuick.Controls 2.0
 import QtQuick.Dialogs 1.2
 import QtQuick.Layouts 1.3
-import AkQmlControls 1.0
+import AkControls 1.0 as AK
 
 GridLayout {
     columns: 3
@@ -74,7 +74,7 @@ GridLayout {
         Item {
             Layout.fillWidth: true
         }
-        AkColorButton {
+        AK.ColorButton {
             currentColor: fromRgba(Vignette.color)
             title: qsTr("Choose the vignette color")
             showAlphaChannel: true

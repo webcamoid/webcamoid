@@ -21,6 +21,7 @@
 #define AKUNIT_H
 
 #include <QObject>
+#include <QVariant>
 
 #include "akcommons.h"
 
@@ -78,6 +79,17 @@ class AKCOMMONS_EXPORT AkUnit: public QObject
         bool operator !=(const AkUnit &other) const;
         operator int() const;
         operator QString() const;
+
+        Q_INVOKABLE static QObject *create(qreal value=0.0,
+                                           AkUnit::Unit unit=AkUnit::px);
+        Q_INVOKABLE static QObject *create(qreal value, const QString &unit);
+        Q_INVOKABLE static QObject *create(qreal value,
+                                           AkUnit::Unit unit,
+                                           QObject *parent);
+        Q_INVOKABLE static QObject *create(qreal value,
+                                           const QString &unit,
+                                           QObject *parent);
+        Q_INVOKABLE QVariant toVariant() const;
 
         Q_INVOKABLE qreal value() const;
         Q_INVOKABLE Unit unit() const;

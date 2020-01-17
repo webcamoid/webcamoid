@@ -21,7 +21,7 @@ import QtQuick 2.0
 import QtQuick.Controls 2.5
 import QtQuick.Templates 2.5 as T
 import QtQuick.Controls.impl 2.12
-import AkQml 1.0
+import Ak 1.0
 
 T.GroupBox {
     id: groupBox
@@ -30,19 +30,19 @@ T.GroupBox {
                             implicitLabelWidth + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              contentHeight + topPadding + bottomPadding)
-    spacing: Ak.newUnit(6 * ThemeSettings.controlScale, "dp").pixels
-    padding: Ak.newUnit(8 * ThemeSettings.controlScale, "dp").pixels
+    spacing: AkUnit.create(6 * ThemeSettings.controlScale, "dp").pixels
+    padding: AkUnit.create(8 * ThemeSettings.controlScale, "dp").pixels
     topPadding: groupTitle.text?
                     groupTitle.height
                     + titleTopPadding
                     + titleBottomPadding:
-                    Ak.newUnit(8 * ThemeSettings.controlScale, "dp").pixels
+                    AkUnit.create(8 * ThemeSettings.controlScale, "dp").pixels
     clip: true
 
     property int titleTopPadding:
-        Ak.newUnit(8 * ThemeSettings.controlScale, "dp").pixels
+        AkUnit.create(8 * ThemeSettings.controlScale, "dp").pixels
     property int titleBottomPadding:
-        Ak.newUnit(16 * ThemeSettings.controlScale, "dp").pixels
+        AkUnit.create(16 * ThemeSettings.controlScale, "dp").pixels
 
     label: Text {
         id: groupTitle
@@ -73,11 +73,11 @@ T.GroupBox {
     background: Rectangle {
         width: parent.width
         height: parent.height
-        radius: Ak.newUnit(4 * ThemeSettings.controlScale, "dp").pixels
+        radius: AkUnit.create(4 * ThemeSettings.controlScale, "dp").pixels
         color: "transparent"
         border.color: enabled?
                           ThemeSettings.shade(ThemeSettings.colorBack, -0.5):
                           ThemeSettings.shade(ThemeSettings.colorBack, -0.5, 0.5)
-        border.width: Ak.newUnit(1 * ThemeSettings.controlScale, "dp").pixels
+        border.width: AkUnit.create(1 * ThemeSettings.controlScale, "dp").pixels
     }
 }

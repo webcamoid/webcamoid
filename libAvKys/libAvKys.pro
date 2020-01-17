@@ -98,7 +98,6 @@ CONFIG += ordered
 
 SUBDIRS += \
     Lib \
-    AkQml \
     Plugins
 
 # Install rules
