@@ -17,8 +17,9 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-import QtQuick 2.7
-import QtQuick.Controls 2.0
+import QtQuick 2.12
+import Qt.labs.platform 1.1 as LABS
+import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
 import QtGraphicalEffects 1.0
 
@@ -33,24 +34,7 @@ Rectangle {
     function savePhoto()
     {
         Recording.takePhoto()
-        var suffix = "png";
-        var fileName = qsTr("Picture %1.%2")
-                            .arg(Webcamoid.currentTime())
-                            .arg(suffix)
-
-        var filters = ["PNG file (*.png)",
-                       "JPEG file (*.jpg)",
-                       "BMP file (*.bmp)",
-                       "GIF file (*.gif)"]
-
-        var fileUrl = Webcamoid.saveFileDialog(qsTr("Save photo as..."),
-                                 fileName,
-                                 Webcamoid.standardLocations("pictures")[0],
-                                 "." + suffix,
-                                 filters.join(";;"))
-
-        if (fileUrl !== "")
-            Recording.savePhoto(fileUrl)
+        fileDialog.open()
     }
 
     Component.onCompleted: {
@@ -171,5 +155,23 @@ Rectangle {
         id: flash
 
         onTriggered: savePhoto()
+    }
+
+    LABS.FileDialog {
+        id: fileDialog
+        title: qsTr("Save photo as…")
+        folder: "file://" + Webcamoid.standardLocations("pictures")[0]
+        currentFile: folder + "/" + qsTr("Picture %1.png").arg(Webcamoid.currentTime())
+        defaultSuffix: "png"
+        fileMode: LABS.FileDialog.SaveFile
+        selectedNameFilter.index: 0
+        nameFilters: ["All Picture Files (*.png *.jpg *.bmp *.gif)",
+                      "PNG file (*.png)",
+                      "JPEG file (*.jpg)",
+                      "BMP file (*.bmp)",
+                      "GIF file (*.gif)",
+                      "All Files (*)"]
+
+        onAccepted: Recording.savePhoto(currentFile)
     }
 }

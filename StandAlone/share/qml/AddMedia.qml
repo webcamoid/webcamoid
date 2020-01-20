@@ -17,8 +17,8 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-import QtQuick 2.7
-import QtQuick.Dialogs 1.2
+import QtQuick 2.12
+import Qt.labs.platform 1.1 as LABS
 import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
 
@@ -116,14 +116,15 @@ Dialog {
         }
     }
 
-    FileDialog {
+    LABS.FileDialog {
         id: fileDialog
         title: qsTr("Choose the file to add as media")
-        selectExisting: true
-        selectFolder: false
-        selectMultiple: false
-        selectedNameFilter: nameFilters[nameFilters.length - 2]
-        nameFilters: ["3GP Video (*.3gp)",
+        fileMode: LABS.FileDialog.OpenFile
+        selectedNameFilter.index: 0
+        nameFilters: ["All Video Files (*.3gp *.avi *.flv *.gif *.mkv *.mng"
+                      + " *.mov *.mp4 *.m4v *.mpg *.mpeg *.ogg *.rm *.vob"
+                      + " *.webm *.wmv)",
+                      "3GP Video (*.3gp)",
                       "AVI Video (*.avi)",
                       "Flash Video (*.flv)",
                       "Animated GIF (*.gif)",
@@ -137,9 +138,6 @@ Dialog {
                       "DVD Video (*.vob)",
                       "WebM Video (*.webm)",
                       "Windows Media Video (*.wmv)",
-                      "All Video Files (*.3gp *.avi *.flv *.gif *.mkv *.mng"
-                      + " *.mov *.mp4 *.m4v *.mpg *.mpeg *.ogg *.rm *.vob"
-                      + " *.webm *.wmv)",
                       "All Files (*)"]
 
         onAccepted: {

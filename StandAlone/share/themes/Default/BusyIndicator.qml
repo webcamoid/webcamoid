@@ -17,7 +17,7 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-import QtQuick 2.5
+import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Templates 2.5 as T
 import QtQuick.Controls.impl 2.12

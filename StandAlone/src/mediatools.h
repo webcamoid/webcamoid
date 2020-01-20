@@ -70,11 +70,6 @@ class MediaTools: public QObject
         Q_INVOKABLE bool matches(const QString &pattern, const QStringList &strings) const;
         Q_INVOKABLE QString currentTime() const;
         Q_INVOKABLE QStringList standardLocations(const QString &type) const;
-        Q_INVOKABLE QString saveFileDialog(const QString &caption="",
-                                           const QString &fileName="",
-                                           const QString &directory="",
-                                           const QString &suffix="",
-                                           const QString &filters="") const;
         Q_INVOKABLE static QString readFile(const QString &fileName);
         Q_INVOKABLE QString urlToLocalFile(const QUrl &url) const;
         Q_INVOKABLE bool embedVirtualCameraControls(const QString &where,

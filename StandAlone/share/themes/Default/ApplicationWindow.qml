@@ -17,9 +17,9 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-import QtQuick 2.0
-import QtQuick.Window 2.0
-import QtQuick.Templates 2.0 as T
+import QtQuick 2.12
+import QtQuick.Window 2.12
+import QtQuick.Templates 2.5 as T
 
 T.ApplicationWindow {
     id: applicationWindow

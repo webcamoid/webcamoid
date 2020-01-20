@@ -2,10 +2,10 @@ module AkControls
 
 ColorButton 1.0 ColorButton.qml
 
-depends QtQuick          2.7
+depends QtQuick          2.12
 depends QtQuick.Controls 2.5
 depends QtQuick.Layouts  1.3
-depends QtQuick.Window   2.2
-depends QtQuick.Dialogs  1.2
+depends QtQuick.Window   2.12
+depends QtQuick.Dialogs  1.3
 
 designersupported

@@ -17,9 +17,9 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-import QtQuick 2.7
-import QtQuick.Controls 2.0
-import QtQuick.Dialogs 1.2
+import QtQuick 2.12
+import QtQuick.Controls 2.5
+import Qt.labs.platform 1.1 as LABS
 import QtQuick.Layouts 1.3
 import AkControls 1.0 as AK
 
@@ -258,7 +258,7 @@ GridLayout {
         }
     }
 
-    FontDialog {
+    LABS.FontDialog {
         id: fontDialog
         title: qsTr("Please choose a font")
         font: Charify.font

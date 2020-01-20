@@ -17,8 +17,8 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-import QtQuick 2.7
-import QtQuick.Dialogs 1.2
+import QtQuick 2.12
+import Qt.labs.platform 1.1 as LABS
 import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
 import Ak 1.0
@@ -266,10 +266,9 @@ ColumnLayout {
         }
     }
 
-    FileDialog {
+    LABS.FolderDialog {
         id: fileDialog
         title: qsTr("Add plugins search path")
-        selectFolder: true
 
         onAccepted: {
             let path = Webcamoid.urlToLocalFile(folder)

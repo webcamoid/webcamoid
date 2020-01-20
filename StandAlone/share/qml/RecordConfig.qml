@@ -17,8 +17,8 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-import QtQuick 2.7
-import QtQuick.Dialogs 1.2
+import QtQuick 2.12
+import Qt.labs.platform 1.1 as LABS
 import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
 import Ak 1.0
@@ -33,31 +33,28 @@ ColumnLayout {
 
     function makeFilters()
     {
-        var filters = []
-        var recordingFormats = Recording.availableFormats;
+        let filters = []
+        let recordingFormats = Recording.availableFormats;
+        let allSuffix = ""
 
-        for (var format in recordingFormats) {
-            var suffix = Recording.formatSuffix(recordingFormats[format])
-            var filter = Recording.formatDescription(recordingFormats[format])
-                         + " (*."
-                         + suffix.join(" *.")
-                         + ")"
+        for (let format in recordingFormats) {
+            let suffix = Recording.formatSuffix(recordingFormats[format])
+            let filter = Recording.formatDescription(recordingFormats[format])
+                         + " (*." + suffix.join(" *.") + ")"
+
+            if (format > 0)
+                allSuffix += " "
+
+            allSuffix += "*." + suffix.join(" *.")
 
             filters.push(filter)
         }
 
+        filters = ["All Picture Files (" + allSuffix + ")"]
+                  .concat(filters)
+                  .concat(["All Files (*)"])
+
         return filters
-    }
-
-    function makeDefaultFilter()
-    {
-        var suffix = Recording.formatSuffix(Recording.format)
-        var filter = Recording.formatDescription(Recording.format)
-                     + " (*."
-                     + suffix.join(" *.")
-                     + ")"
-
-        return filter
     }
 
     function defaultSuffix()
@@ -125,20 +122,24 @@ ColumnLayout {
         onClicked: {
             if (Recording.state === AkElement.ElementStatePlaying)
                 Recording.state = AkElement.ElementStateNull
-            else {
-                var filters = recRecordConfig.makeFilters()
+            else
+                fileDialog.open()
+        }
+    }
 
-                var fileUrl = Webcamoid.saveFileDialog(qsTr("Save video as…"),
-                                         recRecordConfig.makeFileName(),
-                                         Webcamoid.standardLocations("movies")[0],
-                                         "." + recRecordConfig.defaultSuffix(),
-                                         recRecordConfig.makeDefaultFilter())
+    LABS.FileDialog {
+        id: fileDialog
+        title: qsTr("Save video as…")
+        folder: "file://" + Webcamoid.standardLocations("movies")[0]
+        currentFile: folder + "/" + recRecordConfig.makeFileName()
+        defaultSuffix: recRecordConfig.defaultSuffix()
+        fileMode: LABS.FileDialog.SaveFile
+        selectedNameFilter.index: 0
+        nameFilters: recRecordConfig.makeFilters()
 
-                if (fileUrl !== "") {
-                    Recording.videoFileName = fileUrl
-                    Recording.state = AkElement.ElementStatePlaying
-                }
-            }
+        onAccepted: {
+            Recording.videoFileName = currentFile
+            Recording.state = AkElement.ElementStatePlaying
         }
     }
 }

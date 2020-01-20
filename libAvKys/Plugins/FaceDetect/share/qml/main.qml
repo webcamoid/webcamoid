@@ -17,10 +17,10 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-import QtQuick 2.7
-import QtQuick.Controls 2.0
+import QtQuick 2.12
+import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
-import QtQuick.Dialogs 1.2
+import Qt.labs.platform 1.1 as LABS
 import AkControls 1.0 as AK
 
 GridLayout {
@@ -568,7 +568,7 @@ GridLayout {
         onTextChanged: FaceDetect.blurRadius = Number(text)
     }
 
-    FileDialog {
+    LABS.FileDialog {
         id: fileDialog
         title: qsTr("Please choose an image file")
         nameFilters: ["Image files (*.bmp *.gif *.jpg *.jpeg *.png *.pbm *.pgm *.ppm *.xbm *.xpm)"]

@@ -55,7 +55,7 @@ HEADERS = \
     src/akvideopacket.h \
     src/akaudiopacket.h
 
-QT += gui qml quick
+QT += gui qml quick widgets
 
 SOURCES = \
     src/ak.cpp \

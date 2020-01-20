@@ -294,29 +294,6 @@ QStringList MediaTools::standardLocations(const QString &type) const
     return QStringList();
 }
 
-QString MediaTools::saveFileDialog(const QString &caption,
-                                   const QString &fileName,
-                                   const QString &directory,
-                                   const QString &suffix,
-                                   const QString &filters) const
-{
-    QFileDialog saveFileDialog(nullptr,
-                               caption,
-                               fileName,
-                               filters);
-
-    saveFileDialog.setModal(true);
-    saveFileDialog.setDefaultSuffix(suffix);
-    saveFileDialog.setDirectory(directory);
-    saveFileDialog.setFileMode(QFileDialog::AnyFile);
-    saveFileDialog.setAcceptMode(QFileDialog::AcceptSave);
-
-    if (saveFileDialog.exec() == QDialog::Accepted)
-        return saveFileDialog.selectedFiles().value(0);
-
-    return QString();
-}
-
 QString MediaTools::readFile(const QString &fileName)
 {
     QFile file(fileName);

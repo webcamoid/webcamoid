@@ -17,10 +17,10 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-import QtQuick 2.7
-import QtQuick.Controls 2.0
-import QtQuick.Window 2.2
-import QtQuick.Dialogs 1.2
+import QtQuick 2.12
+import QtQuick.Controls 2.5
+import QtQuick.Window 2.12
+import Qt.labs.platform 1.1 as LABS
 import QtGraphicalEffects 1.0
 
 Button {
@@ -40,11 +40,11 @@ Button {
 
     onClicked: colorDialog.open()
 
-    ColorDialog {
+    LABS.ColorDialog {
         id: colorDialog
         title: button.title
         currentColor: button.currentColor
-        showAlphaChannel: button.showAlphaChannel
+        options: button.showAlphaChannel? LABS.ColorDialog.ShowAlphaChannel: 0
         modality: button.modality
 
         onAccepted: button.currentColor = color
