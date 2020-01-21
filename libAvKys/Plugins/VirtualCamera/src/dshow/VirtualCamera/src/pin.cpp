@@ -1082,11 +1082,10 @@ AkVCam::VideoFrame AkVCam::PinPrivate::randomFrame()
 
     VideoFormat rgbFormat(PixelFormatRGB24, format.width(), format.height());
     VideoData data(rgbFormat.size());
-    static std::uniform_int_distribution<uint8_t> distribution((std::numeric_limits<uint8_t>::min)(),
-                                                               (std::numeric_limits<uint8_t>::max)());
+    static std::uniform_int_distribution<int> distribution(0, 255);
     static std::default_random_engine engine;
     std::generate(data.begin(), data.end(), [] () {
-        return distribution(engine);
+        return uint8_t(distribution(engine));
     });
 
     VideoFrame rgbFrame;
