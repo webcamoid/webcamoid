@@ -50,7 +50,6 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
 
     if [ "${nArchs}" = 1 ]; then
         export PATH="${PWD}/build/Qt/${QTVER}/android/bin:${PWD}/.local/bin:${ORIG_PATH}"
-        export ANDROID_TARGET_ARCH="${lastArch}"
         export BUILD_PATH=${PWD}/build-webcamoid-${lastArch}
 
         python3 ports/deploy/deploy.py
@@ -67,7 +66,6 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
 
         for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
             export PATH="${PWD}/build/Qt/${QTVER}/android/bin:${PWD}/.local/bin:${ORIG_PATH}"
-            export ANDROID_TARGET_ARCH="${arch_}"
             export BUILD_PATH=${PWD}/build-webcamoid-${arch_}
 
             if [ "${arch_}" = "${lastArch}" ]; then

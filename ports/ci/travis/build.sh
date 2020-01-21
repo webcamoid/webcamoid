@@ -67,12 +67,12 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
 
     for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
         export PATH="${PWD}/build/Qt/${QTVER}/android/bin:${ORIG_PATH}"
-        export ANDROID_TARGET_ARCH="${arch_}"
         mkdir build-webcamoid-${arch_}
         cd build-webcamoid-${arch_}
         qmake -query
         qmake -spec ${COMPILESPEC} ../Webcamoid.pro \
-            CONFIG+=silent
+            CONFIG+=silent \
+            ANDROID_ABIS=${arch_}
         cd ..
     done
 elif [ "${ARCH_ROOT_BUILD}" = 1 ]; then
@@ -175,7 +175,6 @@ fi
 if [ "${ANDROID_BUILD}" = 1 ]; then
     for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
         export PATH="${PWD}/build/Qt/${QTVER}/android/bin:${ORIG_PATH}"
-        export ANDROID_TARGET_ARCH="${arch_}"
         cd build-webcamoid-${arch_}
         make -j${NJOBS}
         cd ..
