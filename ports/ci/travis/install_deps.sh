@@ -494,6 +494,7 @@ elif [ "${TRAVIS_OS_NAME}" = osx ]; then
             libuvc
     fi
 
+    brew link python
     qtIFW=QtInstallerFramework-mac-x64.dmg
 
     # Install Qt Installer Framework

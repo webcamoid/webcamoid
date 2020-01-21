@@ -215,7 +215,7 @@ matrix:
       - ANDROID_BUILD=1
       - ANDROID_PLATFORM=24
       - COMPILER=clang
-      - TARGET_ARCH=armv7
+      - TARGET_ARCH=armeabi-v7a
   - os: linux
     dist: bionic
     compiler: clang
@@ -223,7 +223,7 @@ matrix:
       - ANDROID_BUILD=1
       - ANDROID_PLATFORM=24
       - COMPILER=clang
-      - TARGET_ARCH=arm64_v8a
+      - TARGET_ARCH=arm64-v8a
   - os: linux
     dist: bionic
     compiler: clang
@@ -239,7 +239,15 @@ matrix:
       - ANDROID_BUILD=1
       - ANDROID_PLATFORM=24
       - COMPILER=clang
-      - TARGET_ARCH=armv7:arm64_v8a:x86
+      - TARGET_ARCH=x86_64
+  - os: linux
+    dist: bionic
+    compiler: clang
+    env:
+      - ANDROID_BUILD=1
+      - ANDROID_PLATFORM=24
+      - COMPILER=clang
+      - TARGET_ARCH=armeabi-v7a:arm64-v8a:x86:x86_64
       - DAILY_BUILD=1
 
 before_install: |
