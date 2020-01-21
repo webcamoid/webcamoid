@@ -356,9 +356,9 @@ EOF
 elif [ "${DOCKERSYS}" = debian ]; then
     ${EXEC} apt-get -y update
 
-    if [ "${DOCKERIMG}" = ubuntu:xenial ]; then
+    if [ "${DOCKERIMG}" = ubuntu:bionic ]; then
         ${EXEC} apt-get -y install software-properties-common
-        ${EXEC} add-apt-repository ppa:beineri/opt-qt-${QTVER}-xenial
+        ${EXEC} add-apt-repository ppa:beineri/opt-qt-${QTVER}-bionic
     fi
 
     ${EXEC} apt-get -y update
@@ -391,7 +391,7 @@ elif [ "${DOCKERSYS}" = debian ]; then
         ${EXEC} apt-get -y install \
             libgstreamer-plugins-base1.0-dev
 
-        if [ "${DOCKERIMG}" != ubuntu:xenial ]; then
+        if [ "${DOCKERIMG}" != ubuntu:bionic ]; then
             ${EXEC} apt-get -y install \
                 libusb-dev \
                 libuvc-dev
@@ -399,7 +399,7 @@ elif [ "${DOCKERSYS}" = debian ]; then
     fi
 
     # Install Qt dev
-    if [ "${DOCKERIMG}" = ubuntu:xenial ]; then
+    if [ "${DOCKERIMG}" = ubuntu:bionic ]; then
         ${EXEC} apt-get -y install \
             qt${PPAQTVER}tools \
             qt${PPAQTVER}declarative \

@@ -40,7 +40,7 @@ fi
 
 BUILDSCRIPT=dockerbuild.sh
 
-if [ "${DOCKERIMG}" = ubuntu:xenial ]; then
+if [ "${DOCKERIMG}" = ubuntu:bionic ]; then
     cat << EOF > ${BUILDSCRIPT}
 #!/bin/sh
 
@@ -112,7 +112,7 @@ elif [ "${TRAVIS_OS_NAME}" = linux ]; then
     export PATH=$HOME/.local/bin:$PATH
 
     if [ "${DOCKERSYS}" = debian ]; then
-        if [ "${DOCKERIMG}" = ubuntu:xenial ]; then
+        if [ "${DOCKERIMG}" = ubuntu:bionic ]; then
             if [ -z "${DAILY_BUILD}" ] && [ -z "${RELEASE_BUILD}" ]; then
                 cat << EOF >> ${BUILDSCRIPT}
 #!/bin/sh

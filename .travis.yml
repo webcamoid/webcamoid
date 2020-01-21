@@ -8,61 +8,61 @@ cache:
 
 env:
   global:
-    - QTVER=5.12.3
-    - PPAQTVER=512
-    - QTIFWVER=3.1.1
+    - QTVER=5.14.0
+    - PPAQTVER=514
+    - QTIFWVER=3.2.0
     - APPIMAGEVER=12
-    - ARCH_ROOT_DATE=2019.08.01
+    - ARCH_ROOT_DATE=2020.01.01
     - ARCH_ROOT_URL=https://mirror.rackspace.com/archlinux
-    - FFMPEG_VERSION=4.2
+    - FFMPEG_VERSION=4.2.1
     - SDKVER=4333796
-    - NDKVER=r19c
-    - ANDROID_BUILD_TOOLS_VERSION=28.0.3
+    - NDKVER=r21
+    - ANDROID_BUILD_TOOLS_VERSION=29.0.2
     # BT_KEY
     - secure: "sFnbUeX1mP/G4LVT56VDFyDgWS8KKy7qSlmhNg6YRJuhtfcAoiBjJrO300TREg46nUK3QAwSHt/py3F5WSdHcZ2dniV8ON+zLL0qcVxTglB2DHVUeCStYykTqoV3uZoxYYPHXCd1KTW3ZzdSpCaHVl39REtM0R4tMARNkl3lYhEsS7M6TCjispTLLl9qXdSp86IvtMCPx3mcbjcY59pk/fwwUgneRbocD+7DyVZfFvF98UXh5VGPIKry65DLhNowqsDtBZqYqlAih2LAOuJPxCQKe4pEdPZm81kzGduIV1X+AjBEv7W5K8IXdNm4EG7gMS74i4XW4p4Jn5Axr8An4kTsZnTaGUE0t2RjCJicoa3+CkYJTRDM6CoXoBBJQoerued3MVrH7DvuYtslyrmW4nJu8bTNmVGjS8zuPq4QbfZmekxzbMQWjuEcsw7iwAHIf/hDyRtUUX/T4ioDAU5C72Wx6XSSlSlEDCeEBuM3jnsS5zf54g39mgZkPGlbTaRrdYuxmmDBvh9mYzbb1ANcUW3XEu5rA+j69xOeeVLQVbXZJd04zudBzFg5Kyp2cGNI1KC+27ZOvSTRtrG+V7Ham9lEisJ01tUASV0gdUUSSYHPvD8z6bfJF30Gj/W7hBXqOzXpo2SQ/jPHQ4O68tlUlVBYu2HcCCjHncb25NJWpMk="
 
 matrix:
   include:
   - os: linux
-    dist: xenial
+    dist: bionic
     compiler: gcc
     env:
       - ARCH_ROOT_BUILD=1
   - os: linux
-    dist: xenial
+    dist: bionic
     compiler: clang
     env:
       - ARCH_ROOT_BUILD=1
   - os: linux
-    dist: xenial
+    dist: bionic
     compiler: gcc
     env:
       - ARCH_ROOT_BUILD=1
       - ARCH_ROOT_MINGW=x86_64
       - DAILY_BUILD=1
   - os: linux
-    dist: xenial
+    dist: bionic
     compiler: gcc
     env:
       - ARCH_ROOT_BUILD=1
       - ARCH_ROOT_MINGW=i686
       - DAILY_BUILD=1
   - os: linux
-    dist: xenial
+    dist: bionic
     compiler: gcc
     env:
       - ARCH_ROOT_BUILD=1
       - ARCH_ROOT_MINGW=x86_64
       - RELEASE_BUILD=1
   - os: linux
-    dist: xenial
+    dist: bionic
     compiler: gcc
     env:
       - ARCH_ROOT_BUILD=1
       - ARCH_ROOT_MINGW=i686
       - RELEASE_BUILD=1
   - os: linux
-    dist: xenial
+    dist: bionic
     services:
       - docker
     compiler: gcc
@@ -70,7 +70,7 @@ matrix:
       - DOCKERSYS=debian
       - DOCKERIMG=debian:testing
   - os: linux
-    dist: xenial
+    dist: bionic
     services:
       - docker
     compiler: clang
@@ -78,7 +78,7 @@ matrix:
       - DOCKERSYS=debian
       - DOCKERIMG=debian:testing
   - os: linux
-    dist: xenial
+    dist: bionic
     services:
       - docker
     compiler: gcc
@@ -87,7 +87,7 @@ matrix:
       - DOCKERIMG=fedora:rawhide
       - FEDORAVER=rawhide
   - os: linux
-    dist: xenial
+    dist: bionic
     services:
       - docker
     compiler: clang
@@ -96,7 +96,7 @@ matrix:
       - DOCKERIMG=fedora:rawhide
       - FEDORAVER=rawhide
   - os: linux
-    dist: xenial
+    dist: bionic
     services:
       - docker
     compiler: gcc
@@ -104,7 +104,7 @@ matrix:
       - DOCKERSYS=opensuse
       - DOCKERIMG=opensuse/tumbleweed
   - os: linux
-    dist: xenial
+    dist: bionic
     services:
       - docker
     compiler: clang
@@ -112,57 +112,25 @@ matrix:
       - DOCKERSYS=opensuse
       - DOCKERIMG=opensuse/tumbleweed
   - os: linux
-    dist: xenial
+    dist: bionic
     services:
       - docker
     compiler: gcc
     env:
       - DOCKERSYS=debian
-      - DOCKERIMG=ubuntu:xenial
+      - DOCKERIMG=ubuntu:bionic
       - DAILY_BUILD=1
   - os: linux
-    dist: xenial
+    dist: bionic
     services:
       - docker
     compiler: gcc
     env:
       - DOCKERSYS=debian
-      - DOCKERIMG=ubuntu:xenial
+      - DOCKERIMG=ubuntu:bionic
       - RELEASE_BUILD=1
   - os: linux
-    dist: xenial
-    services:
-      - docker
-    compiler: gcc
-    env:
-      - DOCKERSYS=debian
-      - DOCKERIMG=ubuntu:bionic
-  - os: linux
-    dist: xenial
-    services:
-      - docker
-    compiler: clang
-    env:
-      - DOCKERSYS=debian
-      - DOCKERIMG=ubuntu:bionic
-  - os: linux
-    dist: xenial
-    services:
-      - docker
-    compiler: gcc
-    env:
-      - DOCKERSYS=debian
-      - DOCKERIMG=ubuntu:cosmic
-  - os: linux
-    dist: xenial
-    services:
-      - docker
-    compiler: clang
-    env:
-      - DOCKERSYS=debian
-      - DOCKERIMG=ubuntu:cosmic
-  - os: linux
-    dist: xenial
+    dist: bionic
     services:
       - docker
     compiler: gcc
@@ -170,7 +138,7 @@ matrix:
       - DOCKERSYS=debian
       - DOCKERIMG=ubuntu:disco
   - os: linux
-    dist: xenial
+    dist: bionic
     services:
       - docker
     compiler: clang
@@ -178,7 +146,7 @@ matrix:
       - DOCKERSYS=debian
       - DOCKERIMG=ubuntu:disco
   - os: linux
-    dist: xenial
+    dist: bionic
     services:
       - docker
     compiler: gcc
@@ -186,13 +154,29 @@ matrix:
       - DOCKERSYS=debian
       - DOCKERIMG=ubuntu:eoan
   - os: linux
-    dist: xenial
+    dist: bionic
     services:
       - docker
     compiler: clang
     env:
       - DOCKERSYS=debian
       - DOCKERIMG=ubuntu:eoan
+  - os: linux
+    dist: bionic
+    services:
+      - docker
+    compiler: gcc
+    env:
+      - DOCKERSYS=debian
+      - DOCKERIMG=ubuntu:focal
+  - os: linux
+    dist: bionic
+    services:
+      - docker
+    compiler: clang
+    env:
+      - DOCKERSYS=debian
+      - DOCKERIMG=ubuntu:focal
   - os: osx
     osx_image: xcode10
     compiler: clang
@@ -215,8 +199,17 @@ matrix:
   - os: osx
     osx_image: xcode11
     compiler: clang
+  - os: osx
+    osx_image: xcode11.1
+    compiler: clang
+  - os: osx
+    osx_image: xcode11.2
+    compiler: clang
+  - os: osx
+    osx_image: xcode11.3
+    compiler: clang
   - os: linux
-    dist: xenial
+    dist: bionic
     compiler: clang
     env:
       - ANDROID_BUILD=1
@@ -224,7 +217,7 @@ matrix:
       - COMPILER=clang
       - TARGET_ARCH=armv7
   - os: linux
-    dist: xenial
+    dist: bionic
     compiler: clang
     env:
       - ANDROID_BUILD=1
@@ -232,7 +225,7 @@ matrix:
       - COMPILER=clang
       - TARGET_ARCH=arm64_v8a
   - os: linux
-    dist: xenial
+    dist: bionic
     compiler: clang
     env:
       - ANDROID_BUILD=1
@@ -240,7 +233,7 @@ matrix:
       - COMPILER=clang
       - TARGET_ARCH=x86
   - os: linux
-    dist: xenial
+    dist: bionic
     compiler: clang
     env:
       - ANDROID_BUILD=1
