@@ -708,8 +708,8 @@ HRESULT AkVCam::Pin::QueryPinInfo(PIN_INFO *pInfo)
     if (!this->d->m_pinName.empty())
         memcpy(pInfo->achName,
                this->d->m_pinName.c_str(),
-               std::min<size_t>(this->d->m_pinName.size() * sizeof(WCHAR),
-                                MAX_PIN_NAME));
+               (std::min<size_t>)(this->d->m_pinName.size() * sizeof(WCHAR),
+                                  MAX_PIN_NAME));
 
     return S_OK;
 }
@@ -1082,8 +1082,8 @@ AkVCam::VideoFrame AkVCam::PinPrivate::randomFrame()
 
     VideoFormat rgbFormat(PixelFormatRGB24, format.width(), format.height());
     VideoData data(rgbFormat.size());
-    static std::uniform_int_distribution<uint8_t> distribution(std::numeric_limits<uint8_t>::min(),
-                                                               std::numeric_limits<uint8_t>::max());
+    static std::uniform_int_distribution<uint8_t> distribution((std::numeric_limits<uint8_t>::min)(),
+                                                               (std::numeric_limits<uint8_t>::max)());
     static std::default_random_engine engine;
     std::generate(data.begin(), data.end(), [] () {
         return distribution(engine);

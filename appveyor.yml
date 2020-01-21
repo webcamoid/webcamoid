@@ -1,7 +1,7 @@
 version: 8.7.1.{build}-{branch}
 os: MinGW
 
-image: Visual Studio 2017
+image: Visual Studio 2019
 
 platform:
   - x64
@@ -20,9 +20,9 @@ branches:
 
 environment:
   global:
-    FFMPEG_VERSION: 4.2
-    GSTREAMER_VERSION: 1.16.0
-    PYTHON_VERSION: Python37
+    FFMPEG_VERSION: 4.2.1
+    GSTREAMER_VERSION: 1.16.2
+    PYTHON_VERSION: Python38
     QMAKESPEC: win32-g++
     MAKETOOL: mingw32-make
     INSTALL_PREFIX: C:/projects/webcamoid/ports/deploy/temp_priv/usr
@@ -33,15 +33,17 @@ environment:
 
   matrix:
     - MSYS2_BUILD: 1
-    - QTDIR: C:\Qt\5.13\mingw73_64
+    - QTDIR: C:\Qt\5.14\mingw73_64
       TOOLSDIR: C:\Qt\Tools\mingw730_64
-    - QTDIR: C:\Qt\5.13\msvc2017
+    - QTDIR: C:\Qt\5.14\mingw73_32
+      TOOLSDIR: C:\Qt\Tools\mingw730_32
+    - QTDIR: C:\Qt\5.14\msvc2017
       TOOLSDIR: C:\Qt\Tools\QtCreator
       QMAKESPEC: win32-msvc
       VSPATH: C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build
       MAKETOOL: jom
       PLATFORM: x86
-    - QTDIR: C:\Qt\5.13\msvc2017_64
+    - QTDIR: C:\Qt\5.14\msvc2017_64
       TOOLSDIR: C:\Qt\Tools\QtCreator
       QMAKESPEC: win32-msvc
       VSPATH: C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build
