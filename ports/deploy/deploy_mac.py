@@ -77,6 +77,15 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
         print('Executing make install')
         self.makeInstall(self.buildDir, self.installDir)
         self.detectTargetArch()
+
+        packagingTools = []
+
+        if len(self.qtIFW) > 0:
+            packagingTools += ['Qt Installer Framework']
+
+        if len(packagingTools) > 0:
+            print('Detected packaging tools: {}\n'.format(', '.join(packagingTools)))
+
         print('Copying Qml modules\n')
         self.solvedepsQml()
         print('\nCopying required plugins\n')
