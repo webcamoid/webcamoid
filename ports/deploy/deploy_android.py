@@ -72,7 +72,7 @@ class Deploy(deploy_base.DeployBase,
         self.pluginsInstallDir = os.path.join(self.assetsIntallDir, 'plugins')
         self.qtConf = os.path.join(self.binaryInstallDir, 'qt.conf')
         self.qmlRootDirs = ['StandAlone/share/qml', 'libAvKys/Plugins']
-        self.mainBinary = os.path.join(self.binaryInstallDir, 'lib' + self.programName + '.so')
+        self.mainBinary = os.path.join(self.binaryInstallDir, os.path.basename(binary))
         self.programVersion = self.detectVersion(os.path.join(self.rootDir, 'commons.pri'))
         self.detectMake()
         self.binarySolver.readExcludeList(os.path.join(self.rootDir, 'ports/deploy/exclude.android.txt'))
@@ -114,7 +114,9 @@ class Deploy(deploy_base.DeployBase,
         self.solvedepsQml()
         print('\nCopying required plugins\n')
         self.solvedepsPlugins()
-        print('\nFixing Android libs\n')
+        print('\nRemoving unused architectures')
+        self.removeInvalidArchs()
+        print('Fixing Android libs\n')
         self.fixQtLibs()
 
         try:
@@ -138,6 +140,17 @@ class Deploy(deploy_base.DeployBase,
         self.removeUnneededFiles(self.libInstallDir)
         print('Writting build system information\n')
         self.writeBuildInfo()
+
+    def removeInvalidArchs(self):
+        suffix = '_{}.so'.format(self.targetArch)
+
+        if not self.mainBinary.endswith(suffix):
+            return
+
+        for root, dirs, files in os.walk(self.assetsIntallDir):
+            for f in files:
+                if f.endswith('.so') and not f.endswith(suffix):
+                    os.remove(os.path.join(root, f))
 
     def solvedepsLibs(self):
         qtLibsPath = self.qmakeQuery(var='QT_INSTALL_LIBS')
