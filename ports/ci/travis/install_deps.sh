@@ -95,7 +95,9 @@ if [ "${TRAVIS_OS_NAME}" = linux ] &&
    [ "${ANDROID_BUILD}" != 1 ] &&
    [ -z "${ARCH_ROOT_MINGW}" ] ; then
     # Install missing dependenies
-    apt-get -y install \
+    sudo apt-get -qq -y update
+    sudo apt-get -qq -y upgrade
+    sudo apt-get -qq -y install \
         libxkbcommon-x11-0
 
     mkdir -p .local/bin
