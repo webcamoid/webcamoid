@@ -83,13 +83,13 @@ requires() {
     done
 }
 
-if [ ! -z "${USE_WGET}" ]; then
-    export DOWNLOAD_CMD="wget -c"
-else
-    export DOWNLOAD_CMD="curl --retry 10 -kLOC -"
-fi
+#qtIinstallerVerbose=-v
 
-# qtIinstallerVerbose=-v
+if [ ! -z "${USE_WGET}" ]; then
+    export DOWNLOAD_CMD="wget -nv -c"
+else
+    export DOWNLOAD_CMD="curl --retry 10 -kLOCsS -"
+fi
 
 if [ "${TRAVIS_OS_NAME}" = linux ] &&
    [ "${ANDROID_BUILD}" != 1 ] &&
@@ -192,7 +192,7 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
         "build-tools;${ANDROID_BUILD_TOOLS_VERSION}" \
         "platform-tools" \
         "platforms;android-${ANDROID_PLATFORM}" \
-        "tools"
+        "tools" > /dev/null
 elif [ "${ARCH_ROOT_BUILD}" = 1 ]; then
     # Download chroot image
     archImage=archlinux-bootstrap-${ARCH_ROOT_DATE}-x86_64.tar.gz
