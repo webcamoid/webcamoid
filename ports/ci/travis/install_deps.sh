@@ -88,7 +88,7 @@ requires() {
 if [ ! -z "${USE_WGET}" ]; then
     export DOWNLOAD_CMD="wget -nv -c"
 else
-    export DOWNLOAD_CMD="curl --retry 10 -kLOCsS -"
+    export DOWNLOAD_CMD="curl --retry 10 -sS -kLOC -"
 fi
 
 if [ "${TRAVIS_OS_NAME}" = linux ] &&
