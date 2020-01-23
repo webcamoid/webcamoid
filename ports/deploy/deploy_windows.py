@@ -97,14 +97,6 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
                                        'webcamoid-{}-{}.exe'.format(self.programVersion,
                                                                     arch))
 
-        packagingTools = []
-
-        if len(self.qtIFW) > 0:
-            packagingTools += ['Qt Installer Framework']
-
-        if len(packagingTools) > 0:
-            print('Detected packaging tools: {}\n'.format(', '.join(packagingTools)))
-
         print('Copying Qml modules\n')
         self.solvedepsQml()
         print('\nCopying required plugins\n')
@@ -387,9 +379,14 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
         mutex = threading.Lock()
 
         threads = [threading.Thread(target=self.createPortable, args=(mutex,))]
+        packagingTools = ['zip']
 
         if self.qtIFW != '':
             threads.append(threading.Thread(target=self.createAppInstaller, args=(mutex,)))
+            packagingTools += ['Qt Installer Framework']
+
+        if len(packagingTools) > 0:
+            print('Detected packaging tools: {}\n'.format(', '.join(packagingTools)))
 
         for thread in threads:
             thread.start()

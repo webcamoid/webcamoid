@@ -543,7 +543,7 @@ class Deploy(deploy_base.DeployBase,
 
         return self.jarSignPackage(package, keystore)
 
-    def package(self):
+    def createApk(self, mutex):
         if 'PACKAGES_MERGE' in os.environ:
             print('Merging package data:\n')
 
@@ -604,3 +604,18 @@ class Deploy(deploy_base.DeployBase,
 
         print('Created APK package:')
         self.printPackageInfo(self.outPackage)
+
+    def package(self):
+        mutex = threading.Lock()
+
+        threads = [threading.Thread(target=self.createApk, args=(mutex,))]
+        packagingTools = ['apk']
+
+        if len(packagingTools) > 0:
+            print('Detected packaging tools: {}\n'.format(', '.join(packagingTools)))
+
+        for thread in threads:
+            thread.start()
+
+        for thread in threads:
+            thread.join()
