@@ -17,19 +17,20 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QSize>
-#include <QMutex>
-#include <QQmlContext>
-#include <QQuickItem>
-#include <QQmlProperty>
-#include <QQmlApplicationEngine>
-#include <QSystemTrayIcon>
-#include <QSettings>
-#include <QFileInfo>
-#include <QDateTime>
-#include <QStandardPaths>
-#include <QFileDialog>
 #include <QApplication>
+#include <QDateTime>
+#include <QFileDialog>
+#include <QFileInfo>
+#include <QMutex>
+#include <QQmlApplicationEngine>
+#include <QQmlContext>
+#include <QQmlProperty>
+#include <QQuickItem>
+#include <QResource>
+#include <QSettings>
+#include <QSize>
+#include <QStandardPaths>
+#include <QSystemTrayIcon>
 #include <ak.h>
 #include <akcaps.h>
 #include <akaudiocaps.h>

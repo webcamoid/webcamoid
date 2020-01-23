@@ -371,7 +371,7 @@
 <context>
     <name>MediaTools</name>
     <message>
-        <location filename="../../src/mediatools.cpp" line="223"/>
+        <location filename="../../src/mediatools.cpp" line="224"/>
         <source>Daily Build</source>
         <translation>Compilació diària</translation>
     </message>

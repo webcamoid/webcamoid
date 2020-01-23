@@ -22,6 +22,7 @@
 import json
 import math
 import os
+import re
 import shutil
 import subprocess # nosec
 import sys
@@ -66,7 +67,7 @@ class Deploy(deploy_base.DeployBase,
         self.binaryInstallDir = self.libInstallDir
         self.assetsIntallDir = os.path.join(self.rootInstallDir,
                                             'assets',
-                                            '--Added-by-androiddeployqt--')
+                                            'android_rcc_bundle')
         self.qmlInstallDir = os.path.join(self.assetsIntallDir, 'qml')
         self.pluginsInstallDir = os.path.join(self.assetsIntallDir, 'plugins')
         self.qtConf = os.path.join(self.binaryInstallDir, 'qt.conf')
@@ -75,7 +76,7 @@ class Deploy(deploy_base.DeployBase,
         self.programVersion = self.detectVersion(os.path.join(self.rootDir, 'commons.pri'))
         self.detectMake()
         self.binarySolver.readExcludeList(os.path.join(self.rootDir, 'ports/deploy/exclude.android.txt'))
-        self.libsSeachPaths = [self.qmakeQuery(var='QT_INSTALL_LIBS')]
+        self.binarySolver.libsSeachPaths += [self.qmakeQuery(var='QT_INSTALL_LIBS')]
         self.packageConfig = os.path.join(self.rootDir, 'ports/deploy/package_info.conf')
         self.dependencies = []
 
@@ -125,14 +126,16 @@ class Deploy(deploy_base.DeployBase,
         self.solvedepsLibs()
         print('\nSolving Android dependencies\n')
         self.solvedepsAndroid()
-        print('\nFixing libs.xml file')
+        print('\nCopying Android build templates')
+        self.copyAndroidTemplates()
+        print('Fixing libs.xml file')
         self.fixLibsXml()
+        print('Creating .rcc bundle file')
+        self.createRccBundle()
         print('Stripping symbols')
         self.binarySolver.stripSymbols(self.rootInstallDir)
         print('Removing unnecessary files')
         self.removeUnneededFiles(self.libInstallDir)
-        print('Copying Android build templates')
-        self.copyAndroidTemplates()
         print('Writting build system information\n')
         self.writeBuildInfo()
 
@@ -365,8 +368,16 @@ class Deploy(deploy_base.DeployBase,
                   'FAILED')
 
     def alignPackage(self, package):
-        deploymentSettingsPath = os.path.join(self.standAloneDir,
-                                              'android-lib{}.so-deployment-settings.json'.format(self.programName))
+        deploymentSettingsPath = ''
+
+        for f in os.listdir(self.standAloneDir):
+            if re.match('^android-.+-deployment-settings.json$' , f):
+                deploymentSettingsPath = os.path.join(self.standAloneDir, f)
+
+                break
+
+        if len(deploymentSettingsPath) < 1:
+            return
 
         with open(deploymentSettingsPath) as f:
             deploymentSettings = json.load(f)
@@ -401,8 +412,16 @@ class Deploy(deploy_base.DeployBase,
         if not self.alignPackage(package):
             return False
 
-        deploymentSettingsPath = os.path.join(self.standAloneDir,
-                                              'android-lib{}.so-deployment-settings.json'.format(self.programName))
+        deploymentSettingsPath = ''
+
+        for f in os.listdir(self.standAloneDir):
+            if re.match('^android-.+-deployment-settings.json$' , f):
+                deploymentSettingsPath = os.path.join(self.standAloneDir, f)
+
+                break
+
+        if len(deploymentSettingsPath) < 1:
+            return
 
         with open(deploymentSettingsPath) as f:
             deploymentSettings = json.load(f)

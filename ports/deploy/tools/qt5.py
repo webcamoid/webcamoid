@@ -91,8 +91,8 @@ class DeployToolsQt(tools.utils.DeployToolsUtils):
                 args += [var]
 
             process = subprocess.Popen(args, # nosec
-                                        stdout=subprocess.PIPE,
-                                        stderr=subprocess.PIPE)
+                                       stdout=subprocess.PIPE,
+                                       stderr=subprocess.PIPE)
             stdout, _ = process.communicate()
 
             return stdout.strip().decode(sys.getdefaultencoding())
@@ -313,6 +313,10 @@ class DeployToolsQt(tools.utils.DeployToolsUtils):
         }
 
         pluginsMap.update({lib + 'd': pluginsMap[lib] for lib in pluginsMap})
+
+        if self.targetSystem == 'android':
+            pluginsMap.update({lib + '_' + self.targetArch: pluginsMap[lib] for lib in pluginsMap})
+
         plugins = []
 
         for dep in self.binarySolver.scanDependencies(self.installDir):
@@ -368,6 +372,8 @@ class DeployToolsQt(tools.utils.DeployToolsUtils):
                 for lib in root.iter('lib'):
                     if 'file' in lib.attrib:
                         libs.add(lib.attrib['file'])
+
+        self.localLibs = [os.path.basename(lib) for lib in libs]
 
         print('Copying jar files\n')
 
@@ -610,8 +616,16 @@ class DeployToolsQt(tools.utils.DeployToolsUtils):
         for template in templates:
             self.copy(template, self.rootInstallDir, overwrite=False)
 
-        deploymentSettingsPath = os.path.join(self.standAloneDir,
-                                              'android-lib{}.so-deployment-settings.json'.format(self.programName))
+        deploymentSettingsPath = ''
+
+        for f in os.listdir(self.standAloneDir):
+            if re.match('^android-.+-deployment-settings.json$' , f):
+                deploymentSettingsPath = os.path.join(self.standAloneDir, f)
+
+                break
+
+        if len(deploymentSettingsPath) < 1:
+            return
 
         with open(deploymentSettingsPath) as f:
             deploymentSettings = json.load(f)
@@ -627,3 +641,31 @@ class DeployToolsQt(tools.utils.DeployToolsUtils):
             f.write('androidCompileSdkVersion={}\n'.format(platform))
             f.write('buildDir=build\n')
             f.write('qt5AndroidDir={}\n'.format(javaDir))
+
+    def createRccBundle(self):
+        rcc = os.path.join(os.path.dirname(self.qmake), 'rcc')
+        assetsDir = os.path.abspath(os.path.join(self.assetsIntallDir, '..'))
+        assetsFolder = os.path.relpath(self.assetsIntallDir, assetsDir)
+        qrcFile = os.path.join(self.assetsIntallDir, assetsFolder + '.qrc')
+
+        params = [rcc,
+                  '--project',
+                  '-o', qrcFile]
+        process = subprocess.Popen(params, # nosec
+                                   cwd=self.assetsIntallDir,
+                                   stdout=subprocess.PIPE,
+                                   stderr=subprocess.PIPE)
+        process.communicate()
+
+        params = [rcc,
+                  '--root=/{}'.format(assetsFolder),
+                  '--binary',
+                  '-o', self.assetsIntallDir + '.rcc',
+                  qrcFile]
+        process = subprocess.Popen(params, # nosec
+                                   cwd=assetsDir,
+                                   stdout=subprocess.PIPE,
+                                   stderr=subprocess.PIPE)
+        process.communicate()
+
+        shutil.rmtree(self.assetsIntallDir, True)

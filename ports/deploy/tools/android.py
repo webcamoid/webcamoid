@@ -38,6 +38,7 @@ class AndroidTools(tools.utils.DeployToolsUtils):
         self.androidNDK = ''
         self.bundledInLib = []
         self.qtLibs = []
+        self.localLibs = []
 
         if 'ANDROID_HOME' in os.environ:
             self.androidSDK = os.environ['ANDROID_HOME']
@@ -102,7 +103,14 @@ class AndroidTools(tools.utils.DeployToolsUtils):
                 if f.endswith('.so'):
                     srcPath = os.path.join(root, f)
                     relPath = root.replace(self.assetsIntallDir, '')[1:]
-                    lib = 'lib' + relPath.replace(os.path.sep, '_') + '_' + f
+                    prefix = 'lib' + relPath.replace(os.path.sep, '_') + '_'
+                    lib = ''
+
+                    if f.startswith(prefix):
+                        lib = f
+                    else:
+                        lib = prefix + f
+
                     dstPath = os.path.join(self.libInstallDir, lib)
                     print('    {} -> {}'.format(srcPath, dstPath))
                     self.move(srcPath, dstPath)
@@ -146,7 +154,7 @@ class AndroidTools(tools.utils.DeployToolsUtils):
                         lib = '<item>{}</item>'.format(lib)
                         resources[array.attrib['name']].add(lib)
 
-        qtLibs = set(['<item>{}</item>'.format(self.libBaseName(lib)) for lib in self.qtLibs])
+        qtLibs = set(['<item>{};{}</item>'.format(self.targetArch, self.libBaseName(lib)) for lib in self.qtLibs])
 
         if 'qt_libs' in resources:
             qtLibs -= resources['qt_libs']
@@ -165,10 +173,19 @@ class AndroidTools(tools.utils.DeployToolsUtils):
 
         bundledInAssets = '\n'.join(sorted(list(bundledInAssets)))
 
+        localLibs = sorted(list(set(self.localLibs)))
+        localLibs = set(['<item>{};{}</item>'.format(self.targetArch, ':'.join(localLibs)) for lib in localLibs])
+
+        if 'load_local_libs' in resources:
+            localLibs -= resources['load_local_libs']
+
+        localLibs = '\n'.join(sorted(list(localLibs)))
+
         replace = {'<!-- %%INSERT_EXTRA_LIBS%% -->'       : '',
                    '<!-- %%INSERT_QT_LIBS%% -->'          : qtLibs,
                    '<!-- %%INSERT_BUNDLED_IN_LIB%% -->'   : bundledInLib,
-                   '<!-- %%INSERT_BUNDLED_IN_ASSETS%% -->': bundledInAssets}
+                   '<!-- %%INSERT_BUNDLED_IN_ASSETS%% -->': bundledInAssets,
+                   '<!-- %%INSERT_LOCAL_LIBS%% -->'       : localLibs}
 
         with open(libsXml) as inFile:
             with open(libsXmlTemp, 'w') as outFile:
