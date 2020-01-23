@@ -414,12 +414,12 @@
     <message>
         <location filename="../qml/PhotoWidget.qml" line="162"/>
         <source>Save photo as…</source>
-        <translation type="unfinished"></translation>
+        <translation>Foto opslaan als…</translation>
     </message>
     <message>
         <location filename="../qml/PhotoWidget.qml" line="164"/>
         <source>Picture %1.png</source>
-        <translation type="unfinished"></translation>
+        <translation>Afbeelding %1.png</translation>
     </message>
 </context>
 <context>
