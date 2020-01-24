@@ -93,7 +93,7 @@ elif [ "${ARCH_ROOT_BUILD}" = 1 ]; then
 
 export LC_ALL=C
 export HOME=$HOME
-export PATH="\$PWD/.local/bin:\$PATH"
+export PATH="$TRAVIS_BUILD_DIR/.local/bin:\$PATH"
 export WINEPREFIX=/opt/.wine
 cd $TRAVIS_BUILD_DIR
 EOF
