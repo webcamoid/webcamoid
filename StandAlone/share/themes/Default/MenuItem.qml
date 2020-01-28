@@ -45,15 +45,6 @@ T.MenuItem {
 
     readonly property int animationTime: 200
 
-    function pressIndicatorRadius()
-    {
-        let diffX = menuItem.width / 2
-        let diffY = menuItem.height / 2
-        let r2 = diffX * diffX + diffY * diffY
-
-        return Math.sqrt(r2)
-    }
-
     // Checked indicator
     indicator: Item {
         id: menuItemCheck
@@ -156,44 +147,13 @@ T.MenuItem {
         alignment: Qt.AlignLeft
     }
 
-    background: Item {
-        id: backgroundItem
+    background: Rectangle {
+        id: background
         implicitWidth: AkUnit.create(128 * ThemeSettings.controlScale, "dp").pixels
         implicitHeight: AkUnit.create(48 * ThemeSettings.controlScale, "dp").pixels
-
-        // Press indicator
-        Rectangle{
-            id: menuItemPressIndicatorMask
-            anchors.fill: parent
-            color: Qt.hsla(0, 0, 0, 1)
-            visible: false
-        }
-        Rectangle {
-            id: menuItemPress
-            radius: 0
-            anchors.verticalCenter: backgroundItem.verticalCenter
-            anchors.horizontalCenter: backgroundItem.horizontalCenter
-            width: 2 * radius
-            height: 2 * radius
-            color: menuItem.highlighted?
-                       ThemeSettings.constShade(ThemeSettings.colorPrimary,
-                                                0.3,
-                                                0.75):
-                       ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
-            opacity: 0
-            layer.enabled: true
-            layer.effect: OpacityMask {
-                maskSource: menuItemPressIndicatorMask
-            }
-        }
-
-        Rectangle {
-            id: background
-            color: menuItem.highlighted?
-                       ThemeSettings.colorPrimary:
-                       ThemeSettings.shade(ThemeSettings.colorBack, -0.1, 0)
-            anchors.fill: parent
-        }
+        color: menuItem.highlighted?
+                   ThemeSettings.colorPrimary:
+                   ThemeSettings.shade(ThemeSettings.colorBack, -0.1, 0)
     }
 
     states: [
@@ -303,13 +263,11 @@ T.MenuItem {
                         ThemeSettings.shade(ThemeSettings.colorBack, -0.7)
             }
             PropertyChanges {
-                target: menuItemPress
-                radius: menuItem.pressIndicatorRadius()
-                opacity: 1
-            }
-            PropertyChanges {
                 target: background
-                visible: false
+                color:
+                    menuItem.highlighted?
+                        ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.3):
+                        ThemeSettings.shade(ThemeSettings.colorBack, -0.3)
             }
         }
     ]
@@ -330,11 +288,6 @@ T.MenuItem {
         }
         ColorAnimation {
             target: background
-            duration: menuItem.animationTime
-        }
-        PropertyAnimation {
-            target: menuItemPress
-            properties: "opacity,radius"
             duration: menuItem.animationTime
         }
     }

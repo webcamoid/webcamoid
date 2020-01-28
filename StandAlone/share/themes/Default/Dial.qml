@@ -19,10 +19,7 @@
 
 import QtQuick 2.12
 import QtQuick.Controls 2.5
-import QtQuick.Layouts 1.3
 import QtQuick.Templates 2.5 as T
-import QtGraphicalEffects 1.0
-import QtQuick.Controls.impl 2.12
 import Ak 1.0
 
 T.Dial {
@@ -110,54 +107,6 @@ T.Dial {
             }
         }
 
-        // Shadow
-        Rectangle {
-            id: buttonShadowRect
-            width: knob.width
-            height: knob.height
-            anchors.verticalCenter: parent.verticalCenter
-            anchors.horizontalCenter: parent.horizontalCenter
-            radius: width / 2
-            color: Qt.hsla(0, 0, 0, 1)
-            visible: false
-        }
-        DropShadow {
-            id: buttonShadow
-            width: knob.width
-            height: knob.height
-            cached: true
-            anchors.verticalCenter: parent.verticalCenter
-            anchors.horizontalCenter: parent.horizontalCenter
-            horizontalOffset: radius / 2
-            verticalOffset: radius / 2
-            radius: AkUnit.create(6 * ThemeSettings.controlScale, "dp").pixels
-            samples: 2 * radius + 1
-            color: ThemeSettings.constShade(ThemeSettings.colorBack, -0.9)
-            source: buttonShadowRect
-        }
-
-        // Rectagle below the indicator
-        Rectangle {
-            id: rectangleBelow
-            width: knob.width
-            height: knob.height
-            anchors.verticalCenter: parent.verticalCenter
-            anchors.horizontalCenter: parent.horizontalCenter
-            radius: knob.radius
-            color: ThemeSettings.shade(ThemeSettings.colorBack, -0.2)
-        }
-
-        // Press indicator
-        Rectangle {
-            id: buttonPress
-            radius: width / 2
-            anchors.verticalCenter: parent.verticalCenter
-            anchors.horizontalCenter: parent.horizontalCenter
-            width: 0
-            height: width
-            color: ThemeSettings.shade(ThemeSettings.colorBack, -0.3)
-        }
-
         Rectangle {
             id: knob
             color: ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
@@ -223,15 +172,15 @@ T.Dial {
                   && !control.pressed
 
             PropertyChanges {
+                target: highlight
+                width: backgrounItem.width
+                opacity: 0.5
+            }
+            PropertyChanges {
                 target: knob
                 color: ThemeSettings.shade(ThemeSettings.colorBack, -0.2)
                 border.color:
                     ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.1)
-            }
-            PropertyChanges {
-                target: highlight
-                width: backgrounItem.width
-                opacity: 0.5
             }
         },
         State {
@@ -245,12 +194,8 @@ T.Dial {
                 opacity: 0.5
             }
             PropertyChanges {
-                target: buttonPress
-                width: knob.width
-            }
-            PropertyChanges {
                 target: knob
-                color: "transparent"
+                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.3)
                 border.color:
                     ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.2)
             }
@@ -260,17 +205,12 @@ T.Dial {
     transitions: Transition {
         PropertyAnimation {
             target: knob
-            properties: "color,border"
+            properties: "color,border.color"
             duration: control.animationTime
         }
         PropertyAnimation {
             target: highlight
             properties: "color,opacity,width"
-            duration: control.animationTime
-        }
-        PropertyAnimation {
-            target: buttonPress
-            properties: "width"
             duration: control.animationTime
         }
     }

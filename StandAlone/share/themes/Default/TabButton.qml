@@ -19,9 +19,7 @@
 
 import QtQuick 2.12
 import QtQuick.Controls 2.5
-import QtQuick.Layouts 1.3
 import QtQuick.Templates 2.5 as T
-import QtGraphicalEffects 1.0
 import QtQuick.Controls.impl 2.12
 import Ak 1.0
 
@@ -46,15 +44,6 @@ T.TabButton {
     hoverEnabled: true
 
     readonly property int animationTime: 200
-
-    function pressIndicatorRadius()
-    {
-        let diffX = button.width / 2
-        let diffY = button.height / 2
-        let r2 = diffX * diffX + diffY * diffY
-
-        return Math.sqrt(r2)
-    }
 
     function buttonHeight()
     {
@@ -93,49 +82,11 @@ T.TabButton {
         }
     }
 
-    background: Item {
-        id: back
+    background: Rectangle {
+        id: buttonRectangleBelow
         implicitWidth: AkUnit.create(90 * ThemeSettings.controlScale, "dp").pixels
         implicitHeight: button.buttonHeight()
-
-        // Rectagle below the indicator
-        Rectangle {
-            id: buttonRectangleBelow
-            anchors.fill: parent
-            color: Qt.hsla(0, 0, 0, 0)
-        }
-
-        // Press indicator
-        Rectangle{
-            id: buttonPressIndicatorMask
-            anchors.fill: parent
-            color: Qt.hsla(0, 0, 0, 1)
-            visible: false
-        }
-        Item {
-            id: buttonPressIndicatorItem
-            anchors.fill: buttonPressIndicatorMask
-            clip: true
-            layer.enabled: true
-            layer.effect: OpacityMask {
-                maskSource: buttonPressIndicatorMask
-            }
-
-            Rectangle {
-                id: buttonPress
-                radius: 0
-                anchors.verticalCenter:
-                    buttonPressIndicatorItem.verticalCenter
-                anchors.horizontalCenter:
-                    buttonPressIndicatorItem.horizontalCenter
-                width: 2 * radius
-                height: 2 * radius
-                color: ThemeSettings.constShade(ThemeSettings.colorPrimary,
-                                                0.1,
-                                                0.4)
-                opacity: 0
-            }
-        }
+        color: ThemeSettings.shade(ThemeSettings.colorBack, 0.0, 0.0)
     }
 
     states: [
@@ -170,11 +121,6 @@ T.TabButton {
                   && !button.checked
                   && button.pressed
 
-            PropertyChanges {
-                target: buttonPress
-                radius: button.pressIndicatorRadius()
-                opacity: 1
-            }
             PropertyChanges {
                 target: buttonRectangleBelow
                 color: ThemeSettings.constShade(ThemeSettings.colorPrimary,
@@ -230,11 +176,6 @@ T.TabButton {
                 color: ThemeSettings.colorPrimary
             }
             PropertyChanges {
-                target: buttonPress
-                radius: button.pressIndicatorRadius()
-                opacity: 1
-            }
-            PropertyChanges {
                 target: buttonRectangleBelow
                 color: ThemeSettings.constShade(ThemeSettings.colorPrimary,
                                                 0.0,
@@ -244,13 +185,9 @@ T.TabButton {
     ]
 
     transitions: Transition {
-        ColorAnimation {
-            target: iconLabel
-            duration: button.animationTime
-        }
         PropertyAnimation {
-            target: buttonPress
-            properties: "radius"
+            target: iconLabel
+            properties: "color,icon.color"
             duration: button.animationTime
         }
         ColorAnimation {

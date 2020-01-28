@@ -19,9 +19,7 @@
 
 import QtQuick 2.12
 import QtQuick.Controls 2.5
-import QtQuick.Layouts 1.3
 import QtQuick.Templates 2.5 as T
-import QtGraphicalEffects 1.0
 import QtQuick.Controls.impl 2.12
 import Ak 1.0
 
@@ -37,24 +35,14 @@ T.Button {
     spacing: AkUnit.create(8 * ThemeSettings.controlScale, "dp").pixels
     hoverEnabled: true
 
-    readonly property int radius: AkUnit.create(6 * ThemeSettings.controlScale,
-                                             "dp").pixels
+    readonly property int radius:
+        AkUnit.create(6 * ThemeSettings.controlScale, "dp").pixels
     readonly property int animationTime: 200
-
-    function pressIndicatorRadius()
-    {
-        let diffX = button.width / 2
-        let diffY = button.height / 2
-        let r2 = diffX * diffX + diffY * diffY
-
-        return Math.sqrt(r2)
-    }
 
     contentItem: Item {
         id: buttonContent
         implicitWidth: iconLabel.implicitWidth
-                       + AkUnit.create(18 * ThemeSettings.controlScale,
-                                    "dp").pixels
+                       + AkUnit.create(18 * ThemeSettings.controlScale, "dp").pixels
         implicitHeight: iconLabel.implicitHeight
 
         IconLabel {
@@ -80,75 +68,10 @@ T.Button {
     }
     background: Item {
         id: back
-        implicitWidth: AkUnit.create(64 * ThemeSettings.controlScale,
-                                  "dp").pixels
-        implicitHeight: AkUnit.create(36 * ThemeSettings.controlScale,
-                                   "dp").pixels
-
-        // Shadow
-        Rectangle {
-            id: buttonShadowRect
-            anchors.fill: parent
-            radius: button.radius
-            color: Qt.hsla(0, 0, 0, 1)
-            visible: false
-        }
-        DropShadow {
-            id: buttonShadow
-            anchors.fill: parent
-            cached: true
-            horizontalOffset: button.radius / 2
-            verticalOffset: button.radius / 2
-            radius: button.radius
-            samples: 2 * radius + 1
-            color: ThemeSettings.constShade(ThemeSettings.colorBack, -0.9)
-            source: buttonShadowRect
-            visible: button.highlighted && button.enabled
-        }
-
-        // Rectagle below the indicator
-        Rectangle {
-            id: buttonRectangleBelow
-            anchors.fill: parent
-            radius: button.radius
-            color: ThemeSettings.colorPrimary
-            visible: false
-        }
-
-        // Press indicator
-        Rectangle{
-            id: buttonPressIndicatorMask
-            anchors.fill: parent
-            radius: button.radius
-            color: Qt.hsla(0, 0, 0, 1)
-            visible: false
-        }
-        Item {
-            id: buttonPressIndicatorItem
-            anchors.fill: buttonPressIndicatorMask
-            clip: true
-            layer.enabled: true
-            layer.effect: OpacityMask {
-                maskSource: buttonPressIndicatorMask
-            }
-
-            Rectangle {
-                id: buttonPress
-                radius: 0
-                anchors.verticalCenter: buttonPressIndicatorItem.verticalCenter
-                anchors.horizontalCenter: buttonPressIndicatorItem.horizontalCenter
-                width: 2 * radius
-                height: 2 * radius
-                color: button.highlighted?
-                           ThemeSettings.constShade(ThemeSettings.colorPrimary,
-                                                    0.3,
-                                                    0.3):
-                           ThemeSettings.constShade(ThemeSettings.colorPrimary,
-                                                    0.1,
-                                                    0.3)
-                opacity: 0
-            }
-        }
+        implicitWidth:
+            AkUnit.create(64 * ThemeSettings.controlScale, "dp").pixels
+        implicitHeight:
+            AkUnit.create(36 * ThemeSettings.controlScale, "dp").pixels
 
         // Rectangle
         Rectangle {
@@ -158,11 +81,11 @@ T.Button {
             border.color: button.highlighted || button.flat?
                               Qt.hsla(0, 0, 0, 0):
                               ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
-            border.width: AkUnit.create(1 * ThemeSettings.controlScale,
-                                     "dp").pixels
+            border.width:
+                AkUnit.create(1 * ThemeSettings.controlScale, "dp").pixels
             color: button.highlighted?
                        ThemeSettings.colorPrimary:
-                       Qt.hsla(0, 0, 0, 0)
+                       ThemeSettings.shade(ThemeSettings.colorBack, 0.0, 0.0)
         }
 
         // Checked indicator
@@ -187,7 +110,7 @@ T.Button {
                   && !button.highlighted
                   && !button.flat
                   && !button.hovered
-                  && !button.visualFocus
+                  && !(button.activeFocus || button.visualFocus)
                   && !button.pressed
 
             PropertyChanges {
@@ -206,7 +129,7 @@ T.Button {
                   && !button.highlighted
                   && !button.flat
                   && button.hovered
-                  && !button.visualFocus
+                  && !(button.activeFocus || button.visualFocus)
                   && !button.pressed
 
             PropertyChanges {
@@ -221,7 +144,7 @@ T.Button {
             when: button.enabled
                   && !button.highlighted
                   && !button.flat
-                  && (button.hovered || button.visualFocus)
+                  && (button.hovered || button.activeFocus || button.visualFocus)
                   && !button.pressed
 
             PropertyChanges {
@@ -239,9 +162,10 @@ T.Button {
                   && button.pressed
 
             PropertyChanges {
-                target: buttonPress
-                radius: button.pressIndicatorRadius()
-                opacity: 1
+                target: buttonRectangle
+                color: ThemeSettings.constShade(ThemeSettings.colorPrimary,
+                                                0.1,
+                                                0.4)
             }
         },
         State {
@@ -250,7 +174,7 @@ T.Button {
                   && !button.highlighted
                   && button.flat
                   && !button.hovered
-                  && !button.visualFocus
+                  && !(button.activeFocus || button.visualFocus)
                   && !button.pressed
 
             PropertyChanges {
@@ -273,7 +197,7 @@ T.Button {
                   && !button.highlighted
                   && button.flat
                   && button.hovered
-                  && !button.visualFocus
+                  && !(button.activeFocus || button.visualFocus)
                   && !button.pressed
 
             PropertyChanges {
@@ -289,7 +213,7 @@ T.Button {
             when: button.enabled
                   && !button.highlighted
                   && button.flat
-                  && (button.hovered || button.visualFocus)
+                  && (button.hovered || button.activeFocus || button.visualFocus)
                   && !button.pressed
 
             PropertyChanges {
@@ -309,12 +233,10 @@ T.Button {
 
             PropertyChanges {
                 target: buttonRectangle
+                color: ThemeSettings.constShade(ThemeSettings.colorPrimary,
+                                                0.1,
+                                                0.4)
                 border.color: Qt.hsla(0, 0, 0, 0)
-            }
-            PropertyChanges {
-                target: buttonPress
-                radius: button.pressIndicatorRadius()
-                opacity: 1
             }
         },
         State {
@@ -322,7 +244,7 @@ T.Button {
             when: !button.enabled
                   && button.highlighted
                   && !button.hovered
-                  && !button.visualFocus
+                  && !(button.activeFocus || button.visualFocus)
                   && !button.pressed
 
             PropertyChanges {
@@ -346,7 +268,7 @@ T.Button {
             when: button.enabled
                   && button.highlighted
                   && button.hovered
-                  && !button.visualFocus
+                  && !(button.activeFocus || button.visualFocus)
                   && !button.pressed
 
             PropertyChanges {
@@ -359,7 +281,7 @@ T.Button {
             name: "HighlightedFocused"
             when: button.enabled
                   && button.highlighted
-                  && (button.hovered || button.visualFocus)
+                  && (button.hovered || button.activeFocus || button.visualFocus)
                   && !button.pressed
 
             PropertyChanges {
@@ -375,38 +297,16 @@ T.Button {
                   && button.pressed
 
             PropertyChanges {
-                target: buttonPress
-                radius: button.pressIndicatorRadius()
-                opacity: 1
-            }
-            PropertyChanges {
                 target: buttonRectangle
-                visible: false
-            }
-            PropertyChanges {
-                target: buttonRectangleBelow
-                visible: true
-            }
-            PropertyChanges {
-                target: buttonShadow
-                radius: 2 * button.radius
+                border.color: Qt.hsla(0, 0, 0, 0)
+                color: ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.3)
             }
         }
     ]
 
     transitions: Transition {
-        PropertyAnimation {
-            target: buttonPress
-            properties: "radius"
-            duration: button.animationTime
-        }
         ColorAnimation {
             target: buttonRectangle
-            duration: button.animationTime
-        }
-        PropertyAnimation {
-            target: buttonShadow
-            properties: "radius"
             duration: button.animationTime
         }
     }

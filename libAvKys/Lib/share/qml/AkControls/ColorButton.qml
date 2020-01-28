@@ -21,22 +21,47 @@ import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Window 2.12
 import Qt.labs.platform 1.1 as LABS
-import QtGraphicalEffects 1.0
 
 Button {
     id: button
     text: currentColor
-    layer.enabled: enabled
-    layer.effect: ColorOverlay {
-        cached: true
-        color: Qt.rgba(currentColor.r, currentColor.g, currentColor.b, 0.5)
-    }
 
     property color currentColor: "black"
     property string title: ""
     property bool showAlphaChannel: false
     property int modality: Qt.ApplicationModal
     property bool isOpen: false
+
+    function contrast(color, value=0.5)
+    {
+        let lightness = (11 * color.r + 16 * color.g + 5 * color.b) / 32;
+
+        if (lightness < value)
+            return Qt.hsla(0, 0, 1, 1)
+
+        return Qt.hsla(0, 0, 0, 1)
+    }
+
+    contentItem: Item {
+        implicitWidth: colorRect.implicitWidth
+        implicitHeight: colorRect.implicitHeight
+
+        Rectangle {
+            id: colorRect
+            color: currentColor
+            width: colorText.contentWidth
+            height: colorText.contentHeight
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.horizontalCenter: parent.horizontalCenter
+
+            Text {
+                id: colorText
+                text: parent.color
+                color: contrast(parent.color, 0.75)
+                font.bold: true
+            }
+        }
+    }
 
     onClicked: colorDialog.open()
 

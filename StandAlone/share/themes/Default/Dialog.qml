@@ -20,8 +20,6 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Templates 2.5 as T
-import QtGraphicalEffects 1.0
-import QtQuick.Controls.impl 2.12
 import Ak 1.0
 
 T.Dialog {
@@ -99,15 +97,6 @@ T.Dialog {
             control.modal?
                 AkUnit.create(8 * ThemeSettings.controlScale, "dp").pixels:
                 0
-        layer.enabled: control.modal
-        layer.effect: DropShadow {
-            cached: true
-            horizontalOffset: radius / 2
-            verticalOffset: radius / 2
-            radius: AkUnit.create(8 * ThemeSettings.controlScale, "dp").pixels
-            samples: 2 * radius + 1
-            color: ThemeSettings.constShade(ThemeSettings.colorBack, -0.9)
-        }
     }
 
     T.Overlay.modal: Rectangle {

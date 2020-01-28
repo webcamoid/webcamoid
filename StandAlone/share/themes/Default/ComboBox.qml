@@ -21,7 +21,6 @@ import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Templates 2.5 as T
 import QtGraphicalEffects 1.0
-import QtQuick.Controls.impl 2.12
 import Ak 1.0
 
 T.ComboBox {
@@ -111,60 +110,16 @@ T.ComboBox {
     }
 
     // Background
-    background: Item {
+    background: Rectangle {
+        id: comboBoxBackground
+        color: ThemeSettings.shade(ThemeSettings.colorBack, 0.0, 0.0)
+        border.color: comboBox.flat?
+                          Qt.hsla(0, 0, 0, 0):
+                          ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
+        border.width: AkUnit.create(1 * ThemeSettings.controlScale,
+                                 "dp").pixels
+        radius: comboBox.flat? 0: comboBox.radius
         anchors.fill: parent
-
-        // Rectagle below the indicator
-        Rectangle {
-            id: comboBoxRectangleBelow
-            anchors.fill: parent
-            color: ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
-            visible: false
-        }
-
-        // Press indicator
-        Rectangle{
-            id: comboBoxPressIndicatorMask
-            anchors.fill: parent
-            radius: comboBox.flat? 0: comboBox.radius
-            color: Qt.hsla(0, 0, 0, 1)
-            visible: false
-        }
-        Item {
-            id: comboBoxPressIndicatorItem
-            anchors.fill: comboBoxPressIndicatorMask
-            clip: true
-            layer.enabled: true
-            layer.effect: OpacityMask {
-                maskSource: comboBoxPressIndicatorMask
-            }
-
-            Rectangle {
-                id: comboBoxPress
-                radius: 0
-                anchors.verticalCenter: comboBoxPressIndicatorItem.verticalCenter
-                anchors.horizontalCenter: comboBoxPressIndicatorItem.horizontalCenter
-                width: 2 * radius
-                height: 2 * radius
-                color: ThemeSettings.constShade(ThemeSettings.colorPrimary,
-                                                0.1,
-                                                0.3)
-                opacity: 0
-            }
-        }
-
-        // Rectangle
-        Rectangle {
-            id: comboBoxBackground
-            color: Qt.hsla(0, 0, 0, 0)
-            border.color: comboBox.flat?
-                              Qt.hsla(0, 0, 0, 0):
-                              ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
-            border.width: AkUnit.create(1 * ThemeSettings.controlScale,
-                                     "dp").pixels
-            radius: comboBox.flat? 0: comboBox.radius
-            anchors.fill: parent
-        }
     }
 
     // List of elements
@@ -173,10 +128,10 @@ T.ComboBox {
         y: comboBox.height
            + AkUnit.create(4 * ThemeSettings.controlScale, "dp").pixels
         width: comboBox.width
-        implicitHeight: contentItem.implicitHeight
+        implicitHeight: contentItem.implicitHeight + 2 * topPadding
         transformOrigin: Item.Top
-        topMargin: AkUnit.create(8 * ThemeSettings.controlScale, "dp").pixels
-        bottomMargin: topMargin
+        topPadding: AkUnit.create(8 * ThemeSettings.controlScale, "dp").pixels
+        bottomPadding: topPadding
 
         // Fade in
         enter: Transition {
@@ -220,17 +175,7 @@ T.ComboBox {
             model: comboBox.delegateModel
             currentIndex: comboBox.highlightedIndex
             cacheBuffer: 1
-            layer.enabled: true
-            layer.effect: OpacityMask {
-                cached: true
-                maskSource: Rectangle {
-                    width: popup.width
-                    height: popup.height
-                    radius: comboBox.radius
-                    visible: false
-                }
 
-            }
             T.ScrollIndicator.vertical: ScrollIndicator {
             }
         }
@@ -241,15 +186,6 @@ T.ComboBox {
             border.color: ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
             radius: comboBox.radius
             anchors.fill: parent
-            layer.enabled: true
-            layer.effect: DropShadow {
-                cached: true
-                horizontalOffset: popupBackground.radius / 2
-                verticalOffset: popupBackground.radius / 2
-                radius: comboBox.radius
-                samples: 2 * radius + 1
-                color: ThemeSettings.constShade(ThemeSettings.colorBack, -0.9)
-            }
         }
     }
 
@@ -298,6 +234,10 @@ T.ComboBox {
             }
             PropertyChanges {
                 target: comboBoxBackground
+                color:
+                    ThemeSettings.constShade(ThemeSettings.colorPrimary,
+                                             0.1,
+                                             0.2)
                 border.color: ThemeSettings.shade(ThemeSettings.colorBack, -0.7)
             }
         },
@@ -314,6 +254,10 @@ T.ComboBox {
             }
             PropertyChanges {
                 target: comboBoxBackground
+                color:
+                    ThemeSettings.constShade(ThemeSettings.colorPrimary,
+                                             0.1,
+                                             0.3)
                 border.color: ThemeSettings.colorPrimary
                 border.width: AkUnit.create(2 * ThemeSettings.controlScale,
                                                         "dp").pixels
@@ -332,15 +276,14 @@ T.ComboBox {
             }
             PropertyChanges {
                 target: comboBoxBackground
+                color:
+                    ThemeSettings.constShade(ThemeSettings.colorPrimary,
+                                             0.1,
+                                             0.4)
                 border.color:
                     ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.3)
                 border.width:
                     AkUnit.create(2 * ThemeSettings.controlScale, "dp").pixels
-            }
-            PropertyChanges {
-                target: comboBoxPress
-                radius: comboBox.pressIndicatorRadius()
-                opacity: 1
             }
         },
         State {
@@ -370,9 +313,8 @@ T.ComboBox {
                 color: ThemeSettings.shade(ThemeSettings.colorBack, -0.7)
             }
             PropertyChanges {
-                target: comboBoxRectangleBelow
+                target: comboBoxBackground
                 color: ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
-                visible: true
             }
         },
         State {
@@ -387,9 +329,8 @@ T.ComboBox {
                 color: ThemeSettings.colorPrimary
             }
             PropertyChanges {
-                target: comboBoxRectangleBelow
+                target: comboBoxBackground
                 color: ThemeSettings.shade(ThemeSettings.colorBack, -0.3)
-                visible: true
             }
         },
         State {
@@ -399,14 +340,8 @@ T.ComboBox {
                   && comboBox.pressed
 
             PropertyChanges {
-                target: indicatorUpOverlay
-                color:
-                    ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.3)
-            }
-            PropertyChanges {
-                target: comboBoxPress
-                radius: comboBox.pressIndicatorRadius()
-                opacity: 1
+                target: comboBoxBackground
+                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
             }
         }
     ]
@@ -418,16 +353,7 @@ T.ComboBox {
         }
         PropertyAnimation {
             target: comboBoxBackground
-            properties: "border"
-            duration: comboBox.animationTime
-        }
-        PropertyAnimation {
-            target: comboBoxPress
-            properties: "opacity,radius"
-            duration: comboBox.animationTime
-        }
-        ColorAnimation {
-            target: comboBoxRectangleBelow
+            properties: "border.color,border.width,color"
             duration: comboBox.animationTime
         }
         ColorAnimation {

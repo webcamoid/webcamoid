@@ -20,7 +20,6 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Templates 2.5 as T
-import QtGraphicalEffects 1.0
 import QtQuick.Controls.impl 2.12
 import Ak 1.0
 
@@ -77,24 +76,6 @@ T.Switch {
                 anchors.verticalCenter: switchThumb.verticalCenter
                 anchors.horizontalCenter: switchThumb.horizontalCenter
                 opacity: control.visualFocus? 0.5: 0
-            }
-            Rectangle {
-                id: shadowRect
-                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
-                radius: height / 2
-                anchors.fill: parent
-                visible: false
-            }
-            DropShadow {
-                anchors.fill: parent
-                cached: true
-                horizontalOffset: radius / 2
-                verticalOffset: radius / 2
-                radius: AkUnit.create(1 * ThemeSettings.controlScale, "dp").pixels
-                samples: 2 * radius + 1
-                color: ThemeSettings.constShade(ThemeSettings.colorBack, -0.9)
-                source: shadowRect
-                visible: !control.flat
             }
             Rectangle {
                 id: switchThumbRect

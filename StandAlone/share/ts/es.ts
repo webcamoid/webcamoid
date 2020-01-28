@@ -387,37 +387,37 @@
 <context>
     <name>PhotoWidget</name>
     <message>
-        <location filename="../qml/PhotoWidget.qml" line="42"/>
+        <location filename="../qml/PhotoWidget.qml" line="38"/>
         <source>%1 seconds</source>
         <translation>%1 segundos</translation>
     </message>
     <message>
-        <location filename="../qml/PhotoWidget.qml" line="74"/>
+        <location filename="../qml/PhotoWidget.qml" line="56"/>
         <source>Now</source>
         <translation>Ahora</translation>
     </message>
     <message>
-        <location filename="../qml/PhotoWidget.qml" line="102"/>
+        <location filename="../qml/PhotoWidget.qml" line="84"/>
         <source>Cancel</source>
         <translation>Cancelar</translation>
     </message>
     <message>
-        <location filename="../qml/PhotoWidget.qml" line="102"/>
+        <location filename="../qml/PhotoWidget.qml" line="84"/>
         <source>Shot!</source>
         <translation>¡Disparado!</translation>
     </message>
     <message>
-        <location filename="../qml/PhotoWidget.qml" line="132"/>
+        <location filename="../qml/PhotoWidget.qml" line="114"/>
         <source>Use flash</source>
         <translation>Usar flash</translation>
     </message>
     <message>
-        <location filename="../qml/PhotoWidget.qml" line="162"/>
+        <location filename="../qml/PhotoWidget.qml" line="143"/>
         <source>Save photo as…</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/PhotoWidget.qml" line="164"/>
+        <location filename="../qml/PhotoWidget.qml" line="145"/>
         <source>Picture %1.png</source>
         <translation type="unfinished"></translation>
     </message>

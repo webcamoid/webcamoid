@@ -25,7 +25,7 @@ import QtQuick.Controls.impl 2.12
 import Ak 1.0
 
 T.CheckDelegate {
-    id: checkBox
+    id: control
     icon.width: AkUnit.create(18 * ThemeSettings.controlScale, "dp").pixels
     icon.height: AkUnit.create(18 * ThemeSettings.controlScale, "dp").pixels
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
@@ -41,20 +41,11 @@ T.CheckDelegate {
 
     readonly property int animationTime: 200
 
-    function pressIndicatorRadius()
-    {
-        let diffX = checkBox.width / 2
-        let diffY = checkBox.height / 2
-        let r2 = diffX * diffX + diffY * diffY
-
-        return Math.sqrt(r2)
-    }
-
     indicator: Item {
         id: checkBoxIndicator
-        anchors.right: checkBox.right
-        anchors.rightMargin: checkBox.rightPadding
-        anchors.verticalCenter: checkBox.verticalCenter
+        anchors.right: control.right
+        anchors.rightMargin: control.rightPadding
+        anchors.verticalCenter: control.verticalCenter
         implicitWidth:
             AkUnit.create(24 * ThemeSettings.controlScale, "dp").pixels
         implicitHeight:
@@ -63,18 +54,18 @@ T.CheckDelegate {
         Rectangle {
             id: indicatorRect
             border.width:
-                checkBox.checkState == Qt.Unchecked
-                || checkBox.highlighted?
+                control.checkState == Qt.Unchecked
+                || control.highlighted?
                     AkUnit.create(2 * ThemeSettings.controlScale, "dp").pixels:
                     0
             border.color:
-                checkBox.highlighted?
+                control.highlighted?
                     checkOverlay.color:
-                checkBox.checkState == Qt.Unchecked?
+                control.checkState == Qt.Unchecked?
                     ThemeSettings.shade(ThemeSettings.colorBack, -0.5):
                     "transparent"
-            color: checkBox.checkState == Qt.Unchecked
-                   || checkBox.highlighted?
+            color: control.checkState == Qt.Unchecked
+                   || control.highlighted?
                        "transparent":
                        ThemeSettings.colorPrimary
             radius: AkUnit.create(4 * ThemeSettings.controlScale, "dp").pixels
@@ -87,7 +78,7 @@ T.CheckDelegate {
             id: checkImage
             asynchronous: true
             cache: true
-            source: checkBox.checkState == Qt.Checked?
+            source: control.checkState == Qt.Checked?
                         "image://icons/check":
                         "image://icons/minus"
             sourceSize: Qt.size(width, height)
@@ -99,88 +90,57 @@ T.CheckDelegate {
             anchors.fill: checkImage
             source: checkImage
             color: ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75)
-            visible: checkBox.checkState != Qt.Unchecked
+            visible: control.checkState != Qt.Unchecked
         }
     }
 
     contentItem: IconLabel {
         id: iconLabel
-        spacing: checkBox.spacing
-        mirrored: checkBox.mirrored
-        display: checkBox.display
-        icon.name: checkBox.icon.name
-        icon.source: checkBox.icon.source
-        icon.width: checkBox.icon.width
-        icon.height: checkBox.icon.height
+        spacing: control.spacing
+        mirrored: control.mirrored
+        display: control.display
+        icon.name: control.icon.name
+        icon.source: control.icon.source
+        icon.width: control.icon.width
+        icon.height: control.icon.height
         icon.color:
             control.highlighted?
                 ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
                 ThemeSettings.colorText
-        text: checkBox.text
-        font: checkBox.font
-        color: checkBox.highlighted?
+        text: control.text
+        font: control.font
+        color: control.highlighted?
                    ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
                    ThemeSettings.colorText
         alignment: Qt.AlignLeft
-        anchors.leftMargin: checkBox.leftPadding
-        anchors.left: checkBox.left
+        anchors.leftMargin: control.leftPadding
+        anchors.left: control.left
         anchors.right: checkBoxIndicator.left
     }
 
-    background: Item {
-        id: backgroundItem
+    background: Rectangle {
+        id: background
         implicitWidth:
             AkUnit.create(128 * ThemeSettings.controlScale, "dp").pixels
         implicitHeight:
             AkUnit.create(48 * ThemeSettings.controlScale, "dp").pixels
-
-        // Press indicator
-        Rectangle{
-            id: controlPressIndicatorMask
-            anchors.fill: parent
-            color: Qt.hsla(0, 0, 0, 1)
-            visible: false
-        }
-        Rectangle {
-            id: controlPress
-            radius: 0
-            anchors.verticalCenter: backgroundItem.verticalCenter
-            anchors.horizontalCenter: backgroundItem.horizontalCenter
-            width: 2 * radius
-            height: 2 * radius
-            color: checkBox.highlighted?
-                       ThemeSettings.constShade(ThemeSettings.colorPrimary,
-                                                0.3,
-                                                0.75):
-                       ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
-            opacity: 0
-            layer.enabled: true
-            layer.effect: OpacityMask {
-                maskSource: controlPressIndicatorMask
-            }
-        }
-
-        Rectangle {
-            id: background
-            color: checkBox.highlighted?
-                       ThemeSettings.colorPrimary:
-                       ThemeSettings.shade(ThemeSettings.colorBack, -0.1, 0)
-            anchors.fill: parent
-        }
+        color: control.highlighted?
+                   ThemeSettings.colorPrimary:
+                   ThemeSettings.shade(ThemeSettings.colorBack, -0.1, 0)
     }
 
     states: [
         State {
             name: "Disabled"
-            when: !checkBox.enabled
+            when: !control.enabled
 
             PropertyChanges {
                 target: indicatorRect
                 border.color:
-                    checkBox.checkState == Qt.Unchecked?
+                    control.checkState == Qt.Unchecked?
                         ThemeSettings.shade(ThemeSettings.colorBack, -0.1):
                         "transparent"
-                color: checkBox.checkState == Qt.Unchecked?
+                color: control.checkState == Qt.Unchecked?
                            "transparent":
                            ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
             }
@@ -200,21 +160,21 @@ T.CheckDelegate {
         },
         State {
             name: "Hovered"
-            when: (checkBox.hovered
-                   || checkBox.visualFocus
-                   || checkBox.activeFocus)
-                  && !checkBox.pressed
+            when: (control.hovered
+                   || control.visualFocus
+                   || control.activeFocus)
+                  && !control.pressed
 
             PropertyChanges {
                 target: indicatorRect
                 border.color:
-                    checkBox.highlighted?
+                    control.highlighted?
                         checkOverlay.color:
-                    checkBox.checkState == Qt.Unchecked?
+                    control.checkState == Qt.Unchecked?
                         ThemeSettings.shade(ThemeSettings.colorBack, -0.6):
                         "transparent"
-                color: checkBox.checkState == Qt.Unchecked
-                       || checkBox.highlighted?
+                color: control.checkState == Qt.Unchecked
+                       || control.highlighted?
                            "transparent":
                            ThemeSettings.constShade(ThemeSettings.colorPrimary,
                                                     0.1)
@@ -222,7 +182,7 @@ T.CheckDelegate {
             PropertyChanges {
                 target: background
                 color:
-                    checkBox.highlighted?
+                    control.highlighted?
                         ThemeSettings.constShade(ThemeSettings.colorPrimary,
                                                  0.1):
                         ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
@@ -230,30 +190,29 @@ T.CheckDelegate {
         },
         State {
             name: "Pressed"
-            when: checkBox.pressed
+            when: control.pressed
 
             PropertyChanges {
                 target: indicatorRect
                 border.color:
-                    checkBox.highlighted?
+                    control.highlighted?
                         checkOverlay.color:
-                    checkBox.checkState == Qt.Unchecked?
+                    control.checkState == Qt.Unchecked?
                         ThemeSettings.shade(ThemeSettings.colorBack, -0.7):
                         "transparent"
-                color: checkBox.checkState == Qt.Unchecked
-                       || checkBox.highlighted?
+                color: control.checkState == Qt.Unchecked
+                       || control.highlighted?
                            "transparent":
                            ThemeSettings.constShade(ThemeSettings.colorPrimary,
                                                     0.3)
             }
             PropertyChanges {
-                target: controlPress
-                radius: checkBox.pressIndicatorRadius()
-                opacity: 1
-            }
-            PropertyChanges {
                 target: background
-                visible: false
+                color:
+                    control.highlighted?
+                        ThemeSettings.constShade(ThemeSettings.colorPrimary,
+                                                 0.2):
+                        ThemeSettings.shade(ThemeSettings.colorBack, -0.2)
             }
         }
     ]
@@ -261,24 +220,19 @@ T.CheckDelegate {
     transitions: Transition {
         ColorAnimation {
             target: indicatorRect
-            duration: checkBox.animationTime
+            duration: control.animationTime
         }
         ColorAnimation {
             target: checkOverlay
-            duration: checkBox.animationTime
+            duration: control.animationTime
         }
         ColorAnimation {
             target: iconLabel
-            duration: checkBox.animationTime
+            duration: control.animationTime
         }
         ColorAnimation {
             target: background
-            duration: checkBox.animationTime
-        }
-        PropertyAnimation {
-            target: controlPress
-            properties: "opacity,radius"
-            duration: checkBox.animationTime
+            duration: control.animationTime
         }
     }
 }

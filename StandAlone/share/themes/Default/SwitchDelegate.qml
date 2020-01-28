@@ -20,7 +20,6 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Templates 2.5 as T
-import QtGraphicalEffects 1.0
 import QtQuick.Controls.impl 2.12
 import Ak 1.0
 
@@ -40,15 +39,6 @@ T.SwitchDelegate {
     clip: true
 
     readonly property int animationTime: 100
-
-    function pressIndicatorRadius()
-    {
-        let diffX = control.width / 2
-        let diffY = control.height / 2
-        let r2 = diffX * diffX + diffY * diffY
-
-        return Math.sqrt(r2)
-    }
 
     indicator: Item {
         id: sliderIndicator
@@ -77,24 +67,6 @@ T.SwitchDelegate {
             anchors.bottom: sliderIndicator.bottom
             anchors.top: sliderIndicator.top
 
-            Rectangle {
-                id: shadowRect
-                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
-                radius: height / 2
-                anchors.fill: parent
-                visible: false
-            }
-            DropShadow {
-                anchors.fill: parent
-                cached: true
-                horizontalOffset: radius / 2
-                verticalOffset: radius / 2
-                radius: AkUnit.create(1 * ThemeSettings.controlScale, "dp").pixels
-                samples: 2 * radius + 1
-                color: ThemeSettings.constShade(ThemeSettings.colorBack, -0.9)
-                source: shadowRect
-                visible: !control.highlighted
-            }
             Rectangle {
                 id: switchThumbRect
                 color: control.highlighted?
@@ -130,46 +102,15 @@ T.SwitchDelegate {
         anchors.right: sliderIndicator.left
     }
 
-    background: Item {
-        id: backgroundItem
+    background: Rectangle {
+        id: background
         implicitWidth:
             AkUnit.create(128 * ThemeSettings.controlScale, "dp").pixels
         implicitHeight:
             AkUnit.create(48 * ThemeSettings.controlScale, "dp").pixels
-
-        // Press indicator
-        Rectangle{
-            id: controlPressIndicatorMask
-            anchors.fill: parent
-            color: Qt.hsla(0, 0, 0, 1)
-            visible: false
-        }
-        Rectangle {
-            id: controlPress
-            radius: 0
-            anchors.verticalCenter: backgroundItem.verticalCenter
-            anchors.horizontalCenter: backgroundItem.horizontalCenter
-            width: 2 * radius
-            height: 2 * radius
-            color: control.highlighted?
-                       ThemeSettings.constShade(ThemeSettings.colorPrimary,
-                                                0.3,
-                                                0.75):
-                       ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
-            opacity: 0
-            layer.enabled: true
-            layer.effect: OpacityMask {
-                maskSource: controlPressIndicatorMask
-            }
-        }
-
-        Rectangle {
-            id: background
-            color: control.highlighted?
-                       ThemeSettings.colorPrimary:
-                       ThemeSettings.shade(ThemeSettings.colorBack, -0.1, 0)
-            anchors.fill: parent
-        }
+        color: control.highlighted?
+                   ThemeSettings.colorPrimary:
+                   ThemeSettings.shade(ThemeSettings.colorBack, -0.1, 0)
     }
 
     states: [
@@ -300,13 +241,12 @@ T.SwitchDelegate {
                            ThemeSettings.shade(ThemeSettings.colorBack, -0.3)
             }
             PropertyChanges {
-                target: controlPress
-                radius: control.pressIndicatorRadius()
-                opacity: 1
-            }
-            PropertyChanges {
                 target: background
-                visible: false
+                color:
+                    control.highlighted?
+                        ThemeSettings.constShade(ThemeSettings.colorPrimary,
+                                                 0.2):
+                        ThemeSettings.shade(ThemeSettings.colorBack, -0.2)
             }
         },
         State {
@@ -331,13 +271,12 @@ T.SwitchDelegate {
                 x: sliderIndicator.width - switchThumb.width
             }
             PropertyChanges {
-                target: controlPress
-                radius: control.pressIndicatorRadius()
-                opacity: 1
-            }
-            PropertyChanges {
                 target: background
-                visible: false
+                color:
+                    control.highlighted?
+                        ThemeSettings.constShade(ThemeSettings.colorPrimary,
+                                                 0.2):
+                        ThemeSettings.shade(ThemeSettings.colorBack, -0.2)
             }
         }
     ]
@@ -364,11 +303,6 @@ T.SwitchDelegate {
         }
         ColorAnimation {
             target: background
-            duration: control.animationTime
-        }
-        PropertyAnimation {
-            target: controlPress
-            properties: "opacity,radius"
             duration: control.animationTime
         }
     }

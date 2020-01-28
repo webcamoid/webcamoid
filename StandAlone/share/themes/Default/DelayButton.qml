@@ -19,9 +19,7 @@
 
 import QtQuick 2.12
 import QtQuick.Controls 2.5
-import QtQuick.Layouts 1.3
 import QtQuick.Templates 2.5 as T
-import QtGraphicalEffects 1.0
 import QtQuick.Controls.impl 2.12
 import Ak 1.0
 
@@ -40,15 +38,6 @@ T.DelayButton {
     readonly property int radius:
         AkUnit.create(6 * ThemeSettings.controlScale, "dp").pixels
     readonly property int animationTime: 200
-
-    function pressIndicatorRadius()
-    {
-        let diffX = button.width / 2
-        let diffY = button.height / 2
-        let r2 = diffX * diffX + diffY * diffY
-
-        return Math.sqrt(r2)
-    }
 
     transition: Transition {
         NumberAnimation {
@@ -87,46 +76,6 @@ T.DelayButton {
         implicitWidth: AkUnit.create(64 * ThemeSettings.controlScale, "dp").pixels
         implicitHeight: AkUnit.create(36 * ThemeSettings.controlScale, "dp").pixels
 
-        // Rectagle below the indicator
-        Rectangle {
-            id: buttonRectangleBelow
-            anchors.fill: parent
-            radius: button.radius
-            color: ThemeSettings.colorPrimary
-            visible: false
-        }
-
-        // Press indicator
-        Rectangle{
-            id: buttonPressIndicatorMask
-            anchors.fill: parent
-            radius: button.radius
-            color: Qt.hsla(0, 0, 0, 1)
-            visible: false
-        }
-        Item {
-            id: buttonPressIndicatorItem
-            anchors.fill: buttonPressIndicatorMask
-            clip: true
-            layer.enabled: true
-            layer.effect: OpacityMask {
-                maskSource: buttonPressIndicatorMask
-            }
-
-            Rectangle {
-                id: buttonPress
-                radius: 0
-                anchors.verticalCenter: buttonPressIndicatorItem.verticalCenter
-                anchors.horizontalCenter: buttonPressIndicatorItem.horizontalCenter
-                width: 2 * radius
-                height: 2 * radius
-                color: ThemeSettings.constShade(ThemeSettings.colorPrimary,
-                                                0.1,
-                                                0.3)
-                opacity: 0
-            }
-        }
-
         // Rectangle
         Rectangle {
             id: buttonRectangle
@@ -135,7 +84,7 @@ T.DelayButton {
             border.color: ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
             border.width:
                 AkUnit.create(1 * ThemeSettings.controlScale, "dp").pixels
-            color: Qt.hsla(0, 0, 0, 0)
+            color: ThemeSettings.shade(ThemeSettings.colorBack, 0.0, 0.0)
         }
 
         // Checked indicator
@@ -207,19 +156,15 @@ T.DelayButton {
                   && button.pressed
 
             PropertyChanges {
-                target: buttonPress
-                radius: button.pressIndicatorRadius()
-                opacity: 1
+                target: buttonRectangle
+                color: ThemeSettings.constShade(ThemeSettings.colorPrimary,
+                                                0.1,
+                                                0.4)
             }
         }
     ]
 
     transitions: Transition {
-        PropertyAnimation {
-            target: buttonPress
-            properties: "radius"
-            duration: button.animationTime
-        }
         ColorAnimation {
             target: buttonRectangle
             duration: button.animationTime

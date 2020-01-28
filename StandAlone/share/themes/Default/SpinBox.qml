@@ -19,10 +19,7 @@
 
 import QtQuick 2.12
 import QtQuick.Controls 2.5
-import QtQuick.Layouts 1.3
 import QtQuick.Templates 2.5 as T
-import QtGraphicalEffects 1.0
-import QtQuick.Controls.impl 2.12
 import Ak 1.0
 
 T.SpinBox {
@@ -32,15 +29,6 @@ T.SpinBox {
     hoverEnabled: true
 
     readonly property int animationTime: 200
-
-    function pressIndicatorRadius()
-    {
-        let diffX = spinBox.width - spinBox.height / 2
-        let diffY = spinBox.height / 2
-        let r2 = diffX * diffX + diffY * diffY
-
-        return Math.sqrt(r2)
-    }
 
     validator: IntValidator {
         locale: spinBox.locale.name
@@ -111,57 +99,14 @@ T.SpinBox {
         }
     }
 
-    background: Item {
-        anchors.fill: parent
-
-        Rectangle{
-            id: backgroundMask
-            anchors.fill: parent
-            radius: background.radius
-            color: Qt.hsla(0, 0, 0, 1)
-            visible: false
-        }
-        Item {
-            anchors.fill: parent
-            clip: true
-            layer.enabled: true
-            layer.effect: OpacityMask {
-                maskSource: backgroundMask
-            }
-
-            Rectangle{
-                id: downPressIndicator
-                radius: 0
-                width: 2 * radius
-                height: 2 * radius
-                color: ThemeSettings.constShade(ThemeSettings.colorPrimary,
-                                                0.1,
-                                                0.3)
-                x: parent.height / 2 - radius
-                y: parent.height / 2 - radius
-                opacity: 0
-            }
-            Rectangle{
-                id: upPressIndicator
-                radius: 0
-                width: 2 * radius
-                height: 2 * radius
-                color: ThemeSettings.constShade(ThemeSettings.colorPrimary,
-                                                0.1,
-                                                0.3)
-                x: parent.width - parent.height / 2 - radius
-                y: parent.height / 2 - radius
-                opacity: 0
-            }
-        }
-        Rectangle {
-            id: background
-            color: Qt.hsla(0, 0, 0, 0)
-            border.color: ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
-            border.width: AkUnit.create(1 * ThemeSettings.controlScale, "dp").pixels
-            radius: AkUnit.create(6 * ThemeSettings.controlScale, "dp").pixels
-            anchors.fill: parent
-        }
+    background: Rectangle {
+        id: background
+        color: ThemeSettings.shade(ThemeSettings.colorBack, 0.0, 0.0)
+        border.color: ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
+        border.width: AkUnit.create(1 * ThemeSettings.controlScale, "dp").pixels
+        radius: AkUnit.create(6 * ThemeSettings.controlScale, "dp").pixels
+        width: spinBox.width
+        height: spinBox.height
     }
 
     states: [
@@ -236,12 +181,8 @@ T.SpinBox {
 
             PropertyChanges {
                 target: background
+                color: ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.1, 0.4)
                 border.color: ThemeSettings.shade(ThemeSettings.colorBack, -0.7)
-            }
-            PropertyChanges {
-                target: downPressIndicator
-                radius: spinBox.pressIndicatorRadius()
-                opacity: 1.0
             }
             PropertyChanges {
                 target: downIndicatorText
@@ -284,12 +225,8 @@ T.SpinBox {
 
             PropertyChanges {
                 target: background
+                color: ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.1, 0.4)
                 border.color: ThemeSettings.shade(ThemeSettings.colorBack, -0.7)
-            }
-            PropertyChanges {
-                target: upPressIndicator
-                radius: spinBox.pressIndicatorRadius()
-                opacity: 1.0
             }
             PropertyChanges {
                 target: upIndicatorText
@@ -368,14 +305,10 @@ T.SpinBox {
             }
             PropertyChanges {
                 target: background
+                color: ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.1, 0.4)
                 border.color: ThemeSettings.colorPrimary
                 border.width: AkUnit.create(2 * ThemeSettings.controlScale,
                                          "dp").pixels
-            }
-            PropertyChanges {
-                target: downPressIndicator
-                radius: spinBox.pressIndicatorRadius()
-                opacity: 1.0
             }
             PropertyChanges {
                 target: downIndicatorText
@@ -415,11 +348,7 @@ T.SpinBox {
                 target: background
                 border.color: ThemeSettings.colorPrimary
                 border.width: AkUnit.create(2 * ThemeSettings.controlScale,
-                                         "dp").pixels
-            }
-            PropertyChanges {
-                target: upIndicatorText
-                color: ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.1)
+                                            "dp").pixels
             }
         },
         State {
@@ -434,18 +363,10 @@ T.SpinBox {
             }
             PropertyChanges {
                 target: background
+                color: ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.1, 0.4)
                 border.color: ThemeSettings.colorPrimary
                 border.width: AkUnit.create(2 * ThemeSettings.controlScale,
                                          "dp").pixels
-            }
-            PropertyChanges {
-                target: upPressIndicator
-                radius: spinBox.pressIndicatorRadius()
-                opacity: 1.0
-            }
-            PropertyChanges {
-                target: upIndicatorText
-                color: ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.3)
             }
         }
     ]
@@ -457,7 +378,7 @@ T.SpinBox {
         }
         PropertyAnimation {
             target: background
-            properties: "border"
+            properties: "border.color,border.width,color"
             duration: spinBox.animationTime
         }
         ColorAnimation {
@@ -466,16 +387,6 @@ T.SpinBox {
         }
         ColorAnimation {
             target: upIndicatorText
-            duration: spinBox.animationTime
-        }
-        PropertyAnimation {
-            target: downPressIndicator
-            properties: "radius,opacity"
-            duration: spinBox.animationTime
-        }
-        PropertyAnimation {
-            target: upPressIndicator
-            properties: "radius,opacity"
             duration: spinBox.animationTime
         }
     }

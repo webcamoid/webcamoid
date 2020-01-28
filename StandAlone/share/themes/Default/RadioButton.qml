@@ -179,7 +179,7 @@ T.RadioButton {
     transitions: Transition {
         PropertyAnimation {
             target: indicatorRect
-            properties: "border"
+            properties: "border.color"
             duration: radioButton.animationTime
         }
         ColorAnimation {

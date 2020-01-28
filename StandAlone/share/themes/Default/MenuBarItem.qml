@@ -20,7 +20,6 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Templates 2.5 as T
-import QtGraphicalEffects 1.0
 import QtQuick.Controls.impl 2.12
 import Ak 1.0
 
@@ -40,15 +39,6 @@ T.MenuBarItem {
 
     readonly property int animationTime: 200
 
-    function pressIndicatorRadius()
-    {
-        let diffX = control.width / 2
-        let diffY = control.height / 2
-        let r2 = diffX * diffX + diffY * diffY
-
-        return Math.sqrt(r2)
-    }
-
     contentItem: IconLabel {
         id: iconLabel
         spacing: control.spacing
@@ -65,40 +55,13 @@ T.MenuBarItem {
         alignment: Qt.AlignLeft
     }
 
-    background: Item {
-        id: backgroundItem
+    background: Rectangle {
+        id: background
         implicitWidth: AkUnit.create(64 * ThemeSettings.controlScale, "dp").pixels
         implicitHeight: AkUnit.create(48 * ThemeSettings.controlScale, "dp").pixels
-
-        Rectangle {
-            id: background
-            color: control.highlighted?
-                       ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.1):
-                       ThemeSettings.constShade(ThemeSettings.colorPrimary, 0, 0)
-            anchors.fill: parent
-        }
-
-        // Press indicator
-        Rectangle{
-            id: menuItemPressIndicatorMask
-            anchors.fill: parent
-            color: Qt.hsla(0, 0, 0, 1)
-            visible: false
-        }
-        Rectangle {
-            id: menuItemPress
-            radius: 0
-            anchors.verticalCenter: backgroundItem.verticalCenter
-            anchors.horizontalCenter: backgroundItem.horizontalCenter
-            width: 2 * radius
-            height: 2 * radius
-            color: ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.3)
-            opacity: 0
-            layer.enabled: true
-            layer.effect: OpacityMask {
-                maskSource: menuItemPressIndicatorMask
-            }
-        }
+        color: control.highlighted?
+                   ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.1):
+                   ThemeSettings.constShade(ThemeSettings.colorPrimary, 0, 0)
     }
 
     states: [
@@ -138,13 +101,11 @@ T.MenuBarItem {
                   && control.pressed
 
             PropertyChanges {
-                target: menuItemPress
-                radius: control.pressIndicatorRadius()
-                opacity: 1
-            }
-            PropertyChanges {
                 target: background
-                visible: false
+                color:
+                    control.highlighted?
+                        ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.3):
+                        ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.2)
             }
         }
     ]
@@ -157,11 +118,6 @@ T.MenuBarItem {
         }
         ColorAnimation {
             target: background
-            duration: control.animationTime
-        }
-        PropertyAnimation {
-            target: menuItemPress
-            properties: "opacity,radius"
             duration: control.animationTime
         }
     }

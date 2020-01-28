@@ -20,12 +20,11 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Templates 2.5 as T
-import QtGraphicalEffects 1.0
 import QtQuick.Controls.impl 2.12
 import Ak 1.0
 
 T.RadioDelegate {
-    id: radioDelegate
+    id: control
     icon.width: AkUnit.create(18 * ThemeSettings.controlScale, "dp").pixels
     icon.height: AkUnit.create(18 * ThemeSettings.controlScale, "dp").pixels
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
@@ -41,20 +40,11 @@ T.RadioDelegate {
 
     readonly property int animationTime: 200
 
-    function pressIndicatorRadius()
-    {
-        let diffX = radioDelegate.width / 2
-        let diffY = radioDelegate.height / 2
-        let r2 = diffX * diffX + diffY * diffY
-
-        return Math.sqrt(r2)
-    }
-
     indicator: Item {
         id: radioDelegateIndicator
-        anchors.right: radioDelegate.right
-        anchors.rightMargin: radioDelegate.rightPadding
-        anchors.verticalCenter: radioDelegate.verticalCenter
+        anchors.right: control.right
+        anchors.rightMargin: control.rightPadding
+        anchors.verticalCenter: control.verticalCenter
         implicitWidth:
             AkUnit.create(24 * ThemeSettings.controlScale, "dp").pixels
         implicitHeight:
@@ -64,9 +54,9 @@ T.RadioDelegate {
             id: indicatorRect
             border.width: AkUnit.create(2 * ThemeSettings.controlScale, "dp").pixels
             border.color:
-                radioDelegate.highlighted?
+                control.highlighted?
                     ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
-                radioDelegate.checked?
+                control.checked?
                     ThemeSettings.colorPrimary:
                     ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
             color: "transparent"
@@ -79,7 +69,7 @@ T.RadioDelegate {
             Rectangle {
                 id: indicatorCheckedMark
                 color:
-                    radioDelegate.highlighted?
+                    control.highlighted?
                         ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
                         ThemeSettings.colorPrimary
                 width: AkUnit.create(15 * ThemeSettings.controlScale, "dp").pixels
@@ -87,81 +77,50 @@ T.RadioDelegate {
                 radius: Math.min(width, height) / 2
                 anchors.verticalCenter: indicatorRect.verticalCenter
                 anchors.horizontalCenter: indicatorRect.horizontalCenter
-                visible: radioDelegate.checked
+                visible: control.checked
             }
         }
     }
 
     contentItem: IconLabel {
         id: iconLabel
-        spacing: radioDelegate.spacing
-        mirrored: radioDelegate.mirrored
-        display: radioDelegate.display
-        icon.name: radioDelegate.icon.name
-        icon.source: radioDelegate.icon.source
-        icon.width: radioDelegate.icon.width
-        icon.height: radioDelegate.icon.height
+        spacing: control.spacing
+        mirrored: control.mirrored
+        display: control.display
+        icon.name: control.icon.name
+        icon.source: control.icon.source
+        icon.width: control.icon.width
+        icon.height: control.icon.height
         icon.color:
             control.highlighted?
                 ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
                 ThemeSettings.colorText
-        text: radioDelegate.text
-        font: radioDelegate.font
-        color: radioDelegate.highlighted?
+        text: control.text
+        font: control.font
+        color: control.highlighted?
                    ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
                    ThemeSettings.colorText
         alignment: Qt.AlignLeft
-        anchors.leftMargin: radioDelegate.leftPadding
-        anchors.left: radioDelegate.left
+        anchors.leftMargin: control.leftPadding
+        anchors.left: control.left
         anchors.right: radioDelegateIndicator.left
     }
 
-    background: Item {
-        id: backgroundItem
+    background: Rectangle {
+        id: background
         implicitWidth:
             AkUnit.create(128 * ThemeSettings.controlScale, "dp").pixels
         implicitHeight:
             AkUnit.create(48 * ThemeSettings.controlScale, "dp").pixels
-
-        // Press indicator
-        Rectangle{
-            id: controlPressIndicatorMask
-            anchors.fill: parent
-            color: Qt.hsla(0, 0, 0, 1)
-            visible: false
-        }
-        Rectangle {
-            id: controlPress
-            radius: 0
-            anchors.verticalCenter: backgroundItem.verticalCenter
-            anchors.horizontalCenter: backgroundItem.horizontalCenter
-            width: 2 * radius
-            height: 2 * radius
-            color: radioDelegate.highlighted?
-                       ThemeSettings.constShade(ThemeSettings.colorPrimary,
-                                                0.3,
-                                                0.75):
-                       ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
-            opacity: 0
-            layer.enabled: true
-            layer.effect: OpacityMask {
-                maskSource: controlPressIndicatorMask
-            }
-        }
-
-        Rectangle {
-            id: background
-            color: radioDelegate.highlighted?
-                       ThemeSettings.colorPrimary:
-                       ThemeSettings.shade(ThemeSettings.colorBack, -0.1, 0)
-            anchors.fill: parent
-        }
+        color: control.highlighted?
+                   ThemeSettings.colorPrimary:
+                   ThemeSettings.shade(ThemeSettings.colorBack, -0.1, 0)
     }
 
     states: [
         State {
             name: "Disabled"
-            when: !radioDelegate.enabled
+            when: !control.enabled
 
             PropertyChanges {
                 target: indicatorRect
@@ -183,31 +142,31 @@ T.RadioDelegate {
         },
         State {
             name: "Hovered"
-            when: (radioDelegate.hovered
-                   || radioDelegate.visualFocus
-                   || radioDelegate.activeFocus)
-                  && !radioDelegate.pressed
+            when: (control.hovered
+                   || control.visualFocus
+                   || control.activeFocus)
+                  && !control.pressed
 
             PropertyChanges {
                 target: indicatorRect
                 border.color:
-                    radioDelegate.highlighted?
+                    control.highlighted?
                         ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
-                    radioDelegate.checked?
+                    control.checked?
                         ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.1):
                         ThemeSettings.shade(ThemeSettings.colorBack, -0.6)
             }
             PropertyChanges {
                 target: indicatorCheckedMark
                 color:
-                    radioDelegate.highlighted?
+                    control.highlighted?
                            ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
                            ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.1)
             }
             PropertyChanges {
                 target: background
                 color:
-                    radioDelegate.highlighted?
+                    control.highlighted?
                         ThemeSettings.constShade(ThemeSettings.colorPrimary,
                                                  0.1):
                         ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
@@ -215,32 +174,31 @@ T.RadioDelegate {
         },
         State {
             name: "Pressed"
-            when: radioDelegate.pressed
+            when: control.pressed
 
             PropertyChanges {
                 target: indicatorRect
                 border.color:
-                    radioDelegate.highlighted?
+                    control.highlighted?
                         ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
-                    radioDelegate.checked?
+                    control.checked?
                         ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.2):
                         ThemeSettings.shade(ThemeSettings.colorBack, -0.7)
             }
             PropertyChanges {
                 target: indicatorCheckedMark
                 color:
-                    radioDelegate.highlighted?
+                    control.highlighted?
                            ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
                            ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.2)
             }
             PropertyChanges {
-                target: controlPress
-                radius: radioDelegate.pressIndicatorRadius()
-                opacity: 1
-            }
-            PropertyChanges {
                 target: background
-                visible: false
+                color:
+                    control.highlighted?
+                        ThemeSettings.constShade(ThemeSettings.colorPrimary,
+                                                 0.2):
+                        ThemeSettings.shade(ThemeSettings.colorBack, -0.2)
             }
         }
     ]
@@ -248,25 +206,20 @@ T.RadioDelegate {
     transitions: Transition {
         PropertyAnimation {
             target: indicatorRect
-            properties: "border"
-            duration: radioDelegate.animationTime
+            properties: "border.color"
+            duration: control.animationTime
         }
         ColorAnimation {
             target: indicatorCheckedMark
-            duration: radioDelegate.animationTime
+            duration: control.animationTime
         }
         ColorAnimation {
             target: iconLabel
-            duration: radioDelegate.animationTime
+            duration: control.animationTime
         }
         ColorAnimation {
             target: background
-            duration: radioDelegate.animationTime
-        }
-        PropertyAnimation {
-            target: controlPress
-            properties: "opacity,radius"
-            duration: radioDelegate.animationTime
+            duration: control.animationTime
         }
     }
 }
