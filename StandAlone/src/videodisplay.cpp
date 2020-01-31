@@ -68,11 +68,14 @@ QSGNode *VideoDisplay::updatePaintNode(QSGNode *oldNode,
     this->d->m_mutex.unlock();
 
     if (this->window()->rendererInterface()->graphicsApi() == QSGRendererInterface::Software) {
+        Qt::TransformationMode mode = this->smooth()?
+                                          Qt::SmoothTransformation:
+                                          Qt::FastTransformation;
         frame = frame.scaled(this->boundingRect().size().toSize(),
                              this->d->m_fillDisplay?
                                  Qt::IgnoreAspectRatio:
                                  Qt::KeepAspectRatio,
-                             Qt::SmoothTransformation);
+                             mode);
     }
 
     auto videoFrame = this->window()->createTextureFromImage(frame);
@@ -103,7 +106,6 @@ QSGNode *VideoDisplay::updatePaintNode(QSGNode *oldNode,
         size.scale(this->boundingRect().size(), Qt::KeepAspectRatio);
         QRectF rect(QPointF(), size);
         rect.moveCenter(this->boundingRect().center());
-
         node->setRect(rect);
     }
 

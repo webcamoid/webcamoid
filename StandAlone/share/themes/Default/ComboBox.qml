@@ -20,7 +20,6 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Templates 2.5 as T
-import QtGraphicalEffects 1.0
 import Ak 1.0
 
 T.ComboBox {
@@ -44,15 +43,6 @@ T.ComboBox {
         AkUnit.create(6 * ThemeSettings.controlScale, "dp").pixels
     readonly property int animationTime: 200
 
-    function pressIndicatorRadius()
-    {
-        let diffX = comboBox.width / 2
-        let diffY = comboBox.height / 2
-        let r2 = diffX * diffX + diffY * diffY
-
-        return Math.sqrt(r2)
-    }
-
     // Writeable text
     contentItem: T.TextField {
         id: textField
@@ -66,8 +56,8 @@ T.ComboBox {
         validator: comboBox.validator
         font: comboBox.font
         color: ThemeSettings.colorText
-        selectionColor: ThemeSettings.colorPrimary
-        selectedTextColor: ThemeSettings.contrast(selectionColor, 0.75)
+        selectionColor: ThemeSettings.colorHighlight
+        selectedTextColor: ThemeSettings.colorHighlightedText
         verticalAlignment: Text.AlignVCenter
         selectByMouse: true
     }
@@ -84,28 +74,15 @@ T.ComboBox {
         width: AkUnit.create(24 * ThemeSettings.controlScale, "dp").pixels
         height: width
 
-        Item {
-            id: indicatorUp
+        AkColorizedImage {
+            id: indicatorUpImage
             width: indicator.width / 2
             height: indicator.height / 2
             anchors.verticalCenter: indicator.verticalCenter
             anchors.horizontalCenter: indicator.horizontalCenter
-
-            Image {
-                id: indicatorUpImage
-                asynchronous: true
-                cache: true
-                source: comboBox.down? "image://icons/up": "image://icons/down"
-                sourceSize: Qt.size(width, height)
-                visible: false
-                anchors.fill: indicatorUp
-            }
-            ColorOverlay {
-                id: indicatorUpOverlay
-                anchors.fill: indicatorUpImage
-                source: indicatorUpImage
-                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
-            }
+            source: comboBox.down? "image://icons/up": "image://icons/down"
+            color: ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
+            asynchronous: true
         }
     }
 
@@ -212,7 +189,7 @@ T.ComboBox {
                 color: ThemeSettings.shade(ThemeSettings.colorBack, -0.3)
             }
             PropertyChanges {
-                target: indicatorUpOverlay
+                target: indicatorUpImage
                 color: ThemeSettings.shade(ThemeSettings.colorBack, -0.3)
             }
             PropertyChanges {
@@ -229,13 +206,13 @@ T.ComboBox {
                   && !comboBox.pressed
 
             PropertyChanges {
-                target: indicatorUpOverlay
+                target: indicatorUpImage
                 color: ThemeSettings.shade(ThemeSettings.colorBack, -0.7)
             }
             PropertyChanges {
                 target: comboBoxBackground
                 color:
-                    ThemeSettings.constShade(ThemeSettings.colorPrimary,
+                    ThemeSettings.constShade(ThemeSettings.colorHighlight,
                                              0.1,
                                              0.2)
                 border.color: ThemeSettings.shade(ThemeSettings.colorBack, -0.7)
@@ -249,16 +226,16 @@ T.ComboBox {
                   && !comboBox.pressed
 
             PropertyChanges {
-                target: indicatorUpOverlay
-                color: ThemeSettings.colorPrimary
+                target: indicatorUpImage
+                color: ThemeSettings.colorHighlight
             }
             PropertyChanges {
                 target: comboBoxBackground
                 color:
-                    ThemeSettings.constShade(ThemeSettings.colorPrimary,
+                    ThemeSettings.constShade(ThemeSettings.colorHighlight,
                                              0.1,
                                              0.3)
-                border.color: ThemeSettings.colorPrimary
+                border.color: ThemeSettings.colorHighlight
                 border.width: AkUnit.create(2 * ThemeSettings.controlScale,
                                                         "dp").pixels
             }
@@ -270,18 +247,18 @@ T.ComboBox {
                   && comboBox.pressed
 
             PropertyChanges {
-                target: indicatorUpOverlay
+                target: indicatorUpImage
                 color:
-                    ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.3)
+                    ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.3)
             }
             PropertyChanges {
                 target: comboBoxBackground
                 color:
-                    ThemeSettings.constShade(ThemeSettings.colorPrimary,
+                    ThemeSettings.constShade(ThemeSettings.colorHighlight,
                                              0.1,
                                              0.4)
                 border.color:
-                    ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.3)
+                    ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.3)
                 border.width:
                     AkUnit.create(2 * ThemeSettings.controlScale, "dp").pixels
             }
@@ -296,7 +273,7 @@ T.ComboBox {
                 color: ThemeSettings.shade(ThemeSettings.colorBack, -0.3)
             }
             PropertyChanges {
-                target: indicatorUpOverlay
+                target: indicatorUpImage
                 color: ThemeSettings.shade(ThemeSettings.colorBack, -0.3)
             }
         },
@@ -309,7 +286,7 @@ T.ComboBox {
                   && !comboBox.pressed
 
             PropertyChanges {
-                target: indicatorUpOverlay
+                target: indicatorUpImage
                 color: ThemeSettings.shade(ThemeSettings.colorBack, -0.7)
             }
             PropertyChanges {
@@ -325,8 +302,8 @@ T.ComboBox {
                   && !comboBox.pressed
 
             PropertyChanges {
-                target: indicatorUpOverlay
-                color: ThemeSettings.colorPrimary
+                target: indicatorUpImage
+                color: ThemeSettings.colorHighlight
             }
             PropertyChanges {
                 target: comboBoxBackground
@@ -356,8 +333,9 @@ T.ComboBox {
             properties: "border.color,border.width,color"
             duration: comboBox.animationTime
         }
-        ColorAnimation {
-            target: indicatorUpOverlay
+        PropertyAnimation {
+            target: indicatorUpImage
+            properties: "color"
             duration: comboBox.animationTime
         }
     }

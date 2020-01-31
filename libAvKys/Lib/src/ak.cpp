@@ -32,6 +32,7 @@
 #include "akaudiocaps.h"
 #include "akaudiopacket.h"
 #include "akcaps.h"
+#include "akcolorizedimage.h"
 #include "akelement.h"
 #include "akfrac.h"
 #include "akpacket.h"
@@ -273,6 +274,11 @@ AkPrivate::AkPrivate()
 
         return new AkVideoPacket();
     });
+    qmlRegisterType<AkColorizedImage>("Ak", 1, 0, "AkColorizedImage");
+    qRegisterMetaType<AkColorizedImage::FillMode>("AkColorizedImage::FillMode");
+    qRegisterMetaType<AkColorizedImage::HorizontalAlignment>("AkColorizedImage::HorizontalAlignment");
+    qRegisterMetaType<AkColorizedImage::VerticalAlignment>("AkColorizedImage::VerticalAlignment");
+    qRegisterMetaType<AkColorizedImage::Status>("AkColorizedImage::Status");
 
     this->m_applicationDir.setPath(QCoreApplication::applicationDirPath());
 

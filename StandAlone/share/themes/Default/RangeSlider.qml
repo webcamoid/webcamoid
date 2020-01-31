@@ -43,21 +43,21 @@ T.RangeSlider {
         AkUnit.create(4 * ThemeSettings.controlScale, "dp").pixels
     readonly property color tickMarkColorLeft:
         slider.enabled && slider.horizontal?
-            ThemeSettings.constShade(ThemeSettings.colorPrimary, -0.1):
+            ThemeSettings.constShade(ThemeSettings.colorHighlight, -0.1):
         slider.enabled && slider.vertical?
-            ThemeSettings.constShade(ThemeSettings.colorPrimary, 0, 0.5):
+            ThemeSettings.constShade(ThemeSettings.colorHighlight, 0, 0.5):
         !slider.enabled && slider.horizontal?
             ThemeSettings.shade(ThemeSettings.colorBack, -0.4):
             ThemeSettings.shade(ThemeSettings.colorBack, 0, 0.5)
     readonly property color tickMarkColorRight:
         slider.enabled && slider.horizontal?
-            ThemeSettings.constShade(ThemeSettings.colorPrimary, 0, 0.5):
+            ThemeSettings.constShade(ThemeSettings.colorHighlight, 0, 0.5):
         slider.enabled && slider.vertical?
-            ThemeSettings.constShade(ThemeSettings.colorPrimary, -0.1):
+            ThemeSettings.constShade(ThemeSettings.colorHighlight, -0.1):
         !slider.enabled && slider.horizontal?
             ThemeSettings.shade(ThemeSettings.colorBack, 0, 0.5):
             ThemeSettings.shade(ThemeSettings.colorBack, -0.4)
-    property color thumbColor: ThemeSettings.colorPrimary
+    property color thumbColor: ThemeSettings.colorHighlight
     readonly property real thumbRadius:
         Math.min(background.implicitWidth, background.implicitHeight) / 2
     property int highlightWidth: 0
@@ -85,7 +85,7 @@ T.RangeSlider {
             anchors.left: background.left
             anchors.right: background.right
             anchors.verticalCenter: background.verticalCenter
-            color: ThemeSettings.constShade(ThemeSettings.colorPrimary, 0, 0.4)
+            color: ThemeSettings.constShade(ThemeSettings.colorHighlight, 0, 0.4)
             visible: slider.horizontal
         }
         Rectangle {
@@ -95,7 +95,7 @@ T.RangeSlider {
             radius: Math.min(width, height) / 2
             anchors.left: background.left
             anchors.verticalCenter: background.verticalCenter
-            color: ThemeSettings.colorPrimary
+            color: ThemeSettings.colorHighlight
             visible: slider.horizontal
         }
         Rectangle {
@@ -105,7 +105,7 @@ T.RangeSlider {
             radius: Math.min(width, height) / 2
             anchors.right: background.right
             anchors.verticalCenter: background.verticalCenter
-            color: ThemeSettings.colorPrimary
+            color: ThemeSettings.colorHighlight
             visible: slider.horizontal
         }
         Rectangle {
@@ -115,7 +115,7 @@ T.RangeSlider {
             anchors.top: background.top
             anchors.bottom: background.bottom
             anchors.horizontalCenter: background.horizontalCenter
-            color: ThemeSettings.constShade(ThemeSettings.colorPrimary, 0, 0.4)
+            color: ThemeSettings.constShade(ThemeSettings.colorHighlight, 0, 0.4)
             visible: slider.vertical
         }
         Rectangle {
@@ -125,7 +125,7 @@ T.RangeSlider {
             radius: Math.min(width, height) / 2
             anchors.top: background.top
             anchors.horizontalCenter: background.horizontalCenter
-            color: ThemeSettings.colorPrimary
+            color: ThemeSettings.colorHighlight
             visible: slider.vertical
         }
         Rectangle {
@@ -135,7 +135,7 @@ T.RangeSlider {
             radius: Math.min(width, height) / 2
             anchors.bottom: background.bottom
             anchors.horizontalCenter: background.horizontalCenter
-            color: ThemeSettings.colorPrimary
+            color: ThemeSettings.colorHighlight
             visible: slider.vertical
         }
         GridLayout {
@@ -261,7 +261,7 @@ T.RangeSlider {
 
             PropertyChanges {
                 target: slider
-                thumbColor: ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.1)
+                thumbColor: ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.1)
                 highlightWidth: 4 * slider.thumbRadius
                 highlightOpacity: 0.75
             }
@@ -273,7 +273,7 @@ T.RangeSlider {
 
             PropertyChanges {
                 target: slider
-                thumbColor: ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.2)
+                thumbColor: ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.2)
                 highlightWidth: 4 * slider.thumbRadius
                 highlightOpacity: 0.75
             }

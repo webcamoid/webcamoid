@@ -116,11 +116,11 @@ T.Switch {
 
             PropertyChanges {
                 target: switchTrack
-                color: ThemeSettings.colorPrimary
+                color: ThemeSettings.colorHighlight
             }
             PropertyChanges {
                 target: switchThumbRect
-                color: ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.2)
+                color: ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.2)
             }
             PropertyChanges {
                 target: switchThumb
@@ -159,11 +159,11 @@ T.Switch {
 
             PropertyChanges {
                 target: switchTrack
-                color: ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.1)
+                color: ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.1)
             }
             PropertyChanges {
                 target: switchThumbRect
-                color: ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.3)
+                color: ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.3)
             }
             PropertyChanges {
                 target: switchThumb
@@ -201,11 +201,11 @@ T.Switch {
 
             PropertyChanges {
                 target: switchTrack
-                color: ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.2)
+                color: ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.2)
             }
             PropertyChanges {
                 target: switchThumbRect
-                color: ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.4)
+                color: ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.4)
             }
             PropertyChanges {
                 target: switchThumb

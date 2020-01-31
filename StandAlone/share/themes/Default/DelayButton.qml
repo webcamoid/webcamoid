@@ -63,10 +63,10 @@ T.DelayButton {
             icon.source: button.icon.source
             icon.width: button.icon.width
             icon.height: button.icon.height
-            icon.color: ThemeSettings.colorPrimary
+            icon.color: ThemeSettings.colorHighlight
             text: button.text
             font: button.font
-            color: ThemeSettings.colorPrimary
+            color: ThemeSettings.colorHighlight
             anchors.verticalCenter: buttonContent.verticalCenter
             anchors.horizontalCenter: buttonContent.horizontalCenter
         }
@@ -92,7 +92,7 @@ T.DelayButton {
             id: buttonCheckableIndicator
             height: button.radius
             color:
-                ThemeSettings.constShade(ThemeSettings.colorPrimary, -0.3)
+                ThemeSettings.constShade(ThemeSettings.colorHighlight, -0.3)
             anchors.bottom: back.bottom
             anchors.left: back.left
             anchors.right: back.right
@@ -100,7 +100,7 @@ T.DelayButton {
         Rectangle {
             width: parent.width * button.progress
             height: button.radius
-            color: ThemeSettings.colorPrimary
+            color: ThemeSettings.colorHighlight
             anchors.bottom: back.bottom
         }
     }
@@ -132,7 +132,7 @@ T.DelayButton {
 
             PropertyChanges {
                 target: buttonRectangle
-                color: ThemeSettings.constShade(ThemeSettings.colorPrimary,
+                color: ThemeSettings.constShade(ThemeSettings.colorHighlight,
                                                 0.1,
                                                 0.2)
             }
@@ -145,7 +145,7 @@ T.DelayButton {
 
             PropertyChanges {
                 target: buttonRectangle
-                color: ThemeSettings.constShade(ThemeSettings.colorPrimary,
+                color: ThemeSettings.constShade(ThemeSettings.colorHighlight,
                                                 0.1,
                                                 0.3)
             }
@@ -157,7 +157,7 @@ T.DelayButton {
 
             PropertyChanges {
                 target: buttonRectangle
-                color: ThemeSettings.constShade(ThemeSettings.colorPrimary,
+                color: ThemeSettings.constShade(ThemeSettings.colorHighlight,
                                                 0.1,
                                                 0.4)
             }

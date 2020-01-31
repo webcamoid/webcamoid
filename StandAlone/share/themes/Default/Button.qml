@@ -55,13 +55,13 @@ T.Button {
             icon.width: button.icon.width
             icon.height: button.icon.height
             icon.color: button.highlighted?
-                            ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
-                            ThemeSettings.colorPrimary
+                            ThemeSettings.colorHighlightedText:
+                            ThemeSettings.colorHighlight
             text: button.text
             font: button.font
             color: button.highlighted?
-                       ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
-                       ThemeSettings.colorPrimary
+                       ThemeSettings.colorHighlightedText:
+                       ThemeSettings.colorHighlight
             anchors.verticalCenter: buttonContent.verticalCenter
             anchors.horizontalCenter: buttonContent.horizontalCenter
         }
@@ -84,7 +84,7 @@ T.Button {
             border.width:
                 AkUnit.create(1 * ThemeSettings.controlScale, "dp").pixels
             color: button.highlighted?
-                       ThemeSettings.colorPrimary:
+                       ThemeSettings.colorHighlight:
                        ThemeSettings.shade(ThemeSettings.colorBack, 0.0, 0.0)
         }
 
@@ -93,8 +93,8 @@ T.Button {
             id: buttonCheckableIndicator
             height: button.radius
             color: button.checked?
-                       ThemeSettings.colorPrimary:
-                       ThemeSettings.constShade(ThemeSettings.colorPrimary,
+                       ThemeSettings.colorHighlight:
+                       ThemeSettings.constShade(ThemeSettings.colorHighlight,
                                                 -0.3)
             anchors.right: back.right
             anchors.bottom: back.bottom
@@ -134,7 +134,7 @@ T.Button {
 
             PropertyChanges {
                 target: buttonRectangle
-                color: ThemeSettings.constShade(ThemeSettings.colorPrimary,
+                color: ThemeSettings.constShade(ThemeSettings.colorHighlight,
                                                 0.1,
                                                 0.2)
             }
@@ -149,7 +149,7 @@ T.Button {
 
             PropertyChanges {
                 target: buttonRectangle
-                color: ThemeSettings.constShade(ThemeSettings.colorPrimary,
+                color: ThemeSettings.constShade(ThemeSettings.colorHighlight,
                                                 0.1,
                                                 0.3)
             }
@@ -163,7 +163,7 @@ T.Button {
 
             PropertyChanges {
                 target: buttonRectangle
-                color: ThemeSettings.constShade(ThemeSettings.colorPrimary,
+                color: ThemeSettings.constShade(ThemeSettings.colorHighlight,
                                                 0.1,
                                                 0.4)
             }
@@ -202,7 +202,7 @@ T.Button {
 
             PropertyChanges {
                 target: buttonRectangle
-                color: ThemeSettings.constShade(ThemeSettings.colorPrimary,
+                color: ThemeSettings.constShade(ThemeSettings.colorHighlight,
                                                 0.1,
                                                 0.2)
                 border.color: Qt.hsla(0, 0, 0, 0)
@@ -218,7 +218,7 @@ T.Button {
 
             PropertyChanges {
                 target: buttonRectangle
-                color: ThemeSettings.constShade(ThemeSettings.colorPrimary,
+                color: ThemeSettings.constShade(ThemeSettings.colorHighlight,
                                                 0.1,
                                                 0.3)
                 border.color: Qt.hsla(0, 0, 0, 0)
@@ -233,7 +233,7 @@ T.Button {
 
             PropertyChanges {
                 target: buttonRectangle
-                color: ThemeSettings.constShade(ThemeSettings.colorPrimary,
+                color: ThemeSettings.constShade(ThemeSettings.colorHighlight,
                                                 0.1,
                                                 0.4)
                 border.color: Qt.hsla(0, 0, 0, 0)
@@ -274,7 +274,7 @@ T.Button {
             PropertyChanges {
                 target: buttonRectangle
                 border.color: Qt.hsla(0, 0, 0, 0)
-                color: ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.1)
+                color: ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.1)
             }
         },
         State {
@@ -287,7 +287,7 @@ T.Button {
             PropertyChanges {
                 target: buttonRectangle
                 border.color: Qt.hsla(0, 0, 0, 0)
-                color: ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.2)
+                color: ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.2)
             }
         },
         State {
@@ -299,7 +299,7 @@ T.Button {
             PropertyChanges {
                 target: buttonRectangle
                 border.color: Qt.hsla(0, 0, 0, 0)
-                color: ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.3)
+                color: ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.3)
             }
         }
     ]

@@ -23,8 +23,8 @@ import QtQuick 2.12
 
 Item {
     // Palette
-    readonly property color colorPrimary: palette.highlight
-    readonly property color colorSecondary: complementary(colorPrimary)
+    readonly property color colorHighlight: palette.highlight
+    readonly property color colorHighlightedText: palette.highlightedText
     readonly property color colorBack: palette.window
     readonly property color colorText: palette.windowText
     readonly property bool darkScheme:

@@ -20,7 +20,6 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Templates 2.5 as T
-import QtGraphicalEffects 1.0
 import QtQuick.Controls.impl 2.12
 import Ak 1.0
 
@@ -76,30 +75,22 @@ T.CheckBox {
                     "transparent"
             color: checkBox.checkState == Qt.Unchecked?
                        "transparent":
-                       ThemeSettings.colorPrimary
+                       ThemeSettings.colorHighlight
             radius: AkUnit.create(4 * ThemeSettings.controlScale, "dp").pixels
             anchors.verticalCenter: checkBoxIndicator.verticalCenter
             anchors.horizontalCenter: checkBoxIndicator.horizontalCenter
             width: Math.min(checkBoxIndicator.width, checkBoxIndicator.height)
             height: width
         }
-        Image {
+        AkColorizedImage {
             id: checkImage
-            asynchronous: true
-            cache: true
             source: checkBox.checkState == Qt.Checked?
                         "image://icons/check":
                         "image://icons/minus"
-            sourceSize: Qt.size(width, height)
             anchors.fill: indicatorRect
-            visible: false
-        }
-        ColorOverlay {
-            id: checkOverlay
-            anchors.fill: checkImage
-            source: checkImage
-            color: ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75)
             visible: checkBox.checkState != Qt.Unchecked
+            color: ThemeSettings.colorHighlightedText
+            asynchronous: true
         }
     }
 
@@ -139,7 +130,7 @@ T.CheckBox {
                            ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
             }
             PropertyChanges {
-                target: checkOverlay
+                target: checkImage
                 color: ThemeSettings.shade(ThemeSettings.colorBack, -0.3)
             }
             PropertyChanges {
@@ -163,7 +154,7 @@ T.CheckBox {
                         "transparent"
                 color: checkBox.checkState == Qt.Unchecked?
                            "transparent":
-                           ThemeSettings.constShade(ThemeSettings.colorPrimary,
+                           ThemeSettings.constShade(ThemeSettings.colorHighlight,
                                                     0.1)
             }
             PropertyChanges {
@@ -184,7 +175,7 @@ T.CheckBox {
                         "transparent"
                 color: checkBox.checkState == Qt.Unchecked?
                            "transparent":
-                           ThemeSettings.constShade(ThemeSettings.colorPrimary,
+                           ThemeSettings.constShade(ThemeSettings.colorHighlight,
                                                     0.3)
             }
             PropertyChanges {
@@ -200,8 +191,9 @@ T.CheckBox {
             target: indicatorRect
             duration: checkBox.animationTime
         }
-        ColorAnimation {
-            target: checkOverlay
+        PropertyAnimation {
+            target: checkImage
+            properties: "color"
             duration: checkBox.animationTime
         }
         ColorAnimation {

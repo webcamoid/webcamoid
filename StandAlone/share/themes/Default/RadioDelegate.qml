@@ -55,9 +55,9 @@ T.RadioDelegate {
             border.width: AkUnit.create(2 * ThemeSettings.controlScale, "dp").pixels
             border.color:
                 control.highlighted?
-                    ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
+                    ThemeSettings.colorHighlightedText:
                 control.checked?
-                    ThemeSettings.colorPrimary:
+                    ThemeSettings.colorHighlight:
                     ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
             color: "transparent"
             radius: Math.min(radioDelegateIndicator.width, radioDelegateIndicator.height) / 2
@@ -70,8 +70,8 @@ T.RadioDelegate {
                 id: indicatorCheckedMark
                 color:
                     control.highlighted?
-                        ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
-                        ThemeSettings.colorPrimary
+                        ThemeSettings.colorHighlightedText:
+                        ThemeSettings.colorHighlight
                 width: AkUnit.create(15 * ThemeSettings.controlScale, "dp").pixels
                 height: AkUnit.create(15 * ThemeSettings.controlScale, "dp").pixels
                 radius: Math.min(width, height) / 2
@@ -93,12 +93,12 @@ T.RadioDelegate {
         icon.height: control.icon.height
         icon.color:
             control.highlighted?
-                ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
+                ThemeSettings.colorHighlightedText:
                 ThemeSettings.colorText
         text: control.text
         font: control.font
         color: control.highlighted?
-                   ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
+                   ThemeSettings.colorHighlightedText:
                    ThemeSettings.colorText
         alignment: Qt.AlignLeft
         anchors.leftMargin: control.leftPadding
@@ -113,7 +113,7 @@ T.RadioDelegate {
         implicitHeight:
             AkUnit.create(48 * ThemeSettings.controlScale, "dp").pixels
         color: control.highlighted?
-                   ThemeSettings.colorPrimary:
+                   ThemeSettings.colorHighlight:
                    ThemeSettings.shade(ThemeSettings.colorBack, -0.1, 0)
     }
 
@@ -151,23 +151,23 @@ T.RadioDelegate {
                 target: indicatorRect
                 border.color:
                     control.highlighted?
-                        ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
+                        ThemeSettings.colorHighlightedText:
                     control.checked?
-                        ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.1):
+                        ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.1):
                         ThemeSettings.shade(ThemeSettings.colorBack, -0.6)
             }
             PropertyChanges {
                 target: indicatorCheckedMark
                 color:
                     control.highlighted?
-                           ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
-                           ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.1)
+                           ThemeSettings.colorHighlightedText:
+                           ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.1)
             }
             PropertyChanges {
                 target: background
                 color:
                     control.highlighted?
-                        ThemeSettings.constShade(ThemeSettings.colorPrimary,
+                        ThemeSettings.constShade(ThemeSettings.colorHighlight,
                                                  0.1):
                         ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
             }
@@ -180,23 +180,23 @@ T.RadioDelegate {
                 target: indicatorRect
                 border.color:
                     control.highlighted?
-                        ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
+                        ThemeSettings.colorHighlightedText:
                     control.checked?
-                        ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.2):
+                        ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.2):
                         ThemeSettings.shade(ThemeSettings.colorBack, -0.7)
             }
             PropertyChanges {
                 target: indicatorCheckedMark
                 color:
                     control.highlighted?
-                           ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
-                           ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.2)
+                           ThemeSettings.colorHighlightedText:
+                           ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.2)
             }
             PropertyChanges {
                 target: background
                 color:
                     control.highlighted?
-                        ThemeSettings.constShade(ThemeSettings.colorPrimary,
+                        ThemeSettings.constShade(ThemeSettings.colorHighlight,
                                                  0.2):
                         ThemeSettings.shade(ThemeSettings.colorBack, -0.2)
             }

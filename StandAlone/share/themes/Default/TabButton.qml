@@ -110,7 +110,7 @@ T.TabButton {
 
             PropertyChanges {
                 target: buttonRectangleBelow
-                color: ThemeSettings.constShade(ThemeSettings.colorPrimary,
+                color: ThemeSettings.constShade(ThemeSettings.colorHighlight,
                                                 0.0,
                                                 0.1)
             }
@@ -123,7 +123,7 @@ T.TabButton {
 
             PropertyChanges {
                 target: buttonRectangleBelow
-                color: ThemeSettings.constShade(ThemeSettings.colorPrimary,
+                color: ThemeSettings.constShade(ThemeSettings.colorHighlight,
                                                 0.0,
                                                 0.2)
             }
@@ -139,8 +139,8 @@ T.TabButton {
 
             PropertyChanges {
                 target: iconLabel
-                icon.color: ThemeSettings.colorPrimary
-                color: ThemeSettings.colorPrimary
+                icon.color: ThemeSettings.colorHighlight
+                color: ThemeSettings.colorHighlight
             }
         },
         State {
@@ -154,12 +154,12 @@ T.TabButton {
 
             PropertyChanges {
                 target: iconLabel
-                icon.color: ThemeSettings.colorPrimary
-                color: ThemeSettings.colorPrimary
+                icon.color: ThemeSettings.colorHighlight
+                color: ThemeSettings.colorHighlight
             }
             PropertyChanges {
                 target: buttonRectangleBelow
-                color: ThemeSettings.constShade(ThemeSettings.colorPrimary,
+                color: ThemeSettings.constShade(ThemeSettings.colorHighlight,
                                                 0.0,
                                                 0.3)
             }
@@ -172,12 +172,12 @@ T.TabButton {
 
             PropertyChanges {
                 target: iconLabel
-                icon.color: ThemeSettings.colorPrimary
-                color: ThemeSettings.colorPrimary
+                icon.color: ThemeSettings.colorHighlight
+                color: ThemeSettings.colorHighlight
             }
             PropertyChanges {
                 target: buttonRectangleBelow
-                color: ThemeSettings.constShade(ThemeSettings.colorPrimary,
+                color: ThemeSettings.constShade(ThemeSettings.colorHighlight,
                                                 0.0,
                                                 0.4)
             }

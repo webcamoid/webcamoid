@@ -45,14 +45,14 @@ T.PageIndicator {
             !control.enabled?
                 ThemeSettings.shade(ThemeSettings.colorBack, -0.3, 0.5):
             control.hovered?
-                ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.1, 0.5):
-                ThemeSettings.constShade(ThemeSettings.colorPrimary, 0, 0.5)
+                ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.1, 0.5):
+                ThemeSettings.constShade(ThemeSettings.colorHighlight, 0, 0.5)
         border.color:
             !control.enabled?
                 ThemeSettings.shade(ThemeSettings.colorBack, -0.3):
             control.hovered?
-                ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.1):
-                ThemeSettings.colorPrimary
+                ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.1):
+                ThemeSettings.colorHighlight
         border.width:
             AkUnit.create(2 * ThemeSettings.controlScale, "dp").pixels
         opacity: index === control.currentIndex?

@@ -20,7 +20,6 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Templates 2.5 as T
-import QtGraphicalEffects 1.0
 import QtQuick.Controls.impl 2.12
 import Ak 1.0
 
@@ -60,37 +59,29 @@ T.CheckDelegate {
                     0
             border.color:
                 control.highlighted?
-                    checkOverlay.color:
+                    checkImage.color:
                 control.checkState == Qt.Unchecked?
                     ThemeSettings.shade(ThemeSettings.colorBack, -0.5):
                     "transparent"
             color: control.checkState == Qt.Unchecked
                    || control.highlighted?
                        "transparent":
-                       ThemeSettings.colorPrimary
+                       ThemeSettings.colorHighlight
             radius: AkUnit.create(4 * ThemeSettings.controlScale, "dp").pixels
             anchors.verticalCenter: checkBoxIndicator.verticalCenter
             anchors.horizontalCenter: checkBoxIndicator.horizontalCenter
             width: Math.min(checkBoxIndicator.width, checkBoxIndicator.height)
             height: width
         }
-        Image {
+        AkColorizedImage {
             id: checkImage
-            asynchronous: true
-            cache: true
             source: control.checkState == Qt.Checked?
                         "image://icons/check":
                         "image://icons/minus"
-            sourceSize: Qt.size(width, height)
             anchors.fill: indicatorRect
-            visible: false
-        }
-        ColorOverlay {
-            id: checkOverlay
-            anchors.fill: checkImage
-            source: checkImage
-            color: ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75)
             visible: control.checkState != Qt.Unchecked
+            color: ThemeSettings.colorHighlightedText
+            asynchronous: true
         }
     }
 
@@ -105,12 +96,12 @@ T.CheckDelegate {
         icon.height: control.icon.height
         icon.color:
             control.highlighted?
-                ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
+                ThemeSettings.colorHighlightedText:
                 ThemeSettings.colorText
         text: control.text
         font: control.font
         color: control.highlighted?
-                   ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
+                   ThemeSettings.colorHighlightedText:
                    ThemeSettings.colorText
         alignment: Qt.AlignLeft
         anchors.leftMargin: control.leftPadding
@@ -125,7 +116,7 @@ T.CheckDelegate {
         implicitHeight:
             AkUnit.create(48 * ThemeSettings.controlScale, "dp").pixels
         color: control.highlighted?
-                   ThemeSettings.colorPrimary:
+                   ThemeSettings.colorHighlight:
                    ThemeSettings.shade(ThemeSettings.colorBack, -0.1, 0)
     }
 
@@ -145,7 +136,7 @@ T.CheckDelegate {
                            ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
             }
             PropertyChanges {
-                target: checkOverlay
+                target: checkImage
                 color: ThemeSettings.shade(ThemeSettings.colorBack, -0.3)
             }
             PropertyChanges {
@@ -169,21 +160,21 @@ T.CheckDelegate {
                 target: indicatorRect
                 border.color:
                     control.highlighted?
-                        checkOverlay.color:
+                        checkImage.color:
                     control.checkState == Qt.Unchecked?
                         ThemeSettings.shade(ThemeSettings.colorBack, -0.6):
                         "transparent"
                 color: control.checkState == Qt.Unchecked
                        || control.highlighted?
                            "transparent":
-                           ThemeSettings.constShade(ThemeSettings.colorPrimary,
+                           ThemeSettings.constShade(ThemeSettings.colorHighlight,
                                                     0.1)
             }
             PropertyChanges {
                 target: background
                 color:
                     control.highlighted?
-                        ThemeSettings.constShade(ThemeSettings.colorPrimary,
+                        ThemeSettings.constShade(ThemeSettings.colorHighlight,
                                                  0.1):
                         ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
             }
@@ -196,21 +187,21 @@ T.CheckDelegate {
                 target: indicatorRect
                 border.color:
                     control.highlighted?
-                        checkOverlay.color:
+                        checkImage.color:
                     control.checkState == Qt.Unchecked?
                         ThemeSettings.shade(ThemeSettings.colorBack, -0.7):
                         "transparent"
                 color: control.checkState == Qt.Unchecked
                        || control.highlighted?
                            "transparent":
-                           ThemeSettings.constShade(ThemeSettings.colorPrimary,
+                           ThemeSettings.constShade(ThemeSettings.colorHighlight,
                                                     0.3)
             }
             PropertyChanges {
                 target: background
                 color:
                     control.highlighted?
-                        ThemeSettings.constShade(ThemeSettings.colorPrimary,
+                        ThemeSettings.constShade(ThemeSettings.colorHighlight,
                                                  0.2):
                         ThemeSettings.shade(ThemeSettings.colorBack, -0.2)
             }
@@ -222,8 +213,9 @@ T.CheckDelegate {
             target: indicatorRect
             duration: control.animationTime
         }
-        ColorAnimation {
-            target: checkOverlay
+        PropertyAnimation {
+            target: checkImage
+            properties: "color"
             duration: control.animationTime
         }
         ColorAnimation {

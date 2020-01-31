@@ -48,10 +48,10 @@ T.MenuBarItem {
         icon.source: control.icon.source
         icon.width: control.icon.width
         icon.height: control.icon.height
-        icon.color: ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75)
+        icon.color: ThemeSettings.colorHighlightedText
         text: control.text
         font: control.font
-        color: ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75)
+        color: ThemeSettings.colorHighlightedText
         alignment: Qt.AlignLeft
     }
 
@@ -60,8 +60,8 @@ T.MenuBarItem {
         implicitWidth: AkUnit.create(64 * ThemeSettings.controlScale, "dp").pixels
         implicitHeight: AkUnit.create(48 * ThemeSettings.controlScale, "dp").pixels
         color: control.highlighted?
-                   ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.1):
-                   ThemeSettings.constShade(ThemeSettings.colorPrimary, 0, 0)
+                   ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.1):
+                   ThemeSettings.constShade(ThemeSettings.colorHighlight, 0, 0)
     }
 
     states: [
@@ -77,7 +77,7 @@ T.MenuBarItem {
                 target: background
                 color: control.highlighted?
                            ThemeSettings.shade(ThemeSettings.colorBack, -0.3):
-                           ThemeSettings.constShade(ThemeSettings.colorPrimary, 0, 0)
+                           ThemeSettings.constShade(ThemeSettings.colorHighlight, 0, 0)
             }
         },
         State {
@@ -91,8 +91,8 @@ T.MenuBarItem {
                 target: background
                 color:
                     control.highlighted?
-                        ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.2):
-                        ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.1)
+                        ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.2):
+                        ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.1)
             }
         },
         State {
@@ -104,8 +104,8 @@ T.MenuBarItem {
                 target: background
                 color:
                     control.highlighted?
-                        ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.3):
-                        ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.2)
+                        ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.3):
+                        ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.2)
             }
         }
     ]

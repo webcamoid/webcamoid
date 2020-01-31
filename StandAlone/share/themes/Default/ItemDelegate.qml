@@ -51,12 +51,12 @@ T.ItemDelegate {
         icon.height: control.icon.height
         icon.color:
             control.highlighted?
-                ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
+                ThemeSettings.colorHighlightedText:
                 ThemeSettings.colorText
         text: control.text
         font: control.font
         color: control.highlighted?
-                   ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
+                   ThemeSettings.colorHighlightedText:
                    ThemeSettings.colorText
         alignment: control.display === IconLabel.IconOnly
                    || control.display === IconLabel.TextUnderIcon?
@@ -74,7 +74,7 @@ T.ItemDelegate {
         implicitHeight:
             AkUnit.create(48 * ThemeSettings.controlScale, "dp").pixels
         color: control.highlighted?
-                   ThemeSettings.colorPrimary:
+                   ThemeSettings.colorHighlight:
                    ThemeSettings.shade(ThemeSettings.colorBack, -0.1, 0)
     }
 
@@ -104,7 +104,7 @@ T.ItemDelegate {
                 target: background
                 color:
                     control.highlighted?
-                        ThemeSettings.constShade(ThemeSettings.colorPrimary,
+                        ThemeSettings.constShade(ThemeSettings.colorHighlight,
                                                  0.1):
                         ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
             }
@@ -117,7 +117,7 @@ T.ItemDelegate {
                 target: background
                 color:
                     control.highlighted?
-                        ThemeSettings.constShade(ThemeSettings.colorPrimary,
+                        ThemeSettings.constShade(ThemeSettings.colorHighlight,
                                                  0.2):
                         ThemeSettings.shade(ThemeSettings.colorBack, -0.2)
             }

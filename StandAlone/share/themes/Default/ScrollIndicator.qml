@@ -40,7 +40,7 @@ T.ScrollIndicator {
         implicitWidth: AkUnit.create(6 * ThemeSettings.controlScale, "dp").pixels
         implicitHeight: AkUnit.create(6 * ThemeSettings.controlScale, "dp").pixels
         radius: Math.min(implicitWidth, implicitHeight) / 2
-        color: ThemeSettings.colorPrimary
+        color: ThemeSettings.colorHighlight
         visible: control.size < 1.0
         opacity: 0.0
     }

@@ -47,7 +47,7 @@ T.Dial {
             id: highlight
             width: 0
             height: width
-            color: ThemeSettings.colorPrimary
+            color: ThemeSettings.colorHighlight
             radius: width / 2
             anchors.verticalCenter: parent.verticalCenter
             anchors.horizontalCenter: parent.horizontalCenter
@@ -111,7 +111,7 @@ T.Dial {
             id: knob
             color: ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
             radius: width / 2
-            border.color: ThemeSettings.colorPrimary
+            border.color: ThemeSettings.colorHighlight
             border.width: handleRect.radius
             anchors.verticalCenter: parent.verticalCenter
             anchors.horizontalCenter: parent.horizontalCenter
@@ -161,7 +161,7 @@ T.Dial {
                 target: knob
                 color: ThemeSettings.shade(ThemeSettings.colorBack, -0.2)
                 border.color:
-                    ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.1)
+                    ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.1)
             }
         },
         State {
@@ -180,7 +180,7 @@ T.Dial {
                 target: knob
                 color: ThemeSettings.shade(ThemeSettings.colorBack, -0.2)
                 border.color:
-                    ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.1)
+                    ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.1)
             }
         },
         State {
@@ -190,14 +190,14 @@ T.Dial {
             PropertyChanges {
                 target: highlight
                 width: backgrounItem.width
-                color: ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.1)
+                color: ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.1)
                 opacity: 0.5
             }
             PropertyChanges {
                 target: knob
                 color: ThemeSettings.shade(ThemeSettings.colorBack, -0.3)
                 border.color:
-                    ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.2)
+                    ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.2)
             }
         }
     ]

@@ -35,7 +35,7 @@ T.ProgressBar {
         scale: control.mirrored? -1: 1
         color:
             control.enabled?
-                ThemeSettings.colorPrimary:
+                ThemeSettings.colorHighlight:
                 ThemeSettings.shade(ThemeSettings.colorBack, -0.3)
         progress: control.position
         indeterminate: control.visible && control.indeterminate
@@ -44,7 +44,7 @@ T.ProgressBar {
     background: Rectangle {
         color:
             control.enabled?
-                ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.0, 0.5):
+                ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.0, 0.5):
                 ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
         implicitWidth: AkUnit.create(200 * ThemeSettings.controlScale, "dp").pixels
         implicitHeight: AkUnit.create(4 * ThemeSettings.controlScale, "dp").pixels

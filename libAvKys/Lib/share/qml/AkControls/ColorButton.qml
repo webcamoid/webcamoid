@@ -49,16 +49,20 @@ Button {
         Rectangle {
             id: colorRect
             color: currentColor
-            width: colorText.contentWidth
-            height: colorText.contentHeight
+            width: colorText.contentWidth + 2 * padding
+            height: colorText.contentHeight + 2 * padding
             anchors.verticalCenter: parent.verticalCenter
             anchors.horizontalCenter: parent.horizontalCenter
+
+            property int padding: 2
 
             Text {
                 id: colorText
                 text: parent.color
                 color: contrast(parent.color, 0.75)
                 font.bold: true
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.horizontalCenter: parent.horizontalCenter
             }
         }
     }

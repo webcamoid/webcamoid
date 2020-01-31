@@ -28,8 +28,8 @@ T.TextArea {
     color: ThemeSettings.colorText
     font.family: "Courier"
     placeholderTextColor: ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
-    selectedTextColor: ThemeSettings.contrast(selectionColor, 0.75)
-    selectionColor: ThemeSettings.colorPrimary
+    selectedTextColor: ThemeSettings.colorHighlightedText
+    selectionColor: ThemeSettings.colorHighlight
     padding: AkUnit.create(12 * ThemeSettings.controlScale, "dp").pixels
     implicitWidth: Math.max(contentWidth + leftPadding + rightPadding,
                             implicitBackgroundWidth + leftInset + rightInset,

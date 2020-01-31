@@ -68,7 +68,7 @@ T.RadioButton {
             border.width: AkUnit.create(2 * ThemeSettings.controlScale, "dp").pixels
             border.color:
                 radioButton.checked?
-                    ThemeSettings.colorPrimary:
+                    ThemeSettings.colorHighlight:
                     ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
             color: "transparent"
             radius: Math.min(radioButtonIndicator.width, radioButtonIndicator.height) / 2
@@ -79,7 +79,7 @@ T.RadioButton {
 
             Rectangle {
                 id: indicatorCheckedMark
-                color: ThemeSettings.colorPrimary
+                color: ThemeSettings.colorHighlight
                 width: AkUnit.create(15 * ThemeSettings.controlScale, "dp").pixels
                 height: AkUnit.create(15 * ThemeSettings.controlScale, "dp").pixels
                 radius: Math.min(width, height) / 2
@@ -140,12 +140,12 @@ T.RadioButton {
                 target: indicatorRect
                 border.color:
                     radioButton.checked?
-                        ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.1):
+                        ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.1):
                         ThemeSettings.shade(ThemeSettings.colorBack, -0.6)
             }
             PropertyChanges {
                 target: indicatorCheckedMark
-                color: ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.1)
+                color: ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.1)
             }
             PropertyChanges {
                 target: highlight
@@ -161,12 +161,12 @@ T.RadioButton {
                 target: indicatorRect
                 border.color:
                     radioButton.checked?
-                        ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.2):
+                        ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.2):
                         ThemeSettings.shade(ThemeSettings.colorBack, -0.7)
             }
             PropertyChanges {
                 target: indicatorCheckedMark
-                color: ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.2)
+                color: ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.2)
             }
             PropertyChanges {
                 target: highlight

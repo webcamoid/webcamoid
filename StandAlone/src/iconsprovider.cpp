@@ -18,10 +18,7 @@
  */
 
 #include <limits>
-#include <algorithm>
-#include <QIcon>
 #include <QSettings>
-#include <QtMath>
 
 #include "iconsprovider.h"
 
@@ -69,6 +66,22 @@ IconsProvider::IconsProvider():
 IconsProvider::~IconsProvider()
 {
     delete this->d;
+}
+
+QImage IconsProvider::requestImage(const QString &id,
+                                   QSize *size,
+                                   const QSize &requestedSize)
+{
+    auto iconSize = this->d->nearestSize(requestedSize);
+    *size = iconSize;
+
+    if (iconSize.isEmpty())
+        return QImage();
+
+    QImage icon(QString(":/Webcamoid/share/themes/Default/icons/hicolor/%1x%2/%3.png")
+                .arg(iconSize.width()).arg(iconSize.height()).arg(id));
+
+    return icon;
 }
 
 QPixmap IconsProvider::requestPixmap(const QString &id,

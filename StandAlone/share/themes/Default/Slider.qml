@@ -40,17 +40,17 @@ T.Slider {
         AkUnit.create(4 * ThemeSettings.controlScale, "dp").pixels
     readonly property color tickMarkColorLeft:
         slider.enabled && slider.horizontal?
-            ThemeSettings.constShade(ThemeSettings.colorPrimary, -0.1):
+            ThemeSettings.constShade(ThemeSettings.colorHighlight, -0.1):
         slider.enabled && slider.vertical?
-            ThemeSettings.constShade(ThemeSettings.colorPrimary, 0, 0.5):
+            ThemeSettings.constShade(ThemeSettings.colorHighlight, 0, 0.5):
         !slider.enabled && slider.horizontal?
             ThemeSettings.shade(ThemeSettings.colorBack, -0.4):
             ThemeSettings.shade(ThemeSettings.colorBack, 0, 0.5)
     readonly property color tickMarkColorRight:
         slider.enabled && slider.horizontal?
-            ThemeSettings.constShade(ThemeSettings.colorPrimary, 0, 0.5):
+            ThemeSettings.constShade(ThemeSettings.colorHighlight, 0, 0.5):
         slider.enabled && slider.vertical?
-            ThemeSettings.constShade(ThemeSettings.colorPrimary, -0.1):
+            ThemeSettings.constShade(ThemeSettings.colorHighlight, -0.1):
         !slider.enabled && slider.horizontal?
             ThemeSettings.shade(ThemeSettings.colorBack, 0, 0.5):
             ThemeSettings.shade(ThemeSettings.colorBack, -0.4)
@@ -195,7 +195,7 @@ T.Slider {
         }
         Rectangle {
             id: sliderThumbRect
-            color: ThemeSettings.colorPrimary
+            color: ThemeSettings.colorHighlight
             radius: Math.min(width, height) / 2
             anchors.fill: parent
         }
@@ -219,7 +219,7 @@ T.Slider {
 
             PropertyChanges {
                 target: sliderThumbRect
-                color: ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.1)
+                color: ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.1)
             }
             PropertyChanges {
                 target: highlight
@@ -234,7 +234,7 @@ T.Slider {
 
             PropertyChanges {
                 target: sliderThumbRect
-                color: ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.2)
+                color: ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.2)
             }
             PropertyChanges {
                 target: highlight

@@ -42,33 +42,35 @@ DEFINES += \
 
 HEADERS = \
     src/ak.h \
+    src/akaudiocaps.h \
+    src/akaudiopacket.h \
     src/akcaps.h \
+    src/akcolorizedimage.h \
     src/akcommons.h \
     src/akelement.h \
     src/akfrac.h \
+    src/akmultimediasourceelement.h \
     src/akpacket.h \
     src/akplugin.h \
-    src/akmultimediasourceelement.h \
     src/akunit.h \
     src/akvideocaps.h \
-    src/akaudiocaps.h \
-    src/akvideopacket.h \
-    src/akaudiopacket.h
+    src/akvideopacket.h
 
 QT += gui qml quick widgets
 
 SOURCES = \
     src/ak.cpp \
+    src/akaudiocaps.cpp \
+    src/akaudiopacket.cpp \
     src/akcaps.cpp \
+    src/akcolorizedimage.cpp \
     src/akelement.cpp \
     src/akfrac.cpp \
-    src/akpacket.cpp \
     src/akmultimediasourceelement.cpp \
+    src/akpacket.cpp \
     src/akunit.cpp \
     src/akvideocaps.cpp \
-    src/akaudiocaps.cpp \
-    src/akvideopacket.cpp \
-    src/akaudiopacket.cpp
+    src/akvideopacket.cpp
 
 lupdate_only {
     SOURCES += $$files(share/qml/AkControls/*.qml)

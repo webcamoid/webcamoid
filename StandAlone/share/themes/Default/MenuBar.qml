@@ -43,6 +43,6 @@ T.MenuBar {
     background: Rectangle {
         implicitWidth: AkUnit.create(360 * ThemeSettings.controlScale, "dp").pixels
         implicitHeight: AkUnit.create(48 * ThemeSettings.controlScale, "dp").pixels
-        color: ThemeSettings.colorPrimary
+        color: ThemeSettings.colorHighlight
     }
 }

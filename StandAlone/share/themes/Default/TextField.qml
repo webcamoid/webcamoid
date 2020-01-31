@@ -27,8 +27,8 @@ T.TextField {
     id: textField
     color: ThemeSettings.colorText
     placeholderTextColor: ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
-    selectedTextColor: ThemeSettings.contrast(selectionColor, 0.75)
-    selectionColor: ThemeSettings.colorPrimary
+    selectedTextColor: ThemeSettings.colorHighlightedText
+    selectionColor: ThemeSettings.colorHighlight
     padding: AkUnit.create(12 * ThemeSettings.controlScale, "dp").pixels
     implicitWidth: Math.max(contentWidth + leftPadding + rightPadding,
                             implicitBackgroundWidth + leftInset + rightInset,
@@ -107,13 +107,13 @@ T.TextField {
 
             PropertyChanges {
                 target: textAreaBackground
-                border.color: ThemeSettings.colorPrimary
+                border.color: ThemeSettings.colorHighlight
                 border.width: AkUnit.create(2 * ThemeSettings.controlScale,
                                          "dp").pixels
             }
             PropertyChanges {
                 target: placeholder
-                color: ThemeSettings.colorPrimary
+                color: ThemeSettings.colorHighlight
             }
         }
     ]

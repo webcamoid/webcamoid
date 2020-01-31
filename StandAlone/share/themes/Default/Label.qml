@@ -25,5 +25,5 @@ T.Label {
     id: label
     opacity: enabled? 1.0: 0.5
     color: ThemeSettings.colorText
-    linkColor: ThemeSettings.colorPrimary
+    linkColor: ThemeSettings.colorHighlight
 }

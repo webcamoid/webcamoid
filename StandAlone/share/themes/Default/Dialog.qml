@@ -61,7 +61,7 @@ T.Dialog {
         color:
             control.modal?
                 "transparent":
-                ThemeSettings.colorPrimary
+                ThemeSettings.colorHighlight
         clip: true
         visible: control.title
         height: AkUnit.create(64 * ThemeSettings.controlScale, "dp").pixels

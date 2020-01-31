@@ -20,7 +20,6 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Templates 2.5 as T
-import QtGraphicalEffects 1.0
 import QtQuick.Controls.impl 2.12
 import Ak 1.0
 
@@ -64,12 +63,12 @@ T.SwipeDelegate {
         icon.height: control.icon.height
         icon.color:
             control.highlighted?
-                ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
+                ThemeSettings.colorHighlightedText:
                 ThemeSettings.colorText
         text: control.text
         font: control.font
         color: control.highlighted?
-                   ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
+                   ThemeSettings.colorHighlightedText:
                    ThemeSettings.colorText
         alignment: control.display === IconLabel.IconOnly
                    || control.display === IconLabel.TextUnderIcon?
@@ -83,41 +82,31 @@ T.SwipeDelegate {
         implicitHeight:
             AkUnit.create(48 * ThemeSettings.controlScale, "dp").pixels
         color: control.highlighted?
-                   ThemeSettings.colorPrimary:
+                   ThemeSettings.colorHighlight:
                    ThemeSettings.colorBack
 
-        Image {
-            asynchronous: true
-            cache: true
+        AkColorizedImage {
             source: "image://icons/swipe-left.png"
-            sourceSize: Qt.size(width, height)
             width: control.icon.width
             height: control.icon.height
             anchors.verticalCenter: parent.verticalCenter
             visible: swipe.right || control.swipe.position > 0.9
-            layer.enabled: true
-            layer.effect: ColorOverlay {
-                color: control.highlighted?
-                           ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
-                           ThemeSettings.colorText
-             }
-        }
-        Image {
+            color: control.highlighted?
+                       ThemeSettings.colorHighlightedText:
+                       ThemeSettings.colorText
             asynchronous: true
-            cache: true
+        }
+        AkColorizedImage {
             source: "image://icons/swipe-right.png"
-            sourceSize: Qt.size(width, height)
             width: control.icon.width
             height: control.icon.height
             anchors.right: parent.right
             anchors.verticalCenter: parent.verticalCenter
             visible: swipe.left || control.swipe.position < -0.9
-            layer.enabled: true
-            layer.effect: ColorOverlay {
-                color: control.highlighted?
-                           ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
-                           ThemeSettings.colorText
-             }
+            color: control.highlighted?
+                       ThemeSettings.colorHighlightedText:
+                       ThemeSettings.colorText
+            asynchronous: true
         }
     }
 
@@ -143,7 +132,7 @@ T.SwipeDelegate {
                 target: backgroundRect
                 color:
                     control.highlighted?
-                        ThemeSettings.constShade(ThemeSettings.colorPrimary,
+                        ThemeSettings.constShade(ThemeSettings.colorHighlight,
                                                  0.1):
                         ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
             }
@@ -156,7 +145,7 @@ T.SwipeDelegate {
                 target: backgroundRect
                 color:
                     control.highlighted?
-                        ThemeSettings.constShade(ThemeSettings.colorPrimary,
+                        ThemeSettings.constShade(ThemeSettings.colorHighlight,
                                                  0.2):
                         ThemeSettings.shade(ThemeSettings.colorBack, -0.2)
             }

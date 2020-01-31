@@ -20,7 +20,6 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Templates 2.5 as T
-import QtGraphicalEffects 1.0
 import QtQuick.Controls.impl 2.12
 import Ak 1.0
 
@@ -57,30 +56,18 @@ T.MenuItem {
         anchors.leftMargin: AkUnit.create(16 * ThemeSettings.controlScale, "dp").pixels
         visible: menuItem.checkable && menuItem.checked
 
-        Item {
-            id: checkItem
+        AkColorizedImage {
+            id: checkImage
             width: menuItemCheck.width / 2
             height: menuItemCheck.height / 2
             anchors.verticalCenter: menuItemCheck.verticalCenter
             anchors.horizontalCenter: menuItemCheck.horizontalCenter
-
-            Image {
-                id: checkImage
-                asynchronous: true
-                cache: true
-                source: "image://icons/check"
-                sourceSize: Qt.size(width, height)
-                visible: false
-                anchors.fill: checkItem
-            }
-            ColorOverlay {
-                id: checkOverlay
-                anchors.fill: checkImage
-                source: checkImage
-                color: menuItem.highlighted?
-                           ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
-                           ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
-            }
+            source: "image://icons/check"
+            color:
+                menuItem.highlighted?
+                    ThemeSettings.colorHighlightedText:
+                    ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
+            asynchronous: true
         }
     }
 
@@ -94,31 +81,18 @@ T.MenuItem {
         anchors.rightMargin: AkUnit.create(16 * ThemeSettings.controlScale, "dp").pixels
         visible: menuItem.subMenu
 
-        Item {
-            id: arrowItem
+        AkColorizedImage {
+            id: arrowImage
             width: menuItemArrow.width / 2
             height: menuItemArrow.height / 2
             anchors.verticalCenter: menuItemArrow.verticalCenter
             anchors.horizontalCenter: menuItemArrow.horizontalCenter
-
-            Image {
-                id: arrowImage
-                asynchronous: true
-                cache: true
-                source: "image://icons/right"
-                sourceSize: Qt.size(width, height)
-                visible: false
-                anchors.fill: arrowItem
-            }
-            ColorOverlay {
-                id: arrowOverlay
-                anchors.fill: arrowImage
-                source: arrowImage
-                color: menuItem.highlighted?
-                           ThemeSettings.contrast(ThemeSettings.colorPrimary,
-                                                  0.75):
-                           ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
-            }
+            source: "image://icons/right"
+            color:
+                menuItem.highlighted?
+                    ThemeSettings.colorHighlightedText:
+                    ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
+            asynchronous: true
         }
     }
 
@@ -132,7 +106,7 @@ T.MenuItem {
         icon.width: menuItem.icon.width
         icon.height: menuItem.icon.height
         icon.color: menuItem.highlighted?
-                        ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
+                        ThemeSettings.colorHighlightedText:
                         ThemeSettings.colorText
         text: menuItem.text
         anchors.left: menuItemCheck.right
@@ -142,7 +116,7 @@ T.MenuItem {
         anchors.right: menuItemArrow.left
         font: menuItem.font
         color: menuItem.highlighted?
-                   ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
+                   ThemeSettings.colorHighlightedText:
                    ThemeSettings.colorText
         alignment: Qt.AlignLeft
     }
@@ -152,7 +126,7 @@ T.MenuItem {
         implicitWidth: AkUnit.create(128 * ThemeSettings.controlScale, "dp").pixels
         implicitHeight: AkUnit.create(48 * ThemeSettings.controlScale, "dp").pixels
         color: menuItem.highlighted?
-                   ThemeSettings.colorPrimary:
+                   ThemeSettings.colorHighlight:
                    ThemeSettings.shade(ThemeSettings.colorBack, -0.1, 0)
     }
 
@@ -166,14 +140,14 @@ T.MenuItem {
                 opacity: 0.5
             }
             PropertyChanges {
-                target: checkOverlay
+                target: checkImage
                 color:
                     menuItem.highlighted?
                         ThemeSettings.shade(ThemeSettings.colorBack, -0.2):
                         ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
             }
             PropertyChanges {
-                target: arrowOverlay
+                target: arrowImage
                 color:
                     menuItem.highlighted?
                         ThemeSettings.shade(ThemeSettings.colorBack, -0.2):
@@ -194,24 +168,24 @@ T.MenuItem {
                   && !menuItem.pressed
 
             PropertyChanges {
-                target: checkOverlay
+                target: checkImage
                 color:
                     menuItem.highlighted?
-                        ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
+                        ThemeSettings.colorHighlightedText:
                         ThemeSettings.shade(ThemeSettings.colorBack, -0.6)
             }
             PropertyChanges {
-                target: arrowOverlay
+                target: arrowImage
                 color:
                     menuItem.highlighted?
-                        ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
+                        ThemeSettings.colorHighlightedText:
                         ThemeSettings.shade(ThemeSettings.colorBack, -0.6)
             }
             PropertyChanges {
                 target: background
                 color:
                     menuItem.highlighted?
-                        ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.1):
+                        ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.1):
                         ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
             }
         },
@@ -222,24 +196,24 @@ T.MenuItem {
                   && !menuItem.pressed
 
             PropertyChanges {
-                target: checkOverlay
+                target: checkImage
                 color:
                     menuItem.highlighted?
-                        ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
+                        ThemeSettings.colorHighlightedText:
                         ThemeSettings.shade(ThemeSettings.colorBack, -0.6)
             }
             PropertyChanges {
-                target: arrowOverlay
+                target: arrowImage
                 color:
                     menuItem.highlighted?
-                        ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
+                        ThemeSettings.colorHighlightedText:
                         ThemeSettings.shade(ThemeSettings.colorBack, -0.6)
             }
             PropertyChanges {
                 target: background
                 color:
                     menuItem.highlighted?
-                        ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.2):
+                        ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.2):
                         ThemeSettings.shade(ThemeSettings.colorBack, -0.2)
             }
         },
@@ -249,24 +223,24 @@ T.MenuItem {
                   && menuItem.pressed
 
             PropertyChanges {
-                target: checkOverlay
+                target: checkImage
                 color:
                     menuItem.highlighted?
-                        ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
+                        ThemeSettings.colorHighlightedText:
                         ThemeSettings.shade(ThemeSettings.colorBack, -0.7)
             }
             PropertyChanges {
-                target: arrowOverlay
+                target: arrowImage
                 color:
                     menuItem.highlighted?
-                        ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
+                        ThemeSettings.colorHighlightedText:
                         ThemeSettings.shade(ThemeSettings.colorBack, -0.7)
             }
             PropertyChanges {
                 target: background
                 color:
                     menuItem.highlighted?
-                        ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.3):
+                        ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.3):
                         ThemeSettings.shade(ThemeSettings.colorBack, -0.3)
             }
         }
@@ -278,12 +252,14 @@ T.MenuItem {
             properties: "opacity"
             duration: menuItem.animationTime
         }
-        ColorAnimation {
-            target: checkOverlay
+        PropertyAnimation {
+            target: checkImage
+            properties: "color"
             duration: menuItem.animationTime
         }
-        ColorAnimation {
-            target: arrowOverlay
+        PropertyAnimation {
+            target: arrowImage
+            properties: "color"
             duration: menuItem.animationTime
         }
         ColorAnimation {

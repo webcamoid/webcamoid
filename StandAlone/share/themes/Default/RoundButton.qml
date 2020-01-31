@@ -52,13 +52,13 @@ T.RoundButton {
         icon.width: roundButton.icon.width
         icon.height: roundButton.icon.height
         icon.color: roundButton.highlighted?
-                        ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
-                        ThemeSettings.colorPrimary
+                        ThemeSettings.colorHighlightedText:
+                        ThemeSettings.colorHighlight
         text: roundButton.text
         font: roundButton.font
         color: roundButton.highlighted?
-                   ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
-                   ThemeSettings.colorPrimary
+                   ThemeSettings.colorHighlightedText:
+                   ThemeSettings.colorHighlight
     }
 
     background: Rectangle {
@@ -68,13 +68,13 @@ T.RoundButton {
         radius: roundButton.radius
         border.color:
             roundButton.checked && roundButton.highlighted?
-                ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
+                ThemeSettings.colorHighlightedText:
             roundButton.checkable && roundButton.highlighted?
                 "grey":
             roundButton.checked?
-                ThemeSettings.colorPrimary:
+                ThemeSettings.colorHighlight:
             roundButton.checkable?
-                ThemeSettings.constShade(ThemeSettings.colorPrimary, -0.3):
+                ThemeSettings.constShade(ThemeSettings.colorHighlight, -0.3):
             roundButton.highlighted || roundButton.flat?
                 "transparent":
                 ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
@@ -83,7 +83,7 @@ T.RoundButton {
                 AkAudioCaps.create(2 * ThemeSettings.controlScale, "dp").pixels:
                 AkAudioCaps.create(1 * ThemeSettings.controlScale, "dp").pixels
         color: roundButton.highlighted?
-                   ThemeSettings.colorPrimary:
+                   ThemeSettings.colorHighlight:
                    "transparent"
     }
 
@@ -118,7 +118,7 @@ T.RoundButton {
 
             PropertyChanges {
                 target: buttonRectangle
-                color: ThemeSettings.constShade(ThemeSettings.colorPrimary,
+                color: ThemeSettings.constShade(ThemeSettings.colorHighlight,
                                                 0.1,
                                                 0.2)
             }
@@ -133,7 +133,7 @@ T.RoundButton {
 
             PropertyChanges {
                 target: buttonRectangle
-                color: ThemeSettings.constShade(ThemeSettings.colorPrimary,
+                color: ThemeSettings.constShade(ThemeSettings.colorHighlight,
                                                 0.1,
                                                 0.3)
             }
@@ -147,7 +147,7 @@ T.RoundButton {
 
             PropertyChanges {
                 target: buttonRectangle
-                color: ThemeSettings.constShade(ThemeSettings.colorPrimary,
+                color: ThemeSettings.constShade(ThemeSettings.colorHighlight,
                                                 0.1,
                                                 0.4)
             }
@@ -185,14 +185,14 @@ T.RoundButton {
 
             PropertyChanges {
                 target: buttonRectangle
-                color: ThemeSettings.constShade(ThemeSettings.colorPrimary,
+                color: ThemeSettings.constShade(ThemeSettings.colorHighlight,
                                                 0.1,
                                                 0.2)
                 border.color:
                     roundButton.checked?
-                        ThemeSettings.colorPrimary:
+                        ThemeSettings.colorHighlight:
                     roundButton.checkable?
-                        ThemeSettings.constShade(ThemeSettings.colorPrimary,
+                        ThemeSettings.constShade(ThemeSettings.colorHighlight,
                                                  -0.3):
                         "transparent"
             }
@@ -207,14 +207,14 @@ T.RoundButton {
 
             PropertyChanges {
                 target: buttonRectangle
-                color: ThemeSettings.constShade(ThemeSettings.colorPrimary,
+                color: ThemeSettings.constShade(ThemeSettings.colorHighlight,
                                                 0.1,
                                                 0.3)
                 border.color:
                     roundButton.checked?
-                        ThemeSettings.colorPrimary:
+                        ThemeSettings.colorHighlight:
                     roundButton.checkable?
-                        ThemeSettings.constShade(ThemeSettings.colorPrimary,
+                        ThemeSettings.constShade(ThemeSettings.colorHighlight,
                                                  -0.3):
                         "transparent"
             }
@@ -228,14 +228,14 @@ T.RoundButton {
 
             PropertyChanges {
                 target: buttonRectangle
-                color: ThemeSettings.constShade(ThemeSettings.colorPrimary,
+                color: ThemeSettings.constShade(ThemeSettings.colorHighlight,
                                                 0.1,
                                                 0.4)
                 border.color:
                     roundButton.checked?
-                        ThemeSettings.colorPrimary:
+                        ThemeSettings.colorHighlight:
                     roundButton.checkable?
-                        ThemeSettings.constShade(ThemeSettings.colorPrimary,
+                        ThemeSettings.constShade(ThemeSettings.colorHighlight,
                                                  -0.3):
                         "transparent"
             }
@@ -272,11 +272,11 @@ T.RoundButton {
                 target: buttonRectangle
                 border.color:
                     roundButton.checked?
-                        ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
+                        ThemeSettings.colorHighlightedText:
                     roundButton.checkable?
                         "grey":
                         "transparent"
-                color: ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.1)
+                color: ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.1)
             }
         },
         State {
@@ -290,11 +290,11 @@ T.RoundButton {
                 target: buttonRectangle
                 border.color:
                     roundButton.checked?
-                        ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
+                        ThemeSettings.colorHighlightedText:
                     roundButton.checkable?
                         "grey":
                         "transparent"
-                color: ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.2)
+                color: ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.2)
             }
         },
         State {
@@ -307,7 +307,7 @@ T.RoundButton {
                 target: buttonRectangle
                 border.color:
                     roundButton.checked?
-                        ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75):
+                        ThemeSettings.colorHighlightedText:
                     roundButton.checkable?
                         "grey":
                         "transparent"
@@ -317,7 +317,7 @@ T.RoundButton {
                                                   "dp").pixels:
                         AkAudioCaps.create(0 * ThemeSettings.controlScale,
                                                   "dp").pixels
-                color: ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.3)
+                color: ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.3)
             }
         }
     ]

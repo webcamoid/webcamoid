@@ -76,7 +76,7 @@ T.BusyIndicator {
                            * Math.min(busyIndicator.width, busyIndicator.height)
                     height: width
                     radius: width / 2
-                    color: ThemeSettings.colorPrimary
+                    color: ThemeSettings.colorHighlight
                     opacity: 1 - index / repeater.count
 
                     transform: [

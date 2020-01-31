@@ -88,10 +88,10 @@ T.ToolButton {
             icon.source: button.icon.source
             icon.width: button.icon.width
             icon.height: button.icon.height
-            icon.color: ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75)
+            icon.color: ThemeSettings.colorHighlightedText
             text: button.text
             font: button.font
-            color: ThemeSettings.contrast(ThemeSettings.colorPrimary, 0.75)
+            color: ThemeSettings.colorHighlightedText
         }
     }
     background: Rectangle {
@@ -99,8 +99,8 @@ T.ToolButton {
         implicitWidth: button.buttonWidth()
         implicitHeight: button.buttonHeight()
         color: button.highlighted?
-                   ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.1):
-                   ThemeSettings.constShade(ThemeSettings.colorPrimary, 0, 0)
+                   ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.1):
+                   ThemeSettings.constShade(ThemeSettings.colorHighlight, 0, 0)
     }
 
     states: [
@@ -124,8 +124,8 @@ T.ToolButton {
                 target: buttonRectangleBelow
                 color:
                     button.highlighted?
-                        ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.2):
-                        ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.1)
+                        ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.2):
+                        ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.1)
             }
         },
         State {
@@ -137,7 +137,7 @@ T.ToolButton {
             PropertyChanges {
                 target: buttonRectangleBelow
                 color:
-                    ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.2)
+                    ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.2)
             }
         },
         State {
@@ -147,7 +147,7 @@ T.ToolButton {
             PropertyChanges {
                 target: buttonRectangleBelow
                 color:
-                    ThemeSettings.constShade(ThemeSettings.colorPrimary, 0.3)
+                    ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.3)
             }
         }
     ]
