@@ -43,13 +43,13 @@ T.PageIndicator {
         radius: width / 2
         color:
             !control.enabled?
-                ThemeSettings.shade(ThemeSettings.colorBack, -0.3, 0.5):
+                ThemeSettings.shade(ThemeSettings.colorWindow, -0.3, 0.5):
             control.hovered?
                 ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.1, 0.5):
                 ThemeSettings.constShade(ThemeSettings.colorHighlight, 0, 0.5)
         border.color:
             !control.enabled?
-                ThemeSettings.shade(ThemeSettings.colorBack, -0.3):
+                ThemeSettings.shade(ThemeSettings.colorWindow, -0.3):
             control.hovered?
                 ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.1):
                 ThemeSettings.colorHighlight

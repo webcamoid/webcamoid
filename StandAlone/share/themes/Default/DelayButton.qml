@@ -24,7 +24,7 @@ import QtQuick.Controls.impl 2.12
 import Ak 1.0
 
 T.DelayButton {
-    id: button
+    id: control
     font.bold: true
     icon.width: AkUnit.create(18 * ThemeSettings.controlScale, "dp").pixels
     icon.height: AkUnit.create(18 * ThemeSettings.controlScale, "dp").pixels
@@ -42,8 +42,8 @@ T.DelayButton {
     transition: Transition {
         NumberAnimation {
             duration:
-                button.delay
-                * (button.pressed? 1.0 - button.progress: 0.3 * button.progress)
+                control.delay
+                * (control.pressed? 1.0 - control.progress: 0.3 * control.progress)
         }
     }
 
@@ -56,17 +56,17 @@ T.DelayButton {
 
         IconLabel {
             id: iconLabel
-            spacing: button.spacing
-            mirrored: button.mirrored
-            display: button.display
-            icon.name: button.icon.name
-            icon.source: button.icon.source
-            icon.width: button.icon.width
-            icon.height: button.icon.height
-            icon.color: ThemeSettings.colorHighlight
-            text: button.text
-            font: button.font
-            color: ThemeSettings.colorHighlight
+            spacing: control.spacing
+            mirrored: control.mirrored
+            display: control.display
+            icon.name: control.icon.name
+            icon.source: control.icon.source
+            icon.width: control.icon.width
+            icon.height: control.icon.height
+            icon.color: ThemeSettings.colorButtonText
+            text: control.text
+            font: control.font
+            color: ThemeSettings.colorButtonText
             anchors.verticalCenter: buttonContent.verticalCenter
             anchors.horizontalCenter: buttonContent.horizontalCenter
         }
@@ -80,26 +80,25 @@ T.DelayButton {
         Rectangle {
             id: buttonRectangle
             anchors.fill: parent
-            radius: button.radius
-            border.color: ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
+            radius: control.radius
+            border.color: ThemeSettings.colorDark
             border.width:
                 AkUnit.create(1 * ThemeSettings.controlScale, "dp").pixels
-            color: ThemeSettings.shade(ThemeSettings.colorBack, 0.0, 0.0)
+            color: ThemeSettings.colorButton
         }
 
         // Checked indicator
         Rectangle {
             id: buttonCheckableIndicator
-            height: button.radius
-            color:
-                ThemeSettings.constShade(ThemeSettings.colorHighlight, -0.3)
+            height: control.radius
+            color: ThemeSettings.colorDark
             anchors.bottom: back.bottom
             anchors.left: back.left
             anchors.right: back.right
         }
         Rectangle {
-            width: parent.width * button.progress
-            height: button.radius
+            width: parent.width * control.progress
+            height: control.radius
             color: ThemeSettings.colorHighlight
             anchors.bottom: back.bottom
         }
@@ -108,66 +107,64 @@ T.DelayButton {
     states: [
         State {
             name: "Disabled"
-            when: !button.enabled
-                  && !button.hovered
-                  && !button.visualFocus
-                  && !button.pressed
+            when: !control.enabled
 
             PropertyChanges {
                 target: iconLabel
-                icon.color: ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
-                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
+                icon.color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.5)
+                color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.5)
             }
             PropertyChanges {
                 target: buttonCheckableIndicator
-                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
+                color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.5)
             }
         },
         State {
             name: "Hovered"
-            when: button.enabled
-                  && button.hovered
-                  && !button.visualFocus
-                  && !button.pressed
+            when: control.enabled
+                  && control.hovered
+                  && !(control.activeFocus || control.visualFocus)
+                  && !control.pressed
 
             PropertyChanges {
                 target: buttonRectangle
-                color: ThemeSettings.constShade(ThemeSettings.colorHighlight,
-                                                0.1,
-                                                0.2)
+                color: ThemeSettings.colorMid
             }
         },
         State {
             name: "Focused"
-            when: button.enabled
-                  && (button.hovered || button.visualFocus)
-                  && !button.pressed
+            when: control.enabled
+                  && (control.hovered || control.visualFocus)
+                  && !control.pressed
 
             PropertyChanges {
                 target: buttonRectangle
-                color: ThemeSettings.constShade(ThemeSettings.colorHighlight,
-                                                0.1,
-                                                0.3)
+                border.width: AkUnit.create(2 * ThemeSettings.controlScale,
+                                            "dp").pixels
+                border.color: ThemeSettings.colorHighlight
+                color: ThemeSettings.colorMid
             }
         },
         State {
             name: "Pressed"
-            when: button.enabled
-                  && button.pressed
+            when: control.enabled
+                  && control.pressed
 
             PropertyChanges {
                 target: buttonRectangle
-                color: ThemeSettings.constShade(ThemeSettings.colorHighlight,
-                                                0.1,
-                                                0.4)
+                border.width: AkUnit.create(2 * ThemeSettings.controlScale,
+                                            "dp").pixels
+                border.color: ThemeSettings.colorHighlight
+                color: ThemeSettings.colorDark
             }
         }
     ]
 
     transitions: Transition {
-        ColorAnimation {
+        PropertyAnimation {
             target: buttonRectangle
-            duration: button.animationTime
+            properties: "color,border.color,border.width"
+            duration: control.animationTime
         }
     }
 }

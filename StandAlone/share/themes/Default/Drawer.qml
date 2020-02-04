@@ -33,12 +33,12 @@ T.Drawer {
     background: Rectangle {
         implicitWidth: AkUnit.create(256 * ThemeSettings.controlScale, "dp").pixels
         implicitHeight: AkUnit.create(256 * ThemeSettings.controlScale, "dp").pixels
-        color: ThemeSettings.colorBack
+        color: ThemeSettings.colorWindow
 
         Rectangle {
             width: horizontal? handleWidth: parent.width
             height: horizontal? parent.height: handleWidth
-            color: ThemeSettings.shade(ThemeSettings.colorBack, -0.3)
+            color: ThemeSettings.colorDark
             x: control.edge === Qt.LeftEdge? parent.width - handleWidth: 0
             y: control.edge === Qt.TopEdge? parent.height - handleWidth: 0
             visible: !control.dim
@@ -51,13 +51,13 @@ T.Drawer {
     }
 
     T.Overlay.modal: Rectangle {
-        color: ThemeSettings.shade(ThemeSettings.colorBack, -0.5, 0.5)
+        color: ThemeSettings.shade(ThemeSettings.colorDark, 0, 0.75)
 
         Behavior on opacity { NumberAnimation { duration: 150 } }
     }
 
     T.Overlay.modeless: Rectangle {
-        color: ThemeSettings.shade(ThemeSettings.colorBack, -0.5, 0.5)
+        color: ThemeSettings.shade(ThemeSettings.colorDark, 0, 0.75)
 
         Behavior on opacity { NumberAnimation { duration: 150 } }
     }

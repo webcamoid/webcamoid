@@ -23,12 +23,26 @@ import QtQuick 2.12
 
 Item {
     // Palette
-    readonly property color colorHighlight: palette.highlight
     readonly property color colorHighlightedText: palette.highlightedText
-    readonly property color colorBack: palette.window
-    readonly property color colorText: palette.windowText
-    readonly property bool darkScheme:
-        colorText.hslLightness > colorBack.hslLightness
+    readonly property color colorHighlight: palette.highlight
+    readonly property color colorText: palette.text
+    readonly property color colorBase: palette.base
+    readonly property color colorWindowText: palette.windowText
+    readonly property color colorWindow: palette.window
+    readonly property color colorButtonText: palette.buttonText
+    readonly property color colorLight: colorWindow.hslLightness < 0.5?
+                                            palette.dark:
+                                            palette.light
+    readonly property color colorMidlight: colorWindow.hslLightness < 0.5?
+                                               palette.mid:
+                                               palette.midlight
+    readonly property color colorButton: palette.button
+    readonly property color colorMid: colorWindow.hslLightness < 0.5?
+                                          palette.midlight:
+                                          palette.mid
+    readonly property color colorDark: colorWindow.hslLightness < 0.5?
+                                           palette.light:
+                                           palette.dark
 
     readonly property real controlScale: 1.75
 
@@ -56,7 +70,7 @@ Item {
 
     function shade(color, value, alpha=1)
     {
-        if (darkScheme)
+        if (color.hslLightness < 0.5)
             value = -value
 
         let lightness = Math.min(Math.max(0, color.hslLightness + value), 1)

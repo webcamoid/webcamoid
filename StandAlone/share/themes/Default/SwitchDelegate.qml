@@ -54,8 +54,8 @@ T.SwitchDelegate {
             id: switchTrack
             height: parent.height / 2
             color: control.highlighted?
-                       ThemeSettings.contrast(ThemeSettings.colorHighlight, 0.75):
-                       ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
+                       ThemeSettings.colorHighlightedText:
+                       ThemeSettings.colorWindowText
             radius: height / 2
             anchors.verticalCenter: sliderIndicator.verticalCenter
             anchors.right: sliderIndicator.right
@@ -70,8 +70,8 @@ T.SwitchDelegate {
             Rectangle {
                 id: switchThumbRect
                 color: control.highlighted?
-                           ThemeSettings.contrast(ThemeSettings.colorHighlight, 0.75):
-                           ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
+                           ThemeSettings.colorHighlightedText:
+                           ThemeSettings.colorWindowText
                 radius: height / 2
                 anchors.fill: parent
             }
@@ -89,13 +89,13 @@ T.SwitchDelegate {
         icon.height: control.icon.height
         icon.color:
             control.highlighted?
-                ThemeSettings.contrast(ThemeSettings.colorHighlight, 0.75):
-                ThemeSettings.colorText
+                ThemeSettings.colorHighlightedText:
+                ThemeSettings.colorWindowText
         text: control.text
         font: control.font
         color: control.highlighted?
-                   ThemeSettings.contrast(ThemeSettings.colorHighlight, 0.75):
-                   ThemeSettings.colorText
+                   ThemeSettings.colorHighlightedText:
+                   ThemeSettings.colorWindowText
         alignment: Qt.AlignLeft
         anchors.leftMargin: control.leftPadding
         anchors.left: control.left
@@ -110,7 +110,7 @@ T.SwitchDelegate {
             AkUnit.create(48 * ThemeSettings.controlScale, "dp").pixels
         color: control.highlighted?
                    ThemeSettings.colorHighlight:
-                   ThemeSettings.shade(ThemeSettings.colorBack, -0.1, 0)
+                   ThemeSettings.shade(ThemeSettings.colorWindow, 0, 0)
     }
 
     states: [
@@ -120,16 +120,16 @@ T.SwitchDelegate {
 
             PropertyChanges {
                 target: switchTrack
-                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
+                color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.1)
             }
             PropertyChanges {
                 target: switchThumbRect
-                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
+                color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.1)
             }
             PropertyChanges {
                 target: iconLabel
-                icon.color: ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
-                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
+                icon.color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.1)
+                color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.1)
             }
             PropertyChanges {
                 target: background
@@ -145,18 +145,6 @@ T.SwitchDelegate {
                   && !control.pressed
 
             PropertyChanges {
-                target: switchTrack
-                color: control.highlighted?
-                           ThemeSettings.contrast(ThemeSettings.colorHighlight, 0.75):
-                           ThemeSettings.colorHighlight
-            }
-            PropertyChanges {
-                target: switchThumbRect
-                color: control.highlighted?
-                           ThemeSettings.contrast(ThemeSettings.colorHighlight, 0.75):
-                           ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.2)
-            }
-            PropertyChanges {
                 target: switchThumb
                 x: sliderIndicator.width - switchThumb.width
             }
@@ -170,24 +158,12 @@ T.SwitchDelegate {
                   && !control.pressed
 
             PropertyChanges {
-                target: switchTrack
-                color: control.highlighted?
-                           ThemeSettings.contrast(ThemeSettings.colorHighlight, 0.75):
-                           ThemeSettings.shade(ThemeSettings.colorBack, -0.6)
-            }
-            PropertyChanges {
-                target: switchThumbRect
-                color: control.highlighted?
-                           ThemeSettings.contrast(ThemeSettings.colorHighlight, 0.75):
-                           ThemeSettings.shade(ThemeSettings.colorBack, -0.2)
-            }
-            PropertyChanges {
                 target: background
                 color:
                     control.highlighted?
                         ThemeSettings.constShade(ThemeSettings.colorHighlight,
-                                                 0.1):
-                        ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
+                                                     0.1):
+                        ThemeSettings.shade(ThemeSettings.colorWindow, -0.1)
             }
         },
         State {
@@ -199,18 +175,6 @@ T.SwitchDelegate {
                   && !control.pressed
 
             PropertyChanges {
-                target: switchTrack
-                color: control.highlighted?
-                           ThemeSettings.contrast(ThemeSettings.colorHighlight, 0.75):
-                           ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.1)
-            }
-            PropertyChanges {
-                target: switchThumbRect
-                color: control.highlighted?
-                           ThemeSettings.contrast(ThemeSettings.colorHighlight, 0.75):
-                           ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.3)
-            }
-            PropertyChanges {
                 target: switchThumb
                 x: sliderIndicator.width - switchThumb.width
             }
@@ -220,7 +184,7 @@ T.SwitchDelegate {
                     control.highlighted?
                         ThemeSettings.constShade(ThemeSettings.colorHighlight,
                                                  0.1):
-                        ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
+                        ThemeSettings.shade(ThemeSettings.colorWindow, -0.1)
             }
         },
         State {
@@ -229,24 +193,12 @@ T.SwitchDelegate {
                   && control.pressed
 
             PropertyChanges {
-                target: switchTrack
-                color: control.highlighted?
-                           ThemeSettings.contrast(ThemeSettings.colorHighlight, 0.75):
-                           ThemeSettings.shade(ThemeSettings.colorBack, -0.7)
-            }
-            PropertyChanges {
-                target: switchThumbRect
-                color: control.highlighted?
-                           ThemeSettings.contrast(ThemeSettings.colorHighlight, 0.75):
-                           ThemeSettings.shade(ThemeSettings.colorBack, -0.3)
-            }
-            PropertyChanges {
                 target: background
                 color:
                     control.highlighted?
                         ThemeSettings.constShade(ThemeSettings.colorHighlight,
                                                  0.2):
-                        ThemeSettings.shade(ThemeSettings.colorBack, -0.2)
+                        ThemeSettings.shade(ThemeSettings.colorWindow, -0.2)
             }
         },
         State {
@@ -254,18 +206,6 @@ T.SwitchDelegate {
             when: control.checked
                   && control.pressed
 
-            PropertyChanges {
-                target: switchTrack
-                color: control.highlighted?
-                           ThemeSettings.contrast(ThemeSettings.colorHighlight, 0.75):
-                           ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.2)
-            }
-            PropertyChanges {
-                target: switchThumbRect
-                color: control.highlighted?
-                           ThemeSettings.contrast(ThemeSettings.colorHighlight, 0.75):
-                           ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.4)
-            }
             PropertyChanges {
                 target: switchThumb
                 x: sliderIndicator.width - switchThumb.width
@@ -276,7 +216,7 @@ T.SwitchDelegate {
                     control.highlighted?
                         ThemeSettings.constShade(ThemeSettings.colorHighlight,
                                                  0.2):
-                        ThemeSettings.shade(ThemeSettings.colorBack, -0.2)
+                        ThemeSettings.shade(ThemeSettings.colorWindow, -0.2)
             }
         }
     ]

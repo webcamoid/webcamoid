@@ -58,15 +58,16 @@ T.CheckDelegate {
                     AkUnit.create(2 * ThemeSettings.controlScale, "dp").pixels:
                     0
             border.color:
+                control.checkState != Qt.Unchecked?
+                    "transparent":
                 control.highlighted?
-                    checkImage.color:
-                control.checkState == Qt.Unchecked?
-                    ThemeSettings.shade(ThemeSettings.colorBack, -0.5):
-                    "transparent"
-            color: control.checkState == Qt.Unchecked
-                   || control.highlighted?
+                    ThemeSettings.colorHighlightedText:
+                    ThemeSettings.colorWindowText
+            color: control.checkState == Qt.Unchecked?
                        "transparent":
-                       ThemeSettings.colorHighlight
+                   control.highlighted?
+                       ThemeSettings.colorHighlightedText:
+                       ThemeSettings.colorWindowText
             radius: AkUnit.create(4 * ThemeSettings.controlScale, "dp").pixels
             anchors.verticalCenter: checkBoxIndicator.verticalCenter
             anchors.horizontalCenter: checkBoxIndicator.horizontalCenter
@@ -80,7 +81,9 @@ T.CheckDelegate {
                         "image://icons/minus"
             anchors.fill: indicatorRect
             visible: control.checkState != Qt.Unchecked
-            color: ThemeSettings.colorHighlightedText
+            color: control.highlighted?
+                       ThemeSettings.colorHighlight:
+                       ThemeSettings.colorWindow
             asynchronous: true
         }
     }
@@ -97,12 +100,12 @@ T.CheckDelegate {
         icon.color:
             control.highlighted?
                 ThemeSettings.colorHighlightedText:
-                ThemeSettings.colorText
+                ThemeSettings.colorWindowText
         text: control.text
         font: control.font
         color: control.highlighted?
                    ThemeSettings.colorHighlightedText:
-                   ThemeSettings.colorText
+                   ThemeSettings.colorWindowText
         alignment: Qt.AlignLeft
         anchors.leftMargin: control.leftPadding
         anchors.left: control.left
@@ -117,7 +120,7 @@ T.CheckDelegate {
             AkUnit.create(48 * ThemeSettings.controlScale, "dp").pixels
         color: control.highlighted?
                    ThemeSettings.colorHighlight:
-                   ThemeSettings.shade(ThemeSettings.colorBack, -0.1, 0)
+                   ThemeSettings.shade(ThemeSettings.colorWindow, 0, 0)
     }
 
     states: [
@@ -129,24 +132,24 @@ T.CheckDelegate {
                 target: indicatorRect
                 border.color:
                     control.checkState == Qt.Unchecked?
-                        ThemeSettings.shade(ThemeSettings.colorBack, -0.1):
+                        ThemeSettings.shade(ThemeSettings.colorWindow, -0.1):
                         "transparent"
                 color: control.checkState == Qt.Unchecked?
                            "transparent":
-                           ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
+                           ThemeSettings.shade(ThemeSettings.colorWindow, -0.1)
             }
             PropertyChanges {
                 target: checkImage
-                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.3)
+                color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.3)
             }
             PropertyChanges {
                 target: iconLabel
-                icon.color: ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
-                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
+                icon.color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.1)
+                color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.1)
             }
             PropertyChanges {
                 target: background
-                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.1, 0)
+                color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.1, 0)
             }
         },
         State {
@@ -157,26 +160,12 @@ T.CheckDelegate {
                   && !control.pressed
 
             PropertyChanges {
-                target: indicatorRect
-                border.color:
-                    control.highlighted?
-                        checkImage.color:
-                    control.checkState == Qt.Unchecked?
-                        ThemeSettings.shade(ThemeSettings.colorBack, -0.6):
-                        "transparent"
-                color: control.checkState == Qt.Unchecked
-                       || control.highlighted?
-                           "transparent":
-                           ThemeSettings.constShade(ThemeSettings.colorHighlight,
-                                                    0.1)
-            }
-            PropertyChanges {
                 target: background
                 color:
                     control.highlighted?
                         ThemeSettings.constShade(ThemeSettings.colorHighlight,
                                                  0.1):
-                        ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
+                        ThemeSettings.shade(ThemeSettings.colorWindow, -0.1)
             }
         },
         State {
@@ -184,26 +173,12 @@ T.CheckDelegate {
             when: control.pressed
 
             PropertyChanges {
-                target: indicatorRect
-                border.color:
-                    control.highlighted?
-                        checkImage.color:
-                    control.checkState == Qt.Unchecked?
-                        ThemeSettings.shade(ThemeSettings.colorBack, -0.7):
-                        "transparent"
-                color: control.checkState == Qt.Unchecked
-                       || control.highlighted?
-                           "transparent":
-                           ThemeSettings.constShade(ThemeSettings.colorHighlight,
-                                                    0.3)
-            }
-            PropertyChanges {
                 target: background
                 color:
                     control.highlighted?
                         ThemeSettings.constShade(ThemeSettings.colorHighlight,
                                                  0.2):
-                        ThemeSettings.shade(ThemeSettings.colorBack, -0.2)
+                        ThemeSettings.shade(ThemeSettings.colorWindow, -0.2)
             }
         }
     ]

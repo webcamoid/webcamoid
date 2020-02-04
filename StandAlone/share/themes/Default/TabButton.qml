@@ -75,10 +75,10 @@ T.TabButton {
             icon.source: button.icon.source
             icon.width: button.icon.width
             icon.height: button.icon.height
-            icon.color: ThemeSettings.colorText
+            icon.color: ThemeSettings.colorWindowText
             text: button.text
             font: button.font
-            color: ThemeSettings.colorText
+            color: ThemeSettings.colorWindowText
         }
     }
 
@@ -86,7 +86,7 @@ T.TabButton {
         id: buttonRectangleBelow
         implicitWidth: AkUnit.create(90 * ThemeSettings.controlScale, "dp").pixels
         implicitHeight: button.buttonHeight()
-        color: ThemeSettings.shade(ThemeSettings.colorBack, 0.0, 0.0)
+        color: ThemeSettings.shade(ThemeSettings.colorWindow, 0.0, 0.0)
     }
 
     states: [

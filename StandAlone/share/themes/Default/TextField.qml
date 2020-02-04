@@ -26,27 +26,26 @@ import Ak 1.0
 T.TextField {
     id: textField
     color: ThemeSettings.colorText
-    placeholderTextColor: ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
+    placeholderTextColor: ThemeSettings.shade(ThemeSettings.colorText, 0, 0.5)
     selectedTextColor: ThemeSettings.colorHighlightedText
     selectionColor: ThemeSettings.colorHighlight
     padding: AkUnit.create(12 * ThemeSettings.controlScale, "dp").pixels
-    implicitWidth: Math.max(contentWidth + leftPadding + rightPadding,
-                            implicitBackgroundWidth + leftInset + rightInset,
-                            placeholder.implicitWidth + leftPadding + rightPadding,
-                            AkUnit.create(280 * ThemeSettings.controlScale,
-                                       "dp").pixels)
-    implicitHeight: Math.max(contentHeight + topPadding + bottomPadding,
-                             implicitBackgroundHeight + topInset + bottomInset,
-                             placeholder.implicitHeight + topPadding + bottomPadding,
-                             AkUnit.create(36 * ThemeSettings.controlScale,
-                                        "dp").pixels)
+    implicitWidth:
+        Math.max(contentWidth + leftPadding + rightPadding,
+                 implicitBackgroundWidth + leftInset + rightInset,
+                 placeholder.implicitWidth + leftPadding + rightPadding,
+                 AkUnit.create(280 * ThemeSettings.controlScale, "dp").pixels)
+    implicitHeight:
+        Math.max(contentHeight + topPadding + bottomPadding,
+                 implicitBackgroundHeight + topInset + bottomInset,
+                 placeholder.implicitHeight + topPadding + bottomPadding,
+                 AkUnit.create(36 * ThemeSettings.controlScale, "dp").pixels)
     hoverEnabled: true
     selectByMouse: true
 
-    readonly property int animationTime: 100
+    readonly property int animationTime: 200
     readonly property int placeHolderPadding:
         AkUnit.create(4 * ThemeSettings.controlScale, "dp").pixels
-    readonly property int placeHolderFontSize: 8
 
     PlaceholderText {
         id: placeholder
@@ -68,8 +67,8 @@ T.TextField {
 
     background: Rectangle {
         id: textAreaBackground
-        color: Qt.hsla(0, 0, 0, 0)
-        border.color: ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
+        color: ThemeSettings.colorBase
+        border.color: ThemeSettings.colorMid
         border.width: AkUnit.create(1 * ThemeSettings.controlScale, "dp").pixels
         radius: AkUnit.create(8 * ThemeSettings.controlScale, "dp").pixels
         anchors.fill: parent
@@ -82,11 +81,13 @@ T.TextField {
 
             PropertyChanges {
                 target: placeholder
-                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.3)
+                color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.3)
             }
             PropertyChanges {
                 target: textAreaBackground
-                border.color: ThemeSettings.shade(ThemeSettings.colorBack, -0.3)
+                color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.1)
+                border.color:
+                    ThemeSettings.shade(ThemeSettings.colorWindow, -0.3)
             }
         },
         State {
@@ -97,7 +98,7 @@ T.TextField {
 
             PropertyChanges {
                 target: textAreaBackground
-                border.color: ThemeSettings.shade(ThemeSettings.colorBack, -0.7)
+                border.color: ThemeSettings.colorDark
             }
         },
         State {
@@ -108,8 +109,8 @@ T.TextField {
             PropertyChanges {
                 target: textAreaBackground
                 border.color: ThemeSettings.colorHighlight
-                border.width: AkUnit.create(2 * ThemeSettings.controlScale,
-                                         "dp").pixels
+                border.width:
+                    AkUnit.create(2 * ThemeSettings.controlScale, "dp").pixels
             }
             PropertyChanges {
                 target: placeholder
@@ -125,7 +126,7 @@ T.TextField {
         }
         PropertyAnimation {
             target: textAreaBackground
-            properties: "border.color,border.width"
+            properties: "border.color,border.width,color"
             duration: textField.animationTime
         }
     }

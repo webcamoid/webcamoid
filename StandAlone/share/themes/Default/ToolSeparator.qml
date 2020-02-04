@@ -50,6 +50,6 @@ T.ToolSeparator {
                                        "dp").pixels:
                             AkUnit.create(1 * ThemeSettings.controlScale,
                                        "dp").pixels
-        color: ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
+        color: ThemeSettings.colorHighlightedText
     }
 }

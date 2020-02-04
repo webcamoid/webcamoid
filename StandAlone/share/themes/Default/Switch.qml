@@ -55,7 +55,7 @@ T.Switch {
         Rectangle {
             id: switchTrack
             height: parent.height / 2
-            color: ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
+            color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.5)
             radius: height / 2
             anchors.verticalCenter: sliderIndicator.verticalCenter
             anchors.right: sliderIndicator.right
@@ -79,7 +79,7 @@ T.Switch {
             }
             Rectangle {
                 id: switchThumbRect
-                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
+                color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.1)
                 radius: height / 2
                 anchors.fill: parent
             }
@@ -94,10 +94,10 @@ T.Switch {
         icon.source: control.icon.source
         icon.width: control.icon.width
         icon.height: control.icon.height
-        icon.color: ThemeSettings.colorText
+        icon.color: ThemeSettings.colorWindowText
         text: control.text
         font: control.font
-        color: ThemeSettings.colorText
+        color: ThemeSettings.colorWindowText
         alignment: Qt.AlignLeft
         anchors.leftMargin: switchThumb.width / 2
         anchors.left: sliderIndicator.right
@@ -137,11 +137,11 @@ T.Switch {
 
             PropertyChanges {
                 target: switchTrack
-                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.6)
+                color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.6)
             }
             PropertyChanges {
                 target: switchThumbRect
-                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.2)
+                color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.2)
             }
             PropertyChanges {
                 target: highlight
@@ -182,11 +182,11 @@ T.Switch {
 
             PropertyChanges {
                 target: switchTrack
-                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.7)
+                color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.7)
             }
             PropertyChanges {
                 target: switchThumbRect
-                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.3)
+                color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.3)
             }
             PropertyChanges {
                 target: highlight

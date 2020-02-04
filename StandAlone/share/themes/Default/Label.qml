@@ -24,6 +24,6 @@ import QtQuick.Templates 2.5 as T
 T.Label {
     id: label
     opacity: enabled? 1.0: 0.5
-    color: ThemeSettings.colorText
+    color: ThemeSettings.colorWindowText
     linkColor: ThemeSettings.colorHighlight
 }

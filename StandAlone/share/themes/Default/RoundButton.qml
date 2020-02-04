@@ -24,300 +24,151 @@ import QtQuick.Controls.impl 2.12
 import Ak 1.0
 
 T.RoundButton {
-    id: roundButton
+    id: control
     font.bold: true
-    icon.width: AkAudioCaps.create(18 * ThemeSettings.controlScale, "dp").pixels
-    icon.height: AkAudioCaps.create(18 * ThemeSettings.controlScale, "dp").pixels
+    icon.width: AkUnit.create(18 * ThemeSettings.controlScale, "dp").pixels
+    icon.height: AkUnit.create(18 * ThemeSettings.controlScale, "dp").pixels
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             implicitContentWidth + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              implicitContentHeight + topPadding + bottomPadding)
-    spacing: AkAudioCaps.create(12 * ThemeSettings.controlScale, "dp").pixels
+    spacing: AkUnit.create(12 * ThemeSettings.controlScale, "dp").pixels
     hoverEnabled: true
     leftPadding:
-        AkAudioCaps.create(16 * ThemeSettings.controlScale, "dp").pixels
+        AkUnit.create(16 * ThemeSettings.controlScale, "dp").pixels
     rightPadding:
-        AkAudioCaps.create(16 * ThemeSettings.controlScale, "dp").pixels
-    radius: AkAudioCaps.create(28 * ThemeSettings.controlScale, "dp").pixels
+        AkUnit.create(16 * ThemeSettings.controlScale, "dp").pixels
+    radius: AkUnit.create(28 * ThemeSettings.controlScale, "dp").pixels
 
     readonly property int animationTime: 200
 
     contentItem: IconLabel {
         id: iconLabel
-        spacing: roundButton.spacing
-        mirrored: roundButton.mirrored
-        display: roundButton.display
-        icon.name: roundButton.icon.name
-        icon.source: roundButton.icon.source
-        icon.width: roundButton.icon.width
-        icon.height: roundButton.icon.height
-        icon.color: roundButton.highlighted?
+        spacing: control.spacing
+        mirrored: control.mirrored
+        display: control.display
+        icon.name: control.icon.name
+        icon.source: control.icon.source
+        icon.width: control.icon.width
+        icon.height: control.icon.height
+        icon.color: control.highlighted?
                         ThemeSettings.colorHighlightedText:
-                        ThemeSettings.colorHighlight
-        text: roundButton.text
-        font: roundButton.font
-        color: roundButton.highlighted?
+                    control.flat?
+                        ThemeSettings.colorHighlight:
+                        ThemeSettings.colorButtonText
+        text: control.text
+        font: control.font
+        color: control.highlighted?
                    ThemeSettings.colorHighlightedText:
-                   ThemeSettings.colorHighlight
+               control.flat?
+                   ThemeSettings.colorHighlight:
+                   ThemeSettings.colorButtonText
     }
 
     background: Rectangle {
         id: buttonRectangle
-        implicitWidth: 2 * roundButton.radius
-        implicitHeight: 2 * roundButton.radius
-        radius: roundButton.radius
+        implicitWidth: 2 * control.radius
+        implicitHeight: 2 * control.radius
+        radius: control.radius
         border.color:
-            roundButton.checked && roundButton.highlighted?
+            control.checkable && control.checked && control.highlighted?
                 ThemeSettings.colorHighlightedText:
-            roundButton.checkable && roundButton.highlighted?
-                "grey":
-            roundButton.checked?
+            control.checkable && control.checked?
                 ThemeSettings.colorHighlight:
-            roundButton.checkable?
-                ThemeSettings.constShade(ThemeSettings.colorHighlight, -0.3):
-            roundButton.highlighted || roundButton.flat?
-                "transparent":
-                ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
+            control.checkable?
+                ThemeSettings.colorDark:
+            control.highlighted || control.flat?
+                ThemeSettings.shade(ThemeSettings.colorWindow, 0, 0):
+                ThemeSettings.colorDark
         border.width:
-            roundButton.checkable?
-                AkAudioCaps.create(2 * ThemeSettings.controlScale, "dp").pixels:
-                AkAudioCaps.create(1 * ThemeSettings.controlScale, "dp").pixels
-        color: roundButton.highlighted?
+            control.checkable?
+                AkUnit.create(2 * ThemeSettings.controlScale, "dp").pixels:
+                AkUnit.create(1 * ThemeSettings.controlScale, "dp").pixels
+        color: control.highlighted?
                    ThemeSettings.colorHighlight:
-                   "transparent"
+               control.flat?
+                   ThemeSettings.shade(ThemeSettings.colorWindow, 0, 0):
+                   ThemeSettings.colorButton
     }
 
     states: [
         State {
             name: "Disabled"
-            when: !roundButton.enabled
-                  && !roundButton.highlighted
-                  && !roundButton.flat
-                  && !roundButton.hovered
-                  && !roundButton.visualFocus
-                  && !roundButton.pressed
+            when: !control.enabled
 
             PropertyChanges {
                 target: buttonRectangle
-                border.color: ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
+                border.color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.5)
             }
             PropertyChanges {
                 target: iconLabel
-                icon.color: ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
-                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
+                icon.color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.5)
+                color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.5)
             }
         },
         State {
             name: "Hovered"
-            when: roundButton.enabled
-                  && !roundButton.highlighted
-                  && !roundButton.flat
-                  && roundButton.hovered
-                  && !roundButton.visualFocus
-                  && !roundButton.pressed
+            when: control.enabled
+                  && control.hovered
+                  && !(control.activeFocus || control.visualFocus)
+                  && !control.pressed
 
             PropertyChanges {
                 target: buttonRectangle
-                color: ThemeSettings.constShade(ThemeSettings.colorHighlight,
-                                                0.1,
-                                                0.2)
+                color: control.highlighted?
+                           ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.1):
+                       control.flat?
+                           ThemeSettings.shade(ThemeSettings.colorMid, 0, 0.5):
+                           ThemeSettings.colorMid
             }
         },
         State {
             name: "Focused"
-            when: roundButton.enabled
-                  && !roundButton.highlighted
-                  && !roundButton.flat
-                  && (roundButton.hovered || roundButton.visualFocus)
-                  && !roundButton.pressed
+            when: control.enabled
+                  && (control.activeFocus || control.visualFocus)
+                  && !control.pressed
 
             PropertyChanges {
                 target: buttonRectangle
-                color: ThemeSettings.constShade(ThemeSettings.colorHighlight,
-                                                0.1,
-                                                0.3)
+                border.color:
+                    control.checkable && control.checked && control.highlighted?
+                        ThemeSettings.colorHighlightedText:
+                    control.checkable && control.checked?
+                        ThemeSettings.colorHighlight:
+                    control.checkable?
+                        ThemeSettings.colorDark:
+                    control.highlighted || control.flat?
+                        ThemeSettings.shade(ThemeSettings.colorWindow, 0, 0):
+                        ThemeSettings.colorHighlight
+                color: control.highlighted?
+                           ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.2):
+                       control.flat?
+                           ThemeSettings.shade(ThemeSettings.colorMid, 0, 0.5):
+                           ThemeSettings.colorMid
             }
         },
         State {
             name: "Pressed"
-            when: roundButton.enabled
-                  && !roundButton.highlighted
-                  && !roundButton.flat
-                  && roundButton.pressed
-
-            PropertyChanges {
-                target: buttonRectangle
-                color: ThemeSettings.constShade(ThemeSettings.colorHighlight,
-                                                0.1,
-                                                0.4)
-            }
-        },
-        State {
-            name: "FlatDisabled"
-            when: !roundButton.enabled
-                  && !roundButton.highlighted
-                  && roundButton.flat
-                  && !roundButton.hovered
-                  && !roundButton.visualFocus
-                  && !roundButton.pressed
+            when: control.enabled
+                  && control.pressed
 
             PropertyChanges {
                 target: buttonRectangle
                 border.color:
-                    roundButton.checkable?
-                        ThemeSettings.shade(ThemeSettings.colorBack, -0.5):
-                        "transparent"
-            }
-            PropertyChanges {
-                target: iconLabel
-                icon.color: ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
-                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
-            }
-        },
-        State {
-            name: "FlatHovered"
-            when: roundButton.enabled
-                  && !roundButton.highlighted
-                  && roundButton.flat
-                  && roundButton.hovered
-                  && !roundButton.visualFocus
-                  && !roundButton.pressed
-
-            PropertyChanges {
-                target: buttonRectangle
-                color: ThemeSettings.constShade(ThemeSettings.colorHighlight,
-                                                0.1,
-                                                0.2)
-                border.color:
-                    roundButton.checked?
-                        ThemeSettings.colorHighlight:
-                    roundButton.checkable?
-                        ThemeSettings.constShade(ThemeSettings.colorHighlight,
-                                                 -0.3):
-                        "transparent"
-            }
-        },
-        State {
-            name: "FlatFocused"
-            when: roundButton.enabled
-                  && !roundButton.highlighted
-                  && roundButton.flat
-                  && (roundButton.hovered || roundButton.visualFocus)
-                  && !roundButton.pressed
-
-            PropertyChanges {
-                target: buttonRectangle
-                color: ThemeSettings.constShade(ThemeSettings.colorHighlight,
-                                                0.1,
-                                                0.3)
-                border.color:
-                    roundButton.checked?
-                        ThemeSettings.colorHighlight:
-                    roundButton.checkable?
-                        ThemeSettings.constShade(ThemeSettings.colorHighlight,
-                                                 -0.3):
-                        "transparent"
-            }
-        },
-        State {
-            name: "FlatPressed"
-            when: roundButton.enabled
-                  && !roundButton.highlighted
-                  && roundButton.flat
-                  && roundButton.pressed
-
-            PropertyChanges {
-                target: buttonRectangle
-                color: ThemeSettings.constShade(ThemeSettings.colorHighlight,
-                                                0.1,
-                                                0.4)
-                border.color:
-                    roundButton.checked?
-                        ThemeSettings.colorHighlight:
-                    roundButton.checkable?
-                        ThemeSettings.constShade(ThemeSettings.colorHighlight,
-                                                 -0.3):
-                        "transparent"
-            }
-        },
-        State {
-            name: "HighlightedDisabled"
-            when: !roundButton.enabled
-                  && roundButton.highlighted
-                  && !roundButton.hovered
-                  && !roundButton.visualFocus
-                  && !roundButton.pressed
-
-            PropertyChanges {
-                target: buttonRectangle
-                border.color: "transparent"
-                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
-
-            }
-            PropertyChanges {
-                target: iconLabel
-                icon.color: ThemeSettings.shade(ThemeSettings.colorBack, -0.3)
-                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.3)
-            }
-        },
-        State {
-            name: "HighlightedHovered"
-            when: roundButton.enabled
-                  && roundButton.highlighted
-                  && roundButton.hovered
-                  && !roundButton.visualFocus
-                  && !roundButton.pressed
-
-            PropertyChanges {
-                target: buttonRectangle
-                border.color:
-                    roundButton.checked?
+                    control.checkable && control.checked && control.highlighted?
                         ThemeSettings.colorHighlightedText:
-                    roundButton.checkable?
-                        "grey":
-                        "transparent"
-                color: ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.1)
-            }
-        },
-        State {
-            name: "HighlightedFocused"
-            when: roundButton.enabled
-                  && roundButton.highlighted
-                  && (roundButton.hovered || roundButton.visualFocus)
-                  && !roundButton.pressed
-
-            PropertyChanges {
-                target: buttonRectangle
-                border.color:
-                    roundButton.checked?
-                        ThemeSettings.colorHighlightedText:
-                    roundButton.checkable?
-                        "grey":
-                        "transparent"
-                color: ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.2)
-            }
-        },
-        State {
-            name: "HighlightedPressed"
-            when: roundButton.enabled
-                  && roundButton.highlighted
-                  && roundButton.pressed
-
-            PropertyChanges {
-                target: buttonRectangle
-                border.color:
-                    roundButton.checked?
-                        ThemeSettings.colorHighlightedText:
-                    roundButton.checkable?
-                        "grey":
-                        "transparent"
-                border.width:
-                    roundButton.checkable?
-                        AkAudioCaps.create(2 * ThemeSettings.controlScale,
-                                                  "dp").pixels:
-                        AkAudioCaps.create(0 * ThemeSettings.controlScale,
-                                                  "dp").pixels
-                color: ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.3)
+                    control.checkable && control.checked?
+                        ThemeSettings.colorHighlight:
+                    control.checkable?
+                        ThemeSettings.colorDark:
+                    control.highlighted || control.flat?
+                        ThemeSettings.shade(ThemeSettings.colorWindow, 0, 0):
+                        ThemeSettings.colorHighlight
+                color: control.highlighted?
+                           ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.3):
+                       control.flat?
+                           ThemeSettings.shade(ThemeSettings.colorDark, 0, 0.5):
+                           ThemeSettings.colorDark
             }
         }
     ]
@@ -326,13 +177,13 @@ T.RoundButton {
         PropertyAnimation {
             target: iconLabel
             properties: "color,icon.color"
-            duration: roundButton.animationTime
+            duration: control.animationTime
         }
 
         PropertyAnimation {
             target: buttonRectangle
             properties: "border.color,border.width,color"
-            duration: roundButton.animationTime
+            duration: control.animationTime
         }
     }
 }

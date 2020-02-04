@@ -63,8 +63,8 @@ T.GroupBox {
         font.underline: groupBox.font.underline
         font.wordSpacing: groupBox.font.wordSpacing
         color: groupBox.enabled?
-                   ThemeSettings.colorText:
-                   ThemeSettings.shade(ThemeSettings.colorText, 0, 0.5)
+                   ThemeSettings.colorWindowText:
+                   ThemeSettings.shade(ThemeSettings.colorWindowText, 0, 0.5)
         elide: Text.ElideRight
         verticalAlignment: Text.AlignVCenter
     }
@@ -75,8 +75,8 @@ T.GroupBox {
         radius: AkUnit.create(4 * ThemeSettings.controlScale, "dp").pixels
         color: "transparent"
         border.color: enabled?
-                          ThemeSettings.shade(ThemeSettings.colorBack, -0.5):
-                          ThemeSettings.shade(ThemeSettings.colorBack, -0.5, 0.5)
+                          ThemeSettings.colorDark:
+                          ThemeSettings.shade(ThemeSettings.colorWindow, -0.5, 0.5)
         border.width: AkUnit.create(1 * ThemeSettings.controlScale, "dp").pixels
     }
 }

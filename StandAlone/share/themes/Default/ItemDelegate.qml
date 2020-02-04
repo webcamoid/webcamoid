@@ -52,12 +52,12 @@ T.ItemDelegate {
         icon.color:
             control.highlighted?
                 ThemeSettings.colorHighlightedText:
-                ThemeSettings.colorText
+                ThemeSettings.colorWindowText
         text: control.text
         font: control.font
         color: control.highlighted?
                    ThemeSettings.colorHighlightedText:
-                   ThemeSettings.colorText
+                   ThemeSettings.colorWindowText
         alignment: control.display === IconLabel.IconOnly
                    || control.display === IconLabel.TextUnderIcon?
                        Qt.AlignCenter: Qt.AlignLeft
@@ -75,7 +75,7 @@ T.ItemDelegate {
             AkUnit.create(48 * ThemeSettings.controlScale, "dp").pixels
         color: control.highlighted?
                    ThemeSettings.colorHighlight:
-                   ThemeSettings.shade(ThemeSettings.colorBack, -0.1, 0)
+                   ThemeSettings.shade(ThemeSettings.colorWindow, 0, 0)
     }
 
     states: [
@@ -85,12 +85,12 @@ T.ItemDelegate {
 
             PropertyChanges {
                 target: iconLabel
-                icon.color: ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
-                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
+                icon.color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.1)
+                color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.1)
             }
             PropertyChanges {
                 target: background
-                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.1, 0)
+                color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.1, 0)
             }
         },
         State {
@@ -106,7 +106,7 @@ T.ItemDelegate {
                     control.highlighted?
                         ThemeSettings.constShade(ThemeSettings.colorHighlight,
                                                  0.1):
-                        ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
+                        ThemeSettings.shade(ThemeSettings.colorWindow, -0.1)
             }
         },
         State {
@@ -119,7 +119,7 @@ T.ItemDelegate {
                     control.highlighted?
                         ThemeSettings.constShade(ThemeSettings.colorHighlight,
                                                  0.2):
-                        ThemeSettings.shade(ThemeSettings.colorBack, -0.2)
+                        ThemeSettings.shade(ThemeSettings.colorWindow, -0.2)
             }
         }
     ]

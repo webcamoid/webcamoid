@@ -54,7 +54,7 @@ T.ScrollBar {
     background: Rectangle {
         implicitWidth: AkUnit.create(6 * ThemeSettings.controlScale, "dp").pixels
         implicitHeight: AkUnit.create(6 * ThemeSettings.controlScale, "dp").pixels
-        color: ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
+        color: ThemeSettings.colorDark
         opacity: 0
         visible: control.interactive
     }

@@ -32,9 +32,9 @@ T.ScrollView {
     padding: 0
 
     background: Rectangle {
-        color: Qt.hsla(ThemeSettings.colorBack.hslHue,
-                       ThemeSettings.colorBack.hslSaturation,
-                       ThemeSettings.colorBack.hslLightness,
+        color: Qt.hsla(ThemeSettings.colorWindow.hslHue,
+                       ThemeSettings.colorWindow.hslSaturation,
+                       ThemeSettings.colorWindow.hslLightness,
                        0.9)
     }
 

@@ -88,19 +88,19 @@ T.Menu {
     background: Rectangle {
         implicitWidth: AkUnit.create(128 * ThemeSettings.controlScale, "dp").pixels
         implicitHeight: AkUnit.create(48 * ThemeSettings.controlScale, "dp").pixels
-        color: ThemeSettings.colorBack
-        border.color: ThemeSettings.shade(ThemeSettings.colorBack, -0.3)
+        color: ThemeSettings.colorWindow
+        border.color: ThemeSettings.colorDark
         radius: AkUnit.create(4 * ThemeSettings.controlScale, "dp").pixels
     }
 
     T.Overlay.modal: Rectangle {
-        color: ThemeSettings.shade(ThemeSettings.colorBack, -0.5, 0.5)
+        color: ThemeSettings.shade(ThemeSettings.colorDark, 0, 0.75)
 
         Behavior on opacity { NumberAnimation { duration: 150 } }
     }
 
     T.Overlay.modeless: Rectangle {
-        color: ThemeSettings.shade(ThemeSettings.colorBack, -0.5, 0.5)
+        color: ThemeSettings.shade(ThemeSettings.colorDark, 0, 0.75)
 
         Behavior on opacity { NumberAnimation { duration: 150 } }
     }

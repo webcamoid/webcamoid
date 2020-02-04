@@ -56,7 +56,7 @@ T.CheckBox {
             height: width
             color:
                 checkBox.checkState == Qt.Unchecked?
-                    ThemeSettings.shade(ThemeSettings.colorBack, -0.5):
+                    ThemeSettings.shade(ThemeSettings.colorWindow, -0.5):
                     indicatorRect.color
             radius: width / 2
             anchors.verticalCenter: checkBoxIndicator.verticalCenter
@@ -71,7 +71,7 @@ T.CheckBox {
                     0
             border.color:
                 checkBox.checkState == Qt.Unchecked?
-                    ThemeSettings.shade(ThemeSettings.colorBack, -0.5):
+                    ThemeSettings.colorDark:
                     "transparent"
             color: checkBox.checkState == Qt.Unchecked?
                        "transparent":
@@ -103,10 +103,10 @@ T.CheckBox {
         icon.source: checkBox.icon.source
         icon.width: checkBox.icon.width
         icon.height: checkBox.icon.height
-        icon.color: ThemeSettings.colorText
+        icon.color: ThemeSettings.colorWindowText
         text: checkBox.text
         font: checkBox.font
-        color: ThemeSettings.colorText
+        color: ThemeSettings.colorWindowText
         alignment: Qt.AlignLeft
         anchors.leftMargin: indicatorRect.width / 2
         anchors.left: checkBoxIndicator.right
@@ -123,20 +123,20 @@ T.CheckBox {
                 target: indicatorRect
                 border.color:
                     checkBox.checkState == Qt.Unchecked?
-                        ThemeSettings.shade(ThemeSettings.colorBack, -0.1):
+                        ThemeSettings.shade(ThemeSettings.colorWindow, -0.1):
                         "transparent"
                 color: checkBox.checkState == Qt.Unchecked?
                            "transparent":
-                           ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
+                           ThemeSettings.shade(ThemeSettings.colorWindow, -0.1)
             }
             PropertyChanges {
                 target: checkImage
-                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.3)
+                color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.3)
             }
             PropertyChanges {
                 target: iconLabel
-                icon.color: ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
-                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
+                icon.color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.1)
+                color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.1)
             }
         },
         State {
@@ -148,10 +148,6 @@ T.CheckBox {
 
             PropertyChanges {
                 target: indicatorRect
-                border.color:
-                    checkBox.checkState == Qt.Unchecked?
-                        ThemeSettings.shade(ThemeSettings.colorBack, -0.6):
-                        "transparent"
                 color: checkBox.checkState == Qt.Unchecked?
                            "transparent":
                            ThemeSettings.constShade(ThemeSettings.colorHighlight,
@@ -169,10 +165,6 @@ T.CheckBox {
 
             PropertyChanges {
                 target: indicatorRect
-                border.color:
-                    checkBox.checkState == Qt.Unchecked?
-                        ThemeSettings.shade(ThemeSettings.colorBack, -0.7):
-                        "transparent"
                 color: checkBox.checkState == Qt.Unchecked?
                            "transparent":
                            ThemeSettings.constShade(ThemeSettings.colorHighlight,

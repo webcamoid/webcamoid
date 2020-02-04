@@ -47,16 +47,16 @@ T.RangeSlider {
         slider.enabled && slider.vertical?
             ThemeSettings.constShade(ThemeSettings.colorHighlight, 0, 0.5):
         !slider.enabled && slider.horizontal?
-            ThemeSettings.shade(ThemeSettings.colorBack, -0.4):
-            ThemeSettings.shade(ThemeSettings.colorBack, 0, 0.5)
+            ThemeSettings.shade(ThemeSettings.colorWindow, -0.4):
+            ThemeSettings.shade(ThemeSettings.colorWindow, 0, 0.5)
     readonly property color tickMarkColorRight:
         slider.enabled && slider.horizontal?
             ThemeSettings.constShade(ThemeSettings.colorHighlight, 0, 0.5):
         slider.enabled && slider.vertical?
             ThemeSettings.constShade(ThemeSettings.colorHighlight, -0.1):
         !slider.enabled && slider.horizontal?
-            ThemeSettings.shade(ThemeSettings.colorBack, 0, 0.5):
-            ThemeSettings.shade(ThemeSettings.colorBack, -0.4)
+            ThemeSettings.shade(ThemeSettings.colorWindow, 0, 0.5):
+            ThemeSettings.shade(ThemeSettings.colorWindow, -0.4)
     property color thumbColor: ThemeSettings.colorHighlight
     readonly property real thumbRadius:
         Math.min(background.implicitWidth, background.implicitHeight) / 2
@@ -250,7 +250,7 @@ T.RangeSlider {
 
             PropertyChanges {
                 target: slider
-                thumbColor: ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
+                thumbColor: ThemeSettings.shade(ThemeSettings.colorWindow, -0.5)
             }
         },
         State {

@@ -24,10 +24,9 @@ import QtQuick.Controls.impl 2.12
 import Ak 1.0
 
 T.TextArea {
-    id: textArea
+    id: control
     color: ThemeSettings.colorText
-    font.family: "Courier"
-    placeholderTextColor: ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
+    placeholderTextColor: ThemeSettings.shade(ThemeSettings.colorText, 0, 0.5)
     selectedTextColor: ThemeSettings.colorHighlightedText
     selectionColor: ThemeSettings.colorHighlight
     padding: AkUnit.create(12 * ThemeSettings.controlScale, "dp").pixels
@@ -49,20 +48,20 @@ T.TextArea {
 
     PlaceholderText {
         id: placeholder
-        x: textArea.leftPadding
-        y: textArea.topPadding
+        x: control.leftPadding
+        y: control.topPadding
 
-        text: textArea.placeholderText
-        font: textArea.font
-        color: ThemeSettings.colorText
-        verticalAlignment: textArea.verticalAlignment
+        text: control.placeholderText
+        font: control.font
+        color: control.placeholderTextColor
+        verticalAlignment: control.verticalAlignment
         elide: Text.ElideRight
-        renderType: textArea.renderType
+        renderType: control.renderType
         opacity: 0
-        visible: textArea.placeholderText.length
+        visible: control.placeholderText.length
     }
 
     background: Rectangle {
-        color: ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
+        color: ThemeSettings.colorBase
     }
 }

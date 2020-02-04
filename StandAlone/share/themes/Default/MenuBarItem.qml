@@ -76,7 +76,7 @@ T.MenuBarItem {
             PropertyChanges {
                 target: background
                 color: control.highlighted?
-                           ThemeSettings.shade(ThemeSettings.colorBack, -0.3):
+                           ThemeSettings.shade(ThemeSettings.colorWindow, -0.3):
                            ThemeSettings.constShade(ThemeSettings.colorHighlight, 0, 0)
             }
         },

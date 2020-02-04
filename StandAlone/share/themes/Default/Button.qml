@@ -24,7 +24,7 @@ import QtQuick.Controls.impl 2.12
 import Ak 1.0
 
 T.Button {
-    id: button
+    id: control
     font.bold: true
     icon.width: AkUnit.create(18 * ThemeSettings.controlScale, "dp").pixels
     icon.height: AkUnit.create(18 * ThemeSettings.controlScale, "dp").pixels
@@ -47,21 +47,25 @@ T.Button {
 
         IconLabel {
             id: iconLabel
-            spacing: button.spacing
-            mirrored: button.mirrored
-            display: button.display
-            icon.name: button.icon.name
-            icon.source: button.icon.source
-            icon.width: button.icon.width
-            icon.height: button.icon.height
-            icon.color: button.highlighted?
+            spacing: control.spacing
+            mirrored: control.mirrored
+            display: control.display
+            icon.name: control.icon.name
+            icon.source: control.icon.source
+            icon.width: control.icon.width
+            icon.height: control.icon.height
+            icon.color: control.highlighted?
                             ThemeSettings.colorHighlightedText:
-                            ThemeSettings.colorHighlight
-            text: button.text
-            font: button.font
-            color: button.highlighted?
+                        control.flat?
+                            ThemeSettings.colorHighlight:
+                            ThemeSettings.colorButtonText
+            text: control.text
+            font: control.font
+            color: control.highlighted?
                        ThemeSettings.colorHighlightedText:
-                       ThemeSettings.colorHighlight
+                   control.flat?
+                       ThemeSettings.colorHighlight:
+                       ThemeSettings.colorButtonText
             anchors.verticalCenter: buttonContent.verticalCenter
             anchors.horizontalCenter: buttonContent.horizontalCenter
         }
@@ -77,237 +81,115 @@ T.Button {
         Rectangle {
             id: buttonRectangle
             anchors.fill: parent
-            radius: button.radius
-            border.color: button.highlighted || button.flat?
-                              Qt.hsla(0, 0, 0, 0):
-                              ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
+            radius: control.radius
+            border.color:
+                control.highlighted || control.flat?
+                    ThemeSettings.shade(ThemeSettings.colorWindow, 0, 0):
+                    ThemeSettings.colorDark
             border.width:
                 AkUnit.create(1 * ThemeSettings.controlScale, "dp").pixels
-            color: button.highlighted?
+            color: control.highlighted?
                        ThemeSettings.colorHighlight:
-                       ThemeSettings.shade(ThemeSettings.colorBack, 0.0, 0.0)
+                   control.flat?
+                       ThemeSettings.shade(ThemeSettings.colorWindow, 0, 0):
+                       ThemeSettings.colorButton
         }
 
         // Checked indicator
         Rectangle {
             id: buttonCheckableIndicator
-            height: button.radius
-            color: button.checked?
+            height: control.radius
+            color: control.checked && control.highlighted?
+                       ThemeSettings.colorHighlightedText:
+                   control.highlighted?
                        ThemeSettings.colorHighlight:
-                       ThemeSettings.constShade(ThemeSettings.colorHighlight,
-                                                -0.3)
+                       ThemeSettings.colorDark
             anchors.right: back.right
             anchors.bottom: back.bottom
             anchors.left: back.left
-            visible: button.checkable
+            visible: control.checkable
         }
     }
 
     states: [
         State {
             name: "Disabled"
-            when: !button.enabled
-                  && !button.highlighted
-                  && !button.flat
-                  && !button.hovered
-                  && !(button.activeFocus || button.visualFocus)
-                  && !button.pressed
+            when: !control.enabled
 
             PropertyChanges {
                 target: iconLabel
-                icon.color: ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
-                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
+                icon.color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.5)
+                color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.5)
             }
             PropertyChanges {
                 target: buttonCheckableIndicator
-                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
+                color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.5)
             }
         },
         State {
             name: "Hovered"
-            when: button.enabled
-                  && !button.highlighted
-                  && !button.flat
-                  && button.hovered
-                  && !(button.activeFocus || button.visualFocus)
-                  && !button.pressed
+            when: control.enabled
+                  && control.hovered
+                  && !(control.activeFocus || control.visualFocus)
+                  && !control.pressed
 
             PropertyChanges {
                 target: buttonRectangle
-                color: ThemeSettings.constShade(ThemeSettings.colorHighlight,
-                                                0.1,
-                                                0.2)
+                color: control.highlighted?
+                           ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.1):
+                       control.flat?
+                           ThemeSettings.shade(ThemeSettings.colorMid, 0, 0.5):
+                           ThemeSettings.colorMid
             }
         },
         State {
             name: "Focused"
-            when: button.enabled
-                  && !button.highlighted
-                  && !button.flat
-                  && (button.hovered || button.activeFocus || button.visualFocus)
-                  && !button.pressed
+            when: control.enabled
+                  && (control.activeFocus || control.visualFocus)
+                  && !control.pressed
 
             PropertyChanges {
                 target: buttonRectangle
-                color: ThemeSettings.constShade(ThemeSettings.colorHighlight,
-                                                0.1,
-                                                0.3)
+                border.width:
+                    AkUnit.create(2 * ThemeSettings.controlScale, "dp").pixels
+                border.color:
+                    control.highlighted || control.flat?
+                        ThemeSettings.shade(ThemeSettings.colorWindow, 0, 0):
+                        ThemeSettings.colorHighlight
+                color: control.highlighted?
+                           ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.2):
+                       control.flat?
+                           ThemeSettings.shade(ThemeSettings.colorMid, 0, 0.5):
+                           ThemeSettings.colorMid
             }
         },
         State {
             name: "Pressed"
-            when: button.enabled
-                  && !button.highlighted
-                  && !button.flat
-                  && button.pressed
+            when: control.enabled
+                  && control.pressed
 
             PropertyChanges {
                 target: buttonRectangle
-                color: ThemeSettings.constShade(ThemeSettings.colorHighlight,
-                                                0.1,
-                                                0.4)
-            }
-        },
-        State {
-            name: "FlatDisabled"
-            when: !button.enabled
-                  && !button.highlighted
-                  && button.flat
-                  && !button.hovered
-                  && !(button.activeFocus || button.visualFocus)
-                  && !button.pressed
-
-            PropertyChanges {
-                target: buttonRectangle
-                border.color: Qt.hsla(0, 0, 0, 0)
-            }
-            PropertyChanges {
-                target: iconLabel
-                icon.color: ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
-                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
-            }
-            PropertyChanges {
-                target: buttonCheckableIndicator
-                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
-            }
-        },
-        State {
-            name: "FlatHovered"
-            when: button.enabled
-                  && !button.highlighted
-                  && button.flat
-                  && button.hovered
-                  && !(button.activeFocus || button.visualFocus)
-                  && !button.pressed
-
-            PropertyChanges {
-                target: buttonRectangle
-                color: ThemeSettings.constShade(ThemeSettings.colorHighlight,
-                                                0.1,
-                                                0.2)
-                border.color: Qt.hsla(0, 0, 0, 0)
-            }
-        },
-        State {
-            name: "FlatFocused"
-            when: button.enabled
-                  && !button.highlighted
-                  && button.flat
-                  && (button.hovered || button.activeFocus || button.visualFocus)
-                  && !button.pressed
-
-            PropertyChanges {
-                target: buttonRectangle
-                color: ThemeSettings.constShade(ThemeSettings.colorHighlight,
-                                                0.1,
-                                                0.3)
-                border.color: Qt.hsla(0, 0, 0, 0)
-            }
-        },
-        State {
-            name: "FlatPressed"
-            when: button.enabled
-                  && !button.highlighted
-                  && button.flat
-                  && button.pressed
-
-            PropertyChanges {
-                target: buttonRectangle
-                color: ThemeSettings.constShade(ThemeSettings.colorHighlight,
-                                                0.1,
-                                                0.4)
-                border.color: Qt.hsla(0, 0, 0, 0)
-            }
-        },
-        State {
-            name: "HighlightedDisabled"
-            when: !button.enabled
-                  && button.highlighted
-                  && !button.hovered
-                  && !(button.activeFocus || button.visualFocus)
-                  && !button.pressed
-
-            PropertyChanges {
-                target: buttonRectangle
-                border.color: Qt.hsla(0, 0, 0, 0)
-                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
-
-            }
-            PropertyChanges {
-                target: iconLabel
-                icon.color: ThemeSettings.shade(ThemeSettings.colorBack, -0.3)
-                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.3)
-            }
-            PropertyChanges {
-                target: buttonCheckableIndicator
-                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
-            }
-        },
-        State {
-            name: "HighlightedHovered"
-            when: button.enabled
-                  && button.highlighted
-                  && button.hovered
-                  && !(button.activeFocus || button.visualFocus)
-                  && !button.pressed
-
-            PropertyChanges {
-                target: buttonRectangle
-                border.color: Qt.hsla(0, 0, 0, 0)
-                color: ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.1)
-            }
-        },
-        State {
-            name: "HighlightedFocused"
-            when: button.enabled
-                  && button.highlighted
-                  && (button.hovered || button.activeFocus || button.visualFocus)
-                  && !button.pressed
-
-            PropertyChanges {
-                target: buttonRectangle
-                border.color: Qt.hsla(0, 0, 0, 0)
-                color: ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.2)
-            }
-        },
-        State {
-            name: "HighlightedPressed"
-            when: button.enabled
-                  && button.highlighted
-                  && button.pressed
-
-            PropertyChanges {
-                target: buttonRectangle
-                border.color: Qt.hsla(0, 0, 0, 0)
-                color: ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.3)
+                border.width:
+                    AkUnit.create(2 * ThemeSettings.controlScale, "dp").pixels
+                border.color:
+                    control.highlighted || control.flat?
+                        ThemeSettings.shade(ThemeSettings.colorWindow, 0, 0):
+                        ThemeSettings.colorHighlight
+                color: control.highlighted?
+                           ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.3):
+                       control.flat?
+                           ThemeSettings.shade(ThemeSettings.colorDark, 0, 0.5):
+                           ThemeSettings.colorDark
             }
         }
     ]
 
     transitions: Transition {
-        ColorAnimation {
+        PropertyAnimation {
             target: buttonRectangle
-            duration: button.animationTime
+            properties: "color,border.color,border.width"
+            duration: control.animationTime
         }
     }
 }

@@ -56,8 +56,8 @@ T.RadioButton {
             height: width
             color:
                 radioButton.checked?
-                    indicatorRect.border.color:
-                    ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
+                    ThemeSettings.colorHighlight:
+                    ThemeSettings.colorDark
             radius: width / 2
             anchors.verticalCenter: radioButtonIndicator.verticalCenter
             anchors.horizontalCenter: radioButtonIndicator.horizontalCenter
@@ -69,7 +69,7 @@ T.RadioButton {
             border.color:
                 radioButton.checked?
                     ThemeSettings.colorHighlight:
-                    ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
+                    ThemeSettings.colorDark
             color: "transparent"
             radius: Math.min(radioButtonIndicator.width, radioButtonIndicator.height) / 2
             anchors.verticalCenter: radioButtonIndicator.verticalCenter
@@ -99,10 +99,10 @@ T.RadioButton {
         icon.source: radioButton.icon.source
         icon.width: radioButton.icon.width
         icon.height: radioButton.icon.height
-        icon.color: ThemeSettings.colorText
+        icon.color: ThemeSettings.colorWindowText
         text: radioButton.text
         font: radioButton.font
-        color: ThemeSettings.colorText
+        color: ThemeSettings.colorWindowText
         alignment: Qt.AlignLeft
         anchors.leftMargin: indicatorRect.width / 2
         anchors.left: radioButtonIndicator.right
@@ -117,16 +117,16 @@ T.RadioButton {
 
             PropertyChanges {
                 target: indicatorRect
-                border.color: ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
+                border.color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.1)
             }
             PropertyChanges {
                 target: indicatorCheckedMark
-                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
+                color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.1)
             }
             PropertyChanges {
                 target: iconLabel
-                icon.color: ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
-                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
+                icon.color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.1)
+                color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.1)
             }
         },
         State {
@@ -137,17 +137,6 @@ T.RadioButton {
                   && !radioButton.pressed
 
             PropertyChanges {
-                target: indicatorRect
-                border.color:
-                    radioButton.checked?
-                        ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.1):
-                        ThemeSettings.shade(ThemeSettings.colorBack, -0.6)
-            }
-            PropertyChanges {
-                target: indicatorCheckedMark
-                color: ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.1)
-            }
-            PropertyChanges {
                 target: highlight
                 width: 2 * radioButtonIndicator.width
                 opacity: 0.5
@@ -157,17 +146,6 @@ T.RadioButton {
             name: "Pressed"
             when: radioButton.pressed
 
-            PropertyChanges {
-                target: indicatorRect
-                border.color:
-                    radioButton.checked?
-                        ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.2):
-                        ThemeSettings.shade(ThemeSettings.colorBack, -0.7)
-            }
-            PropertyChanges {
-                target: indicatorCheckedMark
-                color: ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.2)
-            }
             PropertyChanges {
                 target: highlight
                 width: 2 * radioButtonIndicator.width

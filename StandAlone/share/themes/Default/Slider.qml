@@ -44,16 +44,16 @@ T.Slider {
         slider.enabled && slider.vertical?
             ThemeSettings.constShade(ThemeSettings.colorHighlight, 0, 0.5):
         !slider.enabled && slider.horizontal?
-            ThemeSettings.shade(ThemeSettings.colorBack, -0.4):
-            ThemeSettings.shade(ThemeSettings.colorBack, 0, 0.5)
+            ThemeSettings.shade(ThemeSettings.colorWindow, -0.4):
+            ThemeSettings.shade(ThemeSettings.colorWindow, 0, 0.5)
     readonly property color tickMarkColorRight:
         slider.enabled && slider.horizontal?
             ThemeSettings.constShade(ThemeSettings.colorHighlight, 0, 0.5):
         slider.enabled && slider.vertical?
             ThemeSettings.constShade(ThemeSettings.colorHighlight, -0.1):
         !slider.enabled && slider.horizontal?
-            ThemeSettings.shade(ThemeSettings.colorBack, 0, 0.5):
-            ThemeSettings.shade(ThemeSettings.colorBack, -0.4)
+            ThemeSettings.shade(ThemeSettings.colorWindow, 0, 0.5):
+            ThemeSettings.shade(ThemeSettings.colorWindow, -0.4)
     readonly property real thumbRadius:
         Math.min(background.implicitWidth, background.implicitHeight) / 2
     readonly property int animationTime: 200
@@ -208,7 +208,7 @@ T.Slider {
 
             PropertyChanges {
                 target: sliderThumbRect
-                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
+                color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.5)
             }
         },
         State {

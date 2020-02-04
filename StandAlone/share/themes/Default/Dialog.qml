@@ -77,7 +77,7 @@ T.Dialog {
         }
 
         Rectangle {
-            color: ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
+            color: ThemeSettings.colorDark
             height: AkUnit.create(1 * ThemeSettings.controlScale, "dp").pixels
             anchors.left: rectangle.left
             anchors.right: rectangle.right
@@ -91,8 +91,8 @@ T.Dialog {
     }
 
     background: Rectangle {
-        color: ThemeSettings.colorBack
-        border.color: ThemeSettings.shade(ThemeSettings.colorBack, -0.3)
+        color: ThemeSettings.colorWindow
+        border.color: ThemeSettings.colorDark
         radius:
             control.modal?
                 AkUnit.create(8 * ThemeSettings.controlScale, "dp").pixels:
@@ -100,13 +100,13 @@ T.Dialog {
     }
 
     T.Overlay.modal: Rectangle {
-        color: ThemeSettings.shade(ThemeSettings.colorBack, -0.5, 0.5)
+        color: ThemeSettings.shade(ThemeSettings.colorDark, 0, 0.75)
 
         Behavior on opacity { NumberAnimation { duration: 150 } }
     }
 
     T.Overlay.modeless: Rectangle {
-        color: ThemeSettings.shade(ThemeSettings.colorBack, -0.5, 0.5)
+        color: ThemeSettings.shade(ThemeSettings.colorDark, 0, 0.75)
 
         Behavior on opacity { NumberAnimation { duration: 150 } }
     }

@@ -53,7 +53,7 @@ T.DialogButtonBox {
         clip: true
 
         Rectangle {
-            color: ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
+            color: ThemeSettings.colorDark
             height: AkUnit.create(1 * ThemeSettings.controlScale, "dp").pixels
             anchors.left: background.left
             anchors.right: background.right

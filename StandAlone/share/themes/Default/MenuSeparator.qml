@@ -33,6 +33,6 @@ T.MenuSeparator {
     contentItem: Rectangle {
         implicitWidth: AkUnit.create(128 * ThemeSettings.controlScale, "dp").pixels
         implicitHeight: AkUnit.create(1 * ThemeSettings.controlScale, "dp").pixels
-        color: ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
+        color: ThemeSettings.colorDark
     }
 }

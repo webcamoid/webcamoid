@@ -23,7 +23,7 @@ import QtQuick.Templates 2.5 as T
 import Ak 1.0
 
 T.SpinBox {
-    id: spinBox
+    id: control
     implicitWidth: AkUnit.create(96 * ThemeSettings.controlScale, "dp").pixels
     implicitHeight: AkUnit.create(32 * ThemeSettings.controlScale, "dp").pixels
     hoverEnabled: true
@@ -31,45 +31,44 @@ T.SpinBox {
     readonly property int animationTime: 200
 
     validator: IntValidator {
-        locale: spinBox.locale.name
-        bottom: Math.min(spinBox.from, spinBox.to)
-        top: Math.max(spinBox.from, spinBox.to)
+        locale: control.locale.name
+        bottom: Math.min(control.from, control.to)
+        top: Math.max(control.from, control.to)
     }
 
     contentItem: TextInput {
         id: spinBoxText
-        text: spinBox.displayText
-        font: spinBox.font
+        text: control.displayText
+        font: control.font
         color: ThemeSettings.colorText
         selectionColor: ThemeSettings.colorHighlight
         selectedTextColor: ThemeSettings.colorHighlightedText
         horizontalAlignment: Qt.AlignHCenter
         verticalAlignment: Qt.AlignVCenter
-        anchors.left: spinBox.mirrored? upIndicator.left: downIndicator.right
-        anchors.right: spinBox.mirrored? downIndicator.right: upIndicator.left
-        anchors.top: spinBox.top
-        anchors.bottom: spinBox.bottom
-        readOnly: !spinBox.editable
-        validator: spinBox.validator
-        inputMethodHints: spinBox.inputMethodHints
+        anchors.left: control.mirrored? upIndicator.left: downIndicator.right
+        anchors.right: control.mirrored? downIndicator.right: upIndicator.left
+        anchors.top: control.top
+        anchors.bottom: control.bottom
+        readOnly: !control.editable
+        validator: control.validator
+        inputMethodHints: control.inputMethodHints
         selectByMouse: true
     }
 
-    up.indicator: Rectangle {
+    up.indicator: Item {
         id: upIndicator
-        x: spinBox.mirrored? 0 : parent.width - width
+        x: control.mirrored? 0: parent.width - width
         width: parent.height
         height: parent.height
-        color: Qt.hsla(0, 0, 0, 0)
+        visible: enabled
+        opacity: control.up.hovered? 1: 0.5
 
         Text {
             id: upIndicatorText
             text: "+"
             font.bold: true
-            font.pixelSize: spinBox.font.pixelSize * 2
-            color: enabled?
-                       ThemeSettings.colorHighlight:
-                       ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
+            font.pixelSize: control.font.pixelSize * 2
+            color: ThemeSettings.colorText
             anchors.fill: parent
             fontSizeMode: Text.Fit
             horizontalAlignment: Text.AlignHCenter
@@ -77,21 +76,20 @@ T.SpinBox {
         }
     }
 
-    down.indicator: Rectangle {
+    down.indicator: Item {
         id: downIndicator
-        x: spinBox.mirrored? parent.width - width : 0
+        x: control.mirrored? parent.width - width: 0
         width: parent.height
         height: parent.height
-        color: Qt.hsla(0, 0, 0, 0)
+        visible: enabled
+        opacity: control.down.hovered? 1: 0.5
 
         Text {
             id: downIndicatorText
             text: "-"
             font.bold: true
-            font.pixelSize: spinBox.font.pixelSize * 2
-            color: enabled?
-                       ThemeSettings.colorHighlight:
-                       ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
+            font.pixelSize: control.font.pixelSize * 2
+            color: ThemeSettings.colorText
             anchors.fill: parent
             fontSizeMode: Text.Fit
             horizontalAlignment: Text.AlignHCenter
@@ -101,272 +99,59 @@ T.SpinBox {
 
     background: Rectangle {
         id: background
-        color: ThemeSettings.shade(ThemeSettings.colorBack, 0.0, 0.0)
-        border.color: ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
+        color: ThemeSettings.colorBase
+        border.color: ThemeSettings.colorMid
         border.width: AkUnit.create(1 * ThemeSettings.controlScale, "dp").pixels
         radius: AkUnit.create(6 * ThemeSettings.controlScale, "dp").pixels
-        width: spinBox.width
-        height: spinBox.height
+        width: control.width
+        height: control.height
     }
 
     states: [
         State {
             name: "Disabled"
-            when: !spinBox.enabled
-                  && !spinBox.hovered
-                  && !spinBox.activeFocus
-                  && !spinBox.visualFocus
+            when: !control.enabled
 
             PropertyChanges {
                 target: spinBoxText
-                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
+                color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.5)
             }
             PropertyChanges {
                 target: downIndicatorText
-                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
+                color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.5)
             }
             PropertyChanges {
                 target: upIndicatorText
-                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
+                color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.5)
+            }
+            PropertyChanges {
+                target: background
+                border.color: ThemeSettings.colorWindow
             }
         },
         State {
             name: "Hovered"
-            when: spinBox.enabled
-                  && spinBox.hovered
-                  && !spinBox.down.hovered
-                  && !spinBox.up.hovered
-                  && !spinBox.down.pressed
-                  && !spinBox.up.pressed
-                  && !spinBox.activeFocus
+            when: control.enabled
+                  && (control.hovered
+                      || control.down.hovered
+                      || control.up.hovered)
+                  && !(control.activeFocus || control.visualFocus)
 
             PropertyChanges {
                 target: background
-                border.color: ThemeSettings.shade(ThemeSettings.colorBack, -0.7)
-            }
-        },
-        State {
-            name: "DownDisabledHovered"
-            when: !upIndicator.enabled
-                  && spinBox.down.hovered
-                  && !spinBox.down.pressed
-                  && !spinBox.activeFocus
-
-            PropertyChanges {
-                target: background
-                border.color: ThemeSettings.shade(ThemeSettings.colorBack, -0.7)
-            }
-        },
-        State {
-            name: "DownHovered"
-            when: upIndicator.enabled
-                  && spinBox.down.hovered
-                  && !spinBox.down.pressed
-                  && !spinBox.activeFocus
-
-            PropertyChanges {
-                target: background
-                border.color: ThemeSettings.shade(ThemeSettings.colorBack, -0.7)
-            }
-            PropertyChanges {
-                target: downIndicatorText
-                color: ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.1)
-            }
-        },
-        State {
-            name: "DownPressed"
-            when: upIndicator.enabled
-                  && spinBox.down.pressed
-                  && !spinBox.activeFocus
-
-            PropertyChanges {
-                target: background
-                color: ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.1, 0.4)
-                border.color: ThemeSettings.shade(ThemeSettings.colorBack, -0.7)
-            }
-            PropertyChanges {
-                target: downIndicatorText
-                color: ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.3)
-            }
-        },
-        State {
-            name: "UpDisabledHovered"
-            when: !upIndicator.enabled
-                  && spinBox.up.hovered
-                  && !spinBox.up.pressed
-                  && !spinBox.activeFocus
-
-            PropertyChanges {
-                target: background
-                border.color: ThemeSettings.shade(ThemeSettings.colorBack, -0.7)
-            }
-        },
-        State {
-            name: "UpHovered"
-            when: upIndicator.enabled
-                  && spinBox.up.hovered
-                  && !spinBox.up.pressed
-                  && !spinBox.activeFocus
-
-            PropertyChanges {
-                target: background
-                border.color: ThemeSettings.shade(ThemeSettings.colorBack, -0.7)
-            }
-            PropertyChanges {
-                target: upIndicatorText
-                color: ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.1)
-            }
-        },
-        State {
-            name: "UpPressed"
-            when: upIndicator.enabled
-                  && spinBox.up.pressed
-                  && !spinBox.activeFocus
-
-            PropertyChanges {
-                target: background
-                color: ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.1, 0.4)
-                border.color: ThemeSettings.shade(ThemeSettings.colorBack, -0.7)
-            }
-            PropertyChanges {
-                target: upIndicatorText
-                color: ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.3)
+                border.color: ThemeSettings.colorDark
             }
         },
         State {
             name: "Focused"
-            when: spinBox.enabled
-                  && !spinBox.down.hovered
-                  && !spinBox.up.hovered
-                  && !spinBox.down.pressed
-                  && !spinBox.up.pressed
-                  && spinBox.activeFocus
+            when: control.enabled
+                  && (control.activeFocus || control.visualFocus)
 
-            PropertyChanges {
-                target: spinBoxText
-                color: ThemeSettings.colorHighlight
-            }
             PropertyChanges {
                 target: background
                 border.color: ThemeSettings.colorHighlight
-                border.width: AkUnit.create(2 * ThemeSettings.controlScale,
-                                         "dp").pixels
-            }
-        },
-        State {
-            name: "DownDisabledFocused"
-            when: !upIndicator.enabled
-                  && spinBox.down.hovered
-                  && !spinBox.down.pressed
-                  && spinBox.activeFocus
-
-            PropertyChanges {
-                target: spinBoxText
-                color: ThemeSettings.colorHighlight
-            }
-            PropertyChanges {
-                target: background
-                border.color: ThemeSettings.colorHighlight
-                border.width: AkUnit.create(2 * ThemeSettings.controlScale,
-                                         "dp").pixels
-            }
-        },
-        State {
-            name: "DownFocused"
-            when: upIndicator.enabled
-                  && spinBox.down.hovered
-                  && !spinBox.down.pressed
-                  && spinBox.activeFocus
-
-            PropertyChanges {
-                target: spinBoxText
-                color: ThemeSettings.colorHighlight
-            }
-            PropertyChanges {
-                target: background
-                border.color: ThemeSettings.colorHighlight
-                border.width: AkUnit.create(2 * ThemeSettings.controlScale,
-                                         "dp").pixels
-            }
-            PropertyChanges {
-                target: downIndicatorText
-                color: ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.1)
-            }
-        },
-        State {
-            name: "DownFocusedPressed"
-            when: upIndicator.enabled
-                  && spinBox.down.pressed
-                  && spinBox.activeFocus
-
-            PropertyChanges {
-                target: spinBoxText
-                color: ThemeSettings.colorHighlight
-            }
-            PropertyChanges {
-                target: background
-                color: ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.1, 0.4)
-                border.color: ThemeSettings.colorHighlight
-                border.width: AkUnit.create(2 * ThemeSettings.controlScale,
-                                         "dp").pixels
-            }
-            PropertyChanges {
-                target: downIndicatorText
-                color: ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.3)
-            }
-        },
-        State {
-            name: "UpDisabledFocused"
-            when: !upIndicator.enabled
-                  && spinBox.up.hovered
-                  && !spinBox.up.pressed
-                  && spinBox.activeFocus
-
-            PropertyChanges {
-                target: spinBoxText
-                color: ThemeSettings.colorHighlight
-            }
-            PropertyChanges {
-                target: background
-                border.color: ThemeSettings.colorHighlight
-                border.width: AkUnit.create(2 * ThemeSettings.controlScale,
-                                         "dp").pixels
-            }
-        },
-        State {
-            name: "UpFocused"
-            when: upIndicator.enabled
-                  && spinBox.up.hovered
-                  && !spinBox.up.pressed
-                  && spinBox.activeFocus
-
-            PropertyChanges {
-                target: spinBoxText
-                color: ThemeSettings.colorHighlight
-            }
-            PropertyChanges {
-                target: background
-                border.color: ThemeSettings.colorHighlight
-                border.width: AkUnit.create(2 * ThemeSettings.controlScale,
-                                            "dp").pixels
-            }
-        },
-        State {
-            name: "UpFocusedPressed"
-            when: upIndicator.enabled
-                  && spinBox.up.pressed
-                  && spinBox.activeFocus
-
-            PropertyChanges {
-                target: spinBoxText
-                color: ThemeSettings.colorHighlight
-            }
-            PropertyChanges {
-                target: background
-                color: ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.1, 0.4)
-                border.color: ThemeSettings.colorHighlight
-                border.width: AkUnit.create(2 * ThemeSettings.controlScale,
-                                         "dp").pixels
+                border.width:
+                    AkUnit.create(2 * ThemeSettings.controlScale, "dp").pixels
             }
         }
     ]
@@ -374,20 +159,20 @@ T.SpinBox {
     transitions: Transition {
         ColorAnimation {
             target: spinBoxText
-            duration: spinBox.animationTime
+            duration: control.animationTime
         }
         PropertyAnimation {
             target: background
             properties: "border.color,border.width,color"
-            duration: spinBox.animationTime
+            duration: control.animationTime
         }
         ColorAnimation {
             target: downIndicatorText
-            duration: spinBox.animationTime
+            duration: control.animationTime
         }
         ColorAnimation {
             target: upIndicatorText
-            duration: spinBox.animationTime
+            duration: control.animationTime
         }
     }
 }

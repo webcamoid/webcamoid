@@ -36,7 +36,7 @@ T.ProgressBar {
         color:
             control.enabled?
                 ThemeSettings.colorHighlight:
-                ThemeSettings.shade(ThemeSettings.colorBack, -0.3)
+                ThemeSettings.shade(ThemeSettings.colorWindow, -0.3)
         progress: control.position
         indeterminate: control.visible && control.indeterminate
     }
@@ -45,7 +45,7 @@ T.ProgressBar {
         color:
             control.enabled?
                 ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.0, 0.5):
-                ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
+                ThemeSettings.shade(ThemeSettings.colorWindow, -0.1)
         implicitWidth: AkUnit.create(200 * ThemeSettings.controlScale, "dp").pixels
         implicitHeight: AkUnit.create(4 * ThemeSettings.controlScale, "dp").pixels
         y: (control.height - height) / 2

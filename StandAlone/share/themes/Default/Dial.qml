@@ -43,6 +43,7 @@ T.Dial {
         x: (control.width - width) / 2
         y: (control.height - height) / 2
 
+        // Highlight
         Rectangle {
             id: highlight
             width: 0
@@ -54,6 +55,7 @@ T.Dial {
             opacity: 0
         }
 
+        // Balls
         Repeater {
             id: repeater
             model: nBalls(ballRadiusFactor, 0.75)
@@ -109,9 +111,9 @@ T.Dial {
 
         Rectangle {
             id: knob
-            color: ThemeSettings.shade(ThemeSettings.colorBack, -0.1)
+            color: ThemeSettings.colorButton
             radius: width / 2
-            border.color: ThemeSettings.colorHighlight
+            border.color: ThemeSettings.colorDark
             border.width: handleRect.radius
             anchors.verticalCenter: parent.verticalCenter
             anchors.horizontalCenter: parent.horizontalCenter
@@ -148,7 +150,7 @@ T.Dial {
 
             PropertyChanges {
                 target: knob
-                border.color: ThemeSettings.shade(ThemeSettings.colorBack, -0.5)
+                border.color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.5)
             }
         },
         State {
@@ -159,9 +161,7 @@ T.Dial {
 
             PropertyChanges {
                 target: knob
-                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.2)
-                border.color:
-                    ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.1)
+                color: ThemeSettings.colorMid
             }
         },
         State {
@@ -178,9 +178,8 @@ T.Dial {
             }
             PropertyChanges {
                 target: knob
-                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.2)
-                border.color:
-                    ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.1)
+                border.color: ThemeSettings.colorHighlight
+                color: ThemeSettings.colorMid
             }
         },
         State {
@@ -195,9 +194,8 @@ T.Dial {
             }
             PropertyChanges {
                 target: knob
-                color: ThemeSettings.shade(ThemeSettings.colorBack, -0.3)
-                border.color:
-                    ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.2)
+                border.color: ThemeSettings.colorHighlight
+                color: ThemeSettings.colorDark
             }
         }
     ]

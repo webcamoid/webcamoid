@@ -23,7 +23,7 @@ import QtQuick.Templates 2.5 as T
 
 T.ApplicationWindow {
     id: applicationWindow
-    color: ThemeSettings.colorBack
+    color: ThemeSettings.colorWindow
 
     background: Rectangle {
         color: applicationWindow.color
