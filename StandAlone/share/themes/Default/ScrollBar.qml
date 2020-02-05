@@ -43,18 +43,22 @@ T.ScrollBar {
         implicitWidth: AkUnit.create(6 * ThemeSettings.controlScale, "dp").pixels
         implicitHeight: AkUnit.create(6 * ThemeSettings.controlScale, "dp").pixels
         radius: Math.min(implicitWidth, implicitHeight) / 2
-        color: control.pressed?
-                   ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.2):
+        color: !control.enabled?
+                   ThemeSettings.colorDisabledHighlight:
+               control.pressed?
+                   ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0.2):
                control.interactive && control.hovered?
-                   ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.1):
-                   ThemeSettings.colorHighlight
+                   ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0.1):
+                   ThemeSettings.colorActiveHighlight
         opacity: 0
     }
 
     background: Rectangle {
         implicitWidth: AkUnit.create(6 * ThemeSettings.controlScale, "dp").pixels
         implicitHeight: AkUnit.create(6 * ThemeSettings.controlScale, "dp").pixels
-        color: ThemeSettings.colorDark
+        color: enabled?
+                   ThemeSettings.colorActiveDark:
+                   ThemeSettings.colorDisabledDark
         opacity: 0
         visible: control.interactive
     }

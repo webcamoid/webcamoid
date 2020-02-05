@@ -32,6 +32,8 @@ T.Pane {
     padding: 0
 
     background: Rectangle {
-        color: ThemeSettings.shade(ThemeSettings.colorWindow, 0, 0.5)
+        color: enabled?
+                   ThemeSettings.shade(ThemeSettings.colorActiveWindow, 0, 0.5):
+                   ThemeSettings.shade(ThemeSettings.colorDisabledWindow, 0, 0.5)
     }
 }

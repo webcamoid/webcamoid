@@ -63,13 +63,13 @@ T.SwipeDelegate {
         icon.height: control.icon.height
         icon.color:
             control.highlighted?
-                ThemeSettings.colorHighlightedText:
-                ThemeSettings.colorWindowText
+                ThemeSettings.colorActiveHighlightedText:
+                ThemeSettings.colorActiveWindowText
         text: control.text
         font: control.font
         color: control.highlighted?
-                   ThemeSettings.colorHighlightedText:
-                   ThemeSettings.colorWindowText
+                   ThemeSettings.colorActiveHighlightedText:
+                   ThemeSettings.colorActiveWindowText
         alignment: control.display === IconLabel.IconOnly
                    || control.display === IconLabel.TextUnderIcon?
                        Qt.AlignCenter: Qt.AlignLeft
@@ -82,8 +82,13 @@ T.SwipeDelegate {
         implicitHeight:
             AkUnit.create(48 * ThemeSettings.controlScale, "dp").pixels
         color: control.highlighted?
-                   ThemeSettings.colorHighlight:
-                   ThemeSettings.colorWindow
+                   ThemeSettings.colorActiveHighlight:
+                   ThemeSettings.colorActiveWindow
+
+        property color iconColor:
+            control.highlighted?
+                ThemeSettings.colorActiveHighlightedText:
+                ThemeSettings.colorActiveWindowText
 
         AkColorizedImage {
             source: "image://icons/swipe-left.png"
@@ -91,9 +96,7 @@ T.SwipeDelegate {
             height: control.icon.height
             anchors.verticalCenter: parent.verticalCenter
             visible: swipe.right || control.swipe.position > 0.9
-            color: control.highlighted?
-                       ThemeSettings.colorHighlightedText:
-                       ThemeSettings.colorWindowText
+            color: backgroundRect.iconColor
             asynchronous: true
         }
         AkColorizedImage {
@@ -103,9 +106,7 @@ T.SwipeDelegate {
             anchors.right: parent.right
             anchors.verticalCenter: parent.verticalCenter
             visible: swipe.left || control.swipe.position < -0.9
-            color: control.highlighted?
-                       ThemeSettings.colorHighlightedText:
-                       ThemeSettings.colorWindowText
+            color: backgroundRect.iconColor
             asynchronous: true
         }
     }
@@ -117,8 +118,24 @@ T.SwipeDelegate {
 
             PropertyChanges {
                 target: iconLabel
-                icon.color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.1)
-                color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.1)
+                icon.color:
+                    control.highlighted?
+                        ThemeSettings.colorDisabledHighlightedText:
+                        ThemeSettings.colorDisabledWindowText
+                color:
+                    control.highlighted?
+                        ThemeSettings.colorDisabledHighlightedText:
+                        ThemeSettings.colorDisabledWindowText
+            }
+            PropertyChanges {
+                target: backgroundRect
+                color: control.highlighted?
+                           ThemeSettings.colorDisabledHighlight:
+                           ThemeSettings.colorDisabledWindow
+                iconColor:
+                    control.highlighted?
+                        ThemeSettings.colorDisabledHighlightedText:
+                        ThemeSettings.colorDisabledWindowText
             }
         },
         State {
@@ -132,9 +149,9 @@ T.SwipeDelegate {
                 target: backgroundRect
                 color:
                     control.highlighted?
-                        ThemeSettings.constShade(ThemeSettings.colorHighlight,
+                        ThemeSettings.constShade(ThemeSettings.colorActiveHighlight,
                                                  0.1):
-                        ThemeSettings.shade(ThemeSettings.colorWindow, -0.1)
+                        ThemeSettings.shade(ThemeSettings.colorActiveWindow, -0.1)
             }
         },
         State {
@@ -145,9 +162,9 @@ T.SwipeDelegate {
                 target: backgroundRect
                 color:
                     control.highlighted?
-                        ThemeSettings.constShade(ThemeSettings.colorHighlight,
+                        ThemeSettings.constShade(ThemeSettings.colorActiveHighlight,
                                                  0.2):
-                        ThemeSettings.shade(ThemeSettings.colorWindow, -0.2)
+                        ThemeSettings.shade(ThemeSettings.colorActiveWindow, -0.2)
             }
         }
     ]

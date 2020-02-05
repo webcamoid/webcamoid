@@ -25,10 +25,10 @@ import Ak 1.0
 
 T.TextField {
     id: textField
-    color: ThemeSettings.colorText
-    placeholderTextColor: ThemeSettings.shade(ThemeSettings.colorText, 0, 0.5)
-    selectedTextColor: ThemeSettings.colorHighlightedText
-    selectionColor: ThemeSettings.colorHighlight
+    color: ThemeSettings.colorActiveText
+    placeholderTextColor: ThemeSettings.shade(ThemeSettings.colorActiveText, 0, 0.5)
+    selectedTextColor: ThemeSettings.colorActiveHighlightedText
+    selectionColor: ThemeSettings.colorActiveHighlight
     padding: AkUnit.create(12 * ThemeSettings.controlScale, "dp").pixels
     implicitWidth:
         Math.max(contentWidth + leftPadding + rightPadding,
@@ -67,8 +67,8 @@ T.TextField {
 
     background: Rectangle {
         id: textAreaBackground
-        color: ThemeSettings.colorBase
-        border.color: ThemeSettings.colorMid
+        color: ThemeSettings.colorActiveBase
+        border.color: ThemeSettings.colorActiveMid
         border.width: AkUnit.create(1 * ThemeSettings.controlScale, "dp").pixels
         radius: AkUnit.create(8 * ThemeSettings.controlScale, "dp").pixels
         anchors.fill: parent
@@ -81,13 +81,13 @@ T.TextField {
 
             PropertyChanges {
                 target: placeholder
-                color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.3)
+                color:
+                    ThemeSettings.shade(ThemeSettings.colorDisabledText, 0, 0.5)
             }
             PropertyChanges {
                 target: textAreaBackground
-                color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.1)
-                border.color:
-                    ThemeSettings.shade(ThemeSettings.colorWindow, -0.3)
+                color: ThemeSettings.colorDisabledBase
+                border.color: ThemeSettings.colorDisabledMid
             }
         },
         State {
@@ -98,7 +98,7 @@ T.TextField {
 
             PropertyChanges {
                 target: textAreaBackground
-                border.color: ThemeSettings.colorDark
+                border.color: ThemeSettings.colorActiveDark
             }
         },
         State {
@@ -108,13 +108,13 @@ T.TextField {
 
             PropertyChanges {
                 target: textAreaBackground
-                border.color: ThemeSettings.colorHighlight
+                border.color: ThemeSettings.colorActiveHighlight
                 border.width:
                     AkUnit.create(2 * ThemeSettings.controlScale, "dp").pixels
             }
             PropertyChanges {
                 target: placeholder
-                color: ThemeSettings.colorHighlight
+                color: ThemeSettings.colorActiveHighlight
             }
         }
     ]

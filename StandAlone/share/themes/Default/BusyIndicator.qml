@@ -23,7 +23,7 @@ import QtQuick.Templates 2.5 as T
 import Ak 1.0
 
 T.BusyIndicator {
-    id: busyIndicator
+    id: control
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             implicitContentWidth + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
@@ -37,7 +37,7 @@ T.BusyIndicator {
         Item {
             id: item
             anchors.fill: parent
-            opacity: busyIndicator.running? 1: 0
+            opacity: control.running? 1: 0
 
             Behavior on opacity {
                 OpacityAnimator {
@@ -47,7 +47,7 @@ T.BusyIndicator {
 
             RotationAnimator {
                 target: item
-                running: busyIndicator.visible && busyIndicator.running
+                running: control.visible && control.running
                 from: 0
                 to: 360
                 loops: Animation.Infinite
@@ -73,10 +73,12 @@ T.BusyIndicator {
                     x: (item.width - width) / 2
                     y: (item.height - height) / 2
                     width: repeater.ballRadiusFactor
-                           * Math.min(busyIndicator.width, busyIndicator.height)
+                           * Math.min(control.width, control.height)
                     height: width
                     radius: width / 2
-                    color: ThemeSettings.colorHighlight
+                    color: control.enabled?
+                               ThemeSettings.colorActiveHighlight:
+                               ThemeSettings.colorDisabledHighlight
                     opacity: 1 - index / repeater.count
 
                     transform: [

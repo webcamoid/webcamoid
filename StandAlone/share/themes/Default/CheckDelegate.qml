@@ -61,13 +61,13 @@ T.CheckDelegate {
                 control.checkState != Qt.Unchecked?
                     "transparent":
                 control.highlighted?
-                    ThemeSettings.colorHighlightedText:
-                    ThemeSettings.colorWindowText
+                    ThemeSettings.colorActiveHighlightedText:
+                    ThemeSettings.colorActiveWindowText
             color: control.checkState == Qt.Unchecked?
                        "transparent":
                    control.highlighted?
-                       ThemeSettings.colorHighlightedText:
-                       ThemeSettings.colorWindowText
+                       ThemeSettings.colorActiveHighlightedText:
+                       ThemeSettings.colorActiveWindowText
             radius: AkUnit.create(4 * ThemeSettings.controlScale, "dp").pixels
             anchors.verticalCenter: checkBoxIndicator.verticalCenter
             anchors.horizontalCenter: checkBoxIndicator.horizontalCenter
@@ -82,8 +82,8 @@ T.CheckDelegate {
             anchors.fill: indicatorRect
             visible: control.checkState != Qt.Unchecked
             color: control.highlighted?
-                       ThemeSettings.colorHighlight:
-                       ThemeSettings.colorWindow
+                       ThemeSettings.colorActiveHighlight:
+                       ThemeSettings.colorActiveWindow
             asynchronous: true
         }
     }
@@ -99,13 +99,13 @@ T.CheckDelegate {
         icon.height: control.icon.height
         icon.color:
             control.highlighted?
-                ThemeSettings.colorHighlightedText:
-                ThemeSettings.colorWindowText
+                ThemeSettings.colorActiveHighlightedText:
+                ThemeSettings.colorActiveWindowText
         text: control.text
         font: control.font
         color: control.highlighted?
-                   ThemeSettings.colorHighlightedText:
-                   ThemeSettings.colorWindowText
+                   ThemeSettings.colorActiveHighlightedText:
+                   ThemeSettings.colorActiveWindowText
         alignment: Qt.AlignLeft
         anchors.leftMargin: control.leftPadding
         anchors.left: control.left
@@ -119,8 +119,8 @@ T.CheckDelegate {
         implicitHeight:
             AkUnit.create(48 * ThemeSettings.controlScale, "dp").pixels
         color: control.highlighted?
-                   ThemeSettings.colorHighlight:
-                   ThemeSettings.shade(ThemeSettings.colorWindow, 0, 0)
+                   ThemeSettings.colorActiveHighlight:
+                   ThemeSettings.shade(ThemeSettings.colorActiveWindow, 0, 0)
     }
 
     states: [
@@ -131,25 +131,40 @@ T.CheckDelegate {
             PropertyChanges {
                 target: indicatorRect
                 border.color:
-                    control.checkState == Qt.Unchecked?
-                        ThemeSettings.shade(ThemeSettings.colorWindow, -0.1):
-                        "transparent"
+                    control.checkState != Qt.Unchecked?
+                        "transparent":
+                    control.highlighted?
+                        ThemeSettings.colorDisabledHighlightedText:
+                        ThemeSettings.colorDisabledWindowText
                 color: control.checkState == Qt.Unchecked?
                            "transparent":
-                           ThemeSettings.shade(ThemeSettings.colorWindow, -0.1)
+                       control.highlighted?
+                           ThemeSettings.colorDisabledHighlightedText:
+                           ThemeSettings.colorDisabledWindowText
             }
             PropertyChanges {
                 target: checkImage
-                color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.3)
+                color: control.highlighted?
+                           ThemeSettings.colorDisabledHighlight:
+                           ThemeSettings.colorDisabledWindow
             }
             PropertyChanges {
                 target: iconLabel
-                icon.color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.1)
-                color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.1)
+                icon.color:
+                    control.highlighted?
+                        ThemeSettings.colorDisabledHighlightedText:
+                        ThemeSettings.colorDisabledWindowText
+                color:
+                    control.highlighted?
+                        ThemeSettings.colorDisabledHighlightedText:
+                        ThemeSettings.colorDisabledWindowText
             }
             PropertyChanges {
                 target: background
-                color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.1, 0)
+                color:
+                    control.highlighted?
+                        ThemeSettings.colorDisabledHighlight:
+                        ThemeSettings.shade(ThemeSettings.colorDisabledWindow, 0, 0)
             }
         },
         State {
@@ -163,9 +178,9 @@ T.CheckDelegate {
                 target: background
                 color:
                     control.highlighted?
-                        ThemeSettings.constShade(ThemeSettings.colorHighlight,
+                        ThemeSettings.constShade(ThemeSettings.colorActiveHighlight,
                                                  0.1):
-                        ThemeSettings.shade(ThemeSettings.colorWindow, -0.1)
+                        ThemeSettings.shade(ThemeSettings.colorActiveWindow, -0.1)
             }
         },
         State {
@@ -176,9 +191,9 @@ T.CheckDelegate {
                 target: background
                 color:
                     control.highlighted?
-                        ThemeSettings.constShade(ThemeSettings.colorHighlight,
+                        ThemeSettings.constShade(ThemeSettings.colorActiveHighlight,
                                                  0.2):
-                        ThemeSettings.shade(ThemeSettings.colorWindow, -0.2)
+                        ThemeSettings.shade(ThemeSettings.colorActiveWindow, -0.2)
             }
         }
     ]

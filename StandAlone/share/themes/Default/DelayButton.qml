@@ -63,10 +63,10 @@ T.DelayButton {
             icon.source: control.icon.source
             icon.width: control.icon.width
             icon.height: control.icon.height
-            icon.color: ThemeSettings.colorButtonText
+            icon.color: ThemeSettings.colorActiveButtonText
             text: control.text
             font: control.font
-            color: ThemeSettings.colorButtonText
+            color: ThemeSettings.colorActiveButtonText
             anchors.verticalCenter: buttonContent.verticalCenter
             anchors.horizontalCenter: buttonContent.horizontalCenter
         }
@@ -81,17 +81,17 @@ T.DelayButton {
             id: buttonRectangle
             anchors.fill: parent
             radius: control.radius
-            border.color: ThemeSettings.colorDark
             border.width:
                 AkUnit.create(1 * ThemeSettings.controlScale, "dp").pixels
-            color: ThemeSettings.colorButton
+            border.color: ThemeSettings.colorActiveDark
+            color: ThemeSettings.colorActiveButton
         }
 
         // Checked indicator
         Rectangle {
             id: buttonCheckableIndicator
             height: control.radius
-            color: ThemeSettings.colorDark
+            color: ThemeSettings.colorActiveDark
             anchors.bottom: back.bottom
             anchors.left: back.left
             anchors.right: back.right
@@ -99,7 +99,7 @@ T.DelayButton {
         Rectangle {
             width: parent.width * control.progress
             height: control.radius
-            color: ThemeSettings.colorHighlight
+            color: ThemeSettings.colorActiveHighlight
             anchors.bottom: back.bottom
         }
     }
@@ -111,12 +111,17 @@ T.DelayButton {
 
             PropertyChanges {
                 target: iconLabel
-                icon.color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.5)
-                color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.5)
+                icon.color: ThemeSettings.colorDisabledButtonText
+                color: ThemeSettings.colorDisabledButtonText
             }
             PropertyChanges {
                 target: buttonCheckableIndicator
-                color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.5)
+                color: ThemeSettings.colorDisabledDark
+            }
+            PropertyChanges {
+                target: buttonRectangle
+                border.color: ThemeSettings.colorDisabledDark
+                color: ThemeSettings.colorDisabledButton
             }
         },
         State {
@@ -128,7 +133,7 @@ T.DelayButton {
 
             PropertyChanges {
                 target: buttonRectangle
-                color: ThemeSettings.colorMid
+                color: ThemeSettings.colorActiveMid
             }
         },
         State {
@@ -141,8 +146,8 @@ T.DelayButton {
                 target: buttonRectangle
                 border.width: AkUnit.create(2 * ThemeSettings.controlScale,
                                             "dp").pixels
-                border.color: ThemeSettings.colorHighlight
-                color: ThemeSettings.colorMid
+                border.color: ThemeSettings.colorActiveHighlight
+                color: ThemeSettings.colorActiveMid
             }
         },
         State {
@@ -154,8 +159,8 @@ T.DelayButton {
                 target: buttonRectangle
                 border.width: AkUnit.create(2 * ThemeSettings.controlScale,
                                             "dp").pixels
-                border.color: ThemeSettings.colorHighlight
-                color: ThemeSettings.colorDark
+                border.color: ThemeSettings.colorActiveHighlight
+                color: ThemeSettings.colorActiveDark
             }
         }
     ]

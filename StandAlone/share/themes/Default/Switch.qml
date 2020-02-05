@@ -25,7 +25,6 @@ import Ak 1.0
 
 T.Switch {
     id: control
-    opacity: enabled? 1: 0.5
     icon.width: AkUnit.create(18 * ThemeSettings.controlScale, "dp").pixels
     icon.height: AkUnit.create(18 * ThemeSettings.controlScale, "dp").pixels
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
@@ -55,7 +54,7 @@ T.Switch {
         Rectangle {
             id: switchTrack
             height: parent.height / 2
-            color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.5)
+            color: ThemeSettings.shade(ThemeSettings.colorActiveWindow, -0.5)
             radius: height / 2
             anchors.verticalCenter: sliderIndicator.verticalCenter
             anchors.right: sliderIndicator.right
@@ -79,7 +78,7 @@ T.Switch {
             }
             Rectangle {
                 id: switchThumbRect
-                color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.1)
+                color: ThemeSettings.shade(ThemeSettings.colorActiveWindow, -0.1)
                 radius: height / 2
                 anchors.fill: parent
             }
@@ -94,10 +93,10 @@ T.Switch {
         icon.source: control.icon.source
         icon.width: control.icon.width
         icon.height: control.icon.height
-        icon.color: ThemeSettings.colorWindowText
+        icon.color: ThemeSettings.colorActiveWindowText
         text: control.text
         font: control.font
-        color: ThemeSettings.colorWindowText
+        color: ThemeSettings.colorActiveWindowText
         alignment: Qt.AlignLeft
         anchors.leftMargin: switchThumb.width / 2
         anchors.left: sliderIndicator.right
@@ -106,6 +105,24 @@ T.Switch {
     }
 
     states: [
+        State {
+            name: "Disabled"
+            when: !control.enabled
+
+            PropertyChanges {
+                target: switchTrack
+                color: ThemeSettings.shade(ThemeSettings.colorDisabledWindow, -0.5)
+            }
+            PropertyChanges {
+                target: switchThumbRect
+                color: ThemeSettings.shade(ThemeSettings.colorDisabledWindow, -0.1)
+            }
+            PropertyChanges {
+                target: iconLabel
+                icon.color: ThemeSettings.colorDisabledWindowText
+                color: ThemeSettings.colorDisabledWindowText
+            }
+        },
         State {
             name: "Checked"
             when: control.checked
@@ -116,11 +133,11 @@ T.Switch {
 
             PropertyChanges {
                 target: switchTrack
-                color: ThemeSettings.colorHighlight
+                color: ThemeSettings.colorActiveHighlight
             }
             PropertyChanges {
                 target: switchThumbRect
-                color: ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.2)
+                color: ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0.2)
             }
             PropertyChanges {
                 target: switchThumb
@@ -137,11 +154,11 @@ T.Switch {
 
             PropertyChanges {
                 target: switchTrack
-                color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.6)
+                color: ThemeSettings.shade(ThemeSettings.colorActiveWindow, -0.6)
             }
             PropertyChanges {
                 target: switchThumbRect
-                color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.2)
+                color: ThemeSettings.shade(ThemeSettings.colorActiveWindow, -0.2)
             }
             PropertyChanges {
                 target: highlight
@@ -159,11 +176,11 @@ T.Switch {
 
             PropertyChanges {
                 target: switchTrack
-                color: ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.1)
+                color: ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0.1)
             }
             PropertyChanges {
                 target: switchThumbRect
-                color: ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.3)
+                color: ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0.3)
             }
             PropertyChanges {
                 target: switchThumb
@@ -182,11 +199,11 @@ T.Switch {
 
             PropertyChanges {
                 target: switchTrack
-                color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.7)
+                color: ThemeSettings.shade(ThemeSettings.colorActiveWindow, -0.7)
             }
             PropertyChanges {
                 target: switchThumbRect
-                color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.3)
+                color: ThemeSettings.shade(ThemeSettings.colorActiveWindow, -0.3)
             }
             PropertyChanges {
                 target: highlight
@@ -201,11 +218,11 @@ T.Switch {
 
             PropertyChanges {
                 target: switchTrack
-                color: ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.2)
+                color: ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0.2)
             }
             PropertyChanges {
                 target: switchThumbRect
-                color: ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.4)
+                color: ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0.4)
             }
             PropertyChanges {
                 target: switchThumb

@@ -60,12 +60,16 @@ T.ToolTip {
     contentItem: Text {
         text: toolTip.text
         font: toolTip.font
-        color: ThemeSettings.colorWindow
+        color: enabled?
+                   ThemeSettings.colorActiveWindow:
+                   ThemeSettings.colorDisabledWindow
     }
 
     background: Rectangle {
         implicitHeight: AkUnit.create(24 * ThemeSettings.controlScale, "dp").pixels
-        color: ThemeSettings.colorWindowText
+        color: enabled?
+                   ThemeSettings.colorActiveWindowText:
+                   ThemeSettings.colorDisabledWindowText
         radius: AkUnit.create(4 * ThemeSettings.controlScale, "dp").pixels
     }
 }

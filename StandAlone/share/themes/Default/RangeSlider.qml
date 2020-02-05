@@ -24,7 +24,7 @@ import QtQuick.Templates 2.5 as T
 import Ak 1.0
 
 T.RangeSlider {
-    id: slider
+    id: control
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             first.implicitHandleWidth + leftPadding + rightPadding,
                             second.implicitHandleWidth + leftPadding + rightPadding)
@@ -42,22 +42,22 @@ T.RangeSlider {
     readonly property int trackWidth:
         AkUnit.create(4 * ThemeSettings.controlScale, "dp").pixels
     readonly property color tickMarkColorLeft:
-        slider.enabled && slider.horizontal?
-            ThemeSettings.constShade(ThemeSettings.colorHighlight, -0.1):
-        slider.enabled && slider.vertical?
-            ThemeSettings.constShade(ThemeSettings.colorHighlight, 0, 0.5):
-        !slider.enabled && slider.horizontal?
-            ThemeSettings.shade(ThemeSettings.colorWindow, -0.4):
-            ThemeSettings.shade(ThemeSettings.colorWindow, 0, 0.5)
+        control.enabled && control.horizontal?
+            ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, -0.1):
+        control.enabled && control.vertical?
+            ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0, 0.5):
+        !control.enabled && control.horizontal?
+            ThemeSettings.shade(ThemeSettings.colorActiveWindow, -0.4):
+            ThemeSettings.shade(ThemeSettings.colorActiveWindow, 0, 0.5)
     readonly property color tickMarkColorRight:
-        slider.enabled && slider.horizontal?
-            ThemeSettings.constShade(ThemeSettings.colorHighlight, 0, 0.5):
-        slider.enabled && slider.vertical?
-            ThemeSettings.constShade(ThemeSettings.colorHighlight, -0.1):
-        !slider.enabled && slider.horizontal?
-            ThemeSettings.shade(ThemeSettings.colorWindow, 0, 0.5):
-            ThemeSettings.shade(ThemeSettings.colorWindow, -0.4)
-    property color thumbColor: ThemeSettings.colorHighlight
+        control.enabled && control.horizontal?
+            ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0, 0.5):
+        control.enabled && control.vertical?
+            ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, -0.1):
+        !control.enabled && control.horizontal?
+            ThemeSettings.shade(ThemeSettings.colorActiveWindow, 0, 0.5):
+            ThemeSettings.shade(ThemeSettings.colorActiveWindow, -0.4)
+    property color thumbColor: ThemeSettings.colorActiveHighlight
     readonly property real thumbRadius:
         Math.min(background.implicitWidth, background.implicitHeight) / 2
     property int highlightWidth: 0
@@ -66,16 +66,16 @@ T.RangeSlider {
 
     background: Item {
         id: background
-        x: slider.leftPadding
-        y: slider.topPadding
-        implicitWidth: slider.horizontal?
-                           slider.defaultWidth:
-                           slider.defaultHeight
-        implicitHeight: slider.horizontal?
-                            slider.defaultHeight:
-                            slider.defaultWidth
-        width: slider.availableWidth
-        height: slider.availableHeight
+        x: control.leftPadding
+        y: control.topPadding
+        implicitWidth: control.horizontal?
+                           control.defaultWidth:
+                           control.defaultHeight
+        implicitHeight: control.horizontal?
+                            control.defaultHeight:
+                            control.defaultWidth
+        width: control.availableWidth
+        height: control.availableHeight
         clip: true
 
         Rectangle {
@@ -85,93 +85,93 @@ T.RangeSlider {
             anchors.left: background.left
             anchors.right: background.right
             anchors.verticalCenter: background.verticalCenter
-            color: ThemeSettings.constShade(ThemeSettings.colorHighlight, 0, 0.4)
-            visible: slider.horizontal
+            color: ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0, 0.4)
+            visible: control.horizontal
         }
         Rectangle {
             id: horizontalLeftTrack
-            width: slider.first.visualPosition * background.width
-            height: slider.trackWidth
+            width: control.first.visualPosition * background.width
+            height: control.trackWidth
             radius: Math.min(width, height) / 2
             anchors.left: background.left
             anchors.verticalCenter: background.verticalCenter
-            color: ThemeSettings.colorHighlight
-            visible: slider.horizontal
+            color: ThemeSettings.colorActiveHighlight
+            visible: control.horizontal
         }
         Rectangle {
             id: horizontalRightTrack
-            width: (1 - slider.second.visualPosition) * background.width
+            width: (1 - control.second.visualPosition) * background.width
             height: horizontalLeftTrack.height
             radius: Math.min(width, height) / 2
             anchors.right: background.right
             anchors.verticalCenter: background.verticalCenter
-            color: ThemeSettings.colorHighlight
-            visible: slider.horizontal
+            color: ThemeSettings.colorActiveHighlight
+            visible: control.horizontal
         }
         Rectangle {
             id: verticalBackTrack
-            width: slider.trackWidth
+            width: control.trackWidth
             radius: Math.min(width, height) / 2
             anchors.top: background.top
             anchors.bottom: background.bottom
             anchors.horizontalCenter: background.horizontalCenter
-            color: ThemeSettings.constShade(ThemeSettings.colorHighlight, 0, 0.4)
-            visible: slider.vertical
+            color: ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0, 0.4)
+            visible: control.vertical
         }
         Rectangle {
             id: verticalTopTrack
             width: verticalBottomTrack.width
-            height: slider.second.visualPosition * background.height
+            height: control.second.visualPosition * background.height
             radius: Math.min(width, height) / 2
             anchors.top: background.top
             anchors.horizontalCenter: background.horizontalCenter
-            color: ThemeSettings.colorHighlight
-            visible: slider.vertical
+            color: ThemeSettings.colorActiveHighlight
+            visible: control.vertical
         }
         Rectangle {
             id: verticalBottomTrack
-            width: slider.trackWidth
-            height: (1 - slider.first.visualPosition) * background.height
+            width: control.trackWidth
+            height: (1 - control.first.visualPosition) * background.height
             radius: Math.min(width, height) / 2
             anchors.bottom: background.bottom
             anchors.horizontalCenter: background.horizontalCenter
-            color: ThemeSettings.colorHighlight
-            visible: slider.vertical
+            color: ThemeSettings.colorActiveHighlight
+            visible: control.vertical
         }
         GridLayout {
-            columns: slider.horizontal? repeater.model + 1: 1
-            rows: slider.horizontal? 1: repeater.model + 1
-            x: slider.horizontal?
-                   slider.thumbRadius:
-                   (background.width - slider.trackWidth) / 2
-            y: slider.horizontal?
-                   (background.height - slider.trackWidth) / 2:
-                   slider.thumbRadius
-            width: slider.horizontal?
-                       slider.availableWidth - 2 * slider.thumbRadius:
-                       slider.trackWidth
-            height: slider.horizontal?
-                        slider.trackWidth:
-                        slider.availableHeight - 2 * slider.thumbRadius
-            visible: slider.snapMode != Slider.NoSnap
+            columns: control.horizontal? repeater.model + 1: 1
+            rows: control.horizontal? 1: repeater.model + 1
+            x: control.horizontal?
+                   control.thumbRadius:
+                   (background.width - control.trackWidth) / 2
+            y: control.horizontal?
+                   (background.height - control.trackWidth) / 2:
+                   control.thumbRadius
+            width: control.horizontal?
+                       control.availableWidth - 2 * control.thumbRadius:
+                       control.trackWidth
+            height: control.horizontal?
+                        control.trackWidth:
+                        control.availableHeight - 2 * control.thumbRadius
+            visible: control.snapMode != Slider.NoSnap
                      && repeater.model > 1
-                     && Math.max(slider.horizontal? slider.availableWidth: 0,
-                                 slider.horizontal? 0: slider.availableHeight)
-                        > 2 * slider.thumbRadius
-                          + slider.trackWidth
+                     && Math.max(control.horizontal? control.availableWidth: 0,
+                                 control.horizontal? 0: control.availableHeight)
+                        > 2 * control.thumbRadius
+                          + control.trackWidth
                           * (repeater.model + 1)
 
             Rectangle {
-                width: slider.trackWidth
-                height: slider.trackWidth
+                width: control.trackWidth
+                height: control.trackWidth
                 radius: Math.min(width, height) / 2
-                color: slider.tickMarkColorLeft
+                color: control.tickMarkColorLeft
             }
             Repeater {
                 id: repeater
-                model: slider.stepSize && slider.snapMode != Slider.NoSnap?
-                           Math.max(0, Math.round((slider.to - slider.from)
-                                                  / slider.stepSize)):
+                model: control.stepSize && control.snapMode != Slider.NoSnap?
+                           Math.max(0, Math.round((control.to - control.from)
+                                                  / control.stepSize)):
                            0
 
                 Item {
@@ -179,18 +179,18 @@ T.RangeSlider {
                     Layout.fillHeight: true
 
                     Rectangle {
-                        x: slider.horizontal?
-                               parent.width - slider.trackWidth:
-                               (parent.width - slider.trackWidth) / 2
-                        y: slider.horizontal?
-                               (parent.height - slider.trackWidth) / 2:
-                               parent.height - slider.trackWidth
-                        width: slider.trackWidth
-                        height: slider.trackWidth
+                        x: control.horizontal?
+                               parent.width - control.trackWidth:
+                               (parent.width - control.trackWidth) / 2
+                        y: control.horizontal?
+                               (parent.height - control.trackWidth) / 2:
+                               parent.height - control.trackWidth
+                        width: control.trackWidth
+                        height: control.trackWidth
                         radius: Math.min(width, height) / 2
-                        color: index < slider.visualPosition * repeater.model?
-                                   slider.tickMarkColorLeft:
-                                   slider.tickMarkColorRight
+                        color: index < control.visualPosition * repeater.model?
+                                   control.tickMarkColorLeft:
+                                   control.tickMarkColorRight
                     }
                 }
             }
@@ -208,16 +208,16 @@ T.RangeSlider {
             Rectangle {
                 id: highlight
                 height: width
-                color: slider.thumbColor
+                color: control.thumbColor
                 radius: width / 2
                 anchors.verticalCenter: sliderThumbRect.verticalCenter
                 anchors.horizontalCenter: sliderThumbRect.horizontalCenter
-                width: slider.highlightWidth
-                opacity: slider.highlightOpacity
+                width: control.highlightWidth
+                opacity: control.highlightOpacity
             }
             Rectangle {
                 id: sliderThumbRect
-                color: slider.thumbColor
+                color: control.thumbColor
                 radius: Math.min(width, height) / 2
                 anchors.fill: parent
             }
@@ -225,56 +225,80 @@ T.RangeSlider {
     }
 
     first.handle: Loader {
-        x: slider.leftPadding + (slider.horizontal ?
-               slider.first.visualPosition * (slider.availableWidth - width):
-               (slider.availableWidth - width) / 2)
-        y: slider.topPadding + (slider.horizontal?
-               (slider.availableHeight - height) / 2:
-               slider.first.visualPosition * (slider.availableHeight - height))
+        x: control.leftPadding + (control.horizontal ?
+               control.first.visualPosition * (control.availableWidth - width):
+               (control.availableWidth - width) / 2)
+        y: control.topPadding + (control.horizontal?
+               (control.availableHeight - height) / 2:
+               control.first.visualPosition * (control.availableHeight - height))
         sourceComponent: handleComponent
     }
     second.handle: Loader {
-        x: slider.leftPadding + (slider.horizontal ?
-               slider.second.visualPosition * (slider.availableWidth - width) :
-               (slider.availableWidth - width) / 2)
-        y: slider.topPadding + (slider.horizontal ?
-               (slider.availableHeight - height) / 2 :
-               slider.second.visualPosition * (slider.availableHeight - height))
+        x: control.leftPadding + (control.horizontal ?
+               control.second.visualPosition * (control.availableWidth - width):
+               (control.availableWidth - width) / 2)
+        y: control.topPadding + (control.horizontal ?
+               (control.availableHeight - height) / 2:
+               control.second.visualPosition * (control.availableHeight - height))
         sourceComponent: handleComponent
     }
 
     states: [
         State {
             name: "Disabled"
-            when: !slider.enabled
+            when: !control.enabled
 
             PropertyChanges {
-                target: slider
-                thumbColor: ThemeSettings.shade(ThemeSettings.colorWindow, -0.5)
+                target: control
+                thumbColor: ThemeSettings.colorDisabledHighlight
+            }
+            PropertyChanges {
+                target: horizontalBackTrack
+                color: ThemeSettings.constShade(ThemeSettings.colorDisabledHighlight, 0, 0.4)
+            }
+            PropertyChanges {
+                target: horizontalLeftTrack
+                color: ThemeSettings.colorDisabledHighlight
+            }
+            PropertyChanges {
+                target: horizontalRightTrack
+                color: ThemeSettings.colorDisabledHighlight
+            }
+            PropertyChanges {
+                target: verticalBackTrack
+                color: ThemeSettings.constShade(ThemeSettings.colorDisabledHighlight, 0, 0.4)
+            }
+            PropertyChanges {
+                target: verticalTopTrack
+                color: ThemeSettings.colorDisabledHighlight
+            }
+            PropertyChanges {
+                target: verticalBottomTrack
+                color: ThemeSettings.colorDisabledHighlight
             }
         },
         State {
             name: "HoverFocus"
-            when: slider.enabled
-                  && (slider.hovered || slider.activeFocus)
-                  && !(slider.first.pressed || slider.second.pressed)
+            when: control.enabled
+                  && (control.hovered || control.activeFocus)
+                  && !(control.first.pressed || control.second.pressed)
 
             PropertyChanges {
-                target: slider
-                thumbColor: ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.1)
-                highlightWidth: 4 * slider.thumbRadius
+                target: control
+                thumbColor: ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0.1)
+                highlightWidth: 4 * control.thumbRadius
                 highlightOpacity: 0.75
             }
         },
         State {
             name: "Pressed"
-            when: slider.enabled
-                  && (slider.first.pressed || slider.second.pressed)
+            when: control.enabled
+                  && (control.first.pressed || control.second.pressed)
 
             PropertyChanges {
-                target: slider
-                thumbColor: ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.2)
-                highlightWidth: 4 * slider.thumbRadius
+                target: control
+                thumbColor: ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0.2)
+                highlightWidth: 4 * control.thumbRadius
                 highlightOpacity: 0.75
             }
         }
@@ -282,9 +306,9 @@ T.RangeSlider {
 
     transitions: Transition {
         PropertyAnimation {
-            target: slider
+            target: control
             properties: "thumbColor,highlightWidth,highlightOpacity"
-            duration: slider.animationTime
+            duration: control.animationTime
         }
     }
 }

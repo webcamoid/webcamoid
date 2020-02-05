@@ -31,7 +31,9 @@ T.Tumbler {
                              implicitContentHeight + topPadding + bottomPadding)
 
     delegate: Text {
-        color: ThemeSettings.colorWindowText
+        color: enabled?
+                   ThemeSettings.colorActiveWindowText:
+                   ThemeSettings.colorDisabledWindowText
         font: tumbler.font
         opacity: (1.0 - Math.abs(Tumbler.displacement)
                   / (tumbler.visibleItemCount / 2))

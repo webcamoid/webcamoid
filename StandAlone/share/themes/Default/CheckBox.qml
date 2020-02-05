@@ -56,7 +56,7 @@ T.CheckBox {
             height: width
             color:
                 checkBox.checkState == Qt.Unchecked?
-                    ThemeSettings.shade(ThemeSettings.colorWindow, -0.5):
+                    ThemeSettings.shade(ThemeSettings.colorActiveWindow, -0.5):
                     indicatorRect.color
             radius: width / 2
             anchors.verticalCenter: checkBoxIndicator.verticalCenter
@@ -71,11 +71,11 @@ T.CheckBox {
                     0
             border.color:
                 checkBox.checkState == Qt.Unchecked?
-                    ThemeSettings.colorDark:
+                    ThemeSettings.colorActiveDark:
                     "transparent"
             color: checkBox.checkState == Qt.Unchecked?
                        "transparent":
-                       ThemeSettings.colorHighlight
+                       ThemeSettings.colorActiveHighlight
             radius: AkUnit.create(4 * ThemeSettings.controlScale, "dp").pixels
             anchors.verticalCenter: checkBoxIndicator.verticalCenter
             anchors.horizontalCenter: checkBoxIndicator.horizontalCenter
@@ -89,7 +89,7 @@ T.CheckBox {
                         "image://icons/minus"
             anchors.fill: indicatorRect
             visible: checkBox.checkState != Qt.Unchecked
-            color: ThemeSettings.colorHighlightedText
+            color: ThemeSettings.colorActiveHighlightedText
             asynchronous: true
         }
     }
@@ -103,10 +103,10 @@ T.CheckBox {
         icon.source: checkBox.icon.source
         icon.width: checkBox.icon.width
         icon.height: checkBox.icon.height
-        icon.color: ThemeSettings.colorWindowText
+        icon.color: ThemeSettings.colorActiveWindowText
         text: checkBox.text
         font: checkBox.font
-        color: ThemeSettings.colorWindowText
+        color: ThemeSettings.colorActiveWindowText
         alignment: Qt.AlignLeft
         anchors.leftMargin: indicatorRect.width / 2
         anchors.left: checkBoxIndicator.right
@@ -123,20 +123,20 @@ T.CheckBox {
                 target: indicatorRect
                 border.color:
                     checkBox.checkState == Qt.Unchecked?
-                        ThemeSettings.shade(ThemeSettings.colorWindow, -0.1):
+                        ThemeSettings.colorDisabledDark:
                         "transparent"
                 color: checkBox.checkState == Qt.Unchecked?
                            "transparent":
-                           ThemeSettings.shade(ThemeSettings.colorWindow, -0.1)
+                           ThemeSettings.colorDisabledHighlight
             }
             PropertyChanges {
                 target: checkImage
-                color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.3)
+                color: ThemeSettings.colorDisabledHighlightedText
             }
             PropertyChanges {
                 target: iconLabel
-                icon.color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.1)
-                color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.1)
+                icon.color: ThemeSettings.colorDisabledWindowText
+                color: ThemeSettings.colorDisabledWindowText
             }
         },
         State {
@@ -150,7 +150,7 @@ T.CheckBox {
                 target: indicatorRect
                 color: checkBox.checkState == Qt.Unchecked?
                            "transparent":
-                           ThemeSettings.constShade(ThemeSettings.colorHighlight,
+                           ThemeSettings.constShade(ThemeSettings.colorActiveHighlight,
                                                     0.1)
             }
             PropertyChanges {
@@ -167,7 +167,7 @@ T.CheckBox {
                 target: indicatorRect
                 color: checkBox.checkState == Qt.Unchecked?
                            "transparent":
-                           ThemeSettings.constShade(ThemeSettings.colorHighlight,
+                           ThemeSettings.constShade(ThemeSettings.colorActiveHighlight,
                                                     0.3)
             }
             PropertyChanges {

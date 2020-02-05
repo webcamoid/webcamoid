@@ -25,10 +25,21 @@ import Ak 1.0
 
 T.TextArea {
     id: control
-    color: ThemeSettings.colorText
-    placeholderTextColor: ThemeSettings.shade(ThemeSettings.colorText, 0, 0.5)
-    selectedTextColor: ThemeSettings.colorHighlightedText
-    selectionColor: ThemeSettings.colorHighlight
+    color: enabled?
+               ThemeSettings.colorActiveText:
+               ThemeSettings.colorDisabledText
+    placeholderTextColor:
+        enabled?
+            ThemeSettings.shade(ThemeSettings.colorActiveText, 0, 0.5):
+            ThemeSettings.shade(ThemeSettings.colorDisabledText, 0, 0.5)
+    selectedTextColor:
+        enabled?
+            ThemeSettings.colorActiveHighlightedText:
+            ThemeSettings.colorDisableHighlightedText
+    selectionColor:
+        enabled?
+            ThemeSettings.colorActiveHighlight:
+            ThemeSettings.colorDisableHighlight
     padding: AkUnit.create(12 * ThemeSettings.controlScale, "dp").pixels
     implicitWidth: Math.max(contentWidth + leftPadding + rightPadding,
                             implicitBackgroundWidth + leftInset + rightInset,
@@ -62,6 +73,8 @@ T.TextArea {
     }
 
     background: Rectangle {
-        color: ThemeSettings.colorBase
+        color: enebled?
+                   ThemeSettings.colorActiveBase:
+                   ThemeSettings.colorDisabledBase
     }
 }

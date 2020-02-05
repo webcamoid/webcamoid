@@ -52,17 +52,17 @@ T.RoundButton {
         icon.width: control.icon.width
         icon.height: control.icon.height
         icon.color: control.highlighted?
-                        ThemeSettings.colorHighlightedText:
+                        ThemeSettings.colorActiveHighlightedText:
                     control.flat?
-                        ThemeSettings.colorHighlight:
-                        ThemeSettings.colorButtonText
+                        ThemeSettings.colorActiveHighlight:
+                        ThemeSettings.colorActiveButtonText
         text: control.text
         font: control.font
         color: control.highlighted?
-                   ThemeSettings.colorHighlightedText:
+                   ThemeSettings.colorActiveHighlightedText:
                control.flat?
-                   ThemeSettings.colorHighlight:
-                   ThemeSettings.colorButtonText
+                   ThemeSettings.colorActiveHighlight:
+                   ThemeSettings.colorActiveButtonText
     }
 
     background: Rectangle {
@@ -70,25 +70,25 @@ T.RoundButton {
         implicitWidth: 2 * control.radius
         implicitHeight: 2 * control.radius
         radius: control.radius
-        border.color:
-            control.checkable && control.checked && control.highlighted?
-                ThemeSettings.colorHighlightedText:
-            control.checkable && control.checked?
-                ThemeSettings.colorHighlight:
-            control.checkable?
-                ThemeSettings.colorDark:
-            control.highlighted || control.flat?
-                ThemeSettings.shade(ThemeSettings.colorWindow, 0, 0):
-                ThemeSettings.colorDark
         border.width:
             control.checkable?
                 AkUnit.create(2 * ThemeSettings.controlScale, "dp").pixels:
                 AkUnit.create(1 * ThemeSettings.controlScale, "dp").pixels
+        border.color:
+            control.checkable && control.checked && control.highlighted?
+                ThemeSettings.colorActiveHighlightedText:
+            control.checkable && control.checked?
+                ThemeSettings.colorActiveHighlight:
+            control.checkable?
+                ThemeSettings.colorActiveDark:
+            control.highlighted || control.flat?
+                ThemeSettings.shade(ThemeSettings.colorActiveWindow, 0, 0):
+                ThemeSettings.colorActiveDark
         color: control.highlighted?
-                   ThemeSettings.colorHighlight:
+                   ThemeSettings.colorActiveHighlight:
                control.flat?
-                   ThemeSettings.shade(ThemeSettings.colorWindow, 0, 0):
-                   ThemeSettings.colorButton
+                   ThemeSettings.shade(ThemeSettings.colorActiveWindow, 0, 0):
+                   ThemeSettings.colorActiveButton
     }
 
     states: [
@@ -97,13 +97,37 @@ T.RoundButton {
             when: !control.enabled
 
             PropertyChanges {
-                target: buttonRectangle
-                border.color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.5)
+                target: iconLabel
+                icon.color:
+                    control.highlighted?
+                        ThemeSettings.colorDisabledHighlightedText:
+                    control.flat?
+                        ThemeSettings.colorDisabledHighlight:
+                        ThemeSettings.colorDisabledButtonText
+                color:
+                    control.highlighted?
+                        ThemeSettings.colorDisabledHighlightedText:
+                    control.flat?
+                        ThemeSettings.colorDisabledHighlight:
+                        ThemeSettings.colorDisabledButtonText
             }
             PropertyChanges {
-                target: iconLabel
-                icon.color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.5)
-                color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.5)
+                target: buttonRectangle
+                border.color:
+                    control.checkable && control.checked && control.highlighted?
+                        ThemeSettings.colorDisabledHighlightedText:
+                    control.checkable && control.checked?
+                        ThemeSettings.colorDisabledHighlight:
+                    control.checkable?
+                        ThemeSettings.colorDisabledDark:
+                    control.highlighted || control.flat?
+                        ThemeSettings.shade(ThemeSettings.colorDisabledWindow, 0, 0):
+                        ThemeSettings.colorDisabledDark
+                color: control.highlighted?
+                           ThemeSettings.colorDisabledHighlight:
+                       control.flat?
+                           ThemeSettings.shade(ThemeSettings.colorDisabledWindow, 0, 0):
+                           ThemeSettings.colorDisabledButton
             }
         },
         State {
@@ -116,10 +140,10 @@ T.RoundButton {
             PropertyChanges {
                 target: buttonRectangle
                 color: control.highlighted?
-                           ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.1):
+                           ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0.1):
                        control.flat?
-                           ThemeSettings.shade(ThemeSettings.colorMid, 0, 0.5):
-                           ThemeSettings.colorMid
+                           ThemeSettings.shade(ThemeSettings.colorActiveMid, 0, 0.5):
+                           ThemeSettings.colorActiveMid
             }
         },
         State {
@@ -132,19 +156,19 @@ T.RoundButton {
                 target: buttonRectangle
                 border.color:
                     control.checkable && control.checked && control.highlighted?
-                        ThemeSettings.colorHighlightedText:
+                        ThemeSettings.colorActiveHighlightedText:
                     control.checkable && control.checked?
-                        ThemeSettings.colorHighlight:
+                        ThemeSettings.colorActiveHighlight:
                     control.checkable?
-                        ThemeSettings.colorDark:
+                        ThemeSettings.colorActiveDark:
                     control.highlighted || control.flat?
-                        ThemeSettings.shade(ThemeSettings.colorWindow, 0, 0):
-                        ThemeSettings.colorHighlight
+                        ThemeSettings.shade(ThemeSettings.colorActiveWindow, 0, 0):
+                        ThemeSettings.colorActiveHighlight
                 color: control.highlighted?
-                           ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.2):
+                           ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0.2):
                        control.flat?
-                           ThemeSettings.shade(ThemeSettings.colorMid, 0, 0.5):
-                           ThemeSettings.colorMid
+                           ThemeSettings.shade(ThemeSettings.colorActiveMid, 0, 0.5):
+                           ThemeSettings.colorActiveMid
             }
         },
         State {
@@ -156,19 +180,19 @@ T.RoundButton {
                 target: buttonRectangle
                 border.color:
                     control.checkable && control.checked && control.highlighted?
-                        ThemeSettings.colorHighlightedText:
+                        ThemeSettings.colorActiveHighlightedText:
                     control.checkable && control.checked?
-                        ThemeSettings.colorHighlight:
+                        ThemeSettings.colorActiveHighlight:
                     control.checkable?
-                        ThemeSettings.colorDark:
+                        ThemeSettings.colorActiveDark:
                     control.highlighted || control.flat?
-                        ThemeSettings.shade(ThemeSettings.colorWindow, 0, 0):
-                        ThemeSettings.colorHighlight
+                        ThemeSettings.shade(ThemeSettings.colorActiveWindow, 0, 0):
+                        ThemeSettings.colorActiveHighlight
                 color: control.highlighted?
-                           ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.3):
+                           ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0.3):
                        control.flat?
-                           ThemeSettings.shade(ThemeSettings.colorDark, 0, 0.5):
-                           ThemeSettings.colorDark
+                           ThemeSettings.shade(ThemeSettings.colorActiveDark, 0, 0.5):
+                           ThemeSettings.colorActiveDark
             }
         }
     ]

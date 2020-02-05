@@ -88,19 +88,27 @@ T.Menu {
     background: Rectangle {
         implicitWidth: AkUnit.create(128 * ThemeSettings.controlScale, "dp").pixels
         implicitHeight: AkUnit.create(48 * ThemeSettings.controlScale, "dp").pixels
-        color: ThemeSettings.colorWindow
-        border.color: ThemeSettings.colorDark
+        color: enabled?
+                   ThemeSettings.colorActiveWindow:
+                   ThemeSettings.colorDisabledWindow
+        border.color: enabled?
+                          ThemeSettings.colorActiveDark:
+                          ThemeSettings.colorDisabledDark
         radius: AkUnit.create(4 * ThemeSettings.controlScale, "dp").pixels
     }
 
     T.Overlay.modal: Rectangle {
-        color: ThemeSettings.shade(ThemeSettings.colorDark, 0, 0.75)
+        color: control.enabled?
+                   ThemeSettings.shade(ThemeSettings.colorActiveDark, 0, 0.75):
+                   ThemeSettings.shade(ThemeSettings.colorDisabledDark, 0, 0.75)
 
         Behavior on opacity { NumberAnimation { duration: 150 } }
     }
 
     T.Overlay.modeless: Rectangle {
-        color: ThemeSettings.shade(ThemeSettings.colorDark, 0, 0.75)
+        color: control.enabled?
+                   ThemeSettings.shade(ThemeSettings.colorActiveDark, 0, 0.75):
+                   ThemeSettings.shade(ThemeSettings.colorDisabledDark, 0, 0.75)
 
         Behavior on opacity { NumberAnimation { duration: 150 } }
     }

@@ -55,17 +55,17 @@ T.Button {
             icon.width: control.icon.width
             icon.height: control.icon.height
             icon.color: control.highlighted?
-                            ThemeSettings.colorHighlightedText:
+                            ThemeSettings.colorActiveHighlightedText:
                         control.flat?
-                            ThemeSettings.colorHighlight:
-                            ThemeSettings.colorButtonText
+                            ThemeSettings.colorActiveHighlight:
+                            ThemeSettings.colorActiveButtonText
             text: control.text
             font: control.font
             color: control.highlighted?
-                       ThemeSettings.colorHighlightedText:
+                       ThemeSettings.colorActiveHighlightedText:
                    control.flat?
-                       ThemeSettings.colorHighlight:
-                       ThemeSettings.colorButtonText
+                       ThemeSettings.colorActiveHighlight:
+                       ThemeSettings.colorActiveButtonText
             anchors.verticalCenter: buttonContent.verticalCenter
             anchors.horizontalCenter: buttonContent.horizontalCenter
         }
@@ -82,17 +82,17 @@ T.Button {
             id: buttonRectangle
             anchors.fill: parent
             radius: control.radius
-            border.color:
-                control.highlighted || control.flat?
-                    ThemeSettings.shade(ThemeSettings.colorWindow, 0, 0):
-                    ThemeSettings.colorDark
             border.width:
                 AkUnit.create(1 * ThemeSettings.controlScale, "dp").pixels
+            border.color:
+                control.highlighted || control.flat?
+                    ThemeSettings.shade(ThemeSettings.colorActiveWindow, 0, 0):
+                    ThemeSettings.colorActiveDark
             color: control.highlighted?
-                       ThemeSettings.colorHighlight:
+                       ThemeSettings.colorActiveHighlight:
                    control.flat?
-                       ThemeSettings.shade(ThemeSettings.colorWindow, 0, 0):
-                       ThemeSettings.colorButton
+                       ThemeSettings.shade(ThemeSettings.colorActiveWindow, 0, 0):
+                       ThemeSettings.colorActiveButton
         }
 
         // Checked indicator
@@ -100,10 +100,10 @@ T.Button {
             id: buttonCheckableIndicator
             height: control.radius
             color: control.checked && control.highlighted?
-                       ThemeSettings.colorHighlightedText:
+                       ThemeSettings.colorActiveHighlightedText:
                    control.highlighted?
-                       ThemeSettings.colorHighlight:
-                       ThemeSettings.colorDark
+                       ThemeSettings.colorActiveHighlight:
+                       ThemeSettings.colorActiveDark
             anchors.right: back.right
             anchors.bottom: back.bottom
             anchors.left: back.left
@@ -118,12 +118,36 @@ T.Button {
 
             PropertyChanges {
                 target: iconLabel
-                icon.color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.5)
-                color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.5)
+                icon.color: control.highlighted?
+                                ThemeSettings.colorDisabledHighlightedText:
+                            control.flat?
+                                ThemeSettings.colorDisabledHighlight:
+                                ThemeSettings.colorDisabledButtonText
+                color: control.highlighted?
+                           ThemeSettings.colorDisabledHighlightedText:
+                       control.flat?
+                           ThemeSettings.colorDisabledHighlight:
+                           ThemeSettings.colorDisabledButtonText
             }
             PropertyChanges {
                 target: buttonCheckableIndicator
-                color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.5)
+                color: control.checked && control.highlighted?
+                           ThemeSettings.colorDisabledHighlightedText:
+                       control.highlighted?
+                           ThemeSettings.colorDisabledHighlight:
+                           ThemeSettings.colorDisabledDark
+            }
+            PropertyChanges {
+                target: buttonRectangle
+                border.color:
+                    control.highlighted || control.flat?
+                        ThemeSettings.shade(ThemeSettings.colorDisabledWindow, 0, 0):
+                        ThemeSettings.colorDisabledDark
+                color: control.highlighted?
+                           ThemeSettings.colorDisabledHighlight:
+                       control.flat?
+                           ThemeSettings.shade(ThemeSettings.colorDisabledWindow, 0, 0):
+                           ThemeSettings.colorDisabledButton
             }
         },
         State {
@@ -136,10 +160,10 @@ T.Button {
             PropertyChanges {
                 target: buttonRectangle
                 color: control.highlighted?
-                           ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.1):
+                           ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0.1):
                        control.flat?
-                           ThemeSettings.shade(ThemeSettings.colorMid, 0, 0.5):
-                           ThemeSettings.colorMid
+                           ThemeSettings.shade(ThemeSettings.colorActiveMid, 0, 0.5):
+                           ThemeSettings.colorActiveMid
             }
         },
         State {
@@ -154,13 +178,13 @@ T.Button {
                     AkUnit.create(2 * ThemeSettings.controlScale, "dp").pixels
                 border.color:
                     control.highlighted || control.flat?
-                        ThemeSettings.shade(ThemeSettings.colorWindow, 0, 0):
-                        ThemeSettings.colorHighlight
+                        ThemeSettings.shade(ThemeSettings.colorActiveWindow, 0, 0):
+                        ThemeSettings.colorActiveHighlight
                 color: control.highlighted?
-                           ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.2):
+                           ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0.2):
                        control.flat?
-                           ThemeSettings.shade(ThemeSettings.colorMid, 0, 0.5):
-                           ThemeSettings.colorMid
+                           ThemeSettings.shade(ThemeSettings.colorActiveMid, 0, 0.5):
+                           ThemeSettings.colorActiveMid
             }
         },
         State {
@@ -174,13 +198,13 @@ T.Button {
                     AkUnit.create(2 * ThemeSettings.controlScale, "dp").pixels
                 border.color:
                     control.highlighted || control.flat?
-                        ThemeSettings.shade(ThemeSettings.colorWindow, 0, 0):
-                        ThemeSettings.colorHighlight
+                        ThemeSettings.shade(ThemeSettings.colorActiveWindow, 0, 0):
+                        ThemeSettings.colorActiveHighlight
                 color: control.highlighted?
-                           ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.3):
+                           ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0.3):
                        control.flat?
-                           ThemeSettings.shade(ThemeSettings.colorDark, 0, 0.5):
-                           ThemeSettings.colorDark
+                           ThemeSettings.shade(ThemeSettings.colorActiveDark, 0, 0.5):
+                           ThemeSettings.colorActiveDark
             }
         }
     ]

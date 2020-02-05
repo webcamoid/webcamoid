@@ -24,7 +24,7 @@ import QtQuick.Templates 2.5 as T
 import Ak 1.0
 
 T.Slider {
-    id: slider
+    id: control
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             implicitHandleWidth + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
@@ -39,48 +39,48 @@ T.Slider {
     readonly property int trackWidth:
         AkUnit.create(4 * ThemeSettings.controlScale, "dp").pixels
     readonly property color tickMarkColorLeft:
-        slider.enabled && slider.horizontal?
-            ThemeSettings.constShade(ThemeSettings.colorHighlight, -0.1):
-        slider.enabled && slider.vertical?
-            ThemeSettings.constShade(ThemeSettings.colorHighlight, 0, 0.5):
-        !slider.enabled && slider.horizontal?
-            ThemeSettings.shade(ThemeSettings.colorWindow, -0.4):
-            ThemeSettings.shade(ThemeSettings.colorWindow, 0, 0.5)
+        control.enabled && control.horizontal?
+            ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, -0.1):
+        control.enabled && control.vertical?
+            ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0, 0.5):
+        !control.enabled && control.horizontal?
+            ThemeSettings.shade(ThemeSettings.colorActiveWindow, -0.4):
+            ThemeSettings.shade(ThemeSettings.colorActiveWindow, 0, 0.5)
     readonly property color tickMarkColorRight:
-        slider.enabled && slider.horizontal?
-            ThemeSettings.constShade(ThemeSettings.colorHighlight, 0, 0.5):
-        slider.enabled && slider.vertical?
-            ThemeSettings.constShade(ThemeSettings.colorHighlight, -0.1):
-        !slider.enabled && slider.horizontal?
-            ThemeSettings.shade(ThemeSettings.colorWindow, 0, 0.5):
-            ThemeSettings.shade(ThemeSettings.colorWindow, -0.4)
+        control.enabled && control.horizontal?
+            ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0, 0.5):
+        control.enabled && control.vertical?
+            ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, -0.1):
+        !control.enabled && control.horizontal?
+            ThemeSettings.shade(ThemeSettings.colorActiveWindow, 0, 0.5):
+            ThemeSettings.shade(ThemeSettings.colorActiveWindow, -0.4)
     readonly property real thumbRadius:
         Math.min(background.implicitWidth, background.implicitHeight) / 2
     readonly property int animationTime: 200
 
     background: Item {
         id: background
-        x: slider.leftPadding
-        y: slider.topPadding
-        implicitWidth: slider.horizontal?
-                           slider.defaultWidth:
-                           slider.defaultHeight
-        implicitHeight: slider.horizontal?
-                            slider.defaultHeight:
-                            slider.defaultWidth
-        width: slider.availableWidth
-        height: slider.availableHeight
+        x: control.leftPadding
+        y: control.topPadding
+        implicitWidth: control.horizontal?
+                           control.defaultWidth:
+                           control.defaultHeight
+        implicitHeight: control.horizontal?
+                            control.defaultHeight:
+                            control.defaultWidth
+        width: control.availableWidth
+        height: control.availableHeight
         clip: true
 
         Rectangle {
             id: horizontalLeftTrack
-            width: slider.visualPosition * background.width
-            height: slider.trackWidth
+            width: control.visualPosition * background.width
+            height: control.trackWidth
             radius: Math.min(width, height) / 2
             anchors.left: background.left
             anchors.verticalCenter: background.verticalCenter
             color: sliderThumbRect.color
-            visible: slider.horizontal
+            visible: control.horizontal
         }
         Rectangle {
             id: horizontalRightTrack
@@ -90,61 +90,61 @@ T.Slider {
             anchors.right: background.right
             anchors.verticalCenter: background.verticalCenter
             color: ThemeSettings.constShade(sliderThumbRect.color, 0, 0.4)
-            visible: slider.horizontal
+            visible: control.horizontal
         }
         Rectangle {
             id: verticalTopTrack
             width: verticalBottomTrack.width
-            height: slider.visualPosition * background.height
+            height: control.visualPosition * background.height
             radius: Math.min(width, height) / 2
             anchors.horizontalCenter: background.horizontalCenter
             anchors.top: background.top
             color: ThemeSettings.constShade(sliderThumbRect.color, 0, 0.4)
-            visible: slider.vertical
+            visible: control.vertical
         }
         Rectangle {
             id: verticalBottomTrack
-            width: slider.trackWidth
+            width: control.trackWidth
             radius: Math.min(width, height) / 2
             anchors.bottom: background.bottom
             anchors.horizontalCenter: background.horizontalCenter
             anchors.top: verticalTopTrack.bottom
             color: sliderThumbRect.color
-            visible: slider.vertical
+            visible: control.vertical
         }
         GridLayout {
-            columns: slider.horizontal? repeater.model + 1: 1
-            rows: slider.horizontal? 1: repeater.model + 1
-            x: slider.horizontal?
-                   slider.thumbRadius:
-                   (background.width - slider.trackWidth) / 2
-            y: slider.horizontal?
-                   (background.height - slider.trackWidth) / 2:
-                   slider.thumbRadius
-            width: slider.horizontal?
-                       slider.availableWidth - 2 * slider.thumbRadius:
-                       slider.trackWidth
-            height: slider.horizontal?
-                        slider.trackWidth:
-                        slider.availableHeight - 2 * slider.thumbRadius
-            visible: slider.snapMode != Slider.NoSnap
+            columns: control.horizontal? repeater.model + 1: 1
+            rows: control.horizontal? 1: repeater.model + 1
+            x: control.horizontal?
+                   control.thumbRadius:
+                   (background.width - control.trackWidth) / 2
+            y: control.horizontal?
+                   (background.height - control.trackWidth) / 2:
+                   control.thumbRadius
+            width: control.horizontal?
+                       control.availableWidth - 2 * control.thumbRadius:
+                       control.trackWidth
+            height: control.horizontal?
+                        control.trackWidth:
+                        control.availableHeight - 2 * control.thumbRadius
+            visible: control.snapMode != Slider.NoSnap
                      && repeater.model > 1
-                     && Math.max(slider.horizontal? slider.availableWidth: 0,
-                                 slider.horizontal? 0: slider.availableHeight)
-                        > 2 * slider.thumbRadius
-                          + slider.trackWidth
+                     && Math.max(control.horizontal? control.availableWidth: 0,
+                                 control.horizontal? 0: control.availableHeight)
+                        > 2 * control.thumbRadius
+                          + control.trackWidth
                           * (repeater.model + 1)
 
             Rectangle {
-                width: slider.trackWidth
-                height: slider.trackWidth
+                width: control.trackWidth
+                height: control.trackWidth
                 radius: Math.min(width, height) / 2
-                color: slider.tickMarkColorLeft
+                color: control.tickMarkColorLeft
             }
             Repeater {
                 id: repeater
-                model: slider.stepSize && slider.snapMode != Slider.NoSnap?
-                           Math.max(0, Math.round((slider.to - slider.from) / slider.stepSize)):
+                model: control.stepSize && control.snapMode != Slider.NoSnap?
+                           Math.max(0, Math.round((control.to - control.from) / control.stepSize)):
                            0
 
                 Item {
@@ -152,18 +152,18 @@ T.Slider {
                     Layout.fillHeight: true
 
                     Rectangle {
-                        x: slider.horizontal?
-                               parent.width - slider.trackWidth:
-                               (parent.width - slider.trackWidth) / 2
-                        y: slider.horizontal?
-                               (parent.height - slider.trackWidth) / 2:
-                               parent.height - slider.trackWidth
-                        width: slider.trackWidth
-                        height: slider.trackWidth
+                        x: control.horizontal?
+                               parent.width - control.trackWidth:
+                               (parent.width - control.trackWidth) / 2
+                        y: control.horizontal?
+                               (parent.height - control.trackWidth) / 2:
+                               parent.height - control.trackWidth
+                        width: control.trackWidth
+                        height: control.trackWidth
                         radius: Math.min(width, height) / 2
-                        color: index < slider.visualPosition * repeater.model?
-                                   slider.tickMarkColorLeft:
-                                   slider.tickMarkColorRight
+                        color: index < control.visualPosition * repeater.model?
+                                   control.tickMarkColorLeft:
+                                   control.tickMarkColorRight
                     }
                 }
             }
@@ -171,31 +171,31 @@ T.Slider {
     }
 
     handle: Item {
-        x: slider.horizontal?
-               slider.leftPadding + slider.visualPosition
-                                    * (slider.availableWidth - width):
-               slider.leftPadding + (slider.availableWidth - width) / 2
-        y: slider.horizontal?
-               slider.topPadding + (slider.availableHeight - height) / 2:
-               slider.topPadding + slider.visualPosition
-                                   * (slider.availableHeight - height)
+        x: control.horizontal?
+               control.leftPadding + control.visualPosition
+                                    * (control.availableWidth - width):
+               control.leftPadding + (control.availableWidth - width) / 2
+        y: control.horizontal?
+               control.topPadding + (control.availableHeight - height) / 2:
+               control.topPadding + control.visualPosition
+                                   * (control.availableHeight - height)
         implicitWidth: Math.min(background.implicitWidth,
                                 background.implicitHeight)
         implicitHeight: implicitWidth
 
         Rectangle {
             id: highlight
-            width: slider.visualFocus? 2 * parent.width: 0
+            width: control.visualFocus? 2 * parent.width: 0
             height: width
             color: sliderThumbRect.color
             radius: width / 2
             anchors.verticalCenter: sliderThumbRect.verticalCenter
             anchors.horizontalCenter: sliderThumbRect.horizontalCenter
-            opacity: slider.visualFocus? 0.5: 0
+            opacity: control.visualFocus? 0.5: 0
         }
         Rectangle {
             id: sliderThumbRect
-            color: ThemeSettings.colorHighlight
+            color: ThemeSettings.colorActiveHighlight
             radius: Math.min(width, height) / 2
             anchors.fill: parent
         }
@@ -204,41 +204,41 @@ T.Slider {
     states: [
         State {
             name: "Disabled"
-            when: !slider.enabled
+            when: !control.enabled
 
             PropertyChanges {
                 target: sliderThumbRect
-                color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.5)
+                color: ThemeSettings.colorDisabledHighlight
             }
         },
         State {
             name: "HoverFocus"
-            when: slider.enabled
-                  && (slider.hovered || slider.activeFocus)
-                  && !slider.pressed
+            when: control.enabled
+                  && (control.hovered || control.activeFocus)
+                  && !control.pressed
 
             PropertyChanges {
                 target: sliderThumbRect
-                color: ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.1)
+                color: ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0.1)
             }
             PropertyChanges {
                 target: highlight
-                width: 4 * slider.thumbRadius
+                width: 4 * control.thumbRadius
                 opacity: 0.75
             }
         },
         State {
             name: "Pressed"
-            when: slider.enabled
-                  && slider.pressed
+            when: control.enabled
+                  && control.pressed
 
             PropertyChanges {
                 target: sliderThumbRect
-                color: ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.2)
+                color: ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0.2)
             }
             PropertyChanges {
                 target: highlight
-                width: 4 * slider.thumbRadius
+                width: 4 * control.thumbRadius
                 opacity: 0.75
             }
         }
@@ -247,12 +247,12 @@ T.Slider {
     transitions: Transition {
         ColorAnimation {
             target: sliderThumbRect
-            duration: slider.animationTime
+            duration: control.animationTime
         }
         PropertyAnimation {
             target: highlight
             properties: "opacity,width"
-            duration: slider.animationTime
+            duration: control.animationTime
         }
     }
 }

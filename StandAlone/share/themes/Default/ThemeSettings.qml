@@ -22,27 +22,51 @@ pragma Singleton
 import QtQuick 2.12
 
 Item {
-    // Palette
-    readonly property color colorHighlightedText: palette.highlightedText
-    readonly property color colorHighlight: palette.highlight
-    readonly property color colorText: palette.text
-    readonly property color colorBase: palette.base
-    readonly property color colorWindowText: palette.windowText
-    readonly property color colorWindow: palette.window
-    readonly property color colorButtonText: palette.buttonText
-    readonly property color colorLight: colorWindow.hslLightness < 0.5?
-                                            palette.dark:
-                                            palette.light
-    readonly property color colorMidlight: colorWindow.hslLightness < 0.5?
-                                               palette.mid:
-                                               palette.midlight
-    readonly property color colorButton: palette.button
-    readonly property color colorMid: colorWindow.hslLightness < 0.5?
-                                          palette.midlight:
-                                          palette.mid
-    readonly property color colorDark: colorWindow.hslLightness < 0.5?
-                                           palette.light:
-                                           palette.dark
+    // Active Palette
+
+    property color colorActiveHighlightedText: paletteActive.highlightedText
+    property color colorActiveHighlight: paletteActive.highlight
+    property color colorActiveText: paletteActive.text
+    property color colorActiveBase: paletteActive.base
+    property color colorActiveWindowText: paletteActive.windowText
+    property color colorActiveWindow: paletteActive.window
+    property color colorActiveButtonText: paletteActive.buttonText
+    property color colorActiveLight: colorActiveWindow.hslLightness < 0.5?
+                                         paletteActive.dark:
+                                         paletteActive.light
+    property color colorActiveMidlight: colorActiveWindow.hslLightness < 0.5?
+                                            paletteActive.mid:
+                                            paletteActive.midlight
+    property color colorActiveButton: paletteActive.button
+    property color colorActiveMid: colorActiveWindow.hslLightness < 0.5?
+                                       paletteActive.midlight:
+                                       paletteActive.mid
+    property color colorActiveDark: colorActiveWindow.hslLightness < 0.5?
+                                        paletteActive.light:
+                                        paletteActive.dark
+
+    // Disabled Palette
+
+    property color colorDisabledHighlightedText: paletteDisabled.highlightedText
+    property color colorDisabledHighlight: paletteDisabled.highlight
+    property color colorDisabledText: paletteDisabled.text
+    property color colorDisabledBase: paletteDisabled.base
+    property color colorDisabledWindowText: paletteDisabled.windowText
+    property color colorDisabledWindow: paletteDisabled.window
+    property color colorDisabledButtonText: paletteDisabled.buttonText
+    property color colorDisabledLight: colorDisabledWindow.hslLightness < 0.5?
+                                           paletteDisabled.dark:
+                                           paletteDisabled.light
+    property color colorDisabledMidlight: colorDisabledWindow.hslLightness < 0.5?
+                                              paletteDisabled.mid:
+                                              paletteDisabled.midlight
+    property color colorDisabledButton: paletteDisabled.button
+    property color colorDisabledMid: colorDisabledWindow.hslLightness < 0.5?
+                                         paletteDisabled.midlight:
+                                         paletteDisabled.mid
+    property color colorDisabledDark: colorDisabledWindow.hslLightness < 0.5?
+                                          paletteDisabled.light:
+                                          paletteDisabled.dark
 
     readonly property real controlScale: 1.75
 
@@ -79,6 +103,11 @@ Item {
     }
 
     SystemPalette {
-        id: palette
+        id: paletteActive
+        colorGroup: SystemPalette.Active
+    }
+    SystemPalette {
+        id: paletteDisabled
+        colorGroup: SystemPalette.Disabled
     }
 }

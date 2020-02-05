@@ -50,6 +50,9 @@ T.ToolSeparator {
                                        "dp").pixels:
                             AkUnit.create(1 * ThemeSettings.controlScale,
                                        "dp").pixels
-        color: ThemeSettings.colorHighlightedText
+        color:
+            enabled?
+                ThemeSettings.colorActiveHighlightedText:
+                ThemeSettings.colorDisabledHighlightedText
     }
 }

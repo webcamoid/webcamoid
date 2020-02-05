@@ -61,7 +61,9 @@ T.Dialog {
         color:
             control.modal?
                 "transparent":
-                ThemeSettings.colorHighlight
+            control.enabled?
+                ThemeSettings.colorActiveHighlight:
+                ThemeSettings.colorDisabledHighlight
         clip: true
         visible: control.title
         height: AkUnit.create(64 * ThemeSettings.controlScale, "dp").pixels
@@ -77,7 +79,9 @@ T.Dialog {
         }
 
         Rectangle {
-            color: ThemeSettings.colorDark
+            color: control.enabled?
+                       ThemeSettings.colorActiveDark:
+                       ThemeSettings.colorDisabledDark
             height: AkUnit.create(1 * ThemeSettings.controlScale, "dp").pixels
             anchors.left: rectangle.left
             anchors.right: rectangle.right
@@ -91,8 +95,12 @@ T.Dialog {
     }
 
     background: Rectangle {
-        color: ThemeSettings.colorWindow
-        border.color: ThemeSettings.colorDark
+        color: control.enabled?
+                   ThemeSettings.colorActiveWindow:
+                   ThemeSettings.colorDisabledWindow
+        border.color: control.enabled?
+                       ThemeSettings.colorActiveDark:
+                          ThemeSettings.colorDisabledDark
         radius:
             control.modal?
                 AkUnit.create(8 * ThemeSettings.controlScale, "dp").pixels:
@@ -100,13 +108,17 @@ T.Dialog {
     }
 
     T.Overlay.modal: Rectangle {
-        color: ThemeSettings.shade(ThemeSettings.colorDark, 0, 0.75)
+        color: control.enabled?
+                   ThemeSettings.shade(ThemeSettings.colorActiveDark, 0, 0.75):
+                   ThemeSettings.shade(ThemeSettings.colorDisabledDark, 0, 0.75)
 
         Behavior on opacity { NumberAnimation { duration: 150 } }
     }
 
     T.Overlay.modeless: Rectangle {
-        color: ThemeSettings.shade(ThemeSettings.colorDark, 0, 0.75)
+        color: control.enabled?
+                   ThemeSettings.shade(ThemeSettings.colorActiveDark, 0, 0.75):
+                   ThemeSettings.shade(ThemeSettings.colorDisabledDark, 0, 0.75)
 
         Behavior on opacity { NumberAnimation { duration: 150 } }
     }

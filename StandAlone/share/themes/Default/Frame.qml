@@ -31,10 +31,12 @@ T.Frame {
 
     background: Rectangle {
         radius: AkUnit.create(4 * ThemeSettings.controlScale, "dp").pixels
-        color: ThemeSettings.colorWindow
+        color: enabled?
+                   ThemeSettings.colorActiveWindow:
+                   ThemeSettings.colorDisabledWindow
         border.color: enabled?
-                          ThemeSettings.colorDark:
-                          ThemeSettings.shade(ThemeSettings.colorWindow, -0.5, 0.5)
+                          ThemeSettings.colorActiveDark:
+                          ThemeSettings.colorDisabledDark
         border.width: AkUnit.create(1 * ThemeSettings.controlScale, "dp").pixels
     }
 }

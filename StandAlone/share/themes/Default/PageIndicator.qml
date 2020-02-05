@@ -43,16 +43,16 @@ T.PageIndicator {
         radius: width / 2
         color:
             !control.enabled?
-                ThemeSettings.shade(ThemeSettings.colorWindow, -0.3, 0.5):
+                ThemeSettings.constShade(ThemeSettings.colorDisabledHighlight, 0, 0.5):
             control.hovered?
-                ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.1, 0.5):
-                ThemeSettings.constShade(ThemeSettings.colorHighlight, 0, 0.5)
+                ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0.1, 0.5):
+                ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0, 0.5)
         border.color:
             !control.enabled?
-                ThemeSettings.shade(ThemeSettings.colorWindow, -0.3):
+                ThemeSettings.colorDisabledHighlight:
             control.hovered?
-                ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.1):
-                ThemeSettings.colorHighlight
+                ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0.1):
+                ThemeSettings.colorActiveHighlight
         border.width:
             AkUnit.create(2 * ThemeSettings.controlScale, "dp").pixels
         opacity: index === control.currentIndex?

@@ -55,8 +55,8 @@ T.RadioDelegate {
             border.width: AkUnit.create(2 * ThemeSettings.controlScale, "dp").pixels
             border.color:
                 control.highlighted?
-                    ThemeSettings.colorHighlightedText:
-                    ThemeSettings.colorWindowText
+                    ThemeSettings.colorActiveHighlightedText:
+                    ThemeSettings.colorActiveWindowText
             color: "transparent"
             radius: Math.min(radioDelegateIndicator.width, radioDelegateIndicator.height) / 2
             anchors.verticalCenter: radioDelegateIndicator.verticalCenter
@@ -68,8 +68,8 @@ T.RadioDelegate {
                 id: indicatorCheckedMark
                 color:
                     control.highlighted?
-                        ThemeSettings.colorHighlightedText:
-                        ThemeSettings.colorWindowText
+                        ThemeSettings.colorActiveHighlightedText:
+                        ThemeSettings.colorActiveWindowText
                 width: AkUnit.create(15 * ThemeSettings.controlScale, "dp").pixels
                 height: AkUnit.create(15 * ThemeSettings.controlScale, "dp").pixels
                 radius: Math.min(width, height) / 2
@@ -91,13 +91,13 @@ T.RadioDelegate {
         icon.height: control.icon.height
         icon.color:
             control.highlighted?
-                ThemeSettings.colorHighlightedText:
-                ThemeSettings.colorWindowText
+                ThemeSettings.colorActiveHighlightedText:
+                ThemeSettings.colorActiveWindowText
         text: control.text
         font: control.font
         color: control.highlighted?
-                   ThemeSettings.colorHighlightedText:
-                   ThemeSettings.colorWindowText
+                   ThemeSettings.colorActiveHighlightedText:
+                   ThemeSettings.colorActiveWindowText
         alignment: Qt.AlignLeft
         anchors.leftMargin: control.leftPadding
         anchors.left: control.left
@@ -111,8 +111,8 @@ T.RadioDelegate {
         implicitHeight:
             AkUnit.create(48 * ThemeSettings.controlScale, "dp").pixels
         color: control.highlighted?
-                   ThemeSettings.colorHighlight:
-                   ThemeSettings.shade(ThemeSettings.colorWindow, 0, 0)
+                   ThemeSettings.colorActiveHighlight:
+                   ThemeSettings.shade(ThemeSettings.colorActiveWindow, 0, 0)
     }
 
     states: [
@@ -122,20 +122,34 @@ T.RadioDelegate {
 
             PropertyChanges {
                 target: indicatorRect
-                border.color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.1)
+                border.color:
+                    control.highlighted?
+                        ThemeSettings.colorDisabledHighlightedText:
+                        ThemeSettings.colorDisabledWindowText
             }
             PropertyChanges {
                 target: indicatorCheckedMark
-                color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.1)
+                color:
+                    control.highlighted?
+                        ThemeSettings.colorDisabledHighlightedText:
+                        ThemeSettings.colorDisabledWindowText
             }
             PropertyChanges {
                 target: iconLabel
-                icon.color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.1)
-                color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.1)
+                icon.color:
+                    control.highlighted?
+                        ThemeSettings.colorDisabledHighlightedText:
+                        ThemeSettings.colorDisabledWindowText
+                color:
+                    control.highlighted?
+                        ThemeSettings.colorDisabledHighlightedText:
+                        ThemeSettings.colorDisabledWindowText
             }
             PropertyChanges {
                 target: background
-                color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.1, 0)
+                color: control.highlighted?
+                           ThemeSettings.colorDisabledHighlight:
+                           ThemeSettings.shade(ThemeSettings.colorDisabledWindow, 0, 0)
             }
         },
         State {
@@ -149,9 +163,9 @@ T.RadioDelegate {
                 target: background
                 color:
                     control.highlighted?
-                        ThemeSettings.constShade(ThemeSettings.colorHighlight,
+                        ThemeSettings.constShade(ThemeSettings.colorActiveHighlight,
                                                  0.1):
-                        ThemeSettings.shade(ThemeSettings.colorWindow, -0.1)
+                        ThemeSettings.shade(ThemeSettings.colorActiveWindow, -0.1)
             }
         },
         State {
@@ -162,9 +176,9 @@ T.RadioDelegate {
                 target: background
                 color:
                     control.highlighted?
-                        ThemeSettings.constShade(ThemeSettings.colorHighlight,
+                        ThemeSettings.constShade(ThemeSettings.colorActiveHighlight,
                                                  0.2):
-                        ThemeSettings.shade(ThemeSettings.colorWindow, -0.2)
+                        ThemeSettings.shade(ThemeSettings.colorActiveWindow, -0.2)
             }
         }
     ]

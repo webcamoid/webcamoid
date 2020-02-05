@@ -43,12 +43,14 @@ T.Dial {
         x: (control.width - width) / 2
         y: (control.height - height) / 2
 
+        property color ballColor: ThemeSettings.colorActiveHighlight
+
         // Highlight
         Rectangle {
             id: highlight
             width: 0
             height: width
-            color: ThemeSettings.colorHighlight
+            color: backgrounItem.ballColor
             radius: width / 2
             anchors.verticalCenter: parent.verticalCenter
             anchors.horizontalCenter: parent.horizontalCenter
@@ -99,7 +101,7 @@ T.Dial {
                             / (2 * Math.pow(repeater.count - 1, 2))
                     width: 2 * radius
                     height: 2 * radius
-                    color: knob.border.color
+                    color: backgrounItem.ballColor
                     opacity: (index * (repeater.count - 2)
                               + repeater.count - 1)
                              / Math.pow(repeater.count - 1, 2)
@@ -111,9 +113,9 @@ T.Dial {
 
         Rectangle {
             id: knob
-            color: ThemeSettings.colorButton
+            color: ThemeSettings.colorActiveButton
             radius: width / 2
-            border.color: ThemeSettings.colorDark
+            border.color: ThemeSettings.colorActiveDark
             border.width: handleRect.radius
             anchors.verticalCenter: parent.verticalCenter
             anchors.horizontalCenter: parent.horizontalCenter
@@ -149,8 +151,13 @@ T.Dial {
             when: !control.enabled
 
             PropertyChanges {
+                target: backgrounItem
+                ballColor: ThemeSettings.colorDisabledHighlight
+            }
+            PropertyChanges {
                 target: knob
-                border.color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.5)
+                border.color: ThemeSettings.colorDisabledDark
+                color: ThemeSettings.colorDisabledButton
             }
         },
         State {
@@ -161,7 +168,7 @@ T.Dial {
 
             PropertyChanges {
                 target: knob
-                color: ThemeSettings.colorMid
+                color: ThemeSettings.colorActiveMid
             }
         },
         State {
@@ -178,8 +185,8 @@ T.Dial {
             }
             PropertyChanges {
                 target: knob
-                border.color: ThemeSettings.colorHighlight
-                color: ThemeSettings.colorMid
+                border.color: ThemeSettings.colorActiveHighlight
+                color: ThemeSettings.colorActiveMid
             }
         },
         State {
@@ -189,13 +196,13 @@ T.Dial {
             PropertyChanges {
                 target: highlight
                 width: backgrounItem.width
-                color: ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.1)
+                color: ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0.1)
                 opacity: 0.5
             }
             PropertyChanges {
                 target: knob
-                border.color: ThemeSettings.colorHighlight
-                color: ThemeSettings.colorDark
+                border.color: ThemeSettings.colorActiveHighlight
+                color: ThemeSettings.colorActiveDark
             }
         }
     ]

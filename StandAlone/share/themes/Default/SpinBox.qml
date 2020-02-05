@@ -40,9 +40,9 @@ T.SpinBox {
         id: spinBoxText
         text: control.displayText
         font: control.font
-        color: ThemeSettings.colorText
-        selectionColor: ThemeSettings.colorHighlight
-        selectedTextColor: ThemeSettings.colorHighlightedText
+        color: ThemeSettings.colorActiveText
+        selectionColor: ThemeSettings.colorActiveHighlight
+        selectedTextColor: ThemeSettings.colorActiveHighlightedText
         horizontalAlignment: Qt.AlignHCenter
         verticalAlignment: Qt.AlignVCenter
         anchors.left: control.mirrored? upIndicator.left: downIndicator.right
@@ -68,7 +68,7 @@ T.SpinBox {
             text: "+"
             font.bold: true
             font.pixelSize: control.font.pixelSize * 2
-            color: ThemeSettings.colorText
+            color: ThemeSettings.colorActiveText
             anchors.fill: parent
             fontSizeMode: Text.Fit
             horizontalAlignment: Text.AlignHCenter
@@ -89,7 +89,7 @@ T.SpinBox {
             text: "-"
             font.bold: true
             font.pixelSize: control.font.pixelSize * 2
-            color: ThemeSettings.colorText
+            color: ThemeSettings.colorActiveText
             anchors.fill: parent
             fontSizeMode: Text.Fit
             horizontalAlignment: Text.AlignHCenter
@@ -99,8 +99,8 @@ T.SpinBox {
 
     background: Rectangle {
         id: background
-        color: ThemeSettings.colorBase
-        border.color: ThemeSettings.colorMid
+        color: ThemeSettings.colorActiveBase
+        border.color: ThemeSettings.colorActiveMid
         border.width: AkUnit.create(1 * ThemeSettings.controlScale, "dp").pixels
         radius: AkUnit.create(6 * ThemeSettings.controlScale, "dp").pixels
         width: control.width
@@ -114,19 +114,20 @@ T.SpinBox {
 
             PropertyChanges {
                 target: spinBoxText
-                color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.5)
+                color: ThemeSettings.colorDisabledText
             }
             PropertyChanges {
                 target: downIndicatorText
-                color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.5)
+                color: ThemeSettings.colorDisabledText
             }
             PropertyChanges {
                 target: upIndicatorText
-                color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.5)
+                color: ThemeSettings.colorDisabledText
             }
             PropertyChanges {
                 target: background
-                border.color: ThemeSettings.colorWindow
+                color: ThemeSettings.colorDisabledBase
+                border.color: ThemeSettings.colorDisabledMid
             }
         },
         State {
@@ -139,7 +140,7 @@ T.SpinBox {
 
             PropertyChanges {
                 target: background
-                border.color: ThemeSettings.colorDark
+                border.color: ThemeSettings.colorActiveDark
             }
         },
         State {
@@ -149,7 +150,7 @@ T.SpinBox {
 
             PropertyChanges {
                 target: background
-                border.color: ThemeSettings.colorHighlight
+                border.color: ThemeSettings.colorActiveHighlight
                 border.width:
                     AkUnit.create(2 * ThemeSettings.controlScale, "dp").pixels
             }

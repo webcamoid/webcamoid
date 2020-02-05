@@ -32,10 +32,9 @@ T.ScrollView {
     padding: 0
 
     background: Rectangle {
-        color: Qt.hsla(ThemeSettings.colorWindow.hslHue,
-                       ThemeSettings.colorWindow.hslSaturation,
-                       ThemeSettings.colorWindow.hslLightness,
-                       0.9)
+        color: enabled?
+                   ThemeSettings.colorActiveWindow:
+                   ThemeSettings.colorDisabledWindow
     }
 
     ScrollBar.vertical: ScrollBar {

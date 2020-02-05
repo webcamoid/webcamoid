@@ -56,8 +56,8 @@ T.RadioButton {
             height: width
             color:
                 radioButton.checked?
-                    ThemeSettings.colorHighlight:
-                    ThemeSettings.colorDark
+                    ThemeSettings.colorActiveHighlight:
+                    ThemeSettings.colorActiveDark
             radius: width / 2
             anchors.verticalCenter: radioButtonIndicator.verticalCenter
             anchors.horizontalCenter: radioButtonIndicator.horizontalCenter
@@ -68,8 +68,8 @@ T.RadioButton {
             border.width: AkUnit.create(2 * ThemeSettings.controlScale, "dp").pixels
             border.color:
                 radioButton.checked?
-                    ThemeSettings.colorHighlight:
-                    ThemeSettings.colorDark
+                    ThemeSettings.colorActiveHighlight:
+                    ThemeSettings.colorActiveDark
             color: "transparent"
             radius: Math.min(radioButtonIndicator.width, radioButtonIndicator.height) / 2
             anchors.verticalCenter: radioButtonIndicator.verticalCenter
@@ -79,7 +79,7 @@ T.RadioButton {
 
             Rectangle {
                 id: indicatorCheckedMark
-                color: ThemeSettings.colorHighlight
+                color: ThemeSettings.colorActiveHighlight
                 width: AkUnit.create(15 * ThemeSettings.controlScale, "dp").pixels
                 height: AkUnit.create(15 * ThemeSettings.controlScale, "dp").pixels
                 radius: Math.min(width, height) / 2
@@ -99,10 +99,10 @@ T.RadioButton {
         icon.source: radioButton.icon.source
         icon.width: radioButton.icon.width
         icon.height: radioButton.icon.height
-        icon.color: ThemeSettings.colorWindowText
+        icon.color: ThemeSettings.colorActiveWindowText
         text: radioButton.text
         font: radioButton.font
-        color: ThemeSettings.colorWindowText
+        color: ThemeSettings.colorActiveWindowText
         alignment: Qt.AlignLeft
         anchors.leftMargin: indicatorRect.width / 2
         anchors.left: radioButtonIndicator.right
@@ -117,16 +117,19 @@ T.RadioButton {
 
             PropertyChanges {
                 target: indicatorRect
-                border.color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.1)
+                border.color:
+                    radioButton.checked?
+                        ThemeSettings.colorDisabledHighlight:
+                        ThemeSettings.colorDisabledDark
             }
             PropertyChanges {
                 target: indicatorCheckedMark
-                color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.1)
+                color: ThemeSettings.colorDisabledHighlight
             }
             PropertyChanges {
                 target: iconLabel
-                icon.color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.1)
-                color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.1)
+                icon.color: ThemeSettings.colorDisabledWindowText
+                color: ThemeSettings.colorDisabledWindowText
             }
         },
         State {

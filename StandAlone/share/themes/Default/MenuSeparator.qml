@@ -31,8 +31,12 @@ T.MenuSeparator {
     verticalPadding: AkUnit.create(8 * ThemeSettings.controlScale, "dp").pixels
 
     contentItem: Rectangle {
-        implicitWidth: AkUnit.create(128 * ThemeSettings.controlScale, "dp").pixels
-        implicitHeight: AkUnit.create(1 * ThemeSettings.controlScale, "dp").pixels
-        color: ThemeSettings.colorDark
+        implicitWidth:
+            AkUnit.create(128 * ThemeSettings.controlScale, "dp").pixels
+        implicitHeight:
+            AkUnit.create(1 * ThemeSettings.controlScale, "dp").pixels
+        color: enabled?
+                   ThemeSettings.colorActiveDark:
+                   ThemeSettings.colorDisabledDark
     }
 }

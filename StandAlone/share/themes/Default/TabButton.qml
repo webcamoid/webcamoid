@@ -75,10 +75,10 @@ T.TabButton {
             icon.source: button.icon.source
             icon.width: button.icon.width
             icon.height: button.icon.height
-            icon.color: ThemeSettings.colorWindowText
+            icon.color: ThemeSettings.colorActiveWindowText
             text: button.text
             font: button.font
-            color: ThemeSettings.colorWindowText
+            color: ThemeSettings.colorActiveWindowText
         }
     }
 
@@ -86,7 +86,7 @@ T.TabButton {
         id: buttonRectangleBelow
         implicitWidth: AkUnit.create(90 * ThemeSettings.controlScale, "dp").pixels
         implicitHeight: button.buttonHeight()
-        color: ThemeSettings.shade(ThemeSettings.colorWindow, 0.0, 0.0)
+        color: ThemeSettings.shade(ThemeSettings.colorActiveWindow, 0.0, 0.0)
     }
 
     states: [
@@ -96,7 +96,12 @@ T.TabButton {
 
             PropertyChanges {
                 target: iconLabel
-                opacity: 0.5
+                icon.color: ThemeSettings.colorDisabledWindowText
+                color: ThemeSettings.colorDisabledWindowText
+            }
+            PropertyChanges {
+                target: buttonRectangleBelow
+                color: ThemeSettings.shade(ThemeSettings.colorDisabledWindow, 0.0, 0.0)
             }
         },
         State {
@@ -110,7 +115,7 @@ T.TabButton {
 
             PropertyChanges {
                 target: buttonRectangleBelow
-                color: ThemeSettings.constShade(ThemeSettings.colorHighlight,
+                color: ThemeSettings.constShade(ThemeSettings.colorActiveHighlight,
                                                 0.0,
                                                 0.1)
             }
@@ -123,7 +128,7 @@ T.TabButton {
 
             PropertyChanges {
                 target: buttonRectangleBelow
-                color: ThemeSettings.constShade(ThemeSettings.colorHighlight,
+                color: ThemeSettings.constShade(ThemeSettings.colorActiveHighlight,
                                                 0.0,
                                                 0.2)
             }
@@ -139,8 +144,8 @@ T.TabButton {
 
             PropertyChanges {
                 target: iconLabel
-                icon.color: ThemeSettings.colorHighlight
-                color: ThemeSettings.colorHighlight
+                icon.color: ThemeSettings.colorActiveHighlight
+                color: ThemeSettings.colorActiveHighlight
             }
         },
         State {
@@ -154,12 +159,12 @@ T.TabButton {
 
             PropertyChanges {
                 target: iconLabel
-                icon.color: ThemeSettings.colorHighlight
-                color: ThemeSettings.colorHighlight
+                icon.color: ThemeSettings.colorActiveHighlight
+                color: ThemeSettings.colorActiveHighlight
             }
             PropertyChanges {
                 target: buttonRectangleBelow
-                color: ThemeSettings.constShade(ThemeSettings.colorHighlight,
+                color: ThemeSettings.constShade(ThemeSettings.colorActiveHighlight,
                                                 0.0,
                                                 0.3)
             }
@@ -172,12 +177,12 @@ T.TabButton {
 
             PropertyChanges {
                 target: iconLabel
-                icon.color: ThemeSettings.colorHighlight
-                color: ThemeSettings.colorHighlight
+                icon.color: ThemeSettings.colorActiveHighlight
+                color: ThemeSettings.colorActiveHighlight
             }
             PropertyChanges {
                 target: buttonRectangleBelow
-                color: ThemeSettings.constShade(ThemeSettings.colorHighlight,
+                color: ThemeSettings.constShade(ThemeSettings.colorActiveHighlight,
                                                 0.0,
                                                 0.4)
             }

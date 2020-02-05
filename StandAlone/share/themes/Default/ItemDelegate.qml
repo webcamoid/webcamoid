@@ -51,13 +51,13 @@ T.ItemDelegate {
         icon.height: control.icon.height
         icon.color:
             control.highlighted?
-                ThemeSettings.colorHighlightedText:
-                ThemeSettings.colorWindowText
+                ThemeSettings.colorActiveHighlightedText:
+                ThemeSettings.colorActiveWindowText
         text: control.text
         font: control.font
         color: control.highlighted?
-                   ThemeSettings.colorHighlightedText:
-                   ThemeSettings.colorWindowText
+                   ThemeSettings.colorActiveHighlightedText:
+                   ThemeSettings.colorActiveWindowText
         alignment: control.display === IconLabel.IconOnly
                    || control.display === IconLabel.TextUnderIcon?
                        Qt.AlignCenter: Qt.AlignLeft
@@ -74,8 +74,8 @@ T.ItemDelegate {
         implicitHeight:
             AkUnit.create(48 * ThemeSettings.controlScale, "dp").pixels
         color: control.highlighted?
-                   ThemeSettings.colorHighlight:
-                   ThemeSettings.shade(ThemeSettings.colorWindow, 0, 0)
+                   ThemeSettings.colorActiveHighlight:
+                   ThemeSettings.shade(ThemeSettings.colorActiveWindow, 0, 0)
     }
 
     states: [
@@ -85,12 +85,20 @@ T.ItemDelegate {
 
             PropertyChanges {
                 target: iconLabel
-                icon.color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.1)
-                color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.1)
+                icon.color:
+                    control.highlighted?
+                        ThemeSettings.colorDisabledHighlightedText:
+                        ThemeSettings.colorDisabledWindowText
+                color:
+                    control.highlighted?
+                        ThemeSettings.colorDisabledHighlightedText:
+                        ThemeSettings.colorDisabledWindowText
             }
             PropertyChanges {
                 target: background
-                color: ThemeSettings.shade(ThemeSettings.colorWindow, -0.1, 0)
+                color: control.highlighted?
+                           ThemeSettings.colorDisabledHighlight:
+                           ThemeSettings.shade(ThemeSettings.colorDisabledWindow, 0, 0)
             }
         },
         State {
@@ -104,9 +112,9 @@ T.ItemDelegate {
                 target: background
                 color:
                     control.highlighted?
-                        ThemeSettings.constShade(ThemeSettings.colorHighlight,
+                        ThemeSettings.constShade(ThemeSettings.colorActiveHighlight,
                                                  0.1):
-                        ThemeSettings.shade(ThemeSettings.colorWindow, -0.1)
+                        ThemeSettings.shade(ThemeSettings.colorActiveWindow, -0.1)
             }
         },
         State {
@@ -117,9 +125,9 @@ T.ItemDelegate {
                 target: background
                 color:
                     control.highlighted?
-                        ThemeSettings.constShade(ThemeSettings.colorHighlight,
+                        ThemeSettings.constShade(ThemeSettings.colorActiveHighlight,
                                                  0.2):
-                        ThemeSettings.shade(ThemeSettings.colorWindow, -0.2)
+                        ThemeSettings.shade(ThemeSettings.colorActiveWindow, -0.2)
             }
         }
     ]

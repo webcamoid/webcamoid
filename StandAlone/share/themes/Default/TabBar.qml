@@ -55,7 +55,9 @@ T.TabBar {
                 width: parent.width
                 y: tabBar.position === T.TabBar.Footer?
                        0: parent.height - height
-                color: ThemeSettings.colorHighlight
+                color: enabled?
+                           ThemeSettings.colorActiveHighlight:
+                           ThemeSettings.colorDisabledHighlight
             }
         }
     }

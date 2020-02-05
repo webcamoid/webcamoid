@@ -65,8 +65,8 @@ T.MenuItem {
             source: "image://icons/check"
             color:
                 menuItem.highlighted?
-                    ThemeSettings.colorHighlightedText:
-                    ThemeSettings.colorWindowText
+                    ThemeSettings.colorActiveHighlightedText:
+                    ThemeSettings.colorActiveWindowText
             asynchronous: true
         }
     }
@@ -90,8 +90,8 @@ T.MenuItem {
             source: "image://icons/right"
             color:
                 menuItem.highlighted?
-                    ThemeSettings.colorHighlightedText:
-                    ThemeSettings.colorWindowText
+                    ThemeSettings.colorActiveHighlightedText:
+                    ThemeSettings.colorActiveWindowText
             asynchronous: true
         }
     }
@@ -106,8 +106,8 @@ T.MenuItem {
         icon.width: menuItem.icon.width
         icon.height: menuItem.icon.height
         icon.color: menuItem.highlighted?
-                        ThemeSettings.colorHighlightedText:
-                        ThemeSettings.colorWindowText
+                        ThemeSettings.colorActiveHighlightedText:
+                        ThemeSettings.colorActiveWindowText
         text: menuItem.text
         anchors.left: menuItemCheck.right
         anchors.leftMargin:
@@ -116,8 +116,8 @@ T.MenuItem {
         anchors.right: menuItemArrow.left
         font: menuItem.font
         color: menuItem.highlighted?
-                   ThemeSettings.colorHighlightedText:
-                   ThemeSettings.colorWindowText
+                   ThemeSettings.colorActiveHighlightedText:
+                   ThemeSettings.colorActiveWindowText
         alignment: Qt.AlignLeft
     }
 
@@ -126,8 +126,8 @@ T.MenuItem {
         implicitWidth: AkUnit.create(128 * ThemeSettings.controlScale, "dp").pixels
         implicitHeight: AkUnit.create(48 * ThemeSettings.controlScale, "dp").pixels
         color: menuItem.highlighted?
-                   ThemeSettings.colorHighlight:
-                   ThemeSettings.shade(ThemeSettings.colorWindow, 0, 0)
+                   ThemeSettings.colorActiveHighlight:
+                   ThemeSettings.shade(ThemeSettings.colorActiveWindow, 0, 0)
     }
 
     states: [
@@ -137,27 +137,32 @@ T.MenuItem {
 
             PropertyChanges {
                 target: iconLabel
-                opacity: 0.5
+                icon.color: menuItem.highlighted?
+                                ThemeSettings.colorDisabledHighlightedText:
+                                ThemeSettings.colorDisabledWindowText
+                color: menuItem.highlighted?
+                           ThemeSettings.colorDisabledHighlightedText:
+                           ThemeSettings.colorDisabledWindowText
             }
             PropertyChanges {
                 target: checkImage
                 color:
                     menuItem.highlighted?
-                        ThemeSettings.shade(ThemeSettings.colorWindow, -0.2):
-                        ThemeSettings.shade(ThemeSettings.colorWindow, -0.1)
+                        ThemeSettings.colorDisabledHighlightedText:
+                        ThemeSettings.colorDisabledWindowText
             }
             PropertyChanges {
                 target: arrowImage
                 color:
                     menuItem.highlighted?
-                        ThemeSettings.shade(ThemeSettings.colorWindow, -0.2):
-                        ThemeSettings.shade(ThemeSettings.colorWindow, -0.1)
+                        ThemeSettings.colorDisabledHighlightedText:
+                        ThemeSettings.colorDisabledWindowText
             }
             PropertyChanges {
                 target: background
                 color: menuItem.highlighted?
-                           ThemeSettings.shade(ThemeSettings.colorWindow, -0.3):
-                           Qt.hsla(0, 0, 0, 0)
+                           ThemeSettings.colorDisabledHighlight:
+                           ThemeSettings.shade(ThemeSettings.colorDisabledWindow, 0, 0)
             }
         },
         State {
@@ -171,22 +176,22 @@ T.MenuItem {
                 target: checkImage
                 color:
                     menuItem.highlighted?
-                        ThemeSettings.colorHighlightedText:
-                        ThemeSettings.shade(ThemeSettings.colorWindow, -0.6)
+                        ThemeSettings.colorActiveHighlightedText:
+                        ThemeSettings.shade(ThemeSettings.colorActiveWindow, -0.6)
             }
             PropertyChanges {
                 target: arrowImage
                 color:
                     menuItem.highlighted?
-                        ThemeSettings.colorHighlightedText:
-                        ThemeSettings.shade(ThemeSettings.colorWindow, -0.6)
+                        ThemeSettings.colorActiveHighlightedText:
+                        ThemeSettings.shade(ThemeSettings.colorActiveWindow, -0.6)
             }
             PropertyChanges {
                 target: background
                 color:
                     menuItem.highlighted?
-                        ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.1):
-                        ThemeSettings.shade(ThemeSettings.colorWindow, -0.1)
+                        ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0.1):
+                        ThemeSettings.shade(ThemeSettings.colorActiveWindow, -0.1)
             }
         },
         State {
@@ -199,22 +204,22 @@ T.MenuItem {
                 target: checkImage
                 color:
                     menuItem.highlighted?
-                        ThemeSettings.colorHighlightedText:
-                        ThemeSettings.shade(ThemeSettings.colorWindow, -0.6)
+                        ThemeSettings.colorActiveHighlightedText:
+                        ThemeSettings.shade(ThemeSettings.colorActiveWindow, -0.6)
             }
             PropertyChanges {
                 target: arrowImage
                 color:
                     menuItem.highlighted?
-                        ThemeSettings.colorHighlightedText:
-                        ThemeSettings.shade(ThemeSettings.colorWindow, -0.6)
+                        ThemeSettings.colorActiveHighlightedText:
+                        ThemeSettings.shade(ThemeSettings.colorActiveWindow, -0.6)
             }
             PropertyChanges {
                 target: background
                 color:
                     menuItem.highlighted?
-                        ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.2):
-                        ThemeSettings.shade(ThemeSettings.colorWindow, -0.2)
+                        ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0.2):
+                        ThemeSettings.shade(ThemeSettings.colorActiveWindow, -0.2)
             }
         },
         State {
@@ -226,22 +231,22 @@ T.MenuItem {
                 target: checkImage
                 color:
                     menuItem.highlighted?
-                        ThemeSettings.colorHighlightedText:
-                        ThemeSettings.shade(ThemeSettings.colorWindow, -0.7)
+                        ThemeSettings.colorActiveHighlightedText:
+                        ThemeSettings.shade(ThemeSettings.colorActiveWindow, -0.7)
             }
             PropertyChanges {
                 target: arrowImage
                 color:
                     menuItem.highlighted?
-                        ThemeSettings.colorHighlightedText:
-                        ThemeSettings.shade(ThemeSettings.colorWindow, -0.7)
+                        ThemeSettings.colorActiveHighlightedText:
+                        ThemeSettings.shade(ThemeSettings.colorActiveWindow, -0.7)
             }
             PropertyChanges {
                 target: background
                 color:
                     menuItem.highlighted?
-                        ThemeSettings.constShade(ThemeSettings.colorHighlight, 0.3):
-                        ThemeSettings.shade(ThemeSettings.colorWindow, -0.3)
+                        ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0.3):
+                        ThemeSettings.shade(ThemeSettings.colorActiveWindow, -0.3)
             }
         }
     ]
