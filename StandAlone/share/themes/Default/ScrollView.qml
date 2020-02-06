@@ -32,9 +32,7 @@ T.ScrollView {
     padding: 0
 
     background: Rectangle {
-        color: enabled?
-                   ThemeSettings.colorActiveWindow:
-                   ThemeSettings.colorDisabledWindow
+        color: "transparent"
     }
 
     ScrollBar.vertical: ScrollBar {

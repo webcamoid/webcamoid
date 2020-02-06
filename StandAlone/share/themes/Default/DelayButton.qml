@@ -32,11 +32,10 @@ T.DelayButton {
                             implicitContentWidth + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              implicitContentHeight + topPadding + bottomPadding)
+    padding: AkUnit.create(8 * ThemeSettings.controlScale, "dp").pixels
     spacing: AkUnit.create(8 * ThemeSettings.controlScale, "dp").pixels
     hoverEnabled: true
 
-    readonly property int radius:
-        AkUnit.create(6 * ThemeSettings.controlScale, "dp").pixels
     readonly property int animationTime: 200
 
     transition: Transition {
@@ -80,17 +79,35 @@ T.DelayButton {
         Rectangle {
             id: buttonRectangle
             anchors.fill: parent
-            radius: control.radius
+            radius: AkUnit.create(6 * ThemeSettings.controlScale, "dp").pixels
             border.width:
                 AkUnit.create(1 * ThemeSettings.controlScale, "dp").pixels
             border.color: ThemeSettings.colorActiveDark
             color: ThemeSettings.colorActiveButton
+            gradient: Gradient {
+                GradientStop {
+                    position: 0
+                    color: ThemeSettings.colorActiveWindow.hslLightness < 0.5?
+                               Qt.tint(buttonRectangle.color,
+                                       ThemeSettings.shade(ThemeSettings.colorActiveDark, 0, 0.25)):
+                               Qt.tint(buttonRectangle.color,
+                                       ThemeSettings.shade(ThemeSettings.colorActiveLight, 0, 0.25))
+                }
+                GradientStop {
+                    position: 1
+                    color: ThemeSettings.colorActiveWindow.hslLightness < 0.5?
+                               Qt.tint(buttonRectangle.color,
+                                       ThemeSettings.shade(ThemeSettings.colorActiveLight, 0, 0.25)):
+                               Qt.tint(buttonRectangle.color,
+                                       ThemeSettings.shade(ThemeSettings.colorActiveDark, 0, 0.25))
+                }
+            }
         }
 
         // Checked indicator
         Rectangle {
             id: buttonCheckableIndicator
-            height: control.radius
+            height: AkUnit.create(8 * ThemeSettings.controlScale, "dp").pixels
             color: ThemeSettings.colorActiveDark
             anchors.bottom: back.bottom
             anchors.left: back.left
@@ -98,7 +115,7 @@ T.DelayButton {
         }
         Rectangle {
             width: parent.width * control.progress
-            height: control.radius
+            height: AkUnit.create(8 * ThemeSettings.controlScale, "dp").pixels
             color: ThemeSettings.colorActiveHighlight
             anchors.bottom: back.bottom
         }

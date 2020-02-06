@@ -29,19 +29,18 @@ T.TextField {
     placeholderTextColor: ThemeSettings.shade(ThemeSettings.colorActiveText, 0, 0.5)
     selectedTextColor: ThemeSettings.colorActiveHighlightedText
     selectionColor: ThemeSettings.colorActiveHighlight
-    padding: AkUnit.create(12 * ThemeSettings.controlScale, "dp").pixels
+    padding: AkUnit.create(8 * ThemeSettings.controlScale, "dp").pixels
     implicitWidth:
         Math.max(contentWidth + leftPadding + rightPadding,
                  implicitBackgroundWidth + leftInset + rightInset,
                  placeholder.implicitWidth + leftPadding + rightPadding,
-                 AkUnit.create(280 * ThemeSettings.controlScale, "dp").pixels)
+                 AkUnit.create(96 * ThemeSettings.controlScale, "dp").pixels)
     implicitHeight:
         Math.max(contentHeight + topPadding + bottomPadding,
                  implicitBackgroundHeight + topInset + bottomInset,
                  placeholder.implicitHeight + topPadding + bottomPadding,
                  AkUnit.create(36 * ThemeSettings.controlScale, "dp").pixels)
     hoverEnabled: true
-    selectByMouse: true
 
     readonly property int animationTime: 200
     readonly property int placeHolderPadding:
@@ -70,8 +69,28 @@ T.TextField {
         color: ThemeSettings.colorActiveBase
         border.color: ThemeSettings.colorActiveMid
         border.width: AkUnit.create(1 * ThemeSettings.controlScale, "dp").pixels
-        radius: AkUnit.create(8 * ThemeSettings.controlScale, "dp").pixels
+        radius: AkUnit.create(6 * ThemeSettings.controlScale, "dp").pixels
         anchors.fill: parent
+        gradient: Gradient {
+            GradientStop {
+                position: 0
+                color:
+                    ThemeSettings.colorActiveWindow.hslLightness < 0.5?
+                        Qt.tint(textAreaBackground.color,
+                                ThemeSettings.shade(ThemeSettings.colorActiveLight, 0, 0.25)):
+                        Qt.tint(textAreaBackground.color,
+                                ThemeSettings.shade(ThemeSettings.colorActiveDark, 0, 0.25))
+            }
+            GradientStop {
+                position: 1
+                color:
+                    ThemeSettings.colorActiveWindow.hslLightness < 0.5?
+                        Qt.tint(textAreaBackground.color,
+                                ThemeSettings.shade(ThemeSettings.colorActiveDark, 0, 0.25)):
+                        Qt.tint(textAreaBackground.color,
+                                ThemeSettings.shade(ThemeSettings.colorActiveLight, 0, 0.25))
+            }
+        }
     }
 
     states: [

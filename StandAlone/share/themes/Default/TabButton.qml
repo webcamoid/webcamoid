@@ -40,6 +40,7 @@ T.TabButton {
                             implicitContentWidth + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              implicitContentHeight + topPadding + bottomPadding)
+    padding: AkUnit.create(8 * ThemeSettings.controlScale, "dp").pixels
     spacing: AkUnit.create(8 * ThemeSettings.controlScale, "dp").pixels
     hoverEnabled: true
 
@@ -48,7 +49,7 @@ T.TabButton {
     function buttonHeight()
     {
         let defaultHeight =
-            AkUnit.create(48 * ThemeSettings.controlScale, "dp").pixels
+            AkUnit.create(36 * ThemeSettings.controlScale, "dp").pixels
 
         return Math.max(defaultHeight,
                         iconLabel.height
@@ -84,7 +85,7 @@ T.TabButton {
 
     background: Rectangle {
         id: buttonRectangleBelow
-        implicitWidth: AkUnit.create(90 * ThemeSettings.controlScale, "dp").pixels
+        implicitWidth: AkUnit.create(64 * ThemeSettings.controlScale, "dp").pixels
         implicitHeight: button.buttonHeight()
         color: ThemeSettings.shade(ThemeSettings.colorActiveWindow, 0.0, 0.0)
     }

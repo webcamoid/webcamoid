@@ -26,6 +26,7 @@ T.SpinBox {
     id: control
     implicitWidth: AkUnit.create(96 * ThemeSettings.controlScale, "dp").pixels
     implicitHeight: AkUnit.create(32 * ThemeSettings.controlScale, "dp").pixels
+    padding: AkUnit.create(8 * ThemeSettings.controlScale, "dp").pixels
     hoverEnabled: true
 
     readonly property int animationTime: 200
@@ -105,6 +106,26 @@ T.SpinBox {
         radius: AkUnit.create(6 * ThemeSettings.controlScale, "dp").pixels
         width: control.width
         height: control.height
+        gradient: Gradient {
+            GradientStop {
+                position: 0
+                color:
+                    ThemeSettings.colorActiveWindow.hslLightness < 0.5?
+                        Qt.tint(background.color,
+                                ThemeSettings.shade(ThemeSettings.colorActiveLight, 0, 0.25)):
+                        Qt.tint(background.color,
+                                ThemeSettings.shade(ThemeSettings.colorActiveDark, 0, 0.25))
+            }
+            GradientStop {
+                position: 1
+                color:
+                    ThemeSettings.colorActiveWindow.hslLightness < 0.5?
+                        Qt.tint(background.color,
+                                ThemeSettings.shade(ThemeSettings.colorActiveDark, 0, 0.25)):
+                        Qt.tint(background.color,
+                                ThemeSettings.shade(ThemeSettings.colorActiveLight, 0, 0.25))
+            }
+        }
     }
 
     states: [

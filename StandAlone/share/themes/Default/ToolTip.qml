@@ -70,6 +70,6 @@ T.ToolTip {
         color: enabled?
                    ThemeSettings.colorActiveWindowText:
                    ThemeSettings.colorDisabledWindowText
-        radius: AkUnit.create(4 * ThemeSettings.controlScale, "dp").pixels
+        radius: AkUnit.create(6 * ThemeSettings.controlScale, "dp").pixels
     }
 }

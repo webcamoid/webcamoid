@@ -32,6 +32,7 @@ T.Button {
                             implicitContentWidth + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              implicitContentHeight + topPadding + bottomPadding)
+    padding: AkUnit.create(8 * ThemeSettings.controlScale, "dp").pixels
     spacing: AkUnit.create(8 * ThemeSettings.controlScale, "dp").pixels
     hoverEnabled: true
 
@@ -81,7 +82,7 @@ T.Button {
         Rectangle {
             id: buttonRectangle
             anchors.fill: parent
-            radius: control.radius
+            radius: AkUnit.create(6 * ThemeSettings.controlScale, "dp").pixels
             border.width:
                 AkUnit.create(1 * ThemeSettings.controlScale, "dp").pixels
             border.color:
@@ -93,17 +94,40 @@ T.Button {
                    control.flat?
                        ThemeSettings.shade(ThemeSettings.colorActiveWindow, 0, 0):
                        ThemeSettings.colorActiveButton
+            gradient: Gradient {
+                GradientStop {
+                    position: 0
+                    color: ThemeSettings.colorActiveWindow.hslLightness < 0.5?
+                               Qt.tint(buttonRectangle.color,
+                                       ThemeSettings.shade(ThemeSettings.colorActiveDark, 0, 0.25)):
+                               Qt.tint(buttonRectangle.color,
+                                       ThemeSettings.shade(ThemeSettings.colorActiveLight, 0, 0.25))
+                }
+                GradientStop {
+                    position: 1
+                    color: ThemeSettings.colorActiveWindow.hslLightness < 0.5?
+                               Qt.tint(buttonRectangle.color,
+                                       ThemeSettings.shade(ThemeSettings.colorActiveLight, 0, 0.25)):
+                               Qt.tint(buttonRectangle.color,
+                                       ThemeSettings.shade(ThemeSettings.colorActiveDark, 0, 0.25))
+                }
+            }
         }
 
         // Checked indicator
         Rectangle {
             id: buttonCheckableIndicator
-            height: control.radius
-            color: control.checked && control.highlighted?
-                       ThemeSettings.colorActiveHighlightedText:
-                   control.highlighted?
-                       ThemeSettings.colorActiveHighlight:
-                       ThemeSettings.colorActiveDark
+            height: AkUnit.create(8 * ThemeSettings.controlScale, "dp").pixels
+            color:
+                control.checkable && control.checked && control.highlighted?
+                    ThemeSettings.colorActiveHighlightedText:
+                control.checkable && control.checked?
+                    ThemeSettings.colorActiveHighlight:
+                control.checkable?
+                    ThemeSettings.colorActiveDark:
+                control.highlighted || control.flat?
+                    ThemeSettings.shade(ThemeSettings.colorActiveWindow, 0, 0):
+                    ThemeSettings.colorActiveDark
             anchors.right: back.right
             anchors.bottom: back.bottom
             anchors.left: back.left
@@ -131,11 +155,16 @@ T.Button {
             }
             PropertyChanges {
                 target: buttonCheckableIndicator
-                color: control.checked && control.highlighted?
-                           ThemeSettings.colorDisabledHighlightedText:
-                       control.highlighted?
-                           ThemeSettings.colorDisabledHighlight:
-                           ThemeSettings.colorDisabledDark
+                color:
+                    control.checkable && control.checked && control.highlighted?
+                        ThemeSettings.colorDisabledHighlightedText:
+                    control.checkable && control.checked?
+                        ThemeSettings.colorDisabledHighlight:
+                    control.checkable?
+                        ThemeSettings.colorDisabledDark:
+                    control.highlighted || control.flat?
+                        ThemeSettings.shade(ThemeSettings.colorDisabledWindow, 0, 0):
+                        ThemeSettings.colorDisabledDark
             }
             PropertyChanges {
                 target: buttonRectangle

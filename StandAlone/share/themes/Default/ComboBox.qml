@@ -113,6 +113,24 @@ T.ComboBox {
                                  "dp").pixels
         radius: control.flat? 0: control.radius
         anchors.fill: parent
+        gradient: Gradient {
+            GradientStop {
+                position: 0
+                color: ThemeSettings.colorActiveWindow.hslLightness < 0.5?
+                           Qt.tint(comboBoxBackground.color,
+                                   ThemeSettings.shade(ThemeSettings.colorActiveDark, 0, 0.25)):
+                           Qt.tint(comboBoxBackground.color,
+                                   ThemeSettings.shade(ThemeSettings.colorActiveLight, 0, 0.25))
+            }
+            GradientStop {
+                position: 1
+                color: ThemeSettings.colorActiveWindow.hslLightness < 0.5?
+                           Qt.tint(comboBoxBackground.color,
+                                   ThemeSettings.shade(ThemeSettings.colorActiveLight, 0, 0.25)):
+                           Qt.tint(comboBoxBackground.color,
+                                   ThemeSettings.shade(ThemeSettings.colorActiveDark, 0, 0.25))
+            }
+        }
     }
 
     // List of elements

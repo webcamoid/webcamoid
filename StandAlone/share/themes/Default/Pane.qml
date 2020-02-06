@@ -33,7 +33,7 @@ T.Pane {
 
     background: Rectangle {
         color: enabled?
-                   ThemeSettings.shade(ThemeSettings.colorActiveWindow, 0, 0.5):
-                   ThemeSettings.shade(ThemeSettings.colorDisabledWindow, 0, 0.5)
+                   ThemeSettings.shade(ThemeSettings.colorActiveWindow, 0, 0.75):
+                   ThemeSettings.shade(ThemeSettings.colorDisabledWindow, 0, 0.75)
     }
 }

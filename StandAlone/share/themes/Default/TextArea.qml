@@ -51,9 +51,8 @@ T.TextArea {
                              placeholder.implicitHeight + topPadding + bottomPadding,
                              AkUnit.create(36 * ThemeSettings.controlScale,
                                         "dp").pixels)
-    selectByMouse: true
 
-    readonly property int animationTime: 100
+    readonly property int animationTime: 200
     readonly property real placeHolderPadding:
         AkUnit.create(4 * ThemeSettings.controlScale, "dp").pixels
 
@@ -73,7 +72,7 @@ T.TextArea {
     }
 
     background: Rectangle {
-        color: enebled?
+        color: control.enabled?
                    ThemeSettings.colorActiveBase:
                    ThemeSettings.colorDisabledBase
     }

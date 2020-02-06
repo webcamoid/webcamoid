@@ -1,4 +1,5 @@
 Adam Magnier <adam@magnier.io>
+Adolfo Jayme Barrientos <fitojb@ubuntu.com>
 Ale-Ma <alemassimiani@gmail.com>
 Allan Nordhøy <epost@anotheragency.no>
 Antonino Murabito <antoninomurabito@gmail.com>
@@ -8,6 +9,7 @@ Edwar Tikhonov <letih@vivaldi.net>
 Elizabeth Sherrock <lizzyd710@gmail.com>
 Ettore Atalan <atalanttore@googlemail.com>
 ezjerry liao <ezjerry@gmail.com>
+gordonel <45173186+gordonel@users.noreply.github.com>
 Gruni Lala <ro.gruni@hotmail.de>
 Heimen Stoffels <vistausss@outlook.com>
 hpfn <hpfn@users.noreply.github.com>
@@ -25,6 +27,7 @@ luigino <aloisio@gmx.com>
 Marc Delisle <marc@infomarc.info>
 Michal Čihař <michal@cihar.com>
 MS-PC <jhovanywalas@hotmail.com>
+Nathan <bonnemainsnathan@gmail.com>
 nautilusx <mail.ka@mailbox.org>
 paperspaceBen <benjamin@paperspace.io>
 pCsOrI <pcsori@gmail.com>
@@ -32,6 +35,7 @@ Peppernrino <pepperandrino@gmail.com>
 Rui Mendes <xz9@protonmail.com>
 Sebastian Freiman <sebafreiman@gmail.com>
 ssantos <ssantos@web.de>
+Stepan <36489863+Stepan881@users.noreply.github.com>
 Swann Martinet <swann.ranskassa@laposte.net>
 TheSimplyOwl <thesimplyowl@gmail.com>
 WaldiS <admin@sto.ugu.pl>

@@ -38,7 +38,7 @@ T.CheckBox {
     hoverEnabled: true
     clip: true
 
-    readonly property int animationTime: 100
+    readonly property int animationTime: 200
 
     indicator: Item {
         id: checkBoxIndicator

@@ -44,7 +44,7 @@ T.SwipeDelegate {
         }
     }
 
-    readonly property int animationTime: 100
+    readonly property int animationTime: 200
 
     contentItem: IconLabel {
         id: iconLabel

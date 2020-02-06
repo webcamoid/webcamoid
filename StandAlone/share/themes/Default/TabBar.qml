@@ -42,9 +42,9 @@ T.TabBar {
         highlightFollowsCurrentItem: true
         highlightRangeMode: ListView.ApplyRange
         preferredHighlightBegin:
-            AkUnit.create(48 * ThemeSettings.controlScale, "dp").pixels
+            AkUnit.create(36 * ThemeSettings.controlScale, "dp").pixels
         preferredHighlightEnd:
-            width - AkUnit.create(48 * ThemeSettings.controlScale, "dp").pixels
+            width - AkUnit.create(36 * ThemeSettings.controlScale, "dp").pixels
 
         highlight: Item {
             z: 2

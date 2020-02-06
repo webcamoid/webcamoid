@@ -184,23 +184,28 @@ ApplicationWindow {
                                        - splitView.dragBorder)
         }
 
-        ScrollView {
+        Pane {
             id: paneLeft
             implicitWidth: 250
             anchors.top: parent.top
             anchors.bottom: parent.bottom
             anchors.left: parent.left
-            contentHeight: paneLeftLayout.height
-            clip: true
             visible: optionWebcam.checked
                      || optionSound.checked
                      || optionRecording.checked
                      || optionEffects.checked
                      || optionSettings.checked
 
-            ColumnLayout {
-                id: paneLeftLayout
-                width: paneLeft.width
+            ScrollView {
+                id: scrollViewLeft
+                contentHeight: paneLeftLayout.height
+                anchors.fill: parent
+                clip: true
+
+                ColumnLayout {
+                    id: paneLeftLayout
+                    width: scrollViewLeft.width
+                }
             }
         }
         Rectangle {
@@ -235,23 +240,28 @@ ApplicationWindow {
             }
         }
 
-        ScrollView {
+        Pane {
             id: paneRight
             implicitWidth: 450
             anchors.top: parent.top
             anchors.bottom: parent.bottom
             anchors.right: parent.right
-            clip: true
-            contentHeight: paneRightLayout.height
             visible: optionWebcam.checked
                      || optionSound.checked
                      || optionRecording.checked
                      || optionEffects.checked
                      || optionSettings.checked
 
-            ColumnLayout {
-                id: paneRightLayout
-                width: paneRight.width
+            ScrollView {
+                id: scrollViewRight
+                contentHeight: paneRightLayout.height
+                anchors.fill: parent
+                clip: true
+
+                ColumnLayout {
+                    id: paneRightLayout
+                    width: scrollViewRight.width
+                }
             }
         }
         Rectangle {

@@ -38,11 +38,10 @@ T.ToolButton {
                             implicitContentWidth + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              implicitContentHeight + topPadding + bottomPadding)
+    padding: AkUnit.create(8 * ThemeSettings.controlScale, "dp").pixels
     spacing: AkUnit.create(8 * ThemeSettings.controlScale, "dp").pixels
     hoverEnabled: true
 
-    readonly property int radius:
-        AkUnit.create(6 * ThemeSettings.controlScale, "dp").pixels
     readonly property int animationTime: 200
 
     function buttonWidth()

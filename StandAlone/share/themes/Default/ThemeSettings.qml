@@ -68,7 +68,7 @@ Item {
                                           paletteDisabled.light:
                                           paletteDisabled.dark
 
-    readonly property real controlScale: 1.75
+    readonly property real controlScale: 1.6
 
     function contrast(color, value=0.5)
     {
