@@ -85,7 +85,7 @@ T.RangeSlider {
             anchors.left: background.left
             anchors.right: background.right
             anchors.verticalCenter: background.verticalCenter
-            color: ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0, 0.4)
+            color: ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0, 0.5)
             visible: control.horizontal
         }
         Rectangle {
@@ -115,7 +115,7 @@ T.RangeSlider {
             anchors.top: background.top
             anchors.bottom: background.bottom
             anchors.horizontalCenter: background.horizontalCenter
-            color: ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0, 0.4)
+            color: ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0, 0.5)
             visible: control.vertical
         }
         Rectangle {
@@ -250,31 +250,31 @@ T.RangeSlider {
 
             PropertyChanges {
                 target: control
-                thumbColor: ThemeSettings.colorDisabledHighlight
+                thumbColor: ThemeSettings.shade(ThemeSettings.colorDisabledWindow, -0.5)
             }
             PropertyChanges {
                 target: horizontalBackTrack
-                color: ThemeSettings.constShade(ThemeSettings.colorDisabledHighlight, 0, 0.4)
+                color: ThemeSettings.shade(ThemeSettings.colorDisabledWindow, -0.3)
             }
             PropertyChanges {
                 target: horizontalLeftTrack
-                color: ThemeSettings.colorDisabledHighlight
+                color: ThemeSettings.shade(ThemeSettings.colorDisabledWindow, -0.5)
             }
             PropertyChanges {
                 target: horizontalRightTrack
-                color: ThemeSettings.colorDisabledHighlight
+                color: ThemeSettings.shade(ThemeSettings.colorDisabledWindow, -0.5)
             }
             PropertyChanges {
                 target: verticalBackTrack
-                color: ThemeSettings.constShade(ThemeSettings.colorDisabledHighlight, 0, 0.4)
+                color: ThemeSettings.shade(ThemeSettings.colorDisabledWindow, -0.3)
             }
             PropertyChanges {
                 target: verticalTopTrack
-                color: ThemeSettings.colorDisabledHighlight
+                color: ThemeSettings.shade(ThemeSettings.colorDisabledWindow, -0.5)
             }
             PropertyChanges {
                 target: verticalBottomTrack
-                color: ThemeSettings.colorDisabledHighlight
+                color: ThemeSettings.shade(ThemeSettings.colorDisabledWindow, -0.5)
             }
         },
         State {

@@ -20,6 +20,7 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Templates 2.5 as T
+import QtQuick.Shapes 1.12
 import Ak 1.0
 
 T.Dial {
@@ -34,113 +35,102 @@ T.Dial {
     hoverEnabled: true
     focusPolicy: Qt.WheelFocus
 
+    readonly property int strokeWidth: backgroundRectangle.width / 8
     readonly property int animationTime: 200
 
-    background: Item {
-        id: backgrounItem
-        width: Math.min(control.width, control.height)
-        height: width
+    contentItem: Text {
+        id: dialValue
+        text: Math.round(control.value * 100) / 100
+        color: applicationWindow.colorActiveWindowText
+        horizontalAlignment: Text.AlignHCenter
+        verticalAlignment: Text.AlignVCenter
+    }
+
+    background: Rectangle {
+        id: backgroundRectangle
         x: (control.width - width) / 2
         y: (control.height - height) / 2
+        width: Math.min(control.width, control.height)
+        height: width
+        radius: width / 2
+        border.color:
+            ThemeSettings.shade(ThemeSettings.colorActiveWindow, 0, 0.5)
+        color:
+            ThemeSettings.shade(ThemeSettings.colorActiveWindow, 0, 0.5)
 
-        property color ballColor: ThemeSettings.colorActiveHighlight
+        Shape {
+            id: shape
+            anchors.fill: parent
+            anchors.rightMargin:
+                AkUnit.create(2 * ThemeSettings.controlScale, "dp").pixels
+            anchors.leftMargin: anchors.rightMargin
+            anchors.bottomMargin: anchors.rightMargin
+            anchors.topMargin:  anchors.rightMargin
 
-        // Highlight
-        Rectangle {
-            id: highlight
-            width: 0
-            height: width
-            color: backgrounItem.ballColor
-            radius: width / 2
-            anchors.verticalCenter: parent.verticalCenter
-            anchors.horizontalCenter: parent.horizontalCenter
-            opacity: 0
-        }
+            readonly property real aperture: 140
 
-        // Balls
-        Repeater {
-            id: repeater
-            model: nBalls(ballRadiusFactor, 0.75)
+            ShapePath {
+                id: shapePathBack
+                startX: 0
+                startY: 0
+                fillColor: "transparent"
+                strokeColor:
+                    ThemeSettings.constShade(shapePath.strokeColor, 0, 0.25)
+                strokeStyle: ShapePath.SolidLine
+                strokeWidth: control.strokeWidth
+                capStyle: ShapePath.RoundCap
+                joinStyle: ShapePath.RoundJoin
 
-            property real ballRadiusFactor: 0.1
-
-            function nBalls(factor, k=1)
-            {
-                let r = factor / (1 - factor)
-                let n = Math.PI / Math.asin(r)
-
-                return Math.floor(k * n)
-            }
-
-            Item {
-                id: ball
-                x: (backgrounItem.width - width) / 2
-                y: (backgrounItem.height - height) / 2
-                width: repeater.ballRadiusFactor * backgrounItem.width
-                height: width
-
-                property real aperture: 140
-
-                transform: [
-                    Translate {
-                        y: (ball.height - Math.min(backgrounItem.width, backgrounItem.height)) / 2
-                    },
-                    Rotation {
-                        angle: ball.aperture
-                               * (2 * index - repeater.count + 1)
-                               / (repeater.count - 1)
-                        origin.x: width / 2
-                        origin.y: height / 2
-                    }
-                ]
-
-                Rectangle {
-                    radius: parent.width
-                            * (index * (repeater.count - 2)
-                               + repeater.count - 1)
-                            / (2 * Math.pow(repeater.count - 1, 2))
-                    width: 2 * radius
-                    height: 2 * radius
-                    color: backgrounItem.ballColor
-                    opacity: (index * (repeater.count - 2)
-                              + repeater.count - 1)
-                             / Math.pow(repeater.count - 1, 2)
-                    anchors.verticalCenter: parent.verticalCenter
-                    anchors.horizontalCenter: parent.horizontalCenter
+                PathAngleArc {
+                    centerX: shape.width / 2
+                    centerY: shape.height / 2
+                    radiusX: (shape.width - shapePathBack.strokeWidth) / 2
+                    radiusY: (shape.height - shapePathBack.strokeWidth) / 2
+                    startAngle: -shape.aperture - 90
+                    sweepAngle: 2 * shape.aperture
                 }
             }
-        }
 
-        Rectangle {
-            id: knob
-            color: ThemeSettings.colorActiveButton
-            radius: width / 2
-            border.color: ThemeSettings.colorActiveDark
-            border.width: handleRect.radius
-            anchors.verticalCenter: parent.verticalCenter
-            anchors.horizontalCenter: parent.horizontalCenter
-            width: 0.8 * parent.width * (1 - 2 * repeater.ballRadiusFactor)
-            height: width
+            ShapePath {
+                id: shapePath
+                startX: 0
+                startY: 0
+                fillColor: "transparent"
+                strokeColor: ThemeSettings.colorActiveHighlight
+                strokeStyle: ShapePath.SolidLine
+                strokeWidth: control.strokeWidth
+                capStyle: ShapePath.RoundCap
+                joinStyle: ShapePath.RoundJoin
+
+                PathAngleArc {
+                    centerX: shape.width / 2
+                    centerY: shape.height / 2
+                    radiusX: (shape.width - shapePathBack.strokeWidth) / 2
+                    radiusY: (shape.height - shapePathBack.strokeWidth) / 2
+                    startAngle: -shape.aperture - 90
+                    sweepAngle: shape.aperture + control.angle
+                }
+            }
         }
     }
 
     handle: Rectangle {
         id: handleRect
-        x: (control.width - control.handle.width) / 2
-        y: (control.height - control.handle.height) / 2
-        width: height / 2
-        height: 0.3 * knob.width
-        radius: height / 4
-        color: knob.border.color
+        x: (control.width - control.strokeWidth) / 2
+        y: (control.height - control.strokeWidth) / 2
+        width: control.strokeWidth
+        height: control.strokeWidth
+        radius: control.strokeWidth / 2
+        color: shapePath.strokeColor
 
         transform: [
             Translate {
-                y: (control.handle.height - knob.height) / 2
+                y: (handleRect.height - shape.height) / 2
             },
             Rotation {
                 angle: control.angle
-                origin.x: control.handle.width / 2
-                origin.y: control.handle.height / 2
+                origin.x: handleRect.width / 2
+                origin.y: handleRect.height / 2
             }
         ]
     }
@@ -151,13 +141,12 @@ T.Dial {
             when: !control.enabled
 
             PropertyChanges {
-                target: backgrounItem
-                ballColor: ThemeSettings.colorDisabledHighlight
+                target: shapePath
+                strokeColor: ThemeSettings.colorDisabledHighlight
             }
             PropertyChanges {
-                target: knob
-                border.color: ThemeSettings.colorDisabledDark
-                color: ThemeSettings.colorDisabledButton
+                target: dialValue
+                color: ThemeSettings.colorDisabledWindowText
             }
         },
         State {
@@ -167,8 +156,8 @@ T.Dial {
                   && !control.pressed
 
             PropertyChanges {
-                target: knob
-                color: ThemeSettings.colorActiveMid
+                target: backgroundRectangle
+                border.color: ThemeSettings.colorActiveDark
             }
         },
         State {
@@ -179,14 +168,10 @@ T.Dial {
                   && !control.pressed
 
             PropertyChanges {
-                target: highlight
-                width: backgrounItem.width
-                opacity: 0.5
-            }
-            PropertyChanges {
-                target: knob
+                target: backgroundRectangle
                 border.color: ThemeSettings.colorActiveHighlight
-                color: ThemeSettings.colorActiveMid
+                border.width:
+                    AkUnit.create(2 * ThemeSettings.controlScale, "dp").pixels
             }
         },
         State {
@@ -194,28 +179,33 @@ T.Dial {
             when: control.pressed
 
             PropertyChanges {
-                target: highlight
-                width: backgrounItem.width
-                color: ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0.1)
-                opacity: 0.5
+                target: backgroundRectangle
+                border.color:
+                    ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0.1)
+                border.width:
+                    AkUnit.create(2 * ThemeSettings.controlScale, "dp").pixels
             }
             PropertyChanges {
-                target: knob
-                border.color: ThemeSettings.colorActiveHighlight
-                color: ThemeSettings.colorActiveDark
+                target: shapePath
+                strokeColor:
+                    ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0.1)
             }
         }
     ]
 
     transitions: Transition {
         PropertyAnimation {
-            target: knob
-            properties: "color,border.color"
+            target: shapePath
+            properties: "strokeColor"
+            duration: control.animationTime
+        }
+        ColorAnimation {
+            target: dialValue
             duration: control.animationTime
         }
         PropertyAnimation {
-            target: highlight
-            properties: "color,opacity,width"
+            target: backgroundRectangle
+            properties: "border.color,border.width"
             duration: control.animationTime
         }
     }

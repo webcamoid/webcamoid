@@ -29,4 +29,5 @@ T.Label {
     linkColor: enabled?
                    ThemeSettings.colorActiveHighlight:
                    ThemeSettings.colorDisabledHighlight
+    elide: Text.ElideRight
 }

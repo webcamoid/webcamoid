@@ -20,11 +20,10 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Templates 2.5 as T
-import QtQuick.Controls.impl 2.12
 import Ak 1.0
 
 T.TextField {
-    id: textField
+    id: control
     color: ThemeSettings.colorActiveText
     placeholderTextColor: ThemeSettings.shade(ThemeSettings.colorActiveText, 0, 0.5)
     selectedTextColor: ThemeSettings.colorActiveHighlightedText
@@ -46,22 +45,22 @@ T.TextField {
     readonly property int placeHolderPadding:
         AkUnit.create(4 * ThemeSettings.controlScale, "dp").pixels
 
-    PlaceholderText {
+    Text {
         id: placeholder
-        x: textField.leftPadding
-        y: textField.topPadding
-        width: textField.width - (textField.leftPadding + textField.rightPadding)
-        height: textField.height - (textField.topPadding + textField.bottomPadding)
-        text: textField.placeholderText
-        font: textField.font
-        color: textField.placeholderTextColor
-        verticalAlignment: textField.verticalAlignment
+        x: control.leftPadding
+        y: control.topPadding
+        width: control.width - (control.leftPadding + control.rightPadding)
+        height: control.height - (control.topPadding + control.bottomPadding)
+        text: control.placeholderText
+        font: control.font
+        color: control.placeholderTextColor
+        verticalAlignment: control.verticalAlignment
         elide: Text.ElideRight
-        renderType: textField.renderType
-        visible: !textField.length
-                 && !textField.preeditText
-                 && (!textField.activeFocus
-                     || textField.horizontalAlignment !== Qt.AlignHCenter)
+        renderType: control.renderType
+        visible: !control.length
+                 && !control.preeditText
+                 && (!control.activeFocus
+                     || control.horizontalAlignment !== Qt.AlignHCenter)
     }
 
     background: Rectangle {
@@ -96,7 +95,7 @@ T.TextField {
     states: [
         State {
             name: "Disabled"
-            when: !textField.enabled
+            when: !control.enabled
 
             PropertyChanges {
                 target: placeholder
@@ -111,9 +110,9 @@ T.TextField {
         },
         State {
             name: "Hovered"
-            when: textField.enabled
-                  && textField.hovered
-                  && !textField.activeFocus
+            when: control.enabled
+                  && control.hovered
+                  && !control.activeFocus
 
             PropertyChanges {
                 target: textAreaBackground
@@ -122,8 +121,8 @@ T.TextField {
         },
         State {
             name: "Focused"
-            when: textField.enabled
-                  && textField.activeFocus
+            when: control.enabled
+                  && control.activeFocus
 
             PropertyChanges {
                 target: textAreaBackground
@@ -141,12 +140,12 @@ T.TextField {
     transitions: Transition {
         ColorAnimation {
             target: placeholder
-            duration: textField.animationTime
+            duration: control.animationTime
         }
         PropertyAnimation {
             target: textAreaBackground
             properties: "border.color,border.width,color"
-            duration: textField.animationTime
+            duration: control.animationTime
         }
     }
 }

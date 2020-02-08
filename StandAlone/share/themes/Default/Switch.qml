@@ -20,7 +20,7 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Templates 2.5 as T
-import QtQuick.Controls.impl 2.12
+import QtQuick.Layouts 1.3
 import Ak 1.0
 
 T.Switch {
@@ -31,9 +31,10 @@ T.Switch {
                             implicitContentWidth +
                             implicitIndicatorWidth + implicitIndicatorHeight
                             + leftPadding + rightPadding)
-    implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
-                             implicitContentHeight + topPadding + bottomPadding,
-                              2 * implicitIndicatorHeight + topPadding + bottomPadding)
+    implicitHeight:
+        Math.max(implicitBackgroundHeight + topInset + bottomInset,
+                 implicitContentHeight + topPadding + bottomPadding,
+                 2 * implicitIndicatorHeight + topPadding + bottomPadding)
     padding: AkUnit.create(4 * ThemeSettings.controlScale, "dp").pixels
     spacing: AkUnit.create(8 * ThemeSettings.controlScale, "dp").pixels
     hoverEnabled: true
@@ -84,24 +85,43 @@ T.Switch {
             }
         }
     }
-    contentItem: IconLabel {
-        id: iconLabel
-        spacing: control.spacing
-        mirrored: control.mirrored
-        display: control.display
-        icon.name: control.icon.name
-        icon.source: control.icon.source
-        icon.width: control.icon.width
-        icon.height: control.icon.height
-        icon.color: ThemeSettings.colorActiveWindowText
-        text: control.text
-        font: control.font
-        color: ThemeSettings.colorActiveWindowText
-        alignment: Qt.AlignLeft
-        anchors.leftMargin: switchThumb.width / 2
-        anchors.left: sliderIndicator.right
+
+    contentItem: Item {
+        anchors.leftMargin: indicatorRect.width / 2
+        anchors.left: checkBoxIndicator.right
         anchors.rightMargin: control.rightPadding
         anchors.right: control.right
+
+        GridLayout {
+            id: iconLabel
+            columnSpacing: control.spacing
+            rowSpacing: control.spacing
+            layoutDirection: control.mirrored?
+                                 Qt.RightToLeft:
+                                 Qt.LeftToRight
+            columns: control.display == AbstractButton.TextUnderIcon? 1: 2
+            anchors.verticalCenter: parent.verticalCenter
+
+            property color color: ThemeSettings.colorActiveWindowText
+
+            AkColorizedImage {
+                width: control.icon.width
+                height: control.icon.height
+                source: control.icon.source
+                color: iconLabel.color
+                visible: status == Image.Ready
+                         && control.display != AbstractButton.TextOnly
+                Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+            }
+            Text {
+                text: control.text
+                font: control.font
+                color: iconLabel.color
+                visible: text
+                         && control.display != AbstractButton.IconOnly
+                Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+            }
+        }
     }
 
     states: [
@@ -119,7 +139,6 @@ T.Switch {
             }
             PropertyChanges {
                 target: iconLabel
-                icon.color: ThemeSettings.colorDisabledWindowText
                 color: ThemeSettings.colorDisabledWindowText
             }
         },

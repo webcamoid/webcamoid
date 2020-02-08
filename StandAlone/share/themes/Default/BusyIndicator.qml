@@ -47,7 +47,9 @@ T.BusyIndicator {
 
             RotationAnimator {
                 target: item
-                running: control.visible && control.running
+                running: control.visible
+                         && control.running
+                         && control.enabled
                 from: 0
                 to: 360
                 loops: Animation.Infinite

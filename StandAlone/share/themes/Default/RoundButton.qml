@@ -20,7 +20,7 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Templates 2.5 as T
-import QtQuick.Controls.impl 2.12
+import QtQuick.Layouts 1.3
 import Ak 1.0
 
 T.RoundButton {
@@ -42,69 +42,93 @@ T.RoundButton {
 
     readonly property int animationTime: 200
 
-    contentItem: IconLabel {
-        id: iconLabel
-        spacing: control.spacing
-        mirrored: control.mirrored
-        display: control.display
-        icon.name: control.icon.name
-        icon.source: control.icon.source
-        icon.width: control.icon.width
-        icon.height: control.icon.height
-        icon.color: control.highlighted?
-                        ThemeSettings.colorActiveHighlightedText:
-                    control.flat?
-                        ThemeSettings.colorActiveHighlight:
-                        ThemeSettings.colorActiveButtonText
-        text: control.text
-        font: control.font
-        color: control.highlighted?
-                   ThemeSettings.colorActiveHighlightedText:
-               control.flat?
-                   ThemeSettings.colorActiveHighlight:
-                   ThemeSettings.colorActiveButtonText
+    contentItem: Item {
+        GridLayout {
+            id: iconLabel
+            columnSpacing: control.spacing
+            rowSpacing: control.spacing
+            layoutDirection: control.mirrored?
+                                 Qt.RightToLeft:
+                                 Qt.LeftToRight
+            columns: control.display == AbstractButton.TextUnderIcon? 1: 2
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.horizontalCenter: parent.horizontalCenter
+
+            property color color:
+                control.highlighted?
+                    ThemeSettings.colorActiveHighlightedText:
+                control.flat?
+                    ThemeSettings.colorActiveHighlight:
+                    ThemeSettings.colorActiveButtonText
+
+            AkColorizedImage {
+                width: control.icon.width
+                height: control.icon.height
+                source: control.icon.source
+                color: iconLabel.color
+                visible: status == Image.Ready
+                         && control.display != AbstractButton.TextOnly
+                Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+            }
+            Text {
+                text: control.text
+                font: control.font
+                color: iconLabel.color
+                visible: text
+                         && control.display != AbstractButton.IconOnly
+                Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+            }
+        }
     }
 
-    background: Rectangle {
-        id: buttonRectangle
+    background: Item {
         implicitWidth: 2 * control.radius
         implicitHeight: 2 * control.radius
-        radius: control.radius
-        border.width:
-            control.checkable?
-                AkUnit.create(2 * ThemeSettings.controlScale, "dp").pixels:
-                AkUnit.create(1 * ThemeSettings.controlScale, "dp").pixels
-        border.color:
-            control.checkable && control.checked && control.highlighted?
-                ThemeSettings.colorActiveHighlightedText:
-            control.checkable && control.checked?
-                ThemeSettings.colorActiveHighlight:
-            control.checkable?
-                ThemeSettings.colorActiveDark:
-            control.highlighted || control.flat?
-                ThemeSettings.shade(ThemeSettings.colorActiveWindow, 0, 0):
-                ThemeSettings.colorActiveDark
-        color: control.highlighted?
-                   ThemeSettings.colorActiveHighlight:
-               control.flat?
-                   ThemeSettings.shade(ThemeSettings.colorActiveWindow, 0, 0):
-                   ThemeSettings.colorActiveButton
-        gradient: Gradient {
-            GradientStop {
-                position: 0
-                color: ThemeSettings.colorActiveWindow.hslLightness < 0.5?
-                           Qt.tint(buttonRectangle.color,
-                                   ThemeSettings.shade(ThemeSettings.colorActiveDark, 0, 0.25)):
-                           Qt.tint(buttonRectangle.color,
-                                   ThemeSettings.shade(ThemeSettings.colorActiveLight, 0, 0.25))
-            }
-            GradientStop {
-                position: 1
-                color: ThemeSettings.colorActiveWindow.hslLightness < 0.5?
-                           Qt.tint(buttonRectangle.color,
-                                   ThemeSettings.shade(ThemeSettings.colorActiveLight, 0, 0.25)):
-                           Qt.tint(buttonRectangle.color,
-                                   ThemeSettings.shade(ThemeSettings.colorActiveDark, 0, 0.25))
+
+        Rectangle {
+            id: buttonRectangle
+            x: (control.background.width - width) / 2
+            y: (control.background.height - height) / 2
+            width: Math.min(control.background.width,
+                            control.background.height)
+            height: width
+            radius: width / 2
+            border.width:
+                control.checkable?
+                    AkUnit.create(2 * ThemeSettings.controlScale, "dp").pixels:
+                    AkUnit.create(1 * ThemeSettings.controlScale, "dp").pixels
+            border.color:
+                control.checkable && control.checked && control.highlighted?
+                    ThemeSettings.colorActiveHighlightedText:
+                control.checkable && control.checked?
+                    ThemeSettings.colorActiveHighlight:
+                control.checkable?
+                    ThemeSettings.colorActiveDark:
+                control.highlighted || control.flat?
+                    ThemeSettings.shade(ThemeSettings.colorActiveWindow, 0, 0):
+                    ThemeSettings.colorActiveDark
+            color: control.highlighted?
+                       ThemeSettings.colorActiveHighlight:
+                   control.flat?
+                       ThemeSettings.shade(ThemeSettings.colorActiveWindow, 0, 0):
+                       ThemeSettings.colorActiveButton
+            gradient: Gradient {
+                GradientStop {
+                    position: 0
+                    color: ThemeSettings.colorActiveWindow.hslLightness < 0.5?
+                               Qt.tint(buttonRectangle.color,
+                                       ThemeSettings.shade(ThemeSettings.colorActiveDark, 0, 0.25)):
+                               Qt.tint(buttonRectangle.color,
+                                       ThemeSettings.shade(ThemeSettings.colorActiveLight, 0, 0.25))
+                }
+                GradientStop {
+                    position: 1
+                    color: ThemeSettings.colorActiveWindow.hslLightness < 0.5?
+                               Qt.tint(buttonRectangle.color,
+                                       ThemeSettings.shade(ThemeSettings.colorActiveLight, 0, 0.25)):
+                               Qt.tint(buttonRectangle.color,
+                                       ThemeSettings.shade(ThemeSettings.colorActiveDark, 0, 0.25))
+                }
             }
         }
     }
@@ -116,12 +140,6 @@ T.RoundButton {
 
             PropertyChanges {
                 target: iconLabel
-                icon.color:
-                    control.highlighted?
-                        ThemeSettings.colorDisabledHighlightedText:
-                    control.flat?
-                        ThemeSettings.colorDisabledHighlight:
-                        ThemeSettings.colorDisabledButtonText
                 color:
                     control.highlighted?
                         ThemeSettings.colorDisabledHighlightedText:

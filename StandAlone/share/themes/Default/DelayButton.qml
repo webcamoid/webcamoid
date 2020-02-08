@@ -20,7 +20,7 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Templates 2.5 as T
-import QtQuick.Controls.impl 2.12
+import QtQuick.Layouts 1.3
 import Ak 1.0
 
 T.DelayButton {
@@ -53,21 +53,36 @@ T.DelayButton {
             + AkUnit.create(18 * ThemeSettings.controlScale, "dp").pixels
         implicitHeight: iconLabel.implicitHeight
 
-        IconLabel {
+        GridLayout {
             id: iconLabel
-            spacing: control.spacing
-            mirrored: control.mirrored
-            display: control.display
-            icon.name: control.icon.name
-            icon.source: control.icon.source
-            icon.width: control.icon.width
-            icon.height: control.icon.height
-            icon.color: ThemeSettings.colorActiveButtonText
-            text: control.text
-            font: control.font
-            color: ThemeSettings.colorActiveButtonText
+            columnSpacing: control.spacing
+            rowSpacing: control.spacing
+            layoutDirection: control.mirrored?
+                                 Qt.RightToLeft:
+                                 Qt.LeftToRight
+            columns: control.display == AbstractButton.TextUnderIcon? 1: 2
             anchors.verticalCenter: buttonContent.verticalCenter
             anchors.horizontalCenter: buttonContent.horizontalCenter
+
+            property color color: ThemeSettings.colorActiveButtonText
+
+            AkColorizedImage {
+                width: control.icon.width
+                height: control.icon.height
+                source: control.icon.source
+                color: iconLabel.color
+                visible: status == Image.Ready
+                         && control.display != AbstractButton.TextOnly
+                Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+            }
+            Text {
+                text: control.text
+                font: control.font
+                color: iconLabel.color
+                visible: text
+                         && control.display != AbstractButton.IconOnly
+                Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+            }
         }
     }
     background: Item {
@@ -128,7 +143,6 @@ T.DelayButton {
 
             PropertyChanges {
                 target: iconLabel
-                icon.color: ThemeSettings.colorDisabledButtonText
                 color: ThemeSettings.colorDisabledButtonText
             }
             PropertyChanges {

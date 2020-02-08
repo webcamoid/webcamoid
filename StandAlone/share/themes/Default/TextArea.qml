@@ -20,7 +20,6 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Templates 2.5 as T
-import QtQuick.Controls.impl 2.12
 import Ak 1.0
 
 T.TextArea {
@@ -56,19 +55,22 @@ T.TextArea {
     readonly property real placeHolderPadding:
         AkUnit.create(4 * ThemeSettings.controlScale, "dp").pixels
 
-    PlaceholderText {
+    Text {
         id: placeholder
         x: control.leftPadding
         y: control.topPadding
-
+        width: control.width - (control.leftPadding + control.rightPadding)
+        height: control.height - (control.topPadding + control.bottomPadding)
         text: control.placeholderText
         font: control.font
         color: control.placeholderTextColor
         verticalAlignment: control.verticalAlignment
         elide: Text.ElideRight
         renderType: control.renderType
-        opacity: 0
-        visible: control.placeholderText.length
+        visible: !control.length
+                 && !control.preeditText
+                 && (!control.activeFocus
+                     || control.horizontalAlignment !== Qt.AlignHCenter)
     }
 
     background: Rectangle {

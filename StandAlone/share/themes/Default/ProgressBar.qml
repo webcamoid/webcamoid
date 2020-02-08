@@ -20,7 +20,6 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Templates 2.5 as T
-import QtQuick.Controls.impl 2.12
 import Ak 1.0
 
 T.ProgressBar {
@@ -29,25 +28,189 @@ T.ProgressBar {
                             implicitContentWidth + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              implicitContentHeight + topPadding + bottomPadding)
+    hoverEnabled: true
 
-    contentItem: ProgressBarImpl {
-        implicitHeight: AkUnit.create(4 * ThemeSettings.controlScale, "dp").pixels
-        scale: control.mirrored? -1: 1
-        color:
-            control.enabled?
-                ThemeSettings.colorActiveHighlight:
-                ThemeSettings.colorDisabledHighlight
-        progress: control.position
-        indeterminate: control.visible && control.indeterminate
+    property int animationTime: 3000
+
+    contentItem: Item {
+        Rectangle {
+            id: progressRect
+            color:
+                !control.enabled?
+                    ThemeSettings.colorDisabledHighlight:
+                control.hovered?
+                    ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0.1):
+                    ThemeSettings.colorActiveHighlight
+            implicitHeight: backgroundRect.implicitHeight
+            x: control.indeterminate?
+                   kx * backgroundRect.width:
+                   0
+            y: (control.height - height) / 2
+            width: control.indeterminate?
+                       kw * backgroundRect.width:
+                       backgroundRect.width * control.position
+            radius: height / 2
+
+            property real kx: 0
+            property real kw: 0
+
+            SequentialAnimation {
+                running: control.indeterminate && control.enabled
+                loops: Animation.Infinite
+
+                onStopped: {
+                    progressRect.kx = 0
+                    progressRect.kw = 0
+                }
+
+                // Advance
+
+                NumberAnimation {
+                    target: progressRect
+                    property: "kw"
+                    to: 1 / 4
+                    duration: control.animationTime / 8
+                }
+                ParallelAnimation {
+                    NumberAnimation {
+                        target: progressRect
+                        property: "kx"
+                        to: 1 / 8
+                        duration: control.animationTime / 8
+                    }
+                    NumberAnimation {
+                        target: progressRect
+                        property: "kw"
+                        to: 1 / 2
+                        duration: control.animationTime / 8
+                    }
+                }
+                ParallelAnimation {
+                    NumberAnimation {
+                        target: progressRect
+                        property: "kx"
+                        to: 1 / 4
+                        duration: control.animationTime / 8
+                    }
+                    NumberAnimation {
+                        target: progressRect
+                        property: "kw"
+                        to: 3 / 4
+                        duration: control.animationTime / 8
+                    }
+                }
+                ParallelAnimation {
+                    NumberAnimation {
+                        target: progressRect
+                        property: "kx"
+                        to: 1
+                        duration: control.animationTime / 8
+                    }
+                    NumberAnimation {
+                        target: progressRect
+                        property: "kw"
+                        to: 0
+                        duration: control.animationTime / 8
+                    }
+                }
+
+                // Reset
+
+                ParallelAnimation {
+                    NumberAnimation {
+                        target: progressRect
+                        property: "kx"
+                        to: 0
+                        duration: 0
+                    }
+                    NumberAnimation {
+                        target: progressRect
+                        property: "kw"
+                        to: 0
+                        duration: 0
+                    }
+                }
+
+                // Go Faster
+
+                NumberAnimation {
+                    target: progressRect
+                    property: "kw"
+                    to: 1 / 4
+                    duration: control.animationTime / 16
+                }
+                ParallelAnimation {
+                    NumberAnimation {
+                        target: progressRect
+                        property: "kx"
+                        to: 1 / 8
+                        duration: control.animationTime / 16
+                    }
+                    NumberAnimation {
+                        target: progressRect
+                        property: "kw"
+                        to: 1 / 2
+                        duration: control.animationTime / 16
+                    }
+                }
+                ParallelAnimation {
+                    NumberAnimation {
+                        target: progressRect
+                        property: "kx"
+                        to: 1 / 4
+                        duration: control.animationTime / 16
+                    }
+                    NumberAnimation {
+                        target: progressRect
+                        property: "kw"
+                        to: 3 / 4
+                        duration: control.animationTime / 16
+                    }
+                }
+                ParallelAnimation {
+                    NumberAnimation {
+                        target: progressRect
+                        property: "kx"
+                        to: 1
+                        duration: control.animationTime / 16
+                    }
+                    NumberAnimation {
+                        target: progressRect
+                        property: "kw"
+                        to: 0
+                        duration: control.animationTime / 16
+                    }
+                }
+
+                // Reset
+
+                ParallelAnimation {
+                    NumberAnimation {
+                        target: progressRect
+                        property: "kx"
+                        to: 0
+                        duration: 0
+                    }
+                    NumberAnimation {
+                        target: progressRect
+                        property: "kw"
+                        to: 0
+                        duration: 0
+                    }
+                }
+
+            }
+        }
     }
 
     background: Rectangle {
-        color:
-            control.enabled?
-                ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0.0, 0.5):
-                ThemeSettings.constShade(ThemeSettings.colorDisabledHighlight, 0.0, 0.5)
-        implicitWidth: AkUnit.create(200 * ThemeSettings.controlScale, "dp").pixels
-        implicitHeight: AkUnit.create(4 * ThemeSettings.controlScale, "dp").pixels
+        id: backgroundRect
+        color: ThemeSettings.constShade(progressRect.color, 0.0, 0.5)
+        implicitWidth:
+            AkUnit.create(120 * ThemeSettings.controlScale, "dp").pixels
+        implicitHeight:
+            AkUnit.create(4 * ThemeSettings.controlScale, "dp").pixels
         y: (control.height - height) / 2
+        radius: height / 2
     }
 }

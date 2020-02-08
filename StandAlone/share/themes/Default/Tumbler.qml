@@ -20,34 +20,41 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Templates 2.5 as T
-import QtQuick.Controls.impl 2.12
 import Ak 1.0
 
 T.Tumbler {
-    id: tumbler
+    id: control
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             implicitContentWidth + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              implicitContentHeight + topPadding + bottomPadding)
 
     delegate: Text {
+        text: modelData
         color: enabled?
                    ThemeSettings.colorActiveWindowText:
                    ThemeSettings.colorDisabledWindowText
-        font: tumbler.font
+        font: control.font
         opacity: (1.0 - Math.abs(Tumbler.displacement)
-                  / (tumbler.visibleItemCount / 2))
-                 * (tumbler.enabled? 1: 0.6)
+                  / (control.visibleItemCount / 2))
+                 * (control.enabled? 1: 0.6)
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
     }
 
-    contentItem: TumblerView {
+    contentItem: PathView {
         id: tumblerView
-        implicitWidth: AkUnit.create(60 * ThemeSettings.controlScale, "dp").pixels
-        implicitHeight: AkUnit.create(200 * ThemeSettings.controlScale, "dp").pixels
-        model: tumbler.model
-        delegate: tumbler.delegate
+        implicitWidth:
+            AkUnit.create(60 * ThemeSettings.controlScale, "dp").pixels
+        implicitHeight:
+            AkUnit.create(200 * ThemeSettings.controlScale, "dp").pixels
+        model: control.model
+        delegate: control.delegate
+        clip: true
+        pathItemCount: control.visibleItemCount + 1
+        preferredHighlightBegin: 0.5
+        preferredHighlightEnd: 0.5
+        dragMargin: width / 2
 
         path: Path {
             startX: tumblerView.width / 2
@@ -55,11 +62,12 @@ T.Tumbler {
 
             PathLine {
                 x: tumblerView.width / 2
-                y: (tumbler.visibleItemCount + 1)
+                y: (control.visibleItemCount + 1)
                    * tumblerView.delegateHeight - tumblerView.delegateHeight / 2
             }
         }
 
-        property real delegateHeight: tumbler.availableHeight / tumbler.visibleItemCount
+        property real delegateHeight:
+            control.availableHeight / control.visibleItemCount
     }
 }

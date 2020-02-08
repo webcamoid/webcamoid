@@ -89,7 +89,7 @@ T.Slider {
             anchors.left: horizontalLeftTrack.right
             anchors.right: background.right
             anchors.verticalCenter: background.verticalCenter
-            color: ThemeSettings.constShade(sliderThumbRect.color, 0, 0.4)
+            color: ThemeSettings.constShade(sliderThumbRect.color, 0, 0.5)
             visible: control.horizontal
         }
         Rectangle {
@@ -99,7 +99,7 @@ T.Slider {
             radius: Math.min(width, height) / 2
             anchors.horizontalCenter: background.horizontalCenter
             anchors.top: background.top
-            color: ThemeSettings.constShade(sliderThumbRect.color, 0, 0.4)
+            color: ThemeSettings.constShade(sliderThumbRect.color, 0, 0.5)
             visible: control.vertical
         }
         Rectangle {
@@ -208,7 +208,7 @@ T.Slider {
 
             PropertyChanges {
                 target: sliderThumbRect
-                color: ThemeSettings.colorDisabledHighlight
+                color: ThemeSettings.shade(ThemeSettings.colorDisabledWindow, -0.5)
             }
         },
         State {
