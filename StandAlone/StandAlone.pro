@@ -90,7 +90,8 @@ win32: LIBS += -lole32
 
 OTHER_FILES = \
     $$files(share/qml/*.qml) \
-    $$files(share/themes/Default/*.qml)
+    $$files(share/themes/Default/*.qml) \
+    $$files(share/themes/Default/Private/*.qml)
 
 unix: OTHER_FILES += $${MANPAGESOURCES}
 macx: OTHER_FILES += Info.plist
@@ -125,6 +126,7 @@ SOURCES = \
 lupdate_only {
     SOURCES += $$files(share/qml/*.qml)
     SOURCES += $$files(share/themes/Default/*.qml)
+    SOURCES += $$files(share/themes/Default/Private/*.qml)
 }
 
 QML_IMPORT_PATH += $$PWD/../libAvKys/Lib/share/qml

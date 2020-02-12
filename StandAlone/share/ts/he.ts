@@ -2184,37 +2184,37 @@
     </message>
     <message>
         <location filename="../qml/main.qml" line="119"/>
-        <location filename="../qml/main.qml" line="331"/>
+        <location filename="../qml/main.qml" line="333"/>
         <source>Play</source>
         <translation>ניגון</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="343"/>
+        <location filename="../qml/main.qml" line="347"/>
         <source>Configure sources</source>
         <translation>הגדרת מקורות</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="359"/>
+        <location filename="../qml/main.qml" line="365"/>
         <source>Configure audio</source>
         <translation>הגדרת שמע</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="381"/>
+        <location filename="../qml/main.qml" line="389"/>
         <source>Take a photo</source>
         <translation>צילום תמונה</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="393"/>
+        <location filename="../qml/main.qml" line="403"/>
         <source>Record video</source>
         <translation>הקלטת וידאו</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="409"/>
+        <location filename="../qml/main.qml" line="421"/>
         <source>Configure Effects</source>
         <translation>הגדרת אפקטים</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="438"/>
+        <location filename="../qml/main.qml" line="452"/>
         <source>Preferences</source>
         <translation>העדפות</translation>
     </message>

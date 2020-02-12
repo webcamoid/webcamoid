@@ -20,8 +20,8 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Templates 2.5 as T
-import QtQuick.Layouts 1.3
 import Ak 1.0
+import "Private"
 
 T.Switch {
     id: control
@@ -87,40 +87,25 @@ T.Switch {
     }
 
     contentItem: Item {
-        anchors.leftMargin: indicatorRect.width / 2
-        anchors.left: checkBoxIndicator.right
+        anchors.leftMargin: switchThumb.width / 2
+        anchors.left: sliderIndicator.right
         anchors.rightMargin: control.rightPadding
         anchors.right: control.right
 
-        GridLayout {
+        IconLabel {
             id: iconLabel
-            columnSpacing: control.spacing
-            rowSpacing: control.spacing
-            layoutDirection: control.mirrored?
-                                 Qt.RightToLeft:
-                                 Qt.LeftToRight
-            columns: control.display == AbstractButton.TextUnderIcon? 1: 2
-            anchors.verticalCenter: parent.verticalCenter
-
-            property color color: ThemeSettings.colorActiveWindowText
-
-            AkColorizedImage {
-                width: control.icon.width
-                height: control.icon.height
-                source: control.icon.source
-                color: iconLabel.color
-                visible: status == Image.Ready
-                         && control.display != AbstractButton.TextOnly
-                Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-            }
-            Text {
-                text: control.text
-                font: control.font
-                color: iconLabel.color
-                visible: text
-                         && control.display != AbstractButton.IconOnly
-                Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-            }
+            spacing: control.spacing
+            mirrored: control.mirrored
+            display: control.display
+            iconName: control.icon.name
+            iconSource: control.icon.source
+            iconWidth: control.icon.width
+            iconHeight: control.icon.height
+            text: control.text
+            font: control.font
+            color: ThemeSettings.colorActiveWindowText
+            alignment: Qt.AlignLeft | Qt.AlignVCenter
+            anchors.verticalCenter: control.contentItem.verticalCenter
         }
     }
 

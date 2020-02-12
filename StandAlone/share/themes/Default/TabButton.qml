@@ -20,22 +20,14 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Templates 2.5 as T
-import QtQuick.Controls.impl 2.12
 import Ak 1.0
+import "Private"
 
 T.TabButton {
-    id: button
+    id: control
     font.bold: true
-    icon.width:
-        button.display == AbstractButton.IconOnly
-        || button.highlighted?
-            0.8 * Math.min(width, height):
-            0.375 * Math.min(width, height)
-    icon.height:
-        button.display == AbstractButton.IconOnly
-        || button.highlighted?
-            0.8 * Math.min(width, height):
-            0.375 * Math.min(width, height)
+    icon.width: AkUnit.create(18 * ThemeSettings.controlScale, "dp").pixels
+    icon.height: AkUnit.create(18 * ThemeSettings.controlScale, "dp").pixels
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             implicitContentWidth + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
@@ -46,58 +38,46 @@ T.TabButton {
 
     readonly property int animationTime: 200
 
-    function buttonHeight()
-    {
-        let defaultHeight =
-            AkUnit.create(36 * ThemeSettings.controlScale, "dp").pixels
-
-        return Math.max(defaultHeight,
-                        iconLabel.height
-                        + AkUnit.create(18 * ThemeSettings.controlScale,
-                                     "dp").pixels)
-    }
-
     contentItem: Item {
         id: buttonContent
         implicitWidth:
             iconLabel.implicitWidth
-            + (button.display == AbstractButton.IconOnly?
-               0: AkUnit.create(18 * ThemeSettings.controlScale, "dp").pixels)
+            + AkUnit.create(18 * ThemeSettings.controlScale, "dp").pixels
         implicitHeight: iconLabel.implicitHeight
 
         IconLabel {
             id: iconLabel
-            spacing: button.spacing
-            mirrored: button.mirrored
-            display: button.display
+            spacing: control.spacing
+            mirrored: control.mirrored
+            display: control.display
             anchors.verticalCenter: buttonContent.verticalCenter
             anchors.horizontalCenter: buttonContent.horizontalCenter
-            icon.name: button.icon.name
-            icon.source: button.icon.source
-            icon.width: button.icon.width
-            icon.height: button.icon.height
-            icon.color: ThemeSettings.colorActiveWindowText
-            text: button.text
-            font: button.font
+            iconName: control.icon.name
+            iconSource: control.icon.source
+            iconWidth: control.icon.width
+            iconHeight: control.icon.height
+            text: control.text
+            font: control.font
             color: ThemeSettings.colorActiveWindowText
         }
     }
 
     background: Rectangle {
         id: buttonRectangleBelow
-        implicitWidth: AkUnit.create(64 * ThemeSettings.controlScale, "dp").pixels
-        implicitHeight: button.buttonHeight()
+        implicitWidth:
+            AkUnit.create(64 * ThemeSettings.controlScale, "dp").pixels
+        implicitHeight:
+            AkUnit.create(36 * ThemeSettings.controlScale, "dp").pixels
         color: ThemeSettings.shade(ThemeSettings.colorActiveWindow, 0.0, 0.0)
     }
 
     states: [
         State {
             name: "Disabled"
-            when: !button.enabled
+            when: !control.enabled
 
             PropertyChanges {
                 target: iconLabel
-                icon.color: ThemeSettings.colorDisabledWindowText
                 color: ThemeSettings.colorDisabledWindowText
             }
             PropertyChanges {
@@ -107,12 +87,12 @@ T.TabButton {
         },
         State {
             name: "Hovered"
-            when: button.enabled
-                  && !button.checked
-                  && (button.hovered
-                      || button.visualFocus
-                      || button.activeFocus)
-                  && !button.pressed
+            when: control.enabled
+                  && !control.checked
+                  && (control.hovered
+                      || control.visualFocus
+                      || control.activeFocus)
+                  && !control.pressed
 
             PropertyChanges {
                 target: buttonRectangleBelow
@@ -123,9 +103,9 @@ T.TabButton {
         },
         State {
             name: "Pressed"
-            when: button.enabled
-                  && !button.checked
-                  && button.pressed
+            when: control.enabled
+                  && !control.checked
+                  && control.pressed
 
             PropertyChanges {
                 target: buttonRectangleBelow
@@ -136,31 +116,29 @@ T.TabButton {
         },
         State {
             name: "Checked"
-            when: button.enabled
-                  && button.checked
-                  && !(button.hovered
-                       || button.visualFocus
-                       || button.activeFocus)
-                  && !button.pressed
+            when: control.enabled
+                  && control.checked
+                  && !(control.hovered
+                       || control.visualFocus
+                       || control.activeFocus)
+                  && !control.pressed
 
             PropertyChanges {
                 target: iconLabel
-                icon.color: ThemeSettings.colorActiveHighlight
                 color: ThemeSettings.colorActiveHighlight
             }
         },
         State {
             name: "CheckedHovered"
-            when: button.enabled
-                  && button.checked
-                  && (button.hovered
-                      || button.visualFocus
-                      || button.activeFocus)
-                  && !button.pressed
+            when: control.enabled
+                  && control.checked
+                  && (control.hovered
+                      || control.visualFocus
+                      || control.activeFocus)
+                  && !control.pressed
 
             PropertyChanges {
                 target: iconLabel
-                icon.color: ThemeSettings.colorActiveHighlight
                 color: ThemeSettings.colorActiveHighlight
             }
             PropertyChanges {
@@ -172,13 +150,12 @@ T.TabButton {
         },
         State {
             name: "CheckedPressed"
-            when: button.enabled
-                  && button.checked
-                  && button.pressed
+            when: control.enabled
+                  && control.checked
+                  && control.pressed
 
             PropertyChanges {
                 target: iconLabel
-                icon.color: ThemeSettings.colorActiveHighlight
                 color: ThemeSettings.colorActiveHighlight
             }
             PropertyChanges {
@@ -194,11 +171,11 @@ T.TabButton {
         PropertyAnimation {
             target: iconLabel
             properties: "color,icon.color"
-            duration: button.animationTime
+            duration: control.animationTime
         }
         ColorAnimation {
             target: buttonRectangleBelow
-            duration: button.animationTime
+            duration: control.animationTime
         }
     }
 }

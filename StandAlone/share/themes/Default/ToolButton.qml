@@ -20,20 +20,14 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Templates 2.5 as T
-import QtQuick.Controls.impl 2.12
 import Ak 1.0
+import "Private"
 
 T.ToolButton {
-    id: button
+    id: control
     font.bold: true
-    icon.width:
-        button.display == AbstractButton.IconOnly?
-            0.8 * Math.min(width, height):
-            0.375 * Math.min(width, height)
-    icon.height:
-        button.display == AbstractButton.IconOnly?
-            0.8 * Math.min(width, height):
-            0.375 * Math.min(width, height)
+    icon.width: AkUnit.create(18 * ThemeSettings.controlScale, "dp").pixels
+    icon.height: AkUnit.create(18 * ThemeSettings.controlScale, "dp").pixels
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             implicitContentWidth + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
@@ -44,60 +38,36 @@ T.ToolButton {
 
     readonly property int animationTime: 200
 
-    function buttonWidth()
-    {
-        if (button.display == AbstractButton.IconOnly)
-            return AkUnit.create(48 * ThemeSettings.controlScale, "dp").pixels
-
-        return AkUnit.create(64 * ThemeSettings.controlScale, "dp").pixels
-    }
-
-    function buttonHeight()
-    {
-        if (button.display == AbstractButton.IconOnly)
-            return AkUnit.create(48 * ThemeSettings.controlScale, "dp").pixels
-
-        let defaultHeight =
-            button.highlighted?
-                AkUnit.create(48 * ThemeSettings.controlScale, "dp").pixels:
-                AkUnit.create(36 * ThemeSettings.controlScale, "dp").pixels
-
-        return Math.max(defaultHeight,
-                        iconLabel.height
-                        + AkUnit.create(18 * ThemeSettings.controlScale,
-                                     "dp").pixels)
-    }
-
     contentItem: Item {
         id: buttonContent
         implicitWidth:
             iconLabel.implicitWidth
-            + (button.display == AbstractButton.IconOnly?
-               0: AkUnit.create(18 * ThemeSettings.controlScale, "dp").pixels)
+            + AkUnit.create(18 * ThemeSettings.controlScale, "dp").pixels
         implicitHeight: iconLabel.implicitHeight
 
         IconLabel {
             id: iconLabel
-            spacing: button.spacing
-            mirrored: button.mirrored
-            display: button.display
+            spacing: control.spacing
+            mirrored: control.mirrored
+            display: control.display
             anchors.verticalCenter: buttonContent.verticalCenter
             anchors.horizontalCenter: buttonContent.horizontalCenter
-            icon.name: button.icon.name
-            icon.source: button.icon.source
-            icon.width: button.icon.width
-            icon.height: button.icon.height
-            icon.color: ThemeSettings.colorActiveHighlightedText
-            text: button.text
-            font: button.font
+            iconName: control.icon.name
+            iconSource: control.icon.source
+            iconWidth: control.icon.width
+            iconHeight: control.icon.height
+            text: control.text
+            font: control.font
             color: ThemeSettings.colorActiveHighlightedText
         }
     }
     background: Rectangle {
         id: buttonRectangleBelow
-        implicitWidth: button.buttonWidth()
-        implicitHeight: button.buttonHeight()
-        color: button.highlighted?
+        implicitWidth:
+            AkUnit.create(64 * ThemeSettings.controlScale, "dp").pixels
+        implicitHeight:
+            AkUnit.create(36 * ThemeSettings.controlScale, "dp").pixels
+        color: control.highlighted?
                    ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0.1):
                    ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0, 0)
     }
@@ -105,40 +75,39 @@ T.ToolButton {
     states: [
         State {
             name: "Disabled"
-            when: !button.enabled
+            when: !control.enabled
 
             PropertyChanges {
                 target: iconLabel
-                icon.color: ThemeSettings.colorDisabledHighlightedText
                 color: ThemeSettings.colorDisabledHighlightedText
             }
             PropertyChanges {
                 target: buttonRectangleBelow
-                color: button.highlighted?
+                color: control.highlighted?
                            ThemeSettings.constShade(ThemeSettings.colorDisabledHighlight, 0.1):
                            ThemeSettings.constShade(ThemeSettings.colorDisabledHighlight, 0, 0)
             }
         },
         State {
             name: "Hovered"
-            when: button.enabled
-                  && (button.hovered || button.visualFocus)
-                  && !button.checked
-                  && !button.pressed
+            when: control.enabled
+                  && (control.hovered || control.visualFocus)
+                  && !control.checked
+                  && !control.pressed
 
             PropertyChanges {
                 target: buttonRectangleBelow
                 color:
-                    button.highlighted?
+                    control.highlighted?
                         ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0.2):
                         ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0.1)
             }
         },
         State {
             name: "Checked"
-            when: button.enabled
-                  && button.checked
-                  && !button.pressed
+            when: control.enabled
+                  && control.checked
+                  && !control.pressed
 
             PropertyChanges {
                 target: buttonRectangleBelow
@@ -148,7 +117,7 @@ T.ToolButton {
         },
         State {
             name: "Pressed"
-            when: button.pressed
+            when: control.pressed
 
             PropertyChanges {
                 target: buttonRectangleBelow
@@ -161,7 +130,7 @@ T.ToolButton {
     transitions: Transition {
         ColorAnimation {
             target: buttonRectangleBelow
-            duration: button.animationTime
+            duration: control.animationTime
         }
     }
 }

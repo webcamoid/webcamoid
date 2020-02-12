@@ -21,6 +21,7 @@ import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Templates 2.5 as T
 import Ak 1.0
+import "Private"
 
 T.ToolBar {
     id: toolBar
@@ -28,6 +29,7 @@ T.ToolBar {
                             contentWidth + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              contentHeight + topPadding + bottomPadding)
+    padding: 0
     spacing: 0
     hoverEnabled: true
 

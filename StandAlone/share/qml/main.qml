@@ -323,9 +323,11 @@ ApplicationWindow {
 
             ToolButton {
                 id: itmPlayStopButton
-                width: toolBar.height
-                height: toolBar.height
+                implicitWidth: toolBar.height
+                implicitHeight: toolBar.height
                 icon.source: "image://icons/play"
+                icon.width: 0.75 * implicitWidth
+                icon.height: 0.75 * implicitHeight
                 checkable: true
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Play")
@@ -335,9 +337,11 @@ ApplicationWindow {
             }
             ToolButton {
                 id: optionWebcam
-                width: toolBar.height
-                height: toolBar.height
+                implicitWidth: toolBar.height
+                implicitHeight: toolBar.height
                 icon.source: "image://icons/webcam"
+                icon.width: 0.75 * implicitWidth
+                icon.height: 0.75 * implicitHeight
                 checkable: true
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Configure sources")
@@ -351,9 +355,11 @@ ApplicationWindow {
             }
             ToolButton {
                 id: optionSound
-                width: toolBar.height
-                height: toolBar.height
+                implicitWidth: toolBar.height
+                implicitHeight: toolBar.height
                 icon.source: "image://icons/sound"
+                icon.width: 0.75 * implicitWidth
+                icon.height: 0.75 * implicitHeight
                 checkable: true
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Configure audio")
@@ -372,9 +378,11 @@ ApplicationWindow {
             }
             ToolButton {
                 id: optionPhoto
-                width: toolBar.height
-                height: toolBar.height
+                implicitWidth: toolBar.height
+                implicitHeight: toolBar.height
                 icon.source: "image://icons/photo"
+                icon.width: 0.75 * implicitWidth
+                icon.height: 0.75 * implicitHeight
                 checkable: true
                 enabled: MediaSource.state === AkElement.ElementStatePlaying
                 ToolTip.visible: hovered
@@ -384,9 +392,11 @@ ApplicationWindow {
             }
             ToolButton {
                 id: optionRecording
-                width: toolBar.height
-                height: toolBar.height
+                implicitWidth: toolBar.height
+                implicitHeight: toolBar.height
                 icon.source: "image://icons/video"
+                icon.width: 0.75 * implicitWidth
+                icon.height: 0.75 * implicitHeight
                 checkable: true
                 enabled: MediaSource.state === AkElement.ElementStatePlaying
                 ToolTip.visible: hovered
@@ -401,9 +411,11 @@ ApplicationWindow {
             }
             ToolButton {
                 id: optionEffects
-                width: toolBar.height
-                height: toolBar.height
+                implicitWidth: toolBar.height
+                implicitHeight: toolBar.height
                 icon.source: "image://icons/video-effects"
+                icon.width: 0.75 * implicitWidth
+                icon.height: 0.75 * implicitHeight
                 checkable: true
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Configure Effects")
@@ -430,9 +442,11 @@ ApplicationWindow {
             }
             ToolButton {
                 id: optionSettings
-                width: toolBar.height
-                height: toolBar.height
+                implicitWidth: toolBar.height
+                implicitHeight: toolBar.height
                 icon.source: "image://icons/settings"
+                icon.width: 0.75 * implicitWidth
+                icon.height: 0.75 * implicitHeight
                 checkable: true
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Preferences")

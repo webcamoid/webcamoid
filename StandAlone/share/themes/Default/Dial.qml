@@ -22,6 +22,7 @@ import QtQuick.Controls 2.5
 import QtQuick.Templates 2.5 as T
 import QtQuick.Shapes 1.12
 import Ak 1.0
+import "Private"
 
 T.Dial {
     id: control

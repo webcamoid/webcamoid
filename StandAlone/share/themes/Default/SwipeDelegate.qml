@@ -20,8 +20,8 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Templates 2.5 as T
-import QtQuick.Controls.impl 2.12
 import Ak 1.0
+import "Private"
 
 T.SwipeDelegate {
     id: control
@@ -57,14 +57,10 @@ T.SwipeDelegate {
         spacing: control.spacing
         mirrored: control.mirrored
         display: control.display
-        icon.name: control.icon.name
-        icon.source: control.icon.source
-        icon.width: control.icon.width
-        icon.height: control.icon.height
-        icon.color:
-            control.highlighted?
-                ThemeSettings.colorActiveHighlightedText:
-                ThemeSettings.colorActiveWindowText
+        iconName: control.icon.name
+        iconSource: control.icon.source
+        iconWidth: control.icon.width
+        iconHeight: control.icon.height
         text: control.text
         font: control.font
         color: control.highlighted?
@@ -72,7 +68,8 @@ T.SwipeDelegate {
                    ThemeSettings.colorActiveWindowText
         alignment: control.display === IconLabel.IconOnly
                    || control.display === IconLabel.TextUnderIcon?
-                       Qt.AlignCenter: Qt.AlignLeft
+                       Qt.AlignCenter | Qt.AlignVCenter:
+                       Qt.AlignLeft | Qt.AlignVCenter
     }
 
     background: Rectangle {
@@ -98,6 +95,7 @@ T.SwipeDelegate {
             visible: swipe.right || control.swipe.position > 0.9
             color: backgroundRect.iconColor
             asynchronous: true
+            mipmap: true
         }
         AkColorizedImage {
             source: "image://icons/swipe-right.png"
@@ -108,6 +106,7 @@ T.SwipeDelegate {
             visible: swipe.left || control.swipe.position < -0.9
             color: backgroundRect.iconColor
             asynchronous: true
+            mipmap: true
         }
     }
 
@@ -118,10 +117,6 @@ T.SwipeDelegate {
 
             PropertyChanges {
                 target: iconLabel
-                icon.color:
-                    control.highlighted?
-                        ThemeSettings.colorDisabledHighlightedText:
-                        ThemeSettings.colorDisabledWindowText
                 color:
                     control.highlighted?
                         ThemeSettings.colorDisabledHighlightedText:

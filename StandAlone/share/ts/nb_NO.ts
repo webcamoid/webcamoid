@@ -2184,37 +2184,37 @@
     </message>
     <message>
         <location filename="../qml/main.qml" line="119"/>
-        <location filename="../qml/main.qml" line="331"/>
+        <location filename="../qml/main.qml" line="333"/>
         <source>Play</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="343"/>
+        <location filename="../qml/main.qml" line="347"/>
         <source>Configure sources</source>
         <translation>Sett opp kilder</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="359"/>
+        <location filename="../qml/main.qml" line="365"/>
         <source>Configure audio</source>
         <translation>Sett opp lyd</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="381"/>
+        <location filename="../qml/main.qml" line="389"/>
         <source>Take a photo</source>
         <translation>Knips et bilde</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="393"/>
+        <location filename="../qml/main.qml" line="403"/>
         <source>Record video</source>
         <translation>Ta opp video</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="409"/>
+        <location filename="../qml/main.qml" line="421"/>
         <source>Configure Effects</source>
         <translation type="unfinished">Sett opp effekter</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="438"/>
+        <location filename="../qml/main.qml" line="452"/>
         <source>Preferences</source>
         <translation>Innstillinger</translation>
     </message>

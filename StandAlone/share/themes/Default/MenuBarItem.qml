@@ -20,8 +20,8 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Templates 2.5 as T
-import QtQuick.Controls.impl 2.12
 import Ak 1.0
+import "Private"
 
 T.MenuBarItem {
     id: control
@@ -44,15 +44,14 @@ T.MenuBarItem {
         spacing: control.spacing
         mirrored: control.mirrored
         display: control.display
-        icon.name: control.icon.name
-        icon.source: control.icon.source
-        icon.width: control.icon.width
-        icon.height: control.icon.height
-        icon.color: ThemeSettings.colorActiveHighlightedText
+        iconName: control.icon.name
+        iconSource: control.icon.source
+        iconWidth: control.icon.width
+        iconHeight: control.icon.height
         text: control.text
         font: control.font
         color: ThemeSettings.colorActiveHighlightedText
-        alignment: Qt.AlignLeft
+        alignment: Qt.AlignLeft | Qt.AlignVCenter
     }
 
     background: Rectangle {
@@ -71,7 +70,6 @@ T.MenuBarItem {
 
             PropertyChanges {
                 target: iconLabel
-                icon.color: ThemeSettings.colorDisabledHighlightedText
                 color: ThemeSettings.colorDisabledHighlightedText
             }
             PropertyChanges {

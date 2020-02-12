@@ -20,8 +20,8 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Templates 2.5 as T
-import QtQuick.Controls.impl 2.12
 import Ak 1.0
+import "Private"
 
 T.RadioButton {
     id: radioButton
@@ -95,15 +95,14 @@ T.RadioButton {
         spacing: radioButton.spacing
         mirrored: radioButton.mirrored
         display: radioButton.display
-        icon.name: radioButton.icon.name
-        icon.source: radioButton.icon.source
-        icon.width: radioButton.icon.width
-        icon.height: radioButton.icon.height
-        icon.color: ThemeSettings.colorActiveWindowText
+        iconName: radioButton.icon.name
+        iconSource: radioButton.icon.source
+        iconWidth: radioButton.icon.width
+        iconHeight: radioButton.icon.height
         text: radioButton.text
         font: radioButton.font
         color: ThemeSettings.colorActiveWindowText
-        alignment: Qt.AlignLeft
+        alignment: Qt.AlignLeft | Qt.AlignVCenter
         anchors.leftMargin: indicatorRect.width / 2
         anchors.left: radioButtonIndicator.right
         anchors.rightMargin: radioButton.rightPadding
@@ -128,7 +127,6 @@ T.RadioButton {
             }
             PropertyChanges {
                 target: iconLabel
-                icon.color: ThemeSettings.colorDisabledWindowText
                 color: ThemeSettings.colorDisabledWindowText
             }
         },

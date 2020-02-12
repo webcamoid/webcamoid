@@ -44,11 +44,13 @@
         <file>share/themes/Default/TabButton.qml</file>
         <file>share/themes/Default/TextArea.qml</file>
         <file>share/themes/Default/TextField.qml</file>
-        <file>share/themes/Default/ThemeSettings.qml</file>
         <file>share/themes/Default/ToolBar.qml</file>
         <file>share/themes/Default/ToolButton.qml</file>
         <file>share/themes/Default/ToolSeparator.qml</file>
         <file>share/themes/Default/ToolTip.qml</file>
         <file>share/themes/Default/Tumbler.qml</file>
+        <file>share/themes/Default/Private/qmldir</file>
+        <file>share/themes/Default/Private/IconLabel.qml</file>
+        <file>share/themes/Default/Private/ThemeSettings.qml</file>
     </qresource>
 </RCC>

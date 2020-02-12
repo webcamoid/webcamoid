@@ -1,4 +1,3 @@
-singleton ThemeSettings 1.0 ThemeSettings.qml
 ApplicationWindow 1.0 ApplicationWindow.qml
 BusyIndicator 1.0 BusyIndicator.qml
 Button 1.0 Button.qml

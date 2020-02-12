@@ -20,8 +20,8 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Templates 2.5 as T
-import QtQuick.Controls.impl 2.12
 import Ak 1.0
+import "Private"
 
 T.MenuItem {
     id: menuItem
@@ -68,6 +68,7 @@ T.MenuItem {
                     ThemeSettings.colorActiveHighlightedText:
                     ThemeSettings.colorActiveWindowText
             asynchronous: true
+            mipmap: true
         }
     }
 
@@ -93,6 +94,7 @@ T.MenuItem {
                     ThemeSettings.colorActiveHighlightedText:
                     ThemeSettings.colorActiveWindowText
             asynchronous: true
+            mipmap: true
         }
     }
 
@@ -101,13 +103,10 @@ T.MenuItem {
         spacing: menuItem.spacing
         mirrored: menuItem.mirrored
         display: menuItem.display
-        icon.name: menuItem.icon.name
-        icon.source: menuItem.icon.source
-        icon.width: menuItem.icon.width
-        icon.height: menuItem.icon.height
-        icon.color: menuItem.highlighted?
-                        ThemeSettings.colorActiveHighlightedText:
-                        ThemeSettings.colorActiveWindowText
+        iconName: menuItem.icon.name
+        iconSource: menuItem.icon.source
+        iconWidth: menuItem.icon.width
+        iconHeight: menuItem.icon.height
         text: menuItem.text
         anchors.left: menuItemCheck.right
         anchors.leftMargin:
@@ -118,7 +117,7 @@ T.MenuItem {
         color: menuItem.highlighted?
                    ThemeSettings.colorActiveHighlightedText:
                    ThemeSettings.colorActiveWindowText
-        alignment: Qt.AlignLeft
+        alignment: Qt.AlignLeft | Qt.AlignVCenter
     }
 
     background: Rectangle {
@@ -137,9 +136,6 @@ T.MenuItem {
 
             PropertyChanges {
                 target: iconLabel
-                icon.color: menuItem.highlighted?
-                                ThemeSettings.colorDisabledHighlightedText:
-                                ThemeSettings.colorDisabledWindowText
                 color: menuItem.highlighted?
                            ThemeSettings.colorDisabledHighlightedText:
                            ThemeSettings.colorDisabledWindowText

@@ -2184,37 +2184,37 @@
     </message>
     <message>
         <location filename="../qml/main.qml" line="119"/>
-        <location filename="../qml/main.qml" line="331"/>
+        <location filename="../qml/main.qml" line="333"/>
         <source>Play</source>
         <translation>Jouer</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="343"/>
+        <location filename="../qml/main.qml" line="347"/>
         <source>Configure sources</source>
         <translation>Configurer les sources</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="359"/>
+        <location filename="../qml/main.qml" line="365"/>
         <source>Configure audio</source>
         <translation>Configurer l&apos;audio</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="381"/>
+        <location filename="../qml/main.qml" line="389"/>
         <source>Take a photo</source>
         <translation>Prendre une photo</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="393"/>
+        <location filename="../qml/main.qml" line="403"/>
         <source>Record video</source>
         <translation>Enregistrer une vidéo</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="409"/>
+        <location filename="../qml/main.qml" line="421"/>
         <source>Configure Effects</source>
         <translation>Configurer les effets</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="438"/>
+        <location filename="../qml/main.qml" line="452"/>
         <source>Preferences</source>
         <translation>Préférences</translation>
     </message>

@@ -26,6 +26,7 @@ class IconsProviderPrivate
 {
     public:
         QList<QSize> m_availableSizes;
+        QString m_iconsPath {":/Webcamoid/share/themes/Default/icons/hicolor"};
 
         QSize nearestSize(const QSize &requestedSize) const;
         QSize nearestSize(const QList<QSize> &availableSizes,
@@ -42,7 +43,7 @@ IconsProvider::IconsProvider():
     QQuickImageProvider(QQuickImageProvider::Pixmap)
 {
     this->d = new IconsProviderPrivate;
-    QSettings theme(":/Webcamoid/share/themes/Default/icons/hicolor/index.theme", QSettings::IniFormat);
+    QSettings theme(this->d->m_iconsPath + "/index.theme", QSettings::IniFormat);
     theme.beginGroup("Icon Theme");
 
     for (auto &size: theme.value("Directories").toStringList()) {
@@ -78,8 +79,8 @@ QImage IconsProvider::requestImage(const QString &id,
     if (iconSize.isEmpty())
         return QImage();
 
-    QImage icon(QString(":/Webcamoid/share/themes/Default/icons/hicolor/%1x%2/%3.png")
-                .arg(iconSize.width()).arg(iconSize.height()).arg(id));
+    QImage icon(this->d->m_iconsPath
+                + QString("/%1x%2/%3.png").arg(iconSize.width()).arg(iconSize.height()).arg(id));
 
     return icon;
 }
@@ -94,8 +95,8 @@ QPixmap IconsProvider::requestPixmap(const QString &id,
     if (iconSize.isEmpty())
         return QPixmap();
 
-    QPixmap icon(QString(":/Webcamoid/share/themes/Default/icons/hicolor/%1x%2/%3.png")
-                 .arg(iconSize.width()).arg(iconSize.height()).arg(id));
+    QPixmap icon(this->d->m_iconsPath
+                 + QString("/%1x%2/%3.png").arg(iconSize.width()).arg(iconSize.height()).arg(id));
 
     return icon;
 }
@@ -109,18 +110,30 @@ QSize IconsProviderPrivate::nearestSize(const QList<QSize> &availableSizes,
                                         const QSize &requestedSize) const
 {
     QSize nearestSize;
-    int q = std::numeric_limits<int>::max();
+    QSize nearestGreaterSize;
+    int r = std::numeric_limits<int>::max();
+    int s = std::numeric_limits<int>::max();
+    int requestedArea = requestedSize.width() * requestedSize.height();
 
     for (auto &size: availableSizes) {
+        int area = size.width() * size.height();
         int diffWidth = size.width() - requestedSize.width();
         int diffHeight = size.height() - requestedSize.height();
         int k = diffWidth * diffWidth + diffHeight * diffHeight;
 
-        if (k < q) {
+        if (k < r) {
             nearestSize = size;
-            q = k;
+            r = k;
+        }
+
+        if (area >= requestedArea && k < s) {
+            nearestGreaterSize = size;
+            s = k;
         }
     }
 
-    return nearestSize;
+    if (nearestGreaterSize.isEmpty())
+        nearestGreaterSize = nearestSize;
+
+    return nearestGreaterSize;
 }

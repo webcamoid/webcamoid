@@ -20,8 +20,8 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Templates 2.5 as T
-import QtQuick.Controls.impl 2.12
 import Ak 1.0
+import "Private"
 
 T.CheckDelegate {
     id: control
@@ -85,6 +85,7 @@ T.CheckDelegate {
                        ThemeSettings.colorActiveHighlight:
                        ThemeSettings.colorActiveWindow
             asynchronous: true
+            mipmap: true
         }
     }
 
@@ -93,20 +94,16 @@ T.CheckDelegate {
         spacing: control.spacing
         mirrored: control.mirrored
         display: control.display
-        icon.name: control.icon.name
-        icon.source: control.icon.source
-        icon.width: control.icon.width
-        icon.height: control.icon.height
-        icon.color:
-            control.highlighted?
-                ThemeSettings.colorActiveHighlightedText:
-                ThemeSettings.colorActiveWindowText
+        iconName: control.icon.name
+        iconSource: control.icon.source
+        iconWidth: control.icon.width
+        iconHeight: control.icon.height
         text: control.text
         font: control.font
         color: control.highlighted?
                    ThemeSettings.colorActiveHighlightedText:
                    ThemeSettings.colorActiveWindowText
-        alignment: Qt.AlignLeft
+        alignment: Qt.AlignLeft | Qt.AlignVCenter
         anchors.leftMargin: control.leftPadding
         anchors.left: control.left
         anchors.right: checkBoxIndicator.left
@@ -150,10 +147,6 @@ T.CheckDelegate {
             }
             PropertyChanges {
                 target: iconLabel
-                icon.color:
-                    control.highlighted?
-                        ThemeSettings.colorDisabledHighlightedText:
-                        ThemeSettings.colorDisabledWindowText
                 color:
                     control.highlighted?
                         ThemeSettings.colorDisabledHighlightedText:
