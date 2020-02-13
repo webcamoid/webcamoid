@@ -21,7 +21,6 @@ import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Templates 2.5 as T
 import Ak 1.0
-import "Private"
 
 T.BusyIndicator {
     id: control
@@ -29,11 +28,11 @@ T.BusyIndicator {
                             implicitContentWidth + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              implicitContentHeight + topPadding + bottomPadding)
-    padding: AkUnit.create(6 * ThemeSettings.controlScale, "dp").pixels
+    padding: AkUnit.create(6 * AkTheme.controlScale, "dp").pixels
 
     contentItem: Item {
-        implicitWidth: AkUnit.create(64 * ThemeSettings.controlScale, "dp").pixels
-        implicitHeight: AkUnit.create(64 * ThemeSettings.controlScale, "dp").pixels
+        implicitWidth: AkUnit.create(64 * AkTheme.controlScale, "dp").pixels
+        implicitHeight: AkUnit.create(64 * AkTheme.controlScale, "dp").pixels
 
         Item {
             id: item
@@ -80,8 +79,8 @@ T.BusyIndicator {
                     height: width
                     radius: width / 2
                     color: control.enabled?
-                               ThemeSettings.colorActiveHighlight:
-                               ThemeSettings.colorDisabledHighlight
+                               AkTheme.palette.active.highlight:
+                               AkTheme.palette.disabled.highlight
                     opacity: 1 - index / repeater.count
 
                     transform: [

@@ -21,20 +21,19 @@ import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Templates 2.5 as T
 import Ak 1.0
-import "Private"
 
 T.Popup {
     id: control
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             contentWidth + leftPadding + rightPadding,
-                            AkUnit.create(344 * ThemeSettings.controlScale, "dp").pixels)
+                            AkUnit.create(344 * AkTheme.controlScale, "dp").pixels)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              contentHeight + topPadding + bottomPadding,
-                             AkUnit.create(148 * ThemeSettings.controlScale, "dp").pixels)
-    leftPadding: AkUnit.create(16 * ThemeSettings.controlScale, "dp").pixels
-    rightPadding: AkUnit.create(16 * ThemeSettings.controlScale, "dp").pixels
-    topPadding: applicationWindowk.newUnit(16 * ThemeSettings.controlScale, "dp").pixels
-    bottomPadding: AkUnit.create(8 * ThemeSettings.controlScale, "dp").pixels
+                             AkUnit.create(148 * AkTheme.controlScale, "dp").pixels)
+    leftPadding: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+    rightPadding: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+    topPadding: applicationWindowk.newUnit(16 * AkTheme.controlScale, "dp").pixels
+    bottomPadding: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
 
     // Fade in
     enter: Transition {
@@ -50,26 +49,26 @@ T.Popup {
 
     background: Rectangle {
         color: control.enabled?
-                   ThemeSettings.colorActiveWindow:
-                   ThemeSettings.colorDisabledWindow
+                   AkTheme.palette.active.window:
+                   AkTheme.palette.disabled.window
         border.color: control.enabled?
-                          ThemeSettings.colorActiveDark:
-                          ThemeSettings.colorDisabledDark
-        radius: AkUnit.create(4 * ThemeSettings.controlScale, "dp").pixels
+                          AkTheme.palette.active.dark:
+                          AkTheme.palette.disabled.dark
+        radius: AkUnit.create(4 * AkTheme.controlScale, "dp").pixels
     }
 
     T.Overlay.modal: Rectangle {
         color: control.enabled?
-                   ThemeSettings.shade(ThemeSettings.colorActiveDark, 0, 0.75):
-                   ThemeSettings.shade(ThemeSettings.colorDisabledDark, 0, 0.75)
+                   AkTheme.shade(AkTheme.palette.active.dark, 0, 0.75):
+                   AkTheme.shade(AkTheme.palette.disabled.dark, 0, 0.75)
 
         Behavior on opacity { NumberAnimation { duration: 150 } }
     }
 
     T.Overlay.modeless: Rectangle {
         color: control.enabled?
-                   ThemeSettings.shade(ThemeSettings.colorActiveDark, 0, 0.75):
-                   ThemeSettings.shade(ThemeSettings.colorDisabledDark, 0, 0.75)
+                   AkTheme.shade(AkTheme.palette.active.dark, 0, 0.75):
+                   AkTheme.shade(AkTheme.palette.disabled.dark, 0, 0.75)
 
         Behavior on opacity { NumberAnimation { duration: 150 } }
     }

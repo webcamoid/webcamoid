@@ -21,23 +21,22 @@ import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Templates 2.5 as T
 import Ak 1.0
-import "Private"
 
 T.Frame {
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             contentWidth + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              contentHeight + topPadding + bottomPadding)
-    padding: AkUnit.create(12 * ThemeSettings.controlScale, "dp").pixels
+    padding: AkUnit.create(12 * AkTheme.controlScale, "dp").pixels
 
     background: Rectangle {
-        radius: AkUnit.create(4 * ThemeSettings.controlScale, "dp").pixels
+        radius: AkUnit.create(4 * AkTheme.controlScale, "dp").pixels
         color: enabled?
-                   ThemeSettings.colorActiveWindow:
-                   ThemeSettings.colorDisabledWindow
+                   AkTheme.palette.active.window:
+                   AkTheme.palette.disabled.window
         border.color: enabled?
-                          ThemeSettings.colorActiveDark:
-                          ThemeSettings.colorDisabledDark
-        border.width: AkUnit.create(1 * ThemeSettings.controlScale, "dp").pixels
+                          AkTheme.palette.active.dark:
+                          AkTheme.palette.disabled.dark
+        border.width: AkUnit.create(1 * AkTheme.controlScale, "dp").pixels
     }
 }

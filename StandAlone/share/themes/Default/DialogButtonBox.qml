@@ -21,7 +21,6 @@ import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Templates 2.5 as T
 import Ak 1.0
-import "Private"
 
 T.DialogButtonBox {
     id: control
@@ -30,9 +29,9 @@ T.DialogButtonBox {
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              contentHeight + topPadding + bottomPadding)
 
-    spacing: AkUnit.create(8 * ThemeSettings.controlScale, "dp").pixels
-    leftPadding: AkUnit.create(16 * ThemeSettings.controlScale, "dp").pixels
-    rightPadding: AkUnit.create(16 * ThemeSettings.controlScale, "dp").pixels
+    spacing: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
+    leftPadding: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+    rightPadding: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
     alignment: Qt.AlignRight
 
     delegate: Button {
@@ -50,14 +49,14 @@ T.DialogButtonBox {
     background: Item {
         id: background
         implicitHeight:
-            AkUnit.create(52 * ThemeSettings.controlScale, "dp").pixels
+            AkUnit.create(52 * AkTheme.controlScale, "dp").pixels
         clip: true
 
         Rectangle {
             color: control.enabled?
-                       ThemeSettings.colorActiveDark:
-                       ThemeSettings.colorDisabledDark
-            height: AkUnit.create(1 * ThemeSettings.controlScale, "dp").pixels
+                       AkTheme.palette.active.dark:
+                       AkTheme.palette.disabled.dark
+            height: AkUnit.create(1 * AkTheme.controlScale, "dp").pixels
             anchors.left: background.left
             anchors.right: background.right
             y: control.position == DialogButtonBox.Footer?

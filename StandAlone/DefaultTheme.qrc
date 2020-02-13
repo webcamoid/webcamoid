@@ -51,6 +51,5 @@
         <file>share/themes/Default/Tumbler.qml</file>
         <file>share/themes/Default/Private/qmldir</file>
         <file>share/themes/Default/Private/IconLabel.qml</file>
-        <file>share/themes/Default/Private/ThemeSettings.qml</file>
     </qresource>
 </RCC>

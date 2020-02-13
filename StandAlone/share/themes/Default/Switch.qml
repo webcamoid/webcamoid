@@ -25,8 +25,8 @@ import "Private"
 
 T.Switch {
     id: control
-    icon.width: AkUnit.create(18 * ThemeSettings.controlScale, "dp").pixels
-    icon.height: AkUnit.create(18 * ThemeSettings.controlScale, "dp").pixels
+    icon.width: AkUnit.create(18 * AkTheme.controlScale, "dp").pixels
+    icon.height: AkUnit.create(18 * AkTheme.controlScale, "dp").pixels
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             implicitContentWidth +
                             implicitIndicatorWidth + implicitIndicatorHeight
@@ -35,8 +35,8 @@ T.Switch {
         Math.max(implicitBackgroundHeight + topInset + bottomInset,
                  implicitContentHeight + topPadding + bottomPadding,
                  2 * implicitIndicatorHeight + topPadding + bottomPadding)
-    padding: AkUnit.create(4 * ThemeSettings.controlScale, "dp").pixels
-    spacing: AkUnit.create(8 * ThemeSettings.controlScale, "dp").pixels
+    padding: AkUnit.create(4 * AkTheme.controlScale, "dp").pixels
+    spacing: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
     hoverEnabled: true
     clip: true
 
@@ -48,14 +48,14 @@ T.Switch {
         anchors.leftMargin: switchThumb.width / 2 + control.leftPadding
         anchors.verticalCenter: control.verticalCenter
         implicitWidth:
-            AkUnit.create(36 * ThemeSettings.controlScale, "dp").pixels
+            AkUnit.create(36 * AkTheme.controlScale, "dp").pixels
         implicitHeight:
-            AkUnit.create(20 * ThemeSettings.controlScale, "dp").pixels
+            AkUnit.create(20 * AkTheme.controlScale, "dp").pixels
 
         Rectangle {
             id: switchTrack
             height: parent.height / 2
-            color: ThemeSettings.shade(ThemeSettings.colorActiveWindow, -0.5)
+            color: AkTheme.shade(AkTheme.palette.active.window, -0.5)
             radius: height / 2
             anchors.verticalCenter: sliderIndicator.verticalCenter
             anchors.right: sliderIndicator.right
@@ -79,7 +79,7 @@ T.Switch {
             }
             Rectangle {
                 id: switchThumbRect
-                color: ThemeSettings.shade(ThemeSettings.colorActiveWindow, -0.1)
+                color: AkTheme.shade(AkTheme.palette.active.window, -0.1)
                 radius: height / 2
                 anchors.fill: parent
             }
@@ -103,9 +103,10 @@ T.Switch {
             iconHeight: control.icon.height
             text: control.text
             font: control.font
-            color: ThemeSettings.colorActiveWindowText
+            color: AkTheme.palette.active.windowText
             alignment: Qt.AlignLeft | Qt.AlignVCenter
             anchors.verticalCenter: control.contentItem.verticalCenter
+            enabled: control.enabled
         }
     }
 
@@ -116,15 +117,15 @@ T.Switch {
 
             PropertyChanges {
                 target: switchTrack
-                color: ThemeSettings.shade(ThemeSettings.colorDisabledWindow, -0.5)
+                color: AkTheme.shade(AkTheme.palette.disabled.window, -0.5)
             }
             PropertyChanges {
                 target: switchThumbRect
-                color: ThemeSettings.shade(ThemeSettings.colorDisabledWindow, -0.1)
+                color: AkTheme.shade(AkTheme.palette.disabled.window, -0.1)
             }
             PropertyChanges {
                 target: iconLabel
-                color: ThemeSettings.colorDisabledWindowText
+                color: AkTheme.palette.disabled.windowText
             }
         },
         State {
@@ -137,11 +138,11 @@ T.Switch {
 
             PropertyChanges {
                 target: switchTrack
-                color: ThemeSettings.colorActiveHighlight
+                color: AkTheme.palette.active.highlight
             }
             PropertyChanges {
                 target: switchThumbRect
-                color: ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0.2)
+                color: AkTheme.constShade(AkTheme.palette.active.highlight, 0.2)
             }
             PropertyChanges {
                 target: switchThumb
@@ -158,11 +159,11 @@ T.Switch {
 
             PropertyChanges {
                 target: switchTrack
-                color: ThemeSettings.shade(ThemeSettings.colorActiveWindow, -0.6)
+                color: AkTheme.shade(AkTheme.palette.active.window, -0.6)
             }
             PropertyChanges {
                 target: switchThumbRect
-                color: ThemeSettings.shade(ThemeSettings.colorActiveWindow, -0.2)
+                color: AkTheme.shade(AkTheme.palette.active.window, -0.2)
             }
             PropertyChanges {
                 target: highlight
@@ -180,11 +181,11 @@ T.Switch {
 
             PropertyChanges {
                 target: switchTrack
-                color: ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0.1)
+                color: AkTheme.constShade(AkTheme.palette.active.highlight, 0.1)
             }
             PropertyChanges {
                 target: switchThumbRect
-                color: ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0.3)
+                color: AkTheme.constShade(AkTheme.palette.active.highlight, 0.3)
             }
             PropertyChanges {
                 target: switchThumb
@@ -203,11 +204,11 @@ T.Switch {
 
             PropertyChanges {
                 target: switchTrack
-                color: ThemeSettings.shade(ThemeSettings.colorActiveWindow, -0.7)
+                color: AkTheme.shade(AkTheme.palette.active.window, -0.7)
             }
             PropertyChanges {
                 target: switchThumbRect
-                color: ThemeSettings.shade(ThemeSettings.colorActiveWindow, -0.3)
+                color: AkTheme.shade(AkTheme.palette.active.window, -0.3)
             }
             PropertyChanges {
                 target: highlight
@@ -222,11 +223,11 @@ T.Switch {
 
             PropertyChanges {
                 target: switchTrack
-                color: ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0.2)
+                color: AkTheme.constShade(AkTheme.palette.active.highlight, 0.2)
             }
             PropertyChanges {
                 target: switchThumbRect
-                color: ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0.4)
+                color: AkTheme.constShade(AkTheme.palette.active.highlight, 0.4)
             }
             PropertyChanges {
                 target: switchThumb

@@ -22,7 +22,6 @@ import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
 import QtQuick.Templates 2.5 as T
 import Ak 1.0
-import "Private"
 
 T.RangeSlider {
     id: control
@@ -37,28 +36,28 @@ T.RangeSlider {
     focusPolicy: Qt.WheelFocus
 
     readonly property int defaultWidth:
-        AkUnit.create(128 * ThemeSettings.controlScale, "dp").pixels
+        AkUnit.create(128 * AkTheme.controlScale, "dp").pixels
     readonly property int defaultHeight:
-        AkUnit.create(20 * ThemeSettings.controlScale, "dp").pixels
+        AkUnit.create(20 * AkTheme.controlScale, "dp").pixels
     readonly property int trackWidth:
-        AkUnit.create(4 * ThemeSettings.controlScale, "dp").pixels
+        AkUnit.create(4 * AkTheme.controlScale, "dp").pixels
     readonly property color tickMarkColorLeft:
         control.enabled && control.horizontal?
-            ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, -0.1):
+            AkTheme.constShade(AkTheme.palette.active.highlight, -0.1):
         control.enabled && control.vertical?
-            ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0, 0.5):
+            AkTheme.constShade(AkTheme.palette.active.highlight, 0, 0.5):
         !control.enabled && control.horizontal?
-            ThemeSettings.shade(ThemeSettings.colorActiveWindow, -0.4):
-            ThemeSettings.shade(ThemeSettings.colorActiveWindow, 0, 0.5)
+            AkTheme.shade(AkTheme.palette.active.window, -0.4):
+            AkTheme.shade(AkTheme.palette.active.window, 0, 0.5)
     readonly property color tickMarkColorRight:
         control.enabled && control.horizontal?
-            ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0, 0.5):
+            AkTheme.constShade(AkTheme.palette.active.highlight, 0, 0.5):
         control.enabled && control.vertical?
-            ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, -0.1):
+            AkTheme.constShade(AkTheme.palette.active.highlight, -0.1):
         !control.enabled && control.horizontal?
-            ThemeSettings.shade(ThemeSettings.colorActiveWindow, 0, 0.5):
-            ThemeSettings.shade(ThemeSettings.colorActiveWindow, -0.4)
-    property color thumbColor: ThemeSettings.colorActiveHighlight
+            AkTheme.shade(AkTheme.palette.active.window, 0, 0.5):
+            AkTheme.shade(AkTheme.palette.active.window, -0.4)
+    property color thumbColor: AkTheme.palette.active.highlight
     readonly property real thumbRadius:
         Math.min(background.implicitWidth, background.implicitHeight) / 2
     property int highlightWidth: 0
@@ -86,7 +85,7 @@ T.RangeSlider {
             anchors.left: background.left
             anchors.right: background.right
             anchors.verticalCenter: background.verticalCenter
-            color: ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0, 0.5)
+            color: AkTheme.constShade(AkTheme.palette.active.highlight, 0, 0.5)
             visible: control.horizontal
         }
         Rectangle {
@@ -96,7 +95,7 @@ T.RangeSlider {
             radius: Math.min(width, height) / 2
             anchors.left: background.left
             anchors.verticalCenter: background.verticalCenter
-            color: ThemeSettings.colorActiveHighlight
+            color: AkTheme.palette.active.highlight
             visible: control.horizontal
         }
         Rectangle {
@@ -106,7 +105,7 @@ T.RangeSlider {
             radius: Math.min(width, height) / 2
             anchors.right: background.right
             anchors.verticalCenter: background.verticalCenter
-            color: ThemeSettings.colorActiveHighlight
+            color: AkTheme.palette.active.highlight
             visible: control.horizontal
         }
         Rectangle {
@@ -116,7 +115,7 @@ T.RangeSlider {
             anchors.top: background.top
             anchors.bottom: background.bottom
             anchors.horizontalCenter: background.horizontalCenter
-            color: ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0, 0.5)
+            color: AkTheme.constShade(AkTheme.palette.active.highlight, 0, 0.5)
             visible: control.vertical
         }
         Rectangle {
@@ -126,7 +125,7 @@ T.RangeSlider {
             radius: Math.min(width, height) / 2
             anchors.top: background.top
             anchors.horizontalCenter: background.horizontalCenter
-            color: ThemeSettings.colorActiveHighlight
+            color: AkTheme.palette.active.highlight
             visible: control.vertical
         }
         Rectangle {
@@ -136,7 +135,7 @@ T.RangeSlider {
             radius: Math.min(width, height) / 2
             anchors.bottom: background.bottom
             anchors.horizontalCenter: background.horizontalCenter
-            color: ThemeSettings.colorActiveHighlight
+            color: AkTheme.palette.active.highlight
             visible: control.vertical
         }
         GridLayout {
@@ -251,31 +250,31 @@ T.RangeSlider {
 
             PropertyChanges {
                 target: control
-                thumbColor: ThemeSettings.shade(ThemeSettings.colorDisabledWindow, -0.5)
+                thumbColor: AkTheme.shade(AkTheme.palette.disabled.window, -0.5)
             }
             PropertyChanges {
                 target: horizontalBackTrack
-                color: ThemeSettings.shade(ThemeSettings.colorDisabledWindow, -0.3)
+                color: AkTheme.shade(AkTheme.palette.disabled.window, -0.3)
             }
             PropertyChanges {
                 target: horizontalLeftTrack
-                color: ThemeSettings.shade(ThemeSettings.colorDisabledWindow, -0.5)
+                color: AkTheme.shade(AkTheme.palette.disabled.window, -0.5)
             }
             PropertyChanges {
                 target: horizontalRightTrack
-                color: ThemeSettings.shade(ThemeSettings.colorDisabledWindow, -0.5)
+                color: AkTheme.shade(AkTheme.palette.disabled.window, -0.5)
             }
             PropertyChanges {
                 target: verticalBackTrack
-                color: ThemeSettings.shade(ThemeSettings.colorDisabledWindow, -0.3)
+                color: AkTheme.shade(AkTheme.palette.disabled.window, -0.3)
             }
             PropertyChanges {
                 target: verticalTopTrack
-                color: ThemeSettings.shade(ThemeSettings.colorDisabledWindow, -0.5)
+                color: AkTheme.shade(AkTheme.palette.disabled.window, -0.5)
             }
             PropertyChanges {
                 target: verticalBottomTrack
-                color: ThemeSettings.shade(ThemeSettings.colorDisabledWindow, -0.5)
+                color: AkTheme.shade(AkTheme.palette.disabled.window, -0.5)
             }
         },
         State {
@@ -286,7 +285,7 @@ T.RangeSlider {
 
             PropertyChanges {
                 target: control
-                thumbColor: ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0.1)
+                thumbColor: AkTheme.constShade(AkTheme.palette.active.highlight, 0.1)
                 highlightWidth: 4 * control.thumbRadius
                 highlightOpacity: 0.75
             }
@@ -298,7 +297,7 @@ T.RangeSlider {
 
             PropertyChanges {
                 target: control
-                thumbColor: ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0.2)
+                thumbColor: AkTheme.constShade(AkTheme.palette.active.highlight, 0.2)
                 highlightWidth: 4 * control.thumbRadius
                 highlightOpacity: 0.75
             }

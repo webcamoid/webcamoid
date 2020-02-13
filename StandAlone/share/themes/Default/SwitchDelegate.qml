@@ -25,16 +25,16 @@ import "Private"
 
 T.SwitchDelegate {
     id: control
-    icon.width: AkUnit.create(18 * ThemeSettings.controlScale, "dp").pixels
-    icon.height: AkUnit.create(18 * ThemeSettings.controlScale, "dp").pixels
+    icon.width: AkUnit.create(18 * AkTheme.controlScale, "dp").pixels
+    icon.height: AkUnit.create(18 * AkTheme.controlScale, "dp").pixels
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             implicitContentWidth + implicitIndicatorWidth
                             + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              implicitContentHeight + topPadding + bottomPadding,
                              implicitIndicatorHeight + topPadding + bottomPadding)
-    padding: AkUnit.create(4 * ThemeSettings.controlScale, "dp").pixels
-    spacing: AkUnit.create(8 * ThemeSettings.controlScale, "dp").pixels
+    padding: AkUnit.create(4 * AkTheme.controlScale, "dp").pixels
+    spacing: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
     hoverEnabled: true
     clip: true
 
@@ -46,16 +46,16 @@ T.SwitchDelegate {
         anchors.rightMargin: control.rightPadding
         anchors.verticalCenter: control.verticalCenter
         implicitWidth:
-            AkUnit.create(36 * ThemeSettings.controlScale, "dp").pixels
+            AkUnit.create(36 * AkTheme.controlScale, "dp").pixels
         implicitHeight:
-            AkUnit.create(20 * ThemeSettings.controlScale, "dp").pixels
+            AkUnit.create(20 * AkTheme.controlScale, "dp").pixels
 
         Rectangle {
             id: switchTrack
             height: parent.height / 2
             color: control.highlighted?
-                       ThemeSettings.colorActiveHighlightedText:
-                       ThemeSettings.colorActiveWindowText
+                       AkTheme.palette.active.highlightedText:
+                       AkTheme.palette.active.windowText
             radius: height / 2
             anchors.verticalCenter: sliderIndicator.verticalCenter
             anchors.right: sliderIndicator.right
@@ -70,8 +70,8 @@ T.SwitchDelegate {
             Rectangle {
                 id: switchThumbRect
                 color: control.highlighted?
-                           ThemeSettings.colorActiveHighlightedText:
-                           ThemeSettings.colorActiveWindowText
+                           AkTheme.palette.active.highlightedText:
+                           AkTheme.palette.active.windowText
                 radius: height / 2
                 anchors.fill: parent
             }
@@ -90,23 +90,24 @@ T.SwitchDelegate {
         text: control.text
         font: control.font
         color: control.highlighted?
-                   ThemeSettings.colorActiveHighlightedText:
-                   ThemeSettings.colorActiveWindowText
+                   AkTheme.palette.active.highlightedText:
+                   AkTheme.palette.active.windowText
         alignment: Qt.AlignLeft | Qt.AlignVCenter
         anchors.leftMargin: control.leftPadding
         anchors.left: control.left
         anchors.right: sliderIndicator.left
+        enabled: control.enabled
     }
 
     background: Rectangle {
         id: background
         implicitWidth:
-            AkUnit.create(128 * ThemeSettings.controlScale, "dp").pixels
+            AkUnit.create(128 * AkTheme.controlScale, "dp").pixels
         implicitHeight:
-            AkUnit.create(48 * ThemeSettings.controlScale, "dp").pixels
+            AkUnit.create(48 * AkTheme.controlScale, "dp").pixels
         color: control.highlighted?
-                   ThemeSettings.colorActiveHighlight:
-                   ThemeSettings.shade(ThemeSettings.colorActiveWindow, 0, 0)
+                   AkTheme.palette.active.highlight:
+                   AkTheme.shade(AkTheme.palette.active.window, 0, 0)
     }
 
     states: [
@@ -117,27 +118,27 @@ T.SwitchDelegate {
             PropertyChanges {
                 target: switchTrack
                 color: control.highlighted?
-                           ThemeSettings.colorDisabledHighlightedText:
-                           ThemeSettings.colorDisabledWindowText
+                           AkTheme.palette.disabled.highlightedText:
+                           AkTheme.palette.disabled.windowText
             }
             PropertyChanges {
                 target: switchThumbRect
                 color: control.highlighted?
-                           ThemeSettings.colorDisabledHighlightedText:
-                           ThemeSettings.colorDisabledWindowText
+                           AkTheme.palette.disabled.highlightedText:
+                           AkTheme.palette.disabled.windowText
             }
             PropertyChanges {
                 target: iconLabel
                 color:
                     control.highlighted?
-                        ThemeSettings.colorDisabledHighlightedText:
-                        ThemeSettings.colorDisabledWindowText
+                        AkTheme.palette.disabled.highlightedText:
+                        AkTheme.palette.disabled.windowText
             }
             PropertyChanges {
                 target: background
                 color: control.highlighted?
-                           ThemeSettings.colorDisabledHighlight:
-                           ThemeSettings.shade(ThemeSettings.colorDisabledWindow, 0, 0)
+                           AkTheme.palette.disabled.highlight:
+                           AkTheme.shade(AkTheme.palette.disabled.window, 0, 0)
             }
         },
         State {
@@ -165,9 +166,9 @@ T.SwitchDelegate {
                 target: background
                 color:
                     control.highlighted?
-                        ThemeSettings.constShade(ThemeSettings.colorActiveHighlight,
+                        AkTheme.constShade(AkTheme.palette.active.highlight,
                                                      0.1):
-                        ThemeSettings.shade(ThemeSettings.colorActiveWindow, -0.1)
+                        AkTheme.shade(AkTheme.palette.active.window, -0.1)
             }
         },
         State {
@@ -186,9 +187,9 @@ T.SwitchDelegate {
                 target: background
                 color:
                     control.highlighted?
-                        ThemeSettings.constShade(ThemeSettings.colorActiveHighlight,
+                        AkTheme.constShade(AkTheme.palette.active.highlight,
                                                  0.1):
-                        ThemeSettings.shade(ThemeSettings.colorActiveWindow, -0.1)
+                        AkTheme.shade(AkTheme.palette.active.window, -0.1)
             }
         },
         State {
@@ -200,9 +201,9 @@ T.SwitchDelegate {
                 target: background
                 color:
                     control.highlighted?
-                        ThemeSettings.constShade(ThemeSettings.colorActiveHighlight,
+                        AkTheme.constShade(AkTheme.palette.active.highlight,
                                                  0.2):
-                        ThemeSettings.shade(ThemeSettings.colorActiveWindow, -0.2)
+                        AkTheme.shade(AkTheme.palette.active.window, -0.2)
             }
         },
         State {
@@ -218,9 +219,9 @@ T.SwitchDelegate {
                 target: background
                 color:
                     control.highlighted?
-                        ThemeSettings.constShade(ThemeSettings.colorActiveHighlight,
+                        AkTheme.constShade(AkTheme.palette.active.highlight,
                                                  0.2):
-                        ThemeSettings.shade(ThemeSettings.colorActiveWindow, -0.2)
+                        AkTheme.shade(AkTheme.palette.active.window, -0.2)
             }
         }
     ]

@@ -22,17 +22,16 @@ import QtQuick.Controls 2.5
 import QtQuick.Templates 2.5 as T
 import QtQuick.Shapes 1.12
 import Ak 1.0
-import "Private"
 
 T.Dial {
     id: control
-    implicitWidth: Math.max(AkUnit.create(96 * ThemeSettings.controlScale, "dp").pixels
+    implicitWidth: Math.max(AkUnit.create(96 * AkTheme.controlScale, "dp").pixels
                             + leftInset + rightInset,
                             implicitContentWidth + leftPadding + rightPadding)
-    implicitHeight: Math.max(AkUnit.create(96 * ThemeSettings.controlScale, "dp").pixels
+    implicitHeight: Math.max(AkUnit.create(96 * AkTheme.controlScale, "dp").pixels
                              + topInset + bottomInset,
                              implicitContentHeight + topPadding + bottomPadding)
-    padding: AkUnit.create(6 * ThemeSettings.controlScale, "dp").pixels
+    padding: AkUnit.create(6 * AkTheme.controlScale, "dp").pixels
     hoverEnabled: true
     focusPolicy: Qt.WheelFocus
 
@@ -45,6 +44,10 @@ T.Dial {
         color: applicationWindow.colorActiveWindowText
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
+        linkColor: control.enabled?
+                       AkTheme.palette.active.link:
+                       AkTheme.palette.disabled.link
+        enabled: control.enabled
     }
 
     background: Rectangle {
@@ -55,15 +58,15 @@ T.Dial {
         height: width
         radius: width / 2
         border.color:
-            ThemeSettings.shade(ThemeSettings.colorActiveWindow, 0, 0.5)
+            AkTheme.shade(AkTheme.palette.active.window, 0, 0.5)
         color:
-            ThemeSettings.shade(ThemeSettings.colorActiveWindow, 0, 0.5)
+            AkTheme.shade(AkTheme.palette.active.window, 0, 0.5)
 
         Shape {
             id: shape
             anchors.fill: parent
             anchors.rightMargin:
-                AkUnit.create(2 * ThemeSettings.controlScale, "dp").pixels
+                AkUnit.create(2 * AkTheme.controlScale, "dp").pixels
             anchors.leftMargin: anchors.rightMargin
             anchors.bottomMargin: anchors.rightMargin
             anchors.topMargin:  anchors.rightMargin
@@ -76,7 +79,7 @@ T.Dial {
                 startY: 0
                 fillColor: "transparent"
                 strokeColor:
-                    ThemeSettings.constShade(shapePath.strokeColor, 0, 0.25)
+                    AkTheme.constShade(shapePath.strokeColor, 0, 0.25)
                 strokeStyle: ShapePath.SolidLine
                 strokeWidth: control.strokeWidth
                 capStyle: ShapePath.RoundCap
@@ -97,7 +100,7 @@ T.Dial {
                 startX: 0
                 startY: 0
                 fillColor: "transparent"
-                strokeColor: ThemeSettings.colorActiveHighlight
+                strokeColor: AkTheme.palette.active.highlight
                 strokeStyle: ShapePath.SolidLine
                 strokeWidth: control.strokeWidth
                 capStyle: ShapePath.RoundCap
@@ -143,11 +146,11 @@ T.Dial {
 
             PropertyChanges {
                 target: shapePath
-                strokeColor: ThemeSettings.colorDisabledHighlight
+                strokeColor: AkTheme.palette.disabled.highlight
             }
             PropertyChanges {
                 target: dialValue
-                color: ThemeSettings.colorDisabledWindowText
+                color: AkTheme.palette.disabled.windowText
             }
         },
         State {
@@ -158,7 +161,7 @@ T.Dial {
 
             PropertyChanges {
                 target: backgroundRectangle
-                border.color: ThemeSettings.colorActiveDark
+                border.color: AkTheme.palette.active.dark
             }
         },
         State {
@@ -170,9 +173,9 @@ T.Dial {
 
             PropertyChanges {
                 target: backgroundRectangle
-                border.color: ThemeSettings.colorActiveHighlight
+                border.color: AkTheme.palette.active.highlight
                 border.width:
-                    AkUnit.create(2 * ThemeSettings.controlScale, "dp").pixels
+                    AkUnit.create(2 * AkTheme.controlScale, "dp").pixels
             }
         },
         State {
@@ -182,14 +185,14 @@ T.Dial {
             PropertyChanges {
                 target: backgroundRectangle
                 border.color:
-                    ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0.1)
+                    AkTheme.constShade(AkTheme.palette.active.highlight, 0.1)
                 border.width:
-                    AkUnit.create(2 * ThemeSettings.controlScale, "dp").pixels
+                    AkUnit.create(2 * AkTheme.controlScale, "dp").pixels
             }
             PropertyChanges {
                 target: shapePath
                 strokeColor:
-                    ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0.1)
+                    AkTheme.constShade(AkTheme.palette.active.highlight, 0.1)
             }
         }
     ]

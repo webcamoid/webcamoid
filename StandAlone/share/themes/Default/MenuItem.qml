@@ -24,21 +24,21 @@ import Ak 1.0
 import "Private"
 
 T.MenuItem {
-    id: menuItem
+    id: control
     implicitWidth:
         Math.max(implicitBackgroundWidth + leftInset + rightInset,
                  implicitContentWidth + leftPadding + rightPadding
                  + menuItemArrow.width
-                 + (menuItem.checkable? AkUnit.create(20 * ThemeSettings.controlScale, "dp").pixels: 0)
-                 + AkUnit.create(48 * ThemeSettings.controlScale, "dp").pixels )
+                 + (control.checkable? AkUnit.create(20 * AkTheme.controlScale, "dp").pixels: 0)
+                 + AkUnit.create(48 * AkTheme.controlScale, "dp").pixels )
     implicitHeight:
         Math.max(implicitBackgroundHeight + topInset + bottomInset,
                  implicitContentHeight + topPadding + bottomPadding,
                  implicitIndicatorHeight + topPadding + bottomPadding)
-    rightPadding: AkUnit.create(16 * ThemeSettings.controlScale, "dp").pixels
-    spacing: AkUnit.create(20 * ThemeSettings.controlScale, "dp").pixels
-    icon.width: AkUnit.create(24 * ThemeSettings.controlScale, "dp").pixels
-    icon.height: AkUnit.create(24 * ThemeSettings.controlScale, "dp").pixels
+    rightPadding: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+    spacing: AkUnit.create(20 * AkTheme.controlScale, "dp").pixels
+    icon.width: AkUnit.create(24 * AkTheme.controlScale, "dp").pixels
+    icon.height: AkUnit.create(24 * AkTheme.controlScale, "dp").pixels
     clip: true
     hoverEnabled: true
 
@@ -47,14 +47,14 @@ T.MenuItem {
     // Checked indicator
     indicator: Item {
         id: menuItemCheck
-        width: menuItem.checkable?
-                   AkUnit.create(24 * ThemeSettings.controlScale, "dp").pixels: 0
-        height: menuItem.checkable?
-                    AkUnit.create(24 * ThemeSettings.controlScale, "dp").pixels: 0
+        width: control.checkable?
+                   AkUnit.create(24 * AkTheme.controlScale, "dp").pixels: 0
+        height: control.checkable?
+                    AkUnit.create(24 * AkTheme.controlScale, "dp").pixels: 0
         anchors.verticalCenter: parent.verticalCenter
         anchors.left: parent.left
-        anchors.leftMargin: AkUnit.create(16 * ThemeSettings.controlScale, "dp").pixels
-        visible: menuItem.checkable && menuItem.checked
+        anchors.leftMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+        visible: control.checkable && control.checked
 
         AkColorizedImage {
             id: checkImage
@@ -64,9 +64,9 @@ T.MenuItem {
             anchors.horizontalCenter: menuItemCheck.horizontalCenter
             source: "image://icons/check"
             color:
-                menuItem.highlighted?
-                    ThemeSettings.colorActiveHighlightedText:
-                    ThemeSettings.colorActiveWindowText
+                control.highlighted?
+                    AkTheme.palette.active.highlightedText:
+                    AkTheme.palette.active.windowText
             asynchronous: true
             mipmap: true
         }
@@ -75,12 +75,12 @@ T.MenuItem {
     // >
     arrow: Item {
         id: menuItemArrow
-        width: visible? AkUnit.create(24 * ThemeSettings.controlScale, "dp").pixels: 0
-        height: visible? AkUnit.create(24 * ThemeSettings.controlScale, "dp").pixels: 0
+        width: visible? AkUnit.create(24 * AkTheme.controlScale, "dp").pixels: 0
+        height: visible? AkUnit.create(24 * AkTheme.controlScale, "dp").pixels: 0
         anchors.verticalCenter: parent.verticalCenter
         anchors.right: parent.right
-        anchors.rightMargin: AkUnit.create(16 * ThemeSettings.controlScale, "dp").pixels
-        visible: menuItem.subMenu
+        anchors.rightMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+        visible: control.subMenu
 
         AkColorizedImage {
             id: arrowImage
@@ -90,9 +90,9 @@ T.MenuItem {
             anchors.horizontalCenter: menuItemArrow.horizontalCenter
             source: "image://icons/right"
             color:
-                menuItem.highlighted?
-                    ThemeSettings.colorActiveHighlightedText:
-                    ThemeSettings.colorActiveWindowText
+                control.highlighted?
+                    AkTheme.palette.active.highlightedText:
+                    AkTheme.palette.active.windowText
             asynchronous: true
             mipmap: true
         }
@@ -100,149 +100,150 @@ T.MenuItem {
 
     contentItem: IconLabel {
         id: iconLabel
-        spacing: menuItem.spacing
-        mirrored: menuItem.mirrored
-        display: menuItem.display
-        iconName: menuItem.icon.name
-        iconSource: menuItem.icon.source
-        iconWidth: menuItem.icon.width
-        iconHeight: menuItem.icon.height
-        text: menuItem.text
+        spacing: control.spacing
+        mirrored: control.mirrored
+        display: control.display
+        iconName: control.icon.name
+        iconSource: control.icon.source
+        iconWidth: control.icon.width
+        iconHeight: control.icon.height
+        text: control.text
         anchors.left: menuItemCheck.right
         anchors.leftMargin:
-            menuItem.checkable?
-                AkUnit.create(20 * ThemeSettings.controlScale, "dp").pixels: 0
+            control.checkable?
+                AkUnit.create(20 * AkTheme.controlScale, "dp").pixels: 0
         anchors.right: menuItemArrow.left
-        font: menuItem.font
-        color: menuItem.highlighted?
-                   ThemeSettings.colorActiveHighlightedText:
-                   ThemeSettings.colorActiveWindowText
+        font: control.font
+        color: control.highlighted?
+                   AkTheme.palette.active.highlightedText:
+                   AkTheme.palette.active.windowText
         alignment: Qt.AlignLeft | Qt.AlignVCenter
+        enabled: control.enabled
     }
 
     background: Rectangle {
         id: background
-        implicitWidth: AkUnit.create(128 * ThemeSettings.controlScale, "dp").pixels
-        implicitHeight: AkUnit.create(48 * ThemeSettings.controlScale, "dp").pixels
-        color: menuItem.highlighted?
-                   ThemeSettings.colorActiveHighlight:
-                   ThemeSettings.shade(ThemeSettings.colorActiveWindow, 0, 0)
+        implicitWidth: AkUnit.create(128 * AkTheme.controlScale, "dp").pixels
+        implicitHeight: AkUnit.create(48 * AkTheme.controlScale, "dp").pixels
+        color: control.highlighted?
+                   AkTheme.palette.active.highlight:
+                   AkTheme.shade(AkTheme.palette.active.window, 0, 0)
     }
 
     states: [
         State {
             name: "Disabled"
-            when: !menuItem.enabled
+            when: !control.enabled
 
             PropertyChanges {
                 target: iconLabel
-                color: menuItem.highlighted?
-                           ThemeSettings.colorDisabledHighlightedText:
-                           ThemeSettings.colorDisabledWindowText
+                color: control.highlighted?
+                           AkTheme.palette.disabled.highlightedText:
+                           AkTheme.palette.disabled.windowText
             }
             PropertyChanges {
                 target: checkImage
                 color:
-                    menuItem.highlighted?
-                        ThemeSettings.colorDisabledHighlightedText:
-                        ThemeSettings.colorDisabledWindowText
+                    control.highlighted?
+                        AkTheme.palette.disabled.highlightedText:
+                        AkTheme.palette.disabled.windowText
             }
             PropertyChanges {
                 target: arrowImage
                 color:
-                    menuItem.highlighted?
-                        ThemeSettings.colorDisabledHighlightedText:
-                        ThemeSettings.colorDisabledWindowText
+                    control.highlighted?
+                        AkTheme.palette.disabled.highlightedText:
+                        AkTheme.palette.disabled.windowText
             }
             PropertyChanges {
                 target: background
-                color: menuItem.highlighted?
-                           ThemeSettings.colorDisabledHighlight:
-                           ThemeSettings.shade(ThemeSettings.colorDisabledWindow, 0, 0)
+                color: control.highlighted?
+                           AkTheme.palette.disabled.highlight:
+                           AkTheme.shade(AkTheme.palette.disabled.window, 0, 0)
             }
         },
         State {
             name: "Hovered"
-            when: menuItem.enabled
-                  && menuItem.hovered
-                  && !menuItem.visualFocus
-                  && !menuItem.pressed
+            when: control.enabled
+                  && control.hovered
+                  && !control.visualFocus
+                  && !control.pressed
 
             PropertyChanges {
                 target: checkImage
                 color:
-                    menuItem.highlighted?
-                        ThemeSettings.colorActiveHighlightedText:
-                        ThemeSettings.shade(ThemeSettings.colorActiveWindow, -0.6)
+                    control.highlighted?
+                        AkTheme.palette.active.highlightedText:
+                        AkTheme.shade(AkTheme.palette.active.window, -0.6)
             }
             PropertyChanges {
                 target: arrowImage
                 color:
-                    menuItem.highlighted?
-                        ThemeSettings.colorActiveHighlightedText:
-                        ThemeSettings.shade(ThemeSettings.colorActiveWindow, -0.6)
+                    control.highlighted?
+                        AkTheme.palette.active.highlightedText:
+                        AkTheme.shade(AkTheme.palette.active.window, -0.6)
             }
             PropertyChanges {
                 target: background
                 color:
-                    menuItem.highlighted?
-                        ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0.1):
-                        ThemeSettings.shade(ThemeSettings.colorActiveWindow, -0.1)
+                    control.highlighted?
+                        AkTheme.constShade(AkTheme.palette.active.highlight, 0.1):
+                        AkTheme.shade(AkTheme.palette.active.window, -0.1)
             }
         },
         State {
             name: "Focused"
-            when: menuItem.enabled
-                  && menuItem.visualFocus
-                  && !menuItem.pressed
+            when: control.enabled
+                  && control.visualFocus
+                  && !control.pressed
 
             PropertyChanges {
                 target: checkImage
                 color:
-                    menuItem.highlighted?
-                        ThemeSettings.colorActiveHighlightedText:
-                        ThemeSettings.shade(ThemeSettings.colorActiveWindow, -0.6)
+                    control.highlighted?
+                        AkTheme.palette.active.highlightedText:
+                        AkTheme.shade(AkTheme.palette.active.window, -0.6)
             }
             PropertyChanges {
                 target: arrowImage
                 color:
-                    menuItem.highlighted?
-                        ThemeSettings.colorActiveHighlightedText:
-                        ThemeSettings.shade(ThemeSettings.colorActiveWindow, -0.6)
+                    control.highlighted?
+                        AkTheme.palette.active.highlightedText:
+                        AkTheme.shade(AkTheme.palette.active.window, -0.6)
             }
             PropertyChanges {
                 target: background
                 color:
-                    menuItem.highlighted?
-                        ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0.2):
-                        ThemeSettings.shade(ThemeSettings.colorActiveWindow, -0.2)
+                    control.highlighted?
+                        AkTheme.constShade(AkTheme.palette.active.highlight, 0.2):
+                        AkTheme.shade(AkTheme.palette.active.window, -0.2)
             }
         },
         State {
             name: "Pressed"
-            when: menuItem.enabled
-                  && menuItem.pressed
+            when: control.enabled
+                  && control.pressed
 
             PropertyChanges {
                 target: checkImage
                 color:
-                    menuItem.highlighted?
-                        ThemeSettings.colorActiveHighlightedText:
-                        ThemeSettings.shade(ThemeSettings.colorActiveWindow, -0.7)
+                    control.highlighted?
+                        AkTheme.palette.active.highlightedText:
+                        AkTheme.shade(AkTheme.palette.active.window, -0.7)
             }
             PropertyChanges {
                 target: arrowImage
                 color:
-                    menuItem.highlighted?
-                        ThemeSettings.colorActiveHighlightedText:
-                        ThemeSettings.shade(ThemeSettings.colorActiveWindow, -0.7)
+                    control.highlighted?
+                        AkTheme.palette.active.highlightedText:
+                        AkTheme.shade(AkTheme.palette.active.window, -0.7)
             }
             PropertyChanges {
                 target: background
                 color:
-                    menuItem.highlighted?
-                        ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0.3):
-                        ThemeSettings.shade(ThemeSettings.colorActiveWindow, -0.3)
+                    control.highlighted?
+                        AkTheme.constShade(AkTheme.palette.active.highlight, 0.3):
+                        AkTheme.shade(AkTheme.palette.active.window, -0.3)
             }
         }
     ]
@@ -251,21 +252,21 @@ T.MenuItem {
         PropertyAnimation {
             target: iconLabel
             properties: "opacity"
-            duration: menuItem.animationTime
+            duration: control.animationTime
         }
         PropertyAnimation {
             target: checkImage
             properties: "color"
-            duration: menuItem.animationTime
+            duration: control.animationTime
         }
         PropertyAnimation {
             target: arrowImage
             properties: "color"
-            duration: menuItem.animationTime
+            duration: control.animationTime
         }
         ColorAnimation {
             target: background
-            duration: menuItem.animationTime
+            duration: control.animationTime
         }
     }
 }

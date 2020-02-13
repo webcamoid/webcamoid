@@ -30,10 +30,10 @@ T.MenuBarItem {
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              implicitContentHeight + topPadding + bottomPadding,
                              implicitIndicatorHeight + topPadding + bottomPadding)
-    rightPadding: AkUnit.create(16 * ThemeSettings.controlScale, "dp").pixels
-    spacing: AkUnit.create(20 * ThemeSettings.controlScale, "dp").pixels
-    icon.width: AkUnit.create(24 * ThemeSettings.controlScale, "dp").pixels
-    icon.height: AkUnit.create(24 * ThemeSettings.controlScale, "dp").pixels
+    rightPadding: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+    spacing: AkUnit.create(20 * AkTheme.controlScale, "dp").pixels
+    icon.width: AkUnit.create(24 * AkTheme.controlScale, "dp").pixels
+    icon.height: AkUnit.create(24 * AkTheme.controlScale, "dp").pixels
     clip: true
     hoverEnabled: true
 
@@ -50,17 +50,18 @@ T.MenuBarItem {
         iconHeight: control.icon.height
         text: control.text
         font: control.font
-        color: ThemeSettings.colorActiveHighlightedText
+        color: AkTheme.palette.active.highlightedText
         alignment: Qt.AlignLeft | Qt.AlignVCenter
+        enabled: control.enabled
     }
 
     background: Rectangle {
         id: background
-        implicitWidth: AkUnit.create(64 * ThemeSettings.controlScale, "dp").pixels
-        implicitHeight: AkUnit.create(48 * ThemeSettings.controlScale, "dp").pixels
+        implicitWidth: AkUnit.create(64 * AkTheme.controlScale, "dp").pixels
+        implicitHeight: AkUnit.create(48 * AkTheme.controlScale, "dp").pixels
         color: control.highlighted?
-                   ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0.1):
-                   ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0, 0)
+                   AkTheme.constShade(AkTheme.palette.active.highlight, 0.1):
+                   AkTheme.constShade(AkTheme.palette.active.highlight, 0, 0)
     }
 
     states: [
@@ -70,13 +71,13 @@ T.MenuBarItem {
 
             PropertyChanges {
                 target: iconLabel
-                color: ThemeSettings.colorDisabledHighlightedText
+                color: AkTheme.palette.disabled.highlightedText
             }
             PropertyChanges {
                 target: background
                 color: control.highlighted?
-                           ThemeSettings.constShade(ThemeSettings.colorDisabledHighlight, 0.1):
-                           ThemeSettings.constShade(ThemeSettings.colorDisabledHighlight, 0, 0)
+                           AkTheme.constShade(AkTheme.palette.disabled.highlight, 0.1):
+                           AkTheme.constShade(AkTheme.palette.disabled.highlight, 0, 0)
             }
         },
         State {
@@ -90,8 +91,8 @@ T.MenuBarItem {
                 target: background
                 color:
                     control.highlighted?
-                        ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0.2):
-                        ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0.1)
+                        AkTheme.constShade(AkTheme.palette.active.highlight, 0.2):
+                        AkTheme.constShade(AkTheme.palette.active.highlight, 0.1)
             }
         },
         State {
@@ -103,8 +104,8 @@ T.MenuBarItem {
                 target: background
                 color:
                     control.highlighted?
-                        ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0.3):
-                        ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0.2)
+                        AkTheme.constShade(AkTheme.palette.active.highlight, 0.3):
+                        AkTheme.constShade(AkTheme.palette.active.highlight, 0.2)
             }
         }
     ]

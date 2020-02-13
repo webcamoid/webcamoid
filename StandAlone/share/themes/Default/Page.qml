@@ -20,7 +20,7 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Templates 2.5 as T
-import "Private"
+import Ak 1.0
 
 T.Page {
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
@@ -35,7 +35,7 @@ T.Page {
 
     background: Rectangle {
         color: enabled?
-                   ThemeSettings.colorActiveWindow:
-                   ThemeSettings.colorDisabledWindow
+                   AkTheme.palette.active.window:
+                   AkTheme.palette.disabled.window
     }
 }

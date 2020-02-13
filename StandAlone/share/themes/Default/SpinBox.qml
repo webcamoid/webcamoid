@@ -21,13 +21,12 @@ import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Templates 2.5 as T
 import Ak 1.0
-import "Private"
 
 T.SpinBox {
     id: control
-    implicitWidth: AkUnit.create(96 * ThemeSettings.controlScale, "dp").pixels
-    implicitHeight: AkUnit.create(32 * ThemeSettings.controlScale, "dp").pixels
-    padding: AkUnit.create(8 * ThemeSettings.controlScale, "dp").pixels
+    implicitWidth: AkUnit.create(96 * AkTheme.controlScale, "dp").pixels
+    implicitHeight: AkUnit.create(32 * AkTheme.controlScale, "dp").pixels
+    padding: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
     hoverEnabled: true
 
     readonly property int animationTime: 200
@@ -42,9 +41,9 @@ T.SpinBox {
         id: spinBoxText
         text: control.displayText
         font: control.font
-        color: ThemeSettings.colorActiveText
-        selectionColor: ThemeSettings.colorActiveHighlight
-        selectedTextColor: ThemeSettings.colorActiveHighlightedText
+        color: AkTheme.palette.active.text
+        selectionColor: AkTheme.palette.active.highlight
+        selectedTextColor: AkTheme.palette.active.highlightedText
         horizontalAlignment: Qt.AlignHCenter
         verticalAlignment: Qt.AlignVCenter
         anchors.left: control.mirrored? upIndicator.left: downIndicator.right
@@ -70,7 +69,7 @@ T.SpinBox {
             text: "+"
             font.bold: true
             font.pixelSize: control.font.pixelSize * 2
-            color: ThemeSettings.colorActiveText
+            color: AkTheme.palette.active.text
             anchors.fill: parent
             fontSizeMode: Text.Fit
             horizontalAlignment: Text.AlignHCenter
@@ -91,7 +90,7 @@ T.SpinBox {
             text: "-"
             font.bold: true
             font.pixelSize: control.font.pixelSize * 2
-            color: ThemeSettings.colorActiveText
+            color: AkTheme.palette.active.text
             anchors.fill: parent
             fontSizeMode: Text.Fit
             horizontalAlignment: Text.AlignHCenter
@@ -101,30 +100,30 @@ T.SpinBox {
 
     background: Rectangle {
         id: background
-        color: ThemeSettings.colorActiveBase
-        border.color: ThemeSettings.colorActiveMid
-        border.width: AkUnit.create(1 * ThemeSettings.controlScale, "dp").pixels
-        radius: AkUnit.create(6 * ThemeSettings.controlScale, "dp").pixels
+        color: AkTheme.palette.active.base
+        border.color: AkTheme.palette.active.mid
+        border.width: AkUnit.create(1 * AkTheme.controlScale, "dp").pixels
+        radius: AkUnit.create(6 * AkTheme.controlScale, "dp").pixels
         width: control.width
         height: control.height
         gradient: Gradient {
             GradientStop {
                 position: 0
                 color:
-                    ThemeSettings.colorActiveWindow.hslLightness < 0.5?
+                    AkTheme.palette.active.window.hslLightness < 0.5?
                         Qt.tint(background.color,
-                                ThemeSettings.shade(ThemeSettings.colorActiveLight, 0, 0.25)):
+                                AkTheme.shade(AkTheme.palette.active.light, 0, 0.25)):
                         Qt.tint(background.color,
-                                ThemeSettings.shade(ThemeSettings.colorActiveDark, 0, 0.25))
+                                AkTheme.shade(AkTheme.palette.active.dark, 0, 0.25))
             }
             GradientStop {
                 position: 1
                 color:
-                    ThemeSettings.colorActiveWindow.hslLightness < 0.5?
+                    AkTheme.palette.active.window.hslLightness < 0.5?
                         Qt.tint(background.color,
-                                ThemeSettings.shade(ThemeSettings.colorActiveDark, 0, 0.25)):
+                                AkTheme.shade(AkTheme.palette.active.dark, 0, 0.25)):
                         Qt.tint(background.color,
-                                ThemeSettings.shade(ThemeSettings.colorActiveLight, 0, 0.25))
+                                AkTheme.shade(AkTheme.palette.active.light, 0, 0.25))
             }
         }
     }
@@ -136,20 +135,20 @@ T.SpinBox {
 
             PropertyChanges {
                 target: spinBoxText
-                color: ThemeSettings.colorDisabledText
+                color: AkTheme.palette.disabled.text
             }
             PropertyChanges {
                 target: downIndicatorText
-                color: ThemeSettings.colorDisabledText
+                color: AkTheme.palette.disabled.text
             }
             PropertyChanges {
                 target: upIndicatorText
-                color: ThemeSettings.colorDisabledText
+                color: AkTheme.palette.disabled.text
             }
             PropertyChanges {
                 target: background
-                color: ThemeSettings.colorDisabledBase
-                border.color: ThemeSettings.colorDisabledMid
+                color: AkTheme.palette.disabled.base
+                border.color: AkTheme.palette.disabled.mid
             }
         },
         State {
@@ -162,7 +161,7 @@ T.SpinBox {
 
             PropertyChanges {
                 target: background
-                border.color: ThemeSettings.colorActiveDark
+                border.color: AkTheme.palette.active.dark
             }
         },
         State {
@@ -172,9 +171,9 @@ T.SpinBox {
 
             PropertyChanges {
                 target: background
-                border.color: ThemeSettings.colorActiveHighlight
+                border.color: AkTheme.palette.active.highlight
                 border.width:
-                    AkUnit.create(2 * ThemeSettings.controlScale, "dp").pixels
+                    AkUnit.create(2 * AkTheme.controlScale, "dp").pixels
             }
         }
     ]

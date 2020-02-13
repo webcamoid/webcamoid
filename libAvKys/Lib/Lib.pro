@@ -45,7 +45,6 @@ HEADERS = \
     src/akaudiocaps.h \
     src/akaudiopacket.h \
     src/akcaps.h \
-    src/akcolorizedimage.h \
     src/akcommons.h \
     src/akelement.h \
     src/akfrac.h \
@@ -54,7 +53,11 @@ HEADERS = \
     src/akplugin.h \
     src/akunit.h \
     src/akvideocaps.h \
-    src/akvideopacket.h
+    src/akvideopacket.h \
+    src/qml/akcolorizedimage.h \
+    src/qml/akpalette.h \
+    src/qml/akpalettegroup.h \
+    src/qml/aktheme.h
 
 QT += gui qml quick widgets
 
@@ -63,14 +66,17 @@ SOURCES = \
     src/akaudiocaps.cpp \
     src/akaudiopacket.cpp \
     src/akcaps.cpp \
-    src/akcolorizedimage.cpp \
     src/akelement.cpp \
     src/akfrac.cpp \
     src/akmultimediasourceelement.cpp \
     src/akpacket.cpp \
     src/akunit.cpp \
     src/akvideocaps.cpp \
-    src/akvideopacket.cpp
+    src/akvideopacket.cpp \
+    src/qml/akcolorizedimage.cpp \
+    src/qml/akpalette.cpp \
+    src/qml/akpalettegroup.cpp \
+    src/qml/aktheme.cpp
 
 lupdate_only {
     SOURCES += $$files(share/qml/AkControls/*.qml)

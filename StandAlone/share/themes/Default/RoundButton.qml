@@ -26,19 +26,19 @@ import "Private"
 T.RoundButton {
     id: control
     font.bold: true
-    icon.width: AkUnit.create(18 * ThemeSettings.controlScale, "dp").pixels
-    icon.height: AkUnit.create(18 * ThemeSettings.controlScale, "dp").pixels
+    icon.width: AkUnit.create(18 * AkTheme.controlScale, "dp").pixels
+    icon.height: AkUnit.create(18 * AkTheme.controlScale, "dp").pixels
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             implicitContentWidth + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              implicitContentHeight + topPadding + bottomPadding)
-    spacing: AkUnit.create(12 * ThemeSettings.controlScale, "dp").pixels
+    spacing: AkUnit.create(12 * AkTheme.controlScale, "dp").pixels
     hoverEnabled: true
     leftPadding:
-        AkUnit.create(16 * ThemeSettings.controlScale, "dp").pixels
+        AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
     rightPadding:
-        AkUnit.create(16 * ThemeSettings.controlScale, "dp").pixels
-    radius: AkUnit.create(28 * ThemeSettings.controlScale, "dp").pixels
+        AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+    radius: AkUnit.create(28 * AkTheme.controlScale, "dp").pixels
 
     readonly property int animationTime: 200
 
@@ -56,10 +56,11 @@ T.RoundButton {
             font: control.font
             color:
                 control.highlighted?
-                    ThemeSettings.colorActiveHighlightedText:
+                    AkTheme.palette.active.highlightedText:
                 control.flat?
-                    ThemeSettings.colorActiveHighlight:
-                    ThemeSettings.colorActiveButtonText
+                    AkTheme.palette.active.highlight:
+                    AkTheme.palette.active.buttonText
+            enabled: control.enabled
             anchors.verticalCenter: parent.verticalCenter
             anchors.horizontalCenter: parent.horizontalCenter
         }
@@ -79,39 +80,39 @@ T.RoundButton {
             radius: width / 2
             border.width:
                 control.checkable?
-                    AkUnit.create(2 * ThemeSettings.controlScale, "dp").pixels:
-                    AkUnit.create(1 * ThemeSettings.controlScale, "dp").pixels
+                    AkUnit.create(2 * AkTheme.controlScale, "dp").pixels:
+                    AkUnit.create(1 * AkTheme.controlScale, "dp").pixels
             border.color:
                 control.checkable && control.checked && control.highlighted?
-                    ThemeSettings.colorActiveHighlightedText:
+                    AkTheme.palette.active.highlightedText:
                 control.checkable && control.checked?
-                    ThemeSettings.colorActiveHighlight:
+                    AkTheme.palette.active.highlight:
                 control.checkable?
-                    ThemeSettings.colorActiveDark:
+                    AkTheme.palette.active.dark:
                 control.highlighted || control.flat?
-                    ThemeSettings.shade(ThemeSettings.colorActiveWindow, 0, 0):
-                    ThemeSettings.colorActiveDark
+                    AkTheme.shade(AkTheme.palette.active.window, 0, 0):
+                    AkTheme.palette.active.dark
             color: control.highlighted?
-                       ThemeSettings.colorActiveHighlight:
+                       AkTheme.palette.active.highlight:
                    control.flat?
-                       ThemeSettings.shade(ThemeSettings.colorActiveWindow, 0, 0):
-                       ThemeSettings.colorActiveButton
+                       AkTheme.shade(AkTheme.palette.active.window, 0, 0):
+                       AkTheme.palette.active.button
             gradient: Gradient {
                 GradientStop {
                     position: 0
-                    color: ThemeSettings.colorActiveWindow.hslLightness < 0.5?
+                    color: AkTheme.palette.active.window.hslLightness < 0.5?
                                Qt.tint(buttonRectangle.color,
-                                       ThemeSettings.shade(ThemeSettings.colorActiveDark, 0, 0.25)):
+                                       AkTheme.shade(AkTheme.palette.active.dark, 0, 0.25)):
                                Qt.tint(buttonRectangle.color,
-                                       ThemeSettings.shade(ThemeSettings.colorActiveLight, 0, 0.25))
+                                       AkTheme.shade(AkTheme.palette.active.light, 0, 0.25))
                 }
                 GradientStop {
                     position: 1
-                    color: ThemeSettings.colorActiveWindow.hslLightness < 0.5?
+                    color: AkTheme.palette.active.window.hslLightness < 0.5?
                                Qt.tint(buttonRectangle.color,
-                                       ThemeSettings.shade(ThemeSettings.colorActiveLight, 0, 0.25)):
+                                       AkTheme.shade(AkTheme.palette.active.light, 0, 0.25)):
                                Qt.tint(buttonRectangle.color,
-                                       ThemeSettings.shade(ThemeSettings.colorActiveDark, 0, 0.25))
+                                       AkTheme.shade(AkTheme.palette.active.dark, 0, 0.25))
                 }
             }
         }
@@ -126,28 +127,28 @@ T.RoundButton {
                 target: iconLabel
                 color:
                     control.highlighted?
-                        ThemeSettings.colorDisabledHighlightedText:
+                        AkTheme.palette.disabled.highlightedText:
                     control.flat?
-                        ThemeSettings.colorDisabledHighlight:
-                        ThemeSettings.colorDisabledButtonText
+                        AkTheme.palette.disabled.highlight:
+                        AkTheme.palette.disabled.buttonText
             }
             PropertyChanges {
                 target: buttonRectangle
                 border.color:
                     control.checkable && control.checked && control.highlighted?
-                        ThemeSettings.colorDisabledHighlightedText:
+                        AkTheme.palette.disabled.highlightedText:
                     control.checkable && control.checked?
-                        ThemeSettings.colorDisabledHighlight:
+                        AkTheme.palette.disabled.highlight:
                     control.checkable?
-                        ThemeSettings.colorDisabledDark:
+                        AkTheme.palette.disabled.dark:
                     control.highlighted || control.flat?
-                        ThemeSettings.shade(ThemeSettings.colorDisabledWindow, 0, 0):
-                        ThemeSettings.colorDisabledDark
+                        AkTheme.shade(AkTheme.palette.disabled.window, 0, 0):
+                        AkTheme.palette.disabled.dark
                 color: control.highlighted?
-                           ThemeSettings.colorDisabledHighlight:
+                           AkTheme.palette.disabled.highlight:
                        control.flat?
-                           ThemeSettings.shade(ThemeSettings.colorDisabledWindow, 0, 0):
-                           ThemeSettings.colorDisabledButton
+                           AkTheme.shade(AkTheme.palette.disabled.window, 0, 0):
+                           AkTheme.palette.disabled.button
             }
         },
         State {
@@ -160,10 +161,10 @@ T.RoundButton {
             PropertyChanges {
                 target: buttonRectangle
                 color: control.highlighted?
-                           ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0.1):
+                           AkTheme.constShade(AkTheme.palette.active.highlight, 0.1):
                        control.flat?
-                           ThemeSettings.shade(ThemeSettings.colorActiveMid, 0, 0.5):
-                           ThemeSettings.colorActiveMid
+                           AkTheme.shade(AkTheme.palette.active.mid, 0, 0.5):
+                           AkTheme.palette.active.mid
             }
         },
         State {
@@ -176,19 +177,19 @@ T.RoundButton {
                 target: buttonRectangle
                 border.color:
                     control.checkable && control.checked && control.highlighted?
-                        ThemeSettings.colorActiveHighlightedText:
+                        AkTheme.palette.active.highlightedText:
                     control.checkable && control.checked?
-                        ThemeSettings.colorActiveHighlight:
+                        AkTheme.palette.active.highlight:
                     control.checkable?
-                        ThemeSettings.colorActiveDark:
+                        AkTheme.palette.active.dark:
                     control.highlighted || control.flat?
-                        ThemeSettings.shade(ThemeSettings.colorActiveWindow, 0, 0):
-                        ThemeSettings.colorActiveHighlight
+                        AkTheme.shade(AkTheme.palette.active.window, 0, 0):
+                        AkTheme.palette.active.highlight
                 color: control.highlighted?
-                           ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0.2):
+                           AkTheme.constShade(AkTheme.palette.active.highlight, 0.2):
                        control.flat?
-                           ThemeSettings.shade(ThemeSettings.colorActiveMid, 0, 0.5):
-                           ThemeSettings.colorActiveMid
+                           AkTheme.shade(AkTheme.palette.active.mid, 0, 0.5):
+                           AkTheme.palette.active.mid
             }
         },
         State {
@@ -200,19 +201,19 @@ T.RoundButton {
                 target: buttonRectangle
                 border.color:
                     control.checkable && control.checked && control.highlighted?
-                        ThemeSettings.colorActiveHighlightedText:
+                        AkTheme.palette.active.highlightedText:
                     control.checkable && control.checked?
-                        ThemeSettings.colorActiveHighlight:
+                        AkTheme.palette.active.highlight:
                     control.checkable?
-                        ThemeSettings.colorActiveDark:
+                        AkTheme.palette.active.dark:
                     control.highlighted || control.flat?
-                        ThemeSettings.shade(ThemeSettings.colorActiveWindow, 0, 0):
-                        ThemeSettings.colorActiveHighlight
+                        AkTheme.shade(AkTheme.palette.active.window, 0, 0):
+                        AkTheme.palette.active.highlight
                 color: control.highlighted?
-                           ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0.3):
+                           AkTheme.constShade(AkTheme.palette.active.highlight, 0.3):
                        control.flat?
-                           ThemeSettings.shade(ThemeSettings.colorActiveDark, 0, 0.5):
-                           ThemeSettings.colorActiveDark
+                           AkTheme.shade(AkTheme.palette.active.dark, 0, 0.5):
+                           AkTheme.palette.active.dark
             }
         }
     ]

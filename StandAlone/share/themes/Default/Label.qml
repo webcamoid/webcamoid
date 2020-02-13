@@ -20,15 +20,15 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Templates 2.5 as T
-import "Private"
+import Ak 1.0
 
 T.Label {
     id: label
     color: enabled?
-               ThemeSettings.colorActiveWindowText:
-               ThemeSettings.colorDisabledWindowText
+               AkTheme.palette.active.windowText:
+               AkTheme.palette.disabled.windowText
     linkColor: enabled?
-                   ThemeSettings.colorActiveHighlight:
-                   ThemeSettings.colorDisabledHighlight
+                   AkTheme.palette.active.link:
+                   AkTheme.palette.disabled.link
     elide: Text.ElideRight
 }

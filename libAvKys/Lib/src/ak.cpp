@@ -32,13 +32,16 @@
 #include "akaudiocaps.h"
 #include "akaudiopacket.h"
 #include "akcaps.h"
-#include "akcolorizedimage.h"
 #include "akelement.h"
 #include "akfrac.h"
 #include "akpacket.h"
 #include "akunit.h"
 #include "akvideocaps.h"
 #include "akvideopacket.h"
+#include "qml/akcolorizedimage.h"
+#include "qml/akpalette.h"
+#include "qml/akpalettegroup.h"
+#include "qml/aktheme.h"
 
 class AkPrivate
 {
@@ -279,6 +282,11 @@ AkPrivate::AkPrivate()
     qRegisterMetaType<AkColorizedImage::HorizontalAlignment>("AkColorizedImage::HorizontalAlignment");
     qRegisterMetaType<AkColorizedImage::VerticalAlignment>("AkColorizedImage::VerticalAlignment");
     qRegisterMetaType<AkColorizedImage::Status>("AkColorizedImage::Status");
+    qmlRegisterUncreatableType<AkTheme>("Ak", 1, 0, "AkTheme", "AkTheme is an attached property");
+    qRegisterMetaType<AkPalette>("AkPalette");
+    qmlRegisterAnonymousType<AkPalette>("Ak", 1);
+    qRegisterMetaType<AkPaletteGroup>("AkPaletteGroup");
+    qmlRegisterAnonymousType<AkPaletteGroup>("Ak", 1);
 
     this->m_applicationDir.setPath(QCoreApplication::applicationDirPath());
 

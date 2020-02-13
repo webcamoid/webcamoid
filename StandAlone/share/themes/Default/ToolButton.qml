@@ -26,14 +26,14 @@ import "Private"
 T.ToolButton {
     id: control
     font.bold: true
-    icon.width: AkUnit.create(18 * ThemeSettings.controlScale, "dp").pixels
-    icon.height: AkUnit.create(18 * ThemeSettings.controlScale, "dp").pixels
+    icon.width: AkUnit.create(18 * AkTheme.controlScale, "dp").pixels
+    icon.height: AkUnit.create(18 * AkTheme.controlScale, "dp").pixels
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             implicitContentWidth + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              implicitContentHeight + topPadding + bottomPadding)
-    padding: AkUnit.create(8 * ThemeSettings.controlScale, "dp").pixels
-    spacing: AkUnit.create(8 * ThemeSettings.controlScale, "dp").pixels
+    padding: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
+    spacing: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
     hoverEnabled: true
 
     readonly property int animationTime: 200
@@ -42,7 +42,7 @@ T.ToolButton {
         id: buttonContent
         implicitWidth:
             iconLabel.implicitWidth
-            + AkUnit.create(18 * ThemeSettings.controlScale, "dp").pixels
+            + AkUnit.create(18 * AkTheme.controlScale, "dp").pixels
         implicitHeight: iconLabel.implicitHeight
 
         IconLabel {
@@ -58,18 +58,19 @@ T.ToolButton {
             iconHeight: control.icon.height
             text: control.text
             font: control.font
-            color: ThemeSettings.colorActiveHighlightedText
+            color: AkTheme.palette.active.highlightedText
+            enabled: control.enabled
         }
     }
     background: Rectangle {
         id: buttonRectangleBelow
         implicitWidth:
-            AkUnit.create(64 * ThemeSettings.controlScale, "dp").pixels
+            AkUnit.create(64 * AkTheme.controlScale, "dp").pixels
         implicitHeight:
-            AkUnit.create(36 * ThemeSettings.controlScale, "dp").pixels
+            AkUnit.create(36 * AkTheme.controlScale, "dp").pixels
         color: control.highlighted?
-                   ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0.1):
-                   ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0, 0)
+                   AkTheme.constShade(AkTheme.palette.active.highlight, 0.1):
+                   AkTheme.constShade(AkTheme.palette.active.highlight, 0, 0)
     }
 
     states: [
@@ -79,13 +80,13 @@ T.ToolButton {
 
             PropertyChanges {
                 target: iconLabel
-                color: ThemeSettings.colorDisabledHighlightedText
+                color: AkTheme.palette.disabled.highlightedText
             }
             PropertyChanges {
                 target: buttonRectangleBelow
                 color: control.highlighted?
-                           ThemeSettings.constShade(ThemeSettings.colorDisabledHighlight, 0.1):
-                           ThemeSettings.constShade(ThemeSettings.colorDisabledHighlight, 0, 0)
+                           AkTheme.constShade(AkTheme.palette.disabled.highlight, 0.1):
+                           AkTheme.constShade(AkTheme.palette.disabled.highlight, 0, 0)
             }
         },
         State {
@@ -99,8 +100,8 @@ T.ToolButton {
                 target: buttonRectangleBelow
                 color:
                     control.highlighted?
-                        ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0.2):
-                        ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0.1)
+                        AkTheme.constShade(AkTheme.palette.active.highlight, 0.2):
+                        AkTheme.constShade(AkTheme.palette.active.highlight, 0.1)
             }
         },
         State {
@@ -112,7 +113,7 @@ T.ToolButton {
             PropertyChanges {
                 target: buttonRectangleBelow
                 color:
-                    ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0.2)
+                    AkTheme.constShade(AkTheme.palette.active.highlight, 0.2)
             }
         },
         State {
@@ -122,7 +123,7 @@ T.ToolButton {
             PropertyChanges {
                 target: buttonRectangleBelow
                 color:
-                    ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0.3)
+                    AkTheme.constShade(AkTheme.palette.active.highlight, 0.3)
             }
         }
     ]

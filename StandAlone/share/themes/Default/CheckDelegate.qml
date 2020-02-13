@@ -25,16 +25,16 @@ import "Private"
 
 T.CheckDelegate {
     id: control
-    icon.width: AkUnit.create(18 * ThemeSettings.controlScale, "dp").pixels
-    icon.height: AkUnit.create(18 * ThemeSettings.controlScale, "dp").pixels
+    icon.width: AkUnit.create(18 * AkTheme.controlScale, "dp").pixels
+    icon.height: AkUnit.create(18 * AkTheme.controlScale, "dp").pixels
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             implicitContentWidth + implicitIndicatorWidth
                             + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              implicitContentHeight + topPadding + bottomPadding,
                              implicitIndicatorHeight + topPadding + bottomPadding)
-    padding: AkUnit.create(4 * ThemeSettings.controlScale, "dp").pixels
-    spacing: AkUnit.create(8 * ThemeSettings.controlScale, "dp").pixels
+    padding: AkUnit.create(4 * AkTheme.controlScale, "dp").pixels
+    spacing: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
     hoverEnabled: true
     clip: true
 
@@ -46,29 +46,29 @@ T.CheckDelegate {
         anchors.rightMargin: control.rightPadding
         anchors.verticalCenter: control.verticalCenter
         implicitWidth:
-            AkUnit.create(24 * ThemeSettings.controlScale, "dp").pixels
+            AkUnit.create(24 * AkTheme.controlScale, "dp").pixels
         implicitHeight:
-            AkUnit.create(24 * ThemeSettings.controlScale, "dp").pixels
+            AkUnit.create(24 * AkTheme.controlScale, "dp").pixels
 
         Rectangle {
             id: indicatorRect
             border.width:
                 control.checkState == Qt.Unchecked
                 || control.highlighted?
-                    AkUnit.create(2 * ThemeSettings.controlScale, "dp").pixels:
+                    AkUnit.create(2 * AkTheme.controlScale, "dp").pixels:
                     0
             border.color:
                 control.checkState != Qt.Unchecked?
                     "transparent":
                 control.highlighted?
-                    ThemeSettings.colorActiveHighlightedText:
-                    ThemeSettings.colorActiveWindowText
+                    AkTheme.palette.active.highlightedText:
+                    AkTheme.palette.active.windowText
             color: control.checkState == Qt.Unchecked?
                        "transparent":
                    control.highlighted?
-                       ThemeSettings.colorActiveHighlightedText:
-                       ThemeSettings.colorActiveWindowText
-            radius: AkUnit.create(4 * ThemeSettings.controlScale, "dp").pixels
+                       AkTheme.palette.active.highlightedText:
+                       AkTheme.palette.active.windowText
+            radius: AkUnit.create(4 * AkTheme.controlScale, "dp").pixels
             anchors.verticalCenter: checkBoxIndicator.verticalCenter
             anchors.horizontalCenter: checkBoxIndicator.horizontalCenter
             width: Math.min(checkBoxIndicator.width, checkBoxIndicator.height)
@@ -82,8 +82,8 @@ T.CheckDelegate {
             anchors.fill: indicatorRect
             visible: control.checkState != Qt.Unchecked
             color: control.highlighted?
-                       ThemeSettings.colorActiveHighlight:
-                       ThemeSettings.colorActiveWindow
+                       AkTheme.palette.active.highlight:
+                       AkTheme.palette.active.window
             asynchronous: true
             mipmap: true
         }
@@ -101,8 +101,9 @@ T.CheckDelegate {
         text: control.text
         font: control.font
         color: control.highlighted?
-                   ThemeSettings.colorActiveHighlightedText:
-                   ThemeSettings.colorActiveWindowText
+                   AkTheme.palette.active.highlightedText:
+                   AkTheme.palette.active.windowText
+        enabled: control.enabled
         alignment: Qt.AlignLeft | Qt.AlignVCenter
         anchors.leftMargin: control.leftPadding
         anchors.left: control.left
@@ -112,12 +113,12 @@ T.CheckDelegate {
     background: Rectangle {
         id: background
         implicitWidth:
-            AkUnit.create(128 * ThemeSettings.controlScale, "dp").pixels
+            AkUnit.create(128 * AkTheme.controlScale, "dp").pixels
         implicitHeight:
-            AkUnit.create(48 * ThemeSettings.controlScale, "dp").pixels
+            AkUnit.create(48 * AkTheme.controlScale, "dp").pixels
         color: control.highlighted?
-                   ThemeSettings.colorActiveHighlight:
-                   ThemeSettings.shade(ThemeSettings.colorActiveWindow, 0, 0)
+                   AkTheme.palette.active.highlight:
+                   AkTheme.shade(AkTheme.palette.active.window, 0, 0)
     }
 
     states: [
@@ -131,33 +132,33 @@ T.CheckDelegate {
                     control.checkState != Qt.Unchecked?
                         "transparent":
                     control.highlighted?
-                        ThemeSettings.colorDisabledHighlightedText:
-                        ThemeSettings.colorDisabledWindowText
+                        AkTheme.palette.disabled.highlightedText:
+                        AkTheme.palette.disabled.windowText
                 color: control.checkState == Qt.Unchecked?
                            "transparent":
                        control.highlighted?
-                           ThemeSettings.colorDisabledHighlightedText:
-                           ThemeSettings.colorDisabledWindowText
+                           AkTheme.palette.disabled.highlightedText:
+                           AkTheme.palette.disabled.windowText
             }
             PropertyChanges {
                 target: checkImage
                 color: control.highlighted?
-                           ThemeSettings.colorDisabledHighlight:
-                           ThemeSettings.colorDisabledWindow
+                           AkTheme.palette.disabled.highlight:
+                           AkTheme.palette.disabled.window
             }
             PropertyChanges {
                 target: iconLabel
                 color:
                     control.highlighted?
-                        ThemeSettings.colorDisabledHighlightedText:
-                        ThemeSettings.colorDisabledWindowText
+                        AkTheme.palette.disabled.highlightedText:
+                        AkTheme.palette.disabled.windowText
             }
             PropertyChanges {
                 target: background
                 color:
                     control.highlighted?
-                        ThemeSettings.colorDisabledHighlight:
-                        ThemeSettings.shade(ThemeSettings.colorDisabledWindow, 0, 0)
+                        AkTheme.palette.disabled.highlight:
+                        AkTheme.shade(AkTheme.palette.disabled.window, 0, 0)
             }
         },
         State {
@@ -171,9 +172,9 @@ T.CheckDelegate {
                 target: background
                 color:
                     control.highlighted?
-                        ThemeSettings.constShade(ThemeSettings.colorActiveHighlight,
+                        AkTheme.constShade(AkTheme.palette.active.highlight,
                                                  0.1):
-                        ThemeSettings.shade(ThemeSettings.colorActiveWindow, -0.1)
+                        AkTheme.shade(AkTheme.palette.active.window, -0.1)
             }
         },
         State {
@@ -184,9 +185,9 @@ T.CheckDelegate {
                 target: background
                 color:
                     control.highlighted?
-                        ThemeSettings.constShade(ThemeSettings.colorActiveHighlight,
+                        AkTheme.constShade(AkTheme.palette.active.highlight,
                                                  0.2):
-                        ThemeSettings.shade(ThemeSettings.colorActiveWindow, -0.2)
+                        AkTheme.shade(AkTheme.palette.active.window, -0.2)
             }
         }
     ]

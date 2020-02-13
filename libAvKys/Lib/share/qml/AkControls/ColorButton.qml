@@ -21,49 +21,145 @@ import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Window 2.12
 import Qt.labs.platform 1.1 as LABS
+import Ak 1.0
 
-Button {
-    id: button
+AbstractButton {
+    id: control
     text: currentColor
+    font.bold: true
+    implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
+                            implicitContentWidth + leftPadding + rightPadding)
+    implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
+                             implicitContentHeight + topPadding + bottomPadding)
+    padding: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
+    spacing: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
+    hoverEnabled: true
 
     property color currentColor: "black"
     property string title: ""
     property bool showAlphaChannel: false
     property int modality: Qt.ApplicationModal
     property bool isOpen: false
-
-    function contrast(color, value=0.5)
-    {
-        let lightness = (11 * color.r + 16 * color.g + 5 * color.b) / 32;
-
-        if (lightness < value)
-            return Qt.hsla(0, 0, 1, 1)
-
-        return Qt.hsla(0, 0, 0, 1)
-    }
+    readonly property int animationTime: 200
 
     contentItem: Item {
-        implicitWidth: colorRect.implicitWidth
-        implicitHeight: colorRect.implicitHeight
+        id: buttonContent
+        implicitWidth:
+            colorText.implicitWidth
+            + AkUnit.create(18 * AkTheme.controlScale, "dp").pixels
+        implicitHeight: colorText.implicitHeight
 
+        Text {
+            id: colorText
+            text: control.text
+            font: control.font
+            color: AkTheme.contrast(control.currentColor)
+            enabled: control.enabled
+            anchors.verticalCenter: buttonContent.verticalCenter
+            anchors.horizontalCenter: buttonContent.horizontalCenter
+        }
+    }
+    background: Item {
+        id: back
+        implicitWidth: AkUnit.create(64 * AkTheme.controlScale, "dp").pixels
+        implicitHeight: AkUnit.create(36 * AkTheme.controlScale, "dp").pixels
+
+        // Rectangle
         Rectangle {
-            id: colorRect
-            color: currentColor
-            width: colorText.contentWidth + 2 * padding
-            height: colorText.contentHeight + 2 * padding
-            anchors.verticalCenter: parent.verticalCenter
-            anchors.horizontalCenter: parent.horizontalCenter
-
-            property int padding: 2
-
-            Text {
-                id: colorText
-                text: parent.color
-                color: contrast(parent.color, 0.75)
-                font.bold: true
-                anchors.verticalCenter: parent.verticalCenter
-                anchors.horizontalCenter: parent.horizontalCenter
+            id: buttonRectangle
+            anchors.fill: parent
+            radius: AkUnit.create(6 * AkTheme.controlScale, "dp").pixels
+            border.width:
+                AkUnit.create(1 * AkTheme.controlScale, "dp").pixels
+            border.color: AkTheme.palette.active.dark
+            color: control.currentColor
+            gradient: Gradient {
+                GradientStop {
+                    position: 0
+                    color: AkTheme.palette.active.window.hslLightness < 0.5?
+                               Qt.tint(buttonRectangle.color,
+                                       AkTheme.shade(AkTheme.palette.active.dark, 0, 0.25)):
+                               Qt.tint(buttonRectangle.color,
+                                       AkTheme.shade(AkTheme.palette.active.light, 0, 0.25))
+                }
+                GradientStop {
+                    position: 1
+                    color: AkTheme.palette.active.window.hslLightness < 0.5?
+                               Qt.tint(buttonRectangle.color,
+                                       AkTheme.shade(AkTheme.palette.active.light, 0, 0.25)):
+                               Qt.tint(buttonRectangle.color,
+                                       AkTheme.shade(AkTheme.palette.active.dark, 0, 0.25))
+                }
             }
+        }
+    }
+
+    states: [
+        State {
+            name: "Disabled"
+            when: !control.enabled
+
+            PropertyChanges {
+                target: iconLabel
+                color: AkTheme.palette.disabled.buttonText
+            }
+            PropertyChanges {
+                target: buttonCheckableIndicator
+                color: AkTheme.palette.disabled.dark
+            }
+            PropertyChanges {
+                target: buttonRectangle
+                border.color: AkTheme.palette.disabled.dark
+                color: AkTheme.palette.disabled.button
+            }
+        },
+        State {
+            name: "Hovered"
+            when: control.enabled
+                  && control.hovered
+                  && !(control.activeFocus || control.visualFocus)
+                  && !control.pressed
+
+            PropertyChanges {
+                target: buttonRectangle
+                border.color: AkTheme.palette.active.mid
+                color: AkTheme.shade(control.currentColor, -0.1)
+            }
+        },
+        State {
+            name: "Focused"
+            when: control.enabled
+                  && (control.activeFocus || control.visualFocus)
+                  && !control.pressed
+
+            PropertyChanges {
+                target: buttonRectangle
+                border.width:
+                    AkUnit.create(2 * AkTheme.controlScale, "dp").pixels
+                border.color: AkTheme.palette.active.highlight
+                color: AkTheme.shade(control.currentColor, -0.1)
+            }
+        },
+        State {
+            name: "Pressed"
+            when: control.enabled
+                  && control.pressed
+
+            PropertyChanges {
+                target: buttonRectangle
+                border.width:
+                    AkUnit.create(2 * AkTheme.controlScale, "dp").pixels
+                border.color: AkTheme.palette.active.highlight
+                color: AkTheme.shade(control.currentColor, -0.2)
+            }
+        }
+    ]
+
+    transitions: Transition {
+        PropertyAnimation {
+            target: buttonRectangle
+            properties: "color,border.color,border.width"
+            duration: control.animationTime
         }
     }
 
@@ -71,12 +167,12 @@ Button {
 
     LABS.ColorDialog {
         id: colorDialog
-        title: button.title
-        currentColor: button.currentColor
-        options: button.showAlphaChannel? LABS.ColorDialog.ShowAlphaChannel: 0
-        modality: button.modality
+        title: control.title
+        currentColor: control.currentColor
+        options: control.showAlphaChannel? LABS.ColorDialog.ShowAlphaChannel: 0
+        modality: control.modality
 
-        onAccepted: button.currentColor = color
-        onVisibleChanged: button.isOpen = visible
+        onAccepted: control.currentColor = color
+        onVisibleChanged: control.isOpen = visible
     }
 }

@@ -21,19 +21,18 @@ import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Templates 2.5 as T
 import Ak 1.0
-import "Private"
 
 T.ToolTip {
-    id: toolTip
+    id: control
     x: parent? (parent.width - implicitWidth) / 2: 0
-    y: -implicitHeight - AkUnit.create(8 * ThemeSettings.controlScale, "dp").pixels
+    y: -implicitHeight - AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             contentWidth + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              contentHeight + topPadding + bottomPadding)
-    padding: AkUnit.create(8 * ThemeSettings.controlScale, "dp").pixels
+    padding: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
     horizontalPadding: padding
-                       + AkUnit.create(8 * ThemeSettings.controlScale, "dp").pixels
+                       + AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
     closePolicy: T.Popup.CloseOnEscape
                  | T.Popup.CloseOnPressOutsideParent
                  | T.Popup.CloseOnReleaseOutsideParent
@@ -59,18 +58,27 @@ T.ToolTip {
     }
 
     contentItem: Text {
-        text: toolTip.text
-        font: toolTip.font
-        color: enabled?
-                   ThemeSettings.colorActiveWindow:
-                   ThemeSettings.colorDisabledWindow
+        text: control.text
+        font: control.font
+        color: control.enabled?
+                   AkTheme.palette.active.toolTipText:
+                   AkTheme.palette.disabled.toolTipText
+        linkColor:
+            control.enabled?
+                AkTheme.palette.active.link:
+                AkTheme.palette.disabled.link
     }
 
     background: Rectangle {
-        implicitHeight: AkUnit.create(24 * ThemeSettings.controlScale, "dp").pixels
-        color: enabled?
-                   ThemeSettings.colorActiveWindowText:
-                   ThemeSettings.colorDisabledWindowText
-        radius: AkUnit.create(6 * ThemeSettings.controlScale, "dp").pixels
+        implicitHeight: AkUnit.create(24 * AkTheme.controlScale, "dp").pixels
+        color: control.enabled?
+                   AkTheme.palette.active.toolTipBase:
+                   AkTheme.palette.disabled.toolTipBase
+        border.color:
+            control.enabled?
+                AkTheme.palette.active.dark:
+                AkTheme.palette.disabled.dark
+        border.width: AkUnit.create(1 * AkTheme.controlScale, "dp").pixels
+        radius: AkUnit.create(6 * AkTheme.controlScale, "dp").pixels
     }
 }

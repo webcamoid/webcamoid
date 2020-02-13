@@ -21,7 +21,6 @@ import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Templates 2.5 as T
 import Ak 1.0
-import "Private"
 
 T.TabBar {
     id: tabBar
@@ -43,22 +42,22 @@ T.TabBar {
         highlightFollowsCurrentItem: true
         highlightRangeMode: ListView.ApplyRange
         preferredHighlightBegin:
-            AkUnit.create(36 * ThemeSettings.controlScale, "dp").pixels
+            AkUnit.create(36 * AkTheme.controlScale, "dp").pixels
         preferredHighlightEnd:
-            width - AkUnit.create(36 * ThemeSettings.controlScale, "dp").pixels
+            width - AkUnit.create(36 * AkTheme.controlScale, "dp").pixels
 
         highlight: Item {
             z: 2
 
             Rectangle {
                 height:
-                    AkUnit.create(2 * ThemeSettings.controlScale, "dp").pixels
+                    AkUnit.create(2 * AkTheme.controlScale, "dp").pixels
                 width: parent.width
                 y: tabBar.position === T.TabBar.Footer?
                        0: parent.height - height
                 color: enabled?
-                           ThemeSettings.colorActiveHighlight:
-                           ThemeSettings.colorDisabledHighlight
+                           AkTheme.palette.active.highlight:
+                           AkTheme.palette.disabled.highlight
             }
         }
     }

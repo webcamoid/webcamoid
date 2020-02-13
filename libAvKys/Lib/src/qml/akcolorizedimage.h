@@ -22,7 +22,7 @@
 
 #include <QQuickItem>
 
-#include "akcommons.h"
+#include "../akcommons.h"
 
 class AkColorizedImagePrivate;
 

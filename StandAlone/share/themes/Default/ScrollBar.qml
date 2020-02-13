@@ -21,7 +21,6 @@ import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Templates 2.5 as T
 import Ak 1.0
-import "Private"
 
 T.ScrollBar {
     id: control
@@ -31,9 +30,9 @@ T.ScrollBar {
     implicitHeight:
         Math.max(implicitBackgroundHeight + topInset + bottomInset,
                  implicitContentHeight + topPadding + bottomPadding)
-    padding: AkUnit.create(2 * ThemeSettings.controlScale, "dp").pixels
-    leftPadding: AkUnit.create(4 * ThemeSettings.controlScale, "dp").pixels
-    rightPadding: AkUnit.create(4 * ThemeSettings.controlScale, "dp").pixels
+    padding: AkUnit.create(2 * AkTheme.controlScale, "dp").pixels
+    leftPadding: AkUnit.create(4 * AkTheme.controlScale, "dp").pixels
+    rightPadding: AkUnit.create(4 * AkTheme.controlScale, "dp").pixels
     visible: control.policy !== T.ScrollBar.AlwaysOff
     minimumSize: orientation == Qt.Horizontal?
                      height / width:
@@ -41,25 +40,25 @@ T.ScrollBar {
     hoverEnabled: true
 
     contentItem: Rectangle {
-        implicitWidth: AkUnit.create(6 * ThemeSettings.controlScale, "dp").pixels
-        implicitHeight: AkUnit.create(6 * ThemeSettings.controlScale, "dp").pixels
+        implicitWidth: AkUnit.create(6 * AkTheme.controlScale, "dp").pixels
+        implicitHeight: AkUnit.create(6 * AkTheme.controlScale, "dp").pixels
         radius: Math.min(implicitWidth, implicitHeight) / 2
         color: !control.enabled?
-                   ThemeSettings.colorDisabledHighlight:
+                   AkTheme.palette.disabled.highlight:
                control.pressed?
-                   ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0.2):
+                   AkTheme.constShade(AkTheme.palette.active.highlight, 0.2):
                control.interactive && control.hovered?
-                   ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0.1):
-                   ThemeSettings.colorActiveHighlight
+                   AkTheme.constShade(AkTheme.palette.active.highlight, 0.1):
+                   AkTheme.palette.active.highlight
         opacity: 0
     }
 
     background: Rectangle {
-        implicitWidth: AkUnit.create(6 * ThemeSettings.controlScale, "dp").pixels
-        implicitHeight: AkUnit.create(6 * ThemeSettings.controlScale, "dp").pixels
+        implicitWidth: AkUnit.create(6 * AkTheme.controlScale, "dp").pixels
+        implicitHeight: AkUnit.create(6 * AkTheme.controlScale, "dp").pixels
         color: enabled?
-                   ThemeSettings.colorActiveDark:
-                   ThemeSettings.colorDisabledDark
+                   AkTheme.palette.active.dark:
+                   AkTheme.palette.disabled.dark
         opacity: 0
         visible: control.interactive
     }

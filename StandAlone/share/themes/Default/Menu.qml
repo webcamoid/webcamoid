@@ -22,7 +22,6 @@ import QtQuick.Controls 2.5
 import QtQuick.Templates 2.5 as T
 import QtQuick.Window 2.12
 import Ak 1.0
-import "Private"
 
 T.Menu {
     id: control
@@ -87,29 +86,29 @@ T.Menu {
     }
 
     background: Rectangle {
-        implicitWidth: AkUnit.create(128 * ThemeSettings.controlScale, "dp").pixels
-        implicitHeight: AkUnit.create(48 * ThemeSettings.controlScale, "dp").pixels
+        implicitWidth: AkUnit.create(128 * AkTheme.controlScale, "dp").pixels
+        implicitHeight: AkUnit.create(48 * AkTheme.controlScale, "dp").pixels
         color: enabled?
-                   ThemeSettings.colorActiveWindow:
-                   ThemeSettings.colorDisabledWindow
+                   AkTheme.palette.active.window:
+                   AkTheme.palette.disabled.window
         border.color: enabled?
-                          ThemeSettings.colorActiveDark:
-                          ThemeSettings.colorDisabledDark
-        radius: AkUnit.create(4 * ThemeSettings.controlScale, "dp").pixels
+                          AkTheme.palette.active.dark:
+                          AkTheme.palette.disabled.dark
+        radius: AkUnit.create(4 * AkTheme.controlScale, "dp").pixels
     }
 
     T.Overlay.modal: Rectangle {
         color: control.enabled?
-                   ThemeSettings.shade(ThemeSettings.colorActiveDark, 0, 0.75):
-                   ThemeSettings.shade(ThemeSettings.colorDisabledDark, 0, 0.75)
+                   AkTheme.shade(AkTheme.palette.active.dark, 0, 0.75):
+                   AkTheme.shade(AkTheme.palette.disabled.dark, 0, 0.75)
 
         Behavior on opacity { NumberAnimation { duration: 150 } }
     }
 
     T.Overlay.modeless: Rectangle {
         color: control.enabled?
-                   ThemeSettings.shade(ThemeSettings.colorActiveDark, 0, 0.75):
-                   ThemeSettings.shade(ThemeSettings.colorDisabledDark, 0, 0.75)
+                   AkTheme.shade(AkTheme.palette.active.dark, 0, 0.75):
+                   AkTheme.shade(AkTheme.palette.disabled.dark, 0, 0.75)
 
         Behavior on opacity { NumberAnimation { duration: 150 } }
     }

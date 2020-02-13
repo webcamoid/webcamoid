@@ -21,7 +21,6 @@ import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Templates 2.5 as T
 import Ak 1.0
-import "Private"
 
 T.Tumbler {
     id: control
@@ -32,9 +31,13 @@ T.Tumbler {
 
     delegate: Text {
         text: modelData
-        color: enabled?
-                   ThemeSettings.colorActiveWindowText:
-                   ThemeSettings.colorDisabledWindowText
+        color: control.enabled?
+                   AkTheme.palette.active.windowText:
+                   AkTheme.palette.disabled.windowText
+        linkColor:
+            control.enabled?
+                AkTheme.palette.active.link:
+                AkTheme.palette.disabled.link
         font: control.font
         opacity: (1.0 - Math.abs(Tumbler.displacement)
                   / (control.visibleItemCount / 2))
@@ -46,9 +49,9 @@ T.Tumbler {
     contentItem: PathView {
         id: tumblerView
         implicitWidth:
-            AkUnit.create(60 * ThemeSettings.controlScale, "dp").pixels
+            AkUnit.create(60 * AkTheme.controlScale, "dp").pixels
         implicitHeight:
-            AkUnit.create(200 * ThemeSettings.controlScale, "dp").pixels
+            AkUnit.create(200 * AkTheme.controlScale, "dp").pixels
         model: control.model
         delegate: control.delegate
         clip: true

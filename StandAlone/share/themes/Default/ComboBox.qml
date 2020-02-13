@@ -21,27 +21,26 @@ import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Templates 2.5 as T
 import Ak 1.0
-import "Private"
 
 T.ComboBox {
     id: control
     implicitWidth:
         Math.max(implicitBackgroundWidth + leftInset + rightInset,
                  implicitContentWidth + leftPadding + rightPadding,
-                 AkUnit.create(96 * ThemeSettings.controlScale, "dp").pixels)
+                 AkUnit.create(96 * AkTheme.controlScale, "dp").pixels)
     implicitHeight:
         Math.max(implicitBackgroundHeight + topInset + bottomInset,
                  implicitContentHeight + topPadding + bottomPadding,
                  implicitIndicatorHeight + topPadding + bottomPadding,
-                 AkUnit.create(36 * ThemeSettings.controlScale, "dp").pixels)
-    padding: AkUnit.create(8 * ThemeSettings.controlScale, "dp").pixels
-    leftPadding: AkUnit.create(16 * ThemeSettings.controlScale, "dp").pixels
-    rightPadding: AkUnit.create(40 * ThemeSettings.controlScale, "dp").pixels
+                 AkUnit.create(36 * AkTheme.controlScale, "dp").pixels)
+    padding: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
+    leftPadding: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+    rightPadding: AkUnit.create(40 * AkTheme.controlScale, "dp").pixels
     hoverEnabled: true
     clip: true
 
     readonly property int radius:
-        AkUnit.create(6 * ThemeSettings.controlScale, "dp").pixels
+        AkUnit.create(6 * AkTheme.controlScale, "dp").pixels
     readonly property int animationTime: 200
 
     // Writeable text
@@ -57,12 +56,12 @@ T.ComboBox {
         validator: control.validator
         font: control.font
         color: control.editable?
-                   ThemeSettings.colorActiveText:
+                   AkTheme.palette.active.text:
                control.flat?
-                   ThemeSettings.colorActiveHighlight:
-                   ThemeSettings.colorActiveButtonText
-        selectionColor: ThemeSettings.colorActiveHighlight
-        selectedTextColor: ThemeSettings.colorActiveHighlightedText
+                   AkTheme.palette.active.highlight:
+                   AkTheme.palette.active.buttonText
+        selectionColor: AkTheme.palette.active.highlight
+        selectedTextColor: AkTheme.palette.active.highlightedText
         verticalAlignment: Text.AlignVCenter
         selectByMouse: true
     }
@@ -76,7 +75,7 @@ T.ComboBox {
                - width
                - control.padding
         y: control.topPadding + (control.availableHeight - height) / 2
-        width: AkUnit.create(24 * ThemeSettings.controlScale, "dp").pixels
+        width: AkUnit.create(24 * AkTheme.controlScale, "dp").pixels
         height: width
 
         AkColorizedImage {
@@ -87,10 +86,10 @@ T.ComboBox {
             anchors.horizontalCenter: indicator.horizontalCenter
             source: control.down? "image://icons/up": "image://icons/down"
             color: control.editable?
-                       ThemeSettings.colorActiveText:
+                       AkTheme.palette.active.text:
                    control.flat?
-                       ThemeSettings.colorActiveHighlight:
-                       ThemeSettings.colorActiveButtonText
+                       AkTheme.palette.active.highlight:
+                       AkTheme.palette.active.buttonText
             asynchronous: true
             mipmap: true
         }
@@ -101,36 +100,36 @@ T.ComboBox {
         id: comboBoxBackground
         color:
             control.editable?
-                ThemeSettings.colorActiveBase:
+                AkTheme.palette.active.base:
             control.flat?
-                ThemeSettings.shade(ThemeSettings.colorActiveWindow, 0, 0):
-                ThemeSettings.colorActiveButton
+                AkTheme.shade(AkTheme.palette.active.window, 0, 0):
+                AkTheme.palette.active.button
         border.color:
             control.flat?
-                ThemeSettings.shade(ThemeSettings.colorActiveWindow, 0, 0):
+                AkTheme.shade(AkTheme.palette.active.window, 0, 0):
             control.editable?
-                ThemeSettings.colorActiveMid:
-                ThemeSettings.colorActiveDark
-        border.width: AkUnit.create(1 * ThemeSettings.controlScale,
+                AkTheme.palette.active.mid:
+                AkTheme.palette.active.dark
+        border.width: AkUnit.create(1 * AkTheme.controlScale,
                                  "dp").pixels
         radius: control.flat? 0: control.radius
         anchors.fill: parent
         gradient: Gradient {
             GradientStop {
                 position: 0
-                color: ThemeSettings.colorActiveWindow.hslLightness < 0.5?
+                color: AkTheme.palette.active.window.hslLightness < 0.5?
                            Qt.tint(comboBoxBackground.color,
-                                   ThemeSettings.shade(ThemeSettings.colorActiveDark, 0, 0.25)):
+                                   AkTheme.shade(AkTheme.palette.active.dark, 0, 0.25)):
                            Qt.tint(comboBoxBackground.color,
-                                   ThemeSettings.shade(ThemeSettings.colorActiveLight, 0, 0.25))
+                                   AkTheme.shade(AkTheme.palette.active.light, 0, 0.25))
             }
             GradientStop {
                 position: 1
-                color: ThemeSettings.colorActiveWindow.hslLightness < 0.5?
+                color: AkTheme.palette.active.window.hslLightness < 0.5?
                            Qt.tint(comboBoxBackground.color,
-                                   ThemeSettings.shade(ThemeSettings.colorActiveLight, 0, 0.25)):
+                                   AkTheme.shade(AkTheme.palette.active.light, 0, 0.25)):
                            Qt.tint(comboBoxBackground.color,
-                                   ThemeSettings.shade(ThemeSettings.colorActiveDark, 0, 0.25))
+                                   AkTheme.shade(AkTheme.palette.active.dark, 0, 0.25))
             }
         }
     }
@@ -139,11 +138,11 @@ T.ComboBox {
     popup: T.Popup {
         id: popup
         y: control.height
-           + AkUnit.create(4 * ThemeSettings.controlScale, "dp").pixels
+           + AkUnit.create(4 * AkTheme.controlScale, "dp").pixels
         width: control.width
         implicitHeight: contentItem.implicitHeight + 2 * topPadding
         transformOrigin: Item.Top
-        topPadding: AkUnit.create(8 * ThemeSettings.controlScale, "dp").pixels
+        topPadding: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
         bottomPadding: topPadding
 
         // Fade in
@@ -195,8 +194,8 @@ T.ComboBox {
 
         background: Rectangle {
             id: popupBackground
-            color: ThemeSettings.colorActiveWindow
-            border.color: ThemeSettings.colorActiveDark
+            color: AkTheme.palette.active.window
+            border.color: AkTheme.palette.active.dark
             radius: control.radius
             anchors.fill: parent
         }
@@ -222,33 +221,33 @@ T.ComboBox {
             PropertyChanges {
                 target: textField
                 color: control.editable?
-                           ThemeSettings.colorDisabledText:
+                           AkTheme.palette.disabled.text:
                        control.flat?
-                           ThemeSettings.colorDisabledHighlight:
-                           ThemeSettings.colorDisabledButtonText
+                           AkTheme.palette.disabled.highlight:
+                           AkTheme.palette.disabled.buttonText
             }
             PropertyChanges {
                 target: indicatorUpImage
                 color: control.editable?
-                           ThemeSettings.colorDisabledText:
+                           AkTheme.palette.disabled.text:
                        control.flat?
-                           ThemeSettings.colorDisabledHighlight:
-                           ThemeSettings.colorDisabledButtonText
+                           AkTheme.palette.disabled.highlight:
+                           AkTheme.palette.disabled.buttonText
             }
             PropertyChanges {
                 target: comboBoxBackground
                 color:
                     control.editable?
-                        ThemeSettings.colorDisabledBase:
+                        AkTheme.palette.disabled.base:
                     control.flat?
-                        ThemeSettings.shade(ThemeSettings.colorDisabledWindow, 0, 0):
-                        ThemeSettings.colorDisabledButton
+                        AkTheme.shade(AkTheme.palette.disabled.window, 0, 0):
+                        AkTheme.palette.disabled.button
                 border.color:
                     control.flat?
-                        ThemeSettings.shade(ThemeSettings.colorDisabledWindow, 0, 0):
+                        AkTheme.shade(AkTheme.palette.disabled.window, 0, 0):
                     control.editable?
-                        ThemeSettings.colorDisabledMid:
-                        ThemeSettings.colorDisabledDark
+                        AkTheme.palette.disabled.mid:
+                        AkTheme.palette.disabled.dark
             }
         },
         State {
@@ -262,13 +261,13 @@ T.ComboBox {
                 target: comboBoxBackground
                 border.color:
                     control.flat?
-                        ThemeSettings.shade(ThemeSettings.colorActiveWindow, 0, 0):
-                        ThemeSettings.colorActiveDark
+                        AkTheme.shade(AkTheme.palette.active.window, 0, 0):
+                        AkTheme.palette.active.dark
                 color: control.editable?
-                           ThemeSettings.colorActiveBase:
+                           AkTheme.palette.active.base:
                        control.flat?
-                           ThemeSettings.shade(ThemeSettings.colorActiveMid, 0, 0.5):
-                           ThemeSettings.colorActiveMid
+                           AkTheme.shade(AkTheme.palette.active.mid, 0, 0.5):
+                           AkTheme.palette.active.mid
             }
         },
         State {
@@ -279,17 +278,17 @@ T.ComboBox {
 
             PropertyChanges {
                 target: comboBoxBackground
-                border.width: AkUnit.create(2 * ThemeSettings.controlScale,
+                border.width: AkUnit.create(2 * AkTheme.controlScale,
                                                         "dp").pixels
                 border.color:
                     control.flat?
-                        ThemeSettings.shade(ThemeSettings.colorActiveWindow, 0, 0):
-                        ThemeSettings.colorActiveHighlight
+                        AkTheme.shade(AkTheme.palette.active.window, 0, 0):
+                        AkTheme.palette.active.highlight
                 color: control.editable?
-                           ThemeSettings.colorActiveBase:
+                           AkTheme.palette.active.base:
                        control.flat?
-                           ThemeSettings.shade(ThemeSettings.colorActiveMid, 0, 0.5):
-                           ThemeSettings.colorActiveMid
+                           AkTheme.shade(AkTheme.palette.active.mid, 0, 0.5):
+                           AkTheme.palette.active.mid
             }
         },
         State {
@@ -300,16 +299,16 @@ T.ComboBox {
             PropertyChanges {
                 target: comboBoxBackground
                 border.width:
-                    AkUnit.create(2 * ThemeSettings.controlScale, "dp").pixels
+                    AkUnit.create(2 * AkTheme.controlScale, "dp").pixels
                 border.color:
                     control.flat?
-                        ThemeSettings.shade(ThemeSettings.colorActiveWindow, 0, 0):
-                        ThemeSettings.colorActiveHighlight
+                        AkTheme.shade(AkTheme.palette.active.window, 0, 0):
+                        AkTheme.palette.active.highlight
                 color: control.editable?
-                           ThemeSettings.colorActiveBase:
+                           AkTheme.palette.active.base:
                        control.flat?
-                           ThemeSettings.shade(ThemeSettings.colorActiveDark, 0, 0.5):
-                           ThemeSettings.colorActiveDark
+                           AkTheme.shade(AkTheme.palette.active.dark, 0, 0.5):
+                           AkTheme.palette.active.dark
             }
         }
     ]

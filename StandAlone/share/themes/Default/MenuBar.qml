@@ -21,7 +21,6 @@ import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Templates 2.5 as T
 import Ak 1.0
-import "Private"
 
 T.MenuBar {
     id: control
@@ -42,10 +41,10 @@ T.MenuBar {
     }
 
     background: Rectangle {
-        implicitWidth: AkUnit.create(360 * ThemeSettings.controlScale, "dp").pixels
-        implicitHeight: AkUnit.create(48 * ThemeSettings.controlScale, "dp").pixels
+        implicitWidth: AkUnit.create(360 * AkTheme.controlScale, "dp").pixels
+        implicitHeight: AkUnit.create(48 * AkTheme.controlScale, "dp").pixels
         color: enabled?
-                   ThemeSettings.colorActiveHighlight:
-                   ThemeSettings.colorDisabledHighlight
+                   AkTheme.palette.active.highlight:
+                   AkTheme.palette.disabled.highlight
     }
 }

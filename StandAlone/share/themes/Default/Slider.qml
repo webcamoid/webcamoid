@@ -22,7 +22,6 @@ import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
 import QtQuick.Templates 2.5 as T
 import Ak 1.0
-import "Private"
 
 T.Slider {
     id: control
@@ -34,27 +33,27 @@ T.Slider {
     hoverEnabled: true
 
     readonly property int defaultWidth:
-        AkUnit.create(128 * ThemeSettings.controlScale, "dp").pixels
+        AkUnit.create(128 * AkTheme.controlScale, "dp").pixels
     readonly property int defaultHeight:
-        AkUnit.create(20 * ThemeSettings.controlScale, "dp").pixels
+        AkUnit.create(20 * AkTheme.controlScale, "dp").pixels
     readonly property int trackWidth:
-        AkUnit.create(4 * ThemeSettings.controlScale, "dp").pixels
+        AkUnit.create(4 * AkTheme.controlScale, "dp").pixels
     readonly property color tickMarkColorLeft:
         control.enabled && control.horizontal?
-            ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, -0.1):
+            AkTheme.constShade(AkTheme.palette.active.highlight, -0.1):
         control.enabled && control.vertical?
-            ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0, 0.5):
+            AkTheme.constShade(AkTheme.palette.active.highlight, 0, 0.5):
         !control.enabled && control.horizontal?
-            ThemeSettings.shade(ThemeSettings.colorActiveWindow, -0.4):
-            ThemeSettings.shade(ThemeSettings.colorActiveWindow, 0, 0.5)
+            AkTheme.shade(AkTheme.palette.active.window, -0.4):
+            AkTheme.shade(AkTheme.palette.active.window, 0, 0.5)
     readonly property color tickMarkColorRight:
         control.enabled && control.horizontal?
-            ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0, 0.5):
+            AkTheme.constShade(AkTheme.palette.active.highlight, 0, 0.5):
         control.enabled && control.vertical?
-            ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, -0.1):
+            AkTheme.constShade(AkTheme.palette.active.highlight, -0.1):
         !control.enabled && control.horizontal?
-            ThemeSettings.shade(ThemeSettings.colorActiveWindow, 0, 0.5):
-            ThemeSettings.shade(ThemeSettings.colorActiveWindow, -0.4)
+            AkTheme.shade(AkTheme.palette.active.window, 0, 0.5):
+            AkTheme.shade(AkTheme.palette.active.window, -0.4)
     readonly property real thumbRadius:
         Math.min(background.implicitWidth, background.implicitHeight) / 2
     readonly property int animationTime: 200
@@ -90,7 +89,7 @@ T.Slider {
             anchors.left: horizontalLeftTrack.right
             anchors.right: background.right
             anchors.verticalCenter: background.verticalCenter
-            color: ThemeSettings.constShade(sliderThumbRect.color, 0, 0.5)
+            color: AkTheme.constShade(sliderThumbRect.color, 0, 0.5)
             visible: control.horizontal
         }
         Rectangle {
@@ -100,7 +99,7 @@ T.Slider {
             radius: Math.min(width, height) / 2
             anchors.horizontalCenter: background.horizontalCenter
             anchors.top: background.top
-            color: ThemeSettings.constShade(sliderThumbRect.color, 0, 0.5)
+            color: AkTheme.constShade(sliderThumbRect.color, 0, 0.5)
             visible: control.vertical
         }
         Rectangle {
@@ -196,7 +195,7 @@ T.Slider {
         }
         Rectangle {
             id: sliderThumbRect
-            color: ThemeSettings.colorActiveHighlight
+            color: AkTheme.palette.active.highlight
             radius: Math.min(width, height) / 2
             anchors.fill: parent
         }
@@ -209,7 +208,7 @@ T.Slider {
 
             PropertyChanges {
                 target: sliderThumbRect
-                color: ThemeSettings.shade(ThemeSettings.colorDisabledWindow, -0.5)
+                color: AkTheme.shade(AkTheme.palette.disabled.window, -0.5)
             }
         },
         State {
@@ -220,7 +219,7 @@ T.Slider {
 
             PropertyChanges {
                 target: sliderThumbRect
-                color: ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0.1)
+                color: AkTheme.constShade(AkTheme.palette.active.highlight, 0.1)
             }
             PropertyChanges {
                 target: highlight
@@ -235,7 +234,7 @@ T.Slider {
 
             PropertyChanges {
                 target: sliderThumbRect
-                color: ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0.2)
+                color: AkTheme.constShade(AkTheme.palette.active.highlight, 0.2)
             }
             PropertyChanges {
                 target: highlight

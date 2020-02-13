@@ -26,14 +26,14 @@ import "Private"
 T.DelayButton {
     id: control
     font.bold: true
-    icon.width: AkUnit.create(18 * ThemeSettings.controlScale, "dp").pixels
-    icon.height: AkUnit.create(18 * ThemeSettings.controlScale, "dp").pixels
+    icon.width: AkUnit.create(18 * AkTheme.controlScale, "dp").pixels
+    icon.height: AkUnit.create(18 * AkTheme.controlScale, "dp").pixels
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             implicitContentWidth + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              implicitContentHeight + topPadding + bottomPadding)
-    padding: AkUnit.create(8 * ThemeSettings.controlScale, "dp").pixels
-    spacing: AkUnit.create(8 * ThemeSettings.controlScale, "dp").pixels
+    padding: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
+    spacing: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
     hoverEnabled: true
 
     readonly property int animationTime: 200
@@ -50,7 +50,7 @@ T.DelayButton {
         id: buttonContent
         implicitWidth:
             iconLabel.implicitWidth
-            + AkUnit.create(18 * ThemeSettings.controlScale, "dp").pixels
+            + AkUnit.create(18 * AkTheme.controlScale, "dp").pixels
         implicitHeight: iconLabel.implicitHeight
 
         IconLabel {
@@ -64,41 +64,42 @@ T.DelayButton {
             iconHeight: control.icon.height
             text: control.text
             font: control.font
-            color: ThemeSettings.colorActiveButtonText
+            color: AkTheme.palette.active.buttonText
+            enabled: control.enabled
             anchors.verticalCenter: buttonContent.verticalCenter
             anchors.horizontalCenter: buttonContent.horizontalCenter
         }
     }
     background: Item {
         id: back
-        implicitWidth: AkUnit.create(64 * ThemeSettings.controlScale, "dp").pixels
-        implicitHeight: AkUnit.create(36 * ThemeSettings.controlScale, "dp").pixels
+        implicitWidth: AkUnit.create(64 * AkTheme.controlScale, "dp").pixels
+        implicitHeight: AkUnit.create(36 * AkTheme.controlScale, "dp").pixels
 
         // Rectangle
         Rectangle {
             id: buttonRectangle
             anchors.fill: parent
-            radius: AkUnit.create(6 * ThemeSettings.controlScale, "dp").pixels
+            radius: AkUnit.create(6 * AkTheme.controlScale, "dp").pixels
             border.width:
-                AkUnit.create(1 * ThemeSettings.controlScale, "dp").pixels
-            border.color: ThemeSettings.colorActiveDark
-            color: ThemeSettings.colorActiveButton
+                AkUnit.create(1 * AkTheme.controlScale, "dp").pixels
+            border.color: AkTheme.palette.active.dark
+            color: AkTheme.palette.active.button
             gradient: Gradient {
                 GradientStop {
                     position: 0
-                    color: ThemeSettings.colorActiveWindow.hslLightness < 0.5?
+                    color: AkTheme.palette.active.window.hslLightness < 0.5?
                                Qt.tint(buttonRectangle.color,
-                                       ThemeSettings.shade(ThemeSettings.colorActiveDark, 0, 0.25)):
+                                       AkTheme.shade(AkTheme.palette.active.dark, 0, 0.25)):
                                Qt.tint(buttonRectangle.color,
-                                       ThemeSettings.shade(ThemeSettings.colorActiveLight, 0, 0.25))
+                                       AkTheme.shade(AkTheme.palette.active.light, 0, 0.25))
                 }
                 GradientStop {
                     position: 1
-                    color: ThemeSettings.colorActiveWindow.hslLightness < 0.5?
+                    color: AkTheme.palette.active.window.hslLightness < 0.5?
                                Qt.tint(buttonRectangle.color,
-                                       ThemeSettings.shade(ThemeSettings.colorActiveLight, 0, 0.25)):
+                                       AkTheme.shade(AkTheme.palette.active.light, 0, 0.25)):
                                Qt.tint(buttonRectangle.color,
-                                       ThemeSettings.shade(ThemeSettings.colorActiveDark, 0, 0.25))
+                                       AkTheme.shade(AkTheme.palette.active.dark, 0, 0.25))
                 }
             }
         }
@@ -106,16 +107,16 @@ T.DelayButton {
         // Checked indicator
         Rectangle {
             id: buttonCheckableIndicator
-            height: AkUnit.create(8 * ThemeSettings.controlScale, "dp").pixels
-            color: ThemeSettings.colorActiveDark
+            height: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
+            color: AkTheme.palette.active.dark
             anchors.bottom: back.bottom
             anchors.left: back.left
             anchors.right: back.right
         }
         Rectangle {
             width: parent.width * control.progress
-            height: AkUnit.create(8 * ThemeSettings.controlScale, "dp").pixels
-            color: ThemeSettings.colorActiveHighlight
+            height: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
+            color: AkTheme.palette.active.highlight
             anchors.bottom: back.bottom
         }
     }
@@ -127,16 +128,16 @@ T.DelayButton {
 
             PropertyChanges {
                 target: iconLabel
-                color: ThemeSettings.colorDisabledButtonText
+                color: AkTheme.palette.disabled.buttonText
             }
             PropertyChanges {
                 target: buttonCheckableIndicator
-                color: ThemeSettings.colorDisabledDark
+                color: AkTheme.palette.disabled.dark
             }
             PropertyChanges {
                 target: buttonRectangle
-                border.color: ThemeSettings.colorDisabledDark
-                color: ThemeSettings.colorDisabledButton
+                border.color: AkTheme.palette.disabled.dark
+                color: AkTheme.palette.disabled.button
             }
         },
         State {
@@ -148,21 +149,21 @@ T.DelayButton {
 
             PropertyChanges {
                 target: buttonRectangle
-                color: ThemeSettings.colorActiveMid
+                color: AkTheme.palette.active.mid
             }
         },
         State {
             name: "Focused"
             when: control.enabled
-                  && (control.hovered || control.visualFocus)
+                  && (control.activeFocus || control.visualFocus)
                   && !control.pressed
 
             PropertyChanges {
                 target: buttonRectangle
-                border.width: AkUnit.create(2 * ThemeSettings.controlScale,
+                border.width: AkUnit.create(2 * AkTheme.controlScale,
                                             "dp").pixels
-                border.color: ThemeSettings.colorActiveHighlight
-                color: ThemeSettings.colorActiveMid
+                border.color: AkTheme.palette.active.highlight
+                color: AkTheme.palette.active.mid
             }
         },
         State {
@@ -172,10 +173,10 @@ T.DelayButton {
 
             PropertyChanges {
                 target: buttonRectangle
-                border.width: AkUnit.create(2 * ThemeSettings.controlScale,
+                border.width: AkUnit.create(2 * AkTheme.controlScale,
                                             "dp").pixels
-                border.color: ThemeSettings.colorActiveHighlight
-                color: ThemeSettings.colorActiveDark
+                border.color: AkTheme.palette.active.highlight
+                color: AkTheme.palette.active.dark
             }
         }
     ]

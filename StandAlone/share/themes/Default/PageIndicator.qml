@@ -21,7 +21,6 @@ import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Templates 2.5 as T
 import Ak 1.0
-import "Private"
 
 T.PageIndicator {
     id: control
@@ -31,31 +30,31 @@ T.PageIndicator {
     implicitHeight:
         Math.max(implicitBackgroundHeight + topInset + bottomInset,
                  implicitContentHeight + topPadding + bottomPadding)
-    padding: AkUnit.create(6 * ThemeSettings.controlScale, "dp").pixels
-    spacing: AkUnit.create(16 * ThemeSettings.controlScale, "dp").pixels
+    padding: AkUnit.create(6 * AkTheme.controlScale, "dp").pixels
+    spacing: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
     hoverEnabled: true
 
     readonly property int animationTime: 200
 
     delegate: Rectangle {
         implicitWidth:
-            AkUnit.create(12 * ThemeSettings.controlScale, "dp").pixels
+            AkUnit.create(12 * AkTheme.controlScale, "dp").pixels
         implicitHeight: implicitWidth
         radius: width / 2
         color:
             !control.enabled?
-                ThemeSettings.constShade(ThemeSettings.colorDisabledHighlight, 0, 0.5):
+                AkTheme.constShade(AkTheme.palette.disabled.highlight, 0, 0.5):
             control.hovered?
-                ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0.1, 0.5):
-                ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0, 0.5)
+                AkTheme.constShade(AkTheme.palette.active.highlight, 0.1, 0.5):
+                AkTheme.constShade(AkTheme.palette.active.highlight, 0, 0.5)
         border.color:
             !control.enabled?
-                ThemeSettings.colorDisabledHighlight:
+                AkTheme.palette.disabled.highlight:
             control.hovered?
-                ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0.1):
-                ThemeSettings.colorActiveHighlight
+                AkTheme.constShade(AkTheme.palette.active.highlight, 0.1):
+                AkTheme.palette.active.highlight
         border.width:
-            AkUnit.create(2 * ThemeSettings.controlScale, "dp").pixels
+            AkUnit.create(2 * AkTheme.controlScale, "dp").pixels
         opacity: index === control.currentIndex?
                      1:
                  pressed?

@@ -21,7 +21,6 @@ import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Templates 2.5 as T
 import Ak 1.0
-import "Private"
 
 T.Drawer {
     id: control
@@ -32,18 +31,18 @@ T.Drawer {
     parent: T.Overlay.overlay
 
     background: Rectangle {
-        implicitWidth: AkUnit.create(256 * ThemeSettings.controlScale, "dp").pixels
-        implicitHeight: AkUnit.create(256 * ThemeSettings.controlScale, "dp").pixels
+        implicitWidth: AkUnit.create(256 * AkTheme.controlScale, "dp").pixels
+        implicitHeight: AkUnit.create(256 * AkTheme.controlScale, "dp").pixels
         color: control.enabled?
-                   ThemeSettings.colorActiveWindow:
-                   ThemeSettings.colorDisabledWindow
+                   AkTheme.palette.active.window:
+                   AkTheme.palette.disabled.window
 
         Rectangle {
             width: horizontal? handleWidth: parent.width
             height: horizontal? parent.height: handleWidth
             color: control.enabled?
-                       ThemeSettings.colorActiveDark:
-                       ThemeSettings.colorDisabledDark
+                       AkTheme.palette.active.dark:
+                       AkTheme.palette.disabled.dark
             x: control.edge === Qt.LeftEdge? parent.width - handleWidth: 0
             y: control.edge === Qt.TopEdge? parent.height - handleWidth: 0
             visible: !control.dim
@@ -51,22 +50,22 @@ T.Drawer {
             readonly property bool horizontal:
                 control.edge === Qt.LeftEdge || control.edge === Qt.RightEdge
             readonly property real handleWidth:
-                AkUnit.create(1 * ThemeSettings.controlScale, "dp").pixels
+                AkUnit.create(1 * AkTheme.controlScale, "dp").pixels
         }
     }
 
     T.Overlay.modal: Rectangle {
         color: control.enabled?
-                   ThemeSettings.shade(ThemeSettings.colorActiveDark, 0, 0.75):
-                   ThemeSettings.shade(ThemeSettings.colorDisabledDark, 0, 0.75)
+                   AkTheme.shade(AkTheme.palette.active.dark, 0, 0.75):
+                   AkTheme.shade(AkTheme.palette.disabled.dark, 0, 0.75)
 
         Behavior on opacity { NumberAnimation { duration: 150 } }
     }
 
     T.Overlay.modeless: Rectangle {
         color: control.enabled?
-                   ThemeSettings.shade(ThemeSettings.colorActiveDark, 0, 0.75):
-                   ThemeSettings.shade(ThemeSettings.colorDisabledDark, 0, 0.75)
+                   AkTheme.shade(AkTheme.palette.active.dark, 0, 0.75):
+                   AkTheme.shade(AkTheme.palette.disabled.dark, 0, 0.75)
 
         Behavior on opacity { NumberAnimation { duration: 150 } }
     }

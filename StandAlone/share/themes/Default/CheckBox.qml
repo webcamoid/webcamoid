@@ -25,16 +25,16 @@ import "Private"
 
 T.CheckBox {
     id: control
-    icon.width: AkUnit.create(18 * ThemeSettings.controlScale, "dp").pixels
-    icon.height: AkUnit.create(18 * ThemeSettings.controlScale, "dp").pixels
+    icon.width: AkUnit.create(18 * AkTheme.controlScale, "dp").pixels
+    icon.height: AkUnit.create(18 * AkTheme.controlScale, "dp").pixels
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             implicitContentWidth + 2 * implicitIndicatorWidth
                             + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              implicitContentHeight + topPadding + bottomPadding,
                              2 * implicitIndicatorHeight + topPadding + bottomPadding)
-    padding: AkUnit.create(4 * ThemeSettings.controlScale, "dp").pixels
-    spacing: AkUnit.create(8 * ThemeSettings.controlScale, "dp").pixels
+    padding: AkUnit.create(4 * AkTheme.controlScale, "dp").pixels
+    spacing: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
     hoverEnabled: true
     clip: true
 
@@ -46,9 +46,9 @@ T.CheckBox {
         anchors.leftMargin: indicatorRect.width / 2 + control.leftPadding
         anchors.verticalCenter: control.verticalCenter
         implicitWidth:
-            AkUnit.create(24 * ThemeSettings.controlScale, "dp").pixels
+            AkUnit.create(24 * AkTheme.controlScale, "dp").pixels
         implicitHeight:
-            AkUnit.create(24 * ThemeSettings.controlScale, "dp").pixels
+            AkUnit.create(24 * AkTheme.controlScale, "dp").pixels
 
         Rectangle {
             id: highlight
@@ -56,7 +56,7 @@ T.CheckBox {
             height: width
             color:
                 control.checkState == Qt.Unchecked?
-                    ThemeSettings.colorActiveDark:
+                    AkTheme.palette.active.dark:
                     indicatorRect.color
             radius: width / 2
             anchors.verticalCenter: checkBoxIndicator.verticalCenter
@@ -67,16 +67,16 @@ T.CheckBox {
             id: indicatorRect
             border.width:
                 control.checkState == Qt.Unchecked?
-                    AkUnit.create(2 * ThemeSettings.controlScale, "dp").pixels:
+                    AkUnit.create(2 * AkTheme.controlScale, "dp").pixels:
                     0
             border.color:
                 control.checkState == Qt.Unchecked?
-                    ThemeSettings.colorActiveDark:
+                    AkTheme.palette.active.dark:
                     "transparent"
             color: control.checkState == Qt.Unchecked?
                        "transparent":
-                       ThemeSettings.colorActiveHighlight
-            radius: AkUnit.create(4 * ThemeSettings.controlScale, "dp").pixels
+                       AkTheme.palette.active.highlight
+            radius: AkUnit.create(4 * AkTheme.controlScale, "dp").pixels
             anchors.verticalCenter: checkBoxIndicator.verticalCenter
             anchors.horizontalCenter: checkBoxIndicator.horizontalCenter
             width: Math.min(checkBoxIndicator.width, checkBoxIndicator.height)
@@ -89,7 +89,7 @@ T.CheckBox {
                         "image://icons/minus"
             anchors.fill: indicatorRect
             visible: control.checkState != Qt.Unchecked
-            color: ThemeSettings.colorActiveHighlightedText
+            color: AkTheme.palette.active.highlightedText
             asynchronous: true
             mipmap: true
         }
@@ -112,7 +112,8 @@ T.CheckBox {
             iconHeight: checkBox.icon.height
             text: checkBox.text
             font: checkBox.font
-            color: ThemeSettings.colorActiveWindowText
+            color: AkTheme.palette.active.windowText
+            enabled: control.enabled
             anchors.verticalCenter: control.contentItem.verticalCenter
         }
     }
@@ -126,19 +127,19 @@ T.CheckBox {
                 target: indicatorRect
                 border.color:
                     control.checkState == Qt.Unchecked?
-                        ThemeSettings.colorDisabledDark:
+                        AkTheme.palette.disabled.dark:
                         "transparent"
                 color: control.checkState == Qt.Unchecked?
                            "transparent":
-                           ThemeSettings.colorDisabledHighlight
+                           AkTheme.palette.disabled.highlight
             }
             PropertyChanges {
                 target: checkImage
-                color: ThemeSettings.colorDisabledHighlightedText
+                color: AkTheme.palette.disabled.highlightedText
             }
             PropertyChanges {
                 target: iconLabel
-                color: ThemeSettings.colorDisabledWindowText
+                color: AkTheme.palette.disabled.windowText
             }
         },
         State {
@@ -152,7 +153,7 @@ T.CheckBox {
                 target: indicatorRect
                 color: control.checkState == Qt.Unchecked?
                            "transparent":
-                           ThemeSettings.constShade(ThemeSettings.colorActiveHighlight,
+                           AkTheme.constShade(AkTheme.palette.active.highlight,
                                                     0.1)
             }
             PropertyChanges {
@@ -169,7 +170,7 @@ T.CheckBox {
                 target: indicatorRect
                 color: control.checkState == Qt.Unchecked?
                            "transparent":
-                           ThemeSettings.constShade(ThemeSettings.colorActiveHighlight,
+                           AkTheme.constShade(AkTheme.palette.active.highlight,
                                                     0.3)
             }
             PropertyChanges {

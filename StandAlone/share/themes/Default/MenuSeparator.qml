@@ -21,7 +21,6 @@ import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Templates 2.5 as T
 import Ak 1.0
-import "Private"
 
 T.MenuSeparator {
     id: control
@@ -29,15 +28,15 @@ T.MenuSeparator {
                             implicitContentWidth + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              implicitContentHeight + topPadding + bottomPadding)
-    verticalPadding: AkUnit.create(8 * ThemeSettings.controlScale, "dp").pixels
+    verticalPadding: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
 
     contentItem: Rectangle {
         implicitWidth:
-            AkUnit.create(128 * ThemeSettings.controlScale, "dp").pixels
+            AkUnit.create(128 * AkTheme.controlScale, "dp").pixels
         implicitHeight:
-            AkUnit.create(1 * ThemeSettings.controlScale, "dp").pixels
+            AkUnit.create(1 * AkTheme.controlScale, "dp").pixels
         color: enabled?
-                   ThemeSettings.colorActiveDark:
-                   ThemeSettings.colorDisabledDark
+                   AkTheme.palette.active.dark:
+                   AkTheme.palette.disabled.dark
     }
 }

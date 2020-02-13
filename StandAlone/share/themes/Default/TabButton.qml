@@ -26,14 +26,14 @@ import "Private"
 T.TabButton {
     id: control
     font.bold: true
-    icon.width: AkUnit.create(18 * ThemeSettings.controlScale, "dp").pixels
-    icon.height: AkUnit.create(18 * ThemeSettings.controlScale, "dp").pixels
+    icon.width: AkUnit.create(18 * AkTheme.controlScale, "dp").pixels
+    icon.height: AkUnit.create(18 * AkTheme.controlScale, "dp").pixels
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             implicitContentWidth + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              implicitContentHeight + topPadding + bottomPadding)
-    padding: AkUnit.create(8 * ThemeSettings.controlScale, "dp").pixels
-    spacing: AkUnit.create(8 * ThemeSettings.controlScale, "dp").pixels
+    padding: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
+    spacing: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
     hoverEnabled: true
 
     readonly property int animationTime: 200
@@ -42,7 +42,7 @@ T.TabButton {
         id: buttonContent
         implicitWidth:
             iconLabel.implicitWidth
-            + AkUnit.create(18 * ThemeSettings.controlScale, "dp").pixels
+            + AkUnit.create(18 * AkTheme.controlScale, "dp").pixels
         implicitHeight: iconLabel.implicitHeight
 
         IconLabel {
@@ -58,17 +58,18 @@ T.TabButton {
             iconHeight: control.icon.height
             text: control.text
             font: control.font
-            color: ThemeSettings.colorActiveWindowText
+            color: AkTheme.palette.active.windowText
+            enabled: control.enabled
         }
     }
 
     background: Rectangle {
         id: buttonRectangleBelow
         implicitWidth:
-            AkUnit.create(64 * ThemeSettings.controlScale, "dp").pixels
+            AkUnit.create(64 * AkTheme.controlScale, "dp").pixels
         implicitHeight:
-            AkUnit.create(36 * ThemeSettings.controlScale, "dp").pixels
-        color: ThemeSettings.shade(ThemeSettings.colorActiveWindow, 0.0, 0.0)
+            AkUnit.create(36 * AkTheme.controlScale, "dp").pixels
+        color: AkTheme.shade(AkTheme.palette.active.window, 0.0, 0.0)
     }
 
     states: [
@@ -78,11 +79,11 @@ T.TabButton {
 
             PropertyChanges {
                 target: iconLabel
-                color: ThemeSettings.colorDisabledWindowText
+                color: AkTheme.palette.disabled.windowText
             }
             PropertyChanges {
                 target: buttonRectangleBelow
-                color: ThemeSettings.shade(ThemeSettings.colorDisabledWindow, 0.0, 0.0)
+                color: AkTheme.shade(AkTheme.palette.disabled.window, 0.0, 0.0)
             }
         },
         State {
@@ -96,7 +97,7 @@ T.TabButton {
 
             PropertyChanges {
                 target: buttonRectangleBelow
-                color: ThemeSettings.constShade(ThemeSettings.colorActiveHighlight,
+                color: AkTheme.constShade(AkTheme.palette.active.highlight,
                                                 0.0,
                                                 0.1)
             }
@@ -109,7 +110,7 @@ T.TabButton {
 
             PropertyChanges {
                 target: buttonRectangleBelow
-                color: ThemeSettings.constShade(ThemeSettings.colorActiveHighlight,
+                color: AkTheme.constShade(AkTheme.palette.active.highlight,
                                                 0.0,
                                                 0.2)
             }
@@ -125,7 +126,7 @@ T.TabButton {
 
             PropertyChanges {
                 target: iconLabel
-                color: ThemeSettings.colorActiveHighlight
+                color: AkTheme.palette.active.highlight
             }
         },
         State {
@@ -139,11 +140,11 @@ T.TabButton {
 
             PropertyChanges {
                 target: iconLabel
-                color: ThemeSettings.colorActiveHighlight
+                color: AkTheme.palette.active.highlight
             }
             PropertyChanges {
                 target: buttonRectangleBelow
-                color: ThemeSettings.constShade(ThemeSettings.colorActiveHighlight,
+                color: AkTheme.constShade(AkTheme.palette.active.highlight,
                                                 0.0,
                                                 0.3)
             }
@@ -156,11 +157,11 @@ T.TabButton {
 
             PropertyChanges {
                 target: iconLabel
-                color: ThemeSettings.colorActiveHighlight
+                color: AkTheme.palette.active.highlight
             }
             PropertyChanges {
                 target: buttonRectangleBelow
-                color: ThemeSettings.constShade(ThemeSettings.colorActiveHighlight,
+                color: AkTheme.constShade(AkTheme.palette.active.highlight,
                                                 0.0,
                                                 0.4)
             }

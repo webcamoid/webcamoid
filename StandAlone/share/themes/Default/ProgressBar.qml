@@ -21,7 +21,6 @@ import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Templates 2.5 as T
 import Ak 1.0
-import "Private"
 
 T.ProgressBar {
     id: control
@@ -38,10 +37,10 @@ T.ProgressBar {
             id: progressRect
             color:
                 !control.enabled?
-                    ThemeSettings.colorDisabledHighlight:
+                    AkTheme.palette.disabled.highlight:
                 control.hovered?
-                    ThemeSettings.constShade(ThemeSettings.colorActiveHighlight, 0.1):
-                    ThemeSettings.colorActiveHighlight
+                    AkTheme.constShade(AkTheme.palette.active.highlight, 0.1):
+                    AkTheme.palette.active.highlight
             implicitHeight: backgroundRect.implicitHeight
             x: control.indeterminate?
                    kx * backgroundRect.width:
@@ -206,11 +205,11 @@ T.ProgressBar {
 
     background: Rectangle {
         id: backgroundRect
-        color: ThemeSettings.constShade(progressRect.color, 0.0, 0.5)
+        color: AkTheme.constShade(progressRect.color, 0.0, 0.5)
         implicitWidth:
-            AkUnit.create(120 * ThemeSettings.controlScale, "dp").pixels
+            AkUnit.create(120 * AkTheme.controlScale, "dp").pixels
         implicitHeight:
-            AkUnit.create(4 * ThemeSettings.controlScale, "dp").pixels
+            AkUnit.create(4 * AkTheme.controlScale, "dp").pixels
         y: (control.height - height) / 2
         radius: height / 2
     }

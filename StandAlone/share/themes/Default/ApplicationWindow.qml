@@ -20,11 +20,11 @@
 import QtQuick 2.12
 import QtQuick.Window 2.12
 import QtQuick.Templates 2.5 as T
-import "Private"
+import Ak 1.0
 
 T.ApplicationWindow {
     id: applicationWindow
-    color: ThemeSettings.colorActiveWindow
+    color: AkTheme.palette.active.window
 
     background: Rectangle {
         color: applicationWindow.color

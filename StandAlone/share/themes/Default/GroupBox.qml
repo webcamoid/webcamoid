@@ -21,63 +21,66 @@ import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Templates 2.5 as T
 import Ak 1.0
-import "Private"
 
 T.GroupBox {
-    id: groupBox
+    id: control
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             contentWidth + leftPadding + rightPadding,
                             implicitLabelWidth + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              contentHeight + topPadding + bottomPadding)
-    spacing: AkUnit.create(6 * ThemeSettings.controlScale, "dp").pixels
-    padding: AkUnit.create(8 * ThemeSettings.controlScale, "dp").pixels
+    spacing: AkUnit.create(6 * AkTheme.controlScale, "dp").pixels
+    padding: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
     topPadding: groupTitle.text?
                     groupTitle.height
                     + titleTopPadding
                     + titleBottomPadding:
-                    AkUnit.create(8 * ThemeSettings.controlScale, "dp").pixels
+                    AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
     clip: true
 
     property int titleTopPadding:
-        AkUnit.create(8 * ThemeSettings.controlScale, "dp").pixels
+        AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
     property int titleBottomPadding:
-        AkUnit.create(16 * ThemeSettings.controlScale, "dp").pixels
+        AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
 
     label: Text {
         id: groupTitle
-        x: groupBox.leftPadding
+        x: control.leftPadding
         y: titleTopPadding
-        width: groupBox.availableWidth
-        text: groupBox.title
+        width: control.availableWidth
+        text: control.title
         font.bold: true
-        font.capitalization: groupBox.font.capitalization
-        font.family: groupBox.font.family
-        font.hintingPreference: groupBox.font.hintingPreference
-        font.italic: groupBox.font.italic
-        font.kerning: groupBox.font.kerning
-        font.letterSpacing: groupBox.font.letterSpacing
-        font.pointSize: groupBox.font.pointSize
-        font.preferShaping: groupBox.font.preferShaping
-        font.strikeout: groupBox.font.strikeout
-        font.styleName: groupBox.font.styleName
-        font.underline: groupBox.font.underline
-        font.wordSpacing: groupBox.font.wordSpacing
-        color: groupBox.enabled?
-                   ThemeSettings.colorActiveWindowText:
-                   ThemeSettings.colorDisabledWindowText
+        font.capitalization: control.font.capitalization
+        font.family: control.font.family
+        font.hintingPreference: control.font.hintingPreference
+        font.italic: control.font.italic
+        font.kerning: control.font.kerning
+        font.letterSpacing: control.font.letterSpacing
+        font.pointSize: control.font.pointSize
+        font.preferShaping: control.font.preferShaping
+        font.strikeout: control.font.strikeout
+        font.styleName: control.font.styleName
+        font.underline: control.font.underline
+        font.wordSpacing: control.font.wordSpacing
+        color: control.enabled?
+                   AkTheme.palette.active.windowText:
+                   AkTheme.palette.disabled.windowText
+        linkColor: control.enabled?
+                       AkTheme.palette.active.link:
+                       AkTheme.palette.disabled.link
         elide: Text.ElideRight
         verticalAlignment: Text.AlignVCenter
+        enabled: control.enabled
     }
 
     background: Rectangle {
         width: parent.width
         height: parent.height
-        radius: AkUnit.create(4 * ThemeSettings.controlScale, "dp").pixels
+        radius: AkUnit.create(4 * AkTheme.controlScale, "dp").pixels
         color: "transparent"
         border.color: enabled?
-                          ThemeSettings.colorActiveDark:
-                          ThemeSettings.colorDisabledDark
-        border.width: AkUnit.create(1 * ThemeSettings.controlScale, "dp").pixels
+                          AkTheme.palette.active.dark:
+                          AkTheme.palette.disabled.dark
+        border.width: AkUnit.create(1 * AkTheme.controlScale, "dp").pixels
     }
 }

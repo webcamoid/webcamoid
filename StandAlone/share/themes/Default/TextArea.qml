@@ -21,40 +21,39 @@ import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Templates 2.5 as T
 import Ak 1.0
-import "Private"
 
 T.TextArea {
     id: control
     color: enabled?
-               ThemeSettings.colorActiveText:
-               ThemeSettings.colorDisabledText
+               AkTheme.palette.active.text:
+               AkTheme.palette.disabled.text
     placeholderTextColor:
         enabled?
-            ThemeSettings.shade(ThemeSettings.colorActiveText, 0, 0.5):
-            ThemeSettings.shade(ThemeSettings.colorDisabledText, 0, 0.5)
+            AkTheme.palette.active.placeholderText:
+            AkTheme.palette.disabled.placeholderText
     selectedTextColor:
         enabled?
-            ThemeSettings.colorActiveHighlightedText:
-            ThemeSettings.colorDisableHighlightedText
+            AkTheme.palette.active.highlightedText:
+            AkTheme.palette.disabled.highlightedText
     selectionColor:
         enabled?
-            ThemeSettings.colorActiveHighlight:
-            ThemeSettings.colorDisableHighlight
-    padding: AkUnit.create(12 * ThemeSettings.controlScale, "dp").pixels
+            AkTheme.palette.active.highlight:
+            AkTheme.palette.disabled.highlight
+    padding: AkUnit.create(12 * AkTheme.controlScale, "dp").pixels
     implicitWidth: Math.max(contentWidth + leftPadding + rightPadding,
                             implicitBackgroundWidth + leftInset + rightInset,
                             placeholder.implicitWidth + leftPadding + rightPadding,
-                            AkUnit.create(280 * ThemeSettings.controlScale,
+                            AkUnit.create(280 * AkTheme.controlScale,
                                        "dp").pixels)
     implicitHeight: Math.max(contentHeight + topPadding + bottomPadding,
                              implicitBackgroundHeight + topInset + bottomInset,
                              placeholder.implicitHeight + topPadding + bottomPadding,
-                             AkUnit.create(36 * ThemeSettings.controlScale,
+                             AkUnit.create(36 * AkTheme.controlScale,
                                         "dp").pixels)
 
     readonly property int animationTime: 200
     readonly property real placeHolderPadding:
-        AkUnit.create(4 * ThemeSettings.controlScale, "dp").pixels
+        AkUnit.create(4 * AkTheme.controlScale, "dp").pixels
 
     Text {
         id: placeholder
@@ -72,11 +71,15 @@ T.TextArea {
                  && !control.preeditText
                  && (!control.activeFocus
                      || control.horizontalAlignment !== Qt.AlignHCenter)
+        linkColor: control.enabled?
+                       AkTheme.palette.active.link:
+                       AkTheme.palette.disabled.link
+        enabled: control.enabled
     }
 
     background: Rectangle {
         color: control.enabled?
-                   ThemeSettings.colorActiveBase:
-                   ThemeSettings.colorDisabledBase
+                   AkTheme.palette.active.base:
+                   AkTheme.palette.disabled.base
     }
 }

@@ -21,30 +21,29 @@ import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Templates 2.5 as T
 import Ak 1.0
-import "Private"
 
 T.TextField {
     id: control
-    color: ThemeSettings.colorActiveText
-    placeholderTextColor: ThemeSettings.shade(ThemeSettings.colorActiveText, 0, 0.5)
-    selectedTextColor: ThemeSettings.colorActiveHighlightedText
-    selectionColor: ThemeSettings.colorActiveHighlight
-    padding: AkUnit.create(8 * ThemeSettings.controlScale, "dp").pixels
+    color: AkTheme.palette.active.text
+    placeholderTextColor: AkTheme.palette.active.placeholderText
+    selectedTextColor: AkTheme.palette.active.highlightedText
+    selectionColor: AkTheme.palette.active.highlight
+    padding: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
     implicitWidth:
         Math.max(contentWidth + leftPadding + rightPadding,
                  implicitBackgroundWidth + leftInset + rightInset,
                  placeholder.implicitWidth + leftPadding + rightPadding,
-                 AkUnit.create(96 * ThemeSettings.controlScale, "dp").pixels)
+                 AkUnit.create(96 * AkTheme.controlScale, "dp").pixels)
     implicitHeight:
         Math.max(contentHeight + topPadding + bottomPadding,
                  implicitBackgroundHeight + topInset + bottomInset,
                  placeholder.implicitHeight + topPadding + bottomPadding,
-                 AkUnit.create(36 * ThemeSettings.controlScale, "dp").pixels)
+                 AkUnit.create(36 * AkTheme.controlScale, "dp").pixels)
     hoverEnabled: true
 
     readonly property int animationTime: 200
     readonly property int placeHolderPadding:
-        AkUnit.create(4 * ThemeSettings.controlScale, "dp").pixels
+        AkUnit.create(4 * AkTheme.controlScale, "dp").pixels
 
     Text {
         id: placeholder
@@ -62,33 +61,37 @@ T.TextField {
                  && !control.preeditText
                  && (!control.activeFocus
                      || control.horizontalAlignment !== Qt.AlignHCenter)
+        linkColor: control.enabled?
+                       AkTheme.palette.active.link:
+                       AkTheme.palette.disabled.link
+        enabled: control.enabled
     }
 
     background: Rectangle {
         id: textAreaBackground
-        color: ThemeSettings.colorActiveBase
-        border.color: ThemeSettings.colorActiveMid
-        border.width: AkUnit.create(1 * ThemeSettings.controlScale, "dp").pixels
-        radius: AkUnit.create(6 * ThemeSettings.controlScale, "dp").pixels
+        color: AkTheme.palette.active.base
+        border.color: AkTheme.palette.active.mid
+        border.width: AkUnit.create(1 * AkTheme.controlScale, "dp").pixels
+        radius: AkUnit.create(6 * AkTheme.controlScale, "dp").pixels
         anchors.fill: parent
         gradient: Gradient {
             GradientStop {
                 position: 0
                 color:
-                    ThemeSettings.colorActiveWindow.hslLightness < 0.5?
+                    AkTheme.palette.active.window.hslLightness < 0.5?
                         Qt.tint(textAreaBackground.color,
-                                ThemeSettings.shade(ThemeSettings.colorActiveLight, 0, 0.25)):
+                                AkTheme.shade(AkTheme.palette.active.light, 0, 0.25)):
                         Qt.tint(textAreaBackground.color,
-                                ThemeSettings.shade(ThemeSettings.colorActiveDark, 0, 0.25))
+                                AkTheme.shade(AkTheme.palette.active.dark, 0, 0.25))
             }
             GradientStop {
                 position: 1
                 color:
-                    ThemeSettings.colorActiveWindow.hslLightness < 0.5?
+                    AkTheme.palette.active.window.hslLightness < 0.5?
                         Qt.tint(textAreaBackground.color,
-                                ThemeSettings.shade(ThemeSettings.colorActiveDark, 0, 0.25)):
+                                AkTheme.shade(AkTheme.palette.active.dark, 0, 0.25)):
                         Qt.tint(textAreaBackground.color,
-                                ThemeSettings.shade(ThemeSettings.colorActiveLight, 0, 0.25))
+                                AkTheme.shade(AkTheme.palette.active.light, 0, 0.25))
             }
         }
     }
@@ -100,13 +103,12 @@ T.TextField {
 
             PropertyChanges {
                 target: placeholder
-                color:
-                    ThemeSettings.shade(ThemeSettings.colorDisabledText, 0, 0.5)
+                color: AkTheme.palette.disabled.placeholderText
             }
             PropertyChanges {
                 target: textAreaBackground
-                color: ThemeSettings.colorDisabledBase
-                border.color: ThemeSettings.colorDisabledMid
+                color: AkTheme.palette.disabled.base
+                border.color: AkTheme.palette.disabled.mid
             }
         },
         State {
@@ -117,7 +119,7 @@ T.TextField {
 
             PropertyChanges {
                 target: textAreaBackground
-                border.color: ThemeSettings.colorActiveDark
+                border.color: AkTheme.palette.active.dark
             }
         },
         State {
@@ -127,13 +129,13 @@ T.TextField {
 
             PropertyChanges {
                 target: textAreaBackground
-                border.color: ThemeSettings.colorActiveHighlight
+                border.color: AkTheme.palette.active.highlight
                 border.width:
-                    AkUnit.create(2 * ThemeSettings.controlScale, "dp").pixels
+                    AkUnit.create(2 * AkTheme.controlScale, "dp").pixels
             }
             PropertyChanges {
                 target: placeholder
-                color: ThemeSettings.colorActiveHighlight
+                color: AkTheme.palette.active.highlight
             }
         }
     ]

@@ -21,7 +21,6 @@ import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Templates 2.5 as T
 import Ak 1.0
-import "Private"
 
 T.ToolSeparator {
     id: control
@@ -30,30 +29,30 @@ T.ToolSeparator {
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              implicitContentHeight + topPadding + bottomPadding)
     horizontalPadding: vertical?
-                           AkUnit.create(12 * ThemeSettings.controlScale,
+                           AkUnit.create(12 * AkTheme.controlScale,
                                       "dp").pixels:
-                           AkUnit.create(5 * ThemeSettings.controlScale,
+                           AkUnit.create(5 * AkTheme.controlScale,
                                       "dp").pixels
     verticalPadding: vertical?
-                         AkUnit.create(5 * ThemeSettings.controlScale,
+                         AkUnit.create(5 * AkTheme.controlScale,
                                     "dp").pixels:
-                         AkUnit.create(12 * ThemeSettings.controlScale,
+                         AkUnit.create(12 * AkTheme.controlScale,
                                     "dp").pixels
 
     contentItem: Rectangle {
         implicitWidth: vertical?
-                           AkUnit.create(1 * ThemeSettings.controlScale,
+                           AkUnit.create(1 * AkTheme.controlScale,
                                       "dp").pixels:
-                           AkUnit.create(48 * ThemeSettings.controlScale,
+                           AkUnit.create(48 * AkTheme.controlScale,
                                       "dp").pixels
         implicitHeight: vertical?
-                            AkUnit.create(48 * ThemeSettings.controlScale,
+                            AkUnit.create(48 * AkTheme.controlScale,
                                        "dp").pixels:
-                            AkUnit.create(1 * ThemeSettings.controlScale,
+                            AkUnit.create(1 * AkTheme.controlScale,
                                        "dp").pixels
         color:
             enabled?
-                ThemeSettings.colorActiveHighlightedText:
-                ThemeSettings.colorDisabledHighlightedText
+                AkTheme.palette.active.highlightedText:
+                AkTheme.palette.disabled.highlightedText
     }
 }

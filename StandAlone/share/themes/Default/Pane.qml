@@ -21,20 +21,19 @@ import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Templates 2.5 as T
 import Ak 1.0
-import "Private"
 
 T.Pane {
     id: control
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             contentWidth + leftPadding + rightPadding,
-                            AkUnit.create(250 * ThemeSettings.controlScale, "dp").pixels)
+                            AkUnit.create(250 * AkTheme.controlScale, "dp").pixels)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              contentHeight + topPadding + bottomPadding)
     padding: 0
 
     background: Rectangle {
         color: enabled?
-                   ThemeSettings.shade(ThemeSettings.colorActiveWindow, 0, 0.75):
-                   ThemeSettings.shade(ThemeSettings.colorDisabledWindow, 0, 0.75)
+                   AkTheme.shade(AkTheme.palette.active.window, 0, 0.75):
+                   AkTheme.shade(AkTheme.palette.disabled.window, 0, 0.75)
     }
 }
