@@ -21,12 +21,12 @@
     <message>
         <location filename="../qml/About.qml" line="62"/>
         <source>Webcam capture application.</source>
-        <translation>Програма захоплення веб-камери.</translation>
+        <translation>Застосунок захоплення веб-камери.</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="65"/>
         <source>A simple webcam application for picture and video capture.</source>
-        <translation>Проста програма для захоплення фото та відео з вебкамери.</translation>
+        <translation>Простий застосунок для захоплення світлин та відео з вебкамери.</translation>
     </message>
 </context>
 <context>
@@ -44,7 +44,7 @@
     <message>
         <location filename="../qml/AddMedia.qml" line="59"/>
         <source>Insert a media description</source>
-        <translation type="unfinished"></translation>
+        <translation>Вставте опис медіа</translation>
     </message>
     <message>
         <location filename="../qml/AddMedia.qml" line="66"/>
@@ -54,7 +54,7 @@
     <message>
         <location filename="../qml/AddMedia.qml" line="73"/>
         <source>Select a media file</source>
-        <translation type="unfinished"></translation>
+        <translation>Виберіть медіа-файл</translation>
     </message>
     <message>
         <location filename="../qml/AddMedia.qml" line="80"/>
@@ -73,7 +73,7 @@
         <location filename="../qml/AudioConfig.qml" line="112"/>
         <source>Outputs</source>
         <extracomment>Output device for audio playback, for example a speaker.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Виходи</translation>
     </message>
     <message>
         <location filename="../qml/AudioConfig.qml" line="114"/>
@@ -108,7 +108,7 @@
     <message>
         <location filename="../qml/AudioInfo.qml" line="209"/>
         <source>Device ID</source>
-        <translation type="unfinished"></translation>
+        <translation>ID пристрою</translation>
     </message>
     <message>
         <location filename="../qml/AudioInfo.qml" line="233"/>
@@ -131,7 +131,7 @@
         <location filename="../qml/AudioInfo.qml" line="285"/>
         <source>Latency (ms)</source>
         <extracomment>The latency is the amount of accumulated audio ready to play, measured in time. Higher latency == smoother audio playback, but more desynchronization with the video. Lowerer latency == audio desynchronization near to the video, but glitchy audio playback. https://en.wikipedia.org/wiki/Latency_(audio)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Затримка (мс)</translation>
     </message>
 </context>
 <context>
@@ -178,7 +178,7 @@
     <message>
         <location filename="../qml/ConfigBar.qml" line="52"/>
         <source>Plugins Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Налаштування плагінів</translation>
     </message>
     <message>
         <location filename="../qml/ConfigBar.qml" line="56"/>
@@ -189,25 +189,25 @@
         <location filename="../qml/ConfigBar.qml" line="63"/>
         <source>About</source>
         <extracomment>Information of the program, like name, description, vesion, etc..</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Про нас</translation>
     </message>
     <message>
         <location filename="../qml/ConfigBar.qml" line="70"/>
         <source>Contributors</source>
         <extracomment>List of people contributing to the project: software developers, translators, designers, etc..</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Учасники</translation>
     </message>
     <message>
         <location filename="../qml/ConfigBar.qml" line="75"/>
         <source>License</source>
         <extracomment>Program license.</extracomment>
-        <translation type="unfinished">Ліценція</translation>
+        <translation>Ліцензія</translation>
     </message>
     <message>
         <location filename="../qml/ConfigBar.qml" line="82"/>
         <source>3rd Party Licenses</source>
         <extracomment>License for 3rd party components used in Webcamoid, like libraries and code snippets.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ліцензії третьої сторони</translation>
     </message>
 </context>
 <context>
@@ -215,7 +215,7 @@
     <message>
         <location filename="../qml/Contributors.qml" line="28"/>
         <source>Thanks to all these cool people that helped contributing to Webcamoid all these years.</source>
-        <translation type="unfinished">Подяка всім цим хорошим людям, які допомагали Webcamoid всі ці роки.</translation>
+        <translation>Дякуємо всім цим класним людям, які допомогли внести участь у Webcamoid протягом усіх цих років.</translation>
     </message>
 </context>
 <context>
@@ -223,12 +223,12 @@
     <message>
         <location filename="../qml/EffectBar.qml" line="117"/>
         <source>Add effect</source>
-        <translation type="unfinished"></translation>
+        <translation>Додати ефект</translation>
     </message>
     <message>
         <location filename="../qml/EffectBar.qml" line="112"/>
         <source>Search effect</source>
-        <translation type="unfinished"></translation>
+        <translation>Ефект пошуку</translation>
     </message>
     <message>
         <location filename="../qml/EffectBar.qml" line="128"/>
@@ -238,7 +238,7 @@
     <message>
         <location filename="../qml/EffectBar.qml" line="222"/>
         <source>Go back</source>
-        <translation type="unfinished"></translation>
+        <translation>Повернутися</translation>
     </message>
 </context>
 <context>
@@ -253,7 +253,7 @@
         <location filename="../qml/EffectConfig.qml" line="92"/>
         <location filename="../qml/EffectConfig.qml" line="98"/>
         <source>Plugin ID</source>
-        <translation type="unfinished"></translation>
+        <translation>ID плагіна</translation>
     </message>
     <message>
         <location filename="../qml/EffectConfig.qml" line="114"/>
@@ -317,7 +317,7 @@
     <message>
         <location filename="../qml/GeneralConfig.qml" line="77"/>
         <source>Frameworks and libraries</source>
-        <translation type="unfinished"></translation>
+        <translation>Фреймворки та бібліотеки</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="146"/>
@@ -335,12 +335,12 @@
     <message>
         <location filename="../qml/MediaBar.qml" line="66"/>
         <source>No webcams found</source>
-        <translation type="unfinished"></translation>
+        <translation>Веб-камери не знайдено</translation>
     </message>
     <message>
         <location filename="../qml/MediaBar.qml" line="58"/>
         <source>Add media file</source>
-        <translation type="unfinished"></translation>
+        <translation>Додати медіафайл</translation>
     </message>
 </context>
 <context>
@@ -355,7 +355,7 @@
         <location filename="../qml/MediaConfig.qml" line="63"/>
         <location filename="../qml/MediaConfig.qml" line="68"/>
         <source>Media ID</source>
-        <translation type="unfinished"></translation>
+        <translation>ID медіа</translation>
     </message>
     <message>
         <location filename="../qml/MediaConfig.qml" line="83"/>
@@ -381,7 +381,7 @@
     <message>
         <location filename="../qml/OutputConfig.qml" line="44"/>
         <source>Enable virtual camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Увімкнути віртуальну камеру</translation>
     </message>
 </context>
 <context>
@@ -414,12 +414,12 @@
     <message>
         <location filename="../qml/PhotoWidget.qml" line="143"/>
         <source>Save photo as…</source>
-        <translation type="unfinished"></translation>
+        <translation>Зберегти світлину як…</translation>
     </message>
     <message>
         <location filename="../qml/PhotoWidget.qml" line="145"/>
         <source>Picture %1.png</source>
-        <translation type="unfinished"></translation>
+        <translation>Зображення %1.png</translation>
     </message>
 </context>
 <context>
@@ -480,7 +480,7 @@
     <message>
         <location filename="../../src/clioptions.cpp" line="44"/>
         <source>Webcam capture application.</source>
-        <translation>Програма захоплення веб-камери.</translation>
+        <translation>Застосунок захоплення веб-камери.</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="47"/>
@@ -526,7 +526,7 @@
     <message>
         <location filename="../qml/RecordBar.qml" line="91"/>
         <source>Search format</source>
-        <translation type="unfinished"></translation>
+        <translation>Формат пошуку</translation>
     </message>
 </context>
 <context>
@@ -550,17 +550,17 @@
     <message>
         <location filename="../qml/RecordConfig.qml" line="76"/>
         <source>Stop video recording</source>
-        <translation type="unfinished"></translation>
+        <translation>Зупинити запис відео</translation>
     </message>
     <message>
         <location filename="../qml/RecordConfig.qml" line="79"/>
         <source>Start video recording</source>
-        <translation type="unfinished"></translation>
+        <translation>Почати запис відео</translation>
     </message>
     <message>
         <location filename="../qml/RecordConfig.qml" line="132"/>
         <source>Save video as…</source>
-        <translation type="unfinished"></translation>
+        <translation>Зберегти відео як…</translation>
     </message>
 </context>
 <context>
@@ -1075,7 +1075,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="59"/>
         <source>Old Photo</source>
-        <translation>Старе фото</translation>
+        <translation>Стара світлина</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="63"/>
