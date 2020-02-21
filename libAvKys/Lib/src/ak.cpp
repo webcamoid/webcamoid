@@ -284,9 +284,9 @@ AkPrivate::AkPrivate()
     qRegisterMetaType<AkColorizedImage::Status>("AkColorizedImage::Status");
     qmlRegisterUncreatableType<AkTheme>("Ak", 1, 0, "AkTheme", "AkTheme is an attached property");
     qRegisterMetaType<AkPalette>("AkPalette");
-    qmlRegisterAnonymousType<AkPalette>("Ak", 1);
+    qmlRegisterType<AkPalette>("Ak", 1, 0, "AkPalette");
     qRegisterMetaType<AkPaletteGroup>("AkPaletteGroup");
-    qmlRegisterAnonymousType<AkPaletteGroup>("Ak", 1);
+    qmlRegisterType<AkPaletteGroup>("Ak", 1, 0, "AkPaletteGroup");
 
     this->m_applicationDir.setPath(QCoreApplication::applicationDirPath());
 
