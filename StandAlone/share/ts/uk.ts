@@ -178,7 +178,7 @@
     <message>
         <location filename="../qml/ConfigBar.qml" line="52"/>
         <source>Plugins Settings</source>
-        <translation>Налаштування плагінів</translation>
+        <translation>Налаштування втулків</translation>
     </message>
     <message>
         <location filename="../qml/ConfigBar.qml" line="56"/>
@@ -253,7 +253,7 @@
         <location filename="../qml/EffectConfig.qml" line="92"/>
         <location filename="../qml/EffectConfig.qml" line="98"/>
         <source>Plugin ID</source>
-        <translation>ID плагіна</translation>
+        <translation>ID втулка</translation>
     </message>
     <message>
         <location filename="../qml/EffectConfig.qml" line="114"/>
@@ -427,7 +427,7 @@
     <message>
         <location filename="../qml/PluginConfig.qml" line="98"/>
         <source>Use this page for configuring the plugins search paths.&lt;br /&gt;&lt;b&gt;Don&apos;t touch nothing unless you know what you are doing&lt;/b&gt;.</source>
-        <translation>Використовуйте цю сторінку для налаштування шляхів пошуку плагінів.&lt;br /&gt;&lt;b&gt;Не торкайтесь нічого, якщо не знаєте, що ви робите&lt;/b&gt;.</translation>
+        <translation>Використовуйте цю сторінку для налаштування шляхів пошуку втулків.&lt;br /&gt;&lt;b&gt;Не торкайтесь нічого, якщо не знаєте, що ви робите&lt;/b&gt;.</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="103"/>
@@ -437,7 +437,7 @@
     <message>
         <location filename="../qml/PluginConfig.qml" line="112"/>
         <source>Search plugins in subfolders.</source>
-        <translation>Пошук плагінів у вкладених папках.</translation>
+        <translation>Пошук втулків у вкладених теках.</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="124"/>
@@ -452,7 +452,7 @@
     <message>
         <location filename="../qml/PluginConfig.qml" line="184"/>
         <source>Plugins list</source>
-        <translation>Список плагінів</translation>
+        <translation>Список втулків</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="193"/>
@@ -472,7 +472,7 @@
     <message>
         <location filename="../qml/PluginConfig.qml" line="271"/>
         <source>Add plugins search path</source>
-        <translation>Додати шлях пошуку плагінів</translation>
+        <translation>Додати шлях пошуку втулків</translation>
     </message>
 </context>
 <context>
@@ -502,12 +502,12 @@
     <message>
         <location filename="../../src/clioptions.cpp" line="54"/>
         <source>Search in the specified plugins paths recursively.</source>
-        <translation>Пошук в зазначених шляхах плагінів рекурсивно.</translation>
+        <translation>Пошук в зазначених шляхах втулків рекурсивно.</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="59"/>
         <source>Semi-colon separated list of paths to search for plugins.</source>
-        <translation>Список шляхів для пошуку плагінів розділений крапка з комою.</translation>
+        <translation>Список шляхів для пошуку втулків розділено крапкою з комою.</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="68"/>
@@ -604,7 +604,7 @@
     <message>
         <location filename="../qml/RecordingNotice.qml" line="55"/>
         <source>Recording</source>
-        <translation type="unfinished"></translation>
+        <translation>Запис</translation>
     </message>
 </context>
 <context>
@@ -627,18 +627,18 @@
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/StreamOptions.qml" line="84"/>
         <source>Bitrate</source>
-        <translation type="unfinished"></translation>
+        <translation>Бітрейт</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/StreamOptions.qml" line="90"/>
         <source>Bitrate (bits/secs)</source>
-        <translation type="unfinished"></translation>
+        <translation>Бітрейт (біт/сек)</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/StreamOptions.qml" line="105"/>
         <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/StreamOptions.qml" line="110"/>
         <source>Keyframes stride</source>
-        <translation type="unfinished"></translation>
+        <translation>Ключові кадри</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/StreamOptions.qml" line="126"/>
@@ -651,27 +651,27 @@
     <message>
         <location filename="../qml/ThirdPartyLicenses.qml" line="28"/>
         <source>The followings are the licences for 3rd-party work incorporated into Webcamoid. &lt;b&gt;These licences DOES NOT applies to Webcamoid itself.&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>Далі - ліцензії на сторонні роботи, включені до Webcamoid. &lt;b&gt;Ці ліцензії НЕ застосовуються до самого Webcamoid.&lt;/b&gt;</translation>
     </message>
     <message>
         <location filename="../qml/ThirdPartyLicenses.qml" line="33"/>
         <source>Licence for resources taken from openclipart.org:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ліцензія на ресурси, взяті з openclipart.org:</translation>
     </message>
     <message>
         <location filename="../qml/ThirdPartyLicenses.qml" line="43"/>
         <source>Licence for code taken from OpenCV:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ліцензія на код, взятий з OpenCV:</translation>
     </message>
     <message>
         <location filename="../qml/ThirdPartyLicenses.qml" line="53"/>
         <source>Licence for code and algorithms used in Temperature plugin:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ліцензія на код і алгоритми, що використовуються у втулку температури:</translation>
     </message>
     <message>
         <location filename="../qml/ThirdPartyLicenses.qml" line="63"/>
         <source>Licence for the usb.ids file:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ліцензія на файл usb.ids:</translation>
     </message>
 </context>
 <context>
@@ -1113,7 +1113,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="105"/>
         <source>Source palette</source>
-        <translation type="unfinished"></translation>
+        <translation>Палітра джерела</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="133"/>
@@ -1257,7 +1257,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="59"/>
         <source>Canny threshold</source>
-        <translation type="unfinished"></translation>
+        <translation>Поріг Кенні</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="100"/>
@@ -1659,7 +1659,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="515"/>
         <source>Replace face with this picture</source>
-        <translation type="unfinished"></translation>
+        <translation>Замінити обличчя цим малюнком</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="543"/>
@@ -1798,7 +1798,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="121"/>
         <source>Bitmap pattern</source>
-        <translation type="unfinished"></translation>
+        <translation>Растровий візерунок</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="150"/>
@@ -1877,46 +1877,46 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="99"/>
         <source>Select</source>
-        <translation type="unfinished"></translation>
+        <translation>Вибрати</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="206"/>
         <source>Cursor color</source>
-        <translation type="unfinished"></translation>
+        <translation>Колір курсору</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="214"/>
         <source>Choose the cursor color</source>
-        <translation type="unfinished"></translation>
+        <translation>Вибрати колір курсора</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="251"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="255"/>
         <source>Min. drop length</source>
-        <translation type="unfinished"></translation>
+        <translation>Найменша довжина краплі</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="264"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="268"/>
         <source>Max. drop length</source>
-        <translation type="unfinished"></translation>
+        <translation>Найбільша довжина краплі</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="277"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="281"/>
         <source>Min. speed</source>
-        <translation type="unfinished"></translation>
+        <translation>Найменша швидкість</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="290"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="294"/>
         <source>Max. speed</source>
-        <translation type="unfinished"></translation>
+        <translation>Найбільша швидкість</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="304"/>
         <source>Show cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>Показати курсор</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/main.qml" line="166"/>
@@ -2129,17 +2129,17 @@
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="133"/>
         <source>Description</source>
-        <translation type="unfinished">Опис</translation>
+        <translation>Опис</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="139"/>
         <source>Camera name (optional)</source>
-        <translation type="unfinished"></translation>
+        <translation>Назва камери (необов&apos;язково)</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="262"/>
         <source>Error creating camera: </source>
-        <translation type="unfinished"></translation>
+        <translation>Помилка створення камери: </translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="150"/>
@@ -2170,53 +2170,53 @@
     <message>
         <location filename="../qml/main.qml" line="63"/>
         <source>New version available!</source>
-        <translation type="unfinished"></translation>
+        <translation>Доступна нова версія!</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="64"/>
         <source>Download %1 %2 NOW!</source>
-        <translation type="unfinished"></translation>
+        <translation>Завантажити %1 %2 ЗАРАЗ!</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="114"/>
         <source>Stop</source>
-        <translation type="unfinished"></translation>
+        <translation>Зупинити</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="119"/>
         <location filename="../qml/main.qml" line="333"/>
         <source>Play</source>
-        <translation type="unfinished"></translation>
+        <translation>Програти</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="347"/>
         <source>Configure sources</source>
-        <translation type="unfinished"></translation>
+        <translation>Налаштування джерел</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="365"/>
         <source>Configure audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Налаштування звуку</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="389"/>
         <source>Take a photo</source>
-        <translation type="unfinished"></translation>
+        <translation>Зробити світлину</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="403"/>
         <source>Record video</source>
-        <translation type="unfinished"></translation>
+        <translation>Записати відео</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="421"/>
         <source>Configure Effects</source>
-        <translation type="unfinished"></translation>
+        <translation>Налаштування ефектів</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="452"/>
         <source>Preferences</source>
-        <translation type="unfinished"></translation>
+        <translation>Налаштування</translation>
     </message>
 </context>
 </TS>
