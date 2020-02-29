@@ -58,12 +58,7 @@ T.Dialog {
 
     header: Rectangle {
         id: rectangle
-        color:
-            control.modal?
-                "transparent":
-            control.enabled?
-                AkTheme.palette.active.highlight:
-                AkTheme.palette.disabled.highlight
+        color: "transparent"
         clip: true
         visible: control.title
         height: AkUnit.create(64 * AkTheme.controlScale, "dp").pixels
@@ -100,12 +95,9 @@ T.Dialog {
                    AkTheme.palette.active.window:
                    AkTheme.palette.disabled.window
         border.color: control.enabled?
-                       AkTheme.palette.active.dark:
+                          AkTheme.palette.active.dark:
                           AkTheme.palette.disabled.dark
-        radius:
-            control.modal?
-                AkUnit.create(8 * AkTheme.controlScale, "dp").pixels:
-                0
+        radius: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
     }
 
     T.Overlay.modal: Rectangle {

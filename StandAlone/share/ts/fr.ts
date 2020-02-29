@@ -30,41 +30,137 @@
     </message>
 </context>
 <context>
-    <name>AddMedia</name>
+    <name>AddSource</name>
     <message>
-        <location filename="../qml/AddMedia.qml" line="27"/>
-        <source>Add new media</source>
-        <translation>Ajouter un média</translation>
+        <location filename="../qml/AddSource.qml" line="28"/>
+        <source>Add source</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/AddMedia.qml" line="53"/>
+        <location filename="../qml/AddSource.qml" line="59"/>
+        <source>File</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/AddSource.qml" line="62"/>
+        <location filename="../qml/AddSource.qml" line="145"/>
+        <source>URL</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/AddSource.qml" line="83"/>
+        <location filename="../qml/AddSource.qml" line="131"/>
         <source>Description</source>
-        <translation>Description</translation>
+        <translation type="unfinished">Description</translation>
     </message>
     <message>
-        <location filename="../qml/AddMedia.qml" line="59"/>
-        <source>Insert a media description</source>
-        <translation>Insérer une description du média</translation>
+        <location filename="../qml/AddSource.qml" line="89"/>
+        <location filename="../qml/AddSource.qml" line="137"/>
+        <source>Source title</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/AddMedia.qml" line="66"/>
-        <source>Media file</source>
-        <translation>Fichier média</translation>
+        <location filename="../qml/AddSource.qml" line="97"/>
+        <source>Path</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/AddMedia.qml" line="73"/>
-        <source>Select a media file</source>
-        <translation>Sélectionner un fichier de média</translation>
+        <location filename="../qml/AddSource.qml" line="104"/>
+        <source>File path</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/AddMedia.qml" line="80"/>
+        <location filename="../qml/AddSource.qml" line="111"/>
         <source>Search</source>
-        <translation>Rechercher</translation>
+        <translation type="unfinished">Rechercher</translation>
     </message>
     <message>
-        <location filename="../qml/AddMedia.qml" line="121"/>
-        <source>Choose the file to add as media</source>
-        <translation>Choisissez le fichier à ajouter comme média</translation>
+        <location filename="../qml/AddSource.qml" line="211"/>
+        <source>Choose the file to add as source</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/AddSource.qml" line="214"/>
+        <source>All Video Files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/AddSource.qml" line="217"/>
+        <source>3GP Video</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/AddSource.qml" line="218"/>
+        <source>AVI Video</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/AddSource.qml" line="220"/>
+        <source>Flash Video</source>
+        <extracomment>Adobe FLV Flash video</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/AddSource.qml" line="221"/>
+        <source>Animated GIF</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/AddSource.qml" line="222"/>
+        <source>MKV Video</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/AddSource.qml" line="223"/>
+        <source>Animated PNG</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/AddSource.qml" line="224"/>
+        <source>QuickTime Video</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/AddSource.qml" line="225"/>
+        <source>MP4 Video</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/AddSource.qml" line="226"/>
+        <source>MPEG Video</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/AddSource.qml" line="227"/>
+        <source>Ogg Video</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/AddSource.qml" line="229"/>
+        <source>RealMedia Video</source>
+        <extracomment>Don&apos;t translate &quot;RealMedia&quot;, leave it as is.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/AddSource.qml" line="230"/>
+        <source>DVD Video</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/AddSource.qml" line="231"/>
+        <source>WebM Video</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/AddSource.qml" line="233"/>
+        <source>Windows Media Video</source>
+        <extracomment>Also known as WMV, is a video file format.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/AddSource.qml" line="234"/>
+        <source>All Files</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

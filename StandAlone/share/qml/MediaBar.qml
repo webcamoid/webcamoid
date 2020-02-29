@@ -58,7 +58,7 @@ ColumnLayout {
         text: qsTr("Add media file")
         Layout.fillWidth: true
 
-        onClicked: dlgAddMedia.visible = true
+        onClicked: addSource.visible = true
     }
     Label {
         id: lblNoWebcams
@@ -86,8 +86,8 @@ ColumnLayout {
         }
     }
 
-    AddMedia {
-        id: dlgAddMedia
+    AddSource {
+        id: addSource
         anchors.centerIn: Overlay.overlay
     }
 }

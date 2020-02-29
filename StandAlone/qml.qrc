@@ -1,7 +1,7 @@
 <RCC>
     <qresource prefix="/Webcamoid">
         <file>share/qml/About.qml</file>
-        <file>share/qml/AddMedia.qml</file>
+        <file>share/qml/AddSource.qml</file>
         <file>share/qml/AudioConfig.qml</file>
         <file>share/qml/AudioInfo.qml</file>
         <file>share/qml/ConfigBar.qml</file>

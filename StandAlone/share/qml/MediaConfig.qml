@@ -83,7 +83,7 @@ ColumnLayout {
             text: qsTr("Edit")
             icon.source: "image://icons/edit"
 
-            onClicked: dlgAddMedia.visible = true
+            onClicked: addSource.visible = true
         }
 
         Button {
@@ -104,8 +104,8 @@ ColumnLayout {
         Layout.fillWidth: true
     }
 
-    AddMedia {
-        id: dlgAddMedia
+    AddSource {
+        id: addSource
         editMode: true
         anchors.centerIn: Overlay.overlay
     }
