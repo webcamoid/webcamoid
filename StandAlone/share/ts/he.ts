@@ -670,22 +670,22 @@
     <message>
         <location filename="../qml/SettingsMenu.qml" line="26"/>
         <source>Video</source>
-        <translation type="unfinished">וידאו</translation>
+        <translation>וידאו</translation>
     </message>
     <message>
         <location filename="../qml/SettingsMenu.qml" line="30"/>
         <source>Audio</source>
-        <translation type="unfinished">שמע</translation>
+        <translation>שמע</translation>
     </message>
     <message>
         <location filename="../qml/SettingsMenu.qml" line="34"/>
         <source>Preferences</source>
-        <translation type="unfinished">העדפות</translation>
+        <translation>העדפות</translation>
     </message>
     <message>
         <location filename="../qml/SettingsMenu.qml" line="39"/>
         <source>Play sources</source>
-        <translation type="unfinished"></translation>
+        <translation>מקורות נגינה</translation>
     </message>
 </context>
 <context>
@@ -2261,12 +2261,12 @@
     <message>
         <location filename="../qml/main.qml" line="149"/>
         <source>Now</source>
-        <translation type="unfinished">עכשיו</translation>
+        <translation>עכשיו</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="156"/>
         <source>%1 seconds</source>
-        <translation type="unfinished">%1 שניות</translation>
+        <translation>%1 שניות</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="550"/>
@@ -2281,12 +2281,12 @@
     <message>
         <location filename="../qml/main.qml" line="687"/>
         <source>Save photo as…</source>
-        <translation type="unfinished">שמירת תמונה בשם…</translation>
+        <translation>שמירת תמונה בשם…</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="689"/>
         <source>Picture %1.png</source>
-        <translation type="unfinished">תמונה %1.png</translation>
+        <translation>תמונה %1.png</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="382"/>
