@@ -57,6 +57,7 @@ GridLayout {
         id: label
         visible: text && iconLabel.display != AbstractButton.IconOnly
         Layout.alignment: iconLabel.alignment
+        Layout.fillWidth: true
         linkColor: iconLabel.enabled?
                        AkTheme.palette.active.link:
                        AkTheme.palette.disabled.link

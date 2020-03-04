@@ -21,6 +21,7 @@ import QtQuick 2.12
 import QtQuick.Window 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
+import Qt.labs.platform 1.1 as LABS
 import Ak 1.0
 import Webcamoid 1.0
 
@@ -36,24 +37,6 @@ ApplicationWindow {
     y: (Screen.desktopAvailableHeight - height) / 2
     width: Webcamoid.windowWidth
     height: Webcamoid.windowHeight
-
-    function togglePlay() {
-        if (MediaSource.state === AkElement.ElementStatePlaying) {
-            Webcamoid.virtualCameraState = AkElement.ElementStateNull;
-            Recording.state = AkElement.ElementStateNull;
-            MediaSource.state = AkElement.ElementStateNull;
-
-            if (buttonGroup.currentOption == optionRecording) {
-                buttonGroup.currentOption = null
-                optionRecording.checked = false
-            }
-        } else {
-            MediaSource.state = AkElement.ElementStatePlaying;
-
-            if (Webcamoid.enableVirtualCamera)
-                Webcamoid.virtualCameraState = AkElement.ElementStatePlaying;
-        }
-    }
 
     function notifyUpdate(versionType)
     {
@@ -85,6 +68,12 @@ ApplicationWindow {
         return null
     }
 
+    function savePhoto()
+    {
+        Recording.takePhoto()
+        fileDialog.open()
+    }
+
     Timer {
         id: notifyTimer
         repeat: false
@@ -106,23 +95,6 @@ ApplicationWindow {
     }
 
     Connections {
-        target: MediaSource
-
-        onStateChanged: {
-            if (state === AkElement.ElementStatePlaying) {
-                itmPlayStopButton.checked = true
-                itmPlayStopButton.ToolTip.text = qsTr("Stop")
-                itmPlayStopButton.icon.source = "image://icons/stop"
-                videoDisplay.visible = true
-            } else {
-                itmPlayStopButton.checked = false
-                itmPlayStopButton.ToolTip.text = qsTr("Play")
-                itmPlayStopButton.icon.source = "image://icons/play"
-                videoDisplay.visible = false
-            }
-        }
-    }
-    Connections {
         target: Recording
 
         onStateChanged: recordingNotice.visible = state === AkElement.ElementStatePlaying
@@ -141,9 +113,95 @@ ApplicationWindow {
     VideoDisplay {
         id: videoDisplay
         objectName: "videoDisplay"
-        visible: false
+        visible: MediaSource.state === AkElement.ElementStatePlaying
         smooth: true
         anchors.fill: parent
+    }
+
+    ColumnLayout {
+        id: leftControls
+        width: AkUnit.create(150 * AkTheme.controlScale, "dp").pixels
+        anchors.top: parent.top
+        anchors.topMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+        anchors.left: parent.left
+        anchors.leftMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+        state: cameraControls.state
+
+        Button {
+            icon.source: "image://icons/video-effects"
+            display: AbstractButton.IconOnly
+            flat: true
+        }
+        Switch {
+            id: chkFlash
+            text: "Use flash"
+            checked: true
+            Layout.fillWidth: true
+        }
+        ComboBox {
+            id: cbxTimeShot
+            textRole: "text"
+            Layout.fillWidth: true
+            model: ListModel {
+                id: lstTimeOptions
+
+                ListElement {
+                    text: qsTr("Now")
+                    time: 0
+                }
+            }
+
+            Component.onCompleted: {
+                for (var i = 5; i < 35; i += 5)
+                    lstTimeOptions.append({text: qsTr("%1 seconds").arg(i),
+                                           time: i})
+            }
+        }
+
+        states: [
+            State {
+                name: "Video"
+
+                PropertyChanges {
+                    target: chkFlash
+                    visible: false
+                }
+                PropertyChanges {
+                    target: cbxTimeShot
+                    visible: false
+                }
+            }
+        ]
+
+        transitions: Transition {
+            PropertyAnimation {
+                target: chkFlash
+                properties: "visible"
+                duration: cameraControls.animationTime
+            }
+            PropertyAnimation {
+                target: cbxTimeShot
+                properties: "visible"
+                duration: cameraControls.animationTime
+            }
+        }
+    }
+
+    Button {
+        id: rightControls
+        icon.source: "image://icons/settings"
+        display: AbstractButton.IconOnly
+        flat: true
+        anchors.top: parent.top
+        anchors.topMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+        anchors.right: parent.right
+        anchors.rightMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+
+        onClicked: settings.popup()
+    }
+    SettingsMenu {
+        id: settings
+        width: AkUnit.create(250 * AkTheme.controlScale, "dp").pixels
     }
     RecordingNotice {
         id: recordingNotice
@@ -151,13 +209,6 @@ ApplicationWindow {
         anchors.topMargin: 16
         anchors.horizontalCenter: parent.horizontalCenter
         visible: false
-    }
-    PhotoWidget {
-        id: photoWidget
-        anchors.bottom: footer.top
-        anchors.bottomMargin: 16
-        anchors.horizontalCenter: parent.horizontalCenter
-        visible: optionPhoto.checked
     }
     Item {
         id: splitView
@@ -296,6 +347,172 @@ ApplicationWindow {
             }
         }
     }
+    ColumnLayout {
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+
+        Item {
+            id: cameraControls
+            Layout.margins:
+                AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+            height: AkUnit.create(64 * AkTheme.controlScale, "dp").pixels
+            Layout.fillWidth: true
+
+            readonly property int animationTime: 200
+
+            Image {
+                id: photoPreview
+                width: AkUnit.create(32 * AkTheme.controlScale, "dp").pixels
+                height: AkUnit.create(32 * AkTheme.controlScale, "dp").pixels
+                sourceSize: Qt.size(width, height)
+                y: (parent.height - height) / 2
+
+                MouseArea {
+                    anchors.fill: parent
+                }
+            }
+            RoundButton {
+                id: photoButton
+                icon.source: "image://icons/photo"
+                radius: AkUnit.create(32 * AkTheme.controlScale, "dp").pixels
+                x: (parent.width - width) / 2
+                y: (parent.height - height) / 2
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Take a photo")
+                focus: true
+
+                onClicked: {
+                    if (cameraControls.state == "Video") {
+                        cameraControls.state = ""
+                    } else {
+                        if (cbxTimeShot.currentIndex == 0) {
+                            if (chkFlash.checked)
+                                flash.show()
+                            else
+                                savePhoto()
+
+                            return
+                        }
+
+                        if (updateProgress.running) {
+                            updateProgress.stop()
+                            pgbPhotoShot.value = 0
+                            cbxTimeShot.enabled = true
+                            chkFlash.enabled = true
+                        } else {
+                            cbxTimeShot.enabled = false
+                            chkFlash.enabled = false
+                            pgbPhotoShot.start = new Date().getTime()
+                            updateProgress.start()
+                        }
+                    }
+                }
+            }
+            RoundButton {
+                id: videoButton
+                icon.source: "image://icons/video"
+                radius: AkUnit.create(24 * AkTheme.controlScale, "dp").pixels
+                x: parent.width - width
+                y: (parent.height - height) / 2
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Record video")
+
+                onClicked: {
+                    if (cameraControls.state == "") {
+                        cameraControls.state = "Video"
+                    } else {
+                    }
+                }
+            }
+            Image {
+                id: videoPreview
+                width: 0
+                height: 0
+                sourceSize: Qt.size(width, height)
+                visible: false
+                x: parent.width - width
+                y: (parent.height - height) / 2
+
+                MouseArea {
+                    anchors.fill: parent
+                }
+            }
+
+            states: [
+                State {
+                    name: "Video"
+
+                    PropertyChanges {
+                        target: photoPreview
+                        width: 0
+                        height: 0
+                        visible: false
+                    }
+                    PropertyChanges {
+                        target: photoButton
+                        radius: AkUnit.create(24 * AkTheme.controlScale, "dp").pixels
+                        x: 0
+                    }
+                    PropertyChanges {
+                        target: videoButton
+                        radius: AkUnit.create(32 * AkTheme.controlScale, "dp").pixels
+                        x: (parent.width - width) / 2
+                    }
+                    PropertyChanges {
+                        target: videoPreview
+                        width: AkUnit.create(32 * AkTheme.controlScale, "dp").pixels
+                        height: AkUnit.create(32 * AkTheme.controlScale, "dp").pixels
+                        visible: true
+                    }
+                }
+            ]
+
+            transitions: Transition {
+                PropertyAnimation {
+                    target: photoPreview
+                    properties: "width,height,visible"
+                    duration: cameraControls.animationTime
+                }
+                PropertyAnimation {
+                    target: photoButton
+                    properties: "radius,x"
+                    duration: cameraControls.animationTime
+                }
+                PropertyAnimation {
+                    target: videoButton
+                    properties: "radius,x"
+                    duration: cameraControls.animationTime
+                }
+                PropertyAnimation {
+                    target: videoPreview
+                    properties: "width,height,visible"
+                    duration: cameraControls.animationTime
+                }
+            }
+        }
+        ProgressBar {
+            id: pgbPhotoShot
+            Layout.fillWidth: true
+            visible: updateProgress.running
+
+            property double start: 0
+
+            onValueChanged: {
+                if (value >= 1) {
+                    updateProgress.stop()
+                    value = 0
+                    cbxTimeShot.enabled = true
+                    chkFlash.enabled = true
+
+                    if (chkFlash.checked)
+                        flash.show()
+                    else
+                        savePhoto()
+                }
+            }
+        }
+    }
 
     footer: ToolBar {
         id: toolBar
@@ -321,20 +538,6 @@ ApplicationWindow {
             anchors.top: parent.top
             spacing: 0
 
-            ToolButton {
-                id: itmPlayStopButton
-                implicitWidth: toolBar.height
-                implicitHeight: toolBar.height
-                icon.source: "image://icons/play"
-                icon.width: 0.75 * implicitWidth
-                icon.height: 0.75 * implicitHeight
-                checkable: true
-                ToolTip.visible: hovered
-                ToolTip.text: qsTr("Play")
-                display: AbstractButton.IconOnly
-
-                onClicked: togglePlay()
-            }
             ToolButton {
                 id: optionWebcam
                 implicitWidth: toolBar.height
@@ -375,20 +578,6 @@ ApplicationWindow {
                         audioInfo.currentIndex = audioConfig.currentIndex
                     })
                 }
-            }
-            ToolButton {
-                id: optionPhoto
-                implicitWidth: toolBar.height
-                implicitHeight: toolBar.height
-                icon.source: "image://icons/photo"
-                icon.width: 0.75 * implicitWidth
-                icon.height: 0.75 * implicitHeight
-                checkable: true
-                enabled: MediaSource.state === AkElement.ElementStatePlaying
-                ToolTip.visible: hovered
-                ToolTip.text: qsTr("Take a photo")
-                display: AbstractButton.IconOnly
-                ButtonGroup.group: buttonGroup
             }
             ToolButton {
                 id: optionRecording
@@ -476,5 +665,38 @@ ApplicationWindow {
                 }
             }
         }
+    }
+
+    Timer {
+        id: updateProgress
+        interval: 100
+        repeat: true
+
+        onTriggered: {
+            var timeout = 1000 * lstTimeOptions.get(cbxTimeShot.currentIndex).time
+            pgbPhotoShot.value = (new Date().getTime() - pgbPhotoShot.start) / timeout
+        }
+    }
+    Flash {
+        id: flash
+
+        onTriggered: savePhoto()
+    }
+    LABS.FileDialog {
+        id: fileDialog
+        title: qsTr("Save photo as…")
+        folder: "file://" + Webcamoid.standardLocations("pictures")[0]
+        currentFile: folder + "/" + qsTr("Picture %1.png").arg(Webcamoid.currentTime())
+        defaultSuffix: "png"
+        fileMode: LABS.FileDialog.SaveFile
+        selectedNameFilter.index: 0
+        nameFilters: ["All Picture Files (*.png *.jpg *.bmp *.gif)",
+                      "PNG file (*.png)",
+                      "JPEG file (*.jpg)",
+                      "BMP file (*.bmp)",
+                      "GIF file (*.gif)",
+                      "All Files (*)"]
+
+        onAccepted: Recording.savePhoto(currentFile)
     }
 }

@@ -31,6 +31,8 @@ T.Menu {
                              contentHeight + topPadding + bottomPadding)
     margins: 0
     padding: 0
+    topPadding: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
+    bottomPadding: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
     transformOrigin:
         !cascade?
             Item.Top:
@@ -75,6 +77,7 @@ T.Menu {
     }
 
     contentItem: ListView {
+        implicitWidth: contentWidth
         implicitHeight: contentHeight
         model: control.contentModel
         interactive: Window.window?

@@ -481,44 +481,6 @@
     </message>
 </context>
 <context>
-    <name>PhotoWidget</name>
-    <message>
-        <location filename="../qml/PhotoWidget.qml" line="38"/>
-        <source>%1 seconds</source>
-        <translation>%1 segons</translation>
-    </message>
-    <message>
-        <location filename="../qml/PhotoWidget.qml" line="56"/>
-        <source>Now</source>
-        <translation>Ara</translation>
-    </message>
-    <message>
-        <location filename="../qml/PhotoWidget.qml" line="84"/>
-        <source>Cancel</source>
-        <translation type="unfinished">Cancel·la</translation>
-    </message>
-    <message>
-        <location filename="../qml/PhotoWidget.qml" line="84"/>
-        <source>Shot!</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/PhotoWidget.qml" line="114"/>
-        <source>Use flash</source>
-        <translation>Utilitza el flaix</translation>
-    </message>
-    <message>
-        <location filename="../qml/PhotoWidget.qml" line="143"/>
-        <source>Save photo as…</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/PhotoWidget.qml" line="145"/>
-        <source>Picture %1.png</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>PluginConfig</name>
     <message>
         <location filename="../qml/PluginConfig.qml" line="98"/>
@@ -701,6 +663,29 @@
         <location filename="../qml/RecordingNotice.qml" line="55"/>
         <source>Recording</source>
         <translation>Enregistrament</translation>
+    </message>
+</context>
+<context>
+    <name>SettingsMenu</name>
+    <message>
+        <location filename="../qml/SettingsMenu.qml" line="26"/>
+        <source>Video</source>
+        <translation type="unfinished">Vídeo</translation>
+    </message>
+    <message>
+        <location filename="../qml/SettingsMenu.qml" line="30"/>
+        <source>Audio</source>
+        <translation type="unfinished">Àudio</translation>
+    </message>
+    <message>
+        <location filename="../qml/SettingsMenu.qml" line="34"/>
+        <source>Preferences</source>
+        <translation type="unfinished">Preferències</translation>
+    </message>
+    <message>
+        <location filename="../qml/SettingsMenu.qml" line="39"/>
+        <source>Play sources</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2264,53 +2249,63 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="63"/>
+        <location filename="../qml/main.qml" line="46"/>
         <source>New version available!</source>
         <translation>Hi ha una versió nova disponible.</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="64"/>
+        <location filename="../qml/main.qml" line="47"/>
         <source>Download %1 %2 NOW!</source>
         <translation>Baixa %1 %2 ara</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="114"/>
-        <source>Stop</source>
-        <translation>Atura</translation>
+        <location filename="../qml/main.qml" line="149"/>
+        <source>Now</source>
+        <translation type="unfinished">Ara</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="119"/>
-        <location filename="../qml/main.qml" line="333"/>
-        <source>Play</source>
-        <translation>Reprodueix</translation>
+        <location filename="../qml/main.qml" line="156"/>
+        <source>%1 seconds</source>
+        <translation type="unfinished">%1 segons</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="347"/>
+        <location filename="../qml/main.qml" line="550"/>
         <source>Configure sources</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="365"/>
+        <location filename="../qml/main.qml" line="568"/>
         <source>Configure audio</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="389"/>
+        <location filename="../qml/main.qml" line="687"/>
+        <source>Save photo as…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/main.qml" line="689"/>
+        <source>Picture %1.png</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/main.qml" line="382"/>
         <source>Take a photo</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="403"/>
+        <location filename="../qml/main.qml" line="419"/>
+        <location filename="../qml/main.qml" line="592"/>
         <source>Record video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="421"/>
+        <location filename="../qml/main.qml" line="610"/>
         <source>Configure Effects</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="452"/>
+        <location filename="../qml/main.qml" line="641"/>
         <source>Preferences</source>
         <translation>Preferències</translation>
     </message>

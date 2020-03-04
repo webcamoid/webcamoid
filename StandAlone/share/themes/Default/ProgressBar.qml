@@ -212,5 +212,6 @@ T.ProgressBar {
             AkUnit.create(4 * AkTheme.controlScale, "dp").pixels
         y: (control.height - height) / 2
         radius: height / 2
+        visible: control.visible
     }
 }

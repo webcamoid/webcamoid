@@ -35,6 +35,8 @@ T.MenuItem {
         Math.max(implicitBackgroundHeight + topInset + bottomInset,
                  implicitContentHeight + topPadding + bottomPadding,
                  implicitIndicatorHeight + topPadding + bottomPadding)
+    padding: AkUnit.create(4 * AkTheme.controlScale, "dp").pixels
+    leftPadding: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
     rightPadding: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
     spacing: AkUnit.create(20 * AkTheme.controlScale, "dp").pixels
     icon.width: AkUnit.create(24 * AkTheme.controlScale, "dp").pixels
@@ -109,10 +111,9 @@ T.MenuItem {
         iconHeight: control.icon.height
         text: control.text
         anchors.left: menuItemCheck.right
-        anchors.leftMargin:
-            control.checkable?
-                AkUnit.create(20 * AkTheme.controlScale, "dp").pixels: 0
+        anchors.leftMargin: 0
         anchors.right: menuItemArrow.left
+        anchors.rightMargin: 0
         font: control.font
         color: control.highlighted?
                    AkTheme.palette.active.highlightedText:

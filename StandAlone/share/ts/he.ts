@@ -481,44 +481,6 @@
     </message>
 </context>
 <context>
-    <name>PhotoWidget</name>
-    <message>
-        <location filename="../qml/PhotoWidget.qml" line="38"/>
-        <source>%1 seconds</source>
-        <translation>%1 שניות</translation>
-    </message>
-    <message>
-        <location filename="../qml/PhotoWidget.qml" line="56"/>
-        <source>Now</source>
-        <translation>עכשיו</translation>
-    </message>
-    <message>
-        <location filename="../qml/PhotoWidget.qml" line="84"/>
-        <source>Cancel</source>
-        <translation>ביטול</translation>
-    </message>
-    <message>
-        <location filename="../qml/PhotoWidget.qml" line="84"/>
-        <source>Shot!</source>
-        <translation>צילום!</translation>
-    </message>
-    <message>
-        <location filename="../qml/PhotoWidget.qml" line="114"/>
-        <source>Use flash</source>
-        <translation>עם מבזק</translation>
-    </message>
-    <message>
-        <location filename="../qml/PhotoWidget.qml" line="143"/>
-        <source>Save photo as…</source>
-        <translation>שמירת תמונה בשם…</translation>
-    </message>
-    <message>
-        <location filename="../qml/PhotoWidget.qml" line="145"/>
-        <source>Picture %1.png</source>
-        <translation>תמונה %1.png</translation>
-    </message>
-</context>
-<context>
     <name>PluginConfig</name>
     <message>
         <location filename="../qml/PluginConfig.qml" line="98"/>
@@ -701,6 +663,29 @@
         <location filename="../qml/RecordingNotice.qml" line="55"/>
         <source>Recording</source>
         <translation>הקלטה</translation>
+    </message>
+</context>
+<context>
+    <name>SettingsMenu</name>
+    <message>
+        <location filename="../qml/SettingsMenu.qml" line="26"/>
+        <source>Video</source>
+        <translation type="unfinished">וידאו</translation>
+    </message>
+    <message>
+        <location filename="../qml/SettingsMenu.qml" line="30"/>
+        <source>Audio</source>
+        <translation type="unfinished">שמע</translation>
+    </message>
+    <message>
+        <location filename="../qml/SettingsMenu.qml" line="34"/>
+        <source>Preferences</source>
+        <translation type="unfinished">העדפות</translation>
+    </message>
+    <message>
+        <location filename="../qml/SettingsMenu.qml" line="39"/>
+        <source>Play sources</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2264,53 +2249,63 @@
         <translation>פן</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="63"/>
+        <location filename="../qml/main.qml" line="46"/>
         <source>New version available!</source>
         <translation>גרסה חדשה זמינה!</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="64"/>
+        <location filename="../qml/main.qml" line="47"/>
         <source>Download %1 %2 NOW!</source>
         <translation>להוריד את %1 %2 עכשיו!</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="114"/>
-        <source>Stop</source>
-        <translation>עצירה</translation>
+        <location filename="../qml/main.qml" line="149"/>
+        <source>Now</source>
+        <translation type="unfinished">עכשיו</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="119"/>
-        <location filename="../qml/main.qml" line="333"/>
-        <source>Play</source>
-        <translation>ניגון</translation>
+        <location filename="../qml/main.qml" line="156"/>
+        <source>%1 seconds</source>
+        <translation type="unfinished">%1 שניות</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="347"/>
+        <location filename="../qml/main.qml" line="550"/>
         <source>Configure sources</source>
         <translation>הגדרת מקורות</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="365"/>
+        <location filename="../qml/main.qml" line="568"/>
         <source>Configure audio</source>
         <translation>הגדרת שמע</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="389"/>
+        <location filename="../qml/main.qml" line="687"/>
+        <source>Save photo as…</source>
+        <translation type="unfinished">שמירת תמונה בשם…</translation>
+    </message>
+    <message>
+        <location filename="../qml/main.qml" line="689"/>
+        <source>Picture %1.png</source>
+        <translation type="unfinished">תמונה %1.png</translation>
+    </message>
+    <message>
+        <location filename="../qml/main.qml" line="382"/>
         <source>Take a photo</source>
         <translation>צילום תמונה</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="403"/>
+        <location filename="../qml/main.qml" line="419"/>
+        <location filename="../qml/main.qml" line="592"/>
         <source>Record video</source>
         <translation>הקלטת וידאו</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="421"/>
+        <location filename="../qml/main.qml" line="610"/>
         <source>Configure Effects</source>
         <translation>הגדרת אפקטים</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="452"/>
+        <location filename="../qml/main.qml" line="641"/>
         <source>Preferences</source>
         <translation>העדפות</translation>
     </message>

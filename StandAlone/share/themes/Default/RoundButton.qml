@@ -224,7 +224,6 @@ T.RoundButton {
             properties: "color,icon.color"
             duration: control.animationTime
         }
-
         PropertyAnimation {
             target: buttonRectangle
             properties: "border.color,border.width,color"

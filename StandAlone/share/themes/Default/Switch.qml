@@ -29,7 +29,7 @@ T.Switch {
     icon.height: AkUnit.create(18 * AkTheme.controlScale, "dp").pixels
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             implicitContentWidth +
-                            implicitIndicatorWidth + implicitIndicatorHeight
+                            2 * implicitIndicatorWidth + implicitIndicatorHeight
                             + leftPadding + rightPadding)
     implicitHeight:
         Math.max(implicitBackgroundHeight + topInset + bottomInset,

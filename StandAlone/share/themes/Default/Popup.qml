@@ -32,7 +32,7 @@ T.Popup {
                              AkUnit.create(148 * AkTheme.controlScale, "dp").pixels)
     leftPadding: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
     rightPadding: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
-    topPadding: applicationWindowk.newUnit(16 * AkTheme.controlScale, "dp").pixels
+    topPadding: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
     bottomPadding: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
 
     // Fade in

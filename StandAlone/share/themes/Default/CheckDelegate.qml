@@ -34,7 +34,9 @@ T.CheckDelegate {
                              implicitContentHeight + topPadding + bottomPadding,
                              implicitIndicatorHeight + topPadding + bottomPadding)
     padding: AkUnit.create(4 * AkTheme.controlScale, "dp").pixels
-    spacing: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
+    leftPadding: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+    rightPadding: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+    spacing: AkUnit.create(20 * AkTheme.controlScale, "dp").pixels
     hoverEnabled: true
     clip: true
 

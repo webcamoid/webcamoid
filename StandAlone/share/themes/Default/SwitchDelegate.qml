@@ -34,7 +34,9 @@ T.SwitchDelegate {
                              implicitContentHeight + topPadding + bottomPadding,
                              implicitIndicatorHeight + topPadding + bottomPadding)
     padding: AkUnit.create(4 * AkTheme.controlScale, "dp").pixels
-    spacing: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
+    leftPadding: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+    rightPadding: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+    spacing: AkUnit.create(20 * AkTheme.controlScale, "dp").pixels
     hoverEnabled: true
     clip: true
 
@@ -93,8 +95,8 @@ T.SwitchDelegate {
                    AkTheme.palette.active.highlightedText:
                    AkTheme.palette.active.windowText
         alignment: Qt.AlignLeft | Qt.AlignVCenter
-        anchors.leftMargin: control.leftPadding
         anchors.left: control.left
+        anchors.leftMargin: control.leftPadding
         anchors.right: sliderIndicator.left
         enabled: control.enabled
     }
