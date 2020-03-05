@@ -670,22 +670,22 @@
     <message>
         <location filename="../qml/SettingsMenu.qml" line="26"/>
         <source>Video</source>
-        <translation type="unfinished">Відео</translation>
+        <translation>Відео</translation>
     </message>
     <message>
         <location filename="../qml/SettingsMenu.qml" line="30"/>
         <source>Audio</source>
-        <translation type="unfinished">Аудіо</translation>
+        <translation>Авдіо</translation>
     </message>
     <message>
         <location filename="../qml/SettingsMenu.qml" line="34"/>
         <source>Preferences</source>
-        <translation type="unfinished">Налаштування</translation>
+        <translation>Налаштування</translation>
     </message>
     <message>
         <location filename="../qml/SettingsMenu.qml" line="39"/>
         <source>Play sources</source>
-        <translation type="unfinished"></translation>
+        <translation>Джерела програвання</translation>
     </message>
 </context>
 <context>
@@ -2261,12 +2261,12 @@
     <message>
         <location filename="../qml/main.qml" line="149"/>
         <source>Now</source>
-        <translation type="unfinished">Вже</translation>
+        <translation>Вже</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="156"/>
         <source>%1 seconds</source>
-        <translation type="unfinished">%1 секунд</translation>
+        <translation>%1 секунд</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="550"/>
@@ -2281,12 +2281,12 @@
     <message>
         <location filename="../qml/main.qml" line="687"/>
         <source>Save photo as…</source>
-        <translation type="unfinished">Зберегти світлину як…</translation>
+        <translation>Зберегти світлину як…</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="689"/>
         <source>Picture %1.png</source>
-        <translation type="unfinished">Зображення %1.png</translation>
+        <translation>Зображення %1.png</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="382"/>
