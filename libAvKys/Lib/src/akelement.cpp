@@ -100,7 +100,7 @@ QString AkElement::pluginId() const
     return className;
 }
 
-QString AkElement::pluginId(const QString &path)
+QString AkElement::pluginIdFromPath(const QString &path)
 {
     return akElementGlobalStuff->pluginId(path);
 }

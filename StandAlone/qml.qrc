@@ -20,6 +20,7 @@
         <file>share/qml/RecordBar.qml</file>
         <file>share/qml/RecordConfig.qml</file>
         <file>share/qml/RecordingNotice.qml</file>
+        <file>share/qml/SettingsDialog.qml</file>
         <file>share/qml/SettingsMenu.qml</file>
         <file>share/qml/ThirdPartyLicenses.qml</file>
         <file>share/qml/UpdatesConfig.qml</file>

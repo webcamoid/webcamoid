@@ -23,243 +23,228 @@ import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
 import Ak 1.0
 
-ColumnLayout {
-    id: pluginConfigs
+Page {
+    ColumnLayout {
+        anchors.fill: parent
 
-    function fillSearchPaths()
-    {
-        searchPathsTable.model.clear()
-        let searchPaths = AkElement.searchPaths()
-
-        for (let path in searchPaths) {
-            searchPathsTable.model.append({
-                path: searchPaths[path]
-            })
+        Label {
+            text: qsTr("Use this page for configuring the plugins search paths.<br /><b>Don't touch nothing unless you know what you are doing</b>.")
+            wrapMode: Text.WordWrap
+            Layout.fillWidth: true
         }
-    }
+        TabBar {
+            id: tabBar
+            Layout.fillWidth: true
 
-    function fillPluginList()
-    {
-        pluginsTable.model.clear()
-        let pluginsPaths = AkElement.listPluginPaths()
-
-        for (let path in pluginsPaths) {
-            pluginsTable.model.append({
-                path: pluginsPaths[path],
-                pluginEnabled: true
-            })
-        }
-
-        let blackList = AkElement.pluginsBlackList()
-
-        for (let path in blackList) {
-            pluginsTable.model.append({
-                path: blackList[path],
-                pluginEnabled: false
-            })
-        }
-    }
-
-    function refreshCache()
-    {
-        AkElement.clearCache()
-        fillPluginList()
-        PluginConfigs.saveProperties()
-    }
-
-    function refreshAll()
-    {
-        fillSearchPaths()
-        refreshCache()
-    }
-
-    function colorForIndex(index, pluginEnabled, table) {
-        let pal = pluginEnabled? palette: paletteDisabled;
-
-        return index === table.currentIndex?
-                           pal.highlight: index & 1?
-                               pal.alternateBase: pal.base
-    }
-
-    SystemPalette {
-        id: palette
-    }
-    SystemPalette {
-        id: paletteDisabled
-        colorGroup: SystemPalette.Disabled
-    }
-
-    Component.onCompleted: {
-        fillSearchPaths()
-        fillPluginList()
-    }
-
-    Label {
-        text: qsTr("Use this page for configuring the plugins search paths.<br /><b>Don't touch nothing unless you know what you are doing</b>.")
-        wrapMode: Text.WordWrap
-        Layout.fillWidth: true
-    }
-    GroupBox {
-        title: qsTr("Extra search paths")
-        Layout.fillWidth: true
-        clip: true
-
-        GridLayout {
-            columns: 4
-            anchors.fill: parent
-
-            Label {
-                text: qsTr("Search plugins in subfolders.")
-                Layout.fillWidth: true
+            TabButton {
+                text: qsTr("Paths")
             }
-            Switch {
-                checked: AkElement.recursiveSearch()
+            TabButton {
+                text: qsTr("Plugins")
+            }
+        }
+        StackLayout {
+            id: stack
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            currentIndex: tabBar.currentIndex
 
-                onCheckedChanged: {
-                    AkElement.setRecursiveSearch(checked)
-                    refreshCache()
+            function fillSearchPaths()
+            {
+                searchPathsTable.model.clear()
+                let searchPaths = AkElement.searchPaths()
+
+                for (let path in searchPaths) {
+                    searchPathsTable.model.append({
+                        path: searchPaths[path]
+                    })
                 }
             }
-            Button {
-                text: qsTr("Add")
-                icon.source: "image://icons/add"
 
-                onClicked: fileDialog.open()
-            }
-            Button {
-                id: btnRemove
-                text: qsTr("Remove")
-                icon.source: "image://icons/no"
-                enabled: searchPathsTable.currentIndex >= 0
+            function fillPluginList()
+            {
+                pluginsTable.model.clear()
+                let blackList = AkElement.pluginsBlackList()
+                let pluginsPaths = AkElement.listPluginPaths()
+                pluginsPaths = pluginsPaths.concat(blackList)
+                pluginsPaths.sort(function(a, b) {
+                    a = AkElement.pluginIdFromPath(a)
+                    b = AkElement.pluginIdFromPath(b)
 
-                onClicked: {
-                    let searchPaths = AkElement.searchPaths();
-                    let sp = []
+                    if (a < b)
+                        return -1
+                    else if (a > b)
+                        return 1
 
-                    for (let path in searchPaths)
-                        if (path != searchPathsTable.currentIndex)
-                            sp.push(searchPaths[path])
+                    return 0
+                })
 
-                    AkElement.setSearchPaths(sp);
-                    refreshAll()
-                    searchPathsTable.currentIndex = -1
+                for (let path in pluginsPaths) {
+                    pluginsTable.model.append({
+                        path: pluginsPaths[path],
+                        pluginId: AkElement.pluginIdFromPath(pluginsPaths[path]),
+                        pluginEnabled: !blackList.includes(pluginsPaths[path])
+                    })
                 }
             }
+
+            function refreshCache()
+            {
+                AkElement.clearCache()
+                fillPluginList()
+                PluginConfigs.saveProperties()
+            }
+
+            function refreshAll()
+            {
+                fillSearchPaths()
+                refreshCache()
+            }
+
+            Component.onCompleted: {
+                fillSearchPaths()
+                fillPluginList()
+            }
+
+            // Paths tab
             ScrollView {
-                id: searchPathsTableScroll
-                height: 150
-                Layout.columnSpan: 4
-                Layout.fillWidth: true
-                contentHeight: searchPathsTable.height
-                ScrollBar.horizontal.policy: ScrollBar.AsNeeded
-                ScrollBar.vertical.policy: ScrollBar.AsNeeded
+                id: pathsScrollView
+                contentHeight: pathsConfigs.height
+                clip: true
 
-                ListView {
-                    id: searchPathsTable
-                    height: contentHeight
-                    width: searchPathsTableScroll.width
-                           - (searchPathsTableScroll.ScrollBar.vertical.visible?
-                                  searchPathsTableScroll.ScrollBar.vertical.width: 0)
-                    clip: true
+                ColumnLayout {
+                    id: pathsConfigs
+                    width: pathsScrollView.width
 
-                    model: ListModel {
-                        id: searchPathsModel
+                    Switch {
+                        text: qsTr("Search plugins in subfolders")
+                        checked: AkElement.recursiveSearch()
+                        Layout.fillWidth: true
+                        LayoutMirroring.enabled: true
+                        LayoutMirroring.childrenInherit: true
+
+                        onCheckedChanged: {
+                            AkElement.setRecursiveSearch(checked)
+                            stack.refreshCache()
+                        }
                     }
-                    delegate: ItemDelegate {
-                        text: path
-                        highlighted: searchPathsTable.currentItem == this
-                        anchors.right: parent.right
-                        anchors.left: parent.left
+                    Button {
+                        text: qsTr("Add path")
+                        icon.source: "image://icons/add"
+                        flat: true
 
-                        onClicked: {
-                            searchPathsTable.currentIndex = index
-                            searchPathsTable.positionViewAtIndex(index, ListView.Contain)
+                        onClicked: fileDialog.open()
+                    }
+                    ListView {
+                        id: searchPathsTable
+                        Layout.fillWidth: true
+                        implicitWidth: childrenRect.width
+                        implicitHeight: childrenRect.height
+                        clip: true
+
+                        model: ListModel {
+                            id: searchPathsModel
+                        }
+                        delegate: SwipeDelegate {
+                            id: swipeDelegate
+                            text: path
+                            anchors.right: parent.right
+                            anchors.left: parent.left
+
+                            ListView.onRemove: SequentialAnimation {
+                                PropertyAction {
+                                    target: swipeDelegate
+                                    property: "ListView.delayRemove"
+                                    value: true
+                                }
+                                NumberAnimation {
+                                    target: swipeDelegate
+                                    property: "height"
+                                    to: 0
+                                    easing.type: Easing.InOutQuad
+                                }
+                                PropertyAction {
+                                    target: swipeDelegate
+                                    property: "ListView.delayRemove"
+                                    value: false
+                                }
+                            }
+
+                            swipe.right: Button {
+                                id: deleteLabel
+                                text: qsTr("Remove")
+                                flat: true
+                                height: parent.height
+                                anchors.right: parent.right
+
+                                onClicked: {
+                                    let searchPaths = AkElement.searchPaths();
+                                    let sp = []
+
+                                    for (let path in searchPaths)
+                                        if (path != index)
+                                            sp.push(searchPaths[path])
+
+                                    AkElement.setSearchPaths(sp)
+                                    searchPathsModel.remove(index)
+                                    stack.refreshCache()
+                                }
+                            }
                         }
                     }
                 }
             }
-        }
-    }
-    GroupBox {
-        title: qsTr("Plugins list")
-        Layout.fillWidth: true
-        clip: true
 
-        GridLayout {
-            columns: 3
-            anchors.fill: parent
-
-            Button {
-                text: qsTr("Refresh")
-                icon.source: "image://icons/reset"
-
-                onClicked: refreshCache()
-            }
-            Label {
-                Layout.fillWidth: true
-            }
-            Button {
-                id: btnEnableDisable
-                text: pluginIsEnabled? qsTr("Disable"): qsTr("Enable")
-                enabled: pluginsTable.currentIndex >= 0
-
-                property bool pluginIsEnabled: false
-
-                onClicked: {
-                    let blackList = AkElement.pluginsBlackList()
-                    let path = pluginsTable.model.get(pluginsTable.currentIndex).path
-                    let index = blackList.indexOf(path)
-
-                    if (pluginIsEnabled) {
-                        if (index < 0)
-                            blackList.push(path)
-                    } else {
-                        if (index >= 0)
-                            blackList.splice(index, 1)
-                    }
-
-                    AkElement.setPluginsBlackList(blackList)
-                    refreshCache()
-                    pluginsTable.currentIndex = -1
-                }
-            }
+            // Plugins tabs
             ScrollView {
-                id: pluginsTableScroll
-                height: 150
-                Layout.columnSpan: 3
-                Layout.fillWidth: true
-                contentHeight: pluginsTable.height
-                ScrollBar.horizontal.policy: ScrollBar.AsNeeded
-                ScrollBar.vertical.policy: ScrollBar.AsNeeded
+                id: pluginsScrollView
+                contentHeight: pluginConfigs.height
+                clip: true
 
-                ListView {
-                    id: pluginsTable
-                    height: contentHeight
-                    width: pluginsTableScroll.width
-                           - (pluginsTableScroll.ScrollBar.vertical.visible?
-                                  pluginsTableScroll.ScrollBar.vertical.width: 0)
-                    clip: true
+                ColumnLayout {
+                    id: pluginConfigs
+                    width: pluginsScrollView.width
 
-                    model: ListModel {
-                        id: pluginsModel
+                    Button {
+                        text: qsTr("Refresh")
+                        icon.source: "image://icons/reset"
+                        flat: true
+
+                        onClicked: stack.refreshCache()
                     }
+                    ListView {
+                        id: pluginsTable
+                        Layout.fillWidth: true
+                        implicitWidth: childrenRect.width
+                        implicitHeight: childrenRect.height
+                        clip: true
 
-                    delegate: ItemDelegate {
-                        text: path
-                        highlighted: pluginsTable.currentItem == this
-                        opacity: pluginEnabled? 1.0: 0.5
-                        anchors.right: parent.right
-                        anchors.left: parent.left
-
-                        onClicked: {
-                            pluginsTable.currentIndex = index
-                            pluginsTable.positionViewAtIndex(index, ListView.Contain)
+                        model: ListModel {
+                            id: pluginsModel
                         }
-                    }
 
-                    onCurrentIndexChanged: {
-                        btnEnableDisable.pluginIsEnabled =
-                            currentIndex < 0? false: pluginsTable.model.get(currentIndex).pluginEnabled
+                        delegate: CheckDelegate {
+                            text: pluginId
+                            anchors.right: parent.right
+                            anchors.left: parent.left
+                            checked: pluginEnabled
+
+                            onToggled: {
+                                let blackList = AkElement.pluginsBlackList()
+
+                                if (checked) {
+                                    let index = blackList.indexOf(path)
+
+                                    if (index >= 0)
+                                        blackList.splice(index, 1)
+                                } else {
+                                    blackList.push(path)
+                                }
+
+                                AkElement.setPluginsBlackList(blackList)
+                                PluginConfigs.saveProperties()
+                            }
+                        }
                     }
                 }
             }
@@ -273,7 +258,7 @@ ColumnLayout {
         onAccepted: {
             let path = Webcamoid.urlToLocalFile(folder)
             AkElement.addSearchPath(path)
-            refreshAll()
+            stack.refreshAll()
         }
     }
 }

@@ -21,52 +21,63 @@ import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
 
-ColumnLayout {
-    spacing: 16
+Page {
+    ScrollView {
+        id: scrollView
+        anchors.fill: parent
+        contentHeight: layout.height
+        clip: true
 
-    Label {
-        text: qsTr("The followings are the licences for 3rd-party work incorporated into Webcamoid. <b>These licences DOES NOT applies to Webcamoid itself.</b>")
-        wrapMode: Text.WordWrap
-        Layout.fillWidth: true
-    }
-    Label {
-        text: qsTr("Licence for resources taken from openclipart.org:")
-        wrapMode: Text.WordWrap
-        Layout.fillWidth: true
-    }
-    TextArea {
-        text: Webcamoid.readFile(":/Webcamoid/share/3rd-party/licenses/openclipart.txt")
-        readOnly: true
-        Layout.fillWidth: true
-    }
-    Label {
-        text: qsTr("Licence for code taken from OpenCV:")
-        wrapMode: Text.WordWrap
-        Layout.fillWidth: true
-    }
-    TextArea {
-        text: Webcamoid.readFile(":/Webcamoid/share/3rd-party/licenses/OpenCV.txt")
-        readOnly: true
-        Layout.fillWidth: true
-    }
-    Label {
-        text: qsTr("Licence for code and algorithms used in Temperature plugin:")
-        wrapMode: Text.WordWrap
-        Layout.fillWidth: true
-    }
-    TextArea {
-        text: Webcamoid.readFile(":/Webcamoid/share/3rd-party/licenses/TemperatureAlgorithm.txt")
-        readOnly: true
-        Layout.fillWidth: true
-    }
-    Label {
-        text: qsTr("Licence for the usb.ids file:")
-        wrapMode: Text.WordWrap
-        Layout.fillWidth: true
-    }
-    TextArea {
-        text: Webcamoid.readFile(":/Webcamoid/share/3rd-party/licenses/UsbIds.txt")
-        readOnly: true
-        Layout.fillWidth: true
+        ColumnLayout {
+            id: layout
+            spacing: 16
+            width: scrollView.width
+
+            Label {
+                text: qsTr("The followings are the Licenses for 3rd-party work incorporated into Webcamoid. <b>These Licenses DOES NOT applies to Webcamoid itself.</b>")
+                wrapMode: Text.WordWrap
+                Layout.fillWidth: true
+            }
+            Label {
+                text: qsTr("License for resources taken from openclipart.org:")
+                wrapMode: Text.WordWrap
+                Layout.fillWidth: true
+            }
+            TextArea {
+                text: Webcamoid.readFile(":/Webcamoid/share/3rd-party/licenses/openclipart.txt")
+                readOnly: true
+                Layout.fillWidth: true
+            }
+            Label {
+                text: qsTr("License for code taken from OpenCV:")
+                wrapMode: Text.WordWrap
+                Layout.fillWidth: true
+            }
+            TextArea {
+                text: Webcamoid.readFile(":/Webcamoid/share/3rd-party/licenses/OpenCV.txt")
+                readOnly: true
+                Layout.fillWidth: true
+            }
+            Label {
+                text: qsTr("License for code and algorithms used in Temperature plugin:")
+                wrapMode: Text.WordWrap
+                Layout.fillWidth: true
+            }
+            TextArea {
+                text: Webcamoid.readFile(":/Webcamoid/share/3rd-party/licenses/TemperatureAlgorithm.txt")
+                readOnly: true
+                Layout.fillWidth: true
+            }
+            Label {
+                text: qsTr("License for the usb.ids file:")
+                wrapMode: Text.WordWrap
+                Layout.fillWidth: true
+            }
+            TextArea {
+                text: Webcamoid.readFile(":/Webcamoid/share/3rd-party/licenses/UsbIds.txt")
+                readOnly: true
+                Layout.fillWidth: true
+            }
+        }
     }
 }

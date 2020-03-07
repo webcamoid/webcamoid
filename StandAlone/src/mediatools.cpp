@@ -51,7 +51,7 @@
 #define COMMONS_PROJECT_LICENSE_URL "https://raw.githubusercontent.com/webcamoid/webcamoid/master/COPYING"
 #define COMMONS_PROJECT_DOWNLOADS_URL "https://webcamoid.github.io/#downloads"
 #define COMMONS_PROJECT_ISSUES_URL "https://github.com/webcamoid/webcamoid/issues"
-#define COMMONS_COPYRIGHT_NOTICE "Copyright (C) 2011-2018  Gonzalo Exequiel Pedone"
+#define COMMONS_COPYRIGHT_NOTICE "Copyright (C) 2011-2020  Gonzalo Exequiel Pedone"
 
 class MediaToolsPrivate
 {

@@ -43,6 +43,7 @@ GridLayout {
     property alias font: label.font
     property alias color: label.color
     property int alignment: Qt.AlignHCenter | Qt.AlignVCenter
+    property int elide: Text.ElideNone
 
     AkColorizedImage {
         id: icon
@@ -58,6 +59,7 @@ GridLayout {
         visible: text && iconLabel.display != AbstractButton.IconOnly
         Layout.alignment: iconLabel.alignment
         Layout.fillWidth: true
+        elide: iconLabel.elide
         linkColor: iconLabel.enabled?
                        AkTheme.palette.active.link:
                        AkTheme.palette.disabled.link

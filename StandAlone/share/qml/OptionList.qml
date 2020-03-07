@@ -48,8 +48,11 @@ ListView {
         id: lstOptions
     }
     delegate: ItemDelegate {
-        text: index >= 0 && index < lsvOptionList.count?
-                  lsvOptionList.model.get(index)[lsvOptionList.textRole]: ""
+        text: index < 0 && index >= lsvOptionList.count?
+                  "":
+              lsvOptionList.textRole?
+                  lsvOptionList.model.get(index)[lsvOptionList.textRole]:
+                  lsvOptionList.model[index]
         anchors.right: parent.right
         anchors.left: parent.left
         visible: Webcamoid.matches(filter, optionValues(index))

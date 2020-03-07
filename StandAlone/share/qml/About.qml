@@ -20,51 +20,66 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
+import Ak 1.0
 
-ColumnLayout {
-    id: clyProgramInfo
-
-    RowLayout {
-        Image {
-            fillMode: Image.PreserveAspectFit
-            Layout.minimumWidth: 128
-            Layout.minimumHeight: 128
-            Layout.maximumWidth: 128
-            Layout.maximumHeight: 128
-            source: "image://icons/webcamoid"
-            sourceSize: Qt.size(width, height)
-        }
+Page {
+    ScrollView {
+        id: scrollView
+        anchors.fill: parent
+        contentHeight: clyProgramInfo.height
+        clip: true
 
         ColumnLayout {
-            Label {
-                text: Webcamoid.applicationName()
-                font.bold: true
-                font.pointSize: 12
-            }
-            Label {
-                text: qsTr("Version %1").arg(Webcamoid.applicationVersion())
-                font.bold: true
-            }
-            Label {
-                text: qsTr("Using Qt %1")
-                        .arg(Webcamoid.qtVersion())
-            }
-            Button {
-                text: qsTr("Website")
-                icon.source: "image://icons/internet"
+            id: clyProgramInfo
+            width: scrollView.width
 
-                onClicked: Qt.openUrlExternally(Webcamoid.projectUrl())
+            RowLayout {
+                Image {
+                    fillMode: Image.PreserveAspectFit
+                    Layout.minimumWidth:
+                        AkUnit.create(128 * AkTheme.controlScale, "dp").pixels
+                    Layout.minimumHeight:
+                        AkUnit.create(128 * AkTheme.controlScale, "dp").pixels
+                    Layout.maximumWidth:
+                        AkUnit.create(128 * AkTheme.controlScale, "dp").pixels
+                    Layout.maximumHeight:
+                        AkUnit.create(128 * AkTheme.controlScale, "dp").pixels
+                    source: "image://icons/webcamoid"
+                    sourceSize: Qt.size(width, height)
+                }
+
+                ColumnLayout {
+                    Label {
+                        text: Webcamoid.applicationName()
+                        font.bold: true
+                        font.pointSize: 12
+                    }
+                    Label {
+                        text: qsTr("Version %1").arg(Webcamoid.applicationVersion())
+                        font.bold: true
+                    }
+                    Label {
+                        text: qsTr("Using Qt %1")
+                                .arg(Webcamoid.qtVersion())
+                    }
+                    Button {
+                        text: qsTr("Website")
+                        icon.source: "image://icons/internet"
+
+                        onClicked: Qt.openUrlExternally(Webcamoid.projectUrl())
+                    }
+                }
+            }
+
+            Label {
+                text: qsTr("Webcam capture application.")
+            }
+            Label {
+                text: qsTr("A simple webcam application for picture and video capture.")
+            }
+            Label {
+                text: Webcamoid.copyrightNotice()
             }
         }
-    }
-
-    Label {
-        text: qsTr("Webcam capture application.")
-    }
-    Label {
-        text: qsTr("A simple webcam application for picture and video capture.")
-    }
-    Label {
-        text: Webcamoid.copyrightNotice()
     }
 }

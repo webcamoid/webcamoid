@@ -202,6 +202,8 @@ ApplicationWindow {
     SettingsMenu {
         id: settings
         width: AkUnit.create(250 * AkTheme.controlScale, "dp").pixels
+
+        onOpenSettings: settingsDialog.open()
     }
     RecordingNotice {
         id: recordingNotice
@@ -381,6 +383,8 @@ ApplicationWindow {
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Take a photo")
                 focus: true
+                enabled: MediaSource.state === AkElement.ElementStatePlaying
+                         || cameraControls.state == "Video"
 
                 onClicked: {
                     if (cameraControls.state == "Video") {
@@ -417,6 +421,8 @@ ApplicationWindow {
                 y: (parent.height - height) / 2
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Record video")
+                enabled: MediaSource.state === AkElement.ElementStatePlaying
+                         || cameraControls.state == ""
 
                 onClicked: {
                     if (cameraControls.state == "") {
@@ -645,13 +651,6 @@ ApplicationWindow {
                 onClicked: {
                     let options = {
                         "output": "OutputConfig",
-                        "general": "GeneralConfig",
-                        "plugins": "PluginConfig",
-                        "updates": "UpdatesConfig",
-                        "about": "About",
-                        "contributors": "Contributors",
-                        "license": "License",
-                        "3rdpartylicenses": "ThirdPartyLicenses"
                     }
                     let configBar = showPane(paneLeftLayout, "ConfigBar")
 
@@ -698,5 +697,10 @@ ApplicationWindow {
                       "All Files (*)"]
 
         onAccepted: Recording.savePhoto(currentFile)
+    }
+    SettingsDialog {
+        id: settingsDialog
+        width: parent.width
+        height: parent.height
     }
 }

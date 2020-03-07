@@ -22,6 +22,10 @@ import QtQuick.Controls 2.5
 import Ak 1.0
 
 Menu {
+    id: settingsMenu
+
+    signal openSettings()
+
     MenuItem {
         text: qsTr("Video")
         icon.source: "image://icons/video"
@@ -33,6 +37,8 @@ Menu {
     MenuItem {
         text: qsTr("Preferences")
         icon.source: "image://icons/settings"
+
+        onClicked: settingsMenu.openSettings()
     }
     MenuSeparator {}
     SwitchDelegate {

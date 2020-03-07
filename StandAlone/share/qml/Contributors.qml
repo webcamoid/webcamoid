@@ -21,18 +21,28 @@ import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
 
-ColumnLayout {
-    id: clyThanks
+Page {
+    ScrollView {
+        id: scrollView
+        anchors.fill: parent
+        contentHeight: clyThanks.height
+        clip: true
 
-    Label {
-        text: qsTr("Thanks to all these cool people that helped contributing to Webcamoid all these years.")
-        wrapMode: Text.WordWrap
-        Layout.fillWidth: true
-    }
-    TextArea {
-        id: contributorsText
-        text: Webcamoid.readFile(":/Webcamoid/share/contributors.txt")
-        readOnly: true
-        Layout.fillWidth: true
+        ColumnLayout {
+            id: clyThanks
+            width: scrollView.width
+
+            Label {
+                text: qsTr("Thanks to all these cool people that helped contributing to Webcamoid all these years.")
+                wrapMode: Text.WordWrap
+                Layout.fillWidth: true
+            }
+            TextArea {
+                id: contributorsText
+                text: Webcamoid.readFile(":/Webcamoid/share/contributors.txt")
+                readOnly: true
+                Layout.fillWidth: true
+            }
+        }
     }
 }

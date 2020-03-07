@@ -107,6 +107,7 @@ T.Switch {
             alignment: Qt.AlignLeft | Qt.AlignVCenter
             anchors.verticalCenter: control.contentItem.verticalCenter
             enabled: control.enabled
+            elide: Text.ElideRight
         }
     }
 

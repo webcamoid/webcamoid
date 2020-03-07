@@ -21,8 +21,18 @@ import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
 
-TextArea {
-    id: licenseText
-    text: Webcamoid.readFile(":/Webcamoid/COPYING")
-    readOnly: true
+Page {
+    ScrollView {
+        id: scrollView
+        anchors.fill: parent
+        contentHeight: license.height
+        clip: true
+
+        TextArea {
+            id: license
+            text: Webcamoid.readFile(":/Webcamoid/COPYING")
+            readOnly: true
+            width: scrollView.width
+        }
+    }
 }

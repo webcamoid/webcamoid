@@ -69,7 +69,7 @@ class AKCOMMONS_EXPORT AkElement: public QObject
         virtual ~AkElement();
 
         Q_INVOKABLE virtual QString pluginId() const;
-        Q_INVOKABLE static QString pluginId(const QString &path);
+        Q_INVOKABLE static QString pluginIdFromPath(const QString &path);
         Q_INVOKABLE QString pluginPath() const;
         Q_INVOKABLE virtual AkElement::ElementState state() const;
         Q_INVOKABLE virtual QObject *controlInterface(QQmlEngine *engine,

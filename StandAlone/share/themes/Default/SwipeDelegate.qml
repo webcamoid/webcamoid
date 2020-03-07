@@ -73,6 +73,7 @@ T.SwipeDelegate {
                        Qt.AlignCenter | Qt.AlignVCenter:
                        Qt.AlignLeft | Qt.AlignVCenter
         enabled: control.enabled
+        elide: Text.ElideRight
     }
 
     background: Rectangle {
@@ -84,33 +85,6 @@ T.SwipeDelegate {
         color: control.highlighted?
                    AkTheme.palette.active.highlight:
                    AkTheme.palette.active.window
-
-        property color iconColor:
-            control.highlighted?
-                AkTheme.palette.active.highlightedText:
-                AkTheme.palette.active.windowText
-
-        AkColorizedImage {
-            source: "image://icons/swipe-left.png"
-            width: control.icon.width
-            height: control.icon.height
-            anchors.verticalCenter: parent.verticalCenter
-            visible: swipe.right || control.swipe.position > 0.9
-            color: backgroundRect.iconColor
-            asynchronous: true
-            mipmap: true
-        }
-        AkColorizedImage {
-            source: "image://icons/swipe-right.png"
-            width: control.icon.width
-            height: control.icon.height
-            anchors.right: parent.right
-            anchors.verticalCenter: parent.verticalCenter
-            visible: swipe.left || control.swipe.position < -0.9
-            color: backgroundRect.iconColor
-            asynchronous: true
-            mipmap: true
-        }
     }
 
     states: [
@@ -130,10 +104,6 @@ T.SwipeDelegate {
                 color: control.highlighted?
                            AkTheme.palette.disabled.highlight:
                            AkTheme.palette.disabled.window
-                iconColor:
-                    control.highlighted?
-                        AkTheme.palette.disabled.highlightedText:
-                        AkTheme.palette.disabled.windowText
             }
         },
         State {

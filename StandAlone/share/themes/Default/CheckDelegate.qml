@@ -110,6 +110,7 @@ T.CheckDelegate {
         anchors.leftMargin: control.leftPadding
         anchors.left: control.left
         anchors.right: checkBoxIndicator.left
+        elide: Text.ElideRight
     }
 
     background: Rectangle {

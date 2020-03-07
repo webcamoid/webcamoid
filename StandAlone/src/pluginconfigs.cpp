@@ -192,7 +192,7 @@ void PluginConfigs::loadProperties(const CliOptions &cliOptions)
     cacheConfig.endGroup();
 
     for (auto &path: pluginsPaths) {
-        cacheConfig.beginGroup(QString("Plugin_%1").arg(AkElement::pluginId(path)));
+        cacheConfig.beginGroup(QString("Plugin_%1").arg(AkElement::pluginIdFromPath(path)));
         QVariantMap pluginInfo;
 
         for (auto &key: cacheConfig.allKeys())
@@ -292,7 +292,7 @@ void PluginConfigs::saveProperties()
     cacheConfig.endGroup();
 
     for (auto &path: pluginsPaths) {
-        auto pluginId = AkElement::pluginId(path);
+        auto pluginId = AkElement::pluginIdFromPath(path);
         cacheConfig.beginGroup(QString("Plugin_%1").arg(pluginId));
         auto pluginInfo = AkElement::pluginInfo(pluginId);
 
