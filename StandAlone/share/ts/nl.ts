@@ -668,22 +668,22 @@
     <message>
         <location filename="../qml/SettingsMenu.qml" line="30"/>
         <source>Video</source>
-        <translation type="unfinished">Video</translation>
+        <translation>Video</translation>
     </message>
     <message>
         <location filename="../qml/SettingsMenu.qml" line="34"/>
         <source>Audio</source>
-        <translation type="unfinished">Audio</translation>
+        <translation>Audio</translation>
     </message>
     <message>
         <location filename="../qml/SettingsMenu.qml" line="38"/>
         <source>Preferences</source>
-        <translation type="unfinished">Instellingen</translation>
+        <translation>Instellingen</translation>
     </message>
     <message>
         <location filename="../qml/SettingsMenu.qml" line="45"/>
         <source>Play sources</source>
-        <translation type="unfinished"></translation>
+        <translation>Bronnen afspelen</translation>
     </message>
 </context>
 <context>
@@ -2259,12 +2259,12 @@
     <message>
         <location filename="../qml/main.qml" line="149"/>
         <source>Now</source>
-        <translation type="unfinished">Zojuist</translation>
+        <translation>Zojuist</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="156"/>
         <source>%1 seconds</source>
-        <translation type="unfinished">%1 seconden</translation>
+        <translation>%1 seconden</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="556"/>
@@ -2279,12 +2279,12 @@
     <message>
         <location filename="../qml/main.qml" line="686"/>
         <source>Save photo as…</source>
-        <translation type="unfinished">Foto opslaan als…</translation>
+        <translation>Foto opslaan als…</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="688"/>
         <source>Picture %1.png</source>
-        <translation type="unfinished">Afbeelding %1.png</translation>
+        <translation>Afbeelding %1.png</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="384"/>
