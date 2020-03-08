@@ -446,32 +446,32 @@
     <message>
         <location filename="../qml/PluginConfig.qml" line="40"/>
         <source>Paths</source>
-        <translation type="unfinished"></translation>
+        <translation>נתיבים</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="43"/>
         <source>Plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>תוספים</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="120"/>
         <source>Search plugins in subfolders</source>
-        <translation type="unfinished"></translation>
+        <translation>חיפוש תוספים בתת־תיקיות</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="132"/>
         <source>Add path</source>
-        <translation type="unfinished"></translation>
+        <translation>הוספת נתיב</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="175"/>
         <source>Remove</source>
-        <translation type="unfinished">הסרה</translation>
+        <translation>הסרה</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="209"/>
         <source>Refresh</source>
-        <translation type="unfinished"></translation>
+        <translation>רענון</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="256"/>
@@ -616,51 +616,51 @@
     <message>
         <location filename="../qml/SettingsDialog.qml" line="71"/>
         <source>Image Capture</source>
-        <translation type="unfinished"></translation>
+        <translation>לכידת תמונה</translation>
     </message>
     <message>
         <location filename="../qml/SettingsDialog.qml" line="72"/>
         <source>Video Recording</source>
-        <translation type="unfinished"></translation>
+        <translation>הקלטת וידאו</translation>
     </message>
     <message>
         <location filename="../qml/SettingsDialog.qml" line="73"/>
         <source>General Options</source>
-        <translation type="unfinished">אפשרויות כלליות</translation>
+        <translation>אפשרויות כלליות</translation>
     </message>
     <message>
         <location filename="../qml/SettingsDialog.qml" line="74"/>
         <source>Plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>תוספים</translation>
     </message>
     <message>
         <location filename="../qml/SettingsDialog.qml" line="75"/>
         <source>Updates</source>
-        <translation type="unfinished">עדכונים</translation>
+        <translation>עדכונים</translation>
     </message>
     <message>
         <location filename="../qml/SettingsDialog.qml" line="79"/>
         <source>About</source>
         <extracomment>Information of the program, like name, description, vesion, etc..</extracomment>
-        <translation type="unfinished">על אודות</translation>
+        <translation>על אודות</translation>
     </message>
     <message>
         <location filename="../qml/SettingsDialog.qml" line="83"/>
         <source>Contributors</source>
         <extracomment>List of people contributing to the project: software developers, translators, designers, etc..</extracomment>
-        <translation type="unfinished">מתנדבים</translation>
+        <translation>מתנדבים</translation>
     </message>
     <message>
         <location filename="../qml/SettingsDialog.qml" line="85"/>
         <source>License</source>
         <extracomment>Program license.</extracomment>
-        <translation type="unfinished">רישיון</translation>
+        <translation>רישיון</translation>
     </message>
     <message>
         <location filename="../qml/SettingsDialog.qml" line="89"/>
         <source>3rd Party Licenses</source>
         <extracomment>License for 3rd party components used in Webcamoid, like libraries and code snippets.</extracomment>
-        <translation type="unfinished">רישיונות צד־שלישי</translation>
+        <translation>רישיונות צד־שלישי</translation>
     </message>
 </context>
 <context>
@@ -735,22 +735,22 @@
     <message>
         <location filename="../qml/ThirdPartyLicenses.qml" line="42"/>
         <source>License for resources taken from openclipart.org:</source>
-        <translation type="unfinished"></translation>
+        <translation>הרישיון למשאבים שנלקחו מ־openclipart.org:</translation>
     </message>
     <message>
         <location filename="../qml/ThirdPartyLicenses.qml" line="52"/>
         <source>License for code taken from OpenCV:</source>
-        <translation type="unfinished"></translation>
+        <translation>הרישיון לקוד שנלקח מ־OpenCV:</translation>
     </message>
     <message>
         <location filename="../qml/ThirdPartyLicenses.qml" line="62"/>
         <source>License for code and algorithms used in Temperature plugin:</source>
-        <translation type="unfinished"></translation>
+        <translation>הרישיון לקוד ולאלגוריתמים בהם נעשה שימוש בתוסף הטמפרטורה:</translation>
     </message>
     <message>
         <location filename="../qml/ThirdPartyLicenses.qml" line="72"/>
         <source>License for the usb.ids file:</source>
-        <translation type="unfinished"></translation>
+        <translation>הרישיון לקובץ usb.ids:</translation>
     </message>
 </context>
 <context>
