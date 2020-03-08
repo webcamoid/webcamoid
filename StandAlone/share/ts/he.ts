@@ -364,7 +364,7 @@
         <location filename="../qml/GeneralConfig.qml" line="56"/>
         <source>Play sources on start</source>
         <extracomment>Start playing the webcam and other sources right after * opening Webcamoid.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>ניגון מקורות עם ההתחלה</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="68"/>
@@ -725,7 +725,7 @@
     <message>
         <location filename="../qml/ThirdPartyLicenses.qml" line="37"/>
         <source>The followings are the Licenses for 3rd-party work incorporated into Webcamoid. &lt;b&gt;These Licenses DOES NOT applies to Webcamoid itself.&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>אלו הרישיונות לפרי עמלם של גורמי צד־שלישי ששולבו בתוך Webcamoid. &lt;b&gt;הרישיונות האלו לא חלים על Webcamoid.&lt;/b&gt;</translation>
     </message>
     <message>
         <location filename="../qml/ThirdPartyLicenses.qml" line="42"/>
