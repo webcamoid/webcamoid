@@ -50,8 +50,10 @@ Page {
                 AkElement.createPtr("MultiSink", "Ak.Element.Settings")
 
             Label {
-                //: Start playing the webcam right after opening Webcamoid.
-                text: qsTr("Play webcam on start")
+                /*: Start playing the webcam and other sources right after
+                 *  opening Webcamoid.
+                 */
+                text: qsTr("Play sources on start")
             }
             Switch {
                 checked: MediaSource.playOnStart

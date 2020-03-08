@@ -26,6 +26,11 @@ Menu {
 
     signal openSettings()
 
+    Component.onCompleted: {
+        if (MediaSource.playOnStart)
+            MediaSource.state = AkElement.ElementStatePlaying;
+    }
+
     MenuItem {
         text: qsTr("Video")
         icon.source: "image://icons/video"

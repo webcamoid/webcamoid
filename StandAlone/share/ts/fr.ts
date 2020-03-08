@@ -326,58 +326,58 @@
 <context>
     <name>GeneralConfig</name>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="54"/>
-        <source>Play webcam on start</source>
-        <extracomment>Start playing the webcam right after opening Webcamoid.</extracomment>
-        <translation>Allumer la webacm au démarrage</translation>
-    </message>
-    <message>
-        <location filename="../qml/GeneralConfig.qml" line="75"/>
+        <location filename="../qml/GeneralConfig.qml" line="77"/>
         <source>Video capture</source>
         <translation>Capture vidéo</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="85"/>
+        <location filename="../qml/GeneralConfig.qml" line="87"/>
         <source>Desktop capture</source>
         <translation>Capture du bureau</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="95"/>
+        <location filename="../qml/GeneralConfig.qml" line="97"/>
         <source>Audio capture/play</source>
         <translation>Lire/capturer l’audio</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="105"/>
+        <location filename="../qml/GeneralConfig.qml" line="107"/>
         <source>Video convert</source>
         <translation>Conversion vidéo</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="115"/>
+        <location filename="../qml/GeneralConfig.qml" line="117"/>
         <source>Audio convert</source>
         <translation>Conversion audio</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="158"/>
+        <location filename="../qml/GeneralConfig.qml" line="160"/>
         <source>Virtual camera driver</source>
         <translation>Pilote virtuel de la caméra</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="125"/>
+        <location filename="../qml/GeneralConfig.qml" line="127"/>
         <source>Video playback</source>
         <translation>Lecture vidéo</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="66"/>
+        <location filename="../qml/GeneralConfig.qml" line="56"/>
+        <source>Play sources on start</source>
+        <extracomment>Start playing the webcam and other sources right after * opening Webcamoid.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/GeneralConfig.qml" line="68"/>
         <source>Frameworks and libraries</source>
         <translation>Frameworks et bibliothèques</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="135"/>
+        <location filename="../qml/GeneralConfig.qml" line="137"/>
         <source>Video record</source>
         <translation>Enregistrement vidéo</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="145"/>
+        <location filename="../qml/GeneralConfig.qml" line="147"/>
         <source>Root method</source>
         <translation>Méthode racine</translation>
     </message>
@@ -439,42 +439,37 @@
 <context>
     <name>PluginConfig</name>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="31"/>
-        <source>Use this page for configuring the plugins search paths.&lt;br /&gt;&lt;b&gt;Don&apos;t touch nothing unless you know what you are doing&lt;/b&gt;.</source>
-        <translation>Utilisez cette page pour configurer les chemins de recherche des plugins.&lt;br /&gt;&lt;b&gt;Ne touchez à rien si vous n&apos;êtes pas sûr de ce que vous faîtes&lt;/b&gt;.</translation>
-    </message>
-    <message>
-        <location filename="../qml/PluginConfig.qml" line="40"/>
+        <location filename="../qml/PluginConfig.qml" line="35"/>
         <source>Paths</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="43"/>
+        <location filename="../qml/PluginConfig.qml" line="38"/>
         <source>Plugins</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="120"/>
+        <location filename="../qml/PluginConfig.qml" line="115"/>
         <source>Search plugins in subfolders</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="132"/>
+        <location filename="../qml/PluginConfig.qml" line="127"/>
         <source>Add path</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="175"/>
+        <location filename="../qml/PluginConfig.qml" line="170"/>
         <source>Remove</source>
         <translation type="unfinished">Supprimer</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="209"/>
+        <location filename="../qml/PluginConfig.qml" line="204"/>
         <source>Refresh</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="256"/>
+        <location filename="../qml/PluginConfig.qml" line="251"/>
         <source>Add plugins search path</source>
         <translation>Ajouter un chemin de recherche des plugins</translation>
     </message>
@@ -666,22 +661,22 @@
 <context>
     <name>SettingsMenu</name>
     <message>
-        <location filename="../qml/SettingsMenu.qml" line="30"/>
+        <location filename="../qml/SettingsMenu.qml" line="35"/>
         <source>Video</source>
         <translation type="unfinished">Vidéo</translation>
     </message>
     <message>
-        <location filename="../qml/SettingsMenu.qml" line="34"/>
+        <location filename="../qml/SettingsMenu.qml" line="39"/>
         <source>Audio</source>
         <translation type="unfinished">Audio</translation>
     </message>
     <message>
-        <location filename="../qml/SettingsMenu.qml" line="38"/>
+        <location filename="../qml/SettingsMenu.qml" line="43"/>
         <source>Preferences</source>
         <translation type="unfinished">Préférences</translation>
     </message>
     <message>
-        <location filename="../qml/SettingsMenu.qml" line="45"/>
+        <location filename="../qml/SettingsMenu.qml" line="50"/>
         <source>Play sources</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2257,53 +2252,53 @@
         <translation>Télécharger %1 %2 MAINTENANT !</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="149"/>
+        <location filename="../qml/main.qml" line="144"/>
         <source>Now</source>
         <translation type="unfinished">Maintenant</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="156"/>
+        <location filename="../qml/main.qml" line="151"/>
         <source>%1 seconds</source>
         <translation type="unfinished">%1 secondes</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="556"/>
+        <location filename="../qml/main.qml" line="551"/>
         <source>Configure sources</source>
         <translation>Configurer les sources</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="574"/>
+        <location filename="../qml/main.qml" line="569"/>
         <source>Configure audio</source>
         <translation>Configurer l&apos;audio</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="686"/>
+        <location filename="../qml/main.qml" line="681"/>
         <source>Save photo as…</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="688"/>
+        <location filename="../qml/main.qml" line="683"/>
         <source>Picture %1.png</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="384"/>
+        <location filename="../qml/main.qml" line="379"/>
         <source>Take a photo</source>
         <translation>Prendre une photo</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="423"/>
-        <location filename="../qml/main.qml" line="598"/>
+        <location filename="../qml/main.qml" line="418"/>
+        <location filename="../qml/main.qml" line="593"/>
         <source>Record video</source>
         <translation>Enregistrer une vidéo</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="616"/>
+        <location filename="../qml/main.qml" line="611"/>
         <source>Configure Effects</source>
         <translation>Configurer les effets</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="647"/>
+        <location filename="../qml/main.qml" line="642"/>
         <source>Preferences</source>
         <translation>Préférences</translation>
     </message>

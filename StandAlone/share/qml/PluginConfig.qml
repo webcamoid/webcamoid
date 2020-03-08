@@ -27,11 +27,6 @@ Page {
     ColumnLayout {
         anchors.fill: parent
 
-        Label {
-            text: qsTr("Use this page for configuring the plugins search paths.<br /><b>Don't touch nothing unless you know what you are doing</b>.")
-            wrapMode: Text.WordWrap
-            Layout.fillWidth: true
-        }
         TabBar {
             id: tabBar
             Layout.fillWidth: true

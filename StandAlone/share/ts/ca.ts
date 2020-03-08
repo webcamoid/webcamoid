@@ -326,58 +326,58 @@
 <context>
     <name>GeneralConfig</name>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="54"/>
-        <source>Play webcam on start</source>
-        <extracomment>Start playing the webcam right after opening Webcamoid.</extracomment>
-        <translation>Reprodueix la càmera en iniciar</translation>
-    </message>
-    <message>
-        <location filename="../qml/GeneralConfig.qml" line="75"/>
+        <location filename="../qml/GeneralConfig.qml" line="77"/>
         <source>Video capture</source>
         <translation>Captura de vídeo</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="85"/>
+        <location filename="../qml/GeneralConfig.qml" line="87"/>
         <source>Desktop capture</source>
         <translation>Captura de l’escriptori</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="95"/>
+        <location filename="../qml/GeneralConfig.qml" line="97"/>
         <source>Audio capture/play</source>
         <translation>Captura/reproducció d’àudio</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="105"/>
+        <location filename="../qml/GeneralConfig.qml" line="107"/>
         <source>Video convert</source>
         <translation>Conversió de vídeo</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="115"/>
+        <location filename="../qml/GeneralConfig.qml" line="117"/>
         <source>Audio convert</source>
         <translation>Conversió d’àudio</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="158"/>
+        <location filename="../qml/GeneralConfig.qml" line="160"/>
         <source>Virtual camera driver</source>
         <translation>Controlador de càmera virtual</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="125"/>
+        <location filename="../qml/GeneralConfig.qml" line="127"/>
         <source>Video playback</source>
         <translation>Reproducció de vídeo</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="66"/>
+        <location filename="../qml/GeneralConfig.qml" line="56"/>
+        <source>Play sources on start</source>
+        <extracomment>Start playing the webcam and other sources right after * opening Webcamoid.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/GeneralConfig.qml" line="68"/>
         <source>Frameworks and libraries</source>
         <translation>Estructures i biblioteques</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="135"/>
+        <location filename="../qml/GeneralConfig.qml" line="137"/>
         <source>Video record</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="145"/>
+        <location filename="../qml/GeneralConfig.qml" line="147"/>
         <source>Root method</source>
         <translation>Mètode de «root»</translation>
     </message>
@@ -439,42 +439,37 @@
 <context>
     <name>PluginConfig</name>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="31"/>
-        <source>Use this page for configuring the plugins search paths.&lt;br /&gt;&lt;b&gt;Don&apos;t touch nothing unless you know what you are doing&lt;/b&gt;.</source>
-        <translation>Feu servir aquesta pàgina per a configurar els camins de cerca dels connectors.&lt;br /&gt;&lt;b&gt;No modifiqueu cap valor si no sabeu el que esteu fent&lt;/b&gt;.</translation>
-    </message>
-    <message>
-        <location filename="../qml/PluginConfig.qml" line="40"/>
+        <location filename="../qml/PluginConfig.qml" line="35"/>
         <source>Paths</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="43"/>
+        <location filename="../qml/PluginConfig.qml" line="38"/>
         <source>Plugins</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="120"/>
+        <location filename="../qml/PluginConfig.qml" line="115"/>
         <source>Search plugins in subfolders</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="132"/>
+        <location filename="../qml/PluginConfig.qml" line="127"/>
         <source>Add path</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="175"/>
+        <location filename="../qml/PluginConfig.qml" line="170"/>
         <source>Remove</source>
         <translation type="unfinished">Suprimeix</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="209"/>
+        <location filename="../qml/PluginConfig.qml" line="204"/>
         <source>Refresh</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="256"/>
+        <location filename="../qml/PluginConfig.qml" line="251"/>
         <source>Add plugins search path</source>
         <translation>Afegeix camí de cerca de connector</translation>
     </message>
@@ -666,22 +661,22 @@
 <context>
     <name>SettingsMenu</name>
     <message>
-        <location filename="../qml/SettingsMenu.qml" line="30"/>
+        <location filename="../qml/SettingsMenu.qml" line="35"/>
         <source>Video</source>
         <translation type="unfinished">Vídeo</translation>
     </message>
     <message>
-        <location filename="../qml/SettingsMenu.qml" line="34"/>
+        <location filename="../qml/SettingsMenu.qml" line="39"/>
         <source>Audio</source>
         <translation type="unfinished">Àudio</translation>
     </message>
     <message>
-        <location filename="../qml/SettingsMenu.qml" line="38"/>
+        <location filename="../qml/SettingsMenu.qml" line="43"/>
         <source>Preferences</source>
         <translation type="unfinished">Preferències</translation>
     </message>
     <message>
-        <location filename="../qml/SettingsMenu.qml" line="45"/>
+        <location filename="../qml/SettingsMenu.qml" line="50"/>
         <source>Play sources</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2257,53 +2252,53 @@
         <translation>Baixa %1 %2 ara</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="149"/>
+        <location filename="../qml/main.qml" line="144"/>
         <source>Now</source>
         <translation type="unfinished">Ara</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="156"/>
+        <location filename="../qml/main.qml" line="151"/>
         <source>%1 seconds</source>
         <translation type="unfinished">%1 segons</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="556"/>
+        <location filename="../qml/main.qml" line="551"/>
         <source>Configure sources</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="574"/>
+        <location filename="../qml/main.qml" line="569"/>
         <source>Configure audio</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="686"/>
+        <location filename="../qml/main.qml" line="681"/>
         <source>Save photo as…</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="688"/>
+        <location filename="../qml/main.qml" line="683"/>
         <source>Picture %1.png</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="384"/>
+        <location filename="../qml/main.qml" line="379"/>
         <source>Take a photo</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="423"/>
-        <location filename="../qml/main.qml" line="598"/>
+        <location filename="../qml/main.qml" line="418"/>
+        <location filename="../qml/main.qml" line="593"/>
         <source>Record video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="616"/>
+        <location filename="../qml/main.qml" line="611"/>
         <source>Configure Effects</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="647"/>
+        <location filename="../qml/main.qml" line="642"/>
         <source>Preferences</source>
         <translation>Preferències</translation>
     </message>

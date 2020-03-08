@@ -87,12 +87,7 @@ ApplicationWindow {
     onHeightChanged: Webcamoid.windowHeight = height
     onClosing: trayIcon.hide()
 
-    Component.onCompleted: {
-        if (MediaSource.playOnStart)
-            togglePlay();
-
-        notifyUpdate(Updates.versionType);
-    }
+    Component.onCompleted: notifyUpdate(Updates.versionType);
 
     Connections {
         target: Recording
