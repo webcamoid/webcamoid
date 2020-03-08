@@ -364,7 +364,7 @@
         <location filename="../qml/GeneralConfig.qml" line="56"/>
         <source>Play sources on start</source>
         <extracomment>Start playing the webcam and other sources right after * opening Webcamoid.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Відтворити джерела на початку</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="68"/>
@@ -441,32 +441,32 @@
     <message>
         <location filename="../qml/PluginConfig.qml" line="35"/>
         <source>Paths</source>
-        <translation type="unfinished"></translation>
+        <translation>Шляхи</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="38"/>
         <source>Plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>Втулки</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="115"/>
         <source>Search plugins in subfolders</source>
-        <translation type="unfinished"></translation>
+        <translation>Пошук втулків у підтеках</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="127"/>
         <source>Add path</source>
-        <translation type="unfinished"></translation>
+        <translation>Додати шлях</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="170"/>
         <source>Remove</source>
-        <translation type="unfinished"></translation>
+        <translation>Видалити</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="204"/>
         <source>Refresh</source>
-        <translation type="unfinished"></translation>
+        <translation>Оновити</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="251"/>
@@ -611,51 +611,51 @@
     <message>
         <location filename="../qml/SettingsDialog.qml" line="71"/>
         <source>Image Capture</source>
-        <translation type="unfinished"></translation>
+        <translation>Захоплення зображення</translation>
     </message>
     <message>
         <location filename="../qml/SettingsDialog.qml" line="72"/>
         <source>Video Recording</source>
-        <translation type="unfinished"></translation>
+        <translation>Запис відео</translation>
     </message>
     <message>
         <location filename="../qml/SettingsDialog.qml" line="73"/>
         <source>General Options</source>
-        <translation type="unfinished">Загальні параметри</translation>
+        <translation>Загальні параметри</translation>
     </message>
     <message>
         <location filename="../qml/SettingsDialog.qml" line="74"/>
         <source>Plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>Втулки</translation>
     </message>
     <message>
         <location filename="../qml/SettingsDialog.qml" line="75"/>
         <source>Updates</source>
-        <translation type="unfinished">Оновлення</translation>
+        <translation>Оновлення</translation>
     </message>
     <message>
         <location filename="../qml/SettingsDialog.qml" line="79"/>
         <source>About</source>
         <extracomment>Information of the program, like name, description, vesion, etc..</extracomment>
-        <translation type="unfinished">Про нас</translation>
+        <translation>Про нас</translation>
     </message>
     <message>
         <location filename="../qml/SettingsDialog.qml" line="83"/>
         <source>Contributors</source>
         <extracomment>List of people contributing to the project: software developers, translators, designers, etc..</extracomment>
-        <translation type="unfinished">Учасники</translation>
+        <translation>Вкладники</translation>
     </message>
     <message>
         <location filename="../qml/SettingsDialog.qml" line="85"/>
         <source>License</source>
         <extracomment>Program license.</extracomment>
-        <translation type="unfinished">Ліцензія</translation>
+        <translation>Ліцензія</translation>
     </message>
     <message>
         <location filename="../qml/SettingsDialog.qml" line="89"/>
         <source>3rd Party Licenses</source>
         <extracomment>License for 3rd party components used in Webcamoid, like libraries and code snippets.</extracomment>
-        <translation type="unfinished">Ліцензії третьої сторони</translation>
+        <translation>Ліцензії третьої сторони</translation>
     </message>
 </context>
 <context>
@@ -725,27 +725,27 @@
     <message>
         <location filename="../qml/ThirdPartyLicenses.qml" line="37"/>
         <source>The followings are the Licenses for 3rd-party work incorporated into Webcamoid. &lt;b&gt;These Licenses DOES NOT applies to Webcamoid itself.&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>Далі - ліцензії на сторонні роботи, включені до Webcamoid.&lt;b&gt;Ці ліцензії НЕ застосовуються до самого Webcamoid . &lt;/b&gt;</translation>
     </message>
     <message>
         <location filename="../qml/ThirdPartyLicenses.qml" line="42"/>
         <source>License for resources taken from openclipart.org:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ліцензія на ресурси, взяті з openclipart.org:</translation>
     </message>
     <message>
         <location filename="../qml/ThirdPartyLicenses.qml" line="52"/>
         <source>License for code taken from OpenCV:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ліцензія на код, взятий з OpenCV:</translation>
     </message>
     <message>
         <location filename="../qml/ThirdPartyLicenses.qml" line="62"/>
         <source>License for code and algorithms used in Temperature plugin:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ліцензія на код і алгоритми, що використовуються у втулку температури:</translation>
     </message>
     <message>
         <location filename="../qml/ThirdPartyLicenses.qml" line="72"/>
         <source>License for the usb.ids file:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ліцензія на файл usb.ids:</translation>
     </message>
 </context>
 <context>
