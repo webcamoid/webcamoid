@@ -364,7 +364,7 @@
         <location filename="../qml/GeneralConfig.qml" line="56"/>
         <source>Play sources on start</source>
         <extracomment>Start playing the webcam and other sources right after * opening Webcamoid.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Bronnen afspelen na opstarten</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="68"/>
@@ -441,32 +441,32 @@
     <message>
         <location filename="../qml/PluginConfig.qml" line="35"/>
         <source>Paths</source>
-        <translation type="unfinished"></translation>
+        <translation>Paden</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="38"/>
         <source>Plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>Plug-ins</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="115"/>
         <source>Search plugins in subfolders</source>
-        <translation type="unfinished"></translation>
+        <translation>Plug-ins zoeken in onderliggende mappen</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="127"/>
         <source>Add path</source>
-        <translation type="unfinished"></translation>
+        <translation>Pad toevoegen</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="170"/>
         <source>Remove</source>
-        <translation type="unfinished">Verwijderen</translation>
+        <translation>Verwijderen</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="204"/>
         <source>Refresh</source>
-        <translation type="unfinished"></translation>
+        <translation>Verversen</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="251"/>
@@ -611,51 +611,51 @@
     <message>
         <location filename="../qml/SettingsDialog.qml" line="71"/>
         <source>Image Capture</source>
-        <translation type="unfinished"></translation>
+        <translation>Afbeelding vastleggen</translation>
     </message>
     <message>
         <location filename="../qml/SettingsDialog.qml" line="72"/>
         <source>Video Recording</source>
-        <translation type="unfinished"></translation>
+        <translation>Video-opname</translation>
     </message>
     <message>
         <location filename="../qml/SettingsDialog.qml" line="73"/>
         <source>General Options</source>
-        <translation type="unfinished">Algemene opties</translation>
+        <translation>Algemene opties</translation>
     </message>
     <message>
         <location filename="../qml/SettingsDialog.qml" line="74"/>
         <source>Plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>Plug-ins</translation>
     </message>
     <message>
         <location filename="../qml/SettingsDialog.qml" line="75"/>
         <source>Updates</source>
-        <translation type="unfinished">Updates</translation>
+        <translation>Updates</translation>
     </message>
     <message>
         <location filename="../qml/SettingsDialog.qml" line="79"/>
         <source>About</source>
         <extracomment>Information of the program, like name, description, vesion, etc..</extracomment>
-        <translation type="unfinished">Over</translation>
+        <translation>Over</translation>
     </message>
     <message>
         <location filename="../qml/SettingsDialog.qml" line="83"/>
         <source>Contributors</source>
         <extracomment>List of people contributing to the project: software developers, translators, designers, etc..</extracomment>
-        <translation type="unfinished">Bijdragers</translation>
+        <translation>Bijdragers</translation>
     </message>
     <message>
         <location filename="../qml/SettingsDialog.qml" line="85"/>
         <source>License</source>
         <extracomment>Program license.</extracomment>
-        <translation type="unfinished">Licentie</translation>
+        <translation>Licentie</translation>
     </message>
     <message>
         <location filename="../qml/SettingsDialog.qml" line="89"/>
         <source>3rd Party Licenses</source>
         <extracomment>License for 3rd party components used in Webcamoid, like libraries and code snippets.</extracomment>
-        <translation type="unfinished">Externe licenties</translation>
+        <translation>Externe licenties</translation>
     </message>
 </context>
 <context>
@@ -725,27 +725,27 @@
     <message>
         <location filename="../qml/ThirdPartyLicenses.qml" line="37"/>
         <source>The followings are the Licenses for 3rd-party work incorporated into Webcamoid. &lt;b&gt;These Licenses DOES NOT applies to Webcamoid itself.&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>Hier volgt een lijst met licenties, behorende bij externe functies verwerkt in Webcamoid. &lt;b&gt;Deze licenties ZIJN NIET van toepassing op Webcamoid zelf.&lt;/b&gt;</translation>
     </message>
     <message>
         <location filename="../qml/ThirdPartyLicenses.qml" line="42"/>
         <source>License for resources taken from openclipart.org:</source>
-        <translation type="unfinished"></translation>
+        <translation>Licenties voor materiaal van openclipart.org:</translation>
     </message>
     <message>
         <location filename="../qml/ThirdPartyLicenses.qml" line="52"/>
         <source>License for code taken from OpenCV:</source>
-        <translation type="unfinished"></translation>
+        <translation>Licentie voor code van OpenCV:</translation>
     </message>
     <message>
         <location filename="../qml/ThirdPartyLicenses.qml" line="62"/>
         <source>License for code and algorithms used in Temperature plugin:</source>
-        <translation type="unfinished"></translation>
+        <translation>Licentie voor code en algoritmen van de temperatuurplug-in:</translation>
     </message>
     <message>
         <location filename="../qml/ThirdPartyLicenses.qml" line="72"/>
         <source>License for the usb.ids file:</source>
-        <translation type="unfinished"></translation>
+        <translation>Licenties voor het usb.ids-bestand:</translation>
     </message>
 </context>
 <context>
