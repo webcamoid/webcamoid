@@ -11,6 +11,7 @@
         <file>share/qml/EffectConfig.qml</file>
         <file>share/qml/Flash.qml</file>
         <file>share/qml/GeneralConfig.qml</file>
+        <file>share/qml/ImageCapture.qml</file>
         <file>share/qml/License.qml</file>
         <file>share/qml/MediaBar.qml</file>
         <file>share/qml/MediaConfig.qml</file>
@@ -24,6 +25,7 @@
         <file>share/qml/SettingsMenu.qml</file>
         <file>share/qml/ThirdPartyLicenses.qml</file>
         <file>share/qml/UpdatesConfig.qml</file>
+        <file>share/qml/VideoRecording.qml</file>
         <file>share/qml/main.qml</file>
     </qresource>
 </RCC>

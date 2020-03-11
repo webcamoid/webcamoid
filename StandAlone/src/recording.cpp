@@ -18,10 +18,12 @@
  */
 
 #include <QtGlobal>
+#include <QDir>
 #include <QImage>
 #include <QMutex>
 #include <QFile>
 #include <QSettings>
+#include <QStandardPaths>
 #include <QQmlContext>
 #include <QQuickItem>
 #include <QQmlProperty>
@@ -43,11 +45,16 @@ using ObjectPtr = QSharedPointer<QObject>;
 class RecordingPrivate
 {
     public:
+        Recording *self;
         QQmlApplicationEngine *m_engine {nullptr};
         QStringList m_availableFormats;
         AkAudioCaps m_audioCaps;
         AkVideoCaps m_videoCaps;
         QString m_videoFileName;
+        QString m_imageFormat {"png"};
+        QString m_imagesDirectory;
+        QString m_videoDirectory;
+        QString m_lastPhotoPreview;
         AkElementPtr m_record {AkElement::create("MultiSink")};
         ObjectPtr m_recordSettings {
              AkElement::create<QObject>("MultiSink",
@@ -56,17 +63,31 @@ class RecordingPrivate
         QMutex m_mutex;
         AkVideoPacket m_curPacket;
         QImage m_photo;
+        QMap<QString, QString> m_imageFormats;
         AkElement::ElementState m_state {AkElement::ElementStateNull};
+        int m_imageSaveQuality {-1};
         bool m_recordAudio {DEFAULT_RECORD_AUDIO};
 
+        explicit RecordingPrivate(Recording *self);
+        void saveImageFormat(const QString &imageFormat);
+        void saveImagesDirectory(const QString &imagesDirectory);
+        void saveVideoDirectory(const QString &videoDirectory);
+        void saveImageSaveQuality(int imageSaveQuality);
+        void updatePreviews();
         QStringList recordingFormats() const;
 };
 
 Recording::Recording(QQmlApplicationEngine *engine, QObject *parent):
     QObject(parent)
 {
-    this->d = new RecordingPrivate;
+    this->d = new RecordingPrivate(this);
     this->setQmlEngine(engine);
+    this->d->m_imagesDirectory =
+            QDir(QStandardPaths::standardLocations(QStandardPaths::PicturesLocation).first())
+            .filePath(qApp->applicationName());
+    this->d->m_videoDirectory =
+            QDir(QStandardPaths::standardLocations(QStandardPaths::MoviesLocation).first())
+            .filePath(qApp->applicationName());
 
     if (this->d->m_record) {
         QObject::connect(this->d->m_record.data(),
@@ -124,6 +145,7 @@ Recording::Recording(QQmlApplicationEngine *engine, QObject *parent):
 
     this->d->m_availableFormats = this->d->recordingFormats();
     this->loadProperties();
+    this->d->updatePreviews();
 
     if (this->d->m_record) {
         QVariantList controls {
@@ -198,6 +220,41 @@ bool Recording::recordAudio() const
 QString Recording::videoFileName() const
 {
     return this->d->m_videoFileName;
+}
+
+QString Recording::imagesDirectory() const
+{
+    return this->d->m_imagesDirectory;
+}
+
+QString Recording::videoDirectory() const
+{
+    return this->d->m_videoDirectory;
+}
+
+QString Recording::imageFormat() const
+{
+    return this->d->m_imageFormat;
+}
+
+int Recording::imageSaveQuality() const
+{
+    return this->d->m_imageSaveQuality;
+}
+
+QStringList Recording::availableImageFormats() const
+{
+    return this->d->m_imageFormats.keys();
+}
+
+QString Recording::imageFormatDescription(const QString &format) const
+{
+    return this->d->m_imageFormats.value(format);
+}
+
+QString Recording::lastPhotoPreview() const
+{
+    return this->d->m_lastPhotoPreview;
 }
 
 AkElement::ElementState Recording::state() const
@@ -286,6 +343,68 @@ void Recording::removeInterface(const QString &where)
             delete child;
         }
     }
+}
+
+RecordingPrivate::RecordingPrivate(Recording *self):
+    self(self)
+{
+    this->m_imageFormats = {
+        {"png", "PNG" },
+        {"jpg", "JPEG"},
+        {"bmp", "BMP" },
+        {"gif", "GIF" },
+    };
+}
+
+void RecordingPrivate::saveImageFormat(const QString &imageFormat)
+{
+    QSettings config;
+    config.beginGroup("RecordConfigs");
+    config.setValue("imageFormat", imageFormat);
+    config.endGroup();
+}
+
+void RecordingPrivate::saveImagesDirectory(const QString &imagesDirectory)
+{
+    QSettings config;
+    config.beginGroup("RecordConfigs");
+    config.setValue("imagesDirectory", imagesDirectory);
+    config.endGroup();
+}
+
+void RecordingPrivate::saveVideoDirectory(const QString &videoDirectory)
+{
+    QSettings config;
+    config.beginGroup("RecordConfigs");
+    config.setValue("videoDirectory", videoDirectory);
+    config.endGroup();
+}
+
+void RecordingPrivate::saveImageSaveQuality(int imageSaveQuality)
+{
+    QSettings config;
+    config.beginGroup("RecordConfigs");
+    config.setValue("imageSaveQuality", imageSaveQuality);
+    config.endGroup();
+}
+
+void RecordingPrivate::updatePreviews()
+{
+    QStringList nameFilters;
+
+    for (auto it = this->m_imageFormats.begin();
+         it != this->m_imageFormats.end();
+         it++) {
+        nameFilters += "*." + it.key();
+    }
+
+    QDir dir(this->m_imagesDirectory);
+    auto photos = dir.entryList(nameFilters,
+                                QDir::Files | QDir::Readable,
+                                QDir::Time);
+
+    if (!photos.isEmpty())
+        this->m_lastPhotoPreview = dir.filePath(photos.first());
 }
 
 QStringList RecordingPrivate::recordingFormats() const
@@ -379,6 +498,46 @@ void Recording::setVideoFileName(const QString &videoFileName)
         this->d->m_record->setProperty("location", videoFileName);
 }
 
+void Recording::setImageFormat(const QString &imageFormat)
+{
+    if (this->d->m_imageFormat == imageFormat)
+        return;
+
+    this->d->m_imageFormat = imageFormat;
+    emit this->imageFormatChanged(this->d->m_imageFormat);
+    this->d->saveImageFormat(this->d->m_imageFormat);
+}
+
+void Recording::setImagesDirectory(const QString &imagesDirectory)
+{
+    if (this->d->m_imagesDirectory == imagesDirectory)
+        return;
+
+    this->d->m_imagesDirectory = imagesDirectory;
+    emit this->imagesDirectoryChanged(this->d->m_imagesDirectory);
+    this->d->saveImagesDirectory(this->d->m_imagesDirectory);
+}
+
+void Recording::setVideoDirectory(const QString &videoDirectory)
+{
+    if (this->d->m_videoDirectory == videoDirectory)
+        return;
+
+    this->d->m_videoDirectory = videoDirectory;
+    emit this->videoDirectoryChanged(this->d->m_videoDirectory);
+    this->d->saveVideoDirectory(this->d->m_videoDirectory);
+}
+
+void Recording::setImageSaveQuality(int imageSaveQuality)
+{
+    if (this->d->m_imageSaveQuality == imageSaveQuality)
+        return;
+
+    this->d->m_imageSaveQuality = imageSaveQuality;
+    emit this->imageSaveQualityChanged(this->d->m_imageSaveQuality);
+    this->d->saveImageSaveQuality(this->d->m_imageSaveQuality);
+}
+
 void Recording::setState(AkElement::ElementState state)
 {
     if (this->d->m_state == state)
@@ -421,6 +580,34 @@ void Recording::resetVideoFileName()
     this->setVideoFileName("");
 }
 
+void Recording::resetImageFormat()
+{
+    this->setImageFormat("png");
+}
+
+void Recording::resetImagesDirectory()
+{
+    auto dir =
+            QDir(QStandardPaths::standardLocations(QStandardPaths::PicturesLocation)
+                 .first())
+            .filePath(qApp->applicationName());
+    this->setImagesDirectory(dir);
+}
+
+void Recording::resetVideoDirectory()
+{
+    auto dir =
+            QDir(QStandardPaths::standardLocations(QStandardPaths::MoviesLocation)
+                 .first())
+            .filePath(qApp->applicationName());
+    this->setVideoDirectory(dir);
+}
+
+void Recording::resetImageSaveQuality()
+{
+    this->setImageSaveQuality(-1);
+}
+
 void Recording::resetState()
 {
     this->setState(AkElement::ElementStateNull);
@@ -441,7 +628,11 @@ void Recording::savePhoto(const QString &fileName)
     if (path.isEmpty())
         return;
 
-    this->d->m_photo.save(path);
+    if (QDir().mkpath(this->d->m_imagesDirectory)) {
+        this->d->m_photo.save(path, nullptr, this->d->m_imageSaveQuality);
+        this->d->m_lastPhotoPreview = path;
+        emit this->lastPhotoPreviewChanged(path);
+    }
 }
 
 AkPacket Recording::iStream(const AkPacket &packet)
@@ -544,6 +735,14 @@ void Recording::loadProperties()
 
     config.beginGroup("RecordConfigs");
 
+    this->d->m_imagesDirectory =
+            config.value("imagesDirectory",
+                         this->d->m_imagesDirectory).toString();
+    this->d->m_videoDirectory =
+            config.value("videoDirectory",
+                         this->d->m_videoDirectory).toString();
+    this->d->m_imageFormat = config.value("imageFormat", "png").toString();
+    this->d->m_imageSaveQuality = config.value("imageSaveQuality", -1).toInt();
     this->d->m_recordAudio =
             config.value("recordAudio", DEFAULT_RECORD_AUDIO).toBool();
     auto format = config.value("format").toString();

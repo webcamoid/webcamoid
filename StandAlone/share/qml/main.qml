@@ -21,7 +21,7 @@ import QtQuick 2.12
 import QtQuick.Window 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
-import Qt.labs.platform 1.1 as LABS
+import Qt.labs.settings 1.0 as LABS
 import Ak 1.0
 import Webcamoid 1.0
 
@@ -71,7 +71,19 @@ ApplicationWindow {
     function savePhoto()
     {
         Recording.takePhoto()
-        fileDialog.open()
+        Recording.savePhoto(qsTr("%1/Picture %2.%3")
+                            .arg(Recording.imagesDirectory)
+                            .arg(Webcamoid.currentTime())
+                            .arg(Recording.imageFormat))
+        previewSaveAnimation.start()
+    }
+
+    function pathToUrl(path)
+    {
+        if (path.length < 1)
+            return ""
+
+        return "file://" + path
     }
 
     Timer {
@@ -112,6 +124,23 @@ ApplicationWindow {
         smooth: true
         anchors.fill: parent
     }
+    Image {
+        id: previewThumbnail
+        source: pathToUrl(Recording.lastPhotoPreview)
+        sourceSize: Qt.size(width, height)
+        cache: false
+        smooth: true
+        mipmap: true
+        fillMode: Image.PreserveAspectFit
+        x: k * AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+        y: k * (controlsLayout.y
+                + (controlsLayout.height - photoPreview.height) / 2)
+        width: k * (photoPreview.width - parent.width) + parent.width
+        height: k * (photoPreview.height - parent.height) + parent.height
+        visible: false
+
+        property real k: 0
+    }
 
     ColumnLayout {
         id: leftControls
@@ -132,11 +161,13 @@ ApplicationWindow {
             text: "Use flash"
             checked: true
             Layout.fillWidth: true
+            visible: MediaSource.cameras.includes(MediaSource.stream)
         }
         ComboBox {
             id: cbxTimeShot
             textRole: "text"
             Layout.fillWidth: true
+            visible: chkFlash.visible
             model: ListModel {
                 id: lstTimeOptions
 
@@ -161,21 +192,12 @@ ApplicationWindow {
                     target: chkFlash
                     visible: false
                 }
-                PropertyChanges {
-                    target: cbxTimeShot
-                    visible: false
-                }
             }
         ]
 
         transitions: Transition {
             PropertyAnimation {
                 target: chkFlash
-                properties: "visible"
-                duration: cameraControls.animationTime
-            }
-            PropertyAnimation {
-                target: cbxTimeShot
                 properties: "visible"
                 duration: cameraControls.animationTime
             }
@@ -211,8 +233,8 @@ ApplicationWindow {
         id: splitView
         anchors.fill: parent
 
-        property int panelBorder: 2
-        property int dragBorder: 4
+        property int panelBorder: AkUnit.create(1 * AkTheme.controlScale, "dp").pixels
+        property int dragBorder: AkUnit.create(4 * AkTheme.controlScale, "dp").pixels
         property int minimumWidth: 100
 
         onWidthChanged: {
@@ -259,7 +281,7 @@ ApplicationWindow {
         Rectangle {
             id: rectangleLeft
             width: splitView.panelBorder
-            color: "#000000"
+            color: AkTheme.palette.active.dark
             anchors.leftMargin: -splitView.panelBorder / 2
             anchors.left: paneLeft.right
             anchors.top: parent.top
@@ -315,7 +337,7 @@ ApplicationWindow {
         Rectangle {
             id: rectangleRight
             width: splitView.panelBorder
-            color: "#000000"
+            color: AkTheme.palette.active.dark
             anchors.rightMargin: -splitView.panelBorder / 2
             anchors.right: paneRight.left
             anchors.top: parent.top
@@ -345,6 +367,7 @@ ApplicationWindow {
         }
     }
     ColumnLayout {
+        id: controlsLayout
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.bottom: parent.bottom
@@ -360,13 +383,26 @@ ApplicationWindow {
 
             Image {
                 id: photoPreview
+                source: pathToUrl(Recording.lastPhotoPreview)
                 width: AkUnit.create(32 * AkTheme.controlScale, "dp").pixels
                 height: AkUnit.create(32 * AkTheme.controlScale, "dp").pixels
                 sourceSize: Qt.size(width, height)
+                asynchronous: true
+                cache: false
+                smooth: true
+                mipmap: true
+                fillMode: Image.PreserveAspectCrop
                 y: (parent.height - height) / 2
 
                 MouseArea {
+                    cursorShape: Qt.PointingHandCursor
                     anchors.fill: parent
+                    enabled: photoPreview.visible
+
+                    onClicked: {
+                        if (photoPreview.status == Image.Ready)
+                            Qt.openUrlExternally(photoPreview.source)
+                    }
                 }
             }
             RoundButton {
@@ -385,6 +421,12 @@ ApplicationWindow {
                     if (cameraControls.state == "Video") {
                         cameraControls.state = ""
                     } else {
+                        if (!chkFlash.visible) {
+                            savePhoto()
+
+                            return
+                        }
+
                         if (cbxTimeShot.currentIndex == 0) {
                             if (chkFlash.checked)
                                 flash.show()
@@ -431,6 +473,11 @@ ApplicationWindow {
                 width: 0
                 height: 0
                 sourceSize: Qt.size(width, height)
+                asynchronous: true
+                cache: false
+                smooth: true
+                mipmap: true
+                fillMode: Image.PreserveAspectCrop
                 visible: false
                 x: parent.width - width
                 y: (parent.height - height) / 2
@@ -661,6 +708,46 @@ ApplicationWindow {
         }
     }
 
+    SequentialAnimation {
+        id: previewSaveAnimation
+
+        PropertyAnimation {
+            target: previewThumbnail
+            property: "k"
+            to: 0
+            duration: 0
+        }
+        PropertyAnimation {
+            target: photoPreview
+            property: "visible"
+            to: false
+            duration: 0
+        }
+        PropertyAnimation {
+            target: previewThumbnail
+            property: "visible"
+            to: true
+            duration: 0
+        }
+        PropertyAnimation {
+            target: previewThumbnail
+            property: "k"
+            to: 1
+            duration: 500
+        }
+        PropertyAnimation {
+            target: previewThumbnail
+            property: "visible"
+            to: false
+            duration: 0
+        }
+        PropertyAnimation {
+            target: photoPreview
+            property: "visible"
+            to: true
+            duration: 0
+        }
+    }
     Timer {
         id: updateProgress
         interval: 100
@@ -676,26 +763,15 @@ ApplicationWindow {
 
         onTriggered: savePhoto()
     }
-    LABS.FileDialog {
-        id: fileDialog
-        title: qsTr("Save photo as…")
-        folder: "file://" + Webcamoid.standardLocations("pictures")[0]
-        currentFile: folder + "/" + qsTr("Picture %1.png").arg(Webcamoid.currentTime())
-        defaultSuffix: "png"
-        fileMode: LABS.FileDialog.SaveFile
-        selectedNameFilter.index: 0
-        nameFilters: ["All Picture Files (*.png *.jpg *.bmp *.gif)",
-                      "PNG file (*.png)",
-                      "JPEG file (*.jpg)",
-                      "BMP file (*.bmp)",
-                      "GIF file (*.gif)",
-                      "All Files (*)"]
-
-        onAccepted: Recording.savePhoto(currentFile)
-    }
     SettingsDialog {
         id: settingsDialog
         width: parent.width
         height: parent.height
+    }
+    LABS.Settings {
+        category: "GeneralConfigs"
+
+        property alias useFlash: chkFlash.checked
+        property alias photoTimeout: cbxTimeShot.currentIndex
     }
 }

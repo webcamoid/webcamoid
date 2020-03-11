@@ -101,6 +101,7 @@ class MediaTools: public QObject
         void loadConfigs();
         void saveConfigs();
         void show();
+        void makedirs(const QString &path);
 
     private slots:
         void updateVCamCaps(const AkCaps &videoCaps);

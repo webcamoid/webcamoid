@@ -61,6 +61,32 @@ class Recording: public QObject
                WRITE setVideoFileName
                RESET resetVideoFileName
                NOTIFY videoFileNameChanged)
+    Q_PROPERTY(QString imageFormat
+               READ imageFormat
+               WRITE setImageFormat
+               RESET resetImageFormat
+               NOTIFY imageFormatChanged)
+    Q_PROPERTY(QString imagesDirectory
+               READ imagesDirectory
+               WRITE setImagesDirectory
+               RESET resetImagesDirectory
+               NOTIFY imagesDirectoryChanged)
+    Q_PROPERTY(QString videoDirectory
+               READ videoDirectory
+               WRITE setVideoDirectory
+               RESET resetVideoDirectory
+               NOTIFY videoDirectoryChanged)
+    Q_PROPERTY(int imageSaveQuality
+               READ imageSaveQuality
+               WRITE setImageSaveQuality
+               RESET resetImageSaveQuality
+               NOTIFY imageSaveQualityChanged)
+    Q_PROPERTY(QStringList availableImageFormats
+               READ availableImageFormats
+               CONSTANT)
+    Q_PROPERTY(QString lastPhotoPreview
+               READ lastPhotoPreview
+               NOTIFY lastPhotoPreviewChanged)
     Q_PROPERTY(AkElement::ElementState state
                READ state
                WRITE setState
@@ -78,6 +104,13 @@ class Recording: public QObject
         Q_INVOKABLE AkVideoCaps videoCaps() const;
         Q_INVOKABLE bool recordAudio() const;
         Q_INVOKABLE QString videoFileName() const;
+        Q_INVOKABLE QString imagesDirectory() const;
+        Q_INVOKABLE QString videoDirectory() const;
+        Q_INVOKABLE QString imageFormat() const;
+        Q_INVOKABLE int imageSaveQuality() const;
+        Q_INVOKABLE QStringList availableImageFormats() const;
+        Q_INVOKABLE QString imageFormatDescription(const QString &format) const;
+        Q_INVOKABLE QString lastPhotoPreview() const;
         Q_INVOKABLE AkElement::ElementState state() const;
         Q_INVOKABLE QString formatDescription(const QString &formatId) const;
         Q_INVOKABLE QStringList formatSuffix(const QString &formatId) const;
@@ -96,6 +129,11 @@ class Recording: public QObject
         void videoCapsChanged(const AkVideoCaps &videoCaps);
         void recordAudioChanged(bool recordAudio);
         void videoFileNameChanged(const QString &videoFileName);
+        void imageFormatChanged(const QString &imageFormat);
+        void imagesDirectoryChanged(const QString &imagesDirectory);
+        void videoDirectoryChanged(const QString &videoDirectory);
+        void imageSaveQualityChanged(int imageSaveQuality);
+        void lastPhotoPreviewChanged(const QString &lastPhotoPreview);
         void stateChanged(AkElement::ElementState state);
 
     public slots:
@@ -104,12 +142,20 @@ class Recording: public QObject
         void setVideoCaps(const AkVideoCaps &videoCaps);
         void setRecordAudio(bool recordAudio);
         void setVideoFileName(const QString &videoFileName);
+        void setImageFormat(const QString &imageFormat);
+        void setImagesDirectory(const QString &imagesDirectory);
+        void setVideoDirectory(const QString &videoDirectory);
+        void setImageSaveQuality(int imageSaveQuality);
         void setState(AkElement::ElementState state);
         void resetFormat();
         void resetAudioCaps();
         void resetVideoCaps();
         void resetRecordAudio();
         void resetVideoFileName();
+        void resetImageFormat();
+        void resetImagesDirectory();
+        void resetVideoDirectory();
+        void resetImageSaveQuality();
         void resetState();
         void takePhoto();
         void savePhoto(const QString &fileName);

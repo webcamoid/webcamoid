@@ -383,6 +383,34 @@
     </message>
 </context>
 <context>
+    <name>ImageCapture</name>
+    <message>
+        <location filename="../qml/ImageCapture.qml" line="39"/>
+        <source>Images directory</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/ImageCapture.qml" line="49"/>
+        <source>Search</source>
+        <translation type="unfinished">Rechercher</translation>
+    </message>
+    <message>
+        <location filename="../qml/ImageCapture.qml" line="57"/>
+        <source>File format</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/ImageCapture.qml" line="86"/>
+        <source>Quality</source>
+        <translation type="unfinished">Qualité</translation>
+    </message>
+    <message>
+        <location filename="../qml/ImageCapture.qml" line="111"/>
+        <source>Select the folder to save your photos</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>MediaBar</name>
     <message>
         <location filename="../qml/MediaBar.qml" line="66"/>
@@ -565,35 +593,35 @@
 <context>
     <name>Recording</name>
     <message>
-        <location filename="../../src/recording.cpp" line="616"/>
+        <location filename="../../src/recording.cpp" line="815"/>
         <source>Audio</source>
         <translation>Audio</translation>
     </message>
     <message>
-        <location filename="../../src/recording.cpp" line="617"/>
+        <location filename="../../src/recording.cpp" line="816"/>
         <source>Video</source>
         <translation>Vidéo</translation>
     </message>
     <message>
-        <location filename="../../src/recording.cpp" line="618"/>
+        <location filename="../../src/recording.cpp" line="817"/>
         <source>Subtitle</source>
         <translation>Sous-titre</translation>
     </message>
     <message>
-        <location filename="../../src/recording.cpp" line="683"/>
-        <location filename="../../src/recording.cpp" line="849"/>
+        <location filename="../../src/recording.cpp" line="882"/>
+        <location filename="../../src/recording.cpp" line="1048"/>
         <source>audio</source>
         <translation>audio</translation>
     </message>
     <message>
-        <location filename="../../src/recording.cpp" line="684"/>
-        <location filename="../../src/recording.cpp" line="850"/>
+        <location filename="../../src/recording.cpp" line="883"/>
+        <location filename="../../src/recording.cpp" line="1049"/>
         <source>video</source>
         <translation>vidéo</translation>
     </message>
     <message>
-        <location filename="../../src/recording.cpp" line="685"/>
-        <location filename="../../src/recording.cpp" line="851"/>
+        <location filename="../../src/recording.cpp" line="884"/>
+        <location filename="../../src/recording.cpp" line="1050"/>
         <source>subtitle</source>
         <translation>sous-titre</translation>
     </message>
@@ -814,6 +842,51 @@
         <location filename="../qml/UpdatesConfig.qml" line="169"/>
         <source>Report a Bug</source>
         <translation>Signaler une erreur</translation>
+    </message>
+</context>
+<context>
+    <name>VideoRecording</name>
+    <message>
+        <location filename="../qml/VideoRecording.qml" line="39"/>
+        <source>Videos directory</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoRecording.qml" line="49"/>
+        <source>Search</source>
+        <translation type="unfinished">Rechercher</translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoRecording.qml" line="57"/>
+        <source>Record audio</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoRecording.qml" line="66"/>
+        <source>File format</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoRecording.qml" line="72"/>
+        <location filename="../qml/VideoRecording.qml" line="82"/>
+        <location filename="../qml/VideoRecording.qml" line="92"/>
+        <source>Configure</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoRecording.qml" line="76"/>
+        <source>Video codec</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoRecording.qml" line="86"/>
+        <source>Audio codec</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoRecording.qml" line="99"/>
+        <source>Select the folder to save your videos</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2252,53 +2325,48 @@
         <translation>Télécharger %1 %2 MAINTENANT !</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="144"/>
+        <location filename="../qml/main.qml" line="175"/>
         <source>Now</source>
         <translation type="unfinished">Maintenant</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="151"/>
+        <location filename="../qml/main.qml" line="182"/>
         <source>%1 seconds</source>
         <translation type="unfinished">%1 secondes</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="551"/>
+        <location filename="../qml/main.qml" line="598"/>
         <source>Configure sources</source>
         <translation>Configurer les sources</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="569"/>
+        <location filename="../qml/main.qml" line="616"/>
         <source>Configure audio</source>
         <translation>Configurer l&apos;audio</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="681"/>
-        <source>Save photo as…</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/main.qml" line="683"/>
-        <source>Picture %1.png</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/main.qml" line="379"/>
+        <location filename="../qml/main.qml" line="415"/>
         <source>Take a photo</source>
         <translation>Prendre une photo</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="418"/>
-        <location filename="../qml/main.qml" line="593"/>
+        <location filename="../qml/main.qml" line="74"/>
+        <source>%1/Picture %2.%3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/main.qml" line="460"/>
+        <location filename="../qml/main.qml" line="640"/>
         <source>Record video</source>
         <translation>Enregistrer une vidéo</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="611"/>
+        <location filename="../qml/main.qml" line="658"/>
         <source>Configure Effects</source>
         <translation>Configurer les effets</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="642"/>
+        <location filename="../qml/main.qml" line="689"/>
         <source>Preferences</source>
         <translation>Préférences</translation>
     </message>

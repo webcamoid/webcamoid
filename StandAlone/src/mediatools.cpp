@@ -534,6 +534,11 @@ void MediaTools::show()
     emit this->interfaceLoaded();
 }
 
+void MediaTools::makedirs(const QString &path)
+{
+    QDir().mkpath(path);
+}
+
 void MediaTools::updateVCamCaps(const AkCaps &videoCaps)
 {
     if (!this->d->m_virtualCamera)

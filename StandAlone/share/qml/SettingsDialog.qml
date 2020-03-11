@@ -123,8 +123,8 @@ Dialog {
             Layout.fillWidth: true
             Layout.fillHeight: true
 
-            Page { }
-            Page { }
+            ImageCapture { }
+            VideoRecording { }
             GeneralConfig { }
             PluginConfig { }
             UpdatesConfig { }
