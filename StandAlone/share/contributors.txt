@@ -3,6 +3,7 @@ Adolfo Jayme Barrientos <fitojb@ubuntu.com>
 Ale-Ma <alemassimiani@gmail.com>
 Allan Nordhøy <epost@anotheragency.no>
 Antonino Murabito <antoninomurabito@gmail.com>
+Artem <KovalevArtem.ru@gmail.com>
 Ascaf0 <fa0sck@gmail.com>
 Edoardo Rosa <edoardo.rosa90@gmail.com>
 Edwar Tikhonov <letih@vivaldi.net>
@@ -38,6 +39,7 @@ ssantos <ssantos@web.de>
 Stepan <36489863+Stepan881@users.noreply.github.com>
 Swann Martinet <swann.ranskassa@laposte.net>
 TheSimplyOwl <thesimplyowl@gmail.com>
+Tymofij Lytvynenko <till.svit@gmail.com>
 WaldiS <admin@sto.ugu.pl>
 Yaron Shahrabani <sh.yaron@gmail.com>
 YFdyh000 <yfdyh000@gmail.com>
