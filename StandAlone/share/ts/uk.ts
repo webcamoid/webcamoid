@@ -493,8 +493,8 @@
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="204"/>
-        <source>Refresh</source>
-        <translation>Оновити</translation>
+        <source>Update</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="251"/>
@@ -549,79 +549,27 @@
     </message>
 </context>
 <context>
-    <name>RecordBar</name>
-    <message>
-        <location filename="../qml/RecordBar.qml" line="91"/>
-        <source>Search format</source>
-        <translation>Формат пошуку</translation>
-    </message>
-</context>
-<context>
-    <name>RecordConfig</name>
-    <message>
-        <location filename="../qml/RecordConfig.qml" line="67"/>
-        <source>Video %1.%2</source>
-        <translation>Відео %1.%2</translation>
-    </message>
-    <message>
-        <location filename="../qml/RecordConfig.qml" line="110"/>
-        <source>Start recording video</source>
-        <translation>Розпочати запис відео</translation>
-    </message>
-    <message>
-        <location filename="../qml/RecordConfig.qml" line="92"/>
-        <location filename="../qml/RecordConfig.qml" line="98"/>
-        <source>Description</source>
-        <translation>Опис</translation>
-    </message>
-    <message>
-        <location filename="../qml/RecordConfig.qml" line="76"/>
-        <source>Stop video recording</source>
-        <translation>Зупинити запис відео</translation>
-    </message>
-    <message>
-        <location filename="../qml/RecordConfig.qml" line="79"/>
-        <source>Start video recording</source>
-        <translation>Почати запис відео</translation>
-    </message>
-    <message>
-        <location filename="../qml/RecordConfig.qml" line="132"/>
-        <source>Save video as…</source>
-        <translation>Зберегти відео як…</translation>
-    </message>
-</context>
-<context>
     <name>Recording</name>
     <message>
-        <location filename="../../src/recording.cpp" line="815"/>
-        <source>Audio</source>
-        <translation>Аудіо</translation>
+        <location filename="../../src/recording.cpp" line="666"/>
+        <source>%1/Video %2.%3</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/recording.cpp" line="816"/>
-        <source>Video</source>
-        <translation>Відео</translation>
-    </message>
-    <message>
-        <location filename="../../src/recording.cpp" line="817"/>
-        <source>Subtitle</source>
-        <translation>Субтитри</translation>
-    </message>
-    <message>
-        <location filename="../../src/recording.cpp" line="882"/>
-        <location filename="../../src/recording.cpp" line="1048"/>
+        <location filename="../../src/recording.cpp" line="942"/>
+        <location filename="../../src/recording.cpp" line="1055"/>
         <source>audio</source>
         <translation>аудіо</translation>
     </message>
     <message>
-        <location filename="../../src/recording.cpp" line="883"/>
-        <location filename="../../src/recording.cpp" line="1049"/>
+        <location filename="../../src/recording.cpp" line="943"/>
+        <location filename="../../src/recording.cpp" line="1056"/>
         <source>video</source>
         <translation>відео</translation>
     </message>
     <message>
-        <location filename="../../src/recording.cpp" line="884"/>
-        <location filename="../../src/recording.cpp" line="1050"/>
+        <location filename="../../src/recording.cpp" line="944"/>
+        <location filename="../../src/recording.cpp" line="1057"/>
         <source>subtitle</source>
         <translation>субтитри</translation>
     </message>
@@ -847,44 +795,44 @@
 <context>
     <name>VideoRecording</name>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="39"/>
+        <location filename="../qml/VideoRecording.qml" line="107"/>
         <source>Videos directory</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="49"/>
+        <location filename="../qml/VideoRecording.qml" line="117"/>
         <source>Search</source>
         <translation type="unfinished">Пошук</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="57"/>
+        <location filename="../qml/VideoRecording.qml" line="125"/>
         <source>Record audio</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="66"/>
+        <location filename="../qml/VideoRecording.qml" line="137"/>
         <source>File format</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="72"/>
-        <location filename="../qml/VideoRecording.qml" line="82"/>
-        <location filename="../qml/VideoRecording.qml" line="92"/>
+        <location filename="../qml/VideoRecording.qml" line="166"/>
+        <location filename="../qml/VideoRecording.qml" line="201"/>
+        <location filename="../qml/VideoRecording.qml" line="238"/>
         <source>Configure</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="76"/>
+        <location filename="../qml/VideoRecording.qml" line="172"/>
         <source>Video codec</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="86"/>
+        <location filename="../qml/VideoRecording.qml" line="207"/>
         <source>Audio codec</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="99"/>
+        <location filename="../qml/VideoRecording.qml" line="248"/>
         <source>Select the folder to save your videos</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2066,17 +2014,17 @@
         <translation>Показати курсор</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/main.qml" line="166"/>
+        <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/main.qml" line="130"/>
         <source>Output format</source>
         <translation>Вихідний формат</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/main.qml" line="196"/>
+        <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/main.qml" line="150"/>
         <source>File extensions</source>
         <translation>Розширення файлу</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/main.qml" line="208"/>
+        <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/main.qml" line="162"/>
         <source>Advanced Format Options</source>
         <translation>Розширені налаштування формату</translation>
     </message>
@@ -2325,27 +2273,27 @@
         <translation>Завантажити %1 %2 ЗАРАЗ!</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="175"/>
+        <location filename="../qml/main.qml" line="170"/>
         <source>Now</source>
         <translation>Вже</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="182"/>
+        <location filename="../qml/main.qml" line="177"/>
         <source>%1 seconds</source>
         <translation>%1 секунд</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="598"/>
+        <location filename="../qml/main.qml" line="609"/>
         <source>Configure sources</source>
         <translation>Налаштування джерел</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="616"/>
+        <location filename="../qml/main.qml" line="627"/>
         <source>Configure audio</source>
         <translation>Налаштування звуку</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="415"/>
+        <location filename="../qml/main.qml" line="410"/>
         <source>Take a photo</source>
         <translation>Зробити світлину</translation>
     </message>
@@ -2355,18 +2303,17 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="460"/>
-        <location filename="../qml/main.qml" line="640"/>
+        <location filename="../qml/main.qml" line="458"/>
         <source>Record video</source>
         <translation>Записати відео</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="658"/>
+        <location filename="../qml/main.qml" line="650"/>
         <source>Configure Effects</source>
         <translation>Налаштування ефектів</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="689"/>
+        <location filename="../qml/main.qml" line="681"/>
         <source>Preferences</source>
         <translation>Налаштування</translation>
     </message>

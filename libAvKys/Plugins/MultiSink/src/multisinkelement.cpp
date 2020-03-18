@@ -40,12 +40,9 @@ class MultiSinkElementPrivate
         MultiSinkElement *self;
         MultiSinkElementSettings m_settings;
         QString m_location;
-        QVariantList m_userControls;
-        QVariantMap m_userControlsValues;
         MediaWriterPtr m_mediaWriter;
         MultiSinkUtils m_utils;
         QList<int> m_inputStreams;
-        bool m_showFormatOptions {false};
 
         // Formats and codecs info cache.
         QStringList m_supportedFormats;
@@ -111,21 +108,6 @@ QVariantList MultiSinkElement::streams()
         return {};
 
     return this->d->m_mediaWriter->streams();
-}
-
-bool MultiSinkElement::showFormatOptions() const
-{
-    return this->d->m_showFormatOptions;
-}
-
-QVariantList MultiSinkElement::userControls() const
-{
-    return this->d->m_userControls;
-}
-
-QVariantMap MultiSinkElement::userControlsValues() const
-{
-    return this->d->m_userControlsValues;
 }
 
 QStringList MultiSinkElement::formatsBlackList() const
@@ -275,33 +257,6 @@ void MultiSinkElement::setCodecOptions(int index,
         this->d->m_mediaWriter->setCodecOptions(index, codecOptions);
 }
 
-void MultiSinkElement::setShowFormatOptions(bool showFormatOptions)
-{
-    if (this->d->m_showFormatOptions == showFormatOptions)
-        return;
-
-    this->d->m_showFormatOptions = showFormatOptions;
-    emit this->showFormatOptionsChanged(showFormatOptions);
-}
-
-void MultiSinkElement::setUserControls(const QVariantList &userControls)
-{
-    if (this->d->m_userControls == userControls)
-        return;
-
-    this->d->m_userControls = userControls;
-    emit this->userControlsChanged(userControls);
-}
-
-void MultiSinkElement::setUserControlsValues(const QVariantMap &userControlsValues)
-{
-    if (this->d->m_userControlsValues == userControlsValues)
-        return;
-
-    this->d->m_userControlsValues = userControlsValues;
-    emit this->userControlsValuesChanged(userControlsValues);
-}
-
 void MultiSinkElement::setFormatsBlackList(const QStringList &formatsBlackList)
 {
     if (this->d->m_mediaWriter)
@@ -335,21 +290,6 @@ void MultiSinkElement::resetCodecOptions(int index)
 {
     if (this->d->m_mediaWriter)
         this->d->m_mediaWriter->resetCodecOptions(index);
-}
-
-void MultiSinkElement::resetShowFormatOptions()
-{
-    this->setShowFormatOptions(false);
-}
-
-void MultiSinkElement::resetUserControls()
-{
-    this->setUserControls({});
-}
-
-void MultiSinkElement::resetUserControlsValues()
-{
-    this->setUserControlsValues({});
 }
 
 void MultiSinkElement::resetFormatsBlackList()

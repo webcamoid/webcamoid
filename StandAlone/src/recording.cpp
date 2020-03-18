@@ -18,6 +18,7 @@
  */
 
 #include <QtGlobal>
+#include <QDateTime>
 #include <QDir>
 #include <QImage>
 #include <QMutex>
@@ -38,7 +39,6 @@
 #include "recording.h"
 
 #define DEFAULT_RECORD_AUDIO true
-#define AUDIO_RECORDING_KEY "Enable audio recording"
 
 using ObjectPtr = QSharedPointer<QObject>;
 
@@ -47,14 +47,21 @@ class RecordingPrivate
     public:
         Recording *self;
         QQmlApplicationEngine *m_engine {nullptr};
-        QStringList m_availableFormats;
+        QStringList m_availableVideoFormats;
+        QStringList m_availableVideoFormatExtensions;
+        QStringList m_availableVideoCodecs;
+        QStringList m_availableAudioCodecs;
+        QString m_videoFormatExtension;
         AkAudioCaps m_audioCaps;
         AkVideoCaps m_videoCaps;
-        QString m_videoFileName;
+        QString m_videoCodec;
+        QString m_audioCodec;
         QString m_imageFormat {"png"};
         QString m_imagesDirectory;
         QString m_videoDirectory;
+        QString m_lastVideoPreview;
         QString m_lastPhotoPreview;
+        QString m_videoFilePath;
         AkElementPtr m_record {AkElement::create("MultiSink")};
         ObjectPtr m_recordSettings {
              AkElement::create<QObject>("MultiSink",
@@ -74,7 +81,16 @@ class RecordingPrivate
         void saveVideoDirectory(const QString &videoDirectory);
         void saveImageSaveQuality(int imageSaveQuality);
         void updatePreviews();
-        QStringList recordingFormats() const;
+        void updateFormats();
+        void updateExtensions();
+        void updateCodecs();
+        void saveVideoFormat(const QString &videoFormat);
+        void saveVideoFormatExtension(const QString &videoFormatExtension);
+        void saveMultiSinkCodecLib(const QString &codecLib);
+        void saveRecordAudio(bool recordAudio);
+        void loadProperties();
+        void loadFormatOptions(const QString &videoFormat);
+        void loadStreams(const QString &videoFormat);
 };
 
 Recording::Recording(QQmlApplicationEngine *engine, QObject *parent):
@@ -82,30 +98,12 @@ Recording::Recording(QQmlApplicationEngine *engine, QObject *parent):
 {
     this->d = new RecordingPrivate(this);
     this->setQmlEngine(engine);
-    this->d->m_imagesDirectory =
-            QDir(QStandardPaths::standardLocations(QStandardPaths::PicturesLocation).first())
-            .filePath(qApp->applicationName());
-    this->d->m_videoDirectory =
-            QDir(QStandardPaths::standardLocations(QStandardPaths::MoviesLocation).first())
-            .filePath(qApp->applicationName());
 
     if (this->d->m_record) {
         QObject::connect(this->d->m_record.data(),
                          SIGNAL(outputFormatChanged(const QString &)),
                          this,
-                         SIGNAL(formatChanged(const QString &)));
-        QObject::connect(this->d->m_record.data(),
-                         SIGNAL(outputFormatChanged(const QString &)),
-                         this,
-                         SLOT(saveOutputFormat(const QString &)));
-        QObject::connect(this->d->m_record.data(),
-                         SIGNAL(outputFormatChanged(const QString &)),
-                         this,
-                         SLOT(loadFormatOptions(const QString &)));
-        QObject::connect(this->d->m_record.data(),
-                         SIGNAL(outputFormatChanged(const QString &)),
-                         this,
-                         SLOT(loadStreams(const QString &)));
+                         SLOT(outputFormatChanged(const QString &)));
         QObject::connect(this->d->m_record.data(),
                          SIGNAL(formatOptionsChanged(const QVariantMap &)),
                          this,
@@ -122,52 +120,19 @@ Recording::Recording(QQmlApplicationEngine *engine, QObject *parent):
                          SIGNAL(codecOptionsChanged(const QString &, const QVariantMap &)),
                          this,
                          SLOT(saveCodecOptions()));
-        QObject::connect(this->d->m_record.data(),
-                         SIGNAL(userControlsValuesChanged(const QVariantMap &)),
-                         this,
-                         SLOT(userControlsUpdated(const QVariantMap &)));
-        QObject::connect(this->d->m_record.data(),
-                         SIGNAL(supportedFormatsChanged(const QStringList &)),
-                         this,
-                         SLOT(supportedFormatsUpdated(const QStringList &)));
-        QObject::connect(this->d->m_record.data(),
-                         SIGNAL(supportedFormatsChanged(const QStringList &)),
-                         this,
-                         SLOT(updateFormat()));
     }
 
     if (this->d->m_recordSettings) {
         QObject::connect(this->d->m_recordSettings.data(),
                          SIGNAL(codecLibChanged(const QString &)),
                          this,
-                         SLOT(saveMultiSinkCodecLib(const QString &)));
+                         SLOT(codecLibChanged(const QString &)));
     }
 
-    this->d->m_availableFormats = this->d->recordingFormats();
-    this->loadProperties();
+    this->d->loadProperties();
+    this->d->updateFormats();
     this->d->updatePreviews();
 
-    if (this->d->m_record) {
-        QVariantList controls {
-            QVariant(QVariantList {
-                tr(AUDIO_RECORDING_KEY),
-                "boolean",
-                0,
-                1,
-                1,
-                DEFAULT_RECORD_AUDIO,
-                this->d->m_recordAudio,
-                QStringList()
-            })
-        };
-
-        this->d->m_record->setProperty("userControls", controls);
-    }
-
-    QObject::connect(this,
-                     &Recording::recordAudioChanged,
-                     this,
-                     &Recording::saveRecordAudio);
     QObject::connect(this,
                      &Recording::audioCapsChanged,
                      this,
@@ -185,21 +150,7 @@ Recording::Recording(QQmlApplicationEngine *engine, QObject *parent):
 Recording::~Recording()
 {
     this->setState(AkElement::ElementStateNull);
-    this->saveProperties();
     delete this->d;
-}
-
-QStringList Recording::availableFormats() const
-{
-    return this->d->m_availableFormats;
-}
-
-QString Recording::format() const
-{
-    if (this->d->m_record)
-        return this->d->m_record->property("outputFormat").toString();
-
-    return QString();
 }
 
 AkAudioCaps Recording::audioCaps() const
@@ -212,19 +163,9 @@ AkVideoCaps Recording::videoCaps() const
     return this->d->m_videoCaps;
 }
 
-bool Recording::recordAudio() const
+AkElement::ElementState Recording::state() const
 {
-    return this->d->m_recordAudio;
-}
-
-QString Recording::videoFileName() const
-{
-    return this->d->m_videoFileName;
-}
-
-QString Recording::imagesDirectory() const
-{
-    return this->d->m_imagesDirectory;
+    return this->d->m_state;
 }
 
 QString Recording::videoDirectory() const
@@ -232,19 +173,100 @@ QString Recording::videoDirectory() const
     return this->d->m_videoDirectory;
 }
 
-QString Recording::imageFormat() const
+QStringList Recording::availableVideoFormats() const
 {
-    return this->d->m_imageFormat;
+    return this->d->m_availableVideoFormats;
 }
 
-int Recording::imageSaveQuality() const
+QStringList Recording::availableVideoFormatExtensions() const
 {
-    return this->d->m_imageSaveQuality;
+    return this->d->m_availableVideoFormatExtensions;
+}
+
+QStringList Recording::availableVideoCodecs() const
+{
+    return this->d->m_availableVideoCodecs;
+}
+
+QStringList Recording::availableAudioCodecs() const
+{
+    return this->d->m_availableAudioCodecs;
+}
+
+QString Recording::videoFormat() const
+{
+    if (this->d->m_record)
+        return this->d->m_record->property("outputFormat").toString();
+
+    return {};
+}
+
+QString Recording::videoFormatExtension() const
+{
+    return this->d->m_videoFormatExtension;
+}
+
+QString Recording::videoCodec() const
+{
+    return this->d->m_videoCodec;
+}
+
+QString Recording::audioCodec() const
+{
+    return this->d->m_audioCodec;
+}
+
+QString Recording::videoFormatDescription(const QString &formatId) const
+{
+    if (!this->d->m_record)
+        return {};
+
+    QString description;
+    QMetaObject::invokeMethod(this->d->m_record.data(),
+                              "formatDescription",
+                              Q_RETURN_ARG(QString, description),
+                              Q_ARG(QString, formatId));
+
+    return description;
+}
+
+QString Recording::codecDescription(const QString &codec) const
+{
+    if (!this->d->m_record)
+        return {};
+
+    QString description;
+    QMetaObject::invokeMethod(this->d->m_record.data(),
+                              "codecDescription",
+                              Q_RETURN_ARG(QString, description),
+                              Q_ARG(QString, codec));
+
+    return description;
+}
+
+bool Recording::recordAudio() const
+{
+    return this->d->m_recordAudio;
+}
+
+QString Recording::lastVideoPreview() const
+{
+    return this->d->m_lastVideoPreview;
+}
+
+QString Recording::imagesDirectory() const
+{
+    return this->d->m_imagesDirectory;
 }
 
 QStringList Recording::availableImageFormats() const
 {
     return this->d->m_imageFormats.keys();
+}
+
+QString Recording::imageFormat() const
+{
+    return this->d->m_imageFormat;
 }
 
 QString Recording::imageFormatDescription(const QString &format) const
@@ -257,92 +279,9 @@ QString Recording::lastPhotoPreview() const
     return this->d->m_lastPhotoPreview;
 }
 
-AkElement::ElementState Recording::state() const
+int Recording::imageSaveQuality() const
 {
-    return this->d->m_state;
-}
-
-QString Recording::formatDescription(const QString &formatId) const
-{
-    QString description;
-
-    if (this->d->m_record)
-        QMetaObject::invokeMethod(this->d->m_record.data(),
-                                  "formatDescription",
-                                  Q_RETURN_ARG(QString, description),
-                                  Q_ARG(QString, formatId));
-
-    return description;
-}
-
-QStringList Recording::formatSuffix(const QString &formatId) const
-{
-    QStringList suffix;
-
-    if (this->d->m_record)
-        QMetaObject::invokeMethod(this->d->m_record.data(),
-                                  "fileExtensions",
-                                  Q_RETURN_ARG(QStringList, suffix),
-                                  Q_ARG(QString, formatId));
-
-    return suffix;
-}
-
-bool Recording::embedControls(const QString &where,
-                              const QString &format,
-                              const QString &name)
-{
-    if (!this->d->m_record)
-        return false;
-
-    auto ctrlInterface =
-            this->d->m_record->controlInterface(this->d->m_engine, format);
-
-    if (!ctrlInterface)
-        return false;
-
-    if (!name.isEmpty())
-        ctrlInterface->setObjectName(name);
-
-    for (auto &obj: this->d->m_engine->rootObjects()) {
-        // First, find where to embed the UI.
-        auto item = obj->findChild<QQuickItem *>(where);
-
-        if (!item)
-            continue;
-
-        // Create an item with the plugin context.
-        auto interfaceItem = qobject_cast<QQuickItem *>(ctrlInterface);
-
-        // Finally, embed the plugin item UI in the desired place.
-        interfaceItem->setParentItem(item);
-
-        return true;
-    }
-
-    return false;
-}
-
-void Recording::removeInterface(const QString &where)
-{
-    if (!this->d->m_engine)
-        return;
-
-    for (auto &obj: this->d->m_engine->rootObjects()) {
-        auto item = obj->findChild<QQuickItem *>(where);
-
-        if (!item)
-            continue;
-
-        QList<decltype(item)> childItems = item->childItems();
-
-        for (auto child: childItems) {
-            child->setParentItem(nullptr);
-            child->setParent(nullptr);
-
-            delete child;
-        }
-    }
+    return this->d->m_imageSaveQuality;
 }
 
 RecordingPrivate::RecordingPrivate(Recording *self):
@@ -407,12 +346,12 @@ void RecordingPrivate::updatePreviews()
         this->m_lastPhotoPreview = dir.filePath(photos.first());
 }
 
-QStringList RecordingPrivate::recordingFormats() const
+void RecordingPrivate::updateFormats()
 {
     if (!this->m_record)
-        return QStringList();
+        return;
 
-    QStringList formats;
+    QStringList videoFormats;
     QStringList supportedFormats;
     QMetaObject::invokeMethod(this->m_record.data(),
                               "supportedFormats",
@@ -441,22 +380,257 @@ QStringList RecordingPrivate::recordingFormats() const
 
 #ifdef Q_OS_ANDROID
         if (!videoCodecs.isEmpty() && !extensions.isEmpty())
-            formats << format;
+            this->m_availableVideoFormats << format;
 #else
         if ((format == "gif" || !audioCodecs.isEmpty())
             && !videoCodecs.isEmpty()
             && !extensions.isEmpty())
-            formats << format;
+            videoFormats << format;
 #endif
     }
 
-    return formats;
+    if (this->m_availableVideoFormats != videoFormats) {
+        this->m_availableVideoFormats = videoFormats;
+        emit self->availableVideoFormatsChanged(videoFormats);
+
+        QString defaultFormat;
+        QMetaObject::invokeMethod(this->m_record.data(),
+                                  "defaultFormat",
+                                  Q_RETURN_ARG(QString, defaultFormat));
+
+        QSettings config;
+        config.beginGroup("RecordConfigs");
+        self->setVideoFormat(config.value("format", defaultFormat).toString());
+        config.endGroup();
+    }
 }
 
-void Recording::setFormat(const QString &format)
+void RecordingPrivate::updateExtensions()
 {
-    if (this->d->m_record)
-        this->d->m_record->setProperty("outputFormat", format);
+    if (!this->m_record)
+        return;
+
+    QStringList extensions;
+    QMetaObject::invokeMethod(this->m_record.data(),
+                              "fileExtensions",
+                              Q_RETURN_ARG(QStringList, extensions),
+                              Q_ARG(QString, self->videoFormat()));
+
+    if (this->m_availableVideoFormatExtensions != extensions) {
+        this->m_availableVideoFormatExtensions = extensions;
+        emit self->availableVideoFormatExtensionsChanged(extensions);
+
+        QSettings config;
+        config.beginGroup("RecordConfigs");
+        self->setVideoFormatExtension(config.value("videoFormatExtension",
+                                                   extensions.value(0))
+                                      .toString());
+        config.endGroup();
+    }
+}
+
+void RecordingPrivate::updateCodecs()
+{
+    if (!this->m_record)
+        return;
+
+    auto format = self->videoFormat();
+
+    QStringList audioCodecs;
+    QMetaObject::invokeMethod(this->m_record.data(),
+                              "supportedCodecs",
+                              Q_RETURN_ARG(QStringList,
+                                           audioCodecs),
+                              Q_ARG(QString, format),
+                              Q_ARG(QString, "audio/x-raw"));
+
+    QStringList videoCodecs;
+    QMetaObject::invokeMethod(this->m_record.data(),
+                              "supportedCodecs",
+                              Q_RETURN_ARG(QStringList,
+                                           videoCodecs),
+                              Q_ARG(QString, format),
+                              Q_ARG(QString, "video/x-raw"));
+
+    if (this->m_availableAudioCodecs != audioCodecs) {
+        this->m_availableAudioCodecs = audioCodecs;
+        emit self->availableAudioCodecsChanged(audioCodecs);
+
+        QString defaultAudioCodec;
+        QMetaObject::invokeMethod(this->m_record.data(),
+                                  "defaultCodec",
+                                  Q_RETURN_ARG(QString, defaultAudioCodec),
+                                  Q_ARG(QString, format),
+                                  Q_ARG(QString, "audio/x-raw"));
+
+        QSettings config;
+        config.beginGroup(QString("RecordConfigs_%1").arg(format));
+        self->setAudioCodec(config.value("audio", defaultAudioCodec).toString());
+        config.endGroup();
+    }
+
+    if (this->m_availableVideoCodecs != videoCodecs) {
+        this->m_availableVideoCodecs = videoCodecs;
+        emit self->availableVideoCodecsChanged(videoCodecs);
+
+        QString defaultVideoCodec;
+        QMetaObject::invokeMethod(this->m_record.data(),
+                                  "defaultCodec",
+                                  Q_RETURN_ARG(QString, defaultVideoCodec),
+                                  Q_ARG(QString, format),
+                                  Q_ARG(QString, "video/x-raw"));
+
+        QSettings config;
+        config.beginGroup(QString("RecordConfigs_%1").arg(format));
+        self->setVideoCodec(config.value("video", defaultVideoCodec).toString());
+        config.endGroup();
+    }
+}
+
+void RecordingPrivate::saveVideoFormat(const QString &videoFormat)
+{
+    QSettings config;
+    config.beginGroup("RecordConfigs");
+    config.setValue("format", videoFormat);
+    config.endGroup();
+}
+
+void RecordingPrivate::saveVideoFormatExtension(const QString &videoFormatExtension)
+{
+    QSettings config;
+    config.beginGroup("RecordConfigs");
+    config.setValue("videoFormatExtension", videoFormatExtension);
+    config.endGroup();
+}
+
+void RecordingPrivate::saveMultiSinkCodecLib(const QString &codecLib)
+{
+    QSettings config;
+    config.beginGroup("Libraries");
+    config.setValue("MultiSink.codecLib", codecLib);
+    config.endGroup();
+}
+
+void RecordingPrivate::saveRecordAudio(bool recordAudio)
+{
+    QSettings config;
+    config.beginGroup("RecordConfigs");
+    config.setValue("recordAudio", recordAudio);
+    config.endGroup();
+}
+
+void RecordingPrivate::loadProperties()
+{
+    QSettings config;
+
+    config.beginGroup("Libraries");
+
+    if (this->m_recordSettings) {
+        auto codecLib =
+                config.value("MultiSink.codecLib",
+                             this->m_recordSettings->property("codecLib"));
+        this->m_recordSettings->setProperty("codecLib", codecLib);
+    }
+
+    config.endGroup();
+
+    config.beginGroup("RecordConfigs");
+
+    auto defaultImagesDirectory =
+            QDir(QStandardPaths::standardLocations(QStandardPaths::PicturesLocation).first())
+            .filePath(qApp->applicationName());
+    auto defaultVideoDirectory =
+            QDir(QStandardPaths::standardLocations(QStandardPaths::MoviesLocation).first())
+            .filePath(qApp->applicationName());
+    this->m_imagesDirectory =
+            config.value("imagesDirectory", defaultImagesDirectory).toString();
+    this->m_videoDirectory =
+            config.value("videoDirectory", defaultVideoDirectory).toString();
+    this->m_imageFormat = config.value("imageFormat", "png").toString();
+    this->m_imageSaveQuality = config.value("imageSaveQuality", -1).toInt();
+    this->m_recordAudio =
+            config.value("recordAudio", DEFAULT_RECORD_AUDIO).toBool();
+
+    config.endGroup();
+}
+
+void RecordingPrivate::loadFormatOptions(const QString &videoFormat)
+{
+    if (!this->m_record || videoFormat.isEmpty())
+        return;
+
+    QSettings config;
+    config.beginGroup(QString("RecordConfigs_%1_options").arg(videoFormat));
+    QVariantMap formatOptions;
+
+    for (auto &key: config.allKeys())
+        formatOptions[key] = config.value(key);
+
+    QMetaObject::invokeMethod(this->m_record.data(),
+                              "setFormatOptions",
+                              Q_ARG(QVariantMap, formatOptions));
+
+    config.endGroup();
+}
+
+void RecordingPrivate::loadStreams(const QString &videoFormat)
+{
+    if (!this->m_record || videoFormat.isEmpty())
+        return;
+
+    QVector<AkCaps> streamCaps {this->m_videoCaps};
+
+    if (this->m_recordAudio
+        && this->m_audioCaps
+        && !this->m_audioCodec.isEmpty())
+        streamCaps << this->m_audioCaps;
+
+    QMetaObject::invokeMethod(this->m_record.data(), "clearStreams");
+    QSettings config;
+    int i = 0;
+
+    for (auto &caps: streamCaps) {
+        if (caps) {
+            QString streamType;
+
+            if (i > 0)
+                streamType = "audio";
+            else
+                streamType = "video";
+
+            auto codec = i > 0? this->m_audioCodec: this->m_videoCodec;
+            config.beginGroup(QString("RecordConfigs_%1_stream_%2_%3")
+                              .arg(videoFormat, streamType, codec));
+
+            QVariantMap defaultParams;
+            QMetaObject::invokeMethod(this->m_record.data(),
+                                      "defaultCodecParams",
+                                      Q_RETURN_ARG(QVariantMap, defaultParams),
+                                      Q_ARG(QString, codec));
+
+            auto bitrate =
+                    config.value("bitrate", defaultParams.value("bitrate"));
+
+            QVariantMap streamParams {
+                {"codec"  , codec  },
+                {"bitrate", bitrate},
+            };
+
+            if (i < 1)
+                streamParams["gop"] = config.value("gop", defaultParams.value("gop"));
+
+            QMetaObject::invokeMethod(this->m_record.data(),
+                                      "addStream",
+                                      Q_RETURN_ARG(QVariantMap, streamParams),
+                                      Q_ARG(int, i),
+                                      Q_ARG(AkCaps, caps),
+                                      Q_ARG(QVariantMap, streamParams));
+
+            config.endGroup();
+        }
+
+        i++;
+    }
 }
 
 void Recording::setAudioCaps(const AkAudioCaps &audioCaps)
@@ -477,45 +651,36 @@ void Recording::setVideoCaps(const AkVideoCaps &videoCaps)
     emit this->videoCapsChanged(videoCaps);
 }
 
-void Recording::setRecordAudio(bool recordAudio)
+void Recording::setState(AkElement::ElementState state)
 {
-    if (this->d->m_recordAudio == recordAudio)
+    if (!this->d->m_record || this->d->m_state == state)
         return;
 
-    this->d->m_recordAudio = recordAudio;
-    emit this->recordAudioChanged(recordAudio);
-}
+    if (state == AkElement::ElementStatePlaying) {
+        if (!QDir().mkpath(this->d->m_videoDirectory))
+            return;
 
-void Recording::setVideoFileName(const QString &videoFileName)
-{
-    if (this->d->m_videoFileName == videoFileName)
-        return;
+        auto currentTime =
+                QDateTime::currentDateTime().toString("yyyy-MM-dd hh-mm-ss");
+        this->d->m_videoFilePath =
+                tr("%1/Video %2.%3")
+                    .arg(this->d->m_videoDirectory)
+                    .arg(currentTime)
+                    .arg(this->d->m_videoFormatExtension);
+        this->d->m_record->setProperty("location", this->d->m_videoFilePath);
+    }
 
-    this->d->m_videoFileName = videoFileName;
-    emit this->videoFileNameChanged(videoFileName);
+    this->d->m_record->setState(state);
+    this->d->m_state = state;
+    emit this->stateChanged(state);
 
-    if (this->d->m_record)
-        this->d->m_record->setProperty("location", videoFileName);
-}
+    if (state == AkElement::ElementStateNull) {/*
+        QString path = this->d->m_videoFilePath;
+        path.replace("file://", "");
 
-void Recording::setImageFormat(const QString &imageFormat)
-{
-    if (this->d->m_imageFormat == imageFormat)
-        return;
-
-    this->d->m_imageFormat = imageFormat;
-    emit this->imageFormatChanged(this->d->m_imageFormat);
-    this->d->saveImageFormat(this->d->m_imageFormat);
-}
-
-void Recording::setImagesDirectory(const QString &imagesDirectory)
-{
-    if (this->d->m_imagesDirectory == imagesDirectory)
-        return;
-
-    this->d->m_imagesDirectory = imagesDirectory;
-    emit this->imagesDirectoryChanged(this->d->m_imagesDirectory);
-    this->d->saveImagesDirectory(this->d->m_imagesDirectory);
+        if (!path.isEmpty())
+            emit this->lastPhotoPreviewChanged(path);*/
+    }
 }
 
 void Recording::setVideoDirectory(const QString &videoDirectory)
@@ -528,6 +693,70 @@ void Recording::setVideoDirectory(const QString &videoDirectory)
     this->d->saveVideoDirectory(this->d->m_videoDirectory);
 }
 
+void Recording::setVideoFormat(const QString &videoFormat)
+{
+    if (this->d->m_record)
+        this->d->m_record->setProperty("outputFormat", videoFormat);
+}
+
+void Recording::setVideoFormatExtension(const QString &videoFormatExtension)
+{
+    if (this->d->m_videoFormatExtension == videoFormatExtension)
+        return;
+
+    this->d->m_videoFormatExtension = videoFormatExtension;
+    emit this->videoFormatExtensionChanged(this->d->m_videoFormatExtension);
+    this->d->saveVideoFormatExtension(this->d->m_videoFormatExtension);
+}
+
+void Recording::setVideoCodec(const QString &videoCodec)
+{
+    if (this->d->m_videoCodec == videoCodec)
+        return;
+
+    this->d->m_videoCodec = videoCodec;
+    emit this->videoCodecChanged(this->d->m_videoCodec);
+}
+
+void Recording::setAudioCodec(const QString &audioCodec)
+{
+    if (this->d->m_audioCodec == audioCodec)
+        return;
+
+    this->d->m_audioCodec = audioCodec;
+    emit this->audioCodecChanged(this->d->m_audioCodec);
+}
+
+void Recording::setRecordAudio(bool recordAudio)
+{
+    if (this->d->m_recordAudio == recordAudio)
+        return;
+
+    this->d->m_recordAudio = recordAudio;
+    emit this->recordAudioChanged(recordAudio);
+    this->d->saveRecordAudio(recordAudio);
+}
+
+void Recording::setImagesDirectory(const QString &imagesDirectory)
+{
+    if (this->d->m_imagesDirectory == imagesDirectory)
+        return;
+
+    this->d->m_imagesDirectory = imagesDirectory;
+    emit this->imagesDirectoryChanged(this->d->m_imagesDirectory);
+    this->d->saveImagesDirectory(this->d->m_imagesDirectory);
+}
+
+void Recording::setImageFormat(const QString &imageFormat)
+{
+    if (this->d->m_imageFormat == imageFormat)
+        return;
+
+    this->d->m_imageFormat = imageFormat;
+    emit this->imageFormatChanged(this->d->m_imageFormat);
+    this->d->saveImageFormat(this->d->m_imageFormat);
+}
+
 void Recording::setImageSaveQuality(int imageSaveQuality)
 {
     if (this->d->m_imageSaveQuality == imageSaveQuality)
@@ -536,28 +765,6 @@ void Recording::setImageSaveQuality(int imageSaveQuality)
     this->d->m_imageSaveQuality = imageSaveQuality;
     emit this->imageSaveQualityChanged(this->d->m_imageSaveQuality);
     this->d->saveImageSaveQuality(this->d->m_imageSaveQuality);
-}
-
-void Recording::setState(AkElement::ElementState state)
-{
-    if (this->d->m_state == state)
-        return;
-
-    this->d->m_record->setState(state);
-    this->d->m_state = state;
-    emit this->stateChanged(state);
-}
-
-void Recording::resetFormat()
-{
-    QString defaultFormat;
-
-    if (this->d->m_record)
-        QMetaObject::invokeMethod(this->d->m_record.data(),
-                                  "defaultFormat",
-                                  Q_RETURN_ARG(QString, defaultFormat));
-
-    this->setFormat(defaultFormat);
 }
 
 void Recording::resetAudioCaps()
@@ -570,28 +777,9 @@ void Recording::resetVideoCaps()
     this->setVideoCaps({});
 }
 
-void Recording::resetRecordAudio()
+void Recording::resetState()
 {
-    this->setRecordAudio(DEFAULT_RECORD_AUDIO);
-}
-
-void Recording::resetVideoFileName()
-{
-    this->setVideoFileName("");
-}
-
-void Recording::resetImageFormat()
-{
-    this->setImageFormat("png");
-}
-
-void Recording::resetImagesDirectory()
-{
-    auto dir =
-            QDir(QStandardPaths::standardLocations(QStandardPaths::PicturesLocation)
-                 .first())
-            .filePath(qApp->applicationName());
-    this->setImagesDirectory(dir);
+    this->setState(AkElement::ElementStateNull);
 }
 
 void Recording::resetVideoDirectory()
@@ -603,14 +791,73 @@ void Recording::resetVideoDirectory()
     this->setVideoDirectory(dir);
 }
 
+void Recording::resetVideoFormat()
+{
+    QString defaultFormat;
+
+    if (this->d->m_record)
+        QMetaObject::invokeMethod(this->d->m_record.data(),
+                                  "defaultFormat",
+                                  Q_RETURN_ARG(QString, defaultFormat));
+
+    this->setVideoFormat(defaultFormat);
+}
+
+void Recording::resetVideoFormatExtension()
+{
+    this->setVideoFormatExtension(this->d->m_availableVideoFormatExtensions.value(0));
+}
+
+void Recording::resetVideoCodec()
+{
+    QString defaultVideoCodec;
+
+    if (!this->d->m_record)
+        QMetaObject::invokeMethod(this->d->m_record.data(),
+                                  "defaultCodec",
+                                  Q_RETURN_ARG(QString, defaultVideoCodec),
+                                  Q_ARG(QString, this->videoFormat()),
+                                  Q_ARG(QString, "video/x-raw"));
+
+    this->setVideoCodec(defaultVideoCodec);
+}
+
+void Recording::resetAudioCodec()
+{
+    QString defaultAudioCodec;
+
+    if (!this->d->m_record)
+        QMetaObject::invokeMethod(this->d->m_record.data(),
+                                  "defaultCodec",
+                                  Q_RETURN_ARG(QString, defaultAudioCodec),
+                                  Q_ARG(QString, this->videoFormat()),
+                                  Q_ARG(QString, "audio/x-raw"));
+
+    this->setAudioCodec(defaultAudioCodec);
+}
+
+void Recording::resetRecordAudio()
+{
+    this->setRecordAudio(DEFAULT_RECORD_AUDIO);
+}
+
+void Recording::resetImagesDirectory()
+{
+    auto dir =
+            QDir(QStandardPaths::standardLocations(QStandardPaths::PicturesLocation)
+                 .first())
+            .filePath(qApp->applicationName());
+    this->setImagesDirectory(dir);
+}
+
+void Recording::resetImageFormat()
+{
+    this->setImageFormat("png");
+}
+
 void Recording::resetImageSaveQuality()
 {
     this->setImageSaveQuality(-1);
-}
-
-void Recording::resetState()
-{
-    this->setState(AkElement::ElementStateNull);
 }
 
 void Recording::takePhoto()
@@ -660,212 +907,25 @@ void Recording::setQmlEngine(QQmlApplicationEngine *engine)
         engine->rootContext()->setContextProperty("Recording", this);
 }
 
-void Recording::supportedFormatsUpdated(const QStringList &availableFormats)
+void Recording::codecLibChanged(const QString &codecLib)
 {
-    Q_UNUSED(availableFormats)
-
-    auto recordingFormats = this->d->recordingFormats();
-
-    if (this->d->m_availableFormats == recordingFormats)
-        return;
-
-    this->d->m_availableFormats = recordingFormats;
-    emit this->availableFormatsChanged(recordingFormats);
+    this->d->saveMultiSinkCodecLib(codecLib);
+    this->d->updateFormats();
 }
 
-void Recording::userControlsUpdated(const QVariantMap &userControls)
+void Recording::outputFormatChanged(const QString &outputFormat)
 {
-    if (userControls.contains(AUDIO_RECORDING_KEY))
-        this->setRecordAudio(userControls[AUDIO_RECORDING_KEY].toBool());
+    emit this->videoFormatChanged(outputFormat);
+    this->d->saveVideoFormat(outputFormat);
+    this->d->updateExtensions();
+    this->d->loadFormatOptions(outputFormat);
+    this->d->updateCodecs();
+    this->d->loadStreams(outputFormat);
 }
 
 void Recording::capsUpdated()
 {
-    if (!this->d->m_record)
-        return;
-
-    auto format = this->d->m_record->property("outputFormat").toString();
-
-    if (format.isEmpty())
-        return;
-
-    this->loadStreams(format);
-}
-
-void Recording::updateFormat()
-{
-    if (!this->d->m_record)
-        return;
-
-    QString defaultFormat;
-    QMetaObject::invokeMethod(this->d->m_record.data(),
-                              "defaultFormat",
-                              Q_RETURN_ARG(QString, defaultFormat));
-    this->setFormat(defaultFormat);
-}
-
-void Recording::loadProperties()
-{
-    QSettings config;
-
-    config.beginGroup("Libraries");
-
-    if (this->d->m_recordSettings) {
-        auto codecLib =
-                config.value("MultiSink.codecLib",
-                             this->d->m_recordSettings->property("codecLib"));
-        this->d->m_recordSettings->setProperty("codecLib", codecLib);
-    }
-
-    config.endGroup();
-
-    QString defaultFormat;
-
-    if (this->d->m_record) {
-        QString defaultFormat;
-        QMetaObject::invokeMethod(this->d->m_record.data(),
-                                  "defaultFormat",
-                                  Q_RETURN_ARG(QString, defaultFormat));
-    }
-
-    QString preferredFormat =
-            this->d->m_availableFormats.isEmpty()
-            || this->d->m_availableFormats.contains(defaultFormat)?
-                defaultFormat: this->d->m_availableFormats.first();
-
-    config.beginGroup("RecordConfigs");
-
-    this->d->m_imagesDirectory =
-            config.value("imagesDirectory",
-                         this->d->m_imagesDirectory).toString();
-    this->d->m_videoDirectory =
-            config.value("videoDirectory",
-                         this->d->m_videoDirectory).toString();
-    this->d->m_imageFormat = config.value("imageFormat", "png").toString();
-    this->d->m_imageSaveQuality = config.value("imageSaveQuality", -1).toInt();
-    this->d->m_recordAudio =
-            config.value("recordAudio", DEFAULT_RECORD_AUDIO).toBool();
-    auto format = config.value("format").toString();
-
-    if (format.isEmpty()
-        || !this->d->m_availableFormats.contains(format))
-        format = preferredFormat;
-
-    if (this->d->m_record)
-        this->d->m_record->setProperty("outputFormat", format);
-
-    config.endGroup();
-}
-
-void Recording::loadFormatOptions(const QString &format)
-{
-    if (!this->d->m_record || format.isEmpty())
-        return;
-
-    QSettings config;
-    config.beginGroup(QString("RecordConfigs_%1_options").arg(format));
-    QVariantMap formatOptions;
-
-    for (auto &key: config.allKeys())
-        formatOptions[key] = config.value(key);
-
-    QMetaObject::invokeMethod(this->d->m_record.data(),
-                              "setFormatOptions",
-                              Q_ARG(QVariantMap, formatOptions));
-
-    config.endGroup();
-}
-
-void Recording::loadStreams(const QString &format)
-{
-    if (!this->d->m_record || format.isEmpty())
-        return;
-
-    QStringList audioCodecs;
-    QMetaObject::invokeMethod(this->d->m_record.data(),
-                              "supportedCodecs",
-                              Q_RETURN_ARG(QStringList, audioCodecs),
-                              Q_ARG(QString, format),
-                              Q_ARG(QString, "audio/x-raw"));
-
-    QStringList videoCodecs;
-    QMetaObject::invokeMethod(this->d->m_record.data(),
-                              "supportedCodecs",
-                              Q_RETURN_ARG(QStringList, videoCodecs),
-                              Q_ARG(QString, format),
-                              Q_ARG(QString, "video/x-raw"));
-
-    QSettings config;
-
-    config.beginGroup(QString("RecordConfigs_%1").arg(format));
-    auto audioCodec = config.value("audio", audioCodecs.value(0)).toString();
-    auto videoCodec = config.value("video", videoCodecs.value(0)).toString();
-    config.endGroup();
-
-    QVector<AkCaps> streamCaps {this->d->m_videoCaps};
-
-    if (this->d->m_recordAudio
-        && this->d->m_audioCaps
-        && !audioCodec.isEmpty())
-        streamCaps << this->d->m_audioCaps;
-
-    QMetaObject::invokeMethod(this->d->m_record.data(), "clearStreams");
-
-    const QMap<QString, QString> labels = {
-        {"audio/x-raw", tr("Audio")   },
-        {"video/x-raw", tr("Video")   },
-        {"text/x-raw" , tr("Subtitle")}
-    };
-
-    int i = 0;
-
-    for (auto &caps: streamCaps) {
-        if (caps) {
-            QString streamType;
-
-            if (i > 0)
-                streamType = "audio";
-            else
-                streamType = "video";
-
-            auto codec = i > 0? audioCodec: videoCodec;
-            config.beginGroup(QString("RecordConfigs_%1_stream_%2_%3")
-                              .arg(format, streamType, codec));
-
-            QVariantMap defaultParams;
-            QMetaObject::invokeMethod(this->d->m_record.data(),
-                                      "defaultCodecParams",
-                                      Q_RETURN_ARG(QVariantMap, defaultParams),
-                                      Q_ARG(QString, codec));
-
-            QVariantMap streamParams;
-            QString mimeType = caps.mimeType();
-            auto label = config.value("label").toString();
-
-            if (label.isEmpty())
-                label = labels[mimeType];
-
-            streamParams = {
-                {"codec"  , codec                                                  },
-                {"bitrate", config.value("bitrate", defaultParams.value("bitrate"))},
-                {"label"  , label                                                  }
-            };
-
-            if (i < 1)
-                streamParams["gop"] = config.value("gop", defaultParams.value("gop"));
-
-            QMetaObject::invokeMethod(this->d->m_record.data(),
-                                      "addStream",
-                                      Q_RETURN_ARG(QVariantMap, streamParams),
-                                      Q_ARG(int, i),
-                                      Q_ARG(AkCaps, caps),
-                                      Q_ARG(QVariantMap, streamParams));
-
-            config.endGroup();
-        }
-
-        i++;
-    }
+    this->d->loadStreams(this->videoFormat());
 }
 
 void Recording::loadCodecOptions(const QVariantList &streams)
@@ -873,7 +933,7 @@ void Recording::loadCodecOptions(const QVariantList &streams)
     if (!this->d->m_record || streams.isEmpty())
         return;
 
-    auto format = this->d->m_record->property("outputFormat").toString();
+    auto format = this->videoFormat();
 
     if (format.isEmpty())
         return;
@@ -908,14 +968,6 @@ void Recording::loadCodecOptions(const QVariantList &streams)
     }
 }
 
-void Recording::saveOutputFormat(const QString &format)
-{
-    QSettings config;
-    config.beginGroup("RecordConfigs");
-    config.setValue("format", format);
-    config.endGroup();
-}
-
 void Recording::saveFormatOptions(const QVariantMap &formatOptions)
 {
     Q_UNUSED(formatOptions)
@@ -923,7 +975,7 @@ void Recording::saveFormatOptions(const QVariantMap &formatOptions)
     if (!this->d->m_record)
         return;
 
-    auto format = this->d->m_record->property("outputFormat").toString();
+    auto format = this->videoFormat();
 
     if (format.isEmpty())
         return;
@@ -949,7 +1001,7 @@ void Recording::saveStreams(const QVariantList &streams)
     if (!this->d->m_record || streams.isEmpty())
         return;
 
-    auto format = this->d->m_record->property("outputFormat").toString();
+    auto format = this->videoFormat();
 
     if (format.isEmpty())
         return;
@@ -976,54 +1028,9 @@ void Recording::saveStreams(const QVariantList &streams)
                           .arg(format, streamType, codec));
 
         config.setValue("bitrate", streamMap.value("bitrate"));
-        config.setValue("label", streamMap.value("label"));
 
         if (type == "video/x-raw")
             config.setValue("gop", streamMap.value("gop"));
-
-        config.endGroup();
-    }
-}
-
-void Recording::saveCodecParams()
-{
-    if (!this->d->m_record)
-        return;
-
-    auto format = this->d->m_record->property("outputFormat").toString();
-
-    if (format.isEmpty())
-        return;
-
-    auto streams = this->d->m_record->property("streams").toList();
-
-    if (streams.isEmpty())
-        return;
-
-    const QMap<QString, QString> sType = {
-        {"audio/x-raw", "audio"   },
-        {"video/x-raw", "video"   },
-        {"text/x-raw" , "subtitle"}
-    };
-
-    QSettings config;
-
-    for (auto &stream: streams) {
-        auto streamMap = stream.toMap();
-        auto type = streamMap["caps"].value<AkCaps>().mimeType();
-        auto codec = streamMap["codec"].toString();
-
-        config.beginGroup(QString("RecordConfigs_%1_stream_%2_%3")
-                          .arg(format, sType[type], codec));
-
-        if (type == "audio/x-raw") {
-            config.setValue("bitrate", streamMap["bitrate"]);
-            config.setValue("label", streamMap["label"]);
-        } else {
-            config.setValue("bitrate", streamMap["bitrate"]);
-            config.setValue("gop", streamMap["gop"]);
-            config.setValue("label", streamMap["label"]);
-        }
 
         config.endGroup();
     }
@@ -1034,7 +1041,7 @@ void Recording::saveCodecOptions()
     if (!this->d->m_record)
         return;
 
-    auto format = this->d->m_record->property("outputFormat").toString();
+    auto format = this->videoFormat();
 
     if (format.isEmpty())
         return;
@@ -1073,35 +1080,6 @@ void Recording::saveCodecOptions()
 
         config.endGroup();
     }
-}
-
-void Recording::saveRecordAudio(bool recordAudio)
-{
-    QSettings config;
-    config.beginGroup("RecordConfigs");
-    config.setValue("recordAudio", recordAudio);
-    config.endGroup();
-}
-
-void Recording::saveMultiSinkCodecLib(const QString &codecLib)
-{
-    QSettings config;
-    config.beginGroup("Libraries");
-    config.setValue("MultiSink.codecLib", codecLib);
-    config.endGroup();
-}
-
-void Recording::saveProperties()
-{
-    QSettings config;
-    config.beginGroup("Libraries");
-
-    if (this->d->m_recordSettings) {
-        auto codecLib = this->d->m_recordSettings->property("codecLib");
-        config.setValue("MultiSink.codecLib", codecLib);
-    }
-
-    config.endGroup();
 }
 
 #include "moc_recording.cpp"

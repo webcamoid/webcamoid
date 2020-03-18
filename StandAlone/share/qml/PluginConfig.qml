@@ -201,7 +201,7 @@ Page {
                     width: pluginsScrollView.width
 
                     Button {
-                        text: qsTr("Refresh")
+                        text: qsTr("Update")
                         icon.source: "image://icons/reset"
                         flat: true
 

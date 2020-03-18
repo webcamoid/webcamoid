@@ -102,11 +102,6 @@ ApplicationWindow {
     Component.onCompleted: notifyUpdate(Updates.versionType);
 
     Connections {
-        target: Recording
-
-        onStateChanged: recordingNotice.visible = state === AkElement.ElementStatePlaying
-    }
-    Connections {
         target: Updates
 
         onVersionTypeChanged: notifyUpdate(versionType);
@@ -223,11 +218,10 @@ ApplicationWindow {
         onOpenSettings: settingsDialog.open()
     }
     RecordingNotice {
-        id: recordingNotice
         anchors.top: parent.top
-        anchors.topMargin: 16
+        anchors.topMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
         anchors.horizontalCenter: parent.horizontalCenter
-        visible: false
+        visible: Recording.state == AkElement.ElementStatePlaying
     }
     Item {
         id: splitView
@@ -262,7 +256,6 @@ ApplicationWindow {
             anchors.left: parent.left
             visible: optionWebcam.checked
                      || optionSound.checked
-                     || optionRecording.checked
                      || optionEffects.checked
                      || optionSettings.checked
 
@@ -318,7 +311,6 @@ ApplicationWindow {
             anchors.right: parent.right
             visible: optionWebcam.checked
                      || optionSound.checked
-                     || optionRecording.checked
                      || optionEffects.checked
                      || optionSettings.checked
 
@@ -395,9 +387,12 @@ ApplicationWindow {
                 y: (parent.height - height) / 2
 
                 MouseArea {
-                    cursorShape: Qt.PointingHandCursor
+                    cursorShape: enabled?
+                                     Qt.PointingHandCursor:
+                                     Qt.ArrowCursor
                     anchors.fill: parent
                     enabled: photoPreview.visible
+                             && photoPreview.status == Image.Ready
 
                     onClicked: {
                         if (photoPreview.status == Image.Ready)
@@ -414,8 +409,9 @@ ApplicationWindow {
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Take a photo")
                 focus: true
-                enabled: MediaSource.state === AkElement.ElementStatePlaying
-                         || cameraControls.state == "Video"
+                enabled: Recording.state == AkElement.ElementStateNull
+                         && (MediaSource.state === AkElement.ElementStatePlaying
+                             || cameraControls.state == "Video")
 
                 onClicked: {
                     if (cameraControls.state == "Video") {
@@ -452,7 +448,9 @@ ApplicationWindow {
             }
             RoundButton {
                 id: videoButton
-                icon.source: "image://icons/video"
+                icon.source: Recording.state == AkElement.ElementStateNull?
+                                 "image://icons/video":
+                                 "image://icons/record-stop"
                 radius: AkUnit.create(24 * AkTheme.controlScale, "dp").pixels
                 x: parent.width - width
                 y: (parent.height - height) / 2
@@ -462,14 +460,17 @@ ApplicationWindow {
                          || cameraControls.state == ""
 
                 onClicked: {
-                    if (cameraControls.state == "") {
+                    if (cameraControls.state == "")
                         cameraControls.state = "Video"
-                    } else {
-                    }
+                    else if (Recording.state == AkElement.ElementStateNull)
+                        Recording.state = AkElement.ElementStatePlaying
+                    else
+                        Recording.state = AkElement.ElementStateNull
                 }
             }
             Image {
                 id: videoPreview
+                source: pathToUrl(Recording.lastVideoPreview)
                 width: 0
                 height: 0
                 sourceSize: Qt.size(width, height)
@@ -483,7 +484,17 @@ ApplicationWindow {
                 y: (parent.height - height) / 2
 
                 MouseArea {
+                    cursorShape: enabled?
+                                     Qt.PointingHandCursor:
+                                     Qt.ArrowCursor
                     anchors.fill: parent
+                    enabled: videoPreview.visible
+                             && videoPreview.status == Image.Ready
+
+                    onClicked: {
+                        if (videoPreview.status == Image.Ready)
+                            Qt.openUrlExternally(videoPreview.source)
+                    }
                 }
             }
 
@@ -625,25 +636,6 @@ ApplicationWindow {
                     audioConfig.onCurrentIndexChanged.connect(function () {
                         audioInfo.currentIndex = audioConfig.currentIndex
                     })
-                }
-            }
-            ToolButton {
-                id: optionRecording
-                implicitWidth: toolBar.height
-                implicitHeight: toolBar.height
-                icon.source: "image://icons/video"
-                icon.width: 0.75 * implicitWidth
-                icon.height: 0.75 * implicitHeight
-                checkable: true
-                enabled: MediaSource.state === AkElement.ElementStatePlaying
-                ToolTip.visible: hovered
-                ToolTip.text: qsTr("Record video")
-                display: AbstractButton.IconOnly
-                ButtonGroup.group: buttonGroup
-
-                onClicked: {
-                    showPane(paneLeftLayout, "RecordBar")
-                    showPane(paneRightLayout, "RecordConfig")
                 }
             }
             ToolButton {

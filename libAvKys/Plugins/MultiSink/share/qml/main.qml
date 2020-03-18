@@ -47,7 +47,6 @@ ColumnLayout {
 
         cbxOutputFormats.currentIndex = outputFormatIndex
         updateStreams()
-        createControls(MultiSink.userControls, clyUserControls)
     }
 
     function updateStreams()
@@ -71,10 +70,6 @@ ColumnLayout {
 
             streamOptions.outputIndex = stream
             streamOptions.streamIndex = streamConfig.index
-
-            if (streamConfig.label)
-                streamOptions.streamLabel = streamConfig.label
-
             streamOptions.codecsTextRole = "description"
 
             var supportedCodecs =
@@ -105,39 +100,11 @@ ColumnLayout {
         }
     }
 
-    function createControls(controls, where)
-    {
-        // Remove old controls.
-        for(var i = where.children.length - 1; i >= 0 ; i--)
-            where.children[i].destroy()
-
-        // Create new ones.
-        for (var control in controls) {
-            var obj = classUserControl.createObject(where)
-            obj.controlParams = controls[control]
-            obj.onControlChanged.connect(function (controlName, value)
-            {
-                var ctrl = {}
-                ctrl[controlName] = value
-                MultiSink.setUserControlsValues(ctrl)
-            })
-        }
-    }
-
-    Component.onCompleted: {
-        updateSupportedFormats(MultiSink.supportedFormats)
-    }
-
+    Component.onCompleted: updateSupportedFormats(MultiSink.supportedFormats)
     Component {
         id: classStreamOptions
 
         StreamOptions {
-        }
-    }
-    Component {
-        id: classUserControl
-
-        UserControl {
         }
     }
 
@@ -157,9 +124,6 @@ ColumnLayout {
                 }
         }
         onStreamsChanged: updateStreams()
-        onUserControlsChanged: createControls(userControls, clyUserControls)
-        onUserControlsValuesChanged: {
-        }
     }
 
     Label {
@@ -169,7 +133,6 @@ ColumnLayout {
     }
     ComboBox {
         id: cbxOutputFormats
-        visible: MultiSink.showFormatOptions
         Layout.fillWidth: true
         textRole: "description"
         model: ListModel {
@@ -183,15 +146,6 @@ ColumnLayout {
                 MultiSink.outputFormat = opt.format
         }
     }
-    TextField {
-        visible: !MultiSink.showFormatOptions
-        text: lstOutputFormats.get(cbxOutputFormats.currentIndex)?
-                  lstOutputFormats.get(cbxOutputFormats.currentIndex).description:
-                  ""
-        readOnly: true
-        Layout.fillWidth: true
-    }
-
     Label {
         text: qsTr("File extensions")
         font.bold: true
@@ -216,10 +170,6 @@ ColumnLayout {
                     lstOutputFormats.get(cbxOutputFormats.currentIndex).format;
             formatConfigs.show();
         }
-    }
-    ColumnLayout {
-        id: clyUserControls
-        Layout.fillWidth: true
     }
     ColumnLayout {
         id: clyStreamOptions

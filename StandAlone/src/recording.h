@@ -33,14 +33,6 @@ using RecordingPtr = QSharedPointer<Recording>;
 class Recording: public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QStringList availableFormats
-               READ availableFormats
-               NOTIFY availableFormatsChanged)
-    Q_PROPERTY(QString format
-               READ format
-               WRITE setFormat
-               RESET resetFormat
-               NOTIFY formatChanged)
     Q_PROPERTY(AkAudioCaps audioCaps
                READ audioCaps
                WRITE setAudioCaps
@@ -51,134 +43,172 @@ class Recording: public QObject
                WRITE setVideoCaps
                RESET resetVideoCaps
                NOTIFY videoCapsChanged)
-    Q_PROPERTY(bool recordAudio
-               READ recordAudio
-               WRITE setRecordAudio
-               RESET resetRecordAudio
-               NOTIFY recordAudioChanged)
-    Q_PROPERTY(QString videoFileName
-               READ videoFileName
-               WRITE setVideoFileName
-               RESET resetVideoFileName
-               NOTIFY videoFileNameChanged)
-    Q_PROPERTY(QString imageFormat
-               READ imageFormat
-               WRITE setImageFormat
-               RESET resetImageFormat
-               NOTIFY imageFormatChanged)
-    Q_PROPERTY(QString imagesDirectory
-               READ imagesDirectory
-               WRITE setImagesDirectory
-               RESET resetImagesDirectory
-               NOTIFY imagesDirectoryChanged)
-    Q_PROPERTY(QString videoDirectory
-               READ videoDirectory
-               WRITE setVideoDirectory
-               RESET resetVideoDirectory
-               NOTIFY videoDirectoryChanged)
-    Q_PROPERTY(int imageSaveQuality
-               READ imageSaveQuality
-               WRITE setImageSaveQuality
-               RESET resetImageSaveQuality
-               NOTIFY imageSaveQualityChanged)
-    Q_PROPERTY(QStringList availableImageFormats
-               READ availableImageFormats
-               CONSTANT)
-    Q_PROPERTY(QString lastPhotoPreview
-               READ lastPhotoPreview
-               NOTIFY lastPhotoPreviewChanged)
     Q_PROPERTY(AkElement::ElementState state
                READ state
                WRITE setState
                RESET resetState
                NOTIFY stateChanged)
+    Q_PROPERTY(QString videoDirectory
+               READ videoDirectory
+               WRITE setVideoDirectory
+               RESET resetVideoDirectory
+               NOTIFY videoDirectoryChanged)
+    Q_PROPERTY(QStringList availableVideoFormats
+               READ availableVideoFormats
+               NOTIFY availableVideoFormatsChanged)
+    Q_PROPERTY(QStringList availableVideoFormatExtensions
+               READ availableVideoFormatExtensions
+               NOTIFY availableVideoFormatExtensionsChanged)
+    Q_PROPERTY(QStringList availableVideoCodecs
+               READ availableVideoCodecs
+               NOTIFY availableVideoCodecsChanged)
+    Q_PROPERTY(QStringList availableAudioCodecs
+               READ availableAudioCodecs
+               NOTIFY availableAudioCodecsChanged)
+    Q_PROPERTY(QString videoFormat
+               READ videoFormat
+               WRITE setVideoFormat
+               RESET resetVideoFormat
+               NOTIFY videoFormatChanged)
+    Q_PROPERTY(QString videoFormatExtension
+               READ videoFormatExtension
+               WRITE setVideoFormatExtension
+               RESET resetVideoFormatExtension
+               NOTIFY videoFormatExtensionChanged)
+    Q_PROPERTY(QString videoCodec
+               READ videoCodec
+               WRITE setVideoCodec
+               RESET resetVideoCodec
+               NOTIFY videoCodecChanged)
+    Q_PROPERTY(QString audioCodec
+               READ audioCodec
+               WRITE setAudioCodec
+               RESET resetAudioCodec
+               NOTIFY audioCodecChanged)
+    Q_PROPERTY(bool recordAudio
+               READ recordAudio
+               WRITE setRecordAudio
+               RESET resetRecordAudio
+               NOTIFY recordAudioChanged)
+    Q_PROPERTY(QString lastVideoPreview
+               READ lastVideoPreview
+               NOTIFY lastVideoPreviewChanged)
+    Q_PROPERTY(QString imagesDirectory
+               READ imagesDirectory
+               WRITE setImagesDirectory
+               RESET resetImagesDirectory
+               NOTIFY imagesDirectoryChanged)
+    Q_PROPERTY(QStringList availableImageFormats
+               READ availableImageFormats
+               CONSTANT)
+    Q_PROPERTY(QString imageFormat
+               READ imageFormat
+               WRITE setImageFormat
+               RESET resetImageFormat
+               NOTIFY imageFormatChanged)
+    Q_PROPERTY(QString lastPhotoPreview
+               READ lastPhotoPreview
+               NOTIFY lastPhotoPreviewChanged)
+    Q_PROPERTY(int imageSaveQuality
+               READ imageSaveQuality
+               WRITE setImageSaveQuality
+               RESET resetImageSaveQuality
+               NOTIFY imageSaveQualityChanged)
 
     public:
         Recording(QQmlApplicationEngine *engine=nullptr,
                   QObject *parent=nullptr);
         ~Recording();
 
-        Q_INVOKABLE QStringList availableFormats() const;
-        Q_INVOKABLE QString format() const;
+        // General options
         Q_INVOKABLE AkAudioCaps audioCaps() const;
         Q_INVOKABLE AkVideoCaps videoCaps() const;
-        Q_INVOKABLE bool recordAudio() const;
-        Q_INVOKABLE QString videoFileName() const;
-        Q_INVOKABLE QString imagesDirectory() const;
-        Q_INVOKABLE QString videoDirectory() const;
-        Q_INVOKABLE QString imageFormat() const;
-        Q_INVOKABLE int imageSaveQuality() const;
-        Q_INVOKABLE QStringList availableImageFormats() const;
-        Q_INVOKABLE QString imageFormatDescription(const QString &format) const;
-        Q_INVOKABLE QString lastPhotoPreview() const;
         Q_INVOKABLE AkElement::ElementState state() const;
-        Q_INVOKABLE QString formatDescription(const QString &formatId) const;
-        Q_INVOKABLE QStringList formatSuffix(const QString &formatId) const;
-        Q_INVOKABLE bool embedControls(const QString &where,
-                                       const QString &format="",
-                                       const QString &name="");
-        Q_INVOKABLE void removeInterface(const QString &where);
+
+        // Video
+        Q_INVOKABLE QString videoDirectory() const;
+        Q_INVOKABLE QStringList availableVideoFormats() const;
+        Q_INVOKABLE QStringList availableVideoFormatExtensions() const;
+        Q_INVOKABLE QStringList availableVideoCodecs() const;
+        Q_INVOKABLE QStringList availableAudioCodecs() const;
+        Q_INVOKABLE QString videoFormat() const;
+        Q_INVOKABLE QString videoFormatExtension() const;
+        Q_INVOKABLE QString videoCodec() const;
+        Q_INVOKABLE QString audioCodec() const;
+        Q_INVOKABLE QString videoFormatDescription(const QString &formatId) const;
+        Q_INVOKABLE QString codecDescription(const QString &codec) const;
+        Q_INVOKABLE bool recordAudio() const;
+        Q_INVOKABLE QString lastVideoPreview() const;
+
+        // Picture
+        Q_INVOKABLE QString imagesDirectory() const;
+        Q_INVOKABLE QStringList availableImageFormats() const;
+        Q_INVOKABLE QString imageFormat() const;
+        Q_INVOKABLE QString imageFormatDescription(const QString &videoFormat) const;
+        Q_INVOKABLE QString lastPhotoPreview() const;
+        Q_INVOKABLE int imageSaveQuality() const;
 
     private:
         RecordingPrivate *d;
 
     signals:
-        void availableFormatsChanged(const QStringList &availableFormats);
-        void formatChanged(const QString &format);
         void audioCapsChanged(const AkAudioCaps &audioCaps);
         void videoCapsChanged(const AkVideoCaps &videoCaps);
-        void recordAudioChanged(bool recordAudio);
-        void videoFileNameChanged(const QString &videoFileName);
-        void imageFormatChanged(const QString &imageFormat);
-        void imagesDirectoryChanged(const QString &imagesDirectory);
-        void videoDirectoryChanged(const QString &videoDirectory);
-        void imageSaveQualityChanged(int imageSaveQuality);
-        void lastPhotoPreviewChanged(const QString &lastPhotoPreview);
         void stateChanged(AkElement::ElementState state);
+        void videoDirectoryChanged(const QString &videoDirectory);
+        void availableVideoFormatsChanged(const QStringList &availableVideoFormats);
+        void availableVideoFormatExtensionsChanged(const QStringList &availableVideoFormatExtensions);
+        void availableVideoCodecsChanged(const QStringList &availableVideoCodecs);
+        void availableAudioCodecsChanged(const QStringList &availableAudioCodecs);
+        void videoFormatChanged(const QString &videoFormat);
+        void videoFormatExtensionChanged(const QString &videoFormatExtension);
+        void videoCodecChanged(const QString &videoCodec);
+        void audioCodecChanged(const QString &audioCodec);
+        void recordAudioChanged(bool recordAudio);
+        void lastVideoPreviewChanged(const QString &lastVideoPreview);
+        void imagesDirectoryChanged(const QString &imagesDirectory);
+        void imageFormatChanged(const QString &imageFormat);
+        void lastPhotoPreviewChanged(const QString &lastPhotoPreview);
+        void imageSaveQualityChanged(int imageSaveQuality);
 
     public slots:
-        void setFormat(const QString &format);
         void setAudioCaps(const AkAudioCaps &audioCaps);
         void setVideoCaps(const AkVideoCaps &videoCaps);
-        void setRecordAudio(bool recordAudio);
-        void setVideoFileName(const QString &videoFileName);
-        void setImageFormat(const QString &imageFormat);
-        void setImagesDirectory(const QString &imagesDirectory);
-        void setVideoDirectory(const QString &videoDirectory);
-        void setImageSaveQuality(int imageSaveQuality);
         void setState(AkElement::ElementState state);
-        void resetFormat();
+        void setVideoDirectory(const QString &videoDirectory);
+        void setVideoFormat(const QString &videoFormat);
+        void setVideoFormatExtension(const QString &videoFormatExtension);
+        void setVideoCodec(const QString &videoCodec);
+        void setAudioCodec(const QString &audioCodec);
+        void setRecordAudio(bool recordAudio);
+        void setImagesDirectory(const QString &imagesDirectory);
+        void setImageFormat(const QString &imageFormat);
+        void setImageSaveQuality(int imageSaveQuality);
         void resetAudioCaps();
         void resetVideoCaps();
-        void resetRecordAudio();
-        void resetVideoFileName();
-        void resetImageFormat();
-        void resetImagesDirectory();
-        void resetVideoDirectory();
-        void resetImageSaveQuality();
         void resetState();
+        void resetVideoDirectory();
+        void resetVideoFormat();
+        void resetVideoFormatExtension();
+        void resetVideoCodec();
+        void resetAudioCodec();
+        void resetRecordAudio();
+        void resetImagesDirectory();
+        void resetImageFormat();
+        void resetImageSaveQuality();
         void takePhoto();
         void savePhoto(const QString &fileName);
         AkPacket iStream(const AkPacket &packet);
         void setQmlEngine(QQmlApplicationEngine *engine=nullptr);
 
     private slots:
-        void supportedFormatsUpdated(const QStringList &availableFormats);
-        void userControlsUpdated(const QVariantMap &userControls);
+        void codecLibChanged(const QString &codecLib);
+        void outputFormatChanged(const QString &outputFormat);
         void capsUpdated();
-        void updateFormat();
-        void loadProperties();
-        void loadFormatOptions(const QString &format);
-        void loadStreams(const QString &format);
         void loadCodecOptions(const QVariantList &streams);
-        void saveOutputFormat(const QString &format);
         void saveFormatOptions(const QVariantMap &formatOptions);
         void saveStreams(const QVariantList &streams);
-        void saveCodecParams();
         void saveCodecOptions();
-        void saveRecordAudio(bool recordAudio);
-        void saveMultiSinkCodecLib(const QString &codecLib);
-        void saveProperties();
 };
 
 #endif // RECORDING_H

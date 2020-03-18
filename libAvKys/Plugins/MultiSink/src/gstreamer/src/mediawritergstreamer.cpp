@@ -1102,10 +1102,6 @@ QVariantMap MediaWriterGStreamer::addStream(int streamIndex,
         return QVariantMap();
 
     QVariantMap outputParams;
-
-    if (codecParams.contains("label"))
-        outputParams["label"] = codecParams["label"];
-
     outputParams["index"] = streamIndex;
     auto codec = codecParams.value("codec").toString();
     auto supportedCodecs = this->supportedCodecs(outputFormat, streamCaps.mimeType());
@@ -1165,9 +1161,6 @@ QVariantMap MediaWriterGStreamer::updateStream(int index,
 
     if (outputFormat.isEmpty())
         return {};
-
-    if (codecParams.contains("label"))
-        this->d->m_streamConfigs[index]["label"] = codecParams["label"];
 
     auto streamCaps = this->d->m_streamConfigs[index]["caps"].value<AkCaps>();
     QString codec;

@@ -495,10 +495,6 @@ QVariantMap MediaWriterNDKMedia::addStream(int streamIndex,
         return {};
 
     QVariantMap outputParams;
-
-    if (codecParams.contains("label"))
-        outputParams["label"] = codecParams["label"];
-
     outputParams["index"] = streamIndex;
     auto codec = codecParams.value("codec").toString();
 
@@ -554,13 +550,6 @@ QVariantMap MediaWriterNDKMedia::updateStream(int index,
         return {};
 
     bool streamChanged = false;
-
-    if (codecParams.contains("label")
-        && this->d->m_streamConfigs[index]["label"] != codecParams.value("label")) {
-        this->d->m_streamConfigs[index]["label"] = codecParams.value("label");
-        streamChanged = true;
-    }
-
     auto streamCaps = this->d->m_streamConfigs[index]["caps"].value<AkCaps>();
 
     if (codecParams.contains("caps")

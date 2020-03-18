@@ -24,11 +24,79 @@ import Qt.labs.platform 1.1 as LABS
 import Ak 1.0
 
 Page {
+    id: videoRecording
+
+    signal openVideoFormatDialog()
+    signal openVideoCodecDialog()
+    signal openAudioCodecDialog()
+
     ScrollView {
         id: scrollView
         anchors.fill: parent
         contentHeight: layout.height
         clip: true
+
+        Connections {
+            target: Recording
+
+            onAvailableVideoFormatsChanged: {
+                cbxVideoFormat.model.clear()
+
+                for (let i in Recording.availableVideoFormats) {
+                    let fmt = Recording.availableVideoFormats[i]
+
+                    cbxVideoFormat.model.append({
+                        format: fmt,
+                        description: Recording.videoFormatDescription(fmt)
+                    })
+                }
+
+                cbxVideoFormat.currentIndex =
+                        Recording.availableVideoFormats.indexOf(Recording.videoFormat)
+            }
+            onAvailableVideoCodecsChanged: {
+                cbxVideoCodec.model.clear()
+
+                for (let i in Recording.availableVideoCodecs) {
+                    let cdc = Recording.availableVideoCodecs[i]
+
+                    cbxVideoCodec.model.append({
+                        codec: cdc,
+                        description: Recording.codecDescription(cdc)
+                    })
+                }
+
+                cbxVideoCodec.currentIndex =
+                        Recording.availableVideoCodecs.indexOf(Recording.videoCodec)
+            }
+            onAvailableAudioCodecsChanged: {
+                cbxAudioCodec.model.clear()
+
+                for (let i in Recording.availableAudioCodecs) {
+                    let cdc = Recording.availableAudioCodecs[i]
+
+                    cbxAudioCodec.model.append({
+                        codec: cdc,
+                        description: Recording.codecDescription(cdc)
+                    })
+                }
+
+                cbxAudioCodec.currentIndex =
+                        Recording.availableAudioCodecs.indexOf(Recording.audioCodec)
+            }
+            onVideoFormatChanged: {
+                cbxVideoFormat.currentIndex =
+                        Recording.availableVideoFormats.indexOf(videoFormat)
+            }
+            onVideoCodecChanged: {
+                cbxVideoCodec.currentIndex =
+                        Recording.availableVideoCodecs.indexOf(videoCodec)
+            }
+            onAudioCodecChanged: {
+                cbxAudioCodec.currentIndex =
+                        Recording.availableAudioCodecs.indexOf(audioCodec)
+            }
+        }
 
         GridLayout {
             id: layout
@@ -61,36 +129,117 @@ Page {
                 Layout.columnSpan: 2
                 LayoutMirroring.enabled: true
                 LayoutMirroring.childrenInherit: true
+                checked: Recording.recordAudio
+
+                onToggled: Recording.recordAudio = checked
             }
             Label {
                 text: qsTr("File format")
             }
             ComboBox {
+                id: cbxVideoFormat
+                textRole: "description"
                 Layout.fillWidth: true
+                model: ListModel {
+                }
+
+                Component.onCompleted: {
+                    model.clear()
+
+                    for (let i in Recording.availableVideoFormats) {
+                        let fmt = Recording.availableVideoFormats[i]
+
+                        model.append({
+                            format: fmt,
+                            description: Recording.videoFormatDescription(fmt)
+                        })
+                    }
+
+                    currentIndex =
+                        Recording.availableVideoFormats.indexOf(Recording.videoFormat)
+                }
+                onCurrentIndexChanged:
+                    Recording.videoFormat =
+                        Recording.availableVideoFormats[currentIndex]
             }
             Button {
                 text: qsTr("Configure")
                 flat: true
+
+                onClicked: videoRecording.openVideoFormatDialog()
             }
             Label {
                 text: qsTr("Video codec")
             }
             ComboBox {
+                id: cbxVideoCodec
+                textRole: "description"
                 Layout.fillWidth: true
+                model: ListModel {
+                }
+
+                Component.onCompleted: {
+                    model.clear()
+
+                    for (let i in Recording.availableVideoCodecs) {
+                        let cdc = Recording.availableVideoCodecs[i]
+
+                        model.append({
+                            codec: cdc,
+                            description: Recording.codecDescription(cdc)
+                        })
+                    }
+
+                    currentIndex =
+                        Recording.availableVideoCodecs.indexOf(Recording.videoCodec)
+                }
+                onCurrentIndexChanged:
+                    Recording.videoCodec =
+                        Recording.availableVideoCodecs[currentIndex]
             }
             Button {
                 text: qsTr("Configure")
                 flat: true
+
+                onClicked: videoRecording.openVideoCodecDialog()
             }
             Label {
                 text: qsTr("Audio codec")
+                enabled: Recording.recordAudio
             }
             ComboBox {
+                id: cbxAudioCodec
+                textRole: "description"
                 Layout.fillWidth: true
+                enabled: Recording.recordAudio
+                model: ListModel {
+                }
+
+                Component.onCompleted: {
+                    model.clear()
+
+                    for (let i in Recording.availableAudioCodecs) {
+                        let cdc = Recording.availableAudioCodecs[i]
+
+                        model.append({
+                            codec: cdc,
+                            description: Recording.codecDescription(cdc)
+                        })
+                    }
+
+                    currentIndex =
+                        Recording.availableAudioCodecs.indexOf(Recording.audioCodec)
+                }
+                onCurrentIndexChanged:
+                    Recording.audioCodec =
+                        Recording.availableAudioCodecs[currentIndex]
             }
             Button {
                 text: qsTr("Configure")
+                enabled: Recording.recordAudio
                 flat: true
+
+                onClicked: videoRecording.openAudioCodecDialog()
             }
         }
     }
