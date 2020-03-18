@@ -387,27 +387,27 @@
     <message>
         <location filename="../qml/ImageCapture.qml" line="39"/>
         <source>Images directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Afbeeldingenmap</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="49"/>
         <source>Search</source>
-        <translation type="unfinished">Zoeken</translation>
+        <translation>Zoeken</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="57"/>
         <source>File format</source>
-        <translation type="unfinished"></translation>
+        <translation>Bestandsformaat</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="86"/>
         <source>Quality</source>
-        <translation type="unfinished">Kwaliteit</translation>
+        <translation>Kwaliteit</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="111"/>
         <source>Select the folder to save your photos</source>
-        <translation type="unfinished"></translation>
+        <translation>Kies de map waarin de foto&apos;s moeten worden opgeslagen</translation>
     </message>
 </context>
 <context>
@@ -797,44 +797,44 @@
     <message>
         <location filename="../qml/VideoRecording.qml" line="107"/>
         <source>Videos directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Videomap</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="117"/>
         <source>Search</source>
-        <translation type="unfinished">Zoeken</translation>
+        <translation>Zoeken</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="125"/>
         <source>Record audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Audio opnemen</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="137"/>
         <source>File format</source>
-        <translation type="unfinished"></translation>
+        <translation>Bestandsformaat</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="166"/>
         <location filename="../qml/VideoRecording.qml" line="201"/>
         <location filename="../qml/VideoRecording.qml" line="238"/>
         <source>Configure</source>
-        <translation type="unfinished"></translation>
+        <translation>Instellen</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="172"/>
         <source>Video codec</source>
-        <translation type="unfinished"></translation>
+        <translation>Videocodec</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="207"/>
         <source>Audio codec</source>
-        <translation type="unfinished"></translation>
+        <translation>Audiocodec</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="248"/>
         <source>Select the folder to save your videos</source>
-        <translation type="unfinished"></translation>
+        <translation>Kies de map waarin je de video&apos;s wilt opslaan</translation>
     </message>
 </context>
 <context>
@@ -2300,7 +2300,7 @@
     <message>
         <location filename="../qml/main.qml" line="74"/>
         <source>%1/Picture %2.%3</source>
-        <translation type="unfinished"></translation>
+        <translation>%1/Afbeelding %2.%3</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="458"/>

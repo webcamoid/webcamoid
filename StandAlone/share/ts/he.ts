@@ -387,27 +387,27 @@
     <message>
         <location filename="../qml/ImageCapture.qml" line="39"/>
         <source>Images directory</source>
-        <translation type="unfinished"></translation>
+        <translation>תיקיית תמונות</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="49"/>
         <source>Search</source>
-        <translation type="unfinished">חיפוש</translation>
+        <translation>חיפוש</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="57"/>
         <source>File format</source>
-        <translation type="unfinished"></translation>
+        <translation>מבנה קובץ</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="86"/>
         <source>Quality</source>
-        <translation type="unfinished">איכות</translation>
+        <translation>איכות</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="111"/>
         <source>Select the folder to save your photos</source>
-        <translation type="unfinished"></translation>
+        <translation>נא לבחור את התיקייה לשמירת התמונות שלך</translation>
     </message>
 </context>
 <context>
@@ -797,44 +797,44 @@
     <message>
         <location filename="../qml/VideoRecording.qml" line="107"/>
         <source>Videos directory</source>
-        <translation type="unfinished"></translation>
+        <translation>תיקיית סרטונים</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="117"/>
         <source>Search</source>
-        <translation type="unfinished">חיפוש</translation>
+        <translation>חיפוש</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="125"/>
         <source>Record audio</source>
-        <translation type="unfinished"></translation>
+        <translation>הקלטת שמע</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="137"/>
         <source>File format</source>
-        <translation type="unfinished"></translation>
+        <translation>מבנה קובץ</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="166"/>
         <location filename="../qml/VideoRecording.qml" line="201"/>
         <location filename="../qml/VideoRecording.qml" line="238"/>
         <source>Configure</source>
-        <translation type="unfinished"></translation>
+        <translation>הגדרה</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="172"/>
         <source>Video codec</source>
-        <translation type="unfinished"></translation>
+        <translation>מפענח וידאו</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="207"/>
         <source>Audio codec</source>
-        <translation type="unfinished"></translation>
+        <translation>מפענח שמע</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="248"/>
         <source>Select the folder to save your videos</source>
-        <translation type="unfinished"></translation>
+        <translation>נא לבחור את התיקייה לשמירת הסרטונים שלך</translation>
     </message>
 </context>
 <context>
@@ -2300,7 +2300,7 @@
     <message>
         <location filename="../qml/main.qml" line="74"/>
         <source>%1/Picture %2.%3</source>
-        <translation type="unfinished"></translation>
+        <translation>%1/תמונה %2.%3</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="458"/>
