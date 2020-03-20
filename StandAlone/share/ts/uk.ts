@@ -494,7 +494,7 @@
     <message>
         <location filename="../qml/PluginConfig.qml" line="204"/>
         <source>Update</source>
-        <translation type="unfinished"></translation>
+        <translation>Оновлення</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="251"/>
@@ -553,7 +553,7 @@
     <message>
         <location filename="../../src/recording.cpp" line="666"/>
         <source>%1/Video %2.%3</source>
-        <translation type="unfinished"></translation>
+        <translation>%1/Відео %2.%3</translation>
     </message>
     <message>
         <location filename="../../src/recording.cpp" line="942"/>
