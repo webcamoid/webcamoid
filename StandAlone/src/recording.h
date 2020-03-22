@@ -85,6 +85,16 @@ class Recording: public QObject
                WRITE setAudioCodec
                RESET resetAudioCodec
                NOTIFY audioCodecChanged)
+    Q_PROPERTY(QVariantMap videoCodecParams
+               READ videoCodecParams
+               WRITE setVideoCodecParams
+               RESET resetVideoCodecParams
+               NOTIFY videoCodecParamsChanged)
+    Q_PROPERTY(QVariantMap audioCodecParams
+               READ audioCodecParams
+               WRITE setAudioCodecParams
+               RESET resetAudioCodecParams
+               NOTIFY audioCodecParamsChanged)
     Q_PROPERTY(bool recordAudio
                READ recordAudio
                WRITE setRecordAudio
@@ -133,11 +143,16 @@ class Recording: public QObject
         Q_INVOKABLE QStringList availableAudioCodecs() const;
         Q_INVOKABLE QString videoFormat() const;
         Q_INVOKABLE QString videoFormatExtension() const;
+        Q_INVOKABLE QVariantList videoFormatOptions() const;
         Q_INVOKABLE QString videoCodec() const;
         Q_INVOKABLE QString audioCodec() const;
+        Q_INVOKABLE QVariantMap videoCodecParams() const;
+        Q_INVOKABLE QVariantMap audioCodecParams() const;
+        Q_INVOKABLE QVariantList videoCodecOptions() const;
+        Q_INVOKABLE QVariantList audioCodecOptions() const;
+        Q_INVOKABLE bool recordAudio() const;
         Q_INVOKABLE QString videoFormatDescription(const QString &formatId) const;
         Q_INVOKABLE QString codecDescription(const QString &codec) const;
-        Q_INVOKABLE bool recordAudio() const;
         Q_INVOKABLE QString lastVideoPreview() const;
 
         // Picture
@@ -162,8 +177,13 @@ class Recording: public QObject
         void availableAudioCodecsChanged(const QStringList &availableAudioCodecs);
         void videoFormatChanged(const QString &videoFormat);
         void videoFormatExtensionChanged(const QString &videoFormatExtension);
+        void videoFormatOptionsChanged(const QVariantMap &videoFormatOptions);
         void videoCodecChanged(const QString &videoCodec);
         void audioCodecChanged(const QString &audioCodec);
+        void videoCodecParamsChanged(const QVariantMap &videoCodecParams);
+        void audioCodecParamsChanged(const QVariantMap &audioCodecParams);
+        void videoCodecOptionsChanged(const QVariantMap &videoCodecOptions);
+        void audioCodecOptionsChanged(const QVariantMap &audioCodecOptions);
         void recordAudioChanged(bool recordAudio);
         void lastVideoPreviewChanged(const QString &lastVideoPreview);
         void imagesDirectoryChanged(const QString &imagesDirectory);
@@ -178,8 +198,13 @@ class Recording: public QObject
         void setVideoDirectory(const QString &videoDirectory);
         void setVideoFormat(const QString &videoFormat);
         void setVideoFormatExtension(const QString &videoFormatExtension);
+        void setVideoFormatOptions(const QVariantMap &videoFormatOptions);
         void setVideoCodec(const QString &videoCodec);
         void setAudioCodec(const QString &audioCodec);
+        void setVideoCodecParams(const QVariantMap &videoCodecParams);
+        void setAudioCodecParams(const QVariantMap &audioCodecParams);
+        void setVideoCodecOptions(const QVariantMap &videoCodecOptions);
+        void setAudioCodecOptions(const QVariantMap &audioCodecOptions);
         void setRecordAudio(bool recordAudio);
         void setImagesDirectory(const QString &imagesDirectory);
         void setImageFormat(const QString &imageFormat);
@@ -190,8 +215,13 @@ class Recording: public QObject
         void resetVideoDirectory();
         void resetVideoFormat();
         void resetVideoFormatExtension();
+        void resetVideoFormatOptions();
         void resetVideoCodec();
         void resetAudioCodec();
+        void resetVideoCodecParams();
+        void resetAudioCodecParams();
+        void resetVideoCodecOptions();
+        void resetAudioCodecOptions();
         void resetRecordAudio();
         void resetImagesDirectory();
         void resetImageFormat();
@@ -203,12 +233,6 @@ class Recording: public QObject
 
     private slots:
         void codecLibChanged(const QString &codecLib);
-        void outputFormatChanged(const QString &outputFormat);
-        void capsUpdated();
-        void loadCodecOptions(const QVariantList &streams);
-        void saveFormatOptions(const QVariantMap &formatOptions);
-        void saveStreams(const QVariantList &streams);
-        void saveCodecOptions();
 };
 
 #endif // RECORDING_H

@@ -551,27 +551,9 @@
 <context>
     <name>Recording</name>
     <message>
-        <location filename="../../src/recording.cpp" line="666"/>
+        <location filename="../../src/recording.cpp" line="329"/>
         <source>%1/Video %2.%3</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../src/recording.cpp" line="942"/>
-        <location filename="../../src/recording.cpp" line="1055"/>
-        <source>audio</source>
-        <translation>audio</translation>
-    </message>
-    <message>
-        <location filename="../../src/recording.cpp" line="943"/>
-        <location filename="../../src/recording.cpp" line="1056"/>
-        <source>video</source>
-        <translation>vidéo</translation>
-    </message>
-    <message>
-        <location filename="../../src/recording.cpp" line="944"/>
-        <location filename="../../src/recording.cpp" line="1057"/>
-        <source>subtitle</source>
-        <translation>sous-titre</translation>
     </message>
 </context>
 <context>
