@@ -18,7 +18,6 @@
  */
 
 import QtQuick 2.12
-import Qt.labs.platform 1.1 as LABS
 import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
 import Ak 1.0
@@ -39,6 +38,10 @@ Dialog {
     property int minimumWidth: AkUnit.create(100 * AkTheme.controlScale, "dp").pixels
     property int maximumWidth:
         width - AkUnit.create(64 * AkTheme.controlScale, "dp").pixels
+
+    signal openVideoFormatDialog()
+    signal openVideoCodecDialog()
+    signal openAudioCodecDialog()
 
     onWidthChanged: {
         if (settingsDialog.visible)
@@ -124,7 +127,11 @@ Dialog {
             Layout.fillHeight: true
 
             ImageCapture { }
-            VideoRecording { }
+            VideoRecording {
+                onOpenVideoFormatDialog: settingsDialog.openVideoFormatDialog()
+                onOpenVideoCodecDialog: settingsDialog.openVideoCodecDialog()
+                onOpenAudioCodecDialog: settingsDialog.openAudioCodecDialog()
+            }
             GeneralConfig { }
             PluginConfig { }
             UpdatesConfig { }

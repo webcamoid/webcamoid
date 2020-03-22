@@ -223,141 +223,6 @@ ApplicationWindow {
         anchors.horizontalCenter: parent.horizontalCenter
         visible: Recording.state == AkElement.ElementStatePlaying
     }
-    Item {
-        id: splitView
-        anchors.fill: parent
-
-        property int panelBorder: AkUnit.create(1 * AkTheme.controlScale, "dp").pixels
-        property int dragBorder: AkUnit.create(4 * AkTheme.controlScale, "dp").pixels
-        property int minimumWidth: 100
-
-        onWidthChanged: {
-            paneLeft.width = Math.max(paneLeft.width,
-                                      splitView.minimumWidth)
-            paneLeft.width = Math.min(paneLeft.width,
-                                      splitView.width
-                                      - paneRight.width
-                                      - splitView.panelBorder
-                                      - splitView.dragBorder)
-            paneRight.width = Math.max(paneRight.width,
-                                       splitView.minimumWidth)
-            paneRight.width = Math.min(paneRight.width,
-                                       splitView.width
-                                       - paneLeft.width
-                                       - splitView.panelBorder
-                                       - splitView.dragBorder)
-        }
-
-        Pane {
-            id: paneLeft
-            implicitWidth: 250
-            anchors.top: parent.top
-            anchors.bottom: parent.bottom
-            anchors.left: parent.left
-            visible: optionWebcam.checked
-                     || optionSound.checked
-                     || optionEffects.checked
-                     || optionSettings.checked
-
-            ScrollView {
-                id: scrollViewLeft
-                contentHeight: paneLeftLayout.height
-                anchors.fill: parent
-                clip: true
-
-                ColumnLayout {
-                    id: paneLeftLayout
-                    width: scrollViewLeft.width
-                }
-            }
-        }
-        Rectangle {
-            id: rectangleLeft
-            width: splitView.panelBorder
-            color: AkTheme.palette.active.dark
-            anchors.leftMargin: -splitView.panelBorder / 2
-            anchors.left: paneLeft.right
-            anchors.top: parent.top
-            anchors.bottom: parent.bottom
-            visible: paneLeft.visible
-        }
-        MouseArea {
-            cursorShape: Qt.SizeHorCursor
-            width: splitView.panelBorder + 2 * splitView.dragBorder
-            anchors.leftMargin: -width / 2
-            anchors.left: paneLeft.right
-            anchors.top: parent.top
-            anchors.bottom: parent.bottom
-            drag.axis: Drag.XAxis
-            visible: paneLeft.visible
-
-            onPositionChanged: {
-                paneLeft.width += mouse.x
-                paneLeft.width = Math.max(paneLeft.width,
-                                          splitView.minimumWidth)
-                paneLeft.width = Math.min(paneLeft.width,
-                                          splitView.width
-                                          - paneRight.width
-                                          - splitView.panelBorder
-                                          - splitView.dragBorder)
-            }
-        }
-
-        Pane {
-            id: paneRight
-            implicitWidth: 450
-            anchors.top: parent.top
-            anchors.bottom: parent.bottom
-            anchors.right: parent.right
-            visible: optionWebcam.checked
-                     || optionSound.checked
-                     || optionEffects.checked
-                     || optionSettings.checked
-
-            ScrollView {
-                id: scrollViewRight
-                contentHeight: paneRightLayout.height
-                anchors.fill: parent
-                clip: true
-
-                ColumnLayout {
-                    id: paneRightLayout
-                    width: scrollViewRight.width
-                }
-            }
-        }
-        Rectangle {
-            id: rectangleRight
-            width: splitView.panelBorder
-            color: AkTheme.palette.active.dark
-            anchors.rightMargin: -splitView.panelBorder / 2
-            anchors.right: paneRight.left
-            anchors.top: parent.top
-            anchors.bottom: parent.bottom
-            visible: paneRight.visible
-        }
-        MouseArea {
-            cursorShape: Qt.SizeHorCursor
-            width: splitView.panelBorder + 2 * splitView.dragBorder
-            anchors.rightMargin: -width / 2
-            anchors.right: rectangleRight.left
-            anchors.top: parent.top
-            anchors.bottom: parent.bottom
-            drag.axis: Drag.XAxis
-            visible: paneRight.visible
-
-            onPositionChanged: {
-                paneRight.width -= mouse.x
-                paneRight.width = Math.max(paneRight.width,
-                                           splitView.minimumWidth)
-                paneRight.width = Math.min(paneRight.width,
-                                           splitView.width
-                                           - paneLeft.width
-                                           - splitView.panelBorder
-                                           - splitView.dragBorder)
-            }
-        }
-    }
     ColumnLayout {
         id: controlsLayout
         anchors.left: parent.left
@@ -572,6 +437,141 @@ ApplicationWindow {
             }
         }
     }
+    Item {
+        id: splitView
+        anchors.fill: parent
+
+        property int panelBorder: AkUnit.create(1 * AkTheme.controlScale, "dp").pixels
+        property int dragBorder: AkUnit.create(4 * AkTheme.controlScale, "dp").pixels
+        property int minimumWidth: 100
+
+        onWidthChanged: {
+            paneLeft.width = Math.max(paneLeft.width,
+                                      splitView.minimumWidth)
+            paneLeft.width = Math.min(paneLeft.width,
+                                      splitView.width
+                                      - paneRight.width
+                                      - splitView.panelBorder
+                                      - splitView.dragBorder)
+            paneRight.width = Math.max(paneRight.width,
+                                       splitView.minimumWidth)
+            paneRight.width = Math.min(paneRight.width,
+                                       splitView.width
+                                       - paneLeft.width
+                                       - splitView.panelBorder
+                                       - splitView.dragBorder)
+        }
+
+        Pane {
+            id: paneLeft
+            implicitWidth: 250
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
+            anchors.left: parent.left
+            visible: optionWebcam.checked
+                     || optionSound.checked
+                     || optionEffects.checked
+                     || optionSettings.checked
+
+            ScrollView {
+                id: scrollViewLeft
+                contentHeight: paneLeftLayout.height
+                anchors.fill: parent
+                clip: true
+
+                ColumnLayout {
+                    id: paneLeftLayout
+                    width: scrollViewLeft.width
+                }
+            }
+        }
+        Rectangle {
+            id: rectangleLeft
+            width: splitView.panelBorder
+            color: AkTheme.palette.active.dark
+            anchors.leftMargin: -splitView.panelBorder / 2
+            anchors.left: paneLeft.right
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
+            visible: paneLeft.visible
+        }
+        MouseArea {
+            cursorShape: Qt.SizeHorCursor
+            width: splitView.panelBorder + 2 * splitView.dragBorder
+            anchors.leftMargin: -width / 2
+            anchors.left: paneLeft.right
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
+            drag.axis: Drag.XAxis
+            visible: paneLeft.visible
+
+            onPositionChanged: {
+                paneLeft.width += mouse.x
+                paneLeft.width = Math.max(paneLeft.width,
+                                          splitView.minimumWidth)
+                paneLeft.width = Math.min(paneLeft.width,
+                                          splitView.width
+                                          - paneRight.width
+                                          - splitView.panelBorder
+                                          - splitView.dragBorder)
+            }
+        }
+
+        Pane {
+            id: paneRight
+            implicitWidth: 450
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
+            anchors.right: parent.right
+            visible: optionWebcam.checked
+                     || optionSound.checked
+                     || optionEffects.checked
+                     || optionSettings.checked
+
+            ScrollView {
+                id: scrollViewRight
+                contentHeight: paneRightLayout.height
+                anchors.fill: parent
+                clip: true
+
+                ColumnLayout {
+                    id: paneRightLayout
+                    width: scrollViewRight.width
+                }
+            }
+        }
+        Rectangle {
+            id: rectangleRight
+            width: splitView.panelBorder
+            color: AkTheme.palette.active.dark
+            anchors.rightMargin: -splitView.panelBorder / 2
+            anchors.right: paneRight.left
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
+            visible: paneRight.visible
+        }
+        MouseArea {
+            cursorShape: Qt.SizeHorCursor
+            width: splitView.panelBorder + 2 * splitView.dragBorder
+            anchors.rightMargin: -width / 2
+            anchors.right: rectangleRight.left
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
+            drag.axis: Drag.XAxis
+            visible: paneRight.visible
+
+            onPositionChanged: {
+                paneRight.width -= mouse.x
+                paneRight.width = Math.max(paneRight.width,
+                                           splitView.minimumWidth)
+                paneRight.width = Math.min(paneRight.width,
+                                           splitView.width
+                                           - paneLeft.width
+                                           - splitView.panelBorder
+                                           - splitView.dragBorder)
+            }
+        }
+    }
 
     footer: ToolBar {
         id: toolBar
@@ -757,6 +757,25 @@ ApplicationWindow {
     }
     SettingsDialog {
         id: settingsDialog
+        width: parent.width
+        height: parent.height
+
+        onOpenVideoFormatDialog: videoFormatOptions.open()
+        onOpenVideoCodecDialog: videoCodecOptions.open()
+        onOpenAudioCodecDialog: audioCodecOptions.open()
+    }
+    VideoFormatOptions {
+        id: videoFormatOptions
+        width: parent.width
+        height: parent.height
+    }
+    VideoCodecOptions {
+        id: videoCodecOptions
+        width: parent.width
+        height: parent.height
+    }
+    AudioCodecOptions {
+        id: audioCodecOptions
         width: parent.width
         height: parent.height
     }

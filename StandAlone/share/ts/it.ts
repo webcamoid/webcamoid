@@ -164,6 +164,14 @@
     </message>
 </context>
 <context>
+    <name>AudioCodecOptions</name>
+    <message>
+        <location filename="../qml/AudioCodecOptions.qml" line="27"/>
+        <source>Audio Codec Options</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>AudioConfig</name>
     <message>
         <location filename="../qml/AudioConfig.qml" line="112"/>
@@ -567,50 +575,50 @@
 <context>
     <name>SettingsDialog</name>
     <message>
-        <location filename="../qml/SettingsDialog.qml" line="71"/>
+        <location filename="../qml/SettingsDialog.qml" line="74"/>
         <source>Image Capture</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/SettingsDialog.qml" line="72"/>
+        <location filename="../qml/SettingsDialog.qml" line="75"/>
         <source>Video Recording</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/SettingsDialog.qml" line="73"/>
+        <location filename="../qml/SettingsDialog.qml" line="76"/>
         <source>General Options</source>
         <translation type="unfinished">Preferenze Generali</translation>
     </message>
     <message>
-        <location filename="../qml/SettingsDialog.qml" line="74"/>
+        <location filename="../qml/SettingsDialog.qml" line="77"/>
         <source>Plugins</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/SettingsDialog.qml" line="75"/>
+        <location filename="../qml/SettingsDialog.qml" line="78"/>
         <source>Updates</source>
         <translation type="unfinished">Aggiornamenti</translation>
     </message>
     <message>
-        <location filename="../qml/SettingsDialog.qml" line="79"/>
+        <location filename="../qml/SettingsDialog.qml" line="82"/>
         <source>About</source>
         <extracomment>Information of the program, like name, description, vesion, etc..</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/SettingsDialog.qml" line="83"/>
+        <location filename="../qml/SettingsDialog.qml" line="86"/>
         <source>Contributors</source>
         <extracomment>List of people contributing to the project: software developers, translators, designers, etc..</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/SettingsDialog.qml" line="85"/>
+        <location filename="../qml/SettingsDialog.qml" line="88"/>
         <source>License</source>
         <extracomment>Program license.</extracomment>
         <translation type="unfinished">Licenza</translation>
     </message>
     <message>
-        <location filename="../qml/SettingsDialog.qml" line="89"/>
+        <location filename="../qml/SettingsDialog.qml" line="92"/>
         <source>3rd Party Licenses</source>
         <extracomment>License for 3rd party components used in Webcamoid, like libraries and code snippets.</extracomment>
         <translation type="unfinished"></translation>
@@ -772,6 +780,22 @@
         <location filename="../qml/UpdatesConfig.qml" line="169"/>
         <source>Report a Bug</source>
         <translation>Segnala un Bug</translation>
+    </message>
+</context>
+<context>
+    <name>VideoCodecOptions</name>
+    <message>
+        <location filename="../qml/VideoCodecOptions.qml" line="27"/>
+        <source>Video Codec Options</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>VideoFormatOptions</name>
+    <message>
+        <location filename="../qml/VideoFormatOptions.qml" line="27"/>
+        <source>Video Format Options</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2275,7 +2299,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="410"/>
+        <location filename="../qml/main.qml" line="275"/>
         <source>Take a photo</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2285,7 +2309,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="458"/>
+        <location filename="../qml/main.qml" line="323"/>
         <source>Record video</source>
         <translation type="unfinished"></translation>
     </message>
