@@ -168,7 +168,7 @@
     <message>
         <location filename="../qml/AudioCodecOptions.qml" line="27"/>
         <source>Audio Codec Options</source>
-        <translation type="unfinished"></translation>
+        <translation>אפשרויות מפענח שמע</translation>
     </message>
 </context>
 <context>
@@ -577,51 +577,51 @@
     <message>
         <location filename="../qml/SettingsDialog.qml" line="74"/>
         <source>Image Capture</source>
-        <translation type="unfinished">לכידת תמונה</translation>
+        <translation>לכידת תמונה</translation>
     </message>
     <message>
         <location filename="../qml/SettingsDialog.qml" line="75"/>
         <source>Video Recording</source>
-        <translation type="unfinished">הקלטת וידאו</translation>
+        <translation>הקלטת וידאו</translation>
     </message>
     <message>
         <location filename="../qml/SettingsDialog.qml" line="76"/>
         <source>General Options</source>
-        <translation type="unfinished">אפשרויות כלליות</translation>
+        <translation>אפשרויות כלליות</translation>
     </message>
     <message>
         <location filename="../qml/SettingsDialog.qml" line="77"/>
         <source>Plugins</source>
-        <translation type="unfinished">תוספים</translation>
+        <translation>תוספים</translation>
     </message>
     <message>
         <location filename="../qml/SettingsDialog.qml" line="78"/>
         <source>Updates</source>
-        <translation type="unfinished">עדכונים</translation>
+        <translation>עדכונים</translation>
     </message>
     <message>
         <location filename="../qml/SettingsDialog.qml" line="82"/>
         <source>About</source>
         <extracomment>Information of the program, like name, description, vesion, etc..</extracomment>
-        <translation type="unfinished">על אודות</translation>
+        <translation>על אודות</translation>
     </message>
     <message>
         <location filename="../qml/SettingsDialog.qml" line="86"/>
         <source>Contributors</source>
         <extracomment>List of people contributing to the project: software developers, translators, designers, etc..</extracomment>
-        <translation type="unfinished">מתנדבים</translation>
+        <translation>מתנדבים</translation>
     </message>
     <message>
         <location filename="../qml/SettingsDialog.qml" line="88"/>
         <source>License</source>
         <extracomment>Program license.</extracomment>
-        <translation type="unfinished">רישיון</translation>
+        <translation>רישיון</translation>
     </message>
     <message>
         <location filename="../qml/SettingsDialog.qml" line="92"/>
         <source>3rd Party Licenses</source>
         <extracomment>License for 3rd party components used in Webcamoid, like libraries and code snippets.</extracomment>
-        <translation type="unfinished">רישיונות צד־שלישי</translation>
+        <translation>רישיונות צד־שלישי</translation>
     </message>
 </context>
 <context>
@@ -787,7 +787,7 @@
     <message>
         <location filename="../qml/VideoCodecOptions.qml" line="27"/>
         <source>Video Codec Options</source>
-        <translation type="unfinished"></translation>
+        <translation>אפשרויות מפענח וידאו</translation>
     </message>
 </context>
 <context>
@@ -795,7 +795,7 @@
     <message>
         <location filename="../qml/VideoFormatOptions.qml" line="27"/>
         <source>Video Format Options</source>
-        <translation type="unfinished"></translation>
+        <translation>אפשרויות תסדיר וידאו</translation>
     </message>
 </context>
 <context>
