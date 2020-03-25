@@ -173,12 +173,12 @@
     <message>
         <location filename="../qml/AudioCodecOptions.qml" line="159"/>
         <source>Bitrate</source>
-        <translation type="unfinished">קצב סיביות</translation>
+        <translation>קצב סיביות</translation>
     </message>
     <message>
         <location filename="../qml/AudioCodecOptions.qml" line="163"/>
         <source>Bitrate (bits/secs)</source>
-        <translation type="unfinished">קצב סיביות (סיביות לשנייה)</translation>
+        <translation>קצב סיביות (סיביות לשנייה)</translation>
     </message>
 </context>
 <context>
@@ -735,18 +735,18 @@
     <message>
         <location filename="../qml/VideoCodecOptions.qml" line="162"/>
         <source>Bitrate</source>
-        <translation type="unfinished">קצב סיביות</translation>
+        <translation>קצב סיביות</translation>
     </message>
     <message>
         <location filename="../qml/VideoCodecOptions.qml" line="166"/>
         <source>Bitrate (bits/secs)</source>
-        <translation type="unfinished">קצב סיביות (סיביות לשנייה)</translation>
+        <translation>קצב סיביות (סיביות לשנייה)</translation>
     </message>
     <message>
         <location filename="../qml/VideoCodecOptions.qml" line="176"/>
         <location filename="../qml/VideoCodecOptions.qml" line="180"/>
         <source>Keyframes stride</source>
-        <translation type="unfinished">פסע שקופיות מפתח</translation>
+        <translation>פסע שקופיות מפתח</translation>
     </message>
 </context>
 <context>
@@ -759,7 +759,7 @@
     <message>
         <location filename="../qml/VideoFormatOptions.qml" line="162"/>
         <source>File extension</source>
-        <translation type="unfinished"></translation>
+        <translation>סיומת קובץ</translation>
     </message>
 </context>
 <context>
