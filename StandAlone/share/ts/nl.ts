@@ -168,7 +168,7 @@
     <message>
         <location filename="../qml/AudioCodecOptions.qml" line="27"/>
         <source>Audio Codec Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Audiocodecopties</translation>
     </message>
     <message>
         <location filename="../qml/AudioCodecOptions.qml" line="159"/>
@@ -559,51 +559,51 @@
     <message>
         <location filename="../qml/SettingsDialog.qml" line="74"/>
         <source>Image Capture</source>
-        <translation type="unfinished">Afbeelding vastleggen</translation>
+        <translation>Afbeelding vastleggen</translation>
     </message>
     <message>
         <location filename="../qml/SettingsDialog.qml" line="75"/>
         <source>Video Recording</source>
-        <translation type="unfinished">Video-opname</translation>
+        <translation>Video-opname</translation>
     </message>
     <message>
         <location filename="../qml/SettingsDialog.qml" line="76"/>
         <source>General Options</source>
-        <translation type="unfinished">Algemene opties</translation>
+        <translation>Algemene opties</translation>
     </message>
     <message>
         <location filename="../qml/SettingsDialog.qml" line="77"/>
         <source>Plugins</source>
-        <translation type="unfinished">Plug-ins</translation>
+        <translation>Plug-ins</translation>
     </message>
     <message>
         <location filename="../qml/SettingsDialog.qml" line="78"/>
         <source>Updates</source>
-        <translation type="unfinished">Updates</translation>
+        <translation>Updates</translation>
     </message>
     <message>
         <location filename="../qml/SettingsDialog.qml" line="82"/>
         <source>About</source>
         <extracomment>Information of the program, like name, description, vesion, etc..</extracomment>
-        <translation type="unfinished">Over</translation>
+        <translation>Over</translation>
     </message>
     <message>
         <location filename="../qml/SettingsDialog.qml" line="86"/>
         <source>Contributors</source>
         <extracomment>List of people contributing to the project: software developers, translators, designers, etc..</extracomment>
-        <translation type="unfinished">Bijdragers</translation>
+        <translation>Bijdragers</translation>
     </message>
     <message>
         <location filename="../qml/SettingsDialog.qml" line="88"/>
         <source>License</source>
         <extracomment>Program license.</extracomment>
-        <translation type="unfinished">Licentie</translation>
+        <translation>Licentie</translation>
     </message>
     <message>
         <location filename="../qml/SettingsDialog.qml" line="92"/>
         <source>3rd Party Licenses</source>
         <extracomment>License for 3rd party components used in Webcamoid, like libraries and code snippets.</extracomment>
-        <translation type="unfinished">Externe licenties</translation>
+        <translation>Externe licenties</translation>
     </message>
 </context>
 <context>
@@ -730,7 +730,7 @@
     <message>
         <location filename="../qml/VideoCodecOptions.qml" line="27"/>
         <source>Video Codec Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Videocodecopties</translation>
     </message>
     <message>
         <location filename="../qml/VideoCodecOptions.qml" line="162"/>
@@ -754,7 +754,7 @@
     <message>
         <location filename="../qml/VideoFormatOptions.qml" line="27"/>
         <source>Video Format Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Videoformaatopties</translation>
     </message>
     <message>
         <location filename="../qml/VideoFormatOptions.qml" line="162"/>

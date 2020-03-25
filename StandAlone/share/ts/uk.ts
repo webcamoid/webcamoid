@@ -168,7 +168,7 @@
     <message>
         <location filename="../qml/AudioCodecOptions.qml" line="27"/>
         <source>Audio Codec Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Параметри авдіокодека</translation>
     </message>
     <message>
         <location filename="../qml/AudioCodecOptions.qml" line="159"/>
@@ -484,7 +484,7 @@
     <message>
         <location filename="../qml/PluginConfig.qml" line="204"/>
         <source>Update</source>
-        <translation type="unfinished"></translation>
+        <translation>Оновлення</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="251"/>
@@ -543,7 +543,7 @@
     <message>
         <location filename="../../src/recording.cpp" line="350"/>
         <source>%1/Video %2.%3</source>
-        <translation type="unfinished"></translation>
+        <translation>%1/Відео %2.%3</translation>
     </message>
 </context>
 <context>
@@ -559,51 +559,51 @@
     <message>
         <location filename="../qml/SettingsDialog.qml" line="74"/>
         <source>Image Capture</source>
-        <translation type="unfinished">Захоплення зображення</translation>
+        <translation>Захоплення зображення</translation>
     </message>
     <message>
         <location filename="../qml/SettingsDialog.qml" line="75"/>
         <source>Video Recording</source>
-        <translation type="unfinished">Запис відео</translation>
+        <translation>Запис відео</translation>
     </message>
     <message>
         <location filename="../qml/SettingsDialog.qml" line="76"/>
         <source>General Options</source>
-        <translation type="unfinished">Загальні параметри</translation>
+        <translation>Загальні параметри</translation>
     </message>
     <message>
         <location filename="../qml/SettingsDialog.qml" line="77"/>
         <source>Plugins</source>
-        <translation type="unfinished">Втулки</translation>
+        <translation>Втулки</translation>
     </message>
     <message>
         <location filename="../qml/SettingsDialog.qml" line="78"/>
         <source>Updates</source>
-        <translation type="unfinished">Оновлення</translation>
+        <translation>Оновлення</translation>
     </message>
     <message>
         <location filename="../qml/SettingsDialog.qml" line="82"/>
         <source>About</source>
         <extracomment>Information of the program, like name, description, vesion, etc..</extracomment>
-        <translation type="unfinished">Про нас</translation>
+        <translation>Про нас</translation>
     </message>
     <message>
         <location filename="../qml/SettingsDialog.qml" line="86"/>
         <source>Contributors</source>
         <extracomment>List of people contributing to the project: software developers, translators, designers, etc..</extracomment>
-        <translation type="unfinished">Вкладники</translation>
+        <translation>Вкладники</translation>
     </message>
     <message>
         <location filename="../qml/SettingsDialog.qml" line="88"/>
         <source>License</source>
         <extracomment>Program license.</extracomment>
-        <translation type="unfinished">Ліцензія</translation>
+        <translation>Ліцензія</translation>
     </message>
     <message>
         <location filename="../qml/SettingsDialog.qml" line="92"/>
         <source>3rd Party Licenses</source>
         <extracomment>License for 3rd party components used in Webcamoid, like libraries and code snippets.</extracomment>
-        <translation type="unfinished">Ліцензії третьої сторони</translation>
+        <translation>Ліцензії третьої сторони</translation>
     </message>
 </context>
 <context>
@@ -730,7 +730,7 @@
     <message>
         <location filename="../qml/VideoCodecOptions.qml" line="27"/>
         <source>Video Codec Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Параметри відеокодека</translation>
     </message>
     <message>
         <location filename="../qml/VideoCodecOptions.qml" line="162"/>
@@ -754,7 +754,7 @@
     <message>
         <location filename="../qml/VideoFormatOptions.qml" line="27"/>
         <source>Video Format Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Параметри формату відео</translation>
     </message>
     <message>
         <location filename="../qml/VideoFormatOptions.qml" line="162"/>
