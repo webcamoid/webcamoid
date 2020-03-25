@@ -90,11 +90,6 @@ class MultiSinkElement: public AkElement
     private:
         MultiSinkElementPrivate *d;
 
-    protected:
-        QString controlInterfaceProvide(const QString &controlId) const;
-        void controlInterfaceConfigure(QQmlContext *context,
-                                       const QString &controlId) const;
-
     signals:
         void locationChanged(const QString &location);
         void defaultFormatChanged(const QString &defaultFormat);

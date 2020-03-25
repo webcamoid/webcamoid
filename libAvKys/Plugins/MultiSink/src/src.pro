@@ -16,11 +16,6 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-exists(../translations.qrc) {
-    TRANSLATIONS = $$files(../share/ts/*.ts)
-    RESOURCES += ../translations.qrc
-}
-
 exists(akcommons.pri) {
     include(akcommons.pri)
 } else {
@@ -44,18 +39,12 @@ HEADERS = \
 INCLUDEPATH += \
     ../../../Lib/src
 
-QML_IMPORT_PATH += $$PWD/../../Lib/share/qml
-
 LIBS += -L$${OUT_PWD}/../../../Lib/$${BIN_DIR} -l$$qtLibraryTarget($${COMMONS_TARGET})
 
 OTHER_FILES += \
-    ../pspec.json \
-    $$files(../share/qml/*.qml)
+    ../pspec.json
 
 QT += qml
-
-RESOURCES = \
-    ../MultiSink.qrc
 
 SOURCES = \
     multisink.cpp \
@@ -64,10 +53,6 @@ SOURCES = \
     multisinkglobals.cpp \
     multisinkutils.cpp \
     mediawriter.cpp
-
-lupdate_only {
-    SOURCES += $$files(../share/qml/*.qml)
-}
 
 DESTDIR = $${OUT_PWD}/../$${BIN_DIR}
 TARGET = MultiSink

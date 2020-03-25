@@ -51,17 +51,20 @@ class RecordingPrivate
         AkVideoCaps m_videoCaps;
         QStringList m_availableVideoFormats;
         QStringList m_availableVideoFormatExtensions;
+        QVariantList m_availableVideoFormatOptions;
         QStringList m_availableVideoCodecs;
         QStringList m_availableAudioCodecs;
+        QVariantList m_availableVideoCodecOptions;
+        QVariantList m_availableAudioCodecOptions;
         QString m_videoFormat;
         QString m_videoFormatExtension;
-        QVariantList m_videoFormatOptions;
+        QVariantMap m_videoFormatOptions;
         QString m_videoCodec;
         QString m_audioCodec;
         QVariantMap m_videoCodecParams;
         QVariantMap m_audioCodecParams;
-        QVariantList m_videoCodecOptions;
-        QVariantList m_audioCodecOptions;
+        QVariantMap m_videoCodecOptions;
+        QVariantMap m_audioCodecOptions;
         QString m_imageFormat {"png"};
         QString m_imagesDirectory;
         QString m_videoDirectory;
@@ -87,8 +90,11 @@ class RecordingPrivate
         void updatePreviews();
         void updateAvailableVideoFormats(bool save=false);
         void updateAvailableVideoFormatExtensions(bool save=false);
+        void updateAvailableVideoFormatOptions(bool save=false);
         void updateAvailableVideoCodecs(bool save=false);
         void updateAvailableAudioCodecs(bool save=false);
+        void updateAvailableVideoCodecsOptions(bool save=false);
+        void updateAvailableAudioCodecsOptions(bool save=false);
         void updateVideoFormat(bool save=false);
         void updateVideoFormatExtension(bool save=false);
         void updateVideoFormatOptions(bool save=false);
@@ -96,7 +102,7 @@ class RecordingPrivate
         void updateAudioCodec(bool save=false);
         void updateVideoCodecParams(bool save=false);
         void updateAudioCodecParams(bool save=false);
-        void updateStreams();
+        void updateStreams(bool save=false);
         void updateVideoCodecOptions(bool save=false);
         void updateAudioCodecOptions(bool save=false);
         void saveMultiSinkCodecLib(const QString &codecLib);
@@ -171,6 +177,11 @@ QStringList Recording::availableVideoFormatExtensions() const
     return this->d->m_availableVideoFormatExtensions;
 }
 
+QVariantList Recording::availableVideoFormatOptions() const
+{
+    return this->d->m_availableVideoFormatOptions;
+}
+
 QStringList Recording::availableVideoCodecs() const
 {
     return this->d->m_availableVideoCodecs;
@@ -179,6 +190,16 @@ QStringList Recording::availableVideoCodecs() const
 QStringList Recording::availableAudioCodecs() const
 {
     return this->d->m_availableAudioCodecs;
+}
+
+QVariantList Recording::availableVideoCodecOptions() const
+{
+    return this->d->m_availableVideoCodecOptions;
+}
+
+QVariantList Recording::availableAudioCodecOptions() const
+{
+    return this->d->m_availableAudioCodecOptions;
 }
 
 QString Recording::videoFormat() const
@@ -191,7 +212,7 @@ QString Recording::videoFormatExtension() const
     return this->d->m_videoFormatExtension;
 }
 
-QVariantList Recording::videoFormatOptions() const
+QVariantMap Recording::videoFormatOptions() const
 {
     return this->d->m_videoFormatOptions;
 }
@@ -216,12 +237,12 @@ QVariantMap Recording::audioCodecParams() const
     return this->d->m_audioCodecParams;
 }
 
-QVariantList Recording::videoCodecOptions() const
+QVariantMap Recording::videoCodecOptions() const
 {
     return this->d->m_videoCodecOptions;
 }
 
-QVariantList Recording::audioCodecOptions() const
+QVariantMap Recording::audioCodecOptions() const
 {
     return this->d->m_audioCodecOptions;
 }
@@ -301,7 +322,7 @@ void Recording::setAudioCaps(const AkAudioCaps &audioCaps)
 
     this->d->m_audioCaps = audioCaps;
     emit this->audioCapsChanged(audioCaps);
-    this->d->updateStreams();
+    this->d->updateStreams(true);
 }
 
 void Recording::setVideoCaps(const AkVideoCaps &videoCaps)
@@ -311,7 +332,7 @@ void Recording::setVideoCaps(const AkVideoCaps &videoCaps)
 
     this->d->m_videoCaps = videoCaps;
     emit this->videoCapsChanged(videoCaps);
-    this->d->updateStreams();
+    this->d->updateStreams(true);
 }
 
 void Recording::setState(AkElement::ElementState state)
@@ -368,7 +389,7 @@ void Recording::setVideoFormat(const QString &videoFormat)
     emit this->videoFormatChanged(videoFormat);
     this->d->saveVideoFormat(videoFormat);
     this->d->updateAvailableVideoFormatExtensions(true);
-    this->d->updateVideoFormatOptions(true);
+    this->d->updateAvailableVideoFormatOptions(true);
     this->d->updateAvailableVideoCodecs(true);
     this->d->updateAvailableAudioCodecs(true);
 }
@@ -385,23 +406,7 @@ void Recording::setVideoFormatExtension(const QString &videoFormatExtension)
 
 void Recording::setVideoFormatOptions(const QVariantMap &videoFormatOptions)
 {
-    QVariantList formatOptions;
-    QVariantList defaultFormatOptions;
-
-    if (this->d->m_record)
-        QMetaObject::invokeMethod(this->d->m_record.data(),
-                                  "formatOptions",
-                                  Q_RETURN_ARG(QVariantList, defaultFormatOptions));
-
-    for (auto &option: defaultFormatOptions) {
-        auto optionParams = option.toList();
-        optionParams[7] =
-                videoFormatOptions.value(optionParams[0].toString(),
-                                         optionParams[6]);
-        formatOptions << QVariant(optionParams);
-    }
-
-    if (this->d->m_videoFormatOptions == formatOptions)
+    if (this->d->m_videoFormatOptions == videoFormatOptions)
         return;
 
     if (this->d->m_record)
@@ -409,7 +414,7 @@ void Recording::setVideoFormatOptions(const QVariantMap &videoFormatOptions)
                                   "setFormatOptions",
                                   Q_ARG(QVariantMap, videoFormatOptions));
 
-    this->d->m_videoFormatOptions = formatOptions;
+    this->d->m_videoFormatOptions = videoFormatOptions;
     emit this->videoFormatOptionsChanged(videoFormatOptions);
     this->d->saveVideoFormatOptions(videoFormatOptions);
 }
@@ -444,8 +449,7 @@ void Recording::setVideoCodecParams(const QVariantMap &videoCodecParams)
     this->d->m_videoCodecParams = videoCodecParams;
     emit this->videoCodecParamsChanged(this->d->m_videoCodecParams);
     this->d->saveVideoCodecParams(videoCodecParams);
-    this->d->updateStreams();
-    this->d->updateVideoCodecOptions(true);
+    this->d->updateStreams(true);
 }
 
 void Recording::setAudioCodecParams(const QVariantMap &audioCodecParams)
@@ -456,30 +460,12 @@ void Recording::setAudioCodecParams(const QVariantMap &audioCodecParams)
     this->d->m_audioCodecParams = audioCodecParams;
     emit this->audioCodecParamsChanged(this->d->m_audioCodecParams);
     this->d->saveAudioCodecParams(audioCodecParams);
-    this->d->updateStreams();
-    this->d->updateAudioCodecOptions(true);
+    this->d->updateStreams(true);
 }
 
 void Recording::setVideoCodecOptions(const QVariantMap &videoCodecOptions)
 {
-    QVariantList codecOptions;
-    QVariantList defaultCodecOptions;
-
-    if (this->d->m_record)
-        QMetaObject::invokeMethod(this->d->m_record.data(),
-                                  "codecOptions",
-                                  Q_RETURN_ARG(QVariantList, defaultCodecOptions),
-                                  Q_ARG(int, 0));
-
-    for (auto &option: defaultCodecOptions) {
-        auto optionParams = option.toList();
-        optionParams[7] =
-                videoCodecOptions.value(optionParams[0].toString(),
-                                        optionParams[6]);
-        codecOptions << QVariant(optionParams);
-    }
-
-    if (this->d->m_videoCodecOptions == codecOptions)
+    if (this->d->m_videoCodecOptions == videoCodecOptions)
         return;
 
     if (this->d->m_record)
@@ -488,31 +474,14 @@ void Recording::setVideoCodecOptions(const QVariantMap &videoCodecOptions)
                                   Q_ARG(int, 0),
                                   Q_ARG(QVariantMap, videoCodecOptions));
 
-    this->d->m_videoCodecOptions = codecOptions;
+    this->d->m_videoCodecOptions = videoCodecOptions;
     emit this->videoCodecOptionsChanged(videoCodecOptions);
     this->d->saveVideoCodecOptions(videoCodecOptions);
 }
 
 void Recording::setAudioCodecOptions(const QVariantMap &audioCodecOptions)
 {
-    QVariantList codecOptions;
-    QVariantList defaultCodecOptions;
-
-    if (this->d->m_record)
-        QMetaObject::invokeMethod(this->d->m_record.data(),
-                                  "codecOptions",
-                                  Q_RETURN_ARG(QVariantList, defaultCodecOptions),
-                                  Q_ARG(int, 1));
-
-    for (auto &option: defaultCodecOptions) {
-        auto optionParams = option.toList();
-        optionParams[7] =
-                audioCodecOptions.value(optionParams[0].toString(),
-                                        optionParams[6]);
-        codecOptions << QVariant(optionParams);
-    }
-
-    if (this->d->m_audioCodecOptions == codecOptions)
+    if (this->d->m_audioCodecOptions == audioCodecOptions)
         return;
 
     if (this->d->m_record)
@@ -521,7 +490,7 @@ void Recording::setAudioCodecOptions(const QVariantMap &audioCodecOptions)
                                   Q_ARG(int, 1),
                                   Q_ARG(QVariantMap, audioCodecOptions));
 
-    this->d->m_audioCodecOptions = codecOptions;
+    this->d->m_audioCodecOptions = audioCodecOptions;
     emit this->audioCodecOptionsChanged(audioCodecOptions);
     this->d->saveAudioCodecOptions(audioCodecOptions);
 }
@@ -534,7 +503,7 @@ void Recording::setRecordAudio(bool recordAudio)
     this->d->m_recordAudio = recordAudio;
     emit this->recordAudioChanged(recordAudio);
     this->d->saveRecordAudio(recordAudio);
-    this->d->updateStreams();
+    this->d->updateStreams(true);
 }
 
 void Recording::setImagesDirectory(const QString &imagesDirectory)
@@ -645,7 +614,7 @@ void Recording::resetVideoCodecParams()
 {
     QVariantMap streamParams;
 
-    if (this->d->m_record) {
+    if (this->d->m_record && !this->d->m_videoCodec.isEmpty()) {
         QVariantMap defaultParams;
         QMetaObject::invokeMethod(this->d->m_record.data(),
                                   "defaultCodecParams",
@@ -653,9 +622,11 @@ void Recording::resetVideoCodecParams()
                                   Q_ARG(QString, this->d->m_videoCodec));
 
         streamParams = {
-            {"codec"  , this->d->m_videoCodec                },
-            {"bitrate", defaultParams.value("defaultBitRate")},
-            {"gop"    , defaultParams.value("defaultGOP")    },
+            {"codec"         , this->d->m_videoCodec                },
+            {"bitrate"       , defaultParams.value("defaultBitRate")},
+            {"gop"           , defaultParams.value("defaultGOP")    },
+            {"defaultBitrate", defaultParams.value("defaultBitRate")},
+            {"defaultGOP"    , defaultParams.value("defaultGOP")    },
         };
     }
 
@@ -666,7 +637,7 @@ void Recording::resetAudioCodecParams()
 {
     QVariantMap streamParams;
 
-    if (this->d->m_record) {
+    if (this->d->m_record && !this->d->m_audioCodec.isEmpty()) {
         QVariantMap defaultParams;
         QMetaObject::invokeMethod(this->d->m_record.data(),
                                   "defaultCodecParams",
@@ -674,8 +645,9 @@ void Recording::resetAudioCodecParams()
                                   Q_ARG(QString, this->d->m_audioCodec));
 
         streamParams = {
-            {"codec"  , this->d->m_audioCodec                },
-            {"bitrate", defaultParams.value("defaultBitRate")},
+            {"codec"         , this->d->m_audioCodec                },
+            {"bitrate"       , defaultParams.value("defaultBitRate")},
+            {"defaultBitrate", defaultParams.value("defaultBitRate")},
         };
     }
 
@@ -935,6 +907,31 @@ void RecordingPrivate::updateAvailableVideoFormatExtensions(bool save)
     }
 }
 
+void RecordingPrivate::updateAvailableVideoFormatOptions(bool save)
+{
+    if (!this->m_record)
+        return;
+
+    QVariantList defaultFormatOptions;
+    QMetaObject::invokeMethod(this->m_record.data(),
+                              "formatOptions",
+                              Q_RETURN_ARG(QVariantList, defaultFormatOptions));
+
+    QVariantList formatOptions;
+
+    for (auto &option: defaultFormatOptions) {
+        auto optionParams = option.toList();
+        optionParams[7] = optionParams[6];
+        formatOptions << QVariant(optionParams);
+    }
+
+    if (this->m_availableVideoFormatOptions != formatOptions) {
+        this->m_availableVideoFormatOptions = formatOptions;
+        emit self->availableVideoFormatOptionsChanged(formatOptions);
+        this->updateVideoFormatOptions(save);
+    }
+}
+
 void RecordingPrivate::updateAvailableVideoCodecs(bool save)
 {
     QStringList videoCodecs;
@@ -970,6 +967,58 @@ void RecordingPrivate::updateAvailableAudioCodecs(bool save)
     }
 }
 
+void RecordingPrivate::updateAvailableVideoCodecsOptions(bool save)
+{
+    if (!this->m_record)
+        return;
+
+    QVariantList defaultCodecOptions;
+    QMetaObject::invokeMethod(this->m_record.data(),
+                              "codecOptions",
+                              Q_RETURN_ARG(QVariantList, defaultCodecOptions),
+                              Q_ARG(int, 0));
+
+    QVariantList codecOptions;
+
+    for (auto &option: defaultCodecOptions) {
+        auto optionParams = option.toList();
+        optionParams[7] = optionParams[6];
+        codecOptions << QVariant(optionParams);
+    }
+
+    if (this->m_availableVideoCodecOptions != codecOptions) {
+        this->m_availableVideoCodecOptions = codecOptions;
+        emit self->availableVideoCodecOptionsChanged(codecOptions);
+        this->updateVideoCodecOptions(save);
+    }
+}
+
+void RecordingPrivate::updateAvailableAudioCodecsOptions(bool save)
+{
+    if (!this->m_record)
+        return;
+
+    QVariantList defaultCodecOptions;
+    QMetaObject::invokeMethod(this->m_record.data(),
+                              "codecOptions",
+                              Q_RETURN_ARG(QVariantList, defaultCodecOptions),
+                              Q_ARG(int, 1));
+
+    QVariantList codecOptions;
+
+    for (auto &option: defaultCodecOptions) {
+        auto optionParams = option.toList();
+        optionParams[7] = optionParams[6];
+        codecOptions << QVariant(optionParams);
+    }
+
+    if (this->m_availableAudioCodecOptions != codecOptions) {
+        this->m_availableAudioCodecOptions = codecOptions;
+        emit self->availableAudioCodecOptionsChanged(codecOptions);
+        this->updateAudioCodecOptions(save);
+    }
+}
+
 void RecordingPrivate::updateVideoFormat(bool save)
 {
     if (!this->m_record)
@@ -996,7 +1045,7 @@ void RecordingPrivate::updateVideoFormat(bool save)
             this->saveVideoFormat(videoFormat);
 
         this->updateAvailableVideoFormatExtensions(save);
-        this->updateVideoFormatOptions(save);
+        this->updateAvailableVideoFormatOptions(save);
         this->updateAvailableVideoCodecs(save);
         this->updateAvailableAudioCodecs(save);
     }
@@ -1012,18 +1061,20 @@ void RecordingPrivate::updateVideoFormatExtension(bool save)
     auto &extensions =
             this->m_availableVideoFormatExtensions;
     auto extension =
-            config.value("videoFormatExtension",
-                         extensions.value(0)).toString();
+            config.value("videoFormatExtension").toString();
 
-    if (this->m_videoFormatExtension == extension) {
+    if (!extensions.contains(extension))
+        extension = extensions.value(0);
+
+    config.endGroup();
+
+    if (this->m_videoFormatExtension != extension) {
         this->m_videoFormatExtension = extension;
         emit self->videoFormatExtensionChanged(extension);
 
         if (save)
             this->saveVideoFormatExtension(extension);
     }
-
-    config.endGroup();
 }
 
 void RecordingPrivate::updateVideoFormatOptions(bool save)
@@ -1036,8 +1087,7 @@ void RecordingPrivate::updateVideoFormatOptions(bool save)
                               "formatOptions",
                               Q_RETURN_ARG(QVariantList, defaultFormatOptions));
 
-    QVariantList formatOptions;
-    QVariantMap formatOptionsMap;
+    QVariantMap formatOptions;
 
     QSettings config;
     config.beginGroup(QString("RecordConfigs_%1_options")
@@ -1045,25 +1095,26 @@ void RecordingPrivate::updateVideoFormatOptions(bool save)
 
     for (auto &option: defaultFormatOptions) {
         auto optionParams = option.toList();
-        optionParams[7] =
-                config.value(optionParams[0].toString(), optionParams[6]);
-        formatOptions << QVariant(optionParams);
-        formatOptionsMap[optionParams[0].toString()] = optionParams[7];
+        auto key = optionParams[0].toString();
+        formatOptions[key] = config.value(key, optionParams[6]);
+
+        if (optionParams[2] == "flags" && !formatOptions[key].isValid())
+            formatOptions[key] = QStringList();
     }
+
+    config.endGroup();
 
     if (this->m_videoFormatOptions != formatOptions) {
         QMetaObject::invokeMethod(this->m_record.data(),
                                   "setFormatOptions",
-                                  Q_ARG(QVariantMap, formatOptionsMap));
+                                  Q_ARG(QVariantMap, formatOptions));
 
         this->m_videoFormatOptions = formatOptions;
-        emit self->videoFormatOptionsChanged(formatOptionsMap);
+        emit self->videoFormatOptionsChanged(formatOptions);
 
         if (save)
-            this->saveVideoFormatOptions(formatOptionsMap);
+            this->saveVideoFormatOptions(formatOptions);
     }
-
-    config.endGroup();
 }
 
 void RecordingPrivate::updateVideoCodec(bool save)
@@ -1082,6 +1133,8 @@ void RecordingPrivate::updateVideoCodec(bool save)
     if (!this->m_availableVideoCodecs.contains(videoCodec))
         videoCodec = defaultVideoCodec;
 
+    config.endGroup();
+
     if (this->m_videoCodec != videoCodec) {
         this->m_videoCodec = videoCodec;
         emit self->videoCodecChanged(videoCodec);
@@ -1091,8 +1144,6 @@ void RecordingPrivate::updateVideoCodec(bool save)
 
         this->updateVideoCodecParams(save);
     }
-
-    config.endGroup();
 }
 
 void RecordingPrivate::updateAudioCodec(bool save)
@@ -1111,6 +1162,8 @@ void RecordingPrivate::updateAudioCodec(bool save)
     if (!this->m_availableAudioCodecs.contains(audioCodec))
         audioCodec = defaultAudioCodec;
 
+    config.endGroup();
+
     if (this->m_audioCodec != audioCodec) {
         this->m_audioCodec = audioCodec;
         emit self->audioCodecChanged(audioCodec);
@@ -1120,8 +1173,6 @@ void RecordingPrivate::updateAudioCodec(bool save)
 
         this->updateAudioCodecParams(save);
     }
-
-    config.endGroup();
 }
 
 void RecordingPrivate::updateVideoCodecParams(bool save)
@@ -1129,26 +1180,32 @@ void RecordingPrivate::updateVideoCodecParams(bool save)
     if (!this->m_record)
         return;
 
-    QSettings config;
-    config.beginGroup(QString("RecordConfigs_%1_stream_video_%2")
-                      .arg(this->m_videoFormat, this->m_videoCodec));
+    QVariantMap streamParams;
 
-    QVariantMap defaultParams;
-    QMetaObject::invokeMethod(this->m_record.data(),
-                              "defaultCodecParams",
-                              Q_RETURN_ARG(QVariantMap, defaultParams),
-                              Q_ARG(QString, this->m_videoCodec));
+    if (!this->m_videoCodec.isEmpty()) {
+        QSettings config;
+        config.beginGroup(QString("RecordConfigs_%1_stream_video_%2")
+                          .arg(this->m_videoFormat, this->m_videoCodec));
 
-    auto bitrate =
-            config.value("bitrate", defaultParams.value("defaultBitRate"));
-    auto gop = config.value("gop", defaultParams.value("defaultGOP"));
-    config.endGroup();
+        QVariantMap defaultParams;
+        QMetaObject::invokeMethod(this->m_record.data(),
+                                  "defaultCodecParams",
+                                  Q_RETURN_ARG(QVariantMap, defaultParams),
+                                  Q_ARG(QString, this->m_videoCodec));
 
-    QVariantMap streamParams {
-        {"codec"  , this->m_videoCodec},
-        {"bitrate", bitrate           },
-        {"gop"    , gop               },
-    };
+        auto bitrate =
+                config.value("bitrate", defaultParams.value("defaultBitRate"));
+        auto gop = config.value("gop", defaultParams.value("defaultGOP"));
+        config.endGroup();
+
+        streamParams = {
+            {"codec"         , this->m_videoCodec                   },
+            {"bitrate"       , bitrate                              },
+            {"gop"           , gop                                  },
+            {"defaultBitrate", defaultParams.value("defaultBitRate")},
+            {"defaultGOP"    , defaultParams.value("defaultGOP")    },
+        };
+    }
 
     if (this->m_videoCodecParams != streamParams) {
         this->m_videoCodecParams = streamParams;
@@ -1157,8 +1214,7 @@ void RecordingPrivate::updateVideoCodecParams(bool save)
         if (save)
             this->saveVideoCodecParams(streamParams);
 
-        this->updateStreams();
-        this->updateVideoCodecOptions(save);
+        this->updateStreams(save);
     }
 }
 
@@ -1167,24 +1223,30 @@ void RecordingPrivate::updateAudioCodecParams(bool save)
     if (!this->m_record)
         return;
 
-    QSettings config;
-    config.beginGroup(QString("RecordConfigs_%1_stream_audio_%2")
-                      .arg(this->m_videoFormat, this->m_audioCodec));
+    QVariantMap streamParams;
 
-    QVariantMap defaultParams;
-    QMetaObject::invokeMethod(this->m_record.data(),
-                              "defaultCodecParams",
-                              Q_RETURN_ARG(QVariantMap, defaultParams),
-                              Q_ARG(QString, this->m_audioCodec));
+    if (!this->m_audioCodec.isEmpty()) {
+        QSettings config;
+        config.beginGroup(QString("RecordConfigs_%1_stream_audio_%2")
+                          .arg(this->m_videoFormat, this->m_audioCodec));
 
-    auto bitrate =
-            config.value("bitrate", defaultParams.value("defaultBitRate"));
-    config.endGroup();
+        QVariantMap defaultParams;
+        QMetaObject::invokeMethod(this->m_record.data(),
+                                  "defaultCodecParams",
+                                  Q_RETURN_ARG(QVariantMap, defaultParams),
+                                  Q_ARG(QString, this->m_audioCodec));
 
-    QVariantMap streamParams {
-        {"codec"  , this->m_audioCodec},
-        {"bitrate", bitrate},
-    };
+        auto bitrate =
+                config.value("bitrate", defaultParams.value("defaultBitRate"));
+        config.endGroup();
+
+        streamParams = {
+            {"codec"         , this->m_audioCodec                   },
+            {"bitrate"       , bitrate                              },
+            {"defaultBitrate", defaultParams.value("defaultBitRate")},
+            {"defaultGOP"    , defaultParams.value("defaultGOP")    },
+        };
+    }
 
     if (this->m_audioCodecParams != streamParams) {
         this->m_audioCodecParams = streamParams;
@@ -1193,12 +1255,11 @@ void RecordingPrivate::updateAudioCodecParams(bool save)
         if (save)
             this->saveAudioCodecParams(streamParams);
 
-        this->updateStreams();
-        this->updateAudioCodecOptions(save);
+        this->updateStreams(save);
     }
 }
 
-void RecordingPrivate::updateStreams()
+void RecordingPrivate::updateStreams(bool save)
 {
     if (!this->m_record)
         return;
@@ -1221,6 +1282,9 @@ void RecordingPrivate::updateStreams()
                                   Q_ARG(AkCaps, this->m_audioCaps),
                                   Q_ARG(QVariantMap, this->m_audioCodecParams));
     }
+
+    this->updateAvailableVideoCodecsOptions(save);
+    this->updateAvailableAudioCodecsOptions(save);
 }
 
 void RecordingPrivate::updateVideoCodecOptions(bool save)
@@ -1234,8 +1298,7 @@ void RecordingPrivate::updateVideoCodecOptions(bool save)
                               Q_RETURN_ARG(QVariantList, defaultCodecOptions),
                               Q_ARG(int, 0));
 
-    QVariantList codecOptions;
-    QVariantMap codecOptionsMap;
+    QVariantMap codecOptions;
 
     QSettings config;
     config.beginGroup(QString("RecordConfigs_%1_stream_video_%2_options")
@@ -1243,10 +1306,11 @@ void RecordingPrivate::updateVideoCodecOptions(bool save)
 
     for (auto &option: defaultCodecOptions) {
         auto optionParams = option.toList();
-        optionParams[7] =
-                config.value(optionParams[0].toString(), optionParams[6]);
-        codecOptions << QVariant(optionParams);
-        codecOptionsMap[optionParams[0].toString()] = optionParams[7];
+        auto key = optionParams[0].toString();
+        codecOptions[key] = config.value(key, optionParams[6]);
+
+        if (optionParams[2] == "flags" && !codecOptions[key].isValid())
+            codecOptions[key] = QStringList();
     }
 
     config.endGroup();
@@ -1255,13 +1319,13 @@ void RecordingPrivate::updateVideoCodecOptions(bool save)
         QMetaObject::invokeMethod(this->m_record.data(),
                                   "setCodecOptions",
                                   Q_ARG(int, 0),
-                                  Q_ARG(QVariantMap, codecOptionsMap));
+                                  Q_ARG(QVariantMap, codecOptions));
 
         this->m_videoCodecOptions = codecOptions;
-        emit self->videoCodecOptionsChanged(codecOptionsMap);
+        emit self->videoCodecOptionsChanged(codecOptions);
 
         if (save)
-            this->saveVideoCodecOptions(codecOptionsMap);
+            this->saveVideoCodecOptions(codecOptions);
     }
 }
 
@@ -1276,8 +1340,7 @@ void RecordingPrivate::updateAudioCodecOptions(bool save)
                               Q_RETURN_ARG(QVariantList, defaultCodecOptions),
                               Q_ARG(int, 1));
 
-    QVariantList codecOptions;
-    QVariantMap codecOptionsMap;
+    QVariantMap codecOptions;
 
     QSettings config;
     config.beginGroup(QString("RecordConfigs_%1_stream_audio_%2_options")
@@ -1285,10 +1348,11 @@ void RecordingPrivate::updateAudioCodecOptions(bool save)
 
     for (auto &option: defaultCodecOptions) {
         auto optionParams = option.toList();
-        optionParams[7] =
-                config.value(optionParams[0].toString(), optionParams[6]);
-        codecOptions << QVariant(optionParams);
-        codecOptionsMap[optionParams[0].toString()] = optionParams[7];
+        auto key = optionParams[0].toString();
+        codecOptions[key] = config.value(key, optionParams[6]);
+
+        if (optionParams[2] == "flags" && !codecOptions[key].isValid())
+            codecOptions[key] = QStringList();
     }
 
     config.endGroup();
@@ -1297,13 +1361,13 @@ void RecordingPrivate::updateAudioCodecOptions(bool save)
         QMetaObject::invokeMethod(this->m_record.data(),
                                   "setCodecOptions",
                                   Q_ARG(int, 1),
-                                  Q_ARG(QVariantMap, codecOptionsMap));
+                                  Q_ARG(QVariantMap, codecOptions));
 
         this->m_audioCodecOptions = codecOptions;
-        emit self->audioCodecOptionsChanged(codecOptionsMap);
+        emit self->audioCodecOptionsChanged(codecOptions);
 
         if (save)
-            this->saveAudioCodecOptions(codecOptionsMap);
+            this->saveAudioCodecOptions(codecOptions);
     }
 }
 

@@ -170,6 +170,16 @@
         <source>Audio Codec Options</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <location filename="../qml/AudioCodecOptions.qml" line="159"/>
+        <source>Bitrate</source>
+        <translation type="unfinished">Битрейт</translation>
+    </message>
+    <message>
+        <location filename="../qml/AudioCodecOptions.qml" line="163"/>
+        <source>Bitrate (bits/secs)</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>AudioConfig</name>
@@ -236,34 +246,6 @@
         <source>Latency (ms)</source>
         <extracomment>The latency is the amount of accumulated audio ready to play, measured in time. Higher latency == smoother audio playback, but more desynchronization with the video. Lowerer latency == audio desynchronization near to the video, but glitchy audio playback. https://en.wikipedia.org/wiki/Latency_(audio)</extracomment>
         <translation>Задержка (мс)</translation>
-    </message>
-</context>
-<context>
-    <name>CodecConfigs</name>
-    <message>
-        <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/CodecConfigs.qml" line="26"/>
-        <source>Configure %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/CodecConfigs.qml" line="108"/>
-        <source>Search option</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/CodecConfigs.qml" line="122"/>
-        <source>Reset</source>
-        <translation>Сброс</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/CodecConfigs.qml" line="138"/>
-        <source>Cancel</source>
-        <translation>Отмена</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/CodecConfigs.qml" line="149"/>
-        <source>OK</source>
-        <translation>ОК</translation>
     </message>
 </context>
 <context>
@@ -559,7 +541,7 @@
 <context>
     <name>Recording</name>
     <message>
-        <location filename="../../src/recording.cpp" line="329"/>
+        <location filename="../../src/recording.cpp" line="350"/>
         <source>%1/Video %2.%3</source>
         <translation type="unfinished"></translation>
     </message>
@@ -645,45 +627,6 @@
         <location filename="../qml/SettingsMenu.qml" line="50"/>
         <source>Play sources</source>
         <translation>захват изображения</translation>
-    </message>
-</context>
-<context>
-    <name>StreamOptions</name>
-    <message>
-        <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/StreamOptions.qml" line="27"/>
-        <source>Stream #%1 (%2)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/StreamOptions.qml" line="28"/>
-        <source>Stream #%1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/StreamOptions.qml" line="63"/>
-        <source>Codec</source>
-        <translation>Кодек</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/StreamOptions.qml" line="84"/>
-        <source>Bitrate</source>
-        <translation>Битрейт</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/StreamOptions.qml" line="90"/>
-        <source>Bitrate (bits/secs)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/StreamOptions.qml" line="105"/>
-        <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/StreamOptions.qml" line="110"/>
-        <source>Keyframes stride</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/StreamOptions.qml" line="126"/>
-        <source>Advanced Codec Options</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -789,12 +732,33 @@
         <source>Video Codec Options</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <location filename="../qml/VideoCodecOptions.qml" line="162"/>
+        <source>Bitrate</source>
+        <translation type="unfinished">Битрейт</translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoCodecOptions.qml" line="166"/>
+        <source>Bitrate (bits/secs)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoCodecOptions.qml" line="176"/>
+        <location filename="../qml/VideoCodecOptions.qml" line="180"/>
+        <source>Keyframes stride</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>VideoFormatOptions</name>
     <message>
         <location filename="../qml/VideoFormatOptions.qml" line="27"/>
         <source>Video Format Options</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoFormatOptions.qml" line="162"/>
+        <source>File extension</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2017,21 +1981,6 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="304"/>
         <source>Show cursor</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/main.qml" line="130"/>
-        <source>Output format</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/main.qml" line="150"/>
-        <source>File extensions</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/main.qml" line="162"/>
-        <source>Advanced Format Options</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

@@ -59,12 +59,21 @@ class Recording: public QObject
     Q_PROPERTY(QStringList availableVideoFormatExtensions
                READ availableVideoFormatExtensions
                NOTIFY availableVideoFormatExtensionsChanged)
+    Q_PROPERTY(QVariantList availableVideoFormatOptions
+               READ availableVideoFormatOptions
+               NOTIFY availableVideoFormatOptionsChanged)
     Q_PROPERTY(QStringList availableVideoCodecs
                READ availableVideoCodecs
                NOTIFY availableVideoCodecsChanged)
     Q_PROPERTY(QStringList availableAudioCodecs
                READ availableAudioCodecs
                NOTIFY availableAudioCodecsChanged)
+    Q_PROPERTY(QVariantList availableVideoCodecOptions
+               READ availableVideoCodecOptions
+               NOTIFY availableVideoCodecOptionsChanged)
+    Q_PROPERTY(QVariantList availableAudioCodecOptions
+               READ availableAudioCodecOptions
+               NOTIFY availableAudioCodecOptionsChanged)
     Q_PROPERTY(QString videoFormat
                READ videoFormat
                WRITE setVideoFormat
@@ -75,6 +84,11 @@ class Recording: public QObject
                WRITE setVideoFormatExtension
                RESET resetVideoFormatExtension
                NOTIFY videoFormatExtensionChanged)
+    Q_PROPERTY(QVariantMap videoFormatOptions
+               READ videoFormatOptions
+               WRITE setVideoFormatOptions
+               RESET resetVideoFormatOptions
+               NOTIFY videoFormatOptionsChanged)
     Q_PROPERTY(QString videoCodec
                READ videoCodec
                WRITE setVideoCodec
@@ -95,6 +109,16 @@ class Recording: public QObject
                WRITE setAudioCodecParams
                RESET resetAudioCodecParams
                NOTIFY audioCodecParamsChanged)
+    Q_PROPERTY(QVariantMap videoCodecOptions
+               READ videoCodecOptions
+               WRITE setVideoCodecOptions
+               RESET resetVideoCodecOptions
+               NOTIFY videoCodecOptionsChanged)
+    Q_PROPERTY(QVariantMap audioCodecOptions
+               READ audioCodecOptions
+               WRITE setAudioCodecOptions
+               RESET resetAudioCodecOptions
+               NOTIFY audioCodecOptionsChanged)
     Q_PROPERTY(bool recordAudio
                READ recordAudio
                WRITE setRecordAudio
@@ -139,17 +163,20 @@ class Recording: public QObject
         Q_INVOKABLE QString videoDirectory() const;
         Q_INVOKABLE QStringList availableVideoFormats() const;
         Q_INVOKABLE QStringList availableVideoFormatExtensions() const;
+        Q_INVOKABLE QVariantList availableVideoFormatOptions() const;
         Q_INVOKABLE QStringList availableVideoCodecs() const;
         Q_INVOKABLE QStringList availableAudioCodecs() const;
+        Q_INVOKABLE QVariantList availableVideoCodecOptions() const;
+        Q_INVOKABLE QVariantList availableAudioCodecOptions() const;
         Q_INVOKABLE QString videoFormat() const;
         Q_INVOKABLE QString videoFormatExtension() const;
-        Q_INVOKABLE QVariantList videoFormatOptions() const;
+        Q_INVOKABLE QVariantMap videoFormatOptions() const;
         Q_INVOKABLE QString videoCodec() const;
         Q_INVOKABLE QString audioCodec() const;
         Q_INVOKABLE QVariantMap videoCodecParams() const;
         Q_INVOKABLE QVariantMap audioCodecParams() const;
-        Q_INVOKABLE QVariantList videoCodecOptions() const;
-        Q_INVOKABLE QVariantList audioCodecOptions() const;
+        Q_INVOKABLE QVariantMap videoCodecOptions() const;
+        Q_INVOKABLE QVariantMap audioCodecOptions() const;
         Q_INVOKABLE bool recordAudio() const;
         Q_INVOKABLE QString videoFormatDescription(const QString &formatId) const;
         Q_INVOKABLE QString codecDescription(const QString &codec) const;
@@ -173,8 +200,11 @@ class Recording: public QObject
         void videoDirectoryChanged(const QString &videoDirectory);
         void availableVideoFormatsChanged(const QStringList &availableVideoFormats);
         void availableVideoFormatExtensionsChanged(const QStringList &availableVideoFormatExtensions);
+        void availableVideoFormatOptionsChanged(const QVariantList &availableVideoFormatOptions);
         void availableVideoCodecsChanged(const QStringList &availableVideoCodecs);
         void availableAudioCodecsChanged(const QStringList &availableAudioCodecs);
+        void availableVideoCodecOptionsChanged(const QVariantList &availableVideoCodecOptions);
+        void availableAudioCodecOptionsChanged(const QVariantList &availableAudioCodecOptions);
         void videoFormatChanged(const QString &videoFormat);
         void videoFormatExtensionChanged(const QString &videoFormatExtension);
         void videoFormatOptionsChanged(const QVariantMap &videoFormatOptions);

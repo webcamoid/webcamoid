@@ -42,8 +42,8 @@ Page {
             onAvailableVideoFormatsChanged: {
                 cbxVideoFormat.model.clear()
 
-                for (let i in Recording.availableVideoFormats) {
-                    let fmt = Recording.availableVideoFormats[i]
+                for (let i in availableVideoFormats) {
+                    let fmt = availableVideoFormats[i]
 
                     cbxVideoFormat.model.append({
                         format: fmt,
@@ -52,13 +52,13 @@ Page {
                 }
 
                 cbxVideoFormat.currentIndex =
-                        Recording.availableVideoFormats.indexOf(Recording.videoFormat)
+                        availableVideoFormats.indexOf(Recording.videoFormat)
             }
             onAvailableVideoCodecsChanged: {
                 cbxVideoCodec.model.clear()
 
-                for (let i in Recording.availableVideoCodecs) {
-                    let cdc = Recording.availableVideoCodecs[i]
+                for (let i in availableVideoCodecs) {
+                    let cdc = availableVideoCodecs[i]
 
                     cbxVideoCodec.model.append({
                         codec: cdc,
@@ -67,13 +67,13 @@ Page {
                 }
 
                 cbxVideoCodec.currentIndex =
-                        Recording.availableVideoCodecs.indexOf(Recording.videoCodec)
+                        availableVideoCodecs.indexOf(Recording.videoCodec)
             }
             onAvailableAudioCodecsChanged: {
                 cbxAudioCodec.model.clear()
 
-                for (let i in Recording.availableAudioCodecs) {
-                    let cdc = Recording.availableAudioCodecs[i]
+                for (let i in availableAudioCodecs) {
+                    let cdc = availableAudioCodecs[i]
 
                     cbxAudioCodec.model.append({
                         codec: cdc,
@@ -82,7 +82,7 @@ Page {
                 }
 
                 cbxAudioCodec.currentIndex =
-                        Recording.availableAudioCodecs.indexOf(Recording.audioCodec)
+                        availableAudioCodecs.indexOf(Recording.audioCodec)
             }
             onVideoFormatChanged: {
                 cbxVideoFormat.currentIndex =

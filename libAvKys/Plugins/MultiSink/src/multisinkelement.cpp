@@ -212,23 +212,6 @@ QVariantList MultiSinkElement::codecOptions(int index)
     return this->d->m_mediaWriter->codecOptions(index);
 }
 
-QString MultiSinkElement::controlInterfaceProvide(const QString &controlId) const
-{
-    Q_UNUSED(controlId)
-
-    return QString("qrc:/MultiSink/share/qml/main.qml");
-}
-
-void MultiSinkElement::controlInterfaceConfigure(QQmlContext *context,
-                                                 const QString &controlId) const
-{
-    Q_UNUSED(controlId)
-
-    context->setContextProperty("MultiSink", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
-    context->setContextProperty("MultiSinkUtils", const_cast<QObject *>(qobject_cast<const QObject *>(&this->d->m_utils)));
-    context->setContextProperty("controlId", this->objectName());
-}
-
 void MultiSinkElement::setLocation(const QString &location)
 {
     if (this->d->m_location == location)
