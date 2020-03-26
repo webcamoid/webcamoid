@@ -50,11 +50,7 @@ isEmpty(NOFFMPEG) {
     !isEmpty(FFMPEGINCLUDES): cache(FFMPEGINCLUDES)
     !isEmpty(FFMPEGLIBS): cache(FFMPEGLIBS)
     qtCompileTest(ffmpeg)
-    CONFIG(config_ffmpeg): qtCompileTest(ffmpeg_avcodec_sendrecv)
-    CONFIG(config_ffmpeg): qtCompileTest(ffmpeg_avcodec_subtitledata)
-    CONFIG(config_ffmpeg): qtCompileTest(ffmpeg_avformat_codecpar)
-    CONFIG(config_ffmpeg): qtCompileTest(ffmpeg_avutil_extraoptions)
-    CONFIG(config_ffmpeg): qtCompileTest(ffmpeg_avutil_sampleformat64)
+    CONFIG(config_ffmpeg): qtCompileTest(ffmpeg_avformat_rawpicture)
     CONFIG(config_ffmpeg): qtCompileTest(ffmpeg_avresample)
     CONFIG(config_ffmpeg): qtCompileTest(ffmpeg_swresample)
 }

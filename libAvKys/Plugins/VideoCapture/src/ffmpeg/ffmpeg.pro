@@ -56,9 +56,6 @@ isEmpty(FFMPEGLIBS) {
         libavutil
 }
 
-CONFIG(config_ffmpeg_avcodec_sendrecv): \
-    DEFINES += HAVE_SENDRECV
-
 QT += qml concurrent
 
 SOURCES = \

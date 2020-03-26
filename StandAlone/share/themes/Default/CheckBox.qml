@@ -103,15 +103,15 @@ T.CheckBox {
 
         IconLabel {
             id: iconLabel
-            spacing: checkBox.spacing
-            mirrored: checkBox.mirrored
-            display: checkBox.display
-            iconName: checkBox.icon.name
-            iconSource: checkBox.icon.source
-            iconWidth: checkBox.icon.width
-            iconHeight: checkBox.icon.height
-            text: checkBox.text
-            font: checkBox.font
+            spacing: control.spacing
+            mirrored: control.mirrored
+            display: control.display
+            iconName: control.icon.name
+            iconSource: control.icon.source
+            iconWidth: control.icon.width
+            iconHeight: control.icon.height
+            text: control.text
+            font: control.font
             color: AkTheme.palette.active.windowText
             enabled: control.enabled
             anchors.verticalCenter: control.contentItem.verticalCenter

@@ -144,13 +144,8 @@ void SubtitleStream::processData(AVSubtitle *subtitle)
 
             av_image_copy(frame.data,
                           frame.linesize,
-#ifdef HAVE_SUBTITLEDATA
                           const_cast<const uint8_t **>(subtitle->rects[i]->data),
                           subtitle->rects[i]->linesize,
-#else
-                          const_cast<const uint8_t **>(subtitle->rects[i]->pict.data),
-                          subtitle->rects[i]->pict.linesize,
-#endif
                           pixFmt,
                           subtitle->rects[i]->w,
                           subtitle->rects[i]->h);

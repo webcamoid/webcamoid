@@ -1,5 +1,5 @@
 /* Webcamoid, webcam capture application.
- * Copyright (C) 2017  Gonzalo Exequiel Pedone
+ * Copyright (C) 2020  Gonzalo Exequiel Pedone
  *
  * Webcamoid is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,20 +21,12 @@
 
 extern "C"
 {
-    #include <libavutil/opt.h>
+    #include <libavformat/avformat.h>
 }
 
 int main()
 {
-    std::cout << AV_OPT_TYPE_DICT
-              << AV_OPT_TYPE_IMAGE_SIZE
-              << AV_OPT_TYPE_PIXEL_FMT
-              << AV_OPT_TYPE_SAMPLE_FMT
-              << AV_OPT_TYPE_VIDEO_RATE
-              << AV_OPT_TYPE_DURATION
-              << AV_OPT_TYPE_COLOR
-              << AV_OPT_TYPE_CHANNEL_LAYOUT
-              << AV_OPT_TYPE_BOOL;
+    std::cout << AVFMT_RAWPICTURE;
 
     return 0;
 }

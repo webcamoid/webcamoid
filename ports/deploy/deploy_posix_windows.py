@@ -368,7 +368,6 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
     def createLauncher(self):
         path = os.path.join(self.rootInstallDir, self.programName) + '.bat'
         libDir = os.path.relpath(self.libInstallDir, self.rootInstallDir)
-        qmlDir = os.path.relpath(self.qmlInstallDir, self.rootInstallDir).replace('/', '\\')
 
         with open(path, 'w') as launcher:
             launcher.write('@echo off\n')
@@ -385,7 +384,6 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
             launcher.write('start /b "" '
                            + '"%~dp0bin\\{}" '.format(self.programName)
                            + '-p "%~dp0{}\\avkys" '.format(libDir)
-                           + '-q "%~dp0{}" '.format(qmlDir)
                            + '-c "%~dp0share\\config"\n')
 
     @staticmethod

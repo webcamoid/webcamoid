@@ -293,7 +293,7 @@ void VideoStream::convertPacket(const AkPacket &packet)
 
 int VideoStream::encodeData(AVFrame *frame)
 {
-#ifdef AVFMT_RAWPICTURE
+#ifdef HAVE_RAWPICTURE
     auto formatContext = this->formatContext();
 
     if (!frame && formatContext->oformat->flags & AVFMT_RAWPICTURE)
@@ -324,7 +324,7 @@ int VideoStream::encodeData(AVFrame *frame)
 
     auto stream = this->stream();
 
-#ifdef AVFMT_RAWPICTURE
+#ifdef HAVE_RAWPICTURE
     if (formatContext->oformat->flags & AVFMT_RAWPICTURE) {
         // Raw video case - directly store the picture in the packet
         AVPacket pkt;
@@ -343,7 +343,6 @@ int VideoStream::encodeData(AVFrame *frame)
 #endif
 
     // encode the image
-#ifdef HAVE_SENDRECV
     auto result = avcodec_send_frame(codecContext, frame);
 
     if (result == AVERROR_EOF || result == AVERROR(EAGAIN))
@@ -377,34 +376,6 @@ int VideoStream::encodeData(AVFrame *frame)
     }
 
     return result;
-#else
-    AVPacket pkt;
-    av_init_packet(&pkt);
-    pkt.data = nullptr; // packet data will be allocated by the encoder
-    pkt.size = 0;
-
-    int gotPacket;
-    int result = avcodec_encode_video2(codecContext,
-                                       &pkt,
-                                       frame,
-                                       &gotPacket);
-
-    if (result < 0)
-        return result;
-
-    // If size is zero, it means the image was buffered.
-    if (gotPacket) {
-        pkt.stream_index = this->streamIndex();
-        this->rescaleTS(&pkt,
-                        codecContext->time_base,
-                        stream->time_base);
-
-        // Write the compressed frame to the media file.
-        emit this->packetReady(&pkt);
-    }
-
-    return 0;
-#endif
 }
 
 AVFrame *VideoStream::dequeueFrame()

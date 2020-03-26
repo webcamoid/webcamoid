@@ -78,11 +78,8 @@ class AudioStreamPrivate
                 {AV_SAMPLE_FMT_S32P, AkAudioCaps::SampleFormat_s32},
                 {AV_SAMPLE_FMT_FLTP, AkAudioCaps::SampleFormat_flt},
                 {AV_SAMPLE_FMT_DBLP, AkAudioCaps::SampleFormat_dbl},
-
-#ifdef HAVE_SAMPLEFORMAT64
                 {AV_SAMPLE_FMT_S64 , AkAudioCaps::SampleFormat_s64},
                 {AV_SAMPLE_FMT_S64P, AkAudioCaps::SampleFormat_s64},
-#endif
             };
 
             return sampleFormat;
@@ -96,10 +93,7 @@ class AudioStreamPrivate
                 AV_SAMPLE_FMT_S32P,
                 AV_SAMPLE_FMT_FLTP,
                 AV_SAMPLE_FMT_DBLP,
-
-#ifdef HAVE_SAMPLEFORMAT64
                 AV_SAMPLE_FMT_S64P,
-#endif
             };
 
             return formats;
@@ -134,9 +128,7 @@ class AudioStreamPrivate
                 {AV_CH_LAYOUT_7POINT1_WIDE     , AkAudioCaps::Layout_7p1_wide     },
                 {AV_CH_LAYOUT_7POINT1_WIDE_BACK, AkAudioCaps::Layout_7p1_wide_back},
                 {AV_CH_LAYOUT_OCTAGONAL        , AkAudioCaps::Layout_octagonal    },
-        #ifdef AV_CH_LAYOUT_HEXADECAGONAL
                 {AV_CH_LAYOUT_HEXADECAGONAL    , AkAudioCaps::Layout_hexadecagonal},
-        #endif
                 {AV_CH_LAYOUT_STEREO_DOWNMIX   , AkAudioCaps::Layout_downmix      },
             };
 
@@ -187,7 +179,6 @@ void AudioStream::processPacket(AVPacket *packet)
         return;
     }
 
-#ifdef HAVE_SENDRECV
     if (avcodec_send_packet(this->codecContext(), packet) >= 0)
         forever {
             auto iFrame = av_frame_alloc();
@@ -201,16 +192,6 @@ void AudioStream::processPacket(AVPacket *packet)
             if (r < 0)
                 break;
         }
-#else
-        auto iFrame = av_frame_alloc();
-        int gotFrame;
-        avcodec_decode_audio4(this->codecContext(), iFrame, &gotFrame, packet);
-
-        if (gotFrame)
-            this->dataEnqueue(this->d->copyFrame(iFrame));
-
-        av_frame_free(&iFrame);
-#endif
 }
 
 void AudioStream::processData(AVFrame *frame)

@@ -101,7 +101,6 @@ void VideoStream::processPacket(AVPacket *packet)
         return;
     }
 
-#ifdef HAVE_SENDRECV
     if (avcodec_send_packet(this->codecContext(), packet) >= 0)
         forever {
             auto iFrame = av_frame_alloc();
@@ -117,18 +116,6 @@ void VideoStream::processPacket(AVPacket *packet)
             if (r < 0)
                 break;
         }
-#else
-        auto iFrame = av_frame_alloc();
-        int gotFrame;
-        avcodec_decode_video2(this->codecContext(), iFrame, &gotFrame, packet);
-
-        if (gotFrame) {
-            iFrame->pts = this->d->bestEffortTimestamp(iFrame);
-            this->dataEnqueue(this->d->copyFrame(iFrame));
-        }
-
-        av_frame_free(&iFrame);
-#endif
 }
 
 void VideoStream::processData(AVFrame *frame)
@@ -277,16 +264,7 @@ AkPacket VideoStreamPrivate::convert(AVFrame *iFrame)
 
 int64_t VideoStreamPrivate::bestEffortTimestamp(const AVFrame *frame) const
 {
-#ifdef FF_API_PKT_PTS
     return av_frame_get_best_effort_timestamp(frame);
-#else
-    if (frame->pts != AV_NOPTS_VALUE)
-        return frame->pts;
-    else if (frame->pkt_pts != AV_NOPTS_VALUE)
-        return frame->pkt_pts;
-
-    return frame->pkt_dts;
-#endif
 }
 
 AVFrame *VideoStreamPrivate::copyFrame(AVFrame *frame) const

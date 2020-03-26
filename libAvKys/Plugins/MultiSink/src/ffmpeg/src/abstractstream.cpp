@@ -281,13 +281,8 @@ bool AbstractStream::init()
                       &this->d->m_codecOptions) < 0)
         return false;
 
-#ifdef HAVE_CODECPAR
     avcodec_parameters_from_context(this->d->m_stream->codecpar,
                                     this->d->m_codecContext);
-#else
-    avcodec_copy_context(this->d->m_stream->codec, this->d->m_codecContext);
-#endif
-
     this->d->m_runEncodeLoop = true;
     this->d->m_encodeLoopResult =
             QtConcurrent::run(&this->d->m_threadPool,

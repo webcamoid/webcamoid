@@ -528,7 +528,7 @@ Dialog {
             Component {
                 id: classFlag
 
-                Switch {
+                CheckBox {
                     LayoutMirroring.enabled: true
                     LayoutMirroring.childrenInherit: true
                     Layout.fillWidth: true

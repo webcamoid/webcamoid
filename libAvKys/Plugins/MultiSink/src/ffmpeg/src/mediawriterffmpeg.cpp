@@ -586,13 +586,11 @@ QVariantList MediaWriterFFmpegPrivate::parseOptions(const AVClass *avClass) cons
             case AV_OPT_TYPE_INT:
             case AV_OPT_TYPE_INT64:
             case AV_OPT_TYPE_CONST:
-#ifdef HAVE_EXTRAOPTIONS
             case AV_OPT_TYPE_PIXEL_FMT:
             case AV_OPT_TYPE_SAMPLE_FMT:
             case AV_OPT_TYPE_DURATION:
             case AV_OPT_TYPE_CHANNEL_LAYOUT:
             case AV_OPT_TYPE_BOOL:
-#endif
                 value = qint64(option->default_val.i64);
                 step = 1;
                 break;
@@ -604,7 +602,6 @@ QVariantList MediaWriterFFmpegPrivate::parseOptions(const AVClass *avClass) cons
             case AV_OPT_TYPE_STRING:
                 value = option->default_val.str;
                 break;
-#ifdef HAVE_EXTRAOPTIONS
             case AV_OPT_TYPE_IMAGE_SIZE: {
                 int width = 0;
                 int height = 0;
@@ -636,7 +633,6 @@ QVariantList MediaWriterFFmpegPrivate::parseOptions(const AVClass *avClass) cons
                 value = qRgba(color[0], color[1], color[2], color[3]);
                 break;
             }
-#endif
             case AV_OPT_TYPE_RATIONAL:
                 value = AkFrac(option->default_val.q.num,
                                option->default_val.q.den).toString();
@@ -1416,7 +1412,6 @@ const OptionTypeStrMap &MediaWriterFFmpegGlobal::initFFOptionTypeStrMap()
         {AV_OPT_TYPE_RATIONAL      , "frac"          },
         {AV_OPT_TYPE_BINARY        , "binary"        },
         {AV_OPT_TYPE_CONST         , "const"         },
-    #ifdef HAVE_EXTRAOPTIONS
         {AV_OPT_TYPE_DICT          , "dict"          },
         {AV_OPT_TYPE_IMAGE_SIZE    , "image_size"    },
         {AV_OPT_TYPE_PIXEL_FMT     , "pixel_fmt"     },
@@ -1426,7 +1421,6 @@ const OptionTypeStrMap &MediaWriterFFmpegGlobal::initFFOptionTypeStrMap()
         {AV_OPT_TYPE_COLOR         , "color"         },
         {AV_OPT_TYPE_CHANNEL_LAYOUT, "channel_layout"},
         {AV_OPT_TYPE_BOOL          , "boolean"       },
-    #endif
     };
 
     return optionTypeStrMap;
@@ -1707,9 +1701,10 @@ QMap<QString, QVariantMap> MediaWriterFFmpegGlobal::initCodecDefaults()
                                             codecContext->gop_size: 12;
             codecParams["defaultBitRate"] = qMax<qint64>(codecContext->bit_rate,
                                                          1500000);
-            codecParams["defaultPixelFormat"] = codecContext->pix_fmt != AV_PIX_FMT_NONE?
-                                                                             QString(av_get_pix_fmt_name(codecContext->pix_fmt)):
-                                                                             supportedPixelFormats.value(0, "yuv420p");
+            codecParams["defaultPixelFormat"] =
+                    codecContext->pix_fmt != AV_PIX_FMT_NONE?
+                                                 QString(av_get_pix_fmt_name(codecContext->pix_fmt)):
+                                                 supportedPixelFormats.value(0, "yuv420p");
         }
 
         codecDefaults[codec->name] = codecParams;

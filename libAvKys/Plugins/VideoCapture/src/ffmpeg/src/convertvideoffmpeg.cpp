@@ -40,14 +40,6 @@ extern "C"
 #include "convertvideoffmpeg.h"
 #include "clock.h"
 
-#ifndef AV_CODEC_CAP_TRUNCATED
-#define AV_CODEC_CAP_TRUNCATED CODEC_CAP_TRUNCATED
-#endif
-
-#ifndef AV_CODEC_FLAG_TRUNCATED
-#define AV_CODEC_FLAG_TRUNCATED CODEC_FLAG_TRUNCATED
-#endif
-
 #define THREAD_WAIT_LIMIT 500
 
 // no AV sync correction is done if below the minimum AV sync threshold
@@ -305,13 +297,7 @@ bool ConvertVideoFFmpeg::init(const AkCaps &caps)
     if (avcodec_open2(this->d->m_codecContext,
                       codec,
                       &this->d->m_codecOptions) < 0) {
-#ifdef HAVE_FREECONTEXT
         avcodec_free_context(&this->d->m_codecContext);
-#else
-        avcodec_close(this->d->m_codecContext);
-        av_free(this->d->m_codecContext);
-        this->d->m_codecContext = nullptr;
-#endif
 
         return false;
     }
@@ -355,15 +341,8 @@ void ConvertVideoFFmpeg::uninit()
     if (this->d->m_codecOptions)
         av_dict_free(&this->d->m_codecOptions);
 
-    if (this->d->m_codecContext) {
-#ifdef HAVE_FREECONTEXT
+    if (this->d->m_codecContext)
         avcodec_free_context(&this->d->m_codecContext);
-#else
-        avcodec_close(this->d->m_codecContext);
-        av_free(this->d->m_codecContext);
-        this->d->m_codecContext = nullptr;
-#endif
-    }
 }
 
 void ConvertVideoFFmpegPrivate::packetLoop(ConvertVideoFFmpeg *stream)
@@ -384,7 +363,6 @@ void ConvertVideoFFmpegPrivate::packetLoop(ConvertVideoFFmpeg *stream)
             videoPacket.size = packet.buffer().size();
             videoPacket.pts = packet.pts();
 
-#ifdef HAVE_SENDRECV
             if (avcodec_send_packet(stream->d->m_codecContext, &videoPacket) >= 0)
                 forever {
                     auto iFrame = av_frame_alloc();
@@ -400,18 +378,6 @@ void ConvertVideoFFmpegPrivate::packetLoop(ConvertVideoFFmpeg *stream)
                     if (r < 0)
                         break;
                 }
-#else
-            auto iFrame = av_frame_alloc();
-            int gotFrame;
-            avcodec_decode_video2(stream->d->m_codecContext, iFrame, &gotFrame, &videoPacket);
-
-            if (gotFrame) {
-                iFrame->pts = stream->d->bestEffortTimestamp(iFrame);
-                stream->dataEnqueue(stream->d->copyFrame(iFrame));
-            }
-
-            av_frame_free(&iFrame);
-#endif
 
             stream->d->m_packetQueueSize -= packet.buffer().size();
 
@@ -483,8 +449,9 @@ void ConvertVideoFFmpegPrivate::processData(const FramePtr &frame)
 
                 continue;
             }
-        } else
+        } else {
             this->m_globalClock.setClock(pts);
+        }
 
         this->convert(frame);
         this->log(diff);
@@ -588,16 +555,7 @@ void ConvertVideoFFmpegPrivate::log(qreal diff)
 
 int64_t ConvertVideoFFmpegPrivate::bestEffortTimestamp(const AVFrame *frame) const
 {
-#ifdef FF_API_PKT_PTS
     return av_frame_get_best_effort_timestamp(frame);
-#else
-    if (frame->pts != AV_NOPTS_VALUE)
-        return frame->pts;
-    else if (frame->pkt_pts != AV_NOPTS_VALUE)
-        return frame->pkt_pts;
-
-    return frame->pkt_dts;
-#endif
 }
 
 AVFrame *ConvertVideoFFmpegPrivate::copyFrame(AVFrame *frame) const

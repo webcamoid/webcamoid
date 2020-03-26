@@ -59,14 +59,8 @@ isEmpty(FFMPEGLIBS) {
         libavutil
 }
 
-CONFIG(config_ffmpeg_avcodec_sendrecv): \
-    DEFINES += HAVE_SENDRECV
-CONFIG(config_ffmpeg_avformat_codecpar): \
-    DEFINES += HAVE_CODECPAR
-CONFIG(config_ffmpeg_avutil_extraoptions): \
-    DEFINES += HAVE_EXTRAOPTIONS
-CONFIG(config_ffmpeg_avutil_sampleformat64): \
-    DEFINES += HAVE_SAMPLEFORMAT64
+CONFIG(config_ffmpeg_avformat_rawpicture): \
+    DEFINES += HAVE_RAWPICTURE
 
 QT += qml concurrent
 

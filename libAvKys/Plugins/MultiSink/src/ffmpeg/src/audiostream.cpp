@@ -53,9 +53,7 @@ class AudioStreamPrivate
                 {AkAudioCaps::SampleFormat_u8 , AV_SAMPLE_FMT_U8 },
                 {AkAudioCaps::SampleFormat_s16, AV_SAMPLE_FMT_S16},
                 {AkAudioCaps::SampleFormat_s32, AV_SAMPLE_FMT_S32},
-#ifdef HAVE_SAMPLEFORMAT64
                 {AkAudioCaps::SampleFormat_s64, AV_SAMPLE_FMT_S64 },
-#endif
                 {AkAudioCaps::SampleFormat_flt, AV_SAMPLE_FMT_FLT},
                 {AkAudioCaps::SampleFormat_dbl, AV_SAMPLE_FMT_DBL},
             };
@@ -63,9 +61,7 @@ class AudioStreamPrivate
                 {AkAudioCaps::SampleFormat_u8 , AV_SAMPLE_FMT_U8P },
                 {AkAudioCaps::SampleFormat_s16, AV_SAMPLE_FMT_S16P},
                 {AkAudioCaps::SampleFormat_s32, AV_SAMPLE_FMT_S32P},
-#ifdef HAVE_SAMPLEFORMAT64
                 {AkAudioCaps::SampleFormat_s64, AV_SAMPLE_FMT_S64P},
-#endif
                 {AkAudioCaps::SampleFormat_flt, AV_SAMPLE_FMT_FLTP},
                 {AkAudioCaps::SampleFormat_dbl, AV_SAMPLE_FMT_DBLP},
             };
@@ -81,10 +77,7 @@ class AudioStreamPrivate
                 AV_SAMPLE_FMT_S32P,
                 AV_SAMPLE_FMT_FLTP,
                 AV_SAMPLE_FMT_DBLP,
-
-#ifdef HAVE_SAMPLEFORMAT64
                 AV_SAMPLE_FMT_S64P,
-#endif
             };
 
             return formats;
@@ -359,7 +352,6 @@ int AudioStream::encodeData(AVFrame *frame)
     auto stream = this->stream();
 
     // Compress audio packet.
-#ifdef HAVE_SENDRECV
     int result = avcodec_send_frame(codecContext, frame);
 
     if (result < 0) {
@@ -388,37 +380,6 @@ int AudioStream::encodeData(AVFrame *frame)
     }
 
     return result;
-#else
-    // Initialize audio packet.
-    AVPacket pkt;
-    memset(&pkt, 0, sizeof(AVPacket));
-    av_init_packet(&pkt);
-
-    int gotPacket;
-    int result = avcodec_encode_audio2(codecContext,
-                                       &pkt,
-                                       frame,
-                                       &gotPacket);
-
-    if (result < 0) {
-        char error[1024];
-        av_strerror(result, error, 1024);
-        qDebug() << "Error: " << error;
-
-        return result;
-    }
-
-    if (!gotPacket)
-        return result;
-
-    pkt.stream_index = this->streamIndex();
-    this->rescaleTS(&pkt, codecContext->time_base, stream->time_base);
-
-    // Write the compressed frame to the media file.
-    emit this->packetReady(&pkt);
-
-    return result;
-#endif
 }
 
 AVFrame *AudioStream::dequeueFrame()

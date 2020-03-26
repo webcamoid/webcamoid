@@ -99,29 +99,17 @@ AbstractStream::AbstractStream(const AVFormatContext *formatContext,
                          formatContext->streams[index]: nullptr;
 
     this->d->m_mediaType = this->d->m_stream?
-#ifdef HAVE_CODECPAR
-                            this->d->m_stream->codecpar->codec_type:
-#else
-                            this->d->m_stream->codec->codec_type:
-#endif
-                            AVMEDIA_TYPE_UNKNOWN;
+                               this->d->m_stream->codecpar->codec_type:
+                               AVMEDIA_TYPE_UNKNOWN;
 
     this->d->m_codecContext = nullptr;
 
     if (this->d->m_stream) {
         this->d->m_codecContext = avcodec_alloc_context3(nullptr);
 
-#ifdef HAVE_CODECPAR
         if (avcodec_parameters_to_context(this->d->m_codecContext,
                                           this->d->m_stream->codecpar) < 0)
             avcodec_free_context(&this->d->m_codecContext);
-#else
-        if (avcodec_copy_context(this->d->m_codecContext,
-                                 this->d->m_stream->codec) < 0) {
-            avcodec_close(this->d->m_codecContext);
-            av_free(this->d->m_codecContext);
-        }
-#endif
     }
 
     this->d->m_codec =
@@ -302,11 +290,7 @@ AVMediaType AbstractStream::type(const AVFormatContext *formatContext,
                                  uint index)
 {
     return index < formatContext->nb_streams?
-#ifdef HAVE_CODECPAR
                 formatContext->streams[index]->codecpar->codec_type:
-#else
-                formatContext->streams[index]->codec->codec_type:
-#endif
                 AVMEDIA_TYPE_UNKNOWN;
 }
 
