@@ -6,27 +6,27 @@
     <message>
         <location filename="../qml/About.qml" line="58"/>
         <source>Version %1</source>
-        <translation type="unfinished"></translation>
+        <translation>バージョン %1</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="62"/>
         <source>Using Qt %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt %1 を使用</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="66"/>
         <source>Website</source>
-        <translation type="unfinished"></translation>
+        <translation>ウェブサイト</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="75"/>
         <source>Webcam capture application.</source>
-        <translation type="unfinished">ウェブカメラキャプチャアプリケーション。</translation>
+        <translation>ウェブカメラキャプチャアプリケーション。</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="78"/>
         <source>A simple webcam application for picture and video capture.</source>
-        <translation type="unfinished"></translation>
+        <translation>画像と動画キャプチャのための、シンプルなWebカメラ アプリケーション。</translation>
     </message>
 </context>
 <context>
@@ -34,133 +34,133 @@
     <message>
         <location filename="../qml/AddSource.qml" line="28"/>
         <source>Add source</source>
-        <translation type="unfinished"></translation>
+        <translation>ソースの追加</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="59"/>
         <source>File</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイル</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="62"/>
         <location filename="../qml/AddSource.qml" line="145"/>
         <source>URL</source>
-        <translation type="unfinished"></translation>
+        <translation>URL</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="83"/>
         <location filename="../qml/AddSource.qml" line="131"/>
         <source>Description</source>
-        <translation type="unfinished">説明</translation>
+        <translation>説明</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="89"/>
         <location filename="../qml/AddSource.qml" line="137"/>
         <source>Source title</source>
-        <translation type="unfinished"></translation>
+        <translation>ソースのタイトル</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="97"/>
         <source>Path</source>
-        <translation type="unfinished"></translation>
+        <translation>パス</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="104"/>
         <source>File path</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイルのパス</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="111"/>
         <source>Search</source>
-        <translation type="unfinished">サーチ</translation>
+        <translation>検索</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="211"/>
         <source>Choose the file to add as source</source>
-        <translation type="unfinished"></translation>
+        <translation>ソースとして追加するファイルを選ぶ</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="214"/>
         <source>All Video Files</source>
-        <translation type="unfinished"></translation>
+        <translation>すべての動画ファイル</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="217"/>
         <source>3GP Video</source>
-        <translation type="unfinished"></translation>
+        <translation>3GPビデオ</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="218"/>
         <source>AVI Video</source>
-        <translation type="unfinished"></translation>
+        <translation>AVIビデオ</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="220"/>
         <source>Flash Video</source>
         <extracomment>Adobe FLV Flash video</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Flashビデオ</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="221"/>
         <source>Animated GIF</source>
-        <translation type="unfinished"></translation>
+        <translation>アニメーションGIF</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="222"/>
         <source>MKV Video</source>
-        <translation type="unfinished"></translation>
+        <translation>MKVビデオ</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="223"/>
         <source>Animated PNG</source>
-        <translation type="unfinished"></translation>
+        <translation>アニメーションPNG</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="224"/>
         <source>QuickTime Video</source>
-        <translation type="unfinished"></translation>
+        <translation>QuickTimeビデオ</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="225"/>
         <source>MP4 Video</source>
-        <translation type="unfinished"></translation>
+        <translation>MP4ビデオ</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="226"/>
         <source>MPEG Video</source>
-        <translation type="unfinished"></translation>
+        <translation>MPEGビデオ</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="227"/>
         <source>Ogg Video</source>
-        <translation type="unfinished"></translation>
+        <translation>Oggビデオ</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="229"/>
         <source>RealMedia Video</source>
         <extracomment>Don&apos;t translate &quot;RealMedia&quot;, leave it as is.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>RealMediaビデオ</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="230"/>
         <source>DVD Video</source>
-        <translation type="unfinished"></translation>
+        <translation>DVDビデオ</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="231"/>
         <source>WebM Video</source>
-        <translation type="unfinished"></translation>
+        <translation>WebMビデオ</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="233"/>
         <source>Windows Media Video</source>
         <extracomment>Also known as WMV, is a video file format.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Windows Mediaビデオ</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="234"/>
         <source>All Files</source>
-        <translation type="unfinished"></translation>
+        <translation>すべてのファイル</translation>
     </message>
 </context>
 <context>
@@ -168,17 +168,17 @@
     <message>
         <location filename="../qml/AudioCodecOptions.qml" line="27"/>
         <source>Audio Codec Options</source>
-        <translation type="unfinished"></translation>
+        <translation>オーディオコーデック オプション</translation>
     </message>
     <message>
         <location filename="../qml/AudioCodecOptions.qml" line="159"/>
         <source>Bitrate</source>
-        <translation type="unfinished"></translation>
+        <translation>ビットレート</translation>
     </message>
     <message>
         <location filename="../qml/AudioCodecOptions.qml" line="163"/>
         <source>Bitrate (bits/secs)</source>
-        <translation type="unfinished"></translation>
+        <translation>ビットレート (ビット/秒)</translation>
     </message>
 </context>
 <context>
@@ -187,12 +187,12 @@
         <location filename="../qml/AudioConfig.qml" line="112"/>
         <source>Outputs</source>
         <extracomment>Output device for audio playback, for example a speaker.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>オーディオ再生の出力先(スピーカーなど)</translation>
     </message>
     <message>
         <location filename="../qml/AudioConfig.qml" line="114"/>
         <source>Select the output device for audio playing</source>
-        <translation type="unfinished"></translation>
+        <translation>オーディオ再生の出力装置を選んでください</translation>
     </message>
     <message>
         <location filename="../qml/AudioConfig.qml" line="121"/>
