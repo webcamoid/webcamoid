@@ -21,6 +21,7 @@
         <file>share/ts/ru.qm</file>
         <file>share/ts/tr.qm</file>
         <file>share/ts/uk.qm</file>
+        <file>share/ts/vi.qm</file>
         <file>share/ts/zh_CN.qm</file>
         <file>share/ts/zh_TW.qm</file>
     </qresource>

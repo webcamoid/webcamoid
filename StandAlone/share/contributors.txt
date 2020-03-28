@@ -38,6 +38,7 @@ Sebastian Freiman <sebafreiman@gmail.com>
 ssantos <ssantos@web.de>
 Stepan <36489863+Stepan881@users.noreply.github.com>
 Swann Martinet <swann.ranskassa@laposte.net>
+Takuya Ohe <hi@tohe.xyz>
 TheSimplyOwl <thesimplyowl@gmail.com>
 Tymofij Lytvynenko <till.svit@gmail.com>
 WaldiS <admin@sto.ugu.pl>
