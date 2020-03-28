@@ -27,6 +27,9 @@ class MediaSourceGStreamerPrivate;
 class MediaSourceGStreamer: public MediaSource
 {
     Q_OBJECT
+    Q_PROPERTY(qint64 duration
+               READ duration
+               NOTIFY durationChanged)
     Q_PROPERTY(qint64 maxPacketQueueSize
                READ maxPacketQueueSize
                WRITE setMaxPacketQueueSize
@@ -48,10 +51,10 @@ class MediaSourceGStreamer: public MediaSource
         Q_INVOKABLE QList<int> listTracks(const QString &mimeType);
         Q_INVOKABLE QString streamLanguage(int stream);
         Q_INVOKABLE bool loop() const;
-
         Q_INVOKABLE int defaultStream(const QString &mimeType);
         Q_INVOKABLE QString description(const QString &media) const;
         Q_INVOKABLE AkCaps caps(int stream);
+        Q_INVOKABLE qint64 duration();
         Q_INVOKABLE qint64 maxPacketQueueSize() const;
         Q_INVOKABLE bool showLog() const;
 
@@ -61,6 +64,7 @@ class MediaSourceGStreamer: public MediaSource
     signals:
         void oStream(const AkPacket &packet);
         void error(const QString &message);
+        void durationChanged(qint64 duration);
         void maxPacketQueueSizeChanged(qint64 maxPacketQueue);
         void showLogChanged(bool showLog);
         void loopChanged(bool loop);

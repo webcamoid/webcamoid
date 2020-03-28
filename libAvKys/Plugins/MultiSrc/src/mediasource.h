@@ -38,10 +38,10 @@ class MediaSource: public QObject
         Q_INVOKABLE virtual QList<int> listTracks(const QString &mimeType);
         Q_INVOKABLE virtual QString streamLanguage(int stream);
         Q_INVOKABLE virtual bool loop() const;
-
         Q_INVOKABLE virtual int defaultStream(const QString &mimeType);
         Q_INVOKABLE virtual QString description(const QString &media) const;
         Q_INVOKABLE virtual AkCaps caps(int stream);
+        Q_INVOKABLE virtual qint64 duration();
         Q_INVOKABLE virtual qint64 maxPacketQueueSize() const;
         Q_INVOKABLE virtual bool showLog() const;
 

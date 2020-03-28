@@ -81,6 +81,11 @@ AkCaps MediaSource::caps(int stream)
     return AkCaps();
 }
 
+qint64 MediaSource::duration()
+{
+    return 0;
+}
+
 qint64 MediaSource::maxPacketQueueSize() const
 {
     return 0;

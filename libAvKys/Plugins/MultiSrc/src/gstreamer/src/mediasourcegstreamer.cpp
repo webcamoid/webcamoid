@@ -200,6 +200,22 @@ AkCaps MediaSourceGStreamer::caps(int stream)
     return streamInfo.caps;
 }
 
+qint64 MediaSourceGStreamer::duration()
+{
+    bool isRunning = this->d->m_run;
+
+    if (!isRunning)
+        this->setState(AkElement::ElementStatePaused);
+
+    gint64 duration = 0;
+    gst_element_query_duration(this->d->m_pipeline, GST_FORMAT_TIME, &duration);
+
+    if (!isRunning)
+        this->setState(AkElement::ElementStateNull);
+
+    return duration;
+}
+
 qint64 MediaSourceGStreamer::maxPacketQueueSize() const
 {
     return this->d->m_maxPacketQueueSize;
@@ -593,6 +609,7 @@ void MediaSourceGStreamer::setMedia(const QString &media)
 
     emit this->mediaChanged(media);
     emit this->mediasChanged(this->medias());
+    emit this->durationChanged(this->duration());
 }
 
 void MediaSourceGStreamer::setStreams(const QList<int> &streams)

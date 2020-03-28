@@ -262,6 +262,28 @@ AkCaps MediaSourceFFmpeg::caps(int stream)
     return caps;
 }
 
+qint64 MediaSourceFFmpeg::duration()
+{
+    bool clearContext = false;
+
+    if (!this->d->m_inputContext) {
+        if (!this->initContext())
+            return 0;
+
+        clearContext = true;
+    }
+
+    qint64 duration = 0;
+
+    if (avformat_find_stream_info(this->d->m_inputContext.data(), nullptr) >= 0)
+        duration = this->d->m_inputContext->duration;
+
+    if (clearContext)
+        this->d->m_inputContext.clear();
+
+    return duration;
+}
+
 qint64 MediaSourceFFmpeg::maxPacketQueueSize() const
 {
     return this->d->m_maxPacketQueueSize;
@@ -404,6 +426,7 @@ void MediaSourceFFmpeg::setMedia(const QString &media)
 
     emit this->mediaChanged(media);
     emit this->mediasChanged(this->medias());
+    emit this->durationChanged(this->duration());
 }
 
 void MediaSourceFFmpeg::setStreams(const QList<int> &streams)

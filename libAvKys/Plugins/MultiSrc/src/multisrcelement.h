@@ -45,6 +45,9 @@ class MultiSrcElement: public AkMultimediaSourceElement
                WRITE setLoop
                RESET resetLoop
                NOTIFY loopChanged)
+    Q_PROPERTY(qint64 duration
+               READ duration
+               NOTIFY durationChanged)
     Q_PROPERTY(qint64 maxPacketQueueSize
                READ maxPacketQueueSize
                WRITE setMaxPacketQueueSize
@@ -69,6 +72,7 @@ class MultiSrcElement: public AkMultimediaSourceElement
         Q_INVOKABLE int defaultStream(const QString &mimeType);
         Q_INVOKABLE QString description(const QString &media);
         Q_INVOKABLE AkCaps caps(int stream);
+        Q_INVOKABLE qint64 duration();
         Q_INVOKABLE qint64 maxPacketQueueSize() const;
         Q_INVOKABLE bool showLog() const;
 
@@ -86,6 +90,7 @@ class MultiSrcElement: public AkMultimediaSourceElement
         void streamsChanged(const QList<int> &streams);
         void loopChanged(bool loop);
         void error(const QString &message);
+        void durationChanged(qint64 duration);
         void maxPacketQueueSizeChanged(qint64 maxPacketQueue);
         void showLogChanged(bool showLog);
 

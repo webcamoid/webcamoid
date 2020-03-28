@@ -159,6 +159,31 @@ AkCaps MediaSourceNDKMedia::caps(int stream)
     return this->d->m_streamInfo.value(stream, Stream()).caps;
 }
 
+qint64 MediaSourceNDKMedia::duration()
+{
+    bool isRunning = this->d->m_run;
+
+    if (!isRunning)
+        this->setState(AkElement::ElementStatePaused);
+
+    int64_t duration = 0;
+    auto extractor = this->d->m_mediaExtractor.data();
+    size_t numtracks =
+            AMediaExtractor_getTrackCount(extractor);
+
+    for (size_t i = 0; i < numtracks; i++) {
+        auto format = AMediaExtractor_getTrackFormat(extractor, i);
+        int64_t streamDuration = 0;
+        AMediaFormat_getInt64(format, AMEDIAFORMAT_KEY_DURATION, &streamDuration);
+        duration = qMax(duration, streamDuration);
+    }
+
+    if (!isRunning)
+        this->setState(AkElement::ElementStateNull);
+
+    return duration;
+}
+
 qint64 MediaSourceNDKMedia::maxPacketQueueSize() const
 {
     return this->d->m_maxPacketQueueSize;

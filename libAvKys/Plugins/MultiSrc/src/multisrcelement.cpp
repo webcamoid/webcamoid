@@ -137,6 +137,14 @@ AkCaps MultiSrcElement::caps(int stream)
     return this->d->m_mediaSource->caps(stream);
 }
 
+qint64 MultiSrcElement::duration()
+{
+    if (!this->d->m_mediaSource)
+        return AkCaps();
+
+    return this->d->m_mediaSource->duration();
+}
+
 qint64 MultiSrcElement::maxPacketQueueSize() const
 {
     if (!this->d->m_mediaSource)
@@ -279,6 +287,10 @@ void MultiSrcElementPrivate::codecLibUpdated(const QString &codecLib)
                      SIGNAL(error(const QString &)),
                      self,
                      SIGNAL(error(const QString &)));
+    QObject::connect(this->m_mediaSource.data(),
+                     SIGNAL(durationChanged(qint64)),
+                     self,
+                     SIGNAL(durationChanged(qint64)));
     QObject::connect(this->m_mediaSource.data(),
                      SIGNAL(maxPacketQueueSizeChanged(qint64)),
                      self,
