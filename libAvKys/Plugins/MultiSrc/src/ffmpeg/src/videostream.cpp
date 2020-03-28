@@ -55,7 +55,6 @@ class VideoStreamPrivate
         explicit VideoStreamPrivate(VideoStream *self);
         AkFrac fps() const;
         AkPacket convert(AVFrame *iFrame);
-        int64_t bestEffortTimestamp(const AVFrame *frame) const;
         AVFrame *copyFrame(AVFrame *frame) const;
 
         template<typename R, typename S>
@@ -107,7 +106,12 @@ void VideoStream::processPacket(AVPacket *packet)
             int r = avcodec_receive_frame(this->codecContext(), iFrame);
 
             if (r >= 0) {
-                iFrame->pts = this->d->bestEffortTimestamp(iFrame);
+#ifdef HAVE_BEST_EFFORT_TS
+                iFrame->pts = iFrame->best_effort_timestamp;
+#else
+                iFrame->pts = av_frame_get_best_effort_timestamp(iFrame);
+#endif
+
                 this->dataEnqueue(this->d->copyFrame(iFrame));
             }
 
@@ -260,11 +264,6 @@ AkPacket VideoStreamPrivate::convert(AVFrame *iFrame)
     oPacket.id() = self->id();
 
     return oPacket;
-}
-
-int64_t VideoStreamPrivate::bestEffortTimestamp(const AVFrame *frame) const
-{
-    return av_frame_get_best_effort_timestamp(frame);
 }
 
 AVFrame *VideoStreamPrivate::copyFrame(AVFrame *frame) const

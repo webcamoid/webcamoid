@@ -2430,10 +2430,11 @@ std::string AkVCam::IpcBridgePrivate::deviceCreateAkVCam(const std::wstring &des
         }
     }
 
-    auto deviceFormats = QVector<VideoFormat>::fromStdVector(formats).toList();
+    QList<VideoFormat> deviceFormats;
     QList<VideoFormat> outputFormats;
 
-    for (auto &format: deviceFormats) {
+    for (auto &format: formats) {
+        deviceFormats << format;
         auto outFormat = format;
         outFormat.fourcc() = PixelFormatRGB24;
 
@@ -3245,12 +3246,15 @@ std::string AkVCam::IpcBridgePrivate::deviceCreateV4L2Loopback(const std::wstrin
     int j = 0;
 
     for (auto &device: this->devicesInfo("v4l2 loopback")) {
-        if (device.path == devicePath)
-            device.formats =
-                    QVector<VideoFormat>::fromStdVector(formats).toList();
-        else
+        if (device.path == devicePath) {
+            device.formats.clear();
+
+            for (auto &format: formats)
+                device.formats << format;
+        } else {
             device.formats =
                     this->formatsFromSettings(device.path, devicesInfo);
+        }
 
         if (device.formats.empty())
             device.formats = this->m_defaultFormats;

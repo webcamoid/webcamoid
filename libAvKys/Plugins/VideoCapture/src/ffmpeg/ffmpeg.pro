@@ -56,6 +56,9 @@ isEmpty(FFMPEGLIBS) {
         libavutil
 }
 
+CONFIG(config_ffmpeg_avutil_best_effort_ts): \
+    DEFINES += HAVE_BEST_EFFORT_TS
+
 QT += qml concurrent
 
 SOURCES = \

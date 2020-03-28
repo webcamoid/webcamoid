@@ -194,14 +194,15 @@ class ConvertVideoFFmpegPrivate
         void processData(const FramePtr &frame);
         void convert(const FramePtr &frame);
         void log(qreal diff);
-        int64_t bestEffortTimestamp(const AVFrame *frame) const;
         AVFrame *copyFrame(AVFrame *frame) const;
 };
 
 ConvertVideoFFmpeg::ConvertVideoFFmpeg(QObject *parent):
     ConvertVideo(parent)
 {
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(58, 10, 100)
     avcodec_register_all();
+#endif
 
     this->d = new ConvertVideoFFmpegPrivate(this);
 
@@ -369,7 +370,12 @@ void ConvertVideoFFmpegPrivate::packetLoop(ConvertVideoFFmpeg *stream)
                     int r = avcodec_receive_frame(stream->d->m_codecContext, iFrame);
 
                     if (r >= 0) {
-                        iFrame->pts = stream->d->bestEffortTimestamp(iFrame);
+#ifdef HAVE_BEST_EFFORT_TS
+                        iFrame->pts = iFrame->best_effort_timestamp;
+#else
+                        iFrame->pts = av_frame_get_best_effort_timestamp(iFrame);
+#endif
+
                         stream->dataEnqueue(stream->d->copyFrame(iFrame));
                     }
 
@@ -551,11 +557,6 @@ void ConvertVideoFFmpegPrivate::log(qreal diff)
                         .arg(this->m_packetQueueSize / 1024, 5);
 
     qDebug() << log.toStdString().c_str();
-}
-
-int64_t ConvertVideoFFmpegPrivate::bestEffortTimestamp(const AVFrame *frame) const
-{
-    return av_frame_get_best_effort_timestamp(frame);
 }
 
 AVFrame *ConvertVideoFFmpegPrivate::copyFrame(AVFrame *frame) const

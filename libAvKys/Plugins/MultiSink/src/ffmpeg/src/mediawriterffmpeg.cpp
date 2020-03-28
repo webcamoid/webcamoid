@@ -1227,8 +1227,14 @@ void MediaWriterFFmpeg::writePacket(AVPacket *packet)
 
 MediaWriterFFmpegGlobal::MediaWriterFFmpegGlobal()
 {
+#if LIBAVFORMAT_VERSION_INT < AV_VERSION_INT(58, 9, 100)
     av_register_all();
+#endif
+
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(58, 10, 100)
     avcodec_register_all();
+#endif
+
     avformat_network_init();
 
 #ifndef QT_DEBUG
@@ -1429,12 +1435,26 @@ const OptionTypeStrMap &MediaWriterFFmpegGlobal::initFFOptionTypeStrMap()
 SupportedCodecsType MediaWriterFFmpegGlobal::initSupportedCodecs()
 {
     SupportedCodecsType supportedCodecs;
+
+#if LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT(58, 9, 100)
+    void *opaqueFmt = nullptr;
+
+    while (auto outputFormat = av_muxer_iterate(&opaqueFmt)) {
+#else
     AVOutputFormat *outputFormat = nullptr;
 
     while ((outputFormat = av_oformat_next(outputFormat))) {
+#endif
+
+#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(58, 10, 100)
+        void *opaqueCdc = nullptr;
+
+        while (auto codec = av_codec_iterate(&opaqueCdc)) {
+#else
         AVCodec *codec = nullptr;
 
         while ((codec = av_codec_next(codec))) {
+#endif
             if (codec->capabilities & AV_CODEC_CAP_EXPERIMENTAL
                 && CODEC_COMPLIANCE > FF_COMPLIANCE_EXPERIMENTAL)
                 continue;
@@ -1521,9 +1541,15 @@ QMap<QString, QVariantMap> MediaWriterFFmpegGlobal::initCodecDefaults()
 {
     QMap<QString, QVariantMap> codecDefaults;
 
-    for (auto codec = av_codec_next(nullptr);
-         codec;
-         codec = av_codec_next(codec)) {
+#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(58, 10, 100)
+    void *opaqueCdc = nullptr;
+
+    while (auto codec = av_codec_iterate(&opaqueCdc)) {
+#else
+    AVCodec *codec = nullptr;
+
+    while ((codec = av_codec_next(codec))) {
+#endif
         if (!av_codec_is_encoder(codec))
             continue;
 

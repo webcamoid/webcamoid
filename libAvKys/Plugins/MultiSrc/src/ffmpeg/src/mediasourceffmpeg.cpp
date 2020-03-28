@@ -89,7 +89,10 @@ class MediaSourceFFmpegPrivate
 MediaSourceFFmpeg::MediaSourceFFmpeg(QObject *parent):
     MediaSource(parent)
 {
+#if LIBAVFORMAT_VERSION_INT < AV_VERSION_INT(58, 9, 100)
     av_register_all();
+#endif
+
     avformat_network_init();
 
     this->d = new MediaSourceFFmpegPrivate(this);
