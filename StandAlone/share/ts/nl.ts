@@ -173,12 +173,12 @@
     <message>
         <location filename="../qml/AudioCodecOptions.qml" line="159"/>
         <source>Bitrate</source>
-        <translation type="unfinished">Bitsnelheid</translation>
+        <translation>Bitsnelheid</translation>
     </message>
     <message>
         <location filename="../qml/AudioCodecOptions.qml" line="163"/>
         <source>Bitrate (bits/secs)</source>
-        <translation type="unfinished">Bitsnelheid (bits/sec.)</translation>
+        <translation>Bitsnelheid (bits/sec.)</translation>
     </message>
 </context>
 <context>
@@ -735,18 +735,18 @@
     <message>
         <location filename="../qml/VideoCodecOptions.qml" line="162"/>
         <source>Bitrate</source>
-        <translation type="unfinished">Bitsnelheid</translation>
+        <translation>Bitsnelheid</translation>
     </message>
     <message>
         <location filename="../qml/VideoCodecOptions.qml" line="166"/>
         <source>Bitrate (bits/secs)</source>
-        <translation type="unfinished">Bitsnelheid (bits/sec.)</translation>
+        <translation>Bitsnelheid (bits/sec.)</translation>
     </message>
     <message>
         <location filename="../qml/VideoCodecOptions.qml" line="176"/>
         <location filename="../qml/VideoCodecOptions.qml" line="180"/>
         <source>Keyframes stride</source>
-        <translation type="unfinished">Keyframes - stap-voor-stap</translation>
+        <translation>Keyframes - stap-voor-stap</translation>
     </message>
 </context>
 <context>
@@ -759,7 +759,7 @@
     <message>
         <location filename="../qml/VideoFormatOptions.qml" line="162"/>
         <source>File extension</source>
-        <translation type="unfinished"></translation>
+        <translation>Bestandsextensie</translation>
     </message>
 </context>
 <context>

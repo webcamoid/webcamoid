@@ -173,12 +173,12 @@
     <message>
         <location filename="../qml/AudioCodecOptions.qml" line="159"/>
         <source>Bitrate</source>
-        <translation type="unfinished">Бітрейт</translation>
+        <translation>Бітрейт</translation>
     </message>
     <message>
         <location filename="../qml/AudioCodecOptions.qml" line="163"/>
         <source>Bitrate (bits/secs)</source>
-        <translation type="unfinished">Бітрейт (біт/сек)</translation>
+        <translation>Бітрейт (біт/сек)</translation>
     </message>
 </context>
 <context>
@@ -735,18 +735,18 @@
     <message>
         <location filename="../qml/VideoCodecOptions.qml" line="162"/>
         <source>Bitrate</source>
-        <translation type="unfinished">Бітрейт</translation>
+        <translation>Бітрейт</translation>
     </message>
     <message>
         <location filename="../qml/VideoCodecOptions.qml" line="166"/>
         <source>Bitrate (bits/secs)</source>
-        <translation type="unfinished">Бітрейт (біт/сек)</translation>
+        <translation>Бітрейт (біт/сек)</translation>
     </message>
     <message>
         <location filename="../qml/VideoCodecOptions.qml" line="176"/>
         <location filename="../qml/VideoCodecOptions.qml" line="180"/>
         <source>Keyframes stride</source>
-        <translation type="unfinished">Ключові кадри</translation>
+        <translation>Ключові кадри</translation>
     </message>
 </context>
 <context>
@@ -759,7 +759,7 @@
     <message>
         <location filename="../qml/VideoFormatOptions.qml" line="162"/>
         <source>File extension</source>
-        <translation type="unfinished"></translation>
+        <translation>Розширення файлу</translation>
     </message>
 </context>
 <context>
