@@ -158,8 +158,9 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
     cd build
 
     # Install Android SDK
-    fileName="sdk-tools-linux-${SDKVER}.zip"
+    fileName="commandlinetools-linux-${SDKVER}_latest.zip"
     ${DOWNLOAD_CMD} "https://dl.google.com/android/repository/${fileName}"
+
     mkdir -p android-sdk
     unzip -q -d android-sdk ${fileName}
 
