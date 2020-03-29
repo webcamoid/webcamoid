@@ -149,6 +149,7 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
 
     # Install dev tools
     sudo apt-get -qq -y install \
+        libxkbcommon-x11-0 \
         make \
         openjdk-8-jdk \
         openjdk-8-jre
