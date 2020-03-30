@@ -377,6 +377,7 @@ elif [ "${DOCKERSYS}" = debian ]; then
 echo 'export DEBIAN_FRONTEND=noninteractive' >> ~/.bashrc
 EOF
     chmod +x $TRAVIS_BUILD_DIR/set_noninteractive.sh
+    ${EXEC} bash -c 'echo DEBIAN_FRONTEND=$DEBIAN_FRONTEND'
     ${EXEC} bash set_noninteractive.sh
     ${EXEC} apt-get -y update
 
