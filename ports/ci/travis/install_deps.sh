@@ -371,13 +371,13 @@ EOF
     sudo umount root.x86_64/$HOME
     sudo umount root.x86_64
 elif [ "${DOCKERSYS}" = debian ]; then
-    cat << EOF > $HOME/set_noninteractive.sh
+    cat << EOF > $TRAVIS_BUILD_DIR/set_noninteractive.sh
 #!/bin/sh
 
 echo 'export DEBIAN_FRONTEND=noninteractive' >> ~/.bash_profile
 EOF
-    chmod +x $HOME/set_noninteractive.sh
-    ${EXEC} bash $HOME/set_noninteractive.sh
+    chmod +x $TRAVIS_BUILD_DIR/set_noninteractive.sh
+    ${EXEC} bash set_noninteractive.sh
     ${EXEC} apt-get -y update
 
     if [ "${DOCKERIMG}" = ubuntu:bionic ]; then
