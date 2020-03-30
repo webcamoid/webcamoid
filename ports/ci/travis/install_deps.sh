@@ -371,20 +371,15 @@ EOF
     sudo umount root.x86_64/$HOME
     sudo umount root.x86_64
 elif [ "${DOCKERSYS}" = debian ]; then
-    echo 'AAA'
     ${EXEC} apt-get -y update
-    echo 'BBB'
 
     if [ "${DOCKERIMG}" = ubuntu:bionic ]; then
         ${EXEC} apt-get -y install software-properties-common
         ${EXEC} add-apt-repository ppa:beineri/opt-qt-${QTVER}-bionic
     fi
 
-    echo 'CCC'
     ${EXEC} apt-get -y update
-    echo 'DDD'
     ${EXEC} apt-get -y upgrade
-    echo 'EEE'
 
     # Install dev tools
     ${EXEC} bash -c "DEBIAN_FRONTEND=noninteractive apt-get -y install \
@@ -409,8 +404,6 @@ elif [ "${DOCKERSYS}" = debian ]; then
         libswscale-dev \
         libswresample-dev"
 
-    echo 'FFF'
-
     if [ -z "${DAILY_BUILD}" ] && [ -z "${RELEASE_BUILD}" ]; then
         ${EXEC} apt-get -y install \
             libgstreamer-plugins-base1.0-dev
@@ -421,8 +414,6 @@ elif [ "${DOCKERSYS}" = debian ]; then
                 libuvc-dev
         fi
     fi
-
-    echo 'GGG'
 
     # Install Qt dev
     if [ "${DOCKERIMG}" = ubuntu:bionic ]; then
@@ -450,7 +441,6 @@ elif [ "${DOCKERSYS}" = debian ]; then
             qml-module-qtquick-privatewidgets \
             qml-module-qtquick-templates2
     fi
-    echo 'HHH'
 elif [ "${DOCKERSYS}" = fedora ]; then
     ${EXEC} dnf install -y --skip-broken https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-${FEDORAVER}.noarch.rpm
     ${EXEC} dnf install -y --skip-broken https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-${FEDORAVER}.noarch.rpm
