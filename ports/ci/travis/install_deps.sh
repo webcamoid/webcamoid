@@ -374,7 +374,7 @@ elif [ "${DOCKERSYS}" = debian ]; then
     cat << EOF > $TRAVIS_BUILD_DIR/set_noninteractive.sh
 #!/bin/sh
 
-echo 'export DEBIAN_FRONTEND=noninteractive' >> ~/.bash_profile
+echo 'export DEBIAN_FRONTEND=noninteractive' >> ~/.bashrc
 EOF
     chmod +x $TRAVIS_BUILD_DIR/set_noninteractive.sh
     ${EXEC} bash set_noninteractive.sh
