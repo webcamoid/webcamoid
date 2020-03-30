@@ -387,27 +387,27 @@ elif [ "${DOCKERSYS}" = debian ]; then
     echo 'EEE'
 
     # Install dev tools
-    ${EXEC} bash -c 'DEBIAN_FRONTEND=noninteractive apt-get -y install
-        git
-        xvfb
-        g++
-        clang
-        ccache
-        make
-        pkg-config
-        linux-libc-dev
-        libgl1-mesa-dev
-        libpulse-dev
-        libjack-dev
-        libasound2-dev
-        libv4l-dev
-        libavcodec-dev
-        libavdevice-dev
-        libavformat-dev
-        libavutil-dev
-        libavresample-dev
-        libswscale-dev
-        libswresample-dev'
+    ${EXEC} bash -c "DEBIAN_FRONTEND=noninteractive apt-get -y install \
+        git \
+        xvfb \
+        g++ \
+        clang \
+        ccache \
+        make \
+        pkg-config \
+        linux-libc-dev \
+        libgl1-mesa-dev \
+        libpulse-dev \
+        libjack-dev \
+        libasound2-dev \
+        libv4l-dev \
+        libavcodec-dev \
+        libavdevice-dev \
+        libavformat-dev \
+        libavutil-dev \
+        libavresample-dev \
+        libswscale-dev \
+        libswresample-dev"
 
     echo 'FFF'
 
@@ -421,6 +421,8 @@ elif [ "${DOCKERSYS}" = debian ]; then
                 libuvc-dev
         fi
     fi
+
+    echo 'GGG'
 
     # Install Qt dev
     if [ "${DOCKERIMG}" = ubuntu:bionic ]; then
@@ -448,6 +450,7 @@ elif [ "${DOCKERSYS}" = debian ]; then
             qml-module-qtquick-privatewidgets \
             qml-module-qtquick-templates2
     fi
+    echo 'HHH'
 elif [ "${DOCKERSYS}" = fedora ]; then
     ${EXEC} dnf install -y --skip-broken https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-${FEDORAVER}.noarch.rpm
     ${EXEC} dnf install -y --skip-broken https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-${FEDORAVER}.noarch.rpm
