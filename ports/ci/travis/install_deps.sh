@@ -83,7 +83,7 @@ requires() {
     done
 }
 
-#qtIinstallerVerbose=-v
+qtIinstallerVerbose=-v
 
 if [ ! -z "${USE_WGET}" ]; then
     export DOWNLOAD_CMD="wget -nv -c"
@@ -177,12 +177,11 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
     chmod +x ${fileName}
 
     # Shutdown network connection so Qt installer does not ask for credentials.
-    ifconfig -s
-
     netName=$(ifconfig -s | grep BMRU | awk '{print $1}' | sed 's/.*://g')
     sudo ifconfig ${netName} down
 
-    QT_QPA_PLATFORM=minimal \
+    export QT_QPA_PLATFORM=minimal
+
     ./qt-opensource-linux-x64-${QTVER}.run \
         ${qtIinstallerVerbose} \
         --script "$PWD/../ports/ci/travis/qt_non_interactive_install.qs" \
@@ -190,8 +189,6 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
 
     # Get network connection up again.
     sudo ifconfig ${netName} up
-    echo ${netName}
-    ifconfig -s
 
     cd ..
 
@@ -201,13 +198,14 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
     export ANDROID_NDK="${PWD}/build/android-ndk"
     export ANDROID_NDK_HOME=${ANDROID_NDK}
     export PATH="${JAVA_HOME}/bin/java:${PATH}"
-    export PATH="$PATH:${ANDROID_HOME}/tools:${ANDROID_HOME}/tools/bin"
+    export PATH="${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/tools/bin"
     export PATH="${PATH}:${ANDROID_HOME}/platform-tools"
     export PATH="${PATH}:${ANDROID_HOME}/emulator"
     export PATH="${PATH}:${ANDROID_NDK}"
 
     # Install Android things
     echo y | sdkmanager \
+        --sdk_root=${ANDROID_HOME} \
         "build-tools;${ANDROID_BUILD_TOOLS_VERSION}" \
         "platform-tools" \
         "platforms;android-${ANDROID_PLATFORM}" \
@@ -373,9 +371,11 @@ EOF
     sudo umount root.x86_64/$HOME
     sudo umount root.x86_64
 elif [ "${DOCKERSYS}" = debian ]; then
-    # Set timezone
-    ${EXEC} timedatectl set-timezone UTC
-
+    cat << EOF >> set_noninteractive.sh
+echo 'export DEBIAN_FRONTEND=noninteractive' >> ~/.bash_profile
+EOF
+    chmod +x set_noninteractive.sh
+    ${EXEC} bash $HOME/set_noninteractive.sh
     ${EXEC} apt-get -y update
 
     if [ "${DOCKERIMG}" = ubuntu:bionic ]; then
