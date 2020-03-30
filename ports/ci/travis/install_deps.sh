@@ -371,7 +371,7 @@ EOF
     sudo umount root.x86_64/$HOME
     sudo umount root.x86_64
 elif [ "${DOCKERSYS}" = debian ]; then
-    cat << EOF >> $HOME/set_noninteractive.sh
+    cat << EOF > $HOME/set_noninteractive.sh
 #!/bin/sh
 
 echo 'export DEBIAN_FRONTEND=noninteractive' >> ~/.bash_profile
