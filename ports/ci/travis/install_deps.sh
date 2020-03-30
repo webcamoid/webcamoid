@@ -83,7 +83,7 @@ requires() {
     done
 }
 
-qtIinstallerVerbose=-v
+#qtIinstallerVerbose=-v
 
 if [ ! -z "${USE_WGET}" ]; then
     export DOWNLOAD_CMD="wget -nv -c"
@@ -371,7 +371,9 @@ EOF
     sudo umount root.x86_64/$HOME
     sudo umount root.x86_64
 elif [ "${DOCKERSYS}" = debian ]; then
-    cat << EOF >> set_noninteractive.sh
+    cat << EOF >> $HOME/set_noninteractive.sh
+#!/bin/sh
+
 echo 'export DEBIAN_FRONTEND=noninteractive' >> ~/.bash_profile
 EOF
     chmod +x set_noninteractive.sh
