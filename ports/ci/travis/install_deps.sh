@@ -371,23 +371,20 @@ EOF
     sudo umount root.x86_64/$HOME
     sudo umount root.x86_64
 elif [ "${DOCKERSYS}" = debian ]; then
-    cat << EOF > $TRAVIS_BUILD_DIR/set_noninteractive.sh
-#!/bin/sh
-
-echo 'export DEBIAN_FRONTEND=noninteractive' >> ~/.bashrc
-EOF
-    chmod +x $TRAVIS_BUILD_DIR/set_noninteractive.sh
-    ${EXEC} bash -c 'echo DEBIAN_FRONTEND=$DEBIAN_FRONTEND'
-    ${EXEC} bash set_noninteractive.sh
-    ${EXEC} apt-get -y update
+    echo 'AAA'
+    ${EXEC} bash -c 'DEBIAN_FRONTEND=noninteractive apt-get -y update'
+    echo 'BBB'
 
     if [ "${DOCKERIMG}" = ubuntu:bionic ]; then
         ${EXEC} apt-get -y install software-properties-common
         ${EXEC} add-apt-repository ppa:beineri/opt-qt-${QTVER}-bionic
     fi
 
+    echo 'CCC'
     ${EXEC} apt-get -y update
+    echo 'DDD'
     ${EXEC} apt-get -y upgrade
+    echo 'EEE'
 
     # Install dev tools
     ${EXEC} apt-get -y install \
