@@ -369,6 +369,9 @@ EOF
     sudo umount root.x86_64/$HOME
     sudo umount root.x86_64
 elif [ "${DOCKERSYS}" = debian ]; then
+    # Set timezone
+    ${EXEC} timedatectl set-timezone UTC
+
     ${EXEC} apt-get -y update
 
     if [ "${DOCKERIMG}" = ubuntu:bionic ]; then
