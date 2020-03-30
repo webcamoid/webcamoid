@@ -177,6 +177,8 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
     chmod +x ${fileName}
 
     # Shutdown network connection so Qt installer does not ask for credentials.
+    ifconfig -s
+
     netName=$(ifconfig -s | grep BMRU | awk '{print $1}' | sed 's/.*://g')
     sudo ifconfig ${netName} down
 
@@ -188,6 +190,8 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
 
     # Get network connection up again.
     sudo ifconfig ${netName} up
+    echo ${netName}
+    ifconfig -s
 
     cd ..
 
