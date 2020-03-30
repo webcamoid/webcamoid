@@ -176,11 +176,18 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
     ${DOWNLOAD_CMD} "https://download.qt.io/archive/qt/${QTVER:0:4}/${QTVER}/${fileName}"
     chmod +x ${fileName}
 
+    # Shutdown network connection so Qt installer does not ask for credentials.
+    netName=$(ifconfig -s | grep BMRU | awk '{print $1}' | sed 's/.*://g')
+    sudo ifconfig ${netName} down
+
     QT_QPA_PLATFORM=minimal \
     ./qt-opensource-linux-x64-${QTVER}.run \
         ${qtIinstallerVerbose} \
         --script "$PWD/../ports/ci/travis/qt_non_interactive_install.qs" \
         --no-force-installations
+
+    # Get network connection up again.
+    sudo ifconfig ${netName} up
 
     cd ..
 

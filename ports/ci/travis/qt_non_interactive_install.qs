@@ -35,7 +35,7 @@ Controller.prototype.ComponentSelectionPageCallback = function()
     var widget = gui.currentPageWidget();
 
     widget.deselectAll();
-    widget.selectComponent("qt.qt5.5140.android");
+    widget.selectComponent("qt.qt5.5141.android");
 
     gui.clickButton(buttons.NextButton);
 }
