@@ -376,7 +376,7 @@ elif [ "${DOCKERSYS}" = debian ]; then
 
 echo 'export DEBIAN_FRONTEND=noninteractive' >> ~/.bash_profile
 EOF
-    chmod +x set_noninteractive.sh
+    chmod +x $HOME/set_noninteractive.sh
     ${EXEC} bash $HOME/set_noninteractive.sh
     ${EXEC} apt-get -y update
 
