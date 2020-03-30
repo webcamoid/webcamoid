@@ -372,7 +372,7 @@ EOF
     sudo umount root.x86_64
 elif [ "${DOCKERSYS}" = debian ]; then
     echo 'AAA'
-    ${EXEC} bash -c 'DEBIAN_FRONTEND=noninteractive apt-get -y update'
+    ${EXEC} apt-get -y update
     echo 'BBB'
 
     if [ "${DOCKERIMG}" = ubuntu:bionic ]; then
@@ -387,27 +387,29 @@ elif [ "${DOCKERSYS}" = debian ]; then
     echo 'EEE'
 
     # Install dev tools
-    ${EXEC} apt-get -y install \
-        git \
-        xvfb \
-        g++ \
-        clang \
-        ccache \
-        make \
-        pkg-config \
-        linux-libc-dev \
-        libgl1-mesa-dev \
-        libpulse-dev \
-        libjack-dev \
-        libasound2-dev \
-        libv4l-dev \
-        libavcodec-dev \
-        libavdevice-dev \
-        libavformat-dev \
-        libavutil-dev \
-        libavresample-dev \
-        libswscale-dev \
-        libswresample-dev
+    ${EXEC} bash -c 'DEBIAN_FRONTEND=noninteractive apt-get -y install
+        git
+        xvfb
+        g++
+        clang
+        ccache
+        make
+        pkg-config
+        linux-libc-dev
+        libgl1-mesa-dev
+        libpulse-dev
+        libjack-dev
+        libasound2-dev
+        libv4l-dev
+        libavcodec-dev
+        libavdevice-dev
+        libavformat-dev
+        libavutil-dev
+        libavresample-dev
+        libswscale-dev
+        libswresample-dev'
+
+    echo 'FFF'
 
     if [ -z "${DAILY_BUILD}" ] && [ -z "${RELEASE_BUILD}" ]; then
         ${EXEC} apt-get -y install \
