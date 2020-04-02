@@ -103,12 +103,12 @@
     <message>
         <location filename="../qml/AddSource.qml" line="221"/>
         <source>Animated GIF</source>
-        <translation type="unfinished"></translation>
+        <translation>动态GIF</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="222"/>
         <source>MKV Video</source>
-        <translation type="unfinished"></translation>
+        <translation>MKV视频</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="223"/>
@@ -123,12 +123,12 @@
     <message>
         <location filename="../qml/AddSource.qml" line="225"/>
         <source>MP4 Video</source>
-        <translation type="unfinished"></translation>
+        <translation>MP4视频</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="226"/>
         <source>MPEG Video</source>
-        <translation type="unfinished"></translation>
+        <translation>MPEG视频</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="227"/>
@@ -144,12 +144,12 @@
     <message>
         <location filename="../qml/AddSource.qml" line="230"/>
         <source>DVD Video</source>
-        <translation type="unfinished"></translation>
+        <translation>DVD视频</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="231"/>
         <source>WebM Video</source>
-        <translation type="unfinished"></translation>
+        <translation>WebM视频</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="233"/>
@@ -160,7 +160,7 @@
     <message>
         <location filename="../qml/AddSource.qml" line="234"/>
         <source>All Files</source>
-        <translation type="unfinished"></translation>
+        <translation>全部文件</translation>
     </message>
 </context>
 <context>
@@ -173,12 +173,12 @@
     <message>
         <location filename="../qml/AudioCodecOptions.qml" line="159"/>
         <source>Bitrate</source>
-        <translation type="unfinished"></translation>
+        <translation>比特率</translation>
     </message>
     <message>
         <location filename="../qml/AudioCodecOptions.qml" line="163"/>
         <source>Bitrate (bits/secs)</source>
-        <translation type="unfinished"></translation>
+        <translation>比特率(比特/秒)</translation>
     </message>
 </context>
 <context>
@@ -187,7 +187,7 @@
         <location filename="../qml/AudioConfig.qml" line="112"/>
         <source>Outputs</source>
         <extracomment>Output device for audio playback, for example a speaker.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>输出</translation>
     </message>
     <message>
         <location filename="../qml/AudioConfig.qml" line="114"/>
@@ -209,7 +209,7 @@
         <location filename="../qml/AudioConfig.qml" line="139"/>
         <location filename="../qml/AudioConfig.qml" line="171"/>
         <source>Silence</source>
-        <translation type="unfinished"></translation>
+        <translation>静音</translation>
     </message>
 </context>
 <context>
@@ -222,7 +222,7 @@
     <message>
         <location filename="../qml/AudioInfo.qml" line="209"/>
         <source>Device ID</source>
-        <translation type="unfinished"></translation>
+        <translation>设备ID</translation>
     </message>
     <message>
         <location filename="../qml/AudioInfo.qml" line="233"/>
@@ -239,13 +239,13 @@
         <location filename="../qml/AudioInfo.qml" line="262"/>
         <source>Sample Rate</source>
         <extracomment>Number of audio samples per channel to be played per second.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>采样率</translation>
     </message>
     <message>
         <location filename="../qml/AudioInfo.qml" line="285"/>
         <source>Latency (ms)</source>
         <extracomment>The latency is the amount of accumulated audio ready to play, measured in time. Higher latency == smoother audio playback, but more desynchronization with the video. Lowerer latency == audio desynchronization near to the video, but glitchy audio playback. https://en.wikipedia.org/wiki/Latency_(audio)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>延迟(毫秒)</translation>
     </message>
 </context>
 <context>
@@ -262,7 +262,7 @@
     <message>
         <location filename="../qml/Contributors.qml" line="36"/>
         <source>Thanks to all these cool people that helped contributing to Webcamoid all these years.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">感谢这些年来为Wecamoid做出贡献的所有人</translation>
     </message>
 </context>
 <context>
@@ -270,12 +270,12 @@
     <message>
         <location filename="../qml/EffectBar.qml" line="117"/>
         <source>Add effect</source>
-        <translation type="unfinished"></translation>
+        <translation>添加特效</translation>
     </message>
     <message>
         <location filename="../qml/EffectBar.qml" line="112"/>
         <source>Search effect</source>
-        <translation type="unfinished"></translation>
+        <translation>搜索特效</translation>
     </message>
     <message>
         <location filename="../qml/EffectBar.qml" line="128"/>
@@ -285,7 +285,7 @@
     <message>
         <location filename="../qml/EffectBar.qml" line="222"/>
         <source>Go back</source>
-        <translation type="unfinished"></translation>
+        <translation>返回</translation>
     </message>
 </context>
 <context>
@@ -300,7 +300,7 @@
         <location filename="../qml/EffectConfig.qml" line="92"/>
         <location filename="../qml/EffectConfig.qml" line="98"/>
         <source>Plugin ID</source>
-        <translation type="unfinished"></translation>
+        <translation>插件ID</translation>
     </message>
     <message>
         <location filename="../qml/EffectConfig.qml" line="114"/>
@@ -318,12 +318,12 @@
     <message>
         <location filename="../qml/GeneralConfig.qml" line="77"/>
         <source>Video capture</source>
-        <translation type="unfinished"></translation>
+        <translation>视频捕捉</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="87"/>
         <source>Desktop capture</source>
-        <translation type="unfinished"></translation>
+        <translation>桌面捕捉</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="97"/>
@@ -333,17 +333,17 @@
     <message>
         <location filename="../qml/GeneralConfig.qml" line="107"/>
         <source>Video convert</source>
-        <translation type="unfinished"></translation>
+        <translation>视频转换</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="117"/>
         <source>Audio convert</source>
-        <translation type="unfinished"></translation>
+        <translation>音频转换</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="160"/>
         <source>Virtual camera driver</source>
-        <translation type="unfinished"></translation>
+        <translation>虚拟相机驱动</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="127"/>
@@ -359,7 +359,7 @@
     <message>
         <location filename="../qml/GeneralConfig.qml" line="68"/>
         <source>Frameworks and libraries</source>
-        <translation type="unfinished"></translation>
+        <translation>框架与库</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="137"/>
@@ -387,17 +387,17 @@
     <message>
         <location filename="../qml/ImageCapture.qml" line="57"/>
         <source>File format</source>
-        <translation type="unfinished"></translation>
+        <translation>文件格式</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="86"/>
         <source>Quality</source>
-        <translation type="unfinished"></translation>
+        <translation>质量</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="111"/>
         <source>Select the folder to save your photos</source>
-        <translation type="unfinished"></translation>
+        <translation>选择用于保存照片的文件夹</translation>
     </message>
 </context>
 <context>
@@ -405,12 +405,12 @@
     <message>
         <location filename="../qml/MediaBar.qml" line="66"/>
         <source>No webcams found</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">没有检测到摄像头</translation>
     </message>
     <message>
         <location filename="../qml/MediaBar.qml" line="58"/>
         <source>Add media file</source>
-        <translation type="unfinished"></translation>
+        <translation>添加媒体文件</translation>
     </message>
 </context>
 <context>
@@ -425,7 +425,7 @@
         <location filename="../qml/MediaConfig.qml" line="63"/>
         <location filename="../qml/MediaConfig.qml" line="68"/>
         <source>Media ID</source>
-        <translation type="unfinished"></translation>
+        <translation>媒体ID</translation>
     </message>
     <message>
         <location filename="../qml/MediaConfig.qml" line="83"/>
@@ -451,7 +451,7 @@
     <message>
         <location filename="../qml/OutputConfig.qml" line="44"/>
         <source>Enable virtual camera</source>
-        <translation type="unfinished"></translation>
+        <translation>启用虚拟相机</translation>
     </message>
 </context>
 <context>
@@ -459,37 +459,37 @@
     <message>
         <location filename="../qml/PluginConfig.qml" line="35"/>
         <source>Paths</source>
-        <translation type="unfinished"></translation>
+        <translation>路径</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="38"/>
         <source>Plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>插件</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="115"/>
         <source>Search plugins in subfolders</source>
-        <translation type="unfinished"></translation>
+        <translation>在子文件夹中搜索插件</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="127"/>
         <source>Add path</source>
-        <translation type="unfinished"></translation>
+        <translation>添加路径</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="170"/>
         <source>Remove</source>
-        <translation type="unfinished">删除</translation>
+        <translation>删除</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="204"/>
         <source>Update</source>
-        <translation type="unfinished"></translation>
+        <translation>更新</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="251"/>
         <source>Add plugins search path</source>
-        <translation type="unfinished"></translation>
+        <translation>添加插件搜索路径</translation>
     </message>
 </context>
 <context>
@@ -502,7 +502,7 @@
     <message>
         <location filename="../../src/clioptions.cpp" line="47"/>
         <source>Load settings from PATH. If PATH is empty, load configs from application directory.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">从PATH载入设定。如果PATH为空，将从程序目录下载入设定。</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="49"/>
