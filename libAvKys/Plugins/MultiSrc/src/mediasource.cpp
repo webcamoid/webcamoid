@@ -81,7 +81,12 @@ AkCaps MediaSource::caps(int stream)
     return AkCaps();
 }
 
-qint64 MediaSource::duration()
+qint64 MediaSource::durationMSecs()
+{
+    return 0;
+}
+
+qint64 MediaSource::currentTimeMSecs()
 {
     return 0;
 }
@@ -94,6 +99,12 @@ qint64 MediaSource::maxPacketQueueSize() const
 bool MediaSource::showLog() const
 {
     return false;
+}
+
+void MediaSource::seek(qint64 seekTo, MultiSrcElement::SeekPosition position)
+{
+    Q_UNUSED(seekTo)
+    Q_UNUSED(position)
 }
 
 void MediaSource::setMedia(const QString &media)

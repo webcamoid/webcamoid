@@ -85,6 +85,7 @@ class AbstractStream: public QObject
         void eof();
 
     public slots:
+        void flush();
         void setPaused(bool paused);
         void resetPaused();
         virtual bool init();

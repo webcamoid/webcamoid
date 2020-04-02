@@ -27,9 +27,12 @@ class MediaSourceNDKMediaPrivate;
 class MediaSourceNDKMedia: public MediaSource
 {
     Q_OBJECT
-    Q_PROPERTY(qint64 duration
-               READ duration
-               NOTIFY durationChanged)
+    Q_PROPERTY(qint64 durationMSecs
+               READ durationMSecs
+               NOTIFY durationMSecsChanged)
+    Q_PROPERTY(qint64 currentTimeMSecs
+               READ currentTimeMSecs
+               NOTIFY currentTimeMSecsChanged)
     Q_PROPERTY(qint64 maxPacketQueueSize
                READ maxPacketQueueSize
                WRITE setMaxPacketQueueSize
@@ -54,7 +57,8 @@ class MediaSourceNDKMedia: public MediaSource
         Q_INVOKABLE int defaultStream(const QString &mimeType);
         Q_INVOKABLE QString description(const QString &media) const;
         Q_INVOKABLE AkCaps caps(int stream);
-        Q_INVOKABLE qint64 duration();
+        Q_INVOKABLE qint64 durationMSecs();
+        Q_INVOKABLE qint64 currentTimeMSecs();
         Q_INVOKABLE qint64 maxPacketQueueSize() const;
         Q_INVOKABLE bool showLog() const;
 
@@ -64,7 +68,8 @@ class MediaSourceNDKMedia: public MediaSource
     signals:
         void oStream(const AkPacket &packet);
         void error(const QString &message);
-        void durationChanged(qint64 duration);
+        void durationMSecsChanged(qint64 durationMSecs);
+        void currentTimeMSecsChanged(qint64 currentTimeMSecs);
         void maxPacketQueueSizeChanged(qint64 maxPacketQueue);
         void showLogChanged(bool showLog);
         void loopChanged(bool loop);
@@ -73,6 +78,7 @@ class MediaSourceNDKMedia: public MediaSource
         void streamsChanged(const QList<int> &streams);
 
     public slots:
+        void seek(qint64 mSecs, MultiSrcElement::SeekPosition position);
         void setMedia(const QString &media);
         void setStreams(const QList<int> &streams);
         void setMaxPacketQueueSize(qint64 maxPacketQueueSize);

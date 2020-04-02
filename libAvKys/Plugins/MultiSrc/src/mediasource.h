@@ -22,6 +22,8 @@
 
 #include <akelement.h>
 
+#include "multisrcelement.h"
+
 class AkCaps;
 
 class MediaSource: public QObject
@@ -41,11 +43,14 @@ class MediaSource: public QObject
         Q_INVOKABLE virtual int defaultStream(const QString &mimeType);
         Q_INVOKABLE virtual QString description(const QString &media) const;
         Q_INVOKABLE virtual AkCaps caps(int stream);
-        Q_INVOKABLE virtual qint64 duration();
+        Q_INVOKABLE virtual qint64 durationMSecs();
+        Q_INVOKABLE virtual qint64 currentTimeMSecs();
         Q_INVOKABLE virtual qint64 maxPacketQueueSize() const;
         Q_INVOKABLE virtual bool showLog() const;
 
     public slots:
+        virtual void seek(qint64 seekTo,
+                          MultiSrcElement::SeekPosition position);
         virtual void setMedia(const QString &media);
         virtual void setStreams(const QList<int> &streams);
         virtual void setMaxPacketQueueSize(qint64 maxPacketQueueSize);

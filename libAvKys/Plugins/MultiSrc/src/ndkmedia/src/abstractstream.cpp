@@ -328,6 +328,13 @@ void AbstractStreamPrivate::dataLoop()
     }
 }
 
+void AbstractStream::flush()
+{
+    this->d->m_dataMutex.lock();
+    this->d->m_packets.clear();
+    this->d->m_dataMutex.unlock();
+}
+
 void AbstractStream::setPaused(bool paused)
 {
     if (this->m_paused == paused)

@@ -200,20 +200,31 @@ AkCaps MediaSourceGStreamer::caps(int stream)
     return streamInfo.caps;
 }
 
-qint64 MediaSourceGStreamer::duration()
+qint64 MediaSourceGStreamer::durationMSecs()
 {
-    bool isRunning = this->d->m_run;
+    bool isStopped = this->d->m_curState == AkElement::ElementStateNull;
 
-    if (!isRunning)
+    if (isStopped)
         this->setState(AkElement::ElementStatePaused);
 
     gint64 duration = 0;
     gst_element_query_duration(this->d->m_pipeline, GST_FORMAT_TIME, &duration);
 
-    if (!isRunning)
+    if (isStopped)
         this->setState(AkElement::ElementStateNull);
 
-    return duration;
+    return duration / 1000000;
+}
+
+qint64 MediaSourceGStreamer::currentTimeMSecs()
+{
+    if (this->d->m_curState == AkElement::ElementStateNull)
+        return 0;
+
+    gint64 position = 0;
+    gst_element_query_position(this->d->m_pipeline, GST_FORMAT_TIME, &position);
+
+    return position / 1000000;
 }
 
 qint64 MediaSourceGStreamer::maxPacketQueueSize() const
@@ -226,373 +237,44 @@ bool MediaSourceGStreamer::showLog() const
     return this->d->m_showLog;
 }
 
-void MediaSourceGStreamerPrivate::waitState(GstState state)
+void MediaSourceGStreamer::seek(qint64 mSecs,
+                                MultiSrcElement::SeekPosition position)
 {
-    forever {
-        GstState curState;
-        GstStateChangeReturn ret = gst_element_get_state(this->m_pipeline,
-                                                         &curState,
-                                                         nullptr,
-                                                         GST_CLOCK_TIME_NONE);
-
-        if (ret == GST_STATE_CHANGE_FAILURE)
-            break;
-
-        if (ret == GST_STATE_CHANGE_SUCCESS
-            && curState == state)
-            break;
-    }
-}
-
-gboolean MediaSourceGStreamerPrivate::busCallback(GstBus *bus,
-                                                  GstMessage *message,
-                                                  gpointer userData)
-{
-    Q_UNUSED(bus)
-    auto self = static_cast<MediaSourceGStreamer *>(userData);
-
-    switch (GST_MESSAGE_TYPE(message)) {
-    case GST_MESSAGE_ERROR: {
-        gchar *name = gst_object_get_path_string(message->src);
-        GError *err = nullptr;
-        gchar *debug = nullptr;
-        gst_message_parse_error(message, &err, &debug);
-
-        qDebug() << "ERROR: from element"
-                 << name
-                 << ":"
-                 << err->message;
-
-        if (debug)
-            qDebug() << "Additional debug info:\n"
-                     << debug;
-
-        g_error_free(err);
-        g_free(debug);
-        g_free(name);
-        g_main_loop_quit(self->d->m_mainLoop);
-
-        break;
-    }
-    case GST_MESSAGE_EOS:
-        g_main_loop_quit(self->d->m_mainLoop);
-    break;
-    case GST_MESSAGE_STATE_CHANGED: {
-        GstState oldstate;
-        GstState newstate;
-        GstState pending;
-        gst_message_parse_state_changed(message, &oldstate, &newstate, &pending);
-        qDebug() << "State changed from"
-                 << gst_element_state_get_name(oldstate)
-                 << "to"
-                 << gst_element_state_get_name(newstate);
-
-        break;
-    }
-    case GST_MESSAGE_STREAM_STATUS: {
-        GstStreamStatusType type;
-        GstElement *owner = nullptr;
-        gst_message_parse_stream_status(message, &type, &owner);
-        qDebug() << "Stream Status:"
-                 << GST_ELEMENT_NAME(owner)
-                 << "is"
-                 << type;
-
-        break;
-    }
-    case GST_MESSAGE_LATENCY: {
-        qDebug() << "Recalculating latency";
-        gst_bin_recalculate_latency(GST_BIN(self->d->m_pipeline));
-        break;
-    }
-    case GST_MESSAGE_STREAM_START: {
-        qDebug() << "Stream started";
-        break;
-    }
-    case GST_MESSAGE_ASYNC_DONE: {
-        GstClockTime runningTime;
-        gst_message_parse_async_done(message, &runningTime);
-        qDebug() << "ASYNC done";
-        break;
-    }
-    case GST_MESSAGE_NEW_CLOCK: {
-        GstClock *clock = nullptr;
-        gst_message_parse_new_clock(message, &clock);
-        qDebug() << "New clock:" << (clock? GST_OBJECT_NAME(clock): "NULL");
-        break;
-    }
-    case GST_MESSAGE_DURATION_CHANGED: {
-        GstFormat format;
-        gint64 duration;
-        gst_message_parse_duration(message, &format, &duration);
-        qDebug() << "Duration changed:"
-                 << gst_format_get_name(format)
-                 << ","
-                 << qreal(duration);
-        break;
-    }
-    case GST_MESSAGE_TAG: {
-        GstTagList *tagList = nullptr;
-        gst_message_parse_tag(message, &tagList);
-        gchar *tags = gst_tag_list_to_string(tagList);
-//        qDebug() << "Tags:" << tags;
-        g_free(tags);
-        gst_tag_list_unref(tagList);
-        break;
-    }
-    case GST_MESSAGE_ELEMENT: {
-        const GstStructure *messageStructure = gst_message_get_structure(message);
-        gchar *structure = gst_structure_to_string(messageStructure);
-//        qDebug() << structure;
-        g_free(structure);
-        break;
-    }
-    case GST_MESSAGE_QOS: {
-        qDebug() << QString("Received QOS from element %1:")
-                        .arg(GST_MESSAGE_SRC_NAME(message)).toStdString().c_str();
-
-        GstFormat format;
-        guint64 processed;
-        guint64 dropped;
-        gst_message_parse_qos_stats(message, &format, &processed, &dropped);
-        const gchar *formatStr = gst_format_get_name(format);
-        qDebug() << "    Processed" << processed << formatStr;
-        qDebug() << "    Dropped" << dropped << formatStr;
-
-        gint64 jitter;
-        gdouble proportion;
-        gint quality;
-        gst_message_parse_qos_values(message, &jitter, &proportion, &quality);
-        qDebug() << "    Jitter =" << jitter;
-        qDebug() << "    Proportion =" << proportion;
-        qDebug() << "    Quality =" << quality;
-
-        gboolean live;
-        guint64 runningTime;
-        guint64 streamTime;
-        guint64 timestamp;
-        guint64 duration;
-        gst_message_parse_qos(message, &live, &runningTime, &streamTime, &timestamp, &duration);
-        qDebug() << "    Is live stream =" << live;
-        qDebug() << "    Runninng time =" << runningTime;
-        qDebug() << "    Stream time =" << streamTime;
-        qDebug() << "    Timestamp =" << timestamp;
-        qDebug() << "    Duration =" << duration;
-
-        break;
-    }
-    default:
-        qDebug() << "Unhandled message:" << GST_MESSAGE_TYPE_NAME(message);
-    break;
-    }
-
-    return TRUE;
-}
-
-GstFlowReturn MediaSourceGStreamerPrivate::audioBufferCallback(GstElement *audioOutput,
-                                                               gpointer userData)
-{
-    auto self = static_cast<MediaSourceGStreamer *>(userData);
-
-    if (self->d->m_audioIndex < 0)
-        return GST_FLOW_OK;
-
-    GstSample *sample = nullptr;
-    g_signal_emit_by_name(audioOutput, "pull-sample", &sample);
-
-    if (!sample)
-        return GST_FLOW_OK;
-
-    GstCaps *caps = gst_sample_get_caps(sample);
-    GstAudioInfo *audioInfo = gst_audio_info_new();
-    gst_audio_info_from_caps(audioInfo, caps);
-
-    AkAudioCaps audioCaps(AkAudioCaps::SampleFormat_s32,
-                          AkAudioCaps::Layout_stereo,
-                          audioInfo->rate);
-    AkAudioPacket packet;
-    packet.caps() = audioCaps;
-
-    GstBuffer *buf = gst_sample_get_buffer(sample);
-    GstMapInfo map;
-    gst_buffer_map(buf, &map, GST_MAP_READ);
-
-    QByteArray oBuffer(int(map.size), 0);
-    memcpy(oBuffer.data(), map.data, map.size);
-
-    packet.caps().setSamples(gint(map.size) / audioInfo->bpf);
-    gst_audio_info_free(audioInfo);
-
-    packet.buffer() = oBuffer;
-    packet.pts() = qint64(GST_BUFFER_PTS(buf));
-    packet.timeBase() = AkFrac(1, GST_SECOND);
-    packet.index() = int(self->d->m_audioIndex);
-    packet.id() = self->d->m_audioId;
-
-    gst_buffer_unmap(buf, &map);
-    gst_sample_unref(sample);
-
-    emit self->oStream(packet);
-
-    return GST_FLOW_OK;
-}
-
-GstFlowReturn MediaSourceGStreamerPrivate::videoBufferCallback(GstElement *videoOutput,
-                                                               gpointer userData)
-{
-    auto self = static_cast<MediaSourceGStreamer *>(userData);
-
-    if (self->d->m_videoIndex < 0)
-        return GST_FLOW_OK;
-
-    GstSample *sample = nullptr;
-    g_signal_emit_by_name(videoOutput, "pull-sample", &sample);
-
-    if (!sample)
-        return GST_FLOW_OK;
-
-    GstCaps *caps = gst_sample_get_caps(sample);
-    GstVideoInfo *videoInfo = gst_video_info_new();
-    gst_video_info_from_caps(videoInfo, caps);
-
-    gst_video_info_free(videoInfo);
-
-    GstBuffer *buf = gst_sample_get_buffer(sample);
-    GstMapInfo map;
-    gst_buffer_map(buf, &map, GST_MAP_READ);
-    QByteArray oBuffer(int(map.size), Qt::Uninitialized);
-    memcpy(oBuffer.data(), map.data, map.size);
-
-    AkVideoPacket packet;
-    packet.caps() = {AkVideoCaps::Format_rgb24,
-                     videoInfo->width,
-                     videoInfo->height,
-                     AkFrac(videoInfo->fps_n, videoInfo->fps_d)};
-    packet.buffer() = oBuffer;
-    packet.pts() = qint64(GST_BUFFER_PTS(buf));
-    packet.timeBase() = AkFrac(1, GST_SECOND);
-    packet.index() = int(self->d->m_videoIndex);
-    packet.id() = self->d->m_videoId;
-
-    gst_buffer_unmap(buf, &map);
-    gst_sample_unref(sample);
-
-    emit self->oStream(packet);
-
-    return GST_FLOW_OK;
-}
-
-GstFlowReturn MediaSourceGStreamerPrivate::subtitlesBufferCallback(GstElement *subtitlesOutput,
-                                                                   gpointer userData)
-{
-    auto self = static_cast<MediaSourceGStreamer *>(userData);
-
-    if (self->d->m_subtitlesIndex < 0)
-        return GST_FLOW_OK;
-
-    GstSample *sample = nullptr;
-    g_signal_emit_by_name(subtitlesOutput, "pull-sample", &sample);
-
-    if (!sample)
-        return GST_FLOW_OK;
-
-    GstCaps *caps = gst_sample_get_caps(sample);
-    GstStructure *capsStructure = gst_caps_get_structure(caps, 0);
-    const gchar *format = gst_structure_get_string(capsStructure, "format");
-
-    AkPacket packet;
-    packet.caps().setMimeType("text/x-raw");
-    packet.caps().setProperty("type", format);
-
-    GstBuffer *buf = gst_sample_get_buffer(sample);
-    GstMapInfo map;
-    gst_buffer_map(buf, &map, GST_MAP_READ);
-
-    QByteArray oBuffer(int(map.size), 0);
-    memcpy(oBuffer.data(), map.data, map.size);
-
-    packet.buffer() = oBuffer;
-    packet.pts() = qint64(GST_BUFFER_PTS(buf));
-    packet.timeBase() = AkFrac(1, GST_SECOND);
-    packet.index() = int(self->d->m_subtitlesIndex);
-    packet.id() = self->d->m_subtitlesId;
-
-    gst_buffer_unmap(buf, &map);
-    gst_sample_unref(sample);
-
-    emit self->oStream(packet);
-
-    return GST_FLOW_OK;
-}
-
-void MediaSourceGStreamerPrivate::aboutToFinish(GstElement *object,
-                                                gpointer userData)
-{
-    auto self = static_cast<MediaSourceGStreamer *>(userData);
-
-    if (!self->d->m_loop)
+    if (this->d->m_curState == AkElement::ElementStateNull)
         return;
 
-    // Set the media file to play.
-    if (gst_uri_is_valid(self->d->m_media.toStdString().c_str())) {
-        g_object_set(G_OBJECT(object),
-                     "uri",
-                     self->d->m_media.toStdString().c_str(),
-                     nullptr);
-    } else {
-        auto uri = gst_filename_to_uri(self->d->m_media.toStdString().c_str(),
-                                       nullptr);
-        g_object_set(G_OBJECT(object), "uri", uri, nullptr);
-        g_free(uri);
+    bool isPlaying = this->d->m_curState == AkElement::ElementStatePlaying;
+
+    if (isPlaying)
+        this->setState(AkElement::ElementStatePaused);
+
+    int64_t pts = mSecs;
+
+    switch (position) {
+    case MultiSrcElement::SeekCur:
+        pts += this->currentTimeMSecs();
+
+        break;
+
+    case MultiSrcElement::SeekEnd:
+        pts += this->durationMSecs();
+
+        break;
+
+    default:
+        break;
     }
 
-}
+    pts = qBound<qint64>(0, pts, this->durationMSecs()) * 1000000;
+    gst_element_seek_simple(this->d->m_pipeline,
+                            GST_FORMAT_TIME,
+                            GstSeekFlags(GST_SEEK_FLAG_FLUSH
+                                         | GST_SEEK_FLAG_KEY_UNIT
+                                         | GST_SEEK_FLAG_SNAP_NEAREST),
+                            pts);
 
-QStringList MediaSourceGStreamerPrivate::languageCodes(const QString &type)
-{
-    QStringList languages;
-
-    int nStreams = 0;
-    g_object_get(G_OBJECT(this->m_pipeline),
-                 QString("n-%1").arg(type).toStdString().c_str(),
-                 &nStreams,
-                 nullptr);
-
-    for (int stream = 0; stream < nStreams; stream++) {
-        GstTagList *tags = nullptr;
-        g_signal_emit_by_name(this->m_pipeline,
-                              QString("get-%1-tags").arg(type).toStdString().c_str(),
-                              stream,
-                              &tags);
-
-        if (!tags) {
-            languages << QString();
-
-            continue;
-        }
-
-        gchar *str = nullptr;
-
-        if (gst_tag_list_get_string(tags, GST_TAG_LANGUAGE_CODE, &str)) {
-          languages << QString(str);
-          g_free(str);
-        } else
-            languages << QString();
-
-        gst_tag_list_free(tags);
-    }
-
-    return languages;
-}
-
-QStringList MediaSourceGStreamerPrivate::languageCodes()
-{
-    QStringList languages;
-    languages << languageCodes("audio");
-    languages << languageCodes("video");
-    languages << languageCodes("text");
-
-    return languages;
+    if (isPlaying)
+        this->setState(AkElement::ElementStatePlaying);
 }
 
 void MediaSourceGStreamer::setMedia(const QString &media)
@@ -609,7 +291,7 @@ void MediaSourceGStreamer::setMedia(const QString &media)
 
     emit this->mediaChanged(media);
     emit this->mediasChanged(this->medias());
-    emit this->durationChanged(this->duration());
+    emit this->durationMSecsChanged(this->durationMSecs());
 }
 
 void MediaSourceGStreamer::setStreams(const QList<int> &streams)
@@ -1082,6 +764,375 @@ void MediaSourceGStreamer::updateStreams()
             }
         }
     }
+}
+
+void MediaSourceGStreamerPrivate::waitState(GstState state)
+{
+    forever {
+        GstState curState;
+        GstStateChangeReturn ret = gst_element_get_state(this->m_pipeline,
+                                                         &curState,
+                                                         nullptr,
+                                                         GST_CLOCK_TIME_NONE);
+
+        if (ret == GST_STATE_CHANGE_FAILURE)
+            break;
+
+        if (ret == GST_STATE_CHANGE_SUCCESS
+            && curState == state)
+            break;
+    }
+}
+
+gboolean MediaSourceGStreamerPrivate::busCallback(GstBus *bus,
+                                                  GstMessage *message,
+                                                  gpointer userData)
+{
+    Q_UNUSED(bus)
+    auto self = static_cast<MediaSourceGStreamer *>(userData);
+
+    switch (GST_MESSAGE_TYPE(message)) {
+    case GST_MESSAGE_ERROR: {
+        gchar *name = gst_object_get_path_string(message->src);
+        GError *err = nullptr;
+        gchar *debug = nullptr;
+        gst_message_parse_error(message, &err, &debug);
+
+        qDebug() << "ERROR: from element"
+                 << name
+                 << ":"
+                 << err->message;
+
+        if (debug)
+            qDebug() << "Additional debug info:\n"
+                     << debug;
+
+        g_error_free(err);
+        g_free(debug);
+        g_free(name);
+        g_main_loop_quit(self->d->m_mainLoop);
+
+        break;
+    }
+    case GST_MESSAGE_EOS:
+        g_main_loop_quit(self->d->m_mainLoop);
+    break;
+    case GST_MESSAGE_STATE_CHANGED: {
+        GstState oldstate;
+        GstState newstate;
+        GstState pending;
+        gst_message_parse_state_changed(message, &oldstate, &newstate, &pending);
+        qDebug() << "State changed from"
+                 << gst_element_state_get_name(oldstate)
+                 << "to"
+                 << gst_element_state_get_name(newstate);
+
+        break;
+    }
+    case GST_MESSAGE_STREAM_STATUS: {
+        GstStreamStatusType type;
+        GstElement *owner = nullptr;
+        gst_message_parse_stream_status(message, &type, &owner);
+        qDebug() << "Stream Status:"
+                 << GST_ELEMENT_NAME(owner)
+                 << "is"
+                 << type;
+
+        break;
+    }
+    case GST_MESSAGE_LATENCY: {
+        qDebug() << "Recalculating latency";
+        gst_bin_recalculate_latency(GST_BIN(self->d->m_pipeline));
+        break;
+    }
+    case GST_MESSAGE_STREAM_START: {
+        qDebug() << "Stream started";
+        break;
+    }
+    case GST_MESSAGE_ASYNC_DONE: {
+        GstClockTime runningTime;
+        gst_message_parse_async_done(message, &runningTime);
+        qDebug() << "ASYNC done";
+        break;
+    }
+    case GST_MESSAGE_NEW_CLOCK: {
+        GstClock *clock = nullptr;
+        gst_message_parse_new_clock(message, &clock);
+        qDebug() << "New clock:" << (clock? GST_OBJECT_NAME(clock): "NULL");
+        break;
+    }
+    case GST_MESSAGE_DURATION_CHANGED: {
+        GstFormat format;
+        gint64 duration;
+        gst_message_parse_duration(message, &format, &duration);
+        qDebug() << "Duration changed:"
+                 << gst_format_get_name(format)
+                 << ","
+                 << qreal(duration);
+        break;
+    }
+    case GST_MESSAGE_TAG: {
+        GstTagList *tagList = nullptr;
+        gst_message_parse_tag(message, &tagList);
+        gchar *tags = gst_tag_list_to_string(tagList);
+//        qDebug() << "Tags:" << tags;
+        g_free(tags);
+        gst_tag_list_unref(tagList);
+        break;
+    }
+    case GST_MESSAGE_ELEMENT: {
+        const GstStructure *messageStructure = gst_message_get_structure(message);
+        gchar *structure = gst_structure_to_string(messageStructure);
+//        qDebug() << structure;
+        g_free(structure);
+        break;
+    }
+    case GST_MESSAGE_QOS: {
+        qDebug() << QString("Received QOS from element %1:")
+                        .arg(GST_MESSAGE_SRC_NAME(message)).toStdString().c_str();
+
+        GstFormat format;
+        guint64 processed;
+        guint64 dropped;
+        gst_message_parse_qos_stats(message, &format, &processed, &dropped);
+        const gchar *formatStr = gst_format_get_name(format);
+        qDebug() << "    Processed" << processed << formatStr;
+        qDebug() << "    Dropped" << dropped << formatStr;
+
+        gint64 jitter;
+        gdouble proportion;
+        gint quality;
+        gst_message_parse_qos_values(message, &jitter, &proportion, &quality);
+        qDebug() << "    Jitter =" << jitter;
+        qDebug() << "    Proportion =" << proportion;
+        qDebug() << "    Quality =" << quality;
+
+        gboolean live;
+        guint64 runningTime;
+        guint64 streamTime;
+        guint64 timestamp;
+        guint64 duration;
+        gst_message_parse_qos(message, &live, &runningTime, &streamTime, &timestamp, &duration);
+        qDebug() << "    Is live stream =" << live;
+        qDebug() << "    Runninng time =" << runningTime;
+        qDebug() << "    Stream time =" << streamTime;
+        qDebug() << "    Timestamp =" << timestamp;
+        qDebug() << "    Duration =" << duration;
+
+        break;
+    }
+    default:
+        qDebug() << "Unhandled message:" << GST_MESSAGE_TYPE_NAME(message);
+    break;
+    }
+
+    return TRUE;
+}
+
+GstFlowReturn MediaSourceGStreamerPrivate::audioBufferCallback(GstElement *audioOutput,
+                                                               gpointer userData)
+{
+    auto self = static_cast<MediaSourceGStreamer *>(userData);
+
+    if (self->d->m_audioIndex < 0)
+        return GST_FLOW_OK;
+
+    GstSample *sample = nullptr;
+    g_signal_emit_by_name(audioOutput, "pull-sample", &sample);
+
+    if (!sample)
+        return GST_FLOW_OK;
+
+    GstCaps *caps = gst_sample_get_caps(sample);
+    GstAudioInfo *audioInfo = gst_audio_info_new();
+    gst_audio_info_from_caps(audioInfo, caps);
+
+    AkAudioCaps audioCaps(AkAudioCaps::SampleFormat_s32,
+                          AkAudioCaps::Layout_stereo,
+                          audioInfo->rate);
+    AkAudioPacket packet;
+    packet.caps() = audioCaps;
+
+    GstBuffer *buf = gst_sample_get_buffer(sample);
+    GstMapInfo map;
+    gst_buffer_map(buf, &map, GST_MAP_READ);
+
+    QByteArray oBuffer(int(map.size), 0);
+    memcpy(oBuffer.data(), map.data, map.size);
+
+    packet.caps().setSamples(gint(map.size) / audioInfo->bpf);
+    gst_audio_info_free(audioInfo);
+
+    packet.buffer() = oBuffer;
+    packet.pts() = qint64(GST_BUFFER_PTS(buf));
+    packet.timeBase() = AkFrac(1, GST_SECOND);
+    packet.index() = int(self->d->m_audioIndex);
+    packet.id() = self->d->m_audioId;
+
+    gst_buffer_unmap(buf, &map);
+    gst_sample_unref(sample);
+
+    emit self->oStream(packet);
+
+    return GST_FLOW_OK;
+}
+
+GstFlowReturn MediaSourceGStreamerPrivate::videoBufferCallback(GstElement *videoOutput,
+                                                               gpointer userData)
+{
+    auto self = static_cast<MediaSourceGStreamer *>(userData);
+
+    if (self->d->m_videoIndex < 0)
+        return GST_FLOW_OK;
+
+    GstSample *sample = nullptr;
+    g_signal_emit_by_name(videoOutput, "pull-sample", &sample);
+
+    if (!sample)
+        return GST_FLOW_OK;
+
+    GstCaps *caps = gst_sample_get_caps(sample);
+    GstVideoInfo *videoInfo = gst_video_info_new();
+    gst_video_info_from_caps(videoInfo, caps);
+
+    gst_video_info_free(videoInfo);
+
+    GstBuffer *buf = gst_sample_get_buffer(sample);
+    GstMapInfo map;
+    gst_buffer_map(buf, &map, GST_MAP_READ);
+    QByteArray oBuffer(int(map.size), Qt::Uninitialized);
+    memcpy(oBuffer.data(), map.data, map.size);
+
+    AkVideoPacket packet;
+    packet.caps() = {AkVideoCaps::Format_rgb24,
+                     videoInfo->width,
+                     videoInfo->height,
+                     AkFrac(videoInfo->fps_n, videoInfo->fps_d)};
+    packet.buffer() = oBuffer;
+    packet.pts() = qint64(GST_BUFFER_PTS(buf));
+    packet.timeBase() = AkFrac(1, GST_SECOND);
+    packet.index() = int(self->d->m_videoIndex);
+    packet.id() = self->d->m_videoId;
+
+    gst_buffer_unmap(buf, &map);
+    gst_sample_unref(sample);
+
+    emit self->oStream(packet);
+
+    return GST_FLOW_OK;
+}
+
+GstFlowReturn MediaSourceGStreamerPrivate::subtitlesBufferCallback(GstElement *subtitlesOutput,
+                                                                   gpointer userData)
+{
+    auto self = static_cast<MediaSourceGStreamer *>(userData);
+
+    if (self->d->m_subtitlesIndex < 0)
+        return GST_FLOW_OK;
+
+    GstSample *sample = nullptr;
+    g_signal_emit_by_name(subtitlesOutput, "pull-sample", &sample);
+
+    if (!sample)
+        return GST_FLOW_OK;
+
+    GstCaps *caps = gst_sample_get_caps(sample);
+    GstStructure *capsStructure = gst_caps_get_structure(caps, 0);
+    const gchar *format = gst_structure_get_string(capsStructure, "format");
+
+    AkPacket packet;
+    packet.caps().setMimeType("text/x-raw");
+    packet.caps().setProperty("type", format);
+
+    GstBuffer *buf = gst_sample_get_buffer(sample);
+    GstMapInfo map;
+    gst_buffer_map(buf, &map, GST_MAP_READ);
+
+    QByteArray oBuffer(int(map.size), 0);
+    memcpy(oBuffer.data(), map.data, map.size);
+
+    packet.buffer() = oBuffer;
+    packet.pts() = qint64(GST_BUFFER_PTS(buf));
+    packet.timeBase() = AkFrac(1, GST_SECOND);
+    packet.index() = int(self->d->m_subtitlesIndex);
+    packet.id() = self->d->m_subtitlesId;
+
+    gst_buffer_unmap(buf, &map);
+    gst_sample_unref(sample);
+
+    emit self->oStream(packet);
+
+    return GST_FLOW_OK;
+}
+
+void MediaSourceGStreamerPrivate::aboutToFinish(GstElement *object,
+                                                gpointer userData)
+{
+    auto self = static_cast<MediaSourceGStreamer *>(userData);
+
+    if (!self->d->m_loop)
+        return;
+
+    // Set the media file to play.
+    if (gst_uri_is_valid(self->d->m_media.toStdString().c_str())) {
+        g_object_set(G_OBJECT(object),
+                     "uri",
+                     self->d->m_media.toStdString().c_str(),
+                     nullptr);
+    } else {
+        auto uri = gst_filename_to_uri(self->d->m_media.toStdString().c_str(),
+                                       nullptr);
+        g_object_set(G_OBJECT(object), "uri", uri, nullptr);
+        g_free(uri);
+    }
+
+}
+
+QStringList MediaSourceGStreamerPrivate::languageCodes(const QString &type)
+{
+    QStringList languages;
+
+    int nStreams = 0;
+    g_object_get(G_OBJECT(this->m_pipeline),
+                 QString("n-%1").arg(type).toStdString().c_str(),
+                 &nStreams,
+                 nullptr);
+
+    for (int stream = 0; stream < nStreams; stream++) {
+        GstTagList *tags = nullptr;
+        g_signal_emit_by_name(this->m_pipeline,
+                              QString("get-%1-tags").arg(type).toStdString().c_str(),
+                              stream,
+                              &tags);
+
+        if (!tags) {
+            languages << QString();
+
+            continue;
+        }
+
+        gchar *str = nullptr;
+
+        if (gst_tag_list_get_string(tags, GST_TAG_LANGUAGE_CODE, &str)) {
+          languages << QString(str);
+          g_free(str);
+        } else
+            languages << QString();
+
+        gst_tag_list_free(tags);
+    }
+
+    return languages;
+}
+
+QStringList MediaSourceGStreamerPrivate::languageCodes()
+{
+    QStringList languages;
+    languages << languageCodes("audio");
+    languages << languageCodes("video");
+    languages << languageCodes("text");
+
+    return languages;
 }
 
 #include "moc_mediasourcegstreamer.cpp"

@@ -64,6 +64,7 @@ class MediaSourceNDKMediaPrivate
         void multimediaLoop();
         static AkCaps capsFromMediaFormat(AMediaFormat *mediaFormat);
         void updateStreams();
+        void flush();
 };
 
 MediaSourceNDKMedia::MediaSourceNDKMedia(QObject *parent):
@@ -159,7 +160,7 @@ AkCaps MediaSourceNDKMedia::caps(int stream)
     return this->d->m_streamInfo.value(stream, Stream()).caps;
 }
 
-qint64 MediaSourceNDKMedia::duration()
+qint64 MediaSourceNDKMedia::durationMSecs()
 {
     bool isRunning = this->d->m_run;
 
@@ -181,7 +182,12 @@ qint64 MediaSourceNDKMedia::duration()
     if (!isRunning)
         this->setState(AkElement::ElementStateNull);
 
-    return duration;
+    return duration / 1000;
+}
+
+qint64 MediaSourceNDKMedia::currentTimeMSecs()
+{
+    return qRound64(1e3 * this->d->m_globalClock.clock());
 }
 
 qint64 MediaSourceNDKMedia::maxPacketQueueSize() const
@@ -192,6 +198,45 @@ qint64 MediaSourceNDKMedia::maxPacketQueueSize() const
 bool MediaSourceNDKMedia::showLog() const
 {
     return this->d->m_showLog;
+}
+
+void MediaSourceNDKMedia::seek(qint64 mSecs,
+                               MultiSrcElement::SeekPosition position)
+{
+    if (this->d->m_curState == AkElement::ElementStateNull)
+        return;
+
+    bool isPlaying = this->d->m_curState == AkElement::ElementStatePlaying;
+
+    if (isPlaying)
+        this->setState(AkElement::ElementStatePaused);
+
+    int64_t pts = mSecs;
+
+    switch (position) {
+    case MultiSrcElement::SeekCur:
+        pts += this->currentTimeMSecs();
+
+        break;
+
+    case MultiSrcElement::SeekEnd:
+        pts += this->durationMSecs();
+
+        break;
+
+    default:
+        break;
+    }
+
+    this->d->flush();
+    pts = qBound<qint64>(0, pts, this->durationMSecs()) * 1000;
+    AMediaExtractor_seekTo(this->d->m_mediaExtractor.data(),
+                           pts,
+                           AMEDIAEXTRACTOR_SEEK_CLOSEST_SYNC);
+    this->d->m_globalClock.setClock(qreal(pts) / 1e6);
+
+    if (isPlaying)
+        this->setState(AkElement::ElementStatePlaying);
 }
 
 void MediaSourceNDKMedia::setMedia(const QString &media)
@@ -609,6 +654,12 @@ void MediaSourceNDKMediaPrivate::updateStreams()
     }
 
     AMediaExtractor_delete(extractor);
+}
+
+void MediaSourceNDKMediaPrivate::flush()
+{
+    for (auto &stream: this->m_streamsMap)
+        stream->flush();
 }
 
 #include "moc_mediasourcendkmedia.cpp"

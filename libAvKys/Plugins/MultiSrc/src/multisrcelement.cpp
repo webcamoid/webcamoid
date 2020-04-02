@@ -132,17 +132,25 @@ QString MultiSrcElement::description(const QString &media)
 AkCaps MultiSrcElement::caps(int stream)
 {
     if (!this->d->m_mediaSource)
-        return AkCaps();
+        return {};
 
     return this->d->m_mediaSource->caps(stream);
 }
 
-qint64 MultiSrcElement::duration()
+qint64 MultiSrcElement::durationMSecs()
 {
     if (!this->d->m_mediaSource)
-        return AkCaps();
+        return {};
 
-    return this->d->m_mediaSource->duration();
+    return this->d->m_mediaSource->durationMSecs();
+}
+
+qint64 MultiSrcElement::currentTimeMSecs()
+{
+    if (!this->d->m_mediaSource)
+        return {};
+
+    return this->d->m_mediaSource->currentTimeMSecs();
 }
 
 qint64 MultiSrcElement::maxPacketQueueSize() const
@@ -175,6 +183,12 @@ void MultiSrcElement::controlInterfaceConfigure(QQmlContext *context,
 
     context->setContextProperty("MultiSrc", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
     context->setContextProperty("controlId", this->objectName());
+}
+
+void MultiSrcElement::seek(qint64 seekTo, SeekPosition position)
+{
+    if (this->d->m_mediaSource)
+        this->d->m_mediaSource->seek(seekTo, position);
 }
 
 void MultiSrcElement::setMedia(const QString &media)
@@ -288,9 +302,13 @@ void MultiSrcElementPrivate::codecLibUpdated(const QString &codecLib)
                      self,
                      SIGNAL(error(const QString &)));
     QObject::connect(this->m_mediaSource.data(),
-                     SIGNAL(durationChanged(qint64)),
+                     SIGNAL(durationMSecsChanged(qint64)),
                      self,
-                     SIGNAL(durationChanged(qint64)));
+                     SIGNAL(durationMSecsChanged(qint64)));
+    QObject::connect(this->m_mediaSource.data(),
+                     SIGNAL(currentTimeMSecsChanged(qint64)),
+                     self,
+                     SIGNAL(currentTimeMSecsChanged(qint64)));
     QObject::connect(this->m_mediaSource.data(),
                      SIGNAL(maxPacketQueueSizeChanged(qint64)),
                      self,

@@ -436,6 +436,18 @@ void AbstractStreamPrivate::deleteSubtitle(AVSubtitle *subtitle)
     delete subtitle;
 }
 
+void AbstractStream::flush()
+{
+    this->d->m_dataMutex.lock();
+    this->d->m_packets.clear();
+    this->d->m_dataMutex.unlock();
+
+    this->d->m_dataMutex.lock();
+    this->d->m_frames.clear();
+    this->d->m_subtitles.clear();
+    this->d->m_dataMutex.unlock();
+}
+
 void AbstractStream::setPaused(bool paused)
 {
     if (this->m_paused == paused)

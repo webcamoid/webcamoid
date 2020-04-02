@@ -45,9 +45,12 @@ class MultiSrcElement: public AkMultimediaSourceElement
                WRITE setLoop
                RESET resetLoop
                NOTIFY loopChanged)
-    Q_PROPERTY(qint64 duration
-               READ duration
-               NOTIFY durationChanged)
+    Q_PROPERTY(qint64 durationMSecs
+               READ durationMSecs
+               NOTIFY durationMSecsChanged)
+    Q_PROPERTY(qint64 currentTimeMSecs
+               READ currentTimeMSecs
+               NOTIFY currentTimeMSecsChanged)
     Q_PROPERTY(qint64 maxPacketQueueSize
                READ maxPacketQueueSize
                WRITE setMaxPacketQueueSize
@@ -60,6 +63,13 @@ class MultiSrcElement: public AkMultimediaSourceElement
                NOTIFY showLogChanged)
 
     public:
+        enum SeekPosition {
+            SeekSet = 0x0,
+            SeekCur = 0x1,
+            SeekEnd = 0x2,
+        };
+        Q_ENUMS(SeekPosition)
+
         MultiSrcElement();
         ~MultiSrcElement();
 
@@ -72,7 +82,8 @@ class MultiSrcElement: public AkMultimediaSourceElement
         Q_INVOKABLE int defaultStream(const QString &mimeType);
         Q_INVOKABLE QString description(const QString &media);
         Q_INVOKABLE AkCaps caps(int stream);
-        Q_INVOKABLE qint64 duration();
+        Q_INVOKABLE qint64 durationMSecs();
+        Q_INVOKABLE qint64 currentTimeMSecs();
         Q_INVOKABLE qint64 maxPacketQueueSize() const;
         Q_INVOKABLE bool showLog() const;
 
@@ -90,11 +101,13 @@ class MultiSrcElement: public AkMultimediaSourceElement
         void streamsChanged(const QList<int> &streams);
         void loopChanged(bool loop);
         void error(const QString &message);
-        void durationChanged(qint64 duration);
+        void durationMSecsChanged(qint64 durationMSecs);
+        void currentTimeMSecsChanged(qint64 currentTimeMSecs);
         void maxPacketQueueSizeChanged(qint64 maxPacketQueue);
         void showLogChanged(bool showLog);
 
     public slots:
+        void seek(qint64 seekTo, SeekPosition position=SeekSet);
         void setMedia(const QString &media);
         void setStreams(const QList<int> &streams);
         void setLoop(bool loop);
@@ -107,5 +120,7 @@ class MultiSrcElement: public AkMultimediaSourceElement
         void resetShowLog();
         bool setState(AkElement::ElementState state);
 };
+
+Q_DECLARE_METATYPE(MultiSrcElement::SeekPosition)
 
 #endif // MULTISRCELEMENT_H
