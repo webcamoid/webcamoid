@@ -541,7 +541,7 @@
 <context>
     <name>Recording</name>
     <message>
-        <location filename="../../src/recording.cpp" line="350"/>
+        <location filename="../../src/recording.cpp" line="360"/>
         <source>%1/Video %2.%3</source>
         <translation type="unfinished"></translation>
     </message>
@@ -574,7 +574,7 @@
     <message>
         <location filename="../qml/SettingsDialog.qml" line="77"/>
         <source>Plugins</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">插件</translation>
     </message>
     <message>
         <location filename="../qml/SettingsDialog.qml" line="78"/>
@@ -735,12 +735,12 @@
     <message>
         <location filename="../qml/VideoCodecOptions.qml" line="162"/>
         <source>Bitrate</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">比特率</translation>
     </message>
     <message>
         <location filename="../qml/VideoCodecOptions.qml" line="166"/>
         <source>Bitrate (bits/secs)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">比特率(比特/秒)</translation>
     </message>
     <message>
         <location filename="../qml/VideoCodecOptions.qml" line="176"/>
@@ -782,7 +782,7 @@
     <message>
         <location filename="../qml/VideoRecording.qml" line="137"/>
         <source>File format</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">文件格式</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="166"/>
@@ -988,7 +988,7 @@
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="183"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="173"/>
         <source>Quality</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">质量</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="187"/>

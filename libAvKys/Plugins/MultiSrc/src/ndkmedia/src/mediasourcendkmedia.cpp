@@ -162,24 +162,27 @@ AkCaps MediaSourceNDKMedia::caps(int stream)
 
 qint64 MediaSourceNDKMedia::durationMSecs()
 {
-    bool isRunning = this->d->m_run;
+    bool isStopped = this->d->m_curState == AkElement::ElementStateNull;
 
-    if (!isRunning)
+    if (isStopped)
         this->setState(AkElement::ElementStatePaused);
 
     int64_t duration = 0;
-    auto extractor = this->d->m_mediaExtractor.data();
-    size_t numtracks =
-            AMediaExtractor_getTrackCount(extractor);
 
-    for (size_t i = 0; i < numtracks; i++) {
-        auto format = AMediaExtractor_getTrackFormat(extractor, i);
-        int64_t streamDuration = 0;
-        AMediaFormat_getInt64(format, AMEDIAFORMAT_KEY_DURATION, &streamDuration);
-        duration = qMax(duration, streamDuration);
+    if (this->d->m_mediaExtractor) {
+        auto extractor = this->d->m_mediaExtractor.data();
+        size_t numtracks =
+                AMediaExtractor_getTrackCount(extractor);
+
+        for (size_t i = 0; i < numtracks; i++) {
+            auto format = AMediaExtractor_getTrackFormat(extractor, i);
+            int64_t streamDuration = 0;
+            AMediaFormat_getInt64(format, AMEDIAFORMAT_KEY_DURATION, &streamDuration);
+            duration = qMax(duration, streamDuration);
+        }
     }
 
-    if (!isRunning)
+    if (isStopped)
         this->setState(AkElement::ElementStateNull);
 
     return duration / 1000;

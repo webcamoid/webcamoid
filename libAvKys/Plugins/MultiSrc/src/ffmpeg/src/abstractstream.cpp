@@ -326,7 +326,7 @@ void AbstractStreamPrivate::packetLoop()
 
         PacketPtr packet;
 
-        if (gotPacket) {
+        if (gotPacket && !this->m_packets.isEmpty()) {
             packet = this->m_packets.dequeue();
 
             if (packet)

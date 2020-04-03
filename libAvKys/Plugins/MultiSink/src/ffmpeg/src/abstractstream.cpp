@@ -130,10 +130,11 @@ AbstractStream::AbstractStream(const AVFormatContext *formatContext,
     for (auto it = options.begin(); it != options.end(); it++) {
         QString value = it.value().toString();
 
-        av_dict_set(&this->d->m_codecOptions,
-                    it.key().toStdString().c_str(),
-                    value.toStdString().c_str(),
-                    0);
+        if (!value.isEmpty())
+            av_dict_set(&this->d->m_codecOptions,
+                        it.key().toStdString().c_str(),
+                        value.toStdString().c_str(),
+                        0);
     }
 
     if (this->d->m_threadPool.maxThreadCount() < 2)

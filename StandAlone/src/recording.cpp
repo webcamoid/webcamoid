@@ -76,9 +76,11 @@ class RecordingPrivate
              AkElement::create<QObject>("MultiSink",
                                         AK_PLUGIN_TYPE_ELEMENT_SETTINGS)
         };
+        AkElementPtr m_thumbnailer {AkElement::create("MultiSrc")};
         QMutex m_mutex;
         AkVideoPacket m_curPacket;
         QImage m_photo;
+        QImage m_thumbnail;
         QMap<QString, QString> m_imageFormats;
         AkElement::ElementState m_state {AkElement::ElementStateNull};
         int m_imageSaveQuality {-1};
@@ -120,6 +122,7 @@ class RecordingPrivate
         void saveVideoCodecOptions(const QVariantMap &videoCodecOptions);
         void saveAudioCodecOptions(const QVariantMap &audioCodecOptions);
         void saveRecordAudio(bool recordAudio);
+        QString readThumbnail(const QString &videoFile);
 };
 
 Recording::Recording(QQmlApplicationEngine *engine, QObject *parent):
@@ -133,6 +136,13 @@ Recording::Recording(QQmlApplicationEngine *engine, QObject *parent):
                          SIGNAL(codecLibChanged(const QString &)),
                          this,
                          SLOT(codecLibChanged(const QString &)));
+    }
+
+    if (this->d->m_thumbnailer) {
+        QObject::connect(this->d->m_record.data(),
+                         SIGNAL(oStream(const AkPacket &)),
+                         this,
+                         SLOT(thumbnailUpdated(const AkPacket &)));
     }
 
     this->d->updateMultiSinkCodecLib();
@@ -358,12 +368,13 @@ void Recording::setState(AkElement::ElementState state)
     this->d->m_state = state;
     emit this->stateChanged(state);
 
-    if (state == AkElement::ElementStateNull) {/*
-        QString path = this->d->m_videoFilePath;
-        path.replace("file://", "");
+    if (state == AkElement::ElementStateNull) {
+        auto thumbnail = this->d->readThumbnail(this->d->m_videoFilePath);
 
-        if (!path.isEmpty())
-            emit this->lastPhotoPreviewChanged(path);*/
+        if (!thumbnail.isEmpty()) {
+            this->d->m_lastVideoPreview = thumbnail;
+            emit this->lastVideoPreviewChanged(thumbnail);
+        }
     }
 }
 
@@ -771,6 +782,17 @@ void Recording::codecLibChanged(const QString &codecLib)
     this->d->updateAvailableVideoFormats();
 }
 
+void Recording::thumbnailUpdated(const AkPacket &packet)
+{
+    AkVideoPacket videoPacket(packet);
+    auto thumbnail = videoPacket.toImage();
+
+    if (thumbnail.isNull())
+        return;
+
+    this->d->m_thumbnail = thumbnail;
+}
+
 RecordingPrivate::RecordingPrivate(Recording *self):
     self(self)
 {
@@ -822,6 +844,8 @@ void RecordingPrivate::updateProperties()
 
 void RecordingPrivate::updatePreviews()
 {
+    // Update photo preview
+
     QStringList nameFilters;
 
     for (auto it = this->m_imageFormats.begin();
@@ -837,6 +861,59 @@ void RecordingPrivate::updatePreviews()
 
     if (!photos.isEmpty())
         this->m_lastPhotoPreview = dir.filePath(photos.first());
+
+    // Update video preview
+
+    nameFilters.clear();
+    QStringList videoFormats;
+    QStringList supportedFormats;
+    QMetaObject::invokeMethod(this->m_record.data(),
+                              "supportedFormats",
+                              Q_RETURN_ARG(QStringList, supportedFormats));
+
+    for (auto &format: supportedFormats) {
+        QStringList audioCodecs;
+        QMetaObject::invokeMethod(this->m_record.data(),
+                                  "supportedCodecs",
+                                  Q_RETURN_ARG(QStringList, audioCodecs),
+                                  Q_ARG(QString, format),
+                                  Q_ARG(QString, "audio/x-raw"));
+
+        QStringList videoCodecs;
+        QMetaObject::invokeMethod(this->m_record.data(),
+                                  "supportedCodecs",
+                                  Q_RETURN_ARG(QStringList, videoCodecs),
+                                  Q_ARG(QString, format),
+                                  Q_ARG(QString, "video/x-raw"));
+
+        QStringList extensions;
+        QMetaObject::invokeMethod(this->m_record.data(),
+                                  "fileExtensions",
+                                  Q_RETURN_ARG(QStringList, extensions),
+                                  Q_ARG(QString, format));
+
+#ifdef Q_OS_ANDROID
+        if (!videoCodecs.isEmpty() && !extensions.isEmpty())
+            for (auto extension: extensions)
+                nameFilters += "*." + extension;
+#else
+        if ((format == "gif" || !audioCodecs.isEmpty())
+            && !videoCodecs.isEmpty()
+            && !extensions.isEmpty()) {
+            for (auto extension: extensions)
+                nameFilters += "*." + extension;
+        }
+#endif
+    }
+
+    dir = QDir(this->m_videoDirectory);
+    auto videos = dir.entryList(nameFilters,
+                                QDir::Files | QDir::Readable,
+                                QDir::Time);
+
+    if (!videos.isEmpty())
+        this->m_lastVideoPreview =
+            this->readThumbnail(dir.filePath(videos.first()));
 }
 
 void RecordingPrivate::updateAvailableVideoFormats(bool save)
@@ -873,7 +950,7 @@ void RecordingPrivate::updateAvailableVideoFormats(bool save)
 
 #ifdef Q_OS_ANDROID
         if (!videoCodecs.isEmpty() && !extensions.isEmpty())
-            this->m_availableVideoFormats << format;
+            videoFormats << format;
 #else
         if ((format == "gif" || !audioCodecs.isEmpty())
             && !videoCodecs.isEmpty()
@@ -1525,6 +1602,58 @@ void RecordingPrivate::saveRecordAudio(bool recordAudio)
     config.beginGroup("RecordConfigs");
     config.setValue("recordAudio", recordAudio);
     config.endGroup();
+}
+
+QString RecordingPrivate::readThumbnail(const QString &videoFile)
+{
+    if (!this->m_thumbnailer || videoFile.isEmpty())
+        return {};
+
+    this->m_thumbnailer->setProperty("media", videoFile);
+    int videoStream = -1;
+    QMetaObject::invokeMethod(this->m_thumbnailer.data(),
+                              "defaultStream",
+                              Q_RETURN_ARG(int, videoStream),
+                              Q_ARG(QString, "video/x-raw"));
+
+    if (videoStream >= 0) {
+        QList<int> streams {videoStream};
+        QMetaObject::invokeMethod(this->m_thumbnailer.data(),
+                                  "setStreams",
+                                  Q_ARG(QList<int>, streams));
+    }
+
+    this->m_thumbnailer->setState(AkElement::ElementStatePaused);
+/*
+    auto duration = this->m_thumbnailer->property("durationMSecs").value<qint64>();
+
+    // This is segfaulting
+    QMetaObject::invokeMethod(this->m_thumbnailer.data(),
+                              "seek",
+                              Q_ARG(qint64, qint64(0.05 * duration)));
+*/
+    this->m_thumbnailer->setState(AkElement::ElementStateNull);
+    auto thumnailDir =
+            QDir(QStandardPaths::standardLocations(QStandardPaths::TempLocation).first())
+            .filePath(qApp->applicationName());
+
+    if (this->m_thumbnail.isNull() || !QDir().mkpath(thumnailDir))
+        return {};
+
+    auto defaultTempDirectory =
+            QStandardPaths::standardLocations(QStandardPaths::TempLocation).first();
+    auto baseName = QFileInfo(videoFile).baseName();
+    auto thumnailPath = QString("%1/%2.%3")
+                        .arg(thumnailDir)
+                        .arg(baseName)
+                        .arg(this->m_imageFormat);
+
+    if (!this->m_thumbnail.save(thumnailPath,
+                                nullptr,
+                                this->m_imageSaveQuality))
+        return {};
+
+    return thumnailPath;
 }
 
 #include "moc_recording.cpp"

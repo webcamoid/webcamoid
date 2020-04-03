@@ -263,6 +263,7 @@ class Recording: public QObject
 
     private slots:
         void codecLibChanged(const QString &codecLib);
+        void thumbnailUpdated(const AkPacket &packet);
 };
 
 #endif // RECORDING_H

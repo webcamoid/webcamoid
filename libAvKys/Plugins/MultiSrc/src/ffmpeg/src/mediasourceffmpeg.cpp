@@ -264,22 +264,18 @@ AkCaps MediaSourceFFmpeg::caps(int stream)
 
 qint64 MediaSourceFFmpeg::durationMSecs()
 {
-    bool clearContext = false;
+    bool isStopped = this->d->m_curState == AkElement::ElementStateNull;
 
-    if (!this->d->m_inputContext) {
-        if (!this->initContext())
-            return 0;
-
-        clearContext = true;
-    }
+    if (isStopped)
+        this->setState(AkElement::ElementStatePaused);
 
     qint64 duration = 0;
 
-    if (avformat_find_stream_info(this->d->m_inputContext.data(), nullptr) >= 0)
+    if (this->d->m_inputContext)
         duration = 1000 * this->d->m_inputContext->duration / AV_TIME_BASE;
 
-    if (clearContext)
-        this->d->m_inputContext.clear();
+    if (isStopped)
+        this->setState(AkElement::ElementStateNull);
 
     return duration;
 }
