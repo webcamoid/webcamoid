@@ -514,6 +514,7 @@ QVariantList CaptureV4L2Private::capsFps(int fd,
 
 #ifdef VIDIOC_ENUM_FRAMEINTERVALS
     v4l2_frmivalenum frmival {};
+    bool frameintervals = false;
     frmival.pixel_format = format.pixelformat;
     frmival.width = width;
     frmival.height = height;
@@ -544,6 +545,7 @@ QVariantList CaptureV4L2Private::capsFps(int fd,
 
         videoCaps.setProperty("fps", fps.toString());
         caps << QVariant::fromValue(videoCaps);
+        frameintervals = true;
     }
 #else
     struct v4l2_streamparm params;
@@ -562,6 +564,19 @@ QVariantList CaptureV4L2Private::capsFps(int fd,
         caps << QVariant::fromValue(videoCaps);
     }
 #endif
+
+    // Some older V4L2 devices does not provide FPS
+    // Information but they still work correctly
+    // FPS is unkown or various it depends with camera
+    if(frameintervals == false) {
+        AkCaps videoCaps;
+        videoCaps.setMimeType("video/unknown");
+        videoCaps.setProperty("fourcc", fourcc);
+        videoCaps.setProperty("width", width);
+        videoCaps.setProperty("height", height);
+        videoCaps.setProperty("fps", "0");
+        caps << QVariant::fromValue(videoCaps);
+    }
 
     return caps;
 }
