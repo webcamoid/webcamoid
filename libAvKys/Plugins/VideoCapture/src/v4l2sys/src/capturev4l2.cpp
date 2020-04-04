@@ -511,15 +511,15 @@ QVariantList CaptureV4L2Private::capsFps(int fd,
                                          __u32 height) const
 {
     QVariantList caps;
+    auto fourcc =
+            v4l2FourccToStr->value(format.pixelformat,
+                                   this->fourccToStr(format.pixelformat));
 
 #ifdef VIDIOC_ENUM_FRAMEINTERVALS
     v4l2_frmivalenum frmival {};
     frmival.pixel_format = format.pixelformat;
     frmival.width = width;
     frmival.height = height;
-    auto fourcc =
-            v4l2FourccToStr->value(format.pixelformat,
-                                   this->fourccToStr(format.pixelformat));
 
     for (frmival.index = 0;
          x_ioctl(fd, VIDIOC_ENUM_FRAMEINTERVALS, &frmival) >= 0;
@@ -545,21 +545,26 @@ QVariantList CaptureV4L2Private::capsFps(int fd,
         videoCaps.setProperty("fps", fps.toString());
         caps << QVariant::fromValue(videoCaps);
     }
-#else
-    struct v4l2_streamparm params;
-    memset(&params, 0, sizeof(v4l2_streamparm));
-    params.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 
-    if (x_ioctl(fd, VIDIOC_G_PARM, &params) >= 0) {
-        AkCaps videoCaps;
-        auto timeperframe = &params.parm.capture.timeperframe;
-        videoCaps.setMimeType("video/unknown");
-        videoCaps.setProperty("fourcc", fourcc);
-        videoCaps.setProperty("width", width);
-        videoCaps.setProperty("height", height);
-        videoCaps.setProperty("fps", AkFrac(timeperframe->denominator,
-                                            timeperframe->numerator).toString());
-        caps << QVariant::fromValue(videoCaps);
+    if (caps.isEmpty()) {
+#endif
+        struct v4l2_streamparm params;
+        memset(&params, 0, sizeof(v4l2_streamparm));
+        params.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+
+        if (x_ioctl(fd, VIDIOC_G_PARM, &params) >= 0) {
+            AkCaps videoCaps;
+            auto timeperframe = &params.parm.capture.timeperframe;
+            videoCaps.setMimeType("video/unknown");
+            videoCaps.setProperty("fourcc", fourcc);
+            videoCaps.setProperty("width", width);
+            videoCaps.setProperty("height", height);
+            videoCaps.setProperty("fps",
+                                  AkFrac(timeperframe->denominator,
+                                         timeperframe->numerator).toString());
+            caps << QVariant::fromValue(videoCaps);
+        }
+#ifdef VIDIOC_ENUM_FRAMEINTERVALS
     }
 #endif
 

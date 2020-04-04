@@ -1463,7 +1463,7 @@ void AkVCam::IpcBridgePrivate::unloadDaemon() const
     auto dstDaemonsPath = daemonsPath + "/" + daemonPlist;
 
     if (!this->fileExists(dstDaemonsPath))
-        return ;
+        return;
 
     auto launchctl =
             popen(("launchctl unload -w '" + dstDaemonsPath + "'").c_str(),
