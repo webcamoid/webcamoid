@@ -85,6 +85,7 @@ class MediaSourceFFmpegPrivate
         void unlockQueue();
         int roundDown(int value, int multiply);
         void flush();
+        static int interruptCallback(void *userData);
 };
 
 MediaSourceFFmpeg::MediaSourceFFmpeg(QObject *parent):
@@ -618,26 +619,32 @@ bool MediaSourceFFmpeg::initContext()
         inputFormat = av_find_input_format("alsa");
     else if (uri == "/dev/dsp")
         inputFormat = av_find_input_format("oss");
-
-    QStringList mmsSchemes;
-    mmsSchemes << "mms://" << "mmsh://" << "mmst://";
+    else if (uri.startsWith("udp://"))
+        av_dict_set(&inputOptions, "timeout", "3000", 0);
 
     AVFormatContext *inputContext = nullptr;
 
-    for (auto &scheme: mmsSchemes) {
-        QString uriCopy = uri;
+    QStringList mmsSchemes;
+    mmsSchemes << "mms://" << "mmsh://" << "mmst://";
+    auto uriScheme = QUrl(uri).scheme() + "://";
 
-        for (auto &schemer: mmsSchemes)
-            uriCopy.replace(QRegExp(QString("^%1").arg(schemer)),
-                            scheme);
+    if (mmsSchemes.contains(uriScheme)) {
+        for (auto &scheme: mmsSchemes) {
+            QString uriCopy = uri;
+            uriCopy.replace(QRegExp("^" + uriScheme), scheme);
+            inputContext = nullptr;
 
-        inputContext = nullptr;
-
-        if (avformat_open_input(&inputContext,
-                                uriCopy.toStdString().c_str(),
-                                inputFormat,
-                                &inputOptions) >= 0)
-            break;
+            if (avformat_open_input(&inputContext,
+                                    uriCopy.toStdString().c_str(),
+                                    inputFormat,
+                                    &inputOptions) >= 0)
+                break;
+        }
+    } else {
+        avformat_open_input(&inputContext,
+                            uri.toStdString().c_str(),
+                            inputFormat,
+                            &inputOptions);
     }
 
     if (inputOptions)
@@ -648,6 +655,10 @@ bool MediaSourceFFmpeg::initContext()
 
         return false;
     }
+
+    inputContext->interrupt_callback.opaque = this->d;
+    inputContext->interrupt_callback.callback =
+            &MediaSourceFFmpegPrivate::interruptCallback;
 
     this->d->m_inputContext =
             FormatContextPtr(inputContext, this->d->deleteFormatContext);
@@ -830,6 +841,13 @@ void MediaSourceFFmpegPrivate::flush()
 {
     for (auto &stream: this->m_streamsMap)
         stream->flush();
+}
+
+int MediaSourceFFmpegPrivate::interruptCallback(void *userData)
+{
+    Q_UNUSED(userData)
+
+    return 1;
 }
 
 #include "moc_mediasourceffmpeg.cpp"
