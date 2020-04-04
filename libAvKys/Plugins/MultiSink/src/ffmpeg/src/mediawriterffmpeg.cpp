@@ -317,14 +317,17 @@ QString MediaWriterFFmpeg::defaultCodec(const QString &format,
         codecId = AV_CODEC_ID_VP8;
 
     auto codec = avcodec_find_encoder(codecId);
-    QString codecName(codec->name);
+    QString codecName;
+
+    if (codec)
+        codecName = QString(codec->name);
 
     auto supportedCodecs = this->supportedCodecs(format, type);
 
     if (supportedCodecs.isEmpty())
         return {};
 
-    if (!supportedCodecs.contains(codecName))
+    if (codecName.isEmpty() || !supportedCodecs.contains(codecName))
         codecName = supportedCodecs.first();
 
     return codecName;
