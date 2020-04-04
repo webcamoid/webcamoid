@@ -379,12 +379,15 @@ bool MediaSourceNDKMedia::setState(AkElement::ElementState state)
                 this->d->m_curClockTime = 0.;
 
             this->d->m_globalClock.setClock(0.);
-            this->d->m_run = true;
+            this->d->m_run = state == AkElement::ElementStatePlaying;
             this->d->m_paused = state == AkElement::ElementStatePaused;
-            this->d->m_multimediaLoopResult =
+
+            if (this->d->m_run)
+                this->d->m_multimediaLoopResult =
                     QtConcurrent::run(&this->d->m_threadPool,
-                                      this->d,
-                                      &MediaSourceNDKMediaPrivate::multimediaLoop);
+                                       this->d,
+                                       &MediaSourceNDKMediaPrivate::multimediaLoop);
+
             this->d->m_curState = state;
 
             return true;

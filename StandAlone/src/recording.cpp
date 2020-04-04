@@ -77,6 +77,10 @@ class RecordingPrivate
                                         AK_PLUGIN_TYPE_ELEMENT_SETTINGS)
         };
         AkElementPtr m_thumbnailer {AkElement::create("MultiSrc")};
+        ObjectPtr m_thumbnailerSettings {
+             AkElement::create<QObject>("MultiSrc",
+                                        AK_PLUGIN_TYPE_ELEMENT_SETTINGS)
+        };
         QMutex m_mutex;
         AkVideoPacket m_curPacket;
         QImage m_photo;
@@ -87,7 +91,7 @@ class RecordingPrivate
         bool m_recordAudio {DEFAULT_RECORD_AUDIO};
 
         explicit RecordingPrivate(Recording *self);
-        void updateMultiSinkCodecLib();
+        void loadProperties();
         void updateProperties();
         void updatePreviews();
         void updateAvailableVideoFormats(bool save=false);
@@ -145,7 +149,7 @@ Recording::Recording(QQmlApplicationEngine *engine, QObject *parent):
                          SLOT(thumbnailUpdated(const AkPacket &)));
     }
 
-    this->d->updateMultiSinkCodecLib();
+    this->d->loadProperties();
     this->d->updateProperties();
     this->d->updateAvailableVideoFormats();
     this->d->updatePreviews();
@@ -804,7 +808,7 @@ RecordingPrivate::RecordingPrivate(Recording *self):
     };
 }
 
-void RecordingPrivate::updateMultiSinkCodecLib()
+void RecordingPrivate::loadProperties()
 {
     QSettings config;
     config.beginGroup("Libraries");
@@ -814,6 +818,13 @@ void RecordingPrivate::updateMultiSinkCodecLib()
                 config.value("MultiSink.codecLib",
                              this->m_recordSettings->property("codecLib"));
         this->m_recordSettings->setProperty("codecLib", codecLib);
+    }
+
+    if (this->m_thumbnailerSettings) {
+        auto codecLib =
+                config.value("MultiSrc.codecLib",
+                             this->m_thumbnailerSettings->property("codecLib"));
+        this->m_thumbnailer->setProperty("codecLib", codecLib);
     }
 
     config.endGroup();
@@ -1624,14 +1635,10 @@ QString RecordingPrivate::readThumbnail(const QString &videoFile)
     }
 
     this->m_thumbnailer->setState(AkElement::ElementStatePaused);
-/*
     auto duration = this->m_thumbnailer->property("durationMSecs").value<qint64>();
-
-    // This is segfaulting
     QMetaObject::invokeMethod(this->m_thumbnailer.data(),
                               "seek",
                               Q_ARG(qint64, qint64(0.05 * duration)));
-*/
     this->m_thumbnailer->setState(AkElement::ElementStateNull);
     auto thumnailDir =
             QDir(QStandardPaths::standardLocations(QStandardPaths::TempLocation).first())

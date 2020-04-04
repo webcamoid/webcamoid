@@ -100,7 +100,7 @@ class AbstractStream: public QObject
         void flush();
         void setPaused(bool paused);
         void resetPaused();
-        virtual bool init();
+        virtual bool init(bool paused=false);
         virtual void uninit();
 
         friend class AbstractStreamPrivate;

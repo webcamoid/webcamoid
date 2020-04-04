@@ -480,11 +480,14 @@ bool MediaSourceFFmpeg::setState(AkElement::ElementState state)
                 this->d->m_curClockTime = 0.;
 
             this->d->m_globalClock.setClock(0.);
-            this->d->m_run = true;
-            this->d->m_readPacketsLoopResult =
+            this->d->m_run = state == AkElement::ElementStatePlaying;
+
+            if (this->d->m_run)
+                this->d->m_readPacketsLoopResult =
                     QtConcurrent::run(&this->d->m_threadPool,
                                       this->d,
                                       &MediaSourceFFmpegPrivate::readPackets);
+
             this->d->m_curState = state;
 
             return true;

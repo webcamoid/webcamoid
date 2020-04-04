@@ -472,7 +472,7 @@ void AbstractStream::resetPaused()
     this->setPaused(false);
 }
 
-bool AbstractStream::init()
+bool AbstractStream::init(bool paused)
 {
     if (!this->d->m_codecContext
         || !this->d->m_codec)
@@ -484,16 +484,20 @@ bool AbstractStream::init()
         return false;
 
     this->m_clockDiff = 0;
-    this->d->m_runPacketLoop = true;
-    this->d->m_runDataLoop = true;
-    this->d->m_packetLoopResult =
-            QtConcurrent::run(&this->d->m_threadPool,
-                              this->d,
-                              &AbstractStreamPrivate::packetLoop);
-    this->d->m_dataLoopResult =
-            QtConcurrent::run(&this->d->m_threadPool,
-                              this->d,
-                              &AbstractStreamPrivate::dataLoop);
+    this->d->m_runPacketLoop = !paused;
+    this->d->m_runDataLoop = !paused;
+
+    if (this->d->m_runPacketLoop)
+        this->d->m_packetLoopResult =
+                QtConcurrent::run(&this->d->m_threadPool,
+                                  this->d,
+                                  &AbstractStreamPrivate::packetLoop);
+
+    if (this->d->m_runDataLoop)
+        this->d->m_dataLoopResult =
+                QtConcurrent::run(&this->d->m_threadPool,
+                                  this->d,
+                                  &AbstractStreamPrivate::dataLoop);
 
     return true;
 }
