@@ -200,7 +200,6 @@ class CaptureV4L2Private
                              __u32 width,
                              __u32 height) const;
         QVariantList caps(int fd) const;
-        AkFrac fps(int fd) const;
         void setFps(int fd, const AkFrac &fps);
         QVariantList controls(int fd, quint32 controlClass) const;
         bool setControls(int fd,
@@ -554,14 +553,19 @@ QVariantList CaptureV4L2Private::capsFps(int fd,
 
         if (x_ioctl(fd, VIDIOC_G_PARM, &params) >= 0) {
             AkCaps videoCaps;
-            auto timeperframe = &params.parm.capture.timeperframe;
+            AkFrac fps;
+
+            if (params.parm.capture.capability & V4L2_CAP_TIMEPERFRAME)
+                fps = AkFrac(params.parm.capture.timeperframe.denominator,
+                             params.parm.capture.timeperframe.numerator);
+            else
+                fps = AkFrac(30, 1);
+
             videoCaps.setMimeType("video/unknown");
             videoCaps.setProperty("fourcc", fourcc);
             videoCaps.setProperty("width", width);
             videoCaps.setProperty("height", height);
-            videoCaps.setProperty("fps",
-                                  AkFrac(timeperframe->denominator,
-                                         timeperframe->numerator).toString());
+            videoCaps.setProperty("fps", fps.toString());
             caps << QVariant::fromValue(videoCaps);
         }
 #ifdef VIDIOC_ENUM_FRAMEINTERVALS
@@ -631,21 +635,6 @@ QVariantList CaptureV4L2Private::caps(int fd) const
     }
 
     return caps;
-}
-
-AkFrac CaptureV4L2Private::fps(int fd) const
-{
-    AkFrac fps(30, 1);
-    v4l2_streamparm streamparm {};
-    streamparm.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-
-    if (x_ioctl(fd, VIDIOC_G_PARM, &streamparm) >= 0) {
-        if (streamparm.parm.capture.capability & V4L2_CAP_TIMEPERFRAME)
-            fps = AkFrac(streamparm.parm.capture.timeperframe.denominator,
-                         streamparm.parm.capture.timeperframe.numerator);
-    }
-
-    return fps;
 }
 
 void CaptureV4L2Private::setFps(int fd, const AkFrac &fps)
