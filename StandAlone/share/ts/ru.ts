@@ -98,7 +98,7 @@
         <location filename="../qml/AddSource.qml" line="220"/>
         <source>Flash Video</source>
         <extracomment>Adobe FLV Flash video</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Flash Video</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="221"/>
@@ -168,7 +168,7 @@
     <message>
         <location filename="../qml/AudioCodecOptions.qml" line="27"/>
         <source>Audio Codec Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Параметры аудиокодека</translation>
     </message>
     <message>
         <location filename="../qml/AudioCodecOptions.qml" line="159"/>
@@ -178,7 +178,7 @@
     <message>
         <location filename="../qml/AudioCodecOptions.qml" line="163"/>
         <source>Bitrate (bits/secs)</source>
-        <translation type="unfinished"></translation>
+        <translation>Битрат (бит/сек)</translation>
     </message>
 </context>
 <context>
@@ -187,7 +187,7 @@
         <location filename="../qml/AudioConfig.qml" line="112"/>
         <source>Outputs</source>
         <extracomment>Output device for audio playback, for example a speaker.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Аудиовыходы</translation>
     </message>
     <message>
         <location filename="../qml/AudioConfig.qml" line="114"/>
@@ -198,7 +198,7 @@
         <location filename="../qml/AudioConfig.qml" line="121"/>
         <source>Inputs</source>
         <extracomment>Input device for audio capturing, for example a microphone.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Аудиовходы</translation>
     </message>
     <message>
         <location filename="../qml/AudioConfig.qml" line="123"/>
@@ -254,7 +254,7 @@
         <location filename="../qml/ConfigBar.qml" line="44"/>
         <source>Output</source>
         <extracomment>Configuration for video output, like virtual camera or streaming.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Видеовыход</translation>
     </message>
 </context>
 <context>
@@ -333,12 +333,12 @@
     <message>
         <location filename="../qml/GeneralConfig.qml" line="107"/>
         <source>Video convert</source>
-        <translation type="unfinished"></translation>
+        <translation>Конвертировать видео</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="117"/>
         <source>Audio convert</source>
-        <translation type="unfinished"></translation>
+        <translation>Конвертировать аудио</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="160"/>
@@ -377,7 +377,7 @@
     <message>
         <location filename="../qml/ImageCapture.qml" line="39"/>
         <source>Images directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Каталог изображений</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="49"/>
@@ -474,7 +474,7 @@
     <message>
         <location filename="../qml/PluginConfig.qml" line="127"/>
         <source>Add path</source>
-        <translation type="unfinished"></translation>
+        <translation>Добавить путь</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="170"/>
@@ -484,7 +484,7 @@
     <message>
         <location filename="../qml/PluginConfig.qml" line="204"/>
         <source>Update</source>
-        <translation type="unfinished"></translation>
+        <translation>Обновление</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="251"/>
@@ -507,14 +507,14 @@
     <message>
         <location filename="../../src/clioptions.cpp" line="49"/>
         <source>PATH</source>
-        <translation type="unfinished"></translation>
+        <translation>ПУТЬ</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="61"/>
         <location filename="../../src/clioptions.cpp" line="70"/>
         <location filename="../../src/clioptions.cpp" line="76"/>
         <source>PATH1;PATH2;PATH3;...</source>
-        <translation type="unfinished"></translation>
+        <translation>ПУТЬ1;ПУТЬ2;ПУТЬ3;...</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="54"/>
@@ -559,33 +559,33 @@
     <message>
         <location filename="../qml/SettingsDialog.qml" line="74"/>
         <source>Image Capture</source>
-        <translation type="unfinished">Захват изображения</translation>
+        <translation>Захват изображения</translation>
     </message>
     <message>
         <location filename="../qml/SettingsDialog.qml" line="75"/>
         <source>Video Recording</source>
-        <translation type="unfinished"></translation>
+        <translation>Запись видео</translation>
     </message>
     <message>
         <location filename="../qml/SettingsDialog.qml" line="76"/>
         <source>General Options</source>
-        <translation type="unfinished">Общие настройки</translation>
+        <translation>Общие настройки</translation>
     </message>
     <message>
         <location filename="../qml/SettingsDialog.qml" line="77"/>
         <source>Plugins</source>
-        <translation type="unfinished">Плагины</translation>
+        <translation>Плагины</translation>
     </message>
     <message>
         <location filename="../qml/SettingsDialog.qml" line="78"/>
         <source>Updates</source>
-        <translation type="unfinished">Обновления</translation>
+        <translation>Обновления</translation>
     </message>
     <message>
         <location filename="../qml/SettingsDialog.qml" line="82"/>
         <source>About</source>
         <extracomment>Information of the program, like name, description, vesion, etc..</extracomment>
-        <translation type="unfinished">О программе</translation>
+        <translation>О программе</translation>
     </message>
     <message>
         <location filename="../qml/SettingsDialog.qml" line="86"/>
@@ -597,7 +597,7 @@
         <location filename="../qml/SettingsDialog.qml" line="88"/>
         <source>License</source>
         <extracomment>Program license.</extracomment>
-        <translation type="unfinished">Лицензия</translation>
+        <translation>Лицензия</translation>
     </message>
     <message>
         <location filename="../qml/SettingsDialog.qml" line="92"/>
