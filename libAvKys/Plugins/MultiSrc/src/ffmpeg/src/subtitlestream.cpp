@@ -43,6 +43,14 @@ AkCaps SubtitleStream::caps() const
     return {"text/x-raw"};
 }
 
+bool SubtitleStream::decodeData()
+{
+    if (!this->isValid())
+        return false;
+
+    return false;
+}
+
 void SubtitleStream::processPacket(AVPacket *packet)
 {
     if (!this->isValid())

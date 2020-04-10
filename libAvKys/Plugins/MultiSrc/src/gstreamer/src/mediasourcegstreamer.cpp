@@ -277,6 +277,11 @@ void MediaSourceGStreamer::seek(qint64 mSecs,
         this->setState(AkElement::ElementStatePlaying);
 }
 
+void MediaSourceGStreamer::nextVideoFrame()
+{
+
+}
+
 void MediaSourceGStreamer::setMedia(const QString &media)
 {
     if (media == this->d->m_media)

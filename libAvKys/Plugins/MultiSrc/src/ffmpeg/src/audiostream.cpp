@@ -63,77 +63,9 @@ class AudioStreamPrivate
         AkAudioPacket frameToPacket(AVFrame *iFrame);
         AkPacket convert(AVFrame *iFrame);
         AVFrame *copyFrame(AVFrame *frame) const;
-
-        inline static const SampleFormatMap &sampleFormats()
-        {
-            static const SampleFormatMap sampleFormat {
-                {AV_SAMPLE_FMT_U8  , AkAudioCaps::SampleFormat_u8 },
-                {AV_SAMPLE_FMT_S16 , AkAudioCaps::SampleFormat_s16},
-                {AV_SAMPLE_FMT_S32 , AkAudioCaps::SampleFormat_s32},
-                {AV_SAMPLE_FMT_FLT , AkAudioCaps::SampleFormat_flt},
-                {AV_SAMPLE_FMT_DBL , AkAudioCaps::SampleFormat_dbl},
-
-                {AV_SAMPLE_FMT_U8P , AkAudioCaps::SampleFormat_u8 },
-                {AV_SAMPLE_FMT_S16P, AkAudioCaps::SampleFormat_s16},
-                {AV_SAMPLE_FMT_S32P, AkAudioCaps::SampleFormat_s32},
-                {AV_SAMPLE_FMT_FLTP, AkAudioCaps::SampleFormat_flt},
-                {AV_SAMPLE_FMT_DBLP, AkAudioCaps::SampleFormat_dbl},
-                {AV_SAMPLE_FMT_S64 , AkAudioCaps::SampleFormat_s64},
-                {AV_SAMPLE_FMT_S64P, AkAudioCaps::SampleFormat_s64},
-            };
-
-            return sampleFormat;
-        }
-
-        inline static const QVector<AVSampleFormat> &planarFormats()
-        {
-            static const QVector<AVSampleFormat> formats {
-                AV_SAMPLE_FMT_U8P ,
-                AV_SAMPLE_FMT_S16P,
-                AV_SAMPLE_FMT_S32P,
-                AV_SAMPLE_FMT_FLTP,
-                AV_SAMPLE_FMT_DBLP,
-                AV_SAMPLE_FMT_S64P,
-            };
-
-            return formats;
-        }
-
-        inline static const ChannelLayoutsMap &channelLayouts()
-        {
-            static const ChannelLayoutsMap channelLayouts {
-                {AV_CH_LAYOUT_MONO             , AkAudioCaps::Layout_mono         },
-                {AV_CH_LAYOUT_STEREO           , AkAudioCaps::Layout_stereo       },
-                {AV_CH_LAYOUT_2POINT1          , AkAudioCaps::Layout_2p1          },
-                {AV_CH_LAYOUT_SURROUND         , AkAudioCaps::Layout_3p0          },
-                {AV_CH_LAYOUT_2_1              , AkAudioCaps::Layout_3p0_back     },
-                {AV_CH_LAYOUT_3POINT1          , AkAudioCaps::Layout_3p1          },
-                {AV_CH_LAYOUT_4POINT0          , AkAudioCaps::Layout_4p0          },
-                {AV_CH_LAYOUT_QUAD             , AkAudioCaps::Layout_quad         },
-                {AV_CH_LAYOUT_2_2              , AkAudioCaps::Layout_quad_side    },
-                {AV_CH_LAYOUT_4POINT1          , AkAudioCaps::Layout_4p1          },
-                {AV_CH_LAYOUT_5POINT0_BACK     , AkAudioCaps::Layout_5p0          },
-                {AV_CH_LAYOUT_5POINT0          , AkAudioCaps::Layout_5p0_side     },
-                {AV_CH_LAYOUT_5POINT1_BACK     , AkAudioCaps::Layout_5p1          },
-                {AV_CH_LAYOUT_5POINT1          , AkAudioCaps::Layout_5p1_side     },
-                {AV_CH_LAYOUT_6POINT0          , AkAudioCaps::Layout_6p0          },
-                {AV_CH_LAYOUT_6POINT0_FRONT    , AkAudioCaps::Layout_6p0_front    },
-                {AV_CH_LAYOUT_HEXAGONAL        , AkAudioCaps::Layout_hexagonal    },
-                {AV_CH_LAYOUT_6POINT1          , AkAudioCaps::Layout_6p1          },
-                {AV_CH_LAYOUT_6POINT1_BACK     , AkAudioCaps::Layout_6p1_back     },
-                {AV_CH_LAYOUT_6POINT1_FRONT    , AkAudioCaps::Layout_6p1_front    },
-                {AV_CH_LAYOUT_7POINT0          , AkAudioCaps::Layout_7p0          },
-                {AV_CH_LAYOUT_7POINT0_FRONT    , AkAudioCaps::Layout_7p0_front    },
-                {AV_CH_LAYOUT_7POINT1          , AkAudioCaps::Layout_7p1          },
-                {AV_CH_LAYOUT_7POINT1_WIDE     , AkAudioCaps::Layout_7p1_wide     },
-                {AV_CH_LAYOUT_7POINT1_WIDE_BACK, AkAudioCaps::Layout_7p1_wide_back},
-                {AV_CH_LAYOUT_OCTAGONAL        , AkAudioCaps::Layout_octagonal    },
-                {AV_CH_LAYOUT_HEXADECAGONAL    , AkAudioCaps::Layout_hexadecagonal},
-                {AV_CH_LAYOUT_STEREO_DOWNMIX   , AkAudioCaps::Layout_downmix      },
-            };
-
-            return channelLayouts;
-        }
+        inline static const SampleFormatMap &sampleFormats();
+        inline static const QVector<AVSampleFormat> &planarFormats();
+        inline static const ChannelLayoutsMap &channelLayouts();
 };
 
 AudioStream::AudioStream(const AVFormatContext *formatContext,
@@ -168,6 +100,31 @@ AkCaps AudioStream::caps() const
     return caps;
 }
 
+bool AudioStream::decodeData()
+{
+    if (!this->isValid())
+        return false;
+
+    bool result = false;
+
+    forever {
+        auto iFrame = av_frame_alloc();
+        int r = avcodec_receive_frame(this->codecContext(), iFrame);
+
+        if (r >= 0) {
+            this->dataEnqueue(this->d->copyFrame(iFrame));
+            result = true;
+        }
+
+        av_frame_free(&iFrame);
+
+        if (r < 0)
+            break;
+    }
+
+    return result;
+}
+
 void AudioStream::processPacket(AVPacket *packet)
 {
     if (!this->isValid())
@@ -179,19 +136,7 @@ void AudioStream::processPacket(AVPacket *packet)
         return;
     }
 
-    if (avcodec_send_packet(this->codecContext(), packet) >= 0)
-        forever {
-            auto iFrame = av_frame_alloc();
-            int r = avcodec_receive_frame(this->codecContext(), iFrame);
-
-            if (r >= 0)
-                this->dataEnqueue(this->d->copyFrame(iFrame));
-
-            av_frame_free(&iFrame);
-
-            if (r < 0)
-                break;
-        }
+    avcodec_send_packet(this->codecContext(), packet);
 }
 
 void AudioStream::processData(AVFrame *frame)
@@ -199,7 +144,6 @@ void AudioStream::processData(AVFrame *frame)
     frame->pts = frame->pts != AV_NOPTS_VALUE? frame->pts: this->d->m_pts;
     AkPacket oPacket = this->d->convert(frame);
     emit this->oStream(oPacket);
-    emit this->frameSent();
     this->d->m_pts = frame->pts + frame->nb_samples;
 }
 
@@ -388,6 +332,77 @@ AVFrame *AudioStreamPrivate::copyFrame(AVFrame *frame) const
                     AVSampleFormat(oFrame->format));
 
     return oFrame;
+}
+
+const SampleFormatMap &AudioStreamPrivate::sampleFormats()
+{
+    static const SampleFormatMap sampleFormat {
+        {AV_SAMPLE_FMT_U8  , AkAudioCaps::SampleFormat_u8 },
+        {AV_SAMPLE_FMT_S16 , AkAudioCaps::SampleFormat_s16},
+        {AV_SAMPLE_FMT_S32 , AkAudioCaps::SampleFormat_s32},
+        {AV_SAMPLE_FMT_FLT , AkAudioCaps::SampleFormat_flt},
+        {AV_SAMPLE_FMT_DBL , AkAudioCaps::SampleFormat_dbl},
+
+        {AV_SAMPLE_FMT_U8P , AkAudioCaps::SampleFormat_u8 },
+        {AV_SAMPLE_FMT_S16P, AkAudioCaps::SampleFormat_s16},
+        {AV_SAMPLE_FMT_S32P, AkAudioCaps::SampleFormat_s32},
+        {AV_SAMPLE_FMT_FLTP, AkAudioCaps::SampleFormat_flt},
+        {AV_SAMPLE_FMT_DBLP, AkAudioCaps::SampleFormat_dbl},
+        {AV_SAMPLE_FMT_S64 , AkAudioCaps::SampleFormat_s64},
+        {AV_SAMPLE_FMT_S64P, AkAudioCaps::SampleFormat_s64},
+    };
+
+    return sampleFormat;
+}
+
+const QVector<AVSampleFormat> &AudioStreamPrivate::planarFormats()
+{
+    static const QVector<AVSampleFormat> formats {
+        AV_SAMPLE_FMT_U8P ,
+                AV_SAMPLE_FMT_S16P,
+                AV_SAMPLE_FMT_S32P,
+                AV_SAMPLE_FMT_FLTP,
+                AV_SAMPLE_FMT_DBLP,
+                AV_SAMPLE_FMT_S64P,
+    };
+
+    return formats;
+}
+
+const ChannelLayoutsMap &AudioStreamPrivate::channelLayouts()
+{
+    static const ChannelLayoutsMap channelLayouts {
+        {AV_CH_LAYOUT_MONO             , AkAudioCaps::Layout_mono         },
+        {AV_CH_LAYOUT_STEREO           , AkAudioCaps::Layout_stereo       },
+        {AV_CH_LAYOUT_2POINT1          , AkAudioCaps::Layout_2p1          },
+        {AV_CH_LAYOUT_SURROUND         , AkAudioCaps::Layout_3p0          },
+        {AV_CH_LAYOUT_2_1              , AkAudioCaps::Layout_3p0_back     },
+        {AV_CH_LAYOUT_3POINT1          , AkAudioCaps::Layout_3p1          },
+        {AV_CH_LAYOUT_4POINT0          , AkAudioCaps::Layout_4p0          },
+        {AV_CH_LAYOUT_QUAD             , AkAudioCaps::Layout_quad         },
+        {AV_CH_LAYOUT_2_2              , AkAudioCaps::Layout_quad_side    },
+        {AV_CH_LAYOUT_4POINT1          , AkAudioCaps::Layout_4p1          },
+        {AV_CH_LAYOUT_5POINT0_BACK     , AkAudioCaps::Layout_5p0          },
+        {AV_CH_LAYOUT_5POINT0          , AkAudioCaps::Layout_5p0_side     },
+        {AV_CH_LAYOUT_5POINT1_BACK     , AkAudioCaps::Layout_5p1          },
+        {AV_CH_LAYOUT_5POINT1          , AkAudioCaps::Layout_5p1_side     },
+        {AV_CH_LAYOUT_6POINT0          , AkAudioCaps::Layout_6p0          },
+        {AV_CH_LAYOUT_6POINT0_FRONT    , AkAudioCaps::Layout_6p0_front    },
+        {AV_CH_LAYOUT_HEXAGONAL        , AkAudioCaps::Layout_hexagonal    },
+        {AV_CH_LAYOUT_6POINT1          , AkAudioCaps::Layout_6p1          },
+        {AV_CH_LAYOUT_6POINT1_BACK     , AkAudioCaps::Layout_6p1_back     },
+        {AV_CH_LAYOUT_6POINT1_FRONT    , AkAudioCaps::Layout_6p1_front    },
+        {AV_CH_LAYOUT_7POINT0          , AkAudioCaps::Layout_7p0          },
+        {AV_CH_LAYOUT_7POINT0_FRONT    , AkAudioCaps::Layout_7p0_front    },
+        {AV_CH_LAYOUT_7POINT1          , AkAudioCaps::Layout_7p1          },
+        {AV_CH_LAYOUT_7POINT1_WIDE     , AkAudioCaps::Layout_7p1_wide     },
+        {AV_CH_LAYOUT_7POINT1_WIDE_BACK, AkAudioCaps::Layout_7p1_wide_back},
+        {AV_CH_LAYOUT_OCTAGONAL        , AkAudioCaps::Layout_octagonal    },
+        {AV_CH_LAYOUT_HEXADECAGONAL    , AkAudioCaps::Layout_hexadecagonal},
+        {AV_CH_LAYOUT_STEREO_DOWNMIX   , AkAudioCaps::Layout_downmix      },
+    };
+
+    return channelLayouts;
 }
 
 #include "moc_audiostream.cpp"

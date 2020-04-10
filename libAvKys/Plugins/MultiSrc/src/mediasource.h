@@ -51,6 +51,7 @@ class MediaSource: public QObject
     public slots:
         virtual void seek(qint64 seekTo,
                           MultiSrcElement::SeekPosition position);
+        virtual void nextVideoFrame();
         virtual void setMedia(const QString &media);
         virtual void setStreams(const QList<int> &streams);
         virtual void setMaxPacketQueueSize(qint64 maxPacketQueueSize);

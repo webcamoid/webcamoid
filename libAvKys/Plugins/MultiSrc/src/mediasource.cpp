@@ -107,6 +107,11 @@ void MediaSource::seek(qint64 seekTo, MultiSrcElement::SeekPosition position)
     Q_UNUSED(position)
 }
 
+void MediaSource::nextVideoFrame()
+{
+
+}
+
 void MediaSource::setMedia(const QString &media)
 {
     Q_UNUSED(media)

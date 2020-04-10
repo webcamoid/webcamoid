@@ -234,10 +234,10 @@ Dialog {
                       qsTr("All Files") + " (*)"]
 
         onAccepted: {
-            filePath.text = Webcamoid.urlToLocalFile(fileDialog.fileUrl)
+            filePath.text = Webcamoid.urlToLocalFile(fileDialog.file)
             urlPath.text = ""
             fileDescription.text =
-                    addSource.defaultDescription(fileDialog.fileUrl.toString())
+                    addSource.defaultDescription(fileDialog.file.toString())
             urlDescription.text = fileDescription.text
         }
     }

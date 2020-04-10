@@ -108,6 +108,7 @@ class MultiSrcElement: public AkMultimediaSourceElement
 
     public slots:
         void seek(qint64 seekTo, SeekPosition position=SeekSet);
+        void nextVideoFrame();
         void setMedia(const QString &media);
         void setStreams(const QList<int> &streams);
         void setLoop(bool loop);

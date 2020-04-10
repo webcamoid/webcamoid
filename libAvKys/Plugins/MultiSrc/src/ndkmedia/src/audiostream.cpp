@@ -145,6 +145,39 @@ AkCaps AudioStream::caps() const
     return AkAudioCaps(sampleFormat, layout, rate);
 }
 
+bool AudioStream::decodeData()
+{
+    if (!this->isValid())
+        return false;
+
+    AMediaCodecBufferInfo info;
+    memset(&info, 0, sizeof(AMediaCodecBufferInfo));
+    ssize_t timeOut = 5000;
+    auto bufferIndex =
+            AMediaCodec_dequeueOutputBuffer(this->codec(), &info, timeOut);
+
+    if (bufferIndex == AMEDIACODEC_INFO_TRY_AGAIN_LATER)
+        return true;
+    else if (bufferIndex >= 0) {
+        auto packet = this->d->readPacket(size_t(bufferIndex), info);
+
+        if (packet)
+            this->dataEnqueue(packet);
+
+        AMediaCodec_releaseOutputBuffer(this->codec(),
+                                        size_t(bufferIndex),
+                                        info.size != 0);
+    }
+
+    if (info.flags & AMEDIACODEC_BUFFER_FLAG_END_OF_STREAM) {
+        this->dataEnqueue({});
+
+        return false;
+    }
+
+    return true;
+}
+
 AkAudioCaps::SampleFormat AudioStream::sampleFormatFromEncoding(int32_t encoding)
 {
     static const QMap<int32_t, AkAudioCaps::SampleFormat> sampleFormatFromEncoding {
@@ -170,40 +203,7 @@ AkAudioCaps::ChannelLayout AudioStream::layoutFromChannelMask(int32_t channelMas
     return AkAudioCaps::channelLayoutFromPositions(positions);
 }
 
-bool AudioStream::decodeData()
-{
-    if (!this->isValid())
-        return false;
-
-    AMediaCodecBufferInfo info;
-    memset(&info, 0, sizeof(AMediaCodecBufferInfo));
-    ssize_t timeOut = 5000;
-    auto bufferIndex =
-            AMediaCodec_dequeueOutputBuffer(this->codec(), &info, timeOut);
-
-    if (bufferIndex == AMEDIACODEC_INFO_TRY_AGAIN_LATER)
-        return true;
-    else if (bufferIndex >= 0) {
-        auto packet = this->d->readPacket(size_t(bufferIndex), info);
-
-        if (packet)
-            this->avPacketEnqueue(packet);
-
-        AMediaCodec_releaseOutputBuffer(this->codec(),
-                                        size_t(bufferIndex),
-                                        info.size != 0);
-    }
-
-    if (info.flags & AMEDIACODEC_BUFFER_FLAG_END_OF_STREAM) {
-        this->avPacketEnqueue({});
-
-        return false;
-    }
-
-    return true;
-}
-
-void AudioStream::processPacket(const AkPacket &packet)
+void AudioStream::processData(const AkPacket &packet)
 {
     auto oPacket = this->d->convert(packet);
     emit this->oStream(oPacket);

@@ -37,6 +37,7 @@ class VideoStream: public AbstractStream
         ~VideoStream();
 
         Q_INVOKABLE AkCaps caps() const;
+        Q_INVOKABLE bool decodeData();
 
     protected:
         void processPacket(AVPacket *packet);

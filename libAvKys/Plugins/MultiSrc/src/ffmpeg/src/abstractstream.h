@@ -20,7 +20,7 @@
 #ifndef ABSTRACTSTREAM_H
 #define ABSTRACTSTREAM_H
 
-#include <QObject>
+#include <akelement.h>
 
 extern "C"
 {
@@ -40,11 +40,6 @@ class Clock;
 class AbstractStream: public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(bool paused
-               READ paused
-               WRITE setPaused
-               RESET resetPaused
-               NOTIFY pausedChanged)
 
     public:
         AbstractStream(const AVFormatContext *formatContext=nullptr,
@@ -54,7 +49,6 @@ class AbstractStream: public QObject
                        QObject *parent=nullptr);
         virtual ~AbstractStream();
 
-        Q_INVOKABLE bool paused() const;
         Q_INVOKABLE bool isValid() const;
         Q_INVOKABLE uint index() const;
         Q_INVOKABLE qint64 id() const;
@@ -65,19 +59,18 @@ class AbstractStream: public QObject
         Q_INVOKABLE AVCodec *codec() const;
         Q_INVOKABLE AVDictionary *codecOptions() const;
         Q_INVOKABLE virtual AkCaps caps() const;
-        Q_INVOKABLE void packetEnqueue(AVPacket *packet);
-        Q_INVOKABLE void dataEnqueue(AVFrame *frame);
-        Q_INVOKABLE void subtitleEnqueue(AVSubtitle *subtitle);
-        Q_INVOKABLE qint64 queueSize();
+        Q_INVOKABLE qint64 queueSize() const;
         Q_INVOKABLE Clock *globalClock();
         Q_INVOKABLE qreal clockDiff() const;
         Q_INVOKABLE qreal &clockDiff();
-
-        static AVMediaType type(const AVFormatContext *formatContext,
-                                uint index);
+        Q_INVOKABLE void packetEnqueue(AVPacket *packet);
+        Q_INVOKABLE void dataEnqueue(AVFrame *frame);
+        Q_INVOKABLE void subtitleEnqueue(AVSubtitle *subtitle);
+        Q_INVOKABLE virtual bool decodeData();
+        Q_INVOKABLE static AVMediaType type(const AVFormatContext *formatContext,
+                                            uint index);
 
     protected:
-        bool m_paused;
         bool m_isValid;
         qreal m_clockDiff;
         int m_maxData;
@@ -90,18 +83,13 @@ class AbstractStream: public QObject
         AbstractStreamPrivate *d;
 
     signals:
-        void pausedChanged(bool paused);
         void oStream(const AkPacket &packet);
         void notify();
-        void frameSent();
         void eof();
 
     public slots:
         void flush();
-        void setPaused(bool paused);
-        void resetPaused();
-        virtual bool init(bool paused=false);
-        virtual void uninit();
+        bool setState(AkElement::ElementState state);
 
         friend class AbstractStreamPrivate;
 };

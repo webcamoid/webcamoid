@@ -1639,6 +1639,7 @@ QString RecordingPrivate::readThumbnail(const QString &videoFile)
     QMetaObject::invokeMethod(this->m_thumbnailer.data(),
                               "seek",
                               Q_ARG(qint64, qint64(0.05 * duration)));
+    QMetaObject::invokeMethod(this->m_thumbnailer.data(), "nextVideoFrame");
     this->m_thumbnailer->setState(AkElement::ElementStateNull);
     auto thumnailDir =
             QDir(QStandardPaths::standardLocations(QStandardPaths::TempLocation).first())

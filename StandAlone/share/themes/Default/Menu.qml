@@ -85,7 +85,6 @@ T.Menu {
                          false
         clip: true
         currentIndex: control.currentIndex
-        ScrollIndicator.vertical: ScrollIndicator {}
     }
 
     background: Rectangle {

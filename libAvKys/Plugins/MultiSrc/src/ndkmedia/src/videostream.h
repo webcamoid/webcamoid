@@ -39,7 +39,7 @@ class VideoStream: public AbstractStream
         Q_INVOKABLE bool decodeData();
 
     protected:
-        void processPacket(const AkPacket &packet);
+        void processData(const AkPacket &packet);
 
     private:
         VideoStreamPrivate *d;

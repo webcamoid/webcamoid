@@ -191,6 +191,12 @@ void MultiSrcElement::seek(qint64 seekTo, SeekPosition position)
         this->d->m_mediaSource->seek(seekTo, position);
 }
 
+void MultiSrcElement::nextVideoFrame()
+{
+    if (this->d->m_mediaSource)
+        this->d->m_mediaSource->nextVideoFrame();
+}
+
 void MultiSrcElement::setMedia(const QString &media)
 {
     if (this->d->m_mediaSource)

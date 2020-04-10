@@ -34,6 +34,7 @@ class SubtitleStream: public AbstractStream
                        QObject *parent=nullptr);
 
         Q_INVOKABLE AkCaps caps() const;
+        Q_INVOKABLE bool decodeData();
 
     protected:
         void processPacket(AVPacket *packet);

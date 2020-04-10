@@ -89,6 +89,31 @@ AkCaps VideoStream::caps() const
                        this->d->fps());
 }
 
+bool VideoStream::decodeData()
+{
+    if (!this->isValid())
+        return false;
+
+    bool result = false;
+
+    forever {
+        auto iFrame = av_frame_alloc();
+        int r = avcodec_receive_frame(this->codecContext(), iFrame);
+
+        if (r >= 0) {
+            this->dataEnqueue(this->d->copyFrame(iFrame));
+            result = true;
+        }
+
+        av_frame_free(&iFrame);
+
+        if (r < 0)
+            break;
+    }
+
+    return result;
+}
+
 void VideoStream::processPacket(AVPacket *packet)
 {
     if (!this->isValid())
@@ -100,26 +125,7 @@ void VideoStream::processPacket(AVPacket *packet)
         return;
     }
 
-    if (avcodec_send_packet(this->codecContext(), packet) >= 0)
-        forever {
-            auto iFrame = av_frame_alloc();
-            int r = avcodec_receive_frame(this->codecContext(), iFrame);
-
-            if (r >= 0) {
-#ifdef HAVE_BEST_EFFORT_TS
-                iFrame->pts = iFrame->best_effort_timestamp;
-#else
-                iFrame->pts = av_frame_get_best_effort_timestamp(iFrame);
-#endif
-
-                this->dataEnqueue(this->d->copyFrame(iFrame));
-            }
-
-            av_frame_free(&iFrame);
-
-            if (r < 0)
-                break;
-        }
+    avcodec_send_packet(this->codecContext(), packet);
 }
 
 void VideoStream::processData(AVFrame *frame)
@@ -159,7 +165,6 @@ void VideoStream::processData(AVFrame *frame)
         this->m_clockDiff = diff;
         auto oPacket = this->d->convert(frame);
         emit this->oStream(oPacket);
-        emit this->frameSent();
 
         this->d->m_lastPts = pts;
 
@@ -272,7 +277,11 @@ AVFrame *VideoStreamPrivate::copyFrame(AVFrame *frame) const
     oFrame->width = frame->width;
     oFrame->height = frame->height;
     oFrame->format = frame->format;
-    oFrame->pts = frame->pts;
+#ifdef HAVE_BEST_EFFORT_TS
+    oFrame->pts = frame->best_effort_timestamp;
+#else
+    oFrame->pts = av_frame_get_best_effort_timestamp(frame);
+#endif
 
     av_image_alloc(oFrame->data,
                    oFrame->linesize,

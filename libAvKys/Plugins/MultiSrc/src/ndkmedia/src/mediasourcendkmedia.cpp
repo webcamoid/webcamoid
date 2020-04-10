@@ -47,24 +47,25 @@ class MediaSourceNDKMediaPrivate
         qint64 m_maxPacketQueueSize {15 * 1024 * 1024};
         MediaExtractorPtr m_mediaExtractor;
         QThreadPool m_threadPool;
+        QMutex m_dataMutex;
         QVector<Stream> m_streamInfo;
         QMap<int, AbstractStreamPtr> m_streamsMap;
         Clock m_globalClock;
         qreal m_curClockTime {0.0};
-        QFuture<void> m_multimediaLoopResult;
         AkElement::ElementState m_curState {AkElement::ElementStateNull};
-        bool m_paused {false};
         bool m_loop {false};
         bool m_run {false};
+        bool m_paused {false};
+        bool m_eos {false};
         bool m_showLog {false};
 
         explicit MediaSourceNDKMediaPrivate(MediaSourceNDKMedia *self);
         AbstractStreamPtr createStream(AMediaExtractor *mediaExtractor,
                                        int index);
-        void multimediaLoop();
+        void readPackets();
+        void readPacket();
         static AkCaps capsFromMediaFormat(AMediaFormat *mediaFormat);
         void updateStreams();
-        void flush();
 };
 
 MediaSourceNDKMedia::MediaSourceNDKMedia(QObject *parent):
@@ -150,14 +151,14 @@ int MediaSourceNDKMedia::defaultStream(const QString &mimeType)
 QString MediaSourceNDKMedia::description(const QString &media) const
 {
     if (this->d->m_media != media)
-        return QString();
+        return {};
 
     return QFileInfo(media).baseName();
 }
 
 AkCaps MediaSourceNDKMedia::caps(int stream)
 {
-    return this->d->m_streamInfo.value(stream, Stream()).caps;
+    return this->d->m_streamInfo.value(stream, {}).caps;
 }
 
 qint64 MediaSourceNDKMedia::durationMSecs()
@@ -209,11 +210,6 @@ void MediaSourceNDKMedia::seek(qint64 mSecs,
     if (this->d->m_curState == AkElement::ElementStateNull)
         return;
 
-    bool isPlaying = this->d->m_curState == AkElement::ElementStatePlaying;
-
-    if (isPlaying)
-        this->setState(AkElement::ElementStatePaused);
-
     int64_t pts = mSecs;
 
     switch (position) {
@@ -231,15 +227,35 @@ void MediaSourceNDKMedia::seek(qint64 mSecs,
         break;
     }
 
-    this->d->flush();
     pts = qBound<qint64>(0, pts, this->durationMSecs()) * 1000;
+
+    this->d->m_dataMutex.lock();
+
+    for (auto &stream: this->d->m_streamsMap)
+        stream->flush();
+
     AMediaExtractor_seekTo(this->d->m_mediaExtractor.data(),
                            pts,
                            AMEDIAEXTRACTOR_SEEK_CLOSEST_SYNC);
     this->d->m_globalClock.setClock(qreal(pts) / 1e6);
+    this->d->m_dataMutex.unlock();
+}
 
-    if (isPlaying)
-        this->setState(AkElement::ElementStatePlaying);
+void MediaSourceNDKMedia::nextVideoFrame()
+{
+    int streamIndex = -1;
+
+    for (int i = 0; i < this->d->m_streamsMap.size(); i++)
+        if (this->d->m_streamsMap[i]->mimeType() == "video/x-raw") {
+            streamIndex = i;
+
+            break;
+        }
+
+    if (streamIndex < 0)
+        return;
+
+    this->d->readPacket();
 }
 
 void MediaSourceNDKMedia::setMedia(const QString &media)
@@ -247,16 +263,16 @@ void MediaSourceNDKMedia::setMedia(const QString &media)
     if (media == this->d->m_media)
         return;
 
-    bool isRunning = this->d->m_run;
+    auto state = this->d->m_curState;
     this->setState(AkElement::ElementStateNull);
     this->d->m_media = media;
-    this->d->updateStreams();
 
-    if (isRunning && !this->d->m_media.isEmpty())
-        this->setState(AkElement::ElementStatePlaying);
+    if (!this->d->m_media.isEmpty())
+        this->setState(state);
 
     emit this->mediaChanged(media);
     emit this->mediasChanged(this->medias());
+    emit this->durationMSecsChanged(this->durationMSecs());
 }
 
 void MediaSourceNDKMedia::setStreams(const QList<int> &streams)
@@ -371,23 +387,18 @@ bool MediaSourceNDKMedia::setState(AkElement::ElementState state)
                                      this,
                                      SLOT(doLoop()));
 
-                    stream->init();
+                    stream->setState(state);
                 }
             }
 
-            if (state == AkElement::ElementStatePaused)
-                this->d->m_curClockTime = 0.;
-
-            this->d->m_globalClock.setClock(0.);
-            this->d->m_run = state == AkElement::ElementStatePlaying;
+            this->d->m_curClockTime = 0.0;
+            this->d->m_globalClock.setClock(0.0);
+            this->d->m_run = true;
             this->d->m_paused = state == AkElement::ElementStatePaused;
-
-            if (this->d->m_run)
-                this->d->m_multimediaLoopResult =
-                    QtConcurrent::run(&this->d->m_threadPool,
-                                       this->d,
-                                       &MediaSourceNDKMediaPrivate::multimediaLoop);
-
+            this->d->m_eos = false;
+            QtConcurrent::run(&this->d->m_threadPool,
+                               this->d,
+                               &MediaSourceNDKMediaPrivate::readPackets);
             this->d->m_curState = state;
 
             return true;
@@ -398,16 +409,24 @@ bool MediaSourceNDKMedia::setState(AkElement::ElementState state)
     case AkElement::ElementStatePaused: {
         switch (state) {
         case AkElement::ElementStateNull: {
-            this->d->m_globalClock.setClock(this->d->m_curClockTime);
             this->d->m_run = false;
             this->d->m_threadPool.waitForDone();
+
+            for (auto &stream: this->d->m_streamsMap)
+                stream->setState(state);
+
             this->d->m_streamsMap.clear();
+            this->d->m_mediaExtractor.clear();
             this->d->m_curState = state;
 
             return true;
         }
         case AkElement::ElementStatePlaying: {
             this->d->m_globalClock.setClock(this->d->m_curClockTime);
+
+            for (auto &stream: this->d->m_streamsMap)
+                stream->setState(state);
+
             this->d->m_paused = false;
             this->d->m_curState = state;
 
@@ -423,8 +442,13 @@ bool MediaSourceNDKMedia::setState(AkElement::ElementState state)
         switch (state) {
         case AkElement::ElementStateNull: {
             this->d->m_run = false;
-            this->d->m_multimediaLoopResult.waitForFinished();
+            this->d->m_threadPool.waitForDone();
+
+            for (auto &stream: this->d->m_streamsMap)
+                stream->setState(state);
+
             this->d->m_streamsMap.clear();
+            this->d->m_mediaExtractor.clear();
             this->d->m_curState = state;
 
             return true;
@@ -432,6 +456,10 @@ bool MediaSourceNDKMedia::setState(AkElement::ElementState state)
         case AkElement::ElementStatePaused: {
             this->d->m_curClockTime = this->d->m_globalClock.clock();
             this->d->m_paused = true;
+
+            for (auto &stream: this->d->m_streamsMap)
+                stream->setState(state);
+
             this->d->m_curState = state;
 
             break;
@@ -450,11 +478,9 @@ bool MediaSourceNDKMedia::setState(AkElement::ElementState state)
 void MediaSourceNDKMedia::doLoop()
 {
     this->setState(AkElement::ElementStateNull);
-    this->setState(AkElement::ElementStatePlaying);
-}
 
-void MediaSourceNDKMedia::packetConsumed()
-{
+    if (this->d->m_loop)
+        this->setState(AkElement::ElementStatePlaying);
 }
 
 void MediaSourceNDKMedia::log()
@@ -533,10 +559,8 @@ AbstractStreamPtr MediaSourceNDKMediaPrivate::createStream(AMediaExtractor *medi
     return stream;
 }
 
-void MediaSourceNDKMediaPrivate::multimediaLoop()
+void MediaSourceNDKMediaPrivate::readPackets()
 {
-    bool eos = false;
-
     while (this->m_run) {
         if (this->m_paused) {
             QThread::msleep(500);
@@ -544,33 +568,36 @@ void MediaSourceNDKMediaPrivate::multimediaLoop()
             continue;
         }
 
-        if (!eos) {
-            auto streamIndex =
-                    AMediaExtractor_getSampleTrackIndex(this->m_mediaExtractor.data());
-
-            if (streamIndex < 0) {
-                for (auto &stream: this->m_streamsMap)
-                    stream->packetEnqueue(true);
-            } else {
-                if (this->m_streamsMap.contains(streamIndex)
-                    && (this->m_streams.isEmpty()
-                        || this->m_streams.contains(streamIndex))) {
-                    this->m_streamsMap[streamIndex]->packetEnqueue();
-                }
-            }
-        }
+        this->readPacket();
 
         for (auto &stream: this->m_streamsMap)
             stream->decodeData();
+    }
+}
 
-        if (!eos)
-            eos = !AMediaExtractor_advance(this->m_mediaExtractor.data());
+void MediaSourceNDKMediaPrivate::readPacket()
+{
+    this->m_dataMutex.lock();
+
+    if (!this->m_eos) {
+        auto streamIndex =
+                AMediaExtractor_getSampleTrackIndex(this->m_mediaExtractor.data());
+
+        if (streamIndex < 0) {
+            for (auto &stream: this->m_streamsMap)
+                stream->packetEnqueue(true);
+        } else {
+            if (this->m_streamsMap.contains(streamIndex)
+                && (this->m_streams.isEmpty()
+                    || this->m_streams.contains(streamIndex))) {
+                this->m_streamsMap[streamIndex]->packetEnqueue();
+            }
+        }
+
+        this->m_eos = !AMediaExtractor_advance(this->m_mediaExtractor.data());
     }
 
-    for (auto &stream: this->m_streamsMap)
-        stream->uninit();
-
-    this->m_streamsMap.clear();
+    this->m_dataMutex.unlock();
 }
 
 AkCaps MediaSourceNDKMediaPrivate::capsFromMediaFormat(AMediaFormat *mediaFormat)
@@ -660,12 +687,6 @@ void MediaSourceNDKMediaPrivate::updateStreams()
     }
 
     AMediaExtractor_delete(extractor);
-}
-
-void MediaSourceNDKMediaPrivate::flush()
-{
-    for (auto &stream: this->m_streamsMap)
-        stream->flush();
 }
 
 #include "moc_mediasourcendkmedia.cpp"

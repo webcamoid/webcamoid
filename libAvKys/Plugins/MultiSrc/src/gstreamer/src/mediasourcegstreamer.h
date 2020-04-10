@@ -79,6 +79,7 @@ class MediaSourceGStreamer: public MediaSource
 
     public slots:
         void seek(qint64 mSecs, MultiSrcElement::SeekPosition position);
+        void nextVideoFrame();
         void setMedia(const QString &media);
         void setStreams(const QList<int> &streams);
         void setMaxPacketQueueSize(qint64 maxPacketQueueSize);
