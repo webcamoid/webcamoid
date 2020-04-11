@@ -39,8 +39,10 @@ class AbstractStream: public QObject
 
     public:
         AbstractStream(AMediaExtractor *mediaExtractor=nullptr,
-                       uint index=0, qint64 id=-1,
+                       uint index=0,
+                       qint64 id=-1,
                        Clock *globalClock=nullptr,
+                       bool sync=true,
                        QObject *parent=nullptr);
         virtual ~AbstractStream();
 
@@ -52,6 +54,7 @@ class AbstractStream: public QObject
         Q_INVOKABLE AMediaCodec *codec() const;
         Q_INVOKABLE AMediaFormat *mediaFormat() const;
         Q_INVOKABLE virtual AkCaps caps() const;
+        Q_INVOKABLE bool sync() const;
         Q_INVOKABLE Clock *globalClock();
         Q_INVOKABLE qreal clockDiff() const;
         Q_INVOKABLE qreal &clockDiff();
@@ -60,6 +63,7 @@ class AbstractStream: public QObject
         Q_INVOKABLE virtual bool decodeData();
         Q_INVOKABLE static QString mimeType(AMediaExtractor *mediaExtractor,
                                             uint index);
+        Q_INVOKABLE AkElement::ElementState state() const;
 
     protected:
         bool m_isValid;
@@ -72,6 +76,7 @@ class AbstractStream: public QObject
         AbstractStreamPrivate *d;
 
     signals:
+        void stateChanged(AkElement::ElementState state);
         void oStream(const AkPacket &packet);
         void eof();
 

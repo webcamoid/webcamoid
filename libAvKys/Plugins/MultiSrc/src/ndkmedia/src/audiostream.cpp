@@ -97,9 +97,17 @@ class AudioStreamPrivate
 };
 
 AudioStream::AudioStream(AMediaExtractor *mediaExtractor,
-                         uint index, qint64 id, Clock *globalClock,
+                         uint index,
+                         qint64 id,
+                         Clock *globalClock,
+                         bool sync,
                          QObject *parent):
-    AbstractStream(mediaExtractor, index, id, globalClock, parent)
+    AbstractStream(mediaExtractor,
+                   index,
+                   id,
+                   globalClock,
+                   sync,
+                   parent)
 {
     this->d = new AudioStreamPrivate(this);
     this->m_maxData = 9;
@@ -281,6 +289,9 @@ AkAudioPacket AudioStreamPrivate::convert(const AkAudioPacket &packet)
                                           QVariant::fromValue(packet.caps()));
         this->m_audioConvert->setState(AkElement::ElementStatePlaying);
     }
+
+    if (!self->sync())
+        return this->m_audioConvert->iStream(packet);
 
     AkAudioPacket audioPacket = packet;
 

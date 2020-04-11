@@ -62,16 +62,21 @@ class AbstractStreamPrivate
         QString m_mimeType;
         qint64 m_id {-1};
         uint m_index {0};
-        AkElement::ElementState m_curState {AkElement::ElementStateNull};
+        AkElement::ElementState m_state {AkElement::ElementStateNull};
+        bool m_sync {true};
         bool m_run {false};
         bool m_paused {false};
 
         explicit AbstractStreamPrivate(AbstractStream *self);
         void dataLoop();
+        void readData();
 };
 
 AbstractStream::AbstractStream(AMediaExtractor *mediaExtractor,
-                               uint index, qint64 id, Clock *globalClock,
+                               uint index,
+                               qint64 id,
+                               Clock *globalClock,
+                               bool sync,
                                QObject *parent):
     QObject(parent)
 {
@@ -82,6 +87,7 @@ AbstractStream::AbstractStream(AMediaExtractor *mediaExtractor,
     this->m_maxData = 0;
     this->d->m_index = index;
     this->d->m_id = id;
+    this->d->m_sync = sync;
 
     this->d->m_mediaFormat =
             AMediaExtractor_getTrackFormat(this->d->m_mediaExtractor,
@@ -121,6 +127,8 @@ AbstractStream::AbstractStream(AMediaExtractor *mediaExtractor,
 
 AbstractStream::~AbstractStream()
 {
+    this->setState(AkElement::ElementStateNull);
+
     if (this->d->m_codec)
         AMediaCodec_delete(this->d->m_codec);
 
@@ -168,6 +176,11 @@ AMediaFormat *AbstractStream::mediaFormat() const
 AkCaps AbstractStream::caps() const
 {
     return AkCaps();
+}
+
+bool AbstractStream::sync() const
+{
+    return this->d->m_sync;
 }
 
 Clock *AbstractStream::globalClock()
@@ -272,6 +285,11 @@ QString AbstractStream::mimeType(AMediaExtractor *mediaExtractor,
     return mimeType;
 }
 
+AkElement::ElementState AbstractStream::state() const
+{
+    return this->d->m_state;
+}
+
 void AbstractStream::processData(const AkPacket &packet)
 {
     Q_UNUSED(packet)
@@ -286,7 +304,7 @@ void AbstractStream::flush()
 
 bool AbstractStream::setState(AkElement::ElementState state)
 {
-    switch (this->d->m_curState) {
+    switch (this->d->m_state) {
     case AkElement::ElementStateNull: {
         if (state == AkElement::ElementStatePaused
             || state == AkElement::ElementStatePlaying) {
@@ -314,7 +332,8 @@ bool AbstractStream::setState(AkElement::ElementState state)
                     QtConcurrent::run(&this->d->m_threadPool,
                                       this->d,
                                       &AbstractStreamPrivate::dataLoop);
-            this->d->m_curState = state;
+            this->d->m_state = state;
+            emit this->stateChanged(state);
 
             return true;
         }
@@ -329,13 +348,15 @@ bool AbstractStream::setState(AkElement::ElementState state)
 
             AMediaCodec_stop(this->d->m_codec);
             this->d->m_frames.clear();
-            this->d->m_curState = state;
+            this->d->m_state = state;
+            emit this->stateChanged(state);
 
             return true;
         }
         case AkElement::ElementStatePlaying: {
             this->d->m_paused = false;
-            this->d->m_curState = state;
+            this->d->m_state = state;
+            emit this->stateChanged(state);
 
             return true;
         }
@@ -353,13 +374,15 @@ bool AbstractStream::setState(AkElement::ElementState state)
 
             AMediaCodec_stop(this->d->m_codec);
             this->d->m_frames.clear();
-            this->d->m_curState = state;
+            this->d->m_state = state;
+            emit this->stateChanged(state);
 
             return true;
         }
         case AkElement::ElementStatePaused: {
             this->d->m_paused = true;
-            this->d->m_curState = state;
+            this->d->m_state = state;
+            emit this->stateChanged(state);
 
             return true;
         }
@@ -381,41 +404,43 @@ AbstractStreamPrivate::AbstractStreamPrivate(AbstractStream *self):
 
 void AbstractStreamPrivate::dataLoop()
 {
-    if (this->m_mimeType == "audio/x-raw"
-        || this->m_mimeType == "video/x-raw") {
-        while (this->m_run) {
-            if (this->m_paused) {
-                QThread::msleep(500);
+    while (this->m_run) {
+        if (this->m_paused) {
+            QThread::msleep(500);
 
-                continue;
-            }
+            continue;
+        }
 
-            this->m_dataMutex.lock();
-            bool gotFrame = true;
+        this->readData();
+    }
+}
 
-            if (this->m_frames.isEmpty())
-                gotFrame = this->m_dataQueueNotEmpty.wait(&this->m_dataMutex,
-                                                          THREAD_WAIT_LIMIT);
+void AbstractStreamPrivate::readData()
+{
+    this->m_dataMutex.lock();
+    bool gotFrame = true;
 
-            AkPacket frame;
+    if (this->m_frames.isEmpty())
+        gotFrame = this->m_dataQueueNotEmpty.wait(&this->m_dataMutex,
+                                                  THREAD_WAIT_LIMIT);
 
-            if (gotFrame) {
-                frame = this->m_frames.dequeue();
+    AkPacket frame;
 
-                if (this->m_frames.size() < self->m_maxData)
-                    this->m_dataQueueNotFull.wakeAll();
-            }
+    if (gotFrame) {
+        frame = this->m_frames.dequeue();
 
-            this->m_dataMutex.unlock();
+        if (this->m_frames.size() < self->m_maxData)
+            this->m_dataQueueNotFull.wakeAll();
+    }
 
-            if (gotFrame) {
-                if (frame)
-                    self->processData(frame);
-                else {
-                    emit self->eof();
-                    this->m_run = false;
-                }
-            }
+    this->m_dataMutex.unlock();
+
+    if (gotFrame) {
+        if (frame)
+            self->processData(frame);
+        else {
+            emit self->eof();
+            this->m_run = false;
         }
     }
 }

@@ -541,7 +541,7 @@
 <context>
     <name>Recording</name>
     <message>
-        <location filename="../../src/recording.cpp" line="364"/>
+        <location filename="../../src/recording.cpp" line="372"/>
         <source>%1/Video %2.%3</source>
         <translation>%1/Відео %2.%3</translation>
     </message>

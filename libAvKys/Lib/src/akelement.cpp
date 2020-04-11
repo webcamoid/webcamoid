@@ -664,12 +664,6 @@ void AkElement::controlInterfaceConfigure(QQmlContext *context,
     Q_UNUSED(controlId)
 }
 
-void AkElement::stateChange(AkElement::ElementState from, AkElement::ElementState to)
-{
-    Q_UNUSED(from)
-    Q_UNUSED(to)
-}
-
 AkPacket AkElement::iAudioStream(const AkAudioPacket &packet)
 {
     Q_UNUSED(packet)
@@ -700,67 +694,8 @@ bool AkElement::setState(AkElement::ElementState state)
     if (this->d->m_state == state)
         return false;
 
-    ElementState preState = this->d->m_state;
     this->d->m_state = state;
-
-    switch (preState) {
-    case ElementStateNull: {
-        switch (state) {
-        case ElementStatePaused:
-            emit this->stateChanged(state);
-            this->stateChange(preState, state);
-
-            break;
-        case ElementStatePlaying:
-            emit this->stateChanged(ElementStatePaused);
-            this->stateChange(preState, ElementStatePaused);
-
-            emit this->stateChanged(state);
-            this->stateChange(ElementStatePaused, state);
-
-            break;
-        case ElementStateNull:
-            break;
-        }
-
-        break;
-    }
-    case ElementStatePaused: {
-        switch (state) {
-        case ElementStateNull:
-        case ElementStatePlaying:
-            emit this->stateChanged(state);
-            this->stateChange(preState, state);
-
-            break;
-        case ElementStatePaused:
-            break;
-        }
-
-        break;
-    }
-    case ElementStatePlaying: {
-        switch (state) {
-        case ElementStateNull:
-            emit this->stateChanged(ElementStatePaused);
-            this->stateChange(preState, ElementStatePaused);
-
-            emit this->stateChanged(state);
-            this->stateChange(ElementStatePaused, state);
-
-            break;
-        case ElementStatePaused:
-            emit this->stateChanged(state);
-            this->stateChange(preState, state);
-
-            break;
-        case ElementStatePlaying:
-            break;
-        }
-
-        break;
-    }
-    }
+    emit this->stateChanged(state);
 
     return true;
 }

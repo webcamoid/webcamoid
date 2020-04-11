@@ -69,9 +69,19 @@ class AudioStreamPrivate
 };
 
 AudioStream::AudioStream(const AVFormatContext *formatContext,
-                         uint index, qint64 id, Clock *globalClock,
-                         bool noModify, QObject *parent):
-    AbstractStream(formatContext, index, id, globalClock, noModify, parent)
+                         uint index,
+                         qint64 id,
+                         Clock *globalClock,
+                         bool sync,
+                         bool noModify,
+                         QObject *parent):
+    AbstractStream(formatContext,
+                   index,
+                   id,
+                   globalClock,
+                   sync,
+                   noModify,
+                   parent)
 {
     this->d = new AudioStreamPrivate(this);
     this->m_maxData = 9;
@@ -256,6 +266,9 @@ AkPacket AudioStreamPrivate::convert(AVFrame *iFrame)
                                           QVariant::fromValue(packet.caps()));
         this->m_audioConvert->setState(AkElement::ElementStatePlaying);
     }
+
+    if (!self->sync())
+        return this->m_audioConvert->iStream(packet);
 
     // Synchronize audio
     qreal pts = iFrame->pts * self->timeBase().value();

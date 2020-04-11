@@ -97,6 +97,14 @@ bool MultiSrcElement::loop() const
     return this->d->m_mediaSource->loop();
 }
 
+bool MultiSrcElement::sync() const
+{
+    if (!this->d->m_mediaSource)
+        return false;
+
+    return this->d->m_mediaSource->sync();
+}
+
 QList<int> MultiSrcElement::listTracks(const QString &type)
 {
     if (!this->d->m_mediaSource)
@@ -169,6 +177,14 @@ bool MultiSrcElement::showLog() const
     return this->d->m_mediaSource->showLog();
 }
 
+AkElement::ElementState MultiSrcElement::state() const
+{
+    if (!this->d->m_mediaSource)
+        return ElementStateNull;
+
+    return this->d->m_mediaSource->state();
+}
+
 QString MultiSrcElement::controlInterfaceProvide(const QString &controlId) const
 {
     Q_UNUSED(controlId)
@@ -191,12 +207,6 @@ void MultiSrcElement::seek(qint64 seekTo, SeekPosition position)
         this->d->m_mediaSource->seek(seekTo, position);
 }
 
-void MultiSrcElement::nextVideoFrame()
-{
-    if (this->d->m_mediaSource)
-        this->d->m_mediaSource->nextVideoFrame();
-}
-
 void MultiSrcElement::setMedia(const QString &media)
 {
     if (this->d->m_mediaSource)
@@ -213,6 +223,12 @@ void MultiSrcElement::setLoop(bool loop)
 {
     if (this->d->m_mediaSource)
         this->d->m_mediaSource->setLoop(loop);
+}
+
+void MultiSrcElement::setSync(bool sync)
+{
+    if (this->d->m_mediaSource)
+        this->d->m_mediaSource->setSync(sync);
 }
 
 void MultiSrcElement::setMaxPacketQueueSize(qint64 maxPacketQueueSize)
@@ -245,6 +261,12 @@ void MultiSrcElement::resetLoop()
         this->d->m_mediaSource->resetLoop();
 }
 
+void MultiSrcElement::resetSync()
+{
+    if (this->d->m_mediaSource)
+        this->d->m_mediaSource->resetSync();
+}
+
 void MultiSrcElement::resetMaxPacketQueueSize()
 {
     if (this->d->m_mediaSource)
@@ -259,10 +281,10 @@ void MultiSrcElement::resetShowLog()
 
 bool MultiSrcElement::setState(AkElement::ElementState state)
 {
-    if (!this->d->m_mediaSource || !this->d->m_mediaSource->setState(state))
+    if (!this->d->m_mediaSource)
         return false;
 
-    return AkElement::setState(state);
+    return this->d->m_mediaSource->setState(state);
 }
 
 MultiSrcElementPrivate::MultiSrcElementPrivate(MultiSrcElement *self):
@@ -299,6 +321,10 @@ void MultiSrcElementPrivate::codecLibUpdated(const QString &codecLib)
     }
 
     QObject::connect(this->m_mediaSource.data(),
+                     SIGNAL(stateChanged(ElementState)),
+                     self,
+                     SIGNAL(stateChanged(ElementState)));
+    QObject::connect(this->m_mediaSource.data(),
                      SIGNAL(oStream(const AkPacket &)),
                      self,
                      SIGNAL(oStream(const AkPacket &)),
@@ -327,6 +353,10 @@ void MultiSrcElementPrivate::codecLibUpdated(const QString &codecLib)
                      SIGNAL(loopChanged(bool)),
                      self,
                      SIGNAL(loopChanged(bool)));
+    QObject::connect(this->m_mediaSource.data(),
+                     SIGNAL(syncChanged(bool)),
+                     self,
+                     SIGNAL(syncChanged(bool)));
     QObject::connect(this->m_mediaSource.data(),
                      SIGNAL(mediasChanged(const QStringList &)),
                      self,

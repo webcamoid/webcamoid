@@ -71,8 +71,9 @@ class MediaSourceFFmpegPrivate
         QMap<int, AbstractStreamPtr> m_streamsMap;
         Clock m_globalClock;
         qreal m_curClockTime {0.0};
-        AkElement::ElementState m_curState {AkElement::ElementStateNull};
+        AkElement::ElementState m_state {AkElement::ElementStateNull};
         bool m_loop {false};
+        bool m_sync {true};
         bool m_run {false};
         bool m_paused {false};
         bool m_eos {false};
@@ -196,6 +197,11 @@ bool MediaSourceFFmpeg::loop() const
     return this->d->m_loop;
 }
 
+bool MediaSourceFFmpeg::sync() const
+{
+    return this->d->m_sync;
+}
+
 int MediaSourceFFmpeg::defaultStream(const QString &mimeType)
 {
     int stream = -1;
@@ -266,7 +272,7 @@ AkCaps MediaSourceFFmpeg::caps(int stream)
 
 qint64 MediaSourceFFmpeg::durationMSecs()
 {
-    bool isStopped = this->d->m_curState == AkElement::ElementStateNull;
+    bool isStopped = this->d->m_state == AkElement::ElementStateNull;
 
     if (isStopped)
         this->setState(AkElement::ElementStatePaused);
@@ -297,10 +303,15 @@ bool MediaSourceFFmpeg::showLog() const
     return this->d->m_showLog;
 }
 
+AkElement::ElementState MediaSourceFFmpeg::state() const
+{
+    return this->d->m_state;
+}
+
 void MediaSourceFFmpeg::seek(qint64 mSecs,
                              MultiSrcElement::SeekPosition position)
 {
-    if (this->d->m_curState == AkElement::ElementStateNull)
+    if (this->d->m_state == AkElement::ElementStateNull)
         return;
 
     int64_t pts = mSecs;
@@ -332,29 +343,12 @@ void MediaSourceFFmpeg::seek(qint64 mSecs,
     this->d->m_dataMutex.unlock();
 }
 
-void MediaSourceFFmpeg::nextVideoFrame()
-{
-    int streamIndex = -1;
-
-    for (int i = 0; i < this->d->m_streamsMap.size(); i++)
-        if (this->d->m_streamsMap[i]->mediaType() == AVMEDIA_TYPE_VIDEO) {
-            streamIndex = i;
-
-            break;
-        }
-
-    if (streamIndex < 0)
-        return;
-
-    this->d->readPacket();
-}
-
 void MediaSourceFFmpeg::setMedia(const QString &media)
 {
     if (media == this->d->m_media)
         return;
 
-    auto state = this->d->m_curState;
+    auto state = this->d->m_state;
     this->setState(AkElement::ElementStateNull);
     this->d->m_media = media;
 
@@ -402,6 +396,15 @@ void MediaSourceFFmpeg::setLoop(bool loop)
     emit this->loopChanged(loop);
 }
 
+void MediaSourceFFmpeg::setSync(bool sync)
+{
+    if (this->d->m_sync == sync)
+        return;
+
+    this->d->m_sync = sync;
+    emit this->syncChanged(sync);
+}
+
 void MediaSourceFFmpeg::resetMedia()
 {
     this->setMedia("");
@@ -431,9 +434,14 @@ void MediaSourceFFmpeg::resetLoop()
     this->setLoop(false);
 }
 
+void MediaSourceFFmpeg::resetSync()
+{
+    this->setSync(true);
+}
+
 bool MediaSourceFFmpeg::setState(AkElement::ElementState state)
 {
-    switch (this->d->m_curState) {
+    switch (this->d->m_state) {
     case AkElement::ElementStateNull: {
         if (state == AkElement::ElementStatePaused
             || state == AkElement::ElementStatePlaying) {
@@ -464,29 +472,30 @@ bool MediaSourceFFmpeg::setState(AkElement::ElementState state)
             for (auto &i: filterStreams) {
                 auto stream = this->d->createStream(i);
 
-                if (stream) {
-                    this->d->m_streamsMap[i] = stream;
+                if (!stream)
+                    continue;
 
-                    QObject::connect(stream.data(),
-                                     SIGNAL(oStream(AkPacket)),
-                                     this,
-                                     SIGNAL(oStream(AkPacket)),
-                                     Qt::DirectConnection);
-                    QObject::connect(stream.data(),
-                                     SIGNAL(notify()),
-                                     this,
-                                     SLOT(packetConsumed()));
-                    QObject::connect(stream.data(),
-                                     SIGNAL(oStream(AkPacket)),
-                                     this,
-                                     SLOT(log()));
-                    QObject::connect(stream.data(),
-                                     SIGNAL(eof()),
-                                     this,
-                                     SLOT(doLoop()));
+                this->d->m_streamsMap[i] = stream;
 
-                    stream->setState(state);
-                }
+                QObject::connect(stream.data(),
+                                 SIGNAL(oStream(const AkPacket &)),
+                                 this,
+                                 SIGNAL(oStream(const AkPacket &)),
+                                 Qt::DirectConnection);
+                QObject::connect(stream.data(),
+                                 SIGNAL(notify()),
+                                 this,
+                                 SLOT(packetConsumed()));
+                QObject::connect(stream.data(),
+                                 SIGNAL(oStream(const AkPacket &)),
+                                 this,
+                                 SLOT(log()));
+                QObject::connect(stream.data(),
+                                 SIGNAL(eof()),
+                                 this,
+                                 SLOT(doLoop()));
+
+                stream->setState(state);
             }
 
             this->d->m_curClockTime = 0.0;
@@ -497,7 +506,8 @@ bool MediaSourceFFmpeg::setState(AkElement::ElementState state)
             QtConcurrent::run(&this->d->m_threadPool,
                               this->d,
                               &MediaSourceFFmpegPrivate::readPackets);
-            this->d->m_curState = state;
+            this->d->m_state = state;
+            emit this->stateChanged(state);
 
             return true;
         }
@@ -520,7 +530,8 @@ bool MediaSourceFFmpeg::setState(AkElement::ElementState state)
 
             this->d->m_streamsMap.clear();
             this->d->m_inputContext.clear();
-            this->d->m_curState = state;
+            this->d->m_state = state;
+            emit this->stateChanged(state);
 
             return true;
         }
@@ -531,7 +542,8 @@ bool MediaSourceFFmpeg::setState(AkElement::ElementState state)
                 stream->setState(state);
 
             this->d->m_paused = false;
-            this->d->m_curState = state;
+            this->d->m_state = state;
+            emit this->stateChanged(state);
 
             return true;
         }
@@ -557,7 +569,8 @@ bool MediaSourceFFmpeg::setState(AkElement::ElementState state)
 
             this->d->m_streamsMap.clear();
             this->d->m_inputContext.clear();
-            this->d->m_curState = state;
+            this->d->m_state = state;
+            emit this->stateChanged(state);
 
             return true;
         }
@@ -568,7 +581,8 @@ bool MediaSourceFFmpeg::setState(AkElement::ElementState state)
             for (auto &stream: this->d->m_streamsMap)
                 stream->setState(state);
 
-            this->d->m_curState = state;
+            this->d->m_state = state;
+            emit this->stateChanged(state);
 
             break;
         }
@@ -762,24 +776,28 @@ AbstractStreamPtr MediaSourceFFmpegPrivate::createStream(int index,
                                                    uint(index),
                                                    id,
                                                    &this->m_globalClock,
+                                                   this->m_sync,
                                                    noModify));
     else if (type == AVMEDIA_TYPE_AUDIO)
         stream = AbstractStreamPtr(new AudioStream(this->m_inputContext.data(),
                                                    uint(index),
                                                    id,
                                                    &this->m_globalClock,
+                                                   this->m_sync,
                                                    noModify));
     else if (type == AVMEDIA_TYPE_SUBTITLE)
         stream = AbstractStreamPtr(new SubtitleStream(this->m_inputContext.data(),
                                                       uint(index),
                                                       id,
                                                       &this->m_globalClock,
+                                                      this->m_sync,
                                                       noModify));
     else
         stream = AbstractStreamPtr(new AbstractStream(this->m_inputContext.data(),
                                                       uint(index),
                                                       id,
                                                       &this->m_globalClock,
+                                                      this->m_sync,
                                                       noModify));
 
     return stream;

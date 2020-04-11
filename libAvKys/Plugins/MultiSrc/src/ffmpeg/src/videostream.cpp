@@ -65,9 +65,19 @@ class VideoStreamPrivate
 };
 
 VideoStream::VideoStream(const AVFormatContext *formatContext,
-                         uint index, qint64 id, Clock *globalClock,
-                         bool noModify, QObject *parent):
-    AbstractStream(formatContext, index, id, globalClock, noModify, parent)
+                         uint index,
+                         qint64 id,
+                         Clock *globalClock,
+                         bool sync,
+                         bool noModify,
+                         QObject *parent):
+    AbstractStream(formatContext,
+                   index,
+                   id,
+                   globalClock,
+                   sync,
+                   noModify,
+                   parent)
 {
     this->d = new VideoStreamPrivate(this);
     this->m_maxData = 3;
@@ -88,7 +98,7 @@ AkCaps VideoStream::caps() const
                        this->codecContext()->height,
                        this->d->fps());
 }
-
+#include <QtDebug>
 bool VideoStream::decodeData()
 {
     if (!this->isValid())
@@ -130,6 +140,13 @@ void VideoStream::processPacket(AVPacket *packet)
 
 void VideoStream::processData(AVFrame *frame)
 {
+    if (!this->sync()) {
+        auto oPacket = this->d->convert(frame);
+        emit this->oStream(oPacket);
+
+        return;
+    }
+
     forever {
         qreal pts = frame->pts * this->timeBase().value();
         qreal diff = pts - this->globalClock()->clock();
@@ -165,7 +182,6 @@ void VideoStream::processData(AVFrame *frame)
         this->m_clockDiff = diff;
         auto oPacket = this->d->convert(frame);
         emit this->oStream(oPacket);
-
         this->d->m_lastPts = pts;
 
         break;

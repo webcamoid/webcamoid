@@ -53,8 +53,9 @@ class MediaSourceGStreamerPrivate
         QList<Stream> m_streamInfo;
         qint64 m_maxPacketQueueSize {15 * 1024 * 1024};
         guint m_busWatchId {0};
-        AkElement::ElementState m_curState {AkElement::ElementStateNull};
+        AkElement::ElementState m_state {AkElement::ElementStateNull};
         bool m_loop {false};
+        bool m_sync {true};
         bool m_run {false};
         bool m_showLog {false};
 
@@ -151,6 +152,11 @@ bool MediaSourceGStreamer::loop() const
     return this->d->m_loop;
 }
 
+bool MediaSourceGStreamer::sync() const
+{
+    return this->d->m_sync;
+}
+
 int MediaSourceGStreamer::defaultStream(const QString &mimeType)
 {
     bool isRunning = this->d->m_run;
@@ -202,7 +208,7 @@ AkCaps MediaSourceGStreamer::caps(int stream)
 
 qint64 MediaSourceGStreamer::durationMSecs()
 {
-    bool isStopped = this->d->m_curState == AkElement::ElementStateNull;
+    bool isStopped = this->d->m_state == AkElement::ElementStateNull;
 
     if (isStopped)
         this->setState(AkElement::ElementStatePaused);
@@ -218,7 +224,7 @@ qint64 MediaSourceGStreamer::durationMSecs()
 
 qint64 MediaSourceGStreamer::currentTimeMSecs()
 {
-    if (this->d->m_curState == AkElement::ElementStateNull)
+    if (this->d->m_state == AkElement::ElementStateNull)
         return 0;
 
     gint64 position = 0;
@@ -237,16 +243,16 @@ bool MediaSourceGStreamer::showLog() const
     return this->d->m_showLog;
 }
 
+AkElement::ElementState MediaSourceGStreamer::state() const
+{
+    return this->d->m_state;
+}
+
 void MediaSourceGStreamer::seek(qint64 mSecs,
                                 MultiSrcElement::SeekPosition position)
 {
-    if (this->d->m_curState == AkElement::ElementStateNull)
+    if (this->d->m_state == AkElement::ElementStateNull)
         return;
-
-    bool isPlaying = this->d->m_curState == AkElement::ElementStatePlaying;
-
-    if (isPlaying)
-        this->setState(AkElement::ElementStatePaused);
 
     int64_t pts = mSecs;
 
@@ -272,14 +278,6 @@ void MediaSourceGStreamer::seek(qint64 mSecs,
                                          | GST_SEEK_FLAG_KEY_UNIT
                                          | GST_SEEK_FLAG_SNAP_NEAREST),
                             pts);
-
-    if (isPlaying)
-        this->setState(AkElement::ElementStatePlaying);
-}
-
-void MediaSourceGStreamer::nextVideoFrame()
-{
-
 }
 
 void MediaSourceGStreamer::setMedia(const QString &media)
@@ -339,6 +337,15 @@ void MediaSourceGStreamer::setLoop(bool loop)
     emit this->loopChanged(loop);
 }
 
+void MediaSourceGStreamer::setSync(bool sync)
+{
+    if (this->d->m_sync == sync)
+        return;
+
+    this->d->m_sync = sync;
+    emit this->syncChanged(sync);
+}
+
 void MediaSourceGStreamer::resetMedia()
 {
     this->setMedia("");
@@ -368,9 +375,14 @@ void MediaSourceGStreamer::resetLoop()
     this->setLoop(false);
 }
 
+void MediaSourceGStreamer::resetSync()
+{
+    this->setSync(true);
+}
+
 bool MediaSourceGStreamer::setState(AkElement::ElementState state)
 {
-    switch (this->d->m_curState) {
+    switch (this->d->m_state) {
     case AkElement::ElementStateNull: {
         if (state == AkElement::ElementStatePaused
             || state == AkElement::ElementStatePlaying) {
@@ -454,6 +466,20 @@ bool MediaSourceGStreamer::setState(AkElement::ElementState state)
                              "new-sample",
                              G_CALLBACK(this->d->subtitlesBufferCallback),
                              this);
+
+            // Synchronize streams?
+            g_object_set(G_OBJECT(audioOutput),
+                         "sync",
+                         this->d->m_sync? TRUE: FALSE,
+                         nullptr);
+            g_object_set(G_OBJECT(videoOutput),
+                         "sync",
+                         this->d->m_sync? TRUE: FALSE,
+                         nullptr);
+            g_object_set(G_OBJECT(subtitlesOutput),
+                         "sync",
+                         this->d->m_sync? TRUE: FALSE,
+                         nullptr);
 
             // Configure the message bus.
             GstBus *bus = gst_pipeline_get_bus(GST_PIPELINE(this->d->m_pipeline));
@@ -616,7 +642,8 @@ bool MediaSourceGStreamer::setState(AkElement::ElementState state)
             this->d->m_audioId = Ak::id();
             this->d->m_videoId = Ak::id();
             this->d->m_subtitlesId = Ak::id();
-            this->d->m_curState = state;
+            this->d->m_state = state;
+            emit this->stateChanged(state);
 
             return true;
         }
@@ -643,14 +670,16 @@ bool MediaSourceGStreamer::setState(AkElement::ElementState state)
                 this->d->m_mainLoop = nullptr;
             }
 
-            this->d->m_curState = state;
+            this->d->m_state = state;
+            emit this->stateChanged(state);
 
             return true;
         }
         case AkElement::ElementStatePlaying: {
             gst_element_set_state(this->d->m_pipeline, GST_STATE_PLAYING);
             this->d->waitState(GST_STATE_PLAYING);
-            this->d->m_curState = state;
+            this->d->m_state = state;
+            emit this->stateChanged(state);
 
             return true;
         }
@@ -680,14 +709,16 @@ bool MediaSourceGStreamer::setState(AkElement::ElementState state)
                 this->d->m_mainLoop = nullptr;
             }
 
-            this->d->m_curState = state;
+            this->d->m_state = state;
+            emit this->stateChanged(state);
 
             return true;
         }
         case AkElement::ElementStatePaused: {
             gst_element_set_state(this->d->m_pipeline, GST_STATE_PAUSED);
             this->d->waitState(GST_STATE_PAUSED);
-            this->d->m_curState = state;
+            this->d->m_state = state;
+            emit this->stateChanged(state);
 
             return true;
         }

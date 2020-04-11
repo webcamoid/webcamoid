@@ -541,7 +541,7 @@
 <context>
     <name>Recording</name>
     <message>
-        <location filename="../../src/recording.cpp" line="364"/>
+        <location filename="../../src/recording.cpp" line="372"/>
         <source>%1/Video %2.%3</source>
         <translation type="unfinished"></translation>
     </message>
@@ -740,7 +740,7 @@
     <message>
         <location filename="../qml/VideoCodecOptions.qml" line="166"/>
         <source>Bitrate (bits/secs)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Битрат (бит/сек)</translation>
     </message>
     <message>
         <location filename="../qml/VideoCodecOptions.qml" line="176"/>

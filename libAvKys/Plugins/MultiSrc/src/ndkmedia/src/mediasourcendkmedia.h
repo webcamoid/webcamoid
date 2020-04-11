@@ -54,6 +54,7 @@ class MediaSourceNDKMedia: public MediaSource
         Q_INVOKABLE QList<int> listTracks(const QString &mimeType);
         Q_INVOKABLE QString streamLanguage(int stream);
         Q_INVOKABLE bool loop() const;
+        Q_INVOKABLE bool sync() const;
         Q_INVOKABLE int defaultStream(const QString &mimeType);
         Q_INVOKABLE QString description(const QString &media) const;
         Q_INVOKABLE AkCaps caps(int stream);
@@ -61,11 +62,13 @@ class MediaSourceNDKMedia: public MediaSource
         Q_INVOKABLE qint64 currentTimeMSecs();
         Q_INVOKABLE qint64 maxPacketQueueSize() const;
         Q_INVOKABLE bool showLog() const;
+        Q_INVOKABLE AkElement::ElementState state() const;
 
     private:
         MediaSourceNDKMediaPrivate *d;
 
     signals:
+        void stateChanged(AkElement::ElementState state);
         void oStream(const AkPacket &packet);
         void error(const QString &message);
         void durationMSecsChanged(qint64 durationMSecs);
@@ -73,23 +76,25 @@ class MediaSourceNDKMedia: public MediaSource
         void maxPacketQueueSizeChanged(qint64 maxPacketQueue);
         void showLogChanged(bool showLog);
         void loopChanged(bool loop);
+        void syncChanged(bool sync);
         void mediasChanged(const QStringList &medias);
         void mediaChanged(const QString &media);
         void streamsChanged(const QList<int> &streams);
 
     public slots:
         void seek(qint64 mSecs, MultiSrcElement::SeekPosition position);
-        void nextVideoFrame();
         void setMedia(const QString &media);
         void setStreams(const QList<int> &streams);
         void setMaxPacketQueueSize(qint64 maxPacketQueueSize);
         void setShowLog(bool showLog);
         void setLoop(bool loop);
+        void setSync(bool sync);
         void resetMedia();
         void resetStreams();
         void resetMaxPacketQueueSize();
         void resetShowLog();
         void resetLoop();
+        void resetSync();
         bool setState(AkElement::ElementState state);
 
     private slots:

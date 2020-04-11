@@ -168,9 +168,17 @@ class VideoStreamPrivate
 };
 
 VideoStream::VideoStream(AMediaExtractor *mediaExtractor,
-                         uint index, qint64 id, Clock *globalClock,
+                         uint index,
+                         qint64 id,
+                         Clock *globalClock,
+                         bool sync,
                          QObject *parent):
-    AbstractStream(mediaExtractor, index, id, globalClock, parent)
+    AbstractStream(mediaExtractor,
+                   index,
+                   id,
+                   globalClock,
+                   sync,
+                   parent)
 {
     this->d = new VideoStreamPrivate(this);
     this->m_maxData = 3;
@@ -237,6 +245,13 @@ bool VideoStream::decodeData()
 
 void VideoStream::processData(const AkPacket &packet)
 {
+    if (!this->sync()) {
+        auto oPacket = AkVideoPacket(packet).convert(AkVideoCaps::Format_rgb24);
+        emit this->oStream(oPacket);
+
+        return;
+    }
+
     forever {
         qreal pts = packet.pts() * packet.timeBase().value();
         qreal diff = pts - this->globalClock()->clock();

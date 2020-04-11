@@ -358,7 +358,7 @@ ApplicationWindow {
 
                     onClicked: {
                         if (videoPreview.status == Image.Ready)
-                            Qt.openUrlExternally(videoPreview.source)
+                            Qt.openUrlExternally("file://" + Recording.lastVideo)
                     }
                 }
             }

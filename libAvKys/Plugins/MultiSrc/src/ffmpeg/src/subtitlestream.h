@@ -28,8 +28,10 @@ class SubtitleStream: public AbstractStream
 
     public:
         SubtitleStream(const AVFormatContext *formatContext=nullptr,
-                       uint index=0, qint64 id=-1,
+                       uint index=0,
+                       qint64 id=-1,
                        Clock *globalClock=nullptr,
+                       bool sync=true,
                        bool noModify=false,
                        QObject *parent=nullptr);
 

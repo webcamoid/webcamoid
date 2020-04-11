@@ -30,10 +30,19 @@ extern "C"
 #include "subtitlestream.h"
 
 SubtitleStream::SubtitleStream(const AVFormatContext *formatContext,
-                               uint index, qint64 id, Clock *globalClock,
+                               uint index,
+                               qint64 id,
+                               Clock *globalClock,
+                               bool sync,
                                bool noModify,
                                QObject *parent):
-    AbstractStream(formatContext, index, id, globalClock, noModify, parent)
+    AbstractStream(formatContext,
+                   index,
+                   id,
+                   globalClock,
+                   sync,
+                   noModify,
+                   parent)
 {
     this->m_maxData = 16;
 }

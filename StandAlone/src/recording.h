@@ -127,6 +127,9 @@ class Recording: public QObject
     Q_PROPERTY(QString lastVideoPreview
                READ lastVideoPreview
                NOTIFY lastVideoPreviewChanged)
+    Q_PROPERTY(QString lastVideo
+               READ lastVideo
+               NOTIFY lastVideoChanged)
     Q_PROPERTY(QString imagesDirectory
                READ imagesDirectory
                WRITE setImagesDirectory
@@ -181,6 +184,7 @@ class Recording: public QObject
         Q_INVOKABLE QString videoFormatDescription(const QString &formatId) const;
         Q_INVOKABLE QString codecDescription(const QString &codec) const;
         Q_INVOKABLE QString lastVideoPreview() const;
+        Q_INVOKABLE QString lastVideo() const;
 
         // Picture
         Q_INVOKABLE QString imagesDirectory() const;
@@ -216,6 +220,7 @@ class Recording: public QObject
         void audioCodecOptionsChanged(const QVariantMap &audioCodecOptions);
         void recordAudioChanged(bool recordAudio);
         void lastVideoPreviewChanged(const QString &lastVideoPreview);
+        void lastVideoChanged(const QString &lastVideo);
         void imagesDirectoryChanged(const QString &imagesDirectory);
         void imageFormatChanged(const QString &imageFormat);
         void lastPhotoPreviewChanged(const QString &lastPhotoPreview);

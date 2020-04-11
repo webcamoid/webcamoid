@@ -152,7 +152,6 @@ class AKCOMMONS_EXPORT AkElement: public QObject
         virtual QString controlInterfaceProvide(const QString &controlId) const;
         virtual void controlInterfaceConfigure(QQmlContext *context,
                                                const QString &controlId) const;
-        virtual void stateChange(AkElement::ElementState from, AkElement::ElementState to);
         virtual AkPacket iAudioStream(const AkAudioPacket &packet);
         virtual AkPacket iVideoStream(const AkVideoPacket &packet);
 

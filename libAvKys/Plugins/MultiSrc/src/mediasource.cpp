@@ -60,6 +60,11 @@ bool MediaSource::loop() const
     return false;
 }
 
+bool MediaSource::sync() const
+{
+    return true;
+}
+
 int MediaSource::defaultStream(const QString &mimeType)
 {
     Q_UNUSED(mimeType)
@@ -101,15 +106,15 @@ bool MediaSource::showLog() const
     return false;
 }
 
+AkElement::ElementState MediaSource::state() const
+{
+    return AkElement::ElementStateNull;
+}
+
 void MediaSource::seek(qint64 seekTo, MultiSrcElement::SeekPosition position)
 {
     Q_UNUSED(seekTo)
     Q_UNUSED(position)
-}
-
-void MediaSource::nextVideoFrame()
-{
-
 }
 
 void MediaSource::setMedia(const QString &media)
@@ -137,6 +142,11 @@ void MediaSource::setLoop(bool loop)
     Q_UNUSED(loop)
 }
 
+void MediaSource::setSync(bool sync)
+{
+    Q_UNUSED(sync)
+}
+
 void MediaSource::resetMedia()
 {
 }
@@ -155,6 +165,11 @@ void MediaSource::resetShowLog()
 
 void MediaSource::resetLoop()
 {
+}
+
+void MediaSource::resetSync()
+{
+
 }
 
 bool MediaSource::setState(AkElement::ElementState state)

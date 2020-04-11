@@ -40,6 +40,7 @@ class MediaSource: public QObject
         Q_INVOKABLE virtual QList<int> listTracks(const QString &mimeType);
         Q_INVOKABLE virtual QString streamLanguage(int stream);
         Q_INVOKABLE virtual bool loop() const;
+        Q_INVOKABLE virtual bool sync() const;
         Q_INVOKABLE virtual int defaultStream(const QString &mimeType);
         Q_INVOKABLE virtual QString description(const QString &media) const;
         Q_INVOKABLE virtual AkCaps caps(int stream);
@@ -47,21 +48,23 @@ class MediaSource: public QObject
         Q_INVOKABLE virtual qint64 currentTimeMSecs();
         Q_INVOKABLE virtual qint64 maxPacketQueueSize() const;
         Q_INVOKABLE virtual bool showLog() const;
+        Q_INVOKABLE virtual AkElement::ElementState state() const;
 
     public slots:
         virtual void seek(qint64 seekTo,
                           MultiSrcElement::SeekPosition position);
-        virtual void nextVideoFrame();
         virtual void setMedia(const QString &media);
         virtual void setStreams(const QList<int> &streams);
         virtual void setMaxPacketQueueSize(qint64 maxPacketQueueSize);
         virtual void setShowLog(bool showLog);
         virtual void setLoop(bool loop);
+        virtual void setSync(bool sync);
         virtual void resetMedia();
         virtual void resetStreams();
         virtual void resetMaxPacketQueueSize();
         virtual void resetShowLog();
         virtual void resetLoop();
+        virtual void resetSync();
         virtual bool setState(AkElement::ElementState state);
 };
 
