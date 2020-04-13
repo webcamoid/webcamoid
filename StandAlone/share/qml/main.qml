@@ -75,7 +75,7 @@ ApplicationWindow {
                             .arg(Recording.imagesDirectory)
                             .arg(Webcamoid.currentTime())
                             .arg(Recording.imageFormat))
-        previewSaveAnimation.start()
+        photoPreviewSaveAnimation.start()
     }
 
     function pathToUrl(path)
@@ -120,7 +120,7 @@ ApplicationWindow {
         anchors.fill: parent
     }
     Image {
-        id: previewThumbnail
+        id: photoPreviewThumbnail
         source: pathToUrl(Recording.lastPhotoPreview)
         sourceSize: Qt.size(width, height)
         cache: false
@@ -132,6 +132,25 @@ ApplicationWindow {
                 + (controlsLayout.height - photoPreview.height) / 2)
         width: k * (photoPreview.width - parent.width) + parent.width
         height: k * (photoPreview.height - parent.height) + parent.height
+        visible: false
+
+        property real k: 0
+    }
+    Image {
+        id: videoPreviewThumbnail
+        source: pathToUrl(Recording.lastVideoPreview)
+        sourceSize: Qt.size(width, height)
+        cache: false
+        smooth: true
+        mipmap: true
+        fillMode: Image.PreserveAspectFit
+        x: k * (parent.width
+                - videoPreview.width
+                - AkUnit.create(16 * AkTheme.controlScale, "dp").pixels)
+        y: k * (controlsLayout.y
+                + (controlsLayout.height - videoPreview.height) / 2)
+        width: k * (videoPreview.width - parent.width) + parent.width
+        height: k * (videoPreview.height - parent.height) + parent.height
         visible: false
 
         property real k: 0
@@ -325,12 +344,14 @@ ApplicationWindow {
                          || cameraControls.state == ""
 
                 onClicked: {
-                    if (cameraControls.state == "")
+                    if (cameraControls.state == "") {
                         cameraControls.state = "Video"
-                    else if (Recording.state == AkElement.ElementStateNull)
+                    } else if (Recording.state == AkElement.ElementStateNull) {
                         Recording.state = AkElement.ElementStatePlaying
-                    else
+                    } else {
                         Recording.state = AkElement.ElementStateNull
+                        videoPreviewSaveAnimation.start()
+                    }
                 }
             }
             Image {
@@ -701,10 +722,10 @@ ApplicationWindow {
     }
 
     SequentialAnimation {
-        id: previewSaveAnimation
+        id: photoPreviewSaveAnimation
 
         PropertyAnimation {
-            target: previewThumbnail
+            target: photoPreviewThumbnail
             property: "k"
             to: 0
             duration: 0
@@ -716,25 +737,65 @@ ApplicationWindow {
             duration: 0
         }
         PropertyAnimation {
-            target: previewThumbnail
+            target: photoPreviewThumbnail
             property: "visible"
             to: true
             duration: 0
         }
         PropertyAnimation {
-            target: previewThumbnail
+            target: photoPreviewThumbnail
             property: "k"
             to: 1
             duration: 500
         }
         PropertyAnimation {
-            target: previewThumbnail
+            target: photoPreviewThumbnail
             property: "visible"
             to: false
             duration: 0
         }
         PropertyAnimation {
             target: photoPreview
+            property: "visible"
+            to: true
+            duration: 0
+        }
+    }
+    SequentialAnimation {
+        id: videoPreviewSaveAnimation
+
+        PropertyAnimation {
+            target: videoPreviewThumbnail
+            property: "k"
+            to: 0
+            duration: 0
+        }
+        PropertyAnimation {
+            target: videoPreview
+            property: "visible"
+            to: false
+            duration: 0
+        }
+        PropertyAnimation {
+            target: videoPreviewThumbnail
+            property: "visible"
+            to: true
+            duration: 0
+        }
+        PropertyAnimation {
+            target: videoPreviewThumbnail
+            property: "k"
+            to: 1
+            duration: 500
+        }
+        PropertyAnimation {
+            target: videoPreviewThumbnail
+            property: "visible"
+            to: false
+            duration: 0
+        }
+        PropertyAnimation {
+            target: videoPreview
             property: "visible"
             to: true
             duration: 0

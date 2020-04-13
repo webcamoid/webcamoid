@@ -2228,27 +2228,27 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="170"/>
+        <location filename="../qml/main.qml" line="189"/>
         <source>Now</source>
         <translation type="unfinished">Adesso</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="177"/>
+        <location filename="../qml/main.qml" line="196"/>
         <source>%1 seconds</source>
         <translation type="unfinished">%1 secondi</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="609"/>
+        <location filename="../qml/main.qml" line="630"/>
         <source>Configure sources</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="627"/>
+        <location filename="../qml/main.qml" line="648"/>
         <source>Configure audio</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="275"/>
+        <location filename="../qml/main.qml" line="294"/>
         <source>Take a photo</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2258,17 +2258,17 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="323"/>
+        <location filename="../qml/main.qml" line="342"/>
         <source>Record video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="650"/>
+        <location filename="../qml/main.qml" line="671"/>
         <source>Configure Effects</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="681"/>
+        <location filename="../qml/main.qml" line="702"/>
         <source>Preferences</source>
         <translation type="unfinished"></translation>
     </message>

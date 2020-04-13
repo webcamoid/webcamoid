@@ -2228,27 +2228,27 @@
         <translation>Завантажити %1 %2 ЗАРАЗ!</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="170"/>
+        <location filename="../qml/main.qml" line="189"/>
         <source>Now</source>
         <translation>Вже</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="177"/>
+        <location filename="../qml/main.qml" line="196"/>
         <source>%1 seconds</source>
         <translation>%1 секунд</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="609"/>
+        <location filename="../qml/main.qml" line="630"/>
         <source>Configure sources</source>
         <translation>Налаштування джерел</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="627"/>
+        <location filename="../qml/main.qml" line="648"/>
         <source>Configure audio</source>
         <translation>Налаштування звуку</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="275"/>
+        <location filename="../qml/main.qml" line="294"/>
         <source>Take a photo</source>
         <translation>Зробити світлину</translation>
     </message>
@@ -2258,17 +2258,17 @@
         <translation>%1/Картинка %2.%3</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="323"/>
+        <location filename="../qml/main.qml" line="342"/>
         <source>Record video</source>
         <translation>Записати відео</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="650"/>
+        <location filename="../qml/main.qml" line="671"/>
         <source>Configure Effects</source>
         <translation>Налаштування ефектів</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="681"/>
+        <location filename="../qml/main.qml" line="702"/>
         <source>Preferences</source>
         <translation>Налаштування</translation>
     </message>
