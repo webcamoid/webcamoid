@@ -48,12 +48,12 @@ namespace AkVCam
             inline static const std::vector<ProcAmpPrivate> &controls()
             {
                 static const std::vector<ProcAmpPrivate> controls {
-                    {VideoProcAmp_Brightness , -255, 255, 1, 0, CameraControl_Flags_Manual},
-                    {VideoProcAmp_Contrast   , -255, 255, 1, 0, CameraControl_Flags_Manual},
-                    {VideoProcAmp_Saturation , -255, 255, 1, 0, CameraControl_Flags_Manual},
-                    {VideoProcAmp_Gamma      , -255, 255, 1, 0, CameraControl_Flags_Manual},
-                    {VideoProcAmp_Hue        , -359, 359, 1, 0, CameraControl_Flags_Manual},
-                    {VideoProcAmp_ColorEnable,    0,   1, 1, 1, CameraControl_Flags_Manual}
+                    {VideoProcAmp_Brightness , -255, 255, 1, 0, VideoProcAmp_Flags_Manual},
+                    {VideoProcAmp_Contrast   , -255, 255, 1, 0, VideoProcAmp_Flags_Manual},
+                    {VideoProcAmp_Saturation , -255, 255, 1, 0, VideoProcAmp_Flags_Manual},
+                    {VideoProcAmp_Gamma      , -255, 255, 1, 0, VideoProcAmp_Flags_Manual},
+                    {VideoProcAmp_Hue        , -359, 359, 1, 0, VideoProcAmp_Flags_Manual},
+                    {VideoProcAmp_ColorEnable,    0,   1, 1, 1, VideoProcAmp_Flags_Manual}
                 };
 
                 return controls;

@@ -781,8 +781,6 @@ void CaptureMMF::reset()
     this->resetCameraControls();
 }
 
-
-
 QVector<ActivatePtr> CaptureMMFPrivate::sources() const
 {
     QVector<ActivatePtr> sources;
@@ -1096,49 +1094,69 @@ QVariantList CaptureMMFPrivate::imageControls(IUnknown *device) const
     if (!device)
         return QVariantList();
 
-    qint32 min;
-    qint32 max;
-    qint32 step;
-    qint32 defaultValue;
-    qint32 flags;
-    qint32 value;
+    qint32 min = 0;
+    qint32 max = 0;
+    qint32 step = 0;
+    qint32 defaultValue = 0;
+    qint32 value = 0;
+    qint32 flags = 0;
 
     QVariantList controls;
     IAMVideoProcAmp *pProcAmp = nullptr;
 
     if (SUCCEEDED(device->QueryInterface(IID_IAMVideoProcAmp,
                                          reinterpret_cast<void **>(&pProcAmp)))) {
-        for (auto &property: vpapToStr->keys()) {
-            if (SUCCEEDED(pProcAmp->GetRange(property,
+        for (auto it = vpapToStr->begin(); it != vpapToStr->end(); it++) {
+            if (SUCCEEDED(pProcAmp->GetRange(it.key(),
                                              reinterpret_cast<LONG *>(&min),
                                              reinterpret_cast<LONG *>(&max),
                                              reinterpret_cast<LONG *>(&step),
                                              reinterpret_cast<LONG *>(&defaultValue),
-                                             reinterpret_cast<LONG *>(&flags))))
-                if (SUCCEEDED(pProcAmp->Get(property,
+                                             reinterpret_cast<LONG *>(&flags)))) {
+                bool autoSupport = flags & VideoProcAmp_Flags_Auto;
+                bool manualSupport = flags & VideoProcAmp_Flags_Manual;
+
+                if (SUCCEEDED(pProcAmp->Get(it.key(),
                                             reinterpret_cast<LONG *>(&value),
                                             reinterpret_cast<LONG *>(&flags)))) {
-                    QVariantList control;
+                    if (autoSupport) {
+                        QVariantList control {
+                            it.value() + " (Auto)",
+                            QString("boolean"),
+                            0,
+                            1,
+                            1,
+                            1,
+                            flags & VideoProcAmp_Flags_Auto,
+                            QStringList()
+                        };
 
-                    QString type;
+                        controls << QVariant(control);
+                    }
 
-                    if (property == VideoProcAmp_ColorEnable
-                        || property == VideoProcAmp_BacklightCompensation)
-                        type = "boolean";
-                    else
-                        type = "integer";
+                    if (manualSupport) {
+                        QString type;
 
-                    control << vpapToStr->value(property)
-                            << type
-                            << min
-                            << max
-                            << step
-                            << defaultValue
-                            << value
-                            << QStringList();
+                        if (min == 0 && max == 1)
+                            type = "boolean";
+                        else
+                            type = "integer";
 
-                    controls << QVariant(control);
+                        QVariantList control {
+                            it.value(),
+                            type,
+                            min,
+                            max,
+                            step,
+                            defaultValue,
+                            value,
+                            QStringList()
+                        };
+
+                        controls << QVariant(control);
+                    }
                 }
+            }
         }
 
         pProcAmp->Release();
@@ -1157,13 +1175,31 @@ bool CaptureMMFPrivate::setImageControls(IUnknown *device,
 
     if (SUCCEEDED(device->QueryInterface(IID_IAMVideoProcAmp,
                                          reinterpret_cast<void **>(&pProcAmp)))) {
-        for (auto &property: vpapToStr->keys()) {
-            QString propertyStr = vpapToStr->value(property);
+        for (auto it = vpapToStr->begin(); it != vpapToStr->end(); it++) {
+            auto key = it.value();
 
-            if (imageControls.contains(propertyStr))
-                pProcAmp->Set(property,
-                              imageControls[propertyStr].toInt(),
-                              VideoProcAmp_Flags_Manual);
+            if (imageControls.contains(key)) {
+                qint32 value = 0;
+                qint32 flags = 0;
+                pProcAmp->Get(it.key(),
+                              reinterpret_cast<LONG *>(&value),
+                              reinterpret_cast<LONG *>(&flags));
+                value = imageControls[key].toInt();
+                pProcAmp->Set(it.key(), value, flags);
+            } else if (imageControls.contains(key + " (Auto)")) {
+                qint32 value = 0;
+                qint32 flags = 0;
+                pProcAmp->Get(it.key(),
+                              reinterpret_cast<LONG *>(&value),
+                              reinterpret_cast<LONG *>(&flags));
+
+                if (imageControls[key + " (Auto)"].toBool())
+                    flags |= VideoProcAmp_Flags_Auto;
+                else
+                    flags &= ~VideoProcAmp_Flags_Auto;
+
+                pProcAmp->Set(it.key(), value, flags);
+            }
         }
 
         pProcAmp->Release();
@@ -1177,41 +1213,69 @@ QVariantList CaptureMMFPrivate::cameraControls(IUnknown *device) const
     if (!device)
         return QVariantList();
 
-    qint32 min;
-    qint32 max;
-    qint32 step;
-    qint32 defaultValue;
-    qint32 flags;
-    qint32 value;
+    qint32 min = 0;
+    qint32 max = 0;
+    qint32 step = 0;
+    qint32 defaultValue = 0;
+    qint32 value = 0;
+    qint32 flags = 0;
 
     QVariantList controls;
     IAMCameraControl *pCameraControl = nullptr;
 
     if (SUCCEEDED(device->QueryInterface(IID_IAMCameraControl,
                                          reinterpret_cast<void **>(&pCameraControl)))) {
-        for (auto &cameraControl: ccToStr->keys()) {
-            if (SUCCEEDED(pCameraControl->GetRange(cameraControl,
+        for (auto it = ccToStr->begin(); it != ccToStr->end(); it++) {
+            if (SUCCEEDED(pCameraControl->GetRange(it.key(),
                                                    reinterpret_cast<LONG *>(&min),
                                                    reinterpret_cast<LONG *>(&max),
                                                    reinterpret_cast<LONG *>(&step),
                                                    reinterpret_cast<LONG *>(&defaultValue),
-                                                   reinterpret_cast<LONG *>(&flags))))
-                if (SUCCEEDED(pCameraControl->Get(cameraControl,
+                                                   reinterpret_cast<LONG *>(&flags)))) {
+                bool autoSupport = flags & CameraControl_Flags_Auto;
+                bool manualSupport = flags & CameraControl_Flags_Manual;
+
+                if (SUCCEEDED(pCameraControl->Get(it.key(),
                                                   reinterpret_cast<LONG *>(&value),
                                                   reinterpret_cast<LONG *>(&flags)))) {
-                    QVariantList control;
+                    if (autoSupport) {
+                        QVariantList control {
+                            it.value() + " (Auto)",
+                            QString("boolean"),
+                            0,
+                            1,
+                            1,
+                            1,
+                            flags & CameraControl_Flags_Auto,
+                            QStringList()
+                        };
 
-                    control << ccToStr->value(cameraControl)
-                            << QString("integer")
-                            << min
-                            << max
-                            << step
-                            << defaultValue
-                            << value
-                            << QStringList();
+                        controls << QVariant(control);
+                    }
 
-                    controls << QVariant(control);
+                    if (manualSupport) {
+                        QString type;
+
+                        if (min == 0 && max == 1)
+                            type = "boolean";
+                        else
+                            type = "integer";
+
+                        QVariantList control {
+                            it.value(),
+                            type,
+                            min,
+                            max,
+                            step,
+                            defaultValue,
+                            value,
+                            QStringList()
+                        };
+
+                        controls << QVariant(control);
+                    }
                 }
+            }
         }
 
         pCameraControl->Release();
@@ -1230,13 +1294,31 @@ bool CaptureMMFPrivate::setCameraControls(IUnknown *device,
 
     if (SUCCEEDED(device->QueryInterface(IID_IAMCameraControl,
                                          reinterpret_cast<void **>(&pCameraControl)))) {
-        for (auto &cameraControl: ccToStr->keys()) {
-            QString cameraControlStr = ccToStr->value(cameraControl);
+        for (auto it = ccToStr->begin(); it != ccToStr->end(); it++) {
+            auto key = it.value();
 
-            if (cameraControls.contains(cameraControlStr))
-                pCameraControl->Set(cameraControl,
-                                    cameraControls[cameraControlStr].toInt(),
-                                    CameraControl_Flags_Manual);
+            if (cameraControls.contains(key)) {
+                qint32 value = 0;
+                qint32 flags = 0;
+                pCameraControl->Get(it.key(),
+                                    reinterpret_cast<LONG *>(&value),
+                                    reinterpret_cast<LONG *>(&flags));
+                value = cameraControls[key].toInt();
+                pCameraControl->Set(it.key(), value, flags);
+            } else if (cameraControls.contains(key + " (Auto)")) {
+                qint32 value = 0;
+                qint32 flags = 0;
+                pCameraControl->Get(it.key(),
+                                    reinterpret_cast<LONG *>(&value),
+                                    reinterpret_cast<LONG *>(&flags));
+
+                if (cameraControls[key + " (Auto)"].toBool())
+                    flags |= CameraControl_Flags_Auto;
+                else
+                    flags &= ~CameraControl_Flags_Auto;
+
+                pCameraControl->Set(it.key(), value, flags);
+            }
         }
 
         pCameraControl->Release();
