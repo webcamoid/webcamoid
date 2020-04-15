@@ -12,7 +12,7 @@ env:
     - PPAQTVER=514
     - QTIFWVER=3.2.2
     - APPIMAGEVER=12
-    - ARCH_ROOT_DATE=2020.03.01
+    - ARCH_ROOT_DATE=2020.04.01
     - ARCH_ROOT_URL=https://mirror.rackspace.com/archlinux
     - FFMPEG_VERSION=4.2.2
     - SDKVER=6200805
