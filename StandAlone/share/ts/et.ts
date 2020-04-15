@@ -750,6 +750,19 @@
     </message>
 </context>
 <context>
+    <name>VideoEffectsPanel</name>
+    <message>
+        <location filename="../qml/VideoEffectsPanel.qml" line="27"/>
+        <source>Effects</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoEffectsPanel.qml" line="34"/>
+        <source>Add effect</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>VideoFormatOptions</name>
     <message>
         <location filename="../qml/VideoFormatOptions.qml" line="27"/>
@@ -2228,27 +2241,27 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="189"/>
+        <location filename="../qml/main.qml" line="191"/>
         <source>Now</source>
         <translation type="unfinished">Nüüd</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="196"/>
+        <location filename="../qml/main.qml" line="198"/>
         <source>%1 seconds</source>
         <translation type="unfinished">%1 sekundit</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="630"/>
+        <location filename="../qml/main.qml" line="635"/>
         <source>Configure sources</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="648"/>
+        <location filename="../qml/main.qml" line="653"/>
         <source>Configure audio</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="294"/>
+        <location filename="../qml/main.qml" line="296"/>
         <source>Take a photo</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2258,17 +2271,17 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="342"/>
+        <location filename="../qml/main.qml" line="344"/>
         <source>Record video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="671"/>
+        <location filename="../qml/main.qml" line="676"/>
         <source>Configure Effects</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="702"/>
+        <location filename="../qml/main.qml" line="707"/>
         <source>Preferences</source>
         <translation type="unfinished"></translation>
     </message>

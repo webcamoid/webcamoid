@@ -169,6 +169,8 @@ ApplicationWindow {
             icon.source: "image://icons/video-effects"
             display: AbstractButton.IconOnly
             flat: true
+
+            onClicked: videoEffects.open()
         }
         Switch {
             id: chkFlash
@@ -457,6 +459,9 @@ ApplicationWindow {
                 }
             }
         }
+    }
+    VideoEffectsPanel {
+        id: videoEffects
     }
     Item {
         id: splitView

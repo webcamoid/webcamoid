@@ -56,9 +56,8 @@ T.Dialog {
         NumberAnimation { property: "opacity"; from: 1.0; to: 0.0; easing.type: Easing.OutCubic; duration: 150 }
     }
 
-    header: Rectangle {
+    header: Item {
         id: rectangle
-        color: "transparent"
         clip: true
         visible: control.title
         height: AkUnit.create(64 * AkTheme.controlScale, "dp").pixels
