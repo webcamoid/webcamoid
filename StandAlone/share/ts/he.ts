@@ -754,12 +754,12 @@
     <message>
         <location filename="../qml/VideoEffectsPanel.qml" line="27"/>
         <source>Effects</source>
-        <translation type="unfinished"></translation>
+        <translation>אפקטים</translation>
     </message>
     <message>
         <location filename="../qml/VideoEffectsPanel.qml" line="34"/>
         <source>Add effect</source>
-        <translation type="unfinished">הוספת אפקט</translation>
+        <translation>הוספת אפקט</translation>
     </message>
 </context>
 <context>
