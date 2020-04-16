@@ -245,7 +245,9 @@ EOF
 
     ${EXEC} pacman-key --init
     ${EXEC} pacman-key --populate archlinux
-    ${EXEC} pacman -Syy
+    ${EXEC} pacman -Syu \
+        --noconfirm \
+        --ignore linux,linux-api-headers,linux-docs,linux-firmware,linux-headers,pacman
 
     ${EXEC} pacman --noconfirm --needed -S \
         ccache \
@@ -260,7 +262,6 @@ EOF
 
     if [ -z "${ARCH_ROOT_MINGW}" ]; then
         ${EXEC} pacman --noconfirm --needed -S \
-            qt5-quickcontrols \
             qt5-quickcontrols2 \
             qt5-svg \
             v4l-utils \
@@ -279,7 +280,6 @@ EOF
             wine \
             mingw-w64-pkg-config \
             mingw-w64-gcc \
-            mingw-w64-qt5-quickcontrols \
             mingw-w64-qt5-quickcontrols2 \
             mingw-w64-qt5-svg \
             mingw-w64-qt5-tools
@@ -421,9 +421,7 @@ elif [ "${DOCKERSYS}" = debian ]; then
             qt${PPAQTVER}tools \
             qt${PPAQTVER}declarative \
             qt${PPAQTVER}svg \
-            qt${PPAQTVER}quickcontrols \
-            qt${PPAQTVER}quickcontrols2 \
-            qt${PPAQTVER}graphicaleffects
+            qt${PPAQTVER}quickcontrols2
     else
         ${EXEC} apt-get -y install \
             qt5-qmake \
@@ -434,7 +432,6 @@ elif [ "${DOCKERSYS}" = debian ]; then
             qml-module-qt-labs-folderlistmodel \
             qml-module-qt-labs-settings \
             qml-module-qtqml-models2 \
-            qml-module-qtquick-controls \
             qml-module-qtquick-controls2 \
             qml-module-qtquick-dialogs \
             qml-module-qtquick-extras \
@@ -459,9 +456,7 @@ elif [ "${DOCKERSYS}" = fedora ]; then
         qt5-qttools-devel \
         qt5-qtdeclarative-devel \
         qt5-qtsvg-devel \
-        qt5-qtquickcontrols \
         qt5-qtquickcontrols2-devel \
-        qt5-qtgraphicaleffects \
         ffmpeg-devel \
         gstreamer1-plugins-base-devel \
         libv4l-devel \
@@ -483,10 +478,8 @@ elif [ "${DOCKERSYS}" = opensuse ]; then
         libqt5-qtbase-devel \
         libqt5-qtdeclarative-devel \
         libqt5-qtsvg-devel \
-        libqt5-qtquickcontrols \
         libqt5-qtquickcontrols2 \
         libQt5QuickControls2-devel \
-        libqt5-qtgraphicaleffects \
         ffmpeg-devel \
         gstreamer-plugins-base-devel \
         libv4l-devel \
