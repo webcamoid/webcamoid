@@ -18,16 +18,13 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
+if [ ! -z "${USE_WGET}" ]; then
+    export DOWNLOAD_CMD="wget -nv -c"
+else
+    export DOWNLOAD_CMD="curl --retry 10 -sS -kLOC -"
+fi
+
 if [[ ( ! -z "$DAILY_BUILD" || ! -z "$RELEASE_BUILD" ) && "$TRAVIS_BRANCH" == "master" ]]; then
-    curl -fL https://getcli.jfrog.io | sh
-
-    ./jfrog bt config \
-        --user=hipersayanx \
-        --key=$BT_KEY \
-        --licenses=GPL-3.0-or-later
-
-    path=ports/deploy/packages_auto
-
     if [ -z "$DAILY_BUILD" ]; then
         VER_MAJ=$(grep -re '^VER_MAJ[[:space:]]*=[[:space:]]*' commons.pri | awk '{print $3}')
         VER_MIN=$(grep -re '^VER_MIN[[:space:]]*=[[:space:]]*' commons.pri | awk '{print $3}')
@@ -38,6 +35,17 @@ if [[ ( ! -z "$DAILY_BUILD" || ! -z "$RELEASE_BUILD" ) && "$TRAVIS_BRANCH" == "m
         version=daily
         publish=true
     fi
+
+    # Upload to Bintray
+
+    curl -fL https://getcli.jfrog.io | sh
+
+    ./jfrog bt config \
+        --user=hipersayanx \
+        --key=$BT_KEY \
+        --licenses=GPL-3.0-or-later
+
+    path=ports/deploy/packages_auto
 
     for f in $(find $path -type f); do
         packagePath=${f#$path/}
@@ -52,4 +60,37 @@ if [[ ( ! -z "$DAILY_BUILD" || ! -z "$RELEASE_BUILD" ) && "$TRAVIS_BRANCH" == "m
             webcamoid/webcamoid/webcamoid/$version \
             $folder/
     done
+
+    # Upload to Github Releases
+
+    if [[ ! -z "$DAILY_BUILD" && "$TRAVIS_BRANCH" == "master" ]]; then
+        hub=''
+
+        if [ "${TRAVIS_OS_NAME}" = linux ]; then
+            hub=hub-linux-amd64-${GITHUB_HUBVER}
+        else
+            hub=hub-darwin-amd64-${GITHUB_HUBVER}
+        fi
+
+        ${DOWNLOAD_CMD} https://github.com/github/hub/releases/download/v${GITHUB_HUBVER}/${hub}.tgz || true
+        tar xzf ${hub}.tgz
+        cp -rf ${hub}/* .local/
+
+        export PATH="${PWD}/.local/bin:${PATH}"
+
+        hubTag=$(hub release -df '%T %t%n' | grep 'Daily Build' | awk '{print $1}' | sed 's/.*://')
+
+        if [ -z "$hubTag" ]; then
+            hub release create -dp -m 'Daily Build' daily
+            hubTag=$(hub release -df '%T %t%n' | grep 'Daily Build' | awk '{print $1}' | sed 's/.*://')
+        fi
+
+        if [ ! -z "$hubTag" ]; then
+            path=ports/deploy/packages_auto
+
+            for f in $(find $path -type f); do
+                hub release edit -m 'Daily Build' -a "$f" "$hubTag"
+            done
+        fi
+    fi
 fi
