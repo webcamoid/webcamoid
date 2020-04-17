@@ -127,5 +127,7 @@ EOF
 elif [ "${TRAVIS_OS_NAME}" = osx ]; then
     #export PATH=/usr/local/bin:/usr/local/sbin:~/bin:$PATH
     ls /usr/local/bin/python*
-    ${EXEC} python3 ports/deploy/deploy.py
+    python --version
+    which python
+    ${EXEC} python ports/deploy/deploy.py
 fi
