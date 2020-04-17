@@ -83,7 +83,7 @@ if [[ ( ! -z "$DAILY_BUILD" || ! -z "$RELEASE_BUILD" ) && "$TRAVIS_BRANCH" == "m
         hubTag=$(hub release -df '%T %t%n' | grep 'Daily Build' | awk '{print $1}' | sed 's/.*://')
 
         if [ -z "$hubTag" ]; then
-            hub release create -dp -m 'Daily Build' daily
+            hub release create -p -m 'Daily Build' daily
             hubTag=$(hub release -df '%T %t%n' | grep 'Daily Build' | awk '{print $1}' | sed 's/.*://')
         fi
 
@@ -91,6 +91,7 @@ if [[ ( ! -z "$DAILY_BUILD" || ! -z "$RELEASE_BUILD" ) && "$TRAVIS_BRANCH" == "m
             path=ports/deploy/packages_auto
 
             for f in $(find $path -type f); do
+                hubTag=$(hub release -df '%T %t%n' | grep 'Daily Build' | awk '{print $1}' | sed 's/.*://')
                 hub release edit -m 'Daily Build' -a "$f" "$hubTag"
             done
         fi
