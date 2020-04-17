@@ -72,8 +72,10 @@ if [[ ( ! -z "$DAILY_BUILD" || ! -z "$RELEASE_BUILD" ) && "$TRAVIS_BRANCH" == "m
             hub=hub-darwin-amd64-${GITHUB_HUBVER}
         fi
 
+        cd ${TRAVIS_BUILD_DIR}
         ${DOWNLOAD_CMD} https://github.com/github/hub/releases/download/v${GITHUB_HUBVER}/${hub}.tgz || true
         tar xzf ${hub}.tgz
+        mkdir -p .local
         cp -rf ${hub}/* .local/
 
         export PATH="${PWD}/.local/bin:${PATH}"
