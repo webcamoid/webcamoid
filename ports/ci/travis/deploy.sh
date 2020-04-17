@@ -125,5 +125,5 @@ EOF
 
     ${EXEC} bash ${DEPLOYSCRIPT}
 elif [ "${TRAVIS_OS_NAME}" = osx ]; then
-    ${EXEC} python3 ports/deploy/deploy.py
+    ${EXEC} python ports/deploy/deploy.py
 fi
