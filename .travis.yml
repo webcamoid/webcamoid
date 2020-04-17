@@ -248,6 +248,7 @@ before_install: |
       brew update
       brew upgrade
       brew link --overwrite numpy
+      brew link python
     fi
   fi
 
