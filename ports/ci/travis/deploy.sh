@@ -125,13 +125,5 @@ EOF
 
     ${EXEC} bash ${DEPLOYSCRIPT}
 elif [ "${TRAVIS_OS_NAME}" = osx ]; then
-    brew install python
-    brew link --overwrite python
-
-    #export PATH=/usr/local/bin:$PATH
-    ls /usr/local/bin/python*
-    python --version
-    python3 --version
-    which python3
     ${EXEC} python3 ports/deploy/deploy.py
 fi

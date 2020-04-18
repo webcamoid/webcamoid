@@ -497,6 +497,7 @@ elif [ "${TRAVIS_OS_NAME}" = osx ]; then
         pkg-config \
         qt5 \
         ffmpeg
+    brew link --overwrite python
 
     if [ -z "${DAILY_BUILD}" ] && [ -z "${RELEASE_BUILD}" ]; then
         brew install \
