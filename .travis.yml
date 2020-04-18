@@ -243,10 +243,6 @@ before_install: |
       docker pull ${DOCKERIMG}
       docker ps -a
       docker run --privileged -it -d -v ${PWD}:/sources -v $HOME/.ccache:/ccache -e CCACHE_DIR=/ccache -w /sources --name ${DOCKERSYS} ${DOCKERIMG} /bin/sh
-    elif [ "${TRAVIS_OS_NAME}" = osx ]; then
-      brew update
-      brew upgrade
-      brew link --overwrite numpy
     fi
   fi
 

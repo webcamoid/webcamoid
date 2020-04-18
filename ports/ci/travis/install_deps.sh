@@ -487,6 +487,9 @@ elif [ "${DOCKERSYS}" = opensuse ]; then
         libpulse-devel \
         libjack-devel
 elif [ "${TRAVIS_OS_NAME}" = osx ]; then
+    brew update
+    brew upgrade
+    brew link --overwrite numpy
     brew install \
         p7zip \
         python \
