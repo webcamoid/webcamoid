@@ -62,7 +62,7 @@
     <message>
         <location filename="../qml/AddSource.qml" line="97"/>
         <source>Path</source>
-        <translation type="unfinished"></translation>
+        <translation>Chemin</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="104"/>
