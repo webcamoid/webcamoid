@@ -16,7 +16,7 @@
     <message>
         <location filename="../qml/About.qml" line="66"/>
         <source>Website</source>
-        <translation>Sito WEB</translation>
+        <translation>Sito web</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="75"/>
