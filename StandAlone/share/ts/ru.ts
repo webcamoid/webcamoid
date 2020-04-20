@@ -11,7 +11,7 @@
     <message>
         <location filename="../qml/About.qml" line="62"/>
         <source>Using Qt %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Использовать Qt</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="66"/>
