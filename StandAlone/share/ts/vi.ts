@@ -6,17 +6,17 @@
     <message>
         <location filename="../qml/About.qml" line="58"/>
         <source>Version %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Phiên bản %1</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="62"/>
         <source>Using Qt %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Sử dụng Qt %1</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="66"/>
         <source>Website</source>
-        <translation type="unfinished"></translation>
+        <translation>Trang web</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="75"/>
@@ -26,7 +26,7 @@
     <message>
         <location filename="../qml/About.qml" line="78"/>
         <source>A simple webcam application for picture and video capture.</source>
-        <translation type="unfinished"></translation>
+        <translation>Một ứng dụng webcam đơn giản để ghi hình ảnh và video.</translation>
     </message>
 </context>
 <context>
@@ -39,19 +39,19 @@
     <message>
         <location filename="../qml/AddSource.qml" line="59"/>
         <source>File</source>
-        <translation type="unfinished"></translation>
+        <translation>Tệp</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="62"/>
         <location filename="../qml/AddSource.qml" line="145"/>
         <source>URL</source>
-        <translation type="unfinished"></translation>
+        <translation>URL</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="83"/>
         <location filename="../qml/AddSource.qml" line="131"/>
         <source>Description</source>
-        <translation type="unfinished"></translation>
+        <translation>Ghi chú</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="89"/>
@@ -62,7 +62,7 @@
     <message>
         <location filename="../qml/AddSource.qml" line="97"/>
         <source>Path</source>
-        <translation type="unfinished"></translation>
+        <translation>Đường dẫn</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="104"/>
@@ -82,7 +82,7 @@
     <message>
         <location filename="../qml/AddSource.qml" line="214"/>
         <source>All Video Files</source>
-        <translation type="unfinished"></translation>
+        <translation>Tất cả tệp phim</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="217"/>
