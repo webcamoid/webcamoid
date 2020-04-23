@@ -20,24 +20,45 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
-import Ak 1.0
 
 OptionsPanel {
     id: panel
-    title: qsTr("Effects")
+    title: layout.currentIndex < 1?
+               qsTr("Effects"):
+               qsTr("%1 options").arg(effectOptions.effectDescription)
 
-    contents: ScrollView {
-        ColumnLayout {
-            width: parent.width
+    signal openVideoEffectsDialog()
 
-            Button {
-                text: qsTr("Add effect")
-                icon.source: "image://icons/add"
-                flat: true
+    function previousPage()
+    {
+        if (layout.currentIndex < 1)
+            close()
+        else
+            layout.currentIndex--
+    }
+
+    Keys.onEscapePressed: previousPage()
+    onActionClicked: previousPage()
+
+    contents: StackLayout {
+        id: layout
+
+        VideoEffectsList {
+            onOpenVideoEffectsDialog: panel.openVideoEffectsDialog()
+            onOpenVideoEffectOptions: {
+                layout.currentIndex = 1
+                effectOptions.effectIndex = effectIndex
             }
-            ListView {
-                Layout.fillWidth: true
-            }
+        }
+        VideoEffectOptions {
+            id: effectOptions
+
+            onEffectRemoved: layout.currentIndex--
+        }
+
+        onCurrentIndexChanged: {
+            if (currentIndex < 1)
+                effectOptions.effectIndex = -1
         }
     }
 }

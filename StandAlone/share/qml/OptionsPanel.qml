@@ -48,7 +48,6 @@ Pane {
     bottomPadding: 0
     visible: false
     clip: true
-    Keys.onEscapePressed: optionsPanel.close()
 
     property string title: ""
     property int edge: Qt.LeftEdge
@@ -60,6 +59,7 @@ Pane {
     property variant contents: Item {}
     property real k: 0
 
+    signal actionClicked()
     signal closed()
 
     function open()
@@ -187,7 +187,7 @@ Pane {
             Layout.column: 1
             Layout.row: edge == Qt.TopEdge? 1: 0
 
-            onClicked: optionsPanel.close()
+            onClicked: optionsPanel.actionClicked()
         }
         Item {
             id: panelContents

@@ -462,6 +462,8 @@ ApplicationWindow {
     }
     VideoEffectsPanel {
         id: videoEffects
+
+        onOpenVideoEffectsDialog: videoEffectsDialog.open()
     }
     Item {
         id: splitView
@@ -496,7 +498,6 @@ ApplicationWindow {
             anchors.left: parent.left
             visible: optionWebcam.checked
                      || optionSound.checked
-                     || optionEffects.checked
                      || optionSettings.checked
 
             ScrollView {
@@ -551,7 +552,6 @@ ApplicationWindow {
             anchors.right: parent.right
             visible: optionWebcam.checked
                      || optionSound.checked
-                     || optionEffects.checked
                      || optionSettings.checked
 
             ScrollView {
@@ -661,37 +661,6 @@ ApplicationWindow {
                     audioInfo.currentIndex = audioConfig.currentIndex
                     audioConfig.onCurrentIndexChanged.connect(function () {
                         audioInfo.currentIndex = audioConfig.currentIndex
-                    })
-                }
-            }
-            ToolButton {
-                id: optionEffects
-                implicitWidth: toolBar.height
-                implicitHeight: toolBar.height
-                icon.source: "image://icons/video-effects"
-                icon.width: 0.75 * implicitWidth
-                icon.height: 0.75 * implicitHeight
-                checkable: true
-                ToolTip.visible: hovered
-                ToolTip.text: qsTr("Configure Effects")
-                display: AbstractButton.IconOnly
-                ButtonGroup.group: buttonGroup
-
-                onClicked: {
-                    let effectBar = showPane(paneLeftLayout, "EffectBar")
-                    let effectConfig = showPane(paneRightLayout, "EffectConfig")
-
-                    effectConfig.curEffect = effectBar.curEffect
-                    effectConfig.curEffectIndex = effectBar.curEffectIndex
-                    effectConfig.editMode = !effectBar.editMode
-                    effectBar.onCurEffectChanged.connect(function () {
-                        effectConfig.curEffect = effectBar.curEffect
-                    })
-                    effectBar.onCurEffectIndexChanged.connect(function () {
-                        effectConfig.curEffectIndex = effectBar.curEffectIndex
-                    })
-                    effectBar.onEditModeChanged.connect(function () {
-                        effectConfig.editMode = !effectBar.editMode
                     })
                 }
             }
@@ -820,6 +789,11 @@ ApplicationWindow {
         id: flash
 
         onTriggered: savePhoto()
+    }
+    VideoEffectsDialog {
+        id: videoEffectsDialog
+        width: parent.width
+        height: parent.height
     }
     SettingsDialog {
         id: settingsDialog

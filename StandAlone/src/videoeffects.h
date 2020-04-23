@@ -39,16 +39,21 @@ class VideoEffects: public QObject
                WRITE setEffects
                RESET resetEffects
                NOTIFY effectsChanged)
+    Q_PROPERTY(QString preview
+               READ preview
+               WRITE setPreview
+               RESET resetPreview
+               NOTIFY previewChanged)
     Q_PROPERTY(AkElement::ElementState state
                READ state
                WRITE setState
                RESET resetState
                NOTIFY stateChanged)
-    Q_PROPERTY(bool advancedMode
-               READ advancedMode
-               WRITE setAdvancedMode
-               RESET resetAdvancedMode
-               NOTIFY advancedModeChanged)
+    Q_PROPERTY(bool chainEffects
+               READ chainEffects
+               WRITE setChainEffects
+               RESET resetChainEffects
+               NOTIFY chainEffectsChanged)
 
     public:
         VideoEffects(QQmlApplicationEngine *engine=nullptr,
@@ -57,13 +62,14 @@ class VideoEffects: public QObject
 
         Q_INVOKABLE QStringList availableEffects() const;
         Q_INVOKABLE QStringList effects() const;
+        Q_INVOKABLE QString preview() const;
         Q_INVOKABLE QVariantMap effectInfo(const QString &effectId) const;
         Q_INVOKABLE QString effectDescription(const QString &effectId) const;
         Q_INVOKABLE AkElement::ElementState state() const;
-        Q_INVOKABLE bool advancedMode() const;
+        Q_INVOKABLE bool chainEffects() const;
         Q_INVOKABLE bool embedControls(const QString &where,
                                        int effectIndex,
-                                       const QString &name="") const;
+                                       const QString &name={}) const;
         Q_INVOKABLE void removeInterface(const QString &where) const;
 
     private:
@@ -72,33 +78,27 @@ class VideoEffects: public QObject
     signals:
         void availableEffectsChanged(const QStringList &availableEffects);
         void effectsChanged(const QStringList &effects);
+        void previewChanged(const QString &preview);
         void oStream(const AkPacket &packet);
         void stateChanged(AkElement::ElementState state);
-        void advancedModeChanged(bool advancedMode);
+        void chainEffectsChanged(bool chainEffects);
 
     public slots:
-        void setEffects(const QStringList &effects, bool emitSignal=true);
+        void setEffects(const QStringList &effects);
+        void setPreview(const QString &preview);
         void setState(AkElement::ElementState state);
-        void setAdvancedMode(bool advancedMode);
+        void setChainEffects(bool chainEffects);
         void resetEffects();
+        void resetPreview();
         void resetState();
-        void resetAdvancedMode();
-        AkElementPtr appendEffect(const QString &effectId, bool preview=false);
-        void showPreview(const QString &effectId);
-        void setAsPreview(int index, bool preview=false);
+        void resetChainEffects();
+        void applyPreview();
         void moveEffect(int from, int to);
         void removeEffect(int index);
-        void removeAllPreviews();
-        void updateEffects();
-        AkPacket iStream(const AkPacket &packet);
+        void removeAllEffects();
+        void updateAvailableEffects();
         void setQmlEngine(QQmlApplicationEngine *engine=nullptr);
-
-    private slots:
-        void advancedModeUpdated(bool advancedMode);
-        void loadProperties();
-        void saveEffects(const QStringList &effects);
-        void saveAdvancedMode(bool advancedMode);
-        void saveProperties();
+        AkPacket iStream(const AkPacket &packet);
 };
 
 #endif // VIDEOEFFECTS_H

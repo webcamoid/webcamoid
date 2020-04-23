@@ -159,7 +159,7 @@ MediaTools::MediaTools(QObject *parent):
     QObject::connect(this->d->m_pluginConfigs.data(),
                      &PluginConfigs::pluginsChanged,
                      this->d->m_videoEffects.data(),
-                     &VideoEffects::updateEffects);
+                     &VideoEffects::updateAvailableEffects);
     QObject::connect(this->d->m_audioLayer.data(),
                      &AudioLayer::outputCapsChanged,
                      this->d->m_recording.data(),

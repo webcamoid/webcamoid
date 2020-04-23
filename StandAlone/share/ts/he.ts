@@ -266,54 +266,6 @@
     </message>
 </context>
 <context>
-    <name>EffectBar</name>
-    <message>
-        <location filename="../qml/EffectBar.qml" line="117"/>
-        <source>Add effect</source>
-        <translation>הוספת אפקט</translation>
-    </message>
-    <message>
-        <location filename="../qml/EffectBar.qml" line="112"/>
-        <source>Search effect</source>
-        <translation>חיפוש אפקט</translation>
-    </message>
-    <message>
-        <location filename="../qml/EffectBar.qml" line="128"/>
-        <source>None</source>
-        <translation>אין</translation>
-    </message>
-    <message>
-        <location filename="../qml/EffectBar.qml" line="222"/>
-        <source>Go back</source>
-        <translation>חזרה</translation>
-    </message>
-</context>
-<context>
-    <name>EffectConfig</name>
-    <message>
-        <location filename="../qml/EffectConfig.qml" line="81"/>
-        <location filename="../qml/EffectConfig.qml" line="87"/>
-        <source>Description</source>
-        <translation>תיאור</translation>
-    </message>
-    <message>
-        <location filename="../qml/EffectConfig.qml" line="92"/>
-        <location filename="../qml/EffectConfig.qml" line="98"/>
-        <source>Plugin ID</source>
-        <translation>מזהה תוסף</translation>
-    </message>
-    <message>
-        <location filename="../qml/EffectConfig.qml" line="114"/>
-        <source>Remove</source>
-        <translation>הסרה</translation>
-    </message>
-    <message>
-        <location filename="../qml/EffectConfig.qml" line="114"/>
-        <source>Add</source>
-        <translation>הוספה</translation>
-    </message>
-</context>
-<context>
     <name>GeneralConfig</name>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="77"/>
@@ -750,6 +702,45 @@
     </message>
 </context>
 <context>
+    <name>VideoEffectOptions</name>
+    <message>
+        <location filename="../qml/VideoEffectOptions.qml" line="61"/>
+        <source>Remove</source>
+        <translation type="unfinished">הסרה</translation>
+    </message>
+</context>
+<context>
+    <name>VideoEffectsDialog</name>
+    <message>
+        <location filename="../qml/VideoEffectsDialog.qml" line="36"/>
+        <source>Add video effect</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoEffectsDialog.qml" line="67"/>
+        <source>Search effect</source>
+        <translation type="unfinished">חיפוש אפקט</translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoEffectsDialog.qml" line="179"/>
+        <source>Chain effect</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>VideoEffectsList</name>
+    <message>
+        <location filename="../qml/VideoEffectsList.qml" line="34"/>
+        <source>Add effect</source>
+        <translation type="unfinished">הוספת אפקט</translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoEffectsList.qml" line="41"/>
+        <source>Remove all effects</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>VideoEffectsPanel</name>
     <message>
         <location filename="../qml/VideoEffectsPanel.qml" line="27"/>
@@ -757,9 +748,9 @@
         <translation>אפקטים</translation>
     </message>
     <message>
-        <location filename="../qml/VideoEffectsPanel.qml" line="34"/>
-        <source>Add effect</source>
-        <translation>הוספת אפקט</translation>
+        <location filename="../qml/VideoEffectsPanel.qml" line="28"/>
+        <source>%1 options</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2277,11 +2268,6 @@
     </message>
     <message>
         <location filename="../qml/main.qml" line="676"/>
-        <source>Configure Effects</source>
-        <translation>הגדרת אפקטים</translation>
-    </message>
-    <message>
-        <location filename="../qml/main.qml" line="707"/>
         <source>Preferences</source>
         <translation>העדפות</translation>
     </message>
