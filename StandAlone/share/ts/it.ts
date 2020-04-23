@@ -16,7 +16,7 @@
     <message>
         <location filename="../qml/About.qml" line="66"/>
         <source>Website</source>
-        <translation>Sito WEB</translation>
+        <translation>Sito web</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="75"/>
@@ -722,8 +722,9 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoEffectsDialog.qml" line="179"/>
+        <location filename="../qml/VideoEffectsDialog.qml" line="180"/>
         <source>Chain effect</source>
+        <extracomment>Apply the effect over the other effects.</extracomment>
         <translation type="unfinished"></translation>
     </message>
 </context>

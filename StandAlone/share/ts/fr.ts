@@ -34,65 +34,65 @@
     <message>
         <location filename="../qml/AddSource.qml" line="28"/>
         <source>Add source</source>
-        <translation type="unfinished"></translation>
+        <translation>Ajouter une source</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="59"/>
         <source>File</source>
-        <translation type="unfinished"></translation>
+        <translation>Fichier</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="62"/>
         <location filename="../qml/AddSource.qml" line="145"/>
         <source>URL</source>
-        <translation type="unfinished"></translation>
+        <translation>URL</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="83"/>
         <location filename="../qml/AddSource.qml" line="131"/>
         <source>Description</source>
-        <translation type="unfinished">Description</translation>
+        <translation>Description</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="89"/>
         <location filename="../qml/AddSource.qml" line="137"/>
         <source>Source title</source>
-        <translation type="unfinished"></translation>
+        <translation>Titre de la source</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="97"/>
         <source>Path</source>
-        <translation type="unfinished"></translation>
+        <translation>Chemin</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="104"/>
         <source>File path</source>
-        <translation type="unfinished"></translation>
+        <translation>Chemin du fichier</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="111"/>
         <source>Search</source>
-        <translation type="unfinished">Rechercher</translation>
+        <translation>Rechercher</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="211"/>
         <source>Choose the file to add as source</source>
-        <translation type="unfinished"></translation>
+        <translation>Choisir le fichier à ajouter comme source</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="214"/>
         <source>All Video Files</source>
-        <translation type="unfinished"></translation>
+        <translation>Tous les fichiers vidéo</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="217"/>
         <source>3GP Video</source>
-        <translation type="unfinished"></translation>
+        <translation>Vidéo 3GP</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="218"/>
         <source>AVI Video</source>
-        <translation type="unfinished"></translation>
+        <translation>Vidéo AVI</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="220"/>
@@ -103,64 +103,64 @@
     <message>
         <location filename="../qml/AddSource.qml" line="221"/>
         <source>Animated GIF</source>
-        <translation type="unfinished"></translation>
+        <translation>GIF animé</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="222"/>
         <source>MKV Video</source>
-        <translation type="unfinished"></translation>
+        <translation>Vidéo MKV</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="223"/>
         <source>Animated PNG</source>
-        <translation type="unfinished"></translation>
+        <translation>PNG animé</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="224"/>
         <source>QuickTime Video</source>
-        <translation type="unfinished"></translation>
+        <translation>Vidéo QuickTime</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="225"/>
         <source>MP4 Video</source>
-        <translation type="unfinished"></translation>
+        <translation>Vidéo MP4</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="226"/>
         <source>MPEG Video</source>
-        <translation type="unfinished"></translation>
+        <translation>Vidéo MPEG</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="227"/>
         <source>Ogg Video</source>
-        <translation type="unfinished"></translation>
+        <translation>Vidéo Ogg</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="229"/>
         <source>RealMedia Video</source>
         <extracomment>Don&apos;t translate &quot;RealMedia&quot;, leave it as is.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Vidéo RealMedia</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="230"/>
         <source>DVD Video</source>
-        <translation type="unfinished"></translation>
+        <translation>Vidéo DVD</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="231"/>
         <source>WebM Video</source>
-        <translation type="unfinished"></translation>
+        <translation>Vidéo WebM</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="233"/>
         <source>Windows Media Video</source>
         <extracomment>Also known as WMV, is a video file format.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Windows Media Video</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="234"/>
         <source>All Files</source>
-        <translation type="unfinished"></translation>
+        <translation>Tous les fichiers</translation>
     </message>
 </context>
 <context>
@@ -168,17 +168,17 @@
     <message>
         <location filename="../qml/AudioCodecOptions.qml" line="27"/>
         <source>Audio Codec Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Options format audio</translation>
     </message>
     <message>
         <location filename="../qml/AudioCodecOptions.qml" line="159"/>
         <source>Bitrate</source>
-        <translation type="unfinished">Débit</translation>
+        <translation>Débit</translation>
     </message>
     <message>
         <location filename="../qml/AudioCodecOptions.qml" line="163"/>
         <source>Bitrate (bits/secs)</source>
-        <translation type="unfinished">Débit (octets/sec)</translation>
+        <translation>Débit (bits/s)</translation>
     </message>
 </context>
 <context>
@@ -262,7 +262,7 @@
     <message>
         <location filename="../qml/Contributors.qml" line="36"/>
         <source>Thanks to all these cool people that helped contributing to Webcamoid all these years.</source>
-        <translation type="unfinished">Merci à tous ces gens cool qui ont contribué à Webcamoid durant toutes ces années.</translation>
+        <translation>Merci à tous ces gens cool qui ont contribué à Webcamoid durant toutes ces années.</translation>
     </message>
 </context>
 <context>
@@ -306,7 +306,7 @@
         <location filename="../qml/GeneralConfig.qml" line="56"/>
         <source>Play sources on start</source>
         <extracomment>Start playing the webcam and other sources right after * opening Webcamoid.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Lire les sources au démarrage</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="68"/>
@@ -329,27 +329,27 @@
     <message>
         <location filename="../qml/ImageCapture.qml" line="39"/>
         <source>Images directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Répertoire d&apos;images</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="49"/>
         <source>Search</source>
-        <translation type="unfinished">Rechercher</translation>
+        <translation>Rechercher</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="57"/>
         <source>File format</source>
-        <translation type="unfinished"></translation>
+        <translation>Format de fichier</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="86"/>
         <source>Quality</source>
-        <translation type="unfinished">Qualité</translation>
+        <translation>Qualité</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="111"/>
         <source>Select the folder to save your photos</source>
-        <translation type="unfinished"></translation>
+        <translation>Sélectionnez un dossier où enregistrer vos photos</translation>
     </message>
 </context>
 <context>
@@ -357,12 +357,12 @@
     <message>
         <location filename="../qml/MediaBar.qml" line="66"/>
         <source>No webcams found</source>
-        <translation type="unfinished"></translation>
+        <translation>Aucune webcam trouvée</translation>
     </message>
     <message>
         <location filename="../qml/MediaBar.qml" line="58"/>
         <source>Add media file</source>
-        <translation type="unfinished"></translation>
+        <translation>Ajouter un fichier média</translation>
     </message>
 </context>
 <context>
@@ -411,37 +411,37 @@
     <message>
         <location filename="../qml/PluginConfig.qml" line="35"/>
         <source>Paths</source>
-        <translation type="unfinished"></translation>
+        <translation>Chemins</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="38"/>
         <source>Plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>Greffons</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="115"/>
         <source>Search plugins in subfolders</source>
-        <translation type="unfinished"></translation>
+        <translation>Rechercher des greffons dans les sous-dossiers</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="127"/>
         <source>Add path</source>
-        <translation type="unfinished"></translation>
+        <translation>Ajouter un chemin</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="170"/>
         <source>Remove</source>
-        <translation type="unfinished">Supprimer</translation>
+        <translation>Supprimer</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="204"/>
         <source>Update</source>
-        <translation type="unfinished"></translation>
+        <translation>Mettre à jour</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="251"/>
         <source>Add plugins search path</source>
-        <translation>Ajouter un chemin de recherche des plugins</translation>
+        <translation>Ajouter un chemin de recherche des greffons</translation>
     </message>
 </context>
 <context>
@@ -511,51 +511,51 @@
     <message>
         <location filename="../qml/SettingsDialog.qml" line="74"/>
         <source>Image Capture</source>
-        <translation type="unfinished"></translation>
+        <translation>Capture d&apos;image</translation>
     </message>
     <message>
         <location filename="../qml/SettingsDialog.qml" line="75"/>
         <source>Video Recording</source>
-        <translation type="unfinished"></translation>
+        <translation>Enregistrement vidéo</translation>
     </message>
     <message>
         <location filename="../qml/SettingsDialog.qml" line="76"/>
         <source>General Options</source>
-        <translation type="unfinished">Options générales</translation>
+        <translation>Options générales</translation>
     </message>
     <message>
         <location filename="../qml/SettingsDialog.qml" line="77"/>
         <source>Plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>Greffons</translation>
     </message>
     <message>
         <location filename="../qml/SettingsDialog.qml" line="78"/>
         <source>Updates</source>
-        <translation type="unfinished">Mises à jour</translation>
+        <translation>Mises à jour</translation>
     </message>
     <message>
         <location filename="../qml/SettingsDialog.qml" line="82"/>
         <source>About</source>
         <extracomment>Information of the program, like name, description, vesion, etc..</extracomment>
-        <translation type="unfinished">À propos</translation>
+        <translation>À propos</translation>
     </message>
     <message>
         <location filename="../qml/SettingsDialog.qml" line="86"/>
         <source>Contributors</source>
         <extracomment>List of people contributing to the project: software developers, translators, designers, etc..</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Contributeurs</translation>
     </message>
     <message>
         <location filename="../qml/SettingsDialog.qml" line="88"/>
         <source>License</source>
         <extracomment>Program license.</extracomment>
-        <translation type="unfinished">Licence</translation>
+        <translation>Licence</translation>
     </message>
     <message>
         <location filename="../qml/SettingsDialog.qml" line="92"/>
         <source>3rd Party Licenses</source>
         <extracomment>License for 3rd party components used in Webcamoid, like libraries and code snippets.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Licences tierces</translation>
     </message>
 </context>
 <context>
@@ -563,22 +563,22 @@
     <message>
         <location filename="../qml/SettingsMenu.qml" line="35"/>
         <source>Video</source>
-        <translation type="unfinished">Vidéo</translation>
+        <translation>Vidéo</translation>
     </message>
     <message>
         <location filename="../qml/SettingsMenu.qml" line="39"/>
         <source>Audio</source>
-        <translation type="unfinished">Audio</translation>
+        <translation>Audio</translation>
     </message>
     <message>
         <location filename="../qml/SettingsMenu.qml" line="43"/>
         <source>Preferences</source>
-        <translation type="unfinished">Préférences</translation>
+        <translation>Préférences</translation>
     </message>
     <message>
         <location filename="../qml/SettingsMenu.qml" line="50"/>
         <source>Play sources</source>
-        <translation type="unfinished"></translation>
+        <translation>Lire les sources</translation>
     </message>
 </context>
 <context>
@@ -692,7 +692,7 @@
     <message>
         <location filename="../qml/VideoCodecOptions.qml" line="166"/>
         <source>Bitrate (bits/secs)</source>
-        <translation type="unfinished">Débit (octets/sec)</translation>
+        <translation>Débit (bits/s)</translation>
     </message>
     <message>
         <location filename="../qml/VideoCodecOptions.qml" line="176"/>
@@ -722,8 +722,9 @@
         <translation type="unfinished">Rechercher un effet</translation>
     </message>
     <message>
-        <location filename="../qml/VideoEffectsDialog.qml" line="179"/>
+        <location filename="../qml/VideoEffectsDialog.qml" line="180"/>
         <source>Chain effect</source>
+        <extracomment>Apply the effect over the other effects.</extracomment>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -732,7 +733,7 @@
     <message>
         <location filename="../qml/VideoEffectsList.qml" line="34"/>
         <source>Add effect</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ajouter un effet</translation>
     </message>
     <message>
         <location filename="../qml/VideoEffectsList.qml" line="41"/>
@@ -745,7 +746,7 @@
     <message>
         <location filename="../qml/VideoEffectsPanel.qml" line="27"/>
         <source>Effects</source>
-        <translation type="unfinished"></translation>
+        <translation>Effets</translation>
     </message>
     <message>
         <location filename="../qml/VideoEffectsPanel.qml" line="28"/>
@@ -758,12 +759,12 @@
     <message>
         <location filename="../qml/VideoFormatOptions.qml" line="27"/>
         <source>Video Format Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Options de format vidéo</translation>
     </message>
     <message>
         <location filename="../qml/VideoFormatOptions.qml" line="162"/>
         <source>File extension</source>
-        <translation type="unfinished"></translation>
+        <translation>Extension de fichier</translation>
     </message>
 </context>
 <context>
@@ -771,29 +772,29 @@
     <message>
         <location filename="../qml/VideoRecording.qml" line="107"/>
         <source>Videos directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Répertoire de vidéos</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="117"/>
         <source>Search</source>
-        <translation type="unfinished">Rechercher</translation>
+        <translation>Rechercher</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="125"/>
         <source>Record audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Enregistrer l&apos;audio</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="137"/>
         <source>File format</source>
-        <translation type="unfinished"></translation>
+        <translation>Format de fichier</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="166"/>
         <location filename="../qml/VideoRecording.qml" line="201"/>
         <location filename="../qml/VideoRecording.qml" line="238"/>
         <source>Configure</source>
-        <translation type="unfinished"></translation>
+        <translation>Configurer</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="172"/>
@@ -931,7 +932,7 @@
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="117"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="149"/>
         <source>Default</source>
-        <translation type="unfinished"></translation>
+        <translation>Par défaut</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="131"/>
@@ -1207,7 +1208,7 @@
         <location filename="../../../libAvKys/Plugins/PrimariesColors/share/qml/main.qml" line="28"/>
         <location filename="../../../libAvKys/Plugins/PrimariesColors/share/qml/main.qml" line="32"/>
         <source>Factor</source>
-        <translation type="unfinished"></translation>
+        <translation>Facteur</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="168"/>
@@ -1332,7 +1333,7 @@
         <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="100"/>
         <source>Equalize</source>
         <extracomment>https://en.wikipedia.org/wiki/Histogram_equalization</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Égaliseur</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="115"/>
@@ -1353,7 +1354,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="126"/>
         <source>Eye glasses</source>
-        <translation type="unfinished"></translation>
+        <translation>Lunettes</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="130"/>
@@ -1941,7 +1942,7 @@
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="63"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="67"/>
         <source>N° of drops</source>
-        <translation type="unfinished"></translation>
+        <translation>Nombre de gouttes</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="99"/>

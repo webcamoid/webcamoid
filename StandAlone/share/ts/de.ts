@@ -436,7 +436,7 @@
     <message>
         <location filename="../qml/PluginConfig.qml" line="204"/>
         <source>Update</source>
-        <translation>Update</translation>
+        <translation>Aktualisieren</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="251"/>
@@ -722,8 +722,9 @@
         <translation type="unfinished">Effekt suchen</translation>
     </message>
     <message>
-        <location filename="../qml/VideoEffectsDialog.qml" line="179"/>
+        <location filename="../qml/VideoEffectsDialog.qml" line="180"/>
         <source>Chain effect</source>
+        <extracomment>Apply the effect over the other effects.</extracomment>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -745,7 +746,7 @@
     <message>
         <location filename="../qml/VideoEffectsPanel.qml" line="27"/>
         <source>Effects</source>
-        <translation type="unfinished"></translation>
+        <translation>Effekten</translation>
     </message>
     <message>
         <location filename="../qml/VideoEffectsPanel.qml" line="28"/>
