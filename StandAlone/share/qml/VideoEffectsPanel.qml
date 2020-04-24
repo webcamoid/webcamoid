@@ -31,10 +31,12 @@ OptionsPanel {
 
     function previousPage()
     {
-        if (layout.currentIndex < 1)
+        if (layout.currentIndex < 1) {
             close()
-        else
+        } else {
+            closeAndOpen()
             layout.currentIndex--
+        }
     }
 
     Keys.onEscapePressed: previousPage()
@@ -46,6 +48,7 @@ OptionsPanel {
         VideoEffectsList {
             onOpenVideoEffectsDialog: panel.openVideoEffectsDialog()
             onOpenVideoEffectOptions: {
+                closeAndOpen()
                 layout.currentIndex = 1
                 effectOptions.effectIndex = effectIndex
             }
@@ -53,7 +56,10 @@ OptionsPanel {
         VideoEffectOptions {
             id: effectOptions
 
-            onEffectRemoved: layout.currentIndex--
+            onEffectRemoved: {
+                closeAndOpen()
+                layout.currentIndex--
+            }
         }
 
         onCurrentIndexChanged: {

@@ -76,6 +76,11 @@ Pane {
         closed()
     }
 
+    function closeAndOpen()
+    {
+        closeOpenAnimation.start()
+    }
+
     function reparentChilds()
     {
         contents.parent = panelContents
@@ -332,6 +337,34 @@ Pane {
             property: "visible"
             to: false
             duration: 0
+        }
+    }
+    SequentialAnimation {
+        id: closeOpenAnimation
+
+        PropertyAnimation {
+            target: optionsPanel
+            property: "k"
+            to: 0
+            duration: 200
+        }
+        PropertyAnimation {
+            target: optionsPanel
+            property: "visible"
+            to: false
+            duration: 0
+        }
+        PropertyAnimation {
+            target: optionsPanel
+            property: "visible"
+            to: true
+            duration: 0
+        }
+        PropertyAnimation {
+            target: optionsPanel
+            property: "k"
+            to: 1
+            duration: 200
         }
     }
 }
