@@ -706,7 +706,7 @@
     <message>
         <location filename="../qml/VideoEffectOptions.qml" line="61"/>
         <source>Remove</source>
-        <translation type="unfinished">הסרה</translation>
+        <translation>הסרה</translation>
     </message>
 </context>
 <context>
@@ -714,18 +714,18 @@
     <message>
         <location filename="../qml/VideoEffectsDialog.qml" line="36"/>
         <source>Add video effect</source>
-        <translation type="unfinished"></translation>
+        <translation>הוספת אפקט וידאו</translation>
     </message>
     <message>
         <location filename="../qml/VideoEffectsDialog.qml" line="67"/>
         <source>Search effect</source>
-        <translation type="unfinished">חיפוש אפקט</translation>
+        <translation>חיפוש אפקט</translation>
     </message>
     <message>
         <location filename="../qml/VideoEffectsDialog.qml" line="180"/>
         <source>Chain effect</source>
         <extracomment>Apply the effect over the other effects.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>אפקט שרשרת</translation>
     </message>
 </context>
 <context>
@@ -733,12 +733,12 @@
     <message>
         <location filename="../qml/VideoEffectsList.qml" line="34"/>
         <source>Add effect</source>
-        <translation type="unfinished">הוספת אפקט</translation>
+        <translation>הוספת אפקט</translation>
     </message>
     <message>
         <location filename="../qml/VideoEffectsList.qml" line="41"/>
         <source>Remove all effects</source>
-        <translation type="unfinished"></translation>
+        <translation>הסרת כל האפקטים</translation>
     </message>
 </context>
 <context>
@@ -751,7 +751,7 @@
     <message>
         <location filename="../qml/VideoEffectsPanel.qml" line="28"/>
         <source>%1 options</source>
-        <translation type="unfinished"></translation>
+        <translation>אפשרויות %1</translation>
     </message>
 </context>
 <context>
