@@ -59,10 +59,15 @@ isEmpty(FFMPEGLIBS) {
         libavcodec \
         libswscale \
         libavutil
+
+    isEmpty(NOLIBAVDEVICE): \
+        PKGCONFIG += libavdevice
 }
 
 CONFIG(config_ffmpeg_avutil_best_effort_ts): \
     DEFINES += HAVE_BEST_EFFORT_TS
+isEmpty(NOLIBAVDEVICE): \
+    DEFINES += HAVE_LIBAVDEVICE
 
 QT += qml concurrent widgets
 

@@ -29,6 +29,13 @@
 #include <ak.h>
 #include <akcaps.h>
 
+#ifdef HAVE_LIBAVDEVICE
+extern "C"
+{
+    #include <libavdevice/avdevice.h>
+}
+#endif
+
 #include "mediasourceffmpeg.h"
 #include "audiostream.h"
 #include "clock.h"
@@ -96,6 +103,11 @@ MediaSourceFFmpeg::MediaSourceFFmpeg(QObject *parent):
 #if LIBAVFORMAT_VERSION_INT < AV_VERSION_INT(58, 9, 100)
     av_register_all();
 #endif
+
+#ifdef HAVE_LIBAVDEVICE
+    avdevice_register_all();
+#endif
+
     avformat_network_init();
 
     this->d = new MediaSourceFFmpegPrivate(this);
@@ -675,9 +687,9 @@ bool MediaSourceFFmpeg::initContext()
     AVInputFormat *inputFormat = nullptr;
     AVDictionary *inputOptions = nullptr;
 
-    if (QRegExp("/dev/video\\d*").exactMatch(uri))
+    if (QRegExp("/dev/video\\d*").exactMatch(uri)) {
         inputFormat = av_find_input_format("v4l2");
-    else if (QRegExp(R"(:\d+\.\d+(?:\+\d+,\d+)?)").exactMatch(uri)) {
+    } else if (QRegExp(R"(:\d+\.\d+(?:\+\d+,\d+)?)").exactMatch(uri)) {
         inputFormat = av_find_input_format("x11grab");
 
         int width = this->d->roundDown(QApplication::desktop()->width(), 4);

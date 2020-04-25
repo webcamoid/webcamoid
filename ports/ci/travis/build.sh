@@ -132,7 +132,7 @@ qmake -spec ${COMPILESPEC} Webcamoid.pro \
     CONFIG+=silent \
     QMAKE_CXX="${COMPILER}" \
     NOGSTREAMER=1 \
-    NOQTAUDIO=1
+    NOLIBAVDEVICE=1
 EOF
             fi
 
@@ -163,8 +163,7 @@ elif [ "${TRAVIS_OS_NAME}" = osx ]; then
             NOGSTREAMER=1 \
             NOJACK=1 \
             NOLIBUVC=1 \
-            NOPULSEAUDIO=1 \
-            NOQTAUDIO=1
+            NOPULSEAUDIO=1
     fi
 fi
 
