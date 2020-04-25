@@ -706,7 +706,7 @@
     <message>
         <location filename="../qml/VideoEffectOptions.qml" line="61"/>
         <source>Remove</source>
-        <translation type="unfinished">Verwijderen</translation>
+        <translation>Verwijderen</translation>
     </message>
 </context>
 <context>
@@ -714,18 +714,18 @@
     <message>
         <location filename="../qml/VideoEffectsDialog.qml" line="36"/>
         <source>Add video effect</source>
-        <translation type="unfinished"></translation>
+        <translation>Video-effect toevoegen</translation>
     </message>
     <message>
         <location filename="../qml/VideoEffectsDialog.qml" line="67"/>
         <source>Search effect</source>
-        <translation type="unfinished">Effect zoeken</translation>
+        <translation>Effect zoeken</translation>
     </message>
     <message>
         <location filename="../qml/VideoEffectsDialog.qml" line="180"/>
         <source>Chain effect</source>
         <extracomment>Apply the effect over the other effects.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Algeheel effect</translation>
     </message>
 </context>
 <context>
@@ -733,12 +733,12 @@
     <message>
         <location filename="../qml/VideoEffectsList.qml" line="34"/>
         <source>Add effect</source>
-        <translation type="unfinished">Effect toevoegen</translation>
+        <translation>Effect toevoegen</translation>
     </message>
     <message>
         <location filename="../qml/VideoEffectsList.qml" line="41"/>
         <source>Remove all effects</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle effecten verwijderen</translation>
     </message>
 </context>
 <context>
@@ -751,7 +751,7 @@
     <message>
         <location filename="../qml/VideoEffectsPanel.qml" line="28"/>
         <source>%1 options</source>
-        <translation type="unfinished"></translation>
+        <translation>%1-opties</translation>
     </message>
 </context>
 <context>
