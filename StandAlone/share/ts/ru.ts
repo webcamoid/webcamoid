@@ -377,7 +377,7 @@
         <location filename="../qml/MediaConfig.qml" line="63"/>
         <location filename="../qml/MediaConfig.qml" line="68"/>
         <source>Media ID</source>
-        <translation type="unfinished"></translation>
+        <translation>Идентификатор медиа</translation>
     </message>
     <message>
         <location filename="../qml/MediaConfig.qml" line="83"/>
@@ -476,7 +476,7 @@
     <message>
         <location filename="../../src/clioptions.cpp" line="59"/>
         <source>Semi-colon separated list of paths to search for plugins.</source>
-        <translation type="unfinished"></translation>
+        <translation>Список путей для поиска плагинов разделен точкой с запятой.</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="68"/>
@@ -487,7 +487,7 @@
     <message>
         <location filename="../../src/clioptions.cpp" line="74"/>
         <source>Semi-colon separated list of paths to search for virtual camera driver</source>
-        <translation type="unfinished"></translation>
+        <translation>Список путей для поиска драйверов виртуальной камеры разделен точкой с запятой</translation>
     </message>
 </context>
 <context>
@@ -714,7 +714,7 @@
     <message>
         <location filename="../qml/VideoEffectsDialog.qml" line="36"/>
         <source>Add video effect</source>
-        <translation type="unfinished"></translation>
+        <translation>Добавить видео эффект</translation>
     </message>
     <message>
         <location filename="../qml/VideoEffectsDialog.qml" line="67"/>
@@ -725,7 +725,7 @@
         <location filename="../qml/VideoEffectsDialog.qml" line="180"/>
         <source>Chain effect</source>
         <extracomment>Apply the effect over the other effects.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Цепной эффект</translation>
     </message>
 </context>
 <context>
@@ -738,7 +738,7 @@
     <message>
         <location filename="../qml/VideoEffectsList.qml" line="41"/>
         <source>Remove all effects</source>
-        <translation type="unfinished"></translation>
+        <translation>Удалить все эффекты</translation>
     </message>
 </context>
 <context>
@@ -751,7 +751,7 @@
     <message>
         <location filename="../qml/VideoEffectsPanel.qml" line="28"/>
         <source>%1 options</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 опции</translation>
     </message>
 </context>
 <context>
@@ -838,7 +838,7 @@
         <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="84"/>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="274"/>
         <source>N° of colors</source>
-        <translation type="unfinished"></translation>
+        <translation>N° цвета</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="107"/>
@@ -981,13 +981,13 @@
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="175"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="165"/>
         <source>Force outline</source>
-        <translation type="unfinished"></translation>
+        <translation>Усилить контур</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="179"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="169"/>
         <source>Match</source>
-        <translation type="unfinished"></translation>
+        <translation>Сопоставить</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="183"/>
@@ -1047,7 +1047,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="248"/>
         <source>Reversed</source>
-        <translation type="unfinished"></translation>
+        <translation>Реверсивный</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="263"/>
@@ -1092,7 +1092,7 @@
         <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/main.qml" line="72"/>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="82"/>
         <source>Soft</source>
-        <translation type="unfinished"></translation>
+        <translation>Мягкий</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorFilter/share/qml/main.qml" line="69"/>
@@ -1196,7 +1196,7 @@
         <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="47"/>
         <source>Convolve matrix</source>
         <extracomment>https://en.wikipedia.org/wiki/Kernel_(image_processing)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Свернутая матрица</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="153"/>
@@ -1327,7 +1327,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="59"/>
         <source>Canny threshold</source>
-        <translation type="unfinished"></translation>
+        <translation>Порог Canny</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="100"/>
@@ -1930,19 +1930,19 @@
         <location filename="../../../libAvKys/Plugins/Life/share/qml/main.qml" line="110"/>
         <source>Luma Threshold</source>
         <extracomment>Minimum luminance/light/white level/intensity in a gray or black and white picture. https://en.wikipedia.org/wiki/Luma_(video)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Порог света</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Life/share/qml/main.qml" line="74"/>
         <source>Choose the automata color</source>
         <extracomment>https://en.wikipedia.org/wiki/Life-like_cellular_automaton</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Выберите цвет автомата</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="63"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="67"/>
         <source>N° of drops</source>
-        <translation type="unfinished"></translation>
+        <translation>Количество капель</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="99"/>
@@ -1963,13 +1963,13 @@
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="251"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="255"/>
         <source>Min. drop length</source>
-        <translation type="unfinished"></translation>
+        <translation>Минимальная длина капли</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="264"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="268"/>
         <source>Max. drop length</source>
-        <translation type="unfinished"></translation>
+        <translation>Максимальная длина капли</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="277"/>
@@ -2023,12 +2023,12 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="72"/>
         <source>Soft normal</source>
-        <translation type="unfinished"></translation>
+        <translation>Мягкая нормализация</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="76"/>
         <source>Hard normal</source>
-        <translation type="unfinished"></translation>
+        <translation>Сильная нормализация</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="80"/>
@@ -2065,7 +2065,7 @@
         <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="77"/>
         <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="81"/>
         <source>Decay</source>
-        <translation type="unfinished"></translation>
+        <translation>Распад</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ScanLines/share/qml/main.qml" line="53"/>
@@ -2087,7 +2087,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/ScanLines/share/qml/main.qml" line="87"/>
         <source>Choose the hide color</source>
-        <translation type="unfinished"></translation>
+        <translation>Выберите скрытый цвет</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Scroll/share/qml/main.qml" line="43"/>
