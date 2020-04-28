@@ -285,12 +285,12 @@
     <message>
         <location filename="../qml/GeneralConfig.qml" line="107"/>
         <source>Video convert</source>
-        <translation>Конвертировать видео</translation>
+        <translation>Конвертер видео</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="117"/>
         <source>Audio convert</source>
-        <translation>Конвертировать аудио</translation>
+        <translation>Конвертер аудио</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="160"/>
@@ -454,7 +454,7 @@
     <message>
         <location filename="../../src/clioptions.cpp" line="47"/>
         <source>Load settings from PATH. If PATH is empty, load configs from application directory.</source>
-        <translation type="unfinished"></translation>
+        <translation>Загрузить настройки из PATH. Если PATH пуст, загрузите конфиги из каталога приложения.</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="49"/>
@@ -482,7 +482,7 @@
         <location filename="../../src/clioptions.cpp" line="68"/>
         <source>Semi-colon separated list of paths to avoid loading.</source>
         <extracomment>Blacklist of plugins that could have conflicts when loading in Webcamoid.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Список путей, чтобы избежать нагрузки разделен точкой с запятой.</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="74"/>
@@ -578,7 +578,7 @@
     <message>
         <location filename="../qml/SettingsMenu.qml" line="50"/>
         <source>Play sources</source>
-        <translation>захват изображения</translation>
+        <translation>Воспроизведение источников</translation>
     </message>
 </context>
 <context>
@@ -706,7 +706,7 @@
     <message>
         <location filename="../qml/VideoEffectOptions.qml" line="61"/>
         <source>Remove</source>
-        <translation type="unfinished">Удалить</translation>
+        <translation>Удалить</translation>
     </message>
 </context>
 <context>
@@ -719,7 +719,7 @@
     <message>
         <location filename="../qml/VideoEffectsDialog.qml" line="67"/>
         <source>Search effect</source>
-        <translation type="unfinished">Поиск эффектов</translation>
+        <translation>Поиск эффекта</translation>
     </message>
     <message>
         <location filename="../qml/VideoEffectsDialog.qml" line="180"/>
@@ -733,7 +733,7 @@
     <message>
         <location filename="../qml/VideoEffectsList.qml" line="34"/>
         <source>Add effect</source>
-        <translation type="unfinished">Добавить эффекты</translation>
+        <translation>Добавить эффект</translation>
     </message>
     <message>
         <location filename="../qml/VideoEffectsList.qml" line="41"/>
@@ -1017,7 +1017,7 @@
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="199"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="189"/>
         <source>Force integer metrics</source>
-        <translation type="unfinished"></translation>
+        <translation>Использовать целочисленные метрики</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="203"/>
@@ -1215,7 +1215,7 @@
         <location filename="../../../libAvKys/Plugins/Emboss/share/qml/main.qml" line="44"/>
         <location filename="../../../libAvKys/Plugins/Emboss/share/qml/main.qml" line="48"/>
         <source>Bias</source>
-        <translation type="unfinished"></translation>
+        <translation>Смещение</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/DelayGrab/share/qml/main.qml" line="42"/>
@@ -1359,22 +1359,22 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="130"/>
         <source>Frontal face alternative 1</source>
-        <translation type="unfinished"></translation>
+        <translation>Другое лицо 1</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="134"/>
         <source>Frontal face alternative 2</source>
-        <translation type="unfinished"></translation>
+        <translation>Другое лицо 2</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="138"/>
         <source>Frontal face alternative 3</source>
-        <translation type="unfinished"></translation>
+        <translation>Другое лицо 3</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="142"/>
         <source>Frontal face default</source>
-        <translation type="unfinished"></translation>
+        <translation>Обычное лицо</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="146"/>
@@ -1624,7 +1624,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="412"/>
         <source>Gnu</source>
-        <translation type="unfinished"></translation>
+        <translation>Антилопа</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="416"/>
@@ -1751,7 +1751,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="86"/>
         <source>Hard</source>
-        <translation type="unfinished"></translation>
+        <translation>Тяжелый</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="96"/>
@@ -1762,7 +1762,7 @@
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="121"/>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="125"/>
         <source>Dissolve</source>
-        <translation type="unfinished"></translation>
+        <translation>Растворение</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="153"/>
@@ -1796,7 +1796,7 @@
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="223"/>
         <source>Alpha diff</source>
         <extracomment>Alpha channel, also known as the transparency component of a pixel in an image.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Альфа-разница</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="251"/>
@@ -1818,17 +1818,17 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="59"/>
         <source>90° Halftone 6x6</source>
-        <translation type="unfinished"></translation>
+        <translation>90° Полутон 6x6</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="63"/>
         <source>Cluster 3</source>
-        <translation type="unfinished">Кластер 3</translation>
+        <translation>Кластер 3</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="67"/>
         <source>Cluster 4</source>
-        <translation type="unfinished">Кластер 4</translation>
+        <translation>Кластер 4</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="71"/>
@@ -1853,17 +1853,17 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="87"/>
         <source>Ordered 4x4</source>
-        <translation type="unfinished"></translation>
+        <translation>Упорядоченно 4x4</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="91"/>
         <source>Ordered 6x6</source>
-        <translation type="unfinished"></translation>
+        <translation>Упорядоченно 6x6</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="95"/>
         <source>Ordered 8x8</source>
-        <translation type="unfinished"></translation>
+        <translation>Упорядоченно 8x8</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="121"/>
@@ -1918,7 +1918,7 @@
         <location filename="../../../libAvKys/Plugins/Hypnotic/share/qml/main.qml" line="82"/>
         <location filename="../../../libAvKys/Plugins/Hypnotic/share/qml/main.qml" line="86"/>
         <source>Speed increment</source>
-        <translation type="unfinished"></translation>
+        <translation>Прирост скорости</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Implode/share/qml/main.qml" line="28"/>
@@ -2001,7 +2001,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSrc/share/qml/main.qml" line="145"/>
         <source>Subtitles track</source>
-        <translation type="unfinished"></translation>
+        <translation>Дорожка субтитров</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Nervous/share/qml/main.qml" line="42"/>
@@ -2044,7 +2044,7 @@
         <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="155"/>
         <source>Alpha differential</source>
         <extracomment>Alpha channel, also known as the transparency component of a pixel in an image.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Альфа-дифференциал</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="169"/>
