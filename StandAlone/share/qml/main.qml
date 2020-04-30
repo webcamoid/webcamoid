@@ -33,8 +33,8 @@ ApplicationWindow {
            + " - "
            + MediaSource.description(MediaSource.stream)
     visible: true
-    x: (Screen.width - width) / 2
-    y: (Screen.height - height) / 2
+    x: (Screen.width - Webcamoid.windowWidth) / 2
+    y: (Screen.height - Webcamoid.windowHeight) / 2
     width: Webcamoid.windowWidth
     height: Webcamoid.windowHeight
 
