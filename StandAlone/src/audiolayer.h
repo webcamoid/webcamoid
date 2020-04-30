@@ -49,11 +49,6 @@ class AudioLayer: public QObject
     Q_PROPERTY(QStringList outputs
                READ outputs
                NOTIFY outputsChanged)
-    Q_PROPERTY(AkAudioCaps inputCaps
-               READ inputCaps
-               WRITE setInputCaps
-               RESET resetInputCaps
-               NOTIFY inputCapsChanged)
     Q_PROPERTY(AkAudioCaps outputCaps
                READ outputCaps
                NOTIFY outputCapsChanged)
@@ -67,11 +62,6 @@ class AudioLayer: public QObject
                WRITE setOutputDeviceCaps
                RESET resetOutputDeviceCaps
                NOTIFY outputDeviceCapsChanged)
-    Q_PROPERTY(QString inputDescription
-               READ inputDescription
-               WRITE setInputDescription
-               RESET resetInputDescription
-               NOTIFY inputDescriptionChanged)
     Q_PROPERTY(AkElement::ElementState outputState
                READ outputState
                WRITE setOutputState
@@ -102,11 +92,9 @@ class AudioLayer: public QObject
         Q_INVOKABLE QString audioOutput() const;
         Q_INVOKABLE QStringList inputs() const;
         Q_INVOKABLE QStringList outputs() const;
-        Q_INVOKABLE AkAudioCaps inputCaps() const;
         Q_INVOKABLE AkAudioCaps outputCaps() const;
         Q_INVOKABLE AkAudioCaps inputDeviceCaps() const;
         Q_INVOKABLE AkAudioCaps outputDeviceCaps() const;
-        Q_INVOKABLE QString inputDescription() const;
         Q_INVOKABLE QString description(const QString &device) const;
         Q_INVOKABLE AkElement::ElementState inputState() const;
         Q_INVOKABLE AkElement::ElementState outputState() const;
@@ -127,11 +115,9 @@ class AudioLayer: public QObject
         void audioOutputChanged(const QString &audioOutput);
         void inputsChanged(const QStringList &inputs);
         void outputsChanged(const QStringList &outputs);
-        void inputCapsChanged(const AkAudioCaps &inputCaps);
         void outputCapsChanged(const AkAudioCaps &outputCaps);
         void inputDeviceCapsChanged(const AkAudioCaps &inputDeviceCaps);
         void outputDeviceCapsChanged(const AkAudioCaps &outputDeviceCaps);
-        void inputDescriptionChanged(const QString &inputDescription);
         void inputStateChanged(AkElement::ElementState inputState);
         void outputStateChanged(AkElement::ElementState outputState);
         void inputLatencyChanged(int inputLatency);
@@ -141,20 +127,20 @@ class AudioLayer: public QObject
     public slots:
         void setAudioInput(const QStringList &audioInput);
         void setAudioOutput(const QString &audioOutput);
-        void setInputCaps(const AkAudioCaps &inputCaps);
+        void setInput(const QString &device,
+                      const QString &description,
+                      const AkAudioCaps &inputCaps);
         void setInputDeviceCaps(const AkAudioCaps &inputDeviceCaps);
         void setOutputDeviceCaps(const AkAudioCaps &outputDeviceCaps);
-        void setInputDescription(const QString &inputDescription);
         void setInputState(AkElement::ElementState inputState);
         bool setOutputState(AkElement::ElementState outputState);
         void setInputLatency(int inputLatency);
         void setOutputLatency(int outputLatency);
         void resetAudioInput();
         void resetAudioOutput();
-        void resetInputCaps();
+        void resetInput();
         void resetInputDeviceCaps();
         void resetOutputDeviceCaps();
-        void resetInputDescription();
         void resetInputState();
         void resetOutputState();
         void resetInputLatency();

@@ -170,7 +170,7 @@ ApplicationWindow {
             display: AbstractButton.IconOnly
             flat: true
 
-            onClicked: videoEffects.open()
+            onClicked: videoEffectsPanel.open()
         }
         Switch {
             id: chkFlash
@@ -236,6 +236,8 @@ ApplicationWindow {
         id: settings
         width: AkUnit.create(250 * AkTheme.controlScale, "dp").pixels
 
+        onOpenAudioSettings: audioVideoPanel.openAudioSettings()
+        onOpenVideoSettings: audioVideoPanel.openVideoSettings()
         onOpenSettings: settingsDialog.open()
     }
     RecordingNotice {
@@ -461,9 +463,12 @@ ApplicationWindow {
         }
     }
     VideoEffectsPanel {
-        id: videoEffects
+        id: videoEffectsPanel
 
         onOpenVideoEffectsDialog: videoEffectsDialog.open()
+    }
+    AudioVideoPanel {
+        id: audioVideoPanel
     }
     Item {
         id: splitView
@@ -497,7 +502,6 @@ ApplicationWindow {
             anchors.bottom: parent.bottom
             anchors.left: parent.left
             visible: optionWebcam.checked
-                     || optionSound.checked
                      || optionSettings.checked
 
             ScrollView {
@@ -551,7 +555,6 @@ ApplicationWindow {
             anchors.bottom: parent.bottom
             anchors.right: parent.right
             visible: optionWebcam.checked
-                     || optionSound.checked
                      || optionSettings.checked
 
             ScrollView {
@@ -639,29 +642,6 @@ ApplicationWindow {
                 onClicked: {
                     showPane(paneLeftLayout, "MediaBar")
                     showPane(paneRightLayout, "MediaConfig")
-                }
-            }
-            ToolButton {
-                id: optionSound
-                implicitWidth: toolBar.height
-                implicitHeight: toolBar.height
-                icon.source: "image://icons/sound"
-                icon.width: 0.75 * implicitWidth
-                icon.height: 0.75 * implicitHeight
-                checkable: true
-                ToolTip.visible: hovered
-                ToolTip.text: qsTr("Configure audio")
-                display: AbstractButton.IconOnly
-                ButtonGroup.group: buttonGroup
-
-                onClicked: {
-                    let audioConfig = showPane(paneLeftLayout, "AudioConfig")
-                    let audioInfo = showPane(paneRightLayout, "AudioInfo")
-
-                    audioInfo.currentIndex = audioConfig.currentIndex
-                    audioConfig.onCurrentIndexChanged.connect(function () {
-                        audioInfo.currentIndex = audioConfig.currentIndex
-                    })
                 }
             }
             ToolButton {

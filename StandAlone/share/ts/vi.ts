@@ -182,69 +182,77 @@
     </message>
 </context>
 <context>
-    <name>AudioConfig</name>
+    <name>AudioDeviceOptions</name>
     <message>
-        <location filename="../qml/AudioConfig.qml" line="112"/>
-        <source>Outputs</source>
-        <extracomment>Output device for audio playback, for example a speaker.</extracomment>
+        <location filename="../qml/AudioDeviceOptions.qml" line="27"/>
+        <source>Audio Device Options</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/AudioConfig.qml" line="114"/>
-        <source>Select the output device for audio playing</source>
+        <location filename="../qml/AudioDeviceOptions.qml" line="111"/>
+        <source>Name</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/AudioConfig.qml" line="121"/>
-        <source>Inputs</source>
-        <extracomment>Input device for audio capturing, for example a microphone.</extracomment>
+        <location filename="../qml/AudioDeviceOptions.qml" line="121"/>
+        <source>Device</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/AudioConfig.qml" line="123"/>
-        <source>Select the device for audio capturing</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/AudioConfig.qml" line="139"/>
-        <location filename="../qml/AudioConfig.qml" line="171"/>
-        <source>Silence</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>AudioInfo</name>
-    <message>
-        <location filename="../qml/AudioInfo.qml" line="196"/>
-        <source>Description</source>
-        <translation type="unfinished">Ghi chú</translation>
-    </message>
-    <message>
-        <location filename="../qml/AudioInfo.qml" line="209"/>
-        <source>Device ID</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/AudioInfo.qml" line="233"/>
+        <location filename="../qml/AudioDeviceOptions.qml" line="142"/>
         <source>Sample Format</source>
         <extracomment>An sample represents the strength of the wave at a certain time. A sample can be expressed as the number of bits defining it (more bits better sound), the type of data representing it (signed integer, unsigned integer, floating point), and the endianness of the data (big endian, little endian). The sample format is the representation of that information. For example, &apos;s16le&apos; means that each sample format is represented by a 16 bits signed integer arranged as little endian.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/AudioInfo.qml" line="247"/>
+        <location filename="../qml/AudioDeviceOptions.qml" line="164"/>
         <source>Channels</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/AudioInfo.qml" line="262"/>
+        <location filename="../qml/AudioDeviceOptions.qml" line="187"/>
         <source>Sample Rate</source>
         <extracomment>Number of audio samples per channel to be played per second.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/AudioInfo.qml" line="285"/>
+        <location filename="../qml/AudioDeviceOptions.qml" line="218"/>
         <source>Latency (ms)</source>
-        <extracomment>The latency is the amount of accumulated audio ready to play, measured in time. Higher latency == smoother audio playback, but more desynchronization with the video. Lowerer latency == audio desynchronization near to the video, but glitchy audio playback. https://en.wikipedia.org/wiki/Latency_(audio)</extracomment>
+        <extracomment>The latency is the amount of accumulated audio ready to play, measured in time. Higher latency == smoother audio playback, but more desynchronization with the video. Lowerer latency == audio synchronization near to the video, but glitchy audio playback. https://en.wikipedia.org/wiki/Latency_(audio)</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>AudioLayer</name>
+    <message>
+        <location filename="../../src/audiolayer.cpp" line="291"/>
+        <source>Silence</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>AudioOptions</name>
+    <message>
+        <location filename="../qml/AudioOptions.qml" line="30"/>
+        <source>Outputs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/AudioOptions.qml" line="33"/>
+        <source>Sources</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>AudioVideoPanel</name>
+    <message>
+        <location filename="../qml/AudioVideoPanel.qml" line="40"/>
+        <source>Audio</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/AudioVideoPanel.qml" line="47"/>
+        <source>Video</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -393,7 +401,7 @@
 <context>
     <name>MediaTools</name>
     <message>
-        <location filename="../../src/mediatools.cpp" line="224"/>
+        <location filename="../../src/mediatools.cpp" line="245"/>
         <source>Daily Build</source>
         <translation type="unfinished"></translation>
     </message>
@@ -561,22 +569,22 @@
 <context>
     <name>SettingsMenu</name>
     <message>
-        <location filename="../qml/SettingsMenu.qml" line="35"/>
+        <location filename="../qml/SettingsMenu.qml" line="37"/>
         <source>Video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/SettingsMenu.qml" line="39"/>
+        <location filename="../qml/SettingsMenu.qml" line="43"/>
         <source>Audio</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/SettingsMenu.qml" line="43"/>
+        <location filename="../qml/SettingsMenu.qml" line="49"/>
         <source>Preferences</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/SettingsMenu.qml" line="50"/>
+        <location filename="../qml/SettingsMenu.qml" line="56"/>
         <source>Play sources</source>
         <translation type="unfinished"></translation>
     </message>
@@ -764,6 +772,35 @@
     <message>
         <location filename="../qml/VideoFormatOptions.qml" line="162"/>
         <source>File extension</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>VideoInputs</name>
+    <message>
+        <location filename="../qml/VideoInputs.qml" line="31"/>
+        <source>Add source</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>VideoOptions</name>
+    <message>
+        <location filename="../qml/VideoOptions.qml" line="30"/>
+        <source>Sources</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoOptions.qml" line="33"/>
+        <source>Outputs</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>VideoOutputs</name>
+    <message>
+        <location filename="../qml/VideoOutputs.qml" line="31"/>
+        <source>Add output</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2243,17 +2280,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="635"/>
+        <location filename="../qml/main.qml" line="638"/>
         <source>Configure sources</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="653"/>
-        <source>Configure audio</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/main.qml" line="296"/>
+        <location filename="../qml/main.qml" line="298"/>
         <source>Take a photo</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2263,12 +2295,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="344"/>
+        <location filename="../qml/main.qml" line="346"/>
         <source>Record video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="676"/>
+        <location filename="../qml/main.qml" line="656"/>
         <source>Preferences</source>
         <translation type="unfinished"></translation>
     </message>

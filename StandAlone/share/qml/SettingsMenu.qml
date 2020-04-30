@@ -24,6 +24,8 @@ import Ak 1.0
 Menu {
     id: settingsMenu
 
+    signal openVideoSettings()
+    signal openAudioSettings()
     signal openSettings()
 
     Component.onCompleted: {
@@ -34,10 +36,14 @@ Menu {
     MenuItem {
         text: qsTr("Video")
         icon.source: "image://icons/video"
+
+        onClicked: settingsMenu.openVideoSettings()
     }
     MenuItem {
         text: qsTr("Audio")
         icon.source: "image://icons/sound"
+
+        onClicked: settingsMenu.openAudioSettings()
     }
     MenuItem {
         text: qsTr("Preferences")

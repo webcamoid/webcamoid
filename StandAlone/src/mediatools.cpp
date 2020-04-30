@@ -136,13 +136,28 @@ MediaTools::MediaTools(QObject *parent):
     QObject::connect(this->d->m_mediaSource.data(),
                      &MediaSource::audioCapsChanged,
                      this->d->m_audioLayer.data(),
-                     &AudioLayer::setInputCaps);
+                     [this] (const AkAudioCaps &audioCaps)
+                     {
+                        auto stream = this->d->m_mediaSource->stream();
+
+                        if (stream.isEmpty())
+                            this->d->m_audioLayer->resetInput();
+                        else
+                            this->d->m_audioLayer->setInput(stream,
+                                                            this->d->m_mediaSource->description(stream),
+                                                            audioCaps);
+                     });
     QObject::connect(this->d->m_mediaSource.data(),
                      &MediaSource::streamChanged,
                      this->d->m_audioLayer.data(),
                      [this] (const QString &stream)
                      {
-                         this->d->m_audioLayer->setInputDescription(this->d->m_mediaSource->description(stream));
+                        if (stream.isEmpty())
+                            this->d->m_audioLayer->resetInput();
+                        else
+                            this->d->m_audioLayer->setInput(stream,
+                                                            this->d->m_mediaSource->description(stream),
+                                                            this->d->m_mediaSource->audioCaps());
                      });
     QObject::connect(this->d->m_mediaSource.data(),
                      &MediaSource::streamChanged,
@@ -179,8 +194,14 @@ MediaTools::MediaTools(QObject *parent):
     this->updateVCamCaps(this->d->m_mediaSource->videoCaps());
     this->d->m_recording->setVideoCaps(this->d->m_mediaSource->videoCaps());
     this->d->m_recording->setAudioCaps(this->d->m_audioLayer->outputCaps());
-    this->d->m_audioLayer->setInputCaps(this->d->m_mediaSource->audioCaps());
-    this->d->m_audioLayer->setInputDescription(this->d->m_mediaSource->description(this->d->m_mediaSource->stream()));
+    auto stream = this->d->m_mediaSource->stream();
+
+    if (stream.isEmpty())
+        this->d->m_audioLayer->resetInput();
+    else
+        this->d->m_audioLayer->setInput(stream,
+                                        this->d->m_mediaSource->description(stream),
+                                        this->d->m_mediaSource->audioCaps());
 }
 
 MediaTools::~MediaTools()

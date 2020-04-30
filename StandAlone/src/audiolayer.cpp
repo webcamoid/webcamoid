@@ -33,7 +33,6 @@
 #include "audiolayer.h"
 
 #define DUMMY_INPUT_DEVICE ":dummyin:"
-#define EXTERNAL_MEDIA_INPUT ":externalinput:"
 #define MAX_SAMPLE_RATE 512e3
 
 using ObjectPtr = QSharedPointer<QObject>;
@@ -44,9 +43,10 @@ class AudioLayerPrivate
         QQmlApplicationEngine *m_engine {nullptr};
         QStringList m_audioInput;
         QStringList m_inputs;
+        QString m_input;
+        QString m_inputDescription;
         AkAudioCaps m_inputCaps;
         AkAudioCaps m_outputCaps;
-        QString m_inputDescription;
         AkElementPtr m_audioOut {AkElement::create("AudioDevice")};
         ObjectPtr m_audioOutSettings {
             AkElement::create<QObject>("AudioDevice",
@@ -122,7 +122,7 @@ AudioLayer::AudioLayer(QQmlApplicationEngine *engine, QObject *parent):
         QString device = this->d->m_audioIn->property("defaultInput").toString();
         this->d->m_audioIn->setProperty("device", device);
         this->d->m_audioInput = QStringList {device};
-        this->d->m_inputs = QStringList {DUMMY_INPUT_DEVICE, EXTERNAL_MEDIA_INPUT}
+        this->d->m_inputs = QStringList {DUMMY_INPUT_DEVICE}
                           + this->d->m_audioIn->property("inputs").toStringList();
         this->d->m_audioIn->link(this->d->m_audioSwitch, Qt::DirectConnection);
 
@@ -177,10 +177,6 @@ AudioLayer::AudioLayer(QQmlApplicationEngine *engine, QObject *parent):
                      this,
                      &AudioLayer::updateInputState);
     QObject::connect(this,
-                     &AudioLayer::inputCapsChanged,
-                     this,
-                     &AudioLayer::updateInputState);
-    QObject::connect(this,
                      &AudioLayer::audioOutputChanged,
                      this,
                      &AudioLayer::updateOutputState);
@@ -230,20 +226,26 @@ QStringList AudioLayer::inputs() const
 
 QStringList AudioLayer::outputs() const
 {
-    if (this->d->m_audioOut)
-        return this->d->m_audioOut->property("outputs").toStringList();
+    QStringList outputs;
 
-    return QStringList();
-}
+    if (this->d->m_audioOut) {
+        auto devices =
+                this->d->m_audioOut->property("outputs").toStringList();
 
-AkAudioCaps AudioLayer::inputCaps() const
-{
-    return this->d->m_inputCaps;
+        if (devices.contains(":dummyout:"))
+            outputs << ":dummyout:";
+
+        for (auto &device: devices)
+            if (device != ":dummyout:")
+                outputs << device;
+    }
+
+    return outputs;
 }
 
 AkAudioCaps AudioLayer::outputCaps() const
 {
-    if (this->d->m_audioInput.contains(EXTERNAL_MEDIA_INPUT)) {
+    if (this->d->m_audioInput.contains(this->d->m_input)) {
         if (this->d->m_inputCaps)
             return this->d->m_inputCaps;
 
@@ -279,19 +281,14 @@ AkAudioCaps AudioLayer::outputDeviceCaps() const
     return {};
 }
 
-QString AudioLayer::inputDescription() const
-{
-    return this->d->m_inputDescription;
-}
-
 QString AudioLayer::description(const QString &device) const
 {
     QString description;
 
-    if (device == EXTERNAL_MEDIA_INPUT)
+    if (device == this->d->m_input)
         description = this->d->m_inputDescription;
-    else if (device == DUMMY_INPUT_DEVICE)
-        description = QString("Dummy Input");
+    else if (device == DUMMY_INPUT_DEVICE || device == ":dummyout:")
+        description = tr("Silence");
     else if (this->d->m_audioOut)
         QMetaObject::invokeMethod(this->d->m_audioOut.data(),
                                   "description",
@@ -342,9 +339,9 @@ AkAudioCaps AudioLayer::preferredFormat(const QString &device)
                            AkAudioCaps::Layout_mono,
                            8000);
 
-    if (device == EXTERNAL_MEDIA_INPUT) {
+    if (device == this->d->m_input) {
         if (this->d->m_inputCaps)
-            return AkAudioCaps(this->d->m_inputCaps);
+            return this->d->m_inputCaps;
 
         AkAudioCaps caps;
 
@@ -377,7 +374,7 @@ QList<AkAudioCaps::SampleFormat> AudioLayer::supportedFormats(const QString &dev
             AkAudioCaps::SampleFormat_u8,
         };
 
-    if (device == EXTERNAL_MEDIA_INPUT) {
+    if (device == this->d->m_input) {
         AkAudioCaps caps;
 
         if (this->d->m_inputCaps)
@@ -405,7 +402,7 @@ QList<AkAudioCaps::ChannelLayout> AudioLayer::supportedChannelLayouts(const QStr
     if (device == DUMMY_INPUT_DEVICE)
         return {AkAudioCaps::Layout_mono, AkAudioCaps::Layout_stereo};
 
-    if (device == EXTERNAL_MEDIA_INPUT) {
+    if (device == this->d->m_input) {
         AkAudioCaps caps;
 
         if (this->d->m_inputCaps)
@@ -433,7 +430,7 @@ QList<int> AudioLayer::supportedSampleRates(const QString &device) const
     if (device == DUMMY_INPUT_DEVICE)
         return this->d->m_commonSampleRates.toList();
 
-    if (device == EXTERNAL_MEDIA_INPUT) {
+    if (device == this->d->m_input) {
         AkAudioCaps caps;
 
         if (this->d->m_inputCaps)
@@ -482,7 +479,7 @@ void AudioLayer::setAudioInput(const QStringList &audioInput)
         return;
 
     if (this->d->m_audioIn
-        && !audioInput.contains(EXTERNAL_MEDIA_INPUT)
+        && !audioInput.contains(this->d->m_input)
         && !audioInput.contains(DUMMY_INPUT_DEVICE))
         this->d->m_audioIn->setProperty("device", audioInput.value(0));
 
@@ -517,18 +514,43 @@ void AudioLayer::setAudioOutput(const QString &audioOutput)
     }
 }
 
-void AudioLayer::setInputCaps(const AkAudioCaps &inputCaps)
+void AudioLayer::setInput(const QString &device,
+                          const QString &description,
+                          const AkAudioCaps &inputCaps)
 {
-    if (this->d->m_inputCaps == inputCaps)
-        return;
+    if (device.isEmpty() || description.isEmpty() || !inputCaps) {
+        this->d->m_inputDescription.clear();
+        this->d->m_inputCaps = AkAudioCaps();
 
+        if (!this->d->m_input.isEmpty()) {
+            this->d->m_input.clear();
+            this->d->m_inputs =
+                    QStringList {DUMMY_INPUT_DEVICE}
+                    + this->d->m_audioIn->property("inputs").toStringList();
+            emit this->inputsChanged(this->d->m_inputs);
+        }
+
+        return;
+    }
+
+    if (this->d->m_input == device
+        && this->d->m_inputDescription == description
+        && this->d->m_inputCaps == inputCaps) {
+        return;
+    }
+
+    this->d->m_input = device;
+    this->d->m_inputDescription = description;
     this->d->m_inputCaps = inputCaps;
-    emit this->inputCapsChanged(inputCaps);
+    this->d->m_inputs =
+            QStringList {DUMMY_INPUT_DEVICE, device}
+            + this->d->m_audioIn->property("inputs").toStringList();
+    emit this->inputsChanged(this->d->m_inputs);
 }
 
 void AudioLayer::setInputDeviceCaps(const AkAudioCaps &inputDeviceCaps)
 {
-    if (this->d->m_audioInput.contains(EXTERNAL_MEDIA_INPUT)
+    if (this->d->m_audioInput.contains(this->d->m_input)
         || this->inputDeviceCaps() == inputDeviceCaps)
         return;
 
@@ -548,21 +570,12 @@ void AudioLayer::setOutputDeviceCaps(const AkAudioCaps &outputDeviceCaps)
                                          QVariant::fromValue(outputDeviceCaps));
 }
 
-void AudioLayer::setInputDescription(const QString &inputDescription)
-{
-    if (this->d->m_inputDescription == inputDescription)
-        return;
-
-    this->d->m_inputDescription = inputDescription;
-    emit this->inputDescriptionChanged(inputDescription);
-}
-
 void AudioLayer::setInputState(AkElement::ElementState inputState)
 {
     if (this->d->m_inputState == inputState)
         return;
 
-    if (this->d->m_audioInput.contains(EXTERNAL_MEDIA_INPUT)) {
+    if (this->d->m_audioInput.contains(this->d->m_input)) {
         if (this->d->m_inputCaps) {
             if (this->d->m_audioIn)
                 this->d->m_audioIn->setState(AkElement::ElementStateNull);
@@ -634,31 +647,27 @@ void AudioLayer::resetAudioOutput()
     this->setAudioOutput(device);
 }
 
-void AudioLayer::resetInputCaps()
+void AudioLayer::resetInput()
 {
-    this->setInputCaps({});
+    this->setInput({}, {}, {});
 }
 
 void AudioLayer::resetInputDeviceCaps()
 {
-    if (this->d->m_audioInput.contains(EXTERNAL_MEDIA_INPUT)) {
+    if (this->d->m_audioInput.contains(this->d->m_input)) {
     } else if (this->d->m_audioInput.contains(DUMMY_INPUT_DEVICE)) {
         if (this->d->m_audioGenerator)
             QMetaObject::invokeMethod(this->d->m_audioGenerator.data(),
                                       "resetCaps");
-    } else if (this->d->m_audioIn)
+    } else if (this->d->m_audioIn) {
         QMetaObject::invokeMethod(this->d->m_audioIn.data(), "resetCaps");
+    }
 }
 
 void AudioLayer::resetOutputDeviceCaps()
 {
     if (this->d->m_audioOut)
         QMetaObject::invokeMethod(this->d->m_audioOut.data(), "resetCaps");
-}
-
-void AudioLayer::resetInputDescription()
-{
-    this->setInputDescription("");
 }
 
 void AudioLayer::resetInputState()
@@ -692,7 +701,7 @@ AkPacket AudioLayer::iStream(const AkPacket &packet)
         (*this->d->m_audioOut)(packet);
 
     if (this->d->m_audioSwitch
-        && this->d->m_audioInput.contains(EXTERNAL_MEDIA_INPUT)) {
+        && this->d->m_audioInput.contains(this->d->m_input)) {
         (*this->d->m_audioSwitch)(packet);
     }
 
@@ -714,8 +723,12 @@ void AudioLayer::setQmlEngine(QQmlApplicationEngine *engine)
 
 void AudioLayer::privInputsChanged(const QStringList &inputs)
 {
-    QStringList ins = QStringList {DUMMY_INPUT_DEVICE, EXTERNAL_MEDIA_INPUT}
-                         + inputs;
+    QStringList ins {DUMMY_INPUT_DEVICE};
+
+    if (!this->d->m_input.isEmpty())
+        ins << this->d->m_input;
+
+    ins += inputs;
 
     if (this->d->m_inputs == ins)
         return;

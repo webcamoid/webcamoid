@@ -449,11 +449,10 @@ void MediaSource::streamUpdated(const QString &stream)
     auto state = this->state();
     this->setState(AkElement::ElementStateNull);
     auto source = this->d->sourceElement(stream);
+    this->setAudioCaps({});
+    this->setVideoCaps({});
 
     if (!source) {
-        this->setAudioCaps({});
-        this->setVideoCaps({});
-
         if (state != AkElement::ElementStateNull)
             emit this->stateChanged(AkElement::ElementStateNull);
 
