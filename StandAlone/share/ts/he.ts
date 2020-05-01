@@ -186,40 +186,40 @@
     <message>
         <location filename="../qml/AudioDeviceOptions.qml" line="27"/>
         <source>Audio Device Options</source>
-        <translation type="unfinished"></translation>
+        <translation>אפשרויות התקן שמע</translation>
     </message>
     <message>
         <location filename="../qml/AudioDeviceOptions.qml" line="111"/>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>שם</translation>
     </message>
     <message>
         <location filename="../qml/AudioDeviceOptions.qml" line="121"/>
         <source>Device</source>
-        <translation type="unfinished">התקן</translation>
+        <translation>התקן</translation>
     </message>
     <message>
         <location filename="../qml/AudioDeviceOptions.qml" line="142"/>
         <source>Sample Format</source>
         <extracomment>An sample represents the strength of the wave at a certain time. A sample can be expressed as the number of bits defining it (more bits better sound), the type of data representing it (signed integer, unsigned integer, floating point), and the endianness of the data (big endian, little endian). The sample format is the representation of that information. For example, &apos;s16le&apos; means that each sample format is represented by a 16 bits signed integer arranged as little endian.</extracomment>
-        <translation type="unfinished">תבנית לדוגמה</translation>
+        <translation>תבנית לדוגמה</translation>
     </message>
     <message>
         <location filename="../qml/AudioDeviceOptions.qml" line="164"/>
         <source>Channels</source>
-        <translation type="unfinished">ערוצים</translation>
+        <translation>ערוצים</translation>
     </message>
     <message>
         <location filename="../qml/AudioDeviceOptions.qml" line="187"/>
         <source>Sample Rate</source>
         <extracomment>Number of audio samples per channel to be played per second.</extracomment>
-        <translation type="unfinished">קצב דגימה</translation>
+        <translation>קצב דגימה</translation>
     </message>
     <message>
         <location filename="../qml/AudioDeviceOptions.qml" line="218"/>
         <source>Latency (ms)</source>
         <extracomment>The latency is the amount of accumulated audio ready to play, measured in time. Higher latency == smoother audio playback, but more desynchronization with the video. Lowerer latency == audio synchronization near to the video, but glitchy audio playback. https://en.wikipedia.org/wiki/Latency_(audio)</extracomment>
-        <translation type="unfinished">השהיה (מילישניות)</translation>
+        <translation>השהיה (מילישניות)</translation>
     </message>
 </context>
 <context>
@@ -227,7 +227,7 @@
     <message>
         <location filename="../../src/audiolayer.cpp" line="291"/>
         <source>Silence</source>
-        <translation type="unfinished">שקט</translation>
+        <translation>שקט</translation>
     </message>
 </context>
 <context>
@@ -235,12 +235,12 @@
     <message>
         <location filename="../qml/AudioOptions.qml" line="30"/>
         <source>Outputs</source>
-        <translation type="unfinished">פלטים</translation>
+        <translation>פלטים</translation>
     </message>
     <message>
         <location filename="../qml/AudioOptions.qml" line="33"/>
         <source>Sources</source>
-        <translation type="unfinished"></translation>
+        <translation>מקורות</translation>
     </message>
 </context>
 <context>
@@ -248,12 +248,12 @@
     <message>
         <location filename="../qml/AudioVideoPanel.qml" line="40"/>
         <source>Audio</source>
-        <translation type="unfinished">שמע</translation>
+        <translation>שמע</translation>
     </message>
     <message>
         <location filename="../qml/AudioVideoPanel.qml" line="47"/>
         <source>Video</source>
-        <translation type="unfinished">וידאו</translation>
+        <translation>וידאו</translation>
     </message>
 </context>
 <context>
@@ -780,7 +780,7 @@
     <message>
         <location filename="../qml/VideoInputs.qml" line="31"/>
         <source>Add source</source>
-        <translation type="unfinished">הוספת מקור</translation>
+        <translation>הוספת מקור</translation>
     </message>
 </context>
 <context>
@@ -788,12 +788,12 @@
     <message>
         <location filename="../qml/VideoOptions.qml" line="30"/>
         <source>Sources</source>
-        <translation type="unfinished"></translation>
+        <translation>מקורות</translation>
     </message>
     <message>
         <location filename="../qml/VideoOptions.qml" line="33"/>
         <source>Outputs</source>
-        <translation type="unfinished">פלטים</translation>
+        <translation>פלטים</translation>
     </message>
 </context>
 <context>
@@ -801,7 +801,7 @@
     <message>
         <location filename="../qml/VideoOutputs.qml" line="31"/>
         <source>Add output</source>
-        <translation type="unfinished"></translation>
+        <translation>הוספת פלט</translation>
     </message>
 </context>
 <context>
