@@ -189,17 +189,7 @@
         <translation>Параметры аудиоустройства</translation>
     </message>
     <message>
-        <location filename="../qml/AudioDeviceOptions.qml" line="111"/>
-        <source>Name</source>
-        <translation>Название</translation>
-    </message>
-    <message>
-        <location filename="../qml/AudioDeviceOptions.qml" line="121"/>
-        <source>Device</source>
-        <translation>Устройство</translation>
-    </message>
-    <message>
-        <location filename="../qml/AudioDeviceOptions.qml" line="142"/>
+        <location filename="../qml/AudioDeviceOptions.qml" line="131"/>
         <source>Sample Format</source>
         <extracomment>An sample represents the strength of the wave at a certain time. A sample can be expressed as the number of bits defining it (more bits better sound), the type of data representing it (signed integer, unsigned integer, floating point), and the endianness of the data (big endian, little endian). The sample format is the representation of that information. For example, &apos;s16le&apos; means that each sample format is represented by a 16 bits signed integer arranged as little endian.</extracomment>
         <translation>Образец формата</translation>
