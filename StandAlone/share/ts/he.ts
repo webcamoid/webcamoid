@@ -248,7 +248,7 @@
     <message>
         <location filename="../qml/AudioVideoPanel.qml" line="32"/>
         <source>Video Input Options</source>
-        <translation type="unfinished"></translation>
+        <translation>אפשרויות קלט וידאו</translation>
     </message>
 </context>
 <context>
@@ -737,12 +737,12 @@
     <message>
         <location filename="../qml/VideoInputOptions.qml" line="59"/>
         <source>Edit</source>
-        <translation type="unfinished">עריכה</translation>
+        <translation>עריכה</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputOptions.qml" line="71"/>
         <source>Remove</source>
-        <translation type="unfinished">הסרה</translation>
+        <translation>הסרה</translation>
     </message>
 </context>
 <context>
@@ -755,7 +755,7 @@
     <message>
         <location filename="../qml/VideoInputs.qml" line="59"/>
         <source>No webcams found</source>
-        <translation type="unfinished">לא נמצאו מצלמות</translation>
+        <translation>לא נמצאו מצלמות רשת</translation>
     </message>
 </context>
 <context>
@@ -2247,7 +2247,7 @@
     <message>
         <location filename="../qml/main.qml" line="185"/>
         <source>Use flash</source>
-        <translation type="unfinished"></translation>
+        <translation>להשתמש במבזק</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="205"/>
