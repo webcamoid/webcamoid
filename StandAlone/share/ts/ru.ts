@@ -248,7 +248,7 @@
     <message>
         <location filename="../qml/AudioVideoPanel.qml" line="32"/>
         <source>Video Input Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Параметры видеовхода</translation>
     </message>
 </context>
 <context>
@@ -737,12 +737,12 @@
     <message>
         <location filename="../qml/VideoInputOptions.qml" line="59"/>
         <source>Edit</source>
-        <translation type="unfinished">Редактировать</translation>
+        <translation>Редактировать</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputOptions.qml" line="71"/>
         <source>Remove</source>
-        <translation type="unfinished">Удалить</translation>
+        <translation>Удалить</translation>
     </message>
 </context>
 <context>
@@ -755,7 +755,7 @@
     <message>
         <location filename="../qml/VideoInputs.qml" line="59"/>
         <source>No webcams found</source>
-        <translation type="unfinished">Веб-камеры не найдены</translation>
+        <translation>Веб-камеры не найдены</translation>
     </message>
 </context>
 <context>
@@ -2247,7 +2247,7 @@
     <message>
         <location filename="../qml/main.qml" line="185"/>
         <source>Use flash</source>
-        <translation type="unfinished"></translation>
+        <translation>Использовать вспышку</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="205"/>
