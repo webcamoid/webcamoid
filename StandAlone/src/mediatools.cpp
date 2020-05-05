@@ -40,7 +40,7 @@
 #include "videodisplay.h"
 #include "iconsprovider.h"
 #include "pluginconfigs.h"
-#include "mediasource.h"
+#include "videolayer.h"
 #include "audiolayer.h"
 #include "videoeffects.h"
 #include "recording.h"
@@ -58,7 +58,7 @@ class MediaToolsPrivate
     public:
         QQmlApplicationEngine *m_engine {nullptr};
         PluginConfigsPtr m_pluginConfigs;
-        MediaSourcePtr m_mediaSource;
+        VideoLayerPtr m_videoLayer;
         AudioLayerPtr m_audioLayer;
         VideoEffectsPtr m_videoEffects;
         RecordingPtr m_recording;
@@ -88,7 +88,7 @@ MediaTools::MediaTools(QObject *parent):
     this->d->m_pluginConfigs =
             PluginConfigsPtr(new PluginConfigs(this->d->m_cliOptions,
                                                this->d->m_engine));
-    this->d->m_mediaSource = MediaSourcePtr(new MediaSource(this->d->m_engine));
+    this->d->m_videoLayer = VideoLayerPtr(new VideoLayer(this->d->m_engine));
     this->d->m_audioLayer = AudioLayerPtr(new AudioLayer(this->d->m_engine));
     this->d->m_videoEffects = VideoEffectsPtr(new VideoEffects(this->d->m_engine));
     this->d->m_recording = RecordingPtr(new Recording(this->d->m_engine));
@@ -105,10 +105,10 @@ MediaTools::MediaTools(QObject *parent):
                          SIGNAL(virtualCameraStateChanged(AkElement::ElementState)));
     }
 
-    AkElement::link(this->d->m_mediaSource.data(),
+    AkElement::link(this->d->m_videoLayer.data(),
                     this->d->m_videoEffects.data(),
                     Qt::DirectConnection);
-    AkElement::link(this->d->m_mediaSource.data(),
+    AkElement::link(this->d->m_videoLayer.data(),
                     this->d->m_audioLayer.data(),
                     Qt::DirectConnection);
     AkElement::link(this->d->m_videoEffects.data(),
@@ -117,38 +117,38 @@ MediaTools::MediaTools(QObject *parent):
     AkElement::link(this->d->m_audioLayer.data(),
                     this->d->m_recording.data(),
                     Qt::DirectConnection);
-    QObject::connect(this->d->m_mediaSource.data(),
-                     &MediaSource::error,
+    QObject::connect(this->d->m_videoLayer.data(),
+                     &VideoLayer::error,
                      this,
                      &MediaTools::error);
-    QObject::connect(this->d->m_mediaSource.data(),
-                     &MediaSource::stateChanged,
+    QObject::connect(this->d->m_videoLayer.data(),
+                     &VideoLayer::stateChanged,
                      this->d->m_videoEffects.data(),
                      &VideoEffects::setState);
-    QObject::connect(this->d->m_mediaSource.data(),
-                     &MediaSource::stateChanged,
+    QObject::connect(this->d->m_videoLayer.data(),
+                     &VideoLayer::stateChanged,
                      this->d->m_audioLayer.data(),
                      &AudioLayer::setOutputState);
     QObject::connect(this->d->m_recording.data(),
                      &Recording::stateChanged,
                      this->d->m_audioLayer.data(),
                      &AudioLayer::setInputState);
-    QObject::connect(this->d->m_mediaSource.data(),
-                     &MediaSource::audioCapsChanged,
+    QObject::connect(this->d->m_videoLayer.data(),
+                     &VideoLayer::audioCapsChanged,
                      this->d->m_audioLayer.data(),
                      [this] (const AkAudioCaps &audioCaps)
                      {
-                        auto stream = this->d->m_mediaSource->stream();
+                        auto stream = this->d->m_videoLayer->videoInput();
 
                         if (stream.isEmpty())
                             this->d->m_audioLayer->resetInput();
                         else
                             this->d->m_audioLayer->setInput(stream,
-                                                            this->d->m_mediaSource->description(stream),
+                                                            this->d->m_videoLayer->description(stream),
                                                             audioCaps);
                      });
-    QObject::connect(this->d->m_mediaSource.data(),
-                     &MediaSource::streamChanged,
+    QObject::connect(this->d->m_videoLayer.data(),
+                     &VideoLayer::videoInputChanged,
                      this->d->m_audioLayer.data(),
                      [this] (const QString &stream)
                      {
@@ -156,15 +156,15 @@ MediaTools::MediaTools(QObject *parent):
                             this->d->m_audioLayer->resetInput();
                         else
                             this->d->m_audioLayer->setInput(stream,
-                                                            this->d->m_mediaSource->description(stream),
-                                                            this->d->m_mediaSource->audioCaps());
+                                                            this->d->m_videoLayer->description(stream),
+                                                            this->d->m_videoLayer->audioCaps());
                      });
-    QObject::connect(this->d->m_mediaSource.data(),
-                     &MediaSource::streamChanged,
+    QObject::connect(this->d->m_videoLayer.data(),
+                     &VideoLayer::videoInputChanged,
                      this,
                      &MediaTools::updateVCamState);
-    QObject::connect(this->d->m_mediaSource.data(),
-                     &MediaSource::videoCapsChanged,
+    QObject::connect(this->d->m_videoLayer.data(),
+                     &VideoLayer::videoCapsChanged,
                      this,
                      &MediaTools::updateVCamCaps);
     QObject::connect(this,
@@ -179,29 +179,29 @@ MediaTools::MediaTools(QObject *parent):
                      &AudioLayer::outputCapsChanged,
                      this->d->m_recording.data(),
                      &Recording::setAudioCaps);
-    QObject::connect(this->d->m_mediaSource.data(),
-                     &MediaSource::videoCapsChanged,
+    QObject::connect(this->d->m_videoLayer.data(),
+                     &VideoLayer::videoCapsChanged,
                      this->d->m_recording.data(),
                      &Recording::setVideoCaps);
     QObject::connect(qApp,
                      &QCoreApplication::aboutToQuit,
-                     this->d->m_mediaSource.data(),
+                     this->d->m_videoLayer.data(),
                      [this] () {
-                        this->d->m_mediaSource->setState(AkElement::ElementStateNull);
+                        this->d->m_videoLayer->setState(AkElement::ElementStateNull);
                      });
 
     this->loadConfigs();
-    this->updateVCamCaps(this->d->m_mediaSource->videoCaps());
-    this->d->m_recording->setVideoCaps(this->d->m_mediaSource->videoCaps());
+    this->updateVCamCaps(this->d->m_videoLayer->videoCaps());
+    this->d->m_recording->setVideoCaps(this->d->m_videoLayer->videoCaps());
     this->d->m_recording->setAudioCaps(this->d->m_audioLayer->outputCaps());
-    auto stream = this->d->m_mediaSource->stream();
+    auto stream = this->d->m_videoLayer->videoInput();
 
     if (stream.isEmpty())
         this->d->m_audioLayer->resetInput();
     else
         this->d->m_audioLayer->setInput(stream,
-                                        this->d->m_mediaSource->description(stream),
-                                        this->d->m_mediaSource->audioCaps());
+                                        this->d->m_videoLayer->description(stream),
+                                        this->d->m_videoLayer->audioCaps());
 }
 
 MediaTools::~MediaTools()
@@ -446,8 +446,8 @@ void MediaTools::setVirtualCameraState(AkElement::ElementState virtualCameraStat
 
         if (this->d->m_enableVirtualCamera
             && virtualCameraState == AkElement::ElementStatePlaying
-            && this->d->m_mediaSource->state() == AkElement::ElementStatePlaying
-            && this->d->m_mediaSource->stream() == vcamStream) {
+            && this->d->m_videoLayer->state() == AkElement::ElementStatePlaying
+            && this->d->m_videoLayer->videoInput() == vcamStream) {
             // Prevents self blocking by pausing the virtual camera.
             state = AkElement::ElementStatePaused;
         }
@@ -579,11 +579,11 @@ void MediaTools::updateVCamState()
         return;
 
     if (this->d->m_enableVirtualCamera) {
-        if (this->d->m_mediaSource->state() == AkElement::ElementStatePlaying) {
+        if (this->d->m_videoLayer->state() == AkElement::ElementStatePlaying) {
             auto vcamStream = this->d->m_virtualCamera->property("media").toString();
 
             // Prevents self blocking by pausing the virtual camera.
-            auto state = this->d->m_mediaSource->stream() == vcamStream?
+            auto state = this->d->m_videoLayer->videoInput() == vcamStream?
                              AkElement::ElementStatePaused:
                              AkElement::ElementStatePlaying;
             this->d->m_virtualCamera->setState(state);

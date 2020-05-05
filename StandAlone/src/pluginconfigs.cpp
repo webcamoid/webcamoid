@@ -65,7 +65,7 @@ QString PluginConfigsPrivate::convertToAbsolute(const QString &path) const
         return QDir::cleanPath(path);
 
     static const QDir applicationDir(QCoreApplication::applicationDirPath());
-    QString absPath = applicationDir.absoluteFilePath(path);
+    auto absPath = applicationDir.absoluteFilePath(path);
 
     return QDir::cleanPath(absPath).replace('/', QDir::separator());
 }
@@ -92,7 +92,7 @@ void PluginConfigs::loadProperties(const CliOptions &cliOptions)
     if (cliOptions.isSet(cliOptions.blackListOpt())) {
         auto blackListPaths = cliOptions.value(cliOptions.blackListOpt()).split(';');
 
-        for (QString &path: blackListPaths) {
+        for (auto &path: blackListPaths) {
 #ifdef Q_OS_WIN32
             path = this->d->convertToAbsolute(path);
 #endif
@@ -139,7 +139,7 @@ void PluginConfigs::loadProperties(const CliOptions &cliOptions)
     if (cliOptions.isSet(cliOptions.pluginPathsOpt())) {
         auto pluginPaths = cliOptions.value(cliOptions.pluginPathsOpt()).split(';');
 
-        for (QString &path: pluginPaths) {
+        for (auto &path: pluginPaths) {
 #ifdef Q_OS_WIN32
             path = this->d->convertToAbsolute(path);
 #endif

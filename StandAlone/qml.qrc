@@ -15,8 +15,6 @@
         <file>share/qml/GeneralConfig.qml</file>
         <file>share/qml/ImageCapture.qml</file>
         <file>share/qml/License.qml</file>
-        <file>share/qml/MediaBar.qml</file>
-        <file>share/qml/MediaConfig.qml</file>
         <file>share/qml/OptionList.qml</file>
         <file>share/qml/OptionsPanel.qml</file>
         <file>share/qml/OutputConfig.qml</file>
@@ -32,6 +30,7 @@
         <file>share/qml/VideoEffectsList.qml</file>
         <file>share/qml/VideoEffectsPanel.qml</file>
         <file>share/qml/VideoFormatOptions.qml</file>
+        <file>share/qml/VideoInputOptions.qml</file>
         <file>share/qml/VideoInputs.qml</file>
         <file>share/qml/VideoOptions.qml</file>
         <file>share/qml/VideoOutputs.qml</file>

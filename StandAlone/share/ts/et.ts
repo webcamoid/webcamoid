@@ -75,90 +75,90 @@
         <translation type="unfinished">Otsi</translation>
     </message>
     <message>
-        <location filename="../qml/AddSource.qml" line="211"/>
+        <location filename="../qml/AddSource.qml" line="208"/>
         <source>Choose the file to add as source</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/AddSource.qml" line="214"/>
+        <location filename="../qml/AddSource.qml" line="211"/>
         <source>All Video Files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/AddSource.qml" line="217"/>
+        <location filename="../qml/AddSource.qml" line="214"/>
         <source>3GP Video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/AddSource.qml" line="218"/>
+        <location filename="../qml/AddSource.qml" line="215"/>
         <source>AVI Video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/AddSource.qml" line="220"/>
+        <location filename="../qml/AddSource.qml" line="217"/>
         <source>Flash Video</source>
         <extracomment>Adobe FLV Flash video</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/AddSource.qml" line="221"/>
+        <location filename="../qml/AddSource.qml" line="218"/>
         <source>Animated GIF</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/AddSource.qml" line="222"/>
+        <location filename="../qml/AddSource.qml" line="219"/>
         <source>MKV Video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/AddSource.qml" line="223"/>
+        <location filename="../qml/AddSource.qml" line="220"/>
         <source>Animated PNG</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/AddSource.qml" line="224"/>
+        <location filename="../qml/AddSource.qml" line="221"/>
         <source>QuickTime Video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/AddSource.qml" line="225"/>
+        <location filename="../qml/AddSource.qml" line="222"/>
         <source>MP4 Video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/AddSource.qml" line="226"/>
+        <location filename="../qml/AddSource.qml" line="223"/>
         <source>MPEG Video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/AddSource.qml" line="227"/>
+        <location filename="../qml/AddSource.qml" line="224"/>
         <source>Ogg Video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/AddSource.qml" line="229"/>
+        <location filename="../qml/AddSource.qml" line="226"/>
         <source>RealMedia Video</source>
         <extracomment>Don&apos;t translate &quot;RealMedia&quot;, leave it as is.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/AddSource.qml" line="230"/>
+        <location filename="../qml/AddSource.qml" line="227"/>
         <source>DVD Video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/AddSource.qml" line="231"/>
+        <location filename="../qml/AddSource.qml" line="228"/>
         <source>WebM Video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/AddSource.qml" line="233"/>
+        <location filename="../qml/AddSource.qml" line="230"/>
         <source>Windows Media Video</source>
         <extracomment>Also known as WMV, is a video file format.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/AddSource.qml" line="234"/>
+        <location filename="../qml/AddSource.qml" line="231"/>
         <source>All Files</source>
         <translation type="unfinished"></translation>
     </message>
@@ -189,34 +189,24 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/AudioDeviceOptions.qml" line="111"/>
-        <source>Name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/AudioDeviceOptions.qml" line="121"/>
-        <source>Device</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/AudioDeviceOptions.qml" line="142"/>
+        <location filename="../qml/AudioDeviceOptions.qml" line="131"/>
         <source>Sample Format</source>
         <extracomment>An sample represents the strength of the wave at a certain time. A sample can be expressed as the number of bits defining it (more bits better sound), the type of data representing it (signed integer, unsigned integer, floating point), and the endianness of the data (big endian, little endian). The sample format is the representation of that information. For example, &apos;s16le&apos; means that each sample format is represented by a 16 bits signed integer arranged as little endian.</extracomment>
         <translation type="unfinished">Diskreetimisvorming</translation>
     </message>
     <message>
-        <location filename="../qml/AudioDeviceOptions.qml" line="164"/>
+        <location filename="../qml/AudioDeviceOptions.qml" line="153"/>
         <source>Channels</source>
         <translation type="unfinished">Kanalid</translation>
     </message>
     <message>
-        <location filename="../qml/AudioDeviceOptions.qml" line="187"/>
+        <location filename="../qml/AudioDeviceOptions.qml" line="176"/>
         <source>Sample Rate</source>
         <extracomment>Number of audio samples per channel to be played per second.</extracomment>
         <translation type="unfinished">Diskreetimissagedus</translation>
     </message>
     <message>
-        <location filename="../qml/AudioDeviceOptions.qml" line="218"/>
+        <location filename="../qml/AudioDeviceOptions.qml" line="207"/>
         <source>Latency (ms)</source>
         <extracomment>The latency is the amount of accumulated audio ready to play, measured in time. Higher latency == smoother audio playback, but more desynchronization with the video. Lowerer latency == audio synchronization near to the video, but glitchy audio playback. https://en.wikipedia.org/wiki/Latency_(audio)</extracomment>
         <translation type="unfinished"></translation>
@@ -225,7 +215,7 @@
 <context>
     <name>AudioLayer</name>
     <message>
-        <location filename="../../src/audiolayer.cpp" line="291"/>
+        <location filename="../../src/audiolayer.cpp" line="279"/>
         <source>Silence</source>
         <translation type="unfinished">Vaikus</translation>
     </message>
@@ -246,14 +236,19 @@
 <context>
     <name>AudioVideoPanel</name>
     <message>
-        <location filename="../qml/AudioVideoPanel.qml" line="40"/>
+        <location filename="../qml/AudioVideoPanel.qml" line="27"/>
         <source>Audio</source>
         <translation type="unfinished">Heli</translation>
     </message>
     <message>
-        <location filename="../qml/AudioVideoPanel.qml" line="47"/>
+        <location filename="../qml/AudioVideoPanel.qml" line="29"/>
         <source>Video</source>
         <translation type="unfinished">Video</translation>
+    </message>
+    <message>
+        <location filename="../qml/AudioVideoPanel.qml" line="32"/>
+        <source>Video Input Options</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -358,44 +353,6 @@
         <location filename="../qml/ImageCapture.qml" line="111"/>
         <source>Select the folder to save your photos</source>
         <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>MediaBar</name>
-    <message>
-        <location filename="../qml/MediaBar.qml" line="66"/>
-        <source>No webcams found</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/MediaBar.qml" line="58"/>
-        <source>Add media file</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>MediaConfig</name>
-    <message>
-        <location filename="../qml/MediaConfig.qml" line="53"/>
-        <location filename="../qml/MediaConfig.qml" line="58"/>
-        <source>Description</source>
-        <translation>Kirjeldus</translation>
-    </message>
-    <message>
-        <location filename="../qml/MediaConfig.qml" line="63"/>
-        <location filename="../qml/MediaConfig.qml" line="68"/>
-        <source>Media ID</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/MediaConfig.qml" line="83"/>
-        <source>Edit</source>
-        <translation>Muuda</translation>
-    </message>
-    <message>
-        <location filename="../qml/MediaConfig.qml" line="91"/>
-        <source>Remove</source>
-        <translation>Eemalda</translation>
     </message>
 </context>
 <context>
@@ -620,67 +577,67 @@
 <context>
     <name>UpdatesConfig</name>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="70"/>
+        <location filename="../qml/UpdatesConfig.qml" line="72"/>
         <source>Notify about new versions</source>
         <translation>Teavita uutest versioonidest</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="82"/>
+        <location filename="../qml/UpdatesConfig.qml" line="84"/>
         <source>Check new versions</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="90"/>
+        <location filename="../qml/UpdatesConfig.qml" line="92"/>
         <source>Daily</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="94"/>
+        <location filename="../qml/UpdatesConfig.qml" line="96"/>
         <source>Every two days</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="98"/>
+        <location filename="../qml/UpdatesConfig.qml" line="100"/>
         <source>Weekly</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="102"/>
+        <location filename="../qml/UpdatesConfig.qml" line="104"/>
         <source>Every two weeks</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="106"/>
+        <location filename="../qml/UpdatesConfig.qml" line="108"/>
         <source>Monthly</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="110"/>
+        <location filename="../qml/UpdatesConfig.qml" line="112"/>
         <source>Never</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="122"/>
+        <location filename="../qml/UpdatesConfig.qml" line="124"/>
         <source>Last updated</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="143"/>
+        <location filename="../qml/UpdatesConfig.qml" line="145"/>
         <source>Your version of %1 is outdated. Latest version is &lt;b&gt;%2&lt;/b&gt;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="149"/>
+        <location filename="../qml/UpdatesConfig.qml" line="151"/>
         <source>Upgrade Now!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="164"/>
+        <location filename="../qml/UpdatesConfig.qml" line="166"/>
         <source>Thanks for using a &lt;b&gt;development version&lt;/b&gt;!&lt;br /&gt;It will be very helpful if you can report any bug and suggestions you have.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="169"/>
+        <location filename="../qml/UpdatesConfig.qml" line="171"/>
         <source>Report a Bug</source>
         <translation type="unfinished"></translation>
     </message>
@@ -776,22 +733,40 @@
     </message>
 </context>
 <context>
+    <name>VideoInputOptions</name>
+    <message>
+        <location filename="../qml/VideoInputOptions.qml" line="59"/>
+        <source>Edit</source>
+        <translation type="unfinished">Muuda</translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputOptions.qml" line="71"/>
+        <source>Remove</source>
+        <translation type="unfinished">Eemalda</translation>
+    </message>
+</context>
+<context>
     <name>VideoInputs</name>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="31"/>
+        <location filename="../qml/VideoInputs.qml" line="48"/>
         <source>Add source</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputs.qml" line="59"/>
+        <source>No webcams found</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>VideoOptions</name>
     <message>
-        <location filename="../qml/VideoOptions.qml" line="30"/>
+        <location filename="../qml/VideoOptions.qml" line="33"/>
         <source>Sources</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOptions.qml" line="33"/>
+        <location filename="../qml/VideoOptions.qml" line="36"/>
         <source>Outputs</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2270,22 +2245,22 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="191"/>
+        <location filename="../qml/main.qml" line="185"/>
+        <source>Use flash</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/main.qml" line="205"/>
         <source>Now</source>
         <translation type="unfinished">Nüüd</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="198"/>
+        <location filename="../qml/main.qml" line="212"/>
         <source>%1 seconds</source>
         <translation type="unfinished">%1 sekundit</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="638"/>
-        <source>Configure sources</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/main.qml" line="298"/>
+        <location filename="../qml/main.qml" line="312"/>
         <source>Take a photo</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2295,12 +2270,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="346"/>
+        <location filename="../qml/main.qml" line="360"/>
         <source>Record video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="656"/>
+        <location filename="../qml/main.qml" line="650"/>
         <source>Preferences</source>
         <translation type="unfinished"></translation>
     </message>

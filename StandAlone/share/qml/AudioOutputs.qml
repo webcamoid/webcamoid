@@ -33,19 +33,19 @@ ScrollView {
         clip: true
 
         function updateDevices() {
-            let devices = AudioLayer.outputs
+            let devices = audioLayer.outputs
             model.clear()
 
             for (let i in devices) {
                 let device = devices[i]
-                let description = AudioLayer.description(device)
+                let description = audioLayer.description(device)
 
                 model.append({
                     device: device,
                     description: description})
             }
 
-            let index = devices.indexOf(AudioLayer.audioOutput)
+            let index = devices.indexOf(audioLayer.audioOutput)
 
             if (index < 0) {
                 if (devices.length == 1)
@@ -95,14 +95,14 @@ ScrollView {
                     if (!device)
                         return
 
-                    AudioLayer.audioOutput = device
+                    audioLayer.audioOutput = device
                     devicesList.currentIndex = index
                 }
             }
         }
 
         Connections {
-            target: AudioLayer
+            target: audioLayer
 
             onOutputsChanged: devicesList.updateDevices()
         }

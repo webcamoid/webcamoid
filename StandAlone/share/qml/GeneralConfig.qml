@@ -56,12 +56,12 @@ Page {
                 text: qsTr("Play sources on start")
             }
             Switch {
-                checked: MediaSource.playOnStart
+                checked: videoLayer.playOnStart
                 Layout.fillWidth: true
                 LayoutMirroring.enabled: true
                 LayoutMirroring.childrenInherit: true
 
-                onCheckedChanged: MediaSource.playOnStart = checked
+                onCheckedChanged: videoLayer.playOnStart = checked
             }
 
             Label {

@@ -37,11 +37,12 @@ Dialog {
 
     function openOptions(device)
     {
-        txtName.text = AudioLayer.description(device)
-        txtDevice.text = device
+        deviceInfo.text =
+                "<b>" + audioLayer.description(device) + "</b>"
+                + "<br/><i>" + device + "</i>"
 
         var audioCaps = AkAudioCaps.create()
-        var supportedFormats = AudioLayer.supportedFormatsVariant(device)
+        var supportedFormats = audioLayer.supportedFormatsVariant(device)
         cbxSampleFormats.model.clear()
 
         for (let i in supportedFormats) {
@@ -52,7 +53,7 @@ Dialog {
         }
 
         var supportedChannelLayouts =
-                AudioLayer.supportedChannelLayoutsVariant(device)
+                audioLayer.supportedChannelLayoutsVariant(device)
         cbxChannelLayouts.model.clear()
 
         for (let i in supportedChannelLayouts) {
@@ -62,7 +63,7 @@ Dialog {
                                             description: description})
         }
 
-        var supportedSampleRates = AudioLayer.supportedSampleRates(device)
+        var supportedSampleRates = audioLayer.supportedSampleRates(device)
         cbxSampleRates.model.clear()
 
         for (let i in supportedSampleRates) {
@@ -71,10 +72,10 @@ Dialog {
                                          description: sampleRate})
         }
 
-        let isInputDevice = AudioLayer.outputs.indexOf(device) < 0
+        let isInputDevice = audioLayer.outputs.indexOf(device) < 0
         let caps = isInputDevice?
-                AkAudioCaps.create(AudioLayer.inputDeviceCaps):
-                AkAudioCaps.create(AudioLayer.outputDeviceCaps)
+                AkAudioCaps.create(audioLayer.inputDeviceCaps):
+                AkAudioCaps.create(audioLayer.outputDeviceCaps)
 
         cbxSampleFormats.currentIndex =
                 bound(0,
@@ -90,8 +91,8 @@ Dialog {
                       cbxSampleRates.model.count - 1)
 
         sldLatency.value = isInputDevice?
-                    AudioLayer.inputLatency:
-                    AudioLayer.outputLatency
+                    audioLayer.inputLatency:
+                    audioLayer.outputLatency
 
         open()
     }
@@ -108,24 +109,12 @@ Dialog {
             width: view.width
 
             Label {
-                text: qsTr("Name")
-            }
-            TextField {
-                id: txtName
-                readOnly: true
-                selectByMouse: true
-                Layout.columnSpan: 2
+                id: deviceInfo
+                elide: Label.ElideRight
+                Layout.columnSpan: 3
                 Layout.fillWidth: true
-            }
-            Label {
-                text: qsTr("Device")
-            }
-            TextField {
-                id: txtDevice
-                readOnly: true
-                selectByMouse: true
-                Layout.columnSpan: 2
-                Layout.fillWidth: true
+                Layout.bottomMargin:
+                    AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
             }
             Label {
                 /*: An sample represents the strength of the wave at a certain
@@ -151,9 +140,9 @@ Dialog {
                 function reset()
                 {
                     var supportedFormats =
-                            AudioLayer.supportedFormatsVariant(txtDevice.text)
+                            audioLayer.supportedFormatsVariant(txtDevice.text)
                     let caps =
-                        AkAudioCaps.create(AudioLayer.preferredFormat(txtDevice.text))
+                        AkAudioCaps.create(audioLayer.preferredFormat(txtDevice.text))
                     currentIndex =
                             bound(0,
                                   supportedFormats.indexOf(caps.format),
@@ -173,9 +162,9 @@ Dialog {
                 function reset()
                 {
                     var supportedChannelLayouts =
-                            AudioLayer.supportedChannelLayoutsVariant(txtDevice.text)
+                            audioLayer.supportedChannelLayoutsVariant(txtDevice.text)
                     let caps =
-                        AkAudioCaps.create(AudioLayer.preferredFormat(txtDevice.text))
+                        AkAudioCaps.create(audioLayer.preferredFormat(txtDevice.text))
                     currentIndex =
                             bound(0,
                                   supportedChannelLayouts.indexOf(caps.layout),
@@ -196,9 +185,9 @@ Dialog {
                 function reset()
                 {
                     var supportedSampleRates =
-                            AudioLayer.supportedSampleRates(txtDevice.text)
+                            audioLayer.supportedSampleRates(txtDevice.text)
                     let caps =
-                        AkAudioCaps.create(AudioLayer.preferredFormat(txtDevice.text))
+                        AkAudioCaps.create(audioLayer.preferredFormat(txtDevice.text))
                     currentIndex =
                             bound(0,
                                   supportedSampleRates.indexOf(caps.rate),
@@ -270,18 +259,18 @@ Dialog {
                                        cbxSampleRates.model.get(sampleRatesCI).sampleRate)
         }
 
-        if (AudioLayer.outputs.indexOf(txtDevice.text) < 0) {
-            let state = AudioLayer.inputState
-            AudioLayer.inputState = AkElement.ElementStateNull
-            AudioLayer.inputDeviceCaps = audioCaps.toVariant()
-            AudioLayer.inputLatency = sldLatency.value
-            AudioLayer.inputState = state
+        if (audioLayer.outputs.indexOf(txtDevice.text) < 0) {
+            let state = audioLayer.inputState
+            audioLayer.inputState = AkElement.ElementStateNull
+            audioLayer.inputDeviceCaps = audioCaps.toVariant()
+            audioLayer.inputLatency = sldLatency.value
+            audioLayer.inputState = state
         } else {
-            let state = AudioLayer.outputState
-            AudioLayer.outputState = AkElement.ElementStateNull
-            AudioLayer.outputDeviceCaps = audioCaps.toVariant()
-            AudioLayer.outputLatency = sldLatency.value
-            AudioLayer.outputState = state
+            let state = audioLayer.outputState
+            audioLayer.outputState = AkElement.ElementStateNull
+            audioLayer.outputDeviceCaps = audioCaps.toVariant()
+            audioLayer.outputLatency = sldLatency.value
+            audioLayer.outputState = state
         }
     }
     onReset: {

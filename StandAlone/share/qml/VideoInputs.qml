@@ -20,36 +20,133 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
+import Ak 1.0
+import Webcamoid 1.0
 
 ScrollView {
     id: view
 
+    signal openVideoInputOptions(string videoInput)
+
+    Component.onCompleted: {
+        lblNoWebcams.updateVisibility()
+        devicesList.updateDevices()
+    }
+
+    Connections {
+        target: videoLayer
+
+        onInputsChanged: devicesList.updateDevices()
+        onVideoInputChanged: lblNoWebcams.updateVisibility()
+    }
+
     ColumnLayout {
         width: view.width
+        clip: true
 
         Button {
             text: qsTr("Add source")
             icon.source: "image://icons/add"
             flat: true
+
+            onClicked: addSource.open()
         }
-        OptionList {
+        Label {
+            id: lblNoWebcams
+            height: visible?
+                        AkUnit.create(32 * AkTheme.controlScale, "dp").pixels:
+                        0
+            text: qsTr("No webcams found")
+            verticalAlignment: Text.AlignVCenter
+            Layout.fillWidth: true
+            enabled: false
+
+            function updateVisibility()
+            {
+                visible = videoLayer.devicesByType(VideoLayer.InputCamera).length < 1
+            }
+        }
+        ListView {
             id: devicesList
-            textRole: "description"
+            model: ListModel {}
             implicitWidth: childrenRect.width
             implicitHeight: childrenRect.height
             Layout.fillWidth: true
             Layout.fillHeight: true
 
             function updateDevices() {
+                let devices = videoLayer.inputs
+                model.clear()
+
+                for (let i in devices) {
+                    let device = devices[i]
+                    let description = videoLayer.description(device)
+
+                    model.append({
+                        device: device,
+                        description: description})
+                }
+
+                let index = devices.indexOf(videoLayer.videoInput)
+
+                if (index < 0) {
+                    if (devices.length == 1)
+                        index = 0
+                    else if (devices.length >= 2)
+                        index = 1
+                }
+
+                currentIndex = index
             }
 
-            Connections {
-                target: MediaSource
+            delegate: ItemDelegate {
+                text: index < 0 && index >= devicesList.count?
+                          "":
+                      devicesList.model.get(index)?
+                          devicesList.model.get(index)["description"]:
+                          ""
+                anchors.right: parent.right
+                anchors.left: parent.left
+                height: implicitHeight
+                highlighted: devicesList.currentItem == this
 
-                onStreamsChanged: devicesList.updateDevices()
+                onClicked: {
+                    if (devicesList.currentIndex == index) {
+                        if (index < 0)
+                            return
+
+                        let deviceElement = devicesList.model.get(index)
+
+                        if (!deviceElement)
+                            return
+
+                        let device = deviceElement["device"]
+
+                        if (!device)
+                            return
+
+                        view.openVideoInputOptions(device)
+                    } else {
+                        let deviceElement = devicesList.model.get(index)
+
+                        if (!deviceElement)
+                            return
+
+                        let device = deviceElement["device"]
+
+                        if (!device)
+                            return
+
+                        videoLayer.videoInput = device
+                        devicesList.currentIndex = index
+                    }
+                }
             }
-
-            Component.onCompleted: devicesList.updateDevices()
         }
+    }
+
+    AddSource {
+        id: addSource
+        anchors.centerIn: Overlay.overlay
     }
 }

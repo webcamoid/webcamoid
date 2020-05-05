@@ -24,8 +24,6 @@ import QtQuick.Layouts 1.3
 ScrollView {
     id: view
 
-    signal openAudioInputOptions(string device)
-
     ListView {
         id: devicesList
         model: ListModel {}
@@ -35,21 +33,21 @@ ScrollView {
         clip: true
 
         function updateDevices() {
-            let devices = AudioLayer.inputs
+            let devices = audioLayer.inputs
             model.clear()
 
             for (let i in devices) {
                 let device = devices[i]
-                let description = AudioLayer.description(device)
+                let description = audioLayer.description(device)
 
                 model.append({
                     device: device,
                     description: description})
             }
 
-            let input = AudioLayer.audioInput.length < 1?
+            let input = audioLayer.audioInput.length < 1?
                             "":
-                            AudioLayer.audioInput[0]
+                            audioLayer.audioInput[0]
             let index = devices.indexOf(input)
 
             if (index < 0) {
@@ -100,14 +98,14 @@ ScrollView {
                     if (!device)
                         return
 
-                    AudioLayer.audioInput = [device]
+                    audioLayer.audioInput = [device]
                     devicesList.currentIndex = index
                 }
             }
         }
 
         Connections {
-            target: AudioLayer
+            target: audioLayer
 
             onInputsChanged: devicesList.updateDevices()
         }

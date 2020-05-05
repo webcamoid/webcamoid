@@ -44,9 +44,9 @@ ScrollView {
             }
 
             Connections {
-                target: MediaSource
+                target: videoLayer
 
-                //onEffectsChanged: devicesList.updateDevices()
+                //onOutputsChanged: devicesList.updateDevices()
             }
 
             Component.onCompleted: devicesList.updateDevices()

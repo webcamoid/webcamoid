@@ -31,7 +31,7 @@ ApplicationWindow {
            + " "
            + Webcamoid.applicationVersion()
            + " - "
-           + MediaSource.description(MediaSource.stream)
+           + videoLayer.description(videoLayer.videoInput)
     visible: true
     x: (Screen.width - Webcamoid.windowWidth) / 2
     y: (Screen.height - Webcamoid.windowHeight) / 2
@@ -40,13 +40,13 @@ ApplicationWindow {
 
     function notifyUpdate(versionType)
     {
-        if (Updates.notifyNewVersion
-            && versionType == UpdatesT.VersionTypeOld) {
+        if (updates.notifyNewVersion
+            && versionType == Updates.VersionTypeOld) {
             trayIcon.show();
             trayIcon.showMessage(qsTr("New version available!"),
                                  qsTr("Download %1 %2 NOW!")
                                     .arg(Webcamoid.applicationName())
-                                    .arg(Updates.latestVersion));
+                                    .arg(updates.latestVersion));
             notifyTimer.start();
         }
     }
@@ -99,10 +99,13 @@ ApplicationWindow {
     onHeightChanged: Webcamoid.windowHeight = height
     onClosing: trayIcon.hide()
 
-    Component.onCompleted: notifyUpdate(Updates.versionType);
+    Component.onCompleted: {
+        notifyUpdate(updates.versionType);
+        chkFlash.updateVisibility()
+    }
 
     Connections {
-        target: Updates
+        target: updates
 
         onVersionTypeChanged: notifyUpdate(versionType);
     }
@@ -111,11 +114,16 @@ ApplicationWindow {
 
         onMessageClicked: Qt.openUrlExternally(Webcamoid.projectDownloadsUrl())
     }
+    Connections {
+        target: videoLayer
+
+        onVideoInputChanged: chkFlash.updateVisibility()
+    }
 
     VideoDisplay {
         id: videoDisplay
         objectName: "videoDisplay"
-        visible: MediaSource.state === AkElement.ElementStatePlaying
+        visible: videoLayer.state === AkElement.ElementStatePlaying
         smooth: true
         anchors.fill: parent
     }
@@ -174,10 +182,16 @@ ApplicationWindow {
         }
         Switch {
             id: chkFlash
-            text: "Use flash"
+            text: qsTr("Use flash")
             checked: true
             Layout.fillWidth: true
-            visible: MediaSource.cameras.includes(MediaSource.stream)
+            visible: false
+
+            function updateVisibility()
+            {
+                visible =
+                        videoLayer.deviceType(videoLayer.videoInput) == VideoLayer.InputCamera
+            }
         }
         ComboBox {
             id: cbxTimeShot
@@ -298,7 +312,7 @@ ApplicationWindow {
                 ToolTip.text: qsTr("Take a photo")
                 focus: true
                 enabled: Recording.state == AkElement.ElementStateNull
-                         && (MediaSource.state === AkElement.ElementStatePlaying
+                         && (videoLayer.state === AkElement.ElementStatePlaying
                              || cameraControls.state == "Video")
 
                 onClicked: {
@@ -344,7 +358,7 @@ ApplicationWindow {
                 y: (parent.height - height) / 2
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Record video")
-                enabled: MediaSource.state === AkElement.ElementStatePlaying
+                enabled: videoLayer.state === AkElement.ElementStatePlaying
                          || cameraControls.state == ""
 
                 onClicked: {
@@ -501,8 +515,7 @@ ApplicationWindow {
             anchors.top: parent.top
             anchors.bottom: parent.bottom
             anchors.left: parent.left
-            visible: optionWebcam.checked
-                     || optionSettings.checked
+            visible: optionSettings.checked
 
             ScrollView {
                 id: scrollViewLeft
@@ -554,8 +567,7 @@ ApplicationWindow {
             anchors.top: parent.top
             anchors.bottom: parent.bottom
             anchors.right: parent.right
-            visible: optionWebcam.checked
-                     || optionSettings.checked
+            visible: optionSettings.checked
 
             ScrollView {
                 id: scrollViewRight
@@ -626,24 +638,6 @@ ApplicationWindow {
             anchors.top: parent.top
             spacing: 0
 
-            ToolButton {
-                id: optionWebcam
-                implicitWidth: toolBar.height
-                implicitHeight: toolBar.height
-                icon.source: "image://icons/webcam"
-                icon.width: 0.75 * implicitWidth
-                icon.height: 0.75 * implicitHeight
-                checkable: true
-                ToolTip.visible: hovered
-                ToolTip.text: qsTr("Configure sources")
-                display: AbstractButton.IconOnly
-                ButtonGroup.group: buttonGroup
-
-                onClicked: {
-                    showPane(paneLeftLayout, "MediaBar")
-                    showPane(paneRightLayout, "MediaConfig")
-                }
-            }
             ToolButton {
                 id: optionSettings
                 implicitWidth: toolBar.height

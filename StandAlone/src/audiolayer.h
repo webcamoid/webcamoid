@@ -150,14 +150,8 @@ class AudioLayer: public QObject
 
     private slots:
         void privInputsChanged(const QStringList &inputs);
-        void updateInputState();
-        void updateOutputState();
-        void loadProperties();
-        void saveAudioInput(const QStringList &audioInput);
-        void saveAudioOutput(const QString &audioOutput);
         void saveAudioDeviceAudioLib(const QString &audioLib);
         void saveAudioConvertConvertLib(const QString &convertLib);
-        void saveProperties();
 };
 
 #endif // AUDIOLAYER_H

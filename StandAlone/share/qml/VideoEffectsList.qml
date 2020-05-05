@@ -25,7 +25,7 @@ ScrollView {
     id: effectsView
 
     signal openVideoEffectsDialog()
-    signal openVideoEffectOptions(string effectIndex)
+    signal openVideoEffectOptions(int effectIndex)
 
     ColumnLayout {
         width: effectsView.width

@@ -238,8 +238,8 @@ void Updates::setQmlEngine(QQmlApplicationEngine *engine)
     this->d->m_engine = engine;
 
     if (engine) {
-        engine->rootContext()->setContextProperty("Updates", this);
-        qmlRegisterType<Updates>("Webcamoid", 1, 0, "UpdatesT");
+        engine->rootContext()->setContextProperty("updates", this);
+        qmlRegisterType<Updates>("Webcamoid", 1, 0, "Updates");
     }
 }
 

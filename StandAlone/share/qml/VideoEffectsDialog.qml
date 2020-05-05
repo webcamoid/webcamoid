@@ -170,7 +170,7 @@ Dialog {
                 VideoDisplay {
                     id: effectPreview
                     objectName: "effectPreview"
-                    visible: MediaSource.state === AkElement.ElementStatePlaying
+                    visible: videoLayer.state === AkElement.ElementStatePlaying
                     smooth: true
                     anchors.fill: parent
                 }

@@ -22,6 +22,9 @@ import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
 
 ColumnLayout {
+    id: videoOptions
+    signal openVideoInputOptions(string videoInput)
+
     TabBar {
         id: tabBar
         Layout.fillWidth: true
@@ -38,8 +41,11 @@ ColumnLayout {
         Layout.fillWidth: true
         Layout.fillHeight: true
         currentIndex: tabBar.currentIndex
+        clip: true
 
         VideoInputs {
+            onOpenVideoInputOptions:
+                videoOptions.openVideoInputOptions(videoInput)
         }
         VideoOutputs {
         }

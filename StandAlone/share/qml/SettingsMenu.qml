@@ -29,8 +29,8 @@ Menu {
     signal openSettings()
 
     Component.onCompleted: {
-        if (MediaSource.playOnStart)
-            MediaSource.state = AkElement.ElementStatePlaying;
+        if (videoLayer.playOnStart)
+            videoLayer.state = AkElement.ElementStatePlaying;
     }
 
     MenuItem {
@@ -54,18 +54,18 @@ Menu {
     MenuSeparator {}
     SwitchDelegate {
         text: qsTr("Play sources")
-        checked: MediaSource.state === AkElement.ElementStatePlaying
+        checked: videoLayer.state === AkElement.ElementStatePlaying
 
         onToggled: {
             if (checked) {
-                MediaSource.state = AkElement.ElementStatePlaying;
+                videoLayer.state = AkElement.ElementStatePlaying;
 
                 if (Webcamoid.enableVirtualCamera)
                     Webcamoid.virtualCameraState = AkElement.ElementStatePlaying;
             } else {
                 Webcamoid.virtualCameraState = AkElement.ElementStateNull;
                 Recording.state = AkElement.ElementStateNull;
-                MediaSource.state = AkElement.ElementStateNull;
+                videoLayer.state = AkElement.ElementStateNull;
             }
         }
     }

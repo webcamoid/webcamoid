@@ -23,6 +23,13 @@ import QtQuick.Layouts 1.3
 
 OptionsPanel {
     id: panel
+    title: layout.currentIndex < 1?
+               qsTr("Audio"):
+           layout.currentIndex < 2?
+               qsTr("Video"):
+           layout.currentIndex < 3?
+               "":
+               qsTr("Video Input Options")
     edge: Qt.RightEdge
 
     function previousPage()
@@ -37,14 +44,12 @@ OptionsPanel {
 
     function openAudioSettings()
     {
-        title = qsTr("Audio")
         layout.currentIndex = 0
         open()
     }
 
     function openVideoSettings()
     {
-        title = qsTr("Video")
         layout.currentIndex = 1
         open()
     }
@@ -58,6 +63,21 @@ OptionsPanel {
         AudioOptions {
         }
         VideoOptions {
+            onOpenVideoInputOptions: {
+                closeAndOpen()
+                layout.currentIndex = 3
+                videoInputOptions.videoInput = videoInput
+            }
+        }
+        Item {
+        }
+        VideoInputOptions {
+            id: videoInputOptions
+
+            onVideoInputRemoved: {
+                closeAndOpen()
+                layout.currentIndex -= 2
+            }
         }
 
         onCurrentIndexChanged: {

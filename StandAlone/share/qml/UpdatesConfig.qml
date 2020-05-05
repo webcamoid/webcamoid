@@ -20,8 +20,8 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
-import Webcamoid 1.0
 import Ak 1.0
+import Webcamoid 1.0
 
 Page {
     ScrollView {
@@ -40,12 +40,14 @@ Page {
                 var ciDiff = Number.POSITIVE_INFINITY
 
                 for (var i = 0; i < cbxCheckInterval.model.count; i++) {
-                    if (cbxCheckInterval.model.get(i).interval == Updates.checkInterval) {
+                    if (cbxCheckInterval.model.get(i).interval == updates.checkInterval) {
                         ciIndex = i
 
                         break
                     } else {
-                        var diff = Math.abs(cbxCheckInterval.model.get(i).interval - Updates.checkInterval)
+                        var diff =
+                                Math.abs(cbxCheckInterval.model.get(i).interval
+                                         - updates.checkInterval)
 
                         if (diff < ciDiff) {
                             ciIndex = i
@@ -58,11 +60,11 @@ Page {
             }
 
             Connections {
-                target: Updates
+                target: updates
 
-                onVersionTypeChanged: state = versionType == UpdatesT.VersionTypeOld?
+                onVersionTypeChanged: state = versionType == Updates.VersionTypeOld?
                                                   "isOutdated":
-                                              versionType == UpdatesT.VersionTypeDevelopment?
+                                              versionType == Updates.VersionTypeDevelopment?
                                                   "isDevelopment": ""
             }
 
@@ -75,7 +77,7 @@ Page {
                 LayoutMirroring.enabled: true
                 LayoutMirroring.childrenInherit: true
 
-                onCheckedChanged: Updates.notifyNewVersion = checked
+                onCheckedChanged: updates.notifyNewVersion = checked
             }
 
             Label {
@@ -115,14 +117,14 @@ Page {
 
                 onCurrentIndexChanged:
                     if (currentIndex >= 0)
-                        Updates.checkInterval = model.get(currentIndex).interval
+                        updates.checkInterval = model.get(currentIndex).interval
             }
 
             Label {
                 text: qsTr("Last updated")
             }
             Label {
-                text: Updates.lastUpdate.toLocaleString()
+                text: updates.lastUpdate.toLocaleString()
                 font.bold: true
                 Layout.alignment: Qt.AlignRight
             }
@@ -137,11 +139,11 @@ Page {
                 spacing: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
                 Layout.fillWidth: true
                 Layout.columnSpan: 2
-                visible: Updates.versionType == UpdatesT.VersionTypeOld
+                visible: updates.versionType == Updates.VersionTypeOld
 
                 Label {
                     text: qsTr("Your version of %1 is outdated. Latest version is <b>%2</b>.")
-                            .arg(Webcamoid.applicationName()).arg(Updates.latestVersion)
+                            .arg(Webcamoid.applicationName()).arg(updates.latestVersion)
                     wrapMode: Text.WordWrap
                     Layout.fillWidth: true
                 }
@@ -158,7 +160,7 @@ Page {
                 spacing: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
                 Layout.fillWidth: true
                 Layout.columnSpan: 2
-                visible: Updates.versionType == UpdatesT.VersionTypeDevelopment
+                visible: updates.versionType == Updates.VersionTypeDevelopment
 
                 Label {
                     text: qsTr("Thanks for using a <b>development version</b>!<br />It will be very helpful if you can report any bug and suggestions you have.")

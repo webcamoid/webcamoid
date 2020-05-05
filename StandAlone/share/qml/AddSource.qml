@@ -43,9 +43,9 @@ Dialog {
 
     function defaultDescription(url)
     {
-        return MediaSource.streams.indexOf(url) < 0?
+        return videoLayer.inputs.indexOf(url) < 0?
                     Webcamoid.fileNameFromUri(url):
-                    MediaSource.description(url)
+                    videoLayer.description(url)
     }
 
     ColumnLayout {
@@ -88,7 +88,7 @@ Dialog {
                         id: fileDescription
                         placeholderText: qsTr("Source title")
                         text: addSource.editMode?
-                                  MediaSource.description(MediaSource.stream):
+                                  videoLayer.description(videoLayer.videoInput):
                                   ""
                         Layout.fillWidth: true
                         selectByMouse: true
@@ -102,7 +102,7 @@ Dialog {
                         TextField {
                             id: filePath
                             placeholderText: qsTr("File path")
-                            text: addSource.editMode? MediaSource.stream: ""
+                            text: addSource.editMode? videoLayer.videoInput: ""
                             Layout.fillWidth: true
                             selectByMouse: true
                         }
@@ -136,7 +136,7 @@ Dialog {
                         id: urlDescription
                         placeholderText: qsTr("Source title")
                         text: addSource.editMode?
-                                  MediaSource.description(MediaSource.stream):
+                                  videoLayer.description(videoLayer.videoInput):
                                   ""
                         Layout.fillWidth: true
                         selectByMouse: true
@@ -149,7 +149,7 @@ Dialog {
                     TextField {
                         id: urlPath
                         placeholderText: "https://example-site.com/video.webm"
-                        text: addSource.editMode? MediaSource.stream: ""
+                        text: addSource.editMode? videoLayer.videoInput: ""
                         Layout.fillWidth: true
                         selectByMouse: true
                     }
@@ -163,17 +163,17 @@ Dialog {
             return
 
         fileDescription.text = addSource.editMode?
-                    MediaSource.description(MediaSource.stream): ""
+                    videoLayer.description(videoLayer.videoInput): ""
         urlDescription.text = fileDescription.text
         filePath.text = ""
         urlPath.text = ""
         tabBar.currentIndex = 0
 
         if (addSource.editMode) {
-            if (addSource.isFile(MediaSource.stream)) {
-                filePath.text = MediaSource.stream
+            if (addSource.isFile(videoLayer.videoInput)) {
+                filePath.text = videoLayer.videoInput
             } else {
-                urlPath.text = MediaSource.stream
+                urlPath.text = videoLayer.videoInput
                 tabBar.currentIndex = 1
             }
         }
@@ -192,17 +192,14 @@ Dialog {
         }
 
         if (uri.length > 0) {
-            let uris = MediaSource.uris
-
-            if (addSource.editMode && MediaSource.stream != uri)
-                delete uris[MediaSource.stream]
-
             if (description.length < 1)
                 description = addSource.defaultDescription(uri)
 
-            uris[uri] = description
-            MediaSource.uris = uris
-            MediaSource.stream = uri
+            if (editMode)
+                videoLayer.removeInputStream(videoLayer.videoInput)
+
+            videoLayer.setInputStream(uri, description)
+            videoLayer.videoInput = uri
         }
     }
 

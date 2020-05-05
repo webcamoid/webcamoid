@@ -38,6 +38,7 @@ ColumnLayout {
         Layout.fillWidth: true
         Layout.fillHeight: true
         currentIndex: tabBar.currentIndex
+        clip: true
 
         AudioOutputs {
         }

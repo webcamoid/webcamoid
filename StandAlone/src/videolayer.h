@@ -17,41 +17,31 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef MEDIASOURCE_H
-#define MEDIASOURCE_H
+#ifndef VIDEOLAYER_H
+#define VIDEOLAYER_H
 
 #include <akelement.h>
 
-class MediaSourcePrivate;
-class MediaSource;
+class VideoLayerPrivate;
+class VideoLayer;
 class AkAudioCaps;
 class AkVideoCaps;
 class QQmlApplicationEngine;
 
-using MediaSourcePtr = QSharedPointer<MediaSource>;
+using VideoLayerPtr = QSharedPointer<VideoLayer>;
 
-class MediaSource: public QObject
+class VideoLayer: public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QString stream
-               READ stream
-               WRITE setStream
-               RESET resetStream
-               NOTIFY streamChanged)
-    Q_PROPERTY(QStringList streams
-               READ streams
-               NOTIFY streamsChanged)
-    Q_PROPERTY(QStringList cameras
-               READ cameras
-               NOTIFY camerasChanged)
-    Q_PROPERTY(QStringList desktops
-               READ desktops
-               NOTIFY desktopsChanged)
-    Q_PROPERTY(QVariantMap uris
-               READ uris
-               WRITE setUris
-               RESET resetUris
-               NOTIFY urisChanged)
+    Q_ENUMS(InputType)
+    Q_PROPERTY(QString videoInput
+               READ videoInput
+               WRITE setVideoInput
+               RESET resetVideoInput
+               NOTIFY videoInputChanged)
+    Q_PROPERTY(QStringList inputs
+               READ inputs
+               NOTIFY inputsChanged)
     Q_PROPERTY(AkAudioCaps audioCaps
                READ audioCaps
                NOTIFY audioCapsChanged)
@@ -70,34 +60,37 @@ class MediaSource: public QObject
                NOTIFY playOnStartChanged)
 
     public:
-        MediaSource(QQmlApplicationEngine *engine=nullptr,
-                    QObject *parent=nullptr);
-        ~MediaSource();
+        enum InputType {
+            InputUnknown,
+            InputCamera,
+            InputDesktop,
+            InputStream
+        };
 
-        Q_INVOKABLE QString stream() const;
-        Q_INVOKABLE QStringList streams() const;
-        Q_INVOKABLE QStringList cameras() const;
-        Q_INVOKABLE QStringList desktops() const;
-        Q_INVOKABLE QVariantMap uris() const;
+        VideoLayer(QQmlApplicationEngine *engine=nullptr,
+                    QObject *parent=nullptr);
+        ~VideoLayer();
+
+        Q_INVOKABLE QString videoInput() const;
+        Q_INVOKABLE QStringList inputs() const;
         Q_INVOKABLE AkAudioCaps audioCaps() const;
         Q_INVOKABLE AkVideoCaps videoCaps() const;
         Q_INVOKABLE AkElement::ElementState state() const;
         Q_INVOKABLE bool playOnStart() const;
-        Q_INVOKABLE QString description(const QString &stream) const;
+        Q_INVOKABLE InputType deviceType(const QString &videoInput) const;
+        Q_INVOKABLE QStringList devicesByType(InputType type) const;
+        Q_INVOKABLE QString description(const QString &videoInput) const;
         Q_INVOKABLE bool embedControls(const QString &where,
-                                       const QString &stream,
-                                       const QString &name="") const;
+                                       const QString &videoInput,
+                                       const QString &name={}) const;
         Q_INVOKABLE void removeInterface(const QString &where) const;
 
     private:
-        MediaSourcePrivate *d;
+        VideoLayerPrivate *d;
 
     signals:
-        void streamChanged(const QString &stream);
-        void streamsChanged(const QStringList &streams);
-        void camerasChanged(const QStringList &cameras);
-        void desktopsChanged(const QStringList &desktops);
-        void urisChanged(const QVariantMap &uris);
+        void videoInputChanged(const QString &videoInput);
+        void inputsChanged(const QStringList &inputs);
         void audioCapsChanged(const AkAudioCaps &audioCaps);
         void videoCapsChanged(const AkVideoCaps &videoCaps);
         void stateChanged(AkElement::ElementState state);
@@ -106,34 +99,27 @@ class MediaSource: public QObject
         void error(const QString &message);
 
     public slots:
-        void setStream(const QString &stream);
-        void setUris(const QVariantMap &uris);
+        void setInputStream(const QString &stream, const QString &description);
+        void removeInputStream(const QString &stream);
+        void setVideoInput(const QString &videoInput);
         void setState(AkElement::ElementState state);
         void setPlayOnStart(bool playOnStart);
-        void resetStream();
-        void resetUris();
+        void resetVideoInput();
         void resetState();
         void resetPlayOnStart();
         void setQmlEngine(QQmlApplicationEngine *engine=nullptr);
 
     private slots:
-        void streamUpdated(const QString &stream);
-        void updateStreams();
-        bool setStreams(const QStringList &streams);
-        bool setCameras(const QStringList &cameras);
-        bool setDesktops(const QStringList &desktops);
-        void setAudioCaps(const AkAudioCaps &audioCaps);
-        void setVideoCaps(const AkVideoCaps &videoCaps);
-        void loadProperties();
-        void saveStream(const QString &stream);
-        void saveUris(const QVariantMap &uris);
-        void savePlayOnStart(bool playOnStart);
+        void updateCaps();
+        void updateInputs();
         void saveVideoCaptureCodecLib(const QString &codecLib);
         void saveVideoCaptureCaptureLib(const QString &captureLib);
         void saveDesktopCaptureCaptureLib(const QString &captureLib);
         void saveMultiSrcCodecLib(const QString &codecLib);
-        void saveProperties();
-        void webcamStreamsChanged(const QList<int> &streams);
+
+    friend VideoLayerPrivate;
 };
 
-#endif // MEDIASOURCE_H
+Q_DECLARE_METATYPE(VideoLayer::InputType)
+
+#endif // VIDEOLAYER_H
