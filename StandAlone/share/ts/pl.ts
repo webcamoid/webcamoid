@@ -662,42 +662,42 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoDeviceOptions.qml" line="61"/>
+        <location filename="../qml/VideoDeviceOptions.qml" line="60"/>
         <source>Formats</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoDeviceOptions.qml" line="64"/>
+        <location filename="../qml/VideoDeviceOptions.qml" line="63"/>
         <source>Advanced</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoDeviceOptions.qml" line="77"/>
+        <location filename="../qml/VideoDeviceOptions.qml" line="76"/>
         <source>Add format</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoDeviceOptions.qml" line="90"/>
+        <location filename="../qml/VideoDeviceOptions.qml" line="89"/>
         <source>Horizontal mirror</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoDeviceOptions.qml" line="98"/>
+        <location filename="../qml/VideoDeviceOptions.qml" line="97"/>
         <source>Vertical mirror</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoDeviceOptions.qml" line="106"/>
+        <location filename="../qml/VideoDeviceOptions.qml" line="105"/>
         <source>Scaling</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoDeviceOptions.qml" line="112"/>
+        <location filename="../qml/VideoDeviceOptions.qml" line="111"/>
         <source>Aspect ratio</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoDeviceOptions.qml" line="118"/>
+        <location filename="../qml/VideoDeviceOptions.qml" line="117"/>
         <source>Swap red and blue</source>
         <translation type="unfinished"></translation>
     </message>

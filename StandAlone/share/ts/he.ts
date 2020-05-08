@@ -662,42 +662,42 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoDeviceOptions.qml" line="61"/>
+        <location filename="../qml/VideoDeviceOptions.qml" line="60"/>
         <source>Formats</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoDeviceOptions.qml" line="64"/>
+        <location filename="../qml/VideoDeviceOptions.qml" line="63"/>
         <source>Advanced</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoDeviceOptions.qml" line="77"/>
+        <location filename="../qml/VideoDeviceOptions.qml" line="76"/>
         <source>Add format</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoDeviceOptions.qml" line="90"/>
+        <location filename="../qml/VideoDeviceOptions.qml" line="89"/>
         <source>Horizontal mirror</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoDeviceOptions.qml" line="98"/>
+        <location filename="../qml/VideoDeviceOptions.qml" line="97"/>
         <source>Vertical mirror</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoDeviceOptions.qml" line="106"/>
+        <location filename="../qml/VideoDeviceOptions.qml" line="105"/>
         <source>Scaling</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoDeviceOptions.qml" line="112"/>
+        <location filename="../qml/VideoDeviceOptions.qml" line="111"/>
         <source>Aspect ratio</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoDeviceOptions.qml" line="118"/>
+        <location filename="../qml/VideoDeviceOptions.qml" line="117"/>
         <source>Swap red and blue</source>
         <translation type="unfinished"></translation>
     </message>
@@ -773,12 +773,12 @@
     <message>
         <location filename="../qml/VideoInputOptions.qml" line="59"/>
         <source>Edit</source>
-        <translation type="unfinished">עריכה</translation>
+        <translation>עריכה</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputOptions.qml" line="71"/>
         <source>Remove</source>
-        <translation type="unfinished">הסרה</translation>
+        <translation>הסרה</translation>
     </message>
 </context>
 <context>
@@ -791,7 +791,7 @@
     <message>
         <location filename="../qml/VideoInputs.qml" line="59"/>
         <source>No webcams found</source>
-        <translation type="unfinished">לא נמצאו מצלמות</translation>
+        <translation>לא נמצאו מצלמות רשת</translation>
     </message>
 </context>
 <context>
@@ -2297,7 +2297,7 @@
     <message>
         <location filename="../qml/main.qml" line="168"/>
         <source>Use flash</source>
-        <translation type="unfinished"></translation>
+        <translation>להשתמש במבזק</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="188"/>
