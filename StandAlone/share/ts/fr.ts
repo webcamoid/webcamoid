@@ -247,17 +247,8 @@
     </message>
     <message>
         <location filename="../qml/AudioVideoPanel.qml" line="32"/>
-        <source>Video Input Options</source>
+        <source>Video Source Options</source>
         <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ConfigBar</name>
-    <message>
-        <location filename="../qml/ConfigBar.qml" line="44"/>
-        <source>Output</source>
-        <extracomment>Configuration for video output, like virtual camera or streaming.</extracomment>
-        <translation>Sortie</translation>
     </message>
 </context>
 <context>
@@ -358,17 +349,9 @@
 <context>
     <name>MediaTools</name>
     <message>
-        <location filename="../../src/mediatools.cpp" line="245"/>
+        <location filename="../../src/mediatools.cpp" line="200"/>
         <source>Daily Build</source>
         <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>OutputConfig</name>
-    <message>
-        <location filename="../qml/OutputConfig.qml" line="44"/>
-        <source>Enable virtual camera</source>
-        <translation>Activer la caméra virtuelle</translation>
     </message>
 </context>
 <context>
@@ -667,6 +650,59 @@
     </message>
 </context>
 <context>
+    <name>VideoDeviceOptions</name>
+    <message>
+        <location filename="../qml/VideoDeviceOptions.qml" line="27"/>
+        <source>Video Device Options</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoDeviceOptions.qml" line="49"/>
+        <source>Virtual camera name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoDeviceOptions.qml" line="61"/>
+        <source>Formats</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoDeviceOptions.qml" line="64"/>
+        <source>Advanced</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoDeviceOptions.qml" line="77"/>
+        <source>Add format</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoDeviceOptions.qml" line="90"/>
+        <source>Horizontal mirror</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoDeviceOptions.qml" line="98"/>
+        <source>Vertical mirror</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoDeviceOptions.qml" line="106"/>
+        <source>Scaling</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoDeviceOptions.qml" line="112"/>
+        <source>Aspect ratio</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoDeviceOptions.qml" line="118"/>
+        <source>Swap red and blue</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>VideoEffectOptions</name>
     <message>
         <location filename="../qml/VideoEffectOptions.qml" line="61"/>
@@ -759,6 +795,15 @@
     </message>
 </context>
 <context>
+    <name>VideoLayer</name>
+    <message>
+        <location filename="../../src/videolayer.cpp" line="199"/>
+        <source>No Output</source>
+        <extracomment>Disable video output, don&apos;t send the video to the output device.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>VideoOptions</name>
     <message>
         <location filename="../qml/VideoOptions.qml" line="33"/>
@@ -776,6 +821,11 @@
     <message>
         <location filename="../qml/VideoOutputs.qml" line="31"/>
         <source>Add output</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoOutputs.qml" line="38"/>
+        <source>Remove all outputs</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2245,39 +2295,34 @@
         <translation>Télécharger %1 %2 MAINTENANT !</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="185"/>
+        <location filename="../qml/main.qml" line="168"/>
         <source>Use flash</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="205"/>
+        <location filename="../qml/main.qml" line="188"/>
         <source>Now</source>
         <translation type="unfinished">Maintenant</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="212"/>
+        <location filename="../qml/main.qml" line="195"/>
         <source>%1 seconds</source>
         <translation type="unfinished">%1 secondes</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="312"/>
+        <location filename="../qml/main.qml" line="295"/>
         <source>Take a photo</source>
         <translation>Prendre une photo</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="74"/>
+        <location filename="../qml/main.qml" line="57"/>
         <source>%1/Picture %2.%3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="360"/>
+        <location filename="../qml/main.qml" line="343"/>
         <source>Record video</source>
         <translation>Enregistrer une vidéo</translation>
-    </message>
-    <message>
-        <location filename="../qml/main.qml" line="650"/>
-        <source>Preferences</source>
-        <translation>Préférences</translation>
     </message>
 </context>
 </TS>

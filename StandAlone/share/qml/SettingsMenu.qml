@@ -59,11 +59,7 @@ Menu {
         onToggled: {
             if (checked) {
                 videoLayer.state = AkElement.ElementStatePlaying;
-
-                if (Webcamoid.enableVirtualCamera)
-                    Webcamoid.virtualCameraState = AkElement.ElementStatePlaying;
             } else {
-                Webcamoid.virtualCameraState = AkElement.ElementStateNull;
                 Recording.state = AkElement.ElementStateNull;
                 videoLayer.state = AkElement.ElementStateNull;
             }

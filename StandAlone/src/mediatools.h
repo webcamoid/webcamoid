@@ -39,16 +39,6 @@ class MediaTools: public QObject
                WRITE setWindowHeight
                RESET resetWindowHeight
                NOTIFY windowHeightChanged)
-    Q_PROPERTY(bool enableVirtualCamera
-               READ enableVirtualCamera
-               WRITE setEnableVirtualCamera
-               RESET resetEnableVirtualCamera
-               NOTIFY enableVirtualCameraChanged)
-    Q_PROPERTY(AkElement::ElementState virtualCameraState
-               READ virtualCameraState
-               WRITE setVirtualCameraState
-               RESET resetVirtualCameraState
-               NOTIFY virtualCameraStateChanged)
 
     public:
         MediaTools(QObject *parent=nullptr);
@@ -56,8 +46,6 @@ class MediaTools: public QObject
 
         Q_INVOKABLE int windowWidth() const;
         Q_INVOKABLE int windowHeight() const;
-        Q_INVOKABLE bool enableVirtualCamera() const;
-        Q_INVOKABLE AkElement::ElementState virtualCameraState() const;
         Q_INVOKABLE QString applicationName() const;
         Q_INVOKABLE QString applicationVersion() const;
         Q_INVOKABLE QString qtVersion() const;
@@ -67,16 +55,13 @@ class MediaTools: public QObject
         Q_INVOKABLE QString projectDownloadsUrl() const;
         Q_INVOKABLE QString projectIssuesUrl() const;
         Q_INVOKABLE QString fileNameFromUri(const QString &uri) const;
-        Q_INVOKABLE bool matches(const QString &pattern, const QStringList &strings) const;
+        Q_INVOKABLE bool matches(const QString &pattern,
+                                 const QStringList &strings) const;
         Q_INVOKABLE QString currentTime() const;
         Q_INVOKABLE QStringList standardLocations(const QString &type) const;
         Q_INVOKABLE static QString readFile(const QString &fileName);
         Q_INVOKABLE QString urlToLocalFile(const QUrl &url) const;
-        Q_INVOKABLE bool embedVirtualCameraControls(const QString &where,
-                                                    const QString &name="");
-        Q_INVOKABLE void removeInterface(const QString &where,
-                                         QQmlApplicationEngine *engine=nullptr);
-        static QString convertToAbsolute(const QString &path);
+        Q_INVOKABLE static QString convertToAbsolute(const QString &path);
 
     private:
         MediaToolsPrivate *d;
@@ -84,28 +69,17 @@ class MediaTools: public QObject
     signals:
         void windowWidthChanged(int windowWidth);
         void windowHeightChanged(int windowHeight);
-        void enableVirtualCameraChanged(bool enableVirtualCamera);
-        void virtualCameraStateChanged(AkElement::ElementState virtualCameraState);
-        void error(const QString &message);
         void interfaceLoaded();
 
     public slots:
         void setWindowWidth(int windowWidth);
         void setWindowHeight(int windowHeight);
-        void setEnableVirtualCamera(bool enableVirtualCamera);
-        void setVirtualCameraState(AkElement::ElementState virtualCameraState);
         void resetWindowWidth();
         void resetWindowHeight();
-        void resetEnableVirtualCamera();
-        void resetVirtualCameraState();
         void loadConfigs();
         void saveConfigs();
         void show();
         void makedirs(const QString &path);
-
-    private slots:
-        void updateVCamCaps(const AkCaps &videoCaps);
-        void updateVCamState();
 };
 
 #endif // MEDIATOOLS_H

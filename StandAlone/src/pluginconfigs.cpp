@@ -36,13 +36,6 @@ class PluginConfigsPrivate
         QString convertToAbsolute(const QString &path) const;
 };
 
-PluginConfigs::PluginConfigs(QQmlApplicationEngine *engine, QObject *parent):
-    QObject(parent)
-{
-    this->d = new PluginConfigsPrivate;
-    this->setQmlEngine(engine);
-}
-
 PluginConfigs::PluginConfigs(const CliOptions &cliOptions,
                              QQmlApplicationEngine *engine,
                              QObject *parent):

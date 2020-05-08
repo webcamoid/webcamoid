@@ -34,8 +34,6 @@ class PluginConfigs: public QObject
     Q_OBJECT
 
     public:
-        PluginConfigs(QQmlApplicationEngine *engine=nullptr,
-                      QObject *parent=nullptr);
         PluginConfigs(const CliOptions &cliOptions,
                       QQmlApplicationEngine *engine=nullptr,
                       QObject *parent=nullptr);
