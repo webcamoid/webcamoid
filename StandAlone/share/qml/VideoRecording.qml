@@ -125,10 +125,8 @@ Page {
                 text: qsTr("Record audio")
             }
             Switch {
-                Layout.fillWidth: true
                 Layout.columnSpan: 2
-                LayoutMirroring.enabled: true
-                LayoutMirroring.childrenInherit: true
+                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                 checked: Recording.recordAudio
 
                 onToggled: Recording.recordAudio = checked

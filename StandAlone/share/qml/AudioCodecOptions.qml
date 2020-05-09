@@ -174,12 +174,6 @@ Dialog {
         }
     }
 
-    background: Rectangle {
-        color: audioCodecOptions.enabled?
-                   AkTheme.palette.active.window:
-                   AkTheme.palette.disabled.window
-    }
-
     onAccepted: {
         let params = Recording.audioCodecParams
         params.bitrate = Number.fromLocaleString(locale, bitrate.text)
@@ -379,9 +373,7 @@ Dialog {
         id: controlBoolean
 
         Switch {
-            LayoutMirroring.enabled: true
-            LayoutMirroring.childrenInherit: true
-            Layout.fillWidth: true
+            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 
             property string key: ""
             property variant defaultValue: null
@@ -505,8 +497,6 @@ Dialog {
                 id: classFlag
 
                 CheckBox {
-                    LayoutMirroring.enabled: true
-                    LayoutMirroring.childrenInherit: true
                     Layout.fillWidth: true
                 }
             }

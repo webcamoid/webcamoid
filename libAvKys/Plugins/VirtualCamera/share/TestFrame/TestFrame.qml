@@ -45,7 +45,7 @@ ApplicationWindow {
                 height: width
                 sourceSize.width: width
                 sourceSize.height: height
-                source: "../../../../../StandAlone/share/themes/Default/icons/hicolor/128x128/webcamoid.png"
+                source: "../../../../../StandAlone/share/themes/WebcamoidTheme/icons/hicolor/128x128/webcamoid.png"
             }
 
             ColumnLayout {

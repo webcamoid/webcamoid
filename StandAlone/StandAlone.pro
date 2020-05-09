@@ -90,8 +90,8 @@ win32: LIBS += -lole32
 
 OTHER_FILES = \
     $$files(share/qml/*.qml) \
-    $$files(share/themes/Default/*.qml) \
-    $$files(share/themes/Default/Private/*.qml)
+    $$files(share/themes/WebcamoidTheme/*.qml) \
+    $$files(share/themes/WebcamoidTheme/Private/*.qml)
 
 unix: OTHER_FILES += $${MANPAGESOURCES}
 macx: OTHER_FILES += Info.plist
@@ -125,8 +125,8 @@ SOURCES = \
 
 lupdate_only {
     SOURCES += $$files(share/qml/*.qml)
-    SOURCES += $$files(share/themes/Default/*.qml)
-    SOURCES += $$files(share/themes/Default/Private/*.qml)
+    SOURCES += $$files(share/themes/WebcamoidTheme/*.qml)
+    SOURCES += $$files(share/themes/WebcamoidTheme/Private/*.qml)
 }
 
 QML_IMPORT_PATH += $$PWD/../libAvKys/Lib/share/qml
@@ -135,8 +135,8 @@ DESTDIR = $${OUT_PWD}/$${BIN_DIR}
 
 TARGET = $${COMMONS_TARGET}
 
-macx: ICON = share/themes/Default/icons/webcamoid.icns
-!unix: RC_ICONS = share/themes/Default/icons/hicolor/256x256/webcamoid.ico
+macx: ICON = share/themes/WebcamoidTheme/icons/webcamoid.icns
+!unix: RC_ICONS = share/themes/WebcamoidTheme/icons/hicolor/256x256/webcamoid.ico
 
 TEMPLATE = app
 
@@ -155,11 +155,11 @@ unix: !android: !macx | !isEmpty(NOAPPBUNDLE) {
 
 win32 {
     INSTALLS += appIcon
-    appIcon.files = share/themes/Default/icons/hicolor/256x256/webcamoid.ico
+    appIcon.files = share/themes/WebcamoidTheme/icons/hicolor/256x256/webcamoid.ico
     appIcon.path = $${PREFIX}
 } else: macx: isEmpty(NOAPPBUNDLE) {
     INSTALLS += appIcon
-    appIcon.files = share/themes/Default/icons/webcamoid.icns
+    appIcon.files = share/themes/WebcamoidTheme/icons/webcamoid.icns
     appIcon.path = $${DATAROOTDIR}
 } else: unix: !android: !macx {
     INSTALLS += \
@@ -173,31 +173,31 @@ win32 {
         appIcon256x256 \
         appIconScalable
 
-    appIcon8x8.files = share/themes/Default/icons/hicolor/8x8/webcamoid.png
+    appIcon8x8.files = share/themes/WebcamoidTheme/icons/hicolor/8x8/webcamoid.png
     appIcon8x8.path = $${DATAROOTDIR}/icons/hicolor/8x8/apps
 
-    appIcon16x16.files = share/themes/Default/icons/hicolor/16x16/webcamoid.png
+    appIcon16x16.files = share/themes/WebcamoidTheme/icons/hicolor/16x16/webcamoid.png
     appIcon16x16.path = $${DATAROOTDIR}/icons/hicolor/16x16/apps
 
-    appIcon22x22.files = share/themes/Default/icons/hicolor/22x22/webcamoid.png
+    appIcon22x22.files = share/themes/WebcamoidTheme/icons/hicolor/22x22/webcamoid.png
     appIcon22x22.path = $${DATAROOTDIR}/icons/hicolor/22x22/apps
 
-    appIcon32x32.files = share/themes/Default/icons/hicolor/32x32/webcamoid.png
+    appIcon32x32.files = share/themes/WebcamoidTheme/icons/hicolor/32x32/webcamoid.png
     appIcon32x32.path = $${DATAROOTDIR}/icons/hicolor/32x32/apps
 
-    appIcon48x48.files = share/themes/Default/icons/hicolor/48x48/webcamoid.png
+    appIcon48x48.files = share/themes/WebcamoidTheme/icons/hicolor/48x48/webcamoid.png
     appIcon48x48.path = $${DATAROOTDIR}/icons/hicolor/48x48/apps
 
-    appIcon64x64.files = share/themes/Default/icons/hicolor/64x64/webcamoid.png
+    appIcon64x64.files = share/themes/WebcamoidTheme/icons/hicolor/64x64/webcamoid.png
     appIcon64x64.path = $${DATAROOTDIR}/icons/hicolor/64x64/apps
 
-    appIcon128x128.files = share/themes/Default/icons/hicolor/128x128/webcamoid.png
+    appIcon128x128.files = share/themes/WebcamoidTheme/icons/hicolor/128x128/webcamoid.png
     appIcon128x128.path = $${DATAROOTDIR}/icons/hicolor/128x128/apps
 
-    appIcon256x256.files = share/themes/Default/icons/hicolor/256x256/webcamoid.png
+    appIcon256x256.files = share/themes/WebcamoidTheme/icons/hicolor/256x256/webcamoid.png
     appIcon256x256.path = $${DATAROOTDIR}/icons/hicolor/256x256/apps
 
-    appIconScalable.files = share/themes/Default/icons/hicolor/scalable/webcamoid.svg
+    appIconScalable.files = share/themes/WebcamoidTheme/icons/hicolor/scalable/webcamoid.svg
     appIconScalable.path = $${DATAROOTDIR}/icons/hicolor/scalable/apps
 }
 

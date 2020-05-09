@@ -262,37 +262,37 @@
 <context>
     <name>GeneralConfig</name>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="77"/>
+        <location filename="../qml/GeneralConfig.qml" line="75"/>
         <source>Video capture</source>
         <translation>Cattura video</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="87"/>
+        <location filename="../qml/GeneralConfig.qml" line="85"/>
         <source>Desktop capture</source>
         <translation>Cattura desktop</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="97"/>
+        <location filename="../qml/GeneralConfig.qml" line="95"/>
         <source>Audio capture/play</source>
         <translation>Audio cattura/riproduci</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="107"/>
+        <location filename="../qml/GeneralConfig.qml" line="105"/>
         <source>Video convert</source>
         <translation>Conversione video</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="117"/>
+        <location filename="../qml/GeneralConfig.qml" line="115"/>
         <source>Audio convert</source>
         <translation>Conversione audio</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="160"/>
+        <location filename="../qml/GeneralConfig.qml" line="158"/>
         <source>Virtual camera driver</source>
         <translation>Driver videocamera virtuale</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="127"/>
+        <location filename="../qml/GeneralConfig.qml" line="125"/>
         <source>Video playback</source>
         <translation>Riproduzione video</translation>
     </message>
@@ -303,17 +303,17 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="68"/>
+        <location filename="../qml/GeneralConfig.qml" line="66"/>
         <source>Frameworks and libraries</source>
         <translation>Framework e librerie</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="137"/>
+        <location filename="../qml/GeneralConfig.qml" line="135"/>
         <source>Video record</source>
         <translation>Registrazione video</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="147"/>
+        <location filename="../qml/GeneralConfig.qml" line="145"/>
         <source>Root method</source>
         <translation type="unfinished"></translation>
     </message>
@@ -372,22 +372,22 @@
         <translation>Cerca i plugin nelle sottocartelle</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="127"/>
+        <location filename="../qml/PluginConfig.qml" line="124"/>
         <source>Add path</source>
         <translation>Aggiungi percorso</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="170"/>
+        <location filename="../qml/PluginConfig.qml" line="167"/>
         <source>Remove</source>
         <translation>Rimuovi</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="204"/>
+        <location filename="../qml/PluginConfig.qml" line="201"/>
         <source>Update</source>
         <translation>Aggiorna</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="251"/>
+        <location filename="../qml/PluginConfig.qml" line="248"/>
         <source>Add plugins search path</source>
         <translation>Aggiugi percorso di ricerca dei plugins</translation>
     </message>
@@ -565,62 +565,62 @@
         <translation>Notifica per nuove versioni</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="84"/>
+        <location filename="../qml/UpdatesConfig.qml" line="82"/>
         <source>Check new versions</source>
         <translation>Ricerca nuove versioni</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="92"/>
+        <location filename="../qml/UpdatesConfig.qml" line="90"/>
         <source>Daily</source>
         <translation>Giornalmente</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="96"/>
+        <location filename="../qml/UpdatesConfig.qml" line="94"/>
         <source>Every two days</source>
         <translation>Ogni due giorni</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="100"/>
+        <location filename="../qml/UpdatesConfig.qml" line="98"/>
         <source>Weekly</source>
         <translation>Settimanalmente</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="104"/>
+        <location filename="../qml/UpdatesConfig.qml" line="102"/>
         <source>Every two weeks</source>
         <translation>Ogni due settimane</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="108"/>
+        <location filename="../qml/UpdatesConfig.qml" line="106"/>
         <source>Monthly</source>
         <translation>Mensilmente</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="112"/>
+        <location filename="../qml/UpdatesConfig.qml" line="110"/>
         <source>Never</source>
         <translation>Mai</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="124"/>
+        <location filename="../qml/UpdatesConfig.qml" line="122"/>
         <source>Last updated</source>
         <translation>Ultimo aggiornamento</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="145"/>
+        <location filename="../qml/UpdatesConfig.qml" line="143"/>
         <source>Your version of %1 is outdated. Latest version is &lt;b&gt;%2&lt;/b&gt;.</source>
         <translation>La tua versione di %1 è obsoleta. Ultima versione &lt;b&gt;%2&lt;/b&gt;.</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="151"/>
+        <location filename="../qml/UpdatesConfig.qml" line="149"/>
         <source>Upgrade Now!</source>
         <translation>Aggiorna ora!</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="166"/>
+        <location filename="../qml/UpdatesConfig.qml" line="164"/>
         <source>Thanks for using a &lt;b&gt;development version&lt;/b&gt;!&lt;br /&gt;It will be very helpful if you can report any bug and suggestions you have.</source>
         <translation>Grazie per l&apos;uso di una &lt;b&gt;versione di sviluppo&lt;/b&gt;&lt;br /&gt;Sarebbe molto utile se riportassi tutti i bug ed i tuoi suggerimenti.</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="171"/>
+        <location filename="../qml/UpdatesConfig.qml" line="169"/>
         <source>Report a Bug</source>
         <translation>Segnala un Bug</translation>
     </message>
@@ -682,22 +682,22 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoDeviceOptions.qml" line="97"/>
+        <location filename="../qml/VideoDeviceOptions.qml" line="95"/>
         <source>Vertical mirror</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoDeviceOptions.qml" line="105"/>
+        <location filename="../qml/VideoDeviceOptions.qml" line="101"/>
         <source>Scaling</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoDeviceOptions.qml" line="111"/>
+        <location filename="../qml/VideoDeviceOptions.qml" line="107"/>
         <source>Aspect ratio</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoDeviceOptions.qml" line="117"/>
+        <location filename="../qml/VideoDeviceOptions.qml" line="113"/>
         <source>Swap red and blue</source>
         <translation type="unfinished"></translation>
     </message>
@@ -847,29 +847,29 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="137"/>
+        <location filename="../qml/VideoRecording.qml" line="135"/>
         <source>File format</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="166"/>
-        <location filename="../qml/VideoRecording.qml" line="201"/>
-        <location filename="../qml/VideoRecording.qml" line="238"/>
+        <location filename="../qml/VideoRecording.qml" line="164"/>
+        <location filename="../qml/VideoRecording.qml" line="199"/>
+        <location filename="../qml/VideoRecording.qml" line="236"/>
         <source>Configure</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="172"/>
+        <location filename="../qml/VideoRecording.qml" line="170"/>
         <source>Video codec</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="207"/>
+        <location filename="../qml/VideoRecording.qml" line="205"/>
         <source>Audio codec</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="248"/>
+        <location filename="../qml/VideoRecording.qml" line="246"/>
         <source>Select the folder to save your videos</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2310,7 +2310,7 @@
         <translation>%1 secondi</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="295"/>
+        <location filename="../qml/main.qml" line="296"/>
         <source>Take a photo</source>
         <translation>Scatta una foto</translation>
     </message>
@@ -2320,7 +2320,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="343"/>
+        <location filename="../qml/main.qml" line="345"/>
         <source>Record video</source>
         <translation>Registra video</translation>
     </message>

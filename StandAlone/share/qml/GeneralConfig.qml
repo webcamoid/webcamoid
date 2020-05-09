@@ -57,9 +57,7 @@ Page {
             }
             Switch {
                 checked: videoLayer.playOnStart
-                Layout.fillWidth: true
-                LayoutMirroring.enabled: true
-                LayoutMirroring.childrenInherit: true
+                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 
                 onCheckedChanged: videoLayer.playOnStart = checked
             }

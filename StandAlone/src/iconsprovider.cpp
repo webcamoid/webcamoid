@@ -26,7 +26,7 @@ class IconsProviderPrivate
 {
     public:
         QList<QSize> m_availableSizes;
-        QString m_iconsPath {":/Webcamoid/share/themes/Default/icons/hicolor"};
+        QString m_iconsPath {":/Webcamoid/share/themes/WebcamoidTheme/icons/hicolor"};
 
         QSize nearestSize(const QSize &requestedSize) const;
         QSize nearestSize(const QList<QSize> &availableSizes,

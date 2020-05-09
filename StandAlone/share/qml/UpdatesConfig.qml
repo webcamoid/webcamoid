@@ -73,9 +73,7 @@ Page {
             }
             Switch {
                 id: newVersion
-                Layout.fillWidth: true
-                LayoutMirroring.enabled: true
-                LayoutMirroring.childrenInherit: true
+                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 
                 onCheckedChanged: updates.notifyNewVersion = checked
             }

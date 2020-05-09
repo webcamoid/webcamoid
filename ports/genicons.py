@@ -70,7 +70,7 @@ def createIcns(outputFile, icons):
 
 iconSize = [8, 16, 22, 32, 48, 64, 128, 256]
 
-for root, dirs, _ in os.walk('../StandAlone/share/themes/Default/icons'):
+for root, dirs, _ in os.walk('../StandAlone/share/themes/WebcamoidTheme/icons'):
     for d in dirs:
         if d == 'scalable':
             for size in iconSize:
@@ -84,7 +84,7 @@ for root, dirs, _ in os.walk('../StandAlone/share/themes/Default/icons'):
 
 # Optimize SVG files.
 
-for root, _, files in os.walk('../StandAlone/share/themes/Default/icons'):
+for root, _, files in os.walk('../StandAlone/share/themes/WebcamoidTheme/icons'):
     for f in files:
         if f.endswith('.svg'):
             filePath = os.path.realpath(os.path.join(root, f))
@@ -119,7 +119,7 @@ for root, _, files in os.walk('../StandAlone/share/themes/Default/icons'):
 
 # Generate default theme icons.
 
-for root, _, files in os.walk('../StandAlone/share/themes/Default/icons'):
+for root, _, files in os.walk('../StandAlone/share/themes/WebcamoidTheme/icons'):
     for f in files:
         if f.endswith('.svg'):
             filePath = os.path.join(root, f)
@@ -149,7 +149,7 @@ for root, _, files in os.walk('../StandAlone/share/themes/Default/icons'):
 macIconSize = [16, 32, 48, 128, 256, 512, 1024]
 icons = []
 
-for root, dirs, _ in os.walk('../StandAlone/share/themes/Default/icons'):
+for root, dirs, _ in os.walk('../StandAlone/share/themes/WebcamoidTheme/icons'):
     for d in dirs:
         if d == 'scalable':
             for size in macIconSize:
@@ -160,7 +160,7 @@ for root, dirs, _ in os.walk('../StandAlone/share/themes/Default/icons'):
                 if os.path.exists(iconPath):
                     icons.append(iconPath)
 
-createIcns('../StandAlone/share/themes/Default/icons/webcamoid.icns', icons)
+createIcns('../StandAlone/share/themes/WebcamoidTheme/icons/webcamoid.icns', icons)
 
 # Update icons resources file.
 
@@ -169,7 +169,7 @@ with open('../StandAlone/icons.qrc', 'w') as resource:
     resource.write('    <qresource prefix="/Webcamoid">\n')
     resourceFiles = []
 
-    for root, _, files in os.walk('../StandAlone/share/themes/Default/icons'):
+    for root, _, files in os.walk('../StandAlone/share/themes/WebcamoidTheme/icons'):
         for f in files:
             resourceFiles.append(os.path.join(root.replace('../StandAlone/', ''), f))
 
@@ -189,6 +189,6 @@ assets = [("ldpi"   , 120,  36),
           ("xxxhdpi", 640, 192)]
 
 for folder, dpi, size in assets:
-    filePath = '../StandAlone/share/themes/Default/icons/hicolor/scalable/webcamoid.svg'
+    filePath = '../StandAlone/share/themes/WebcamoidTheme/icons/hicolor/scalable/webcamoid.svg'
     outfile = '../StandAlone/share/android/res/drawable-{}/icon.png'.format(folder)
     createPng(filePath, outfile, size, dpi)

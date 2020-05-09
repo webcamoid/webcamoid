@@ -38,7 +38,6 @@ T.RoundButton {
         AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
     rightPadding:
         AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
-    radius: AkUnit.create(28 * AkTheme.controlScale, "dp").pixels
 
     readonly property int animationTime: 200
 
@@ -67,17 +66,13 @@ T.RoundButton {
     }
 
     background: Item {
-        implicitWidth: 2 * control.radius
-        implicitHeight: 2 * control.radius
+        implicitWidth: AkUnit.create(48 * AkTheme.controlScale, "dp").pixels
+        implicitHeight: AkUnit.create(48 * AkTheme.controlScale, "dp").pixels
 
         Rectangle {
             id: buttonRectangle
-            x: (control.background.width - width) / 2
-            y: (control.background.height - height) / 2
-            width: Math.min(control.background.width,
-                            control.background.height)
-            height: width
-            radius: width / 2
+            anchors.fill: parent
+            radius: control.radius
             border.width:
                 control.checkable?
                     AkUnit.create(2 * AkTheme.controlScale, "dp").pixels:

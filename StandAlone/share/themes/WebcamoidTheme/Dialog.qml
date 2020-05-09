@@ -93,10 +93,11 @@ T.Dialog {
         color: control.enabled?
                    AkTheme.palette.active.window:
                    AkTheme.palette.disabled.window
-        border.color: control.enabled?
+        border.color: control.modal?
+                          "transparent":
+                      control.enabled?
                           AkTheme.palette.active.dark:
                           AkTheme.palette.disabled.dark
-        radius: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
     }
 
     T.Overlay.modal: Rectangle {

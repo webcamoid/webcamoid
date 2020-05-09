@@ -71,7 +71,7 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
         self.installerPackages = os.path.join(self.installDir, 'installer/packages')
         self.installerIconSize = 256
         self.appIcon = os.path.join(self.rootDir,
-                                    'StandAlone/share/themes/Default/icons/hicolor/{1}x{1}/{0}.ico'.format(self.programName,
+                                    'StandAlone/share/themes/WebcamoidTheme/icons/hicolor/{1}x{1}/{0}.ico'.format(self.programName,
                                                                                                            self.installerIconSize))
         self.licenseFile = os.path.join(self.rootDir, 'COPYING')
         self.installerRunProgram = '@TargetDir@/bin/' + self.programName + '.exe'

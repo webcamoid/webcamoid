@@ -43,9 +43,8 @@ int main(int argc, char *argv[])
 
     // Set theme.
     QQuickStyle::addStylePath(":/Webcamoid/share/themes");
-    QQuickStyle::setFallbackStyle("Default");
-    QQuickStyle::setStyle("Default");
-    QDirIterator fontsDirIterator(":/Webcamoid/share/themes/Default/fonts",
+    QQuickStyle::setStyle("WebcamoidTheme");
+    QDirIterator fontsDirIterator(":/Webcamoid/share/themes/WebcamoidTheme/fonts",
                                   QStringList() << "*.ttf",
                                   QDir::Files
                                   | QDir::Readable
@@ -56,11 +55,11 @@ int main(int argc, char *argv[])
         QFontDatabase::addApplicationFont(fontsDirIterator.next());
 
 #ifdef Q_OS_OSX
-    QIcon fallbackIcon(":/Webcamoid/share/themes/Default/icons/webcamoid.icns");
+    QIcon fallbackIcon(":/Webcamoid/share/themes/WebcamoidTheme/icons/webcamoid.icns");
 #elif defined(Q_OS_WIN32)
-    QIcon fallbackIcon(":/Webcamoid/share/themes/Default/icons/hicolor/256x256/webcamoid.ico");
+    QIcon fallbackIcon(":/Webcamoid/share/themes/WebcamoidTheme/icons/hicolor/256x256/webcamoid.ico");
 #else
-    QIcon fallbackIcon(":/Webcamoid/share/themes/Default/icons/hicolor/scalable/webcamoid.svg");
+    QIcon fallbackIcon(":/Webcamoid/share/themes/WebcamoidTheme/icons/hicolor/scalable/webcamoid.svg");
 #endif
 
     QApplication::setWindowIcon(QIcon::fromTheme("webcamoid", fallbackIcon));

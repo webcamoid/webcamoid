@@ -141,10 +141,4 @@ Dialog {
             ThirdPartyLicenses { }
         }
     }
-
-    background: Rectangle {
-        color: settingsDialog.enabled?
-                   AkTheme.palette.active.window:
-                   AkTheme.palette.disabled.window
-    }
 }

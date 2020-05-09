@@ -89,17 +89,13 @@ Dialog {
                         text: qsTr("Horizontal mirror")
                     }
                     Switch {
-                        LayoutMirroring.enabled: true
-                        LayoutMirroring.childrenInherit: true
-                        Layout.fillWidth: true
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     }
                     Label {
                         text: qsTr("Vertical mirror")
                     }
                     Switch {
-                        LayoutMirroring.enabled: true
-                        LayoutMirroring.childrenInherit: true
-                        Layout.fillWidth: true
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     }
                     Label {
                         text: qsTr("Scaling")
@@ -117,9 +113,7 @@ Dialog {
                         text: qsTr("Swap red and blue")
                     }
                     Switch {
-                        LayoutMirroring.enabled: true
-                        LayoutMirroring.childrenInherit: true
-                        Layout.fillWidth: true
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     }
                 }
             }

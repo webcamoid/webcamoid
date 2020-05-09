@@ -114,9 +114,6 @@ Page {
                     Switch {
                         text: qsTr("Search plugins in subfolders")
                         checked: AkElement.recursiveSearch()
-                        Layout.fillWidth: true
-                        LayoutMirroring.enabled: true
-                        LayoutMirroring.childrenInherit: true
 
                         onCheckedChanged: {
                             AkElement.setRecursiveSearch(checked)

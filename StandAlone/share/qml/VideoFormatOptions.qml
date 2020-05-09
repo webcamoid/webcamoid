@@ -176,12 +176,6 @@ Dialog {
         }
     }
 
-    background: Rectangle {
-        color: videoFormatOptions.enabled?
-                   AkTheme.palette.active.window:
-                   AkTheme.palette.disabled.window
-    }
-
     onAccepted: {
         Recording.videoFormatExtension =
                 Recording.availableVideoFormatExtensions[cbxVideoFormatExtension.currentIndex]
@@ -376,9 +370,7 @@ Dialog {
         id: controlBoolean
 
         Switch {
-            LayoutMirroring.enabled: true
-            LayoutMirroring.childrenInherit: true
-            Layout.fillWidth: true
+            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 
             property string key: ""
             property variant defaultValue: null
@@ -502,8 +494,6 @@ Dialog {
                 id: classFlag
 
                 CheckBox {
-                    LayoutMirroring.enabled: true
-                    LayoutMirroring.childrenInherit: true
                     Layout.fillWidth: true
                 }
             }

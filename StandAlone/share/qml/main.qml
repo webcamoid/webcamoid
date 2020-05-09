@@ -288,7 +288,8 @@ ApplicationWindow {
             RoundButton {
                 id: photoButton
                 icon.source: "image://icons/photo"
-                radius: AkUnit.create(32 * AkTheme.controlScale, "dp").pixels
+                width: AkUnit.create(64 * AkTheme.controlScale, "dp").pixels
+                height: AkUnit.create(64 * AkTheme.controlScale, "dp").pixels
                 x: (parent.width - width) / 2
                 y: (parent.height - height) / 2
                 ToolTip.visible: hovered
@@ -336,7 +337,8 @@ ApplicationWindow {
                 icon.source: Recording.state == AkElement.ElementStateNull?
                                  "image://icons/video":
                                  "image://icons/record-stop"
-                radius: AkUnit.create(24 * AkTheme.controlScale, "dp").pixels
+                width: AkUnit.create(48 * AkTheme.controlScale, "dp").pixels
+                height: AkUnit.create(48 * AkTheme.controlScale, "dp").pixels
                 x: parent.width - width
                 y: (parent.height - height) / 2
                 ToolTip.visible: hovered
@@ -397,12 +399,14 @@ ApplicationWindow {
                     }
                     PropertyChanges {
                         target: photoButton
-                        radius: AkUnit.create(24 * AkTheme.controlScale, "dp").pixels
+                        width: AkUnit.create(48 * AkTheme.controlScale, "dp").pixels
+                        height: AkUnit.create(48 * AkTheme.controlScale, "dp").pixels
                         x: 0
                     }
                     PropertyChanges {
                         target: videoButton
-                        radius: AkUnit.create(32 * AkTheme.controlScale, "dp").pixels
+                        width: AkUnit.create(64 * AkTheme.controlScale, "dp").pixels
+                        height: AkUnit.create(64 * AkTheme.controlScale, "dp").pixels
                         x: (parent.width - width) / 2
                     }
                     PropertyChanges {

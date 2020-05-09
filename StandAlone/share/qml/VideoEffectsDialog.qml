@@ -178,8 +178,6 @@ Dialog {
             Switch {
                 //: Apply the effect over the other effects.
                 text: qsTr("Chain effect")
-                LayoutMirroring.enabled: true
-                LayoutMirroring.childrenInherit: true
                 Layout.fillWidth: true
                 checked: VideoEffects.chainEffects
 
@@ -224,11 +222,5 @@ Dialog {
             anchors.right: rectangle.right
             anchors.bottom: rectangle.bottom
         }
-    }
-
-    background: Rectangle {
-        color: videoEffectsDialog.enabled?
-                   AkTheme.palette.active.window:
-                   AkTheme.palette.disabled.window
     }
 }

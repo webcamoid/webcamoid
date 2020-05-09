@@ -282,6 +282,7 @@ AkPrivate::AkPrivate()
     qRegisterMetaType<AkColorizedImage::HorizontalAlignment>("AkColorizedImage::HorizontalAlignment");
     qRegisterMetaType<AkColorizedImage::VerticalAlignment>("AkColorizedImage::VerticalAlignment");
     qRegisterMetaType<AkColorizedImage::Status>("AkColorizedImage::Status");
+    qRegisterMetaType<AkColorizedImage::Status>("Status");
     qmlRegisterUncreatableType<AkTheme>("Ak", 1, 0, "AkTheme", "AkTheme is an attached property");
     qRegisterMetaType<AkPalette>("AkPalette");
     qmlRegisterType<AkPalette>("Ak", 1, 0, "AkPalette");
