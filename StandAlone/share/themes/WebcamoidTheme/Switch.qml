@@ -27,39 +27,43 @@ T.Switch {
     id: control
     icon.width: AkUnit.create(18 * AkTheme.controlScale, "dp").pixels
     icon.height: AkUnit.create(18 * AkTheme.controlScale, "dp").pixels
+    icon.color: AkTheme.palette.active.windowText
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
-                            implicitContentWidth +
-                            2 * implicitIndicatorWidth + implicitIndicatorHeight
-                            + leftPadding + rightPadding)
-    implicitHeight:
-        Math.max(implicitBackgroundHeight + topInset + bottomInset,
-                 implicitContentHeight + topPadding + bottomPadding,
-                 2 * implicitIndicatorHeight + topPadding + bottomPadding)
+                            implicitContentWidth + leftPadding + rightPadding)
+    implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
+                             implicitContentHeight + topPadding + bottomPadding,
+                             implicitIndicatorHeight + topPadding + bottomPadding)
     padding: AkUnit.create(4 * AkTheme.controlScale, "dp").pixels
     spacing: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
     hoverEnabled: true
-    clip: true
 
     readonly property int animationTime: 100
 
     indicator: Item {
         id: sliderIndicator
-        anchors.left: control.left
-        anchors.leftMargin: switchThumb.width / 2 + control.leftPadding
-        anchors.verticalCenter: control.verticalCenter
+        x: control.text?
+               (control.mirrored ?
+                    control.width - width - control.rightPadding:
+                    control.leftPadding):
+               control.leftPadding + (control.availableWidth - width) / 2
+        y: control.topPadding + (control.availableHeight - height) / 2
         implicitWidth:
-            AkUnit.create(36 * AkTheme.controlScale, "dp").pixels
+            AkUnit.create(56 * AkTheme.controlScale, "dp").pixels
         implicitHeight:
-            AkUnit.create(20 * AkTheme.controlScale, "dp").pixels
+            AkUnit.create(40 * AkTheme.controlScale, "dp").pixels
 
         Rectangle {
             id: switchTrack
-            height: parent.height / 2
+            height: parent.height / 4
             color: AkTheme.shade(AkTheme.palette.active.window, -0.5)
             radius: height / 2
             anchors.verticalCenter: sliderIndicator.verticalCenter
             anchors.right: sliderIndicator.right
+            anchors.rightMargin:
+                AkUnit.create(10 * AkTheme.controlScale, "dp").pixels
             anchors.left: sliderIndicator.left
+            anchors.leftMargin:
+                AkUnit.create(10 * AkTheme.controlScale, "dp").pixels
         }
         Item {
             id: switchThumb
@@ -69,46 +73,48 @@ T.Switch {
 
             Rectangle {
                 id: highlight
-                width: control.visualFocus? 2 * parent.width: 0
+                width: control.visualFocus? parent.width: 0
                 height: width
                 color: switchThumbRect.color
                 radius: width / 2
-                anchors.verticalCenter: switchThumb.verticalCenter
-                anchors.horizontalCenter: switchThumb.horizontalCenter
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.horizontalCenter: parent.horizontalCenter
                 opacity: control.visualFocus? 0.5: 0
             }
             Rectangle {
                 id: switchThumbRect
                 color: AkTheme.shade(AkTheme.palette.active.window, -0.1)
+                width: parent.width / 2
+                height: width
                 radius: height / 2
-                anchors.fill: parent
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.horizontalCenter: parent.horizontalCenter
             }
         }
     }
 
-    contentItem: Item {
-        anchors.leftMargin: switchThumb.width / 2
-        anchors.left: sliderIndicator.right
-        anchors.rightMargin: control.rightPadding
-        anchors.right: control.right
-
-        IconLabel {
-            id: iconLabel
-            spacing: control.spacing
-            mirrored: control.mirrored
-            display: control.display
-            iconName: control.icon.name
-            iconSource: control.icon.source
-            iconWidth: control.icon.width
-            iconHeight: control.icon.height
-            text: control.text
-            font: control.font
-            color: AkTheme.palette.active.windowText
-            alignment: Qt.AlignLeft | Qt.AlignVCenter
-            anchors.verticalCenter: control.contentItem.verticalCenter
-            enabled: control.enabled
-            elide: Text.ElideRight
-        }
+    contentItem: IconLabel {
+        id: iconLabel
+        spacing: control.spacing
+        mirrored: control.mirrored
+        display: control.display
+        iconName: control.icon.name
+        iconSource: control.icon.source
+        iconWidth: control.icon.width
+        iconHeight: control.icon.height
+        iconColor: control.icon.color
+        text: control.text
+        font: control.font
+        color: AkTheme.palette.active.windowText
+        alignment: Qt.AlignLeft | Qt.AlignVCenter
+        enabled: control.enabled
+        elide: Text.ElideRight
+        leftPadding: !control.mirrored?
+                         sliderIndicator.width + control.spacing:
+                         0
+        rightPadding: control.mirrored?
+                          sliderIndicator.width + control.spacing:
+                          0
     }
 
     states: [
@@ -168,7 +174,7 @@ T.Switch {
             }
             PropertyChanges {
                 target: highlight
-                width: 2 * switchThumb.width
+                width: switchThumb.width
                 opacity: 0.5
             }
         },
@@ -194,7 +200,7 @@ T.Switch {
             }
             PropertyChanges {
                 target: highlight
-                width: 2 * switchThumb.width
+                width: switchThumb.width
                 opacity: 0.5
             }
         },
@@ -213,7 +219,7 @@ T.Switch {
             }
             PropertyChanges {
                 target: highlight
-                width: 2 * switchThumb.width
+                width: switchThumb.width
                 opacity: 0.75
             }
         },
@@ -236,7 +242,7 @@ T.Switch {
             }
             PropertyChanges {
                 target: highlight
-                width: 2 * switchThumb.width
+                width: switchThumb.width
                 opacity: 0.75
             }
         }

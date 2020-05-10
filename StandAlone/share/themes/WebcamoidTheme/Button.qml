@@ -28,6 +28,7 @@ T.Button {
     font.bold: true
     icon.width: AkUnit.create(18 * AkTheme.controlScale, "dp").pixels
     icon.height: AkUnit.create(18 * AkTheme.controlScale, "dp").pixels
+    icon.color: AkTheme.palette.active.buttonText
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             implicitContentWidth + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
@@ -56,6 +57,12 @@ T.Button {
             iconSource: control.icon.source
             iconWidth: control.icon.width
             iconHeight: control.icon.height
+            iconColor:
+                control.highlighted?
+                    AkTheme.palette.active.highlightedText:
+                control.flat?
+                    AkTheme.palette.active.highlight:
+                    control.icon.color
             text: control.text
             font: control.font
             color:
@@ -92,6 +99,7 @@ T.Button {
                    control.flat?
                        AkTheme.shade(AkTheme.palette.active.window, 0, 0):
                        AkTheme.palette.active.button
+
             gradient: Gradient {
                 GradientStop {
                     position: 0

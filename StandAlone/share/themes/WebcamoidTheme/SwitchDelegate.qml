@@ -27,6 +27,7 @@ T.SwitchDelegate {
     id: control
     icon.width: AkUnit.create(18 * AkTheme.controlScale, "dp").pixels
     icon.height: AkUnit.create(18 * AkTheme.controlScale, "dp").pixels
+    icon.color: AkTheme.palette.active.windowText
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             implicitContentWidth + implicitIndicatorWidth
                             + leftPadding + rightPadding)
@@ -89,6 +90,9 @@ T.SwitchDelegate {
         iconSource: control.icon.source
         iconWidth: control.icon.width
         iconHeight: control.icon.height
+        iconColor: control.highlighted?
+                       AkTheme.palette.active.highlightedText:
+                       control.icon.color
         text: control.text
         font: control.font
         color: control.highlighted?

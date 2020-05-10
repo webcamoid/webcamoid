@@ -34,6 +34,7 @@ T.MenuBarItem {
     spacing: AkUnit.create(20 * AkTheme.controlScale, "dp").pixels
     icon.width: AkUnit.create(24 * AkTheme.controlScale, "dp").pixels
     icon.height: AkUnit.create(24 * AkTheme.controlScale, "dp").pixels
+    icon.color: AkTheme.palette.active.highlightedText
     clip: true
     hoverEnabled: true
 
@@ -48,6 +49,7 @@ T.MenuBarItem {
         iconSource: control.icon.source
         iconWidth: control.icon.width
         iconHeight: control.icon.height
+        iconColor: control.icon.color
         text: control.text
         font: control.font
         color: AkTheme.palette.active.highlightedText

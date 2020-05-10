@@ -59,6 +59,7 @@ OptionsPanel {
 
     contents: StackLayout {
         id: layout
+        clip: true
 
         AudioOptions {
         }

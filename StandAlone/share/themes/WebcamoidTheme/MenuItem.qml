@@ -41,6 +41,7 @@ T.MenuItem {
     spacing: AkUnit.create(20 * AkTheme.controlScale, "dp").pixels
     icon.width: AkUnit.create(24 * AkTheme.controlScale, "dp").pixels
     icon.height: AkUnit.create(24 * AkTheme.controlScale, "dp").pixels
+    icon.color: AkTheme.palette.active.windowText
     clip: true
     hoverEnabled: true
 
@@ -109,6 +110,9 @@ T.MenuItem {
         iconSource: control.icon.source
         iconWidth: control.icon.width
         iconHeight: control.icon.height
+        iconColor: control.highlighted?
+                       AkTheme.palette.active.highlightedText:
+                       control.icon.color
         text: control.text
         anchors.left: menuItemCheck.right
         anchors.leftMargin: 0
@@ -138,6 +142,9 @@ T.MenuItem {
 
             PropertyChanges {
                 target: iconLabel
+                iconColor: control.highlighted?
+                               AkTheme.palette.disabled.highlightedText:
+                               AkTheme.palette.disabled.windowText
                 color: control.highlighted?
                            AkTheme.palette.disabled.highlightedText:
                            AkTheme.palette.disabled.windowText

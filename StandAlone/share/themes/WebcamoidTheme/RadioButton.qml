@@ -27,6 +27,7 @@ T.RadioButton {
     id: control
     icon.width: AkUnit.create(18 * AkTheme.controlScale, "dp").pixels
     icon.height: AkUnit.create(18 * AkTheme.controlScale, "dp").pixels
+    icon.color: AkTheme.palette.active.windowText
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             implicitContentWidth + 2 * implicitIndicatorWidth
                             + leftPadding + rightPadding)
@@ -99,6 +100,7 @@ T.RadioButton {
         iconSource: control.icon.source
         iconWidth: control.icon.width
         iconHeight: control.icon.height
+        iconColor: control.icon.color
         text: control.text
         font: control.font
         color: AkTheme.palette.active.windowText

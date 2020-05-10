@@ -22,22 +22,18 @@ import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
 import Ak 1.0
 
-GridLayout {
+RowLayout {
     id: iconLabel
-    rowSpacing: columnSpacing
-    layoutDirection: mirrored?
-                            Qt.RightToLeft:
-                            Qt.LeftToRight
-    columns: display == AbstractButton.TextUnderIcon? 1: 2
 
-    property int leftPadding: iconLabel.leftPadding
-    property int rightPadding: iconLabel.rightPadding
+    property int leftPadding: 0
+    property int rightPadding: 0
     property string iconName: ""
     property alias iconSource: icon.source
     property alias iconWidth: icon.width
     property alias iconHeight: icon.height
+    property alias iconColor: icon.color
     property int display: AbstractButton.TextBesideIcon
-    property alias spacing: iconLabel.columnSpacing
+    property alias spacing: mainLayout.columnSpacing
     property bool mirrored: false
     property alias text: label.text
     property alias font: label.font
@@ -45,23 +41,39 @@ GridLayout {
     property int alignment: Qt.AlignHCenter | Qt.AlignVCenter
     property int elide: Text.ElideNone
 
-    AkColorizedImage {
-        id: icon
-        color: label.color
-        visible: status == Image.Ready
-                    && iconLabel.display != AbstractButton.TextOnly
-        Layout.alignment: iconLabel.alignment
-        asynchronous: true
-        mipmap: true
+    Item {
+        width: iconLabel.leftPadding
     }
-    Text {
-        id: label
-        visible: text && iconLabel.display != AbstractButton.IconOnly
-        Layout.alignment: iconLabel.alignment
-        Layout.fillWidth: true
-        elide: iconLabel.elide
-        linkColor: iconLabel.enabled?
-                       AkTheme.palette.active.link:
-                       AkTheme.palette.disabled.link
+    GridLayout {
+        id: mainLayout
+        rowSpacing: columnSpacing
+        layoutDirection: iconLabel.mirrored?
+                                Qt.RightToLeft:
+                                Qt.LeftToRight
+        columns: iconLabel.display == AbstractButton.TextUnderIcon? 1: 2
+        Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
+
+        AkColorizedImage {
+            id: icon
+            color: label.color
+            visible: status == Image.Ready
+                        && iconLabel.display != AbstractButton.TextOnly
+            Layout.alignment: iconLabel.alignment
+            asynchronous: true
+            mipmap: true
+        }
+        Text {
+            id: label
+            visible: text && iconLabel.display != AbstractButton.IconOnly
+            Layout.alignment: iconLabel.alignment
+            Layout.fillWidth: true
+            elide: iconLabel.elide
+            linkColor: iconLabel.enabled?
+                           AkTheme.palette.active.link:
+                           AkTheme.palette.disabled.link
+        }
+    }
+    Item {
+        width: iconLabel.rightPadding
     }
 }
