@@ -32,7 +32,7 @@ Visit the [wiki](https://github.com/webcamoid/webcamoid/wiki) for a comprehensiv
 [![Translation status](https://hosted.weblate.org/widgets/webcamoid/-/svg-badge.svg)](https://hosted.weblate.org/engage/webcamoid/?utm_source=widget)
 [![Project Stats](https://www.openhub.net/p/Webcamoid/widgets/project_thin_badge.gif)](https://www.openhub.net/p/Webcamoid)
 [![Total Downloads](https://img.shields.io/github/downloads/webcamoid/webcamoid/total.svg)](https://github.com/webcamoid/webcamoid/releases)
-[![Daily Build](https://api.bintray.com/packages/webcamoid/webcamoid/webcamoid/images/download.svg?version=daily)](https://github.com/webcamoid/webcamoid/releases/tag/untagged-d3a4aa8a9bb5aec0c4c5)
+[![Daily Build](https://api.bintray.com/packages/webcamoid/webcamoid/webcamoid/images/download.svg?version=daily)](https://bintray.com/webcamoid/webcamoid/webcamoid/daily)
 [![Gitlab mirror](https://img.shields.io/badge/mirror-Gitlab-007fff.svg)](https://gitlab.com/hipersayanX/webcamoid/)
 [![SourceForge mirror](https://img.shields.io/badge/mirror-SourceForge-007fff.svg)](https://sourceforge.net/p/webcamoid/)
 

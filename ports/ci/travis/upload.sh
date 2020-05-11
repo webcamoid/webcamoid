@@ -62,8 +62,9 @@ if [[ ( ! -z "$DAILY_BUILD" || ! -z "$RELEASE_BUILD" ) && "$TRAVIS_BRANCH" == "m
     done
 
     # Upload to Github Releases
+    upload=false
 
-    if [[ ! -z "$DAILY_BUILD" && "$TRAVIS_BRANCH" == "master" ]]; then
+    if [[ ! -z "$DAILY_BUILD" && "$TRAVIS_BRANCH" == master && "$upload" == true ]]; then
         hub=''
 
         if [ "${TRAVIS_OS_NAME}" = linux ]; then
