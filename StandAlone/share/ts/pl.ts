@@ -57,7 +57,7 @@
         <location filename="../qml/AddSource.qml" line="89"/>
         <location filename="../qml/AddSource.qml" line="137"/>
         <source>Source title</source>
-        <translation>Tytuł źródłowy</translation>
+        <translation>Tytuł&#xa0;źródłowy</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="97"/>
@@ -247,17 +247,8 @@
     </message>
     <message>
         <location filename="../qml/AudioVideoPanel.qml" line="32"/>
-        <source>Video Input Options</source>
-        <translation>Opcje wejścia wideo</translation>
-    </message>
-</context>
-<context>
-    <name>ConfigBar</name>
-    <message>
-        <location filename="../qml/ConfigBar.qml" line="44"/>
-        <source>Output</source>
-        <extracomment>Configuration for video output, like virtual camera or streaming.</extracomment>
-        <translation>Wyjście</translation>
+        <source>Video Source Options</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -361,14 +352,6 @@
         <location filename="../../src/mediatools.cpp" line="200"/>
         <source>Daily Build</source>
         <translation>Codzienna kompilacja</translation>
-    </message>
-</context>
-<context>
-    <name>OutputConfig</name>
-    <message>
-        <location filename="../qml/OutputConfig.qml" line="44"/>
-        <source>Enable virtual camera</source>
-        <translation>Włącz kamerę wirtualną</translation>
     </message>
 </context>
 <context>
@@ -756,7 +739,7 @@
     <message>
         <location filename="../qml/VideoEffectsList.qml" line="41"/>
         <source>Remove all effects</source>
-        <translation>Usuń wszystkie efekty</translation>
+        <translation>Usuń&#xa0;wszystkie efekty</translation>
     </message>
 </context>
 <context>
@@ -2065,7 +2048,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="304"/>
         <source>Show cursor</source>
-        <translation>Pokaż kursor</translation>
+        <translation>Pokaż&#xa0;kursor</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSrc/share/qml/main.qml" line="119"/>
@@ -2207,7 +2190,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="320"/>
         <source>FPS</source>
-        <translation>Klatki na sekundę (FPS)</translation>
+        <translation>Klatki na sekundę&#xa0;(FPS)</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="343"/>
@@ -2340,11 +2323,6 @@
         <location filename="../qml/main.qml" line="345"/>
         <source>Record video</source>
         <translation>Nagraj wideo</translation>
-    </message>
-    <message>
-        <location filename="../qml/main.qml" line="650"/>
-        <source>Preferences</source>
-        <translation>Preferencje</translation>
     </message>
 </context>
 </TS>
