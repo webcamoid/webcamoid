@@ -37,6 +37,15 @@ T.ToolTip {
                  | T.Popup.CloseOnPressOutsideParent
                  | T.Popup.CloseOnReleaseOutsideParent
 
+    readonly property color activeDark: AkTheme.palette.active.dark
+    readonly property color activeLink: AkTheme.palette.active.link
+    readonly property color activeToolTipBase: AkTheme.palette.active.toolTipBase
+    readonly property color activeToolTipText: AkTheme.palette.active.toolTipText
+    readonly property color disabledDark: AkTheme.palette.disabled.dark
+    readonly property color disabledLink: AkTheme.palette.disabled.link
+    readonly property color disabledToolTipBase: AkTheme.palette.disabled.toolTipBase
+    readonly property color disabledToolTipText: AkTheme.palette.disabled.toolTipText
+
     enter: Transition {
         NumberAnimation {
             property: "opacity"
@@ -61,23 +70,23 @@ T.ToolTip {
         text: control.text
         font: control.font
         color: control.enabled?
-                   AkTheme.palette.active.toolTipText:
-                   AkTheme.palette.disabled.toolTipText
+                   control.activeToolTipText:
+                   control.disabledToolTipText
         linkColor:
             control.enabled?
-                AkTheme.palette.active.link:
-                AkTheme.palette.disabled.link
+                control.activeLink:
+                control.disabledLink
     }
 
     background: Rectangle {
         implicitHeight: AkUnit.create(24 * AkTheme.controlScale, "dp").pixels
         color: control.enabled?
-                   AkTheme.palette.active.toolTipBase:
-                   AkTheme.palette.disabled.toolTipBase
+                   control.activeToolTipBase:
+                   control.disabledToolTipBase
         border.color:
             control.enabled?
-                AkTheme.palette.active.dark:
-                AkTheme.palette.disabled.dark
+                control.activeDark:
+                control.disabledDark
         border.width: AkUnit.create(1 * AkTheme.controlScale, "dp").pixels
         radius: AkUnit.create(6 * AkTheme.controlScale, "dp").pixels
     }

@@ -34,11 +34,15 @@ T.MenuBarItem {
     spacing: AkUnit.create(20 * AkTheme.controlScale, "dp").pixels
     icon.width: AkUnit.create(24 * AkTheme.controlScale, "dp").pixels
     icon.height: AkUnit.create(24 * AkTheme.controlScale, "dp").pixels
-    icon.color: AkTheme.palette.active.highlightedText
+    icon.color: activeHighlightedText
     clip: true
     hoverEnabled: true
 
     readonly property int animationTime: 200
+    readonly property color activeHighlight: AkTheme.palette.active.highlight
+    readonly property color activeHighlightedText: AkTheme.palette.active.highlightedText
+    readonly property color disabledHighlight: AkTheme.palette.disabled.highlight
+    readonly property color disabledHighlightedText: AkTheme.palette.disabled.highlightedText
 
     contentItem: IconLabel {
         id: iconLabel
@@ -52,7 +56,7 @@ T.MenuBarItem {
         iconColor: control.icon.color
         text: control.text
         font: control.font
-        color: AkTheme.palette.active.highlightedText
+        color: control.activeHighlightedText
         alignment: Qt.AlignLeft | Qt.AlignVCenter
         enabled: control.enabled
     }
@@ -62,8 +66,8 @@ T.MenuBarItem {
         implicitWidth: AkUnit.create(64 * AkTheme.controlScale, "dp").pixels
         implicitHeight: AkUnit.create(48 * AkTheme.controlScale, "dp").pixels
         color: control.highlighted?
-                   AkTheme.constShade(AkTheme.palette.active.highlight, 0.1):
-                   AkTheme.constShade(AkTheme.palette.active.highlight, 0, 0)
+                   AkTheme.constShade(control.activeHighlight, 0.1):
+                   AkTheme.constShade(control.activeHighlight, 0, 0)
     }
 
     states: [
@@ -73,13 +77,13 @@ T.MenuBarItem {
 
             PropertyChanges {
                 target: iconLabel
-                color: AkTheme.palette.disabled.highlightedText
+                color: control.disabledHighlightedText
             }
             PropertyChanges {
                 target: background
                 color: control.highlighted?
-                           AkTheme.constShade(AkTheme.palette.disabled.highlight, 0.1):
-                           AkTheme.constShade(AkTheme.palette.disabled.highlight, 0, 0)
+                           AkTheme.constShade(control.disabledHighlight, 0.1):
+                           AkTheme.constShade(control.disabledHighlight, 0, 0)
             }
         },
         State {
@@ -93,8 +97,8 @@ T.MenuBarItem {
                 target: background
                 color:
                     control.highlighted?
-                        AkTheme.constShade(AkTheme.palette.active.highlight, 0.2):
-                        AkTheme.constShade(AkTheme.palette.active.highlight, 0.1)
+                        AkTheme.constShade(control.activeHighlight, 0.2):
+                        AkTheme.constShade(control.activeHighlight, 0.1)
             }
         },
         State {
@@ -106,8 +110,8 @@ T.MenuBarItem {
                 target: background
                 color:
                     control.highlighted?
-                        AkTheme.constShade(AkTheme.palette.active.highlight, 0.3):
-                        AkTheme.constShade(AkTheme.palette.active.highlight, 0.2)
+                        AkTheme.constShade(control.activeHighlight, 0.3):
+                        AkTheme.constShade(control.activeHighlight, 0.2)
             }
         }
     ]

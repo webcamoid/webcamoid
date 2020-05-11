@@ -38,6 +38,8 @@ Dialog {
     property int minimumWidth: AkUnit.create(100 * AkTheme.controlScale, "dp").pixels
     property int maximumWidth:
         width - AkUnit.create(64 * AkTheme.controlScale, "dp").pixels
+    readonly property color activeDark: AkTheme.palette.active.dark
+    readonly property color disabledDark: AkTheme.palette.disabled.dark
 
     signal openVideoFormatDialog()
     signal openVideoCodecDialog()
@@ -96,7 +98,7 @@ Dialog {
             Rectangle {
                 id: rectangleRight
                 width: settingsDialog.panelBorder
-                color: AkTheme.palette.active.dark
+                color: settingsDialog.activeDark
                 anchors.leftMargin: -width / 2
                 anchors.left: optionsView.right
                 anchors.top: parent.top

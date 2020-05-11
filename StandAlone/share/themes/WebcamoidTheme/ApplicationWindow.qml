@@ -23,16 +23,18 @@ import QtQuick.Templates 2.5 as T
 import Ak 1.0
 
 T.ApplicationWindow {
-    id: applicationWindow
-    color: AkTheme.palette.active.window
+    id: control
+    color: activeWindow
+
+    readonly property color activeWindow: AkTheme.palette.active.window
 
     background: Rectangle {
-        color: applicationWindow.color
+        color: control.color
     }
     overlay.modal: Rectangle {
-        color: applicationWindow.color
+        color: control.color
     }
     overlay.modeless: Rectangle {
-        color: applicationWindow.color
+        color: control.color
     }
 }

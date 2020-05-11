@@ -29,15 +29,20 @@ T.Tumbler {
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              implicitContentHeight + topPadding + bottomPadding)
 
+    readonly property color activeLink: AkTheme.palette.active.link
+    readonly property color activeWindowText: AkTheme.palette.active.windowText
+    readonly property color disabledLink: AkTheme.palette.disabled.link
+    readonly property color disabledWindowText: AkTheme.palette.disabled.windowText
+
     delegate: Text {
         text: modelData
         color: control.enabled?
-                   AkTheme.palette.active.windowText:
-                   AkTheme.palette.disabled.windowText
+                   control.activeWindowText:
+                   control.disabledWindowText
         linkColor:
             control.enabled?
-                AkTheme.palette.active.link:
-                AkTheme.palette.disabled.link
+                control.activeLink:
+                control.disabledLink
         font: control.font
         opacity: (1.0 - Math.abs(Tumbler.displacement)
                   / (control.visibleItemCount / 2))

@@ -31,16 +31,18 @@ T.ProgressBar {
     hoverEnabled: true
 
     property int animationTime: 3000
+    readonly property color activeHighlight: AkTheme.palette.active.highlight
+    readonly property color disabledHighlight: AkTheme.palette.disabled.highlight
 
     contentItem: Item {
         Rectangle {
             id: progressRect
             color:
                 !control.enabled?
-                    AkTheme.palette.disabled.highlight:
+                    control.disabledHighlight:
                 control.hovered?
-                    AkTheme.constShade(AkTheme.palette.active.highlight, 0.1):
-                    AkTheme.palette.active.highlight
+                    AkTheme.constShade(control.activeHighlight, 0.1):
+                    control.activeHighlight
             implicitHeight: backgroundRect.implicitHeight
             x: control.indeterminate?
                    kx * backgroundRect.width:

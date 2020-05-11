@@ -27,7 +27,7 @@ T.ItemDelegate {
     id: control
     icon.width: AkUnit.create(18 * AkTheme.controlScale, "dp").pixels
     icon.height: AkUnit.create(18 * AkTheme.controlScale, "dp").pixels
-    icon.color: AkTheme.palette.active.windowText
+    icon.color: activeWindowText
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             implicitContentWidth + implicitIndicatorWidth
                             + leftPadding + rightPadding)
@@ -42,6 +42,14 @@ T.ItemDelegate {
     clip: true
 
     readonly property int animationTime: 200
+    readonly property color activeHighlight: AkTheme.palette.active.highlight
+    readonly property color activeHighlightedText: AkTheme.palette.active.highlightedText
+    readonly property color activeWindow: AkTheme.palette.active.window
+    readonly property color activeWindowText: AkTheme.palette.active.windowText
+    readonly property color disabledHighlight: AkTheme.palette.disabled.highlight
+    readonly property color disabledHighlightedText: AkTheme.palette.disabled.highlightedText
+    readonly property color disabledWindow: AkTheme.palette.disabled.window
+    readonly property color disabledWindowText: AkTheme.palette.disabled.windowText
 
     contentItem: IconLabel {
         id: iconLabel
@@ -53,13 +61,13 @@ T.ItemDelegate {
         iconWidth: control.icon.width
         iconHeight: control.icon.height
         iconColor: control.highlighted?
-                       AkTheme.palette.active.highlightedText:
+                       control.activeHighlightedText:
                        control.icon.color
         text: control.text
         font: control.font
         color: control.highlighted?
-                   AkTheme.palette.active.highlightedText:
-                   AkTheme.palette.active.windowText
+                   control.activeHighlightedText:
+                   control.activeWindowText
         alignment: control.display === IconLabel.IconOnly
                    || control.display === IconLabel.TextUnderIcon?
                        Qt.AlignCenter | Qt.AlignVCenter:
@@ -78,8 +86,8 @@ T.ItemDelegate {
         implicitHeight:
             AkUnit.create(48 * AkTheme.controlScale, "dp").pixels
         color: control.highlighted?
-                   AkTheme.palette.active.highlight:
-                   AkTheme.shade(AkTheme.palette.active.window, 0, 0)
+                   control.activeHighlight:
+                   AkTheme.shade(control.activeWindow, 0, 0)
     }
 
     states: [
@@ -91,14 +99,14 @@ T.ItemDelegate {
                 target: iconLabel
                 color:
                     control.highlighted?
-                        AkTheme.palette.disabled.highlightedText:
-                        AkTheme.palette.disabled.windowText
+                        control.disabledHighlightedText:
+                        control.disabledWindowText
             }
             PropertyChanges {
                 target: background
                 color: control.highlighted?
-                           AkTheme.palette.disabled.highlight:
-                           AkTheme.shade(AkTheme.palette.disabled.window, 0, 0)
+                           control.disabledHighlight:
+                           AkTheme.shade(control.disabledWindow, 0, 0)
             }
         },
         State {
@@ -112,9 +120,8 @@ T.ItemDelegate {
                 target: background
                 color:
                     control.highlighted?
-                        AkTheme.constShade(AkTheme.palette.active.highlight,
-                                                 0.1):
-                        AkTheme.shade(AkTheme.palette.active.window, -0.1)
+                        AkTheme.constShade(control.activeHighlight, 0.1):
+                        AkTheme.shade(control.activeWindow, -0.1)
             }
         },
         State {
@@ -125,9 +132,8 @@ T.ItemDelegate {
                 target: background
                 color:
                     control.highlighted?
-                        AkTheme.constShade(AkTheme.palette.active.highlight,
-                                                 0.2):
-                        AkTheme.shade(AkTheme.palette.active.window, -0.2)
+                        AkTheme.constShade(control.activeHighlight, 0.2):
+                        AkTheme.shade(control.activeWindow, -0.2)
             }
         }
     ]

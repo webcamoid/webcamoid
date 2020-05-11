@@ -41,6 +41,14 @@ AbstractButton {
     property int modality: Qt.ApplicationModal
     property bool isOpen: false
     readonly property int animationTime: 200
+    readonly property color activeDark: AkTheme.palette.active.dark
+    readonly property color activeHighlight: AkTheme.palette.active.highlight
+    readonly property color activeLight: AkTheme.palette.active.light
+    readonly property color activeMid: AkTheme.palette.active.mid
+    readonly property color activeWindow: AkTheme.palette.active.window
+    readonly property color disabledButton: AkTheme.palette.disabled.button
+    readonly property color disabledButtonText: AkTheme.palette.disabled.buttonText
+    readonly property color disabledDark: AkTheme.palette.disabled.dark
 
     contentItem: Item {
         id: buttonContent
@@ -71,24 +79,24 @@ AbstractButton {
             radius: AkUnit.create(6 * AkTheme.controlScale, "dp").pixels
             border.width:
                 AkUnit.create(1 * AkTheme.controlScale, "dp").pixels
-            border.color: AkTheme.palette.active.dark
+            border.color: control.activeDark
             color: control.currentColor
             gradient: Gradient {
                 GradientStop {
                     position: 0
-                    color: AkTheme.palette.active.window.hslLightness < 0.5?
+                    color: control.activeWindow.hslLightness < 0.5?
                                Qt.tint(buttonRectangle.color,
-                                       AkTheme.shade(AkTheme.palette.active.dark, 0, 0.25)):
+                                       AkTheme.shade(control.activeDark, 0, 0.25)):
                                Qt.tint(buttonRectangle.color,
-                                       AkTheme.shade(AkTheme.palette.active.light, 0, 0.25))
+                                       AkTheme.shade(control.activeLight, 0, 0.25))
                 }
                 GradientStop {
                     position: 1
-                    color: AkTheme.palette.active.window.hslLightness < 0.5?
+                    color: control.activeWindow.hslLightness < 0.5?
                                Qt.tint(buttonRectangle.color,
-                                       AkTheme.shade(AkTheme.palette.active.light, 0, 0.25)):
+                                       AkTheme.shade(control.activeLight, 0, 0.25)):
                                Qt.tint(buttonRectangle.color,
-                                       AkTheme.shade(AkTheme.palette.active.dark, 0, 0.25))
+                                       AkTheme.shade(control.activeDark, 0, 0.25))
                 }
             }
         }
@@ -101,16 +109,16 @@ AbstractButton {
 
             PropertyChanges {
                 target: iconLabel
-                color: AkTheme.palette.disabled.buttonText
+                color: control.disabledButtonText
             }
             PropertyChanges {
                 target: buttonCheckableIndicator
-                color: AkTheme.palette.disabled.dark
+                color: control.disabledDark
             }
             PropertyChanges {
                 target: buttonRectangle
-                border.color: AkTheme.palette.disabled.dark
-                color: AkTheme.palette.disabled.button
+                border.color: control.disabledDark
+                color: control.disabledButton
             }
         },
         State {
@@ -122,7 +130,7 @@ AbstractButton {
 
             PropertyChanges {
                 target: buttonRectangle
-                border.color: AkTheme.palette.active.mid
+                border.color: control.activeMid
                 color: AkTheme.shade(control.currentColor, -0.1)
             }
         },
@@ -136,7 +144,7 @@ AbstractButton {
                 target: buttonRectangle
                 border.width:
                     AkUnit.create(2 * AkTheme.controlScale, "dp").pixels
-                border.color: AkTheme.palette.active.highlight
+                border.color: control.activeHighlight
                 color: AkTheme.shade(control.currentColor, -0.1)
             }
         },
@@ -149,7 +157,7 @@ AbstractButton {
                 target: buttonRectangle
                 border.width:
                     AkUnit.create(2 * AkTheme.controlScale, "dp").pixels
-                border.color: AkTheme.palette.active.highlight
+                border.color: control.activeHighlight
                 color: AkTheme.shade(control.currentColor, -0.2)
             }
         }

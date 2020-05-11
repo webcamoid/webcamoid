@@ -39,17 +39,22 @@ T.ScrollBar {
                      width / height
     hoverEnabled: true
 
+    readonly property color activeDark: AkTheme.palette.active.dark
+    readonly property color activeHighlight: AkTheme.palette.active.highlight
+    readonly property color disabledDark: AkTheme.palette.disabled.dark
+    readonly property color disabledHighlight: AkTheme.palette.disabled.highlight
+
     contentItem: Rectangle {
         implicitWidth: AkUnit.create(6 * AkTheme.controlScale, "dp").pixels
         implicitHeight: AkUnit.create(6 * AkTheme.controlScale, "dp").pixels
         radius: Math.min(implicitWidth, implicitHeight) / 2
         color: !control.enabled?
-                   AkTheme.palette.disabled.highlight:
+                   control.disabledHighlight:
                control.pressed?
-                   AkTheme.constShade(AkTheme.palette.active.highlight, 0.2):
+                   AkTheme.constShade(control.activeHighlight, 0.2):
                control.interactive && control.hovered?
-                   AkTheme.constShade(AkTheme.palette.active.highlight, 0.1):
-                   AkTheme.palette.active.highlight
+                   AkTheme.constShade(control.activeHighlight, 0.1):
+                   control.activeHighlight
         opacity: 0
     }
 
@@ -57,8 +62,8 @@ T.ScrollBar {
         implicitWidth: AkUnit.create(6 * AkTheme.controlScale, "dp").pixels
         implicitHeight: AkUnit.create(6 * AkTheme.controlScale, "dp").pixels
         color: enabled?
-                   AkTheme.palette.active.dark:
-                   AkTheme.palette.disabled.dark
+                   control.activeDark:
+                   control.disabledDark
         opacity: 0
         visible: control.interactive
     }

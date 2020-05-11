@@ -42,6 +42,12 @@ T.GroupBox {
         AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
     property int titleBottomPadding:
         AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+    readonly property color activeDark: AkTheme.palette.active.dark
+    readonly property color activeLink: AkTheme.palette.active.link
+    readonly property color activeWindowText: AkTheme.palette.active.windowText
+    readonly property color disabledDark: AkTheme.palette.disabled.dark
+    readonly property color disabledLink: AkTheme.palette.disabled.link
+    readonly property color disabledWindowText: AkTheme.palette.disabled.windowText
 
     label: Text {
         id: groupTitle
@@ -63,11 +69,11 @@ T.GroupBox {
         font.underline: control.font.underline
         font.wordSpacing: control.font.wordSpacing
         color: control.enabled?
-                   AkTheme.palette.active.windowText:
-                   AkTheme.palette.disabled.windowText
+                   control.activeWindowText:
+                   control.disabledWindowText
         linkColor: control.enabled?
-                       AkTheme.palette.active.link:
-                       AkTheme.palette.disabled.link
+                       control.activeLink:
+                       control.disabledLink
         elide: Text.ElideRight
         verticalAlignment: Text.AlignVCenter
         enabled: control.enabled
@@ -79,8 +85,8 @@ T.GroupBox {
         radius: AkUnit.create(4 * AkTheme.controlScale, "dp").pixels
         color: "transparent"
         border.color: enabled?
-                          AkTheme.palette.active.dark:
-                          AkTheme.palette.disabled.dark
+                          control.activeDark:
+                          control.disabledDark
         border.width: AkUnit.create(1 * AkTheme.controlScale, "dp").pixels
     }
 }

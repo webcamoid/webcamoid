@@ -27,7 +27,7 @@ T.Switch {
     id: control
     icon.width: AkUnit.create(18 * AkTheme.controlScale, "dp").pixels
     icon.height: AkUnit.create(18 * AkTheme.controlScale, "dp").pixels
-    icon.color: AkTheme.palette.active.windowText
+    icon.color: activeWindowText
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             implicitContentWidth + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
@@ -38,6 +38,11 @@ T.Switch {
     hoverEnabled: true
 
     readonly property int animationTime: 100
+    readonly property color activeHighlight: AkTheme.palette.active.highlight
+    readonly property color activeWindow: AkTheme.palette.active.window
+    readonly property color activeWindowText: AkTheme.palette.active.windowText
+    readonly property color disabledWindow: AkTheme.palette.disabled.window
+    readonly property color disabledWindowText: AkTheme.palette.disabled.windowText
 
     indicator: Item {
         id: sliderIndicator
@@ -55,7 +60,7 @@ T.Switch {
         Rectangle {
             id: switchTrack
             height: parent.height / 4
-            color: AkTheme.shade(AkTheme.palette.active.window, -0.5)
+            color: AkTheme.shade(control.activeWindow, -0.5)
             radius: height / 2
             anchors.verticalCenter: sliderIndicator.verticalCenter
             anchors.right: sliderIndicator.right
@@ -83,7 +88,7 @@ T.Switch {
             }
             Rectangle {
                 id: switchThumbRect
-                color: AkTheme.shade(AkTheme.palette.active.window, -0.1)
+                color: AkTheme.shade(control.activeWindow, -0.1)
                 width: parent.width / 2
                 height: width
                 radius: height / 2
@@ -105,7 +110,7 @@ T.Switch {
         iconColor: control.icon.color
         text: control.text
         font: control.font
-        color: AkTheme.palette.active.windowText
+        color: control.activeWindowText
         alignment: Qt.AlignLeft | Qt.AlignVCenter
         enabled: control.enabled
         elide: Text.ElideRight
@@ -124,15 +129,15 @@ T.Switch {
 
             PropertyChanges {
                 target: switchTrack
-                color: AkTheme.shade(AkTheme.palette.disabled.window, -0.5)
+                color: AkTheme.shade(control.disabledWindow, -0.5)
             }
             PropertyChanges {
                 target: switchThumbRect
-                color: AkTheme.shade(AkTheme.palette.disabled.window, -0.1)
+                color: AkTheme.shade(control.disabledWindow, -0.1)
             }
             PropertyChanges {
                 target: iconLabel
-                color: AkTheme.palette.disabled.windowText
+                color: control.disabledWindowText
             }
         },
         State {
@@ -145,11 +150,11 @@ T.Switch {
 
             PropertyChanges {
                 target: switchTrack
-                color: AkTheme.palette.active.highlight
+                color: control.activeHighlight
             }
             PropertyChanges {
                 target: switchThumbRect
-                color: AkTheme.constShade(AkTheme.palette.active.highlight, 0.2)
+                color: AkTheme.constShade(control.activeHighlight, 0.2)
             }
             PropertyChanges {
                 target: switchThumb
@@ -166,11 +171,11 @@ T.Switch {
 
             PropertyChanges {
                 target: switchTrack
-                color: AkTheme.shade(AkTheme.palette.active.window, -0.6)
+                color: AkTheme.shade(control.activeWindow, -0.6)
             }
             PropertyChanges {
                 target: switchThumbRect
-                color: AkTheme.shade(AkTheme.palette.active.window, -0.2)
+                color: AkTheme.shade(control.activeWindow, -0.2)
             }
             PropertyChanges {
                 target: highlight
@@ -188,11 +193,11 @@ T.Switch {
 
             PropertyChanges {
                 target: switchTrack
-                color: AkTheme.constShade(AkTheme.palette.active.highlight, 0.1)
+                color: AkTheme.constShade(control.activeHighlight, 0.1)
             }
             PropertyChanges {
                 target: switchThumbRect
-                color: AkTheme.constShade(AkTheme.palette.active.highlight, 0.3)
+                color: AkTheme.constShade(control.activeHighlight, 0.3)
             }
             PropertyChanges {
                 target: switchThumb
@@ -211,11 +216,11 @@ T.Switch {
 
             PropertyChanges {
                 target: switchTrack
-                color: AkTheme.shade(AkTheme.palette.active.window, -0.7)
+                color: AkTheme.shade(control.activeWindow, -0.7)
             }
             PropertyChanges {
                 target: switchThumbRect
-                color: AkTheme.shade(AkTheme.palette.active.window, -0.3)
+                color: AkTheme.shade(control.activeWindow, -0.3)
             }
             PropertyChanges {
                 target: highlight
@@ -230,11 +235,11 @@ T.Switch {
 
             PropertyChanges {
                 target: switchTrack
-                color: AkTheme.constShade(AkTheme.palette.active.highlight, 0.2)
+                color: AkTheme.constShade(control.activeHighlight, 0.2)
             }
             PropertyChanges {
                 target: switchThumbRect
-                color: AkTheme.constShade(AkTheme.palette.active.highlight, 0.4)
+                color: AkTheme.constShade(control.activeHighlight, 0.4)
             }
             PropertyChanges {
                 target: switchThumb

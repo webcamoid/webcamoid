@@ -23,7 +23,7 @@ import QtQuick.Templates 2.5 as T
 import Ak 1.0
 
 T.ToolBar {
-    id: toolBar
+    id: control
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             contentWidth + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
@@ -32,11 +32,14 @@ T.ToolBar {
     spacing: 0
     hoverEnabled: true
 
+    readonly property color activeHighlight: AkTheme.palette.active.highlight
+    readonly property color disabledHighlight: AkTheme.palette.disabled.highlight
+
     background: Rectangle {
         implicitWidth: AkUnit.create(360 * AkTheme.controlScale, "dp").pixels
         implicitHeight: AkUnit.create(48 * AkTheme.controlScale, "dp").pixels
         color: enabled?
-                   AkTheme.palette.active.highlight:
-                   AkTheme.palette.disabled.highlight
+                   control.activeHighlight:
+                   control.disabledHighlight
     }
 }

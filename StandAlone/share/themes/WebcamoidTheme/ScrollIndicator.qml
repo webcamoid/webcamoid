@@ -34,6 +34,8 @@ T.ScrollIndicator {
 
     readonly property int fadeInTime: 200
     readonly property int fadeOutTime: 450
+    readonly property color activeHighlight: AkTheme.palette.active.highlight
+    readonly property color disabledHighlight: AkTheme.palette.disabled.highlight
 
     contentItem: Rectangle {
         id: indicatorRect
@@ -41,8 +43,8 @@ T.ScrollIndicator {
         implicitHeight: AkUnit.create(6 * AkTheme.controlScale, "dp").pixels
         radius: Math.min(implicitWidth, implicitHeight) / 2
         color: enabled?
-                   AkTheme.palette.active.highlight:
-                   AkTheme.palette.disabled.highlight
+                   control.activeHighlight:
+                   control.disabledHighlight
         visible: control.size < 1.0
         opacity: 0.0
     }

@@ -28,7 +28,7 @@ T.Button {
     font.bold: true
     icon.width: AkUnit.create(18 * AkTheme.controlScale, "dp").pixels
     icon.height: AkUnit.create(18 * AkTheme.controlScale, "dp").pixels
-    icon.color: AkTheme.palette.active.buttonText
+    icon.color: activeButtonText
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             implicitContentWidth + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
@@ -40,6 +40,20 @@ T.Button {
     readonly property int radius:
         AkUnit.create(6 * AkTheme.controlScale, "dp").pixels
     readonly property int animationTime: 200
+    readonly property color activeButton: AkTheme.palette.active.button
+    readonly property color activeButtonText: AkTheme.palette.active.buttonText
+    readonly property color activeDark: AkTheme.palette.active.dark
+    readonly property color activeHighlight: AkTheme.palette.active.highlight
+    readonly property color activeHighlightedText: AkTheme.palette.active.highlightedText
+    readonly property color activeLight: AkTheme.palette.active.light
+    readonly property color activeMid: AkTheme.palette.active.mid
+    readonly property color activeWindow: AkTheme.palette.active.window
+    readonly property color disabledButton: AkTheme.palette.disabled.button
+    readonly property color disabledButtonText: AkTheme.palette.disabled.buttonText
+    readonly property color disabledDark: AkTheme.palette.disabled.dark
+    readonly property color disabledHighlight: AkTheme.palette.disabled.highlight
+    readonly property color disabledHighlightedText: AkTheme.palette.disabled.highlightedText
+    readonly property color disabledWindow: AkTheme.palette.disabled.window
 
     contentItem: Item {
         id: buttonContent
@@ -59,18 +73,18 @@ T.Button {
             iconHeight: control.icon.height
             iconColor:
                 control.highlighted?
-                    AkTheme.palette.active.highlightedText:
+                    control.activeHighlightedText:
                 control.flat?
-                    AkTheme.palette.active.highlight:
+                    control.activeHighlight:
                     control.icon.color
             text: control.text
             font: control.font
             color:
                 control.highlighted?
-                    AkTheme.palette.active.highlightedText:
+                    control.activeHighlightedText:
                 control.flat?
-                    AkTheme.palette.active.highlight:
-                    AkTheme.palette.active.buttonText
+                    control.activeHighlight:
+                    control.activeButtonText
             enabled: control.enabled
             anchors.verticalCenter: buttonContent.verticalCenter
             anchors.horizontalCenter: buttonContent.horizontalCenter
@@ -92,30 +106,30 @@ T.Button {
                 AkUnit.create(1 * AkTheme.controlScale, "dp").pixels
             border.color:
                 control.highlighted || control.flat?
-                    AkTheme.shade(AkTheme.palette.active.window, 0, 0):
-                    AkTheme.palette.active.dark
+                    AkTheme.shade(control.activeWindow, 0, 0):
+                    control.activeDark
             color: control.highlighted?
-                       AkTheme.palette.active.highlight:
+                       control.activeHighlight:
                    control.flat?
-                       AkTheme.shade(AkTheme.palette.active.window, 0, 0):
-                       AkTheme.palette.active.button
+                       AkTheme.shade(control.activeWindow, 0, 0):
+                       control.activeButton
 
             gradient: Gradient {
                 GradientStop {
                     position: 0
-                    color: AkTheme.palette.active.window.hslLightness < 0.5?
+                    color: control.activeWindow.hslLightness < 0.5?
                                Qt.tint(buttonRectangle.color,
-                                       AkTheme.shade(AkTheme.palette.active.dark, 0, 0.25)):
+                                       AkTheme.shade(control.activeDark, 0, 0.25)):
                                Qt.tint(buttonRectangle.color,
-                                       AkTheme.shade(AkTheme.palette.active.light, 0, 0.25))
+                                       AkTheme.shade(control.activeLight, 0, 0.25))
                 }
                 GradientStop {
                     position: 1
-                    color: AkTheme.palette.active.window.hslLightness < 0.5?
+                    color: control.activeWindow.hslLightness < 0.5?
                                Qt.tint(buttonRectangle.color,
-                                       AkTheme.shade(AkTheme.palette.active.light, 0, 0.25)):
+                                       AkTheme.shade(control.activeLight, 0, 0.25)):
                                Qt.tint(buttonRectangle.color,
-                                       AkTheme.shade(AkTheme.palette.active.dark, 0, 0.25))
+                                       AkTheme.shade(control.activeDark, 0, 0.25))
                 }
             }
         }
@@ -126,14 +140,14 @@ T.Button {
             height: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
             color:
                 control.checkable && control.checked && control.highlighted?
-                    AkTheme.palette.active.highlightedText:
+                    control.activeHighlightedText:
                 control.checkable && control.checked?
-                    AkTheme.palette.active.highlight:
+                    control.activeHighlight:
                 control.checkable?
-                    AkTheme.palette.active.dark:
+                    control.activeDark:
                 control.highlighted || control.flat?
-                    AkTheme.shade(AkTheme.palette.active.window, 0, 0):
-                    AkTheme.palette.active.dark
+                    AkTheme.shade(control.activeWindow, 0, 0):
+                    control.activeDark
             anchors.right: back.right
             anchors.bottom: back.bottom
             anchors.left: back.left
@@ -149,35 +163,35 @@ T.Button {
             PropertyChanges {
                 target: iconLabel
                 color: control.highlighted?
-                           AkTheme.palette.disabled.highlightedText:
+                           control.disabledHighlightedText:
                        control.flat?
-                           AkTheme.palette.disabled.highlight:
-                           AkTheme.palette.disabled.buttonText
+                           control.disabledHighlight:
+                           control.disabledButtonText
             }
             PropertyChanges {
                 target: buttonCheckableIndicator
                 color:
                     control.checkable && control.checked && control.highlighted?
-                        AkTheme.palette.disabled.highlightedText:
+                        control.disabledHighlightedText:
                     control.checkable && control.checked?
-                        AkTheme.palette.disabled.highlight:
+                        control.disabledHighlight:
                     control.checkable?
-                        AkTheme.palette.disabled.dark:
+                        control.disabledDark:
                     control.highlighted || control.flat?
-                        AkTheme.shade(AkTheme.palette.disabled.window, 0, 0):
-                        AkTheme.palette.disabled.dark
+                        AkTheme.shade(control.disabledWindow, 0, 0):
+                        control.disabledDark
             }
             PropertyChanges {
                 target: buttonRectangle
                 border.color:
                     control.highlighted || control.flat?
-                        AkTheme.shade(AkTheme.palette.disabled.window, 0, 0):
-                        AkTheme.palette.disabled.dark
+                        AkTheme.shade(control.disabledWindow, 0, 0):
+                        control.disabledDark
                 color: control.highlighted?
-                           AkTheme.palette.disabled.highlight:
+                           control.disabledHighlight:
                        control.flat?
-                           AkTheme.shade(AkTheme.palette.disabled.window, 0, 0):
-                           AkTheme.palette.disabled.button
+                           AkTheme.shade(control.disabledWindow, 0, 0):
+                           control.disabledButton
             }
         },
         State {
@@ -190,10 +204,10 @@ T.Button {
             PropertyChanges {
                 target: buttonRectangle
                 color: control.highlighted?
-                           AkTheme.constShade(AkTheme.palette.active.highlight, 0.1):
+                           AkTheme.constShade(control.activeHighlight, 0.1):
                        control.flat?
-                           AkTheme.shade(AkTheme.palette.active.mid, 0, 0.5):
-                           AkTheme.palette.active.mid
+                           AkTheme.shade(control.activeMid, 0, 0.5):
+                           control.activeMid
             }
         },
         State {
@@ -208,13 +222,13 @@ T.Button {
                     AkUnit.create(2 * AkTheme.controlScale, "dp").pixels
                 border.color:
                     control.highlighted || control.flat?
-                        AkTheme.shade(AkTheme.palette.active.window, 0, 0):
-                        AkTheme.palette.active.highlight
+                        AkTheme.shade(control.activeWindow, 0, 0):
+                        control.activeHighlight
                 color: control.highlighted?
-                           AkTheme.constShade(AkTheme.palette.active.highlight, 0.2):
+                           AkTheme.constShade(control.activeHighlight, 0.2):
                        control.flat?
-                           AkTheme.shade(AkTheme.palette.active.mid, 0, 0.5):
-                           AkTheme.palette.active.mid
+                           AkTheme.shade(control.activeMid, 0, 0.5):
+                           control.activeMid
             }
         },
         State {
@@ -228,13 +242,13 @@ T.Button {
                     AkUnit.create(2 * AkTheme.controlScale, "dp").pixels
                 border.color:
                     control.highlighted || control.flat?
-                        AkTheme.shade(AkTheme.palette.active.window, 0, 0):
-                        AkTheme.palette.active.highlight
+                        AkTheme.shade(control.activeWindow, 0, 0):
+                        control.activeHighlight
                 color: control.highlighted?
-                           AkTheme.constShade(AkTheme.palette.active.highlight, 0.3):
+                           AkTheme.constShade(control.activeHighlight, 0.3):
                        control.flat?
-                           AkTheme.shade(AkTheme.palette.active.dark, 0, 0.5):
-                           AkTheme.palette.active.dark
+                           AkTheme.shade(control.activeDark, 0, 0.5):
+                           control.activeDark
             }
         }
     ]

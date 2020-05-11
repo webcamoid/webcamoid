@@ -31,9 +31,12 @@ T.Pane {
                              contentHeight + topPadding + bottomPadding)
     padding: 0
 
+    readonly property color activeWindow: AkTheme.palette.active.window
+    readonly property color disabledWindow: AkTheme.palette.disabled.window
+
     background: Rectangle {
         color: enabled?
-                   AkTheme.shade(AkTheme.palette.active.window, 0, 0.75):
-                   AkTheme.shade(AkTheme.palette.disabled.window, 0, 0.75)
+                   AkTheme.shade(control.activeWindow, 0, 0.75):
+                   AkTheme.shade(control.disabledWindow, 0, 0.75)
     }
 }

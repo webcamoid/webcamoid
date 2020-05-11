@@ -23,6 +23,7 @@ import QtQuick.Templates 2.5 as T
 import Ak 1.0
 
 T.Page {
+    id: control
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             contentWidth + leftPadding + rightPadding,
                             implicitHeaderWidth,
@@ -33,9 +34,12 @@ T.Page {
                  + (implicitHeaderHeight > 0? implicitHeaderHeight + spacing: 0)
                  + (implicitFooterHeight > 0? implicitFooterHeight + spacing: 0))
 
+    readonly property color activeWindow: AkTheme.palette.active.window
+    readonly property color disabledWindow: AkTheme.palette.disabled.window
+
     background: Rectangle {
         color: enabled?
-                   AkTheme.palette.active.window:
-                   AkTheme.palette.disabled.window
+                   control.activeWindow:
+                   control.disabledWindow
     }
 }

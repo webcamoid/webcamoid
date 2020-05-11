@@ -41,6 +41,11 @@ T.Menu {
             Item.TopLeft
     delegate: MenuItem { }
 
+    readonly property color activeDark: AkTheme.palette.active.dark
+    readonly property color activeWindow: AkTheme.palette.active.window
+    readonly property color disabledDark: AkTheme.palette.disabled.dark
+    readonly property color disabledWindow: AkTheme.palette.disabled.window
+
     // Fade in
     enter: Transition {
         NumberAnimation {
@@ -91,26 +96,26 @@ T.Menu {
         implicitWidth: AkUnit.create(128 * AkTheme.controlScale, "dp").pixels
         implicitHeight: AkUnit.create(48 * AkTheme.controlScale, "dp").pixels
         color: enabled?
-                   AkTheme.palette.active.window:
-                   AkTheme.palette.disabled.window
+                   control.activeWindow:
+                   control.disabledWindow
         border.color: enabled?
-                          AkTheme.palette.active.dark:
-                          AkTheme.palette.disabled.dark
+                          control.activeDark:
+                          control.disabledDark
         radius: AkUnit.create(4 * AkTheme.controlScale, "dp").pixels
     }
 
     T.Overlay.modal: Rectangle {
         color: control.enabled?
-                   AkTheme.shade(AkTheme.palette.active.dark, 0, 0.75):
-                   AkTheme.shade(AkTheme.palette.disabled.dark, 0, 0.75)
+                   AkTheme.shade(control.activeDark, 0, 0.75):
+                   AkTheme.shade(control.disabledDark, 0, 0.75)
 
         Behavior on opacity { NumberAnimation { duration: 150 } }
     }
 
     T.Overlay.modeless: Rectangle {
         color: control.enabled?
-                   AkTheme.shade(AkTheme.palette.active.dark, 0, 0.75):
-                   AkTheme.shade(AkTheme.palette.disabled.dark, 0, 0.75)
+                   AkTheme.shade(control.activeDark, 0, 0.75):
+                   AkTheme.shade(control.disabledDark, 0, 0.75)
 
         Behavior on opacity { NumberAnimation { duration: 150 } }
     }

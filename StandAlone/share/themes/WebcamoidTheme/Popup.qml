@@ -35,6 +35,11 @@ T.Popup {
     topPadding: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
     bottomPadding: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
 
+    readonly property color activeDark: AkTheme.palette.active.dark
+    readonly property color activeWindow: AkTheme.palette.active.window
+    readonly property color disabledDark: AkTheme.palette.disabled.dark
+    readonly property color disabledWindow: AkTheme.palette.disabled.window
+
     // Fade in
     enter: Transition {
         NumberAnimation { property: "scale"; from: 0.9; to: 1.0; easing.type: Easing.OutQuint; duration: 220 }
@@ -49,26 +54,26 @@ T.Popup {
 
     background: Rectangle {
         color: control.enabled?
-                   AkTheme.palette.active.window:
-                   AkTheme.palette.disabled.window
+                   control.activeWindow:
+                   control.disabledWindow
         border.color: control.enabled?
-                          AkTheme.palette.active.dark:
-                          AkTheme.palette.disabled.dark
+                          control.activeDark:
+                          control.disabledDark
         radius: AkUnit.create(4 * AkTheme.controlScale, "dp").pixels
     }
 
     T.Overlay.modal: Rectangle {
         color: control.enabled?
-                   AkTheme.shade(AkTheme.palette.active.dark, 0, 0.75):
-                   AkTheme.shade(AkTheme.palette.disabled.dark, 0, 0.75)
+                   AkTheme.shade(control.activeDark, 0, 0.75):
+                   AkTheme.shade(control.disabledDark, 0, 0.75)
 
         Behavior on opacity { NumberAnimation { duration: 150 } }
     }
 
     T.Overlay.modeless: Rectangle {
         color: control.enabled?
-                   AkTheme.shade(AkTheme.palette.active.dark, 0, 0.75):
-                   AkTheme.shade(AkTheme.palette.disabled.dark, 0, 0.75)
+                   AkTheme.shade(control.activeDark, 0, 0.75):
+                   AkTheme.shade(control.disabledDark, 0, 0.75)
 
         Behavior on opacity { NumberAnimation { duration: 150 } }
     }

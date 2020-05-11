@@ -28,7 +28,7 @@ T.TabButton {
     font.bold: true
     icon.width: AkUnit.create(18 * AkTheme.controlScale, "dp").pixels
     icon.height: AkUnit.create(18 * AkTheme.controlScale, "dp").pixels
-    icon.color: AkTheme.palette.active.windowText
+    icon.color: activeWindowText
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             implicitContentWidth + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
@@ -38,6 +38,11 @@ T.TabButton {
     hoverEnabled: true
 
     readonly property int animationTime: 200
+    readonly property color activeHighlight: AkTheme.palette.active.highlight
+    readonly property color activeWindow: AkTheme.palette.active.window
+    readonly property color activeWindowText: AkTheme.palette.active.windowText
+    readonly property color disabledWindow: AkTheme.palette.disabled.window
+    readonly property color disabledWindowText: AkTheme.palette.disabled.windowText
 
     contentItem: Item {
         id: buttonContent
@@ -60,7 +65,7 @@ T.TabButton {
             iconColor: control.icon.color
             text: control.text
             font: control.font
-            color: AkTheme.palette.active.windowText
+            color: control.activeWindowText
             enabled: control.enabled
         }
     }
@@ -71,7 +76,7 @@ T.TabButton {
             AkUnit.create(64 * AkTheme.controlScale, "dp").pixels
         implicitHeight:
             AkUnit.create(36 * AkTheme.controlScale, "dp").pixels
-        color: AkTheme.shade(AkTheme.palette.active.window, 0.0, 0.0)
+        color: AkTheme.shade(control.activeWindow, 0.0, 0.0)
     }
 
     states: [
@@ -81,11 +86,11 @@ T.TabButton {
 
             PropertyChanges {
                 target: iconLabel
-                color: AkTheme.palette.disabled.windowText
+                color: control.disabledWindowText
             }
             PropertyChanges {
                 target: buttonRectangleBelow
-                color: AkTheme.shade(AkTheme.palette.disabled.window, 0.0, 0.0)
+                color: AkTheme.shade(control.disabledWindow, 0.0, 0.0)
             }
         },
         State {
@@ -99,9 +104,7 @@ T.TabButton {
 
             PropertyChanges {
                 target: buttonRectangleBelow
-                color: AkTheme.constShade(AkTheme.palette.active.highlight,
-                                                0.0,
-                                                0.1)
+                color: AkTheme.constShade(control.activeHighlight, 0.0, 0.1)
             }
         },
         State {
@@ -112,9 +115,7 @@ T.TabButton {
 
             PropertyChanges {
                 target: buttonRectangleBelow
-                color: AkTheme.constShade(AkTheme.palette.active.highlight,
-                                                0.0,
-                                                0.2)
+                color: AkTheme.constShade(control.activeHighlight, 0.0, 0.2)
             }
         },
         State {
@@ -128,7 +129,7 @@ T.TabButton {
 
             PropertyChanges {
                 target: iconLabel
-                color: AkTheme.palette.active.highlight
+                color: control.activeHighlight
             }
         },
         State {
@@ -142,13 +143,11 @@ T.TabButton {
 
             PropertyChanges {
                 target: iconLabel
-                color: AkTheme.palette.active.highlight
+                color: control.activeHighlight
             }
             PropertyChanges {
                 target: buttonRectangleBelow
-                color: AkTheme.constShade(AkTheme.palette.active.highlight,
-                                                0.0,
-                                                0.3)
+                color: AkTheme.constShade(control.activeHighlight, 0.0, 0.3)
             }
         },
         State {
@@ -159,13 +158,11 @@ T.TabButton {
 
             PropertyChanges {
                 target: iconLabel
-                color: AkTheme.palette.active.highlight
+                color: control.activeHighlight
             }
             PropertyChanges {
                 target: buttonRectangleBelow
-                color: AkTheme.constShade(AkTheme.palette.active.highlight,
-                                                0.0,
-                                                0.4)
+                color: AkTheme.constShade(control.activeHighlight, 0.0, 0.4)
             }
         }
     ]

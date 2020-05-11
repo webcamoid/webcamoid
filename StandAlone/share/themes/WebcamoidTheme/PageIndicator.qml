@@ -35,6 +35,8 @@ T.PageIndicator {
     hoverEnabled: true
 
     readonly property int animationTime: 200
+    readonly property color activeHighlight: AkTheme.palette.active.highlight
+    readonly property color disabledHighlight: AkTheme.palette.disabled.highlight
 
     delegate: Rectangle {
         implicitWidth:
@@ -43,16 +45,16 @@ T.PageIndicator {
         radius: width / 2
         color:
             !control.enabled?
-                AkTheme.constShade(AkTheme.palette.disabled.highlight, 0, 0.5):
+                AkTheme.constShade(control.disabledHighlight, 0, 0.5):
             control.hovered?
-                AkTheme.constShade(AkTheme.palette.active.highlight, 0.1, 0.5):
-                AkTheme.constShade(AkTheme.palette.active.highlight, 0, 0.5)
+                AkTheme.constShade(control.activeHighlight, 0.1, 0.5):
+                AkTheme.constShade(control.activeHighlight, 0, 0.5)
         border.color:
             !control.enabled?
-                AkTheme.palette.disabled.highlight:
+                control.disabledHighlight:
             control.hovered?
-                AkTheme.constShade(AkTheme.palette.active.highlight, 0.1):
-                AkTheme.palette.active.highlight
+                AkTheme.constShade(control.activeHighlight, 0.1):
+                control.activeHighlight
         border.width:
             AkUnit.create(2 * AkTheme.controlScale, "dp").pixels
         opacity: index === control.currentIndex?

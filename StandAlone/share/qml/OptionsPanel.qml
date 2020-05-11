@@ -58,6 +58,8 @@ Pane {
     property int minimumHeight: AkUnit.create(100 * AkTheme.controlScale, "dp").pixels
     property variant contents: Item {}
     property real k: 0
+    readonly property color activeDark: AkTheme.palette.active.dark
+    readonly property color disabledDark: AkTheme.palette.disabled.dark
 
     signal actionClicked()
     signal closed()
@@ -232,8 +234,8 @@ Pane {
             Rectangle {
                 id: rectangleLeft
                 color: optionsPanel.enabled?
-                           AkTheme.palette.active.dark:
-                           AkTheme.palette.disabled.dark
+                           optionsPanel.activeDark:
+                           optionsPanel.disabledDark
                 x: optionsPanel.edge == Qt.LeftEdge || optionsPanel.edge == Qt.RightEdge?
                        (parent.width - optionsPanel.panelBorder) / 2:
                        0

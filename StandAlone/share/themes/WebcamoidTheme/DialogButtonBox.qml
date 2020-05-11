@@ -34,6 +34,9 @@ T.DialogButtonBox {
     rightPadding: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
     alignment: Qt.AlignRight
 
+    readonly property color activeDark: AkTheme.palette.active.dark
+    readonly property color disabledDark: AkTheme.palette.disabled.dark
+
     delegate: Button {
         flat: true
     }
@@ -54,8 +57,8 @@ T.DialogButtonBox {
 
         Rectangle {
             color: control.enabled?
-                       AkTheme.palette.active.dark:
-                       AkTheme.palette.disabled.dark
+                       control.activeDark:
+                       control.disabledDark
             height: AkUnit.create(1 * AkTheme.controlScale, "dp").pixels
             anchors.left: background.left
             anchors.right: background.right

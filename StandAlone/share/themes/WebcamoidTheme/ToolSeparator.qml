@@ -39,6 +39,9 @@ T.ToolSeparator {
                          AkUnit.create(12 * AkTheme.controlScale,
                                     "dp").pixels
 
+    readonly property color activeHighlightedText: AkTheme.palette.active.highlightedText
+    readonly property color disabledHighlightedText: AkTheme.palette.disabled.highlightedText
+
     contentItem: Rectangle {
         implicitWidth: vertical?
                            AkUnit.create(1 * AkTheme.controlScale,
@@ -52,7 +55,7 @@ T.ToolSeparator {
                                        "dp").pixels
         color:
             enabled?
-                AkTheme.palette.active.highlightedText:
-                AkTheme.palette.disabled.highlightedText
+                control.activeHighlightedText:
+                control.disabledHighlightedText
     }
 }

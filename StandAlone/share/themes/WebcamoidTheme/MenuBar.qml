@@ -32,6 +32,9 @@ T.MenuBar {
     hoverEnabled: true
     delegate: MenuBarItem { }
 
+    readonly property color activeHighlight: AkTheme.palette.active.highlight
+    readonly property color disabledHighlight: AkTheme.palette.disabled.highlight
+
     contentItem: Row {
         spacing: control.spacing
 
@@ -44,7 +47,7 @@ T.MenuBar {
         implicitWidth: AkUnit.create(360 * AkTheme.controlScale, "dp").pixels
         implicitHeight: AkUnit.create(48 * AkTheme.controlScale, "dp").pixels
         color: enabled?
-                   AkTheme.palette.active.highlight:
-                   AkTheme.palette.disabled.highlight
+                   control.activeHighlight:
+                   control.disabledHighlight
     }
 }

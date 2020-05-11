@@ -25,20 +25,20 @@ import Ak 1.0
 T.TextArea {
     id: control
     color: enabled?
-               AkTheme.palette.active.text:
-               AkTheme.palette.disabled.text
+               activeText:
+               disabledText
     placeholderTextColor:
         enabled?
-            AkTheme.palette.active.placeholderText:
-            AkTheme.palette.disabled.placeholderText
+            activePlaceholderText:
+            disabledPlaceholderText
     selectedTextColor:
         enabled?
-            AkTheme.palette.active.highlightedText:
-            AkTheme.palette.disabled.highlightedText
+            activeHighlightedText:
+            disabledHighlightedText
     selectionColor:
         enabled?
-            AkTheme.palette.active.highlight:
-            AkTheme.palette.disabled.highlight
+            activeHighlight:
+            disabledHighlight
     padding: AkUnit.create(12 * AkTheme.controlScale, "dp").pixels
     implicitWidth: Math.max(contentWidth + leftPadding + rightPadding,
                             implicitBackgroundWidth + leftInset + rightInset,
@@ -54,6 +54,18 @@ T.TextArea {
     readonly property int animationTime: 200
     readonly property real placeHolderPadding:
         AkUnit.create(4 * AkTheme.controlScale, "dp").pixels
+    readonly property color activeBase: AkTheme.palette.active.base
+    readonly property color activeHighlight: AkTheme.palette.active.highlight
+    readonly property color activeHighlightedText: AkTheme.palette.active.highlightedText
+    readonly property color activeLink: AkTheme.palette.active.link
+    readonly property color activePlaceholderText: AkTheme.palette.active.placeholderText
+    readonly property color activeText: AkTheme.palette.active.text
+    readonly property color disabledBase: AkTheme.palette.disabled.base
+    readonly property color disabledHighlight: AkTheme.palette.disabled.highlight
+    readonly property color disabledHighlightedText: AkTheme.palette.disabled.highlightedText
+    readonly property color disabledLink: AkTheme.palette.disabled.link
+    readonly property color disabledPlaceholderText: AkTheme.palette.disabled.placeholderText
+    readonly property color disabledText: AkTheme.palette.disabled.text
 
     Text {
         id: placeholder
@@ -72,14 +84,14 @@ T.TextArea {
                  && (!control.activeFocus
                      || control.horizontalAlignment !== Qt.AlignHCenter)
         linkColor: control.enabled?
-                       AkTheme.palette.active.link:
-                       AkTheme.palette.disabled.link
+                       control.activeLink:
+                       control.disabledLink
         enabled: control.enabled
     }
 
     background: Rectangle {
         color: control.enabled?
-                   AkTheme.palette.active.base:
-                   AkTheme.palette.disabled.base
+                   control.activeBase:
+                   control.disabledBase
     }
 }

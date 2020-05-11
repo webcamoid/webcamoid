@@ -40,6 +40,8 @@ Dialog {
     property int minimumWidth: AkUnit.create(100 * AkTheme.controlScale, "dp").pixels
     property int maximumWidth:
         width - AkUnit.create(64 * AkTheme.controlScale, "dp").pixels
+    readonly property color activeDark: AkTheme.palette.active.dark
+    readonly property color disabledDark: AkTheme.palette.disabled.dark
 
     onWidthChanged: {
         if (videoEffectsDialog.visible)
@@ -137,7 +139,7 @@ Dialog {
             Rectangle {
                 id: rectangleRight
                 width: videoEffectsDialog.panelBorder
-                color: AkTheme.palette.active.dark
+                color: videoEffectsDialog.activeDark
                 anchors.leftMargin: -width / 2
                 anchors.left: optionsLayout.right
                 anchors.top: parent.top
@@ -215,8 +217,8 @@ Dialog {
 
         Rectangle {
             color: videoEffectsDialog.enabled?
-                       AkTheme.palette.active.dark:
-                       AkTheme.palette.disabled.dark
+                       videoEffectsDialog.activeDark:
+                       videoEffectsDialog.disabledDark
             height: AkUnit.create(1 * AkTheme.controlScale, "dp").pixels
             anchors.left: rectangle.left
             anchors.right: rectangle.right

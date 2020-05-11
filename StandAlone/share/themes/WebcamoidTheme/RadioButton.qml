@@ -27,7 +27,7 @@ T.RadioButton {
     id: control
     icon.width: AkUnit.create(18 * AkTheme.controlScale, "dp").pixels
     icon.height: AkUnit.create(18 * AkTheme.controlScale, "dp").pixels
-    icon.color: AkTheme.palette.active.windowText
+    icon.color: activeWindowText
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             implicitContentWidth + 2 * implicitIndicatorWidth
                             + leftPadding + rightPadding)
@@ -40,6 +40,12 @@ T.RadioButton {
     clip: true
 
     readonly property int animationTime: 200
+    readonly property color activeDark: AkTheme.palette.active.dark
+    readonly property color activeHighlight: AkTheme.palette.active.highlight
+    readonly property color activeWindowText: AkTheme.palette.active.windowText
+    readonly property color disabledDark: AkTheme.palette.disabled.dark
+    readonly property color disabledHighlight: AkTheme.palette.disabled.highlight
+    readonly property color disabledWindowText: AkTheme.palette.disabled.windowText
 
     indicator: Item {
         id: radioButtonIndicator
@@ -57,8 +63,8 @@ T.RadioButton {
             height: width
             color:
                 control.checked?
-                    AkTheme.palette.active.highlight:
-                    AkTheme.palette.active.dark
+                    control.activeHighlight:
+                    control.activeDark
             radius: width / 2
             anchors.verticalCenter: radioButtonIndicator.verticalCenter
             anchors.horizontalCenter: radioButtonIndicator.horizontalCenter
@@ -69,8 +75,8 @@ T.RadioButton {
             border.width: AkUnit.create(2 * AkTheme.controlScale, "dp").pixels
             border.color:
                 control.checked?
-                    AkTheme.palette.active.highlight:
-                    AkTheme.palette.active.dark
+                    control.activeHighlight:
+                    control.activeDark
             color: "transparent"
             radius: Math.min(radioButtonIndicator.width, radioButtonIndicator.height) / 2
             anchors.verticalCenter: radioButtonIndicator.verticalCenter
@@ -80,7 +86,7 @@ T.RadioButton {
 
             Rectangle {
                 id: indicatorCheckedMark
-                color: AkTheme.palette.active.highlight
+                color: control.activeHighlight
                 width: AkUnit.create(15 * AkTheme.controlScale, "dp").pixels
                 height: AkUnit.create(15 * AkTheme.controlScale, "dp").pixels
                 radius: Math.min(width, height) / 2
@@ -103,7 +109,7 @@ T.RadioButton {
         iconColor: control.icon.color
         text: control.text
         font: control.font
-        color: AkTheme.palette.active.windowText
+        color: control.activeWindowText
         alignment: Qt.AlignLeft | Qt.AlignVCenter
         anchors.leftMargin: indicatorRect.width / 2
         anchors.left: radioButtonIndicator.right
@@ -121,16 +127,16 @@ T.RadioButton {
                 target: indicatorRect
                 border.color:
                     control.checked?
-                        AkTheme.palette.disabled.highlight:
-                        AkTheme.palette.disabled.dark
+                        control.disabledHighlight:
+                        control.disabledDark
             }
             PropertyChanges {
                 target: indicatorCheckedMark
-                color: AkTheme.palette.disabled.highlight
+                color: control.disabledHighlight
             }
             PropertyChanges {
                 target: iconLabel
-                color: AkTheme.palette.disabled.windowText
+                color: control.disabledWindowText
             }
         },
         State {

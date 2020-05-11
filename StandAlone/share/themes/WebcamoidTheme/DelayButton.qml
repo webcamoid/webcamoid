@@ -28,7 +28,7 @@ T.DelayButton {
     font.bold: true
     icon.width: AkUnit.create(18 * AkTheme.controlScale, "dp").pixels
     icon.height: AkUnit.create(18 * AkTheme.controlScale, "dp").pixels
-    icon.color: AkTheme.palette.active.buttonText
+    icon.color: activeButtonText
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             implicitContentWidth + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
@@ -38,6 +38,16 @@ T.DelayButton {
     hoverEnabled: true
 
     readonly property int animationTime: 200
+    readonly property color activeButton: AkTheme.palette.active.button
+    readonly property color activeButtonText: AkTheme.palette.active.buttonText
+    readonly property color activeDark: AkTheme.palette.active.dark
+    readonly property color activeHighlight: AkTheme.palette.active.highlight
+    readonly property color activeLight: AkTheme.palette.active.light
+    readonly property color activeMid: AkTheme.palette.active.mid
+    readonly property color activeWindow: AkTheme.palette.active.window
+    readonly property color disabledButton: AkTheme.palette.disabled.button
+    readonly property color disabledButtonText: AkTheme.palette.disabled.buttonText
+    readonly property color disabledDark: AkTheme.palette.disabled.dark
 
     transition: Transition {
         NumberAnimation {
@@ -66,7 +76,7 @@ T.DelayButton {
             iconColor: control.icon.color
             text: control.text
             font: control.font
-            color: AkTheme.palette.active.buttonText
+            color: control.activeButtonText
             enabled: control.enabled
             anchors.verticalCenter: buttonContent.verticalCenter
             anchors.horizontalCenter: buttonContent.horizontalCenter
@@ -84,24 +94,24 @@ T.DelayButton {
             radius: AkUnit.create(6 * AkTheme.controlScale, "dp").pixels
             border.width:
                 AkUnit.create(1 * AkTheme.controlScale, "dp").pixels
-            border.color: AkTheme.palette.active.dark
-            color: AkTheme.palette.active.button
+            border.color: control.activeDark
+            color: control.activeButton
             gradient: Gradient {
                 GradientStop {
                     position: 0
-                    color: AkTheme.palette.active.window.hslLightness < 0.5?
+                    color: control.activeWindow.hslLightness < 0.5?
                                Qt.tint(buttonRectangle.color,
-                                       AkTheme.shade(AkTheme.palette.active.dark, 0, 0.25)):
+                                       AkTheme.shade(control.activeDark, 0, 0.25)):
                                Qt.tint(buttonRectangle.color,
-                                       AkTheme.shade(AkTheme.palette.active.light, 0, 0.25))
+                                       AkTheme.shade(control.activeLight, 0, 0.25))
                 }
                 GradientStop {
                     position: 1
-                    color: AkTheme.palette.active.window.hslLightness < 0.5?
+                    color: control.activeWindow.hslLightness < 0.5?
                                Qt.tint(buttonRectangle.color,
-                                       AkTheme.shade(AkTheme.palette.active.light, 0, 0.25)):
+                                       AkTheme.shade(control.activeLight, 0, 0.25)):
                                Qt.tint(buttonRectangle.color,
-                                       AkTheme.shade(AkTheme.palette.active.dark, 0, 0.25))
+                                       AkTheme.shade(control.activeDark, 0, 0.25))
                 }
             }
         }
@@ -110,7 +120,7 @@ T.DelayButton {
         Rectangle {
             id: buttonCheckableIndicator
             height: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
-            color: AkTheme.palette.active.dark
+            color: control.activeDark
             anchors.bottom: back.bottom
             anchors.left: back.left
             anchors.right: back.right
@@ -118,7 +128,7 @@ T.DelayButton {
         Rectangle {
             width: parent.width * control.progress
             height: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
-            color: AkTheme.palette.active.highlight
+            color: control.activeHighlight
             anchors.bottom: back.bottom
         }
     }
@@ -130,16 +140,16 @@ T.DelayButton {
 
             PropertyChanges {
                 target: iconLabel
-                color: AkTheme.palette.disabled.buttonText
+                color: control.disabledButtonText
             }
             PropertyChanges {
                 target: buttonCheckableIndicator
-                color: AkTheme.palette.disabled.dark
+                color: control.disabledDark
             }
             PropertyChanges {
                 target: buttonRectangle
-                border.color: AkTheme.palette.disabled.dark
-                color: AkTheme.palette.disabled.button
+                border.color: control.disabledDark
+                color: control.disabledButton
             }
         },
         State {
@@ -151,7 +161,7 @@ T.DelayButton {
 
             PropertyChanges {
                 target: buttonRectangle
-                color: AkTheme.palette.active.mid
+                color: control.activeMid
             }
         },
         State {
@@ -164,8 +174,8 @@ T.DelayButton {
                 target: buttonRectangle
                 border.width: AkUnit.create(2 * AkTheme.controlScale,
                                             "dp").pixels
-                border.color: AkTheme.palette.active.highlight
-                color: AkTheme.palette.active.mid
+                border.color: control.activeHighlight
+                color: control.activeMid
             }
         },
         State {
@@ -177,8 +187,8 @@ T.DelayButton {
                 target: buttonRectangle
                 border.width: AkUnit.create(2 * AkTheme.controlScale,
                                             "dp").pixels
-                border.color: AkTheme.palette.active.highlight
-                color: AkTheme.palette.active.dark
+                border.color: control.activeHighlight
+                color: control.activeDark
             }
         }
     ]

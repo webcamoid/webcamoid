@@ -28,7 +28,7 @@ T.ToolButton {
     font.bold: true
     icon.width: AkUnit.create(18 * AkTheme.controlScale, "dp").pixels
     icon.height: AkUnit.create(18 * AkTheme.controlScale, "dp").pixels
-    icon.color: AkTheme.palette.active.highlightedText
+    icon.color: activeHighlightedText
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             implicitContentWidth + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
@@ -38,6 +38,10 @@ T.ToolButton {
     hoverEnabled: true
 
     readonly property int animationTime: 200
+    readonly property color activeHighlight: AkTheme.palette.active.highlight
+    readonly property color activeHighlightedText: AkTheme.palette.active.highlightedText
+    readonly property color disabledHighlight: AkTheme.palette.disabled.highlight
+    readonly property color disabledHighlightedText: AkTheme.palette.disabled.highlightedText
 
     contentItem: Item {
         id: buttonContent
@@ -60,7 +64,7 @@ T.ToolButton {
             iconColor: control.icon.color
             text: control.text
             font: control.font
-            color: AkTheme.palette.active.highlightedText
+            color: control.activeHighlightedText
             enabled: control.enabled
         }
     }
@@ -71,8 +75,8 @@ T.ToolButton {
         implicitHeight:
             AkUnit.create(36 * AkTheme.controlScale, "dp").pixels
         color: control.highlighted?
-                   AkTheme.constShade(AkTheme.palette.active.highlight, 0.1):
-                   AkTheme.constShade(AkTheme.palette.active.highlight, 0, 0)
+                   AkTheme.constShade(control.activeHighlight, 0.1):
+                   AkTheme.constShade(control.activeHighlight, 0, 0)
     }
 
     states: [
@@ -82,13 +86,13 @@ T.ToolButton {
 
             PropertyChanges {
                 target: iconLabel
-                color: AkTheme.palette.disabled.highlightedText
+                color: control.disabledHighlightedText
             }
             PropertyChanges {
                 target: buttonRectangleBelow
                 color: control.highlighted?
-                           AkTheme.constShade(AkTheme.palette.disabled.highlight, 0.1):
-                           AkTheme.constShade(AkTheme.palette.disabled.highlight, 0, 0)
+                           AkTheme.constShade(control.disabledHighlight, 0.1):
+                           AkTheme.constShade(control.disabledHighlight, 0, 0)
             }
         },
         State {
@@ -102,8 +106,8 @@ T.ToolButton {
                 target: buttonRectangleBelow
                 color:
                     control.highlighted?
-                        AkTheme.constShade(AkTheme.palette.active.highlight, 0.2):
-                        AkTheme.constShade(AkTheme.palette.active.highlight, 0.1)
+                        AkTheme.constShade(control.activeHighlight, 0.2):
+                        AkTheme.constShade(control.activeHighlight, 0.1)
             }
         },
         State {
@@ -115,7 +119,7 @@ T.ToolButton {
             PropertyChanges {
                 target: buttonRectangleBelow
                 color:
-                    AkTheme.constShade(AkTheme.palette.active.highlight, 0.2)
+                    AkTheme.constShade(control.activeHighlight, 0.2)
             }
         },
         State {
@@ -125,7 +129,7 @@ T.ToolButton {
             PropertyChanges {
                 target: buttonRectangleBelow
                 color:
-                    AkTheme.constShade(AkTheme.palette.active.highlight, 0.3)
+                    AkTheme.constShade(control.activeHighlight, 0.3)
             }
         }
     ]

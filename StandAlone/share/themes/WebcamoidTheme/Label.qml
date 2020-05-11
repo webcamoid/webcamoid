@@ -23,12 +23,17 @@ import QtQuick.Templates 2.5 as T
 import Ak 1.0
 
 T.Label {
-    id: label
+    id: control
     color: enabled?
-               AkTheme.palette.active.windowText:
-               AkTheme.palette.disabled.windowText
+               activeWindowText:
+               disabledWindowText
     linkColor: enabled?
-                   AkTheme.palette.active.link:
-                   AkTheme.palette.disabled.link
+                   activeLink:
+                   disabledLink
     elide: Text.ElideRight
+
+    readonly property color activeLink: AkTheme.palette.active.link
+    readonly property color activeWindowText: AkTheme.palette.active.windowText
+    readonly property color disabledLink: AkTheme.palette.disabled.link
+    readonly property color disabledWindowText: AkTheme.palette.disabled.windowText
 }

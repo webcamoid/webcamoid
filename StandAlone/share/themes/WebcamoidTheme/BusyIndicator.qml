@@ -30,6 +30,9 @@ T.BusyIndicator {
                              implicitContentHeight + topPadding + bottomPadding)
     padding: AkUnit.create(6 * AkTheme.controlScale, "dp").pixels
 
+    readonly property color activeHighlight: AkTheme.palette.active.highlight
+    readonly property color disabledHighlight: AkTheme.palette.disabled.highlight
+
     contentItem: Item {
         implicitWidth: AkUnit.create(64 * AkTheme.controlScale, "dp").pixels
         implicitHeight: AkUnit.create(64 * AkTheme.controlScale, "dp").pixels
@@ -79,8 +82,8 @@ T.BusyIndicator {
                     height: width
                     radius: width / 2
                     color: control.enabled?
-                               AkTheme.palette.active.highlight:
-                               AkTheme.palette.disabled.highlight
+                               control.activeHighlight:
+                               control.disabledHighlight
                     opacity: 1 - index / repeater.count
 
                     transform: [

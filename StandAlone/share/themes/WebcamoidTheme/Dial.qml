@@ -37,16 +37,23 @@ T.Dial {
 
     readonly property int strokeWidth: backgroundRectangle.width / 8
     readonly property int animationTime: 200
+    readonly property color activeDark: AkTheme.palette.active.dark
+    readonly property color activeHighlight: AkTheme.palette.active.highlight
+    readonly property color activeLink: AkTheme.palette.active.link
+    readonly property color activeWindow: AkTheme.palette.active.window
+    readonly property color disabledHighlight: AkTheme.palette.disabled.highlight
+    readonly property color disabledLink: AkTheme.palette.disabled.link
+    readonly property color disabledWindowText: AkTheme.palette.disabled.windowText
 
     contentItem: Text {
         id: dialValue
         text: Math.round(control.value * 100) / 100
-        color: applicationWindow.colorActiveWindowText
+        color: control.activeWindowText
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
         linkColor: control.enabled?
-                       AkTheme.palette.active.link:
-                       AkTheme.palette.disabled.link
+                       control.activeLink:
+                       control.disabledLink
         enabled: control.enabled
     }
 
@@ -57,10 +64,8 @@ T.Dial {
         width: Math.min(control.width, control.height)
         height: width
         radius: width / 2
-        border.color:
-            AkTheme.shade(AkTheme.palette.active.window, 0, 0.5)
-        color:
-            AkTheme.shade(AkTheme.palette.active.window, 0, 0.5)
+        border.color: AkTheme.shade(control.activeWindow, 0, 0.5)
+        color: AkTheme.shade(control.activeWindow, 0, 0.5)
 
         Shape {
             id: shape
@@ -100,7 +105,7 @@ T.Dial {
                 startX: 0
                 startY: 0
                 fillColor: "transparent"
-                strokeColor: AkTheme.palette.active.highlight
+                strokeColor: control.activeHighlight
                 strokeStyle: ShapePath.SolidLine
                 strokeWidth: control.strokeWidth
                 capStyle: ShapePath.RoundCap
@@ -146,11 +151,11 @@ T.Dial {
 
             PropertyChanges {
                 target: shapePath
-                strokeColor: AkTheme.palette.disabled.highlight
+                strokeColor: control.disabledHighlight
             }
             PropertyChanges {
                 target: dialValue
-                color: AkTheme.palette.disabled.windowText
+                color: control.disabledWindowText
             }
         },
         State {
@@ -161,7 +166,7 @@ T.Dial {
 
             PropertyChanges {
                 target: backgroundRectangle
-                border.color: AkTheme.palette.active.dark
+                border.color: control.activeDark
             }
         },
         State {
@@ -173,7 +178,7 @@ T.Dial {
 
             PropertyChanges {
                 target: backgroundRectangle
-                border.color: AkTheme.palette.active.highlight
+                border.color: control.activeHighlight
                 border.width:
                     AkUnit.create(2 * AkTheme.controlScale, "dp").pixels
             }
@@ -185,14 +190,13 @@ T.Dial {
             PropertyChanges {
                 target: backgroundRectangle
                 border.color:
-                    AkTheme.constShade(AkTheme.palette.active.highlight, 0.1)
+                    AkTheme.constShade(control.activeHighlight, 0.1)
                 border.width:
                     AkUnit.create(2 * AkTheme.controlScale, "dp").pixels
             }
             PropertyChanges {
                 target: shapePath
-                strokeColor:
-                    AkTheme.constShade(AkTheme.palette.active.highlight, 0.1)
+                strokeColor: AkTheme.constShade(control.activeHighlight, 0.1)
             }
         }
     ]

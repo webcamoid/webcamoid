@@ -23,16 +23,19 @@ import QtQuick.Templates 2.5 as T
 import Ak 1.0
 
 T.TabBar {
-    id: tabBar
+    id: control
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             contentWidth + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
                              contentHeight + topPadding + bottomPadding)
 
+    readonly property color activeHighlight: AkTheme.palette.active.highlight
+    readonly property color disabledHighlight: AkTheme.palette.disabled.highlight
+
     contentItem: ListView {
-        model: tabBar.contentModel
-        currentIndex: tabBar.currentIndex
-        spacing: tabBar.spacing
+        model: control.contentModel
+        currentIndex: control.currentIndex
+        spacing: control.spacing
         orientation: ListView.Horizontal
         boundsBehavior: Flickable.StopAtBounds
         flickableDirection: Flickable.AutoFlickIfNeeded
@@ -53,11 +56,11 @@ T.TabBar {
                 height:
                     AkUnit.create(2 * AkTheme.controlScale, "dp").pixels
                 width: parent.width
-                y: tabBar.position === T.TabBar.Footer?
+                y: control.position === T.TabBar.Footer?
                        0: parent.height - height
                 color: enabled?
-                           AkTheme.palette.active.highlight:
-                           AkTheme.palette.disabled.highlight
+                           control.activeHighlight:
+                           control.disabledHighlight
             }
         }
     }
