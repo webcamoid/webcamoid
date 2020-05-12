@@ -248,7 +248,7 @@
     <message>
         <location filename="../qml/AudioVideoPanel.qml" line="32"/>
         <source>Video Source Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Video-invoeropties</translation>
     </message>
 </context>
 <context>
@@ -654,52 +654,52 @@
     <message>
         <location filename="../qml/VideoDeviceOptions.qml" line="27"/>
         <source>Video Device Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Video-apparaatopties</translation>
     </message>
     <message>
         <location filename="../qml/VideoDeviceOptions.qml" line="49"/>
         <source>Virtual camera name</source>
-        <translation type="unfinished"></translation>
+        <translation>Naam van virtuele camera</translation>
     </message>
     <message>
         <location filename="../qml/VideoDeviceOptions.qml" line="60"/>
         <source>Formats</source>
-        <translation type="unfinished"></translation>
+        <translation>Formaten</translation>
     </message>
     <message>
         <location filename="../qml/VideoDeviceOptions.qml" line="63"/>
         <source>Advanced</source>
-        <translation type="unfinished"></translation>
+        <translation>Geavanceerd</translation>
     </message>
     <message>
         <location filename="../qml/VideoDeviceOptions.qml" line="76"/>
         <source>Add format</source>
-        <translation type="unfinished"></translation>
+        <translation>Formaat toevoegen</translation>
     </message>
     <message>
         <location filename="../qml/VideoDeviceOptions.qml" line="89"/>
         <source>Horizontal mirror</source>
-        <translation type="unfinished"></translation>
+        <translation>Horizontaal spiegelen</translation>
     </message>
     <message>
         <location filename="../qml/VideoDeviceOptions.qml" line="95"/>
         <source>Vertical mirror</source>
-        <translation type="unfinished"></translation>
+        <translation>Verticaal spiegelen</translation>
     </message>
     <message>
         <location filename="../qml/VideoDeviceOptions.qml" line="101"/>
         <source>Scaling</source>
-        <translation type="unfinished"></translation>
+        <translation>Afmetingen</translation>
     </message>
     <message>
         <location filename="../qml/VideoDeviceOptions.qml" line="107"/>
         <source>Aspect ratio</source>
-        <translation type="unfinished"></translation>
+        <translation>Beeldverhouding</translation>
     </message>
     <message>
         <location filename="../qml/VideoDeviceOptions.qml" line="113"/>
         <source>Swap red and blue</source>
-        <translation type="unfinished"></translation>
+        <translation>Rood en blauw omwisselen</translation>
     </message>
 </context>
 <context>
@@ -800,7 +800,7 @@
         <location filename="../../src/videolayer.cpp" line="199"/>
         <source>No Output</source>
         <extracomment>Disable video output, don&apos;t send the video to the output device.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Geen uitvoer</translation>
     </message>
 </context>
 <context>
@@ -826,7 +826,7 @@
     <message>
         <location filename="../qml/VideoOutputs.qml" line="38"/>
         <source>Remove all outputs</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle uitvoeren verwijderen</translation>
     </message>
 </context>
 <context>
