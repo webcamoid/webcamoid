@@ -338,6 +338,22 @@ void AkUnit::resetUnit()
     this->setUnit(px);
 }
 
+void AkUnit::registerTypes()
+{
+    qRegisterMetaType<AkUnit>("AkUnit");
+    qRegisterMetaTypeStreamOperators<AkUnit>("AkUnit");
+    QMetaType::registerDebugStreamOperator<AkUnit>();
+    qRegisterMetaType<Unit>("Unit");
+    qmlRegisterSingletonType<AkUnit>("Ak", 1, 0, "AkUnit",
+                                     [] (QQmlEngine *qmlEngine,
+                                         QJSEngine *jsEngine) -> QObject * {
+        Q_UNUSED(qmlEngine)
+        Q_UNUSED(jsEngine)
+
+        return new AkUnit();
+    });
+}
+
 AkUnitPrivate::AkUnitPrivate(AkUnit *self):
     self(self)
 {

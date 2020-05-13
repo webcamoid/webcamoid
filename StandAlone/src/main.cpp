@@ -20,7 +20,6 @@
 #include <QApplication>
 #include <QDirIterator>
 #include <QFontDatabase>
-#include <QIcon>
 #include <QQuickStyle>
 #include <QTranslator>
 
@@ -53,16 +52,6 @@ int main(int argc, char *argv[])
 
     while (fontsDirIterator.hasNext())
         QFontDatabase::addApplicationFont(fontsDirIterator.next());
-
-#ifdef Q_OS_OSX
-    QIcon fallbackIcon(":/Webcamoid/share/themes/WebcamoidTheme/icons/webcamoid.icns");
-#elif defined(Q_OS_WIN32)
-    QIcon fallbackIcon(":/Webcamoid/share/themes/WebcamoidTheme/icons/hicolor/256x256/webcamoid.ico");
-#else
-    QIcon fallbackIcon(":/Webcamoid/share/themes/WebcamoidTheme/icons/hicolor/scalable/webcamoid.svg");
-#endif
-
-    QApplication::setWindowIcon(QIcon::fromTheme("webcamoid", fallbackIcon));
 
 #if defined(Q_OS_WIN32) || defined(Q_OS_OSX)
     // NOTE: OpenGL detection in Qt is quite buggy, so use software render by default.

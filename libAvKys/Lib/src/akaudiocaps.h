@@ -113,6 +113,7 @@ class AKCOMMONS_EXPORT AkAudioCaps: public QObject
             SampleFormat_dbl = SampleFormat_dblbe,
 #endif
         };
+        using SampleFormatList = QList<SampleFormat>;
 
         enum SampleType
         {
@@ -156,6 +157,7 @@ class AKCOMMONS_EXPORT AkAudioCaps: public QObject
             Position_SurroundDirectLeft,
             Position_SurroundDirectRight,
         };
+        using SpeakerPosition = QPair<qreal, qreal>;
 
         enum ChannelLayout
         {
@@ -189,8 +191,7 @@ class AKCOMMONS_EXPORT AkAudioCaps: public QObject
             Layout_octagonal,
             Layout_hexadecagonal,
         };
-
-        using SpeakerPosition = QPair<qreal, qreal>;
+        using ChannelLayoutList = QList<ChannelLayout>;
 
         AkAudioCaps(QObject *parent=nullptr);
         AkAudioCaps(SampleFormat format,
@@ -304,6 +305,7 @@ class AKCOMMONS_EXPORT AkAudioCaps: public QObject
         void resetSamples();
         void resetPlaneSize();
         void clear();
+        static void registerTypes();
 };
 
 AKCOMMONS_EXPORT qreal operator -(const AkAudioCaps::SpeakerPosition &pos1,
@@ -321,7 +323,7 @@ Q_DECLARE_METATYPE(AkAudioCaps::SampleFormat)
 Q_DECLARE_METATYPE(AkAudioCaps::SampleType)
 Q_DECLARE_METATYPE(AkAudioCaps::Position)
 Q_DECLARE_METATYPE(AkAudioCaps::ChannelLayout)
-Q_DECLARE_METATYPE(QList<AkAudioCaps::SampleFormat>)
-Q_DECLARE_METATYPE(QList<AkAudioCaps::ChannelLayout>)
+Q_DECLARE_METATYPE(AkAudioCaps::SampleFormatList)
+Q_DECLARE_METATYPE(AkAudioCaps::ChannelLayoutList)
 
 #endif // AKAUDIOCAPS_H

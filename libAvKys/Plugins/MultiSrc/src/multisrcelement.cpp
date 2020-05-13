@@ -321,9 +321,9 @@ void MultiSrcElementPrivate::codecLibUpdated(const QString &codecLib)
     }
 
     QObject::connect(this->m_mediaSource.data(),
-                     SIGNAL(stateChanged(ElementState)),
+                     SIGNAL(stateChanged(AkElement::ElementState)),
                      self,
-                     SIGNAL(stateChanged(ElementState)));
+                     SIGNAL(stateChanged(AkElement::ElementState)));
     QObject::connect(this->m_mediaSource.data(),
                      SIGNAL(oStream(const AkPacket &)),
                      self,

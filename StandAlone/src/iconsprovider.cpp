@@ -18,6 +18,8 @@
  */
 
 #include <limits>
+#include <QApplication>
+#include <QIcon>
 #include <QSettings>
 
 #include "iconsprovider.h"
@@ -26,7 +28,8 @@ class IconsProviderPrivate
 {
     public:
         QList<QSize> m_availableSizes;
-        QString m_iconsPath {":/Webcamoid/share/themes/WebcamoidTheme/icons/hicolor"};
+        QString m_iconsPath {":/Webcamoid/share/themes/WebcamoidTheme/icons"};
+        QString m_themeName {"hicolor"};
 
         QSize nearestSize(const QSize &requestedSize) const;
         QSize nearestSize(const QList<QSize> &availableSizes,
@@ -43,7 +46,11 @@ IconsProvider::IconsProvider():
     QQuickImageProvider(QQuickImageProvider::Pixmap)
 {
     this->d = new IconsProviderPrivate;
-    QSettings theme(this->d->m_iconsPath + "/index.theme", QSettings::IniFormat);
+    QSettings theme(this->d->m_iconsPath
+                    + "/"
+                    + this->d->m_themeName
+                    + "/index.theme",
+                    QSettings::IniFormat);
     theme.beginGroup("Icon Theme");
 
     for (auto &size: theme.value("Directories").toStringList()) {
@@ -52,8 +59,8 @@ IconsProvider::IconsProvider():
         if (dims.size() < 2)
             continue;
 
-        auto width = dims[0].toInt();
-        auto height = dims[0].toInt();
+        auto width = dims.value(0).toInt();
+        auto height = dims.value(1).toInt();
 
         if (width < 1 || height < 1)
             continue;
@@ -62,6 +69,8 @@ IconsProvider::IconsProvider():
     }
 
     theme.endGroup();
+
+    this->themeSetup();
 }
 
 IconsProvider::~IconsProvider()
@@ -79,8 +88,12 @@ QImage IconsProvider::requestImage(const QString &id,
     if (iconSize.isEmpty())
         return QImage();
 
-    QImage icon(this->d->m_iconsPath
-                + QString("/%1x%2/%3.png").arg(iconSize.width()).arg(iconSize.height()).arg(id));
+    QImage icon(QString("%1/%2/%3x%4/%5.png")
+                .arg(this->d->m_iconsPath)
+                .arg(this->d->m_themeName)
+                .arg(iconSize.width())
+                .arg(iconSize.height())
+                .arg(id));
 
     return icon;
 }
@@ -95,10 +108,41 @@ QPixmap IconsProvider::requestPixmap(const QString &id,
     if (iconSize.isEmpty())
         return QPixmap();
 
-    QPixmap icon(this->d->m_iconsPath
-                 + QString("/%1x%2/%3.png").arg(iconSize.width()).arg(iconSize.height()).arg(id));
+    QPixmap icon(QString("%1/%2/%3x%4/%5.png")
+                 .arg(this->d->m_iconsPath)
+                 .arg(this->d->m_themeName)
+                 .arg(iconSize.width())
+                 .arg(iconSize.height())
+                 .arg(id));
 
     return icon;
+}
+
+void IconsProvider::themeSetup()
+{
+    auto paths = QIcon::fallbackSearchPaths();
+
+    if (!paths.contains(this->d->m_iconsPath))
+        QIcon::setFallbackSearchPaths(paths +
+                                      QStringList {this->d->m_iconsPath});
+
+#ifdef Q_OS_OSX
+    QIcon fallbackIcon(QString("%1/%2.icns")
+                       .arg(this->d->m_iconsPath,
+                            COMMONS_TARGET));
+#elif defined(Q_OS_WIN32)
+    QIcon fallbackIcon(QString("%1/%2/256x256/%3.ico")
+                       .arg(this->d->m_iconsPath,
+                            this->d->m_themeName,
+                            COMMONS_TARGET));
+#else
+    QIcon fallbackIcon(QString("%1/%2/scalable/%3.svg")
+                       .arg(this->d->m_iconsPath,
+                            this->d->m_themeName,
+                            COMMONS_TARGET));
+#endif
+
+    QApplication::setWindowIcon(QIcon::fromTheme("webcamoid", fallbackIcon));
 }
 
 QSize IconsProviderPrivate::nearestSize(const QSize &requestedSize) const

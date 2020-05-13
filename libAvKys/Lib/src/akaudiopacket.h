@@ -139,6 +139,7 @@ class AKCOMMONS_EXPORT AkAudioPacket: public QObject
         void resetPts();
         void resetTimeBase();
         void resetIndex();
+        static void registerTypes();
 };
 
 AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, const AkAudioPacket &packet);

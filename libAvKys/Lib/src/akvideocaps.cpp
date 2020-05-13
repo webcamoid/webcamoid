@@ -22,6 +22,7 @@
 #include <QMetaEnum>
 #include <QSize>
 #include <QVector>
+#include <QQmlEngine>
 
 #include "akvideocaps.h"
 #include "akfrac.h"
@@ -780,6 +781,22 @@ void AkVideoCaps::clear()
 {
     for (auto &property: this->dynamicPropertyNames())
         this->setProperty(property.constData(), {});
+}
+
+void AkVideoCaps::registerTypes()
+{
+    qRegisterMetaType<AkVideoCaps>("AkVideoCaps");
+    qRegisterMetaTypeStreamOperators<AkVideoCaps>("AkVideoCaps");
+    qRegisterMetaType<PixelFormat>("PixelFormat");
+    QMetaType::registerDebugStreamOperator<AkVideoCaps::PixelFormat>();
+    qmlRegisterSingletonType<AkVideoCaps>("Ak", 1, 0, "AkVideoCaps",
+                                          [] (QQmlEngine *qmlEngine,
+                                              QJSEngine *jsEngine) -> QObject * {
+        Q_UNUSED(qmlEngine)
+        Q_UNUSED(jsEngine)
+
+        return new AkVideoCaps();
+    });
 }
 
 void AkVideoCapsPrivate::updateParams()

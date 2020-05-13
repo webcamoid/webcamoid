@@ -163,6 +163,7 @@ class AKCOMMONS_EXPORT AkElement: public QObject
         virtual AkPacket iStream(const AkPacket &packet);
         virtual bool setState(AkElement::ElementState state);
         virtual void resetState();
+        static void registerTypes();
 };
 
 AKCOMMONS_EXPORT QDataStream &operator >>(QDataStream &istream, AkElement::ElementState &state);

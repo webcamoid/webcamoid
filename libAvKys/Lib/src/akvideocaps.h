@@ -399,6 +399,7 @@ class AKCOMMONS_EXPORT AkVideoCaps: public QObject
         void resetFps();
         void resetAlign();
         void clear();
+        static void registerTypes();
 };
 
 AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, const AkVideoCaps &caps);

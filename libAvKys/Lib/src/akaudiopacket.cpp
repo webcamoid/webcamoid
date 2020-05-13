@@ -23,6 +23,7 @@
 #include <QVariant>
 #include <QtEndian>
 #include <QtMath>
+#include <QQmlEngine>
 
 #include "akaudiopacket.h"
 #include "akpacket.h"
@@ -1299,6 +1300,19 @@ void AkAudioPacket::resetTimeBase()
 void AkAudioPacket::resetIndex()
 {
     this->setIndex(-1);
+}
+
+void AkAudioPacket::registerTypes()
+{
+    qRegisterMetaType<AkAudioPacket>("AkAudioPacket");
+    qmlRegisterSingletonType<AkAudioPacket>("Ak", 1, 0, "AkAudioPacket",
+                                            [] (QQmlEngine *qmlEngine,
+                                                QJSEngine *jsEngine) -> QObject * {
+        Q_UNUSED(qmlEngine)
+        Q_UNUSED(jsEngine)
+
+        return new AkAudioPacket();
+    });
 }
 
 QDebug operator <<(QDebug debug, const AkAudioPacket &packet)

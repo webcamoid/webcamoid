@@ -20,6 +20,7 @@
 #include <QDebug>
 #include <QVariant>
 #include <QImage>
+#include <QQmlEngine>
 
 #include "akvideopacket.h"
 #include "akpacket.h"
@@ -643,6 +644,18 @@ void AkVideoPacket::resetTimeBase()
 void AkVideoPacket::resetIndex()
 {
     this->setIndex(-1);
+}
+
+void AkVideoPacket::registerTypes()
+{
+    qmlRegisterSingletonType<AkVideoPacket>("Ak", 1, 0, "AkVideoPacket",
+                                            [] (QQmlEngine *qmlEngine,
+                                                QJSEngine *jsEngine) -> QObject * {
+        Q_UNUSED(qmlEngine)
+        Q_UNUSED(jsEngine)
+
+        return new AkVideoPacket();
+    });
 }
 
 QDebug operator <<(QDebug debug, const AkVideoPacket &packet)

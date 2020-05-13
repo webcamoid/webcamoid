@@ -39,6 +39,9 @@ class IconsProvider: public QQuickImageProvider
 
     private:
         IconsProviderPrivate *d;
+
+    public slots:
+        void themeSetup();
 };
 
 #endif // ICONSPROVIDER_H

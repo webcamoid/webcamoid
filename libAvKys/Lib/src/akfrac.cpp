@@ -21,6 +21,7 @@
 #include <QDebug>
 #include <QRegExp>
 #include <QStringList>
+#include <QQmlEngine>
 
 #include "akfrac.h"
 
@@ -294,6 +295,21 @@ void AkFrac::resetNum()
 void AkFrac::resetDen()
 {
     this->setDen(0);
+}
+
+void AkFrac::registerTypes()
+{
+    qRegisterMetaType<AkFrac>("AkFrac");
+    qRegisterMetaTypeStreamOperators<AkFrac>("AkFrac");
+    QMetaType::registerDebugStreamOperator<AkFrac>();
+    qmlRegisterSingletonType<AkFrac>("Ak", 1, 0, "AkFrac",
+                                     [] (QQmlEngine *qmlEngine,
+                                         QJSEngine *jsEngine) -> QObject * {
+        Q_UNUSED(qmlEngine)
+        Q_UNUSED(jsEngine)
+
+        return new AkFrac();
+    });
 }
 
 QDebug operator <<(QDebug debug, const AkFrac &frac)

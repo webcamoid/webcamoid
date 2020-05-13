@@ -114,6 +114,7 @@ class AKCOMMONS_EXPORT AkPacket: public QObject
         void resetPts();
         void resetTimeBase();
         void resetIndex();
+        static void registerTypes();
 };
 
 AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, const AkPacket &packet);

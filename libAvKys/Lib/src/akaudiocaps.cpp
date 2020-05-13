@@ -22,6 +22,7 @@
 #include <QMetaEnum>
 #include <QVector>
 #include <QtMath>
+#include <QQmlEngine>
 
 #include "akaudiocaps.h"
 #include "akcaps.h"
@@ -955,8 +956,32 @@ void AkAudioCaps::clear()
         this->setProperty(property.constData(), QVariant());
 }
 
+void AkAudioCaps::registerTypes()
+{
+    qRegisterMetaType<AkAudioCaps>("AkAudioCaps");
+    qRegisterMetaTypeStreamOperators<AkAudioCaps>("AkAudioCaps");
+    qRegisterMetaType<SampleFormat>("SampleFormat");
+    QMetaType::registerDebugStreamOperator<SampleFormat>();
+    qRegisterMetaType<SampleFormatList>("SampleFormatList");
+    qRegisterMetaType<SampleType>("SampleType");
+    QMetaType::registerDebugStreamOperator<SampleType>();
+    qRegisterMetaType<Position>("Position");
+    QMetaType::registerDebugStreamOperator<Position>();
+    qRegisterMetaType<ChannelLayout>("ChannelLayout");
+    QMetaType::registerDebugStreamOperator<ChannelLayout>();
+    qRegisterMetaType<ChannelLayoutList>("ChannelLayoutList");
+    qmlRegisterSingletonType<AkAudioCaps>("Ak", 1, 0, "AkAudioCaps",
+                                          [] (QQmlEngine *qmlEngine,
+                                              QJSEngine *jsEngine) -> QObject * {
+        Q_UNUSED(qmlEngine)
+        Q_UNUSED(jsEngine)
+
+        return new AkAudioCaps();
+    });
+}
+
 qreal operator -(const AkAudioCaps::SpeakerPosition &pos1,
-                  const AkAudioCaps::SpeakerPosition &pos2)
+                 const AkAudioCaps::SpeakerPosition &pos2)
 {
     auto a1 = qDegreesToRadians(pos1.first);
     auto e1 = qDegreesToRadians(pos1.second);

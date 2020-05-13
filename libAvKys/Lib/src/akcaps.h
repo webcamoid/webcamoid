@@ -74,6 +74,7 @@ class AKCOMMONS_EXPORT AkCaps: public QObject
         virtual void setMimeType(const QString &mimeType);
         virtual void resetMimeType();
         void clear();
+        static void registerTypes();
 };
 
 AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, const AkCaps &caps);

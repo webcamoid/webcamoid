@@ -18,6 +18,7 @@
  */
 
 #include <QGuiApplication>
+#include <QQmlEngine>
 
 #include "akpalettegroup.h"
 
@@ -586,6 +587,12 @@ void AkPaletteGroup::resetLinkVisited()
     auto palette = QGuiApplication::palette();
     palette.setCurrentColorGroup(this->d->m_colorGroup);
     this->setLinkVisited(palette.linkVisited().color());
+}
+
+void AkPaletteGroup::registerTypes()
+{
+    qRegisterMetaType<AkPaletteGroup>("AkPaletteGroup");
+    qmlRegisterType<AkPaletteGroup>("Ak", 1, 0, "AkPaletteGroup");
 }
 
 void AkPaletteGroup::updatePalette(const QPalette &palette)

@@ -63,6 +63,7 @@ class AKCOMMONS_EXPORT AkPalette: public QObject
         void setDisabled(const AkPaletteGroup *disabled);
         void resetActive();
         void resetDisabled();
+        static void registerTypes();
 };
 
 Q_DECLARE_METATYPE(AkPalette)

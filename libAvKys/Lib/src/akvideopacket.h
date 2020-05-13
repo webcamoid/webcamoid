@@ -122,6 +122,7 @@ class AKCOMMONS_EXPORT AkVideoPacket: public QObject
         void resetPts();
         void resetTimeBase();
         void resetIndex();
+        static void registerTypes();
 };
 
 AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, const AkVideoPacket &packet);

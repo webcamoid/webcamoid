@@ -126,6 +126,11 @@ void AkTheme::resetPalette()
     this->setPalette(&palette);
 }
 
+void AkTheme::registerTypes()
+{
+    qmlRegisterUncreatableType<AkTheme>("Ak", 1, 0, "AkTheme", "AkTheme is an attached property");
+}
+
 AkThemePrivate::AkThemePrivate(AkTheme *self):
     self(self)
 {

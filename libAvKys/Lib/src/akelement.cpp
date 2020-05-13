@@ -705,6 +705,21 @@ void AkElement::resetState()
     this->setState(ElementStateNull);
 }
 
+void AkElement::registerTypes()
+{
+    qRegisterMetaType<AkElementPtr>("AkElementPtr");
+    qRegisterMetaType<ElementState>("ElementState");
+    qRegisterMetaTypeStreamOperators<ElementState>("ElementState");
+    qmlRegisterSingletonType<AkElement>("Ak", 1, 0, "AkElement",
+                                        [] (QQmlEngine *qmlEngine,
+                                            QJSEngine *jsEngine) -> QObject * {
+        Q_UNUSED(qmlEngine)
+        Q_UNUSED(jsEngine)
+
+        return new AkElement();
+    });
+}
+
 AkElementPrivate::AkElementPrivate()
 {
     this->m_state = AkElement::ElementStateNull;

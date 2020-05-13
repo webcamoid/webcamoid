@@ -186,6 +186,7 @@ class AKCOMMONS_EXPORT AkColorizedImage: public QQuickItem
         void resetMirror();
         void resetAsynchronous();
         void resetMipmap();
+        static void registerTypes();
 
         friend class AkColorizedImagePrivate;
 };

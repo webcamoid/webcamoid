@@ -37,10 +37,6 @@ class AKCOMMONS_EXPORT Ak: public QObject
 
         Q_INVOKABLE static qint64 id();
         Q_INVOKABLE static void setQmlEngine(QQmlEngine *engine);
-        Q_INVOKABLE static QStringList qmlImportPathList();
-        Q_INVOKABLE static void addQmlImportPath(const QString &path);
-        Q_INVOKABLE static void setQmlImportPathList(const QStringList &paths);
-        Q_INVOKABLE static void resetQmlImportPathList();
 };
 
 Q_DECLARE_METATYPE(Ak)

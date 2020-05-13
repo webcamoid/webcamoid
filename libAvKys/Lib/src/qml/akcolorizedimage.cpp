@@ -372,6 +372,15 @@ void AkColorizedImage::resetMipmap()
     this->setMipmap(false);
 }
 
+void AkColorizedImage::registerTypes()
+{
+    qmlRegisterType<AkColorizedImage>("Ak", 1, 0, "AkColorizedImage");
+    qRegisterMetaType<FillMode>("FillMode");
+    qRegisterMetaType<HorizontalAlignment>("HorizontalAlignment");
+    qRegisterMetaType<VerticalAlignment>("VerticalAlignment");
+    qRegisterMetaType<Status>("Status");
+}
+
 AkColorizedImagePrivate::AkColorizedImagePrivate(AkColorizedImage *self):
     self(self)
 {

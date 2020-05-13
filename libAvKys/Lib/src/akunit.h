@@ -108,6 +108,7 @@ class AKCOMMONS_EXPORT AkUnit: public QObject
         void setUnit(Unit unit);
         void resetValue();
         void resetUnit();
+        static void registerTypes();
 };
 
 AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, const AkUnit &unit);

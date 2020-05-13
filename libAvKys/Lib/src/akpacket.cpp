@@ -19,6 +19,7 @@
 
 #include <QDebug>
 #include <QVariant>
+#include <QQmlEngine>
 
 #include "akpacket.h"
 #include "akcaps.h"
@@ -233,6 +234,19 @@ void AkPacket::resetTimeBase()
 void AkPacket::resetIndex()
 {
     this->setIndex(-1);
+}
+
+void AkPacket::registerTypes()
+{
+    qRegisterMetaType<AkPacket>("AkPacket");
+    qmlRegisterSingletonType<AkPacket>("Ak", 1, 0, "AkPacket",
+                                       [] (QQmlEngine *qmlEngine,
+                                           QJSEngine *jsEngine) -> QObject * {
+        Q_UNUSED(qmlEngine)
+        Q_UNUSED(jsEngine)
+
+        return new AkPacket();
+    });
 }
 
 QDebug operator <<(QDebug debug, const AkPacket &packet)

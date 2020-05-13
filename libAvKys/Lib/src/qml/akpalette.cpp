@@ -17,6 +17,8 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QQmlEngine>
+
 #include "akpalette.h"
 #include "akpalettegroup.h"
 
@@ -103,6 +105,12 @@ void AkPalette::resetDisabled()
 {
     AkPaletteGroup disabled(QPalette::Disabled);
     this->setDisabled(&disabled);
+}
+
+void AkPalette::registerTypes()
+{
+    qRegisterMetaType<AkPalette>("AkPalette");
+    qmlRegisterType<AkPalette>("Ak", 1, 0, "AkPalette");
 }
 
 AkPalettePrivate::AkPalettePrivate(AkPalette *self):

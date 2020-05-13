@@ -207,6 +207,7 @@ class AKCOMMONS_EXPORT AkPaletteGroup: public QObject
         void resetToolTipBase();
         void resetLink();
         void resetLinkVisited();
+        static void registerTypes();
 
     private slots:
         void updatePalette(const QPalette &palette);

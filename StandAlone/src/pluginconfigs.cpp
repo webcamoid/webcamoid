@@ -227,23 +227,6 @@ void PluginConfigs::saveProperties()
     config.endGroup();
 
     config.beginGroup("PluginConfigs");
-    config.beginWriteArray("qmlPaths");
-    i = 0;
-
-    for (auto &path: Ak::qmlImportPathList()) {
-        config.setArrayIndex(i);
-
-#ifdef Q_OS_WIN32
-        config.setValue("path", applicationDir.relativeFilePath(path));
-#else
-        config.setValue("path", path);
-#endif
-
-        i++;
-    }
-
-    config.endArray();
-
     config.setValue("recursive", AkElement::recursiveSearch());
 
     config.beginWriteArray("paths");

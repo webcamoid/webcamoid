@@ -94,6 +94,7 @@ class AKCOMMONS_EXPORT AkFrac: public QObject
         void setDen(qint64 den);
         void resetNum();
         void resetDen();
+        static void registerTypes();
 };
 
 AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, const AkFrac &frac);
