@@ -44,7 +44,7 @@ Dialog {
     function defaultDescription(url)
     {
         return videoLayer.inputs.indexOf(url) < 0?
-                    Webcamoid.fileNameFromUri(url):
+                    mediaTools.fileNameFromUri(url):
                     videoLayer.description(url)
     }
 
@@ -231,7 +231,7 @@ Dialog {
                       qsTr("All Files") + " (*)"]
 
         onAccepted: {
-            filePath.text = Webcamoid.urlToLocalFile(fileDialog.file)
+            filePath.text = mediaTools.urlToLocalFile(fileDialog.file)
             urlPath.text = ""
             fileDescription.text =
                     addSource.defaultDescription(fileDialog.file.toString())

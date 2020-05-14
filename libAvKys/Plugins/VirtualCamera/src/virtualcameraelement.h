@@ -22,13 +22,15 @@
 
 #include <QVariantMap>
 #include <akelement.h>
+#include <akvideocaps.h>
 
 class VirtualCameraElementPrivate;
-class AkCaps;
 
 class VirtualCameraElement: public AkElement
 {
     Q_OBJECT
+    Q_ENUMS(Scaling)
+    Q_ENUMS(AspectRatio)
     Q_PROPERTY(QString errorMessage
                READ errorMessage
                NOTIFY errorMessageChanged)
@@ -67,8 +69,49 @@ class VirtualCameraElement: public AkElement
     Q_PROPERTY(QStringList availableMethods
                READ availableMethods
                NOTIFY availableMethodsChanged)
+    Q_PROPERTY(AkVideoCaps::PixelFormatList supportedOutputPixelFormats
+               READ supportedOutputPixelFormats
+               NOTIFY supportedOutputPixelFormatsChanged)
+    Q_PROPERTY(bool horizontalMirrored
+               READ horizontalMirrored
+               WRITE setHorizontalMirrored
+               RESET resetHorizontalMirrored
+               NOTIFY horizontalMirroredChanged)
+    Q_PROPERTY(bool verticalMirrored
+               READ verticalMirrored
+               WRITE setVerticalMirrored
+               RESET resetVerticalMirrored
+               NOTIFY verticalMirroredChanged)
+    Q_PROPERTY(Scaling scalingMode
+               READ scalingMode
+               WRITE setScalingMode
+               RESET resetScalingMode
+               NOTIFY scalingModeChanged)
+    Q_PROPERTY(AspectRatio aspectRatioMode
+               READ aspectRatioMode
+               WRITE setAspectRatioMode
+               RESET resetAspectRatioMode
+               NOTIFY aspectRatioModeChanged)
+    Q_PROPERTY(bool swapRgb
+               READ swapRgb
+               WRITE setSwapRgb
+               RESET resetSwapRgb
+               NOTIFY swapRgbChanged)
 
     public:
+        enum Scaling
+        {
+            ScalingFast,
+            ScalingLinear
+        };
+
+        enum AspectRatio
+        {
+            AspectRatioIgnore,
+            AspectRatioKeep,
+            AspectRatioExpanding
+        };
+
         VirtualCameraElement();
         ~VirtualCameraElement();
 
@@ -82,7 +125,12 @@ class VirtualCameraElement: public AkElement
         Q_INVOKABLE QStringList availableDrivers() const;
         Q_INVOKABLE QString rootMethod() const;
         Q_INVOKABLE QStringList availableMethods() const;
-
+        Q_INVOKABLE AkVideoCaps::PixelFormatList supportedOutputPixelFormats() const;
+        Q_INVOKABLE bool horizontalMirrored() const;
+        Q_INVOKABLE bool verticalMirrored() const;
+        Q_INVOKABLE Scaling scalingMode() const;
+        Q_INVOKABLE AspectRatio aspectRatioMode() const;
+        Q_INVOKABLE bool swapRgb() const;
         Q_INVOKABLE int defaultStream(const QString &mimeType) const;
         Q_INVOKABLE QString description(const QString &media) const;
         Q_INVOKABLE AkCaps caps(int stream) const;
@@ -91,7 +139,8 @@ class VirtualCameraElement: public AkElement
                                           const QVariantMap &streamParams={});
         Q_INVOKABLE QVariantMap updateStream(int streamIndex,
                                              const QVariantMap &streamParams={});
-        Q_INVOKABLE QString createWebcam(const QString &description={});
+        Q_INVOKABLE QString createWebcam(const QString &description,
+                                         const AkVideoCapsList &formats);
         Q_INVOKABLE bool changeDescription(const QString &webcam,
                                            const QString &description={}) const;
         Q_INVOKABLE bool removeWebcam(const QString &webcam);
@@ -117,6 +166,12 @@ class VirtualCameraElement: public AkElement
         void availableDriversChanged(const QStringList &availableDrivers);
         void rootMethodChanged(const QString &rootMethod);
         void availableMethodsChanged(const QStringList &availableMethods);
+        void supportedOutputPixelFormatsChanged(const AkVideoCaps::PixelFormatList &supportedOutputPixelFormats);
+        void horizontalMirroredChanged(bool horizontalMirrored);
+        void verticalMirroredChanged(bool verticalMirrored);
+        void scalingModeChanged(Scaling scalingMode);
+        void aspectRatioModeChanged(AspectRatio aspectRatioMode);
+        void swapRgbChanged(bool swapRgb);
 
     public slots:
         void setDriverPaths(const QStringList &driverPaths);
@@ -127,10 +182,20 @@ class VirtualCameraElement: public AkElement
         void setMedia(const QString &media);
         void setDriver(const QString &driver);
         void setRootMethod(const QString &rootMethod);
+        void setHorizontalMirrored(bool horizontalMirrored);
+        void setVerticalMirrored(bool verticalMirrored);
+        void setScalingMode(Scaling scalingMode);
+        void setAspectRatioMode(AspectRatio aspectRatioMode);
+        void setSwapRgb(bool swapRgb);
         void resetDriverPaths();
         void resetMedia();
         void resetDriver();
         void resetRootMethod();
+        void resetHorizontalMirrored();
+        void resetVerticalMirrored();
+        void resetScalingMode();
+        void resetAspectRatioMode();
+        void resetSwapRgb();
         void clearStreams();
 
         bool setState(AkElement::ElementState state);
@@ -138,5 +203,8 @@ class VirtualCameraElement: public AkElement
     private slots:
         void rootMethodUpdated(const QString &rootMethod);
 };
+
+Q_DECLARE_METATYPE(VirtualCameraElement::Scaling)
+Q_DECLARE_METATYPE(VirtualCameraElement::AspectRatio)
 
 #endif // VIRTUALCAMERAELEMENT_H

@@ -37,10 +37,9 @@
 #define MAX_CAMERAS 64
 #define PREFERRED_ROUNDING 32
 
-inline int roundTo(int value, int n)
-{
-    return n * qRound(value / qreal(n));
-}
+using PixelFormatMap = QMap<AkVideoCaps::PixelFormat, AkVCam::PixelFormat>;
+using ScalingMap = QMap<VirtualCameraElement::Scaling, AkVCam::Scaling>;
+using AspectRatioMap = QMap<VirtualCameraElement::AspectRatio, AkVCam::AspectRatio>;
 
 class VirtualCameraElementPrivate
 {
@@ -59,6 +58,10 @@ class VirtualCameraElementPrivate
         QString convertToAbsolute(const QString &path) const;
         static void serverStateChanged(void *userData,
                                        AkVCam::IpcBridge::ServerState state);
+        static inline int roundTo(int value, int n);
+        static inline const PixelFormatMap &akToVCamPixelFormatMap();
+        static inline const ScalingMap &akToVCamScalingMap();
+        static inline const AspectRatioMap &akToVCamAspectRatioMap();
 };
 
 VirtualCameraElement::VirtualCameraElement():
@@ -143,6 +146,58 @@ QStringList VirtualCameraElement::availableMethods() const
     return methods;
 }
 
+AkVideoCaps::PixelFormatList VirtualCameraElement::supportedOutputPixelFormats() const
+{
+    AkVideoCaps::PixelFormatList formats;
+    auto &formatConvert = VirtualCameraElementPrivate::akToVCamPixelFormatMap();
+
+    for (auto &format: this->d->m_ipcBridge.supportedOutputPixelFormats()) {
+        auto akFormat = formatConvert.key(format, AkVideoCaps::Format_none);
+
+        if (akFormat != AkVideoCaps::Format_none)
+            formats << akFormat;
+    }
+
+    return formats;
+}
+
+bool VirtualCameraElement::horizontalMirrored() const
+{
+    return this->d->m_ipcBridge.isHorizontalMirrored(this->d->m_curDevice.toStdString());
+}
+
+bool VirtualCameraElement::verticalMirrored() const
+{
+    return this->d->m_ipcBridge.isVerticalMirrored(this->d->m_curDevice.toStdString());
+}
+
+VirtualCameraElement::Scaling VirtualCameraElement::scalingMode() const
+{
+    auto scalingMode =
+            this->d->m_ipcBridge.scalingMode(this->d->m_curDevice.toStdString());
+    auto vcamScalingMode =
+            VirtualCameraElementPrivate::akToVCamScalingMap().key(scalingMode,
+                                                                  ScalingFast);
+
+    return vcamScalingMode;
+}
+
+VirtualCameraElement::AspectRatio VirtualCameraElement::aspectRatioMode() const
+{
+    auto aspectRatio =
+            this->d->m_ipcBridge.aspectRatioMode(this->d->m_curDevice.toStdString());
+    auto vcamAspectRatio =
+            VirtualCameraElementPrivate::akToVCamAspectRatioMap().key(aspectRatio,
+                                                                      AspectRatioIgnore);
+
+    return vcamAspectRatio;
+}
+
+bool VirtualCameraElement::swapRgb() const
+{
+    return this->d->m_ipcBridge.swapRgb(this->d->m_curDevice.toStdString());
+}
+
 int VirtualCameraElement::defaultStream(const QString &mimeType) const
 {
     if (mimeType == "video/x-raw")
@@ -175,8 +230,10 @@ QVariantMap VirtualCameraElement::addStream(int streamIndex,
 
     AkVideoCaps videoCaps(streamCaps);
     videoCaps.setFormat(AkVideoCaps::Format_rgb24);
-    videoCaps.setWidth(roundTo(videoCaps.width(), PREFERRED_ROUNDING));
-    videoCaps.setHeight(roundTo(videoCaps.height(), PREFERRED_ROUNDING));
+    videoCaps.setWidth(VirtualCameraElementPrivate::roundTo(videoCaps.width(),
+                                                            PREFERRED_ROUNDING));
+    videoCaps.setHeight(VirtualCameraElementPrivate::roundTo(videoCaps.height(),
+                                                             PREFERRED_ROUNDING));
 
     this->d->m_streamIndex = streamIndex;
     this->d->m_streamCaps = videoCaps;
@@ -201,8 +258,10 @@ QVariantMap VirtualCameraElement::updateStream(int streamIndex,
 
     AkVideoCaps videoCaps(streamCaps);
     videoCaps.setFormat(AkVideoCaps::Format_rgb24);
-    videoCaps.setWidth(roundTo(videoCaps.width(), PREFERRED_ROUNDING));
-    videoCaps.setHeight(roundTo(videoCaps.height(), PREFERRED_ROUNDING));
+    videoCaps.setWidth(VirtualCameraElementPrivate::roundTo(videoCaps.width(),
+                                                            PREFERRED_ROUNDING));
+    videoCaps.setHeight(VirtualCameraElementPrivate::roundTo(videoCaps.height(),
+                                                             PREFERRED_ROUNDING));
 
     this->d->m_streamIndex = streamIndex;
     this->d->m_streamCaps = videoCaps;
@@ -214,43 +273,22 @@ QVariantMap VirtualCameraElement::updateStream(int streamIndex,
     return outputParams;
 }
 
-QString VirtualCameraElement::createWebcam(const QString &description)
+QString VirtualCameraElement::createWebcam(const QString &description,
+                                           const AkVideoCapsList &formats)
 {
-    QVector<AkVCam::PixelFormat> pixelFormats = {
-        AkVCam::PixelFormatYUY2,
-        AkVCam::PixelFormatUYVY,
-        AkVCam::PixelFormatRGB32,
-        AkVCam::PixelFormatRGB24,
-    };
-    QVector<QPair<int , int>> resolutions = {
-        { 640,  480},
-        { 160,  120},
-        { 320,  240},
-        { 800,  600},
-        {1280,  720},
-        {1920, 1080},
-    };
-    std::vector<AkVCam::VideoFormat> formats;
+    std::vector<AkVCam::VideoFormat> vcamFormats;
 
-    for (auto &format: pixelFormats)
-        for (auto &resolution: resolutions)
-            formats.push_back({
-                AkVCam::FourCC(format),
-                resolution.first,
-                resolution.second,
-                {{30, 1}}
-            });
-
-    auto defaultDescription =
-            L"Virtual Camera "
-            + QDateTime::currentDateTime()
-                .toString("yyyyMMddHHmms").toStdWString();
+    for (auto &format: formats)
+        vcamFormats.push_back({
+            AkVCam::FourCC(format.fourCC()),
+            format.width(),
+            format.height(),
+            {{format.fps().num(), format.fps().den()}}
+        });
 
     auto webcam =
-            this->d->m_ipcBridge.deviceCreate(description.isEmpty()?
-                                                  defaultDescription:
-                                                  description.toStdWString(),
-                                              formats);
+            this->d->m_ipcBridge.deviceCreate(description.toStdWString(),
+                                              vcamFormats);
 
     if (webcam.empty()) {
         auto error = this->d->m_ipcBridge.errorMessage();
@@ -435,6 +473,78 @@ void VirtualCameraElement::setRootMethod(const QString &rootMethod)
     emit this->rootMethodChanged(rootMethod);
 }
 
+void VirtualCameraElement::setHorizontalMirrored(bool horizontalMirrored)
+{
+    auto device = this->d->m_curDevice.toStdString();
+    auto horizontalMirrored_ = this->d->m_ipcBridge.isHorizontalMirrored(device);
+
+    if (horizontalMirrored_ == horizontalMirrored)
+        return;
+
+    auto verticalMirrored = this->d->m_ipcBridge.isVerticalMirrored(device);
+    this->d->m_ipcBridge.setMirroring(device,
+                                      horizontalMirrored,
+                                      verticalMirrored);
+    emit horizontalMirroredChanged(horizontalMirrored);
+}
+
+void VirtualCameraElement::setVerticalMirrored(bool verticalMirrored)
+{
+    auto device = this->d->m_curDevice.toStdString();
+    auto verticalMirrored_ = this->d->m_ipcBridge.isVerticalMirrored(device);
+
+    if (verticalMirrored_ == verticalMirrored)
+        return;
+
+    auto horizontalMirrored = this->d->m_ipcBridge.isHorizontalMirrored(device);
+    this->d->m_ipcBridge.setMirroring(device,
+                                      horizontalMirrored,
+                                      verticalMirrored);
+    emit verticalMirroredChanged(verticalMirrored);
+}
+
+void VirtualCameraElement::setScalingMode(Scaling scalingMode)
+{
+    auto device = this->d->m_curDevice.toStdString();
+    auto scalingMode_ = this->d->m_ipcBridge.scalingMode(device);
+    auto vcamScalingMode =
+            VirtualCameraElementPrivate::akToVCamScalingMap().value(scalingMode,
+                                                                    AkVCam::ScalingFast);
+
+    if (scalingMode_ == vcamScalingMode)
+        return;
+
+    this->d->m_ipcBridge.setScaling(device, vcamScalingMode);
+    emit scalingModeChanged(scalingMode);
+}
+
+void VirtualCameraElement::setAspectRatioMode(AspectRatio aspectRatioMode)
+{
+    auto device = this->d->m_curDevice.toStdString();
+    auto aspectRatioMode_ = this->d->m_ipcBridge.aspectRatioMode(device);
+    auto vcamAspectRatioMode =
+            VirtualCameraElementPrivate::akToVCamAspectRatioMap().value(aspectRatioMode,
+                                                                        AkVCam::AspectRatioIgnore);
+
+    if (aspectRatioMode_ == vcamAspectRatioMode)
+        return;
+
+    this->d->m_ipcBridge.setAspectRatio(device, vcamAspectRatioMode);
+    emit aspectRatioModeChanged(aspectRatioMode);
+}
+
+void VirtualCameraElement::setSwapRgb(bool swapRgb)
+{
+    auto device = this->d->m_curDevice.toStdString();
+    auto swapRgb_ = this->d->m_ipcBridge.swapRgb(device);
+
+    if (swapRgb_ == swapRgb)
+        return;
+
+    this->d->m_ipcBridge.setSwapRgb(device, swapRgb);
+    emit swapRgbChanged(swapRgb);
+}
+
 void VirtualCameraElement::resetDriverPaths()
 {
 #if defined(Q_OS_OSX) || defined(Q_OS_WIN32)
@@ -487,6 +597,31 @@ void VirtualCameraElement::resetRootMethod()
         this->d->m_ipcBridge.setRootMethod({});
     else
         this->d->m_ipcBridge.setRootMethod(rootMethods.front());
+}
+
+void VirtualCameraElement::resetHorizontalMirrored()
+{
+    this->setHorizontalMirrored(false);
+}
+
+void VirtualCameraElement::resetVerticalMirrored()
+{
+    this->setVerticalMirrored(false);
+}
+
+void VirtualCameraElement::resetScalingMode()
+{
+    this->setScalingMode(ScalingFast);
+}
+
+void VirtualCameraElement::resetAspectRatioMode()
+{
+    this->setAspectRatioMode(AspectRatioIgnore);
+}
+
+void VirtualCameraElement::resetSwapRgb()
+{
+    this->setSwapRgb(false);
 }
 
 void VirtualCameraElement::clearStreams()
@@ -666,6 +801,52 @@ void VirtualCameraElementPrivate::serverStateChanged(void *userData,
         case AkVCam::IpcBridge::ServerStateGone:
             break;
     }
+}
+
+int VirtualCameraElementPrivate::roundTo(int value, int n)
+{
+    return n * qRound(value / qreal(n));
+}
+
+const PixelFormatMap &VirtualCameraElementPrivate::akToVCamPixelFormatMap()
+{
+    static const PixelFormatMap pixelFormatMap {
+        {AkVideoCaps::Format_0rgb    , AkVCam::PixelFormatRGB32},
+        {AkVideoCaps::Format_rgb24   , AkVCam::PixelFormatRGB24},
+        {AkVideoCaps::Format_rgb565le, AkVCam::PixelFormatRGB16},
+        {AkVideoCaps::Format_rgb555le, AkVCam::PixelFormatRGB15},
+        {AkVideoCaps::Format_0bgr    , AkVCam::PixelFormatBGR32},
+        {AkVideoCaps::Format_bgr24   , AkVCam::PixelFormatBGR24},
+        {AkVideoCaps::Format_bgr565le, AkVCam::PixelFormatBGR16},
+        {AkVideoCaps::Format_bgr555le, AkVCam::PixelFormatBGR15},
+        {AkVideoCaps::Format_uyvy422 , AkVCam::PixelFormatUYVY },
+        {AkVideoCaps::Format_yuyv422 , AkVCam::PixelFormatYUY2 },
+        {AkVideoCaps::Format_nv12    , AkVCam::PixelFormatNV12 },
+        {AkVideoCaps::Format_nv21    , AkVCam::PixelFormatNV21 }
+    };
+
+    return pixelFormatMap;
+}
+
+const ScalingMap &VirtualCameraElementPrivate::akToVCamScalingMap()
+{
+    static const ScalingMap scalingMap {
+        {VirtualCameraElement::ScalingFast  , AkVCam::ScalingFast  },
+        {VirtualCameraElement::ScalingLinear, AkVCam::ScalingLinear}
+    };
+
+    return scalingMap;
+}
+
+const AspectRatioMap &VirtualCameraElementPrivate::akToVCamAspectRatioMap()
+{
+    static const AspectRatioMap aspectRatioMap {
+        {VirtualCameraElement::AspectRatioIgnore   , AkVCam::AspectRatioIgnore   },
+        {VirtualCameraElement::AspectRatioKeep     , AkVCam::AspectRatioKeep     },
+        {VirtualCameraElement::AspectRatioExpanding, AkVCam::AspectRatioExpanding}
+    };
+
+    return aspectRatioMap;
 }
 
 #include "moc_virtualcameraelement.cpp"

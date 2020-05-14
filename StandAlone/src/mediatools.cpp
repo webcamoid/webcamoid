@@ -349,7 +349,7 @@ void MediaTools::show()
 {
     // @uri Webcamoid
     qmlRegisterType<VideoDisplay>("Webcamoid", 1, 0, "VideoDisplay");
-    this->d->m_engine->rootContext()->setContextProperty("Webcamoid", this);
+    this->d->m_engine->rootContext()->setContextProperty("mediaTools", this);
 
     // Map tray icon to QML
     this->d->m_engine->rootContext()->setContextProperty("trayIcon", this->d->m_trayIcon);

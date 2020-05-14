@@ -786,7 +786,7 @@ void Recording::setQmlEngine(QQmlApplicationEngine *engine)
     this->d->m_engine = engine;
 
     if (engine)
-        engine->rootContext()->setContextProperty("Recording", this);
+        engine->rootContext()->setContextProperty("recording", this);
 }
 
 void Recording::codecLibChanged(const QString &codecLib)

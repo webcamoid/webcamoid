@@ -27,16 +27,16 @@ import Webcamoid 1.0
 
 ApplicationWindow {
     id: wdgMainWidget
-    title: Webcamoid.applicationName()
+    title: mediaTools.applicationName
            + " "
-           + Webcamoid.applicationVersion()
+           + mediaTools.applicationVersion
            + " - "
            + videoLayer.description(videoLayer.videoInput)
     visible: true
-    x: (Screen.width - Webcamoid.windowWidth) / 2
-    y: (Screen.height - Webcamoid.windowHeight) / 2
-    width: Webcamoid.windowWidth
-    height: Webcamoid.windowHeight
+    x: (Screen.width - mediaTools.windowWidth) / 2
+    y: (Screen.height - mediaTools.windowHeight) / 2
+    width: mediaTools.windowWidth
+    height: mediaTools.windowHeight
 
     function notifyUpdate(versionType)
     {
@@ -45,7 +45,7 @@ ApplicationWindow {
             trayIcon.show();
             trayIcon.showMessage(qsTr("New version available!"),
                                  qsTr("Download %1 %2 NOW!")
-                                    .arg(Webcamoid.applicationName())
+                                    .arg(mediaTools.applicationName())
                                     .arg(updates.latestVersion));
             notifyTimer.start();
         }
@@ -53,11 +53,11 @@ ApplicationWindow {
 
     function savePhoto()
     {
-        Recording.takePhoto()
-        Recording.savePhoto(qsTr("%1/Picture %2.%3")
-                            .arg(Recording.imagesDirectory)
-                            .arg(Webcamoid.currentTime())
-                            .arg(Recording.imageFormat))
+        recording.takePhoto()
+        recording.savePhoto(qsTr("%1/Picture %2.%3")
+                            .arg(recording.imagesDirectory)
+                            .arg(mediaTools.currentTime())
+                            .arg(recording.imageFormat))
         photoPreviewSaveAnimation.start()
     }
 
@@ -78,8 +78,8 @@ ApplicationWindow {
         onTriggered: trayIcon.hide()
     }
 
-    onWidthChanged: Webcamoid.windowWidth = width
-    onHeightChanged: Webcamoid.windowHeight = height
+    onWidthChanged: mediaTools.windowWidth = width
+    onHeightChanged: mediaTools.windowHeight = height
     onClosing: trayIcon.hide()
 
     Component.onCompleted: {
@@ -95,7 +95,7 @@ ApplicationWindow {
     Connections {
         target: trayIcon
 
-        onMessageClicked: Qt.openUrlExternally(Webcamoid.projectDownloadsUrl())
+        onMessageClicked: Qt.openUrlExternally(mediaTools.projectDownloadsUrl())
     }
     Connections {
         target: videoLayer
@@ -112,7 +112,7 @@ ApplicationWindow {
     }
     Image {
         id: photoPreviewThumbnail
-        source: pathToUrl(Recording.lastPhotoPreview)
+        source: pathToUrl(recording.lastPhotoPreview)
         sourceSize: Qt.size(width, height)
         cache: false
         smooth: true
@@ -129,7 +129,7 @@ ApplicationWindow {
     }
     Image {
         id: videoPreviewThumbnail
-        source: pathToUrl(Recording.lastVideoPreview)
+        source: pathToUrl(recording.lastVideoPreview)
         sourceSize: Qt.size(width, height)
         cache: false
         smooth: true
@@ -241,7 +241,7 @@ ApplicationWindow {
         anchors.top: parent.top
         anchors.topMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
         anchors.horizontalCenter: parent.horizontalCenter
-        visible: Recording.state == AkElement.ElementStatePlaying
+        visible: recording.state == AkElement.ElementStatePlaying
     }
     ColumnLayout {
         id: controlsLayout
@@ -260,7 +260,7 @@ ApplicationWindow {
 
             Image {
                 id: photoPreview
-                source: pathToUrl(Recording.lastPhotoPreview)
+                source: pathToUrl(recording.lastPhotoPreview)
                 width: AkUnit.create(32 * AkTheme.controlScale, "dp").pixels
                 height: AkUnit.create(32 * AkTheme.controlScale, "dp").pixels
                 sourceSize: Qt.size(width, height)
@@ -295,7 +295,7 @@ ApplicationWindow {
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Take a photo")
                 focus: true
-                enabled: Recording.state == AkElement.ElementStateNull
+                enabled: recording.state == AkElement.ElementStateNull
                          && (videoLayer.state === AkElement.ElementStatePlaying
                              || cameraControls.state == "Video")
 
@@ -334,7 +334,7 @@ ApplicationWindow {
             }
             RoundButton {
                 id: videoButton
-                icon.source: Recording.state == AkElement.ElementStateNull?
+                icon.source: recording.state == AkElement.ElementStateNull?
                                  "image://icons/video":
                                  "image://icons/record-stop"
                 width: AkUnit.create(48 * AkTheme.controlScale, "dp").pixels
@@ -349,17 +349,17 @@ ApplicationWindow {
                 onClicked: {
                     if (cameraControls.state == "") {
                         cameraControls.state = "Video"
-                    } else if (Recording.state == AkElement.ElementStateNull) {
-                        Recording.state = AkElement.ElementStatePlaying
+                    } else if (recording.state == AkElement.ElementStateNull) {
+                        recording.state = AkElement.ElementStatePlaying
                     } else {
-                        Recording.state = AkElement.ElementStateNull
+                        recording.state = AkElement.ElementStateNull
                         videoPreviewSaveAnimation.start()
                     }
                 }
             }
             Image {
                 id: videoPreview
-                source: pathToUrl(Recording.lastVideoPreview)
+                source: pathToUrl(recording.lastVideoPreview)
                 width: 0
                 height: 0
                 sourceSize: Qt.size(width, height)
@@ -382,7 +382,7 @@ ApplicationWindow {
 
                     onClicked: {
                         if (videoPreview.status == Image.Ready)
-                            Qt.openUrlExternally("file://" + Recording.lastVideo)
+                            Qt.openUrlExternally("file://" + recording.lastVideo)
                     }
                 }
             }

@@ -44,7 +44,7 @@ Page {
                 Layout.fillWidth: true
             }
             TextArea {
-                text: Webcamoid.readFile(":/Webcamoid/share/3rd-party/licenses/openclipart.txt")
+                text: mediaTools.readFile(":/Webcamoid/share/3rd-party/licenses/openclipart.txt")
                 readOnly: true
                 Layout.fillWidth: true
             }
@@ -54,7 +54,7 @@ Page {
                 Layout.fillWidth: true
             }
             TextArea {
-                text: Webcamoid.readFile(":/Webcamoid/share/3rd-party/licenses/OpenCV.txt")
+                text: mediaTools.readFile(":/Webcamoid/share/3rd-party/licenses/OpenCV.txt")
                 readOnly: true
                 Layout.fillWidth: true
             }
@@ -64,7 +64,7 @@ Page {
                 Layout.fillWidth: true
             }
             TextArea {
-                text: Webcamoid.readFile(":/Webcamoid/share/3rd-party/licenses/TemperatureAlgorithm.txt")
+                text: mediaTools.readFile(":/Webcamoid/share/3rd-party/licenses/TemperatureAlgorithm.txt")
                 readOnly: true
                 Layout.fillWidth: true
             }
@@ -74,7 +74,7 @@ Page {
                 Layout.fillWidth: true
             }
             TextArea {
-                text: Webcamoid.readFile(":/Webcamoid/share/3rd-party/licenses/UsbIds.txt")
+                text: mediaTools.readFile(":/Webcamoid/share/3rd-party/licenses/UsbIds.txt")
                 readOnly: true
                 Layout.fillWidth: true
             }

@@ -37,7 +37,7 @@ Dialog {
         for (let i = mainLayout.children.length - 1; i >= startChildren; i--)
             mainLayout.children[i].destroy()
 
-        let options = Recording.availableVideoFormatOptions
+        let options = recording.availableVideoFormatOptions
 
         for (let i in options) {
             if (options[i][2] != "flags") {
@@ -45,7 +45,7 @@ Dialog {
                 cLabel.text = options[i][0]
             }
 
-            let value = Recording.videoFormatOptions[options[i][0]]
+            let value = recording.videoFormatOptions[options[i][0]]
 
             if (!value)
                 value = options[i][7]
@@ -133,16 +133,16 @@ Dialog {
     }
 
     Connections {
-        target: Recording
+        target: recording
 
         onAvailableVideoFormatExtensionsChanged: {
             cbxVideoFormatExtension.model = availableVideoFormatExtensions
             cbxVideoFormatExtension.currentIndex =
-                    availableVideoFormatExtensions.indexOf(Recording.videoFormatExtension)
+                    availableVideoFormatExtensions.indexOf(recording.videoFormatExtension)
         }
         onVideoFormatExtensionChanged: {
             cbxVideoFormatExtension.currentIndex =
-                    Recording.availableVideoFormatExtensions.indexOf(videoFormatExtension)
+                    recording.availableVideoFormatExtensions.indexOf(videoFormatExtension)
         }
         onAvailableVideoFormatOptionsChanged: videoFormatOptions.updateOptions()
     }
@@ -166,9 +166,9 @@ Dialog {
                 Layout.fillWidth: true
 
                 Component.onCompleted: {
-                    model = Recording.availableVideoFormatExtensions
+                    model = recording.availableVideoFormatExtensions
                     currentIndex =
-                        Recording.availableVideoFormatExtensions.indexOf(Recording.videoFormatExtension)
+                        recording.availableVideoFormatExtensions.indexOf(recording.videoFormatExtension)
                 }
             }
 
@@ -177,19 +177,19 @@ Dialog {
     }
 
     onAccepted: {
-        Recording.videoFormatExtension =
-                Recording.availableVideoFormatExtensions[cbxVideoFormatExtension.currentIndex]
+        recording.videoFormatExtension =
+                recording.availableVideoFormatExtensions[cbxVideoFormatExtension.currentIndex]
 
-        let options = Recording.videoFormatOptions
+        let options = recording.videoFormatOptions
 
         for (let key in controlValues)
             options[key] = controlValues[key]
 
-        Recording.videoFormatOptions = options
+        recording.videoFormatOptions = options
     }
     onRejected: {
         cbxVideoFormatExtension.currentIndex =
-                Recording.availableVideoFormatExtensions.indexOf(Recording.videoFormatExtension)
+                recording.availableVideoFormatExtensions.indexOf(recording.videoFormatExtension)
 
         for (let i in mainLayout.children)
             if (mainLayout.children[i].restore)
@@ -222,7 +222,7 @@ Dialog {
             signal controlChanged(string key, variant value)
 
             function restore() {
-                let value = Recording.videoFormatOptions[key]
+                let value = recording.videoFormatOptions[key]
 
                 if (!value)
                     value = defaultValue
@@ -253,7 +253,7 @@ Dialog {
             signal controlChanged(string key, variant value)
 
             function restore() {
-                let value = Recording.videoFormatOptions[key]
+                let value = recording.videoFormatOptions[key]
 
                 if (!value)
                     value = defaultValue
@@ -285,7 +285,7 @@ Dialog {
             signal controlChanged(string key, variant value)
 
             function restore() {
-                let value = Recording.videoFormatOptions[key]
+                let value = recording.videoFormatOptions[key]
 
                 if (!value)
                     value = defaultValue
@@ -351,7 +351,7 @@ Dialog {
             signal controlChanged(string key, variant value)
 
             function restore() {
-                let value = Recording.videoFormatOptions[key]
+                let value = recording.videoFormatOptions[key]
 
                 if (!value)
                     value = defaultValue
@@ -378,7 +378,7 @@ Dialog {
             signal controlChanged(string key, variant value)
 
             function restore() {
-                let value = Recording.videoFormatOptions[key]
+                let value = recording.videoFormatOptions[key]
 
                 if (!value)
                     value = defaultValue
@@ -408,7 +408,7 @@ Dialog {
             signal controlChanged(string key, variant value)
 
             function restore() {
-                let value = Recording.videoFormatOptions[key]
+                let value = recording.videoFormatOptions[key]
 
                 if (!value)
                     value = defaultValue
@@ -455,7 +455,7 @@ Dialog {
 
             function currentMenuIndex(options)
             {
-                let value = Recording.videoFormatOptions[options[0]]
+                let value = recording.videoFormatOptions[options[0]]
 
                 if (!value)
                     value = options[7]
@@ -499,7 +499,7 @@ Dialog {
             }
 
             function restore() {
-                let value = Recording.videoFormatOptions[key]
+                let value = recording.videoFormatOptions[key]
 
                 if (!value)
                     value = defaultValue
@@ -523,7 +523,7 @@ Dialog {
                 for (let i = flagsLayout.children.length - 1; i >= 0; i--)
                     flagsLayout.children[i].destroy()
 
-                let value = Recording.videoFormatOptions[options[0]]
+                let value = recording.videoFormatOptions[options[0]]
 
                 if (!value)
                     value = options[7]

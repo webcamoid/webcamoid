@@ -42,7 +42,7 @@ ScrollView {
             icon.source: "image://icons/no"
             flat: true
 
-            onClicked: VideoEffects.removeAllEffects()
+            onClicked: videoEffects.removeAllEffects()
         }
         ListView {
             id: effectsList
@@ -53,12 +53,12 @@ ScrollView {
             Layout.fillHeight: true
 
             function updateEffectList() {
-                let effects = VideoEffects.effects
+                let effects = videoEffects.effects
                 model.clear()
 
                 for (let i = effects.length - 1; i >= 0; i--) {
                     let effect = effects[i]
-                    let info = VideoEffects.effectInfo(effect)
+                    let info = videoEffects.effectInfo(effect)
 
                     model.append({
                         effect: effect,
@@ -83,7 +83,7 @@ ScrollView {
             }
 
             Connections {
-                target: VideoEffects
+                target: videoEffects
 
                 onEffectsChanged: effectsList.updateEffectList()
             }

@@ -30,7 +30,7 @@ Page {
 
         TextArea {
             id: license
-            text: Webcamoid.readFile(":/Webcamoid/COPYING")
+            text: mediaTools.readFile(":/Webcamoid/COPYING")
             readOnly: true
             width: scrollView.width
         }

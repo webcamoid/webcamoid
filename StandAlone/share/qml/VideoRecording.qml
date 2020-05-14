@@ -37,7 +37,7 @@ Page {
         clip: true
 
         Connections {
-            target: Recording
+            target: recording
 
             onAvailableVideoFormatsChanged: {
                 cbxVideoFormat.model.clear()
@@ -47,12 +47,12 @@ Page {
 
                     cbxVideoFormat.model.append({
                         format: fmt,
-                        description: Recording.videoFormatDescription(fmt)
+                        description: recording.videoFormatDescription(fmt)
                     })
                 }
 
                 cbxVideoFormat.currentIndex =
-                        availableVideoFormats.indexOf(Recording.videoFormat)
+                        availableVideoFormats.indexOf(recording.videoFormat)
             }
             onAvailableVideoCodecsChanged: {
                 cbxVideoCodec.model.clear()
@@ -62,12 +62,12 @@ Page {
 
                     cbxVideoCodec.model.append({
                         codec: cdc,
-                        description: Recording.codecDescription(cdc)
+                        description: recording.codecDescription(cdc)
                     })
                 }
 
                 cbxVideoCodec.currentIndex =
-                        availableVideoCodecs.indexOf(Recording.videoCodec)
+                        availableVideoCodecs.indexOf(recording.videoCodec)
             }
             onAvailableAudioCodecsChanged: {
                 cbxAudioCodec.model.clear()
@@ -77,24 +77,24 @@ Page {
 
                     cbxAudioCodec.model.append({
                         codec: cdc,
-                        description: Recording.codecDescription(cdc)
+                        description: recording.codecDescription(cdc)
                     })
                 }
 
                 cbxAudioCodec.currentIndex =
-                        availableAudioCodecs.indexOf(Recording.audioCodec)
+                        availableAudioCodecs.indexOf(recording.audioCodec)
             }
             onVideoFormatChanged: {
                 cbxVideoFormat.currentIndex =
-                        Recording.availableVideoFormats.indexOf(videoFormat)
+                        recording.availableVideoFormats.indexOf(videoFormat)
             }
             onVideoCodecChanged: {
                 cbxVideoCodec.currentIndex =
-                        Recording.availableVideoCodecs.indexOf(videoCodec)
+                        recording.availableVideoCodecs.indexOf(videoCodec)
             }
             onAudioCodecChanged: {
                 cbxAudioCodec.currentIndex =
-                        Recording.availableAudioCodecs.indexOf(audioCodec)
+                        recording.availableAudioCodecs.indexOf(audioCodec)
             }
         }
 
@@ -108,16 +108,16 @@ Page {
             }
             TextField {
                 Layout.fillWidth: true
-                text: Recording.videoDirectory
+                text: recording.videoDirectory
                 selectByMouse: true
 
-                onTextChanged: Recording.videoDirectory = text
+                onTextChanged: recording.videoDirectory = text
             }
             Button {
                 text: qsTr("Search")
 
                 onClicked: {
-                    Webcamoid.makedirs(Recording.videoDirectory)
+                    mediaTools.makedirs(recording.videoDirectory)
                     folderDialog.open()
                 }
             }
@@ -127,9 +127,9 @@ Page {
             Switch {
                 Layout.columnSpan: 2
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                checked: Recording.recordAudio
+                checked: recording.recordAudio
 
-                onToggled: Recording.recordAudio = checked
+                onToggled: recording.recordAudio = checked
             }
             Label {
                 text: qsTr("File format")
@@ -144,21 +144,21 @@ Page {
                 Component.onCompleted: {
                     model.clear()
 
-                    for (let i in Recording.availableVideoFormats) {
-                        let fmt = Recording.availableVideoFormats[i]
+                    for (let i in recording.availableVideoFormats) {
+                        let fmt = recording.availableVideoFormats[i]
 
                         model.append({
                             format: fmt,
-                            description: Recording.videoFormatDescription(fmt)
+                            description: recording.videoFormatDescription(fmt)
                         })
                     }
 
                     currentIndex =
-                        Recording.availableVideoFormats.indexOf(Recording.videoFormat)
+                        recording.availableVideoFormats.indexOf(recording.videoFormat)
                 }
                 onCurrentIndexChanged:
-                    Recording.videoFormat =
-                        Recording.availableVideoFormats[currentIndex]
+                    recording.videoFormat =
+                        recording.availableVideoFormats[currentIndex]
             }
             Button {
                 text: qsTr("Configure")
@@ -179,21 +179,21 @@ Page {
                 Component.onCompleted: {
                     model.clear()
 
-                    for (let i in Recording.availableVideoCodecs) {
-                        let cdc = Recording.availableVideoCodecs[i]
+                    for (let i in recording.availableVideoCodecs) {
+                        let cdc = recording.availableVideoCodecs[i]
 
                         model.append({
                             codec: cdc,
-                            description: Recording.codecDescription(cdc)
+                            description: recording.codecDescription(cdc)
                         })
                     }
 
                     currentIndex =
-                        Recording.availableVideoCodecs.indexOf(Recording.videoCodec)
+                        recording.availableVideoCodecs.indexOf(recording.videoCodec)
                 }
                 onCurrentIndexChanged:
-                    Recording.videoCodec =
-                        Recording.availableVideoCodecs[currentIndex]
+                    recording.videoCodec =
+                        recording.availableVideoCodecs[currentIndex]
             }
             Button {
                 text: qsTr("Configure")
@@ -203,38 +203,38 @@ Page {
             }
             Label {
                 text: qsTr("Audio codec")
-                enabled: Recording.recordAudio
+                enabled: recording.recordAudio
             }
             ComboBox {
                 id: cbxAudioCodec
                 textRole: "description"
                 Layout.fillWidth: true
-                enabled: Recording.recordAudio
+                enabled: recording.recordAudio
                 model: ListModel {
                 }
 
                 Component.onCompleted: {
                     model.clear()
 
-                    for (let i in Recording.availableAudioCodecs) {
-                        let cdc = Recording.availableAudioCodecs[i]
+                    for (let i in recording.availableAudioCodecs) {
+                        let cdc = recording.availableAudioCodecs[i]
 
                         model.append({
                             codec: cdc,
-                            description: Recording.codecDescription(cdc)
+                            description: recording.codecDescription(cdc)
                         })
                     }
 
                     currentIndex =
-                        Recording.availableAudioCodecs.indexOf(Recording.audioCodec)
+                        recording.availableAudioCodecs.indexOf(recording.audioCodec)
                 }
                 onCurrentIndexChanged:
-                    Recording.audioCodec =
-                        Recording.availableAudioCodecs[currentIndex]
+                    recording.audioCodec =
+                        recording.availableAudioCodecs[currentIndex]
             }
             Button {
                 text: qsTr("Configure")
-                enabled: Recording.recordAudio
+                enabled: recording.recordAudio
                 flat: true
 
                 onClicked: videoRecording.openAudioCodecDialog()
@@ -244,9 +244,9 @@ Page {
     LABS.FolderDialog {
         id: folderDialog
         title: qsTr("Select the folder to save your videos")
-        folder: "file://" + Recording.videoDirectory
+        folder: "file://" + recording.videoDirectory
 
-        onAccepted: Recording.videoDirectory =
+        onAccepted: recording.videoDirectory =
                     currentFolder.toString().replace("file://", "")
     }
 }

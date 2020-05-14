@@ -71,7 +71,7 @@ void PluginConfigs::setQmlEngine(QQmlApplicationEngine *engine)
     this->d->m_engine = engine;
 
     if (engine)
-        engine->rootContext()->setContextProperty("PluginConfigs", this);
+        engine->rootContext()->setContextProperty("pluginConfigs", this);
 }
 
 void PluginConfigs::loadProperties(const CliOptions &cliOptions)

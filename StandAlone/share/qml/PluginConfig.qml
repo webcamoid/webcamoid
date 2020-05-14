@@ -87,7 +87,7 @@ Page {
             {
                 AkElement.clearCache()
                 fillPluginList()
-                PluginConfigs.saveProperties()
+                pluginConfigs.saveProperties()
             }
 
             function refreshAll()
@@ -190,11 +190,11 @@ Page {
             // Plugins tabs
             ScrollView {
                 id: pluginsScrollView
-                contentHeight: pluginConfigs.height
+                contentHeight: pluginConfigsLayout.height
                 clip: true
 
                 ColumnLayout {
-                    id: pluginConfigs
+                    id: pluginConfigsLayout
                     width: pluginsScrollView.width
 
                     Button {
@@ -234,7 +234,7 @@ Page {
                                 }
 
                                 AkElement.setPluginsBlackList(blackList)
-                                PluginConfigs.saveProperties()
+                                pluginConfigs.saveProperties()
                             }
                         }
                     }
@@ -248,7 +248,7 @@ Page {
         title: qsTr("Add plugins search path")
 
         onAccepted: {
-            let path = Webcamoid.urlToLocalFile(folder)
+            let path = mediaTools.urlToLocalFile(folder)
             AkElement.addSearchPath(path)
             stack.refreshAll()
         }

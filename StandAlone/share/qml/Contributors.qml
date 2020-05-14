@@ -39,7 +39,7 @@ Page {
             }
             TextArea {
                 id: contributorsText
-                text: Webcamoid.readFile(":/Webcamoid/share/contributors.txt")
+                text: mediaTools.readFile(":/Webcamoid/share/contributors.txt")
                 readOnly: true
                 Layout.fillWidth: true
             }

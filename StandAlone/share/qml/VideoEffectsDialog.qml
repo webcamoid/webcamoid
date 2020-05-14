@@ -83,12 +83,12 @@ Dialog {
                         filter: searchEffect.text
 
                         function update() {
-                            var effects = VideoEffects.availableEffects
+                            var effects = videoEffects.availableEffects
                             model.clear()
 
                             for (let effect in effects) {
                                 let effectInfo =
-                                    VideoEffects.effectInfo(effects[effect])
+                                    videoEffects.effectInfo(effects[effect])
                                 model.append({
                                     effect: effects[effect],
                                     description:
@@ -100,7 +100,7 @@ Dialog {
 
                         function updatePreview() {
                             if (count < 1) {
-                                VideoEffects.setPreview("")
+                                videoEffects.setPreview("")
 
                                 return
                             }
@@ -111,19 +111,19 @@ Dialog {
                             var option = model.get(currentIndex)
 
                             if (option)
-                                VideoEffects.setPreview(option.effect)
+                                videoEffects.setPreview(option.effect)
                             else
-                                VideoEffects.setPreview("")
+                                videoEffects.setPreview("")
                         }
 
                         Connections {
-                            target: Webcamoid
+                            target: mediaTools
 
-                            onInterfaceLoaded: VideoEffects.setPreview("")
+                            onInterfaceLoaded: videoEffects.setPreview("")
                         }
 
                         Connections {
-                            target: VideoEffects
+                            target: videoEffects
 
                             onAvailableEffectsChanged: options.update()
                         }
@@ -181,9 +181,9 @@ Dialog {
                 //: Apply the effect over the other effects.
                 text: qsTr("Chain effect")
                 Layout.fillWidth: true
-                checked: VideoEffects.chainEffects
+                checked: videoEffects.chainEffects
 
-                onCheckedChanged: VideoEffects.chainEffects = checked
+                onCheckedChanged: videoEffects.chainEffects = checked
             }
         }
     }
@@ -192,10 +192,10 @@ Dialog {
         if (visible)
             options.updatePreview()
         else
-            VideoEffects.setPreview("")
+            videoEffects.setPreview("")
     }
-    onAccepted: VideoEffects.applyPreview()
-    onRejected: VideoEffects.setPreview("")
+    onAccepted: videoEffects.applyPreview()
+    onRejected: videoEffects.setPreview("")
 
     header: Item {
         id: rectangle

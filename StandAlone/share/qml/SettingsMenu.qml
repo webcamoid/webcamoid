@@ -60,7 +60,7 @@ Menu {
             if (checked) {
                 videoLayer.state = AkElement.ElementStatePlaying;
             } else {
-                Recording.state = AkElement.ElementStateNull;
+                recording.state = AkElement.ElementStateNull;
                 videoLayer.state = AkElement.ElementStateNull;
             }
         }

@@ -50,23 +50,23 @@ Page {
 
                 ColumnLayout {
                     Label {
-                        text: Webcamoid.applicationName()
+                        text: mediaTools.applicationName
                         font.bold: true
                         font.pointSize: 12
                     }
                     Label {
-                        text: qsTr("Version %1").arg(Webcamoid.applicationVersion())
+                        text: qsTr("Version %1").arg(mediaTools.applicationVersion)
                         font.bold: true
                     }
                     Label {
                         text: qsTr("Using Qt %1")
-                                .arg(Webcamoid.qtVersion())
+                                .arg(mediaTools.qtVersion)
                     }
                     Button {
                         text: qsTr("Website")
                         icon.source: "image://icons/internet"
 
-                        onClicked: Qt.openUrlExternally(Webcamoid.projectUrl())
+                        onClicked: Qt.openUrlExternally(mediaTools.projectUrl)
                     }
                 }
             }
@@ -78,7 +78,7 @@ Page {
                 text: qsTr("A simple webcam application for picture and video capture.")
             }
             Label {
-                text: Webcamoid.copyrightNotice()
+                text: mediaTools.copyrightNotice
             }
         }
     }

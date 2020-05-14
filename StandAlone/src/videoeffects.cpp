@@ -601,7 +601,7 @@ void VideoEffects::setQmlEngine(QQmlApplicationEngine *engine)
     this->d->m_engine = engine;
 
     if (engine)
-        engine->rootContext()->setContextProperty("VideoEffects", this);
+        engine->rootContext()->setContextProperty("videoEffects", this);
 }
 
 AkPacket VideoEffects::iStream(const AkPacket &packet)

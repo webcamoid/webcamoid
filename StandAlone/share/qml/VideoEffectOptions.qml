@@ -31,11 +31,11 @@ ScrollView {
 
     function description(effectIndex)
     {
-        if (effectIndex < 0 || effectIndex >= VideoEffects.effects.lenght)
+        if (effectIndex < 0 || effectIndex >= videoEffects.effects.lenght)
             return ""
 
-        let effect = VideoEffects.effects[effectIndex]
-        let info = VideoEffects.effectInfo(effect)
+        let effect = videoEffects.effects[effectIndex]
+        let info = videoEffects.effectInfo(effect)
 
         if (!info)
             return ""
@@ -65,8 +65,8 @@ ScrollView {
             Layout.rightMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
 
             onClicked: {
-                VideoEffects.removeInterface("itmEffectControls")
-                VideoEffects.removeEffect(view.effectIndex)
+                videoEffects.removeInterface("itmEffectControls")
+                videoEffects.removeEffect(view.effectIndex)
                 view.effectRemoved()
             }
         }
@@ -80,11 +80,11 @@ ScrollView {
     }
 
     onEffectIndexChanged: {
-        VideoEffects.removeInterface("itmEffectControls")
+        videoEffects.removeInterface("itmEffectControls")
 
-        if (effectIndex < 0 || effectIndex >= VideoEffects.effects.lenght)
+        if (effectIndex < 0 || effectIndex >= videoEffects.effects.lenght)
             return
 
-        VideoEffects.embedControls("itmEffectControls", effectIndex)
+        videoEffects.embedControls("itmEffectControls", effectIndex)
     }
 }

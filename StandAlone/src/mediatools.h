@@ -39,6 +39,30 @@ class MediaTools: public QObject
                WRITE setWindowHeight
                RESET resetWindowHeight
                NOTIFY windowHeightChanged)
+    Q_PROPERTY(QString applicationName
+               READ applicationName
+               CONSTANT)
+    Q_PROPERTY(QString applicationVersion
+               READ applicationVersion
+               CONSTANT)
+    Q_PROPERTY(QString qtVersion
+               READ qtVersion
+               CONSTANT)
+    Q_PROPERTY(QString copyrightNotice
+               READ copyrightNotice
+               CONSTANT)
+    Q_PROPERTY(QString projectUrl
+               READ projectUrl
+               CONSTANT)
+    Q_PROPERTY(QString projectLicenseUrl
+               READ projectLicenseUrl
+               CONSTANT)
+    Q_PROPERTY(QString projectDownloadsUrl
+               READ projectDownloadsUrl
+               CONSTANT)
+    Q_PROPERTY(QString projectIssuesUrl
+               READ projectIssuesUrl
+               CONSTANT)
 
     public:
         MediaTools(QObject *parent=nullptr);

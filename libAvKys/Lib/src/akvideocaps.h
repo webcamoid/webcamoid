@@ -60,9 +60,12 @@ inline quint32 AkFourCCRS(const QString &fourcc)
 
 #define AK_FOURCC_NULL AkFourCC(0, 0, 0, 0)
 
+class AkVideoCaps;
 class AkVideoCapsPrivate;
 class AkCaps;
 class AkFrac;
+
+using AkVideoCapsList = QList<AkVideoCaps>;
 
 class AKCOMMONS_EXPORT AkVideoCaps: public QObject
 {
@@ -303,6 +306,7 @@ class AKCOMMONS_EXPORT AkVideoCaps: public QObject
             Format_gray24,
             Format_gray32,
         };
+        using PixelFormatList = QList<PixelFormat>;
 
         AkVideoCaps(QObject *parent=nullptr);
         AkVideoCaps(PixelFormat format,
@@ -408,6 +412,8 @@ AKCOMMONS_EXPORT QDataStream &operator >>(QDataStream &istream, AkVideoCaps &cap
 AKCOMMONS_EXPORT QDataStream &operator <<(QDataStream &ostream, const AkVideoCaps &caps);
 
 Q_DECLARE_METATYPE(AkVideoCaps)
+Q_DECLARE_METATYPE(AkVideoCapsList)
 Q_DECLARE_METATYPE(AkVideoCaps::PixelFormat)
+Q_DECLARE_METATYPE(AkVideoCaps::PixelFormatList)
 
 #endif // AKVIDEOCAPS_H

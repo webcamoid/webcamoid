@@ -55,7 +55,7 @@ ListView {
                   lsvOptionList.model[index]
         anchors.right: parent.right
         anchors.left: parent.left
-        visible: Webcamoid.matches(filter, optionValues(index))
+        visible: mediaTools.matches(filter, optionValues(index))
         height: visible? implicitHeight: 0
         highlighted: lsvOptionList.currentItem == this
 

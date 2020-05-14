@@ -40,16 +40,16 @@ Page {
             }
             TextField {
                 Layout.fillWidth: true
-                text: Recording.imagesDirectory
+                text: recording.imagesDirectory
                 selectByMouse: true
 
-                onTextChanged: Recording.imagesDirectory = text
+                onTextChanged: recording.imagesDirectory = text
             }
             Button {
                 text: qsTr("Search")
 
                 onClicked: {
-                    Webcamoid.makedirs(Recording.imagesDirectory)
+                    mediaTools.makedirs(recording.imagesDirectory)
                     folderDialog.open()
                 }
             }
@@ -66,21 +66,21 @@ Page {
                 Component.onCompleted: {
                     model.clear()
 
-                    for (let i in Recording.availableImageFormats) {
-                        let fmt = Recording.availableImageFormats[i]
+                    for (let i in recording.availableImageFormats) {
+                        let fmt = recording.availableImageFormats[i]
 
                         model.append({
                             format: fmt,
-                            description: Recording.imageFormatDescription(fmt)
+                            description: recording.imageFormatDescription(fmt)
                         })
                     }
 
                     currentIndex =
-                        Recording.availableImageFormats.indexOf(Recording.imageFormat)
+                        recording.availableImageFormats.indexOf(recording.imageFormat)
                 }
                 onCurrentIndexChanged:
-                    Recording.imageFormat =
-                        Recording.availableImageFormats[currentIndex]
+                    recording.imageFormat =
+                        recording.availableImageFormats[currentIndex]
             }
             Label {
                 text: qsTr("Quality")
@@ -89,29 +89,29 @@ Page {
                 id: sldQuality
                 from: spbQuality.from
                 to: spbQuality.to
-                value: Recording.imageSaveQuality
+                value: recording.imageSaveQuality
                 stepSize: spbQuality.stepSize
                 Layout.fillWidth: true
 
-                onValueChanged: Recording.imageSaveQuality = value
+                onValueChanged: recording.imageSaveQuality = value
             }
             SpinBox {
                 id: spbQuality
                 from: -1
                 to: 100
-                value: Recording.imageSaveQuality
+                value: recording.imageSaveQuality
                 stepSize: 1
 
-                onValueChanged: Recording.imageSaveQuality = value
+                onValueChanged: recording.imageSaveQuality = value
             }
         }
     }
     LABS.FolderDialog {
         id: folderDialog
         title: qsTr("Select the folder to save your photos")
-        folder: "file://" + Recording.imagesDirectory
+        folder: "file://" + recording.imagesDirectory
 
-        onAccepted: Recording.imagesDirectory =
+        onAccepted: recording.imagesDirectory =
                     currentFolder.toString().replace("file://", "")
     }
 }
