@@ -248,7 +248,7 @@
     <message>
         <location filename="../qml/AudioVideoPanel.qml" line="32"/>
         <source>Video Source Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Параметры источника видеосигнала</translation>
     </message>
 </context>
 <context>
@@ -654,52 +654,52 @@
     <message>
         <location filename="../qml/VideoDeviceOptions.qml" line="27"/>
         <source>Video Device Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Параметры видеоустройства</translation>
     </message>
     <message>
         <location filename="../qml/VideoDeviceOptions.qml" line="49"/>
         <source>Virtual camera name</source>
-        <translation type="unfinished"></translation>
+        <translation>Название виртуальной камеры</translation>
     </message>
     <message>
         <location filename="../qml/VideoDeviceOptions.qml" line="60"/>
         <source>Formats</source>
-        <translation type="unfinished"></translation>
+        <translation>Форматы</translation>
     </message>
     <message>
         <location filename="../qml/VideoDeviceOptions.qml" line="63"/>
         <source>Advanced</source>
-        <translation type="unfinished"></translation>
+        <translation>Дополнительно</translation>
     </message>
     <message>
         <location filename="../qml/VideoDeviceOptions.qml" line="76"/>
         <source>Add format</source>
-        <translation type="unfinished"></translation>
+        <translation>Добавить формат</translation>
     </message>
     <message>
         <location filename="../qml/VideoDeviceOptions.qml" line="89"/>
         <source>Horizontal mirror</source>
-        <translation type="unfinished"></translation>
+        <translation>Горизонтальное зеркало</translation>
     </message>
     <message>
         <location filename="../qml/VideoDeviceOptions.qml" line="95"/>
         <source>Vertical mirror</source>
-        <translation type="unfinished"></translation>
+        <translation>Вертикальное зеркало</translation>
     </message>
     <message>
         <location filename="../qml/VideoDeviceOptions.qml" line="101"/>
         <source>Scaling</source>
-        <translation type="unfinished"></translation>
+        <translation>Масштабирование</translation>
     </message>
     <message>
         <location filename="../qml/VideoDeviceOptions.qml" line="107"/>
         <source>Aspect ratio</source>
-        <translation type="unfinished"></translation>
+        <translation>Соотношение сторон</translation>
     </message>
     <message>
         <location filename="../qml/VideoDeviceOptions.qml" line="113"/>
         <source>Swap red and blue</source>
-        <translation type="unfinished"></translation>
+        <translation>Поменять местами красный и синий цвета</translation>
     </message>
 </context>
 <context>
@@ -800,7 +800,7 @@
         <location filename="../../src/videolayer.cpp" line="199"/>
         <source>No Output</source>
         <extracomment>Disable video output, don&apos;t send the video to the output device.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Нет выхода</translation>
     </message>
 </context>
 <context>
@@ -826,7 +826,7 @@
     <message>
         <location filename="../qml/VideoOutputs.qml" line="38"/>
         <source>Remove all outputs</source>
-        <translation type="unfinished"></translation>
+        <translation>Удалить все выходы</translation>
     </message>
 </context>
 <context>

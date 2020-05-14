@@ -248,7 +248,7 @@
     <message>
         <location filename="../qml/AudioVideoPanel.qml" line="32"/>
         <source>Video Source Options</source>
-        <translation type="unfinished"></translation>
+        <translation>אפשרויות מקור וידאו</translation>
     </message>
 </context>
 <context>
@@ -654,52 +654,52 @@
     <message>
         <location filename="../qml/VideoDeviceOptions.qml" line="27"/>
         <source>Video Device Options</source>
-        <translation type="unfinished"></translation>
+        <translation>אפשרויות התקן וידאו</translation>
     </message>
     <message>
         <location filename="../qml/VideoDeviceOptions.qml" line="49"/>
         <source>Virtual camera name</source>
-        <translation type="unfinished"></translation>
+        <translation>שם מצלמה וירטואלית</translation>
     </message>
     <message>
         <location filename="../qml/VideoDeviceOptions.qml" line="60"/>
         <source>Formats</source>
-        <translation type="unfinished"></translation>
+        <translation>תצורות</translation>
     </message>
     <message>
         <location filename="../qml/VideoDeviceOptions.qml" line="63"/>
         <source>Advanced</source>
-        <translation type="unfinished"></translation>
+        <translation>מתקדם</translation>
     </message>
     <message>
         <location filename="../qml/VideoDeviceOptions.qml" line="76"/>
         <source>Add format</source>
-        <translation type="unfinished"></translation>
+        <translation>הוספת תצורה</translation>
     </message>
     <message>
         <location filename="../qml/VideoDeviceOptions.qml" line="89"/>
         <source>Horizontal mirror</source>
-        <translation type="unfinished"></translation>
+        <translation>הפוך אופקי</translation>
     </message>
     <message>
         <location filename="../qml/VideoDeviceOptions.qml" line="95"/>
         <source>Vertical mirror</source>
-        <translation type="unfinished"></translation>
+        <translation>הפוך אנכי</translation>
     </message>
     <message>
         <location filename="../qml/VideoDeviceOptions.qml" line="101"/>
         <source>Scaling</source>
-        <translation type="unfinished"></translation>
+        <translation>שינוי גודל</translation>
     </message>
     <message>
         <location filename="../qml/VideoDeviceOptions.qml" line="107"/>
         <source>Aspect ratio</source>
-        <translation type="unfinished"></translation>
+        <translation>יחס תצוגה</translation>
     </message>
     <message>
         <location filename="../qml/VideoDeviceOptions.qml" line="113"/>
         <source>Swap red and blue</source>
-        <translation type="unfinished"></translation>
+        <translation>החלפת אדום וכחול</translation>
     </message>
 </context>
 <context>
@@ -800,7 +800,7 @@
         <location filename="../../src/videolayer.cpp" line="199"/>
         <source>No Output</source>
         <extracomment>Disable video output, don&apos;t send the video to the output device.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>ללא פלט</translation>
     </message>
 </context>
 <context>
@@ -826,7 +826,7 @@
     <message>
         <location filename="../qml/VideoOutputs.qml" line="38"/>
         <source>Remove all outputs</source>
-        <translation type="unfinished"></translation>
+        <translation>הסרת כל הפלטים</translation>
     </message>
 </context>
 <context>
