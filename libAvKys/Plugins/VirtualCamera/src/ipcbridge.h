@@ -122,6 +122,9 @@ namespace AkVCam
             // Output pixel formats supported by the driver.
             std::vector<PixelFormat> supportedOutputPixelFormats() const;
 
+            // Default output pixel format of the driver.
+            PixelFormat defaultOutputPixelFormat() const;
+
             // Return supported formats for the device.
             std::vector<VideoFormat> formats(const std::string &deviceId) const;
 

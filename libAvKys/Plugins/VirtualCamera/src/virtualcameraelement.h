@@ -72,6 +72,9 @@ class VirtualCameraElement: public AkElement
     Q_PROPERTY(AkVideoCaps::PixelFormatList supportedOutputPixelFormats
                READ supportedOutputPixelFormats
                NOTIFY supportedOutputPixelFormatsChanged)
+    Q_PROPERTY(AkVideoCaps::PixelFormat defaultOutputPixelFormat
+               READ defaultOutputPixelFormat
+               NOTIFY defaultOutputPixelFormatChanged)
     Q_PROPERTY(bool horizontalMirrored
                READ horizontalMirrored
                WRITE setHorizontalMirrored
@@ -126,6 +129,7 @@ class VirtualCameraElement: public AkElement
         Q_INVOKABLE QString rootMethod() const;
         Q_INVOKABLE QStringList availableMethods() const;
         Q_INVOKABLE AkVideoCaps::PixelFormatList supportedOutputPixelFormats() const;
+        Q_INVOKABLE AkVideoCaps::PixelFormat defaultOutputPixelFormat() const;
         Q_INVOKABLE bool horizontalMirrored() const;
         Q_INVOKABLE bool verticalMirrored() const;
         Q_INVOKABLE Scaling scalingMode() const;
@@ -134,6 +138,7 @@ class VirtualCameraElement: public AkElement
         Q_INVOKABLE int defaultStream(const QString &mimeType) const;
         Q_INVOKABLE QString description(const QString &media) const;
         Q_INVOKABLE AkCaps caps(int stream) const;
+        Q_INVOKABLE AkVideoCapsList outputCaps(const QString &webcam) const;
         Q_INVOKABLE QVariantMap addStream(int streamIndex,
                                           const AkCaps &streamCaps,
                                           const QVariantMap &streamParams={});
@@ -167,6 +172,7 @@ class VirtualCameraElement: public AkElement
         void rootMethodChanged(const QString &rootMethod);
         void availableMethodsChanged(const QStringList &availableMethods);
         void supportedOutputPixelFormatsChanged(const AkVideoCaps::PixelFormatList &supportedOutputPixelFormats);
+        void defaultOutputPixelFormatChanged(const AkVideoCaps::PixelFormat &defaultOutputPixelFormat);
         void horizontalMirroredChanged(bool horizontalMirrored);
         void verticalMirroredChanged(bool verticalMirrored);
         void scalingModeChanged(Scaling scalingMode);

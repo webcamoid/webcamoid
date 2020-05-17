@@ -161,6 +161,14 @@ AkVideoCaps::PixelFormatList VirtualCameraElement::supportedOutputPixelFormats()
     return formats;
 }
 
+AkVideoCaps::PixelFormat VirtualCameraElement::defaultOutputPixelFormat() const
+{
+    auto format = this->d->m_ipcBridge.defaultOutputPixelFormat();
+    auto &formatConvert = VirtualCameraElementPrivate::akToVCamPixelFormatMap();
+
+    return formatConvert.key(format, AkVideoCaps::Format_none);
+}
+
 bool VirtualCameraElement::horizontalMirrored() const
 {
     return this->d->m_ipcBridge.isHorizontalMirrored(this->d->m_curDevice.toStdString());
@@ -217,6 +225,31 @@ AkCaps VirtualCameraElement::caps(int stream) const
         return AkCaps();
 
     return this->d->m_streamCaps;
+}
+
+AkVideoCapsList VirtualCameraElement::outputCaps(const QString &webcam) const
+{
+    AkVideoCapsList caps;
+    auto formats = this->d->m_ipcBridge.formats(webcam.toStdString());
+    auto &formatConvert =
+            VirtualCameraElementPrivate::akToVCamPixelFormatMap();
+
+    for (auto &format: formats) {
+        auto pixelFormat =
+                formatConvert.key(AkVCam::PixelFormat(format.fourcc()),
+                                  AkVideoCaps::Format_none);
+
+        if (pixelFormat != AkVideoCaps::Format_none)
+            caps << AkVideoCaps {
+                pixelFormat,
+                format.width(),
+                format.height(),
+                {format.frameRates()[0].num(),
+                 format.frameRates()[0].den()}
+            };
+    }
+
+    return caps;
 }
 
 QVariantMap VirtualCameraElement::addStream(int streamIndex,
@@ -346,7 +379,7 @@ void VirtualCameraElement::controlInterfaceConfigure(QQmlContext *context,
 {
     Q_UNUSED(controlId)
 
-    context->setContextProperty("VirtualCamera", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
+    context->setContextProperty("virtualCamera", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
     context->setContextProperty("controlId", controlId);
 }
 

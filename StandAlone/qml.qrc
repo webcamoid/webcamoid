@@ -2,6 +2,7 @@
     <qresource prefix="/Webcamoid">
         <file>share/qml/About.qml</file>
         <file>share/qml/AddSource.qml</file>
+        <file>share/qml/AddVideoFormat.qml</file>
         <file>share/qml/AudioCodecOptions.qml</file>
         <file>share/qml/AudioDeviceOptions.qml</file>
         <file>share/qml/AudioInputs.qml</file>

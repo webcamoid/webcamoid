@@ -258,6 +258,11 @@ QString MediaTools::currentTime() const
     return QDateTime::currentDateTime().toString("yyyy-MM-dd hh-mm-ss");
 }
 
+QString MediaTools::currentTime(const QString &format) const
+{
+    return QDateTime::currentDateTime().toString(format);
+}
+
 QStringList MediaTools::standardLocations(const QString &type) const
 {
     static const QMap<QString, QStandardPaths::StandardLocation> stdPaths {

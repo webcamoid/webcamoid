@@ -149,6 +149,46 @@ AkVideoCaps VideoLayer::inputVideoCaps() const
     return this->d->m_inputVideoCaps;
 }
 
+AkVideoCaps::PixelFormatList VideoLayer::supportedOutputPixelFormats() const
+{
+    if (!this->d->m_cameraOutput)
+        return {};
+
+    AkVideoCaps::PixelFormatList pixelFormats;
+    QMetaObject::invokeMethod(this->d->m_cameraOutput.data(),
+                              "supportedOutputPixelFormats",
+                              Q_RETURN_ARG(AkVideoCaps::PixelFormatList, pixelFormats));
+
+    return pixelFormats;
+}
+
+AkVideoCaps::PixelFormat VideoLayer::defaultOutputPixelFormat() const
+{
+    if (!this->d->m_cameraOutput)
+        return AkVideoCaps::Format_none;
+
+    AkVideoCaps::PixelFormat pixelFormat;
+    QMetaObject::invokeMethod(this->d->m_cameraOutput.data(),
+                              "defaultOutputPixelFormat",
+                              Q_RETURN_ARG(AkVideoCaps::PixelFormat, pixelFormat));
+
+    return pixelFormat;
+}
+
+AkVideoCapsList VideoLayer::supportedOutputVideoCaps(const QString &device) const
+{
+    if (!this->d->m_cameraOutput)
+        return {};
+
+    AkVideoCapsList caps;
+    QMetaObject::invokeMethod(this->d->m_cameraOutput.data(),
+                              "description",
+                              Q_RETURN_ARG(AkVideoCapsList, caps),
+                              Q_ARG(QString, device));
+
+    return caps;
+}
+
 AkElement::ElementState VideoLayer::state() const
 {
     return this->d->m_state;
@@ -159,15 +199,15 @@ bool VideoLayer::playOnStart() const
     return this->d->m_playOnStart;
 }
 
-VideoLayer::InputType VideoLayer::deviceType(const QString &stream) const
+VideoLayer::InputType VideoLayer::deviceType(const QString &device) const
 {
-    if (this->d->cameras().contains(stream))
+    if (this->d->cameras().contains(device))
         return InputCamera;
 
-    if (this->d->desktops().contains(stream))
+    if (this->d->desktops().contains(device))
         return InputDesktop;
 
-    if (this->d->m_streams.contains(stream))
+    if (this->d->m_streams.contains(device))
         return InputStream;
 
     return InputUnknown;
@@ -192,43 +232,43 @@ QStringList VideoLayer::devicesByType(InputType type) const
     return {};
 }
 
-QString VideoLayer::description(const QString &stream) const
+QString VideoLayer::description(const QString &device) const
 {
-    if (stream == DUMMY_OUTPUT_DEVICE)
+    if (device == DUMMY_OUTPUT_DEVICE)
         //: Disable video output, don't send the video to the output device.
         return tr("No Output");
 
     if (this->d->m_cameraOutput) {
         auto outputs = this->d->m_cameraOutput->property("medias").toStringList();
 
-        if (outputs.contains(stream)) {
+        if (outputs.contains(device)) {
             QString description;
             QMetaObject::invokeMethod(this->d->m_cameraOutput.data(),
                                       "description",
                                       Q_RETURN_ARG(QString, description),
-                                      Q_ARG(QString, stream));
+                                      Q_ARG(QString, device));
 
             return description;
         }
     }
 
-    if (this->d->cameras().contains(stream))
-        return this->d->cameraDescription(stream);
+    if (this->d->cameras().contains(device))
+        return this->d->cameraDescription(device);
 
-    if (this->d->desktops().contains(stream))
-        return this->d->desktopDescription(stream);
+    if (this->d->desktops().contains(device))
+        return this->d->desktopDescription(device);
 
-    if (this->d->m_streams.contains(stream))
-        return this->d->m_streams.value(stream);
+    if (this->d->m_streams.contains(device))
+        return this->d->m_streams.value(device);
 
     return {};
 }
 
 bool VideoLayer::embedControls(const QString &where,
-                                const QString &stream,
+                                const QString &device,
                                 const QString &name) const
 {
-    auto source = this->d->sourceElement(stream);
+    auto source = this->d->sourceElement(device);
 
     if (!source)
         return false;

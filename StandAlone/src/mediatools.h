@@ -82,6 +82,7 @@ class MediaTools: public QObject
         Q_INVOKABLE bool matches(const QString &pattern,
                                  const QStringList &strings) const;
         Q_INVOKABLE QString currentTime() const;
+        Q_INVOKABLE QString currentTime(const QString &format) const;
         Q_INVOKABLE QStringList standardLocations(const QString &type) const;
         Q_INVOKABLE static QString readFile(const QString &fileName);
         Q_INVOKABLE QString urlToLocalFile(const QUrl &url) const;

@@ -20,6 +20,7 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
+import Ak 1.0
 
 ScrollView {
     id: view
@@ -134,5 +135,17 @@ ScrollView {
     VideoDeviceOptions {
         id: deviceOptions
         anchors.centerIn: Overlay.overlay
+
+        onOpenOutputFormatDialog: {
+            addVideoFormat.openOptions(index, caps)
+        }
+    }
+    AddVideoFormat {
+        id:  addVideoFormat
+        anchors.centerIn: Overlay.overlay
+
+        onAddFormat: deviceOptions.addFormat(caps)
+        onChangeFormat: deviceOptions.changeFormat(index, caps)
+        onRemoveFormat: deviceOptions.removeFormat(index)
     }
 }

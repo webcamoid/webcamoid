@@ -164,6 +164,44 @@
     </message>
 </context>
 <context>
+    <name>AddVideoFormat</name>
+    <message>
+        <location filename="../qml/AddVideoFormat.qml" line="42"/>
+        <source>Add Video Format</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/AddVideoFormat.qml" line="43"/>
+        <source>Change Video Format</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/AddVideoFormat.qml" line="95"/>
+        <source>Remove format</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/AddVideoFormat.qml" line="106"/>
+        <source>Format</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/AddVideoFormat.qml" line="115"/>
+        <source>Width</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/AddVideoFormat.qml" line="126"/>
+        <source>Height</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/AddVideoFormat.qml" line="137"/>
+        <source>Frame rate</source>
+        <translation type="unfinished">Framerate</translation>
+    </message>
+</context>
+<context>
     <name>AudioCodecOptions</name>
     <message>
         <location filename="../qml/AudioCodecOptions.qml" line="27"/>
@@ -652,54 +690,29 @@
 <context>
     <name>VideoDeviceOptions</name>
     <message>
-        <location filename="../qml/VideoDeviceOptions.qml" line="27"/>
-        <source>Video Device Options</source>
-        <translation>Video-apparaatopties</translation>
+        <location filename="../qml/VideoDeviceOptions.qml" line="141"/>
+        <source>Virtual Camera Options</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoDeviceOptions.qml" line="49"/>
+        <location filename="../qml/VideoDeviceOptions.qml" line="142"/>
+        <source>Add Virtual Camera</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoDeviceOptions.qml" line="167"/>
         <source>Virtual camera name</source>
         <translation>Naam van virtuele camera</translation>
     </message>
     <message>
-        <location filename="../qml/VideoDeviceOptions.qml" line="60"/>
-        <source>Formats</source>
-        <translation>Formaten</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoDeviceOptions.qml" line="63"/>
-        <source>Advanced</source>
-        <translation>Geavanceerd</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoDeviceOptions.qml" line="76"/>
+        <location filename="../qml/VideoDeviceOptions.qml" line="176"/>
         <source>Add format</source>
         <translation>Formaat toevoegen</translation>
     </message>
     <message>
-        <location filename="../qml/VideoDeviceOptions.qml" line="89"/>
-        <source>Horizontal mirror</source>
-        <translation>Horizontaal spiegelen</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoDeviceOptions.qml" line="95"/>
-        <source>Vertical mirror</source>
-        <translation>Verticaal spiegelen</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoDeviceOptions.qml" line="101"/>
-        <source>Scaling</source>
-        <translation>Afmetingen</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoDeviceOptions.qml" line="107"/>
-        <source>Aspect ratio</source>
-        <translation>Beeldverhouding</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoDeviceOptions.qml" line="113"/>
-        <source>Swap red and blue</source>
-        <translation>Rood en blauw omwisselen</translation>
+        <location filename="../qml/VideoDeviceOptions.qml" line="186"/>
+        <source>Remove all formats</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -797,7 +810,7 @@
 <context>
     <name>VideoLayer</name>
     <message>
-        <location filename="../../src/videolayer.cpp" line="199"/>
+        <location filename="../../src/videolayer.cpp" line="239"/>
         <source>No Output</source>
         <extracomment>Disable video output, don&apos;t send the video to the output device.</extracomment>
         <translation>Geen uitvoer</translation>
@@ -819,12 +832,12 @@
 <context>
     <name>VideoOutputs</name>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="31"/>
+        <location filename="../qml/VideoOutputs.qml" line="32"/>
         <source>Add output</source>
         <translation>Uitvoer toevoegen</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="38"/>
+        <location filename="../qml/VideoOutputs.qml" line="39"/>
         <source>Remove all outputs</source>
         <translation>Alle uitvoeren verwijderen</translation>
     </message>
@@ -2219,61 +2232,6 @@
         <translation>Kies de vignettekleur</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="60"/>
-        <source>Devices</source>
-        <translation>Apparaten</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="77"/>
-        <source>Add</source>
-        <translation>Toevoegen</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="88"/>
-        <source>Edit</source>
-        <translation>Bewerken</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="101"/>
-        <source>Remove</source>
-        <translation>Verwijderen</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="112"/>
-        <source>Remove All</source>
-        <translation>Alles verwijderen</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="133"/>
-        <source>Description</source>
-        <translation>Omschrijving</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="139"/>
-        <source>Camera name (optional)</source>
-        <translation>Naam van camera (optioneel)</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="262"/>
-        <source>Error creating camera: </source>
-        <translation>Fout bij openen van camera: </translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="150"/>
-        <source>Ok</source>
-        <translation>Oké</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="193"/>
-        <source>Cancel</source>
-        <translation>Annuleren</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="248"/>
-        <source>This system is not supported yet</source>
-        <translation>Dit systeem wordt nog niet ondersteund</translation>
-    </message>
-    <message>
         <location filename="../../../libAvKys/Plugins/Warp/share/qml/main.qml" line="28"/>
         <location filename="../../../libAvKys/Plugins/Warp/share/qml/main.qml" line="32"/>
         <source>Ripples</source>
@@ -2323,6 +2281,31 @@
         <location filename="../qml/main.qml" line="345"/>
         <source>Record video</source>
         <translation>Video opnemen</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="29"/>
+        <source>Horizontal mirror</source>
+        <translation type="unfinished">Horizontaal spiegelen</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="38"/>
+        <source>Vertical mirror</source>
+        <translation type="unfinished">Verticaal spiegelen</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="47"/>
+        <source>Scaling</source>
+        <translation type="unfinished">Afmetingen</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="65"/>
+        <source>Aspect ratio</source>
+        <translation type="unfinished">Beeldverhouding</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="87"/>
+        <source>Swap red and blue</source>
+        <translation type="unfinished">Rood en blauw omwisselen</translation>
     </message>
 </context>
 </TS>

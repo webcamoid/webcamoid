@@ -21,12 +21,12 @@
 #define VIDEOLAYER_H
 
 #include <akelement.h>
+#include <akvideocaps.h>
 
 class VideoLayerPrivate;
 class VideoLayer;
 class CliOptions;
 class AkAudioCaps;
-class AkVideoCaps;
 class QQmlApplicationEngine;
 
 using VideoLayerPtr = QSharedPointer<VideoLayer>;
@@ -35,6 +35,7 @@ class VideoLayer: public QObject
 {
     Q_OBJECT
     Q_ENUMS(InputType)
+    Q_ENUMS(OutputType)
     Q_PROPERTY(QString videoInput
                READ videoInput
                WRITE setVideoInput
@@ -57,6 +58,12 @@ class VideoLayer: public QObject
     Q_PROPERTY(AkVideoCaps inputVideoCaps
                READ inputVideoCaps
                NOTIFY inputVideoCapsChanged)
+    Q_PROPERTY(AkVideoCaps::PixelFormatList supportedOutputPixelFormats
+               READ supportedOutputPixelFormats
+               CONSTANT)
+    Q_PROPERTY(AkVideoCaps::PixelFormat defaultOutputPixelFormat
+               READ defaultOutputPixelFormat
+               CONSTANT)
     Q_PROPERTY(AkElement::ElementState state
                READ state
                WRITE setState
@@ -75,6 +82,10 @@ class VideoLayer: public QObject
             InputDesktop,
             InputStream
         };
+        enum OutputType {
+            OutputUnknown,
+            OutputVirtualCamera,
+        };
 
         VideoLayer(QQmlApplicationEngine *engine=nullptr,
                    QObject *parent=nullptr);
@@ -89,13 +100,16 @@ class VideoLayer: public QObject
         Q_INVOKABLE QStringList outputs() const;
         Q_INVOKABLE AkAudioCaps inputAudioCaps() const;
         Q_INVOKABLE AkVideoCaps inputVideoCaps() const;
+        Q_INVOKABLE AkVideoCaps::PixelFormatList supportedOutputPixelFormats() const;
+        Q_INVOKABLE AkVideoCaps::PixelFormat defaultOutputPixelFormat() const;
+        Q_INVOKABLE AkVideoCapsList supportedOutputVideoCaps(const QString &device) const;
         Q_INVOKABLE AkElement::ElementState state() const;
         Q_INVOKABLE bool playOnStart() const;
-        Q_INVOKABLE InputType deviceType(const QString &videoInput) const;
+        Q_INVOKABLE InputType deviceType(const QString &device) const;
         Q_INVOKABLE QStringList devicesByType(InputType type) const;
-        Q_INVOKABLE QString description(const QString &videoInput) const;
+        Q_INVOKABLE QString description(const QString &device) const;
         Q_INVOKABLE bool embedControls(const QString &where,
-                                       const QString &videoInput,
+                                       const QString &device,
                                        const QString &name={}) const;
         Q_INVOKABLE void removeInterface(const QString &where) const;
 
@@ -140,5 +154,6 @@ class VideoLayer: public QObject
 };
 
 Q_DECLARE_METATYPE(VideoLayer::InputType)
+Q_DECLARE_METATYPE(VideoLayer::OutputType)
 
 #endif // VIDEOLAYER_H

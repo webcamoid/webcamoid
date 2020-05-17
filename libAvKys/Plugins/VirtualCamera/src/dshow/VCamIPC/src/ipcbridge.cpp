@@ -355,6 +355,11 @@ std::vector<AkVCam::PixelFormat> AkVCam::IpcBridge::supportedOutputPixelFormats(
     };
 }
 
+AkVCam::PixelFormat AkVCam::IpcBridge::defaultOutputPixelFormat() const
+{
+    return PixelFormatYUY2;
+}
+
 std::vector<AkVCam::VideoFormat> AkVCam::IpcBridge::formats(const std::string &deviceId) const
 {
     AkIpcBridgeLogMethod();
