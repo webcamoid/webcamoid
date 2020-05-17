@@ -168,37 +168,37 @@
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="42"/>
         <source>Add Video Format</source>
-        <translation type="unfinished"></translation>
+        <translation>הוספת תצורת וידאו</translation>
     </message>
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="43"/>
         <source>Change Video Format</source>
-        <translation type="unfinished"></translation>
+        <translation>שינוי תצורת וידאו</translation>
     </message>
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="95"/>
         <source>Remove format</source>
-        <translation type="unfinished"></translation>
+        <translation>הסרת תצורה</translation>
     </message>
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="106"/>
         <source>Format</source>
-        <translation type="unfinished"></translation>
+        <translation>תצורה</translation>
     </message>
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="115"/>
         <source>Width</source>
-        <translation type="unfinished"></translation>
+        <translation>רוחב</translation>
     </message>
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="126"/>
         <source>Height</source>
-        <translation type="unfinished"></translation>
+        <translation>גובה</translation>
     </message>
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="137"/>
         <source>Frame rate</source>
-        <translation type="unfinished">קצב שקופיות</translation>
+        <translation>קצב תמוניות</translation>
     </message>
 </context>
 <context>
@@ -692,12 +692,12 @@
     <message>
         <location filename="../qml/VideoDeviceOptions.qml" line="141"/>
         <source>Virtual Camera Options</source>
-        <translation type="unfinished"></translation>
+        <translation>אפשרויות מצלמה וירטואלית</translation>
     </message>
     <message>
         <location filename="../qml/VideoDeviceOptions.qml" line="142"/>
         <source>Add Virtual Camera</source>
-        <translation type="unfinished"></translation>
+        <translation>הוספת מצלמה וירטואלית</translation>
     </message>
     <message>
         <location filename="../qml/VideoDeviceOptions.qml" line="167"/>
@@ -712,7 +712,7 @@
     <message>
         <location filename="../qml/VideoDeviceOptions.qml" line="186"/>
         <source>Remove all formats</source>
-        <translation type="unfinished"></translation>
+        <translation>הסרת כל התצורות</translation>
     </message>
 </context>
 <context>
@@ -2285,27 +2285,27 @@
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="29"/>
         <source>Horizontal mirror</source>
-        <translation type="unfinished">הפוך אופקי</translation>
+        <translation>היפוך אופקי</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="38"/>
         <source>Vertical mirror</source>
-        <translation type="unfinished">הפוך אנכי</translation>
+        <translation>היפוך אנכי</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="47"/>
         <source>Scaling</source>
-        <translation type="unfinished">שינוי גודל</translation>
+        <translation>שינוי גודל</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="65"/>
         <source>Aspect ratio</source>
-        <translation type="unfinished">יחס תצוגה</translation>
+        <translation>יחס תצוגה</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="87"/>
         <source>Swap red and blue</source>
-        <translation type="unfinished">החלפת אדום וכחול</translation>
+        <translation>החלפת אדום וכחול</translation>
     </message>
 </context>
 </TS>
