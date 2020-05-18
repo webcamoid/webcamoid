@@ -168,37 +168,37 @@
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="42"/>
         <source>Add Video Format</source>
-        <translation type="unfinished"></translation>
+        <translation>Videoformaat toevoegen</translation>
     </message>
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="43"/>
         <source>Change Video Format</source>
-        <translation type="unfinished"></translation>
+        <translation>Videoformaat aanpassen</translation>
     </message>
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="95"/>
         <source>Remove format</source>
-        <translation type="unfinished"></translation>
+        <translation>Formaat verwijderen</translation>
     </message>
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="106"/>
         <source>Format</source>
-        <translation type="unfinished"></translation>
+        <translation>Formaat</translation>
     </message>
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="115"/>
         <source>Width</source>
-        <translation type="unfinished"></translation>
+        <translation>Breedte</translation>
     </message>
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="126"/>
         <source>Height</source>
-        <translation type="unfinished"></translation>
+        <translation>Hoogte</translation>
     </message>
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="137"/>
         <source>Frame rate</source>
-        <translation type="unfinished">Framerate</translation>
+        <translation>Framerate</translation>
     </message>
 </context>
 <context>
@@ -692,12 +692,12 @@
     <message>
         <location filename="../qml/VideoDeviceOptions.qml" line="141"/>
         <source>Virtual Camera Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Virtuelecamera-opties</translation>
     </message>
     <message>
         <location filename="../qml/VideoDeviceOptions.qml" line="142"/>
         <source>Add Virtual Camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Virtuele camera toevoegen</translation>
     </message>
     <message>
         <location filename="../qml/VideoDeviceOptions.qml" line="167"/>
@@ -712,7 +712,7 @@
     <message>
         <location filename="../qml/VideoDeviceOptions.qml" line="186"/>
         <source>Remove all formats</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle formaten verwijderen</translation>
     </message>
 </context>
 <context>
@@ -2285,27 +2285,27 @@
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="29"/>
         <source>Horizontal mirror</source>
-        <translation type="unfinished">Horizontaal spiegelen</translation>
+        <translation>Horizontaal spiegelen</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="38"/>
         <source>Vertical mirror</source>
-        <translation type="unfinished">Verticaal spiegelen</translation>
+        <translation>Verticaal spiegelen</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="47"/>
         <source>Scaling</source>
-        <translation type="unfinished">Afmetingen</translation>
+        <translation>Afmetingen</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="65"/>
         <source>Aspect ratio</source>
-        <translation type="unfinished">Beeldverhouding</translation>
+        <translation>Beeldverhouding</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="87"/>
         <source>Swap red and blue</source>
-        <translation type="unfinished">Rood en blauw omwisselen</translation>
+        <translation>Rood en blauw omwisselen</translation>
     </message>
 </context>
 </TS>
