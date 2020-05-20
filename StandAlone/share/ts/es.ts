@@ -34,18 +34,18 @@
     <message>
         <location filename="../qml/AddSource.qml" line="28"/>
         <source>Add source</source>
-        <translation type="unfinished"></translation>
+        <translation>Añadir fuente</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="59"/>
         <source>File</source>
-        <translation type="unfinished"></translation>
+        <translation>Archivo</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="62"/>
         <location filename="../qml/AddSource.qml" line="145"/>
         <source>URL</source>
-        <translation type="unfinished"></translation>
+        <translation>URL</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="83"/>
@@ -62,12 +62,12 @@
     <message>
         <location filename="../qml/AddSource.qml" line="97"/>
         <source>Path</source>
-        <translation type="unfinished"></translation>
+        <translation>Ruta</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="104"/>
         <source>File path</source>
-        <translation type="unfinished"></translation>
+        <translation>Ruta del archivo</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="111"/>
@@ -77,79 +77,79 @@
     <message>
         <location filename="../qml/AddSource.qml" line="208"/>
         <source>Choose the file to add as source</source>
-        <translation type="unfinished"></translation>
+        <translation>Elige un archivo para añadir como fuente</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="211"/>
         <source>All Video Files</source>
-        <translation type="unfinished"></translation>
+        <translation>Todos los archivos de vídeo</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="214"/>
         <source>3GP Video</source>
-        <translation type="unfinished"></translation>
+        <translation>Vídeo 3GP</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="215"/>
         <source>AVI Video</source>
-        <translation type="unfinished"></translation>
+        <translation>Vídeo AVI</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="217"/>
         <source>Flash Video</source>
         <extracomment>Adobe FLV Flash video</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Vídeo Flash</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="218"/>
         <source>Animated GIF</source>
-        <translation type="unfinished"></translation>
+        <translation>GIF animado</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="219"/>
         <source>MKV Video</source>
-        <translation type="unfinished"></translation>
+        <translation>Vídeo MKV</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="220"/>
         <source>Animated PNG</source>
-        <translation type="unfinished"></translation>
+        <translation>PNG animado</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="221"/>
         <source>QuickTime Video</source>
-        <translation type="unfinished"></translation>
+        <translation>Vídeo QuickTime</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="222"/>
         <source>MP4 Video</source>
-        <translation type="unfinished"></translation>
+        <translation>Vídeo MP4</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="223"/>
         <source>MPEG Video</source>
-        <translation type="unfinished"></translation>
+        <translation>Vídeo MPEG</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="224"/>
         <source>Ogg Video</source>
-        <translation type="unfinished"></translation>
+        <translation>Vídeo Ogg</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="226"/>
         <source>RealMedia Video</source>
         <extracomment>Don&apos;t translate &quot;RealMedia&quot;, leave it as is.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Vídeo RealMedia</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="227"/>
         <source>DVD Video</source>
-        <translation type="unfinished"></translation>
+        <translation>Vídeo DVD</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="228"/>
         <source>WebM Video</source>
-        <translation type="unfinished"></translation>
+        <translation>Vídeo WebM</translation>
     </message>
     <message>
         <location filename="../qml/AddSource.qml" line="230"/>
@@ -804,7 +804,7 @@
     <message>
         <location filename="../qml/VideoInputs.qml" line="48"/>
         <source>Add source</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Añadir fuente</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="59"/>

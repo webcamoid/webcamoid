@@ -168,37 +168,37 @@
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="42"/>
         <source>Add Video Format</source>
-        <translation type="unfinished"></translation>
+        <translation>Добавить формат видео</translation>
     </message>
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="43"/>
         <source>Change Video Format</source>
-        <translation type="unfinished"></translation>
+        <translation>Изменить формат видео</translation>
     </message>
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="95"/>
         <source>Remove format</source>
-        <translation type="unfinished"></translation>
+        <translation>Удалить формат</translation>
     </message>
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="106"/>
         <source>Format</source>
-        <translation type="unfinished"></translation>
+        <translation>Формат</translation>
     </message>
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="115"/>
         <source>Width</source>
-        <translation type="unfinished"></translation>
+        <translation>Ширина</translation>
     </message>
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="126"/>
         <source>Height</source>
-        <translation type="unfinished"></translation>
+        <translation>Высота</translation>
     </message>
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="137"/>
         <source>Frame rate</source>
-        <translation type="unfinished">Частота кадров</translation>
+        <translation>Частота кадров</translation>
     </message>
 </context>
 <context>
@@ -702,7 +702,7 @@
     <message>
         <location filename="../qml/VideoDeviceOptions.qml" line="143"/>
         <source>Add Virtual Camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Добавить виртуальную камеру</translation>
     </message>
     <message>
         <location filename="../qml/VideoDeviceOptions.qml" line="168"/>
@@ -717,7 +717,7 @@
     <message>
         <location filename="../qml/VideoDeviceOptions.qml" line="187"/>
         <source>Remove all formats</source>
-        <translation type="unfinished"></translation>
+        <translation>Удалить все форматы</translation>
     </message>
 </context>
 <context>
@@ -2303,27 +2303,27 @@
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="30"/>
         <source>Horizontal mirror</source>
-        <translation type="unfinished">Горизонтальное зеркало</translation>
+        <translation>Горизонтальное зеркало</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="39"/>
         <source>Vertical mirror</source>
-        <translation type="unfinished">Вертикальное зеркало</translation>
+        <translation>Вертикальное зеркало</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="48"/>
         <source>Scaling</source>
-        <translation type="unfinished">Масштабирование</translation>
+        <translation>Масштабирование</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="66"/>
         <source>Aspect ratio</source>
-        <translation type="unfinished">Соотношение сторон</translation>
+        <translation>Соотношение сторон</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="88"/>
         <source>Swap red and blue</source>
-        <translation type="unfinished">Поменять местами красный и синий цвета</translation>
+        <translation>Поменять местами красный и синий цвета</translation>
     </message>
 </context>
 </TS>
