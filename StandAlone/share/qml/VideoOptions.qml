@@ -23,7 +23,10 @@ import QtQuick.Layouts 1.3
 
 ColumnLayout {
     id: videoOptions
+
+    signal openVideoOutputAddEditDialog(string videoOutput)
     signal openVideoInputOptions(string videoInput)
+    signal openVideoOutputOptions(string videoOutput)
 
     TabBar {
         id: tabBar
@@ -48,6 +51,10 @@ ColumnLayout {
                 videoOptions.openVideoInputOptions(videoInput)
         }
         VideoOutputs {
+            onOpenVideoOutputAddEditDialog:
+                videoOptions.openVideoOutputAddEditDialog(videoOutput)
+            onOpenVideoOutputOptions:
+                videoOptions.openVideoOutputOptions(videoOutput)
         }
     }
 }

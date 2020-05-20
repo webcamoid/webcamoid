@@ -31,9 +31,9 @@ class VirtualCameraElement: public AkElement
     Q_OBJECT
     Q_ENUMS(Scaling)
     Q_ENUMS(AspectRatio)
-    Q_PROPERTY(QString errorMessage
-               READ errorMessage
-               NOTIFY errorMessageChanged)
+    Q_PROPERTY(QString error
+               READ error
+               NOTIFY errorChanged)
     Q_PROPERTY(QStringList driverPaths
                READ driverPaths
                WRITE setDriverPaths
@@ -118,7 +118,7 @@ class VirtualCameraElement: public AkElement
         VirtualCameraElement();
         ~VirtualCameraElement();
 
-        Q_INVOKABLE QString errorMessage() const;
+        Q_INVOKABLE QString error() const;
         Q_INVOKABLE QStringList driverPaths() const;
         Q_INVOKABLE QStringList medias() const;
         Q_INVOKABLE QString media() const;
@@ -146,6 +146,9 @@ class VirtualCameraElement: public AkElement
                                              const QVariantMap &streamParams={});
         Q_INVOKABLE QString createWebcam(const QString &description,
                                          const AkVideoCapsList &formats);
+        Q_INVOKABLE bool editWebcam(const QString &webcam,
+                                    const QString &description,
+                                    const AkVideoCapsList &formats);
         Q_INVOKABLE bool changeDescription(const QString &webcam,
                                            const QString &description={}) const;
         Q_INVOKABLE bool removeWebcam(const QString &webcam);
@@ -161,7 +164,7 @@ class VirtualCameraElement: public AkElement
         AkPacket iVideoStream(const AkVideoPacket &packet);
 
     signals:
-        void errorMessageChanged(const QString &error);
+        void errorChanged(const QString &error);
         void driverPathsChanged(const QStringList &driverPaths);
         void mediasChanged(const QStringList &medias) const;
         void mediaChanged(const QString &media);
@@ -203,6 +206,7 @@ class VirtualCameraElement: public AkElement
         void resetAspectRatioMode();
         void resetSwapRgb();
         void clearStreams();
+        static void registerTypes();
 
         bool setState(AkElement::ElementState state);
 

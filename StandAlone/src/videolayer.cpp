@@ -182,7 +182,7 @@ AkVideoCapsList VideoLayer::supportedOutputVideoCaps(const QString &device) cons
 
     AkVideoCapsList caps;
     QMetaObject::invokeMethod(this->d->m_cameraOutput.data(),
-                              "description",
+                              "outputCaps",
                               Q_RETURN_ARG(AkVideoCapsList, caps),
                               Q_ARG(QString, device));
 
@@ -264,17 +264,117 @@ QString VideoLayer::description(const QString &device) const
     return {};
 }
 
+QString VideoLayer::createOutput(VideoLayer::OutputType type,
+                                 const QString &description,
+                                 const AkVideoCapsList &formats)
+{
+    if (!this->d->m_cameraOutput || type != OutputVirtualCamera)
+        return {};
+
+    QString deviceId;
+    QMetaObject::invokeMethod(this->d->m_cameraOutput.data(),
+                              "createWebcam",
+                              Q_RETURN_ARG(QString, deviceId),
+                              Q_ARG(QString, description),
+                              Q_ARG(AkVideoCapsList, formats));
+
+    return deviceId;
+}
+
+bool VideoLayer::editOutput(const QString &output,
+                            const QString &description,
+                            const AkVideoCapsList &formats)
+{
+    if (!this->d->m_cameraOutput)
+        return {};
+
+    bool result;
+    QMetaObject::invokeMethod(this->d->m_cameraOutput.data(),
+                              "editWebcam",
+                              Q_RETURN_ARG(bool, result),
+                              Q_ARG(QString, output),
+                              Q_ARG(QString, description),
+                              Q_ARG(AkVideoCapsList, formats));
+
+    return result;
+}
+
+bool VideoLayer::removeOutput(const QString &output)
+{
+    if (!this->d->m_cameraOutput)
+        return {};
+
+    bool result;
+    QMetaObject::invokeMethod(this->d->m_cameraOutput.data(),
+                              "removeWebcam",
+                              Q_RETURN_ARG(bool, result),
+                              Q_ARG(QString, output));
+
+    return result;
+}
+
+bool VideoLayer::removeAllOutputs()
+{
+    if (!this->d->m_cameraOutput)
+        return {};
+
+    bool result;
+    QMetaObject::invokeMethod(this->d->m_cameraOutput.data(),
+                              "removeAllWebcams",
+                              Q_RETURN_ARG(bool, result));
+
+    return result;
+}
+
+QString VideoLayer::inputError() const
+{
+    auto source = this->d->sourceElement(this->d->m_videoInput);
+
+    if (!source)
+        return {};
+
+    QString error;
+    QMetaObject::invokeMethod(source.data(),
+                              "error",
+                              Q_RETURN_ARG(QString, error));
+
+    return error;
+}
+
+QString VideoLayer::outputError() const
+{
+    if (!this->d->m_cameraOutput)
+        return {};
+
+    QString error;
+    QMetaObject::invokeMethod(this->d->m_cameraOutput.data(),
+                              "error",
+                              Q_RETURN_ARG(QString, error));
+
+    return error;
+}
+
 bool VideoLayer::embedControls(const QString &where,
                                 const QString &device,
                                 const QString &name) const
 {
-    auto source = this->d->sourceElement(device);
+    AkElementPtr element;
 
-    if (!source)
+    if (this->d->m_cameraOutput) {
+        auto outs = this->d->m_cameraOutput->property("medias").toStringList();
+
+        if (outs.contains(device))
+            element = this->d->m_cameraOutput;
+   }
+
+    if (!element)
+        element = this->d->sourceElement(device);
+
+    if (!element)
         return false;
 
-    auto interface = source->controlInterface(this->d->m_engine,
-                                              source->pluginId());
+    auto interface = element->controlInterface(this->d->m_engine,
+                                               element->pluginId());
 
     if (!interface)
         return false;
@@ -686,9 +786,9 @@ void VideoLayerPrivate::connectSignals()
                          self,
                          SLOT(updateInputs()));
         QObject::connect(this->m_cameraCapture.data(),
-                         SIGNAL(error(const QString &)),
+                         SIGNAL(errorChanged(const QString &)),
                          self,
-                         SIGNAL(error(const QString &)));
+                         SIGNAL(inputErrorChanged(const QString &)));
         QObject::connect(this->m_cameraCapture.data(),
                          SIGNAL(streamsChanged(const QList<int> &)),
                          self,
@@ -719,7 +819,7 @@ void VideoLayerPrivate::connectSignals()
         QObject::connect(this->m_desktopCapture.data(),
                          SIGNAL(error(const QString &)),
                          self,
-                         SIGNAL(error(const QString &)));
+                         SIGNAL(inputErrorChanged(const QString &)));
     }
 
     if (this->m_desktopCaptureSettings)
@@ -741,7 +841,7 @@ void VideoLayerPrivate::connectSignals()
         QObject::connect(this->m_uriCapture.data(),
                          SIGNAL(error(const QString &)),
                          self,
-                         SIGNAL(error(const QString &)));
+                         SIGNAL(inputErrorChanged(const QString &)));
     }
 
     if (this->m_uriCaptureSettings)
@@ -760,6 +860,17 @@ void VideoLayerPrivate::connectSignals()
                          SIGNAL(mediasChanged(const QStringList &)),
                          self,
                          SIGNAL(outputsChanged(const QStringList &)));
+    }
+
+    if (this->m_cameraOutput) {
+        QObject::connect(this->m_cameraOutput.data(),
+                         SIGNAL(mediasChanged(const QStringList &)),
+                         self,
+                         SIGNAL(outputsChanged(const QStringList &)));
+        QObject::connect(this->m_cameraOutput.data(),
+                         SIGNAL(errorChanged(const QString &)),
+                         self,
+                         SIGNAL(outputErrorChanged(const QString &)));
     }
 }
 

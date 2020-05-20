@@ -21,24 +21,24 @@ import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
 import Ak 1.0
-import Webcamoid 1.0
 
 ScrollView {
     id: view
 
-    property string videoInput: ""
-    readonly property string videoInputDescription:
-        videoLayer.description(videoInput)
+    property string videoOutput: ""
+    readonly property string videoOtputDescription:
+        videoLayer.description(videoOutput)
 
-    signal videoInputRemoved()
+    signal openVideoOutputAddEditDialog(string videoOutput)
+    signal videoOutputRemoved()
 
     function updateControls()
     {
         deviceInfo.text =
-                "<b>" + videoLayer.description(videoInput) + "</b>"
-                + "<br/><i>" + videoInput + "</i>"
-        videoLayer.removeInterface("itmVideoInputOptions")
-        videoLayer.embedControls("itmVideoInputOptions", videoInput)
+                "<b>" + videoLayer.description(videoOutput) + "</b>"
+                + "<br/><i>" + videoOutput + "</i>"
+        videoLayer.removeInterface("itmVideoOutputOptions")
+        videoLayer.embedControls("itmVideoOutputOptions", videoOutput)
     }
 
     ColumnLayout {
@@ -64,9 +64,8 @@ ScrollView {
                 AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
             Layout.rightMargin:
                 AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
-            visible: videoLayer.deviceType(view.videoInput) == VideoLayer.InputStream
 
-            onClicked: addSource.open()
+            onClicked: view.openVideoOutputAddEditDialog(view.videoOutput)
         }
         Button {
             text: qsTr("Remove")
@@ -76,17 +75,16 @@ ScrollView {
                 AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
             Layout.rightMargin:
                 AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
-            visible: videoLayer.deviceType(view.videoInput) == VideoLayer.InputStream
 
             onClicked: {
-                videoLayer.removeInterface("itmVideoInputOptions")
-                videoLayer.removeInputStream(view.videoInput)
-                view.videoInputRemoved()
+                videoLayer.removeInterface("itmVideoOutputOptions")
+                videoLayer.removeOutput(view.videoOutput)
+                view.videoOutputRemoved()
             }
         }
         ColumnLayout {
-            id: itmVideoInputOptions
-            objectName: "itmVideoInputOptions"
+            id: itmVideoOutputOptions
+            objectName: "itmVideoOutputOptions"
             width: view.width
             Layout.leftMargin:
                 AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
@@ -95,16 +93,5 @@ ScrollView {
         }
     }
 
-    onVideoInputChanged: view.updateControls()
-
-    AddSource {
-        id: addSource
-        editMode: true
-        anchors.centerIn: Overlay.overlay
-
-        onAccepted: {
-            view.videoInput = videoLayer.videoInput
-            view.updateControls()
-        }
-    }
+    onVideoOutputChanged: view.updateControls()
 }

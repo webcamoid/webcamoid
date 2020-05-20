@@ -24,6 +24,7 @@ import Ak 1.0
 
 ScrollView {
     id: view
+
     property int effectIndex: -1
     readonly property string effectDescription: description(effectIndex)
 

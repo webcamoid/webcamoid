@@ -28,6 +28,11 @@ Capture::Capture(QObject *parent):
 {
 }
 
+QString Capture::error() const
+{
+    return {};
+}
+
 QStringList Capture::webcams() const
 {
     return QStringList();

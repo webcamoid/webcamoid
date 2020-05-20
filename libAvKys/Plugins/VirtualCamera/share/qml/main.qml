@@ -20,6 +20,7 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
+import AkPluginVirtualCamera 1.0
 
 GridLayout {
     id: recCameraControls
@@ -52,11 +53,11 @@ GridLayout {
         model: ListModel {
             ListElement
             {
-                text: virtualCamera.ScalingFast
+                text: VirtualCamera.ScalingFast
                 description: "Fast"
             }
             ListElement {
-                text: virtualCamera.ScalingLinear
+                text: VirtualCamera.ScalingLinear
                 description: "Linear"
             }
         }
@@ -69,16 +70,16 @@ GridLayout {
         Layout.fillWidth: true
         model: ListModel {
             ListElement {
-                text: virtualCamera.AspectRatioIgnore
+                text: VirtualCamera.AspectRatioIgnore
                 description: "Ignore"
             }
             ListElement
             {
-                text: virtualCamera.AspectRatioKeep
+                text: VirtualCamera.AspectRatioKeep
                 description: "Keep"
             }
             ListElement {
-                text: virtualCamera.AspectRatioExpanding
+                text: VirtualCamera.AspectRatioExpanding
                 description: "Expanding"
             }
         }

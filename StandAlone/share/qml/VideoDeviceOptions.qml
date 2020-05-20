@@ -21,6 +21,7 @@ import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
 import Ak 1.0
+import Webcamoid 1.0
 
 Dialog {
     id: deviceOptions
@@ -138,7 +139,7 @@ Dialog {
     function openOptions(device)
     {
         title = device?
-                    qsTr("Virtual Camera Options"):
+                    qsTr("Edit Virtual Camera"):
                     qsTr("Add Virtual Camera")
 
         if (device)
@@ -222,6 +223,26 @@ Dialog {
         }
     }
 
-    onAccepted: {}
-    onRejected: {}
+    onAccepted: {
+        let formats = []
+
+        for (let i = 0; i < vcamFormats.count; i++) {
+            let element = vcamFormats.model.get(i)
+            let caps = AkVideoCaps.create(element.format,
+                                          element.width,
+                                          element.height,
+                                          AkFrac.create(element.fps,
+                                                        1).toVariant())
+            formats.push(caps.toVariant())
+        }
+
+        if (deviceId.text)
+            videoLayer.editOutput(deviceId.text,
+                                  deviceDescription.text,
+                                  formats)
+        else
+            videoLayer.createOutput(VideoLayer.OutputVirtualCamera,
+                                    deviceDescription.text,
+                                    formats)
+    }
 }

@@ -717,6 +717,25 @@ std::string AkVCam::IpcBridge::deviceCreate(const std::wstring &description,
     return deviceId;
 }
 
+bool AkVCam::IpcBridge::deviceEdit(const std::string &deviceId,
+                                   const std::wstring &description,
+                                   const std::vector<VideoFormat> &formats)
+{
+    AkIpcBridgeLogMethod();
+
+    this->d->m_uninstall = false;
+    this->deviceDestroy(deviceId);
+    this->d->m_uninstall = true;
+
+    if (this->deviceCreate(description.empty()?
+                               L"AvKys Virtual Camera":
+                               description,
+                           formats).empty())
+        return false;
+
+    return true;
+}
+
 bool AkVCam::IpcBridge::deviceDestroy(const std::string &deviceId)
 {
     AkIpcBridgeLogMethod();

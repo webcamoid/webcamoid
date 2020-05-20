@@ -21,7 +21,9 @@
 #include <QDateTime>
 #include <QDir>
 #include <QImage>
+#include <QQmlComponent>
 #include <QQmlContext>
+#include <QQmlEngine>
 #include <QSharedPointer>
 #include <QMutex>
 #include <akcaps.h>
@@ -76,7 +78,7 @@ VirtualCameraElement::~VirtualCameraElement()
     delete this->d;
 }
 
-QString VirtualCameraElement::errorMessage() const
+QString VirtualCameraElement::error() const
 {
     return QString::fromStdWString(this->d->m_ipcBridge.errorMessage());
 }
@@ -325,7 +327,7 @@ QString VirtualCameraElement::createWebcam(const QString &description,
 
     if (webcam.empty()) {
         auto error = this->d->m_ipcBridge.errorMessage();
-        emit this->errorMessageChanged(QString::fromStdWString(error));
+        emit this->errorChanged(QString::fromStdWString(error));
 
         return {};
     }
@@ -333,6 +335,30 @@ QString VirtualCameraElement::createWebcam(const QString &description,
     emit this->mediasChanged(this->medias());
 
     return QString::fromStdString(webcam);
+}
+
+bool VirtualCameraElement::editWebcam(const QString &webcam,
+                                      const QString &description,
+                                      const AkVideoCapsList &formats)
+{
+    std::vector<AkVCam::VideoFormat> vcamFormats;
+
+    for (auto &format: formats)
+        vcamFormats.push_back({
+            AkVCam::FourCC(format.fourCC()),
+            format.width(),
+            format.height(),
+            {{format.fps().num(), format.fps().den()}}
+        });
+
+    bool ok = this->d->m_ipcBridge.deviceEdit(webcam.toStdString(),
+                                              description.toStdWString(),
+                                              vcamFormats);
+
+    if (ok)
+        emit this->mediasChanged(this->medias());
+
+    return ok;
 }
 
 bool VirtualCameraElement::changeDescription(const QString &webcam,
@@ -661,6 +687,20 @@ void VirtualCameraElement::clearStreams()
 {
     this->d->m_streamIndex = -1;
     this->d->m_streamCaps.clear();
+}
+
+void VirtualCameraElement::registerTypes()
+{
+    qRegisterMetaType<Scaling>("Scaling");
+    qRegisterMetaTypeStreamOperators<AspectRatio>("AspectRatio");
+    qmlRegisterSingletonType<VirtualCameraElement>("AkPluginVirtualCamera", 1, 0, "VirtualCamera",
+                                        [] (QQmlEngine *qmlEngine,
+                                            QJSEngine *jsEngine) -> QObject * {
+        Q_UNUSED(qmlEngine)
+        Q_UNUSED(jsEngine)
+
+        return new VirtualCameraElement();
+    });
 }
 
 bool VirtualCameraElement::setState(AkElement::ElementState state)

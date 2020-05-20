@@ -132,6 +132,14 @@ VideoCaptureElement::~VideoCaptureElement()
     delete this->d;
 }
 
+QString VideoCaptureElement::error() const
+{
+    if (!this->d->m_capture)
+        return {};
+
+    return this->d->m_capture->error();
+}
+
 QStringList VideoCaptureElement::medias()
 {
     if (!this->d->m_capture)
@@ -386,9 +394,9 @@ void VideoCaptureElementPrivate::captureLibUpdated(const QString &captureLib)
         return;
 
     QObject::connect(this->m_capture.data(),
-                     &Capture::error,
+                     &Capture::errorChanged,
                      self,
-                     &VideoCaptureElement::error);
+                     &VideoCaptureElement::errorChanged);
     QObject::connect(this->m_capture.data(),
                      &Capture::webcamsChanged,
                      self,

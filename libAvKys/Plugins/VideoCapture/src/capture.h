@@ -31,6 +31,9 @@ using CapturePtr = QSharedPointer<Capture>;
 class Capture: public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(QString error
+               READ error
+               NOTIFY errorChanged)
     Q_PROPERTY(QStringList webcams
                READ webcams
                NOTIFY webcamsChanged)
@@ -54,6 +57,7 @@ class Capture: public QObject
         Capture(QObject *parent=nullptr);
         virtual ~Capture() = default;
 
+        Q_INVOKABLE virtual QString error() const;
         Q_INVOKABLE virtual QStringList webcams() const;
         Q_INVOKABLE virtual QString device() const;
         Q_INVOKABLE virtual QList<int> streams();
@@ -72,12 +76,12 @@ class Capture: public QObject
         Q_INVOKABLE virtual AkPacket readFrame();
 
     signals:
+        void errorChanged(const QString &error);
         void webcamsChanged(const QStringList &webcams) const;
         void deviceChanged(const QString &device);
         void streamsChanged(const QList<int> &streams);
         void ioMethodChanged(const QString &ioMethod);
         void nBuffersChanged(int nBuffers);
-        void error(const QString &message);
         void imageControlsChanged(const QVariantMap &imageControls) const;
         void cameraControlsChanged(const QVariantMap &cameraControls) const;
 

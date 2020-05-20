@@ -155,6 +155,11 @@ namespace AkVCam
             std::string deviceCreate(const std::wstring &description,
                                      const std::vector<VideoFormat> &formats);
 
+            // Edit a device definition.
+            bool deviceEdit(const std::string &deviceId,
+                            const std::wstring &description,
+                            const std::vector<VideoFormat> &formats);
+
             // Remove a device definition.
             bool deviceDestroy(const std::string &deviceId);
 

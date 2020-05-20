@@ -28,18 +28,18 @@ OptionsPanel {
            layout.currentIndex < 2?
                qsTr("Video"):
            layout.currentIndex < 3?
-               "":
-               qsTr("Video Source Options")
+               qsTr("Video Source Options"):
+               qsTr("Video Output Options")
     edge: Qt.RightEdge
 
     function previousPage()
     {
-        if (layout.currentIndex < 2) {
+        let item = layout.children[layout.currentIndex]
+
+        if (item.closeOption)
+            item.closeOption()
+        else
             close()
-        } else {
-            closeAndOpen()
-            layout.currentIndex = Math.max(-1, layout.currentIndex - 2)
-        }
     }
 
     function openAudioSettings()
@@ -64,24 +64,59 @@ OptionsPanel {
         AudioOptions {
         }
         VideoOptions {
+            onOpenVideoOutputAddEditDialog:
+                deviceOptions.openOptions(videoOutput)
             onOpenVideoInputOptions: {
                 closeAndOpen()
-                layout.currentIndex = 3
+                layout.currentIndex = 2
                 videoInputOptions.videoInput = videoInput
             }
-        }
-        Item {
+            onOpenVideoOutputOptions: {
+                closeAndOpen()
+                layout.currentIndex = 3
+                videoOutputOptions.videoOutput = videoOutput
+            }
         }
         VideoInputOptions {
             id: videoInputOptions
 
-            onVideoInputRemoved: {
+            function closeOption()
+            {
+                closeAndOpen()
+                layout.currentIndex -= 1
+            }
+
+            onVideoInputRemoved: closeOption()
+        }
+        VideoOutputOptions {
+            id: videoOutputOptions
+
+            function closeOption()
+            {
                 closeAndOpen()
                 layout.currentIndex -= 2
             }
-        }
 
-        onCurrentIndexChanged: {
+            onOpenVideoOutputAddEditDialog:
+                deviceOptions.openOptions(videoOutput)
+            onVideoOutputRemoved: closeOption()
         }
+    }
+
+    VideoDeviceOptions {
+        id: deviceOptions
+        anchors.centerIn: Overlay.overlay
+
+        onOpenOutputFormatDialog: {
+            addVideoFormat.openOptions(index, caps)
+        }
+    }
+    AddVideoFormat {
+        id:  addVideoFormat
+        anchors.centerIn: Overlay.overlay
+
+        onAddFormat: deviceOptions.addFormat(caps)
+        onChangeFormat: deviceOptions.changeFormat(index, caps)
+        onRemoveFormat: deviceOptions.removeFormat(index)
     }
 }

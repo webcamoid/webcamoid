@@ -27,6 +27,9 @@ class VideoCaptureElementPrivate;
 class VideoCaptureElement: public AkMultimediaSourceElement
 {
     Q_OBJECT
+    Q_PROPERTY(QString error
+               READ error
+               NOTIFY errorChanged)
     Q_PROPERTY(QStringList medias
                READ medias
                NOTIFY mediasChanged)
@@ -58,6 +61,7 @@ class VideoCaptureElement: public AkMultimediaSourceElement
         VideoCaptureElement();
         ~VideoCaptureElement();
 
+        Q_INVOKABLE QString error() const;
         Q_INVOKABLE QStringList medias();
         Q_INVOKABLE QString media() const;
         Q_INVOKABLE QList<int> streams();
@@ -85,11 +89,11 @@ class VideoCaptureElement: public AkMultimediaSourceElement
                                        const QString &controlId) const;
 
     signals:
+        void errorChanged(const QString &error);
         void mediasChanged(const QStringList &medias);
         void mediaChanged(const QString &media);
         void streamsChanged(const QList<int> &streams);
         void loopChanged(bool loop);
-        void error(const QString &message);
         void imageControlsChanged(const QVariantMap &imageControls) const;
         void cameraControlsChanged(const QVariantMap &cameraControls) const;
 

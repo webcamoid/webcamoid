@@ -33,6 +33,7 @@
         <file>share/qml/VideoInputOptions.qml</file>
         <file>share/qml/VideoInputs.qml</file>
         <file>share/qml/VideoOptions.qml</file>
+        <file>share/qml/VideoOutputOptions.qml</file>
         <file>share/qml/VideoOutputs.qml</file>
         <file>share/qml/VideoRecording.qml</file>
         <file>share/qml/main.qml</file>

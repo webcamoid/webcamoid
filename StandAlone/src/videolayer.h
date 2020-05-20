@@ -108,6 +108,16 @@ class VideoLayer: public QObject
         Q_INVOKABLE InputType deviceType(const QString &device) const;
         Q_INVOKABLE QStringList devicesByType(InputType type) const;
         Q_INVOKABLE QString description(const QString &device) const;
+        Q_INVOKABLE QString createOutput(OutputType type,
+                                         const QString &description,
+                                         const AkVideoCapsList &formats);
+        Q_INVOKABLE bool editOutput(const QString &output,
+                                    const QString &description,
+                                    const AkVideoCapsList &formats);
+        Q_INVOKABLE bool removeOutput(const QString &output);
+        Q_INVOKABLE bool removeAllOutputs();
+        Q_INVOKABLE QString inputError() const;
+        Q_INVOKABLE QString outputError() const;
         Q_INVOKABLE bool embedControls(const QString &where,
                                        const QString &device,
                                        const QString &name={}) const;
@@ -126,7 +136,8 @@ class VideoLayer: public QObject
         void stateChanged(AkElement::ElementState state);
         void playOnStartChanged(bool playOnStart);
         void oStream(const AkPacket &packet);
-        void error(const QString &message);
+        void inputErrorChanged(const QString &inputError);
+        void outputErrorChanged(const QString &outputError);
 
     public slots:
         void setInputStream(const QString &stream, const QString &description);

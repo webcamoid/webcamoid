@@ -651,6 +651,7 @@ std::string AkVCam::IpcBridge::deviceCreate(const std::wstring &description,
                               wow)
        << std::endl;
 
+    // Set camera path.
     ss << this->d->regAddLine(L"HKLM\\SOFTWARE\\Webcamoid\\VirtualCamera\\Cameras\\"
                               + std::to_wstring(nCameras + 1),
                               L"path",
@@ -658,7 +659,7 @@ std::string AkVCam::IpcBridge::deviceCreate(const std::wstring &description,
                               wow)
        << std::endl;
 
-    // Add description line.
+    // Set description.
     ss << this->d->regAddLine(L"HKLM\\SOFTWARE\\Webcamoid\\VirtualCamera\\Cameras\\"
                               + std::to_wstring(nCameras + 1),
                               L"description",
@@ -770,6 +771,134 @@ std::string AkVCam::IpcBridge::deviceCreate(const std::wstring &description,
     }
 
     return std::string(devicePath.begin(), devicePath.end());
+}
+
+bool AkVCam::IpcBridge::deviceEdit(const std::string &deviceId,
+                                   const std::wstring &description,
+                                   const std::vector<VideoFormat> &formats)
+{
+    AkIpcBridgeLogMethod();
+
+    auto camera = cameraFromId(std::wstring(deviceId.begin(), deviceId.end()));
+
+    if (camera < 0)
+        return false;
+
+    auto driverPath = this->d->locateDriverPath();
+
+    if (driverPath.empty()) {
+        this->d->m_error = L"Driver not found";
+
+        return false;
+    }
+
+    std::wstringstream ss;
+    ss << L"@echo off" << std::endl;
+    ss << L"chcp " << GetACP() << std::endl;
+
+    auto driverInstallPath =
+            programFilesPath() + L"\\" DSHOW_PLUGIN_NAME_L L".plugin";
+    std::vector<std::wstring> installPaths;
+
+    for (auto path: this->d->findFiles(std::wstring(driverPath.begin(),
+                                                    driverPath.end()),
+                                       DSHOW_PLUGIN_NAME_L L".dll")) {
+        auto installPath = replace(path, driverPath, driverInstallPath);
+        installPaths.push_back(installPath);
+    }
+
+    BOOL wow = isWow64();
+
+    // Set camera path.
+    ss << this->d->regAddLine(L"HKLM\\SOFTWARE\\Webcamoid\\VirtualCamera\\Cameras\\"
+                              + std::to_wstring(camera),
+                              L"path",
+                              std::wstring(deviceId.begin(), deviceId.end()),
+                              wow)
+       << std::endl;
+
+    // Set description.
+    ss << this->d->regAddLine(L"HKLM\\SOFTWARE\\Webcamoid\\VirtualCamera\\Cameras\\"
+                              + std::to_wstring(camera),
+                              L"description",
+                              description,
+                              wow)
+       << std::endl;
+
+    // Set number of formats.
+    ss << this->d->regAddLine(L"HKLM\\SOFTWARE\\Webcamoid\\VirtualCamera\\Cameras\\"
+                              + std::to_wstring(camera)
+                              + L"\\Formats",
+                              L"size",
+                              int(formats.size()),
+                              wow)
+       << std::endl;
+
+    // Setup formats.
+    for (size_t i = 0; i < formats.size(); i++) {
+        auto videoFormat = formats[i];
+        auto format = VideoFormat::wstringFromFourcc(videoFormat.fourcc());
+
+        ss << this->d->regAddLine(L"HKLM\\SOFTWARE\\Webcamoid\\VirtualCamera\\Cameras\\"
+                                  + std::to_wstring(camera)
+                                  + L"\\Formats\\"
+                                  + std::to_wstring(i + 1),
+                                  L"format",
+                                  format,
+                                  wow)
+           << std::endl;
+
+        ss << this->d->regAddLine(L"HKLM\\SOFTWARE\\Webcamoid\\VirtualCamera\\Cameras\\"
+                                  + std::to_wstring(camera)
+                                  + L"\\Formats\\"
+                                  + std::to_wstring(i + 1),
+                                  L"width",
+                                  videoFormat.width(),
+                                  wow)
+           << std::endl;
+
+        ss << this->d->regAddLine(L"HKLM\\SOFTWARE\\Webcamoid\\VirtualCamera\\Cameras\\"
+                                  + std::to_wstring(camera)
+                                  + L"\\Formats\\"
+                                  + std::to_wstring(i + 1),
+                                  L"height",
+                                  videoFormat.height(),
+                                  wow)
+           << std::endl;
+
+        ss << this->d->regAddLine(L"HKLM\\SOFTWARE\\Webcamoid\\VirtualCamera\\Cameras\\"
+                                  + std::to_wstring(camera)
+                                  + L"\\Formats\\"
+                                  + std::to_wstring(i + 1),
+                                  L"fps",
+                                  videoFormat.minimumFrameRate().toWString(),
+                                  wow)
+           << std::endl;
+    }
+
+    for (auto path: installPaths)
+        ss << L"regsvr32 /s \"" << path << L"\"" << std::endl;
+
+    // Create the script.
+    auto temp = tempPath();
+    auto scriptPath = std::string(temp.begin(), temp.end())
+                    + "\\device_create_"
+                    + timeStamp()
+                    + ".bat";
+    std::wfstream script;
+    script.imbue(std::locale(""));
+    script.open(scriptPath, std::ios_base::out | std::ios_base::trunc);
+    bool ok = false;
+
+    if (script.is_open()) {
+        script << ss.str();
+        script.close();
+        ok = this->d->sudo({"cmd", "/c", scriptPath}) == 0;
+        std::wstring wScriptPath(scriptPath.begin(), scriptPath.end());
+        DeleteFile(wScriptPath.c_str());
+    }
+
+    return ok;
 }
 
 bool AkVCam::IpcBridge::deviceDestroy(const std::string &deviceId)

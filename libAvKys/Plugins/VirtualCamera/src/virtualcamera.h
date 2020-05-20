@@ -29,6 +29,7 @@ class VirtualCamera: public QObject, public AkPlugin
     Q_PLUGIN_METADATA(IID "org.avkys.plugin" FILE "../pspec.json")
 
     public:
+        VirtualCamera();
         QObject *create(const QString &key, const QString &specification);
         QStringList keys() const;
 };

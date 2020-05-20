@@ -20,6 +20,11 @@
 #include "virtualcamera.h"
 #include "virtualcameraelement.h"
 
+VirtualCamera::VirtualCamera()
+{
+    VirtualCameraElement::registerTypes();
+}
+
 QObject *VirtualCamera::create(const QString &key, const QString &specification)
 {
     Q_UNUSED(specification)

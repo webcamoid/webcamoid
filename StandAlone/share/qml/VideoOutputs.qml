@@ -25,6 +25,9 @@ import Ak 1.0
 ScrollView {
     id: view
 
+    signal openVideoOutputAddEditDialog(string videoOutput)
+    signal openVideoOutputOptions(string videoOutput)
+
     ColumnLayout {
         width: view.width
 
@@ -33,14 +36,14 @@ ScrollView {
             icon.source: "image://icons/add"
             flat: true
 
-            onClicked: deviceOptions.openOptions("")
+            onClicked: view.openVideoOutputAddEditDialog("")
         }
         Button {
             text: qsTr("Remove all outputs")
             icon.source: "image://icons/no"
             flat: true
 
-            onClicked: {}
+            onClicked: videoLayer.removeAllOutputs()
         }
         ListView {
             id: devicesList
@@ -57,10 +60,8 @@ ScrollView {
                 for (let i in devices) {
                     let device = devices[i]
                     let description = videoLayer.description(device)
-
-                    model.append({
-                        device: device,
-                        description: description})
+                    model.append({device: device,
+                                  description: description})
                 }
 
                 let output = videoLayer.videoOutput.length < 1?
@@ -101,10 +102,10 @@ ScrollView {
 
                         let device = deviceElement["device"]
 
-                        if (!device)
+                        if (!device || device == ":dummyout:")
                             return
 
-                        deviceOptions.openOptions(device)
+                        view.openVideoOutputOptions(device)
                     } else {
                         let deviceElement = devicesList.model.get(index)
 
@@ -130,22 +131,5 @@ ScrollView {
 
             Component.onCompleted: devicesList.updateDevices()
         }
-    }
-
-    VideoDeviceOptions {
-        id: deviceOptions
-        anchors.centerIn: Overlay.overlay
-
-        onOpenOutputFormatDialog: {
-            addVideoFormat.openOptions(index, caps)
-        }
-    }
-    AddVideoFormat {
-        id:  addVideoFormat
-        anchors.centerIn: Overlay.overlay
-
-        onAddFormat: deviceOptions.addFormat(caps)
-        onChangeFormat: deviceOptions.changeFormat(index, caps)
-        onRemoveFormat: deviceOptions.removeFormat(index)
     }
 }

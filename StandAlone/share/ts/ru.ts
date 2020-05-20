@@ -284,9 +284,14 @@
         <translation>Видео</translation>
     </message>
     <message>
-        <location filename="../qml/AudioVideoPanel.qml" line="32"/>
+        <location filename="../qml/AudioVideoPanel.qml" line="31"/>
         <source>Video Source Options</source>
         <translation>Параметры источника видеосигнала</translation>
+    </message>
+    <message>
+        <location filename="../qml/AudioVideoPanel.qml" line="32"/>
+        <source>Video Output Options</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -690,27 +695,27 @@
 <context>
     <name>VideoDeviceOptions</name>
     <message>
-        <location filename="../qml/VideoDeviceOptions.qml" line="141"/>
-        <source>Virtual Camera Options</source>
+        <location filename="../qml/VideoDeviceOptions.qml" line="142"/>
+        <source>Edit Virtual Camera</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoDeviceOptions.qml" line="142"/>
+        <location filename="../qml/VideoDeviceOptions.qml" line="143"/>
         <source>Add Virtual Camera</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoDeviceOptions.qml" line="167"/>
+        <location filename="../qml/VideoDeviceOptions.qml" line="168"/>
         <source>Virtual camera name</source>
         <translation>Название виртуальной камеры</translation>
     </message>
     <message>
-        <location filename="../qml/VideoDeviceOptions.qml" line="176"/>
+        <location filename="../qml/VideoDeviceOptions.qml" line="177"/>
         <source>Add format</source>
         <translation>Добавить формат</translation>
     </message>
     <message>
-        <location filename="../qml/VideoDeviceOptions.qml" line="186"/>
+        <location filename="../qml/VideoDeviceOptions.qml" line="187"/>
         <source>Remove all formats</source>
         <translation type="unfinished"></translation>
     </message>
@@ -718,7 +723,7 @@
 <context>
     <name>VideoEffectOptions</name>
     <message>
-        <location filename="../qml/VideoEffectOptions.qml" line="61"/>
+        <location filename="../qml/VideoEffectOptions.qml" line="62"/>
         <source>Remove</source>
         <translation>Удалить</translation>
     </message>
@@ -784,12 +789,12 @@
 <context>
     <name>VideoInputOptions</name>
     <message>
-        <location filename="../qml/VideoInputOptions.qml" line="59"/>
+        <location filename="../qml/VideoInputOptions.qml" line="60"/>
         <source>Edit</source>
         <translation>Редактировать</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputOptions.qml" line="71"/>
+        <location filename="../qml/VideoInputOptions.qml" line="72"/>
         <source>Remove</source>
         <translation>Удалить</translation>
     </message>
@@ -819,25 +824,38 @@
 <context>
     <name>VideoOptions</name>
     <message>
-        <location filename="../qml/VideoOptions.qml" line="33"/>
+        <location filename="../qml/VideoOptions.qml" line="36"/>
         <source>Sources</source>
         <translation>Источники</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOptions.qml" line="36"/>
+        <location filename="../qml/VideoOptions.qml" line="39"/>
         <source>Outputs</source>
         <translation>Видеовыходы</translation>
     </message>
 </context>
 <context>
+    <name>VideoOutputOptions</name>
+    <message>
+        <location filename="../qml/VideoOutputOptions.qml" line="60"/>
+        <source>Edit</source>
+        <translation type="unfinished">Редактировать</translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoOutputOptions.qml" line="71"/>
+        <source>Remove</source>
+        <translation type="unfinished">Удалить</translation>
+    </message>
+</context>
+<context>
     <name>VideoOutputs</name>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="32"/>
+        <location filename="../qml/VideoOutputs.qml" line="35"/>
         <source>Add output</source>
         <translation>Добавить видеовыход</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="39"/>
+        <location filename="../qml/VideoOutputs.qml" line="42"/>
         <source>Remove all outputs</source>
         <translation>Удалить все выходы</translation>
     </message>
@@ -2283,27 +2301,27 @@
         <translation>Запись видео</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="29"/>
+        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="30"/>
         <source>Horizontal mirror</source>
         <translation type="unfinished">Горизонтальное зеркало</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="38"/>
+        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="39"/>
         <source>Vertical mirror</source>
         <translation type="unfinished">Вертикальное зеркало</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="47"/>
+        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="48"/>
         <source>Scaling</source>
         <translation type="unfinished">Масштабирование</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="65"/>
+        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="66"/>
         <source>Aspect ratio</source>
         <translation type="unfinished">Соотношение сторон</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="87"/>
+        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="88"/>
         <source>Swap red and blue</source>
         <translation type="unfinished">Поменять местами красный и синий цвета</translation>
     </message>
