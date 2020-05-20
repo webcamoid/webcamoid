@@ -291,7 +291,7 @@
     <message>
         <location filename="../qml/AudioVideoPanel.qml" line="32"/>
         <source>Video Output Options</source>
-        <translation type="unfinished"></translation>
+        <translation>אפשרויות פלט וידאו</translation>
     </message>
 </context>
 <context>
@@ -697,7 +697,7 @@
     <message>
         <location filename="../qml/VideoDeviceOptions.qml" line="142"/>
         <source>Edit Virtual Camera</source>
-        <translation type="unfinished"></translation>
+        <translation>עריכת מצלמה וירטואלית</translation>
     </message>
     <message>
         <location filename="../qml/VideoDeviceOptions.qml" line="143"/>
@@ -839,12 +839,12 @@
     <message>
         <location filename="../qml/VideoOutputOptions.qml" line="60"/>
         <source>Edit</source>
-        <translation type="unfinished">עריכה</translation>
+        <translation>עריכה</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputOptions.qml" line="71"/>
         <source>Remove</source>
-        <translation type="unfinished">הסרה</translation>
+        <translation>הסרה</translation>
     </message>
 </context>
 <context>
