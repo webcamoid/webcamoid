@@ -24,6 +24,7 @@ import QtQuick.Layouts 1.3
 ColumnLayout {
     id: videoOptions
 
+    signal openVideoInputAddEditDialog(string videoInput)
     signal openVideoOutputAddEditDialog(string videoOutput)
     signal openVideoInputOptions(string videoInput)
     signal openVideoOutputOptions(string videoOutput)
@@ -47,6 +48,8 @@ ColumnLayout {
         clip: true
 
         VideoInputs {
+            onOpenVideoInputAddEditDialog:
+                videoOptions.openVideoInputAddEditDialog(videoInput)
             onOpenVideoInputOptions:
                 videoOptions.openVideoInputOptions(videoInput)
         }

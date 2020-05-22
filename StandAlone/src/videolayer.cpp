@@ -67,6 +67,7 @@ class VideoLayerPrivate
         AkElementPtr m_cameraOutput {AkElement::create("VirtualCamera")};
         AkElement::ElementState m_state {AkElement::ElementStateNull};
         bool m_playOnStart {true};
+        bool m_outputsAsInputs {false};
 
         explicit VideoLayerPrivate(VideoLayer *self);
         void connectSignals();
@@ -75,6 +76,9 @@ class VideoLayerPrivate
         QStringList desktops() const;
         QString cameraDescription(const QString &camera) const;
         QString desktopDescription(const QString &desktop) const;
+        bool embedControls(const QString &where,
+                           const AkElementPtr &element,
+                           const QString &name) const;
         void setInputAudioCaps(const AkAudioCaps &audioCaps);
         void setInputVideoCaps(const AkVideoCaps &videoCaps);
         void loadProperties(const CliOptions &cliOptions);
@@ -197,6 +201,11 @@ AkElement::ElementState VideoLayer::state() const
 bool VideoLayer::playOnStart() const
 {
     return this->d->m_playOnStart;
+}
+
+bool VideoLayer::outputsAsInputs() const
+{
+    return this->d->m_outputsAsInputs;
 }
 
 VideoLayer::InputType VideoLayer::deviceType(const QString &device) const
@@ -354,9 +363,18 @@ QString VideoLayer::outputError() const
     return error;
 }
 
-bool VideoLayer::embedControls(const QString &where,
-                                const QString &device,
-                                const QString &name) const
+bool VideoLayer::embedInputControls(const QString &where,
+                                    const QString &device,
+                                    const QString &name) const
+{
+    auto element = this->d->sourceElement(device);
+
+    return this->d->embedControls(where, element, name);
+}
+
+bool VideoLayer::embedOutputControls(const QString &where,
+                                     const QString &device,
+                                     const QString &name) const
 {
     AkElementPtr element;
 
@@ -367,38 +385,7 @@ bool VideoLayer::embedControls(const QString &where,
             element = this->d->m_cameraOutput;
    }
 
-    if (!element)
-        element = this->d->sourceElement(device);
-
-    if (!element)
-        return false;
-
-    auto interface = element->controlInterface(this->d->m_engine,
-                                               element->pluginId());
-
-    if (!interface)
-        return false;
-
-    if (!name.isEmpty())
-        interface->setObjectName(name);
-
-    for (auto &obj: this->d->m_engine->rootObjects()) {
-        // First, find where to embed the UI.
-        auto item = obj->findChild<QQuickItem *>(where);
-
-        if (!item)
-            continue;
-
-        // Create an item with the plugin context.
-        auto interfaceItem = qobject_cast<QQuickItem *>(interface);
-
-        // Finally, embed the plugin item UI in the desired place.
-        interfaceItem->setParentItem(item);
-
-        return true;
-    }
-
-    return false;
+    return this->d->embedControls(where, element, name);
 }
 
 void VideoLayer::removeInterface(const QString &where) const
@@ -552,6 +539,16 @@ void VideoLayer::setPlayOnStart(bool playOnStart)
     this->d->savePlayOnStart(playOnStart);
 }
 
+void VideoLayer::setOutputsAsInputs(bool outputsAsInputs)
+{
+    if (this->d->m_outputsAsInputs == outputsAsInputs)
+        return;
+
+    this->d->m_outputsAsInputs = outputsAsInputs;
+    emit this->outputsAsInputsChanged(this->d->m_outputsAsInputs);
+    this->updateInputs();
+}
+
 void VideoLayer::resetVideoInput()
 {
     this->setVideoInput({});
@@ -570,6 +567,11 @@ void VideoLayer::resetState()
 void VideoLayer::resetPlayOnStart()
 {
     this->setPlayOnStart(true);
+}
+
+void VideoLayer::resetOutputsAsInputs()
+{
+    this->setOutputsAsInputs(false);
 }
 
 void VideoLayer::setQmlEngine(QQmlApplicationEngine *engine)
@@ -707,7 +709,7 @@ void VideoLayer::updateInputs()
         descriptions[it.key()] = it.value();
 
     // Remove outputs to prevent self blocking.
-    if (this->d->m_cameraOutput) {
+    if (this->d->m_cameraOutput && !this->d->m_outputsAsInputs) {
         auto outputs =
                 this->d->m_cameraOutput->property("medias").toStringList();
 
@@ -761,7 +763,8 @@ AkPacket VideoLayer::iStream(const AkPacket &packet)
 {
     if (this->d->m_cameraOutput
         && !this->d->m_videoOutput.isEmpty()
-        && !this->d->m_videoOutput.contains(DUMMY_OUTPUT_DEVICE))
+        && !this->d->m_videoOutput.contains(DUMMY_OUTPUT_DEVICE)
+        && !this->d->m_videoOutput.contains(this->d->m_videoInput))
         this->d->m_cameraOutput->iStream(packet);
 
     return {};
@@ -938,6 +941,41 @@ QString VideoLayerPrivate::desktopDescription(const QString &desktop) const
                               Q_ARG(QString, desktop));
 
     return description;
+}
+
+bool VideoLayerPrivate::embedControls(const QString &where,
+                                      const AkElementPtr &element,
+                                      const QString &name) const
+{
+    if (!element)
+        return false;
+
+    auto interface = element->controlInterface(this->m_engine,
+                                               element->pluginId());
+
+    if (!interface)
+        return false;
+
+    if (!name.isEmpty())
+        interface->setObjectName(name);
+
+    for (auto &obj: this->m_engine->rootObjects()) {
+        // First, find where to embed the UI.
+        auto item = obj->findChild<QQuickItem *>(where);
+
+        if (!item)
+            continue;
+
+        // Create an item with the plugin context.
+        auto interfaceItem = qobject_cast<QQuickItem *>(interface);
+
+        // Finally, embed the plugin item UI in the desired place.
+        interfaceItem->setParentItem(item);
+
+        return true;
+    }
+
+    return false;
 }
 
 void VideoLayerPrivate::setInputAudioCaps(const AkAudioCaps &inputAudioCaps)

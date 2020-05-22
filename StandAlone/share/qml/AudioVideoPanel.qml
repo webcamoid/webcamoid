@@ -64,17 +64,19 @@ OptionsPanel {
         AudioOptions {
         }
         VideoOptions {
+            onOpenVideoInputAddEditDialog:
+                videoInputAddEdit.openOptions(videoInput)
             onOpenVideoOutputAddEditDialog:
-                deviceOptions.openOptions(videoOutput)
+                videoOutputAddEdit.openOptions(videoOutput)
             onOpenVideoInputOptions: {
                 closeAndOpen()
                 layout.currentIndex = 2
-                videoInputOptions.videoInput = videoInput
+                videoInputOptions.setInput(videoInput)
             }
             onOpenVideoOutputOptions: {
                 closeAndOpen()
                 layout.currentIndex = 3
-                videoOutputOptions.videoOutput = videoOutput
+                videoOutputOptions.setOutput(videoOutput)
             }
         }
         VideoInputOptions {
@@ -86,6 +88,8 @@ OptionsPanel {
                 layout.currentIndex -= 1
             }
 
+            onOpenVideoInputAddEditDialog:
+                videoInputAddEdit.openOptions(videoInput)
             onVideoInputRemoved: closeOption()
         }
         VideoOutputOptions {
@@ -98,25 +102,33 @@ OptionsPanel {
             }
 
             onOpenVideoOutputAddEditDialog:
-                deviceOptions.openOptions(videoOutput)
+                videoOutputAddEdit.openOptions(videoOutput)
             onVideoOutputRemoved: closeOption()
         }
     }
 
-    VideoDeviceOptions {
-        id: deviceOptions
+    VideoInputAddEdit {
+        id: videoInputAddEdit
+        anchors.centerIn: Overlay.overlay
+
+        onEdited: videoInputOptions.closeOption()
+    }
+    VideoOutputAddEdit {
+        id: videoOutputAddEdit
         anchors.centerIn: Overlay.overlay
 
         onOpenOutputFormatDialog: {
             addVideoFormat.openOptions(index, caps)
         }
+
+        onEdited: videoOutputOptions.closeOption()
     }
     AddVideoFormat {
         id:  addVideoFormat
         anchors.centerIn: Overlay.overlay
 
-        onAddFormat: deviceOptions.addFormat(caps)
-        onChangeFormat: deviceOptions.changeFormat(index, caps)
-        onRemoveFormat: deviceOptions.removeFormat(index)
+        onAddFormat: videoOutputAddEdit.addFormat(caps)
+        onChangeFormat: videoOutputAddEdit.changeFormat(index, caps)
+        onRemoveFormat: videoOutputAddEdit.removeFormat(index)
     }
 }

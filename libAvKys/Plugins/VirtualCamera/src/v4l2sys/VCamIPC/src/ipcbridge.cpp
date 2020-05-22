@@ -21,6 +21,7 @@
 #include <QCoreApplication>
 #include <QDebug>
 #include <QDir>
+#include <QElapsedTimer>
 #include <QFileSystemWatcher>
 #include <QProcessEnvironment>
 #include <QSettings>
@@ -194,11 +195,13 @@ namespace AkVCam
             QString cleanDescription(const std::wstring &description) const;
             QString cleanDescription(const QString &description) const;
             QVector<int> requestDeviceNR(size_t count) const;
-            bool waitFroDevice(const std::string &deviceId) const;
-            bool waitFroDevice(const QString &deviceId) const;
+            bool waitForDevice(const std::string &deviceId) const;
+            bool waitForDevice(const QString &deviceId) const;
+            bool waitForDevices(const QStringList &devices) const;
             bool isModuleLoaded(const QString &driver) const;
             bool canHandleAkVCam(const std::string &deviceId);
-            QList<DeviceInfo> devicesInfo(const QString &driverName) const;
+            inline QStringList v4l2Devices() const;
+            QList<DeviceInfo> devicesInfo(const QString &driverName={}) const;
             std::string deviceCreateAkVCam(const std::wstring &description,
                                            const std::vector<VideoFormat> &formats);
             bool deviceEditAkVCam(const std::string &deviceId,
@@ -302,7 +305,8 @@ bool AkVCam::IpcBridge::setDriver(const std::string &driver)
 // https://en.wikipedia.org/wiki/Comparison_of_privilege_authorization_features#Introduction_to_implementations
 std::vector<std::string> AkVCam::IpcBridge::availableRootMethods() const
 {
-    auto paths = QProcessEnvironment::systemEnvironment().value("PATH").split(':');
+    auto paths =
+            QProcessEnvironment::systemEnvironment().value("PATH").split(':');
 
     static const QStringList sus {
         "pkexec",
@@ -2089,15 +2093,7 @@ void AkVCam::IpcBridgePrivate::updateDevices()
     QStringList virtualDevices;
 
     QDir devicesDir("/dev");
-
-    auto devicesFiles = devicesDir.entryList(QStringList() << "video*",
-                                             QDir::System
-                                             | QDir::Readable
-                                             | QDir::Writable
-                                             | QDir::NoSymLinks
-                                             | QDir::NoDotAndDotDot
-                                             | QDir::CaseSensitive,
-                                             QDir::Name);
+    auto devicesFiles = this->v4l2Devices();
 
     for (const QString &devicePath: devicesFiles) {
         auto fileName = devicesDir.absoluteFilePath(devicePath);
@@ -2298,19 +2294,21 @@ QVector<int> AkVCam::IpcBridgePrivate::requestDeviceNR(size_t count) const
     return nrs;
 }
 
-bool AkVCam::IpcBridgePrivate::waitFroDevice(const std::string &deviceId) const
+bool AkVCam::IpcBridgePrivate::waitForDevice(const std::string &deviceId) const
 {
-    return this->waitFroDevice(QString::fromStdString(deviceId));
+    return this->waitForDevice(QString::fromStdString(deviceId));
 }
 
-bool AkVCam::IpcBridgePrivate::waitFroDevice(const QString &deviceId) const
+bool AkVCam::IpcBridgePrivate::waitForDevice(const QString &deviceId) const
 {
     /* udev can take some time to give proper file permissions to the device,
      * so we wait until el character device become fully accesible.
      */
+    QElapsedTimer etimer;
     int fd = -1;
+    etimer.start();
 
-    forever {
+    while (etimer.elapsed() < 5000) {
         fd = open(deviceId.toStdString().c_str(), O_RDWR | O_NONBLOCK, 0);
 
         if (fd != -EPERM)
@@ -2325,6 +2323,29 @@ bool AkVCam::IpcBridgePrivate::waitFroDevice(const QString &deviceId) const
     close(fd);
 
     return true;
+}
+
+bool AkVCam::IpcBridgePrivate::waitForDevices(const QStringList &devices) const
+{
+    QStringList devicesFiles;
+    QElapsedTimer etimer;
+    bool result = false;
+
+    etimer.start();
+
+    while (etimer.elapsed() < 5000) {
+        devicesFiles = this->v4l2Devices();
+
+        if (devicesFiles.size() == devices.size()) {
+            result = true;
+
+            break;
+        }
+
+        QThread::msleep(500);
+    }
+
+    return result;
 }
 
 bool AkVCam::IpcBridgePrivate::isModuleLoaded(const QString &driver) const
@@ -2361,18 +2382,25 @@ bool AkVCam::IpcBridgePrivate::canHandleAkVCam(const std::string &deviceId)
     return driver == "akvcam";
 }
 
+QStringList AkVCam::IpcBridgePrivate::v4l2Devices() const
+{
+    QDir devicesDir("/dev");
+
+    return devicesDir.entryList(QStringList() << "video*",
+                                QDir::System
+                                | QDir::Readable
+                                | QDir::Writable
+                                | QDir::NoSymLinks
+                                | QDir::NoDotAndDotDot
+                                | QDir::CaseSensitive,
+                                QDir::Name);
+}
+
 QList<AkVCam::DeviceInfo> AkVCam::IpcBridgePrivate::devicesInfo(const QString &driverName) const
 {
     QList<DeviceInfo> devices;
     QDir devicesDir("/dev");
-    auto devicesFiles = devicesDir.entryList(QStringList() << "video*",
-                                             QDir::System
-                                             | QDir::Readable
-                                             | QDir::Writable
-                                             | QDir::NoSymLinks
-                                             | QDir::NoDotAndDotDot
-                                             | QDir::CaseSensitive,
-                                             QDir::Name);
+    auto devicesFiles = this->v4l2Devices();
 
     for (auto &devicePath: devicesFiles) {
         auto fileName = devicesDir.absoluteFilePath(devicePath);
@@ -2386,7 +2414,7 @@ QList<AkVCam::DeviceInfo> AkVCam::IpcBridgePrivate::devicesInfo(const QString &d
         if (this->xioctl(fd, VIDIOC_QUERYCAP, &capability) >= 0) {
             QString driver = reinterpret_cast<const char *>(capability.driver);
 
-            if (driver == driverName)
+            if (driverName.isEmpty() || driver == driverName)
                 devices << DeviceInfo {
                     QString(fileName).remove("/dev/video").toInt(),
                     fileName,
@@ -2677,7 +2705,7 @@ std::string AkVCam::IpcBridgePrivate::deviceCreateAkVCam(const std::wstring &des
 
     auto devicePath = QString("/dev/video%1").arg(deviceNR[1]);
 
-    if (!this->waitFroDevice(devicePath)) {
+    if (!this->waitForDevice(devicePath)) {
         this->m_error = L"Time exceeded while waiting for the device";
 
         return {};
@@ -2755,14 +2783,15 @@ bool AkVCam::IpcBridgePrivate::deviceEditAkVCam(const std::string &deviceId,
 
     // Update device description and formats.
     auto outputs = this->connectedDevices(deviceId);
+    auto outputDevice = outputs.value(0);
 
     for (auto &device: devices) {
         if (device.path == QString::fromStdString(deviceId)) {
-            device.description = this->cleanDescription(description) + " (out)";
-            device.formats = outputFormats;
-        } else if (outputs.contains(device.path)) {
             device.description = this->cleanDescription(description);
             device.formats = deviceFormats;
+        } else if (!outputDevice.isEmpty() && device.path == outputDevice) {
+            device.description = this->cleanDescription(description) + " (out)";
+            device.formats = outputFormats;
         }
     }
 
@@ -2936,7 +2965,7 @@ bool AkVCam::IpcBridgePrivate::deviceEditAkVCam(const std::string &deviceId,
     if (!this->sudo(this->self->rootMethod(), {"sh", cmds.fileName()}))
         return false;
 
-    if (!this->waitFroDevice(deviceId)) {
+    if (!this->waitForDevice(deviceId)) {
         this->m_error = L"Time exceeded while waiting for the device";
 
         return false;
@@ -2947,6 +2976,7 @@ bool AkVCam::IpcBridgePrivate::deviceEditAkVCam(const std::string &deviceId,
 
 bool AkVCam::IpcBridgePrivate::deviceDestroyAkVCam(const std::string &deviceId)
 {
+    // Delete the devices
     auto outputs = this->connectedDevices(deviceId);
 
     if (outputs.isEmpty())
@@ -2976,6 +3006,15 @@ bool AkVCam::IpcBridgePrivate::deviceDestroyAkVCam(const std::string &deviceId)
 
     deleteDevice(devices, outputDevice);
 
+    // Create the final list of devices.
+    QStringList devicesList;
+
+    for (auto &device: this->devicesInfo())
+        if (device.path != QString::fromStdString(deviceId)
+            && device.path != outputDevice)
+            devicesList << device.path;
+
+    // Unload the driver if there are not any device.
     if (devices.isEmpty()) {
         QTemporaryDir tempDir;
         QFile cmds(tempDir.path() + "/akvcam_exec.sh");
@@ -2996,6 +3035,7 @@ bool AkVCam::IpcBridgePrivate::deviceDestroyAkVCam(const std::string &deviceId)
         return this->sudo(this->self->rootMethod(), {"sh", cmds.fileName()});
     }
 
+    // Fill missing devices information.
     for (auto &device: devices) {
         int fd = open(device.path.toStdString().c_str(),
                       O_RDWR | O_NONBLOCK, 0);
@@ -3043,6 +3083,7 @@ bool AkVCam::IpcBridgePrivate::deviceDestroyAkVCam(const std::string &deviceId)
         }
     }
 
+    // Write config.ini.
     QTemporaryDir tempDir;
     QSettings settings(tempDir.path() + "/config.ini", QSettings::IniFormat);
     auto codec = QTextCodec::codecForLocale();
@@ -3198,7 +3239,16 @@ bool AkVCam::IpcBridgePrivate::deviceDestroyAkVCam(const std::string &deviceId)
 
     cmds.close();
 
-    return this->sudo(this->self->rootMethod(), {"sh", cmds.fileName()});
+    if (!this->sudo(this->self->rootMethod(), {"sh", cmds.fileName()}))
+        return false;
+
+    if (!this->waitForDevices(devicesList)) {
+        this->m_error = L"Time exceeded while waiting for the device";
+
+        return false;
+    }
+
+    return true;
 }
 
 bool AkVCam::IpcBridgePrivate::changeDescriptionAkVCam(const std::string &deviceId,
@@ -3424,7 +3474,7 @@ bool AkVCam::IpcBridgePrivate::changeDescriptionAkVCam(const std::string &device
     if (!this->sudo(this->self->rootMethod(), {"sh", cmds.fileName()}))
         return false;
 
-    if (!this->waitFroDevice(deviceId))
+    if (!this->waitForDevice(deviceId))
         return false;
 
     return true;
@@ -3547,7 +3597,7 @@ std::string AkVCam::IpcBridgePrivate::deviceCreateV4L2Loopback(const std::wstrin
     if (!this->sudo(this->self->rootMethod(), {"sh", cmds.fileName()}))
         return {};
 
-    if (!this->waitFroDevice(devicePath)) {
+    if (!this->waitForDevice(devicePath)) {
         this->m_error = L"Time exceeded while waiting for the device";
 
         return {};
@@ -3686,7 +3736,7 @@ bool AkVCam::IpcBridgePrivate::deviceEditV4L2Loopback(const std::string &deviceI
     if (!this->sudo(this->self->rootMethod(), {"sh", cmds.fileName()}))
         return false;
 
-    if (!this->waitFroDevice(deviceId)) {
+    if (!this->waitForDevice(deviceId)) {
         this->m_error = L"Time exceeded while waiting for the device";
 
         return false;
@@ -3750,6 +3800,7 @@ bool AkVCam::IpcBridgePrivate::deviceEditV4L2Loopback(const std::string &deviceI
 
 bool AkVCam::IpcBridgePrivate::deviceDestroyV4L2Loopback(const std::string &deviceId)
 {
+    // Delete the devices
     auto devices = this->devicesInfo("v4l2 loopback");
     auto it = std::find_if(devices.begin(),
                            devices.end(),
@@ -3762,6 +3813,14 @@ bool AkVCam::IpcBridgePrivate::deviceDestroyV4L2Loopback(const std::string &devi
 
     devices.erase(it);
 
+    // Create the final list of devices.
+    QStringList devicesList;
+
+    for (auto &device: this->devicesInfo())
+        if (device.path != QString::fromStdString(deviceId))
+            devicesList << device.path;
+
+    // Read device description.
     QString videoNR;
     QString cardLabel;
 
@@ -3819,7 +3878,16 @@ bool AkVCam::IpcBridgePrivate::deviceDestroyV4L2Loopback(const std::string &devi
 
     cmds.close();
 
-    return this->sudo(this->self->rootMethod(), {"sh", cmds.fileName()});
+    if (!this->sudo(this->self->rootMethod(), {"sh", cmds.fileName()}))
+        return false;
+
+    if (!this->waitForDevices(devicesList)) {
+        this->m_error = L"Time exceeded while waiting for the device";
+
+        return false;
+    }
+
+    return true;
 }
 
 bool AkVCam::IpcBridgePrivate::changeDescriptionV4L2Loopback(const std::string &deviceId,
@@ -3886,7 +3954,7 @@ bool AkVCam::IpcBridgePrivate::changeDescriptionV4L2Loopback(const std::string &
     if (!this->sudo(this->self->rootMethod(), {"sh", cmds.fileName()}))
         return false;
 
-    return this->waitFroDevice(deviceId);
+    return this->waitForDevice(deviceId);
 }
 
 QString AkVCam::IpcBridgePrivate::destroyAllDevicesV4L2Loopback()

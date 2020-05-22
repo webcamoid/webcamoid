@@ -27,18 +27,18 @@ ScrollView {
     id: view
 
     property string videoInput: ""
-    readonly property string videoInputDescription:
-        videoLayer.description(videoInput)
 
+    signal openVideoInputAddEditDialog(string videoInput)
     signal videoInputRemoved()
 
-    function updateControls()
+    function setInput(videoInput)
     {
+        view.videoInput = videoInput
         deviceInfo.text =
                 "<b>" + videoLayer.description(videoInput) + "</b>"
                 + "<br/><i>" + videoInput + "</i>"
         videoLayer.removeInterface("itmVideoInputOptions")
-        videoLayer.embedControls("itmVideoInputOptions", videoInput)
+        videoLayer.embedInputControls("itmVideoInputOptions", videoInput)
     }
 
     ColumnLayout {
@@ -66,7 +66,7 @@ ScrollView {
                 AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
             visible: videoLayer.deviceType(view.videoInput) == VideoLayer.InputStream
 
-            onClicked: addSource.open()
+            onClicked: view.openVideoInputAddEditDialog(view.videoInput)
         }
         Button {
             text: qsTr("Remove")
@@ -92,19 +92,6 @@ ScrollView {
                 AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
             Layout.rightMargin:
                 AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
-        }
-    }
-
-    onVideoInputChanged: view.updateControls()
-
-    AddSource {
-        id: addSource
-        editMode: true
-        anchors.centerIn: Overlay.overlay
-
-        onAccepted: {
-            view.videoInput = videoLayer.videoInput
-            view.updateControls()
         }
     }
 }

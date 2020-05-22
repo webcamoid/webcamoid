@@ -74,6 +74,11 @@ class VideoLayer: public QObject
                WRITE setPlayOnStart
                RESET resetPlayOnStart
                NOTIFY playOnStartChanged)
+    Q_PROPERTY(bool outputsAsInputs
+               READ outputsAsInputs
+               WRITE setOutputsAsInputs
+               RESET resetOutputsAsInputs
+               NOTIFY outputsAsInputsChanged)
 
     public:
         enum InputType {
@@ -105,6 +110,7 @@ class VideoLayer: public QObject
         Q_INVOKABLE AkVideoCapsList supportedOutputVideoCaps(const QString &device) const;
         Q_INVOKABLE AkElement::ElementState state() const;
         Q_INVOKABLE bool playOnStart() const;
+        Q_INVOKABLE bool outputsAsInputs() const;
         Q_INVOKABLE InputType deviceType(const QString &device) const;
         Q_INVOKABLE QStringList devicesByType(InputType type) const;
         Q_INVOKABLE QString description(const QString &device) const;
@@ -118,9 +124,12 @@ class VideoLayer: public QObject
         Q_INVOKABLE bool removeAllOutputs();
         Q_INVOKABLE QString inputError() const;
         Q_INVOKABLE QString outputError() const;
-        Q_INVOKABLE bool embedControls(const QString &where,
-                                       const QString &device,
-                                       const QString &name={}) const;
+        Q_INVOKABLE bool embedInputControls(const QString &where,
+                                            const QString &device,
+                                            const QString &name={}) const;
+        Q_INVOKABLE bool embedOutputControls(const QString &where,
+                                             const QString &device,
+                                             const QString &name={}) const;
         Q_INVOKABLE void removeInterface(const QString &where) const;
 
     private:
@@ -135,6 +144,7 @@ class VideoLayer: public QObject
         void inputVideoCapsChanged(const AkVideoCaps &inputVideoCaps);
         void stateChanged(AkElement::ElementState state);
         void playOnStartChanged(bool playOnStart);
+        void outputsAsInputsChanged(bool outputsAsInputs);
         void oStream(const AkPacket &packet);
         void inputErrorChanged(const QString &inputError);
         void outputErrorChanged(const QString &outputError);
@@ -146,10 +156,12 @@ class VideoLayer: public QObject
         void setVideoOutput(const QStringList &videoOutput);
         void setState(AkElement::ElementState state);
         void setPlayOnStart(bool playOnStart);
+        void setOutputsAsInputs(bool outputsAsInputs);
         void resetVideoInput();
         void resetVideoOutput();
         void resetState();
         void resetPlayOnStart();
+        void resetOutputsAsInputs();
         void setQmlEngine(QQmlApplicationEngine *engine=nullptr);
 
     private slots:

@@ -24,22 +24,22 @@ import Ak 1.0
 import Webcamoid 1.0
 
 Dialog {
-    id: deviceOptions
+    id: addEdit
     standardButtons: Dialog.Ok | Dialog.Cancel
     width: AkUnit.create(450 * AkTheme.controlScale, "dp").pixels
     height: AkUnit.create(350 * AkTheme.controlScale, "dp").pixels
     modal: true
 
+    signal edited()
     signal openOutputFormatDialog(int index, variant caps)
 
     function addFormat(caps)
     {
         let format = AkVideoCaps.pixelFormatToString(caps.format)
         let fps = AkFrac.create(caps.fps)
-        let description =
-            format
-            + " " + caps.width + "x" + caps.height
-            + " " + fps.value + " FPS"
+        let description = format
+                        + " " + caps.width + "x" + caps.height
+                        + " " + fps.value + " FPS"
         vcamFormats.model.append({format: caps.format,
                                   width: caps.width,
                                   height: caps.height,
@@ -180,11 +180,11 @@ Dialog {
 
                 onClicked: {
                     let caps = AkVideoCaps.create()
-                    deviceOptions.openOutputFormatDialog(-1, caps)
+                    addEdit.openOutputFormatDialog(-1, caps)
                 }
             }
             Button {
-                text: qsTr("Remove all formats")
+                text: qsTr("Clear formats")
                 icon.source: "image://icons/no"
                 flat: true
 
@@ -216,7 +216,7 @@ Dialog {
                                                element.height,
                                                AkFrac.create(element.fps,
                                                              1).toVariant())
-                        deviceOptions.openOutputFormatDialog(index, caps)
+                        addEdit.openOutputFormatDialog(index, caps)
                     }
                 }
             }
@@ -236,13 +236,19 @@ Dialog {
             formats.push(caps.toVariant())
         }
 
-        if (deviceId.text)
+        if (deviceId.text) {
             videoLayer.editOutput(deviceId.text,
                                   deviceDescription.text,
                                   formats)
-        else
-            videoLayer.createOutput(VideoLayer.OutputVirtualCamera,
-                                    deviceDescription.text,
-                                    formats)
+            addEdit.edited()
+        } else {
+            let videoOutput =
+                videoLayer.createOutput(VideoLayer.OutputVirtualCamera,
+                                        deviceDescription.text,
+                                        formats)
+
+            if (videoOutput)
+                videoLayer.videoOutput = videoOutput
+        }
     }
 }

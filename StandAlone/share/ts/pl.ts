@@ -30,140 +30,6 @@
     </message>
 </context>
 <context>
-    <name>AddSource</name>
-    <message>
-        <location filename="../qml/AddSource.qml" line="28"/>
-        <source>Add source</source>
-        <translation>Dodaj źródło</translation>
-    </message>
-    <message>
-        <location filename="../qml/AddSource.qml" line="59"/>
-        <source>File</source>
-        <translation>Plik</translation>
-    </message>
-    <message>
-        <location filename="../qml/AddSource.qml" line="62"/>
-        <location filename="../qml/AddSource.qml" line="145"/>
-        <source>URL</source>
-        <translation>URL</translation>
-    </message>
-    <message>
-        <location filename="../qml/AddSource.qml" line="83"/>
-        <location filename="../qml/AddSource.qml" line="131"/>
-        <source>Description</source>
-        <translation>Opis</translation>
-    </message>
-    <message>
-        <location filename="../qml/AddSource.qml" line="89"/>
-        <location filename="../qml/AddSource.qml" line="137"/>
-        <source>Source title</source>
-        <translation>Tytuł&#xa0;źródłowy</translation>
-    </message>
-    <message>
-        <location filename="../qml/AddSource.qml" line="97"/>
-        <source>Path</source>
-        <translation>Ścieżka</translation>
-    </message>
-    <message>
-        <location filename="../qml/AddSource.qml" line="104"/>
-        <source>File path</source>
-        <translation>Ścieżka pliku</translation>
-    </message>
-    <message>
-        <location filename="../qml/AddSource.qml" line="111"/>
-        <source>Search</source>
-        <translation>Szukaj</translation>
-    </message>
-    <message>
-        <location filename="../qml/AddSource.qml" line="208"/>
-        <source>Choose the file to add as source</source>
-        <translation>Wybierz plik, który chcesz dodać jako źródło</translation>
-    </message>
-    <message>
-        <location filename="../qml/AddSource.qml" line="211"/>
-        <source>All Video Files</source>
-        <translation>Wszystkie pliki wideo</translation>
-    </message>
-    <message>
-        <location filename="../qml/AddSource.qml" line="214"/>
-        <source>3GP Video</source>
-        <translation>Wideo 3GP</translation>
-    </message>
-    <message>
-        <location filename="../qml/AddSource.qml" line="215"/>
-        <source>AVI Video</source>
-        <translation>Wideo AVI</translation>
-    </message>
-    <message>
-        <location filename="../qml/AddSource.qml" line="217"/>
-        <source>Flash Video</source>
-        <extracomment>Adobe FLV Flash video</extracomment>
-        <translation>Flash Video</translation>
-    </message>
-    <message>
-        <location filename="../qml/AddSource.qml" line="218"/>
-        <source>Animated GIF</source>
-        <translation>Animowany GIF</translation>
-    </message>
-    <message>
-        <location filename="../qml/AddSource.qml" line="219"/>
-        <source>MKV Video</source>
-        <translation>Wideo MKV</translation>
-    </message>
-    <message>
-        <location filename="../qml/AddSource.qml" line="220"/>
-        <source>Animated PNG</source>
-        <translation>Animowany PNG</translation>
-    </message>
-    <message>
-        <location filename="../qml/AddSource.qml" line="221"/>
-        <source>QuickTime Video</source>
-        <translation>Wideo QuickTime</translation>
-    </message>
-    <message>
-        <location filename="../qml/AddSource.qml" line="222"/>
-        <source>MP4 Video</source>
-        <translation>Wideo MP4</translation>
-    </message>
-    <message>
-        <location filename="../qml/AddSource.qml" line="223"/>
-        <source>MPEG Video</source>
-        <translation>Wideo MPEG</translation>
-    </message>
-    <message>
-        <location filename="../qml/AddSource.qml" line="224"/>
-        <source>Ogg Video</source>
-        <translation>Wideo Ogg</translation>
-    </message>
-    <message>
-        <location filename="../qml/AddSource.qml" line="226"/>
-        <source>RealMedia Video</source>
-        <extracomment>Don&apos;t translate &quot;RealMedia&quot;, leave it as is.</extracomment>
-        <translation>Wideo RealMedia</translation>
-    </message>
-    <message>
-        <location filename="../qml/AddSource.qml" line="227"/>
-        <source>DVD Video</source>
-        <translation>DVD Video</translation>
-    </message>
-    <message>
-        <location filename="../qml/AddSource.qml" line="228"/>
-        <source>WebM Video</source>
-        <translation>Wideo WebM</translation>
-    </message>
-    <message>
-        <location filename="../qml/AddSource.qml" line="230"/>
-        <source>Windows Media Video</source>
-        <extracomment>Also known as WMV, is a video file format.</extracomment>
-        <translation>Windows Media Video</translation>
-    </message>
-    <message>
-        <location filename="../qml/AddSource.qml" line="231"/>
-        <source>All Files</source>
-        <translation>Wszystkie pliki</translation>
-    </message>
-</context>
-<context>
     <name>AddVideoFormat</name>
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="42"/>
@@ -693,34 +559,6 @@
     </message>
 </context>
 <context>
-    <name>VideoDeviceOptions</name>
-    <message>
-        <location filename="../qml/VideoDeviceOptions.qml" line="142"/>
-        <source>Edit Virtual Camera</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoDeviceOptions.qml" line="143"/>
-        <source>Add Virtual Camera</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoDeviceOptions.qml" line="168"/>
-        <source>Virtual camera name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoDeviceOptions.qml" line="177"/>
-        <source>Add format</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoDeviceOptions.qml" line="187"/>
-        <source>Remove all formats</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>VideoEffectOptions</name>
     <message>
         <location filename="../qml/VideoEffectOptions.qml" line="62"/>
@@ -787,6 +625,145 @@
     </message>
 </context>
 <context>
+    <name>VideoInputAddEdit</name>
+    <message>
+        <location filename="../qml/VideoInputAddEdit.qml" line="55"/>
+        <source>Edit Source</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputAddEdit.qml" line="56"/>
+        <source>Add Source</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputAddEdit.qml" line="84"/>
+        <source>File</source>
+        <translation type="unfinished">Plik</translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputAddEdit.qml" line="87"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="170"/>
+        <source>URL</source>
+        <translation type="unfinished">URL</translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputAddEdit.qml" line="108"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="156"/>
+        <source>Description</source>
+        <translation type="unfinished">Opis</translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputAddEdit.qml" line="114"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="162"/>
+        <source>Source title</source>
+        <translation type="unfinished">Tytuł&#xa0;źródłowy</translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputAddEdit.qml" line="122"/>
+        <source>Path</source>
+        <translation type="unfinished">Ścieżka</translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputAddEdit.qml" line="129"/>
+        <source>File path</source>
+        <translation type="unfinished">Ścieżka pliku</translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputAddEdit.qml" line="136"/>
+        <source>Search</source>
+        <translation type="unfinished">Szukaj</translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputAddEdit.qml" line="215"/>
+        <source>Choose the file to add as source</source>
+        <translation type="unfinished">Wybierz plik, który chcesz dodać jako źródło</translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputAddEdit.qml" line="218"/>
+        <source>All Video Files</source>
+        <translation type="unfinished">Wszystkie pliki wideo</translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputAddEdit.qml" line="221"/>
+        <source>3GP Video</source>
+        <translation type="unfinished">Wideo 3GP</translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputAddEdit.qml" line="222"/>
+        <source>AVI Video</source>
+        <translation type="unfinished">Wideo AVI</translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputAddEdit.qml" line="224"/>
+        <source>Flash Video</source>
+        <extracomment>Adobe FLV Flash video</extracomment>
+        <translation type="unfinished">Flash Video</translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputAddEdit.qml" line="225"/>
+        <source>Animated GIF</source>
+        <translation type="unfinished">Animowany GIF</translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputAddEdit.qml" line="226"/>
+        <source>MKV Video</source>
+        <translation type="unfinished">Wideo MKV</translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputAddEdit.qml" line="227"/>
+        <source>Animated PNG</source>
+        <translation type="unfinished">Animowany PNG</translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputAddEdit.qml" line="228"/>
+        <source>QuickTime Video</source>
+        <translation type="unfinished">Wideo QuickTime</translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputAddEdit.qml" line="229"/>
+        <source>MP4 Video</source>
+        <translation type="unfinished">Wideo MP4</translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputAddEdit.qml" line="230"/>
+        <source>MPEG Video</source>
+        <translation type="unfinished">Wideo MPEG</translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputAddEdit.qml" line="231"/>
+        <source>Ogg Video</source>
+        <translation type="unfinished">Wideo Ogg</translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputAddEdit.qml" line="233"/>
+        <source>RealMedia Video</source>
+        <extracomment>Don&apos;t translate &quot;RealMedia&quot;, leave it as is.</extracomment>
+        <translation type="unfinished">Wideo RealMedia</translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputAddEdit.qml" line="234"/>
+        <source>DVD Video</source>
+        <translation type="unfinished">DVD Video</translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputAddEdit.qml" line="235"/>
+        <source>WebM Video</source>
+        <translation type="unfinished">Wideo WebM</translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputAddEdit.qml" line="237"/>
+        <source>Windows Media Video</source>
+        <extracomment>Also known as WMV, is a video file format.</extracomment>
+        <translation type="unfinished">Windows Media Video</translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputAddEdit.qml" line="238"/>
+        <source>All Files</source>
+        <translation type="unfinished">Wszystkie pliki</translation>
+    </message>
+</context>
+<context>
     <name>VideoInputOptions</name>
     <message>
         <location filename="../qml/VideoInputOptions.qml" line="60"/>
@@ -802,12 +779,12 @@
 <context>
     <name>VideoInputs</name>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="48"/>
+        <location filename="../qml/VideoInputs.qml" line="49"/>
         <source>Add source</source>
         <translation>Dodaj źródło</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="59"/>
+        <location filename="../qml/VideoInputs.qml" line="60"/>
         <source>No webcams found</source>
         <translation>Nie znaleziono kamer internetowych</translation>
     </message>
@@ -815,7 +792,7 @@
 <context>
     <name>VideoLayer</name>
     <message>
-        <location filename="../../src/videolayer.cpp" line="239"/>
+        <location filename="../../src/videolayer.cpp" line="248"/>
         <source>No Output</source>
         <extracomment>Disable video output, don&apos;t send the video to the output device.</extracomment>
         <translation type="unfinished"></translation>
@@ -824,25 +801,53 @@
 <context>
     <name>VideoOptions</name>
     <message>
-        <location filename="../qml/VideoOptions.qml" line="36"/>
+        <location filename="../qml/VideoOptions.qml" line="37"/>
         <source>Sources</source>
         <translation>Źródła</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOptions.qml" line="39"/>
+        <location filename="../qml/VideoOptions.qml" line="40"/>
         <source>Outputs</source>
         <translation>Wyjścia</translation>
     </message>
 </context>
 <context>
+    <name>VideoOutputAddEdit</name>
+    <message>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="142"/>
+        <source>Edit Virtual Camera</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="143"/>
+        <source>Add Virtual Camera</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="168"/>
+        <source>Virtual camera name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="177"/>
+        <source>Add format</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="187"/>
+        <source>Clear formats</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>VideoOutputOptions</name>
     <message>
-        <location filename="../qml/VideoOutputOptions.qml" line="60"/>
+        <location filename="../qml/VideoOutputOptions.qml" line="59"/>
         <source>Edit</source>
         <translation type="unfinished">Edycja</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputOptions.qml" line="71"/>
+        <location filename="../qml/VideoOutputOptions.qml" line="70"/>
         <source>Remove</source>
         <translation type="unfinished">Usuń</translation>
     </message>

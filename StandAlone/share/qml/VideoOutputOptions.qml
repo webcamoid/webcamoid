@@ -26,19 +26,18 @@ ScrollView {
     id: view
 
     property string videoOutput: ""
-    readonly property string videoOtputDescription:
-        videoLayer.description(videoOutput)
 
     signal openVideoOutputAddEditDialog(string videoOutput)
     signal videoOutputRemoved()
 
-    function updateControls()
+    function setOutput(videoOutput)
     {
+        view.videoOutput = videoOutput
         deviceInfo.text =
                 "<b>" + videoLayer.description(videoOutput) + "</b>"
                 + "<br/><i>" + videoOutput + "</i>"
         videoLayer.removeInterface("itmVideoOutputOptions")
-        videoLayer.embedControls("itmVideoOutputOptions", videoOutput)
+        videoLayer.embedOutputControls("itmVideoOutputOptions", videoOutput)
     }
 
     ColumnLayout {
@@ -92,6 +91,4 @@ ScrollView {
                 AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
         }
     }
-
-    onVideoOutputChanged: view.updateControls()
 }

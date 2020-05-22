@@ -18,20 +18,21 @@
  */
 
 import QtQuick 2.12
-import Qt.labs.platform 1.1 as LABS
 import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
+import Qt.labs.platform 1.1 as LABS
 import Ak 1.0
 
 Dialog {
-    id: addSource
-    title: qsTr("Add source")
+    id: addEdit
     standardButtons: Dialog.Ok | Dialog.Cancel
     width: AkUnit.create(420 * AkTheme.controlScale, "dp").pixels
     height: AkUnit.create(320 * AkTheme.controlScale, "dp").pixels
     modal: true
 
     property bool editMode: false
+
+    signal edited()
 
     function isFile(url)
     {
@@ -46,6 +47,30 @@ Dialog {
         return videoLayer.inputs.indexOf(url) < 0?
                     mediaTools.fileNameFromUri(url):
                     videoLayer.description(url)
+    }
+
+    function openOptions(device)
+    {
+        title = device?
+                    qsTr("Edit Source"):
+                    qsTr("Add Source")
+        addEdit.editMode = device != ""
+        fileDescription.text = videoLayer.description(device)
+        urlDescription.text = fileDescription.text
+        filePath.text = ""
+        urlPath.text = ""
+        tabBar.currentIndex = 0
+
+        if (device) {
+            if (addEdit.isFile(device)) {
+                filePath.text = device
+            } else {
+                urlPath.text = device
+                tabBar.currentIndex = 1
+            }
+        }
+
+        open()
     }
 
     ColumnLayout {
@@ -87,7 +112,7 @@ Dialog {
                     TextField {
                         id: fileDescription
                         placeholderText: qsTr("Source title")
-                        text: addSource.editMode?
+                        text: addEdit.editMode?
                                   videoLayer.description(videoLayer.videoInput):
                                   ""
                         Layout.fillWidth: true
@@ -102,7 +127,7 @@ Dialog {
                         TextField {
                             id: filePath
                             placeholderText: qsTr("File path")
-                            text: addSource.editMode? videoLayer.videoInput: ""
+                            text: addEdit.editMode? videoLayer.videoInput: ""
                             Layout.fillWidth: true
                             selectByMouse: true
                         }
@@ -135,7 +160,7 @@ Dialog {
                     TextField {
                         id: urlDescription
                         placeholderText: qsTr("Source title")
-                        text: addSource.editMode?
+                        text: addEdit.editMode?
                                   videoLayer.description(videoLayer.videoInput):
                                   ""
                         Layout.fillWidth: true
@@ -149,32 +174,11 @@ Dialog {
                     TextField {
                         id: urlPath
                         placeholderText: "https://example-site.com/video.webm"
-                        text: addSource.editMode? videoLayer.videoInput: ""
+                        text: addEdit.editMode? videoLayer.videoInput: ""
                         Layout.fillWidth: true
                         selectByMouse: true
                     }
                 }
-            }
-        }
-    }
-
-    onVisibleChanged: {
-        if (!visible)
-            return
-
-        fileDescription.text = addSource.editMode?
-                    videoLayer.description(videoLayer.videoInput): ""
-        urlDescription.text = fileDescription.text
-        filePath.text = ""
-        urlPath.text = ""
-        tabBar.currentIndex = 0
-
-        if (addSource.editMode) {
-            if (addSource.isFile(videoLayer.videoInput)) {
-                filePath.text = videoLayer.videoInput
-            } else {
-                urlPath.text = videoLayer.videoInput
-                tabBar.currentIndex = 1
             }
         }
     }
@@ -193,13 +197,16 @@ Dialog {
 
         if (uri.length > 0) {
             if (description.length < 1)
-                description = addSource.defaultDescription(uri)
+                description = addEdit.defaultDescription(uri)
 
             if (editMode)
                 videoLayer.removeInputStream(videoLayer.videoInput)
 
             videoLayer.setInputStream(uri, description)
             videoLayer.videoInput = uri
+
+            if (editMode)
+                addEdit.edited()
         }
     }
 
@@ -234,7 +241,7 @@ Dialog {
             filePath.text = mediaTools.urlToLocalFile(fileDialog.file)
             urlPath.text = ""
             fileDescription.text =
-                    addSource.defaultDescription(fileDialog.file.toString())
+                    addEdit.defaultDescription(fileDialog.file.toString())
             urlDescription.text = fileDescription.text
         }
     }

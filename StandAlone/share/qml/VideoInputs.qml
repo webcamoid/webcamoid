@@ -26,6 +26,7 @@ import Webcamoid 1.0
 ScrollView {
     id: view
 
+    signal openVideoInputAddEditDialog(string videoInput)
     signal openVideoInputOptions(string videoInput)
 
     Component.onCompleted: {
@@ -49,7 +50,7 @@ ScrollView {
             icon.source: "image://icons/add"
             flat: true
 
-            onClicked: addSource.open()
+            onClicked: view.openVideoInputAddEditDialog("")
         }
         Label {
             id: lblNoWebcams
@@ -143,10 +144,5 @@ ScrollView {
                 }
             }
         }
-    }
-
-    AddSource {
-        id: addSource
-        anchors.centerIn: Overlay.overlay
     }
 }
