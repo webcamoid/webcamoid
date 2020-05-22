@@ -86,6 +86,7 @@ class VideoLayerPrivate
         void saveVideoOutput(const QString &videoOutput);
         void saveStreams(const QMap<QString, QString> &streams);
         void savePlayOnStart(bool playOnStart);
+        void savetOutputsAsInputs(bool outputsAsInputs);
 };
 
 VideoLayer::VideoLayer(QQmlApplicationEngine *engine, QObject *parent):
@@ -1044,10 +1045,8 @@ void VideoLayerPrivate::loadProperties(const CliOptions &cliOptions)
     config.endArray();
     config.endGroup();
 
-    self->updateInputs();
-    self->updateCaps();
-
     config.beginGroup("VirtualCamera");
+    this->m_outputsAsInputs = config.value("loopback", false).toBool();
 
     if (this->m_cameraOutput) {
         auto optPaths = cliOptions.value(cliOptions.vcamPathOpt()).split(';');
@@ -1072,6 +1071,9 @@ void VideoLayerPrivate::loadProperties(const CliOptions &cliOptions)
     }
 
     config.endGroup();
+
+    self->updateInputs();
+    self->updateCaps();
 }
 
 void VideoLayerPrivate::saveVideoInput(const QString &videoInput)
@@ -1114,6 +1116,14 @@ void VideoLayerPrivate::savePlayOnStart(bool playOnStart)
     QSettings config;
     config.beginGroup("StreamConfigs");
     config.setValue("playOnStart", playOnStart);
+    config.endGroup();
+}
+
+void VideoLayerPrivate::savetOutputsAsInputs(bool outputsAsInputs)
+{
+    QSettings config;
+    config.beginGroup("VirtualCamera");
+    config.setValue("loopback", outputsAsInputs);
     config.endGroup();
 }
 

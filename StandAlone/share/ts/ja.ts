@@ -258,7 +258,7 @@
 <context>
     <name>MediaTools</name>
     <message>
-        <location filename="../../src/mediatools.cpp" line="200"/>
+        <location filename="../../src/mediatools.cpp" line="197"/>
         <source>Daily Build</source>
         <translation type="unfinished"></translation>
     </message>
@@ -469,68 +469,91 @@
 <context>
     <name>UpdatesConfig</name>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="72"/>
+        <location filename="../qml/UpdatesConfig.qml" line="73"/>
         <source>Notify about new versions</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="82"/>
-        <source>Check new versions</source>
+        <source>Show updates dialog</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="90"/>
-        <source>Daily</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/UpdatesConfig.qml" line="94"/>
-        <source>Every two days</source>
+        <source>Check new versions</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="98"/>
-        <source>Weekly</source>
+        <source>Daily</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="102"/>
-        <source>Every two weeks</source>
+        <source>Every two days</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="106"/>
-        <source>Monthly</source>
+        <source>Weekly</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="110"/>
+        <source>Every two weeks</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/UpdatesConfig.qml" line="114"/>
+        <source>Monthly</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/UpdatesConfig.qml" line="118"/>
         <source>Never</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="122"/>
+        <location filename="../qml/UpdatesConfig.qml" line="130"/>
         <source>Last updated</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="143"/>
+        <location filename="../qml/UpdatesConfig.qml" line="151"/>
         <source>Your version of %1 is outdated. Latest version is &lt;b&gt;%2&lt;/b&gt;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="149"/>
+        <location filename="../qml/UpdatesConfig.qml" line="157"/>
         <source>Upgrade Now!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="164"/>
+        <location filename="../qml/UpdatesConfig.qml" line="172"/>
         <source>Thanks for using a &lt;b&gt;development version&lt;/b&gt;!&lt;br /&gt;It will be very helpful if you can report any bug and suggestions you have.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="169"/>
+        <location filename="../qml/UpdatesConfig.qml" line="177"/>
         <source>Report a Bug</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>UpdatesDialog</name>
+    <message>
+        <location filename="../qml/UpdatesDialog.qml" line="33"/>
+        <source>New version available!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/UpdatesDialog.qml" line="61"/>
+        <source>Download %1 %2 NOW!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/UpdatesDialog.qml" line="68"/>
+        <source>Show this dialog next time</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -792,7 +815,7 @@
 <context>
     <name>VideoLayer</name>
     <message>
-        <location filename="../../src/videolayer.cpp" line="248"/>
+        <location filename="../../src/videolayer.cpp" line="249"/>
         <source>No Output</source>
         <extracomment>Disable video output, don&apos;t send the video to the output device.</extracomment>
         <translation type="unfinished"></translation>
@@ -2266,42 +2289,32 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="46"/>
-        <source>New version available!</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/main.qml" line="47"/>
-        <source>Download %1 %2 NOW!</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/main.qml" line="168"/>
+        <location filename="../qml/main.qml" line="132"/>
         <source>Use flash</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="188"/>
+        <location filename="../qml/main.qml" line="152"/>
         <source>Now</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="195"/>
+        <location filename="../qml/main.qml" line="159"/>
         <source>%1 seconds</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="296"/>
+        <location filename="../qml/main.qml" line="260"/>
         <source>Take a photo</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="57"/>
+        <location filename="../qml/main.qml" line="44"/>
         <source>%1/Picture %2.%3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="345"/>
+        <location filename="../qml/main.qml" line="309"/>
         <source>Record video</source>
         <translation type="unfinished"></translation>
     </message>

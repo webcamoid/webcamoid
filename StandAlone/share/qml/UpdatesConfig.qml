@@ -20,6 +20,7 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
+import Qt.labs.settings 1.0 as LABS
 import Ak 1.0
 import Webcamoid 1.0
 
@@ -77,7 +78,14 @@ Page {
 
                 onCheckedChanged: updates.notifyNewVersion = checked
             }
-
+            Label {
+                text: qsTr("Show updates dialog")
+            }
+            Switch {
+                id: showUpdatesDialog
+                checked: true
+                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+            }
             Label {
                 text: qsTr("Check new versions")
             }
@@ -174,5 +182,11 @@ Page {
                 }
             }
         }
+    }
+
+    LABS.Settings {
+        category: "Updates"
+
+        property alias showDialog: showUpdatesDialog.checked
     }
 }

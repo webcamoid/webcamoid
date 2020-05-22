@@ -38,19 +38,6 @@ ApplicationWindow {
     width: mediaTools.windowWidth
     height: mediaTools.windowHeight
 
-    function notifyUpdate(versionType)
-    {
-        if (updates.notifyNewVersion
-            && versionType == Updates.VersionTypeOld) {
-            trayIcon.show();
-            trayIcon.showMessage(qsTr("New version available!"),
-                                 qsTr("Download %1 %2 NOW!")
-                                    .arg(mediaTools.applicationName())
-                                    .arg(updates.latestVersion));
-            notifyTimer.start();
-        }
-    }
-
     function savePhoto()
     {
         recording.takePhoto()
@@ -69,34 +56,11 @@ ApplicationWindow {
         return "file://" + path
     }
 
-    Timer {
-        id: notifyTimer
-        repeat: false
-        triggeredOnStart: false
-        interval: 10000
-
-        onTriggered: trayIcon.hide()
-    }
-
     onWidthChanged: mediaTools.windowWidth = width
     onHeightChanged: mediaTools.windowHeight = height
-    onClosing: trayIcon.hide()
 
-    Component.onCompleted: {
-        notifyUpdate(updates.versionType);
-        chkFlash.updateVisibility()
-    }
+    Component.onCompleted: chkFlash.updateVisibility()
 
-    Connections {
-        target: updates
-
-        onVersionTypeChanged: notifyUpdate(versionType);
-    }
-    Connections {
-        target: trayIcon
-
-        onMessageClicked: Qt.openUrlExternally(mediaTools.projectDownloadsUrl())
-    }
     Connections {
         target: videoLayer
 
@@ -595,6 +559,11 @@ ApplicationWindow {
         id: audioCodecOptions
         width: parent.width
         height: parent.height
+    }
+    UpdatesDialog {
+        id: updatesDialog
+
+        anchors.centerIn: Overlay.overlay
     }
     LABS.Settings {
         category: "GeneralConfigs"

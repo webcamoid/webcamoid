@@ -25,7 +25,6 @@
 #include <QQmlContext>
 #include <QSettings>
 #include <QStandardPaths>
-#include <QSystemTrayIcon>
 #include <ak.h>
 #include <akcaps.h>
 #include <akaudiocaps.h>
@@ -58,7 +57,6 @@ class MediaToolsPrivate
         VideoEffectsPtr m_videoEffects;
         RecordingPtr m_recording;
         UpdatesPtr m_updates;
-        QSystemTrayIcon *m_trayIcon {nullptr};
         CliOptions m_cliOptions;
         int m_windowWidth {0};
         int m_windowHeight {0};
@@ -70,7 +68,6 @@ MediaTools::MediaTools(QObject *parent):
     this->d = new MediaToolsPrivate;
 
     // Initialize environment.
-    this->d->m_trayIcon = new QSystemTrayIcon(QApplication::windowIcon(), this);
     this->d->m_engine = new QQmlApplicationEngine();
     this->d->m_engine->addImageProvider(QLatin1String("icons"),
                                         new IconsProvider);
@@ -355,16 +352,6 @@ void MediaTools::show()
     // @uri Webcamoid
     qmlRegisterType<VideoDisplay>("Webcamoid", 1, 0, "VideoDisplay");
     this->d->m_engine->rootContext()->setContextProperty("mediaTools", this);
-
-    // Map tray icon to QML
-    this->d->m_engine->rootContext()->setContextProperty("trayIcon", this->d->m_trayIcon);
-
-    // Map tray icon enums to QML
-    this->d->m_engine->rootContext()->setContextProperty("TrayIcon_NoIcon", QSystemTrayIcon::NoIcon);
-    this->d->m_engine->rootContext()->setContextProperty("TrayIcon_Information", QSystemTrayIcon::Information);
-    this->d->m_engine->rootContext()->setContextProperty("TrayIcon_Warning", QSystemTrayIcon::Warning);
-    this->d->m_engine->rootContext()->setContextProperty("TrayIcon_Critical", QSystemTrayIcon::Critical);
-
     this->d->m_engine->load(QUrl(QStringLiteral("qrc:/Webcamoid/share/qml/main.qml")));
 
     for (auto &obj: this->d->m_engine->rootObjects()) {
