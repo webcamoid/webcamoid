@@ -157,7 +157,7 @@
     <message>
         <location filename="../qml/AudioVideoPanel.qml" line="32"/>
         <source>Video Output Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Параметры видеовыхода</translation>
     </message>
 </context>
 <context>
@@ -839,7 +839,7 @@
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="142"/>
         <source>Edit Virtual Camera</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Изменить виртуальную камеру</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="143"/>
@@ -867,12 +867,12 @@
     <message>
         <location filename="../qml/VideoOutputOptions.qml" line="59"/>
         <source>Edit</source>
-        <translation type="unfinished">Редактировать</translation>
+        <translation>Редактировать</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputOptions.qml" line="70"/>
         <source>Remove</source>
-        <translation type="unfinished">Удалить</translation>
+        <translation>Удалить</translation>
     </message>
 </context>
 <context>
