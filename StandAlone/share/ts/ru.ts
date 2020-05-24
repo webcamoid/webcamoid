@@ -476,7 +476,7 @@
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="82"/>
         <source>Show updates dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Показать диалоговое окно обновления</translation>
     </message>
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="90"/>
@@ -544,17 +544,17 @@
     <message>
         <location filename="../qml/UpdatesDialog.qml" line="33"/>
         <source>New version available!</source>
-        <translation type="unfinished">Доступна новая версия !</translation>
+        <translation>Доступна новая версия!</translation>
     </message>
     <message>
         <location filename="../qml/UpdatesDialog.qml" line="61"/>
         <source>Download %1 %2 NOW!</source>
-        <translation type="unfinished">Скачать %1 %2 СЕЙЧАС!</translation>
+        <translation>Скачать %1 %2 СЕЙЧАС!</translation>
     </message>
     <message>
         <location filename="../qml/UpdatesDialog.qml" line="68"/>
         <source>Show this dialog next time</source>
-        <translation type="unfinished"></translation>
+        <translation>Показать это диалоговое окно в следующий раз</translation>
     </message>
 </context>
 <context>
@@ -652,60 +652,60 @@
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="55"/>
         <source>Edit Source</source>
-        <translation type="unfinished"></translation>
+        <translation>Изменить источник</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="56"/>
         <source>Add Source</source>
-        <translation type="unfinished"></translation>
+        <translation>Добавить источник</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="84"/>
         <source>File</source>
-        <translation type="unfinished">Файл</translation>
+        <translation>Файл</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="87"/>
         <location filename="../qml/VideoInputAddEdit.qml" line="170"/>
         <source>URL</source>
-        <translation type="unfinished">URL</translation>
+        <translation>URL</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="108"/>
         <location filename="../qml/VideoInputAddEdit.qml" line="156"/>
         <source>Description</source>
-        <translation type="unfinished">Описание</translation>
+        <translation>Описание</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="114"/>
         <location filename="../qml/VideoInputAddEdit.qml" line="162"/>
         <source>Source title</source>
-        <translation type="unfinished">Название источника</translation>
+        <translation>Название источника</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="122"/>
         <source>Path</source>
-        <translation type="unfinished">Путь</translation>
+        <translation>Путь</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="129"/>
         <source>File path</source>
-        <translation type="unfinished">Путь к файлу</translation>
+        <translation>Путь к файлу</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="136"/>
         <source>Search</source>
-        <translation type="unfinished">Поиск</translation>
+        <translation>Поиск</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="215"/>
         <source>Choose the file to add as source</source>
-        <translation type="unfinished">Выберите файл для добавления в качестве источника</translation>
+        <translation>Выберите файл для добавления в качестве источника</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="218"/>
         <source>All Video Files</source>
-        <translation type="unfinished">Все Видеофайлы</translation>
+        <translation>Все Видеофайлы</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="221"/>
@@ -783,7 +783,7 @@
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="238"/>
         <source>All Files</source>
-        <translation type="unfinished">Все файлы</translation>
+        <translation>Все файлы</translation>
     </message>
 </context>
 <context>
@@ -839,27 +839,27 @@
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="142"/>
         <source>Edit Virtual Camera</source>
-        <translation type="unfinished">Изменить виртуальную камеру</translation>
+        <translation>Изменить виртуальную камеру</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="143"/>
         <source>Add Virtual Camera</source>
-        <translation type="unfinished">Добавить виртуальную камеру</translation>
+        <translation>Добавить виртуальную камеру</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="168"/>
         <source>Virtual camera name</source>
-        <translation type="unfinished">Название виртуальной камеры</translation>
+        <translation>Название виртуальной камеры</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="177"/>
         <source>Add format</source>
-        <translation type="unfinished">Добавить формат</translation>
+        <translation>Добавить формат</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="187"/>
         <source>Clear formats</source>
-        <translation type="unfinished"></translation>
+        <translation>Очистить форматы</translation>
     </message>
 </context>
 <context>
