@@ -27,6 +27,7 @@
 #include <IOSurface/IOSurface.h>
 #include <CoreMedia/CMFormatDescription.h>
 #include <xpc/connection.h>
+#include <libproc.h>
 
 #include "ipcbridge.h"
 #include "../../Assistant/src/assistantglobals.h"
@@ -665,12 +666,50 @@ std::vector<std::string> AkVCam::IpcBridge::listeners(const std::string &deviceI
 
 std::vector<uint64_t> AkVCam::IpcBridge::clientsPids() const
 {
-    return {};
+    auto driverPath = this->d->locateDriverPath();
+
+    if (driverPath.empty())
+        return {};
+
+    auto plugin = this->d->fileName(driverPath);
+    std::wstring pluginPath =
+            CMIO_PLUGINS_DAL_PATH_L L"/"
+            + plugin
+            + L"/Contents/MacOS/" CMIO_PLUGIN_NAME_L;
+    std::string path(pluginPath.begin(), pluginPath.end());
+    auto npids = proc_listpidspath(PROC_ALL_PIDS,
+                                   0,
+                                   path.c_str(),
+                                   0,
+                                   nullptr,
+                                   0);
+    pid_t pidsvec[npids];
+    memset(pidsvec, 0, npids * sizeof(pid_t));
+    proc_listpidspath(PROC_ALL_PIDS,
+                      0,
+                      path.c_str(),
+                      0,
+                      pidsvec,
+                      npids * sizeof(pid_t));
+    std::vector<uint64_t> pids;
+
+    for (int i = 0; i < npids; i++) {
+        auto it = std::find(pids.begin(), pids.end(), pidsvec[i]);
+
+        if (pidsvec[i] > 0 && it == pids.end())
+            pids.push_back(pidsvec[i]);
+    }
+
+    return pids;
 }
 
 std::string AkVCam::IpcBridge::clientExe(uint64_t pid) const
 {
-    return {};
+    char path[4096];
+    memset(path, 0, 4096);
+    proc_pidpath(pid, path, 4096);
+
+    return {path};
 }
 
 std::string AkVCam::IpcBridge::deviceCreate(const std::wstring &description,

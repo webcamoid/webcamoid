@@ -120,6 +120,9 @@ class VideoLayer: public QObject
         Q_INVOKABLE QString createOutput(OutputType type,
                                          const QString &description,
                                          const AkVideoCapsList &formats);
+        Q_INVOKABLE QString createOutput(OutputType type,
+                                         const QString &description,
+                                         const QVariantList &formats);
         Q_INVOKABLE bool editOutput(const QString &output,
                                     const QString &description,
                                     const AkVideoCapsList &formats);

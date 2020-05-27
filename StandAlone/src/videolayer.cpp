@@ -291,6 +291,18 @@ QString VideoLayer::createOutput(VideoLayer::OutputType type,
     return deviceId;
 }
 
+QString VideoLayer::createOutput(VideoLayer::OutputType type,
+                                 const QString &description,
+                                 const QVariantList &formats)
+{
+    AkVideoCapsList fmts;
+
+    for (auto &format: formats)
+        fmts << format.value<AkVideoCaps>();
+
+    return this->createOutput(type, description, fmts);
+}
+
 bool VideoLayer::editOutput(const QString &output,
                             const QString &description,
                             const AkVideoCapsList &formats)

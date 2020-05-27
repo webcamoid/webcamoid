@@ -891,7 +891,7 @@
     </message>
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="241"/>
-        <source>Error Additing The Virtual Camera</source>
+        <source>Error Adding The Virtual Camera</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
