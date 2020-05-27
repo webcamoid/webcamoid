@@ -410,6 +410,30 @@ void VideoLayer::removeInterface(const QString &where) const
     }
 }
 
+QList<quint64> VideoLayer::clientsPids() const
+{
+    if (!this->d->m_cameraOutput)
+        return {};
+
+    auto pids = this->d->m_cameraOutput->property("clientsPids");
+
+    return pids.value<QList<quint64>>();
+}
+
+QString VideoLayer::clientExe(quint64 pid) const
+{
+    if (!this->d->m_cameraOutput)
+        return {};
+
+    QString exe;
+    QMetaObject::invokeMethod(this->d->m_cameraOutput.data(),
+                              "clientExe",
+                              Q_RETURN_ARG(QString, exe),
+                              Q_ARG(quint64, pid));
+
+    return exe;
+}
+
 void VideoLayer::setInputStream(const QString &stream,
                                 const QString &description)
 {

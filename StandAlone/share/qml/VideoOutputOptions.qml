@@ -27,6 +27,7 @@ ScrollView {
 
     property string videoOutput: ""
 
+    signal openErrorDialog(string title, string message)
     signal openVideoOutputAddEditDialog(string videoOutput)
     signal videoOutputRemoved()
 
@@ -64,7 +65,15 @@ ScrollView {
             Layout.rightMargin:
                 AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
 
-            onClicked: view.openVideoOutputAddEditDialog(view.videoOutput)
+            onClicked: {
+                if (videoLayer.clientsPids.length < 1) {
+                    view.openVideoOutputAddEditDialog(view.videoOutput)
+                } else {
+                    let title = qsTr("Can't Edit The Virtual Camera")
+                    let message = Commons.vcamDriverBusyMessage()
+                    view.openErrorDialog(title, message)
+                }
+            }
         }
         Button {
             text: qsTr("Remove")
@@ -76,9 +85,15 @@ ScrollView {
                 AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
 
             onClicked: {
-                videoLayer.removeInterface("itmVideoOutputOptions")
-                videoLayer.removeOutput(view.videoOutput)
-                view.videoOutputRemoved()
+                if (videoLayer.clientsPids.length < 1) {
+                    videoLayer.removeInterface("itmVideoOutputOptions")
+                    videoLayer.removeOutput(view.videoOutput)
+                    view.videoOutputRemoved()
+                } else {
+                    let title = qsTr("Can't Remove The Virtual Camera")
+                    let message = Commons.vcamDriverBusyMessage()
+                    view.openErrorDialog(title, message)
+                }
             }
         }
         ColumnLayout {

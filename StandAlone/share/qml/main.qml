@@ -434,6 +434,8 @@ ApplicationWindow {
     }
     AudioVideoPanel {
         id: audioVideoPanel
+
+        onOpenErrorDialog: videoOutputError.openError(title, message)
     }
 
     SequentialAnimation {
@@ -559,6 +561,11 @@ ApplicationWindow {
         id: audioCodecOptions
         width: parent.width
         height: parent.height
+    }
+    VideoOutputError {
+        id: videoOutputError
+
+        anchors.centerIn: Overlay.overlay
     }
     UpdatesDialog {
         id: updatesDialog

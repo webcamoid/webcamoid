@@ -32,6 +32,8 @@ OptionsPanel {
                qsTr("Video Output Options")
     edge: Qt.RightEdge
 
+    signal openErrorDialog(string title, string message)
+
     function previousPage()
     {
         let item = layout.children[layout.currentIndex]
@@ -64,6 +66,7 @@ OptionsPanel {
         AudioOptions {
         }
         VideoOptions {
+            onOpenErrorDialog: panel.openErrorDialog(title, message)
             onOpenVideoInputAddEditDialog:
                 videoInputAddEdit.openOptions(videoInput)
             onOpenVideoOutputAddEditDialog:
@@ -101,6 +104,7 @@ OptionsPanel {
                 layout.currentIndex -= 2
             }
 
+            onOpenErrorDialog: panel.openErrorDialog(title, message)
             onOpenVideoOutputAddEditDialog:
                 videoOutputAddEdit.openOptions(videoOutput)
             onVideoOutputRemoved: closeOption()
@@ -117,10 +121,8 @@ OptionsPanel {
         id: videoOutputAddEdit
         anchors.centerIn: Overlay.overlay
 
-        onOpenOutputFormatDialog: {
-            addVideoFormat.openOptions(index, caps)
-        }
-
+        onOpenErrorDialog: panel.openErrorDialog(title, message)
+        onOpenOutputFormatDialog: addVideoFormat.openOptions(index, caps)
         onEdited: videoOutputOptions.closeOption()
     }
     AddVideoFormat {

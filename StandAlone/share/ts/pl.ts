@@ -161,6 +161,19 @@
     </message>
 </context>
 <context>
+    <name>Commons</name>
+    <message>
+        <location filename="../qml/Commons.qml" line="28"/>
+        <source>The virtual camera is in use by the following applications:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/Commons.qml" line="40"/>
+        <source>Stop the camera in those applications or close them and try again.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>Contributors</name>
     <message>
         <location filename="../qml/Contributors.qml" line="36"/>
@@ -824,12 +837,12 @@
 <context>
     <name>VideoOptions</name>
     <message>
-        <location filename="../qml/VideoOptions.qml" line="37"/>
+        <location filename="../qml/VideoOptions.qml" line="38"/>
         <source>Sources</source>
         <translation>Źródła</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOptions.qml" line="40"/>
+        <location filename="../qml/VideoOptions.qml" line="41"/>
         <source>Outputs</source>
         <translation>Wyjścia</translation>
     </message>
@@ -837,53 +850,98 @@
 <context>
     <name>VideoOutputAddEdit</name>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="142"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="143"/>
         <source>Edit Virtual Camera</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="143"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="144"/>
         <source>Add Virtual Camera</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="168"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="169"/>
         <source>Virtual camera name</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="177"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="178"/>
         <source>Add format</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="187"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="188"/>
         <source>Clear formats</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="230"/>
+        <source>Can&apos;t Edit The Virtual Camera</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="231"/>
+        <source>Can&apos;t Add The Virtual Camera</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="240"/>
+        <source>Error Editing The Virtual Camera</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="241"/>
+        <source>Error Additing The Virtual Camera</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="242"/>
+        <source>Camera description and formats can&apos;t be empty.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>VideoOutputOptions</name>
     <message>
-        <location filename="../qml/VideoOutputOptions.qml" line="59"/>
+        <location filename="../qml/VideoOutputOptions.qml" line="60"/>
         <source>Edit</source>
         <translation type="unfinished">Edycja</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputOptions.qml" line="70"/>
+        <location filename="../qml/VideoOutputOptions.qml" line="72"/>
+        <source>Can&apos;t Edit The Virtual Camera</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoOutputOptions.qml" line="79"/>
         <source>Remove</source>
         <translation type="unfinished">Usuń</translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoOutputOptions.qml" line="93"/>
+        <source>Can&apos;t Remove The Virtual Camera</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>VideoOutputs</name>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="35"/>
+        <location filename="../qml/VideoOutputs.qml" line="36"/>
         <source>Add output</source>
         <translation>Dodaj wyjście</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="42"/>
+        <location filename="../qml/VideoOutputs.qml" line="44"/>
+        <source>Error Creating Virtual Camera</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoOutputs.qml" line="59"/>
+        <source>Error Removing Virtual Cameras</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoOutputs.qml" line="51"/>
         <source>Remove all outputs</source>
         <translation type="unfinished"></translation>
     </message>

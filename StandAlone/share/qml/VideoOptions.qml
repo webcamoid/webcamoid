@@ -24,6 +24,7 @@ import QtQuick.Layouts 1.3
 ColumnLayout {
     id: videoOptions
 
+    signal openErrorDialog(string title, string message)
     signal openVideoInputAddEditDialog(string videoInput)
     signal openVideoOutputAddEditDialog(string videoOutput)
     signal openVideoInputOptions(string videoInput)
@@ -54,6 +55,7 @@ ColumnLayout {
                 videoOptions.openVideoInputOptions(videoInput)
         }
         VideoOutputs {
+            onOpenErrorDialog: videoOptions.openErrorDialog(title, message)
             onOpenVideoOutputAddEditDialog:
                 videoOptions.openVideoOutputAddEditDialog(videoOutput)
             onOpenVideoOutputOptions:

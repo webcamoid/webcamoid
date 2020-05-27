@@ -100,6 +100,9 @@ class VirtualCameraElement: public AkElement
                WRITE setSwapRgb
                RESET resetSwapRgb
                NOTIFY swapRgbChanged)
+    Q_PROPERTY(QList<quint64> clientsPids
+               READ clientsPids
+               CONSTANT)
 
     public:
         enum Scaling
@@ -153,6 +156,8 @@ class VirtualCameraElement: public AkElement
                                            const QString &description={}) const;
         Q_INVOKABLE bool removeWebcam(const QString &webcam);
         Q_INVOKABLE bool removeAllWebcams();
+        Q_INVOKABLE QList<quint64> clientsPids() const;
+        Q_INVOKABLE QString clientExe(quint64 pid) const;
 
     private:
         VirtualCameraElementPrivate *d;

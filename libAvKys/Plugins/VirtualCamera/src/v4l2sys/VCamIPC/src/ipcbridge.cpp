@@ -760,9 +760,76 @@ std::vector<std::string> AkVCam::IpcBridge::listeners(const std::string &deviceI
     return listeners;
 }
 
+std::vector<uint64_t> AkVCam::IpcBridge::clientsPids() const
+{
+    auto driver = QString::fromStdString(this->driver());
+
+    if (driver.isEmpty())
+        return {};
+
+    auto devices = this->d->devicesInfo(driver);
+    std::vector<uint64_t> clientsPids;
+
+    QDir procDir("/proc");
+    auto pids = procDir.entryList(QStringList() << "[0-9]*",
+                                  QDir::Dirs
+                                  | QDir::Readable
+                                  | QDir::NoSymLinks
+                                  | QDir::NoDotAndDotDot,
+                                  QDir::Name);
+
+    for (auto &pidStr: pids) {
+        bool ok = false;
+        auto pid = pidStr.toULongLong(&ok);
+
+        if (!ok)
+            continue;
+
+        QStringList videoDevices;
+        QDir fdDir(QString("/proc/%1/fd").arg(pid));
+        auto fds = fdDir.entryList(QStringList() << "[0-9]*",
+                                   QDir::Files
+                                   | QDir::Readable
+                                   | QDir::NoDotAndDotDot,
+                                   QDir::Name);
+
+        for (auto &fd: fds) {
+            QFileInfo fdInfo(fdDir.absoluteFilePath(fd));
+            QString target = fdInfo.isSymLink()? fdInfo.symLinkTarget(): "";
+
+            if (QRegExp("/dev/video[0-9]+").exactMatch(target))
+                videoDevices << target;
+        }
+
+        for (auto &device: devices)
+            if (videoDevices.contains(device.path)) {
+                clientsPids.push_back(pid);
+
+                break;
+            }
+    }
+
+    std::sort(clientsPids.begin(), clientsPids.end());
+
+    return clientsPids;
+}
+
+std::string AkVCam::IpcBridge::clientExe(uint64_t pid) const
+{
+    auto exe = QFileInfo(QString("/proc/%1/exe").arg(pid)).symLinkTarget();
+
+    return exe.toStdString();
+}
+
 std::string AkVCam::IpcBridge::deviceCreate(const std::wstring &description,
                                             const std::vector<VideoFormat> &formats)
 {
+    if (!this->clientsPids().empty()) {
+        this->d->m_error = L"The driver is in use";
+
+        return {};
+    }
+
     auto driver = QString::fromStdString(this->driver());
 
     if (driver.isEmpty())
@@ -780,10 +847,17 @@ std::string AkVCam::IpcBridge::deviceCreate(const std::wstring &description,
 
     return deviceId;
 }
+
 bool AkVCam::IpcBridge::deviceEdit(const std::string &deviceId,
                                    const std::wstring &description,
                                    const std::vector<VideoFormat> &formats)
 {
+    if (!this->clientsPids().empty()) {
+        this->d->m_error = L"The driver is in use";
+
+        return false;
+    }
+
     auto driver = QString::fromStdString(this->driver());
 
     if (driver.isEmpty())
@@ -802,27 +876,15 @@ bool AkVCam::IpcBridge::deviceEdit(const std::string &deviceId,
     return true;
 }
 
-bool AkVCam::IpcBridge::deviceDestroy(const std::string &deviceId)
-{
-    auto driver = this->d->deviceDriver(deviceId);
-
-    if (driver.isEmpty())
-        return false;
-
-    auto functions = this->d->functionsForDriver(driver);
-
-    if (!functions)
-        return false;
-
-    if (functions->deviceDestroy(deviceId))
-        this->d->updateDevices();
-
-    return true;
-}
-
 bool AkVCam::IpcBridge::changeDescription(const std::string &deviceId,
                                           const std::wstring &description)
 {
+    if (!this->clientsPids().empty()) {
+        this->d->m_error = L"The driver is in use";
+
+        return false;
+    }
+
     auto driver = this->d->deviceDriver(deviceId);
 
     if (driver.isEmpty())
@@ -841,8 +903,38 @@ bool AkVCam::IpcBridge::changeDescription(const std::string &deviceId,
     return true;
 }
 
+bool AkVCam::IpcBridge::deviceDestroy(const std::string &deviceId)
+{
+    if (!this->clientsPids().empty()) {
+        this->d->m_error = L"The driver is in use";
+
+        return false;
+    }
+
+    auto driver = this->d->deviceDriver(deviceId);
+
+    if (driver.isEmpty())
+        return false;
+
+    auto functions = this->d->functionsForDriver(driver);
+
+    if (!functions)
+        return false;
+
+    if (functions->deviceDestroy(deviceId))
+        this->d->updateDevices();
+
+    return true;
+}
+
 bool AkVCam::IpcBridge::destroyAllDevices()
 {
+    if (!this->clientsPids().empty()) {
+        this->d->m_error = L"The driver is in use";
+
+        return false;
+    }
+
     QTemporaryDir tempDir;
     QFile cmds(tempDir.path() + "/akvcam_exec.sh");
 
@@ -2327,14 +2419,13 @@ bool AkVCam::IpcBridgePrivate::waitForDevice(const QString &deviceId) const
 
 bool AkVCam::IpcBridgePrivate::waitForDevices(const QStringList &devices) const
 {
-    QStringList devicesFiles;
     QElapsedTimer etimer;
     bool result = false;
 
     etimer.start();
 
     while (etimer.elapsed() < 5000) {
-        devicesFiles = this->v4l2Devices();
+        auto devicesFiles = this->v4l2Devices();
 
         if (devicesFiles.size() == devices.size()) {
             result = true;

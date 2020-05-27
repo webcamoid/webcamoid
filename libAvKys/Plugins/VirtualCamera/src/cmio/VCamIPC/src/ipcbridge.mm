@@ -663,10 +663,26 @@ std::vector<std::string> AkVCam::IpcBridge::listeners(const std::string &deviceI
     return listeners;
 }
 
+std::vector<uint64_t> AkVCam::IpcBridge::clientsPids() const
+{
+    return {};
+}
+
+std::string AkVCam::IpcBridge::clientExe(uint64_t pid) const
+{
+    return {};
+}
+
 std::string AkVCam::IpcBridge::deviceCreate(const std::wstring &description,
                                             const std::vector<VideoFormat> &formats)
 {
     AkIpcBridgeLogMethod();
+
+    if (!this->clientsPids().empty()) {
+        this->d->m_error = L"The driver is in use";
+
+        return {};
+    }
 
     if (!this->d->checkDaemon())
         return {};
@@ -723,6 +739,12 @@ bool AkVCam::IpcBridge::deviceEdit(const std::string &deviceId,
 {
     AkIpcBridgeLogMethod();
 
+    if (!this->clientsPids().empty()) {
+        this->d->m_error = L"The driver is in use";
+
+        return false;
+    }
+
     this->d->m_uninstall = false;
     this->deviceDestroy(deviceId);
     this->d->m_uninstall = true;
@@ -736,31 +758,16 @@ bool AkVCam::IpcBridge::deviceEdit(const std::string &deviceId,
     return true;
 }
 
-bool AkVCam::IpcBridge::deviceDestroy(const std::string &deviceId)
-{
-    AkIpcBridgeLogMethod();
-
-    if (!this->d->m_serverMessagePort)
-        return false;
-
-    auto dictionary = xpc_dictionary_create(nullptr, nullptr, 0);
-    xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_DESTROY);
-    xpc_dictionary_set_string(dictionary, "device", deviceId.c_str());
-    xpc_connection_send_message(this->d->m_serverMessagePort,
-                                dictionary);
-    xpc_release(dictionary);
-
-    // If no devices are registered
-    if (this->d->m_uninstall && listDevices().empty())
-        this->d->uninstallPlugin();
-
-    return true;
-}
-
 bool AkVCam::IpcBridge::changeDescription(const std::string &deviceId,
                                           const std::wstring &description)
 {
     AkIpcBridgeLogMethod();
+
+    if (!this->clientsPids().empty()) {
+        this->d->m_error = L"The driver is in use";
+
+        return false;
+    }
 
     auto formats = this->formats(deviceId);
 
@@ -780,9 +787,42 @@ bool AkVCam::IpcBridge::changeDescription(const std::string &deviceId,
     return true;
 }
 
+bool AkVCam::IpcBridge::deviceDestroy(const std::string &deviceId)
+{
+    AkIpcBridgeLogMethod();
+
+    if (!this->clientsPids().empty()) {
+        this->d->m_error = L"The driver is in use";
+
+        return false;
+    }
+
+    if (!this->d->m_serverMessagePort)
+        return false;
+
+    auto dictionary = xpc_dictionary_create(nullptr, nullptr, 0);
+    xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_DESTROY);
+    xpc_dictionary_set_string(dictionary, "device", deviceId.c_str());
+    xpc_connection_send_message(this->d->m_serverMessagePort,
+                                dictionary);
+    xpc_release(dictionary);
+
+    // If no devices are registered
+    if (this->d->m_uninstall && listDevices().empty())
+        this->d->uninstallPlugin();
+
+    return true;
+}
+
 bool AkVCam::IpcBridge::destroyAllDevices()
 {
     AkIpcBridgeLogMethod();
+
+    if (!this->clientsPids().empty()) {
+        this->d->m_error = L"The driver is in use";
+
+        return false;
+    }
 
     for (auto &device: this->listDevices())
         this->deviceDestroy(device);

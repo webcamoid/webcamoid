@@ -393,6 +393,23 @@ bool VirtualCameraElement::removeAllWebcams()
     return ok;
 }
 
+QList<quint64> VirtualCameraElement::clientsPids() const
+{
+    QList<quint64> pids;
+
+    for (auto pid: this->d->m_ipcBridge.clientsPids())
+        pids << pid;
+
+    return pids;
+}
+
+QString VirtualCameraElement::clientExe(quint64 pid) const
+{
+    auto exe = this->d->m_ipcBridge.clientExe(pid);
+
+    return QString::fromStdString(exe);
+}
+
 QString VirtualCameraElement::controlInterfaceProvide(const QString &controlId) const
 {
     Q_UNUSED(controlId)

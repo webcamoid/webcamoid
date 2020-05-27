@@ -79,6 +79,9 @@ class VideoLayer: public QObject
                WRITE setOutputsAsInputs
                RESET resetOutputsAsInputs
                NOTIFY outputsAsInputsChanged)
+    Q_PROPERTY(QList<quint64> clientsPids
+               READ clientsPids
+               CONSTANT)
 
     public:
         enum InputType {
@@ -131,6 +134,8 @@ class VideoLayer: public QObject
                                              const QString &device,
                                              const QString &name={}) const;
         Q_INVOKABLE void removeInterface(const QString &where) const;
+        Q_INVOKABLE QList<quint64> clientsPids() const;
+        Q_INVOKABLE QString clientExe(quint64 pid) const;
 
     private:
         VideoLayerPrivate *d;

@@ -25,6 +25,7 @@ import Ak 1.0
 ScrollView {
     id: view
 
+    signal openErrorDialog(string title, string message)
     signal openVideoOutputAddEditDialog(string videoOutput)
     signal openVideoOutputOptions(string videoOutput)
 
@@ -36,14 +37,30 @@ ScrollView {
             icon.source: "image://icons/add"
             flat: true
 
-            onClicked: view.openVideoOutputAddEditDialog("")
+            onClicked: {
+                if (videoLayer.clientsPids.length < 1) {
+                    view.openVideoOutputAddEditDialog("")
+                } else {
+                    let title = qsTr("Error Creating Virtual Camera")
+                    let message = Commons.vcamDriverBusyMessage()
+                    view.openErrorDialog(title, message)
+                }
+            }
         }
         Button {
             text: qsTr("Remove all outputs")
             icon.source: "image://icons/no"
             flat: true
 
-            onClicked: videoLayer.removeAllOutputs()
+            onClicked: {
+                if (videoLayer.clientsPids.length < 1) {
+                    videoLayer.removeAllOutputs()
+                } else {
+                    let title = qsTr("Error Removing Virtual Cameras")
+                    let message = Commons.vcamDriverBusyMessage()
+                    view.openErrorDialog(title, message)
+                }
+            }
         }
         ListView {
             id: devicesList

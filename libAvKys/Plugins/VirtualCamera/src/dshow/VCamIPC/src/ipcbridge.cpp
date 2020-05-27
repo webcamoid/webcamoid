@@ -550,10 +550,26 @@ std::vector<std::string> AkVCam::IpcBridge::listeners(const std::string &deviceI
     return listeners;
 }
 
+std::vector<uint64_t> AkVCam::IpcBridge::clientsPids() const
+{
+    return {};
+}
+
+std::string AkVCam::IpcBridge::clientExe(uint64_t pid) const
+{
+    return {};
+}
+
 std::string AkVCam::IpcBridge::deviceCreate(const std::wstring &description,
                                             const std::vector<VideoFormat> &formats)
 {
     AkIpcBridgeLogMethod();
+
+    if (!this->clientsPids().empty()) {
+        this->d->m_error = L"The driver is in use";
+
+        return {};
+    }
 
     auto driverPath = this->d->locateDriverPath();
 
@@ -779,6 +795,12 @@ bool AkVCam::IpcBridge::deviceEdit(const std::string &deviceId,
 {
     AkIpcBridgeLogMethod();
 
+    if (!this->clientsPids().empty()) {
+        this->d->m_error = L"The driver is in use";
+
+        return {};
+    }
+
     auto camera = cameraFromId(std::wstring(deviceId.begin(), deviceId.end()));
 
     if (camera < 0)
@@ -901,9 +923,85 @@ bool AkVCam::IpcBridge::deviceEdit(const std::string &deviceId,
     return ok;
 }
 
+bool AkVCam::IpcBridge::changeDescription(const std::string &deviceId,
+                                          const std::wstring &description)
+{
+    AkIpcBridgeLogMethod();
+
+    if (!this->clientsPids().empty()) {
+        this->d->m_error = L"The driver is in use";
+
+        return false;
+    }
+
+    auto camera = cameraFromId(std::wstring(deviceId.begin(), deviceId.end()));
+
+    if (camera < 0)
+        return false;
+
+    auto driverPath = this->d->locateDriverPath();
+
+    if (driverPath.empty()) {
+        this->d->m_error = L"Driver not found";
+
+        return false;
+    }
+
+    std::wstringstream ss;
+    ss << L"@echo off" << std::endl;
+    ss << L"chcp " << GetACP() << std::endl;
+
+    auto driverInstallPath =
+            programFilesPath() + L"\\" DSHOW_PLUGIN_NAME_L L".plugin";
+    std::vector<std::wstring> installPaths;
+
+    for (auto path: this->d->findFiles(std::wstring(driverPath.begin(),
+                                                    driverPath.end()),
+                                       DSHOW_PLUGIN_NAME_L L".dll")) {
+        auto installPath = replace(path, driverPath, driverInstallPath);
+        installPaths.push_back(installPath);
+    }
+
+    ss << this->d->regAddLine(L"HKLM\\SOFTWARE\\Webcamoid\\VirtualCamera\\Cameras\\"
+                              + std::to_wstring(camera + 1),
+                              L"description",
+                              description,
+                              isWow64())
+       << std::endl;
+
+    for (auto path: installPaths)
+        ss << L"regsvr32 /s \"" << path << L"\"" << std::endl;
+
+    auto temp = tempPath();
+    auto scriptPath = std::string(temp.begin(), temp.end())
+                    + "\\device_change_description_"
+                    + timeStamp()
+                    + ".bat";
+    std::wfstream script;
+    script.imbue(std::locale(""));
+    script.open(scriptPath, std::ios_base::out | std::ios_base::trunc);
+    bool ok = false;
+
+    if (script.is_open()) {
+        script << ss.str();
+        script.close();
+        ok = this->d->sudo({"cmd", "/c", scriptPath}) == 0;
+        std::wstring wScriptPath(scriptPath.begin(), scriptPath.end());
+        DeleteFile(wScriptPath.c_str());
+    }
+
+    return ok;
+}
+
 bool AkVCam::IpcBridge::deviceDestroy(const std::string &deviceId)
 {
     AkIpcBridgeLogMethod();
+
+    if (!this->clientsPids().empty()) {
+        this->d->m_error = L"The driver is in use";
+
+        return false;
+    }
 
     auto camera = cameraFromId(std::wstring(deviceId.begin(), deviceId.end()));
 
@@ -1007,73 +1105,15 @@ bool AkVCam::IpcBridge::deviceDestroy(const std::string &deviceId)
     return true;
 }
 
-bool AkVCam::IpcBridge::changeDescription(const std::string &deviceId,
-                                          const std::wstring &description)
-{
-    AkIpcBridgeLogMethod();
-
-    auto camera = cameraFromId(std::wstring(deviceId.begin(), deviceId.end()));
-
-    if (camera < 0)
-        return false;
-
-    auto driverPath = this->d->locateDriverPath();
-
-    if (driverPath.empty()) {
-        this->d->m_error = L"Driver not found";
-
-        return false;
-    }
-
-    std::wstringstream ss;
-    ss << L"@echo off" << std::endl;
-    ss << L"chcp " << GetACP() << std::endl;
-
-    auto driverInstallPath =
-            programFilesPath() + L"\\" DSHOW_PLUGIN_NAME_L L".plugin";
-    std::vector<std::wstring> installPaths;
-
-    for (auto path: this->d->findFiles(std::wstring(driverPath.begin(),
-                                                    driverPath.end()),
-                                       DSHOW_PLUGIN_NAME_L L".dll")) {
-        auto installPath = replace(path, driverPath, driverInstallPath);
-        installPaths.push_back(installPath);
-    }
-
-    ss << this->d->regAddLine(L"HKLM\\SOFTWARE\\Webcamoid\\VirtualCamera\\Cameras\\"
-                              + std::to_wstring(camera + 1),
-                              L"description",
-                              description,
-                              isWow64())
-       << std::endl;
-
-    for (auto path: installPaths)
-        ss << L"regsvr32 /s \"" << path << L"\"" << std::endl;
-
-    auto temp = tempPath();
-    auto scriptPath = std::string(temp.begin(), temp.end())
-                    + "\\device_change_description_"
-                    + timeStamp()
-                    + ".bat";
-    std::wfstream script;
-    script.imbue(std::locale(""));
-    script.open(scriptPath, std::ios_base::out | std::ios_base::trunc);
-    bool ok = false;
-
-    if (script.is_open()) {
-        script << ss.str();
-        script.close();
-        ok = this->d->sudo({"cmd", "/c", scriptPath}) == 0;
-        std::wstring wScriptPath(scriptPath.begin(), scriptPath.end());
-        DeleteFile(wScriptPath.c_str());
-    }
-
-    return ok;
-}
-
 bool AkVCam::IpcBridge::destroyAllDevices()
 {
     AkIpcBridgeLogMethod();
+
+    if (!this->clientsPids().empty()) {
+        this->d->m_error = L"The driver is in use";
+
+        return false;
+    }
 
     auto driverPath = this->d->locateDriverPath();
 

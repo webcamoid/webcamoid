@@ -31,6 +31,7 @@ Dialog {
     modal: true
 
     signal edited()
+    signal openErrorDialog(string title, string message)
     signal openOutputFormatDialog(int index, variant caps)
 
     function addFormat(caps)
@@ -224,6 +225,26 @@ Dialog {
     }
 
     onAccepted: {
+        if (videoLayer.clientsPids.length > 0) {
+            let title = deviceId.text?
+                    qsTr("Can't Edit The Virtual Camera"):
+                    qsTr("Can't Add The Virtual Camera")
+            let message = Commons.vcamDriverBusyMessage()
+            addEdit.openErrorDialog(title, message)
+
+            return
+        }
+
+        if (vcamFormats.count < 1 || !deviceDescription.text) {
+            let title = deviceId.text?
+                    qsTr("Error Editing The Virtual Camera"):
+                    qsTr("Error Additing The Virtual Camera")
+            let message = qsTr("Camera description and formats can't be empty.")
+            addEdit.openErrorDialog(title, message)
+
+            return
+        }
+
         let formats = []
 
         for (let i = 0; i < vcamFormats.count; i++) {

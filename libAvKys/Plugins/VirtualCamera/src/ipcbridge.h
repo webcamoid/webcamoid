@@ -149,6 +149,12 @@ namespace AkVCam
             // Returns the clients that are capturing from a virtual camera.
             std::vector<std::string> listeners(const std::string &deviceId);
 
+            // Returns clients PIDs using the virtual devices.
+            std::vector<uint64_t> clientsPids() const;
+
+            // Returns client executable from PID.
+            std::string clientExe(uint64_t pid) const;
+
             /* Server */
 
             // Create a device definition.
@@ -160,12 +166,12 @@ namespace AkVCam
                             const std::wstring &description,
                             const std::vector<VideoFormat> &formats);
 
-            // Remove a device definition.
-            bool deviceDestroy(const std::string &deviceId);
-
             // Change device description.
             bool changeDescription(const std::string &deviceId,
                                    const std::wstring &description);
+
+            // Remove a device definition.
+            bool deviceDestroy(const std::string &deviceId);
 
             // Remove all device definitions.
             bool destroyAllDevices();

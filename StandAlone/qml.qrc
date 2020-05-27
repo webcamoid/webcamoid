@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/Webcamoid">
+        <file>share/qml/qmldir</file>
         <file>share/qml/About.qml</file>
         <file>share/qml/AddVideoFormat.qml</file>
         <file>share/qml/AudioCodecOptions.qml</file>
@@ -8,6 +9,7 @@
         <file>share/qml/AudioOptions.qml</file>
         <file>share/qml/AudioOutputs.qml</file>
         <file>share/qml/AudioVideoPanel.qml</file>
+        <file>share/qml/Commons.qml</file>
         <file>share/qml/Contributors.qml</file>
         <file>share/qml/DialogBox.qml</file>
         <file>share/qml/Flash.qml</file>
@@ -34,6 +36,7 @@
         <file>share/qml/VideoInputs.qml</file>
         <file>share/qml/VideoOptions.qml</file>
         <file>share/qml/VideoOutputAddEdit.qml</file>
+        <file>share/qml/VideoOutputError.qml</file>
         <file>share/qml/VideoOutputOptions.qml</file>
         <file>share/qml/VideoOutputs.qml</file>
         <file>share/qml/VideoRecording.qml</file>
