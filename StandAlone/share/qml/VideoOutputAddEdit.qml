@@ -238,7 +238,7 @@ Dialog {
         if (vcamFormats.count < 1 || !deviceDescription.text) {
             let title = deviceId.text?
                     qsTr("Error Editing The Virtual Camera"):
-                    qsTr("Error Additing The Virtual Camera")
+                    qsTr("Error Adding The Virtual Camera")
             let message = qsTr("Camera description and formats can't be empty.")
             addEdit.openErrorDialog(title, message)
 
