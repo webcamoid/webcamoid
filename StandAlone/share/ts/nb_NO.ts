@@ -34,32 +34,32 @@
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="42"/>
         <source>Add Video Format</source>
-        <translation type="unfinished"></translation>
+        <translation>Legg til videoformat</translation>
     </message>
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="43"/>
         <source>Change Video Format</source>
-        <translation type="unfinished"></translation>
+        <translation>Endre videoformat</translation>
     </message>
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="95"/>
         <source>Remove format</source>
-        <translation type="unfinished"></translation>
+        <translation>Fjern format</translation>
     </message>
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="106"/>
         <source>Format</source>
-        <translation type="unfinished"></translation>
+        <translation>Format</translation>
     </message>
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="115"/>
         <source>Width</source>
-        <translation type="unfinished"></translation>
+        <translation>Bredde</translation>
     </message>
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="126"/>
         <source>Height</source>
-        <translation type="unfinished"></translation>
+        <translation>Høyde</translation>
     </message>
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="137"/>
@@ -152,12 +152,12 @@
     <message>
         <location filename="../qml/AudioVideoPanel.qml" line="31"/>
         <source>Video Source Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Videokildeinnstillinger</translation>
     </message>
     <message>
         <location filename="../qml/AudioVideoPanel.qml" line="32"/>
         <source>Video Output Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Videoutdatainnstillinger</translation>
     </message>
 </context>
 <context>
@@ -165,12 +165,12 @@
     <message>
         <location filename="../qml/Commons.qml" line="28"/>
         <source>The virtual camera is in use by the following applications:</source>
-        <translation type="unfinished"></translation>
+        <translation>Det virtuelle kameraet er i bruk av følgende programmer:</translation>
     </message>
     <message>
         <location filename="../qml/Commons.qml" line="40"/>
         <source>Stop the camera in those applications or close them and try again.</source>
-        <translation type="unfinished"></translation>
+        <translation>Stopp kameraet i de programmene eller lukk dem og prøv igjen.</translation>
     </message>
 </context>
 <context>
@@ -365,7 +365,7 @@
     <message>
         <location filename="../../src/recording.cpp" line="372"/>
         <source>%1/Video %2.%3</source>
-        <translation type="unfinished"></translation>
+        <translation>%1/Video %2.%3</translation>
     </message>
 </context>
 <context>
@@ -607,7 +607,7 @@
     <message>
         <location filename="../qml/VideoEffectsDialog.qml" line="36"/>
         <source>Add video effect</source>
-        <translation type="unfinished"></translation>
+        <translation>Legg til videoeffekt</translation>
     </message>
     <message>
         <location filename="../qml/VideoEffectsDialog.qml" line="69"/>
@@ -626,12 +626,12 @@
     <message>
         <location filename="../qml/VideoEffectsList.qml" line="34"/>
         <source>Add effect</source>
-        <translation type="unfinished"></translation>
+        <translation>Legg til effekt</translation>
     </message>
     <message>
         <location filename="../qml/VideoEffectsList.qml" line="41"/>
         <source>Remove all effects</source>
-        <translation type="unfinished"></translation>
+        <translation>Fjern alle effekter</translation>
     </message>
 </context>
 <context>
@@ -644,7 +644,7 @@
     <message>
         <location filename="../qml/VideoEffectsPanel.qml" line="28"/>
         <source>%1 options</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 valg</translation>
     </message>
 </context>
 <context>
@@ -652,12 +652,12 @@
     <message>
         <location filename="../qml/VideoFormatOptions.qml" line="27"/>
         <source>Video Format Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Videoformatinnstillinger</translation>
     </message>
     <message>
         <location filename="../qml/VideoFormatOptions.qml" line="162"/>
         <source>File extension</source>
-        <translation type="unfinished"></translation>
+        <translation>Filendelse</translation>
     </message>
 </context>
 <context>
@@ -665,12 +665,12 @@
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="55"/>
         <source>Edit Source</source>
-        <translation type="unfinished"></translation>
+        <translation>Rediger kilde</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="56"/>
         <source>Add Source</source>
-        <translation type="unfinished"></translation>
+        <translation>Legg til kilde</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="84"/>
@@ -831,7 +831,7 @@
         <location filename="../../src/videolayer.cpp" line="249"/>
         <source>No Output</source>
         <extracomment>Disable video output, don&apos;t send the video to the output device.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ingen utdata</translation>
     </message>
 </context>
 <context>
@@ -852,27 +852,27 @@
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="143"/>
         <source>Edit Virtual Camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Rediger virtuelt kamera</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="144"/>
         <source>Add Virtual Camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Legg til virtuelt kamera</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="169"/>
         <source>Virtual camera name</source>
-        <translation type="unfinished"></translation>
+        <translation>Virtuelt kameranavn</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="178"/>
         <source>Add format</source>
-        <translation type="unfinished"></translation>
+        <translation>Legg til format</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="188"/>
         <source>Clear formats</source>
-        <translation type="unfinished"></translation>
+        <translation>Tøm formater</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="230"/>
