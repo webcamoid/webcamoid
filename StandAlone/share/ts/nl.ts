@@ -165,12 +165,12 @@
     <message>
         <location filename="../qml/Commons.qml" line="28"/>
         <source>The virtual camera is in use by the following applications:</source>
-        <translation type="unfinished"></translation>
+        <translation>De virtuele camera wordt momenteel gebruikt door de volgende programma&apos;s:</translation>
     </message>
     <message>
         <location filename="../qml/Commons.qml" line="40"/>
         <source>Stop the camera in those applications or close them and try again.</source>
-        <translation type="unfinished"></translation>
+        <translation>Stop de camera in die programma&apos;s of sluit ze af en probeer het opnieuw.</translation>
     </message>
 </context>
 <context>
@@ -877,27 +877,27 @@
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="230"/>
         <source>Can&apos;t Edit The Virtual Camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Kan virtuele camera niet aanpassen</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="231"/>
         <source>Can&apos;t Add The Virtual Camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Kan geen virtuele camera toevoegen</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="240"/>
         <source>Error Editing The Virtual Camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Fout tijdens aanpassen van virtuele camera</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="241"/>
         <source>Error Adding The Virtual Camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Fout tijdens toevoegen van virtuele camera</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="242"/>
         <source>Camera description and formats can&apos;t be empty.</source>
-        <translation type="unfinished"></translation>
+        <translation>Geef een camera-omschrijving en formaten op.</translation>
     </message>
 </context>
 <context>
@@ -910,7 +910,7 @@
     <message>
         <location filename="../qml/VideoOutputOptions.qml" line="72"/>
         <source>Can&apos;t Edit The Virtual Camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Kan virtuele camera niet aanpassen</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputOptions.qml" line="79"/>
@@ -920,7 +920,7 @@
     <message>
         <location filename="../qml/VideoOutputOptions.qml" line="93"/>
         <source>Can&apos;t Remove The Virtual Camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Kan virtuele camera niet verwijderen</translation>
     </message>
 </context>
 <context>
@@ -933,12 +933,12 @@
     <message>
         <location filename="../qml/VideoOutputs.qml" line="44"/>
         <source>Error Creating Virtual Camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Kan virtuele camera niet aanmaken</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="59"/>
         <source>Error Removing Virtual Cameras</source>
-        <translation type="unfinished"></translation>
+        <translation>Kan virtuele camera&apos;s niet verwijderen</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="51"/>
