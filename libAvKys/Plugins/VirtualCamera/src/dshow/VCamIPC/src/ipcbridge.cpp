@@ -25,6 +25,8 @@
 #include <sstream>
 #include <thread>
 #include <dshow.h>
+#include <psapi.h>
+#include <restartmanager.h>
 
 #include "ipcbridge.h"
 #include "PlatformUtils/src/messageserver.h"
@@ -552,12 +554,95 @@ std::vector<std::string> AkVCam::IpcBridge::listeners(const std::string &deviceI
 
 std::vector<uint64_t> AkVCam::IpcBridge::clientsPids() const
 {
-    return {};
+    auto driverPath = this->d->locateDriverPath();
+
+    if (driverPath.empty())
+        return {};
+
+    auto driverInstallPath =
+            programFilesPath() + L"\\" DSHOW_PLUGIN_NAME_L L".plugin";
+
+    std::vector<std::wstring> pluginsPaths;
+
+    for (auto path: this->d->findFiles(driverPath,
+                                       DSHOW_PLUGIN_NAME_L L".dll")) {
+        auto pluginPath = replace(path, driverPath, driverInstallPath);
+        pluginsPaths.push_back(pluginPath);
+    }
+
+    std::vector<uint64_t> pids;
+    DWORD sessionHnd = 0;
+    WCHAR sessionKey[CCH_RM_SESSION_KEY + 1];
+    memset(sessionKey, 0, (CCH_RM_SESSION_KEY + 1) * sizeof(WCHAR));
+
+    if (SUCCEEDED(RmStartSession(&sessionHnd, 0, sessionKey))) {
+        std::vector<LPCWSTR> resources;
+
+        for (auto &plugin: pluginsPaths)
+            resources.push_back(plugin.c_str());
+
+        if (SUCCEEDED(RmRegisterResources(sessionHnd,
+                                          UINT(resources.size()),
+                                          resources.data(),
+                                          0,
+                                          nullptr,
+                                          0,
+                                          nullptr))) {
+            UINT nProcInfoNeeded = 0;
+            UINT nProcInfo = 0;
+            DWORD rebootReasons = 0;
+
+            if (SUCCEEDED(RmGetList(sessionHnd,
+                                    &nProcInfoNeeded,
+                                    &nProcInfo,
+                                    nullptr,
+                                    &rebootReasons))) {
+                nProcInfo = nProcInfoNeeded;
+                nProcInfoNeeded = 0;
+                rebootReasons = 0;
+                std::vector<RM_PROCESS_INFO> affectedApps(nProcInfo);
+
+                if (SUCCEEDED(RmGetList(sessionHnd,
+                                        &nProcInfoNeeded,
+                                        &nProcInfo,
+                                        affectedApps.data(),
+                                        &rebootReasons))) {
+                    for (UINT i = 0; i < nProcInfo; i++) {
+                        auto pid = affectedApps[i].Process.dwProcessId;
+                        auto it = std::find(pids.begin(), pids.end(), pid);
+
+                        if (pid > 0 && it == pids.end())
+                            pids.push_back(pid);
+                    }
+                }
+            }
+        }
+
+        RmEndSession(sessionHnd);
+    }
+
+    return pids;
 }
 
 std::string AkVCam::IpcBridge::clientExe(uint64_t pid) const
 {
-    return {};
+    std::string exe;
+    auto processHnd = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION,
+                                  FALSE,
+                                  DWORD(pid));
+    if (processHnd) {
+        CHAR exeName[MAX_PATH];
+        memset(exeName, 0, MAX_PATH * sizeof(CHAR));
+        auto size =
+                GetModuleFileNameExA(processHnd, nullptr, exeName, MAX_PATH);
+
+        if (size > 0)
+            exe = std::string(exeName, size);
+
+        CloseHandle(processHnd);
+    }
+
+    return exe;
 }
 
 std::string AkVCam::IpcBridge::deviceCreate(const std::wstring &description,

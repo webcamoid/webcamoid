@@ -43,7 +43,10 @@ TEMPLATE = lib
 LIBS = \
     -L$${OUT_PWD}/../PlatformUtils/$${BIN_DIR} -lPlatformUtils \
     -L$${OUT_PWD}/../../VCamUtils/$${BIN_DIR} -lVCamUtils \
-    -ladvapi32
+    -ladvapi32 \
+    -lkernel32 \
+    -lpsapi \
+    -lrstrtmgr
 
 win32-g++: LIBS += -lssp
 
