@@ -723,75 +723,75 @@
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="221"/>
         <source>3GP Video</source>
-        <translation type="unfinished">3GP видео</translation>
+        <translation>Видео 3GP</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="222"/>
         <source>AVI Video</source>
-        <translation type="unfinished">AVI видео</translation>
+        <translation>Видео AVI</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="224"/>
         <source>Flash Video</source>
         <extracomment>Adobe FLV Flash video</extracomment>
-        <translation type="unfinished">Flash Video</translation>
+        <translation>Flash Video</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="225"/>
         <source>Animated GIF</source>
-        <translation type="unfinished">Анимированный GIF</translation>
+        <translation>Анимированный GIF</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="226"/>
         <source>MKV Video</source>
-        <translation type="unfinished">MKV видео</translation>
+        <translation>Видео MKV</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="227"/>
         <source>Animated PNG</source>
-        <translation type="unfinished">Анимированный PNG</translation>
+        <translation>Анимированный PNG</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="228"/>
         <source>QuickTime Video</source>
-        <translation type="unfinished">Видео QuickTime</translation>
+        <translation>Видео QuickTime</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="229"/>
         <source>MP4 Video</source>
-        <translation type="unfinished">MP4 видео</translation>
+        <translation>Видео MP4</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="230"/>
         <source>MPEG Video</source>
-        <translation type="unfinished">MPEG видео</translation>
+        <translation>Видео MPEG</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="231"/>
         <source>Ogg Video</source>
-        <translation type="unfinished">Ogg Видео</translation>
+        <translation>Видео Ogg</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="233"/>
         <source>RealMedia Video</source>
         <extracomment>Don&apos;t translate &quot;RealMedia&quot;, leave it as is.</extracomment>
-        <translation type="unfinished">Видео RealMedia</translation>
+        <translation>Видео RealMedia</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="234"/>
         <source>DVD Video</source>
-        <translation type="unfinished">Видео DVD</translation>
+        <translation>Видео DVD</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="235"/>
         <source>WebM Video</source>
-        <translation type="unfinished">WebM видео</translation>
+        <translation>Видео WebM</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="237"/>
         <source>Windows Media Video</source>
         <extracomment>Also known as WMV, is a video file format.</extracomment>
-        <translation type="unfinished">Windows Media Video</translation>
+        <translation>Видео Windows Media</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="238"/>
