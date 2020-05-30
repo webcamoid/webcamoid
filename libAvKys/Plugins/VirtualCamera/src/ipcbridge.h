@@ -42,6 +42,14 @@ namespace AkVCam
                 ServerStateGone
             };
 
+            enum Operation
+            {
+                OperationCreate,
+                OperationEdit,
+                OperationDestroy,
+                OperationDestroyAll
+            };
+
             AKVCAM_SIGNAL(ServerStateChanged,
                           ServerState state)
             AKVCAM_SIGNAL(FrameReady,
@@ -154,6 +162,13 @@ namespace AkVCam
 
             // Returns client executable from PID.
             std::string clientExe(uint64_t pid) const;
+
+            // Returns 'true' if the application needs to be restarted before
+            // creating, editing, or removing the virtual devices.
+            bool needsRestart(Operation operation) const;
+
+            // Can create, edit, or remove virtual devices?
+            bool canApply(Operation operation) const;
 
             /* Server */
 

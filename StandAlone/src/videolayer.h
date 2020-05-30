@@ -36,6 +36,7 @@ class VideoLayer: public QObject
     Q_OBJECT
     Q_ENUMS(InputType)
     Q_ENUMS(OutputType)
+    Q_ENUMS(Operation)
     Q_PROPERTY(QString videoInput
                READ videoInput
                WRITE setVideoInput
@@ -95,6 +96,14 @@ class VideoLayer: public QObject
             OutputVirtualCamera,
         };
 
+        enum Operation
+        {
+            OperationCreate,
+            OperationEdit,
+            OperationDestroy,
+            OperationDestroyAll
+        };
+
         VideoLayer(QQmlApplicationEngine *engine=nullptr,
                    QObject *parent=nullptr);
         VideoLayer(const CliOptions &cliOptions,
@@ -139,6 +148,8 @@ class VideoLayer: public QObject
         Q_INVOKABLE void removeInterface(const QString &where) const;
         Q_INVOKABLE QList<quint64> clientsPids() const;
         Q_INVOKABLE QString clientExe(quint64 pid) const;
+        Q_INVOKABLE bool needsRestart(Operation operation) const;
+        Q_INVOKABLE bool canApply(Operation operation) const;
 
     private:
         VideoLayerPrivate *d;
@@ -186,5 +197,6 @@ class VideoLayer: public QObject
 
 Q_DECLARE_METATYPE(VideoLayer::InputType)
 Q_DECLARE_METATYPE(VideoLayer::OutputType)
+Q_DECLARE_METATYPE(VideoLayer::Operation)
 
 #endif // VIDEOLAYER_H

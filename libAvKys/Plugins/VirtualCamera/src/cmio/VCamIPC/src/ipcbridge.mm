@@ -691,12 +691,13 @@ std::vector<uint64_t> AkVCam::IpcBridge::clientsPids() const
                       0,
                       pidsvec,
                       npids * sizeof(pid_t));
+    auto currentPid = getpid();
     std::vector<uint64_t> pids;
 
     for (int i = 0; i < npids; i++) {
         auto it = std::find(pids.begin(), pids.end(), pidsvec[i]);
 
-        if (pidsvec[i] > 0 && it == pids.end())
+        if (pidsvec[i] > 0 && it == pids.end() && pidsvec[i] != currentPid)
             pids.push_back(pidsvec[i]);
     }
 
@@ -712,12 +713,24 @@ std::string AkVCam::IpcBridge::clientExe(uint64_t pid) const
     return {path};
 }
 
+bool AkVCam::IpcBridge::needsRestart(Operation operation) const
+{
+    return operation == OperationDestroyAll
+            || ((operation == OperationDestroy || operation == OperationEdit)
+                && this->listDevices().size() == 1);
+}
+
+bool AkVCam::IpcBridge::canApply(AkVCam::IpcBridge::Operation operation) const
+{
+    return this->clientsPids().empty() && !this->needsRestart(operation);
+}
+
 std::string AkVCam::IpcBridge::deviceCreate(const std::wstring &description,
                                             const std::vector<VideoFormat> &formats)
 {
     AkIpcBridgeLogMethod();
 
-    if (!this->clientsPids().empty()) {
+    if (!this->canApply(OperationCreate)) {
         this->d->m_error = L"The driver is in use";
 
         return {};
@@ -778,7 +791,7 @@ bool AkVCam::IpcBridge::deviceEdit(const std::string &deviceId,
 {
     AkIpcBridgeLogMethod();
 
-    if (!this->clientsPids().empty()) {
+    if (!this->canApply(OperationEdit)) {
         this->d->m_error = L"The driver is in use";
 
         return false;
@@ -802,7 +815,7 @@ bool AkVCam::IpcBridge::changeDescription(const std::string &deviceId,
 {
     AkIpcBridgeLogMethod();
 
-    if (!this->clientsPids().empty()) {
+    if (!this->canApply(OperationEdit)) {
         this->d->m_error = L"The driver is in use";
 
         return false;
@@ -830,7 +843,7 @@ bool AkVCam::IpcBridge::deviceDestroy(const std::string &deviceId)
 {
     AkIpcBridgeLogMethod();
 
-    if (!this->clientsPids().empty()) {
+    if (!this->canApply(OperationDestroy)) {
         this->d->m_error = L"The driver is in use";
 
         return false;
@@ -857,7 +870,7 @@ bool AkVCam::IpcBridge::destroyAllDevices()
 {
     AkIpcBridgeLogMethod();
 
-    if (!this->clientsPids().empty()) {
+    if (!this->canApply(OperationDestroyAll)) {
         this->d->m_error = L"The driver is in use";
 
         return false;

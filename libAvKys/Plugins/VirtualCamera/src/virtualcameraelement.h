@@ -118,6 +118,14 @@ class VirtualCameraElement: public AkElement
             AspectRatioExpanding
         };
 
+        enum Operation
+        {
+            OperationCreate,
+            OperationEdit,
+            OperationDestroy,
+            OperationDestroyAll
+        };
+
         VirtualCameraElement();
         ~VirtualCameraElement();
 
@@ -158,6 +166,8 @@ class VirtualCameraElement: public AkElement
         Q_INVOKABLE bool removeAllWebcams();
         Q_INVOKABLE QList<quint64> clientsPids() const;
         Q_INVOKABLE QString clientExe(quint64 pid) const;
+        Q_INVOKABLE bool needsRestart(Operation operation) const;
+        Q_INVOKABLE bool canApply(Operation operation) const;
 
     private:
         VirtualCameraElementPrivate *d;
@@ -221,5 +231,6 @@ class VirtualCameraElement: public AkElement
 
 Q_DECLARE_METATYPE(VirtualCameraElement::Scaling)
 Q_DECLARE_METATYPE(VirtualCameraElement::AspectRatio)
+Q_DECLARE_METATYPE(VirtualCameraElement::Operation)
 
 #endif // VIRTUALCAMERAELEMENT_H

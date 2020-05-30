@@ -21,6 +21,7 @@ import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
 import Ak 1.0
+import Webcamoid 1.0
 
 ScrollView {
     id: view
@@ -66,7 +67,7 @@ ScrollView {
                 AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
 
             onClicked: {
-                if (videoLayer.clientsPids.length < 1) {
+                if (videoLayer.canApply(VideoLayer.OperationEdit)) {
                     view.openVideoOutputAddEditDialog(view.videoOutput)
                 } else {
                     let title = qsTr("Can't Edit The Virtual Camera")
@@ -85,7 +86,7 @@ ScrollView {
                 AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
 
             onClicked: {
-                if (videoLayer.clientsPids.length < 1) {
+                if (videoLayer.canApply(VideoLayer.OperationDestroy)) {
                     videoLayer.removeInterface("itmVideoOutputOptions")
                     videoLayer.removeOutput(view.videoOutput)
                     view.videoOutputRemoved()

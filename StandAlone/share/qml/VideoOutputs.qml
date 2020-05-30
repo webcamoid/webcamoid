@@ -21,6 +21,7 @@ import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
 import Ak 1.0
+import Webcamoid 1.0
 
 ScrollView {
     id: view
@@ -38,7 +39,7 @@ ScrollView {
             flat: true
 
             onClicked: {
-                if (videoLayer.clientsPids.length < 1) {
+                if (videoLayer.canApply(VideoLayer.OperationCreate)) {
                     view.openVideoOutputAddEditDialog("")
                 } else {
                     let title = qsTr("Error Creating Virtual Camera")
@@ -53,7 +54,7 @@ ScrollView {
             flat: true
 
             onClicked: {
-                if (videoLayer.clientsPids.length < 1) {
+                if (videoLayer.canApply(VideoLayer.OperationDestroyAll)) {
                     videoLayer.removeAllOutputs()
                 } else {
                     let title = qsTr("Error Removing Virtual Cameras")

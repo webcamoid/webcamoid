@@ -62,8 +62,6 @@ class VirtualCameraElementPrivate
                                        AkVCam::IpcBridge::ServerState state);
         static inline int roundTo(int value, int n);
         static inline const PixelFormatMap &akToVCamPixelFormatMap();
-        static inline const ScalingMap &akToVCamScalingMap();
-        static inline const AspectRatioMap &akToVCamAspectRatioMap();
 };
 
 VirtualCameraElement::VirtualCameraElement():
@@ -185,22 +183,16 @@ VirtualCameraElement::Scaling VirtualCameraElement::scalingMode() const
 {
     auto scalingMode =
             this->d->m_ipcBridge.scalingMode(this->d->m_curDevice.toStdString());
-    auto vcamScalingMode =
-            VirtualCameraElementPrivate::akToVCamScalingMap().key(scalingMode,
-                                                                  ScalingFast);
 
-    return vcamScalingMode;
+    return Scaling(scalingMode);
 }
 
 VirtualCameraElement::AspectRatio VirtualCameraElement::aspectRatioMode() const
 {
     auto aspectRatio =
             this->d->m_ipcBridge.aspectRatioMode(this->d->m_curDevice.toStdString());
-    auto vcamAspectRatio =
-            VirtualCameraElementPrivate::akToVCamAspectRatioMap().key(aspectRatio,
-                                                                      AspectRatioIgnore);
 
-    return vcamAspectRatio;
+    return AspectRatio(aspectRatio);
 }
 
 bool VirtualCameraElement::swapRgb() const
@@ -410,6 +402,16 @@ QString VirtualCameraElement::clientExe(quint64 pid) const
     return QString::fromStdString(exe);
 }
 
+bool VirtualCameraElement::needsRestart(Operation operation) const
+{
+    return this->d->m_ipcBridge.needsRestart(AkVCam::IpcBridge::Operation(operation));
+}
+
+bool VirtualCameraElement::canApply(Operation operation) const
+{
+    return this->d->m_ipcBridge.canApply(AkVCam::IpcBridge::Operation(operation));
+}
+
 QString VirtualCameraElement::controlInterfaceProvide(const QString &controlId) const
 {
     Q_UNUSED(controlId)
@@ -583,9 +585,7 @@ void VirtualCameraElement::setScalingMode(Scaling scalingMode)
 {
     auto device = this->d->m_curDevice.toStdString();
     auto scalingMode_ = this->d->m_ipcBridge.scalingMode(device);
-    auto vcamScalingMode =
-            VirtualCameraElementPrivate::akToVCamScalingMap().value(scalingMode,
-                                                                    AkVCam::ScalingFast);
+    auto vcamScalingMode = AkVCam::Scaling(scalingMode);
 
     if (scalingMode_ == vcamScalingMode)
         return;
@@ -598,9 +598,7 @@ void VirtualCameraElement::setAspectRatioMode(AspectRatio aspectRatioMode)
 {
     auto device = this->d->m_curDevice.toStdString();
     auto aspectRatioMode_ = this->d->m_ipcBridge.aspectRatioMode(device);
-    auto vcamAspectRatioMode =
-            VirtualCameraElementPrivate::akToVCamAspectRatioMap().value(aspectRatioMode,
-                                                                        AkVCam::AspectRatioIgnore);
+    auto vcamAspectRatioMode = AkVCam::AspectRatio(aspectRatioMode);
 
     if (aspectRatioMode_ == vcamAspectRatioMode)
         return;
@@ -709,7 +707,8 @@ void VirtualCameraElement::clearStreams()
 void VirtualCameraElement::registerTypes()
 {
     qRegisterMetaType<Scaling>("Scaling");
-    qRegisterMetaTypeStreamOperators<AspectRatio>("AspectRatio");
+    qRegisterMetaType<AspectRatio>("AspectRatio");
+    qRegisterMetaType<Operation>("Operation");
     qmlRegisterSingletonType<VirtualCameraElement>("AkPluginVirtualCamera", 1, 0, "VirtualCamera",
                                         [] (QQmlEngine *qmlEngine,
                                             QJSEngine *jsEngine) -> QObject * {
@@ -916,27 +915,6 @@ const PixelFormatMap &VirtualCameraElementPrivate::akToVCamPixelFormatMap()
     };
 
     return pixelFormatMap;
-}
-
-const ScalingMap &VirtualCameraElementPrivate::akToVCamScalingMap()
-{
-    static const ScalingMap scalingMap {
-        {VirtualCameraElement::ScalingFast  , AkVCam::ScalingFast  },
-        {VirtualCameraElement::ScalingLinear, AkVCam::ScalingLinear}
-    };
-
-    return scalingMap;
-}
-
-const AspectRatioMap &VirtualCameraElementPrivate::akToVCamAspectRatioMap()
-{
-    static const AspectRatioMap aspectRatioMap {
-        {VirtualCameraElement::AspectRatioIgnore   , AkVCam::AspectRatioIgnore   },
-        {VirtualCameraElement::AspectRatioKeep     , AkVCam::AspectRatioKeep     },
-        {VirtualCameraElement::AspectRatioExpanding, AkVCam::AspectRatioExpanding}
-    };
-
-    return aspectRatioMap;
 }
 
 #include "moc_virtualcameraelement.cpp"

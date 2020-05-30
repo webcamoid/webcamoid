@@ -446,6 +446,34 @@ QString VideoLayer::clientExe(quint64 pid) const
     return exe;
 }
 
+bool VideoLayer::needsRestart(Operation operation) const
+{
+    if (!this->d->m_cameraOutput)
+        return {};
+
+    bool result = false;
+    QMetaObject::invokeMethod(this->d->m_cameraOutput.data(),
+                              "needsRestart",
+                              Q_RETURN_ARG(bool, result),
+                              Q_ARG(Operation, operation));
+
+    return result;
+}
+
+bool VideoLayer::canApply(Operation operation) const
+{
+    if (!this->d->m_cameraOutput)
+        return {};
+
+    bool result = false;
+    QMetaObject::invokeMethod(this->d->m_cameraOutput.data(),
+                              "canApply",
+                              Q_RETURN_ARG(bool, result),
+                              Q_ARG(Operation, operation));
+
+    return result;
+}
+
 void VideoLayer::setInputStream(const QString &stream,
                                 const QString &description)
 {
