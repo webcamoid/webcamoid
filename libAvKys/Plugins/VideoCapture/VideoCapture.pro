@@ -23,6 +23,7 @@ CONFIG(debug, debug|release): CONFIG += ordered
 SUBDIRS = src src/generic
 android: SUBDIRS += src/androidcamera
 CONFIG(config_avfoundation): SUBDIRS += src/avfoundation
+CONFIG(config_cmio): SUBDIRS += src/cmio
 CONFIG(config_dshow): SUBDIRS += src/dshow
 CONFIG(config_ffmpeg): SUBDIRS += src/ffmpeg
 CONFIG(config_gstreamer): SUBDIRS += src/gstreamer

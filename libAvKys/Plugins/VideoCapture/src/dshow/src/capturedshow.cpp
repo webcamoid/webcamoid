@@ -1293,6 +1293,11 @@ void CaptureDShowPrivate::updateDevices()
         pEnum->Release();
     }
 
+    if (devicesCaps.isEmpty()) {
+        devices.clear();
+        descriptions.clear();
+    }
+
     this->m_descriptions = descriptions;
     this->m_devicesCaps = devicesCaps;
 

@@ -326,6 +326,7 @@ AkPacket CaptureAvFoundation::readFrame()
     auto imageBuffer = CMSampleBufferGetImageBuffer(this->d->m_curFrame);
     auto dataBuffer = CMSampleBufferGetDataBuffer(this->d->m_curFrame);
     auto caps = this->d->capsFromFrameSampleBuffer(this->d->m_curFrame);
+    caps.setProperty("fps", this->d->m_timeBase.invert().toString());
 
     if (imageBuffer) {
         size_t dataSize = CVPixelBufferGetDataSize(imageBuffer);
@@ -750,15 +751,21 @@ void CaptureAvFoundation::updateDevices()
         }
     }
 
-    if (this->d->m_devices != devices) {
-        this->d->m_devices = devices;
-        emit this->webcamsChanged(devices);
+    if (devicesCaps.isEmpty()) {
+        devices.clear();
+        modelId.clear();
+        descriptions.clear();
     }
 
     this->d->m_devices = devices;
     this->d->m_modelId = modelId;
     this->d->m_descriptions = descriptions;
     this->d->m_devicesCaps = devicesCaps;
+
+    if (this->d->m_devices != devices) {
+        this->d->m_devices = devices;
+        emit this->webcamsChanged(devices);
+    }
 }
 
 CaptureAvFoundationPrivate::CaptureAvFoundationPrivate()

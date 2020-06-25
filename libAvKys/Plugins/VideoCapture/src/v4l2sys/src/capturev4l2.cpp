@@ -1135,6 +1135,11 @@ void CaptureV4L2Private::updateDevices()
         x_close(fd);
     }
 
+    if (devicesCaps.isEmpty()) {
+        devices.clear();
+        descriptions.clear();
+    }
+
     this->m_descriptions = descriptions;
     this->m_devicesCaps = devicesCaps;
 

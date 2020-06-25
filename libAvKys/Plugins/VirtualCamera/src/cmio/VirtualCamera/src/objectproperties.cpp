@@ -575,11 +575,26 @@ bool AkVCam::ObjectProperties::getProperty(UInt32 property,
 
                 CFArrayRef array = nullptr;
 
-                if (!formats.empty())
+                if (!formats.empty())  {
+                    CFArrayCallBacks callbacks;
+                    memset(&callbacks, 0, sizeof(CFArrayCallBacks));
+                    callbacks.retain = [] (CFAllocatorRef allocator,
+                                           const void *value) -> const void * {
+                        UNUSED(allocator)
+
+                        return CFRetain(CMFormatDescriptionRef(value));
+                    };
+                    callbacks.release = [] (CFAllocatorRef allocator,
+                                            const void *value) {
+                        UNUSED(allocator)
+
+                        CFRelease(CMFormatDescriptionRef(value));
+                    };
                     array = CFArrayCreate(kCFAllocatorDefault,
                                           reinterpret_cast<const void **>(formats.data()),
                                           UInt32(formats.size()),
-                                          nullptr);
+                                          &callbacks);
+                }
 
                 *static_cast<CFArrayRef *>(data) = array;
             }

@@ -1,5 +1,5 @@
 /* Webcamoid, webcam capture application.
- * Copyright (C) 2016  Gonzalo Exequiel Pedone
+ * Copyright (C) 2020  Gonzalo Exequiel Pedone
  *
  * Webcamoid is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,22 +17,22 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef CAPTUREAVFOUNDATION_H
-#define CAPTUREAVFOUNDATION_H
+#ifndef CAPTURECMIO_H
+#define CAPTURECMIO_H
 
 #include "capture.h"
 
-class CaptureAvFoundationPrivate;
+class CaptureCMIOPrivate;
 class QWaitCondition;
 class QMutex;
 
-class CaptureAvFoundation: public Capture
+class CaptureCMIO: public Capture
 {
     Q_OBJECT
 
     public:
-        CaptureAvFoundation(QObject *parent=nullptr);
-        ~CaptureAvFoundation();
+        CaptureCMIO(QObject *parent=nullptr);
+        ~CaptureCMIO();
 
         Q_INVOKABLE QStringList webcams() const;
         Q_INVOKABLE QString device() const;
@@ -50,14 +50,9 @@ class CaptureAvFoundation: public Capture
         Q_INVOKABLE bool setCameraControls(const QVariantMap &cameraControls);
         Q_INVOKABLE bool resetCameraControls();
         Q_INVOKABLE AkPacket readFrame();
-        Q_INVOKABLE quint32 modelId(const QString &webcam) const;
-
-        QMutex &mutex();
-        QWaitCondition &frameReady();
-        void *curFrame();
 
     private:
-        CaptureAvFoundationPrivate *d;
+        CaptureCMIOPrivate *d;
 
         QVariantMap controlStatus(const QVariantList &controls) const;
 
@@ -81,4 +76,4 @@ class CaptureAvFoundation: public Capture
         void updateDevices();
 };
 
-#endif // CAPTUREAVFOUNDATION_H
+#endif // CAPTURECMIO_H

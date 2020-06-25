@@ -131,6 +131,7 @@ VideoCaptureGlobalsPrivate::VideoCaptureGlobalsPrivate()
         "mediafoundation",
 #elif defined(Q_OS_OSX)
         "avfoundation",
+        "cmio",
 #elif defined(Q_OS_ANDROID)
         "androicamera",
         "ndkcamera",

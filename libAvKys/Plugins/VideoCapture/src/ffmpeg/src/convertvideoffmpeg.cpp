@@ -193,6 +193,7 @@ class ConvertVideoFFmpegPrivate
         static void deleteFrame(AVFrame *frame);
         void processData(const FramePtr &frame);
         void convert(const FramePtr &frame);
+        void convert(const AVFrame *frame);
         void log(qreal diff);
         AVFrame *copyFrame(AVFrame *frame) const;
 };
@@ -469,6 +470,11 @@ void ConvertVideoFFmpegPrivate::processData(const FramePtr &frame)
 
 void ConvertVideoFFmpegPrivate::convert(const FramePtr &frame)
 {
+    this->convert(frame.data());
+}
+
+void ConvertVideoFFmpegPrivate::convert(const AVFrame *frame)
+{
     AVPixelFormat outPixFormat = AV_PIX_FMT_RGB24;
 
     // Initialize rescaling context.
@@ -491,34 +497,23 @@ void ConvertVideoFFmpegPrivate::convert(const FramePtr &frame)
     AVFrame oFrame;
     memset(&oFrame, 0, sizeof(AVFrame));
 
-    if (av_image_check_size(uint(frame->width),
-                            uint(frame->height),
-                            0,
-                            nullptr) < 0)
-        return;
+    int frameSize = av_image_get_buffer_size(outPixFormat,
+                                             frame->width,
+                                             frame->height,
+                                             1);
 
-    if (av_image_fill_linesizes(oFrame.linesize,
-                                outPixFormat,
-                                frame->width) < 0)
+    if (frameSize < 1)
         return;
-
-    uint8_t *data[4];
-    memset(data, 0, 4 * sizeof(uint8_t *));
-    int frameSize = av_image_fill_pointers(data,
-                                           outPixFormat,
-                                           frame->height,
-                                           nullptr,
-                                           oFrame.linesize);
 
     QByteArray oBuffer(frameSize, Qt::Uninitialized);
 
-    if (av_image_fill_pointers(reinterpret_cast<uint8_t **>(oFrame.data),
-                               outPixFormat,
-                               frame->height,
-                               reinterpret_cast<uint8_t *>(oBuffer.data()),
-                               oFrame.linesize) < 0) {
+    if (av_image_alloc(oFrame.data,
+                   oFrame.linesize,
+                   frame->width,
+                   frame->height,
+                   outPixFormat,
+                   1) < 1)
         return;
-    }
 
     // Convert picture format
     sws_scale(this->m_scaleContext,
@@ -528,6 +523,8 @@ void ConvertVideoFFmpegPrivate::convert(const FramePtr &frame)
               frame->height,
               oFrame.data,
               oFrame.linesize);
+    memcpy(oBuffer.data(), oFrame.data[0], frameSize);
+    av_freep(&oFrame.data[0]);
 
     // Create packet
     AkVideoPacket oPacket;
@@ -573,13 +570,8 @@ AVFrame *ConvertVideoFFmpegPrivate::copyFrame(AVFrame *frame) const
                    oFrame->height,
                    AVPixelFormat(oFrame->format),
                    1);
-    av_image_copy(oFrame->data,
-                  oFrame->linesize,
-                  const_cast<const uint8_t **>(frame->data),
-                  frame->linesize,
-                  AVPixelFormat(oFrame->format),
-                  oFrame->width,
-                  oFrame->height);
+    av_frame_copy(oFrame, frame);
+    av_frame_copy_props(oFrame, frame);
 
     return oFrame;
 }
