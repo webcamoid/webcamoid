@@ -75,7 +75,6 @@ class CaptureCMIOPrivate
         QMap<QString, QString> m_descriptions;
         QMap<QString, QVariantList> m_devicesCaps;
         QMap<QString, CMIODeviceID> m_devicesID;
-        CaptureCMIO::IoMethod m_ioMethod {CaptureCMIO::IoMethodUnknown};
         int m_nBuffers {32};
         QMutex m_mutex;
         QMutex m_controlsMutex;
