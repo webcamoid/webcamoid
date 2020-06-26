@@ -135,7 +135,7 @@ CaptureCMIO::CaptureCMIO(QObject *parent):
     Capture(parent)
 {
     this->d = new CaptureCMIOPrivate();
-    this->d->m_deviceObserver = [[DeviceObserver alloc]
+    this->d->m_deviceObserver = [[DeviceObserverCMIO alloc]
                                  initWithCaptureObject: this];
 
     [[NSNotificationCenter defaultCenter]

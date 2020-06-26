@@ -24,7 +24,7 @@
 
 #include "captureavfoundation.h"
 
-@interface DeviceObserver: NSObject {
+@interface DeviceObserverAVFoundation: NSObject {
     CaptureAvFoundation *m_capture;
 }
 

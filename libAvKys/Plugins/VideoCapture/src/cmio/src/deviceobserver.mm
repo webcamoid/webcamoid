@@ -21,7 +21,7 @@
 
 #include "deviceobserver.h"
 
-@implementation DeviceObserver
+@implementation DeviceObserverCMIO
 
 - (id) initWithCaptureObject: (CaptureCMIO *) object
 {

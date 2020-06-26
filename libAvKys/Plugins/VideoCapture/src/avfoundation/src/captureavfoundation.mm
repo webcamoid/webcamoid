@@ -84,7 +84,7 @@ CaptureAvFoundation::CaptureAvFoundation(QObject *parent):
     Capture(parent)
 {
     this->d = new CaptureAvFoundationPrivate();
-    this->d->m_deviceObserver = [[DeviceObserver alloc]
+    this->d->m_deviceObserver = [[DeviceObserverAVFoundation alloc]
                                  initWithCaptureObject: this];
 
     [[NSNotificationCenter defaultCenter]

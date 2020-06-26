@@ -24,7 +24,7 @@
 
 #include "capturecmio.h"
 
-@interface DeviceObserver: NSObject {
+@interface DeviceObserverCMIO: NSObject {
     CaptureCMIO *m_capture;
 }
 
