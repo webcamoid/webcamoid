@@ -52,7 +52,6 @@ class CaptureAvFoundationPrivate
         QMap<QString, QString> m_descriptions;
         QMap<QString, QVariantList> m_devicesCaps;
         DeviceControls m_controls;
-        CaptureAvFoundation::IoMethod m_ioMethod {CaptureAvFoundation::IoMethodUnknown};
         int m_nBuffers {32};
         QMutex m_mutex;
         QMutex m_controlsMutex;
