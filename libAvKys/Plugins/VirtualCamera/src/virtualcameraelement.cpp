@@ -443,7 +443,8 @@ AkPacket VirtualCameraElement::iVideoStream(const AkVideoPacket &packet)
         AkVCam::VideoFrame frame(format);
         memcpy(frame.data().data(),
                videoPacket.buffer().constData(),
-               size_t(videoPacket.buffer().size()));
+               qMin<size_t>(frame.data().size(),
+                            videoPacket.buffer().size()));
         this->d->m_ipcBridge.write(this->d->m_curDevice.toStdString(), frame);
     }
 
