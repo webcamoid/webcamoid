@@ -193,7 +193,6 @@ class CaptureDShowPrivate
 {
     public:
         CaptureDShow *self;
-        QStringList m_webcams;
         QString m_device;
         QList<int> m_streams;
         QStringList m_devices;

@@ -187,9 +187,12 @@ using MediaTypePtr = QSharedPointer<IMFMediaType>;
 class CaptureMMFPrivate
 {
     public:
-        QStringList m_webcams;
+        CaptureMMF *self;
         QString m_device;
         QList<int> m_streams;
+        QStringList m_devices;
+        QMap<QString, QString> m_descriptions;
+        QMap<QString, QVariantList> m_devicesCaps;
         qint64 m_id {-1};
         DWORD m_streamIndex {DWORD(MF_SOURCE_READER_FIRST_VIDEO_STREAM)};
         CaptureMMF::IoMethod m_ioMethod {CaptureMMF::IoMethodSync};
@@ -201,10 +204,13 @@ class CaptureMMFPrivate
         QVariantMap m_localImageControls;
         QVariantMap m_localCameraControls;
 
+        explicit CaptureMMFPrivate(CaptureMMF *self);
         QVector<ActivatePtr> sources() const;
         ActivatePtr source(const QString &sourceId) const;
         MediaSourcePtr mediaSource(const QString &sourceId) const;
+        MediaSourcePtr mediaSource(const ActivatePtr &activate) const;
         QVector<MediaTypeHandlerPtr> streams(const QString &webcam) const;
+        QVector<MediaTypeHandlerPtr> streams(const ActivatePtr &activate) const;
         QVector<MediaTypeHandlerPtr> streams(IMFMediaSource *mediaSource) const;
         MediaTypeHandlerPtr stream(IMFMediaSource *mediaSource,
                                    DWORD streamIndex) const;
@@ -228,14 +234,16 @@ class CaptureMMFPrivate
         QVariantMap controlStatus(const QVariantList &controls) const;
         QVariantMap mapDiff(const QVariantMap &map1,
                             const QVariantMap &map2) const;
+        void updateDevices();
 };
 
 CaptureMMF::CaptureMMF(QObject *parent):
     Capture(parent),
     QAbstractNativeEventFilter()
 {
-    this->d = new CaptureMMFPrivate;
+    this->d = new CaptureMMFPrivate(this);
     qApp->installNativeEventFilter(this);
+    this->d->updateDevices();
 }
 
 CaptureMMF::~CaptureMMF()
@@ -246,23 +254,7 @@ CaptureMMF::~CaptureMMF()
 
 QStringList CaptureMMF::webcams() const
 {
-    QStringList webcams;
-    auto sources = this->d->sources();
-
-    for (auto &source: sources) {
-        WCHAR *deviceId = nullptr;
-
-        if (FAILED(source->GetAllocatedString(MF_DEVSOURCE_ATTRIBUTE_SOURCE_TYPE_VIDCAP_SYMBOLIC_LINK,
-                                              &deviceId,
-                                              nullptr))) {
-            continue;
-        }
-
-        webcams << QString::fromWCharArray(deviceId);
-        CoTaskMemFree(deviceId);
-    }
-
-    return webcams;
+    return this->d->m_devices;
 }
 
 QString CaptureMMF::device() const
@@ -278,9 +270,9 @@ QList<int> CaptureMMF::streams()
     auto caps = this->caps(this->d->m_device);
 
     if (caps.isEmpty())
-        return QList<int>();
+        return {};
 
-    return QList<int>() << 0;
+    return {0};
 }
 
 QList<int> CaptureMMF::listTracks(const QString &mimeType)
@@ -310,37 +302,12 @@ int CaptureMMF::nBuffers() const
 
 QString CaptureMMF::description(const QString &webcam) const
 {
-    auto source = this->d->source(webcam);
-
-    if (!source)
-        return QString();
-
-    QString description;
-    WCHAR *friendlyName = nullptr;
-
-    if (SUCCEEDED(source->GetAllocatedString(MF_DEVSOURCE_ATTRIBUTE_FRIENDLY_NAME,
-                                             &friendlyName,
-                                             nullptr))) {
-        description = QString::fromWCharArray(friendlyName);
-        CoTaskMemFree(friendlyName);
-    }
-
-    return description;
+    return this->d->m_descriptions.value(webcam);
 }
 
 QVariantList CaptureMMF::caps(const QString &webcam) const
 {
-    QVariantList caps;
-
-    for (auto &stream: this->d->streams(webcam))
-        for (auto &mediaType: this->d->mediaTypes(stream.data())) {
-            auto videoCaps = this->d->capsFromMediaType(mediaType.data());
-
-            if (videoCaps)
-                caps << QVariant::fromValue(videoCaps);
-        }
-
-    return caps;
+    return this->d->m_devicesCaps.value(webcam);
 }
 
 QString CaptureMMF::capsDescription(const AkCaps &caps) const
@@ -566,13 +533,7 @@ bool CaptureMMF::nativeEventFilter(const QByteArray &eventType,
         case DBT_DEVICEARRIVAL:
         case DBT_DEVICEREMOVECOMPLETE:
         case DBT_DEVNODES_CHANGED: {
-            auto webcams = this->webcams();
-
-            if (webcams != this->d->m_webcams) {
-                emit this->webcamsChanged(webcams);
-
-                this->d->m_webcams = webcams;
-            }
+            this->d->updateDevices();
 
             if (result)
                 *result = TRUE;
@@ -692,8 +653,10 @@ void CaptureMMF::setDevice(const QString &device)
         auto mediaSource = this->d->mediaSource(device);
 
         if (mediaSource) {
-            this->d->m_globalImageControls = this->d->imageControls(mediaSource.data());
-            this->d->m_globalCameraControls = this->d->cameraControls(mediaSource.data());
+            this->d->m_globalImageControls =
+                    this->d->imageControls(mediaSource.data());
+            this->d->m_globalCameraControls =
+                    this->d->cameraControls(mediaSource.data());
         }
 
         this->d->m_controlsMutex.unlock();
@@ -781,6 +744,12 @@ void CaptureMMF::reset()
     this->resetCameraControls();
 }
 
+CaptureMMFPrivate::CaptureMMFPrivate(CaptureMMF *self):
+    self(self)
+{
+
+}
+
 QVector<ActivatePtr> CaptureMMFPrivate::sources() const
 {
     QVector<ActivatePtr> sources;
@@ -846,10 +815,15 @@ MediaSourcePtr CaptureMMFPrivate::mediaSource(const QString &sourceId) const
     if (!source)
         return {};
 
+    return this->mediaSource(source);
+}
+
+MediaSourcePtr CaptureMMFPrivate::mediaSource(const ActivatePtr &activate) const
+{
     IMFMediaSource *mediaSource = nullptr;
 
-    if (FAILED(source->ActivateObject(IID_IMFMediaSource,
-                                      reinterpret_cast<void **>(&mediaSource))))
+    if (FAILED(activate->ActivateObject(IID_IMFMediaSource,
+                                        reinterpret_cast<void **>(&mediaSource))))
         return MediaSourcePtr();
 
     return MediaSourcePtr(mediaSource, CaptureMMFPrivate::deleteMediaSource);
@@ -858,6 +832,13 @@ MediaSourcePtr CaptureMMFPrivate::mediaSource(const QString &sourceId) const
 QVector<MediaTypeHandlerPtr> CaptureMMFPrivate::streams(const QString &webcam) const
 {
     auto mediaSource = this->mediaSource(webcam);
+
+    return this->streams(mediaSource.data());
+}
+
+QVector<MediaTypeHandlerPtr> CaptureMMFPrivate::streams(const ActivatePtr &activate) const
+{
+    auto mediaSource = this->mediaSource(activate);
 
     return this->streams(mediaSource.data());
 }
@@ -1352,6 +1333,66 @@ QVariantMap CaptureMMFPrivate::mapDiff(const QVariantMap &map1,
         }
 
     return map;
+}
+
+void CaptureMMFPrivate::updateDevices()
+{
+    decltype(this->m_devices) devices;
+    decltype(this->m_descriptions) descriptions;
+    decltype(this->m_devicesCaps) devicesCaps;
+    auto sources = this->sources();
+
+    for (auto &source: sources) {
+        WCHAR *sourceLink = nullptr;
+
+        if (FAILED(source->GetAllocatedString(MF_DEVSOURCE_ATTRIBUTE_SOURCE_TYPE_VIDCAP_SYMBOLIC_LINK,
+                                              &sourceLink,
+                                              nullptr))) {
+            continue;
+        }
+
+        auto deviceId = QString::fromWCharArray(sourceLink);
+        CoTaskMemFree(sourceLink);
+
+        QString description;
+        WCHAR *friendlyName = nullptr;
+
+        if (SUCCEEDED(source->GetAllocatedString(MF_DEVSOURCE_ATTRIBUTE_FRIENDLY_NAME,
+                                                 &friendlyName,
+                                                 nullptr))) {
+            description = QString::fromWCharArray(friendlyName);
+            CoTaskMemFree(friendlyName);
+        }
+
+        QVariantList caps;
+
+        for (auto &stream: this->streams(source))
+            for (auto &mediaType: this->mediaTypes(stream.data())) {
+                auto videoCaps = this->capsFromMediaType(mediaType.data());
+
+                if (videoCaps)
+                    caps << QVariant::fromValue(videoCaps);
+            }
+
+        if (!caps.isEmpty()) {
+            devices << deviceId;
+            descriptions[deviceId] = description;
+            devicesCaps[deviceId] = caps;
+        }
+    }
+
+    if (devicesCaps.isEmpty()) {
+        devices.clear();
+        descriptions.clear();
+    }
+
+    this->m_descriptions = descriptions;
+    this->m_devicesCaps = devicesCaps;
+
+    if (this->m_devices != devices) {
+        this->m_devices = devices;
+        emit self->webcamsChanged(this->m_devices);
+    }
 }
 
 #include "moc_capturemmf.cpp"
