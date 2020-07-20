@@ -17,86 +17,61 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QDebug>
-#include <QVariant>
-#include <QMap>
-#include <QDir>
 #include <QDateTime>
-#include <QStandardPaths>
+#include <QMap>
+#include <QMutex>
 #include <QPainter>
 #include <QQmlContext>
-#include <QQueue>
+#include <QVariant>
+#include <akfrac.h>
 #include <akpacket.h>
 #include <akvideopacket.h>
 
 #include "facetrackelement.h"
-#include "../FaceDetect/src/facedetectelement.h"
 
 class FaceTrackElementPrivate
 {
-public:
-    QString m_haarFile;
-    QSize m_scanSize;
-    int m_faceBucketSize;
-    QVector<QRect> m_faceBuckets;
-    int m_expandRate;
-    int m_contractRate;
-    QRect m_faceMargin;
-    QRect m_facePadding;
-    QSize m_aspectRatio;
-    bool m_overrideAspectRatio;
-    bool m_lockedViewport;
-    bool m_debugModeEnabled;
+    public:
+        QString m_haarFile {":/FaceDetect/share/haarcascades/haarcascade_frontalface_alt.xml"};
+        QSize m_scanSize {160, 120};
+        int m_faceBucketSize {1};
+        QVector<QRect> m_faceBuckets;
+        int m_expandRate {30};
+        int m_contractRate {5};
 
-    QRect m_lastBounds;
-    QSharedPointer<FaceDetectElement> m_faceDetectFilter;
+        /* Margins/Paddings are defined as a rectangle where:
+         *
+         * x1 = Left Margin/Padding
+         * y1 = Top Margin/Padding
+         * x2 = Right Margin/Padding
+         * y2 = Bottom Margin/Padding
+         *
+         * and
+         *
+         * width  = x2 - x1
+         * height = y2 - y1
+         */
+        QRect m_faceMargin {30, 30, 1, 1};   // 30, 30, 30, 30
+        QRect m_facePadding {20, 50, 1, 81}; // 20, 50, 20, 130
 
-    QList<QColor> m_colors = {
-        QColor(255, 179, 0), // Vivid Yellow
-        QColor(128, 62, 117), // Strong Purple
-        QColor(255, 104, 0), // Vivid Orange
-        QColor(166, 189, 215), // Very Light Blue
-        QColor(193, 0, 32), // Vivid Red
-        QColor(206, 162, 98), // Grayish Yellow
-        QColor(129, 112, 102), // Medium Gray
+        AkFrac m_aspectRatio {16, 9};
+        bool m_overrideAspectRatio {false};
+        bool m_lockedViewport {false};
+        bool m_debugModeEnabled {false};
+        QRect m_lastBounds;
+        AkElementPtr m_faceDetectFilter {AkElement::create("FaceDetect")};
+        QMutex m_mutex;
 
-        // The following are not good for people with defective color vision
-        QColor(0, 125, 52), // Vivid Green
-        QColor(246, 118, 142), // Strong Purplish Pink
-        QColor(0, 83, 138), // Strong Blue
-        QColor(255, 122, 92), // Strong Yellowish Pink
-        QColor(83, 55, 122), // Strong Violet
-        QColor(255, 142, 0), // Vivid Orange Yellow
-        QColor(179, 40, 81), // Strong Purplish Red
-        QColor(244, 200, 0), // Vivid Greenish Yellow
-        QColor(127, 24, 13), // Strong Reddish Brown
-        QColor(147, 170, 0), // Vivid Yellowish Green
-        QColor(89, 51, 21), // Deep Yellowish Brown
-        QColor(241, 58, 19), // Vivid Reddish Orange
-        QColor(35, 44, 22), // Dark Olive Green
-    };
+        QRect calculateNewBounds(const QRect &targetBounds,
+                                 const QSize &maxCropSize,
+                                 const QSize &srcSize);
+        void collectFaces(const QVector<QRect> &vecFaces);
 };
 
 FaceTrackElement::FaceTrackElement(): AkElement()
 {
     this->d = new FaceTrackElementPrivate;
-    this->d->m_faceDetectFilter =
-            AkElement::create<FaceDetectElement>("FaceDetect");
-
-    // Set defaults
-    this->resetHaarFile();
-    this->resetScanSize();
-    this->resetFaceBucketSize();
-    this->resetFaceBucketCount();
-    this->resetExpandRate();
-    this->resetContractRate();
-    this->resetFacePadding();
-    this->resetFaceMargin();
-    this->resetAspectRatio();
-    this->resetOverrideAspectRatio();
-    this->resetLockedViewport();
-    this->resetDebugModeEnabled();
-
+    this->d->m_faceBuckets.resize(5);
 }
 
 FaceTrackElement::~FaceTrackElement()
@@ -144,7 +119,7 @@ QRect FaceTrackElement::faceMargin() const
     return this->d->m_faceMargin;
 }
 
-QSize FaceTrackElement::aspectRatio() const
+AkFrac FaceTrackElement::aspectRatio() const
 {
     return this->d->m_aspectRatio;
 }
@@ -164,143 +139,6 @@ bool FaceTrackElement::debugModeEnabled() const
     return this->d->m_debugModeEnabled;
 }
 
-QRect FaceTrackElement::calculateNewBounds(const QRect &targetBounds,
-                                           const QSize &maxCropSize,
-                                           const QSize &srcSize) const
-{
-    QRect newBounds;
-
-    // Slowly change the bounds
-    // Can't use addition/subtraction, need to use ratios,
-    // or we'll pass our target and get jittery
-    auto l = this->d->m_lastBounds;
-    auto t = targetBounds;
-    double xRate = (double(this->d->m_expandRate)) / 100;
-    double cRate = (double(-this->d->m_contractRate)) / 100;
-
-    // Apply the expand/contract rates to get the new bounds
-    newBounds
-            .setCoords(l.left() - ((t.left() < l.left() ? xRate : cRate) * abs(t.left() - l.left())),
-                       l.top() - ((t.top() < l.top() ? xRate : cRate) * abs(t.top() - l.top())),
-                       l.right() + ((t.right() > l.right() ? xRate : cRate) * abs(t.right() - l.right())),
-                       l.bottom() + ((t.bottom() > l.bottom() ? xRate : cRate) * abs(t.bottom() - l.bottom())));
-
-    // Make sure the new bounds are the correct aspect ratio
-    auto ar = this->aspectRatio();
-    int proposedWidth(qMax(newBounds.width(),
-                           newBounds.height() * ar.width() / ar.height()));
-    int proposedHeight(qMax(newBounds.height(),
-                            newBounds.width() * ar.height() / ar.width()));
-
-    if (proposedWidth > maxCropSize.width()) {
-        proposedWidth = maxCropSize.width();
-        proposedHeight = maxCropSize.width() * ar.height() / ar.width();
-    }
-
-    if (proposedHeight > maxCropSize.height()) {
-        proposedHeight = maxCropSize.height();
-        proposedWidth = maxCropSize.height() * ar.width() / ar.height();
-    }
-
-    // Make sure that we pan the image gradually
-    QLine centerline(targetBounds.center(), this->d->m_lastBounds.center());
-
-    // Make sure we correctly center and size the new bounds
-    int left(int(centerline.center().x() - (proposedWidth / 2)));
-    newBounds.setLeft(qMax(0, left));
-
-    int right(proposedWidth + newBounds.left());
-    newBounds.setRight(qMin(srcSize.width(), right));
-
-    left = newBounds.left() - (proposedWidth - newBounds.width());
-    newBounds.setLeft(left);
-
-    int top(int(centerline.center().y() - (proposedHeight / 2)));
-    newBounds.setTop(qMax(0, top));
-
-    int bottom(proposedHeight + newBounds.top());
-    newBounds.setBottom(qMin(srcSize.height(), bottom));
-
-    top = newBounds.top() - (proposedHeight - newBounds.height());
-    newBounds.setTop(top);
-
-    this->d->m_lastBounds = QRect(newBounds);
-    return newBounds;
-}
-
-void FaceTrackElement::collectFaces(const QVector<QRect> &vecFaces)
-{
-    /*
-     * Track faces grouped by the inverse of the scan frequency
-     * so that we can mitigate the effect of flashing face detection.
-     * This will cause each bucket to contain `m_faceBucketSize`
-     * number of seconds of face scans grouped together
-     */
-
-    int now = QDateTime::currentSecsSinceEpoch() / this->faceBucketSize();
-    int nextTimeSlot = (now + 1) % this->d->m_faceBuckets.length();
-    int timeSlot = now % this->d->m_faceBuckets.length();
-
-    auto size = this->scanSize();
-    auto pad = this->facePadding();
-    auto margin = this->faceMargin();
-
-    for (const QRect &face: vecFaces) {
-        // Add a padding around an incoming face
-        QRect head(face);
-        // Forehead
-        head.setTop(qMax(
-                        0,
-                        head.top() - int(face.height() * pad.top() / 100))
-                    );
-        // Neck
-        head.setHeight(qMin(
-                           size.height(),
-                           head.height() + int(face.height() * pad.bottom() / 100))
-                       );
-        // Left shoulder
-        head.setLeft(qMax(
-                         0,
-                         head.left() - int(face.width() * pad.left() / 100))
-                     );
-        // Right shoulder
-        head.setWidth(qMin(
-                          size.width(),
-                          head.width() + int(face.width() * pad.right() / 100))
-                      );
-
-        if (this->d->m_faceBuckets[timeSlot].isNull()) {
-            this->d->m_faceBuckets[timeSlot] = head;
-        } else {
-            /*
-             * Include a "margin" option that will only include the new head
-             * if it is outside the old bucket + margin. This will further
-             * help reduce jittery or very small movements of the crop/pan.
-             */
-            QRect headMargin;
-            auto b = this->d->m_faceBuckets[timeSlot];
-            headMargin
-                    .setCoords(b.left() - int(head.left() * margin.left() / 100),
-                               b.top() - int(head.top() * margin.top() / 100),
-                               b.right() + int(head.right() * margin.right() / 100),
-                               b.bottom() + int(head.bottom() * margin.bottom() / 100));
-            // If `head` is completely inside `headMargin`,
-            // then don't merge it with the bucket
-            if (!(headMargin.contains(head.topLeft())
-                  && headMargin.contains(head.bottomRight()))) {
-                this->d->m_faceBuckets[timeSlot] =
-                        this->d->m_faceBuckets[timeSlot].united(head);
-            }
-        }
-
-        // Degrade the last occupied slot by intersecting it with the current one
-        if (!this->d->m_faceBuckets[nextTimeSlot].isNull()) {
-            this->d->m_faceBuckets[nextTimeSlot] =
-                    this->d->m_faceBuckets[nextTimeSlot].intersected(head);
-        }
-    }
-}
-
 QString FaceTrackElement::controlInterfaceProvide(const QString &controlId) const
 {
     Q_UNUSED(controlId)
@@ -316,31 +154,24 @@ void FaceTrackElement::controlInterfaceConfigure(QQmlContext *context,
     context->setContextProperty("FaceTrack",
                                 const_cast<QObject *>(qobject_cast<const QObject *>(this)));
     context->setContextProperty("controlId", this->objectName());
-
-    QStringList picturesPath = QStandardPaths::standardLocations(QStandardPaths::PicturesLocation);
-    context->setContextProperty("picturesPath", picturesPath[0]);
 }
 
 AkPacket FaceTrackElement::iVideoStream(const AkVideoPacket &packet)
 {
     QSize scanSize(this->d->m_scanSize);
 
-    if (this->d->m_haarFile.isEmpty()
-            || scanSize.isEmpty()) {
+    if (this->d->m_haarFile.isEmpty() || scanSize.isEmpty())
         akSend(packet)
-    }
 
     auto src = packet.toImage();
 
     if (src.isNull())
         return AkPacket();
-    else
-        if (!this->overrideAspectRatio())
-            this->setAspectRatio(src.size());
+    else if (!this->overrideAspectRatio())
+        this->setAspectRatio({src.width(), src.height()});
 
     QImage oFrame = src.convertToFormat(QImage::Format_ARGB32);
-    qreal scale = 1;
-
+    qreal scale = 1.0;
     QImage scanFrame(src.scaled(scanSize, Qt::KeepAspectRatio));
 
     if (scanFrame.width() == scanSize.width())
@@ -351,13 +182,12 @@ AkPacket FaceTrackElement::iVideoStream(const AkVideoPacket &packet)
     QRect bounds;
 
     if (this->d->m_lastBounds.isNull())
-        this->d->m_lastBounds = QRect(src.rect());
+        this->d->m_lastBounds = src.rect();
 
     if (this->lockedViewport()) {
         bounds = this->d->m_lastBounds;
     } else {
         QVector<QRect> detectedFaces;
-
         QMetaObject::invokeMethod(this->d->m_faceDetectFilter.data(),
                                   "detectFaces",
                                   Qt::DirectConnection,
@@ -365,22 +195,19 @@ AkPacket FaceTrackElement::iVideoStream(const AkVideoPacket &packet)
                                   Q_ARG(AkVideoPacket, packet));
 
         if (detectedFaces.length() > 0)
-            this->collectFaces(detectedFaces);
+            this->d->collectFaces(detectedFaces);
 
         QPen pen;
         QPainter painter;
-        int currentColorIndex = 0;
-        auto debugging = this->debugModeEnabled();
+        int penWidth = 1;
 
-        if (debugging) {
+        if (this->d->m_debugModeEnabled) {
             pen.setStyle(Qt::SolidLine);
-            pen.setWidth(2);
-
             painter.begin(&oFrame);
         }
 
-        for (int i = 0; i < this->d->m_faceBuckets.length(); i++) {
-            QRect face(this->d->m_faceBuckets[i]);
+        for (int i = 0; i < this->d->m_faceBuckets.size(); i++) {
+            auto &face = this->d->m_faceBuckets[i];
 
             if (!face.isNull()) {
                 QRect scaledFace;
@@ -390,19 +217,17 @@ AkPacket FaceTrackElement::iVideoStream(const AkVideoPacket &packet)
                                      scale * face.bottom());
                 bounds = bounds.united(scaledFace);
 
-                if (debugging) {
-                    pen.setColor(this->d->m_colors[currentColorIndex]);
+                if (this->d->m_debugModeEnabled) {
+                    auto color =
+                            QColor::fromHsv(360 * i
+                                            / this->d->m_faceBuckets.size(),
+                                            255,
+                                            255);
+                    pen.setColor(color);
                     painter.setPen(pen);
+                    pen.setWidth(penWidth);
                     painter.drawRect(scaledFace);
-                }
-            }
-
-            if (debugging) {
-                currentColorIndex += 1;
-
-                if (currentColorIndex >= this->d->m_colors.length()) {
-                    currentColorIndex = 0;
-                    pen.setWidth(pen.width() + 2);
+                    penWidth += 1;
                 }
             }
         }
@@ -413,11 +238,10 @@ AkPacket FaceTrackElement::iVideoStream(const AkVideoPacket &packet)
                          qMin(src.width(), bounds.right()),
                          qMin(src.height(), bounds.bottom()));
 
-        if (debugging) {
+        if (this->d->m_debugModeEnabled) {
             // Draw a boarder so we can see what is going on
             pen.setColor(Qt::white);
-            pen.setWidth(pen.width() + 2);
-
+            pen.setWidth(penWidth);
             painter.setPen(pen);
             painter.drawRect(bounds);
             painter.end();
@@ -425,9 +249,11 @@ AkPacket FaceTrackElement::iVideoStream(const AkVideoPacket &packet)
     }
 
     // Calcuate the maximum size allowed given the source and desired aspect ratio
-    auto ar = this->aspectRatio();
-    QSize maxCropSize(qMin(src.width(), src.height() * ar.width() / ar.height()),
-                      qMin(src.height(), src.width() * ar.height() / ar.width()));
+    auto aspectRatio = this->d->m_aspectRatio;
+    QSize maxCropSize(qMin<int>(src.width(),
+                           src.height() * aspectRatio.value()),
+                      qMin<int>(src.height(),
+                                src.width() / aspectRatio.value()));
 
     if (bounds.height() == 0 || bounds.width() == 0)
         bounds.setCoords(int(src.width() / 2) - maxCropSize.width(),
@@ -440,8 +266,9 @@ AkPacket FaceTrackElement::iVideoStream(const AkVideoPacket &packet)
     if (this->lockedViewport()) {
         croppedFrame = oFrame.copy(bounds);
     } else {
-        QRect newBounds(this->calculateNewBounds(bounds, maxCropSize, src.size()));
-        croppedFrame = oFrame.copy(newBounds);
+        croppedFrame = oFrame.copy(this->d->calculateNewBounds(bounds,
+                                                               maxCropSize,
+                                                               src.size()));
     }
 
     auto oPacket = AkVideoPacket::fromImage(croppedFrame, packet);
@@ -504,60 +331,36 @@ void FaceTrackElement::setContractRate(int rate)
     emit this->contractRateChanged(this->contractRate());
 }
 
-void FaceTrackElement::setFacePadding(const QRect facePadding)
+void FaceTrackElement::setFacePadding(const QRect &facePadding)
 {
-    auto p = this->facePadding();
-    QRect newFacePadding;
-    newFacePadding
-            .setCoords(facePadding.left() == -1 ? p.left() : facePadding.left(),
-                       facePadding.top() == -1 ? p.top() : facePadding.top(),
-                       facePadding.right() == -1 ? p.right() : facePadding.right(),
-                       facePadding.bottom() == -1 ? p.bottom() : facePadding.bottom());
-
-    if (p == newFacePadding)
+    if (this->d->m_facePadding == facePadding)
         return;
 
-    this->d->m_facePadding = newFacePadding;
-    emit this->facePaddingChanged(this->facePadding());
+    this->d->m_facePadding = facePadding;
+    emit this->facePaddingChanged(facePadding);
 }
 
-void FaceTrackElement::setFaceMargin(QRect faceMargin)
+void FaceTrackElement::setFaceMargin(const QRect &faceMargin)
 {
-
-    auto p = this->faceMargin();
-    faceMargin
-            .setCoords(faceMargin.left() == -1 ? p.left() : faceMargin.left(),
-                       faceMargin.top() == -1 ? p.top() : faceMargin.top(),
-                       faceMargin.right() == -1 ? p.right() : faceMargin.right(),
-                       faceMargin.bottom() == -1 ? p.bottom() : faceMargin.bottom());
-
-    if (p == faceMargin)
+    if (this->d->m_faceMargin == faceMargin)
         return;
 
     this->d->m_faceMargin = faceMargin;
-    emit this->faceMarginChanged(this->faceMargin());
+    emit this->faceMarginChanged(faceMargin);
 }
 
-void FaceTrackElement::setAspectRatio(const QSize &aspectRatio)
+void FaceTrackElement::setAspectRatio(const AkFrac &aspectRatio)
 {
-    auto ar = this->aspectRatio();
-    double t = ((double(ar.width())) / ar.height());
-    double u = ((double(aspectRatio.width())) / aspectRatio.height());
-
-    if (t == u)
+    if (this->d->m_aspectRatio == aspectRatio)
         return;
 
-    auto d = FaceTrackElement::gcd(uint(aspectRatio.width()),
-                                   uint(aspectRatio.height()));
-    QSize scaledAspectRatio(aspectRatio.width() / d, aspectRatio.height() / d);
-
-    this->d->m_aspectRatio = scaledAspectRatio;
-    emit this->aspectRatioChanged(this->aspectRatio());
+    this->d->m_aspectRatio = aspectRatio;
+    emit this->aspectRatioChanged(aspectRatio);
 }
 
 void FaceTrackElement::setOverrideAspectRatio(bool overrideAspectRatio)
 {
-    if (this->overrideAspectRatio() == overrideAspectRatio)
+    if (this->d->m_overrideAspectRatio == overrideAspectRatio)
         return;
 
     this->d->m_overrideAspectRatio = overrideAspectRatio;
@@ -566,7 +369,7 @@ void FaceTrackElement::setOverrideAspectRatio(bool overrideAspectRatio)
 
 void FaceTrackElement::setLockedViewport(bool lockViewport)
 {
-    if (this->lockedViewport() == lockViewport)
+    if (this->d->m_lockedViewport == lockViewport)
         return;
 
     this->d->m_lockedViewport = lockViewport;
@@ -575,7 +378,7 @@ void FaceTrackElement::setLockedViewport(bool lockViewport)
 
 void FaceTrackElement::setDebugModeEnabled(bool enabled)
 {
-    if (this->debugModeEnabled() == enabled)
+    if (this->d->m_debugModeEnabled == enabled)
         return;
 
     this->d->m_debugModeEnabled = enabled;
@@ -589,7 +392,7 @@ void FaceTrackElement::resetHaarFile()
 
 void FaceTrackElement::resetScanSize()
 {
-    this->setScanSize(QSize(160, 120));
+    this->setScanSize({160, 120});
 }
 
 void FaceTrackElement::resetFaceBucketSize()
@@ -614,21 +417,17 @@ void FaceTrackElement::resetContractRate()
 
 void FaceTrackElement::resetFacePadding()
 {
-    QRect facePadding;
-    facePadding.setCoords(20, 50, 20, 130);
-    this->setFacePadding(facePadding);
+    this->setFacePadding({20, 50, 0, 80});
 }
 
 void FaceTrackElement::resetFaceMargin()
 {
-    QRect faceMargin;
-    faceMargin.setCoords(30, 30, 30, 30);
-    this->setFaceMargin(faceMargin);
+    this->setFaceMargin({30, 30, 0, 0});
 }
 
 void FaceTrackElement::resetAspectRatio()
 {
-    this->setAspectRatio(QSize(16, 9));
+    this->setAspectRatio({16, 9});
 }
 
 void FaceTrackElement::resetOverrideAspectRatio()
@@ -646,43 +445,141 @@ void FaceTrackElement::resetDebugModeEnabled()
     this->setDebugModeEnabled(false);
 }
 
-/** https://en.wikipedia.org/wiki/Binary_GCD_algorithm
- * This can be removed and replaced with the C++ std::gcd
- * from <numeric> when we upgrade to C++ 17.
- *
- * @brief FaceTrackElement::gcd
- * @param u
- * @param v
- * @return
- */
-unsigned int FaceTrackElement::gcd(unsigned int u, unsigned int v)
+QRect FaceTrackElementPrivate::calculateNewBounds(const QRect &targetBounds,
+                                                  const QSize &maxCropSize,
+                                                  const QSize &srcSize)
 {
-    // simple cases (termination)
-    if (u == v)
-        return u;
+    // Slowly change the bounds
+    // Can't use addition/subtraction, need to use ratios,
+    // or we'll pass our target and get jittery
+    auto lastBounds = this->m_lastBounds;
+    auto xRate = double(this->m_expandRate) / 100;
+    auto cRate = double(-this->m_contractRate) / 100;
 
-    if (u == 0)
-        return v;
+    // Apply the expand/contract rates to get the new bounds
+    QRect newBounds;
+    newBounds.setCoords(lastBounds.left()
+                        - ((targetBounds.left() < lastBounds.left()? xRate: cRate)
+                           * abs(targetBounds.left() - lastBounds.left())),
+                        lastBounds.top()
+                        - ((targetBounds.top() < lastBounds.top()? xRate: cRate)
+                           * abs(targetBounds.top() - lastBounds.top())),
+                        lastBounds.right()
+                        + ((targetBounds.right() > lastBounds.right()? xRate: cRate)
+                           * abs(targetBounds.right() - lastBounds.right())),
+                        lastBounds.bottom()
+                        + ((targetBounds.bottom() > lastBounds.bottom()? xRate: cRate)
+                           * abs(targetBounds.bottom() - lastBounds.bottom())));
 
-    if (v == 0)
-        return u;
+    // Make sure the new bounds are the correct aspect ratio
+    auto aspectRatio = this->m_aspectRatio;
+    int proposedWidth(qMax<int>(newBounds.width(),
+                                newBounds.height() * aspectRatio.value()));
+    int proposedHeight(qMax<int>(newBounds.height(),
+                                 newBounds.width() / aspectRatio.value()));
 
-    // look for factors of 2
-    if (~u & 1) { // u is even
-        if (v & 1) // v is odd
-            return FaceTrackElement::gcd(u >> 1, v);
-        else // both u and v are even
-            return FaceTrackElement::gcd(u >> 1, v >> 1) << 1;
+    if (proposedWidth > maxCropSize.width()) {
+        proposedWidth = maxCropSize.width();
+        proposedHeight = maxCropSize.width() / aspectRatio.value();
     }
 
-    if (~v & 1) // u is odd, v is even
-        return FaceTrackElement::gcd(u, v >> 1);
+    if (proposedHeight > maxCropSize.height()) {
+        proposedHeight = maxCropSize.height();
+        proposedWidth = maxCropSize.height() * aspectRatio.value();
+    }
 
-    // reduce larger argument
-    if (u > v)
-        return FaceTrackElement::gcd((u - v) >> 1, v);
+    // Make sure that we pan the image gradually
+    QLine centerline(targetBounds.center(), this->m_lastBounds.center());
 
-    return FaceTrackElement::gcd((v - u) >> 1, u);
+    // Make sure we correctly center and size the new bounds
+    int left(int(centerline.center().x() - (proposedWidth / 2)));
+    newBounds.setLeft(qMax(0, left));
+
+    int right(proposedWidth + newBounds.left());
+    newBounds.setRight(qMin(srcSize.width(), right));
+
+    left = newBounds.left() - (proposedWidth - newBounds.width());
+    newBounds.setLeft(left);
+
+    int top(int(centerline.center().y() - (proposedHeight / 2)));
+    newBounds.setTop(qMax(0, top));
+
+    int bottom(proposedHeight + newBounds.top());
+    newBounds.setBottom(qMin(srcSize.height(), bottom));
+
+    top = newBounds.top() - (proposedHeight - newBounds.height());
+    newBounds.setTop(top);
+
+    this->m_lastBounds = newBounds;
+
+    return newBounds;
+}
+
+void FaceTrackElementPrivate::collectFaces(const QVector<QRect> &vecFaces)
+{
+    /*
+     * Track faces grouped by the inverse of the scan frequency
+     * so that we can mitigate the effect of flashing face detection.
+     * This will cause each bucket to contain `m_faceBucketSize`
+     * number of seconds of face scans grouped together
+     */
+
+    int now = QDateTime::currentSecsSinceEpoch() / this->m_faceBucketSize;
+    auto size = this->m_scanSize;
+    auto pad = this->m_facePadding;
+    auto margin = this->m_faceMargin;
+    int nextTimeSlot = (now + 1) % this->m_faceBuckets.length();
+    int timeSlot = now % this->m_faceBuckets.length();
+
+    for (auto &face: vecFaces) {
+        // Add a padding around an incoming face
+        QRect head(face);
+        // Forehead
+        head.setTop(qMax(0, head.top() - int(face.height() * pad.top() / 100)));
+        // Neck
+        head.setHeight(qMin(size.height(),
+                            head.height()
+                            + int(face.height() * pad.bottom() / 100)));
+        // Left shoulder
+        head.setLeft(qMax(0,
+                          head.left() - int(face.width() * pad.left() / 100)));
+        // Right shoulder
+        head.setWidth(qMin(size.width(),
+                           head.width()
+                           + int(face.width() * pad.right() / 100)));
+
+        if (this->m_faceBuckets[timeSlot].isNull()) {
+            this->m_faceBuckets[timeSlot] = head;
+        } else {
+            /*
+             * Include a "margin" option that will only include the new head
+             * if it is outside the old bucket + margin. This will further
+             * help reduce jittery or very small movements of the crop/pan.
+             */
+            QRect headMargin;
+            auto bucket = this->m_faceBuckets[timeSlot];
+            headMargin.setCoords(bucket.left()
+                                 - int(head.left() * margin.left() / 100),
+                                 bucket.top()
+                                 - int(head.top() * margin.top() / 100),
+                                 bucket.right()
+                                 + int(head.right() * margin.right() / 100),
+                                 bucket.bottom()
+                                 + int(head.bottom() * margin.bottom() / 100));
+            // If `head` is completely inside `headMargin`,
+            // then don't merge it with the bucket
+            if (!headMargin.contains(head.topLeft())
+                || !headMargin.contains(head.bottomRight())) {
+                this->m_faceBuckets[timeSlot] =
+                        this->m_faceBuckets[timeSlot].united(head);
+            }
+        }
+
+        // Degrade the last occupied slot by intersecting it with the current one
+        if (!this->m_faceBuckets[nextTimeSlot].isNull())
+            this->m_faceBuckets[nextTimeSlot] =
+                    this->m_faceBuckets[nextTimeSlot].intersected(head);
+    }
 }
 
 #include "moc_facetrackelement.cpp"

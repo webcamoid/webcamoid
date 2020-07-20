@@ -329,8 +329,7 @@ QDataStream &operator >>(QDataStream &istream, AkFrac &frac)
     qint64 den;
     istream >> num;
     istream >> den;
-    frac.setNum(num);
-    frac.setDen(den);
+    frac = {num, den};
 
     return istream;
 }

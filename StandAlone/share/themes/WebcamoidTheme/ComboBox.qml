@@ -221,7 +221,7 @@ T.ComboBox {
 
     // Element
     delegate: MenuItem {
-        width: parent.width
+        width: control.width
         text: control.textRole?
                   (Array.isArray(control.model)?
                        modelData[control.textRole]:

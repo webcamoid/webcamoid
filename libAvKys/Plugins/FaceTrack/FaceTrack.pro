@@ -48,7 +48,7 @@ OTHER_FILES += \
     pspec.json \
     $$files(share/qml/*.qml)
 
-QT += qml widgets concurrent
+QT += qml concurrent
 
 RESOURCES += \
     FaceTrack.qrc

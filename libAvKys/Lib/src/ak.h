@@ -35,6 +35,7 @@ class AKCOMMONS_EXPORT Ak: public QObject
         Ak(const Ak &other);
         ~Ak() = default;
 
+        Q_INVOKABLE static void registerTypes();
         Q_INVOKABLE static qint64 id();
         Q_INVOKABLE static void setQmlEngine(QQmlEngine *engine);
 };

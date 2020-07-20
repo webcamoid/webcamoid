@@ -20,7 +20,7 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
-import Qt.labs.platform 1.1 as LABS
+import Ak 1.0
 import AkControls 1.0 as AK
 
 GridLayout {
@@ -28,11 +28,12 @@ GridLayout {
 
     function haarFileIndex(haarFile)
     {
-        var index = -1
+        let index = -1
 
-        for (var i = 0; i < cbxHaarFile.model.count; i++)
+        for (let i = 0; i < cbxHaarFile.model.count; i++)
             if (cbxHaarFile.model.get(i).haarFile === haarFile) {
                 index = i
+
                 break
             }
 
@@ -44,7 +45,7 @@ GridLayout {
         if (str.length < 1)
             return Qt.size()
 
-        var size = str.split(RegExp(/x|:/))
+        let size = str.split(RegExp(/x|:/))
 
         if (size.length < 2)
             return Qt.size()
@@ -58,11 +59,10 @@ GridLayout {
         text: qsTr("Haar file")
     }
     ComboBox {
-        Layout.fillWidth: true
-
         id: cbxHaarFile
         textRole: "text"
         currentIndex: haarFileIndex(FaceTrack.haarFile)
+        Layout.fillWidth: true
 
         model: ListModel {
             ListElement {
@@ -155,7 +155,8 @@ GridLayout {
             }
         }
 
-        onCurrentIndexChanged: FaceTrack.haarFile = cbxHaarFile.model.get(currentIndex).haarFile
+        onCurrentIndexChanged:
+            FaceTrack.haarFile = cbxHaarFile.model.get(currentIndex).haarFile
     }
 
     // Scan block.
@@ -163,13 +164,13 @@ GridLayout {
         text: qsTr("Scan block")
     }
     TextField {
-        Layout.fillWidth: true
-
         text: FaceTrack.scanSize.width + "x" + FaceTrack.scanSize.height
         placeholderText: qsTr("Scan block")
         validator: RegExpValidator {
             regExp: /\d+x\d+/
         }
+        selectByMouse: true
+        Layout.fillWidth: true
 
         onAccepted: FaceTrack.scanSize = strToSize(text)
     }
@@ -179,13 +180,12 @@ GridLayout {
         text: qsTr("Face bracketing\nduration (seconds)")
     }
     SpinBox {
-        Layout.fillWidth: true
-
         value: FaceTrack.faceBucketSize
         from: 1
         to: 600
         stepSize: 1
         editable: true
+        Layout.fillWidth: true
 
         onValueChanged: FaceTrack.faceBucketSize = Number(value)
     }
@@ -195,13 +195,12 @@ GridLayout {
         text: qsTr("Face bracket count")
     }
     SpinBox {
-        Layout.fillWidth: true
-
         value: FaceTrack.faceBucketCount
         from: 1
         to: 120
         stepSize: 1
         editable: true
+        Layout.fillWidth: true
 
         onValueChanged: FaceTrack.faceBucketCount = Number(value)
     }
@@ -211,13 +210,12 @@ GridLayout {
         text: qsTr("Zoom out rate")
     }
     SpinBox {
-        Layout.fillWidth: true
-
         value: FaceTrack.expandRate
         from: 1
         to: 100
         stepSize: 1
         editable: true
+        Layout.fillWidth: true
 
         onValueChanged: FaceTrack.expandRate = Number(value)
     }
@@ -227,132 +225,175 @@ GridLayout {
         text: qsTr("Zoom in rate")
     }
     SpinBox {
-        Layout.fillWidth: true
-
         value: FaceTrack.contractRate
         from: 1
         to: 100
         stepSize: 1
         editable: true
+        Layout.fillWidth: true
 
         onValueChanged: FaceTrack.contractRate = Number(value)
     }
 
     // Face padding
-    Label {
-        text: qsTr("Face padding\n(% of face size)")
-    }
-    GridLayout {
+    GroupBox {
+        title: qsTr("Face padding (% of face size)")
+        Layout.columnSpan: 2
         Layout.fillWidth: true
+        clip: true
 
-        columns: 2
+        GridLayout {
+            columns: 2
+            x: (parent.width - width) / 2
 
-        SpinBox {
-            Layout.columnSpan: 2
-            Layout.alignment: Qt.AlignHCenter
+            SpinBox {
+                value: FaceTrack.facePadding.top
+                from: 0
+                to: 1000
+                stepSize: 1
+                editable: true
+                Layout.columnSpan: 2
+                Layout.alignment: Qt.AlignHCenter
 
-            value: FaceTrack.facePadding.top
-            from: 0
-            to: 1000
-            stepSize: 1
-            editable: true
+                onValueChanged: {
+                    FaceTrack.facePadding = Qt.rect(FaceTrack.facePadding.x,
+                                                    Number(value),
+                                                    FaceTrack.facePadding.width,
+                                                    FaceTrack.facePadding.height
+                                                    + FaceTrack.facePadding.y
+                                                    - Number(value))
+                }
+            }
+            SpinBox {
+                value: FaceTrack.facePadding.left
+                from: 0
+                to: 1000
+                stepSize: 1
+                editable: true
+                Layout.columnSpan: 1
 
-            onValueChanged: FaceTrack.facePadding = Qt.rect(-1, Number(value), 1, -Number(value))
-        }
-        SpinBox {
-            Layout.columnSpan: 1
-            Layout.fillWidth: true
+                onValueChanged: {
+                    FaceTrack.facePadding = Qt.rect(Number(value),
+                                                    FaceTrack.facePadding.y,
+                                                    FaceTrack.facePadding.width
+                                                    + FaceTrack.facePadding.x
+                                                    - Number(value),
+                                                    FaceTrack.facePadding.height)
+                }
+            }
+            SpinBox {
+                value: FaceTrack.facePadding.right
+                from: 0
+                to: 1000
+                stepSize: 1
+                editable: true
+                Layout.columnSpan: 1
 
-            value: FaceTrack.facePadding.left
-            from: 0
-            to: 1000
-            stepSize: 1
-            editable: true
+                onValueChanged: {
+                    FaceTrack.facePadding = Qt.rect(FaceTrack.facePadding.x,
+                                                    FaceTrack.facePadding.y,
+                                                    Number(value) - FaceTrack.facePadding.x + 1,
+                                                    FaceTrack.facePadding.height)
+                }
+            }
+            SpinBox {
+                value: FaceTrack.facePadding.bottom
+                from: 0
+                to: 1000
+                stepSize: 1
+                editable: true
+                Layout.columnSpan: 2
+                Layout.alignment: Qt.AlignHCenter
 
-            onValueChanged: FaceTrack.facePadding = Qt.rect(Number(value), -1, -Number(value), 1)
-        }
-        SpinBox {
-            Layout.columnSpan: 1
-            Layout.fillWidth: true
-
-            value: FaceTrack.facePadding.right
-            from: 0
-            to: 1000
-            stepSize: 1
-            editable: true
-
-            onValueChanged: FaceTrack.facePadding = Qt.rect(-1, -1, Number(value) + 2, 1)
-        }
-        SpinBox {
-            Layout.columnSpan: 2
-            Layout.alignment: Qt.AlignHCenter
-
-            value: FaceTrack.facePadding.bottom
-            from: 0
-            to: 1000
-            stepSize: 1
-            editable: true
-
-            onValueChanged: FaceTrack.facePadding = Qt.rect(-1, -1, 1, Number(value) + 2)
+                onValueChanged: {
+                    FaceTrack.facePadding = Qt.rect(FaceTrack.facePadding.x,
+                                                    FaceTrack.facePadding.y,
+                                                    FaceTrack.facePadding.width,
+                                                    Number(value) - FaceTrack.facePadding.y + 1)
+                }
+            }
         }
     }
 
     // Face margin
-    Label {
-        text: qsTr("Face margin\n(% of face size)")
-    }
-    GridLayout {
+    GroupBox {
+        title: qsTr("Face margin (% of face size)")
+        Layout.columnSpan: 2
         Layout.fillWidth: true
+        clip: true
 
-        columns: 2
+        GridLayout {
+            columns: 2
+            x: (parent.width - width) / 2
 
-        SpinBox {
-            Layout.columnSpan: 2
-            Layout.alignment: Qt.AlignHCenter
+            SpinBox {
+                value: FaceTrack.faceMargin.top
+                from: 0
+                to: 1000
+                stepSize: 1
+                editable: true
+                Layout.columnSpan: 2
+                Layout.alignment: Qt.AlignHCenter
 
-            value: FaceTrack.faceMargin.top
-            from: 0
-            to: 1000
-            stepSize: 1
-            editable: true
+                onValueChanged: {
+                    FaceTrack.faceMargin = Qt.rect(FaceTrack.faceMargin.x,
+                                                   Number(value),
+                                                   FaceTrack.faceMargin.width,
+                                                   FaceTrack.faceMargin.height
+                                                   + FaceTrack.faceMargin.y
+                                                   - Number(value))
+                }
+            }
+            SpinBox {
+                value: FaceTrack.faceMargin.left
+                from: 0
+                to: 1000
+                stepSize: 1
+                editable: true
+                Layout.columnSpan: 1
+                Layout.fillWidth: true
 
-            onValueChanged: FaceTrack.faceMargin = Qt.rect(-1, Number(value), 1, -Number(value))
-        }
-        SpinBox {
-            Layout.columnSpan: 1
-            Layout.fillWidth: true
+                onValueChanged: {
+                    FaceTrack.faceMargin = Qt.rect(Number(value),
+                                                   FaceTrack.faceMargin.y,
+                                                   FaceTrack.faceMargin.width
+                                                   + FaceTrack.faceMargin.x
+                                                   - Number(value),
+                                                   FaceTrack.faceMargin.height)
+                }
+            }
+            SpinBox {
+                value: FaceTrack.faceMargin.right
+                from: 0
+                to: 1000
+                stepSize: 1
+                editable: true
+                Layout.columnSpan: 1
+                Layout.fillWidth: true
 
-            value: FaceTrack.faceMargin.left
-            from: 0
-            to: 1000
-            stepSize: 1
-            editable: true
+                onValueChanged: {
+                    FaceTrack.faceMargin = Qt.rect(FaceTrack.faceMargin.x,
+                                                   FaceTrack.faceMargin.y,
+                                                   Number(value) - FaceTrack.faceMargin.x + 1,
+                                                   FaceTrack.faceMargin.height)
+                }
+            }
+            SpinBox {
+                value: FaceTrack.faceMargin.bottom
+                from: 0
+                to: 1000
+                stepSize: 1
+                editable: true
+                Layout.columnSpan: 2
+                Layout.alignment: Qt.AlignHCenter
 
-            onValueChanged: FaceTrack.faceMargin = Qt.rect(Number(value), -1, -Number(value), 1)
-        }
-        SpinBox {
-            Layout.columnSpan: 1
-            Layout.fillWidth: true
-
-            value: FaceTrack.faceMargin.right
-            from: 0
-            to: 1000
-            stepSize: 1
-            editable: true
-
-            onValueChanged: FaceTrack.faceMargin = Qt.rect(-1, -1, Number(value) + 2, 1)
-        }
-        SpinBox {
-            Layout.columnSpan: 2
-            Layout.alignment: Qt.AlignHCenter
-
-            value: FaceTrack.faceMargin.bottom
-            from: 0
-            to: 1000
-            stepSize: 1
-            editable: true
-
-            onValueChanged: FaceTrack.faceMargin = Qt.rect(-1, -1, 1, Number(value) + 2)
+                onValueChanged: {
+                    FaceTrack.faceMargin = Qt.rect(FaceTrack.faceMargin.x,
+                                                   FaceTrack.faceMargin.y,
+                                                   FaceTrack.faceMargin.width,
+                                                   Number(value) - FaceTrack.faceMargin.y + 1)
+                }
+            }
         }
     }
 
@@ -361,27 +402,28 @@ GridLayout {
         text: qsTr("Aspect ratio")
     }
     GridLayout {
+        columns: 2
         Layout.fillWidth: true
 
-        columns: 2
-
         TextField {
-            Layout.fillWidth: true
-
-            text: FaceTrack.aspectRatio.width + ":" + FaceTrack.aspectRatio.height
+            text: AkFrac.create(FaceTrack.aspectRatio).string.replace("/", ":")
             placeholderText: qsTr("e.g. 16:9, 4:3")
             validator: RegExpValidator {
                 regExp: /\d+:\d+/
             }
             enabled: FaceTrack.overrideAspectRatio
+            selectByMouse: true
+            Layout.fillWidth: true
 
-            onAccepted: FaceTrack.aspectRatio = strToSize(text)
+            onTextChanged: {
+                FaceTrack.aspectRatio =
+                        AkFrac.create(text.replace(":", "/")).toVariant()
+            }
         }
 
-        CheckBox {
-            Layout.alignment: Qt.AlignRight
-
+        Switch {
             checked: FaceTrack.overrideAspectRatio
+            Layout.alignment: Qt.AlignRight
 
             onCheckedChanged: FaceTrack.overrideAspectRatio = checked
         }
@@ -391,10 +433,9 @@ GridLayout {
     Label {
         text: qsTr("Lock viewport")
     }
-    CheckBox {
-        Layout.alignment: Qt.AlignRight
-
+    Switch {
         checked: FaceTrack.lockedViewport
+        Layout.alignment: Qt.AlignRight
 
         onCheckedChanged: FaceTrack.lockedViewport = checked
     }
@@ -403,10 +444,9 @@ GridLayout {
     Label {
         text: qsTr("Debug mode")
     }
-    CheckBox {
-        Layout.alignment: Qt.AlignRight
-
+    Switch {
         checked: FaceTrack.debugModeEnabled
+        Layout.alignment: Qt.AlignRight
 
         onCheckedChanged: FaceTrack.debugModeEnabled = checked
     }

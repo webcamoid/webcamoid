@@ -66,6 +66,7 @@ MediaTools::MediaTools(QObject *parent):
     QObject(parent)
 {
     this->d = new MediaToolsPrivate;
+    Ak::registerTypes();
 
     // Initialize environment.
     this->d->m_engine = new QQmlApplicationEngine();

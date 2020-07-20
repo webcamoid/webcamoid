@@ -67,28 +67,8 @@ Ak::Ak(const Ak &other):
     Q_UNUSED(other)
 }
 
-qint64 Ak::id()
+void Ak::registerTypes()
 {
-    static qint64 id = 0;
-
-    return id++;
-}
-
-void Ak::setQmlEngine(QQmlEngine *engine)
-{
-    if (engine == akGlobalStuff->m_globalEngine)
-        return;
-
-    if (engine && !engine->importPathList().contains(":/Ak/share/qml"))
-        engine->addImportPath(":/Ak/share/qml");
-
-    akGlobalStuff->m_globalEngine = engine;
-}
-
-AkPrivate::AkPrivate()
-{
-    this->m_globalEngine = nullptr;
-
     qRegisterMetaType<size_t>("size_t");
     qRegisterMetaType<QRgb>("QRgb");
     qRegisterMetaType<QColor>("QColor");
@@ -113,6 +93,29 @@ AkPrivate::AkPrivate()
     AkTheme::registerTypes();
     AkPaletteGroup::registerTypes();
     AkPalette::registerTypes();
+}
+
+qint64 Ak::id()
+{
+    static qint64 id = 0;
+
+    return id++;
+}
+
+void Ak::setQmlEngine(QQmlEngine *engine)
+{
+    if (engine == akGlobalStuff->m_globalEngine)
+        return;
+
+    if (engine && !engine->importPathList().contains(":/Ak/share/qml"))
+        engine->addImportPath(":/Ak/share/qml");
+
+    akGlobalStuff->m_globalEngine = engine;
+}
+
+AkPrivate::AkPrivate()
+{
+    this->m_globalEngine = nullptr;
 
 #ifdef Q_OS_WIN32
     // Initialize the COM library in multithread mode.

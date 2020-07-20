@@ -151,21 +151,17 @@ QVector<QRect> FaceDetectElement::detectFaces(const AkVideoPacket &packet)
 {
     QSize scanSize(this->d->m_scanSize);
 
-    if (this->d->m_haarFile.isEmpty()
-        || scanSize.isEmpty())
-        return QVector<QRect>();
+    if (this->d->m_haarFile.isEmpty() || scanSize.isEmpty())
+        return {};
 
     auto src = packet.toImage();
 
     if (src.isNull())
-        return QVector<QRect>();
+        return {};
 
     QImage scanFrame(src.scaled(scanSize, Qt::KeepAspectRatio));
 
-    this->d->m_cascadeClassifier.setEqualize(true);
-    QVector<QRect> vecFaces = this->d->m_cascadeClassifier.detect(scanFrame);
-
-    return vecFaces;
+    return this->d->m_cascadeClassifier.detect(scanFrame);
 }
 
 QString FaceDetectElement::controlInterfaceProvide(const QString &controlId) const

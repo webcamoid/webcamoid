@@ -20,10 +20,10 @@
 #ifndef FACETRACKELEMENT_H
 #define FACETRACKELEMENT_H
 
-#include <qrgb.h>
 #include <akelement.h>
 
 class FaceTrackElementPrivate;
+class AkFrac;
 
 class FaceTrackElement: public AkElement
 {
@@ -68,7 +68,7 @@ class FaceTrackElement: public AkElement
                WRITE setFaceMargin
                RESET resetFaceMargin
                NOTIFY faceMarginChanged)
-    Q_PROPERTY(QSize aspectRatio
+    Q_PROPERTY(AkFrac aspectRatio
                READ aspectRatio
                WRITE setAspectRatio
                RESET resetAspectRatio
@@ -101,19 +101,13 @@ class FaceTrackElement: public AkElement
         Q_INVOKABLE int contractRate() const;
         Q_INVOKABLE QRect facePadding() const;
         Q_INVOKABLE QRect faceMargin() const;
-        Q_INVOKABLE QSize aspectRatio() const;
+        Q_INVOKABLE AkFrac aspectRatio() const;
         Q_INVOKABLE bool overrideAspectRatio() const;
         Q_INVOKABLE bool lockedViewport() const;
         Q_INVOKABLE bool debugModeEnabled() const;
 
     private:
         FaceTrackElementPrivate *d;
-
-        Q_INVOKABLE QRect calculateNewBounds(const QRect &targetBounds,
-                                             const QSize &maxCropSize,
-                                             const QSize &srcSize) const;
-        Q_INVOKABLE void collectFaces(const QVector<QRect> &vecFaces);
-        Q_INVOKABLE unsigned int gcd(unsigned int u, unsigned int v);
 
     protected:
         QString controlInterfaceProvide(const QString &controlId) const;
@@ -128,9 +122,9 @@ class FaceTrackElement: public AkElement
         void faceBucketCountChanged(int count);
         void expandRateChanged(int rate);
         void contractRateChanged(int rate);
-        void facePaddingChanged(const QRect facePadding);
-        void faceMarginChanged(const QRect faceMargin);
-        void aspectRatioChanged(const QSize &aspectRatio);
+        void facePaddingChanged(const QRect &facePadding);
+        void faceMarginChanged(const QRect &faceMargin);
+        void aspectRatioChanged(const AkFrac &aspectRatio);
         void overrideAspectRatioChanged(bool overrideAspectRatio);
         void lockedViewportChanged(bool lockViewport);
         void debugModeEnabledChanged(bool enabled);
@@ -142,9 +136,9 @@ class FaceTrackElement: public AkElement
         void setFaceBucketCount(int count);
         void setExpandRate(int rate);
         void setContractRate(int rate);
-        void setFacePadding(const QRect facePadding);
-        void setFaceMargin(const QRect faceMargin);
-        void setAspectRatio(const QSize &aspectRatio);
+        void setFacePadding(const QRect &facePadding);
+        void setFaceMargin(const QRect &faceMargin);
+        void setAspectRatio(const AkFrac &aspectRatio);
         void setOverrideAspectRatio(bool overrideAspectRatio);
         void setLockedViewport(bool lockViewport);
         void setDebugModeEnabled(bool enabled);
