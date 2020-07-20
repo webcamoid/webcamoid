@@ -257,6 +257,10 @@ GridLayout {
                 text: qsTr("Blur")
                 markerType: "blur"
             }
+            ListElement {
+                text: qsTr("Blur Outer")
+                markerType: "blurouter"
+            }
         }
 
         onCurrentIndexChanged: FaceDetect.markerType = cbxMarkerType.model.get(currentIndex).markerType
