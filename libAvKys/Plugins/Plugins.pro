@@ -60,6 +60,7 @@ isEmpty(NOVIDEOEFFECTS): SUBDIRS += \
     Emboss \
     Equalize \
     FaceDetect \
+    FaceTrack \
     FalseColor \
     Fire \
     FrameOverlap \

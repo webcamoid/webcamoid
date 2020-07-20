@@ -98,6 +98,7 @@ class FaceDetectElement: public AkElement
         Q_INVOKABLE QSize pixelGridSize() const;
         Q_INVOKABLE int blurRadius() const;
         Q_INVOKABLE QSize scanSize() const;
+        Q_INVOKABLE QVector<QRect> detectFaces(const AkVideoPacket &packet);
 
     private:
         FaceDetectElementPrivate *d;

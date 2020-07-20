@@ -648,6 +648,7 @@ void AkVideoPacket::resetIndex()
 
 void AkVideoPacket::registerTypes()
 {
+    qRegisterMetaType<AkVideoPacket>("AkVideoPacket");
     qmlRegisterSingletonType<AkVideoPacket>("Ak", 1, 0, "AkVideoPacket",
                                             [] (QQmlEngine *qmlEngine,
                                                 QJSEngine *jsEngine) -> QObject * {

@@ -1039,6 +1039,8 @@
         <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="213"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="216"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="220"/>
+        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="163"/>
+        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="169"/>
         <source>Scan block</source>
         <translation>Блок сканирования</translation>
     </message>
@@ -1521,117 +1523,140 @@
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="112"/>
+        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="58"/>
         <source>Haar file</source>
         <extracomment>https://en.wikipedia.org/wiki/Haar-like_feature</extracomment>
         <translation>Признаки Хаара</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="122"/>
+        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="69"/>
         <source>Eye</source>
         <translation>Глаз</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="126"/>
+        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="73"/>
         <source>Eye glasses</source>
         <translation>Очки</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="130"/>
+        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="77"/>
         <source>Frontal face alternative 1</source>
         <translation>Другое лицо 1</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="134"/>
+        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="81"/>
         <source>Frontal face alternative 2</source>
         <translation>Другое лицо 2</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="138"/>
+        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="85"/>
         <source>Frontal face alternative 3</source>
         <translation>Другое лицо 3</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="142"/>
+        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="89"/>
         <source>Frontal face default</source>
         <translation>Обычное лицо</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="146"/>
+        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="93"/>
         <source>Full body</source>
         <translation>Всё тело</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="150"/>
+        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="97"/>
         <source>Left Eye 1</source>
         <translation>Левый Глаз 1</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="154"/>
+        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="101"/>
         <source>Lower body</source>
         <translation>Нижняя часть тела</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="158"/>
+        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="105"/>
         <source>Eye pair big</source>
         <translation>Большая пара глаз</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="162"/>
+        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="109"/>
         <source>Eye pair small</source>
         <translation>Маленькая пара глаз</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="166"/>
+        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="113"/>
         <source>Left ear</source>
         <translation>Левое ухо</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="170"/>
+        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="117"/>
         <source>Left eye 2</source>
         <translation>Левый глаз 2</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="174"/>
+        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="121"/>
         <source>Mouth</source>
         <translation>Рот</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="178"/>
+        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="125"/>
         <source>Nose</source>
         <translation>Нос</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="182"/>
+        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="129"/>
         <source>Right ear</source>
         <translation>Правое ухо</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="186"/>
+        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="133"/>
         <source>Right Eye 1</source>
         <translation>Правый глаз 1</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="190"/>
+        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="137"/>
         <source>Upper body 1</source>
         <translation>Верхняя часть тела 1</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="194"/>
+        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="141"/>
         <source>Profile face</source>
         <translation>Профиль лица</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="198"/>
+        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="145"/>
         <source>Right eye 2</source>
         <translation>Правый глаз 2</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="202"/>
+        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="149"/>
         <source>Smile</source>
         <translation>Улыбка</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="206"/>
+        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="153"/>
         <source>Upper body</source>
         <translation>Верхняя часть тела</translation>
     </message>
@@ -2392,6 +2417,7 @@
         <translation>Масштабирование</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="361"/>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="66"/>
         <source>Aspect ratio</source>
         <translation>Соотношение сторон</translation>
@@ -2400,6 +2426,54 @@
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="88"/>
         <source>Swap red and blue</source>
         <translation>Поменять местами красный и синий цвета</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="179"/>
+        <source>Face bracketing
+duration (seconds)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="195"/>
+        <source>Face bracket count</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="211"/>
+        <source>Zoom out rate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="227"/>
+        <source>Zoom in rate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="243"/>
+        <source>Face padding
+(% of face size)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="302"/>
+        <source>Face margin
+(% of face size)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="372"/>
+        <source>e.g. 16:9, 4:3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="392"/>
+        <source>Lock viewport</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="404"/>
+        <source>Debug mode</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 </TS>
