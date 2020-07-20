@@ -82,7 +82,8 @@ class FaceDetectElement: public AkElement
             MarkerTypeEllipse,
             MarkerTypeImage,
             MarkerTypePixelate,
-            MarkerTypeBlur
+            MarkerTypeBlur,
+            MarkerTypeBlurOuter
         };
 
         FaceDetectElement();

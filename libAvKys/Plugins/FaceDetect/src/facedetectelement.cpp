@@ -38,7 +38,8 @@ inline MarkerTypeMap initMarkerTypeMap()
         {FaceDetectElement::MarkerTypeEllipse  , "ellipse"  },
         {FaceDetectElement::MarkerTypeImage    , "image"    },
         {FaceDetectElement::MarkerTypePixelate , "pixelate" },
-        {FaceDetectElement::MarkerTypeBlur     , "blur"     }
+        {FaceDetectElement::MarkerTypeBlur     , "blur"     },
+        {FaceDetectElement::MarkerTypeBlurOuter, "blurouter" }
     };
 
     return markerTypeToStr;
@@ -197,6 +198,17 @@ AkPacket FaceDetectElement::iVideoStream(const AkVideoPacket &packet)
     QPainter painter;
     painter.begin(&oFrame);
 
+    /* Many users will want to blur even if no faces were detected! */
+    if (this->d->m_markerType == MarkerTypeBlurOuter) {
+        QRect all(0, 0, src.width(), src.height());
+        auto rectPacket = AkVideoPacket::fromImage(src.copy(all), packet);
+        AkVideoPacket blurPacket = this->d->m_blurFilter->iStream(rectPacket);
+        auto blurImage = blurPacket.toImage();
+        painter.drawImage(all, blurImage);
+        /* for a better effect, we could add a second (weaker) blur */
+        /* and copy this to larger boxes around all faces */
+    }
+
     for (const QRect &face: vecFaces) {
         QRect rect(int(scale * face.x()),
                    int(scale * face.y()),
@@ -232,6 +244,8 @@ AkPacket FaceDetectElement::iVideoStream(const AkVideoPacket &packet)
             auto blurImage = blurPacket.toImage();
 
             painter.drawImage(rect, blurImage);
+        } else if (this->d->m_markerType == MarkerTypeBlurOuter) {
+            painter.drawImage(rect, src.copy(rect));
         }
     }
 
