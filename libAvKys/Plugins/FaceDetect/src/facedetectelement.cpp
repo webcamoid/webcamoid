@@ -39,7 +39,7 @@ inline MarkerTypeMap initMarkerTypeMap()
         {FaceDetectElement::MarkerTypeImage    , "image"    },
         {FaceDetectElement::MarkerTypePixelate , "pixelate" },
         {FaceDetectElement::MarkerTypeBlur     , "blur"     },
-        {FaceDetectElement::MarkerTypeBlurOuter, "blurouter" }
+        {FaceDetectElement::MarkerTypeBlurOuter, "blurouter"}
     };
 
     return markerTypeToStr;
@@ -209,7 +209,7 @@ AkPacket FaceDetectElement::iVideoStream(const AkVideoPacket &packet)
         /* and copy this to larger boxes around all faces */
     }
 
-    for (const QRect &face: vecFaces) {
+    for (auto &face: vecFaces) {
         QRect rect(int(scale * face.x()),
                    int(scale * face.y()),
                    int(scale * face.width()),
@@ -271,7 +271,7 @@ void FaceDetectElement::setHaarFile(const QString &haarFile)
 
 void FaceDetectElement::setMarkerType(const QString &markerType)
 {
-    MarkerType markerTypeEnum = markerTypeToStr->key(markerType, MarkerTypeRectangle);
+    auto markerTypeEnum = markerTypeToStr->key(markerType, MarkerTypeRectangle);
 
     if (this->d->m_markerType == markerTypeEnum)
         return;
