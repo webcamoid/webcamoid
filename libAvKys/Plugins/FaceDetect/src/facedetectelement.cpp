@@ -147,6 +147,27 @@ QSize FaceDetectElement::scanSize() const
     return this->d->m_scanSize;
 }
 
+QVector<QRect> FaceDetectElement::detectFaces(const AkVideoPacket &packet)
+{
+    QSize scanSize(this->d->m_scanSize);
+
+    if (this->d->m_haarFile.isEmpty()
+        || scanSize.isEmpty())
+        return QVector<QRect>();
+
+    auto src = packet.toImage();
+
+    if (src.isNull())
+        return QVector<QRect>();
+
+    QImage scanFrame(src.scaled(scanSize, Qt::KeepAspectRatio));
+
+    this->d->m_cascadeClassifier.setEqualize(true);
+    QVector<QRect> vecFaces = this->d->m_cascadeClassifier.detect(scanFrame);
+
+    return vecFaces;
+}
+
 QString FaceDetectElement::controlInterfaceProvide(const QString &controlId) const
 {
     Q_UNUSED(controlId)
