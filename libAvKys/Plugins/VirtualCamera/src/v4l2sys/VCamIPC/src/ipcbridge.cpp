@@ -147,7 +147,6 @@ namespace AkVCam
             ~IpcBridgePrivate();
 
             static inline QString *driverPath();
-            static inline std::vector<std::wstring> *driverPaths();
             static inline QMap<Scaling, QString> *scalingToString();
             static inline QMap<AspectRatio, QString> *aspectRatioToString();
             const QVector<AkVCam::DriverFunctions> *driverFunctions();
@@ -222,6 +221,8 @@ namespace AkVCam
                                                const std::wstring &description);
             QString destroyAllDevicesV4L2Loopback();
     };
+
+    Q_GLOBAL_STATIC(QStringList, driverPaths)
 }
 
 AkVCam::IpcBridge::IpcBridge()
@@ -241,7 +242,8 @@ std::wstring AkVCam::IpcBridge::errorMessage() const
     return this->d->m_error;
 }
 
-void AkVCam::IpcBridge::setOption(const std::string &key, const std::string &value)
+void AkVCam::IpcBridge::setOption(const std::string &key,
+                                  const std::string &value)
 {
     if (value.empty())
         this->d->m_options.erase(key);
@@ -251,12 +253,22 @@ void AkVCam::IpcBridge::setOption(const std::string &key, const std::string &val
 
 std::vector<std::wstring> AkVCam::IpcBridge::driverPaths() const
 {
-    return *this->d->driverPaths();
+    std::vector<std::wstring> paths;
+
+    for (auto &path: *AkVCam::driverPaths)
+        paths.push_back(path.toStdWString());
+
+    return paths;
 }
 
 void AkVCam::IpcBridge::setDriverPaths(const std::vector<std::wstring> &driverPaths)
 {
-    *this->d->driverPaths() = driverPaths;
+    QStringList paths;
+
+    for (auto &path: driverPaths)
+        paths << QString::fromStdWString(path);
+
+    *AkVCam::driverPaths = paths;
 }
 
 std::vector<std::string> AkVCam::IpcBridge::availableDrivers() const
@@ -342,7 +354,7 @@ std::string AkVCam::IpcBridge::rootMethod() const
     QSettings settings(QCoreApplication::organizationName(),
                        "VirtualCamera");
     auto method =
-            settings.value("rootMethod", "akvcam").toString().toStdString();
+            settings.value("rootMethod", "pkexec").toString().toStdString();
 
     if (std::find(methods.begin(), methods.end(), method) == methods.end())
         return methods.front();
@@ -1508,13 +1520,6 @@ QString *AkVCam::IpcBridgePrivate::driverPath()
     return &path;
 }
 
-std::vector<std::wstring> *AkVCam::IpcBridgePrivate::driverPaths()
-{
-    static std::vector<std::wstring> paths;
-
-    return &paths;
-}
-
 QMap<AkVCam::Scaling, QString> *AkVCam::IpcBridgePrivate::scalingToString()
 {
     static QMap<Scaling, QString> scalingMap = {
@@ -2313,23 +2318,32 @@ QStringList AkVCam::IpcBridgePrivate::listDrivers()
             return {fileInfo.baseName()};
     }
 
-    for (auto it = this->driverPaths()->rbegin();
-         it != this->driverPaths()->rend();
+    QStringList pluginFiles {
+        "/Makefile",
+        "/dkms.conf",
+    };
+
+    for (auto it = AkVCam::driverPaths->rbegin();
+         it != AkVCam::driverPaths->rend();
          it++) {
-        auto path = QString::fromStdWString(*it);
+        auto path = *it;
+        bool filesFound = true;
 
-        if (!QFileInfo::exists(path + "/Makefile"))
-            continue;
+        for (auto &file: pluginFiles)
+            if (!QFileInfo::exists(path + file)) {
+                filesFound = false;
 
-        if (!QFileInfo::exists(path + "/dkms.conf"))
-            continue;
+                break;
+            }
 
-        auto driver = this->compileDriver(path);
+        if (filesFound) {
+            auto driver = this->compileDriver(path);
 
-        if (!driver.isEmpty()) {
-            *this->driverPath() = path + "/" + driver + ".ko";
+            if (!driver.isEmpty()) {
+                *this->driverPath() = path + "/" + driver + ".ko";
 
-            return {driver};
+                return {driver};
+            }
         }
     }
 
@@ -2631,8 +2645,8 @@ std::string AkVCam::IpcBridgePrivate::deviceCreateAkVCam(const std::wstring &des
     }
 
     // Fix devices formats.
-    QList<VideoFormat> deviceFormats;
-    QList<VideoFormat> outputFormats;
+    FormatsList deviceFormats;
+    FormatsList outputFormats;
 
     for (auto &format: formats) {
         deviceFormats << format;
@@ -2901,8 +2915,8 @@ bool AkVCam::IpcBridgePrivate::deviceEditAkVCam(const std::string &deviceId,
     }
 
     // Fix devices formats.
-    QList<VideoFormat> deviceFormats;
-    QList<VideoFormat> outputFormats;
+    FormatsList deviceFormats;
+    FormatsList outputFormats;
 
     for (auto &format: formats) {
         deviceFormats << format;

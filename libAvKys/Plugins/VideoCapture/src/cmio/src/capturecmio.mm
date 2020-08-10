@@ -652,16 +652,11 @@ void CaptureCMIO::updateDevices()
     this->d->m_devicesCaps = devicesCaps;
     this->d->m_devicesID = devicesID;
 
-    auto devicesList = this->d->devices();
-
-    for (auto &id: devicesList) {
+    for (auto &id: this->d->devices()) {
         auto deviceUID = this->d->deviceUID(id);
-        devices << deviceUID;
-        descriptions[deviceUID] = this->d->objectName(id);
-        devicesID[deviceUID] = id;
-        auto streams = this->d->deviceStreams(id);
+        QVariantList caps;
 
-        for (auto &stream: streams) {
+        for (auto &stream: this->d->deviceStreams(id)) {
             if (this->d->streamDirection(stream) != StreamDirectionOutput)
                 continue;
 
@@ -681,11 +676,18 @@ void CaptureCMIO::updateDevices()
                     videoCaps.setProperty("fps",
                                           AkFrac(qRound(1e3 * fpsRange),
                                                  1e3).toString());
-                    devicesCaps[deviceUID] << QVariant::fromValue(videoCaps);
+                    caps << QVariant::fromValue(videoCaps);
                 }
             }
 
             CFRelease(formats);
+        }
+
+        if (!caps.isEmpty()) {
+            devices << deviceUID;
+            descriptions[deviceUID] = this->d->objectName(id);
+            devicesID[deviceUID] = id;
+            devicesCaps[deviceUID] = caps;
         }
     }
 

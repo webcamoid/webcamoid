@@ -32,7 +32,6 @@ CONFIG += \
     staticlib \
     create_prl \
     no_install_prl
-CONFIG -= qt
 
 DESTDIR = $${OUT_PWD}/$${BIN_DIR}
 
@@ -42,6 +41,11 @@ TEMPLATE = lib
 
 LIBS = \
     -L$${OUT_PWD}/../../VCamUtils/$${BIN_DIR} -lVCamUtils \
+    -framework AVFoundation \
+    -framework CoreFoundation \
+    -framework CoreMedia \
+    -framework CoreMediaIO \
+    -framework CoreVideo \
     -framework Foundation
 
 OBJECTIVE_SOURCES = \
@@ -51,5 +55,5 @@ HEADERS =  \
     ../../ipcbridge.h
 
 INCLUDEPATH += \
-    ../.. \
-    ../Assistant/src
+    .. \
+    ../..

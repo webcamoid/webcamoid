@@ -17,114 +17,87 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <fstream>
-#include <map>
-#include <sstream>
-#include <algorithm>
-#include <sys/stat.h>
-#include <dirent.h>
-#include <Foundation/Foundation.h>
-#include <IOSurface/IOSurface.h>
-#include <CoreMedia/CMFormatDescription.h>
-#include <xpc/connection.h>
+#include <QCoreApplication>
+#include <QDebug>
+#include <QDir>
+#include <QFile>
+#include <QFileInfo>
+#include <QMap>
+#include <QVariant>
+#include <QWaitCondition>
+#include <QMutex>
+#include <QProcess>
+#include <QSettings>
+#include <QTemporaryDir>
+#include <sys/time.h>
 #include <libproc.h>
+#import <AVFoundation/AVFoundation.h>
+#import <CoreMediaIO/CMIOHardwarePlugIn.h>
 
 #include "ipcbridge.h"
-#include "../../Assistant/src/assistantglobals.h"
 #include "VCamUtils/src/utils.h"
 #include "VCamUtils/src/image/videoformat.h"
 #include "VCamUtils/src/image/videoframe.h"
-#include "VCamUtils/src/logger/logger.h"
-
-#define AkIpcBridgeLogMethod() \
-    AkLoggerLog("IpcBridge::", __FUNCTION__, "()")
-
-#define AkIpcBridgePrivateLogMethod() \
-    AkLoggerLog("IpcBridgePrivate::", __FUNCTION__, "()")
-
-#define AKVCAM_BIND_FUNC(member) \
-    std::bind(&member, this, std::placeholders::_1, std::placeholders::_2)
 
 namespace AkVCam
 {
+    using PixelFormatToFourCCMap = QMap<FourCC, FourCharCode>;
+    using FormatsList = QList<VideoFormat>;
+
+    enum StreamDirection
+    {
+        StreamDirectionOutput,
+        StreamDirectionInput
+    };
+
     class IpcBridgePrivate
     {
         public:
             IpcBridge *self;
-            std::string m_portName;
-            xpc_connection_t m_messagePort;
-            xpc_connection_t m_serverMessagePort;
-            std::map<int64_t, XpcMessage> m_messageHandlers;
+            QStringList m_devices;
+            QMap<QString, QString> m_descriptions;
+            QMap<QString, FormatsList> m_devicesFormats;
             std::vector<std::string> m_broadcasting;
             std::map<std::string, std::string> m_options;
             std::wstring m_error;
-            bool m_asClient;
-            bool m_uninstall;
 
             IpcBridgePrivate(IpcBridge *self=nullptr);
             ~IpcBridgePrivate();
 
-            static inline std::vector<std::wstring> *driverPaths();
-            inline void add(IpcBridge *bridge);
-            void remove(IpcBridge *bridge);
-            inline std::vector<IpcBridge *> &bridges();
-
-            // Message handling methods
-            void isAlive(xpc_connection_t client, xpc_object_t event);
-            void deviceCreate(xpc_connection_t client, xpc_object_t event);
-            void deviceDestroy(xpc_connection_t client, xpc_object_t event);
-            void frameReady(xpc_connection_t client, xpc_object_t event);
-            void setBroadcasting(xpc_connection_t client,
-                                     xpc_object_t event);
-            void setMirror(xpc_connection_t client, xpc_object_t event);
-            void setScaling(xpc_connection_t client, xpc_object_t event);
-            void setAspectRatio(xpc_connection_t client, xpc_object_t event);
-            void setSwapRgb(xpc_connection_t client, xpc_object_t event);
-            void listenerAdd(xpc_connection_t client, xpc_object_t event);
-            void listenerRemove(xpc_connection_t client, xpc_object_t event);
-            void messageReceived(xpc_connection_t client, xpc_object_t event);
-            void connectionInterrupted();
+            static inline const PixelFormatToFourCCMap &formatToFourCCMap();
+            QStringList listDrivers();
+            QString plugin() const;
+            QString manager() const;
+            QVector<CMIODeviceID> devices() const;
+            QString deviceUID(CMIODeviceID deviceID) const;
+            QString objectName(CMIOObjectID objectID) const;
+            QVector<CMIOStreamID> deviceStreams(CMIODeviceID deviceID) const;
+            QVector<Float64> streamFrameRates(CMIOStreamID streamID,
+                                              CMVideoFormatDescriptionRef formatDescription=nullptr) const;
+            VideoFormat formatFromDescription(CMVideoFormatDescriptionRef formatDescription) const;
+            StreamDirection streamDirection(CMIOStreamID streamID) const;
+            CFArrayRef formatDescriptions(CMIOStreamID streamID) const;
+            QStringList connectedDevices(const QString &deviceId) const;
+            void updateDevices();
 
             // Utility methods
-            std::string homePath() const;
-            bool fileExists(const std::wstring &path) const;
-            bool fileExists(const std::string &path) const;
-            std::wstring fileName(const std::wstring &path) const;
-            bool mkpath(const std::string &path) const;
-            bool rm(const std::string &path) const;
-            bool createDaemonPlist(const std::string &fileName) const;
-            bool loadDaemon();
-            void unloadDaemon() const;
-            bool checkDaemon();
-            void uninstallPlugin();
-            std::wstring locateDriverPath() const;
+            QString locateDriverPath() const;
 
             // Execute commands with elevated privileges.
-            int sudo(const std::vector<std::string> &parameters);
-
-        private:
-            std::vector<IpcBridge *> m_bridges;
+            int sudo(const QStringList &parameters);
     };
 
-    inline IpcBridgePrivate &ipcBridgePrivate()
-    {
-        static IpcBridgePrivate ipcBridgePrivate;
-
-        return ipcBridgePrivate;
-    }
+    Q_GLOBAL_STATIC(QStringList, driverPaths)
 }
 
 AkVCam::IpcBridge::IpcBridge()
 {
-    AkIpcBridgeLogMethod();
     this->d = new IpcBridgePrivate(this);
-    ipcBridgePrivate().add(this);
+    this->d->updateDevices();
 }
 
 AkVCam::IpcBridge::~IpcBridge()
 {
-    this->unregisterPeer();
-    ipcBridgePrivate().remove(this);
     delete this->d;
 }
 
@@ -136,8 +109,6 @@ std::wstring AkVCam::IpcBridge::errorMessage() const
 void AkVCam::IpcBridge::setOption(const std::string &key,
                                   const std::string &value)
 {
-    AkIpcBridgeLogMethod();
-
     if (value.empty())
         this->d->m_options.erase(key);
     else
@@ -146,268 +117,151 @@ void AkVCam::IpcBridge::setOption(const std::string &key,
 
 std::vector<std::wstring> AkVCam::IpcBridge::driverPaths() const
 {
-    AkIpcBridgeLogMethod();
+    std::vector<std::wstring> paths;
 
-    return *this->d->driverPaths();
+    for (auto &path: *AkVCam::driverPaths)
+        paths.push_back(path.toStdWString());
+
+    return paths;
 }
 
 void AkVCam::IpcBridge::setDriverPaths(const std::vector<std::wstring> &driverPaths)
 {
-    AkIpcBridgeLogMethod();
-    *this->d->driverPaths() = driverPaths;
+    QStringList paths;
+
+    for (auto &path: driverPaths)
+        paths << QString::fromStdWString(path);
+
+    *AkVCam::driverPaths = paths;
 }
 
 std::vector<std::string> AkVCam::IpcBridge::availableDrivers() const
 {
-    return {"AkVirtualCamera"};
+    std::vector<std::string> drivers;
+
+    for (auto &driver: this->d->listDrivers())
+        drivers.push_back(driver.toStdString());
+
+    return drivers;
 }
 
 std::string AkVCam::IpcBridge::driver() const
 {
-    return {"AkVirtualCamera"};
+    auto drivers = this->availableDrivers();
+
+    if (drivers.empty())
+        return {};
+
+    QSettings settings(QCoreApplication::organizationName(),
+                       "VirtualCamera");
+    auto driver =
+            settings.value("driver", "AkVirtualCamera").toString().toStdString();
+
+    if (std::find(drivers.begin(), drivers.end(), driver) == drivers.end())
+        return drivers.front();
+
+    return driver;
 }
 
 bool AkVCam::IpcBridge::setDriver(const std::string &driver)
 {
-    return driver == "AkVirtualCamera";
+    auto drivers = this->availableDrivers();
+
+    if (std::find(drivers.begin(), drivers.end(), driver) == drivers.end())
+        return false;
+
+    QSettings settings(QCoreApplication::organizationName(), "VirtualCamera");
+    settings.setValue("driver", QString::fromStdString(driver));
+
+    return true;
 }
 
 std::vector<std::string> AkVCam::IpcBridge::availableRootMethods() const
 {
-    return {"osascript"};
+    auto paths =
+            QProcessEnvironment::systemEnvironment().value("PATH").split(':');
+
+    static const QStringList sus {
+        "osascript"
+    };
+
+    std::vector<std::string> methods;
+
+    for (auto &su: sus)
+        for (auto &path: paths)
+            if (QDir(path).exists(su)) {
+                methods.push_back(su.toStdString());
+
+                break;
+            }
+
+    return methods;
 }
 
 std::string AkVCam::IpcBridge::rootMethod() const
 {
-    return {"osascript"};
+    auto methods = this->availableRootMethods();
+
+    if (methods.empty())
+        return {};
+
+    QSettings settings(QCoreApplication::organizationName(),
+                       "VirtualCamera");
+    auto method =
+            settings.value("rootMethod", "osascript").toString().toStdString();
+
+    if (std::find(methods.begin(), methods.end(), method) == methods.end())
+        return methods.front();
+
+    return method;
 }
 
 bool AkVCam::IpcBridge::setRootMethod(const std::string &rootMethod)
 {
-    return rootMethod == "osascript";
+    auto methods = this->availableRootMethods();
+
+    if (std::find(methods.begin(), methods.end(), rootMethod) == methods.end())
+        return false;
+
+    QSettings settings(QCoreApplication::organizationName(), "VirtualCamera");
+    settings.setValue("rootMethod", QString::fromStdString(rootMethod));
+
+    return true;
 }
 
 void AkVCam::IpcBridge::connectService(bool asClient)
 {
-    AkIpcBridgeLogMethod();
-    this->d->m_asClient = asClient;
-    this->registerPeer(asClient);
+    Q_UNUSED(asClient)
 }
 
 void AkVCam::IpcBridge::disconnectService()
 {
-    AkIpcBridgeLogMethod();
-    this->unregisterPeer();
-    this->d->m_asClient = false;
 }
 
 bool AkVCam::IpcBridge::registerPeer(bool asClient)
 {
-    AkIpcBridgeLogMethod();
-
-    if (!asClient) {
-        std::string plistFile =
-                CMIO_DAEMONS_PATH "/" AKVCAM_ASSISTANT_NAME ".plist";
-
-        auto daemon = replace(plistFile, "~", this->d->homePath());
-
-        if (!this->d->fileExists(daemon))
-            return false;
-    }
-
-    if (this->d->m_serverMessagePort)
-        return true;
-
-    xpc_object_t dictionary = nullptr;
-    xpc_object_t reply = nullptr;
-    std::string portName;
-    xpc_connection_t messagePort = nullptr;
-    xpc_type_t replyType;
-    bool status = false;
-
-    auto serverMessagePort =
-            xpc_connection_create_mach_service(AKVCAM_ASSISTANT_NAME,
-                                               nullptr,
-                                               0);
-
-    if (!serverMessagePort)
-        goto registerEndPoint_failed;
-
-    xpc_connection_set_event_handler(serverMessagePort, ^(xpc_object_t event) {
-        if (event == XPC_ERROR_CONNECTION_INTERRUPTED) {
-            ipcBridgePrivate().connectionInterrupted();
-        }
-    });
-    xpc_connection_resume(serverMessagePort);
-
-    dictionary = xpc_dictionary_create(nullptr, nullptr, 0);
-    xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_REQUEST_PORT);
-    xpc_dictionary_set_bool(dictionary, "client", asClient);
-    reply = xpc_connection_send_message_with_reply_sync(serverMessagePort,
-                                                        dictionary);
-    xpc_release(dictionary);
-    replyType = xpc_get_type(reply);
-
-    if (replyType == XPC_TYPE_DICTIONARY)
-        portName = xpc_dictionary_get_string(reply, "port");
-
-    xpc_release(reply);
-
-    if (replyType != XPC_TYPE_DICTIONARY)
-        goto registerEndPoint_failed;
-
-    messagePort = xpc_connection_create(nullptr, nullptr);
-
-    if (!messagePort)
-        goto registerEndPoint_failed;
-
-    xpc_connection_set_event_handler(messagePort, ^(xpc_object_t event) {
-        auto type = xpc_get_type(event);
-
-        if (type == XPC_TYPE_ERROR)
-            return;
-
-        auto client = reinterpret_cast<xpc_connection_t>(event);
-
-        xpc_connection_set_event_handler(client, ^(xpc_object_t event) {
-            ipcBridgePrivate().messageReceived(client, event);
-        });
-
-        xpc_connection_resume(client);
-    });
-
-    xpc_connection_resume(messagePort);
-
-    dictionary = xpc_dictionary_create(nullptr, nullptr, 0);
-    xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_ADD_PORT);
-    xpc_dictionary_set_string(dictionary, "port", portName.c_str());
-    xpc_dictionary_set_connection(dictionary, "connection", messagePort);
-    reply = xpc_connection_send_message_with_reply_sync(serverMessagePort,
-                                                        dictionary);
-    xpc_release(dictionary);
-    replyType = xpc_get_type(reply);
-
-    if (replyType == XPC_TYPE_DICTIONARY)
-        status = xpc_dictionary_get_bool(reply, "status");
-
-    xpc_release(reply);
-
-    if (replyType != XPC_TYPE_DICTIONARY || !status)
-        goto registerEndPoint_failed;
-
-    this->d->m_portName = portName;
-    this->d->m_messagePort = messagePort;
-    this->d->m_serverMessagePort = serverMessagePort;
-
-    AkLoggerLog("SUCCESSFUL");
+    Q_UNUSED(asClient)
 
     return true;
-
-registerEndPoint_failed:
-    if (messagePort)
-        xpc_release(messagePort);
-
-    if (serverMessagePort)
-        xpc_release(serverMessagePort);
-
-    AkLoggerLog("FAILED");
-
-    return false;
 }
 
 void AkVCam::IpcBridge::unregisterPeer()
 {
-    AkIpcBridgeLogMethod();
-
-    if (this->d->m_messagePort) {
-        xpc_release(this->d->m_messagePort);
-        this->d->m_messagePort = nullptr;
-    }
-
-    if (this->d->m_serverMessagePort) {
-        if (!this->d->m_portName.empty()) {
-            auto dictionary = xpc_dictionary_create(nullptr, nullptr, 0);
-            xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_REMOVE_PORT);
-            xpc_dictionary_set_string(dictionary, "port", this->d->m_portName.c_str());
-            xpc_connection_send_message(this->d->m_serverMessagePort,
-                                        dictionary);
-            xpc_release(dictionary);
-        }
-
-        xpc_release(this->d->m_serverMessagePort);
-        this->d->m_serverMessagePort = nullptr;
-    }
-
-    this->d->m_portName.clear();
 }
 
 std::vector<std::string> AkVCam::IpcBridge::listDevices() const
 {
-    AkIpcBridgeLogMethod();
-
-    if (!this->d->m_serverMessagePort)
-        return {};
-
-    auto dictionary = xpc_dictionary_create(nullptr, nullptr, 0);
-    xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICES);
-    auto reply = xpc_connection_send_message_with_reply_sync(this->d->m_serverMessagePort,
-                                                             dictionary);
-    xpc_release(dictionary);
-    auto replyType = xpc_get_type(reply);
-
-    if (replyType != XPC_TYPE_DICTIONARY) {
-        xpc_release(reply);
-
-        return {};
-    }
-
-    auto devicesList = xpc_dictionary_get_array(reply, "devices");
     std::vector<std::string> devices;
 
-    for (size_t i = 0; i < xpc_array_get_count(devicesList); i++)
-        devices.push_back(xpc_array_get_string(devicesList, i));
-
-    xpc_release(reply);
-
-#ifdef QT_DEBUG
-    AkLoggerLog("Devices:");
-
-    for (auto &device: devices)
-        AkLoggerLog("    ", device);
-#endif
+    for (auto &device: this->d->m_devices)
+        devices.push_back(device.toStdString());
 
     return devices;
 }
 
 std::wstring AkVCam::IpcBridge::description(const std::string &deviceId) const
 {
-    AkIpcBridgeLogMethod();
-
-    if (!this->d->m_serverMessagePort)
-        return {};
-
-    auto dictionary = xpc_dictionary_create(nullptr, nullptr, 0);
-    xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_DESCRIPTION);
-    xpc_dictionary_set_string(dictionary, "device", deviceId.c_str());
-    auto reply = xpc_connection_send_message_with_reply_sync(this->d->m_serverMessagePort,
-                                                             dictionary);
-    xpc_release(dictionary);
-    auto replyType = xpc_get_type(reply);
-
-    if (replyType != XPC_TYPE_DICTIONARY) {
-        xpc_release(reply);
-
-        return {};
-    }
-
-    size_t len = 0;
-    auto data = reinterpret_cast<const wchar_t *>(xpc_dictionary_get_data(reply,
-                                                                          "description",
-                                                                          &len));
-    std::wstring description(data, len / sizeof(wchar_t));
-    xpc_release(reply);
-
-    return description;
+    return this->d->m_descriptions.value(QString::fromStdString(deviceId)).toStdWString();
 }
 
 std::vector<AkVCam::PixelFormat> AkVCam::IpcBridge::supportedOutputPixelFormats() const
@@ -427,77 +281,39 @@ AkVCam::PixelFormat AkVCam::IpcBridge::defaultOutputPixelFormat() const
 
 std::vector<AkVCam::VideoFormat> AkVCam::IpcBridge::formats(const std::string &deviceId) const
 {
-    AkIpcBridgeLogMethod();
+    auto device = QString::fromStdString(deviceId);
 
-    if (!this->d->m_serverMessagePort)
+    if (!this->d->m_devicesFormats.contains(device))
         return {};
 
-    auto dictionary = xpc_dictionary_create(nullptr, nullptr, 0);
-    xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_FORMATS);
-    xpc_dictionary_set_string(dictionary, "device", deviceId.c_str());
-    auto reply = xpc_connection_send_message_with_reply_sync(this->d->m_serverMessagePort,
-                                                             dictionary);
-    xpc_release(dictionary);
-    auto replyType = xpc_get_type(reply);
-
-    if (replyType != XPC_TYPE_DICTIONARY) {
-        xpc_release(reply);
-
-        return {};
-    }
-
-    auto formatsList = xpc_dictionary_get_array(reply, "formats");
     std::vector<VideoFormat> formats;
 
-    for (size_t i = 0; i < xpc_array_get_count(formatsList); i++) {
-        auto format = xpc_array_get_dictionary(formatsList, i);
-        auto fourcc = FourCC(xpc_dictionary_get_uint64(format, "fourcc"));
-        auto width = int(xpc_dictionary_get_int64(format, "width"));
-        auto height = int(xpc_dictionary_get_int64(format, "height"));
-        auto fps = Fraction(xpc_dictionary_get_string(format, "fps"));
-
-        formats.push_back(VideoFormat(fourcc, width, height, {fps}));
-    }
-
-    xpc_release(reply);
+    for (auto &format: this->d->m_devicesFormats[device])
+        formats.push_back(format);
 
     return formats;
 }
 
 std::string AkVCam::IpcBridge::broadcaster(const std::string &deviceId) const
 {
-    AkIpcBridgeLogMethod();
+    QProcess manager;
+    manager.start(this->d->manager(),
+                  {"-p", "broadcasters", QString::fromStdString(deviceId)});
+    manager.waitForFinished();
 
-    if (!this->d->m_serverMessagePort)
+    if (manager.exitCode() != 0)
         return {};
 
-    auto dictionary = xpc_dictionary_create(nullptr, nullptr, 0);
-    xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_BROADCASTING);
-    xpc_dictionary_set_string(dictionary, "device", deviceId.c_str());
-    auto reply = xpc_connection_send_message_with_reply_sync(this->d->m_serverMessagePort,
-                                                             dictionary);
-    xpc_release(dictionary);
-    auto replyType = xpc_get_type(reply);
+    QStringList broadcasters;
 
-    if (replyType != XPC_TYPE_DICTIONARY) {
-        xpc_release(reply);
+    for (auto &line: manager.readAllStandardOutput().split('\n'))
+        broadcasters << line.trimmed();
 
-        return {};
-    }
-
-    std::string broadcaster = xpc_dictionary_get_string(reply, "broadcaster");
-    xpc_release(reply);
-
-    AkLoggerLog("Device: ", deviceId);
-    AkLoggerLog("Broadcaster: ", broadcaster);
-
-    return broadcaster;
+    return broadcasters.first().toStdString();
 }
 
 bool AkVCam::IpcBridge::isHorizontalMirrored(const std::string &deviceId)
-{
-    AkIpcBridgeLogMethod();
-
+{/*
     if (!this->d->m_serverMessagePort)
         return false;
 
@@ -519,12 +335,12 @@ bool AkVCam::IpcBridge::isHorizontalMirrored(const std::string &deviceId)
     xpc_release(reply);
 
     return horizontalMirror;
+    */
+    return false;
 }
 
 bool AkVCam::IpcBridge::isVerticalMirrored(const std::string &deviceId)
-{
-    AkIpcBridgeLogMethod();
-
+{/*
     if (!this->d->m_serverMessagePort)
         return false;
 
@@ -546,12 +362,12 @@ bool AkVCam::IpcBridge::isVerticalMirrored(const std::string &deviceId)
     xpc_release(reply);
 
     return verticalMirror;
+    */
+    return false;
 }
 
 AkVCam::Scaling AkVCam::IpcBridge::scalingMode(const std::string &deviceId)
-{
-    AkIpcBridgeLogMethod();
-
+{/*
     if (!this->d->m_serverMessagePort)
         return ScalingFast;
 
@@ -573,12 +389,12 @@ AkVCam::Scaling AkVCam::IpcBridge::scalingMode(const std::string &deviceId)
     xpc_release(reply);
 
     return scaling;
+    */
+    return ScalingFast;
 }
 
 AkVCam::AspectRatio AkVCam::IpcBridge::aspectRatioMode(const std::string &deviceId)
-{
-    AkIpcBridgeLogMethod();
-
+{/*
     if (!this->d->m_serverMessagePort)
         return AspectRatioIgnore;
 
@@ -600,12 +416,12 @@ AkVCam::AspectRatio AkVCam::IpcBridge::aspectRatioMode(const std::string &device
     xpc_release(reply);
 
     return aspectRatio;
+    */
+    return AspectRatioIgnore;
 }
 
 bool AkVCam::IpcBridge::swapRgb(const std::string &deviceId)
-{
-    AkIpcBridgeLogMethod();
-
+{/*
     if (!this->d->m_serverMessagePort)
         return false;
 
@@ -627,12 +443,12 @@ bool AkVCam::IpcBridge::swapRgb(const std::string &deviceId)
     xpc_release(reply);
 
     return swap;
+    */
+    return false;
 }
 
 std::vector<std::string> AkVCam::IpcBridge::listeners(const std::string &deviceId)
-{
-    AkIpcBridgeLogMethod();
-
+{/*
     if (!this->d->m_serverMessagePort)
         return {};
 
@@ -650,17 +466,14 @@ std::vector<std::string> AkVCam::IpcBridge::listeners(const std::string &deviceI
         return {};
     }
 
-    auto listenersList = xpc_dictionary_get_array(reply, "listeners");
+    auto listenersList = xpc_dictionary_get_array(reply, "listeners");*/
     std::vector<std::string> listeners;
-
+/*
     for (size_t i = 0; i < xpc_array_get_count(listenersList); i++)
         listeners.push_back(xpc_array_get_string(listenersList, i));
 
     xpc_release(reply);
-
-    AkLoggerLog("Device: ", deviceId);
-    AkLoggerLog("Listeners: ", listeners.size());
-
+*/
     return listeners;
 }
 
@@ -668,18 +481,17 @@ std::vector<uint64_t> AkVCam::IpcBridge::clientsPids() const
 {
     auto driverPath = this->d->locateDriverPath();
 
-    if (driverPath.empty())
+    if (driverPath.isEmpty())
         return {};
 
-    auto plugin = this->d->fileName(driverPath);
-    std::wstring pluginPath =
-            CMIO_PLUGINS_DAL_PATH_L L"/"
+    auto plugin = QFileInfo(driverPath).fileName();
+    QString pluginPath =
+            CMIO_PLUGINS_DAL_PATH "/"
             + plugin
-            + L"/Contents/MacOS/" CMIO_PLUGIN_NAME_L;
-    std::string path(pluginPath.begin(), pluginPath.end());
+            + "/Contents/MacOS/" CMIO_PLUGIN_NAME;
     auto npids = proc_listpidspath(PROC_ALL_PIDS,
                                    0,
-                                   path.c_str(),
+                                   pluginPath.toStdString().c_str(),
                                    0,
                                    nullptr,
                                    0);
@@ -687,7 +499,7 @@ std::vector<uint64_t> AkVCam::IpcBridge::clientsPids() const
     memset(pidsvec, 0, npids * sizeof(pid_t));
     proc_listpidspath(PROC_ALL_PIDS,
                       0,
-                      path.c_str(),
+                      pluginPath.toStdString().c_str(),
                       0,
                       pidsvec,
                       npids * sizeof(pid_t));
@@ -727,85 +539,263 @@ bool AkVCam::IpcBridge::canApply(AkVCam::IpcBridge::Operation operation) const
 
 std::string AkVCam::IpcBridge::deviceCreate(const std::wstring &description,
                                             const std::vector<VideoFormat> &formats)
-{
-    AkIpcBridgeLogMethod();
+{    
+    // Write the script file.
+    QTemporaryDir tempDir;
+    QFile cmds(tempDir.path() + "/akvcam_exec.sh");
 
-    if (!this->canApply(OperationCreate)) {
-        this->d->m_error = L"The driver is in use";
-
-        return {};
-    }
-
-    if (!this->d->checkDaemon())
-        return {};
-
-    this->registerPeer(false);
-
-    if (!this->d->m_serverMessagePort || !this->d->m_messagePort) {
-        this->d->m_error = L"Can't register peer";
+    if (!cmds.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        this->d->m_error = L"Can't create install script";
 
         return {};
     }
 
-    auto dictionary = xpc_dictionary_create(nullptr, nullptr, 0);
-    xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_CREATE);
-    xpc_dictionary_set_string(dictionary, "port", this->d->m_portName.c_str());
-    xpc_dictionary_set_data(dictionary,
-                            "description",
-                            description.c_str(),
-                            description.size() * sizeof(wchar_t));
-    auto formatsList = xpc_array_create(nullptr, 0);
+    cmds.setPermissions(QFileDevice::ReadOwner
+                        | QFileDevice::WriteOwner
+                        | QFileDevice::ExeOwner
+                        | QFileDevice::ReadUser
+                        | QFileDevice::WriteUser
+                        | QFileDevice::ExeUser);
+    auto manager = this->d->manager();
+    QTextStream ts(&cmds);
+    ts << "inDevice=$('"
+       << manager
+       << "' add-device -i '"
+       << QString::fromStdWString(description)
+       << " (in)')"
+       << Qt::endl;
+    ts << "[ $? != 0 ] && exit -1" << Qt::endl;
+    ts << "outDevice=$('"
+       << manager
+       << "' add-device -o '"
+       << QString::fromStdWString(description)
+       << "')" << Qt::endl;
+    ts << "[ $? != 0 ] && exit -1" << Qt::endl;
+
+    std::vector<VideoFormat> inputformats;
+    std::vector<VideoFormat> outputformats;
 
     for (auto &format: formats) {
-        auto dictFormat = xpc_dictionary_create(nullptr, nullptr, 0);
-        xpc_dictionary_set_uint64(dictFormat, "fourcc", format.fourcc());
-        xpc_dictionary_set_int64(dictFormat, "width", format.width());
-        xpc_dictionary_set_int64(dictFormat, "height", format.height());
-        xpc_dictionary_set_string(dictFormat, "fps", format.minimumFrameRate().toString().c_str());
-        xpc_array_append_value(formatsList, dictFormat);
+        auto width = format.width();
+        auto height = format.height();
+        auto fps = format.minimumFrameRate();
+        VideoFormat inputFormat(PixelFormatRGB24,
+                                width,
+                                height,
+                                {fps});
+        auto it = std::find(inputformats.begin(),
+                            inputformats.end(),
+                            inputFormat);
+
+        if (it == inputformats.end()) {
+            ts << "'"
+               << manager
+               << "' add-format \"${inDevice}\" "
+               << "RGB24"
+               << " "
+               << width
+               << " "
+               << height
+               << " "
+               << fps.toString().c_str()
+               << Qt::endl;
+            ts << "[ $? != 0 ] && exit -1" << Qt::endl;
+            inputformats.push_back(inputFormat);
+        }
+
+        auto ot = std::find(outputformats.begin(),
+                            outputformats.end(),
+                            format);
+
+        if (ot == outputformats.end()) {
+            ts << "'"
+               << manager
+               << "' add-format \"${outDevice}\" "
+               << VideoFormat::stringFromFourcc(format.fourcc()).c_str()
+               << " "
+               << width
+               << " "
+               << height
+               << " "
+               << fps.toString().c_str()
+               << Qt::endl;
+            ts << "[ $? != 0 ] && exit -1" << Qt::endl;
+            outputformats.push_back(format);
+        }
     }
 
-    xpc_dictionary_set_value(dictionary, "formats", formatsList);
+    ts << "'" << manager << "' connect \"${inDevice}\" \"${outDevice}\"" << Qt::endl;
+    ts << "[ $? != 0 ] && exit -1" << Qt::endl;
+    ts << "'" << manager << "' update" << Qt::endl;
+    ts << "[ $? != 0 ] && exit -1" << Qt::endl;
+    ts << "echo ${outDevice}";
+    cmds.close();
 
-    auto reply = xpc_connection_send_message_with_reply_sync(this->d->m_serverMessagePort,
-                                                             dictionary);
-    xpc_release(dictionary);
-    auto replyType = xpc_get_type(reply);
+    QProcess sh;
+    sh.start("sh", {cmds.fileName()});
+    sh.waitForFinished(-1);
 
-    if (replyType != XPC_TYPE_DICTIONARY) {
-        this->d->m_error = L"Can't set virtual camera formats";
-        xpc_release(reply);
+    if (sh.exitCode()) {
+        auto errorMsg = sh.readAllStandardError();
+
+        if (!errorMsg.isEmpty()) {
+            qDebug() << errorMsg.toStdString().c_str();
+            this->d->m_error += QString(errorMsg).toStdWString();
+        }
 
         return {};
     }
 
-    std::string deviceId(xpc_dictionary_get_string(reply, "device"));
-    xpc_release(reply);
+    QStringList devices;
 
-    return deviceId;
+    for (auto &line: sh.readAllStandardOutput().trimmed().split('\n'))
+        devices << line.trimmed();
+
+    return devices.last().toStdString();
 }
 
 bool AkVCam::IpcBridge::deviceEdit(const std::string &deviceId,
                                    const std::wstring &description,
                                    const std::vector<VideoFormat> &formats)
 {
-    AkIpcBridgeLogMethod();
+    // Write the script file.
+    QTemporaryDir tempDir;
+    QFile cmds(tempDir.path() + "/akvcam_exec.sh");
 
-    if (!this->canApply(OperationEdit)) {
-        this->d->m_error = L"The driver is in use";
+    if (!cmds.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        this->d->m_error = L"Can't create install script";
 
         return false;
     }
 
-    this->d->m_uninstall = false;
-    this->deviceDestroy(deviceId);
-    this->d->m_uninstall = true;
+    cmds.setPermissions(QFileDevice::ReadOwner
+                        | QFileDevice::WriteOwner
+                        | QFileDevice::ExeOwner
+                        | QFileDevice::ReadUser
+                        | QFileDevice::WriteUser
+                        | QFileDevice::ExeUser);
+    auto inputDevices =
+        this->d->connectedDevices(QString::fromStdString(deviceId));
 
-    if (this->deviceCreate(description.empty()?
-                               L"AvKys Virtual Camera":
-                               description,
-                           formats).empty())
+    auto manager = this->d->manager();
+    QTextStream ts(&cmds);
+
+    if (!inputDevices.isEmpty()) {
+        ts << "'"
+           << manager
+           << "' set-description '"
+           << inputDevices.first()
+           << "' '"
+           << QString::fromStdWString(description)
+           << " (in)'"
+           << Qt::endl;
+        ts << "[ $? != 0 ] && exit -1" << Qt::endl;
+    }
+
+    ts << "'"
+       << manager
+       << "' set-description '"
+       << QString::fromStdString(deviceId)
+       << "' '"
+       << QString::fromStdWString(description)
+       << "'" << Qt::endl;
+    ts << "[ $? != 0 ] && exit -1" << Qt::endl;
+
+    // Clear formats
+    if (!inputDevices.isEmpty()) {
+        ts << "'"
+           << manager
+           << "' remove-formats '"
+           << inputDevices.first()
+           << "'"
+           << Qt::endl;
+        ts << "[ $? != 0 ] && exit -1" << Qt::endl;
+    }
+
+    ts << "'"
+       << manager
+       << "' remove-formats '"
+       << QString::fromStdString(deviceId)
+       << "'"
+       << Qt::endl;
+    ts << "[ $? != 0 ] && exit -1" << Qt::endl;
+
+    std::vector<VideoFormat> inputformats;
+    std::vector<VideoFormat> outputformats;
+
+    for (auto &format: formats) {
+        auto width = format.width();
+        auto height = format.height();
+        auto fps = format.minimumFrameRate();
+
+        if (!inputDevices.isEmpty()) {
+            VideoFormat inputFormat(PixelFormatRGB24,
+                                    width,
+                                    height,
+                                    {fps});
+            auto it = std::find(inputformats.begin(),
+                                inputformats.end(),
+                                inputFormat);
+
+            if (it == inputformats.end()) {
+                ts << "'"
+                   << manager
+                   << "' add-format '"
+                   << inputDevices.first()
+                   << "' "
+                   << "RGB24"
+                   << " "
+                   << width
+                   << " "
+                   << height
+                   << " "
+                   << fps.toString().c_str()
+                   << Qt::endl;
+                ts << "[ $? != 0 ] && exit -1" << Qt::endl;
+                inputformats.push_back(inputFormat);
+            }
+        }
+
+        auto ot = std::find(outputformats.begin(),
+                            outputformats.end(),
+                            format);
+
+        if (ot == outputformats.end()) {
+            ts << "'"
+               << manager
+               << "' add-format '"
+               << QString::fromStdString(deviceId)
+               << "' "
+               << VideoFormat::stringFromFourcc(format.fourcc()).c_str()
+               << " "
+               << width
+               << " "
+               << height
+               << " "
+               << fps.toString().c_str()
+               << Qt::endl;
+            ts << "[ $? != 0 ] && exit -1" << Qt::endl;
+            outputformats.push_back(format);
+        }
+    }
+
+    ts << "'" << manager << "' update" << Qt::endl;
+    cmds.close();
+
+    QProcess sh;
+    sh.start("sh", {cmds.fileName()});
+    sh.waitForFinished(-1);
+
+    if (sh.exitCode()) {
+        auto errorMsg = sh.readAllStandardError();
+
+        if (!errorMsg.isEmpty()) {
+            qDebug() << errorMsg.toStdString().c_str();
+            this->d->m_error += QString(errorMsg).toStdWString();
+        }
+
         return false;
+    }
 
     return true;
 }
@@ -813,83 +803,183 @@ bool AkVCam::IpcBridge::deviceEdit(const std::string &deviceId,
 bool AkVCam::IpcBridge::changeDescription(const std::string &deviceId,
                                           const std::wstring &description)
 {
-    AkIpcBridgeLogMethod();
+    // Write the script file.
+    QTemporaryDir tempDir;
+    QFile cmds(tempDir.path() + "/akvcam_exec.sh");
 
-    if (!this->canApply(OperationEdit)) {
-        this->d->m_error = L"The driver is in use";
+    if (!cmds.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        this->d->m_error = L"Can't create install script";
 
         return false;
     }
 
-    auto formats = this->formats(deviceId);
+    cmds.setPermissions(QFileDevice::ReadOwner
+                        | QFileDevice::WriteOwner
+                        | QFileDevice::ExeOwner
+                        | QFileDevice::ReadUser
+                        | QFileDevice::WriteUser
+                        | QFileDevice::ExeUser);
+    auto inputDevices =
+        this->d->connectedDevices(QString::fromStdString(deviceId));
 
-    if (formats.empty())
+    auto manager = this->d->manager();
+    QTextStream ts(&cmds);
+
+    if (!inputDevices.isEmpty()) {
+        ts << "'"
+           << manager
+           << "' set-description '"
+           << inputDevices.first()
+           << "' '"
+           << QString::fromStdWString(description)
+           << " (in)'"
+           << Qt::endl;
+        ts << "[ $? != 0 ] && exit -1" << Qt::endl;
+    }
+
+    ts << "'"
+       << manager
+       << "' set-description '"
+       << QString::fromStdString(deviceId)
+       << "' '"
+       << QString::fromStdWString(description)
+       << "'" << Qt::endl;
+    ts << "[ $? != 0 ] && exit -1" << Qt::endl;
+
+    ts << "'" << manager << "' update" << Qt::endl;
+    cmds.close();
+
+    QProcess sh;
+    sh.start("sh", {cmds.fileName()});
+    sh.waitForFinished(-1);
+
+    if (sh.exitCode()) {
+        auto errorMsg = sh.readAllStandardError();
+
+        if (!errorMsg.isEmpty()) {
+            qDebug() << errorMsg.toStdString().c_str();
+            this->d->m_error += QString(errorMsg).toStdWString();
+        }
+
         return false;
-
-    this->d->m_uninstall = false;
-    this->deviceDestroy(deviceId);
-    this->d->m_uninstall = true;
-
-    if (this->deviceCreate(description.empty()?
-                               L"AvKys Virtual Camera":
-                               description,
-                           formats).empty())
-        return false;
+    }
 
     return true;
 }
 
 bool AkVCam::IpcBridge::deviceDestroy(const std::string &deviceId)
 {
-    AkIpcBridgeLogMethod();
+    // Write the script file.
+    QTemporaryDir tempDir;
+    QFile cmds(tempDir.path() + "/akvcam_exec.sh");
 
-    if (!this->canApply(OperationDestroy)) {
-        this->d->m_error = L"The driver is in use";
+    if (!cmds.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        this->d->m_error = L"Can't create install script";
 
         return false;
     }
 
-    if (!this->d->m_serverMessagePort)
+    cmds.setPermissions(QFileDevice::ReadOwner
+                        | QFileDevice::WriteOwner
+                        | QFileDevice::ExeOwner
+                        | QFileDevice::ReadUser
+                        | QFileDevice::WriteUser
+                        | QFileDevice::ExeUser);
+    auto inputDevices =
+        this->d->connectedDevices(QString::fromStdString(deviceId));
+
+    auto manager = this->d->manager();
+    QTextStream ts(&cmds);
+
+    if (!inputDevices.isEmpty()) {
+        ts << "'"
+           << manager
+           << "' remove-device '"
+           << inputDevices.first()
+           << "'"
+           << Qt::endl;
+        ts << "[ $? != 0 ] && exit -1" << Qt::endl;
+    }
+
+    ts << "'"
+       << manager
+       << "' remove-device '"
+       << QString::fromStdString(deviceId)
+       << "'" << Qt::endl;
+    ts << "[ $? != 0 ] && exit -1" << Qt::endl;
+
+    ts << "'" << manager << "' update" << Qt::endl;
+    cmds.close();
+
+    QProcess sh;
+    sh.start("sh", {cmds.fileName()});
+    sh.waitForFinished(-1);
+
+    if (sh.exitCode()) {
+        auto errorMsg = sh.readAllStandardError();
+
+        if (!errorMsg.isEmpty()) {
+            qDebug() << errorMsg.toStdString().c_str();
+            this->d->m_error += QString(errorMsg).toStdWString();
+        }
+
         return false;
-
-    auto dictionary = xpc_dictionary_create(nullptr, nullptr, 0);
-    xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_DESTROY);
-    xpc_dictionary_set_string(dictionary, "device", deviceId.c_str());
-    xpc_connection_send_message(this->d->m_serverMessagePort,
-                                dictionary);
-    xpc_release(dictionary);
-
-    // If no devices are registered
-    if (this->d->m_uninstall && listDevices().empty())
-        this->d->uninstallPlugin();
+    }
 
     return true;
 }
 
 bool AkVCam::IpcBridge::destroyAllDevices()
 {
-    AkIpcBridgeLogMethod();
+    // Write the script file.
+    QTemporaryDir tempDir;
+    QFile cmds(tempDir.path() + "/akvcam_exec.sh");
 
-    if (!this->canApply(OperationDestroyAll)) {
-        this->d->m_error = L"The driver is in use";
+    if (!cmds.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        this->d->m_error = L"Can't create install script";
 
         return false;
     }
 
-    for (auto &device: this->listDevices())
-        this->deviceDestroy(device);
+    cmds.setPermissions(QFileDevice::ReadOwner
+                        | QFileDevice::WriteOwner
+                        | QFileDevice::ExeOwner
+                        | QFileDevice::ReadUser
+                        | QFileDevice::WriteUser
+                        | QFileDevice::ExeUser);
+
+    auto manager = this->d->manager();
+    QTextStream ts(&cmds);
+    ts << "'"
+       << manager
+       << "' remove-devices" << Qt::endl;
+    ts << "[ $? != 0 ] && exit -1" << Qt::endl;
+
+    ts << "'" << manager << "' update" << Qt::endl;
+    cmds.close();
+
+    QProcess sh;
+    sh.start("sh", {cmds.fileName()});
+    sh.waitForFinished(-1);
+
+    if (sh.exitCode()) {
+        auto errorMsg = sh.readAllStandardError();
+
+        if (!errorMsg.isEmpty()) {
+            qDebug() << errorMsg.toStdString().c_str();
+            this->d->m_error += QString(errorMsg).toStdWString();
+        }
+
+        return false;
+    }
 
     return true;
 }
 
 bool AkVCam::IpcBridge::deviceStart(const std::string &deviceId,
                                     const VideoFormat &format)
-{
-    UNUSED(format)
-    AkIpcBridgeLogMethod();
-
-    if (!this->d->m_serverMessagePort)
-        return false;
+{/*
+    Q_UNUSED(format);
 
     auto it = std::find(this->d->m_broadcasting.begin(),
                         this->d->m_broadcasting.end(),
@@ -918,15 +1008,12 @@ bool AkVCam::IpcBridge::deviceStart(const std::string &deviceId,
     this->d->m_broadcasting.push_back(deviceId);
 
     return status;
+    */
+    return false;
 }
 
 void AkVCam::IpcBridge::deviceStop(const std::string &deviceId)
-{
-    AkIpcBridgeLogMethod();
-
-    if (!this->d->m_serverMessagePort)
-        return;
-
+{/*
     auto it = std::find(this->d->m_broadcasting.begin(),
                         this->d->m_broadcasting.end(),
                         deviceId);
@@ -942,17 +1029,12 @@ void AkVCam::IpcBridge::deviceStop(const std::string &deviceId)
                                                              dictionary);
     xpc_release(dictionary);
     xpc_release(reply);
-    this->d->m_broadcasting.erase(it);
+    this->d->m_broadcasting.erase(it);*/
 }
 
 bool AkVCam::IpcBridge::write(const std::string &deviceId,
                               const VideoFrame &frame)
-{
-    AkIpcBridgeLogMethod();
-
-    if (!this->d->m_serverMessagePort)
-        return false;
-
+{/*
     auto it = std::find(this->d->m_broadcasting.begin(),
                         this->d->m_broadcasting.end(),
                         deviceId);
@@ -960,7 +1042,7 @@ bool AkVCam::IpcBridge::write(const std::string &deviceId,
     if (it == this->d->m_broadcasting.end())
         return false;
 
-    std::vector<CFStringRef> keys {
+    QVector<CFStringRef> keys {
         kIOSurfacePixelFormat,
         kIOSurfaceWidth,
         kIOSurfaceHeight,
@@ -972,7 +1054,7 @@ bool AkVCam::IpcBridge::write(const std::string &deviceId,
     auto height = frame.format().height();
     auto dataSize = int64_t(frame.data().size());
 
-    std::vector<CFNumberRef> values {
+    QVector<CFNumberRef> values {
         CFNumberCreate(kCFAllocatorDefault, kCFNumberSInt32Type, &fourcc),
         CFNumberCreate(kCFAllocatorDefault, kCFNumberSInt32Type, &width),
         CFNumberCreate(kCFAllocatorDefault, kCFNumberSInt32Type, &height),
@@ -1015,17 +1097,14 @@ bool AkVCam::IpcBridge::write(const std::string &deviceId,
     CFRelease(surface);
 
     return true;
+    */
+    return false;
 }
 
 void AkVCam::IpcBridge::setMirroring(const std::string &deviceId,
                                      bool horizontalMirrored,
                                      bool verticalMirrored)
-{
-    AkIpcBridgeLogMethod();
-
-    if (!this->d->m_serverMessagePort)
-        return;
-
+{/*
     auto dictionary = xpc_dictionary_create(nullptr, nullptr, 0);
     xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_SETMIRRORING);
     xpc_dictionary_set_string(dictionary, "device", deviceId.c_str());
@@ -1034,17 +1113,12 @@ void AkVCam::IpcBridge::setMirroring(const std::string &deviceId,
     auto reply = xpc_connection_send_message_with_reply_sync(this->d->m_serverMessagePort,
                                                              dictionary);
     xpc_release(dictionary);
-    xpc_release(reply);
+    xpc_release(reply);*/
 }
 
 void AkVCam::IpcBridge::setScaling(const std::string &deviceId,
                                    Scaling scaling)
-{
-    AkIpcBridgeLogMethod();
-
-    if (!this->d->m_serverMessagePort)
-        return;
-
+{/*
     auto dictionary = xpc_dictionary_create(nullptr, nullptr, 0);
     xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_SETSCALING);
     xpc_dictionary_set_string(dictionary, "device", deviceId.c_str());
@@ -1052,17 +1126,12 @@ void AkVCam::IpcBridge::setScaling(const std::string &deviceId,
     auto reply = xpc_connection_send_message_with_reply_sync(this->d->m_serverMessagePort,
                                                              dictionary);
     xpc_release(dictionary);
-    xpc_release(reply);
+    xpc_release(reply);*/
 }
 
 void AkVCam::IpcBridge::setAspectRatio(const std::string &deviceId,
                                        AspectRatio aspectRatio)
-{
-    AkIpcBridgeLogMethod();
-
-    if (!this->d->m_serverMessagePort)
-        return;
-
+{/*
     auto dictionary = xpc_dictionary_create(nullptr, nullptr, 0);
     xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_SETASPECTRATIO);
     xpc_dictionary_set_string(dictionary, "device", deviceId.c_str());
@@ -1070,16 +1139,11 @@ void AkVCam::IpcBridge::setAspectRatio(const std::string &deviceId,
     auto reply = xpc_connection_send_message_with_reply_sync(this->d->m_serverMessagePort,
                                                              dictionary);
     xpc_release(dictionary);
-    xpc_release(reply);
+    xpc_release(reply);*/
 }
 
 void AkVCam::IpcBridge::setSwapRgb(const std::string &deviceId, bool swap)
-{
-    AkIpcBridgeLogMethod();
-
-    if (!this->d->m_serverMessagePort)
-        return;
-
+{/*
     auto dictionary = xpc_dictionary_create(nullptr, nullptr, 0);
     xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_SETSWAPRGB);
     xpc_dictionary_set_string(dictionary, "device", deviceId.c_str());
@@ -1087,85 +1151,26 @@ void AkVCam::IpcBridge::setSwapRgb(const std::string &deviceId, bool swap)
     auto reply = xpc_connection_send_message_with_reply_sync(this->d->m_serverMessagePort,
                                                              dictionary);
     xpc_release(dictionary);
-    xpc_release(reply);
+    xpc_release(reply);*/
 }
 
 bool AkVCam::IpcBridge::addListener(const std::string &deviceId)
 {
-    AkIpcBridgeLogMethod();
+    Q_UNUSED(deviceId)
 
-    if (!this->d->m_serverMessagePort)
-        return false;
-
-    auto dictionary = xpc_dictionary_create(nullptr, nullptr, 0);
-    xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_LISTENER_ADD);
-    xpc_dictionary_set_string(dictionary, "device", deviceId.c_str());
-    xpc_dictionary_set_string(dictionary, "listener", this->d->m_portName.c_str());
-    auto reply = xpc_connection_send_message_with_reply_sync(this->d->m_serverMessagePort,
-                                                             dictionary);
-    xpc_release(dictionary);
-    auto replyType = xpc_get_type(reply);
-
-    if (replyType != XPC_TYPE_DICTIONARY) {
-        xpc_release(reply);
-
-        return false;
-    }
-
-    bool status = xpc_dictionary_get_bool(reply, "status");
-    xpc_release(reply);
-
-    return status;
+    return true;
 }
 
 bool AkVCam::IpcBridge::removeListener(const std::string &deviceId)
 {
-    AkIpcBridgeLogMethod();
+    Q_UNUSED(deviceId)
 
-    if (!this->d->m_serverMessagePort)
-        return true;
-
-    auto dictionary = xpc_dictionary_create(nullptr, nullptr, 0);
-    xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_LISTENER_REMOVE);
-    xpc_dictionary_set_string(dictionary, "device", deviceId.c_str());
-    xpc_dictionary_set_string(dictionary, "listener", this->d->m_portName.c_str());
-    auto reply = xpc_connection_send_message_with_reply_sync(this->d->m_serverMessagePort,
-                                                             dictionary);
-    xpc_release(dictionary);
-    auto replyType = xpc_get_type(reply);
-
-    if (replyType != XPC_TYPE_DICTIONARY) {
-        xpc_release(reply);
-
-        return true;
-    }
-
-    bool status = xpc_dictionary_get_bool(reply, "status");
-    xpc_release(reply);
-
-    return status;
+    return true;
 }
 
 AkVCam::IpcBridgePrivate::IpcBridgePrivate(IpcBridge *self):
-    self(self),
-    m_messagePort(nullptr),
-    m_serverMessagePort(nullptr),
-    m_asClient(false),
-    m_uninstall(true)
+    self(self)
 {
-    this->m_messageHandlers = {
-        {AKVCAM_ASSISTANT_MSG_ISALIVE               , AKVCAM_BIND_FUNC(IpcBridgePrivate::isAlive)        },
-        {AKVCAM_ASSISTANT_MSG_FRAME_READY           , AKVCAM_BIND_FUNC(IpcBridgePrivate::frameReady)     },
-        {AKVCAM_ASSISTANT_MSG_DEVICE_CREATE         , AKVCAM_BIND_FUNC(IpcBridgePrivate::deviceCreate)   },
-        {AKVCAM_ASSISTANT_MSG_DEVICE_DESTROY        , AKVCAM_BIND_FUNC(IpcBridgePrivate::deviceDestroy)  },
-        {AKVCAM_ASSISTANT_MSG_DEVICE_LISTENER_ADD   , AKVCAM_BIND_FUNC(IpcBridgePrivate::listenerAdd)    },
-        {AKVCAM_ASSISTANT_MSG_DEVICE_LISTENER_REMOVE, AKVCAM_BIND_FUNC(IpcBridgePrivate::listenerRemove) },
-        {AKVCAM_ASSISTANT_MSG_DEVICE_SETBROADCASTING, AKVCAM_BIND_FUNC(IpcBridgePrivate::setBroadcasting)},
-        {AKVCAM_ASSISTANT_MSG_DEVICE_SETMIRRORING   , AKVCAM_BIND_FUNC(IpcBridgePrivate::setMirror)      },
-        {AKVCAM_ASSISTANT_MSG_DEVICE_SETSCALING     , AKVCAM_BIND_FUNC(IpcBridgePrivate::setScaling)     },
-        {AKVCAM_ASSISTANT_MSG_DEVICE_SETASPECTRATIO , AKVCAM_BIND_FUNC(IpcBridgePrivate::setAspectRatio) },
-        {AKVCAM_ASSISTANT_MSG_DEVICE_SETSWAPRGB     , AKVCAM_BIND_FUNC(IpcBridgePrivate::setSwapRgb)     },
-    };
 }
 
 AkVCam::IpcBridgePrivate::~IpcBridgePrivate()
@@ -1173,576 +1178,419 @@ AkVCam::IpcBridgePrivate::~IpcBridgePrivate()
 
 }
 
-std::vector<std::wstring> *AkVCam::IpcBridgePrivate::driverPaths()
+const AkVCam::PixelFormatToFourCCMap &AkVCam::IpcBridgePrivate::formatToFourCCMap()
 {
-    static std::vector<std::wstring> paths;
+    static const PixelFormatToFourCCMap fourccToStrMap {
+        {AkVCam::PixelFormatRGB32, kCMPixelFormat_32ARGB         },
+        {AkVCam::PixelFormatRGB24, kCMPixelFormat_24RGB          },
+        {AkVCam::PixelFormatRGB16, kCMPixelFormat_16LE565        },
+        {AkVCam::PixelFormatRGB15, kCMPixelFormat_16LE555        },
+        {AkVCam::PixelFormatUYVY , kCMPixelFormat_422YpCbCr8     },
+        {AkVCam::PixelFormatYUY2 , kCMPixelFormat_422YpCbCr8_yuvs}
+    };
 
-    return &paths;
+    return fourccToStrMap;
 }
 
-void AkVCam::IpcBridgePrivate::add(IpcBridge *bridge)
+QStringList AkVCam::IpcBridgePrivate::listDrivers()
 {
-    this->m_bridges.push_back(bridge);
+    auto plugin = this->plugin();
+
+    if (plugin.isEmpty())
+        return {};
+
+    return {QFileInfo(plugin).baseName()};
 }
 
-void AkVCam::IpcBridgePrivate::remove(IpcBridge *bridge)
+QString AkVCam::IpcBridgePrivate::plugin() const
 {
-    for (size_t i = 0; i < this->m_bridges.size(); i++)
-        if (this->m_bridges[i] == bridge) {
-            this->m_bridges.erase(this->m_bridges.begin() + long(i));
+    for (auto it = AkVCam::driverPaths->rbegin();
+         it != AkVCam::driverPaths->rend();
+         it++) {
+        auto path = *it;
+        path = path.replace("\\", "/");
+
+        if (path.back() != '/')
+            path += '/';
+
+        path += CMIO_PLUGIN_NAME ".plugin/Contents/MacOS/" CMIO_PLUGIN_NAME;
+
+        if (QFileInfo::exists(path))
+            return path;
+    }
+
+    return {};
+}
+
+QString AkVCam::IpcBridgePrivate::manager() const
+{
+    for (auto it = AkVCam::driverPaths->rbegin();
+         it != AkVCam::driverPaths->rend();
+         it++) {
+        auto path = *it;
+        path = path.replace("\\", "/");
+
+        if (path.back() != '/')
+            path += '/';
+
+        path += CMIO_PLUGIN_NAME ".plugin/Contents/Resources/" CMIO_PLUGIN_MANAGER_NAME;
+
+        if (QFileInfo::exists(path))
+            return path;
+    }
+
+    return {};
+}
+
+QVector<CMIODeviceID> AkVCam::IpcBridgePrivate::devices() const
+{
+    CMIOObjectPropertyAddress devicesProperty {
+        kCMIOHardwarePropertyDevices,
+        0,
+        kCMIOObjectPropertyElementMaster
+    };
+    UInt32 devicesSize = 0;
+    auto status =
+        CMIOObjectGetPropertyDataSize(kCMIOObjectSystemObject,
+                                      &devicesProperty,
+                                      0,
+                                      nullptr,
+                                      &devicesSize);
+
+    if (status != kCMIOHardwareNoError)
+        return {};
+
+    QVector<CMIODeviceID> devices(devicesSize / sizeof(CMIODeviceID));
+    status =
+        CMIOObjectGetPropertyData(kCMIOObjectSystemObject,
+                                  &devicesProperty,
+                                  0,
+                                  nullptr,
+                                  devicesSize,
+                                  &devicesSize,
+                                  devices.data());
+
+    return status == kCMIOHardwareNoError? devices: QVector<CMIODeviceID>();
+}
+
+QString AkVCam::IpcBridgePrivate::deviceUID(CMIODeviceID deviceID) const
+{
+    CMIOObjectPropertyAddress deviceUIDProperty {
+        kCMIODevicePropertyDeviceUID,
+        0,
+        kCMIOObjectPropertyElementMaster
+    };
+    UInt32 deviceUIDSize = sizeof(CFStringRef);
+    CFStringRef deviceUID = nullptr;
+    auto status =
+        CMIOObjectGetPropertyData(deviceID,
+                                  &deviceUIDProperty,
+                                  0,
+                                  nullptr,
+                                  deviceUIDSize,
+                                  &deviceUIDSize,
+                                  &deviceUID);
+
+    if (status != kCMIOHardwareNoError)
+        return {};
+
+    auto uid = QString::fromCFString(deviceUID);
+    CFRelease(deviceUID);
+
+    return uid;
+}
+
+QString AkVCam::IpcBridgePrivate::objectName(CMIOObjectID objectID) const
+{
+    CMIOObjectPropertyAddress objectNameProperty {
+        kCMIOObjectPropertyName,
+        0,
+        kCMIOObjectPropertyElementMaster
+    };
+    UInt32 objectNameSize = sizeof(CFStringRef);
+    CFStringRef objectName = nullptr;
+    auto status =
+        CMIOObjectGetPropertyData(objectID,
+                                  &objectNameProperty,
+                                  0,
+                                  nullptr,
+                                  objectNameSize,
+                                  &objectNameSize,
+                                  &objectName);
+
+    if (status != kCMIOHardwareNoError)
+        return {};
+
+    auto name = QString::fromCFString(objectName);
+    CFRelease(objectName);
+
+    return name;
+}
+
+QVector<CMIOStreamID> AkVCam::IpcBridgePrivate::deviceStreams(CMIODeviceID deviceID) const
+{
+    CMIOObjectPropertyAddress streamsProperty {
+        kCMIODevicePropertyStreams,
+        kCMIODevicePropertyScopeInput,
+        kCMIOObjectPropertyElementMaster
+    };
+    UInt32 deviceStreamsSize = 0;
+    auto status =
+        CMIOObjectGetPropertyDataSize(deviceID,
+                                      &streamsProperty,
+                                      0,
+                                      nullptr,
+                                      &deviceStreamsSize);
+
+    if (status != kCMIOHardwareNoError)
+        return {};
+
+    QVector<CMIOStreamID> streams(deviceStreamsSize / sizeof(CMIOStreamID));
+    status =
+        CMIOObjectGetPropertyData(deviceID,
+                                  &streamsProperty,
+                                  0,
+                                  nullptr,
+                                  deviceStreamsSize,
+                                  &deviceStreamsSize,
+                                  streams.data());
+
+    return status == kCMIOHardwareNoError? streams: QVector<CMIOStreamID>();
+}
+
+QVector<Float64> AkVCam::IpcBridgePrivate::streamFrameRates(CMIOStreamID streamID,
+                                                            CMVideoFormatDescriptionRef formatDescription) const
+{
+    UInt32 formatDescriptionSize =
+            formatDescription?
+                sizeof(CMVideoFormatDescriptionRef):
+                0;
+    CMIOObjectPropertyAddress frameRatesProperty {
+        kCMIOStreamPropertyFrameRates,
+        0,
+        kCMIOObjectPropertyElementMaster
+    };
+    UInt32 frameRatesSize = 0;
+    auto status =
+        CMIOObjectGetPropertyDataSize(streamID,
+                                      &frameRatesProperty,
+                                      formatDescriptionSize,
+                                      formatDescription?
+                                          &formatDescription:
+                                          nullptr,
+                                      &frameRatesSize);
+
+    if (status != kCMIOHardwareNoError)
+        return {};
+
+    QVector<Float64> frameRates(frameRatesSize / sizeof(Float64));
+    status =
+        CMIOObjectGetPropertyData(streamID,
+                                  &frameRatesProperty,
+                                  formatDescriptionSize,
+                                  formatDescription?
+                                      &formatDescription:
+                                      nullptr,
+                                  frameRatesSize,
+                                  &frameRatesSize,
+                                  frameRates.data());
+
+    return status == kCMIOHardwareNoError? frameRates: QVector<Float64>();
+}
+
+AkVCam::VideoFormat AkVCam::IpcBridgePrivate::formatFromDescription(CMVideoFormatDescriptionRef formatDescription) const
+{
+    auto mediaType = CMFormatDescriptionGetMediaType(formatDescription);
+
+    if (mediaType != kCMMediaType_Video)
+        return {};
+
+    auto fourCC = CMFormatDescriptionGetMediaSubType(formatDescription);
+    auto size = CMVideoFormatDescriptionGetDimensions(formatDescription);
+    auto &map = formatToFourCCMap();
+
+    return {map.key(fourCC, 0), size.width, size.height, {{30, 1}}};
+}
+
+AkVCam::StreamDirection AkVCam::IpcBridgePrivate::streamDirection(CMIOStreamID streamID) const
+{
+    CMIOObjectPropertyAddress directionProperty {
+        kCMIOStreamPropertyDirection,
+        0,
+        kCMIOObjectPropertyElementMaster
+    };
+    UInt32 directionSize = sizeof(UInt32);
+    UInt32 direction = 0;
+    CMIOObjectGetPropertyData(streamID,
+                              &directionProperty,
+                              0,
+                              nullptr,
+                              directionSize,
+                              &directionSize,
+                              &direction);
+
+    return direction? StreamDirectionInput: StreamDirectionOutput;
+}
+
+CFArrayRef AkVCam::IpcBridgePrivate::formatDescriptions(CMIOStreamID streamID) const
+{
+    CMIOObjectPropertyAddress formatDescriptionsProperty {
+        kCMIOStreamPropertyFormatDescriptions,
+        0,
+        kCMIOObjectPropertyElementMaster
+    };
+    UInt32 formatDescriptionsSize = sizeof(CFArrayRef);
+    CFArrayRef formats = nullptr;
+    CMIOObjectGetPropertyData(streamID,
+                              &formatDescriptionsProperty,
+                              0,
+                              nullptr,
+                              formatDescriptionsSize,
+                              &formatDescriptionsSize,
+                              &formats);
+
+    return formats;
+}
+
+QStringList AkVCam::IpcBridgePrivate::connectedDevices(const QString &deviceId) const
+{
+    QProcess manager;
+    manager.start(this->manager(), {"-p", "connections", deviceId});
+    manager.waitForFinished();
+
+    if (manager.exitCode() != 0)
+        return {};
+
+    QStringList devices;
+
+    for (auto &line: manager.readAllStandardOutput().split('\n'))
+        devices << line.trimmed();
+
+    return devices;
+}
+
+void AkVCam::IpcBridgePrivate::updateDevices()
+{
+    decltype(this->m_devices) devices;
+    decltype(this->m_descriptions) descriptions;
+    decltype(this->m_devicesFormats) devicesFormats;
+    QStringList virtualDevices;
+
+    for (auto &id: this->devices()) {
+        auto deviceUID = this->deviceUID(id);
+        FormatsList formatsList;
+
+        for (auto &stream: this->deviceStreams(id)) {
+            if (this->streamDirection(stream) != StreamDirectionOutput)
+                continue;
+
+            auto formats = this->formatDescriptions(stream);
+
+            for (CFIndex i = 0; i < CFArrayGetCount(formats); i++) {
+                auto format =
+                        reinterpret_cast<CMVideoFormatDescriptionRef>(CFArrayGetValueAtIndex(formats,
+                                                                                             i));
+                auto videoFormat = this->formatFromDescription(format);
+                auto frameRates = this->streamFrameRates(stream, format);
+
+                if (!videoFormat)
+                    continue;
+
+                for (auto &fpsRange: frameRates) {
+                    videoFormat.frameRates() = {{qRound(1e3 * fpsRange), 1000}};
+                    formatsList << videoFormat;
+                }
+            }
+
+            CFRelease(formats);
+        }
+
+        if (!formatsList.isEmpty()
+            && !this->connectedDevices(deviceUID).isEmpty()) {
+            devices << deviceUID;
+            descriptions[deviceUID] = this->objectName(id);
+            devicesFormats[deviceUID] = formatsList;
+        }
+    }
+
+    this->m_descriptions = descriptions;
+    this->m_devicesFormats = devicesFormats;
+    this->m_devices = devices;
+}
+
+QString AkVCam::IpcBridgePrivate::locateDriverPath() const
+{
+    QString driverPath;
+    QStringList pluginFiles {
+        "/Contents/MacOS/" CMIO_PLUGIN_NAME,
+        "/Contents/Resources/" CMIO_PLUGIN_ASSISTANT_NAME,
+        "/Contents/Resources/" CMIO_PLUGIN_MANAGER_NAME,
+    };
+
+    for (auto it = AkVCam::driverPaths->rbegin();
+         it != AkVCam::driverPaths->rend();
+         it++) {
+        auto path = *it;
+        path = path.replace("\\", "/");
+
+        if (path.back() != '/')
+            path += '/';
+
+        path += CMIO_PLUGIN_NAME ".plugin";
+        bool filesFound = true;
+
+        for (auto &file: pluginFiles)
+            if (!QFileInfo::exists(path + file)) {
+                filesFound = false;
+
+                break;
+            }
+
+        if (filesFound) {
+            driverPath = path;
 
             break;
         }
-}
-
-std::vector<AkVCam::IpcBridge *> &AkVCam::IpcBridgePrivate::bridges()
-{
-    return this->m_bridges;
-}
-
-void AkVCam::IpcBridgePrivate::isAlive(xpc_connection_t client,
-                                       xpc_object_t event)
-{
-    AkIpcBridgePrivateLogMethod();
-
-    auto reply = xpc_dictionary_create_reply(event);
-    xpc_dictionary_set_bool(reply, "alive", true);
-    xpc_connection_send_message(client, reply);
-    xpc_release(reply);
-}
-
-void AkVCam::IpcBridgePrivate::deviceCreate(xpc_connection_t client,
-                                            xpc_object_t event)
-{
-    UNUSED(client)
-    AkIpcBridgePrivateLogMethod();
-    std::string device = xpc_dictionary_get_string(event, "device");
-
-    for (auto bridge: this->m_bridges)
-        AKVCAM_EMIT(bridge, DeviceAdded, device)
-}
-
-void AkVCam::IpcBridgePrivate::deviceDestroy(xpc_connection_t client,
-                                             xpc_object_t event)
-{
-    UNUSED(client)
-    AkIpcBridgePrivateLogMethod();
-
-    std::string device = xpc_dictionary_get_string(event, "device");
-
-    for (auto bridge: this->m_bridges)
-        AKVCAM_EMIT(bridge, DeviceRemoved, device)
-}
-
-void AkVCam::IpcBridgePrivate::frameReady(xpc_connection_t client,
-                                          xpc_object_t event)
-{
-    UNUSED(client)
-    AkIpcBridgePrivateLogMethod();
-
-    std::string deviceId =
-            xpc_dictionary_get_string(event, "device");
-    auto frame = xpc_dictionary_get_value(event, "frame");
-    auto surface = IOSurfaceLookupFromXPCObject(frame);
-
-    if (surface) {
-        uint32_t surfaceSeed = 0;
-        IOSurfaceLock(surface, kIOSurfaceLockReadOnly, &surfaceSeed);
-        FourCC fourcc = IOSurfaceGetPixelFormat(surface);
-        int width = int(IOSurfaceGetWidth(surface));
-        int height = int(IOSurfaceGetHeight(surface));
-        size_t size = IOSurfaceGetAllocSize(surface);
-        auto data = reinterpret_cast<uint8_t *>(IOSurfaceGetBaseAddress(surface));
-        VideoFormat videoFormat(fourcc, width, height);
-        VideoFrame videoFrame(videoFormat);
-        memcpy(videoFrame.data().data(), data, size);
-        IOSurfaceUnlock(surface, kIOSurfaceLockReadOnly, &surfaceSeed);
-        CFRelease(surface);
-
-        for (auto bridge: this->m_bridges)
-            AKVCAM_EMIT(bridge, FrameReady, deviceId, videoFrame)
-    }
-
-    auto reply = xpc_dictionary_create_reply(event);
-    xpc_dictionary_set_bool(reply, "status", surface? true: false);
-    xpc_connection_send_message(client, reply);
-    xpc_release(reply);
-}
-
-void AkVCam::IpcBridgePrivate::setBroadcasting(xpc_connection_t client,
-                                               xpc_object_t event)
-{
-    UNUSED(client)
-    AkIpcBridgePrivateLogMethod();
-
-    std::string deviceId =
-            xpc_dictionary_get_string(event, "device");
-    std::string broadcaster =
-            xpc_dictionary_get_string(event, "broadcaster");
-
-    for (auto bridge: this->m_bridges)
-        AKVCAM_EMIT(bridge, BroadcastingChanged, deviceId, broadcaster)
-}
-
-void AkVCam::IpcBridgePrivate::setMirror(xpc_connection_t client,
-                                         xpc_object_t event)
-{
-    UNUSED(client)
-    AkIpcBridgePrivateLogMethod();
-
-    std::string deviceId =
-            xpc_dictionary_get_string(event, "device");
-    bool horizontalMirror =
-            xpc_dictionary_get_bool(event, "hmirror");
-    bool verticalMirror =
-            xpc_dictionary_get_bool(event, "vmirror");
-
-    for (auto bridge: this->m_bridges)
-        AKVCAM_EMIT(bridge,
-                    MirrorChanged,
-                    deviceId,
-                    horizontalMirror,
-                    verticalMirror)
-}
-
-void AkVCam::IpcBridgePrivate::setScaling(xpc_connection_t client,
-                                          xpc_object_t event)
-{
-    UNUSED(client)
-    AkIpcBridgePrivateLogMethod();
-
-    std::string deviceId =
-            xpc_dictionary_get_string(event, "device");
-    auto scaling =
-            Scaling(xpc_dictionary_get_int64(event, "scaling"));
-
-    for (auto bridge: this->m_bridges)
-        AKVCAM_EMIT(bridge, ScalingChanged, deviceId, scaling)
-}
-
-void AkVCam::IpcBridgePrivate::setAspectRatio(xpc_connection_t client,
-                                              xpc_object_t event)
-{
-    UNUSED(client)
-    AkIpcBridgePrivateLogMethod();
-
-    std::string deviceId =
-            xpc_dictionary_get_string(event, "device");
-    auto aspectRatio =
-            AspectRatio(xpc_dictionary_get_int64(event, "aspect"));
-
-    for (auto bridge: this->m_bridges)
-        AKVCAM_EMIT(bridge, AspectRatioChanged, deviceId, aspectRatio)
-}
-
-void AkVCam::IpcBridgePrivate::setSwapRgb(xpc_connection_t client,
-                                          xpc_object_t event)
-{
-    UNUSED(client)
-    AkIpcBridgePrivateLogMethod();
-
-    std::string deviceId =
-            xpc_dictionary_get_string(event, "device");
-    auto swap = xpc_dictionary_get_bool(event, "swap");
-
-    for (auto bridge: this->m_bridges)
-        AKVCAM_EMIT(bridge, SwapRgbChanged, deviceId, swap)
-}
-
-void AkVCam::IpcBridgePrivate::listenerAdd(xpc_connection_t client,
-                                           xpc_object_t event)
-{
-    UNUSED(client)
-    AkIpcBridgePrivateLogMethod();
-
-    std::string deviceId = xpc_dictionary_get_string(event, "device");
-    std::string listener = xpc_dictionary_get_string(event, "listener");
-
-    for (auto bridge: this->m_bridges)
-        AKVCAM_EMIT(bridge, ListenerAdded, deviceId, listener)
-}
-
-void AkVCam::IpcBridgePrivate::listenerRemove(xpc_connection_t client,
-                                              xpc_object_t event)
-{
-    UNUSED(client)
-    AkIpcBridgePrivateLogMethod();
-
-    std::string deviceId = xpc_dictionary_get_string(event, "device");
-    std::string listener = xpc_dictionary_get_string(event, "listener");
-
-    for (auto bridge: this->m_bridges)
-        AKVCAM_EMIT(bridge, ListenerRemoved, deviceId, listener)
-}
-
-void AkVCam::IpcBridgePrivate::messageReceived(xpc_connection_t client,
-                                               xpc_object_t event)
-{
-    auto type = xpc_get_type(event);
-
-    if (type == XPC_TYPE_ERROR) {
-        auto description = xpc_copy_description(event);
-        AkLoggerLog("ERROR: ", description);
-        free(description);
-    } else if (type == XPC_TYPE_DICTIONARY) {
-        auto message = xpc_dictionary_get_int64(event, "message");
-
-        if (this->m_messageHandlers.count(message))
-            this->m_messageHandlers[message](client, event);
-    }
-}
-
-void AkVCam::IpcBridgePrivate::connectionInterrupted()
-{
-    for (auto bridge: this->m_bridges) {
-        AKVCAM_EMIT(bridge, ServerStateChanged, IpcBridge::ServerStateGone)
-        bridge->unregisterPeer();
-    }
-
-    // Restart service
-    for (auto bridge: this->m_bridges)
-        if (bridge->registerPeer(bridge->d->m_asClient)) {
-            AKVCAM_EMIT(bridge,
-                        ServerStateChanged,
-                        IpcBridge::ServerStateAvailable)
-        }
-}
-
-std::string AkVCam::IpcBridgePrivate::homePath() const
-{
-    auto homePath = NSHomeDirectory();
-
-    if (!homePath)
-        return {};
-
-    return std::string(homePath.UTF8String);
-}
-
-bool AkVCam::IpcBridgePrivate::fileExists(const std::wstring &path) const
-{
-    return this->fileExists(std::string(path.begin(), path.end()));
-}
-
-bool AkVCam::IpcBridgePrivate::fileExists(const std::string &path) const
-{
-    struct stat stats;
-    memset(&stats, 0, sizeof(struct stat));
-
-    return stat(path.c_str(), &stats) == 0;
-}
-
-std::wstring AkVCam::IpcBridgePrivate::fileName(const std::wstring &path) const
-{
-    return path.substr(path.rfind(L'/') + 1);
-}
-
-bool AkVCam::IpcBridgePrivate::mkpath(const std::string &path) const
-{
-    if (path.empty())
-        return false;
-
-    if (this->fileExists(path))
-        return true;
-
-    // Create parent folders
-    for (auto pos = path.find('/');
-         pos != std::string::npos;
-         pos = path.find('/', pos + 1)) {
-        auto path_ = path.substr(0, pos);
-
-        if (path_.empty() || this->fileExists(path_))
-            continue;
-
-        if (mkdir(path_.c_str(),
-                  S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH))
-            return false;
-    }
-
-    return !mkdir(path.c_str(),
-                  S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
-}
-
-bool AkVCam::IpcBridgePrivate::rm(const std::string &path) const
-{
-    if (path.empty())
-        return false;
-
-    struct stat stats;
-    memset(&stats, 0, sizeof(struct stat));
-
-    if (stat(path.c_str(), &stats))
-        return false;
-
-    bool ok = true;
-
-    if (S_ISDIR(stats.st_mode)) {
-        auto dir = opendir(path.c_str());
-
-        while (auto entry = readdir(dir))
-            if (strcmp(entry->d_name, ".") && strcmp(entry->d_name, ".."))
-                this->rm(entry->d_name);
-
-        closedir(dir);
-
-        ok &= !rmdir(path.c_str());
-    } else {
-        ok &= !::remove(path.c_str());
-    }
-
-    return ok;
-}
-
-bool AkVCam::IpcBridgePrivate::createDaemonPlist(const std::string &fileName) const
-{
-    AkIpcBridgePrivateLogMethod();
-    std::fstream plistFile;
-    plistFile.open(fileName, std::ios_base::out);
-
-    if (!plistFile.is_open())
-        return false;
-
-    plistFile << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" << std::endl
-              << "<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" "
-              << "\"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">"
-              << std::endl
-              << "<plist version=\"1.0\">" << std::endl
-              << "    <dict>" << std::endl
-              << "        <key>Label</key>" << std::endl
-              << "        <string>" << AKVCAM_ASSISTANT_NAME
-                                    << "</string>" << std::endl
-              << "        <key>ProgramArguments</key>" << std::endl
-              << "        <array>" << std::endl
-              << "            <string>" << CMIO_PLUGINS_DAL_PATH
-                                        << "/"
-                                        << CMIO_PLUGIN_NAME
-                                        << ".plugin/Contents/Resources/"
-                                        << CMIO_PLUGIN_ASSISTANT_NAME
-                                        << "</string>" << std::endl
-              << "            <string>--timeout</string>" << std::endl
-              << "            <string>300.0</string>" << std::endl
-              << "        </array>" << std::endl
-              << "        <key>MachServices</key>" << std::endl
-              << "        <dict>" << std::endl
-              << "            <key>" << AKVCAM_ASSISTANT_NAME
-                                     << "</key>" << std::endl
-              << "            <true/>" << std::endl
-              << "        </dict>" << std::endl;
-
-#ifdef QT_DEBUG
-    std::string daemonLog = "/tmp/" AKVCAM_ASSISTANT_NAME ".log";
-
-    plistFile << "        <key>StandardOutPath</key>" << std::endl
-              << "        <string>" << daemonLog << "</string>" << std::endl
-              << "        <key>StandardErrorPath</key>" << std::endl
-              << "        <string>" << daemonLog << "</string>" << std::endl;
-#endif
-
-    plistFile << "    </dict>" << std::endl
-              << "</plist>" << std::endl;
-
-    return true;
-}
-
-bool AkVCam::IpcBridgePrivate::loadDaemon()
-{
-    AkIpcBridgePrivateLogMethod();
-    auto launchctl = popen("launchctl list " AKVCAM_ASSISTANT_NAME, "r");
-
-    if (launchctl && !pclose(launchctl))
-        return true;
-
-    auto daemonsPath = replace(CMIO_DAEMONS_PATH, "~", this->homePath());
-    auto dstDaemonsPath = daemonsPath + "/" AKVCAM_ASSISTANT_NAME ".plist";
-
-    if (!this->fileExists(dstDaemonsPath)) {
-        this->m_error = L"Daemon plist does not exists";
-
-        return false;
-    }
-
-    launchctl = popen(("launchctl load -w '" + dstDaemonsPath + "'").c_str(),
-                       "r");
-
-    bool result = launchctl && !pclose(launchctl);
-
-    if (!result)
-        this->m_error = L"Can't launch daemon";
-
-    return result;
-}
-
-void AkVCam::IpcBridgePrivate::unloadDaemon() const
-{
-    AkIpcBridgePrivateLogMethod();
-    std::string daemonPlist = AKVCAM_ASSISTANT_NAME ".plist";
-    auto daemonsPath = replace(CMIO_DAEMONS_PATH, "~", this->homePath());
-    auto dstDaemonsPath = daemonsPath + "/" + daemonPlist;
-
-    if (!this->fileExists(dstDaemonsPath))
-        return;
-
-    auto launchctl =
-            popen(("launchctl unload -w '" + dstDaemonsPath + "'").c_str(),
-                   "r");
-    pclose(launchctl);
-}
-
-bool AkVCam::IpcBridgePrivate::checkDaemon()
-{
-    AkIpcBridgePrivateLogMethod();
-    auto driverPath = this->locateDriverPath();
-
-    if (driverPath.empty()) {
-        this->m_error = L"Driver not found";
-
-        return false;
-    }
-
-    auto plugin = this->fileName(driverPath);
-    std::wstring dstPath = CMIO_PLUGINS_DAL_PATH_L;
-    std::wstring pluginInstallPath = dstPath + L'/' + plugin;
-
-    if (!this->fileExists(pluginInstallPath)) {
-        const std::string cmdFileName = "/tmp/akvcam_exec.sh";
-
-        std::wfstream cmds;
-        cmds.open(cmdFileName, std::ios_base::out);
-
-        if (!cmds.is_open()) {
-            this->m_error = L"Can't create script";
-
-            return false;
-        }
-
-        cmds << L"mkdir -p "
-             << pluginInstallPath
-             << std::endl
-             << L"cp -rvf '"
-             << driverPath << L"'/* "
-             << pluginInstallPath << L"/"
-             << std::endl
-             << L"chmod +x "
-             << pluginInstallPath << L"/Contents/Resources/" CMIO_PLUGIN_ASSISTANT_NAME_L
-             << std::endl;
-        cmds.close();
-        chmod(cmdFileName.c_str(), S_IRWXU | S_IRGRP | S_IROTH);
-
-        if (this->sudo({"sh", cmdFileName})) {
-            this->rm(cmdFileName);
-
-            return false;
-        }
-
-        this->rm(cmdFileName);
-    }
-
-    auto daemonsPath = replace(CMIO_DAEMONS_PATH, "~", this->homePath());
-    auto dstDaemonsPath = daemonsPath + "/" + AKVCAM_ASSISTANT_NAME + ".plist";
-
-    if (!this->fileExists(dstDaemonsPath)) {
-        if (!this->mkpath(daemonsPath)) {
-            this->m_error = L"Can't create daemon path";
-
-            return false;
-        }
-
-        if (!this->createDaemonPlist(dstDaemonsPath)) {
-            this->m_error = L"Can't create daemon plist";
-
-            return false;
-        }
-    }
-
-    return this->loadDaemon();
-}
-
-void AkVCam::IpcBridgePrivate::uninstallPlugin()
-{
-    AkIpcBridgePrivateLogMethod();
-
-    // Stop the daemon
-    this->unloadDaemon();
-
-    // Remove the agent plist
-    auto daemonsPath =
-            replace(CMIO_DAEMONS_PATH, "~", this->homePath());
-    this->rm(daemonsPath + "/" AKVCAM_ASSISTANT_NAME ".plist");
-
-    // Remove the plugin
-    auto driverPath = this->locateDriverPath();
-
-    if (driverPath.empty())
-        return;
-
-    auto plugin = this->fileName(driverPath);
-    std::wstring dstPath = CMIO_PLUGINS_DAL_PATH_L;
-    this->sudo({"rm", "-rvf",
-                std::string(dstPath.begin(), dstPath.end())
-                + '/'
-                + std::string(plugin.begin(), plugin.end())});
-}
-
-std::wstring AkVCam::IpcBridgePrivate::locateDriverPath() const
-{
-    AkIpcBridgePrivateLogMethod();
-    std::wstring driverPath;
-
-    for (auto it = this->driverPaths()->rbegin();
-         it != this->driverPaths()->rend();
-         it++) {
-        auto path = *it;
-        path = replace(path, L"\\", L"/");
-
-        if (path.back() != L'/')
-            path += L'/';
-
-        path += CMIO_PLUGIN_NAME_L L".plugin";
-
-        if (!this->fileExists(path + L"/Contents/MacOS/" CMIO_PLUGIN_NAME_L))
-            continue;
-
-        if (!this->fileExists(path + L"/Contents/Resources/" CMIO_PLUGIN_ASSISTANT_NAME_L))
-            continue;
-
-        driverPath = path;
-
-        break;
     }
 
     return driverPath;
 }
 
-int AkVCam::IpcBridgePrivate::sudo(const std::vector<std::string> &parameters)
+int AkVCam::IpcBridgePrivate::sudo(const QStringList &parameters)
 {
-    AkIpcBridgePrivateLogMethod();
-    std::stringstream ss;
-    ss << "osascript -e \"do shell script \\\"";
+    QProcess su;
+    QStringList params;
 
-    for (auto param: parameters) {
-        if (param.find(' ') == std::string::npos)
-            ss << param;
+    for (auto &param: parameters) {
+        if (param.contains(' '))
+            params << "'" << param << "'";
         else
-            ss << "'" << param << "'";
-
-        ss << ' ';
+            params << param;
     }
 
-    ss << "\\\" with administrator privileges\" 2>&1";
-    auto sudo = popen(ss.str().c_str(), "r");
+    su.start("osascript",
+             {"-e",
+              "do shell script \""
+              + params.join(' ')
+              + "\" with administrator privileges"});
+    su.waitForFinished(-1);
 
-    if (!sudo)
-        return -1;
+    if (su.exitCode()) {
+        auto outMsg = su.readAllStandardOutput();
+        this->m_error = {};
 
-    std::string output;
-    char buffer[1024];
+        if (!outMsg.isEmpty()) {
+            qDebug() << outMsg.toStdString().c_str();
+            this->m_error += QString(outMsg).toStdWString() + L" ";
+        }
 
-    while (fgets(buffer, 1024, sudo))
-        output += std::string(buffer);
+        auto errorMsg = su.readAllStandardError();
 
-    auto result = pclose(sudo);
+        if (!errorMsg.isEmpty()) {
+            qDebug() << errorMsg.toStdString().c_str();
+            this->m_error += QString(errorMsg).toStdWString();
+        }
+    }
 
-    if (result)
-        AkLoggerLog(output);
-
-    return result;
+    return su.exitCode();
 }
