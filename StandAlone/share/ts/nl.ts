@@ -1697,7 +1697,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="261"/>
         <source>Blur Outer</source>
-        <translation type="unfinished"></translation>
+        <translation>Buitenste rand vervagen</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="271"/>
@@ -2436,47 +2436,48 @@
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="180"/>
         <source>Face bracketing
 duration (seconds)</source>
-        <translation type="unfinished"></translation>
+        <translation>Gezichtsherkenning-
+duur (in seconden)</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="195"/>
         <source>Face bracket count</source>
-        <translation type="unfinished"></translation>
+        <translation>Aantal gezichtsherkenningen</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="210"/>
         <source>Zoom out rate</source>
-        <translation type="unfinished"></translation>
+        <translation>Uitzoomwaarde</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="225"/>
         <source>Zoom in rate</source>
-        <translation type="unfinished"></translation>
+        <translation>Inzoomwaarde</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="240"/>
         <source>Face padding (% of face size)</source>
-        <translation type="unfinished"></translation>
+        <translation>Gezichtsopvulling (% van de gezichtsafmetingen)</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="320"/>
         <source>Face margin (% of face size)</source>
-        <translation type="unfinished"></translation>
+        <translation>Gezichtscontouren (% van de gezichtsafmetingen)</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="410"/>
         <source>e.g. 16:9, 4:3</source>
-        <translation type="unfinished"></translation>
+        <translation>bijv. 16:9, 4:3</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="434"/>
         <source>Lock viewport</source>
-        <translation type="unfinished"></translation>
+        <translation>Kijkhoek vastzetten</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="445"/>
         <source>Debug mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Foutopsporingsmodus</translation>
     </message>
 </context>
 </TS>

@@ -1697,7 +1697,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="261"/>
         <source>Blur Outer</source>
-        <translation type="unfinished"></translation>
+        <translation>טשטוש חיצוני</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="271"/>
@@ -2436,47 +2436,48 @@
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="180"/>
         <source>Face bracketing
 duration (seconds)</source>
-        <translation type="unfinished"></translation>
+        <translation>משך תיחום
+פנים (שניות)</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="195"/>
         <source>Face bracket count</source>
-        <translation type="unfinished"></translation>
+        <translation>ספירת תחומי פנים</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="210"/>
         <source>Zoom out rate</source>
-        <translation type="unfinished"></translation>
+        <translation>רמת התרחקות</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="225"/>
         <source>Zoom in rate</source>
-        <translation type="unfinished"></translation>
+        <translation>רמת התקרבות</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="240"/>
         <source>Face padding (% of face size)</source>
-        <translation type="unfinished"></translation>
+        <translation>ריפוד מסביב לפנים (% מגודל הפנים)</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="320"/>
         <source>Face margin (% of face size)</source>
-        <translation type="unfinished"></translation>
+        <translation>שולי הפנים (% מגודל הפנים)</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="410"/>
         <source>e.g. 16:9, 4:3</source>
-        <translation type="unfinished"></translation>
+        <translation>למשל - 16:9, 4:3</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="434"/>
         <source>Lock viewport</source>
-        <translation type="unfinished"></translation>
+        <translation>נעילת חלונית תצוגה</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="445"/>
         <source>Debug mode</source>
-        <translation type="unfinished"></translation>
+        <translation>מצב ניפוי שגיאות</translation>
     </message>
 </context>
 </TS>
