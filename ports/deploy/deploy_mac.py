@@ -97,6 +97,8 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
         self.fixRpaths()
         print('\nWritting build system information\n')
         self.writeBuildInfo()
+        print('\nSigning bundle\n')
+        self.signPackage(self.appBundleDir)
 
     def solvedepsLibs(self):
         deps = sorted(self.binarySolver.scanDependencies(self.installDir))
@@ -364,6 +366,16 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
                     size += os.path.getsize(fpath)
 
         return size
+    
+    def signPackage(self, package):
+        process = subprocess.Popen(['codesign', # nosec
+                                    '--force',
+                                    '--sign',
+                                    '-',
+                                    package],
+                                    stdout=subprocess.PIPE,
+                                    stderr=subprocess.PIPE)
+        process.communicate()
 
     # https://asmaloney.com/2013/07/howto/packaging-a-mac-os-x-application-using-a-dmg/
     def createPortable(self, mutex):

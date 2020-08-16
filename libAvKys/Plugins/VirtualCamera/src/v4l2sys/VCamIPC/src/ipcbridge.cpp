@@ -222,7 +222,7 @@ namespace AkVCam
             QString destroyAllDevicesV4L2Loopback();
     };
 
-    Q_GLOBAL_STATIC(QStringList, driverPaths)
+    Q_GLOBAL_STATIC(QStringList, globalDriverPaths)
 }
 
 AkVCam::IpcBridge::IpcBridge()
@@ -255,7 +255,7 @@ std::vector<std::wstring> AkVCam::IpcBridge::driverPaths() const
 {
     std::vector<std::wstring> paths;
 
-    for (auto &path: *AkVCam::driverPaths)
+    for (auto &path: *AkVCam::globalDriverPaths)
         paths.push_back(path.toStdWString());
 
     return paths;
@@ -268,7 +268,7 @@ void AkVCam::IpcBridge::setDriverPaths(const std::vector<std::wstring> &driverPa
     for (auto &path: driverPaths)
         paths << QString::fromStdWString(path);
 
-    *AkVCam::driverPaths = paths;
+    *AkVCam::globalDriverPaths = paths;
 }
 
 std::vector<std::string> AkVCam::IpcBridge::availableDrivers() const
@@ -1491,6 +1491,16 @@ bool AkVCam::IpcBridge::removeListener(const std::string &deviceId)
     return true;
 }
 
+void AkVCam::IpcBridge::cameraConnected()
+{
+
+}
+
+void AkVCam::IpcBridge::cameraDisconnected()
+{
+
+}
+
 AkVCam::IpcBridgePrivate::IpcBridgePrivate(IpcBridge *self):
     self(self)
 {
@@ -2323,8 +2333,8 @@ QStringList AkVCam::IpcBridgePrivate::listDrivers()
         "/dkms.conf",
     };
 
-    for (auto it = AkVCam::driverPaths->rbegin();
-         it != AkVCam::driverPaths->rend();
+    for (auto it = AkVCam::globalDriverPaths->rbegin();
+         it != AkVCam::globalDriverPaths->rend();
          it++) {
         auto path = *it;
         bool filesFound = true;

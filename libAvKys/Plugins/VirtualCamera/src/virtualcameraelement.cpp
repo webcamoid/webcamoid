@@ -622,13 +622,10 @@ void VirtualCameraElement::setSwapRgb(bool swapRgb)
 
 void VirtualCameraElement::resetDriverPaths()
 {
-#if defined(Q_OS_OSX) || defined(Q_OS_WIN32)
+#if defined(Q_OS_WIN32)
     std::vector<std::wstring> paths = {
         QString(DATAROOTDIR).toStdWString(),
         this->d->convertToAbsolute("../share").toStdWString(),
-#ifdef Q_OS_OSX
-        this->d->convertToAbsolute("../Resources").toStdWString(),
-#endif
     };
 #else
     std::vector<std::wstring> paths;
@@ -833,13 +830,10 @@ VirtualCameraElementPrivate::~VirtualCameraElementPrivate()
 
 std::vector<std::wstring> *VirtualCameraElementPrivate::driverPaths()
 {
-#if defined(Q_OS_OSX) || defined(Q_OS_WIN32)
+#if defined(Q_OS_WIN32)
     static std::vector<std::wstring> paths = {
         QString(DATAROOTDIR).toStdWString(),
         this->convertToAbsolute("../share").toStdWString(),
-#ifdef Q_OS_OSX
-        this->convertToAbsolute("../Resources").toStdWString(),
-#endif
     };
 #else
     static std::vector<std::wstring> paths;

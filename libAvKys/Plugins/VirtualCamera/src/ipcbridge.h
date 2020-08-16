@@ -226,6 +226,9 @@ namespace AkVCam
             // Decrement the count of device listeners
             bool removeListener(const std::string &deviceId);
 
+            void cameraConnected();
+            void cameraDisconnected();
+
         private:
             IpcBridgePrivate *d;
 

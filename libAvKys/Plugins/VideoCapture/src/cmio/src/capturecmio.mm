@@ -662,6 +662,9 @@ void CaptureCMIO::updateDevices()
 
             auto formats = this->d->formatDescriptions(stream);
 
+            if (!formats)
+                continue;
+
             for (CFIndex i = 0; i < CFArrayGetCount(formats); i++) {
                 auto format =
                         reinterpret_cast<CMVideoFormatDescriptionRef>(CFArrayGetValueAtIndex(formats,
@@ -697,7 +700,6 @@ void CaptureCMIO::updateDevices()
         devicesID.clear();
     }
 
-    this->d->m_devices = devices;
     this->d->m_descriptions = descriptions;
     this->d->m_devicesCaps = devicesCaps;
     this->d->m_devicesID = devicesID;

@@ -22,13 +22,13 @@
 
 #import <AVFoundation/AVFoundation.h>
 
-#include "capturecmio.h"
+#include "ipcbridge.h"
 
-@interface DeviceObserverCMIO: NSObject {
-    CaptureCMIO *m_capture;
+@interface DeviceObserverVCamCMIO: NSObject {
+    AkVCam::IpcBridge *m_bridge;
 }
 
-- (id) initWithCaptureObject: (CaptureCMIO *) object;
+- (id) initWithCaptureObject: (AkVCam::IpcBridge *) object;
 - (void) cameraConnected: (NSNotification *) notification;
 - (void) cameraDisconnected: (NSNotification *) notification;
 - (void) disconnect;

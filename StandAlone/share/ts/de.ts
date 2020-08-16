@@ -839,7 +839,7 @@
     <message>
         <location filename="../qml/VideoOptions.qml" line="38"/>
         <source>Sources</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Quellen</translation>
     </message>
     <message>
         <location filename="../qml/VideoOptions.qml" line="41"/>

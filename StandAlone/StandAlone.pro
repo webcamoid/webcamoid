@@ -94,7 +94,7 @@ OTHER_FILES = \
     $$files(share/themes/WebcamoidTheme/Private/*.qml)
 
 unix: OTHER_FILES += $${MANPAGESOURCES}
-macx: OTHER_FILES += Info.plist
+macx: OTHER_FILES += Info.plist.in
 
 QT += \
     opengl \
@@ -129,14 +129,36 @@ lupdate_only {
     SOURCES += $$files(share/themes/WebcamoidTheme/Private/*.qml)
 }
 
-QML_IMPORT_PATH += $$PWD/../libAvKys/Lib/share/qml
+macx {
+    QMAKE_SUBSTITUTES += Info.plist.in
 
-DESTDIR = $${OUT_PWD}/$${BIN_DIR}
-
-TARGET = $${COMMONS_TARGET}
+    OTHER_FILES = \
+        Info.plist.in
+}
 
 macx: ICON = share/themes/WebcamoidTheme/icons/webcamoid.icns
 !unix: RC_ICONS = share/themes/WebcamoidTheme/icons/hicolor/256x256/webcamoid.ico
+
+QML_IMPORT_PATH += $$PWD/../libAvKys/Lib/share/qml
+
+CONTENTSPATH = $${BUNDLENAME}.app/Contents
+MACBINPATH = $${CONTENTSPATH}/MacOS
+RESOURCESPATH = $${CONTENTSPATH}/Resources
+
+macx {
+    DESTDIR = $${OUT_PWD}/$${BIN_DIR}/$${MACBINPATH}
+} else: {
+    DESTDIR = $${OUT_PWD}/$${BIN_DIR}
+}
+
+TARGET = $${COMMONS_TARGET}
+
+macx {
+    QMAKE_POST_LINK = \
+        $$sprintf($$QMAKE_MKDIR_CMD, $$shell_path($${OUT_PWD}/$${BIN_DIR}/$${RESOURCESPATH})) $${CMD_SEP} \
+        $(COPY) $$shell_path($${OUT_PWD}/Info.plist) $$shell_path($${OUT_PWD}/$${BIN_DIR}/$${CONTENTSPATH}) $${CMD_SEP} \
+        $(COPY) $$shell_path($${PWD}/$${ICON}) $$shell_path($${OUT_PWD}/$${BIN_DIR}/$${RESOURCESPATH})
+}
 
 TEMPLATE = app
 

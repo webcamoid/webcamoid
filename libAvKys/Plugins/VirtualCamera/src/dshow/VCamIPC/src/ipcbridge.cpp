@@ -1495,6 +1495,16 @@ bool AkVCam::IpcBridge::removeListener(const std::string &deviceId)
     return data->status;
 }
 
+void AkVCam::IpcBridge::cameraConnected()
+{
+
+}
+
+void AkVCam::IpcBridge::cameraDisconnected()
+{
+
+}
+
 AkVCam::IpcBridgePrivate::IpcBridgePrivate(IpcBridge *self):
     self(self),
     m_asClient(false)

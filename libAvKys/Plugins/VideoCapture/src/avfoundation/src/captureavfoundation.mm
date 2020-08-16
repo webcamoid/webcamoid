@@ -756,7 +756,6 @@ void CaptureAvFoundation::updateDevices()
         descriptions.clear();
     }
 
-    this->d->m_devices = devices;
     this->d->m_modelId = modelId;
     this->d->m_descriptions = descriptions;
     this->d->m_devicesCaps = devicesCaps;

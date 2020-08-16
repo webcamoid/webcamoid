@@ -2446,12 +2446,12 @@ duration (seconds)</source>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="210"/>
         <source>Zoom out rate</source>
-        <translation type="unfinished"></translation>
+        <translation>Скорость уменьшения зума</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="225"/>
         <source>Zoom in rate</source>
-        <translation type="unfinished"></translation>
+        <translation>Скорость увеличения зума</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="240"/>

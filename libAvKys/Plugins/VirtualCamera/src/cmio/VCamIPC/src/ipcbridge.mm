@@ -35,6 +35,7 @@
 #import <CoreMediaIO/CMIOHardwarePlugIn.h>
 
 #include "ipcbridge.h"
+#include "deviceobserver.h"
 #include "VCamUtils/src/utils.h"
 #include "VCamUtils/src/image/videoformat.h"
 #include "VCamUtils/src/image/videoframe.h"
@@ -54,6 +55,8 @@ namespace AkVCam
     {
         public:
             IpcBridge *self;
+            ::id m_deviceObserver {nil};
+            QStringList m_driverPaths {CMIO_PLUGINS_DAL_PATH};
             QStringList m_devices;
             QMap<QString, QString> m_descriptions;
             QMap<QString, FormatsList> m_devicesFormats;
@@ -64,6 +67,7 @@ namespace AkVCam
             IpcBridgePrivate(IpcBridge *self=nullptr);
             ~IpcBridgePrivate();
 
+            static bool canUseCamera();
             static inline const PixelFormatToFourCCMap &formatToFourCCMap();
             QStringList listDrivers();
             QString plugin() const;
@@ -87,17 +91,38 @@ namespace AkVCam
             int sudo(const QStringList &parameters);
     };
 
-    Q_GLOBAL_STATIC(QStringList, driverPaths)
+    Q_GLOBAL_STATIC(QStringList, globalDriverPaths)
 }
 
 AkVCam::IpcBridge::IpcBridge()
 {
     this->d = new IpcBridgePrivate(this);
+    this->d->m_deviceObserver = [[DeviceObserverVCamCMIO alloc]
+                                 initWithCaptureObject: this];
+
+    [[NSNotificationCenter defaultCenter]
+     addObserver: this->d->m_deviceObserver
+     selector: @selector(cameraConnected:)
+     name: AVCaptureDeviceWasConnectedNotification
+     object: nil];
+
+    [[NSNotificationCenter defaultCenter]
+     addObserver: this->d->m_deviceObserver
+     selector: @selector(cameraDisconnected:)
+     name: AVCaptureDeviceWasDisconnectedNotification
+     object: nil];
+
     this->d->updateDevices();
 }
 
 AkVCam::IpcBridge::~IpcBridge()
 {
+    [[NSNotificationCenter defaultCenter]
+     removeObserver: this->d->m_deviceObserver];
+
+    [this->d->m_deviceObserver disconnect];
+    [this->d->m_deviceObserver release];
+
     delete this->d;
 }
 
@@ -119,7 +144,7 @@ std::vector<std::wstring> AkVCam::IpcBridge::driverPaths() const
 {
     std::vector<std::wstring> paths;
 
-    for (auto &path: *AkVCam::driverPaths)
+    for (auto &path: *AkVCam::globalDriverPaths)
         paths.push_back(path.toStdWString());
 
     return paths;
@@ -132,7 +157,7 @@ void AkVCam::IpcBridge::setDriverPaths(const std::vector<std::wstring> &driverPa
     for (auto &path: driverPaths)
         paths << QString::fromStdWString(path);
 
-    *AkVCam::driverPaths = paths;
+    *AkVCam::globalDriverPaths = paths;
 }
 
 std::vector<std::string> AkVCam::IpcBridge::availableDrivers() const
@@ -539,7 +564,7 @@ bool AkVCam::IpcBridge::canApply(AkVCam::IpcBridge::Operation operation) const
 
 std::string AkVCam::IpcBridge::deviceCreate(const std::wstring &description,
                                             const std::vector<VideoFormat> &formats)
-{    
+{
     // Write the script file.
     QTemporaryDir tempDir;
     QFile cmds(tempDir.path() + "/akvcam_exec.sh");
@@ -558,16 +583,17 @@ std::string AkVCam::IpcBridge::deviceCreate(const std::wstring &description,
                         | QFileDevice::ExeUser);
     auto manager = this->d->manager();
     QTextStream ts(&cmds);
+    ts << "#!/bin/sh" << Qt::endl;
     ts << "inDevice=$('"
        << manager
-       << "' add-device -i '"
+       << "' -p add-device -i '"
        << QString::fromStdWString(description)
        << " (in)')"
        << Qt::endl;
     ts << "[ $? != 0 ] && exit -1" << Qt::endl;
     ts << "outDevice=$('"
        << manager
-       << "' add-device -o '"
+       << "' -p add-device -o '"
        << QString::fromStdWString(description)
        << "')" << Qt::endl;
     ts << "[ $? != 0 ] && exit -1" << Qt::endl;
@@ -606,12 +632,13 @@ std::string AkVCam::IpcBridge::deviceCreate(const std::wstring &description,
         auto ot = std::find(outputformats.begin(),
                             outputformats.end(),
                             format);
+        auto pixFormat = VideoFormat::stringFromFourcc(format.fourcc());
 
-        if (ot == outputformats.end()) {
+        if (ot == outputformats.end() && !pixFormat.empty()) {
             ts << "'"
                << manager
                << "' add-format \"${outDevice}\" "
-               << VideoFormat::stringFromFourcc(format.fourcc()).c_str()
+               << pixFormat.c_str()
                << " "
                << width
                << " "
@@ -679,6 +706,7 @@ bool AkVCam::IpcBridge::deviceEdit(const std::string &deviceId,
 
     auto manager = this->d->manager();
     QTextStream ts(&cmds);
+    ts << "#!/bin/sh" << Qt::endl;
 
     if (!inputDevices.isEmpty()) {
         ts << "'"
@@ -759,14 +787,15 @@ bool AkVCam::IpcBridge::deviceEdit(const std::string &deviceId,
         auto ot = std::find(outputformats.begin(),
                             outputformats.end(),
                             format);
+        auto pixFormat = VideoFormat::stringFromFourcc(format.fourcc());
 
-        if (ot == outputformats.end()) {
+        if (ot == outputformats.end() && !pixFormat.empty()) {
             ts << "'"
                << manager
                << "' add-format '"
                << QString::fromStdString(deviceId)
                << "' "
-               << VideoFormat::stringFromFourcc(format.fourcc()).c_str()
+               << pixFormat.c_str()
                << " "
                << width
                << " "
@@ -824,6 +853,7 @@ bool AkVCam::IpcBridge::changeDescription(const std::string &deviceId,
 
     auto manager = this->d->manager();
     QTextStream ts(&cmds);
+    ts << "#!/bin/sh" << Qt::endl;
 
     if (!inputDevices.isEmpty()) {
         ts << "'"
@@ -890,6 +920,7 @@ bool AkVCam::IpcBridge::deviceDestroy(const std::string &deviceId)
 
     auto manager = this->d->manager();
     QTextStream ts(&cmds);
+    ts << "#!/bin/sh" << Qt::endl;
 
     if (!inputDevices.isEmpty()) {
         ts << "'"
@@ -950,6 +981,7 @@ bool AkVCam::IpcBridge::destroyAllDevices()
 
     auto manager = this->d->manager();
     QTextStream ts(&cmds);
+    ts << "#!/bin/sh" << Qt::endl;
     ts << "'"
        << manager
        << "' remove-devices" << Qt::endl;
@@ -1168,6 +1200,16 @@ bool AkVCam::IpcBridge::removeListener(const std::string &deviceId)
     return true;
 }
 
+void AkVCam::IpcBridge::cameraConnected()
+{
+    this->d->updateDevices();
+}
+
+void AkVCam::IpcBridge::cameraDisconnected()
+{
+    this->d->updateDevices();
+}
+
 AkVCam::IpcBridgePrivate::IpcBridgePrivate(IpcBridge *self):
     self(self)
 {
@@ -1176,6 +1218,34 @@ AkVCam::IpcBridgePrivate::IpcBridgePrivate(IpcBridge *self):
 AkVCam::IpcBridgePrivate::~IpcBridgePrivate()
 {
 
+}
+
+bool AkVCam::IpcBridgePrivate::canUseCamera()
+{
+    if (@available(macOS 10.14, *)) {
+        auto status = [AVCaptureDevice authorizationStatusForMediaType: AVMediaTypeVideo];
+
+        if (status == AVAuthorizationStatusAuthorized)
+            return true;
+
+        static bool done;
+        static bool result = false;
+        done = false;
+
+        [AVCaptureDevice
+         requestAccessForMediaType: AVMediaTypeVideo
+         completionHandler: ^(BOOL granted) {
+            done = true;
+            result = granted;
+        }];
+
+        while (!done)
+            qApp->processEvents();
+
+        return result;
+    }
+
+    return true;
 }
 
 const AkVCam::PixelFormatToFourCCMap &AkVCam::IpcBridgePrivate::formatToFourCCMap()
@@ -1204,9 +1274,9 @@ QStringList AkVCam::IpcBridgePrivate::listDrivers()
 
 QString AkVCam::IpcBridgePrivate::plugin() const
 {
-    for (auto it = AkVCam::driverPaths->rbegin();
-         it != AkVCam::driverPaths->rend();
-         it++) {
+    auto paths = this->m_driverPaths + *AkVCam::globalDriverPaths;
+
+    for (auto it = paths.rbegin(); it != paths.rend(); it++) {
         auto path = *it;
         path = path.replace("\\", "/");
 
@@ -1224,9 +1294,9 @@ QString AkVCam::IpcBridgePrivate::plugin() const
 
 QString AkVCam::IpcBridgePrivate::manager() const
 {
-    for (auto it = AkVCam::driverPaths->rbegin();
-         it != AkVCam::driverPaths->rend();
-         it++) {
+    auto paths = this->m_driverPaths + *AkVCam::globalDriverPaths;
+
+    for (auto it = paths.rbegin(); it != paths.rend(); it++) {
         auto path = *it;
         path = path.replace("\\", "/");
 
@@ -1471,6 +1541,9 @@ QStringList AkVCam::IpcBridgePrivate::connectedDevices(const QString &deviceId) 
 
 void AkVCam::IpcBridgePrivate::updateDevices()
 {
+    if (!IpcBridgePrivate::canUseCamera())
+        return;
+
     decltype(this->m_devices) devices;
     decltype(this->m_descriptions) descriptions;
     decltype(this->m_devicesFormats) devicesFormats;
@@ -1485,6 +1558,9 @@ void AkVCam::IpcBridgePrivate::updateDevices()
                 continue;
 
             auto formats = this->formatDescriptions(stream);
+
+            if (!formats)
+                continue;
 
             for (CFIndex i = 0; i < CFArrayGetCount(formats); i++) {
                 auto format =
@@ -1527,9 +1603,9 @@ QString AkVCam::IpcBridgePrivate::locateDriverPath() const
         "/Contents/Resources/" CMIO_PLUGIN_MANAGER_NAME,
     };
 
-    for (auto it = AkVCam::driverPaths->rbegin();
-         it != AkVCam::driverPaths->rend();
-         it++) {
+    auto paths = this->m_driverPaths + *AkVCam::globalDriverPaths;
+
+    for (auto it = paths.rbegin(); it != paths.rend(); it++) {
         auto path = *it;
         path = path.replace("\\", "/");
 

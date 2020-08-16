@@ -49,10 +49,12 @@ LIBS = \
     -framework Foundation
 
 OBJECTIVE_SOURCES = \
-    src/ipcbridge.mm
+    src/ipcbridge.mm \
+    src/deviceobserver.mm
 
 HEADERS =  \
-    ../../ipcbridge.h
+    ../../ipcbridge.h \
+    src/deviceobserver.h
 
 INCLUDEPATH += \
     .. \
