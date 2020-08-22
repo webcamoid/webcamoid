@@ -445,25 +445,7 @@ std::vector<AkVCam::VideoFormat> AkVCam::IpcBridge::formats(const std::string &d
 
 std::string AkVCam::IpcBridge::broadcaster(const std::string &deviceId) const
 {
-    auto sysfsControls = this->d->sysfsControls(deviceId);
-
-    if (sysfsControls.isEmpty())
-        return {};
-
-    sysfsControls += "/broadcasters";
-
-    if (!QFileInfo::exists(sysfsControls))
-        return {};
-
-    QFile broadcasters(sysfsControls);
-
-    if (broadcasters.open(QIODevice::ReadOnly | QIODevice::Text))
-        for (auto &device: broadcasters.readAll().split('\n')) {
-            auto dev = device.trimmed();
-
-            if (!dev.isEmpty())
-                return dev.toStdString();
-        }
+    Q_UNUSED(deviceId)
 
     return {};
 }
@@ -739,37 +721,9 @@ bool AkVCam::IpcBridge::swapRgb(const std::string &deviceId)
 
 std::vector<std::string> AkVCam::IpcBridge::listeners(const std::string &deviceId)
 {
-    auto outputs = this->d->connectedDevices(deviceId);
-    QSet<QString> listenersSet;
+    Q_UNUSED(deviceId)
 
-    for (auto &output: outputs) {
-        auto sysfsControls = this->d->sysfsControls(output);
-
-        if (sysfsControls.isEmpty())
-            continue;
-
-        sysfsControls += "/listeners";
-
-        if (!QFileInfo::exists(sysfsControls))
-            continue;
-
-        QFile listeners(sysfsControls);
-
-        if (listeners.open(QIODevice::ReadOnly | QIODevice::Text))
-            for (auto &device: listeners.readAll().split('\n')) {
-                auto dev = device.trimmed();
-
-                if (!dev.isEmpty())
-                    listenersSet << dev;
-            }
-    }
-
-    std::vector<std::string> listeners;
-
-    for (auto &listener: listenersSet)
-        listeners.push_back(listener.toStdString());
-
-    return listeners;
+    return {};
 }
 
 std::vector<uint64_t> AkVCam::IpcBridge::clientsPids() const

@@ -41,12 +41,10 @@ TEMPLATE = lib
 
 LIBS = \
     -L$${OUT_PWD}/../../VCamUtils/$${BIN_DIR} -lVCamUtils \
-    -framework AVFoundation \
-    -framework CoreFoundation \
     -framework CoreMedia \
-    -framework CoreMediaIO \
     -framework CoreVideo \
-    -framework Foundation
+    -framework Foundation \
+    -framework AVFoundation
 
 OBJECTIVE_SOURCES = \
     src/ipcbridge.mm \
