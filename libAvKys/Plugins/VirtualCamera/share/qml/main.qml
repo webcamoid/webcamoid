@@ -33,7 +33,7 @@ GridLayout {
         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
         checked: virtualCamera.horizontalMirrored
 
-        onCheckableChanged: virtualCamera.horizontalMirrored = checked
+        onCheckedChanged: virtualCamera.horizontalMirrored = checked
     }
     Label {
         text: qsTr("Vertical mirror")
@@ -42,7 +42,7 @@ GridLayout {
         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
         checked: virtualCamera.verticalMirrored
 
-        onCheckableChanged: virtualCamera.verticalMirrored = checked
+        onCheckedChanged: virtualCamera.verticalMirrored = checked
     }
     Label {
         text: qsTr("Scaling")
@@ -53,11 +53,11 @@ GridLayout {
         model: ListModel {
             ListElement
             {
-                text: VirtualCamera.ScalingFast
+                option: VirtualCamera.ScalingFast
                 description: "Fast"
             }
             ListElement {
-                text: VirtualCamera.ScalingLinear
+                option: VirtualCamera.ScalingLinear
                 description: "Linear"
             }
         }
@@ -70,16 +70,16 @@ GridLayout {
         Layout.fillWidth: true
         model: ListModel {
             ListElement {
-                text: VirtualCamera.AspectRatioIgnore
+                option: VirtualCamera.AspectRatioIgnore
                 description: "Ignore"
             }
             ListElement
             {
-                text: VirtualCamera.AspectRatioKeep
+                option: VirtualCamera.AspectRatioKeep
                 description: "Keep"
             }
             ListElement {
-                text: VirtualCamera.AspectRatioExpanding
+                option: VirtualCamera.AspectRatioExpanding
                 description: "Expanding"
             }
         }
@@ -91,6 +91,6 @@ GridLayout {
         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
         checked: virtualCamera.swapRgb
 
-        onCheckableChanged: virtualCamera.swapRgb = checked
+        onCheckedChanged: virtualCamera.swapRgb = checked
     }
 }

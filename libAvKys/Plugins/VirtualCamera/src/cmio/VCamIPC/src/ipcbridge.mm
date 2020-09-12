@@ -55,7 +55,6 @@ namespace AkVCam
         public:
             IpcBridge *self;
             ::id m_deviceObserver {nil};
-            QStringList m_driverPaths {CMIO_PLUGINS_DAL_PATH};
             QStringList m_devices;
             QMap<QString, QString> m_descriptions;
             QMap<QString, FormatsList> m_devicesFormats;
@@ -79,8 +78,6 @@ namespace AkVCam
             // Utility methods
             QString locateDriverPath() const;
     };
-
-    Q_GLOBAL_STATIC(QStringList, globalDriverPaths)
 }
 
 AkVCam::IpcBridge::IpcBridge()
@@ -131,22 +128,12 @@ void AkVCam::IpcBridge::setOption(const std::string &key,
 
 std::vector<std::wstring> AkVCam::IpcBridge::driverPaths() const
 {
-    std::vector<std::wstring> paths;
-
-    for (auto &path: *AkVCam::globalDriverPaths)
-        paths.push_back(path.toStdWString());
-
-    return paths;
+    return {};
 }
 
 void AkVCam::IpcBridge::setDriverPaths(const std::vector<std::wstring> &driverPaths)
 {
-    QStringList paths;
-
-    for (auto &path: driverPaths)
-        paths << QString::fromStdWString(path);
-
-    *AkVCam::globalDriverPaths = paths;
+    Q_UNUSED(driverPaths)
 }
 
 std::vector<std::string> AkVCam::IpcBridge::availableDrivers() const
@@ -316,138 +303,148 @@ std::string AkVCam::IpcBridge::broadcaster(const std::string &deviceId) const
 }
 
 bool AkVCam::IpcBridge::isHorizontalMirrored(const std::string &deviceId)
-{/*
-    if (!this->d->m_serverMessagePort)
+{
+    auto manager = this->d->manager();
+
+    if (manager.isEmpty())
         return false;
 
-    auto dictionary = xpc_dictionary_create(nullptr, nullptr, 0);
-    xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_MIRRORING);
-    xpc_dictionary_set_string(dictionary, "device", deviceId.c_str());
-    auto reply = xpc_connection_send_message_with_reply_sync(this->d->m_serverMessagePort,
-                                                             dictionary);
-    xpc_release(dictionary);
-    auto replyType = xpc_get_type(reply);
+    QProcess proc;
+    proc.start(manager,
+               {"-p",
+                "get-control",
+                QString::fromStdString(deviceId),
+                "hflip"});
+    proc.waitForFinished();
 
-    if (replyType != XPC_TYPE_DICTIONARY) {
-        xpc_release(reply);
+    if (proc.exitCode()) {
+        auto errorMsg = proc.readAllStandardError();
+
+        if (!errorMsg.isEmpty()) {
+            qDebug() << errorMsg.toStdString().c_str();
+            this->d->m_error += QString(errorMsg).toStdWString();
+        }
 
         return false;
     }
 
-    bool horizontalMirror = xpc_dictionary_get_bool(reply, "hmirror");
-    xpc_release(reply);
-
-    return horizontalMirror;
-    */
-    return false;
+    return proc.readAllStandardOutput().trimmed() != "0";
 }
 
 bool AkVCam::IpcBridge::isVerticalMirrored(const std::string &deviceId)
-{/*
-    if (!this->d->m_serverMessagePort)
+{
+    auto manager = this->d->manager();
+
+    if (manager.isEmpty())
         return false;
 
-    auto dictionary = xpc_dictionary_create(nullptr, nullptr, 0);
-    xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_MIRRORING);
-    xpc_dictionary_set_string(dictionary, "device", deviceId.c_str());
-    auto reply = xpc_connection_send_message_with_reply_sync(this->d->m_serverMessagePort,
-                                                             dictionary);
-    xpc_release(dictionary);
-    auto replyType = xpc_get_type(reply);
+    QProcess proc;
+    proc.start(manager,
+               {"-p",
+                "get-control",
+                QString::fromStdString(deviceId),
+                "vflip"});
+    proc.waitForFinished();
 
-    if (replyType != XPC_TYPE_DICTIONARY) {
-        xpc_release(reply);
+    if (proc.exitCode()) {
+        auto errorMsg = proc.readAllStandardError();
+
+        if (!errorMsg.isEmpty()) {
+            qDebug() << errorMsg.toStdString().c_str();
+            this->d->m_error += QString(errorMsg).toStdWString();
+        }
 
         return false;
     }
 
-    bool verticalMirror = xpc_dictionary_get_bool(reply, "vmirror");
-    xpc_release(reply);
-
-    return verticalMirror;
-    */
-    return false;
+    return proc.readAllStandardOutput().trimmed() != "0";
 }
 
 AkVCam::Scaling AkVCam::IpcBridge::scalingMode(const std::string &deviceId)
-{/*
-    if (!this->d->m_serverMessagePort)
+{
+    auto manager = this->d->manager();
+
+    if (manager.isEmpty())
         return ScalingFast;
 
-    auto dictionary = xpc_dictionary_create(nullptr, nullptr, 0);
-    xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_SCALING);
-    xpc_dictionary_set_string(dictionary, "device", deviceId.c_str());
-    auto reply = xpc_connection_send_message_with_reply_sync(this->d->m_serverMessagePort,
-                                                             dictionary);
-    xpc_release(dictionary);
-    auto replyType = xpc_get_type(reply);
+    QProcess proc;
+    proc.start(manager,
+               {"-p",
+                "get-control",
+                QString::fromStdString(deviceId),
+                "scaling"});
+    proc.waitForFinished();
 
-    if (replyType != XPC_TYPE_DICTIONARY) {
-        xpc_release(reply);
+    if (proc.exitCode()) {
+        auto errorMsg = proc.readAllStandardError();
+
+        if (!errorMsg.isEmpty()) {
+            qDebug() << errorMsg.toStdString().c_str();
+            this->d->m_error += QString(errorMsg).toStdWString();
+        }
 
         return ScalingFast;
     }
 
-    auto scaling = Scaling(xpc_dictionary_get_int64(reply, "scaling"));
-    xpc_release(reply);
-
-    return scaling;
-    */
-    return ScalingFast;
+    return Scaling(proc.readAllStandardOutput().trimmed().toInt());
 }
 
 AkVCam::AspectRatio AkVCam::IpcBridge::aspectRatioMode(const std::string &deviceId)
-{/*
-    if (!this->d->m_serverMessagePort)
+{
+    auto manager = this->d->manager();
+
+    if (manager.isEmpty())
         return AspectRatioIgnore;
 
-    auto dictionary = xpc_dictionary_create(nullptr, nullptr, 0);
-    xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_ASPECTRATIO);
-    xpc_dictionary_set_string(dictionary, "device", deviceId.c_str());
-    auto reply = xpc_connection_send_message_with_reply_sync(this->d->m_serverMessagePort,
-                                                             dictionary);
-    xpc_release(dictionary);
-    auto replyType = xpc_get_type(reply);
+    QProcess proc;
+    proc.start(manager,
+               {"-p",
+                "get-control",
+                QString::fromStdString(deviceId),
+                "aspect_ratio"});
+    proc.waitForFinished();
 
-    if (replyType != XPC_TYPE_DICTIONARY) {
-        xpc_release(reply);
+    if (proc.exitCode()) {
+        auto errorMsg = proc.readAllStandardError();
+
+        if (!errorMsg.isEmpty()) {
+            qDebug() << errorMsg.toStdString().c_str();
+            this->d->m_error += QString(errorMsg).toStdWString();
+        }
 
         return AspectRatioIgnore;
     }
 
-    auto aspectRatio = AspectRatio(xpc_dictionary_get_int64(reply, "aspect"));
-    xpc_release(reply);
-
-    return aspectRatio;
-    */
-    return AspectRatioIgnore;
+    return AspectRatio(proc.readAllStandardOutput().trimmed().toInt());
 }
 
 bool AkVCam::IpcBridge::swapRgb(const std::string &deviceId)
-{/*
-    if (!this->d->m_serverMessagePort)
+{
+    auto manager = this->d->manager();
+
+    if (manager.isEmpty())
         return false;
 
-    auto dictionary = xpc_dictionary_create(nullptr, nullptr, 0);
-    xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_SWAPRGB);
-    xpc_dictionary_set_string(dictionary, "device", deviceId.c_str());
-    auto reply = xpc_connection_send_message_with_reply_sync(this->d->m_serverMessagePort,
-                                                             dictionary);
-    xpc_release(dictionary);
-    auto replyType = xpc_get_type(reply);
+    QProcess proc;
+    proc.start(manager,
+               {"-p",
+                "get-control",
+                QString::fromStdString(deviceId),
+                "swap_rgb"});
+    proc.waitForFinished();
 
-    if (replyType != XPC_TYPE_DICTIONARY) {
-        xpc_release(reply);
+    if (proc.exitCode()) {
+        auto errorMsg = proc.readAllStandardError();
+
+        if (!errorMsg.isEmpty()) {
+            qDebug() << errorMsg.toStdString().c_str();
+            this->d->m_error += QString(errorMsg).toStdWString();
+        }
 
         return false;
     }
 
-    auto swap = xpc_dictionary_get_bool(reply, "swap");
-    xpc_release(reply);
-
-    return swap;
-    */
-    return false;
+    return proc.readAllStandardOutput().trimmed() != "0";
 }
 
 std::vector<std::string> AkVCam::IpcBridge::listeners(const std::string &deviceId)
@@ -459,38 +456,26 @@ std::vector<std::string> AkVCam::IpcBridge::listeners(const std::string &deviceI
 
 std::vector<uint64_t> AkVCam::IpcBridge::clientsPids() const
 {
-    auto driverPath = this->d->locateDriverPath();
+    auto manager = this->d->manager();
 
-    if (driverPath.isEmpty())
+    if (manager.isEmpty())
         return {};
 
-    auto plugin = QFileInfo(driverPath).fileName();
-    QString pluginPath =
-            CMIO_PLUGINS_DAL_PATH "/"
-            + plugin
-            + "/Contents/MacOS/" CMIO_PLUGIN_NAME;
-    auto npids = proc_listpidspath(PROC_ALL_PIDS,
-                                   0,
-                                   pluginPath.toStdString().c_str(),
-                                   0,
-                                   nullptr,
-                                   0);
-    pid_t pidsvec[npids];
-    memset(pidsvec, 0, npids * sizeof(pid_t));
-    proc_listpidspath(PROC_ALL_PIDS,
-                      0,
-                      pluginPath.toStdString().c_str(),
-                      0,
-                      pidsvec,
-                      npids * sizeof(pid_t));
-    auto currentPid = getpid();
+    QProcess proc;
+    proc.start(manager, {"-p", "clients"});
+    proc.waitForFinished();
+
+    if (proc.exitCode())
+        return {};
+
     std::vector<uint64_t> pids;
 
-    for (int i = 0; i < npids; i++) {
-        auto it = std::find(pids.begin(), pids.end(), pidsvec[i]);
+    for (auto &line: proc.readAllStandardOutput().split('\n')) {
+        auto pidExe = line.simplified().split(' ');
+        auto pid = pidExe.value(0).toInt();
 
-        if (pidsvec[i] > 0 && it == pids.end() && pidsvec[i] != currentPid)
-            pids.push_back(pidsvec[i]);
+        if (pid != getpid())
+            pids.push_back(pid);
     }
 
     return pids;
@@ -498,11 +483,26 @@ std::vector<uint64_t> AkVCam::IpcBridge::clientsPids() const
 
 std::string AkVCam::IpcBridge::clientExe(uint64_t pid) const
 {
-    char path[4096];
-    memset(path, 0, 4096);
-    proc_pidpath(pid, path, 4096);
+    auto manager = this->d->manager();
 
-    return {path};
+    if (manager.isEmpty())
+        return {};
+
+    QProcess proc;
+    proc.start(manager, {"-p", "clients"});
+    proc.waitForFinished();
+
+    if (proc.exitCode())
+        return {};
+
+    for (auto &line: proc.readAllStandardOutput().split('\n')) {
+        auto pidExe = line.simplified().split(' ');
+
+        if (pidExe.value(0).toULongLong() == pid)
+            return pidExe.value(1).toStdString();
+    }
+
+    return {};
 }
 
 bool AkVCam::IpcBridge::needsRestart(Operation operation) const
@@ -522,71 +522,66 @@ bool AkVCam::IpcBridge::canApply(AkVCam::IpcBridge::Operation operation) const
 std::string AkVCam::IpcBridge::deviceCreate(const std::wstring &description,
                                             const std::vector<VideoFormat> &formats)
 {
-    // Write the script file.
-    QTemporaryDir tempDir;
-    QFile cmds(tempDir.path() + "/akvcam_exec.sh");
+    auto manager = this->d->manager();
 
-    if (!cmds.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        this->d->m_error = L"Can't create install script";
-
+    if (manager.isEmpty())
         return {};
+
+    QProcess proc;
+    proc.start(manager,
+               {"-p",
+                "add-device",
+                QString::fromStdWString(description)});
+    proc.waitForFinished();
+    auto result = proc.exitCode();
+    QString deviceId;
+
+    if (!result) {
+        deviceId = QString::fromUtf8(proc.readAllStandardOutput());
+        deviceId = deviceId.trimmed();
     }
 
-    cmds.setPermissions(QFileDevice::ReadOwner
-                        | QFileDevice::WriteOwner
-                        | QFileDevice::ExeOwner
-                        | QFileDevice::ReadUser
-                        | QFileDevice::WriteUser
-                        | QFileDevice::ExeUser);
-    auto manager = this->d->manager();
-    QTextStream ts(&cmds);
-    ts << "#!/bin/sh" << Qt::endl;
-    ts << "device=$('"
-       << manager
-       << "' -p add-device '"
-       << QString::fromStdWString(description)
-       << "')" << Qt::endl;
-    ts << "[ $? != 0 ] && exit -1" << Qt::endl;
+    if (!result) {
+        std::vector<VideoFormat> outputformats;
 
-    std::vector<VideoFormat> outputformats;
+        for (auto &format: formats) {
+            auto width = format.width();
+            auto height = format.height();
+            auto fps = format.minimumFrameRate();
+            auto ot = std::find(outputformats.begin(),
+                                outputformats.end(),
+                                format);
+            auto pixFormat = VideoFormat::stringFromFourcc(format.fourcc());
 
-    for (auto &format: formats) {
-        auto width = format.width();
-        auto height = format.height();
-        auto fps = format.minimumFrameRate();
-        auto ot = std::find(outputformats.begin(),
-                            outputformats.end(),
-                            format);
-        auto pixFormat = VideoFormat::stringFromFourcc(format.fourcc());
+            if (ot == outputformats.end() && !pixFormat.empty()) {
+                proc.start(manager,
+                           {"add-format",
+                            deviceId,
+                            QString::fromStdString(pixFormat),
+                            QString::number(width),
+                            QString::number(height),
+                            QString::fromStdString(fps.toString())});
+                proc.waitForFinished();
 
-        if (ot == outputformats.end() && !pixFormat.empty()) {
-            ts << "'"
-               << manager
-               << "' add-format \"${device}\" "
-               << pixFormat.c_str()
-               << " "
-               << width
-               << " "
-               << height
-               << " "
-               << fps.toString().c_str()
-               << Qt::endl;
-            ts << "[ $? != 0 ] && exit -1" << Qt::endl;
-            outputformats.push_back(format);
+                if (proc.exitCode()) {
+                    result = proc.exitCode();
+
+                    break;
+                }
+
+                outputformats.push_back(format);
+            }
         }
     }
 
-    ts << "'" << manager << "' update" << Qt::endl;
-    ts << "[ $? != 0 ] && exit -1" << Qt::endl;
-    ts << "echo ${device}";
-    cmds.close();
+    if (!result) {
+        proc.start(manager, {"update"});
+        proc.waitForFinished();
+        result = proc.exitCode();
+    }
 
-    QProcess sh;
-    sh.start("sh", {cmds.fileName()});
-    sh.waitForFinished(-1);
-
-    if (sh.exitCode()) {
-        auto errorMsg = sh.readAllStandardError();
+    if (proc.exitCode()) {
+        auto errorMsg = proc.readAllStandardError();
 
         if (!errorMsg.isEmpty()) {
             qDebug() << errorMsg.toStdString().c_str();
@@ -596,95 +591,75 @@ std::string AkVCam::IpcBridge::deviceCreate(const std::wstring &description,
         return {};
     }
 
-    QStringList devices;
-
-    for (auto &line: sh.readAllStandardOutput().trimmed().split('\n'))
-        devices << line.trimmed();
-
-    return devices.last().toStdString();
+    return deviceId.toStdString();
 }
 
 bool AkVCam::IpcBridge::deviceEdit(const std::string &deviceId,
                                    const std::wstring &description,
                                    const std::vector<VideoFormat> &formats)
 {
-    // Write the script file.
-    QTemporaryDir tempDir;
-    QFile cmds(tempDir.path() + "/akvcam_exec.sh");
+    auto manager = this->d->manager();
 
-    if (!cmds.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        this->d->m_error = L"Can't create install script";
+    if (manager.isEmpty())
+        return {};
 
-        return false;
+    QProcess proc;
+    proc.start(manager,
+               {"set-description",
+                QString::fromStdString(deviceId),
+                QString::fromStdWString(description)});
+    proc.waitForFinished();
+    auto result = proc.exitCode();
+
+    if (!result) {
+        proc.start(manager,
+                   {"remove-formats",
+                    QString::fromStdString(deviceId)});
+        proc.waitForFinished();
+        result = proc.exitCode();
     }
 
-    cmds.setPermissions(QFileDevice::ReadOwner
-                        | QFileDevice::WriteOwner
-                        | QFileDevice::ExeOwner
-                        | QFileDevice::ReadUser
-                        | QFileDevice::WriteUser
-                        | QFileDevice::ExeUser);
+    if (!result) {
+        std::vector<VideoFormat> outputformats;
 
-    auto manager = this->d->manager();
-    QTextStream ts(&cmds);
-    ts << "#!/bin/sh" << Qt::endl;
-    ts << "'"
-       << manager
-       << "' set-description '"
-       << QString::fromStdString(deviceId)
-       << "' '"
-       << QString::fromStdWString(description)
-       << "'" << Qt::endl;
-    ts << "[ $? != 0 ] && exit -1" << Qt::endl;
+        for (auto &format: formats) {
+            auto width = format.width();
+            auto height = format.height();
+            auto fps = format.minimumFrameRate();
+            auto ot = std::find(outputformats.begin(),
+                                outputformats.end(),
+                                format);
+            auto pixFormat = VideoFormat::stringFromFourcc(format.fourcc());
 
-    // Clear formats
-    ts << "'"
-       << manager
-       << "' remove-formats '"
-       << QString::fromStdString(deviceId)
-       << "'"
-       << Qt::endl;
-    ts << "[ $? != 0 ] && exit -1" << Qt::endl;
+            if (ot == outputformats.end() && !pixFormat.empty()) {
+                proc.start(manager,
+                           {"add-format",
+                            QString::fromStdString(deviceId),
+                            QString::fromStdString(pixFormat),
+                            QString::number(width),
+                            QString::number(height),
+                            QString::fromStdString(fps.toString())});
+                proc.waitForFinished();
 
-    std::vector<VideoFormat> outputformats;
+                if (proc.exitCode()) {
+                    result = proc.exitCode();
 
-    for (auto &format: formats) {
-        auto width = format.width();
-        auto height = format.height();
-        auto fps = format.minimumFrameRate();
-        auto ot = std::find(outputformats.begin(),
-                            outputformats.end(),
-                            format);
-        auto pixFormat = VideoFormat::stringFromFourcc(format.fourcc());
+                    break;
+                }
 
-        if (ot == outputformats.end() && !pixFormat.empty()) {
-            ts << "'"
-               << manager
-               << "' add-format '"
-               << QString::fromStdString(deviceId)
-               << "' "
-               << pixFormat.c_str()
-               << " "
-               << width
-               << " "
-               << height
-               << " "
-               << fps.toString().c_str()
-               << Qt::endl;
-            ts << "[ $? != 0 ] && exit -1" << Qt::endl;
-            outputformats.push_back(format);
+                outputformats.push_back(format);
+            }
         }
     }
 
-    ts << "'" << manager << "' update" << Qt::endl;
-    cmds.close();
+    if (!result) {
+        proc.start(manager, {"update"});
+        proc.waitForFinished();
+        result = proc.exitCode();
+    }
 
-    QProcess sh;
-    sh.start("sh", {cmds.fileName()});
-    sh.waitForFinished(-1);
-
-    if (sh.exitCode()) {
-        auto errorMsg = sh.readAllStandardError();
+    if (proc.exitCode()) {
+        auto errorMsg = proc.readAllStandardError();
 
         if (!errorMsg.isEmpty()) {
             qDebug() << errorMsg.toStdString().c_str();
@@ -700,43 +675,25 @@ bool AkVCam::IpcBridge::deviceEdit(const std::string &deviceId,
 bool AkVCam::IpcBridge::changeDescription(const std::string &deviceId,
                                           const std::wstring &description)
 {
-    // Write the script file.
-    QTemporaryDir tempDir;
-    QFile cmds(tempDir.path() + "/akvcam_exec.sh");
+    auto manager = this->d->manager();
 
-    if (!cmds.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        this->d->m_error = L"Can't create install script";
-
+    if (manager.isEmpty())
         return false;
+
+    QProcess proc;
+    proc.start(manager,
+               {"set-description",
+                QString::fromStdString(deviceId),
+                QString::fromStdWString(description)});
+    proc.waitForFinished();
+
+    if (!proc.exitCode()) {
+        proc.start(manager, {"update"});
+        proc.waitForFinished();
     }
 
-    cmds.setPermissions(QFileDevice::ReadOwner
-                        | QFileDevice::WriteOwner
-                        | QFileDevice::ExeOwner
-                        | QFileDevice::ReadUser
-                        | QFileDevice::WriteUser
-                        | QFileDevice::ExeUser);
-
-    auto manager = this->d->manager();
-    QTextStream ts(&cmds);
-    ts << "#!/bin/sh" << Qt::endl;
-    ts << "'"
-       << manager
-       << "' set-description '"
-       << QString::fromStdString(deviceId)
-       << "' '"
-       << QString::fromStdWString(description)
-       << "'" << Qt::endl;
-    ts << "[ $? != 0 ] && exit -1" << Qt::endl;
-    ts << "'" << manager << "' update" << Qt::endl;
-    cmds.close();
-
-    QProcess sh;
-    sh.start("sh", {cmds.fileName()});
-    sh.waitForFinished(-1);
-
-    if (sh.exitCode()) {
-        auto errorMsg = sh.readAllStandardError();
+    if (proc.exitCode()) {
+        auto errorMsg = proc.readAllStandardError();
 
         if (!errorMsg.isEmpty()) {
             qDebug() << errorMsg.toStdString().c_str();
@@ -751,42 +708,22 @@ bool AkVCam::IpcBridge::changeDescription(const std::string &deviceId,
 
 bool AkVCam::IpcBridge::deviceDestroy(const std::string &deviceId)
 {
-    // Write the script file.
-    QTemporaryDir tempDir;
-    QFile cmds(tempDir.path() + "/akvcam_exec.sh");
+    auto manager = this->d->manager();
 
-    if (!cmds.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        this->d->m_error = L"Can't create install script";
-
+    if (manager.isEmpty())
         return false;
+
+    QProcess proc;
+    proc.start(manager, {"remove-device", QString::fromStdString(deviceId)});
+    proc.waitForFinished();
+
+    if (!proc.exitCode()) {
+        proc.start(manager, {"update"});
+        proc.waitForFinished();
     }
 
-    cmds.setPermissions(QFileDevice::ReadOwner
-                        | QFileDevice::WriteOwner
-                        | QFileDevice::ExeOwner
-                        | QFileDevice::ReadUser
-                        | QFileDevice::WriteUser
-                        | QFileDevice::ExeUser);
-
-    auto manager = this->d->manager();
-    QTextStream ts(&cmds);
-    ts << "#!/bin/sh" << Qt::endl;
-    ts << "'"
-       << manager
-       << "' remove-device '"
-       << QString::fromStdString(deviceId)
-       << "'" << Qt::endl;
-    ts << "[ $? != 0 ] && exit -1" << Qt::endl;
-
-    ts << "'" << manager << "' update" << Qt::endl;
-    cmds.close();
-
-    QProcess sh;
-    sh.start("sh", {cmds.fileName()});
-    sh.waitForFinished(-1);
-
-    if (sh.exitCode()) {
-        auto errorMsg = sh.readAllStandardError();
+    if (proc.exitCode()) {
+        auto errorMsg = proc.readAllStandardError();
 
         if (!errorMsg.isEmpty()) {
             qDebug() << errorMsg.toStdString().c_str();
@@ -801,40 +738,22 @@ bool AkVCam::IpcBridge::deviceDestroy(const std::string &deviceId)
 
 bool AkVCam::IpcBridge::destroyAllDevices()
 {
-    // Write the script file.
-    QTemporaryDir tempDir;
-    QFile cmds(tempDir.path() + "/akvcam_exec.sh");
+    auto manager = this->d->manager();
 
-    if (!cmds.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        this->d->m_error = L"Can't create install script";
-
+    if (manager.isEmpty())
         return false;
+
+    QProcess proc;
+    proc.start(manager, {"remove-devices"});
+    proc.waitForFinished();
+
+    if (!proc.exitCode()) {
+        proc.start(manager, {"update"});
+        proc.waitForFinished();
     }
 
-    cmds.setPermissions(QFileDevice::ReadOwner
-                        | QFileDevice::WriteOwner
-                        | QFileDevice::ExeOwner
-                        | QFileDevice::ReadUser
-                        | QFileDevice::WriteUser
-                        | QFileDevice::ExeUser);
-
-    auto manager = this->d->manager();
-    QTextStream ts(&cmds);
-    ts << "#!/bin/sh" << Qt::endl;
-    ts << "'"
-       << manager
-       << "' remove-devices" << Qt::endl;
-    ts << "[ $? != 0 ] && exit -1" << Qt::endl;
-
-    ts << "'" << manager << "' update" << Qt::endl;
-    cmds.close();
-
-    QProcess sh;
-    sh.start("sh", {cmds.fileName()});
-    sh.waitForFinished(-1);
-
-    if (sh.exitCode()) {
-        auto errorMsg = sh.readAllStandardError();
+    if (proc.exitCode()) {
+        auto errorMsg = proc.readAllStandardError();
 
         if (!errorMsg.isEmpty()) {
             qDebug() << errorMsg.toStdString().c_str();
@@ -850,12 +769,17 @@ bool AkVCam::IpcBridge::destroyAllDevices()
 bool AkVCam::IpcBridge::deviceStart(const std::string &deviceId,
                                     const VideoFormat &format)
 {
+    auto manager = this->d->manager();
+
+    if (manager.isEmpty())
+        return false;
+
     this->d->m_curFormat = format;
     auto pixFormat =
             QString::fromStdString(VideoFormat::stringFromFourcc(format.fourcc()));
     QString params;
     QTextStream paramsStream(&params);
-    paramsStream << this->d->manager()
+    paramsStream << manager
                  << " "
                  << "stream"
                  << " "
@@ -907,54 +831,102 @@ bool AkVCam::IpcBridge::write(const std::string &deviceId,
 void AkVCam::IpcBridge::setMirroring(const std::string &deviceId,
                                      bool horizontalMirrored,
                                      bool verticalMirrored)
-{/*
-    auto dictionary = xpc_dictionary_create(nullptr, nullptr, 0);
-    xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_SETMIRRORING);
-    xpc_dictionary_set_string(dictionary, "device", deviceId.c_str());
-    xpc_dictionary_set_bool(dictionary, "hmirror", horizontalMirrored);
-    xpc_dictionary_set_bool(dictionary, "vmirror", verticalMirrored);
-    auto reply = xpc_connection_send_message_with_reply_sync(this->d->m_serverMessagePort,
-                                                             dictionary);
-    xpc_release(dictionary);
-    xpc_release(reply);*/
+{
+    auto manager = this->d->manager();
+
+    if (manager.isEmpty())
+        return;
+
+    QProcess proc;
+    proc.start(manager,
+               {"set-controls",
+                QString::fromStdString(deviceId),
+                QString("hflip=%1").arg(horizontalMirrored),
+                QString("vflip=%1").arg(verticalMirrored)});
+    proc.waitForFinished();
+
+    if (proc.exitCode()) {
+        auto errorMsg = proc.readAllStandardError();
+
+        if (!errorMsg.isEmpty()) {
+            qDebug() << errorMsg.toStdString().c_str();
+            this->d->m_error += QString(errorMsg).toStdWString();
+        }
+    }
 }
 
 void AkVCam::IpcBridge::setScaling(const std::string &deviceId,
                                    Scaling scaling)
-{/*
-    auto dictionary = xpc_dictionary_create(nullptr, nullptr, 0);
-    xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_SETSCALING);
-    xpc_dictionary_set_string(dictionary, "device", deviceId.c_str());
-    xpc_dictionary_set_int64(dictionary, "scaling", scaling);
-    auto reply = xpc_connection_send_message_with_reply_sync(this->d->m_serverMessagePort,
-                                                             dictionary);
-    xpc_release(dictionary);
-    xpc_release(reply);*/
+{
+    auto manager = this->d->manager();
+
+    if (manager.isEmpty())
+        return;
+
+    QProcess proc;
+    proc.start(manager,
+               {"set-controls",
+                QString::fromStdString(deviceId),
+                QString("scaling=%1").arg(scaling)});
+    proc.waitForFinished();
+
+    if (proc.exitCode()) {
+        auto errorMsg = proc.readAllStandardError();
+
+        if (!errorMsg.isEmpty()) {
+            qDebug() << errorMsg.toStdString().c_str();
+            this->d->m_error += QString(errorMsg).toStdWString();
+        }
+    }
 }
 
 void AkVCam::IpcBridge::setAspectRatio(const std::string &deviceId,
                                        AspectRatio aspectRatio)
-{/*
-    auto dictionary = xpc_dictionary_create(nullptr, nullptr, 0);
-    xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_SETASPECTRATIO);
-    xpc_dictionary_set_string(dictionary, "device", deviceId.c_str());
-    xpc_dictionary_set_int64(dictionary, "aspect", aspectRatio);
-    auto reply = xpc_connection_send_message_with_reply_sync(this->d->m_serverMessagePort,
-                                                             dictionary);
-    xpc_release(dictionary);
-    xpc_release(reply);*/
+{
+    auto manager = this->d->manager();
+
+    if (manager.isEmpty())
+        return;
+
+    QProcess proc;
+    proc.start(manager,
+               {"set-controls",
+                QString::fromStdString(deviceId),
+                QString("aspect_ratio=%1").arg(aspectRatio)});
+    proc.waitForFinished();
+
+    if (proc.exitCode()) {
+        auto errorMsg = proc.readAllStandardError();
+
+        if (!errorMsg.isEmpty()) {
+            qDebug() << errorMsg.toStdString().c_str();
+            this->d->m_error += QString(errorMsg).toStdWString();
+        }
+    }
 }
 
 void AkVCam::IpcBridge::setSwapRgb(const std::string &deviceId, bool swap)
-{/*
-    auto dictionary = xpc_dictionary_create(nullptr, nullptr, 0);
-    xpc_dictionary_set_int64(dictionary, "message", AKVCAM_ASSISTANT_MSG_DEVICE_SETSWAPRGB);
-    xpc_dictionary_set_string(dictionary, "device", deviceId.c_str());
-    xpc_dictionary_set_bool(dictionary, "swap", swap);
-    auto reply = xpc_connection_send_message_with_reply_sync(this->d->m_serverMessagePort,
-                                                             dictionary);
-    xpc_release(dictionary);
-    xpc_release(reply);*/
+{
+    auto manager = this->d->manager();
+
+    if (manager.isEmpty())
+        return;
+
+    QProcess proc;
+    proc.start(manager,
+               {"set-controls",
+                QString::fromStdString(deviceId),
+                QString("swap_rgb=%1").arg(swap)});
+    proc.waitForFinished();
+
+    if (proc.exitCode()) {
+        auto errorMsg = proc.readAllStandardError();
+
+        if (!errorMsg.isEmpty()) {
+            qDebug() << errorMsg.toStdString().c_str();
+            this->d->m_error += QString(errorMsg).toStdWString();
+        }
+    }
 }
 
 bool AkVCam::IpcBridge::addListener(const std::string &deviceId)
@@ -1045,56 +1017,41 @@ QStringList AkVCam::IpcBridgePrivate::listDrivers()
 
 QString AkVCam::IpcBridgePrivate::plugin() const
 {
-    auto paths = this->m_driverPaths + *AkVCam::globalDriverPaths;
+    auto path = this->locateDriverPath();
 
-    for (auto it = paths.rbegin(); it != paths.rend(); it++) {
-        auto path = *it;
-        path = path.replace("\\", "/");
+    if (path.isEmpty())
+        return {};
 
-        if (path.back() != '/')
-            path += '/';
-
-        path += CMIO_PLUGIN_NAME ".plugin/Contents/MacOS/" CMIO_PLUGIN_NAME;
-
-        if (QFileInfo::exists(path))
-            return path;
-    }
-
-    return {};
+    return path + "/Contents/MacOS/" CMIO_PLUGIN_NAME;
 }
 
 QString AkVCam::IpcBridgePrivate::manager() const
 {
-    auto paths = this->m_driverPaths + *AkVCam::globalDriverPaths;
+    auto path = this->locateDriverPath();
 
-    for (auto it = paths.rbegin(); it != paths.rend(); it++) {
-        auto path = *it;
-        path = path.replace("\\", "/");
+    if (path.isEmpty())
+        return {};
 
-        if (path.back() != '/')
-            path += '/';
-
-        path += CMIO_PLUGIN_NAME ".plugin/Contents/Resources/" CMIO_PLUGIN_MANAGER_NAME;
-
-        if (QFileInfo::exists(path))
-            return path;
-    }
-
-    return {};
+    return path + "/Contents/Resources/" CMIO_PLUGIN_MANAGER_NAME;
 }
 
 QStringList AkVCam::IpcBridgePrivate::devices() const
 {
-    QProcess manager;
-    manager.start(this->manager(), {"-p", "devices"});
-    manager.waitForFinished();
+    auto manager = this->manager();
 
-    if (manager.exitCode() != 0)
+    if (manager.isEmpty())
+        return {};
+
+    QProcess proc;
+    proc.start(manager, {"-p", "devices"});
+    proc.waitForFinished();
+
+    if (proc.exitCode() != 0)
         return {};
 
     QStringList devices;
 
-    for (auto &line: manager.readAllStandardOutput().split('\n'))
+    for (auto &line: proc.readAllStandardOutput().split('\n'))
         devices << line.trimmed();
 
     return devices;
@@ -1155,38 +1112,17 @@ void AkVCam::IpcBridgePrivate::updateDevices()
 
 QString AkVCam::IpcBridgePrivate::locateDriverPath() const
 {
-    QString driverPath;
     QStringList pluginFiles {
         "/Contents/MacOS/" CMIO_PLUGIN_NAME,
         "/Contents/Resources/" CMIO_PLUGIN_ASSISTANT_NAME,
         "/Contents/Resources/" CMIO_PLUGIN_MANAGER_NAME,
     };
 
-    auto paths = this->m_driverPaths + *AkVCam::globalDriverPaths;
+    QString pluginPath = CMIO_PLUGINS_DAL_PATH "/" CMIO_PLUGIN_NAME ".plugin";
 
-    for (auto it = paths.rbegin(); it != paths.rend(); it++) {
-        auto path = *it;
-        path = path.replace("\\", "/");
+    for (auto &file: pluginFiles)
+        if (!QFileInfo::exists(pluginPath + file))
+            return {};
 
-        if (path.back() != '/')
-            path += '/';
-
-        path += CMIO_PLUGIN_NAME ".plugin";
-        bool filesFound = true;
-
-        for (auto &file: pluginFiles)
-            if (!QFileInfo::exists(path + file)) {
-                filesFound = false;
-
-                break;
-            }
-
-        if (filesFound) {
-            driverPath = path;
-
-            break;
-        }
-    }
-
-    return driverPath;
+    return QDir(pluginPath).canonicalPath();
 }
