@@ -85,7 +85,7 @@ namespace AkVCam
             LONG m_gamma;
             LONG m_hue;
             LONG m_colorenable;
-            static std::default_random_engine m_randomEngine;
+            std::default_random_engine m_randomEngine;
 
             void sendFrameOneShot();
             void sendFrameLoop();

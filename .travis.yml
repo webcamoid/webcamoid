@@ -12,9 +12,9 @@ env:
     - PPAQTVER=514
     - QTIFWVER=3.2.2
     - APPIMAGEVER=12
-    - ARCH_ROOT_DATE=2020.04.01
+    - ARCH_ROOT_DATE=2020.09.01
     - ARCH_ROOT_URL=https://mirror.rackspace.com/archlinux
-    - FFMPEG_VERSION=4.2.2
+    - FFMPEG_VERSION=4.3.1
     - SDKVER=6200805
     - NDKVER=r21
     - ANDROID_BUILD_TOOLS_VERSION=29.0.3
@@ -139,7 +139,7 @@ matrix:
     compiler: gcc
     env:
       - DOCKERSYS=debian
-      - DOCKERIMG=ubuntu:eoan
+      - DOCKERIMG=ubuntu:latest
   - os: linux
     dist: bionic
     services:
@@ -147,7 +147,7 @@ matrix:
     compiler: clang
     env:
       - DOCKERSYS=debian
-      - DOCKERIMG=ubuntu:eoan
+      - DOCKERIMG=ubuntu:latest
   - os: linux
     dist: bionic
     services:
@@ -155,7 +155,7 @@ matrix:
     compiler: gcc
     env:
       - DOCKERSYS=debian
-      - DOCKERIMG=ubuntu:focal
+      - DOCKERIMG=ubuntu:devel
   - os: linux
     dist: bionic
     services:
@@ -163,7 +163,7 @@ matrix:
     compiler: clang
     env:
       - DOCKERSYS=debian
-      - DOCKERIMG=ubuntu:focal
+      - DOCKERIMG=ubuntu:devel
   - os: osx
     osx_image: xcode10
     compiler: clang
@@ -194,6 +194,21 @@ matrix:
     compiler: clang
   - os: osx
     osx_image: xcode11.3
+    compiler: clang
+  - os: osx
+    osx_image: xcode11.4
+    compiler: clang
+  - os: osx
+    osx_image: xcode11.5
+    compiler: clang
+  - os: osx
+    osx_image: xcode11.6
+    compiler: clang
+  - os: osx
+    osx_image: xcode12
+    compiler: clang
+  - os: osx
+    osx_image: xcode12u
     compiler: clang
   - os: linux
     dist: bionic
