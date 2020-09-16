@@ -22,6 +22,8 @@
 
 #include <QtCore/qglobal.h>
 
+class ScratchPrivate;
+
 class Scratch
 {
     public:
@@ -31,8 +33,9 @@ class Scratch
                 qreal minX, qreal maxX,
                 qreal minDX, qreal maxDX,
                 int minY, int maxY);
-        Scratch(const Scratch &other) = default;
-        Scratch &operator =(const Scratch &other) = default;
+        Scratch(const Scratch &other);
+        ~Scratch();
+        Scratch &operator =(const Scratch &other);
         Scratch operator ++(int);
 
         qreal life() const;
@@ -59,12 +62,7 @@ class Scratch
         void resetY();
 
     private:
-        qreal m_life0;
-        qreal m_life;
-        qreal m_dlife;
-        qreal m_x;
-        qreal m_dx;
-        int m_y;
+        ScratchPrivate *d;
 };
 
 #endif // SCRATCH_H

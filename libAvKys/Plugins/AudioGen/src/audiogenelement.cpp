@@ -17,14 +17,14 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <random>
-#include <QSharedPointer>
-#include <QMap>
-#include <QtConcurrent>
-#include <QThreadPool>
 #include <QFuture>
+#include <QMap>
 #include <QMutex>
+#include <QRandomGenerator>
+#include <QSharedPointer>
+#include <QThreadPool>
 #include <QTime>
+#include <QtConcurrent>
 #include <QtMath>
 #include <ak.h>
 #include <akelement.h>
@@ -367,11 +367,8 @@ void AudioGenElementPrivate::readFramesLoop()
         if (this->m_waveType == AudioGenElement::WaveTypeSilence) {
             iPacket.buffer().fill(0);
         } else if (this->m_waveType == AudioGenElement::WaveTypeWhiteNoise) {
-            static std::default_random_engine engine;
-            static std::uniform_int_distribution<int> distribution(-128, 127);
-
             for (auto &c: iPacket.buffer())
-                c = char(distribution(engine));
+                c = char(QRandomGenerator::global()->bounded(-128, 127));
         } else {
             auto ampMax = qint32(this->m_volume * std::numeric_limits<qint32>::max());
             auto ampMin = qint32(this->m_volume * std::numeric_limits<qint32>::min());

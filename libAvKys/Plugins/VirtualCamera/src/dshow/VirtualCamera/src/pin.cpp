@@ -85,6 +85,7 @@ namespace AkVCam
             LONG m_gamma;
             LONG m_hue;
             LONG m_colorenable;
+            static std::default_random_engine m_randomEngine;
 
             void sendFrameOneShot();
             void sendFrameLoop();
@@ -1083,9 +1084,8 @@ AkVCam::VideoFrame AkVCam::PinPrivate::randomFrame()
     VideoFormat rgbFormat(PixelFormatRGB24, format.width(), format.height());
     VideoData data(rgbFormat.size());
     static std::uniform_int_distribution<int> distribution(0, 255);
-    static std::default_random_engine engine;
-    std::generate(data.begin(), data.end(), [] () {
-        return uint8_t(distribution(engine));
+    std::generate(data.begin(), data.end(), [this] () {
+        return uint8_t(distribution(this->m_randomEngine));
     });
 
     VideoFrame rgbFrame;

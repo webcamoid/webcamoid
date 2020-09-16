@@ -17,12 +17,13 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <cstdlib>
-#include <QMap>
-#include <QVector>
-#include <QMutex>
+#include <QDateTime>
 #include <QImage>
+#include <QMap>
+#include <QMutex>
 #include <QQmlContext>
+#include <QRandomGenerator>
+#include <QVector>
 #include <QtMath>
 #include <akpacket.h>
 #include <akvideopacket.h>
@@ -44,7 +45,6 @@ inline DelayGrabModeMap initDelayGrabModeMap()
 }
 
 Q_GLOBAL_STATIC_WITH_ARGS(DelayGrabModeMap, modeToStr, (initDelayGrabModeMap()))
-
 
 class DelayGrabElementPrivate
 {
@@ -258,7 +258,7 @@ void DelayGrabElement::updateDelaymap()
 
             if (this->d->m_mode == DelayGrabModeRandomSquare) {
                 // Random delay with square distribution
-                qreal d = qreal(qrand()) / RAND_MAX;
+                auto d = QRandomGenerator::global()->bounded(RAND_MAX);
                 value = 16.0 * d * d;
             } else if (this->d->m_mode == DelayGrabModeVerticalIncrease) {
                 value = qAbs(x) / 2.0;

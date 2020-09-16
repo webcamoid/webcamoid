@@ -17,8 +17,10 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QDateTime>
 #include <QImage>
 #include <QQmlContext>
+#include <QRandomGenerator>
 #include <akpacket.h>
 #include <akvideopacket.h>
 
@@ -88,7 +90,7 @@ AkPacket QuarkElement::iVideoStream(const AkVideoPacket &packet)
         QRgb *dstLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
 
         for (int x = 0; x < src.width(); x++) {
-            int frame = qrand() % this->d->m_frames.size();
+            int frame = QRandomGenerator::global()->bounded(this->d->m_frames.size());
             dstLine[x] = this->d->m_frames[frame].pixel(x, y);
         }
     }

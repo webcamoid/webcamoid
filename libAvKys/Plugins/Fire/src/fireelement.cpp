@@ -17,10 +17,12 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QVariant>
+#include <QDateTime>
 #include <QMap>
 #include <QPainter>
 #include <QQmlContext>
+#include <QRandomGenerator>
+#include <QVariant>
 #include <QtMath>
 #include <akpacket.h>
 #include <akvideopacket.h>
@@ -157,7 +159,7 @@ QImage FireElementPrivate::imageDiff(const QImage &img1,
     for (int y = 0; y < height; y++) {
         auto iLine1 = reinterpret_cast<const QRgb *>(img1.constScanLine(y));
         auto iLine2 = reinterpret_cast<const QRgb *>(img2.constScanLine(y));
-        QRgb *oLine = reinterpret_cast<QRgb *>(diff.scanLine(y));
+        auto oLine = reinterpret_cast<QRgb *>(diff.scanLine(y));
 
         for (int x = 0; x < width; x++) {
             int r1 = qRed(iLine1[x]);
@@ -179,14 +181,11 @@ QImage FireElementPrivate::imageDiff(const QImage &img1,
                 alpha = alpha < threshold? 0: alpha;
             else
                 alpha = alpha < threshold?
-                            0: (256 - alphaVariation)
-                            + qrand() % alphaVariation;
+                          0: QRandomGenerator::global()->bounded(255 - alphaVariation, 256);
 
             int gray = qGray(iLine2[x]);
-
             alpha = gray < lumaThreshold? 0: alpha;
-            int b = (256 - colors) + qrand() % colors;
-
+            int b = QRandomGenerator::global()->bounded(255 - colors, 256);
             oLine[x] = qRgba(0, 0, b, alpha);
         }
     }
@@ -215,7 +214,7 @@ QImage FireElementPrivate::zoomImage(const QImage &src, qreal factor)
 void FireElementPrivate::coolImage(QImage &src, int colorDiff)
 {
     for (int y = 0; y < src.height(); y++) {
-        QRgb *srcLine = reinterpret_cast<QRgb *>(src.scanLine(y));
+        auto srcLine = reinterpret_cast<QRgb *>(src.scanLine(y));
 
         for (int x = 0; x < src.width(); x++) {
             int b = qBound(0, qBlue(srcLine[x]) + colorDiff, 255);
@@ -227,7 +226,7 @@ void FireElementPrivate::coolImage(QImage &src, int colorDiff)
 void FireElementPrivate::imageAlphaDiff(QImage &src, int alphaDiff)
 {
     for (int y = 0; y < src.height(); y++) {
-        QRgb *srcLine = reinterpret_cast<QRgb *>(src.scanLine(y));
+        auto srcLine = reinterpret_cast<QRgb *>(src.scanLine(y));
 
         for (int x = 0; x < src.width(); x++) {
             QRgb pixel = srcLine[x];
@@ -241,15 +240,14 @@ void FireElementPrivate::imageAlphaDiff(QImage &src, int alphaDiff)
 void FireElementPrivate::dissolveImage(QImage &src, qreal amount)
 {
     qint64 videoArea = src.width() * src.height();
-    auto n = qint64(amount * videoArea);
+    auto n = qRound64(amount * videoArea);
 
     for (qint64 i = 0; i < n; i++) {
-        int x = qrand() % src.width();
-        int y = qrand() % src.height();
+        int x = QRandomGenerator::global()->bounded(src.width());
+        int y = QRandomGenerator::global()->bounded(src.height());
         QRgb pixel = src.pixel(x, y);
         int b = qBlue(pixel);
-        int a = qAlpha(pixel) < 1? 0: qrand() % qAlpha(pixel);
-
+        int a = QRandomGenerator::global()->bounded(qAlpha(pixel) + 1);
         src.setPixel(x, y, qRgba(0, 0, b, a));
     }
 }
@@ -259,8 +257,8 @@ QImage FireElementPrivate::burn(const QImage &src, const QVector<QRgb> &palette)
     QImage dest(src.size(), src.format());
 
     for (int y = 0; y < src.height(); y++) {
-        const QRgb *srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
-        QRgb *dstLine = reinterpret_cast<QRgb *>(dest.scanLine(y));
+        auto srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
+        auto dstLine = reinterpret_cast<QRgb *>(dest.scanLine(y));
 
         for (int x = 0; x < src.width(); x++) {
             int index = qBlue(srcLine[x]);

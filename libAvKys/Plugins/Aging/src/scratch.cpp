@@ -18,17 +18,28 @@
  */
 
 #include <cstdlib>
+#include <random>
+#include <QDateTime>
+#include <QRandomGenerator>
 
 #include "scratch.h"
 
-Scratch::Scratch():
-    m_life0(0.0),
-    m_life(0.0),
-    m_dlife(0.0),
-    m_x(0.0),
-    m_dx(0.0),
-    m_y(0)
+class ScratchPrivate
 {
+    public:
+        qreal m_life0 {0.0};
+        qreal m_life {0.0};
+        qreal m_dlife {0.0};
+        qreal m_x {0.0};
+        qreal m_dx {0.0};
+        int m_y {0};
+
+        inline qreal boundedReal(qreal min, qreal max);
+};
+
+Scratch::Scratch()
+{
+    this->d = new ScratchPrivate;
 }
 
 Scratch::Scratch(qreal minLife, qreal maxLife,
@@ -37,111 +48,140 @@ Scratch::Scratch(qreal minLife, qreal maxLife,
                  qreal minDX, qreal maxDX,
                  int minY, int maxY)
 {
-    this->m_life = this->m_life0 = qrand() * (maxLife - minLife) / RAND_MAX + minLife;
-    this->m_dlife = qrand() * (maxDLife - minDLife) / RAND_MAX + minDLife;
+    this->d = new ScratchPrivate;
+    this->d->m_life = this->d->m_life0 = this->d->boundedReal(minLife, maxLife);
+    this->d->m_dlife = this->d->boundedReal(minDLife, maxDLife);
 
-    if (!qIsNull(this->m_dlife))
-        this->m_dlife = maxDLife - minDLife;
+    if (!qIsNull(this->d->m_dlife))
+        this->d->m_dlife = maxDLife - minDLife;
 
-    this->m_x = qrand() * (maxX - minX) / RAND_MAX + minX;
-    this->m_dx = qrand() * (maxDX - minDX) / RAND_MAX + minDX;
+    this->d->m_x = this->d->boundedReal(minX, maxX);
+    this->d->m_dx = this->d->boundedReal(minDX, maxDX);
 
-    if (!qIsNull(this->m_dx))
-        this->m_dx = maxDX - minDX;
+    if (!qIsNull(this->d->m_dx))
+        this->d->m_dx = maxDX - minDX;
 
-//    this->m_dx *= (qrand() & 0x1? 1.0: -1.0);
+    this->d->m_y = QRandomGenerator::global()->bounded(minY, maxY);
+}
 
-    this->m_y = int(qrand() * (maxY - minY) / RAND_MAX) + minY;
+Scratch::Scratch(const Scratch &other)
+{
+    this->d = new ScratchPrivate;
+    this->d->m_life0 = other.d->m_life0;
+    this->d->m_life = other.d->m_life;
+    this->d->m_dlife = other.d->m_dlife;
+    this->d->m_x = other.d->m_x;
+    this->d->m_dx = other.d->m_dx;
+    this->d->m_y = other.d->m_y;
+}
+
+Scratch::~Scratch()
+{
+    delete this->d;
+}
+
+Scratch &Scratch::operator =(const Scratch &other)
+{
+    if (this != &other) {
+        this->d->m_life0 = other.d->m_life0;
+        this->d->m_life = other.d->m_life;
+        this->d->m_dlife = other.d->m_dlife;
+        this->d->m_x = other.d->m_x;
+        this->d->m_dx = other.d->m_dx;
+        this->d->m_y = other.d->m_y;
+    }
+
+    return *this;
 }
 
 Scratch Scratch::operator ++(int)
 {
-    this->m_life -= this->m_dlife;
-    this->m_x += this->m_dx;
+    this->d->m_life -= this->d->m_dlife;
+    this->d->m_x += this->d->m_dx;
 
     return *this;
 }
 
 qreal Scratch::life() const
 {
-    return this->m_life;
+    return this->d->m_life;
 }
 
 qreal &Scratch::life()
 {
-    return this->m_life;
+    return this->d->m_life;
 }
 
 qreal Scratch::dlife() const
 {
-    return this->m_dlife;
+    return this->d->m_dlife;
 }
 
 qreal &Scratch::dlife()
 {
-    return this->m_dlife;
+    return this->d->m_dlife;
 }
 
 qreal Scratch::x() const
 {
-    return this->m_x;
+    return this->d->m_x;
 }
 
 qreal &Scratch::x()
 {
-    return this->m_x;
+    return this->d->m_x;
 }
 
 qreal Scratch::dx() const
 {
-    return this->m_dx;
+    return this->d->m_dx;
 }
 
 qreal &Scratch::dx()
 {
-    return this->m_dx;
+    return this->d->m_dx;
 }
 
 int Scratch::y() const
 {
-    return this->m_y;
+    return this->d->m_y;
 }
 
 int &Scratch::y()
 {
-    return this->m_y;
+    return this->d->m_y;
 }
 
 bool Scratch::isAboutToDie() const
 {
     const qreal threshold = 0.75;
 
-    return this->m_life <= this->m_dlife * (1.0 + threshold);
+    return this->d->m_life <= this->d->m_dlife * (1.0 + threshold);
 }
 
 void Scratch::setLife(qreal life)
 {
-    this->m_life = life;
+    this->d->m_life = life;
 }
 
 void Scratch::setDLife(qreal dlife)
 {
-    this->m_dlife = dlife;
+    this->d->m_dlife = dlife;
 }
 
 void Scratch::setX(qreal x)
 {
-    this->m_x = x;
+    this->d->m_x = x;
 }
 
 void Scratch::setDx(qreal dx)
 {
-    this->m_dx = dx;
+    this->d->m_dx = dx;
 }
 
 void Scratch::setY(int y)
 {
-    this->m_y = y;
+    this->d->m_y = y;
 }
 
 void Scratch::resetLife()
@@ -167,4 +207,11 @@ void Scratch::resetDx()
 void Scratch::resetY()
 {
     this->setY(0);
+}
+
+qreal ScratchPrivate::boundedReal(qreal min, qreal max)
+{
+    std::uniform_real_distribution<qreal> distribution(min, max);
+
+    return distribution(*QRandomGenerator::global());
 }

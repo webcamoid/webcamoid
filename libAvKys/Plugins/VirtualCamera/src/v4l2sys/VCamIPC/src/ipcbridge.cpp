@@ -2347,7 +2347,7 @@ QString AkVCam::IpcBridgePrivate::compileDriver(const QString &path)
 {
     QProcess make;
     make.setWorkingDirectory(path);
-    make.start("make");
+    make.start("make", QStringList());
     make.waitForFinished();
 
     if (make.exitCode() != 0)
@@ -2461,7 +2461,7 @@ bool AkVCam::IpcBridgePrivate::waitForDevices(const QStringList &devices) const
 bool AkVCam::IpcBridgePrivate::isModuleLoaded(const QString &driver) const
 {
     QProcess lsmod;
-    lsmod.start("lsmod");
+    lsmod.start("lsmod", QStringList());
     lsmod.waitForFinished();
 
     if (lsmod.exitCode() != 0)
