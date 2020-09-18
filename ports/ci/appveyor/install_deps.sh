@@ -20,6 +20,8 @@
 
 [ -f environment.sh ] && source environment.sh
 
+cat environment.sh
+
 pacman -Syy
 pacman --noconfirm --needed -S \
     git \
