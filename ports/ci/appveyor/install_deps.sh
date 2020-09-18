@@ -25,7 +25,7 @@ pacman --noconfirm --needed -S \
     pkg-config \
     python3
 
-if [ "${PLATFORM}" = x86 ] &&
+if [ "${PLATFORM}" = x86 ]; then
     pacman --noconfirm --needed -S \
         mingw-w64-i686-pkg-config \
         mingw-w64-i686-qt5 \
