@@ -18,10 +18,12 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
+[ -f environment.sh ] && source environment.sh
+
 if [ "${PLATFORM}" = x86 ]; then
     export PATH=/mingw32/bin:$PATH
 else
     export PATH=/mingw64/bin:$PATH
-if
+fi
 
 python3 ports/deploy/deploy.py

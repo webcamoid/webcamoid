@@ -18,6 +18,8 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
+[ -f environment.sh ] && source environment.sh
+
 pacman -Syy
 pacman --noconfirm --needed -S \
     git \

@@ -18,14 +18,16 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
+[ -f environment.sh ] && source environment.sh
+
 if [ "${PLATFORM}" = x86 ]; then
     export PATH=/mingw32/bin:$PATH
 else
     export PATH=/mingw64/bin:$PATH
-if
+fi
 
 qmake -query
 qmake Webcamoid.pro \
     CONFIG+=silent \
-    PREFIX="$1"
+    PREFIX="$INSTALL_PREFIX"
 make -j4
