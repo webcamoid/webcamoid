@@ -20,11 +20,6 @@ branches:
 
 environment:
   global:
-    FFMPEG_VERSION: 4.2.2
-    GSTREAMER_VERSION: 1.16.2
-    PYTHON_VERSION: Python38
-    QMAKESPEC: win32-g++
-    MAKETOOL: mingw32-make
     INSTALL_PREFIX: C:/projects/webcamoid/ports/deploy/temp_priv/usr
     # api key from https://bintray.com/profile/edit
     # encrypted in https://ci.appveyor.com/tools/encrypt
@@ -32,44 +27,17 @@ environment:
       secure: seneRk4ppI4bquIsdweI8pd8FT0RXUvU2LOUNGSBEA28IhFQijypil2CfC3WtJxa
 
   matrix:
-    - MSYS2_BUILD: 1
-    - QTDIR: C:\Qt\5.14\mingw73_64
-      TOOLSDIR: C:\Qt\Tools\mingw730_64
-    - QTDIR: C:\Qt\5.14\mingw73_32
-      TOOLSDIR: C:\Qt\Tools\mingw730_32
-      PLATFORM: x86
-    - QTDIR: C:\Qt\5.14\msvc2017
-      TOOLSDIR: C:\Qt\Tools\QtCreator
-      QMAKESPEC: win32-msvc
-      VSPATH: C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build
-      MAKETOOL: jom
-      PLATFORM: x86
-    - QTDIR: C:\Qt\5.14\msvc2017_64
-      TOOLSDIR: C:\Qt\Tools\QtCreator
-      QMAKESPEC: win32-msvc
-      VSPATH: C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build
-      MAKETOOL: jom
+    - PLATFORM: x86
+    - PLATFORM: x64
 
 install:
-  - if "%MSYS2_BUILD%" == "" (
-        ports\ci\appveyor\install_deps.bat
-    ) else (
-        C:\msys64\usr\bin\bash -lc "cd /c/projects/webcamoid && ./ports/ci/appveyor/install_deps.sh"
-    )
+  - C:\msys64\usr\bin\bash -lc "cd /c/projects/webcamoid && ./ports/ci/appveyor/install_deps.sh"
 
 build_script:
-  - if "%MSYS2_BUILD%" == "" (
-        ports\ci\appveyor\build.bat
-    ) else (
-        C:\msys64\usr\bin\bash -lc "cd /c/projects/webcamoid && ./ports/ci/appveyor/build.sh '%INSTALL_PREFIX%'"
-    )
+  - C:\msys64\usr\bin\bash -lc "cd /c/projects/webcamoid && ./ports/ci/appveyor/build.sh '%INSTALL_PREFIX%'"
 
 after_build:
-  - if "%MSYS2_BUILD%" == "" (
-        ports\ci\appveyor\deploy.bat
-    ) else (
-        C:\msys64\usr\bin\bash -lc "cd /c/projects/webcamoid && ./ports/ci/appveyor/deploy.sh"
-    )
+  - C:\msys64\usr\bin\bash -lc "cd /c/projects/webcamoid && ./ports/ci/appveyor/deploy.sh"
   - ports\ci\appveyor\push_artifacts.bat
 
 deploy_script:

@@ -18,7 +18,12 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-export PATH=/mingw64/bin:$PATH
+if [ "${PLATFORM}" = x86 ] &&
+    export PATH=/mingw32/bin:$PATH
+else
+    export PATH=/mingw64/bin:$PATH
+if
+
 qmake -query
 qmake Webcamoid.pro \
     CONFIG+=silent \
