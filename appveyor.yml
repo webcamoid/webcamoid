@@ -32,7 +32,6 @@ environment:
 
 install:
   - echo export PLATFORM=%PLATFORM% >> C:\projects\webcamoid\ports\ci\appveyor\environment.sh
-  - type C:\projects\webcamoid\ports\ci\appveyor\environment.sh
   - C:\msys64\usr\bin\bash -lc "cd /c/projects/webcamoid && ./ports/ci/appveyor/install_deps.sh"
 
 build_script:
