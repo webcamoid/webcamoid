@@ -21,6 +21,7 @@
 [ -f ./environment.sh ] && source ./environment.sh
 
 cat ./environment.sh
+pwd
 
 pacman -Syy
 pacman --noconfirm --needed -S \
