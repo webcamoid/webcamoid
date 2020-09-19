@@ -26,7 +26,6 @@
 #include <thread>
 #include <dshow.h>
 #include <psapi.h>
-#include <restartmanager.h>
 
 #include "ipcbridge.h"
 #include "PlatformUtils/src/messageserver.h"
@@ -571,55 +570,63 @@ std::vector<uint64_t> AkVCam::IpcBridge::clientsPids() const
     }
 
     std::vector<uint64_t> pids;
-    DWORD sessionHnd = 0;
-    WCHAR sessionKey[CCH_RM_SESSION_KEY + 1];
-    memset(sessionKey, 0, (CCH_RM_SESSION_KEY + 1) * sizeof(WCHAR));
+
+    const DWORD nElements = 4096;
+    DWORD process[nElements];
+    memset(process, 0, nElements * sizeof(DWORD));
+    DWORD needed = 0;
+
+    if (!EnumProcesses(process, nElements * sizeof(DWORD), &needed))
+        return {};
+
+    size_t nProcess = needed / sizeof(DWORD);
     auto currentPid = GetCurrentProcessId();
 
-    if (SUCCEEDED(RmStartSession(&sessionHnd, 0, sessionKey))) {
-        std::vector<LPCWSTR> resources;
+    for (size_t i = 0; i < nProcess; i++) {
+        auto processHnd = OpenProcess(PROCESS_QUERY_INFORMATION |
+                                      PROCESS_VM_READ,
+                                      FALSE,
+                                      process[i]);
+          if (!processHnd)
+              continue;
 
-        for (auto &plugin: pluginsPaths)
-            resources.push_back(plugin.c_str());
+        HMODULE modules[nElements];
+        memset(modules, 0, nElements * sizeof(HMODULE));
 
-        if (SUCCEEDED(RmRegisterResources(sessionHnd,
-                                          UINT(resources.size()),
-                                          resources.data(),
-                                          0,
-                                          nullptr,
-                                          0,
-                                          nullptr))) {
-            UINT nProcInfoNeeded = 0;
-            UINT nProcInfo = 0;
-            DWORD rebootReasons = 0;
+        if (EnumProcessModules(processHnd,
+                               modules,
+                               nElements * sizeof(HMODULE),
+                               &needed)) {
+            size_t nModules =
+                    std::min<DWORD>(needed / sizeof(HMODULE), nElements);
 
-            if (SUCCEEDED(RmGetList(sessionHnd,
-                                    &nProcInfoNeeded,
-                                    &nProcInfo,
-                                    nullptr,
-                                    &rebootReasons))) {
-                nProcInfo = nProcInfoNeeded;
-                nProcInfoNeeded = 0;
-                rebootReasons = 0;
-                std::vector<RM_PROCESS_INFO> affectedApps(nProcInfo);
+            for (size_t j = 0; j < nModules; j++) {
+                WCHAR moduleName[MAX_PATH];
+                memset(moduleName, 0, MAX_PATH * sizeof(WCHAR));
 
-                if (SUCCEEDED(RmGetList(sessionHnd,
-                                        &nProcInfoNeeded,
-                                        &nProcInfo,
-                                        affectedApps.data(),
-                                        &rebootReasons))) {
-                    for (UINT i = 0; i < nProcInfo; i++) {
-                        auto pid = affectedApps[i].Process.dwProcessId;
-                        auto it = std::find(pids.begin(), pids.end(), pid);
+                if (GetModuleFileNameExW(processHnd,
+                                         modules[j],
+                                         moduleName,
+                                         MAX_PATH)) {
+                    auto pluginsIt = std::find(pluginsPaths.begin(),
+                                               pluginsPaths.end(),
+                                               std::wstring(moduleName));
 
-                        if (pid > 0 && it == pids.end() && pid != currentPid)
-                            pids.push_back(pid);
+                    if (pluginsIt != pluginsPaths.end()) {
+                        auto pidsIt = std::find(pids.begin(),
+                                                pids.end(),
+                                                process[i]);
+
+                        if (process[i] > 0
+                            && pidsIt == pids.end()
+                            && process[i] != currentPid)
+                            pids.push_back(process[i]);
                     }
                 }
             }
         }
 
-        RmEndSession(sessionHnd);
+        CloseHandle(processHnd);
     }
 
     return pids;
