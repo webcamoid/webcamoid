@@ -28,21 +28,20 @@ pacman --noconfirm --needed -S \
     python3
 
 if [ "${PLATFORM}" = x86 ]; then
-    pacman --noconfirm --needed -S \
-        mingw-w64-i686-pkg-config \
-        mingw-w64-i686-qt5 \
-        mingw-w64-i686-ffmpeg \
-        mingw-w64-i686-gst-plugins-base \
-        mingw-w64-i686-gst-plugins-good \
-        mingw-w64-i686-gst-plugins-bad \
-        mingw-w64-i686-gst-plugins-ugly
+    packagesArch=i686
 else
+    packagesArch=x86_64
+fi
+
+pacman --noconfirm --needed -S \
+    mingw-w64-${packagesArch}-pkg-config \
+    mingw-w64-${packagesArch}-qt5 \
+    mingw-w64-${packagesArch}-ffmpeg
+
+if [ -z "${DAILY_BUILD}" ] && [ -z "${RELEASE_BUILD}" ]; then
     pacman --noconfirm --needed -S \
-        mingw-w64-x86_64-pkg-config \
-        mingw-w64-x86_64-qt5 \
-        mingw-w64-x86_64-ffmpeg \
-        mingw-w64-x86_64-gst-plugins-base \
-        mingw-w64-x86_64-gst-plugins-good \
-        mingw-w64-x86_64-gst-plugins-bad \
-        mingw-w64-x86_64-gst-plugins-ugly
+        mingw-w64-${packagesArch}-gst-plugins-base \
+        mingw-w64-${packagesArch}-gst-plugins-good \
+        mingw-w64-${packagesArch}-gst-plugins-bad \
+        mingw-w64-${packagesArch}-gst-plugins-ugly
 fi

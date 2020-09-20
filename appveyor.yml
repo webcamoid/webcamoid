@@ -22,11 +22,19 @@ environment:
   global:
     INSTALL_PREFIX: C:/projects/webcamoid/ports/deploy/temp_priv/usr
     # api key from https://bintray.com/profile/edit
-    # encrypted in https://ci.appveyor.com/tools/encrypt
+    # encrypted with https://ci.appveyor.com/tools/encrypt
     BT_KEY:
       secure: seneRk4ppI4bquIsdweI8pd8FT0RXUvU2LOUNGSBEA28IhFQijypil2CfC3WtJxa
 
   matrix:
+    - PLATFORM: x86
+      DAILY_BUILD: 1
+    - PLATFORM: x64
+      DAILY_BUILD: 1
+    - PLATFORM: x86
+      RELEASE_BUILD: 1
+    - PLATFORM: x64
+      RELEASE_BUILD: 1
     - PLATFORM: x86
     - PLATFORM: x64
 
@@ -43,8 +51,8 @@ after_build:
   - C:\msys64\usr\bin\bash -lc "cd /c/projects/webcamoid && ./ports/ci/appveyor/deploy.sh"
   - ports\ci\appveyor\push_artifacts.bat
 
-deploy_script:
-  - ports\ci\appveyor\upload.bat
+#deploy_script:
+#  - ports\ci\appveyor\upload.bat
 
 notifications:
   - provider: Email
