@@ -445,9 +445,9 @@ class DeployToolsQt(tools.utils.DeployToolsUtils):
         shutil.move(manifestTemp, manifest)
 
     def writeQtConf(self):
-        paths = {'Plugins': os.path.relpath(self.pluginsInstallDir, self.binaryInstallDir),
-                 'Imports': os.path.relpath(self.qmlInstallDir, self.binaryInstallDir),
-                 'Qml2Imports': os.path.relpath(self.qmlInstallDir, self.binaryInstallDir)}
+        paths = {'Plugins': os.path.relpath(self.pluginsInstallDir, self.binaryInstallDir).replace('\\', '/'),
+                 'Imports': os.path.relpath(self.qmlInstallDir, self.binaryInstallDir).replace('\\', '/'),
+                 'Qml2Imports': os.path.relpath(self.qmlInstallDir, self.binaryInstallDir).replace('\\', '/')}
         confPath = os.path.dirname(self.qtConf)
 
         if not os.path.exists(confPath):

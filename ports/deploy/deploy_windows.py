@@ -178,6 +178,9 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
             launcher.write('rem Default values: software | d3d12 | openvg\n')
             launcher.write('rem set QT_QUICK_BACKEND=""\n')
             launcher.write('\n')
+            launcher.write('rem Enable plugin debugging\n')
+            launcher.write('rem set QT_DEBUG_PLUGINS=1\n')
+            launcher.write('\n')
             launcher.write('start /b "" '
                            + '"%~dp0bin\\{}" '.format(self.programName)
                            + '-p "%~dp0{}\\avkys" '.format(libDir)
