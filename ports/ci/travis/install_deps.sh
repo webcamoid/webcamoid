@@ -284,6 +284,8 @@ EOF
             mingw-w64-qt5-svg \
             mingw-w64-qt5-tools
 
+        echo Preparing build environment
+
         for mingw_arch in i686 x86_64; do
             if [ "$mingw_arch" = x86_64 ]; then
                 ff_arch=win64
