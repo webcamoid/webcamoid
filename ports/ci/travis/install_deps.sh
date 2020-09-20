@@ -18,71 +18,6 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-readversion() {
-    libname=$(echo $2 | awk '{print toupper($0)}')
-
-    while read line; do
-        _vmajor=$(echo $line | grep "^#define LIB${libname}_VERSION_MAJOR" | awk '{print $3}')
-        _vminor=$(echo $line | grep "^#define LIB${libname}_VERSION_MINOR" | awk '{print $3}')
-        _vmicro=$(echo $line | grep "^#define LIB${libname}_VERSION_MICRO" | awk '{print $3}')
-
-        if [ -n "$_vmajor" ]; then
-            vmajor=$_vmajor
-        fi
-
-        if [ -n "$_vminor" ]; then
-            vminor=$_vminor
-        fi
-
-        if [ -n "$_vmicro" ]; then
-            vmicro=$_vmicro
-        fi
-
-        if [[ -n "$vmajor" && -n "$vminor" && -n "$vmicro" ]]; then
-            echo $vmajor.$vminor.$vmicro
-
-            break
-        fi
-    done < "$1"
-}
-
-libdescription() {
-    descriptions=('avcodec Encoding/Decoding Library.'
-                  'avdevice Special devices muxing/demuxing library.'
-                  'avfilter Graph-based frame editing library.'
-                  'avformat I/O and Muxing/Demuxing Library'
-                  'avutil Common code shared across all FFmpeg libraries.'
-                  'postproc Video postprocessing library.'
-                  'swresample Audio resampling, sample format conversion and mixing library.'
-                  'swscale Color conversion and scaling library.')
-
-    for description in "${descriptions[@]}"; do
-        if [[ "$description" == $1\ * ]]; then
-            echo ${description#* }
-
-            break
-        fi
-    done
-}
-
-requires() {
-    deps=('avcodec libswresample, libavutil'
-          'avdevice libavfilter, libswscale, libpostproc, libavresample, libavformat, libavcodec, libswresample, libavutil'
-          'avfilter libswscale, libpostproc, libavresample, libavformat, libavcodec, libswresample, libavutil'
-          'avformat libavcodec, libswresample, libavutil'
-          'postproc libavutil'
-          'swresample libavutil'
-          'swscale libavutil')
-
-    for dep in "${deps[@]}"; do
-        if [[ "$dep" == $1\ * ]]; then
-            echo ${dep#* }
-
-            break
-        fi
-    done
-}
-
 #qtIinstallerVerbose=-v
 
 if [ ! -z "${USE_WGET}" ]; then
@@ -282,64 +217,8 @@ EOF
             mingw-w64-gcc \
             mingw-w64-qt5-quickcontrols2 \
             mingw-w64-qt5-svg \
-            mingw-w64-qt5-tools
-
-        echo Preparing build environment
-
-        for mingw_arch in i686 x86_64; do
-            if [ "$mingw_arch" = x86_64 ]; then
-                ff_arch=win64
-            else
-                ff_arch=win32
-            fi
-
-            for pkg in dev shared; do
-                package=ffmpeg-${FFMPEG_VERSION}-${ff_arch}-$pkg
-                ${DOWNLOAD_CMD} "https://ffmpeg.zeranoe.com/builds/${ff_arch}/$pkg/$package.zip"
-                unzip $package.zip
-            done
-
-            # Copy binaries
-            sudo install -d root.x86_64/usr/${mingw_arch}-w64-mingw32/bin
-            sudo install -m644 \
-                ffmpeg-${FFMPEG_VERSION}-${ff_arch}-shared/bin/*.dll \
-                root.x86_64/usr/${mingw_arch}-w64-mingw32/bin/
-
-            # Copy libraries
-            sudo install -d root.x86_64/usr/${mingw_arch}-w64-mingw32/include
-            sudo install -d root.x86_64/usr/${mingw_arch}-w64-mingw32/lib
-            sudo cp -rf \
-                ffmpeg-${FFMPEG_VERSION}-${ff_arch}-dev/include/* \
-                root.x86_64/usr/${mingw_arch}-w64-mingw32/include/
-            sudo install -m644 \
-                ffmpeg-${FFMPEG_VERSION}-${ff_arch}-dev/lib/*.a \
-                root.x86_64/usr/${mingw_arch}-w64-mingw32/lib/
-
-            libdir=root.x86_64/usr/${mingw_arch}-w64-mingw32/lib
-            pkgconfigdir="$libdir"/pkgconfig
-            sudo install -d "$pkgconfigdir"
-
-            ls ffmpeg-${FFMPEG_VERSION}-${ff_arch}-dev/lib/*.a | \
-            while read lib; do
-                libname=$(basename $lib | sed 's/.dll.a//g' | sed 's/^lib//g')
-                version=$(readversion ffmpeg-${FFMPEG_VERSION}-${ff_arch}-dev/include/lib$libname/version.h $libname)
-                description=$(libdescription $libname)
-                deps=$(requires $libname)
-
-                cat << EOF > lib$libname.pc
-prefix=/usr/${mingw_arch}-w64-mingw32
-exec_prefix=\${prefix}
-libdir=\${prefix}/lib
-
-Name: lib$libname
-Description: $description
-Version: $version
-Requires.private: $deps
-Libs: -L\${libdir} -l$libname
-EOF
-                sudo install -m644 lib$libname.pc "$pkgconfigdir/"
-            done
-        done
+            mingw-w64-qt5-tools \
+            mingw-w64-ffmpeg
 
         qtIFW=QtInstallerFramework-win-x86.exe
 

@@ -14,7 +14,6 @@ env:
     - APPIMAGEVER=12
     - ARCH_ROOT_DATE=2020.09.01
     - ARCH_ROOT_URL=https://mirror.rackspace.com/archlinux
-    - FFMPEG_VERSION=4.3.1
     - SDKVER=6200805
     - NDKVER=r21
     - ANDROID_BUILD_TOOLS_VERSION=29.0.3
