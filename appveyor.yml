@@ -51,8 +51,8 @@ after_build:
   - C:\msys64\usr\bin\bash -lc "cd /c/projects/webcamoid && ./ports/ci/appveyor/deploy.sh"
   - ports\ci\appveyor\push_artifacts.bat
 
-#deploy_script:
-#  - ports\ci\appveyor\upload.bat
+deploy_script:
+  - ports\ci\appveyor\upload.bat
 
 notifications:
   - provider: Email
