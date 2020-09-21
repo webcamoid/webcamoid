@@ -24,7 +24,7 @@ environment:
     # api key from https://bintray.com/profile/edit
     # encrypted with https://ci.appveyor.com/tools/encrypt
     BT_KEY:
-      secure: seneRk4ppI4bquIsdweI8pd8FT0RXUvU2LOUNGSBEA28IhFQijypil2CfC3WtJxa
+      secure: +Nkx1um39peNjLwU1RAx+nyG0tgc/zPwUvNU+gm5nMZxVqPUkLzpNOvDv9Dl7fV4
 
   matrix:
     - PLATFORM: x86
