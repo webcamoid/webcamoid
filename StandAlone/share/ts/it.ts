@@ -34,37 +34,37 @@
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="42"/>
         <source>Add Video Format</source>
-        <translation type="unfinished"></translation>
+        <translation>Aggiungi Formato Video</translation>
     </message>
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="43"/>
         <source>Change Video Format</source>
-        <translation type="unfinished"></translation>
+        <translation>Cambia Formato Video</translation>
     </message>
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="95"/>
         <source>Remove format</source>
-        <translation type="unfinished"></translation>
+        <translation>Rimuovi Formato</translation>
     </message>
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="106"/>
         <source>Format</source>
-        <translation type="unfinished"></translation>
+        <translation>Formato</translation>
     </message>
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="115"/>
         <source>Width</source>
-        <translation type="unfinished"></translation>
+        <translation>Larghezza</translation>
     </message>
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="126"/>
         <source>Height</source>
-        <translation type="unfinished"></translation>
+        <translation>Altezza</translation>
     </message>
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="137"/>
         <source>Frame rate</source>
-        <translation type="unfinished">Frame rate</translation>
+        <translation>Frequenza dei fotogrammi</translation>
     </message>
 </context>
 <context>
@@ -90,30 +90,30 @@
     <message>
         <location filename="../qml/AudioDeviceOptions.qml" line="27"/>
         <source>Audio Device Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Opzioni Dispositivo Audio</translation>
     </message>
     <message>
         <location filename="../qml/AudioDeviceOptions.qml" line="131"/>
         <source>Sample Format</source>
         <extracomment>An sample represents the strength of the wave at a certain time. A sample can be expressed as the number of bits defining it (more bits better sound), the type of data representing it (signed integer, unsigned integer, floating point), and the endianness of the data (big endian, little endian). The sample format is the representation of that information. For example, &apos;s16le&apos; means that each sample format is represented by a 16 bits signed integer arranged as little endian.</extracomment>
-        <translation type="unfinished">Formato del campione</translation>
+        <translation>Formato di Campionamento</translation>
     </message>
     <message>
         <location filename="../qml/AudioDeviceOptions.qml" line="153"/>
         <source>Channels</source>
-        <translation type="unfinished"></translation>
+        <translation>Canali</translation>
     </message>
     <message>
         <location filename="../qml/AudioDeviceOptions.qml" line="176"/>
         <source>Sample Rate</source>
         <extracomment>Number of audio samples per channel to be played per second.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Frequenza di Campionamento</translation>
     </message>
     <message>
         <location filename="../qml/AudioDeviceOptions.qml" line="207"/>
         <source>Latency (ms)</source>
         <extracomment>The latency is the amount of accumulated audio ready to play, measured in time. Higher latency == smoother audio playback, but more desynchronization with the video. Lowerer latency == audio synchronization near to the video, but glitchy audio playback. https://en.wikipedia.org/wiki/Latency_(audio)</extracomment>
-        <translation type="unfinished">Latenza (ms)</translation>
+        <translation>Latenza (ms)</translation>
     </message>
 </context>
 <context>
@@ -121,7 +121,7 @@
     <message>
         <location filename="../../src/audiolayer.cpp" line="279"/>
         <source>Silence</source>
-        <translation type="unfinished">Silenzio</translation>
+        <translation>Silenzio</translation>
     </message>
 </context>
 <context>
@@ -129,12 +129,12 @@
     <message>
         <location filename="../qml/AudioOptions.qml" line="30"/>
         <source>Outputs</source>
-        <translation type="unfinished"></translation>
+        <translation>Output</translation>
     </message>
     <message>
         <location filename="../qml/AudioOptions.qml" line="33"/>
         <source>Sources</source>
-        <translation type="unfinished"></translation>
+        <translation>Fonti</translation>
     </message>
 </context>
 <context>
