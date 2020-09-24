@@ -445,10 +445,15 @@ class DeployToolsQt(tools.utils.DeployToolsUtils):
         shutil.move(manifestTemp, manifest)
 
     def writeQtConf(self):
+        prefix = self.binaryInstallDir
+
+        if self.targetSystem == 'mac':
+            prefix = os.path.abspath(os.path.join(self.binaryInstallDir, '..'))
+
+        paths = {'Plugins': os.path.relpath(self.pluginsInstallDir, prefix).replace('\\', '/'),
+                 'Imports': os.path.relpath(self.qmlInstallDir, prefix).replace('\\', '/'),
+                 'Qml2Imports': os.path.relpath(self.qmlInstallDir, prefix).replace('\\', '/')}
         confPath = os.path.dirname(self.qtConf)
-        paths = {'Plugins': os.path.relpath(self.pluginsInstallDir, confPath).replace('\\', '/'),
-                 'Imports': os.path.relpath(self.qmlInstallDir, confPath).replace('\\', '/'),
-                 'Qml2Imports': os.path.relpath(self.qmlInstallDir, confPath).replace('\\', '/')}
 
         if not os.path.exists(confPath):
             os.makedirs(confPath)
