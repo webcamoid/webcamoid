@@ -675,7 +675,7 @@
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="84"/>
         <source>File</source>
-        <translation type="unfinished"></translation>
+        <translation>Ficheiro</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="87"/>
