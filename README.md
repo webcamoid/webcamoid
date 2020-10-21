@@ -12,7 +12,7 @@
 * Written in C++ and Qt.
 * Custom controls for each webcam.
 * Add funny effects to the webcam.
-* +60 effects available.
+* 60+ effects available.
 * Translated to many languages.
 * Use custom network and local files as capture devices.
 * Capture from desktop.
