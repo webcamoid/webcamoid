@@ -29,6 +29,7 @@ ColumnLayout {
     signal openVideoOutputAddEditDialog(string videoOutput)
     signal openVideoInputOptions(string videoInput)
     signal openVideoOutputOptions(string videoOutput)
+    signal openVideoOutputPictureDialog()
 
     TabBar {
         id: tabBar
@@ -60,6 +61,7 @@ ColumnLayout {
                 videoOptions.openVideoOutputAddEditDialog(videoOutput)
             onOpenVideoOutputOptions:
                 videoOptions.openVideoOutputOptions(videoOutput)
+            onOpenVideoOutputPictureDialog: videoOptions.openVideoOutputPictureDialog()
         }
     }
 }

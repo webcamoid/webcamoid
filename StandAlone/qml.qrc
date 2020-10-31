@@ -38,6 +38,7 @@
         <file>share/qml/VideoOutputAddEdit.qml</file>
         <file>share/qml/VideoOutputError.qml</file>
         <file>share/qml/VideoOutputOptions.qml</file>
+        <file>share/qml/VideoOutputPicture.qml</file>
         <file>share/qml/VideoOutputs.qml</file>
         <file>share/qml/VideoRecording.qml</file>
         <file>share/qml/main.qml</file>

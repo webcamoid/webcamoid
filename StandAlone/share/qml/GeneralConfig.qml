@@ -43,7 +43,7 @@ Page {
             property variant audioConvert:
                 AkElement.createPtr("ACapsConvert", "Ak.Element.Settings")
             property variant virtualCamera:
-                AkElement.createPtr("VirtualCamera")
+                AkElement.createPtr("VirtualCamera", "Ak.Element.Settings")
             property variant multiSrc:
                 AkElement.createPtr("MultiSrc", "Ak.Element.Settings")
             property variant multiSink:
@@ -143,34 +143,23 @@ Page {
             }
             Label {
                 text: qsTr("Root method")
-                visible: generalConfigs.virtualCamera
             }
             ComboBox {
                 Layout.fillWidth: true
-                model: generalConfigs.virtualCamera.availableMethods
-                currentIndex: generalConfigs.virtualCamera.availableMethods.length > 0?
-                                  model.indexOf(generalConfigs.virtualCamera.rootMethod): -1
-                visible: generalConfigs.virtualCamera
+                model: generalConfigs.virtualCamera.availableRootMethods
+                currentIndex: model.indexOf(generalConfigs.virtualCamera.rootMethod)
 
                 onCurrentIndexChanged: generalConfigs.virtualCamera.rootMethod = model[currentIndex]
             }
             Label {
                 text: qsTr("Virtual camera driver")
-                visible: generalConfigs.virtualCamera
             }
             ComboBox {
                 Layout.fillWidth: true
-                model: generalConfigs.virtualCamera?
-                           generalConfigs.virtualCamera.availableDrivers:
-                           []
-                currentIndex: !generalConfigs.virtualCamera?
-                                  -1:
-                              generalConfigs.virtualCamera.availableDrivers.length > 0?
-                                  model.indexOf(generalConfigs.virtualCamera.driver):
-                                  -1
-                visible: generalConfigs.virtualCamera
+                model: generalConfigs.virtualCamera.outputSubModules
+                currentIndex: model.indexOf(generalConfigs.virtualCamera.outputLib)
 
-                onCurrentIndexChanged: generalConfigs.virtualCamera.driver = model[currentIndex]
+                onCurrentIndexChanged: generalConfigs.virtualCamera.outputLib = model[currentIndex]
             }
         }
     }

@@ -83,6 +83,14 @@ class VideoLayer: public QObject
     Q_PROPERTY(QList<quint64> clientsPids
                READ clientsPids
                CONSTANT)
+    Q_PROPERTY(bool driverInstalled
+               READ driverInstalled
+               CONSTANT)
+    Q_PROPERTY(QString picture
+               READ picture
+               WRITE setPicture
+               RESET resetPicture
+               NOTIFY pictureChanged)
 
     public:
         enum InputType {
@@ -96,18 +104,7 @@ class VideoLayer: public QObject
             OutputVirtualCamera,
         };
 
-        enum Operation
-        {
-            OperationCreate,
-            OperationEdit,
-            OperationDestroy,
-            OperationDestroyAll
-        };
-
         VideoLayer(QQmlApplicationEngine *engine=nullptr,
-                   QObject *parent=nullptr);
-        VideoLayer(const CliOptions &cliOptions,
-                   QQmlApplicationEngine *engine=nullptr,
                    QObject *parent=nullptr);
         ~VideoLayer();
 
@@ -148,8 +145,8 @@ class VideoLayer: public QObject
         Q_INVOKABLE void removeInterface(const QString &where) const;
         Q_INVOKABLE QList<quint64> clientsPids() const;
         Q_INVOKABLE QString clientExe(quint64 pid) const;
-        Q_INVOKABLE bool needsRestart(Operation operation) const;
-        Q_INVOKABLE bool canApply(Operation operation) const;
+        Q_INVOKABLE bool driverInstalled() const;
+        Q_INVOKABLE QString picture() const;
 
     private:
         VideoLayerPrivate *d;
@@ -167,8 +164,10 @@ class VideoLayer: public QObject
         void oStream(const AkPacket &packet);
         void inputErrorChanged(const QString &inputError);
         void outputErrorChanged(const QString &outputError);
+        void pictureChanged(const QString &picture);
 
     public slots:
+        bool applyPicture();
         void setInputStream(const QString &stream, const QString &description);
         void removeInputStream(const QString &stream);
         void setVideoInput(const QString &videoInput);
@@ -176,11 +175,13 @@ class VideoLayer: public QObject
         void setState(AkElement::ElementState state);
         void setPlayOnStart(bool playOnStart);
         void setOutputsAsInputs(bool outputsAsInputs);
+        void setPicture(const QString &picture);
         void resetVideoInput();
         void resetVideoOutput();
         void resetState();
         void resetPlayOnStart();
         void resetOutputsAsInputs();
+        void resetPicture();
         void setQmlEngine(QQmlApplicationEngine *engine=nullptr);
 
     private slots:
@@ -190,13 +191,14 @@ class VideoLayer: public QObject
         void saveVideoCaptureCaptureLib(const QString &captureLib);
         void saveDesktopCaptureCaptureLib(const QString &captureLib);
         void saveMultiSrcCodecLib(const QString &codecLib);
+        void saveVirtualCameraOutputLib(const QString &outputLib);
+        void saveVirtualCameraRootMethod(const QString &rootMethod);
         AkPacket iStream(const AkPacket &packet);
 
-    friend VideoLayerPrivate;
+        friend VideoLayerPrivate;
 };
 
 Q_DECLARE_METATYPE(VideoLayer::InputType)
 Q_DECLARE_METATYPE(VideoLayer::OutputType)
-Q_DECLARE_METATYPE(VideoLayer::Operation)
 
 #endif // VIDEOLAYER_H

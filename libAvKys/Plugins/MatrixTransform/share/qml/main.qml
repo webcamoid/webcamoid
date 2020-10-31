@@ -43,6 +43,7 @@ ColumnLayout {
             id: xx
             Layout.preferredWidth: cellSize
             text: MatrixTransform.kernel[0]
+            selectByMouse: true
             validator: RegExpValidator {
                 regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
             }
@@ -53,6 +54,7 @@ ColumnLayout {
             id: xy
             Layout.preferredWidth: cellSize
             text: MatrixTransform.kernel[1]
+            selectByMouse: true
             validator: RegExpValidator {
                 regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
             }
@@ -63,6 +65,7 @@ ColumnLayout {
             id: x0
             Layout.preferredWidth: cellSize
             text: MatrixTransform.kernel[2]
+            selectByMouse: true
             validator: RegExpValidator {
                 regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
             }
@@ -75,6 +78,7 @@ ColumnLayout {
             id: yx
             Layout.preferredWidth: cellSize
             text: MatrixTransform.kernel[3]
+            selectByMouse: true
             validator: RegExpValidator {
                 regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
             }
@@ -85,6 +89,7 @@ ColumnLayout {
             id: yy
             Layout.preferredWidth: cellSize
             text: MatrixTransform.kernel[4]
+            selectByMouse: true
             validator: RegExpValidator {
                 regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
             }
@@ -95,6 +100,7 @@ ColumnLayout {
             id: y0
             Layout.preferredWidth: cellSize
             text: MatrixTransform.kernel[5]
+            selectByMouse: true
             validator: RegExpValidator {
                 regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
             }

@@ -35,6 +35,7 @@ GridLayout {
     TextField {
         text: "0x" + Shagadelic.mask.toString(16)
         placeholderText: qsTr("Mask")
+        selectByMouse: true
         validator: RegExpValidator {
             regExp: /(0x)?[0-9a-fA-F]{1,8}/
         }

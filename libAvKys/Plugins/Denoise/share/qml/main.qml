@@ -87,6 +87,7 @@ GridLayout {
     TextField {
         text: Denoise.mu
         placeholderText: muLabel.text
+        selectByMouse: true
         validator: RegExpValidator {
             regExp: /-?\d+/
         }

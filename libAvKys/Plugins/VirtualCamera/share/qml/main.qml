@@ -20,77 +20,64 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
-import AkPluginVirtualCamera 1.0
 
-GridLayout {
+ColumnLayout {
     id: recCameraControls
-    columns: 2
 
-    Label {
-        text: qsTr("Horizontal mirror")
-    }
-    Switch {
-        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-        checked: virtualCamera.horizontalMirrored
+    function createControls()
+    {
+        let controls = virtualCamera.controls()
 
-        onCheckedChanged: virtualCamera.horizontalMirrored = checked
-    }
-    Label {
-        text: qsTr("Vertical mirror")
-    }
-    Switch {
-        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-        checked: virtualCamera.verticalMirrored
+        for(let i = clyControls.children.length - 1; i >= 0 ; i--)
+            clyControls.children[i].destroy()
 
-        onCheckedChanged: virtualCamera.verticalMirrored = checked
-    }
-    Label {
-        text: qsTr("Scaling")
-    }
-    ComboBox {
-        textRole: "description"
-        Layout.fillWidth: true
-        model: ListModel {
-            ListElement
+        let minimumLeftWidth = 0
+        let minimumRightWidth = 0
+
+        // Create new ones.
+        for (let control in controls) {
+            let component = Qt.createComponent("CameraControl.qml")
+
+            if (component.status !== Component.Ready)
+                continue
+
+            let obj = component.createObject(clyControls)
+            obj.controlParams = controls[control]
+
+            obj.onControlChanged.connect(function (controlName, value)
             {
-                option: VirtualCamera.ScalingFast
-                description: "Fast"
-            }
-            ListElement {
-                option: VirtualCamera.ScalingLinear
-                description: "Linear"
-            }
+                let ctrl = {}
+                ctrl[controlName] = value
+                virtualCamera.setControls(ctrl)
+            })
+
+            if (obj.leftWidth > minimumLeftWidth)
+                minimumLeftWidth = obj.leftWidth
+
+            if (obj.rightWidth > minimumRightWidth)
+                minimumRightWidth = obj.rightWidth
+        }
+
+        for (let i in clyControls.children) {
+            let ctrl = clyControls.children[i];
+            ctrl.minimumLeftWidth = minimumLeftWidth
+            ctrl.minimumRightWidth = minimumRightWidth
         }
     }
-    Label {
-        text: qsTr("Aspect ratio")
-    }
-    ComboBox {
-        textRole: "description"
-        Layout.fillWidth: true
-        model: ListModel {
-            ListElement {
-                option: VirtualCamera.AspectRatioIgnore
-                description: "Ignore"
-            }
-            ListElement
-            {
-                option: VirtualCamera.AspectRatioKeep
-                description: "Keep"
-            }
-            ListElement {
-                option: VirtualCamera.AspectRatioExpanding
-                description: "Expanding"
-            }
-        }
-    }
-    Label {
-        text: qsTr("Swap red and blue")
-    }
-    Switch {
-        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-        checked: virtualCamera.swapRgb
 
-        onCheckedChanged: virtualCamera.swapRgb = checked
+    Component.onCompleted: createControls()
+
+    Connections {
+        target: virtualCamera
+
+        onMediaChanged: recCameraControls.createControls()
+    }
+
+    ColumnLayout {
+        id: clyControls
+        Layout.fillWidth: true
+    }
+    Label {
+        Layout.fillHeight: true
     }
 }

@@ -33,6 +33,9 @@ exists(akcommons.pri) {
 
 CONFIG += plugin link_prl
 
+INCLUDEPATH += \
+    ../../../Lib/src
+
 HEADERS = \
     videocapture.h \
     videocaptureelement.h \
@@ -40,23 +43,6 @@ HEADERS = \
     videocaptureglobals.h \
     capture.h \
     convertvideo.h
-
-INCLUDEPATH += \
-    ../../../Lib/src
-
-QML_IMPORT_PATH += $$PWD/../../Lib/share/qml
-
-LIBS += -L$${OUT_PWD}/../../../Lib/$${BIN_DIR} -l$$qtLibraryTarget($${COMMONS_TARGET})
-win32: LIBS += -lole32
-
-OTHER_FILES += \
-    ../pspec.json \
-    $$files(../share/qml/*.qml)
-
-QT += qml concurrent
-
-RESOURCES = \
-    ../VideoCapture.qrc
 
 SOURCES = \
     videocapture.cpp \
@@ -69,6 +55,20 @@ SOURCES = \
 lupdate_only {
     SOURCES += $$files(../share/qml/*.qml)
 }
+
+LIBS += -L$${OUT_PWD}/../../../Lib/$${BIN_DIR} -l$$qtLibraryTarget($${COMMONS_TARGET})
+win32: LIBS += -lole32
+
+QML_IMPORT_PATH += $$PWD/../../Lib/share/qml
+
+OTHER_FILES += \
+    ../pspec.json \
+    $$files(../share/qml/*.qml)
+
+QT += qml concurrent
+
+RESOURCES = \
+    ../VideoCapture.qrc
 
 DESTDIR = $${OUT_PWD}/../$${BIN_DIR}
 TARGET = VideoCapture

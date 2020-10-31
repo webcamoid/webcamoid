@@ -42,41 +42,45 @@ ColumnLayout {
         // Red channel
         TextField {
             id: rr
-            Layout.preferredWidth: cellSize
             text: ColorTransform.kernel[0]
+            selectByMouse: true
             validator: RegExpValidator {
                 regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
             }
+            Layout.preferredWidth: cellSize
 
             onTextChanged: updateKernel(0, text)
         }
         TextField {
             id: rg
-            Layout.preferredWidth: cellSize
             text: ColorTransform.kernel[1]
+            selectByMouse: true
             validator: RegExpValidator {
                 regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
             }
+            Layout.preferredWidth: cellSize
 
             onTextChanged: updateKernel(1, text)
         }
         TextField {
             id: rb
-            Layout.preferredWidth: cellSize
             text: ColorTransform.kernel[2]
+            selectByMouse: true
             validator: RegExpValidator {
                 regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
             }
+            Layout.preferredWidth: cellSize
 
             onTextChanged: updateKernel(2, text)
         }
         TextField {
             id: r0
-            Layout.preferredWidth: cellSize
             text: ColorTransform.kernel[3]
+            selectByMouse: true
             validator: RegExpValidator {
                 regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
             }
+            Layout.preferredWidth: cellSize
 
             onTextChanged: updateKernel(3, text)
         }
@@ -84,41 +88,45 @@ ColumnLayout {
         // Green channel
         TextField {
             id: gr
-            Layout.preferredWidth: cellSize
             text: ColorTransform.kernel[4]
+            selectByMouse: true
             validator: RegExpValidator {
                 regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
             }
+            Layout.preferredWidth: cellSize
 
             onTextChanged: updateKernel(4, text)
         }
         TextField {
             id: gg
-            Layout.preferredWidth: cellSize
             text: ColorTransform.kernel[5]
+            selectByMouse: true
             validator: RegExpValidator {
                 regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
             }
+            Layout.preferredWidth: cellSize
 
             onTextChanged: updateKernel(5, text)
         }
         TextField {
             id: gb
-            Layout.preferredWidth: cellSize
             text: ColorTransform.kernel[6]
+            selectByMouse: true
             validator: RegExpValidator {
                 regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
             }
+            Layout.preferredWidth: cellSize
 
             onTextChanged: updateKernel(6, text)
         }
         TextField {
             id: g0
-            Layout.preferredWidth: cellSize
             text: ColorTransform.kernel[7]
+            selectByMouse: true
             validator: RegExpValidator {
                 regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
             }
+            Layout.preferredWidth: cellSize
 
             onTextChanged: updateKernel(7, text)
         }
@@ -126,41 +134,45 @@ ColumnLayout {
         // Blue channel
         TextField {
             id: br
-            Layout.preferredWidth: cellSize
             text: ColorTransform.kernel[8]
+            selectByMouse: true
             validator: RegExpValidator {
                 regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
             }
+            Layout.preferredWidth: cellSize
 
             onTextChanged: updateKernel(8, text)
         }
         TextField {
             id: bg
-            Layout.preferredWidth: cellSize
             text: ColorTransform.kernel[9]
+            selectByMouse: true
             validator: RegExpValidator {
                 regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
             }
+            Layout.preferredWidth: cellSize
 
             onTextChanged: updateKernel(9, text)
         }
         TextField {
             id: bb
-            Layout.preferredWidth: cellSize
             text: ColorTransform.kernel[10]
+            selectByMouse: true
             validator: RegExpValidator {
                 regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
             }
+            Layout.preferredWidth: cellSize
 
             onTextChanged: updateKernel(10, text)
         }
         TextField {
             id: b0
-            Layout.preferredWidth: cellSize
             text: ColorTransform.kernel[11]
+            selectByMouse: true
             validator: RegExpValidator {
                 regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
             }
+            Layout.preferredWidth: cellSize
 
             onTextChanged: updateKernel(11, text)
         }

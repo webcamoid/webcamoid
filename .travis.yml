@@ -12,7 +12,7 @@ env:
     - PPAQTVER=514
     - QTIFWVER=3.2.2
     - APPIMAGEVER=12
-    - ARCH_ROOT_DATE=2020.09.01
+    - ARCH_ROOT_DATE=2020.10.01
     - ARCH_ROOT_URL=https://mirror.rackspace.com/archlinux
     - SDKVER=6200805
     - NDKVER=r21

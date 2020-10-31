@@ -88,6 +88,7 @@ GridLayout {
     TextField {
         text: Charify.charTable
         placeholderText: qsTr("Symbols")
+        selectByMouse: true
         Layout.fillWidth: true
 
         onTextChanged: Charify.charTable = text
@@ -101,9 +102,10 @@ GridLayout {
             id: txtTable
             text: Charify.font.family + " " + Charify.font.pointSize
             placeholderText: qsTr("Font")
-            Layout.fillWidth: true
+            selectByMouse: true
             readOnly: true
             font: Charify.font
+            Layout.fillWidth: true
         }
         Button {
             text: qsTr("Search")

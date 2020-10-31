@@ -236,13 +236,6 @@ CaptureV4L2::CaptureV4L2(QObject *parent):
     Capture(parent)
 {
     this->d = new CaptureV4L2Private(this);
-    this->d->m_fsWatcher = new QFileSystemWatcher({"/dev"}, this);
-    QObject::connect(this->d->m_fsWatcher,
-                     &QFileSystemWatcher::directoryChanged,
-                     [this] () {
-                         this->d->updateDevices();
-                     });
-    this->d->updateDevices();
 }
 
 CaptureV4L2::~CaptureV4L2()
@@ -502,6 +495,13 @@ AkPacket CaptureV4L2::readFrame()
 CaptureV4L2Private::CaptureV4L2Private(CaptureV4L2 *self):
     self(self)
 {
+    this->m_fsWatcher = new QFileSystemWatcher({"/dev"}, self);
+    QObject::connect(this->m_fsWatcher,
+                     &QFileSystemWatcher::directoryChanged,
+                     [this] () {
+                         this->updateDevices();
+                     });
+    this->updateDevices();
 }
 
 QVariantList CaptureV4L2Private::capsFps(int fd,
@@ -527,11 +527,6 @@ QVariantList CaptureV4L2Private::capsFps(int fd,
             || !frmival.discrete.denominator)
             continue;
 
-        AkCaps videoCaps;
-        videoCaps.setMimeType("video/unknown");
-        videoCaps.setProperty("fourcc", fourcc);
-        videoCaps.setProperty("width", width);
-        videoCaps.setProperty("height", height);
         AkFrac fps;
 
         if (frmival.type == V4L2_FRMIVAL_TYPE_DISCRETE)
@@ -541,6 +536,11 @@ QVariantList CaptureV4L2Private::capsFps(int fd,
             fps = AkFrac(frmival.stepwise.min.denominator,
                          frmival.stepwise.max.numerator);
 
+        AkCaps videoCaps;
+        videoCaps.setMimeType("video/unknown");
+        videoCaps.setProperty("fourcc", fourcc);
+        videoCaps.setProperty("width", width);
+        videoCaps.setProperty("height", height);
         videoCaps.setProperty("fps", fps.toString());
         caps << QVariant::fromValue(videoCaps);
     }
@@ -552,7 +552,6 @@ QVariantList CaptureV4L2Private::capsFps(int fd,
         params.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 
         if (x_ioctl(fd, VIDIOC_G_PARM, &params) >= 0) {
-            AkCaps videoCaps;
             AkFrac fps;
 
             if (params.parm.capture.capability & V4L2_CAP_TIMEPERFRAME)
@@ -561,6 +560,7 @@ QVariantList CaptureV4L2Private::capsFps(int fd,
             else
                 fps = AkFrac(30, 1);
 
+            AkCaps videoCaps;
             videoCaps.setMimeType("video/unknown");
             videoCaps.setProperty("fourcc", fourcc);
             videoCaps.setProperty("width", width);

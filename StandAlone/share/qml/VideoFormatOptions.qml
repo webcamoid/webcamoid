@@ -242,10 +242,10 @@ Dialog {
 
         TextField {
             selectByMouse: true
-            Layout.fillWidth: true
             validator: RegExpValidator {
                 regExp: /-?\d+\/\d+/
             }
+            Layout.fillWidth: true
 
             property string key: ""
             property variant defaultValue: null
@@ -340,10 +340,10 @@ Dialog {
 
         TextField {
             selectByMouse: true
-            Layout.fillWidth: true
             validator: RegExpValidator {
                 regExp: /[-+]?(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?/
             }
+            Layout.fillWidth: true
 
             property string key: ""
             property variant defaultValue: null

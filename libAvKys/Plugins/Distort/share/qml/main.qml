@@ -31,6 +31,7 @@ GridLayout {
     TextField {
         text: Distort.amplitude
         placeholderText: qsTr("Amplitude")
+        selectByMouse: true
         validator: RegExpValidator {
             regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
         }
@@ -46,6 +47,7 @@ GridLayout {
     TextField {
         text: Distort.frequency
         placeholderText: qsTr("Frequency")
+        selectByMouse: true
         validator: RegExpValidator {
             regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
         }
@@ -61,6 +63,7 @@ GridLayout {
     TextField {
         text: Distort.gridSizeLog
         placeholderText: qsTr("Grid size")
+        selectByMouse: true
         validator: RegExpValidator {
             regExp: /\d+/
         }

@@ -19,6 +19,7 @@
 
 #include "virtualcamera.h"
 #include "virtualcameraelement.h"
+#include "virtualcameraelementsettings.h"
 
 VirtualCamera::VirtualCamera()
 {
@@ -31,13 +32,16 @@ QObject *VirtualCamera::create(const QString &key, const QString &specification)
 
     if (key == AK_PLUGIN_TYPE_ELEMENT)
         return new VirtualCameraElement();
+    else if (key == AK_PLUGIN_TYPE_ELEMENT_SETTINGS)
+        return new VirtualCameraElementSettings();
 
     return nullptr;
 }
 
 QStringList VirtualCamera::keys() const
 {
-    return QStringList();
+    return {AK_PLUGIN_TYPE_ELEMENT,
+            AK_PLUGIN_TYPE_ELEMENT_SETTINGS};
 }
 
 #include "moc_virtualcamera.cpp"

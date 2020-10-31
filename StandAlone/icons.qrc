@@ -13,6 +13,7 @@
         <file>share/themes/WebcamoidTheme/icons/hicolor/128x128/minus.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/128x128/no.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/128x128/photo.png</file>
+        <file>share/themes/WebcamoidTheme/icons/hicolor/128x128/picture.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/128x128/play.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/128x128/record-start.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/128x128/record-stop.png</file>
@@ -44,6 +45,7 @@
         <file>share/themes/WebcamoidTheme/icons/hicolor/16x16/minus.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/16x16/no.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/16x16/photo.png</file>
+        <file>share/themes/WebcamoidTheme/icons/hicolor/16x16/picture.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/16x16/play.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/16x16/record-start.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/16x16/record-stop.png</file>
@@ -75,6 +77,7 @@
         <file>share/themes/WebcamoidTheme/icons/hicolor/22x22/minus.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/22x22/no.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/22x22/photo.png</file>
+        <file>share/themes/WebcamoidTheme/icons/hicolor/22x22/picture.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/22x22/play.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/22x22/record-start.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/22x22/record-stop.png</file>
@@ -106,6 +109,7 @@
         <file>share/themes/WebcamoidTheme/icons/hicolor/256x256/minus.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/256x256/no.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/256x256/photo.png</file>
+        <file>share/themes/WebcamoidTheme/icons/hicolor/256x256/picture.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/256x256/play.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/256x256/record-start.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/256x256/record-stop.png</file>
@@ -137,6 +141,7 @@
         <file>share/themes/WebcamoidTheme/icons/hicolor/32x32/minus.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/32x32/no.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/32x32/photo.png</file>
+        <file>share/themes/WebcamoidTheme/icons/hicolor/32x32/picture.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/32x32/play.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/32x32/record-start.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/32x32/record-stop.png</file>
@@ -168,6 +173,7 @@
         <file>share/themes/WebcamoidTheme/icons/hicolor/48x48/minus.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/48x48/no.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/48x48/photo.png</file>
+        <file>share/themes/WebcamoidTheme/icons/hicolor/48x48/picture.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/48x48/play.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/48x48/record-start.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/48x48/record-stop.png</file>
@@ -199,6 +205,7 @@
         <file>share/themes/WebcamoidTheme/icons/hicolor/64x64/minus.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/64x64/no.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/64x64/photo.png</file>
+        <file>share/themes/WebcamoidTheme/icons/hicolor/64x64/picture.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/64x64/play.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/64x64/record-start.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/64x64/record-stop.png</file>
@@ -230,6 +237,7 @@
         <file>share/themes/WebcamoidTheme/icons/hicolor/8x8/minus.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/8x8/no.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/8x8/photo.png</file>
+        <file>share/themes/WebcamoidTheme/icons/hicolor/8x8/picture.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/8x8/play.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/8x8/record-start.png</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/8x8/record-stop.png</file>
@@ -262,6 +270,7 @@
         <file>share/themes/WebcamoidTheme/icons/hicolor/scalable/minus.svg</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/scalable/no.svg</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/scalable/photo.svg</file>
+        <file>share/themes/WebcamoidTheme/icons/hicolor/scalable/picture.svg</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/scalable/play.svg</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/scalable/record-start.svg</file>
         <file>share/themes/WebcamoidTheme/icons/hicolor/scalable/record-stop.svg</file>

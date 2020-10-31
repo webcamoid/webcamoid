@@ -31,7 +31,6 @@ class CliOptionsPrivate
         QCommandLineOption m_recursiveOpt {{"r", "recursive"}};
         QCommandLineOption m_pluginPathsOpt {{"p", "paths"}};
         QCommandLineOption m_blackListOpt {{"b", "no-load"}};
-        QCommandLineOption m_vcamPathOpt {"vcam"};
 
         QString convertToAbsolute(const QString &path) const;
 };
@@ -69,12 +68,6 @@ CliOptions::CliOptions()
                             "loading."));
     this->d->m_blackListOpt.setValueName(QObject::tr("PATH1;PATH2;PATH3;..."));
     this->addOption(this->d->m_blackListOpt);
-
-    this->d->m_vcamPathOpt.setDescription(
-                QObject::tr("Semi-colon separated list of paths to search for "
-                            "virtual camera driver"));
-    this->d->m_vcamPathOpt.setValueName(QObject::tr("PATH1;PATH2;PATH3;..."));
-    this->addOption(this->d->m_vcamPathOpt);
 
     this->process(*QCoreApplication::instance());
 
@@ -117,11 +110,6 @@ QCommandLineOption CliOptions::pluginPathsOpt() const
 QCommandLineOption CliOptions::blackListOpt() const
 {
     return this->d->m_blackListOpt;
-}
-
-QCommandLineOption CliOptions::vcamPathOpt() const
-{
-    return this->d->m_vcamPathOpt;
 }
 
 QString CliOptionsPrivate::convertToAbsolute(const QString &path) const

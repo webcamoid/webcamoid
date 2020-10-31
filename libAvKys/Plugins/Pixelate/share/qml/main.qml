@@ -43,6 +43,7 @@ GridLayout {
     TextField {
         text: Pixelate.blockSize.width + "x" + Pixelate.blockSize.height
         placeholderText: qsTr("Block size")
+        selectByMouse: true
         validator: RegExpValidator {
             regExp: /\d+x\d+/
         }

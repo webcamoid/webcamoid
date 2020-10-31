@@ -86,16 +86,17 @@ QImage IconsProvider::requestImage(const QString &id,
     *size = iconSize;
 
     if (iconSize.isEmpty())
-        return QImage();
+        return {};
 
-    QImage icon(QString("%1/%2/%3x%4/%5.png")
+    auto path = QString("%1/%2/%3x%4/%5.png")
                 .arg(this->d->m_iconsPath)
                 .arg(this->d->m_themeName)
                 .arg(iconSize.width())
                 .arg(iconSize.height())
-                .arg(id));
+                .arg(id);
+    QImage icon(path);
 
-    return icon;
+    return icon.convertToFormat(QImage::Format_ARGB32);
 }
 
 QPixmap IconsProvider::requestPixmap(const QString &id,
@@ -108,14 +109,15 @@ QPixmap IconsProvider::requestPixmap(const QString &id,
     if (iconSize.isEmpty())
         return QPixmap();
 
-    QPixmap icon(QString("%1/%2/%3x%4/%5.png")
-                 .arg(this->d->m_iconsPath)
-                 .arg(this->d->m_themeName)
-                 .arg(iconSize.width())
-                 .arg(iconSize.height())
-                 .arg(id));
+    auto path = QString("%1/%2/%3x%4/%5.png")
+                .arg(this->d->m_iconsPath)
+                .arg(this->d->m_themeName)
+                .arg(iconSize.width())
+                .arg(iconSize.height())
+                .arg(id);
+    QImage icon(path);
 
-    return icon;
+    return QPixmap::fromImage(icon.convertToFormat(QImage::Format_ARGB32));
 }
 
 void IconsProvider::themeSetup()

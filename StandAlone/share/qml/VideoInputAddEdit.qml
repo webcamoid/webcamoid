@@ -115,8 +115,8 @@ Dialog {
                         text: addEdit.editMode?
                                   videoLayer.description(videoLayer.videoInput):
                                   ""
-                        Layout.fillWidth: true
                         selectByMouse: true
+                        Layout.fillWidth: true
                     }
                     Label {
                         text: qsTr("Path")
@@ -128,8 +128,8 @@ Dialog {
                             id: filePath
                             placeholderText: qsTr("File path")
                             text: addEdit.editMode? videoLayer.videoInput: ""
-                            Layout.fillWidth: true
                             selectByMouse: true
+                            Layout.fillWidth: true
                         }
 
                         Button {
@@ -163,8 +163,8 @@ Dialog {
                         text: addEdit.editMode?
                                   videoLayer.description(videoLayer.videoInput):
                                   ""
-                        Layout.fillWidth: true
                         selectByMouse: true
+                        Layout.fillWidth: true
                     }
                     Label {
                         text: qsTr("URL")
@@ -175,8 +175,8 @@ Dialog {
                         id: urlPath
                         placeholderText: "https://example-site.com/video.webm"
                         text: addEdit.editMode? videoLayer.videoInput: ""
-                        Layout.fillWidth: true
                         selectByMouse: true
+                        Layout.fillWidth: true
                     }
                 }
             }

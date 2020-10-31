@@ -255,7 +255,6 @@ CaptureDShow::CaptureDShow(QObject *parent):
     QAbstractNativeEventFilter()
 {
     this->d = new CaptureDShowPrivate(this);
-
     QObject::connect(&this->d->m_frameGrabber,
                      &FrameGrabber::frameReady,
                      [this] (qreal time, const QByteArray &packet) {

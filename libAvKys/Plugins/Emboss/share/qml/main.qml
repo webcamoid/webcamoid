@@ -31,6 +31,7 @@ GridLayout {
     TextField {
         text: Emboss.factor
         placeholderText: qsTr("Factor")
+        selectByMouse: true
         validator: RegExpValidator {
             regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
         }
@@ -46,6 +47,7 @@ GridLayout {
     TextField {
         text: Emboss.bias
         placeholderText: qsTr("Bias")
+        selectByMouse: true
         validator: RegExpValidator {
             regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
         }

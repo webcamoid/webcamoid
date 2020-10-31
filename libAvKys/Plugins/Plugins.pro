@@ -29,14 +29,8 @@ SUBDIRS += \
     Multiplex \
     MultiSink \
     MultiSrc \
-    VideoCapture
-
-isEmpty(NOVCAM): {
-    CONFIG(config_cmio) \
-    | CONFIG(config_dshow) \
-    | CONFIG(config_v4l2): SUBDIRS += \
-        VirtualCamera
-}
+    VideoCapture \
+    VirtualCamera
 
 # Video effects
 isEmpty(NOVIDEOEFFECTS): SUBDIRS += \
@@ -63,6 +57,7 @@ isEmpty(NOVIDEOEFFECTS): SUBDIRS += \
     FaceTrack \
     FalseColor \
     Fire \
+    Flip \
     FrameOverlap \
     GrayScale \
     Halftone \
@@ -81,9 +76,11 @@ isEmpty(NOVIDEOEFFECTS): SUBDIRS += \
     Quark \
     Radioactive \
     Ripple \
+    Scale \
     ScanLines \
     Scroll \
     Shagadelic \
+    SwapRB \
     Swirl \
     Temperature \
     Vignette \

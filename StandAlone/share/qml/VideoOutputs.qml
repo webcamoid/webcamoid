@@ -29,6 +29,7 @@ ScrollView {
     signal openErrorDialog(string title, string message)
     signal openVideoOutputAddEditDialog(string videoOutput)
     signal openVideoOutputOptions(string videoOutput)
+    signal openVideoOutputPictureDialog()
 
     ColumnLayout {
         width: view.width
@@ -39,7 +40,7 @@ ScrollView {
             flat: true
 
             onClicked: {
-                if (videoLayer.canApply(VideoLayer.OperationCreate)) {
+                if (videoLayer.clientsPids.length < 1) {
                     view.openVideoOutputAddEditDialog("")
                 } else {
                     let title = qsTr("Error Creating Virtual Camera")
@@ -54,7 +55,7 @@ ScrollView {
             flat: true
 
             onClicked: {
-                if (videoLayer.canApply(VideoLayer.OperationDestroyAll)) {
+                if (videoLayer.clientsPids.length < 1) {
                     videoLayer.removeAllOutputs()
                 } else {
                     let title = qsTr("Error Removing Virtual Cameras")
@@ -62,6 +63,13 @@ ScrollView {
                     view.openErrorDialog(title, message)
                 }
             }
+        }
+        Button {
+            text: qsTr("Set output picture")
+            icon.source: "image://icons/picture"
+            flat: true
+
+            onClicked: view.openVideoOutputPictureDialog()
         }
         ListView {
             id: devicesList

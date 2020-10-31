@@ -34,7 +34,6 @@ class CliOptions: public QCommandLineParser
         QCommandLineOption recursiveOpt() const;
         QCommandLineOption pluginPathsOpt() const;
         QCommandLineOption blackListOpt() const;
-        QCommandLineOption vcamPathOpt() const;
 
     private:
         CliOptionsPrivate *d;

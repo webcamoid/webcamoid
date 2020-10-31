@@ -75,6 +75,7 @@ GridLayout {
     TextField {
         text: DelayGrab.blockSize
         placeholderText: qsTr("Block size")
+        selectByMouse: true
         validator: RegExpValidator {
             regExp: /\d+/
         }
@@ -89,6 +90,7 @@ GridLayout {
     TextField {
         text: DelayGrab.nFrames
         placeholderText: qsTr("N° of frames")
+        selectByMouse: true
         validator: RegExpValidator {
             regExp: /\d+/
         }

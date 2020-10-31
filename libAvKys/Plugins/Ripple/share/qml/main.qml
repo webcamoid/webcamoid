@@ -66,6 +66,7 @@ GridLayout {
     TextField {
         text: Ripple.amplitude
         placeholderText: qsTr("Amplitude")
+        selectByMouse: true
         validator: RegExpValidator {
             regExp: /\d+/
         }
@@ -79,6 +80,7 @@ GridLayout {
     TextField {
         text: Ripple.decay
         placeholderText: qsTr("Decay")
+        selectByMouse: true
         validator: RegExpValidator {
             regExp: /\d+/
         }
@@ -92,6 +94,7 @@ GridLayout {
     TextField {
         text: Ripple.threshold
         placeholderText: qsTr("Threshold")
+        selectByMouse: true
         validator: RegExpValidator {
             regExp: /\d+/
         }
@@ -111,6 +114,7 @@ GridLayout {
     TextField {
         text: Ripple.lumaThreshold
         placeholderText: lumaLabel.text
+        selectByMouse: true
         validator: RegExpValidator {
             regExp: /\d+/
         }

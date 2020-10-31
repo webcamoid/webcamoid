@@ -31,6 +31,7 @@ GridLayout {
     TextField {
         text: FrameOverlap.nFrames
         placeholderText: qsTr("N° of frames")
+        selectByMouse: true
         validator: RegExpValidator {
             regExp: /d+/
         }
@@ -46,6 +47,7 @@ GridLayout {
     TextField {
         text: FrameOverlap.stride
         placeholderText: qsTr("Stride")
+        selectByMouse: true
         validator: RegExpValidator {
             regExp: /d+/
         }

@@ -17,17 +17,12 @@
 # Web-Site: http://webcamoid.github.io/
 
 TEMPLATE = subdirs
-CONFIG += ordered
 
-SUBDIRS = src/VCamUtils
+CONFIG(debug, debug|release): CONFIG += ordered
 
-isEmpty(VIRTUALCAMERAONLY) {
-    CONFIG(config_cmio): SUBDIRS += src/cmio
-    CONFIG(config_dshow): SUBDIRS += src/dshow
-    CONFIG(config_v4l2): SUBDIRS += src/v4l2sys
-    SUBDIRS += src
-} else {
-    macx: SUBDIRS += src/cmio
-    win32: SUBDIRS += src/dshow
-    unix: !macx: SUBDIRS += src/v4l2sys
-}
+SUBDIRS = src
+CONFIG(config_cmio): SUBDIRS += src/cmio
+CONFIG(config_dshow): SUBDIRS += src/dshow
+CONFIG(config_v4l2): SUBDIRS += \
+    src/akvcam \
+    src/v4l2lb

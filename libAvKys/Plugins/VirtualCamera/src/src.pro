@@ -37,52 +37,36 @@ INCLUDEPATH += \
     ../../../Lib/src
 
 HEADERS = \
+    vcam.h \
     virtualcamera.h \
     virtualcameraelement.h \
-    ipcbridge.h
+    virtualcameraelementsettings.h \
+    virtualcameraglobals.h
 
 SOURCES = \
+    vcam.cpp \
     virtualcamera.cpp \
-    virtualcameraelement.cpp
-
-LIBS += \
-    -L$${OUT_PWD}/../../../Lib/$${BIN_DIR} -l$$qtLibraryTarget($${COMMONS_TARGET})
-win32: LIBS += \
-    -L$${OUT_PWD}/dshow/VCamIPC/$${BIN_DIR} -lVCamIPC \
-    -L$${OUT_PWD}/dshow/PlatformUtils/$${BIN_DIR} -lPlatformUtils \
-    -ladvapi32 \
-    -lgdi32 \
-    -lstrmiids \
-    -luuid \
-    -lole32 \
-    -loleaut32 \
-    -lshell32
-macx: LIBS += \
-    -L$${OUT_PWD}/cmio/VCamIPC/$${BIN_DIR} -lVCamIPC \
-    -framework CoreFoundation \
-    -framework CoreMedia \
-    -framework CoreMediaIO \
-    -framework CoreVideo \
-    -framework Foundation \
-    -framework IOKit \
-    -framework IOSurface
-unix: !macx: LIBS += \
-    -L$${OUT_PWD}/v4l2sys/VCamIPC/$${BIN_DIR} -lVCamIPC
-LIBS += \
-    -L$${OUT_PWD}/VCamUtils/$${BIN_DIR} -lVCamUtils
-
-OTHER_FILES += \
-    pspec.json \
-    $$files(../share/qml/*.qml)
-
-QT += concurrent qml xml
-
-RESOURCES = ../VirtualCamera.qrc
-unix: !macx: RESOURCES += ../TestFrame.qrc
+    virtualcameraelement.cpp \
+    virtualcameraelementsettings.cpp \
+    virtualcameraglobals.cpp
 
 lupdate_only {
     SOURCES += $$files(../share/qml/*.qml)
 }
+
+LIBS += \
+    -L$${OUT_PWD}/../../../Lib/$${BIN_DIR} -l$$qtLibraryTarget($${COMMONS_TARGET})
+
+QML_IMPORT_PATH += $$PWD/../../Lib/share/qml
+
+OTHER_FILES += \
+    ../pspec.json \
+    $$files(../share/qml/*.qml)
+
+QT += qml concurrent
+
+RESOURCES = \
+    ../VirtualCamera.qrc
 
 DESTDIR = $${OUT_PWD}/../$${BIN_DIR}
 TARGET = VirtualCamera

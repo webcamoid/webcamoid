@@ -164,6 +164,7 @@ Dialog {
             TextField {
                 id: bitrate
                 placeholderText: qsTr("Bitrate (bits/secs)")
+                selectByMouse: true
                 validator: RegExpValidator {
                     regExp: /\d+/
                 }
@@ -178,6 +179,7 @@ Dialog {
             TextField {
                 id: videoGOP
                 placeholderText: qsTr("Keyframes stride")
+                selectByMouse: true
                 validator: RegExpValidator {
                     regExp: /\d+/
                 }
@@ -269,10 +271,10 @@ Dialog {
 
         TextField {
             selectByMouse: true
-            Layout.fillWidth: true
             validator: RegExpValidator {
                 regExp: /-?\d+\/\d+/
             }
+            Layout.fillWidth: true
 
             property string key: ""
             property variant defaultValue: null
@@ -367,10 +369,10 @@ Dialog {
 
         TextField {
             selectByMouse: true
-            Layout.fillWidth: true
             validator: RegExpValidator {
                 regExp: /[-+]?(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?/
             }
+            Layout.fillWidth: true
 
             property string key: ""
             property variant defaultValue: null

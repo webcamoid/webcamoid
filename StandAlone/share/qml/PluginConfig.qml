@@ -217,8 +217,7 @@ Page {
 
                         delegate: CheckDelegate {
                             text: pluginId
-                            anchors.right: parent.right
-                            anchors.left: parent.left
+                            width: pluginsScrollView.width
                             checked: pluginEnabled
 
                             onToggled: {

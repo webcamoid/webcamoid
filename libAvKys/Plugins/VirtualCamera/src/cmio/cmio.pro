@@ -16,8 +16,56 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-TEMPLATE = subdirs
-CONFIG += ordered
+exists(akcommons.pri) {
+    include(akcommons.pri)
+} else {
+    exists(../../../../akcommons.pri) {
+        include(../../../../akcommons.pri)
+    } else {
+        error("akcommons.pri file not found.")
+    }
+}
 
-SUBDIRS = \
-    VCamIPC
+CONFIG += plugin link_prl
+QT += qml concurrent
+
+SOURCES = \
+    ../vcam.cpp \
+    src/plugin.cpp
+
+OBJECTIVE_SOURCES = \
+    src/vcamcmio.mm \
+    src/deviceobserver.mm
+
+HEADERS =  \
+    ../vcam.h \
+    src/plugin.h \
+    src/vcamcmio.h \
+    src/deviceobserver.h
+
+INCLUDEPATH += \
+    ../../../../Lib/src \
+    ../
+
+LIBS += \
+    -L$${OUT_PWD}/../../../../Lib/$${BIN_DIR} -l$$qtLibraryTarget($${COMMONS_TARGET}) \
+    -framework CoreMedia \
+    -framework CoreVideo \
+    -framework Foundation \
+    -framework AVFoundation
+
+OTHER_FILES += pspec.json
+
+akModule = VirtualCamera
+DESTDIR = $${OUT_PWD}/../../$${BIN_DIR}/submodules/$${akModule}
+
+TEMPLATE = lib
+
+INSTALLS += target
+
+android {
+    TARGET = $${COMMONS_TARGET}_submodules_$${akModule}_lib$${TARGET}
+    target.path = $${LIBDIR}
+} else {
+    target.path = $${INSTALLPLUGINSDIR}/submodules/$${akModule}
+}

@@ -39,9 +39,9 @@ Page {
                 text: qsTr("Images directory")
             }
             TextField {
-                Layout.fillWidth: true
                 text: recording.imagesDirectory
                 selectByMouse: true
+                Layout.fillWidth: true
 
                 onTextChanged: recording.imagesDirectory = text
             }

@@ -370,6 +370,7 @@ class AKCOMMONS_EXPORT AkVideoCaps: public QObject
         Q_INVOKABLE size_t bytesPerLine(int plane) const;
         Q_INVOKABLE int planes() const;
         Q_INVOKABLE size_t planeSize(int plane) const;
+        Q_INVOKABLE AkVideoCaps nearest(const AkVideoCapsList &caps) const;
 
         Q_INVOKABLE static int bitsPerPixel(PixelFormat pixelFormat);
         Q_INVOKABLE static int bitsPerPixel(const QString &pixelFormat);

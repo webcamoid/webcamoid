@@ -225,11 +225,7 @@ Dialog {
     }
 
     onAccepted: {
-        let operation = deviceId.text?
-                VideoLayer.OperationEdit:
-                VideoLayer.OperationCreate
-
-        if (!videoLayer.canApply(operation)) {
+        if (videoLayer.clientsPids.length > 0) {
             let title = deviceId.text?
                     qsTr("Can't Edit The Virtual Camera"):
                     qsTr("Can't Add The Virtual Camera")

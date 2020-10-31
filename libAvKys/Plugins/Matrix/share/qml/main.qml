@@ -65,6 +65,7 @@ GridLayout {
     TextField {
         text: Matrix.nDrops
         placeholderText: qsTr("N° of drops")
+        selectByMouse: true
         validator: RegExpValidator {
             regExp: /\d+/
         }
@@ -78,6 +79,7 @@ GridLayout {
     TextField {
         text: Matrix.charTable
         placeholderText: qsTr("Symbols")
+        selectByMouse: true
         Layout.fillWidth: true
 
         onTextChanged: Matrix.charTable = text
@@ -91,6 +93,7 @@ GridLayout {
             id: txtTable
             text: Matrix.font.family + " " + Matrix.font.pointSize
             placeholderText: qsTr("Font")
+            selectByMouse: true
             readOnly: true
             font: Matrix.font
             Layout.fillWidth: true
@@ -253,6 +256,7 @@ GridLayout {
     TextField {
         text: Matrix.minDropLength
         placeholderText: qsTr("Min. drop length")
+        selectByMouse: true
         validator: RegExpValidator {
             regExp: /\d+/
         }
@@ -266,6 +270,7 @@ GridLayout {
     TextField {
         text: Matrix.maxDropLength
         placeholderText: qsTr("Max. drop length")
+        selectByMouse: true
         validator: RegExpValidator {
             regExp: /\d+/
         }
@@ -279,6 +284,7 @@ GridLayout {
     TextField {
         text: Matrix.minSpeed
         placeholderText: qsTr("Min. speed")
+        selectByMouse: true
         validator: RegExpValidator {
             regExp: /\d+\.\d+|\d+\.|\.\d+|\d+/
         }
@@ -292,6 +298,7 @@ GridLayout {
     TextField {
         text: Matrix.maxSpeed
         placeholderText: qsTr("Max. speed")
+        selectByMouse: true
         validator: RegExpValidator {
             regExp: /\d+\.\d+|\d+\.|\.\d+|\d+/
         }

@@ -30,6 +30,7 @@ GridLayout {
     TextField {
         text: Photocopy.brightness
         placeholderText: qsTr("Brightness")
+        selectByMouse: true
         validator: RegExpValidator {
             regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
         }
@@ -43,6 +44,7 @@ GridLayout {
     TextField {
         text: Photocopy.contrast
         placeholderText: qsTr("Contrast")
+        selectByMouse: true
         validator: RegExpValidator {
             regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
         }

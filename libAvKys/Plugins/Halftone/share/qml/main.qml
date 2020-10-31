@@ -119,6 +119,7 @@ GridLayout {
                 id: txtPattern
                 text: Halftone.pattern
                 placeholderText: qsTr("Bitmap pattern")
+                selectByMouse: true
                 Layout.fillWidth: true
 
                 onTextChanged: {
@@ -152,6 +153,7 @@ GridLayout {
     TextField {
         text: Halftone.patternSize.width + "x" + Halftone.patternSize.height
         placeholderText: qsTr("Pattern size")
+        selectByMouse: true
         validator: RegExpValidator {
             regExp: /-?\d+x-?\d+/
         }
@@ -165,6 +167,7 @@ GridLayout {
     TextField {
         text: Halftone.lightness
         placeholderText: qsTr("Lightness")
+        selectByMouse: true
         validator: RegExpValidator {
             regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
         }
@@ -178,6 +181,7 @@ GridLayout {
     TextField {
         text: Halftone.slope
         placeholderText: qsTr("Slope")
+        selectByMouse: true
         validator: RegExpValidator {
             regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
         }
@@ -191,6 +195,7 @@ GridLayout {
     TextField {
         text: Halftone.intercept
         placeholderText: qsTr("Intercept")
+        selectByMouse: true
         validator: RegExpValidator {
             regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
         }
@@ -205,6 +210,6 @@ GridLayout {
         nameFilters: ["Image files (*.bmp *.gif *.jpg *.jpeg *.png *.pbm *.pgm *.ppm *.xbm *.xpm)"]
         folder: "file://" + picturesPath
 
-        onAccepted: Halftone.pattern = String(fileUrl).replace("file://", "")
+        onAccepted: Halftone.pattern = String(file).replace("file://", "")
     }
 }

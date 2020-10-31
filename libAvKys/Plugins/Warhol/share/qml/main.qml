@@ -30,6 +30,7 @@ GridLayout {
     TextField {
         text: Warhol.nFrames
         placeholderText: qsTr("N° of frames")
+        selectByMouse: true
         validator: RegExpValidator {
             regExp: /\d+/
         }

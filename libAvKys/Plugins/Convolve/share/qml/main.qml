@@ -52,21 +52,23 @@ ColumnLayout {
         // Row 0
         TextField {
             id: k00
-            Layout.preferredWidth: cellSize
             text: Convolve.kernel[0]
+            selectByMouse: true
             validator: RegExpValidator {
                 regExp: /-?\d+/
             }
+            Layout.preferredWidth: cellSize
 
             onTextChanged: updateKernel(0, text)
         }
         TextField {
             id: k01
-            Layout.preferredWidth: cellSize
             text: Convolve.kernel[1]
+            selectByMouse: true
             validator: RegExpValidator {
                 regExp: /-?\d+/
             }
+            Layout.preferredWidth: cellSize
 
             onTextChanged: updateKernel(1, text)
         }
@@ -74,9 +76,11 @@ ColumnLayout {
             id: k02
             Layout.preferredWidth: cellSize
             text: Convolve.kernel[2]
+            selectByMouse: true
             validator: RegExpValidator {
                 regExp: /-?\d+/
             }
+            Layout.preferredWidth: cellSize
 
             onTextChanged: updateKernel(2, text)
         }
@@ -84,31 +88,34 @@ ColumnLayout {
         // Row 1
         TextField {
             id: k10
-            Layout.preferredWidth: cellSize
             text: Convolve.kernel[3]
+            selectByMouse: true
             validator: RegExpValidator {
                 regExp: /-?\d+/
             }
+            Layout.preferredWidth: cellSize
 
             onTextChanged: updateKernel(3, text)
         }
         TextField {
             id: k11
-            Layout.preferredWidth: cellSize
             text: Convolve.kernel[4]
+            selectByMouse: true
             validator: RegExpValidator {
                 regExp: /-?\d+/
             }
+            Layout.preferredWidth: cellSize
 
             onTextChanged: updateKernel(4, text)
         }
         TextField {
             id: k12
-            Layout.preferredWidth: cellSize
             text: Convolve.kernel[5]
+            selectByMouse: true
             validator: RegExpValidator {
                 regExp: /-?\d+/
             }
+            Layout.preferredWidth: cellSize
 
             onTextChanged: updateKernel(5, text)
         }
@@ -116,11 +123,12 @@ ColumnLayout {
         // Row 2
         TextField {
             id: k20
-            Layout.preferredWidth: cellSize
             text: Convolve.kernel[6]
+            selectByMouse: true
             validator: RegExpValidator {
                 regExp: /-?\d+/
             }
+            Layout.preferredWidth: cellSize
 
             onTextChanged: updateKernel(6, text)
         }
@@ -128,19 +136,22 @@ ColumnLayout {
             id: k21
             Layout.preferredWidth: cellSize
             text: Convolve.kernel[7]
+            selectByMouse: true
             validator: RegExpValidator {
                 regExp: /-?\d+/
             }
+            Layout.preferredWidth: cellSize
 
             onTextChanged: updateKernel(7, text)
         }
         TextField {
             id: k22
-            Layout.preferredWidth: cellSize
             text: Convolve.kernel[8]
+            selectByMouse: true
             validator: RegExpValidator {
                 regExp: /-?\d+/
             }
+            Layout.preferredWidth: cellSize
 
             onTextChanged: updateKernel(8, text)
         }

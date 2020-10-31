@@ -30,6 +30,7 @@ GridLayout {
     TextField {
         text: Warp.ripples
         placeholderText: qsTr("Ripples")
+        selectByMouse: true
         validator: RegExpValidator {
             regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
         }

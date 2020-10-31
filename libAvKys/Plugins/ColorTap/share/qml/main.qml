@@ -19,8 +19,8 @@
 
 import QtQuick 2.12
 import QtQuick.Controls 2.5
-import Qt.labs.platform 1.1 as LABS
 import QtQuick.Layouts 1.3
+import Qt.labs.platform 1.1 as LABS
 
 ColumnLayout {
     function toQrc(uri)
@@ -103,6 +103,7 @@ ColumnLayout {
             id: txtTable
             text: ColorTap.table
             placeholderText: qsTr("Source palette")
+            selectByMouse: true
             Layout.fillWidth: true
 
             onTextChanged: {
@@ -134,6 +135,6 @@ ColumnLayout {
         nameFilters: ["Image files (*.bmp *.gif *.jpg *.jpeg *.png *.pbm *.pgm *.ppm *.xbm *.xpm)"]
         folder: "file://" + picturesPath
 
-        onAccepted: ColorTap.table = String(fileUrl).replace("file://", "")
+        onAccepted: ColorTap.table = String(file).replace("file://", "")
     }
 }

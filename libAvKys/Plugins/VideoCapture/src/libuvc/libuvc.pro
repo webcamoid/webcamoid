@@ -29,9 +29,9 @@ exists(akcommons.pri) {
 CONFIG += plugin link_prl
 
 HEADERS = \
+    ../capture.h \
     src/plugin.h \
     src/capturelibuvc.h \
-    ../capture.h \
     src/usbids.h \
     src/usbglobals.h
 

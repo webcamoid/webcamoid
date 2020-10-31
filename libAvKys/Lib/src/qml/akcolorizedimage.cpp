@@ -631,6 +631,8 @@ void AkColorizedImagePrivate::loadImage(const QString &source)
 
         this->m_image = QImage(tmpSource);
     }
+
+    this->m_image = this->m_image.convertToFormat(QImage::Format_ARGB32);
 }
 
 #include "moc_akcolorizedimage.cpp"

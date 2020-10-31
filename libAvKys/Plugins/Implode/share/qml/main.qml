@@ -30,6 +30,7 @@ GridLayout {
     TextField {
         text: Implode.amount
         placeholderText: qsTr("Amount")
+        selectByMouse: true
         validator: RegExpValidator {
             regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
         }

@@ -107,9 +107,9 @@ Page {
                 text: qsTr("Videos directory")
             }
             TextField {
-                Layout.fillWidth: true
                 text: recording.videoDirectory
                 selectByMouse: true
+                Layout.fillWidth: true
 
                 onTextChanged: recording.videoDirectory = text
             }

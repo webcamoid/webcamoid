@@ -1,5 +1,5 @@
 # Webcamoid, webcam capture application.
-# Copyright (C) 2016  Gonzalo Exequiel Pedone
+# Copyright (C) 2018  Gonzalo Exequiel Pedone
 #
 # Webcamoid is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -16,11 +16,62 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-TEMPLATE = subdirs
-CONFIG += ordered
+exists(akcommons.pri) {
+    include(akcommons.pri)
+} else {
+    exists(../../../../akcommons.pri) {
+        include(../../../../akcommons.pri)
+    } else {
+        error("akcommons.pri file not found.")
+    }
+}
 
-SUBDIRS = \
-    PlatformUtils \
-    VCamIPC \
-    Assistant \
-    VirtualCamera
+CONFIG += plugin link_prl
+QT += qml concurrent
+
+SOURCES = \
+    ../vcam.cpp \
+    src/plugin.cpp \
+    src/vcamdshow.cpp
+
+HEADERS =  \
+    ../vcam.h \
+    src/plugin.h \
+    src/vcamdshow.h
+
+INCLUDEPATH += \
+    ../../../../Lib/src \
+    ../
+
+contains(TARGET_ARCH, x86_64): {
+    DEFINES += \
+        DSHOW_PLUGIN_ARCH_X64
+} else {
+    DEFINES += \
+        DSHOW_PLUGIN_ARCH_X86
+}
+
+LIBS += \
+    -L$${OUT_PWD}/../../../../Lib/$${BIN_DIR} -l$$qtLibraryTarget($${COMMONS_TARGET}) \
+    -ladvapi32 \
+    -lkernel32 \
+    -lole32 \
+    -loleaut32 \
+    -lstrmiids \
+    -luuid
+
+OTHER_FILES += pspec.json
+
+akModule = VirtualCamera
+DESTDIR = $${OUT_PWD}/../../$${BIN_DIR}/submodules/$${akModule}
+
+TEMPLATE = lib
+
+INSTALLS += target
+
+android {
+    TARGET = $${COMMONS_TARGET}_submodules_$${akModule}_lib$${TARGET}
+    target.path = $${LIBDIR}
+} else {
+    target.path = $${INSTALLPLUGINSDIR}/submodules/$${akModule}
+}

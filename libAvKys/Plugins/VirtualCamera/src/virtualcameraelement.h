@@ -29,16 +29,9 @@ class VirtualCameraElementPrivate;
 class VirtualCameraElement: public AkElement
 {
     Q_OBJECT
-    Q_ENUMS(Scaling)
-    Q_ENUMS(AspectRatio)
     Q_PROPERTY(QString error
                READ error
                NOTIFY errorChanged)
-    Q_PROPERTY(QStringList driverPaths
-               READ driverPaths
-               WRITE setDriverPaths
-               RESET resetDriverPaths
-               NOTIFY driverPathsChanged)
     Q_PROPERTY(QStringList medias
                READ medias
                NOTIFY mediasChanged)
@@ -53,99 +46,35 @@ class VirtualCameraElement: public AkElement
     Q_PROPERTY(int maxCameras
                READ maxCameras
                NOTIFY maxCamerasChanged)
-    Q_PROPERTY(QString driver
-               READ driver
-               WRITE setDriver
-               RESET resetDriver
-               NOTIFY driverChanged)
-    Q_PROPERTY(QStringList availableDrivers
-               READ availableDrivers
-               NOTIFY availableDriversChanged)
-    Q_PROPERTY(QString rootMethod
-               READ rootMethod
-               WRITE setRootMethod
-               RESET resetRootMethod
-               NOTIFY rootMethodChanged)
-    Q_PROPERTY(QStringList availableMethods
-               READ availableMethods
-               NOTIFY availableMethodsChanged)
     Q_PROPERTY(AkVideoCaps::PixelFormatList supportedOutputPixelFormats
                READ supportedOutputPixelFormats
                NOTIFY supportedOutputPixelFormatsChanged)
     Q_PROPERTY(AkVideoCaps::PixelFormat defaultOutputPixelFormat
                READ defaultOutputPixelFormat
                NOTIFY defaultOutputPixelFormatChanged)
-    Q_PROPERTY(bool horizontalMirrored
-               READ horizontalMirrored
-               WRITE setHorizontalMirrored
-               RESET resetHorizontalMirrored
-               NOTIFY horizontalMirroredChanged)
-    Q_PROPERTY(bool verticalMirrored
-               READ verticalMirrored
-               WRITE setVerticalMirrored
-               RESET resetVerticalMirrored
-               NOTIFY verticalMirroredChanged)
-    Q_PROPERTY(Scaling scalingMode
-               READ scalingMode
-               WRITE setScalingMode
-               RESET resetScalingMode
-               NOTIFY scalingModeChanged)
-    Q_PROPERTY(AspectRatio aspectRatioMode
-               READ aspectRatioMode
-               WRITE setAspectRatioMode
-               RESET resetAspectRatioMode
-               NOTIFY aspectRatioModeChanged)
-    Q_PROPERTY(bool swapRgb
-               READ swapRgb
-               WRITE setSwapRgb
-               RESET resetSwapRgb
-               NOTIFY swapRgbChanged)
     Q_PROPERTY(QList<quint64> clientsPids
                READ clientsPids
                CONSTANT)
+    Q_PROPERTY(bool driverInstalled
+               READ driverInstalled
+               CONSTANT)
+    Q_PROPERTY(QString picture
+               READ picture
+               WRITE setPicture
+               RESET resetPicture
+               NOTIFY pictureChanged)
 
     public:
-        enum Scaling
-        {
-            ScalingFast,
-            ScalingLinear
-        };
-
-        enum AspectRatio
-        {
-            AspectRatioIgnore,
-            AspectRatioKeep,
-            AspectRatioExpanding
-        };
-
-        enum Operation
-        {
-            OperationCreate,
-            OperationEdit,
-            OperationDestroy,
-            OperationDestroyAll
-        };
-
         VirtualCameraElement();
         ~VirtualCameraElement();
 
         Q_INVOKABLE QString error() const;
-        Q_INVOKABLE QStringList driverPaths() const;
         Q_INVOKABLE QStringList medias() const;
         Q_INVOKABLE QString media() const;
         Q_INVOKABLE QList<int> streams() const;
         Q_INVOKABLE int maxCameras() const;
-        Q_INVOKABLE QString driver() const;
-        Q_INVOKABLE QStringList availableDrivers() const;
-        Q_INVOKABLE QString rootMethod() const;
-        Q_INVOKABLE QStringList availableMethods() const;
         Q_INVOKABLE AkVideoCaps::PixelFormatList supportedOutputPixelFormats() const;
         Q_INVOKABLE AkVideoCaps::PixelFormat defaultOutputPixelFormat() const;
-        Q_INVOKABLE bool horizontalMirrored() const;
-        Q_INVOKABLE bool verticalMirrored() const;
-        Q_INVOKABLE Scaling scalingMode() const;
-        Q_INVOKABLE AspectRatio aspectRatioMode() const;
-        Q_INVOKABLE bool swapRgb() const;
         Q_INVOKABLE int defaultStream(const QString &mimeType) const;
         Q_INVOKABLE QString description(const QString &media) const;
         Q_INVOKABLE AkCaps caps(int stream) const;
@@ -161,13 +90,16 @@ class VirtualCameraElement: public AkElement
                                     const QString &description,
                                     const AkVideoCapsList &formats);
         Q_INVOKABLE bool changeDescription(const QString &webcam,
-                                           const QString &description={}) const;
+                                           const QString &description={});
         Q_INVOKABLE bool removeWebcam(const QString &webcam);
         Q_INVOKABLE bool removeAllWebcams();
+        Q_INVOKABLE QVariantList controls() const;
+        Q_INVOKABLE bool setControls(const QVariantMap &controls);
+        Q_INVOKABLE bool resetControls();
         Q_INVOKABLE QList<quint64> clientsPids() const;
         Q_INVOKABLE QString clientExe(quint64 pid) const;
-        Q_INVOKABLE bool needsRestart(Operation operation) const;
-        Q_INVOKABLE bool canApply(Operation operation) const;
+        Q_INVOKABLE bool driverInstalled() const;
+        Q_INVOKABLE QString picture() const;
 
     private:
         VirtualCameraElementPrivate *d;
@@ -180,57 +112,22 @@ class VirtualCameraElement: public AkElement
 
     signals:
         void errorChanged(const QString &error);
-        void driverPathsChanged(const QStringList &driverPaths);
         void mediasChanged(const QStringList &medias) const;
         void mediaChanged(const QString &media);
         void streamsChanged(const QList<int> &streams);
         void maxCamerasChanged(int maxCameras);
-        void driverChanged(const QString &driver);
-        void availableDriversChanged(const QStringList &availableDrivers);
-        void rootMethodChanged(const QString &rootMethod);
-        void availableMethodsChanged(const QStringList &availableMethods);
         void supportedOutputPixelFormatsChanged(const AkVideoCaps::PixelFormatList &supportedOutputPixelFormats);
         void defaultOutputPixelFormatChanged(const AkVideoCaps::PixelFormat &defaultOutputPixelFormat);
-        void horizontalMirroredChanged(bool horizontalMirrored);
-        void verticalMirroredChanged(bool verticalMirrored);
-        void scalingModeChanged(Scaling scalingMode);
-        void aspectRatioModeChanged(AspectRatio aspectRatioMode);
-        void swapRgbChanged(bool swapRgb);
+        void pictureChanged(const QString &picture);
 
     public slots:
-        void setDriverPaths(const QStringList &driverPaths);
-        void addDriverPath(const QString &driverPath);
-        void addDriverPaths(const QStringList &driverPaths);
-        void removeDriverPath(const QString &driverPath);
-        void removeDriverPaths(const QStringList &driverPaths);
+        bool applyPicture();
         void setMedia(const QString &media);
-        void setDriver(const QString &driver);
-        void setRootMethod(const QString &rootMethod);
-        void setHorizontalMirrored(bool horizontalMirrored);
-        void setVerticalMirrored(bool verticalMirrored);
-        void setScalingMode(Scaling scalingMode);
-        void setAspectRatioMode(AspectRatio aspectRatioMode);
-        void setSwapRgb(bool swapRgb);
-        void resetDriverPaths();
+        void setPicture(const QString &picture);
         void resetMedia();
-        void resetDriver();
-        void resetRootMethod();
-        void resetHorizontalMirrored();
-        void resetVerticalMirrored();
-        void resetScalingMode();
-        void resetAspectRatioMode();
-        void resetSwapRgb();
+        void resetPicture();
         void clearStreams();
-        static void registerTypes();
-
         bool setState(AkElement::ElementState state);
-
-    private slots:
-        void rootMethodUpdated(const QString &rootMethod);
 };
-
-Q_DECLARE_METATYPE(VirtualCameraElement::Scaling)
-Q_DECLARE_METATYPE(VirtualCameraElement::AspectRatio)
-Q_DECLARE_METATYPE(VirtualCameraElement::Operation)
 
 #endif // VIRTUALCAMERAELEMENT_H

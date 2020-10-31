@@ -89,7 +89,7 @@ class VideoCaptureElementPrivate
 {
     public:
         VideoCaptureElement *self;
-        VideoCaptureElementSettings settings;
+        VideoCaptureElementSettings m_settings;
         ConvertVideoPtr m_convertVideo;
         CapturePtr m_capture;
         QThreadPool m_threadPool;
@@ -111,19 +111,19 @@ VideoCaptureElement::VideoCaptureElement():
     AkMultimediaSourceElement()
 {
     this->d = new VideoCaptureElementPrivate(this);
-    QObject::connect(&this->d->settings,
+    QObject::connect(&this->d->m_settings,
                      &VideoCaptureElementSettings::codecLibChanged,
                      [this] (const QString &codecLib) {
                         this->d->codecLibUpdated(codecLib);
                      });
-    QObject::connect(&this->d->settings,
+    QObject::connect(&this->d->m_settings,
                      &VideoCaptureElementSettings::captureLibChanged,
                      [this] (const QString &captureLib) {
                         this->d->captureLibUpdated(captureLib);
                      });
 
-    this->d->codecLibUpdated(this->d->settings.codecLib());
-    this->d->captureLibUpdated(this->d->settings.captureLib());
+    this->d->codecLibUpdated(this->d->m_settings.codecLib());
+    this->d->captureLibUpdated(this->d->m_settings.captureLib());
 }
 
 VideoCaptureElement::~VideoCaptureElement()

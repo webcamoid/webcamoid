@@ -95,6 +95,7 @@ GridLayout {
     TextField {
         text: Radioactive.blur
         placeholderText: qsTr("Blur")
+        selectByMouse: true
         validator: RegExpValidator {
             regExp: /\d+/
         }
@@ -108,6 +109,7 @@ GridLayout {
     TextField {
         text: Radioactive.zoom
         placeholderText: qsTr("Zoom")
+        selectByMouse: true
         validator: RegExpValidator {
             regExp: /\d+\.\d+|\d+\.|\.\d+|\d+/
         }
@@ -121,6 +123,7 @@ GridLayout {
     TextField {
         text: Radioactive.threshold
         placeholderText: qsTr("Threshold")
+        selectByMouse: true
         validator: RegExpValidator {
             regExp: /\d+/
         }
@@ -140,6 +143,7 @@ GridLayout {
     TextField {
         text: Radioactive.lumaThreshold
         placeholderText: lumaLabel.text
+        selectByMouse: true
         validator: RegExpValidator {
             regExp: /\d+/
         }
@@ -157,6 +161,7 @@ GridLayout {
     TextField {
         text: Radioactive.alphaDiff
         placeholderText: alphaDiffLabel.text
+        selectByMouse: true
         validator: RegExpValidator {
             regExp: /-?\d+/
         }

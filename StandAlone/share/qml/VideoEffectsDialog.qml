@@ -67,6 +67,7 @@ Dialog {
                 TextField {
                     id: searchEffect
                     placeholderText: qsTr("Search effect")
+                    selectByMouse: true
                     Layout.fillWidth: true
                 }
                 ScrollView {

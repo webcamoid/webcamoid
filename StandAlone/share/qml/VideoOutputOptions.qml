@@ -67,7 +67,7 @@ ScrollView {
                 AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
 
             onClicked: {
-                if (videoLayer.canApply(VideoLayer.OperationEdit)) {
+                if (videoLayer.clientsPids.length < 1) {
                     view.openVideoOutputAddEditDialog(view.videoOutput)
                 } else {
                     let title = qsTr("Can't Edit The Virtual Camera")
@@ -86,7 +86,7 @@ ScrollView {
                 AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
 
             onClicked: {
-                if (videoLayer.canApply(VideoLayer.OperationDestroy)) {
+                if (videoLayer.clientsPids.length < 1) {
                     videoLayer.removeInterface("itmVideoOutputOptions")
                     videoLayer.removeOutput(view.videoOutput)
                     view.videoOutputRemoved()

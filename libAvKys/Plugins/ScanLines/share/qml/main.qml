@@ -55,6 +55,7 @@ GridLayout {
     TextField {
         text: ScanLines.showSize
         placeholderText: qsTr("Show lines")
+        selectByMouse: true
         validator: RegExpValidator {
             regExp: /\d+/
         }
@@ -68,6 +69,7 @@ GridLayout {
     TextField {
         text: ScanLines.hideSize
         placeholderText: qsTr("Hide lines")
+        selectByMouse: true
         validator: RegExpValidator {
             regExp: /\d+/
         }

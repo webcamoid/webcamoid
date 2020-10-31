@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/Flip">
+        <file>share/qml/main.qml</file>
+    </qresource>
+</RCC>

@@ -81,6 +81,8 @@ OptionsPanel {
                 layout.currentIndex = 3
                 videoOutputOptions.setOutput(videoOutput)
             }
+            onOpenVideoOutputPictureDialog:
+                videoOutputPicture.open()
         }
         VideoInputOptions {
             id: videoInputOptions
@@ -132,5 +134,9 @@ OptionsPanel {
         onAddFormat: videoOutputAddEdit.addFormat(caps)
         onChangeFormat: videoOutputAddEdit.changeFormat(index, caps)
         onRemoveFormat: videoOutputAddEdit.removeFormat(index)
+    }
+    VideoOutputPicture {
+        id: videoOutputPicture
+        anchors.centerIn: Overlay.overlay
     }
 }

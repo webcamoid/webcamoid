@@ -166,10 +166,10 @@ GridLayout {
     TextField {
         text: FaceTrack.scanSize.width + "x" + FaceTrack.scanSize.height
         placeholderText: qsTr("Scan block")
+        selectByMouse: true
         validator: RegExpValidator {
             regExp: /\d+x\d+/
         }
-        selectByMouse: true
         Layout.fillWidth: true
 
         onAccepted: FaceTrack.scanSize = strToSize(text)
@@ -408,11 +408,11 @@ GridLayout {
         TextField {
             text: AkFrac.create(FaceTrack.aspectRatio).string.replace("/", ":")
             placeholderText: qsTr("e.g. 16:9, 4:3")
+            selectByMouse: true
             validator: RegExpValidator {
                 regExp: /\d+:\d+/
             }
             enabled: FaceTrack.overrideAspectRatio
-            selectByMouse: true
             Layout.fillWidth: true
 
             onTextChanged: {

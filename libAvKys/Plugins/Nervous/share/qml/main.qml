@@ -30,6 +30,7 @@ GridLayout {
     TextField {
         text: Nervous.nFrames
         placeholderText: qsTr("N° of frames")
+        selectByMouse: true
         validator: RegExpValidator {
             regExp: /\d+/
         }

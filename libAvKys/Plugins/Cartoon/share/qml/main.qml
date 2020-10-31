@@ -211,11 +211,12 @@ GridLayout {
     TextField {
         text: Cartoon.scanSize.width + "x" + Cartoon.scanSize.height
         placeholderText: qsTr("Scan block")
-        Layout.columnSpan: 2
+        selectByMouse: true
         validator: RegExpValidator {
             regExp: /\d+x\d+/
         }
         Layout.fillWidth: true
+        Layout.columnSpan: 2
 
         onTextChanged: Cartoon.scanSize = strToSize(text)
     }

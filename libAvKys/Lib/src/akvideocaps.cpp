@@ -641,6 +641,45 @@ size_t AkVideoCaps::planeSize(int plane) const
             / size_t(vf->planes_div[plane]);
 }
 
+AkVideoCaps AkVideoCaps::nearest(const AkVideoCapsList &caps) const
+{
+    AkVideoCaps nearestCap;
+    auto q = std::numeric_limits<uint64_t>::max();
+    auto svf = VideoFormat::byFormat(this->d->m_format);
+
+    for (auto &cap: caps) {
+        auto vf = VideoFormat::byFormat(cap.d->m_format);
+        uint64_t diffFourcc = cap.d->m_format == this->d->m_format? 0: 1;
+        auto diffWidth = cap.d->m_width - this->d->m_width;
+        auto diffHeight = cap.d->m_height - this->d->m_height;
+        auto diffBpp = vf->bpp - svf->bpp;
+        auto diffPlanes = vf->planes.size() - svf->planes.size();
+        int diffPlanesBits = 0;
+
+        if (vf->planes != svf->planes) {
+            for (auto &bits: vf->planes)
+                diffPlanesBits += bits;
+
+            for (auto &bits: svf->planes)
+                diffPlanesBits -= bits;
+        }
+
+        uint64_t k = diffFourcc
+                   + uint64_t(diffWidth * diffWidth)
+                   + uint64_t(diffHeight * diffHeight)
+                   + diffBpp * diffBpp
+                   + diffPlanes * diffPlanes
+                   + diffPlanesBits * diffPlanesBits;
+
+        if (k < q) {
+            nearestCap = cap;
+            q = k;
+        }
+    }
+
+    return nearestCap;
+}
+
 int AkVideoCaps::bitsPerPixel(AkVideoCaps::PixelFormat pixelFormat)
 {
     return VideoFormat::byFormat(pixelFormat)->bpp;

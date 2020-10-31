@@ -77,8 +77,7 @@ MediaTools::MediaTools(QObject *parent):
             PluginConfigsPtr(new PluginConfigs(this->d->m_cliOptions,
                                                this->d->m_engine));
     this->d->m_videoLayer =
-            VideoLayerPtr(new VideoLayer(this->d->m_cliOptions,
-                                          this->d->m_engine));
+            VideoLayerPtr(new VideoLayer(this->d->m_engine));
     this->d->m_audioLayer = AudioLayerPtr(new AudioLayer(this->d->m_engine));
     this->d->m_videoEffects =
             VideoEffectsPtr(new VideoEffects(this->d->m_engine));

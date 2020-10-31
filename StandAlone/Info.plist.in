@@ -23,6 +23,10 @@
         <key>NSSupportsAutomaticGraphicsSwitching</key>
         <true/>
         <key>NSCameraUsageDescription</key>
-        <string>Webcamoid needs permissions for camera capture</string>
+        <string>Give permissions to Webcamoid for camera capture</string>
+        <key>NSMicrophoneUsageDescription</key>
+        <string>Give permissions to Webcamoid for microphone recording</string>
+        <key>NSPhotoLibraryUsageDescription</key>
+        <string>Give permissions to Webcamoid for accessing your photo library</string>
     </dict>
 </plist>

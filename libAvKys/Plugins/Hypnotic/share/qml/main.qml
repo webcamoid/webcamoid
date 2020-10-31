@@ -84,6 +84,7 @@ GridLayout {
     TextField {
         text: Hypnotic.speedInc
         placeholderText: qsTr("Speed increment")
+        selectByMouse: true
         validator: RegExpValidator {
             regExp: /-?\d+/
         }

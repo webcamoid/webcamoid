@@ -123,6 +123,7 @@ GridLayout {
     TextField {
         text: Fire.dissolve
         placeholderText: qsTr("Dissolve")
+        selectByMouse: true
         validator: RegExpValidator {
             regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
         }
@@ -139,6 +140,7 @@ GridLayout {
     TextField {
         text: Fire.blur
         placeholderText: qsTr("Blur")
+        selectByMouse: true
         validator: RegExpValidator {
             regExp: /\d+/
         }
@@ -155,6 +157,7 @@ GridLayout {
     TextField {
         text: Fire.zoom
         placeholderText: qsTr("Zoom")
+        selectByMouse: true
         validator: RegExpValidator {
             regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
         }

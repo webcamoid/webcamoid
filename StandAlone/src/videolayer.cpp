@@ -65,6 +65,10 @@ class VideoLayerPrivate
                                        AK_PLUGIN_TYPE_ELEMENT_SETTINGS)
         };
         AkElementPtr m_cameraOutput {AkElement::create("VirtualCamera")};
+        ObjectPtr m_cameraOutputSettings {
+            AkElement::create<QObject>("VirtualCamera",
+                                       AK_PLUGIN_TYPE_ELEMENT_SETTINGS)
+        };
         AkElement::ElementState m_state {AkElement::ElementStateNull};
         bool m_playOnStart {true};
         bool m_outputsAsInputs {false};
@@ -81,7 +85,7 @@ class VideoLayerPrivate
                            const QString &name) const;
         void setInputAudioCaps(const AkAudioCaps &audioCaps);
         void setInputVideoCaps(const AkVideoCaps &videoCaps);
-        void loadProperties(const CliOptions &cliOptions);
+        void loadProperties();
         void saveVideoInput(const QString &videoInput);
         void saveVideoOutput(const QString &videoOutput);
         void saveStreams(const QMap<QString, QString> &streams);
@@ -95,18 +99,7 @@ VideoLayer::VideoLayer(QQmlApplicationEngine *engine, QObject *parent):
     this->d = new VideoLayerPrivate(this);
     this->setQmlEngine(engine);
     this->d->connectSignals();
-    this->d->loadProperties({});
-}
-
-VideoLayer::VideoLayer(const CliOptions &cliOptions,
-                       QQmlApplicationEngine *engine,
-                       QObject *parent):
-    QObject(parent)
-{
-    this->d = new VideoLayerPrivate(this);
-    this->setQmlEngine(engine);
-    this->d->connectSignals();
-    this->d->loadProperties(cliOptions);
+    this->d->loadProperties();
 }
 
 VideoLayer::~VideoLayer()
@@ -446,32 +439,33 @@ QString VideoLayer::clientExe(quint64 pid) const
     return exe;
 }
 
-bool VideoLayer::needsRestart(Operation operation) const
+bool VideoLayer::driverInstalled() const
 {
     if (!this->d->m_cameraOutput)
-        return {};
+        return false;
 
-    bool result = false;
-    QMetaObject::invokeMethod(this->d->m_cameraOutput.data(),
-                              "needsRestart",
-                              Q_RETURN_ARG(bool, result),
-                              Q_ARG(Operation, operation));
-
-    return result;
+    return this->d->m_cameraOutput->property("driverInstalled").toBool();
 }
 
-bool VideoLayer::canApply(Operation operation) const
+QString VideoLayer::picture() const
 {
     if (!this->d->m_cameraOutput)
         return {};
 
-    bool result = false;
-    QMetaObject::invokeMethod(this->d->m_cameraOutput.data(),
-                              "canApply",
-                              Q_RETURN_ARG(bool, result),
-                              Q_ARG(Operation, operation));
+    return this->d->m_cameraOutput->property("picture").toString();
+}
 
-    return result;
+bool VideoLayer::applyPicture()
+{
+    if (!this->d->m_cameraOutput)
+        return {};
+
+    bool ok = false;
+    QMetaObject::invokeMethod(this->d->m_cameraOutput.data(),
+                              "applyPicture",
+                              Q_RETURN_ARG(bool, ok));
+
+    return ok;
 }
 
 void VideoLayer::setInputStream(const QString &stream,
@@ -614,6 +608,12 @@ void VideoLayer::setOutputsAsInputs(bool outputsAsInputs)
     this->updateInputs();
 }
 
+void VideoLayer::setPicture(const QString &picture)
+{
+    if (this->d->m_cameraOutput)
+        this->d->m_cameraOutput->setProperty("picture", picture);
+}
+
 void VideoLayer::resetVideoInput()
 {
     this->setVideoInput({});
@@ -637,6 +637,13 @@ void VideoLayer::resetPlayOnStart()
 void VideoLayer::resetOutputsAsInputs()
 {
     this->setOutputsAsInputs(false);
+}
+
+void VideoLayer::resetPicture()
+{
+    if (this->d->m_cameraOutput)
+        QMetaObject::invokeMethod(this->d->m_cameraOutput.data(),
+                                  "resetPicture");
 }
 
 void VideoLayer::setQmlEngine(QQmlApplicationEngine *engine)
@@ -824,6 +831,22 @@ void VideoLayer::saveMultiSrcCodecLib(const QString &codecLib)
     config.endGroup();
 }
 
+void VideoLayer::saveVirtualCameraOutputLib(const QString &outputLib)
+{
+    QSettings config;
+    config.beginGroup("Libraries");
+    config.setValue("VirtualCamera.outputLib", outputLib);
+    config.endGroup();
+}
+
+void VideoLayer::saveVirtualCameraRootMethod(const QString &rootMethod)
+{
+    QSettings config;
+    config.beginGroup("Libraries");
+    config.setValue("VirtualCamera.rootMethod", rootMethod);
+    config.endGroup();
+}
+
 AkPacket VideoLayer::iStream(const AkPacket &packet)
 {
     if (this->d->m_cameraOutput
@@ -928,6 +951,10 @@ void VideoLayerPrivate::connectSignals()
                          SIGNAL(mediasChanged(const QStringList &)),
                          self,
                          SIGNAL(outputsChanged(const QStringList &)));
+        QObject::connect(this->m_cameraOutput.data(),
+                         SIGNAL(pictureChanged(const QString &)),
+                         self,
+                         SIGNAL(pictureChanged(const QString &)));
     }
 
     if (this->m_cameraOutput) {
@@ -939,6 +966,17 @@ void VideoLayerPrivate::connectSignals()
                          SIGNAL(errorChanged(const QString &)),
                          self,
                          SIGNAL(outputErrorChanged(const QString &)));
+    }
+
+    if (this->m_cameraOutputSettings) {
+        QObject::connect(this->m_cameraOutputSettings.data(),
+                         SIGNAL(outputLibChanged(const QString &)),
+                         self,
+                         SLOT(saveVirtualCameraOutputLib(const QString &)));
+        QObject::connect(this->m_cameraOutputSettings.data(),
+                         SIGNAL(rootMethodChanged(const QString &)),
+                         self,
+                         SLOT(saveVirtualCameraRootMethod(const QString &)));
     }
 }
 
@@ -1061,7 +1099,7 @@ void VideoLayerPrivate::setInputVideoCaps(const AkVideoCaps &inputVideoCaps)
     emit self->inputVideoCapsChanged(inputVideoCaps);
 }
 
-void VideoLayerPrivate::loadProperties(const CliOptions &cliOptions)
+void VideoLayerPrivate::loadProperties()
 {
     QSettings config;
     config.beginGroup("Libraries");
@@ -1091,6 +1129,17 @@ void VideoLayerPrivate::loadProperties(const CliOptions &cliOptions)
         this->m_uriCapture->setProperty("codecLib", codecLib);
     }
 
+    if (this->m_cameraOutputSettings) {
+        auto outputLib =
+                config.value("VirtualCamera.outputLib",
+                             this->m_cameraOutputSettings->property("outputLib"));
+        this->m_cameraOutputSettings->setProperty("outputLib", outputLib);
+        auto rootMethod =
+                config.value("VirtualCamera.rootMethod",
+                             this->m_cameraOutputSettings->property("rootMethod"));
+        this->m_cameraOutputSettings->setProperty("rootMethod", rootMethod);
+    }
+
     config.endGroup();
 
     config.beginGroup("StreamConfigs");
@@ -1113,19 +1162,6 @@ void VideoLayerPrivate::loadProperties(const CliOptions &cliOptions)
     this->m_outputsAsInputs = config.value("loopback", false).toBool();
 
     if (this->m_cameraOutput) {
-        auto optPaths = cliOptions.value(cliOptions.vcamPathOpt()).split(';');
-        QStringList driverPaths;
-
-        for (auto path: optPaths) {
-            path = MediaTools::convertToAbsolute(path);
-
-            if (QFileInfo::exists(path))
-                driverPaths << path;
-        }
-
-        QMetaObject::invokeMethod(this->m_cameraOutput.data(),
-                                  "addDriverPaths",
-                                  Q_ARG(QStringList, driverPaths));
         auto streams = this->m_cameraOutput->property("medias").toStringList();
         auto stream = config.value("stream", streams.value(0)).toString();
         this->m_videoOutput = QStringList {stream};

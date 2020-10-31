@@ -218,6 +218,7 @@ GridLayout {
     TextField {
         text: FaceDetect.scanSize.width + "x" + FaceDetect.scanSize.height
         placeholderText: qsTr("Scan block")
+        selectByMouse: true
         validator: RegExpValidator {
             regExp: /\d+x\d+/
         }
@@ -326,6 +327,7 @@ GridLayout {
     TextField {
         text: FaceDetect.markerWidth
         placeholderText: qsTr("Marker width")
+        selectByMouse: true
         validator: RegExpValidator {
             regExp: /\d+/
         }
@@ -517,6 +519,7 @@ GridLayout {
             id: txtTable
             text: FaceDetect.markerImage
             placeholderText: qsTr("Replace face with this picture")
+            selectByMouse: true
             Layout.fillWidth: true
 
             onTextChanged: {
@@ -549,6 +552,7 @@ GridLayout {
     TextField {
         text: FaceDetect.pixelGridSize.width + "x" + FaceDetect.pixelGridSize.height
         placeholderText: qsTr("Pixel grid size")
+        selectByMouse: true
         validator: RegExpValidator {
             regExp: /\d+x\d+/
         }
@@ -564,6 +568,7 @@ GridLayout {
     TextField {
         text: FaceDetect.blurRadius
         placeholderText: qsTr("Blur radius")
+        selectByMouse: true
         validator: RegExpValidator {
             regExp: /\d+/
         }
@@ -578,6 +583,6 @@ GridLayout {
         nameFilters: ["Image files (*.bmp *.gif *.jpg *.jpeg *.png *.pbm *.pgm *.ppm *.xbm *.xpm)"]
         folder: "file://" + picturesPath
 
-        onAccepted: FaceDetect.markerImage = String(fileUrl).replace("file://", "")
+        onAccepted: FaceDetect.markerImage = String(file).replace("file://", "")
     }
 }

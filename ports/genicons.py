@@ -21,20 +21,25 @@
 import os
 import shutil
 import subprocess # nosec
+import tempfile
+import uuid
 
 # Utils
 
 def createPng(inputFile, outputFile, size, dpi):
-    if not shutil.which('convert'):
+    if not shutil.which('inkscape'):
         return
 
-    subprocess.Popen(['convert',  # nosec
-                      '-density', '{0}'.format(dpi),
-                      '-resize', '{0}x{0}'.format(size),
-                      '-background', 'none',
+    # Convert SVG to PNG.
+    subprocess.Popen(['inkscape',  # nosec
+                      '-d', '{0}'.format(dpi),
+                      '-w', '{0}'.format(size),
+                      '-h', '{0}'.format(size),
                       inputFile,
+                      '-o',
                       outputFile]).communicate()
 
+    # Optimize PNG.
     if shutil.which('pngquant'):
         subprocess.Popen(['pngquant',
                           '--verbose',
@@ -48,16 +53,34 @@ def createPng(inputFile, outputFile, size, dpi):
                           '-zw', '32k',
                           outputFile]).communicate()
 
+    # Remove metadata.
+    if shutil.which('exiv2'):
+        subprocess.Popen(['exiv2',
+                          'rm',
+                          outputFile]).communicate()
+
 def createIco(inputFile, outputFile, size, dpi):
-    if not shutil.which('convert'):
+    if not shutil.which('inkscape'):
         return
 
-    subprocess.Popen(['convert',  # nosec
-                      '-density', '{0}'.format(dpi),
-                      '-resize', '{0}x{0}'.format(size),
-                      '-background', 'none',
+    # Convert SVG to PNG.
+    tmpFile = os.path.join(tempfile.gettempdir(), 'tmp-' + str(uuid.uuid4()) + '.png')
+    subprocess.Popen(['inkscape',  # nosec
+                      '-d', '{0}'.format(dpi),
+                      '-w', '{0}'.format(size),
+                      '-h', '{0}'.format(size),
                       inputFile,
-                      outputFile]).communicate()
+                      '-o',
+                      tmpFile]).communicate()
+
+    # Convert PNG to ICO.
+    if shutil.which('convert'):
+        subprocess.Popen(['convert',
+                          tmpFile,
+                          outputFile]).communicate()
+
+    if os.path.exists(tmpFile):
+        os.remove(tmpFile)
 
 def createIcns(outputFile, icons):
     if not shutil.which('png2icns'):
@@ -91,6 +114,7 @@ for root, _, files in os.walk('../StandAlone/share/themes/WebcamoidTheme/icons')
             basename, _ = os.path.splitext(f)
             tmpPath = os.path.realpath(os.path.join(root, basename + '.tmp.svg'))
 
+            # Optimize SVG.
             if shutil.which('scour'):
                 subprocess.Popen(['scour',
                                   '--enable-viewboxing',

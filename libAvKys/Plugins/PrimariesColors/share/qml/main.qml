@@ -30,6 +30,7 @@ GridLayout {
     TextField {
         text: PrimariesColors.factor
         placeholderText: qsTr("Factor")
+        selectByMouse: true
         validator: RegExpValidator {
             regExp: /\d+/
         }

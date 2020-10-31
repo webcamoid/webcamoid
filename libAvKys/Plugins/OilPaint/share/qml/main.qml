@@ -30,6 +30,7 @@ GridLayout {
     TextField {
         text: OilPaint.radius
         placeholderText: qsTr("Radius")
+        selectByMouse: true
         validator: RegExpValidator {
             regExp: /\d+/
         }
