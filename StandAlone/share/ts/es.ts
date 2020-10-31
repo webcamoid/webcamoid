@@ -574,12 +574,12 @@
     <message>
         <location filename="../qml/VideoCodecOptions.qml" line="162"/>
         <source>Bitrate</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tasa de Bits</translation>
     </message>
     <message>
         <location filename="../qml/VideoCodecOptions.qml" line="166"/>
         <source>Bitrate (bits/secs)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tasa de bits (bits/seg)</translation>
     </message>
     <message>
         <location filename="../qml/VideoCodecOptions.qml" line="177"/>
@@ -833,12 +833,12 @@
     <message>
         <location filename="../qml/VideoOptions.qml" line="39"/>
         <source>Sources</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fuentes</translation>
     </message>
     <message>
         <location filename="../qml/VideoOptions.qml" line="42"/>
         <source>Outputs</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Salidas</translation>
     </message>
 </context>
 <context>
@@ -2492,12 +2492,12 @@ duration (seconds)</source>
     <message>
         <location filename="../../../libAvKys/Plugins/Scale/share/qml/main.qml" line="42"/>
         <source>Width</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ancho</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Scale/share/qml/main.qml" line="55"/>
         <source>Height</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Alto</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Scale/share/qml/main.qml" line="68"/>

@@ -319,7 +319,7 @@
     <message>
         <location filename="../../src/clioptions.cpp" line="43"/>
         <source>Webcam capture application.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Webkamera rögzítési alkalmazás.</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="46"/>
@@ -390,7 +390,7 @@
     <message>
         <location filename="../qml/SettingsDialog.qml" line="79"/>
         <source>Plugins</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Beépülő modulok</translation>
     </message>
     <message>
         <location filename="../qml/SettingsDialog.qml" line="80"/>
@@ -427,12 +427,12 @@
     <message>
         <location filename="../qml/SettingsMenu.qml" line="37"/>
         <source>Video</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Videó</translation>
     </message>
     <message>
         <location filename="../qml/SettingsMenu.qml" line="43"/>
         <source>Audio</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Hang</translation>
     </message>
     <message>
         <location filename="../qml/SettingsMenu.qml" line="49"/>
@@ -574,12 +574,12 @@
     <message>
         <location filename="../qml/VideoCodecOptions.qml" line="162"/>
         <source>Bitrate</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Átviteli sebesség</translation>
     </message>
     <message>
         <location filename="../qml/VideoCodecOptions.qml" line="166"/>
         <source>Bitrate (bits/secs)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Átviteli sebesség (bit/mp)</translation>
     </message>
     <message>
         <location filename="../qml/VideoCodecOptions.qml" line="177"/>
@@ -702,7 +702,7 @@
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="136"/>
         <source>Search</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Keresés</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="215"/>
@@ -833,12 +833,12 @@
     <message>
         <location filename="../qml/VideoOptions.qml" line="39"/>
         <source>Sources</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Források</translation>
     </message>
     <message>
         <location filename="../qml/VideoOptions.qml" line="42"/>
         <source>Outputs</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Kimenetek</translation>
     </message>
 </context>
 <context>
@@ -932,7 +932,7 @@
     <message>
         <location filename="../qml/VideoOutputPicture.qml" line="65"/>
         <source>Search</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Keresés</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputPicture.qml" line="90"/>
@@ -978,7 +978,7 @@
     <message>
         <location filename="../qml/VideoRecording.qml" line="117"/>
         <source>Search</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Keresés</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="125"/>
@@ -988,7 +988,7 @@
     <message>
         <location filename="../qml/VideoRecording.qml" line="135"/>
         <source>File format</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Fájlformátum</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="164"/>
@@ -1121,7 +1121,7 @@
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="541"/>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="142"/>
         <source>Search</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Keresés</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="119"/>
@@ -1196,7 +1196,7 @@
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="185"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="176"/>
         <source>Quality</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Minőség</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="189"/>
@@ -1482,7 +1482,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/DesktopCapture/share/qml/main.qml" line="48"/>
         <source>Frame rate</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Képkockasebesség</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Distort/share/qml/main.qml" line="29"/>
@@ -2492,12 +2492,12 @@ duration (seconds)</source>
     <message>
         <location filename="../../../libAvKys/Plugins/Scale/share/qml/main.qml" line="42"/>
         <source>Width</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Szélesség</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Scale/share/qml/main.qml" line="55"/>
         <source>Height</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Magasság</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Scale/share/qml/main.qml" line="68"/>
