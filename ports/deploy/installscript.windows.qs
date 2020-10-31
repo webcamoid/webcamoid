@@ -17,5 +17,5 @@ Component.prototype.createOperations = function()
     for (var dir in installDir)
         component.addOperation("CreateShortcut",
                                 "@TargetDir@/bin/webcamoid.exe",
-                                installDir[dir] + "/webcamoid.lnk");
+                                installDir[dir] + "/Webcamoid.lnk");
 }

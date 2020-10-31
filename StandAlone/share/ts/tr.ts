@@ -6,17 +6,17 @@
     <message>
         <location filename="../qml/About.qml" line="58"/>
         <source>Version %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Versiyon %1</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="62"/>
         <source>Using Qt %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt %1 Kullanılıyor</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="66"/>
         <source>Website</source>
-        <translation type="unfinished"></translation>
+        <translation>Websitesi</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="75"/>

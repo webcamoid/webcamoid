@@ -6,27 +6,27 @@
     <message>
         <location filename="../qml/About.qml" line="58"/>
         <source>Version %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Verzió: %1</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="62"/>
         <source>Using Qt %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt %1 használata</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="66"/>
         <source>Website</source>
-        <translation type="unfinished"></translation>
+        <translation>Honlap</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="75"/>
         <source>Webcam capture application.</source>
-        <translation type="unfinished"></translation>
+        <translation>Webkamera rögzítési alkalmazás.</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="78"/>
         <source>A simple webcam application for picture and video capture.</source>
-        <translation type="unfinished"></translation>
+        <translation>Egyszerű webkamera alkalmazás kép- és videorögzítés készítéséhez.</translation>
     </message>
 </context>
 <context>
@@ -34,37 +34,37 @@
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="42"/>
         <source>Add Video Format</source>
-        <translation type="unfinished"></translation>
+        <translation>Videóformátum hozzáadása</translation>
     </message>
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="43"/>
         <source>Change Video Format</source>
-        <translation type="unfinished"></translation>
+        <translation>Videóformátum módosítása</translation>
     </message>
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="95"/>
         <source>Remove format</source>
-        <translation type="unfinished"></translation>
+        <translation>Formátum eltávolítása</translation>
     </message>
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="106"/>
         <source>Format</source>
-        <translation type="unfinished"></translation>
+        <translation>Formátum</translation>
     </message>
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="115"/>
         <source>Width</source>
-        <translation type="unfinished"></translation>
+        <translation>Szélesség</translation>
     </message>
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="126"/>
         <source>Height</source>
-        <translation type="unfinished"></translation>
+        <translation>Magasság</translation>
     </message>
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="137"/>
         <source>Frame rate</source>
-        <translation type="unfinished"></translation>
+        <translation>Képkockasebesség</translation>
     </message>
 </context>
 <context>
@@ -72,17 +72,17 @@
     <message>
         <location filename="../qml/AudioCodecOptions.qml" line="27"/>
         <source>Audio Codec Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Hangkodek beállításai</translation>
     </message>
     <message>
         <location filename="../qml/AudioCodecOptions.qml" line="159"/>
         <source>Bitrate</source>
-        <translation type="unfinished"></translation>
+        <translation>Átviteli sebesség</translation>
     </message>
     <message>
         <location filename="../qml/AudioCodecOptions.qml" line="163"/>
         <source>Bitrate (bits/secs)</source>
-        <translation type="unfinished"></translation>
+        <translation>Átviteli sebesség (bit/mp)</translation>
     </message>
 </context>
 <context>
@@ -90,30 +90,30 @@
     <message>
         <location filename="../qml/AudioDeviceOptions.qml" line="27"/>
         <source>Audio Device Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Hangeszköz beállításai</translation>
     </message>
     <message>
         <location filename="../qml/AudioDeviceOptions.qml" line="131"/>
         <source>Sample Format</source>
         <extracomment>An sample represents the strength of the wave at a certain time. A sample can be expressed as the number of bits defining it (more bits better sound), the type of data representing it (signed integer, unsigned integer, floating point), and the endianness of the data (big endian, little endian). The sample format is the representation of that information. For example, &apos;s16le&apos; means that each sample format is represented by a 16 bits signed integer arranged as little endian.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Mintaformátum</translation>
     </message>
     <message>
         <location filename="../qml/AudioDeviceOptions.qml" line="153"/>
         <source>Channels</source>
-        <translation type="unfinished"></translation>
+        <translation>Csatornák</translation>
     </message>
     <message>
         <location filename="../qml/AudioDeviceOptions.qml" line="176"/>
         <source>Sample Rate</source>
         <extracomment>Number of audio samples per channel to be played per second.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Mintavételi sebesség</translation>
     </message>
     <message>
         <location filename="../qml/AudioDeviceOptions.qml" line="207"/>
         <source>Latency (ms)</source>
         <extracomment>The latency is the amount of accumulated audio ready to play, measured in time. Higher latency == smoother audio playback, but more desynchronization with the video. Lowerer latency == audio synchronization near to the video, but glitchy audio playback. https://en.wikipedia.org/wiki/Latency_(audio)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Késés (ezredmásodperc)</translation>
     </message>
 </context>
 <context>
@@ -121,7 +121,7 @@
     <message>
         <location filename="../../src/audiolayer.cpp" line="279"/>
         <source>Silence</source>
-        <translation type="unfinished"></translation>
+        <translation>Csend</translation>
     </message>
 </context>
 <context>
@@ -129,12 +129,12 @@
     <message>
         <location filename="../qml/AudioOptions.qml" line="30"/>
         <source>Outputs</source>
-        <translation type="unfinished"></translation>
+        <translation>Kimenetek</translation>
     </message>
     <message>
         <location filename="../qml/AudioOptions.qml" line="33"/>
         <source>Sources</source>
-        <translation type="unfinished"></translation>
+        <translation>Források</translation>
     </message>
 </context>
 <context>
@@ -142,22 +142,22 @@
     <message>
         <location filename="../qml/AudioVideoPanel.qml" line="27"/>
         <source>Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Hang</translation>
     </message>
     <message>
         <location filename="../qml/AudioVideoPanel.qml" line="29"/>
         <source>Video</source>
-        <translation type="unfinished"></translation>
+        <translation>Videó</translation>
     </message>
     <message>
         <location filename="../qml/AudioVideoPanel.qml" line="31"/>
         <source>Video Source Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Videoforrás beállításai</translation>
     </message>
     <message>
         <location filename="../qml/AudioVideoPanel.qml" line="32"/>
         <source>Video Output Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Videokimeneti beállításai</translation>
     </message>
 </context>
 <context>
@@ -186,48 +186,48 @@
     <message>
         <location filename="../qml/GeneralConfig.qml" line="75"/>
         <source>Video capture</source>
-        <translation type="unfinished"></translation>
+        <translation>Videorögzítő</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="85"/>
         <source>Desktop capture</source>
-        <translation type="unfinished"></translation>
+        <translation>Asztali rögzítő</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="95"/>
         <source>Audio capture/play</source>
-        <translation type="unfinished"></translation>
+        <translation>Hang rögzítése/lejátszása</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="105"/>
         <source>Video convert</source>
-        <translation type="unfinished"></translation>
+        <translation>Videó átalakítása</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="115"/>
         <source>Audio convert</source>
-        <translation type="unfinished"></translation>
+        <translation>Hang átalakítása</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="155"/>
         <source>Virtual camera driver</source>
-        <translation type="unfinished"></translation>
+        <translation>Virtuális kamera illesztőprogram</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="125"/>
         <source>Video playback</source>
-        <translation type="unfinished"></translation>
+        <translation>Videólejátszás</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="56"/>
         <source>Play sources on start</source>
         <extracomment>Start playing the webcam and other sources right after * opening Webcamoid.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Források rögzítése indításkor</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="66"/>
         <source>Frameworks and libraries</source>
-        <translation type="unfinished"></translation>
+        <translation>Keretrendszerek és könyvtárak</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="135"/>
@@ -245,22 +245,22 @@
     <message>
         <location filename="../qml/ImageCapture.qml" line="39"/>
         <source>Images directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Képek könyvtár</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="49"/>
         <source>Search</source>
-        <translation type="unfinished"></translation>
+        <translation>Keresés</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="57"/>
         <source>File format</source>
-        <translation type="unfinished"></translation>
+        <translation>Fájlformátum</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="86"/>
         <source>Quality</source>
-        <translation type="unfinished"></translation>
+        <translation>Minőség</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="111"/>
@@ -286,7 +286,7 @@
     <message>
         <location filename="../qml/PluginConfig.qml" line="38"/>
         <source>Plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>Beépülő modulok</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="115"/>
@@ -306,7 +306,7 @@
     <message>
         <location filename="../qml/PluginConfig.qml" line="201"/>
         <source>Update</source>
-        <translation type="unfinished"></translation>
+        <translation>Frissítés</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="247"/>
