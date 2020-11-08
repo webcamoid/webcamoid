@@ -302,8 +302,7 @@ bool VCamAk::setControls(const QVariantMap &controls)
         int fd = open(output.toStdString().c_str(), O_RDWR | O_NONBLOCK, 0);
 
         if (fd >= 0) {
-            auto result = true;
-
+            bool result = true;
             v4l2_capability capabilities;
             memset(&capabilities, 0, sizeof(v4l2_capability));
 
