@@ -922,22 +922,22 @@
     <message>
         <location filename="../qml/VideoOutputPicture.qml" line="27"/>
         <source>Virtual camera output picture</source>
-        <translation type="unfinished"></translation>
+        <translation>תמונת פלט של מצלמה וירטואלית</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputPicture.qml" line="60"/>
         <source>Virtual camera default output picture</source>
-        <translation type="unfinished"></translation>
+        <translation>תמונת פלט בררת המחדל של מצלמה וירטואלית</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputPicture.qml" line="65"/>
         <source>Search</source>
-        <translation type="unfinished">חיפוש</translation>
+        <translation>חיפוש</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputPicture.qml" line="90"/>
         <source>Please choose an image file</source>
-        <translation type="unfinished">נא לבחור קובץ תמונה</translation>
+        <translation>נא לבחור קובץ תמונה</translation>
     </message>
 </context>
 <context>
@@ -960,7 +960,7 @@
     <message>
         <location filename="../qml/VideoOutputs.qml" line="68"/>
         <source>Set output picture</source>
-        <translation type="unfinished"></translation>
+        <translation>הגדרת תמונת פלט</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="53"/>
@@ -2483,57 +2483,57 @@ duration (seconds)</source>
     <message>
         <location filename="../../../libAvKys/Plugins/Flip/share/qml/main.qml" line="28"/>
         <source>Flip horizontally</source>
-        <translation type="unfinished"></translation>
+        <translation>היפוך אופקי</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Flip/share/qml/main.qml" line="37"/>
         <source>Flip vertically</source>
-        <translation type="unfinished"></translation>
+        <translation>היפוך אנכי</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Scale/share/qml/main.qml" line="42"/>
         <source>Width</source>
-        <translation type="unfinished">רוחב</translation>
+        <translation>רוחב</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Scale/share/qml/main.qml" line="55"/>
         <source>Height</source>
-        <translation type="unfinished">גובה</translation>
+        <translation>גובה</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Scale/share/qml/main.qml" line="68"/>
         <source>Scaling mode</source>
-        <translation type="unfinished"></translation>
+        <translation>מצב שינוי גודל</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Scale/share/qml/main.qml" line="76"/>
         <source>Fast</source>
-        <translation type="unfinished"></translation>
+        <translation>מהיר</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Scale/share/qml/main.qml" line="80"/>
         <source>Linear</source>
-        <translation type="unfinished"></translation>
+        <translation>קווי</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Scale/share/qml/main.qml" line="88"/>
         <source>Aspect ratio mode</source>
-        <translation type="unfinished"></translation>
+        <translation>מצב יחס תצוגה</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Scale/share/qml/main.qml" line="96"/>
         <source>Ignore</source>
-        <translation type="unfinished"></translation>
+        <translation>התעלמות</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Scale/share/qml/main.qml" line="100"/>
         <source>Keep</source>
-        <translation type="unfinished"></translation>
+        <translation>שימור</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Scale/share/qml/main.qml" line="104"/>
         <source>Expanding</source>
-        <translation type="unfinished"></translation>
+        <translation>מתרחב</translation>
     </message>
 </context>
 </TS>

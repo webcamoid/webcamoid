@@ -380,7 +380,7 @@
     <message>
         <location filename="../qml/SettingsDialog.qml" line="77"/>
         <source>Video Recording</source>
-        <translation>Снять Видео</translation>
+        <translation>Запись видео</translation>
     </message>
     <message>
         <location filename="../qml/SettingsDialog.qml" line="78"/>
@@ -922,22 +922,22 @@
     <message>
         <location filename="../qml/VideoOutputPicture.qml" line="27"/>
         <source>Virtual camera output picture</source>
-        <translation type="unfinished"></translation>
+        <translation>Выходное изображение виртуальной камеры</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputPicture.qml" line="60"/>
         <source>Virtual camera default output picture</source>
-        <translation type="unfinished"></translation>
+        <translation>Выходное изображение виртуальной камеры по умолчанию</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputPicture.qml" line="65"/>
         <source>Search</source>
-        <translation type="unfinished">Поиск</translation>
+        <translation>Поиск</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputPicture.qml" line="90"/>
         <source>Please choose an image file</source>
-        <translation type="unfinished">Пожалуйста, выберите файл изображения</translation>
+        <translation>Пожалуйста, выберите файл изображения</translation>
     </message>
 </context>
 <context>
@@ -960,7 +960,7 @@
     <message>
         <location filename="../qml/VideoOutputs.qml" line="68"/>
         <source>Set output picture</source>
-        <translation type="unfinished"></translation>
+        <translation>Установить выходное изображение</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="53"/>
@@ -2483,57 +2483,57 @@ duration (seconds)</source>
     <message>
         <location filename="../../../libAvKys/Plugins/Flip/share/qml/main.qml" line="28"/>
         <source>Flip horizontally</source>
-        <translation type="unfinished"></translation>
+        <translation>Отразить по горизонтали</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Flip/share/qml/main.qml" line="37"/>
         <source>Flip vertically</source>
-        <translation type="unfinished"></translation>
+        <translation>Отразить по вертикали</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Scale/share/qml/main.qml" line="42"/>
         <source>Width</source>
-        <translation type="unfinished">Ширина</translation>
+        <translation>Ширина</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Scale/share/qml/main.qml" line="55"/>
         <source>Height</source>
-        <translation type="unfinished">Высота</translation>
+        <translation>Высота</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Scale/share/qml/main.qml" line="68"/>
         <source>Scaling mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Режим масштабирования</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Scale/share/qml/main.qml" line="76"/>
         <source>Fast</source>
-        <translation type="unfinished"></translation>
+        <translation>Быстрый</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Scale/share/qml/main.qml" line="80"/>
         <source>Linear</source>
-        <translation type="unfinished"></translation>
+        <translation>Линейный</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Scale/share/qml/main.qml" line="88"/>
         <source>Aspect ratio mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Режим соотношения сторон</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Scale/share/qml/main.qml" line="96"/>
         <source>Ignore</source>
-        <translation type="unfinished"></translation>
+        <translation>Игнорировать</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Scale/share/qml/main.qml" line="100"/>
         <source>Keep</source>
-        <translation type="unfinished"></translation>
+        <translation>Оставить</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Scale/share/qml/main.qml" line="104"/>
         <source>Expanding</source>
-        <translation type="unfinished"></translation>
+        <translation>Расширение</translation>
     </message>
 </context>
 </TS>

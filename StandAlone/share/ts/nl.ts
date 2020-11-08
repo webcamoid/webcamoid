@@ -922,22 +922,22 @@
     <message>
         <location filename="../qml/VideoOutputPicture.qml" line="27"/>
         <source>Virtual camera output picture</source>
-        <translation type="unfinished"></translation>
+        <translation>Uitvoerfoto van virtuele camera</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputPicture.qml" line="60"/>
         <source>Virtual camera default output picture</source>
-        <translation type="unfinished"></translation>
+        <translation>Standaard uitvoerfoto van virtuele camera</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputPicture.qml" line="65"/>
         <source>Search</source>
-        <translation type="unfinished">Zoeken</translation>
+        <translation>Zoeken</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputPicture.qml" line="90"/>
         <source>Please choose an image file</source>
-        <translation type="unfinished">Kies een afbeeldingsbestand</translation>
+        <translation>Kies een afbeeldingsbestand</translation>
     </message>
 </context>
 <context>
@@ -960,7 +960,7 @@
     <message>
         <location filename="../qml/VideoOutputs.qml" line="68"/>
         <source>Set output picture</source>
-        <translation type="unfinished"></translation>
+        <translation>Uitvoerfoto instellen</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="53"/>
@@ -2483,57 +2483,57 @@ duur (in seconden)</translation>
     <message>
         <location filename="../../../libAvKys/Plugins/Flip/share/qml/main.qml" line="28"/>
         <source>Flip horizontally</source>
-        <translation type="unfinished"></translation>
+        <translation>Horizontaal spiegelen</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Flip/share/qml/main.qml" line="37"/>
         <source>Flip vertically</source>
-        <translation type="unfinished"></translation>
+        <translation>Verticaal spiegelen</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Scale/share/qml/main.qml" line="42"/>
         <source>Width</source>
-        <translation type="unfinished">Breedte</translation>
+        <translation>Breedte</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Scale/share/qml/main.qml" line="55"/>
         <source>Height</source>
-        <translation type="unfinished">Hoogte</translation>
+        <translation>Hoogte</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Scale/share/qml/main.qml" line="68"/>
         <source>Scaling mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Beelgroottemodus</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Scale/share/qml/main.qml" line="76"/>
         <source>Fast</source>
-        <translation type="unfinished"></translation>
+        <translation>Snel</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Scale/share/qml/main.qml" line="80"/>
         <source>Linear</source>
-        <translation type="unfinished"></translation>
+        <translation>Lineair</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Scale/share/qml/main.qml" line="88"/>
         <source>Aspect ratio mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Beeldverhoudingsmodus</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Scale/share/qml/main.qml" line="96"/>
         <source>Ignore</source>
-        <translation type="unfinished"></translation>
+        <translation>Negeren</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Scale/share/qml/main.qml" line="100"/>
         <source>Keep</source>
-        <translation type="unfinished"></translation>
+        <translation>Behouden</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Scale/share/qml/main.qml" line="104"/>
         <source>Expanding</source>
-        <translation type="unfinished"></translation>
+        <translation>Uitrekken</translation>
     </message>
 </context>
 </TS>
