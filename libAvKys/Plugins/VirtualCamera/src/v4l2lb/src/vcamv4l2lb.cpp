@@ -176,6 +176,7 @@ class VCamV4L2LoopBackPrivate
         bool waitForDevices(const QStringList &devices) const;
         inline QStringList v4l2Devices() const;
         QList<DeviceInfo> devicesInfo() const;
+        inline QString stringFromIoctl(ulong cmd) const;
 };
 
 VCamV4L2LoopBack::VCamV4L2LoopBack(QObject *parent):
@@ -1078,6 +1079,14 @@ int VCamV4L2LoopBackPrivate::xioctl(int fd, ulong request, void *arg) const
         if (r != -1 || errno != EINTR)
             break;
     }
+
+#if 0
+    if (r < 0)
+        qDebug() << this->stringFromIoctl(request).toStdString().c_str()
+                 << ":"
+                 << strerror(errno)
+                 << QString("(%1)").arg(errno).toStdString().c_str();
+#endif
 
     return r;
 }
@@ -2118,6 +2127,108 @@ QList<DeviceInfo> VCamV4L2LoopBackPrivate::devicesInfo() const
     }
 
     return devices;
+}
+
+inline QString VCamV4L2LoopBackPrivate::stringFromIoctl(ulong cmd) const
+{
+    static const QMap<ulong, QString> ioctlStrings {
+#ifdef UVCIOC_CTRL_MAP
+        {UVCIOC_CTRL_MAP           , "UVCIOC_CTRL_MAP"           },
+#endif
+#ifdef UVCIOC_CTRL_QUERY
+        {UVCIOC_CTRL_QUERY         , "UVCIOC_CTRL_QUERY"         },
+#endif
+        {VIDIOC_QUERYCAP           , "VIDIOC_QUERYCAP"           },
+#ifdef VIDIOC_RESERVED
+        {VIDIOC_RESERVED           , "VIDIOC_RESERVED"           },
+#endif
+        {VIDIOC_ENUM_FMT           , "VIDIOC_ENUM_FMT"           },
+        {VIDIOC_G_FMT              , "VIDIOC_G_FMT"              },
+        {VIDIOC_S_FMT              , "VIDIOC_S_FMT"              },
+        {VIDIOC_REQBUFS            , "VIDIOC_REQBUFS"            },
+        {VIDIOC_QUERYBUF           , "VIDIOC_QUERYBUF"           },
+        {VIDIOC_G_FBUF             , "VIDIOC_G_FBUF"             },
+        {VIDIOC_S_FBUF             , "VIDIOC_S_FBUF"             },
+        {VIDIOC_OVERLAY            , "VIDIOC_OVERLAY"            },
+        {VIDIOC_QBUF               , "VIDIOC_QBUF"               },
+        {VIDIOC_EXPBUF             , "VIDIOC_EXPBUF"             },
+        {VIDIOC_DQBUF              , "VIDIOC_DQBUF"              },
+        {VIDIOC_STREAMON           , "VIDIOC_STREAMON"           },
+        {VIDIOC_STREAMOFF          , "VIDIOC_STREAMOFF"          },
+        {VIDIOC_G_PARM             , "VIDIOC_G_PARM"             },
+        {VIDIOC_S_PARM             , "VIDIOC_S_PARM"             },
+        {VIDIOC_G_STD              , "VIDIOC_G_STD"              },
+        {VIDIOC_S_STD              , "VIDIOC_S_STD"              },
+        {VIDIOC_ENUMSTD            , "VIDIOC_ENUMSTD"            },
+        {VIDIOC_ENUMINPUT          , "VIDIOC_ENUMINPUT"          },
+        {VIDIOC_G_CTRL             , "VIDIOC_G_CTRL"             },
+        {VIDIOC_S_CTRL             , "VIDIOC_S_CTRL"             },
+        {VIDIOC_G_TUNER            , "VIDIOC_G_TUNER"            },
+        {VIDIOC_S_TUNER            , "VIDIOC_S_TUNER"            },
+        {VIDIOC_G_AUDIO            , "VIDIOC_G_AUDIO"            },
+        {VIDIOC_S_AUDIO            , "VIDIOC_S_AUDIO"            },
+        {VIDIOC_QUERYCTRL          , "VIDIOC_QUERYCTRL"          },
+        {VIDIOC_QUERYMENU          , "VIDIOC_QUERYMENU"          },
+        {VIDIOC_G_INPUT            , "VIDIOC_G_INPUT"            },
+        {VIDIOC_S_INPUT            , "VIDIOC_S_INPUT"            },
+        {VIDIOC_G_EDID             , "VIDIOC_G_EDID"             },
+        {VIDIOC_S_EDID             , "VIDIOC_S_EDID"             },
+        {VIDIOC_G_OUTPUT           , "VIDIOC_G_OUTPUT"           },
+        {VIDIOC_S_OUTPUT           , "VIDIOC_S_OUTPUT"           },
+        {VIDIOC_ENUMOUTPUT         , "VIDIOC_ENUMOUTPUT"         },
+        {VIDIOC_G_AUDOUT           , "VIDIOC_G_AUDOUT"           },
+        {VIDIOC_S_AUDOUT           , "VIDIOC_S_AUDOUT"           },
+        {VIDIOC_G_MODULATOR        , "VIDIOC_G_MODULATOR"        },
+        {VIDIOC_S_MODULATOR        , "VIDIOC_S_MODULATOR"        },
+        {VIDIOC_G_FREQUENCY        , "VIDIOC_G_FREQUENCY"        },
+        {VIDIOC_S_FREQUENCY        , "VIDIOC_S_FREQUENCY"        },
+        {VIDIOC_CROPCAP            , "VIDIOC_CROPCAP"            },
+        {VIDIOC_G_CROP             , "VIDIOC_G_CROP"             },
+        {VIDIOC_S_CROP             , "VIDIOC_S_CROP"             },
+        {VIDIOC_G_JPEGCOMP         , "VIDIOC_G_JPEGCOMP"         },
+        {VIDIOC_S_JPEGCOMP         , "VIDIOC_S_JPEGCOMP"         },
+        {VIDIOC_QUERYSTD           , "VIDIOC_QUERYSTD"           },
+        {VIDIOC_TRY_FMT            , "VIDIOC_TRY_FMT"            },
+        {VIDIOC_ENUMAUDIO          , "VIDIOC_ENUMAUDIO"          },
+        {VIDIOC_ENUMAUDOUT         , "VIDIOC_ENUMAUDOUT"         },
+        {VIDIOC_G_PRIORITY         , "VIDIOC_G_PRIORITY"         },
+        {VIDIOC_S_PRIORITY         , "VIDIOC_S_PRIORITY"         },
+        {VIDIOC_G_SLICED_VBI_CAP   , "VIDIOC_G_SLICED_VBI_CAP"   },
+        {VIDIOC_LOG_STATUS         , "VIDIOC_LOG_STATUS"         },
+        {VIDIOC_G_EXT_CTRLS        , "VIDIOC_G_EXT_CTRLS"        },
+        {VIDIOC_S_EXT_CTRLS        , "VIDIOC_S_EXT_CTRLS"        },
+        {VIDIOC_TRY_EXT_CTRLS      , "VIDIOC_TRY_EXT_CTRLS"      },
+        {VIDIOC_ENUM_FRAMESIZES    , "VIDIOC_ENUM_FRAMESIZES"    },
+        {VIDIOC_ENUM_FRAMEINTERVALS, "VIDIOC_ENUM_FRAMEINTERVALS"},
+        {VIDIOC_G_ENC_INDEX        , "VIDIOC_G_ENC_INDEX"        },
+        {VIDIOC_ENCODER_CMD        , "VIDIOC_ENCODER_CMD"        },
+        {VIDIOC_TRY_ENCODER_CMD    , "VIDIOC_TRY_ENCODER_CMD"    },
+        {VIDIOC_DBG_S_REGISTER     , "VIDIOC_DBG_S_REGISTER"     },
+        {VIDIOC_DBG_G_REGISTER     , "VIDIOC_DBG_G_REGISTER"     },
+        {VIDIOC_S_HW_FREQ_SEEK     , "VIDIOC_S_HW_FREQ_SEEK"     },
+        {VIDIOC_S_DV_TIMINGS       , "VIDIOC_S_DV_TIMINGS"       },
+        {VIDIOC_G_DV_TIMINGS       , "VIDIOC_G_DV_TIMINGS"       },
+        {VIDIOC_DQEVENT            , "VIDIOC_DQEVENT"            },
+        {VIDIOC_SUBSCRIBE_EVENT    , "VIDIOC_SUBSCRIBE_EVENT"    },
+        {VIDIOC_UNSUBSCRIBE_EVENT  , "VIDIOC_UNSUBSCRIBE_EVENT"  },
+        {VIDIOC_CREATE_BUFS        , "VIDIOC_CREATE_BUFS"        },
+        {VIDIOC_PREPARE_BUF        , "VIDIOC_PREPARE_BUF"        },
+        {VIDIOC_G_SELECTION        , "VIDIOC_G_SELECTION"        },
+        {VIDIOC_S_SELECTION        , "VIDIOC_S_SELECTION"        },
+        {VIDIOC_DECODER_CMD        , "VIDIOC_DECODER_CMD"        },
+        {VIDIOC_TRY_DECODER_CMD    , "VIDIOC_TRY_DECODER_CMD"    },
+        {VIDIOC_ENUM_DV_TIMINGS    , "VIDIOC_ENUM_DV_TIMINGS"    },
+        {VIDIOC_QUERY_DV_TIMINGS   , "VIDIOC_QUERY_DV_TIMINGS"   },
+        {VIDIOC_DV_TIMINGS_CAP     , "VIDIOC_DV_TIMINGS_CAP"     },
+        {VIDIOC_ENUM_FREQ_BANDS    , "VIDIOC_ENUM_FREQ_BANDS"    },
+        {VIDIOC_DBG_G_CHIP_INFO    , "VIDIOC_DBG_G_CHIP_INFO"    },
+#ifdef VIDIOC_QUERY_EXT_CTRL
+        {VIDIOC_QUERY_EXT_CTRL     , "VIDIOC_QUERY_EXT_CTRL"     },
+#endif
+    };
+
+    return ioctlStrings.value(cmd,
+                              QString("VIDIOC_UNKNOWN(%1)").arg(cmd));
 }
 
 #include "moc_vcamv4l2lb.cpp"
