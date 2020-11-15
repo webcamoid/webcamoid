@@ -66,7 +66,7 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
     export ORIG_PATH="${PATH}"
 
     for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
-        export PATH="${PWD}/build/Qt/${QTVER}/android/bin:${ORIG_PATH}"
+        export PATH="${PWD}/build/Qt/${QTVER_ANDROID}/android/bin:${ORIG_PATH}"
         mkdir build-webcamoid-${arch_}
         cd build-webcamoid-${arch_}
         qmake -query
@@ -173,7 +173,7 @@ fi
 
 if [ "${ANDROID_BUILD}" = 1 ]; then
     for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
-        export PATH="${PWD}/build/Qt/${QTVER}/android/bin:${ORIG_PATH}"
+        export PATH="${PWD}/build/Qt/${QTVER_ANDROID}/android/bin:${ORIG_PATH}"
         cd build-webcamoid-${arch_}
         make -j${NJOBS}
         cd ..

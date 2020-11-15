@@ -107,8 +107,8 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
     mv -vf android-ndk-${NDKVER} android-ndk
 
     # Install Qt for Android
-    fileName="qt-opensource-linux-x64-${QTVER}.run"
-    ${DOWNLOAD_CMD} "https://download.qt.io/archive/qt/${QTVER:0:4}/${QTVER}/${fileName}"
+    fileName=qt-opensource-linux-x64-${QTVER_ANDROID}.run
+    ${DOWNLOAD_CMD} "https://download.qt.io/archive/qt/${QTVER:0:4}/${QTVER_ANDROID}/${fileName}"
     chmod +x ${fileName}
 
     # Shutdown network connection so Qt installer does not ask for credentials.
@@ -117,7 +117,7 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
 
     export QT_QPA_PLATFORM=minimal
 
-    ./qt-opensource-linux-x64-${QTVER}.run \
+    ./qt-opensource-linux-x64-${QTVER_ANDROID}.run \
         ${qtIinstallerVerbose} \
         --script "$PWD/../ports/ci/travis/qt_non_interactive_install.qs" \
         --no-force-installations

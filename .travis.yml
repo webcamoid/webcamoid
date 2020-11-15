@@ -8,15 +8,16 @@ cache:
 
 env:
   global:
-    - QTVER=5.14.1
-    - PPAQTVER=514
-    - QTIFWVER=3.2.2
+    - QTVER=5.15.0
+    - PPAQTVER=515
+    - QTVER_ANDROID=5.14.1
+    - QTIFWVER=4.0.0
     - APPIMAGEVER=12
-    - ARCH_ROOT_DATE=2020.10.01
+    - ARCH_ROOT_DATE=2020.11.01
     - ARCH_ROOT_URL=https://mirror.rackspace.com/archlinux
-    - SDKVER=6200805
-    - NDKVER=r21
-    - ANDROID_BUILD_TOOLS_VERSION=29.0.3
+    - SDKVER=6858069
+    - NDKVER=r21b
+    - ANDROID_BUILD_TOOLS_VERSION=30.0.2
     - GITHUB_HUBVER=2.14.2
     # BT_KEY
     - secure: "RiR23dM8ft06+5ezNAlfpJXNRQhFH2Cy3hTY9oWD6nyw0qsydgOA9qlogBP0o1/kikyqt2uxv/VRcqZnBV3nkwEg9AuiCRgOuKqMtFdxwNnF8wqxUUz4pun9FQGLNnKkIznJkV61vsuRs8GSO95X3KEwgsoGPD60WQDDuFj3wXcI1kIN7HEP1t3Kq8lbhsYhbMPPeZBUGYcEjuWMz/GcfdcEUQLD6F0bkfEQgLZ+/d5Nqxk3NTJGM/LUYLKuWOthqsK7qNp/BCTRnOCg44NV3XO0DXti4lNkbtbfbLZIEMfD5EeTnbznBd+AHH2OTnw2Gn5ViVz7Z2C9mZgcN+/XyEJi7K80ab9DR9s+ZLMFO2yyF6MVf7/qiOzL0RT7lGFHt2HPLBpTji3qmgPN4JXaXKfF3nIzOjaoUibhTzwh5NlMpkAFlydmYwhBS3argsKQgeck3YTWUUnQVFvkmhFHVZzFBGtqy+0dPr9WGyay0mKKYpnLHqGk74K23dGnBKzk+iJs9o9zVQaSdvS5XnSeRsQCAYlqEKy/sSdrZnLYAOaLv1f291CIm76+e5B2sIkZaGcox7d3rcYw/tqn7ozgsKcyT1BJq8/ZyYSXsIT826ZeDiZd4MFjSQTeas5c9V85btDq2W9LvA66KqzTq0dH5pfJ67+BJJ7ebxUf4HNw6ME="
@@ -26,29 +27,29 @@ env:
 matrix:
   include:
   - os: linux
-    dist: bionic
+    dist: focal
     compiler: gcc
     env:
       - ARCH_ROOT_BUILD=1
   - os: linux
-    dist: bionic
+    dist: focal
     compiler: clang
     env:
       - ARCH_ROOT_BUILD=1
   - os: linux
-    dist: bionic
+    dist: focal
     compiler: gcc
     env:
       - ARCH_ROOT_BUILD=1
       - ARCH_ROOT_MINGW=x86_64
   - os: linux
-    dist: bionic
+    dist: focal
     compiler: gcc
     env:
       - ARCH_ROOT_BUILD=1
       - ARCH_ROOT_MINGW=i686
   - os: linux
-    dist: bionic
+    dist: focal
     services:
       - docker
     compiler: gcc
@@ -56,7 +57,7 @@ matrix:
       - DOCKERSYS=debian
       - DOCKERIMG=debian:testing
   - os: linux
-    dist: bionic
+    dist: focal
     services:
       - docker
     compiler: clang
@@ -64,7 +65,7 @@ matrix:
       - DOCKERSYS=debian
       - DOCKERIMG=debian:testing
   - os: linux
-    dist: bionic
+    dist: focal
     services:
       - docker
     compiler: gcc
@@ -73,7 +74,7 @@ matrix:
       - DOCKERIMG=fedora:rawhide
       - FEDORAVER=rawhide
   - os: linux
-    dist: bionic
+    dist: focal
     services:
       - docker
     compiler: clang
@@ -82,7 +83,7 @@ matrix:
       - DOCKERIMG=fedora:rawhide
       - FEDORAVER=rawhide
   - os: linux
-    dist: bionic
+    dist: focal
     services:
       - docker
     compiler: gcc
@@ -90,7 +91,7 @@ matrix:
       - DOCKERSYS=opensuse
       - DOCKERIMG=opensuse/tumbleweed
   - os: linux
-    dist: bionic
+    dist: focal
     services:
       - docker
     compiler: clang
@@ -98,25 +99,25 @@ matrix:
       - DOCKERSYS=opensuse
       - DOCKERIMG=opensuse/tumbleweed
   - os: linux
-    dist: bionic
+    dist: focal
     services:
       - docker
     compiler: gcc
     env:
       - DOCKERSYS=debian
-      - DOCKERIMG=ubuntu:bionic
+      - DOCKERIMG=ubuntu:focal
       - DAILY_BUILD=1
   - os: linux
-    dist: bionic
+    dist: focal
     services:
       - docker
     compiler: gcc
     env:
       - DOCKERSYS=debian
-      - DOCKERIMG=ubuntu:bionic
+      - DOCKERIMG=ubuntu:focal
       - RELEASE_BUILD=1
   - os: linux
-    dist: bionic
+    dist: focal
     services:
       - docker
     compiler: gcc
@@ -124,7 +125,7 @@ matrix:
       - DOCKERSYS=debian
       - DOCKERIMG=ubuntu:latest
   - os: linux
-    dist: bionic
+    dist: focal
     services:
       - docker
     compiler: clang
@@ -132,7 +133,7 @@ matrix:
       - DOCKERSYS=debian
       - DOCKERIMG=ubuntu:latest
   - os: linux
-    dist: bionic
+    dist: focal
     services:
       - docker
     compiler: gcc
@@ -140,7 +141,7 @@ matrix:
       - DOCKERSYS=debian
       - DOCKERIMG=ubuntu:devel
   - os: linux
-    dist: bionic
+    dist: focal
     services:
       - docker
     compiler: clang
@@ -193,8 +194,11 @@ matrix:
   - os: osx
     osx_image: xcode12u
     compiler: clang
+  - os: osx
+    osx_image: xcode12.2
+    compiler: clang
   - os: linux
-    dist: bionic
+    dist: focal
     compiler: clang
     env:
       - ANDROID_BUILD=1
@@ -202,7 +206,7 @@ matrix:
       - COMPILER=clang
       - TARGET_ARCH=armeabi-v7a
   - os: linux
-    dist: bionic
+    dist: focal
     compiler: clang
     env:
       - ANDROID_BUILD=1
@@ -210,7 +214,7 @@ matrix:
       - COMPILER=clang
       - TARGET_ARCH=arm64-v8a
   - os: linux
-    dist: bionic
+    dist: focal
     compiler: clang
     env:
       - ANDROID_BUILD=1
@@ -218,7 +222,7 @@ matrix:
       - COMPILER=clang
       - TARGET_ARCH=x86
   - os: linux
-    dist: bionic
+    dist: focal
     compiler: clang
     env:
       - ANDROID_BUILD=1
@@ -226,7 +230,7 @@ matrix:
       - COMPILER=clang
       - TARGET_ARCH=x86_64
   - os: linux
-    dist: bionic
+    dist: focal
     compiler: clang
     env:
       - ANDROID_BUILD=1
