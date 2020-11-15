@@ -47,6 +47,9 @@ class DeployToolsQt(tools.utils.DeployToolsUtils):
         self.dependencies = []
         self.binarySolver = None
         self.installerConfig = ''
+        self.appIcon = ''
+        self.installerRunProgram = ''
+        self.adminRights = False
 
     def detectQt(self, path=''):
         self.detectQmake(path)
@@ -515,8 +518,12 @@ class DeployToolsQt(tools.utils.DeployToolsUtils):
         if not os.path.exists(metaDir):
             os.makedirs(metaDir)
 
-        self.copy(self.appIcon, self.installerConfig)
-        iconName = os.path.splitext(os.path.basename(self.appIcon))[0]
+        iconName = ''
+
+        if self.appIcon != '' and os.path.exists(self.appIcon):
+            self.copy(self.appIcon, self.installerConfig)
+            iconName = os.path.splitext(os.path.basename(self.appIcon))[0]
+
         licenseOutFile = os.path.basename(self.licenseFile)
 
         if not '.' in licenseOutFile and \
@@ -543,14 +550,18 @@ class DeployToolsQt(tools.utils.DeployToolsUtils):
             config.write('    <Title>{}</Title>\n'.format(packageConf['Package']['description'].strip()))
             config.write('    <Publisher>{}</Publisher>\n'.format(appName))
             config.write('    <ProductUrl>{}</ProductUrl>\n'.format(packageConf['Package']['url'].strip()))
-            config.write('    <InstallerWindowIcon>{}</InstallerWindowIcon>\n'.format(iconName))
-            config.write('    <InstallerApplicationIcon>{}</InstallerApplicationIcon>\n'.format(iconName))
-            config.write('    <Logo>{}</Logo>\n'.format(iconName))
-            config.write('    <TitleColor>{}</TitleColor>\n'.format(packageConf['Package']['titleColor'].strip()))
-            config.write('    <RunProgram>{}</RunProgram>\n'.format(self.installerRunProgram))
-            config.write('    <RunProgramDescription>{}</RunProgramDescription>\n'.format(packageConf['Package']['runMessage'].strip()))
-            config.write('    <StartMenuDir>{}</StartMenuDir>\n'.format(appName))
-            config.write('    <MaintenanceToolName>{}MaintenanceTool</MaintenanceToolName>\n'.format(appName))
+
+            if iconName != '':
+                config.write('    <InstallerWindowIcon>{}</InstallerWindowIcon>\n'.format(iconName))
+                config.write('    <InstallerApplicationIcon>{}</InstallerApplicationIcon>\n'.format(iconName))
+                config.write('    <Logo>{}</Logo>\n'.format(iconName))
+
+            if self.installerRunProgram != '':
+                config.write('    <RunProgram>{}</RunProgram>\n'.format(self.installerRunProgram))
+                config.write('    <RunProgramDescription>{}</RunProgramDescription>\n'.format(packageConf['Package']['runMessage'].strip()))
+                config.write('    <StartMenuDir>{}</StartMenuDir>\n'.format(appName))
+
+            config.write('    <MaintenanceToolName>{}Uninstall</MaintenanceToolName>\n'.format(appName))
             config.write('    <AllowNonAsciiCharacters>true</AllowNonAsciiCharacters>\n')
             config.write('    <TargetDir>{}</TargetDir>\n'.format(self.installerTargetDir))
             config.write('</Installer>\n')
@@ -587,6 +598,10 @@ class DeployToolsQt(tools.utils.DeployToolsUtils):
             f.write('    <Default>true</Default>\n')
             f.write('    <ForcedInstallation>true</ForcedInstallation>\n')
             f.write('    <Essential>false</Essential>\n')
+
+            if self.adminRights:
+                f.write('    <RequiresAdminRights>true</RequiresAdminRights>\n')
+
             f.write('</Package>\n')
 
         # Remove old file

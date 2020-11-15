@@ -75,7 +75,7 @@ class Deploy(deploy_base.DeployBase,
         self.mainBinary = os.path.join(self.binaryInstallDir, os.path.basename(binary))
         self.programVersion = self.detectVersion(os.path.join(self.rootDir, 'commons.pri'))
         self.detectMake()
-        self.binarySolver.readExcludeList(os.path.join(self.rootDir, 'ports/deploy/exclude.android.txt'))
+        self.binarySolver.readExcludeList(os.path.join(self.rootDir, 'ports/deploy/tools/exclude/exclude.android.txt'))
         self.binarySolver.libsSeachPaths += [self.qmakeQuery(var='QT_INSTALL_LIBS')]
         self.packageConfig = os.path.join(self.rootDir, 'ports/deploy/package_info.conf')
         self.dependencies = []
@@ -94,7 +94,8 @@ class Deploy(deploy_base.DeployBase,
 
     def prepare(self):
         print('Executing make install')
-        self.makeInstall(self.buildDir, self.rootInstallDir)
+        params = {'INSTALL_ROOT': self.rootInstallDir}
+        self.makeInstall(self.buildDir, params)
         self.binarySolver.detectStrip()
 
         if 'PACKAGES_MERGE' in os.environ \

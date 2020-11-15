@@ -212,16 +212,12 @@ class DeployToolsUtils:
 
                 break
 
-    def makeInstall(self, buildDir, installRoot=''):
+    def makeInstall(self, buildDir, params={}):
         previousDir = os.getcwd()
         os.chdir(buildDir)
-
-        if installRoot == '':
-            process = subprocess.Popen([self.make, 'install'], # nosec
-                                       stdout=subprocess.PIPE)
-        else:
-            process = subprocess.Popen([self.make, 'INSTALL_ROOT=' + installRoot, 'install'], # nosec
-                                       stdout=subprocess.PIPE)
+        params_ = [key + '=' + params[key] for key in params]
+        process = subprocess.Popen([self.make, 'install'] + params_, # nosec
+                                    stdout=subprocess.PIPE)
 
         process.communicate()
         os.chdir(previousDir)
