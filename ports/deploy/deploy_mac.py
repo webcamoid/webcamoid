@@ -28,14 +28,16 @@ import sys
 import threading
 import time
 
-import deploy_base
-import tools.binary_mach
-import tools.qt5
+from WebcamoidDeployTools import DTDeployBase
+from WebcamoidDeployTools import DTQt5
+from WebcamoidDeployTools import DTBinaryMach
 
 
-class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
+class Deploy(DTDeployBase.DeployBase, DTQt5.Qt5Tools):
     def __init__(self):
         super().__init__()
+        rootDir = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../..'))
+        self.setRootDir(rootDir)
         self.installDir = os.path.join(self.buildDir, 'ports/deploy/temp_priv')
         self.pkgsDir = os.path.join(self.buildDir, 'ports/deploy/packages_auto', self.targetSystem)
         self.detectQt(os.path.join(self.buildDir, 'StandAlone'))
@@ -57,8 +59,8 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
         if 'android' in xspec:
             self.targetSystem = 'android'
 
-        self.binarySolver = tools.binary_mach.DeployToolsBinary()
-        self.binarySolver.readExcludeList(os.path.join(self.rootDir, 'ports/deploy/tools/exclude/exclude.{}.{}.txt'.format(os.name, sys.platform)))
+        self.binarySolver = DTBinaryMach.MachBinaryTools()
+        self.binarySolver.readExcludes(os.name, sys.platform)
         self.packageConfig = os.path.join(self.rootDir, 'ports/deploy/package_info.conf')
         self.dependencies = []
         self.installerConfig = os.path.join(self.installDir, 'installer/config')

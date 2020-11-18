@@ -1,2 +1,0 @@
-C:/Windows/System32/.*
-C:/Program Files/.*

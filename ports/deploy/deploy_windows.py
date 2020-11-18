@@ -27,14 +27,16 @@ import sys
 import threading
 import zipfile
 
-import deploy_base
-import tools.binary_pecoff
-import tools.qt5
+from WebcamoidDeployTools import DTDeployBase
+from WebcamoidDeployTools import DTQt5
+from WebcamoidDeployTools import DTBinaryPecoff
 
 
-class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
+class Deploy(DTDeployBase.DeployBase, DTQt5.Qt5Tools):
     def __init__(self):
         super().__init__()
+        rootDir = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../..'))
+        self.setRootDir(rootDir)
         self.installDir = os.path.join(self.buildDir, 'ports/deploy/temp_priv')
         self.pkgsDir = os.path.join(self.buildDir, 'ports/deploy/packages_auto/windows')
         self.detectQt(os.path.join(self.buildDir, 'StandAlone'))
@@ -63,8 +65,8 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
         if 'android' in xspec:
             self.targetSystem = 'android'
 
-        self.binarySolver = tools.binary_pecoff.DeployToolsBinary()
-        self.binarySolver.readExcludeList(os.path.join(self.rootDir, 'ports/deploy/tools/exclude/exclude.{}.{}.txt'.format(os.name, sys.platform)))
+        self.binarySolver = DTBinaryPecoff.PecoffBinaryTools()
+        self.binarySolver.readExcludes(os.name, sys.platform)
         self.packageConfig = os.path.join(self.rootDir, 'ports/deploy/package_info.conf')
         self.dependencies = []
         self.installerConfig = os.path.join(self.installDir, 'installer/config')

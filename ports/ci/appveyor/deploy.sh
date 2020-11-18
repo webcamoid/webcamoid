@@ -20,10 +20,16 @@
 
 [ -f environment.sh ] && source environment.sh
 
+cd ports/deploy
+git clone https://github.com/webcamoid/DeployTools.git
+cd ../..
+
 if [ "${PLATFORM}" = x86 ]; then
     export PATH=/mingw32/bin:$PATH
 else
     export PATH=/mingw64/bin:$PATH
 fi
+
+export PYTHONPATH="${PWD}/ports/deploy/DeployTools"
 
 python3 ports/deploy/deploy.py

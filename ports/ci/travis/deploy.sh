@@ -28,6 +28,10 @@ elif [ "${TRAVIS_OS_NAME}" = linux ] && [ -z "${ANDROID_BUILD}" ]; then
     fi
 fi
 
+cd ports/deploy
+git clone https://github.com/webcamoid/DeployTools.git
+cd ../..
+
 DEPLOYSCRIPT=deployscript.sh
 
 if [ "${ANDROID_BUILD}" = 1 ]; then
@@ -51,6 +55,7 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
     if [ "${nArchs}" = 1 ]; then
         export PATH="${PWD}/build/Qt/${QTVER_ANDROID}/android/bin:${PWD}/.local/bin:${ORIG_PATH}"
         export BUILD_PATH=${PWD}/build-webcamoid-${lastArch}
+        export PYTHONPATH="${PWD}/ports/deploy/DeployTools"
 
         python3 ports/deploy/deploy.py
     else
@@ -67,6 +72,7 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
         for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
             export PATH="${PWD}/build/Qt/${QTVER_ANDROID}/android/bin:${PWD}/.local/bin:${ORIG_PATH}"
             export BUILD_PATH=${PWD}/build-webcamoid-${arch_}
+            export PYTHONPATH="${PWD}/ports/deploy/DeployTools"
 
             if [ "${arch_}" = "${lastArch}" ]; then
                 export PACKAGES_PREPARE_ONLY=0
@@ -105,6 +111,7 @@ EOF
     fi
 
     cat << EOF >> ${DEPLOYSCRIPT}
+export PYTHONPATH="\${PWD}/ports/deploy/DeployTools"
 python ports/deploy/deploy.py
 EOF
     chmod +x ${DEPLOYSCRIPT}
@@ -118,6 +125,7 @@ elif [ "${TRAVIS_OS_NAME}" = linux ]; then
 #!/bin/sh
 
 export PATH="\$PWD/.local/bin:\$PATH"
+export PYTHONPATH="\${PWD}/ports/deploy/DeployTools"
 xvfb-run --auto-servernum python3 ports/deploy/deploy.py
 EOF
 
@@ -125,5 +133,6 @@ EOF
 
     ${EXEC} bash ${DEPLOYSCRIPT}
 elif [ "${TRAVIS_OS_NAME}" = osx ]; then
-    ${EXEC} python3 ports/deploy/deploy.py
+    export PYTHONPATH="${PWD}/ports/deploy/DeployTools"
+    python3 ports/deploy/deploy.py
 fi

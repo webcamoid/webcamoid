@@ -29,15 +29,13 @@ import sys
 import threading
 import zipfile
 
-import deploy_base
-import tools.android
-import tools.binary_elf
-import tools.qt5
+from WebcamoidDeployTools import DTDeployBase
+from WebcamoidDeployTools import DTQt5
+from WebcamoidDeployTools import DTBinaryElf
+from WebcamoidDeployTools import DTAndroid
 
 
-class Deploy(deploy_base.DeployBase,
-             tools.qt5.DeployToolsQt,
-             tools.android.AndroidTools):
+class Deploy(DTDeployBase.DeployBase, DTQt5.Qt5Tools, DTAndroid.AndroidTools):
     def __init__(self):
         super().__init__()
         self.targetSystem = 'android'
@@ -46,7 +44,7 @@ class Deploy(deploy_base.DeployBase,
         self.standAloneDir = os.path.join(self.buildDir, 'StandAlone')
         self.detectQt(self.standAloneDir)
         self.programName = 'webcamoid'
-        self.binarySolver = tools.binary_elf.DeployToolsBinary()
+        self.binarySolver = DTBinaryElf.ElfBinaryTools()
         self.detectAndroidPlatform(self.standAloneDir)
         binary = self.detectTargetBinaryFromQt5Make(self.standAloneDir)
         self.targetArch = self.binarySolver.machineEMCode(binary)
@@ -75,7 +73,7 @@ class Deploy(deploy_base.DeployBase,
         self.mainBinary = os.path.join(self.binaryInstallDir, os.path.basename(binary))
         self.programVersion = self.detectVersion(os.path.join(self.rootDir, 'commons.pri'))
         self.detectMake()
-        self.binarySolver.readExcludeList(os.path.join(self.rootDir, 'ports/deploy/tools/exclude/exclude.android.txt'))
+        self.binarySolver.readExcludes('posix', 'android')
         self.binarySolver.libsSeachPaths += [self.qmakeQuery(var='QT_INSTALL_LIBS')]
         self.packageConfig = os.path.join(self.rootDir, 'ports/deploy/package_info.conf')
         self.dependencies = []
