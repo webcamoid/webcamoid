@@ -100,6 +100,7 @@ elif [ "${ARCH_ROOT_BUILD}" = 1 ]; then
 export LC_ALL=C
 export HOME=$HOME
 export PATH="$TRAVIS_BUILD_DIR/.local/bin:\$PATH"
+export PYTHONPATH="$TRAVIS_BUILD_DIR/ports/deploy/DeployTools"
 export WINEPREFIX=/opt/.wine
 cd $TRAVIS_BUILD_DIR
 EOF
@@ -111,7 +112,6 @@ EOF
     fi
 
     cat << EOF >> ${DEPLOYSCRIPT}
-export PYTHONPATH="\${PWD}/ports/deploy/DeployTools"
 python ports/deploy/deploy.py
 EOF
     chmod +x ${DEPLOYSCRIPT}
@@ -125,7 +125,7 @@ elif [ "${TRAVIS_OS_NAME}" = linux ]; then
 #!/bin/sh
 
 export PATH="\$PWD/.local/bin:\$PATH"
-export PYTHONPATH="\${PWD}/ports/deploy/DeployTools"
+export PYTHONPATH="\$PWD/ports/deploy/DeployTools"
 xvfb-run --auto-servernum python3 ports/deploy/deploy.py
 EOF
 
