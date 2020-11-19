@@ -108,7 +108,7 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
 
     # Install Qt for Android
     fileName=qt-opensource-linux-x64-${QTVER_ANDROID}.run
-    ${DOWNLOAD_CMD} "https://download.qt.io/archive/qt/${QTVER:0:4}/${QTVER_ANDROID}/${fileName}"
+    ${DOWNLOAD_CMD} "https://download.qt.io/archive/qt/${QTVER_ANDROID:0:4}/${QTVER_ANDROID}/${fileName}"
     chmod +x ${fileName}
 
     # Shutdown network connection so Qt installer does not ask for credentials.
