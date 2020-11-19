@@ -149,21 +149,15 @@ matrix:
       - DOCKERSYS=debian
       - DOCKERIMG=ubuntu:devel
   - os: osx
-    osx_image: xcode10
+    osx_image: xcode10.2
     compiler: clang
     env:
       - DAILY_BUILD=1
   - os: osx
-    osx_image: xcode10
+    osx_image: xcode10.2
     compiler: clang
     env:
       - RELEASE_BUILD=1
-  - os: osx
-    osx_image: xcode10.1
-    compiler: clang
-  - os: osx
-    osx_image: xcode10.2
-    compiler: clang
   - os: osx
     osx_image: xcode10.3
     compiler: clang
