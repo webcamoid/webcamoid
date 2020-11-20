@@ -28,6 +28,7 @@
 #include <QProcessEnvironment>
 #include <QSettings>
 #include <QTemporaryDir>
+#include <QTemporaryFile>
 #include <QTextCodec>
 #include <QThread>
 #include <fcntl.h>
@@ -169,12 +170,19 @@ class VCamAkPrivate
         inline QStringList v4l2Devices() const;
         QList<DeviceInfo> devicesInfo() const;
         inline QString stringFromIoctl(ulong cmd) const;
+        template<typename T>
+        static inline T alignUp(const T &value, const T &align)
+        {
+            return (value + align - 1) & ~(align - 1);
+        }
 };
 
 VCamAk::VCamAk(QObject *parent):
     VCam(parent)
 {
     this->d = new VCamAkPrivate(this);
+    QSettings settings("/etc/akvcam/config.ini", QSettings::IniFormat);
+    this->m_picture = settings.value("default_frame").toString();
 }
 
 VCamAk::~VCamAk()
@@ -585,16 +593,23 @@ QString VCamAk::deviceCreate(const QString &description,
 
     if (defaultImage.load(this->m_picture)) {
         defaultImage = defaultImage.convertToFormat(QImage::Format_RGB888);
+        auto width = VCamAkPrivate::alignUp(defaultImage.width(), 32);
+        defaultImage = defaultImage.scaled(width,
+                                           defaultImage.height(),
+                                           Qt::IgnoreAspectRatio,
+                                           Qt::SmoothTransformation);
         defaultImage.save(defaultFrame);
         settings.setValue("default_frame", "/etc/akvcam/default_frame.bmp");
+    } else {
+        settings.setValue("default_frame", {});
     }
 
     settings.sync();
 
     // Write the script file.
-    QFile cmds(tempDir.path() + "/akvcam_exec.sh");
+    QTemporaryFile cmds(tempDir.path() + "/XXXXXX.sh");
 
-    if (!cmds.open(QIODevice::WriteOnly | QIODevice::Text)) {
+    if (!cmds.open()) {
         this->d->m_error = "Can't create install script";
 
         return {};
@@ -606,6 +621,7 @@ QString VCamAk::deviceCreate(const QString &description,
                         | QFileDevice::ReadUser
                         | QFileDevice::WriteUser
                         | QFileDevice::ExeUser);
+    cmds.write("#/bin/sh\n");
     cmds.write("rmmod akvcam 2>/dev/null\n");
 
     // Use the driver installed in the system.
@@ -840,16 +856,23 @@ bool VCamAk::deviceEdit(const QString &deviceId,
 
     if (defaultImage.load(this->m_picture)) {
         defaultImage = defaultImage.convertToFormat(QImage::Format_RGB888);
+        auto width = VCamAkPrivate::alignUp(defaultImage.width(), 32);
+        defaultImage = defaultImage.scaled(width,
+                                           defaultImage.height(),
+                                           Qt::IgnoreAspectRatio,
+                                           Qt::SmoothTransformation);
         defaultImage.save(defaultFrame);
         settings.setValue("default_frame", "/etc/akvcam/default_frame.bmp");
+    } else {
+        settings.setValue("default_frame", {});
     }
 
     settings.sync();
 
     // Write the script file.
-    QFile cmds(tempDir.path() + "/akvcam_exec.sh");
+    QTemporaryFile cmds(tempDir.path() + "/XXXXXX.sh");
 
-    if (!cmds.open(QIODevice::WriteOnly | QIODevice::Text)) {
+    if (!cmds.open()) {
         this->d->m_error = "Can't create install script";
 
         return false;
@@ -861,6 +884,7 @@ bool VCamAk::deviceEdit(const QString &deviceId,
                         | QFileDevice::ReadUser
                         | QFileDevice::WriteUser
                         | QFileDevice::ExeUser);
+    cmds.write("#/bin/sh\n");
     cmds.write("rmmod akvcam 2>/dev/null\n");
 
     // Use the driver installed in the system.
@@ -1071,16 +1095,23 @@ bool VCamAk::changeDescription(const QString &deviceId,
 
     if (defaultImage.load(this->m_picture)) {
         defaultImage = defaultImage.convertToFormat(QImage::Format_RGB888);
+        auto width = VCamAkPrivate::alignUp(defaultImage.width(), 32);
+        defaultImage = defaultImage.scaled(width,
+                                           defaultImage.height(),
+                                           Qt::IgnoreAspectRatio,
+                                           Qt::SmoothTransformation);
         defaultImage.save(defaultFrame);
         settings.setValue("default_frame", "/etc/akvcam/default_frame.bmp");
+    } else {
+        settings.setValue("default_frame", {});
     }
 
     settings.sync();
 
     // Write the script file.
-    QFile cmds(tempDir.path() + "/akvcam_exec.sh");
+    QTemporaryFile cmds(tempDir.path() + "/XXXXXX.sh");
 
-    if (!cmds.open(QIODevice::WriteOnly | QIODevice::Text))
+    if (!cmds.open())
         return false;
 
     cmds.setPermissions(QFileDevice::ReadOwner
@@ -1089,6 +1120,7 @@ bool VCamAk::changeDescription(const QString &deviceId,
                         | QFileDevice::ReadUser
                         | QFileDevice::WriteUser
                         | QFileDevice::ExeUser);
+    cmds.write("#/bin/sh\n");
     cmds.write("rmmod akvcam 2>/dev/null\n");
     cmds.write("sed -i '/akvcam/d' /etc/modules 2>/dev/null\n");
     cmds.write("sed -i '/akvcam/d' /etc/modules-load.d/*.conf 2>/dev/null\n");
@@ -1177,9 +1209,9 @@ bool VCamAk::deviceDestroy(const QString &deviceId)
     // Unload the driver if there are not any device.
     if (devices.isEmpty()) {
         QTemporaryDir tempDir;
-        QFile cmds(tempDir.path() + "/akvcam_exec.sh");
+        QTemporaryFile cmds(tempDir.path() + "/XXXXXX.sh");
 
-        if (!cmds.open(QIODevice::WriteOnly | QIODevice::Text))
+        if (!cmds.open())
             return false;
 
         cmds.setPermissions(QFileDevice::ReadOwner
@@ -1346,16 +1378,23 @@ bool VCamAk::deviceDestroy(const QString &deviceId)
 
     if (defaultImage.load(this->m_picture)) {
         defaultImage = defaultImage.convertToFormat(QImage::Format_RGB888);
+        auto width = VCamAkPrivate::alignUp(defaultImage.width(), 32);
+        defaultImage = defaultImage.scaled(width,
+                                           defaultImage.height(),
+                                           Qt::IgnoreAspectRatio,
+                                           Qt::SmoothTransformation);
         defaultImage.save(defaultFrame);
         settings.setValue("default_frame", "/etc/akvcam/default_frame.bmp");
+    } else {
+        settings.setValue("default_frame", {});
     }
 
     settings.sync();
 
     // Write the script file.
-    QFile cmds(tempDir.path() + "/akvcam_exec.sh");
+    QTemporaryFile cmds(tempDir.path() + "/XXXXXX.sh");
 
-    if (!cmds.open(QIODevice::WriteOnly | QIODevice::Text))
+    if (!cmds.open())
         return false;
 
     cmds.setPermissions(QFileDevice::ReadOwner
@@ -1364,6 +1403,7 @@ bool VCamAk::deviceDestroy(const QString &deviceId)
                         | QFileDevice::ReadUser
                         | QFileDevice::WriteUser
                         | QFileDevice::ExeUser);
+    cmds.write("#/bin/sh\n");
     cmds.write("rmmod akvcam 2>/dev/null\n");
     cmds.write("sed -i '/akvcam/d' /etc/modules 2>/dev/null\n");
     cmds.write("sed -i '/akvcam/d' /etc/modules-load.d/*.conf 2>/dev/null\n");
@@ -1415,15 +1455,16 @@ bool VCamAk::destroyAllDevices()
     }
 
     QTemporaryDir tempDir;
-    QFile cmds(tempDir.path() + "/akvcam_exec.sh");
+    QTemporaryFile cmds(tempDir.path() + "/XXXXXX.sh");
 
-    if (cmds.open(QIODevice::WriteOnly | QIODevice::Text)) {
+    if (cmds.open()) {
         cmds.setPermissions(QFileDevice::ReadOwner
                             | QFileDevice::WriteOwner
                             | QFileDevice::ExeOwner
                             | QFileDevice::ReadUser
                             | QFileDevice::WriteUser
                             | QFileDevice::ExeUser);
+        cmds.write("#/bin/sh\n");
         QString cmd = "rmmod akvcam 2>/dev/null\n"
                       "sed -i '/akvcam/d' /etc/modules 2>/dev/null\n"
                       "sed -i '/akvcam/d' /etc/modules-load.d/*.conf 2>/dev/null\n"
@@ -1546,6 +1587,81 @@ void VCamAk::uninit()
     close(this->d->m_fd);
     this->d->m_fd = -1;
     this->d->m_buffers.clear();
+}
+
+bool VCamAk::applyPicture()
+{
+    if (!this->clientsPids().isEmpty()) {
+        this->d->m_error = "The driver is in use";
+
+        return false;
+    }
+
+    QTemporaryDir tempDir;
+    QSettings settings("/etc/akvcam/config.ini", QSettings::IniFormat);
+
+    // Set file encoding.
+    auto codec = QTextCodec::codecForLocale();
+
+    if (codec)
+        settings.setIniCodec(codec->name());
+    else
+        settings.setIniCodec("UTF-8");
+
+    // Copy default frame to file system.
+    auto defaultFrame = tempDir.path() + "/default_frame.bmp";
+    QImage defaultImage;
+
+    if (defaultImage.load(this->m_picture)) {
+        defaultImage = defaultImage.convertToFormat(QImage::Format_RGB888);
+        auto width = VCamAkPrivate::alignUp(defaultImage.width(), 32);
+        defaultImage = defaultImage.scaled(width,
+                                           defaultImage.height(),
+                                           Qt::IgnoreAspectRatio,
+                                           Qt::SmoothTransformation);
+        defaultImage.save(defaultFrame);
+        settings.setValue("default_frame", "/etc/akvcam/default_frame.bmp");
+    } else {
+        settings.setValue("default_frame", {});
+    }
+
+    settings.sync();
+
+    // Write the script file.
+    QTemporaryFile cmds(tempDir.path() + "/XXXXXX.sh");
+
+    if (!cmds.open())
+        return false;
+
+    cmds.setPermissions(QFileDevice::ReadOwner
+                        | QFileDevice::WriteOwner
+                        | QFileDevice::ExeOwner
+                        | QFileDevice::ReadUser
+                        | QFileDevice::WriteUser
+                        | QFileDevice::ExeUser);
+    cmds.write("#/bin/sh\n");
+    cmds.write("rmmod akvcam 2>/dev/null\n");
+    cmds.write("mkdir -p /etc/akvcam\n");
+
+    if (!defaultImage.isNull())
+        cmds.write(QString("cp -f %1 /etc/akvcam/default_frame.bmp\n")
+                   .arg(defaultFrame).toUtf8());
+
+    cmds.write(QString("cp -f %1 /etc/akvcam/config.ini\n")
+               .arg(settings.fileName()).toUtf8());
+
+#ifdef QT_DEBUG
+    cmds.write("modprobe akvcam loglevel=7\n");
+#else
+    cmds.write("modprobe akvcam\n");
+#endif
+
+    cmds.close();
+
+    if (!this->d->sudo(this->m_rootMethod, {"sh", cmds.fileName()}))
+        return false;
+
+    return true;
 }
 
 bool VCamAk::write(const AkVideoPacket &packet)

@@ -27,6 +27,7 @@
 #include <QProcessEnvironment>
 #include <QSettings>
 #include <QTemporaryDir>
+#include <QTemporaryFile>
 #include <QTextCodec>
 #include <QThread>
 #include <fcntl.h>
@@ -42,10 +43,6 @@
 #include "vcamv4l2lb.h"
 
 #define MAX_CAMERAS 64
-
-#define AKVCAM_RW_MODE_READWRITE 0x1U
-#define AKVCAM_RW_MODE_MMAP      0x2U
-#define AKVCAM_RW_MODE_USERPTR   0x4U
 
 enum IoMethod
 {
@@ -79,7 +76,6 @@ struct DeviceInfo
     AkVideoCapsList formats;
     QStringList connectedDevices;
     DeviceType type;
-    RwMode mode;
 };
 
 struct DeviceControl
@@ -177,6 +173,11 @@ class VCamV4L2LoopBackPrivate
         inline QStringList v4l2Devices() const;
         QList<DeviceInfo> devicesInfo() const;
         inline QString stringFromIoctl(ulong cmd) const;
+        template<typename T>
+        static inline T alignUp(const T &value, const T &align)
+        {
+            return (value + align - 1) & ~(align - 1);
+        }
 };
 
 VCamV4L2LoopBack::VCamV4L2LoopBack(QObject *parent):
@@ -438,8 +439,7 @@ QString VCamV4L2LoopBack::deviceCreate(const QString &description,
                            "",
                            {},
                            {},
-                           DeviceTypeCapture,
-                           0};
+                           DeviceTypeCapture};
 
     // Read description.
     QString videoNR;
@@ -459,9 +459,9 @@ QString VCamV4L2LoopBack::deviceCreate(const QString &description,
 
     // Write the script file.
     QTemporaryDir tempDir;
-    QFile cmds(tempDir.path() + "/akvcam_exec.sh");
+    QTemporaryFile cmds(tempDir.path() + "/XXXXXX.sh");
 
-    if (!cmds.open(QIODevice::WriteOnly | QIODevice::Text)) {
+    if (!cmds.open()) {
         this->d->m_error = "Can't create install script";
 
         return {};
@@ -592,9 +592,9 @@ bool VCamV4L2LoopBack::deviceEdit(const QString &deviceId,
 
     // Write the script file.
     QTemporaryDir tempDir;
-    QFile cmds(tempDir.path() + "/akvcam_exec.sh");
+    QTemporaryFile cmds(tempDir.path() + "/XXXXXX.sh");
 
-    if (!cmds.open(QIODevice::WriteOnly | QIODevice::Text)) {
+    if (!cmds.open()) {
         this->d->m_error = "Can't create install script";
 
         return false;
@@ -717,9 +717,9 @@ bool VCamV4L2LoopBack::changeDescription(const QString &deviceId,
     }
 
     QTemporaryDir tempDir;
-    QFile cmds(tempDir.path() + "/akvcam_exec.sh");
+    QTemporaryFile cmds(tempDir.path() + "/XXXXXX.sh");
 
-    if (!cmds.open(QIODevice::WriteOnly | QIODevice::Text))
+    if (!cmds.open())
         return false;
 
     cmds.setPermissions(QFileDevice::ReadOwner
@@ -794,9 +794,9 @@ bool VCamV4L2LoopBack::deviceDestroy(const QString &deviceId)
     }
 
     QTemporaryDir tempDir;
-    QFile cmds(tempDir.path() + "/akvcam_exec.sh");
+    QTemporaryFile cmds(tempDir.path() + "/XXXXXX.sh");
 
-    if (!cmds.open(QIODevice::WriteOnly | QIODevice::Text))
+    if (!cmds.open())
         return false;
 
     cmds.setPermissions(QFileDevice::ReadOwner
@@ -843,9 +843,9 @@ bool VCamV4L2LoopBack::destroyAllDevices()
     }
 
     QTemporaryDir tempDir;
-    QFile cmds(tempDir.path() + "/akvcam_exec.sh");
+    QTemporaryFile cmds(tempDir.path() + "/XXXXXX.sh");
 
-    if (cmds.open(QIODevice::WriteOnly | QIODevice::Text)) {
+    if (cmds.open()) {
         cmds.setPermissions(QFileDevice::ReadOwner
                             | QFileDevice::WriteOwner
                             | QFileDevice::ExeOwner
@@ -1667,8 +1667,7 @@ QList<DeviceInfo> VCamV4L2LoopBackPrivate::readDevicesConfigs() const
                                    bus,
                                    formatsList,
                                    {},
-                                   DeviceTypeCapture,
-                                   0};
+                                   DeviceTypeCapture};
     }
 
     settings.endArray();
@@ -2117,9 +2116,7 @@ QList<DeviceInfo> VCamV4L2LoopBackPrivate::devicesInfo() const
                     {},
                     (capability.capabilities
                      & (V4L2_CAP_VIDEO_CAPTURE | V4L2_CAP_VIDEO_CAPTURE_MPLANE))?
-                        DeviceTypeCapture: DeviceTypeOutput,
-                    (capability.capabilities & V4L2_CAP_READWRITE)?
-                        AKVCAM_RW_MODE_READWRITE: 0
+                        DeviceTypeCapture: DeviceTypeOutput
                 };
         }
 

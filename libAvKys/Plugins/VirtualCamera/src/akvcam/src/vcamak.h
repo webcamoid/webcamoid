@@ -59,6 +59,7 @@ class VCamAk: public VCam
     public slots:
         bool init();
         void uninit();
+        bool applyPicture();
         bool write(const AkVideoPacket &packet);
 };
 

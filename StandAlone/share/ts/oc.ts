@@ -54,12 +54,12 @@
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="115"/>
         <source>Width</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Largor</translation>
     </message>
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="126"/>
         <source>Height</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Nautor</translation>
     </message>
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="137"/>
@@ -250,7 +250,7 @@
     <message>
         <location filename="../qml/ImageCapture.qml" line="49"/>
         <source>Search</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Recercar</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="57"/>
@@ -702,7 +702,7 @@
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="136"/>
         <source>Search</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Recercar</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="215"/>
@@ -932,7 +932,7 @@
     <message>
         <location filename="../qml/VideoOutputPicture.qml" line="65"/>
         <source>Search</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Recercar</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputPicture.qml" line="90"/>
@@ -978,7 +978,7 @@
     <message>
         <location filename="../qml/VideoRecording.qml" line="117"/>
         <source>Search</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Recercar</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="125"/>
