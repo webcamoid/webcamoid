@@ -138,5 +138,7 @@ OptionsPanel {
     VideoOutputPicture {
         id: videoOutputPicture
         anchors.centerIn: Overlay.overlay
+
+        onOpenErrorDialog: panel.openErrorDialog(title, message)
     }
 }

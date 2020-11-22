@@ -591,7 +591,7 @@ QString VCamAk::deviceCreate(const QString &description,
     auto defaultFrame = tempDir.path() + "/default_frame.bmp";
     QImage defaultImage;
 
-    if (defaultImage.load(this->m_picture)) {
+    if (!this->m_picture.isEmpty() && defaultImage.load(this->m_picture)) {
         defaultImage = defaultImage.convertToFormat(QImage::Format_RGB888);
         auto width = VCamAkPrivate::alignUp(defaultImage.width(), 32);
         defaultImage = defaultImage.scaled(width,
@@ -601,7 +601,7 @@ QString VCamAk::deviceCreate(const QString &description,
         defaultImage.save(defaultFrame);
         settings.setValue("default_frame", "/etc/akvcam/default_frame.bmp");
     } else {
-        settings.setValue("default_frame", {});
+        settings.setValue("default_frame", "");
     }
 
     settings.sync();
@@ -854,7 +854,7 @@ bool VCamAk::deviceEdit(const QString &deviceId,
     auto defaultFrame = tempDir.path() + "/default_frame.bmp";
     QImage defaultImage;
 
-    if (defaultImage.load(this->m_picture)) {
+    if (!this->m_picture.isEmpty() && defaultImage.load(this->m_picture)) {
         defaultImage = defaultImage.convertToFormat(QImage::Format_RGB888);
         auto width = VCamAkPrivate::alignUp(defaultImage.width(), 32);
         defaultImage = defaultImage.scaled(width,
@@ -864,7 +864,7 @@ bool VCamAk::deviceEdit(const QString &deviceId,
         defaultImage.save(defaultFrame);
         settings.setValue("default_frame", "/etc/akvcam/default_frame.bmp");
     } else {
-        settings.setValue("default_frame", {});
+        settings.setValue("default_frame", "");
     }
 
     settings.sync();
@@ -1093,7 +1093,7 @@ bool VCamAk::changeDescription(const QString &deviceId,
     auto defaultFrame = tempDir.path() + "/default_frame.bmp";
     QImage defaultImage;
 
-    if (defaultImage.load(this->m_picture)) {
+    if (!this->m_picture.isEmpty() && defaultImage.load(this->m_picture)) {
         defaultImage = defaultImage.convertToFormat(QImage::Format_RGB888);
         auto width = VCamAkPrivate::alignUp(defaultImage.width(), 32);
         defaultImage = defaultImage.scaled(width,
@@ -1103,7 +1103,7 @@ bool VCamAk::changeDescription(const QString &deviceId,
         defaultImage.save(defaultFrame);
         settings.setValue("default_frame", "/etc/akvcam/default_frame.bmp");
     } else {
-        settings.setValue("default_frame", {});
+        settings.setValue("default_frame", "");
     }
 
     settings.sync();
@@ -1376,7 +1376,7 @@ bool VCamAk::deviceDestroy(const QString &deviceId)
     auto defaultFrame = tempDir.path() + "/default_frame.bmp";
     QImage defaultImage;
 
-    if (defaultImage.load(this->m_picture)) {
+    if (!this->m_picture.isEmpty() && defaultImage.load(this->m_picture)) {
         defaultImage = defaultImage.convertToFormat(QImage::Format_RGB888);
         auto width = VCamAkPrivate::alignUp(defaultImage.width(), 32);
         defaultImage = defaultImage.scaled(width,
@@ -1386,7 +1386,7 @@ bool VCamAk::deviceDestroy(const QString &deviceId)
         defaultImage.save(defaultFrame);
         settings.setValue("default_frame", "/etc/akvcam/default_frame.bmp");
     } else {
-        settings.setValue("default_frame", {});
+        settings.setValue("default_frame", "");
     }
 
     settings.sync();
@@ -1597,10 +1597,57 @@ bool VCamAk::applyPicture()
         return false;
     }
 
-    QTemporaryDir tempDir;
-    QSettings settings("/etc/akvcam/config.ini", QSettings::IniFormat);
+    auto devices = this->d->devicesInfo();
 
-    // Set file encoding.
+    for (auto &device: devices) {
+        int fd = open(device.path.toStdString().c_str(),
+                      O_RDWR | O_NONBLOCK, 0);
+
+        if (fd < 0)
+            continue;
+
+        device.formats = this->d->formats(fd);
+        close(fd);
+
+        auto sysfsControls = this->d->sysfsControls(device.path);
+        auto modesControls = sysfsControls + "/modes";
+
+        if (QFileInfo::exists(modesControls)) {
+            QFile deviceModes(modesControls);
+
+            if (deviceModes.open(QIODevice::ReadOnly | QIODevice::Text)) {
+                auto modes = deviceModes.readAll().split('\n');
+                std::transform(modes.begin(),
+                               modes.end(),
+                               modes.begin(),
+                               [] (const QByteArray &mode) {
+                    return mode.trimmed();
+                });
+
+                if (modes.contains("rw"))
+                    device.mode |= AKVCAM_RW_MODE_READWRITE;
+
+                if (modes.contains("mmap"))
+                    device.mode |= AKVCAM_RW_MODE_MMAP;
+
+                if (modes.contains("userptr"))
+                    device.mode |= AKVCAM_RW_MODE_USERPTR;
+            }
+        }
+
+        auto connectedDevicesControls = sysfsControls + "/connected_devices";
+
+        if (QFileInfo::exists(connectedDevicesControls)) {
+            QFile connectedDevices(connectedDevicesControls);
+
+            if (connectedDevices.open(QIODevice::ReadOnly | QIODevice::Text))
+                device.connectedDevices =
+                        QString(connectedDevices.readAll()).split('\n');
+        }
+    }
+
+    QTemporaryDir tempDir;
+    QSettings settings(tempDir.path() + "/config.ini", QSettings::IniFormat);
     auto codec = QTextCodec::codecForLocale();
 
     if (codec)
@@ -1608,11 +1655,92 @@ bool VCamAk::applyPicture()
     else
         settings.setIniCodec("UTF-8");
 
+    int i = 0;
+    int j = 0;
+    int con = 0;
+
+    for (auto &device: devices) {
+        QStringList formatsIndex;
+
+        for (int i = 0; i < device.formats.size(); i++)
+            formatsIndex << QString("%1").arg(i + j + 1);
+
+        settings.beginGroup("Cameras");
+        settings.beginWriteArray("cameras");
+        settings.setArrayIndex(i);
+        settings.setValue("type", device.type == DeviceTypeCapture?
+                                  "capture": "output");
+        QStringList mode;
+
+        if (device.mode & AKVCAM_RW_MODE_READWRITE)
+            mode << "rw";
+
+        if (device.mode & AKVCAM_RW_MODE_MMAP)
+            mode << "mmap";
+
+        if (device.mode & AKVCAM_RW_MODE_USERPTR)
+            mode << "userptr";
+
+        if (!mode.isEmpty())
+            settings.setValue("mode", mode);
+
+        settings.setValue("description", device.description);
+        settings.setValue("formats", formatsIndex);
+        settings.endArray();
+        settings.endGroup();
+
+        settings.beginGroup("Formats");
+        settings.beginWriteArray("formats");
+
+        for (auto &format: device.formats) {
+            settings.setArrayIndex(j);
+            settings.setValue("format", this->d->formatByAk(format.format()).str);
+            settings.setValue("width", format.width());
+            settings.setValue("height", format.height());
+            settings.setValue("fps", format.fps().toString());
+            j++;
+        }
+
+        settings.endArray();
+        settings.endGroup();
+
+        if (device.type == DeviceTypeOutput) {
+            settings.beginGroup("Connections");
+            settings.beginWriteArray("connections");
+            QStringList connectionStr = {QString("%1").arg(i + 1)};
+
+            for (auto &connection: device.connectedDevices) {
+                auto it = std::find_if(devices.begin(),
+                                       devices.end(),
+                                       [&connection] (const DeviceInfo &device) {
+                                           return device.path == connection;
+                                       });
+
+                if (it == devices.end())
+                    continue;
+
+                connectionStr <<
+                    QString("%1").arg(std::distance(devices.begin(), it) + 1);
+            }
+
+            if (connectionStr.count() > 1) {
+                settings.setArrayIndex(con);
+                settings.setValue("connection", connectionStr.join(':'));
+                con++;
+            }
+
+            settings.endArray();
+            settings.endGroup();
+        }
+
+        i++;
+    }
+
     // Copy default frame to file system.
     auto defaultFrame = tempDir.path() + "/default_frame.bmp";
     QImage defaultImage;
 
-    if (defaultImage.load(this->m_picture)) {
+    if (!this->m_picture.isEmpty() && defaultImage.load(this->m_picture)) {
         defaultImage = defaultImage.convertToFormat(QImage::Format_RGB888);
         auto width = VCamAkPrivate::alignUp(defaultImage.width(), 32);
         defaultImage = defaultImage.scaled(width,
@@ -1622,7 +1750,7 @@ bool VCamAk::applyPicture()
         defaultImage.save(defaultFrame);
         settings.setValue("default_frame", "/etc/akvcam/default_frame.bmp");
     } else {
-        settings.setValue("default_frame", {});
+        settings.setValue("default_frame", "");
     }
 
     settings.sync();
@@ -2186,12 +2314,21 @@ AkVideoCapsList VCamAkPrivate::formatFps(int fd,
 
 AkVideoCapsList VCamAkPrivate::formats(int fd) const
 {
+    __u32 type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+    v4l2_capability capability;
+    memset(&capability, 0, sizeof(v4l2_capability));
+
+    if (this->xioctl(fd, VIDIOC_QUERYCAP, &capability) >= 0
+        && capability.capabilities & V4L2_CAP_VIDEO_OUTPUT) {
+        type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
+    }
+
     AkVideoCapsList caps;
 
 #ifndef VIDIOC_ENUM_FRAMESIZES
     v4l2_format fmt;
     memset(&fmt, 0, sizeof(v4l2_format));
-    fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+    fmt.type = type;
     uint width = 0;
     uint height = 0;
 
@@ -2208,7 +2345,7 @@ AkVideoCapsList VCamAkPrivate::formats(int fd) const
     // Enumerate all supported formats.
     v4l2_fmtdesc fmtdesc;
     memset(&fmtdesc, 0, sizeof(v4l2_fmtdesc));
-    fmtdesc.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+    fmtdesc.type = type;
 
     for (fmtdesc.index = 0;
          this->xioctl(fd, VIDIOC_ENUM_FMT, &fmtdesc) >= 0;

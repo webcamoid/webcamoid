@@ -1472,12 +1472,21 @@ AkVideoCapsList VCamV4L2LoopBackPrivate::formatFps(int fd,
 
 AkVideoCapsList VCamV4L2LoopBackPrivate::formats(int fd) const
 {
+    __u32 type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+    v4l2_capability capability;
+    memset(&capability, 0, sizeof(v4l2_capability));
+
+    if (this->xioctl(fd, VIDIOC_QUERYCAP, &capability) >= 0
+        && capability.capabilities & V4L2_CAP_VIDEO_OUTPUT) {
+        type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
+    }
+
     AkVideoCapsList caps;
 
 #ifndef VIDIOC_ENUM_FRAMESIZES
     v4l2_format fmt;
     memset(&fmt, 0, sizeof(v4l2_format));
-    fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+    fmt.type = type;
     uint width = 0;
     uint height = 0;
 
@@ -1494,7 +1503,7 @@ AkVideoCapsList VCamV4L2LoopBackPrivate::formats(int fd) const
     // Enumerate all supported formats.
     v4l2_fmtdesc fmtdesc;
     memset(&fmtdesc, 0, sizeof(v4l2_fmtdesc));
-    fmtdesc.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+    fmtdesc.type = type;
 
     for (fmtdesc.index = 0;
          this->xioctl(fd, VIDIOC_ENUM_FMT, &fmtdesc) >= 0;

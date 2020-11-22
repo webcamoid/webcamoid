@@ -24,11 +24,14 @@ import Ak 1.0
 import Qt.labs.platform 1.1 as LABS
 
 Dialog {
+    id: outputPictureDialog
     title: qsTr("Virtual camera output picture")
-    standardButtons: Dialog.Ok | Dialog.Cancel
+    standardButtons: Dialog.Ok | Dialog.Cancel | Dialog.Reset
     width: AkUnit.create(450 * AkTheme.controlScale, "dp").pixels
     height: AkUnit.create(350 * AkTheme.controlScale, "dp").pixels
     modal: true
+
+    signal openErrorDialog(string title, string message)
 
     function toQrc(uri)
     {
@@ -82,7 +85,18 @@ Dialog {
 
     onAccepted: {
         videoLayer.picture = txtTable.text
-        videoLayer.applyPicture()
+
+        if (videoLayer.clientsPids.length < 1) {
+            videoLayer.applyPicture()
+        } else {
+            let title = qsTr("Error Removing Virtual Cameras")
+            let message = Commons.vcamDriverBusyMessage()
+            outputPictureDialog.openErrorDialog(title, message)
+        }
+    }
+    onReset: {
+        videoLayer.picture = undefined
+        txtTable.text = videoLayer.picture
     }
 
     LABS.FileDialog {
