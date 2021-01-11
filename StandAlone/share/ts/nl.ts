@@ -21,12 +21,12 @@
     <message>
         <location filename="../qml/About.qml" line="75"/>
         <source>Webcam capture application.</source>
-        <translation>Webcamapp voor het vastleggen van beelden.</translation>
+        <translation>Webcamprogramma voor het vastleggen van beelden.</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="78"/>
         <source>A simple webcam application for picture and video capture.</source>
-        <translation>Een eenvoudige webcamapp voor het vastleggen van foto&apos;s en video&apos;s.</translation>
+        <translation>Een eenvoudig webcamprogramma voor het vastleggen van foto&apos;s en video&apos;s.</translation>
     </message>
 </context>
 <context>
@@ -319,12 +319,12 @@
     <message>
         <location filename="../../src/clioptions.cpp" line="43"/>
         <source>Webcam capture application.</source>
-        <translation>Webcamapp voor het vastleggen van beelden.</translation>
+        <translation>Webcamprogramma voor het vastleggen van beelden.</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="46"/>
         <source>Load settings from PATH. If PATH is empty, load configs from application directory.</source>
-        <translation>Instellingen laden uit PAD. Als PAD leeg is, dan wordt de configuratie geladen uit de applicatiemap.</translation>
+        <translation>Instellingen laden uit PAD. Als PAD leeg is, dan wordt de configuratie geladen uit de programmamap.</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="48"/>
@@ -470,7 +470,7 @@
     <message>
         <location filename="../qml/ThirdPartyLicenses.qml" line="72"/>
         <source>License for the usb.ids file:</source>
-        <translation>Licenties voor het usb.ids-bestand:</translation>
+        <translation>Licenties van het usb.ids-bestand:</translation>
     </message>
 </context>
 <context>
@@ -538,12 +538,12 @@
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="172"/>
         <source>Thanks for using a &lt;b&gt;development version&lt;/b&gt;!&lt;br /&gt;It will be very helpful if you can report any bug and suggestions you have.</source>
-        <translation>Bedankt voor het testen van de &lt;b&gt;ontwikkelingsversie&lt;/b&gt;!&lt;br /&gt;Het zou fijn zijn als je bugs kunt rapporteren en ideeën kunt aandragen.</translation>
+        <translation>Bedankt voor het testen van de &lt;b&gt;ontwikkelingsversie&lt;/b&gt;!&lt;br /&gt;Het zou fijn zijn als je bugs wilt melden en ideeën wilt delen.</translation>
     </message>
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="177"/>
         <source>Report a Bug</source>
-        <translation>Bug rapporteren</translation>
+        <translation>Bug melden</translation>
     </message>
 </context>
 <context>
@@ -937,7 +937,7 @@
     <message>
         <location filename="../qml/VideoOutputPicture.qml" line="92"/>
         <source>Error Removing Virtual Cameras</source>
-        <translation type="unfinished">Kan virtuele camera&apos;s niet verwijderen</translation>
+        <translation>Kan virtuele camera&apos;s niet verwijderen</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputPicture.qml" line="104"/>
