@@ -1824,8 +1824,12 @@ bool VCamAk::write(const AkVideoPacket &packet)
         this->d->m_scaleFilter->setProperty("aspectRatio", aspectRatio);
     }
 
-    this->d->m_scaleFilter->setProperty("width", this->m_currentCaps.width());
-    this->d->m_scaleFilter->setProperty("height", this->m_currentCaps.height());
+    v4l2_format fmt;
+    memset(&fmt, 0, sizeof(v4l2_format));
+    fmt.type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
+    this->d->xioctl(this->d->m_fd, VIDIOC_G_FMT, &fmt);
+    this->d->m_scaleFilter->setProperty("width", fmt.fmt.pix.width);
+    this->d->m_scaleFilter->setProperty("height", fmt.fmt.pix.height);
     packet_ = this->d->m_scaleFilter->iStream(packet_);
     packet_ = AkVideoPacket(packet_).convert(this->m_currentCaps.format());
 
@@ -1875,6 +1879,7 @@ VCamAkPrivate::VCamAkPrivate(VCamAk *self):
     this->m_fsWatcher = new QFileSystemWatcher({"/dev"}, self);
     QObject::connect(this->m_fsWatcher,
                      &QFileSystemWatcher::directoryChanged,
+                     this->self,
                      [this] () {
         this->updateDevices();
     });

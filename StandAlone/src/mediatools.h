@@ -87,6 +87,9 @@ class MediaTools: public QObject
         Q_INVOKABLE static QString readFile(const QString &fileName);
         Q_INVOKABLE QString urlToLocalFile(const QUrl &url) const;
         Q_INVOKABLE static QString convertToAbsolute(const QString &path);
+        Q_INVOKABLE static void messageHandler(QtMsgType type,
+                                               const QMessageLogContext &context,
+                                               const QString &msg);
 
     private:
         MediaToolsPrivate *d;

@@ -920,22 +920,27 @@
 <context>
     <name>VideoOutputPicture</name>
     <message>
-        <location filename="../qml/VideoOutputPicture.qml" line="27"/>
+        <location filename="../qml/VideoOutputPicture.qml" line="28"/>
         <source>Virtual camera output picture</source>
         <translation>תמונת פלט של מצלמה וירטואלית</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputPicture.qml" line="60"/>
+        <location filename="../qml/VideoOutputPicture.qml" line="63"/>
         <source>Virtual camera default output picture</source>
         <translation>תמונת פלט בררת המחדל של מצלמה וירטואלית</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputPicture.qml" line="65"/>
+        <location filename="../qml/VideoOutputPicture.qml" line="68"/>
         <source>Search</source>
         <translation>חיפוש</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputPicture.qml" line="90"/>
+        <location filename="../qml/VideoOutputPicture.qml" line="92"/>
+        <source>Error Removing Virtual Cameras</source>
+        <translation type="unfinished">שגיאה בהסרת מצלמות וירטואליות</translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoOutputPicture.qml" line="104"/>
         <source>Please choose an image file</source>
         <translation>נא לבחור קובץ תמונה</translation>
     </message>

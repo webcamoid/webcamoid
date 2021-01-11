@@ -299,6 +299,30 @@ QString MediaTools::convertToAbsolute(const QString &path)
     return QDir::cleanPath(absPath).replace('/', QDir::separator());
 }
 
+void MediaTools::messageHandler(QtMsgType type,
+                                const QMessageLogContext &context,
+                                const QString &msg)
+{
+    auto msgData = msg.toStdString();
+    auto file = QFileInfo(context.file).fileName().toStdString();
+    auto appName = QCoreApplication::applicationName().toStdString();
+    static const QMap<QtMsgType, const char *> typeToStr {
+        {QtDebugMsg   , "debug"   },
+        {QtWarningMsg , "warning" },
+        {QtCriticalMsg, "critical"},
+        {QtFatalMsg   , "fatal"   },
+        {QtInfoMsg    , "info"    },
+    };
+
+    fprintf(stderr,
+            "[%s, %s (%d)] %s: %s\n",
+            appName.c_str(),
+            file.c_str(),
+            context.line,
+            typeToStr[type],
+            msgData.c_str());
+}
+
 void MediaTools::setWindowWidth(int windowWidth)
 {
     if (this->d->m_windowWidth == windowWidth)

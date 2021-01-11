@@ -376,7 +376,7 @@ AkPacket VirtualCameraElement::iVideoStream(const AkVideoPacket &packet)
     this->d->m_mutex.lock();
 
     if (this->state() == AkElement::ElementStatePlaying) {
-        auto videoPacket = packet.convert(AkVideoCaps::Format_rgb24, 32);
+        auto videoPacket = packet.convert(AkVideoCaps::Format_rgb24);
 
         if (this->d->m_vcam)
             this->d->m_vcam->write(videoPacket);
