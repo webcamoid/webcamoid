@@ -2421,7 +2421,7 @@
     <message>
         <location filename="../qml/main.qml" line="260"/>
         <source>Take a photo</source>
-        <translation>Снять Фото</translation>
+        <translation>Сделать фото</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="44"/>

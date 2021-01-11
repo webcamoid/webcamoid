@@ -6,27 +6,27 @@
     <message>
         <location filename="../qml/About.qml" line="58"/>
         <source>Version %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Versão %1</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="62"/>
         <source>Using Qt %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Utilizando o Qt %1</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="66"/>
         <source>Website</source>
-        <translation type="unfinished"></translation>
+        <translation>Site</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="75"/>
         <source>Webcam capture application.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aplicativo de captura da Webcam.</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="78"/>
         <source>A simple webcam application for picture and video capture.</source>
-        <translation type="unfinished"></translation>
+        <translation>Um aplicativo simples para captura de imagens e vídeos da webcam.</translation>
     </message>
 </context>
 <context>
@@ -34,32 +34,32 @@
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="42"/>
         <source>Add Video Format</source>
-        <translation type="unfinished"></translation>
+        <translation>Adicionar Formato do Vídeo</translation>
     </message>
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="43"/>
         <source>Change Video Format</source>
-        <translation type="unfinished"></translation>
+        <translation>Mudar Formato do Vídeo</translation>
     </message>
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="95"/>
         <source>Remove format</source>
-        <translation type="unfinished"></translation>
+        <translation>Remover formato</translation>
     </message>
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="106"/>
         <source>Format</source>
-        <translation type="unfinished"></translation>
+        <translation>Formato</translation>
     </message>
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="115"/>
         <source>Width</source>
-        <translation type="unfinished"></translation>
+        <translation>Largura</translation>
     </message>
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="126"/>
         <source>Height</source>
-        <translation type="unfinished"></translation>
+        <translation>Altura</translation>
     </message>
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="137"/>
@@ -113,7 +113,7 @@
         <location filename="../qml/AudioDeviceOptions.qml" line="207"/>
         <source>Latency (ms)</source>
         <extracomment>The latency is the amount of accumulated audio ready to play, measured in time. Higher latency == smoother audio playback, but more desynchronization with the video. Lowerer latency == audio synchronization near to the video, but glitchy audio playback. https://en.wikipedia.org/wiki/Latency_(audio)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Latência (ms)</translation>
     </message>
 </context>
 <context>
@@ -121,7 +121,7 @@
     <message>
         <location filename="../../src/audiolayer.cpp" line="279"/>
         <source>Silence</source>
-        <translation type="unfinished"></translation>
+        <translation>Silêncio</translation>
     </message>
 </context>
 <context>
@@ -142,12 +142,12 @@
     <message>
         <location filename="../qml/AudioVideoPanel.qml" line="27"/>
         <source>Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Áudio</translation>
     </message>
     <message>
         <location filename="../qml/AudioVideoPanel.qml" line="29"/>
         <source>Video</source>
-        <translation type="unfinished"></translation>
+        <translation>Vídeo</translation>
     </message>
     <message>
         <location filename="../qml/AudioVideoPanel.qml" line="31"/>
@@ -165,7 +165,7 @@
     <message>
         <location filename="../qml/Commons.qml" line="28"/>
         <source>The virtual camera is in use by the following applications:</source>
-        <translation type="unfinished"></translation>
+        <translation>A câmera virtual está sendo usada pelas seguintes aplicações:</translation>
     </message>
     <message>
         <location filename="../qml/Commons.qml" line="40"/>
