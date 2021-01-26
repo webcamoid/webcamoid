@@ -6,27 +6,27 @@
     <message>
         <location filename="../qml/About.qml" line="58"/>
         <source>Version %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Versioon %1</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="62"/>
         <source>Using Qt %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Kasutusel Qt %1</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="66"/>
         <source>Website</source>
-        <translation type="unfinished"></translation>
+        <translation>Veebileht</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="75"/>
         <source>Webcam capture application.</source>
-        <translation type="unfinished">Veebikaamera salvestusprogramm.</translation>
+        <translation>Veebikaamera salvestusprogramm.</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="78"/>
         <source>A simple webcam application for picture and video capture.</source>
-        <translation type="unfinished"></translation>
+        <translation>Lihtne programm veebikaamerast piltide ja videote salvestamiseks.</translation>
     </message>
 </context>
 <context>
@@ -96,18 +96,18 @@
         <location filename="../qml/AudioDeviceOptions.qml" line="131"/>
         <source>Sample Format</source>
         <extracomment>An sample represents the strength of the wave at a certain time. A sample can be expressed as the number of bits defining it (more bits better sound), the type of data representing it (signed integer, unsigned integer, floating point), and the endianness of the data (big endian, little endian). The sample format is the representation of that information. For example, &apos;s16le&apos; means that each sample format is represented by a 16 bits signed integer arranged as little endian.</extracomment>
-        <translation type="unfinished">Diskreetimisvorming</translation>
+        <translation>Diskreetimisvorming</translation>
     </message>
     <message>
         <location filename="../qml/AudioDeviceOptions.qml" line="153"/>
         <source>Channels</source>
-        <translation type="unfinished">Kanalid</translation>
+        <translation>Kanalid</translation>
     </message>
     <message>
         <location filename="../qml/AudioDeviceOptions.qml" line="176"/>
         <source>Sample Rate</source>
         <extracomment>Number of audio samples per channel to be played per second.</extracomment>
-        <translation type="unfinished">Diskreetimissagedus</translation>
+        <translation>Diskreetimissagedus</translation>
     </message>
     <message>
         <location filename="../qml/AudioDeviceOptions.qml" line="207"/>
@@ -121,7 +121,7 @@
     <message>
         <location filename="../../src/audiolayer.cpp" line="279"/>
         <source>Silence</source>
-        <translation type="unfinished">Vaikus</translation>
+        <translation>Vaikus</translation>
     </message>
 </context>
 <context>
@@ -142,12 +142,12 @@
     <message>
         <location filename="../qml/AudioVideoPanel.qml" line="27"/>
         <source>Audio</source>
-        <translation type="unfinished">Heli</translation>
+        <translation>Heli</translation>
     </message>
     <message>
         <location filename="../qml/AudioVideoPanel.qml" line="29"/>
         <source>Video</source>
-        <translation type="unfinished">Video</translation>
+        <translation>Video</translation>
     </message>
     <message>
         <location filename="../qml/AudioVideoPanel.qml" line="31"/>
@@ -250,7 +250,7 @@
     <message>
         <location filename="../qml/ImageCapture.qml" line="49"/>
         <source>Search</source>
-        <translation type="unfinished">Otsi</translation>
+        <translation>Otsi</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="57"/>
@@ -301,7 +301,7 @@
     <message>
         <location filename="../qml/PluginConfig.qml" line="167"/>
         <source>Remove</source>
-        <translation type="unfinished">Eemalda</translation>
+        <translation>Eemalda</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="201"/>
@@ -385,7 +385,7 @@
     <message>
         <location filename="../qml/SettingsDialog.qml" line="78"/>
         <source>General Options</source>
-        <translation type="unfinished">Üldised seaded</translation>
+        <translation>Üldised seaded</translation>
     </message>
     <message>
         <location filename="../qml/SettingsDialog.qml" line="79"/>
@@ -395,7 +395,7 @@
     <message>
         <location filename="../qml/SettingsDialog.qml" line="80"/>
         <source>Updates</source>
-        <translation type="unfinished">Värskendused</translation>
+        <translation>Värskendused</translation>
     </message>
     <message>
         <location filename="../qml/SettingsDialog.qml" line="84"/>
@@ -427,12 +427,12 @@
     <message>
         <location filename="../qml/SettingsMenu.qml" line="37"/>
         <source>Video</source>
-        <translation type="unfinished">Video</translation>
+        <translation>Video</translation>
     </message>
     <message>
         <location filename="../qml/SettingsMenu.qml" line="43"/>
         <source>Audio</source>
-        <translation type="unfinished">Heli</translation>
+        <translation>Heli</translation>
     </message>
     <message>
         <location filename="../qml/SettingsMenu.qml" line="49"/>
@@ -593,7 +593,7 @@
     <message>
         <location filename="../qml/VideoEffectOptions.qml" line="63"/>
         <source>Remove</source>
-        <translation type="unfinished">Eemalda</translation>
+        <translation>Eemalda</translation>
     </message>
 </context>
 <context>
@@ -681,7 +681,7 @@
         <location filename="../qml/VideoInputAddEdit.qml" line="108"/>
         <location filename="../qml/VideoInputAddEdit.qml" line="156"/>
         <source>Description</source>
-        <translation type="unfinished">Kirjeldus</translation>
+        <translation>Kirjeldus</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="114"/>
@@ -702,7 +702,7 @@
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="136"/>
         <source>Search</source>
-        <translation type="unfinished">Otsi</translation>
+        <translation>Otsi</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="215"/>
@@ -798,12 +798,12 @@
     <message>
         <location filename="../qml/VideoInputOptions.qml" line="60"/>
         <source>Edit</source>
-        <translation type="unfinished">Muuda</translation>
+        <translation>Muuda</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputOptions.qml" line="72"/>
         <source>Remove</source>
-        <translation type="unfinished">Eemalda</translation>
+        <translation>Eemalda</translation>
     </message>
 </context>
 <context>
@@ -899,7 +899,7 @@
     <message>
         <location filename="../qml/VideoOutputOptions.qml" line="61"/>
         <source>Edit</source>
-        <translation type="unfinished">Muuda</translation>
+        <translation>Muuda</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputOptions.qml" line="73"/>
@@ -909,7 +909,7 @@
     <message>
         <location filename="../qml/VideoOutputOptions.qml" line="80"/>
         <source>Remove</source>
-        <translation type="unfinished">Eemalda</translation>
+        <translation>Eemalda</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputOptions.qml" line="94"/>
@@ -932,7 +932,7 @@
     <message>
         <location filename="../qml/VideoOutputPicture.qml" line="68"/>
         <source>Search</source>
-        <translation type="unfinished">Otsi</translation>
+        <translation>Otsi</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputPicture.qml" line="92"/>
@@ -983,7 +983,7 @@
     <message>
         <location filename="../qml/VideoRecording.qml" line="117"/>
         <source>Search</source>
-        <translation type="unfinished">Otsi</translation>
+        <translation>Otsi</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="125"/>
@@ -2411,17 +2411,17 @@
     <message>
         <location filename="../qml/main.qml" line="152"/>
         <source>Now</source>
-        <translation type="unfinished">Nüüd</translation>
+        <translation>Nüüd</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="159"/>
         <source>%1 seconds</source>
-        <translation type="unfinished">%1 sekundit</translation>
+        <translation>%1 sekundit</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="260"/>
         <source>Take a photo</source>
-        <translation type="unfinished"></translation>
+        <translation>Pildista</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="44"/>
@@ -2431,7 +2431,7 @@
     <message>
         <location filename="../qml/main.qml" line="309"/>
         <source>Record video</source>
-        <translation type="unfinished"></translation>
+        <translation>Salvesta video</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="402"/>
