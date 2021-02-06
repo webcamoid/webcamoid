@@ -41,7 +41,7 @@ QStringList VCam::webcams() const
 
 QString VCam::device() const
 {
-    return this->m_device;
+    return {};
 }
 
 QString VCam::description(const QString &webcam) const
@@ -70,7 +70,7 @@ AkVideoCapsList VCam::caps(const QString &webcam) const
 
 AkVideoCaps VCam::currentCaps() const
 {
-    return this->m_currentCaps;
+    return {};
 }
 
 QVariantList VCam::controls() const
@@ -99,12 +99,12 @@ QString VCam::clientExe(quint64 pid) const
 
 QString VCam::picture() const
 {
-    return this->m_picture;
+    return {};
 }
 
 QString VCam::rootMethod() const
 {
-    return this->m_rootMethod;
+    return {};
 }
 
 QString VCam::deviceCreate(const QString &description,
@@ -171,38 +171,22 @@ bool VCam::applyPicture()
 
 void VCam::setDevice(const QString &device)
 {
-    if (this->m_device == device)
-        return;
-
-    this->m_device = device;
-    emit this->deviceChanged(this->m_device);
+    Q_UNUSED(device)
 }
 
 void VCam::setCurrentCaps(const AkVideoCaps &currentCaps)
 {
-    if (this->m_currentCaps == currentCaps)
-        return;
-
-    this->m_currentCaps = currentCaps;
-    emit this->currentCapsChanged(this->m_currentCaps);
+    Q_UNUSED(currentCaps)
 }
 
 void VCam::setPicture(const QString &picture)
 {
-    if (this->m_picture == picture)
-        return;
-
-    this->m_picture = picture;
-    emit this->pictureChanged(this->m_picture);
+    Q_UNUSED(picture)
 }
 
 void VCam::setRootMethod(const QString &rootMethod)
 {
-    if (this->m_rootMethod == rootMethod)
-        return;
-
-    this->m_rootMethod = rootMethod;
-    emit this->rootMethodChanged(this->m_rootMethod);
+    Q_UNUSED(rootMethod)
 }
 
 void VCam::resetDevice()

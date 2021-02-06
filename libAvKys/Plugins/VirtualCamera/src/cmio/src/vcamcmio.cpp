@@ -33,12 +33,11 @@
 #include <QVariant>
 #include <QWaitCondition>
 #include <QXmlStreamReader>
-#include <windows.h>
 #include <akfrac.h>
 
-#include "vcamdshow.h"
+#include "vcamcmio.h"
 
-using DShowAkFormatMap = QMap<AkVideoCaps::PixelFormat, QString>;
+using CMIOAkFormatMap = QMap<AkVideoCaps::PixelFormat, QString>;
 
 struct DeviceFormat
 {
@@ -46,16 +45,6 @@ struct DeviceFormat
     int width {0};
     int height {0};
     AkFrac fps;
-};
-
-struct StreamProcess
-{
-    HANDLE stdinReadPipe {nullptr};
-    HANDLE stdinWritePipe {nullptr};
-    SECURITY_ATTRIBUTES pipeAttributes;
-    STARTUPINFOA startupInfo;
-    PROCESS_INFORMATION procInfo;
-    QMutex stdinMutex;
 };
 
 struct DeviceControl
@@ -77,10 +66,10 @@ struct DeviceInfo
     AkVideoCapsList formats;
 };
 
-class VCamDShowPrivate
+class VCamCMIOPrivate
 {
     public:
-        VCamDShow *self;
+        VCamCMIO *self;
         QString m_device;
         QStringList m_devices;
         QMap<QString, QString> m_descriptions;
@@ -90,7 +79,7 @@ class VCamDShowPrivate
         QVariantList m_globalControls;
         QVariantMap m_localControls;
         QProcess *m_eventsProc {nullptr};
-        StreamProcess m_streamProc;
+        FILE *m_streamProc {nullptr};
         AkVideoCaps m_curFormat;
         QMutex m_controlsMutex;
         QString m_error;
@@ -98,10 +87,10 @@ class VCamDShowPrivate
         QString m_picture;
         QString m_rootMethod;
 
-        VCamDShowPrivate(VCamDShow *self=nullptr);
-        ~VCamDShowPrivate();
+        VCamCMIOPrivate(VCamCMIO *self=nullptr);
+        ~VCamCMIOPrivate();
 
-        inline const DShowAkFormatMap &dshowAkFormatMap() const;
+        inline const CMIOAkFormatMap &cmioAkFormatMap() const;
         void fillSupportedFormats();
         QVariantMap controlStatus(const QVariantList &controls) const;
         QVariantMap mapDiff(const QVariantMap &map1,
@@ -110,8 +99,7 @@ class VCamDShowPrivate
         bool setControls(const QString &device,
                          const QVariantMap &controls);
         QString readPicturePath() const;
-        QString servicePath(const QString &serviceName) const;
-        QString manager(const QString &arch={}) const;
+        QString manager() const;
         void updateDevices();
         template<typename T>
         static inline T alignUp(const T &value, const T &align)
@@ -120,53 +108,53 @@ class VCamDShowPrivate
         }
 };
 
-VCamDShow::VCamDShow(QObject *parent):
+VCamCMIO::VCamCMIO(QObject *parent):
     VCam(parent)
 {
-    this->d = new VCamDShowPrivate(this);
+    this->d = new VCamCMIOPrivate(this);
 }
 
-VCamDShow::~VCamDShow()
+VCamCMIO::~VCamCMIO()
 {
     delete this->d;
 }
 
-QString VCamDShow::error() const
+QString VCamCMIO::error() const
 {
     return this->d->m_error;
 }
 
-bool VCamDShow::isInstalled() const
+bool VCamCMIO::isInstalled() const
 {
     return !this->d->manager().isEmpty();
 }
 
-QStringList VCamDShow::webcams() const
+QStringList VCamCMIO::webcams() const
 {
     return this->d->m_devices;
 }
 
-QString VCamDShow::device() const
+QString VCamCMIO::device() const
 {
     return this->d->m_device;
 }
 
-QString VCamDShow::description(const QString &deviceId) const
+QString VCamCMIO::description(const QString &deviceId) const
 {
     return this->d->m_descriptions.value(deviceId);
 }
 
-QList<AkVideoCaps::PixelFormat> VCamDShow::supportedOutputPixelFormats() const
+QList<AkVideoCaps::PixelFormat> VCamCMIO::supportedOutputPixelFormats() const
 {
     return this->d->m_supportedOutputPixelFormats;
 }
 
-AkVideoCaps::PixelFormat VCamDShow::defaultOutputPixelFormat() const
+AkVideoCaps::PixelFormat VCamCMIO::defaultOutputPixelFormat() const
 {
     return this->d->m_defaultOutputPixelFormat;
 }
 
-AkVideoCapsList VCamDShow::caps(const QString &deviceId) const
+AkVideoCapsList VCamCMIO::caps(const QString &deviceId) const
 {
     if (!this->d->m_devicesFormats.contains(deviceId))
         return {};
@@ -174,12 +162,12 @@ AkVideoCapsList VCamDShow::caps(const QString &deviceId) const
     return this->d->m_devicesFormats[deviceId];
 }
 
-AkVideoCaps VCamDShow::currentCaps() const
+AkVideoCaps VCamCMIO::currentCaps() const
 {
     return this->d->m_currentCaps;
 }
 
-QVariantList VCamDShow::controls() const
+QVariantList VCamCMIO::controls() const
 {
     QVariantList controls;
 
@@ -189,7 +177,7 @@ QVariantList VCamDShow::controls() const
     return controls;
 }
 
-bool VCamDShow::setControls(const QVariantMap &controls)
+bool VCamCMIO::setControls(const QVariantMap &controls)
 {
     this->d->m_controlsMutex.lock();
     auto globalControls = this->d->m_globalControls;
@@ -216,7 +204,7 @@ bool VCamDShow::setControls(const QVariantMap &controls)
     this->d->m_globalControls = globalControls;
     this->d->m_controlsMutex.unlock();
 
-    if (!this->d->m_streamProc.stdinReadPipe)
+    if (!this->d->m_streamProc)
         this->d->setControls(this->d->m_device, controls);
 
     emit this->controlsChanged(controls);
@@ -224,7 +212,7 @@ bool VCamDShow::setControls(const QVariantMap &controls)
     return true;
 }
 
-QList<quint64> VCamDShow::clientsPids() const
+QList<quint64> VCamCMIO::clientsPids() const
 {
     auto manager = this->d->manager();
 
@@ -251,7 +239,7 @@ QList<quint64> VCamDShow::clientsPids() const
     return pids;
 }
 
-QString VCamDShow::clientExe(quint64 pid) const
+QString VCamCMIO::clientExe(quint64 pid) const
 {
     auto manager = this->d->manager();
 
@@ -275,18 +263,18 @@ QString VCamDShow::clientExe(quint64 pid) const
     return {};
 }
 
-QString VCamDShow::picture() const
+QString VCamCMIO::picture() const
 {
     return this->d->m_picture;
 }
 
-QString VCamDShow::rootMethod() const
+QString VCamCMIO::rootMethod() const
 {
     return this->d->m_rootMethod;
 }
 
-QString VCamDShow::deviceCreate(const QString &description,
-                                const AkVideoCapsList &formats)
+QString VCamCMIO::deviceCreate(const QString &description,
+                               const AkVideoCapsList &formats)
 {
     auto manager = this->d->manager();
 
@@ -340,7 +328,7 @@ QString VCamDShow::deviceCreate(const QString &description,
 
         for (auto &format: device.formats) {
             settings.setArrayIndex(j);
-            settings.setValue("format", this->d->dshowAkFormatMap().value(format.format()));
+            settings.setValue("format", this->d->cmioAkFormatMap().value(format.format()));
             settings.setValue("width", format.width());
             settings.setValue("height", format.height());
             settings.setValue("fps", format.fps().toString());
@@ -365,7 +353,7 @@ QString VCamDShow::deviceCreate(const QString &description,
 
         if (QDir().mkpath(dataLocation)) {
             defaultImage = defaultImage.convertToFormat(QImage::Format_RGB888);
-            auto width = VCamDShowPrivate::alignUp(defaultImage.width(), 32);
+            auto width = VCamCMIOPrivate::alignUp(defaultImage.width(), 32);
             defaultImage = defaultImage.scaled(width,
                                                defaultImage.height(),
                                                Qt::IgnoreAspectRatio,
@@ -421,9 +409,9 @@ QString VCamDShow::deviceCreate(const QString &description,
     return deviceId;
 }
 
-bool VCamDShow::deviceEdit(const QString &deviceId,
-                           const QString &description,
-                           const AkVideoCapsList &formats)
+bool VCamCMIO::deviceEdit(const QString &deviceId,
+                          const QString &description,
+                          const AkVideoCapsList &formats)
 {
     auto manager = this->d->manager();
 
@@ -477,7 +465,7 @@ bool VCamDShow::deviceEdit(const QString &deviceId,
 
         for (auto &format: device.formats) {
             settings.setArrayIndex(j);
-            settings.setValue("format", this->d->dshowAkFormatMap().value(format.format()));
+            settings.setValue("format", this->d->cmioAkFormatMap().value(format.format()));
             settings.setValue("width", format.width());
             settings.setValue("height", format.height());
             settings.setValue("fps", format.fps().toString());
@@ -502,7 +490,7 @@ bool VCamDShow::deviceEdit(const QString &deviceId,
 
         if (QDir().mkpath(dataLocation)) {
             defaultImage = defaultImage.convertToFormat(QImage::Format_RGB888);
-            auto width = VCamDShowPrivate::alignUp(defaultImage.width(), 32);
+            auto width = VCamCMIOPrivate::alignUp(defaultImage.width(), 32);
             defaultImage = defaultImage.scaled(width,
                                                defaultImage.height(),
                                                Qt::IgnoreAspectRatio,
@@ -542,7 +530,7 @@ bool VCamDShow::deviceEdit(const QString &deviceId,
     return ok;
 }
 
-bool VCamDShow::changeDescription(const QString &deviceId,
+bool VCamCMIO::changeDescription(const QString &deviceId,
                                  const QString &description)
 {
     auto manager = this->d->manager();
@@ -573,7 +561,7 @@ bool VCamDShow::changeDescription(const QString &deviceId,
     return ok;
 }
 
-bool VCamDShow::deviceDestroy(const QString &deviceId)
+bool VCamCMIO::deviceDestroy(const QString &deviceId)
 {
     auto manager = this->d->manager();
 
@@ -603,7 +591,7 @@ bool VCamDShow::deviceDestroy(const QString &deviceId)
     return ok;
 }
 
-bool VCamDShow::destroyAllDevices()
+bool VCamCMIO::destroyAllDevices()
 {
     auto manager = this->d->manager();
 
@@ -633,7 +621,7 @@ bool VCamDShow::destroyAllDevices()
     return ok;
 }
 
-bool VCamDShow::init()
+bool VCamCMIO::init()
 {
     auto manager = this->d->manager();
 
@@ -649,87 +637,30 @@ bool VCamDShow::init()
                  << " "
                  << this->d->m_device
                  << " "
-                 << this->d->dshowAkFormatMap().value(this->d->m_currentCaps.format())
+                 << this->d->cmioAkFormatMap().value(this->d->m_currentCaps.format())
                  << " "
                  << this->d->m_currentCaps.width()
                  << " "
                  << this->d->m_currentCaps.height();
+    this->d->m_streamProc = popen(params.toStdString().c_str(), "w");
 
-    this->d->m_streamProc.stdinReadPipe = nullptr;
-    this->d->m_streamProc.stdinWritePipe = nullptr;
-    memset(&this->d->m_streamProc.pipeAttributes,
-           0,
-           sizeof(SECURITY_ATTRIBUTES));
-    this->d->m_streamProc.pipeAttributes.nLength = sizeof(SECURITY_ATTRIBUTES);
-    this->d->m_streamProc.pipeAttributes.bInheritHandle = true;
-    this->d->m_streamProc.pipeAttributes.lpSecurityDescriptor = nullptr;
+    if (this->d->m_streamProc)
+        this->d->m_curFormat = this->d->m_currentCaps;
 
-    if (!CreatePipe(&this->d->m_streamProc.stdinReadPipe,
-                    &this->d->m_streamProc.stdinWritePipe,
-                    &this->d->m_streamProc.pipeAttributes,
-                    0)) {
-        return false;
-    }
-
-    if (!SetHandleInformation(this->d->m_streamProc.stdinWritePipe,
-                              HANDLE_FLAG_INHERIT,
-                              0)) {
-        CloseHandle(this->d->m_streamProc.stdinWritePipe);
-        CloseHandle(this->d->m_streamProc.stdinReadPipe);
-
-        return false;
-    }
-
-    STARTUPINFOA startupInfo;
-    memset(&startupInfo, 0, sizeof(STARTUPINFOA));
-    startupInfo.cb = sizeof(STARTUPINFO);
-    startupInfo.hStdInput = this->d->m_streamProc.stdinReadPipe;
-    startupInfo.dwFlags = STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES;
-    startupInfo.wShowWindow = SW_HIDE;
-
-    PROCESS_INFORMATION procInfo;
-    memset(&procInfo, 0, sizeof(PROCESS_INFORMATION));
-
-    if (!CreateProcessA(nullptr,
-                        const_cast<char *>(params.toStdString().c_str()),
-                        nullptr,
-                        nullptr,
-                        true,
-                        0,
-                        nullptr,
-                        nullptr,
-                        &startupInfo,
-                        &procInfo)) {
-        CloseHandle(this->d->m_streamProc.stdinWritePipe);
-        CloseHandle(this->d->m_streamProc.stdinReadPipe);
-
-        return false;
-    }
-
-    this->d->m_curFormat = this->d->m_currentCaps;
-
-    return true;
+    return this->d->m_streamProc != nullptr;
 }
 
-void VCamDShow::uninit()
+void VCamCMIO::uninit()
 {
-    if (this->d->m_streamProc.stdinReadPipe) {
-        this->d->m_streamProc.stdinMutex.lock();
-        CloseHandle(this->d->m_streamProc.stdinWritePipe);
-        this->d->m_streamProc.stdinWritePipe = nullptr;
-        CloseHandle(this->d->m_streamProc.stdinReadPipe);
-        this->d->m_streamProc.stdinReadPipe = nullptr;
-        this->d->m_streamProc.stdinMutex.unlock();
-
-        WaitForSingleObject(this->d->m_streamProc.procInfo.hProcess, INFINITE);
-        CloseHandle(this->d->m_streamProc.procInfo.hProcess);
-        CloseHandle(this->d->m_streamProc.procInfo.hThread);
+    if (this->d->m_streamProc) {
+        pclose(this->d->m_streamProc);
+        this->d->m_streamProc = nullptr;
     }
 
     this->d->m_curFormat.clear();
 }
 
-void VCamDShow::setDevice(const QString &device)
+void VCamCMIO::setDevice(const QString &device)
 {
     if (this->d->m_device == device)
         return;
@@ -754,7 +685,7 @@ void VCamDShow::setDevice(const QString &device)
     emit this->controlsChanged(status);
 }
 
-void VCamDShow::setCurrentCaps(const AkVideoCaps &currentCaps)
+void VCamCMIO::setCurrentCaps(const AkVideoCaps &currentCaps)
 {
     if (this->d->m_currentCaps == currentCaps)
         return;
@@ -763,7 +694,7 @@ void VCamDShow::setCurrentCaps(const AkVideoCaps &currentCaps)
     emit this->currentCapsChanged(this->d->m_currentCaps);
 }
 
-void VCamDShow::setPicture(const QString &picture)
+void VCamCMIO::setPicture(const QString &picture)
 {
     if (this->d->m_picture == picture)
         return;
@@ -772,7 +703,7 @@ void VCamDShow::setPicture(const QString &picture)
     emit this->pictureChanged(this->d->m_picture);
 }
 
-void VCamDShow::setRootMethod(const QString &rootMethod)
+void VCamCMIO::setRootMethod(const QString &rootMethod)
 {
     if (this->d->m_rootMethod == rootMethod)
         return;
@@ -781,7 +712,7 @@ void VCamDShow::setRootMethod(const QString &rootMethod)
     emit this->rootMethodChanged(this->d->m_rootMethod);
 }
 
-bool VCamDShow::applyPicture()
+bool VCamCMIO::applyPicture()
 {
     auto manager = this->d->manager();
 
@@ -800,7 +731,7 @@ bool VCamDShow::applyPicture()
 
         if (QDir().mkpath(dataLocation)) {
             defaultImage = defaultImage.convertToFormat(QImage::Format_RGB888);
-            auto width = VCamDShowPrivate::alignUp(defaultImage.width(), 32);
+            auto width = VCamCMIOPrivate::alignUp(defaultImage.width(), 32);
             defaultImage = defaultImage.scaled(width,
                                                defaultImage.height(),
                                                Qt::IgnoreAspectRatio,
@@ -835,9 +766,9 @@ bool VCamDShow::applyPicture()
     return true;
 }
 
-bool VCamDShow::write(const AkVideoPacket &frame)
+bool VCamCMIO::write(const AkVideoPacket &frame)
 {
-    if (!this->d->m_streamProc.stdinReadPipe)
+    if (!this->d->m_streamProc)
         return false;
 
     this->d->m_controlsMutex.lock();
@@ -858,33 +789,13 @@ bool VCamDShow::write(const AkVideoPacket &frame)
     if (!scaled)
         return false;
 
-    this->d->m_streamProc.stdinMutex.lock();
-    bool ok = false;
-
-    if (this->d->m_streamProc.stdinWritePipe) {
-        ok = true;
-
-        for (int y = 0; y < scaled.caps().height(); y++) {
-            auto line = scaled.constLine(0, y);
-            auto lineSize = scaled.caps().bytesPerLine(0);
-            DWORD bytesWritten = 0;
-            ok = WriteFile(this->d->m_streamProc.stdinWritePipe,
-                           line,
-                           DWORD(lineSize),
-                           &bytesWritten,
-                           nullptr);
-
-            if (!ok)
-                break;
-        }
-    }
-
-    this->d->m_streamProc.stdinMutex.unlock();
-
-    return ok;
+    return fwrite(scaled.buffer().data(),
+                  size_t(scaled.buffer().size()),
+                  1,
+                  this->d->m_streamProc) > 0;
 }
 
-VCamDShowPrivate::VCamDShowPrivate(VCamDShow *self):
+VCamCMIOPrivate::VCamCMIOPrivate(VCamCMIO *self):
     self(self)
 {
     auto manager = this->manager();
@@ -915,16 +826,16 @@ VCamDShowPrivate::VCamDShowPrivate(VCamDShow *self):
     this->updateDevices();
 }
 
-VCamDShowPrivate::~VCamDShowPrivate()
+VCamCMIOPrivate::~VCamCMIOPrivate()
 {
     this->m_eventsProc->terminate();
     this->m_eventsProc->waitForFinished();
     delete this->m_eventsProc;
 }
 
-const DShowAkFormatMap &VCamDShowPrivate::dshowAkFormatMap() const
+const CMIOAkFormatMap &VCamCMIOPrivate::cmioAkFormatMap() const
 {
-    static const DShowAkFormatMap formatMap {
+    static const CMIOAkFormatMap formatMap {
         // RGB formats
         {AkVideoCaps::Format_0rgb    , "RGB32"},
         {AkVideoCaps::Format_rgb24   , "RGB24"},
@@ -947,7 +858,7 @@ const DShowAkFormatMap &VCamDShowPrivate::dshowAkFormatMap() const
     return formatMap;
 }
 
-void VCamDShowPrivate::fillSupportedFormats()
+void VCamCMIOPrivate::fillSupportedFormats()
 {
     auto manager = this->manager();
 
@@ -961,8 +872,8 @@ void VCamDShowPrivate::fillSupportedFormats()
 
     if (proc.exitCode() == 0) {
         for (auto &line: proc.readAllStandardOutput().split('\n')) {
-            auto format = this->dshowAkFormatMap().key(line.trimmed(),
-                                                       AkVideoCaps::Format_none);
+            auto format = this->cmioAkFormatMap().key(line.trimmed(),
+                                                      AkVideoCaps::Format_none);
 
             if (format != AkVideoCaps::Format_none)
                 this->m_supportedOutputPixelFormats << format;
@@ -975,11 +886,11 @@ void VCamDShowPrivate::fillSupportedFormats()
 
     if (proc.exitCode() == 0)
         this->m_defaultOutputPixelFormat =
-                this->dshowAkFormatMap().key(proc.readAllStandardOutput().trimmed(),
-                                             AkVideoCaps::Format_none);
+                this->cmioAkFormatMap().key(proc.readAllStandardOutput().trimmed(),
+                                            AkVideoCaps::Format_none);
 }
 
-QVariantMap VCamDShowPrivate::controlStatus(const QVariantList &controls) const
+QVariantMap VCamCMIOPrivate::controlStatus(const QVariantList &controls) const
 {
     QVariantMap controlStatus;
 
@@ -992,8 +903,8 @@ QVariantMap VCamDShowPrivate::controlStatus(const QVariantList &controls) const
     return controlStatus;
 }
 
-QVariantMap VCamDShowPrivate::mapDiff(const QVariantMap &map1,
-                                      const QVariantMap &map2) const
+QVariantMap VCamCMIOPrivate::mapDiff(const QVariantMap &map1,
+                                     const QVariantMap &map2) const
 {
     QVariantMap map;
 
@@ -1006,7 +917,7 @@ QVariantMap VCamDShowPrivate::mapDiff(const QVariantMap &map1,
     return map;
 }
 
-QVariantList VCamDShowPrivate::controls(const QString &device)
+QVariantList VCamCMIOPrivate::controls(const QString &device)
 {
     auto manager = this->manager();
 
@@ -1136,8 +1047,8 @@ QVariantList VCamDShowPrivate::controls(const QString &device)
     return controls;
 }
 
-bool VCamDShowPrivate::setControls(const QString &device,
-                                   const QVariantMap &controls)
+bool VCamCMIOPrivate::setControls(const QString &device,
+                                  const QVariantMap &controls)
 {
     auto manager = this->manager();
 
@@ -1179,7 +1090,7 @@ bool VCamDShowPrivate::setControls(const QString &device,
     return result;
 }
 
-QString VCamDShowPrivate::readPicturePath() const
+QString VCamCMIOPrivate::readPicturePath() const
 {
     auto manager = this->manager();
 
@@ -1196,83 +1107,18 @@ QString VCamDShowPrivate::readPicturePath() const
     return QString(proc.readAllStandardOutput().trimmed());
 }
 
-QString VCamDShowPrivate::servicePath(const QString &serviceName) const
+QString VCamCMIOPrivate::manager() const
 {
-    QString path;
-    auto manager = OpenSCManager(nullptr, nullptr, GENERIC_READ);
+    const QString pluginPath =
+            "/Library/CoreMediaIO/Plug-Ins/DAL/AkVirtualCamera.plugin/Contents/Resources/AkVCamManager";
 
-    if (manager) {
-        auto service = OpenServiceA(manager,
-                                    serviceName.toStdString().c_str(),
-                                    SERVICE_QUERY_CONFIG);
-
-        if (service) {
-            DWORD bytesNeeded = 0;
-            QueryServiceConfig(service, nullptr, 0, &bytesNeeded);
-            auto bufSize = bytesNeeded;
-            auto serviceConfig =
-                    reinterpret_cast<LPQUERY_SERVICE_CONFIG>(LocalAlloc(LMEM_FIXED,
-                                                                        bufSize));
-            if (serviceConfig) {
-                if (QueryServiceConfig(service,
-                                       serviceConfig,
-                                       bufSize,
-                                       &bytesNeeded)) {
-                    path = QString::fromStdWString(serviceConfig->lpBinaryPathName);
-                }
-
-                LocalFree(serviceConfig);
-            }
-
-            CloseServiceHandle(service);
-        }
-
-        CloseServiceHandle(manager);
-    }
-
-    return path;
-}
-
-QString VCamDShowPrivate::manager(const QString &arch) const
-{
-    auto assistant = this->servicePath("AkVCamAssistant");
-
-    if (assistant.isEmpty())
+    if (!QFileInfo::exists(pluginPath))
         return {};
 
-    auto pluginDir = QFileInfo(assistant).absoluteDir();
-    pluginDir.cdUp();
-
-    if (!arch.isEmpty()) {
-        auto manager = pluginDir.absoluteFilePath(arch + "\\AkVCamManager.exe");
-
-        return QFileInfo::exists(manager)? manager: QString();
-    }
-
-    QStringList archs;
-
-    if (QSysInfo::buildCpuArchitecture() == "x86_64") {
-        archs << "x64" << "x86";
-    } else {
-        archs << "x86";
-
-        if (QSysInfo::currentCpuArchitecture() == "x86_64")
-            archs << "x64";
-    }
-
-    QString driverPath;
-
-    for (auto &arch: archs) {
-        auto manager = pluginDir.absoluteFilePath(arch + "\\AkVCamManager.exe");
-
-        if (QFileInfo::exists(manager))
-            return manager;
-    }
-
-    return {};
+    return QFileInfo(pluginPath).canonicalFilePath();
 }
 
-void VCamDShowPrivate::updateDevices()
+void VCamCMIOPrivate::updateDevices()
 {
     auto manager = this->manager();
 
@@ -1355,8 +1201,8 @@ void VCamDShowPrivate::updateDevices()
                 curDescription = xmlInfo.text().trimmed().toString();
             else if (path == "info/devices/device/formats/format/pixel-format")
                 curFormat.format =
-                        this->dshowAkFormatMap().key(xmlInfo.text().trimmed().toString(),
-                                                     AkVideoCaps::Format_none);
+                        this->cmioAkFormatMap().key(xmlInfo.text().trimmed().toString(),
+                                                    AkVideoCaps::Format_none);
             else if (path == "info/devices/device/formats/format/width")
                 curFormat.width = int(xmlInfo.text().trimmed().toUInt());
             else if (path == "info/devices/device/formats/format/height")
@@ -1388,4 +1234,4 @@ void VCamDShowPrivate::updateDevices()
     }
 }
 
-#include "moc_vcamdshow.cpp"
+#include "moc_vcamcmio.cpp"

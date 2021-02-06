@@ -407,7 +407,7 @@ void VideoLayer::removeInterface(const QString &where) const
 
         auto childItems = item->childItems();
 
-        for (auto child: childItems) {
+        for (auto &child: childItems) {
             child->setParentItem(nullptr);
             child->setParent(nullptr);
             delete child;
@@ -1164,6 +1164,10 @@ void VideoLayerPrivate::loadProperties()
     if (this->m_cameraOutput) {
         auto streams = this->m_cameraOutput->property("medias").toStringList();
         auto stream = config.value("stream", streams.value(0)).toString();
+
+        if (!streams.contains(stream))
+            stream = streams.value(0);
+
         this->m_videoOutput = QStringList {stream};
 
         if (stream != DUMMY_OUTPUT_DEVICE)

@@ -35,14 +35,17 @@ class VCamV4L2LoopBack: public VCam
         Q_INVOKABLE QString error() const;
         Q_INVOKABLE bool isInstalled() const;
         Q_INVOKABLE QStringList webcams() const;
+        Q_INVOKABLE QString device() const;
         Q_INVOKABLE QString description(const QString &webcam) const;
         Q_INVOKABLE QList<AkVideoCaps::PixelFormat> supportedOutputPixelFormats() const;
         Q_INVOKABLE AkVideoCaps::PixelFormat defaultOutputPixelFormat() const;
         Q_INVOKABLE AkVideoCapsList caps(const QString &webcam) const;
+        Q_INVOKABLE AkVideoCaps currentCaps() const;
         Q_INVOKABLE QVariantList controls() const;
         Q_INVOKABLE bool setControls(const QVariantMap &controls);
         Q_INVOKABLE QList<quint64> clientsPids() const;
         Q_INVOKABLE QString clientExe(quint64 pid) const;
+        Q_INVOKABLE QString rootMethod() const;
         Q_INVOKABLE QString deviceCreate(const QString &description,
                                          const AkVideoCapsList &caps);
         Q_INVOKABLE bool deviceEdit(const QString &deviceId,
@@ -59,6 +62,9 @@ class VCamV4L2LoopBack: public VCam
     public slots:
         bool init();
         void uninit();
+        void setDevice(const QString &device);
+        void setCurrentCaps(const AkVideoCaps &currentCaps);
+        void setRootMethod(const QString &rootMethod);
         bool write(const AkVideoPacket &packet);
 };
 

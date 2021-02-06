@@ -88,12 +88,6 @@ class VCam: public QObject
         Q_INVOKABLE virtual bool deviceDestroy(const QString &deviceId);
         Q_INVOKABLE virtual bool destroyAllDevices();
 
-    protected:
-        QString m_device;
-        AkVideoCaps m_currentCaps;
-        QString m_picture;
-        QString m_rootMethod;
-
     signals:
         void errorChanged(const QString &error);
         void webcamsChanged(const QStringList &webcams);
@@ -101,6 +95,7 @@ class VCam: public QObject
         void currentCapsChanged(const AkVideoCaps &error);
         void pictureChanged(const QString &picture);
         void rootMethodChanged(const QString &rootMethod);
+        void controlsChanged(const QVariantMap &controls) const;
 
     public slots:
         virtual bool init();

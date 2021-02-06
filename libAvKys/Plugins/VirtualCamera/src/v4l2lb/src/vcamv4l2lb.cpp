@@ -106,10 +106,13 @@ class VCamV4L2LoopBackPrivate
 {
     public:
         VCamV4L2LoopBack *self;
+        QString m_device;
         QStringList m_devices;
         QMap<QString, QString> m_descriptions;
         QMap<QString, AkVideoCapsList> m_devicesFormats;
         AkVideoCapsList m_defaultFormats;
+        QVariantList m_globalControls;
+        QVariantMap m_localControls;
         QFileSystemWatcher *m_fsWatcher;
         QVector<CaptureBuffer> m_buffers;
         QMap<QString, DeviceControlValues> m_deviceControlValues;
@@ -118,6 +121,8 @@ class VCamV4L2LoopBackPrivate
         AkElementPtr m_scaleFilter {AkElement::create("Scale")};
         AkElementPtr m_swapRBFilter {AkElement::create("SwapRB")};
         QString m_error;
+        AkVideoCaps m_currentCaps;
+        QString m_rootMethod;
         IoMethod m_ioMethod {IoMethodUnknown};
         int m_fd {-1};
         int m_nBuffers {32};
@@ -130,14 +135,20 @@ class VCamV4L2LoopBackPrivate
         bool sudo(const QString &command,
                   const QStringList &argumments);
         QVariantList controls(int fd, quint32 controlClass) const;
+        QVariantList controls(int fd) const;
         bool setControls(int fd,
                          quint32 controlClass,
+                         const QVariantMap &controls) const;
+        bool setControls(int fd,
                          const QVariantMap &controls) const;
         QVariantList queryControl(int handle,
                                   quint32 controlClass,
                                   v4l2_queryctrl *queryctrl) const;
         QMap<QString, quint32> findControls(int handle,
                                             quint32 controlClass) const;
+        QVariantMap controlStatus(const QVariantList &controls) const;
+        QVariantMap mapDiff(const QVariantMap &map1,
+                            const QVariantMap &map2) const;
         inline const V4L2AkFormatMap &v4l2AkFormatMap() const;
         inline const V4L2AkFormat &formatByV4L2(uint32_t v4l2) const;
         inline const V4L2AkFormat &formatByAk(AkVideoCaps::PixelFormat ak) const;
@@ -184,8 +195,6 @@ VCamV4L2LoopBack::VCamV4L2LoopBack(QObject *parent):
     VCam(parent)
 {
     this->d = new VCamV4L2LoopBackPrivate(this);
-    this->d->initDefaultFormats();
-    this->d->updateDevices();
 }
 
 VCamV4L2LoopBack::~VCamV4L2LoopBack()
@@ -227,6 +236,11 @@ QStringList VCamV4L2LoopBack::webcams() const
     return this->d->m_devices;
 }
 
+QString VCamV4L2LoopBack::device() const
+{
+    return this->d->m_device;
+}
+
 QString VCamV4L2LoopBack::description(const QString &deviceId) const
 {
     return this->d->m_descriptions.value(deviceId);
@@ -255,107 +269,60 @@ AkVideoCapsList VCamV4L2LoopBack::caps(const QString &deviceId) const
     if (!this->d->m_devicesFormats.contains(deviceId))
         return {};
 
-    AkVideoCapsList caps;
+    return this->d->m_devicesFormats[deviceId];
+}
 
-    for (auto &format: this->d->m_devicesFormats[deviceId])
-        caps << format;
-
-    return caps;
+AkVideoCaps VCamV4L2LoopBack::currentCaps() const
+{
+    return this->d->m_currentCaps;
 }
 
 QVariantList VCamV4L2LoopBack::controls() const
 {
-    int fd = open(this->m_device.toStdString().c_str(), O_RDWR | O_NONBLOCK, 0);
-
-    if (fd < 0)
-        return {};
-
-    auto controls = this->d->controls(fd, V4L2_CTRL_CLASS_USER)
-                  + this->d->controls(fd, V4L2_CTRL_CLASS_CAMERA);
-
-    for (auto &control: this->d->deviceControls()) {
-        int value = control.default_value;
-        this->d->m_controlsMutex.lock();
-
-        if (this->d->m_deviceControlValues.contains(this->m_device)
-            && this->d->m_deviceControlValues[this->m_device].contains(control.name))
-            value = this->d->m_deviceControlValues[this->m_device][control.name];
-
-        this->d->m_controlsMutex.unlock();
-        QVariantList controlVar {
-            control.name,
-            control.type,
-            control.minimum,
-            control.maximum,
-            control.step,
-            control.default_value,
-            value,
-            control.menu
-        };
-        controls << QVariant(controlVar);
-    }
-
-    close(fd);
-
-    return controls;
+    return this->d->m_globalControls;
 }
 
 bool VCamV4L2LoopBack::setControls(const QVariantMap &controls)
 {
-    int fd = open(this->m_device.toStdString().c_str(), O_RDWR | O_NONBLOCK, 0);
+    this->d->m_controlsMutex.lock();
+    auto globalControls = this->d->m_globalControls;
+    this->d->m_controlsMutex.unlock();
 
-    if (fd < 0)
-        return false;
+    for (int i = 0; i < globalControls.count(); i++) {
+        auto control = globalControls[i].toList();
+        auto controlName = control[0].toString();
 
-    auto result = true;
-    QVariantMap ctrls;
-
-    for (auto &control: this->d->controls(fd, V4L2_CTRL_CLASS_USER)) {
-        auto ctrl = control.toList();
-        auto key = ctrl[0].toString();
-
-        if (controls.contains(key))
-            ctrls[key] = controls[key];
+        if (controls.contains(controlName)) {
+            control[6] = controls[controlName];
+            globalControls[i] = control;
+        }
     }
 
-    if (!ctrls.isEmpty())
-        result &= this->d->setControls(fd, V4L2_CTRL_CLASS_USER, ctrls);
+    this->d->m_controlsMutex.lock();
 
-    ctrls.clear();
-
-    for (auto &control: this->d->controls(fd, V4L2_CTRL_CLASS_CAMERA)) {
-        auto ctrl = control.toList();
-        auto key = ctrl[0].toString();
-
-        if (controls.contains(key))
-            ctrls[key] = controls[key];
-    }
-
-    if (!ctrls.isEmpty())
-        result &= this->d->setControls(fd, V4L2_CTRL_CLASS_CAMERA, ctrls);
-
-    ctrls.clear();
-
-    for (auto &control: this->d->deviceControls())
-        if (controls.contains(control.name))
-            ctrls[control.name] = controls[control.name];
-
-    if (!ctrls.isEmpty()) {
-        this->d->m_controlsMutex.lock();
-
-        if (!this->d->m_deviceControlValues.contains(this->m_device))
-            this->d->m_deviceControlValues[this->m_device] = {};
-
-        for (auto it = ctrls.begin(); it != ctrls.end(); it++)
-            this->d->m_deviceControlValues[this->m_device][it.key()] =
-                it.value().toInt();
-
+    if (this->d->m_globalControls == globalControls) {
         this->d->m_controlsMutex.unlock();
+
+        return false;
     }
 
-    close(fd);
+    this->d->m_globalControls = globalControls;
+    this->d->m_controlsMutex.unlock();
 
-    return result;
+    if (this->d->m_fd < 0) {
+        int fd = open(this->d->m_device.toStdString().c_str(), O_RDWR | O_NONBLOCK, 0);
+
+            if (fd >= 0) {
+                bool result = this->d->setControls(fd, controls);
+                close(fd);
+
+                return result;
+        }
+    }
+
+    emit this->controlsChanged(controls);
+
+    return true;
 }
 
 QList<quint64> VCamV4L2LoopBack::clientsPids() const
@@ -410,6 +377,11 @@ QList<quint64> VCamV4L2LoopBack::clientsPids() const
 QString VCamV4L2LoopBack::clientExe(quint64 pid) const
 {
     return QFileInfo(QString("/proc/%1/exe").arg(pid)).symLinkTarget();
+}
+
+QString VCamV4L2LoopBack::rootMethod() const
+{
+    return this->d->m_rootMethod;
 }
 
 QString VCamV4L2LoopBack::deviceCreate(const QString &description,
@@ -478,16 +450,16 @@ QString VCamV4L2LoopBack::deviceCreate(const QString &description,
     cmds.write("sed -i '/v4l2loopback/d' /etc/modules-load.d/*.conf 2>/dev/null\n");
     cmds.write("sed -i '/v4l2loopback/d' /etc/modprobe.d/*.conf 2>/dev/null\n");
     cmds.write("echo v4l2loopback > /etc/modules-load.d/v4l2loopback.conf\n");
-    cmds.write(QString("echo options v4l2loopback devices=%1 'card_label=\"%2\"' "
+    cmds.write(QString("echo options v4l2loopback video_nr=%1 'card_label=\"%2\"' "
                        "> /etc/modprobe.d/v4l2loopback.conf\n")
-               .arg(devices.size()).arg(cardLabel).toUtf8());
+               .arg(videoNR, cardLabel).toUtf8());
     cmds.write(QString("modprobe v4l2loopback video_nr=%1 card_label=\"%2\"\n")
                .arg(videoNR, cardLabel).toUtf8());
 
     cmds.close();
 
     // Execute the script
-    if (!this->d->sudo(this->m_rootMethod, {"sh", cmds.fileName()}))
+    if (!this->d->sudo(this->d->m_rootMethod, {"sh", cmds.fileName()}))
         return {};
 
     if (!this->d->waitForDevice(deviceId)) {
@@ -613,15 +585,15 @@ bool VCamV4L2LoopBack::deviceEdit(const QString &deviceId,
     cmds.write("sed -i '/v4l2loopback/d' /etc/modules-load.d/*.conf 2>/dev/null\n");
     cmds.write("sed -i '/v4l2loopback/d' /etc/modprobe.d/*.conf 2>/dev/null\n");
     cmds.write("echo v4l2loopback > /etc/modules-load.d/v4l2loopback.conf\n");
-    cmds.write(QString("echo options v4l2loopback devices=%1 'card_label=\"%2\"' "
+    cmds.write(QString("echo options v4l2loopback video_nr=%1 'card_label=\"%2\"' "
                        "> /etc/modprobe.d/v4l2loopback.conf\n")
-               .arg(devices.size()).arg(cardLabel).toUtf8());
+               .arg(videoNR, cardLabel).toUtf8());
     cmds.write(QString("modprobe v4l2loopback video_nr=%1 card_label=\"%2\"\n")
                .arg(videoNR, cardLabel).toUtf8());
     cmds.close();
 
     // Execute the script
-    if (!this->d->sudo(this->m_rootMethod, {"sh", cmds.fileName()}))
+    if (!this->d->sudo(this->d->m_rootMethod, {"sh", cmds.fileName()}))
         return false;
 
     if (!this->d->waitForDevice(deviceId)) {
@@ -733,14 +705,14 @@ bool VCamV4L2LoopBack::changeDescription(const QString &deviceId,
     cmds.write("sed -i '/v4l2loopback/d' /etc/modules-load.d/*.conf 2>/dev/null\n");
     cmds.write("sed -i '/v4l2loopback/d' /etc/modprobe.d/*.conf 2>/dev/null\n");
     cmds.write("echo v4l2loopback > /etc/modules-load.d/v4l2loopback.conf\n");
-    cmds.write(QString("echo options v4l2loopback devices=%1 'card_label=\"%2\"' "
+    cmds.write(QString("echo options v4l2loopback video_nr=%1 'card_label=\"%2\"' "
                        "> /etc/modprobe.d/v4l2loopback.conf\n")
-               .arg(devices.size()).arg(cardLabel).toUtf8());
+               .arg(videoNR, cardLabel).toUtf8());
     cmds.write(QString("modprobe v4l2loopback video_nr=%1 card_label=\"%2\"\n")
                .arg(videoNR, cardLabel).toUtf8());
     cmds.close();
 
-    if (!this->d->sudo(this->m_rootMethod, {"sh", cmds.fileName()}))
+    if (!this->d->sudo(this->d->m_rootMethod, {"sh", cmds.fileName()}))
         return false;
 
     auto result = this->d->waitForDevice(deviceId);
@@ -812,15 +784,15 @@ bool VCamV4L2LoopBack::deviceDestroy(const QString &deviceId)
 
     if (!devices.empty()) {
         cmds.write("echo v4l2loopback > /etc/modules-load.d/v4l2loopback.conf\n");
-        cmds.write(QString("echo options v4l2loopback devices=%1 'card_label=\"%2\"' "
+        cmds.write(QString("echo options v4l2loopback video_nr=%1 'card_label=\"%2\"' "
                            "> /etc/modprobe.d/v4l2loopback.conf\n")
-                   .arg(devices.size()).arg(cardLabel).toUtf8());
+                   .arg(videoNR, cardLabel).toUtf8());
         cmds.write(QString("modprobe v4l2loopback video_nr=%1 card_label=\"%2\"\n")
                    .arg(videoNR, cardLabel).toUtf8());
     }
     cmds.close();
 
-    if (!this->d->sudo(this->m_rootMethod, {"sh", cmds.fileName()}))
+    if (!this->d->sudo(this->d->m_rootMethod, {"sh", cmds.fileName()}))
         return false;
 
     if (!this->d->waitForDevices(devicesList)) {
@@ -874,8 +846,10 @@ bool VCamV4L2LoopBack::destroyAllDevices()
 
 bool VCamV4L2LoopBack::init()
 {
+    this->d->m_localControls.clear();
+
     // Frames read must be blocking so we does not waste CPU time.
-    this->d->m_fd = open(this->m_device.toStdString().c_str(),
+    this->d->m_fd = open(this->d->m_device.toStdString().c_str(),
                          O_RDWR | O_NONBLOCK,
                          0);
 
@@ -898,33 +872,33 @@ bool VCamV4L2LoopBack::init()
     fmt.type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
     this->d->xioctl(this->d->m_fd, VIDIOC_G_FMT, &fmt);
 
-    auto outputFormats = this->caps(this->m_device);
+    auto outputFormats = this->caps(this->d->m_device);
 
     if (outputFormats.empty()) {
         qDebug() << "VirtualCamera: Can't find a similar format:"
-                 << this->m_currentCaps;
+                 << this->d->m_currentCaps;
         close(this->d->m_fd);
         this->d->m_fd = -1;
 
         return false;
     }
 
-    auto nearestFormat = this->m_currentCaps.nearest(outputFormats);
-    fmt.fmt.pix.pixelformat = this->d->formatByAk(this->m_currentCaps.format()).v4l2;
+    auto nearestFormat = this->d->m_currentCaps.nearest(outputFormats);
+    fmt.fmt.pix.pixelformat = this->d->formatByAk(this->d->m_currentCaps.format()).v4l2;
     fmt.fmt.pix.width = __u32(nearestFormat.width());
     fmt.fmt.pix.height = __u32(nearestFormat.height());
 
     if (this->d->xioctl(this->d->m_fd, VIDIOC_S_FMT, &fmt) < 0) {
         qDebug() << "VirtualCamera:  Can't set format:"
-                 << this->m_currentCaps;
+                 << this->d->m_currentCaps;
         close(this->d->m_fd);
         this->d->m_fd = -1;
 
         return false;
     }
 
-    v4l2_fract fps = {__u32(this->m_currentCaps.fps().num()),
-                      __u32(this->m_currentCaps.fps().den())};
+    v4l2_fract fps = {__u32(this->d->m_currentCaps.fps().num()),
+                      __u32(this->d->m_currentCaps.fps().den())};
     this->d->setFps(this->d->m_fd, fps);
 
     if (this->d->m_ioMethod == IoMethodReadWrite
@@ -980,6 +954,75 @@ void VCamV4L2LoopBack::uninit()
     this->d->m_buffers.clear();
 }
 
+void VCamV4L2LoopBack::setDevice(const QString &device)
+{
+    if (this->d->m_device == device)
+        return;
+
+    this->d->m_device = device;
+
+    if (device.isEmpty()) {
+        this->d->m_controlsMutex.lock();
+        this->d->m_globalControls.clear();
+        this->d->m_controlsMutex.unlock();
+    } else {
+        this->d->m_controlsMutex.lock();
+        int fd = open(device.toStdString().c_str(), O_RDWR | O_NONBLOCK, 0);
+
+        if (fd >= 0) {
+            this->d->m_globalControls = this->d->controls(fd);
+            close(fd);
+
+            for (auto &control: this->d->deviceControls()) {
+                int value = control.default_value;
+
+                if (this->d->m_deviceControlValues.contains(this->d->m_device)
+                    && this->d->m_deviceControlValues[this->d->m_device].contains(control.name))
+                    value = this->d->m_deviceControlValues[this->d->m_device][control.name];
+
+                QVariantList controlVar {
+                    control.name,
+                    control.type,
+                    control.minimum,
+                    control.maximum,
+                    control.step,
+                    control.default_value,
+                    value,
+                    control.menu
+                };
+                this->d->m_globalControls << QVariant(controlVar);
+            }
+        }
+
+        this->d->m_controlsMutex.unlock();
+    }
+
+    this->d->m_controlsMutex.lock();
+    auto status = this->d->controlStatus(this->d->m_globalControls);
+    this->d->m_controlsMutex.unlock();
+
+    emit this->deviceChanged(device);
+    emit this->controlsChanged(status);
+}
+
+void VCamV4L2LoopBack::setCurrentCaps(const AkVideoCaps &currentCaps)
+{
+    if (this->d->m_currentCaps == currentCaps)
+        return;
+
+    this->d->m_currentCaps = currentCaps;
+    emit this->currentCapsChanged(this->d->m_currentCaps);
+}
+
+void VCamV4L2LoopBack::setRootMethod(const QString &rootMethod)
+{
+    if (this->d->m_rootMethod == rootMethod)
+        return;
+
+    this->d->m_rootMethod = rootMethod;
+    emit this->rootMethodChanged(this->d->m_rootMethod);
+}
+
 bool VCamV4L2LoopBack::write(const AkVideoPacket &packet)
 {
     if (this->d->m_buffers.isEmpty())
@@ -990,27 +1033,46 @@ bool VCamV4L2LoopBack::write(const AkVideoPacket &packet)
 
     this->d->m_controlsMutex.lock();
 
-    auto hflip = this->d->m_deviceControlValues[this->m_device]["Horizontal Flip"];
-    auto vflip = this->d->m_deviceControlValues[this->m_device]["Vertical Flip"];
-    auto scaling = this->d->m_deviceControlValues[this->m_device]["Scaling Mode"];
-    auto aspectRatio = this->d->m_deviceControlValues[this->m_device]["Aspect Ratio Mode"];
-    auto swapRB = this->d->m_deviceControlValues[this->m_device]["Swap Read and Blue"];
+    auto curControls = this->d->controlStatus(this->d->m_globalControls);
 
     this->d->m_controlsMutex.unlock();
 
-    this->d->m_flipFilter->setProperty("horizontalFlip", hflip);
-    this->d->m_flipFilter->setProperty("verticalFlip", vflip);
+    if (this->d->m_localControls != curControls) {
+        auto controls = this->d->mapDiff(this->d->m_localControls,
+                                         curControls);
+        this->d->setControls(this->d->m_fd, controls);
+        this->d->m_localControls = curControls;
+
+        QVariantMap ctrls;
+
+        for (auto &control: this->d->deviceControls())
+            if (controls.contains(control.name))
+                ctrls[control.name] = controls[control.name];
+
+        if (!ctrls.isEmpty()) {
+            if (!this->d->m_deviceControlValues.contains(this->d->m_device))
+                this->d->m_deviceControlValues[this->d->m_device] = {};
+
+            for (auto it = ctrls.begin(); it != ctrls.end(); it++)
+                this->d->m_deviceControlValues[this->d->m_device][it.key()] =
+                    it.value().toInt();
+        }
+    }
+
+    auto values = this->d->m_deviceControlValues[this->d->m_device];
+    this->d->m_flipFilter->setProperty("horizontalFlip", values.value("Horizontal Flip", false));
+    this->d->m_flipFilter->setProperty("verticalFlip", values.value("Vertical Flip", false));
     auto packet_ = this->d->m_flipFilter->iStream(packet);
 
-    if (swapRB)
+    if (values.value("Swap Read and Blue", false))
         packet_ = this->d->m_swapRBFilter->iStream(packet_);
 
-    this->d->m_scaleFilter->setProperty("width", this->m_currentCaps.width());
-    this->d->m_scaleFilter->setProperty("height", this->m_currentCaps.height());
-    this->d->m_scaleFilter->setProperty("scaling", scaling);
-    this->d->m_scaleFilter->setProperty("aspectRatio", aspectRatio);
+    this->d->m_scaleFilter->setProperty("width", this->d->m_currentCaps.width());
+    this->d->m_scaleFilter->setProperty("height", this->d->m_currentCaps.height());
+    this->d->m_scaleFilter->setProperty("scaling", values.value("Scaling Mode", 0));
+    this->d->m_scaleFilter->setProperty("aspectRatio", values.value("Aspect Ratio Mode", 0));
     packet_ = this->d->m_scaleFilter->iStream(packet_);
-    packet_ = AkVideoPacket(packet_).convert(this->m_currentCaps.format());
+    packet_ = AkVideoPacket(packet_).convert(this->d->m_currentCaps.format());
 
     if (!packet_)
         return false;
@@ -1058,9 +1120,11 @@ VCamV4L2LoopBackPrivate::VCamV4L2LoopBackPrivate(VCamV4L2LoopBack *self):
     this->m_fsWatcher = new QFileSystemWatcher({"/dev"}, self);
     QObject::connect(this->m_fsWatcher,
                      &QFileSystemWatcher::directoryChanged,
+                     self,
                      [this] () {
         this->updateDevices();
     });
+    this->initDefaultFormats();
     this->updateDevices();
 }
 
@@ -1167,6 +1231,12 @@ QVariantList VCamV4L2LoopBackPrivate::controls(int fd, quint32 controlClass) con
     return controls;
 }
 
+QVariantList VCamV4L2LoopBackPrivate::controls(int fd) const
+{
+    return this->controls(fd, V4L2_CTRL_CLASS_USER)
+           + this->controls(fd, V4L2_CTRL_CLASS_CAMERA);
+}
+
 bool VCamV4L2LoopBackPrivate::setControls(int fd,
                                           quint32 controlClass,
                                           const QVariantMap &controls) const
@@ -1175,37 +1245,31 @@ bool VCamV4L2LoopBackPrivate::setControls(int fd,
         return false;
 
     auto ctrl2id = this->findControls(fd, controlClass);
-    QVector<v4l2_ext_control> mpegCtrls;
-    QVector<v4l2_ext_control> userCtrls;
 
     for (auto it = controls.cbegin(); it != controls.cend(); it++) {
-        v4l2_ext_control ctrl;
-        memset(&ctrl, 0, sizeof(v4l2_ext_control));
-        ctrl.id = ctrl2id[it.key()];
-        ctrl.value = it.value().toInt();
+        if (!ctrl2id.contains(it.key()))
+            continue;
 
-        if (V4L2_CTRL_ID2CLASS(ctrl.id) == V4L2_CTRL_CLASS_MPEG)
-            mpegCtrls << ctrl;
-        else
-            userCtrls << ctrl;
-    }
-
-    for (auto &user_ctrl: userCtrls) {
         v4l2_control ctrl;
         memset(&ctrl, 0, sizeof(v4l2_control));
-        ctrl.id = user_ctrl.id;
-        ctrl.value = user_ctrl.value;
+        ctrl.id = ctrl2id[it.key()];
+        ctrl.value = it.value().toInt();
         this->xioctl(fd, VIDIOC_S_CTRL, &ctrl);
     }
 
-    if (!mpegCtrls.isEmpty()) {
-        v4l2_ext_controls ctrls;
-        memset(&ctrls, 0, sizeof(v4l2_ext_controls));
-        ctrls.ctrl_class = V4L2_CTRL_CLASS_MPEG;
-        ctrls.count = __u32(mpegCtrls.size());
-        ctrls.controls = &mpegCtrls[0];
-        this->xioctl(fd, VIDIOC_S_EXT_CTRLS, &ctrls);
-    }
+    return true;
+}
+
+bool VCamV4L2LoopBackPrivate::setControls(int fd,
+                                          const QVariantMap &controls) const
+{    
+    QVector<quint32> controlClasses {
+        V4L2_CTRL_CLASS_USER,
+        V4L2_CTRL_CLASS_CAMERA
+    };
+
+    for (auto &cls: controlClasses)
+        this->setControls(fd, cls, controls);
 
     return true;
 }
@@ -1313,6 +1377,33 @@ QMap<QString, quint32> VCamV4L2LoopBackPrivate::findControls(int handle,
     }
 
     return controls;
+}
+
+QVariantMap VCamV4L2LoopBackPrivate::controlStatus(const QVariantList &controls) const
+{
+    QVariantMap controlStatus;
+
+    for (auto &control: controls) {
+        auto params = control.toList();
+        auto controlName = params[0].toString();
+        controlStatus[controlName] = params[6];
+    }
+
+    return controlStatus;
+}
+
+QVariantMap VCamV4L2LoopBackPrivate::mapDiff(const QVariantMap &map1,
+                                             const QVariantMap &map2) const
+{
+    QVariantMap map;
+
+    for (auto it = map2.cbegin(); it != map2.cend(); it++)
+        if (!map1.contains(it.key())
+            || map1[it.key()] != it.value()) {
+            map[it.key()] = it.value();
+        }
+
+    return map;
 }
 
 inline const V4L2AkFormatMap &VCamV4L2LoopBackPrivate::v4l2AkFormatMap() const
@@ -1940,7 +2031,7 @@ void VCamV4L2LoopBackPrivate::updateDevices()
     QDir devicesDir("/dev");
     auto devicesFiles = this->v4l2Devices();
 
-    for (const QString &devicePath: devicesFiles) {
+    for (auto &devicePath: devicesFiles) {
         auto fileName = devicesDir.absoluteFilePath(devicePath);
         int fd = open(fileName.toStdString().c_str(), O_RDWR | O_NONBLOCK, 0);
 

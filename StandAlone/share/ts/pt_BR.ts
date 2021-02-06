@@ -319,7 +319,7 @@
     <message>
         <location filename="../../src/clioptions.cpp" line="43"/>
         <source>Webcam capture application.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Aplicativo de captura da Webcam.</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="46"/>
@@ -427,12 +427,12 @@
     <message>
         <location filename="../qml/SettingsMenu.qml" line="37"/>
         <source>Video</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Vídeo</translation>
     </message>
     <message>
         <location filename="../qml/SettingsMenu.qml" line="43"/>
         <source>Audio</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Áudio</translation>
     </message>
     <message>
         <location filename="../qml/SettingsMenu.qml" line="49"/>
@@ -2497,12 +2497,12 @@ duration (seconds)</source>
     <message>
         <location filename="../../../libAvKys/Plugins/Scale/share/qml/main.qml" line="42"/>
         <source>Width</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Largura</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Scale/share/qml/main.qml" line="55"/>
         <source>Height</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Altura</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Scale/share/qml/main.qml" line="68"/>

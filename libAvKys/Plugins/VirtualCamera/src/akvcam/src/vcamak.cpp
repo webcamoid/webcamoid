@@ -40,6 +40,7 @@
 #include <akelement.h>
 #include <akfrac.h>
 #include <akpacket.h>
+#include <akcaps.h>
 
 #include "vcamak.h"
 
@@ -84,20 +85,6 @@ struct DeviceInfo
     RwMode mode;
 };
 
-struct DeviceControl
-{
-    QString name;
-    QString type;
-    int minimum;
-    int maximum;
-    int step;
-    int default_value;
-    QStringList menu;
-};
-
-using DeviceControls = QVector<DeviceControl>;
-using DeviceControlValues = QMap<QString, int>;
-
 struct V4L2AkFormat
 {
     uint32_t v4l2;
@@ -112,21 +99,22 @@ class VCamAkPrivate
 {
     public:
         VCamAk *self;
+        QString m_device;
         QStringList m_devices;
         QMap<QString, QString> m_descriptions;
         QMap<QString, AkVideoCapsList> m_devicesFormats;
+        QVariantList m_globalControls;
+        QVariantMap m_localControls;
         QFileSystemWatcher *m_fsWatcher;
         QVector<CaptureBuffer> m_buffers;
-        QMap<QString, DeviceControlValues> m_deviceControlValues;
         QMutex m_controlsMutex;
-        AkElementPtr m_flipFilter {AkElement::create("Flip")};
-        AkElementPtr m_scaleFilter {AkElement::create("Scale")};
-        AkElementPtr m_swapRBFilter {AkElement::create("SwapRB")};
         QString m_error;
+        AkVideoCaps m_currentCaps;
+        QString m_picture;
+        QString m_rootMethod;
         IoMethod m_ioMethod {IoMethodUnknown};
         int m_fd {-1};
         int m_nBuffers {32};
-        bool m_deviceIsReadWrite {false};
 
         explicit VCamAkPrivate(VCamAk *self);
         VCamAkPrivate(const VCamAkPrivate &other) = delete;
@@ -137,20 +125,30 @@ class VCamAkPrivate
                   const QStringList &argumments);
         QString sysfsControls(const QString &deviceId) const;
         QStringList connectedDevices(const QString &deviceId) const;
+        QVariantList capsFps(int fd,
+                             const v4l2_fmtdesc &format,
+                             __u32 width,
+                             __u32 height) const;
         QVariantList controls(int fd, quint32 controlClass) const;
+        QVariantList controls(int fd) const;
         bool setControls(int fd,
                          quint32 controlClass,
+                         const QVariantMap &controls) const;
+        bool setControls(int fd,
                          const QVariantMap &controls) const;
         QVariantList queryControl(int handle,
                                   quint32 controlClass,
                                   v4l2_queryctrl *queryctrl) const;
         QMap<QString, quint32> findControls(int handle,
                                             quint32 controlClass) const;
+        QString readPicturePath() const;
+        QVariantMap controlStatus(const QVariantList &controls) const;
+        QVariantMap mapDiff(const QVariantMap &map1,
+                            const QVariantMap &map2) const;
         inline const V4L2AkFormatMap &v4l2AkFormatMap() const;
         inline const V4L2AkFormat &formatByV4L2(uint32_t v4l2) const;
         inline const V4L2AkFormat &formatByAk(AkVideoCaps::PixelFormat ak) const;
         inline const V4l2CtrlTypeMap &ctrlTypeToStr() const;
-        inline const DeviceControls &deviceControls() const;
         AkVideoCapsList formatFps(int fd,
                                   const struct v4l2_fmtdesc &format,
                                   __u32 width,
@@ -162,6 +160,7 @@ class VCamAkPrivate
         bool initUserPointer(quint32 bufferSize);
         bool startOutput();
         void stopOutput();
+        QString fourccToStr(quint32 format) const;
         void updateDevices();
         QString cleanDescription(const QString &description) const;
         QVector<int> requestDeviceNR(size_t count) const;
@@ -181,8 +180,7 @@ VCamAk::VCamAk(QObject *parent):
     VCam(parent)
 {
     this->d = new VCamAkPrivate(this);
-    QSettings settings("/etc/akvcam/config.ini", QSettings::IniFormat);
-    this->m_picture = settings.value("default_frame").toString();
+    this->d->m_picture = this->d->readPicturePath();
 }
 
 VCamAk::~VCamAk()
@@ -224,6 +222,11 @@ QStringList VCamAk::webcams() const
     return this->d->m_devices;
 }
 
+QString VCamAk::device() const
+{
+    return this->d->m_device;
+}
+
 QString VCamAk::description(const QString &deviceId) const
 {
     return this->d->m_descriptions.value(deviceId);
@@ -255,87 +258,63 @@ AkVideoCapsList VCamAk::caps(const QString &deviceId) const
     return this->d->m_devicesFormats[deviceId];
 }
 
+AkVideoCaps VCamAk::currentCaps() const
+{
+    return this->d->m_currentCaps;
+}
+
 QVariantList VCamAk::controls() const
 {
-    auto outputs = this->d->connectedDevices(this->m_device);
-
-    for (auto &output: outputs) {
-        int fd = open(output.toStdString().c_str(), O_RDWR | O_NONBLOCK, 0);
-
-        if (fd >= 0) {
-            QVariantList controls;
-            v4l2_capability capabilities;
-            memset(&capabilities, 0, sizeof(v4l2_capability));
-
-            if (this->d->xioctl(this->d->m_fd, VIDIOC_QUERYCAP, &capabilities) >= 0
-                && capabilities.capabilities & V4L2_CAP_READWRITE) {
-                for (auto &control: this->d->deviceControls()) {
-                    int value = control.default_value;
-                    this->d->m_controlsMutex.lock();
-
-                    if (this->d->m_deviceControlValues.contains(output)
-                        && this->d->m_deviceControlValues[output].contains(control.name))
-                        value = this->d->m_deviceControlValues[output][control.name];
-
-                    this->d->m_controlsMutex.unlock();
-                    QVariantList controlVar {
-                        control.name,
-                        control.type,
-                        control.minimum,
-                        control.maximum,
-                        control.step,
-                        control.default_value,
-                        value,
-                        control.menu
-                    };
-                    controls << QVariant(controlVar);
-                }
-            } else {
-                controls = this->d->controls(fd, V4L2_CTRL_CLASS_USER);
-            }
-
-            close(fd);
-
-            return controls;
-        }
-    }
-
-    return {};
+    return this->d->m_globalControls;
 }
 
 bool VCamAk::setControls(const QVariantMap &controls)
 {
-    auto outputs = this->d->connectedDevices(this->m_device);
+    this->d->m_controlsMutex.lock();
+    auto globalControls = this->d->m_globalControls;
+    this->d->m_controlsMutex.unlock();
 
-    for (auto &output: outputs) {
-        int fd = open(output.toStdString().c_str(), O_RDWR | O_NONBLOCK, 0);
+    for (int i = 0; i < globalControls.count(); i++) {
+        auto control = globalControls[i].toList();
+        auto controlName = control[0].toString();
 
-        if (fd >= 0) {
-            bool result = true;
-            v4l2_capability capabilities;
-            memset(&capabilities, 0, sizeof(v4l2_capability));
-
-            if (this->d->xioctl(this->d->m_fd, VIDIOC_QUERYCAP, &capabilities) >= 0
-                && capabilities.capabilities & V4L2_CAP_READWRITE) {
-                this->d->m_controlsMutex.lock();
-                this->d->m_deviceControlValues[output] = {};
-
-                for (auto it = controls.begin(); it != controls.end(); it++)
-                    this->d->m_deviceControlValues[output][it.key()] =
-                        it.value().toInt();
-
-                this->d->m_controlsMutex.unlock();
-            } else {
-                result = this->d->setControls(fd, V4L2_CTRL_CLASS_USER, controls);
-            }
-
-            close(fd);
-
-            return result;
+        if (controls.contains(controlName)) {
+            control[6] = controls[controlName];
+            globalControls[i] = control;
         }
     }
 
-    return false;
+    this->d->m_controlsMutex.lock();
+
+    if (this->d->m_globalControls == globalControls) {
+        this->d->m_controlsMutex.unlock();
+
+        return false;
+    }
+
+    this->d->m_globalControls = globalControls;
+    this->d->m_controlsMutex.unlock();
+
+    if (this->d->m_fd < 0) {
+        auto outputs = this->d->connectedDevices(this->d->m_device);
+
+        for (auto &output: outputs) {
+            int fd = open(output.toStdString().c_str(), O_RDWR | O_NONBLOCK, 0);
+
+                if (fd >= 0) {
+                    bool result = this->d->setControls(fd, controls);
+                    close(fd);
+
+                    return result;
+            }
+        }
+
+        return false;
+    }
+
+    emit this->controlsChanged(controls);
+
+    return true;
 }
 
 QList<quint64> VCamAk::clientsPids() const
@@ -390,6 +369,16 @@ QList<quint64> VCamAk::clientsPids() const
 QString VCamAk::clientExe(quint64 pid) const
 {
     return QFileInfo(QString("/proc/%1/exe").arg(pid)).symLinkTarget();
+}
+
+QString VCamAk::picture() const
+{
+    return this->d->m_picture;
+}
+
+QString VCamAk::rootMethod() const
+{
+    return this->d->m_rootMethod;
 }
 
 QString VCamAk::deviceCreate(const QString &description,
@@ -460,11 +449,9 @@ QString VCamAk::deviceCreate(const QString &description,
     }
 
     // Fix devices formats.
-    AkVideoCapsList deviceFormats;
     AkVideoCapsList outputFormats;
 
     for (auto &format: formats) {
-        deviceFormats << format;
         auto outFormat = format;
         outFormat.setFormat(AkVideoCaps::Format_rgb24);
 
@@ -472,26 +459,26 @@ QString VCamAk::deviceCreate(const QString &description,
             outputFormats << outFormat;
     }
 
-    // Create output device.
+    // Create capture device.
     devices << DeviceInfo {deviceNR[0],
                            QString("/dev/video%1").arg(deviceNR[0]),
+                           this->d->cleanDescription(description),
+                           "",
+                           "",
+                           formats,
+                           {},
+                           DeviceTypeCapture,
+                           AKVCAM_RW_MODE_MMAP | AKVCAM_RW_MODE_USERPTR};
+
+    // Create output device.
+    devices << DeviceInfo {deviceNR[1],
+                           QString("/dev/video%1").arg(deviceNR[1]),
                            this->d->cleanDescription(description) + " (out)",
                            "",
                            "",
                            outputFormats,
-                           {QString("/dev/video%1").arg(deviceNR[1])},
+                           {QString("/dev/video%1").arg(deviceNR[0])},
                            DeviceTypeOutput,
-                           AKVCAM_RW_MODE_MMAP | AKVCAM_RW_MODE_USERPTR};
-
-    // Create capture device.
-    devices << DeviceInfo {deviceNR[1],
-                           QString("/dev/video%1").arg(deviceNR[1]),
-                           this->d->cleanDescription(description),
-                           "",
-                           "",
-                           deviceFormats,
-                           {},
-                           DeviceTypeCapture,
                            AKVCAM_RW_MODE_MMAP | AKVCAM_RW_MODE_USERPTR};
 
     QTemporaryDir tempDir;
@@ -537,6 +524,7 @@ QString VCamAk::deviceCreate(const QString &description,
 
         settings.setValue("description", device.description);
         settings.setValue("formats", formatsIndex);
+        settings.setValue("videonr", device.nr);
         settings.endArray();
         settings.endGroup();
 
@@ -591,7 +579,7 @@ QString VCamAk::deviceCreate(const QString &description,
     auto defaultFrame = tempDir.path() + "/default_frame.bmp";
     QImage defaultImage;
 
-    if (!this->m_picture.isEmpty() && defaultImage.load(this->m_picture)) {
+    if (!this->d->m_picture.isEmpty() && defaultImage.load(this->d->m_picture)) {
         defaultImage = defaultImage.convertToFormat(QImage::Format_RGB888);
         auto width = VCamAkPrivate::alignUp(defaultImage.width(), 32);
         defaultImage = defaultImage.scaled(width,
@@ -653,7 +641,7 @@ QString VCamAk::deviceCreate(const QString &description,
     cmds.close();
 
     // Execute the script
-    if (!this->d->sudo(this->m_rootMethod, {"sh", cmds.fileName()}))
+    if (!this->d->sudo(this->d->m_rootMethod, {"sh", cmds.fileName()}))
         return {};
 
     auto deviceId = QString("/dev/video%1").arg(deviceNR[1]);
@@ -731,11 +719,9 @@ bool VCamAk::deviceEdit(const QString &deviceId,
     }
 
     // Fix devices formats.
-    AkVideoCapsList deviceFormats;
     AkVideoCapsList outputFormats;
 
     for (auto &format: formats) {
-        deviceFormats << format;
         auto outFormat = format;
         outFormat.setFormat(AkVideoCaps::Format_rgb24);
 
@@ -750,7 +736,7 @@ bool VCamAk::deviceEdit(const QString &deviceId,
     for (auto &device: devices) {
         if (device.path == deviceId) {
             device.description = this->d->cleanDescription(description);
-            device.formats = deviceFormats;
+            device.formats = formats;
         } else if (!outputDevice.isEmpty() && device.path == outputDevice) {
             device.description = this->d->cleanDescription(description) + " (out)";
             device.formats = outputFormats;
@@ -800,6 +786,7 @@ bool VCamAk::deviceEdit(const QString &deviceId,
 
         settings.setValue("description", device.description);
         settings.setValue("formats", formatsIndex);
+        settings.setValue("videonr", device.nr);
         settings.endArray();
         settings.endGroup();
 
@@ -854,7 +841,7 @@ bool VCamAk::deviceEdit(const QString &deviceId,
     auto defaultFrame = tempDir.path() + "/default_frame.bmp";
     QImage defaultImage;
 
-    if (!this->m_picture.isEmpty() && defaultImage.load(this->m_picture)) {
+    if (!this->d->m_picture.isEmpty() && defaultImage.load(this->d->m_picture)) {
         defaultImage = defaultImage.convertToFormat(QImage::Format_RGB888);
         auto width = VCamAkPrivate::alignUp(defaultImage.width(), 32);
         defaultImage = defaultImage.scaled(width,
@@ -916,7 +903,7 @@ bool VCamAk::deviceEdit(const QString &deviceId,
     cmds.close();
 
     // Execute the script
-    if (!this->d->sudo(this->m_rootMethod, {"sh", cmds.fileName()}))
+    if (!this->d->sudo(this->d->m_rootMethod, {"sh", cmds.fileName()}))
         return false;
 
     if (!this->d->waitForDevice(deviceId)) {
@@ -1039,6 +1026,7 @@ bool VCamAk::changeDescription(const QString &deviceId,
 
         settings.setValue("description", device.description);
         settings.setValue("formats", formatsIndex);
+        settings.setValue("videonr", device.nr);
         settings.endArray();
         settings.endGroup();
 
@@ -1093,7 +1081,7 @@ bool VCamAk::changeDescription(const QString &deviceId,
     auto defaultFrame = tempDir.path() + "/default_frame.bmp";
     QImage defaultImage;
 
-    if (!this->m_picture.isEmpty() && defaultImage.load(this->m_picture)) {
+    if (!this->d->m_picture.isEmpty() && defaultImage.load(this->d->m_picture)) {
         defaultImage = defaultImage.convertToFormat(QImage::Format_RGB888);
         auto width = VCamAkPrivate::alignUp(defaultImage.width(), 32);
         defaultImage = defaultImage.scaled(width,
@@ -1149,7 +1137,7 @@ bool VCamAk::changeDescription(const QString &deviceId,
 
     cmds.close();
 
-    if (!this->d->sudo(this->m_rootMethod, {"sh", cmds.fileName()}))
+    if (!this->d->sudo(this->d->m_rootMethod, {"sh", cmds.fileName()}))
         return false;
 
     if (!this->d->waitForDevice(deviceId))
@@ -1230,7 +1218,7 @@ bool VCamAk::deviceDestroy(const QString &deviceId)
         cmds.write(cmd.toUtf8());
         cmds.close();
 
-        return this->d->sudo(this->m_rootMethod, {"sh", cmds.fileName()});
+        return this->d->sudo(this->d->m_rootMethod, {"sh", cmds.fileName()});
     }
 
     // Fill missing devices information.
@@ -1322,6 +1310,7 @@ bool VCamAk::deviceDestroy(const QString &deviceId)
 
         settings.setValue("description", device.description);
         settings.setValue("formats", formatsIndex);
+        settings.setValue("videonr", device.nr);
         settings.endArray();
         settings.endGroup();
 
@@ -1376,7 +1365,7 @@ bool VCamAk::deviceDestroy(const QString &deviceId)
     auto defaultFrame = tempDir.path() + "/default_frame.bmp";
     QImage defaultImage;
 
-    if (!this->m_picture.isEmpty() && defaultImage.load(this->m_picture)) {
+    if (!this->d->m_picture.isEmpty() && defaultImage.load(this->d->m_picture)) {
         defaultImage = defaultImage.convertToFormat(QImage::Format_RGB888);
         auto width = VCamAkPrivate::alignUp(defaultImage.width(), 32);
         defaultImage = defaultImage.scaled(width,
@@ -1432,7 +1421,7 @@ bool VCamAk::deviceDestroy(const QString &deviceId)
 
     cmds.close();
 
-    if (!this->d->sudo(this->m_rootMethod, {"sh", cmds.fileName()}))
+    if (!this->d->sudo(this->d->m_rootMethod, {"sh", cmds.fileName()}))
         return false;
 
     if (!this->d->waitForDevices(devicesList)) {
@@ -1475,7 +1464,7 @@ bool VCamAk::destroyAllDevices()
         cmds.write(cmd.toUtf8());
         cmds.close();
 
-        if (!this->d->sudo(this->m_rootMethod, {"sh", cmds.fileName()}))
+        if (!this->d->sudo(this->d->m_rootMethod, {"sh", cmds.fileName()}))
             return false;
 
         this->d->updateDevices();
@@ -1488,7 +1477,8 @@ bool VCamAk::destroyAllDevices()
 
 bool VCamAk::init()
 {
-    auto outputs = this->d->connectedDevices(this->m_device);
+    this->d->m_localControls.clear();
+    auto outputs = this->d->connectedDevices(this->d->m_device);
 
     if (outputs.isEmpty())
         return false;
@@ -1514,26 +1504,25 @@ bool VCamAk::init()
         return false;
     }
 
-    this->d->m_deviceIsReadWrite = capabilities.capabilities & V4L2_CAP_READWRITE;
     v4l2_format fmt;
     memset(&fmt, 0, sizeof(v4l2_format));
     fmt.type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
     this->d->xioctl(this->d->m_fd, VIDIOC_G_FMT, &fmt);
-    fmt.fmt.pix.pixelformat = this->d->formatByAk(this->m_currentCaps.format()).v4l2;
-    fmt.fmt.pix.width = __u32(this->m_currentCaps.width());
-    fmt.fmt.pix.height = __u32(this->m_currentCaps.height());
+    fmt.fmt.pix.pixelformat = this->d->formatByAk(this->d->m_currentCaps.format()).v4l2;
+    fmt.fmt.pix.width = __u32(this->d->m_currentCaps.width());
+    fmt.fmt.pix.height = __u32(this->d->m_currentCaps.height());
 
     if (this->d->xioctl(this->d->m_fd, VIDIOC_S_FMT, &fmt) < 0) {
         qDebug() << "VirtualCamera:  Can't set format:"
-                 << this->m_currentCaps;
+                 << this->d->m_currentCaps;
         close(this->d->m_fd);
         this->d->m_fd = -1;
 
         return false;
     }
 
-    v4l2_fract fps = {__u32(this->m_currentCaps.fps().num()),
-                      __u32(this->m_currentCaps.fps().den())};
+    v4l2_fract fps = {__u32(this->d->m_currentCaps.fps().num()),
+                      __u32(this->d->m_currentCaps.fps().den())};
     this->d->setFps(this->d->m_fd, fps);
 
     if (this->d->m_ioMethod == IoMethodReadWrite
@@ -1587,6 +1576,70 @@ void VCamAk::uninit()
     close(this->d->m_fd);
     this->d->m_fd = -1;
     this->d->m_buffers.clear();
+}
+
+void VCamAk::setDevice(const QString &device)
+{
+    if (this->d->m_device == device)
+        return;
+
+    this->d->m_device = device;
+
+    if (device.isEmpty()) {
+        this->d->m_controlsMutex.lock();
+        this->d->m_globalControls.clear();
+        this->d->m_controlsMutex.unlock();
+    } else {
+        this->d->m_controlsMutex.lock();
+        auto outputs = this->d->connectedDevices(device);
+
+        if (!outputs.isEmpty()) {
+            auto output = outputs.first();
+
+            int fd = open(output.toStdString().c_str(), O_RDWR | O_NONBLOCK, 0);
+
+            if (fd >= 0) {
+                this->d->m_globalControls = this->d->controls(fd);
+                close(fd);
+            }
+        }
+
+        this->d->m_controlsMutex.unlock();
+    }
+
+    this->d->m_controlsMutex.lock();
+    auto status = this->d->controlStatus(this->d->m_globalControls);
+    this->d->m_controlsMutex.unlock();
+
+    emit this->deviceChanged(device);
+    emit this->controlsChanged(status);
+}
+
+void VCamAk::setCurrentCaps(const AkVideoCaps &currentCaps)
+{
+    if (this->d->m_currentCaps == currentCaps)
+        return;
+
+    this->d->m_currentCaps = currentCaps;
+    emit this->currentCapsChanged(this->d->m_currentCaps);
+}
+
+void VCamAk::setPicture(const QString &picture)
+{
+    if (this->d->m_picture == picture)
+        return;
+
+    this->d->m_picture = picture;
+    emit this->pictureChanged(this->d->m_picture);
+}
+
+void VCamAk::setRootMethod(const QString &rootMethod)
+{
+    if (this->d->m_rootMethod == rootMethod)
+        return;
+
+    this->d->m_rootMethod = rootMethod;
+    emit this->rootMethodChanged(this->d->m_rootMethod);
 }
 
 bool VCamAk::applyPicture()
@@ -1686,6 +1739,7 @@ bool VCamAk::applyPicture()
 
         settings.setValue("description", device.description);
         settings.setValue("formats", formatsIndex);
+        settings.setValue("videonr", device.nr);
         settings.endArray();
         settings.endGroup();
 
@@ -1740,15 +1794,18 @@ bool VCamAk::applyPicture()
     auto defaultFrame = tempDir.path() + "/default_frame.bmp";
     QImage defaultImage;
 
-    if (!this->m_picture.isEmpty() && defaultImage.load(this->m_picture)) {
+    if (!this->d->m_picture.isEmpty() && defaultImage.load(this->d->m_picture)) {
         defaultImage = defaultImage.convertToFormat(QImage::Format_RGB888);
         auto width = VCamAkPrivate::alignUp(defaultImage.width(), 32);
         defaultImage = defaultImage.scaled(width,
                                            defaultImage.height(),
                                            Qt::IgnoreAspectRatio,
                                            Qt::SmoothTransformation);
-        defaultImage.save(defaultFrame);
-        settings.setValue("default_frame", "/etc/akvcam/default_frame.bmp");
+
+        if (defaultImage.save(defaultFrame))
+            settings.setValue("default_frame", "/etc/akvcam/default_frame.bmp");
+        else
+            settings.setValue("default_frame", "");
     } else {
         settings.setValue("default_frame", "");
     }
@@ -1786,7 +1843,7 @@ bool VCamAk::applyPicture()
 
     cmds.close();
 
-    if (!this->d->sudo(this->m_rootMethod, {"sh", cmds.fileName()}))
+    if (!this->d->sudo(this->d->m_rootMethod, {"sh", cmds.fileName()}))
         return false;
 
     return true;
@@ -1800,38 +1857,24 @@ bool VCamAk::write(const AkVideoPacket &packet)
     if (this->d->m_fd < 0)
         return false;
 
-    auto packet_ = packet;
+    this->d->m_controlsMutex.lock();
+    auto curControls = this->d->controlStatus(this->d->m_globalControls);
+    this->d->m_controlsMutex.unlock();
 
-    if (this->d->m_deviceIsReadWrite) {
-        this->d->m_controlsMutex.lock();
-
-        auto hflip = this->d->m_deviceControlValues[this->m_device]["Horizontal Flip"];
-        auto vflip = this->d->m_deviceControlValues[this->m_device]["Vertical Flip"];
-        auto scaling = this->d->m_deviceControlValues[this->m_device]["Scaling Mode"];
-        auto aspectRatio = this->d->m_deviceControlValues[this->m_device]["Aspect Ratio Mode"];
-        auto swapRB = this->d->m_deviceControlValues[this->m_device]["Swap Read and Blue"];
-
-        this->d->m_controlsMutex.unlock();
-
-        this->d->m_flipFilter->setProperty("horizontalFlip", hflip);
-        this->d->m_flipFilter->setProperty("verticalFlip", vflip);
-        packet_ = this->d->m_flipFilter->iStream(packet);
-
-        if (swapRB)
-            packet_ = this->d->m_swapRBFilter->iStream(packet_);
-
-        this->d->m_scaleFilter->setProperty("scaling", scaling);
-        this->d->m_scaleFilter->setProperty("aspectRatio", aspectRatio);
+    if (this->d->m_localControls != curControls) {
+        auto controls = this->d->mapDiff(this->d->m_localControls,
+                                         curControls);
+        this->d->setControls(this->d->m_fd, controls);
+        this->d->m_localControls = curControls;
     }
+
+    auto packet_ = AkVideoPacket(packet).convert(this->d->m_currentCaps.format());
 
     v4l2_format fmt;
     memset(&fmt, 0, sizeof(v4l2_format));
     fmt.type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
     this->d->xioctl(this->d->m_fd, VIDIOC_G_FMT, &fmt);
-    this->d->m_scaleFilter->setProperty("width", fmt.fmt.pix.width);
-    this->d->m_scaleFilter->setProperty("height", fmt.fmt.pix.height);
-    packet_ = this->d->m_scaleFilter->iStream(packet_);
-    packet_ = AkVideoPacket(packet_).convert(this->m_currentCaps.format());
+    packet_ = packet_.scaled(fmt.fmt.pix.width, fmt.fmt.pix.height);
 
     if (!packet_)
         return false;
@@ -1979,6 +2022,77 @@ QStringList VCamAkPrivate::connectedDevices(const QString &deviceId) const
     return devices;
 }
 
+QVariantList VCamAkPrivate::capsFps(int fd,
+                                    const v4l2_fmtdesc &format,
+                                    __u32 width,
+                                    __u32 height) const
+{
+    QVariantList caps;
+    auto fmt = this->formatByV4L2(format.pixelformat);
+    auto fourcc = fmt.ak? fmt.str: this->fourccToStr(format.pixelformat);
+
+#ifdef VIDIOC_ENUM_FRAMEINTERVALS
+    v4l2_frmivalenum frmival {};
+    memset(&frmival, 0, sizeof(v4l2_frmivalenum));
+    frmival.pixel_format = format.pixelformat;
+    frmival.width = width;
+    frmival.height = height;
+
+    for (frmival.index = 0;
+         this->xioctl(fd, VIDIOC_ENUM_FRAMEINTERVALS, &frmival) >= 0;
+         frmival.index++) {
+        if (!frmival.discrete.numerator
+            || !frmival.discrete.denominator)
+            continue;
+
+        AkFrac fps;
+
+        if (frmival.type == V4L2_FRMIVAL_TYPE_DISCRETE)
+            fps = AkFrac(frmival.discrete.denominator,
+                         frmival.discrete.numerator);
+        else
+            fps = AkFrac(frmival.stepwise.min.denominator,
+                         frmival.stepwise.max.numerator);
+
+        AkCaps videoCaps;
+        videoCaps.setMimeType("video/unknown");
+        videoCaps.setProperty("fourcc", fourcc);
+        videoCaps.setProperty("width", width);
+        videoCaps.setProperty("height", height);
+        videoCaps.setProperty("fps", fps.toString());
+        caps << QVariant::fromValue(videoCaps);
+    }
+
+    if (caps.isEmpty()) {
+#endif
+        struct v4l2_streamparm params;
+        memset(&params, 0, sizeof(v4l2_streamparm));
+        params.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+
+        if (this->xioctl(fd, VIDIOC_G_PARM, &params) >= 0) {
+            AkFrac fps;
+
+            if (params.parm.capture.capability & V4L2_CAP_TIMEPERFRAME)
+                fps = AkFrac(params.parm.capture.timeperframe.denominator,
+                             params.parm.capture.timeperframe.numerator);
+            else
+                fps = AkFrac(30, 1);
+
+            AkCaps videoCaps;
+            videoCaps.setMimeType("video/unknown");
+            videoCaps.setProperty("fourcc", fourcc);
+            videoCaps.setProperty("width", width);
+            videoCaps.setProperty("height", height);
+            videoCaps.setProperty("fps", fps.toString());
+            caps << QVariant::fromValue(videoCaps);
+        }
+#ifdef VIDIOC_ENUM_FRAMEINTERVALS
+    }
+#endif
+
+    return caps;
+}
+
 QVariantList VCamAkPrivate::controls(int fd, quint32 controlClass) const
 {
     QVariantList controls;
@@ -2025,6 +2139,12 @@ QVariantList VCamAkPrivate::controls(int fd, quint32 controlClass) const
     return controls;
 }
 
+QVariantList VCamAkPrivate::controls(int fd) const
+{
+    return this->controls(fd, V4L2_CTRL_CLASS_USER)
+           + this->controls(fd, V4L2_CTRL_CLASS_CAMERA);
+}
+
 bool VCamAkPrivate::setControls(int fd,
                                 quint32 controlClass,
                                 const QVariantMap &controls) const
@@ -2033,37 +2153,30 @@ bool VCamAkPrivate::setControls(int fd,
         return false;
 
     auto ctrl2id = this->findControls(fd, controlClass);
-    QVector<v4l2_ext_control> mpegCtrls;
-    QVector<v4l2_ext_control> userCtrls;
 
     for (auto it = controls.cbegin(); it != controls.cend(); it++) {
-        v4l2_ext_control ctrl;
-        memset(&ctrl, 0, sizeof(v4l2_ext_control));
-        ctrl.id = ctrl2id[it.key()];
-        ctrl.value = it.value().toInt();
+        if (!ctrl2id.contains(it.key()))
+            continue;
 
-        if (V4L2_CTRL_ID2CLASS(ctrl.id) == V4L2_CTRL_CLASS_MPEG)
-            mpegCtrls << ctrl;
-        else
-            userCtrls << ctrl;
-    }
-
-    for (auto &user_ctrl: userCtrls) {
         v4l2_control ctrl;
         memset(&ctrl, 0, sizeof(v4l2_control));
-        ctrl.id = user_ctrl.id;
-        ctrl.value = user_ctrl.value;
+        ctrl.id = ctrl2id[it.key()];
+        ctrl.value = it.value().toInt();
         this->xioctl(fd, VIDIOC_S_CTRL, &ctrl);
     }
 
-    if (!mpegCtrls.isEmpty()) {
-        v4l2_ext_controls ctrls;
-        memset(&ctrls, 0, sizeof(v4l2_ext_controls));
-        ctrls.ctrl_class = V4L2_CTRL_CLASS_MPEG;
-        ctrls.count = __u32(mpegCtrls.size());
-        ctrls.controls = &mpegCtrls[0];
-        this->xioctl(fd, VIDIOC_S_EXT_CTRLS, &ctrls);
-    }
+    return true;
+}
+
+bool VCamAkPrivate::setControls(int fd, const QVariantMap &controls) const
+{
+    QVector<quint32> controlClasses {
+        V4L2_CTRL_CLASS_USER,
+        V4L2_CTRL_CLASS_CAMERA
+    };
+
+    for (auto &cls: controlClasses)
+        this->setControls(fd, cls, controls);
 
     return true;
 }
@@ -2173,6 +2286,40 @@ QMap<QString, quint32> VCamAkPrivate::findControls(int handle,
     return controls;
 }
 
+QString VCamAkPrivate::readPicturePath() const
+{
+    QSettings settings("/etc/akvcam/config.ini", QSettings::IniFormat);
+
+    return settings.value("default_frame").toString();
+}
+
+QVariantMap VCamAkPrivate::controlStatus(const QVariantList &controls) const
+{
+    QVariantMap controlStatus;
+
+    for (auto &control: controls) {
+        auto params = control.toList();
+        auto controlName = params[0].toString();
+        controlStatus[controlName] = params[6];
+    }
+
+    return controlStatus;
+}
+
+QVariantMap VCamAkPrivate::mapDiff(const QVariantMap &map1,
+                                   const QVariantMap &map2) const
+{
+    QVariantMap map;
+
+    for (auto it = map2.cbegin(); it != map2.cend(); it++)
+        if (!map1.contains(it.key())
+            || map1[it.key()] != it.value()) {
+            map[it.key()] = it.value();
+        }
+
+    return map;
+}
+
 inline const V4L2AkFormatMap &VCamAkPrivate::v4l2AkFormatMap() const
 {
     static const V4L2AkFormatMap formatMap = {
@@ -2236,22 +2383,6 @@ const V4l2CtrlTypeMap &VCamAkPrivate::ctrlTypeToStr() const
     };
 
     return ctrlTypeToStr;
-}
-
-const DeviceControls &VCamAkPrivate::deviceControls() const
-{
-    static const DeviceControls deviceControls = {
-        {"Horizontal Flip"   , "boolean", 0, 1, 1, 0, {}           },
-        {"Vertical Flip"     , "boolean", 0, 1, 1, 0, {}           },
-        {"Scaling Mode"      , "menu"   , 0, 0, 1, 0, {"Fast",
-                                                       "Linear"}   },
-        {"Aspect Ratio Mode" , "menu"   , 0, 0, 1, 0, {"Ignore",
-                                                       "Keep",
-                                                       "Expanding"}},
-        {"Swap Read and Blue", "boolean", 0, 1, 1, 0, {}           },
-    };
-
-    return deviceControls;
 }
 
 AkVideoCapsList VCamAkPrivate::formatFps(int fd,
@@ -2573,6 +2704,15 @@ void VCamAkPrivate::stopOutput()
     }
 }
 
+QString VCamAkPrivate::fourccToStr(quint32 format) const
+{
+    char fourcc[5];
+    memcpy(fourcc, &format, sizeof(quint32));
+    fourcc[4] = 0;
+
+    return QString(fourcc);
+}
+
 void VCamAkPrivate::updateDevices()
 {
     decltype(this->m_devices) devices;
@@ -2583,19 +2723,23 @@ void VCamAkPrivate::updateDevices()
     QDir devicesDir("/dev");
     auto devicesFiles = this->v4l2Devices();
 
-    for (const QString &devicePath: devicesFiles) {
+    for (auto &devicePath: devicesFiles) {
         auto fileName = devicesDir.absoluteFilePath(devicePath);
         int fd = open(fileName.toStdString().c_str(), O_RDWR | O_NONBLOCK, 0);
 
         if (fd < 0)
             continue;
 
-        v4l2_capability capability;
-        memset(&capability, 0, sizeof(v4l2_capability));
+        auto caps = this->formats(fd);
 
-        if (this->xioctl(fd, VIDIOC_QUERYCAP, &capability) >= 0
-            && capability.capabilities & V4L2_CAP_VIDEO_OUTPUT) {
-            virtualDevices << this->connectedDevices(fileName);
+        if (!caps.empty()) {
+            v4l2_capability capability;
+            memset(&capability, 0, sizeof(v4l2_capability));
+
+            if (this->xioctl(fd, VIDIOC_QUERYCAP, &capability) >= 0
+                && capability.capabilities & V4L2_CAP_VIDEO_OUTPUT) {
+                virtualDevices << this->connectedDevices(fileName);
+            }
         }
 
         close(fd);
@@ -2625,6 +2769,11 @@ void VCamAkPrivate::updateDevices()
         close(fd);
     }
 
+    if (devicesFormats.isEmpty()) {
+        devices.clear();
+        descriptions.clear();
+    }
+
     this->m_descriptions = descriptions;
     this->m_devicesFormats = devicesFormats;
 
@@ -2637,6 +2786,7 @@ void VCamAkPrivate::updateDevices()
         if (!this->m_devices.isEmpty())
             this->m_fsWatcher->addPaths(this->m_devices);
 #endif
+        emit self->webcamsChanged(this->m_devices);
     }
 }
 

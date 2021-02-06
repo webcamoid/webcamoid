@@ -224,6 +224,7 @@ class CaptureDShowPrivate
         HRESULT enumerateCameras(IEnumMoniker **ppEnum) const;
         MonikersMap listMonikers() const;
         MonikerPtr findMoniker(const QString &webcam) const;
+        QString monikerDisplayName(IMoniker *moniker) const;
         IBaseFilter *findFilterP(const QString &webcam) const;
         BaseFilterPtr findFilter(const QString &webcam) const;
         MediaTypesList listMediaTypes(IBaseFilter *filter) const;
@@ -714,22 +715,15 @@ MonikersMap CaptureDShowPrivate::listMonikers() const
                 continue;
             }
 
-            VARIANT var;
-            VariantInit(&var);
-            hr = pPropBag->Read(L"DevicePath", &var, nullptr);
+            auto devicePath = this->devicePath(pPropBag);
 
-            QString devicePath;
-
-            if (SUCCEEDED(hr))
-                devicePath = QString::fromWCharArray(var.bstrVal);
-            else
-                devicePath = QString("/dev/video%1").arg(i);
+            if (devicePath.isEmpty())
+                devicePath = this->monikerDisplayName(pMoniker);
 
             monikers[devicePath] =
                     MonikerPtr(pMoniker, [] (IMoniker *moniker) {
                         moniker->Release();
                     });
-            VariantClear(&var);
             pPropBag->Release();
         }
 
@@ -747,6 +741,20 @@ MonikerPtr CaptureDShowPrivate::findMoniker(const QString &webcam) const
         return monikers[webcam];
 
     return {};
+}
+
+QString CaptureDShowPrivate::monikerDisplayName(IMoniker *moniker) const
+{
+    IBindCtx *bind_ctx = nullptr;
+
+    if (FAILED(CreateBindCtx(0, &bind_ctx)))
+        return {};
+
+    LPOLESTR olestr = nullptr;
+    moniker->GetDisplayName(bind_ctx, nullptr, &olestr);
+    bind_ctx->Release();
+
+    return QString::fromWCharArray(olestr);
 }
 
 IBaseFilter *CaptureDShowPrivate::findFilterP(const QString &webcam) const
@@ -1259,7 +1267,7 @@ void CaptureDShowPrivate::updateDevices()
             auto devicePath = this->devicePath(propertyBag);
 
             if (devicePath.isEmpty())
-                devicePath = QString("/dev/video%1").arg(i);
+                devicePath = this->monikerDisplayName(moniker);
 
             auto description = this->deviceDescription(propertyBag);
             propertyBag->Release();

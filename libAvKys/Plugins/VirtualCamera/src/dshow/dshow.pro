@@ -43,22 +43,9 @@ INCLUDEPATH += \
     ../../../../Lib/src \
     ../
 
-contains(TARGET_ARCH, x86_64): {
-    DEFINES += \
-        DSHOW_PLUGIN_ARCH_X64
-} else {
-    DEFINES += \
-        DSHOW_PLUGIN_ARCH_X86
-}
-
 LIBS += \
     -L$${OUT_PWD}/../../../../Lib/$${BIN_DIR} -l$$qtLibraryTarget($${COMMONS_TARGET}) \
-    -ladvapi32 \
-    -lkernel32 \
-    -lole32 \
-    -loleaut32 \
-    -lstrmiids \
-    -luuid
+    -ladvapi32
 
 OTHER_FILES += pspec.json
 

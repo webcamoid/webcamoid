@@ -31,28 +31,20 @@ QT += qml concurrent
 
 SOURCES = \
     ../vcam.cpp \
-    src/plugin.cpp
-
-OBJECTIVE_SOURCES = \
-    src/vcamcmio.mm \
-    src/deviceobserver.mm
+    src/plugin.cpp \
+    src/vcamcmio.cpp
 
 HEADERS =  \
     ../vcam.h \
     src/plugin.h \
-    src/vcamcmio.h \
-    src/deviceobserver.h
+    src/vcamcmio.h
 
 INCLUDEPATH += \
     ../../../../Lib/src \
     ../
 
 LIBS += \
-    -L$${OUT_PWD}/../../../../Lib/$${BIN_DIR} -l$$qtLibraryTarget($${COMMONS_TARGET}) \
-    -framework CoreMedia \
-    -framework CoreVideo \
-    -framework Foundation \
-    -framework AVFoundation
+    -L$${OUT_PWD}/../../../../Lib/$${BIN_DIR} -l$$qtLibraryTarget($${COMMONS_TARGET})
 
 OTHER_FILES += pspec.json
 
