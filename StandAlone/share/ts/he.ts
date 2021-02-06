@@ -937,7 +937,7 @@
     <message>
         <location filename="../qml/VideoOutputPicture.qml" line="92"/>
         <source>Error Removing Virtual Cameras</source>
-        <translation type="unfinished">שגיאה בהסרת מצלמות וירטואליות</translation>
+        <translation>שגיאה בהסרת מצלמות וירטואליות</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputPicture.qml" line="104"/>
