@@ -1160,16 +1160,18 @@ bool CaptureMMFPrivate::setImageControls(IUnknown *device,
             auto key = it.value();
 
             if (imageControls.contains(key)) {
-                qint32 value = 0;
-                qint32 flags = 0;
+                LONG value = 0;
+                LONG flags = 0;
                 pProcAmp->Get(it.key(),
                               reinterpret_cast<LONG *>(&value),
                               reinterpret_cast<LONG *>(&flags));
                 value = imageControls[key].toInt();
                 pProcAmp->Set(it.key(), value, flags);
-            } else if (imageControls.contains(key + " (Auto)")) {
-                qint32 value = 0;
-                qint32 flags = 0;
+            }
+
+            if (imageControls.contains(key + " (Auto)")) {
+                LONG value = 0;
+                LONG flags = 0;
                 pProcAmp->Get(it.key(),
                               reinterpret_cast<LONG *>(&value),
                               reinterpret_cast<LONG *>(&flags));
@@ -1279,16 +1281,18 @@ bool CaptureMMFPrivate::setCameraControls(IUnknown *device,
             auto key = it.value();
 
             if (cameraControls.contains(key)) {
-                qint32 value = 0;
-                qint32 flags = 0;
+                LONG value = 0;
+                LONG flags = 0;
                 pCameraControl->Get(it.key(),
                                     reinterpret_cast<LONG *>(&value),
                                     reinterpret_cast<LONG *>(&flags));
                 value = cameraControls[key].toInt();
                 pCameraControl->Set(it.key(), value, flags);
-            } else if (cameraControls.contains(key + " (Auto)")) {
-                qint32 value = 0;
-                qint32 flags = 0;
+            }
+
+            if (cameraControls.contains(key + " (Auto)")) {
+                LONG value = 0;
+                LONG flags = 0;
                 pCameraControl->Get(it.key(),
                                     reinterpret_cast<LONG *>(&value),
                                     reinterpret_cast<LONG *>(&flags));
