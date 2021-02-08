@@ -26,5 +26,7 @@
 
 int main()
 {
+    MFEnumDeviceSources(nullptr, nullptr, nullptr);
+
     return 0;
 }
