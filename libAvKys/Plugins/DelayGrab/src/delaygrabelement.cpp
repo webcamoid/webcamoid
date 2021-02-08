@@ -17,12 +17,13 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <cstdlib>
-#include <QMap>
-#include <QVector>
-#include <QMutex>
+#include <QDateTime>
 #include <QImage>
+#include <QMap>
+#include <QMutex>
 #include <QQmlContext>
+#include <QRandomGenerator>
+#include <QVector>
 #include <QtMath>
 #include <akpacket.h>
 #include <akvideopacket.h>
@@ -44,7 +45,6 @@ inline DelayGrabModeMap initDelayGrabModeMap()
 }
 
 Q_GLOBAL_STATIC_WITH_ARGS(DelayGrabModeMap, modeToStr, (initDelayGrabModeMap()))
-
 
 class DelayGrabElementPrivate
 {
@@ -190,8 +190,9 @@ void DelayGrabElement::setMode(const QString &mode)
     if (this->d->m_mode == modeEnum)
         return;
 
-    QMutexLocker locker(&this->d->m_mutex);
+    this->d->m_mutex.lock();
     this->d->m_mode = modeEnum;
+    this->d->m_mutex.unlock();
     emit this->modeChanged(mode);
 }
 
@@ -200,8 +201,9 @@ void DelayGrabElement::setBlockSize(int blockSize)
     if (this->d->m_blockSize == blockSize)
         return;
 
-    QMutexLocker locker(&this->d->m_mutex);
+    this->d->m_mutex.lock();
     this->d->m_blockSize = blockSize;
+    this->d->m_mutex.unlock();
     emit this->blockSizeChanged(blockSize);
 }
 
@@ -210,8 +212,9 @@ void DelayGrabElement::setNFrames(int nFrames)
     if (this->d->m_nFrames == nFrames)
         return;
 
-    QMutexLocker locker(&this->d->m_mutex);
+    this->d->m_mutex.lock();
     this->d->m_nFrames = nFrames;
+    this->d->m_mutex.unlock();
     emit this->nFramesChanged(nFrames);
 }
 
@@ -255,7 +258,7 @@ void DelayGrabElement::updateDelaymap()
 
             if (this->d->m_mode == DelayGrabModeRandomSquare) {
                 // Random delay with square distribution
-                qreal d = qreal(qrand()) / RAND_MAX;
+                auto d = QRandomGenerator::global()->bounded(RAND_MAX);
                 value = 16.0 * d * d;
             } else if (this->d->m_mode == DelayGrabModeVerticalIncrease) {
                 value = qAbs(x) / 2.0;

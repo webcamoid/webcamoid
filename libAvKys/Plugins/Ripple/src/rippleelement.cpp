@@ -17,9 +17,10 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QtMath>
 #include <QImage>
 #include <QQmlContext>
+#include <QRandomGenerator>
+#include <QtMath>
 #include <akcaps.h>
 #include <akpacket.h>
 #include <akvideopacket.h>
@@ -280,35 +281,53 @@ QImage RippleElementPrivate::applyWater(const QImage &src, const QImage &buffer)
 QImage RippleElementPrivate::rainDrop(int width, int height, int strength)
 {
     if (this->m_period == 0) {
-        if (this->m_rainStat == 0) {
-            this->m_period = (qrand() >> 23) + 100;
+        switch (this->m_rainStat) {
+        case 0:
+            this->m_period = QRandomGenerator::global()->bounded(100, 612);
             this->m_dropProb = 0;
             this->m_dropProbIncrement = 0x00ffffff / this->m_period;
-            this->m_dropPower = qrand() % (strength << 1) - strength;
-            this->m_dropsPerFrameMax = 2 << (qrand() >> 30); // 2,4,8 or 16
+            this->m_dropPower = QRandomGenerator::global()->bounded(-strength, strength);
+            this->m_dropsPerFrameMax = 2 << QRandomGenerator::global()->bounded(4);
             this->m_rainStat = 1;
-        } else if (this->m_rainStat == 1) {
+
+            break;
+
+        case 1:
             this->m_dropProb = 0x00ffffff;
             this->m_dropsPerFrame = 1;
             this->m_dropProbIncrement = 1;
             this->m_period = 16 * (this->m_dropsPerFrameMax - 1);
             this->m_rainStat = 2;
-        } else if (this->m_rainStat == 2) {
-            m_period = (qrand() >> 22) + 1000;
+
+            break;
+
+        case 2:
+            m_period = QRandomGenerator::global()->bounded(1000, 2024);
             m_dropProbIncrement = 0;
             m_rainStat = 3;
-        } else if (this->m_rainStat == 3) {
+
+            break;
+
+        case 3:
             this->m_period = 16 * (this->m_dropsPerFrameMax - 1);
             this->m_dropProbIncrement = -1;
             this->m_rainStat = 4;
-        } else if (this->m_rainStat == 4) {
-            this->m_period = (qrand() >> 24) + 60;
+
+            break;
+
+        case 4:
+            this->m_period = QRandomGenerator::global()->bounded(60, 316);
             this->m_dropProbIncrement = -int(this->m_dropProb) / this->m_period;
             this->m_rainStat = 5;
-        } else {
-            this->m_period = (qrand() >> 23) + 500;
+
+            break;
+
+        default:
+            this->m_period = QRandomGenerator::global()->bounded(500, 1012);
             this->m_dropProb = 0;
             this->m_rainStat = 0;
+
+            break;
         }
     }
 
@@ -317,7 +336,7 @@ QImage RippleElementPrivate::rainDrop(int width, int height, int strength)
     if (this->m_rainStat == 1
         || this->m_rainStat == 5) {
 
-        if ((qrand() >> 8) < int(this->m_dropProb))
+        if ((QRandomGenerator::global()->generate() >> 8) < this->m_dropProb)
             rain = this->drop(width, height, this->m_dropPower);
 
         this->m_dropProb += uint(this->m_dropProbIncrement);
@@ -350,8 +369,8 @@ QImage RippleElementPrivate::drop(int width, int height, int power)
     int widthM1 = width - 1;
     int widthP1 = width + 1;
 
-    int x = qrand() % (width - 4) + 2;
-    int y = qrand() % (height - 4) + 2;
+    int x = QRandomGenerator::global()->bounded(2, width - 2);
+    int y = QRandomGenerator::global()->bounded(2, height - 2);
 
     int offset = x + y * width;
 

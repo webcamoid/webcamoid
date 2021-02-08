@@ -445,7 +445,10 @@ void AudioDeviceElement::setCaps(const AkAudioCaps &caps)
         return;
 
     this->d->m_caps = caps;
-    this->d->m_convert->setProperty("caps", QVariant::fromValue(caps));
+
+    if (this->d->m_convert)
+        this->d->m_convert->setProperty("caps", QVariant::fromValue(caps));
+
     emit this->capsChanged(caps);
 }
 

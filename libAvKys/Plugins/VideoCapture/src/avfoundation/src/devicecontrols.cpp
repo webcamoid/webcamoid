@@ -471,6 +471,12 @@ int DeviceControlsPrivate::sendRequest(USBInterfacePtr *interface,
     if (hr != kIOReturnSuccess)
         return hr;
 
+    UInt8 endPoints = 0;
+    (*interface)->GetNumEndpoints(interface, &endPoints);
+
+    for (UInt8 i = 0; i < endPoints; i++)
+        (*interface)->ClearPipeStall(interface, i);
+
     hr = (*interface)->ControlRequest(interface, 0, &request);
     (*interface)->USBInterfaceClose(interface);
 

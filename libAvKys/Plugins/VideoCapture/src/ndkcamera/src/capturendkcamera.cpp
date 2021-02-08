@@ -690,6 +690,11 @@ void CaptureNdkCameraPrivate::updateDevices()
         ACameraManager_deleteCameraIdList(cameras);
     }
 
+    if (devicesCaps.isEmpty()) {
+        devices.clear();
+        descriptions.clear();
+    }
+
     this->m_descriptions = descriptions;
     this->m_devicesCaps = devicesCaps;
 

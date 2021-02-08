@@ -108,6 +108,7 @@ GridLayout {
 
     // Haar file.
     Label {
+        //: https://en.wikipedia.org/wiki/Haar-like_feature
         text: qsTr("Haar file")
     }
     ComboBox {
@@ -216,6 +217,8 @@ GridLayout {
     }
     TextField {
         text: FaceDetect.scanSize.width + "x" + FaceDetect.scanSize.height
+        placeholderText: qsTr("Scan block")
+        selectByMouse: true
         validator: RegExpValidator {
             regExp: /\d+x\d+/
         }
@@ -254,6 +257,10 @@ GridLayout {
             ListElement {
                 text: qsTr("Blur")
                 markerType: "blur"
+            }
+            ListElement {
+                text: qsTr("Blur Outer")
+                markerType: "blurouter"
             }
         }
 
@@ -314,12 +321,14 @@ GridLayout {
     }
     TextField {
         text: FaceDetect.markerWidth
+        placeholderText: qsTr("Marker width")
+        selectByMouse: true
         validator: RegExpValidator {
             regExp: /\d+/
         }
         Layout.fillWidth: true
 
-        onTextChanged: FaceDetect.markerWidth = text
+        onTextChanged: FaceDetect.markerWidth = Number(text)
     }
 
     // Marker picture.
@@ -504,7 +513,8 @@ GridLayout {
         TextField {
             id: txtTable
             text: FaceDetect.markerImage
-            placeholderText: qsTr("Replace face with this picture.")
+            placeholderText: qsTr("Replace face with this picture")
+            selectByMouse: true
             Layout.fillWidth: true
 
             onTextChanged: {
@@ -536,6 +546,8 @@ GridLayout {
     }
     TextField {
         text: FaceDetect.pixelGridSize.width + "x" + FaceDetect.pixelGridSize.height
+        placeholderText: qsTr("Pixel grid size")
+        selectByMouse: true
         validator: RegExpValidator {
             regExp: /\d+x\d+/
         }
@@ -550,12 +562,14 @@ GridLayout {
     }
     TextField {
         text: FaceDetect.blurRadius
+        placeholderText: qsTr("Blur radius")
+        selectByMouse: true
         validator: RegExpValidator {
             regExp: /\d+/
         }
         Layout.fillWidth: true
 
-        onTextChanged: FaceDetect.blurRadius = text
+        onTextChanged: FaceDetect.blurRadius = Number(text)
     }
 
     FileDialog {

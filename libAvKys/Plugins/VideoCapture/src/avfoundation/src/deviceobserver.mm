@@ -21,7 +21,7 @@
 
 #include "deviceobserver.h"
 
-@implementation DeviceObserver
+@implementation DeviceObserverAVFoundation
 
 - (id) initWithCaptureObject: (CaptureAvFoundation *) object
 {

@@ -19,6 +19,7 @@
 
 #include <QImage>
 #include <QQmlContext>
+#include <QRandomGenerator>
 #include <QtMath>
 #include <akpacket.h>
 #include <akvideopacket.h>
@@ -200,10 +201,10 @@ void ShagadelicElementPrivate::init(const QSize &size)
     this->m_ripple = this->makeRipple(size);
     this->m_spiral = this->makeSpiral(size);
 
-    this->m_rx = qrand() % size.width();
-    this->m_ry = qrand() % size.height();
-    this->m_bx = qrand() % size.width();
-    this->m_by = qrand() % size.height();
+    this->m_rx = QRandomGenerator::global()->bounded(size.width());
+    this->m_ry = QRandomGenerator::global()->bounded(size.height());
+    this->m_bx = QRandomGenerator::global()->bounded(size.width());
+    this->m_by = QRandomGenerator::global()->bounded(size.height());
 
     this->m_rvx = -2;
     this->m_rvy = -2;

@@ -38,7 +38,8 @@ inline MarkerTypeMap initMarkerTypeMap()
         {FaceDetectElement::MarkerTypeEllipse  , "ellipse"  },
         {FaceDetectElement::MarkerTypeImage    , "image"    },
         {FaceDetectElement::MarkerTypePixelate , "pixelate" },
-        {FaceDetectElement::MarkerTypeBlur     , "blur"     }
+        {FaceDetectElement::MarkerTypeBlur     , "blur"     },
+        {FaceDetectElement::MarkerTypeBlurOuter, "blurouter"}
     };
 
     return markerTypeToStr;
@@ -146,6 +147,23 @@ QSize FaceDetectElement::scanSize() const
     return this->d->m_scanSize;
 }
 
+QVector<QRect> FaceDetectElement::detectFaces(const AkVideoPacket &packet)
+{
+    QSize scanSize(this->d->m_scanSize);
+
+    if (this->d->m_haarFile.isEmpty() || scanSize.isEmpty())
+        return {};
+
+    auto src = packet.toImage();
+
+    if (src.isNull())
+        return {};
+
+    QImage scanFrame(src.scaled(scanSize, Qt::KeepAspectRatio));
+
+    return this->d->m_cascadeClassifier.detect(scanFrame);
+}
+
 QString FaceDetectElement::controlInterfaceProvide(const QString &controlId) const
 {
     Q_UNUSED(controlId)
@@ -197,7 +215,18 @@ AkPacket FaceDetectElement::iVideoStream(const AkVideoPacket &packet)
     QPainter painter;
     painter.begin(&oFrame);
 
-    for (const QRect &face: vecFaces) {
+    /* Many users will want to blur even if no faces were detected! */
+    if (this->d->m_markerType == MarkerTypeBlurOuter) {
+        QRect all(0, 0, src.width(), src.height());
+        auto rectPacket = AkVideoPacket::fromImage(src.copy(all), packet);
+        AkVideoPacket blurPacket = this->d->m_blurFilter->iStream(rectPacket);
+        auto blurImage = blurPacket.toImage();
+        painter.drawImage(all, blurImage);
+        /* for a better effect, we could add a second (weaker) blur */
+        /* and copy this to larger boxes around all faces */
+    }
+
+    for (auto &face: vecFaces) {
         QRect rect(int(scale * face.x()),
                    int(scale * face.y()),
                    int(scale * face.width()),
@@ -232,6 +261,8 @@ AkPacket FaceDetectElement::iVideoStream(const AkVideoPacket &packet)
             auto blurImage = blurPacket.toImage();
 
             painter.drawImage(rect, blurImage);
+        } else if (this->d->m_markerType == MarkerTypeBlurOuter) {
+            painter.drawImage(rect, src.copy(rect));
         }
     }
 
@@ -257,7 +288,7 @@ void FaceDetectElement::setHaarFile(const QString &haarFile)
 
 void FaceDetectElement::setMarkerType(const QString &markerType)
 {
-    MarkerType markerTypeEnum = markerTypeToStr->key(markerType, MarkerTypeRectangle);
+    auto markerTypeEnum = markerTypeToStr->key(markerType, MarkerTypeRectangle);
 
     if (this->d->m_markerType == markerTypeEnum)
         return;

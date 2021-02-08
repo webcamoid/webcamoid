@@ -52,7 +52,6 @@ class CaptureAvFoundationPrivate
         QMap<QString, QString> m_descriptions;
         QMap<QString, QVariantList> m_devicesCaps;
         DeviceControls m_controls;
-        CaptureAvFoundation::IoMethod m_ioMethod {CaptureAvFoundation::IoMethodUnknown};
         int m_nBuffers {32};
         QMutex m_mutex;
         QMutex m_controlsMutex;
@@ -85,7 +84,7 @@ CaptureAvFoundation::CaptureAvFoundation(QObject *parent):
     Capture(parent)
 {
     this->d = new CaptureAvFoundationPrivate();
-    this->d->m_deviceObserver = [[DeviceObserver alloc]
+    this->d->m_deviceObserver = [[DeviceObserverAVFoundation alloc]
                                  initWithCaptureObject: this];
 
     [[NSNotificationCenter defaultCenter]
@@ -326,6 +325,7 @@ AkPacket CaptureAvFoundation::readFrame()
     auto imageBuffer = CMSampleBufferGetImageBuffer(this->d->m_curFrame);
     auto dataBuffer = CMSampleBufferGetDataBuffer(this->d->m_curFrame);
     auto caps = this->d->capsFromFrameSampleBuffer(this->d->m_curFrame);
+    caps.setProperty("fps", this->d->m_timeBase.invert().toString());
 
     if (imageBuffer) {
         size_t dataSize = CVPixelBufferGetDataSize(imageBuffer);
@@ -750,15 +750,20 @@ void CaptureAvFoundation::updateDevices()
         }
     }
 
+    if (devicesCaps.isEmpty()) {
+        devices.clear();
+        modelId.clear();
+        descriptions.clear();
+    }
+
+    this->d->m_modelId = modelId;
+    this->d->m_descriptions = descriptions;
+    this->d->m_devicesCaps = devicesCaps;
+
     if (this->d->m_devices != devices) {
         this->d->m_devices = devices;
         emit this->webcamsChanged(devices);
     }
-
-    this->d->m_devices = devices;
-    this->d->m_modelId = modelId;
-    this->d->m_descriptions = descriptions;
-    this->d->m_devicesCaps = devicesCaps;
 }
 
 CaptureAvFoundationPrivate::CaptureAvFoundationPrivate()

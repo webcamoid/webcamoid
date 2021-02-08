@@ -17,10 +17,12 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QDateTime>
 #include <QImage>
+#include <QMutex>
 #include <QPainter>
 #include <QQmlContext>
-#include <QMutex>
+#include <QRandomGenerator>
 #include <QtMath>
 #include <akpacket.h>
 #include <akvideopacket.h>
@@ -143,14 +145,13 @@ void DiceElement::updateDiceMap()
 {
     int width = qCeil(this->d->m_frameSize.width() / qreal(this->d->m_diceSize));
     int height = qCeil(this->d->m_frameSize.height() / qreal(this->d->m_diceSize));
-
     QImage diceMap(width, height, QImage::Format_Grayscale8);
 
     for (int y = 0; y < diceMap.height(); y++) {
         auto oLine = reinterpret_cast<quint8 *>(diceMap.scanLine(y));
 
         for (int x = 0; x < diceMap.width(); x++)
-            oLine[x] = qrand() % 4;
+            oLine[x] = quint8(QRandomGenerator::global()->bounded(4));
     }
 
     this->d->m_diceMap = diceMap;

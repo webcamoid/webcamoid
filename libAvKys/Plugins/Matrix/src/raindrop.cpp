@@ -17,9 +17,10 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <cstdlib>
-#include <QPainter>
+#include <QDateTime>
 #include <QFont>
+#include <QPainter>
+#include <QRandomGenerator>
 
 #include "raindrop.h"
 
@@ -40,14 +41,13 @@ class RainDropPrivate
         qreal m_speed {0.0};
         QImage m_sprite;
 
-        int randInt(int a, int b);
-        qreal randReal(qreal a, qreal b);
         int gradientColor(int i, int from, int to, int length);
         QRgb gradientRgb(int i, QRgb from, QRgb to, int length);
         QRgb gradient(int i, QRgb from, QRgb mid, QRgb to, int length);
         QImage drawChar(const QChar &chr,
                         const QFont &font, const QSize &fontSize,
                         QRgb foreground, QRgb background) const;
+        inline qreal boundedReal(qreal min, qreal max);
 };
 
 RainDrop::RainDrop(const QSize &textArea,
@@ -66,22 +66,25 @@ RainDrop::RainDrop(const QSize &textArea,
     this->d = new RainDropPrivate;
 
     for (int i = 0; i < textArea.height(); i++)
-        this->d->m_line.append(charTable[qrand() % charTable.size()]);
+        this->d->m_line.append(QRandomGenerator::global()->bounded(charTable.size()));
 
     this->d->m_textArea = textArea;
-    int y = randomStart? qrand() % textArea.height(): 0;
-    this->d->m_pos = QPointF(qrand() % textArea.width(), y);
+    int y = randomStart?
+                QRandomGenerator::global()->bounded(textArea.height()): 0;
+    this->d->m_pos =
+            QPointF(QRandomGenerator::global()->bounded(textArea.width()), y);
     this->d->m_font = font;
     this->d->m_fontSize = fontSize;
     this->d->m_cursorColor = cursorColor;
     this->d->m_startColor = startColor;
     this->d->m_endColor = endColor;
-    this->d->m_length = this->d->randInt(minLength, maxLength);
+    this->d->m_length =
+            QRandomGenerator::global()->bounded(minLength, maxLength);
 
     if (this->d->m_length < 1)
         this->d->m_length = 1;
 
-    this->d->m_speed = this->d->randReal(minSpeed, maxSpeed);
+    this->d->m_speed = this->d->boundedReal(minSpeed, maxSpeed);
 
     if (this->d->m_speed < 0.1)
         this->d->m_speed = 0.1;
@@ -155,17 +158,14 @@ QImage RainDrop::render(QRgb tailColor, bool showCursor)
             return this->d->m_sprite;
 
         QPainter painter;
-
         painter.begin(&this->d->m_sprite);
-        QChar c = this->d->m_line[qrand() % this->d->m_line.size()];
-
-        QImage sprite =
+        QChar c = this->d->m_line[QRandomGenerator::global()->bounded(this->d->m_line.size())];
+        auto sprite =
                 this->d->drawChar(c,
                                   this->d->m_font,
                                   this->d->m_fontSize,
                                   this->d->m_endColor,
                                   this->d->m_cursorColor);
-
         painter.drawImage(0,
                           (this->d->m_length - 1) * this->d->m_fontSize.height(),
                           sprite);
@@ -193,7 +193,7 @@ QImage RainDrop::render(QRgb tailColor, bool showCursor)
 
         if (c >= 0 && c < this->d->m_line.size()) {
             if (i == this->d->m_length - 1) {
-                chr = this->d->m_line[qrand() % this->d->m_line.size()];
+                chr = this->d->m_line[QRandomGenerator::global()->bounded(this->d->m_line.size())];
 
                 if (showCursor) {
                     foreground = this->d->m_endColor;
@@ -213,13 +213,12 @@ QImage RainDrop::render(QRgb tailColor, bool showCursor)
                 background = this->d->m_endColor;
             }
 
-            QImage sprite =
+            auto sprite =
                     this->d->drawChar(chr,
                                       this->d->m_font,
                                       this->d->m_fontSize,
                                       foreground,
                                       background);
-
             painter.drawImage(0, i * this->d->m_fontSize.height(), sprite);
         }
     }
@@ -265,26 +264,11 @@ QImage RainDropPrivate::drawChar(const QChar &chr,
     return fontImg;
 }
 
-int RainDropPrivate::randInt(int a, int b)
+qreal RainDropPrivate::boundedReal(qreal min, qreal max)
 {
-    if (a > b) {
-        int c = a;
-        a = b;
-        b = c;
-    }
+    std::uniform_real_distribution<qreal> distribution(min, max);
 
-    return qrand() % (b + 1 - a) + a;
-}
-
-qreal RainDropPrivate::randReal(qreal a, qreal b)
-{
-    if (a > b) {
-        qreal c = a;
-        a = b;
-        b = c;
-    }
-
-    return qrand() * (b - a) / RAND_MAX + a;
+    return distribution(*QRandomGenerator::global());
 }
 
 int RainDropPrivate::gradientColor(int i, int from, int to, int length)

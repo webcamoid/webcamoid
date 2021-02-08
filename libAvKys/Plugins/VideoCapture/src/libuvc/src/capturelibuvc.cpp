@@ -777,6 +777,13 @@ updateDevices_failed:
     if (devices)
         uvc_free_device_list(devices, 1);
 
+    if (devicesCaps.isEmpty()) {
+        devicesList.clear();
+        descriptions.clear();
+        imageControls.clear();
+        cameraControls.clear();
+    }
+
     this->m_descriptions = descriptions;
     this->m_devicesCaps = devicesCaps;
     this->m_imageControls = imageControls;

@@ -17,12 +17,12 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <cstdlib>
 #include <QImage>
 #include <QVector>
 #include <QTime>
 #include <QMutex>
 #include <QQmlContext>
+#include <QRandomGenerator>
 #include <akpacket.h>
 #include <akvideopacket.h>
 
@@ -47,8 +47,6 @@ AgingElement::AgingElement():
 {
     this->d = new AgingElementPrivate;
     this->d->m_scratches.resize(7);
-
-    qsrand(uint(QTime::currentTime().msec()));
 }
 
 AgingElement::~AgingElement()
@@ -106,8 +104,9 @@ void AgingElement::setNScratches(int nScratches)
     if (this->d->m_scratches.size() == nScratches)
         return;
 
-    QMutexLocker locker(&this->d->m_mutex);
+    this->d->m_mutex.lock();
     this->d->m_scratches.resize(nScratches);
+    this->d->m_mutex.unlock();
     emit this->nScratchesChanged(nScratches);
 }
 
@@ -133,17 +132,14 @@ void AgingElement::resetAddDust()
 QImage AgingElementPrivate::colorAging(const QImage &src)
 {
     QImage dst(src.size(), src.format());
-
-    int lumaVariance = 8;
-    int colorVariance = 24;
-    int luma = -32 + qrand() % lumaVariance;
+    int luma = QRandomGenerator::global()->bounded(-32, -25);
 
     for (int y = 0; y < src.height(); y++) {
         auto srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
         auto dstLine = reinterpret_cast<QRgb *>(dst.scanLine(y));
 
         for (int x = 0; x < src.width(); x++) {
-            int c = qrand() % colorVariance;
+            int c = QRandomGenerator::global()->bounded(24);
             int r = qRed(srcLine[x]) + luma + c;
             int g = qGreen(srcLine[x]) + luma + c;
             int b = qBlue(srcLine[x]) + luma + c;
@@ -165,7 +161,7 @@ void AgingElementPrivate::scratching(QImage &dest)
 
     for (auto &scratch: this->m_scratches) {
         if (scratch.life() < 1.0) {
-            if (qrand() <= 0.06 * RAND_MAX) {
+            if (QRandomGenerator::global()->bounded(RAND_MAX) <= 0.06 * RAND_MAX) {
                 scratch = Scratch(2.0, 33.0,
                                   1.0, 1.0,
                                   0.0, dest.width() - 1,
@@ -182,13 +178,12 @@ void AgingElementPrivate::scratching(QImage &dest)
             continue;
         }
 
-        int lumaVariance = 8;
-        int luma = 32 + qrand() % lumaVariance;
+        int luma = QRandomGenerator::global()->bounded(32, 40);
         int x = int(scratch.x());
 
         int y1 = scratch.y();
         int y2 = scratch.isAboutToDie()?
-                     qrand() % dest.height():
+                     QRandomGenerator::global()->bounded(dest.height()):
                      dest.height();
 
         for (int y = y1; y < y2; y++) {
@@ -210,28 +205,25 @@ void AgingElementPrivate::scratching(QImage &dest)
 
 void AgingElementPrivate::pits(QImage &dest)
 {
-    int pnum;
-    int pnumscale = int(0.03 * qMax(dest.width(), dest.height()));
+    int pnumscale = qRound(0.03 * qMax(dest.width(), dest.height()));
     static int pitsInterval = 0;
+    int pnum = QRandomGenerator::global()->bounded(pnumscale);
 
     if (pitsInterval) {
-        pnum = pnumscale + (qrand() % pnumscale);
+        pnum += pnumscale;
         pitsInterval--;
-    } else {
-        pnum = qrand() % pnumscale;
-
-        if (qrand() <= 0.03 * RAND_MAX)
-            pitsInterval = (qrand() % 16) + 20;
+    } else if (QRandomGenerator::global()->bounded(RAND_MAX) <= 0.03 * RAND_MAX) {
+        pitsInterval = QRandomGenerator::global()->bounded(20, 36);
     }
 
     for (int i = 0; i < pnum; i++) {
-        int x = qrand() % (dest.width() - 1);
-        int y = qrand() % (dest.height() - 1);
-        int size = qrand() % 16;
+        int x = QRandomGenerator::global()->bounded(dest.width());
+        int y = QRandomGenerator::global()->bounded(dest.height());
+        int size = QRandomGenerator::global()->bounded(16);
 
         for (int j = 0; j < size; j++) {
-            x += qrand() % 3 - 1;
-            y += qrand() % 3 - 1;
+            x += QRandomGenerator::global()->bounded(-1, 2);
+            y += QRandomGenerator::global()->bounded(-1, 2);
 
             if (x < 0 || x >= dest.width()
                 || y < 0 || y >= dest.height())
@@ -248,25 +240,24 @@ void AgingElementPrivate::dusts(QImage &dest)
     static int dustInterval = 0;
 
     if (dustInterval == 0) {
-        if (qrand() <= 0.03 * RAND_MAX)
-            dustInterval = qrand() % 8;
+        if (QRandomGenerator::global()->bounded(RAND_MAX) <= 0.03 * RAND_MAX)
+            dustInterval = QRandomGenerator::global()->bounded(8);
 
         return;
     }
 
     dustInterval--;
-
-    int areaScale = int(0.02 * qMax(dest.width(), dest.height()));
-    int dnum = areaScale * 4 + (qrand() % 32);
+    int areaScale = qRound(0.02 * qMax(dest.width(), dest.height()));
+    int dnum = 4 * areaScale + QRandomGenerator::global()->bounded(32);
 
     for (int i = 0; i < dnum; i++) {
-        int x = qrand() % (dest.width() - 1);
-        int y = qrand() % (dest.height() - 1);
-        int len = qrand() % areaScale + 5;
+        int x = QRandomGenerator::global()->bounded(dest.width());
+        int y = QRandomGenerator::global()->bounded(dest.height());
+        int size = QRandomGenerator::global()->bounded(areaScale) + 5;
 
-        for (int j = 0; j < len; j++) {
-            x += qrand() % 3 - 1;
-            y += qrand() % 3 - 1;
+        for (int j = 0; j < size; j++) {
+            x += QRandomGenerator::global()->bounded(-1, 2);
+            y += QRandomGenerator::global()->bounded(-1, 2);
 
             if (x < 0 || x >= dest.width()
                 || y < 0 || y >= dest.height())

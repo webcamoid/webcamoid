@@ -295,7 +295,8 @@ bool HaarCascade::load(const QString &fileName)
     while (!haarReader.atEnd()) {
         auto token = haarReader.readNext();
 
-        if (token == QXmlStreamReader::Invalid) {
+        switch (token) {
+        case QXmlStreamReader::Invalid: {
             if (this->m_errorString != haarReader.errorString()) {
                 this->m_errorString = haarReader.errorString();
                 emit this->errorStringChanged(haarReader.errorString());
@@ -304,7 +305,7 @@ bool HaarCascade::load(const QString &fileName)
             return false;
         }
 
-        if (token == QXmlStreamReader::StartElement) {
+        case QXmlStreamReader::StartElement: {
             pathList << haarReader.name().toString();
 
             if (path.isEmpty() && haarReader.name() != "opencv_storage")
@@ -323,7 +324,11 @@ bool HaarCascade::load(const QString &fileName)
                 && haarReader.name() == "_") {
                 this->m_stages.last().trees().last().features() << HaarFeature();
             }
-        } else if (token == QXmlStreamReader::EndElement) {
+
+            break;
+        }
+
+        case QXmlStreamReader::EndElement: {
             if (path == QString("opencv_storage/%1/stages/_").arg(this->m_name)) {
                 int parent = this->m_stages.last().parentStage();
 
@@ -342,7 +347,11 @@ bool HaarCascade::load(const QString &fileName)
             }
 
             pathList.removeLast();
-        } else if (token == QXmlStreamReader::Characters) {
+
+            break;
+        }
+
+        case QXmlStreamReader::Characters: {
             if (path == QString("opencv_storage/%1/size").arg(this->m_name)) {
                 QStringList sizeStr = haarReader.text().toString().simplified().split(" ");
                 QSize size(sizeStr[0].toInt(), sizeStr[1].toInt());
@@ -374,6 +383,12 @@ bool HaarCascade::load(const QString &fileName)
             }
             else if (path == QString("opencv_storage/%1/stages/_/trees/_/_/feature/tilted").arg(this->m_name))
                 this->m_stages.last().trees().last().features().last().tilted() = haarReader.text().toInt();
+
+            break;
+        }
+
+        default:
+            break;
         }
 
         path = pathList.join("/");

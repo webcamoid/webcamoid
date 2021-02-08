@@ -17,9 +17,10 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QTime>
 #include <QPainter>
 #include <QQmlContext>
+#include <QRandomGenerator>
+#include <QTime>
 #include <akpacket.h>
 #include <akvideopacket.h>
 
@@ -39,8 +40,6 @@ class ScrollElementPrivate
 ScrollElement::ScrollElement(): AkElement()
 {
     this->d = new ScrollElementPrivate;
-
-    qsrand(uint(QTime::currentTime().msec()));
 }
 
 ScrollElement::~ScrollElement()
@@ -149,13 +148,13 @@ QImage ScrollElementPrivate::generateNoise(const QSize &size, qreal persent) con
     QImage noise(size, QImage::Format_ARGB32);
     noise.fill(0);
 
-    int peper = int(persent * size.width() * size.height());
+    auto peper = qRound(persent * size.width() * size.height());
 
     for (int i = 0; i < peper; i++) {
-        int gray = qrand() % 256;
-        int alpha = qrand() % 256;
-        int x = qrand() % noise.width();
-        int y = qrand() % noise.height();
+        int gray = QRandomGenerator::global()->bounded(256);
+        int alpha = QRandomGenerator::global()->bounded(256);
+        int x = QRandomGenerator::global()->bounded(noise.width());
+        int y = QRandomGenerator::global()->bounded(noise.height());
         noise.setPixel(x, y, qRgba(gray, gray, gray, alpha));
     }
 
