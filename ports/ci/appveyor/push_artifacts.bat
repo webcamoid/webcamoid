@@ -17,7 +17,7 @@ REM
 REM Web-Site: http://webcamoid.github.io/
 
 if not "%DAILY_BUILD%" == "" (
-    for %%f in (ports\deploy\packages_auto\windows\*.exe) do (
+    for %%f in (ports\deploy\packages_auto\windows\*) do (
         appveyor PushArtifact %%f
     )
 )

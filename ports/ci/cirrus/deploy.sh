@@ -18,4 +18,9 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
+cd ports/deploy
+git clone https://github.com/webcamoid/DeployTools.git
+cd ../..
+
+export PYTHONPATH="${PWD}/ports/deploy/DeployTools"
 python3 ports/deploy/deploy.py

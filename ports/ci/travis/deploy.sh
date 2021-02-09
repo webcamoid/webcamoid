@@ -28,6 +28,10 @@ elif [ "${TRAVIS_OS_NAME}" = linux ] && [ -z "${ANDROID_BUILD}" ]; then
     fi
 fi
 
+cd ports/deploy
+git clone https://github.com/webcamoid/DeployTools.git
+cd ../..
+
 DEPLOYSCRIPT=deployscript.sh
 
 if [ "${ANDROID_BUILD}" = 1 ]; then
@@ -49,8 +53,9 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
     lastArch=$(echo "${TARGET_ARCH}" | awk -F: '{print $NF}')
 
     if [ "${nArchs}" = 1 ]; then
-        export PATH="${PWD}/build/Qt/${QTVER}/android_${lastArch}/bin:${PWD}/.local/bin:${ORIG_PATH}"
+        export PATH="${PWD}/build/Qt/${QTVER_ANDROID}/android/bin:${PWD}/.local/bin:${ORIG_PATH}"
         export BUILD_PATH=${PWD}/build-webcamoid-${lastArch}
+        export PYTHONPATH="${PWD}/ports/deploy/DeployTools"
 
         python3 ports/deploy/deploy.py
     else
@@ -65,8 +70,9 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
         done
 
         for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
-            export PATH="${PWD}/build/Qt/${QTVER}/android_${arch_}/bin:${PWD}/.local/bin:${ORIG_PATH}"
+            export PATH="${PWD}/build/Qt/${QTVER_ANDROID}/android/bin:${PWD}/.local/bin:${ORIG_PATH}"
             export BUILD_PATH=${PWD}/build-webcamoid-${arch_}
+            export PYTHONPATH="${PWD}/ports/deploy/DeployTools"
 
             if [ "${arch_}" = "${lastArch}" ]; then
                 export PACKAGES_PREPARE_ONLY=0
@@ -93,7 +99,8 @@ elif [ "${ARCH_ROOT_BUILD}" = 1 ]; then
 
 export LC_ALL=C
 export HOME=$HOME
-export PATH="\$PWD/.local/bin:\$PATH"
+export PATH="$TRAVIS_BUILD_DIR/.local/bin:\$PATH"
+export PYTHONPATH="$TRAVIS_BUILD_DIR/ports/deploy/DeployTools"
 export WINEPREFIX=/opt/.wine
 cd $TRAVIS_BUILD_DIR
 EOF
@@ -118,6 +125,7 @@ elif [ "${TRAVIS_OS_NAME}" = linux ]; then
 #!/bin/sh
 
 export PATH="\$PWD/.local/bin:\$PATH"
+export PYTHONPATH="\$PWD/ports/deploy/DeployTools"
 xvfb-run --auto-servernum python3 ports/deploy/deploy.py
 EOF
 
@@ -125,5 +133,6 @@ EOF
 
     ${EXEC} bash ${DEPLOYSCRIPT}
 elif [ "${TRAVIS_OS_NAME}" = osx ]; then
-    ${EXEC} python3 ports/deploy/deploy.py
+    export PYTHONPATH="${PWD}/ports/deploy/DeployTools"
+    python3 ports/deploy/deploy.py
 fi

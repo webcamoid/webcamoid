@@ -18,82 +18,23 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-readversion() {
-    libname=$(echo $2 | awk '{print toupper($0)}')
-
-    while read line; do
-        _vmajor=$(echo $line | grep "^#define LIB${libname}_VERSION_MAJOR" | awk '{print $3}')
-        _vminor=$(echo $line | grep "^#define LIB${libname}_VERSION_MINOR" | awk '{print $3}')
-        _vmicro=$(echo $line | grep "^#define LIB${libname}_VERSION_MICRO" | awk '{print $3}')
-
-        if [ -n "$_vmajor" ]; then
-            vmajor=$_vmajor
-        fi
-
-        if [ -n "$_vminor" ]; then
-            vminor=$_vminor
-        fi
-
-        if [ -n "$_vmicro" ]; then
-            vmicro=$_vmicro
-        fi
-
-        if [[ -n "$vmajor" && -n "$vminor" && -n "$vmicro" ]]; then
-            echo $vmajor.$vminor.$vmicro
-
-            break
-        fi
-    done < "$1"
-}
-
-libdescription() {
-    descriptions=('avcodec Encoding/Decoding Library.'
-                  'avdevice Special devices muxing/demuxing library.'
-                  'avfilter Graph-based frame editing library.'
-                  'avformat I/O and Muxing/Demuxing Library'
-                  'avutil Common code shared across all FFmpeg libraries.'
-                  'postproc Video postprocessing library.'
-                  'swresample Audio resampling, sample format conversion and mixing library.'
-                  'swscale Color conversion and scaling library.')
-
-    for description in "${descriptions[@]}"; do
-        if [[ "$description" == $1\ * ]]; then
-            echo ${description#* }
-
-            break
-        fi
-    done
-}
-
-requires() {
-    deps=('avcodec libswresample, libavutil'
-          'avdevice libavfilter, libswscale, libpostproc, libavresample, libavformat, libavcodec, libswresample, libavutil'
-          'avfilter libswscale, libpostproc, libavresample, libavformat, libavcodec, libswresample, libavutil'
-          'avformat libavcodec, libswresample, libavutil'
-          'postproc libavutil'
-          'swresample libavutil'
-          'swscale libavutil')
-
-    for dep in "${deps[@]}"; do
-        if [[ "$dep" == $1\ * ]]; then
-            echo ${dep#* }
-
-            break
-        fi
-    done
-}
+#qtIinstallerVerbose=-v
 
 if [ ! -z "${USE_WGET}" ]; then
-    export DOWNLOAD_CMD="wget -c"
+    export DOWNLOAD_CMD="wget -nv -c"
 else
-    export DOWNLOAD_CMD="curl --retry 10 -kLOC -"
+    export DOWNLOAD_CMD="curl --retry 10 -sS -kLOC -"
 fi
-
-# qtIinstallerVerbose=-v
 
 if [ "${TRAVIS_OS_NAME}" = linux ] &&
    [ "${ANDROID_BUILD}" != 1 ] &&
    [ -z "${ARCH_ROOT_MINGW}" ] ; then
+    # Install missing dependenies
+    sudo apt-get -qq -y update
+    sudo apt-get -qq -y upgrade
+    sudo apt-get -qq -y install \
+        libxkbcommon-x11-0
+
     mkdir -p .local/bin
     qtIFW=QtInstallerFramework-linux-x64.run
 
@@ -143,6 +84,7 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
 
     # Install dev tools
     sudo apt-get -qq -y install \
+        libxkbcommon-x11-0 \
         make \
         openjdk-8-jdk \
         openjdk-8-jre
@@ -152,8 +94,9 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
     cd build
 
     # Install Android SDK
-    fileName="sdk-tools-linux-${SDKVER}.zip"
+    fileName="commandlinetools-linux-${SDKVER}_latest.zip"
     ${DOWNLOAD_CMD} "https://dl.google.com/android/repository/${fileName}"
+
     mkdir -p android-sdk
     unzip -q -d android-sdk ${fileName}
 
@@ -164,15 +107,23 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
     mv -vf android-ndk-${NDKVER} android-ndk
 
     # Install Qt for Android
-    fileName="qt-opensource-linux-x64-${QTVER}.run"
-    ${DOWNLOAD_CMD} "https://download.qt.io/archive/qt/${QTVER:0:4}/${QTVER}/${fileName}"
+    fileName=qt-opensource-linux-x64-${QTVER_ANDROID}.run
+    ${DOWNLOAD_CMD} "https://download.qt.io/archive/qt/${QTVER_ANDROID:0:4}/${QTVER_ANDROID}/${fileName}"
     chmod +x ${fileName}
 
-    QT_QPA_PLATFORM=minimal \
-    ./qt-opensource-linux-x64-${QTVER}.run \
+    # Shutdown network connection so Qt installer does not ask for credentials.
+    netName=$(ifconfig -s | grep BMRU | awk '{print $1}' | sed 's/.*://g')
+    sudo ifconfig ${netName} down
+
+    export QT_QPA_PLATFORM=minimal
+
+    ./qt-opensource-linux-x64-${QTVER_ANDROID}.run \
         ${qtIinstallerVerbose} \
         --script "$PWD/../ports/ci/travis/qt_non_interactive_install.qs" \
         --no-force-installations
+
+    # Get network connection up again.
+    sudo ifconfig ${netName} up
 
     cd ..
 
@@ -182,17 +133,18 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
     export ANDROID_NDK="${PWD}/build/android-ndk"
     export ANDROID_NDK_HOME=${ANDROID_NDK}
     export PATH="${JAVA_HOME}/bin/java:${PATH}"
-    export PATH="$PATH:${ANDROID_HOME}/tools:${ANDROID_HOME}/tools/bin"
+    export PATH="${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/tools/bin"
     export PATH="${PATH}:${ANDROID_HOME}/platform-tools"
     export PATH="${PATH}:${ANDROID_HOME}/emulator"
     export PATH="${PATH}:${ANDROID_NDK}"
 
     # Install Android things
     echo y | sdkmanager \
+        --sdk_root=${ANDROID_HOME} \
         "build-tools;${ANDROID_BUILD_TOOLS_VERSION}" \
         "platform-tools" \
         "platforms;android-${ANDROID_PLATFORM}" \
-        "tools"
+        "tools" > /dev/null
 elif [ "${ARCH_ROOT_BUILD}" = 1 ]; then
     # Download chroot image
     archImage=archlinux-bootstrap-${ARCH_ROOT_DATE}-x86_64.tar.gz
@@ -228,7 +180,9 @@ EOF
 
     ${EXEC} pacman-key --init
     ${EXEC} pacman-key --populate archlinux
-    ${EXEC} pacman -Syy
+    ${EXEC} pacman -Syu \
+        --noconfirm \
+        --ignore linux,linux-api-headers,linux-docs,linux-firmware,linux-headers,pacman
 
     ${EXEC} pacman --noconfirm --needed -S \
         ccache \
@@ -265,62 +219,8 @@ EOF
             mingw-w64-qt5-quickcontrols \
             mingw-w64-qt5-quickcontrols2 \
             mingw-w64-qt5-svg \
-            mingw-w64-qt5-tools
-
-        for mingw_arch in i686 x86_64; do
-            if [ "$mingw_arch" = x86_64 ]; then
-                ff_arch=win64
-            else
-                ff_arch=win32
-            fi
-
-            for pkg in dev shared; do
-                package=ffmpeg-${FFMPEG_VERSION}-${ff_arch}-$pkg
-                ${DOWNLOAD_CMD} "https://ffmpeg.zeranoe.com/builds/${ff_arch}/$pkg/$package.zip"
-                unzip $package.zip
-            done
-
-            # Copy binaries
-            sudo install -d root.x86_64/usr/${mingw_arch}-w64-mingw32/bin
-            sudo install -m644 \
-                ffmpeg-${FFMPEG_VERSION}-${ff_arch}-shared/bin/*.dll \
-                root.x86_64/usr/${mingw_arch}-w64-mingw32/bin/
-
-            # Copy libraries
-            sudo install -d root.x86_64/usr/${mingw_arch}-w64-mingw32/include
-            sudo install -d root.x86_64/usr/${mingw_arch}-w64-mingw32/lib
-            sudo cp -rf \
-                ffmpeg-${FFMPEG_VERSION}-${ff_arch}-dev/include/* \
-                root.x86_64/usr/${mingw_arch}-w64-mingw32/include/
-            sudo install -m644 \
-                ffmpeg-${FFMPEG_VERSION}-${ff_arch}-dev/lib/*.a \
-                root.x86_64/usr/${mingw_arch}-w64-mingw32/lib/
-
-            libdir=root.x86_64/usr/${mingw_arch}-w64-mingw32/lib
-            pkgconfigdir="$libdir"/pkgconfig
-            sudo install -d "$pkgconfigdir"
-
-            ls ffmpeg-${FFMPEG_VERSION}-${ff_arch}-dev/lib/*.a | \
-            while read lib; do
-                libname=$(basename $lib | sed 's/.dll.a//g' | sed 's/^lib//g')
-                version=$(readversion ffmpeg-${FFMPEG_VERSION}-${ff_arch}-dev/include/lib$libname/version.h $libname)
-                description=$(libdescription $libname)
-                deps=$(requires $libname)
-
-                cat << EOF > lib$libname.pc
-prefix=/usr/${mingw_arch}-w64-mingw32
-exec_prefix=\${prefix}
-libdir=\${prefix}/lib
-
-Name: lib$libname
-Description: $description
-Version: $version
-Requires.private: $deps
-Libs: -L\${libdir} -l$libname
-EOF
-                sudo install -m644 lib$libname.pc "$pkgconfigdir/"
-            done
-        done
+            mingw-w64-qt5-tools \
+            mingw-w64-ffmpeg
 
         qtIFW=QtInstallerFramework-win-x86.exe
 
@@ -356,16 +256,16 @@ EOF
 elif [ "${DOCKERSYS}" = debian ]; then
     ${EXEC} apt-get -y update
 
-    if [ "${DOCKERIMG}" = ubuntu:xenial ]; then
+    if [ "${DOCKERIMG}" = ubuntu:bionic ]; then
         ${EXEC} apt-get -y install software-properties-common
-        ${EXEC} add-apt-repository ppa:beineri/opt-qt-${QTVER}-xenial
+        ${EXEC} add-apt-repository ppa:beineri/opt-qt-${QTVER}-bionic
     fi
 
     ${EXEC} apt-get -y update
     ${EXEC} apt-get -y upgrade
 
     # Install dev tools
-    ${EXEC} apt-get -y install \
+    ${EXEC} bash -c "DEBIAN_FRONTEND=noninteractive apt-get -y install \
         git \
         xvfb \
         g++ \
@@ -385,13 +285,13 @@ elif [ "${DOCKERSYS}" = debian ]; then
         libavutil-dev \
         libavresample-dev \
         libswscale-dev \
-        libswresample-dev
+        libswresample-dev"
 
     if [ -z "${DAILY_BUILD}" ] && [ -z "${RELEASE_BUILD}" ]; then
         ${EXEC} apt-get -y install \
             libgstreamer-plugins-base1.0-dev
 
-        if [ "${DOCKERIMG}" != ubuntu:xenial ]; then
+        if [ "${DOCKERIMG}" != ubuntu:bionic ]; then
             ${EXEC} apt-get -y install \
                 libusb-dev \
                 libuvc-dev
@@ -399,7 +299,7 @@ elif [ "${DOCKERSYS}" = debian ]; then
     fi
 
     # Install Qt dev
-    if [ "${DOCKERIMG}" = ubuntu:xenial ]; then
+    if [ "${DOCKERIMG}" = ubuntu:bionic ]; then
         ${EXEC} apt-get -y install \
             qt${PPAQTVER}tools \
             qt${PPAQTVER}declarative \
@@ -477,13 +377,17 @@ elif [ "${DOCKERSYS}" = opensuse ]; then
         libpulse-devel \
         libjack-devel
 elif [ "${TRAVIS_OS_NAME}" = osx ]; then
+    brew update
+    brew upgrade
+    brew link --overwrite numpy
     brew install \
         p7zip \
-        python3 \
+        python \
         ccache \
         pkg-config \
         qt5 \
         ffmpeg
+    brew link --overwrite python
 
     if [ -z "${DAILY_BUILD}" ] && [ -z "${RELEASE_BUILD}" ]; then
         brew install \
@@ -494,6 +398,7 @@ elif [ "${TRAVIS_OS_NAME}" = osx ]; then
             libuvc
     fi
 
+    brew link python
     qtIFW=QtInstallerFramework-mac-x64.dmg
 
     # Install Qt Installer Framework

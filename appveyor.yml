@@ -1,7 +1,7 @@
 version: 8.8.0.{build}-{branch}
 os: MinGW
 
-image: Visual Studio 2017
+image: Visual Studio 2019
 
 platform:
   - x64
@@ -20,53 +20,35 @@ branches:
 
 environment:
   global:
-    FFMPEG_VERSION: 4.2
-    GSTREAMER_VERSION: 1.16.0
-    PYTHON_VERSION: Python37
-    QMAKESPEC: win32-g++
-    MAKETOOL: mingw32-make
     INSTALL_PREFIX: C:/projects/webcamoid/ports/deploy/temp_priv/usr
     # api key from https://bintray.com/profile/edit
-    # encrypted in https://ci.appveyor.com/tools/encrypt
+    # encrypted with https://ci.appveyor.com/tools/encrypt
     BT_KEY:
-      secure: seneRk4ppI4bquIsdweI8pd8FT0RXUvU2LOUNGSBEA28IhFQijypil2CfC3WtJxa
+      secure: UovqScFlz2shj+pxGyhQUYFiCvYJWEBGuhRCbaC3Bfxm0k9qo/pHYlp6Vx3jLIt9
 
   matrix:
-    - MSYS2_BUILD: 1
-    - QTDIR: C:\Qt\5.13\mingw73_64
-      TOOLSDIR: C:\Qt\Tools\mingw730_64
-    - QTDIR: C:\Qt\5.13\msvc2017
-      TOOLSDIR: C:\Qt\Tools\QtCreator
-      QMAKESPEC: win32-msvc
-      VSPATH: C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build
-      MAKETOOL: jom
-      PLATFORM: x86
-    - QTDIR: C:\Qt\5.13\msvc2017_64
-      TOOLSDIR: C:\Qt\Tools\QtCreator
-      QMAKESPEC: win32-msvc
-      VSPATH: C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build
-      MAKETOOL: jom
+    - PLATFORM: x86
+      DAILY_BUILD: 1
+    - PLATFORM: x64
+      DAILY_BUILD: 1
+    - PLATFORM: x86
+      RELEASE_BUILD: 1
+    - PLATFORM: x64
+      RELEASE_BUILD: 1
+    - PLATFORM: x86
+    - PLATFORM: x64
 
 install:
-  - if "%MSYS2_BUILD%" == "" (
-        ports\ci\appveyor\install_deps.bat
-    ) else (
-        C:\msys64\usr\bin\bash -lc "cd /c/projects/webcamoid && ./ports/ci/appveyor/install_deps.sh"
-    )
+  - ports\ci\appveyor\environment_setup.bat
+  - C:\msys64\usr\bin\bash -lc "cd /c/projects/webcamoid && ./ports/ci/appveyor/install_deps.sh"
 
 build_script:
-  - if "%MSYS2_BUILD%" == "" (
-        ports\ci\appveyor\build.bat
-    ) else (
-        C:\msys64\usr\bin\bash -lc "cd /c/projects/webcamoid && ./ports/ci/appveyor/build.sh '%INSTALL_PREFIX%'"
-    )
+  - ports\ci\appveyor\environment_setup.bat
+  - C:\msys64\usr\bin\bash -lc "cd /c/projects/webcamoid && ./ports/ci/appveyor/build.sh
 
 after_build:
-  - if "%MSYS2_BUILD%" == "" (
-        ports\ci\appveyor\deploy.bat
-    ) else (
-        C:\msys64\usr\bin\bash -lc "cd /c/projects/webcamoid && ./ports/ci/appveyor/deploy.sh"
-    )
+  - ports\ci\appveyor\environment_setup.bat
+  - C:\msys64\usr\bin\bash -lc "cd /c/projects/webcamoid && ./ports/ci/appveyor/deploy.sh"
   - ports\ci\appveyor\push_artifacts.bat
 
 deploy_script:

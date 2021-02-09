@@ -12,7 +12,7 @@
 * Written in C++ and Qt.
 * Custom controls for each webcam.
 * Add funny effects to the webcam.
-* +60 effects available.
+* 60+ effects available.
 * Translated to many languages.
 * Use custom network and local files as capture devices.
 * Capture from desktop.
@@ -23,6 +23,19 @@
 
 Visit the [wiki](https://github.com/webcamoid/webcamoid/wiki) for a comprehensive compile and install instructions.
 
+## Downloads ##
+
+[![Download](https://img.shields.io/badge/Download-Releases-3f2a7e.svg)](https://github.com/webcamoid/webcamoid/releases)
+[![Daily Build](https://img.shields.io/badge/Download-Daily%20Build-3f2a7e.svg)](https://bintray.com/webcamoid/webcamoid/webcamoid/daily)
+[![Total Downloads](https://img.shields.io/github/downloads/webcamoid/webcamoid/total.svg?label=Total%20Downloads&color=3f2a7e)](https://tooomm.github.io/github-release-stats/?username=webcamoid&repository=webcamoid)
+
+## Donations ##
+
+I'm accepting donations in crypto currencies, any donation amount is welcome and very appreciated.
+
+[![Bitcoin donation](https://img.shields.io/badge/Donation-Bitcoin-bf8c00.svg)](mailto:hipersayan%2Ex%40gmail%2Ecom?subject=%5BDonation%5D%20Donation%20for%20Webcamoid&body=Hi%2C%20I%20want%20to%20make%20a%20donation%20for%20Webcamoid%2C%20please%20send%20me%20the%20address.)
+[![Monero donation](https://img.shields.io/badge/Donation-Monero-bf8c00.svg)](https://gist.github.com/hipersayanX/0d575fc7b9b36a2e9817027fb50258bd)
+
 ## Status ##
 
 [![Build Status](https://travis-ci.org/webcamoid/webcamoid.svg?branch=master)](https://travis-ci.org/webcamoid/webcamoid)
@@ -31,8 +44,6 @@ Visit the [wiki](https://github.com/webcamoid/webcamoid/wiki) for a comprehensiv
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/fd3ca6ed8bea43e992b1d329c3dc916f)](https://www.codacy.com/app/webcamoid/webcamoid?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=webcamoid/webcamoid&amp;utm_campaign=Badge_Grade)
 [![Translation status](https://hosted.weblate.org/widgets/webcamoid/-/svg-badge.svg)](https://hosted.weblate.org/engage/webcamoid/?utm_source=widget)
 [![Project Stats](https://www.openhub.net/p/Webcamoid/widgets/project_thin_badge.gif)](https://www.openhub.net/p/Webcamoid)
-[![Total Downloads](https://img.shields.io/github/downloads/webcamoid/webcamoid/total.svg)](https://github.com/webcamoid/webcamoid/releases)
-[![Daily Build](https://api.bintray.com/packages/webcamoid/webcamoid/webcamoid/images/download.svg?version=daily)](https://bintray.com/webcamoid/webcamoid/webcamoid/daily/link)
 [![Gitlab mirror](https://img.shields.io/badge/mirror-Gitlab-007fff.svg)](https://gitlab.com/hipersayanX/webcamoid/)
 [![SourceForge mirror](https://img.shields.io/badge/mirror-SourceForge-007fff.svg)](https://sourceforge.net/p/webcamoid/)
 

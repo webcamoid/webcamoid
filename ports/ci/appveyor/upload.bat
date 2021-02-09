@@ -17,12 +17,14 @@ REM
 REM Web-Site: http://webcamoid.github.io/
 
 if not "%DAILY_BUILD%" == "" if "%APPVEYOR_REPO_BRANCH%" == "master" (
+    choco install -y jfrog-cli
+
     jfrog bt config ^
         --user=hipersayanx ^
         --key=%BT_KEY% ^
         --licenses=GPL-3.0-or-later
 
-    for %%f in (ports\deploy\packages_auto\windows\*.exe) do (
+    for %%f in (ports\deploy\packages_auto\windows\*) do (
         jfrog bt upload ^
             --user=hipersayanx ^
             --key=%BT_KEY% ^

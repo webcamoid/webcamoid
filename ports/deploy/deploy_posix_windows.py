@@ -26,14 +26,16 @@ import sys
 import threading
 import zipfile
 
-import deploy_base
-import tools.binary_pecoff
-import tools.qt5
+from WebcamoidDeployTools import DTDeployBase
+from WebcamoidDeployTools import DTQt5
+from WebcamoidDeployTools import DTBinaryPecoff
 
 
-class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
+class Deploy(DTDeployBase.DeployBase, DTQt5.Qt5Tools):
     def __init__(self):
         super().__init__()
+        rootDir = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../..'))
+        self.setRootDir(rootDir)
         self.targetSystem = 'posix_windows'
         self.installDir = os.path.join(self.buildDir, 'ports/deploy/temp_priv')
         self.pkgsDir = os.path.join(self.buildDir, 'ports/deploy/packages_auto/windows')
@@ -59,8 +61,8 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
         self.programName = os.path.splitext(os.path.basename(self.mainBinary))[0]
         self.programVersion = self.detectVersion(os.path.join(self.rootDir, 'commons.pri'))
         self.detectMake()
-        self.binarySolver = tools.binary_pecoff.DeployToolsBinary()
-        self.binarySolver.readExcludeList(os.path.join(self.rootDir, 'ports/deploy/exclude.{}.{}.txt'.format(os.name, sys.platform)))
+        self.binarySolver = DTBinaryPecoff.PecoffBinaryTools()
+        self.binarySolver.readExcludes(os.name, sys.platform)
         self.packageConfig = os.path.join(self.rootDir, 'ports/deploy/package_info.conf')
         self.dependencies = []
         self.installerConfig = os.path.join(self.installDir, 'installer/config')
@@ -92,7 +94,8 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
 
     def prepare(self):
         print('Executing make install')
-        self.makeInstall(self.buildDir, self.installDir)
+        params = {'INSTALL_ROOT': self.installDir}
+        self.makeInstall(self.buildDir, params)
 
         if self.targetArch == '32bit':
             self.binarySolver.sysBinsPath = ['/usr/i686-w64-mingw32/bin']
@@ -368,7 +371,6 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
     def createLauncher(self):
         path = os.path.join(self.rootInstallDir, self.programName) + '.bat'
         libDir = os.path.relpath(self.libInstallDir, self.rootInstallDir)
-        qmlDir = os.path.relpath(self.qmlInstallDir, self.rootInstallDir).replace('/', '\\')
 
         with open(path, 'w') as launcher:
             launcher.write('@echo off\n')
@@ -381,6 +383,9 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
             launcher.write('\n')
             launcher.write('rem Default values: software | d3d12 | openvg\n')
             launcher.write('rem set QT_QUICK_BACKEND=""\n')
+            launcher.write('\n')
+            launcher.write('rem Enable plugin debugging\n')
+            launcher.write('rem set QT_DEBUG_PLUGINS=1\n')
             launcher.write('\n')
             launcher.write('start /b "" '
                            + '"%~dp0bin\\{}" '.format(self.programName)
@@ -450,9 +455,14 @@ class Deploy(deploy_base.DeployBase, tools.qt5.DeployToolsQt):
         mutex = threading.Lock()
 
         threads = [threading.Thread(target=self.createPortable, args=(mutex,))]
+        packagingTools = ['zip']
 
         if self.qtIFW != '':
             threads.append(threading.Thread(target=self.createAppInstaller, args=(mutex,)))
+            packagingTools += ['Qt Installer Framework']
+
+        if len(packagingTools) > 0:
+            print('Detected packaging tools: {}\n'.format(', '.join(packagingTools)))
 
         for thread in threads:
             thread.start()

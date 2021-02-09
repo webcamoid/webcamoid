@@ -40,7 +40,7 @@ fi
 
 BUILDSCRIPT=dockerbuild.sh
 
-if [ "${DOCKERIMG}" = ubuntu:xenial ]; then
+if [ "${DOCKERIMG}" = ubuntu:bionic ]; then
     cat << EOF > ${BUILDSCRIPT}
 #!/bin/sh
 
@@ -66,12 +66,13 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
     export ORIG_PATH="${PATH}"
 
     for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
-        export PATH="${PWD}/build/Qt/${QTVER}/android_${arch_}/bin:${ORIG_PATH}"
+        export PATH="${PWD}/build/Qt/${QTVER_ANDROID}/android/bin:${ORIG_PATH}"
         mkdir build-webcamoid-${arch_}
         cd build-webcamoid-${arch_}
         qmake -query
         qmake -spec ${COMPILESPEC} ../Webcamoid.pro \
-            CONFIG+=silent
+            CONFIG+=silent \
+            ANDROID_ABIS=${arch_}
         cd ..
     done
 elif [ "${ARCH_ROOT_BUILD}" = 1 ]; then
@@ -112,7 +113,7 @@ elif [ "${TRAVIS_OS_NAME}" = linux ]; then
     export PATH=$HOME/.local/bin:$PATH
 
     if [ "${DOCKERSYS}" = debian ]; then
-        if [ "${DOCKERIMG}" = ubuntu:xenial ]; then
+        if [ "${DOCKERIMG}" = ubuntu:bionic ]; then
             if [ -z "${DAILY_BUILD}" ] && [ -z "${RELEASE_BUILD}" ]; then
                 cat << EOF >> ${BUILDSCRIPT}
 #!/bin/sh
@@ -131,6 +132,7 @@ qmake -spec ${COMPILESPEC} Webcamoid.pro \
     CONFIG+=silent \
     QMAKE_CXX="${COMPILER}" \
     NOGSTREAMER=1 \
+    NOLIBAVDEVICE=1 \
     NOQTAUDIO=1
 EOF
             fi
@@ -173,7 +175,7 @@ fi
 
 if [ "${ANDROID_BUILD}" = 1 ]; then
     for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
-        export PATH="${PWD}/build/Qt/${QTVER}/android_${arch_}/bin:${ORIG_PATH}"
+        export PATH="${PWD}/build/Qt/${QTVER_ANDROID}/android/bin:${ORIG_PATH}"
         cd build-webcamoid-${arch_}
         make -j${NJOBS}
         cd ..
@@ -204,50 +206,4 @@ EOF
     sudo umount root.x86_64
 else
     ${EXEC} make -j${NJOBS}
-fi
-
-if [ "${ARCH_ROOT_BUILD}" = 1 ] && [ ! -z "${ARCH_ROOT_MINGW}" ]; then
-    if [ "$ARCH_ROOT_MINGW" = x86_64 ]; then
-        mingw_arch=i686
-        mingw_compiler=${COMPILER/x86_64/i686}
-        mingw_dstdir=x86
-    else
-        mingw_arch=x86_64
-        mingw_compiler=${COMPILER/i686/x86_64}
-        mingw_dstdir=x64
-    fi
-
-    echo
-    echo "Building $mingw_arch virtual camera driver"
-    echo
-    sudo mount --bind root.x86_64 root.x86_64
-    sudo mount --bind $HOME root.x86_64/$HOME
-
-    cat << EOF > ${BUILDSCRIPT}
-#!/bin/sh
-
-export LC_ALL=C
-export HOME=$HOME
-mkdir -p $TRAVIS_BUILD_DIR/akvcam
-cd $TRAVIS_BUILD_DIR/akvcam
-/usr/${mingw_arch}-w64-mingw32/lib/qt/bin/qmake \
-    -spec ${COMPILESPEC} \
-    ../libAvKys/Plugins/VirtualCamera/VirtualCamera.pro \
-    CONFIG+=silent \
-    QMAKE_CXX="${mingw_compiler}" \
-    VIRTUALCAMERAONLY=1
-make -j${NJOBS}
-EOF
-    chmod +x ${BUILDSCRIPT}
-    sudo cp -vf ${BUILDSCRIPT} root.x86_64/$HOME/
-
-    ${EXEC} bash $HOME/${BUILDSCRIPT}
-
-    sudo mkdir -p libAvKys/Plugins/VirtualCamera/src/dshow/VirtualCamera/AkVirtualCamera.plugin/${mingw_dstdir}
-    sudo cp -rvf \
-        akvcam/src/dshow/VirtualCamera/AkVirtualCamera.plugin/${mingw_dstdir}/* \
-        libAvKys/Plugins/VirtualCamera/src/dshow/VirtualCamera/AkVirtualCamera.plugin/${mingw_dstdir}/
-
-    sudo umount root.x86_64/$HOME
-    sudo umount root.x86_64
 fi

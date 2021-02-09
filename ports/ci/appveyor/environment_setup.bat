@@ -1,5 +1,5 @@
 REM Webcamoid, webcam capture application.
-REM Copyright (C) 2017  Gonzalo Exequiel Pedone
+REM Copyright (C) 2019  Gonzalo Exequiel Pedone
 REM
 REM Webcamoid is free software: you can redistribute it and/or modify
 REM it under the terms of the GNU General Public License as published by
@@ -16,20 +16,14 @@ REM along with Webcamoid. If not, see <http://www.gnu.org/licenses/>.
 REM
 REM Web-Site: http://webcamoid.github.io/
 
-if "%PLATFORM%" == "x86" (
-    set FF_ARCH=win32
-    set GST_ARCH=x86
-    set VC_ARGS=x86
-    set PYTHON_PATH=C:\%PYTHON_VERSION%
-) else (
-    set FF_ARCH=win64
-    set GST_ARCH=x86_64
-    set VC_ARGS=amd64
-    set PYTHON_PATH=C:\%PYTHON_VERSION%-x64
-)
-
-set MAKE_PATH=%TOOLSDIR%\bin\%MAKETOOL%.exe
-set GSTREAMER_DEV_PATH=C:\gstreamer\1.0\%GST_ARCH%
-set PATH=%QTDIR%\bin;%TOOLSDIR%\bin;%CD%\ffmpeg-%FFMPEG_VERSION%-%FF_ARCH%-shared\bin;%GSTREAMER_DEV_PATH%\bin;%PATH%
-
-%PYTHON_PATH%\python.exe ports\deploy\deploy.py
+set ENVIRONMENT_FILE=environment.sh
+del %ENVIRONMENT_FILE%
+echo export PLATFORM=%PLATFORM% >> %ENVIRONMENT_FILE%
+echo export INSTALL_PREFIX=%INSTALL_PREFIX% >> %ENVIRONMENT_FILE%
+echo export DAILY_BUILD=%DAILY_BUILD% >> %ENVIRONMENT_FILE%
+echo export RELEASE_BUILD=%RELEASE_BUILD% >> %ENVIRONMENT_FILE%
+echo export APPVEYOR_ACCOUNT_NAME=%APPVEYOR_ACCOUNT_NAME% >> %ENVIRONMENT_FILE%
+echo export APPVEYOR_JOB_ID=%APPVEYOR_JOB_ID% >> %ENVIRONMENT_FILE%
+echo export APPVEYOR_PROJECT_NAME=%APPVEYOR_PROJECT_NAME% >> %ENVIRONMENT_FILE%
+echo export APPVEYOR_PROJECT_SLUG=%APPVEYOR_PROJECT_SLUG% >> %ENVIRONMENT_FILE%
+echo export TRAVIS_BUILD_WEB_URL=%TRAVIS_BUILD_WEB_URL% >> %ENVIRONMENT_FILE%
