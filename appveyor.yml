@@ -14,10 +14,6 @@ configuration:
   - release
 #  - debug
 
-branches:
-  only:
-  - master
-
 environment:
   global:
     INSTALL_PREFIX: C:/projects/webcamoid/ports/deploy/temp_priv/usr
