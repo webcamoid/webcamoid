@@ -16,7 +16,7 @@ REM along with Webcamoid. If not, see <http://www.gnu.org/licenses/>.
 REM
 REM Web-Site: http://webcamoid.github.io/
 
-if not "%DAILY_BUILD%" == "" if "%APPVEYOR_REPO_BRANCH%" == "master" (
+if not "%DAILY_BUILD%" == "" (
     for %%f in (ports\deploy\packages_auto\windows\*) do (
         appveyor PushArtifact %%f
     )

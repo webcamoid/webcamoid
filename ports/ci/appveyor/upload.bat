@@ -16,7 +16,7 @@ REM along with Webcamoid. If not, see <http://www.gnu.org/licenses/>.
 REM
 REM Web-Site: http://webcamoid.github.io/
 
-if not "%DAILY_BUILD%" == "" if "%APPVEYOR_REPO_BRANCH%" == "master" (
+if not "%DAILY_BUILD%" == "" (
     choco install -y jfrog-cli
 
     jfrog bt config ^
