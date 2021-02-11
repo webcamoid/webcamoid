@@ -248,21 +248,6 @@ class Deploy(DTDeployBase.DeployBase, DTQt5.Qt5Tools):
 
         return ''
 
-    def commitHash(self):
-        try:
-            process = subprocess.Popen(['git', 'rev-parse', 'HEAD'], # nosec
-                                        stdout=subprocess.PIPE,
-                                        stderr=subprocess.PIPE,
-                                        cwd=self.rootDir)
-            stdout, _ = process.communicate()
-
-            if process.returncode != 0:
-                return ''
-
-            return stdout.decode(sys.getdefaultencoding()).strip()
-        except:
-            return ''
-
     @staticmethod
     def sysInfo():
         info = ''
@@ -287,7 +272,7 @@ class Deploy(DTDeployBase.DeployBase, DTQt5.Qt5Tools):
         # Write repository info.
 
         with open(depsInfoFile, 'w') as f:
-            commitHash = self.commitHash()
+            commitHash = self.gitCommitHash(self.rootDir)
 
             if len(commitHash) < 1:
                 commitHash = 'Unknown'
