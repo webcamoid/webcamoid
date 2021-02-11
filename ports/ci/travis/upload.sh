@@ -24,7 +24,7 @@ else
     export DOWNLOAD_CMD="curl --retry 10 -sS -kLOC -"
 fi
 
-if [[ ( ! -z "$DAILY_BUILD" || ! -z "$RELEASE_BUILD" ) && "$TRAVIS_BRANCH" == "master" ]]; then
+if [[ ! -z "$DAILY_BUILD" || ! -z "$RELEASE_BUILD" ]]; then
     if [ -z "$DAILY_BUILD" ]; then
         VER_MAJ=$(grep -re '^VER_MAJ[[:space:]]*=[[:space:]]*' commons.pri | awk '{print $3}')
         VER_MIN=$(grep -re '^VER_MIN[[:space:]]*=[[:space:]]*' commons.pri | awk '{print $3}')
@@ -64,7 +64,7 @@ if [[ ( ! -z "$DAILY_BUILD" || ! -z "$RELEASE_BUILD" ) && "$TRAVIS_BRANCH" == "m
     # Upload to Github Releases
     upload=false
 
-    if [[ ! -z "$DAILY_BUILD" && "$TRAVIS_BRANCH" == master && "$upload" == true ]]; then
+    if [[ ! -z "$DAILY_BUILD" && "$upload" == true ]]; then
         hub=''
 
         if [ "${TRAVIS_OS_NAME}" = linux ]; then
