@@ -167,6 +167,7 @@ class Deploy(DTDeployBase.DeployBase, DTQt5.Qt5Tools):
     def createLauncher(self):
         path = os.path.join(self.rootInstallDir, self.programName) + '.bat'
         libDir = os.path.relpath(self.libInstallDir, self.rootInstallDir)
+        qmlDir = os.path.relpath(self.qmlInstallDir, self.rootInstallDir).replace('/', '\\')
 
         with open(path, 'w') as launcher:
             launcher.write('@echo off\n')
