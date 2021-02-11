@@ -21,6 +21,7 @@
 #define PERSISTPROPERTYBAG_H
 
 #include <map>
+#include <string>
 #include <ocidl.h>
 
 #include "persist.h"
