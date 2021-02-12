@@ -12,6 +12,7 @@ Chris Barth <chrisjbarth@hotmail.com>
 Daniel Lerch <daniel.p.lerch@gmail.com>
 David Jiménez Santonja <david.jimenez.santonja@gmail.com>
 Edoardo Rosa <edoardo.rosa90@gmail.com>
+Eduardo Rodrigues <edu.rodrigues2580@gmail.com>
 Edwar Tikhonov <letih@vivaldi.net>
 Elizabeth Sherrock <lizzyd710@gmail.com>
 Erich Schubert <erich.schubert@tu-dortmund.de>
@@ -46,6 +47,7 @@ ovari <ovari123@zoho.com>
 paperspaceBen <benjamin@paperspace.io>
 pCsOrI <pcsori@gmail.com>
 Peppernrino <pepperandrino@gmail.com>
+Quentin PAGÈS <quentinantonin@free.fr>
 Raúl González García <rgonzalez5@ucam.edu>
 Robin Kunze <robinkunze@outlook.com>
 Rui Mendes <xz9@protonmail.com>
