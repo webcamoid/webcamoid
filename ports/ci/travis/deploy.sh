@@ -102,6 +102,7 @@ export HOME=$HOME
 export PATH="$TRAVIS_BUILD_DIR/.local/bin:\$PATH"
 export PYTHONPATH="$TRAVIS_BUILD_DIR/ports/deploy/DeployTools"
 export WINEPREFIX=/opt/.wine
+export TRAVIS_BRANCH=$TRAVIS_BRANCH
 cd $TRAVIS_BUILD_DIR
 EOF
 
@@ -126,6 +127,7 @@ elif [ "${TRAVIS_OS_NAME}" = linux ]; then
 
 export PATH="\$PWD/.local/bin:\$PATH"
 export PYTHONPATH="\$PWD/ports/deploy/DeployTools"
+export TRAVIS_BRANCH=$TRAVIS_BRANCH
 xvfb-run --auto-servernum python3 ports/deploy/deploy.py
 EOF
 
