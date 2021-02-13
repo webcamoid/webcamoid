@@ -31,7 +31,7 @@ if not "%DAILY_BUILD%" == "" (
             --override=true ^
             --publish=true ^
             %%f ^
-            webcamoid/webcamoid/webcamoid/daily ^
+            webcamoid/webcamoid/webcamoid/daily-%APPVEYOR_REPO_BRANCH% ^
             windows/
     )
 )

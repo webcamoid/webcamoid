@@ -32,7 +32,7 @@ if [[ ! -z "$DAILY_BUILD" || ! -z "$RELEASE_BUILD" ]]; then
         version=$VER_MAJ.$VER_MIN.$VER_PAT
         publish=false
     else
-        version=daily
+        version=daily-$TRAVIS_BRANCH
         publish=true
     fi
 
