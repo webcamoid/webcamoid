@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Webcamoid, webcam capture application.
-# Copyright (C) 2017  Gonzalo Exequiel Pedone
+# Copyright (C) 2021  Gonzalo Exequiel Pedone
 #
 # Webcamoid is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,6 +18,8 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
+[ -f environment.sh ] && source environment.sh
+
 if [ ! -z "${USE_WGET}" ]; then
     export DOWNLOAD_CMD="wget -nv -c"
 else
@@ -29,18 +31,17 @@ if [[ ! -z "$DAILY_BUILD" || ! -z "$RELEASE_BUILD" ]]; then
         VER_MAJ=$(grep -re '^VER_MAJ[[:space:]]*=[[:space:]]*' commons.pri | awk '{print $3}')
         VER_MIN=$(grep -re '^VER_MIN[[:space:]]*=[[:space:]]*' commons.pri | awk '{print $3}')
         VER_PAT=$(grep -re '^VER_PAT[[:space:]]*=[[:space:]]*' commons.pri | awk '{print $3}')
-        version=$VER_MAJ.$VER_MIN.$VER_PAT-$TRAVIS_BRANCH
+        version=$VER_MAJ.$VER_MIN.$VER_PAT-$APPVEYOR_REPO_BRANCH
         publish=false
     else
-        version=daily-$TRAVIS_BRANCH
+        version=daily-$APPVEYOR_REPO_BRANCH
         publish=true
     fi
 
     # Upload to Bintray
+    choco install -y jfrog-cli
 
-    curl -fL https://getcli.jfrog.io | sh
-
-    ./jfrog bt config \
+    jfrog bt config \
         --user=hipersayanx \
         --key=$BT_KEY \
         --licenses=GPL-3.0-or-later
@@ -51,7 +52,7 @@ if [[ ! -z "$DAILY_BUILD" || ! -z "$RELEASE_BUILD" ]]; then
         packagePath=${f#$path/}
         folder=$(dirname $packagePath)
 
-        ./jfrog bt upload \
+        jfrog bt upload \
             --user=hipersayanx \
             --key=$BT_KEY \
             --override=true \
@@ -60,41 +61,4 @@ if [[ ! -z "$DAILY_BUILD" || ! -z "$RELEASE_BUILD" ]]; then
             webcamoid/webcamoid/webcamoid/$version \
             $folder/
     done
-
-    # Upload to Github Releases
-    upload=false
-
-    if [[ ! -z "$DAILY_BUILD" && "$upload" == true ]]; then
-        hub=''
-
-        if [ "${TRAVIS_OS_NAME}" = linux ]; then
-            hub=hub-linux-amd64-${GITHUB_HUBVER}
-        else
-            hub=hub-darwin-amd64-${GITHUB_HUBVER}
-        fi
-
-        cd ${TRAVIS_BUILD_DIR}
-        ${DOWNLOAD_CMD} https://github.com/github/hub/releases/download/v${GITHUB_HUBVER}/${hub}.tgz || true
-        tar xzf ${hub}.tgz
-        mkdir -p .local
-        cp -rf ${hub}/* .local/
-
-        export PATH="${PWD}/.local/bin:${PATH}"
-
-        hubTag=$(hub release -df '%T %t%n' | grep 'Daily Build' | awk '{print $1}' | sed 's/.*://')
-
-        if [ -z "$hubTag" ]; then
-            hub release create -p -m 'Daily Build' daily
-            hubTag=$(hub release -df '%T %t%n' | grep 'Daily Build' | awk '{print $1}' | sed 's/.*://')
-        fi
-
-        if [ ! -z "$hubTag" ]; then
-            path=ports/deploy/packages_auto
-
-            for f in $(find $path -type f); do
-                hubTag=$(hub release -df '%T %t%n' | grep 'Daily Build' | awk '{print $1}' | sed 's/.*://')
-                hub release edit -m 'Daily Build' -a "$f" "$hubTag"
-            done
-        fi
-    fi
 fi
