@@ -45,10 +45,11 @@ build_script:
 after_build:
   - ports\ci\appveyor\environment_setup.bat
   - C:\msys64\usr\bin\bash -lc "cd /c/projects/webcamoid && ./ports/ci/appveyor/deploy.sh"
-  - ports\ci\appveyor\push_artifacts.bat
+  - C:\msys64\usr\bin\bash -lc "cd /c/projects/webcamoid && ./ports/ci/appveyor/push_artifacts.sh"
 
 deploy_script:
-  - ports\ci\appveyor\upload.bat
+  - ports\ci\appveyor\environment_setup.bat
+  - C:\msys64\usr\bin\bash -lc "cd /c/projects/webcamoid && ./ports/ci/appveyor/upload.sh"
 
 notifications:
   - provider: Email
