@@ -74,6 +74,7 @@
   </screenshots>
   <update_contact>hipersayan.x_AT_gmail_com</update_contact>
   <releases>
+    <release version="8.8.0" date="2021-02-16" />
     <release version="8.7.1" date="2019-10-22" />
     <release version="8.7.0" date="2019-10-01" />
     <release version="8.6.1" date="2019-03-26" />
@@ -94,7 +95,6 @@
     <content_attribute id="drugs-tobacco">none</content_attribute>
     <content_attribute id="sex-nudity">none</content_attribute>
     <content_attribute id="sex-themes">none</content_attribute>
-    <content_attribute id="sex-homosexuality">none</content_attribute>
     <content_attribute id="sex-prostitution">none</content_attribute>
     <content_attribute id="sex-adultery">none</content_attribute>                                                                                                            
     <content_attribute id="sex-appearance">none</content_attribute>                                                                                                          
