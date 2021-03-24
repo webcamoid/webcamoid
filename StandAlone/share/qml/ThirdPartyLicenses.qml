@@ -34,12 +34,12 @@ Page {
             width: scrollView.width
 
             Label {
-                text: qsTr("The followings are the Licenses for 3rd-party work incorporated into Webcamoid. <b>These Licenses DOES NOT applies to Webcamoid itself.</b>")
+                text: "The followings are the Licenses for 3rd-party work incorporated into Webcamoid. <b>These Licenses DOES NOT applies to Webcamoid itself.</b>"
                 wrapMode: Text.WordWrap
                 Layout.fillWidth: true
             }
             Label {
-                text: qsTr("License for resources taken from openclipart.org:")
+                text: "License for resources taken from openclipart.org:"
                 wrapMode: Text.WordWrap
                 Layout.fillWidth: true
             }
@@ -49,7 +49,7 @@ Page {
                 Layout.fillWidth: true
             }
             Label {
-                text: qsTr("License for code taken from OpenCV:")
+                text: "License for code taken from OpenCV:"
                 wrapMode: Text.WordWrap
                 Layout.fillWidth: true
             }
@@ -59,7 +59,7 @@ Page {
                 Layout.fillWidth: true
             }
             Label {
-                text: qsTr("License for code and algorithms used in Temperature plugin:")
+                text: "License for code and algorithms used in Temperature plugin:"
                 wrapMode: Text.WordWrap
                 Layout.fillWidth: true
             }
@@ -69,7 +69,7 @@ Page {
                 Layout.fillWidth: true
             }
             Label {
-                text: qsTr("License for the usb.ids file:")
+                text: "License for the usb.ids file:"
                 wrapMode: Text.WordWrap
                 Layout.fillWidth: true
             }

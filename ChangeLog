@@ -4,7 +4,7 @@ Webcamoid 8.8.0:
   (issue #148)
 - Added option for blurring outside detected face in FaceDetect plugin 
   (thanks Erich Schubert!).
-- Added plublic method for detecteding face rectangles in FaceDetect plugin
+- Added public method for detecting face rectangles in FaceDetect plugin
   (thanks Chris Barth!).
 - Fixed some minor bugs when capturing from camera.
 

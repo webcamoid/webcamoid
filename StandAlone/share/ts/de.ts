@@ -446,34 +446,6 @@
     </message>
 </context>
 <context>
-    <name>ThirdPartyLicenses</name>
-    <message>
-        <location filename="../qml/ThirdPartyLicenses.qml" line="37"/>
-        <source>The followings are the Licenses for 3rd-party work incorporated into Webcamoid. &lt;b&gt;These Licenses DOES NOT applies to Webcamoid itself.&lt;/b&gt;</source>
-        <translation>Diese Auflistung zeigt die Lizenzen der Drittanbieter-Software, welche Webcamoid verwendet. &lt;b&gt;Diese Lizenzen beziehen sich JEDOCH NICHT auf Webcamoid selbst.&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <location filename="../qml/ThirdPartyLicenses.qml" line="42"/>
-        <source>License for resources taken from openclipart.org:</source>
-        <translation>Lizenz für Grafiken von openclipart.org:</translation>
-    </message>
-    <message>
-        <location filename="../qml/ThirdPartyLicenses.qml" line="52"/>
-        <source>License for code taken from OpenCV:</source>
-        <translation>Lizenz für Quelldateien die aus OpenCV übernommen wurden:</translation>
-    </message>
-    <message>
-        <location filename="../qml/ThirdPartyLicenses.qml" line="62"/>
-        <source>License for code and algorithms used in Temperature plugin:</source>
-        <translation>Lizenz für Quelldateien und Algorithmen im Temperatur-Plugin:</translation>
-    </message>
-    <message>
-        <location filename="../qml/ThirdPartyLicenses.qml" line="72"/>
-        <source>License for the usb.ids file:</source>
-        <translation>Lizenz der usb.ids-Datei:</translation>
-    </message>
-</context>
-<context>
     <name>UpdatesConfig</name>
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="73"/>
