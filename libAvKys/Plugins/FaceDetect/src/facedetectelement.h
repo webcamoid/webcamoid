@@ -59,6 +59,11 @@ class FaceDetectElement: public AkElement
                    WRITE setMarkerImage
                    RESET resetMarkerImage
                    NOTIFY markerImageChanged)
+        Q_PROPERTY(QString backgroundImage
+                   READ backgroundImage
+                   WRITE setBackgroundImage
+                   RESET resetBackgroundImage
+                   NOTIFY backgroundImageChanged)
         Q_PROPERTY(QSize pixelGridSize
                    READ pixelGridSize
                    WRITE setPixelGridSize
@@ -83,7 +88,8 @@ class FaceDetectElement: public AkElement
             MarkerTypeImage,
             MarkerTypePixelate,
             MarkerTypeBlur,
-            MarkerTypeBlurOuter
+            MarkerTypeBlurOuter,
+            MarkerTypeImageOuter
         };
 
         FaceDetectElement();
@@ -95,6 +101,7 @@ class FaceDetectElement: public AkElement
         Q_INVOKABLE int markerWidth() const;
         Q_INVOKABLE QString markerStyle() const;
         Q_INVOKABLE QString markerImage() const;
+        Q_INVOKABLE QString backgroundImage() const;
         Q_INVOKABLE QSize pixelGridSize() const;
         Q_INVOKABLE int blurRadius() const;
         Q_INVOKABLE QSize scanSize() const;
@@ -116,6 +123,7 @@ class FaceDetectElement: public AkElement
         void markerWidthChanged(int markerWidth);
         void markerStyleChanged(const QString &markerStyle);
         void markerImageChanged(const QString &markerImage);
+        void backgroundImageChanged(const QString &backgroundImage);
         void pixelGridSizeChanged(const QSize &pixelGridSize);
         void blurRadiusChanged(int blurRadius);
         void scanSizeChanged(const QSize &scanSize);
@@ -127,6 +135,7 @@ class FaceDetectElement: public AkElement
         void setMarkerWidth(int markerWidth);
         void setMarkerStyle(const QString &markerStyle);
         void setMarkerImage(const QString &markerImage);
+        void setBackgroundImage(const QString &backgroundImage);
         void setPixelGridSize(const QSize &pixelGridSize);
         void setBlurRadius(int blurRadius);
         void setScanSize(const QSize &scanSize);
@@ -136,6 +145,7 @@ class FaceDetectElement: public AkElement
         void resetMarkerWidth();
         void resetMarkerStyle();
         void resetMarkerImage();
+        void resetBackgroundImage();
         void resetPixelGridSize();
         void resetBlurRadius();
         void resetScanSize();
