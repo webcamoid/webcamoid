@@ -37,5 +37,6 @@
         <file>share/masks/skull2.png</file>
         <file>share/masks/triceratops.png</file>
         <file>share/masks/zebra.png</file>
+        <file>share/background/black_square.png</file>
     </qresource>
 </RCC>

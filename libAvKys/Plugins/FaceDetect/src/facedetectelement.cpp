@@ -39,7 +39,8 @@ inline MarkerTypeMap initMarkerTypeMap()
         {FaceDetectElement::MarkerTypeImage    , "image"    },
         {FaceDetectElement::MarkerTypePixelate , "pixelate" },
         {FaceDetectElement::MarkerTypeBlur     , "blur"     },
-        {FaceDetectElement::MarkerTypeBlurOuter, "blurouter"}
+        {FaceDetectElement::MarkerTypeBlurOuter, "blurouter"},
+        {FaceDetectElement::MarkerTypeImageOuter, "imageouter"}
     };
 
     return markerTypeToStr;
@@ -71,7 +72,9 @@ class FaceDetectElementPrivate
         FaceDetectElement::MarkerType m_markerType {FaceDetectElement::MarkerTypeRectangle};
         QPen m_markerPen;
         QString m_markerImage {":/FaceDetect/share/masks/cow.png"};
+        QString m_backgroundImage {":/FaceDetect/share/background/black_square.png"};
         QImage m_markerImg;
+        QImage m_backgroundImg;
         QSize m_pixelGridSize {32, 32};
         QSize m_scanSize {160, 120};
         AkElementPtr m_blurFilter {AkElement::create("Blur")};
@@ -86,6 +89,7 @@ FaceDetectElement::FaceDetectElement(): AkElement()
     this->d->m_markerPen.setWidth(3);
     this->d->m_markerPen.setStyle(Qt::SolidLine);
     this->d->m_markerImg = QImage(this->d->m_markerImage);
+    this->d->m_backgroundImg = QImage(this->d->m_backgroundImage);
     this->d->m_blurFilter->setProperty("radius", 32);
 
     QObject::connect(this->d->m_blurFilter.data(),
@@ -130,6 +134,11 @@ QString FaceDetectElement::markerStyle() const
 QString FaceDetectElement::markerImage() const
 {
     return this->d->m_markerImage;
+}
+
+QString FaceDetectElement::backgroundImage() const
+{
+    return this->d->m_backgroundImage;
 }
 
 QSize FaceDetectElement::pixelGridSize() const
@@ -209,7 +218,7 @@ AkPacket FaceDetectElement::iVideoStream(const AkVideoPacket &packet)
     this->d->m_cascadeClassifier.setEqualize(true);
     QVector<QRect> vecFaces = this->d->m_cascadeClassifier.detect(scanFrame);
 
-    if (vecFaces.isEmpty())
+    if (vecFaces.isEmpty() && this->d->m_markerType != MarkerTypeBlurOuter && this->d->m_markerType != MarkerTypeImageOuter)
         akSend(packet)
 
     QPainter painter;
@@ -224,6 +233,9 @@ AkPacket FaceDetectElement::iVideoStream(const AkVideoPacket &packet)
         painter.drawImage(all, blurImage);
         /* for a better effect, we could add a second (weaker) blur */
         /* and copy this to larger boxes around all faces */
+    } else if (this->d->m_markerType == MarkerTypeImageOuter) {
+        QRect all(0, 0, src.width(), src.height());
+        painter.drawImage(all, this->d->m_backgroundImg);
     }
 
     for (auto &face: vecFaces) {
@@ -261,7 +273,7 @@ AkPacket FaceDetectElement::iVideoStream(const AkVideoPacket &packet)
             auto blurImage = blurPacket.toImage();
 
             painter.drawImage(rect, blurImage);
-        } else if (this->d->m_markerType == MarkerTypeBlurOuter) {
+        } else if (this->d->m_markerType == MarkerTypeBlurOuter || this->d->m_markerType == MarkerTypeImageOuter) {
             painter.drawImage(rect, src.copy(rect));
         }
     }
@@ -343,6 +355,19 @@ void FaceDetectElement::setMarkerImage(const QString &markerImage)
     emit this->markerImageChanged(markerImage);
 }
 
+void FaceDetectElement::setBackgroundImage(const QString &backgroundImage)
+{
+    if (this->d->m_backgroundImage == backgroundImage)
+        return;
+
+    this->d->m_backgroundImage = backgroundImage;
+
+    if (!backgroundImage.isEmpty())
+        this->d->m_backgroundImg = QImage(backgroundImage);
+
+    emit this->backgroundImageChanged(backgroundImage);
+}
+
 void FaceDetectElement::setPixelGridSize(const QSize &pixelGridSize)
 {
     if (this->d->m_pixelGridSize == pixelGridSize)
@@ -394,6 +419,11 @@ void FaceDetectElement::resetMarkerStyle()
 void FaceDetectElement::resetMarkerImage()
 {
     this->setMarkerImage(":/FaceDetect/share/masks/cow.png");
+}
+
+void FaceDetectElement::resetBackgroundImage()
+{
+    this->setBackgroundImage(":/FaceDetect/share/backgrounds/black_square.png");
 }
 
 void FaceDetectElement::resetPixelGridSize()
