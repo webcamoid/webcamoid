@@ -262,6 +262,10 @@ GridLayout {
                 text: qsTr("Blur Outer")
                 markerType: "blurouter"
             }
+            ListElement {
+                text: qsTr("Background Image")
+                markerType: "imageouter"
+            }
         }
 
         onCurrentIndexChanged: FaceDetect.markerType = cbxMarkerType.model.get(currentIndex).markerType
@@ -545,6 +549,71 @@ GridLayout {
         }
     }
 
+    // Background picture.
+    Label {
+        text: qsTr("Backgrounds")
+    }
+    ComboBox {
+        id: cbxBackgrounds
+        textRole: "text"
+        Layout.fillWidth: true
+
+        model: ListModel {
+            ListElement {
+                text: qsTr("Black Square")
+                background: ":/FaceDetect/share/background/black_square.png"
+            }
+            ListElement {
+                text: qsTr("Custom")
+                background: ""
+            }
+        }
+
+        onCurrentIndexChanged: FaceDetect.backgroundImage = cbxBackgrounds.model.get(currentIndex).background
+    }
+
+    Label {
+        text: qsTr("Background picture")
+    }
+    RowLayout {
+        Image {
+            width: 16
+            height: 16
+            fillMode: Image.PreserveAspectFit
+            sourceSize.width: 16
+            sourceSize.height: 16
+            source: toQrc(txtBackgroundImage.text)
+        }
+        TextField {
+            id: txtBackgroundImage
+            text: FaceDetect.backgroundImage
+            placeholderText: qsTr("Replace background with this picture")
+            selectByMouse: true
+            Layout.fillWidth: true
+
+            onTextChanged: {
+                for (var i = 0; i < cbxBackgrounds.model.count; i++) {
+                    if (cbxBackgrounds.model.get(i).background === FaceDetect.backgroundImage) {
+                        cbxBackgrounds.currentIndex = i
+
+                        break
+                    } else if (i == cbxBackgrounds.model.count - 1) {
+                        cbxBackgrounds.model.get(i).background = FaceDetect.backgroundImage
+                        cbxBackgrounds.currentIndex = i
+
+                        break
+                    }
+                }
+            }
+        }
+        Button {
+            text: qsTr("Search")
+            icon.source: "image://icons/search"
+
+            onClicked: fileDialogBGImage.open()
+        }
+    }
+
     // Pixel grid.
     Label {
         text: qsTr("Pixel grid size")
@@ -583,6 +652,31 @@ GridLayout {
         nameFilters: ["Image files (*.bmp *.gif *.jpg *.jpeg *.png *.pbm *.pgm *.ppm *.xbm *.xpm)"]
         folder: "file://" + picturesPath
 
-        onAccepted: FaceDetect.markerImage = String(file).replace("file://", "")
+        onAccepted: {
+            var curFile = String(file)
+            if (curFile.match("file:\/\/\/[A-Za-z]{1,2}:")) {
+                FaceDetect.markerImage = curFile.replace("file:///", "")
+            } else {
+                FaceDetect.markerImage = curFile.replace("file://", "")
+            }
+        }
+    }
+
+    LABS.FileDialog {
+        id: fileDialogBGImage
+        title: qsTr("Please choose an image file")
+        nameFilters: ["Image files (*.bmp *.gif *.jpg *.jpeg *.png *.pbm *.pgm *.ppm *.xbm *.xpm)"]
+        folder: "file://" + picturesPath
+
+        onAccepted: {
+            var curFile = String(file)
+            if (curFile.match("file:\/\/\/[A-Za-z]{1,2}:")) {
+                FaceDetect.backgroundImage = curFile.replace("file:///", "")
+            } else {
+                FaceDetect.backgroundImage = curFile.replace("file://", "")
+            }
+        }
     }
 }
+
+
