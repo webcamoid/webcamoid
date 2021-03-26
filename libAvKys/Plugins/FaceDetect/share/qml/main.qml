@@ -583,6 +583,13 @@ GridLayout {
         nameFilters: ["Image files (*.bmp *.gif *.jpg *.jpeg *.png *.pbm *.pgm *.ppm *.xbm *.xpm)"]
         folder: "file://" + picturesPath
 
-        onAccepted: FaceDetect.markerImage = String(file).replace("file://", "")
+        onAccepted: {
+            var curFile = String(file)
+            if (curFile.match("file:\/\/\/[A-Za-z]{1,2}:")) {
+                FaceDetect.markerImage = curFile.replace("file:///", "")
+            } else {
+                FaceDetect.markerImage = curFile.replace("file://", "")
+            }
+        }
     }
 }
