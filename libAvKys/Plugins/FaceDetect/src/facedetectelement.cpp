@@ -209,7 +209,7 @@ AkPacket FaceDetectElement::iVideoStream(const AkVideoPacket &packet)
     this->d->m_cascadeClassifier.setEqualize(true);
     QVector<QRect> vecFaces = this->d->m_cascadeClassifier.detect(scanFrame);
 
-    if (vecFaces.isEmpty())
+    if (vecFaces.isEmpty() && this->d->m_markerType != MarkerTypeBlurOuter)
         akSend(packet)
 
     QPainter painter;
