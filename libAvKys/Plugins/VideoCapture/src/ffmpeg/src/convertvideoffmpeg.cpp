@@ -371,12 +371,7 @@ void ConvertVideoFFmpegPrivate::packetLoop(ConvertVideoFFmpeg *stream)
                     int r = avcodec_receive_frame(stream->d->m_codecContext, iFrame);
 
                     if (r >= 0) {
-#ifdef HAVE_BEST_EFFORT_TS
                         iFrame->pts = iFrame->best_effort_timestamp;
-#else
-                        iFrame->pts = av_frame_get_best_effort_timestamp(iFrame);
-#endif
-
                         stream->dataEnqueue(stream->d->copyFrame(iFrame));
                     }
 

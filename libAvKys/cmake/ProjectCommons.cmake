@@ -1,0 +1,84 @@
+# Webcamoid, webcam capture application.
+# Copyright (C) 2021  Gonzalo Exequiel Pedone
+#
+# Webcamoid is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Webcamoid is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Webcamoid. If not, see <http://www.gnu.org/licenses/>.
+#
+# Web-Site: http://webcamoid.github.io/
+
+set(QT_VERSION_MAJOR 5 CACHE STRING "Qt version to compile with")
+
+if (QT_VERSION_MAJOR LESS_EQUAL 5)
+    set(QT_MINIMUM_VERSION 5.12 CACHE INTERNAL "")
+else ()
+    set(QT_MINIMUM_VERSION 6.0 CACHE INTERNAL "")
+endif ()
+
+include(CheckLanguage)
+check_language(OBJCXX)
+
+if(CMAKE_OBJCXX_COMPILER)
+    enable_language(OBJCXX)
+endif()
+
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+set(VER_MAJ 9)
+set(VER_MIN 0)
+set(VER_PAT 0)
+set(VERSION ${VER_MAJ}.${VER_MIN}.${VER_PAT})
+
+set(DAILY_BUILD OFF CACHE BOOL "Mark this as a daily build")
+set(PLUGINS_DIR_NAME avkys CACHE STRING "Plugins directory name")
+
+if (APPLE)
+    set(EXECPREFIX Webcamoid.app/Contents)
+    set(BINDIR ${EXECPREFIX}/MacOS)
+    set(LIBDIR ${EXECPREFIX}/Frameworks)
+    set(INSTALLPLUGINSDIR ${EXECPREFIX}/Plugins/${PLUGINS_DIR_NAME})
+    set(DATAROOTDIR ${EXECPREFIX}/Resources)
+    set(LICENSEDIR ${DATAROOTDIR})
+elseif (ANDROID)
+    set(EXECPREFIX "")
+    set(BINDIR libs/${CMAKE_ANDROID_ARCH_ABI})
+    set(LIBDIR ${BINDIR})
+    set(INSTALLPLUGINSDIR ${BINDIR})
+    set(DATAROOTDIR assets)
+    set(LICENSEDIR ${DATAROOTDIR})
+else ()
+    include(GNUInstallDirs)
+
+    set(EXECPREFIX "")
+    set(BINDIR ${CMAKE_INSTALL_BINDIR})
+    set(LIBDIR ${CMAKE_INSTALL_LIBDIR})
+    set(INSTALLPLUGINSDIR ${CMAKE_INSTALL_LIBDIR}/${PLUGINS_DIR_NAME}
+        CACHE FILEPATH "Plugins install directory")
+    set(DATAROOTDIR ${CMAKE_INSTALL_DATAROOTDIR})
+    set(LICENSEDIR ${DATAROOTDIR}/licenses/webcamoid)
+endif ()
+
+# The following define makes your compiler emit warnings if you use
+# any feature of Qt which as been marked deprecated (the exact warnings
+# depend on your compiler). Please consult the documentation of the
+# deprecated API in order to know how to port your code away from it.
+add_definitions(-DQT_DEPRECATED_WARNINGS)
+
+# You can also make your code fail to compile if you use deprecated APIs.
+# In order to do so, uncomment the following line.
+# You can also select to disable deprecated APIs only up to a certain version of Qt.
+#add_definitions(-DQT_DISABLE_DEPRECATED_BEFORE=0x060000)    # disables all the APIs deprecated before Qt 6.0.0
+
+if (DAILY_BUILD)
+    add_definitions(-DDAILY_BUILD)
+endif ()

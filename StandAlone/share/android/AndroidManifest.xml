@@ -83,8 +83,6 @@
         <!-- For adding service(s) please check: https://wiki.qt.io/AndroidServices -->
     </application>
 
-    <uses-sdk android:minSdkVersion="24"
-              android:targetSdkVersion="24"/>
     <supports-screens android:largeScreens="true"
                       android:normalScreens="true"
                       android:anyDensity="true"

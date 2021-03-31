@@ -69,11 +69,9 @@ inline V4l2CtrlTypeMap initV4l2CtrlTypeMap()
         {V4L2_CTRL_TYPE_BUTTON      , "button"     },
         {V4L2_CTRL_TYPE_INTEGER64   , "integer64"  },
         {V4L2_CTRL_TYPE_CTRL_CLASS  , "ctrlClass"  },
-#ifdef HAVE_EXTENDEDCONTROLS
         {V4L2_CTRL_TYPE_STRING      , "string"     },
         {V4L2_CTRL_TYPE_BITMASK     , "bitmask"    },
         {V4L2_CTRL_TYPE_INTEGER_MENU, "integerMenu"}
-#endif
     };
 
     return ctrlTypeToStr;
@@ -153,7 +151,7 @@ inline FourccToStrMap initFourccToStr()
         {V4L2_PIX_FMT_SGBRG12     , "SGBRG12"     },
         {V4L2_PIX_FMT_SGRBG12     , "SGRBG12"     },
         {V4L2_PIX_FMT_SRGGB12     , "SRGGB12"     },
-#ifdef HAVE_EXTRAFORMATS
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0)
         {V4L2_PIX_FMT_SBGGR12P    , "SBGGR12P"    },
         {V4L2_PIX_FMT_SGBRG12P    , "SGBRG12P"    },
         {V4L2_PIX_FMT_SGRBG12P    , "SGRBG12P"    },

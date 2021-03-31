@@ -55,7 +55,7 @@ ui_*.h
 Makefile*
 *.prl
 *.app
-*.pro.user*
+*.user*
 *.qmlproject.user*
 *.autosave
 *.qmlc

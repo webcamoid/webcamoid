@@ -343,10 +343,10 @@ QStringList AkElement::listSubModulesPaths(const QString &pluginId)
 
 #ifdef Q_OS_ANDROID
     auto submoduleFilePattern =
-            QString("lib%1_%2_%3_lib*%4.so").arg(COMMONS_TARGET,
-                                                 SUBMODULES_PATH,
-                                                 pluginId,
-                                                 PLATFORM_TARGET_SUFFIX);
+            QString("lib%1_%2_%3_lib*_%4.so").arg(PLUGINS_DIR_NAME,
+                                                  SUBMODULES_PATH,
+                                                  pluginId,
+                                                  PLATFORM_TARGET_SUFFIX);
 #else
     if (!pluginDir.cd(akElementGlobalStuff->m_subModulesPath
                       + QDir::separator()
@@ -594,8 +594,8 @@ QString AkElement::pluginPath(const QString &pluginId)
         auto baseName = QFileInfo(path).baseName();
 
 #ifdef Q_OS_ANDROID
-        if (baseName == QString("lib%1_lib%2%3")
-                        .arg(COMMONS_TARGET,
+        if (baseName == QString("lib%1_lib%2_%3")
+                        .arg(PLUGINS_DIR_NAME,
                              pluginId,
                              PLATFORM_TARGET_SUFFIX))
             return path;
@@ -733,14 +733,14 @@ AkElementPrivate::AkElementPrivate()
             << this->convertToAbsolute(QString("%1/../%2/%3")
                                        .arg(QCoreApplication::applicationDirPath(),
                                             QString(LIBDIR).remove(EXECPREFIX).mid(1),
-                                            COMMONS_TARGET));
+                                            PLUGINS_DIR_NAME));
 #endif
 
 #ifdef Q_OS_OSX
     this->m_defaultPluginsSearchPaths
             << this->convertToAbsolute(QString("%1/../Plugins/%2")
                                        .arg(QCoreApplication::applicationDirPath(),
-                                            COMMONS_TARGET));
+                                            PLUGINS_DIR_NAME));
 #endif
 
     this->m_applicationDir.setPath(QCoreApplication::applicationDirPath());
@@ -748,13 +748,13 @@ AkElementPrivate::AkElementPrivate()
 
 #ifdef Q_OS_ANDROID
     this->m_pluginFilePattern =
-            QString("lib%1_lib*%2.so").arg(COMMONS_TARGET,
-                                           PLATFORM_TARGET_SUFFIX);
+            QString("lib%1_lib*_%2.so").arg(PLUGINS_DIR_NAME,
+                                            PLATFORM_TARGET_SUFFIX);
 #else
     this->m_pluginFilePattern = QString("%1*").arg(PREFIX_SHLIB);
 
     if (strlen(EXTENSION_SHLIB) > 1)
-        this->m_pluginFilePattern += "." EXTENSION_SHLIB;
+        this->m_pluginFilePattern += EXTENSION_SHLIB;
 
 #endif
 }
@@ -791,8 +791,8 @@ QString AkElementPrivate::pluginId(const QString &fileName)
     auto pluginId = QFileInfo(fileName).baseName();
 
 #ifdef Q_OS_ANDROID
-    auto pattern = QString("^lib%1_lib(\\w+)%2$")
-                   .arg(COMMONS_TARGET, PLATFORM_TARGET_SUFFIX);
+    auto pattern = QString("^lib%1_lib(\\w+)_%2$")
+                   .arg(PLUGINS_DIR_NAME, PLATFORM_TARGET_SUFFIX);
 #else
     auto pattern = QString("^%1(\\w+)$").arg(PREFIX_SHLIB);
 #endif
@@ -808,8 +808,8 @@ QString AkElementPrivate::submoduleId(const QString &fileName,
 {
 #ifdef Q_OS_ANDROID
     auto submoduleId = QFileInfo(fileName).baseName();
-    auto pattern = QString("^lib%1_%2_%3_lib(\\w+)%4$")
-                   .arg(COMMONS_TARGET,
+    auto pattern = QString("^lib%1_%2_%3_lib(\\w+)_%4$")
+                   .arg(PLUGINS_DIR_NAME,
                         SUBMODULES_PATH,
                         pluginId,
                         PLATFORM_TARGET_SUFFIX);

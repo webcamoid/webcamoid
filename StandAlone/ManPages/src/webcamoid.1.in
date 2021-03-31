@@ -1,0 +1,50 @@
+.\" Manpage for Webcamoid.
+.\"
+.\" Contact https://github.com/webcamoid/webcamoid/issues to correct errors or
+.\" typos.
+.\"
+.\" %%%LICENSE_START(GPL_NOVERSION_ONELINE)
+.\" Distributed under GPLv3+
+.\" %%%LICENSE_END
+.\"
+.TH WEBCAMOID 1 "16 Feb 2021" "Version @VERSION@" "Webcamoid Users's Manual"
+.SH NAME
+Webcamoid \- full featured webcam capture application
+.SH SYNOPSIS
+.B webcamoid [\fIoptions\fP]
+.SH DESCRIPTION
+.B Webcamoid
+is a real time video processing suite targeting but not limited to
+webcams, video and desktop. You can add a bunch of effects to your video and
+take pictures, and record it to a video file.
+.SH OPTIONS
+.TP
+.BR \-h ", " \-\-help
+Displays this help.
+.TP
+.BR \-v ", " \-\-version
+Displays version information.
+.TP
+.BR \-c\ <\fIPATH\fP> ", " \-\-config\ <\fIPATH\fP>
+Load settings from \fIPATH\fP. If \fIPATH\fP is empty, load configs from application directory.
+.TP
+.BR \-q\ <\fIPATH1\fP;\fIPATH2\fP;\fIPATH3\fP;\fI...\fP> ", " \-\-qmlpaths\ <\fIPATH1\fP;\fIPATH2\fP;\fIPATH3\fP;\fI...\fP>
+Semi-colon separated list of paths to search the Qml interface.
+.TP
+.BR \-r ", " \-\-recursive
+Search in the specified plugins paths recursively.
+.TP
+.BR \-p\ <\fIPATH1\fP;\fIPATH2\fP;\fIPATH3\fP;\fI...\fP> ", " \-\-paths\ <\fIPATH1\fP;\fIPATH2\fP;\fIPATH3\fP;\fI...\fP>
+Semi-colon separated list of paths to search for plugins.
+.TP
+.BR \-b\ <\fIPATH1\fP;\fIPATH2\fP;\fIPATH3\fP;\fI...\fP> ", " \-\-no\-load\ <\fIPATH1\fP;\fIPATH2\fP;\fIPATH3\fP;\fI...\fP>
+Semi-colon separated list of paths to avoid loading.
+.SH SEE ALSO
+.BR ffmpeg (1),
+.BR gst\-launch\-1.0 (1),
+.BR v4l2loopback\-ctl (1)
+.SH BUGS
+Please, report all bugs at
+.I http://github.com/webcamoid/webcamoid/issues
+.SH AUTHOR
+Gonzalo Exequiel Pedone (hipersayan.x@gmail.com)

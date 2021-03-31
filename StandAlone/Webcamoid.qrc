@@ -6,5 +6,47 @@
         <file>share/3rd-party/licenses/OpenCV.txt</file>
         <file>share/3rd-party/licenses/TemperatureAlgorithm.txt</file>
         <file>share/3rd-party/licenses/UsbIds.txt</file>
+        <file>share/qml/qmldir</file>
+        <file>share/qml/About.qml</file>
+        <file>share/qml/AddVideoFormat.qml</file>
+        <file>share/qml/AudioCodecOptions.qml</file>
+        <file>share/qml/AudioDeviceOptions.qml</file>
+        <file>share/qml/AudioInputs.qml</file>
+        <file>share/qml/AudioOptions.qml</file>
+        <file>share/qml/AudioOutputs.qml</file>
+        <file>share/qml/AudioVideoPanel.qml</file>
+        <file>share/qml/Commons.qml</file>
+        <file>share/qml/Contributors.qml</file>
+        <file>share/qml/DialogBox.qml</file>
+        <file>share/qml/Flash.qml</file>
+        <file>share/qml/GeneralConfig.qml</file>
+        <file>share/qml/ImageCapture.qml</file>
+        <file>share/qml/License.qml</file>
+        <file>share/qml/OptionList.qml</file>
+        <file>share/qml/OptionsPanel.qml</file>
+        <file>share/qml/PluginConfig.qml</file>
+        <file>share/qml/RecordingNotice.qml</file>
+        <file>share/qml/SettingsDialog.qml</file>
+        <file>share/qml/SettingsMenu.qml</file>
+        <file>share/qml/ThirdPartyLicenses.qml</file>
+        <file>share/qml/UpdatesConfig.qml</file>
+        <file>share/qml/UpdatesDialog.qml</file>
+        <file>share/qml/VideoCodecOptions.qml</file>
+        <file>share/qml/VideoEffectOptions.qml</file>
+        <file>share/qml/VideoEffectsDialog.qml</file>
+        <file>share/qml/VideoEffectsList.qml</file>
+        <file>share/qml/VideoEffectsPanel.qml</file>
+        <file>share/qml/VideoFormatOptions.qml</file>
+        <file>share/qml/VideoInputAddEdit.qml</file>
+        <file>share/qml/VideoInputOptions.qml</file>
+        <file>share/qml/VideoInputs.qml</file>
+        <file>share/qml/VideoOptions.qml</file>
+        <file>share/qml/VideoOutputAddEdit.qml</file>
+        <file>share/qml/VideoOutputError.qml</file>
+        <file>share/qml/VideoOutputOptions.qml</file>
+        <file>share/qml/VideoOutputPicture.qml</file>
+        <file>share/qml/VideoOutputs.qml</file>
+        <file>share/qml/VideoRecording.qml</file>
+        <file>share/qml/main.qml</file>
     </qresource>
 </RCC>

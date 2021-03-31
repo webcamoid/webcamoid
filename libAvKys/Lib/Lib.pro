@@ -90,13 +90,7 @@ RESOURCES += \
     AvKys.qrc
 
 DESTDIR = $${OUT_PWD}/$${BIN_DIR}
-
-android {
-    TARGET = $${COMMONS_TARGET}
-} else {
-    TARGET = $$qtLibraryTarget($${COMMONS_TARGET})
-}
-
+TARGET = $$qtLibraryTarget($${COMMONS_TARGET})
 TEMPLATE = lib
 
 CODECFORTR = UTF-8
