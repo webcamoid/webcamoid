@@ -56,6 +56,8 @@ if (NOT NOAVFOUNDATION)
             set(AVFOUNDATION_FOUND FALSE)
             break()
         endif ()
+
+        unset(FOUND CACHE)
     endforeach ()
 endif ()
 
@@ -86,6 +88,8 @@ if (NOT NOCOREMEDIAIO)
             set(COREMEDIAIO_FOUND FALSE)
             break()
         endif ()
+
+        unset(FOUND CACHE)
     endforeach ()
 endif ()
 
@@ -113,6 +117,8 @@ if (NOT NOCOREAUDIO)
             set(COREAUDIO_FOUND FALSE)
             break()
         endif ()
+
+        unset(FOUND CACHE)
     endforeach ()
 endif ()
 
@@ -316,6 +322,8 @@ if (NOT NONDKCAMERA)
             set(NDKCAMERA_FOUND FALSE)
             break()
         endif ()
+
+        unset(FOUND CACHE)
     endforeach ()
 endif ()
 

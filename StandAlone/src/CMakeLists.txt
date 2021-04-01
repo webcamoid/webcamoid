@@ -121,9 +121,7 @@ target_include_directories(StandAlone
 target_compile_definitions(StandAlone
                            PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
-target_link_libraries(StandAlone
-                      PRIVATE avkys
-                              ${QT_LIBS})
+target_link_libraries(StandAlone PRIVATE avkys ${QT_LIBS})
 
 if (WIN32)
     target_link_libraries(StandAlone PRIVATE ole32)
@@ -132,6 +130,7 @@ endif ()
 add_definitions(-DCOMMONS_TARGET="webcamoid"
                 -DCOMMONS_APPNAME="Webcamoid"
                 -DCOMMONS_VERSION="${VERSION}")
+set(QML_IMPORT_PATH ../../libAvKys/Lib/share/qml)
 
 if (APPLE)
     install(TARGETS StandAlone DESTINATION ${CMAKE_INSTALL_PREFIX})

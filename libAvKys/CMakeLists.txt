@@ -24,4 +24,4 @@ include(cmake/ProjectCommons.cmake)
 
 add_subdirectory(Lib)
 add_subdirectory(Tests)
-#add_subdirectory(Plugins)
+add_subdirectory(Plugins)
