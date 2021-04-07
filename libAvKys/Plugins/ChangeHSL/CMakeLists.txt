@@ -43,12 +43,6 @@ add_library(ChangeHSL SHARED
             src/changehslelement.cpp
             ChangeHSL.qrc
             pspec.json)
-
-if (ANDROID)
-    set_target_properties(ChangeHSL PROPERTIES
-                          OUTPUT_NAME ${PLUGINS_DIR_NAME}_libChangeHSL)
-endif ()
-
 add_dependencies(ChangeHSL avkys)
 target_include_directories(ChangeHSL
                            PRIVATE ../../Lib/src)
@@ -56,4 +50,9 @@ target_compile_definitions(ChangeHSL PRIVATE AVKYS_PLUGIN_CHANGEHSL)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(ChangeHSL PRIVATE avkys ${QT_LIBS})
 set(QML_IMPORT_PATH ../../Lib/share/qml)
-install(TARGETS avkys DESTINATION ${INSTALLPLUGINSDIR})
+
+if (WIN32)
+    install(TARGETS avkys RUNTIME DESTINATION ${INSTALLPLUGINSDIR})
+elseif (NOT ANDROID)
+    install(TARGETS avkys DESTINATION ${INSTALLPLUGINSDIR})
+endif ()

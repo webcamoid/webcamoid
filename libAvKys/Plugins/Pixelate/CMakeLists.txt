@@ -43,12 +43,6 @@ add_library(Pixelate SHARED
             src/pixelateelement.cpp
             Pixelate.qrc
             pspec.json)
-
-if (ANDROID)
-    set_target_properties(Pixelate PROPERTIES
-                          OUTPUT_NAME ${PLUGINS_DIR_NAME}_libPixelate)
-endif ()
-
 add_dependencies(Pixelate avkys)
 target_include_directories(Pixelate
                            PRIVATE ../../Lib/src)
@@ -56,4 +50,9 @@ target_compile_definitions(Pixelate PRIVATE AVKYS_PLUGIN_PIXELATE)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(Pixelate PRIVATE avkys ${QT_LIBS})
 set(QML_IMPORT_PATH ../../Lib/share/qml)
-install(TARGETS avkys DESTINATION ${INSTALLPLUGINSDIR})
+
+if (WIN32)
+    install(TARGETS avkys RUNTIME DESTINATION ${INSTALLPLUGINSDIR})
+elseif (NOT ANDROID)
+    install(TARGETS avkys DESTINATION ${INSTALLPLUGINSDIR})
+endif ()

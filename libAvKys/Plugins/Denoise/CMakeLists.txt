@@ -46,12 +46,6 @@ add_library(Denoise SHARED
             src/denoiseelement.cpp
             Denoise.qrc
             pspec.json)
-
-if (ANDROID)
-    set_target_properties(Denoise PROPERTIES
-                          OUTPUT_NAME ${PLUGINS_DIR_NAME}_libDenoise)
-endif ()
-
 add_dependencies(Denoise avkys)
 target_include_directories(Denoise
                            PRIVATE ../../Lib/src)
@@ -59,4 +53,9 @@ target_compile_definitions(Denoise PRIVATE AVKYS_PLUGIN_DENOISE)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(Denoise PRIVATE avkys ${QT_LIBS})
 set(QML_IMPORT_PATH ../../Lib/share/qml)
-install(TARGETS avkys DESTINATION ${INSTALLPLUGINSDIR})
+
+if (WIN32)
+    install(TARGETS avkys RUNTIME DESTINATION ${INSTALLPLUGINSDIR})
+elseif (NOT ANDROID)
+    install(TARGETS avkys DESTINATION ${INSTALLPLUGINSDIR})
+endif ()

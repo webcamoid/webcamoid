@@ -42,12 +42,6 @@ add_library(GrayScale SHARED
             src/grayscale.cpp
             src/grayscaleelement.cpp
             pspec.json)
-
-if (ANDROID)
-    set_target_properties(GrayScale PROPERTIES
-                          OUTPUT_NAME ${PLUGINS_DIR_NAME}_libGrayScale)
-endif ()
-
 add_dependencies(GrayScale avkys)
 target_include_directories(GrayScale
                            PRIVATE ../../Lib/src)
@@ -55,4 +49,9 @@ target_compile_definitions(GrayScale PRIVATE AVKYS_PLUGIN_GRAYSCALE)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(GrayScale PRIVATE avkys ${QT_LIBS})
 set(QML_IMPORT_PATH ../../Lib/share/qml)
-install(TARGETS avkys DESTINATION ${INSTALLPLUGINSDIR})
+
+if (WIN32)
+    install(TARGETS avkys RUNTIME DESTINATION ${INSTALLPLUGINSDIR})
+elseif (NOT ANDROID)
+    install(TARGETS avkys DESTINATION ${INSTALLPLUGINSDIR})
+endif ()

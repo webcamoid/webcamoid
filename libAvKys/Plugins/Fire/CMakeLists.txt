@@ -43,12 +43,6 @@ add_library(Fire SHARED
             src/fireelement.cpp
             Fire.qrc
             pspec.json)
-
-if (ANDROID)
-    set_target_properties(Fire PROPERTIES
-                          OUTPUT_NAME ${PLUGINS_DIR_NAME}_libFire)
-endif ()
-
 add_dependencies(Fire avkys)
 target_include_directories(Fire
                            PRIVATE ../../Lib/src)
@@ -56,4 +50,9 @@ target_compile_definitions(Fire PRIVATE AVKYS_PLUGIN_FIRE)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(Fire PRIVATE avkys ${QT_LIBS})
 set(QML_IMPORT_PATH ../../Lib/share/qml)
-install(TARGETS avkys DESTINATION ${INSTALLPLUGINSDIR})
+
+if (WIN32)
+    install(TARGETS avkys RUNTIME DESTINATION ${INSTALLPLUGINSDIR})
+elseif (NOT ANDROID)
+    install(TARGETS avkys DESTINATION ${INSTALLPLUGINSDIR})
+endif ()

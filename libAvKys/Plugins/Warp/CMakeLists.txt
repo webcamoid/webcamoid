@@ -43,12 +43,6 @@ add_library(Warp SHARED
             src/warpelement.cpp
             Warp.qrc
             pspec.json)
-
-if (ANDROID)
-    set_target_properties(Warp PROPERTIES
-                          OUTPUT_NAME ${PLUGINS_DIR_NAME}_libWarp)
-endif ()
-
 add_dependencies(Warp avkys)
 target_include_directories(Warp
                            PRIVATE ../../Lib/src)
@@ -56,4 +50,9 @@ target_compile_definitions(Warp PRIVATE AVKYS_PLUGIN_WARP)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(Warp PRIVATE avkys ${QT_LIBS})
 set(QML_IMPORT_PATH ../../Lib/share/qml)
-install(TARGETS avkys DESTINATION ${INSTALLPLUGINSDIR})
+
+if (WIN32)
+    install(TARGETS avkys RUNTIME DESTINATION ${INSTALLPLUGINSDIR})
+elseif (NOT ANDROID)
+    install(TARGETS avkys DESTINATION ${INSTALLPLUGINSDIR})
+endif ()

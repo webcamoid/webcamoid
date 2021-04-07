@@ -22,15 +22,15 @@ project(Plugins)
 
 # Base plugins
 
-#add_subdirectory(ACapsConvert)
-#add_subdirectory(AudioDevice)
-#add_subdirectory(AudioGen)
-#add_subdirectory(DesktopCapture)
-#add_subdirectory(Multiplex)
-#add_subdirectory(MultiSink)
-#add_subdirectory(MultiSrc)
-#add_subdirectory(VideoCapture)
-#add_subdirectory(VirtualCamera)
+add_subdirectory(ACapsConvert)
+add_subdirectory(AudioDevice)
+add_subdirectory(AudioGen)
+add_subdirectory(DesktopCapture)
+add_subdirectory(Multiplex)
+add_subdirectory(MultiSink)
+add_subdirectory(MultiSrc)
+add_subdirectory(VideoCapture)
+add_subdirectory(VirtualCamera)
 
 # Video effects
 

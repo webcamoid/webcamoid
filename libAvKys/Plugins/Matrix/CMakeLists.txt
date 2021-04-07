@@ -47,12 +47,6 @@ add_library(Matrix SHARED
             src/raindrop.cpp
             Matrix.qrc
             pspec.json)
-
-if (ANDROID)
-    set_target_properties(Matrix PROPERTIES
-                          OUTPUT_NAME ${PLUGINS_DIR_NAME}_libMatrix)
-endif ()
-
 add_dependencies(Matrix avkys)
 target_include_directories(Matrix
                            PRIVATE ../../Lib/src)
@@ -60,4 +54,9 @@ target_compile_definitions(Matrix PRIVATE AVKYS_PLUGIN_MATRIX)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(Matrix PRIVATE avkys ${QT_LIBS})
 set(QML_IMPORT_PATH ../../Lib/share/qml)
-install(TARGETS avkys DESTINATION ${INSTALLPLUGINSDIR})
+
+if (WIN32)
+    install(TARGETS avkys RUNTIME DESTINATION ${INSTALLPLUGINSDIR})
+elseif (NOT ANDROID)
+    install(TARGETS avkys DESTINATION ${INSTALLPLUGINSDIR})
+endif ()

@@ -43,12 +43,6 @@ add_library(ColorTransform SHARED
             src/colortransformelement.cpp
             ColorTransform.qrc
             pspec.json)
-
-if (ANDROID)
-    set_target_properties(ColorTransform PROPERTIES
-                          OUTPUT_NAME ${PLUGINS_DIR_NAME}_libColorTransform)
-endif ()
-
 add_dependencies(ColorTransform avkys)
 target_include_directories(ColorTransform
                            PRIVATE ../../Lib/src)
@@ -56,4 +50,9 @@ target_compile_definitions(ColorTransform PRIVATE AVKYS_PLUGIN_COLORTRANSFORM)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(ColorTransform PRIVATE avkys ${QT_LIBS})
 set(QML_IMPORT_PATH ../../Lib/share/qml)
-install(TARGETS avkys DESTINATION ${INSTALLPLUGINSDIR})
+
+if (WIN32)
+    install(TARGETS avkys RUNTIME DESTINATION ${INSTALLPLUGINSDIR})
+elseif (NOT ANDROID)
+    install(TARGETS avkys DESTINATION ${INSTALLPLUGINSDIR})
+endif ()

@@ -43,12 +43,6 @@ add_library(FrameOverlap SHARED
             src/frameoverlapelement.cpp
             FrameOverlap.qrc
             pspec.json)
-
-if (ANDROID)
-    set_target_properties(FrameOverlap PROPERTIES
-                          OUTPUT_NAME ${PLUGINS_DIR_NAME}_libFrameOverlap)
-endif ()
-
 add_dependencies(FrameOverlap avkys)
 target_include_directories(FrameOverlap
                            PRIVATE ../../Lib/src)
@@ -56,4 +50,9 @@ target_compile_definitions(FrameOverlap PRIVATE AVKYS_PLUGIN_FRAMEOVERLAP)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(FrameOverlap PRIVATE avkys ${QT_LIBS})
 set(QML_IMPORT_PATH ../../Lib/share/qml)
-install(TARGETS avkys DESTINATION ${INSTALLPLUGINSDIR})
+
+if (WIN32)
+    install(TARGETS avkys RUNTIME DESTINATION ${INSTALLPLUGINSDIR})
+elseif (NOT ANDROID)
+    install(TARGETS avkys DESTINATION ${INSTALLPLUGINSDIR})
+endif ()

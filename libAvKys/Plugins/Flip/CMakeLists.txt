@@ -43,12 +43,6 @@ add_library(Flip SHARED
             src/flipelement.cpp
             Flip.qrc
             pspec.json)
-
-if (ANDROID)
-    set_target_properties(Flip PROPERTIES
-                          OUTPUT_NAME ${PLUGINS_DIR_NAME}_libFlip)
-endif ()
-
 add_dependencies(Flip avkys)
 target_include_directories(Flip
                            PRIVATE ../../Lib/src)
@@ -56,4 +50,9 @@ target_compile_definitions(Flip PRIVATE AVKYS_PLUGIN_FLIP)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(Flip PRIVATE avkys ${QT_LIBS})
 set(QML_IMPORT_PATH ../../Lib/share/qml)
-install(TARGETS avkys DESTINATION ${INSTALLPLUGINSDIR})
+
+if (WIN32)
+    install(TARGETS avkys RUNTIME DESTINATION ${INSTALLPLUGINSDIR})
+elseif (NOT ANDROID)
+    install(TARGETS avkys DESTINATION ${INSTALLPLUGINSDIR})
+endif ()

@@ -44,12 +44,6 @@ add_library(Blur SHARED
             src/blurelement.cpp
             Blur.qrc
             pspec.json)
-
-if (ANDROID)
-    set_target_properties(Blur PROPERTIES
-                          OUTPUT_NAME ${PLUGINS_DIR_NAME}_libBlur)
-endif ()
-
 add_dependencies(Blur avkys)
 target_include_directories(Blur
                            PRIVATE ../../Lib/src)
@@ -57,4 +51,9 @@ target_compile_definitions(Blur PRIVATE AVKYS_PLUGIN_BLUR)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(Blur PRIVATE avkys ${QT_LIBS})
 set(QML_IMPORT_PATH ../../Lib/share/qml)
-install(TARGETS avkys DESTINATION ${INSTALLPLUGINSDIR})
+
+if (WIN32)
+    install(TARGETS avkys RUNTIME DESTINATION ${INSTALLPLUGINSDIR})
+elseif (NOT ANDROID)
+    install(TARGETS avkys DESTINATION ${INSTALLPLUGINSDIR})
+endif ()

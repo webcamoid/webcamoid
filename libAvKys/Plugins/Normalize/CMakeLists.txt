@@ -43,12 +43,6 @@ add_library(Normalize SHARED
             src/normalize.cpp
             src/normalizeelement.cpp
             pspec.json)
-
-if (ANDROID)
-    set_target_properties(Normalize PROPERTIES
-                          OUTPUT_NAME ${PLUGINS_DIR_NAME}_libNormalize)
-endif ()
-
 add_dependencies(Normalize avkys)
 target_include_directories(Normalize
                            PRIVATE ../../Lib/src)
@@ -56,4 +50,9 @@ target_compile_definitions(Normalize PRIVATE AVKYS_PLUGIN_NORMALIZE)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(Normalize PRIVATE avkys ${QT_LIBS})
 set(QML_IMPORT_PATH ../../Lib/share/qml)
-install(TARGETS avkys DESTINATION ${INSTALLPLUGINSDIR})
+
+if (WIN32)
+    install(TARGETS avkys RUNTIME DESTINATION ${INSTALLPLUGINSDIR})
+elseif (NOT ANDROID)
+    install(TARGETS avkys DESTINATION ${INSTALLPLUGINSDIR})
+endif ()

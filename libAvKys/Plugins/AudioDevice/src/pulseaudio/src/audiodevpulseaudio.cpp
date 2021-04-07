@@ -36,7 +36,7 @@ using SampleFormatMap = QMap<AkAudioCaps::SampleFormat, pa_sample_format_t>;
 inline SampleFormatMap initSampleFormatMap()
 {
     SampleFormatMap sampleFormat = {
-        {AkAudioCaps::SampleFormat_u8   , PA_SAMPLE_U8       },
+        {AkAudioCaps::SampleFormat_u8 , PA_SAMPLE_U8       },
 
 #if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
         {AkAudioCaps::SampleFormat_s16, PA_SAMPLE_S16LE    },

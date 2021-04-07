@@ -43,12 +43,6 @@ add_library(FaceTrack SHARED
             src/facetrackelement.cpp
             FaceTrack.qrc
             pspec.json)
-
-if (ANDROID)
-    set_target_properties(FaceTrack PROPERTIES
-                          OUTPUT_NAME ${PLUGINS_DIR_NAME}_libFaceTrack)
-endif ()
-
 add_dependencies(FaceTrack avkys)
 target_include_directories(FaceTrack
                            PRIVATE ../../Lib/src)
@@ -56,4 +50,9 @@ target_compile_definitions(FaceTrack PRIVATE AVKYS_PLUGIN_FACETRACK)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(FaceTrack PRIVATE avkys ${QT_LIBS})
 set(QML_IMPORT_PATH ../../Lib/share/qml)
-install(TARGETS avkys DESTINATION ${INSTALLPLUGINSDIR})
+
+if (WIN32)
+    install(TARGETS avkys RUNTIME DESTINATION ${INSTALLPLUGINSDIR})
+elseif (NOT ANDROID)
+    install(TARGETS avkys DESTINATION ${INSTALLPLUGINSDIR})
+endif ()

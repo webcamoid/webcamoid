@@ -43,12 +43,6 @@ add_library(Quark SHARED
             src/quarkelement.cpp
             Quark.qrc
             pspec.json)
-
-if (ANDROID)
-    set_target_properties(Quark PROPERTIES
-                          OUTPUT_NAME ${PLUGINS_DIR_NAME}_libQuark)
-endif ()
-
 add_dependencies(Quark avkys)
 target_include_directories(Quark
                            PRIVATE ../../Lib/src)
@@ -56,4 +50,9 @@ target_compile_definitions(Quark PRIVATE AVKYS_PLUGIN_QUARK)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(Quark PRIVATE avkys ${QT_LIBS})
 set(QML_IMPORT_PATH ../../Lib/share/qml)
-install(TARGETS avkys DESTINATION ${INSTALLPLUGINSDIR})
+
+if (WIN32)
+    install(TARGETS avkys RUNTIME DESTINATION ${INSTALLPLUGINSDIR})
+elseif (NOT ANDROID)
+    install(TARGETS avkys DESTINATION ${INSTALLPLUGINSDIR})
+endif ()

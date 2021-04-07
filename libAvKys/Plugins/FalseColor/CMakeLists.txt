@@ -43,12 +43,6 @@ add_library(FalseColor SHARED
             src/falsecolorelement.cpp
             FalseColor.qrc
             pspec.json)
-
-if (ANDROID)
-    set_target_properties(FalseColor PROPERTIES
-                          OUTPUT_NAME ${PLUGINS_DIR_NAME}_libFalseColor)
-endif ()
-
 add_dependencies(FalseColor avkys)
 target_include_directories(FalseColor
                            PRIVATE ../../Lib/src)
@@ -56,4 +50,9 @@ target_compile_definitions(FalseColor PRIVATE AVKYS_PLUGIN_FALSECOLOR)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(FalseColor PRIVATE avkys ${QT_LIBS})
 set(QML_IMPORT_PATH ../../Lib/share/qml)
-install(TARGETS avkys DESTINATION ${INSTALLPLUGINSDIR})
+
+if (WIN32)
+    install(TARGETS avkys RUNTIME DESTINATION ${INSTALLPLUGINSDIR})
+elseif (NOT ANDROID)
+    install(TARGETS avkys DESTINATION ${INSTALLPLUGINSDIR})
+endif ()

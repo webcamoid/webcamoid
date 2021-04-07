@@ -43,12 +43,6 @@ add_library(Dice SHARED
             src/diceelement.cpp
             Dice.qrc
             pspec.json)
-
-if (ANDROID)
-    set_target_properties(Dice PROPERTIES
-                          OUTPUT_NAME ${PLUGINS_DIR_NAME}_libDice)
-endif ()
-
 add_dependencies(Dice avkys)
 target_include_directories(Dice
                            PRIVATE ../../Lib/src)
@@ -56,4 +50,9 @@ target_compile_definitions(Dice PRIVATE AVKYS_PLUGIN_DICE)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(Dice PRIVATE avkys ${QT_LIBS})
 set(QML_IMPORT_PATH ../../Lib/share/qml)
-install(TARGETS avkys DESTINATION ${INSTALLPLUGINSDIR})
+
+if (WIN32)
+    install(TARGETS avkys RUNTIME DESTINATION ${INSTALLPLUGINSDIR})
+elseif (NOT ANDROID)
+    install(TARGETS avkys DESTINATION ${INSTALLPLUGINSDIR})
+endif ()

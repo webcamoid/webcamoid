@@ -43,12 +43,6 @@ add_library(Swirl SHARED
             src/swirlelement.cpp
             Swirl.qrc
             pspec.json)
-
-if (ANDROID)
-    set_target_properties(Swirl PROPERTIES
-                          OUTPUT_NAME ${PLUGINS_DIR_NAME}_libSwirl)
-endif ()
-
 add_dependencies(Swirl avkys)
 target_include_directories(Swirl
                            PRIVATE ../../Lib/src)
@@ -56,4 +50,9 @@ target_compile_definitions(Swirl PRIVATE AVKYS_PLUGIN_SWIRL)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(Swirl PRIVATE avkys ${QT_LIBS})
 set(QML_IMPORT_PATH ../../Lib/share/qml)
-install(TARGETS avkys DESTINATION ${INSTALLPLUGINSDIR})
+
+if (WIN32)
+    install(TARGETS avkys RUNTIME DESTINATION ${INSTALLPLUGINSDIR})
+elseif (NOT ANDROID)
+    install(TARGETS avkys DESTINATION ${INSTALLPLUGINSDIR})
+endif ()

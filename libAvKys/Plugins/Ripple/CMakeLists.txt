@@ -43,12 +43,6 @@ add_library(Ripple SHARED
             src/rippleelement.cpp
             Ripple.qrc
             pspec.json)
-
-if (ANDROID)
-    set_target_properties(Ripple PROPERTIES
-                          OUTPUT_NAME ${PLUGINS_DIR_NAME}_libRipple)
-endif ()
-
 add_dependencies(Ripple avkys)
 target_include_directories(Ripple
                            PRIVATE ../../Lib/src)
@@ -56,4 +50,9 @@ target_compile_definitions(Ripple PRIVATE AVKYS_PLUGIN_RIPPLE)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(Ripple PRIVATE avkys ${QT_LIBS})
 set(QML_IMPORT_PATH ../../Lib/share/qml)
-install(TARGETS avkys DESTINATION ${INSTALLPLUGINSDIR})
+
+if (WIN32)
+    install(TARGETS avkys RUNTIME DESTINATION ${INSTALLPLUGINSDIR})
+elseif (NOT ANDROID)
+    install(TARGETS avkys DESTINATION ${INSTALLPLUGINSDIR})
+endif ()

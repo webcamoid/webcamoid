@@ -45,12 +45,6 @@ add_library(Aging SHARED
             src/scratch.cpp
             Aging.qrc
             pspec.json)
-
-if (ANDROID)
-    set_target_properties(Aging PROPERTIES
-                          OUTPUT_NAME ${PLUGINS_DIR_NAME}_libAging)
-endif ()
-
 add_dependencies(Aging avkys)
 target_include_directories(Aging
                            PRIVATE ../../Lib/src)
@@ -58,4 +52,9 @@ target_compile_definitions(Aging PRIVATE AVKYS_PLUGIN_AGING)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(Aging PRIVATE avkys ${QT_LIBS})
 set(QML_IMPORT_PATH ../../Lib/share/qml)
-install(TARGETS avkys DESTINATION ${INSTALLPLUGINSDIR})
+
+if (WIN32)
+    install(TARGETS avkys RUNTIME DESTINATION ${INSTALLPLUGINSDIR})
+elseif (NOT ANDROID)
+    install(TARGETS avkys DESTINATION ${INSTALLPLUGINSDIR})
+endif ()

@@ -1,0 +1,63 @@
+# Webcamoid, webcam capture application.
+# Copyright (C) 2021  Gonzalo Exequiel Pedone
+#
+# Webcamoid is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Webcamoid is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Webcamoid. If not, see <http://www.gnu.org/licenses/>.
+#
+# Web-Site: http://webcamoid.github.io/
+
+cmake_minimum_required(VERSION 3.16)
+
+project(AudioDeviceSrc LANGUAGES CXX)
+
+include(../../../cmake/ProjectCommons.cmake)
+
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+
+set(QT_COMPONENTS
+    Concurrent)
+find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
+             ${QT_COMPONENTS}
+             REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
+             ${QT_COMPONENTS}
+             REQUIRED)
+add_library(AudioDeviceSrc SHARED
+            audiodevice.h
+            audiodeviceelement.h
+            audiodeviceelementsettings.h
+            audiodeviceglobals.h
+            audiodev.h
+            audiodevice.cpp
+            audiodeviceelement.cpp
+            audiodeviceelementsettings.cpp
+            audiodeviceglobals.cpp
+            audiodev.cpp
+            ../pspec.json)
+set_target_properties(AudioDeviceSrc PROPERTIES
+                      OUTPUT_NAME AudioDevice)
+add_dependencies(AudioDeviceSrc avkys)
+target_include_directories(AudioDeviceSrc
+                           PRIVATE ../../../Lib/src)
+target_compile_definitions(AudioDeviceSrc PRIVATE AVKYS_PLUGIN_AUDIODEVICE)
+list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
+target_link_libraries(AudioDeviceSrc PRIVATE avkys ${QT_LIBS})
+
+if (WIN32)
+    install(TARGETS avkys RUNTIME DESTINATION ${INSTALLPLUGINSDIR})
+elseif (NOT ANDROID)
+    install(TARGETS avkys DESTINATION ${INSTALLPLUGINSDIR})
+endif ()

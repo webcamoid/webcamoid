@@ -31,9 +31,6 @@
 
 #include "captureavfoundation.h"
 #include "deviceobserver.h"
-#include "devicecontrols.h"
-
-#define ENABLE_CONTROLS 0
 
 using FourCharCodeToStrMap = QMap<FourCharCode, QString>;
 
@@ -51,19 +48,13 @@ class CaptureAvFoundationPrivate
         QMap<QString, quint32> m_modelId;
         QMap<QString, QString> m_descriptions;
         QMap<QString, QVariantList> m_devicesCaps;
-        DeviceControls m_controls;
         int m_nBuffers {32};
         QMutex m_mutex;
-        QMutex m_controlsMutex;
         QWaitCondition m_frameReady;
         AkFrac m_fps;
         AkFrac m_timeBase;
         AkCaps m_caps;
         qint64 m_id {-1};
-        QVariantList m_globalImageControls;
-        QVariantList m_globalCameraControls;
-        QVariantMap m_localImageControls;
-        QVariantMap m_localCameraControls;
 
         CaptureAvFoundationPrivate();
         static bool canUseCamera();
@@ -75,9 +66,6 @@ class CaptureAvFoundationPrivate
                                                               const AkFrac &fps);
         static inline const FourCharCodeToStrMap &fourccToStrMap();
         AkCaps capsFromFrameSampleBuffer(const CMSampleBufferRef sampleBuffer) const;
-        QVariantMap controlStatus(const QVariantList &controls) const;
-        QVariantMap mapDiff(const QVariantMap &map1,
-                            const QVariantMap &map2) const;
 };
 
 CaptureAvFoundation::CaptureAvFoundation(QObject *parent):
@@ -187,131 +175,9 @@ QString CaptureAvFoundation::capsDescription(const AkCaps &caps) const
                 .arg(qRound(fps.value()));
 }
 
-QVariantList CaptureAvFoundation::imageControls() const
-{
-    return this->d->m_globalImageControls;
-}
-
-bool CaptureAvFoundation::setImageControls(const QVariantMap &imageControls)
-{
-    this->d->m_controlsMutex.lock();
-    auto globalImageControls = this->d->m_globalImageControls;
-    this->d->m_controlsMutex.unlock();
-
-    for (int i = 0; i < globalImageControls.count(); i++) {
-        auto control = globalImageControls[i].toList();
-        auto controlName = control[0].toString();
-
-        if (imageControls.contains(controlName)) {
-            control[6] = imageControls[controlName];
-            globalImageControls[i] = control;
-        }
-    }
-
-    this->d->m_controlsMutex.lock();
-
-    if (this->d->m_globalImageControls == globalImageControls) {
-        this->d->m_controlsMutex.unlock();
-
-        return false;
-    }
-
-    this->d->m_globalImageControls = globalImageControls;
-    this->d->m_controlsMutex.unlock();
-
-    emit this->imageControlsChanged(imageControls);
-
-    return true;
-}
-
-bool CaptureAvFoundation::resetImageControls()
-{
-    QVariantMap controls;
-
-    for (auto &control: this->imageControls()) {
-        auto params = control.toList();
-        controls[params[0].toString()] = params[5].toInt();
-    }
-
-    return this->setImageControls(controls);
-}
-
-QVariantList CaptureAvFoundation::cameraControls() const
-{
-    return this->d->m_globalCameraControls;
-}
-
-bool CaptureAvFoundation::setCameraControls(const QVariantMap &cameraControls)
-{
-    this->d->m_controlsMutex.lock();
-    auto globalCameraControls = this->d->m_globalCameraControls;
-    this->d->m_controlsMutex.unlock();
-
-    for (int i = 0; i < globalCameraControls.count(); i++) {
-        auto control = globalCameraControls[i].toList();
-        auto controlName = control[0].toString();
-
-        if (cameraControls.contains(controlName)) {
-            control[6] = cameraControls[controlName];
-            globalCameraControls[i] = control;
-        }
-    }
-
-    this->d->m_controlsMutex.lock();
-
-    if (this->d->m_globalCameraControls == globalCameraControls) {
-        this->d->m_controlsMutex.unlock();
-
-        return false;
-    }
-
-    this->d->m_globalCameraControls = globalCameraControls;
-    this->d->m_controlsMutex.unlock();
-
-    emit this->cameraControlsChanged(cameraControls);
-
-    return true;
-}
-
-bool CaptureAvFoundation::resetCameraControls()
-{
-    QVariantMap controls;
-
-    for (auto &control: this->cameraControls()) {
-        auto params = control.toList();
-        controls[params[0].toString()] = params[5].toInt();
-    }
-
-    return this->setCameraControls(controls);
-}
-
 AkPacket CaptureAvFoundation::readFrame()
 {
     this->d->m_mutex.lock();
-
-#if defined(ENABLE_CONTROLS) && ENABLE_CONTROLS != 0
-    this->d->m_controlsMutex.lock();
-    auto imageControls = this->d->controlStatus(this->d->m_globalImageControls);
-    this->d->m_controlsMutex.unlock();
-
-    if (this->d->m_localImageControls != imageControls) {
-        auto controls = this->d->mapDiff(this->d->m_localImageControls,
-                                         imageControls);
-        this->d->m_controls.setImageControls(controls);
-        this->d->m_localImageControls = imageControls;
-    }
-
-    this->d->m_controlsMutex.lock();
-    auto cameraControls = this->d->controlStatus(this->d->m_globalCameraControls);
-    this->d->m_controlsMutex.unlock();
-
-    if (this->d->m_localCameraControls != cameraControls) {
-        auto controls = this->d->mapDiff(this->d->m_localCameraControls,
-                                         cameraControls);
-        this->d->m_controls.setCameraControls(controls);
-        this->d->m_localCameraControls = cameraControls;
-    }
-#endif
 
     if (!this->d->m_curFrame)
         if (!this->d->m_frameReady.wait(&this->d->m_mutex, 1000)) {
@@ -403,24 +269,8 @@ void *CaptureAvFoundation::curFrame()
     return &this->d->m_curFrame;
 }
 
-QVariantMap CaptureAvFoundation::controlStatus(const QVariantList &controls) const
-{
-    QVariantMap controlStatus;
-
-    for (auto &control: controls) {
-        auto params = control.toList();
-        auto controlName = params[0].toString();
-        controlStatus[controlName] = params[0];
-    }
-
-    return controlStatus;
-}
-
 bool CaptureAvFoundation::init()
 {
-    this->d->m_localImageControls.clear();
-    this->d->m_localCameraControls.clear();
-
     auto webcam = this->d->m_device;
 
     if (webcam.isEmpty())
@@ -507,9 +357,6 @@ bool CaptureAvFoundation::init()
         return false;
     }
 
-#if defined(ENABLE_CONTROLS) && ENABLE_CONTROLS != 0
-    this->d->m_controls.open(webcam);
-#endif
     AkFrac fps = caps.property("fps").toString();
     auto fpsRange = CaptureAvFoundationPrivate::frameRateRangeFromFps(format,
                                                                       fps);
@@ -565,10 +412,6 @@ void CaptureAvFoundation::uninit()
     }
 
     this->d->m_mutex.unlock();
-
-#if defined(ENABLE_CONTROLS) && ENABLE_CONTROLS != 0
-    this->d->m_controls.close();
-#endif
 }
 
 void CaptureAvFoundation::setDevice(const QString &device)
@@ -577,36 +420,7 @@ void CaptureAvFoundation::setDevice(const QString &device)
         return;
 
     this->d->m_device = device;
-
-    if (device.isEmpty()) {
-        this->d->m_controlsMutex.lock();
-        this->d->m_globalImageControls.clear();
-        this->d->m_globalCameraControls.clear();
-        this->d->m_controlsMutex.unlock();
-    } else {
-        this->d->m_controlsMutex.lock();
-
-#if defined(ENABLE_CONTROLS) && ENABLE_CONTROLS != 0
-        DeviceControls controls;
-
-        if (controls.open(device)) {
-            this->d->m_globalImageControls = controls.imageControls();
-            this->d->m_globalCameraControls = controls.cameraControls();
-            controls.close();
-        }
-#endif
-
-        this->d->m_controlsMutex.unlock();
-    }
-
-    this->d->m_controlsMutex.lock();
-    auto imageStatus = this->d->controlStatus(this->d->m_globalImageControls);
-    auto cameraStatus = this->d->controlStatus(this->d->m_globalCameraControls);
-    this->d->m_controlsMutex.unlock();
-
     emit this->deviceChanged(device);
-    emit this->imageControlsChanged(imageStatus);
-    emit this->cameraControlsChanged(cameraStatus);
 }
 
 void CaptureAvFoundation::setStreams(const QList<int> &streams)
@@ -677,8 +491,6 @@ void CaptureAvFoundation::resetNBuffers()
 void CaptureAvFoundation::reset()
 {
     this->resetStreams();
-    this->resetImageControls();
-    this->resetCameraControls();
 }
 
 void CaptureAvFoundation::cameraConnected()
@@ -910,33 +722,6 @@ AkCaps CaptureAvFoundationPrivate::capsFromFrameSampleBuffer(const CMSampleBuffe
     videoCaps.setProperty("fps", AkFrac(time.timescale, time.value).toString());
 
     return videoCaps;
-}
-
-QVariantMap CaptureAvFoundationPrivate::controlStatus(const QVariantList &controls) const
-{
-    QVariantMap controlStatus;
-
-    for (auto &control: controls) {
-        auto params = control.toList();
-        auto controlName = params[0].toString();
-        controlStatus[controlName] = params[6];
-    }
-
-    return controlStatus;
-}
-
-QVariantMap CaptureAvFoundationPrivate::mapDiff(const QVariantMap &map1,
-                                                const QVariantMap &map2) const
-{
-    QVariantMap map;
-
-    for (auto it = map2.cbegin(); it != map2.cend(); it++)
-        if (!map1.contains(it.key())
-            || map1[it.key()] != it.value()) {
-            map[it.key()] = it.value();
-        }
-
-    return map;
 }
 
 #include "moc_captureavfoundation.cpp"

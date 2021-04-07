@@ -43,12 +43,6 @@ add_library(Cinema SHARED
             src/cinemaelement.cpp
             Cinema.qrc
             pspec.json)
-
-if (ANDROID)
-    set_target_properties(Cinema PROPERTIES
-                          OUTPUT_NAME ${PLUGINS_DIR_NAME}_libCinema)
-endif ()
-
 add_dependencies(Cinema avkys)
 target_include_directories(Cinema
                            PRIVATE ../../Lib/src)
@@ -56,4 +50,9 @@ target_compile_definitions(Cinema PRIVATE AVKYS_PLUGIN_CINEMA)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(Cinema PRIVATE avkys ${QT_LIBS})
 set(QML_IMPORT_PATH ../../Lib/share/qml)
-install(TARGETS avkys DESTINATION ${INSTALLPLUGINSDIR})
+
+if (WIN32)
+    install(TARGETS avkys RUNTIME DESTINATION ${INSTALLPLUGINSDIR})
+elseif (NOT ANDROID)
+    install(TARGETS avkys DESTINATION ${INSTALLPLUGINSDIR})
+endif ()

@@ -42,12 +42,6 @@ add_library(SwapRB SHARED
             src/swaprb.cpp
             src/swaprbelement.cpp
             pspec.json)
-
-if (ANDROID)
-    set_target_properties(SwapRB PROPERTIES
-                          OUTPUT_NAME ${PLUGINS_DIR_NAME}_libSwapRB)
-endif ()
-
 add_dependencies(SwapRB avkys)
 target_include_directories(SwapRB
                            PRIVATE ../../Lib/src)
@@ -55,4 +49,9 @@ target_compile_definitions(SwapRB PRIVATE AVKYS_PLUGIN_SWAPRB)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(SwapRB PRIVATE avkys ${QT_LIBS})
 set(QML_IMPORT_PATH ../../Lib/share/qml)
-install(TARGETS avkys DESTINATION ${INSTALLPLUGINSDIR})
+
+if (WIN32)
+    install(TARGETS avkys RUNTIME DESTINATION ${INSTALLPLUGINSDIR})
+elseif (NOT ANDROID)
+    install(TARGETS avkys DESTINATION ${INSTALLPLUGINSDIR})
+endif ()

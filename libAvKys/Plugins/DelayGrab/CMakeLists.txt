@@ -43,12 +43,6 @@ add_library(DelayGrab SHARED
             src/delaygrabelement.cpp
             DelayGrab.qrc
             pspec.json)
-
-if (ANDROID)
-    set_target_properties(DelayGrab PROPERTIES
-                          OUTPUT_NAME ${PLUGINS_DIR_NAME}_libDelayGrab)
-endif ()
-
 add_dependencies(DelayGrab avkys)
 target_include_directories(DelayGrab
                            PRIVATE ../../Lib/src)
@@ -56,4 +50,9 @@ target_compile_definitions(DelayGrab PRIVATE AVKYS_PLUGIN_DELAYGRAB)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(DelayGrab PRIVATE avkys ${QT_LIBS})
 set(QML_IMPORT_PATH ../../Lib/share/qml)
-install(TARGETS avkys DESTINATION ${INSTALLPLUGINSDIR})
+
+if (WIN32)
+    install(TARGETS avkys RUNTIME DESTINATION ${INSTALLPLUGINSDIR})
+elseif (NOT ANDROID)
+    install(TARGETS avkys DESTINATION ${INSTALLPLUGINSDIR})
+endif ()

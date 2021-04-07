@@ -43,12 +43,6 @@ add_library(Shagadelic SHARED
             src/shagadelicelement.cpp
             Shagadelic.qrc
             pspec.json)
-
-if (ANDROID)
-    set_target_properties(Shagadelic PROPERTIES
-                          OUTPUT_NAME ${PLUGINS_DIR_NAME}_libShagadelic)
-endif ()
-
 add_dependencies(Shagadelic avkys)
 target_include_directories(Shagadelic
                            PRIVATE ../../Lib/src)
@@ -56,4 +50,9 @@ target_compile_definitions(Shagadelic PRIVATE AVKYS_PLUGIN_SHAGADELIC)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(Shagadelic PRIVATE avkys ${QT_LIBS})
 set(QML_IMPORT_PATH ../../Lib/share/qml)
-install(TARGETS avkys DESTINATION ${INSTALLPLUGINSDIR})
+
+if (WIN32)
+    install(TARGETS avkys RUNTIME DESTINATION ${INSTALLPLUGINSDIR})
+elseif (NOT ANDROID)
+    install(TARGETS avkys DESTINATION ${INSTALLPLUGINSDIR})
+endif ()

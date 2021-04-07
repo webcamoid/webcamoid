@@ -43,12 +43,6 @@ add_library(Radioactive SHARED
             src/radioactiveelement.cpp
             Radioactive.qrc
             pspec.json)
-
-if (ANDROID)
-    set_target_properties(Radioactive PROPERTIES
-                          OUTPUT_NAME ${PLUGINS_DIR_NAME}_libRadioactive)
-endif ()
-
 add_dependencies(Radioactive avkys)
 target_include_directories(Radioactive
                            PRIVATE ../../Lib/src)
@@ -56,4 +50,9 @@ target_compile_definitions(Radioactive PRIVATE AVKYS_PLUGIN_RADIOACTIVE)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(Radioactive PRIVATE avkys ${QT_LIBS})
 set(QML_IMPORT_PATH ../../Lib/share/qml)
-install(TARGETS avkys DESTINATION ${INSTALLPLUGINSDIR})
+
+if (WIN32)
+    install(TARGETS avkys RUNTIME DESTINATION ${INSTALLPLUGINSDIR})
+elseif (NOT ANDROID)
+    install(TARGETS avkys DESTINATION ${INSTALLPLUGINSDIR})
+endif ()

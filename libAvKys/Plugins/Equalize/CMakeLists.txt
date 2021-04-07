@@ -43,12 +43,6 @@ add_library(Equalize SHARED
             src/equalize.cpp
             src/equalizeelement.cpp
             pspec.json)
-
-if (ANDROID)
-    set_target_properties(Equalize PROPERTIES
-                          OUTPUT_NAME ${PLUGINS_DIR_NAME}_libEqualize)
-endif ()
-
 add_dependencies(Equalize avkys)
 target_include_directories(Equalize
                            PRIVATE ../../Lib/src)
@@ -56,4 +50,9 @@ target_compile_definitions(Equalize PRIVATE AVKYS_PLUGIN_EQUALIZE)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(Equalize PRIVATE avkys ${QT_LIBS})
 set(QML_IMPORT_PATH ../../Lib/share/qml)
-install(TARGETS avkys DESTINATION ${INSTALLPLUGINSDIR})
+
+if (WIN32)
+    install(TARGETS avkys RUNTIME DESTINATION ${INSTALLPLUGINSDIR})
+elseif (NOT ANDROID)
+    install(TARGETS avkys DESTINATION ${INSTALLPLUGINSDIR})
+endif ()

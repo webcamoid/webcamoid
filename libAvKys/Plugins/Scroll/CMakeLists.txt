@@ -43,12 +43,6 @@ add_library(Scroll SHARED
             src/scrollelement.cpp
             Scroll.qrc
             pspec.json)
-
-if (ANDROID)
-    set_target_properties(Scroll PROPERTIES
-                          OUTPUT_NAME ${PLUGINS_DIR_NAME}_libScroll)
-endif ()
-
 add_dependencies(Scroll avkys)
 target_include_directories(Scroll
                            PRIVATE ../../Lib/src)
@@ -56,4 +50,9 @@ target_compile_definitions(Scroll PRIVATE AVKYS_PLUGIN_SCROLL)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(Scroll PRIVATE avkys ${QT_LIBS})
 set(QML_IMPORT_PATH ../../Lib/share/qml)
-install(TARGETS avkys DESTINATION ${INSTALLPLUGINSDIR})
+
+if (WIN32)
+    install(TARGETS avkys RUNTIME DESTINATION ${INSTALLPLUGINSDIR})
+elseif (NOT ANDROID)
+    install(TARGETS avkys DESTINATION ${INSTALLPLUGINSDIR})
+endif ()

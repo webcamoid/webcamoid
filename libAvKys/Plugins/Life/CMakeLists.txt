@@ -43,12 +43,6 @@ add_library(Life SHARED
             src/lifeelement.cpp
             Life.qrc
             pspec.json)
-
-if (ANDROID)
-    set_target_properties(Life PROPERTIES
-                          OUTPUT_NAME ${PLUGINS_DIR_NAME}_libLife)
-endif ()
-
 add_dependencies(Life avkys)
 target_include_directories(Life
                            PRIVATE ../../Lib/src)
@@ -56,4 +50,9 @@ target_compile_definitions(Life PRIVATE AVKYS_PLUGIN_LIFE)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(Life PRIVATE avkys ${QT_LIBS})
 set(QML_IMPORT_PATH ../../Lib/share/qml)
-install(TARGETS avkys DESTINATION ${INSTALLPLUGINSDIR})
+
+if (WIN32)
+    install(TARGETS avkys RUNTIME DESTINATION ${INSTALLPLUGINSDIR})
+elseif (NOT ANDROID)
+    install(TARGETS avkys DESTINATION ${INSTALLPLUGINSDIR})
+endif ()
