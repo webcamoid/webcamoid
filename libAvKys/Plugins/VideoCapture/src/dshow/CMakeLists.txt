@@ -74,5 +74,5 @@ target_link_libraries(VideoCapture_dshow
                       oleaut32)
 
 if (WIN32)
-    install(TARGETS avkys RUNTIME DESTINATION ${INSTALLPLUGINSDIR})
+    install(TARGETS avkys RUNTIME DESTINATION ${PLUGINSDIR})
 endif ()

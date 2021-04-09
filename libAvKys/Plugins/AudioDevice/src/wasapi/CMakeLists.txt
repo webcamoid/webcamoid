@@ -69,5 +69,5 @@ target_link_libraries(AudioDevice_wasapi
                       winmm)
 
 if (WIN32)
-    install(TARGETS avkys RUNTIME DESTINATION ${INSTALLPLUGINSDIR})
+    install(TARGETS avkys RUNTIME DESTINATION ${PLUGINSDIR})
 endif ()
