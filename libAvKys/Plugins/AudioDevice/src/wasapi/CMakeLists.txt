@@ -51,6 +51,8 @@ else ()
     add_library(AudioDevice_wasapi SHARED EXCLUDE_FROM_ALL ${SOURCES})
 endif ()
 
+set_target_properties(AudioDevice_wasapi PROPERTIES
+                      RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
 add_dependencies(AudioDevice_wasapi avkys)
 target_include_directories(AudioDevice_wasapi
                            PRIVATE
@@ -67,7 +69,4 @@ target_link_libraries(AudioDevice_wasapi
                       PUBLIC
                       ole32
                       winmm)
-
-if (WIN32)
-    install(TARGETS avkys RUNTIME DESTINATION ${PLUGINSDIR})
-endif ()
+install(TARGETS avkys RUNTIME DESTINATION ${PLUGINSDIR})

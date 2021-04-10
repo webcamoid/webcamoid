@@ -60,6 +60,14 @@ else ()
     add_library(VideoCapture_ffmpeg SHARED EXCLUDE_FROM_ALL ${SOURCES})
 endif ()
 
+if (WIN32)
+    set_target_properties(VideoCapture_ffmpeg PROPERTIES
+                          RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
+elseif (NOT ANDROID)
+    set_target_properties(VideoCapture_ffmpeg PROPERTIES
+                          LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
+endif ()
+
 add_dependencies(VideoCapture_ffmpeg avkys)
 target_include_directories(VideoCapture_ffmpeg
                            PUBLIC

@@ -43,6 +43,15 @@ add_library(DelayGrab SHARED
             src/delaygrabelement.cpp
             DelayGrab.qrc
             pspec.json)
+
+if (WIN32)
+    set_target_properties(DelayGrab PROPERTIES
+                          RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
+elseif (NOT ANDROID)
+    set_target_properties(DelayGrab PROPERTIES
+                          LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
+endif ()
+
 add_dependencies(DelayGrab avkys)
 target_include_directories(DelayGrab
                            PRIVATE ../../Lib/src)

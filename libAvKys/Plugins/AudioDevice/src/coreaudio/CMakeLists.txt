@@ -54,6 +54,8 @@ else ()
     add_library(AudioDevice_coreaudio SHARED EXCLUDE_FROM_ALL ${SOURCES})
 endif ()
 
+set_target_properties(AudioDevice_coreaudio PROPERTIES
+                      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
 add_dependencies(AudioDevice_coreaudio avkys)
 target_include_directories(AudioDevice_coreaudio
                            PRIVATE
@@ -75,8 +77,4 @@ if (NOT NOCOREAUDIO AND COREFOUNDATION AND AUDIOUNIT AND COREAUDIO)
                           ${COREAUDIO})
 endif ()
 
-if (WIN32)
-    install(TARGETS avkys RUNTIME DESTINATION ${PLUGINSDIR})
-elseif (NOT ANDROID)
-    install(TARGETS avkys DESTINATION ${PLUGINSDIR})
-endif ()
+install(TARGETS avkys DESTINATION ${PLUGINSDIR})

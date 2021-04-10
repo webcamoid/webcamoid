@@ -50,7 +50,6 @@ set(SOURCES
     src/usbids.h
     libuvc.qrc
     pspec.json)
-
 pkg_check_modules(LIBUVC
                   libusb-1.0
                   libuvc>=0.0.6)
@@ -60,6 +59,14 @@ if (NOT NOLIBUVC AND LIBUVC_FOUND)
     add_library(VideoCapture_libuvc SHARED ${SOURCES})
 else ()
     add_library(VideoCapture_libuvc SHARED EXCLUDE_FROM_ALL ${SOURCES})
+endif ()
+
+if (WIN32)
+    set_target_properties(VideoCapture_libuvc PROPERTIES
+                          RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
+elseif (NOT ANDROID)
+    set_target_properties(VideoCapture_libuvc PROPERTIES
+                          LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
 endif ()
 
 add_dependencies(VideoCapture_libuvc avkys)

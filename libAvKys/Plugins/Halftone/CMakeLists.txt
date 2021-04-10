@@ -43,6 +43,15 @@ add_library(Halftone SHARED
             src/halftoneelement.cpp
             Halftone.qrc
             pspec.json)
+
+if (WIN32)
+    set_target_properties(Halftone PROPERTIES
+                          RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
+elseif (NOT ANDROID)
+    set_target_properties(Halftone PROPERTIES
+                          LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
+endif ()
+
 add_dependencies(Halftone avkys)
 target_include_directories(Halftone
                            PRIVATE ../../Lib/src)

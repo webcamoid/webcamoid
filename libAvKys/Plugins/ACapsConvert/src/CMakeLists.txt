@@ -50,6 +50,15 @@ add_library(ACapsConvertSrc SHARED
 
 set_target_properties(ACapsConvertSrc PROPERTIES
                       OUTPUT_NAME ACapsConvert)
+
+if (WIN32)
+    set_target_properties(ACapsConvertSrc PROPERTIES
+                          RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
+elseif (NOT ANDROID)
+    set_target_properties(ACapsConvertSrc PROPERTIES
+                          LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
+endif ()
+
 add_dependencies(ACapsConvertSrc avkys)
 target_include_directories(ACapsConvertSrc
                            PRIVATE ../../../Lib/src)

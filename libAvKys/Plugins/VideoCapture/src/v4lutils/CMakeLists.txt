@@ -48,7 +48,6 @@ set(SOURCES
     ../v4l2sys/src/capturev4l2.cpp
     ../capture.cpp
     pspec.json)
-
 pkg_check_modules(V4LUTILS libv4l2)
 link_directories(${V4LUTILS_LIBRARY_DIRS})
 
@@ -56,6 +55,11 @@ if (NOT NOV4L2 AND HAVE_V4L2 AND V4LUTILS_FOUND AND NOT ANDROID)
     add_library(VideoCapture_v4lutils SHARED ${SOURCES})
 else ()
     add_library(VideoCapture_v4lutils SHARED EXCLUDE_FROM_ALL ${SOURCES})
+endif ()
+
+if (NOT ANDROID)
+    set_target_properties(VideoCapture_v4lutils PROPERTIES
+                          LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
 endif ()
 
 add_dependencies(VideoCapture_v4lutils avkys)

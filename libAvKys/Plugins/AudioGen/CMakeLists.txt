@@ -41,6 +41,15 @@ add_library(AudioGen SHARED
             src/audiogen.cpp
             src/audiogenelement.cpp
             pspec.json)
+
+if (WIN32)
+    set_target_properties(AudioGen PROPERTIES
+                          RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
+elseif (NOT ANDROID)
+    set_target_properties(AudioGen PROPERTIES
+                          LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
+endif ()
+
 add_dependencies(AudioGen avkys)
 target_include_directories(AudioGen
                            PRIVATE ../../Lib/src)

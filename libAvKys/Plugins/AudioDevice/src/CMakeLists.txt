@@ -49,6 +49,15 @@ add_library(AudioDeviceSrc SHARED
             ../pspec.json)
 set_target_properties(AudioDeviceSrc PROPERTIES
                       OUTPUT_NAME AudioDevice)
+
+if (WIN32)
+    set_target_properties(AudioDeviceSrc PROPERTIES
+                          RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
+elseif (NOT ANDROID)
+    set_target_properties(AudioDeviceSrc PROPERTIES
+                          LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
+endif ()
+
 add_dependencies(AudioDeviceSrc avkys)
 target_include_directories(AudioDeviceSrc
                            PRIVATE ../../../Lib/src)

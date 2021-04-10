@@ -43,6 +43,15 @@ add_library(ColorReplace SHARED
             src/colorreplaceelement.cpp
             ColorReplace.qrc
             pspec.json)
+
+if (WIN32)
+    set_target_properties(ColorReplace PROPERTIES
+                          RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
+elseif (NOT ANDROID)
+    set_target_properties(ColorReplace PROPERTIES
+                          LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
+endif ()
+
 add_dependencies(ColorReplace avkys)
 target_include_directories(ColorReplace
                            PRIVATE ../../Lib/src)

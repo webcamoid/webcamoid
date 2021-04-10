@@ -41,6 +41,15 @@ add_library(Multiplex SHARED
             src/multiplex.cpp
             src/multiplexelement.cpp
             pspec.json)
+
+if (WIN32)
+    set_target_properties(Multiplex PROPERTIES
+                          RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
+elseif (NOT ANDROID)
+    set_target_properties(Multiplex PROPERTIES
+                          LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
+endif ()
+
 add_dependencies(Multiplex avkys)
 target_include_directories(Multiplex
                            PRIVATE ../../Lib/src)

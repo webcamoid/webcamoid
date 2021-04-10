@@ -43,6 +43,15 @@ add_library(Swirl SHARED
             src/swirlelement.cpp
             Swirl.qrc
             pspec.json)
+
+    if (WIN32)
+        set_target_properties(Swirl PROPERTIES
+                              RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
+    elseif (NOT ANDROID)
+    set_target_properties(Swirl PROPERTIES
+                          LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
+endif ()
+
 add_dependencies(Swirl avkys)
 target_include_directories(Swirl
                            PRIVATE ../../Lib/src)

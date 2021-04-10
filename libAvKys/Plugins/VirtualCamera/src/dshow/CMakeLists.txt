@@ -50,6 +50,8 @@ else ()
     add_library(VirtualCamera_dshow SHARED EXCLUDE_FROM_ALL ${SOURCES})
 endif ()
 
+set_target_properties(VirtualCamera_dshow PROPERTIES
+                      RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
 add_dependencies(VirtualCamera_dshow avkys)
 target_include_directories(VirtualCamera_dshow PRIVATE
                            ..

@@ -50,6 +50,8 @@ else ()
     add_library(VirtualCamera_cmio SHARED EXCLUDE_FROM_ALL ${SOURCES})
 endif ()
 
+set_target_properties(VirtualCamera_cmio PROPERTIES
+                      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
 add_dependencies(VirtualCamera_cmio avkys)
 target_include_directories(VirtualCamera_cmio PRIVATE
                            ..

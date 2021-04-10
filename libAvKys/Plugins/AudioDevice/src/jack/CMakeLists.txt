@@ -58,6 +58,14 @@ else ()
     add_library(AudioDevice_jack SHARED EXCLUDE_FROM_ALL ${SOURCES})
 endif ()
 
+if (WIN32)
+    set_target_properties(AudioDevice_jack PROPERTIES
+                          RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
+elseif (NOT ANDROID)
+    set_target_properties(AudioDevice_jack PROPERTIES
+                          LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
+endif ()
+
 add_dependencies(AudioDevice_jack avkys)
 target_include_directories(AudioDevice_jack
                            PUBLIC

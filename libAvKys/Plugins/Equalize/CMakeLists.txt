@@ -43,6 +43,15 @@ add_library(Equalize SHARED
             src/equalize.cpp
             src/equalizeelement.cpp
             pspec.json)
+
+if (WIN32)
+    set_target_properties(Equalize PROPERTIES
+                          RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
+elseif (NOT ANDROID)
+    set_target_properties(Equalize PROPERTIES
+                          LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
+endif ()
+
 add_dependencies(Equalize avkys)
 target_include_directories(Equalize
                            PRIVATE ../../Lib/src)

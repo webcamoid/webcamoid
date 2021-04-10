@@ -50,6 +50,8 @@ else ()
     add_library(VirtualCamera_v4l2lb SHARED EXCLUDE_FROM_ALL ${SOURCES})
 endif ()
 
+set_target_properties(VirtualCamera_v4l2lb PROPERTIES
+                      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
 add_dependencies(VirtualCamera_v4l2lb avkys)
 target_include_directories(VirtualCamera_v4l2lb PRIVATE
                            ..

@@ -43,6 +43,15 @@ add_library(FaceTrack SHARED
             src/facetrackelement.cpp
             FaceTrack.qrc
             pspec.json)
+
+if (WIN32)
+    set_target_properties(FaceTrack PROPERTIES
+                          RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
+elseif (NOT ANDROID)
+    set_target_properties(FaceTrack PROPERTIES
+                          LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
+endif ()
+
 add_dependencies(FaceTrack avkys)
 target_include_directories(FaceTrack
                            PRIVATE ../../Lib/src)

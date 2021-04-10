@@ -43,6 +43,15 @@ add_library(Ripple SHARED
             src/rippleelement.cpp
             Ripple.qrc
             pspec.json)
+
+if (WIN32)
+    set_target_properties(Ripple PROPERTIES
+                          RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
+elseif (NOT ANDROID)
+    set_target_properties(Ripple PROPERTIES
+                          LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
+endif ()
+
 add_dependencies(Ripple avkys)
 target_include_directories(Ripple
                            PRIVATE ../../Lib/src)

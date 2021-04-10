@@ -43,6 +43,15 @@ add_library(Dizzy SHARED
             src/dizzyelement.cpp
             Dizzy.qrc
             pspec.json)
+
+if (WIN32)
+    set_target_properties(Dizzy PROPERTIES
+                          RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
+elseif (NOT ANDROID)
+    set_target_properties(Dizzy PROPERTIES
+                          LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
+endif ()
+
 add_dependencies(Dizzy avkys)
 target_include_directories(Dizzy
                            PRIVATE ../../Lib/src)

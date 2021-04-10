@@ -42,6 +42,15 @@ add_library(SwapRB SHARED
             src/swaprb.cpp
             src/swaprbelement.cpp
             pspec.json)
+
+if (WIN32)
+    set_target_properties(SwapRB PROPERTIES
+                          RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
+elseif (NOT ANDROID)
+    set_target_properties(SwapRB PROPERTIES
+                          LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
+endif ()
+
 add_dependencies(SwapRB avkys)
 target_include_directories(SwapRB
                            PRIVATE ../../Lib/src)

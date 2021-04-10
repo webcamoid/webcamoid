@@ -43,6 +43,15 @@ add_library(Nervous SHARED
             src/nervouselement.cpp
             Nervous.qrc
             pspec.json)
+
+if (WIN32)
+    set_target_properties(Nervous PROPERTIES
+                          RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
+elseif (NOT ANDROID)
+    set_target_properties(Nervous PROPERTIES
+                          LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
+endif ()
+
 add_dependencies(Nervous avkys)
 target_include_directories(Nervous
                            PRIVATE ../../Lib/src)

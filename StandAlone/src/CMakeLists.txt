@@ -115,6 +115,14 @@ else ()
                           OUTPUT_NAME webcamoid)
 endif ()
 
+if (APPLE)
+    set_target_properties(StandAlone PROPERTIES
+                          RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build)
+elseif (NOT ANDROID)
+    set_target_properties(StandAlone PROPERTIES
+                          RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${BINDIR})
+endif ()
+
 add_dependencies(StandAlone avkys)
 target_include_directories(StandAlone
                            PRIVATE ../../libAvKys/Lib/src)

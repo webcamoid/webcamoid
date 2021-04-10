@@ -43,6 +43,15 @@ add_library(Convolve SHARED
             src/convolveelement.cpp
             Convolve.qrc
             pspec.json)
+
+if (WIN32)
+    set_target_properties(Convolve PROPERTIES
+                          RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
+elseif (NOT ANDROID)
+    set_target_properties(Convolve PROPERTIES
+                          LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
+endif ()
+
 add_dependencies(Convolve avkys)
 target_include_directories(Convolve
                            PRIVATE ../../Lib/src)

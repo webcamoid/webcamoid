@@ -43,6 +43,15 @@ add_library(Hypnotic SHARED
             src/hypnoticelement.cpp
             Hypnotic.qrc
             pspec.json)
+
+if (WIN32)
+    set_target_properties(Hypnotic PROPERTIES
+                          RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
+elseif (NOT ANDROID)
+    set_target_properties(Hypnotic PROPERTIES
+                          LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
+endif ()
+
 add_dependencies(Hypnotic avkys)
 target_include_directories(Hypnotic
                            PRIVATE ../../Lib/src)

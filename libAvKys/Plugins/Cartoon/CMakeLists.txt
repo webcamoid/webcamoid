@@ -43,6 +43,15 @@ add_library(Cartoon SHARED
             src/cartoonelement.cpp
             Cartoon.qrc
             pspec.json)
+
+if (WIN32)
+    set_target_properties(Cartoon PROPERTIES
+                          RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
+elseif (NOT ANDROID)
+    set_target_properties(Cartoon PROPERTIES
+                          LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
+endif ()
+
 add_dependencies(Cartoon avkys)
 target_include_directories(Cartoon
                            PRIVATE ../../Lib/src)

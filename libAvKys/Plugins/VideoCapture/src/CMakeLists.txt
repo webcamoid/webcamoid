@@ -55,6 +55,15 @@ add_library(VideoCaptureSrc SHARED
 
 set_target_properties(VideoCaptureSrc PROPERTIES
                       OUTPUT_NAME VideoCapture)
+
+if (WIN32)
+    set_target_properties(VideoCaptureSrc PROPERTIES
+                          RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
+elseif (NOT ANDROID)
+    set_target_properties(VideoCaptureSrc PROPERTIES
+                          LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
+endif ()
+
 add_dependencies(VideoCaptureSrc avkys)
 target_include_directories(VideoCaptureSrc
                            PRIVATE ../../../Lib/src)

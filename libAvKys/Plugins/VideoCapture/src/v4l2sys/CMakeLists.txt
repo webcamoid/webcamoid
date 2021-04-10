@@ -54,6 +54,11 @@ else ()
     add_library(VideoCapture_v4l2sys SHARED EXCLUDE_FROM_ALL ${SOURCES})
 endif ()
 
+if (NOT ANDROID)
+    set_target_properties(VideoCapture_v4l2sys PROPERTIES
+                          LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
+endif ()
+
 add_dependencies(VideoCapture_v4l2sys avkys)
 target_include_directories(VideoCapture_v4l2sys
                            PRIVATE

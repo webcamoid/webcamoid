@@ -43,6 +43,15 @@ add_library(FalseColor SHARED
             src/falsecolorelement.cpp
             FalseColor.qrc
             pspec.json)
+
+if (WIN32)
+    set_target_properties(FalseColor PROPERTIES
+                          RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
+elseif (NOT ANDROID)
+    set_target_properties(FalseColor PROPERTIES
+                          LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
+endif ()
+
 add_dependencies(FalseColor avkys)
 target_include_directories(FalseColor
                            PRIVATE ../../Lib/src)

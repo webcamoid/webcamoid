@@ -43,6 +43,15 @@ add_library(Radioactive SHARED
             src/radioactiveelement.cpp
             Radioactive.qrc
             pspec.json)
+
+if (WIN32)
+    set_target_properties(Radioactive PROPERTIES
+                          RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
+elseif (NOT ANDROID)
+    set_target_properties(Radioactive PROPERTIES
+                          LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
+endif ()
+
 add_dependencies(Radioactive avkys)
 target_include_directories(Radioactive
                            PRIVATE ../../Lib/src)

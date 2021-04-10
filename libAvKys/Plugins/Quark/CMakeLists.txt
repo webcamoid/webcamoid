@@ -43,6 +43,15 @@ add_library(Quark SHARED
             src/quarkelement.cpp
             Quark.qrc
             pspec.json)
+
+if (WIN32)
+    set_target_properties(Quark PROPERTIES
+                          RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
+elseif (NOT ANDROID)
+    set_target_properties(Quark PROPERTIES
+                          LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
+endif ()
+
 add_dependencies(Quark avkys)
 target_include_directories(Quark
                            PRIVATE ../../Lib/src)

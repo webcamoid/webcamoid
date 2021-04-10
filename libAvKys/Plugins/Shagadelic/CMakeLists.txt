@@ -43,6 +43,15 @@ add_library(Shagadelic SHARED
             src/shagadelicelement.cpp
             Shagadelic.qrc
             pspec.json)
+
+if (WIN32)
+    set_target_properties(Shagadelic PROPERTIES
+                          RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
+elseif (NOT ANDROID)
+    set_target_properties(Shagadelic PROPERTIES
+                          LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
+endif ()
+
 add_dependencies(Shagadelic avkys)
 target_include_directories(Shagadelic
                            PRIVATE ../../Lib/src)

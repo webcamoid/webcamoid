@@ -52,6 +52,14 @@ else ()
     add_library(AudioDevice_opensl SHARED EXCLUDE_FROM_ALL ${SOURCES})
 endif ()
 
+if (WIN32)
+    set_target_properties(AudioDevice_opensl PROPERTIES
+                          RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
+elseif (NOT ANDROID)
+    set_target_properties(AudioDevice_opensl PROPERTIES
+                          LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
+endif ()
+
 add_dependencies(AudioDevice_opensl avkys)
 target_include_directories(AudioDevice_opensl
                            PRIVATE

@@ -46,7 +46,6 @@ set(SOURCES
     src/plugin.h
     src/stream.h
     pspec.json)
-
 pkg_check_modules(GSTREAMER
                   gstreamer-1.0
                   gstreamer-app-1.0
@@ -58,6 +57,14 @@ if (NOT NOGSTREAMER AND GSTREAMER_FOUND)
     add_library(MultiSrc_gstreamer SHARED ${SOURCES})
 else ()
     add_library(MultiSrc_gstreamer SHARED EXCLUDE_FROM_ALL ${SOURCES})
+endif ()
+
+if (WIN32)
+    set_target_properties(MultiSrc_gstreamer PROPERTIES
+                          RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
+elseif (NOT ANDROID)
+    set_target_properties(MultiSrc_gstreamer PROPERTIES
+                          LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
 endif ()
 
 add_dependencies(MultiSrc_gstreamer avkys)

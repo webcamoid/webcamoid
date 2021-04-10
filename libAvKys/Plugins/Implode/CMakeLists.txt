@@ -43,6 +43,15 @@ add_library(Implode SHARED
             src/implodeelement.cpp
             Implode.qrc
             pspec.json)
+
+if (WIN32)
+    set_target_properties(Implode PROPERTIES
+                          RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
+elseif (NOT ANDROID)
+    set_target_properties(Implode PROPERTIES
+                          LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
+endif ()
+
 add_dependencies(Implode avkys)
 target_include_directories(Implode
                            PRIVATE ../../Lib/src)

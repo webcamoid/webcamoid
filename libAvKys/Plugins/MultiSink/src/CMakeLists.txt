@@ -49,9 +49,17 @@ add_library(MultiSinkSrc SHARED
             multisinkutils.cpp
             multisinkutils.h
             ../pspec.json)
-
 set_target_properties(MultiSinkSrc PROPERTIES
                       OUTPUT_NAME MultiSink)
+
+if (WIN32)
+    set_target_properties(MultiSinkSrc PROPERTIES
+                          RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
+elseif (NOT ANDROID)
+    set_target_properties(MultiSinkSrc PROPERTIES
+                          LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
+endif ()
+
 add_dependencies(MultiSinkSrc avkys)
 target_include_directories(MultiSinkSrc
                            PRIVATE ../../../Lib/src)
