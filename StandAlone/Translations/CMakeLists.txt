@@ -63,7 +63,8 @@ if (LUPDATE_TOOL)
     foreach (LANG IN LISTS LANGUAGES)
         add_custom_target(tranlation_${LANG}_ts ALL
                           ${LUPDATE_TOOL} -no-obsolete
-                                          ${CMAKE_SOURCE_DIR}
+                                          ${CMAKE_SOURCE_DIR}/libAvKys
+                                          ${CMAKE_SOURCE_DIR}/StandAlone
                                           -target-language ${LANG}
                                           -ts ${CMAKE_SOURCE_DIR}/StandAlone/share/ts/${LANG}.ts
                           VERBATIM)

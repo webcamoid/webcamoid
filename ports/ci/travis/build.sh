@@ -99,9 +99,11 @@ elif [ "${ARCH_ROOT_BUILD}" = 1 ]; then
     if [ -z "${ARCH_ROOT_MINGW}" ]; then
         QMAKE_CMD=qmake
         CMAKE_CMD=cmake
+        PKG_CONFIG=pkg-config
     else
         QMAKE_CMD=/usr/${ARCH_ROOT_MINGW}-w64-mingw32/lib/qt/bin/qmake
         CMAKE_CMD=${ARCH_ROOT_MINGW}-w64-mingw32-cmake
+        PKG_CONFIG=${ARCH_ROOT_MINGW}-w64-mingw32-pkg-config
     fi
 
     cat << EOF > ${BUILDSCRIPT}
@@ -109,6 +111,7 @@ elif [ "${ARCH_ROOT_BUILD}" = 1 ]; then
 
 export LC_ALL=C
 export HOME=$HOME
+export PKG_CONFIG=${PKG_CONFIG}
 
 mkdir $TRAVIS_BUILD_DIR/build
 cd $TRAVIS_BUILD_DIR/build
@@ -159,6 +162,9 @@ EOF
 mkdir build
 cd build
 qmake-qt5 -query
+echo "Current directory: \${PWD}"
+echo "INSTALL_PREFIX: ${INSTALL_PREFIX}"
+
 cmake \
     -DQT_QMAKE_EXECUTABLE=qmake-qt5 \
     -DCMAKE_BUILD_TYPE=Release \

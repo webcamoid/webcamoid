@@ -292,6 +292,7 @@ elif [ "${DOCKERSYS}" = debian ]; then
     # Install Qt dev
     ${EXEC} apt-get -y install \
         qt5-qmake \
+        qttools5-dev-tools \
         qtdeclarative5-dev \
         libqt5opengl5-dev \
         libqt5svg5-dev \

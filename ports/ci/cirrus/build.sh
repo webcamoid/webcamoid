@@ -18,6 +18,8 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
+COMPILER=clang
+
 if [ "${COMPILER}" = clang ]; then
     COMPILER_C=clang
     COMPILER_CXX=clang++
