@@ -34,20 +34,14 @@ if [ ! -z "${ARCH_ROOT_MINGW}" ]; then
 fi
 
 if [ -z "${DISABLE_CCACHE}" ]; then
-    COMPILER_C="ccache ${COMPILER_C}"
-    COMPILER_CXX="ccache ${COMPILER_C}"
-
-    if [ "${COMPILER}" = clang ]; then
-        COMPILER_C="${COMPILER_C} -Qunused-arguments"
-        COMPILER_CXX="${COMPILER_CXX} -Qunused-arguments"
-    fi
+    EXTRA_PARAMS="-DCMAKE_CXX_COMPILER_LAUNCHER=ccache"
 fi
 
 if [ ! -z "${DAILY_BUILD}" ] || [ ! -z "${RELEASE_BUILD}" ]; then
     if [ "${TRAVIS_OS_NAME}" = linux ]; then
-        EXTRA_PARAMS="-DNOGSTREAMER=ON -DNOLIBAVDEVICE=ON"
+        EXTRA_PARAMS="${EXTRA_PARAMS} -DNOGSTREAMER=ON -DNOLIBAVDEVICE=ON"
     elif [ "${TRAVIS_OS_NAME}" = osx ]; then
-        EXTRA_PARAMS="-DNOGSTREAMER=ON -DNOJACK=ON -DNOLIBAVDEVICE=ON -DNOLIBUVC=ON -DNOPULSEAUDIO=ON"
+        EXTRA_PARAMS="${EXTRA_PARAMS}  -DNOGSTREAMER=ON -DNOJACK=ON -DNOLIBAVDEVICE=ON -DNOLIBUVC=ON -DNOPULSEAUDIO=ON"
     fi
 fi
 
@@ -58,16 +52,6 @@ elif [ "${TRAVIS_OS_NAME}" = linux ] && [ -z "${ANDROID_BUILD}" ]; then
 fi
 
 BUILDSCRIPT=dockerbuild.sh
-
-if [ "${DOCKERIMG}" = ubuntu:bionic ]; then
-    cat << EOF > ${BUILDSCRIPT}
-#!/bin/sh
-
-source /opt/qt${PPAQTVER}/bin/qt${PPAQTVER}-env.sh
-EOF
-
-    chmod +x ${BUILDSCRIPT}
-fi
 
 if [ "${ANDROID_BUILD}" = 1 ]; then
     export JAVA_HOME=$(readlink -f /usr/bin/java | sed 's:bin/java::')

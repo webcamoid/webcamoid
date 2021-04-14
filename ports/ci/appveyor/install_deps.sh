@@ -22,6 +22,9 @@
 
 pacman -Syy
 pacman --noconfirm --needed -S \
+    ccache \
+    clang \
+    cmake \
     git \
     make \
     pkg-config \
@@ -34,6 +37,9 @@ else
 fi
 
 pacman --noconfirm --needed -S \
+    mingw-w64-${packagesArch}-ccache \
+    mingw-w64-${packagesArch}-clang \
+    mingw-w64-${packagesArch}-cmake \
     mingw-w64-${packagesArch}-pkg-config \
     mingw-w64-${packagesArch}-qt5 \
     mingw-w64-${packagesArch}-ffmpeg

@@ -33,13 +33,7 @@ else
 fi
 
 if [ -z "${DISABLE_CCACHE}" ]; then
-    COMPILER_C="ccache ${COMPILER_C}"
-    COMPILER_CXX="ccache ${COMPILER_C}"
-
-    if [ "${COMPILER}" = clang ]; then
-        COMPILER_C="${COMPILER_C} -Qunused-arguments"
-        COMPILER_CXX="${COMPILER_CXX} -Qunused-arguments"
-    fi
+    EXTRA_PARAMS="-DCMAKE_CXX_COMPILER_LAUNCHER=ccache"
 fi
 
 if [ "${PLATFORM}" = x86 ]; then
