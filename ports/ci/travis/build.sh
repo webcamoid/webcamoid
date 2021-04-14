@@ -76,7 +76,6 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
         cmake \
             -G Ninja \
             -DCMAKE_BUILD_TYPE=Release \
-            -DCMAKE_PREFIX_PATH=${INSTALL_PREFIX} \
             -DCMAKE_C_COMPILER=${ANDROID_NDK}/toolchains/llvm/prebuilt/linux-x86_64/bin/clang \
             -DCMAKE_CXX_COMPILER=${ANDROID_NDK}/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ \
             -DANDROID_NATIVE_API_LEVEL=${ANDROID_PLATFORM} \
@@ -90,7 +89,6 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
             ${EXTRA_PARAMS} \
             ..
         cmake --build .
-        cmake --build . --target install
     done
 elif [ "${ARCH_ROOT_BUILD}" = 1 ]; then
     sudo mount --bind root.x86_64 root.x86_64
@@ -119,14 +117,14 @@ ${QMAKE_CMD} -query
 ${CMAKE_CMD} \
     -DQT_QMAKE_EXECUTABLE=${QMAKE_CMD} \
     -DCMAKE_BUILD_TYPE=Release \
-    -DCMAKE_PREFIX_PATH=${INSTALL_PREFIX} \
+    -DCMAKE_PREFIX_PATH="\${PWD}/../webcamoid-data" \
     -DCMAKE_C_COMPILER="${COMPILER_C}" \
     -DCMAKE_CXX_COMPILER="${COMPILER_CXX}" \
     -DDAILY_BUILD=${DAILY_BUILD} \
     ${EXTRA_PARAMS} \
     ..
-${CMAKE_CMD} --build .
-${CMAKE_CMD} --build . --target install
+make
+make install
 EOF
     chmod +x ${BUILDSCRIPT}
     sudo cp -vf ${BUILDSCRIPT} root.x86_64/$HOME/
@@ -146,7 +144,7 @@ qmake -qt=5 -query
 cmake \
     -DQT_QMAKE_EXECUTABLE="qmake -qt=5" \
     -DCMAKE_BUILD_TYPE=Release \
-    -DCMAKE_PREFIX_PATH=${INSTALL_PREFIX} \
+    -DCMAKE_PREFIX_PATH="\${PWD}/../webcamoid-data" \
     -DCMAKE_C_COMPILER="${COMPILER_C}" \
     -DCMAKE_CXX_COMPILER="${COMPILER_CXX}" \
     -DDAILY_BUILD=${DAILY_BUILD} \
@@ -162,13 +160,11 @@ EOF
 mkdir build
 cd build
 qmake-qt5 -query
-echo "Current directory: \${PWD}"
-echo "INSTALL_PREFIX: ${INSTALL_PREFIX}"
 
 cmake \
     -DQT_QMAKE_EXECUTABLE=qmake-qt5 \
     -DCMAKE_BUILD_TYPE=Release \
-    -DCMAKE_PREFIX_PATH=${INSTALL_PREFIX} \
+    -DCMAKE_PREFIX_PATH="\${PWD}/../webcamoid-data" \
     -DCMAKE_C_COMPILER="${COMPILER_C}" \
     -DCMAKE_CXX_COMPILER="${COMPILER_CXX}" \
     -DDAILY_BUILD=${DAILY_BUILD} \
