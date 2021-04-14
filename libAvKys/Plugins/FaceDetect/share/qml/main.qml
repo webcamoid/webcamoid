@@ -646,6 +646,323 @@ GridLayout {
         onTextChanged: FaceDetect.blurRadius = Number(text)
     }
 
+    Label {
+        text: qsTr("Face Area Settings")
+    }
+    RowLayout {
+        Item {
+            Layout.fillWidth: true
+        }
+        Label {
+            text: qsTr("Advanced face area settings for \nbackground blur or image below.")
+        }
+        Item {
+            Layout.fillWidth: true
+        }
+    }
+
+    // Face area size scale.
+    Label {
+        text: qsTr("Scale")
+    }
+    RowLayout {
+        Slider {
+            id: sldScale
+            value: FaceDetect.scale
+            from: 0.5
+            to: 2
+            stepSize: 0.05
+            Layout.fillWidth: true
+
+            onValueChanged: FaceDetect.scale = value
+        }
+        SpinBox {
+            property int decimals: 2
+            property real factor: Math.pow(10,decimals);
+            id: spbScale
+            value: FaceDetect.scale * factor
+            from: sldScale.from * factor
+            to: sldScale.to * factor
+            stepSize: sldScale.stepSize * factor
+            editable: true
+
+            onValueChanged: FaceDetect.scale = Number(value*1.0/spbScale.factor)
+            validator: DoubleValidator {
+                bottom: Math.min(spbScale.from, spbScale.to)*spbScale.factor
+                top:  Math.max(spbScale.from, spbScale.to)*spbScale.factor
+            }
+            textFromValue: function(value, locale) {
+                var num = parseFloat(value*1.0/spbScale.factor).toFixed(spbScale.decimals);
+                return num
+                //return Number(value / 100).toLocaleString(locale, 'f', spinbox.decimals)
+            }
+            valueFromText: function(text, locale) {
+                return parseFloat(text) * spbScale.factor
+                //return Number.fromLocaleString(locale, text) * spbScale.factor
+            }
+        }
+    }
+
+    // Configure face area offsets.
+    Label {
+        text: qsTr("H-Offset")
+    }
+    RowLayout {
+        Slider {
+            id: sldHOffset
+            value: FaceDetect.hOffset
+            from: -150
+            to: 150
+            stepSize: 1
+            Layout.fillWidth: true
+
+            onValueChanged: FaceDetect.hOffset = value
+        }
+        SpinBox {
+            id: spbHOffset
+            value: FaceDetect.hOffset
+            from: sldHOffset.from
+            to: sldHOffset.to
+            stepSize: sldHOffset.stepSize
+            editable: true
+
+            onValueChanged: FaceDetect.hOffset = Number(value)
+        }
+    }
+
+    Label {
+        text: qsTr("V-Offset")
+    }
+    RowLayout {
+        Slider {
+            id: sldVOffset
+            value: FaceDetect.vOffset
+            from: -150
+            to: 150
+            stepSize: 1
+            Layout.fillWidth: true
+
+            onValueChanged: FaceDetect.vOffset = value
+        }
+        SpinBox {
+            id: spbVOffset
+            value: FaceDetect.vOffset
+            from: sldVOffset.from
+            to: sldVOffset.to
+            stepSize: sldVOffset.stepSize
+            editable: true
+
+            onValueChanged: FaceDetect.vOffset = Number(value)
+        }
+    }
+
+    // Configure face area width/height.
+    Label {
+        text: qsTr("Width Adjust %")
+    }
+    RowLayout {
+        Slider {
+            id: sldWAdjust
+            value: FaceDetect.wAdjust
+            from: 1
+            to: 200
+            stepSize: 1
+            Layout.fillWidth: true
+
+            onValueChanged: FaceDetect.wAdjust = value
+        }
+        SpinBox {
+            id: spbWAdjust
+            value: FaceDetect.wAdjust
+            from: sldWAdjust.from
+            to: sldWAdjust.to
+            stepSize: sldWAdjust.stepSize
+            editable: true
+
+            onValueChanged: FaceDetect.wAdjust = Number(value)
+        }
+    }
+
+    Label {
+        text: qsTr("Height Adjust %")
+    }
+    RowLayout {
+        Slider {
+            id: sldHAdjust
+            value: FaceDetect.hAdjust
+            from: 1
+            to: 200
+            stepSize: 1
+            Layout.fillWidth: true
+
+            onValueChanged: FaceDetect.hAdjust = value
+        }
+        SpinBox {
+            id: spbHAdjust
+            value: FaceDetect.hAdjust
+            from: sldHAdjust.from
+            to: sldHAdjust.to
+            stepSize: sldHAdjust.stepSize
+            editable: true
+
+            onValueChanged: FaceDetect.hAdjust = Number(value)
+        }
+    }
+
+    // Round face area overlay.
+    Label {
+        text: qsTr("Round Area")
+    }
+    Switch {
+        id: chkSmotheEdges
+        checked: FaceDetect.smootheEdges
+
+        onCheckedChanged: FaceDetect.smootheEdges = checked
+    }
+
+    // Edge smothing size scale.
+    Label {
+        text: qsTr("Scale")
+    }
+    RowLayout {
+        Slider {
+            id: sldRScale
+            value: FaceDetect.rScale
+            from: 0.5
+            to: 2
+            stepSize: 0.05
+            Layout.fillWidth: true
+
+            onValueChanged: FaceDetect.rScale = value
+        }
+        SpinBox {
+            property int decimals: 2
+            property real factor: Math.pow(10,decimals);
+            id: spbRScale
+            value: FaceDetect.rScale * factor
+            from: sldRScale.from * factor
+            to: sldRScale.to * factor
+            stepSize: sldRScale.stepSize * factor
+            editable: true
+
+            onValueChanged: FaceDetect.rScale = Number(value*1.0/spbRScale.factor)
+            validator: DoubleValidator {
+                bottom: Math.min(spbRScale.from, spbRScale.to)*spbRScale.factor
+                top:  Math.max(spbRScale.from, spbRScale.to)*spbRScale.factor
+            }
+            textFromValue: function(value, locale) {
+                return parseFloat(value*1.0/spbRScale.factor).toFixed(decimals);
+                //return Number(value / 100).toLocaleString(locale, 'f', spinbox.decimals)
+            }
+            valueFromText: function(text, locale) {
+                return parseFloat(text) * spbRScale.factor
+                //return Number.fromLocaleString(locale, text) * spbRScale.factor
+            }
+        }
+    }
+
+    // Configure rounded face area width/height.
+    Label {
+        text: qsTr("Width Adjust %")
+    }
+    RowLayout {
+        Slider {
+            id: sldRWAdjust
+            value: FaceDetect.rWAdjust
+            from: 1
+            to: 200
+            stepSize: 1
+            Layout.fillWidth: true
+
+            onValueChanged: FaceDetect.rWAdjust = value
+        }
+        SpinBox {
+            id: spbRWAdjust
+            value: FaceDetect.rWAdjust
+            from: sldRWAdjust.from
+            to: sldRWAdjust.to
+            stepSize: sldRWAdjust.stepSize
+            editable: true
+
+            onValueChanged: FaceDetect.rWAdjust = Number(value)
+        }
+    }
+
+    Label {
+        text: qsTr("Height Adjust %")
+    }
+    RowLayout {
+        Slider {
+            id: sldRHAdjust
+            value: FaceDetect.rHAdjust
+            from: 1
+            to: 200
+            stepSize: 1
+            Layout.fillWidth: true
+
+            onValueChanged: FaceDetect.rHAdjust = value
+        }
+        SpinBox {
+            id: spbRHAdjust
+            value: FaceDetect.rHAdjust
+            from: sldRHAdjust.from
+            to: sldRHAdjust.to
+            stepSize: sldRHAdjust.stepSize
+            editable: true
+
+            onValueChanged: FaceDetect.rHAdjust = Number(value)
+        }
+    }
+
+    // Configure rounded face area radius
+    Label {
+        text: qsTr("H-Radius %")
+    }
+    RowLayout {
+        Slider {
+            id: sldHRad
+            value: FaceDetect.rHRadius
+            to: 100
+            stepSize: 1
+            Layout.fillWidth: true
+
+            onValueChanged: FaceDetect.rHRadius = value
+        }
+        SpinBox {
+            id: spbHRad
+            value: FaceDetect.rHRadius
+            to: sldHRad.to
+            stepSize: sldHRad.stepSize
+            editable: true
+
+            onValueChanged: FaceDetect.rHRadius = Number(value)
+        }
+    }
+
+    Label {
+        text: qsTr("V-Radius %")
+    }
+    RowLayout {
+        Slider {
+            id: sldVRad
+            value: FaceDetect.rVRadius
+            to: 100
+            stepSize: 1
+            Layout.fillWidth: true
+
+            onValueChanged: FaceDetect.rVRadius = value
+        }
+        SpinBox {
+            id: spbVRad
+            value: FaceDetect.rVRadius
+            to: sldVRad.to
+            stepSize: sldVRad.stepSize
+            editable: true
+
+            onValueChanged: FaceDetect.rVRadius = Number(value)
+        }
+    }
+
     LABS.FileDialog {
         id: fileDialog
         title: qsTr("Please choose an image file")
