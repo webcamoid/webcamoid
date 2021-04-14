@@ -35,16 +35,19 @@ add_subdirectory(StandAlone)
 # Webcamoid build is not affected in anyway by the value of TARGET_ARCH, if the
 # build fails its something else and totally unrelated to that variable.
 
-find_program(QMAKE_TOOL qmake)
+find_program(QT_QMAKE_EXECUTABLE qmake)
 
-if (QMAKE_TOOL)
-    execute_process(COMMAND ${QMAKE_TOOL} -query QT_INSTALL_PREFIX
+if (QT_QMAKE_EXECUTABLE)
+    execute_process(COMMAND ${QT_QMAKE_EXECUTABLE} -query QT_INSTALL_PREFIX
                     OUTPUT_VARIABLE QT_INSTALL_PREFIX
                     OUTPUT_STRIP_TRAILING_WHITESPACE)
-    execute_process(COMMAND ${QMAKE_TOOL} -query QT_INSTALL_PLUGINS
+    execute_process(COMMAND ${QT_QMAKE_EXECUTABLE} -query QT_INSTALL_LIBS
+                    OUTPUT_VARIABLE QT_INSTALL_LIBS
+                    OUTPUT_STRIP_TRAILING_WHITESPACE)
+    execute_process(COMMAND ${QT_QMAKE_EXECUTABLE} -query QT_INSTALL_PLUGINS
                     OUTPUT_VARIABLE QT_INSTALL_PLUGINS
                     OUTPUT_STRIP_TRAILING_WHITESPACE)
-    execute_process(COMMAND ${QMAKE_TOOL} -query QT_INSTALL_QML
+    execute_process(COMMAND ${QT_QMAKE_EXECUTABLE} -query QT_INSTALL_QML
                     OUTPUT_VARIABLE QT_INSTALL_QML
                     OUTPUT_STRIP_TRAILING_WHITESPACE)
 
@@ -56,12 +59,11 @@ endif ()
 if (ANDROID)
     set(TARGET_PLATFORM android)
     set(BUILD_INFO_FILE ${DATAROOTDIR}/build-info.txt)
-    set(MAIN_EXECUTABLE ${BINDIR}/webcamoid)
 
     if (${QT_VERSION_MAJOR} GREATER_EQUAL 6)
-        set(MAIN_EXECUTABLE ${BINDIR}/webcamoid_${CMAKE_ANDROID_ARCH_ABI})
+        set(MAIN_EXECUTABLE ${BINDIR}/Webcamoid_${CMAKE_ANDROID_ARCH_ABI})
     else ()
-        set(MAIN_EXECUTABLE ${BINDIR}/${CMAKE_SHARED_LIBRARY_PREFIX}webcamoid_${CMAKE_ANDROID_ARCH_ABI}${CMAKE_SHARED_LIBRARY_SUFFIX})
+        set(MAIN_EXECUTABLE ${BINDIR}/${CMAKE_SHARED_LIBRARY_PREFIX}Webcamoid_${CMAKE_ANDROID_ARCH_ABI}${CMAKE_SHARED_LIBRARY_SUFFIX})
     endif ()
 
     set(APP_LIBDIR ${LIBDIR})
@@ -246,6 +248,7 @@ endif ()
 configure_file(package_info.conf.in package_info.conf)
 
 if (ANDROID)
+    configure_file(package_info_android.conf.in package_info_android.conf)
     configure_file(COPYING
                    "${CMAKE_BINARY_DIR}/android-build/${LICENSEDIR}/COPYING"
                    COPYONLY)

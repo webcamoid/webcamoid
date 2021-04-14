@@ -20,16 +20,20 @@
 
 [ -f environment.sh ] && source environment.sh
 
-cd ports/deploy
-git clone https://github.com/webcamoid/DeployTools.git
-cd ../..
-
 if [ "${PLATFORM}" = x86 ]; then
     export PATH=/mingw32/bin:$PATH
 else
     export PATH=/mingw64/bin:$PATH
 fi
 
-export PYTHONPATH="${PWD}/ports/deploy/DeployTools"
+git clone https://github.com/webcamoid/DeployTools.git
 
-python3 ports/deploy/deploy.py
+export INSTALL_PREFIX=${APPVEYOR_BUILD_FOLDER}/webcamoid-data
+export PACKAGES_DIR=${APPVEYOR_BUILD_FOLDER}/webcamoid-packages
+export BUILD_PATH=${PWD}/build
+export PYTHONPATH="${PWD}/DeployTools"
+
+python3 DeployTools/deploy.py \
+    -d "${INSTALL_PREFIX}" \
+    -c "${BUILD_PATH}/package_info.conf" \
+    -o "${PACKAGES_DIR}"

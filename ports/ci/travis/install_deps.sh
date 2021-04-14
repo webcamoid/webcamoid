@@ -371,12 +371,13 @@ elif [ "${TRAVIS_OS_NAME}" = osx ]; then
     brew update
     brew upgrade
     brew link --overwrite numpy
+    brew link --force qt@5
     brew install \
         p7zip \
         python \
         ccache \
         pkg-config \
-        qt5 \
+        qt@5 \
         ffmpeg
     brew link --overwrite python
 

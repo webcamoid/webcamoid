@@ -18,24 +18,43 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-if [ -z "${DISABLE_CCACHE}" ]; then
-    if [ "${CXX}" = clang++ ]; then
-        UNUSEDARGS="-Qunused-arguments"
-    fi
+INSTALL_PREFIX=${TRAVIS_BUILD_DIR}/webcamoid-data
 
-    COMPILER="ccache ${CXX} ${UNUSEDARGS}"
+if [ "${COMPILER}" = clang ]; then
+    COMPILER_C=clang
+    COMPILER_CXX=clang++
 else
-    COMPILER=${CXX}
+    COMPILER_C=gcc
+    COMPILER_CXX=g++
+fi
+
+if [ ! -z "${ARCH_ROOT_MINGW}" ]; then
+    COMPILER_C=${ARCH_ROOT_MINGW}-w64-mingw32-${COMPILER_C}
+    COMPILER_CXX=${ARCH_ROOT_MINGW}-w64-mingw32-${COMPILER_CXX}
+fi
+
+if [ -z "${DISABLE_CCACHE}" ]; then
+    COMPILER_C="ccache ${COMPILER_C}"
+    COMPILER_CXX="ccache ${COMPILER_C}"
+
+    if [ "${COMPILER}" = clang ]; then
+        COMPILER_C="${COMPILER_C} -Qunused-arguments"
+        COMPILER_CXX="${COMPILER_CXX} -Qunused-arguments"
+    fi
+fi
+
+if [ ! -z "${DAILY_BUILD}" ] || [ ! -z "${RELEASE_BUILD}" ]; then
+    if [ "${TRAVIS_OS_NAME}" = linux ]; then
+        EXTRA_PARAMS="-DNOGSTREAMER=ON -DNOLIBAVDEVICE=ON"
+    elif [ "${TRAVIS_OS_NAME}" = osx ]; then
+        EXTRA_PARAMS="-DNOGSTREAMER=ON -DNOJACK=ON -DNOLIBAVDEVICE=ON -DNOLIBUVC=ON -DNOPULSEAUDIO=ON"
+    fi
 fi
 
 if [ "${ARCH_ROOT_BUILD}" = 1 ]; then
     EXEC='sudo ./root.x86_64/bin/arch-chroot root.x86_64'
 elif [ "${TRAVIS_OS_NAME}" = linux ] && [ -z "${ANDROID_BUILD}" ]; then
-    if [ -z "${DAILY_BUILD}" ]; then
-        EXEC="docker exec ${DOCKERSYS}"
-    else
-        EXEC="docker exec -e DAILY_BUILD=1 ${DOCKERSYS}"
-    fi
+    EXEC="docker exec ${DOCKERSYS}"
 fi
 
 BUILDSCRIPT=dockerbuild.sh
@@ -67,13 +86,27 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
 
     for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
         export PATH="${PWD}/build/Qt/${QTVER_ANDROID}/android/bin:${ORIG_PATH}"
-        mkdir build-webcamoid-${arch_}
-        cd build-webcamoid-${arch_}
+        mkdir build-${arch_}
+        cd build-${arch_}
         qmake -query
-        qmake -spec ${COMPILESPEC} ../Webcamoid.pro \
-            CONFIG+=silent \
-            ANDROID_ABIS=${arch_}
-        cd ..
+        cmake \
+            -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_PREFIX_PATH=${INSTALL_PREFIX} \
+            -DCMAKE_C_COMPILER=${ANDROID_NDK}/toolchains/llvm/prebuilt/linux-x86_64/bin/clang \
+            -DCMAKE_CXX_COMPILER=${ANDROID_NDK}/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ \
+            -DANDROID_NATIVE_API_LEVEL=${ANDROID_PLATFORM} \
+            -DANDROID_NDK=${ANDROID_NDK} \
+            -DCMAKE_TOOLCHAIN_FILE=${ANDROID_NDK}/build/cmake/android.toolchain.cmake \
+            -DANDROID_ABI=${arch_} \
+            -DANDROID_STL=c++_shared \
+            -DCMAKE_FIND_ROOT_PATH=$(qmake -query QT_INSTALL_PREFIX) \
+            -DANDROID_SDK=${ANDROID_HOME} \
+            -DDAILY_BUILD=${DAILY_BUILD} \
+            ${EXTRA_PARAMS} \
+            ..
+        cmake --build .
+        cmake --build . --target install
     done
 elif [ "${ARCH_ROOT_BUILD}" = 1 ]; then
     sudo mount --bind root.x86_64 root.x86_64
@@ -81,8 +114,10 @@ elif [ "${ARCH_ROOT_BUILD}" = 1 ]; then
 
     if [ -z "${ARCH_ROOT_MINGW}" ]; then
         QMAKE_CMD=qmake
+        CMAKE_CMD=cmake
     else
         QMAKE_CMD=/usr/${ARCH_ROOT_MINGW}-w64-mingw32/lib/qt/bin/qmake
+        CMAKE_CMD=${ARCH_ROOT_MINGW}-w64-mingw32-cmake
     fi
 
     cat << EOF > ${BUILDSCRIPT}
@@ -90,118 +125,85 @@ elif [ "${ARCH_ROOT_BUILD}" = 1 ]; then
 
 export LC_ALL=C
 export HOME=$HOME
-EOF
 
-    if [ ! -z "${DAILY_BUILD}" ]; then
-        cat << EOF >> ${BUILDSCRIPT}
-export DAILY_BUILD=1
-EOF
-    fi
-
-    cat << EOF >> ${BUILDSCRIPT}
-cd $TRAVIS_BUILD_DIR
+mkdir $TRAVIS_BUILD_DIR/build
+cd $TRAVIS_BUILD_DIR/build
 ${QMAKE_CMD} -query
-${QMAKE_CMD} -spec ${COMPILESPEC} Webcamoid.pro \
-    CONFIG+=silent \
-    QMAKE_CXX="${COMPILER}"
+${CMAKE_CMD} \
+    -DQT_QMAKE_EXECUTABLE=${QMAKE_CMD} \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_PREFIX_PATH=${INSTALL_PREFIX} \
+    -DCMAKE_C_COMPILER="${COMPILER_C}" \
+    -DCMAKE_CXX_COMPILER="${COMPILER_CXX}" \
+    -DDAILY_BUILD=${DAILY_BUILD} \
+    ${EXTRA_PARAMS} \
+    ..
+${CMAKE_CMD} --build .
+${CMAKE_CMD} --build . --target install
 EOF
     chmod +x ${BUILDSCRIPT}
     sudo cp -vf ${BUILDSCRIPT} root.x86_64/$HOME/
-
     ${EXEC} bash $HOME/${BUILDSCRIPT}
+    sudo umount root.x86_64/$HOME
+    sudo umount root.x86_64
 elif [ "${TRAVIS_OS_NAME}" = linux ]; then
     export PATH=$HOME/.local/bin:$PATH
 
     if [ "${DOCKERSYS}" = debian ]; then
-        if [ "${DOCKERIMG}" = ubuntu:bionic ]; then
-            if [ -z "${DAILY_BUILD}" ] && [ -z "${RELEASE_BUILD}" ]; then
-                cat << EOF >> ${BUILDSCRIPT}
-#!/bin/sh
-
-qmake -query
-qmake -spec ${COMPILESPEC} Webcamoid.pro \
-    CONFIG+=silent \
-    QMAKE_CXX="${COMPILER}"
-EOF
-            else
-                cat << EOF >> ${BUILDSCRIPT}
-#!/bin/sh
-
-qmake -query
-qmake -spec ${COMPILESPEC} Webcamoid.pro \
-    CONFIG+=silent \
-    QMAKE_CXX="${COMPILER}" \
-    NOGSTREAMER=1 \
-    NOLIBAVDEVICE=1
-EOF
-            fi
-
-            ${EXEC} bash ${BUILDSCRIPT}
-        else
-            ${EXEC} qmake -qt=5 -query
-            ${EXEC} qmake -qt=5 -spec ${COMPILESPEC} Webcamoid.pro \
-                CONFIG+=silent \
-                QMAKE_CXX="${COMPILER}"
-        fi
-    else
-        ${EXEC} qmake-qt5 -query
-        ${EXEC} qmake-qt5 -spec ${COMPILESPEC} Webcamoid.pro \
-            CONFIG+=silent \
-            QMAKE_CXX="${COMPILER}"
-    fi
-elif [ "${TRAVIS_OS_NAME}" = osx ]; then
-    ${EXEC} qmake -query
-
-    if [ -z "${DAILY_BUILD}" ] && [ -z "${RELEASE_BUILD}" ]; then
-        ${EXEC} qmake -spec ${COMPILESPEC} Webcamoid.pro \
-            CONFIG+=silent \
-            QMAKE_CXX="${COMPILER}"
-    else
-        ${EXEC} qmake -spec ${COMPILESPEC} Webcamoid.pro \
-            CONFIG+=silent \
-            QMAKE_CXX="${COMPILER}" \
-            NOGSTREAMER=1 \
-            NOJACK=1 \
-            NOLIBUVC=1 \
-            NOPULSEAUDIO=1
-    fi
-fi
-
-if [ -z "${NJOBS}" ]; then
-    NJOBS=4
-fi
-
-if [ "${ANDROID_BUILD}" = 1 ]; then
-    for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
-        export PATH="${PWD}/build/Qt/${QTVER_ANDROID}/android/bin:${ORIG_PATH}"
-        cd build-webcamoid-${arch_}
-        make -j${NJOBS}
-        cd ..
-    done
-elif [ "${ARCH_ROOT_BUILD}" = 1 ]; then
-    cat << EOF > ${BUILDSCRIPT}
-#!/bin/sh
-
-export LC_ALL=C
-export HOME=$HOME
-EOF
-
-    if [ ! -z "${DAILY_BUILD}" ]; then
         cat << EOF >> ${BUILDSCRIPT}
-export DAILY_BUILD=1
+#!/bin/sh
+
+mkdir build
+cd build
+qmake -qt=5 -query
+cmake \
+    -DQT_QMAKE_EXECUTABLE="qmake -qt=5" \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_PREFIX_PATH=${INSTALL_PREFIX} \
+    -DCMAKE_C_COMPILER="${COMPILER_C}" \
+    -DCMAKE_CXX_COMPILER="${COMPILER_CXX}" \
+    -DDAILY_BUILD=${DAILY_BUILD} \
+    ${EXTRA_PARAMS} \
+    ..
+cmake --build .
+cmake --build . --target install
+EOF
+    else
+        cat << EOF >> ${BUILDSCRIPT}
+#!/bin/sh
+
+mkdir build
+cd build
+qmake-qt5 -query
+cmake \
+    -DQT_QMAKE_EXECUTABLE=qmake-qt5 \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_PREFIX_PATH=${INSTALL_PREFIX} \
+    -DCMAKE_C_COMPILER="${COMPILER_C}" \
+    -DCMAKE_CXX_COMPILER="${COMPILER_CXX}" \
+    -DDAILY_BUILD=${DAILY_BUILD} \
+    ${EXTRA_PARAMS} \
+    ..
+cmake --build .
+cmake --build . --target install
 EOF
     fi
 
-    cat << EOF >> ${BUILDSCRIPT}
-cd $TRAVIS_BUILD_DIR
-make -j${NJOBS}
-EOF
     chmod +x ${BUILDSCRIPT}
-    sudo cp -vf ${BUILDSCRIPT} root.x86_64/$HOME/
-
-    ${EXEC} bash $HOME/${BUILDSCRIPT}
-    sudo umount root.x86_64/$HOME
-    sudo umount root.x86_64
-else
-    ${EXEC} make -j${NJOBS}
+    ${EXEC} bash ${BUILDSCRIPT}
+elif [ "${TRAVIS_OS_NAME}" = osx ]; then
+    mkdir build
+    cd build
+    /usr/local/Cellar/qt@5/bin/qmake -query
+    cmake \
+        -DQT_QMAKE_EXECUTABLE=/usr/local/Cellar/qt@5/bin/qmake \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_PREFIX_PATH=${INSTALL_PREFIX} \
+        -DCMAKE_C_COMPILER="${COMPILER_C}" \
+        -DCMAKE_CXX_COMPILER="${COMPILER_CXX}" \
+        -DDAILY_BUILD=${DAILY_BUILD} \
+        ${EXTRA_PARAMS} \
+        ..
+    cmake --build .
+    cmake --build . --target install
 fi

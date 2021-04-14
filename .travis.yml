@@ -252,27 +252,6 @@ install:
   - chmod +x ports/ci/travis/install_deps.sh
   - ports/ci/travis/install_deps.sh
 
-before_script: |
-  if [ "${ANDROID_BUILD}" = 1 ]; then
-    export COMPILESPEC=android-${COMPILER}
-  elif [ "${ARCH_ROOT_BUILD}" = 1 ] && [ ! -z "${ARCH_ROOT_MINGW}" ]; then
-    export CXX=${ARCH_ROOT_MINGW}-w64-mingw32-g++
-    export COMPILESPEC=win32-g++
-  elif [ "${TRAVIS_OS_NAME}" = linux ]; then
-    if [ "${CXX}" = g++ ]; then
-      export COMPILESPEC=linux-g++
-    elif [ "${CXX}" = clang++ ]; then
-      export COMPILESPEC=linux-clang
-    fi
-  elif [ "${TRAVIS_OS_NAME}" = osx ]; then
-    brew link --force qt5
-    if [ "${CXX}" = g++ ]; then
-      export COMPILESPEC=macx-g++
-    elif [ "${CXX}" = clang++ ]; then
-      export COMPILESPEC=macx-clang
-    fi
-  fi
-
 script:
   - chmod +x ports/ci/travis/build.sh
   - ports/ci/travis/build.sh

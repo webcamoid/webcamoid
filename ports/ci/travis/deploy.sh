@@ -28,11 +28,13 @@ elif [ "${TRAVIS_OS_NAME}" = linux ] && [ -z "${ANDROID_BUILD}" ]; then
     fi
 fi
 
-cd ports/deploy
 git clone https://github.com/webcamoid/DeployTools.git
-cd ../..
 
 DEPLOYSCRIPT=deployscript.sh
+export INSTALL_PREFIX=${TRAVIS_BUILD_DIR}/webcamoid-data
+export PACKAGES_DIR=${TRAVIS_BUILD_DIR}/webcamoid-packages
+export BUILD_PATH=${TRAVIS_BUILD_DIR}/build
+export PYTHONPATH=${TRAVIS_BUILD_DIR}/DeployTools
 
 if [ "${ANDROID_BUILD}" = 1 ]; then
     export JAVA_HOME=$(readlink -f /usr/bin/java | sed 's:bin/java::')
@@ -54,10 +56,12 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
 
     if [ "${nArchs}" = 1 ]; then
         export PATH="${PWD}/build/Qt/${QTVER_ANDROID}/android/bin:${PWD}/.local/bin:${ORIG_PATH}"
-        export BUILD_PATH=${PWD}/build-webcamoid-${lastArch}
-        export PYTHONPATH="${PWD}/ports/deploy/DeployTools"
+        export BUILD_PATH=${PWD}/build-${lastArch}
 
-        python3 ports/deploy/deploy.py
+        python3 DeployTools/deploy.py \
+            -d "${INSTALL_PREFIX}" \
+            -c "${BUILD_PATH}/package_info.conf" \
+            -o "${PACKAGES_DIR}"
     else
         pkgMerge=
 
@@ -71,8 +75,7 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
 
         for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
             export PATH="${PWD}/build/Qt/${QTVER_ANDROID}/android/bin:${PWD}/.local/bin:${ORIG_PATH}"
-            export BUILD_PATH=${PWD}/build-webcamoid-${arch_}
-            export PYTHONPATH="${PWD}/ports/deploy/DeployTools"
+            export BUILD_PATH=${PWD}/build-${arch_}
 
             if [ "${arch_}" = "${lastArch}" ]; then
                 export PACKAGES_PREPARE_ONLY=0
@@ -83,7 +86,10 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
 
             export NO_SHOW_PKG_DATA_INFO=1
 
-            python3 ports/deploy/deploy.py
+            python3 DeployTools/deploy.py \
+                -d "${INSTALL_PREFIX}" \
+                -c "${BUILD_PATH}/package_info.conf" \
+                -o "${PACKAGES_DIR}"
         done
     fi
 
@@ -100,7 +106,7 @@ elif [ "${ARCH_ROOT_BUILD}" = 1 ]; then
 export LC_ALL=C
 export HOME=$HOME
 export PATH="$TRAVIS_BUILD_DIR/.local/bin:\$PATH"
-export PYTHONPATH="$TRAVIS_BUILD_DIR/ports/deploy/DeployTools"
+export PYTHONPATH="${PYTHONPATH}"
 export WINEPREFIX=/opt/.wine
 export TRAVIS_BRANCH=$TRAVIS_BRANCH
 cd $TRAVIS_BUILD_DIR
@@ -113,7 +119,10 @@ EOF
     fi
 
     cat << EOF >> ${DEPLOYSCRIPT}
-python ports/deploy/deploy.py
+python DeployTools/deploy.py \
+    -d "${INSTALL_PREFIX}" \
+    -c "${BUILD_PATH}/package_info.conf" \
+    -o "${PACKAGES_DIR}"
 EOF
     chmod +x ${DEPLOYSCRIPT}
     sudo cp -vf ${DEPLOYSCRIPT} root.x86_64/$HOME/
@@ -126,15 +135,20 @@ elif [ "${TRAVIS_OS_NAME}" = linux ]; then
 #!/bin/sh
 
 export PATH="\$PWD/.local/bin:\$PATH"
-export PYTHONPATH="\$PWD/ports/deploy/DeployTools"
-export TRAVIS_BRANCH=$TRAVIS_BRANCH
-xvfb-run --auto-servernum python3 ports/deploy/deploy.py
+export PYTHONPATH="${PYTHONPATH}"
+export TRAVIS_BRANCH=${TRAVIS_BRANCH}
+xvfb-run --auto-servernum python3 DeployTools/deploy.py \
+    -d "${INSTALL_PREFIX}" \
+    -c "${BUILD_PATH}/package_info.conf" \
+    -o "${PACKAGES_DIR}"
 EOF
 
     chmod +x ${DEPLOYSCRIPT}
 
     ${EXEC} bash ${DEPLOYSCRIPT}
 elif [ "${TRAVIS_OS_NAME}" = osx ]; then
-    export PYTHONPATH="${PWD}/ports/deploy/DeployTools"
-    python3 ports/deploy/deploy.py
+    python3 DeployTools/deploy.py \
+        -d "${INSTALL_PREFIX}" \
+        -c "${BUILD_PATH}/package_info.conf" \
+        -o "${PACKAGES_DIR}"
 fi

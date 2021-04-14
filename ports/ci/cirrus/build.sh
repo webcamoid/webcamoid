@@ -18,12 +18,36 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-qmake -query
-qmake Webcamoid.pro \
-    CONFIG+=silent
-
-if [ -z "${NJOBS}" ]; then
-    NJOBS=4
+if [ "${COMPILER}" = clang ]; then
+    COMPILER_C=clang
+    COMPILER_CXX=clang++
+else
+    COMPILER_C=gcc
+    COMPILER_CXX=g++
 fi
 
-make -j${NJOBS}
+if [ -z "${DISABLE_CCACHE}" ]; then
+    COMPILER_C="ccache ${COMPILER_C}"
+    COMPILER_CXX="ccache ${COMPILER_C}"
+
+    if [ "${COMPILER}" = clang ]; then
+        COMPILER_C="${COMPILER_C} -Qunused-arguments"
+        COMPILER_CXX="${COMPILER_CXX} -Qunused-arguments"
+    fi
+fi
+
+INSTALL_PREFIX=${PWD}/webcamoid-data
+
+mkdir build
+cd build
+qmake -query
+cmake \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_PREFIX="${INSTALL_PREFIX}" \
+    -DCMAKE_C_COMPILER="${COMPILER_C}" \
+    -DCMAKE_CXX_COMPILER="${COMPILER_CXX}" \
+    -DDAILY_BUILD=${DAILY_BUILD} \
+    ${EXTRA_PARAMS} \
+    ..
+cmake --build .
+cmake --build . --target install

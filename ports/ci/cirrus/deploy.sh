@@ -18,9 +18,14 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-cd ports/deploy
 git clone https://github.com/webcamoid/DeployTools.git
-cd ../..
 
-export PYTHONPATH="${PWD}/ports/deploy/DeployTools"
-python3 ports/deploy/deploy.py
+export INSTALL_PREFIX=${PWD}/webcamoid-data
+export PACKAGES_DIR=${PWD}/webcamoid-packages
+export BUILD_PATH=${PWD}/build
+export PYTHONPATH="${PWD}/DeployTools"
+
+python3 DeployTools/deploy.py \
+    -d "${INSTALL_PREFIX}" \
+    -c "${BUILD_PATH}/package_info.conf" \
+    -o "${PACKAGES_DIR}"

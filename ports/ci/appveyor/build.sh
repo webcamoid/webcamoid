@@ -20,14 +20,47 @@
 
 [ -f environment.sh ] && source environment.sh
 
+if [ ! -z "${DAILY_BUILD}" ] || [ ! -z "${RELEASE_BUILD}" ]; then
+    EXTRA_PARAMS="-DNOGSTREAMER=ON -DNOLIBAVDEVICE=ON"
+fi
+
+if [ "${COMPILER}" = clang ]; then
+    COMPILER_C=clang
+    COMPILER_CXX=clang++
+else
+    COMPILER_C=gcc
+    COMPILER_CXX=g++
+fi
+
+if [ -z "${DISABLE_CCACHE}" ]; then
+    COMPILER_C="ccache ${COMPILER_C}"
+    COMPILER_CXX="ccache ${COMPILER_C}"
+
+    if [ "${COMPILER}" = clang ]; then
+        COMPILER_C="${COMPILER_C} -Qunused-arguments"
+        COMPILER_CXX="${COMPILER_CXX} -Qunused-arguments"
+    fi
+fi
+
 if [ "${PLATFORM}" = x86 ]; then
     export PATH=/mingw32/bin:$PATH
 else
     export PATH=/mingw64/bin:$PATH
 fi
 
+INSTALL_PREFIX=${APPVEYOR_BUILD_FOLDER}/webcamoid-data
+
+mkdir build
+cd build
 qmake -query
-qmake Webcamoid.pro \
-    CONFIG+=silent \
-    PREFIX="$INSTALL_PREFIX"
-make -j4
+cmake \
+    -G "MSYS Makefiles" \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_PREFIX="${INSTALL_PREFIX}" \
+    -DCMAKE_C_COMPILER="${COMPILER_C}" \
+    -DCMAKE_CXX_COMPILER="${COMPILER_CXX}" \
+    -DDAILY_BUILD=${DAILY_BUILD} \
+    ${EXTRA_PARAMS} \
+    ..
+cmake --build .
+cmake --build . --target install

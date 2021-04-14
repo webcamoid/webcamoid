@@ -16,11 +16,12 @@ REM along with Webcamoid. If not, see <http://www.gnu.org/licenses/>.
 REM
 REM Web-Site: http://webcamoid.github.io/
 
-@echo off 
+@echo off
 set ENVIRONMENT_FILE=environment.sh
 del %ENVIRONMENT_FILE%
 echo export PLATFORM=%PLATFORM% >> %ENVIRONMENT_FILE%
 echo export INSTALL_PREFIX=%INSTALL_PREFIX% >> %ENVIRONMENT_FILE%
+echo export COMPILER=%COMPILER% >> %ENVIRONMENT_FILE%
 echo export DAILY_BUILD=%DAILY_BUILD% >> %ENVIRONMENT_FILE%
 echo export RELEASE_BUILD=%RELEASE_BUILD% >> %ENVIRONMENT_FILE%
 echo export APPVEYOR_ACCOUNT_NAME=%APPVEYOR_ACCOUNT_NAME% >> %ENVIRONMENT_FILE%
