@@ -24,15 +24,21 @@ environment:
 
   matrix:
     - PLATFORM: x86
+      MSYSTEM: MINGW32
       DAILY_BUILD: 1
     - PLATFORM: x64
+      MSYSTEM: MINGW64
       DAILY_BUILD: 1
     - PLATFORM: x86
+      MSYSTEM: MINGW32
       RELEASE_BUILD: 1
     - PLATFORM: x64
+      MSYSTEM: MINGW64
       RELEASE_BUILD: 1
     - PLATFORM: x86
+      MSYSTEM: MINGW32
     - PLATFORM: x64
+      MSYSTEM: MINGW64
 
 install:
   - ports\ci\appveyor\environment_setup.bat

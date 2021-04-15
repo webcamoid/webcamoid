@@ -40,6 +40,16 @@ if [ "${PLATFORM}" = x86 ]; then
     export PATH=/mingw32/bin:$PATH
 else
     export PATH=/mingw64/bin:$PATH
+
+#     export MINGW_CHOST=x86_64-w64-mingw32
+#     export MINGW_PACKAGE_PREFIX=mingw-w64-x86_64
+#     export MINGW_PREFIX=/mingw64
+#     export MSYSCON=mintty.exe
+#
+#     export MSYSTEM=MINGW64
+#     export MSYSTEM_CARCH=x86_64
+#     export MSYSTEM_CHOST=x86_64-w64-mingw32
+#     export MSYSTEM_PREFIX=/mingw64
 fi
 
 INSTALL_PREFIX=${APPVEYOR_BUILD_FOLDER}/webcamoid-data
@@ -49,6 +59,8 @@ cd build
 qmake -query
 echo
 env
+echo
+cmake -LA .
 echo
 cmake \
     -G "MSYS Makefiles" \
