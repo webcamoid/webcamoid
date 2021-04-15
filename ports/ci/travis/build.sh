@@ -34,7 +34,7 @@ if [ ! -z "${ARCH_ROOT_MINGW}" ]; then
 fi
 
 if [ -z "${DISABLE_CCACHE}" ]; then
-    EXTRA_PARAMS="-DCMAKE_CXX_COMPILER_LAUNCHER=ccache"
+    EXTRA_PARAMS="-DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache"
 fi
 
 if [ ! -z "${DAILY_BUILD}" ] || [ ! -z "${RELEASE_BUILD}" ]; then
@@ -160,7 +160,6 @@ EOF
 mkdir build
 cd build
 qmake-qt5 -query
-
 cmake \
     -DQT_QMAKE_EXECUTABLE=qmake-qt5 \
     -DCMAKE_BUILD_TYPE=Release \

@@ -91,6 +91,8 @@ elseif (WIN32)
 
     include(CheckCXXSourceCompiles)
     check_cxx_source_compiles("
+    #ifndef <windows.h>
+
     #ifndef _M_X64
         #error Not WIN64
     #endif
@@ -101,6 +103,8 @@ elseif (WIN32)
     }" IS_WIN64_TARGET)
 
     check_cxx_source_compiles("
+    #ifndef <windows.h>
+
     #ifndef _M_IX86
         #error Not WIN32
     #endif
@@ -111,6 +115,8 @@ elseif (WIN32)
     }" IS_WIN32_TARGET)
 
     check_cxx_source_compiles("
+    #ifndef <windows.h>
+
     #ifndef _M_ARM64
         #error Not ARM64
     #endif
@@ -121,6 +127,8 @@ elseif (WIN32)
     }" IS_WIN64_ARM_TARGET)
 
     check_cxx_source_compiles("
+    #ifndef <windows.h>
+
     #ifndef _M_ARM
         #error Not ARM
     #endif
