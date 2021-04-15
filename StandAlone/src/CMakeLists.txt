@@ -147,12 +147,12 @@ elseif (NOT ANDROID)
 endif ()
 
 if (WIN32)
-    install(FILES ../libAvKys/share/themes/WebcamoidTheme/icons/hicolor/256x256/webcamoid.ico
+    install(FILES ../../libAvKys/share/themes/WebcamoidTheme/icons/hicolor/256x256/webcamoid.ico
             DESTINATION ${CMAKE_INSTALL_PREFIX})
 elseif (UNIX AND NOT APPLE AND NOT ANDROID)
     file(GLOB_RECURSE ICONS
-         ../libAvKys/share/themes/WebcamoidTheme/*/webcamoid.png
-         ../libAvKys/share/themes/WebcamoidTheme/*/webcamoid.svg)
+         ../../libAvKys/share/themes/WebcamoidTheme/*/webcamoid.png
+         ../../libAvKys/share/themes/WebcamoidTheme/*/webcamoid.svg)
 
     foreach (ICON IN LISTS ICONS)
         file(RELATIVE_PATH ICON_DST ${CMAKE_CURRENT_SOURCE_DIR}/../share/themes/WebcamoidTheme ${ICON})
@@ -165,7 +165,7 @@ endif ()
 if (ANDROID)
     set(ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../share/android")
     file(GLOB_RECURSE ANDROID_PACKAGE_TEMPLATES
-         ../libAvKys/share/android/*)
+         ../../libAvKys/share/android/*)
 
     foreach (FILE IN LISTS ANDROID_PACKAGE_TEMPLATES)
         file(RELATIVE_PATH FILE_DST ${CMAKE_CURRENT_SOURCE_DIR}/../share/android ${FILE})

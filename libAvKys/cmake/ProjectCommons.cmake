@@ -95,7 +95,7 @@ add_definitions(-DQT_DEPRECATED_WARNINGS)
 # You can also make your code fail to compile if you use deprecated APIs.
 # In order to do so, uncomment the following line.
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
-#add_definitions(-DQT_DISABLE_DEPRECATED_BEFORE=0x060000)    # disables all the APIs deprecated before Qt 6.0.0
+#add_definitions(-DQT_DISABLE_DEPRECATED_BEFORE=0x060000) # disables all the APIs deprecated before Qt 6.0.0
 
 if (DAILY_BUILD)
     add_definitions(-DDAILY_BUILD)
@@ -104,7 +104,8 @@ endif ()
 set(ANDROID_JAVA_VERSION 1.6 CACHE STRING "Mimimum Java version to use in Android")
 set(ANDROID_JAR_DIRECTORY ${ANDROID_SDK}/platforms/android-${ANDROID_NATIVE_API_LEVEL} CACHE INTERNAL "")
 
-if (WIN32)
+# Force prefix and suffix. This fix broken MinGW builds in CI environments.
+if (WIN32 AND NOT MSVC)
     set(CMAKE_STATIC_LIBRARY_PREFIX "lib")
     set(CMAKE_STATIC_LIBRARY_SUFFIX ".a")
     set(CMAKE_SHARED_LIBRARY_PREFIX "lib")
