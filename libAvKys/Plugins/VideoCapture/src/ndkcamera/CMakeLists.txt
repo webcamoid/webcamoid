@@ -67,14 +67,11 @@ target_include_directories(VideoCapture_ndkcamera
 target_compile_definitions(VideoCapture_ndkcamera PRIVATE AVKYS_PLUGIN_VIDEOCAPTURE_NDKCAMERA)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(VideoCapture_ndkcamera
-                      PUBLIC
                       ${QT_LIBS}
-                      PRIVATE
                       avkys)
 
 if (NOT NONDKCAMERA AND ANDROIDLIB AND CAMERA2NDK AND MEDIANDK)
     target_link_libraries(VideoCapture_ndkcamera
-                          PUBLIC
                           ${ANDROIDLIB}
                           ${CAMERA2NDK}
                           ${MEDIANDK})

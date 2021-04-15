@@ -88,7 +88,7 @@ endif ()
 
 target_compile_definitions(avkys PRIVATE AVKYS_LIBRARY)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
-target_link_libraries(avkys PRIVATE ${QT_LIBS})
+target_link_libraries(avkys ${QT_LIBS})
 add_definitions(-DAKCOMMONS_LIBRARY
                 -DBINDIR="${BINDIR}"
                 -DPLUGINSDIR="${PLUGINSDIR}"

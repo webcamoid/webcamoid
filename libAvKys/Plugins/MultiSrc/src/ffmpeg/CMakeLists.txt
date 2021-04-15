@@ -95,10 +95,8 @@ target_include_directories(MultiSrc_ffmpeg
 target_compile_definitions(MultiSrc_ffmpeg PRIVATE AVKYS_PLUGIN_MULTISRC_FFMPEG)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(MultiSrc_ffmpeg
-                      PUBLIC
                       ${QT_LIBS}
                       ${FFMPEG_LIBRARIES}
-                      PRIVATE
                       avkys)
 
 if (WIN32)

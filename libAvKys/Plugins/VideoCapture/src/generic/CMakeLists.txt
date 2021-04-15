@@ -58,7 +58,7 @@ target_include_directories(VideoCapture_generic PRIVATE
                            ../../../../Lib/src)
 target_compile_definitions(VideoCapture_generic PRIVATE AVKYS_PLUGIN_VIDEOCAPTURE_GENERIC)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
-target_link_libraries(VideoCapture_generic PRIVATE avkys ${QT_LIBS})
+target_link_libraries(VideoCapture_generic avkys ${QT_LIBS})
 
 if (WIN32)
     install(TARGETS avkys RUNTIME DESTINATION ${PLUGINSDIR})

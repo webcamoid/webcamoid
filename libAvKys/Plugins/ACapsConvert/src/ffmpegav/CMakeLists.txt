@@ -76,10 +76,8 @@ target_include_directories(ACapsConvert_ffmpegav
 target_compile_definitions(ACapsConvert_ffmpegav PRIVATE AVKYS_PLUGIN_ACAPSCONVERT_FFMPEGAV)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(ACapsConvert_ffmpegav
-                      PUBLIC
                       ${QT_LIBS}
                       ${FFMPEG_LIBRARIES}
-                      PRIVATE
                       avkys)
 
 if (WIN32)

@@ -77,10 +77,8 @@ target_include_directories(MultiSrc_gstreamer
 target_compile_definitions(MultiSrc_gstreamer PRIVATE AVKYS_PLUGIN_MULTISRC_GSTREAMER)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(MultiSrc_gstreamer
-                      PUBLIC
                       ${QT_LIBS}
                       ${GSTREAMER_LIBRARIES}
-                      PRIVATE
                       avkys)
 
 if (WIN32)

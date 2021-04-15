@@ -58,7 +58,7 @@ target_include_directories(VirtualCamera_cmio PRIVATE
                            ../../../../Lib/src)
 target_compile_definitions(VirtualCamera_cmio PRIVATE AVKYS_PLUGIN_VIRTUALCAMERA_CMIO)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
-target_link_libraries(VirtualCamera_cmio PRIVATE avkys ${QT_LIBS})
+target_link_libraries(VirtualCamera_cmio avkys ${QT_LIBS})
 
 if (APPLE)
     install(TARGETS avkys DESTINATION ${PLUGINSDIR})

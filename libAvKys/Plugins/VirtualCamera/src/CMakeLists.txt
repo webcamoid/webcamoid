@@ -65,7 +65,7 @@ target_include_directories(VirtualCameraSrc
                            PRIVATE ../../../Lib/src)
 target_compile_definitions(VirtualCameraSrc PRIVATE AVKYS_PLUGIN_VIRTUALCAMERA)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
-target_link_libraries(VirtualCameraSrc PRIVATE avkys ${QT_LIBS})
+target_link_libraries(VirtualCameraSrc avkys ${QT_LIBS})
 set(QML_IMPORT_PATH ../../../Lib/share/qml)
 
 if (WIN32)

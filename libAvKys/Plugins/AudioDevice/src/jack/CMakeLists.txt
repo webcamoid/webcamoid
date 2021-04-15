@@ -76,10 +76,8 @@ target_include_directories(AudioDevice_jack
 target_compile_definitions(AudioDevice_jack PRIVATE AVKYS_PLUGIN_AUDIODEVICE_JACK)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(AudioDevice_jack
-                      PUBLIC
                       ${QT_LIBS}
                       ${JACK_LIBRARIES}
-                      PRIVATE
                       avkys)
 
 if (WIN32)

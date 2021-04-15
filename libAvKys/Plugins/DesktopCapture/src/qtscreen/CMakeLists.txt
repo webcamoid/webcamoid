@@ -66,7 +66,7 @@ target_include_directories(DesktopCapture_qtscreen PRIVATE
                            ../../../../Lib/src)
 target_compile_definitions(DesktopCapture_qtscreen PRIVATE AVKYS_PLUGIN_DESKTOPCAPTURE_QTSCREEN)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
-target_link_libraries(DesktopCapture_qtscreen PRIVATE avkys ${QT_LIBS})
+target_link_libraries(DesktopCapture_qtscreen avkys ${QT_LIBS})
 
 if (WIN32)
     install(TARGETS avkys RUNTIME DESTINATION ${PLUGINSDIR})

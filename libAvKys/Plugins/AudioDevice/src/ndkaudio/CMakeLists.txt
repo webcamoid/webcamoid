@@ -60,13 +60,9 @@ target_include_directories(AudioDevice_ndkaudio
 target_compile_definitions(AudioDevice_ndkaudio PRIVATE AVKYS_PLUGIN_AUDIODEVICE_NDKAUDIO)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(AudioDevice_ndkaudio
-                      PUBLIC
                       ${QT_LIBS}
-                      PRIVATE
                       avkys)
 
 if (NOT NONDKAUDIO AND AAUDIO)
-    target_link_libraries(AudioDevice_ndkaudio
-                          PUBLIC
-                          ${AAUDIO})
+    target_link_libraries(AudioDevice_ndkaudio ${AAUDIO})
 endif ()

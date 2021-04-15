@@ -73,10 +73,8 @@ target_include_directories(AudioDevice_alsa
 target_compile_definitions(AudioDevice_alsa PRIVATE AVKYS_PLUGIN_AUDIODEVICE_ALSA)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(AudioDevice_alsa
-                      PUBLIC
                       ${QT_LIBS}
                       ${ALSA_LIBRARIES}
-                      PRIVATE
                       avkys)
 
 if (WIN32)

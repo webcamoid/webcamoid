@@ -48,8 +48,8 @@ mkdir build
 cd build
 qmake -query
 cmake \
-    "-GMSYS Makefiles" \
-    -DCMAKE_VERBOSE_MAKEFILE=ON \
+    -G "MSYS Makefiles" \
+    -DCMAKE_SYSTEM_NAME=Windows-GNU \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX="${INSTALL_PREFIX}" \
     -DCMAKE_C_COMPILER="${COMPILER_C}" \

@@ -57,7 +57,7 @@ target_include_directories(Life
                            PRIVATE ../../Lib/src)
 target_compile_definitions(Life PRIVATE AVKYS_PLUGIN_LIFE)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
-target_link_libraries(Life PRIVATE avkys ${QT_LIBS})
+target_link_libraries(Life avkys ${QT_LIBS})
 set(QML_IMPORT_PATH ../../Lib/share/qml)
 
 if (WIN32)

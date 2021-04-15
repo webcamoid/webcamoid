@@ -77,7 +77,9 @@ target_compile_definitions(ACapsConvert_ffmpegsw PRIVATE AVKYS_PLUGIN_ACAPSCONVE
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(ACapsConvert_ffmpegsw
                       ${QT_LIBS}
-                      -lavcodec -lavutil -lswresample
+                      -lavcodec
+                      -lavutil
+                      -lswresample
                       avkys)
 
 if (WIN32)

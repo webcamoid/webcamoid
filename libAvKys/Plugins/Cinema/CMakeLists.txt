@@ -57,7 +57,7 @@ target_include_directories(Cinema
                            PRIVATE ../../Lib/src)
 target_compile_definitions(Cinema PRIVATE AVKYS_PLUGIN_CINEMA)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
-target_link_libraries(Cinema PRIVATE avkys ${QT_LIBS})
+target_link_libraries(Cinema avkys ${QT_LIBS})
 set(QML_IMPORT_PATH ../../Lib/share/qml)
 
 if (WIN32)

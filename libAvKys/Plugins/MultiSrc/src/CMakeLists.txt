@@ -64,7 +64,7 @@ target_include_directories(MultiSrcSrc
                            PRIVATE ../../../Lib/src)
 target_compile_definitions(MultiSrcSrc PRIVATE AVKYS_PLUGIN_MULTISRC)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
-target_link_libraries(MultiSrcSrc PRIVATE avkys ${QT_LIBS})
+target_link_libraries(MultiSrcSrc avkys ${QT_LIBS})
 
 if (WIN32)
     install(TARGETS avkys RUNTIME DESTINATION ${PLUGINSDIR})

@@ -64,7 +64,7 @@ target_include_directories(DesktopCaptureSrc
                            PRIVATE ../../../Lib/src)
 target_compile_definitions(DesktopCaptureSrc PRIVATE AVKYS_PLUGIN_DESKTOPCAPTURE)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
-target_link_libraries(DesktopCaptureSrc PRIVATE avkys ${QT_LIBS})
+target_link_libraries(DesktopCaptureSrc avkys ${QT_LIBS})
 set(QML_IMPORT_PATH ../../../Lib/share/qml)
 
 if (WIN32)

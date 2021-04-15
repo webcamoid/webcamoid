@@ -61,12 +61,8 @@ target_include_directories(VideoCapture_mediafoundation
 target_compile_definitions(VideoCapture_mediafoundation PRIVATE AVKYS_PLUGIN_VIDEOCAPTURE_MEDIAFOUNDATION)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(VideoCapture_mediafoundation
-                      PUBLIC
                       ${QT_LIBS}
-                      PRIVATE
-                      avkys)
-target_link_libraries(VideoCapture_mediafoundation
-                      PUBLIC
+                      avkys
                       mf
                       mfplat
                       mfreadwrite

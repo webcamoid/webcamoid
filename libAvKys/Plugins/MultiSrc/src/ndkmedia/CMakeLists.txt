@@ -69,13 +69,10 @@ target_include_directories(MultiSrc_ndkmedia
 target_compile_definitions(MultiSrc_ndkmedia PRIVATE AVKYS_PLUGIN_MULTISRC_NDKMEDIA)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(MultiSrc_ndkmedia
-                      PUBLIC
                       ${QT_LIBS}
-                      PRIVATE
                       avkys)
 
 if (NOT NONDKMEDIA AND MEDIANDK)
     target_link_libraries(MultiSrc_ndkmedia
-                          PUBLIC
                           ${MEDIANDK})
 endif ()

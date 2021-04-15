@@ -58,7 +58,7 @@ target_include_directories(VirtualCamera_dshow PRIVATE
                            ../../../../Lib/src)
 target_compile_definitions(VirtualCamera_dshow PRIVATE AVKYS_PLUGIN_VIRTUALCAMERA_DSHOW)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
-target_link_libraries(VirtualCamera_dshow PRIVATE avkys ${QT_LIBS})
+target_link_libraries(VirtualCamera_dshow avkys ${QT_LIBS})
 add_definitions(-DUNICODE -D_UNICODE)
 
 if (WIN32)

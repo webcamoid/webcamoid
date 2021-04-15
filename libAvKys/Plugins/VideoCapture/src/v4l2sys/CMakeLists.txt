@@ -67,9 +67,7 @@ target_include_directories(VideoCapture_v4l2sys
 target_compile_definitions(VideoCapture_v4l2sys PRIVATE AVKYS_PLUGIN_VIDEOCAPTURE_V4L2SYS)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(VideoCapture_v4l2sys
-                      PUBLIC
                       ${QT_LIBS}
-                      PRIVATE
                       avkys)
 
 if (NOT NOV4L2 AND HAVE_V4L2 AND NOT ANDROID)

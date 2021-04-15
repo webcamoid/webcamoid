@@ -57,7 +57,7 @@ target_include_directories(Quark
                            PRIVATE ../../Lib/src)
 target_compile_definitions(Quark PRIVATE AVKYS_PLUGIN_QUARK)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
-target_link_libraries(Quark PRIVATE avkys ${QT_LIBS})
+target_link_libraries(Quark avkys ${QT_LIBS})
 set(QML_IMPORT_PATH ../../Lib/share/qml)
 
 if (WIN32)

@@ -58,7 +58,7 @@ target_include_directories(VirtualCamera_v4l2lb PRIVATE
                            ../../../../Lib/src)
 target_compile_definitions(VirtualCamera_v4l2lb PRIVATE AVKYS_PLUGIN_VIRTUALCAMERA_V4L2LB)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
-target_link_libraries(VirtualCamera_v4l2lb PRIVATE avkys ${QT_LIBS})
+target_link_libraries(VirtualCamera_v4l2lb avkys ${QT_LIBS})
 
 if (UNIX AND NOT APPLE AND NOT ANDROID)
     install(TARGETS avkys DESTINATION ${PLUGINSDIR})

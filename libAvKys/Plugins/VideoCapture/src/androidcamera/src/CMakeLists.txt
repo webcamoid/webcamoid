@@ -68,7 +68,5 @@ target_include_directories(VideoCapture_androidcamerasrc
 target_compile_definitions(VideoCapture_androidcamerasrc PRIVATE AVKYS_PLUGIN_VIDEOCAPTURE_ANDROIDCAMERA)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(VideoCapture_androidcamerasrc
-                      PUBLIC
                       ${QT_LIBS}
-                      PRIVATE
                       avkys)

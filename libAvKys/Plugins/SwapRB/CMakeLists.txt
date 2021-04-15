@@ -56,7 +56,7 @@ target_include_directories(SwapRB
                            PRIVATE ../../Lib/src)
 target_compile_definitions(SwapRB PRIVATE AVKYS_PLUGIN_SWAPRB)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
-target_link_libraries(SwapRB PRIVATE avkys ${QT_LIBS})
+target_link_libraries(SwapRB avkys ${QT_LIBS})
 set(QML_IMPORT_PATH ../../Lib/share/qml)
 
 if (WIN32)

@@ -58,7 +58,7 @@ target_include_directories(Blur
                            PRIVATE ../../Lib/src)
 target_compile_definitions(Blur PRIVATE AVKYS_PLUGIN_BLUR)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
-target_link_libraries(Blur PRIVATE avkys ${QT_LIBS})
+target_link_libraries(Blur avkys ${QT_LIBS})
 set(QML_IMPORT_PATH ../../Lib/share/qml)
 
 if (WIN32)

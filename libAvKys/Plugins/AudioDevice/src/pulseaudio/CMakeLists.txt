@@ -73,10 +73,8 @@ target_include_directories(AudioDevice_pulseaudio
 target_compile_definitions(AudioDevice_pulseaudio PRIVATE AVKYS_PLUGIN_AUDIODEVICE_PULSEAUDIO)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(AudioDevice_pulseaudio
-                      PUBLIC
                       ${QT_LIBS}
                       ${PULSEAUDIO_LIBRARIES}
-                      PRIVATE
                       avkys)
 
 if (WIN32)

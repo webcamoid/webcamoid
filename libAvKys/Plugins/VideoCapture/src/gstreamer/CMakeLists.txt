@@ -77,10 +77,8 @@ target_include_directories(VideoCapture_gstreamer
 target_compile_definitions(VideoCapture_gstreamer PRIVATE AVKYS_PLUGIN_VIDEOCAPTURE_GSTREAMER)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(VideoCapture_gstreamer
-                      PUBLIC
                       ${QT_LIBS}
                       ${GSTREAMER_LIBRARIES}
-                      PRIVATE
                       avkys)
 
 if (WIN32)

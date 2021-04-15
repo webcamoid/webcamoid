@@ -61,12 +61,8 @@ target_include_directories(AudioDevice_wasapi
 target_compile_definitions(AudioDevice_wasapi PRIVATE AVKYS_PLUGIN_AUDIODEVICE_WASAPI)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(AudioDevice_wasapi
-                      PUBLIC
                       ${QT_LIBS}
-                      PRIVATE
-                      avkys)
-target_link_libraries(AudioDevice_wasapi
-                      PUBLIC
+                      avkys
                       ole32
                       winmm)
 install(TARGETS avkys RUNTIME DESTINATION ${PLUGINSDIR})

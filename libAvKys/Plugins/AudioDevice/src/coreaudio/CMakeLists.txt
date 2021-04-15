@@ -64,14 +64,11 @@ target_include_directories(AudioDevice_coreaudio
 target_compile_definitions(AudioDevice_coreaudio PRIVATE AVKYS_PLUGIN_AUDIODEVICE_COREAUDIO)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(AudioDevice_coreaudio
-                      PUBLIC
                       ${QT_LIBS}
-                      PRIVATE
                       avkys)
 
 if (NOT NOCOREAUDIO AND COREFOUNDATION AND AUDIOUNIT AND COREAUDIO)
     target_link_libraries(AudioDevice_coreaudio
-                          PUBLIC
                           ${COREFOUNDATION}
                           ${AUDIOUNIT}
                           ${COREAUDIO})

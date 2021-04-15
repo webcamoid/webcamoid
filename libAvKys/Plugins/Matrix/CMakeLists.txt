@@ -61,7 +61,7 @@ target_include_directories(Matrix
                            PRIVATE ../../Lib/src)
 target_compile_definitions(Matrix PRIVATE AVKYS_PLUGIN_MATRIX)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
-target_link_libraries(Matrix PRIVATE avkys ${QT_LIBS})
+target_link_libraries(Matrix avkys ${QT_LIBS})
 set(QML_IMPORT_PATH ../../Lib/share/qml)
 
 if (WIN32)

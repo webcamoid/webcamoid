@@ -57,7 +57,7 @@ target_include_directories(Hypnotic
                            PRIVATE ../../Lib/src)
 target_compile_definitions(Hypnotic PRIVATE AVKYS_PLUGIN_HYPNOTIC)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
-target_link_libraries(Hypnotic PRIVATE avkys ${QT_LIBS})
+target_link_libraries(Hypnotic avkys ${QT_LIBS})
 set(QML_IMPORT_PATH ../../Lib/share/qml)
 
 if (WIN32)

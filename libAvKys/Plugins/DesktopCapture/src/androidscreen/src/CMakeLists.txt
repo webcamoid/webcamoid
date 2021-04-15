@@ -68,7 +68,5 @@ target_include_directories(DesktopCapture_androidscreensrc
 target_compile_definitions(DesktopCapture_androidscreensrc PRIVATE AVKYS_PLUGIN_DESKTOPCAPTURE_ANDROIDSCREEN)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(DesktopCapture_androidscreensrc
-                      PUBLIC
                       ${QT_LIBS}
-                      PRIVATE
                       avkys)

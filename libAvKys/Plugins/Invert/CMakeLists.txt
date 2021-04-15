@@ -56,7 +56,7 @@ target_include_directories(Invert
                            PRIVATE ../../Lib/src)
 target_compile_definitions(Invert PRIVATE AVKYS_PLUGIN_INVERT)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
-target_link_libraries(Invert PRIVATE avkys ${QT_LIBS})
+target_link_libraries(Invert avkys ${QT_LIBS})
 set(QML_IMPORT_PATH ../../Lib/share/qml)
 
 if (WIN32)

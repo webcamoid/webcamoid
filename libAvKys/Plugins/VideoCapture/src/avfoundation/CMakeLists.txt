@@ -71,9 +71,7 @@ target_include_directories(VideoCapture_avfoundation
 target_compile_definitions(VideoCapture_avfoundation PRIVATE AVKYS_PLUGIN_VIDEOCAPTURE_AVFOUNDATION)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(VideoCapture_avfoundation
-                      PUBLIC
                       ${QT_LIBS}
-                      PRIVATE
                       avkys)
 
 if (NOT NOAVFOUNDATION
@@ -82,7 +80,6 @@ if (NOT NOAVFOUNDATION
     AND COREVIDEO
     AND FOUNDATION)
     target_link_libraries(VideoCapture_avfoundation
-                          PUBLIC
                           ${AVFOUNDATION}
                           ${COREMEDIA}
                           ${COREVIDEO}

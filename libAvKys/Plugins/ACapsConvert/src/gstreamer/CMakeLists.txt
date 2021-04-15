@@ -77,10 +77,8 @@ target_include_directories(ACapsConvert_gstreamer
 target_compile_definitions(ACapsConvert_gstreamer PRIVATE AVKYS_PLUGIN_ACAPSCONVERT_GSTREAMER)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(ACapsConvert_gstreamer
-                      PUBLIC
                       ${QT_LIBS}
                       ${GSTREAMER_LIBRARIES}
-                      PRIVATE
                       avkys)
 
 if (WIN32)

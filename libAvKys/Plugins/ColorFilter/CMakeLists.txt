@@ -57,7 +57,7 @@ target_include_directories(ColorFilter
                            PRIVATE ../../Lib/src)
 target_compile_definitions(ColorFilter PRIVATE AVKYS_PLUGIN_COLORFILTER)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
-target_link_libraries(ColorFilter PRIVATE avkys ${QT_LIBS})
+target_link_libraries(ColorFilter avkys ${QT_LIBS})
 set(QML_IMPORT_PATH ../../Lib/share/qml)
 
 if (WIN32)

@@ -78,10 +78,8 @@ target_include_directories(VideoCapture_ffmpeg
 target_compile_definitions(VideoCapture_ffmpeg PRIVATE AVKYS_PLUGIN_VIDEOCAPTURE_FFMPEG)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(VideoCapture_ffmpeg
-                      PUBLIC
                       ${QT_LIBS}
                       ${FFMPEG_LIBRARIES}
-                      PRIVATE
                       avkys)
 
 if (WIN32)

@@ -69,10 +69,10 @@ target_include_directories(VideoCaptureSrc
                            PRIVATE ../../../Lib/src)
 target_compile_definitions(VideoCaptureSrc PRIVATE AVKYS_PLUGIN_VIDEOCAPTURE)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
-target_link_libraries(VideoCaptureSrc PRIVATE avkys ${QT_LIBS})
+target_link_libraries(VideoCaptureSrc avkys ${QT_LIBS})
 
 if (WIN32)
-    target_link_libraries(VideoCaptureSrc PUBLIC ole32)
+    target_link_libraries(VideoCaptureSrc ole32)
 endif ()
 
 set(QML_IMPORT_PATH ../../../Lib/share/qml)

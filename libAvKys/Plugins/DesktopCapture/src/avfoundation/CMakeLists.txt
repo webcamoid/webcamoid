@@ -74,9 +74,7 @@ target_include_directories(DesktopCapture_avfoundation
 target_compile_definitions(DesktopCapture_avfoundation PRIVATE AVKYS_PLUGIN_DESKTOPCAPTURE_AVFOUNDATION)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(DesktopCapture_avfoundation
-                      PUBLIC
                       ${QT_LIBS}
-                      PRIVATE
                       avkys)
 
 if (NOT NOAVFOUNDATION
@@ -86,7 +84,6 @@ if (NOT NOAVFOUNDATION
     AND COREMEDIA
     AND COREVIDEO)
     target_link_libraries(DesktopCapture_avfoundation
-                          PUBLIC
                           ${FOUNDATION}
                           ${AVFOUNDATION}
                           ${COREGRAPHICS}

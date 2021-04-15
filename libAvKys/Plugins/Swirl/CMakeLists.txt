@@ -57,7 +57,7 @@ target_include_directories(Swirl
                            PRIVATE ../../Lib/src)
 target_compile_definitions(Swirl PRIVATE AVKYS_PLUGIN_SWIRL)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
-target_link_libraries(Swirl PRIVATE avkys ${QT_LIBS})
+target_link_libraries(Swirl avkys ${QT_LIBS})
 set(QML_IMPORT_PATH ../../Lib/share/qml)
 
 if (WIN32)

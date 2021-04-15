@@ -57,7 +57,7 @@ target_include_directories(Distort
                            PRIVATE ../../Lib/src)
 target_compile_definitions(Distort PRIVATE AVKYS_PLUGIN_DISTORT)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
-target_link_libraries(Distort PRIVATE avkys ${QT_LIBS})
+target_link_libraries(Distort avkys ${QT_LIBS})
 set(QML_IMPORT_PATH ../../Lib/share/qml)
 
 if (WIN32)

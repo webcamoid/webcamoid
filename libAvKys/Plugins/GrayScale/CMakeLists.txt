@@ -56,7 +56,7 @@ target_include_directories(GrayScale
                            PRIVATE ../../Lib/src)
 target_compile_definitions(GrayScale PRIVATE AVKYS_PLUGIN_GRAYSCALE)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
-target_link_libraries(GrayScale PRIVATE avkys ${QT_LIBS})
+target_link_libraries(GrayScale avkys ${QT_LIBS})
 set(QML_IMPORT_PATH ../../Lib/share/qml)
 
 if (WIN32)

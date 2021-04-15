@@ -58,7 +58,7 @@ target_include_directories(ACapsConvert_generic PRIVATE
                            ../../../../Lib/src)
 target_compile_definitions(ACapsConvert_generic PRIVATE AVKYS_PLUGIN_ACAPSCONVERT_GENERIC)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
-target_link_libraries(ACapsConvert_generic PRIVATE avkys ${QT_LIBS})
+target_link_libraries(ACapsConvert_generic avkys ${QT_LIBS})
 
 if (WIN32)
     install(TARGETS avkys RUNTIME DESTINATION ${PLUGINSDIR})

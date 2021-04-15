@@ -72,10 +72,8 @@ target_include_directories(VideoCapture_v4lutils
 target_compile_definitions(VideoCapture_v4lutils PRIVATE AVKYS_PLUGIN_VIDEOCAPTURE_V4LUTILS)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(VideoCapture_v4lutils
-                      PUBLIC
                       ${QT_LIBS}
                       ${V4LUTILS_LIBRARIES}
-                      PRIVATE
                       avkys)
 add_definitions(-DHAVE_V4LUTILS)
 

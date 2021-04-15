@@ -68,15 +68,11 @@ target_include_directories(AudioDevice_opensl
 target_compile_definitions(AudioDevice_opensl PRIVATE AVKYS_PLUGIN_AUDIODEVICE_OPENSL)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(AudioDevice_opensl
-                      PUBLIC
                       ${QT_LIBS}
-                      PRIVATE
                       avkys)
 
 if (NOT NOOPENSL AND OPENSLES)
-    target_link_libraries(AudioDevice_opensl
-                          PUBLIC
-                          ${OPENSLES})
+    target_link_libraries(AudioDevice_opensl ${OPENSLES})
 endif ()
 
 if (WIN32)

@@ -64,12 +64,8 @@ target_include_directories(VideoCapture_dshow
 target_compile_definitions(VideoCapture_dshow PRIVATE AVKYS_PLUGIN_VIDEOCAPTURE_DSHOW)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(VideoCapture_dshow
-                      PUBLIC
                       ${QT_LIBS}
-                      PRIVATE
-                      avkys)
-target_link_libraries(VideoCapture_dshow
-                      PUBLIC
+                      avkys
                       strmiids
                       uuid
                       ole32
