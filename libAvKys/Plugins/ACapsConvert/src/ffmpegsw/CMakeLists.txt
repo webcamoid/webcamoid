@@ -68,7 +68,9 @@ endif ()
 
 add_dependencies(ACapsConvert_ffmpegsw avkys)
 target_include_directories(ACapsConvert_ffmpegsw
+                           PUBLIC
                            ${FFMPEG_INCLUDE_DIRS}
+                           PRIVATE
                            ..
                            ../../../../Lib/src)
 target_compile_definitions(ACapsConvert_ffmpegsw PRIVATE AVKYS_PLUGIN_ACAPSCONVERT_FFMPEGSW)
