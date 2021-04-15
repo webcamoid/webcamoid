@@ -81,8 +81,10 @@ target_link_libraries(ACapsConvert_gstreamer
                       ${GSTREAMER_LIBRARIES}
                       avkys)
 
-if (WIN32)
-    install(TARGETS ACapsConvert_gstreamer RUNTIME DESTINATION ${PLUGINSDIR})
-elseif (NOT ANDROID)
-    install(TARGETS ACapsConvert_gstreamer DESTINATION ${PLUGINSDIR})
+if (NOT NOGSTREAMER AND GSTREAMER_FOUND)
+    if (WIN32)
+        install(TARGETS ACapsConvert_gstreamer RUNTIME DESTINATION ${PLUGINSDIR})
+    elseif (NOT ANDROID)
+        install(TARGETS ACapsConvert_gstreamer DESTINATION ${PLUGINSDIR})
+    endif ()
 endif ()

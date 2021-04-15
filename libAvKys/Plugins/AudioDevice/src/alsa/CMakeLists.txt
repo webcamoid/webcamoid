@@ -77,8 +77,10 @@ target_link_libraries(AudioDevice_alsa
                       ${ALSA_LIBRARIES}
                       avkys)
 
-if (WIN32)
-    install(TARGETS AudioDevice_alsa RUNTIME DESTINATION ${PLUGINSDIR})
-elseif (NOT ANDROID)
-    install(TARGETS AudioDevice_alsa DESTINATION ${PLUGINSDIR})
+if (NOT NOALSA AND ALSA_FOUND)
+    if (WIN32)
+        install(TARGETS AudioDevice_alsa RUNTIME DESTINATION ${PLUGINSDIR})
+    elseif (NOT ANDROID)
+        install(TARGETS AudioDevice_alsa DESTINATION ${PLUGINSDIR})
+    endif ()
 endif ()

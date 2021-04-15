@@ -99,8 +99,10 @@ target_link_libraries(MultiSrc_ffmpeg
                       ${FFMPEG_LIBRARIES}
                       avkys)
 
-if (WIN32)
-    install(TARGETS MultiSrc_ffmpeg RUNTIME DESTINATION ${PLUGINSDIR})
-elseif (NOT ANDROID)
-    install(TARGETS MultiSrc_ffmpeg DESTINATION ${PLUGINSDIR})
+if (NOT NOFFMPEG AND FFMPEG_FOUND)
+    if (WIN32)
+        install(TARGETS MultiSrc_ffmpeg RUNTIME DESTINATION ${PLUGINSDIR})
+    elseif (NOT ANDROID)
+        install(TARGETS MultiSrc_ffmpeg DESTINATION ${PLUGINSDIR})
+    endif ()
 endif ()

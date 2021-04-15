@@ -84,10 +84,5 @@ if (NOT NOAVFOUNDATION
                           ${COREMEDIA}
                           ${COREVIDEO}
                           ${FOUNDATION})
-endif ()
-
-if (WIN32)
-    install(TARGETS VideoCapture_avfoundation RUNTIME DESTINATION ${PLUGINSDIR})
-elseif (NOT ANDROID)
     install(TARGETS VideoCapture_avfoundation DESTINATION ${PLUGINSDIR})
 endif ()

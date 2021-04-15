@@ -77,8 +77,10 @@ target_link_libraries(AudioDevice_pulseaudio
                       ${PULSEAUDIO_LIBRARIES}
                       avkys)
 
-if (WIN32)
-    install(TARGETS AudioDevice_pulseaudio RUNTIME DESTINATION ${PLUGINSDIR})
-elseif (NOT ANDROID)
-    install(TARGETS AudioDevice_pulseaudio DESTINATION ${PLUGINSDIR})
+if (NOT NOPULSEAUDIO AND PULSEAUDIO_FOUND)
+    if (WIN32)
+        install(TARGETS AudioDevice_pulseaudio RUNTIME DESTINATION ${PLUGINSDIR})
+    elseif (NOT ANDROID)
+        install(TARGETS AudioDevice_pulseaudio DESTINATION ${PLUGINSDIR})
+    endif ()
 endif ()

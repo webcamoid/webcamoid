@@ -83,8 +83,10 @@ target_link_libraries(VideoCapture_libuvc
                       ${LIBUVC_LIBRARIES}
                       avkys)
 
-if (WIN32)
-    install(TARGETS VideoCapture_libuvc RUNTIME DESTINATION ${PLUGINSDIR})
-elseif (NOT ANDROID)
-    install(TARGETS VideoCapture_libuvc DESTINATION ${PLUGINSDIR})
+if (NOT NOLIBUVC AND LIBUVC_FOUND)
+    if (WIN32)
+        install(TARGETS VideoCapture_libuvc RUNTIME DESTINATION ${PLUGINSDIR})
+    elseif (NOT ANDROID)
+        install(TARGETS VideoCapture_libuvc DESTINATION ${PLUGINSDIR})
+    endif ()
 endif ()

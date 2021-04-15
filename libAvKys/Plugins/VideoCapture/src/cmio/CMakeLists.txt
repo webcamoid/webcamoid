@@ -92,10 +92,5 @@ if (NOT NOAVFOUNDATION
                           ${COREMEDIAIO}
                           ${COREVIDEO}
                           ${FOUNDATION})
-endif ()
-
-if (WIN32)
-    install(TARGETS VideoCapture_cmio RUNTIME DESTINATION ${PLUGINSDIR})
-elseif (NOT ANDROID)
     install(TARGETS VideoCapture_cmio DESTINATION ${PLUGINSDIR})
 endif ()

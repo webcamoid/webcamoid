@@ -88,7 +88,6 @@ if (NOT NOAVFOUNDATION
                           ${AVFOUNDATION}
                           ${COREGRAPHICS}
                           ${COREMEDIA}
-                          ${COREVIDEO})
+                          ${COREVIDEO})                      
+    install(TARGETS DesktopCapture_avfoundation DESTINATION ${PLUGINSDIR})
 endif ()
-
-install(TARGETS DesktopCapture_avfoundation DESTINATION ${PLUGINSDIR})

@@ -88,8 +88,10 @@ target_link_libraries(MultiSink_ffmpeg
                       ${FFMPEG_LIBRARIES}
                       avkys)
 
-if (WIN32)
-    install(TARGETS MultiSink_ffmpeg RUNTIME DESTINATION ${PLUGINSDIR})
-elseif (NOT ANDROID)
-    install(TARGETS MultiSink_ffmpeg DESTINATION ${PLUGINSDIR})
+if (NOT NOFFMPEG AND FFMPEG_FOUND)
+    if (WIN32)
+        install(TARGETS MultiSink_ffmpeg RUNTIME DESTINATION ${PLUGINSDIR})
+    elseif (NOT ANDROID)
+        install(TARGETS MultiSink_ffmpeg DESTINATION ${PLUGINSDIR})
+    endif ()
 endif ()

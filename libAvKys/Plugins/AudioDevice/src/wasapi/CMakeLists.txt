@@ -65,4 +65,7 @@ target_link_libraries(AudioDevice_wasapi
                       avkys
                       ole32
                       winmm)
-install(TARGETS AudioDevice_wasapi RUNTIME DESTINATION ${PLUGINSDIR})
+
+if (NOT NOWASAPI AND WIN32)
+    install(TARGETS AudioDevice_wasapi RUNTIME DESTINATION ${PLUGINSDIR})
+endif ()

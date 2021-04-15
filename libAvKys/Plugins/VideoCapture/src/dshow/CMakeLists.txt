@@ -71,6 +71,6 @@ target_link_libraries(VideoCapture_dshow
                       ole32
                       oleaut32)
 
-if (WIN32)
+if (NOT NODSHOW AND WIN32)
     install(TARGETS VideoCapture_dshow RUNTIME DESTINATION ${PLUGINSDIR})
 endif ()

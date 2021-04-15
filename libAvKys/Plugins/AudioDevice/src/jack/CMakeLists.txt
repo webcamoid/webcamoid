@@ -80,8 +80,10 @@ target_link_libraries(AudioDevice_jack
                       ${JACK_LIBRARIES}
                       avkys)
 
-if (WIN32)
-    install(TARGETS AudioDevice_jack RUNTIME DESTINATION ${PLUGINSDIR})
-elseif (NOT ANDROID)
-    install(TARGETS AudioDevice_jack DESTINATION ${PLUGINSDIR})
+if (NOT NOJACK AND JACK_FOUND)
+    if (WIN32)
+        install(TARGETS AudioDevice_jack RUNTIME DESTINATION ${PLUGINSDIR})
+    elseif (NOT ANDROID)
+        install(TARGETS AudioDevice_jack DESTINATION ${PLUGINSDIR})
+    endif ()
 endif ()

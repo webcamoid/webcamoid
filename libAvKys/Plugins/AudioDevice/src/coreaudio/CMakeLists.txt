@@ -72,6 +72,5 @@ if (NOT NOCOREAUDIO AND COREFOUNDATION AND AUDIOUNIT AND COREAUDIO)
                           ${COREFOUNDATION}
                           ${AUDIOUNIT}
                           ${COREAUDIO})
+    install(TARGETS AudioDevice_coreaudio DESTINATION ${PLUGINSDIR})
 endif ()
-
-install(TARGETS AudioDevice_coreaudio DESTINATION ${PLUGINSDIR})
