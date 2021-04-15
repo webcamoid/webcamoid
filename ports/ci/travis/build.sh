@@ -74,7 +74,7 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
         cd build-${arch_}
         qmake -query
         cmake \
-            -G Ninja \
+            -GNinja \
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_C_COMPILER=${ANDROID_NDK}/toolchains/llvm/prebuilt/linux-x86_64/bin/clang \
             -DCMAKE_CXX_COMPILER=${ANDROID_NDK}/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ \

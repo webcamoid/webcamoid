@@ -48,7 +48,8 @@ mkdir build
 cd build
 qmake -query
 cmake \
-    -G "Unix Makefiles" \
+    "-GMSYS Makefiles" \
+    -DCMAKE_VERBOSE_MAKEFILE=ON \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX="${INSTALL_PREFIX}" \
     -DCMAKE_C_COMPILER="${COMPILER_C}" \
