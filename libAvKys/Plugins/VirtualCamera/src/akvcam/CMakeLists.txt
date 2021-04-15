@@ -20,6 +20,7 @@ cmake_minimum_required(VERSION 3.16)
 
 project(VirtualCamera_akvcam LANGUAGES CXX)
 
+include(CheckIncludeFileCXX)
 include(../../../../cmake/ProjectCommons.cmake)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -35,6 +36,7 @@ find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
 find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
+CHECK_INCLUDE_FILE_CXX(linux/videodev2.h HAVE_V4L2)
 set(SOURCES
     ../vcam.cpp
     ../vcam.h
@@ -44,7 +46,7 @@ set(SOURCES
     src/vcamak.h
     pspec.json)
 
-if (UNIX AND NOT APPLE AND NOT ANDROID)
+if (NOT NOV4L2 AND HAVE_V4L2 AND NOT ANDROID)
     add_library(VirtualCamera_akvcam SHARED ${SOURCES})
 else ()
     add_library(VirtualCamera_akvcam SHARED EXCLUDE_FROM_ALL ${SOURCES})
@@ -60,6 +62,6 @@ target_compile_definitions(VirtualCamera_akvcam PRIVATE AVKYS_PLUGIN_VIRTUALCAME
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(VirtualCamera_akvcam avkys ${QT_LIBS})
 
-if (UNIX AND NOT APPLE AND NOT ANDROID)
+if (NOT NOV4L2 AND HAVE_V4L2 AND NOT ANDROID)
     install(TARGETS VirtualCamera_akvcam DESTINATION ${PLUGINSDIR})
 endif ()

@@ -20,6 +20,7 @@ cmake_minimum_required(VERSION 3.16)
 
 project(VideoCapture_mediafoundation LANGUAGES CXX)
 
+include(CheckCXXSourceCompiles)
 include(../../../../cmake/ProjectCommons.cmake)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -35,6 +36,28 @@ find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
 find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
+set(CMAKE_REQUIRED_LIBRARIES
+    mf
+    mfplat
+    mfreadwrite
+    mfuuid
+    ole32
+    strmiids)
+check_cxx_source_compiles("
+#include <mfapi.h>
+#include <mfidl.h>
+#include <mfreadwrite.h>
+#include <strmif.h>
+#include <dbt.h>
+#include <uuids.h>
+
+int main()
+{
+    MFEnumDeviceSources(nullptr, nullptr, nullptr);
+
+    return 0;
+}" HAVE_MEDIAFOUNDATION)
+unset(CMAKE_REQUIRED_LIBRARIES)
 
 set(SOURCES
     ../capture.cpp
@@ -45,7 +68,7 @@ set(SOURCES
     src/plugin.h
     pspec.json)
 
-if (NOT NOMEDIAFOUNDATION AND WIN32)
+if (NOT NOMEDIAFOUNDATION AND WIN32 AND HAVE_MEDIAFOUNDATION)
     add_library(VideoCapture_mediafoundation SHARED ${SOURCES})
 else ()
     add_library(VideoCapture_mediafoundation SHARED EXCLUDE_FROM_ALL ${SOURCES})
@@ -70,6 +93,6 @@ target_link_libraries(VideoCapture_mediafoundation
                       ole32
                       strmiids)
 
-if (WIN32)
+if (WIN32 AND HAVE_MEDIAFOUNDATION)
     install(TARGETS VideoCapture_mediafoundation RUNTIME DESTINATION ${PLUGINSDIR})
 endif ()
