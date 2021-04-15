@@ -68,18 +68,14 @@ endif ()
 
 add_dependencies(ACapsConvert_ffmpegsw avkys)
 target_include_directories(ACapsConvert_ffmpegsw
-                           PUBLIC
                            ${FFMPEG_INCLUDE_DIRS}
-                           PRIVATE
                            ..
                            ../../../../Lib/src)
 target_compile_definitions(ACapsConvert_ffmpegsw PRIVATE AVKYS_PLUGIN_ACAPSCONVERT_FFMPEGSW)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(ACapsConvert_ffmpegsw
-                      PUBLIC
                       ${QT_LIBS}
                       ${FFMPEG_LIBRARIES}
-                      PRIVATE
                       avkys)
 
 if (WIN32)
