@@ -32,9 +32,9 @@ else
     COMPILER_CXX=g++
 fi
 
-# if [ -z "${DISABLE_CCACHE}" ]; then
-#     EXTRA_PARAMS="-DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache"
-# fi
+if [ -z "${DISABLE_CCACHE}" ]; then
+    EXTRA_PARAMS="-DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache"
+fi
 
 if [ "${PLATFORM}" = x86 ]; then
     export PATH=/mingw32/bin:$PATH
@@ -48,9 +48,11 @@ mkdir build
 cd build
 qmake -query
 cmake \
-    -G "MSYS Makefiles" \
+    -G "Unix Makefiles" \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX="${INSTALL_PREFIX}" \
+    -DCMAKE_C_COMPILER="${COMPILER_C}" \
+    -DCMAKE_CXX_COMPILER="${COMPILER_CXX}" \
     -DDAILY_BUILD=${DAILY_BUILD} \
     ${EXTRA_PARAMS} \
     ..
