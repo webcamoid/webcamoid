@@ -60,8 +60,6 @@ qmake -query
 echo
 env
 echo
-cmake -LA .
-echo
 cmake \
     -G "MSYS Makefiles" \
     -DCMAKE_BUILD_TYPE=Release \
@@ -71,5 +69,6 @@ cmake \
     -DDAILY_BUILD=${DAILY_BUILD} \
     ${EXTRA_PARAMS} \
     ..
+cmake -LA .
 cmake --build .
 cmake --build . --target install
