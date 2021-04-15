@@ -36,7 +36,6 @@ INSTALL_PREFIX=${PWD}/webcamoid-data
 
 mkdir build
 cd build
-qmake -query
 cmake \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX="${INSTALL_PREFIX}" \
@@ -45,5 +44,6 @@ cmake \
     -DDAILY_BUILD=${DAILY_BUILD} \
     ${EXTRA_PARAMS} \
     ..
+cmake -LA .
 cmake --build .
 cmake --build . --target install

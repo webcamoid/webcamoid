@@ -72,7 +72,6 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
         export PATH="${PWD}/build/Qt/${QTVER_ANDROID}/android/bin:${ORIG_PATH}"
         mkdir build-${arch_}
         cd build-${arch_}
-        qmake -query
         cmake \
             -GNinja \
             -DCMAKE_BUILD_TYPE=Release \
@@ -88,6 +87,7 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
             -DDAILY_BUILD=${DAILY_BUILD} \
             ${EXTRA_PARAMS} \
             ..
+        cmake -LA .
         cmake --build .
     done
 elif [ "${ARCH_ROOT_BUILD}" = 1 ]; then
@@ -113,7 +113,6 @@ export PKG_CONFIG=${PKG_CONFIG}
 
 mkdir $TRAVIS_BUILD_DIR/build
 cd $TRAVIS_BUILD_DIR/build
-${QMAKE_CMD} -query
 ${CMAKE_CMD} \
     -DQT_QMAKE_EXECUTABLE=${QMAKE_CMD} \
     -DCMAKE_BUILD_TYPE=Release \
@@ -123,6 +122,7 @@ ${CMAKE_CMD} \
     -DDAILY_BUILD=${DAILY_BUILD} \
     ${EXTRA_PARAMS} \
     ..
+cmake -LA .
 make
 make install
 EOF
@@ -140,7 +140,6 @@ elif [ "${TRAVIS_OS_NAME}" = linux ]; then
 
 mkdir build
 cd build
-qmake -qt=5 -query
 cmake \
     -DQT_QMAKE_EXECUTABLE="qmake -qt=5" \
     -DCMAKE_BUILD_TYPE=Release \
@@ -150,6 +149,7 @@ cmake \
     -DDAILY_BUILD=${DAILY_BUILD} \
     ${EXTRA_PARAMS} \
     ..
+cmake -LA .
 cmake --build .
 cmake --build . --target install
 EOF
@@ -159,7 +159,6 @@ EOF
 
 mkdir build
 cd build
-qmake-qt5 -query
 cmake \
     -DQT_QMAKE_EXECUTABLE=qmake-qt5 \
     -DCMAKE_BUILD_TYPE=Release \
@@ -169,6 +168,7 @@ cmake \
     -DDAILY_BUILD=${DAILY_BUILD} \
     ${EXTRA_PARAMS} \
     ..
+cmake -LA .
 cmake --build .
 cmake --build . --target install
 EOF
@@ -179,7 +179,6 @@ EOF
 elif [ "${TRAVIS_OS_NAME}" = osx ]; then
     mkdir build
     cd build
-    /usr/local/Cellar/qt@5/bin/qmake -query
     cmake \
         -DQT_QMAKE_EXECUTABLE=/usr/local/Cellar/qt@5/bin/qmake \
         -DCMAKE_BUILD_TYPE=Release \
@@ -189,6 +188,7 @@ elif [ "${TRAVIS_OS_NAME}" = osx ]; then
         -DDAILY_BUILD=${DAILY_BUILD} \
         ${EXTRA_PARAMS} \
         ..
+    cmake -LA .
     cmake --build .
     cmake --build . --target install
 fi

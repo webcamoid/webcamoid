@@ -103,3 +103,12 @@ endif ()
 
 set(ANDROID_JAVA_VERSION 1.6 CACHE STRING "Mimimum Java version to use in Android")
 set(ANDROID_JAR_DIRECTORY ${ANDROID_SDK}/platforms/android-${ANDROID_NATIVE_API_LEVEL} CACHE INTERNAL "")
+
+if (WIN32)
+    set(CMAKE_STATIC_LIBRARY_PREFIX "lib")
+    set(CMAKE_STATIC_LIBRARY_SUFFIX ".a")
+    set(CMAKE_SHARED_LIBRARY_PREFIX "lib")
+    set(CMAKE_IMPORT_LIBRARY_PREFIX "lib")
+    set(CMAKE_IMPORT_LIBRARY_SUFFIX ".dll.a")
+    set(CMAKE_LINK_LIBRARY_SUFFIX "")
+endif ()
