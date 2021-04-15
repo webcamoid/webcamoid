@@ -47,7 +47,7 @@ install:
 build_script:
   - ports\ci\appveyor\environment_setup.bat
   #- C:\msys64\usr\bin\bash -lc "cd /c/projects/webcamoid && ./ports/ci/appveyor/build.sh"
-  - msys2_shell.cmd -mingw64 -defterm -here -no-start -c "cd /c/projects/webcamoid && ./ports/ci/appveyor/build.sh"
+  - C:\msys64\msys2_shell.cmd -mingw32 -defterm -here -no-start -c "cd /c/projects/webcamoid && ./ports/ci/appveyor/build.sh"
 
 after_build:
   - ports\ci\appveyor\environment_setup.bat
