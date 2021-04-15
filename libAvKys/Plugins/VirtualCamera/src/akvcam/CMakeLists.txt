@@ -61,5 +61,5 @@ list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_
 target_link_libraries(VirtualCamera_akvcam avkys ${QT_LIBS})
 
 if (UNIX AND NOT APPLE AND NOT ANDROID)
-    install(TARGETS avkys DESTINATION ${PLUGINSDIR})
+    install(TARGETS VirtualCamera_akvcam DESTINATION ${PLUGINSDIR})
 endif ()

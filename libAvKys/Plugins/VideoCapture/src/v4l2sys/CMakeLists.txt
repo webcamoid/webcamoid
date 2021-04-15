@@ -71,5 +71,5 @@ target_link_libraries(VideoCapture_v4l2sys
                       avkys)
 
 if (NOT NOV4L2 AND HAVE_V4L2 AND NOT ANDROID)
-    install(TARGETS avkys DESTINATION ${PLUGINSDIR})
+    install(TARGETS VideoCapture_v4l2sys DESTINATION ${PLUGINSDIR})
 endif ()

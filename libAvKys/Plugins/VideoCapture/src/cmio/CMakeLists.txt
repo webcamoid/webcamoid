@@ -95,7 +95,7 @@ if (NOT NOAVFOUNDATION
 endif ()
 
 if (WIN32)
-    install(TARGETS avkys RUNTIME DESTINATION ${PLUGINSDIR})
+    install(TARGETS VideoCapture_cmio RUNTIME DESTINATION ${PLUGINSDIR})
 elseif (NOT ANDROID)
-    install(TARGETS avkys DESTINATION ${PLUGINSDIR})
+    install(TARGETS VideoCapture_cmio DESTINATION ${PLUGINSDIR})
 endif ()

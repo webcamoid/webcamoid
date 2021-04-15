@@ -91,4 +91,4 @@ if (NOT NOAVFOUNDATION
                           ${COREVIDEO})
 endif ()
 
-install(TARGETS avkys DESTINATION ${PLUGINSDIR})
+install(TARGETS DesktopCapture_avfoundation DESTINATION ${PLUGINSDIR})

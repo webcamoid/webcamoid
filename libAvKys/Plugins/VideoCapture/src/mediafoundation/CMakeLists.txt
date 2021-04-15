@@ -71,5 +71,5 @@ target_link_libraries(VideoCapture_mediafoundation
                       strmiids)
 
 if (WIN32)
-    install(TARGETS avkys RUNTIME DESTINATION ${PLUGINSDIR})
+    install(TARGETS VideoCapture_mediafoundation RUNTIME DESTINATION ${PLUGINSDIR})
 endif ()

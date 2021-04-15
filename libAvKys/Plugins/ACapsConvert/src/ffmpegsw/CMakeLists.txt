@@ -81,7 +81,7 @@ target_link_libraries(ACapsConvert_ffmpegsw
                       avkys)
 
 if (WIN32)
-    install(TARGETS avkys RUNTIME DESTINATION ${PLUGINSDIR})
+    install(TARGETS ACapsConvert_ffmpegsw RUNTIME DESTINATION ${PLUGINSDIR})
 elseif (NOT ANDROID)
-    install(TARGETS avkys DESTINATION ${PLUGINSDIR})
+    install(TARGETS ACapsConvert_ffmpegsw DESTINATION ${PLUGINSDIR})
 endif ()

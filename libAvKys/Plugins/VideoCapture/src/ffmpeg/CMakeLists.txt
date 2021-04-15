@@ -83,7 +83,7 @@ target_link_libraries(VideoCapture_ffmpeg
                       avkys)
 
 if (WIN32)
-    install(TARGETS avkys RUNTIME DESTINATION ${PLUGINSDIR})
+    install(TARGETS VideoCapture_ffmpeg RUNTIME DESTINATION ${PLUGINSDIR})
 elseif (NOT ANDROID)
-    install(TARGETS avkys DESTINATION ${PLUGINSDIR})
+    install(TARGETS VideoCapture_ffmpeg DESTINATION ${PLUGINSDIR})
 endif ()

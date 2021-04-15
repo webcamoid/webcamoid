@@ -61,5 +61,5 @@ list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_
 target_link_libraries(VirtualCamera_cmio avkys ${QT_LIBS})
 
 if (APPLE)
-    install(TARGETS avkys DESTINATION ${PLUGINSDIR})
+    install(TARGETS VirtualCamera_cmio DESTINATION ${PLUGINSDIR})
 endif ()

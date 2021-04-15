@@ -78,5 +78,5 @@ target_link_libraries(VideoCapture_v4lutils
 add_definitions(-DHAVE_V4LUTILS)
 
 if (NOT NOV4L2 AND HAVE_V4L2 AND V4LUTILS_FOUND AND NOT ANDROID)
-    install(TARGETS avkys DESTINATION ${PLUGINSDIR})
+    install(TARGETS VideoCapture_v4lutils DESTINATION ${PLUGINSDIR})
 endif ()

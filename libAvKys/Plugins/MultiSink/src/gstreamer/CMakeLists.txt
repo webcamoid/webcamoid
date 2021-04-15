@@ -84,7 +84,7 @@ target_link_libraries(MultiSink_gstreamer
                       avkys)
 
 if (WIN32)
-    install(TARGETS avkys RUNTIME DESTINATION ${PLUGINSDIR})
+    install(TARGETS MultiSink_gstreamer RUNTIME DESTINATION ${PLUGINSDIR})
 elseif (NOT ANDROID)
-    install(TARGETS avkys DESTINATION ${PLUGINSDIR})
+    install(TARGETS MultiSink_gstreamer DESTINATION ${PLUGINSDIR})
 endif ()

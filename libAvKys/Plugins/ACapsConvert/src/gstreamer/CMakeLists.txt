@@ -82,7 +82,7 @@ target_link_libraries(ACapsConvert_gstreamer
                       avkys)
 
 if (WIN32)
-    install(TARGETS avkys RUNTIME DESTINATION ${PLUGINSDIR})
+    install(TARGETS ACapsConvert_gstreamer RUNTIME DESTINATION ${PLUGINSDIR})
 elseif (NOT ANDROID)
-    install(TARGETS avkys DESTINATION ${PLUGINSDIR})
+    install(TARGETS ACapsConvert_gstreamer DESTINATION ${PLUGINSDIR})
 endif ()

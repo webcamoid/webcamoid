@@ -66,7 +66,7 @@ list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_
 target_link_libraries(AudioDeviceSrc avkys ${QT_LIBS})
 
 if (WIN32)
-    install(TARGETS avkys RUNTIME DESTINATION ${PLUGINSDIR})
+    install(TARGETS AudioDeviceSrc RUNTIME DESTINATION ${PLUGINSDIR})
 elseif (NOT ANDROID)
-    install(TARGETS avkys DESTINATION ${PLUGINSDIR})
+    install(TARGETS AudioDeviceSrc DESTINATION ${PLUGINSDIR})
 endif ()
