@@ -27,7 +27,7 @@ pacman --noconfirm --needed -S \
     cmake \
     git \
     make \
-    pkg-config \
+    pkgconf \
     python3
 
 if [ "${PLATFORM}" = x86 ]; then
@@ -40,7 +40,7 @@ pacman --noconfirm --needed -S \
     mingw-w64-${packagesArch}-ccache \
     mingw-w64-${packagesArch}-clang \
     mingw-w64-${packagesArch}-cmake \
-    mingw-w64-${packagesArch}-pkg-config \
+    mingw-w64-${packagesArch}-pkgconf \
     mingw-w64-${packagesArch}-qt5 \
     mingw-w64-${packagesArch}-ffmpeg
 
