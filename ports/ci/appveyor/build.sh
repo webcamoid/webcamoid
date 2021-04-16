@@ -45,16 +45,16 @@ fi
 INSTALL_PREFIX=${APPVEYOR_BUILD_FOLDER}/webcamoid-data
 
 mkdir build
-cd build
 cmake \
+    -S . \
+    -B build \
     -G "MSYS Makefiles" \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX="${INSTALL_PREFIX}" \
     -DCMAKE_C_COMPILER="${COMPILER_C}" \
     -DCMAKE_CXX_COMPILER="${COMPILER_CXX}" \
-    -DDAILY_BUILD=${DAILY_BUILD} \
     ${EXTRA_PARAMS} \
-    ..
-cmake -LA .
-cmake --build .
-cmake --build . --target install
+    -DDAILY_BUILD=${DAILY_BUILD}
+cmake -LA -S . -B build
+cmake --build build --parallel ${NJOBS}
+cmake --install build

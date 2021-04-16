@@ -359,7 +359,6 @@ elif [ "${TRAVIS_OS_NAME}" = osx ]; then
     brew update
     brew upgrade
     brew link --overwrite numpy
-    brew link --force qt@5
     brew install \
         ccache \
         cmake \
@@ -369,6 +368,7 @@ elif [ "${TRAVIS_OS_NAME}" = osx ]; then
         python \
         qt@5
     brew link --overwrite python
+    brew link --force qt@5
 
     if [ -z "${DAILY_BUILD}" ] && [ -z "${RELEASE_BUILD}" ]; then
         brew install \

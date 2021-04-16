@@ -1,4 +1,8 @@
 build_task:
+  env:
+    COMPILER: clang
+    NJOBS: 4
+
   freebsd_instance:
     matrix:
       image_family: freebsd-13-0-snap

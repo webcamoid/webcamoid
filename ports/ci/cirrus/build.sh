@@ -18,8 +18,6 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-COMPILER=clang
-
 if [ "${COMPILER}" = clang ]; then
     COMPILER_C=clang
     COMPILER_CXX=clang++
@@ -35,15 +33,15 @@ fi
 INSTALL_PREFIX=${PWD}/webcamoid-data
 
 mkdir build
-cd build
 cmake \
+    -S . \
+    -B build \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX="${INSTALL_PREFIX}" \
     -DCMAKE_C_COMPILER="${COMPILER_C}" \
     -DCMAKE_CXX_COMPILER="${COMPILER_CXX}" \
-    -DDAILY_BUILD=${DAILY_BUILD} \
     ${EXTRA_PARAMS} \
-    ..
-cmake -LA .
-cmake --build .
-cmake --build . --target install
+    -DDAILY_BUILD=${DAILY_BUILD}
+cmake -LA -S . -B build
+cmake --build build --parallel ${NJOBS}
+cmake --install build

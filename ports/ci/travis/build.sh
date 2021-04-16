@@ -71,9 +71,10 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
     for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
         export PATH="${PWD}/build/Qt/${QTVER_ANDROID}/android/bin:${ORIG_PATH}"
         mkdir build-${arch_}
-        cd build-${arch_}
         cmake \
-            -GNinja \
+            -S . \
+            -B build-${arch_} \
+            -G Ninja \
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_C_COMPILER=${ANDROID_NDK}/toolchains/llvm/prebuilt/linux-x86_64/bin/clang \
             -DCMAKE_CXX_COMPILER=${ANDROID_NDK}/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ \
@@ -84,11 +85,10 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
             -DANDROID_STL=c++_shared \
             -DCMAKE_FIND_ROOT_PATH=$(qmake -query QT_INSTALL_PREFIX) \
             -DANDROID_SDK=${ANDROID_HOME} \
-            -DDAILY_BUILD=${DAILY_BUILD} \
             ${EXTRA_PARAMS} \
-            ..
-        cmake -LA .
-        cmake --build .
+            -DDAILY_BUILD=${DAILY_BUILD}
+        cmake -LA -S . -B build-${arch_}
+        cmake --build build-${arch_} --parallel ${NJOBS}
     done
 elif [ "${ARCH_ROOT_BUILD}" = 1 ]; then
     sudo mount --bind root.x86_64 root.x86_64
@@ -111,20 +111,21 @@ export LC_ALL=C
 export HOME=$HOME
 export PKG_CONFIG=${PKG_CONFIG}
 
-mkdir $TRAVIS_BUILD_DIR/build
-cd $TRAVIS_BUILD_DIR/build
+cd $TRAVIS_BUILD_DIR
+mkdir build
 ${CMAKE_CMD} \
+    -S . \
+    -B build \
     -DQT_QMAKE_EXECUTABLE=${QMAKE_CMD} \
     -DCMAKE_BUILD_TYPE=Release \
-    -DCMAKE_PREFIX_PATH="\${PWD}/../webcamoid-data" \
+    -DCMAKE_PREFIX_PATH="\${PWD}/webcamoid-data" \
     -DCMAKE_C_COMPILER="${COMPILER_C}" \
     -DCMAKE_CXX_COMPILER="${COMPILER_CXX}" \
-    -DDAILY_BUILD=${DAILY_BUILD} \
     ${EXTRA_PARAMS} \
-    ..
-cmake -LA .
-make
-make install
+    -DDAILY_BUILD=${DAILY_BUILD}
+cmake -LA -S . -B build
+make -C build --parallel ${NJOBS}
+make -C build install
 EOF
     chmod +x ${BUILDSCRIPT}
     sudo cp -vf ${BUILDSCRIPT} root.x86_64/$HOME/
@@ -139,56 +140,60 @@ elif [ "${TRAVIS_OS_NAME}" = linux ]; then
 #!/bin/sh
 
 mkdir build
-cd build
 cmake \
+    -S . \
+    -B build \
     -DQT_QMAKE_EXECUTABLE="qmake -qt=5" \
     -DCMAKE_BUILD_TYPE=Release \
-    -DCMAKE_PREFIX_PATH="\${PWD}/../webcamoid-data" \
+    -DCMAKE_PREFIX_PATH="\${PWD}/webcamoid-data" \
     -DCMAKE_C_COMPILER="${COMPILER_C}" \
     -DCMAKE_CXX_COMPILER="${COMPILER_CXX}" \
-    -DDAILY_BUILD=${DAILY_BUILD} \
     ${EXTRA_PARAMS} \
-    ..
-cmake -LA .
-cmake --build .
-cmake --build . --target install
+    -DDAILY_BUILD=${DAILY_BUILD}
+cmake -LA -S . -B build
+cmake --build build --parallel ${NJOBS}
+cmake --install build
 EOF
     else
         cat << EOF >> ${BUILDSCRIPT}
 #!/bin/sh
 
 mkdir build
-cd build
 cmake \
+    -S . \
+    -B build \
     -DQT_QMAKE_EXECUTABLE=qmake-qt5 \
     -DCMAKE_BUILD_TYPE=Release \
-    -DCMAKE_PREFIX_PATH="\${PWD}/../webcamoid-data" \
+    -DCMAKE_PREFIX_PATH="\${PWD}/webcamoid-data" \
     -DCMAKE_C_COMPILER="${COMPILER_C}" \
     -DCMAKE_CXX_COMPILER="${COMPILER_CXX}" \
-    -DDAILY_BUILD=${DAILY_BUILD} \
     ${EXTRA_PARAMS} \
-    ..
-cmake -LA .
-cmake --build .
-cmake --build . --target install
+    -DDAILY_BUILD=${DAILY_BUILD}
+cmake -LA -S . -B build
+cmake --build build --parallel ${NJOBS}
+cmake --install build
 EOF
     fi
 
     chmod +x ${BUILDSCRIPT}
     ${EXEC} bash ${BUILDSCRIPT}
 elif [ "${TRAVIS_OS_NAME}" = osx ]; then
+    export PATH="/usr/local/opt/qt@5/bin:$PATH"
+    export LDFLAGS="$LDFLAGS -L/usr/local/opt/qt@5/lib"
+    export CPPFLAGS="$CPPFLAGS -I/usr/local/opt/qt@5/include"
+    export PKG_CONFIG_PATH="/usr/local/opt/qt@5/lib/pkgconfig:$PKG_CONFIG_PATH"
+
     mkdir build
-    cd build
     cmake \
-        -DQT_QMAKE_EXECUTABLE=/usr/local/Cellar/qt@5/bin/qmake \
+        -S . \
+        -B build \
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_PREFIX_PATH=${INSTALL_PREFIX} \
         -DCMAKE_C_COMPILER="${COMPILER_C}" \
         -DCMAKE_CXX_COMPILER="${COMPILER_CXX}" \
-        -DDAILY_BUILD=${DAILY_BUILD} \
         ${EXTRA_PARAMS} \
-        ..
-    cmake -LA .
-    cmake --build .
-    cmake --build . --target install
+        -DDAILY_BUILD=${DAILY_BUILD}
+    cmake -LA -S . -B build
+    cmake --build build --parallel ${NJOBS}
+    cmake --install build
 fi

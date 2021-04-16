@@ -16,7 +16,7 @@ configuration:
 
 environment:
   global:
-    INSTALL_PREFIX: C:/projects/webcamoid/ports/deploy/temp_priv/usr
+    NJOBS: 4
     # api key from https://bintray.com/profile/edit
     # encrypted with https://ci.appveyor.com/tools/encrypt
     BT_KEY:
