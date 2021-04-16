@@ -74,7 +74,6 @@ ColumnLayout {
         }
         TextField {
             id: k02
-            Layout.preferredWidth: cellSize
             text: Convolve.kernel[2]
             selectByMouse: true
             validator: RegExpValidator {
@@ -134,7 +133,6 @@ ColumnLayout {
         }
         TextField {
             id: k21
-            Layout.preferredWidth: cellSize
             text: Convolve.kernel[7]
             selectByMouse: true
             validator: RegExpValidator {
