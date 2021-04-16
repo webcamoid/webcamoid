@@ -25,6 +25,7 @@
 #include <QQmlContext>
 #include <akpacket.h>
 #include <akvideopacket.h>
+#include <QPainterPath>
 
 #include "facedetectelement.h"
 #include "haar/haardetector.h"
@@ -79,6 +80,17 @@ class FaceDetectElementPrivate
         QSize m_scanSize {160, 120};
         AkElementPtr m_blurFilter {AkElement::create("Blur")};
         HaarDetector m_cascadeClassifier;
+        qreal m_scale {1.0};
+        qreal m_rScale {1.0};
+        bool m_smootheEdges {false};
+        int m_hOffset {0};
+        int m_vOffset {0};
+        int m_wAdjust {100};
+        int m_hAdjust {100};
+        int m_rWAdjust {100};
+        int m_rHAdjust {100};
+        int m_rHRadius {100};
+        int m_rVRadius {100};
 };
 
 FaceDetectElement::FaceDetectElement(): AkElement()
@@ -139,6 +151,61 @@ QString FaceDetectElement::markerImage() const
 QString FaceDetectElement::backgroundImage() const
 {
     return this->d->m_backgroundImage;
+}
+
+qreal FaceDetectElement::scale() const
+{
+    return this->d->m_scale;
+}
+
+qreal FaceDetectElement::rScale() const
+{
+    return this->d->m_rScale;
+}
+
+bool FaceDetectElement::smootheEdges() const
+{
+    return this->d->m_smootheEdges;
+}
+
+int FaceDetectElement::hOffset() const
+{
+    return this->d->m_hOffset;
+}
+
+int FaceDetectElement::vOffset() const
+{
+    return this->d->m_vOffset;
+}
+
+int FaceDetectElement::wAdjust() const
+{
+    return this->d->m_wAdjust;
+}
+
+int FaceDetectElement::hAdjust() const
+{
+    return this->d->m_hAdjust;
+}
+
+int FaceDetectElement::rWAdjust() const
+{
+    return this->d->m_rWAdjust;
+}
+
+int FaceDetectElement::rHAdjust() const
+{
+    return this->d->m_rHAdjust;
+}
+
+int FaceDetectElement::rHRadius() const
+{
+    return this->d->m_rHRadius;
+}
+
+int FaceDetectElement::rVRadius() const
+{
+    return this->d->m_rVRadius;
 }
 
 QSize FaceDetectElement::pixelGridSize() const
@@ -239,10 +306,14 @@ AkPacket FaceDetectElement::iVideoStream(const AkVideoPacket &packet)
     }
 
     for (auto &face: vecFaces) {
-        QRect rect(int(scale * face.x()),
-                   int(scale * face.y()),
+        QRect rect(int(scale * face.x() + this->d->m_hOffset),
+                   int(scale * face.y() + this->d->m_vOffset),
                    int(scale * face.width()),
                    int(scale * face.height()));
+        QPoint center = rect.center();
+        rect.setWidth(int(rect.width() * this->d->m_scale) * (this->d->m_wAdjust / 100.0));
+        rect.setHeight(int(rect.height() * this->d->m_scale) * (this->d->m_hAdjust / 100.0));
+        rect.moveCenter(center);
 
         if (this->d->m_markerType == MarkerTypeRectangle) {
             painter.setPen(this->d->m_markerPen);
@@ -274,6 +345,23 @@ AkPacket FaceDetectElement::iVideoStream(const AkVideoPacket &packet)
 
             painter.drawImage(rect, blurImage);
         } else if (this->d->m_markerType == MarkerTypeBlurOuter || this->d->m_markerType == MarkerTypeImageOuter) {
+            if (this->d->m_smootheEdges) {
+                QPainterPath path = QPainterPath();
+                QRectF rRect((scale * face.x() + this->d->m_hOffset),
+                             (scale * face.y() + this->d->m_vOffset),
+                             (scale * face.width()),
+                             (scale * face.height()));
+                QPointF rCenter = rRect.center();
+                rRect.setWidth(rRect.width() * this->d->m_rScale * (this->d->m_rWAdjust / 100.0));
+                rRect.setHeight(rRect.height() * this->d->m_rScale * (this->d->m_rHAdjust / 100.0));
+                rRect.moveCenter(rCenter);
+
+                path.addRoundedRect(rRect,
+                                    this->d->m_rHRadius,
+                                    this->d->m_rVRadius,
+                                    Qt::RelativeSize);
+                painter.setClipPath(path);
+            }
             painter.drawImage(rect, src.copy(rect));
         }
     }
@@ -368,6 +456,72 @@ void FaceDetectElement::setBackgroundImage(const QString &backgroundImage)
     emit this->backgroundImageChanged(backgroundImage);
 }
 
+void FaceDetectElement::setScale(const qreal scale)
+{
+    this->d->m_scale = scale;
+    emit this->scaleChanged(scale);
+}
+
+void FaceDetectElement::setRScale(const qreal rScale)
+{
+    this->d->m_rScale = rScale;
+    emit this->rScaleChanged(rScale);
+}
+
+void FaceDetectElement::setSmootheEdges(const bool smootheEdges)
+{
+    this->d->m_smootheEdges = smootheEdges;
+    emit this->smootheEdgesChanged(smootheEdges);
+}
+
+void FaceDetectElement::setHOffset(const int hOffset)
+{
+    this->d->m_hOffset = hOffset;
+    emit this->hOffsetChanged(hOffset);
+}
+
+void FaceDetectElement::setVOffset(const int vOffset)
+{
+    this->d->m_vOffset = vOffset;
+    emit this->vOffsetChanged(vOffset);
+}
+
+void FaceDetectElement::setWAdjust(const int wAdjust)
+{
+    this->d->m_wAdjust = wAdjust;
+    emit this->wAdjustChanged(wAdjust);
+}
+
+void FaceDetectElement::setHAdjust(const int hAdjust)
+{
+    this->d->m_hAdjust = hAdjust;
+    emit this->hAdjustChanged(hAdjust);
+}
+
+void FaceDetectElement::setRWAdjust(const int rWAdjust)
+{
+    this->d->m_rWAdjust = rWAdjust;
+    emit this->rWAdjustChanged(rWAdjust);
+}
+
+void FaceDetectElement::setRHAdjust(const int rHAdjust)
+{
+    this->d->m_rHAdjust = rHAdjust;
+    emit this->rHAdjustChanged(rHAdjust);
+}
+
+void FaceDetectElement::setRHRadius(const int rHRadius)
+{
+    this->d->m_rHRadius = rHRadius;
+    emit this->rHRadiusChanged(rHRadius);
+}
+
+void FaceDetectElement::setRVRadius(const int rVRadius)
+{
+    this->d->m_rVRadius = rVRadius;
+    emit this->rVRadiusChanged(rVRadius);
+}
+
 void FaceDetectElement::setPixelGridSize(const QSize &pixelGridSize)
 {
     if (this->d->m_pixelGridSize == pixelGridSize)
@@ -424,6 +578,61 @@ void FaceDetectElement::resetMarkerImage()
 void FaceDetectElement::resetBackgroundImage()
 {
     this->setBackgroundImage(":/FaceDetect/share/backgrounds/black_square.png");
+}
+
+void FaceDetectElement::resetScale()
+{
+    this->setScale(1.0);
+}
+
+void FaceDetectElement::resetRScale()
+{
+    this->setRScale(1.0);
+}
+
+void FaceDetectElement::resetSmootheEdges()
+{
+    this->setSmootheEdges(false);
+}
+
+void FaceDetectElement::resetHOffset()
+{
+    this->setHOffset(0);
+}
+
+void FaceDetectElement::resetVOffset()
+{
+    this->setVOffset(0);
+}
+
+void FaceDetectElement::resetWAdjust()
+{
+    this->setWAdjust(100);
+}
+
+void FaceDetectElement::resetHAdjust()
+{
+    this->setHAdjust(100);
+}
+
+void FaceDetectElement::resetRWAdjust()
+{
+    this->setRWAdjust(100);
+}
+
+void FaceDetectElement::resetRHAdjust()
+{
+    this->setRHAdjust(100);
+}
+
+void FaceDetectElement::resetRHRadius()
+{
+    this->setRHRadius(0);
+}
+
+void FaceDetectElement::resetRVRadius()
+{
+    this->setRVRadius(0);
 }
 
 void FaceDetectElement::resetPixelGridSize()

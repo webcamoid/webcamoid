@@ -79,6 +79,61 @@ class FaceDetectElement: public AkElement
                    WRITE setScanSize
                    RESET resetScanSize
                    NOTIFY scanSizeChanged)
+        Q_PROPERTY(qreal scale
+                   READ scale
+                   WRITE setScale
+                   RESET resetScale
+                   NOTIFY scaleChanged)
+        Q_PROPERTY(qreal rScale
+                   READ rScale
+                   WRITE setRScale
+                   RESET resetRScale
+                   NOTIFY rScaleChanged)
+        Q_PROPERTY(bool smootheEdges
+                   READ smootheEdges
+                   WRITE setSmootheEdges
+                   RESET resetSmootheEdges
+                   NOTIFY smootheEdgesChanged)
+        Q_PROPERTY(int hOffset
+                   READ hOffset
+                   WRITE setHOffset
+                   RESET resetHOffset
+                   NOTIFY hOffsetChanged)
+        Q_PROPERTY(int vOffset
+                   READ vOffset
+                   WRITE setVOffset
+                   RESET resetVOffset
+                   NOTIFY vOffsetChanged)
+        Q_PROPERTY(int wAdjust
+                   READ wAdjust
+                   WRITE setWAdjust
+                   RESET resetWAdjust
+                   NOTIFY wAdjustChanged)
+        Q_PROPERTY(int hAdjust
+                   READ hAdjust
+                   WRITE setHAdjust
+                   RESET resetHAdjust
+                   NOTIFY hAdjustChanged)
+        Q_PROPERTY(int rWAdjust
+                   READ rWAdjust
+                   WRITE setRWAdjust
+                   RESET resetRWAdjust
+                   NOTIFY rWAdjustChanged)
+        Q_PROPERTY(int rHAdjust
+                   READ rHAdjust
+                   WRITE setRHAdjust
+                   RESET resetRHAdjust
+                   NOTIFY rHAdjustChanged)
+        Q_PROPERTY(int rHRadius
+                   READ rHRadius
+                   WRITE setRHRadius
+                   RESET resetRHRadius
+                   NOTIFY rHRadiusChanged)
+        Q_PROPERTY(int rVRadius
+                   READ rVRadius
+                   WRITE setRVRadius
+                   RESET resetRVRadius
+                   NOTIFY rVRadiusChanged)
 
     public:
         enum MarkerType
@@ -106,6 +161,18 @@ class FaceDetectElement: public AkElement
         Q_INVOKABLE int blurRadius() const;
         Q_INVOKABLE QSize scanSize() const;
         Q_INVOKABLE QVector<QRect> detectFaces(const AkVideoPacket &packet);
+        Q_INVOKABLE qreal scale() const;
+        Q_INVOKABLE qreal rScale() const;
+        Q_INVOKABLE bool smootheEdges() const;
+        Q_INVOKABLE int hOffset() const;
+        Q_INVOKABLE int vOffset() const;
+        Q_INVOKABLE int wAdjust() const;
+        Q_INVOKABLE int hAdjust() const;
+        Q_INVOKABLE int rWAdjust() const;
+        Q_INVOKABLE int rHAdjust() const;
+        Q_INVOKABLE int rHRadius() const;
+        Q_INVOKABLE int rVRadius() const;
+
 
     private:
         FaceDetectElementPrivate *d;
@@ -127,6 +194,17 @@ class FaceDetectElement: public AkElement
         void pixelGridSizeChanged(const QSize &pixelGridSize);
         void blurRadiusChanged(int blurRadius);
         void scanSizeChanged(const QSize &scanSize);
+        void scaleChanged(const qreal scale);
+        void rScaleChanged(const qreal rScale);
+        void smootheEdgesChanged(const bool smootheEdges);
+        void hOffsetChanged(const int hOffset);
+        void vOffsetChanged(const int vOffset);
+        void wAdjustChanged(const int wAdjust);
+        void hAdjustChanged(const int hAdjust);
+        void rWAdjustChanged(const int rWAdjust);
+        void rHAdjustChanged(const int rHAdjust);
+        void rHRadiusChanged(const int rHRadius);
+        void rVRadiusChanged(const int rVRadius);
 
     public slots:
         void setHaarFile(const QString &haarFile);
@@ -139,6 +217,17 @@ class FaceDetectElement: public AkElement
         void setPixelGridSize(const QSize &pixelGridSize);
         void setBlurRadius(int blurRadius);
         void setScanSize(const QSize &scanSize);
+        void setScale(const qreal scale);
+        void setRScale(const qreal rScale);
+        void setSmootheEdges(const bool smootheEdges);
+        void setHOffset(const int hOffset);
+        void setVOffset(const int vOffset);
+        void setWAdjust(const int wAdjust);
+        void setHAdjust(const int hAdjust);
+        void setRWAdjust(const int rWAdjust);
+        void setRHAdjust(const int rHAdjust);
+        void setRHRadius(const int rHRadius);
+        void setRVRadius(const int rVRadius);
         void resetHaarFile();
         void resetMarkerType();
         void resetMarkerColor();
@@ -149,6 +238,17 @@ class FaceDetectElement: public AkElement
         void resetPixelGridSize();
         void resetBlurRadius();
         void resetScanSize();
+        void resetScale();
+        void resetRScale();
+        void resetSmootheEdges();
+        void resetHOffset();
+        void resetVOffset();
+        void resetWAdjust();
+        void resetHAdjust();
+        void resetRWAdjust();
+        void resetRHAdjust();
+        void resetRHRadius();
+        void resetRVRadius();
 };
 
 #endif // FACEDETECTELEMENT_H

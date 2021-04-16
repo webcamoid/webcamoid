@@ -1095,7 +1095,8 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="111"/>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="125"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="541"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="545"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="610"/>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="142"/>
         <source>Search</source>
         <translation>Suchen</translation>
@@ -1355,7 +1356,8 @@
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="84"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="498"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="502"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="567"/>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="99"/>
         <source>Custom</source>
         <translation>Benutzerdefiniert</translation>
@@ -1367,7 +1369,8 @@
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="134"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="582"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="968"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="977"/>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="209"/>
         <source>Please choose an image file</source>
         <translation>Bitte wählen Sie eine Bilddatei aus</translation>
@@ -1379,8 +1382,8 @@
         <translation>Convolve-Matrix</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="164"/>
-        <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="168"/>
+        <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="162"/>
+        <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="166"/>
         <location filename="../../../libAvKys/Plugins/Denoise/share/qml/main.qml" line="64"/>
         <location filename="../../../libAvKys/Plugins/Denoise/share/qml/main.qml" line="68"/>
         <location filename="../../../libAvKys/Plugins/Emboss/share/qml/main.qml" line="29"/>
@@ -1391,7 +1394,7 @@
         <translation>Faktor</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="179"/>
+        <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="177"/>
         <location filename="../../../libAvKys/Plugins/Emboss/share/qml/main.qml" line="45"/>
         <location filename="../../../libAvKys/Plugins/Emboss/share/qml/main.qml" line="49"/>
         <source>Bias</source>
@@ -1699,260 +1702,333 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="272"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="266"/>
+        <source>Background Image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="276"/>
         <source>Marker style</source>
         <translation>Marker-Stil</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="282"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="286"/>
         <source>Solid</source>
         <translation>Fest</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="286"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="290"/>
         <source>Dash</source>
         <translation>Strich</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="290"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="294"/>
         <source>Dot</source>
         <translation>Punkt</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="294"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="298"/>
         <source>Dash dot</source>
         <translation>Strich-Punkt</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="298"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="302"/>
         <source>Dash dot dot</source>
         <translation>Strich-Punkt-Punkt</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="308"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="312"/>
         <source>Marker color</source>
         <translation>Markerfarbe</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="325"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="329"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="333"/>
         <source>Marker width</source>
         <translation>Markerbreite</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="341"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="345"/>
         <source>Masks</source>
         <translation>Masken</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="350"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="354"/>
         <source>Angel</source>
         <translation>Engel</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="354"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="358"/>
         <source>Bear</source>
         <translation>Bär</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="358"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="362"/>
         <source>Beaver</source>
         <translation>Biber</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="362"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="366"/>
         <source>Cat</source>
         <translation>Katze</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="366"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="370"/>
         <source>Chicken</source>
         <translation>Huhn</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="370"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="374"/>
         <source>Cow</source>
         <translation>Kuh</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="374"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="378"/>
         <source>Devil</source>
         <translation>Teufel</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="378"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="382"/>
         <source>Dog</source>
         <translation>Hund</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="382"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="386"/>
         <source>Dalmatian dog</source>
         <translation>Dalmatinerhund</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="386"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="390"/>
         <source>Happy dog</source>
         <translation>Fröhlicher Hund</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="390"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="394"/>
         <source>Dragon</source>
         <translation>Drache</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="394"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="398"/>
         <source>Elephant 1</source>
         <translation>Elefant 1</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="398"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="402"/>
         <source>Elephant 2</source>
         <translation>Elefant 2</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="402"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="406"/>
         <source>Elk</source>
         <translation>Elch</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="406"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="410"/>
         <source>Frog</source>
         <translation>Frosch</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="410"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="414"/>
         <source>Ghost</source>
         <translation>Geist</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="414"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="418"/>
         <source>Giraffe</source>
         <translation>Giraffe</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="418"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="422"/>
         <source>Gnu</source>
         <translation>Gnu</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="422"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="426"/>
         <source>Goat</source>
         <translation>Ziege</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="426"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="430"/>
         <source>Hippo</source>
         <translation>Nilpferd</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="430"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="434"/>
         <source>Horse</source>
         <translation>Pferd</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="434"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="438"/>
         <source>Gray horse</source>
         <translation>Schimmel</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="438"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="442"/>
         <source>Koala</source>
         <translation>Koala</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="442"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="446"/>
         <source>Monkey</source>
         <translation>Affe</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="446"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="450"/>
         <source>Gray mouse</source>
         <translation>Graue Maus</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="450"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="454"/>
         <source>White mouse</source>
         <translation>Weiße Maus</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="454"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="458"/>
         <source>Panda</source>
         <translation>Panda</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="458"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="462"/>
         <source>Penguin</source>
         <translation>Pinguin</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="462"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="466"/>
         <source>Pumpkin 1</source>
         <translation>Kürbis 1</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="466"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="470"/>
         <source>Pumpkin 2</source>
         <translation>Kürbis 2</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="470"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="474"/>
         <source>Raccoon</source>
         <translation>Waschbär</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="474"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="478"/>
         <source>Rhino</source>
         <translation>Nashorn</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="478"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="482"/>
         <source>Sheep</source>
         <translation>Schaf</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="482"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="486"/>
         <source>Skull 1</source>
         <translation>Schädel 1</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="486"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="490"/>
         <source>Skull 2</source>
         <translation>Schädel 2</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="490"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="494"/>
         <source>Triceratops</source>
         <translation>Triceratops</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="494"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="498"/>
         <source>Zebra</source>
         <translation>Zebra</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="507"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="511"/>
         <source>Marker picture</source>
         <translation>Markerbild</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="521"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="525"/>
         <source>Replace face with this picture</source>
         <translation>Gesicht durch Bild austauschen</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="550"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="554"/>
+        <source>Backgrounds</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="563"/>
+        <source>Black Square</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="576"/>
+        <source>Background picture</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="590"/>
+        <source>Replace background with this picture</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="619"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="623"/>
         <source>Pixel grid size</source>
         <translation>Pixelrastergröße</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="566"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="570"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="635"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="639"/>
         <source>Blur radius</source>
         <translation>Unschärferadius</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="316"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="650"/>
+        <source>Face Area Settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="657"/>
+        <source>Advanced face area settings for 
+background blur or image below.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="708"/>
+        <source>H-Offset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="734"/>
+        <source>V-Offset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="761"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="866"/>
+        <source>Width Adjust %</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="787"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="892"/>
+        <source>Height Adjust %</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="814"/>
+        <source>Round Area</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="919"/>
+        <source>H-Radius %</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="943"/>
+        <source>V-Radius %</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="320"/>
         <source>Select marker color</source>
         <translation>Wählen Sie die Markerfarbe</translation>
     </message>
@@ -2350,6 +2426,8 @@
         <translation>Blickpunkt</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="666"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="825"/>
         <location filename="../../../libAvKys/Plugins/Vignette/share/qml/main.qml" line="124"/>
         <source>Scale</source>
         <translation>Skala</translation>
