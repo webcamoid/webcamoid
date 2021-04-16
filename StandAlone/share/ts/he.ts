@@ -1704,7 +1704,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="266"/>
         <source>Background Image</source>
-        <translation type="unfinished"></translation>
+        <translation>תמונת רקע</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="276"/>
@@ -1950,22 +1950,22 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="554"/>
         <source>Backgrounds</source>
-        <translation type="unfinished"></translation>
+        <translation>תמונות רקע</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="563"/>
         <source>Black Square</source>
-        <translation type="unfinished"></translation>
+        <translation>ריבוע שחור</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="576"/>
         <source>Background picture</source>
-        <translation type="unfinished"></translation>
+        <translation>תמונת רקע</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="590"/>
         <source>Replace background with this picture</source>
-        <translation type="unfinished"></translation>
+        <translation>החלפת הרקע בתמונה הזאת</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="619"/>
@@ -1982,50 +1982,51 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="650"/>
         <source>Face Area Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>הגדרות אזור פנים</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="657"/>
         <source>Advanced face area settings for 
 background blur or image below.</source>
-        <translation type="unfinished"></translation>
+        <translation>הגדרות אזור פנים מתקדמות
+לטשטוש הרקע או התמונה שלהלן.</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="708"/>
         <source>H-Offset</source>
-        <translation type="unfinished"></translation>
+        <translation>היסט אופקי</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="734"/>
         <source>V-Offset</source>
-        <translation type="unfinished"></translation>
+        <translation>היסט אנכי</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="761"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="866"/>
         <source>Width Adjust %</source>
-        <translation type="unfinished"></translation>
+        <translation>התאמת רוחב ב־%</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="787"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="892"/>
         <source>Height Adjust %</source>
-        <translation type="unfinished"></translation>
+        <translation>התאמת גובה ב־%</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="814"/>
         <source>Round Area</source>
-        <translation type="unfinished"></translation>
+        <translation>אזור עגול</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="919"/>
         <source>H-Radius %</source>
-        <translation type="unfinished"></translation>
+        <translation>קוטר רוחבי ב־%</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="943"/>
         <source>V-Radius %</source>
-        <translation type="unfinished"></translation>
+        <translation>קוטר אנכי ב־%</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="320"/>
