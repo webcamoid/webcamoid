@@ -1704,7 +1704,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="266"/>
         <source>Background Image</source>
-        <translation type="unfinished"></translation>
+        <translation>Achtergrondafbeelding</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="276"/>
@@ -1950,22 +1950,22 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="554"/>
         <source>Backgrounds</source>
-        <translation type="unfinished"></translation>
+        <translation>Achtergronden</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="563"/>
         <source>Black Square</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwart vierkant</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="576"/>
         <source>Background picture</source>
-        <translation type="unfinished"></translation>
+        <translation>Achtergrondafbeelding</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="590"/>
         <source>Replace background with this picture</source>
-        <translation type="unfinished"></translation>
+        <translation>Achtergrond vervangen door deze afbeelding</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="619"/>
@@ -1982,50 +1982,51 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="650"/>
         <source>Face Area Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Gezichtsveld-instellingen</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="657"/>
         <source>Advanced face area settings for 
 background blur or image below.</source>
-        <translation type="unfinished"></translation>
+        <translation>Geavanceerde gezichtsveld-instellingen
+aangaande achtergrondvervaging.</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="708"/>
         <source>H-Offset</source>
-        <translation type="unfinished"></translation>
+        <translation>H-verschuiving</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="734"/>
         <source>V-Offset</source>
-        <translation type="unfinished"></translation>
+        <translation>V-verschuiving</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="761"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="866"/>
         <source>Width Adjust %</source>
-        <translation type="unfinished"></translation>
+        <translation>Breedte-aanpassing %</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="787"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="892"/>
         <source>Height Adjust %</source>
-        <translation type="unfinished"></translation>
+        <translation>Hoogte-aanpassing %</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="814"/>
         <source>Round Area</source>
-        <translation type="unfinished"></translation>
+        <translation>Rond gebied</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="919"/>
         <source>H-Radius %</source>
-        <translation type="unfinished"></translation>
+        <translation>H-straal %</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="943"/>
         <source>V-Radius %</source>
-        <translation type="unfinished"></translation>
+        <translation>V-straal %</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="320"/>
