@@ -47,10 +47,13 @@ struct AkPluginInfoPrivate
     QVariantMap metaData;
     bool used {false};
 
+    AkPluginInfoPrivate();
     AkPluginInfoPrivate(const QString &id,
                         const QString &path,
                         const QVariantMap &metaData,
                         bool used);
+    AkPluginInfoPrivate(const AkPluginInfoPrivate &other);
+    AkPluginInfoPrivate &operator =(const AkPluginInfoPrivate &other);
 };
 
 class AkElementPrivate
@@ -836,6 +839,11 @@ void AkElementPrivate::listPlugins()
     this->m_pluginsScanned = true;
 }
 
+AkPluginInfoPrivate::AkPluginInfoPrivate()
+{
+
+}
+
 AkPluginInfoPrivate::AkPluginInfoPrivate(const QString &id,
                                          const QString &path,
                                          const QVariantMap &metaData,
@@ -846,6 +854,26 @@ AkPluginInfoPrivate::AkPluginInfoPrivate(const QString &id,
     used(used)
 {
 
+}
+
+AkPluginInfoPrivate::AkPluginInfoPrivate(const AkPluginInfoPrivate &other)
+{
+    this->id = other.id;
+    this->path = other.path;
+    this->metaData = other.metaData;
+    this->used = other.used;
+}
+
+AkPluginInfoPrivate &AkPluginInfoPrivate::operator =(const AkPluginInfoPrivate &other)
+{
+    if (this != &other) {
+        this->id = other.id;
+        this->path = other.path;
+        this->metaData = other.metaData;
+        this->used = other.used;
+    }
+
+    return *this;
 }
 
 QDataStream &operator >>(QDataStream &istream, AkElement::ElementState &state)
