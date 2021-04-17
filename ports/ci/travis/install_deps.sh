@@ -274,6 +274,12 @@ apt-get install -qq -y keyboard-configuration
 cp -vf keyboard_config /etc/default/keyboard
 dpkg-reconfigure --frontend noninteractive keyboard-configuration
 
+if [ "${DOCKERIMG}" = ubuntu:focal ]; then
+    apt-get -y install software-properties-common
+    add-apt-repository ppa:beineri/opt-qt-${QTVER}-focal
+fi
+
+apt-get -y update
 apt-get -y upgrade
 
 # Install dev tools
@@ -306,27 +312,39 @@ EOF
 
     if [ -z "${DAILY_BUILD}" ] && [ -z "${RELEASE_BUILD}" ]; then
         ${EXEC} apt-get -y install \
-            libgstreamer-plugins-base1.0-dev \
-            libusb-dev \
-            libuvc-dev
+            libgstreamer-plugins-base1.0-dev
+
+        if [ "${DOCKERIMG}" != ubuntu:focal ]; then
+            ${EXEC} apt-get -y install \
+                libusb-dev \
+                libuvc-dev
+        fi
     fi
 
     # Install Qt dev
-    ${EXEC} apt-get -y install \
-        qt5-qmake \
-        qttools5-dev-tools \
-        qtdeclarative5-dev \
-        libqt5opengl5-dev \
-        libqt5svg5-dev \
-        qtquickcontrols2-5-dev \
-        qml-module-qt-labs-folderlistmodel \
-        qml-module-qt-labs-settings \
-        qml-module-qtqml-models2 \
-        qml-module-qtquick-controls2 \
-        qml-module-qtquick-dialogs \
-        qml-module-qtquick-extras \
-        qml-module-qtquick-privatewidgets \
-        qml-module-qtquick-templates2
+    if [ "${DOCKERIMG}" = ubuntu:focal ]; then
+        ${EXEC} apt-get -y install \
+            qt${PPAQTVER}tools \
+            qt${PPAQTVER}declarative \
+            qt${PPAQTVER}svg \
+            qt${PPAQTVER}quickcontrols2
+    else
+        ${EXEC} apt-get -y install \
+            qt5-qmake \
+            qttools5-dev-tools \
+            qtdeclarative5-dev \
+            libqt5opengl5-dev \
+            libqt5svg5-dev \
+            qtquickcontrols2-5-dev \
+            qml-module-qt-labs-folderlistmodel \
+            qml-module-qt-labs-settings \
+            qml-module-qtqml-models2 \
+            qml-module-qtquick-controls2 \
+            qml-module-qtquick-dialogs \
+            qml-module-qtquick-extras \
+            qml-module-qtquick-privatewidgets \
+            qml-module-qtquick-templates2
+    fi
 elif [ "${DOCKERSYS}" = fedora ]; then
     ${EXEC} dnf install -y --skip-broken https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-${FEDORAVER}.noarch.rpm
     ${EXEC} dnf install -y --skip-broken https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-${FEDORAVER}.noarch.rpm

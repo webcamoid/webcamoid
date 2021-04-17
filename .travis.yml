@@ -13,7 +13,7 @@ env:
     - QTVER_ANDROID=5.14.2
     - QTIFWVER=4.0.1
     - APPIMAGEVER=12
-    - ARCH_ROOT_DATE=2021.02.01
+    - ARCH_ROOT_DATE=2021.04.01
     - ARCH_ROOT_URL=https://mirror.rackspace.com/archlinux
     - SDKVER=6858069
     - NDKVER=r22

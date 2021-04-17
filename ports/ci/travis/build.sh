@@ -18,7 +18,7 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-if [ "${COMPILER}" = clang ]; then
+if [ "${TRAVIS_COMPILER}" = clang ]; then
     COMPILER_C=clang
     COMPILER_CXX=clang++
 else
@@ -50,6 +50,15 @@ elif [ "${TRAVIS_OS_NAME}" = linux ] && [ -z "${ANDROID_BUILD}" ]; then
 fi
 
 BUILDSCRIPT=dockerbuild.sh
+
+if [ "${DOCKERIMG}" = ubuntu:focal ]; then
+    cat << EOF > ${BUILDSCRIPT}
+#!/bin/sh
+source /opt/qt${PPAQTVER}/bin/qt${PPAQTVER}-env.sh
+EOF
+
+    chmod +x ${BUILDSCRIPT}
+fi
 
 if [ "${ANDROID_BUILD}" = 1 ]; then
     export JAVA_HOME=$(readlink -f /usr/bin/java | sed 's:bin/java::')
@@ -140,7 +149,50 @@ elif [ "${TRAVIS_OS_NAME}" = linux ]; then
     export PATH=$HOME/.local/bin:$PATH
 
     if [ "${DOCKERSYS}" = debian ]; then
-        cat << EOF >> ${BUILDSCRIPT}
+        if [ "${DOCKERIMG}" = ubuntu:focal ]; then
+           if [ -z "${DAILY_BUILD}" ] && [ -z "${RELEASE_BUILD}" ]; then
+                cat << EOF >> ${BUILDSCRIPT}
+#!/bin/sh
+
+mkdir build
+cmake \
+    -S . \
+    -B build \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_PREFIX="\${PWD}/webcamoid-data" \
+    -DCMAKE_C_COMPILER="${COMPILER_C}" \
+    -DCMAKE_CXX_COMPILER="${COMPILER_CXX}" \
+    ${EXTRA_PARAMS} \
+    -DDAILY_BUILD=${DAILY_BUILD}
+cmake -LA -S . -B build
+cmake --build build --parallel ${NJOBS}
+cmake --install build
+EOF
+            else
+                cat << EOF >> ${BUILDSCRIPT}
+#!/bin/sh
+
+mkdir build
+cmake \
+    -S . \
+    -B build \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_PREFIX="\${PWD}/webcamoid-data" \
+    -DCMAKE_C_COMPILER="${COMPILER_C}" \
+    -DCMAKE_CXX_COMPILER="${COMPILER_CXX}" \
+    ${EXTRA_PARAMS} \
+    -DDAILY_BUILD=${DAILY_BUILD}
+    -DNOGSTREAMER=TRUE \
+    -DNOLIBAVDEVICE=TRUE
+cmake -LA -S . -B build
+cmake --build build --parallel ${NJOBS}
+cmake --install build
+EOF
+            fi
+
+            ${EXEC} bash ${BUILDSCRIPT}
+        else
+            cat << EOF >> ${BUILDSCRIPT}
 #!/bin/sh
 
 mkdir build
@@ -158,6 +210,7 @@ cmake -LA -S . -B build
 cmake --build build --parallel ${NJOBS}
 cmake --install build
 EOF
+        fi
     else
         cat << EOF >> ${BUILDSCRIPT}
 #!/bin/sh
