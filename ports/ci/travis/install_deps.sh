@@ -255,11 +255,30 @@ EOF
     sudo umount root.x86_64/$HOME
     sudo umount root.x86_64
 elif [ "${DOCKERSYS}" = debian ]; then
-    ${EXEC} apt-get -y update
-    ${EXEC} apt-get -y upgrade
+    cat << EOF > keyboard_config
+XKBMODEL="pc105"
+XKBLAYOUT="us"
+XKBVARIANT=""
+XKBOPTIONS=""
+BACKSPACE="guess"
+EOF
 
-    # Install dev tools
-    ${EXEC} bash -c "DEBIAN_FRONTEND=noninteractive apt-get -y install \
+    cat << EOF > base_packages.sh
+#!/bin/sh
+
+export LC_ALL=C
+export DEBIAN_FRONTEND=noninteractive
+
+apt-get update -qq -y
+apt-get install -qq -y keyboard_config
+cp -vf keyboard_config /etc/default/keyboard
+dpkg-reconfigure --frontend noninteractive keyboard-configuration
+
+apt-get -y upgrade
+
+# Install dev tools
+
+apt-get -y install \
         ccache \
         clang \
         cmake \
@@ -280,7 +299,10 @@ elif [ "${DOCKERSYS}" = debian ]; then
         linux-libc-dev \
         make \
         pkg-config \
-        xvfb"
+        xvfb
+EOF
+    chmod +x base_packages.sh
+    ${EXEC} bash base_packages.sh
 
     if [ -z "${DAILY_BUILD}" ] && [ -z "${RELEASE_BUILD}" ]; then
         ${EXEC} apt-get -y install \
