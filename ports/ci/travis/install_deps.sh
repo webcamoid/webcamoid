@@ -324,6 +324,7 @@ elif [ "${DOCKERSYS}" = fedora ]; then
         libv4l-devel \
         make \
         pulseaudio-libs-devel \
+        qt5-linguist \
         qt5-qtdeclarative-devel \
         qt5-qtquickcontrols2-devel \
         qt5-qtsvg-devel \

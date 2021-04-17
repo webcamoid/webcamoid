@@ -33,6 +33,7 @@ pkg install -y \
     python3 \
     qt5-buildtools \
     qt5-concurrent \
+    qt5-linguisttools \
     qt5-opengl \
     qt5-qmake \
     qt5-quickcontrols \

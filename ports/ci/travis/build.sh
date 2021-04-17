@@ -18,8 +18,6 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-INSTALL_PREFIX=${TRAVIS_BUILD_DIR}/webcamoid-data
-
 if [ "${COMPILER}" = clang ]; then
     COMPILER_C=clang
     COMPILER_CXX=clang++
@@ -34,14 +32,14 @@ if [ ! -z "${ARCH_ROOT_MINGW}" ]; then
 fi
 
 if [ -z "${DISABLE_CCACHE}" ]; then
-    EXTRA_PARAMS="-DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache"
+    EXTRA_PARAMS="-DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_OBJCXX_COMPILER_LAUNCHER=ccache"
 fi
 
 if [ ! -z "${DAILY_BUILD}" ] || [ ! -z "${RELEASE_BUILD}" ]; then
     if [ "${TRAVIS_OS_NAME}" = linux ]; then
         EXTRA_PARAMS="${EXTRA_PARAMS} -DNOGSTREAMER=ON -DNOLIBAVDEVICE=ON"
     elif [ "${TRAVIS_OS_NAME}" = osx ]; then
-        EXTRA_PARAMS="${EXTRA_PARAMS}  -DNOGSTREAMER=ON -DNOJACK=ON -DNOLIBAVDEVICE=ON -DNOLIBUVC=ON -DNOPULSEAUDIO=ON"
+        EXTRA_PARAMS="${EXTRA_PARAMS} -DNOGSTREAMER=ON -DNOJACK=ON -DNOLIBAVDEVICE=ON -DNOLIBUVC=ON -DNOPULSEAUDIO=ON"
     fi
 fi
 
@@ -98,10 +96,14 @@ elif [ "${ARCH_ROOT_BUILD}" = 1 ]; then
         QMAKE_CMD=qmake
         CMAKE_CMD=cmake
         PKG_CONFIG=pkg-config
+        LRELEASE_TOOL=lrelease
+        LUPDATE_TOOL=lupdate
     else
         QMAKE_CMD=/usr/${ARCH_ROOT_MINGW}-w64-mingw32/lib/qt/bin/qmake
         CMAKE_CMD=${ARCH_ROOT_MINGW}-w64-mingw32-cmake
         PKG_CONFIG=${ARCH_ROOT_MINGW}-w64-mingw32-pkg-config
+        LRELEASE_TOOL=/usr/${ARCH_ROOT_MINGW}-w64-mingw32/lib/qt/bin/lrelease
+        LUPDATE_TOOL=/usr/${ARCH_ROOT_MINGW}-w64-mingw32/lib/qt/bin/lupdate
     fi
 
     cat << EOF > ${BUILDSCRIPT}
@@ -118,13 +120,15 @@ ${CMAKE_CMD} \
     -B build \
     -DQT_QMAKE_EXECUTABLE=${QMAKE_CMD} \
     -DCMAKE_BUILD_TYPE=Release \
-    -DCMAKE_PREFIX_PATH="\${PWD}/webcamoid-data" \
+    -DCMAKE_INSTALL_PREFIX="\${PWD}/webcamoid-data" \
     -DCMAKE_C_COMPILER="${COMPILER_C}" \
     -DCMAKE_CXX_COMPILER="${COMPILER_CXX}" \
+    -DLRELEASE_TOOL=${LRELEASE_TOOL} \
+    -DLUPDATE_TOOL=${LUPDATE_TOOL} \
     ${EXTRA_PARAMS} \
     -DDAILY_BUILD=${DAILY_BUILD}
 cmake -LA -S . -B build
-make -C build --parallel ${NJOBS}
+make -C build -j${NJOBS}
 make -C build install
 EOF
     chmod +x ${BUILDSCRIPT}
@@ -145,7 +149,7 @@ cmake \
     -B build \
     -DQT_QMAKE_EXECUTABLE="qmake -qt=5" \
     -DCMAKE_BUILD_TYPE=Release \
-    -DCMAKE_PREFIX_PATH="\${PWD}/webcamoid-data" \
+    -DCMAKE_INSTALL_PREFIX="\${PWD}/webcamoid-data" \
     -DCMAKE_C_COMPILER="${COMPILER_C}" \
     -DCMAKE_CXX_COMPILER="${COMPILER_CXX}" \
     ${EXTRA_PARAMS} \
@@ -164,7 +168,7 @@ cmake \
     -B build \
     -DQT_QMAKE_EXECUTABLE=qmake-qt5 \
     -DCMAKE_BUILD_TYPE=Release \
-    -DCMAKE_PREFIX_PATH="\${PWD}/webcamoid-data" \
+    -DCMAKE_INSTALL_PREFIX="\${PWD}/webcamoid-data" \
     -DCMAKE_C_COMPILER="${COMPILER_C}" \
     -DCMAKE_CXX_COMPILER="${COMPILER_CXX}" \
     ${EXTRA_PARAMS} \
@@ -188,7 +192,7 @@ elif [ "${TRAVIS_OS_NAME}" = osx ]; then
         -S . \
         -B build \
         -DCMAKE_BUILD_TYPE=Release \
-        -DCMAKE_PREFIX_PATH=${INSTALL_PREFIX} \
+        -DCMAKE_INSTALL_PREFIX=${PWD}/webcamoid-data \
         -DCMAKE_C_COMPILER="${COMPILER_C}" \
         -DCMAKE_CXX_COMPILER="${COMPILER_CXX}" \
         ${EXTRA_PARAMS} \
