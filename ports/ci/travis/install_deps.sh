@@ -134,10 +134,12 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
     export ANDROID_NDK="${PWD}/build/android-ndk"
     export ANDROID_NDK_HOME=${ANDROID_NDK}
     export PATH="${JAVA_HOME}/bin/java:${PATH}"
-    export PATH="${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/tools/bin"
-    export PATH="${PATH}:${ANDROID_HOME}/platform-tools"
-    export PATH="${PATH}:${ANDROID_HOME}/emulator"
-    export PATH="${PATH}:${ANDROID_NDK}"
+    export PATH=":${ANDROID_HOME}/tools:${PATH}"
+    export PATH="${ANDROID_HOME}/tools/bin:${PATH}"
+    export PATH="${ANDROID_HOME}/cmdline-tools/bin:${PATH}"
+    export PATH="${ANDROID_HOME}/platform-tools:${PATH}"
+    export PATH="${ANDROID_HOME}/emulator:${PATH}"
+    export PATH="${ANDROID_NDK}:${PATH}"
 
     # Install Android things
     echo y | sdkmanager \
