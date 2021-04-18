@@ -103,11 +103,11 @@ elif [ "${ARCH_ROOT_BUILD}" = 1 ]; then
     sudo mount --bind $HOME root.x86_64/$HOME
 
     if [ -z "${ARCH_ROOT_MINGW}" ]; then
-        QMAKE_CMD=qmake
-        CMAKE_CMD=cmake
-        PKG_CONFIG=pkg-config
-        LRELEASE_TOOL=lrelease
-        LUPDATE_TOOL=lupdate
+        QMAKE_CMD=/usr/bin/qmake
+        CMAKE_CMD=/usr/bin/cmake
+        PKG_CONFIG=/usr/bin/pkg-config
+        LRELEASE_TOOL=/usr/bin/lrelease
+        LUPDATE_TOOL=/usr/bin/lupdate
     else
         QMAKE_CMD=/usr/${ARCH_ROOT_MINGW}-w64-mingw32/lib/qt/bin/qmake
         CMAKE_CMD=${ARCH_ROOT_MINGW}-w64-mingw32-cmake
