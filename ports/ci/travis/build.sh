@@ -65,6 +65,7 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
     export ANDROID_HOME="${PWD}/build/android-sdk"
     export ANDROID_NDK="${PWD}/build/android-ndk"
     export ANDROID_NDK_HOME=${ANDROID_NDK}
+    export ANDROID_NDK_HOST=linux-x86_64
     export ANDROID_NDK_PLATFORM=android-${ANDROID_PLATFORM}
     export ANDROID_NDK_ROOT=${ANDROID_NDK}
     export ANDROID_SDK_ROOT=${ANDROID_HOME}
