@@ -24,15 +24,6 @@ else ()
     set(QT_MINIMUM_VERSION 6.0 CACHE INTERNAL "")
 endif ()
 
-#if (APPLE)
-#    include(CheckLanguage)
-#    check_language(OBJCXX)
-#
-#    if (CMAKE_OBJCXX_COMPILER)
-#        enable_language(OBJCXX)
-#    endif ()
-#endif ()
-
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
