@@ -87,6 +87,7 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
         cmake \
         libxkbcommon-x11-0 \
         make \
+        ninja-build \
         openjdk-8-jdk \
         openjdk-8-jre
 
