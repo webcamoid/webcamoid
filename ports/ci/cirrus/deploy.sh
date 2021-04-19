@@ -21,7 +21,7 @@
 git clone https://github.com/webcamoid/DeployTools.git
 
 export INSTALL_PREFIX=${PWD}/webcamoid-data
-export PACKAGES_DIR=${PWD}/webcamoid-packages
+export PACKAGES_DIR=${PWD}/webcamoid-packages/freebsd
 export BUILD_PATH=${PWD}/build
 export PYTHONPATH="${PWD}/DeployTools"
 

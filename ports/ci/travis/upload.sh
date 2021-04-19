@@ -45,7 +45,7 @@ if [[ ! -z "$DAILY_BUILD" || ! -z "$RELEASE_BUILD" ]]; then
         --key=$BT_KEY \
         --licenses=GPL-3.0-or-later
 
-    path=ports/deploy/packages_auto
+    path=webcamoid-packages
 
     for f in $(find $path -type f); do
         packagePath=${f#$path/}
@@ -89,7 +89,7 @@ if [[ ! -z "$DAILY_BUILD" || ! -z "$RELEASE_BUILD" ]]; then
         fi
 
         if [ ! -z "$hubTag" ]; then
-            path=ports/deploy/packages_auto
+            path=webcamoid-packages
 
             for f in $(find $path -type f); do
                 hubTag=$(hub release -df '%T %t%n' | grep 'Daily Build' | awk '{print $1}' | sed 's/.*://')

@@ -21,8 +21,7 @@
 [ -f environment.sh ] && source environment.sh
 
 if [[ ! -z "$DAILY_BUILD" || ! -z "$RELEASE_BUILD" ]]; then
-
-    path=ports/deploy/packages_auto
+    path=webcamoid-packages
 
     for f in $(find $path -type f); do
         packagePath=${f#$path/}

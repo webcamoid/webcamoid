@@ -29,7 +29,7 @@ fi
 git clone https://github.com/webcamoid/DeployTools.git
 
 export INSTALL_PREFIX=${APPVEYOR_BUILD_FOLDER}/webcamoid-data
-export PACKAGES_DIR=${APPVEYOR_BUILD_FOLDER}/webcamoid-packages
+export PACKAGES_DIR=${APPVEYOR_BUILD_FOLDER}/webcamoid-packages/windows
 export BUILD_PATH=${PWD}/build
 export PYTHONPATH="${PWD}/DeployTools"
 

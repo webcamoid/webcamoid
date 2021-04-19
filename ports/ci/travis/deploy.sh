@@ -31,9 +31,6 @@ fi
 git clone https://github.com/webcamoid/DeployTools.git
 
 DEPLOYSCRIPT=deployscript.sh
-export INSTALL_PREFIX=${TRAVIS_BUILD_DIR}/webcamoid-data
-export PACKAGES_DIR=${TRAVIS_BUILD_DIR}/webcamoid-packages
-export BUILD_PATH=${TRAVIS_BUILD_DIR}/build
 export PYTHONPATH=${TRAVIS_BUILD_DIR}/DeployTools
 
 if [ "${ANDROID_BUILD}" = 1 ]; then
@@ -54,14 +51,21 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
     nArchs=$(echo "${TARGET_ARCH}" | tr ':' ' ' | wc -w)
     lastArch=$(echo "${TARGET_ARCH}" | awk -F: '{print $NF}')
 
+    cat << EOF > package_info_sdkbt.conf
+[System]
+sdkBuildToolsRevision = ${ANDROID_BUILD_TOOLS_VERSION}
+EOF
+
     if [ "${nArchs}" = 1 ]; then
         export PATH="${PWD}/build/Qt/${QTVER_ANDROID}/android/bin:${PWD}/.local/bin:${ORIG_PATH}"
         export BUILD_PATH=${PWD}/build-${lastArch}
 
         python3 DeployTools/deploy.py \
-            -d "${INSTALL_PREFIX}" \
+            -d "${PWD}/webcamoid-data" \
             -c "${BUILD_PATH}/package_info.conf" \
-            -o "${PACKAGES_DIR}"
+            -c "${BUILD_PATH}/package_info_android.conf" \
+            -c "${BUILD_PATH}/package_info_sdkbt.conf" \
+            -o "${PWD}/webcamoid-packages/android"
     else
         pkgMerge=
 
@@ -87,9 +91,11 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
             export NO_SHOW_PKG_DATA_INFO=1
 
             python3 DeployTools/deploy.py \
-                -d "${INSTALL_PREFIX}" \
+                -d "${PWD}/webcamoid-data" \
                 -c "${BUILD_PATH}/package_info.conf" \
-                -o "${PACKAGES_DIR}"
+                -c "${BUILD_PATH}/package_info_android.conf" \
+                -c "${BUILD_PATH}/package_info_sdkbt.conf" \
+                -o "${PWD}/webcamoid-packages/android"
         done
     fi
 
@@ -100,16 +106,22 @@ elif [ "${ARCH_ROOT_BUILD}" = 1 ]; then
     sudo mount --bind root.x86_64 root.x86_64
     sudo mount --bind $HOME root.x86_64/$HOME
 
+    if [ -z "${ARCH_ROOT_MINGW}" ]; then
+        outputFolder=linux
+    else
+        outputFolder=windows
+    fi
+
     cat << EOF > ${DEPLOYSCRIPT}
 #!/bin/sh
 
+cd $TRAVIS_BUILD_DIR
 export LC_ALL=C
 export HOME=$HOME
-export PATH="$TRAVIS_BUILD_DIR/.local/bin:\$PATH"
-export PYTHONPATH="${PYTHONPATH}"
+export PATH="\${PWD}/.local/bin:\$PATH"
+export PYTHONPATH="\${PWD}/DeployTools"
 export WINEPREFIX=/opt/.wine
 export TRAVIS_BRANCH=$TRAVIS_BRANCH
-cd $TRAVIS_BUILD_DIR
 EOF
 
     if [ ! -z "${DAILY_BUILD}" ]; then
@@ -120,9 +132,9 @@ EOF
 
     cat << EOF >> ${DEPLOYSCRIPT}
 python DeployTools/deploy.py \
-    -d "${INSTALL_PREFIX}" \
-    -c "${BUILD_PATH}/package_info.conf" \
-    -o "${PACKAGES_DIR}"
+    -d "\${PWD}/webcamoid-data" \
+    -c "\${PWD}/build/package_info.conf" \
+    -o "\${PWD}/webcamoid-packages/${outputFolder}"
 EOF
     chmod +x ${DEPLOYSCRIPT}
     sudo cp -vf ${DEPLOYSCRIPT} root.x86_64/$HOME/
@@ -135,12 +147,12 @@ elif [ "${TRAVIS_OS_NAME}" = linux ]; then
 #!/bin/sh
 
 export PATH="\$PWD/.local/bin:\$PATH"
-export PYTHONPATH="${PYTHONPATH}"
+export PYTHONPATH="\${PWD}/DeployTools"
 export TRAVIS_BRANCH=${TRAVIS_BRANCH}
 xvfb-run --auto-servernum python3 DeployTools/deploy.py \
-    -d "${INSTALL_PREFIX}" \
-    -c "${BUILD_PATH}/package_info.conf" \
-    -o "${PACKAGES_DIR}"
+    -d "\${PWD}/webcamoid-data" \
+    -c "\${PWD}/build/package_info.conf" \
+    -o "\${PWD}/webcamoid-packages/linux"
 EOF
 
     chmod +x ${DEPLOYSCRIPT}
@@ -148,7 +160,7 @@ EOF
     ${EXEC} bash ${DEPLOYSCRIPT}
 elif [ "${TRAVIS_OS_NAME}" = osx ]; then
     python3 DeployTools/deploy.py \
-        -d "${INSTALL_PREFIX}" \
-        -c "${BUILD_PATH}/package_info.conf" \
-        -o "${PACKAGES_DIR}"
+        -d "${PWD}/webcamoid-data" \
+        -c "${PWD}/build/package_info.conf" \
+        -o "${PWD}/webcamoid-packages/mac"
 fi
