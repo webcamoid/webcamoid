@@ -75,6 +75,7 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
     export PATH="${PATH}:${ANDROID_HOME}/emulator"
     export PATH="${PATH}:${ANDROID_NDK}"
     export ORIG_PATH="${PATH}"
+    mkdir build
     mkdir webcamoid-data
 
     for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
@@ -98,7 +99,9 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
             -DDAILY_BUILD=${DAILY_BUILD}
         cmake -LA -S . -B build-${arch_}
         cmake --build build-${arch_} --parallel ${NJOBS}
-        cp -rvf build-${arch_}/* webcamoid-data/
+        cp -rvf build-${arch_}/android-build/* webcamoid-data/
+        cp -vf build-${arch_}/package_info.conf build/
+        cp -vf build-${arch_}/package_info_android.conf build/
     done
 elif [ "${ARCH_ROOT_BUILD}" = 1 ]; then
     sudo mount --bind root.x86_64 root.x86_64

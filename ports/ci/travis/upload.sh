@@ -26,10 +26,7 @@ fi
 
 if [[ ! -z "$DAILY_BUILD" || ! -z "$RELEASE_BUILD" ]]; then
     if [ -z "$DAILY_BUILD" ]; then
-        VER_MAJ=$(grep -re '^VER_MAJ[[:space:]]*=[[:space:]]*' commons.pri | awk '{print $3}')
-        VER_MIN=$(grep -re '^VER_MIN[[:space:]]*=[[:space:]]*' commons.pri | awk '{print $3}')
-        VER_PAT=$(grep -re '^VER_PAT[[:space:]]*=[[:space:]]*' commons.pri | awk '{print $3}')
-        version=$VER_MAJ.$VER_MIN.$VER_PAT-$TRAVIS_BRANCH
+        version=$(grep -re '^version[[:space:]]*=[[:space:]]*' build/package_info.conf | awk -F=  '{print $2}' | tr -d ' ')
         publish=false
     else
         version=daily-$TRAVIS_BRANCH
