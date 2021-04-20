@@ -34,37 +34,37 @@
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="42"/>
         <source>Add Video Format</source>
-        <translation type="unfinished"></translation>
+        <translation>Lisa videovorming</translation>
     </message>
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="43"/>
         <source>Change Video Format</source>
-        <translation type="unfinished"></translation>
+        <translation>Muuda videovormingut</translation>
     </message>
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="95"/>
         <source>Remove format</source>
-        <translation type="unfinished"></translation>
+        <translation>Eemalda vorming</translation>
     </message>
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="106"/>
         <source>Format</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorming</translation>
     </message>
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="115"/>
         <source>Width</source>
-        <translation type="unfinished"></translation>
+        <translation>Laius</translation>
     </message>
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="126"/>
         <source>Height</source>
-        <translation type="unfinished"></translation>
+        <translation>Kõrgus</translation>
     </message>
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="137"/>
         <source>Frame rate</source>
-        <translation type="unfinished"></translation>
+        <translation>Kaadrisagedus</translation>
     </message>
 </context>
 <context>
@@ -72,17 +72,17 @@
     <message>
         <location filename="../qml/AudioCodecOptions.qml" line="27"/>
         <source>Audio Codec Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Audiokodeki valikud</translation>
     </message>
     <message>
         <location filename="../qml/AudioCodecOptions.qml" line="159"/>
         <source>Bitrate</source>
-        <translation type="unfinished"></translation>
+        <translation>Bitikiirus</translation>
     </message>
     <message>
         <location filename="../qml/AudioCodecOptions.qml" line="163"/>
         <source>Bitrate (bits/secs)</source>
-        <translation type="unfinished"></translation>
+        <translation>Bitikiirus (bitti/sekundis)</translation>
     </message>
 </context>
 <context>
@@ -90,7 +90,7 @@
     <message>
         <location filename="../qml/AudioDeviceOptions.qml" line="27"/>
         <source>Audio Device Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Heliseadme valikud</translation>
     </message>
     <message>
         <location filename="../qml/AudioDeviceOptions.qml" line="131"/>
@@ -113,7 +113,7 @@
         <location filename="../qml/AudioDeviceOptions.qml" line="207"/>
         <source>Latency (ms)</source>
         <extracomment>The latency is the amount of accumulated audio ready to play, measured in time. Higher latency == smoother audio playback, but more desynchronization with the video. Lowerer latency == audio synchronization near to the video, but glitchy audio playback. https://en.wikipedia.org/wiki/Latency_(audio)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Latentsusaeg (ms)</translation>
     </message>
 </context>
 <context>
@@ -129,7 +129,7 @@
     <message>
         <location filename="../qml/AudioOptions.qml" line="30"/>
         <source>Outputs</source>
-        <translation type="unfinished"></translation>
+        <translation>Väljundid</translation>
     </message>
     <message>
         <location filename="../qml/AudioOptions.qml" line="33"/>
@@ -157,7 +157,7 @@
     <message>
         <location filename="../qml/AudioVideoPanel.qml" line="32"/>
         <source>Video Output Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Videoväljundi valikud</translation>
     </message>
 </context>
 <context>
@@ -165,12 +165,12 @@
     <message>
         <location filename="../qml/Commons.qml" line="28"/>
         <source>The virtual camera is in use by the following applications:</source>
-        <translation type="unfinished"></translation>
+        <translation>Virtuaalne kaamera on kasutusel järgmistes rakendustes:</translation>
     </message>
     <message>
         <location filename="../qml/Commons.qml" line="40"/>
         <source>Stop the camera in those applications or close them and try again.</source>
-        <translation type="unfinished"></translation>
+        <translation>Lõpeta nendes rakendustes kaamera kasutamine või sulge rakendused ning proovi siis uuesti.</translation>
     </message>
 </context>
 <context>
@@ -178,7 +178,7 @@
     <message>
         <location filename="../qml/Contributors.qml" line="36"/>
         <source>Thanks to all these cool people that helped contributing to Webcamoid all these years.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tänud neile lahedatele inimestele, kes aastate jooksul on Webcamoidi arendamisele kaasa aidanud.</translation>
     </message>
 </context>
 <context>
@@ -227,7 +227,7 @@
     <message>
         <location filename="../qml/GeneralConfig.qml" line="66"/>
         <source>Frameworks and libraries</source>
-        <translation type="unfinished"></translation>
+        <translation>Raamistikud ja teegid</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="135"/>
@@ -245,7 +245,7 @@
     <message>
         <location filename="../qml/ImageCapture.qml" line="39"/>
         <source>Images directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Piltide kaust</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="49"/>
@@ -255,17 +255,17 @@
     <message>
         <location filename="../qml/ImageCapture.qml" line="57"/>
         <source>File format</source>
-        <translation type="unfinished"></translation>
+        <translation>Failivorming</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="86"/>
         <source>Quality</source>
-        <translation type="unfinished"></translation>
+        <translation>Kvaliteet</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="111"/>
         <source>Select the folder to save your photos</source>
-        <translation type="unfinished"></translation>
+        <translation>Oma fotode salvestamiseks vali kaust</translation>
     </message>
 </context>
 <context>
@@ -306,7 +306,7 @@
     <message>
         <location filename="../qml/PluginConfig.qml" line="201"/>
         <source>Update</source>
-        <translation type="unfinished"></translation>
+        <translation>Uuenda</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="247"/>
@@ -367,7 +367,7 @@
     <message>
         <location filename="../qml/RecordingNotice.qml" line="55"/>
         <source>Recording</source>
-        <translation type="unfinished"></translation>
+        <translation>Salvestan</translation>
     </message>
 </context>
 <context>
@@ -455,67 +455,67 @@
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="82"/>
         <source>Show updates dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Rakenduse käivitamisel näita uuenduste vaadet</translation>
     </message>
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="90"/>
         <source>Check new versions</source>
-        <translation type="unfinished"></translation>
+        <translation>Kontrolli versiooniuuendusi</translation>
     </message>
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="98"/>
         <source>Daily</source>
-        <translation type="unfinished"></translation>
+        <translation>iga päev</translation>
     </message>
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="102"/>
         <source>Every two days</source>
-        <translation type="unfinished"></translation>
+        <translation>iga kahe päeva järel</translation>
     </message>
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="106"/>
         <source>Weekly</source>
-        <translation type="unfinished"></translation>
+        <translation>kord nädalas</translation>
     </message>
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="110"/>
         <source>Every two weeks</source>
-        <translation type="unfinished"></translation>
+        <translation>iga kahe nädala järel</translation>
     </message>
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="114"/>
         <source>Monthly</source>
-        <translation type="unfinished"></translation>
+        <translation>kord kuus</translation>
     </message>
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="118"/>
         <source>Never</source>
-        <translation type="unfinished"></translation>
+        <translation>mitte kunagi</translation>
     </message>
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="130"/>
         <source>Last updated</source>
-        <translation type="unfinished"></translation>
+        <translation>Viimati kontrollitud</translation>
     </message>
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="151"/>
         <source>Your version of %1 is outdated. Latest version is &lt;b&gt;%2&lt;/b&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sinu kasutatav %1 versioon on vana. Viimane versioon on &lt;b&gt;%2&lt;/b&gt;.</translation>
     </message>
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="157"/>
         <source>Upgrade Now!</source>
-        <translation type="unfinished"></translation>
+        <translation>Uuenda nüüd!</translation>
     </message>
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="172"/>
         <source>Thanks for using a &lt;b&gt;development version&lt;/b&gt;!&lt;br /&gt;It will be very helpful if you can report any bug and suggestions you have.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tänud, et kasutad &lt;b&gt;arendusversiooni&lt;/b&gt;!&lt;br /&gt;Kui märkad vigu või sul tekib ettepanekuid, siis palun anna neist teada.</translation>
     </message>
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="177"/>
         <source>Report a Bug</source>
-        <translation type="unfinished"></translation>
+        <translation>Teata veast</translation>
     </message>
 </context>
 <context>
