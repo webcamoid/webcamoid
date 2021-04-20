@@ -61,47 +61,35 @@ EOF
         export BUILD_PATH=${PWD}/build-${lastArch}
 
         python3 DeployTools/deploy.py \
-            -d "${PWD}/webcamoid-data" \
+            -d "${BUILD_PATH}/android-build" \
             -c "${BUILD_PATH}/package_info.conf" \
             -c "${BUILD_PATH}/package_info_android.conf" \
-            -c "${BUILD_PATH}/package_info_sdkbt.conf" \
+            -c "${PWD}/package_info_sdkbt.conf" \
             -o "${PWD}/webcamoid-packages/android"
     else
-        pkgMerge=
-
-        for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
-            if [ ! -z "${pkgMerge}" ]; then
-                pkgMerge=${pkgMerge}:
-            fi
-
-            pkgMerge=${pkgMerge}${PWD}/build-webcamoid-${arch_}
-        done
+        mkdir -p "${PWD}/webcamoid-data"
 
         for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
             export PATH="${PWD}/build/Qt/${QTVER_ANDROID}/android/bin:${PWD}/.local/bin:${ORIG_PATH}"
             export BUILD_PATH=${PWD}/build-${arch_}
 
-            if [ "${arch_}" = "${lastArch}" ]; then
-                export PACKAGES_PREPARE_ONLY=0
-                export PACKAGES_MERGE="${pkgMerge}"
-            else
-                export PACKAGES_PREPARE_ONLY=1
-            fi
-
-            export NO_SHOW_PKG_DATA_INFO=1
-
             python3 DeployTools/deploy.py \
-                -d "${PWD}/webcamoid-data" \
+                -r \
+                -d "${BUILD_PATH}/android-build" \
                 -c "${BUILD_PATH}/package_info.conf" \
                 -c "${BUILD_PATH}/package_info_android.conf" \
-                -c "${BUILD_PATH}/package_info_sdkbt.conf" \
-                -o "${PWD}/webcamoid-packages/android"
+                -c "${PWD}/package_info_sdkbt.conf"
+            cp -rvf "${BUILD_PATH}/android-build"/* "${PWD}/webcamoid-data"
         done
-    fi
 
-    mkdir -p "${PWD}/ports/deploy/packages_auto"
-    cp -rvf "${PWD}/build-webcamoid-${lastArch}/ports/deploy/packages_auto"/* \
-            "${PWD}/ports/deploy/packages_auto"
+        python3 DeployTools/deploy.py \
+            -s \
+            -d "${PWD}/webcamoid-data" \
+            -c "${PWD}/build/package_info.conf" \
+            -c "${PWD}/build/package_info_android.conf" \
+            -c "${PWD}/package_info_sdkbt.conf" \
+            -o "${PWD}/webcamoid-packages/android"
+    fi
 elif [ "${ARCH_ROOT_BUILD}" = 1 ]; then
     sudo mount --bind root.x86_64 root.x86_64
     sudo mount --bind $HOME root.x86_64/$HOME

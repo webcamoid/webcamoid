@@ -99,7 +99,6 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
             -DDAILY_BUILD=${DAILY_BUILD}
         cmake -LA -S . -B build-${arch_}
         cmake --build build-${arch_} --parallel ${NJOBS}
-        cp -rvf build-${arch_}/android-build/* webcamoid-data/
         cp -vf build-${arch_}/package_info.conf build/
         cp -vf build-${arch_}/package_info_android.conf build/
     done
