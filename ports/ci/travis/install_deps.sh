@@ -85,6 +85,7 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
     # Install dev tools
     sudo apt-get -qq -y install \
         cmake \
+        gradle \
         libxkbcommon-x11-0 \
         make \
         ninja-build \
