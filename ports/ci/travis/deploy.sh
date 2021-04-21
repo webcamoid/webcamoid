@@ -97,8 +97,10 @@ elif [ "${ARCH_ROOT_BUILD}" = 1 ]; then
 
     if [ -z "${ARCH_ROOT_MINGW}" ]; then
         outputFolder=linux
+        extraConfs=
     else
         outputFolder=windows
+        extraConfs="-c \"\${PWD}/build/package_info_windows.conf\""
     fi
 
     cat << EOF > ${DEPLOYSCRIPT}
@@ -123,6 +125,7 @@ EOF
 python DeployTools/deploy.py \
     -d "\${PWD}/webcamoid-data" \
     -c "\${PWD}/build/package_info.conf" \
+    ${extraConfs} \
     -o "\${PWD}/webcamoid-packages/${outputFolder}"
 EOF
     chmod +x ${DEPLOYSCRIPT}
