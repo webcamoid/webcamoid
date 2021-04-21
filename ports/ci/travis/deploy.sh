@@ -80,7 +80,7 @@ EOF
                 -c "${BUILD_PATH}/package_info.conf" \
                 -c "${BUILD_PATH}/package_info_android.conf" \
                 -c "${PWD}/package_info_sdkbt.conf"
-            cp -rvf "${BUILD_PATH}/android-build"/* "${PWD}/webcamoid-data"
+            cp -rf "${BUILD_PATH}/android-build"/* "${PWD}/webcamoid-data"
         done
 
         python3 DeployTools/deploy.py \

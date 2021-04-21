@@ -44,6 +44,9 @@ if (QT_QMAKE_EXECUTABLE)
     execute_process(COMMAND ${QT_QMAKE_EXECUTABLE} -query QT_INSTALL_LIBS
                     OUTPUT_VARIABLE QT_INSTALL_LIBS
                     OUTPUT_STRIP_TRAILING_WHITESPACE)
+    execute_process(COMMAND ${QT_QMAKE_EXECUTABLE} -query QT_INSTALL_BINS
+                    OUTPUT_VARIABLE QT_INSTALL_BINS
+                    OUTPUT_STRIP_TRAILING_WHITESPACE)
     execute_process(COMMAND ${QT_QMAKE_EXECUTABLE} -query QT_INSTALL_PLUGINS
                     OUTPUT_VARIABLE QT_INSTALL_PLUGINS
                     OUTPUT_STRIP_TRAILING_WHITESPACE)
@@ -261,6 +264,10 @@ if (ANDROID)
                    "${CMAKE_BINARY_DIR}/android-build/${LICENSEDIR}/COPYING"
                    COPYONLY)
 else ()
+    if (WIN32 AND CMAKE_HOST_UNIX)
+        configure_file(package_info_windows.conf.in package_info_windows.conf)
+    endif ()
+
     install(FILES COPYING DESTINATION ${LICENSEDIR})
 endif ()
 

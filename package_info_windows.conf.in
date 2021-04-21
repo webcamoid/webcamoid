@@ -1,0 +1,2 @@
+[System]
+libDir = @QT_INSTALL_BINS@
