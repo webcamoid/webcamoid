@@ -83,12 +83,19 @@ EOF
             cp -rf "${BUILD_PATH}/android-build"/* "${PWD}/webcamoid-data"
         done
 
+        cat << EOF > package_info_hide_arch.conf
+[Package]
+targetArch = any
+hideArch = true
+EOF
+
         python3 DeployTools/deploy.py \
             -s \
             -d "${PWD}/webcamoid-data" \
             -c "${PWD}/build/package_info.conf" \
             -c "${PWD}/build/package_info_android.conf" \
             -c "${PWD}/package_info_sdkbt.conf" \
+            -c "${PWD}/package_info_hide_arch.conf" \
             -o "${PWD}/webcamoid-packages/android"
     fi
 elif [ "${ARCH_ROOT_BUILD}" = 1 ]; then
