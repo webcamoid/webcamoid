@@ -55,7 +55,7 @@ ui_*.h
 Makefile*
 *.prl
 *.app
-*.pro.user*
+*.user*
 *.qmlproject.user*
 *.autosave
 *.qmlc
@@ -89,7 +89,6 @@ android-*-deployment-settings.json
 # KDevelop generated files #
 ############################
 .kdev4
-*.kdev4
 
 # MinGW files #
 ###############

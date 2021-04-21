@@ -44,7 +44,7 @@ UsbGlobals::UsbGlobals(QObject *parent):
         return;
     }
 
-#ifdef HAS_HOTPLUG
+#if QT_VERSION_CHECK(LIBUSB_MAJOR, LIBUSB_MINOR, LIBUSB_MICRO) >= QT_VERSION_CHECK(1, 0, 15)
     if (libusb_has_capability(LIBUSB_CAP_HAS_HOTPLUG)) {
         usbError =
                 libusb_hotplug_register_callback(this->m_context,
@@ -68,7 +68,7 @@ UsbGlobals::UsbGlobals(QObject *parent):
 
 UsbGlobals::~UsbGlobals()
 {
-#ifdef HAS_HOTPLUG
+#if QT_VERSION_CHECK(LIBUSB_MAJOR, LIBUSB_MINOR, LIBUSB_MICRO) >= QT_VERSION_CHECK(1, 0, 15)
     if (libusb_has_capability(LIBUSB_CAP_HAS_HOTPLUG))
         libusb_hotplug_deregister_callback(this->m_context,
                                            this->m_hotplugCallbackHnd);

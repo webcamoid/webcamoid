@@ -16,7 +16,7 @@ configuration:
 
 environment:
   global:
-    INSTALL_PREFIX: C:/projects/webcamoid/ports/deploy/temp_priv/usr
+    NJOBS: 4
     # api key from https://bintray.com/profile/edit
     # encrypted with https://ci.appveyor.com/tools/encrypt
     BT_KEY:
@@ -24,15 +24,21 @@ environment:
 
   matrix:
     - PLATFORM: x86
+      MSYSTEM: MINGW32
       DAILY_BUILD: 1
     - PLATFORM: x64
+      MSYSTEM: MINGW64
       DAILY_BUILD: 1
     - PLATFORM: x86
+      MSYSTEM: MINGW32
       RELEASE_BUILD: 1
     - PLATFORM: x64
+      MSYSTEM: MINGW64
       RELEASE_BUILD: 1
     - PLATFORM: x86
+      MSYSTEM: MINGW32
     - PLATFORM: x64
+      MSYSTEM: MINGW64
 
 install:
   - ports\ci\appveyor\environment_setup.bat
@@ -40,7 +46,7 @@ install:
 
 build_script:
   - ports\ci\appveyor\environment_setup.bat
-  - C:\msys64\usr\bin\bash -lc "cd /c/projects/webcamoid && ./ports/ci/appveyor/build.sh
+  - C:\msys64\usr\bin\bash -lc "cd /c/projects/webcamoid && ./ports/ci/appveyor/build.sh"
 
 after_build:
   - ports\ci\appveyor\environment_setup.bat

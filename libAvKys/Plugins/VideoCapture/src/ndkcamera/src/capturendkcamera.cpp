@@ -677,8 +677,7 @@ void CaptureNdkCameraPrivate::updateDevices()
                 auto facing =
                         acamera_metadata_enum_android_lens_facing_t(lensFacing.data.u8[0]);
                 auto description = QString("%1 Camera %2")
-                                   .arg(facingToStr[facing])
-                                   .arg(cameraId);
+                                   .arg(facingToStr[facing], cameraId);
                 devices << deviceId;
                 descriptions[deviceId] = description;
                 devicesCaps[deviceId] = caps;

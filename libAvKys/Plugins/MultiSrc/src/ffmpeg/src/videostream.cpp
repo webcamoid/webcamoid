@@ -293,11 +293,7 @@ AVFrame *VideoStreamPrivate::copyFrame(AVFrame *frame) const
     oFrame->width = frame->width;
     oFrame->height = frame->height;
     oFrame->format = frame->format;
-#ifdef HAVE_BEST_EFFORT_TS
     oFrame->pts = frame->best_effort_timestamp;
-#else
-    oFrame->pts = av_frame_get_best_effort_timestamp(frame);
-#endif
 
     av_image_alloc(oFrame->data,
                    oFrame->linesize,

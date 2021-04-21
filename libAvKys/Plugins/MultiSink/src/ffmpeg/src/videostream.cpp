@@ -293,7 +293,7 @@ void VideoStream::convertPacket(const AkPacket &packet)
 
 int VideoStream::encodeData(AVFrame *frame)
 {
-#ifdef HAVE_RAWPICTURE
+#ifdef AVFMT_RAWPICTURE
     auto formatContext = this->formatContext();
 
     if (!frame && formatContext->oformat->flags & AVFMT_RAWPICTURE)
@@ -324,7 +324,7 @@ int VideoStream::encodeData(AVFrame *frame)
 
     auto stream = this->stream();
 
-#ifdef HAVE_RAWPICTURE
+#ifdef AVFMT_RAWPICTURE
     if (formatContext->oformat->flags & AVFMT_RAWPICTURE) {
         // Raw video case - directly store the picture in the packet
         AVPacket pkt;

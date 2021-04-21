@@ -1,0 +1,52 @@
+[Package]
+name = webcamoid
+targetPlatform = @TARGET_PLATFORM@
+sourcesDir = @CMAKE_SOURCE_DIR@
+mainExecutable = @MAIN_EXECUTABLE@
+programArgs = @PROGRAM_ARGS@
+libDir = @APP_LIBDIR@
+buildInfoFile = @BUILD_INFO_FILE@
+targetArch = @TARGET_ARCH@
+version = @VERSION@
+outputFormats = @OUTPUT_FORMATS@
+modules = Qt5
+extraLibs = @EXTRA_LIBS@
+
+[Qt5]
+sourcesQmlDirs = StandAlone/share/qml, StandAlone/share/themes/WebcamoidTheme, libAvKys/Plugins
+outputQmlDir = @OUTPUT_QML_DIR@
+qtQmlDir = @QT_INSTALL_QML@
+outputQtPluginsDir = @OUTPUT_QT_PLUGINS_DIR@
+qtPluginsDir = @QT_INSTALL_PLUGINS@
+sourcesDir = @QT_INSTALL_SRC@
+qtConfFile = @QT_CONF_FILE@
+
+[AppImage]
+launcher = webcamoid.sh
+desktopFile = webcamoid.desktop
+desktopIcon = StandAlone/share/themes/WebcamoidTheme/icons/hicolor/48x48/webcamoid.png
+dirIcon = StandAlone/share/themes/WebcamoidTheme/icons/hicolor/256x256/webcamoid.png
+
+[CompressedTarXz]
+name = webcamoid-portable
+
+[CompressedZip]
+name = webcamoid-portable
+
+[Dmg]
+name = webcamoid-portable
+
+[QtIFW]
+organization = org.webcamoidprj
+appName = Webcamoid
+title = Webcamoid, The ultimate webcam suite!
+description = Install Webcamoid
+icon = @INSTALLER_ICON@
+url = https://webcamoid.github.io/
+targetDir = @QTIFW_TARGET_DIR@
+runProgram = @RUN_PROGRAM@
+runProgramDescription = Launch Webcamoid now!
+license = COPYING
+licenseName = GNU General Public License v3.0
+script = ports/deploy/installscript.@TARGET_PLATFORM@.qs
+changeLog = ChangeLog

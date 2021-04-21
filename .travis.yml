@@ -13,12 +13,13 @@ env:
     - QTVER_ANDROID=5.14.2
     - QTIFWVER=4.0.1
     - APPIMAGEVER=12
-    - ARCH_ROOT_DATE=2021.02.01
+    - ARCH_ROOT_DATE=2021.04.01
     - ARCH_ROOT_URL=https://mirror.rackspace.com/archlinux
     - SDKVER=6858069
     - NDKVER=r22
     - ANDROID_BUILD_TOOLS_VERSION=30.0.3
     - GITHUB_HUBVER=2.14.2
+    - NJOBS=4
     # BT_KEY
     - secure: "RiR23dM8ft06+5ezNAlfpJXNRQhFH2Cy3hTY9oWD6nyw0qsydgOA9qlogBP0o1/kikyqt2uxv/VRcqZnBV3nkwEg9AuiCRgOuKqMtFdxwNnF8wqxUUz4pun9FQGLNnKkIznJkV61vsuRs8GSO95X3KEwgsoGPD60WQDDuFj3wXcI1kIN7HEP1t3Kq8lbhsYhbMPPeZBUGYcEjuWMz/GcfdcEUQLD6F0bkfEQgLZ+/d5Nqxk3NTJGM/LUYLKuWOthqsK7qNp/BCTRnOCg44NV3XO0DXti4lNkbtbfbLZIEMfD5EeTnbznBd+AHH2OTnw2Gn5ViVz7Z2C9mZgcN+/XyEJi7K80ab9DR9s+ZLMFO2yyF6MVf7/qiOzL0RT7lGFHt2HPLBpTji3qmgPN4JXaXKfF3nIzOjaoUibhTzwh5NlMpkAFlydmYwhBS3argsKQgeck3YTWUUnQVFvkmhFHVZzFBGtqy+0dPr9WGyay0mKKYpnLHqGk74K23dGnBKzk+iJs9o9zVQaSdvS5XnSeRsQCAYlqEKy/sSdrZnLYAOaLv1f291CIm76+e5B2sIkZaGcox7d3rcYw/tqn7ozgsKcyT1BJq8/ZyYSXsIT826ZeDiZd4MFjSQTeas5c9V85btDq2W9LvA66KqzTq0dH5pfJ67+BJJ7ebxUf4HNw6ME="
     # GITHUB_TOKEN
@@ -251,27 +252,6 @@ before_install: |
 install:
   - chmod +x ports/ci/travis/install_deps.sh
   - ports/ci/travis/install_deps.sh
-
-before_script: |
-  if [ "${ANDROID_BUILD}" = 1 ]; then
-    export COMPILESPEC=android-${COMPILER}
-  elif [ "${ARCH_ROOT_BUILD}" = 1 ] && [ ! -z "${ARCH_ROOT_MINGW}" ]; then
-    export CXX=${ARCH_ROOT_MINGW}-w64-mingw32-g++
-    export COMPILESPEC=win32-g++
-  elif [ "${TRAVIS_OS_NAME}" = linux ]; then
-    if [ "${CXX}" = g++ ]; then
-      export COMPILESPEC=linux-g++
-    elif [ "${CXX}" = clang++ ]; then
-      export COMPILESPEC=linux-clang
-    fi
-  elif [ "${TRAVIS_OS_NAME}" = osx ]; then
-    brew link --force qt5
-    if [ "${CXX}" = g++ ]; then
-      export COMPILESPEC=macx-g++
-    elif [ "${CXX}" = clang++ ]; then
-      export COMPILESPEC=macx-clang
-    fi
-  fi
 
 script:
   - chmod +x ports/ci/travis/build.sh

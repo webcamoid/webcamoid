@@ -117,8 +117,6 @@ class AKCOMMONS_EXPORT AkElement: public QObject
         Q_INVOKABLE static QStringList listSubModules(const QString &pluginId,
                                                       const QString &type={});
         Q_INVOKABLE QStringList listSubModules(const QStringList &types={});
-        Q_INVOKABLE static QStringList listSubModulesPaths(const QString &pluginId);
-        Q_INVOKABLE QStringList listSubModulesPaths();
         Q_INVOKABLE static QObject *loadSubModule(const QString &pluginId,
                                                   const QString &subModule);
         Q_INVOKABLE QObject *loadSubModule(const QString &subModule);
@@ -128,9 +126,6 @@ class AKCOMMONS_EXPORT AkElement: public QObject
         Q_INVOKABLE static void addSearchPath(const QString &path);
         Q_INVOKABLE static void setSearchPaths(const QStringList &searchPaths);
         Q_INVOKABLE static void resetSearchPaths();
-        Q_INVOKABLE static QString subModulesPath();
-        Q_INVOKABLE static void setSubModulesPath(const QString &subModulesPath);
-        Q_INVOKABLE static void resetSubModulesPath();
         Q_INVOKABLE static QStringList listPlugins(const QString &type="");
         Q_INVOKABLE static QStringList listPluginPaths(const QString &searchPath);
         Q_INVOKABLE static QStringList listPluginPaths(bool all=false);

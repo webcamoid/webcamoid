@@ -84,8 +84,11 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
 
     # Install dev tools
     sudo apt-get -qq -y install \
+        cmake \
+        gradle \
         libxkbcommon-x11-0 \
         make \
+        ninja-build \
         openjdk-8-jdk \
         openjdk-8-jre
 
@@ -133,10 +136,12 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
     export ANDROID_NDK="${PWD}/build/android-ndk"
     export ANDROID_NDK_HOME=${ANDROID_NDK}
     export PATH="${JAVA_HOME}/bin/java:${PATH}"
-    export PATH="${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/tools/bin"
-    export PATH="${PATH}:${ANDROID_HOME}/platform-tools"
-    export PATH="${PATH}:${ANDROID_HOME}/emulator"
-    export PATH="${PATH}:${ANDROID_NDK}"
+    export PATH=":${ANDROID_HOME}/tools:${PATH}"
+    export PATH="${ANDROID_HOME}/tools/bin:${PATH}"
+    export PATH="${ANDROID_HOME}/cmdline-tools/bin:${PATH}"
+    export PATH="${ANDROID_HOME}/platform-tools:${PATH}"
+    export PATH="${ANDROID_HOME}/emulator:${PATH}"
+    export PATH="${ANDROID_NDK}:${PATH}"
 
     # Install Android things
     echo y | sdkmanager \
@@ -187,6 +192,7 @@ EOF
     ${EXEC} pacman --noconfirm --needed -S \
         ccache \
         clang \
+        cmake \
         file \
         git \
         make \
@@ -214,6 +220,7 @@ EOF
             lib32-mpg123 \
             wine \
             mingw-w64-pkg-config \
+            mingw-w64-cmake \
             mingw-w64-gcc \
             mingw-w64-qt5-quickcontrols2 \
             mingw-w64-qt5-svg \
@@ -252,44 +259,66 @@ EOF
     sudo umount root.x86_64/$HOME
     sudo umount root.x86_64
 elif [ "${DOCKERSYS}" = debian ]; then
-    ${EXEC} apt-get -y update
+    cat << EOF > keyboard_config
+XKBMODEL="pc105"
+XKBLAYOUT="us"
+XKBVARIANT=""
+XKBOPTIONS=""
+BACKSPACE="guess"
+EOF
 
-    if [ "${DOCKERIMG}" = ubuntu:bionic ]; then
-        ${EXEC} apt-get -y install software-properties-common
-        ${EXEC} add-apt-repository ppa:beineri/opt-qt-${QTVER}-bionic
-    fi
+    cat << EOF > base_packages.sh
+#!/bin/sh
 
-    ${EXEC} apt-get -y update
-    ${EXEC} apt-get -y upgrade
+export LC_ALL=C
+export DEBIAN_FRONTEND=noninteractive
 
-    # Install dev tools
-    ${EXEC} bash -c "DEBIAN_FRONTEND=noninteractive apt-get -y install \
-        git \
-        xvfb \
-        g++ \
-        clang \
+apt-get update -qq -y
+apt-get install -qq -y keyboard-configuration
+cp -vf keyboard_config /etc/default/keyboard
+dpkg-reconfigure --frontend noninteractive keyboard-configuration
+
+if [ "${DOCKERIMG}" = ubuntu:focal ]; then
+    apt-get -y install software-properties-common
+    add-apt-repository ppa:beineri/opt-qt-${QTVER}-focal
+fi
+
+apt-get -y update
+apt-get -y upgrade
+
+# Install dev tools
+
+apt-get -y install \
         ccache \
-        make \
-        pkg-config \
-        linux-libc-dev \
-        libgl1-mesa-dev \
-        libpulse-dev \
-        libjack-dev \
+        clang \
+        cmake \
+        g++ \
+        git \
         libasound2-dev \
-        libv4l-dev \
         libavcodec-dev \
         libavdevice-dev \
         libavformat-dev \
-        libavutil-dev \
         libavresample-dev \
+        libavutil-dev \
+        libgl1-mesa-dev \
+        libjack-dev \
+        libpulse-dev \
+        libswresample-dev \
         libswscale-dev \
-        libswresample-dev"
+        libv4l-dev \
+        linux-libc-dev \
+        make \
+        pkg-config \
+        xvfb
+EOF
+    chmod +x base_packages.sh
+    ${EXEC} bash base_packages.sh
 
     if [ -z "${DAILY_BUILD}" ] && [ -z "${RELEASE_BUILD}" ]; then
         ${EXEC} apt-get -y install \
             libgstreamer-plugins-base1.0-dev
 
-        if [ "${DOCKERIMG}" != ubuntu:bionic ]; then
+        if [ "${DOCKERIMG}" != ubuntu:focal ]; then
             ${EXEC} apt-get -y install \
                 libusb-dev \
                 libuvc-dev
@@ -297,7 +326,7 @@ elif [ "${DOCKERSYS}" = debian ]; then
     fi
 
     # Install Qt dev
-    if [ "${DOCKERIMG}" = ubuntu:bionic ]; then
+    if [ "${DOCKERIMG}" = ubuntu:focal ]; then
         ${EXEC} apt-get -y install \
             qt${PPAQTVER}tools \
             qt${PPAQTVER}declarative \
@@ -306,6 +335,7 @@ elif [ "${DOCKERSYS}" = debian ]; then
     else
         ${EXEC} apt-get -y install \
             qt5-qmake \
+            qttools5-dev-tools \
             qtdeclarative5-dev \
             libqt5opengl5-dev \
             libqt5svg5-dev \
@@ -325,60 +355,65 @@ elif [ "${DOCKERSYS}" = fedora ]; then
     ${EXEC} dnf -y update
 
     ${EXEC} dnf -y install \
-        git \
-        file \
-        which \
-        xorg-x11-xauth \
-        xorg-x11-server-Xvfb \
+        alsa-lib-devel \
         ccache \
         clang \
-        make \
-        gcc-c++ \
-        qt5-qttools-devel \
-        qt5-qtdeclarative-devel \
-        qt5-qtsvg-devel \
-        qt5-qtquickcontrols2-devel \
+        cmake \
         ffmpeg-devel \
+        file \
+        gcc-c++ \
+        git \
         gstreamer1-plugins-base-devel \
+        jack-audio-connection-kit-devel \
         libv4l-devel \
-        alsa-lib-devel \
+        make \
         pulseaudio-libs-devel \
-        jack-audio-connection-kit-devel
+        qt5-linguist \
+        qt5-qtdeclarative-devel \
+        qt5-qtquickcontrols2-devel \
+        qt5-qtsvg-devel \
+        qt5-qttools-devel \
+        which \
+        xorg-x11-server-Xvfb \
+        xorg-x11-xauth
 elif [ "${DOCKERSYS}" = opensuse ]; then
     ${EXEC} zypper -n dup
     ${EXEC} zypper -n in \
-        git \
-        which \
-        gzip \
-        xauth \
-        xvfb-run \
-        python3 \
+        alsa-devel \
         ccache \
         clang \
+        cmake \
+        ffmpeg-devel \
+        git \
+        gstreamer-plugins-base-devel \
+        gzip \
+        libjack-devel \
+        libQt5QuickControls2-devel \
+        libpulse-devel \
         libqt5-linguist \
         libqt5-qtbase-devel \
         libqt5-qtdeclarative-devel \
-        libqt5-qtsvg-devel \
         libqt5-qtquickcontrols2 \
-        libQt5QuickControls2-devel \
-        ffmpeg-devel \
-        gstreamer-plugins-base-devel \
+        libqt5-qtsvg-devel \
         libv4l-devel \
-        alsa-devel \
-        libpulse-devel \
-        libjack-devel
+        python3 \
+        which \
+        xauth \
+        xvfb-run
 elif [ "${TRAVIS_OS_NAME}" = osx ]; then
     brew update
     brew upgrade
     brew link --overwrite numpy
     brew install \
-        p7zip \
-        python \
         ccache \
+        cmake \
+        ffmpeg \
+        p7zip \
         pkg-config \
-        qt5 \
-        ffmpeg
+        python \
+        qt@5
     brew link --overwrite python
+    brew link --force qt@5
 
     if [ -z "${DAILY_BUILD}" ] && [ -z "${RELEASE_BUILD}" ]; then
         brew install \

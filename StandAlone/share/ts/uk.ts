@@ -1370,7 +1370,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="134"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="968"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="977"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="984"/>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="209"/>
         <source>Please choose an image file</source>
         <translation>Будь ласка оберіть зображення</translation>

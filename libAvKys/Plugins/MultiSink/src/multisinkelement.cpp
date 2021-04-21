@@ -18,7 +18,6 @@
  */
 
 #include <QSharedPointer>
-#include <QQmlContext>
 #include <akpacket.h>
 
 #include "multisinkelement.h"

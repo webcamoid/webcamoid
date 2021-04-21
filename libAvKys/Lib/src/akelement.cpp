@@ -40,15 +40,20 @@
 #include "akaudiopacket.h"
 #include "akvideopacket.h"
 
-#define SUBMODULES_PATH "submodules"
-
-class AkPluginInfoPrivate
+struct AkPluginInfoPrivate
 {
-    public:
-        QString m_id;
-        QString m_path;
-        QVariantMap m_metaData;
-        bool m_used;
+    QString id;
+    QString path;
+    QVariantMap metaData;
+    bool used {false};
+
+    AkPluginInfoPrivate();
+    AkPluginInfoPrivate(const QString &id,
+                        const QString &path,
+                        const QVariantMap &metaData,
+                        bool used);
+    AkPluginInfoPrivate(const AkPluginInfoPrivate &other);
+    AkPluginInfoPrivate &operator =(const AkPluginInfoPrivate &other);
 };
 
 class AkElementPrivate
@@ -58,12 +63,11 @@ class AkElementPrivate
         QStringList m_pluginsSearchPaths;
         QStringList m_defaultPluginsSearchPaths;
         QStringList m_pluginsBlackList;
-        QList<AkPluginInfoPrivate> m_pluginsList;
-        QString m_subModulesPath;
+        QVector<AkPluginInfoPrivate> m_pluginsList;
         QDir m_applicationDir;
-        AkElement::ElementState m_state;
-        bool m_recursiveSearchPaths;
-        bool m_pluginsScanned;
+        AkElement::ElementState m_state {AkElement::ElementStateNull};
+        bool m_recursiveSearchPaths {false};
+        bool m_pluginsScanned {false};
 
         AkElementPrivate();
         static QList<QMetaMethod> methodsByName(const QObject *object,
@@ -71,8 +75,6 @@ class AkElementPrivate
         static bool methodCompat(const QMetaMethod &method1,
                                  const QMetaMethod &method2);
         static QString pluginId(const QString &fileName);
-        static QString submoduleId(const QString &fileName,
-                                   const QString &pluginId);
         QString convertToAbsolute(const QString &path) const;
         void listPlugins();
 };
@@ -83,7 +85,6 @@ AkElement::AkElement(QObject *parent):
     QObject(parent)
 {
     this->d = new AkElementPrivate();
-    this->d->m_state = ElementStateNull;
 }
 
 AkElement::~AkElement()
@@ -287,21 +288,30 @@ QObject *AkElement::createPtr(const QString &pluginId, const QString &pluginSub)
 QStringList AkElement::listSubModules(const QString &pluginId,
                                       const QString &type)
 {
-    QStringList subModules;
-    auto subModulesPaths = AkElement::listSubModulesPaths(pluginId);
+    auto pattern = QString("^%1_(\\w+)$").arg(pluginId);
 
-    for (auto &path: subModulesPaths) {
-        QPluginLoader pluginLoader(path);
-        auto metaData = pluginLoader.metaData();
-        auto submoduleId = AkElementPrivate::submoduleId(path, pluginId);
+    if (!akElementGlobalStuff->m_pluginsScanned)
+        akElementGlobalStuff->listPlugins();
+
+    QStringList subModules;
+
+    for (auto &pluginInfo: akElementGlobalStuff->m_pluginsList) {
+        auto metaData = pluginInfo.metaData["MetaData"].toMap();
+        auto submoduleId =
+                QRegularExpression(pattern).match(pluginInfo.id).captured(1);
+
+        if (!metaData.contains("pluginType")
+            || metaData["pluginType"] != AK_PLUGIN_TYPE_SUBMODULE
+            || submoduleId.isEmpty()) {
+            continue;
+        }
 
         if (!type.isEmpty()
-            && metaData["MetaData"].toObject().contains("type")
-            && metaData["MetaData"].toObject()["type"] == type
-            && !subModules.contains(submoduleId))
+            && metaData.contains("type")
+            && metaData["type"] == type
+            && !subModules.contains(pluginInfo.id))
             subModules << submoduleId;
-        else if (type.isEmpty()
-                 && !subModules.contains(submoduleId))
+        else if (type.isEmpty() && !subModules.contains(pluginInfo.id))
             subModules << submoduleId;
     }
 
@@ -332,101 +342,35 @@ QStringList AkElement::listSubModules(const QStringList &types)
     return subModules;
 }
 
-QStringList AkElement::listSubModulesPaths(const QString &pluginId)
-{
-    auto filePath = AkElement::pluginPath(pluginId);
-
-    if (filePath.isEmpty())
-        return QStringList();
-
-    auto pluginDir = QFileInfo(filePath).absoluteDir();
-
-#ifdef Q_OS_ANDROID
-    auto submoduleFilePattern =
-            QString("lib%1_%2_%3_lib*%4.so").arg(COMMONS_TARGET,
-                                                 SUBMODULES_PATH,
-                                                 pluginId,
-                                                 PLATFORM_TARGET_SUFFIX);
-#else
-    if (!pluginDir.cd(akElementGlobalStuff->m_subModulesPath
-                      + QDir::separator()
-                      + pluginId))
-        return QStringList();
-
-    auto submoduleFilePattern = akElementGlobalStuff->m_pluginFilePattern;
-#endif
-
-    QStringList subModulesPaths;
-    auto plugins = pluginDir.entryList({submoduleFilePattern},
-                                       QDir::Files
-                                       | QDir::AllDirs
-                                       | QDir::NoDotAndDotDot,
-                                       QDir::Name);
-
-    for (auto &pluginFile: plugins) {
-        auto pluginPath = pluginDir.absoluteFilePath(pluginFile);
-        QPluginLoader pluginLoader(pluginPath);
-
-        if (!pluginLoader.load())
-            continue;
-
-        auto metaData = pluginLoader.metaData();
-
-        if (metaData["MetaData"].toObject().contains("pluginType")
-            && metaData["MetaData"].toObject()["pluginType"] == AK_PLUGIN_TYPE_SUBMODULE) {
-            subModulesPaths << pluginPath;
-        }
-    }
-
-    return subModulesPaths;
-}
-
-QStringList AkElement::listSubModulesPaths()
-{
-    QString pluginId;
-
-    if (this->pluginId().isEmpty()) {
-        pluginId = this->metaObject()->className();
-        pluginId.remove(QRegExp("Element$"));
-    } else {
-        pluginId = this->pluginId();
-    }
-
-    return AkElement::listSubModulesPaths(pluginId);
-}
-
 QObject *AkElement::loadSubModule(const QString &pluginId,
                                   const QString &subModule)
 {
-    auto subModulesPaths = AkElement::listSubModulesPaths(pluginId);
+    auto filePath =
+            AkElement::pluginPath(QString("%1_%2").arg(pluginId, subModule));
 
-    for (auto &subModulesPath: subModulesPaths) {
-        if (AkElementPrivate::submoduleId(subModulesPath,
-                                          pluginId) == subModule) {
-            QPluginLoader pluginLoader(subModulesPath);
+    if (filePath.isEmpty())
+        return nullptr;
 
-            if (!pluginLoader.load()) {
-                qDebug() << QString("Error loading submodule '%1' for '%2' plugin: %3")
-                                .arg(subModule,
-                                     pluginId,
-                                     pluginLoader.errorString());
+    QPluginLoader pluginLoader(filePath);
 
-                return nullptr;
-            }
+    if (!pluginLoader.load()) {
+        qDebug() << QString("Error loading submodule '%1' for '%2' plugin: %3")
+                        .arg(subModule,
+                             pluginId,
+                             pluginLoader.errorString());
 
-            auto plugin = qobject_cast<AkPlugin *>(pluginLoader.instance());
-
-            if (!plugin)
-                return nullptr;
-
-            auto obj = plugin->create(AK_PLUGIN_TYPE_SUBMODULE, "");
-            delete plugin;
-
-            return obj;
-        }
+        return nullptr;
     }
 
-    return nullptr;
+    auto plugin = qobject_cast<AkPlugin *>(pluginLoader.instance());
+
+    if (!plugin)
+        return nullptr;
+
+    auto object = plugin->create(AK_PLUGIN_TYPE_SUBMODULE, "");
+    delete plugin;
+
+    return object;
 }
 
 QObject *AkElement::loadSubModule(const QString &subModule)
@@ -481,21 +425,6 @@ void AkElement::resetSearchPaths()
     akElementGlobalStuff->m_pluginsSearchPaths.clear();
 }
 
-QString AkElement::subModulesPath()
-{
-    return akElementGlobalStuff->m_subModulesPath;
-}
-
-void AkElement::setSubModulesPath(const QString &subModulesPath)
-{
-    akElementGlobalStuff->m_subModulesPath = subModulesPath;
-}
-
-void AkElement::resetSubModulesPath()
-{
-    akElementGlobalStuff->m_subModulesPath = SUBMODULES_PATH;
-}
-
 QStringList AkElement::listPlugins(const QString &type)
 {
     if (!akElementGlobalStuff->m_pluginsScanned)
@@ -504,15 +433,20 @@ QStringList AkElement::listPlugins(const QString &type)
     QStringList plugins;
 
     for (auto &pluginInfo: akElementGlobalStuff->m_pluginsList) {
-        auto metaData = pluginInfo.m_metaData["MetaData"].toMap();
+        auto metaData = pluginInfo.metaData["MetaData"].toMap();        
+
+        if (!metaData.contains("pluginType")
+            || metaData["pluginType"] != AK_PLUGIN_TYPE_ELEMENT) {
+            continue;
+        }
 
         if (!type.isEmpty()
             && metaData.contains("type")
             && metaData["type"] == type
-            && !plugins.contains(pluginInfo.m_id))
-            plugins << pluginInfo.m_id;
-        else if (type.isEmpty() && !plugins.contains(pluginInfo.m_id))
-            plugins << pluginInfo.m_id;
+            && !plugins.contains(pluginInfo.id))
+            plugins << pluginInfo.id;
+        else if (type.isEmpty() && !plugins.contains(pluginInfo.id))
+            plugins << pluginInfo.id;
     }
 
     plugins.sort();
@@ -531,8 +465,8 @@ QStringList AkElement::listPluginPaths(const QString &searchPath)
     QStringList files;
 
     for (auto &pluginInfo: akElementGlobalStuff->m_pluginsList)
-        if (pluginInfo.m_path.startsWith(searchDir))
-            files << pluginInfo.m_path;
+        if (pluginInfo.path.startsWith(searchDir))
+            files << pluginInfo.path;
 
     return files;
 }
@@ -545,10 +479,10 @@ QStringList AkElement::listPluginPaths(bool all)
     QStringList files;
 
     for (auto &pluginInfo: akElementGlobalStuff->m_pluginsList)
-        if (!pluginInfo.m_path.isEmpty()
-            && !pluginInfo.m_id.isEmpty()
-            && (all || pluginInfo.m_used))
-            files << pluginInfo.m_path;
+        if (!pluginInfo.path.isEmpty()
+            && !pluginInfo.id.isEmpty()
+            && (all || pluginInfo.used))
+            files << pluginInfo.path;
 
     return files;
 }
@@ -559,7 +493,7 @@ void AkElement::setPluginPaths(const QStringList &paths)
         bool contains = false;
 
         for (auto &pluginInfo: akElementGlobalStuff->m_pluginsList)
-            if (pluginInfo.m_path == path) {
+            if (pluginInfo.path == path) {
                 contains = true;
 
                 break;
@@ -589,20 +523,19 @@ void AkElement::setPluginsBlackList(const QStringList &blackList)
 QString AkElement::pluginPath(const QString &pluginId)
 {
     auto pluginPaths = AkElement::listPluginPaths();
+    QString platformTargetSuffix;
+
+#ifdef Q_OS_ANDROID
+    platformTargetSuffix = "_" PLATFORM_TARGET_SUFFIX;
+#endif
 
     for (auto &path: pluginPaths) {
         auto baseName = QFileInfo(path).baseName();
 
-#ifdef Q_OS_ANDROID
-        if (baseName == QString("lib%1_lib%2%3")
-                        .arg(COMMONS_TARGET,
-                             pluginId,
-                             PLATFORM_TARGET_SUFFIX))
+        if (baseName == QString("%1%2%3").arg(PREFIX_SHLIB,
+                                              pluginId,
+                                              platformTargetSuffix))
             return path;
-#else
-        if (baseName == QString("%1%2").arg(PREFIX_SHLIB, pluginId))
-            return path;
-#endif
     }
 
     return {};
@@ -614,8 +547,8 @@ QVariantMap AkElement::pluginInfo(const QString &pluginId)
         akElementGlobalStuff->listPlugins();
 
     for (auto &pluginInfo: akElementGlobalStuff->m_pluginsList)
-        if (pluginInfo.m_id == pluginId)
-            return pluginInfo.m_metaData;
+        if (pluginInfo.id == pluginId)
+            return pluginInfo.metaData;
 
     return QVariantMap();
 }
@@ -624,8 +557,8 @@ void AkElement::setPluginInfo(const QString &path,
                               const QVariantMap &metaData)
 {
     for (auto &pluginInfo: akElementGlobalStuff->m_pluginsList)
-        if (pluginInfo.m_path == path) {
-            pluginInfo.m_metaData = metaData;
+        if (pluginInfo.path == path) {
+            pluginInfo.metaData = metaData;
 
             return;
         }
@@ -722,41 +655,24 @@ void AkElement::registerTypes()
 
 AkElementPrivate::AkElementPrivate()
 {
-    this->m_state = AkElement::ElementStateNull;
-    this->m_recursiveSearchPaths = false;
-    this->m_pluginsScanned = false;
-    this->m_defaultPluginsSearchPaths << INSTALLPLUGINSDIR;
-#ifdef Q_OS_ANDROID
-    this->m_defaultPluginsSearchPaths << QCoreApplication::applicationDirPath();
-#else
-    this->m_defaultPluginsSearchPaths
-            << this->convertToAbsolute(QString("%1/../%2/%3")
-                                       .arg(QCoreApplication::applicationDirPath(),
-                                            QString(LIBDIR).remove(EXECPREFIX).mid(1),
-                                            COMMONS_TARGET));
-#endif
-
-#ifdef Q_OS_OSX
-    this->m_defaultPluginsSearchPaths
-            << this->convertToAbsolute(QString("%1/../Plugins/%2")
-                                       .arg(QCoreApplication::applicationDirPath(),
-                                            COMMONS_TARGET));
-#endif
-
+    auto binDir = QDir(BINDIR).absolutePath();
+    auto pluginsDir = QDir(PLUGINSDIR).absolutePath();
+    auto relPluginsDir = QDir(binDir).relativeFilePath(pluginsDir);
+    QDir appDir = QCoreApplication::applicationDirPath();
+    appDir.cd(relPluginsDir);
+    this->m_defaultPluginsSearchPaths << appDir.absolutePath();
     this->m_applicationDir.setPath(QCoreApplication::applicationDirPath());
-    this->m_subModulesPath = SUBMODULES_PATH;
+    QString platformTargetSuffix;
 
 #ifdef Q_OS_ANDROID
+    platformTargetSuffix = "_" PLATFORM_TARGET_SUFFIX;
+#endif
+
     this->m_pluginFilePattern =
-            QString("lib%1_lib*%2.so").arg(COMMONS_TARGET,
-                                           PLATFORM_TARGET_SUFFIX);
-#else
-    this->m_pluginFilePattern = QString("%1*").arg(PREFIX_SHLIB);
+            QString("%1*%2").arg(PREFIX_SHLIB, platformTargetSuffix);
 
     if (strlen(EXTENSION_SHLIB) > 1)
-        this->m_pluginFilePattern += "." EXTENSION_SHLIB;
-
-#endif
+        this->m_pluginFilePattern += EXTENSION_SHLIB;
 }
 
 QList<QMetaMethod> AkElementPrivate::methodsByName(const QObject *object,
@@ -789,39 +705,17 @@ bool AkElementPrivate::methodCompat(const QMetaMethod &method1,
 QString AkElementPrivate::pluginId(const QString &fileName)
 {
     auto pluginId = QFileInfo(fileName).baseName();
+    QString platformTargetSuffix;
 
 #ifdef Q_OS_ANDROID
-    auto pattern = QString("^lib%1_lib(\\w+)%2$")
-                   .arg(COMMONS_TARGET, PLATFORM_TARGET_SUFFIX);
-#else
-    auto pattern = QString("^%1(\\w+)$").arg(PREFIX_SHLIB);
+    platformTargetSuffix = "_" PLATFORM_TARGET_SUFFIX;
 #endif
 
+    auto pattern =
+            QString("^%1(\\w+)%2$").arg(PREFIX_SHLIB, platformTargetSuffix);
     QRegularExpression regex(pattern);
-    auto match = regex.match(pluginId);
 
-    return match.captured(1);
-}
-
-QString AkElementPrivate::submoduleId(const QString &fileName,
-                                      const QString &pluginId)
-{
-#ifdef Q_OS_ANDROID
-    auto submoduleId = QFileInfo(fileName).baseName();
-    auto pattern = QString("^lib%1_%2_%3_lib(\\w+)%4$")
-                   .arg(COMMONS_TARGET,
-                        SUBMODULES_PATH,
-                        pluginId,
-                        PLATFORM_TARGET_SUFFIX);
-    QRegularExpression regex(pattern);
-    auto match = regex.match(submoduleId);
-
-    return match.captured(1);
-#else
-    Q_UNUSED(pluginId)
-
-    return AkElementPrivate::pluginId(fileName);
-#endif
+    return regex.match(pluginId).captured(1);
 }
 
 QString AkElementPrivate::convertToAbsolute(const QString &path) const
@@ -863,25 +757,25 @@ void AkElementPrivate::listPlugins()
                 bool found = false;
 
                 for (auto &pluginInfo: this->m_pluginsList)
-                    if (pluginInfo.m_path == path) {
-                        if (pluginInfo.m_metaData.isEmpty()) {
+                    if (pluginInfo.path == path) {
+                        if (pluginInfo.metaData.isEmpty()) {
                             QPluginLoader pluginLoader(path);
 
                             if (pluginLoader.load()) {
-                                if (pluginInfo.m_id.isEmpty())
-                                    pluginInfo.m_id = pluginId;
+                                if (pluginInfo.id.isEmpty())
+                                    pluginInfo.id = pluginId;
 
-                                pluginInfo.m_metaData =
+                                pluginInfo.metaData =
                                         pluginLoader.metaData().toVariantMap();
-                                pluginInfo.m_used = true;
+                                pluginInfo.used = true;
 
                                 pluginLoader.unload();
                             }
                         } else {
-                            if (pluginInfo.m_id.isEmpty())
-                                pluginInfo.m_id = pluginId;
+                            if (pluginInfo.id.isEmpty())
+                                pluginInfo.id = pluginId;
 
-                            pluginInfo.m_used = true;
+                            pluginInfo.used = true;
                         }
 
                         found = true;
@@ -902,9 +796,13 @@ void AkElementPrivate::listPlugins()
 
                         if (pluginLoader.load()) {
                             auto metaData = pluginLoader.metaData();
+                            auto pluginType =
+                                    metaData["MetaData"].toObject()
+                                                        .value("pluginType")
+                                                        .toString();
 
-                            if (metaData["MetaData"].toObject().contains("pluginType")
-                                && metaData["MetaData"].toObject()["pluginType"] == AK_PLUGIN_TYPE_ELEMENT) {
+                            if (pluginType == AK_PLUGIN_TYPE_ELEMENT
+                                || pluginType == AK_PLUGIN_TYPE_SUBMODULE) {
                                 this->m_pluginsList << AkPluginInfoPrivate {
                                    pluginId,
                                    path,
@@ -939,6 +837,43 @@ void AkElementPrivate::listPlugins()
         }
 
     this->m_pluginsScanned = true;
+}
+
+AkPluginInfoPrivate::AkPluginInfoPrivate()
+{
+
+}
+
+AkPluginInfoPrivate::AkPluginInfoPrivate(const QString &id,
+                                         const QString &path,
+                                         const QVariantMap &metaData,
+                                         bool used):
+    id(id),
+    path(path),
+    metaData(metaData),
+    used(used)
+{
+
+}
+
+AkPluginInfoPrivate::AkPluginInfoPrivate(const AkPluginInfoPrivate &other)
+{
+    this->id = other.id;
+    this->path = other.path;
+    this->metaData = other.metaData;
+    this->used = other.used;
+}
+
+AkPluginInfoPrivate &AkPluginInfoPrivate::operator =(const AkPluginInfoPrivate &other)
+{
+    if (this != &other) {
+        this->id = other.id;
+        this->path = other.path;
+        this->metaData = other.metaData;
+        this->used = other.used;
+    }
+
+    return *this;
 }
 
 QDataStream &operator >>(QDataStream &istream, AkElement::ElementState &state)

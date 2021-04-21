@@ -1,6 +1,4 @@
 {
     "pluginType": "Ak.Element",
-    "type": "AudioSource",
-    "hasConfig": false,
-    "hasUserland": false
+    "type": "AudioSource"
 }

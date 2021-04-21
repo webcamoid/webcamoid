@@ -35,12 +35,12 @@ using MarkerTypeMap = QMap<FaceDetectElement::MarkerType, QString>;
 inline MarkerTypeMap initMarkerTypeMap()
 {
     MarkerTypeMap markerTypeToStr {
-        {FaceDetectElement::MarkerTypeRectangle, "rectangle"},
-        {FaceDetectElement::MarkerTypeEllipse  , "ellipse"  },
-        {FaceDetectElement::MarkerTypeImage    , "image"    },
-        {FaceDetectElement::MarkerTypePixelate , "pixelate" },
-        {FaceDetectElement::MarkerTypeBlur     , "blur"     },
-        {FaceDetectElement::MarkerTypeBlurOuter, "blurouter"},
+        {FaceDetectElement::MarkerTypeRectangle , "rectangle" },
+        {FaceDetectElement::MarkerTypeEllipse   , "ellipse"   },
+        {FaceDetectElement::MarkerTypeImage     , "image"     },
+        {FaceDetectElement::MarkerTypePixelate  , "pixelate"  },
+        {FaceDetectElement::MarkerTypeBlur      , "blur"      },
+        {FaceDetectElement::MarkerTypeBlurOuter , "blurouter" },
         {FaceDetectElement::MarkerTypeImageOuter, "imageouter"}
     };
 
@@ -456,68 +456,101 @@ void FaceDetectElement::setBackgroundImage(const QString &backgroundImage)
     emit this->backgroundImageChanged(backgroundImage);
 }
 
-void FaceDetectElement::setScale(const qreal scale)
+void FaceDetectElement::setScale(qreal scale)
 {
+    if (this->d->m_scale == scale)
+        return;
+
     this->d->m_scale = scale;
     emit this->scaleChanged(scale);
 }
 
-void FaceDetectElement::setRScale(const qreal rScale)
+void FaceDetectElement::setRScale(qreal rScale)
 {
+    if (this->d->m_rScale == rScale)
+        return;
+
     this->d->m_rScale = rScale;
     emit this->rScaleChanged(rScale);
 }
 
-void FaceDetectElement::setSmootheEdges(const bool smootheEdges)
+void FaceDetectElement::setSmootheEdges(bool smootheEdges)
 {
+    if (this->d->m_smootheEdges == smootheEdges)
+        return;
+
     this->d->m_smootheEdges = smootheEdges;
     emit this->smootheEdgesChanged(smootheEdges);
 }
 
-void FaceDetectElement::setHOffset(const int hOffset)
+void FaceDetectElement::setHOffset(int hOffset)
 {
+    if (this->d->m_hOffset == hOffset)
+        return;
+
     this->d->m_hOffset = hOffset;
     emit this->hOffsetChanged(hOffset);
 }
 
-void FaceDetectElement::setVOffset(const int vOffset)
+void FaceDetectElement::setVOffset(int vOffset)
 {
+    if (this->d->m_vOffset == vOffset)
+        return;
+
     this->d->m_vOffset = vOffset;
     emit this->vOffsetChanged(vOffset);
 }
 
-void FaceDetectElement::setWAdjust(const int wAdjust)
+void FaceDetectElement::setWAdjust(int wAdjust)
 {
+    if (this->d->m_wAdjust == wAdjust)
+        return;
+
     this->d->m_wAdjust = wAdjust;
     emit this->wAdjustChanged(wAdjust);
 }
 
-void FaceDetectElement::setHAdjust(const int hAdjust)
+void FaceDetectElement::setHAdjust(int hAdjust)
 {
+    if (this->d->m_hAdjust == hAdjust)
+        return;
+
     this->d->m_hAdjust = hAdjust;
     emit this->hAdjustChanged(hAdjust);
 }
 
-void FaceDetectElement::setRWAdjust(const int rWAdjust)
+void FaceDetectElement::setRWAdjust(int rWAdjust)
 {
+    if (this->d->m_rWAdjust == rWAdjust)
+        return;
+
     this->d->m_rWAdjust = rWAdjust;
     emit this->rWAdjustChanged(rWAdjust);
 }
 
-void FaceDetectElement::setRHAdjust(const int rHAdjust)
+void FaceDetectElement::setRHAdjust(int rHAdjust)
 {
+    if (this->d->m_rHAdjust == rHAdjust)
+        return;
+
     this->d->m_rHAdjust = rHAdjust;
     emit this->rHAdjustChanged(rHAdjust);
 }
 
-void FaceDetectElement::setRHRadius(const int rHRadius)
+void FaceDetectElement::setRHRadius(int rHRadius)
 {
+    if (this->d->m_rHRadius == rHRadius)
+        return;
+
     this->d->m_rHRadius = rHRadius;
     emit this->rHRadiusChanged(rHRadius);
 }
 
-void FaceDetectElement::setRVRadius(const int rVRadius)
+void FaceDetectElement::setRVRadius(int rVRadius)
 {
+    if (this->d->m_rVRadius == rVRadius)
+        return;
+
     this->d->m_rVRadius = rVRadius;
     emit this->rVRadiusChanged(rVRadius);
 }
