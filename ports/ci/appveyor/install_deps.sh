@@ -20,7 +20,7 @@
 
 [ -f environment.sh ] && source environment.sh
 
-pacman -Syy
+pacman --noconfirm -Syyu
 pacman --noconfirm --needed -S \
     ccache \
     clang \
