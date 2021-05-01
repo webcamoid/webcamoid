@@ -11,7 +11,7 @@ env:
     - QTVER=5.15.2
     - PPAQTVER=515
     - QTVER_ANDROID=5.14.2
-    - QTIFWVER=4.0.1
+    - QTIFWVER=4.1.0
     - APPIMAGEVER=12
     - ARCH_ROOT_DATE=2021.04.01
     - ARCH_ROOT_URL=https://mirror.rackspace.com/archlinux

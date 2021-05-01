@@ -18,7 +18,7 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-#qtIinstallerVerbose=-v
+#qtIinstallerVerbose=--verbose
 
 if [ ! -z "${USE_WGET}" ]; then
     export DOWNLOAD_CMD="wget -nv -c"
@@ -39,20 +39,21 @@ if [ "${TRAVIS_OS_NAME}" = linux ] &&
 
     # Install Qt Installer Framework
 
-    qtIFW=QtInstallerFramework-linux-x64.run
+    qtIFW=QtInstallerFramework-linux-x64-${QTIFWVER}.run
     ${DOWNLOAD_CMD} http://download.qt.io/official_releases/qt-installer-framework/${QTIFWVER}/${qtIFW} || true
 
     if [ -e ${qtIFW} ]; then
         chmod +x ${qtIFW}
-
         QT_QPA_PLATFORM=minimal \
-        ./QtInstallerFramework-linux-x64.run \
-            ${qtIinstallerVerbose} \
-            --script "$PWD/ports/ci/travis/qtifw_non_interactive_install.qs" \
-            --no-force-installations
-
+        ./${qtIFW} \
+            --verbose \
+            --root ~/QtIFW \
+            --accept-licenses \
+            --accept-messages \
+            --confirm-command \
+            install
         cd .local
-        cp -rvf ~/Qt/QtIFW-${QTIFWVER/-*/}/* .
+        cp -rvf ~/QtIFW/* .
         cd ..
     fi
 
@@ -230,7 +231,7 @@ EOF
 
         # Install Qt Installer Framework
 
-        qtIFW=QtInstallerFramework-win-x86.exe
+        qtIFW=QtInstallerFramework-windows-x86-${QTIFWVER}.exe
         ${DOWNLOAD_CMD} http://download.qt.io/official_releases/qt-installer-framework/${QTIFWVER}/${qtIFW} || true
 
         if [ -e ${qtIFW} ]; then
@@ -245,9 +246,11 @@ export WINEPREFIX=/opt/.wine
 cd $TRAVIS_BUILD_DIR
 
 wine ./${qtIFW} \
-    ${qtIinstallerVerbose} \
-    --script "ports/ci/travis/qtifw_non_interactive_install.qs" \
-    --no-force-installations
+    --verbose \
+    --accept-licenses \
+    --accept-messages \
+    --confirm-command \
+    install
 EOF
 
             chmod +x ${INSTALLSCRIPT}
@@ -450,7 +453,7 @@ elif [ "${TRAVIS_OS_NAME}" = osx ]; then
     fi
 
     brew link python
-    qtIFW=QtInstallerFramework-mac-x64.dmg
+    qtIFW=QtInstallerFramework-macOS-x86_64-${QTIFWVER}.dmg
 
     # Install Qt Installer Framework
     ${DOWNLOAD_CMD} http://download.qt.io/official_releases/qt-installer-framework/${QTIFWVER}/${qtIFW} || true
@@ -459,11 +462,13 @@ elif [ "${TRAVIS_OS_NAME}" = osx ]; then
         hdiutil convert ${qtIFW} -format UDZO -o qtifw
         7z x -oqtifw qtifw.dmg -bb
         7z x -oqtifw qtifw/5.hfsx -bb
-        chmod +x qtifw/QtInstallerFramework-mac-x64/QtInstallerFramework-mac-x64.app/Contents/MacOS/QtInstallerFramework-mac-x64
+        chmod +x qtifw/QtInstallerFramework-macOS-x86_64-${QTIFWVER}/QtInstallerFramework-macOS-x86_64-${QTIFWVER}.app/Contents/MacOS/QtInstallerFramework-macOS-x86_64-${QTIFWVER}
 
-        qtifw/QtInstallerFramework-mac-x64/QtInstallerFramework-mac-x64.app/Contents/MacOS/QtInstallerFramework-mac-x64 \
-            ${qtIinstallerVerbose} \
-            --script "$PWD/ports/ci/travis/qtifw_non_interactive_install.qs" \
-            --no-force-installations
+        qtifw/QtInstallerFramework-macOS-x86_64-${QTIFWVER}/QtInstallerFramework-macOS-x86_64-${QTIFWVER}.app/Contents/MacOS/QtInstallerFramework-macOS-x86_64-${QTIFWVER} \
+            --verbose \
+            --accept-licenses \
+            --accept-messages \
+            --confirm-command \
+            install
     fi
 fi
