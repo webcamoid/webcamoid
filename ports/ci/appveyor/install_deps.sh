@@ -20,7 +20,8 @@
 
 [ -f environment.sh ] && source environment.sh
 
-pacman --noconfirm -Syyu
+pacman --noconfirm -Syyu \
+    --ignore filesystem,pacman,pacman-mirrors
 pacman --noconfirm --needed -S \
     ccache \
     clang \
