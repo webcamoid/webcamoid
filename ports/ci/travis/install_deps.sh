@@ -261,7 +261,7 @@ EOF
         # Install NSIS
 
         nsis=nsis-${NSIS_VERSION}-setup.exe
-        ${DOWNLOAD_CMD} https://sourceforge.net/projects/nsis/files/NSIS ${NSIS_VERSION:0:1}/${NSIS_VERSION}/${nsis}
+        ${DOWNLOAD_CMD} "https://sourceforge.net/projects/nsis/files/NSIS%20${NSIS_VERSION:0:1}/${NSIS_VERSION}/${nsis}"
 
         if [ -e ${nsis} ]; then
             INSTALLSCRIPT=installscript.sh
