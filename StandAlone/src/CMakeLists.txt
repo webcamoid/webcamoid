@@ -116,8 +116,8 @@ else ()
 endif ()
 
 if (WIN32)
-    set_target_properties(StandAlone PROPERTY
-                          WIN32_EXECUTABLE true)
+    set_target_properties(StandAlone PROPERTIES
+                          WIN32_EXECUTABLE TRUE)
 endif ()
 
 if (APPLE)
