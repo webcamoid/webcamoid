@@ -50,3 +50,14 @@ license = COPYING
 licenseName = GNU General Public License v3.0
 script = ports/deploy/installscript.@TARGET_PLATFORM@.qs
 changeLog = ChangeLog
+
+[Nsis]
+organization = Webcamoid
+appName = Webcamoid
+productVersion = @VERSION@.0
+description = Webcamoid, the ultimate webcam suite!
+icon = @INSTALLER_ICON@
+runProgram = @RUN_PROGRAM@
+license = COPYING
+requiresAdminRights = false
+multiUserInstall = true

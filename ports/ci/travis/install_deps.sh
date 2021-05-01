@@ -36,9 +36,10 @@ if [ "${TRAVIS_OS_NAME}" = linux ] &&
         libxkbcommon-x11-0
 
     mkdir -p .local/bin
-    qtIFW=QtInstallerFramework-linux-x64.run
 
     # Install Qt Installer Framework
+
+    qtIFW=QtInstallerFramework-linux-x64.run
     ${DOWNLOAD_CMD} http://download.qt.io/official_releases/qt-installer-framework/${QTIFWVER}/${qtIFW} || true
 
     if [ -e ${qtIFW} ]; then
@@ -55,9 +56,9 @@ if [ "${TRAVIS_OS_NAME}" = linux ] &&
         cd ..
     fi
 
-    appimage=appimagetool-x86_64.AppImage
-
     # Install AppImageTool
+
+    appimage=appimagetool-x86_64.AppImage
     wget -c -O .local/${appimage} https://github.com/AppImage/AppImageKit/releases/download/${APPIMAGEVER}/${appimage} || true
 
     if [ -e .local/${appimage} ]; then
@@ -227,9 +228,9 @@ EOF
             mingw-w64-qt5-tools \
             mingw-w64-ffmpeg
 
-        qtIFW=QtInstallerFramework-win-x86.exe
-
         # Install Qt Installer Framework
+
+        qtIFW=QtInstallerFramework-win-x86.exe
         ${DOWNLOAD_CMD} http://download.qt.io/official_releases/qt-installer-framework/${QTIFWVER}/${qtIFW} || true
 
         if [ -e ${qtIFW} ]; then
@@ -247,6 +248,30 @@ wine ./${qtIFW} \
     ${qtIinstallerVerbose} \
     --script "ports/ci/travis/qtifw_non_interactive_install.qs" \
     --no-force-installations
+EOF
+
+            chmod +x ${INSTALLSCRIPT}
+            sudo cp -vf ${INSTALLSCRIPT} root.x86_64/$HOME/
+            ${EXEC} bash $HOME/${INSTALLSCRIPT}
+        fi
+
+        # Install NSIS
+
+        nsis=nsis-${NSIS_VERSION}-setup.exe
+        ${DOWNLOAD_CMD} https://sourceforge.net/projects/nsis/files/NSIS ${NSIS_VERSION:0:1}/${NSIS_VERSION}/${nsis}
+
+        if [ -e ${nsis} ]; then
+            INSTALLSCRIPT=installscript.sh
+
+            cat << EOF > ${INSTALLSCRIPT}
+#!/bin/sh
+
+export LC_ALL=C
+export HOME=$HOME
+export WINEPREFIX=/opt/.wine
+cd $TRAVIS_BUILD_DIR
+
+wine ./${nsis} /S
 EOF
 
             chmod +x ${INSTALLSCRIPT}

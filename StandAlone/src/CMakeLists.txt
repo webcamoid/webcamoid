@@ -115,6 +115,11 @@ else ()
                           OUTPUT_NAME webcamoid)
 endif ()
 
+if (WIN32)
+    set_target_properties(StandAlone PROPERTY
+                          WIN32_EXECUTABLE true)
+endif ()
+
 if (APPLE)
     set_target_properties(StandAlone PROPERTIES
                           RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build)
