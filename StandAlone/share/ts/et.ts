@@ -584,7 +584,7 @@
         <location filename="../qml/VideoEffectsDialog.qml" line="183"/>
         <source>Chain effect</source>
         <extracomment>Apply the effect over the other effects.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Rakenda efekte jadas</translation>
     </message>
 </context>
 <context>
@@ -1105,7 +1105,7 @@
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="119"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="110"/>
         <source>Hinting</source>
-        <translation type="unfinished"></translation>
+        <translation>Varjundamine</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="129"/>
@@ -1113,25 +1113,25 @@
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="120"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="152"/>
         <source>Default</source>
-        <translation type="unfinished"></translation>
+        <translation>Vaikimisi</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="133"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="124"/>
         <source>No hinting</source>
-        <translation type="unfinished"></translation>
+        <translation>Varjundamine puudub</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="137"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="128"/>
         <source>Vertical hinting</source>
-        <translation type="unfinished"></translation>
+        <translation>Vertikaalne varjundamine</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="141"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="132"/>
         <source>Full hinting</source>
-        <translation type="unfinished"></translation>
+        <translation>Täismahuline varjundamine</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="151"/>
@@ -1174,25 +1174,25 @@
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="185"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="176"/>
         <source>Quality</source>
-        <translation type="unfinished">Kvaliteet</translation>
+        <translation>Kvaliteet</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="189"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="180"/>
         <source>Antialias</source>
-        <translation type="unfinished"></translation>
+        <translation>Silumine</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="193"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="184"/>
         <source>No antialias</source>
-        <translation type="unfinished"></translation>
+        <translation>Silumine puudub</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="197"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="188"/>
         <source>Compatible with OpenGL</source>
-        <translation type="unfinished"></translation>
+        <translation>Ühilduv OpenGL&apos;iga</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="201"/>
@@ -1204,7 +1204,7 @@
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="205"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="196"/>
         <source>No subpixel antialias</source>
-        <translation type="unfinished"></translation>
+        <translation>Ära kasuta alampiksli silumist</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="209"/>
@@ -1216,44 +1216,44 @@
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="218"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="224"/>
         <source>Foreground color</source>
-        <translation type="unfinished"></translation>
+        <translation>Esiplaani värv</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="234"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="239"/>
         <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="178"/>
         <source>Background color</source>
-        <translation type="unfinished"></translation>
+        <translation>Taustavärv</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="250"/>
         <source>Reversed</source>
-        <translation type="unfinished"></translation>
+        <translation>Pööratud</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="265"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="326"/>
         <source>Please choose a font</source>
-        <translation type="unfinished"></translation>
+        <translation>Palun vali font</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="226"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="232"/>
         <source>Choose the foreground color</source>
-        <translation type="unfinished"></translation>
+        <translation>Palun vali esiplaani värv</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="242"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="247"/>
         <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="188"/>
         <source>Choose the background color</source>
-        <translation type="unfinished"></translation>
+        <translation>Palun vali taustavärv</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Cinema/share/qml/main.qml" line="60"/>
         <location filename="../../../libAvKys/Plugins/Dice/share/qml/main.qml" line="38"/>
         <source>Size</source>
-        <translation type="unfinished"></translation>
+        <translation>Suurus</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Cinema/share/qml/main.qml" line="96"/>
@@ -1261,7 +1261,7 @@
         <location filename="../../../libAvKys/Plugins/Life/share/qml/main.qml" line="63"/>
         <location filename="../../../libAvKys/Plugins/Vignette/share/qml/main.qml" line="68"/>
         <source>Color</source>
-        <translation type="unfinished"></translation>
+        <translation>Värv</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Cinema/share/qml/main.qml" line="106"/>
@@ -1373,7 +1373,7 @@
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="984"/>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="209"/>
         <source>Please choose an image file</source>
-        <translation type="unfinished">Palun vali pildifail</translation>
+        <translation>Palun vali pildifail</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="47"/>
@@ -1462,7 +1462,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/DesktopCapture/share/qml/main.qml" line="48"/>
         <source>Frame rate</source>
-        <translation type="unfinished">Kaadrisagedus</translation>
+        <translation>Kaadrisagedus</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Distort/share/qml/main.qml" line="29"/>
@@ -2402,12 +2402,12 @@ background blur or image below.</source>
     <message>
         <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="280"/>
         <source>Video format</source>
-        <translation type="unfinished"></translation>
+        <translation>Videovorming</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="299"/>
         <source>Resolution</source>
-        <translation type="unfinished"></translation>
+        <translation>Eraldusvõime</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="318"/>
@@ -2486,7 +2486,7 @@ background blur or image below.</source>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="402"/>
         <source>Aspect ratio</source>
-        <translation type="unfinished"></translation>
+        <translation>Kuvasuhe</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="180"/>
@@ -2547,12 +2547,12 @@ duration (seconds)</source>
     <message>
         <location filename="../../../libAvKys/Plugins/Scale/share/qml/main.qml" line="42"/>
         <source>Width</source>
-        <translation type="unfinished">Laius</translation>
+        <translation>Laius</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Scale/share/qml/main.qml" line="55"/>
         <source>Height</source>
-        <translation type="unfinished">Kõrgus</translation>
+        <translation>Kõrgus</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Scale/share/qml/main.qml" line="68"/>
