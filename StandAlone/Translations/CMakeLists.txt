@@ -44,6 +44,7 @@ set(LANGUAGES
     pt
     ru
     si
+    sv
     tr
     uk
     vi

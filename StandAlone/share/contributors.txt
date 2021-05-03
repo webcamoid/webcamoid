@@ -9,17 +9,20 @@ Artem <KovalevArtem.ru@gmail.com>
 Ascaf0 <fa0sck@gmail.com>
 CE4 <chregger@gmail.com>
 Chris Barth <chrisjbarth@hotmail.com>
+Continuity <continuity@gmx.net>
 Daniel Lerch <daniel.p.lerch@gmail.com>
 David Jiménez Santonja <david.jimenez.santonja@gmail.com>
 Edoardo Rosa <edoardo.rosa90@gmail.com>
 Eduardo Rodrigues <edu.rodrigues2580@gmail.com>
 Edwar Tikhonov <letih@vivaldi.net>
 Elizabeth Sherrock <lizzyd710@gmail.com>
+Elton Viana Gonçalves da Luz <eltongoncalves94@hotmail.com>
 Erich Schubert <erich.schubert@tu-dortmund.de>
 Ettore Atalan <atalanttore@googlemail.com>
 ezjerry liao <ezjerry@gmail.com>
 gordonel <45173186+gordonel@users.noreply.github.com>
 Gruni Lala <ro.gruni@hotmail.de>
+Heimen Stoffels <vistausss@fastmail.com>
 Heimen Stoffels <vistausss@outlook.com>
 hpfn <hpfn@users.noreply.github.com>
 J. Lavoie <j.lavoie@net-c.ca>
@@ -47,6 +50,7 @@ ovari <ovari123@zoho.com>
 paperspaceBen <benjamin@paperspace.io>
 pCsOrI <pcsori@gmail.com>
 Peppernrino <pepperandrino@gmail.com>
+Priit Jõerüüt <hwlate@joeruut.com>
 Quentin PAGÈS <quentinantonin@free.fr>
 Raúl González García <rgonzalez5@ucam.edu>
 Robin Kunze <robinkunze@outlook.com>
@@ -72,3 +76,4 @@ zhcjsjz <zhcj@yeah.net>
 Роман Хрущ <hrushch.rr57@gmail.com>
 吴绮 <rs2.free@qq.com>
 이피시소리 <pcsori@gmail.com>
+조현퇴 <hyuntoe@gmail.com>
