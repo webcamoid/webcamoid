@@ -453,9 +453,9 @@ elif [ "${TRAVIS_OS_NAME}" = osx ]; then
     fi
 
     brew link python
-    qtIFW=QtInstallerFramework-macOS-x86_64-${QTIFWVER}.dmg
 
     # Install Qt Installer Framework
+    qtIFW=QtInstallerFramework-macOS-x86_64-${QTIFWVER}.dmg
     ${DOWNLOAD_CMD} http://download.qt.io/official_releases/qt-installer-framework/${QTIFWVER}/${qtIFW} || true
 
     if [ -e "${qtIFW}" ]; then
