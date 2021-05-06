@@ -107,7 +107,12 @@ elif [ "${ARCH_ROOT_BUILD}" = 1 ]; then
         extraConfs=
     else
         outputFolder=windows
-        extraConfs="-c \"\${PWD}/build/package_info_windows.conf\""
+        cat << EOF > package_info_strip.conf
+[System]
+stripCmd = ${ARCH_ROOT_MINGW}-w64-mingw32-strip
+EOF
+        extraConfs="-c \"\${PWD}/build/package_info_windows.conf\" \
+        -c \"\${PWD}/package_info_strip.conf\""
     fi
 
     cat << EOF > ${DEPLOYSCRIPT}

@@ -38,6 +38,7 @@ else
 fi
 
 pacman --noconfirm --needed -S \
+    mingw-w64-${packagesArch}-binutils \
     mingw-w64-${packagesArch}-ccache \
     mingw-w64-${packagesArch}-clang \
     mingw-w64-${packagesArch}-cmake \
