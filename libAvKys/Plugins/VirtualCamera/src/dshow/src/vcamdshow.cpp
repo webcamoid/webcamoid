@@ -682,7 +682,7 @@ bool VCamDShow::init()
 
     STARTUPINFOA startupInfo;
     memset(&startupInfo, 0, sizeof(STARTUPINFOA));
-    startupInfo.cb = sizeof(STARTUPINFO);
+    startupInfo.cb = sizeof(STARTUPINFOA);
     startupInfo.hStdInput = this->d->m_streamProc.stdinReadPipe;
     startupInfo.dwFlags = STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES;
     startupInfo.wShowWindow = SW_HIDE;
