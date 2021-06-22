@@ -165,7 +165,7 @@
     <message>
         <location filename="../qml/Commons.qml" line="28"/>
         <source>The virtual camera is in use by the following applications:</source>
-        <translation>A câmara virtual está sendo usada pelas seguintes aplicações:</translation>
+        <translation>A câmara virtual está a ser usada pelas seguintes aplicações:</translation>
     </message>
     <message>
         <location filename="../qml/Commons.qml" line="40"/>
@@ -818,12 +818,12 @@
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="143"/>
         <source>Edit Virtual Camera</source>
-        <translation>Editar Câmera Virtual</translation>
+        <translation>Editar Câmara Virtual</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="144"/>
         <source>Add Virtual Camera</source>
-        <translation>Adicionar Câmera Virtual</translation>
+        <translation>Adicionar Câmara Virtual</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="169"/>
@@ -843,22 +843,22 @@
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="230"/>
         <source>Can&apos;t Edit The Virtual Camera</source>
-        <translation>Não Pode Editar a Câmera Virtual</translation>
+        <translation>Não Pode Editar a Câmara Virtual</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="231"/>
         <source>Can&apos;t Add The Virtual Camera</source>
-        <translation>Não Pode Adicionar a Câmera Virtual</translation>
+        <translation>Não Pode Adicionar a Câmara Virtual</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="240"/>
         <source>Error Editing The Virtual Camera</source>
-        <translation>Erro ao Editar A Câmera Virtual</translation>
+        <translation>Erro ao Editar A Câmara Virtual</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="241"/>
         <source>Error Adding The Virtual Camera</source>
-        <translation>Erro ao Adicionar A Câmera Virtual</translation>
+        <translation>Erro ao Adicionar A Câmara Virtual</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="242"/>
@@ -876,7 +876,7 @@
     <message>
         <location filename="../qml/VideoOutputOptions.qml" line="73"/>
         <source>Can&apos;t Edit The Virtual Camera</source>
-        <translation>Não Pode Editar A Câmera Virtual</translation>
+        <translation>Não Pode Editar A Câmara Virtual</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputOptions.qml" line="80"/>
@@ -886,7 +886,7 @@
     <message>
         <location filename="../qml/VideoOutputOptions.qml" line="94"/>
         <source>Can&apos;t Remove The Virtual Camera</source>
-        <translation>Não Pode Remover A Câmera Virtual</translation>
+        <translation>Não Pode Remover A Câmara Virtual</translation>
     </message>
 </context>
 <context>
@@ -909,7 +909,7 @@
     <message>
         <location filename="../qml/VideoOutputPicture.qml" line="92"/>
         <source>Error Removing Virtual Cameras</source>
-        <translation>Erro ao Remover as Câmeras Virtuais</translation>
+        <translation>Erro ao Remover as Câmaras Virtuais</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputPicture.qml" line="104"/>
@@ -927,12 +927,12 @@
     <message>
         <location filename="../qml/VideoOutputs.qml" line="46"/>
         <source>Error Creating Virtual Camera</source>
-        <translation>Erro ao Criar a Câmera Virtual</translation>
+        <translation>Erro ao Criar a Câmara Virtual</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="61"/>
         <source>Error Removing Virtual Cameras</source>
-        <translation>Erro ao Remover Câmeras Virtuais</translation>
+        <translation>Erro ao Remover Câmaras Virtuais</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="68"/>
@@ -1150,7 +1150,7 @@
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="169"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="160"/>
         <source>Device</source>
-        <translation>Dispositivo</translation>
+        <translation>Aparelho</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="173"/>

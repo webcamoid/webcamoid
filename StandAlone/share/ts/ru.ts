@@ -1704,7 +1704,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="266"/>
         <source>Background Image</source>
-        <translation type="unfinished"></translation>
+        <translation>Фоновое изображение</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="276"/>
@@ -1950,22 +1950,22 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="554"/>
         <source>Backgrounds</source>
-        <translation type="unfinished"></translation>
+        <translation>Фоны</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="563"/>
         <source>Black Square</source>
-        <translation type="unfinished"></translation>
+        <translation>Черный квадрат</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="576"/>
         <source>Background picture</source>
-        <translation type="unfinished"></translation>
+        <translation>Фоновое изображение</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="590"/>
         <source>Replace background with this picture</source>
-        <translation type="unfinished"></translation>
+        <translation>Заменять фон этой картинкой</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="619"/>
@@ -1982,13 +1982,14 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="650"/>
         <source>Face Area Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Настройка области лица</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="657"/>
         <source>Advanced face area settings for 
 background blur or image below.</source>
-        <translation type="unfinished"></translation>
+        <translation>Расширенные настройки области лица для 
+размытия фона или изображения ниже.</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="708"/>

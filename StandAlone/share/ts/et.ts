@@ -1021,17 +1021,17 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="107"/>
         <source>Color difference</source>
-        <translation type="unfinished"></translation>
+        <translation>Värvierinevus</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="129"/>
         <source>Show edges</source>
-        <translation type="unfinished"></translation>
+        <translation>Näita piirjooni</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="189"/>
         <source>Line color</source>
-        <translation type="unfinished"></translation>
+        <translation>Piirjoone värv</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="209"/>
@@ -1047,7 +1047,7 @@
         <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="200"/>
         <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="182"/>
         <source>Choose a color</source>
-        <translation type="unfinished"></translation>
+        <translation>Vali värv</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="37"/>
@@ -1090,7 +1090,7 @@
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="89"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="95"/>
         <source>Font</source>
-        <translation type="unfinished"></translation>
+        <translation>Font</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="111"/>
@@ -1138,7 +1138,7 @@
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="142"/>
         <source>Style</source>
         <extracomment>Different font rendering strategies</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Stiil</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="165"/>
@@ -1150,7 +1150,7 @@
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="169"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="160"/>
         <source>Device</source>
-        <translation type="unfinished"></translation>
+        <translation>Seade</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="173"/>
@@ -1283,22 +1283,22 @@
     <message>
         <location filename="../../../libAvKys/Plugins/ColorReplace/share/qml/main.qml" line="59"/>
         <source>Old color</source>
-        <translation type="unfinished"></translation>
+        <translation>Vana värv</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorReplace/share/qml/main.qml" line="80"/>
         <source>New color</source>
-        <translation type="unfinished"></translation>
+        <translation>Uus värv</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorReplace/share/qml/main.qml" line="69"/>
         <source>Select the color to replace</source>
-        <translation type="unfinished"></translation>
+        <translation>Vali asendatav värv</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorReplace/share/qml/main.qml" line="90"/>
         <source>Select the new color</source>
-        <translation type="unfinished"></translation>
+        <translation>Vali uus värv</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="36"/>
