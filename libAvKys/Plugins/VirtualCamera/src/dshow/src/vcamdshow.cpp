@@ -118,6 +118,11 @@ class VCamDShowPrivate
         {
             return (value + align - 1) & ~(align - 1);
         }
+
+        // Execute commands with elevated privileges.
+        int sudo(const QStringList &parameters,
+                 const QString &directory={},
+                 bool show=false);
 };
 
 VCamDShow::VCamDShow(QObject *parent):
@@ -386,23 +391,17 @@ QString VCamDShow::deviceCreate(const QString &description,
 #endif
 
     settings.sync();
+    int exitCode = this->d->sudo({manager, "load", settings.fileName()});
 
-    QProcess proc;
-    proc.start(manager, {"load", settings.fileName()});
-    proc.waitForFinished();
-
-    if (proc.exitCode()) {
-        auto errorMsg = proc.readAllStandardError();
-
-        if (!errorMsg.isEmpty()) {
-            qDebug() << errorMsg;
-            this->d->m_error += QString(errorMsg);
-        }
+    if (exitCode) {
+        auto errorMsg = QString("Manager exited with code %1").arg(exitCode);
+        qDebug() << errorMsg;
+        this->d->m_error += errorMsg;
     }
 
     QString deviceId;
 
-    if (!proc.exitCode()) {
+    if (!exitCode) {
         QProcess proc;
         proc.start(manager, {"-p", "devices"});
         proc.waitForFinished();
@@ -525,49 +524,128 @@ bool VCamDShow::deviceEdit(const QString &deviceId,
     settings.sync();
 
     bool ok = true;
-    QProcess proc;
-    proc.start(manager, {"load", settings.fileName()});
-    proc.waitForFinished();
+    int exitCode = this->d->sudo({manager, "load", settings.fileName()});
 
-    if (proc.exitCode()) {
+    if (exitCode) {
         ok = false;
-        auto errorMsg = proc.readAllStandardError();
-
-        if (!errorMsg.isEmpty()) {
-            qDebug() << errorMsg;
-            this->d->m_error += QString(errorMsg);
-        }
+        auto errorMsg = QString("Manager exited with code %1").arg(exitCode);
+        qDebug() << errorMsg;
+        this->d->m_error += errorMsg;
     }
 
     return ok;
 }
 
 bool VCamDShow::changeDescription(const QString &deviceId,
-                                 const QString &description)
+                                  const QString &description)
 {
     auto manager = this->d->manager();
 
     if (manager.isEmpty())
         return false;
 
-    bool ok = true;
-    QProcess proc;
-    proc.start(manager, {"set-description", deviceId, description});
-    proc.waitForFinished();
+    // Read devices information.
+    QList<DeviceInfo> devices;
 
-    if (!proc.exitCode()) {
-        proc.start(manager, {"update"});
-        proc.waitForFinished();
+    for (auto it = this->d->m_descriptions.begin();
+         it != this->d->m_descriptions.end();
+         it++) {
+        if (it.key() == deviceId)
+            devices << DeviceInfo {description, this->d->m_devicesFormats[it.key()]};
+        else
+            devices << DeviceInfo {it.value(), this->d->m_devicesFormats[it.key()]};
     }
 
-    if (proc.exitCode()) {
-        ok = false;
-        auto errorMsg = proc.readAllStandardError();
+    QTemporaryDir tempDir;
+    QSettings settings(tempDir.path() + "/config.ini", QSettings::IniFormat);
 
-        if (!errorMsg.isEmpty()) {
-            qDebug() << errorMsg;
-            this->d->m_error += QString(errorMsg);
+    // Set file encoding.
+    auto codec = QTextCodec::codecForLocale();
+
+    if (codec)
+        settings.setIniCodec(codec->name());
+    else
+        settings.setIniCodec("UTF-8");
+
+    // Write 'config.ini'.
+    int i = 0;
+    int j = 0;
+
+    for (auto &device: devices) {
+        QStringList formatsIndex;
+
+        for (int i = 0; i < device.formats.size(); i++)
+            formatsIndex << QString("%1").arg(i + j + 1);
+
+        settings.beginGroup("Cameras");
+        settings.beginWriteArray("cameras");
+        settings.setArrayIndex(i);
+
+        settings.setValue("description", device.description);
+        settings.setValue("formats", formatsIndex);
+        settings.endArray();
+        settings.endGroup();
+
+        settings.beginGroup("Formats");
+        settings.beginWriteArray("formats");
+
+        for (auto &format: device.formats) {
+            settings.setArrayIndex(j);
+            settings.setValue("format", this->d->dshowAkFormatMap().value(format.format()));
+            settings.setValue("width", format.width());
+            settings.setValue("height", format.height());
+            settings.setValue("fps", format.fps().toString());
+            j++;
         }
+
+        settings.endArray();
+        settings.endGroup();
+
+        i++;
+    }
+
+    // Copy default frame to file system.
+    QImage defaultImage;
+    QString defaultFrame;
+
+    if (!this->d->m_picture.isEmpty()
+        && defaultImage.load(this->d->m_picture)) {
+        auto dataLocation =
+                QStandardPaths::standardLocations(QStandardPaths::GenericDataLocation).value(0);
+        dataLocation += QDir::separator() + qApp->applicationName();
+
+        if (QDir().mkpath(dataLocation)) {
+            defaultImage = defaultImage.convertToFormat(QImage::Format_RGB888);
+            auto width = VCamDShowPrivate::alignUp(defaultImage.width(), 32);
+            defaultImage = defaultImage.scaled(width,
+                                               defaultImage.height(),
+                                               Qt::IgnoreAspectRatio,
+                                               Qt::SmoothTransformation);
+            defaultFrame = dataLocation
+                         + QDir::separator()
+                         + "default_frame.png";
+
+            if (!defaultImage.save(defaultFrame))
+                defaultFrame.clear();
+        }
+    }
+
+    settings.setValue("default_frame", defaultFrame);
+
+#ifdef QT_DEBUG
+    settings.setValue("loglevel", "7");
+#endif
+
+    settings.sync();
+
+    bool ok = true;
+    int exitCode = this->d->sudo({manager, "load", settings.fileName()});
+
+    if (exitCode) {
+        ok = false;
+        auto errorMsg = QString("Manager exited with code %1").arg(exitCode);
+        qDebug() << errorMsg;
+        this->d->m_error += errorMsg;
     }
 
     return ok;
@@ -580,24 +658,106 @@ bool VCamDShow::deviceDestroy(const QString &deviceId)
     if (manager.isEmpty())
         return false;
 
-    bool ok = true;
-    QProcess proc;
-    proc.start(manager, {"remove-device", deviceId});
-    proc.waitForFinished();
+    // Read devices information.
+    QList<DeviceInfo> devices;
 
-    if (!proc.exitCode()) {
-        proc.start(manager, {"update"});
-        proc.waitForFinished();
+    for (auto it = this->d->m_descriptions.begin();
+         it != this->d->m_descriptions.end();
+         it++) {
+        if (it.key() != deviceId)
+            devices << DeviceInfo {it.value(), this->d->m_devicesFormats[it.key()]};
     }
 
-    if (proc.exitCode()) {
-        ok = false;
-        auto errorMsg = proc.readAllStandardError();
+    QTemporaryDir tempDir;
+    QSettings settings(tempDir.path() + "/config.ini", QSettings::IniFormat);
 
-        if (!errorMsg.isEmpty()) {
-            qDebug() << errorMsg;
-            this->d->m_error += QString(errorMsg);
+    // Set file encoding.
+    auto codec = QTextCodec::codecForLocale();
+
+    if (codec)
+        settings.setIniCodec(codec->name());
+    else
+        settings.setIniCodec("UTF-8");
+
+    // Write 'config.ini'.
+    int i = 0;
+    int j = 0;
+
+    for (auto &device: devices) {
+        QStringList formatsIndex;
+
+        for (int i = 0; i < device.formats.size(); i++)
+            formatsIndex << QString("%1").arg(i + j + 1);
+
+        settings.beginGroup("Cameras");
+        settings.beginWriteArray("cameras");
+        settings.setArrayIndex(i);
+
+        settings.setValue("description", device.description);
+        settings.setValue("formats", formatsIndex);
+        settings.endArray();
+        settings.endGroup();
+
+        settings.beginGroup("Formats");
+        settings.beginWriteArray("formats");
+
+        for (auto &format: device.formats) {
+            settings.setArrayIndex(j);
+            settings.setValue("format", this->d->dshowAkFormatMap().value(format.format()));
+            settings.setValue("width", format.width());
+            settings.setValue("height", format.height());
+            settings.setValue("fps", format.fps().toString());
+            j++;
         }
+
+        settings.endArray();
+        settings.endGroup();
+
+        i++;
+    }
+
+    // Copy default frame to file system.
+    QImage defaultImage;
+    QString defaultFrame;
+
+    if (!this->d->m_picture.isEmpty()
+        && defaultImage.load(this->d->m_picture)) {
+        auto dataLocation =
+                QStandardPaths::standardLocations(QStandardPaths::GenericDataLocation).value(0);
+        dataLocation += QDir::separator() + qApp->applicationName();
+
+        if (QDir().mkpath(dataLocation)) {
+            defaultImage = defaultImage.convertToFormat(QImage::Format_RGB888);
+            auto width = VCamDShowPrivate::alignUp(defaultImage.width(), 32);
+            defaultImage = defaultImage.scaled(width,
+                                               defaultImage.height(),
+                                               Qt::IgnoreAspectRatio,
+                                               Qt::SmoothTransformation);
+            defaultFrame = dataLocation
+                         + QDir::separator()
+                         + "default_frame.png";
+
+            if (!defaultImage.save(defaultFrame))
+                defaultFrame.clear();
+        }
+    }
+
+    settings.setValue("default_frame", defaultFrame);
+
+#ifdef QT_DEBUG
+    settings.setValue("loglevel", "7");
+#endif
+
+    settings.sync();
+
+    bool ok = true;
+    int exitCode = this->d->sudo({manager, "load", settings.fileName()});
+
+    if (exitCode) {
+        ok = false;
+        auto errorMsg = QString("Manager exited with code %1").arg(exitCode);
+        qDebug() << errorMsg;
+        this->d->m_error += errorMsg;
     }
 
     return ok;
@@ -610,24 +770,59 @@ bool VCamDShow::destroyAllDevices()
     if (manager.isEmpty())
         return false;
 
-    bool ok = true;
-    QProcess proc;
-    proc.start(manager, {"remove-devices"});
-    proc.waitForFinished();
+    QTemporaryDir tempDir;
+    QSettings settings(tempDir.path() + "/config.ini", QSettings::IniFormat);
 
-    if (!proc.exitCode()) {
-        proc.start(manager, {"update"});
-        proc.waitForFinished();
+    // Set file encoding.
+    auto codec = QTextCodec::codecForLocale();
+
+    if (codec)
+        settings.setIniCodec(codec->name());
+    else
+        settings.setIniCodec("UTF-8");
+
+    // Copy default frame to file system.
+    QImage defaultImage;
+    QString defaultFrame;
+
+    if (!this->d->m_picture.isEmpty()
+        && defaultImage.load(this->d->m_picture)) {
+        auto dataLocation =
+                QStandardPaths::standardLocations(QStandardPaths::GenericDataLocation).value(0);
+        dataLocation += QDir::separator() + qApp->applicationName();
+
+        if (QDir().mkpath(dataLocation)) {
+            defaultImage = defaultImage.convertToFormat(QImage::Format_RGB888);
+            auto width = VCamDShowPrivate::alignUp(defaultImage.width(), 32);
+            defaultImage = defaultImage.scaled(width,
+                                               defaultImage.height(),
+                                               Qt::IgnoreAspectRatio,
+                                               Qt::SmoothTransformation);
+            defaultFrame = dataLocation
+                         + QDir::separator()
+                         + "default_frame.png";
+
+            if (!defaultImage.save(defaultFrame))
+                defaultFrame.clear();
+        }
     }
 
-    if (proc.exitCode()) {
-        ok = false;
-        auto errorMsg = proc.readAllStandardError();
+    settings.setValue("default_frame", defaultFrame);
 
-        if (!errorMsg.isEmpty()) {
-            qDebug() << errorMsg;
-            this->d->m_error += QString(errorMsg);
-        }
+#ifdef QT_DEBUG
+    settings.setValue("loglevel", "7");
+#endif
+
+    settings.sync();
+
+    bool ok = true;
+    int exitCode = this->d->sudo({manager, "load", settings.fileName()});
+
+    if (exitCode) {
+        ok = false;
+        auto errorMsg = QString("Manager exited with code %1").arg(exitCode);
+        qDebug() << errorMsg;
+        this->d->m_error += errorMsg;
     }
 
     return ok;
@@ -786,7 +981,64 @@ bool VCamDShow::applyPicture()
     auto manager = this->d->manager();
 
     if (manager.isEmpty())
-        return {};
+        return false;
+
+    // Read devices information.
+    QList<DeviceInfo> devices;
+
+    for (auto it = this->d->m_descriptions.begin();
+         it != this->d->m_descriptions.end();
+         it++) {
+        devices << DeviceInfo {it.value(), this->d->m_devicesFormats[it.key()]};
+    }
+
+    QTemporaryDir tempDir;
+    QSettings settings(tempDir.path() + "/config.ini", QSettings::IniFormat);
+
+    // Set file encoding.
+    auto codec = QTextCodec::codecForLocale();
+
+    if (codec)
+        settings.setIniCodec(codec->name());
+    else
+        settings.setIniCodec("UTF-8");
+
+    // Write 'config.ini'.
+    int i = 0;
+    int j = 0;
+
+    for (auto &device: devices) {
+        QStringList formatsIndex;
+
+        for (int i = 0; i < device.formats.size(); i++)
+            formatsIndex << QString("%1").arg(i + j + 1);
+
+        settings.beginGroup("Cameras");
+        settings.beginWriteArray("cameras");
+        settings.setArrayIndex(i);
+
+        settings.setValue("description", device.description);
+        settings.setValue("formats", formatsIndex);
+        settings.endArray();
+        settings.endGroup();
+
+        settings.beginGroup("Formats");
+        settings.beginWriteArray("formats");
+
+        for (auto &format: device.formats) {
+            settings.setArrayIndex(j);
+            settings.setValue("format", this->d->dshowAkFormatMap().value(format.format()));
+            settings.setValue("width", format.width());
+            settings.setValue("height", format.height());
+            settings.setValue("fps", format.fps().toString());
+            j++;
+        }
+
+        settings.endArray();
+        settings.endGroup();
+
+        i++;
+    }
 
     // Copy default frame to file system.
     QImage defaultImage;
@@ -814,25 +1066,25 @@ bool VCamDShow::applyPicture()
         }
     }
 
-    QProcess proc;
-    proc.start(manager,
-               {"-p",
-                "set-picture",
-                defaultFrame});
-    proc.waitForFinished();
+    settings.setValue("default_frame", defaultFrame);
 
-    if (proc.exitCode()) {
-        auto errorMsg = proc.readAllStandardError();
+#ifdef QT_DEBUG
+    settings.setValue("loglevel", "7");
+#endif
 
-        if (!errorMsg.isEmpty()) {
-            qDebug() << errorMsg;
-            this->d->m_error += QString(errorMsg);
-        }
+    settings.sync();
 
-        return false;
+    bool ok = true;
+    int exitCode = this->d->sudo({manager, "load", settings.fileName()});
+
+    if (exitCode) {
+        ok = false;
+        auto errorMsg = QString("Manager exited with code %1").arg(exitCode);
+        qDebug() << errorMsg;
+        this->d->m_error += errorMsg;
     }
 
-    return true;
+    return ok;
 }
 
 bool VCamDShow::write(const AkVideoPacket &frame)
@@ -1386,6 +1638,57 @@ void VCamDShowPrivate::updateDevices()
         this->m_devices = devices;
         emit self->webcamsChanged(this->m_devices);
     }
+}
+
+int VCamDShowPrivate::sudo(const QStringList &parameters,
+                           const QString &directory,
+                           bool show)
+{
+    if (parameters.size() < 1)
+        return E_FAIL;
+
+    auto command = parameters[0];
+    QString params;
+
+    for (int i = 1; i < parameters.size(); i++) {
+        if (i > 1)
+            params += " ";
+
+        if (parameters[i].contains(" "))
+            params += "\"" + parameters[i] + "\"";
+        else
+            params += parameters[i];
+    }
+
+    SHELLEXECUTEINFOA execInfo;
+    memset(&execInfo, 0, sizeof(SHELLEXECUTEINFOA));
+    execInfo.cbSize = sizeof(SHELLEXECUTEINFOA);
+    execInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
+    execInfo.hwnd = nullptr;
+    execInfo.lpVerb = "runas";
+    execInfo.lpFile = command.toStdString().c_str();
+    execInfo.lpParameters = params.toStdString().c_str();
+    execInfo.lpDirectory = directory.toStdString().c_str();
+    execInfo.nShow = show? SW_SHOWNORMAL: SW_HIDE;
+    execInfo.hInstApp = nullptr;
+    ShellExecuteExA(&execInfo);
+
+    if (!execInfo.hProcess) {
+        this->m_error = "Failed executing script";
+
+        return E_FAIL;
+    }
+
+    WaitForSingleObject(execInfo.hProcess, INFINITE);
+
+    DWORD exitCode;
+    GetExitCodeProcess(execInfo.hProcess, &exitCode);
+    CloseHandle(execInfo.hProcess);
+
+    if (FAILED(exitCode))
+        this->m_error = QString("Script failed with code %1").arg(std::to_wstring(exitCode));
+
+    return int(exitCode);
 }
 
 #include "moc_vcamdshow.cpp"
