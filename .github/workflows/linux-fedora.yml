@@ -28,7 +28,7 @@ jobs:
         sudo apt-get install -qq -y curl wget libxkbcommon-x11-0
         docker pull ${DOCKERIMG}
         docker ps -a
-        docker run --privileged --stop-timeout 3600 -it -d -v ${PWD}:/sources -w /sources --name linuximg ${DOCKERIMG} /bin/sh
+        docker run --privileged --ulimit cpu=1 -it -d -v ${PWD}:/sources -w /sources --name linuximg ${DOCKERIMG} /bin/sh
     - name: Install dependencies
       run: |
         chmod +x ports/ci/linux-fedora/install_deps.sh
