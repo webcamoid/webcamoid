@@ -1,0 +1,96 @@
+name: Ubuntu
+
+on: [push, pull_request]
+
+env:
+  QTVER: 5.15.2
+  PPAQTVER: 515
+  QTIFWVER: 4.1.1
+  APPIMAGEVER: 12
+  EXEC: "docker exec linuximg"
+  NJOBS: 4
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 10
+      fail-fast: false
+      matrix:
+       include:
+         - dockerimg: ubuntu:focal
+           compiler: gcc
+           upload: 1
+         - dockerimg: ubuntu:focal
+           compiler: clang
+         - dockerimg: ubuntu:latest
+           compiler: gcc
+         - dockerimg: ubuntu:latest
+           compiler: clang
+         - dockerimg: ubuntu:devel
+           compiler: gcc
+         - dockerimg: ubuntu:devel
+           compiler: clang
+    env:
+      DOCKERIMG: ${{ matrix.dockerimg }}
+      COMPILER: ${{ matrix.compiler }}
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install Docker
+      run: |
+        sudo apt-get install -qq -y curl wget libxkbcommon-x11-0
+        docker pull ${DOCKERIMG}
+        docker ps -a
+        docker run --privileged -it -d -v ${PWD}:/sources -w /sources --name linuximg ${DOCKERIMG} /bin/sh
+    - name: Install dependencies
+      run: |
+        chmod +x ports/ci/linux-ubuntu/install_deps.sh
+        ./ports/ci/linux-ubuntu/install_deps.sh
+    - name: Release Build
+      if: ${{ startsWith(github.ref, 'refs/tags/') }}
+      run: |
+        chmod +x ports/ci/linux-ubuntu/build.sh
+        ./ports/ci/linux-ubuntu/build.sh
+    - name: Release Deploy
+      if: ${{ startsWith(github.ref, 'refs/tags/') }}
+      run: |
+        chmod +x ports/ci/linux-ubuntu/deploy.sh
+        ./ports/ci/linux-ubuntu/deploy.sh
+    - name: Daily Build
+      if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+      env:
+        DAILY_BUILD: 1
+      run: |
+        chmod +x ports/ci/linux-ubuntu/build.sh
+        ./ports/ci/linux-ubuntu/build.sh
+    - name: Daily Deploy
+      if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+      env:
+        DAILY_BUILD: 1
+      run: |
+        chmod +x ports/ci/linux-ubuntu/deploy.sh
+        ./ports/ci/linux-ubuntu/deploy.sh
+    - name: Release Upload
+      uses: softprops/action-gh-release@v1
+      if: ${{ startsWith(github.ref, 'refs/tags/') && matrix.upload }}
+      with:
+        files: webcamoid-packages/*
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Daily Build Upload
+      uses: softprops/action-gh-release@v1
+      if: ${{ !startsWith(github.ref, 'refs/tags/') && matrix.upload }}
+      with:
+        body: "${{ github.event.head_commit.message }} (commit: ${{ github.sha }})"
+        prerelease: true
+        files: webcamoid-packages/*
+        name: Daily Build
+        tag_name: daily-build
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Ubuntu daily build packages
+      uses: actions/upload-artifact@v2
+      if: ${{ matrix.upload }}
+      with:
+        name: linux-ubuntu-daily-build
+        path: webcamoid-packages/*

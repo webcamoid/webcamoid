@@ -1,0 +1,59 @@
+name: OpenSUSE
+
+on: [push, pull_request]
+
+env:
+  QTIFWVER: 4.1.1
+  APPIMAGEVER: 12
+  DOCKERIMG: opensuse/tumbleweed
+  EXEC: "docker exec linuximg"
+  NJOBS: 4
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 10
+      fail-fast: false
+      matrix:
+       include:
+         - dockerimg: ubuntu:latest
+         - compiler: clang
+    env:
+      COMPILER: ${{ matrix.compiler }}
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install Docker
+      run: |
+        sudo apt-get install -qq -y curl wget libxkbcommon-x11-0
+        docker pull ${DOCKERIMG}
+        docker ps -a
+        docker run --privileged -it -d -v ${PWD}:/sources -w /sources --name linuximg ${DOCKERIMG} /bin/sh
+    - name: Install dependencies
+      run: |
+        chmod +x ports/ci/linux-opensuse/install_deps.sh
+        ./ports/ci/linux-opensuse/install_deps.sh
+    - name: Release Build
+      if: ${{ startsWith(github.ref, 'refs/tags/') }}
+      run: |
+        chmod +x ports/ci/linux-opensuse/build.sh
+        ./ports/ci/linux-opensuse/build.sh
+    - name: Release Deploy
+      if: ${{ startsWith(github.ref, 'refs/tags/') }}
+      run: |
+        chmod +x ports/ci/linux-opensuse/deploy.sh
+        ./ports/ci/linux-opensuse/deploy.sh
+    - name: Daily Build
+      if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+      env:
+        DAILY_BUILD: 1
+      run: |
+        chmod +x ports/ci/linux-opensuse/build.sh
+        ./ports/ci/linux-opensuse/build.sh
+    - name: Daily Deploy
+      if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+      env:
+        DAILY_BUILD: 1
+      run: |
+        chmod +x ports/ci/linux-opensuse/deploy.sh
+        ./ports/ci/linux-opensuse/deploy.sh

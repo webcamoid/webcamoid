@@ -2,7 +2,7 @@
 
 Before contributing, please read [the contributing document](https://github.com/webcamoid/webcamoid/blob/master/CONTRIBUTING.md), and the [coding style and conventions](https://github.com/webcamoid/webcamoid/wiki/Coding-style-and-conventions) guide.  
 Search the [pull request list](https://github.com/webcamoid/webcamoid/pulls) for similar pulls before opening a new one.  
-Check your code doesn't throw any warning or error message while compiling, and doesn't give any warning in Clang static analyzer. Make sure your code is GCC, Clang, MinGW and MSVC compliant (use AppVeyor and Travis for that).  
+Check your code doesn't throw any warning or error message while compiling, and doesn't give any warning in Clang static analyzer. Make sure your code is GCC, Clang, MinGW and MSVC compliant (use AppVeyor and Github Actions for that).  
 Check your code using GDB, Valgrind and similar tools to remove all possible memory leaks and segfaults.  
 
 # Pull request

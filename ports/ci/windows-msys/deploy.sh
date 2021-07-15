@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Webcamoid, webcam capture application.
-# Copyright (C) 2021  Gonzalo Exequiel Pedone
+# Copyright (C) 2019  Gonzalo Exequiel Pedone
 #
 # Webcamoid is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,12 +20,20 @@
 
 [ -f environment.sh ] && source environment.sh
 
-if [[ ! -z "$DAILY_BUILD" || ! -z "$RELEASE_BUILD" ]]; then
-    path=webcamoid-packages
-
-    for f in $(find $path -type f); do
-        packagePath=${f#$path/}
-        folder=$(dirname $packagePath)
-        appveyor PushArtifact $f
-    done
+if [ "${TARGET_ARCH}" = i686 ]; then
+    export PATH=/mingw32/bin:$PATH
+else
+    export PATH=/mingw64/bin:$PATH
 fi
+
+git clone https://github.com/webcamoid/DeployTools.git
+
+export INSTALL_PREFIX=${PWD}/webcamoid-data
+export PACKAGES_DIR=${PWD}/webcamoid-packages/windows
+export BUILD_PATH=${PWD}/build
+export PYTHONPATH="${PWD}/DeployTools"
+
+python3 DeployTools/deploy.py \
+    -d "${INSTALL_PREFIX}" \
+    -c "${BUILD_PATH}/package_info.conf" \
+    -o "${PACKAGES_DIR}"

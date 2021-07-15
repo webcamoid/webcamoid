@@ -17,10 +17,6 @@ configuration:
 environment:
   global:
     NJOBS: 4
-    # api key from https://bintray.com/profile/edit
-    # encrypted with https://ci.appveyor.com/tools/encrypt
-    BT_KEY:
-      secure: UovqScFlz2shj+pxGyhQUYFiCvYJWEBGuhRCbaC3Bfxm0k9qo/pHYlp6Vx3jLIt9
 
   matrix:
     - PLATFORM: x86
@@ -51,11 +47,6 @@ build_script:
 after_build:
   - ports\ci\appveyor\environment_setup.bat
   - C:\msys64\usr\bin\bash -lc "cd /c/projects/webcamoid && ./ports/ci/appveyor/deploy.sh"
-  - C:\msys64\usr\bin\bash -lc "cd /c/projects/webcamoid && ./ports/ci/appveyor/push_artifacts.sh"
-
-deploy_script:
-  - ports\ci\appveyor\environment_setup.bat
-  - C:\msys64\usr\bin\bash -lc "cd /c/projects/webcamoid && ./ports/ci/appveyor/upload.sh"
 
 notifications:
   - provider: Email

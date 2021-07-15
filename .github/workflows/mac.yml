@@ -1,0 +1,64 @@
+name: Mac
+
+on: [push, pull_request]
+
+env:
+  QTIFWVER: 4.1.1
+  NJOBS: 4
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install dependencies
+      run: |
+        chmod +x ports/ci/mac/install_deps.sh
+        ./ports/ci/mac/install_deps.sh
+    - name: Release Build
+      if: ${{ startsWith(github.ref, 'refs/tags/') }}
+      run: |
+        chmod +x ports/ci/mac/build.sh
+        ./ports/ci/mac/build.sh
+    - name: Release Deploy
+      if: ${{ startsWith(github.ref, 'refs/tags/') }}
+      run: |
+        chmod +x ports/ci/mac/deploy.sh
+        ./ports/ci/mac/deploy.sh
+    - name: Daily Build
+      if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+      env:
+        DAILY_BUILD: 1
+      run: |
+        chmod +x ports/ci/mac/build.sh
+        ./ports/ci/mac/build.sh
+    - name: Daily Deploy
+      if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+      env:
+        DAILY_BUILD: 1
+      run: |
+        chmod +x ports/ci/mac/deploy.sh
+        ./ports/ci/mac/deploy.sh
+    - name: Release Upload
+      uses: softprops/action-gh-release@v1
+      if: ${{ startsWith(github.ref, 'refs/tags/') }}
+      with:
+        files: webcamoid-packages/*
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Daily Build Upload
+      uses: softprops/action-gh-release@v1
+      if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+      with:
+        body: "${{ github.event.head_commit.message }} (commit: ${{ github.sha }})"
+        prerelease: true
+        files: webcamoid-packages/*
+        name: Daily Build
+        tag_name: daily-build
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: MacOS daily build packages
+      uses: actions/upload-artifact@v2
+      with:
+        name: mac-daily-build
+        path: webcamoid-packages/*

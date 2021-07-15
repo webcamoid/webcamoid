@@ -1,0 +1,88 @@
+name: Android
+
+on: [push, pull_request]
+
+env:
+  QTVER_ANDROID: 5.14.2
+  SDKVER: 6858069
+  NDKVER: r22
+  ANDROID_BUILD_TOOLS_VERSION: 30.0.3
+  NJOBS: 4
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 10
+      fail-fast: false
+      matrix:
+       include:
+         - android_platform: 24
+           target_arch: armeabi-v7a
+         - android_platform: 24
+           target_arch=arm64: v8a
+         - android_platform: 24
+           target_arch: x86
+         - android_platform: 24
+           target_arch: x86_64
+         - android_platform: 24
+           target_arch: armeabi-v7a:arm64-v8a:x86:x86_64
+           upload: 1
+    env:
+      ANDROID_PLATFORM: ${{ matrix.android_platform }}
+      TARGET_ARCH: ${{ matrix.target_arch }}
+      UPLOAD: ${{ matrix.upload }}
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install dependencies
+      run: |
+        chmod +x ports/ci/android/install_deps.sh
+        ./ports/ci/android/install_deps.sh
+    - name: Release Build
+      if: ${{ startsWith(github.ref, 'refs/tags/') }}
+      run: |
+        chmod +x ports/ci/android/build.sh
+        ./ports/ci/android/build.sh
+    - name: Release Deploy
+      if: ${{ startsWith(github.ref, 'refs/tags/') }}
+      run: |
+        chmod +x ports/ci/android/deploy.sh
+        ./ports/ci/android/deploy.sh
+    - name: Daily Build
+      if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+      env:
+        DAILY_BUILD: 1
+      run: |
+        chmod +x ports/ci/android/build.sh
+        ./ports/ci/android/build.sh
+    - name: Daily Deploy
+      if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+      env:
+        DAILY_BUILD: 1
+      run: |
+        chmod +x ports/ci/android/deploy.sh
+        ./ports/ci/android/deploy.sh
+    - name: Release Upload
+      uses: softprops/action-gh-release@v1
+      if: ${{ startsWith(github.ref, 'refs/tags/') && matrix.upload }}
+      with:
+        files: webcamoid-packages/*
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Daily Build Upload
+      uses: softprops/action-gh-release@v1
+      if: ${{ !startsWith(github.ref, 'refs/tags/') && matrix.upload }}
+      with:
+        body: "${{ github.event.head_commit.message }} (commit: ${{ github.sha }})"
+        prerelease: true
+        files: webcamoid-packages/*
+        name: Daily Build
+        tag_name: daily-build
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Android daily build packages
+      uses: actions/upload-artifact@v2
+      if: ${{ matrix.upload }}
+      with:
+        name: android-daily-build
+        path: webcamoid-packages/*
