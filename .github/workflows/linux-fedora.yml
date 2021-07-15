@@ -6,7 +6,7 @@ env:
   QTIFWVER: 4.1.1
   APPIMAGEVER: 12
   DOCKERIMG: fedora:rawhide
-  EXEC: "docker exec linuximg"
+  EXEC: "docker exec -ti linuximg"
   NJOBS: 4
 
 jobs:
@@ -31,7 +31,6 @@ jobs:
         docker run --privileged -it -d -v ${PWD}:/sources -w /sources --name linuximg ${DOCKERIMG} /bin/sh
     - name: Install dependencies
       run: |
-        docker run --privileged -it -d -v ${PWD}:/sources -w /sources --name linuximg ${DOCKERIMG} /bin/sh
         chmod +x ports/ci/linux-fedora/install_deps.sh
         ./ports/ci/linux-fedora/install_deps.sh
     - name: Release Build
