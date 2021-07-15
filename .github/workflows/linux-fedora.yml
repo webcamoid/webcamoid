@@ -6,7 +6,7 @@ env:
   QTIFWVER: 4.1.1
   APPIMAGEVER: 12
   DOCKERIMG: fedora:rawhide
-  EXEC: "docker exec -ti linuximg"
+  EXEC: "docker exec linuximg"
   NJOBS: 4
 
 jobs:
