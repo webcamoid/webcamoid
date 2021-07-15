@@ -30,7 +30,6 @@ if [ -z "${DISABLE_CCACHE}" ]; then
     EXTRA_PARAMS="-DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_OBJCXX_COMPILER_LAUNCHER=ccache"
 fi
 
-EXEC="docker exec ${DOCKERSYS}"
 BUILDSCRIPT=dockerbuild.sh
 export PATH=$HOME/.local/bin:$PATH
 

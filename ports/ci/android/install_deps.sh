@@ -95,4 +95,3 @@ echo y | sdkmanager \
     "platform-tools" \
     "platforms;android-${ANDROID_PLATFORM}" \
     "tools" > /dev/null
-fi

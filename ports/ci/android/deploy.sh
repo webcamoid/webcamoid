@@ -18,12 +18,6 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-if [ -z "${DAILY_BUILD}" ]; then
-    EXEC="docker exec ${DOCKERSYS}"
-else
-    EXEC="docker exec -e DAILY_BUILD=1 ${DOCKERSYS}"
-fi
-
 git clone https://github.com/webcamoid/DeployTools.git
 
 DEPLOYSCRIPT=deployscript.sh

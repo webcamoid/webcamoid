@@ -68,8 +68,6 @@ if [ -e .local/${appimage} ]; then
     cd ..
 fi
 
-EXEC="docker exec ${DOCKERSYS}"
-
 ${EXEC} dnf install -y --skip-broken https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-${FEDORAVER}.noarch.rpm
 ${EXEC} dnf install -y --skip-broken https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-${FEDORAVER}.noarch.rpm
 ${EXEC} dnf -y update

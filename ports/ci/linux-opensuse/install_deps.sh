@@ -68,8 +68,6 @@ if [ -e .local/${appimage} ]; then
     cd ..
 fi
 
-EXEC="docker exec ${DOCKERSYS}"
-
 ${EXEC} zypper -n dup
 ${EXEC} zypper -n in \
     alsa-devel \

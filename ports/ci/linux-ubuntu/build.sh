@@ -34,7 +34,6 @@ if [ "${UPLOAD}" == 1 ]; then
     EXTRA_PARAMS="${EXTRA_PARAMS} -DNOGSTREAMER=ON -DNOLIBAVDEVICE=ON"
 fi
 
-EXEC="docker exec ${DOCKERSYS}"
 BUILDSCRIPT=dockerbuild.sh
 
 if [ "${DOCKERIMG}" = ubuntu:focal ]; then

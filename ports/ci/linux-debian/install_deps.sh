@@ -68,8 +68,6 @@ if [ -e .local/${appimage} ]; then
     cd ..
 fi
 
-EXEC="docker exec ${DOCKERSYS}"
-
 cat << EOF > keyboard_config
 XKBMODEL="pc105"
 XKBLAYOUT="us"

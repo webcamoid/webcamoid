@@ -38,7 +38,15 @@ Monero: 41wpsZWaZ7Mj83RFUbTapM1PvAFiMKbgk8ecJ7W7s36ZVydMWy9rMU1M4khiU4QpY9M9x4cU
 
 ## Status ##
 
-[![Build Status](https://travis-ci.com/webcamoid/webcamoid.svg?branch=master)](https://travis-ci.com/webcamoid/webcamoid)
+[![Android](https://github.com/webcamoid/webcamoid/actions/workflows/android.yml/badge.svg)](https://github.com/webcamoid/webcamoid/actions/workflows/android.yml)
+[![Arch Linux](https://github.com/webcamoid/webcamoid/actions/workflows/linux-arch.yml/badge.svg)](https://github.com/webcamoid/webcamoid/actions/workflows/linux-arch.yml)
+[![Debian](https://github.com/webcamoid/webcamoid/actions/workflows/linux-debian.yml/badge.svg)](https://github.com/webcamoid/webcamoid/actions/workflows/linux-debian.yml)
+[![Fedora](https://github.com/webcamoid/webcamoid/actions/workflows/linux-fedora.yml/badge.svg)](https://github.com/webcamoid/webcamoid/actions/workflows/linux-fedora.yml)
+[![Linux MinGW](https://github.com/webcamoid/webcamoid/actions/workflows/linux-mingw.yml/badge.svg)](https://github.com/webcamoid/webcamoid/actions/workflows/linux-mingw.yml)
+[![OpenSUSE](https://github.com/webcamoid/webcamoid/actions/workflows/linux-opensuse.yml/badge.svg)](https://github.com/webcamoid/webcamoid/actions/workflows/linux-opensuse.yml)
+[![Ubuntu](https://github.com/webcamoid/webcamoid/actions/workflows/linux-ubuntu.yml/badge.svg)](https://github.com/webcamoid/webcamoid/actions/workflows/linux-ubuntu.yml)
+[![Mac](https://github.com/webcamoid/webcamoid/actions/workflows/mac.yml/badge.svg)](https://github.com/webcamoid/webcamoid/actions/workflows/mac.yml)
+[![Windows MSYS](https://github.com/webcamoid/webcamoid/actions/workflows/windows-msys.yml/badge.svg)](https://github.com/webcamoid/webcamoid/actions/workflows/windows-msys.yml)
 [![Build status](https://ci.appveyor.com/api/projects/status/1ecp839l0nnnya9l?svg=true)](https://ci.appveyor.com/project/hipersayanX/webcamoid)
 [![Build status](https://api.cirrus-ci.com/github/webcamoid/webcamoid.svg)](https://cirrus-ci.com/github/webcamoid/webcamoid)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/fd3ca6ed8bea43e992b1d329c3dc916f)](https://www.codacy.com/app/webcamoid/webcamoid?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=webcamoid/webcamoid&amp;utm_campaign=Badge_Grade)

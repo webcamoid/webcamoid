@@ -37,6 +37,10 @@ export HOME=$HOME
 export PATH="\${PWD}/.local/bin:\$PATH"
 export PYTHONPATH="\${PWD}/DeployTools"
 export WINEPREFIX=/opt/.wine
+export GITHUB_SERVER_URL=$GITHUB_SERVER_URL
+export GITHUB_REPOSITORY=$GITHUB_REPOSITORY
+export GITHUB_RUN_ID=$GITHUB_RUN_ID
+export GITHUB_REF=$GITHUB_REF
 EOF
 
 if [ ! -z "${DAILY_BUILD}" ]; then
