@@ -30,11 +30,7 @@ if [ -z "${DISABLE_CCACHE}" ]; then
     EXTRA_PARAMS="-DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_OBJCXX_COMPILER_LAUNCHER=ccache"
 fi
 
-BUILDSCRIPT=dockerbuild.sh
 export PATH=$HOME/.local/bin:$PATH
-
-cat << EOF >> ${BUILDSCRIPT}
-#!/bin/sh
 
 mkdir build
 cmake \
@@ -42,7 +38,7 @@ cmake \
     -B build \
     -DQT_QMAKE_EXECUTABLE=qmake-qt5 \
     -DCMAKE_BUILD_TYPE=Release \
-    -DCMAKE_INSTALL_PREFIX="\${PWD}/webcamoid-data" \
+    -DCMAKE_INSTALL_PREFIX="${PWD}/webcamoid-data" \
     -DCMAKE_C_COMPILER="${COMPILER_C}" \
     -DCMAKE_CXX_COMPILER="${COMPILER_CXX}" \
     ${EXTRA_PARAMS} \
@@ -50,7 +46,3 @@ cmake \
 cmake -LA -S . -B build
 cmake --build build --parallel ${NJOBS}
 cmake --install build
-EOF
-
-chmod +x ${BUILDSCRIPT}
-${EXEC} bash ${BUILDSCRIPT}

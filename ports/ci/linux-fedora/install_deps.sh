@@ -26,12 +26,6 @@ else
     export DOWNLOAD_CMD="curl --retry 10 -sS -kLOC -"
 fi
 
-# Install missing dependenies
-sudo apt-get -qq -y update
-sudo apt-get -qq -y upgrade
-sudo apt-get -qq -y install \
-    libxkbcommon-x11-0
-
 mkdir -p .local/bin
 
 # Install Qt Installer Framework
@@ -68,10 +62,10 @@ if [ -e .local/${appimage} ]; then
     cd ..
 fi
 
-${EXEC} dnf install -y --skip-broken https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-${FEDORAVER}.noarch.rpm
-${EXEC} dnf install -y --skip-broken https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-${FEDORAVER}.noarch.rpm
-${EXEC} dnf -y update
-${EXEC} dnf -y install \
+dnf install -y --skip-broken https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-${FEDORAVER}.noarch.rpm
+dnf install -y --skip-broken https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-${FEDORAVER}.noarch.rpm
+dnf -y update
+dnf -y install \
     alsa-lib-devel \
     ccache \
     clang \
