@@ -26,6 +26,11 @@ else
     export DOWNLOAD_CMD="curl --retry 10 -sS -kLOC -"
 fi
 
+dnf -y update
+dnf -y install \
+    curl \
+    wget
+
 mkdir -p .local/bin
 
 # Install Qt Installer Framework

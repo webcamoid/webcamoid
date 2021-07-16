@@ -30,7 +30,14 @@ jobs:
         password: ${{ secrets.DOCKER_PASSWORD }}
         registry: gcr.io
         image: ${{ env.DOCKERIMG }}
-        options: -v ${{ github.workspace }}:/sources
+        options: >-
+          -v ${{ github.workspace }}:/sources
+          -e APPIMAGEVER=${APPIMAGEVER}
+          -e COMPILER=${COMPILER}
+          -e DOCKERIMG=${DOCKERIMG}
+          -e FEDORAVER=${FEDORAVER}
+          -e NJOBS=${NJOBS}
+          -e QTIFWVER=${QTIFWVER}
         run: |
           cd /sources
           chmod +x ports/ci/linux-fedora/install_deps.sh
