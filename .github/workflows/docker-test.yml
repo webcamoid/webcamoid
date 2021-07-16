@@ -29,9 +29,9 @@ jobs:
         password: ${{ secrets.DOCKER_PASSWORD }}
         registry: gcr.io
         image: fedora:rawhide
+        options: -v ${{ github.workspace }}:/sources
         run: |
-          cd /github/workspace
-          echo ${PWD}
+          cd /sources
           ls -l
           chmod +x ports/ci/docker-test/install_deps.sh
           ./ports/ci/docker-test/install_deps.sh
