@@ -32,12 +32,12 @@ jobs:
         image: ${{ env.DOCKERIMG }}
         options: >-
           -v ${{ github.workspace }}:/sources
-          -e APPIMAGEVER=${APPIMAGEVER}
-          -e COMPILER=${COMPILER}
-          -e DOCKERIMG=${DOCKERIMG}
-          -e FEDORAVER=${FEDORAVER}
-          -e NJOBS=${NJOBS}
-          -e QTIFWVER=${QTIFWVER}
+          -e APPIMAGEVER=${{ env.APPIMAGEVER }}
+          -e COMPILER=${{ env.COMPILER }}
+          -e DOCKERIMG=${{ env.DOCKERIMG }}
+          -e FEDORAVER=${{ env.FEDORAVER }}
+          -e NJOBS=${{ env.NJOBS }}
+          -e QTIFWVER=${{ env.QTIFWVER }}
         run: |
           cd /sources
           chmod +x ports/ci/linux-fedora/install_deps.sh
@@ -47,7 +47,14 @@ jobs:
       if: ${{ startsWith(github.ref, 'refs/tags/') }}
       with:
         image: ${{ env.DOCKERIMG }}
-        options: -v ${{ github.workspace }}:/sources
+        options: >-
+          -v ${{ github.workspace }}:/sources
+          -e APPIMAGEVER=${{ env.APPIMAGEVER }}
+          -e COMPILER=${{ env.COMPILER }}
+          -e DOCKERIMG=${{ env.DOCKERIMG }}
+          -e FEDORAVER=${{ env.FEDORAVER }}
+          -e NJOBS=${{ env.NJOBS }}
+          -e QTIFWVER=${{ env.QTIFWVER }}
         run: |
           cd /sources
           chmod +x ports/ci/linux-fedora/build.sh
@@ -57,7 +64,14 @@ jobs:
       if: ${{ startsWith(github.ref, 'refs/tags/') }}
       with:
         image: ${{ env.DOCKERIMG }}
-        options: -v ${{ github.workspace }}:/sources
+        options: >-
+          -v ${{ github.workspace }}:/sources
+          -e APPIMAGEVER=${{ env.APPIMAGEVER }}
+          -e COMPILER=${{ env.COMPILER }}
+          -e DOCKERIMG=${{ env.DOCKERIMG }}
+          -e FEDORAVER=${{ env.FEDORAVER }}
+          -e NJOBS=${{ env.NJOBS }}
+          -e QTIFWVER=${{ env.QTIFWVER }}
         run: |
           cd /sources
           chmod +x ports/ci/linux-fedora/deploy.sh
@@ -65,11 +79,17 @@ jobs:
     - name: Daily Build
       uses: addnab/docker-run-action@v3
       if: ${{ !startsWith(github.ref, 'refs/tags/') }}
-      env:
-        DAILY_BUILD: 1
       with:
         image: ${{ env.DOCKERIMG }}
-        options: -v ${{ github.workspace }}:/sources
+        options: >-
+          -v ${{ github.workspace }}:/sources
+          -e APPIMAGEVER=${{ env.APPIMAGEVER }}
+          -e COMPILER=${{ env.COMPILER }}
+          -e DOCKERIMG=${{ env.DOCKERIMG }}
+          -e FEDORAVER=${{ env.FEDORAVER }}
+          -e NJOBS=${{ env.NJOBS }}
+          -e QTIFWVER=${{ env.QTIFWVER }}
+          -e DAILY_BUILD=1
         run: |
           cd /sources
           chmod +x ports/ci/linux-fedora/build.sh
@@ -77,11 +97,17 @@ jobs:
     - name: Daily Deploy
       uses: addnab/docker-run-action@v3
       if: ${{ !startsWith(github.ref, 'refs/tags/') }}
-      env:
-        DAILY_BUILD: 1
       with:
         image: ${{ env.DOCKERIMG }}
-        options: -v ${{ github.workspace }}:/sources
+        options: >-
+          -v ${{ github.workspace }}:/sources
+          -e APPIMAGEVER=${{ env.APPIMAGEVER }}
+          -e COMPILER=${{ env.COMPILER }}
+          -e DOCKERIMG=${{ env.DOCKERIMG }}
+          -e FEDORAVER=${{ env.FEDORAVER }}
+          -e NJOBS=${{ env.NJOBS }}
+          -e QTIFWVER=${{ env.QTIFWVER }}
+          -e DAILY_BUILD=1
         run: |
           cd /sources
           chmod +x ports/ci/linux-fedora/deploy.sh
