@@ -29,7 +29,7 @@ jobs:
         password: ${{ secrets.DOCKER_PASSWORD }}
         registry: gcr.io
         image: fedora:rawhide
-        options: -v ${{ github.workspace }}:/sources -e QTIFWVER=4.1.1 -e APPIMAGEVER=12 FEDORAVER=rawhide
+        options: -v ${{ github.workspace }}:/sources
         run: |
           cd /sources
           chmod +x ports/ci/docker-test/install_deps.sh
