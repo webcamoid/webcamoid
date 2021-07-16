@@ -30,5 +30,8 @@ jobs:
         registry: gcr.io
         image: fedora:rawhide
         run: |
+          cd /github/workspace
+          echo ${PWD}
+          ls -l
           chmod +x ports/ci/docker-test/install_deps.sh
           ./ports/ci/docker-test/install_deps.sh
