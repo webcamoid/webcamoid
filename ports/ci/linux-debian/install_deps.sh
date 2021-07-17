@@ -18,19 +18,36 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-#qtIinstallerVerbose=--verbose
-
 if [ ! -z "${USE_WGET}" ]; then
     export DOWNLOAD_CMD="wget -nv -c"
 else
     export DOWNLOAD_CMD="curl --retry 10 -sS -kLOC -"
 fi
 
+# Fix keyboard layout bug when running apt
+
+cat << EOF > keyboard_config
+XKBMODEL="pc105"
+XKBLAYOUT="us"
+XKBVARIANT=""
+XKBOPTIONS=""
+BACKSPACE="guess"
+EOF
+
+export LC_ALL=C
+export DEBIAN_FRONTEND=noninteractive
+
+apt-get install -qq -y keyboard-configuration
+cp -vf keyboard_config /etc/default/keyboard
+dpkg-reconfigure --frontend noninteractive keyboard-configuration
+
 # Install missing dependenies
+
 sudo apt-get -qq -y update
 sudo apt-get -qq -y upgrade
 sudo apt-get -qq -y install \
-    libxkbcommon-x11-0
+    wget \
+    curl
 
 mkdir -p .local/bin
 
@@ -68,29 +85,6 @@ if [ -e .local/${appimage} ]; then
     cd ..
 fi
 
-cat << EOF > keyboard_config
-XKBMODEL="pc105"
-XKBLAYOUT="us"
-XKBVARIANT=""
-XKBOPTIONS=""
-BACKSPACE="guess"
-EOF
-
-cat << EOF > base_packages.sh
-#!/bin/sh
-
-export LC_ALL=C
-export DEBIAN_FRONTEND=noninteractive
-
-apt-get update -qq -y
-apt-get install -qq -y keyboard-configuration
-cp -vf keyboard_config /etc/default/keyboard
-dpkg-reconfigure --frontend noninteractive keyboard-configuration
-apt-get -y update
-apt-get -y upgrade
-
-# Install dev tools
-
 apt-get -y install \
     ccache \
     clang \
@@ -104,34 +98,19 @@ apt-get -y install \
     libavresample-dev \
     libavutil-dev \
     libgl1-mesa-dev \
+    libgstreamer-plugins-base1.0-dev \
     libjack-dev \
     libpulse-dev \
+    libqt5opengl5-dev \
+    libqt5svg5-dev \
     libswresample-dev \
     libswscale-dev \
+    libusb-dev \
+    libuvc-dev \
     libv4l-dev \
     linux-libc-dev \
     make \
     pkg-config \
-    xvfb
-EOF
-chmod +x base_packages.sh
-${EXEC} bash base_packages.sh
-
-if [ "${UPLOAD}" != 1 ]; then
-    ${EXEC} apt-get -y install \
-        libgstreamer-plugins-base1.0-dev \
-        libusb-dev \
-        libuvc-dev
-fi
-
-# Install Qt dev
-${EXEC} apt-get -y install \
-    qt5-qmake \
-    qttools5-dev-tools \
-    qtdeclarative5-dev \
-    libqt5opengl5-dev \
-    libqt5svg5-dev \
-    qtquickcontrols2-5-dev \
     qml-module-qt-labs-folderlistmodel \
     qml-module-qt-labs-settings \
     qml-module-qtqml-models2 \
@@ -139,4 +118,9 @@ ${EXEC} apt-get -y install \
     qml-module-qtquick-dialogs \
     qml-module-qtquick-extras \
     qml-module-qtquick-privatewidgets \
-    qml-module-qtquick-templates2
+    qml-module-qtquick-templates2 \
+    qt5-qmake \
+    qtdeclarative5-dev \
+    qtquickcontrols2-5-dev \
+    qttools5-dev-tools \
+    xvfb

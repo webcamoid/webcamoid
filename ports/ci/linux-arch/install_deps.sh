@@ -18,19 +18,29 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-#qtIinstallerVerbose=--verbose
-
 if [ ! -z "${USE_WGET}" ]; then
     export DOWNLOAD_CMD="wget -nv -c"
 else
     export DOWNLOAD_CMD="curl --retry 10 -sS -kLOC -"
 fi
 
+# Configure mirrors
+
+cat << EOF >> /etc/pacman.d/mirrorlist
+
+Server = ${ARCH_ROOT_URL}/\$repo/os/\$arch
+EOF
+
 # Install missing dependenies
-sudo apt-get -qq -y update
-sudo apt-get -qq -y upgrade
-sudo apt-get -qq -y install \
-    libxkbcommon-x11-0
+
+pacman-key --init
+pacman-key --populate archlinux
+pacman -Syu \
+    --noconfirm \
+    --ignore linux,linux-api-headers,linux-docs,linux-firmware,linux-headers,pacman
+pacman --noconfirm --needed -S \
+    curl \
+    wget
 
 mkdir -p .local/bin
 
@@ -68,66 +78,25 @@ if [ -e .local/${appimage} ]; then
     cd ..
 fi
 
-EXEC='sudo ./root.x86_64/bin/arch-chroot root.x86_64'
-
-# Download chroot image
-archImage=archlinux-bootstrap-${ARCH_ROOT_DATE}-x86_64.tar.gz
-${DOWNLOAD_CMD} ${ARCH_ROOT_URL}/iso/${ARCH_ROOT_DATE}/$archImage
-sudo tar xzf $archImage
-
-# Configure mirrors
-cp -vf root.x86_64/etc/pacman.conf .
-cat << EOF >> pacman.conf
-
-[multilib]
-Include = /etc/pacman.d/mirrorlist
-
-[ownstuff]
-Server = https://ftp.f3l.de/~martchus/\$repo/os/\$arch
-Server = http://martchus.no-ip.biz/repo/arch/\$repo/os/\$arch
-EOF
-sed -i 's/Required DatabaseOptional/Never/g' pacman.conf
-sed -i 's/#TotalDownload/TotalDownload/g' pacman.conf
-sudo cp -vf pacman.conf root.x86_64/etc/pacman.conf
-
-cp -vf root.x86_64/etc/pacman.d/mirrorlist .
-cat << EOF >> mirrorlist
-
-Server = ${ARCH_ROOT_URL}/\$repo/os/\$arch
-EOF
-sudo cp -vf mirrorlist root.x86_64/etc/pacman.d/mirrorlist
-
 # Install packages
-sudo mkdir -pv root.x86_64/$HOME
-sudo mount --bind root.x86_64 root.x86_64
-sudo mount --bind $HOME root.x86_64/$HOME
 
-${EXEC} pacman-key --init
-${EXEC} pacman-key --populate archlinux
-${EXEC} pacman -Syu \
-    --noconfirm \
-    --ignore linux,linux-api-headers,linux-docs,linux-firmware,linux-headers,pacman
-${EXEC} pacman --noconfirm --needed -S \
+pacman --noconfirm --needed -S \
+    alsa-lib \
     ccache \
     clang \
     cmake \
+    ffmpeg \
     file \
     git \
+    gst-plugins-base-libs \
+    jack \
+    libpulse \
     make \
     pkgconf \
     python \
-    sed \
-    xorg-server-xvfb \
     qt5-quickcontrols2 \
     qt5-svg \
-    v4l-utils \
     qt5-tools \
-    ffmpeg \
-    gst-plugins-base-libs \
-    libpulse \
-    alsa-lib \
-    jack
-
-# Finish
-sudo umount root.x86_64/$HOME
-sudo umount root.x86_64
+    sed \
+    v4l-utils \
+    xorg-server-xvfb

@@ -26,11 +26,35 @@ else
     export DOWNLOAD_CMD="curl --retry 10 -sS -kLOC -"
 fi
 
+# Fix keyboard layout bug when running apt
+
+cat << EOF > keyboard_config
+XKBMODEL="pc105"
+XKBLAYOUT="us"
+XKBVARIANT=""
+XKBOPTIONS=""
+BACKSPACE="guess"
+EOF
+
+export LC_ALL=C
+export DEBIAN_FRONTEND=noninteractive
+
+apt-get install -qq -y keyboard-configuration
+cp -vf keyboard_config /etc/default/keyboard
+dpkg-reconfigure --frontend noninteractive keyboard-configuration
+
+if [ "${DOCKERIMG}" = ubuntu:focal ]; then
+    apt-get -y install software-properties-common
+    add-apt-repository ppa:beineri/opt-qt-${QTVER}-focal
+fi
+
 # Install missing dependenies
+
 sudo apt-get -qq -y update
 sudo apt-get -qq -y upgrade
 sudo apt-get -qq -y install \
-    libxkbcommon-x11-0
+    wget \
+    curl
 
 mkdir -p .local/bin
 
@@ -68,33 +92,6 @@ if [ -e .local/${appimage} ]; then
     cd ..
 fi
 
-cat << EOF > keyboard_config
-XKBMODEL="pc105"
-XKBLAYOUT="us"
-XKBVARIANT=""
-XKBOPTIONS=""
-BACKSPACE="guess"
-EOF
-
-cat << EOF > base_packages.sh
-#!/bin/sh
-
-export LC_ALL=C
-export DEBIAN_FRONTEND=noninteractive
-
-apt-get update -qq -y
-apt-get install -qq -y keyboard-configuration
-cp -vf keyboard_config /etc/default/keyboard
-dpkg-reconfigure --frontend noninteractive keyboard-configuration
-
-if [ "${DOCKERIMG}" = ubuntu:focal ]; then
-apt-get -y install software-properties-common
-add-apt-repository ppa:beineri/opt-qt-${QTVER}-focal
-fi
-
-apt-get -y update
-apt-get -y upgrade
-
 # Install dev tools
 
 apt-get -y install \
@@ -119,16 +116,13 @@ apt-get -y install \
     make \
     pkg-config \
     xvfb
-EOF
-chmod +x base_packages.sh
-${EXEC} bash base_packages.sh
 
 if [ "${UPLOAD}" != 1 ]; then
-    ${EXEC} apt-get -y install \
+    apt-get -y install \
         libgstreamer-plugins-base1.0-dev
 
     if [ "${DOCKERIMG}" != ubuntu:focal ]; then
-        ${EXEC} apt-get -y install \
+        apt-get -y install \
             libusb-dev \
             libuvc-dev
     fi
@@ -136,13 +130,13 @@ fi
 
 # Install Qt dev
 if [ "${DOCKERIMG}" = ubuntu:focal ]; then
-    ${EXEC} apt-get -y install \
+    apt-get -y install \
         qt${PPAQTVER}tools \
         qt${PPAQTVER}declarative \
         qt${PPAQTVER}svg \
         qt${PPAQTVER}quickcontrols2
 else
-    ${EXEC} apt-get -y install \
+    apt-get -y install \
         qt5-qmake \
         qttools5-dev-tools \
         qtdeclarative5-dev \

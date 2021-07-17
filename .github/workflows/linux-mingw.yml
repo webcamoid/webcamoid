@@ -4,9 +4,10 @@ on: [push, pull_request]
 
 env:
   QTIFWVER: 4.1.1
-  ARCH_ROOT_DATE: 2021.05.01
-  ARCH_ROOT_URL: https://mirror.rackspace.com/archlinux
   NSIS_VERSION: 3.06.1
+  DOCKERIMG: archlinux:latest
+  ARCH_ROOT_URL: https://mirror.rackspace.com/archlinux
+  NJOBS: 4
 
 jobs:
   build:
@@ -18,35 +19,71 @@ jobs:
        include:
          - target_arch: i686
          - target_arch: x86_64
-    env:
-      TARGET_ARCH: ${{ matrix.target_arch }}
     steps:
     - uses: actions/checkout@v2
-    - name: Install dependencies
-      run: |
-        chmod +x ports/ci/linux-mingw/install_deps.sh
-        ./ports/ci/linux-mingw/install_deps.sh
-    - name: Release Build
+    - name: Release build
+      uses: addnab/docker-run-action@v3
       if: ${{ startsWith(github.ref, 'refs/tags/') }}
-      run: |
-        chmod +x ports/ci/linux-mingw/build.sh
-        ./ports/ci/linux-mingw/build.sh
-    - name: Release Deploy
-      if: ${{ startsWith(github.ref, 'refs/tags/') }}
-      run: |
-        chmod +x ports/ci/linux-mingw/deploy.sh
-        ./ports/ci/linux-mingw/deploy.sh
-    - name: Daily Build
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+        registry: gcr.io
+        image: ${{ env.DOCKERIMG }}
+        options: >-
+          -v ${{ github.workspace }}:/sources
+          -e NSIS_VERSION=${{ env.NSIS_VERSION }}
+          -e TARGET_ARCH=${{ matrix.target_arch }}
+          -e DOCKERIMG=${{ env.DOCKERIMG }}
+          -e ARCH_ROOT_URL=${{ env.ARCH_ROOT_URL }}
+          -e NJOBS=${{ env.NJOBS }}
+        run: |
+          cd /sources
+          echo
+          echo Install dependencies
+          echo
+          chmod +x ports/ci/linux-mingw/install_deps.sh
+          ./ports/ci/linux-mingw/install_deps.sh
+          echo
+          echo Release Build
+          echo
+          chmod +x ports/ci/linux-mingw/build.sh
+          ./ports/ci/linux-mingw/build.sh
+          echo
+          echo Release Deploy
+          echo
+          chmod +x ports/ci/linux-mingw/deploy.sh
+          ./ports/ci/linux-mingw/deploy.sh
+    - uses: actions/checkout@v2
+    - name: Daily build
+      uses: addnab/docker-run-action@v3
       if: ${{ !startsWith(github.ref, 'refs/tags/') }}
-      env:
-        DAILY_BUILD: 1
-      run: |
-        chmod +x ports/ci/linux-mingw/build.sh
-        ./ports/ci/linux-mingw/build.sh
-    - name: Daily Deploy
-      if: ${{ !startsWith(github.ref, 'refs/tags/') }}
-      env:
-        DAILY_BUILD: 1
-      run: |
-        chmod +x ports/ci/linux-mingw/deploy.sh
-        ./ports/ci/linux-mingw/deploy.sh
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+        registry: gcr.io
+        image: ${{ env.DOCKERIMG }}
+        options: >-
+          -v ${{ github.workspace }}:/sources
+          -e NSIS_VERSION=${{ env.NSIS_VERSION }}
+          -e TARGET_ARCH=${{ matrix.target_arch }}
+          -e DOCKERIMG=${{ env.DOCKERIMG }}
+          -e ARCH_ROOT_URL=${{ env.ARCH_ROOT_URL }}
+          -e NJOBS=${{ env.NJOBS }}
+          -e DAILY_BUILD=1
+        run: |
+          cd /sources
+          echo
+          echo Install dependencies
+          echo
+          chmod +x ports/ci/linux-mingw/install_deps.sh
+          ./ports/ci/linux-mingw/install_deps.sh
+          echo
+          echo Daily Build
+          echo
+          chmod +x ports/ci/linux-mingw/build.sh
+          ./ports/ci/linux-mingw/build.sh
+          echo
+          echo Daily Deploy
+          echo
+          chmod +x ports/ci/linux-mingw/deploy.sh
+          ./ports/ci/linux-mingw/deploy.sh

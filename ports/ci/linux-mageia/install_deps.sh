@@ -18,14 +18,19 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
+#qtIinstallerVerbose=--verbose
+
 if [ ! -z "${USE_WGET}" ]; then
     export DOWNLOAD_CMD="wget -nv -c"
 else
     export DOWNLOAD_CMD="curl --retry 10 -sS -kLOC -"
 fi
 
-zypper -n dup
-zypper -n in \
+urpmi dnf
+dnf config-manager --set-enabled mageia-x86_64-nonfree updates-x86_64-nonfree
+dnf config-manager --set-enabled mageia-x86_64-tainted updates-x86_64-tainted
+dnf -y update
+dnf -y install \
     curl \
     wget
 
@@ -65,25 +70,25 @@ if [ -e .local/${appimage} ]; then
     cd ..
 fi
 
-zypper -n in \
-    alsa-devel \
+dnf -y install \
     ccache \
     clang \
     cmake \
-    ffmpeg-devel \
+    file \
+    gcc-c++ \
     git \
-    gstreamer-plugins-base-devel \
-    gzip \
+    libalsa2-devel \
+    libffmpeg-devel \
+    libgstreamer-plugins-base1.0-devel \
     libjack-devel \
-    libQt5QuickControls2-devel \
-    libpulse-devel \
-    libqt5-linguist \
-    libqt5-qtbase-devel \
-    libqt5-qtdeclarative-devel \
-    libqt5-qtquickcontrols2 \
-    libqt5-qtsvg-devel \
+    libpulseaudio-devel \
+    libqt5quick-devel \
+    libqt5quickcontrols2-devel \
+    libqt5svg-devel \
     libv4l-devel \
-    python3 \
+    make \
+    qtbase5-common-devel \
+    qttools5 \
     which \
-    xauth \
-    xvfb-run
+    x11-server-xvfb \
+    xauth

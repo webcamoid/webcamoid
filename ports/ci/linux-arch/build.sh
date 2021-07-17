@@ -30,45 +30,18 @@ if [ -z "${DISABLE_CCACHE}" ]; then
     EXTRA_PARAMS="-DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_OBJCXX_COMPILER_LAUNCHER=ccache"
 fi
 
-EXEC='sudo ./root.x86_64/bin/arch-chroot root.x86_64'
-BUILDSCRIPT=dockerbuild.sh
+export PATH=$HOME/.local/bin:$PATH
 
-sudo mount --bind root.x86_64 root.x86_64
-sudo mount --bind $HOME root.x86_64/$HOME
-
-QMAKE_CMD=/usr/bin/qmake
-CMAKE_CMD=/usr/bin/cmake
-PKG_CONFIG=/usr/bin/pkg-config
-LRELEASE_TOOL=/usr/bin/lrelease
-LUPDATE_TOOL=/usr/bin/lupdate
-
-cat << EOF > ${BUILDSCRIPT}
-#!/bin/sh
-
-export LC_ALL=C
-export HOME=$HOME
-export PKG_CONFIG=${PKG_CONFIG}
-
-cd $PWD
 mkdir build
 ${CMAKE_CMD} \
     -S . \
     -B build \
-    -DQT_QMAKE_EXECUTABLE=${QMAKE_CMD} \
     -DCMAKE_BUILD_TYPE=Release \
-    -DCMAKE_INSTALL_PREFIX="\${PWD}/webcamoid-data" \
+    -DCMAKE_INSTALL_PREFIX="${PWD}/webcamoid-data" \
     -DCMAKE_C_COMPILER="${COMPILER_C}" \
     -DCMAKE_CXX_COMPILER="${COMPILER_CXX}" \
-    -DLRELEASE_TOOL=${LRELEASE_TOOL} \
-    -DLUPDATE_TOOL=${LUPDATE_TOOL} \
     ${EXTRA_PARAMS} \
     -DDAILY_BUILD=${DAILY_BUILD}
 cmake -LA -S . -B build
-make -C build -j${NJOBS}
-make -C build install
-EOF
-chmod +x ${BUILDSCRIPT}
-sudo cp -vf ${BUILDSCRIPT} root.x86_64/$HOME/
-${EXEC} bash $HOME/${BUILDSCRIPT}
-sudo umount root.x86_64/$HOME
-sudo umount root.x86_64
+cmake --build build --parallel ${NJOBS}
+cmake --install build

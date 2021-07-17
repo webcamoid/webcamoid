@@ -33,26 +33,12 @@ if [ -z "${DISABLE_CCACHE}" ]; then
     EXTRA_PARAMS="-DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_OBJCXX_COMPILER_LAUNCHER=ccache"
 fi
 
-EXEC='sudo ./root.x86_64/bin/arch-chroot root.x86_64'
-BUILDSCRIPT=dockerbuild.sh
-
-sudo mount --bind root.x86_64 root.x86_64
-sudo mount --bind $HOME root.x86_64/$HOME
-
+export PKG_CONFIG=${TARGET_ARCH}-w64-mingw32-pkg-config
 QMAKE_CMD=/usr/${TARGET_ARCH}-w64-mingw32/lib/qt/bin/qmake
 CMAKE_CMD=${TARGET_ARCH}-w64-mingw32-cmake
-PKG_CONFIG=${TARGET_ARCH}-w64-mingw32-pkg-config
 LRELEASE_TOOL=/usr/${TARGET_ARCH}-w64-mingw32/lib/qt/bin/lrelease
 LUPDATE_TOOL=/usr/${TARGET_ARCH}-w64-mingw32/lib/qt/bin/lupdate
 
-cat << EOF > ${BUILDSCRIPT}
-#!/bin/sh
-
-export LC_ALL=C
-export HOME=$HOME
-export PKG_CONFIG=${PKG_CONFIG}
-
-cd $PWD
 mkdir build
 ${CMAKE_CMD} \
     -S . \
@@ -69,9 +55,3 @@ ${CMAKE_CMD} \
 cmake -LA -S . -B build
 make -C build -j${NJOBS}
 make -C build install
-EOF
-chmod +x ${BUILDSCRIPT}
-sudo cp -vf ${BUILDSCRIPT} root.x86_64/$HOME/
-${EXEC} bash $HOME/${BUILDSCRIPT}
-sudo umount root.x86_64/$HOME
-sudo umount root.x86_64

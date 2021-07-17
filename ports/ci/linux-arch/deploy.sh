@@ -18,46 +18,12 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-EXEC='sudo ./root.x86_64/bin/arch-chroot root.x86_64'
-
 git clone https://github.com/webcamoid/DeployTools.git
 
-DEPLOYSCRIPT=deployscript.sh
-export PYTHONPATH=${PWD}/DeployTools
-
-sudo mount --bind root.x86_64 root.x86_64
-sudo mount --bind $HOME root.x86_64/$HOME
-
-cat << EOF > ${DEPLOYSCRIPT}
-#!/bin/sh
-
-cd $PWD
-export LC_ALL=C
-export HOME=$HOME
-export PATH="\${PWD}/.local/bin:\$PATH"
-export PYTHONPATH="\${PWD}/DeployTools"
-export WINEPREFIX=/opt/.wine
-export GITHUB_SERVER_URL=$GITHUB_SERVER_URL
-export GITHUB_REPOSITORY=$GITHUB_REPOSITORY
-export GITHUB_RUN_ID=$GITHUB_RUN_ID
-export GITHUB_REF=$GITHUB_REF
-EOF
-
-if [ ! -z "${DAILY_BUILD}" ]; then
-    cat << EOF >> ${DEPLOYSCRIPT}
-export DAILY_BUILD=1
-EOF
-fi
-
-cat << EOF >> ${DEPLOYSCRIPT}
-python DeployTools/deploy.py \
-    -d "\${PWD}/webcamoid-data" \
-    -c "\${PWD}/build/package_info.conf" \
-    -o "\${PWD}/webcamoid-packages/linux"
-EOF
-chmod +x ${DEPLOYSCRIPT}
-sudo cp -vf ${DEPLOYSCRIPT} root.x86_64/$HOME/
-
-${EXEC} bash $HOME/${DEPLOYSCRIPT}
-sudo umount root.x86_64/$HOME
-sudo umount root.x86_64
+export PATH="${PWD}/.local/bin:${PATH}"
+export PYTHONPATH="${PWD}/DeployTools"
+export DAILY_BUILD=${DAILY_BUILD}
+xvfb-run --auto-servernum python3 DeployTools/deploy.py \
+    -d "${PWD}/webcamoid-data" \
+    -c "${PWD}/build/package_info.conf" \
+    -o "${PWD}/webcamoid-packages/linux"

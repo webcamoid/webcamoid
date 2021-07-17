@@ -19,8 +19,6 @@ jobs:
        include:
          - compiler: gcc
          - compiler: clang
-    env:
-      COMPILER: ${{ matrix.compiler }}
     steps:
     - uses: actions/checkout@v2
     - name: Release build
@@ -34,7 +32,7 @@ jobs:
         options: >-
           -v ${{ github.workspace }}:/sources
           -e APPIMAGEVER=${{ env.APPIMAGEVER }}
-          -e COMPILER=${{ env.COMPILER }}
+          -e COMPILER=${{ matrix.compiler }}
           -e DOCKERIMG=${{ env.DOCKERIMG }}
           -e FEDORAVER=${{ env.FEDORAVER }}
           -e NJOBS=${{ env.NJOBS }}
@@ -68,7 +66,7 @@ jobs:
         options: >-
           -v ${{ github.workspace }}:/sources
           -e APPIMAGEVER=${{ env.APPIMAGEVER }}
-          -e COMPILER=${{ env.COMPILER }}
+          -e COMPILER=${{ matrix.compiler }}
           -e DOCKERIMG=${{ env.DOCKERIMG }}
           -e FEDORAVER=${{ env.FEDORAVER }}
           -e NJOBS=${{ env.NJOBS }}

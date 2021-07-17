@@ -1,11 +1,11 @@
-name: OpenSUSE
+name: Mageia
 
 on: [push, pull_request]
 
 env:
   QTIFWVER: 4.1.1
   APPIMAGEVER: 12
-  DOCKERIMG: opensuse/tumbleweed
+  DOCKERIMG: mageia:cauldron
   NJOBS: 4
 
 jobs:
@@ -40,18 +40,18 @@ jobs:
           echo
           echo Install dependencies
           echo
-          chmod +x ports/ci/linux-opensuse/install_deps.sh
-          ./ports/ci/linux-opensuse/install_deps.sh
+          chmod +x ports/ci/linux-mageia/install_deps.sh
+          ./ports/ci/linux-mageia/install_deps.sh
           echo
           echo Release Build
           echo
-          chmod +x ports/ci/linux-opensuse/build.sh
-          ./ports/ci/linux-opensuse/build.sh
+          chmod +x ports/ci/linux-mageia/build.sh
+          ./ports/ci/linux-mageia/build.sh
           echo
           echo Release Deploy
           echo
-          chmod +x ports/ci/linux-opensuse/deploy.sh
-          ./ports/ci/linux-opensuse/deploy.sh
+          chmod +x ports/ci/linux-mageia/deploy.sh
+          ./ports/ci/linux-mageia/deploy.sh
     - uses: actions/checkout@v2
     - name: Daily build
       uses: addnab/docker-run-action@v3
@@ -74,15 +74,15 @@ jobs:
           echo
           echo Install dependencies
           echo
-          chmod +x ports/ci/linux-opensuse/install_deps.sh
-          ./ports/ci/linux-opensuse/install_deps.sh
+          chmod +x ports/ci/linux-mageia/install_deps.sh
+          ./ports/ci/linux-mageia/install_deps.sh
           echo
           echo Daily Build
           echo
-          chmod +x ports/ci/linux-opensuse/build.sh
-          ./ports/ci/linux-opensuse/build.sh
+          chmod +x ports/ci/linux-mageia/build.sh
+          ./ports/ci/linux-mageia/build.sh
           echo
           echo Daily Deploy
           echo
-          chmod +x ports/ci/linux-opensuse/deploy.sh
-          ./ports/ci/linux-opensuse/deploy.sh
+          chmod +x ports/ci/linux-mageia/deploy.sh
+          ./ports/ci/linux-mageia/deploy.sh

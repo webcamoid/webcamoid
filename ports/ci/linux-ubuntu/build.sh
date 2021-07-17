@@ -34,81 +34,50 @@ if [ "${UPLOAD}" == 1 ]; then
     EXTRA_PARAMS="${EXTRA_PARAMS} -DNOGSTREAMER=ON -DNOLIBAVDEVICE=ON"
 fi
 
-BUILDSCRIPT=dockerbuild.sh
-
 if [ "${DOCKERIMG}" = ubuntu:focal ]; then
-    cat << EOF > ${BUILDSCRIPT}
-#!/bin/sh
-source /opt/qt${PPAQTVER}/bin/qt${PPAQTVER}-env.sh
-EOF
-
-    chmod +x ${BUILDSCRIPT}
+    source /opt/qt${PPAQTVER}/bin/qt${PPAQTVER}-env.sh
 fi
 
 export PATH=$HOME/.local/bin:$PATH
+mkdir build
 
 if [ "${DOCKERIMG}" = ubuntu:focal ]; then
     if [ "${UPLOAD}" != 1 ]; then
-        cat << EOF >> ${BUILDSCRIPT}
-#!/bin/sh
-
-mkdir build
-cmake \
-    -S . \
-    -B build \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DCMAKE_INSTALL_PREFIX="\${PWD}/webcamoid-data" \
-    -DCMAKE_C_COMPILER="${COMPILER_C}" \
-    -DCMAKE_CXX_COMPILER="${COMPILER_CXX}" \
-    ${EXTRA_PARAMS} \
-    -DDAILY_BUILD=${DAILY_BUILD}
-cmake -LA -S . -B build
-cmake --build build --parallel ${NJOBS}
-cmake --install build
-EOF
+        cmake \
+            -S . \
+            -B build \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_INSTALL_PREFIX="${PWD}/webcamoid-data" \
+            -DCMAKE_C_COMPILER="${COMPILER_C}" \
+            -DCMAKE_CXX_COMPILER="${COMPILER_CXX}" \
+            ${EXTRA_PARAMS} \
+            -DDAILY_BUILD=${DAILY_BUILD}
     else
-        cat << EOF >> ${BUILDSCRIPT}
-#!/bin/sh
-
-mkdir build
-cmake \
-    -S . \
-    -B build \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DCMAKE_INSTALL_PREFIX="\${PWD}/webcamoid-data" \
-    -DCMAKE_C_COMPILER="${COMPILER_C}" \
-    -DCMAKE_CXX_COMPILER="${COMPILER_CXX}" \
-    ${EXTRA_PARAMS} \
-    -DDAILY_BUILD=${DAILY_BUILD} \
-    -DNOGSTREAMER=TRUE \
-    -DNOLIBAVDEVICE=TRUE
-cmake -LA -S . -B build
-cmake --build build --parallel ${NJOBS}
-cmake --install build
-EOF
+        cmake \
+            -S . \
+            -B build \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_INSTALL_PREFIX="${PWD}/webcamoid-data" \
+            -DCMAKE_C_COMPILER="${COMPILER_C}" \
+            -DCMAKE_CXX_COMPILER="${COMPILER_CXX}" \
+            ${EXTRA_PARAMS} \
+            -DDAILY_BUILD=${DAILY_BUILD} \
+            -DNOGSTREAMER=TRUE \
+            -DNOLIBAVDEVICE=TRUE
     fi
-
-        ${EXEC} bash ${BUILDSCRIPT}
 else
-    cat << EOF >> ${BUILDSCRIPT}
-#!/bin/sh
-
-mkdir build
-cmake \
-    -S . \
-    -B build \
-    -DQT_QMAKE_EXECUTABLE="qmake -qt=5" \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DCMAKE_INSTALL_PREFIX="\${PWD}/webcamoid-data" \
-    -DCMAKE_C_COMPILER="${COMPILER_C}" \
-    -DCMAKE_CXX_COMPILER="${COMPILER_CXX}" \
-    ${EXTRA_PARAMS} \
-    -DDAILY_BUILD=${DAILY_BUILD}
-cmake -LA -S . -B build
-cmake --build build --parallel ${NJOBS}
-cmake --install build
-EOF
+    cmake \
+        -S . \
+        -B build \
+        -DQT_QMAKE_EXECUTABLE="qmake -qt=5" \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_INSTALL_PREFIX="${PWD}/webcamoid-data" \
+        -DCMAKE_C_COMPILER="${COMPILER_C}" \
+        -DCMAKE_CXX_COMPILER="${COMPILER_CXX}" \
+        ${EXTRA_PARAMS} \
+        -DDAILY_BUILD=${DAILY_BUILD}
 fi
 
-chmod +x ${BUILDSCRIPT}
-${EXEC} bash ${BUILDSCRIPT}
+cmake -LA -S . -B build
+cmake --build build --parallel ${NJOBS}
+cmake --install build

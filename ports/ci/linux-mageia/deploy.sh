@@ -18,31 +18,13 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-if [ "${COMPILER}" = clang ]; then
-    COMPILER_C=clang
-    COMPILER_CXX=clang++
-else
-    COMPILER_C=gcc
-    COMPILER_CXX=g++
-fi
+git clone https://github.com/webcamoid/DeployTools.git
 
-if [ -z "${DISABLE_CCACHE}" ]; then
-    EXTRA_PARAMS="-DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_OBJCXX_COMPILER_LAUNCHER=ccache"
-fi
+export PYTHONPATH=${PWD}/DeployTools
+export PATH="$PWD/.local/bin:$PATH"
+export DAILY_BUILD=${DAILY_BUILD}
 
-export PATH=$HOME/.local/bin:$PATH
-
-mkdir build
-cmake \
-    -S . \
-    -B build \
-    -DQT_QMAKE_EXECUTABLE="qmake -qt=5" \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DCMAKE_INSTALL_PREFIX="${PWD}/webcamoid-data" \
-    -DCMAKE_C_COMPILER="${COMPILER_C}" \
-    -DCMAKE_CXX_COMPILER="${COMPILER_CXX}" \
-    ${EXTRA_PARAMS} \
-    -DDAILY_BUILD=${DAILY_BUILD}
-cmake -LA -S . -B build
-cmake --build build --parallel ${NJOBS}
-cmake --install build
+xvfb-run --auto-servernum python3 DeployTools/deploy.py \
+    -d "${PWD}/webcamoid-data" \
+    -c "${PWD}/build/package_info.conf" \
+    -o "${PWD}/webcamoid-packages/linux"

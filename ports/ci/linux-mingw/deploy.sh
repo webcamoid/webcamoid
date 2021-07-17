@@ -18,49 +18,19 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-EXEC='sudo ./root.x86_64/bin/arch-chroot root.x86_64'
-
 git clone https://github.com/webcamoid/DeployTools.git
-
-DEPLOYSCRIPT=deployscript.sh
-export PYTHONPATH=${PWD}/DeployTools
-
-sudo mount --bind root.x86_64 root.x86_64
-sudo mount --bind $HOME root.x86_64/$HOME
 
 cat << EOF > package_info_strip.conf
 [System]
 stripCmd = ${TARGET_ARCH}-w64-mingw32-strip
 EOF
 
-cat << EOF > ${DEPLOYSCRIPT}
-#!/bin/sh
-
-cd $PWD
-export LC_ALL=C
-export HOME=$HOME
-export PATH="\${PWD}/.local/bin:\$PATH"
-export PYTHONPATH="\${PWD}/DeployTools"
+export PATH="${PWD}/.local/bin:${PATH}"
+export PYTHONPATH=${PWD}/DeployTools
 export WINEPREFIX=/opt/.wine
-EOF
-
-if [ ! -z "${DAILY_BUILD}" ]; then
-    cat << EOF >> ${DEPLOYSCRIPT}
-export DAILY_BUILD=1
-EOF
-fi
-
-cat << EOF >> ${DEPLOYSCRIPT}
 python DeployTools/deploy.py \
-    -d "\${PWD}/webcamoid-data" \
-    -c "\${PWD}/build/package_info.conf" \
-    -c "\${PWD}/build/package_info_windows.conf" \
-    -c "\${PWD}/package_info_strip.conf"
-    -o "\${PWD}/webcamoid-packages/windows"
-EOF
-chmod +x ${DEPLOYSCRIPT}
-sudo cp -vf ${DEPLOYSCRIPT} root.x86_64/$HOME/
-
-${EXEC} bash $HOME/${DEPLOYSCRIPT}
-sudo umount root.x86_64/$HOME
-sudo umount root.x86_64
+    -d "${PWD}/webcamoid-data" \
+    -c "${PWD}/build/package_info.conf" \
+    -c "${PWD}/build/package_info_windows.conf" \
+    -c "${PWD}/package_info_strip.conf" \
+    -o "${PWD}/webcamoid-packages/windows"
