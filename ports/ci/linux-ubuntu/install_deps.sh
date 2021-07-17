@@ -50,9 +50,9 @@ fi
 
 # Install missing dependenies
 
-sudo apt-get -qq -y update
-sudo apt-get -qq -y upgrade
-sudo apt-get -qq -y install \
+apt-get -qq -y update
+apt-get -qq -y upgrade
+apt-get -qq -y install \
     wget \
     curl
 

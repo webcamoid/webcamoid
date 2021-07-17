@@ -42,6 +42,7 @@ Monero: 41wpsZWaZ7Mj83RFUbTapM1PvAFiMKbgk8ecJ7W7s36ZVydMWy9rMU1M4khiU4QpY9M9x4cU
 [![Arch Linux](https://github.com/webcamoid/webcamoid/actions/workflows/linux-arch.yml/badge.svg)](https://github.com/webcamoid/webcamoid/actions/workflows/linux-arch.yml)
 [![Debian](https://github.com/webcamoid/webcamoid/actions/workflows/linux-debian.yml/badge.svg)](https://github.com/webcamoid/webcamoid/actions/workflows/linux-debian.yml)
 [![Fedora](https://github.com/webcamoid/webcamoid/actions/workflows/linux-fedora.yml/badge.svg)](https://github.com/webcamoid/webcamoid/actions/workflows/linux-fedora.yml)
+[![Mageia](https://github.com/webcamoid/webcamoid/actions/workflows/linux-mageia.yml/badge.svg)](https://github.com/webcamoid/webcamoid/actions/workflows/linux-mageia.yml)
 [![Linux MinGW](https://github.com/webcamoid/webcamoid/actions/workflows/linux-mingw.yml/badge.svg)](https://github.com/webcamoid/webcamoid/actions/workflows/linux-mingw.yml)
 [![OpenSUSE](https://github.com/webcamoid/webcamoid/actions/workflows/linux-opensuse.yml/badge.svg)](https://github.com/webcamoid/webcamoid/actions/workflows/linux-opensuse.yml)
 [![Ubuntu](https://github.com/webcamoid/webcamoid/actions/workflows/linux-ubuntu.yml/badge.svg)](https://github.com/webcamoid/webcamoid/actions/workflows/linux-ubuntu.yml)

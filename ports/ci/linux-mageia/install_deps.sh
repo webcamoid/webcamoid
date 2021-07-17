@@ -74,18 +74,18 @@ dnf -y install \
     ccache \
     clang \
     cmake \
-    file \
     gcc-c++ \
     git \
-    libalsa2-devel \
-    libffmpeg-devel \
-    libgstreamer-plugins-base1.0-devel \
-    libjack-devel \
-    libpulseaudio-devel \
-    libqt5quick-devel \
-    libqt5quickcontrols2-devel \
-    libqt5svg-devel \
-    libv4l-devel \
+    lib64alsa2-devel \
+    lib64ffmpeg-devel \
+    lib64fontconfig1 \
+    lib64gstreamer-plugins-base1.0-devel \
+    lib64jack-devel \
+    lib64pulseaudio-devel \
+    lib64qt5quick-devel \
+    lib64qt5quickcontrols2-devel \
+    lib64qt5svg-devel \
+    lib64v4l-devel \
     make \
     qtbase5-common-devel \
     qttools5 \
