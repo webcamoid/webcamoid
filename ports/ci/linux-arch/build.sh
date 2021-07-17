@@ -33,7 +33,7 @@ fi
 export PATH=$HOME/.local/bin:$PATH
 
 mkdir build
-${CMAKE_CMD} \
+cmake \
     -S . \
     -B build \
     -DCMAKE_BUILD_TYPE=Release \

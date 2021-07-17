@@ -38,7 +38,7 @@ jobs:
       with:
         update: true
         install: >-
-          cache
+          ccache
           clang
           cmake
           git
@@ -57,7 +57,7 @@ jobs:
       with:
         update: true
         install: >-
-          cache
+          ccache
           clang
           cmake
           git

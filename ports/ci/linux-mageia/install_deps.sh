@@ -27,8 +27,10 @@ else
 fi
 
 urpmi dnf
-dnf config-manager --set-enabled mageia-x86_64-nonfree updates-x86_64-nonfree
-dnf config-manager --set-enabled mageia-x86_64-tainted updates-x86_64-tainted
+dnf config-manager --set-enabled \
+    cauldron-x86_64-nonfree \
+    cauldron-x86_64-tainted
+dnf repolist
 dnf -y update
 dnf -y install \
     curl \

@@ -35,12 +35,11 @@ fi
 
 export PKG_CONFIG=${TARGET_ARCH}-w64-mingw32-pkg-config
 QMAKE_CMD=/usr/${TARGET_ARCH}-w64-mingw32/lib/qt/bin/qmake
-CMAKE_CMD=${TARGET_ARCH}-w64-mingw32-cmake
 LRELEASE_TOOL=/usr/${TARGET_ARCH}-w64-mingw32/lib/qt/bin/lrelease
 LUPDATE_TOOL=/usr/${TARGET_ARCH}-w64-mingw32/lib/qt/bin/lupdate
 
 mkdir build
-${CMAKE_CMD} \
+${TARGET_ARCH}-w64-mingw32-cmake \
     -S . \
     -B build \
     -DQT_QMAKE_EXECUTABLE=${QMAKE_CMD} \

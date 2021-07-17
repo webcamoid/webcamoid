@@ -28,6 +28,7 @@ EOF
 export PATH="${PWD}/.local/bin:${PATH}"
 export PYTHONPATH=${PWD}/DeployTools
 export WINEPREFIX=/opt/.wine
+
 python DeployTools/deploy.py \
     -d "${PWD}/webcamoid-data" \
     -c "${PWD}/build/package_info.conf" \

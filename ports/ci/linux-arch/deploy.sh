@@ -22,7 +22,7 @@ git clone https://github.com/webcamoid/DeployTools.git
 
 export PATH="${PWD}/.local/bin:${PATH}"
 export PYTHONPATH="${PWD}/DeployTools"
-export DAILY_BUILD=${DAILY_BUILD}
+
 xvfb-run --auto-servernum python3 DeployTools/deploy.py \
     -d "${PWD}/webcamoid-data" \
     -c "${PWD}/build/package_info.conf" \
