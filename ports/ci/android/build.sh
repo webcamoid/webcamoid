@@ -42,8 +42,7 @@ export PATH="${PATH}:${ANDROID_HOME}/platform-tools"
 export PATH="${PATH}:${ANDROID_HOME}/emulator"
 export PATH="${PATH}:${ANDROID_NDK}"
 export ORIG_PATH="${PATH}"
-mkdir build
-mkdir webcamoid-data
+mkdir -p build
 
 for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
     export PATH="${PWD}/build/Qt/${QTVER_ANDROID}/android/bin:${ORIG_PATH}"
