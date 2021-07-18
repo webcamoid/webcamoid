@@ -50,13 +50,16 @@ if [ "${nArchs}" = 1 ]; then
     export PATH="${PWD}/build/Qt/${QTVER_ANDROID}/android/bin:${PWD}/.local/bin:${ORIG_PATH}"
     export BUILD_PATH=${PWD}/build-${lastArch}
 
+    echo
+    cat "${BUILD_PATH}/package_info.conf"
+    echo
+
     python3 DeployTools/deploy.py \
         -d "${BUILD_PATH}/android-build" \
         -c "${BUILD_PATH}/package_info.conf" \
         -c "${BUILD_PATH}/package_info_android.conf" \
         -c "${PWD}/package_info_sdkbt.conf" \
         -o "${PWD}/webcamoid-packages/android"
-    find "${BUILD_PATH}/android-build" -type f
 else
     mkdir -p "${PWD}/webcamoid-data"
 
