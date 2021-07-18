@@ -51,7 +51,7 @@ if [ "${nArchs}" = 1 ]; then
     export BUILD_PATH=${PWD}/build-${lastArch}
 
     echo
-    cat "${BUILD_PATH}/package_info.conf"
+    find "${PWD}/build/Qt/${QTVER_ANDROID}/android/src" -type f
     echo
 
     python3 DeployTools/deploy.py \
