@@ -86,6 +86,7 @@ dnf -y install \
     lib64jack-devel \
     lib64pulseaudio-devel \
     lib64qt5concurrent-devel \
+    lib64qt5opengl-devel \
     lib64qt5quick-devel \
     lib64qt5quickcontrols2-devel \
     lib64qt5svg-devel \
