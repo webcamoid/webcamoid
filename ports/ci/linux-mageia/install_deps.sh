@@ -36,7 +36,7 @@ dnf config-manager --set-disabled \
 dnf repolist
 rm -f /var/lib/rpm/_*
 rm -f /var/lib/rpm/.RPMLOCK
-rpmd --rebuilddb
+rpmdb --rebuilddb
 dnf -y update
 dnf -y install \
     lib64fontconfig1 \

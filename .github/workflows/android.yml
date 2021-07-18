@@ -66,7 +66,7 @@ jobs:
       uses: softprops/action-gh-release@v1
       if: ${{ startsWith(github.ref, 'refs/tags/') && matrix.upload }}
       with:
-        files: webcamoid-packages/*
+        files: webcamoid-packages/android/*
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Daily Build Upload
@@ -75,7 +75,7 @@ jobs:
       with:
         body: "${{ github.event.head_commit.message }} (commit: ${{ github.sha }})"
         prerelease: true
-        files: webcamoid-packages/*
+        files: webcamoid-packages/android/*
         name: Daily Build
         tag_name: daily-build
       env:
@@ -85,4 +85,4 @@ jobs:
       if: ${{ matrix.upload }}
       with:
         name: android-daily-build
-        path: webcamoid-packages/*
+        path: webcamoid-packages/android/*
