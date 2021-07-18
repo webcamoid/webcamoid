@@ -27,12 +27,6 @@ else
 fi
 
 dnf -y install dnf-plugins-core
-# dnf config-manager --set-enabled \
-#     cauldron-x86_64-nonfree \
-#     cauldron-x86_64-tainted
-# dnf config-manager --set-disabled \
-#     mageia-x86_64 \
-#     updates-x86_64
 dnf config-manager --set-enabled \
     mageia-x86_64-nonfree \
     mageia-x86_64-tainted \
@@ -91,6 +85,7 @@ dnf -y install \
     lib64gstreamer-plugins-base1.0-devel \
     lib64jack-devel \
     lib64pulseaudio-devel \
+    lib64qt5concurrent-devel \
     lib64qt5quick-devel \
     lib64qt5quickcontrols2-devel \
     lib64qt5svg-devel \

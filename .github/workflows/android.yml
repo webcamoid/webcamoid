@@ -20,7 +20,7 @@ jobs:
          - android_platform: 24
            target_arch: armeabi-v7a
          - android_platform: 24
-           target_arch=arm64: v8a
+           target_arch: v8a
          - android_platform: 24
            target_arch: x86
          - android_platform: 24
