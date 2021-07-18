@@ -39,6 +39,7 @@ EOF
 export LC_ALL=C
 export DEBIAN_FRONTEND=noninteractive
 
+apt-get -qq -y update
 apt-get install -qq -y keyboard-configuration
 cp -vf keyboard_config /etc/default/keyboard
 dpkg-reconfigure --frontend noninteractive keyboard-configuration

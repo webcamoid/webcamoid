@@ -26,7 +26,7 @@ else
     export DOWNLOAD_CMD="curl --retry 10 -sS -kLOC -"
 fi
 
-urpmi dnf
+dnf -y install dnf-plugins-core
 dnf config-manager --set-enabled \
     cauldron-x86_64-nonfree \
     cauldron-x86_64-tainted
