@@ -29,6 +29,7 @@ sudo apt-get -qq -y upgrade
 
 # Install dev tools
 sudo apt-get -qq -y install \
+    ccache \
     cmake \
     gradle \
     libxkbcommon-x11-0 \
