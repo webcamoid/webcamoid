@@ -56,6 +56,7 @@ if [ "${nArchs}" = 1 ]; then
         -c "${BUILD_PATH}/package_info_android.conf" \
         -c "${PWD}/package_info_sdkbt.conf" \
         -o "${PWD}/webcamoid-packages/android"
+    find "${BUILD_PATH}/android-build" -type f
 else
     mkdir -p "${PWD}/webcamoid-data"
 
