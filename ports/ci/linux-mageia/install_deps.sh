@@ -30,10 +30,16 @@ dnf -y install dnf-plugins-core
 dnf config-manager --set-enabled \
     cauldron-x86_64-nonfree \
     cauldron-x86_64-tainted
+dnf config-manager --set-disabled \
+    mageia-x86_64 \
+    updates-x86_64
 dnf repolist
+rm -f /var/lib/rpm/_*
+rm -f /var/lib/rpm/.RPMLOCK
+rpmd --rebuilddb
 dnf -y update
 dnf -y install \
-    curl \
+    lib64fontconfig1 \
     wget
 
 mkdir -p .local/bin
@@ -80,7 +86,6 @@ dnf -y install \
     git \
     lib64alsa2-devel \
     lib64ffmpeg-devel \
-    lib64fontconfig1 \
     lib64gstreamer-plugins-base1.0-devel \
     lib64jack-devel \
     lib64pulseaudio-devel \
