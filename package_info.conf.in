@@ -61,6 +61,3 @@ runProgram = @RUN_PROGRAM@
 license = COPYING
 requiresAdminRights = false
 multiUserInstall = true
-
-[AndroidAPK]
-verbose = true
