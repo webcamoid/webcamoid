@@ -40,6 +40,7 @@ pacman -Syu \
     --ignore linux,linux-api-headers,linux-docs,linux-firmware,linux-headers,pacman
 pacman --noconfirm --needed -S \
     curl \
+    fontconfig \
     wget
 
 mkdir -p .local/bin

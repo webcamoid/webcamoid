@@ -27,6 +27,7 @@ fi
 zypper -n dup
 zypper -n in \
     curl \
+    libfontconfig1 \
     wget
 
 mkdir -p .local/bin

@@ -46,8 +46,9 @@ dpkg-reconfigure --frontend noninteractive keyboard-configuration
 apt-get -qq -y update
 apt-get -qq -y upgrade
 apt-get -qq -y install \
-    wget \
-    curl
+    curl \
+    libfontconfig1 \
+    wget
 
 mkdir -p .local/bin
 

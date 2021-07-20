@@ -29,6 +29,7 @@ fi
 dnf -y update
 dnf -y install \
     curl \
+    fontconfig \
     wget
 
 mkdir -p .local/bin
