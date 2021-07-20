@@ -36,6 +36,7 @@ dnf repolist
 dnf -y update
 dnf -y install \
     lib64fontconfig1 \
+    lib64xcb-glx0 \
     wget
 
 mkdir -p .local/bin
@@ -93,6 +94,7 @@ dnf -y install \
     lib64v4l-devel \
     make \
     qtbase5-common-devel \
+    qtquickcontrols25 \
     qttools5 \
     which \
     x11-server-xvfb \
