@@ -34,6 +34,7 @@ dnf -y install \
     libXext \
     libXrender \
     libxcb \
+    libxkbcommon \
     wget
 
 mkdir -p .local/bin

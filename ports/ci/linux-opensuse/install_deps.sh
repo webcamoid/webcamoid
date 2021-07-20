@@ -28,6 +28,7 @@ zypper -n dup
 zypper -n in \
     curl \
     libX11-xcb1 \
+    libXrender1 \
     libdbus-1-3 \
     libfontconfig1 \
     libxcb-glx0 \
