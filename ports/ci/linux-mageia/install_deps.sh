@@ -38,6 +38,7 @@ dnf -y install \
     lib64fontconfig1 \
     lib64x11-xcb1 \
     lib64xcb-glx0 \
+    lib64xrender1 \
     wget
 
 mkdir -p .local/bin

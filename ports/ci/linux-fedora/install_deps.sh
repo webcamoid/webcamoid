@@ -30,6 +30,7 @@ dnf -y update
 dnf -y install \
     curl \
     fontconfig \
+    libxcb \
     wget
 
 mkdir -p .local/bin

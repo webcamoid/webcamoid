@@ -41,6 +41,7 @@ pacman -Syu \
 pacman --noconfirm --needed -S \
     curl \
     fontconfig \
+    libxcb \
     wget
 
 mkdir -p .local/bin

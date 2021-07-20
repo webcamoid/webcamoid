@@ -27,6 +27,7 @@ fi
 zypper -n dup
 zypper -n in \
     curl \
+    libdbus \
     libfontconfig1 \
     wget
 
