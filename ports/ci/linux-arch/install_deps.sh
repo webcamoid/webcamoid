@@ -45,6 +45,7 @@ pacman --noconfirm --needed -S \
     libxcb \
     libxext \
     libxkbcommon \
+    libxkbcommon-x11 \
     libxrender \
     wget
 
