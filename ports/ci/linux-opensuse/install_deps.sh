@@ -32,6 +32,7 @@ zypper -n in \
     libXrender1 \
     libdbus-1-3 \
     libfontconfig1 \
+    libglvnd \
     libxcb-glx0 \
     libxkbcommon-x11-0 \
     wget
