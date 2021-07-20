@@ -33,6 +33,7 @@ dnf -y install \
     libX11-xcb\
     libXext \
     libXrender \
+    libglvnd-glx \
     libxcb \
     libxkbcommon \
     libxkbcommon-x11 \

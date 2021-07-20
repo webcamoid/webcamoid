@@ -33,6 +33,7 @@ zypper -n in \
     libdbus-1-3 \
     libfontconfig1 \
     libxcb-glx0 \
+    libxkbcommon-x11-0 \
     wget
 
 mkdir -p .local/bin
