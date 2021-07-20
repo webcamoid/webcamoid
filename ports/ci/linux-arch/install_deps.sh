@@ -43,6 +43,7 @@ pacman --noconfirm --needed -S \
     fontconfig \
     libx11 \
     libxcb \
+    libxext \
     libxrender \
     wget
 

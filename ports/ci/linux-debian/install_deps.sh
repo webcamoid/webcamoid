@@ -49,6 +49,7 @@ apt-get -qq -y install \
     curl \
     libdbus-1-3 \
     libfontconfig1 \
+    libx11-xcb1 \
     libxcb-glx0 \
     wget
 
