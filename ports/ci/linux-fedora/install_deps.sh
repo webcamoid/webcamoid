@@ -30,6 +30,7 @@ dnf -y update
 dnf -y install \
     curl \
     fontconfig \
+    libX11-xcb\
     libxcb \
     wget
 

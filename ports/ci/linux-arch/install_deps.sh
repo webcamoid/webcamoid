@@ -41,6 +41,7 @@ pacman -Syu \
 pacman --noconfirm --needed -S \
     curl \
     fontconfig \
+    libx11 \
     libxcb \
     wget
 

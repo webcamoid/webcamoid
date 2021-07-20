@@ -56,6 +56,7 @@ apt-get -qq -y upgrade
 apt-get -qq -y install \
     curl \
     libfontconfig1 \
+    libx11-xcb1 \
     libxcb-glx0 \
     wget
 

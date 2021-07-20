@@ -47,7 +47,7 @@ apt-get -qq -y update
 apt-get -qq -y upgrade
 apt-get -qq -y install \
     curl \
-    libdbus \
+    libdbus-1-3 \
     libfontconfig1 \
     wget
 
