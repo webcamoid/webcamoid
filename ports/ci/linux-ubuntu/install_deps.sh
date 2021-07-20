@@ -58,6 +58,7 @@ apt-get -qq -y install \
     libfontconfig1 \
     libx11-xcb1 \
     libxcb-glx0 \
+    libxrender1 \
     wget
 
 mkdir -p .local/bin

@@ -32,6 +32,7 @@ dnf -y install \
     fontconfig \
     libX11-xcb\
     libxcb \
+    libXrender \
     wget
 
 mkdir -p .local/bin
