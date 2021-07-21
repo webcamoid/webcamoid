@@ -47,6 +47,10 @@ jobs:
         image: ${{ matrix.dockerimg }}
         options: >-
           -v ${{ github.workspace }}:/sources
+          -e GITHUB_REF=${{ env.GITHUB_REF }}
+          -e GITHUB_SERVER_URL=${{ env.GITHUB_SERVER_URL }}
+          -e GITHUB_REPOSITORY=${{ env.GITHUB_REPOSITORY }}
+          -e GITHUB_RUN_ID=${{ env.GITHUB_RUN_ID }}
           -e QTVER=${{ env.QTVER }}
           -e PPAQTVER=${{ env.PPAQTVER }}
           -e APPIMAGEVER=${{ env.APPIMAGEVER }}
@@ -83,6 +87,10 @@ jobs:
         image: ${{ matrix.dockerimg }}
         options: >-
           -v ${{ github.workspace }}:/sources
+          -e GITHUB_REF=${{ env.GITHUB_REF }}
+          -e GITHUB_SERVER_URL=${{ env.GITHUB_SERVER_URL }}
+          -e GITHUB_REPOSITORY=${{ env.GITHUB_REPOSITORY }}
+          -e GITHUB_RUN_ID=${{ env.GITHUB_RUN_ID }}
           -e QTVER=${{ env.QTVER }}
           -e PPAQTVER=${{ env.PPAQTVER }}
           -e APPIMAGEVER=${{ env.APPIMAGEVER }}

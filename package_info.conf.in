@@ -26,6 +26,7 @@ launcher = webcamoid.sh
 desktopFile = webcamoid.desktop
 desktopIcon = StandAlone/share/themes/WebcamoidTheme/icons/hicolor/48x48/webcamoid.png
 dirIcon = StandAlone/share/themes/WebcamoidTheme/icons/hicolor/256x256/webcamoid.png
+verbose = true
 
 [CompressedTarXz]
 name = webcamoid-portable
