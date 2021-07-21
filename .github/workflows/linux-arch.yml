@@ -31,10 +31,10 @@ jobs:
         image: ${{ env.DOCKERIMG }}
         options: >-
           -v ${{ github.workspace }}:/sources
-          -e GITHUB_REF=${{ env.GITHUB_REF }}
-          -e GITHUB_SERVER_URL=${{ env.GITHUB_SERVER_URL }}
-          -e GITHUB_REPOSITORY=${{ env.GITHUB_REPOSITORY }}
-          -e GITHUB_RUN_ID=${{ env.GITHUB_RUN_ID }}
+          -e GITHUB_REF="${GITHUB_REF}"
+          -e GITHUB_SERVER_URL="${GITHUB_SERVER_URL}"
+          -e GITHUB_REPOSITORY="${GITHUB_REPOSITORY}"
+          -e GITHUB_RUN_ID="${GITHUB_RUN_ID}"
           -e APPIMAGEVER=${{ env.APPIMAGEVER }}
           -e COMPILER=${{ matrix.compiler }}
           -e DOCKERIMG=${{ env.DOCKERIMG }}
@@ -69,10 +69,10 @@ jobs:
         image: ${{ env.DOCKERIMG }}
         options: >-
           -v ${{ github.workspace }}:/sources
-          -e GITHUB_REF=${{ env.GITHUB_REF }}
-          -e GITHUB_SERVER_URL=${{ env.GITHUB_SERVER_URL }}
-          -e GITHUB_REPOSITORY=${{ env.GITHUB_REPOSITORY }}
-          -e GITHUB_RUN_ID=${{ env.GITHUB_RUN_ID }}
+          -e GITHUB_REF="${GITHUB_REF}"
+          -e GITHUB_SERVER_URL="${GITHUB_SERVER_URL}"
+          -e GITHUB_REPOSITORY="${GITHUB_REPOSITORY}"
+          -e GITHUB_RUN_ID="${GITHUB_RUN_ID}"
           -e APPIMAGEVER=${{ env.APPIMAGEVER }}
           -e COMPILER=${{ matrix.compiler }}
           -e DOCKERIMG=${{ env.DOCKERIMG }}

@@ -97,6 +97,7 @@ apt-get -y install \
     ccache \
     clang \
     cmake \
+    file \
     g++ \
     git \
     libasound2-dev \
