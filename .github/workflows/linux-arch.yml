@@ -25,6 +25,7 @@ jobs:
       run: |
         chmod +x ports/ci/linux-commons/export_env.sh
         ./ports/ci/linux-commons/export_env.sh
+        cat ./set_env.sh
     - name: Release build
       uses: addnab/docker-run-action@v3
       if: ${{ startsWith(github.ref, 'refs/tags/') }}
@@ -43,7 +44,7 @@ jobs:
           -e QTIFWVER=${{ env.QTIFWVER }}
         run: |
           cd /sources
-          source set_env.sh
+          source ./set_env.sh
           echo
           echo Install dependencies
           echo
@@ -79,7 +80,7 @@ jobs:
           -e DAILY_BUILD=1
         run: |
           cd /sources
-          source set_env.sh
+          source ./set_env.sh
           echo
           echo Install dependencies
           echo
