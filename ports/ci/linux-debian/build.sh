@@ -36,7 +36,7 @@ mkdir build
 cmake \
     -S . \
     -B build \
-    -DQT_QMAKE_EXECUTABLE="qmake -qt=5" \
+    -DQT_QMAKE_EXECUTABLE=/usr/lib/qt5/bin/qmake \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX="${PWD}/webcamoid-data" \
     -DCMAKE_C_COMPILER="${COMPILER_C}" \
