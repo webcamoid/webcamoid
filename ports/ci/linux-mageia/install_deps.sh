@@ -99,7 +99,6 @@ dnf -y install \
     lib64v4l-devel \
     make \
     qtbase5-common-devel \
-    qtquickcontrols25 \
     qttools5 \
     which \
     x11-server-xvfb \

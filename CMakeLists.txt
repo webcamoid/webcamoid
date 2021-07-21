@@ -35,22 +35,23 @@ add_subdirectory(StandAlone)
 # Webcamoid build is not affected in anyway by the value of TARGET_ARCH, if the
 # build fails its something else and totally unrelated to that variable.
 
-find_program(QT_QMAKE_EXECUTABLE qmake)
+set(QT_QMAKE_EXECUTABLE qmake CACHE STRING "Qt's qmake executable")
+find_program(QT_QMAKE_EXECUTABLE_BIN "${QT_QMAKE_EXECUTABLE}")
 
-if (QT_QMAKE_EXECUTABLE)
-    execute_process(COMMAND ${QT_QMAKE_EXECUTABLE} -query QT_INSTALL_PREFIX
+if (QT_QMAKE_EXECUTABLE_BIN)
+    execute_process(COMMAND ${QT_QMAKE_EXECUTABLE_BIN} -query QT_INSTALL_PREFIX
                     OUTPUT_VARIABLE QT_INSTALL_PREFIX
                     OUTPUT_STRIP_TRAILING_WHITESPACE)
-    execute_process(COMMAND ${QT_QMAKE_EXECUTABLE} -query QT_INSTALL_LIBS
+    execute_process(COMMAND ${QT_QMAKE_EXECUTABLE_BIN} -query QT_INSTALL_LIBS
                     OUTPUT_VARIABLE QT_INSTALL_LIBS
                     OUTPUT_STRIP_TRAILING_WHITESPACE)
-    execute_process(COMMAND ${QT_QMAKE_EXECUTABLE} -query QT_INSTALL_BINS
+    execute_process(COMMAND ${QT_QMAKE_EXECUTABLE_BIN} -query QT_INSTALL_BINS
                     OUTPUT_VARIABLE QT_INSTALL_BINS
                     OUTPUT_STRIP_TRAILING_WHITESPACE)
-    execute_process(COMMAND ${QT_QMAKE_EXECUTABLE} -query QT_INSTALL_PLUGINS
+    execute_process(COMMAND ${QT_QMAKE_EXECUTABLE_BIN} -query QT_INSTALL_PLUGINS
                     OUTPUT_VARIABLE QT_INSTALL_PLUGINS
                     OUTPUT_STRIP_TRAILING_WHITESPACE)
-    execute_process(COMMAND ${QT_QMAKE_EXECUTABLE} -query QT_INSTALL_QML
+    execute_process(COMMAND ${QT_QMAKE_EXECUTABLE_BIN} -query QT_INSTALL_QML
                     OUTPUT_VARIABLE QT_INSTALL_QML
                     OUTPUT_STRIP_TRAILING_WHITESPACE)
 
