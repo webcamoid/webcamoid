@@ -50,6 +50,7 @@ license = COPYING
 licenseName = GNU General Public License v3.0
 script = ports/deploy/installscript.@TARGET_PLATFORM@.qs
 changeLog = ChangeLog
+verbose = true
 
 [Nsis]
 organization = Webcamoid
