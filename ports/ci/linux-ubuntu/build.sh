@@ -38,7 +38,7 @@ if [ "${DOCKERIMG}" = ubuntu:focal ]; then
     source /opt/qt${PPAQTVER}/bin/qt${PPAQTVER}-env.sh
 fi
 
-export PATH=$HOME/.local/bin:$PATH
+export PATH=${HOME}/.local/bin:${PATH}
 mkdir build
 
 if [ "${DOCKERIMG}" = ubuntu:focal ]; then

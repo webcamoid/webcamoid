@@ -20,6 +20,10 @@
 
 git clone https://github.com/webcamoid/DeployTools.git
 
+if [ "${DOCKERIMG}" = ubuntu:focal ]; then
+    source /opt/qt${PPAQTVER}/bin/qt${PPAQTVER}-env.sh
+fi
+
 export PATH="${PWD}/.local/bin:${PATH}"
 export PYTHONPATH="${PWD}/DeployTools"
 
