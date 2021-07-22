@@ -32,7 +32,7 @@ EOF
     xvfb-run --auto-servernum python3 DeployTools/deploy.py \
         -d "${PWD}/webcamoid-data" \
         -c "${PWD}/build/package_info.conf" \
-        -c "${PWD}/build/package_info_libdir.conf" \
+        -c "${PWD}/package_info_libdir.conf" \
         -o "${PWD}/webcamoid-packages/linux"
 else
     xvfb-run --auto-servernum python3 DeployTools/deploy.py \
