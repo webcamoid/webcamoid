@@ -20,14 +20,23 @@
 
 git clone https://github.com/webcamoid/DeployTools.git
 
-if [ "${DOCKERIMG}" = ubuntu:focal ]; then
-    source /opt/qt${PPAQTVER}/bin/qt${PPAQTVER}-env.sh
-fi
-
 export PATH="${PWD}/.local/bin:${PATH}"
 export PYTHONPATH="${PWD}/DeployTools"
 
-xvfb-run --auto-servernum python3 DeployTools/deploy.py \
-    -d "${PWD}/webcamoid-data" \
-    -c "${PWD}/build/package_info.conf" \
-    -o "${PWD}/webcamoid-packages/linux"
+if [ "${DOCKERIMG}" = ubuntu:focal ]; then
+    cat << EOF > package_info_libdir.conf
+[System]
+libDir = /opt/qt${PPAQTVER}/lib
+EOF
+
+    xvfb-run --auto-servernum python3 DeployTools/deploy.py \
+        -d "${PWD}/webcamoid-data" \
+        -c "${PWD}/build/package_info.conf" \
+        -c "${PWD}/build/package_info_libdir.conf" \
+        -o "${PWD}/webcamoid-packages/linux"
+else
+    xvfb-run --auto-servernum python3 DeployTools/deploy.py \
+        -d "${PWD}/webcamoid-data" \
+        -c "${PWD}/build/package_info.conf" \
+        -o "${PWD}/webcamoid-packages/linux"
+fi
