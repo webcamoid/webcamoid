@@ -35,8 +35,11 @@ add_subdirectory(StandAlone)
 # Webcamoid build is not affected in anyway by the value of TARGET_ARCH, if the
 # build fails its something else and totally unrelated to that variable.
 
-set(QT_QMAKE_EXECUTABLE qmake CACHE STRING "Qt's qmake executable")
-find_program(QT_QMAKE_EXECUTABLE_BIN "${QT_QMAKE_EXECUTABLE}")
+if ("${QT_QMAKE_EXECUTABLE}" STREQUAL "")
+    find_program(QT_QMAKE_EXECUTABLE_BIN qmake)
+else ()
+    find_program(QT_QMAKE_EXECUTABLE_BIN "${QT_QMAKE_EXECUTABLE}")
+endif ()
 
 if (QT_QMAKE_EXECUTABLE_BIN)
     execute_process(COMMAND ${QT_QMAKE_EXECUTABLE_BIN} -query QT_INSTALL_PREFIX
@@ -188,6 +191,39 @@ else ()
     set(OUTPUT_QML_DIR ${LIBDIR}/qt/qml)
     set(OUTPUT_QT_PLUGINS_DIR ${LIBDIR}/qt/plugins)
     set(QT_CONF_FILE ${BINDIR}/qt.conf)
+endif ()
+
+if (UNIX AND NOT APPLE AND NOT ANDROID)
+    include(CheckCXXSourceCompiles)
+    check_cxx_source_compiles("
+    #ifndef __linux__
+        #error Not Linux
+    #endif
+
+    int main()
+    {
+        return 0;
+    }" IS_LINUX)
+
+    check_cxx_source_compiles("
+    #ifndef __FreeBSD__
+        #error Not FreeBSD
+    #endif
+
+    int main()
+    {
+        return 0;
+    }" IS_FREEBSD)
+
+    if (IS_LINUX)
+        set(PKG_TARGET_PLATFORM linux)
+    elseif (IS_FREEBSD)
+        set(PKG_TARGET_PLATFORM freebsd)
+    else ()
+        set(PKG_TARGET_PLATFORM ${TARGET_PLATFORM})
+    endif ()
+else ()
+    set(PKG_TARGET_PLATFORM ${TARGET_PLATFORM})
 endif ()
 
 if (UNIX AND NOT ANDROID)

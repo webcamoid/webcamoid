@@ -22,13 +22,16 @@ sourcesDir = @QT_INSTALL_SRC@
 qtConfFile = @QT_CONF_FILE@
 
 [AppImage]
+name = webcamoid-portable
 launcher = webcamoid.sh
 desktopFile = webcamoid.desktop
 desktopIcon = StandAlone/share/themes/WebcamoidTheme/icons/hicolor/48x48/webcamoid.png
 dirIcon = StandAlone/share/themes/WebcamoidTheme/icons/hicolor/256x256/webcamoid.png
+pkgTargetPlatform = @PKG_TARGET_PLATFORM@
 
 [CompressedTarXz]
 name = webcamoid-portable
+pkgTargetPlatform = @PKG_TARGET_PLATFORM@
 
 [CompressedZip]
 name = webcamoid-portable
@@ -37,6 +40,7 @@ name = webcamoid-portable
 name = webcamoid-portable
 
 [QtIFW]
+name = webcamoid-installer
 organization = org.webcamoidprj
 appName = Webcamoid
 title = Webcamoid, The ultimate webcam suite!
@@ -50,9 +54,10 @@ license = COPYING
 licenseName = GNU General Public License v3.0
 script = ports/deploy/installscript.@TARGET_PLATFORM@.qs
 changeLog = ChangeLog
-verbose = true
+pkgTargetPlatform = @PKG_TARGET_PLATFORM@
 
 [Nsis]
+name = webcamoid-installer
 organization = Webcamoid
 appName = Webcamoid
 productVersion = @VERSION@.0
