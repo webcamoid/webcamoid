@@ -29,6 +29,7 @@ fi
 dnf -y update
 dnf -y install \
     curl \
+    dbus-libs \
     fontconfig \
     libX11-xcb\
     libXext \

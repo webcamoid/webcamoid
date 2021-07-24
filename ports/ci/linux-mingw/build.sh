@@ -45,6 +45,6 @@ ${TARGET_ARCH}-w64-mingw32-cmake \
     -DLUPDATE_TOOL=${LUPDATE_TOOL} \
     ${EXTRA_PARAMS} \
     -DDAILY_BUILD=${DAILY_BUILD}
-cmake -LA -S . -B ${buildDir}
+${TARGET_ARCH}-w64-mingw32-cmake -LA -S . -B ${buildDir}
 make -C ${buildDir} -j${NJOBS}
 make -C ${buildDir} install
