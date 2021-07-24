@@ -46,5 +46,5 @@ ${TARGET_ARCH}-w64-mingw32-cmake \
     ${EXTRA_PARAMS} \
     -DDAILY_BUILD=${DAILY_BUILD}
 ${TARGET_ARCH}-w64-mingw32-cmake -LA -S . -B ${buildDir}
-${TARGET_ARCH}-w64-mingw32-cmake --build ${buildDir} --parallel ${NJOBS}
-${TARGET_ARCH}-w64-mingw32-cmake --install ${buildDir}
+make -C ${buildDir} -j${NJOBS}
+make -C ${buildDir} DESTDIR="${INSTALL_PREFIX}" install
