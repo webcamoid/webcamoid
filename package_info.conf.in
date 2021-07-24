@@ -55,6 +55,7 @@ licenseName = GNU General Public License v3.0
 script = ports/deploy/installscript.@TARGET_PLATFORM@.qs
 changeLog = ChangeLog
 pkgTargetPlatform = @PKG_TARGET_PLATFORM@
+verbose = true
 
 [Nsis]
 name = webcamoid-installer

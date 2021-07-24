@@ -42,8 +42,8 @@ else
     export PATH=/mingw64/bin:$PATH
 fi
 
-INSTALL_PREFIX=${PWD}/webcamoid-data-${TARGET_ARCH}
-buildDir=build-${TARGET_ARCH}
+INSTALL_PREFIX=${PWD}/webcamoid-data-${COMPILER}-${TARGET_ARCH}
+buildDir=build-${COMPILER}-${TARGET_ARCH}
 mkdir ${buildDir}
 cmake \
     -S . \
