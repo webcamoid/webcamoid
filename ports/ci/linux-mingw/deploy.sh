@@ -25,13 +25,16 @@ cat << EOF > package_info_strip.conf
 stripCmd = ${TARGET_ARCH}-w64-mingw32-strip
 EOF
 
-export PATH="${PWD}/.local/bin:${PATH}"
-export PYTHONPATH=${PWD}/DeployTools
 export WINEPREFIX=/opt/.wine
+export PATH="${PWD}/.local/bin:${PATH}"
+export INSTALL_PREFIX=${PWD}/webcamoid-data-${TARGET_ARCH}
+export PACKAGES_DIR=${PWD}/webcamoid-packages/widows
+export BUILD_PATH=${PWD}/build-${TARGET_ARCH}
+export PYTHONPATH="${PWD}/DeployTools"
 
 python DeployTools/deploy.py \
-    -d "${PWD}/webcamoid-data" \
-    -c "${PWD}/build/package_info.conf" \
-    -c "${PWD}/build/package_info_windows.conf" \
+    -d "${INSTALL_PREFIX}" \
+    -c "${BUILD_PATH}/package_info.conf" \
+    -c "${BUILD_PATH}/package_info_windows.conf" \
     -c "${PWD}/package_info_strip.conf" \
-    -o "${PWD}/webcamoid-packages/windows"
+    -o "${PACKAGES_DIR}"

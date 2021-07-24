@@ -46,10 +46,11 @@ mkdir -p build
 
 for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
     export PATH="${PWD}/build/Qt/${QTVER_ANDROID}/android/bin:${ORIG_PATH}"
-    mkdir build-${arch_}
+    buildDir=build-${arch_}
+    mkdir ${buildDir}
     cmake \
         -S . \
-        -B build-${arch_} \
+        -B ${buildDir} \
         -G Ninja \
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_C_COMPILER=${ANDROID_NDK}/toolchains/llvm/prebuilt/linux-x86_64/bin/clang \
@@ -63,8 +64,8 @@ for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
         -DANDROID_SDK=${ANDROID_HOME} \
         ${EXTRA_PARAMS} \
         -DDAILY_BUILD=${DAILY_BUILD}
-    cmake -LA -S . -B build-${arch_}
-    cmake --build build-${arch_} --parallel ${NJOBS}
-    cp -vf build-${arch_}/package_info.conf build/
-    cp -vf build-${arch_}/package_info_android.conf build/
+    cmake -LA -S . -B ${buildDir}
+    cmake --build ${buildDir} --parallel ${NJOBS}
+    cp -vf ${buildDir}/package_info.conf build/
+    cp -vf ${buildDir}/package_info_android.conf build/
 done

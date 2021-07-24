@@ -36,48 +36,23 @@ fi
 
 if [ "${DOCKERIMG}" = ubuntu:focal ]; then
     source /opt/qt${PPAQTVER}/bin/qt${PPAQTVER}-env.sh
+else
+    EXTRA_PARAMS="${EXTRA_PARAMS} -DQT_QMAKE_EXECUTABLE=/usr/lib/qt5/bin/qmake"
 fi
 
 export PATH=${HOME}/.local/bin:${PATH}
-mkdir build
-
-if [ "${DOCKERIMG}" = ubuntu:focal ]; then
-    if [ "${UPLOAD}" != 1 ]; then
-        cmake \
-            -S . \
-            -B build \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DCMAKE_INSTALL_PREFIX="${PWD}/webcamoid-data" \
-            -DCMAKE_C_COMPILER="${COMPILER_C}" \
-            -DCMAKE_CXX_COMPILER="${COMPILER_CXX}" \
-            ${EXTRA_PARAMS} \
-            -DDAILY_BUILD=${DAILY_BUILD}
-    else
-        cmake \
-            -S . \
-            -B build \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DCMAKE_INSTALL_PREFIX="${PWD}/webcamoid-data" \
-            -DCMAKE_C_COMPILER="${COMPILER_C}" \
-            -DCMAKE_CXX_COMPILER="${COMPILER_CXX}" \
-            ${EXTRA_PARAMS} \
-            -DDAILY_BUILD=${DAILY_BUILD} \
-            -DNOGSTREAMER=TRUE \
-            -DNOLIBAVDEVICE=TRUE
-    fi
-else
-    cmake \
-        -S . \
-        -B build \
-        -DQT_QMAKE_EXECUTABLE=/usr/lib/qt5/bin/qmake \
-        -DCMAKE_BUILD_TYPE=Release \
-        -DCMAKE_INSTALL_PREFIX="${PWD}/webcamoid-data" \
-        -DCMAKE_C_COMPILER="${COMPILER_C}" \
-        -DCMAKE_CXX_COMPILER="${COMPILER_CXX}" \
-        ${EXTRA_PARAMS} \
-        -DDAILY_BUILD=${DAILY_BUILD}
-fi
-
-cmake -LA -S . -B build
-cmake --build build --parallel ${NJOBS}
-cmake --install build
+INSTALL_PREFIX=${PWD}/webcamoid-data-${DOCKERIMG#*:}-${COMPILER}
+buildDir=build-${DOCKERIMG#*:}-${COMPILER}
+mkdir ${buildDir}
+cmake \
+    -S . \
+    -B ${buildDir} \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_PREFIX="${INSTALL_PREFIX}" \
+    -DCMAKE_C_COMPILER="${COMPILER_C}" \
+    -DCMAKE_CXX_COMPILER="${COMPILER_CXX}" \
+    ${EXTRA_PARAMS} \
+    -DDAILY_BUILD=${DAILY_BUILD}
+cmake -LA -S . -B ${buildDir}
+cmake --build ${buildDir} --parallel ${NJOBS}
+cmake --install ${buildDir}

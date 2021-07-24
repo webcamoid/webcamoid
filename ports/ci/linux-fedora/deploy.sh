@@ -20,10 +20,13 @@
 
 git clone https://github.com/webcamoid/DeployTools.git
 
-export PYTHONPATH=${PWD}/DeployTools
-export PATH="$PWD/.local/bin:$PATH"
+export PATH="${PWD}/.local/bin:${PATH}"
+export INSTALL_PREFIX=${PWD}/webcamoid-data-${COMPILER}
+export PACKAGES_DIR=${PWD}/webcamoid-packages/linux
+export BUILD_PATH=${PWD}/build-${COMPILER}
+export PYTHONPATH="${PWD}/DeployTools"
 
 xvfb-run --auto-servernum python3 DeployTools/deploy.py \
-    -d "${PWD}/webcamoid-data" \
-    -c "${PWD}/build/package_info.conf" \
-    -o "${PWD}/webcamoid-packages/linux"
+    -d "${INSTALL_PREFIX}" \
+    -c "${BUILD_PATH}/package_info.conf" \
+    -o "${PACKAGES_DIR}"

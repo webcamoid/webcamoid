@@ -30,18 +30,18 @@ if [ -z "${DISABLE_CCACHE}" ]; then
     EXTRA_PARAMS="-DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_OBJCXX_COMPILER_LAUNCHER=ccache"
 fi
 
-INSTALL_PREFIX=${PWD}/webcamoid-data
-
-mkdir build
+INSTALL_PREFIX=${PWD}/webcamoid-data-${COMPILER}
+buildDir=build-${COMPILER}
+mkdir ${buildDir}
 cmake \
     -S . \
-    -B build \
+    -B ${buildDir} \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX="${INSTALL_PREFIX}" \
     -DCMAKE_C_COMPILER="${COMPILER_C}" \
     -DCMAKE_CXX_COMPILER="${COMPILER_CXX}" \
     ${EXTRA_PARAMS} \
     -DDAILY_BUILD=${DAILY_BUILD}
-cmake -LA -S . -B build
-cmake --build build --parallel ${NJOBS}
-cmake --install build
+cmake -LA -S . -B ${buildDir}
+cmake --build ${buildDir} --parallel ${NJOBS}
+cmake --install ${buildDir}

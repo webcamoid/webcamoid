@@ -31,18 +31,19 @@ if [ -z "${DISABLE_CCACHE}" ]; then
 fi
 
 export PATH=$HOME/.local/bin:$PATH
-
-mkdir build
+INSTALL_PREFIX=${PWD}/webcamoid-data-${COMPILER}
+buildDir=build-${COMPILER}
+mkdir ${buildDir}
 cmake \
     -S . \
-    -B build \
+    -B ${buildDir} \
     -DQT_QMAKE_EXECUTABLE=/usr/lib/qt5/bin/qmake \
     -DCMAKE_BUILD_TYPE=Release \
-    -DCMAKE_INSTALL_PREFIX="${PWD}/webcamoid-data" \
+    -DCMAKE_INSTALL_PREFIX="${INSTALL_PREFIX}" \
     -DCMAKE_C_COMPILER="${COMPILER_C}" \
     -DCMAKE_CXX_COMPILER="${COMPILER_CXX}" \
     ${EXTRA_PARAMS} \
     -DDAILY_BUILD=${DAILY_BUILD}
-cmake -LA -S . -B build
-cmake --build build --parallel ${NJOBS}
-cmake --install build
+cmake -LA -S . -B ${buildDir}
+cmake --build ${buildDir} --parallel ${NJOBS}
+cmake --install ${buildDir}

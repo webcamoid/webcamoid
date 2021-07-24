@@ -28,9 +28,9 @@ fi
 
 git clone https://github.com/webcamoid/DeployTools.git
 
-export INSTALL_PREFIX=${APPVEYOR_BUILD_FOLDER}/webcamoid-data
-export PACKAGES_DIR=${APPVEYOR_BUILD_FOLDER}/webcamoid-packages/windows
-export BUILD_PATH=${PWD}/build
+export INSTALL_PREFIX=${PWD}/webcamoid-data-${COMPILER}-${PLATFORM}
+export PACKAGES_DIR=${PWD}/webcamoid-packages/windows
+export BUILD_PATH=${PWD}/build-${COMPILER}-${PLATFORM}
 export PYTHONPATH="${PWD}/DeployTools"
 
 python3 DeployTools/deploy.py \

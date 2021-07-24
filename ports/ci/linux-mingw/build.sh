@@ -18,14 +18,6 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-if [ "${COMPILER}" = clang ]; then
-    COMPILER_C=clang
-    COMPILER_CXX=clang++
-else
-    COMPILER_C=gcc
-    COMPILER_CXX=g++
-fi
-
 COMPILER_C=${TARGET_ARCH}-w64-mingw32-${COMPILER_C}
 COMPILER_CXX=${TARGET_ARCH}-w64-mingw32-${COMPILER_CXX}
 
@@ -38,19 +30,21 @@ QMAKE_CMD=/usr/${TARGET_ARCH}-w64-mingw32/lib/qt/bin/qmake
 LRELEASE_TOOL=/usr/${TARGET_ARCH}-w64-mingw32/lib/qt/bin/lrelease
 LUPDATE_TOOL=/usr/${TARGET_ARCH}-w64-mingw32/lib/qt/bin/lupdate
 
-mkdir build
+INSTALL_PREFIX=${PWD}/webcamoid-data-${TARGET_ARCH}
+buildDir=build-${TARGET_ARCH}
+mkdir ${buildDir}
 ${TARGET_ARCH}-w64-mingw32-cmake \
     -S . \
-    -B build \
+    -B ${buildDir} \
     -DQT_QMAKE_EXECUTABLE=${QMAKE_CMD} \
     -DCMAKE_BUILD_TYPE=Release \
-    -DCMAKE_INSTALL_PREFIX="\${PWD}/webcamoid-data" \
+    -DCMAKE_INSTALL_PREFIX="${INSTALL_PREFIX}" \
     -DCMAKE_C_COMPILER="${COMPILER_C}" \
     -DCMAKE_CXX_COMPILER="${COMPILER_CXX}" \
     -DLRELEASE_TOOL=${LRELEASE_TOOL} \
     -DLUPDATE_TOOL=${LUPDATE_TOOL} \
     ${EXTRA_PARAMS} \
     -DDAILY_BUILD=${DAILY_BUILD}
-cmake -LA -S . -B build
-make -C build -j${NJOBS}
-make -C build install
+cmake -LA -S . -B ${buildDir}
+make -C ${buildDir} -j${NJOBS}
+make -C ${buildDir} install

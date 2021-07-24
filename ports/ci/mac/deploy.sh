@@ -20,8 +20,7 @@
 
 git clone https://github.com/webcamoid/DeployTools.git
 
-DEPLOYSCRIPT=deployscript.sh
-export PYTHONPATH=${PWD}/DeployTools
+export PYTHONPATH="${PWD}/DeployTools"
 
 python3 DeployTools/deploy.py \
     -d "${PWD}/webcamoid-data" \
