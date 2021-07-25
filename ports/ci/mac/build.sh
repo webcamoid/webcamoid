@@ -35,6 +35,7 @@ export PKG_CONFIG_PATH="/usr/local/opt/qt@5/lib/pkgconfig:$PKG_CONFIG_PATH"
 
 mkdir build
 cmake \
+    -LA \
     -S . \
     -B build \
     -DCMAKE_BUILD_TYPE=Release \
@@ -43,6 +44,5 @@ cmake \
     -DCMAKE_CXX_COMPILER="${COMPILER_CXX}" \
     ${EXTRA_PARAMS} \
     -DDAILY_BUILD=${DAILY_BUILD}
-cmake -LA -S . -B build
 cmake --build build --parallel ${NJOBS}
 cmake --install build

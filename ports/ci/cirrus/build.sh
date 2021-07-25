@@ -34,6 +34,7 @@ INSTALL_PREFIX=${PWD}/webcamoid-data-${COMPILER}
 buildDir=build-${COMPILER}
 mkdir ${buildDir}
 cmake \
+    -LA \
     -S . \
     -B ${buildDir} \
     -DCMAKE_BUILD_TYPE=Release \
@@ -42,6 +43,5 @@ cmake \
     -DCMAKE_CXX_COMPILER="${COMPILER_CXX}" \
     ${EXTRA_PARAMS} \
     -DDAILY_BUILD=${DAILY_BUILD}
-cmake -LA -S . -B ${buildDir}
 cmake --build ${buildDir} --parallel ${NJOBS}
 cmake --install ${buildDir}

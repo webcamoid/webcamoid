@@ -46,6 +46,7 @@ INSTALL_PREFIX=${PWD}/webcamoid-data-${COMPILER}-${TARGET_ARCH}
 buildDir=build-${COMPILER}-${TARGET_ARCH}
 mkdir ${buildDir}
 cmake \
+    -LA \
     -S . \
     -B ${buildDir} \
     -G "MSYS Makefiles" \
@@ -55,6 +56,5 @@ cmake \
     -DCMAKE_CXX_COMPILER="${COMPILER_CXX}" \
     ${EXTRA_PARAMS} \
     -DDAILY_BUILD=${DAILY_BUILD}
-cmake -LA -S . -B ${buildDir}
 cmake --build ${buildDir} --parallel ${NJOBS}
 cmake --install ${buildDir}

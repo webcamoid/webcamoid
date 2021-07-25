@@ -49,6 +49,7 @@ for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
     buildDir=build-${arch_}
     mkdir ${buildDir}
     cmake \
+        -LA \
         -S . \
         -B ${buildDir} \
         -G Ninja \
@@ -64,7 +65,6 @@ for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
         -DANDROID_SDK=${ANDROID_HOME} \
         ${EXTRA_PARAMS} \
         -DDAILY_BUILD=${DAILY_BUILD}
-    cmake -LA -S . -B ${buildDir}
     cmake --build ${buildDir} --parallel ${NJOBS}
     cp -vf ${buildDir}/package_info.conf build/
     cp -vf ${buildDir}/package_info_android.conf build/
