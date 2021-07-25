@@ -22,33 +22,44 @@ if [ -z "${DISABLE_CCACHE}" ]; then
     EXTRA_PARAMS="-DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_OBJCXX_COMPILER_LAUNCHER=ccache"
 fi
 
-. mingw-env ${TARGET_ARCH}-w64-mingw32
+# . mingw-env ${TARGET_ARCH}-w64-mingw32
 
 export PKG_CONFIG=${TARGET_ARCH}-w64-mingw32-pkg-config
 MINGW_PREFIX=/usr/${TARGET_ARCH}-w64-mingw32
 QMAKE_CMD=${MINGW_PREFIX}/lib/qt/bin/qmake
 LRELEASE_TOOL=${MINGW_PREFIX}/lib/qt/bin/lrelease
 LUPDATE_TOOL=${MINGW_PREFIX}/lib/qt/bin/lupdate
-export PATH=${MINGW_PREFIX}/bin:${PATH}
+# export PATH=${MINGW_PREFIX}/bin:${PATH}
 
 INSTALL_PREFIX=${PWD}/webcamoid-data-${TARGET_ARCH}
 buildDir=build-${TARGET_ARCH}
 mkdir ${buildDir}
-cmake \
+${TARGET_ARCH}-w64-mingw32-cmake \
     -LA \
+    -S . \
     -S . \
     -B ${buildDir} \
     -DQT_QMAKE_EXECUTABLE=${QMAKE_CMD} \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX="${INSTALL_PREFIX}" \
-    -DCMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES=${MINGW_PREFIX}/include \
-    -DCMAKE_C_IMPLICIT_INCLUDE_DIRECTORIES=${MINGW_PREFIX}/include \
-    -DCMAKE_TOOLCHAIN_FILE=/usr/share/mingw/toolchain-${TARGET_ARCH}-w64-mingw32.cmake \
-    -DCMAKE_CROSSCOMPILING_EMULATOR=/usr/bin/${TARGET_ARCH}-w64-mingw32-wine \
     -DLRELEASE_TOOL=${LRELEASE_TOOL} \
     -DLUPDATE_TOOL=${LUPDATE_TOOL} \
     ${EXTRA_PARAMS} \
     -DDAILY_BUILD=${DAILY_BUILD}
-# ${TARGET_ARCH}-w64-mingw32-cmake -LA -S . -B ${buildDir}
+# cmake \
+#     -LA \
+#     -S . \
+#     -B ${buildDir} \
+#     -DQT_QMAKE_EXECUTABLE=${QMAKE_CMD} \
+#     -DCMAKE_BUILD_TYPE=Release \
+#     -DCMAKE_INSTALL_PREFIX="${INSTALL_PREFIX}" \
+#     -DCMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES=${MINGW_PREFIX}/include \
+#     -DCMAKE_C_IMPLICIT_INCLUDE_DIRECTORIES=${MINGW_PREFIX}/include \
+#     -DCMAKE_TOOLCHAIN_FILE=/usr/share/mingw/toolchain-${TARGET_ARCH}-w64-mingw32.cmake \
+#     -DCMAKE_CROSSCOMPILING_EMULATOR=/usr/bin/${TARGET_ARCH}-w64-mingw32-wine \
+#     -DLRELEASE_TOOL=${LRELEASE_TOOL} \
+#     -DLUPDATE_TOOL=${LUPDATE_TOOL} \
+#     ${EXTRA_PARAMS} \
+#     -DDAILY_BUILD=${DAILY_BUILD}
 make -C ${buildDir} -j${NJOBS}
 make -C ${buildDir} install
