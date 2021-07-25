@@ -121,7 +121,7 @@ jobs:
       uses: softprops/action-gh-release@v1
       if: ${{ startsWith(github.ref, 'refs/tags/') && matrix.upload }}
       with:
-        files: webcamoid-packages/linux/*
+        files: webcamoid-packages/linux-focal-gcc/*
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Daily Build Upload
@@ -130,14 +130,8 @@ jobs:
       with:
         body: "${{ github.event.head_commit.message }} (commit: ${{ github.sha }})"
         prerelease: true
-        files: webcamoid-packages/linux/*
+        files: webcamoid-packages/linux-focal-gcc/*
         name: Daily Build
         tag_name: daily-build
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    - name: Ubuntu daily build packages
-      uses: actions/upload-artifact@v2
-      if: ${{ matrix.upload }}
-      with:
-        name: linux-ubuntu-daily-build
-        path: webcamoid-packages/linux/*

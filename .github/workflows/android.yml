@@ -80,9 +80,3 @@ jobs:
         tag_name: daily-build
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    - name: Android daily build packages
-      uses: actions/upload-artifact@v2
-      if: ${{ matrix.upload }}
-      with:
-        name: android-daily-build
-        path: webcamoid-packages/android/*

@@ -57,8 +57,3 @@ jobs:
         tag_name: daily-build
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    - name: MacOS daily build packages
-      uses: actions/upload-artifact@v2
-      with:
-        name: mac-daily-build
-        path: webcamoid-packages/mac/*

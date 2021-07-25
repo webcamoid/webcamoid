@@ -22,7 +22,7 @@ git clone https://github.com/webcamoid/DeployTools.git
 
 export PATH="${PWD}/.local/bin:${PATH}"
 export INSTALL_PREFIX=${PWD}/webcamoid-data-${DOCKERIMG#*:}-${COMPILER}
-export PACKAGES_DIR=${PWD}/webcamoid-packages/linux
+export PACKAGES_DIR=${PWD}/webcamoid-packages/linux-${DOCKERIMG#*:}-${COMPILER}
 export BUILD_PATH=${PWD}/build-${DOCKERIMG#*:}-${COMPILER}
 export PYTHONPATH="${PWD}/DeployTools"
 

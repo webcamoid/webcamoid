@@ -20,10 +20,6 @@
 
 [ -f environment.sh ] && source environment.sh
 
-if [ ! -z "${DAILY_BUILD}" ] || [ ! -z "${RELEASE_BUILD}" ]; then
-    EXTRA_PARAMS="-DNOGSTREAMER=ON -DNOLIBAVDEVICE=ON"
-fi
-
 if [ "${COMPILER}" = clang ]; then
     COMPILER_C=clang
     COMPILER_CXX=clang++
@@ -42,7 +38,7 @@ else
     export PATH=/mingw64/bin:$PATH
 fi
 
-INSTALL_PREFIX=${APPVEYOR_BUILD_FOLDER}/webcamoid-data-${COMPILER}-${PLATFORM}
+INSTALL_PREFIX=${PWD}/webcamoid-data-${COMPILER}-${PLATFORM}
 buildDir=build-${COMPILER}-${PLATFORM}
 mkdir ${buildDir}
 cmake \
@@ -54,7 +50,6 @@ cmake \
     -DCMAKE_INSTALL_PREFIX="${INSTALL_PREFIX}" \
     -DCMAKE_C_COMPILER="${COMPILER_C}" \
     -DCMAKE_CXX_COMPILER="${COMPILER_CXX}" \
-    ${EXTRA_PARAMS} \
-    -DDAILY_BUILD=${DAILY_BUILD}
+    ${EXTRA_PARAMS}
 cmake --build ${buildDir} --parallel ${NJOBS}
 cmake --install ${buildDir}

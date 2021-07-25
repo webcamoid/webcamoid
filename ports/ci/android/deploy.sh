@@ -20,8 +20,7 @@
 
 git clone https://github.com/webcamoid/DeployTools.git
 
-DEPLOYSCRIPT=deployscript.sh
-export PYTHONPATH=${PWD}/DeployTools
+export PYTHONPATH="${PWD}/DeployTools"
 
 export JAVA_HOME=$(readlink -f /usr/bin/java | sed 's:bin/java::')
 export ANDROID_HOME="${PWD}/build/android-sdk"
@@ -48,6 +47,7 @@ EOF
 
 if [ "${nArchs}" = 1 ]; then
     export PATH="${PWD}/build/Qt/${QTVER_ANDROID}/android/bin:${PWD}/.local/bin:${ORIG_PATH}"
+    export PACKAGES_DIR=${PWD}/webcamoid-packages/android-${lastArch}
     export BUILD_PATH=${PWD}/build-${lastArch}
 
     python3 DeployTools/deploy.py \
@@ -55,8 +55,9 @@ if [ "${nArchs}" = 1 ]; then
         -c "${BUILD_PATH}/package_info.conf" \
         -c "${BUILD_PATH}/package_info_android.conf" \
         -c "${PWD}/package_info_sdkbt.conf" \
-        -o "${PWD}/webcamoid-packages/android"
+        -o "${PACKAGES_DIR}"
 else
+    export PACKAGES_DIR=${PWD}/webcamoid-packages/android
     mkdir -p "${PWD}/webcamoid-data"
 
     for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
@@ -85,5 +86,5 @@ EOF
         -c "${PWD}/build/package_info_android.conf" \
         -c "${PWD}/package_info_sdkbt.conf" \
         -c "${PWD}/package_info_hide_arch.conf" \
-        -o "${PWD}/webcamoid-packages/android"
+        -o "${PACKAGES_DIR}"
 fi

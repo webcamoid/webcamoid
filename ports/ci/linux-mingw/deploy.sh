@@ -28,7 +28,7 @@ EOF
 export WINEPREFIX=/opt/.wine
 export PATH="${PWD}/.local/bin:${PATH}"
 export INSTALL_PREFIX=${PWD}/webcamoid-data-${TARGET_ARCH}
-export PACKAGES_DIR=${PWD}/webcamoid-packages/widows
+export PACKAGES_DIR=${PWD}/webcamoid-packages/widows-${TARGET_ARCH}
 export BUILD_PATH=${PWD}/build-${TARGET_ARCH}
 export PYTHONPATH="${PWD}/DeployTools"
 
