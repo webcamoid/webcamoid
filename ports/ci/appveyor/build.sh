@@ -50,6 +50,7 @@ cmake \
     -DCMAKE_INSTALL_PREFIX="${INSTALL_PREFIX}" \
     -DCMAKE_C_COMPILER="${COMPILER_C}" \
     -DCMAKE_CXX_COMPILER="${COMPILER_CXX}" \
-    ${EXTRA_PARAMS}
+    ${EXTRA_PARAMS} \
+    -DDAILY_BUILD=ON
 cmake --build ${buildDir} --parallel ${NJOBS}
 cmake --install ${buildDir}

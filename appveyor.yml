@@ -19,10 +19,18 @@ environment:
     NJOBS: 4
 
   matrix:
-    - PLATFORM: x86
-      MSYSTEM: MINGW32
     - PLATFORM: x64
       MSYSTEM: MINGW64
+      COMPILER: gcc
+    - PLATFORM: x64
+      MSYSTEM: MINGW64
+      COMPILER: clang
+    - PLATFORM: x86
+      MSYSTEM: MINGW32
+      COMPILER: gcc
+    - PLATFORM: x86
+      MSYSTEM: MINGW32
+      COMPILER: clang
 
 install:
   - ports\ci\appveyor\environment_setup.bat
