@@ -35,6 +35,7 @@ INSTALL_PREFIX=${PWD}/webcamoid-data-${TARGET_ARCH}
 buildDir=build-${TARGET_ARCH}
 mkdir ${buildDir}
 cmake \
+    -LA \
     -S . \
     -B ${buildDir} \
     -DQT_QMAKE_EXECUTABLE=${QMAKE_CMD} \
@@ -48,6 +49,6 @@ cmake \
     -DLUPDATE_TOOL=${LUPDATE_TOOL} \
     ${EXTRA_PARAMS} \
     -DDAILY_BUILD=${DAILY_BUILD}
-${TARGET_ARCH}-w64-mingw32-cmake -LA -S . -B ${buildDir}
+# ${TARGET_ARCH}-w64-mingw32-cmake -LA -S . -B ${buildDir}
 make -C ${buildDir} -j${NJOBS}
 make -C ${buildDir} install
