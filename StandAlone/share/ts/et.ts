@@ -273,7 +273,7 @@
     <message>
         <location filename="../../src/mediatools.cpp" line="197"/>
         <source>Daily Build</source>
-        <translation type="unfinished"></translation>
+        <translation>Igapäevane ehitus</translation>
     </message>
 </context>
 <context>
@@ -557,7 +557,7 @@
         <location filename="../qml/VideoCodecOptions.qml" line="177"/>
         <location filename="../qml/VideoCodecOptions.qml" line="181"/>
         <source>Keyframes stride</source>
-        <translation type="unfinished"></translation>
+        <translation>Võtmekaadrite samm</translation>
     </message>
 </context>
 <context>
@@ -1041,7 +1041,7 @@
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="164"/>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="168"/>
         <source>Scan block</source>
-        <translation type="unfinished"></translation>
+        <translation>Skanniplokk</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="200"/>
@@ -1055,7 +1055,7 @@
         <location filename="../../../libAvKys/Plugins/MatrixTransform/share/qml/main.qml" line="36"/>
         <source>Transform matrix</source>
         <extracomment>https://en.wikipedia.org/wiki/Transformation_matrix</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Teisendusmaatriks</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="63"/>
@@ -1064,17 +1064,17 @@
         <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="62"/>
         <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="41"/>
         <source>Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Režiim</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="73"/>
         <source>Natural</source>
-        <translation type="unfinished"></translation>
+        <translation>Loomulik</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="77"/>
         <source>Fixed</source>
-        <translation type="unfinished"></translation>
+        <translation>Fikseeritud</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="86"/>
@@ -1082,7 +1082,7 @@
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="77"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="81"/>
         <source>Symbols</source>
-        <translation type="unfinished"></translation>
+        <translation>Sümbolid</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="98"/>
@@ -1144,7 +1144,7 @@
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="165"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="156"/>
         <source>Bitmap</source>
-        <translation type="unfinished"></translation>
+        <translation>Raster</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="169"/>
@@ -1156,19 +1156,19 @@
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="173"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="164"/>
         <source>Outline</source>
-        <translation type="unfinished"></translation>
+        <translation>Kontuur</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="177"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="168"/>
         <source>Force outline</source>
-        <translation type="unfinished"></translation>
+        <translation>Jõusta kontuur</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="181"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="172"/>
         <source>Match</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ühitamine</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="185"/>
@@ -1198,7 +1198,7 @@
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="201"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="192"/>
         <source>Force integer metrics</source>
-        <translation type="unfinished"></translation>
+        <translation>Jõusta täisarvumeetrika</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="205"/>
@@ -1210,7 +1210,7 @@
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="209"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="200"/>
         <source>No font merging</source>
-        <translation type="unfinished"></translation>
+        <translation>Keela kirjatüüpide mestimine</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="218"/>
@@ -1266,19 +1266,19 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Cinema/share/qml/main.qml" line="106"/>
         <source>Choose the strips color</source>
-        <translation type="unfinished"></translation>
+        <translation>Vali riba värv</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorFilter/share/qml/main.qml" line="105"/>
         <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/main.qml" line="72"/>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="82"/>
         <source>Soft</source>
-        <translation type="unfinished"></translation>
+        <translation>Pehme</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorFilter/share/qml/main.qml" line="69"/>
         <source>Select the color to filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Vali filtri värv</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorReplace/share/qml/main.qml" line="59"/>
@@ -1304,55 +1304,55 @@
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="36"/>
         <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/main.qml" line="87"/>
         <source>Color table</source>
-        <translation type="unfinished"></translation>
+        <translation>Värvitabel</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="46"/>
         <source>Base</source>
         <extracomment>Base color, show the image without modifications</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Baas</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="50"/>
         <source>Metal</source>
-        <translation type="unfinished"></translation>
+        <translation>Metall</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="55"/>
         <source>Heat</source>
         <extracomment>https://en.wikipedia.org/wiki/Heat_map</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Soojus</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="59"/>
         <source>Old Photo</source>
-        <translation type="unfinished"></translation>
+        <translation>Vana foto</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="63"/>
         <source>Red &amp; Green</source>
-        <translation type="unfinished"></translation>
+        <translation>Punane ja roheline</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="68"/>
         <source>Sepia</source>
         <extracomment>https://en.wikipedia.org/wiki/Sepia_(color)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Seepia</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="72"/>
         <source>X-Pro</source>
-        <translation type="unfinished"></translation>
+        <translation>X-Pro</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="76"/>
         <source>X-Ray</source>
-        <translation type="unfinished"></translation>
+        <translation>Röntgen</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="80"/>
         <source>Yellow &amp; Blue</source>
-        <translation type="unfinished"></translation>
+        <translation>Kollane ja sinine</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="84"/>
@@ -1360,12 +1360,12 @@
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="567"/>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="99"/>
         <source>Custom</source>
-        <translation type="unfinished"></translation>
+        <translation>Kohandatud</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="105"/>
         <source>Source palette</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Aluspalett</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="134"/>
@@ -1379,7 +1379,7 @@
         <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="47"/>
         <source>Convolve matrix</source>
         <extracomment>https://en.wikipedia.org/wiki/Kernel_(image_processing)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Konvolutsioonimaatriks</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="162"/>
@@ -1391,39 +1391,39 @@
         <location filename="../../../libAvKys/Plugins/PrimariesColors/share/qml/main.qml" line="28"/>
         <location filename="../../../libAvKys/Plugins/PrimariesColors/share/qml/main.qml" line="32"/>
         <source>Factor</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tegur</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="177"/>
         <location filename="../../../libAvKys/Plugins/Emboss/share/qml/main.qml" line="45"/>
         <location filename="../../../libAvKys/Plugins/Emboss/share/qml/main.qml" line="49"/>
         <source>Bias</source>
-        <translation type="unfinished"></translation>
+        <translation>Kallutatus</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/DelayGrab/share/qml/main.qml" line="42"/>
         <source>Grab mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Haarderežiim</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/DelayGrab/share/qml/main.qml" line="52"/>
         <source>Random square</source>
-        <translation type="unfinished"></translation>
+        <translation>Juhuslik ruut</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/DelayGrab/share/qml/main.qml" line="56"/>
         <source>Vertical increase</source>
-        <translation type="unfinished"></translation>
+        <translation>Vertikaalne kasv</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/DelayGrab/share/qml/main.qml" line="60"/>
         <source>Horizontal increase</source>
-        <translation type="unfinished"></translation>
+        <translation>Horisontaalne kasv</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/DelayGrab/share/qml/main.qml" line="64"/>
         <source>Rings increase</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ringkasv</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/DelayGrab/share/qml/main.qml" line="73"/>
@@ -1445,19 +1445,19 @@
         <location filename="../../../libAvKys/Plugins/Warhol/share/qml/main.qml" line="28"/>
         <location filename="../../../libAvKys/Plugins/Warhol/share/qml/main.qml" line="32"/>
         <source>N° of frames</source>
-        <translation type="unfinished"></translation>
+        <translation>Kaadrite arv</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Denoise/share/qml/main.qml" line="85"/>
         <source>Mu</source>
         <extracomment>Mu factor (µ letter from greek), represents the average of a group of values. https://en.wikipedia.org/wiki/Arithmetic_mean</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Müü-faktor</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Denoise/share/qml/main.qml" line="106"/>
         <source>Sigma</source>
         <extracomment>Sigma factor (σ letter from greek), represents the standard deviation of a group of values. https://en.wikipedia.org/wiki/Standard_deviation</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Sigma-faktor</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/DesktopCapture/share/qml/main.qml" line="48"/>
@@ -1471,25 +1471,25 @@
         <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="68"/>
         <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="69"/>
         <source>Amplitude</source>
-        <translation type="unfinished"></translation>
+        <translation>Amplituud</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Distort/share/qml/main.qml" line="45"/>
         <location filename="../../../libAvKys/Plugins/Distort/share/qml/main.qml" line="49"/>
         <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="107"/>
         <source>Frequency</source>
-        <translation type="unfinished"></translation>
+        <translation>Sagedus</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Distort/share/qml/main.qml" line="61"/>
         <location filename="../../../libAvKys/Plugins/Distort/share/qml/main.qml" line="65"/>
         <source>Grid size</source>
-        <translation type="unfinished"></translation>
+        <translation>Rastri suurus</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Dizzy/share/qml/main.qml" line="48"/>
         <source>Speed</source>
-        <translation type="unfinished"></translation>
+        <translation>Kiirus</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Dizzy/share/qml/main.qml" line="86"/>
