@@ -18,8 +18,6 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-#qtIinstallerVerbose=--verbose
-
 if [ ! -z "${USE_WGET}" ]; then
     export DOWNLOAD_CMD="wget -nv -c"
 else
@@ -70,7 +68,7 @@ mkdir -p .local/bin
 # Install Qt Installer Framework
 
 qtIFW=QtInstallerFramework-linux-x64-${QTIFWVER}.run
-${DOWNLOAD_CMD} http://download.qt.io/official_releases/qt-installer-framework/${QTIFWVER}/${qtIFW} || true
+${DOWNLOAD_CMD} "http://download.qt.io/official_releases/qt-installer-framework/${QTIFWVER}/${qtIFW}" || true
 
 if [ -e ${qtIFW} ]; then
     chmod +x ${qtIFW}

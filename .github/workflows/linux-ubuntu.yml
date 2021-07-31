@@ -76,7 +76,6 @@ jobs:
           echo
           chmod +x ports/ci/linux-ubuntu/deploy.sh
           ./ports/ci/linux-ubuntu/deploy.sh
-    - uses: actions/checkout@v2
     - name: Daily build
       uses: addnab/docker-run-action@v3
       if: ${{ !startsWith(github.ref, 'refs/tags/') }}

@@ -58,7 +58,6 @@ jobs:
           echo
           chmod +x ports/ci/linux-fedora/deploy.sh
           ./ports/ci/linux-fedora/deploy.sh
-    - uses: actions/checkout@v2
     - name: Daily build
       uses: addnab/docker-run-action@v3
       if: ${{ !startsWith(github.ref, 'refs/tags/') }}
