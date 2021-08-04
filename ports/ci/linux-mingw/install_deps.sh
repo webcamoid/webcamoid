@@ -18,8 +18,6 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-#qtIinstallerVerbose=--verbose
-
 if [ ! -z "${USE_WGET}" ]; then
     export DOWNLOAD_CMD="wget -nv -c"
 else

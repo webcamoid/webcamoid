@@ -17,7 +17,6 @@ configuration:
 environment:
   global:
     NJOBS: 4
-
   matrix:
     - PLATFORM: x64
       MSYSTEM: MINGW64

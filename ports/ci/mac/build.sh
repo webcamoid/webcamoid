@@ -26,12 +26,12 @@ if [ -z "${DISABLE_CCACHE}" ]; then
 fi
 
 EXTRA_PARAMS="${EXTRA_PARAMS} -DNOGSTREAMER=ON -DNOJACK=ON -DNOLIBAVDEVICE=ON -DNOLIBUVC=ON -DNOPULSEAUDIO=ON"
-BUILDSCRIPT=dockerbuild.sh
 
 export PATH="/usr/local/opt/qt@5/bin:$PATH"
 export LDFLAGS="$LDFLAGS -L/usr/local/opt/qt@5/lib"
 export CPPFLAGS="$CPPFLAGS -I/usr/local/opt/qt@5/include"
 export PKG_CONFIG_PATH="/usr/local/opt/qt@5/lib/pkgconfig:$PKG_CONFIG_PATH"
+INSTALL_PREFIX=${PWD}/wecamoid-data
 
 mkdir build
 cmake \
@@ -39,7 +39,7 @@ cmake \
     -S . \
     -B build \
     -DCMAKE_BUILD_TYPE=Release \
-    -DCMAKE_INSTALL_PREFIX=${PWD}/webcamoid-data \
+    -DCMAKE_INSTALL_PREFIX="${INSTALL_PREFIX}" \
     -DCMAKE_C_COMPILER="${COMPILER_C}" \
     -DCMAKE_CXX_COMPILER="${COMPILER_CXX}" \
     ${EXTRA_PARAMS} \

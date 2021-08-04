@@ -18,8 +18,6 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-[ -f environment.sh ] && source environment.sh
-
 if [ "${UPLOAD}" == 1 ]; then
     EXTRA_PARAMS="-DNOGSTREAMER=ON -DNOLIBAVDEVICE=ON"
 fi

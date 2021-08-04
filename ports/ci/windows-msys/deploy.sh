@@ -18,12 +18,10 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-[ -f environment.sh ] && source environment.sh
-
 if [ "${TARGET_ARCH}" = i686 ]; then
-    export PATH=/mingw32/bin:$PATH
+    export PATH=/mingw32/bin:${PATH}
 else
-    export PATH=/mingw64/bin:$PATH
+    export PATH=/mingw64/bin:${PATH}
 fi
 
 git clone https://github.com/webcamoid/DeployTools.git

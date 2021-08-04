@@ -17,8 +17,14 @@ jobs:
       fail-fast: false
       matrix:
        include:
-         - target_arch: i686
          - target_arch: x86_64
+           compiler: gcc
+         - target_arch: x86_64
+           compiler: clang
+         - target_arch: i686
+           compiler: gcc
+         - target_arch: i686
+           compiler: clang
     steps:
     - uses: actions/checkout@v2
     - name: Release build
@@ -33,6 +39,7 @@ jobs:
           -v ${{ github.workspace }}:/sources
           -e NSIS_VERSION=${{ env.NSIS_VERSION }}
           -e TARGET_ARCH=${{ matrix.target_arch }}
+          -e COMPILER=${{ matrix.COMPILER }}
           -e DOCKERIMG=${{ env.DOCKERIMG }}
           -e ARCH_ROOT_URL=${{ env.ARCH_ROOT_URL }}
           -e NJOBS=${{ env.NJOBS }}
@@ -65,6 +72,7 @@ jobs:
           -v ${{ github.workspace }}:/sources
           -e NSIS_VERSION=${{ env.NSIS_VERSION }}
           -e TARGET_ARCH=${{ matrix.target_arch }}
+          -e COMPILER=${{ matrix.COMPILER }}
           -e DOCKERIMG=${{ env.DOCKERIMG }}
           -e ARCH_ROOT_URL=${{ env.ARCH_ROOT_URL }}
           -e NJOBS=${{ env.NJOBS }}

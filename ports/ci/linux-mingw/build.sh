@@ -39,8 +39,8 @@ QMAKE_CMD=${MINGW_PREFIX}/lib/qt/bin/qmake
 LRELEASE_TOOL=${MINGW_PREFIX}/lib/qt/bin/lrelease
 LUPDATE_TOOL=${MINGW_PREFIX}/lib/qt/bin/lupdate
 
-INSTALL_PREFIX=${PWD}/webcamoid-data-${TARGET_ARCH}
-buildDir=build-${TARGET_ARCH}
+INSTALL_PREFIX=${PWD}/webcamoid-data-${COMPILER}-${TARGET_ARCH}
+buildDir=build-${COMPILER}-${TARGET_ARCH}
 mkdir ${buildDir}
 ${TARGET_ARCH}-w64-mingw32-cmake \
     -LA \
