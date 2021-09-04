@@ -843,27 +843,27 @@
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="230"/>
         <source>Can&apos;t Edit The Virtual Camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Kann die virtuelle Kamera nicht bearbeiten</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="231"/>
         <source>Can&apos;t Add The Virtual Camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Kann die virtuelle Kamera nicht hinzufügen</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="240"/>
         <source>Error Editing The Virtual Camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler bei der Bearbeitung der virtuellen Kamera</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="241"/>
         <source>Error Adding The Virtual Camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Hinzufügen der virtuellen Kamera</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="242"/>
         <source>Camera description and formats can&apos;t be empty.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kamerabeschreibung und Formate dürfen nicht leer sein.</translation>
     </message>
 </context>
 <context>
@@ -876,7 +876,7 @@
     <message>
         <location filename="../qml/VideoOutputOptions.qml" line="73"/>
         <source>Can&apos;t Edit The Virtual Camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Kann die virtuelle Kamera nicht bearbeiten</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputOptions.qml" line="80"/>
@@ -886,7 +886,7 @@
     <message>
         <location filename="../qml/VideoOutputOptions.qml" line="94"/>
         <source>Can&apos;t Remove The Virtual Camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Kann die virtuelle Kamera nicht entfernen</translation>
     </message>
 </context>
 <context>
@@ -2502,12 +2502,12 @@ duration (seconds)</source>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="210"/>
         <source>Zoom out rate</source>
-        <translation type="unfinished"></translation>
+        <translation>Verkleinerungsrate</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="225"/>
         <source>Zoom in rate</source>
-        <translation type="unfinished"></translation>
+        <translation>Vergrößerungsrate</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="240"/>
