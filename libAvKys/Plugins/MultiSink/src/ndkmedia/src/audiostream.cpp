@@ -21,12 +21,13 @@
 #include <QMutex>
 #include <QVector>
 #include <QWaitCondition>
+#include <akaudiocaps.h>
+#include <akaudiopacket.h>
+#include <akcaps.h>
 #include <akelement.h>
 #include <akfrac.h>
-#include <akcaps.h>
-#include <akaudiocaps.h>
 #include <akpacket.h>
-#include <akaudiopacket.h>
+#include <akpluginmanager.h>
 #include <media/NdkMediaCodec.h>
 
 #include "audiostream.h"
@@ -117,7 +118,8 @@ AudioStream::AudioStream(AMediaMuxer *mediaMuxer,
                           AMEDIAFORMAT_KEY_SAMPLE_RATE,
                           this->d->m_caps.rate());
 
-    this->d->m_convert = AkElement::create("AudioFilter/AudioConvert");
+    this->d->m_convert =
+            akPluginManager->create<AkElement>("AudioFilter/AudioConvert");
     this->d->m_convert->setProperty("caps", QVariant::fromValue(this->d->m_caps));
 }
 

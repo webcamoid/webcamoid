@@ -104,7 +104,6 @@ apt-get -y install \
     libavcodec-dev \
     libavdevice-dev \
     libavformat-dev \
-    libavresample-dev \
     libavutil-dev \
     libgl1-mesa-dev \
     libgstreamer-plugins-base1.0-dev \

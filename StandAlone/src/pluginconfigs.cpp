@@ -193,6 +193,10 @@ void PluginConfigs::saveProperties()
 
     i = 0;
 
+#ifdef Q_OS_WIN32
+    QDir applicationDir(QCoreApplication::applicationDirPath());
+#endif
+
     for (auto &path: akPluginManager->searchPaths()) {
         config.setArrayIndex(i);
 
