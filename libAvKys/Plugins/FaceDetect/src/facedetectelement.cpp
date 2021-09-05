@@ -23,9 +23,10 @@
 #include <QStandardPaths>
 #include <QPainter>
 #include <QQmlContext>
-#include <akpacket.h>
-#include <akvideopacket.h>
 #include <QPainterPath>
+#include <akpacket.h>
+#include <akpluginmanager.h>
+#include <akvideopacket.h>
 
 #include "facedetectelement.h"
 #include "haar/haardetector.h"
@@ -78,7 +79,7 @@ class FaceDetectElementPrivate
         QImage m_backgroundImg;
         QSize m_pixelGridSize {32, 32};
         QSize m_scanSize {160, 120};
-        AkElementPtr m_blurFilter {AkElement::create("Blur")};
+        AkElementPtr m_blurFilter {akPluginManager->create<AkElement>("VideoFilter/Blur")};
         HaarDetector m_cascadeClassifier;
         qreal m_scale {1.0};
         qreal m_rScale {1.0};

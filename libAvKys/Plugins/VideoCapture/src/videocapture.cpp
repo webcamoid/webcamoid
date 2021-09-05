@@ -19,24 +19,17 @@
 
 #include "videocapture.h"
 #include "videocaptureelement.h"
-#include "videocaptureelementsettings.h"
 
 QObject *VideoCapture::create(const QString &key, const QString &specification)
 {
     Q_UNUSED(specification)
 
-    if (key == AK_PLUGIN_TYPE_ELEMENT)
-        return new VideoCaptureElement();
-    else if (key == AK_PLUGIN_TYPE_ELEMENT_SETTINGS)
-        return new VideoCaptureElementSettings();
-
-    return nullptr;
+    return new VideoCaptureElement();
 }
 
 QStringList VideoCapture::keys() const
 {
-    return {AK_PLUGIN_TYPE_ELEMENT,
-            AK_PLUGIN_TYPE_ELEMENT_SETTINGS};
+    return {};
 }
 
 #include "moc_videocapture.cpp"

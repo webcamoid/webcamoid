@@ -47,7 +47,7 @@ Page {
             function fillSearchPaths()
             {
                 searchPathsTable.model.clear()
-                let searchPaths = AkElement.searchPaths()
+                let searchPaths = AkPluginManager.searchPaths
 
                 for (let path in searchPaths) {
                     searchPathsTable.model.append({
@@ -59,13 +59,8 @@ Page {
             function fillPluginList()
             {
                 pluginsTable.model.clear()
-                let blackList = AkElement.pluginsBlackList()
-                let pluginsPaths = AkElement.listPluginPaths()
-                pluginsPaths = pluginsPaths.concat(blackList)
-                pluginsPaths.sort(function(a, b) {
-                    a = AkElement.pluginIdFromPath(a)
-                    b = AkElement.pluginIdFromPath(b)
-
+                let plugins = AkPluginManager.listPlugins()
+                plugins.sort(function(a, b) {
                     if (a < b)
                         return -1
                     else if (a > b)
@@ -74,18 +69,18 @@ Page {
                     return 0
                 })
 
-                for (let path in pluginsPaths) {
+                for (let plugin in plugins) {
                     pluginsTable.model.append({
-                        path: pluginsPaths[path],
-                        pluginId: AkElement.pluginIdFromPath(pluginsPaths[path]),
-                        pluginEnabled: !blackList.includes(pluginsPaths[path])
+                        pluginId: plugins[plugin],
+                        pluginEnabled: AkPluginManager.pluginStatus(plugins[plugin]) == AkPluginManager.Enabled
                     })
                 }
             }
 
             function refreshCache()
             {
-                AkElement.clearCache()
+                AkPluginManager.setCachedPlugins([])
+                AkPluginManager.scanPlugins()
                 fillPluginList()
                 pluginConfigs.saveProperties()
             }
@@ -113,10 +108,10 @@ Page {
 
                     Switch {
                         text: qsTr("Search plugins in subfolders")
-                        checked: AkElement.recursiveSearch()
+                        checked: AkPluginManager.recursiveSearch
 
                         onCheckedChanged: {
-                            AkElement.setRecursiveSearch(checked)
+                            AkPluginManager.recursiveSearch = checked
                             stack.refreshCache()
                         }
                     }
@@ -170,14 +165,14 @@ Page {
                                 anchors.right: parent.right
 
                                 onClicked: {
-                                    let searchPaths = AkElement.searchPaths();
+                                    let searchPaths = AkPluginManager.searchPaths();
                                     let sp = []
 
                                     for (let path in searchPaths)
                                         if (path != index)
                                             sp.push(searchPaths[path])
 
-                                    AkElement.setSearchPaths(sp)
+                                    AkPluginManager.setSearchPaths(sp)
                                     searchPathsModel.remove(index)
                                     stack.refreshCache()
                                 }
@@ -221,18 +216,22 @@ Page {
                             checked: pluginEnabled
 
                             onToggled: {
-                                let blackList = AkElement.pluginsBlackList()
+                                let disabledPlugins =
+                                    AkPluginManager.listPlugins("",
+                                                                [],
+                                                                AkPluginManager.FilterDisabled)
 
                                 if (checked) {
-                                    let index = blackList.indexOf(path)
+                                    let index = disabledPlugins.indexOf(pluginId)
 
                                     if (index >= 0)
-                                        blackList.splice(index, 1)
+                                        disabledPlugins.splice(index, 1)
                                 } else {
-                                    blackList.push(path)
+                                    disabledPlugins.push(pluginId)
                                 }
 
-                                AkElement.setPluginsBlackList(blackList)
+                                AkPluginManager.setPluginStatus(disabledPlugins,
+                                                                   AkPluginManager.Disabled)
                                 pluginConfigs.saveProperties()
                             }
                         }
@@ -248,7 +247,7 @@ Page {
 
         onAccepted: {
             let path = mediaTools.urlToLocalFile(folder)
-            AkElement.addSearchPath(path)
+            AkPluginManager.addSearchPath(path)
             stack.refreshAll()
         }
     }

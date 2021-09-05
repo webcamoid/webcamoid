@@ -1,5 +1,12 @@
 {
-    "pluginType": "Ak.Element",
-    "type": "VideoFilter",
-    "description": "Vignette"
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "Vignette",
+            "description": "Vignette",
+            "id": "VideoFilter/Vignette",
+            "implements": ["Element", "VideoFilter"],
+            "type": "qtplugin"
+        }
+    ]
 }

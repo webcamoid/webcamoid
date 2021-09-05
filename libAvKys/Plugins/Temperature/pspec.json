@@ -1,5 +1,12 @@
 {
-    "pluginType": "Ak.Element",
-    "type": "VideoFilter",
-    "description": "Temperature"
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "Temperature",
+            "description": "Temperature",
+            "id": "VideoFilter/Temperature",
+            "implements": ["Element", "VideoFilter"],
+            "type": "qtplugin"
+        }
+    ]
 }

@@ -29,37 +29,42 @@
 #include <akcaps.h>
 #include <akaudiocaps.h>
 #include <akvideocaps.h>
+#include <akpluginmanager.h>
 
 #include "mediatools.h"
-#include "videodisplay.h"
+#include "audiolayer.h"
+#include "clioptions.h"
+#include "downloadmanager.h"
 #include "iconsprovider.h"
 #include "pluginconfigs.h"
-#include "videolayer.h"
-#include "audiolayer.h"
-#include "videoeffects.h"
 #include "recording.h"
 #include "updates.h"
-#include "clioptions.h"
+#include "videodisplay.h"
+#include "videoeffects.h"
+#include "videolayer.h"
 
 #define COMMONS_PROJECT_URL "https://webcamoid.github.io/"
 #define COMMONS_PROJECT_LICENSE_URL "https://raw.githubusercontent.com/webcamoid/webcamoid/master/COPYING"
 #define COMMONS_PROJECT_DOWNLOADS_URL "https://webcamoid.github.io/#downloads"
 #define COMMONS_PROJECT_ISSUES_URL "https://github.com/webcamoid/webcamoid/issues"
-#define COMMONS_COPYRIGHT_NOTICE "Copyright (C) 2011-2020  Gonzalo Exequiel Pedone"
+#define COMMONS_COPYRIGHT_NOTICE "Copyright (C) 2011-2021  Gonzalo Exequiel Pedone"
 
 class MediaToolsPrivate
 {
     public:
         QQmlApplicationEngine *m_engine {nullptr};
-        PluginConfigsPtr m_pluginConfigs;
-        VideoLayerPtr m_videoLayer;
         AudioLayerPtr m_audioLayer;
-        VideoEffectsPtr m_videoEffects;
+        CliOptions m_cliOptions;
+        PluginConfigsPtr m_pluginConfigs;
         RecordingPtr m_recording;
         UpdatesPtr m_updates;
-        CliOptions m_cliOptions;
+        VideoEffectsPtr m_videoEffects;
+        VideoLayerPtr m_videoLayer;
+        DownloadManagerPtr m_downloadManager;
         int m_windowWidth {0};
         int m_windowHeight {0};
+
+        void saveLinks(const AkPluginLinks &links);
 };
 
 MediaTools::MediaTools(QObject *parent):
@@ -83,6 +88,22 @@ MediaTools::MediaTools(QObject *parent):
             VideoEffectsPtr(new VideoEffects(this->d->m_engine));
     this->d->m_recording = RecordingPtr(new Recording(this->d->m_engine));
     this->d->m_updates = UpdatesPtr(new Updates(this->d->m_engine));
+    this->d->m_downloadManager =
+            DownloadManagerPtr(new DownloadManager(this->d->m_engine));
+    this->d->m_updates->watch("Webcamoid",
+                              COMMONS_VERSION,
+                              "https://api.github.com/repos/webcamoid/webcamoid/releases/latest");
+    this->d->m_updates->watch("VirtualCamera",
+                              this->d->m_videoLayer->currentVCamVersion(),
+                              this->d->m_videoLayer->vcamUpdateUrl());
+    QObject::connect(this->d->m_updates.data(),
+                     &Updates::newVersionAvailable,
+                     this,
+                     [this] (const QString &component,
+                             const QString &latestVersion) {
+        if (component == "VirtualCamera")
+            this->d->m_videoLayer->setLatestVCamVersion(latestVersion);
+    });
 
     AkElement::link(this->d->m_videoLayer.data(),
                     this->d->m_videoEffects.data(),
@@ -112,6 +133,15 @@ MediaTools::MediaTools(QObject *parent):
                      this->d->m_audioLayer.data(),
                      &AudioLayer::setInputState);
     QObject::connect(this->d->m_videoLayer.data(),
+                     &VideoLayer::startVCamDownload,
+                     this,
+                     [this] (const QString &title,
+                             const QString &fromUrl,
+                             const QString &toFile) {
+        this->d->m_downloadManager->clear();
+        this->d->m_downloadManager->enqueue(title, fromUrl, toFile);
+    });
+    QObject::connect(this->d->m_videoLayer.data(),
                      &VideoLayer::inputAudioCapsChanged,
                      this->d->m_audioLayer.data(),
                      [this] (const AkAudioCaps &audioCaps)
@@ -137,8 +167,8 @@ MediaTools::MediaTools(QObject *parent):
                                                             this->d->m_videoLayer->description(stream),
                                                             this->d->m_videoLayer->inputAudioCaps());
                      });
-    QObject::connect(this->d->m_pluginConfigs.data(),
-                     &PluginConfigs::pluginsChanged,
+    QObject::connect(akPluginManager,
+                     &AkPluginManager::pluginsChanged,
                      this->d->m_videoEffects.data(),
                      &VideoEffects::updateAvailableEffects);
     QObject::connect(this->d->m_audioLayer.data(),
@@ -155,6 +185,24 @@ MediaTools::MediaTools(QObject *parent):
                      [this] () {
                         this->d->m_videoLayer->setState(AkElement::ElementStateNull);
                      });
+    QObject::connect(akPluginManager,
+                     &AkPluginManager::linksChanged,
+                     this,
+                     [this] (const AkPluginLinks &links) {
+                        this->d->saveLinks(links);
+                     });
+    QObject::connect(this->d->m_downloadManager.data(),
+                     &DownloadManager::finished,
+                     this,
+                     [this] (const QString &url) {
+        auto filePath = this->d->m_downloadManager->downloadFile(url);
+        auto status = this->d->m_downloadManager->downloadStatus(url);
+        auto error = this->d->m_downloadManager->downloadErrorString(url);
+        this->d->m_videoLayer->checkVCamDownloadReady(url,
+                                                      filePath,
+                                                      status,
+                                                      error);
+    });
 
     this->loadConfigs();
     this->d->m_recording->setVideoCaps(this->d->m_videoLayer->inputVideoCaps());
@@ -167,6 +215,8 @@ MediaTools::MediaTools(QObject *parent):
         this->d->m_audioLayer->setInput(stream,
                                         this->d->m_videoLayer->description(stream),
                                         this->d->m_videoLayer->inputAudioCaps());
+
+    this->d->m_updates->start();
 }
 
 MediaTools::~MediaTools()
@@ -193,10 +243,15 @@ QString MediaTools::applicationName() const
 
 QString MediaTools::applicationVersion() const
 {
-#ifdef DAILY_BUILD
-    return QString(tr("Daily Build"));
-#else
     return QCoreApplication::applicationVersion();
+}
+
+bool MediaTools::isDailyBuild() const
+{
+#ifdef DAILY_BUILD
+    return true;
+#else
+    return false;
 #endif
 }
 
@@ -360,6 +415,23 @@ void MediaTools::loadConfigs()
     this->d->m_windowWidth = windowSize.width();
     this->d->m_windowHeight = windowSize.height();
     config.endGroup();
+
+    config.beginGroup("PluginsLinks");
+    int nlinks = config.beginReadArray("links");
+    AkPluginLinks links;
+
+    for (int i = 0; i < nlinks; i++) {
+        config.setArrayIndex(i);
+        auto from = config.value("from").toString();
+        auto to = config.value("to").toString();
+
+        if (!from.isEmpty() && !to.isEmpty())
+            links[from] = to;
+    }
+
+    akPluginManager->setLinks(links);
+    config.endArray();
+    config.endGroup();
 }
 
 void MediaTools::saveConfigs()
@@ -397,6 +469,25 @@ void MediaTools::show()
 void MediaTools::makedirs(const QString &path)
 {
     QDir().mkpath(path);
+}
+
+void MediaToolsPrivate::saveLinks(const AkPluginLinks &links)
+{
+    QSettings config;
+
+    config.beginGroup("PluginsLinks");
+    config.beginWriteArray("links");
+    int i = 0;
+
+    for (auto it = links.begin(); it != links.end(); it++) {
+        config.setArrayIndex(i);
+        config.setValue("from", it.key());
+        config.setValue("to", it.value());
+        i++;
+    }
+
+    config.endArray();
+    config.endGroup();
 }
 
 #include "moc_mediatools.cpp"

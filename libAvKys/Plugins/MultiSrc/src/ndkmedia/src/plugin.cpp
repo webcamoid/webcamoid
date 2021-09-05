@@ -22,17 +22,15 @@
 
 QObject *Plugin::create(const QString &key, const QString &specification)
 {
+    Q_UNUSED(key)
     Q_UNUSED(specification)
 
-    if (key == AK_PLUGIN_TYPE_SUBMODULE)
-        return new MediaSourceNDKMedia();
-
-    return nullptr;
+    return new MediaSourceNDKMedia();
 }
 
 QStringList Plugin::keys() const
 {
-    return QStringList();
+    return {};
 }
 
 #include "moc_plugin.cpp"

@@ -25,6 +25,7 @@
 #include <QVariant>
 #include <QtMath>
 #include <akpacket.h>
+#include <akpluginmanager.h>
 #include <akvideopacket.h>
 
 #include "fireelement.h"
@@ -80,7 +81,7 @@ FireElement::FireElement(): AkElement()
 {
     this->d = new FireElementPrivate;
     this->d->m_palette = this->d->createPalette();
-    this->d->m_blurFilter = AkElement::create("Blur");
+    this->d->m_blurFilter = akPluginManager->create<AkElement>("VideoFilter/Blur");
     this->d->m_blurFilter->setProperty("radius", 2);
 
     QObject::connect(this->d->m_blurFilter.data(),

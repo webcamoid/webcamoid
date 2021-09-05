@@ -22,17 +22,15 @@
 
 QObject *Hypnotic::create(const QString &key, const QString &specification)
 {
+    Q_UNUSED(key)
     Q_UNUSED(specification)
 
-    if (key == AK_PLUGIN_TYPE_ELEMENT)
-        return new HypnoticElement();
-
-    return nullptr;
+    return new HypnoticElement();
 }
 
 QStringList Hypnotic::keys() const
 {
-    return QStringList();
+    return {};
 }
 
 #include "moc_hypnotic.cpp"

@@ -1,5 +1,12 @@
 {
-    "pluginType": "Ak.Element",
-    "type": "VideoFilter",
-    "description": "Blur"
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "Blur",
+            "description": "Blur",
+            "id": "VideoFilter/Blur",
+            "implements": ["Element", "VideoFilter"],
+            "type": "qtplugin"
+        }
+    ]
 }

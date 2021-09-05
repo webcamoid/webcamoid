@@ -26,6 +26,7 @@
 #include <akfrac.h>
 #include <akpacket.h>
 #include <akvideopacket.h>
+#include <akpluginmanager.h>
 
 #include "facetrackelement.h"
 
@@ -59,7 +60,7 @@ class FaceTrackElementPrivate
         bool m_lockedViewport {false};
         bool m_debugModeEnabled {false};
         QRect m_lastBounds;
-        AkElementPtr m_faceDetectFilter {AkElement::create("FaceDetect")};
+        AkElementPtr m_faceDetectFilter {akPluginManager->create<AkElement>("VideoFilter/FaceDetect")};
         QMutex m_mutex;
 
         QRect calculateNewBounds(const QRect &targetBounds,

@@ -22,12 +22,10 @@
 
 QObject *Plugin::create(const QString &key, const QString &specification)
 {
+    Q_UNUSED(key)
     Q_UNUSED(specification)
 
-    if (key == AK_PLUGIN_TYPE_SUBMODULE)
-        return new AudioDevNDKAudio();
-
-    return nullptr;
+    return new AudioDevNDKAudio();
 }
 
 QStringList Plugin::keys() const

@@ -36,16 +36,12 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 add_library(ACapsConvertSrc SHARED
-            acapsconvert.h
-            acapsconvertelement.h
-            acapsconvertelementsettings.h
-            acapsconvertglobals.h
-            convertaudio.h
             acapsconvert.cpp
+            acapsconvert.h
             acapsconvertelement.cpp
-            acapsconvertelementsettings.cpp
-            acapsconvertglobals.cpp
+            acapsconvertelement.h
             convertaudio.cpp
+            convertaudio.h
             ../pspec.json)
 
 set_target_properties(ACapsConvertSrc PROPERTIES

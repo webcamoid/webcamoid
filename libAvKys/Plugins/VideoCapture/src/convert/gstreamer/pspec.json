@@ -1,0 +1,13 @@
+{
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "GStreamer",
+            "description": "Convert video frames using GStreamer",
+            "id": "VideoSource/CameraCapture/Convert/GStreamer",
+            "implements": ["CameraCaptureConvert"],
+            "priority": 900,
+            "type": "qtplugin"
+        }
+    ]
+}

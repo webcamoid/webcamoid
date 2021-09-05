@@ -1,5 +1,12 @@
 {
-    "pluginType": "Ak.Element",
-    "type": "VideoFilter",
-    "description": "Emboss"
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "Emboss",
+            "description": "Emboss",
+            "id": "VideoFilter/Emboss",
+            "implements": ["Element", "VideoFilter"],
+            "type": "qtplugin"
+        }
+    ]
 }

@@ -27,6 +27,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
 set(QT_COMPONENTS
+    Concurrent
     OpenGL
     Qml
     Quick
@@ -36,7 +37,6 @@ set(QT_COMPONENTS
 
 if (ANDROID)
     list(APPEND QT_COMPONENTS
-         Concurrent
          Xml
          AndroidExtras)
 endif()
@@ -52,6 +52,8 @@ set(PROJECT_SOURCES
     audiolayer.h
     clioptions.cpp
     clioptions.h
+    downloadmanager.cpp
+    downloadmanager.h
     iconsprovider.cpp
     iconsprovider.h
     main.cpp

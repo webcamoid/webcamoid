@@ -48,12 +48,12 @@ T.Drawer {
             color: control.enabled?
                        control.activeDark:
                        control.disabledDark
-            x: control.edge === Qt.LeftEdge? parent.width - handleWidth: 0
-            y: control.edge === Qt.TopEdge? parent.height - handleWidth: 0
+            x: control.edge == Qt.LeftEdge? parent.width - handleWidth: 0
+            y: control.edge == Qt.TopEdge? parent.height - handleWidth: 0
             visible: !control.dim
 
             readonly property bool horizontal:
-                control.edge === Qt.LeftEdge || control.edge === Qt.RightEdge
+                control.edge == Qt.LeftEdge || control.edge == Qt.RightEdge
             readonly property real handleWidth:
                 AkUnit.create(1 * AkTheme.controlScale, "dp").pixels
         }

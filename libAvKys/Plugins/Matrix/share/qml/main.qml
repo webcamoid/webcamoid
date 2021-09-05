@@ -31,7 +31,7 @@ GridLayout {
         var index = -1
 
         for (var i = 0; i < cbx.model.count; i++)
-            if (cbx.model.get(i).option === option) {
+            if (cbx.model.get(i).option == option) {
                 index = i
                 break
             }

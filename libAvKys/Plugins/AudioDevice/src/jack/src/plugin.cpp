@@ -24,15 +24,12 @@ QObject *Plugin::create(const QString &key, const QString &specification)
 {
     Q_UNUSED(specification)
 
-    if (key == AK_PLUGIN_TYPE_SUBMODULE)
-        return new AudioDevJack();
-
-    return nullptr;
+    return new AudioDevJack();
 }
 
 QStringList Plugin::keys() const
 {
-    return QStringList();
+    return {};
 }
 
 #include "moc_plugin.cpp"

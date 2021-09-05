@@ -267,7 +267,6 @@ class Recording: public QObject
         void setQmlEngine(QQmlApplicationEngine *engine=nullptr);
 
     private slots:
-        void codecLibChanged(const QString &codecLib);
         void thumbnailUpdated(const AkPacket &packet);
 };
 

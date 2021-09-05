@@ -101,6 +101,7 @@ class VCamDShowPrivate
         VCamDShowPrivate(VCamDShow *self=nullptr);
         ~VCamDShowPrivate();
 
+        QStringList availableRootMethods() const;
         inline const DShowAkFormatMap &dshowAkFormatMap() const;
         void fillSupportedFormats();
         QVariantMap controlStatus(const QVariantList &controls) const;
@@ -129,6 +130,18 @@ VCamDShow::VCamDShow(QObject *parent):
     VCam(parent)
 {
     this->d = new VCamDShowPrivate(this);
+    QStringList preferredRootMethod {
+        "runas",
+    };
+
+    auto availableMethods = this->d->availableRootMethods();
+
+    for (auto &method: preferredRootMethod)
+        if (availableMethods.contains(method)) {
+            this->d->m_rootMethod = method;
+
+            break;
+        }
 }
 
 VCamDShow::~VCamDShow()
@@ -144,6 +157,23 @@ QString VCamDShow::error() const
 bool VCamDShow::isInstalled() const
 {
     return !this->d->manager().isEmpty();
+}
+
+QString VCamDShow::installedVersion() const
+{
+    auto manager = this->d->manager();
+
+    if (manager.isEmpty())
+        return {};
+
+    QProcess proc;
+    proc.start(manager, {"-p", "-v"});
+    proc.waitForFinished();
+
+    if (proc.exitCode())
+        return {};
+
+    return proc.readAllStandardOutput().trimmed();
 }
 
 QStringList VCamDShow::webcams() const
@@ -288,6 +318,11 @@ QString VCamDShow::picture() const
 QString VCamDShow::rootMethod() const
 {
     return this->d->m_rootMethod;
+}
+
+QStringList VCamDShow::availableRootMethods() const
+{
+    return this->d->availableRootMethods();
 }
 
 QString VCamDShow::deviceCreate(const QString &description,
@@ -1172,6 +1207,26 @@ VCamDShowPrivate::~VCamDShowPrivate()
     this->m_eventsProc->terminate();
     this->m_eventsProc->waitForFinished();
     delete this->m_eventsProc;
+}
+
+QStringList VCamDShowPrivate::availableRootMethods() const
+{
+    QStringList methods;
+    auto paths =
+            QProcessEnvironment::systemEnvironment().value("Path").split(';');
+    static const QStringList sus {
+        "runas"
+    };
+
+    for (auto &su: sus)
+        for (auto &path: paths)
+            if (QDir(path).exists(su + ".exe")) {
+                methods << su;
+
+                break;
+            }
+
+    return methods;
 }
 
 const DShowAkFormatMap &VCamDShowPrivate::dshowAkFormatMap() const

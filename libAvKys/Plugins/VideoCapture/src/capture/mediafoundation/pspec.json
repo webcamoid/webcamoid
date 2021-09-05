@@ -1,0 +1,13 @@
+{
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "Microsoft Media Foundation",
+            "description": "Capture video using Microsoft Media Foundation",
+            "id": "VideoSource/CameraCapture/Impl/MicrosoftMediaFoundation",
+            "implements": ["CameraCaptureImpl"],
+            "priority": 900,
+            "type": "qtplugin"
+        }
+    ]
+}

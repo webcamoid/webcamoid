@@ -90,6 +90,7 @@ class VCamCMIOPrivate
         VCamCMIOPrivate(VCamCMIO *self=nullptr);
         ~VCamCMIOPrivate();
 
+        QStringList availableRootMethods() const;
         inline const CMIOAkFormatMap &cmioAkFormatMap() const;
         void fillSupportedFormats();
         QVariantMap controlStatus(const QVariantList &controls) const;
@@ -112,6 +113,18 @@ VCamCMIO::VCamCMIO(QObject *parent):
     VCam(parent)
 {
     this->d = new VCamCMIOPrivate(this);
+    QStringList preferredRootMethod {
+        "osascript",
+    };
+
+    auto availableMethods = this->d->availableRootMethods();
+
+    for (auto &method: preferredRootMethod)
+        if (availableMethods.contains(method)) {
+            this->d->m_rootMethod = method;
+
+            break;
+        }
 }
 
 VCamCMIO::~VCamCMIO()
@@ -127,6 +140,23 @@ QString VCamCMIO::error() const
 bool VCamCMIO::isInstalled() const
 {
     return !this->d->manager().isEmpty();
+}
+
+QString VCamCMIO::installedVersion() const
+{
+    auto manager = this->d->manager();
+
+    if (manager.isEmpty())
+        return {};
+
+    QProcess proc;
+    proc.start(manager, {"-p", "-v"});
+    proc.waitForFinished();
+
+    if (proc.exitCode())
+        return {};
+
+    return proc.readAllStandardOutput().trimmed();
 }
 
 QStringList VCamCMIO::webcams() const
@@ -271,6 +301,11 @@ QString VCamCMIO::picture() const
 QString VCamCMIO::rootMethod() const
 {
     return this->d->m_rootMethod;
+}
+
+QStringList VCamCMIO::availableRootMethods() const
+{
+    return this->d->availableRootMethods();
 }
 
 QString VCamCMIO::deviceCreate(const QString &description,
@@ -831,6 +866,26 @@ VCamCMIOPrivate::~VCamCMIOPrivate()
     this->m_eventsProc->terminate();
     this->m_eventsProc->waitForFinished();
     delete this->m_eventsProc;
+}
+
+QStringList VCamCMIOPrivate::availableRootMethods() const
+{
+    QStringList methods;
+    auto paths =
+            QProcessEnvironment::systemEnvironment().value("PATH").split(':');
+    static const QStringList sus {
+        "osascript"
+    };
+
+    for (auto &su: sus)
+        for (auto &path: paths)
+            if (QDir(path).exists(su)) {
+                methods << su;
+
+                break;
+            }
+
+    return methods;
 }
 
 const CMIOAkFormatMap &VCamCMIOPrivate::cmioAkFormatMap() const

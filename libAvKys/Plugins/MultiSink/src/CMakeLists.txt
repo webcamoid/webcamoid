@@ -42,10 +42,6 @@ add_library(MultiSinkSrc SHARED
             multisink.h
             multisinkelement.cpp
             multisinkelement.h
-            multisinkelementsettings.cpp
-            multisinkelementsettings.h
-            multisinkglobals.cpp
-            multisinkglobals.h
             multisinkutils.cpp
             multisinkutils.h
             ../pspec.json)

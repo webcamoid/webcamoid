@@ -119,7 +119,7 @@
 <context>
     <name>AudioLayer</name>
     <message>
-        <location filename="../../src/audiolayer.cpp" line="279"/>
+        <location filename="../../src/audiolayer.cpp" line="249"/>
         <source>Silence</source>
         <translation>שקט</translation>
     </message>
@@ -184,58 +184,58 @@
 <context>
     <name>GeneralConfig</name>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="75"/>
+        <location filename="../qml/GeneralConfig.qml" line="91"/>
         <source>Video capture</source>
         <translation>לכידת וידאו</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="85"/>
+        <location filename="../qml/GeneralConfig.qml" line="108"/>
         <source>Desktop capture</source>
         <translation>לכידת שולחן עבודה</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="95"/>
+        <location filename="../qml/GeneralConfig.qml" line="125"/>
         <source>Audio capture/play</source>
         <translation>לכידה/נגינה של שמע</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="105"/>
+        <location filename="../qml/GeneralConfig.qml" line="142"/>
         <source>Video convert</source>
         <translation>המרת וידאו</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="115"/>
+        <location filename="../qml/GeneralConfig.qml" line="159"/>
         <source>Audio convert</source>
         <translation>המרת שמע</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="155"/>
+        <location filename="../qml/GeneralConfig.qml" line="210"/>
         <source>Virtual camera driver</source>
         <translation>מנהל התקן וירטואלי למצלמה</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="125"/>
+        <location filename="../qml/GeneralConfig.qml" line="176"/>
         <source>Video playback</source>
         <translation>נגינת וידאו</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="56"/>
+        <location filename="../qml/GeneralConfig.qml" line="72"/>
         <source>Play sources on start</source>
         <extracomment>Start playing the webcam and other sources right after * opening Webcamoid.</extracomment>
         <translation>ניגון מקורות עם ההתחלה</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="66"/>
+        <location filename="../qml/GeneralConfig.qml" line="82"/>
         <source>Frameworks and libraries</source>
         <translation>סביבות עבודה וספריות</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="135"/>
+        <location filename="../qml/GeneralConfig.qml" line="193"/>
         <source>Video record</source>
         <translation>הקלטת וידאו</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="145"/>
+        <location filename="../qml/GeneralConfig.qml" line="227"/>
         <source>Root method</source>
         <translation>שיטת שורש</translation>
     </message>
@@ -269,14 +269,6 @@
     </message>
 </context>
 <context>
-    <name>MediaTools</name>
-    <message>
-        <location filename="../../src/mediatools.cpp" line="197"/>
-        <source>Daily Build</source>
-        <translation>מהדורה יומית</translation>
-    </message>
-</context>
-<context>
     <name>PluginConfig</name>
     <message>
         <location filename="../qml/PluginConfig.qml" line="35"/>
@@ -289,27 +281,27 @@
         <translation>תוספים</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="115"/>
+        <location filename="../qml/PluginConfig.qml" line="110"/>
         <source>Search plugins in subfolders</source>
         <translation>חיפוש תוספים בתת־תיקיות</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="124"/>
+        <location filename="../qml/PluginConfig.qml" line="119"/>
         <source>Add path</source>
         <translation>הוספת נתיב</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="167"/>
+        <location filename="../qml/PluginConfig.qml" line="162"/>
         <source>Remove</source>
         <translation>הסרה</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="201"/>
+        <location filename="../qml/PluginConfig.qml" line="196"/>
         <source>Update</source>
         <translation>עדכון</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="247"/>
+        <location filename="../qml/PluginConfig.qml" line="246"/>
         <source>Add plugins search path</source>
         <translation>הוספת נתיב חיפוש תוספים</translation>
     </message>
@@ -357,7 +349,7 @@
 <context>
     <name>Recording</name>
     <message>
-        <location filename="../../src/recording.cpp" line="372"/>
+        <location filename="../../src/recording.cpp" line="364"/>
         <source>%1/Video %2.%3</source>
         <translation>%1/סרטון %2.%3</translation>
     </message>
@@ -448,72 +440,72 @@
 <context>
     <name>UpdatesConfig</name>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="73"/>
+        <location filename="../qml/UpdatesConfig.qml" line="82"/>
         <source>Notify about new versions</source>
         <translation>הצגת הודעה על גרסאות חדשות</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="82"/>
+        <location filename="../qml/UpdatesConfig.qml" line="92"/>
         <source>Show updates dialog</source>
         <translation>הצגת תיבת דו־שיח עדכונים</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="90"/>
+        <location filename="../qml/UpdatesConfig.qml" line="100"/>
         <source>Check new versions</source>
         <translation>בדיקה לאיתור גרסאות חדשות</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="98"/>
+        <location filename="../qml/UpdatesConfig.qml" line="108"/>
         <source>Daily</source>
         <translation>יומית</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="102"/>
+        <location filename="../qml/UpdatesConfig.qml" line="112"/>
         <source>Every two days</source>
         <translation>כל יומיים</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="106"/>
+        <location filename="../qml/UpdatesConfig.qml" line="116"/>
         <source>Weekly</source>
         <translation>שבועית</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="110"/>
+        <location filename="../qml/UpdatesConfig.qml" line="120"/>
         <source>Every two weeks</source>
         <translation>כל שבועיים</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="114"/>
+        <location filename="../qml/UpdatesConfig.qml" line="124"/>
         <source>Monthly</source>
         <translation>חודשית</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="118"/>
+        <location filename="../qml/UpdatesConfig.qml" line="128"/>
         <source>Never</source>
         <translation>אף פעם</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="130"/>
+        <location filename="../qml/UpdatesConfig.qml" line="141"/>
         <source>Last updated</source>
         <translation>עדכון אחרון</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="151"/>
+        <location filename="../qml/UpdatesConfig.qml" line="162"/>
         <source>Your version of %1 is outdated. Latest version is &lt;b&gt;%2&lt;/b&gt;.</source>
         <translation>הגרסה של ה־%1 שלך מיושנת. הגרסה העדכנית ביותר היא &lt;b&gt;%2&lt;/b&gt;.</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="157"/>
+        <location filename="../qml/UpdatesConfig.qml" line="168"/>
         <source>Upgrade Now!</source>
         <translation>לשדרג כעת!</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="172"/>
+        <location filename="../qml/UpdatesConfig.qml" line="183"/>
         <source>Thanks for using a &lt;b&gt;development version&lt;/b&gt;!&lt;br /&gt;It will be very helpful if you can report any bug and suggestions you have.</source>
         <translation>תודה לך על השימוש ב&lt;b&gt;גרסת הפיתוח&lt;/b&gt;!&lt;br /&gt;נודה לך מאוד אם יתאפשר לך לדווח על תקלות או להציע הצעות שיש לך.</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="177"/>
+        <location filename="../qml/UpdatesConfig.qml" line="188"/>
         <source>Report a Bug</source>
         <translation>דיווח על תקלה</translation>
     </message>
@@ -526,12 +518,12 @@
         <translation>גרסה חדשה זמינה!</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesDialog.qml" line="61"/>
+        <location filename="../qml/UpdatesDialog.qml" line="70"/>
         <source>Download %1 %2 NOW!</source>
         <translation>להוריד את %1 %2 עכשיו!</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesDialog.qml" line="68"/>
+        <location filename="../qml/UpdatesDialog.qml" line="77"/>
         <source>Show this dialog next time</source>
         <translation>להציג את תיבת הדו־שיח הזו בפעם הבאה</translation>
     </message>
@@ -563,7 +555,7 @@
 <context>
     <name>VideoEffectOptions</name>
     <message>
-        <location filename="../qml/VideoEffectOptions.qml" line="63"/>
+        <location filename="../qml/VideoEffectOptions.qml" line="53"/>
         <source>Remove</source>
         <translation>הסרה</translation>
     </message>
@@ -581,7 +573,7 @@
         <translation>חיפוש אפקט</translation>
     </message>
     <message>
-        <location filename="../qml/VideoEffectsDialog.qml" line="183"/>
+        <location filename="../qml/VideoEffectsDialog.qml" line="182"/>
         <source>Chain effect</source>
         <extracomment>Apply the effect over the other effects.</extracomment>
         <translation>אפקט שרשרת</translation>
@@ -590,12 +582,12 @@
 <context>
     <name>VideoEffectsList</name>
     <message>
-        <location filename="../qml/VideoEffectsList.qml" line="34"/>
+        <location filename="../qml/VideoEffectsList.qml" line="35"/>
         <source>Add effect</source>
         <translation>הוספת אפקט</translation>
     </message>
     <message>
-        <location filename="../qml/VideoEffectsList.qml" line="41"/>
+        <location filename="../qml/VideoEffectsList.qml" line="42"/>
         <source>Remove all effects</source>
         <translation>הסרת כל האפקטים</translation>
     </message>
@@ -794,10 +786,15 @@
 <context>
     <name>VideoLayer</name>
     <message>
-        <location filename="../../src/videolayer.cpp" line="242"/>
+        <location filename="../../src/videolayer.cpp" line="235"/>
         <source>No Output</source>
         <extracomment>Disable video output, don&apos;t send the video to the output device.</extracomment>
         <translation>ללא פלט</translation>
+    </message>
+    <message>
+        <location filename="../../src/videolayer.cpp" line="546"/>
+        <source>Virtual Camera</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2455,32 +2452,37 @@ background blur or image below.</source>
         <translation>פן</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="132"/>
+        <location filename="../qml/main.qml" line="134"/>
         <source>Use flash</source>
         <translation>להשתמש במבזק</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="152"/>
+        <location filename="../qml/main.qml" line="154"/>
         <source>Now</source>
         <translation>עכשיו</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="159"/>
+        <location filename="../qml/main.qml" line="161"/>
         <source>%1 seconds</source>
         <translation>%1 שניות</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="260"/>
+        <location filename="../qml/main.qml" line="262"/>
         <source>Take a photo</source>
         <translation>צילום תמונה</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="44"/>
+        <location filename="../qml/main.qml" line="46"/>
         <source>%1/Picture %2.%3</source>
         <translation>%1/תמונה %2.%3</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="309"/>
+        <location filename="../qml/main.qml" line="33"/>
+        <source>Daily Build</source>
+        <translation type="unfinished">מהדורה יומית</translation>
+    </message>
+    <message>
+        <location filename="../qml/main.qml" line="311"/>
         <source>Record video</source>
         <translation>הקלטת וידאו</translation>
     </message>

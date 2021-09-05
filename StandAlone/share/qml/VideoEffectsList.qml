@@ -20,6 +20,7 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
+import Ak 1.0
 
 ScrollView {
     id: effectsView
@@ -58,11 +59,11 @@ ScrollView {
 
                 for (let i = effects.length - 1; i >= 0; i--) {
                     let effect = effects[i]
-                    let info = videoEffects.effectInfo(effect)
+                    let info = AkPluginInfo.create(videoEffects.effectInfo(effect))
 
                     model.append({
                         effect: effect,
-                        description: info["MetaData"]["description"]})
+                        description: info.description})
                 }
             }
 

@@ -1,0 +1,13 @@
+{
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "Generic converter",
+            "description": "Convert video frames using generic converter",
+            "id": "VideoSource/CameraCapture/Convert/Generic",
+            "implements": ["CameraCaptureConvert"],
+            "priority": 800,
+            "type": "qtplugin"
+        }
+    ]
+}

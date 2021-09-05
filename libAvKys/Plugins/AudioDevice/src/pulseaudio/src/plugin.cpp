@@ -22,17 +22,15 @@
 
 QObject *Plugin::create(const QString &key, const QString &specification)
 {
+    Q_UNUSED(key)
     Q_UNUSED(specification)
 
-    if (key == AK_PLUGIN_TYPE_SUBMODULE)
-        return new AudioDevPulseAudio();
-
-    return nullptr;
+    return new AudioDevPulseAudio();
 }
 
 QStringList Plugin::keys() const
 {
-    return QStringList();
+    return {};
 }
 
 #include "moc_plugin.cpp"

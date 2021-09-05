@@ -117,7 +117,7 @@ AudioStream::AudioStream(AMediaMuxer *mediaMuxer,
                           AMEDIAFORMAT_KEY_SAMPLE_RATE,
                           this->d->m_caps.rate());
 
-    this->d->m_convert = AkElement::create("ACapsConvert");
+    this->d->m_convert = AkElement::create("AudioFilter/AudioConvert");
     this->d->m_convert->setProperty("caps", QVariant::fromValue(this->d->m_caps));
 }
 

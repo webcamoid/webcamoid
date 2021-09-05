@@ -42,10 +42,6 @@ add_library(MultiSrcSrc SHARED
             multisrc.h
             multisrcelement.cpp
             multisrcelement.h
-            multisrcelementsettings.cpp
-            multisrcelementsettings.h
-            multisrcglobals.cpp
-            multisrcglobals.h
             ../MultiSrc.qrc
             ../pspec.json)
 set_target_properties(MultiSrcSrc PROPERTIES

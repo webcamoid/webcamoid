@@ -38,18 +38,14 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 add_library(VideoCaptureSrc SHARED
-            videocapture.h
-            videocaptureelement.h
-            videocaptureelementsettings.h
-            videocaptureglobals.h
+            capture.cpp
             capture.h
+            convertvideo.cpp
             convertvideo.h
             videocapture.cpp
+            videocapture.h
             videocaptureelement.cpp
-            videocaptureelementsettings.cpp
-            videocaptureglobals.cpp
-            capture.cpp
-            convertvideo.cpp
+            videocaptureelement.h
             ../VideoCapture.qrc
             ../pspec.json)
 

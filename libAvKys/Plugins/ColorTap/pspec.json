@@ -1,5 +1,12 @@
 {
-    "pluginType": "Ak.Element",
-    "type": "VideoFilter",
-    "description": "Color from Palette"
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "ColorTap",
+            "description": "Color from Palette",
+            "id": "VideoFilter/ColorTap",
+            "implements": ["Element", "VideoFilter"],
+            "type": "qtplugin"
+        }
+    ]
 }

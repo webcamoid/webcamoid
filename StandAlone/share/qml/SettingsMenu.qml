@@ -54,7 +54,7 @@ Menu {
     MenuSeparator {}
     SwitchDelegate {
         text: qsTr("Play sources")
-        checked: videoLayer.state === AkElement.ElementStatePlaying
+        checked: videoLayer.state == AkElement.ElementStatePlaying
 
         onToggled: {
             if (checked) {

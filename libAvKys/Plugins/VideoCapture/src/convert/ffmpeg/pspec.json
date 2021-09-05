@@ -1,0 +1,13 @@
+{
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "FFmpeg",
+            "description": "Convert video frames using FFmpeg",
+            "id": "VideoSource/CameraCapture/Convert/FFmpeg",
+            "implements": ["CameraCaptureConvert"],
+            "priority": 1000,
+            "type": "qtplugin"
+        }
+    ]
+}

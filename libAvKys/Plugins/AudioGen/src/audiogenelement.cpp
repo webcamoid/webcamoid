@@ -27,12 +27,13 @@
 #include <QtConcurrent>
 #include <QtMath>
 #include <ak.h>
-#include <akelement.h>
-#include <akcaps.h>
-#include <akfrac.h>
-#include <akpacket.h>
 #include <akaudiocaps.h>
 #include <akaudiopacket.h>
+#include <akcaps.h>
+#include <akelement.h>
+#include <akfrac.h>
+#include <akpacket.h>
+#include <akpluginmanager.h>
 
 #include "audiogenelement.h"
 
@@ -73,7 +74,7 @@ class AudioGenElementPrivate
             AkAudioCaps::Layout_mono,
             44100
         };
-        AkElementPtr m_audioConvert {AkElement::create("ACapsConvert")};
+        AkElementPtr m_audioConvert {akPluginManager->create<AkElement>("AudioFilter/AudioConvert")};
         QThreadPool m_threadPool;
         QFuture<void> m_readFramesLoopResult;
         QMutex m_mutex;
@@ -95,9 +96,9 @@ AudioGenElement::AudioGenElement():
 
     if (this->d->m_audioConvert)
         QObject::connect(this->d->m_audioConvert.data(),
-                         SIGNAL(oStream(const AkPacket &)),
+                         SIGNAL(oStream(AkPacket)),
                          this,
-                         SIGNAL(oStream(const AkPacket &)),
+                         SIGNAL(oStream(AkPacket)),
                          Qt::DirectConnection);
 }
 

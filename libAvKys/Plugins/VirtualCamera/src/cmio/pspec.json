@@ -1,4 +1,13 @@
 {
-    "pluginType": "Ak.SubModule",
-    "type": "output"
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "AkVirtualCamera (CoreMediaIO)",
+            "description": "Create a virtual CoreMediaIO webcam using AkVirtualCamera plugin",
+            "id": "VideoSink/VirtualCamera/Impl/AkVirtualCameraCMIO",
+            "implements": ["VirtualCameraImpl"],
+            "priority": 1000,
+            "type": "qtplugin"
+        }
+    ]
 }

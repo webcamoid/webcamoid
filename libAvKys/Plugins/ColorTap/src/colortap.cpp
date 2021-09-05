@@ -22,17 +22,15 @@
 
 QObject *ColorTap::create(const QString &key, const QString &specification)
 {
+    Q_UNUSED(key)
     Q_UNUSED(specification)
 
-    if (key == AK_PLUGIN_TYPE_ELEMENT)
-        return new ColorTapElement();
-
-    return nullptr;
+    return new ColorTapElement();
 }
 
 QStringList ColorTap::keys() const
 {
-    return QStringList();
+    return {};
 }
 
 #include "moc_colortap.cpp"

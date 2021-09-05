@@ -89,11 +89,10 @@ Dialog {
 
                             for (let effect in effects) {
                                 let effectInfo =
-                                    videoEffects.effectInfo(effects[effect])
+                                    AkPluginInfo.create(videoEffects.effectInfo(effects[effect]))
                                 model.append({
                                     effect: effects[effect],
-                                    description:
-                                        effectInfo["MetaData"]["description"]})
+                                    description: effectInfo.description})
                             }
 
                             currentIndex = count > 0? 0: -1
@@ -173,7 +172,7 @@ Dialog {
                 VideoDisplay {
                     id: effectPreview
                     objectName: "effectPreview"
-                    visible: videoLayer.state === AkElement.ElementStatePlaying
+                    visible: videoLayer.state == AkElement.ElementStatePlaying
                     smooth: true
                     anchors.fill: parent
                 }

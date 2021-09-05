@@ -1,4 +1,13 @@
 {
-    "pluginType": "Ak.Element",
-    "type": "AudioSource"
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "Audio Generator",
+            "description": "Sound wave generator",
+            "id": "AudioSource/AudioGenerator",
+            "implements": ["Element"],
+            "depends": ["AudioFilter/AudioConvert"],
+            "type": "qtplugin"
+        }
+    ]
 }

@@ -21,12 +21,13 @@
 #include <QVariant>
 #include <QVector>
 #include <QMap>
-#include <akelement.h>
-#include <akcaps.h>
-#include <akfrac.h>
-#include <akpacket.h>
 #include <akaudiocaps.h>
 #include <akaudiopacket.h>
+#include <akcaps.h>
+#include <akelement.h>
+#include <akfrac.h>
+#include <akpacket.h>
+#include <akpluginmanager.h>
 
 extern "C"
 {
@@ -85,7 +86,7 @@ AudioStream::AudioStream(const AVFormatContext *formatContext,
 {
     this->d = new AudioStreamPrivate(this);
     this->m_maxData = 9;
-    this->d->m_audioConvert = AkElement::create("ACapsConvert");
+    this->d->m_audioConvert = akPluginManager->create<AkElement>("AudioFilter/AudioConvert");
 }
 
 AudioStream::~AudioStream()

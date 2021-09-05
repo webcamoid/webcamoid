@@ -25,9 +25,22 @@
 #include <QQmlApplicationEngine>
 #include <akcaps.h>
 #include <akpacket.h>
+#include <akplugininfo.h>
+#include <akpluginmanager.h>
 
 #include "videoeffects.h"
 #include "videodisplay.h"
+
+class VideoEffect
+{
+    public:
+        AkElementPtr element;
+        AkPluginInfo info;
+
+        VideoEffect();
+        VideoEffect(const AkElementPtr &element, const AkPluginInfo &info);
+        VideoEffect &operator =(const VideoEffect &other);
+};
 
 class VideoEffectsPrivate
 {
@@ -35,9 +48,8 @@ class VideoEffectsPrivate
         VideoEffects *self;
         QQmlApplicationEngine *m_engine {nullptr};
         QStringList m_availableEffects;
-        QList<AkElementPtr> m_effects;
-        AkElementPtr m_preview;
-        QStringList m_effectsId;
+        QList<VideoEffect> m_effects;
+        VideoEffect m_preview;
         AkElementPtr m_videoMux;
         QMutex m_mutex;
         AkElement::ElementState m_state {AkElement::ElementStateNull};
@@ -59,7 +71,7 @@ VideoEffects::VideoEffects(QQmlApplicationEngine *engine, QObject *parent):
 {
     this->d = new VideoEffectsPrivate(this);
     this->setQmlEngine(engine);
-    this->d->m_videoMux = AkElement::create("Multiplex");
+    this->d->m_videoMux = akPluginManager->create<AkElement>("Utils/Multiplex");
 
     if (this->d->m_videoMux) {
         this->d->m_videoMux->setProperty("caps", QVariant::fromValue(AkCaps("video/x-raw")));
@@ -92,31 +104,38 @@ QStringList VideoEffects::availableEffects() const
 
 QStringList VideoEffects::effects() const
 {
-    return this->d->m_effectsId;
+    QStringList effects;
+
+    for (auto &effect: this->d->m_effects)
+        effects << effect.info.id();
+
+    return effects;
 }
 
 QString VideoEffects::preview() const
 {
-    if (!this->d->m_preview)
+    if (!this->d->m_preview.element)
         return {};
 
-    return this->d->m_preview->pluginId();
+    return this->d->m_preview.info.id();
 }
 
-QVariantMap VideoEffects::effectInfo(const QString &effectId) const
+AkPluginInfo VideoEffects::effectInfo(const QString &effectId) const
 {
-    return AkElement::pluginInfo(effectId);
+    return akPluginManager->pluginInfo(effectId);
 }
 
 QString VideoEffects::effectDescription(const QString &effectId) const
 {
     if (effectId.isEmpty())
-        return QString();
+        return {};
 
-    auto info = AkElement::pluginInfo(effectId);
-    auto metaData = info["MetaData"].toMap();
+    auto info = akPluginManager->pluginInfo(effectId);
 
-    return metaData["description"].toString();
+    if (!info)
+        return {};
+
+    return info.description();
 }
 
 AkElement::ElementState VideoEffects::state() const
@@ -135,11 +154,11 @@ bool VideoEffects::embedControls(const QString &where,
 {
     auto effect = this->d->m_effects.value(effectIndex);
 
-    if (!effect)
+    if (!effect.element)
         return false;
 
-    auto interface = effect->controlInterface(this->d->m_engine,
-                                              effect->pluginId());
+    auto interface = effect.element->controlInterface(this->d->m_engine,
+                                                      effect.info.id());
 
     if (!interface)
         return false;
@@ -190,7 +209,7 @@ void VideoEffects::removeInterface(const QString &where) const
 
 void VideoEffects::setEffects(const QStringList &effects)
 {
-    if (this->d->m_effectsId == effects)
+    if (this->effects() == effects)
         return;
 
     auto state = this->d->m_state;
@@ -205,22 +224,21 @@ void VideoEffects::setEffects(const QStringList &effects)
         auto lastElement = this->d->m_effects.last();
 
         if (this->d->m_videoMux)
-            lastElement->unlink(this->d->m_videoMux);
+            lastElement.element->unlink(this->d->m_videoMux);
 
-        if (this->d->m_preview)
-            lastElement->unlink(this->d->m_preview);
+        if (this->d->m_preview.element)
+            lastElement.element->unlink(this->d->m_preview.element);
 
         this->d->m_effects.clear();
-        this->d->m_effectsId.clear();
     }
 
     // Populate the effects
     AkElementPtr prevEffect;
 
     for (auto &effectId: effects)
-        if (auto effect = AkElement::create(effectId)) {
-            this->d->m_effects << effect;
-            this->d->m_effectsId << effectId;
+        if (auto effect = akPluginManager->create<AkElement>(effectId)) {
+            this->d->m_effects << VideoEffect(effect,
+                                              akPluginManager->pluginInfo(effectId));
 
             if (prevEffect)
                 prevEffect->link(effect, Qt::DirectConnection);
@@ -233,10 +251,10 @@ void VideoEffects::setEffects(const QStringList &effects)
         auto lastElement = this->d->m_effects.last();
 
         if (this->d->m_videoMux)
-            lastElement->link(this->d->m_videoMux, Qt::DirectConnection);
+            lastElement.element->link(this->d->m_videoMux, Qt::DirectConnection);
 
-        if (this->d->m_chainEffects && this->d->m_preview)
-            lastElement->link(this->d->m_preview, Qt::DirectConnection);
+        if (this->d->m_chainEffects && this->d->m_preview.element)
+            lastElement.element->link(this->d->m_preview.element, Qt::DirectConnection);
     }
 
     this->d->m_mutex.unlock();
@@ -251,8 +269,8 @@ void VideoEffects::setPreview(const QString &preview)
 {
     QString oldPreview;
 
-    if (this->d->m_preview)
-        oldPreview = this->d->m_preview->pluginId();
+    if (this->d->m_preview.element)
+        oldPreview = this->d->m_preview.info.id();
 
     if (oldPreview == preview)
         return;
@@ -265,24 +283,26 @@ void VideoEffects::setPreview(const QString &preview)
     this->d->m_mutex.lock();
 
     // Unlink the old preview
-    if (!this->d->m_effects.isEmpty() && this->d->m_preview) {
+    if (!this->d->m_effects.isEmpty() && this->d->m_preview.element) {
         auto lastElement = this->d->m_effects.last();
-        lastElement->unlink(this->d->m_preview);
+        lastElement.element->unlink(this->d->m_preview.element);
         this->d->unlinkPreview();
     }
 
     // Set preview
     QString newPreview;
-    this->d->m_preview = AkElement::create(preview);
+    this->d->m_preview.element = akPluginManager->create<AkElement>(preview);
+    this->d->m_preview.info = akPluginManager->pluginInfo(preview);
 
-    if (this->d->m_preview) {
-        newPreview = this->d->m_preview->pluginId();
+    if (this->d->m_preview.element) {
+        newPreview = this->d->m_preview.info.id();
         this->d->linkPreview();
 
         // Link the preview
         if (!this->d->m_effects.isEmpty() && this->d->m_chainEffects) {
             auto lastElement = this->d->m_effects.last();
-            lastElement->link(this->d->m_preview, Qt::DirectConnection);
+            lastElement.element->link(this->d->m_preview.element,
+                                      Qt::DirectConnection);
         }
     }
 
@@ -301,19 +321,19 @@ void VideoEffects::setState(AkElement::ElementState state)
     this->d->m_mutex.lock();
 
     if (state == AkElement::ElementStatePlaying) {
-        if (this->d->m_preview)
-            this->d->m_preview->setState(state);
+        if (this->d->m_preview.element)
+            this->d->m_preview.element->setState(state);
 
         for (auto it = this->d->m_effects.rbegin();
              it != this->d->m_effects.rend();
              it++)
-            (*it)->setState(state);
+            it->element->setState(state);
     } else {
         for (auto &effect: this->d->m_effects)
-            effect->setState(state);
+            effect.element->setState(state);
 
-        if (this->d->m_preview)
-            this->d->m_preview->setState(state);
+        if (this->d->m_preview.element)
+            this->d->m_preview.element->setState(state);
     }
 
     this->d->m_state = state;
@@ -334,20 +354,21 @@ void VideoEffects::setChainEffects(bool chainEffects)
 
     this->d->m_mutex.lock();
 
-    if (this->d->m_preview) {
+    if (this->d->m_preview.element) {
         if (chainEffects) {
             if (!this->d->m_effects.isEmpty()) {
                 auto lastElement = this->d->m_effects.last();
 
-                if (this->d->m_preview)
-                    lastElement->link(this->d->m_preview, Qt::DirectConnection);
+                if (this->d->m_preview.element)
+                    lastElement.element->link(this->d->m_preview.element,
+                                              Qt::DirectConnection);
             }
         } else {
             if (!this->d->m_effects.isEmpty()) {
                 auto lastElement = this->d->m_effects.last();
 
-                if (this->d->m_preview)
-                    lastElement->unlink(this->d->m_preview);
+                if (this->d->m_preview.element)
+                    lastElement.element->unlink(this->d->m_preview.element);
             }
         }
     }
@@ -389,31 +410,31 @@ void VideoEffects::applyPreview()
 
     this->d->m_mutex.lock();
     bool applied = false;
-    auto effectsId = this->d->m_effectsId;
+    auto effectsId = this->effects();
 
-    if (this->d->m_preview) {
+    if (this->d->m_preview.element) {
         this->d->unlinkPreview();
 
         if (this->d->m_videoMux)
-            this->d->m_preview->link(this->d->m_videoMux, Qt::DirectConnection);
+            this->d->m_preview.element->link(this->d->m_videoMux,
+                                             Qt::DirectConnection);
 
         if (this->d->m_chainEffects) {
             if (!this->d->m_effects.isEmpty()) {
                 auto lastEffect = this->d->m_effects.last();
 
                 if (this->d->m_videoMux)
-                    lastEffect->unlink(this->d->m_videoMux);
+                    lastEffect.element->unlink(this->d->m_videoMux);
 
-                lastEffect->link(this->d->m_preview, Qt::DirectConnection);
+                lastEffect.element->link(this->d->m_preview.element,
+                                         Qt::DirectConnection);
             }
         } else {
             this->d->m_effects.clear();
-            this->d->m_effectsId.clear();
         }
 
         this->d->m_effects << this->d->m_preview;
-        this->d->m_effectsId << this->d->m_preview->pluginId();
-        this->d->m_preview.clear();
+        this->d->m_preview = {};
         applied = true;
     }
 
@@ -423,8 +444,10 @@ void VideoEffects::applyPreview()
     if (applied)
         emit this->previewChanged({});
 
-    if (effectsId != this->d->m_effectsId) {
-        emit this->effectsChanged(this->d->m_effectsId);
+    auto curEffectsIdsv = this->effects();
+
+    if (effectsId != curEffectsIdsv) {
+        emit this->effectsChanged(curEffectsIdsv);
         this->d->saveEffects();
     }
 }
@@ -446,9 +469,9 @@ void VideoEffects::moveEffect(int from, int to)
     this->d->m_mutex.lock();
 
     // Disconnect preview
-    if (this->d->m_preview) {
+    if (this->d->m_preview.element) {
         auto lastEffect = this->d->m_effects.last();
-        lastEffect->unlink(this->d->m_preview);
+        lastEffect.element->unlink(this->d->m_preview.element);
     }
 
     // Diconnect effect from list.
@@ -456,44 +479,44 @@ void VideoEffects::moveEffect(int from, int to)
     auto prev = this->d->m_effects.value(from - 1);
     auto next = this->d->m_effects.value(from + 1);
 
-    if (!next)
-        next = this->d->m_videoMux;
+    if (!next.element)
+        next.element = this->d->m_videoMux;
 
-    if (prev) {
-        prev->unlink(effect);
-        prev->link(next, Qt::DirectConnection);
+    if (prev.element) {
+        prev.element->unlink(effect.element);
+        prev.element->link(next.element, Qt::DirectConnection);
     }
 
-    effect->unlink(next);
+    effect.element->unlink(next.element);
 
     // Reconnect effect.
     prev = this->d->m_effects.value(to - 1);
     next = this->d->m_effects.value(to);
 
-    if (!next)
-        next = this->d->m_videoMux;
+    if (!next.element)
+        next.element = this->d->m_videoMux;
 
-    if (prev) {
-        prev->unlink(next);
-        prev->link(effect, Qt::DirectConnection);
+    if (prev.element) {
+        prev.element->unlink(next.element);
+        prev.element->link(effect.element, Qt::DirectConnection);
     }
 
-    effect->link(next, Qt::DirectConnection);
+    effect.element->link(next.element, Qt::DirectConnection);
 
     // Move the effect in the list.
     this->d->m_effects.move(from, to);
-    this->d->m_effectsId.move(from, to);
 
     // Re-connect preview
-    if (this->d->m_chainEffects && this->d->m_preview) {
+    if (this->d->m_chainEffects && this->d->m_preview.element) {
         auto lastEffect = this->d->m_effects.last();
-        lastEffect->link(this->d->m_preview, Qt::DirectConnection);
+        lastEffect.element->link(this->d->m_preview.element,
+                                 Qt::DirectConnection);
     }
 
     this->d->m_mutex.unlock();
 
     this->setState(state);
-    emit this->effectsChanged(this->d->m_effectsId);
+    emit this->effectsChanged(this->effects());
     this->d->saveEffects();
 }
 
@@ -510,38 +533,38 @@ void VideoEffects::removeEffect(int index)
     this->d->m_mutex.lock();
 
     // Disconnect preview
-    if (this->d->m_preview) {
+    if (this->d->m_preview.element) {
         auto lastEffect = this->d->m_effects.last();
-        lastEffect->unlink(this->d->m_preview);
+        lastEffect.element->unlink(this->d->m_preview.element);
     }
 
     auto effect = this->d->m_effects.value(index);
     auto next = this->d->m_effects.value(index + 1);
 
-    if (!next)
-        next = this->d->m_videoMux;
+    if (!next.element)
+        next.element = this->d->m_videoMux;
 
-    effect->unlink(next);
+    effect.element->unlink(next.element);
 
     auto prev = this->d->m_effects.value(index - 1);
 
-    if (prev) {
-        prev->unlink(effect);
-        prev->link(next, Qt::DirectConnection);
+    if (prev.element) {
+        prev.element->unlink(effect.element);
+        prev.element->link(next.element, Qt::DirectConnection);
     }
 
     this->d->m_effects.removeAt(index);
-    this->d->m_effectsId.removeAt(index);
 
     // Re-connect preview
-    if (this->d->m_chainEffects && this->d->m_preview) {
+    if (this->d->m_chainEffects && this->d->m_preview.element) {
         auto lastEffect = this->d->m_effects.last();
-        lastEffect->link(this->d->m_preview, Qt::DirectConnection);
+        lastEffect.element->link(this->d->m_preview.element,
+                                 Qt::DirectConnection);
     }
 
     this->d->m_mutex.unlock();
     this->setState(state);
-    emit this->effectsChanged(this->d->m_effectsId);
+    emit this->effectsChanged(this->effects());
     this->d->saveEffects();
 }
 
@@ -559,15 +582,14 @@ void VideoEffects::removeAllEffects()
     auto lastEffect = this->d->m_effects.last();
 
     // Disconnect preview
-    if (this->d->m_preview)
-        lastEffect->unlink(this->d->m_preview);
+    if (this->d->m_preview.element)
+        lastEffect.element->unlink(this->d->m_preview.element);
 
     // Disconnect video muxer
     if (this->d->m_videoMux)
-        lastEffect->unlink(this->d->m_videoMux);
+        lastEffect.element->unlink(this->d->m_videoMux);
 
     this->d->m_effects.clear();
-    this->d->m_effectsId.clear();
     this->d->m_mutex.unlock();
 
     this->setState(state);
@@ -577,7 +599,10 @@ void VideoEffects::removeAllEffects()
 
 void VideoEffects::updateAvailableEffects()
 {
-    QStringList availableEffects = AkElement::listPlugins("VideoFilter");
+    auto availableEffects =
+            akPluginManager->listPlugins({},
+                                         {"VideoFilter"},
+                                         AkPluginManager::FilterEnabled);
     std::sort(availableEffects.begin(),
               availableEffects.end(),
               [this] (const QString &pluginId1, const QString &pluginId2) {
@@ -613,12 +638,12 @@ AkPacket VideoEffects::iStream(const AkPacket &packet)
             if (this->d->m_videoMux)
                 (*this->d->m_videoMux)(packet);
         } else {
-            (*this->d->m_effects.first())(packet);
+            (*this->d->m_effects.first().element)(packet);
         }
 
-        if (this->d->m_preview
+        if (this->d->m_preview.element
             && (this->d->m_effects.isEmpty() || !this->d->m_chainEffects))
-            (*this->d->m_preview)(packet);
+            (*this->d->m_preview.element)(packet);
     }
 
     this->d->m_mutex.unlock();
@@ -664,10 +689,11 @@ void VideoEffectsPrivate::updateEffectsProperties()
     QSettings config;
 
     for (auto &effect: this->m_effects) {
-        config.beginGroup("VideoEffects_" + effect->pluginId());
+        config.beginGroup("VideoEffects_" + effect.info.id());
 
         for (auto &key: config.allKeys())
-            effect->setProperty(key.toStdString().c_str(), config.value(key));
+            effect.element->setProperty(key.toStdString().c_str(),
+                                        config.value(key));
 
         config.endGroup();
     }
@@ -691,7 +717,7 @@ void VideoEffectsPrivate::saveEffects()
 
     for (auto &effect: this->m_effects) {
         config.setArrayIndex(i);
-        config.setValue("effect", effect->pluginId());
+        config.setValue("effect", effect.info.id());
         i++;
     }
 
@@ -704,16 +730,18 @@ void VideoEffectsPrivate::saveEffectsProperties()
     QSettings config;
 
     for (auto &effect: this->m_effects) {
-        config.beginGroup("VideoEffects_" + effect->pluginId());
+        config.beginGroup("VideoEffects_" + effect.info.id());
 
         for (int property = 0;
-             property < effect->metaObject()->propertyCount();
+             property < effect.element->metaObject()->propertyCount();
              property++) {
-            auto metaProperty = effect->metaObject()->property(property);
+            auto metaProperty =
+                    effect.element->metaObject()->property(property);
 
             if (metaProperty.isWritable()) {
                 auto propertyName = metaProperty.name();
-                config.setValue(propertyName, effect->property(propertyName));
+                config.setValue(propertyName,
+                                effect.element->property(propertyName));
             }
         }
 
@@ -723,14 +751,14 @@ void VideoEffectsPrivate::saveEffectsProperties()
 
 void VideoEffectsPrivate::linkPreview()
 {
-    if (!this->m_engine || !this->m_preview)
+    if (!this->m_engine || !this->m_preview.element)
         return;
 
     for (auto &obj: this->m_engine->rootObjects()) {
         auto effectPreview = obj->findChild<VideoDisplay *>("effectPreview");
 
         if (effectPreview) {
-            this->m_preview->link(effectPreview, Qt::DirectConnection);
+            this->m_preview.element->link(effectPreview, Qt::DirectConnection);
 
             break;
         }
@@ -739,18 +767,39 @@ void VideoEffectsPrivate::linkPreview()
 
 void VideoEffectsPrivate::unlinkPreview()
 {
-    if (!this->m_engine || !this->m_preview)
+    if (!this->m_engine || !this->m_preview.element)
         return;
 
     for (auto &obj: this->m_engine->rootObjects()) {
         auto effectPreview = obj->findChild<VideoDisplay *>("effectPreview");
 
         if (effectPreview) {
-            this->m_preview->unlink(effectPreview);
+            this->m_preview.element->unlink(effectPreview);
 
             break;
         }
     }
+}
+
+VideoEffect::VideoEffect()
+{
+
+}
+
+VideoEffect::VideoEffect(const AkElementPtr &element, const AkPluginInfo &info):
+    element(element),
+    info(info)
+{
+}
+
+VideoEffect &VideoEffect::operator =(const VideoEffect &other)
+{
+    if (this != &other) {
+        this->element = other.element;
+        this->info = other.info;
+    }
+
+    return *this;
 }
 
 #include "moc_videoeffects.cpp"

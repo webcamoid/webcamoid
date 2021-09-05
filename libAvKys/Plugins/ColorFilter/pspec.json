@@ -1,5 +1,12 @@
 {
-    "pluginType": "Ak.Element",
-    "type": "VideoFilter",
-    "description": "Color Filter"
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "ColorFilter",
+            "description": "Color Filter",
+            "id": "VideoFilter/ColorFilter",
+            "implements": ["Element", "VideoFilter"],
+            "type": "qtplugin"
+        }
+    ]
 }

@@ -1,5 +1,16 @@
 {
-    "pluginType": "Ak.Element",
-    "type": "Multimedia",
-    "description": "Capture video from a webcam"
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "CameraCapture",
+            "description": "Capture video from a camera",
+            "id": "VideoSource/CameraCapture",
+            "implements": ["Element"],
+            "depends": [
+                "VideoSource/CameraCapture/Impl/*",
+                "VideoSource/CameraCapture/Convert/*"
+            ],
+            "type": "qtplugin"
+        }
+    ]
 }

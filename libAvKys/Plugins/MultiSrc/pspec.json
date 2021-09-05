@@ -1,5 +1,16 @@
 {
-    "pluginType": "Ak.Element",
-    "type": "Multimedia",
-    "description": "Capture video and audio from a multimedia file"
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "MultiSrc",
+            "description": "Capture video and audio from a file",
+            "id": "MultimediaSource/MultiSrc",
+            "implements": ["Element"],
+            "depends": [
+                "MultimediaSource/MultiSrc/Impl/*",
+                "AudioFilter/AudioConvert"
+            ],
+            "type": "qtplugin"
+        }
+    ]
 }

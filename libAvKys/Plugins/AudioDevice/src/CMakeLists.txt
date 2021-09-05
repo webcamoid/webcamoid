@@ -36,16 +36,12 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 add_library(AudioDeviceSrc SHARED
-            audiodevice.h
-            audiodeviceelement.h
-            audiodeviceelementsettings.h
-            audiodeviceglobals.h
+            audiodev.cpp
             audiodev.h
             audiodevice.cpp
+            audiodevice.h
             audiodeviceelement.cpp
-            audiodeviceelementsettings.cpp
-            audiodeviceglobals.cpp
-            audiodev.cpp
+            audiodeviceelement.h
             ../pspec.json)
 set_target_properties(AudioDeviceSrc PROPERTIES
                       OUTPUT_NAME AudioDevice)

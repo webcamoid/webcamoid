@@ -25,25 +25,21 @@
 class UpdatesPrivate;
 class Updates;
 class QQmlApplicationEngine;
-class QNetworkReply;
 
 using UpdatesPtr = QSharedPointer<Updates>;
 
 class Updates: public QObject
 {
     Q_OBJECT
-    Q_ENUMS(VersionType)
+    Q_ENUMS(ComponentStatus)
+    Q_PROPERTY(QStringList components
+               READ components
+               NOTIFY componentsChanged)
     Q_PROPERTY(bool notifyNewVersion
                READ notifyNewVersion
                WRITE setNotifyNewVersion
                RESET resetNotifyNewVersion
                NOTIFY notifyNewVersionChanged)
-    Q_PROPERTY(VersionType versionType
-               READ versionType
-               NOTIFY versionTypeChanged)
-    Q_PROPERTY(QString latestVersion
-               READ latestVersion
-               NOTIFY latestVersionChanged)
     Q_PROPERTY(int checkInterval
                READ checkInterval
                WRITE setCheckInterval
@@ -54,19 +50,21 @@ class Updates: public QObject
                NOTIFY lastUpdateChanged)
 
     public:
-        enum VersionType {
-            VersionTypeOld,
-            VersionTypeCurrent,
-            VersionTypeDevelopment
+        enum ComponentStatus
+        {
+            ComponentUpdated,
+            ComponentOutdated,
+            ComponentNewer
         };
 
         Updates(QQmlApplicationEngine *engine=nullptr,
                 QObject *parent=nullptr);
         ~Updates();
 
+        Q_INVOKABLE QStringList components() const;
+        Q_INVOKABLE QString latestVersion(const QString &component) const;
+        Q_INVOKABLE ComponentStatus status(const QString &component) const;
         Q_INVOKABLE bool notifyNewVersion() const;
-        Q_INVOKABLE VersionType versionType() const;
-        Q_INVOKABLE QString latestVersion() const;
         Q_INVOKABLE int checkInterval() const;
         Q_INVOKABLE QDateTime lastUpdate() const;
 
@@ -74,11 +72,12 @@ class Updates: public QObject
         UpdatesPrivate *d;
 
     signals:
+        void componentsChanged(const QStringList &components);
         void notifyNewVersionChanged(bool notifyNewVersion);
-        void versionTypeChanged(VersionType versionType);
-        void latestVersionChanged(const QString &latestVersion);
         void checkIntervalChanged(int checkInterval);
         void lastUpdateChanged(const QDateTime &lastUpdate);
+        void newVersionAvailable(const QString &component,
+                                 const QString &latestVersion);
 
     public slots:
         void checkUpdates();
@@ -87,20 +86,15 @@ class Updates: public QObject
         void setCheckInterval(int checkInterval);
         void resetNotifyNewVersion();
         void resetCheckInterval();
+        void watch(const QString &component,
+                   const QString &currentVersion,
+                   const QString &url);
+        void start();
+        void stop();
 
-    private slots:
-        void setVersionType(VersionType versionType);
-        void setLatestVersion(const QString &latestVersion);
-        void setLastUpdate(const QDateTime &lastUpdate);
-        void replyFinished(QNetworkReply *reply);
-        void loadProperties();
-        void saveNotifyNewVersion(bool notifyNewVersion);
-        void saveLatestVersion(const QString &latestVersion);
-        void saveCheckInterval(int checkInterval);
-        void saveLastUpdate(const QDateTime &lastUpdate);
-        void saveProperties();
+        friend UpdatesPrivate;
 };
 
-Q_DECLARE_METATYPE(Updates::VersionType)
+Q_DECLARE_METATYPE(Updates::ComponentStatus)
 
 #endif // UPDATES_H

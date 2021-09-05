@@ -34,20 +34,36 @@ Page {
             columns: 2
             width: scrollView.width
 
-            property variant videoCapture:
-                AkElement.createPtr("VideoCapture", "Ak.Element.Settings")
-            property variant desktopCapture:
-                AkElement.createPtr("DesktopCapture", "Ak.Element.Settings")
-            property variant audioDevice:
-                AkElement.createPtr("AudioDevice", "Ak.Element.Settings")
-            property variant audioConvert:
-                AkElement.createPtr("ACapsConvert", "Ak.Element.Settings")
-            property variant virtualCamera:
-                AkElement.createPtr("VirtualCamera", "Ak.Element.Settings")
-            property variant multiSrc:
-                AkElement.createPtr("MultiSrc", "Ak.Element.Settings")
-            property variant multiSink:
-                AkElement.createPtr("MultiSink", "Ak.Element.Settings")
+            function fillControl(control, pluginId, interfaces)
+            {
+                control.model.clear()
+                let plugins =
+                    AkPluginManager.listPlugins(pluginId,
+                                                interfaces,
+                                                AkPluginManager.FilterEnabled)
+
+                plugins.sort(function(a, b) {
+                    a = AkPluginInfo.create(AkPluginManager.pluginInfo(a)).name
+                    b = AkPluginInfo.create(AkPluginManager.pluginInfo(b)).name
+
+                    return a.localeCompare(b)
+                })
+
+                for (let i in plugins) {
+                    let plugin = plugins[i]
+                    let info = AkPluginInfo.create(AkPluginManager.pluginInfo(plugin))
+
+                    control.model.append({
+                        plugin: plugin,
+                        description: info.name
+                    })
+                }
+
+                let defaultPlugin =
+                    AkPluginManager.defaultPlugin(pluginId, interfaces)
+                let info = AkPluginInfo.create(defaultPlugin)
+                control.currentIndex = plugins.indexOf(info.id)
+            }
 
             Label {
                 /*: Start playing the webcam and other sources right after
@@ -76,90 +92,146 @@ Page {
             }
             ComboBox {
                 Layout.fillWidth: true
-                model: generalConfigs.videoCapture.captureSubModules
-                currentIndex: model.indexOf(generalConfigs.videoCapture.captureLib)
+                textRole: "description"
+                model: ListModel {
+                }
 
-                onCurrentIndexChanged: generalConfigs.videoCapture.captureLib = model[currentIndex]
+                Component.onCompleted:
+                    generalConfigs.fillControl(this,
+                                               "VideoSource/CameraCapture/Impl/*",
+                                               ["CameraCaptureImpl"])
+                onCurrentIndexChanged:
+                    AkPluginManager.link("VideoSource/CameraCapture/Impl/*",
+                                         model.get(currentIndex).plugin)
             }
             Label {
                 text: qsTr("Desktop capture")
             }
             ComboBox {
                 Layout.fillWidth: true
-                model: generalConfigs.desktopCapture.subModules
-                currentIndex: model.indexOf(generalConfigs.desktopCapture.captureLib)
+                textRole: "description"
+                model: ListModel {
+                }
 
-                onCurrentIndexChanged: generalConfigs.desktopCapture.captureLib = model[currentIndex]
+                Component.onCompleted:
+                    generalConfigs.fillControl(this,
+                                               "VideoSource/DesktopCapture/Impl/*",
+                                               ["DesktopCaptureImpl"])
+                onCurrentIndexChanged:
+                    AkPluginManager.link("VideoSource/DesktopCapture/Impl/*",
+                                         model.get(currentIndex).plugin)
             }
             Label {
                 text: qsTr("Audio capture/play")
             }
             ComboBox {
                 Layout.fillWidth: true
-                model: generalConfigs.audioDevice.subModules
-                currentIndex: model.indexOf(generalConfigs.audioDevice.audioLib)
+                textRole: "description"
+                model: ListModel {
+                }
 
-                onCurrentIndexChanged: generalConfigs.audioDevice.audioLib = model[currentIndex]
+                Component.onCompleted:
+                    generalConfigs.fillControl(this,
+                                               "AudioSource/AudioDevice/Impl/*",
+                                               ["AudioDeviceImpl"])
+                onCurrentIndexChanged:
+                    AkPluginManager.link("AudioSource/AudioDevice/Impl/*",
+                                         model.get(currentIndex).plugin)
             }
             Label {
                 text: qsTr("Video convert")
             }
             ComboBox {
                 Layout.fillWidth: true
-                model: generalConfigs.videoCapture.codecSubModules
-                currentIndex: model.indexOf(generalConfigs.videoCapture.codecLib)
+                textRole: "description"
+                model: ListModel {
+                }
 
-                onCurrentIndexChanged: generalConfigs.videoCapture.codecLib = model[currentIndex]
+                Component.onCompleted:
+                    generalConfigs.fillControl(this,
+                                               "VideoSource/CameraCapture/Convert/*",
+                                               ["CameraCaptureConvert"])
+                onCurrentIndexChanged:
+                    AkPluginManager.link("VideoSource/CameraCapture/Convert/*",
+                                         model.get(currentIndex).plugin)
             }
             Label {
                 text: qsTr("Audio convert")
             }
             ComboBox {
                 Layout.fillWidth: true
-                model: generalConfigs.audioConvert.subModules
-                currentIndex: model.indexOf(generalConfigs.audioConvert.convertLib)
+                textRole: "description"
+                model: ListModel {
+                }
 
-                onCurrentIndexChanged: generalConfigs.audioConvert.convertLib = model[currentIndex]
+                Component.onCompleted:
+                    generalConfigs.fillControl(this,
+                                               "AudioFilter/AudioConvert/Impl/*",
+                                               ["AudioConvertImpl"])
+                onCurrentIndexChanged:
+                    AkPluginManager.link("AudioFilter/AudioConvert/Impl/*",
+                                         model.get(currentIndex).plugin)
             }
             Label {
                 text: qsTr("Video playback")
             }
             ComboBox {
                 Layout.fillWidth: true
-                model: generalConfigs.multiSrc.subModules
-                currentIndex: model.indexOf(generalConfigs.multiSrc.codecLib)
+                textRole: "description"
+                model: ListModel {
+                }
 
-                onCurrentIndexChanged: generalConfigs.multiSrc.codecLib = model[currentIndex]
+                Component.onCompleted:
+                    generalConfigs.fillControl(this,
+                                               "MultimediaSource/MultiSrc/Impl/*",
+                                               ["MultiSrcImpl"])
+                onCurrentIndexChanged:
+                    AkPluginManager.link("MultimediaSource/MultiSrc/Impl/*",
+                                         model.get(currentIndex).plugin)
             }
             Label {
                 text: qsTr("Video record")
             }
             ComboBox {
                 Layout.fillWidth: true
-                model: generalConfigs.multiSink.subModules
-                currentIndex: model.indexOf(generalConfigs.multiSink.codecLib)
+                textRole: "description"
+                model: ListModel {
+                }
 
-                onCurrentIndexChanged: generalConfigs.multiSink.codecLib = model[currentIndex]
-            }
-            Label {
-                text: qsTr("Root method")
-            }
-            ComboBox {
-                Layout.fillWidth: true
-                model: generalConfigs.virtualCamera.availableRootMethods
-                currentIndex: model.indexOf(generalConfigs.virtualCamera.rootMethod)
-
-                onCurrentIndexChanged: generalConfigs.virtualCamera.rootMethod = model[currentIndex]
+                Component.onCompleted:
+                    generalConfigs.fillControl(this,
+                                               "MultimediaSink/MultiSink/Impl/*",
+                                               ["MultiSinkImpl"])
+                onCurrentIndexChanged:
+                    AkPluginManager.link("MultimediaSink/MultiSink/Impl/*",
+                                         model.get(currentIndex).plugin)
             }
             Label {
                 text: qsTr("Virtual camera driver")
             }
             ComboBox {
                 Layout.fillWidth: true
-                model: generalConfigs.virtualCamera.outputSubModules
-                currentIndex: model.indexOf(generalConfigs.virtualCamera.outputLib)
+                textRole: "description"
+                model: ListModel {
+                }
 
-                onCurrentIndexChanged: generalConfigs.virtualCamera.outputLib = model[currentIndex]
+                Component.onCompleted:
+                    generalConfigs.fillControl(this,
+                                               "VideoSink/VirtualCamera/Impl/*",
+                                               ["VirtualCameraImpl"])
+                onCurrentIndexChanged:
+                    AkPluginManager.link("VideoSink/VirtualCamera/Impl/*",
+                                         model.get(currentIndex).plugin)
+            }
+            Label {
+                text: qsTr("Root method")
+            }
+            ComboBox {
+                Layout.fillWidth: true
+                model: videoLayer.availableRootMethods
+                currentIndex: model.indexOf(videoLayer.rootMethod)
+
+                onCurrentIndexChanged: videoLayer.rootMethod = model[currentIndex]
             }
         }
     }

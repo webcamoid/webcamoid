@@ -31,7 +31,7 @@ GridLayout {
         var index = -1
 
         for (var i = 0; i < cbxHaarFile.model.count; i++)
-            if (cbxHaarFile.model.get(i).haarFile === haarFile) {
+            if (cbxHaarFile.model.get(i).haarFile == haarFile) {
                 index = i
                 break
             }
@@ -44,7 +44,7 @@ GridLayout {
         var index = -1
 
         for (var i = 0; i < cbxMarkerType.model.count; i++)
-            if (cbxMarkerType.model.get(i).markerType === markerType) {
+            if (cbxMarkerType.model.get(i).markerType == markerType) {
                 index = i
                 break
             }
@@ -57,7 +57,7 @@ GridLayout {
         var index = -1
 
         for (var i = 0; i < cbxMarkerStyle.model.count; i++)
-            if (cbxMarkerStyle.model.get(i).markerStyle === markerStyle) {
+            if (cbxMarkerStyle.model.get(i).markerStyle == markerStyle) {
                 index = i
                 break
             }
@@ -87,7 +87,7 @@ GridLayout {
 
     function toQrc(uri)
     {
-        if (uri.indexOf(":") === 0)
+        if (uri.indexOf(":") == 0)
             return "qrc" + uri
 
         return "file:" + uri
@@ -528,7 +528,7 @@ GridLayout {
 
             onTextChanged: {
                 for (var i = 0; i < cbxMasks.model.count; i++) {
-                    if (cbxMasks.model.get(i).mask === FaceDetect.markerImage) {
+                    if (cbxMasks.model.get(i).mask == FaceDetect.markerImage) {
                         cbxMasks.currentIndex = i
 
                         break
@@ -593,7 +593,7 @@ GridLayout {
 
             onTextChanged: {
                 for (var i = 0; i < cbxBackgrounds.model.count; i++) {
-                    if (cbxBackgrounds.model.get(i).background === FaceDetect.backgroundImage) {
+                    if (cbxBackgrounds.model.get(i).background == FaceDetect.backgroundImage) {
                         cbxBackgrounds.currentIndex = i
 
                         break

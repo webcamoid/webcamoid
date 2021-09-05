@@ -1,5 +1,12 @@
 {
-    "pluginType": "Ak.Element",
-    "type": "VideoFilter",
-    "description": "Warhol"
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "Warhol",
+            "description": "Warhol",
+            "id": "VideoFilter/Warhol",
+            "implements": ["Element", "VideoFilter"],
+            "type": "qtplugin"
+        }
+    ]
 }

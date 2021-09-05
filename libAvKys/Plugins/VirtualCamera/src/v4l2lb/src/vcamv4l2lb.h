@@ -34,6 +34,7 @@ class VCamV4L2LoopBack: public VCam
 
         Q_INVOKABLE QString error() const;
         Q_INVOKABLE bool isInstalled() const;
+        Q_INVOKABLE QString installedVersion() const;
         Q_INVOKABLE QStringList webcams() const;
         Q_INVOKABLE QString device() const;
         Q_INVOKABLE QString description(const QString &webcam) const;
@@ -46,6 +47,7 @@ class VCamV4L2LoopBack: public VCam
         Q_INVOKABLE QList<quint64> clientsPids() const;
         Q_INVOKABLE QString clientExe(quint64 pid) const;
         Q_INVOKABLE QString rootMethod() const;
+        Q_INVOKABLE QStringList availableRootMethods() const;
         Q_INVOKABLE QString deviceCreate(const QString &description,
                                          const AkVideoCapsList &caps);
         Q_INVOKABLE bool deviceEdit(const QString &deviceId,

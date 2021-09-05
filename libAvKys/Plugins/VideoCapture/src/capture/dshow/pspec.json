@@ -1,0 +1,13 @@
+{
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "DirectShow",
+            "description": "Capture video using DirectShow",
+            "id": "VideoSource/CameraCapture/Impl/DirectShow",
+            "implements": ["CameraCaptureImpl"],
+            "priority": 1000,
+            "type": "qtplugin"
+        }
+    ]
+}

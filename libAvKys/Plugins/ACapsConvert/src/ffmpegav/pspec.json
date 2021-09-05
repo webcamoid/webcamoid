@@ -1,3 +1,13 @@
 {
-    "pluginType": "Ak.SubModule"
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "FFmpeg libavresample",
+            "description": "Convert audio frames using libavresample",
+            "id": "AudioFilter/AudioConvert/Impl/FFmpegAV",
+            "implements": ["AudioConvertImpl"],
+            "priority": 1000,
+            "type": "qtplugin"
+        }
+    ]
 }

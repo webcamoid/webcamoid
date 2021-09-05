@@ -1,5 +1,12 @@
 {
-    "pluginType": "Ak.Element",
-    "type": "VideoFilter",
-    "description": "Matrix"
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "Matrix",
+            "description": "Matrix",
+            "id": "VideoFilter/Matrix",
+            "implements": ["Element", "VideoFilter"],
+            "type": "qtplugin"
+        }
+    ]
 }

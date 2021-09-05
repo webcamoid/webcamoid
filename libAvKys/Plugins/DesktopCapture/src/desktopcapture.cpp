@@ -19,24 +19,17 @@
 
 #include "desktopcapture.h"
 #include "desktopcaptureelement.h"
-#include "desktopcaptureelementsettings.h"
 
 QObject *DesktopCapture::create(const QString &key, const QString &specification)
 {
     Q_UNUSED(specification)
 
-    if (key == AK_PLUGIN_TYPE_ELEMENT)
-        return new DesktopCaptureElement();
-    else if (key == AK_PLUGIN_TYPE_ELEMENT_SETTINGS)
-        return new DesktopCaptureElementSettings();
-
-    return nullptr;
+    return new DesktopCaptureElement();
 }
 
 QStringList DesktopCapture::keys() const
 {
-    return {AK_PLUGIN_TYPE_ELEMENT,
-            AK_PLUGIN_TYPE_ELEMENT_SETTINGS};
+    return {};
 }
 
 #include "moc_desktopcapture.cpp"

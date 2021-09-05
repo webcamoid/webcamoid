@@ -42,9 +42,6 @@ class PluginConfigs: public QObject
     private:
         PluginConfigsPrivate *d;
 
-    signals:
-        void pluginsChanged(const QStringList &plugins);
-
     public slots:
         void setQmlEngine(QQmlApplicationEngine *engine=nullptr);
         void loadProperties(const CliOptions &cliOptions);

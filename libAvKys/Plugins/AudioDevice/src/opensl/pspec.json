@@ -1,3 +1,13 @@
 {
-    "pluginType": "Ak.SubModule"
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "OpenSL ES",
+            "description": "Capture audio using OpenSL ES",
+            "id": "AudioSource/AudioDevice/Impl/OpenSL",
+            "implements": ["AudioDeviceImpl"],
+            "priority": 600,
+            "type": "qtplugin"
+        }
+    ]
 }

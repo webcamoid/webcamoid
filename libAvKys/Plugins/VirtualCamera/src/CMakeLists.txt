@@ -43,10 +43,6 @@ add_library(VirtualCameraSrc SHARED
             virtualcamera.h
             virtualcameraelement.cpp
             virtualcameraelement.h
-            virtualcameraelementsettings.cpp
-            virtualcameraelementsettings.h
-            virtualcameraglobals.cpp
-            virtualcameraglobals.h
             ../VirtualCamera.qrc
             ../pspec.json)
 set_target_properties(VirtualCameraSrc PROPERTIES

@@ -119,7 +119,7 @@
 <context>
     <name>AudioLayer</name>
     <message>
-        <location filename="../../src/audiolayer.cpp" line="279"/>
+        <location filename="../../src/audiolayer.cpp" line="249"/>
         <source>Silence</source>
         <translation type="unfinished">靜音</translation>
     </message>
@@ -184,58 +184,58 @@
 <context>
     <name>GeneralConfig</name>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="75"/>
+        <location filename="../qml/GeneralConfig.qml" line="91"/>
         <source>Video capture</source>
         <translation>視訊抓取</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="85"/>
+        <location filename="../qml/GeneralConfig.qml" line="108"/>
         <source>Desktop capture</source>
         <translation>桌面抓取</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="95"/>
+        <location filename="../qml/GeneralConfig.qml" line="125"/>
         <source>Audio capture/play</source>
         <translation>音訊抓取／播放</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="105"/>
+        <location filename="../qml/GeneralConfig.qml" line="142"/>
         <source>Video convert</source>
         <translation>視訊轉換</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="115"/>
+        <location filename="../qml/GeneralConfig.qml" line="159"/>
         <source>Audio convert</source>
         <translation>音訊轉換</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="155"/>
+        <location filename="../qml/GeneralConfig.qml" line="210"/>
         <source>Virtual camera driver</source>
         <translation>虛擬相機驅動程式</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="125"/>
+        <location filename="../qml/GeneralConfig.qml" line="176"/>
         <source>Video playback</source>
         <translation>視訊回放</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="56"/>
+        <location filename="../qml/GeneralConfig.qml" line="72"/>
         <source>Play sources on start</source>
         <extracomment>Start playing the webcam and other sources right after * opening Webcamoid.</extracomment>
         <translation>當開始時，播放其它來源</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="66"/>
+        <location filename="../qml/GeneralConfig.qml" line="82"/>
         <source>Frameworks and libraries</source>
         <translation>框架與函式庫</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="135"/>
+        <location filename="../qml/GeneralConfig.qml" line="193"/>
         <source>Video record</source>
         <translation>視訊錄製</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="145"/>
+        <location filename="../qml/GeneralConfig.qml" line="227"/>
         <source>Root method</source>
         <translation type="unfinished"></translation>
     </message>
@@ -269,14 +269,6 @@
     </message>
 </context>
 <context>
-    <name>MediaTools</name>
-    <message>
-        <location filename="../../src/mediatools.cpp" line="197"/>
-        <source>Daily Build</source>
-        <translation>每日構建</translation>
-    </message>
-</context>
-<context>
     <name>PluginConfig</name>
     <message>
         <location filename="../qml/PluginConfig.qml" line="35"/>
@@ -289,27 +281,27 @@
         <translation>擴充功能</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="115"/>
+        <location filename="../qml/PluginConfig.qml" line="110"/>
         <source>Search plugins in subfolders</source>
         <translation>在子資料夾中尋找擴充功能</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="124"/>
+        <location filename="../qml/PluginConfig.qml" line="119"/>
         <source>Add path</source>
         <translation>新增路徑</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="167"/>
+        <location filename="../qml/PluginConfig.qml" line="162"/>
         <source>Remove</source>
         <translation>移除</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="201"/>
+        <location filename="../qml/PluginConfig.qml" line="196"/>
         <source>Update</source>
         <translation>更新</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="247"/>
+        <location filename="../qml/PluginConfig.qml" line="246"/>
         <source>Add plugins search path</source>
         <translation>新增擴充功能搜尋路徑</translation>
     </message>
@@ -357,7 +349,7 @@
 <context>
     <name>Recording</name>
     <message>
-        <location filename="../../src/recording.cpp" line="372"/>
+        <location filename="../../src/recording.cpp" line="364"/>
         <source>%1/Video %2.%3</source>
         <translation>%1/視訊 %2.%3</translation>
     </message>
@@ -448,72 +440,72 @@
 <context>
     <name>UpdatesConfig</name>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="73"/>
+        <location filename="../qml/UpdatesConfig.qml" line="82"/>
         <source>Notify about new versions</source>
         <translation>通知新版本</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="82"/>
+        <location filename="../qml/UpdatesConfig.qml" line="92"/>
         <source>Show updates dialog</source>
         <translation>顯示更新對話框</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="90"/>
+        <location filename="../qml/UpdatesConfig.qml" line="100"/>
         <source>Check new versions</source>
         <translation>檢查新版本</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="98"/>
+        <location filename="../qml/UpdatesConfig.qml" line="108"/>
         <source>Daily</source>
         <translation>每日</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="102"/>
+        <location filename="../qml/UpdatesConfig.qml" line="112"/>
         <source>Every two days</source>
         <translation>每兩日</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="106"/>
+        <location filename="../qml/UpdatesConfig.qml" line="116"/>
         <source>Weekly</source>
         <translation>每週</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="110"/>
+        <location filename="../qml/UpdatesConfig.qml" line="120"/>
         <source>Every two weeks</source>
         <translation>每兩週</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="114"/>
+        <location filename="../qml/UpdatesConfig.qml" line="124"/>
         <source>Monthly</source>
         <translation>每月</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="118"/>
+        <location filename="../qml/UpdatesConfig.qml" line="128"/>
         <source>Never</source>
         <translation>永不</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="130"/>
+        <location filename="../qml/UpdatesConfig.qml" line="141"/>
         <source>Last updated</source>
         <translation>最後一次更新</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="151"/>
+        <location filename="../qml/UpdatesConfig.qml" line="162"/>
         <source>Your version of %1 is outdated. Latest version is &lt;b&gt;%2&lt;/b&gt;.</source>
         <translation>你的版本 %1 過舊。最新版本是 &lt;b&gt;%2&lt;/b&gt;。</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="157"/>
+        <location filename="../qml/UpdatesConfig.qml" line="168"/>
         <source>Upgrade Now!</source>
         <translation>立即升級！</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="172"/>
+        <location filename="../qml/UpdatesConfig.qml" line="183"/>
         <source>Thanks for using a &lt;b&gt;development version&lt;/b&gt;!&lt;br /&gt;It will be very helpful if you can report any bug and suggestions you have.</source>
         <translation>感謝使用&lt;b&gt;開發板&lt;/b&gt;！&lt;br /&gt;如果你可以回報錯誤以及建議，那對我們非常有幫助。</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="177"/>
+        <location filename="../qml/UpdatesConfig.qml" line="188"/>
         <source>Report a Bug</source>
         <translation>回報錯誤</translation>
     </message>
@@ -526,12 +518,12 @@
         <translation>有新版本了！</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesDialog.qml" line="61"/>
+        <location filename="../qml/UpdatesDialog.qml" line="70"/>
         <source>Download %1 %2 NOW!</source>
         <translation>現在下載 %1 %2！</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesDialog.qml" line="68"/>
+        <location filename="../qml/UpdatesDialog.qml" line="77"/>
         <source>Show this dialog next time</source>
         <translation>下次顯示這個對話框</translation>
     </message>
@@ -563,7 +555,7 @@
 <context>
     <name>VideoEffectOptions</name>
     <message>
-        <location filename="../qml/VideoEffectOptions.qml" line="63"/>
+        <location filename="../qml/VideoEffectOptions.qml" line="53"/>
         <source>Remove</source>
         <translation>移除</translation>
     </message>
@@ -581,7 +573,7 @@
         <translation>搜尋效果</translation>
     </message>
     <message>
-        <location filename="../qml/VideoEffectsDialog.qml" line="183"/>
+        <location filename="../qml/VideoEffectsDialog.qml" line="182"/>
         <source>Chain effect</source>
         <extracomment>Apply the effect over the other effects.</extracomment>
         <translation>效果鏈（效果應用的先後順序）</translation>
@@ -590,12 +582,12 @@
 <context>
     <name>VideoEffectsList</name>
     <message>
-        <location filename="../qml/VideoEffectsList.qml" line="34"/>
+        <location filename="../qml/VideoEffectsList.qml" line="35"/>
         <source>Add effect</source>
         <translation>新增效果</translation>
     </message>
     <message>
-        <location filename="../qml/VideoEffectsList.qml" line="41"/>
+        <location filename="../qml/VideoEffectsList.qml" line="42"/>
         <source>Remove all effects</source>
         <translation>移除所有效果</translation>
     </message>
@@ -794,10 +786,15 @@
 <context>
     <name>VideoLayer</name>
     <message>
-        <location filename="../../src/videolayer.cpp" line="242"/>
+        <location filename="../../src/videolayer.cpp" line="235"/>
         <source>No Output</source>
         <extracomment>Disable video output, don&apos;t send the video to the output device.</extracomment>
         <translation>不要輸出</translation>
+    </message>
+    <message>
+        <location filename="../../src/videolayer.cpp" line="546"/>
+        <source>Virtual Camera</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2455,32 +2452,37 @@ background blur or image below.</source>
         <translation type="unfinished">層次（Phase）</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="132"/>
+        <location filename="../qml/main.qml" line="134"/>
         <source>Use flash</source>
         <translation type="unfinished">使用閃光（flash）</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="152"/>
+        <location filename="../qml/main.qml" line="154"/>
         <source>Now</source>
         <translation>現在</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="159"/>
+        <location filename="../qml/main.qml" line="161"/>
         <source>%1 seconds</source>
         <translation>%1 秒</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="260"/>
+        <location filename="../qml/main.qml" line="262"/>
         <source>Take a photo</source>
         <translation>照相</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="44"/>
+        <location filename="../qml/main.qml" line="46"/>
         <source>%1/Picture %2.%3</source>
         <translation>%1/圖像 %2.%3</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="309"/>
+        <location filename="../qml/main.qml" line="33"/>
+        <source>Daily Build</source>
+        <translation type="unfinished">每日構建</translation>
+    </message>
+    <message>
+        <location filename="../qml/main.qml" line="311"/>
         <source>Record video</source>
         <translation>錄影</translation>
     </message>

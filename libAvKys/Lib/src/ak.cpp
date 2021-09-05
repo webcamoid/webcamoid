@@ -35,6 +35,8 @@
 #include "akelement.h"
 #include "akfrac.h"
 #include "akpacket.h"
+#include "akplugininfo.h"
+#include "akpluginmanager.h"
 #include "akunit.h"
 #include "akvideocaps.h"
 #include "akvideopacket.h"
@@ -86,6 +88,8 @@ void Ak::registerTypes()
     AkElement::registerTypes();
     AkFrac::registerTypes();
     AkPacket::registerTypes();
+    AkPluginInfo::registerTypes();
+    AkPluginManager::registerTypes();
     AkUnit::registerTypes();
     AkVideoCaps::registerTypes();
     AkVideoPacket::registerTypes();

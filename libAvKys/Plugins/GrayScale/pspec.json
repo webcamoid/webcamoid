@@ -1,5 +1,12 @@
 {
-    "pluginType": "Ak.Element",
-    "type": "VideoFilter",
-    "description": "Black & White"
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "GrayScale",
+            "description": "Black & White",
+            "id": "VideoFilter/GrayScale",
+            "implements": ["Element", "VideoFilter"],
+            "type": "qtplugin"
+        }
+    ]
 }

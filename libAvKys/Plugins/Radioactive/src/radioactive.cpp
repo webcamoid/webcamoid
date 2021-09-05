@@ -22,17 +22,15 @@
 
 QObject *Radioactive::create(const QString &key, const QString &specification)
 {
+    Q_UNUSED(key)
     Q_UNUSED(specification)
 
-    if (key == AK_PLUGIN_TYPE_ELEMENT)
-        return new RadioactiveElement();
-
-    return nullptr;
+    return new RadioactiveElement();
 }
 
 QStringList Radioactive::keys() const
 {
-    return QStringList();
+    return {};
 }
 
 #include "moc_radioactive.cpp"

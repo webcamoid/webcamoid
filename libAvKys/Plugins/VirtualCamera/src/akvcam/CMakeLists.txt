@@ -36,7 +36,10 @@ find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
 find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
+find_package(PkgConfig)
 CHECK_INCLUDE_FILE_CXX(linux/videodev2.h HAVE_V4L2)
+pkg_check_modules(LIBKMOD libkmod)
+link_directories(${LIBKMOD_LIBRARY_DIRS})
 set(SOURCES
     ../vcam.cpp
     ../vcam.h
@@ -46,7 +49,7 @@ set(SOURCES
     src/vcamak.h
     pspec.json)
 
-if (NOT NOV4L2 AND HAVE_V4L2 AND NOT ANDROID)
+if (NOT NOV4L2 AND HAVE_V4L2 AND NOT ANDROID AND LIBKMOD_FOUND)
     add_library(VirtualCamera_akvcam SHARED ${SOURCES})
 else ()
     add_library(VirtualCamera_akvcam SHARED EXCLUDE_FROM_ALL ${SOURCES})
@@ -55,13 +58,19 @@ endif ()
 set_target_properties(VirtualCamera_akvcam PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
 add_dependencies(VirtualCamera_akvcam avkys)
-target_include_directories(VirtualCamera_akvcam PRIVATE
+target_include_directories(VirtualCamera_akvcam
+                           PUBLIC
+                           ${LIBKMOD_INCLUDE_DIRS}
+                           PRIVATE
                            ..
                            ../../../../Lib/src)
 target_compile_definitions(VirtualCamera_akvcam PRIVATE AVKYS_PLUGIN_VIRTUALCAMERA_AKVCAM)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
-target_link_libraries(VirtualCamera_akvcam avkys ${QT_LIBS})
+target_link_libraries(VirtualCamera_akvcam
+                      ${QT_LIBS}
+                      ${LIBKMOD_LIBRARIES}
+                      avkys)
 
-if (NOT NOV4L2 AND HAVE_V4L2 AND NOT ANDROID)
+if (NOT NOV4L2 AND HAVE_V4L2 AND NOT ANDROID AND LIBKMOD_FOUND)
     install(TARGETS VirtualCamera_akvcam DESTINATION ${PLUGINSDIR})
 endif ()

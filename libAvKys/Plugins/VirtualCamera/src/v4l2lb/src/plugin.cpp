@@ -22,17 +22,15 @@
 
 QObject *Plugin::create(const QString &key, const QString &specification)
 {
+    Q_UNUSED(key)
     Q_UNUSED(specification)
 
-    if (key == AK_PLUGIN_TYPE_SUBMODULE)
-        return new VCamV4L2LoopBack();
-
-    return nullptr;
+    return new VCamV4L2LoopBack();
 }
 
 QStringList Plugin::keys() const
 {
-    return QStringList();
+    return {};
 }
 
 #include "moc_plugin.cpp"

@@ -1,4 +1,13 @@
 {
-    "pluginType": "Ak.SubModule",
-    "type": "output"
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "akvcam",
+            "description": "Create a virtual webcam using akvcam driver",
+            "id": "VideoSink/VirtualCamera/Impl/AkVCam",
+            "implements": ["VirtualCameraImpl"],
+            "priority": 1000,
+            "type": "qtplugin"
+        }
+    ]
 }

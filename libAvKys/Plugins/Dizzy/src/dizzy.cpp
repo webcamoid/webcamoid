@@ -22,17 +22,15 @@
 
 QObject *Dizzy::create(const QString &key, const QString &specification)
 {
+    Q_UNUSED(key)
     Q_UNUSED(specification)
 
-    if (key == AK_PLUGIN_TYPE_ELEMENT)
-        return new DizzyElement();
-
-    return nullptr;
+    return new DizzyElement();
 }
 
 QStringList Dizzy::keys() const
 {
-    return QStringList();
+    return {};
 }
 
 #include "moc_dizzy.cpp"

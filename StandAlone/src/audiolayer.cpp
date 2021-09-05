@@ -29,6 +29,7 @@
 #include <akcaps.h>
 #include <akpacket.h>
 #include <akplugin.h>
+#include <akpluginmanager.h>
 
 #include "audiolayer.h"
 
@@ -48,23 +49,11 @@ class AudioLayerPrivate
         QString m_inputDescription;
         AkAudioCaps m_inputCaps;
         AkAudioCaps m_outputCaps;
-        AkElementPtr m_audioOut {AkElement::create("AudioDevice")};
-        ObjectPtr m_audioOutSettings {
-            AkElement::create<QObject>("AudioDevice",
-                                       AK_PLUGIN_TYPE_ELEMENT_SETTINGS)
-        };
-        AkElementPtr m_audioIn {AkElement::create("AudioDevice")};
-        ObjectPtr m_audioInSettings {
-            AkElement::create<QObject>("AudioDevice",
-                                       AK_PLUGIN_TYPE_ELEMENT_SETTINGS)
-        };
-        AkElementPtr m_audioConvert {AkElement::create("ACapsConvert")};
-        ObjectPtr m_audioConvertSettings {
-            AkElement::create<QObject>("ACapsConvert",
-                                       AK_PLUGIN_TYPE_ELEMENT_SETTINGS)
-        };
-        AkElementPtr m_audioGenerator {AkElement::create("AudioGen")};
-        AkElementPtr m_audioSwitch {AkElement::create("Multiplex")};
+        AkElementPtr m_audioOut {akPluginManager->create<AkElement>("AudioSource/AudioDevice")};
+        AkElementPtr m_audioIn {akPluginManager->create<AkElement>("AudioSource/AudioDevice")};
+        AkElementPtr m_audioConvert {akPluginManager->create<AkElement>("AudioFilter/AudioConvert")};
+        AkElementPtr m_audioGenerator {akPluginManager->create<AkElement>("AudioSource/AudioGenerator")};
+        AkElementPtr m_audioSwitch {akPluginManager->create<AkElement>("Utils/Multiplex")};
         QMutex m_mutex;
         QVector<int> m_commonSampleRates;
         AkElement::ElementState m_inputState {AkElement::ElementStateNull};
@@ -103,17 +92,17 @@ AudioLayer::AudioLayer(QQmlApplicationEngine *engine, QObject *parent):
         this->d->m_audioOut->setProperty("device", device);
 
         QObject::connect(this->d->m_audioOut.data(),
-                         SIGNAL(deviceChanged(const QString &)),
+                         SIGNAL(deviceChanged(QString)),
                          this,
-                         SIGNAL(audioOutputChanged(const QString &)));
+                         SIGNAL(audioOutputChanged(QString)));
         QObject::connect(this->d->m_audioOut.data(),
-                         SIGNAL(capsChanged(const AkAudioCaps &)),
+                         SIGNAL(capsChanged(AkAudioCaps)),
                          this,
-                         SIGNAL(outputDeviceCapsChanged(const AkAudioCaps &)));
+                         SIGNAL(outputDeviceCapsChanged(AkAudioCaps)));
         QObject::connect(this->d->m_audioOut.data(),
-                         SIGNAL(outputsChanged(const QStringList &)),
+                         SIGNAL(outputsChanged(QStringList)),
                          this,
-                         SIGNAL(outputsChanged(const QStringList &)));
+                         SIGNAL(outputsChanged(QStringList)));
         QObject::connect(this->d->m_audioOut.data(),
                          SIGNAL(stateChanged(AkElement::ElementState)),
                          this,
@@ -133,32 +122,13 @@ AudioLayer::AudioLayer(QQmlApplicationEngine *engine, QObject *parent):
         this->d->m_audioIn->link(this->d->m_audioSwitch, Qt::DirectConnection);
 
         QObject::connect(this->d->m_audioIn.data(),
-                         SIGNAL(inputsChanged(const QStringList &)),
+                         SIGNAL(inputsChanged(QStringList)),
                          this,
-                         SLOT(privInputsChanged(const QStringList &)));
+                         SLOT(privInputsChanged(QStringList)));
         QObject::connect(this->d->m_audioIn.data(),
                          SIGNAL(latencyChanged(int)),
                          this,
                          SIGNAL(inputLatencyChanged(int)));
-    }
-
-    if (this->d->m_audioOutSettings) {
-        QObject::connect(this->d->m_audioOutSettings.data(),
-                         SIGNAL(audioLibChanged(const QString &)),
-                         this,
-                         SLOT(saveAudioDeviceAudioLib(const QString &)));
-    } else if (this->d->m_audioInSettings) {
-        QObject::connect(this->d->m_audioInSettings.data(),
-                         SIGNAL(audioLibChanged(const QString &)),
-                         this,
-                         SLOT(saveAudioDeviceAudioLib(const QString &)));
-    }
-
-    if (this->d->m_audioConvertSettings) {
-        QObject::connect(this->d->m_audioConvertSettings.data(),
-                         SIGNAL(convertLibChanged(const QString &)),
-                         this,
-                         SLOT(saveAudioConvertConvertLib(const QString &)));
     }
 
     this->d->m_outputCaps = this->outputCaps();
@@ -166,9 +136,9 @@ AudioLayer::AudioLayer(QQmlApplicationEngine *engine, QObject *parent):
     if (this->d->m_audioSwitch) {
         this->d->m_audioSwitch->setProperty("outputIndex", 1);
         QObject::connect(this->d->m_audioSwitch.data(),
-                         SIGNAL(oStream(const AkPacket &)),
+                         SIGNAL(oStream(AkPacket)),
                          this,
-                         SIGNAL(oStream(const AkPacket &)),
+                         SIGNAL(oStream(AkPacket)),
                          Qt::DirectConnection);
     }
 
@@ -759,22 +729,6 @@ void AudioLayer::privInputsChanged(const QStringList &inputs)
         }
 }
 
-void AudioLayer::saveAudioDeviceAudioLib(const QString &audioLib)
-{
-    QSettings config;
-    config.beginGroup("Libraries");
-    config.setValue("AudioDevice.audioLib", audioLib);
-    config.endGroup();
-}
-
-void AudioLayer::saveAudioConvertConvertLib(const QString &convertLib)
-{
-    QSettings config;
-    config.beginGroup("Libraries");
-    config.setValue("AudioConvert.convertLib", convertLib);
-    config.endGroup();
-}
-
 AudioLayerPrivate::AudioLayerPrivate(AudioLayer *self):
     self(self)
 {
@@ -784,23 +738,6 @@ AudioLayerPrivate::AudioLayerPrivate(AudioLayer *self):
 void AudioLayerPrivate::loadProperties()
 {
     QSettings config;
-    config.beginGroup("Libraries");
-    auto audioDev = this->m_audioOutSettings?
-                        this->m_audioOutSettings: this->m_audioInSettings;
-
-    if (audioDev)
-        audioDev->setProperty("audioLib",
-                              config.value("AudioDevice.audioLib",
-                                           audioDev->property("audioLib")));
-
-    if (this->m_audioConvertSettings) {
-        auto convertLib =
-                config.value("AudioConvert.convertLib",
-                             this->m_audioConvertSettings->property("convertLib"));
-        this->m_audioConvertSettings->setProperty("convertLib", convertLib);
-    }
-
-    config.endGroup();
 
     config.beginGroup("AudioConfigs");
     QString confInput = config.value("audioInput").toString();

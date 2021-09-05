@@ -1,5 +1,12 @@
 {
-    "pluginType": "Ak.Element",
-    "type": "VideoFilter",
-    "description": "Broken TV"
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "Scroll",
+            "description": "Broken TV",
+            "id": "VideoFilter/Scroll",
+            "implements": ["Element", "VideoFilter"],
+            "type": "qtplugin"
+        }
+    ]
 }

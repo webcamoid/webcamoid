@@ -1,5 +1,12 @@
 {
-    "pluginType": "Ak.Element",
-    "type": "VideoFilter",
-    "description": "Hypnotic"
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "Hypnotic",
+            "description": "Hypnotic",
+            "id": "VideoFilter/Hypnotic",
+            "implements": ["Element", "VideoFilter"],
+            "type": "qtplugin"
+        }
+    ]
 }

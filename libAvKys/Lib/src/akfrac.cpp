@@ -110,6 +110,16 @@ AkFrac AkFrac::operator *(const AkFrac &other) const
                   this->d->m_den * other.d->m_den);
 }
 
+AkFrac::operator bool() const
+{
+    return this->d->m_den != 0;
+}
+
+AkFrac::operator QString() const
+{
+    return QString("%1/%2").arg(this->d->m_num).arg(this->d->m_den);
+}
+
 QObject *AkFrac::create()
 {
     return new AkFrac();
@@ -138,16 +148,6 @@ QVariant AkFrac::createVariant(qint64 num, qint64 den)
 QVariant AkFrac::toVariant() const
 {
     return QVariant::fromValue(*this);
-}
-
-AkFrac::operator bool() const
-{
-    return this->d->m_den != 0;
-}
-
-AkFrac::operator QString() const
-{
-    return QString("%1/%2").arg(this->d->m_num).arg(this->d->m_den);
 }
 
 qint64 AkFrac::num() const

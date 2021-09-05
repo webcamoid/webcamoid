@@ -1,3 +1,13 @@
 {
-    "pluginType": "Ak.SubModule"
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "Generic converter",
+            "description": "Generic audio converter",
+            "id": "AudioFilter/AudioConvert/Impl/Generic",
+            "implements": ["AudioConvertImpl"],
+            "priority": 800,
+            "type": "qtplugin"
+        }
+    ]
 }

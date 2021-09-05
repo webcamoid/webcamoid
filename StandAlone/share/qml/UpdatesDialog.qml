@@ -32,21 +32,30 @@ Dialog {
     modal: true
     title: qsTr("New version available!")
 
+    property int webcamoidStatus: updates.status("Webcamoid")
+    property string webcamoidLatestVersion: updates.latestVersion("Webcamoid")
+
     function notifyUpdate()
     {
         if (updates.notifyNewVersion
             && showNextTime.checked
-            && updates.versionType == Updates.VersionTypeOld) {
+            && webcamoidStatus == Updates.ComponentOutdated) {
             open()
         }
     }
 
     Component.onCompleted: notifyUpdate()
+    onWebcamoidLatestVersionChanged: notifyUpdate()
 
     Connections {
         target: updates
 
-        onVersionTypeChanged: notifyUpdate()
+        onNewVersionAvailable: {
+            if (component == "Webcamoid") {
+                updatesDialog.webcamoidStatus = updates.status("Webcamoid");
+                updatesDialog.webcamoidLatestVersion = latestVersion;
+            }
+        }
     }
 
     ScrollView {
@@ -60,7 +69,7 @@ Dialog {
             Label {
                 text: qsTr("Download %1 %2 NOW!")
                         .arg(mediaTools.applicationName)
-                        .arg(updates.latestVersion)
+                        .arg(updatesDialog.webcamoidLatestVersion)
                 Layout.fillWidth: true
             }
             CheckBox {

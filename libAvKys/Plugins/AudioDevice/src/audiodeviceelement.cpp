@@ -26,9 +26,10 @@
 #include <akfrac.h>
 #include <akpacket.h>
 #include <akaudiopacket.h>
+#include <akplugininfo.h>
+#include <akpluginmanager.h>
 
 #include "audiodeviceelement.h"
-#include "audiodeviceelementsettings.h"
 #include "audiodev.h"
 
 #define PAUSE_TIMEOUT 500
@@ -38,25 +39,19 @@
 #include <combaseapi.h>
 #endif
 
-template<typename T>
-inline QSharedPointer<T> ptr_cast(QObject *obj=nullptr)
-{
-    return QSharedPointer<T>(static_cast<T *>(obj));
-}
-
 using AudioDevPtr = QSharedPointer<AudioDev>;
 
 class AudioDeviceElementPrivate
 {
     public:
         AudioDeviceElement *self;
-        AudioDeviceElementSettings m_settings;
         QStringList m_inputs;
         QStringList m_outputs;
         QString m_device;
         AkAudioCaps m_caps;
         AudioDevPtr m_audioDevice;
-        AkElementPtr m_convert {AkElement::create("ACapsConvert")};
+        QString m_audioDeviceImpl;
+        AkElementPtr m_convert {akPluginManager->create<AkElement>("AudioFilter/AudioConvert")};
         QThreadPool m_threadPool;
         QFuture<void> m_readFramesLoopResult;
         QMutex m_mutex;
@@ -68,20 +63,47 @@ class AudioDeviceElementPrivate
         void readFramesLoop();
         void setInputs(const QStringList &inputs);
         void setOutputs(const QStringList &outputs);
-        void audioLibUpdated(const QString &audioLib);
+        void linksChanged(const AkPluginLinks &links);
 };
 
 AudioDeviceElement::AudioDeviceElement():
     AkElement()
 {
     this->d = new AudioDeviceElementPrivate(this);
-    QObject::connect(&this->d->m_settings,
-                     &AudioDeviceElementSettings::audioLibChanged,
-                     [this] (const QString &audioLib) {
-                        this->d->audioLibUpdated(audioLib);
+    QObject::connect(akPluginManager,
+                     &AkPluginManager::linksChanged,
+                     this,
+                     [this] (const AkPluginLinks &links) {
+                        this->d->linksChanged(links);
                      });
 
-    this->d->audioLibUpdated(this->d->m_settings.audioLib());
+    if (this->d->m_audioDevice) {
+        QObject::connect(this->d->m_audioDevice.data(),
+                         &AudioDev::defaultInputChanged,
+                         this,
+                         &AudioDeviceElement::defaultInputChanged);
+        QObject::connect(this->d->m_audioDevice.data(),
+                         &AudioDev::defaultOutputChanged,
+                         this,
+                         &AudioDeviceElement::defaultOutputChanged);
+        QObject::connect(this->d->m_audioDevice.data(),
+                         &AudioDev::latencyChanged,
+                         this,
+                         &AudioDeviceElement::latencyChanged);
+        QObject::connect(this->d->m_audioDevice.data(),
+                         &AudioDev::inputsChanged,
+                         [this] (const QStringList &inputs) {
+                            this->d->setInputs(inputs);
+                         });
+        QObject::connect(this->d->m_audioDevice.data(),
+                         &AudioDev::outputsChanged,
+                         [this] (const QStringList &outputs) {
+                            this->d->setOutputs(outputs);
+                         });
+
+        this->d->m_inputs = this->d->m_audioDevice->inputs();
+        this->d->m_outputs = this->d->m_audioDevice->outputs();
+    }
 }
 
 AudioDeviceElement::~AudioDeviceElement()
@@ -245,6 +267,9 @@ QList<int> AudioDeviceElement::supportedSampleRates(const QString &device)
 AudioDeviceElementPrivate::AudioDeviceElementPrivate(AudioDeviceElement *self):
     self(self)
 {
+    this->m_audioDevice = akPluginManager->create<AudioDev>("AudioSource/AudioDevice/Impl/*");
+    this->m_audioDeviceImpl = akPluginManager->defaultPlugin("AudioSource/AudioDevice/Impl/*",
+                                                             {"AudioDeviceImpl"}).id();
 }
 
 void AudioDeviceElementPrivate::readFramesLoop()
@@ -318,8 +343,12 @@ void AudioDeviceElementPrivate::setOutputs(const QStringList &outputs)
     emit self->outputsChanged(outputs);
 }
 
-void AudioDeviceElementPrivate::audioLibUpdated(const QString &audioLib)
+void AudioDeviceElementPrivate::linksChanged(const AkPluginLinks &links)
 {
+    if (!links.contains("AudioSource/AudioDevice/Impl/*")
+        || links["AudioSource/AudioDevice/Impl/*"] != this->m_audioDeviceImpl)
+        return;
+
     auto state = self->state();
     self->setState(AkElement::ElementStateNull);
 
@@ -332,16 +361,13 @@ void AudioDeviceElementPrivate::audioLibUpdated(const QString &audioLib)
         latency = this->m_audioDevice->latency();
 
     this->m_audioDevice =
-            ptr_cast<AudioDev>(AudioDeviceElement::loadSubModule("AudioDevice",
-                                                                 audioLib));
-
-    if (!this->m_audioDevice) {
-        this->m_mutexLib.unlock();
-
-        return;
-    }
-
+            akPluginManager->create<AudioDev>("AudioSource/AudioDevice/Impl/*");
     this->m_mutexLib.unlock();
+
+    this->m_audioDeviceImpl = links["AudioSource/AudioDevice/Impl/*"];
+
+    if (!this->m_audioDevice)
+        return;
 
     QObject::connect(this->m_audioDevice.data(),
                      &AudioDev::defaultInputChanged,

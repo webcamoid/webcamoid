@@ -22,17 +22,15 @@
 
 QObject *Denoise::create(const QString &key, const QString &specification)
 {
+    Q_UNUSED(key)
     Q_UNUSED(specification)
 
-    if (key == AK_PLUGIN_TYPE_ELEMENT)
-        return new DenoiseElement();
-
-    return nullptr;
+    return new DenoiseElement();
 }
 
 QStringList Denoise::keys() const
 {
-    return QStringList();
+    return {};
 }
 
 #include "moc_denoise.cpp"

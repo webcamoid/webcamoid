@@ -1,4 +1,13 @@
 {
-    "pluginType": "Ak.Element",
-    "type": "AudioFilter"
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "AudioConvert",
+            "description": "Convert audio frames to different formats",
+            "id": "AudioFilter/AudioConvert",
+            "implements": ["Element"],
+            "depends": ["AudioFilter/AudioConvert/Impl/*"],
+            "type": "qtplugin"
+        }
+    ]
 }

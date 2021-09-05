@@ -1,5 +1,12 @@
 {
-    "pluginType": "Ak.Element",
-    "type": "VideoFilter",
-    "description": "Distort"
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "Distort",
+            "description": "Distort",
+            "id": "VideoFilter/Distort",
+            "implements": ["Element", "VideoFilter"],
+            "type": "qtplugin"
+        }
+    ]
 }

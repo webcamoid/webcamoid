@@ -1,4 +1,13 @@
 {
-    "pluginType": "Ak.SubModule",
-    "type": "capture"
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "AVFoundation",
+            "description": "Capture screen using AVFoundation",
+            "id": "VideoSource/DesktopCapture/Impl/AVFoundation",
+            "implements": ["DesktopCaptureImpl"],
+            "priority": 1000,
+            "type": "qtplugin"
+        }
+    ]
 }

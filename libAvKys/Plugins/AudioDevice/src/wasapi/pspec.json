@@ -1,3 +1,13 @@
 {
-    "pluginType": "Ak.SubModule"
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "Windows Audio Session API (WASAPI)",
+            "description": "Capture audio using WASAPI",
+            "id": "AudioSource/AudioDevice/Impl/WASAPI",
+            "implements": ["AudioDeviceImpl"],
+            "priority": 1000,
+            "type": "qtplugin"
+        }
+    ]
 }

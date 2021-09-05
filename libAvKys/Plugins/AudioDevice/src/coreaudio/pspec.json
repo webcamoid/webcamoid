@@ -1,3 +1,13 @@
 {
-    "pluginType": "Ak.SubModule"
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "CoreAudio",
+            "description": "Capture audio using CoreAudio",
+            "id": "AudioSource/AudioDevice/Impl/CoreAudio",
+            "implements": ["AudioDeviceImpl"],
+            "priority": 1000,
+            "type": "qtplugin"
+        }
+    ]
 }

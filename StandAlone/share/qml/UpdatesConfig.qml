@@ -36,6 +36,9 @@ Page {
             columns: 2
             width: scrollView.width
 
+            property int webcamoidStatus: updates.status("Webcamoid")
+            property string webcamoidLatestVersion: updates.latestVersion("Webcamoid")
+
             Component.onCompleted: {
                 var ciIndex = 0
                 var ciDiff = Number.POSITIVE_INFINITY
@@ -63,10 +66,16 @@ Page {
             Connections {
                 target: updates
 
-                onVersionTypeChanged: state = versionType == Updates.VersionTypeOld?
-                                                  "isOutdated":
-                                              versionType == Updates.VersionTypeDevelopment?
-                                                  "isDevelopment": ""
+                onNewVersionAvailable: {
+                    if (component == "Webcamoid") {
+                        layout.webcamoidStatus = updates.status("Webcamoid");
+                        layout.webcamoidLatestVersion = latestVersion;
+                        state = layout.webcamoidStatus == Updates.ComponentOutdated?
+                                    "isOutdated":
+                                layout.webcamoidStatus == Updates.ComponentNewer?
+                                    "isDevelopment": ""
+                    }
+                }
             }
 
             Label {
@@ -74,6 +83,7 @@ Page {
             }
             Switch {
                 id: newVersion
+                checked: true
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 
                 onCheckedChanged: updates.notifyNewVersion = checked
@@ -119,6 +129,7 @@ Page {
                         interval: 0
                     }
                 }
+                currentIndex: 0
                 enabled: newVersion.checked
 
                 onCurrentIndexChanged:
@@ -145,11 +156,11 @@ Page {
                 spacing: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
                 Layout.fillWidth: true
                 Layout.columnSpan: 2
-                visible: updates.versionType == Updates.VersionTypeOld
+                visible: !mediaTools.isDailyBuild && layout.webcamoidStatus == Updates.ComponentOutdated
 
                 Label {
                     text: qsTr("Your version of %1 is outdated. Latest version is <b>%2</b>.")
-                            .arg(mediaTools.applicationName).arg(updates.latestVersion)
+                            .arg(mediaTools.applicationName).arg(layout.webcamoidLatestVersion)
                     wrapMode: Text.WordWrap
                     Layout.fillWidth: true
                 }
@@ -166,7 +177,7 @@ Page {
                 spacing: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
                 Layout.fillWidth: true
                 Layout.columnSpan: 2
-                visible: updates.versionType == Updates.VersionTypeDevelopment
+                visible: mediaTools.isDailyBuild || layout.webcamoidStatus == Updates.ComponentNewer
 
                 Label {
                     text: qsTr("Thanks for using a <b>development version</b>!<br />It will be very helpful if you can report any bug and suggestions you have.")
@@ -187,6 +198,7 @@ Page {
     LABS.Settings {
         category: "Updates"
 
+        property alias notify: newVersion.checked
         property alias showDialog: showUpdatesDialog.checked
     }
 }

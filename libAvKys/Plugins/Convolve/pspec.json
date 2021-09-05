@@ -1,5 +1,12 @@
 {
-    "pluginType": "Ak.Element",
-    "type": "VideoFilter",
-    "description": "Convolve Matrix"
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "Convolve",
+            "description": "Convolve Matrix",
+            "id": "VideoFilter/Convolve",
+            "implements": ["Element", "VideoFilter"],
+            "type": "qtplugin"
+        }
+    ]
 }

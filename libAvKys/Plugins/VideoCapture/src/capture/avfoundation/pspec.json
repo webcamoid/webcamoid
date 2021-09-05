@@ -1,0 +1,13 @@
+{
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "AVFoundation",
+            "description": "Capture video using AVFoundation",
+            "id": "VideoSource/CameraCapture/Impl/AVFoundation",
+            "implements": ["CameraCaptureImpl"],
+            "priority": 1000,
+            "type": "qtplugin"
+        }
+    ]
+}

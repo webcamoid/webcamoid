@@ -1,3 +1,16 @@
 {
-    "pluginType": "Ak.Element"
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "MultiSink",
+            "description": "Record audio and video streams to a file",
+            "id": "MultimediaSink/MultiSink",
+            "implements": ["Element"],
+            "depends": [
+                "MultimediaSink/MultiSink/Impl/*",
+                "AudioFilter/AudioConvert"
+            ],
+            "type": "qtplugin"
+        }
+    ]
 }

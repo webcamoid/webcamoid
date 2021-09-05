@@ -22,17 +22,15 @@
 
 QObject *FaceTrack::create(const QString &key, const QString &specification)
 {
+    Q_UNUSED(key)
     Q_UNUSED(specification)
 
-    if (key == AK_PLUGIN_TYPE_ELEMENT)
-        return new FaceTrackElement();
-
-    return nullptr;
+    return new FaceTrackElement();
 }
 
 QStringList FaceTrack::keys() const
 {
-    return QStringList();
+    return {};
 }
 
 #include "moc_facetrack.cpp"

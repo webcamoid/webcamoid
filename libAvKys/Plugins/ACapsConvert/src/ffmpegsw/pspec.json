@@ -1,3 +1,13 @@
 {
-    "pluginType": "Ak.SubModule"
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "FFmpeg libswresample",
+            "description": "Convert audio frames using libswresample",
+            "id": "AudioFilter/AudioConvert/Impl/FFmpegSW",
+            "implements": ["AudioConvertImpl"],
+            "priority": 1000,
+            "type": "qtplugin"
+        }
+    ]
 }

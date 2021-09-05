@@ -1,5 +1,12 @@
 {
-    "pluginType": "Ak.Element",
-    "type": "VideoFilter",
-    "description": "Scan Lines"
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "ScanLines",
+            "description": "Scan Lines",
+            "id": "VideoFilter/ScanLines",
+            "implements": ["Element", "VideoFilter"],
+            "type": "qtplugin"
+        }
+    ]
 }

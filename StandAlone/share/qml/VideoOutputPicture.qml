@@ -35,7 +35,7 @@ Dialog {
 
     function toQrc(uri)
     {
-        if (uri.indexOf(":") === 0)
+        if (uri.indexOf(":") == 0)
             return "qrc" + uri
 
         return "file:" + uri

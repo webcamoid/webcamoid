@@ -42,15 +42,10 @@ class QQmlContext;
 
 using AkElementPtr = QSharedPointer<AkElement>;
 
-/// Plugin template.
 class AKCOMMONS_EXPORT AkElement: public QObject
 {
     Q_OBJECT
     Q_ENUMS(ElementState)
-    Q_PROPERTY(QString pluginId
-               READ pluginId)
-    Q_PROPERTY(QString pluginPath
-               READ pluginPath)
     Q_PROPERTY(AkElement::ElementState state
                READ state
                WRITE setState
@@ -68,9 +63,6 @@ class AKCOMMONS_EXPORT AkElement: public QObject
         AkElement(QObject *parent=nullptr);
         virtual ~AkElement();
 
-        Q_INVOKABLE virtual QString pluginId() const;
-        Q_INVOKABLE static QString pluginIdFromPath(const QString &path);
-        Q_INVOKABLE QString pluginPath() const;
         Q_INVOKABLE virtual AkElement::ElementState state() const;
         Q_INVOKABLE virtual QObject *controlInterface(QQmlEngine *engine,
                                                       const QString &controlId) const;
@@ -99,44 +91,6 @@ class AKCOMMONS_EXPORT AkElement: public QObject
                                        const AkElementPtr &dstElement);
         Q_INVOKABLE static bool unlink(const QObject *srcElement,
                                        const QObject *dstElement);
-        template<typename T>
-        static inline QSharedPointer<T> create(const QString &pluginId,
-                                               const QString &pluginSub={})
-        {
-            auto object = AkElement::createPtr(pluginId, pluginSub);
-
-            if (!object)
-                return {};
-
-            return QSharedPointer<T>(reinterpret_cast<T *>(object));
-        }
-        Q_INVOKABLE static AkElementPtr create(const QString &pluginId,
-                                               const QString &pluginSub={});
-        Q_INVOKABLE static QObject *createPtr(const QString &pluginId,
-                                              const QString &pluginSub={});
-        Q_INVOKABLE static QStringList listSubModules(const QString &pluginId,
-                                                      const QString &type={});
-        Q_INVOKABLE QStringList listSubModules(const QStringList &types={});
-        Q_INVOKABLE static QObject *loadSubModule(const QString &pluginId,
-                                                  const QString &subModule);
-        Q_INVOKABLE QObject *loadSubModule(const QString &subModule);
-        Q_INVOKABLE static bool recursiveSearch();
-        Q_INVOKABLE static void setRecursiveSearch(bool enable);
-        Q_INVOKABLE static QStringList searchPaths();
-        Q_INVOKABLE static void addSearchPath(const QString &path);
-        Q_INVOKABLE static void setSearchPaths(const QStringList &searchPaths);
-        Q_INVOKABLE static void resetSearchPaths();
-        Q_INVOKABLE static QStringList listPlugins(const QString &type="");
-        Q_INVOKABLE static QStringList listPluginPaths(const QString &searchPath);
-        Q_INVOKABLE static QStringList listPluginPaths(bool all=false);
-        Q_INVOKABLE static void setPluginPaths(const QStringList &paths);
-        Q_INVOKABLE static QStringList pluginsBlackList();
-        Q_INVOKABLE static void setPluginsBlackList(const QStringList &blackList);
-        Q_INVOKABLE static QString pluginPath(const QString &pluginId);
-        Q_INVOKABLE static QVariantMap pluginInfo(const QString &pluginId);
-        Q_INVOKABLE static void setPluginInfo(const QString &path,
-                                              const QVariantMap &metaData);
-        Q_INVOKABLE static void clearCache();
 
         virtual AkPacket operator ()(const AkPacket &packet);
 

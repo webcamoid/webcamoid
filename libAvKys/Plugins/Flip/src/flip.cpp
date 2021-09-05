@@ -22,17 +22,15 @@
 
 QObject *Flip::create(const QString &key, const QString &specification)
 {
+    Q_UNUSED(key)
     Q_UNUSED(specification)
 
-    if (key == AK_PLUGIN_TYPE_ELEMENT)
-        return new FlipElement();
-
-    return nullptr;
+    return new FlipElement();
 }
 
 QStringList Flip::keys() const
 {
-    return QStringList();
+    return {};
 }
 
 #include "moc_flip.cpp"

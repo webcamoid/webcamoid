@@ -42,6 +42,6 @@ T.SwipeView {
         preferredHighlightEnd: 0
         highlightMoveDuration: 250
         maximumFlickVelocity:
-            4 * (control.orientation === Qt.Horizontal? width: height)
+            4 * (control.orientation == Qt.Horizontal? width: height)
     }
 }

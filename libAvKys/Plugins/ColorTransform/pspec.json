@@ -1,5 +1,12 @@
 {
-    "pluginType": "Ak.Element",
-    "type": "VideoFilter",
-    "description": "Color Matrix Transform"
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "ColorTransform",
+            "description": "Color Matrix Transform",
+            "id": "VideoFilter/ColorTransform",
+            "implements": ["Element", "VideoFilter"],
+            "type": "qtplugin"
+        }
+    ]
 }

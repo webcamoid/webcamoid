@@ -37,6 +37,7 @@
 #include <sys/mman.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
+#include <libkmod.h>
 #include <akelement.h>
 #include <akfrac.h>
 #include <akpacket.h>
@@ -123,6 +124,7 @@ class VCamAkPrivate
         inline int xioctl(int fd, ulong request, void *arg) const;
         bool sudo(const QString &command,
                   const QStringList &argumments);
+        QStringList availableRootMethods() const;
         QString sysfsControls(const QString &deviceId) const;
         QStringList connectedDevices(const QString &deviceId) const;
         QVariantList capsFps(int fd,
@@ -181,6 +183,28 @@ VCamAk::VCamAk(QObject *parent):
 {
     this->d = new VCamAkPrivate(this);
     this->d->m_picture = this->d->readPicturePath();
+    QStringList preferredRootMethod {
+        // List of possible graphical sudo methods that can be supported:
+        //
+        // https://en.wikipedia.org/wiki/Comparison_of_privilege_authorization_features#Introduction_to_implementations
+        "pkexec",
+        "kdesu",
+        "kdesudo",
+        "gksu",
+        "gksudo",
+        "gtksu",
+        "ktsuss",
+        "beesu",
+    };
+
+    auto availableMethods = this->d->availableRootMethods();
+
+    for (auto &method: preferredRootMethod)
+        if (availableMethods.contains(method)) {
+            this->d->m_rootMethod = method;
+
+            break;
+        }
 }
 
 VCamAk::~VCamAk()
@@ -215,6 +239,47 @@ bool VCamAk::isInstalled() const
     }
 
     return false;
+}
+
+QString VCamAk::installedVersion() const
+{
+    QString version;
+    static const char moduleName[] = "akvcam";
+    auto modulesDir = QString("/lib/modules/%1").arg(QSysInfo::kernelVersion());
+    const char *config = NULL;
+    auto ctx = kmod_new(modulesDir.toStdString().c_str(), &config);
+
+    if (ctx) {
+        struct kmod_module *module = NULL;
+        int error = kmod_module_new_from_name(ctx,  moduleName, &module);
+
+        if (error == 0 && module) {
+            struct kmod_list *info = NULL;
+            error = kmod_module_get_info(module, &info);
+
+            if (error >= 0 && info) {
+                for (auto entry = info;
+                     entry;
+                     entry = kmod_list_next(info, entry)) {
+                    auto key = kmod_module_info_get_key(entry);
+
+                    if (strncmp(key, "version", 7) == 0) {
+                        version = QString::fromLatin1(kmod_module_info_get_value(entry));
+
+                        break;
+                    }
+                }
+
+                kmod_module_info_free_list(info);
+            }
+
+            kmod_module_unref(module);
+        }
+
+        kmod_unref(ctx);
+    }
+
+    return version;
 }
 
 QStringList VCamAk::webcams() const
@@ -379,6 +444,11 @@ QString VCamAk::picture() const
 QString VCamAk::rootMethod() const
 {
     return this->d->m_rootMethod;
+}
+
+QStringList VCamAk::availableRootMethods() const
+{
+    return this->d->availableRootMethods();
 }
 
 QString VCamAk::deviceCreate(const QString &description,
@@ -1983,6 +2053,33 @@ bool VCamAkPrivate::sudo(const QString &command, const QStringList &argumments)
     }
 
     return true;
+}
+
+QStringList VCamAkPrivate::availableRootMethods() const
+{
+    QStringList methods;
+    auto paths =
+            QProcessEnvironment::systemEnvironment().value("PATH").split(':');
+    static const QStringList sus {
+        "beesu",
+        "gksu",
+        "gksudo",
+        "gtksu",
+        "kdesu",
+        "kdesudo",
+        "ktsuss",
+        "pkexec",
+    };
+
+    for (auto &su: sus)
+        for (auto &path: paths)
+            if (QDir(path).exists(su)) {
+                methods << su;
+
+                break;
+            }
+
+    return methods;
 }
 
 QString VCamAkPrivate::sysfsControls(const QString &deviceId) const

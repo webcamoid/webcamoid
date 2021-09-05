@@ -1,5 +1,12 @@
 {
-    "pluginType": "Ak.Element",
-    "type": "VideoFilter",
-    "description": "HSL Transform"
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "ChangeHSL",
+            "description": "HSL Transform",
+            "id": "VideoFilter/ChangeHSL",
+            "implements": ["Element", "VideoFilter"],
+            "type": "qtplugin"
+        }
+    ]
 }

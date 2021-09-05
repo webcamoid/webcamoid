@@ -21,11 +21,12 @@
 #include <QSharedPointer>
 #include <QMutex>
 #include <QWaitCondition>
-#include <akelement.h>
-#include <akcaps.h>
 #include <akaudiocaps.h>
-#include <akpacket.h>
 #include <akaudiopacket.h>
+#include <akcaps.h>
+#include <akelement.h>
+#include <akpacket.h>
+#include <akpluginmanager.h>
 
 extern "C"
 {
@@ -229,7 +230,8 @@ AudioStream::AudioStream(const AVFormatContext *formatContext,
     stream->time_base.den = audioCaps.rate();
     codecContext->time_base = stream->time_base;
 
-    this->d->m_convert = AkElement::create("ACapsConvert");
+    this->d->m_convert =
+            akPluginManager->create<AkElement>("AudioFilter/AudioConvert");
     this->d->m_convert->setProperty("caps", QVariant::fromValue(audioCaps));
 }
 

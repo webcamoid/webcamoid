@@ -17,33 +17,55 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QTimer>
 #include <QDateTime>
-#include <QSettings>
-#include <QtQml>
-#include <QQmlContext>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QNetworkAccessManager>
-#include <QNetworkRequest>
 #include <QNetworkReply>
+#include <QNetworkRequest>
+#include <QQmlContext>
+#include <QSettings>
+#include <QTimer>
+#include <QtQml>
 
 #include "updates.h"
 
-#define UPDATES_URL "https://api.github.com/repos/webcamoid/webcamoid/releases/latest"
+struct ComponentInfo
+{
+    public:
+        QString component;
+        QString currentVersion;
+        QString latestVersion;
+        QString url;
+        QByteArray data;
+
+        ComponentInfo();
+        ComponentInfo(const QString &component,
+                      const QString &currentVersion,
+                      const QString &latestVersion,
+                      const QString &url);
+        ComponentInfo(const ComponentInfo &other);
+        ComponentInfo &operator =(const ComponentInfo &other);
+};
 
 class UpdatesPrivate
 {
     public:
+        Updates *self;
         QQmlApplicationEngine *m_engine {nullptr};
         QNetworkAccessManager m_manager;
-        QString m_latestVersion {COMMONS_VERSION};
+        QVector<ComponentInfo> m_componentsInfo;
         QDateTime m_lastUpdate;
         QTimer m_timer;
-        Updates::VersionType m_versionType {Updates::VersionTypeCurrent};
         int m_checkInterval {0};
-        bool m_notifyNewVersion {false};
+        bool m_notifyNewVersion {true};
+        QMutex m_mutex;
 
+        explicit UpdatesPrivate(Updates *self);
+        void setLastUpdate(const QDateTime &lastUpdate);
+        void setLatestVersion(const QString &component, const QString &version);
+        void readData(const QString &component, QNetworkReply *reply);
+        void readLatestVersion(const QString &component);
         QVariantList vectorize(const QString &version) const;
         void normalize(QVariantList &vector1, QVariantList &vector2) const;
         template<typename Functor>
@@ -68,72 +90,96 @@ class UpdatesPrivate
 
             return func(sv1, sv2);
         }
+        void loadProperties();
+        void saveNotifyNewVersion(bool notifyNewVersion);
+        void saveCheckInterval(int checkInterval);
+        void saveLastUpdate(const QDateTime &lastUpdate);
+        void saveLastestVersion();
 };
 
 Updates::Updates(QQmlApplicationEngine *engine, QObject *parent):
     QObject(parent)
 {
-    this->d = new UpdatesPrivate;
+    this->d = new UpdatesPrivate(this);
     this->setQmlEngine(engine);
-
-    QObject::connect(&this->d->m_manager,
-                     &QNetworkAccessManager::finished,
-                     this,
-                     &Updates::replyFinished);
 
     // Check lasUpdate every 10 mins
     this->d->m_timer.setInterval(int(1e3 * 60 * 10));
-    this->loadProperties();
-
     QObject::connect(&this->d->m_timer,
                      &QTimer::timeout,
                      this,
                      &Updates::checkUpdates);
-    QObject::connect(this,
-                     &Updates::notifyNewVersionChanged,
-                     this,
-                     &Updates::saveNotifyNewVersion);
-    QObject::connect(this,
-                     &Updates::latestVersionChanged,
-                     this,
-                     &Updates::saveLatestVersion);
-    QObject::connect(this,
-                     &Updates::checkIntervalChanged,
-                     this,
-                     &Updates::saveCheckInterval);
-    QObject::connect(this,
-                     &Updates::checkIntervalChanged,
-                     [this] (int checkInterval) {
-                        if (checkInterval > 0)
-                            this->d->m_timer.start();
-                        else
-                            this->d->m_timer.stop();
-                     });
-    QObject::connect(this,
-                     &Updates::lastUpdateChanged,
-                     this,
-                     &Updates::saveLastUpdate);
+
+    this->d->loadProperties();
 }
 
 Updates::~Updates()
 {
-    this->saveProperties();
     delete this->d;
+}
+
+QStringList Updates::components() const
+{
+    QStringList components;
+
+    this->d->m_mutex.lock();
+
+    for (auto &info: this->d->m_componentsInfo)
+        components << info.component;
+
+    this->d->m_mutex.unlock();
+
+    return components;
+}
+
+QString Updates::latestVersion(const QString &component) const
+{
+    QString version;
+
+    this->d->m_mutex.lock();
+
+    for (auto &info: this->d->m_componentsInfo)
+        if (info.component == component) {
+            version = info.latestVersion;
+
+            break;
+        }
+
+    this->d->m_mutex.unlock();
+
+    return version;
+}
+
+Updates::ComponentStatus Updates::status(const QString &component) const
+{
+    Updates::ComponentStatus status = ComponentUpdated;
+    this->d->m_mutex.lock();
+
+    for (auto &info: this->d->m_componentsInfo)
+        if (info.component == component) {
+            auto isNewerVersion =
+                    this->d->compare(info.currentVersion,
+                                     info.latestVersion,
+                                     [] (const QString &a, const QString &b) {
+                                        return a > b;
+                                     });
+            status = isNewerVersion?
+                         ComponentNewer:
+                     info.currentVersion == info.latestVersion?
+                         ComponentUpdated:
+                         ComponentOutdated;
+
+            break;
+        }
+
+    this->d->m_mutex.unlock();
+
+    return status;
 }
 
 bool Updates::notifyNewVersion() const
 {
     return this->d->m_notifyNewVersion;
-}
-
-Updates::VersionType Updates::versionType() const
-{
-    return this->d->m_versionType;
-}
-
-QString Updates::latestVersion() const
-{
-    return this->d->m_latestVersion;
 }
 
 int Updates::checkInterval() const
@@ -147,6 +193,213 @@ QDateTime Updates::lastUpdate() const
         return this->d->m_lastUpdate;
 
     return QDateTime::currentDateTime();
+}
+
+void Updates::checkUpdates()
+{
+    if (this->d->m_checkInterval > 0
+        &&  (this->d->m_lastUpdate.isNull()
+             || this->d->m_lastUpdate.daysTo(QDateTime::currentDateTime()) >= this->d->m_checkInterval)) {
+        this->d->m_mutex.lock();
+
+        for (auto &info: this->d->m_componentsInfo) {
+            info.data.clear();
+            auto reply = this->d->m_manager.get(QNetworkRequest(QUrl(info.url)));
+            QObject::connect(reply,
+                             &QNetworkReply::finished,
+                             this,
+                             [this, info, reply] () {
+                this->d->readLatestVersion(info.component);
+                reply->deleteLater();
+            });
+            QObject::connect(reply,
+                             &QNetworkReply::readyRead,
+                             this,
+                             [this, info, reply] () {
+                this->d->readData(info.component, reply);
+            });
+        }
+
+        this->d->m_mutex.unlock();
+    }
+}
+
+void Updates::setQmlEngine(QQmlApplicationEngine *engine)
+{
+    if (this->d->m_engine == engine)
+        return;
+
+    this->d->m_engine = engine;
+
+    if (engine) {
+        engine->rootContext()->setContextProperty("updates", this);
+        qmlRegisterType<Updates>("Webcamoid", 1, 0, "Updates");
+    }
+}
+
+void Updates::setNotifyNewVersion(bool notifyNewVersion)
+{
+    if (this->d->m_notifyNewVersion == notifyNewVersion)
+        return;
+
+    this->d->m_notifyNewVersion = notifyNewVersion;
+    emit this->notifyNewVersionChanged(notifyNewVersion);
+    this->d->saveNotifyNewVersion(notifyNewVersion);
+}
+
+void Updates::setCheckInterval(int checkInterval)
+{
+    if (this->d->m_checkInterval == checkInterval)
+        return;
+
+    this->d->m_checkInterval = checkInterval;
+    emit this->checkIntervalChanged(checkInterval);
+    this->d->saveCheckInterval(checkInterval);
+}
+
+void Updates::resetNotifyNewVersion()
+{
+    this->setNotifyNewVersion(false);
+}
+
+void Updates::resetCheckInterval()
+{
+    this->setCheckInterval(0);
+}
+
+void Updates::watch(const QString &component,
+                    const QString &currentVersion,
+                    const QString &url)
+{
+    if (component.isEmpty() || currentVersion.isEmpty() || url.isEmpty())
+        return;
+
+    this->d->m_mutex.lock();
+
+    for (auto &info: this->d->m_componentsInfo)
+        if (info.component == component) {
+            info.currentVersion = currentVersion;
+            info.url = url;
+
+            if (info.latestVersion.isEmpty())
+                info.latestVersion = currentVersion;
+
+            this->d->m_mutex.unlock();
+
+            return;
+        }
+
+    this->d->m_mutex.unlock();
+
+    qDebug() << "Added component" << component;
+    this->d->m_mutex.lock();
+    this->d->m_componentsInfo
+            << ComponentInfo {component, currentVersion, currentVersion, url};
+    this->d->m_mutex.unlock();
+    emit this->componentsChanged(this->components());
+}
+
+void Updates::start()
+{
+    this->checkUpdates();
+    this->d->m_timer.start();
+}
+
+void Updates::stop()
+{
+    this->d->m_timer.stop();
+}
+
+UpdatesPrivate::UpdatesPrivate(Updates *self):
+    self(self)
+{
+
+}
+
+void UpdatesPrivate::setLastUpdate(const QDateTime &lastUpdate)
+{
+    if (this->m_lastUpdate == lastUpdate)
+        return;
+
+    this->m_lastUpdate = lastUpdate;
+    emit self->lastUpdateChanged(lastUpdate);
+    this->saveLastUpdate(lastUpdate);
+}
+
+void UpdatesPrivate::setLatestVersion(const QString &component,
+                                      const QString &version)
+{
+    this->m_mutex.lock();
+
+    for (auto &info: this->m_componentsInfo)
+        if (info.component == component) {
+            info.latestVersion = version;
+
+            if (info.currentVersion != info.latestVersion)
+                emit self->newVersionAvailable(component, version);
+
+            break;
+        }
+
+    this->m_mutex.unlock();
+}
+
+void UpdatesPrivate::readData(const QString &component,
+                              QNetworkReply *reply)
+{
+    this->m_mutex.lock();
+
+    for (auto &info: this->m_componentsInfo)
+        if (info.component == component) {
+            info.data += reply->readAll();
+
+            break;
+        }
+
+    this->m_mutex.unlock();
+}
+
+void UpdatesPrivate::readLatestVersion(const QString &component)
+{
+    QByteArray html;
+    this->m_mutex.lock();
+
+    for (auto &info: this->m_componentsInfo)
+        if (info.component == component) {
+            html = info.data;
+            info.data.clear();
+
+            break;
+        }
+
+    this->m_mutex.unlock();
+
+    if (html.isEmpty())
+        return;
+
+    QJsonParseError error {0, QJsonParseError::NoError};
+    auto json = QJsonDocument::fromJson(html, &error);
+
+    if (error.error != QJsonParseError::NoError) {
+        qDebug() << "Error requesting latest version:"
+                 << error.errorString();
+
+        return;
+    }
+
+    if (!json.isObject())
+        return;
+
+    auto jsonObj = json.object();
+
+    if (!jsonObj.contains("tag_name"))
+        return;
+
+    auto latestVersion = self->latestVersion(component);
+    auto version = jsonObj.value("tag_name").toString(latestVersion);
+    this->setLatestVersion(component, version);
+    this->saveLastestVersion();
+    this->setLastUpdate(QDateTime::currentDateTime());
 }
 
 QVariantList UpdatesPrivate::vectorize(const QString &version) const
@@ -221,170 +474,44 @@ void UpdatesPrivate::normalize(QVariantList &vector1,
     }
 }
 
-void Updates::checkUpdates()
-{
-    if (this->d->m_checkInterval > 0
-        &&(this->d->m_lastUpdate.isNull()
-           || this->d->m_lastUpdate.daysTo(QDateTime::currentDateTime()) >= this->d->m_checkInterval)) {
-        this->d->m_manager.get(QNetworkRequest(QUrl(UPDATES_URL)));
-    }
-}
-
-void Updates::setQmlEngine(QQmlApplicationEngine *engine)
-{
-    if (this->d->m_engine == engine)
-        return;
-
-    this->d->m_engine = engine;
-
-    if (engine) {
-        engine->rootContext()->setContextProperty("updates", this);
-        qmlRegisterType<Updates>("Webcamoid", 1, 0, "Updates");
-    }
-}
-
-void Updates::setNotifyNewVersion(bool notifyNewVersion)
-{
-    if (this->d->m_notifyNewVersion == notifyNewVersion)
-        return;
-
-    this->d->m_notifyNewVersion = notifyNewVersion;
-    emit this->notifyNewVersionChanged(notifyNewVersion);
-}
-
-void Updates::setCheckInterval(int checkInterval)
-{
-    if (this->d->m_checkInterval == checkInterval)
-        return;
-
-    this->d->m_checkInterval = checkInterval;
-    emit this->checkIntervalChanged(checkInterval);
-}
-
-void Updates::resetNotifyNewVersion()
-{
-    this->setNotifyNewVersion(false);
-}
-
-void Updates::resetCheckInterval()
-{
-    this->setCheckInterval(0);
-}
-
-void Updates::setVersionType(Updates::VersionType versionType)
-{
-    if (this->d->m_versionType == versionType)
-        return;
-
-    this->d->m_versionType = versionType;
-    emit this->versionTypeChanged(versionType);
-}
-
-void Updates::setLatestVersion(const QString &latestVersion)
-{
-    if (this->d->m_latestVersion == latestVersion)
-        return;
-
-    this->d->m_latestVersion = latestVersion;
-    emit this->latestVersionChanged(latestVersion);
-}
-
-void Updates::setLastUpdate(const QDateTime &lastUpdate)
-{
-    if (this->d->m_lastUpdate == lastUpdate)
-        return;
-
-    this->d->m_lastUpdate = lastUpdate;
-    emit this->lastUpdateChanged(lastUpdate);
-}
-
-void Updates::replyFinished(QNetworkReply *reply)
-{
-    if (!reply || reply->error() != QNetworkReply::NoError) {
-        if (!reply)
-            qDebug() << "Error requesting latest version:" << reply->errorString();
-        else
-            qDebug() << "Error requesting latest version: No response";
-
-        return;
-    }
-
-    QString html = reply->readAll();
-    QJsonParseError error {0, QJsonParseError::NoError};
-    auto json = QJsonDocument::fromJson(html.toUtf8(), &error);
-
-    if (error.error != QJsonParseError::NoError) {
-        qDebug() << "Error requesting latest version:"
-                 << error.errorString();
-
-        return;
-    }
-
-    if (!json.isObject())
-        return;
-
-    auto jsonObj = json.object();
-
-    if (!jsonObj.contains("tag_name"))
-        return;
-
-    auto version = jsonObj.value("tag_name").toString(COMMONS_VERSION);
-    this->setLatestVersion(version);
-
-#ifdef DAILY_BUILD
-    this->setVersionType(VersionTypeDevelopment);
-#else
-    auto isOldVersion =
-            this->d->compare(version, COMMONS_VERSION,
-                             [] (const QString &a, const QString &b) {
-                                   return a > b;
-                             });
-    VersionType versionType = isOldVersion?
-                                  VersionTypeOld:
-                              version == COMMONS_VERSION?
-                                   VersionTypeCurrent:
-                                   VersionTypeDevelopment;
-    this->setVersionType(versionType);
-#endif
-    this->setLastUpdate(QDateTime::currentDateTime());
-}
-
-void Updates::loadProperties()
+void UpdatesPrivate::loadProperties()
 {
     QSettings config;
 
     config.beginGroup("Updates");
-    this->setLastUpdate(config.value("lastUpdate").toDateTime());
-    this->setNotifyNewVersion(config.value("notify", true).toBool());
-    this->setCheckInterval(config.value("checkInterval", 1).toInt());
-    this->setLatestVersion(config.value("latestVersion", COMMONS_VERSION).toString());
+    this->m_lastUpdate = config.value("lastUpdate").toDateTime();
+    this->m_notifyNewVersion = config.value("notify", true).toBool();
+    this->m_checkInterval = config.value("checkInterval", 1).toInt();
+    int size = config.beginReadArray("updateInfo");
+
+    for (int i = 0; i < size; i++) {
+        config.setArrayIndex(i);
+        auto component = config.value("component").toString();
+        auto currentVersion = config.value("currentVersion").toString();
+        auto latestVersion = config.value("latestVersion").toString();
+        auto url = config.value("url").toString();
+
+        if (currentVersion.isEmpty())
+            currentVersion = latestVersion;
+
+        if (latestVersion.isEmpty())
+            latestVersion = currentVersion;
+
+        if (!component.isEmpty() && !url.isEmpty() && !currentVersion.isEmpty()) {
+            this->m_mutex.lock();
+            this->m_componentsInfo << ComponentInfo(component,
+                                                    currentVersion,
+                                                    latestVersion,
+                                                    url);
+            this->m_mutex.unlock();
+        }
+    }
+
+    config.endArray();
     config.endGroup();
-
-   if (this->d->m_checkInterval > 0) {
-       this->d->m_timer.start();
-       this->checkUpdates();
-   } else
-       this->d->m_timer.stop();
-
-#ifdef DAILY_BUILD
-   this->setVersionType(VersionTypeDevelopment);
-#else
-   auto isOldVersion =
-           this->d->compare(this->d->m_latestVersion, COMMONS_VERSION,
-                            [] (const QString &a, const QString &b) {
-                                  return a > b;
-                            });
-   VersionType versionType = isOldVersion?
-                                 VersionTypeOld:
-                             this->d->m_latestVersion == COMMONS_VERSION?
-                                  VersionTypeCurrent:
-                                  VersionTypeDevelopment;
-
-   this->setVersionType(versionType);
-#endif
 }
 
-void Updates::saveNotifyNewVersion(bool notifyNewVersion)
+void UpdatesPrivate::saveNotifyNewVersion(bool notifyNewVersion)
 {
     QSettings config;
 
@@ -393,16 +520,7 @@ void Updates::saveNotifyNewVersion(bool notifyNewVersion)
     config.endGroup();
 }
 
-void Updates::saveLatestVersion(const QString &latestVersion)
-{
-    QSettings config;
-
-    config.beginGroup("Updates");
-    config.setValue("latestVersion", latestVersion);
-    config.endGroup();
-}
-
-void Updates::saveCheckInterval(int checkInterval)
+void UpdatesPrivate::saveCheckInterval(int checkInterval)
 {
     QSettings config;
 
@@ -411,7 +529,7 @@ void Updates::saveCheckInterval(int checkInterval)
     config.endGroup();
 }
 
-void Updates::saveLastUpdate(const QDateTime &lastUpdate)
+void UpdatesPrivate::saveLastUpdate(const QDateTime &lastUpdate)
 {
     QSettings config;
 
@@ -420,21 +538,67 @@ void Updates::saveLastUpdate(const QDateTime &lastUpdate)
     config.endGroup();
 }
 
-void Updates::saveProperties()
+void UpdatesPrivate::saveLastestVersion()
 {
     QSettings config;
 
-    auto lastUpdate = this->d->m_lastUpdate;
-
-    if (!lastUpdate.isValid())
-        lastUpdate = QDateTime::currentDateTime();
-
     config.beginGroup("Updates");
-    config.setValue("lastUpdate", lastUpdate);
-    config.setValue("notify", this->d->m_notifyNewVersion);
-    config.setValue("checkInterval", this->d->m_checkInterval);
-    config.setValue("latestVersion", this->d->m_latestVersion);
+    config.beginWriteArray("updateInfo");
+    int i = 0;
+    this->m_mutex.lock();
+
+    for (auto &info: this->m_componentsInfo) {
+        config.setArrayIndex(i);
+        config.setValue("component", info.component);
+        config.setValue("currentVersion", info.currentVersion);
+        config.setValue("latestVersion", info.latestVersion);
+        config.setValue("url", info.url);
+        i++;
+    }
+
+    this->m_mutex.unlock();
+    config.endArray();
     config.endGroup();
+}
+
+ComponentInfo::ComponentInfo()
+{
+
+}
+
+ComponentInfo::ComponentInfo(const QString &component,
+                             const QString &currentVersion,
+                             const QString &latestVersion,
+                             const QString &url):
+    component(component),
+    currentVersion(currentVersion),
+    latestVersion(latestVersion),
+    url(url)
+{
+
+}
+
+ComponentInfo::ComponentInfo(const ComponentInfo &other):
+    component(other.component),
+    currentVersion(other.currentVersion),
+    latestVersion(other.latestVersion),
+    url(other.url),
+    data(other.data)
+{
+
+}
+
+ComponentInfo &ComponentInfo::operator =(const ComponentInfo &other)
+{
+    if (this != &other) {
+        this->component = other.component;
+        this->currentVersion = other.currentVersion;
+        this->latestVersion = other.latestVersion;
+        this->url = other.url;
+        this->data = other.data;
+    }
+
+    return *this;
 }
 
 #include "moc_updates.cpp"

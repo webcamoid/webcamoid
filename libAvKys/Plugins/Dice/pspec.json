@@ -1,5 +1,12 @@
 {
-    "pluginType": "Ak.Element",
-    "type": "VideoFilter",
-    "description": "Dice"
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "Dice",
+            "description": "Dice",
+            "id": "VideoFilter/Dice",
+            "implements": ["Element", "VideoFilter"],
+            "type": "qtplugin"
+        }
+    ]
 }

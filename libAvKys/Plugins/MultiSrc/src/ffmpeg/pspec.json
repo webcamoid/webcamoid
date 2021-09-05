@@ -1,3 +1,13 @@
 {
-    "pluginType": "Ak.SubModule"
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "FFmpeg",
+            "description": "Capture video and audio from a file using FFmpeg",
+            "id": "MultimediaSource/MultiSrc/Impl/FFmpeg",
+            "implements": ["MultiSrcImpl"],
+            "priority": 1000,
+            "type": "qtplugin"
+        }
+    ]
 }

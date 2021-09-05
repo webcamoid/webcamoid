@@ -1,5 +1,12 @@
 {
-    "pluginType": "Ak.Element",
-    "type": "VideoFilter",
-    "description": "Replace Color"
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "ColorReplace",
+            "description": "Replace Color",
+            "id": "VideoFilter/ColorReplace",
+            "implements": ["Element", "VideoFilter"],
+            "type": "qtplugin"
+        }
+    ]
 }

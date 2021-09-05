@@ -19,24 +19,17 @@
 
 #include "multisrc.h"
 #include "multisrcelement.h"
-#include "multisrcelementsettings.h"
 
 QObject *MultiSrc::create(const QString &key, const QString &specification)
 {
     Q_UNUSED(specification)
 
-    if (key == AK_PLUGIN_TYPE_ELEMENT)
-        return new MultiSrcElement();
-    else if (key == AK_PLUGIN_TYPE_ELEMENT_SETTINGS)
-        return new MultiSrcElementSettings();
-
-    return nullptr;
+    return new MultiSrcElement();
 }
 
 QStringList MultiSrc::keys() const
 {
-    return {AK_PLUGIN_TYPE_ELEMENT,
-            AK_PLUGIN_TYPE_ELEMENT_SETTINGS};
+    return {};
 }
 
 #include "moc_multisrc.cpp"

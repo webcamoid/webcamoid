@@ -20,6 +20,7 @@
 #ifndef VCAM_H
 #define VCAM_H
 
+#include <QObject>
 #include <QVariant>
 #include <akvideopacket.h>
 
@@ -58,6 +59,9 @@ class VCam: public QObject
                WRITE setRootMethod
                RESET resetRootMethod
                NOTIFY rootMethodChanged)
+    Q_PROPERTY(QStringList availableRootMethods
+               READ availableRootMethods
+               CONSTANT)
 
     public:
         VCam(QObject *parent=nullptr);
@@ -65,6 +69,7 @@ class VCam: public QObject
 
         Q_INVOKABLE virtual QString error() const;
         Q_INVOKABLE virtual bool isInstalled() const;
+        Q_INVOKABLE virtual QString installedVersion() const;
         Q_INVOKABLE virtual QStringList webcams() const;
         Q_INVOKABLE virtual QString device() const;
         Q_INVOKABLE virtual QString description(const QString &webcam) const;
@@ -78,6 +83,7 @@ class VCam: public QObject
         Q_INVOKABLE virtual QString clientExe(quint64 pid) const;
         Q_INVOKABLE virtual QString picture() const;
         Q_INVOKABLE virtual QString rootMethod() const;
+        Q_INVOKABLE virtual QStringList availableRootMethods() const;
         Q_INVOKABLE virtual QString deviceCreate(const QString &description,
                                                  const AkVideoCapsList &caps);
         Q_INVOKABLE virtual bool deviceEdit(const QString &deviceId,

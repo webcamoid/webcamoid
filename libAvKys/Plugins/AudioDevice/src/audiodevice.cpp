@@ -19,24 +19,17 @@
 
 #include "audiodevice.h"
 #include "audiodeviceelement.h"
-#include "audiodeviceelementsettings.h"
 
 QObject *AudioDevice::create(const QString &key, const QString &specification)
 {
     Q_UNUSED(specification)
 
-    if (key == AK_PLUGIN_TYPE_ELEMENT)
-        return new AudioDeviceElement();
-    else if (key == AK_PLUGIN_TYPE_ELEMENT_SETTINGS)
-        return new AudioDeviceElementSettings();
-
-    return nullptr;
+    return new AudioDeviceElement();
 }
 
 QStringList AudioDevice::keys() const
 {
-    return {AK_PLUGIN_TYPE_ELEMENT,
-            AK_PLUGIN_TYPE_ELEMENT_SETTINGS};
+    return {};
 }
 
 #include "moc_audiodevice.cpp"

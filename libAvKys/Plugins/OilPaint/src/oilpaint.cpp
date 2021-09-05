@@ -22,17 +22,15 @@
 
 QObject *OilPaint::create(const QString &key, const QString &specification)
 {
+    Q_UNUSED(key)
     Q_UNUSED(specification)
 
-    if (key == AK_PLUGIN_TYPE_ELEMENT)
-        return new OilPaintElement();
-
-    return nullptr;
+    return new OilPaintElement();
 }
 
 QStringList OilPaint::keys() const
 {
-    return QStringList();
+    return {};
 }
 
 #include "moc_oilpaint.cpp"

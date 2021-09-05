@@ -1,0 +1,13 @@
+{
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "V4L2 with wrapper library",
+            "description": "Capture video using V4L2 with wrapper library",
+            "id": "VideoSource/CameraCapture/Impl/libV4L2",
+            "implements": ["CameraCaptureImpl"],
+            "priority": 900,
+            "type": "qtplugin"
+        }
+    ]
+}

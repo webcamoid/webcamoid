@@ -1,5 +1,12 @@
 {
-    "pluginType": "Ak.Element",
-    "type": "VideoFilter",
-    "description": "Dithering"
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "Halftone",
+            "description": "Dithering",
+            "id": "VideoFilter/Halftone",
+            "implements": ["Element", "VideoFilter"],
+            "type": "qtplugin"
+        }
+    ]
 }

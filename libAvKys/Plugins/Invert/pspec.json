@@ -1,5 +1,12 @@
 {
-    "pluginType": "Ak.Element",
-    "type": "VideoFilter",
-    "description": "Invert"
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "Invert",
+            "description": "Invert",
+            "id": "VideoFilter/Invert",
+            "implements": ["Element", "VideoFilter"],
+            "type": "qtplugin"
+        }
+    ]
 }

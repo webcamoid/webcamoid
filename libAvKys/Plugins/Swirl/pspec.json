@@ -1,5 +1,12 @@
 {
-    "pluginType": "Ak.Element",
-    "type": "VideoFilter",
-    "description": "Swirl"
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "Swirl",
+            "description": "Swirl",
+            "id": "VideoFilter/Swirl",
+            "implements": ["Element", "VideoFilter"],
+            "type": "qtplugin"
+        }
+    ]
 }

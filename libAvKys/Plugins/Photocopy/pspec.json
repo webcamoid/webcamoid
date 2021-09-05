@@ -1,5 +1,12 @@
 {
-    "pluginType": "Ak.Element",
-    "type": "VideoFilter",
-    "description": "PhotoCopy"
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "PhotoCopy",
+            "description": "PhotoCopy",
+            "id": "VideoFilter/PhotoCopy",
+            "implements": ["Element", "VideoFilter"],
+            "type": "qtplugin"
+        }
+    ]
 }

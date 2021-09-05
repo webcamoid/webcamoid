@@ -1,3 +1,12 @@
 {
-    "pluginType": "Ak.Element"
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "Multiplex",
+            "description": "Filter out input streams",
+            "id": "Utils/Multiplex",
+            "implements": ["Element"],
+            "type": "qtplugin"
+        }
+    ]
 }

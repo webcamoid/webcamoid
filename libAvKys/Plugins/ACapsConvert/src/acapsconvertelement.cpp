@@ -22,16 +22,11 @@
 #include <akcaps.h>
 #include <akpacket.h>
 #include <akaudiocaps.h>
+#include <akplugininfo.h>
+#include <akpluginmanager.h>
 
 #include "acapsconvertelement.h"
-#include "acapsconvertelementsettings.h"
 #include "convertaudio.h"
-
-template<typename T>
-inline QSharedPointer<T> ptr_cast(QObject *obj=nullptr)
-{
-    return QSharedPointer<T>(static_cast<T *>(obj));
-}
 
 using ConvertAudioPtr = QSharedPointer<ConvertAudio>;
 
@@ -39,26 +34,25 @@ class ACapsConvertElementPrivate
 {
     public:
         ACapsConvertElement *self;
-        ACapsConvertElementSettings m_settings;
         AkAudioCaps m_caps;
         ConvertAudioPtr m_convertAudio;
+        QString m_convertAudioImpl;
         QMutex m_mutex;
 
         explicit ACapsConvertElementPrivate(ACapsConvertElement *self);
-        void convertLibUpdated(const QString &convertLib);
+        void linksChanged(const AkPluginLinks &links);
 };
 
 ACapsConvertElement::ACapsConvertElement():
     AkElement()
 {
     this->d = new ACapsConvertElementPrivate(this);
-    QObject::connect(&this->d->m_settings,
-                     &ACapsConvertElementSettings::convertLibChanged,
-                     [this] (const QString &convertLib) {
-                        this->d->convertLibUpdated(convertLib);
+    QObject::connect(akPluginManager,
+                     &AkPluginManager::linksChanged,
+                     this,
+                     [this] (const AkPluginLinks &links) {
+                        this->d->linksChanged(links);
                      });
-
-    this->d->convertLibUpdated(this->d->m_settings.convertLib());
 }
 
 ACapsConvertElement::~ACapsConvertElement()
@@ -158,19 +152,29 @@ bool ACapsConvertElement::setState(AkElement::ElementState state)
 ACapsConvertElementPrivate::ACapsConvertElementPrivate(ACapsConvertElement *self):
     self(self)
 {
-
+    this->m_convertAudio = akPluginManager->create<ConvertAudio>("AudioFilter/AudioConvert/Impl/*");
+    this->m_convertAudioImpl = akPluginManager->defaultPlugin("AudioFilter/AudioConvert/Impl/*",
+                                                              {"AudioConvertImpl"}).id();
 }
 
-void ACapsConvertElementPrivate::convertLibUpdated(const QString &convertLib)
+void ACapsConvertElementPrivate::linksChanged(const AkPluginLinks &links)
 {
+    if (!links.contains("AudioFilter/AudioConvert/Impl/*")
+        || links["AudioFilter/AudioConvert/Impl/*"] != this->m_convertAudioImpl)
+        return;
+
     auto state = self->state();
     self->setState(AkElement::ElementStateNull);
 
     this->m_mutex.lock();
     this->m_convertAudio =
-            ptr_cast<ConvertAudio>(ACapsConvertElement::loadSubModule("ACapsConvert",
-                                                                      convertLib));
+            akPluginManager->create<ConvertAudio>("AudioFilter/AudioConvert/Impl/*");
     this->m_mutex.unlock();
+
+    this->m_convertAudioImpl = links["AudioFilter/AudioConvert/Impl/*"];
+
+    if (!this->m_convertAudio)
+        return;
 
     self->setState(state);
 }

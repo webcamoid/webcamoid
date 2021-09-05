@@ -22,17 +22,15 @@
 
 QObject *ColorFilter::create(const QString &key, const QString &specification)
 {
+    Q_UNUSED(key)
     Q_UNUSED(specification)
 
-    if (key == AK_PLUGIN_TYPE_ELEMENT)
-        return new ColorFilterElement();
-
-    return nullptr;
+    return new ColorFilterElement();
 }
 
 QStringList ColorFilter::keys() const
 {
-    return QStringList();
+    return {};
 }
 
 #include "moc_colorfilter.cpp"

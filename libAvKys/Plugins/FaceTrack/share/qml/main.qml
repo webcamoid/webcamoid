@@ -31,7 +31,7 @@ GridLayout {
         let index = -1
 
         for (let i = 0; i < cbxHaarFile.model.count; i++)
-            if (cbxHaarFile.model.get(i).haarFile === haarFile) {
+            if (cbxHaarFile.model.get(i).haarFile == haarFile) {
                 index = i
 
                 break

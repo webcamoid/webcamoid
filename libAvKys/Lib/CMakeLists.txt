@@ -37,38 +37,42 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 add_library(avkys SHARED
+            src/ak.cpp
             src/ak.h
+            src/akaudiocaps.cpp
             src/akaudiocaps.h
+            src/akaudiopacket.cpp
             src/akaudiopacket.h
+            src/akcaps.cpp
             src/akcaps.h
             src/akcommons.h
+            src/akelement.cpp
             src/akelement.h
+            src/akfrac.cpp
             src/akfrac.h
+            src/akmultimediasourceelement.cpp
             src/akmultimediasourceelement.h
+            src/akpacket.cpp
             src/akpacket.h
             src/akplugin.h
-            src/akunit.h
-            src/akvideocaps.h
-            src/akvideopacket.h
-            src/qml/akcolorizedimage.h
-            src/qml/akpalette.h
-            src/qml/akpalettegroup.h
-            src/qml/aktheme.h
-            src/ak.cpp
-            src/akaudiocaps.cpp
-            src/akaudiopacket.cpp
-            src/akcaps.cpp
-            src/akelement.cpp
-            src/akfrac.cpp
-            src/akmultimediasourceelement.cpp
-            src/akpacket.cpp
+            src/akplugininfo.h
+            src/akplugininfo.cpp
+            src/akpluginmanager.h
+            src/akpluginmanager.cpp
             src/akunit.cpp
+            src/akunit.h
             src/akvideocaps.cpp
+            src/akvideocaps.h
             src/akvideopacket.cpp
+            src/akvideopacket.h
             src/qml/akcolorizedimage.cpp
+            src/qml/akcolorizedimage.h
             src/qml/akpalette.cpp
+            src/qml/akpalette.h
             src/qml/akpalettegroup.cpp
+            src/qml/akpalettegroup.h
             src/qml/aktheme.cpp
+            src/qml/aktheme.h
             AvKys.qrc)
 
 if (UNIX AND NOT ANDROID AND NOT APPLE)

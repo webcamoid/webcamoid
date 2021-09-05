@@ -111,7 +111,7 @@ AudioStream::AudioStream(AMediaExtractor *mediaExtractor,
 {
     this->d = new AudioStreamPrivate(this);
     this->m_maxData = 9;
-    this->d->m_audioConvert = AkElement::create("ACapsConvert");
+    this->d->m_audioConvert = AkElement::create("AudioFilter/AudioConvert");
 }
 
 AudioStream::~AudioStream()

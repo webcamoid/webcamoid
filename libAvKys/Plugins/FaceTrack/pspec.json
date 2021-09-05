@@ -1,5 +1,13 @@
 {
-    "pluginType": "Ak.Element",
-    "type": "VideoFilter",
-    "description": "Face Tracking"
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "FaceTrack",
+            "description": "Face Tracking",
+            "id": "VideoFilter/FaceTrack",
+            "implements": ["Element", "VideoFilter"],
+            "depends": ["VideoFilter/FaceDetect"],
+            "type": "qtplugin"
+        }
+    ]
 }

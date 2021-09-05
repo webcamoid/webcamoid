@@ -56,7 +56,7 @@ T.TabBar {
                 height:
                     AkUnit.create(2 * AkTheme.controlScale, "dp").pixels
                 width: parent.width
-                y: control.position === T.TabBar.Footer?
+                y: control.position == T.TabBar.Footer?
                        0: parent.height - height
                 color: enabled?
                            control.activeHighlight:

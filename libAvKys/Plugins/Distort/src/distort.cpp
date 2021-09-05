@@ -22,17 +22,15 @@
 
 QObject *Distort::create(const QString &key, const QString &specification)
 {
+    Q_UNUSED(key)
     Q_UNUSED(specification)
 
-    if (key == AK_PLUGIN_TYPE_ELEMENT)
-        return new DistortElement();
-
-    return nullptr;
+    return new DistortElement();
 }
 
 QStringList Distort::keys() const
 {
-    return QStringList();
+    return {};
 }
 
 #include "moc_distort.cpp"

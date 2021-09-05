@@ -1,4 +1,13 @@
 {
-    "pluginType": "Ak.SubModule",
-    "type": "output"
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "AkVirtualCamera (DirectShow)",
+            "description": "Create a virtual DirectShow webcam using AkVirtualCamera plugin",
+            "id": "VideoSink/VirtualCamera/Impl/AkVirtualCameraDShow",
+            "implements": ["VirtualCameraImpl"],
+            "priority": 1000,
+            "type": "qtplugin"
+        }
+    ]
 }

@@ -25,6 +25,7 @@
 #include "akcommons.h"
 
 class QQmlEngine;
+class AkPluginManager;
 
 class AKCOMMONS_EXPORT Ak: public QObject
 {

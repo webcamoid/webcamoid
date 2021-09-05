@@ -22,17 +22,15 @@
 
 QObject *Charify::create(const QString &key, const QString &specification)
 {
+    Q_UNUSED(key)
     Q_UNUSED(specification)
 
-    if (key == AK_PLUGIN_TYPE_ELEMENT)
-        return new CharifyElement();
-
-    return nullptr;
+    return new CharifyElement();
 }
 
 QStringList Charify::keys() const
 {
-    return QStringList();
+    return {};
 }
 
 #include "moc_charify.cpp"

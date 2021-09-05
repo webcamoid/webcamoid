@@ -1,3 +1,13 @@
 {
-    "pluginType": "Ak.SubModule"
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "ALSA",
+            "description": "Capture audio using ALSA",
+            "id": "AudioSource/AudioDevice/Impl/ALSA",
+            "implements": ["AudioDeviceImpl"],
+            "priority": 800,
+            "type": "qtplugin"
+        }
+    ]
 }

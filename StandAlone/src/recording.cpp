@@ -31,12 +31,14 @@
 #include <QQuickItem>
 #include <QQmlProperty>
 #include <QQmlApplicationEngine>
-#include <akcaps.h>
 #include <akaudiocaps.h>
-#include <akvideocaps.h>
+#include <akcaps.h>
 #include <akpacket.h>
-#include <akvideopacket.h>
 #include <akplugin.h>
+#include <akplugininfo.h>
+#include <akpluginmanager.h>
+#include <akvideocaps.h>
+#include <akvideopacket.h>
 
 #include "recording.h"
 
@@ -73,16 +75,9 @@ class RecordingPrivate
         QString m_lastVideoPreview;
         QString m_lastVideo;
         QString m_lastPhotoPreview;
-        AkElementPtr m_record {AkElement::create("MultiSink")};
-        ObjectPtr m_recordSettings {
-             AkElement::create<QObject>("MultiSink",
-                                        AK_PLUGIN_TYPE_ELEMENT_SETTINGS)
-        };
-        AkElementPtr m_thumbnailer {AkElement::create("MultiSrc")};
-        ObjectPtr m_thumbnailerSettings {
-             AkElement::create<QObject>("MultiSrc",
-                                        AK_PLUGIN_TYPE_ELEMENT_SETTINGS)
-        };
+        AkElementPtr m_record {akPluginManager->create<AkElement>("MultimediaSink/MultiSink")};
+        AkElementPtr m_thumbnailer {akPluginManager->create<AkElement>("MultimediaSource/MultiSrc")};
+        QString m_mediaWriterImpl;
         QMutex m_mutex;
         AkVideoPacket m_curPacket;
         QImage m_photo;
@@ -93,7 +88,7 @@ class RecordingPrivate
         bool m_recordAudio {DEFAULT_RECORD_AUDIO};
 
         explicit RecordingPrivate(Recording *self);
-        void loadProperties();
+        void linksChanged(const AkPluginLinks &links);
         void updateProperties();
         void updatePreviews();
         void updateAvailableVideoFormats(bool save=false);
@@ -113,7 +108,6 @@ class RecordingPrivate
         void updateStreams(bool save=false);
         void updateVideoCodecOptions(bool save=false);
         void updateAudioCodecOptions(bool save=false);
-        void saveMultiSinkCodecLib(const QString &codecLib);
         void saveImageFormat(const QString &imageFormat);
         void saveImagesDirectory(const QString &imagesDirectory);
         void saveVideoDirectory(const QString &videoDirectory);
@@ -136,23 +130,21 @@ Recording::Recording(QQmlApplicationEngine *engine, QObject *parent):
 {
     this->d = new RecordingPrivate(this);
     this->setQmlEngine(engine);
-
-    if (this->d->m_recordSettings) {
-        QObject::connect(this->d->m_recordSettings.data(),
-                         SIGNAL(codecLibChanged(const QString &)),
-                         this,
-                         SLOT(codecLibChanged(const QString &)));
-    }
+    QObject::connect(akPluginManager,
+                     &AkPluginManager::linksChanged,
+                     this,
+                     [this] (const AkPluginLinks &links) {
+                        this->d->linksChanged(links);
+                     });
 
     if (this->d->m_thumbnailer) {
         QObject::connect(this->d->m_thumbnailer.data(),
-                         SIGNAL(oStream(const AkPacket &)),
+                         SIGNAL(oStream(AkPacket)),
                          this,
-                         SLOT(thumbnailUpdated(const AkPacket &)),
+                         SLOT(thumbnailUpdated(AkPacket)),
                          Qt::DirectConnection);
     }
 
-    this->d->loadProperties();
     this->d->updateProperties();
     this->d->updateAvailableVideoFormats();
     this->d->updatePreviews();
@@ -370,9 +362,9 @@ void Recording::setState(AkElement::ElementState state)
                 QDateTime::currentDateTime().toString("yyyy-MM-dd hh-mm-ss");
         this->d->m_lastVideo =
                 tr("%1/Video %2.%3")
-                    .arg(this->d->m_videoDirectory)
-                    .arg(currentTime)
-                    .arg(this->d->m_videoFormatExtension);
+                    .arg(this->d->m_videoDirectory,
+                         currentTime,
+                         this->d->m_videoFormatExtension);
         this->d->m_record->setProperty("location", this->d->m_lastVideo);
     }
 
@@ -789,12 +781,6 @@ void Recording::setQmlEngine(QQmlApplicationEngine *engine)
         engine->rootContext()->setContextProperty("recording", this);
 }
 
-void Recording::codecLibChanged(const QString &codecLib)
-{
-    this->d->saveMultiSinkCodecLib(codecLib);
-    this->d->updateAvailableVideoFormats();
-}
-
 void Recording::thumbnailUpdated(const AkPacket &packet)
 {
     AkVideoPacket videoPacket(packet);
@@ -815,28 +801,21 @@ RecordingPrivate::RecordingPrivate(Recording *self):
         {"bmp", "BMP" },
         {"gif", "GIF" },
     };
+
+    this->m_mediaWriterImpl =
+            akPluginManager->defaultPlugin("MultimediaSink/MultiSink/Impl/*",
+                                           {"MultiSinkImpl"}).id();
 }
 
-void RecordingPrivate::loadProperties()
+void RecordingPrivate::linksChanged(const AkPluginLinks &links)
 {
-    QSettings config;
-    config.beginGroup("Libraries");
+    if (!links.contains("MultimediaSink/MultiSink/Impl/*")
+        || links["MultimediaSink/MultiSink/Impl/*"] != this->m_mediaWriterImpl)
+        return;
 
-    if (this->m_recordSettings) {
-        auto codecLib =
-                config.value("MultiSink.codecLib",
-                             this->m_recordSettings->property("codecLib"));
-        this->m_recordSettings->setProperty("codecLib", codecLib);
-    }
+    this->updateAvailableVideoFormats();
 
-    if (this->m_thumbnailerSettings) {
-        auto codecLib =
-                config.value("MultiSrc.codecLib",
-                             this->m_thumbnailerSettings->property("codecLib"));
-        this->m_thumbnailer->setProperty("codecLib", codecLib);
-    }
-
-    config.endGroup();
+    this->m_mediaWriterImpl = links["MultimediaSink/MultiSink/Impl/*"];
 }
 
 void RecordingPrivate::updateProperties()
@@ -920,7 +899,7 @@ void RecordingPrivate::updatePreviews()
         if ((format == "gif" || !audioCodecs.isEmpty())
             && !videoCodecs.isEmpty()
             && !extensions.isEmpty()) {
-            for (auto extension: extensions)
+            for (auto &extension: extensions)
                 nameFilters += "*." + extension;
         }
 #endif
@@ -1470,14 +1449,6 @@ void RecordingPrivate::updateAudioCodecOptions(bool save)
     }
 }
 
-void RecordingPrivate::saveMultiSinkCodecLib(const QString &codecLib)
-{
-    QSettings config;
-    config.beginGroup("Libraries");
-    config.setValue("MultiSink.codecLib", codecLib);
-    config.endGroup();
-}
-
 void RecordingPrivate::saveImageFormat(const QString &imageFormat)
 {
     QSettings config;
@@ -1675,9 +1646,9 @@ QString RecordingPrivate::readThumbnail(const QString &videoFile)
             QStandardPaths::standardLocations(QStandardPaths::TempLocation).first();
     auto baseName = QFileInfo(videoFile).baseName();
     auto thumnailPath = QString("%1/%2.%3")
-                        .arg(thumnailDir)
-                        .arg(baseName)
-                        .arg(this->m_imageFormat);
+                        .arg(thumnailDir,
+                             baseName,
+                             this->m_imageFormat);
 
     if (!this->m_thumbnail.save(thumnailPath,
                                 nullptr,

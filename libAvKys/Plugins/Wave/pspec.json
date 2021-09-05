@@ -1,5 +1,12 @@
 {
-    "pluginType": "Ak.Element",
-    "type": "VideoFilter",
-    "description": "Wave"
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "Wave",
+            "description": "Wave",
+            "id": "VideoFilter/Wave",
+            "implements": ["Element", "VideoFilter"],
+            "type": "qtplugin"
+        }
+    ]
 }

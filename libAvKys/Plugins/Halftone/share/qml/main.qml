@@ -27,7 +27,7 @@ GridLayout {
 
     function toQrc(uri)
     {
-        if (uri.indexOf(":") === 0)
+        if (uri.indexOf(":") == 0)
             return "qrc" + uri
 
         return "file:" + uri
@@ -124,7 +124,7 @@ GridLayout {
 
                 onTextChanged: {
                     for (var i = 0; i < cbxPattern.model.count; i++) {
-                        if (cbxPattern.model.get(i).pattern === Halftone.pattern) {
+                        if (cbxPattern.model.get(i).pattern == Halftone.pattern) {
                             cbxPattern.currentIndex = i
 
                             break

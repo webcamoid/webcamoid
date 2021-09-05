@@ -17,21 +17,17 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QMutex>
 #include <QSettings>
 #include <QSharedPointer>
 #include <QQmlContext>
 #include <akfrac.h>
 #include <akcaps.h>
+#include <akplugininfo.h>
+#include <akpluginmanager.h>
 
 #include "desktopcaptureelement.h"
-#include "desktopcaptureelementsettings.h"
 #include "screendev.h"
-
-template<typename T>
-inline QSharedPointer<T> ptr_cast(QObject *obj=nullptr)
-{
-    return QSharedPointer<T>(static_cast<T *>(obj));
-}
 
 using ScreenDevPtr = QSharedPointer<ScreenDev>;
 
@@ -39,24 +35,61 @@ class DesktopCaptureElementPrivate
 {
     public:
         DesktopCaptureElement *self;
-        DesktopCaptureElementSettings m_settings;
         ScreenDevPtr m_screenCapture;
+        QString m_screenCaptureImpl;
+        QMutex m_mutex;
 
         explicit DesktopCaptureElementPrivate(DesktopCaptureElement *self);
-        void captureLibUpdated(const QString &captureLib);
+        void linksChanged(const AkPluginLinks &links);
 };
 
 DesktopCaptureElement::DesktopCaptureElement():
     AkMultimediaSourceElement()
 {
     this->d = new DesktopCaptureElementPrivate(this);
-    QObject::connect(&this->d->m_settings,
-                     &DesktopCaptureElementSettings::captureLibChanged,
-                     [this] (const QString &captureLib) {
-                        this->d->captureLibUpdated(captureLib);
+    QObject::connect(akPluginManager,
+                     &AkPluginManager::linksChanged,
+                     this,
+                     [this] (const AkPluginLinks &links) {
+                        this->d->linksChanged(links);
                      });
 
-    this->d->captureLibUpdated(this->d->m_settings.captureLib());
+    if (this->d->m_screenCapture) {
+        QObject::connect(this->d->m_screenCapture.data(),
+                         &ScreenDev::mediasChanged,
+                         this,
+                         &DesktopCaptureElement::mediasChanged);
+        QObject::connect(this->d->m_screenCapture.data(),
+                         &ScreenDev::mediaChanged,
+                         this,
+                         &DesktopCaptureElement::mediaChanged);
+        QObject::connect(this->d->m_screenCapture.data(),
+                         &ScreenDev::streamsChanged,
+                         this,
+                         &DesktopCaptureElement::streamsChanged);
+        QObject::connect(this->d->m_screenCapture.data(),
+                         &ScreenDev::streamsChanged,
+                         this,
+                         &DesktopCaptureElement::streamsChanged);
+        QObject::connect(this->d->m_screenCapture.data(),
+                         &ScreenDev::fpsChanged,
+                         this,
+                         &DesktopCaptureElement::fpsChanged);
+        QObject::connect(this->d->m_screenCapture.data(),
+                         &ScreenDev::sizeChanged,
+                         this,
+                         &DesktopCaptureElement::sizeChanged);
+        QObject::connect(this->d->m_screenCapture.data(),
+                         &ScreenDev::oStream,
+                         this,
+                         &DesktopCaptureElement::oStream,
+                         Qt::DirectConnection);
+
+        auto medias = this->d->m_screenCapture->medias();
+
+        if (!medias.isEmpty())
+            this->d->m_screenCapture->setMedia(medias.first());
+    }
 }
 
 DesktopCaptureElement::~DesktopCaptureElement()
@@ -67,58 +100,93 @@ DesktopCaptureElement::~DesktopCaptureElement()
 
 AkFrac DesktopCaptureElement::fps() const
 {
-    if (!this->d->m_screenCapture)
-        return AkFrac();
+    this->d->m_mutex.lock();
+    AkFrac fps;
 
-    return this->d->m_screenCapture->fps();
+    if (this->d->m_screenCapture)
+        fps = this->d->m_screenCapture->fps();
+
+    this->d->m_mutex.unlock();
+
+    return fps;
 }
 
 QStringList DesktopCaptureElement::medias()
 {
-    if (!this->d->m_screenCapture)
-        return {};
+    this->d->m_mutex.lock();
+    QStringList medias;
 
-    return this->d->m_screenCapture->medias();
+    if (this->d->m_screenCapture)
+        medias = this->d->m_screenCapture->medias();
+
+    this->d->m_mutex.unlock();
+
+    return medias;
 }
 
 QString DesktopCaptureElement::media() const
 {
-    if (!this->d->m_screenCapture)
-        return {};
+    this->d->m_mutex.lock();
+    QString media;
 
-    return this->d->m_screenCapture->media();
+    if (this->d->m_screenCapture)
+        media = this->d->m_screenCapture->media();
+
+    this->d->m_mutex.unlock();
+
+    return media;
 }
 
 QList<int> DesktopCaptureElement::streams()
 {
-    if (!this->d->m_screenCapture)
-        return {};
+    this->d->m_mutex.lock();
+    QList<int> streams;
 
-    return this->d->m_screenCapture->streams();
+    if (this->d->m_screenCapture)
+        streams = this->d->m_screenCapture->streams();
+
+    this->d->m_mutex.unlock();
+
+    return streams;
 }
 
 int DesktopCaptureElement::defaultStream(const QString &mimeType)
 {
-    if (!this->d->m_screenCapture)
-        return 0;
+    this->d->m_mutex.lock();
+    int stream = 0;
 
-    return this->d->m_screenCapture->defaultStream(mimeType);
+    if (this->d->m_screenCapture)
+        stream = this->d->m_screenCapture->defaultStream(mimeType);
+
+    this->d->m_mutex.unlock();
+
+    return stream;
 }
 
 QString DesktopCaptureElement::description(const QString &media)
 {
-    if (!this->d->m_screenCapture)
-        return {};
+    this->d->m_mutex.lock();
+    QString description;
 
-    return this->d->m_screenCapture->description(media);
+    if (this->d->m_screenCapture)
+        description = this->d->m_screenCapture->description(media);
+
+    this->d->m_mutex.unlock();
+
+    return description;
 }
 
 AkCaps DesktopCaptureElement::caps(int stream)
 {
-    if (!this->d->m_screenCapture)
-        return AkCaps();
+    this->d->m_mutex.lock();
+    AkCaps caps;
 
-    return this->d->m_screenCapture->caps(stream);
+    if (this->d->m_screenCapture)
+        caps = this->d->m_screenCapture->caps(stream);
+
+    this->d->m_mutex.unlock();
+
+    return caps;
 }
 
 QString DesktopCaptureElement::controlInterfaceProvide(const QString &controlId) const
@@ -139,10 +207,12 @@ void DesktopCaptureElement::controlInterfaceConfigure(QQmlContext *context,
 
 void DesktopCaptureElement::setFps(const AkFrac &fps)
 {
-    if (!this->d->m_screenCapture)
-        return;
+    this->d->m_mutex.lock();
 
-    this->d->m_screenCapture->setFps(fps);
+    if (this->d->m_screenCapture)
+        this->d->m_screenCapture->setFps(fps);
+
+    this->d->m_mutex.unlock();
 
     QSettings settings;
     settings.beginGroup("DesktopCapture");
@@ -152,20 +222,32 @@ void DesktopCaptureElement::setFps(const AkFrac &fps)
 
 void DesktopCaptureElement::resetFps()
 {
+    this->d->m_mutex.lock();
+
     if (this->d->m_screenCapture)
         this->d->m_screenCapture->resetFps();
+
+    this->d->m_mutex.unlock();
 }
 
 void DesktopCaptureElement::setMedia(const QString &media)
 {
+    this->d->m_mutex.lock();
+
     if (this->d->m_screenCapture)
         this->d->m_screenCapture->setMedia(media);
+
+    this->d->m_mutex.unlock();
 }
 
 void DesktopCaptureElement::resetMedia()
 {
+    this->d->m_mutex.lock();
+
     if (this->d->m_screenCapture)
         this->d->m_screenCapture->resetMedia();
+
+    this->d->m_mutex.unlock();
 }
 
 bool DesktopCaptureElement::setState(AkElement::ElementState state)
@@ -227,17 +309,26 @@ bool DesktopCaptureElement::setState(AkElement::ElementState state)
 DesktopCaptureElementPrivate::DesktopCaptureElementPrivate(DesktopCaptureElement *self):
     self(self)
 {
-
+    this->m_screenCapture = akPluginManager->create<ScreenDev>("VideoSource/DesktopCapture/Impl/*");
+    this->m_screenCaptureImpl = akPluginManager->defaultPlugin("VideoSource/DesktopCapture/Impl/*",
+                                                               {"DesktopCaptureImpl"}).id();
 }
 
-void DesktopCaptureElementPrivate::captureLibUpdated(const QString &captureLib)
+void DesktopCaptureElementPrivate::linksChanged(const AkPluginLinks &links)
 {
+    if (!links.contains("VideoSource/DesktopCapture/Impl/*")
+        || links["VideoSource/DesktopCapture/Impl/*"] != this->m_screenCaptureImpl)
+        return;
+
     auto state = self->state();
     self->setState(AkElement::ElementStateNull);
 
+    this->m_mutex.lock();
     this->m_screenCapture =
-            ptr_cast<ScreenDev>(DesktopCaptureElement::loadSubModule("DesktopCapture",
-                                                                     captureLib));
+            akPluginManager->create<ScreenDev>("VideoSource/DesktopCapture/Impl/*");
+    this->m_mutex.unlock();
+
+    this->m_screenCaptureImpl = links["VideoSource/DesktopCapture/Impl/*"];
 
     if (!this->m_screenCapture)
         return;

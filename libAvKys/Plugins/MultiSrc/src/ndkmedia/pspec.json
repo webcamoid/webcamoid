@@ -1,3 +1,13 @@
 {
-    "pluginType": "Ak.SubModule"
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "Android NDK Media",
+            "description": "Capture video and audio from a file using Android NDK Media API",
+            "id": "MultimediaSource/MultiSrc/Impl/NDKMedia",
+            "implements": ["MultiSrcImpl"],
+            "priority": 800,
+            "type": "qtplugin"
+        }
+    ]
 }

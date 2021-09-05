@@ -22,17 +22,15 @@
 
 QObject *Dice::create(const QString &key, const QString &specification)
 {
+    Q_UNUSED(key)
     Q_UNUSED(specification)
 
-    if (key == AK_PLUGIN_TYPE_ELEMENT)
-        return new DiceElement();
-
-    return nullptr;
+    return new DiceElement();
 }
 
 QStringList Dice::keys() const
 {
-    return QStringList();
+    return {};
 }
 
 #include "moc_dice.cpp"

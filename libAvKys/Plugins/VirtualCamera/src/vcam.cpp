@@ -34,6 +34,11 @@ bool VCam::isInstalled() const
     return false;
 }
 
+QString VCam::installedVersion() const
+{
+    return {};
+}
+
 QStringList VCam::webcams() const
 {
     return {};
@@ -103,6 +108,11 @@ QString VCam::picture() const
 }
 
 QString VCam::rootMethod() const
+{
+    return {};
+}
+
+QStringList VCam::availableRootMethods() const
 {
     return {};
 }

@@ -1,5 +1,12 @@
 {
-    "pluginType": "Ak.Element",
-    "type": "VideoFilter",
-    "description": "Denoise"
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "Denoise",
+            "description": "Denoise",
+            "id": "VideoFilter/Denoise",
+            "implements": ["Element", "VideoFilter"],
+            "type": "qtplugin"
+        }
+    ]
 }

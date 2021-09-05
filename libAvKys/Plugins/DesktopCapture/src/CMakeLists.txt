@@ -40,10 +40,6 @@ add_library(DesktopCaptureSrc SHARED
             desktopcapture.h
             desktopcaptureelement.cpp
             desktopcaptureelement.h
-            desktopcaptureelementsettings.cpp
-            desktopcaptureelementsettings.h
-            desktopcaptureglobals.cpp
-            desktopcaptureglobals.h
             screendev.cpp
             screendev.h
             ../DesktopCapture.qrc

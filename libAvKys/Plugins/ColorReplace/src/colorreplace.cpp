@@ -22,17 +22,15 @@
 
 QObject *ColorReplace::create(const QString &key, const QString &specification)
 {
+    Q_UNUSED(key)
     Q_UNUSED(specification)
 
-    if (key == AK_PLUGIN_TYPE_ELEMENT)
-        return new ColorReplaceElement();
-
-    return nullptr;
+    return new ColorReplaceElement();
 }
 
 QStringList ColorReplace::keys() const
 {
-    return QStringList();
+    return {};
 }
 
 #include "moc_colorreplace.cpp"

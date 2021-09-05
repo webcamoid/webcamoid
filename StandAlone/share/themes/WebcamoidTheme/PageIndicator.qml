@@ -57,7 +57,7 @@ T.PageIndicator {
                 control.activeHighlight
         border.width:
             AkUnit.create(2 * AkTheme.controlScale, "dp").pixels
-        opacity: index === control.currentIndex?
+        opacity: index == control.currentIndex?
                      1:
                  pressed?
                      0.75:

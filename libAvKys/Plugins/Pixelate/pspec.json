@@ -1,5 +1,12 @@
 {
-    "pluginType": "Ak.Element",
-    "type": "VideoFilter",
-    "description": "Pixelate"
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "Pixelate",
+            "description": "Pixelate",
+            "id": "VideoFilter/Pixelate",
+            "implements": ["Element", "VideoFilter"],
+            "type": "qtplugin"
+        }
+    ]
 }

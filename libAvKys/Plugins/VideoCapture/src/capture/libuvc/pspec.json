@@ -1,0 +1,13 @@
+{
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "libuvc",
+            "description": "Capture video using libuvc",
+            "id": "VideoSource/CameraCapture/Impl/libuvc",
+            "implements": ["CameraCaptureImpl"],
+            "priority": 800,
+            "type": "qtplugin"
+        }
+    ]
+}

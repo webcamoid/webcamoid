@@ -1,5 +1,12 @@
 {
-    "pluginType": "Ak.Element",
-    "type": "VideoFilter",
-    "description": "Edge Detection"
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "Edge",
+            "description": "Edge Detection",
+            "id": "VideoFilter/Edge",
+            "implements": ["Element", "VideoFilter"],
+            "type": "qtplugin"
+        }
+    ]
 }

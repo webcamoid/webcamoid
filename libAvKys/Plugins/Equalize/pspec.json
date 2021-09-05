@@ -1,5 +1,12 @@
 {
-    "pluginType": "Ak.Element",
-    "type": "VideoFilter",
-    "description": "Equalize"
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "Equalize",
+            "description": "Equalize",
+            "id": "VideoFilter/Equalize",
+            "implements": ["Element", "VideoFilter"],
+            "type": "qtplugin"
+        }
+    ]
 }

@@ -45,6 +45,9 @@ class MediaTools: public QObject
     Q_PROPERTY(QString applicationVersion
                READ applicationVersion
                CONSTANT)
+    Q_PROPERTY(bool isDailyBuild
+               READ isDailyBuild
+               CONSTANT)
     Q_PROPERTY(QString qtVersion
                READ qtVersion
                CONSTANT)
@@ -72,6 +75,7 @@ class MediaTools: public QObject
         Q_INVOKABLE int windowHeight() const;
         Q_INVOKABLE QString applicationName() const;
         Q_INVOKABLE QString applicationVersion() const;
+        Q_INVOKABLE bool isDailyBuild() const;
         Q_INVOKABLE QString qtVersion() const;
         Q_INVOKABLE QString copyrightNotice() const;
         Q_INVOKABLE QString projectUrl() const;

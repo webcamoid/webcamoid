@@ -1,3 +1,13 @@
 {
-    "pluginType": "Ak.SubModule"
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "GStreamer",
+            "description": "Convert audio frames using GStreamer",
+            "id": "AudioFilter/AudioConvert/Impl/GStreamer",
+            "implements": ["ACapsConvertImpl"],
+            "priority": 900,
+            "type": "qtplugin"
+        }
+    ]
 }

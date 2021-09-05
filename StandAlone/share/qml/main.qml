@@ -29,7 +29,9 @@ ApplicationWindow {
     id: wdgMainWidget
     title: mediaTools.applicationName
            + " "
-           + mediaTools.applicationVersion
+           + (mediaTools.isDailyBuild?
+                  qsTr("Daily Build"):
+                  mediaTools.applicationVersion)
            + " - "
            + videoLayer.description(videoLayer.videoInput)
     visible: true
@@ -70,7 +72,7 @@ ApplicationWindow {
     VideoDisplay {
         id: videoDisplay
         objectName: "videoDisplay"
-        visible: videoLayer.state === AkElement.ElementStatePlaying
+        visible: videoLayer.state == AkElement.ElementStatePlaying
         smooth: true
         anchors.fill: parent
     }
@@ -260,7 +262,7 @@ ApplicationWindow {
                 ToolTip.text: qsTr("Take a photo")
                 focus: true
                 enabled: recording.state == AkElement.ElementStateNull
-                         && (videoLayer.state === AkElement.ElementStatePlaying
+                         && (videoLayer.state == AkElement.ElementStatePlaying
                              || cameraControls.state == "Video")
 
                 onClicked: {
@@ -307,7 +309,7 @@ ApplicationWindow {
                 y: (parent.height - height) / 2
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Record video")
-                enabled: videoLayer.state === AkElement.ElementStatePlaying
+                enabled: videoLayer.state == AkElement.ElementStatePlaying
                          || cameraControls.state == ""
 
                 onClicked: {

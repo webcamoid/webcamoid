@@ -147,36 +147,46 @@ void MediaSource::setSync(bool sync)
     Q_UNUSED(sync)
 }
 
-void MediaSource::resetMedia()
-{
-}
-
-void MediaSource::resetStreams()
-{
-}
-
-void MediaSource::resetMaxPacketQueueSize()
-{
-}
-
-void MediaSource::resetShowLog()
-{
-}
-
-void MediaSource::resetLoop()
-{
-}
-
-void MediaSource::resetSync()
-{
-
-}
-
 bool MediaSource::setState(AkElement::ElementState state)
 {
     Q_UNUSED(state)
 
     return false;
+}
+
+void MediaSource::resetMedia()
+{
+    this->setMedia({});
+}
+
+void MediaSource::resetStreams()
+{
+    this->setStreams({});
+}
+
+void MediaSource::resetMaxPacketQueueSize()
+{
+    this->setMaxPacketQueueSize(0);
+}
+
+void MediaSource::resetShowLog()
+{
+    this->setShowLog(false);
+}
+
+void MediaSource::resetLoop()
+{
+    this->setLoop(false);
+}
+
+void MediaSource::resetSync()
+{
+    this->setSync(true);
+}
+
+void MediaSource::resetState()
+{
+    this->setState(AkElement::ElementStateNull);
 }
 
 #include "moc_mediasource.cpp"

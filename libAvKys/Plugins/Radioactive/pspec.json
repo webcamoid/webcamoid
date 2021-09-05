@@ -1,5 +1,13 @@
 {
-    "pluginType": "Ak.Element",
-    "type": "VideoFilter",
-    "description": "Radioactivity"
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "Radioactive",
+            "description": "Radioactivity",
+            "id": "VideoFilter/Radioactive",
+            "implements": ["Element", "VideoFilter"],
+            "depends": ["VideoFilter/Blur"],
+            "type": "qtplugin"
+        }
+    ]
 }

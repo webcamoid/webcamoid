@@ -22,17 +22,15 @@
 
 QObject *Ripple::create(const QString &key, const QString &specification)
 {
+    Q_UNUSED(key)
     Q_UNUSED(specification)
 
-    if (key == AK_PLUGIN_TYPE_ELEMENT)
-        return new RippleElement();
-
-    return nullptr;
+    return new RippleElement();
 }
 
 QStringList Ripple::keys() const
 {
-    return QStringList();
+    return {};
 }
 
 #include "moc_ripple.cpp"

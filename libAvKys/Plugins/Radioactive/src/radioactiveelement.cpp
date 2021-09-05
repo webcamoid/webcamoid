@@ -21,6 +21,7 @@
 #include <QPainter>
 #include <QQmlContext>
 #include <akpacket.h>
+#include <akpluginmanager.h>
 #include <akvideopacket.h>
 
 #include "radioactiveelement.h"
@@ -67,7 +68,8 @@ class RadioactiveElementPrivate
 RadioactiveElement::RadioactiveElement(): AkElement()
 {
     this->d = new RadioactiveElementPrivate;
-    this->d->m_blurFilter = AkElement::create("Blur");
+    this->d->m_blurFilter =
+            akPluginManager->create<AkElement>("VideoFilter/Blur");
     this->d->m_blurFilter->setProperty("radius", 2);
 
     QObject::connect(this->d->m_blurFilter.data(),

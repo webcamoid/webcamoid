@@ -23,6 +23,8 @@
 #include <akelement.h>
 #include <akvideocaps.h>
 
+#include "downloadmanager.h"
+
 class VideoLayerPrivate;
 class VideoLayer;
 class CliOptions;
@@ -36,7 +38,7 @@ class VideoLayer: public QObject
     Q_OBJECT
     Q_ENUMS(InputType)
     Q_ENUMS(OutputType)
-    Q_ENUMS(Operation)
+    Q_ENUMS(VCamStatus)
     Q_PROPERTY(QString videoInput
                READ videoInput
                WRITE setVideoInput
@@ -91,6 +93,26 @@ class VideoLayer: public QObject
                WRITE setPicture
                RESET resetPicture
                NOTIFY pictureChanged)
+    Q_PROPERTY(QString rootMethod
+               READ rootMethod
+               WRITE setRootMethod
+               RESET resetRootMethod
+               NOTIFY rootMethodChanged)
+    Q_PROPERTY(QStringList availableRootMethods
+               READ availableRootMethods
+               CONSTANT)
+    Q_PROPERTY(bool isVCamSupported
+               READ isVCamSupported
+               CONSTANT)
+    Q_PROPERTY(VCamStatus vcamInstallStatus
+               READ vcamInstallStatus
+               CONSTANT)
+    Q_PROPERTY(QString currentVCamVersion
+               READ currentVCamVersion
+               CONSTANT)
+    Q_PROPERTY(QString vcamUpdateUrl
+               READ vcamUpdateUrl
+               CONSTANT)
 
     public:
         enum InputType {
@@ -102,6 +124,13 @@ class VideoLayer: public QObject
         enum OutputType {
             OutputUnknown,
             OutputVirtualCamera,
+        };
+
+        enum VCamStatus
+        {
+            VCamNotInstalled,
+            VCamInstalled,
+            VCamInstalledOther
         };
 
         VideoLayer(QQmlApplicationEngine *engine=nullptr,
@@ -147,6 +176,12 @@ class VideoLayer: public QObject
         Q_INVOKABLE QString clientExe(quint64 pid) const;
         Q_INVOKABLE bool driverInstalled() const;
         Q_INVOKABLE QString picture() const;
+        Q_INVOKABLE QString rootMethod() const;
+        Q_INVOKABLE QStringList availableRootMethods() const;
+        Q_INVOKABLE bool isVCamSupported() const;
+        Q_INVOKABLE VCamStatus vcamInstallStatus() const;
+        Q_INVOKABLE QString currentVCamVersion() const;
+        Q_INVOKABLE QString vcamUpdateUrl() const;
 
     private:
         VideoLayerPrivate *d;
@@ -165,9 +200,22 @@ class VideoLayer: public QObject
         void inputErrorChanged(const QString &inputError);
         void outputErrorChanged(const QString &outputError);
         void pictureChanged(const QString &picture);
+        void rootMethodChanged(const QString &rootMethod);
+        void startVCamDownload(const QString &title,
+                               const QString &fromUrl,
+                               const QString &toFile);
+        void vcamDownloadReady(const QString &filePath);
+        void vcamDownloadFailed(const QString &error);
 
     public slots:
         bool applyPicture();
+        void setLatestVCamVersion(const QString &version);
+        bool downloadVCam();
+        int executeVCamInstaller(const QString &installer);
+        void checkVCamDownloadReady(const QString &url,
+                                    const QString &filePath,
+                                    DownloadManager::DownloadStatus status,
+                                    const QString &error);
         void setInputStream(const QString &stream, const QString &description);
         void removeInputStream(const QString &stream);
         void setVideoInput(const QString &videoInput);
@@ -176,22 +224,19 @@ class VideoLayer: public QObject
         void setPlayOnStart(bool playOnStart);
         void setOutputsAsInputs(bool outputsAsInputs);
         void setPicture(const QString &picture);
+        void setRootMethod(const QString &rootMethod);
         void resetVideoInput();
         void resetVideoOutput();
         void resetState();
         void resetPlayOnStart();
         void resetOutputsAsInputs();
         void resetPicture();
+        void resetRootMethod();
         void setQmlEngine(QQmlApplicationEngine *engine=nullptr);
 
     private slots:
         void updateCaps();
         void updateInputs();
-        void saveVideoCaptureCodecLib(const QString &codecLib);
-        void saveVideoCaptureCaptureLib(const QString &captureLib);
-        void saveDesktopCaptureCaptureLib(const QString &captureLib);
-        void saveMultiSrcCodecLib(const QString &codecLib);
-        void saveVirtualCameraOutputLib(const QString &outputLib);
         void saveVirtualCameraRootMethod(const QString &rootMethod);
         AkPacket iStream(const AkPacket &packet);
 
@@ -200,5 +245,6 @@ class VideoLayer: public QObject
 
 Q_DECLARE_METATYPE(VideoLayer::InputType)
 Q_DECLARE_METATYPE(VideoLayer::OutputType)
+Q_DECLARE_METATYPE(VideoLayer::VCamStatus)
 
 #endif // VIDEOLAYER_H

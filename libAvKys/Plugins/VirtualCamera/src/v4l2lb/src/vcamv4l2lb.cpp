@@ -36,9 +36,11 @@
 #include <sys/mman.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
+#include <libkmod.h>
 #include <akelement.h>
 #include <akfrac.h>
 #include <akpacket.h>
+#include <akpluginmanager.h>
 
 #include "vcamv4l2lb.h"
 
@@ -117,9 +119,9 @@ class VCamV4L2LoopBackPrivate
         QVector<CaptureBuffer> m_buffers;
         QMap<QString, DeviceControlValues> m_deviceControlValues;
         QMutex m_controlsMutex;
-        AkElementPtr m_flipFilter {AkElement::create("Flip")};
-        AkElementPtr m_scaleFilter {AkElement::create("Scale")};
-        AkElementPtr m_swapRBFilter {AkElement::create("SwapRB")};
+        AkElementPtr m_flipFilter   {akPluginManager->create<AkElement>("VideoFilter/Flip")};
+        AkElementPtr m_scaleFilter  {akPluginManager->create<AkElement>("VideoFilter/Scale")};
+        AkElementPtr m_swapRBFilter {akPluginManager->create<AkElement>("VideoFilter/SwapRB")};
         QString m_error;
         AkVideoCaps m_currentCaps;
         QString m_rootMethod;
@@ -134,6 +136,7 @@ class VCamV4L2LoopBackPrivate
         inline int xioctl(int fd, ulong request, void *arg) const;
         bool sudo(const QString &command,
                   const QStringList &argumments);
+        QStringList availableRootMethods() const;
         QVariantList controls(int fd, quint32 controlClass) const;
         QVariantList controls(int fd) const;
         bool setControls(int fd,
@@ -195,6 +198,28 @@ VCamV4L2LoopBack::VCamV4L2LoopBack(QObject *parent):
     VCam(parent)
 {
     this->d = new VCamV4L2LoopBackPrivate(this);
+    QStringList preferredRootMethod {
+        // List of possible graphical sudo methods that can be supported:
+        //
+        // https://en.wikipedia.org/wiki/Comparison_of_privilege_authorization_features#Introduction_to_implementations
+        "pkexec",
+        "kdesu",
+        "kdesudo",
+        "gksu",
+        "gksudo",
+        "gtksu",
+        "ktsuss",
+        "beesu",
+    };
+
+    auto availableMethods = this->d->availableRootMethods();
+
+    for (auto &method: preferredRootMethod)
+        if (availableMethods.contains(method)) {
+            this->d->m_rootMethod = method;
+
+            break;
+        }
 }
 
 VCamV4L2LoopBack::~VCamV4L2LoopBack()
@@ -229,6 +254,47 @@ bool VCamV4L2LoopBack::isInstalled() const
     }
 
     return false;
+}
+
+QString VCamV4L2LoopBack::installedVersion() const
+{
+    QString version;
+    static const char moduleName[] = "v4l2loopback";
+    auto modulesDir = QString("/lib/modules/%1").arg(QSysInfo::kernelVersion());
+    const char *config = NULL;
+    auto ctx = kmod_new(modulesDir.toStdString().c_str(), &config);
+
+    if (ctx) {
+        struct kmod_module *module = NULL;
+        int error = kmod_module_new_from_name(ctx,  moduleName, &module);
+
+        if (error == 0 && module) {
+            struct kmod_list *info = NULL;
+            error = kmod_module_get_info(module, &info);
+
+            if (error >= 0 && info) {
+                for (auto entry = info;
+                     entry;
+                     entry = kmod_list_next(info, entry)) {
+                    auto key = kmod_module_info_get_key(entry);
+
+                    if (strncmp(key, "version", 7) == 0) {
+                        version = QString::fromLatin1(kmod_module_info_get_value(entry));
+
+                        break;
+                    }
+                }
+
+                kmod_module_info_free_list(info);
+            }
+
+            kmod_module_unref(module);
+        }
+
+        kmod_unref(ctx);
+    }
+
+    return version;
 }
 
 QStringList VCamV4L2LoopBack::webcams() const
@@ -382,6 +448,11 @@ QString VCamV4L2LoopBack::clientExe(quint64 pid) const
 QString VCamV4L2LoopBack::rootMethod() const
 {
     return this->d->m_rootMethod;
+}
+
+QStringList VCamV4L2LoopBack::availableRootMethods() const
+{
+    return this->d->availableRootMethods();
 }
 
 QString VCamV4L2LoopBack::deviceCreate(const QString &description,
@@ -1183,6 +1254,33 @@ bool VCamV4L2LoopBackPrivate::sudo(const QString &command,
     }
 
     return true;
+}
+
+QStringList VCamV4L2LoopBackPrivate::availableRootMethods() const
+{
+    QStringList methods;
+    auto paths =
+            QProcessEnvironment::systemEnvironment().value("PATH").split(':');
+    static const QStringList sus {
+        "beesu",
+        "gksu",
+        "gksudo",
+        "gtksu",
+        "kdesu",
+        "kdesudo",
+        "ktsuss",
+        "pkexec",
+    };
+
+    for (auto &su: sus)
+        for (auto &path: paths)
+            if (QDir(path).exists(su)) {
+                methods << su;
+
+                break;
+            }
+
+    return methods;
 }
 
 QVariantList VCamV4L2LoopBackPrivate::controls(int fd, quint32 controlClass) const

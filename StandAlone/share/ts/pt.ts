@@ -119,7 +119,7 @@
 <context>
     <name>AudioLayer</name>
     <message>
-        <location filename="../../src/audiolayer.cpp" line="279"/>
+        <location filename="../../src/audiolayer.cpp" line="249"/>
         <source>Silence</source>
         <translation>Silêncio</translation>
     </message>
@@ -184,58 +184,58 @@
 <context>
     <name>GeneralConfig</name>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="75"/>
+        <location filename="../qml/GeneralConfig.qml" line="91"/>
         <source>Video capture</source>
         <translation>Captura de vídeo</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="85"/>
+        <location filename="../qml/GeneralConfig.qml" line="108"/>
         <source>Desktop capture</source>
         <translation>Captura do ambiente de trabalho</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="95"/>
+        <location filename="../qml/GeneralConfig.qml" line="125"/>
         <source>Audio capture/play</source>
         <translation>Captura / reprodução do áudio</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="105"/>
+        <location filename="../qml/GeneralConfig.qml" line="142"/>
         <source>Video convert</source>
         <translation>Conversão do vídeo</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="115"/>
+        <location filename="../qml/GeneralConfig.qml" line="159"/>
         <source>Audio convert</source>
         <translation>Conversão do áudio</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="155"/>
+        <location filename="../qml/GeneralConfig.qml" line="210"/>
         <source>Virtual camera driver</source>
         <translation>Controlador da câmara virtual</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="125"/>
+        <location filename="../qml/GeneralConfig.qml" line="176"/>
         <source>Video playback</source>
         <translation>Reprodução do vídeo</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="56"/>
+        <location filename="../qml/GeneralConfig.qml" line="72"/>
         <source>Play sources on start</source>
         <extracomment>Start playing the webcam and other sources right after * opening Webcamoid.</extracomment>
         <translation>Executar fontes ao inicializar</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="66"/>
+        <location filename="../qml/GeneralConfig.qml" line="82"/>
         <source>Frameworks and libraries</source>
         <translation>Frameworks e bibliotecas</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="135"/>
+        <location filename="../qml/GeneralConfig.qml" line="193"/>
         <source>Video record</source>
         <translation>Gravação de vídeo</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="145"/>
+        <location filename="../qml/GeneralConfig.qml" line="227"/>
         <source>Root method</source>
         <translation>Método de root</translation>
     </message>
@@ -269,14 +269,6 @@
     </message>
 </context>
 <context>
-    <name>MediaTools</name>
-    <message>
-        <location filename="../../src/mediatools.cpp" line="197"/>
-        <source>Daily Build</source>
-        <translation>Compilação diária</translation>
-    </message>
-</context>
-<context>
     <name>PluginConfig</name>
     <message>
         <location filename="../qml/PluginConfig.qml" line="35"/>
@@ -289,27 +281,27 @@
         <translation>Plugins</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="115"/>
+        <location filename="../qml/PluginConfig.qml" line="110"/>
         <source>Search plugins in subfolders</source>
         <translation>Pesquisar plugins em subpastas</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="124"/>
+        <location filename="../qml/PluginConfig.qml" line="119"/>
         <source>Add path</source>
         <translation>Adicionar caminho</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="167"/>
+        <location filename="../qml/PluginConfig.qml" line="162"/>
         <source>Remove</source>
         <translation>Remover</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="201"/>
+        <location filename="../qml/PluginConfig.qml" line="196"/>
         <source>Update</source>
         <translation>Atualizar</translation>
     </message>
     <message>
-        <location filename="../qml/PluginConfig.qml" line="247"/>
+        <location filename="../qml/PluginConfig.qml" line="246"/>
         <source>Add plugins search path</source>
         <translation>Adicionar diretório de procura de plugins</translation>
     </message>
@@ -357,7 +349,7 @@
 <context>
     <name>Recording</name>
     <message>
-        <location filename="../../src/recording.cpp" line="372"/>
+        <location filename="../../src/recording.cpp" line="364"/>
         <source>%1/Video %2.%3</source>
         <translation>%1/Vídeo %2.%3</translation>
     </message>
@@ -448,72 +440,72 @@
 <context>
     <name>UpdatesConfig</name>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="73"/>
+        <location filename="../qml/UpdatesConfig.qml" line="82"/>
         <source>Notify about new versions</source>
         <translation>Notificar sobre novas versões</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="82"/>
+        <location filename="../qml/UpdatesConfig.qml" line="92"/>
         <source>Show updates dialog</source>
         <translation>Mostrar caixa de diálogo de atualizações</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="90"/>
+        <location filename="../qml/UpdatesConfig.qml" line="100"/>
         <source>Check new versions</source>
         <translation>Verificar se existe nova versão</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="98"/>
+        <location filename="../qml/UpdatesConfig.qml" line="108"/>
         <source>Daily</source>
         <translation>Diariamente</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="102"/>
+        <location filename="../qml/UpdatesConfig.qml" line="112"/>
         <source>Every two days</source>
         <translation>A cada 2 dias</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="106"/>
+        <location filename="../qml/UpdatesConfig.qml" line="116"/>
         <source>Weekly</source>
         <translation>Semanalmente</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="110"/>
+        <location filename="../qml/UpdatesConfig.qml" line="120"/>
         <source>Every two weeks</source>
         <translation>A cada 2 semanas</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="114"/>
+        <location filename="../qml/UpdatesConfig.qml" line="124"/>
         <source>Monthly</source>
         <translation>Mensalmente</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="118"/>
+        <location filename="../qml/UpdatesConfig.qml" line="128"/>
         <source>Never</source>
         <translation>Nunca</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="130"/>
+        <location filename="../qml/UpdatesConfig.qml" line="141"/>
         <source>Last updated</source>
         <translation>Última atualização</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="151"/>
+        <location filename="../qml/UpdatesConfig.qml" line="162"/>
         <source>Your version of %1 is outdated. Latest version is &lt;b&gt;%2&lt;/b&gt;.</source>
         <translation>A sua versão de %1 está desatualizada. A última versão é &lt;b&gt;%2&lt;/b&gt;.</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="157"/>
+        <location filename="../qml/UpdatesConfig.qml" line="168"/>
         <source>Upgrade Now!</source>
         <translation>Atualizar agora!</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="172"/>
+        <location filename="../qml/UpdatesConfig.qml" line="183"/>
         <source>Thanks for using a &lt;b&gt;development version&lt;/b&gt;!&lt;br /&gt;It will be very helpful if you can report any bug and suggestions you have.</source>
         <translation>Obrigado por usar a &lt;b&gt;versão de desenvolvimento&lt;/b&gt;!&lt;br /&gt;Seria muito útil se pudesse reportar qualquer erro ou sugestão que tenha.</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="177"/>
+        <location filename="../qml/UpdatesConfig.qml" line="188"/>
         <source>Report a Bug</source>
         <translation>Reportar um erro</translation>
     </message>
@@ -526,12 +518,12 @@
         <translation>Nova versão disponível!</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesDialog.qml" line="61"/>
+        <location filename="../qml/UpdatesDialog.qml" line="70"/>
         <source>Download %1 %2 NOW!</source>
         <translation>Baixe %1 %2 AGORA!</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesDialog.qml" line="68"/>
+        <location filename="../qml/UpdatesDialog.qml" line="77"/>
         <source>Show this dialog next time</source>
         <translation>Mostrar esta caixa de diálogo na próxima vez</translation>
     </message>
@@ -563,7 +555,7 @@
 <context>
     <name>VideoEffectOptions</name>
     <message>
-        <location filename="../qml/VideoEffectOptions.qml" line="63"/>
+        <location filename="../qml/VideoEffectOptions.qml" line="53"/>
         <source>Remove</source>
         <translation>Remover</translation>
     </message>
@@ -581,7 +573,7 @@
         <translation>Buscar efeito</translation>
     </message>
     <message>
-        <location filename="../qml/VideoEffectsDialog.qml" line="183"/>
+        <location filename="../qml/VideoEffectsDialog.qml" line="182"/>
         <source>Chain effect</source>
         <extracomment>Apply the effect over the other effects.</extracomment>
         <translation type="unfinished"></translation>
@@ -590,12 +582,12 @@
 <context>
     <name>VideoEffectsList</name>
     <message>
-        <location filename="../qml/VideoEffectsList.qml" line="34"/>
+        <location filename="../qml/VideoEffectsList.qml" line="35"/>
         <source>Add effect</source>
         <translation>Adicionar efeito</translation>
     </message>
     <message>
-        <location filename="../qml/VideoEffectsList.qml" line="41"/>
+        <location filename="../qml/VideoEffectsList.qml" line="42"/>
         <source>Remove all effects</source>
         <translation>Remover todos os efeitos</translation>
     </message>
@@ -794,10 +786,15 @@
 <context>
     <name>VideoLayer</name>
     <message>
-        <location filename="../../src/videolayer.cpp" line="242"/>
+        <location filename="../../src/videolayer.cpp" line="235"/>
         <source>No Output</source>
         <extracomment>Disable video output, don&apos;t send the video to the output device.</extracomment>
         <translation>Nenhuma Saída de Vídeo</translation>
+    </message>
+    <message>
+        <location filename="../../src/videolayer.cpp" line="546"/>
+        <source>Virtual Camera</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2454,32 +2451,37 @@ background blur or image below.</source>
         <translation>Fase</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="132"/>
+        <location filename="../qml/main.qml" line="134"/>
         <source>Use flash</source>
         <translation>Usar flash</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="152"/>
+        <location filename="../qml/main.qml" line="154"/>
         <source>Now</source>
         <translation>Agora</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="159"/>
+        <location filename="../qml/main.qml" line="161"/>
         <source>%1 seconds</source>
         <translation>%1 segundos</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="260"/>
+        <location filename="../qml/main.qml" line="262"/>
         <source>Take a photo</source>
         <translation>Tirar uma foto</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="44"/>
+        <location filename="../qml/main.qml" line="46"/>
         <source>%1/Picture %2.%3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="309"/>
+        <location filename="../qml/main.qml" line="33"/>
+        <source>Daily Build</source>
+        <translation type="unfinished">Compilação diária</translation>
+    </message>
+    <message>
+        <location filename="../qml/main.qml" line="311"/>
         <source>Record video</source>
         <translation>Gravar vídeo</translation>
     </message>

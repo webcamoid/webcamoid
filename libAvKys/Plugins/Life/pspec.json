@@ -1,5 +1,12 @@
 {
-    "pluginType": "Ak.Element",
-    "type": "VideoFilter",
-    "description": "Life Game"
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "Life",
+            "description": "Life Game",
+            "id": "VideoFilter/Life",
+            "implements": ["Element", "VideoFilter"],
+            "type": "qtplugin"
+        }
+    ]
 }

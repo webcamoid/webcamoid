@@ -1,5 +1,12 @@
 {
-    "pluginType": "Ak.Element",
-    "type": "VideoFilter",
-    "description": "Stoned"
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "Dizzy",
+            "description": "Stoned",
+            "id": "VideoFilter/Dizzy",
+            "implements": ["Element", "VideoFilter"],
+            "type": "qtplugin"
+        }
+    ]
 }

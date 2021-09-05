@@ -37,22 +37,12 @@ ScrollView {
             return ""
 
         let effect = videoEffects.effects[effectIndex]
-        let info = videoEffects.effectInfo(effect)
+        let info = AkPluginInfo.create(videoEffects.effectInfo(effect))
 
         if (!info)
             return ""
 
-        let metaData = info["MetaData"]
-
-        if (!metaData)
-            return ""
-
-        let description_ = metaData["description"]
-
-        if (!description_)
-            return ""
-
-        return description_
+        return info.description
     }
 
     ColumnLayout {

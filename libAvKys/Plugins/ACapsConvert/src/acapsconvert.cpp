@@ -19,24 +19,17 @@
 
 #include "acapsconvert.h"
 #include "acapsconvertelement.h"
-#include "acapsconvertelementsettings.h"
 
 QObject *ACapsConvert::create(const QString &key, const QString &specification)
 {
     Q_UNUSED(specification)
 
-    if (key == AK_PLUGIN_TYPE_ELEMENT)
-        return new ACapsConvertElement();
-    else if (key == AK_PLUGIN_TYPE_ELEMENT_SETTINGS)
-        return new ACapsConvertElementSettings();
-
-    return nullptr;
+    return new ACapsConvertElement();
 }
 
 QStringList ACapsConvert::keys() const
 {
-    return {AK_PLUGIN_TYPE_ELEMENT,
-            AK_PLUGIN_TYPE_ELEMENT_SETTINGS};
+    return {};
 }
 
 #include "moc_acapsconvert.cpp"

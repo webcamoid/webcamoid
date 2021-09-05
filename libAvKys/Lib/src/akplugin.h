@@ -24,10 +24,6 @@
 
 #include "akcommons.h"
 
-#define AK_PLUGIN_TYPE_ELEMENT          "Ak.Element"
-#define AK_PLUGIN_TYPE_ELEMENT_SETTINGS "Ak.Element.Settings"
-#define AK_PLUGIN_TYPE_SUBMODULE        "Ak.SubModule"
-
 class AKCOMMONS_EXPORT AkPlugin
 {
     public:

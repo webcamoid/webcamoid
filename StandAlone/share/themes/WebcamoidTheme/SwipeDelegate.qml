@@ -80,8 +80,8 @@ T.SwipeDelegate {
         color: control.highlighted?
                    control.activeHighlightedText:
                    control.activeWindowText
-        alignment: control.display === IconLabel.IconOnly
-                   || control.display === IconLabel.TextUnderIcon?
+        alignment: control.display == IconLabel.IconOnly
+                   || control.display == IconLabel.TextUnderIcon?
                        Qt.AlignCenter | Qt.AlignVCenter:
                        Qt.AlignLeft | Qt.AlignVCenter
         enabled: control.enabled

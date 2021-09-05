@@ -22,17 +22,15 @@
 
 QObject *Scroll::create(const QString &key, const QString &specification)
 {
+    Q_UNUSED(key)
     Q_UNUSED(specification)
 
-    if (key == AK_PLUGIN_TYPE_ELEMENT)
-        return new ScrollElement();
-
-    return nullptr;
+    return new ScrollElement();
 }
 
 QStringList Scroll::keys() const
 {
-    return QStringList();
+    return {};
 }
 
 #include "moc_scroll.cpp"

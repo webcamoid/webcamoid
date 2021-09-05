@@ -1,5 +1,12 @@
 {
-    "pluginType": "Ak.Element",
-    "type": "VideoFilter",
-    "description": "False Color"
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "FalseColor",
+            "description": "False Color",
+            "id": "VideoFilter/FalseColor",
+            "implements": ["Element", "VideoFilter"],
+            "type": "qtplugin"
+        }
+    ]
 }

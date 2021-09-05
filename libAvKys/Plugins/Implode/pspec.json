@@ -1,5 +1,12 @@
 {
-    "pluginType": "Ak.Element",
-    "type": "VideoFilter",
-    "description": "Implode"
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "Implode",
+            "description": "Implode",
+            "id": "VideoFilter/Implode",
+            "implements": ["Element", "VideoFilter"],
+            "type": "qtplugin"
+        }
+    ]
 }

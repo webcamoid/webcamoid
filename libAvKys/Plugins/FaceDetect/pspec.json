@@ -1,5 +1,13 @@
 {
-    "pluginType": "Ak.Element",
-    "type": "VideoFilter",
-    "description": "Face Detection"
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "FaceDetect",
+            "description": "Face Detection",
+            "id": "VideoFilter/FaceDetect",
+            "implements": ["Element", "VideoFilter"],
+            "depends": ["VideoFilter/Blur"],
+            "type": "qtplugin"
+        }
+    ]
 }

@@ -1,5 +1,12 @@
 {
-    "pluginType": "Ak.Element",
-    "type": "VideoFilter",
-    "description": "Normalize"
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "Normalize",
+            "description": "Normalize",
+            "id": "VideoFilter/Normalize",
+            "implements": ["Element", "VideoFilter"],
+            "type": "qtplugin"
+        }
+    ]
 }

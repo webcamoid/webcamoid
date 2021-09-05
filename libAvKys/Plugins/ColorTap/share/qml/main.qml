@@ -25,7 +25,7 @@ import Qt.labs.platform 1.1 as LABS
 ColumnLayout {
     function toQrc(uri)
     {
-        if (uri.indexOf(":") === 0)
+        if (uri.indexOf(":") == 0)
             return "qrc" + uri
 
         return "file:" + uri
@@ -108,7 +108,7 @@ ColumnLayout {
 
             onTextChanged: {
                 for (var i = 0; i < cbxTable.model.count; i++) {
-                    if (cbxTable.model.get(i).table === ColorTap.table) {
+                    if (cbxTable.model.get(i).table == ColorTap.table) {
                         cbxTable.currentIndex = i
 
                         break

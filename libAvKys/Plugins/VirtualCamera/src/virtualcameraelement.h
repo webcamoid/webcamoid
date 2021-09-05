@@ -58,11 +58,22 @@ class VirtualCameraElement: public AkElement
     Q_PROPERTY(bool driverInstalled
                READ driverInstalled
                CONSTANT)
+    Q_PROPERTY(QString driverVersion
+               READ driverVersion
+               CONSTANT)
     Q_PROPERTY(QString picture
                READ picture
                WRITE setPicture
                RESET resetPicture
                NOTIFY pictureChanged)
+    Q_PROPERTY(QString rootMethod
+               READ rootMethod
+               WRITE setRootMethod
+               RESET resetRootMethod
+               NOTIFY rootMethodChanged)
+    Q_PROPERTY(QStringList availableRootMethods
+               READ availableRootMethods
+               CONSTANT)
 
     public:
         VirtualCameraElement();
@@ -99,7 +110,10 @@ class VirtualCameraElement: public AkElement
         Q_INVOKABLE QList<quint64> clientsPids() const;
         Q_INVOKABLE QString clientExe(quint64 pid) const;
         Q_INVOKABLE bool driverInstalled() const;
+        Q_INVOKABLE QString driverVersion() const;
         Q_INVOKABLE QString picture() const;
+        Q_INVOKABLE QString rootMethod() const;
+        Q_INVOKABLE QStringList availableRootMethods() const;
 
     private:
         VirtualCameraElementPrivate *d;
@@ -119,13 +133,16 @@ class VirtualCameraElement: public AkElement
         void supportedOutputPixelFormatsChanged(const AkVideoCaps::PixelFormatList &supportedOutputPixelFormats);
         void defaultOutputPixelFormatChanged(const AkVideoCaps::PixelFormat &defaultOutputPixelFormat);
         void pictureChanged(const QString &picture);
+        void rootMethodChanged(const QString &rootMethod);
 
     public slots:
         bool applyPicture();
         void setMedia(const QString &media);
         void setPicture(const QString &picture);
+        void setRootMethod(const QString &rootMethod);
         void resetMedia();
         void resetPicture();
+        void resetRootMethod();
         void clearStreams();
         bool setState(AkElement::ElementState state);
 };

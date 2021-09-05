@@ -27,22 +27,6 @@ class MediaSourceFFmpegPrivate;
 class MediaSourceFFmpeg: public MediaSource
 {
     Q_OBJECT
-    Q_PROPERTY(qint64 durationMSecs
-               READ durationMSecs
-               NOTIFY durationMSecsChanged)
-    Q_PROPERTY(qint64 currentTimeMSecs
-               READ currentTimeMSecs
-               NOTIFY currentTimeMSecsChanged)
-    Q_PROPERTY(qint64 maxPacketQueueSize
-               READ maxPacketQueueSize
-               WRITE setMaxPacketQueueSize
-               RESET resetMaxPacketQueueSize
-               NOTIFY maxPacketQueueSizeChanged)
-    Q_PROPERTY(bool showLog
-               READ showLog
-               WRITE setShowLog
-               RESET resetShowLog
-               NOTIFY showLogChanged)
 
     public:
         MediaSourceFFmpeg(QObject *parent=nullptr);
@@ -66,20 +50,6 @@ class MediaSourceFFmpeg: public MediaSource
 
     private:
         MediaSourceFFmpegPrivate *d;
-
-    signals:
-        void stateChanged(AkElement::ElementState state);
-        void oStream(const AkPacket &packet);
-        void error(const QString &message);
-        void durationMSecsChanged(qint64 durationMSecs);
-        void currentTimeMSecsChanged(qint64 currentTimeMSecs);
-        void maxPacketQueueSizeChanged(qint64 maxPacketQueue);
-        void showLogChanged(bool showLog);
-        void loopChanged(bool loop);
-        void syncChanged(bool sync);
-        void mediasChanged(const QStringList &medias);
-        void mediaChanged(const QString &media);
-        void streamsChanged(const QList<int> &streams);
 
     public slots:
         void seek(qint64 mSecs, MultiSrcElement::SeekPosition position);

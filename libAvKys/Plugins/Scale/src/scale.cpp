@@ -24,24 +24,20 @@
 
 QObject *Scale::create(const QString &key, const QString &specification)
 {
+    Q_UNUSED(key)
     Q_UNUSED(specification)
+    qRegisterMetaType<ScaleElement::ScalingMode>("ScaleElementScalingMode");
+    qRegisterMetaTypeStreamOperators<ScaleElement::ScalingMode>("ScaleElementScalingMode");
+    qRegisterMetaType<ScaleElement::AspectRatioMode>("ScaleElementAspectRatioMode");
+    qRegisterMetaTypeStreamOperators<ScaleElement::AspectRatioMode>("ScaleElementAspectRatioMode");
+    qmlRegisterType<ScaleElement>("ScaleElement", 1, 0, "ScaleElement");
 
-    if (key == AK_PLUGIN_TYPE_ELEMENT) {
-        qRegisterMetaType<ScaleElement::ScalingMode>("ScaleElementScalingMode");
-        qRegisterMetaTypeStreamOperators<ScaleElement::ScalingMode>("ScaleElementScalingMode");
-        qRegisterMetaType<ScaleElement::AspectRatioMode>("ScaleElementAspectRatioMode");
-        qRegisterMetaTypeStreamOperators<ScaleElement::AspectRatioMode>("ScaleElementAspectRatioMode");
-        qmlRegisterType<ScaleElement>("ScaleElement", 1, 0, "ScaleElement");
-
-        return new ScaleElement();
-    }
-
-    return nullptr;
+    return new ScaleElement();
 }
 
 QStringList Scale::keys() const
 {
-    return QStringList();
+    return {};
 }
 
 #include "moc_scale.cpp"

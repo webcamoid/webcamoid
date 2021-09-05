@@ -25,6 +25,7 @@
 class VideoEffectsPrivate;
 class VideoEffects;
 class QQmlApplicationEngine;
+class AkPluginInfo;
 
 using VideoEffectsPtr = QSharedPointer<VideoEffects>;
 
@@ -63,7 +64,7 @@ class VideoEffects: public QObject
         Q_INVOKABLE QStringList availableEffects() const;
         Q_INVOKABLE QStringList effects() const;
         Q_INVOKABLE QString preview() const;
-        Q_INVOKABLE QVariantMap effectInfo(const QString &effectId) const;
+        Q_INVOKABLE AkPluginInfo effectInfo(const QString &effectId) const;
         Q_INVOKABLE QString effectDescription(const QString &effectId) const;
         Q_INVOKABLE AkElement::ElementState state() const;
         Q_INVOKABLE bool chainEffects() const;

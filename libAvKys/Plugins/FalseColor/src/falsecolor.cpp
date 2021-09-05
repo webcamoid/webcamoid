@@ -22,17 +22,15 @@
 
 QObject *FalseColor::create(const QString &key, const QString &specification)
 {
+    Q_UNUSED(key)
     Q_UNUSED(specification)
 
-    if (key == AK_PLUGIN_TYPE_ELEMENT)
-        return new FalseColorElement();
-
-    return nullptr;
+    return new FalseColorElement();
 }
 
 QStringList FalseColor::keys() const
 {
-    return QStringList();
+    return {};
 }
 
 #include "moc_falsecolor.cpp"

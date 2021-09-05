@@ -1,5 +1,12 @@
 {
-    "pluginType": "Ak.Element",
-    "type": "VideoFilter",
-    "description": "Psychedelic"
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "Shagadelic",
+            "description": "Psychedelic",
+            "id": "VideoFilter/Shagadelic",
+            "implements": ["Element", "VideoFilter"],
+            "type": "qtplugin"
+        }
+    ]
 }

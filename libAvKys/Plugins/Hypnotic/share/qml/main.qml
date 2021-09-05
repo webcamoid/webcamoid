@@ -29,7 +29,7 @@ GridLayout {
         var index = -1
 
         for (var i = 0; i < cbxMode.model.count; i++)
-            if (cbxMode.model.get(i).mode === mode) {
+            if (cbxMode.model.get(i).mode == mode) {
                 index = i
                 break
             }
