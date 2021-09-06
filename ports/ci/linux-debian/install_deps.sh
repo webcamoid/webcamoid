@@ -43,6 +43,7 @@ dpkg-reconfigure --frontend noninteractive keyboard-configuration
 
 # Install missing dependenies
 
+apt-mark hold systemd
 apt-get -qq -y update
 apt-get -qq -y upgrade
 apt-get -qq -y install \
