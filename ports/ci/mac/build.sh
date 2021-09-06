@@ -31,7 +31,7 @@ export PATH="/usr/local/opt/qt@5/bin:$PATH"
 export LDFLAGS="$LDFLAGS -L/usr/local/opt/qt@5/lib"
 export CPPFLAGS="$CPPFLAGS -I/usr/local/opt/qt@5/include"
 export PKG_CONFIG_PATH="/usr/local/opt/qt@5/lib/pkgconfig:$PKG_CONFIG_PATH"
-INSTALL_PREFIX=${PWD}/wecamoid-data
+INSTALL_PREFIX=${PWD}/webcamoid-data
 
 mkdir build
 cmake \
