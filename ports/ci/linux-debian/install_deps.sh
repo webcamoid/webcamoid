@@ -45,6 +45,7 @@ dpkg-reconfigure --frontend noninteractive keyboard-configuration
 
 apt-mark hold systemd
 apt-mark hold usb-modeswitch
+apt-mark hold wpasupplicant
 apt-get -qq -y update
 apt-get -qq -y upgrade
 apt-get -qq -y install \
