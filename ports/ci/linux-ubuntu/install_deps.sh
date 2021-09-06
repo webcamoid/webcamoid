@@ -50,6 +50,7 @@ fi
 # Install missing dependenies
 
 apt-mark hold systemd
+apt-mark hold usb-modeswitch
 apt-get -qq -y update
 apt-get -qq -y upgrade
 apt-get -qq -y install \
