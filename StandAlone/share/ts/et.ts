@@ -794,7 +794,7 @@
     <message>
         <location filename="../../src/videolayer.cpp" line="546"/>
         <source>Virtual Camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Virtuaalne kaamera</translation>
     </message>
 </context>
 <context>
