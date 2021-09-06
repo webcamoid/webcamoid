@@ -26,7 +26,7 @@ else
     export DOWNLOAD_CMD="curl --retry 10 -sS -kLOC -"
 fi
 
-dnf -y update
+dnf -y upgrade --exclude=systemd
 dnf -y install \
     curl \
     dbus-libs \
@@ -78,7 +78,7 @@ fi
 
 dnf install -y --skip-broken https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-${FEDORAVER}.noarch.rpm
 dnf install -y --skip-broken https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-${FEDORAVER}.noarch.rpm
-dnf -y update
+dnf -y upgrade --exclude=systemd
 dnf -y install \
     alsa-lib-devel \
     ccache \
