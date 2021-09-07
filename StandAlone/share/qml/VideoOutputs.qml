@@ -20,142 +20,224 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
+import Qt.labs.settings 1.0 as LABS
 import Ak 1.0
 import Webcamoid 1.0
 
-ScrollView {
-    id: view
+StackLayout {
+    id: videoOutputsLayout
+    currentIndex: !videoLayer.isVCamSupported?
+                      2:
+                  videoLayer.vcamInstallStatus == VideoLayer.VCamNotInstalled?
+                      1:
+                      0
+
+    property int vcamStatus: updates.status("VirtualCamera")
+    property string vcamVersion: videoLayer.currentVCamVersion
+    property string vcamLatestVersion: updates.latestVersion("VirtualCamera")
+    property bool showDialog: true
 
     signal openErrorDialog(string title, string message)
     signal openVideoOutputAddEditDialog(string videoOutput)
     signal openVideoOutputOptions(string videoOutput)
     signal openVideoOutputPictureDialog()
 
-    ColumnLayout {
-        width: view.width
+    Connections {
+        target: updates
 
-        Button {
-            text: qsTr("Add output")
-            icon.source: "image://icons/add"
-            flat: true
-
-            onClicked: {
-                if (videoLayer.clientsPids.length < 1) {
-                    view.openVideoOutputAddEditDialog("")
-                } else {
-                    let title = qsTr("Error Creating Virtual Camera")
-                    let message = Commons.vcamDriverBusyMessage()
-                    view.openErrorDialog(title, message)
-                }
+        onNewVersionAvailable: {
+            if (component == "VirtualCamera") {
+                videoOutputsLayout.vcamStatus = updates.status("VirtualCamera");
+                videoOutputsLayout.vcamLatestVersion = latestVersion;
             }
         }
-        Button {
-            text: qsTr("Remove all outputs")
-            icon.source: "image://icons/no"
-            flat: true
+    }
 
-            onClicked: {
-                if (videoLayer.clientsPids.length < 1) {
-                    videoLayer.removeAllOutputs()
-                } else {
-                    let title = qsTr("Error Removing Virtual Cameras")
-                    let message = Commons.vcamDriverBusyMessage()
-                    view.openErrorDialog(title, message)
-                }
-            }
-        }
-        Button {
-            text: qsTr("Set output picture")
-            icon.source: "image://icons/picture"
-            flat: true
+    Page {
+        ScrollView {
+            id: videoOptionsScroll
+            width: parent.width
 
-            onClicked: view.openVideoOutputPictureDialog()
-        }
-        ListView {
-            id: devicesList
-            model: ListModel {}
-            implicitWidth: childrenRect.width
-            implicitHeight: childrenRect.height
-            Layout.fillWidth: true
-            Layout.fillHeight: true
+            ColumnLayout {
+                width: videoOptionsScroll.width
 
-            function updateDevices() {
-                let devices = videoLayer.outputs
-                model.clear()
+                ColumnLayout {
+                    visible: videoLayer.vcamDriver == "VideoSink/VirtualCamera/Impl/AkVCam"
+                             && videoOutputsLayout.vcamStatus == Updates.ComponentOutdated
+                             && updates.notifyNewVersion
+                             && videoOutputsLayout.showDialog
 
-                for (let i in devices) {
-                    let device = devices[i]
-                    let description = videoLayer.description(device)
-                    model.append({device: device,
-                                  description: description})
-                }
-
-                let output = videoLayer.videoOutput.length < 1?
-                                "":
-                                videoLayer.videoOutput[0]
-                let index = devices.indexOf(output)
-
-                if (index < 0) {
-                    if (devices.length == 1)
-                        index = 0
-                    else if (devices.length >= 2)
-                        index = 1
-                }
-
-                currentIndex = index
-            }
-
-            delegate: ItemDelegate {
-                text: index < 0 && index >= devicesList.count?
-                          "":
-                      devicesList.model.get(index)?
-                          devicesList.model.get(index)["description"]:
-                          ""
-                anchors.right: parent.right
-                anchors.left: parent.left
-                height: implicitHeight
-                highlighted: devicesList.currentItem == this
-
-                onClicked: {
-                    if (devicesList.currentIndex == index) {
-                        if (index < 0)
-                            return
-
-                        let deviceElement = devicesList.model.get(index)
-
-                        if (!deviceElement)
-                            return
-
-                        let device = deviceElement["device"]
-
-                        if (!device || device == ":dummyout:")
-                            return
-
-                        view.openVideoOutputOptions(device)
-                    } else {
-                        let deviceElement = devicesList.model.get(index)
-
-                        if (!deviceElement)
-                            return
-
-                        let device = deviceElement["device"]
-
-                        if (!device)
-                            return
-
-                        videoLayer.videoOutput = [device]
-                        devicesList.currentIndex = index
+                    Label {
+                        text: qsTr("The virtual camera is outdated (%1), install the latest version (%2)?")
+                                .arg(videoOutputsLayout.vcamVersion)
+                                .arg(videoOutputsLayout.vcamLatestVersion)
+                        wrapMode: Text.WordWrap
+                        Layout.fillWidth: true
+                        Layout.leftMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+                        Layout.rightMargin: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
+                    }
+                    Button {
+                        text: qsTr("Install")
+                        highlighted: true
+                        Layout.alignment: Qt.AlignTop | Qt.AlignHCenter
+                        Layout.topMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+                        Layout.bottomMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
                     }
                 }
+                Button {
+                    text: qsTr("Add output")
+                    icon.source: "image://icons/add"
+                    flat: true
+
+                    onClicked: {
+                        if (videoLayer.clientsPids.length < 1) {
+                            videoOutputsLayout.openVideoOutputAddEditDialog("")
+                        } else {
+                            let title = qsTr("Error Creating Virtual Camera")
+                            let message = Commons.vcamDriverBusyMessage()
+                            videoOutputsLayout.openErrorDialog(title, message)
+                        }
+                    }
+                }
+                Button {
+                    text: qsTr("Remove all outputs")
+                    icon.source: "image://icons/no"
+                    flat: true
+
+                    onClicked: {
+                        if (videoLayer.clientsPids.length < 1) {
+                            videoLayer.removeAllOutputs()
+                        } else {
+                            let title = qsTr("Error Removing Virtual Cameras")
+                            let message = Commons.vcamDriverBusyMessage()
+                            videoOutputsLayout.openErrorDialog(title, message)
+                        }
+                    }
+                }
+                Button {
+                    text: qsTr("Set output picture")
+                    icon.source: "image://icons/picture"
+                    flat: true
+
+                    onClicked: videoOutputsLayout.openVideoOutputPictureDialog()
+                }
+                ListView {
+                    id: devicesList
+                    model: ListModel {}
+                    implicitWidth: childrenRect.width
+                    implicitHeight: childrenRect.height
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+
+                    function updateDevices() {
+                        let devices = videoLayer.outputs
+                        model.clear()
+
+                        for (let i in devices) {
+                            let device = devices[i]
+                            let description = videoLayer.description(device)
+                            model.append({device: device,
+                                          description: description})
+                        }
+
+                        let output = videoLayer.videoOutput.length < 1?
+                                        "":
+                                        videoLayer.videoOutput[0]
+                        let index = devices.indexOf(output)
+
+                        if (index < 0) {
+                            if (devices.length == 1)
+                                index = 0
+                            else if (devices.length >= 2)
+                                index = 1
+                        }
+
+                        currentIndex = index
+                    }
+
+                    delegate: ItemDelegate {
+                        text: index < 0 && index >= devicesList.count?
+                                  "":
+                              devicesList.model.get(index)?
+                                  devicesList.model.get(index)["description"]:
+                                  ""
+                        anchors.right: parent.right
+                        anchors.left: parent.left
+                        height: implicitHeight
+                        highlighted: devicesList.currentItem == this
+
+                        onClicked: {
+                            if (devicesList.currentIndex == index) {
+                                if (index < 0)
+                                    return
+
+                                let deviceElement = devicesList.model.get(index)
+
+                                if (!deviceElement)
+                                    return
+
+                                let device = deviceElement["device"]
+
+                                if (!device || device == ":dummyout:")
+                                    return
+
+                                videoOutputsLayout.openVideoOutputOptions(device)
+                            } else {
+                                let deviceElement = devicesList.model.get(index)
+
+                                if (!deviceElement)
+                                    return
+
+                                let device = deviceElement["device"]
+
+                                if (!device)
+                                    return
+
+                                videoLayer.videoOutput = [device]
+                                devicesList.currentIndex = index
+                            }
+                        }
+                    }
+
+                    Connections {
+                        target: videoLayer
+
+                        onOutputsChanged: devicesList.updateDevices()
+                    }
+
+                    Component.onCompleted: devicesList.updateDevices()
+                }
             }
-
-            Connections {
-                target: videoLayer
-
-                onOutputsChanged: devicesList.updateDevices()
-            }
-
-            Component.onCompleted: devicesList.updateDevices()
         }
+    }
+    Page {
+        ColumnLayout {
+            width: parent.width
+
+            Label {
+                text: qsTr("The virtual camera is not installed, do you want to install it?")
+                wrapMode: Text.WordWrap
+                Layout.fillWidth: true
+            }
+            Button {
+                text: qsTr("Install")
+                highlighted: true
+                Layout.alignment: Qt.AlignTop | Qt.AlignHCenter
+                Layout.topMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+            }
+        }
+    }
+    Page {
+        Label {
+            text: qsTr("The virtual camera is not supported in this platform")
+            wrapMode: Text.WordWrap
+            width: parent.width
+        }
+    }
+
+    LABS.Settings {
+        category: "Updates"
+
+        property alias showDialog: videoOutputsLayout.showDialog
     }
 }

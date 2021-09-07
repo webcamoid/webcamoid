@@ -32,6 +32,7 @@
 #include <akpacket.h>
 #include <akplugin.h>
 #include <akvideocaps.h>
+#include <akplugininfo.h>
 #include <akpluginmanager.h>
 
 #include "videolayer.h"
@@ -57,6 +58,7 @@ class VideoLayerPrivate
         AkElementPtr m_desktopCapture {akPluginManager->create<AkElement>("VideoSource/DesktopCapture")};
         AkElementPtr m_uriCapture {akPluginManager->create<AkElement>("MultimediaSource/MultiSrc")};
         AkElementPtr m_cameraOutput {akPluginManager->create<AkElement>("VideoSink/VirtualCamera")};
+        QString m_vcamDriver;
         AkElement::ElementState m_state {AkElement::ElementStateNull};
         QString m_latestVersion;
         bool m_playOnStart {true};
@@ -93,6 +95,24 @@ VideoLayer::VideoLayer(QQmlApplicationEngine *engine, QObject *parent):
     this->d->connectSignals();
     this->d->loadProperties();
     this->d->m_latestVersion = this->currentVCamVersion();
+    this->d->m_vcamDriver =
+            akPluginManager->defaultPlugin("VideoSink/VirtualCamera/Impl/*").id();
+    QObject::connect(akPluginManager,
+                     &AkPluginManager::linksChanged,
+                     this,
+                     [this] (const AkPluginLinks &links) {
+        if (links.contains("VideoSink/VirtualCamera/Impl/*")
+            && links["VideoSink/VirtualCamera/Impl/*"] != this->d->m_vcamDriver) {
+            this->d->m_vcamDriver = links["VideoSink/VirtualCamera/Impl/*"];
+            emit this->vcamDriverChanged(this->d->m_vcamDriver);
+            QString version;
+
+            if (this->d->m_cameraOutput)
+                version = this->d->m_cameraOutput->property("driverVersion").toString();
+
+            emit this->currentVCamVersionChanged(version);
+        }
+    });
 }
 
 VideoLayer::~VideoLayer()
@@ -491,6 +511,11 @@ VideoLayer::VCamStatus VideoLayer::vcamInstallStatus() const
     return VCamNotInstalled;
 }
 
+QString VideoLayer::vcamDriver() const
+{
+    return this->d->m_vcamDriver;
+}
+
 QString VideoLayer::currentVCamVersion() const
 {
     if (this->d->m_cameraOutput)
@@ -816,6 +841,9 @@ void VideoLayer::setQmlEngine(QQmlApplicationEngine *engine)
 
     if (engine) {
         engine->rootContext()->setContextProperty("videoLayer", this);
+        qRegisterMetaType<InputType>("VideoInputType");
+        qRegisterMetaType<OutputType>("VideoOutputType");
+        qRegisterMetaType<VCamStatus>("VCamStatus");
         qmlRegisterType<VideoLayer>("Webcamoid", 1, 0, "VideoLayer");
     }
 }
@@ -982,7 +1010,6 @@ AkPacket VideoLayer::iStream(const AkPacket &packet)
 VideoLayerPrivate::VideoLayerPrivate(VideoLayer *self):
     self(self)
 {
-
 }
 
 void VideoLayerPrivate::connectSignals()
