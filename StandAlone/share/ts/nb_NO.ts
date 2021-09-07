@@ -283,7 +283,7 @@
     <message>
         <location filename="../qml/PluginConfig.qml" line="110"/>
         <source>Search plugins in subfolders</source>
-        <translation type="unfinished"></translation>
+        <translation>Søk etter programtillegg i undermapper</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="119"/>
@@ -359,7 +359,7 @@
     <message>
         <location filename="../qml/RecordingNotice.qml" line="55"/>
         <source>Recording</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Opptak</translation>
     </message>
 </context>
 <context>
