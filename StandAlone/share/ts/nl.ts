@@ -794,7 +794,7 @@
     <message>
         <location filename="../../src/videolayer.cpp" line="546"/>
         <source>Virtual Camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Virtuele camera</translation>
     </message>
 </context>
 <context>
@@ -2479,7 +2479,7 @@ aangaande achtergrondvervaging.</translation>
     <message>
         <location filename="../qml/main.qml" line="33"/>
         <source>Daily Build</source>
-        <translation type="unfinished">Dagelijkse ontwikkelingsversie</translation>
+        <translation>Dagelijkse ontwikkelingsversie</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="311"/>

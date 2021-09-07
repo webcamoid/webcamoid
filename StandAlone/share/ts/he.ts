@@ -794,7 +794,7 @@
     <message>
         <location filename="../../src/videolayer.cpp" line="546"/>
         <source>Virtual Camera</source>
-        <translation type="unfinished"></translation>
+        <translation>מצלמה וירטואלית</translation>
     </message>
 </context>
 <context>
@@ -2479,7 +2479,7 @@ background blur or image below.</source>
     <message>
         <location filename="../qml/main.qml" line="33"/>
         <source>Daily Build</source>
-        <translation type="unfinished">מהדורה יומית</translation>
+        <translation>מהדורה יומית</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="311"/>
