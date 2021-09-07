@@ -329,6 +329,7 @@ void UpdatesPrivate::setLastUpdate(const QDateTime &lastUpdate)
 void UpdatesPrivate::setLatestVersion(const QString &component,
                                       const QString &version)
 {
+    bool emitSignal = false;
     this->m_mutex.lock();
 
     for (auto &info: this->m_componentsInfo)
@@ -336,12 +337,15 @@ void UpdatesPrivate::setLatestVersion(const QString &component,
             info.latestVersion = version;
 
             if (info.currentVersion != info.latestVersion)
-                emit self->newVersionAvailable(component, version);
+                emitSignal = true;
 
             break;
         }
 
     this->m_mutex.unlock();
+
+    if (emitSignal)
+        emit self->newVersionAvailable(component, version);
 }
 
 void UpdatesPrivate::readData(const QString &component,
