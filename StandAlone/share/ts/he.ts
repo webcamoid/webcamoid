@@ -919,48 +919,48 @@
     <message>
         <location filename="../qml/VideoOutputs.qml" line="71"/>
         <source>The virtual camera is outdated (%1), install the latest version (%2)?</source>
-        <translation type="unfinished"></translation>
+        <translation>המצלמה הווירטואלית אינה עדכנית (%1), להתקין את הגרסה החדשה (%2)?</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="80"/>
         <location filename="../qml/VideoOutputs.qml" line="223"/>
         <source>Install</source>
-        <translation type="unfinished"></translation>
+        <translation>להתקין</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="88"/>
         <source>Add output</source>
-        <translation type="unfinished"></translation>
+        <translation>הוספת פלט</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="96"/>
         <source>Error Creating Virtual Camera</source>
-        <translation type="unfinished"></translation>
+        <translation>שגיאה ביצירת מצלמה וירטואלית</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="103"/>
         <source>Remove all outputs</source>
-        <translation type="unfinished"></translation>
+        <translation>הסרת כל הפלטים</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="111"/>
         <source>Error Removing Virtual Cameras</source>
-        <translation type="unfinished">שגיאה בהסרת מצלמות וירטואליות</translation>
+        <translation>שגיאה בהסרת מצלמות וירטואליות</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="118"/>
         <source>Set output picture</source>
-        <translation type="unfinished"></translation>
+        <translation>הגדרת תמונת פלט</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="218"/>
         <source>The virtual camera is not installed, do you want to install it?</source>
-        <translation type="unfinished"></translation>
+        <translation>המצלמה הווירטואלית אינה מותקנת, להתקין אותה?</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="232"/>
         <source>The virtual camera is not supported in this platform</source>
-        <translation type="unfinished"></translation>
+        <translation>המצלמה הווירטואלית אינה נתמכת בפלטפורמה הזאת</translation>
     </message>
 </context>
 <context>
