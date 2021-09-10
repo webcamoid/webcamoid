@@ -994,48 +994,48 @@
     <message>
         <location filename="../qml/VideoOutputs.qml" line="72"/>
         <source>The virtual camera is outdated (%1), install the latest version (%2)?</source>
-        <translation type="unfinished"></translation>
+        <translation>De virtuele camera is verouderd (%1). Wil je de nieuwste versie (%2) installeren?</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="81"/>
         <location filename="../qml/VideoOutputs.qml" line="229"/>
         <source>Install</source>
-        <translation type="unfinished"></translation>
+        <translation>Installeren</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="94"/>
         <source>Add output</source>
-        <translation type="unfinished"></translation>
+        <translation>Uitvoerapparaat toevoegen</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="102"/>
         <source>Error Creating Virtual Camera</source>
-        <translation type="unfinished"></translation>
+        <translation>De virtuele camera kan niet worden ingesteld</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="109"/>
         <source>Remove all outputs</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle uitvoerapparaten verwijderen</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="117"/>
         <source>Error Removing Virtual Cameras</source>
-        <translation type="unfinished">Kan virtuele camera&apos;s niet verwijderen</translation>
+        <translation>De virtuele camera&apos;s kunnen niet worden verwijderd</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="124"/>
         <source>Set output picture</source>
-        <translation type="unfinished"></translation>
+        <translation>Uitvoerafbeelding instellen</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="224"/>
         <source>The virtual camera is not installed, do you want to install it?</source>
-        <translation type="unfinished"></translation>
+        <translation>De virtuele camera is niet geïnstalleerd. Wil je deze nu installeren?</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="243"/>
         <source>The virtual camera is not supported in this platform</source>
-        <translation type="unfinished"></translation>
+        <translation>De virtuele camera wordt niet ondersteund op dit systeem</translation>
     </message>
 </context>
 <context>
