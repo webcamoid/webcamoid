@@ -99,7 +99,7 @@ QString DownloadManager::downloadTitle(const QString &url) const
 
     for (auto &info: this->d->m_downloads)
         if (info.url == url)
-            title = info.url;
+            title = info.title;
 
     this->d->m_mutex.unlock();
 
