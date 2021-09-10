@@ -203,9 +203,6 @@ inline bool DownloadManager::enqueue(const QString &title,
     info.status = DownloadManager::DownloadStatusStarted;
     info.file.setFileName(toFile);
 
-    if (!info.file.open(QIODevice::WriteOnly))
-        return false;
-
     auto reply = this->d->m_manager.get(QNetworkRequest(QUrl(fromUrl)));
     QObject::connect(reply,
                      &QNetworkReply::downloadProgress,
@@ -341,23 +338,28 @@ void DownloadManagerPrivate::updateProgress(const QString &url,
                                             qint64 bytesReceived,
                                             qint64 bytesTotal)
 {
+    bool emitSignal = false;
     this->m_mutex.lock();
 
     for (auto &info: this->m_downloads)
         if (info.url == url) {
             info.downloaded = bytesReceived;
             info.size = bytesTotal;
-            emit self->downloadChanged(info.url);
+            emitSignal = true;
 
             break;
         }
 
     this->m_mutex.unlock();
+
+    if (emitSignal)
+        emit self->downloadChanged(url);
 }
 
 void DownloadManagerPrivate::downloadFinished(const QString &url,
                                               QNetworkReply *reply)
 {
+    bool emitSignals = false;
     this->m_mutex.lock();
 
     for (auto &info: this->m_downloads)
@@ -373,37 +375,62 @@ void DownloadManagerPrivate::downloadFinished(const QString &url,
 
             info.timeElapsed = {};
             info.errorString = reply->errorString();
-            emit self->downloadChanged(info.url);
-            emit self->finished(info.url);
+            emitSignals = true;
 
             break;
         }
 
     this->m_mutex.unlock();
+
+    if (emitSignals) {
+        emit self->downloadChanged(url);
+        emit self->finished(url);
+    }
+
     reply->deleteLater();
 }
 
 void DownloadManagerPrivate::downloadFile(const QString &url,
                                           QNetworkReply *reply)
 {
-    if (this->abort(url)) {
+    bool isOpen = false;
+
+    this->m_mutex.lock();
+
+    for (auto &info: this->m_downloads)
+        if (info.url == url) {
+            isOpen = info.file.isOpen();
+
+            if (!isOpen)
+                isOpen = info.file.open(QIODevice::WriteOnly);
+
+            break;
+        }
+
+    this->m_mutex.unlock();
+
+    if (!isOpen || this->abort(url)) {
         reply->abort();
 
         return;
     }
 
+    bool emitSignal = false;
     this->m_mutex.lock();
 
     for (auto &info: this->m_downloads)
         if (info.url == url) {
             info.file.write(reply->readAll());
             info.status = DownloadManager::DownloadStatusInProgress;
-            emit self->downloadChanged(url);
+            emitSignal = true;
 
             break;
         }
 
     this->m_mutex.unlock();
+
+    if (emitSignal)
+        emit self->downloadChanged(url);
 }
 
 bool DownloadManagerPrivate::abort(const QString &url)

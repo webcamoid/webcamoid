@@ -41,6 +41,7 @@ StackLayout {
     signal openVideoOutputAddEditDialog(string videoOutput)
     signal openVideoOutputOptions(string videoOutput)
     signal openVideoOutputPictureDialog()
+    signal openVCamDownloadDialog()
 
     Connections {
         target: updates
@@ -82,6 +83,11 @@ StackLayout {
                         Layout.alignment: Qt.AlignTop | Qt.AlignHCenter
                         Layout.topMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
                         Layout.bottomMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+
+                        onClicked: {
+                            videoLayer.downloadVCam()
+                            videoOutputsLayout.openVCamDownloadDialog()
+                        }
                     }
                 }
                 Button {
@@ -224,6 +230,11 @@ StackLayout {
                 highlighted: true
                 Layout.alignment: Qt.AlignTop | Qt.AlignHCenter
                 Layout.topMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+
+                onClicked: {
+                    videoLayer.downloadVCam()
+                    videoOutputsLayout.openVCamDownloadDialog()
+                }
             }
         }
     }

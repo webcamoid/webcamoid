@@ -212,12 +212,13 @@ class VideoLayer: public QObject
                                const QString &toFile);
         void vcamDownloadReady(const QString &filePath);
         void vcamDownloadFailed(const QString &error);
+        void vcamInstallFinished(int exitCode, const QString &error);
 
     public slots:
         bool applyPicture();
         void setLatestVCamVersion(const QString &version);
         bool downloadVCam();
-        int executeVCamInstaller(const QString &installer);
+        bool executeVCamInstaller(const QString &installer);
         void checkVCamDownloadReady(const QString &url,
                                     const QString &filePath,
                                     DownloadManager::DownloadStatus status,

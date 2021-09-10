@@ -21,6 +21,7 @@
 #include <QDateTime>
 #include <QDir>
 #include <QFileInfo>
+#include <QProcess>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QSettings>
@@ -216,6 +217,7 @@ MediaTools::MediaTools(QObject *parent):
                                         this->d->m_videoLayer->description(stream),
                                         this->d->m_videoLayer->inputAudioCaps());
 
+    this->d->m_videoLayer->setLatestVCamVersion(this->d->m_updates->latestVersion("VirtualCamera"));
     this->d->m_updates->start();
 }
 
@@ -469,6 +471,17 @@ void MediaTools::show()
 void MediaTools::makedirs(const QString &path)
 {
     QDir().mkpath(path);
+}
+
+void MediaTools::restartApp()
+{
+    qApp->quit();
+    auto args = qApp->arguments();
+
+    if (args.size() > 1)
+        QProcess::startDetached(args.first(), args.mid(1));
+    else
+        QProcess::startDetached(args.first(), {});
 }
 
 void MediaToolsPrivate::saveLinks(const AkPluginLinks &links)

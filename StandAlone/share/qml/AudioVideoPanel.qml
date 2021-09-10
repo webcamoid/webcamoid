@@ -56,6 +56,17 @@ OptionsPanel {
         open()
     }
 
+    Connections {
+        target: videoLayer
+
+        onVcamInstallFinished: {
+            if (exitCode == 0)
+                vcamInstallSucceeded.open()
+            else
+                vcamInstallFailed.openWithError(error)
+        }
+    }
+
     Keys.onEscapePressed: previousPage()
     onActionClicked: previousPage()
 
@@ -81,8 +92,8 @@ OptionsPanel {
                 layout.currentIndex = 3
                 videoOutputOptions.setOutput(videoOutput)
             }
-            onOpenVideoOutputPictureDialog:
-                videoOutputPicture.open()
+            onOpenVideoOutputPictureDialog: videoOutputPicture.open()
+            onOpenVCamDownloadDialog: vcamDownload.open()
         }
         VideoInputOptions {
             id: videoInputOptions
@@ -140,5 +151,28 @@ OptionsPanel {
         anchors.centerIn: Overlay.overlay
 
         onOpenErrorDialog: panel.openErrorDialog(title, message)
+    }
+    DownloadDialog {
+        id: vcamDownload
+        anchors.centerIn: Overlay.overlay
+
+        onDownloadSucceeded: vcamDownloadSucceeded.openWithInstaller(installerFile)
+        onDownloadFailed: vcamDownloadFailed.openWithError(error)
+    }
+    DownloadSucceededDialog {
+        id: vcamDownloadSucceeded
+        anchors.centerIn: Overlay.overlay
+    }
+    DownloadFailedDialog {
+        id: vcamDownloadFailed
+        anchors.centerIn: Overlay.overlay
+    }
+    VCamInstallSucceededDialog {
+        id: vcamInstallSucceeded
+        anchors.centerIn: Overlay.overlay
+    }
+    VCamInstallFailedDialog {
+        id: vcamInstallFailed
+        anchors.centerIn: Overlay.overlay
     }
 }

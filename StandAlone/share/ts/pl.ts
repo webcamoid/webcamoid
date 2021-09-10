@@ -182,6 +182,60 @@
     </message>
 </context>
 <context>
+    <name>DownloadDialog</name>
+    <message>
+        <location filename="../qml/DownloadDialog.qml" line="32"/>
+        <source>Downloading %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/DownloadDialog.qml" line="134"/>
+        <source>From: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/DownloadDialog.qml" line="138"/>
+        <source>To: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/DownloadDialog.qml" line="142"/>
+        <source>Size: %1 %2B / %3 %4B</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/DownloadDialog.qml" line="150"/>
+        <source>Speed: %1 %2B/s</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/DownloadDialog.qml" line="156"/>
+        <source>Time remaining: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>DownloadFailedDialog</name>
+    <message>
+        <location filename="../qml/DownloadFailedDialog.qml" line="31"/>
+        <source>Download failed</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>DownloadSucceededDialog</name>
+    <message>
+        <location filename="../qml/DownloadSucceededDialog.qml" line="31"/>
+        <source>Download ready</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/DownloadSucceededDialog.qml" line="46"/>
+        <source>Install the virtual camera?</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>GeneralConfig</name>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="91"/>
@@ -529,6 +583,27 @@
     </message>
 </context>
 <context>
+    <name>VCamInstallFailedDialog</name>
+    <message>
+        <location filename="../qml/VCamInstallFailedDialog.qml" line="31"/>
+        <source>Installation failed</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>VCamInstallSucceededDialog</name>
+    <message>
+        <location filename="../qml/VCamInstallSucceededDialog.qml" line="31"/>
+        <source>Installation succeeded</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VCamInstallSucceededDialog.qml" line="38"/>
+        <source>Restart Webcamoid?</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>VideoCodecOptions</name>
     <message>
         <location filename="../qml/VideoCodecOptions.qml" line="27"/>
@@ -786,13 +861,13 @@
 <context>
     <name>VideoLayer</name>
     <message>
-        <location filename="../../src/videolayer.cpp" line="255"/>
+        <location filename="../../src/videolayer.cpp" line="256"/>
         <source>No Output</source>
         <extracomment>Disable video output, don&apos;t send the video to the output device.</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="571"/>
+        <location filename="../../src/videolayer.cpp" line="572"/>
         <source>Virtual Camera</source>
         <translation type="unfinished"></translation>
     </message>
@@ -800,12 +875,12 @@
 <context>
     <name>VideoOptions</name>
     <message>
-        <location filename="../qml/VideoOptions.qml" line="39"/>
+        <location filename="../qml/VideoOptions.qml" line="40"/>
         <source>Sources</source>
         <translation>Źródła</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOptions.qml" line="42"/>
+        <location filename="../qml/VideoOptions.qml" line="43"/>
         <source>Outputs</source>
         <translation>Wyjścia</translation>
     </message>
@@ -917,48 +992,48 @@
 <context>
     <name>VideoOutputs</name>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="71"/>
+        <location filename="../qml/VideoOutputs.qml" line="72"/>
         <source>The virtual camera is outdated (%1), install the latest version (%2)?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="80"/>
-        <location filename="../qml/VideoOutputs.qml" line="223"/>
+        <location filename="../qml/VideoOutputs.qml" line="81"/>
+        <location filename="../qml/VideoOutputs.qml" line="229"/>
         <source>Install</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="88"/>
+        <location filename="../qml/VideoOutputs.qml" line="94"/>
         <source>Add output</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="96"/>
+        <location filename="../qml/VideoOutputs.qml" line="102"/>
         <source>Error Creating Virtual Camera</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="103"/>
+        <location filename="../qml/VideoOutputs.qml" line="109"/>
         <source>Remove all outputs</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="111"/>
+        <location filename="../qml/VideoOutputs.qml" line="117"/>
         <source>Error Removing Virtual Cameras</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="118"/>
+        <location filename="../qml/VideoOutputs.qml" line="124"/>
         <source>Set output picture</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="218"/>
+        <location filename="../qml/VideoOutputs.qml" line="224"/>
         <source>The virtual camera is not installed, do you want to install it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="232"/>
+        <location filename="../qml/VideoOutputs.qml" line="243"/>
         <source>The virtual camera is not supported in this platform</source>
         <translation type="unfinished"></translation>
     </message>

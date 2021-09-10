@@ -59,6 +59,7 @@ class VideoLayerPrivate
         AkElementPtr m_uriCapture {akPluginManager->create<AkElement>("MultimediaSource/MultiSrc")};
         AkElementPtr m_cameraOutput {akPluginManager->create<AkElement>("VideoSink/VirtualCamera")};
         QString m_vcamDriver;
+        QThreadPool m_threadPool;
         AkElement::ElementState m_state {AkElement::ElementStateNull};
         QString m_latestVersion;
         bool m_playOnStart {true};
@@ -575,10 +576,10 @@ bool VideoLayer::downloadVCam()
     return true;
 }
 
-int VideoLayer::executeVCamInstaller(const QString &installer)
+bool VideoLayer::executeVCamInstaller(const QString &installer)
 {
     if (installer.isEmpty())
-        return -1;
+        return false;
 
     QFile(installer).setPermissions(QFileDevice::ReadOwner
                                     | QFileDevice::WriteOwner
@@ -591,25 +592,15 @@ int VideoLayer::executeVCamInstaller(const QString &installer)
                                     | QFileDevice::ReadOther
                                     | QFileDevice::ExeOther);
 
-    qDebug() << "Executing installer:" << installer;
-
-    QThreadPool threadPool;
-    int exitCode = -1;
-    auto procFuture =
-            QtConcurrent::run(&threadPool, [installer, &exitCode] () {
+    QtConcurrent::run(&this->d->m_threadPool, [this, installer] () {
+        qDebug() << "Executing installer:" << installer;
         QProcess proc;
         proc.start(installer, QStringList {});
         proc.waitForFinished(-1);
-        exitCode = proc.exitCode();
-
-        if (proc.exitCode() != 0)
-            qDebug() << proc.errorString();
+        emit this->vcamInstallFinished(proc.exitCode(), proc.errorString());
     });
 
-    while (procFuture.isRunning())
-         QCoreApplication::processEvents();
-
-    return exitCode;
+    return true;
 }
 
 void VideoLayer::checkVCamDownloadReady(const QString &url,
