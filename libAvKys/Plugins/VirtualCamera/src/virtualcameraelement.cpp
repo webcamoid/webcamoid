@@ -723,17 +723,19 @@ int VirtualCameraElementPrivate::roundTo(int value, int n)
 void VirtualCameraElementPrivate::linksChanged(const AkPluginLinks &links)
 {
     if (!links.contains("VideoSink/VirtualCamera/Impl/*")
-        || links["VideoSink/VirtualCamera/Impl/*"] != this->m_vcamImpl)
+        || links["VideoSink/VirtualCamera/Impl/*"] == this->m_vcamImpl)
         return;
 
     auto state = self->state();
     self->setState(AkElement::ElementStateNull);
     this->m_mutex.lock();
 
+    AkVideoCaps videoCaps;
     QString rootMethod;
     QString picture;
 
     if (this->m_vcam) {
+        videoCaps = this->m_vcam->currentCaps();
         picture = this->m_vcam->picture();
         rootMethod = this->m_vcam->rootMethod();
     }
@@ -766,6 +768,7 @@ void VirtualCameraElementPrivate::linksChanged(const AkPluginLinks &links)
                      self,
                      &VirtualCameraElement::rootMethodChanged);
 
+    this->m_vcam->setCurrentCaps(videoCaps);
     this->m_vcam->setRootMethod(rootMethod);
     auto medias = this->m_vcam->webcams();
 

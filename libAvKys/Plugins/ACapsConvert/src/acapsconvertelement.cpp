@@ -160,7 +160,7 @@ ACapsConvertElementPrivate::ACapsConvertElementPrivate(ACapsConvertElement *self
 void ACapsConvertElementPrivate::linksChanged(const AkPluginLinks &links)
 {
     if (!links.contains("AudioFilter/AudioConvert/Impl/*")
-        || links["AudioFilter/AudioConvert/Impl/*"] != this->m_convertAudioImpl)
+        || links["AudioFilter/AudioConvert/Impl/*"] == this->m_convertAudioImpl)
         return;
 
     auto state = self->state();

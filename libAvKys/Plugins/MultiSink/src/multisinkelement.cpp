@@ -495,7 +495,7 @@ MultiSinkElementPrivate::MultiSinkElementPrivate(MultiSinkElement *self):
 void MultiSinkElementPrivate::linksChanged(const AkPluginLinks &links)
 {
     if (!links.contains("MultimediaSink/MultiSink/Impl/*")
-        || links["MultimediaSink/MultiSink/Impl/*"] != this->m_mediaWriterImpl)
+        || links["MultimediaSink/MultiSink/Impl/*"] == this->m_mediaWriterImpl)
         return;
 
     auto state = self->state();

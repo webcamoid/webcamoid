@@ -478,7 +478,7 @@ MultiSrcElementPrivate::MultiSrcElementPrivate(MultiSrcElement *self):
 void MultiSrcElementPrivate::linksChanged(const AkPluginLinks &links)
 {
     if (!links.contains("MultimediaSource/MultiSrc/Impl/*")
-        || links["MultimediaSource/MultiSrc/Impl/*"] != this->m_mediaSourceImpl)
+        || links["MultimediaSource/MultiSrc/Impl/*"] == this->m_mediaSourceImpl)
         return;
 
     auto state = self->state();

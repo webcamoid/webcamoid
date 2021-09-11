@@ -810,11 +810,10 @@ RecordingPrivate::RecordingPrivate(Recording *self):
 void RecordingPrivate::linksChanged(const AkPluginLinks &links)
 {
     if (!links.contains("MultimediaSink/MultiSink/Impl/*")
-        || links["MultimediaSink/MultiSink/Impl/*"] != this->m_mediaWriterImpl)
+        || links["MultimediaSink/MultiSink/Impl/*"] == this->m_mediaWriterImpl)
         return;
 
     this->updateAvailableVideoFormats();
-
     this->m_mediaWriterImpl = links["MultimediaSink/MultiSink/Impl/*"];
 }
 

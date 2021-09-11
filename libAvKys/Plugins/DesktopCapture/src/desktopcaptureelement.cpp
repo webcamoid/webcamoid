@@ -317,7 +317,7 @@ DesktopCaptureElementPrivate::DesktopCaptureElementPrivate(DesktopCaptureElement
 void DesktopCaptureElementPrivate::linksChanged(const AkPluginLinks &links)
 {
     if (!links.contains("VideoSource/DesktopCapture/Impl/*")
-        || links["VideoSource/DesktopCapture/Impl/*"] != this->m_screenCaptureImpl)
+        || links["VideoSource/DesktopCapture/Impl/*"] == this->m_screenCaptureImpl)
         return;
 
     auto state = self->state();

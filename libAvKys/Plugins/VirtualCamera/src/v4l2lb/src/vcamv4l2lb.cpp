@@ -124,6 +124,7 @@ class VCamV4L2LoopBackPrivate
         AkElementPtr m_swapRBFilter {akPluginManager->create<AkElement>("VideoFilter/SwapRB")};
         QString m_error;
         AkVideoCaps m_currentCaps;
+        AkVideoCaps m_outputCaps;
         QString m_rootMethod;
         IoMethod m_ioMethod {IoMethodUnknown};
         int m_fd {-1};
@@ -931,7 +932,7 @@ bool VCamV4L2LoopBack::init()
     memset(&capabilities, 0, sizeof(v4l2_capability));
 
     if (this->d->xioctl(this->d->m_fd, VIDIOC_QUERYCAP, &capabilities) < 0) {
-        qDebug() << "VirtualCamera:  Can't query capabilities.";
+        qDebug() << "VirtualCamera: Can't query capabilities.";
         close(this->d->m_fd);
         this->d->m_fd = -1;
 
@@ -954,13 +955,14 @@ bool VCamV4L2LoopBack::init()
         return false;
     }
 
-    auto nearestFormat = this->d->m_currentCaps.nearest(outputFormats);
-    fmt.fmt.pix.pixelformat = this->d->formatByAk(this->d->m_currentCaps.format()).v4l2;
-    fmt.fmt.pix.width = __u32(nearestFormat.width());
-    fmt.fmt.pix.height = __u32(nearestFormat.height());
+    this->d->m_outputCaps = this->d->m_currentCaps.nearest(outputFormats);
+    fmt.fmt.pix.pixelformat =
+            this->d->formatByAk(this->d->m_outputCaps.format()).v4l2;
+    fmt.fmt.pix.width = __u32(this->d->m_outputCaps.width());
+    fmt.fmt.pix.height = __u32(this->d->m_outputCaps.height());
 
     if (this->d->xioctl(this->d->m_fd, VIDIOC_S_FMT, &fmt) < 0) {
-        qDebug() << "VirtualCamera:  Can't set format:"
+        qDebug() << "VirtualCamera: Can't set format:"
                  << this->d->m_currentCaps;
         close(this->d->m_fd);
         this->d->m_fd = -1;
@@ -1138,12 +1140,12 @@ bool VCamV4L2LoopBack::write(const AkVideoPacket &packet)
     if (values.value("Swap Read and Blue", false))
         packet_ = this->d->m_swapRBFilter->iStream(packet_);
 
-    this->d->m_scaleFilter->setProperty("width", this->d->m_currentCaps.width());
-    this->d->m_scaleFilter->setProperty("height", this->d->m_currentCaps.height());
+    this->d->m_scaleFilter->setProperty("width", this->d->m_outputCaps.width());
+    this->d->m_scaleFilter->setProperty("height", this->d->m_outputCaps.height());
     this->d->m_scaleFilter->setProperty("scaling", values.value("Scaling Mode", 0));
     this->d->m_scaleFilter->setProperty("aspectRatio", values.value("Aspect Ratio Mode", 0));
     packet_ = this->d->m_scaleFilter->iStream(packet_);
-    packet_ = AkVideoPacket(packet_).convert(this->d->m_currentCaps.format());
+    packet_ = AkVideoPacket(packet_).convert(this->d->m_outputCaps.format());
 
     if (!packet_)
         return false;
@@ -1360,7 +1362,7 @@ bool VCamV4L2LoopBackPrivate::setControls(int fd,
 
 bool VCamV4L2LoopBackPrivate::setControls(int fd,
                                           const QVariantMap &controls) const
-{    
+{
     QVector<quint32> controlClasses {
         V4L2_CTRL_CLASS_USER,
         V4L2_CTRL_CLASS_CAMERA

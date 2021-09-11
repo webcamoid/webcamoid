@@ -777,7 +777,7 @@ void VideoCaptureElementPrivate::cameraLoop()
 void VideoCaptureElementPrivate::linksChanged(const AkPluginLinks &links)
 {
     if (!links.contains("VideoSource/CameraCapture/Impl/*")
-        || links["VideoSource/CameraCapture/Impl/*"] != this->m_captureImpl)
+        || links["VideoSource/CameraCapture/Impl/*"] == this->m_captureImpl)
         return;
 
     auto state = self->state();

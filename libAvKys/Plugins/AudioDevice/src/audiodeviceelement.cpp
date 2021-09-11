@@ -346,7 +346,7 @@ void AudioDeviceElementPrivate::setOutputs(const QStringList &outputs)
 void AudioDeviceElementPrivate::linksChanged(const AkPluginLinks &links)
 {
     if (!links.contains("AudioSource/AudioDevice/Impl/*")
-        || links["AudioSource/AudioDevice/Impl/*"] != this->m_audioDeviceImpl)
+        || links["AudioSource/AudioDevice/Impl/*"] == this->m_audioDeviceImpl)
         return;
 
     auto state = self->state();
