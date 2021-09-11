@@ -186,32 +186,32 @@
     <message>
         <location filename="../qml/DownloadDialog.qml" line="32"/>
         <source>Downloading %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Bezig met downloaden van %1…</translation>
     </message>
     <message>
         <location filename="../qml/DownloadDialog.qml" line="134"/>
         <source>From: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Van: %1</translation>
     </message>
     <message>
         <location filename="../qml/DownloadDialog.qml" line="138"/>
         <source>To: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Naar: %1</translation>
     </message>
     <message>
         <location filename="../qml/DownloadDialog.qml" line="142"/>
         <source>Size: %1 %2B / %3 %4B</source>
-        <translation type="unfinished"></translation>
+        <translation>Grootte: %1 %2B / %3 %4B</translation>
     </message>
     <message>
         <location filename="../qml/DownloadDialog.qml" line="150"/>
         <source>Speed: %1 %2B/s</source>
-        <translation type="unfinished"></translation>
+        <translation>Snelheid: %1 %2B/s</translation>
     </message>
     <message>
         <location filename="../qml/DownloadDialog.qml" line="156"/>
         <source>Time remaining: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Resterende tijd: %1</translation>
     </message>
 </context>
 <context>
@@ -219,7 +219,7 @@
     <message>
         <location filename="../qml/DownloadFailedDialog.qml" line="31"/>
         <source>Download failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Het downloaden is mislukt</translation>
     </message>
 </context>
 <context>
@@ -227,12 +227,12 @@
     <message>
         <location filename="../qml/DownloadSucceededDialog.qml" line="31"/>
         <source>Download ready</source>
-        <translation type="unfinished"></translation>
+        <translation>Het downloaden is voltooid</translation>
     </message>
     <message>
         <location filename="../qml/DownloadSucceededDialog.qml" line="46"/>
         <source>Install the virtual camera?</source>
-        <translation type="unfinished"></translation>
+        <translation>Wil je de virtuele camera installeren?</translation>
     </message>
 </context>
 <context>
@@ -587,7 +587,7 @@
     <message>
         <location filename="../qml/VCamInstallFailedDialog.qml" line="31"/>
         <source>Installation failed</source>
-        <translation type="unfinished"></translation>
+        <translation>De installatie is mislukt</translation>
     </message>
 </context>
 <context>
@@ -595,12 +595,12 @@
     <message>
         <location filename="../qml/VCamInstallSucceededDialog.qml" line="31"/>
         <source>Installation succeeded</source>
-        <translation type="unfinished"></translation>
+        <translation>De installatie is voltooid</translation>
     </message>
     <message>
         <location filename="../qml/VCamInstallSucceededDialog.qml" line="38"/>
         <source>Restart Webcamoid?</source>
-        <translation type="unfinished"></translation>
+        <translation>Wil je Webcamoid herstarten?</translation>
     </message>
 </context>
 <context>
