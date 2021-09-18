@@ -186,32 +186,32 @@
     <message>
         <location filename="../qml/DownloadDialog.qml" line="32"/>
         <source>Downloading %1</source>
-        <translation type="unfinished"></translation>
+        <translation>正在下載 %1</translation>
     </message>
     <message>
         <location filename="../qml/DownloadDialog.qml" line="134"/>
         <source>From: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>來源：%1</translation>
     </message>
     <message>
         <location filename="../qml/DownloadDialog.qml" line="138"/>
         <source>To: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>目的地：%1</translation>
     </message>
     <message>
         <location filename="../qml/DownloadDialog.qml" line="142"/>
         <source>Size: %1 %2B / %3 %4B</source>
-        <translation type="unfinished"></translation>
+        <translation>大小：%1 %2B / %3 %4B</translation>
     </message>
     <message>
         <location filename="../qml/DownloadDialog.qml" line="150"/>
         <source>Speed: %1 %2B/s</source>
-        <translation type="unfinished"></translation>
+        <translation>速率：%1 %2B/s</translation>
     </message>
     <message>
         <location filename="../qml/DownloadDialog.qml" line="156"/>
         <source>Time remaining: %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">剩餘時間: %1</translation>
     </message>
 </context>
 <context>
@@ -219,7 +219,7 @@
     <message>
         <location filename="../qml/DownloadFailedDialog.qml" line="31"/>
         <source>Download failed</source>
-        <translation type="unfinished"></translation>
+        <translation>下載失敗</translation>
     </message>
 </context>
 <context>
@@ -227,12 +227,12 @@
     <message>
         <location filename="../qml/DownloadSucceededDialog.qml" line="31"/>
         <source>Download ready</source>
-        <translation type="unfinished"></translation>
+        <translation>下載已就緒</translation>
     </message>
     <message>
         <location filename="../qml/DownloadSucceededDialog.qml" line="46"/>
         <source>Install the virtual camera?</source>
-        <translation type="unfinished"></translation>
+        <translation>是否安裝虛擬攝影機？</translation>
     </message>
 </context>
 <context>
@@ -291,7 +291,7 @@
     <message>
         <location filename="../qml/GeneralConfig.qml" line="227"/>
         <source>Root method</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">根模式（Root method）</translation>
     </message>
 </context>
 <context>
@@ -587,7 +587,7 @@
     <message>
         <location filename="../qml/VCamInstallFailedDialog.qml" line="31"/>
         <source>Installation failed</source>
-        <translation type="unfinished"></translation>
+        <translation>安裝失敗</translation>
     </message>
 </context>
 <context>
@@ -595,12 +595,12 @@
     <message>
         <location filename="../qml/VCamInstallSucceededDialog.qml" line="31"/>
         <source>Installation succeeded</source>
-        <translation type="unfinished"></translation>
+        <translation>安裝成功</translation>
     </message>
     <message>
         <location filename="../qml/VCamInstallSucceededDialog.qml" line="38"/>
         <source>Restart Webcamoid?</source>
-        <translation type="unfinished"></translation>
+        <translation>是否重新啟動 Webcamoid？</translation>
     </message>
 </context>
 <context>
@@ -869,7 +869,7 @@
     <message>
         <location filename="../../src/videolayer.cpp" line="572"/>
         <source>Virtual Camera</source>
-        <translation type="unfinished"></translation>
+        <translation>虛擬攝影機</translation>
     </message>
 </context>
 <context>
@@ -994,23 +994,23 @@
     <message>
         <location filename="../qml/VideoOutputs.qml" line="72"/>
         <source>The virtual camera is outdated (%1), install the latest version (%2)?</source>
-        <translation type="unfinished"></translation>
+        <translation>虛擬攝影機版本過舊（%1），是否安裝最新版本（%2）？</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="81"/>
         <location filename="../qml/VideoOutputs.qml" line="229"/>
         <source>Install</source>
-        <translation type="unfinished"></translation>
+        <translation>安裝</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="94"/>
         <source>Add output</source>
-        <translation type="unfinished"></translation>
+        <translation>新增輸出</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="102"/>
         <source>Error Creating Virtual Camera</source>
-        <translation type="unfinished"></translation>
+        <translation>建立虛擬攝影機時出錯</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="109"/>
@@ -1030,12 +1030,12 @@
     <message>
         <location filename="../qml/VideoOutputs.qml" line="224"/>
         <source>The virtual camera is not installed, do you want to install it?</source>
-        <translation type="unfinished"></translation>
+        <translation>虛擬攝影機尚未安裝，您是否要安裝？</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="243"/>
         <source>The virtual camera is not supported in this platform</source>
-        <translation type="unfinished"></translation>
+        <translation>在此系統上，虛擬攝影機並不受支援</translation>
     </message>
 </context>
 <context>
