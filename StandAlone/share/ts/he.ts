@@ -186,32 +186,32 @@
     <message>
         <location filename="../qml/DownloadDialog.qml" line="32"/>
         <source>Downloading %1</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 בהורדה</translation>
     </message>
     <message>
         <location filename="../qml/DownloadDialog.qml" line="134"/>
         <source>From: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>מתוך: %1</translation>
     </message>
     <message>
         <location filename="../qml/DownloadDialog.qml" line="138"/>
         <source>To: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>אל: %1</translation>
     </message>
     <message>
         <location filename="../qml/DownloadDialog.qml" line="142"/>
         <source>Size: %1 %2B / %3 %4B</source>
-        <translation type="unfinished"></translation>
+        <translation>גודל: %1 %2B / %3 %4B</translation>
     </message>
     <message>
         <location filename="../qml/DownloadDialog.qml" line="150"/>
         <source>Speed: %1 %2B/s</source>
-        <translation type="unfinished"></translation>
+        <translation>מהירות: %1 %2B לשנייה</translation>
     </message>
     <message>
         <location filename="../qml/DownloadDialog.qml" line="156"/>
         <source>Time remaining: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>זמן שנותר: %1</translation>
     </message>
 </context>
 <context>
@@ -219,7 +219,7 @@
     <message>
         <location filename="../qml/DownloadFailedDialog.qml" line="31"/>
         <source>Download failed</source>
-        <translation type="unfinished"></translation>
+        <translation>הורדה נכשלה</translation>
     </message>
 </context>
 <context>
@@ -227,12 +227,12 @@
     <message>
         <location filename="../qml/DownloadSucceededDialog.qml" line="31"/>
         <source>Download ready</source>
-        <translation type="unfinished"></translation>
+        <translation>ההורדה מוכנה</translation>
     </message>
     <message>
         <location filename="../qml/DownloadSucceededDialog.qml" line="46"/>
         <source>Install the virtual camera?</source>
-        <translation type="unfinished"></translation>
+        <translation>להתקין את המצלמה הווירטואלית?</translation>
     </message>
 </context>
 <context>
@@ -588,7 +588,7 @@
     <message>
         <location filename="../qml/VCamInstallFailedDialog.qml" line="31"/>
         <source>Installation failed</source>
-        <translation type="unfinished"></translation>
+        <translation>ההתקנה נכשלה</translation>
     </message>
 </context>
 <context>
@@ -596,12 +596,12 @@
     <message>
         <location filename="../qml/VCamInstallSucceededDialog.qml" line="31"/>
         <source>Installation succeeded</source>
-        <translation type="unfinished"></translation>
+        <translation>ההתקנה הצליחה</translation>
     </message>
     <message>
         <location filename="../qml/VCamInstallSucceededDialog.qml" line="38"/>
         <source>Restart Webcamoid?</source>
-        <translation type="unfinished"></translation>
+        <translation>להפעיל את Webcamoid מחדש?</translation>
     </message>
 </context>
 <context>
