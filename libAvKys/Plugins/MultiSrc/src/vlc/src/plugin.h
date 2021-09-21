@@ -1,5 +1,5 @@
 /* Webcamoid, webcam capture application.
- * Copyright (C) 2019  Gonzalo Exequiel Pedone
+ * Copyright (C) 2021  Gonzalo Exequiel Pedone
  *
  * Webcamoid is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,31 +17,20 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef STREAM_H
-#define STREAM_H
+#ifndef PLUGIN_H
+#define PLUGIN_H
 
-#include <akcaps.h>
+#include <akplugin.h>
 
-class Stream
+class Plugin: public QObject, public AkPlugin
 {
+    Q_OBJECT
+    Q_INTERFACES(AkPlugin)
+    Q_PLUGIN_METADATA(IID "org.avkys.plugin" FILE "pspec.json")
+
     public:
-        Stream()
-        {
-        }
-
-        Stream(const AkCaps &caps,
-               const QString &language,
-               bool defaultStream):
-            caps(caps),
-            language(language),
-            defaultStream(defaultStream)
-        {
-        }
-
-        AkCaps caps;
-        QString language;
-        bool defaultStream;
+        QObject *create(const QString &key, const QString &specification);
+        QStringList keys() const;
 };
 
-#endif // STREAM_H
-
+#endif // PLUGIN_H

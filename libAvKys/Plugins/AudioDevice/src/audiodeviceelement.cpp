@@ -70,6 +70,7 @@ AudioDeviceElement::AudioDeviceElement():
     AkElement()
 {
     this->d = new AudioDeviceElementPrivate(this);
+
     QObject::connect(akPluginManager,
                      &AkPluginManager::linksChanged,
                      this,
@@ -92,11 +93,13 @@ AudioDeviceElement::AudioDeviceElement():
                          &AudioDeviceElement::latencyChanged);
         QObject::connect(this->d->m_audioDevice.data(),
                          &AudioDev::inputsChanged,
+                         this,
                          [this] (const QStringList &inputs) {
                             this->d->setInputs(inputs);
                          });
         QObject::connect(this->d->m_audioDevice.data(),
                          &AudioDev::outputsChanged,
+                         this,
                          [this] (const QStringList &outputs) {
                             this->d->setOutputs(outputs);
                          });
@@ -270,6 +273,11 @@ AudioDeviceElementPrivate::AudioDeviceElementPrivate(AudioDeviceElement *self):
     this->m_audioDevice = akPluginManager->create<AudioDev>("AudioSource/AudioDevice/Impl/*");
     this->m_audioDeviceImpl = akPluginManager->defaultPlugin("AudioSource/AudioDevice/Impl/*",
                                                              {"AudioDeviceImpl"}).id();
+
+    if (this->m_audioDevice) {
+        this->m_inputs = this->m_audioDevice->inputs();
+        this->m_outputs = this->m_audioDevice->outputs();
+    }
 }
 
 void AudioDeviceElementPrivate::readFramesLoop()
@@ -383,11 +391,13 @@ void AudioDeviceElementPrivate::linksChanged(const AkPluginLinks &links)
                      &AudioDeviceElement::latencyChanged);
     QObject::connect(this->m_audioDevice.data(),
                      &AudioDev::inputsChanged,
+                     self,
                      [this] (const QStringList &inputs) {
                         this->setInputs(inputs);
                      });
     QObject::connect(this->m_audioDevice.data(),
                      &AudioDev::outputsChanged,
+                     self,
                      [this] (const QStringList &outputs) {
                         this->setOutputs(outputs);
                      });
@@ -432,7 +442,6 @@ AkPacket AudioDeviceElement::iAudioStream(const AkAudioPacket &packet)
                               / packet.caps().rate()));
     else {
         AkPacket iPacket;
-
         this->d->m_mutex.lock();
 
         if (this->d->m_convert)
@@ -457,6 +466,12 @@ void AudioDeviceElement::setDevice(const QString &device)
 
     this->d->m_device = device;
     emit this->deviceChanged(device);
+    AkAudioCaps preferredFormat;
+
+    if (this->d->m_audioDevice)
+        preferredFormat = this->d->m_audioDevice->preferredFormat(device);
+
+    this->setCaps(preferredFormat);
 }
 
 void AudioDeviceElement::setLatency(int latency)

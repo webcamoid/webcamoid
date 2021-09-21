@@ -300,7 +300,6 @@ AkAudioPacket AudioStreamPrivate::convert(const AkAudioPacket &packet)
     // Synchronize audio
     qreal pts = packet.pts() * packet.timeBase().value();
     qreal diff = pts - self->globalClock()->clock();
-    int wantedSamples = audioPacket.caps().samples();
 
     if (!qIsNaN(diff) && qAbs(diff) < AV_NOSYNC_THRESHOLD) {
         this->audioDiffCum = diff + this->audioDiffAvgCoef * this->audioDiffCum;
@@ -317,7 +316,7 @@ AkAudioPacket AudioStreamPrivate::convert(const AkAudioPacket &packet)
             qreal diffThreshold = 2.0 * audioPacket.caps().samples() / audioPacket.caps().rate();
 
             if (qAbs(avgDiff) >= diffThreshold) {
-                wantedSamples = audioPacket.caps().samples() + int(diff * audioPacket.caps().rate());
+                int wantedSamples = audioPacket.caps().samples() + int(diff * audioPacket.caps().rate());
                 int minSamples = audioPacket.caps().samples() * (100 - SAMPLE_CORRECTION_PERCENT_MAX) / 100;
                 int maxSamples = audioPacket.caps().samples() * (100 + SAMPLE_CORRECTION_PERCENT_MAX) / 100;
                 wantedSamples = qBound(minSamples, wantedSamples, maxSamples);

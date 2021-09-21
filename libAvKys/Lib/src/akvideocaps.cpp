@@ -280,7 +280,7 @@ class AkVideoCapsPrivate
         int m_height {0};
         int m_align {1};
         AkFrac m_fps;
-        const QVector<int> *m_planes_div;
+        const QVector<int> *m_planes_div {nullptr};
         QVector<size_t> m_bypl;
         QVector<size_t> m_offset;
 

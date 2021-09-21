@@ -78,7 +78,7 @@ ConvertAudioGStreamer::ConvertAudioGStreamer(QObject *parent):
     ConvertAudio(parent)
 {
     this->d = new ConvertAudioGStreamerPrivate;
-//    setenv("GST_DEBUG", "2", 1);
+    //setenv("GST_DEBUG", "2", 1);
     gst_init(nullptr, nullptr);
 }
 
@@ -93,7 +93,6 @@ bool ConvertAudioGStreamer::init(const AkAudioCaps &caps)
     QMutexLocker mutexLocker(&this->d->m_mutex);
 
     this->d->m_pipeline = gst_pipeline_new(nullptr);
-
     this->d->m_source = gst_element_factory_make("appsrc", nullptr);
     gst_app_src_set_stream_type(GST_APP_SRC(this->d->m_source),
                                 GST_APP_STREAM_TYPE_STREAM);
@@ -185,7 +184,7 @@ AkPacket ConvertAudioGStreamer::convert(const AkAudioPacket &packet)
                                 nullptr);
 
     outCaps = gst_caps_fixate(outCaps);
-    GstCaps *sinkCaps = gst_app_sink_get_caps(GST_APP_SINK(this->d->m_sink));
+    auto sinkCaps = gst_app_sink_get_caps(GST_APP_SINK(this->d->m_sink));
 
     if (!sinkCaps || !gst_caps_is_equal(sinkCaps, outCaps))
         gst_app_sink_set_caps(GST_APP_SINK(this->d->m_sink), outCaps);
@@ -212,9 +211,9 @@ AkPacket ConvertAudioGStreamer::convert(const AkAudioPacket &packet)
     }
 
     // Write audio frame to the pipeline.
-    GstBuffer *buffer = gst_buffer_new_allocate(nullptr,
-                                                gsize(packet.buffer().size()),
-                                                nullptr);
+    auto buffer = gst_buffer_new_allocate(nullptr,
+                                          gsize(packet.buffer().size()),
+                                          nullptr);
     GstMapInfo info;
     gst_buffer_map(buffer, &info, GST_MAP_WRITE);
     memcpy(info.data, packet.buffer().constData(), info.size);
@@ -229,7 +228,7 @@ AkPacket ConvertAudioGStreamer::convert(const AkAudioPacket &packet)
     gst_app_src_push_buffer(GST_APP_SRC(this->d->m_source), buffer);
 
     // Read audio frame from the pipeline.
-    GstSample *sample = gst_app_sink_pull_sample(GST_APP_SINK(this->d->m_sink));
+    auto sample = gst_app_sink_pull_sample(GST_APP_SINK(this->d->m_sink));
 
     if (!sample)
         return AkPacket();

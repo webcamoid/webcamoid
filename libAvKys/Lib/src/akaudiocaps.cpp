@@ -228,7 +228,7 @@ class ChannelLayouts
 {
     public:
         AkAudioCaps::ChannelLayout layout;
-        QVector<AkAudioCaps::Position> channels;
+        QVector<AkAudioCaps::Position> positions;
         QString description;
 
         static inline const QVector<ChannelLayouts> &layouts()
@@ -280,7 +280,7 @@ class ChannelLayouts
         static inline const ChannelLayouts *byChannelCount(int channels)
         {
             for (auto &layout: layouts())
-                if (layout.channels.size() == channels)
+                if (layout.positions.size() == channels)
                     return &layout;
 
             return &layouts().front();
@@ -375,7 +375,6 @@ AkAudioCaps &AkAudioCaps::operator =(const AkAudioCaps &other)
         this->d->m_rate = other.d->m_rate;
         this->d->m_samples = other.d->m_samples;
         this->d->m_planeSize = other.d->m_planeSize;
-
         this->clear();
 
         for (auto &property: other.dynamicPropertyNames())
@@ -547,7 +546,7 @@ const QVector<AkAudioCaps::Position> AkAudioCaps::positions() const
     if (layouts->layout == Layout_none)
         return {};
 
-    return layouts->channels;
+    return layouts->positions;
 }
 
 QVariantMap AkAudioCaps::toMap() const
@@ -666,12 +665,12 @@ void AkAudioCaps::updatePlaneSize(bool planar, int align)
                                                  / 8),
                                        size_t(align));
 
-        for (int channel = 0; channel < layouts->channels.size(); channel++)
+        for (int channel = 0; channel < layouts->positions.size(); channel++)
             planes << planeSize;
     } else {
         auto planeSize =
                 SampleFormats::alignUp(size_t(af->bps
-                                                 * layouts->channels.size()
+                                                 * layouts->positions.size()
                                                  * this->d->m_samples
                                                  / 8),
                                        size_t(align));
@@ -810,12 +809,12 @@ AkAudioCaps::ChannelLayout AkAudioCaps::channelLayoutFromPositions(const QVector
         positionsSet << position;
 
     for (auto &layout: ChannelLayouts::layouts()) {
-        if (layout.channels.size() != positions.size())
+        if (layout.positions.size() != positions.size())
             continue;
 
         QSet<Position> layoutPositionsSet;
 
-        for (auto &position: layout.channels)
+        for (auto &position: layout.positions)
             layoutPositionsSet << position;
 
         if (positionsSet == layoutPositionsSet)
@@ -827,12 +826,12 @@ AkAudioCaps::ChannelLayout AkAudioCaps::channelLayoutFromPositions(const QVector
 
 int AkAudioCaps::channelCount(ChannelLayout channelLayout)
 {
-    return ChannelLayouts::byLayout(channelLayout)->channels.size();
+    return ChannelLayouts::byLayout(channelLayout)->positions.size();
 }
 
 int AkAudioCaps::channelCount(const QString &channelLayout)
 {
-    return ChannelLayouts::byDescription(channelLayout)->channels.size();
+    return ChannelLayouts::byDescription(channelLayout)->positions.size();
 }
 
 int AkAudioCaps::endianness(SampleFormat sampleFormat)
@@ -857,7 +856,7 @@ QString AkAudioCaps::defaultChannelLayoutString(int channelCount)
 
 const QVector<AkAudioCaps::Position> &AkAudioCaps::positions(ChannelLayout channelLayout)
 {
-    return ChannelLayouts::byLayout(channelLayout)->channels;
+    return ChannelLayouts::byLayout(channelLayout)->positions;
 }
 
 AkAudioCaps::SpeakerPosition AkAudioCaps::position(Position position)
@@ -875,6 +874,19 @@ AkAudioCaps::SpeakerPosition AkAudioCaps::position(int channel) const
     auto positions = AkAudioCaps::positions(this->d->m_layout);
 
     return AkAudioCaps::position(positions.at(channel));
+}
+
+qreal AkAudioCaps::distanceFactor(SpeakerPosition position1,
+                                  SpeakerPosition position2)
+{
+    auto d = 1.0 + (position1 - position2);
+
+    return 1.0 / (d * d);
+}
+
+qreal AkAudioCaps::distanceFactor(Position position1, Position position2)
+{
+    return distanceFactor(position(position1), position(position2));
 }
 
 void AkAudioCaps::setFormat(SampleFormat format)

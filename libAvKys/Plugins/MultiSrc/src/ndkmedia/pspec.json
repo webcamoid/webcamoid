@@ -6,7 +6,7 @@
             "description": "Capture video and audio from a file using Android NDK Media API",
             "id": "MultimediaSource/MultiSrc/Impl/NDKMedia",
             "implements": ["MultiSrcImpl"],
-            "priority": 800,
+            "priority": 700,
             "type": "qtplugin"
         }
     ]

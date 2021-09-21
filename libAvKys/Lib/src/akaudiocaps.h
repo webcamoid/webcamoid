@@ -282,6 +282,10 @@ class AKCOMMONS_EXPORT AkAudioCaps: public QObject
         Q_INVOKABLE static const QVector<Position> &positions(ChannelLayout channelLayout);
         Q_INVOKABLE static SpeakerPosition position(Position position);
         Q_INVOKABLE SpeakerPosition position(int channel) const;
+        Q_INVOKABLE static qreal distanceFactor(SpeakerPosition position1,
+                                                SpeakerPosition position2);
+        Q_INVOKABLE static qreal distanceFactor(Position position1,
+                                                Position position2);
 
     private:
         AkAudioCapsPrivate *d;

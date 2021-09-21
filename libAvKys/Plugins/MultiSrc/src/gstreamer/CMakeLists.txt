@@ -44,7 +44,6 @@ set(SOURCES
     src/mediasourcegstreamer.h
     src/plugin.cpp
     src/plugin.h
-    src/stream.h
     pspec.json)
 pkg_check_modules(GSTREAMER
                   gstreamer-1.0

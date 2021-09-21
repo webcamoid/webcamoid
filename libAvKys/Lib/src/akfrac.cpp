@@ -347,6 +347,16 @@ AkFrac operator *(int number, const AkFrac &frac)
     return {number * frac.num(), frac.den()};
 }
 
+AkFrac operator *(qreal number, const AkFrac &frac)
+{
+    return {qRound64(number * frac.num()), frac.den()};
+}
+
+AkFrac operator *(const AkFrac &frac1, const AkFrac &frac2)
+{
+    return {frac1.num() * frac2.num(), frac1.den() * frac2.den()};
+}
+
 AkFrac operator /(int number, const AkFrac &frac)
 {
     return number * frac.invert();

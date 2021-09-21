@@ -21,6 +21,7 @@
 #include <QtConcurrent>
 #include <QThreadPool>
 #include <ak.h>
+#include <akcaps.h>
 #include <akfrac.h>
 #include <akpacket.h>
 #include <akaudiocaps.h>
@@ -33,8 +34,28 @@
 #include "mediasourcendkmedia.h"
 #include "audiostream.h"
 #include "clock.h"
-#include "stream.h"
 #include "videostream.h"
+
+class Stream
+{
+    public:
+        Stream()
+        {
+        }
+
+        Stream(const AkCaps &caps,
+               const QString &language,
+               bool defaultStream):
+            caps(caps),
+            language(language),
+            defaultStream(defaultStream)
+        {
+        }
+
+        AkCaps caps;
+        QString language;
+        bool defaultStream;
+};
 
 using MediaExtractorPtr = QSharedPointer<AMediaExtractor>;
 

@@ -5,7 +5,7 @@
             "name": "GStreamer",
             "description": "Convert audio frames using GStreamer",
             "id": "AudioFilter/AudioConvert/Impl/GStreamer",
-            "implements": ["ACapsConvertImpl"],
+            "implements": ["AudioConvertImpl"],
             "priority": 900,
             "type": "qtplugin"
         }

@@ -260,8 +260,7 @@ class AkAudioPacketPrivate
                      * http://digitalsoundandmusic.com/4-3-4-the-mathematics-of-the-inverse-square-law-and-pag-equations/
                      */
                     auto iposition = src.caps().position(ichannel);
-                    auto d = 1.0 + (oposition - iposition);
-                    auto k = d * d;
+                    auto k = AkAudioCaps::distanceFactor(iposition, oposition);
 
                     for (int sample = 0; sample < sumPacket.caps().samples(); sample++) {
                         auto inSample =
@@ -270,7 +269,7 @@ class AkAudioPacketPrivate
                         auto outSample =
                                 reinterpret_cast<SumType *>(sumPacket.sample(ochannel,
                                                                              sample));
-                        auto isample = SumType(qreal(transformFrom(*inSample)) / k);
+                        auto isample = SumType(k * qreal(transformFrom(*inSample)));
                         *outSample += isample;
 
                         // Calculate minimum and maximum values of the wave.
@@ -1164,12 +1163,13 @@ AkAudioPacket AkAudioPacket::realign(int align) const
     if (caps == this->d->m_caps)
         return *this;
 
+    auto iPlaneSize = caps.planeSize();
+    auto oPlaneSize = this->d->m_caps.planeSize();
     AkAudioPacket dst(caps);
     dst.copyMetadata(*this);
 
     for (int plane = 0; plane < caps.planes(); plane++) {
-        auto planeSize = qMin(caps.planeSize()[plane],
-                              this->d->m_caps.planeSize()[plane]);
+        auto planeSize = qMin(iPlaneSize[plane], oPlaneSize[plane]);
         auto src_line = this->constPlaneData(plane);
         auto dst_line = dst.planeData(plane);
         memcpy(dst_line, src_line, planeSize);

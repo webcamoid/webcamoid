@@ -18,7 +18,7 @@
 
 cmake_minimum_required(VERSION 3.16)
 
-project(MultiSrc_ndkmedia LANGUAGES CXX)
+project(MultiSrc_vlc LANGUAGES CXX)
 
 include(../../../../cmake/ProjectCommons.cmake)
 
@@ -28,50 +28,61 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
 set(QT_COMPONENTS
-    Concurrent)
+    Concurrent
+    Widgets)
 find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
-find_library(MEDIANDK NAMES mediandk)
+find_package(PkgConfig)
 
 set(SOURCES
     ../mediasource.cpp
     ../mediasource.h
-    src/abstractstream.cpp
-    src/abstractstream.h
-    src/audiostream.cpp
-    src/audiostream.h
-    src/clock.cpp
-    src/clock.h
-    src/mediasourcendkmedia.cpp
-    src/mediasourcendkmedia.h
+    src/mediasourcevlc.cpp
+    src/mediasourcevlc.h
     src/plugin.cpp
     src/plugin.h
-    src/videostream.cpp
-    src/videostream.h
     pspec.json)
 
-if (NOT NONDKMEDIA AND MEDIANDK)
-    add_library(MultiSrc_ndkmedia SHARED ${SOURCES})
+pkg_check_modules(LIBVLC libvlc)
+
+link_directories(${LIBVLC_LIBRARY_DIRS})
+
+if (NOT NOVLC AND LIBVLC_FOUND)
+    add_library(MultiSrc_vlc SHARED ${SOURCES})
 else ()
-    add_library(MultiSrc_ndkmedia SHARED EXCLUDE_FROM_ALL ${SOURCES})
+    add_library(MultiSrc_vlc SHARED EXCLUDE_FROM_ALL ${SOURCES})
 endif ()
 
-add_dependencies(MultiSrc_ndkmedia avkys)
-target_include_directories(MultiSrc_ndkmedia
+if (WIN32)
+    set_target_properties(MultiSrc_vlc PROPERTIES
+                          RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
+elseif (NOT ANDROID)
+    set_target_properties(MultiSrc_vlc PROPERTIES
+                          LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/${PLUGINSDIR})
+endif ()
+
+add_dependencies(MultiSrc_vlc avkys)
+target_include_directories(MultiSrc_vlc
+                           PUBLIC
+                           ${LIBVLC_INCLUDE_DIRS}
                            PRIVATE
                            ..
                            ../../../../Lib/src)
-target_compile_definitions(MultiSrc_ndkmedia PRIVATE AVKYS_PLUGIN_MULTISRC_NDKMEDIA)
+target_compile_definitions(MultiSrc_vlc PRIVATE AVKYS_PLUGIN_MULTISRC_LIBVLC)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
-target_link_libraries(MultiSrc_ndkmedia
+target_link_libraries(MultiSrc_vlc
                       ${QT_LIBS}
+                      ${LIBVLC_LIBRARIES}
                       avkys)
 
-if (NOT NONDKMEDIA AND MEDIANDK)
-    target_link_libraries(MultiSrc_ndkmedia
-                          ${MEDIANDK})
+if (NOT NOVLC AND LIBVLC_FOUND)
+    if (WIN32)
+        install(TARGETS MultiSrc_vlc RUNTIME DESTINATION ${PLUGINSDIR})
+    elseif (NOT ANDROID)
+        install(TARGETS MultiSrc_vlc DESTINATION ${PLUGINSDIR})
+    endif ()
 endif ()

@@ -224,6 +224,9 @@ Page {
                                          model.get(currentIndex).plugin)
             }
             Label {
+                /*: The prefered method for executing commands with elevated
+                    prileges in the system.
+                 */
                 text: qsTr("Root method")
             }
             ComboBox {

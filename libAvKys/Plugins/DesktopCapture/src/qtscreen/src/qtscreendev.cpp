@@ -271,8 +271,8 @@ void QtScreenDev::readFrame()
     if (!packet)
         return;
 
-    auto pts = qint64(QTime::currentTime().msecsSinceStartOfDay()
-                      * fps.value() / 1e3);
+    auto pts = qRound64(QTime::currentTime().msecsSinceStartOfDay()
+                        * fps.value() / 1e3);
 
     packet.setPts(pts);
     packet.setTimeBase(fps.invert());

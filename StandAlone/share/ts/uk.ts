@@ -289,8 +289,9 @@
         <translation>Відеозапис</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="227"/>
+        <location filename="../qml/GeneralConfig.qml" line="230"/>
         <source>Root method</source>
+        <extracomment>The prefered method for executing commands with elevated prileges in the system.</extracomment>
         <translation>Кореневий метод</translation>
     </message>
 </context>

@@ -274,7 +274,6 @@ AkPacket AudioStreamPrivate::convert(AVFrame *iFrame)
     // Synchronize audio
     qreal pts = iFrame->pts * self->timeBase().value();
     qreal diff = pts - self->globalClock()->clock();
-    int wantedSamples = iFrame->nb_samples;
 
     if (!qIsNaN(diff) && qAbs(diff) < AV_NOSYNC_THRESHOLD) {
         this->audioDiffCum = diff + this->audioDiffAvgCoef * this->audioDiffCum;
@@ -291,7 +290,7 @@ AkPacket AudioStreamPrivate::convert(AVFrame *iFrame)
             qreal diffThreshold = 2.0 * iFrame->nb_samples / iFrame->sample_rate;
 
             if (qAbs(avgDiff) >= diffThreshold) {
-                wantedSamples = iFrame->nb_samples + int(diff * iFrame->sample_rate);
+                int wantedSamples = iFrame->nb_samples + int(diff * iFrame->sample_rate);
                 int minSamples = iFrame->nb_samples * (100 - SAMPLE_CORRECTION_PERCENT_MAX) / 100;
                 int maxSamples = iFrame->nb_samples * (100 + SAMPLE_CORRECTION_PERCENT_MAX) / 100;
                 wantedSamples = qBound(minSamples, wantedSamples, maxSamples);
@@ -373,11 +372,11 @@ const QVector<AVSampleFormat> &AudioStreamPrivate::planarFormats()
 {
     static const QVector<AVSampleFormat> formats {
         AV_SAMPLE_FMT_U8P ,
-                AV_SAMPLE_FMT_S16P,
-                AV_SAMPLE_FMT_S32P,
-                AV_SAMPLE_FMT_FLTP,
-                AV_SAMPLE_FMT_DBLP,
-                AV_SAMPLE_FMT_S64P,
+        AV_SAMPLE_FMT_S16P,
+        AV_SAMPLE_FMT_S32P,
+        AV_SAMPLE_FMT_FLTP,
+        AV_SAMPLE_FMT_DBLP,
+        AV_SAMPLE_FMT_S64P,
     };
 
     return formats;

@@ -26,6 +26,7 @@
 #include <gst/audio/audio.h>
 #include <gst/video/video.h>
 #include <ak.h>
+#include <akcaps.h>
 #include <akfrac.h>
 #include <akpacket.h>
 #include <akaudiocaps.h>
@@ -34,7 +35,24 @@
 #include <akvideopacket.h>
 
 #include "mediasourcegstreamer.h"
-#include "stream.h"
+
+class Stream
+{
+    public:
+        Stream()
+        {
+        }
+
+        Stream(const AkCaps &caps,
+               const QString &language):
+            caps(caps),
+            language(language)
+        {
+        }
+
+        AkCaps caps;
+        QString language;
+};
 
 class MediaSourceGStreamerPrivate
 {
