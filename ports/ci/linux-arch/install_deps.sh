@@ -107,4 +107,5 @@ pacman --noconfirm --needed -S \
     qt5-tools \
     sed \
     v4l-utils \
+    vlc \
     xorg-server-xvfb

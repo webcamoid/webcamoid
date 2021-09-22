@@ -97,6 +97,7 @@ dnf -y install \
     lib64qt5quickcontrols2-devel \
     lib64qt5svg-devel \
     lib64v4l-devel \
+    lib64vlc-devel \
     make \
     qtbase5-common-devel \
     qtquickcontrols25 \

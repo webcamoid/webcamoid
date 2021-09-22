@@ -98,6 +98,7 @@ dnf -y install \
     qt5-qtquickcontrols2-devel \
     qt5-qtsvg-devel \
     qt5-qttools-devel \
+    vlc-devel \
     which \
     xorg-x11-server-Xvfb \
     xorg-x11-xauth

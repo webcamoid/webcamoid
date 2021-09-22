@@ -39,4 +39,5 @@ pkg install -y \
     qt5-quickcontrols \
     qt5-quickcontrols2 \
     qt5-svg \
-    qt5-xml
+    qt5-xml \
+    vlc

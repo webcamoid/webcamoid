@@ -2080,10 +2080,9 @@
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="657"/>
-        <source>Advanced face area settings for
+        <source>Advanced face area settings for 
 background blur or image below.</source>
-        <translation>進階臉部區域設定，用於
-下方的圖片或背景模糊。</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="708"/>

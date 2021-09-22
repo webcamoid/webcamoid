@@ -116,6 +116,7 @@ apt-get -y install \
     libusb-dev \
     libuvc-dev \
     libv4l-dev \
+    libvlc-dev \
     linux-libc-dev \
     make \
     pkg-config \

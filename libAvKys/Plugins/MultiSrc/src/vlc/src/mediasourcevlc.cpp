@@ -17,11 +17,9 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QApplication>
 #include <QFileInfo>
 #include <QMutex>
 #include <QThreadPool>
-#include <QTime>
 #include <QWaitCondition>
 #include <QtConcurrent>
 #include <vlc/vlc.h>
@@ -116,41 +114,50 @@ MediaSourceVLC::MediaSourceVLC(QObject *parent):
     if (this->d->m_threadPool.maxThreadCount() < 4)
         this->d->m_threadPool.setMaxThreadCount(4);
 
+    //setenv("VLC_VERBOSE", "3", 1);
     this->d->m_vlcInstance = libvlc_new(0, nullptr);
-    this->d->m_mediaPlayer = libvlc_media_player_new(this->d->m_vlcInstance);
-    libvlc_event_attach(libvlc_media_player_event_manager(this->d->m_mediaPlayer),
-                        libvlc_MediaPlayerEndReached,
-                        &MediaSourceVLCPrivate::mediaPlayerEndReachedCallback,
-                        this);
-    libvlc_event_attach(libvlc_media_player_event_manager(this->d->m_mediaPlayer),
-                        libvlc_MediaPlayerTimeChanged,
-                        &MediaSourceVLCPrivate::mediaPlayerTimeChanged,
-                        this);
-    libvlc_video_set_callbacks(this->d->m_mediaPlayer,
-                               &MediaSourceVLCPrivate::videoLockCallback,
-                               nullptr,
-                               &MediaSourceVLCPrivate::videoDisplayCallback,
-                               this);
-    libvlc_audio_set_callbacks(this->d->m_mediaPlayer,
-                               &MediaSourceVLCPrivate::audioPlayCallback,
-                               nullptr,
-                               nullptr,
-                               nullptr,
-                               nullptr,
-                               this);
-    libvlc_video_set_format_callbacks(this->d->m_mediaPlayer,
-                                      &MediaSourceVLCPrivate::videoFormatCallback,
-                                      nullptr);
-    libvlc_audio_set_format_callbacks(this->d->m_mediaPlayer,
-                                      &MediaSourceVLCPrivate::audioSetupCallback,
-                                      nullptr);
+
+    if (this->d->m_vlcInstance) {
+        this->d->m_mediaPlayer = libvlc_media_player_new(this->d->m_vlcInstance);
+        libvlc_event_attach(libvlc_media_player_event_manager(this->d->m_mediaPlayer),
+                            libvlc_MediaPlayerEndReached,
+                            &MediaSourceVLCPrivate::mediaPlayerEndReachedCallback,
+                            this);
+        libvlc_event_attach(libvlc_media_player_event_manager(this->d->m_mediaPlayer),
+                            libvlc_MediaPlayerTimeChanged,
+                            &MediaSourceVLCPrivate::mediaPlayerTimeChanged,
+                            this);
+        libvlc_video_set_callbacks(this->d->m_mediaPlayer,
+                                   &MediaSourceVLCPrivate::videoLockCallback,
+                                   nullptr,
+                                   &MediaSourceVLCPrivate::videoDisplayCallback,
+                                   this);
+        libvlc_audio_set_callbacks(this->d->m_mediaPlayer,
+                                   &MediaSourceVLCPrivate::audioPlayCallback,
+                                   nullptr,
+                                   nullptr,
+                                   nullptr,
+                                   nullptr,
+                                   this);
+        libvlc_video_set_format_callbacks(this->d->m_mediaPlayer,
+                                          &MediaSourceVLCPrivate::videoFormatCallback,
+                                          nullptr);
+        libvlc_audio_set_format_callbacks(this->d->m_mediaPlayer,
+                                          &MediaSourceVLCPrivate::audioSetupCallback,
+                                          nullptr);
+    }
 }
 
 MediaSourceVLC::~MediaSourceVLC()
 {
     this->setState(AkElement::ElementStateNull);
-    libvlc_media_player_release(this->d->m_mediaPlayer);
-    libvlc_release(this->d->m_vlcInstance);
+
+    if (this->d->m_mediaPlayer)
+        libvlc_media_player_release(this->d->m_mediaPlayer);
+
+    if (this->d->m_vlcInstance)
+        libvlc_release(this->d->m_vlcInstance);
+
     delete this->d;
 }
 
@@ -319,9 +326,11 @@ void MediaSourceVLC::setMedia(const QString &media)
         if (QFileInfo::exists(media) && !media.startsWith("file://"))
             media = "file://" + media;
 
-        auto vlcMedia =
-                libvlc_media_new_location(this->d->m_vlcInstance,
-                                          media.toStdString().c_str());
+        libvlc_media_t *vlcMedia = nullptr;
+
+        if (this->d->m_vlcInstance)
+            vlcMedia = libvlc_media_new_location(this->d->m_vlcInstance,
+                                                 media.toStdString().c_str());
 
         if (vlcMedia) {
             this->d->m_mutex.lock();
@@ -338,7 +347,10 @@ void MediaSourceVLC::setMedia(const QString &media)
             libvlc_media_release(vlcMedia);
         } else {
             this->d->m_mutex.lock();
-            libvlc_media_player_set_media(this->d->m_mediaPlayer, nullptr);
+
+            if (this->d->m_mediaPlayer)
+                libvlc_media_player_set_media(this->d->m_mediaPlayer, nullptr);
+
             this->d->m_mutex.unlock();
             this->d->m_duration = 0;
             this->d->m_media = "";
