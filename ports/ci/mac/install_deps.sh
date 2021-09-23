@@ -36,7 +36,8 @@ brew install \
     p7zip \
     pkg-config \
     python \
-    qt@5
+    qt@5 \
+    vlc
 brew link --overwrite python
 brew link --force qt@5
 

@@ -863,9 +863,11 @@ VCamCMIOPrivate::VCamCMIOPrivate(VCamCMIO *self):
 
 VCamCMIOPrivate::~VCamCMIOPrivate()
 {
-    this->m_eventsProc->terminate();
-    this->m_eventsProc->waitForFinished();
-    delete this->m_eventsProc;
+    if (this->m_eventsProc) {
+        this->m_eventsProc->terminate();
+        this->m_eventsProc->waitForFinished();
+        delete this->m_eventsProc;
+    }
 }
 
 QStringList VCamCMIOPrivate::availableRootMethods() const

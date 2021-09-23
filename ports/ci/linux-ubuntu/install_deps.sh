@@ -118,6 +118,7 @@ apt-get -y install \
     libswresample-dev \
     libswscale-dev \
     libv4l-dev \
+    libvlc-dev \
     linux-libc-dev \
     make \
     pkg-config \

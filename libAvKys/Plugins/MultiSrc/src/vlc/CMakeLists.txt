@@ -47,11 +47,64 @@ set(SOURCES
     src/plugin.h
     pspec.json)
 
+set(VLC_INSTALL_PATH "" CACHE PATH "The path where VLC is installed")
+set(VLC_PLUGINS_PATH "" CACHE PATH "VLC plugins search path")
 pkg_check_modules(LIBVLC libvlc)
 
-link_directories(${LIBVLC_LIBRARY_DIRS})
+if (APPLE AND NOT LIBVLC_FOUND)
+    message("-- Checking for 'VLC'")
 
-if (NOT NOVLC AND LIBVLC_FOUND)
+    # Check user defined VLC path first.
+
+    if (NOT "${VLC_INSTALL_PATH}" STREQUAL "" AND EXISTS "${VLC_INSTALL_PATH}")
+        set(VLCAPP_DIR "${VLCAPP_INSTALL_DIR}")
+    endif()
+
+    # Check VLC installed by homebrew.
+
+    if ("${VLCAPP_DIR}" STREQUAL "")
+        set(VLCAPPBIN "/usr/local/bin/vlc")
+
+        if (EXISTS ${VLCAPPBIN})
+            get_filename_component(VLCAPPBIN_PATH ${VLCAPPBIN} REALPATH)
+            get_filename_component(VLCAPP_INSTALL_DIR ${VLCAPPBIN_PATH} DIRECTORY)
+            set(VLCAPP_DIR "${VLCAPP_INSTALL_DIR}/VLC.app")
+        endif()
+    endif()
+
+    # Check VLC manually installed by the user.
+
+    if ("${VLCAPP_DIR}" STREQUAL "")
+        set(VLCAPPDIR "/Applications/VLC.app")
+
+        if (EXISTS "${VLCAPPDIR}")
+            set(VLCAPP_DIR "${VLCAPPDIR}")
+        endif()
+    endif()
+
+    if (NOT "${VLCAPP_DIR}" STREQUAL "")
+        set(VLCAPP_INCLUDE_DIRS "${VLCAPP_DIR}/Contents/MacOS/include")
+        set(VLCAPP_LIBRARY_DIRS "${VLCAPP_DIR}/Contents/MacOS/lib")
+
+        if (EXISTS ${VLCAPP_INCLUDE_DIRS} AND EXISTS ${VLCAPP_LIBRARY_DIRS})
+            set(VLCAPP_FOUND TRUE)
+            set(VLCAPP_LIBRARIES vlc vlccore)
+            message("--   Found VLC in '${VLCAPP_DIR}'")
+        else ()
+            message("--   No 'VLC' found")
+        endif ()
+    else ()
+        message("--   No 'VLC' found")
+    endif ()
+endif ()
+
+include_directories(${VLCAPP_INCLUDE_DIRS})
+link_directories(${LIBVLC_LIBRARY_DIRS} ${VLCAPP_LIBRARY_DIRS})
+add_definitions(-DBINDIR="${BINDIR}"
+                -DVLC_INSTALL_PATH="${VLC_INSTALL_PATH}"
+                -DVLC_PLUGINS_PATH="${VLC_PLUGINS_PATH}")
+
+if (NOT NOVLC AND (LIBVLC_FOUND OR VLCAPP_FOUND))
     add_library(MultiSrc_vlc SHARED ${SOURCES})
 else ()
     add_library(MultiSrc_vlc SHARED EXCLUDE_FROM_ALL ${SOURCES})
@@ -69,6 +122,7 @@ add_dependencies(MultiSrc_vlc avkys)
 target_include_directories(MultiSrc_vlc
                            PUBLIC
                            ${LIBVLC_INCLUDE_DIRS}
+                           ${VLCAPP_INCLUDE_DIRS}
                            PRIVATE
                            ..
                            ../../../../Lib/src)
@@ -77,9 +131,10 @@ list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_
 target_link_libraries(MultiSrc_vlc
                       ${QT_LIBS}
                       ${LIBVLC_LIBRARIES}
+                      ${VLCAPP_LIBRARIES}
                       avkys)
 
-if (NOT NOVLC AND LIBVLC_FOUND)
+if (NOT NOVLC AND (LIBVLC_FOUND OR VLCAPP_FOUND))
     if (WIN32)
         install(TARGETS MultiSrc_vlc RUNTIME DESTINATION ${PLUGINSDIR})
     elseif (NOT ANDROID)
