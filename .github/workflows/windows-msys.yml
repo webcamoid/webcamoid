@@ -49,9 +49,10 @@ jobs:
           mingw-w64-${{ matrix.target_arch }}-ccache
           mingw-w64-${{ matrix.target_arch }}-clang
           mingw-w64-${{ matrix.target_arch }}-cmake
+          mingw-w64-${{ matrix.target_arch }}-ffmpeg
           mingw-w64-${{ matrix.target_arch }}-pkgconf
           mingw-w64-${{ matrix.target_arch }}-qt5
-          mingw-w64-${{ matrix.target_arch }}-ffmpeg
+          mingw-w64-${{ matrix.target_arch }}-vlc
     - uses: msys2/setup-msys2@v2
       if: ${{ !startsWith(github.ref, 'refs/tags/') }}
       with:
@@ -68,13 +69,14 @@ jobs:
           mingw-w64-${{ matrix.target_arch }}-ccache
           mingw-w64-${{ matrix.target_arch }}-clang
           mingw-w64-${{ matrix.target_arch }}-cmake
-          mingw-w64-${{ matrix.target_arch }}-pkgconf
-          mingw-w64-${{ matrix.target_arch }}-qt5
           mingw-w64-${{ matrix.target_arch }}-ffmpeg
           mingw-w64-${{ matrix.target_arch }}-gst-plugins-base
           mingw-w64-${{ matrix.target_arch }}-gst-plugins-good
           mingw-w64-${{ matrix.target_arch }}-gst-plugins-bad
           mingw-w64-${{ matrix.target_arch }}-gst-plugins-ugly
+          mingw-w64-${{ matrix.target_arch }}-pkgconf
+          mingw-w64-${{ matrix.target_arch }}-qt5
+          mingw-w64-${{ matrix.target_arch }}-vlc
     - name: Release Build
       if: ${{ startsWith(github.ref, 'refs/tags/') }}
       run: ./ports/ci/windows-msys/build.sh

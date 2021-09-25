@@ -122,7 +122,7 @@ class ConvertVideoGStreamerPrivate
 ConvertVideoGStreamer::ConvertVideoGStreamer(QObject *parent):
     ConvertVideo(parent)
 {
-//    setenv("GST_DEBUG", "2", 1);
+    //qputenv("GST_DEBUG", "2");
     gst_init(nullptr, nullptr);
 
     this->d = new ConvertVideoGStreamerPrivate;

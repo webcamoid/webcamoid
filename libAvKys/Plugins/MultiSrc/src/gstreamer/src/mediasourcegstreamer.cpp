@@ -95,7 +95,7 @@ class MediaSourceGStreamerPrivate
 MediaSourceGStreamer::MediaSourceGStreamer(QObject *parent):
     MediaSource(parent)
 {
-//    setenv("GST_DEBUG", "2", 1);
+    //qputenv("GST_DEBUG", "2");
     gst_init(nullptr, nullptr);
 
     this->d = new MediaSourceGStreamerPrivate;

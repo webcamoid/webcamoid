@@ -114,7 +114,7 @@ MediaSourceVLC::MediaSourceVLC(QObject *parent):
     if (this->d->m_threadPool.maxThreadCount() < 4)
         this->d->m_threadPool.setMaxThreadCount(4);
 
-    //setenv("VLC_VERBOSE", "3", 1);
+    //qputenv("VLC_VERBOSE", "3", 1);
 
     QString vlcPluginsPath = VLC_PLUGINS_PATH;
 
@@ -162,9 +162,13 @@ MediaSourceVLC::MediaSourceVLC(QObject *parent):
                 path = vlcPluginsDirs;
         }
 #endif
+        path.replace("/", QDir::separator());
 
-        if (!path.isEmpty() && QFileInfo::exists(path))
-            setenv("VLC_PLUGIN_PATH", path.toStdString().c_str(), 0);
+        if (!path.isEmpty()
+            && QFileInfo::exists(path)
+            && qgetenv("VLC_PLUGIN_PATH").isEmpty()) {
+            qputenv("VLC_PLUGIN_PATH", path.toLocal8Bit());
+        }
     } else {
         auto binDir = QDir(BINDIR).absolutePath();
         auto vlcPluginsDir = QDir(vlcPluginsPath).absolutePath();
@@ -172,9 +176,13 @@ MediaSourceVLC::MediaSourceVLC(QObject *parent):
         QDir appDir = QCoreApplication::applicationDirPath();
         appDir.cd(relVlcPluginsDir);
         auto path = appDir.absolutePath();
+        path.replace("/", QDir::separator());
 
-        if (!path.isEmpty() && QFileInfo::exists(path))
-            setenv("VLC_PLUGIN_PATH", path.toStdString().c_str(), 0);
+        if (!path.isEmpty()
+            && QFileInfo::exists(path)
+            && qgetenv("VLC_PLUGIN_PATH").isEmpty()) {
+            qputenv("VLC_PLUGIN_PATH", path.toLocal8Bit());
+        }
     }
 
     this->d->m_vlcInstance = libvlc_new(0, nullptr);
@@ -370,7 +378,7 @@ void MediaSourceVLC::seek(qint64 mSecs,
 
     pts = qBound<qint64>(0, pts, duration);
     libvlc_media_player_set_position(this->d->m_mediaPlayer,
-                                     qreal(pts) / duration);
+                                     float(pts) / float(duration));
 }
 
 void MediaSourceVLC::setMedia(const QString &media)
@@ -383,16 +391,19 @@ void MediaSourceVLC::setMedia(const QString &media)
     this->d->m_media = media;
 
     if (!this->d->m_media.isEmpty()) {
-        auto media = this->d->m_media;
-
-        if (QFileInfo::exists(media) && !media.startsWith("file://"))
-            media = "file://" + media;
-
         libvlc_media_t *vlcMedia = nullptr;
-
-        if (this->d->m_vlcInstance)
-            vlcMedia = libvlc_media_new_location(this->d->m_vlcInstance,
-                                                 media.toStdString().c_str());
+        if (this->d->m_vlcInstance) {
+            if (QFileInfo(media).isFile()
+                && QFileInfo::exists(media)) {
+                auto media_ = media;
+                media_.replace("/", QDir::separator());
+                vlcMedia = libvlc_media_new_path(this->d->m_vlcInstance,
+                                                 media_.toStdString().c_str());
+            } else {
+                vlcMedia = libvlc_media_new_location(this->d->m_vlcInstance,
+                                                     media.toStdString().c_str());
+            }
+        }
 
         if (vlcMedia) {
             this->d->m_mutex.lock();
@@ -640,6 +651,7 @@ void MediaSourceVLCPrivate::doLoop()
 void MediaSourceVLCPrivate::mediaParsedChangedCallback(const libvlc_event_t *event,
                                                        void *userData)
 {
+    Q_UNUSED(event)
     auto self = reinterpret_cast<MediaSourceVLC *>(userData);
     self->d->m_mutex.lock();
 
@@ -661,8 +673,8 @@ void MediaSourceVLCPrivate::mediaParsedChangedCallback(const libvlc_event_t *eve
             switch (tracks[i]->i_type) {
             case libvlc_track_audio: {
                 AkAudioCaps audioCaps(AkAudioCaps::SampleFormat_s16,
-                                      AkAudioCaps::defaultChannelLayout(tracks[i]->audio->i_channels),
-                                      tracks[i]->audio->i_rate);
+                                      AkAudioCaps::defaultChannelLayout(int(tracks[i]->audio->i_channels)),
+                                      int(tracks[i]->audio->i_rate));
                 streamInfo << Stream(audioCaps,
                                      tracks[i]->psz_language);
 
@@ -671,8 +683,8 @@ void MediaSourceVLCPrivate::mediaParsedChangedCallback(const libvlc_event_t *eve
 
             case libvlc_track_video: {
                 AkVideoCaps videoCaps(AkVideoCaps::Format_rgb24,
-                                      tracks[i]->video->i_width,
-                                      tracks[i]->video->i_height,
+                                      int(tracks[i]->video->i_width),
+                                      int(tracks[i]->video->i_height),
                                       AkFrac(tracks[i]->video->i_frame_rate_num,
                                              tracks[i]->video->i_frame_rate_den));
                 streamInfo << Stream(videoCaps,
@@ -708,6 +720,7 @@ void MediaSourceVLCPrivate::mediaParsedChangedCallback(const libvlc_event_t *eve
 void MediaSourceVLCPrivate::mediaPlayerEndReachedCallback(const libvlc_event_t *event,
                                                           void *userData)
 {
+    Q_UNUSED(event)
     auto self = reinterpret_cast<MediaSourceVLC *>(userData);
     QtConcurrent::run(&self->d->m_threadPool, [self] () {
         self->d->doLoop();
@@ -730,6 +743,7 @@ void *MediaSourceVLCPrivate::videoLockCallback(void *userData, void **planes)
 
 void MediaSourceVLCPrivate::videoDisplayCallback(void *userData, void *picture)
 {
+    Q_UNUSED(picture)
     auto self = reinterpret_cast<MediaSourceVLC *>(userData);
     self->d->m_videoFrame.pts() = self->d->m_pts;
     emit self->oStream(self->d->m_videoFrame);
@@ -742,10 +756,10 @@ void MediaSourceVLCPrivate::audioPlayCallback(void *userData,
 {
     auto self = reinterpret_cast<MediaSourceVLC *>(userData);
     QByteArray oBuffer(reinterpret_cast<const char *>(samples),
-                       int(2
-                           * count
-                           * self->d->m_audioFrame.caps().channels()));
-    self->d->m_audioFrame.caps().setSamples(count);
+                       2
+                       * int(count)
+                       * int(self->d->m_audioFrame.caps().channels()));
+    self->d->m_audioFrame.caps().setSamples(int(count));
     self->d->m_audioFrame.buffer() = oBuffer;
     self->d->m_audioFrame.pts() = pts;
     emit self->oStream(self->d->m_audioFrame);
@@ -760,15 +774,15 @@ unsigned MediaSourceVLCPrivate::videoFormatCallback(void **userData,
 {
     auto self = reinterpret_cast<MediaSourceVLC *>(*userData);
     AkVideoCaps caps(AkVideoCaps::Format_rgb24,
-                     *width,
-                     *height,
+                     int(*width),
+                     int(*height),
                      self->d->m_fps);
     self->d->m_videoFrame = AkVideoPacket(caps);
     self->d->m_videoFrame.timeBase() = AkFrac(1, 1000);
     self->d->m_videoFrame.index() = int(self->d->m_videoIndex);
     self->d->m_videoFrame.id() = self->d->m_videoId;
     strncpy(chroma, "RV24", 4);
-    *pitches = caps.bytesPerLine(0);
+    *pitches = unsigned(caps.bytesPerLine(0));
     *lines = *height;
 
     return 1;
@@ -781,8 +795,8 @@ int MediaSourceVLCPrivate::audioSetupCallback(void **userData,
 {
     auto self = reinterpret_cast<MediaSourceVLC *>(*userData);
     AkAudioCaps caps(AkAudioCaps::SampleFormat_s16,
-                     AkAudioCaps::defaultChannelLayout(*channels),
-                     *rate);
+                     AkAudioCaps::defaultChannelLayout(int(*channels)),
+                     int(*rate));
     AkAudioPacket packet;
     self->d->m_audioFrame.caps() = caps;
     self->d->m_audioFrame.timeBase() = AkFrac(1, 1000);

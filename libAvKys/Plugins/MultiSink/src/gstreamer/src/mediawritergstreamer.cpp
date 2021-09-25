@@ -231,7 +231,7 @@ MediaWriterGStreamer::MediaWriterGStreamer(QObject *parent):
     MediaWriter(parent)
 {
     this->d = new MediaWriterGStreamerPrivate(this);
-//    setenv("GST_DEBUG", "2", 1);
+    //qputenv("GST_DEBUG", "2");
     gst_init(nullptr, nullptr);
 
     this->m_formatsBlackList = QStringList {

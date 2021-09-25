@@ -78,7 +78,7 @@ ConvertAudioGStreamer::ConvertAudioGStreamer(QObject *parent):
     ConvertAudio(parent)
 {
     this->d = new ConvertAudioGStreamerPrivate;
-    //setenv("GST_DEBUG", "2", 1);
+    //qputenv("GST_DEBUG", "2");
     gst_init(nullptr, nullptr);
 }
 

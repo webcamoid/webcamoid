@@ -1204,9 +1204,11 @@ VCamDShowPrivate::VCamDShowPrivate(VCamDShow *self):
 
 VCamDShowPrivate::~VCamDShowPrivate()
 {
-    this->m_eventsProc->terminate();
-    this->m_eventsProc->waitForFinished();
-    delete this->m_eventsProc;
+    if (this->m_eventsProc) {
+        this->m_eventsProc->terminate();
+        this->m_eventsProc->waitForFinished();
+        delete this->m_eventsProc;
+    }
 }
 
 QStringList VCamDShowPrivate::availableRootMethods() const
