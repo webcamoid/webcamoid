@@ -21,6 +21,10 @@ qtPluginsDir = @QT_INSTALL_PLUGINS@
 sourcesDir = @QT_INSTALL_SRC@
 qtConfFile = @QT_CONF_FILE@
 
+[Vlc]
+pluginsDir = @VLC_PLUGINS_DIR@
+outputPluginsDir = @OUTPUT_VLC_PLUGINS_DIR@
+
 [AppImage]
 name = webcamoid-portable
 launcher = webcamoid.sh

@@ -35,11 +35,15 @@ add_subdirectory(StandAlone)
 # Webcamoid build is not affected in anyway by the value of TARGET_ARCH, if the
 # build fails its something else and totally unrelated to that variable.
 
+# Try detecting Qmake executable.
+
 if ("${QT_QMAKE_EXECUTABLE}" STREQUAL "")
     find_program(QT_QMAKE_EXECUTABLE_BIN qmake)
 else ()
     find_program(QT_QMAKE_EXECUTABLE_BIN "${QT_QMAKE_EXECUTABLE}")
 endif ()
+
+# Retrieve useful variables related to Qt installation.
 
 if (QT_QMAKE_EXECUTABLE_BIN)
     execute_process(COMMAND ${QT_QMAKE_EXECUTABLE_BIN} -query QT_INSTALL_PREFIX
@@ -62,6 +66,8 @@ if (QT_QMAKE_EXECUTABLE_BIN)
         set(QT_INSTALL_SRC ${QT_INSTALL_PREFIX}/src)
     endif ()
 endif ()
+
+# Set platform related variables to be used in package_info.conf.
 
 if (ANDROID)
     set(TARGET_PLATFORM android)
@@ -89,6 +95,7 @@ elseif (APPLE)
     set(RUN_PROGRAM "\@TargetDir\@/${MAIN_EXECUTABLE}")
     set(OUTPUT_QML_DIR ${DATAROOTDIR}/qml)
     set(OUTPUT_QT_PLUGINS_DIR ${EXECPREFIX}/Plugins)
+    set(OUTPUT_VLC_PLUGINS_DIR ${EXECPREFIX}/Plugins/vlc)
     set(QT_CONF_FILE ${DATAROOTDIR}/qt.conf)
 elseif (WIN32)
     set(TARGET_PLATFORM windows)
@@ -169,6 +176,7 @@ elseif (WIN32)
     set(PROGRAM_ARGS "-c \"%%~dp0${DATAROOTDIR}\\config\"")
     set(OUTPUT_QML_DIR ${LIBDIR}/qt/qml)
     set(OUTPUT_QT_PLUGINS_DIR ${LIBDIR}/qt/plugins)
+    set(OUTPUT_VLC_PLUGINS_DIR ${LIBDIR}/vlc/plugins)
     set(QT_CONF_FILE ${BINDIR}/qt.conf)
     set(EXTRA_LIBS_LIST
         libeay32.dll
@@ -190,8 +198,11 @@ else ()
     set(RUN_PROGRAM "\@TargetDir\@/webcamoid.sh")
     set(OUTPUT_QML_DIR ${LIBDIR}/qt/qml)
     set(OUTPUT_QT_PLUGINS_DIR ${LIBDIR}/qt/plugins)
+    set(OUTPUT_VLC_PLUGINS_DIR ${LIBDIR}/vlc/plugins)
     set(QT_CONF_FILE ${BINDIR}/qt.conf)
 endif ()
+
+# Try detecting the target platform.
 
 if (UNIX AND NOT APPLE AND NOT ANDROID)
     include(CheckCXXSourceCompiles)
@@ -225,6 +236,8 @@ if (UNIX AND NOT APPLE AND NOT ANDROID)
 else ()
     set(PKG_TARGET_PLATFORM ${TARGET_PLATFORM})
 endif ()
+
+# Try detecting the target architecture in GNU/Linux and Mac.
 
 if (UNIX AND NOT ANDROID)
     include(CheckCXXSourceCompiles)
@@ -290,6 +303,58 @@ if (UNIX AND NOT ANDROID)
         set(TARGET_ARCH riscv)
     else ()
         set(TARGET_ARCH unknown)
+    endif ()
+endif ()
+
+# Try detecting VLC plugins install path.
+
+find_package(PkgConfig)
+pkg_check_modules(VLC_PLUGINS vlc-plugin)
+
+if (VLC_PLUGINS_FOUND)
+    pkg_get_variable(VLC_PLUGINS_DIR vlc-plugin pluginsdir)
+elseif (APPLE AND NOT VLC_PLUGINS_FOUND)
+    message("-- Checking for 'VLC'")
+
+    # Check user defined VLC path first.
+
+    if (NOT "${VLC_INSTALL_PATH}" STREQUAL "" AND EXISTS "${VLC_INSTALL_PATH}")
+        set(VLCAPP_DIR "${VLCAPP_INSTALL_DIR}")
+    endif()
+
+    # Check VLC installed by homebrew.
+
+    if ("${VLCAPP_DIR}" STREQUAL "")
+        set(VLCAPPBIN "/usr/local/bin/vlc")
+
+        if (EXISTS ${VLCAPPBIN})
+            get_filename_component(VLCAPPBIN_PATH ${VLCAPPBIN} REALPATH)
+            get_filename_component(VLCAPP_INSTALL_DIR ${VLCAPPBIN_PATH} DIRECTORY)
+            set(VLCAPP_DIR "${VLCAPP_INSTALL_DIR}/VLC.app")
+        endif()
+    endif()
+
+    # Check VLC manually installed by the user.
+
+    if ("${VLCAPP_DIR}" STREQUAL "")
+        set(VLCAPPDIR "/Applications/VLC.app")
+
+        if (EXISTS "${VLCAPPDIR}")
+            set(VLCAPP_DIR "${VLCAPPDIR}")
+        endif()
+    endif()
+
+    if (NOT "${VLCAPP_DIR}" STREQUAL "")
+        set(VLCAPP_PLUGINS_DIR "${VLCAPP_DIR}/Contents/MacOS/plugins")
+
+        if (EXISTS ${VLCAPP_PLUGINS_DIR})
+            message("--   Found VLC in '${VLCAPP_DIR}'")
+            set(VLC_PLUGINS_DIR "${VLCAPP_PLUGINS_DIR}")
+        else ()
+            message("--   No 'VLC' found")
+        endif ()
+    else ()
+        message("--   No 'VLC' found")
     endif ()
 endif ()
 
