@@ -27,7 +27,7 @@ else
 fi
 
 # dnf -y upgrade-minimal --exclude=systemd,systemd-libs
-dnf -y install \
+dnf -y install --exclude=glibc \
     curl \
     dbus-libs \
     fontconfig \
@@ -79,7 +79,7 @@ fi
 # dnf install -y --skip-broken https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-${FEDORAVER}.noarch.rpm
 # dnf install -y --skip-broken https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-${FEDORAVER}.noarch.rpm
 # dnf -y upgrade-minimal --exclude=systemd,systemd-libs
-dnf -y install \
+dnf -y install --exclude=glibc \
     alsa-lib-devel \
     ccache \
     clang \
@@ -100,7 +100,7 @@ dnf -y install \
     which \
     xorg-x11-server-Xvfb \
     xorg-x11-xauth
-# dnf -y install \
+# dnf -y install --exclude=glibc \
 #     ffmpeg-devel \
 #     vlc-core \
 #     vlc-devel
