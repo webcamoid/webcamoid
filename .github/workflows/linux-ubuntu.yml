@@ -23,10 +23,10 @@ jobs:
          - dockerimg: ubuntu:focal
            compiler: clang
            upload: 0
-         - dockerimg: ubuntu:latest
+         - dockerimg: ubuntu:rolling
            compiler: gcc
            upload: 0
-         - dockerimg: ubuntu:latest
+         - dockerimg: ubuntu:rolling
            compiler: clang
            upload: 0
          - dockerimg: ubuntu:devel
