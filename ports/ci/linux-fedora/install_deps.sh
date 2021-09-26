@@ -26,8 +26,8 @@ else
     export DOWNLOAD_CMD="curl --retry 10 -sS -kLOC -"
 fi
 
-# dnf -y upgrade-minimal --exclude=systemd,systemd-libs
-dnf -y install --exclude=glibc \
+dnf -y upgrade-minimal --exclude=systemd,systemd-libs
+dnf -y install \
     curl \
     dbus-libs \
     fontconfig \
@@ -76,14 +76,15 @@ if [ -e .local/${appimage} ]; then
     cd ..
 fi
 
-# dnf install -y --skip-broken https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-${FEDORAVER}.noarch.rpm
-# dnf install -y --skip-broken https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-${FEDORAVER}.noarch.rpm
-# dnf -y upgrade-minimal --exclude=systemd,systemd-libs
-dnf -y install --exclude=glibc \
+dnf install -y --skip-broken https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-${FEDORAVER}.noarch.rpm
+dnf install -y --skip-broken https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-${FEDORAVER}.noarch.rpm
+dnf -y upgrade-minimal --exclude=systemd,systemd-libs
+dnf -y install \
     alsa-lib-devel \
     ccache \
     clang \
     cmake \
+    ffmpeg-devel \
     file \
     gcc-c++ \
     git \
@@ -97,10 +98,8 @@ dnf -y install --exclude=glibc \
     qt5-qtquickcontrols2-devel \
     qt5-qtsvg-devel \
     qt5-qttools-devel \
+    vlc-core \
+    vlc-devel \
     which \
     xorg-x11-server-Xvfb \
     xorg-x11-xauth
-# dnf -y install --exclude=glibc \
-#     ffmpeg-devel \
-#     vlc-core \
-#     vlc-devel
