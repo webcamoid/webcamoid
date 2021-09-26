@@ -134,7 +134,12 @@ QStringList AkPluginManager::listPlugins(const QString &pluginId,
 {
     QStringList plugins;
     QRegExp regexp(pluginId, Qt::CaseSensitive, QRegExp::Wildcard);
+
+#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
     StringSet interfaces(implements.begin(), implements.end());
+#else
+    auto interfaces = StringSet::fromList(implements);
+#endif
 
     if ((filter & FilterAll) == FilterNone)
         filter |= FilterAll;
@@ -144,7 +149,12 @@ QStringList AkPluginManager::listPlugins(const QString &pluginId,
             continue;
 
         auto implements = pluginInfo.implements();
+
+#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
         StringSet pluginInterfaces(implements.begin(), implements.end());
+#else
+        auto pluginInterfaces = StringSet::fromList(implements);
+#endif
 
         if (!implements.isEmpty()
             && !pluginInterfaces.contains(interfaces))
@@ -233,7 +243,11 @@ void AkPluginManager::addSearchPath(const QString &path)
 
 void AkPluginManager::setSearchPaths(const QStringList &searchPaths)
 {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
     StringSet _searchPaths(searchPaths.begin(), searchPaths.end());
+#else
+    auto _searchPaths = StringSet::fromList(searchPaths);
+#endif
 
     if (this->d->m_pluginsSearchPaths == _searchPaths)
         return;
@@ -405,7 +419,11 @@ void AkPluginManager::setPluginStatus(const QString &pluginId,
 
 void AkPluginManager::setCachedPlugins(const QStringList &plugins)
 {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
     this->d->m_cachedPlugins = StringSet(plugins.begin(), plugins.end());
+#else
+    this->d->m_cachedPlugins = StringSet::fromList(plugins);
+#endif
 }
 
 AkPluginManagerPrivate::AkPluginManagerPrivate(AkPluginManager *self):

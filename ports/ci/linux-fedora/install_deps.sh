@@ -26,7 +26,7 @@ else
     export DOWNLOAD_CMD="curl --retry 10 -sS -kLOC -"
 fi
 
-dnf -y upgrade-minimal --exclude=systemd,systemd-libs
+# dnf -y upgrade-minimal --exclude=systemd,systemd-libs
 dnf -y install \
     curl \
     dbus-libs \
@@ -76,9 +76,9 @@ if [ -e .local/${appimage} ]; then
     cd ..
 fi
 
-dnf install -y --skip-broken https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-${FEDORAVER}.noarch.rpm
-dnf install -y --skip-broken https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-${FEDORAVER}.noarch.rpm
-dnf -y upgrade-minimal --exclude=systemd,systemd-libs
+# dnf install -y --skip-broken https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-${FEDORAVER}.noarch.rpm
+# dnf install -y --skip-broken https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-${FEDORAVER}.noarch.rpm
+# dnf -y upgrade-minimal --exclude=systemd,systemd-libs
 dnf -y install \
     alsa-lib-devel \
     ccache \
@@ -100,7 +100,7 @@ dnf -y install \
     which \
     xorg-x11-server-Xvfb \
     xorg-x11-xauth
-dnf -y install \
-    ffmpeg-devel \
-    vlc-core \
-    vlc-devel
+# dnf -y install \
+#     ffmpeg-devel \
+#     vlc-core \
+#     vlc-devel
