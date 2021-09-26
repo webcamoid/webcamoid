@@ -90,6 +90,7 @@ dnf -y install \
     lib64ffmpeg-devel \
     lib64gstreamer-plugins-base1.0-devel \
     lib64jack-devel \
+    lib64kmod-devel \
     lib64pulseaudio-devel \
     lib64qt5concurrent-devel \
     lib64qt5opengl-devel \
@@ -102,6 +103,7 @@ dnf -y install \
     qtbase5-common-devel \
     qtquickcontrols25 \
     qttools5 \
+    vlc-plugin-common \
     which \
     x11-server-xvfb \
     xauth

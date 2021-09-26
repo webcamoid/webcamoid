@@ -19,10 +19,11 @@
 
 #include <QDataStream>
 #include <QDebug>
-#include <QRegExp>
 #include <QJsonObject>
-#include <QStringList>
 #include <QQmlEngine>
+#include <QRegExp>
+#include <QStringList>
+#include <QTextStream>
 
 #include "akplugininfo.h"
 

@@ -117,6 +117,7 @@ apt-get -y install \
     libuvc-dev \
     libv4l-dev \
     libvlc-dev \
+    libvlccore-dev \
     linux-libc-dev \
     make \
     pkg-config \
@@ -132,4 +133,5 @@ apt-get -y install \
     qtdeclarative5-dev \
     qtquickcontrols2-5-dev \
     qttools5-dev-tools \
+    vlc-plugin-base \
     xvfb

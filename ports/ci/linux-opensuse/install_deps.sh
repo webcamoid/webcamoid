@@ -91,8 +91,9 @@ zypper -n in \
     libqt5-qtquickcontrols2 \
     libqt5-qtsvg-devel \
     libv4l-devel \
-    vlc-devel \
     python3 \
+    vlc-devel \
+    vlc-noX \
     which \
     xauth \
     xvfb-run

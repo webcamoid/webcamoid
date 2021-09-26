@@ -51,6 +51,7 @@ fi
 
 apt-get -qq -y update
 apt-get -qq -y upgrade
+usermod -s /bin/bash $(whoami)
 apt-get -qq -y install \
     curl \
     libdbus-1-3 \
@@ -119,9 +120,11 @@ apt-get -y install \
     libswscale-dev \
     libv4l-dev \
     libvlc-dev \
+    libvlccore-dev \
     linux-libc-dev \
     make \
     pkg-config \
+    vlc-plugin-base \
     xvfb
 
 if [ "${UPLOAD}" != 1 ]; then
