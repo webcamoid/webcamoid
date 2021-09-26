@@ -108,6 +108,7 @@ apt-get -y install \
     libgl1-mesa-dev \
     libgstreamer-plugins-base1.0-dev \
     libjack-dev \
+    libkmod-dev \
     libpulse-dev \
     libqt5opengl5-dev \
     libqt5svg5-dev \

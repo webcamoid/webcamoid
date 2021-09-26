@@ -84,7 +84,6 @@ dnf -y install \
     ccache \
     clang \
     cmake \
-    ffmpeg-devel \
     file \
     gcc-c++ \
     git \
@@ -98,8 +97,10 @@ dnf -y install \
     qt5-qtquickcontrols2-devel \
     qt5-qtsvg-devel \
     qt5-qttools-devel \
-    vlc-core \
-    vlc-devel \
     which \
     xorg-x11-server-Xvfb \
     xorg-x11-xauth
+dnf -y install \
+    ffmpeg-devel \
+    vlc-core \
+    vlc-devel
