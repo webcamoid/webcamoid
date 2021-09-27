@@ -70,7 +70,9 @@ ColumnLayout {
     Connections {
         target: virtualCamera
 
-        onMediaChanged: recCameraControls.createControls()
+        function onMediaChanged() {
+            recCameraControls.createControls()
+        }
     }
 
     ColumnLayout {

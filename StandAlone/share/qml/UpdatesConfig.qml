@@ -66,7 +66,8 @@ Page {
             Connections {
                 target: updates
 
-                onNewVersionAvailable: {
+                function onNewVersionAvailable(component, latestVersion)
+                {
                     if (component == "Webcamoid") {
                         layout.webcamoidStatus = updates.status("Webcamoid");
                         layout.webcamoidLatestVersion = latestVersion;

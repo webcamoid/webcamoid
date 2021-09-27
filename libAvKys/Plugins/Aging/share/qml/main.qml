@@ -27,7 +27,8 @@ GridLayout {
     Connections {
         target: Aging
 
-        onNScratchesChanged: {
+        function onNScratchesChanged(nScratches)
+        {
             sldNScratches.value = nScratches
             spbNScratches.value = nScratches
         }

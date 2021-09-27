@@ -40,7 +40,8 @@ GridLayout {
     Connections {
         target: Hypnotic
 
-        onThresholdChanged: {
+        function onThresholdChanged(threshold)
+        {
             sldThreshold.value = threshold
             spbThreshold.value = threshold
         }

@@ -27,7 +27,8 @@ GridLayout {
     Connections {
         target: Swirl
 
-        onDegreesChanged: {
+        function onDegreesChanged(degrees)
+        {
             sldDegrees.value = degrees
             spbDegrees.value = degrees
         }

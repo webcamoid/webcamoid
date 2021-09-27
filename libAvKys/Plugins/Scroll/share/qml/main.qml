@@ -27,12 +27,14 @@ GridLayout {
     Connections {
         target: Scroll
 
-        onSpeedChanged: {
+        function onSpeedChanged(speed)
+        {
             sldSpeed.value = speed
             spbSpeed.value = spbSpeed.multiplier * speed
         }
 
-        onNoiseChanged: {
+        function onNoiseChanged(noise)
+        {
             sldNoise.value = noise
             spbNoise.value = spbNoise.multiplier * noise
         }

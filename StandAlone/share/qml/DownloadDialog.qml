@@ -102,7 +102,8 @@ Dialog {
     Connections {
         target: downloadManager
 
-        onFinished: {
+        function onFinished(url)
+        {
             close()
             let status = downloadManager.downloadStatus(url)
 
@@ -111,7 +112,9 @@ Dialog {
             else
                 downloadSucceeded(downloadManager.downloadFile(url))
         }
-        onDownloadChanged: {
+
+        function onDownloadChanged(url)
+        {
             downloadTitle = downloadManager.downloadTitle(url)
             downloadUrl = url
             downloadFile = downloadManager.downloadFile(url)

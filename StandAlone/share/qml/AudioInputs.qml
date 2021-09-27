@@ -106,7 +106,10 @@ ScrollView {
         Connections {
             target: audioLayer
 
-            onInputsChanged: devicesList.updateDevices()
+            function onInputsChanged()
+            {
+                devicesList.updateDevices()
+            }
         }
 
         Component.onCompleted: devicesList.updateDevices()

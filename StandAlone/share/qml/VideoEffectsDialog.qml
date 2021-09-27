@@ -119,13 +119,19 @@ Dialog {
                         Connections {
                             target: mediaTools
 
-                            onInterfaceLoaded: videoEffects.setPreview("")
+                            function onInterfaceLoaded()
+                            {
+                                videoEffects.setPreview("")
+                            }
                         }
 
                         Connections {
                             target: videoEffects
 
-                            onAvailableEffectsChanged: options.update()
+                            function onAvailableEffectsChanged()
+                            {
+                                options.update()
+                            }
                         }
 
                         onCurrentIndexChanged: {

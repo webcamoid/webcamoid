@@ -37,8 +37,15 @@ ScrollView {
     Connections {
         target: videoLayer
 
-        onInputsChanged: devicesList.updateDevices()
-        onVideoInputChanged: lblNoWebcams.updateVisibility()
+        function onInputsChanged()
+        {
+            devicesList.updateDevices()
+        }
+
+        function onVideoInputChanged()
+        {
+            lblNoWebcams.updateVisibility()
+        }
     }
 
     ColumnLayout {

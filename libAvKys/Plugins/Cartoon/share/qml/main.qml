@@ -61,19 +61,26 @@ GridLayout {
     Connections {
         target: Cartoon
 
-        onNcolorsChanged: {
+        function onNcolorsChanged(ncolors)
+        {
             sldNColors.value = ncolors
             spbNColors.value = ncolors
         }
-        onColorDiffChanged: {
+
+        function onColorDiffChanged(colorDiff)
+        {
             sldColorDiff.value = colorDiff
             spbColorDiff.value = colorDiff
         }
-        onThresholdLowChanged: {
+
+        function onThresholdLowChanged(thresholdLow)
+        {
             sldThreshold.first.value = thresholdLow
             spbThresholdLow.value = thresholdLow
         }
-        onThresholdHiChanged: {
+
+        function onThresholdHiChanged(thresholdHi)
+        {
             sldThreshold.second.value = thresholdHi
             spbThresholdHi.value = thresholdHi
         }

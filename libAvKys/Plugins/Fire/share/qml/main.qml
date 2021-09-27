@@ -40,27 +40,38 @@ GridLayout {
     Connections {
         target: Fire
 
-        onCoolChanged: {
+        function onCoolChanged(cool)
+        {
             sldCool.value = cool
             spbCool.value = cool
         }
-        onThresholdChanged: {
+
+        function onThresholdChanged(threshold)
+        {
             sldThreshold.value = threshold
             spbThreshold.value = threshold
         }
-        onLumaThresholdChanged: {
+
+        function onLumaThresholdChanged(lumaThreshold)
+        {
             sldLumaThreshold.value = lumaThreshold
             spbLumaThreshold.value = lumaThreshold
         }
-        onAlphaDiffChanged: {
+
+        function onAlphaDiffChanged(alphaDiff)
+        {
             sldAlphaDiff.value = alphaDiff
             spbAlphaDiff.value = alphaDiff
         }
-        onAlphaVariationChanged: {
+
+        function onAlphaVariationChanged(alphaVariation)
+        {
             sldAlphaVariation.value = alphaVariation
             spbAlphaVariation.value = alphaVariation
         }
-        onNColorsChanged: {
+
+        function onNColorsChanged(nColors)
+        {
             sldNColors.value = nColors
             spbNColors.value = nColors
         }

@@ -28,11 +28,14 @@ GridLayout {
     Connections {
         target: Denoise
 
-        onRadiusChanged: {
+        function onRadiusChanged(radius)
+        {
             sldRadius.value = radius
             spbRadius.value = radius
         }
-        onSigmaChanged: {
+
+        function onSigmaChanged(sigma)
+        {
             sldSigma.value = sigma
             spbSigma.value = spbSigma.multiplier * sigma
         }

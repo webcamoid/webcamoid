@@ -48,7 +48,8 @@ GridLayout {
     Connections {
         target: Cinema
 
-        onStripSizeChanged: {
+        function onStripSizeChanged(stripSize)
+        {
             sldStripSize.value = stripSize
             spbStripSize.value = spbStripSize.multiplier * stripSize
         }

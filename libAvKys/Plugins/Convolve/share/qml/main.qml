@@ -36,7 +36,8 @@ ColumnLayout {
     Connections {
         target: Convolve
 
-        onBiasChanged: {
+        function onBiasChanged(bias)
+        {
             sldBias.value = bias
             spbBias.value = bias
         }

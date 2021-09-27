@@ -135,7 +135,8 @@ Dialog {
     Connections {
         target: recording
 
-        onVideoCodecParamsChanged: {
+        function onVideoCodecParamsChanged(videoCodecParams)
+        {
             if (videoCodecParams.codec) {
                 bitrate.text = videoCodecParams.bitrate
                 videoGOP.text = videoCodecParams.gop
@@ -144,7 +145,11 @@ Dialog {
                 videoGOP.text = ""
             }
         }
-        onAvailableVideoCodecOptionsChanged: videoCodecOptions.updateOptions()
+
+        function onAvailableVideoCodecOptionsChanged()
+        {
+            videoCodecOptions.updateOptions()
+        }
     }
 
     ScrollView {

@@ -99,7 +99,8 @@ Pane {
     Connections {
         target: parent
 
-        onWidthChanged: {
+        function onWidthChanged()
+        {
             switch (optionsPanel.edge) {
             case Qt.LeftEdge:
                 optionsPanel.width = Math.max(optionsPanel.width,
@@ -125,7 +126,9 @@ Pane {
                 break
             }
         }
-        onHeightChanged: {
+
+        function onHeightChanged()
+        {
             switch (optionsPanel.edge) {
             case Qt.TopEdge:
                 optionsPanel.height = Math.max(optionsPanel.height,

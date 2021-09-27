@@ -48,12 +48,14 @@ GridLayout {
     Connections {
         target: Life
 
-        onThresholdChanged: {
+        function onThresholdChanged(threshold)
+        {
             sldThreshold.value = threshold
             spbThreshold.value = threshold
         }
 
-        onLumaThresholdChanged: {
+        function onLumaThresholdChanged(lumaThreshold)
+        {
             sldLumaThreshold.value = lumaThreshold
             spbLumaThreshold.value = lumaThreshold
         }

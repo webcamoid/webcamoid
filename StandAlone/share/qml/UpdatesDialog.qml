@@ -50,7 +50,8 @@ Dialog {
     Connections {
         target: updates
 
-        onNewVersionAvailable: {
+        function onNewVersionAvailable(component, latestVersion)
+        {
             if (component == "Webcamoid") {
                 updatesDialog.webcamoidStatus = updates.status("Webcamoid");
                 updatesDialog.webcamoidLatestVersion = latestVersion;

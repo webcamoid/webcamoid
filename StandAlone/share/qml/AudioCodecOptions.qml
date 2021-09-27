@@ -135,13 +135,18 @@ Dialog {
     Connections {
         target: recording
 
-        onAudioCodecParamsChanged: {
+        function onAudioCodecParamsChanged(audioCodecParams)
+        {
             if (audioCodecParams.codec)
                 bitrate.text = audioCodecParams.bitrate
             else
                 bitrate.text = ""
         }
-        onAvailableAudioCodecOptionsChanged: audioCodecOptions.updateOptions()
+
+        function onAvailableAudioCodecOptionsChanged()
+        {
+            audioCodecOptions.updateOptions()
+        }
     }
 
     ScrollView {

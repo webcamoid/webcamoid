@@ -48,17 +48,20 @@ GridLayout {
     Connections {
         target: Vignette
 
-        onAspectChanged: {
+        function onAspectChanged(aspect)
+        {
             sldAspect.value = aspect
             spbAspect.value = spbAspect.multiplier * aspect
         }
 
-        onScaleChanged: {
+        function onScaleChanged(scale)
+        {
             sldScale.value = scale
             spbScale.value = spbScale.multiplier * scale
         }
 
-        onSoftnessChanged: {
+        function onSoftnessChanged(softness)
+        {
             sldSoftness.value = softness
             spbSoftness.value = spbSoftness.multiplier * softness
         }

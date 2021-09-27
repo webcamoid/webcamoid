@@ -59,7 +59,8 @@ OptionsPanel {
     Connections {
         target: videoLayer
 
-        onVcamInstallFinished: {
+        function onVcamInstallFinished(exitCode, error)
+        {
             if (exitCode == 0)
                 vcamInstallSucceeded.open()
             else

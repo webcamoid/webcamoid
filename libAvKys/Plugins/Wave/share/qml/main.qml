@@ -48,17 +48,20 @@ GridLayout {
     Connections {
         target: Wave
 
-        onAmplitudeChanged: {
+        function onAmplitudeChanged(amplitude)
+        {
             sldAmplitude.value = amplitude
             spbAmplitude.value = spbAmplitude.multiplier * amplitude
         }
 
-        onFrequencyChanged: {
+        function onFrequencyChanged(frequency)
+        {
             sldFrequency.value = frequency
             spbFrequency.value = spbFrequency.multiplier * frequency
         }
 
-        onPhaseChanged: {
+        function onPhaseChanged(phase)
+        {
             sldPhase.value = phase
             spbPhase.value = spbPhase.multiplier * phase
         }

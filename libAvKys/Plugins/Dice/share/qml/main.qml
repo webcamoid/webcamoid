@@ -27,7 +27,8 @@ GridLayout {
     Connections {
         target: Dice
 
-        onDiceSizeChanged: {
+        function onDiceSizeChanged(diceSize)
+        {
             sldDiceSize.value = diceSize
             spbDiceSize.value = diceSize
         }

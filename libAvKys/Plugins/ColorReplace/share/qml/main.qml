@@ -48,7 +48,8 @@ GridLayout {
     Connections {
         target: ColorReplace
 
-        onRadiusChanged: {
+        function onRadiusChanged(radius)
+        {
             sldRadius.value = radius
             spbRadius.value = radius
         }

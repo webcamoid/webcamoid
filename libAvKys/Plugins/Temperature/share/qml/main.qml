@@ -27,7 +27,8 @@ GridLayout {
     Connections {
         target: Temperature
 
-        onTemperatureChanged: {
+        function onTemperatureChanged(temperature)
+        {
             sldTemperature.value = temperature
             spbTemperature.value = temperature
         }

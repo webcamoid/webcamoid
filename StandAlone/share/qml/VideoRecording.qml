@@ -39,7 +39,8 @@ Page {
         Connections {
             target: recording
 
-            onAvailableVideoFormatsChanged: {
+            function onAvailableVideoFormatsChanged(availableVideoFormats)
+            {
                 cbxVideoFormat.model.clear()
 
                 for (let i in availableVideoFormats) {
@@ -54,7 +55,9 @@ Page {
                 cbxVideoFormat.currentIndex =
                         availableVideoFormats.indexOf(recording.videoFormat)
             }
-            onAvailableVideoCodecsChanged: {
+
+            function onAvailableVideoCodecsChanged(availableVideoCodecs)
+            {
                 cbxVideoCodec.model.clear()
 
                 for (let i in availableVideoCodecs) {
@@ -69,7 +72,9 @@ Page {
                 cbxVideoCodec.currentIndex =
                         availableVideoCodecs.indexOf(recording.videoCodec)
             }
-            onAvailableAudioCodecsChanged: {
+
+            function onAvailableAudioCodecsChanged(availableAudioCodecs)
+            {
                 cbxAudioCodec.model.clear()
 
                 for (let i in availableAudioCodecs) {
@@ -84,15 +89,21 @@ Page {
                 cbxAudioCodec.currentIndex =
                         availableAudioCodecs.indexOf(recording.audioCodec)
             }
-            onVideoFormatChanged: {
+
+            function onVideoFormatChanged(videoFormat)
+            {
                 cbxVideoFormat.currentIndex =
                         recording.availableVideoFormats.indexOf(videoFormat)
             }
-            onVideoCodecChanged: {
+
+            function onVideoCodecChanged(videoCodec)
+            {
                 cbxVideoCodec.currentIndex =
                         recording.availableVideoCodecs.indexOf(videoCodec)
             }
-            onAudioCodecChanged: {
+
+            function onAudioCodecChanged(audioCodec)
+            {
                 cbxAudioCodec.currentIndex =
                         recording.availableAudioCodecs.indexOf(audioCodec)
             }

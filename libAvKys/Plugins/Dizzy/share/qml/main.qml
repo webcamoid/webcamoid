@@ -27,17 +27,20 @@ GridLayout {
     Connections {
         target: Dizzy
 
-        onSpeedChanged: {
+        function onSpeedChanged(speed)
+        {
             sldSpeed.value = speed
             spbSpeed.value = spbSpeed.multiplier * speed
         }
 
-        onZoomRateChanged: {
+        function onZoomRateChanged(zoomRate)
+        {
             sldZoomRate.value = zoomRate
             spbZoomRate.value = spbZoomRate.multiplier * zoomRate
         }
 
-        onStrengthChanged: {
+        function onStrengthChanged(strength)
+        {
             sldStrength.value = strength
             spbStrength.value = spbStrength.multiplier * strength
         }

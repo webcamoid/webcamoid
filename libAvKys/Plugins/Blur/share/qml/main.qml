@@ -27,7 +27,8 @@ GridLayout {
     Connections {
         target: Blur
 
-        onRadiusChanged: {
+        function onRadiusChanged(radius)
+        {
             sldRadius.value = radius
             spbRadius.value = radius
         }

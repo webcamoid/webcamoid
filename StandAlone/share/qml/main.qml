@@ -66,7 +66,10 @@ ApplicationWindow {
     Connections {
         target: videoLayer
 
-        onVideoInputChanged: chkFlash.updateVisibility()
+        function onVideoInputChanged()
+        {
+            chkFlash.updateVisibility()
+        }
     }
 
     VideoDisplay {

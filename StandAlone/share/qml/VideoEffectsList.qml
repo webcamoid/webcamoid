@@ -86,7 +86,10 @@ ScrollView {
             Connections {
                 target: videoEffects
 
-                onEffectsChanged: effectsList.updateEffectList()
+                function onEffectsChanged()
+                {
+                    effectsList.updateEffectList()
+                }
             }
 
             Component.onCompleted: effectsList.updateEffectList()

@@ -46,7 +46,8 @@ StackLayout {
     Connections {
         target: updates
 
-        onNewVersionAvailable: {
+        function onNewVersionAvailable(component, latestVersion)
+        {
             if (component == "VirtualCamera") {
                 videoOutputsLayout.vcamStatus = updates.status("VirtualCamera");
                 videoOutputsLayout.vcamLatestVersion = latestVersion;
@@ -208,7 +209,10 @@ StackLayout {
                     Connections {
                         target: videoLayer
 
-                        onOutputsChanged: devicesList.updateDevices()
+                        function onOutputsChanged()
+                        {
+                            devicesList.updateDevices()
+                        }
                     }
 
                     Component.onCompleted: devicesList.updateDevices()

@@ -29,7 +29,9 @@ GridLayout {
     Connections {
         target: MultiSrc
 
-        onMediaChanged: updateOptions()
+        function onMediaChanged() {
+            updateOptions()
+        }
     }
 
     function updateOptions()

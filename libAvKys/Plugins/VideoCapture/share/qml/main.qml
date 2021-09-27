@@ -269,7 +269,8 @@ GridLayout {
     Connections {
         target: VideoCapture
 
-        onMediaChanged: {
+        function onMediaChanged()
+        {
             recCameraControls.createCameraControls()
             recCameraControls.updateFormatControls(true)
         }

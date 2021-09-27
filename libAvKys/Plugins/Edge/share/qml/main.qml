@@ -27,11 +27,14 @@ GridLayout {
     Connections {
         target: Edge
 
-        onThLowChanged: {
+        function onThLowChanged(thLow)
+        {
             sldThreshold.first.value = thLow
             spbThresholdLow.value = thLow
         }
-        onThHiChanged: {
+
+        function onThHiChanged(thHi)
+        {
             sldThreshold.second.value = thHi
             spbThresholdHi.value = thHi
         }

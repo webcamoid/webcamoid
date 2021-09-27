@@ -26,12 +26,6 @@
 
 #include "akplugininfo.h"
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
-    #define QT_ENDL Qt::endl
-#else
-    #define QT_ENDL endl
-#endif
-
 class AkPluginInfoPrivate
 {
     public:
@@ -206,15 +200,15 @@ void AkPluginInfo::registerTypes()
 
 QDebug operator <<(QDebug debug, const AkPluginInfo &info)
 {
-    debug.nospace() << "QDataStream(" << QT_ENDL
-                    << "    name: " << info.name() << QT_ENDL
-                    << "    description: " << info.description() << QT_ENDL
-                    << "    id: " << info.id() << QT_ENDL
-                    << "    path: " << info.path() << QT_ENDL
-                    << "    implements: [" << info.implements().join(", ") << "]" << QT_ENDL
-                    << "    depends: [" << info.depends().join(", ") << "]" << QT_ENDL
-                    << "    type: " << info.type() << QT_ENDL
-                    << "    priority: " << info.priority() << QT_ENDL
+    debug.nospace() << "QDataStream(" << Qt::endl
+                    << "    name: " << info.name() << Qt::endl
+                    << "    description: " << info.description() << Qt::endl
+                    << "    id: " << info.id() << Qt::endl
+                    << "    path: " << info.path() << Qt::endl
+                    << "    implements: [" << info.implements().join(", ") << "]" << Qt::endl
+                    << "    depends: [" << info.depends().join(", ") << "]" << Qt::endl
+                    << "    type: " << info.type() << Qt::endl
+                    << "    priority: " << info.priority() << Qt::endl
                     << ")";
 
     return debug.space();

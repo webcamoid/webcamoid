@@ -135,16 +135,23 @@ Dialog {
     Connections {
         target: recording
 
-        onAvailableVideoFormatExtensionsChanged: {
+        function onAvailableVideoFormatExtensionsChanged(availableVideoFormatExtensions)
+        {
             cbxVideoFormatExtension.model = availableVideoFormatExtensions
             cbxVideoFormatExtension.currentIndex =
                     availableVideoFormatExtensions.indexOf(recording.videoFormatExtension)
         }
-        onVideoFormatExtensionChanged: {
+
+        function onVideoFormatExtensionChanged(videoFormatExtension)
+        {
             cbxVideoFormatExtension.currentIndex =
                     recording.availableVideoFormatExtensions.indexOf(videoFormatExtension)
         }
-        onAvailableVideoFormatOptionsChanged: videoFormatOptions.updateOptions()
+
+        function onAvailableVideoFormatOptionsChanged()
+        {
+            videoFormatOptions.updateOptions()
+        }
     }
 
     ScrollView {
