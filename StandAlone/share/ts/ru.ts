@@ -186,7 +186,7 @@
     <message>
         <location filename="../qml/DownloadDialog.qml" line="32"/>
         <source>Downloading %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Скачивание %1</translation>
     </message>
     <message>
         <location filename="../qml/DownloadDialog.qml" line="137"/>
@@ -201,17 +201,17 @@
     <message>
         <location filename="../qml/DownloadDialog.qml" line="145"/>
         <source>Size: %1 %2B / %3 %4B</source>
-        <translation type="unfinished"></translation>
+        <translation>Размер: %1 %2Б / %3 %4Б</translation>
     </message>
     <message>
         <location filename="../qml/DownloadDialog.qml" line="153"/>
         <source>Speed: %1 %2B/s</source>
-        <translation type="unfinished"></translation>
+        <translation>Скорость: %1 %2Б/с</translation>
     </message>
     <message>
         <location filename="../qml/DownloadDialog.qml" line="159"/>
         <source>Time remaining: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Оставшееся время: %1</translation>
     </message>
 </context>
 <context>
@@ -232,7 +232,7 @@
     <message>
         <location filename="../qml/DownloadSucceededDialog.qml" line="46"/>
         <source>Install the virtual camera?</source>
-        <translation type="unfinished"></translation>
+        <translation>Установить виртуальную камеру?</translation>
     </message>
 </context>
 <context>
@@ -588,7 +588,7 @@
     <message>
         <location filename="../qml/VCamInstallFailedDialog.qml" line="31"/>
         <source>Installation failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Установка не удалась</translation>
     </message>
 </context>
 <context>
@@ -596,12 +596,12 @@
     <message>
         <location filename="../qml/VCamInstallSucceededDialog.qml" line="31"/>
         <source>Installation succeeded</source>
-        <translation type="unfinished"></translation>
+        <translation>Установка прошла успешно</translation>
     </message>
     <message>
         <location filename="../qml/VCamInstallSucceededDialog.qml" line="38"/>
         <source>Restart Webcamoid?</source>
-        <translation type="unfinished"></translation>
+        <translation>Перезапустить Webcamoid?</translation>
     </message>
 </context>
 <context>
@@ -870,7 +870,7 @@
     <message>
         <location filename="../../src/videolayer.cpp" line="572"/>
         <source>Virtual Camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Виртуальная камера</translation>
     </message>
 </context>
 <context>
@@ -1001,7 +1001,7 @@
         <location filename="../qml/VideoOutputs.qml" line="82"/>
         <location filename="../qml/VideoOutputs.qml" line="233"/>
         <source>Install</source>
-        <translation type="unfinished"></translation>
+        <translation>Установить</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="95"/>
@@ -1011,7 +1011,7 @@
     <message>
         <location filename="../qml/VideoOutputs.qml" line="103"/>
         <source>Error Creating Virtual Camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Ошибка создания виртуальной камеры</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="110"/>
@@ -1021,7 +1021,7 @@
     <message>
         <location filename="../qml/VideoOutputs.qml" line="118"/>
         <source>Error Removing Virtual Cameras</source>
-        <translation type="unfinished">Ошибка удаления виртуальных камер</translation>
+        <translation>Ошибка удаления виртуальных камер</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="125"/>
@@ -2576,7 +2576,7 @@ background blur or image below.</source>
     <message>
         <location filename="../qml/main.qml" line="33"/>
         <source>Daily Build</source>
-        <translation type="unfinished">Ежедневная сборка</translation>
+        <translation>Ежедневная сборка</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="314"/>
