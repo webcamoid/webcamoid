@@ -29,12 +29,12 @@ jobs:
          - dockerimg: ubuntu:rolling
            compiler: clang
            upload: 0
-         - dockerimg: ubuntu:devel
-           compiler: gcc
-           upload: 0
-         - dockerimg: ubuntu:devel
-           compiler: clang
-           upload: 0
+#         - dockerimg: ubuntu:devel
+#           compiler: gcc
+#           upload: 0
+#         - dockerimg: ubuntu:devel
+#           compiler: clang
+#           upload: 0
     steps:
     - uses: actions/checkout@v2
     - name: Release build
