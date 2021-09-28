@@ -80,7 +80,12 @@ if [ -e .local/${appimage} ]; then
 fi
 
 if [[ "${DOCKERIMG}" == *leap* ]]; then
-    yes a | zypper ar -p 1 -f "https://download.opensuse.org/repositories/KDE:/Qt5/openSUSE_Leap_${DOCKERIMG#*:}" KDE-Qt5
+    zypper ar \
+        -p 1 \
+        -f \
+        -G \
+        --gpgcheck-allow-unsigned \
+        "https://download.opensuse.org/repositories/KDE:/Qt5/openSUSE_Leap_${DOCKERIMG#*:}" KDE-Qt5
 fi
 
 zypper -v dup --allow-vendor-change
