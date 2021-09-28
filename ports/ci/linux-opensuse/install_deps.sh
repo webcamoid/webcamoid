@@ -25,6 +25,13 @@ else
 fi
 
 zypper -n dup
+
+if [[ "${DOCKERIMG}" == *leap* ]]; then
+    zypper -n in fontconfig
+else
+    zypper -n in libfontconfig1
+fi
+
 zypper -n in \
     curl \
     libX11-xcb1 \
@@ -73,9 +80,10 @@ if [ -e .local/${appimage} ]; then
     cd ..
 fi
 
-releasever=15.2
-zypper ar -p 75 "https://download.opensuse.org/repositories/KDE:/Qt5/openSUSE_Leap_${releasever}" KDE-Qt5
-#zypper ar -p 75 "https://download.opensuse.org/repositories/KDE:/Unstable:/Qt/openSUSE_Tumbleweed/" KDE:Unstable:Qt
+if [[ "${DOCKERIMG}" == *leap* ]]; then
+    zypper ar -p 1 -f "https://download.opensuse.org/repositories/KDE:/Qt5/openSUSE_Leap_${DOCKERIMG#*:}" KDE-Qt5
+fi
+
 zypper -v dup --allow-vendor-change
 zypper -n in \
     alsa-devel \
