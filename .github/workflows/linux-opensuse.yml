@@ -5,7 +5,8 @@ on: [push, pull_request]
 env:
   QTIFWVER: 4.1.1
   APPIMAGEVER: 12
-  DOCKERIMG: opensuse/tumbleweed
+  #DOCKERIMG: opensuse/tumbleweed
+  DOCKERIMG: opensuse/leap:15.2
   NJOBS: 4
 
 jobs:

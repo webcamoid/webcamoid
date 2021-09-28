@@ -73,6 +73,10 @@ if [ -e .local/${appimage} ]; then
     cd ..
 fi
 
+releasever=15.2
+zypper ar -p 75 "https://download.opensuse.org/repositories/KDE:/Qt5/openSUSE_Leap_${releasever}" KDE-Qt5
+#zypper ar -p 75 "https://download.opensuse.org/repositories/KDE:/Unstable:/Qt/openSUSE_Tumbleweed/" KDE:Unstable:Qt
+zypper -v dup --allow-vendor-change
 zypper -n in \
     alsa-devel \
     ccache \
