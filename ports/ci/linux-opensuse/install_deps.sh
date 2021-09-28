@@ -84,7 +84,6 @@ if [[ "${DOCKERIMG}" == *leap* ]]; then
         -p 1 \
         -f \
         -G \
-        --gpgcheck-allow-unsigned \
         "https://download.opensuse.org/repositories/KDE:/Qt5/openSUSE_Leap_${DOCKERIMG#*:}" KDE-Qt5
 fi
 
