@@ -38,7 +38,6 @@ zypper -n in \
     libXext6 \
     libXrender1 \
     libdbus-1-3 \
-    libfontconfig1 \
     libglvnd \
     libxcb-glx0 \
     libxkbcommon-x11-0 \
@@ -81,7 +80,7 @@ if [ -e .local/${appimage} ]; then
 fi
 
 if [[ "${DOCKERIMG}" == *leap* ]]; then
-    zypper ar -p 1 -f "https://download.opensuse.org/repositories/KDE:/Qt5/openSUSE_Leap_${DOCKERIMG#*:}" KDE-Qt5
+    yes a | zypper ar -p 1 -f "https://download.opensuse.org/repositories/KDE:/Qt5/openSUSE_Leap_${DOCKERIMG#*:}" KDE-Qt5
 fi
 
 zypper -v dup --allow-vendor-change
