@@ -2,7 +2,7 @@
 
 [Webcamoid](https://webcamoid.github.io/) is a full featured and multiplatform webcam suite.
 
-<a target="_blank" href="https://webcamoid.github.io/"><img src="http://webcamoid.github.io/theme/images/screenshots/Main.png" style="height: 240px;" /></a>
+<a target="_blank" href="https://webcamoid.github.io/"><img src="https://webcamoid.github.io/theme/images/screenshots/Main.png" style="height: 240px;" /></a>
 
 ## Features ##
 
@@ -60,7 +60,7 @@ Monero: 41wpsZWaZ7Mj83RFUbTapM1PvAFiMKbgk8ecJ7W7s36ZVydMWy9rMU1M4khiU4QpY9M9x4cU
 
 ## Reporting Bugs ##
 
-Report all issues in the [issues tracker](http://github.com/webcamoid/webcamoid/issues).
+Report all issues in the [issues tracker](https://github.com/webcamoid/webcamoid/issues).
 
 ## Subscribe ##
 
