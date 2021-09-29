@@ -105,7 +105,7 @@ void PluginConfigs::loadProperties(const CliOptions &cliOptions)
 
     config.beginGroup("PluginConfigs");
 
-    // Set recusive search.
+    // Set recursive search.
     if (cliOptions.isSet(cliOptions.recursiveOpt()))
         akPluginManager->setRecursiveSearch(true);
     else if (config.contains("recursive"))

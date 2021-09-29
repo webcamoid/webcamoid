@@ -209,7 +209,7 @@ Webcamoid 5.0.0a1:
   (mms, rtsp, etc.).
 - Added desktop recording.
 - Ported to C++.
-- Switched from GStramer to FFmpeg.
+- Switched from GStreamer to FFmpeg.
 - 100% Qt based software (GTK Free).
 - Remember size of the plasmoid on close.
 
