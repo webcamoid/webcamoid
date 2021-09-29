@@ -90,6 +90,7 @@ dnf -y install \
     git \
     gstreamer1-plugins-base-devel \
     jack-audio-connection-kit-devel \
+    kmod-devel \
     libv4l-devel \
     make \
     pulseaudio-libs-devel \
