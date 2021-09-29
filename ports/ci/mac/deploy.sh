@@ -21,6 +21,7 @@
 git clone https://github.com/webcamoid/DeployTools.git
 
 export PYTHONPATH="${PWD}/DeployTools"
+export DYLD_LIBRARY_PATH=$(dirname $(readlink /usr/local/bin/vlc))/VLC.app/Contents/MacOS/lib
 
 python3 DeployTools/deploy.py \
     -d "${PWD}/webcamoid-data" \
