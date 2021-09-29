@@ -10,10 +10,10 @@ Some considerations before doing anything:
 * Respect the templates, we need as much information as possible.
 * Don't open an issue and disappear, we need you at least the first week to clear up missing information.
 * Missing information makes useless and unsolvable an issue report.
-* You are our debbuger, eyes and hands, if an issue is not reproducible then you will be the only person able to solve it.
+* You are our debugger, eyes and hands, if an issue is not reproducible then you will be the only person able to solve it.
 * Take a seat and wait for your turn, as many others that has their issues open, or much better try fixing it your self and collaborate with the solution :smile:
 
-Choose one of the templates bellow that fit better your issue.
+Choose one of the templates below that fit better your issue.
 
 # Reporting a problem?
 
@@ -31,7 +31,7 @@ How it should have work?
 
 ## Steps to Reproduce
 
-If Webcamoid crashed, try to reproduce the crash several times to be sure where is the problem. Write the steps to reproduce the issue bellow:
+If Webcamoid crashed, try to reproduce the crash several times to be sure where is the problem. Write the steps to reproduce the issue below:
 
 1.  Open this
 2.  Click that
@@ -53,6 +53,6 @@ How would you solve the problem?
 Describe your idea the best as you can, include sketches, mockups and diagrams if required.  
 Be patient, take in mind that there may be other priorities. Your idea will be accepted if fit in project goals.
 
-# Questinons and other matters?
+# Questions and other matters?
 
 Go ahead!

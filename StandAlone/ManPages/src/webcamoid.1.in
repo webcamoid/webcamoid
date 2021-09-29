@@ -45,6 +45,6 @@ Semi-colon separated list of paths to avoid loading.
 .BR v4l2loopback\-ctl (1)
 .SH BUGS
 Please, report all bugs at
-.I http://github.com/webcamoid/webcamoid/issues
+.I https://github.com/webcamoid/webcamoid/issues
 .SH AUTHOR
 Gonzalo Exequiel Pedone (hipersayan.x@gmail.com)
