@@ -5,8 +5,10 @@ on: [push, pull_request]
 env:
   QTIFWVER: 4.1.1
   APPIMAGEVER: 12
-  DOCKERIMG: fedora:rawhide
-  FEDORAVER: rawhide
+#  DOCKERIMG: fedora:rawhide
+#  FEDORAVER: rawhide
+  DOCKERIMG: fedora:34
+  FEDORAVER: 34
   NJOBS: 4
 
 jobs:
