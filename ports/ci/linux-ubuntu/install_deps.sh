@@ -47,7 +47,7 @@ if [ "${DOCKERIMG}" = ubuntu:focal ]; then
     add-apt-repository ppa:beineri/opt-qt-${QTVER}-focal
 fi
 
-# Install missing dependenies
+# Install missing dependencies
 
 apt-get -qq -y update
 apt-get -qq -y upgrade

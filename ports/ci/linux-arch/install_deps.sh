@@ -31,7 +31,7 @@ cat << EOF >> /etc/pacman.d/mirrorlist
 Server = ${ARCH_ROOT_URL}/\$repo/os/\$arch
 EOF
 
-# Install missing dependenies
+# Install missing dependencies
 
 pacman-key --init
 pacman-key --populate archlinux

@@ -291,7 +291,7 @@
     <message>
         <location filename="../qml/GeneralConfig.qml" line="230"/>
         <source>Root method</source>
-        <extracomment>The prefered method for executing commands with elevated prileges in the system.</extracomment>
+        <extracomment>The prefered method for executing commands with elevated privileges in the system.</extracomment>
         <translation type="unfinished">根模式（Root method）</translation>
     </message>
 </context>

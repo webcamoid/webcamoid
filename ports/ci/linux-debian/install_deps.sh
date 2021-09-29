@@ -41,7 +41,7 @@ apt-get install -qq -y keyboard-configuration
 cp -vf keyboard_config /etc/default/keyboard
 dpkg-reconfigure --frontend noninteractive keyboard-configuration
 
-# Install missing dependenies
+# Install missing dependencies
 
 apt-get -qq -y update
 apt-get -qq -y upgrade

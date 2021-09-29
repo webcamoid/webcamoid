@@ -7,4 +7,3 @@ Only report vulnerabilities in the [latest stable](https://github.com/webcamoid/
 ## Reporting a Vulnerability
 
 Report all vulnerabilities at the [issues section](https://github.com/webcamoid/webcamoid/issues).
-​
