@@ -48,7 +48,6 @@ set(SOURCES
     pspec.json)
 
 set(VLC_INSTALL_PATH "" CACHE PATH "The path where VLC is installed")
-set(VLC_PLUGINS_PATH "" CACHE PATH "VLC plugins search path")
 pkg_check_modules(LIBVLC libvlc)
 
 if (APPLE AND NOT LIBVLC_FOUND)

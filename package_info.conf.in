@@ -23,7 +23,7 @@ qtConfFile = @QT_CONF_FILE@
 
 [Vlc]
 pluginsDir = @VLC_PLUGINS_DIR@
-outputPluginsDir = @OUTPUT_VLC_PLUGINS_DIR@
+outputPluginsDir = @CMAKE_INSTALL_PREFIX@/@VLC_PLUGINS_PATH@
 
 [AppImage]
 name = webcamoid-portable

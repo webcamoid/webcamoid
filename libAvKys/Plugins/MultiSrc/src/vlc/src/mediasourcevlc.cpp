@@ -116,12 +116,20 @@ MediaSourceVLC::MediaSourceVLC(QObject *parent):
 
     //qputenv("VLC_VERBOSE", "3", 1);
 
-    QString vlcPluginsPath = VLC_PLUGINS_PATH;
+    auto binDir = QDir(BINDIR).absolutePath();
+    auto vlcPluginsDir = QDir(VLC_PLUGINS_PATH).absolutePath();
+    auto relVlcPluginsDir = QDir(binDir).relativeFilePath(vlcPluginsDir);
+    QDir appDir = QCoreApplication::applicationDirPath();
+    appDir.cd(relVlcPluginsDir);
+    auto path = appDir.absolutePath();
+    path.replace("/", QDir::separator());
 
-    if (vlcPluginsPath.isEmpty()) {
-        QString path;
-
+    if (QFileInfo::exists(path + "/plugins.dat")) {
+        if (qEnvironmentVariableIsEmpty("VLC_PLUGIN_PATH"))
+            qputenv("VLC_PLUGIN_PATH", path.toLocal8Bit());
+    } else {
 #ifdef Q_OS_OSX
+        QString path;
         QString vlcDir;
         QString vlcInstallPath = VLC_INSTALL_PATH;
 
@@ -161,28 +169,13 @@ MediaSourceVLC::MediaSourceVLC(QObject *parent):
             if (QFileInfo::exists(vlcPluginsDirs))
                 path = vlcPluginsDirs;
         }
+
+        if (!path.isEmpty()
+            && QFileInfo::exists(path + "/plugins.dat")
+            && qEnvironmentVariableIsEmpty("VLC_PLUGIN_PATH")) {
+            qputenv("VLC_PLUGIN_PATH", path.toLocal8Bit());
+        }
 #endif
-        path.replace("/", QDir::separator());
-
-        if (!path.isEmpty()
-            && QFileInfo::exists(path)
-            && qgetenv("VLC_PLUGIN_PATH").isEmpty()) {
-            qputenv("VLC_PLUGIN_PATH", path.toLocal8Bit());
-        }
-    } else {
-        auto binDir = QDir(BINDIR).absolutePath();
-        auto vlcPluginsDir = QDir(vlcPluginsPath).absolutePath();
-        auto relVlcPluginsDir = QDir(binDir).relativeFilePath(vlcPluginsDir);
-        QDir appDir = QCoreApplication::applicationDirPath();
-        appDir.cd(relVlcPluginsDir);
-        auto path = appDir.absolutePath();
-        path.replace("/", QDir::separator());
-
-        if (!path.isEmpty()
-            && QFileInfo::exists(path)
-            && qgetenv("VLC_PLUGIN_PATH").isEmpty()) {
-            qputenv("VLC_PLUGIN_PATH", path.toLocal8Bit());
-        }
     }
 
     this->d->m_vlcInstance = libvlc_new(0, nullptr);

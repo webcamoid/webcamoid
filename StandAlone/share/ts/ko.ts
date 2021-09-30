@@ -291,7 +291,7 @@
     <message>
         <location filename="../qml/GeneralConfig.qml" line="230"/>
         <source>Root method</source>
-        <extracomment>The prefered method for executing commands with elevated privileges in the system.</extracomment>
+        <extracomment>The preferred method for executing commands with elevated privileges in the system.</extracomment>
         <translation>기본 방법</translation>
     </message>
 </context>
