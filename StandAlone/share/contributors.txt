@@ -1,3 +1,4 @@
+a1346054 <36859588+a1346054@users.noreply.github.com>
 Adam Magnier <adam@magnier.io>
 Adolfo Jayme Barrientos <fitojb@ubuntu.com>
 Ale-Ma <alemassimiani@gmail.com>
@@ -6,6 +7,7 @@ aliereny <aeren.myper@gmail.com>
 Allan Nordhøy <epost@anotheragency.no>
 Antonino Murabito <antoninomurabito@gmail.com>
 Artem <KovalevArtem.ru@gmail.com>
+Artem <Localizer_in_Russian@protonmail.com>
 Ascaf0 <fa0sck@gmail.com>
 CE4 <chregger@gmail.com>
 Chris Barth <chrisjbarth@hotmail.com>
@@ -34,18 +36,21 @@ josep constanti <jconstanti@yahoo.es>
 Knusper <cherenz@aip.de>
 Kozioł Marcin <koziol.martin@gmail.com>
 Kristjan Räts <kristjanrats@gmail.com>
+lefiston <live@blachet.com>
 Livia Andriana Lohanda <chocolate.coffee@outlook.com>
 LL <lu.lecocq@free.fr>
 LNDDYL <lnddyl@outlook.com>
 Luca De Falco <deffo89@gmail.com>
 Luigi Baldoni <aloisio@gmx.com>
 luigino <aloisio@gmx.com>
+Luna Jernberg <droidbittin@gmail.com>
 MananPyJava <67302570+MananPyJava@users.noreply.github.com>
 Marc Delisle <marc@infomarc.info>
 Michal Čihař <michal@cihar.com>
 MS-PC <jhovanywalas@hotmail.com>
 Nathan <bonnemainsnathan@gmail.com>
 nautilusx <mail.ka@mailbox.org>
+nautilusx <translate@disroot.org>
 ovari <ovari123@zoho.com>
 paperspaceBen <benjamin@paperspace.io>
 pCsOrI <pcsori@gmail.com>
