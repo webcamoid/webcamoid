@@ -200,27 +200,32 @@ void Updates::checkUpdates()
     if (this->d->m_checkInterval > 0
         &&  (this->d->m_lastUpdate.isNull()
              || this->d->m_lastUpdate.daysTo(QDateTime::currentDateTime()) >= this->d->m_checkInterval)) {
+        QList<QPair<QNetworkReply *, QString>> replies;
         this->d->m_mutex.lock();
 
         for (auto &info: this->d->m_componentsInfo) {
             info.data.clear();
             auto reply = this->d->m_manager.get(QNetworkRequest(QUrl(info.url)));
-            QObject::connect(reply,
-                             &QNetworkReply::finished,
-                             this,
-                             [this, info, reply] () {
-                this->d->readLatestVersion(info.component);
-                reply->deleteLater();
-            });
-            QObject::connect(reply,
-                             &QNetworkReply::readyRead,
-                             this,
-                             [this, info, reply] () {
-                this->d->readData(info.component, reply);
-            });
+            replies << QPair<QNetworkReply *, QString> {reply, info.component};
         }
 
         this->d->m_mutex.unlock();
+
+        for (auto &reply: replies) {
+            QObject::connect(reply.first,
+                             &QNetworkReply::finished,
+                             this,
+                             [this, reply] () {
+                this->d->readLatestVersion(reply.second);
+                reply.first->deleteLater();
+            });
+            QObject::connect(reply.first,
+                             &QNetworkReply::readyRead,
+                             this,
+                             [this, reply] () {
+                this->d->readData(reply.second, reply.first);
+            });
+        }
     }
 }
 
