@@ -31,6 +31,7 @@ jobs:
     env:
       TARGET_ARCH: ${{ matrix.target_arch }}
       COMPILER: ${{ matrix.compiler }}
+      UPLOAD: ${{ matrix.upload }}
     steps:
     - uses: actions/checkout@v2
     - uses: msys2/setup-msys2@v2
