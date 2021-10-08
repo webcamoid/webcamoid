@@ -25,6 +25,7 @@
 class MediaToolsPrivate;
 class QQmlApplicationEngine;
 class AkCaps;
+class CliOptions;
 
 class MediaTools: public QObject
 {
@@ -68,7 +69,7 @@ class MediaTools: public QObject
                CONSTANT)
 
     public:
-        MediaTools(QObject *parent=nullptr);
+        MediaTools(const CliOptions &cliOptions, QObject *parent=nullptr);
         ~MediaTools();
 
         Q_INVOKABLE int windowWidth() const;
@@ -91,6 +92,7 @@ class MediaTools: public QObject
         Q_INVOKABLE static QString readFile(const QString &fileName);
         Q_INVOKABLE QString urlToLocalFile(const QUrl &url) const;
         Q_INVOKABLE static QString convertToAbsolute(const QString &path);
+        Q_INVOKABLE static void setLogFile(const QString &logFile);
         Q_INVOKABLE static void messageHandler(QtMsgType type,
                                                const QMessageLogContext &context,
                                                const QString &msg);

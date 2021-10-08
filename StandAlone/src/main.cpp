@@ -17,12 +17,15 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QDebug>
 #include <QApplication>
 #include <QDirIterator>
 #include <QFontDatabase>
+#include <QMutex>
 #include <QQuickStyle>
 #include <QTranslator>
 
+#include "clioptions.h"
 #include "mediatools.h"
 
 int main(int argc, char *argv[])
@@ -31,6 +34,16 @@ int main(int argc, char *argv[])
     QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps, true);
     qInstallMessageHandler(MediaTools::messageHandler);
     QApplication app(argc, argv);
+    CliOptions cliOptions;
+
+    if (cliOptions.isSet(cliOptions.logFileOpt())) {
+        auto logFile = cliOptions.value(cliOptions.logFileOpt());
+        qDebug() << "Sending log to" << logFile;
+
+        if (!logFile.isEmpty())
+            MediaTools::setLogFile(logFile);
+    }
+
     QApplication::setApplicationName(COMMONS_APPNAME);
     QApplication::setApplicationVersion(COMMONS_VERSION);
     QApplication::setOrganizationName(COMMONS_APPNAME);
@@ -68,7 +81,7 @@ int main(int argc, char *argv[])
         qputenv("QML_DISABLE_DISTANCEFIELD", "1");
 #endif
 
-    MediaTools mediaTools;
+    MediaTools mediaTools(cliOptions);
     mediaTools.show();
 
     return QApplication::exec();

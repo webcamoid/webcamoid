@@ -364,38 +364,48 @@
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../../src/clioptions.cpp" line="43"/>
+        <location filename="../../src/clioptions.cpp" line="44"/>
         <source>Webcam capture application.</source>
         <translation>Застосунок захоплення веб-камери.</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="46"/>
+        <location filename="../../src/clioptions.cpp" line="47"/>
         <source>Load settings from PATH. If PATH is empty, load configs from application directory.</source>
         <translation>Завантажити параметри з PATH. Якщо PATH порожній, завантажте конфігурацію з каталогу додатку.</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="48"/>
+        <location filename="../../src/clioptions.cpp" line="49"/>
         <source>PATH</source>
         <translation>Шлях(PATH)</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="60"/>
-        <location filename="../../src/clioptions.cpp" line="69"/>
+        <location filename="../../src/clioptions.cpp" line="61"/>
+        <location filename="../../src/clioptions.cpp" line="70"/>
         <source>PATH1;PATH2;PATH3;...</source>
         <translation>шлях1;шлях2;шлях3;...</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="53"/>
+        <location filename="../../src/clioptions.cpp" line="75"/>
+        <source>Send debug output to a file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/clioptions.cpp" line="76"/>
+        <source>FILE</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/clioptions.cpp" line="54"/>
         <source>Search in the specified plugins paths recursively.</source>
         <translation>Пошук в зазначених шляхах втулків рекурсивно.</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="58"/>
+        <location filename="../../src/clioptions.cpp" line="59"/>
         <source>Semi-colon separated list of paths to search for plugins.</source>
         <translation>Список шляхів для пошуку втулків розділено крапкою з комою.</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="67"/>
+        <location filename="../../src/clioptions.cpp" line="68"/>
         <source>Semi-colon separated list of paths to avoid loading.</source>
         <extracomment>Blacklist of plugins that could have conflicts when loading in Webcamoid.</extracomment>
         <translation>Розділений крапка з комою список шляхів, щоб уникнути навантаження.</translation>

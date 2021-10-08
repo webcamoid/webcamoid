@@ -31,6 +31,7 @@ class CliOptionsPrivate
         QCommandLineOption m_recursiveOpt {{"r", "recursive"}};
         QCommandLineOption m_pluginPathsOpt {{"p", "paths"}};
         QCommandLineOption m_blackListOpt {{"b", "no-load"}};
+        QCommandLineOption m_logFileOpt {"log-file"};
 
         QString convertToAbsolute(const QString &path) const;
 };
@@ -68,6 +69,12 @@ CliOptions::CliOptions()
                             "loading."));
     this->d->m_blackListOpt.setValueName(QObject::tr("PATH1;PATH2;PATH3;..."));
     this->addOption(this->d->m_blackListOpt);
+
+    // Debug log options
+    this->d->m_logFileOpt.setDescription(
+                QObject::tr("Send debug output to a file"));
+    this->d->m_logFileOpt.setValueName(QObject::tr("FILE"));
+    this->addOption(this->d->m_logFileOpt);
 
     this->process(*QCoreApplication::instance());
 
@@ -110,6 +117,11 @@ QCommandLineOption CliOptions::pluginPathsOpt() const
 QCommandLineOption CliOptions::blackListOpt() const
 {
     return this->d->m_blackListOpt;
+}
+
+QCommandLineOption CliOptions::logFileOpt() const
+{
+    return this->d->m_logFileOpt;
 }
 
 QString CliOptionsPrivate::convertToAbsolute(const QString &path) const

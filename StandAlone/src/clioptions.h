@@ -34,6 +34,7 @@ class CliOptions: public QCommandLineParser
         QCommandLineOption recursiveOpt() const;
         QCommandLineOption pluginPathsOpt() const;
         QCommandLineOption blackListOpt() const;
+        QCommandLineOption logFileOpt() const;
 
     private:
         CliOptionsPrivate *d;

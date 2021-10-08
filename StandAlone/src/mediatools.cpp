@@ -21,11 +21,13 @@
 #include <QDateTime>
 #include <QDir>
 #include <QFileInfo>
+#include <QMutex>
 #include <QProcess>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QSettings>
 #include <QStandardPaths>
+#include <QThread>
 #include <ak.h>
 #include <akcaps.h>
 #include <akaudiocaps.h>
@@ -50,12 +52,19 @@
 #define COMMONS_PROJECT_ISSUES_URL "https://github.com/webcamoid/webcamoid/issues"
 #define COMMONS_COPYRIGHT_NOTICE "Copyright (C) 2011-2021  Gonzalo Exequiel Pedone"
 
+struct LogingOptions
+{
+    QMutex mutex;
+    QString logFile;
+};
+
+Q_GLOBAL_STATIC(LogingOptions, globalLogingOptions)
+
 class MediaToolsPrivate
 {
     public:
         QQmlApplicationEngine *m_engine {nullptr};
         AudioLayerPtr m_audioLayer;
-        CliOptions m_cliOptions;
         PluginConfigsPtr m_pluginConfigs;
         RecordingPtr m_recording;
         UpdatesPtr m_updates;
@@ -68,7 +77,7 @@ class MediaToolsPrivate
         void saveLinks(const AkPluginLinks &links);
 };
 
-MediaTools::MediaTools(QObject *parent):
+MediaTools::MediaTools(const CliOptions &cliOptions, QObject *parent):
     QObject(parent)
 {
     this->d = new MediaToolsPrivate;
@@ -80,7 +89,7 @@ MediaTools::MediaTools(QObject *parent):
                                         new IconsProvider);
     Ak::setQmlEngine(this->d->m_engine);
     this->d->m_pluginConfigs =
-            PluginConfigsPtr(new PluginConfigs(this->d->m_cliOptions,
+            PluginConfigsPtr(new PluginConfigs(cliOptions,
                                                this->d->m_engine));
     this->d->m_videoLayer =
             VideoLayerPtr(new VideoLayer(this->d->m_engine));
@@ -356,28 +365,57 @@ QString MediaTools::convertToAbsolute(const QString &path)
     return QDir::cleanPath(absPath).replace('/', QDir::separator());
 }
 
+void MediaTools::setLogFile(const QString &logFile)
+{
+    globalLogingOptions->mutex.lock();
+    globalLogingOptions->logFile = logFile;
+    globalLogingOptions->mutex.unlock();
+}
+
 void MediaTools::messageHandler(QtMsgType type,
                                 const QMessageLogContext &context,
                                 const QString &msg)
 {
-    auto msgData = msg.toStdString();
-    auto file = QFileInfo(context.file).fileName().toStdString();
-    auto appName = QCoreApplication::applicationName().toStdString();
-    static const QMap<QtMsgType, const char *> typeToStr {
+    static const QMap<QtMsgType, QString> typeToStr {
         {QtDebugMsg   , "debug"   },
         {QtWarningMsg , "warning" },
         {QtCriticalMsg, "critical"},
         {QtFatalMsg   , "fatal"   },
         {QtInfoMsg    , "info"    },
     };
+    QString log;
+    QTextStream ss(&log);
+    ss << "["
+       << QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz")
+       << ", "
+       << QCoreApplication::applicationName()
+       << ", "
+       << QThread::currentThreadId()
+       << ", "
+       << QFileInfo(context.file).fileName()
+       << " ("
+       << context.line
+       << ")] "
+       << typeToStr[type]
+       << ": "
+       << msg
+       << Qt::endl;
 
-    fprintf(stderr,
-            "[%s, %s (%d)] %s: %s\n",
-            appName.c_str(),
-            file.c_str(),
-            context.line,
-            typeToStr[type],
-            msgData.c_str());
+    globalLogingOptions->mutex.lock();
+
+    if (globalLogingOptions->logFile.isEmpty()) {
+        fprintf(stderr, "%s", log.toStdString().c_str());
+    } else {
+        QFile file(globalLogingOptions->logFile);
+
+        if (file.open(QIODevice::WriteOnly
+                      | QIODevice::Text
+                      | QIODevice::Append)) {
+            file.write(log.toUtf8());
+        }
+    }
+
+    globalLogingOptions->mutex.unlock();
 }
 
 void MediaTools::setWindowWidth(int windowWidth)

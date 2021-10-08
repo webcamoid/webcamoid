@@ -364,38 +364,48 @@
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../../src/clioptions.cpp" line="43"/>
+        <location filename="../../src/clioptions.cpp" line="44"/>
         <source>Webcam capture application.</source>
         <translation>Aplicação de captura da câmara web.</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="46"/>
+        <location filename="../../src/clioptions.cpp" line="47"/>
         <source>Load settings from PATH. If PATH is empty, load configs from application directory.</source>
         <translation>Carregar definições a partir de CAMINHO. Se CAMINHO estiver vazio, carregar definições a partir do diretório da aplicação.</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="48"/>
+        <location filename="../../src/clioptions.cpp" line="49"/>
         <source>PATH</source>
         <translation>CAMINHO</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="60"/>
-        <location filename="../../src/clioptions.cpp" line="69"/>
+        <location filename="../../src/clioptions.cpp" line="61"/>
+        <location filename="../../src/clioptions.cpp" line="70"/>
         <source>PATH1;PATH2;PATH3;...</source>
         <translation>CAMINHO1;CAMINHO2;CAMINHO3;...</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="53"/>
+        <location filename="../../src/clioptions.cpp" line="75"/>
+        <source>Send debug output to a file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/clioptions.cpp" line="76"/>
+        <source>FILE</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/clioptions.cpp" line="54"/>
         <source>Search in the specified plugins paths recursively.</source>
         <translation>Pesquisar nos caminhos de plugins especificados recursivamente.</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="58"/>
+        <location filename="../../src/clioptions.cpp" line="59"/>
         <source>Semi-colon separated list of paths to search for plugins.</source>
         <translation>Lista separada por ponto e vírgula dos diretórios para pesquisa de plugins.</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="67"/>
+        <location filename="../../src/clioptions.cpp" line="68"/>
         <source>Semi-colon separated list of paths to avoid loading.</source>
         <extracomment>Blacklist of plugins that could have conflicts when loading in Webcamoid.</extracomment>
         <translation>Lista separada por ponto e vírgula dos diretórios a evitar carregamento.</translation>
