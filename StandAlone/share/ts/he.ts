@@ -189,27 +189,27 @@
         <translation>%1 בהורדה</translation>
     </message>
     <message>
-        <location filename="../qml/DownloadDialog.qml" line="137"/>
+        <location filename="../qml/DownloadDialog.qml" line="148"/>
         <source>From: %1</source>
         <translation>מתוך: %1</translation>
     </message>
     <message>
-        <location filename="../qml/DownloadDialog.qml" line="141"/>
+        <location filename="../qml/DownloadDialog.qml" line="152"/>
         <source>To: %1</source>
         <translation>אל: %1</translation>
     </message>
     <message>
-        <location filename="../qml/DownloadDialog.qml" line="145"/>
+        <location filename="../qml/DownloadDialog.qml" line="156"/>
         <source>Size: %1 %2B / %3 %4B</source>
         <translation>גודל: %1 %2B / %3 %4B</translation>
     </message>
     <message>
-        <location filename="../qml/DownloadDialog.qml" line="153"/>
+        <location filename="../qml/DownloadDialog.qml" line="164"/>
         <source>Speed: %1 %2B/s</source>
         <translation>מהירות: %1 %2B לשנייה</translation>
     </message>
     <message>
-        <location filename="../qml/DownloadDialog.qml" line="159"/>
+        <location filename="../qml/DownloadDialog.qml" line="170"/>
         <source>Time remaining: %1</source>
         <translation>זמן שנותר: %1</translation>
     </message>
@@ -615,6 +615,19 @@
     </message>
 </context>
 <context>
+    <name>VCamManualDownloadDialog</name>
+    <message>
+        <location filename="../qml/VCamManualDownloadDialog.qml" line="31"/>
+        <source>Can&apos;t get latest version</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VCamManualDownloadDialog.qml" line="38"/>
+        <source>Download the virtual camera manually?</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>VideoCodecOptions</name>
     <message>
         <location filename="../qml/VideoCodecOptions.qml" line="27"/>
@@ -872,13 +885,13 @@
 <context>
     <name>VideoLayer</name>
     <message>
-        <location filename="../../src/videolayer.cpp" line="256"/>
+        <location filename="../../src/videolayer.cpp" line="257"/>
         <source>No Output</source>
         <extracomment>Disable video output, don&apos;t send the video to the output device.</extracomment>
         <translation>ללא פלט</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="572"/>
+        <location filename="../../src/videolayer.cpp" line="587"/>
         <source>Virtual Camera</source>
         <translation>מצלמה וירטואלית</translation>
     </message>
@@ -886,12 +899,12 @@
 <context>
     <name>VideoOptions</name>
     <message>
-        <location filename="../qml/VideoOptions.qml" line="40"/>
+        <location filename="../qml/VideoOptions.qml" line="41"/>
         <source>Sources</source>
         <translation>מקורות</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOptions.qml" line="43"/>
+        <location filename="../qml/VideoOptions.qml" line="44"/>
         <source>Outputs</source>
         <translation>פלטים</translation>
     </message>
@@ -1003,48 +1016,48 @@
 <context>
     <name>VideoOutputs</name>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="73"/>
+        <location filename="../qml/VideoOutputs.qml" line="74"/>
         <source>The virtual camera is outdated (%1), install the latest version (%2)?</source>
         <translation>המצלמה הווירטואלית אינה עדכנית (%1), להתקין את הגרסה החדשה (%2)?</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="82"/>
-        <location filename="../qml/VideoOutputs.qml" line="233"/>
+        <location filename="../qml/VideoOutputs.qml" line="83"/>
+        <location filename="../qml/VideoOutputs.qml" line="238"/>
         <source>Install</source>
         <translation>להתקין</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="95"/>
+        <location filename="../qml/VideoOutputs.qml" line="98"/>
         <source>Add output</source>
         <translation>הוספת פלט</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="103"/>
+        <location filename="../qml/VideoOutputs.qml" line="106"/>
         <source>Error Creating Virtual Camera</source>
         <translation>שגיאה ביצירת מצלמה וירטואלית</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="110"/>
+        <location filename="../qml/VideoOutputs.qml" line="113"/>
         <source>Remove all outputs</source>
         <translation>הסרת כל הפלטים</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="118"/>
+        <location filename="../qml/VideoOutputs.qml" line="121"/>
         <source>Error Removing Virtual Cameras</source>
         <translation>שגיאה בהסרת מצלמות וירטואליות</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="125"/>
+        <location filename="../qml/VideoOutputs.qml" line="128"/>
         <source>Set output picture</source>
         <translation>הגדרת תמונת פלט</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="228"/>
+        <location filename="../qml/VideoOutputs.qml" line="231"/>
         <source>The virtual camera is not installed, do you want to install it?</source>
         <translation>המצלמה הווירטואלית אינה מותקנת, להתקין אותה?</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="247"/>
+        <location filename="../qml/VideoOutputs.qml" line="257"/>
         <source>The virtual camera is not supported in this platform</source>
         <translation>המצלמה הווירטואלית אינה נתמכת בפלטפורמה הזאת</translation>
     </message>

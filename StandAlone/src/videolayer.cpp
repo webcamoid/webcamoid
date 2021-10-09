@@ -38,6 +38,7 @@
 #include "videolayer.h"
 #include "clioptions.h"
 #include "mediatools.h"
+#include "updates.h"
 
 #define DUMMY_OUTPUT_DEVICE ":dummyout:"
 
@@ -536,6 +537,17 @@ QString VideoLayer::vcamUpdateUrl() const
 #endif
 }
 
+QString VideoLayer::vcamDownloadUrl() const
+{
+#if defined(Q_OS_WIN32) || defined(Q_OS_OSX)
+    return {"https://github.com/webcamoid/akvirtualcamera/releases/latest"};
+#elif defined(Q_OS_LINUX)
+    return {"https://github.com/webcamoid/akvcam/releases/latest"};
+#else
+    return {};
+#endif
+}
+
 bool VideoLayer::applyPicture()
 {
     if (!this->d->m_cameraOutput)
@@ -556,6 +568,9 @@ void VideoLayer::setLatestVCamVersion(const QString &version)
 
 bool VideoLayer::downloadVCam()
 {
+    if (!Updates::isOnline())
+        return false;
+
     auto installerUrl = this->d->vcamDownloadUrl();
 
     if (installerUrl.isEmpty())
@@ -1324,6 +1339,9 @@ void VideoLayerPrivate::saveOutputsAsInputs(bool outputsAsInputs)
 
 QString VideoLayerPrivate::vcamDownloadUrl() const
 {
+    if (this->m_latestVersion.isEmpty())
+        return {};
+
 #if defined(Q_OS_WIN32)
     return QString("https://github.com/webcamoid/akvirtualcamera/releases/download/%1/akvirtualcamera-windows-%1.exe")
            .arg(this->m_latestVersion);

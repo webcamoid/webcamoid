@@ -47,6 +47,7 @@ Dialog {
         downloadTimeElapsed > 0?
             (downloadSize - downloadedBytes) / downloadSpeed:
             0
+    property bool downloadRejected: false
 
     signal downloadSucceeded(string installerFile)
     signal downloadFailed(string error)
@@ -99,12 +100,22 @@ Dialog {
                + s.toString().padStart(2, "0")
     }
 
+    function openDownloads()
+    {
+        downloadRejected = false
+        open()
+    }
+
     Connections {
         target: downloadManager
 
         function onFinished(url)
         {
             close()
+
+            if (downloadDialog.downloadRejected)
+                return
+
             let status = downloadManager.downloadStatus(url)
 
             if (status == DownloadManager.DownloadStatusFailed)
@@ -172,6 +183,7 @@ Dialog {
     }
 
     onRejected: {
+        downloadRejected = true
         downloadManager.cancel()
         close()
     }

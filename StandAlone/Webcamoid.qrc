@@ -35,6 +35,7 @@
         <file>share/qml/UpdatesDialog.qml</file>
         <file>share/qml/VCamInstallFailedDialog.qml</file>
         <file>share/qml/VCamInstallSucceededDialog.qml</file>
+        <file>share/qml/VCamManualDownloadDialog.qml</file>
         <file>share/qml/VideoCodecOptions.qml</file>
         <file>share/qml/VideoEffectOptions.qml</file>
         <file>share/qml/VideoEffectsDialog.qml</file>

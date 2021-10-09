@@ -116,6 +116,9 @@ class VideoLayer: public QObject
     Q_PROPERTY(QString vcamUpdateUrl
                READ vcamUpdateUrl
                CONSTANT)
+    Q_PROPERTY(QString vcamDownloadUrl
+               READ vcamDownloadUrl
+               CONSTANT)
 
     public:
         enum InputType {
@@ -186,6 +189,7 @@ class VideoLayer: public QObject
         Q_INVOKABLE QString vcamDriver() const;
         Q_INVOKABLE QString currentVCamVersion() const;
         Q_INVOKABLE QString vcamUpdateUrl() const;
+        Q_INVOKABLE QString vcamDownloadUrl() const;
 
     private:
         VideoLayerPrivate *d;

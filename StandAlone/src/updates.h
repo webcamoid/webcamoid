@@ -48,6 +48,9 @@ class Updates: public QObject
     Q_PROPERTY(QDateTime lastUpdate
                READ lastUpdate
                NOTIFY lastUpdateChanged)
+    Q_PROPERTY(bool isOnline
+               READ isOnline
+               NOTIFY isOnlineChanged)
 
     public:
         enum ComponentStatus
@@ -67,6 +70,7 @@ class Updates: public QObject
         Q_INVOKABLE bool notifyNewVersion() const;
         Q_INVOKABLE int checkInterval() const;
         Q_INVOKABLE QDateTime lastUpdate() const;
+        Q_INVOKABLE static bool isOnline();
 
     private:
         UpdatesPrivate *d;
@@ -76,6 +80,7 @@ class Updates: public QObject
         void notifyNewVersionChanged(bool notifyNewVersion);
         void checkIntervalChanged(int checkInterval);
         void lastUpdateChanged(const QDateTime &lastUpdate);
+        void isOnlineChanged(bool isOnline);
         void newVersionAvailable(const QString &component,
                                  const QString &latestVersion);
 

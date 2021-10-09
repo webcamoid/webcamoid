@@ -31,6 +31,7 @@ ColumnLayout {
     signal openVideoOutputOptions(string videoOutput)
     signal openVideoOutputPictureDialog()
     signal openVCamDownloadDialog()
+    signal openVCamManualDownloadDialog()
 
     TabBar {
         id: tabBar
@@ -64,6 +65,7 @@ ColumnLayout {
                 videoOptions.openVideoOutputOptions(videoOutput)
             onOpenVideoOutputPictureDialog: videoOptions.openVideoOutputPictureDialog()
             onOpenVCamDownloadDialog: videoOptions.openVCamDownloadDialog()
+            onOpenVCamManualDownloadDialog: videoOptions.openVCamManualDownloadDialog()
         }
     }
 }

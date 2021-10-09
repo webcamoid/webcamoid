@@ -42,6 +42,7 @@ StackLayout {
     signal openVideoOutputOptions(string videoOutput)
     signal openVideoOutputPictureDialog()
     signal openVCamDownloadDialog()
+    signal openVCamManualDownloadDialog()
 
     Connections {
         target: updates
@@ -86,8 +87,10 @@ StackLayout {
                         Layout.bottomMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
 
                         onClicked: {
-                            videoLayer.downloadVCam()
-                            videoOutputsLayout.openVCamDownloadDialog()
+                            if (videoLayer.downloadVCam())
+                                videoOutputsLayout.openVCamDownloadDialog()
+                            else
+                                videoOutputsLayout.openVCamManualDownloadDialog()
                         }
                     }
                 }
@@ -228,6 +231,8 @@ StackLayout {
                 text: qsTr("The virtual camera is not installed, do you want to install it?")
                 wrapMode: Text.WordWrap
                 Layout.fillWidth: true
+                Layout.leftMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+                Layout.rightMargin: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
             }
             Button {
                 text: qsTr("Install")
@@ -236,17 +241,25 @@ StackLayout {
                 Layout.topMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
 
                 onClicked: {
-                    videoLayer.downloadVCam()
-                    videoOutputsLayout.openVCamDownloadDialog()
+                    if (videoLayer.downloadVCam())
+                        videoOutputsLayout.openVCamDownloadDialog()
+                    else
+                        videoOutputsLayout.openVCamManualDownloadDialog()
                 }
             }
         }
     }
     Page {
-        Label {
-            text: qsTr("The virtual camera is not supported in this platform")
-            wrapMode: Text.WordWrap
+        ColumnLayout {
             width: parent.width
+
+            Label {
+                text: qsTr("The virtual camera is not supported in this platform")
+                wrapMode: Text.WordWrap
+                Layout.fillWidth: true
+                Layout.leftMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+                Layout.rightMargin: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
+            }
         }
     }
 

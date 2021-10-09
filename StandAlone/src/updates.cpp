@@ -195,37 +195,54 @@ QDateTime Updates::lastUpdate() const
     return QDateTime::currentDateTime();
 }
 
+bool Updates::isOnline()
+{
+    for (auto &interface: QNetworkInterface::allInterfaces()) {
+        if (interface.flags() & QNetworkInterface::IsUp
+            && interface.flags() & QNetworkInterface::IsRunning
+            && interface.flags() & QNetworkInterface::CanBroadcast
+            && interface.flags() & QNetworkInterface::CanMulticast
+            && !(interface.flags() & QNetworkInterface::IsLoopBack)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 void Updates::checkUpdates()
 {
-    if (this->d->m_checkInterval > 0
-        &&  (this->d->m_lastUpdate.isNull()
-             || this->d->m_lastUpdate.daysTo(QDateTime::currentDateTime()) >= this->d->m_checkInterval)) {
-        QList<QPair<QNetworkReply *, QString>> replies;
-        this->d->m_mutex.lock();
+    QList<QPair<QNetworkReply *, QString>> replies;
 
-        for (auto &info: this->d->m_componentsInfo) {
+    this->d->m_mutex.lock();
+
+    for (auto &info: this->d->m_componentsInfo) {
+        if (info.latestVersion.isEmpty()
+            || (this->d->m_checkInterval > 0
+                &&  (this->d->m_lastUpdate.isNull()
+                     || this->d->m_lastUpdate.daysTo(QDateTime::currentDateTime()) >= this->d->m_checkInterval))) {
             info.data.clear();
             auto reply = this->d->m_manager.get(QNetworkRequest(QUrl(info.url)));
             replies << QPair<QNetworkReply *, QString> {reply, info.component};
         }
+    }
 
-        this->d->m_mutex.unlock();
+    this->d->m_mutex.unlock();
 
-        for (auto &reply: replies) {
-            QObject::connect(reply.first,
-                             &QNetworkReply::finished,
-                             this,
-                             [this, reply] () {
-                this->d->readLatestVersion(reply.second);
-                reply.first->deleteLater();
-            });
-            QObject::connect(reply.first,
-                             &QNetworkReply::readyRead,
-                             this,
-                             [this, reply] () {
-                this->d->readData(reply.second, reply.first);
-            });
-        }
+    for (auto &reply: replies) {
+        QObject::connect(reply.first,
+                         &QNetworkReply::finished,
+                         this,
+                         [this, reply] () {
+            this->d->readLatestVersion(reply.second);
+            reply.first->deleteLater();
+        });
+        QObject::connect(reply.first,
+                         &QNetworkReply::readyRead,
+                         this,
+                         [this, reply] () {
+            this->d->readData(reply.second, reply.first);
+        });
     }
 }
 
@@ -276,7 +293,7 @@ void Updates::watch(const QString &component,
                     const QString &currentVersion,
                     const QString &url)
 {
-    if (component.isEmpty() || currentVersion.isEmpty() || url.isEmpty())
+    if (component.isEmpty() || url.isEmpty())
         return;
 
     this->d->m_mutex.lock();

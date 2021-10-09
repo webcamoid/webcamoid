@@ -94,7 +94,8 @@ OptionsPanel {
                 videoOutputOptions.setOutput(videoOutput)
             }
             onOpenVideoOutputPictureDialog: videoOutputPicture.open()
-            onOpenVCamDownloadDialog: vcamDownload.open()
+            onOpenVCamDownloadDialog: vcamDownload.openDownloads()
+            onOpenVCamManualDownloadDialog: vcamManualDownload.open()
         }
         VideoInputOptions {
             id: videoInputOptions
@@ -159,6 +160,10 @@ OptionsPanel {
 
         onDownloadSucceeded: vcamDownloadSucceeded.openWithInstaller(installerFile)
         onDownloadFailed: vcamDownloadFailed.openWithError(error)
+    }
+    VCamManualDownloadDialog {
+        id: vcamManualDownload
+        anchors.centerIn: Overlay.overlay
     }
     DownloadSucceededDialog {
         id: vcamDownloadSucceeded
