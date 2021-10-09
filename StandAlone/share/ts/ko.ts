@@ -885,13 +885,13 @@
 <context>
     <name>VideoLayer</name>
     <message>
-        <location filename="../../src/videolayer.cpp" line="257"/>
+        <location filename="../../src/videolayer.cpp" line="261"/>
         <source>No Output</source>
         <extracomment>Disable video output, don&apos;t send the video to the output device.</extracomment>
         <translation>출력 없음</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="587"/>
+        <location filename="../../src/videolayer.cpp" line="591"/>
         <source>Virtual Camera</source>
         <translation type="unfinished"></translation>
     </message>
