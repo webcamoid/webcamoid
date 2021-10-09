@@ -619,12 +619,12 @@
     <message>
         <location filename="../qml/VCamManualDownloadDialog.qml" line="31"/>
         <source>Can&apos;t get latest version</source>
-        <translation type="unfinished"></translation>
+        <translation>De nieuwste versie kan niet worden opgehaald</translation>
     </message>
     <message>
         <location filename="../qml/VCamManualDownloadDialog.qml" line="38"/>
         <source>Download the virtual camera manually?</source>
-        <translation type="unfinished"></translation>
+        <translation>Wil je de virtuele camera handmatig starten?</translation>
     </message>
 </context>
 <context>

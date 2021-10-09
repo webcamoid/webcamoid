@@ -619,12 +619,12 @@
     <message>
         <location filename="../qml/VCamManualDownloadDialog.qml" line="31"/>
         <source>Can&apos;t get latest version</source>
-        <translation type="unfinished"></translation>
+        <translation>אי אפשר למשוך את הגרסה האחרונה</translation>
     </message>
     <message>
         <location filename="../qml/VCamManualDownloadDialog.qml" line="38"/>
         <source>Download the virtual camera manually?</source>
-        <translation type="unfinished"></translation>
+        <translation>להוריד את המצלמה הווירטואלית ידנית?</translation>
     </message>
 </context>
 <context>
