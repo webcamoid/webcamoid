@@ -1743,7 +1743,7 @@ int VCamDShowPrivate::sudo(const QStringList &parameters,
     CloseHandle(execInfo.hProcess);
 
     if (FAILED(exitCode))
-        this->m_error = QString("Script failed with code %1").arg(std::to_wstring(exitCode));
+        this->m_error = QString("Script failed with code %1").arg(exitCode);
 
     return int(exitCode);
 }

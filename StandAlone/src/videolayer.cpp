@@ -35,6 +35,10 @@
 #include <akplugininfo.h>
 #include <akpluginmanager.h>
 
+#ifdef Q_OS_WIN32
+#include <windows.h>
+#endif
+
 #include "videolayer.h"
 #include "clioptions.h"
 #include "mediatools.h"
@@ -609,10 +613,46 @@ bool VideoLayer::executeVCamInstaller(const QString &installer)
 
     QtConcurrent::run(&this->d->m_threadPool, [this, installer] () {
         qDebug() << "Executing installer:" << installer;
+        int exitCode = -1;
+        QString errorString = "Can't execute installer";
+
+#ifdef Q_OS_WIN32
+        SHELLEXECUTEINFOA execInfo;
+        memset(&execInfo, 0, sizeof(SHELLEXECUTEINFOA));
+        execInfo.cbSize = sizeof(SHELLEXECUTEINFOA);
+        execInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
+        execInfo.hwnd = nullptr;
+        execInfo.lpVerb = "runas";
+        execInfo.lpFile = installer.toStdString().c_str();
+        execInfo.lpParameters = "";
+        execInfo.lpDirectory = "";
+        execInfo.nShow = SW_HIDE;
+        execInfo.hInstApp = nullptr;
+        ShellExecuteExA(&execInfo);
+
+        if (execInfo.hProcess) {
+            WaitForSingleObject(execInfo.hProcess, INFINITE);
+
+            DWORD dExitCode;
+            GetExitCodeProcess(execInfo.hProcess, &dExitCode);
+            CloseHandle(execInfo.hProcess);
+
+            if (dExitCode == 0)
+                errorString = "";
+            else
+                errorString = QString("Installer failed with code %1").arg(exitCode);
+
+            exitCode = int(dExitCode);
+        }
+#else
         QProcess proc;
         proc.start(installer, QStringList {});
         proc.waitForFinished(-1);
-        emit this->vcamInstallFinished(proc.exitCode(), proc.errorString());
+        exitCode = proc.exitCode();
+        errorString = proc.errorString();
+#endif
+
+        emit this->vcamInstallFinished(exitCode, errorString);
     });
 
     return true;
@@ -1190,13 +1230,13 @@ bool VideoLayerPrivate::embedControls(const QString &where,
     if (!element)
         return false;
 
-    auto interface = element->controlInterface(this->m_engine, pluginId);
+    auto controlInterface = element->controlInterface(this->m_engine, pluginId);
 
-    if (!interface)
+    if (!controlInterface)
         return false;
 
     if (!name.isEmpty())
-        interface->setObjectName(name);
+        controlInterface->setObjectName(name);
 
     for (auto &obj: this->m_engine->rootObjects()) {
         // First, find where to embed the UI.
@@ -1206,7 +1246,7 @@ bool VideoLayerPrivate::embedControls(const QString &where,
             continue;
 
         // Create an item with the plugin context.
-        auto interfaceItem = qobject_cast<QQuickItem *>(interface);
+        auto interfaceItem = qobject_cast<QQuickItem *>(controlInterface);
 
         // Finally, embed the plugin item UI in the desired place.
         interfaceItem->setParentItem(item);
