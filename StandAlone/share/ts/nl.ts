@@ -387,12 +387,12 @@
     <message>
         <location filename="../../src/clioptions.cpp" line="75"/>
         <source>Send debug output to a file</source>
-        <translation type="unfinished"></translation>
+        <translation>Logboek met foutopsporingsinformatie aanleggen</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="76"/>
         <source>FILE</source>
-        <translation type="unfinished"></translation>
+        <translation>BESTAND</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="54"/>

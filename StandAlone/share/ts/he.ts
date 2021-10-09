@@ -387,12 +387,12 @@
     <message>
         <location filename="../../src/clioptions.cpp" line="75"/>
         <source>Send debug output to a file</source>
-        <translation type="unfinished"></translation>
+        <translation>שליחת פלט ניפוי שגיאות לקובץ</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="76"/>
         <source>FILE</source>
-        <translation type="unfinished"></translation>
+        <translation>קובץ</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="54"/>
