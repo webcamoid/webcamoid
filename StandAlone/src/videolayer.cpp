@@ -644,6 +644,49 @@ bool VideoLayer::executeVCamInstaller(const QString &installer)
 
             exitCode = int(dExitCode);
         }
+#elif defined(Q_OS_OSX)
+        QProcess proc;
+
+        // Check if the disk image is mounted and unmount it
+        auto volumeName = QFileInfo(installer).completeBaseName();
+        auto volumePath = "/Volumes/" + volumeName;
+        bool ok = true;
+
+        if (QFileInfo::exists(volumePath)) {
+            proc.start("hdiutil", QStringList {"detach", volumePath});
+            proc.waitForFinished(-1);
+            exitCode = proc.exitCode();
+            errorString = proc.errorString();
+            ok = exitCode == 0;
+        }
+
+        // Mount the disk image
+        if (ok) {
+            proc.start("hdiutil", QStringList {"attach", installer});
+            proc.waitForFinished(-1);
+            exitCode = proc.exitCode();
+            errorString = proc.errorString();
+            ok = exitCode == 0;
+        }
+
+        // Execute the installer
+        if (ok) {
+            auto installerFile = volumePath
+                                 + "/"
+                                 + volumeName
+                                 + ".app/Contents/MacOS/"
+                                 + volumeName;
+            proc.start(installerFile, QStringList {});
+            proc.waitForFinished(-1);
+            exitCode = proc.exitCode();
+            errorString = proc.errorString();
+        }
+
+        // Unmount the disk image
+        if (QFileInfo::exists(volumePath)) {
+            proc.start("hdiutil", QStringList {"detach", volumePath});
+            proc.waitForFinished(-1);
+        }
 #else
         QProcess proc;
         proc.start(installer, QStringList {});
