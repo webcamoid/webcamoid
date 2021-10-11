@@ -787,6 +787,12 @@ int MediaSourceVLCPrivate::audioSetupCallback(void **userData,
                                               unsigned *channels)
 {
     auto self = reinterpret_cast<MediaSourceVLC *>(*userData);
+
+    /* Force audio playback in stereo mode to make it compatible with any of
+     * the available audio converters.
+     */
+    *channels = 2;
+
     AkAudioCaps caps(AkAudioCaps::SampleFormat_s16,
                      AkAudioCaps::defaultChannelLayout(int(*channels)),
                      int(*rate));

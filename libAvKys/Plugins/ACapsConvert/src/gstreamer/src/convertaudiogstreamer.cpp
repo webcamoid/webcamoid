@@ -135,6 +135,13 @@ bool ConvertAudioGStreamer::init(const AkAudioCaps &caps)
 
 AkPacket ConvertAudioGStreamer::convert(const AkAudioPacket &packet)
 {
+    auto packetCaps = packet.caps();
+    packetCaps.setSamples(0);
+    packetCaps.setPlaneSize({0});
+
+    if (packetCaps == this->d->m_caps)
+        return packet;
+
     QMutexLocker mutexLocker(&this->d->m_mutex);
 
     if (!this->d->m_pipeline
@@ -234,7 +241,6 @@ AkPacket ConvertAudioGStreamer::convert(const AkAudioPacket &packet)
         return AkPacket();
 
     buffer = gst_sample_get_buffer(sample);
-
     gst_buffer_map(buffer, &info, GST_MAP_READ);
     QByteArray oBuffer(int(info.size), 0);
     memcpy(oBuffer.data(), info.data, info.size);
