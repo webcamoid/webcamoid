@@ -63,7 +63,6 @@ class MediaSourceVLCPrivate
         qint64 m_maxPacketQueueSize {15 * 1024 * 1024};
         libvlc_instance_t *m_vlcInstance {nullptr};
         libvlc_media_player_t *m_mediaPlayer {nullptr};
-        QWaitCondition m_mediaParsed;
         QMutex m_mutex;
         AkAudioPacket m_audioFrame;
         AkVideoPacket m_videoFrame;
@@ -401,15 +400,14 @@ void MediaSourceVLC::setMedia(const QString &media)
         if (vlcMedia) {
             this->d->m_mutex.lock();
             libvlc_media_player_set_media(this->d->m_mediaPlayer, vlcMedia);
-            libvlc_event_attach(libvlc_media_event_manager(libvlc_media_player_get_media(this->d->m_mediaPlayer)),
+            this->d->m_mutex.unlock();
+            libvlc_event_attach(libvlc_media_event_manager(vlcMedia),
                                 libvlc_MediaParsedChanged,
                                 &MediaSourceVLCPrivate::mediaParsedChangedCallback,
                                 this);
             libvlc_media_parse_with_options(vlcMedia,
                                             libvlc_media_parse_network,
                                             3000);
-            this->d->m_mediaParsed.wait(&this->d->m_mutex);
-            this->d->m_mutex.unlock();
             libvlc_media_release(vlcMedia);
         } else {
             this->d->m_mutex.lock();
@@ -706,7 +704,6 @@ void MediaSourceVLCPrivate::mediaParsedChangedCallback(const libvlc_event_t *eve
         self->d->m_streamInfo = streamInfo;
     }
 
-    self->d->m_mediaParsed.wakeAll();
     self->d->m_mutex.unlock();
 }
 
