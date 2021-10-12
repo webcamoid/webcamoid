@@ -116,7 +116,11 @@ StackLayout {
 
                     onClicked: {
                         if (videoLayer.clientsPids.length < 1) {
-                            videoLayer.removeAllOutputs()
+                            if (!videoLayer.removeAllOutputs()) {
+                                let title = qsTr("Error removing virtual cameras")
+                                videoOutputsLayout.openErrorDialog(title,
+                                                                   videoLayer.outputError)
+                            }
                         } else {
                             let title = qsTr("Error Removing Virtual Cameras")
                             let message = Commons.vcamDriverBusyMessage()

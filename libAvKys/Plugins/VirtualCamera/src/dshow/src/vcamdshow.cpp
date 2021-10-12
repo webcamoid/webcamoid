@@ -328,10 +328,14 @@ QStringList VCamDShow::availableRootMethods() const
 QString VCamDShow::deviceCreate(const QString &description,
                                 const AkVideoCapsList &formats)
 {
+    this->d->m_error = "";
     auto manager = this->d->manager();
 
-    if (manager.isEmpty())
+    if (manager.isEmpty()) {
+        this->d->m_error = "Manager not found";
+
         return {};
+    }
 
     // Read devices information.
     QList<DeviceInfo> devices;
@@ -459,10 +463,14 @@ bool VCamDShow::deviceEdit(const QString &deviceId,
                            const QString &description,
                            const AkVideoCapsList &formats)
 {
+    this->d->m_error = "";
     auto manager = this->d->manager();
 
-    if (manager.isEmpty())
+    if (manager.isEmpty()) {
+        this->d->m_error = "Manager not found";
+
         return false;
+    }
 
     // Read devices information.
     QList<DeviceInfo> devices;
@@ -574,10 +582,14 @@ bool VCamDShow::deviceEdit(const QString &deviceId,
 bool VCamDShow::changeDescription(const QString &deviceId,
                                   const QString &description)
 {
+    this->d->m_error = "";
     auto manager = this->d->manager();
 
-    if (manager.isEmpty())
+    if (manager.isEmpty()) {
+        this->d->m_error = "Manager not found";
+
         return false;
+    }
 
     // Read devices information.
     QList<DeviceInfo> devices;
@@ -688,10 +700,14 @@ bool VCamDShow::changeDescription(const QString &deviceId,
 
 bool VCamDShow::deviceDestroy(const QString &deviceId)
 {
+    this->d->m_error = "";
     auto manager = this->d->manager();
 
-    if (manager.isEmpty())
+    if (manager.isEmpty()) {
+        this->d->m_error = "Manager not found";
+
         return false;
+    }
 
     // Read devices information.
     QList<DeviceInfo> devices;
@@ -800,10 +816,14 @@ bool VCamDShow::deviceDestroy(const QString &deviceId)
 
 bool VCamDShow::destroyAllDevices()
 {
+    this->d->m_error = "";
     auto manager = this->d->manager();
 
-    if (manager.isEmpty())
+    if (manager.isEmpty()) {
+        this->d->m_error = "Manager not found";
+
         return false;
+    }
 
     QTemporaryDir tempDir;
     QSettings settings(tempDir.path() + "/config.ini", QSettings::IniFormat);

@@ -227,8 +227,8 @@ Dialog {
     onAccepted: {
         if (videoLayer.clientsPids.length > 0) {
             let title = deviceId.text?
-                    qsTr("Can't Edit The Virtual Camera"):
-                    qsTr("Can't Add The Virtual Camera")
+                    qsTr("Can't edit the virtual camera"):
+                    qsTr("Can't add the virtual camera")
             let message = Commons.vcamDriverBusyMessage()
             addEdit.openErrorDialog(title, message)
 
@@ -237,8 +237,8 @@ Dialog {
 
         if (vcamFormats.count < 1 || !deviceDescription.text) {
             let title = deviceId.text?
-                    qsTr("Error Editing The Virtual Camera"):
-                    qsTr("Error Adding The Virtual Camera")
+                    qsTr("Error editing the virtual camera"):
+                    qsTr("Error adding the virtual camera")
             let message = qsTr("Camera description and formats can't be empty.")
             addEdit.openErrorDialog(title, message)
 
@@ -258,18 +258,27 @@ Dialog {
         }
 
         if (deviceId.text) {
-            videoLayer.editOutput(deviceId.text,
-                                  deviceDescription.text,
-                                  formats)
+            let ok = videoLayer.editOutput(deviceId.text,
+                                           deviceDescription.text,
+                                           formats)
             addEdit.edited()
+
+            if (!ok) {
+                let title = qsTr("Error editing the virtual camera")
+                addEdit.openErrorDialog(title, videoLayer.outputError)
+            }
         } else {
             let videoOutput =
                 videoLayer.createOutput(VideoLayer.OutputVirtualCamera,
                                         deviceDescription.text,
                                         formats)
 
-            if (videoOutput)
+            if (videoOutput) {
                 videoLayer.videoOutput = videoOutput
+            } else if (videoLayer.outputError) {
+                let title = qsTr("Error creating the virtual camera")
+                addEdit.openErrorDialog(title, videoLayer.outputError)
+            }
         }
     }
 }

@@ -88,8 +88,13 @@ ScrollView {
             onClicked: {
                 if (videoLayer.clientsPids.length < 1) {
                     videoLayer.removeInterface("itmVideoOutputOptions")
-                    videoLayer.removeOutput(view.videoOutput)
+                    let ok = videoLayer.removeOutput(view.videoOutput)
                     view.videoOutputRemoved()
+
+                    if (!ok) {
+                        let title = qsTr("Error removing the virtual camera")
+                        view.openErrorDialog(title, videoLayer.outputError)
+                    }
                 } else {
                     let title = qsTr("Can't Remove The Virtual Camera")
                     let message = Commons.vcamDriverBusyMessage()

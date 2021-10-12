@@ -459,6 +459,8 @@ QStringList VCamV4L2LoopBack::availableRootMethods() const
 QString VCamV4L2LoopBack::deviceCreate(const QString &description,
                                        const AkVideoCapsList &formats)
 {
+    this->d->m_error = "";
+
     if (!this->clientsPids().isEmpty()) {
         this->d->m_error = "The driver is in use";
 
@@ -506,7 +508,7 @@ QString VCamV4L2LoopBack::deviceCreate(const QString &description,
     QTemporaryFile cmds(tempDir.path() + "/XXXXXX.sh");
 
     if (!cmds.open()) {
-        this->d->m_error = "Can't create install script";
+        this->d->m_error = "Can't create script";
 
         return {};
     }
@@ -603,6 +605,8 @@ bool VCamV4L2LoopBack::deviceEdit(const QString &deviceId,
                                   const QString &description,
                                   const AkVideoCapsList &formats)
 {
+    this->d->m_error = "";
+
     if (!this->clientsPids().isEmpty()) {
         this->d->m_error = "The driver is in use";
 
@@ -639,7 +643,7 @@ bool VCamV4L2LoopBack::deviceEdit(const QString &deviceId,
     QTemporaryFile cmds(tempDir.path() + "/XXXXXX.sh");
 
     if (!cmds.open()) {
-        this->d->m_error = "Can't create install script";
+        this->d->m_error = "Can't create script";
 
         return false;
     }
@@ -735,6 +739,8 @@ bool VCamV4L2LoopBack::deviceEdit(const QString &deviceId,
 bool VCamV4L2LoopBack::changeDescription(const QString &deviceId,
                                          const QString &description)
 {
+    this->d->m_error = "";
+
     if (!this->clientsPids().isEmpty()) {
         this->d->m_error = "The driver is in use";
 
@@ -763,8 +769,11 @@ bool VCamV4L2LoopBack::changeDescription(const QString &deviceId,
     QTemporaryDir tempDir;
     QTemporaryFile cmds(tempDir.path() + "/XXXXXX.sh");
 
-    if (!cmds.open())
-        return false;
+    if (!cmds.open()) {
+        this->d->m_error = "Can't create script";
+
+        return {};
+    }
 
     cmds.setPermissions(QFileDevice::ReadOwner
                         | QFileDevice::WriteOwner
@@ -795,6 +804,8 @@ bool VCamV4L2LoopBack::changeDescription(const QString &deviceId,
 
 bool VCamV4L2LoopBack::deviceDestroy(const QString &deviceId)
 {
+    this->d->m_error = "";
+
     if (!this->clientsPids().isEmpty()) {
         this->d->m_error = "The driver is in use";
 
@@ -809,8 +820,11 @@ bool VCamV4L2LoopBack::deviceDestroy(const QString &deviceId)
                                return device.path == deviceId;
                            });
 
-    if (it == devices.end())
+    if (it == devices.end()) {
+        this->d->m_error = "Device not found";
+
         return false;
+    }
 
     devices.erase(it);
 
@@ -840,8 +854,11 @@ bool VCamV4L2LoopBack::deviceDestroy(const QString &deviceId)
     QTemporaryDir tempDir;
     QTemporaryFile cmds(tempDir.path() + "/XXXXXX.sh");
 
-    if (!cmds.open())
-        return false;
+    if (!cmds.open()) {
+        this->d->m_error = "Can't create script";
+
+        return {};
+    }
 
     cmds.setPermissions(QFileDevice::ReadOwner
                         | QFileDevice::WriteOwner
@@ -880,6 +897,8 @@ bool VCamV4L2LoopBack::deviceDestroy(const QString &deviceId)
 
 bool VCamV4L2LoopBack::destroyAllDevices()
 {
+    this->d->m_error = "";
+
     if (!this->clientsPids().isEmpty()) {
         this->d->m_error = "The driver is in use";
 
@@ -889,31 +908,33 @@ bool VCamV4L2LoopBack::destroyAllDevices()
     QTemporaryDir tempDir;
     QTemporaryFile cmds(tempDir.path() + "/XXXXXX.sh");
 
-    if (cmds.open()) {
-        cmds.setPermissions(QFileDevice::ReadOwner
-                            | QFileDevice::WriteOwner
-                            | QFileDevice::ExeOwner
-                            | QFileDevice::ReadUser
-                            | QFileDevice::WriteUser
-                            | QFileDevice::ExeUser);
-        QString cmd = "rmmod v4l2loopback 2>/dev/null\n"
-                      "sed -i '/v4l2loopback/d' /etc/modules 2>/dev/null\n"
-                      "sed -i '/v4l2loopback/d' /etc/modules-load.d/*.conf 2>/dev/null\n"
-                      "sed -i '/v4l2loopback/d' /etc/modprobe.d/*.conf 2>/dev/null\n"
-                      "rm -f /etc/modules-load.d/v4l2loopback.conf\n"
-                      "rm -f /etc/modprobe.d/v4l2loopback.conf\n";
-        cmds.write(cmd.toUtf8());
-        cmds.close();
+    if (!cmds.open()) {
+        this->d->m_error = "Can't create script";
 
-        if (!this->d->sudo(this->rootMethod(), {"sh", cmds.fileName()}))
-            return false;
-
-        this->d->updateDevices();
-
-        return true;
+        return {};
     }
 
-    return false;
+    cmds.setPermissions(QFileDevice::ReadOwner
+                        | QFileDevice::WriteOwner
+                        | QFileDevice::ExeOwner
+                        | QFileDevice::ReadUser
+                        | QFileDevice::WriteUser
+                        | QFileDevice::ExeUser);
+    QString cmd = "rmmod v4l2loopback 2>/dev/null\n"
+                  "sed -i '/v4l2loopback/d' /etc/modules 2>/dev/null\n"
+                  "sed -i '/v4l2loopback/d' /etc/modules-load.d/*.conf 2>/dev/null\n"
+                  "sed -i '/v4l2loopback/d' /etc/modprobe.d/*.conf 2>/dev/null\n"
+                  "rm -f /etc/modules-load.d/v4l2loopback.conf\n"
+                  "rm -f /etc/modprobe.d/v4l2loopback.conf\n";
+    cmds.write(cmd.toUtf8());
+    cmds.close();
+
+    if (!this->d->sudo(this->rootMethod(), {"sh", cmds.fileName()}))
+        return false;
+
+    this->d->updateDevices();
+
+    return true;
 }
 
 bool VCamV4L2LoopBack::init()

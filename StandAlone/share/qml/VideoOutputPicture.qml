@@ -87,7 +87,10 @@ Dialog {
         videoLayer.picture = txtTable.text
 
         if (videoLayer.clientsPids.length < 1) {
-            videoLayer.applyPicture()
+            if (!videoLayer.applyPicture()) {
+                let title = qsTr("Can't set virtual camera picture")
+                outputPictureDialog.openErrorDialog(title, videoLayer.outputError)
+            }
         } else {
             let title = qsTr("Error Removing Virtual Cameras")
             let message = Commons.vcamDriverBusyMessage()

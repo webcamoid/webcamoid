@@ -39,6 +39,12 @@ class VideoLayer: public QObject
     Q_ENUMS(InputType)
     Q_ENUMS(OutputType)
     Q_ENUMS(VCamStatus)
+    Q_PROPERTY(QString inputError
+               READ inputError
+               NOTIFY inputErrorChanged)
+    Q_PROPERTY(QString outputError
+               READ outputError
+               NOTIFY outputErrorChanged)
     Q_PROPERTY(QString videoInput
                READ videoInput
                WRITE setVideoInput

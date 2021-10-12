@@ -454,6 +454,8 @@ QStringList VCamAk::availableRootMethods() const
 QString VCamAk::deviceCreate(const QString &description,
                              const AkVideoCapsList &formats)
 {
+    this->d->m_error = "";
+
     if (!this->clientsPids().isEmpty()) {
         this->d->m_error = "The driver is in use";
 
@@ -668,7 +670,7 @@ QString VCamAk::deviceCreate(const QString &description,
     QTemporaryFile cmds(tempDir.path() + "/XXXXXX.sh");
 
     if (!cmds.open()) {
-        this->d->m_error = "Can't create install script";
+        this->d->m_error = "Can't create script";
 
         return {};
     }
@@ -732,6 +734,8 @@ bool VCamAk::deviceEdit(const QString &deviceId,
                         const QString &description,
                         const AkVideoCapsList &formats)
 {
+    this->d->m_error = "";
+
     if (!this->clientsPids().isEmpty()) {
         this->d->m_error = "The driver is in use";
 
@@ -930,7 +934,7 @@ bool VCamAk::deviceEdit(const QString &deviceId,
     QTemporaryFile cmds(tempDir.path() + "/XXXXXX.sh");
 
     if (!cmds.open()) {
-        this->d->m_error = "Can't create install script";
+        this->d->m_error = "Can't create script";
 
         return false;
     }
@@ -990,6 +994,8 @@ bool VCamAk::deviceEdit(const QString &deviceId,
 bool VCamAk::changeDescription(const QString &deviceId,
                                const QString &description)
 {
+    this->d->m_error = "";
+
     if (!this->clientsPids().isEmpty()) {
         this->d->m_error = "The driver is in use";
 
@@ -1169,8 +1175,11 @@ bool VCamAk::changeDescription(const QString &deviceId,
     // Write the script file.
     QTemporaryFile cmds(tempDir.path() + "/XXXXXX.sh");
 
-    if (!cmds.open())
+    if (!cmds.open()) {
+        this->d->m_error = "Can't create script";
+
         return false;
+    }
 
     cmds.setPermissions(QFileDevice::ReadOwner
                         | QFileDevice::WriteOwner
@@ -1210,8 +1219,11 @@ bool VCamAk::changeDescription(const QString &deviceId,
     if (!this->d->sudo(this->d->m_rootMethod, {"sh", cmds.fileName()}))
         return false;
 
-    if (!this->d->waitForDevice(deviceId))
+    if (!this->d->waitForDevice(deviceId)) {
+        this->d->m_error = "Time exceeded while waiting for the device";
+
         return false;
+    }
 
     this->d->updateDevices();
 
@@ -1220,6 +1232,8 @@ bool VCamAk::changeDescription(const QString &deviceId,
 
 bool VCamAk::deviceDestroy(const QString &deviceId)
 {
+    this->d->m_error = "";
+
     if (!this->clientsPids().isEmpty()) {
         this->d->m_error = "The driver is in use";
 
@@ -1229,8 +1243,11 @@ bool VCamAk::deviceDestroy(const QString &deviceId)
     // Delete the devices
     auto outputs = this->d->connectedDevices(deviceId);
 
-    if (outputs.isEmpty())
+    if (outputs.isEmpty()) {
+        this->d->m_error = "Device has not an output device";
+
         return false;
+    }
 
     auto outputDevice = outputs.first();
     auto devices = this->d->devicesInfo();
@@ -1251,8 +1268,11 @@ bool VCamAk::deviceDestroy(const QString &deviceId)
         return true;
     };
 
-    if (!deleteDevice(devices, deviceId))
+    if (!deleteDevice(devices, deviceId)) {
+        this->d->m_error = "Device not found";
+
         return false;
+    }
 
     deleteDevice(devices, outputDevice);
 
@@ -1269,8 +1289,11 @@ bool VCamAk::deviceDestroy(const QString &deviceId)
         QTemporaryDir tempDir;
         QTemporaryFile cmds(tempDir.path() + "/XXXXXX.sh");
 
-        if (!cmds.open())
+        if (!cmds.open()) {
+            this->d->m_error = "Can't create script";
+
             return false;
+        }
 
         cmds.setPermissions(QFileDevice::ReadOwner
                             | QFileDevice::WriteOwner
@@ -1453,8 +1476,11 @@ bool VCamAk::deviceDestroy(const QString &deviceId)
     // Write the script file.
     QTemporaryFile cmds(tempDir.path() + "/XXXXXX.sh");
 
-    if (!cmds.open())
+    if (!cmds.open()) {
+        this->d->m_error = "Can't create script";
+
         return false;
+    }
 
     cmds.setPermissions(QFileDevice::ReadOwner
                         | QFileDevice::WriteOwner
@@ -1507,6 +1533,8 @@ bool VCamAk::deviceDestroy(const QString &deviceId)
 
 bool VCamAk::destroyAllDevices()
 {
+    this->d->m_error = "";
+
     if (!this->clientsPids().isEmpty()) {
         this->d->m_error = "The driver is in use";
 
@@ -1516,33 +1544,35 @@ bool VCamAk::destroyAllDevices()
     QTemporaryDir tempDir;
     QTemporaryFile cmds(tempDir.path() + "/XXXXXX.sh");
 
-    if (cmds.open()) {
-        cmds.setPermissions(QFileDevice::ReadOwner
-                            | QFileDevice::WriteOwner
-                            | QFileDevice::ExeOwner
-                            | QFileDevice::ReadUser
-                            | QFileDevice::WriteUser
-                            | QFileDevice::ExeUser);
-        cmds.write("#/bin/sh\n");
-        QString cmd = "rmmod akvcam 2>/dev/null\n"
-                      "sed -i '/akvcam/d' /etc/modules 2>/dev/null\n"
-                      "sed -i '/akvcam/d' /etc/modules-load.d/*.conf 2>/dev/null\n"
-                      "sed -i '/akvcam/d' /etc/modprobe.d/*.conf 2>/dev/null\n"
-                      "rm -f /etc/modules-load.d/akvcam.conf\n"
-                      "rm -f /etc/modprobe.d/akvcam.conf\n"
-                      "rm -f /etc/akvcam/config.ini\n";
-        cmds.write(cmd.toUtf8());
-        cmds.close();
+    if (!cmds.open()) {
+        this->d->m_error = "Can't create script";
 
-        if (!this->d->sudo(this->d->m_rootMethod, {"sh", cmds.fileName()}))
-            return false;
-
-        this->d->updateDevices();
-
-        return true;
+        return false;
     }
 
-    return false;
+    cmds.setPermissions(QFileDevice::ReadOwner
+                        | QFileDevice::WriteOwner
+                        | QFileDevice::ExeOwner
+                        | QFileDevice::ReadUser
+                        | QFileDevice::WriteUser
+                        | QFileDevice::ExeUser);
+    cmds.write("#/bin/sh\n");
+    QString cmd = "rmmod akvcam 2>/dev/null\n"
+                  "sed -i '/akvcam/d' /etc/modules 2>/dev/null\n"
+                  "sed -i '/akvcam/d' /etc/modules-load.d/*.conf 2>/dev/null\n"
+                  "sed -i '/akvcam/d' /etc/modprobe.d/*.conf 2>/dev/null\n"
+                  "rm -f /etc/modules-load.d/akvcam.conf\n"
+                  "rm -f /etc/modprobe.d/akvcam.conf\n"
+                  "rm -f /etc/akvcam/config.ini\n";
+    cmds.write(cmd.toUtf8());
+    cmds.close();
+
+    if (!this->d->sudo(this->d->m_rootMethod, {"sh", cmds.fileName()}))
+        return false;
+
+    this->d->updateDevices();
+
+    return true;
 }
 
 bool VCamAk::init()

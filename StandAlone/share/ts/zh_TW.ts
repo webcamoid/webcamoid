@@ -938,23 +938,29 @@
     </message>
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="230"/>
-        <source>Can&apos;t Edit The Virtual Camera</source>
-        <translation>無法編輯虛擬攝影機</translation>
+        <source>Can&apos;t edit the virtual camera</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="231"/>
-        <source>Can&apos;t Add The Virtual Camera</source>
-        <translation>無法新增虛擬攝影機</translation>
+        <source>Can&apos;t add the virtual camera</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="240"/>
-        <source>Error Editing The Virtual Camera</source>
-        <translation>編輯虛擬攝影機時出錯</translation>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="267"/>
+        <source>Error editing the virtual camera</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="241"/>
-        <source>Error Adding The Virtual Camera</source>
-        <translation>新增虛擬攝影機時出錯</translation>
+        <source>Error adding the virtual camera</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="279"/>
+        <source>Error creating the virtual camera</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="242"/>
@@ -980,7 +986,12 @@
         <translation>移除</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputOptions.qml" line="94"/>
+        <location filename="../qml/VideoOutputOptions.qml" line="95"/>
+        <source>Error removing the virtual camera</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoOutputOptions.qml" line="99"/>
         <source>Can&apos;t Remove The Virtual Camera</source>
         <translation>無法移除虛擬攝影機</translation>
     </message>
@@ -1003,12 +1014,17 @@
         <translation>搜尋</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputPicture.qml" line="92"/>
+        <location filename="../qml/VideoOutputPicture.qml" line="91"/>
+        <source>Can&apos;t set virtual camera picture</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoOutputPicture.qml" line="95"/>
         <source>Error Removing Virtual Cameras</source>
         <translation>移除虛擬攝影機時出錯</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputPicture.qml" line="104"/>
+        <location filename="../qml/VideoOutputPicture.qml" line="107"/>
         <source>Please choose an image file</source>
         <translation>請選擇圖像檔</translation>
     </message>
@@ -1022,7 +1038,7 @@
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="83"/>
-        <location filename="../qml/VideoOutputs.qml" line="238"/>
+        <location filename="../qml/VideoOutputs.qml" line="242"/>
         <source>Install</source>
         <translation>安裝</translation>
     </message>
@@ -1042,22 +1058,27 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="121"/>
+        <location filename="../qml/VideoOutputs.qml" line="120"/>
+        <source>Error removing virtual cameras</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoOutputs.qml" line="125"/>
         <source>Error Removing Virtual Cameras</source>
         <translation type="unfinished">移除虛擬攝影機時出錯</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="128"/>
+        <location filename="../qml/VideoOutputs.qml" line="132"/>
         <source>Set output picture</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="231"/>
+        <location filename="../qml/VideoOutputs.qml" line="235"/>
         <source>The virtual camera is not installed, do you want to install it?</source>
         <translation>虛擬攝影機尚未安裝，您是否要安裝？</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="257"/>
+        <location filename="../qml/VideoOutputs.qml" line="261"/>
         <source>The virtual camera is not supported in this platform</source>
         <translation>在此系統上，虛擬攝影機並不受支援</translation>
     </message>
