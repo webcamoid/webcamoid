@@ -20,6 +20,7 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
+import Ak 1.0
 import AkControls 1.0 as AK
 
 GridLayout {
@@ -36,26 +37,6 @@ GridLayout {
             }
 
         return index
-    }
-
-    function fromRgba(rgba)
-    {
-        var a = ((rgba >> 24) & 0xff) / 255.0
-        var r = ((rgba >> 16) & 0xff) / 255.0
-        var g = ((rgba >> 8) & 0xff) / 255.0
-        var b = (rgba & 0xff) / 255.0
-
-        return Qt.rgba(r, g, b, a)
-    }
-
-    function toRgba(color)
-    {
-        var a = Math.round(255 * color.a) << 24
-        var r = Math.round(255 * color.r) << 16
-        var g = Math.round(255 * color.g) << 8
-        var b = Math.round(255 * color.b)
-
-        return a | r | g | b
     }
 
     Label {
@@ -178,11 +159,11 @@ GridLayout {
             Layout.fillWidth: true
         }
         AK.ColorButton {
-            currentColor: fromRgba(Radioactive.radColor)
+            currentColor: AkUtils.fromRgba(Radioactive.radColor)
             title: qsTr("Choose a color")
             showAlphaChannel: true
 
-            onCurrentColorChanged: Radioactive.radColor = toRgba(currentColor)
+            onCurrentColorChanged: Radioactive.radColor = AkUtils.toRgba(currentColor)
         }
     }
 }

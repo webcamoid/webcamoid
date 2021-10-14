@@ -20,28 +20,10 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
+import Ak 1.0
 
 GridLayout {
     columns: 2
-
-    function fromRgba(rgba)
-    {
-        var r = ((rgba >> 16) & 0xff)
-        var g = ((rgba >> 8) & 0xff)
-        var b = (rgba & 0xff)
-
-        return [r, g, b]
-    }
-
-    function toRgba(color)
-    {
-        var a = 0xff << 24
-        var r = color[0] << 16
-        var g = color[1] << 8
-        var b = color[2]
-
-        return a | r | g | b
-    }
 
     function tableFromStr(str)
     {
@@ -52,7 +34,7 @@ GridLayout {
         var table = []
 
         for (var color in colorTable)
-            table.push(toRgba(colorTable[color]))
+            table.push(AkUtils.toRgba(colorTable[color]))
 
         return table
     }

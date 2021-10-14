@@ -41,6 +41,7 @@
 #include "akvideocaps.h"
 #include "akvideopacket.h"
 #include "qml/akcolorizedimage.h"
+#include "qml/akutils.h"
 #include "qml/akpalette.h"
 #include "qml/akpalettegroup.h"
 #include "qml/aktheme.h"
@@ -58,7 +59,8 @@ class AkPrivate
 
 Q_GLOBAL_STATIC(AkPrivate, akGlobalStuff)
 
-Ak::Ak()
+Ak::Ak():
+    QObject()
 {
 
 }
@@ -97,6 +99,7 @@ void Ak::registerTypes()
     AkTheme::registerTypes();
     AkPaletteGroup::registerTypes();
     AkPalette::registerTypes();
+    AkUtils::registerTypes();
 }
 
 qint64 Ak::id()

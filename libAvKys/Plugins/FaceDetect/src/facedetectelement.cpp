@@ -128,10 +128,7 @@ QString FaceDetectElement::markerType() const
 
 QRgb FaceDetectElement::markerColor() const
 {
-    return qRgba(this->d->m_markerPen.color().blue(),
-                 this->d->m_markerPen.color().green(),
-                 this->d->m_markerPen.color().red(),
-                 this->d->m_markerPen.color().alpha());
+    return this->d->m_markerPen.color().rgba();
 }
 
 int FaceDetectElement::markerWidth() const
@@ -400,14 +397,10 @@ void FaceDetectElement::setMarkerType(const QString &markerType)
 
 void FaceDetectElement::setMarkerColor(QRgb markerColor)
 {
-    QColor color(qBlue(markerColor),
-                 qGreen(markerColor),
-                 qRed(markerColor));
-
-    if (this->d->m_markerPen.color() == color)
+    if (this->d->m_markerPen.color() == QColor(markerColor))
         return;
 
-    this->d->m_markerPen.setColor(color);
+    this->d->m_markerPen.setColor(QColor(markerColor));
     emit this->markerColorChanged(markerColor);
 }
 

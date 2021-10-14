@@ -55,10 +55,10 @@ add_library(avkys SHARED
             src/akpacket.cpp
             src/akpacket.h
             src/akplugin.h
-            src/akplugininfo.h
             src/akplugininfo.cpp
-            src/akpluginmanager.h
+            src/akplugininfo.h
             src/akpluginmanager.cpp
+            src/akpluginmanager.h
             src/akunit.cpp
             src/akunit.h
             src/akvideocaps.cpp
@@ -67,6 +67,8 @@ add_library(avkys SHARED
             src/akvideopacket.h
             src/qml/akcolorizedimage.cpp
             src/qml/akcolorizedimage.h
+            src/qml/akutils.cpp
+            src/qml/akutils.h
             src/qml/akpalette.cpp
             src/qml/akpalette.h
             src/qml/akpalettegroup.cpp
