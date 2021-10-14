@@ -939,28 +939,28 @@
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="230"/>
         <source>Can&apos;t edit the virtual camera</source>
-        <translation type="unfinished"></translation>
+        <translation>De virtuele camera kan niet worden aangepast</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="231"/>
         <source>Can&apos;t add the virtual camera</source>
-        <translation type="unfinished"></translation>
+        <translation>De virtuele camera kan niet worden toegevoegd</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="240"/>
         <location filename="../qml/VideoOutputAddEdit.qml" line="267"/>
         <source>Error editing the virtual camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Er is een fout opgetreden tijdens het aanpassen</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="241"/>
         <source>Error adding the virtual camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Er is een fout opgetreden tijdens het toevoegen</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="279"/>
         <source>Error creating the virtual camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Er is een fout opgetreden tijdens het aanmaken</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="242"/>
@@ -988,7 +988,7 @@
     <message>
         <location filename="../qml/VideoOutputOptions.qml" line="95"/>
         <source>Error removing the virtual camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Er is een fout opgetreden tijdens het verwijderen</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputOptions.qml" line="99"/>
@@ -1016,7 +1016,7 @@
     <message>
         <location filename="../qml/VideoOutputPicture.qml" line="91"/>
         <source>Can&apos;t set virtual camera picture</source>
-        <translation type="unfinished"></translation>
+        <translation>Er kan geen virtuelecamerafoto worden ingesteld</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputPicture.qml" line="95"/>
@@ -1060,7 +1060,7 @@
     <message>
         <location filename="../qml/VideoOutputs.qml" line="120"/>
         <source>Error removing virtual cameras</source>
-        <translation type="unfinished"></translation>
+        <translation>De virtuele camera&apos;s kunnen niet worden verwijderd</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="125"/>

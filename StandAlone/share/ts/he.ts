@@ -939,28 +939,28 @@
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="230"/>
         <source>Can&apos;t edit the virtual camera</source>
-        <translation type="unfinished"></translation>
+        <translation>לא ניתן לערוך את המצלמה הווירטואלית</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="231"/>
         <source>Can&apos;t add the virtual camera</source>
-        <translation type="unfinished"></translation>
+        <translation>לא ניתן להוסיף את המצלמה הווירטואלית</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="240"/>
         <location filename="../qml/VideoOutputAddEdit.qml" line="267"/>
         <source>Error editing the virtual camera</source>
-        <translation type="unfinished"></translation>
+        <translation>שגיאה בעריכת המצלמה הווירטואלית</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="241"/>
         <source>Error adding the virtual camera</source>
-        <translation type="unfinished"></translation>
+        <translation>שגיאה בהוספת המצלמה הווירטואלית</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="279"/>
         <source>Error creating the virtual camera</source>
-        <translation type="unfinished"></translation>
+        <translation>שגיאה ביצירת המצלמה הווירטואלית</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="242"/>
@@ -988,7 +988,7 @@
     <message>
         <location filename="../qml/VideoOutputOptions.qml" line="95"/>
         <source>Error removing the virtual camera</source>
-        <translation type="unfinished"></translation>
+        <translation>שגיאה בהסרת המצלמה הווירטואלית</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputOptions.qml" line="99"/>
@@ -1016,7 +1016,7 @@
     <message>
         <location filename="../qml/VideoOutputPicture.qml" line="91"/>
         <source>Can&apos;t set virtual camera picture</source>
-        <translation type="unfinished"></translation>
+        <translation>לא ניתן להגדיר תמונה במצלמה הווירטואלית</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputPicture.qml" line="95"/>
@@ -1060,7 +1060,7 @@
     <message>
         <location filename="../qml/VideoOutputs.qml" line="120"/>
         <source>Error removing virtual cameras</source>
-        <translation type="unfinished"></translation>
+        <translation>שגיאה בהסרת מצלמות וירטואליות</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="125"/>
