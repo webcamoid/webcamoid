@@ -540,8 +540,10 @@ bool CaptureV4L2::init()
     fmt.fmt.pix.height = caps.property("height").toUInt();
 
     if (x_ioctl(this->d->m_fd, VIDIOC_S_FMT, &fmt) < 0) {
-        qDebug() << "VideoCapture: Can't set format:"
-                 << this->d->fourccToStr(fmt.fmt.pix.pixelformat);
+        qDebug() << QString("VideoCapture: Can't set format: %1 %2x%3")
+                    .arg(this->d->fourccToStr(fmt.fmt.pix.pixelformat))
+                    .arg(fmt.fmt.pix.width)
+                    .arg(fmt.fmt.pix.height);
         x_close(this->d->m_fd);
         this->d->m_fd = -1;
 
