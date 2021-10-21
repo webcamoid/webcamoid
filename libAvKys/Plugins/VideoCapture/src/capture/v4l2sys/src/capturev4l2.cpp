@@ -816,23 +816,7 @@ QVariantList CaptureV4L2Private::caps(int fd) const
 {
     QVariantList caps;
 
-#ifndef VIDIOC_ENUM_FRAMESIZES
-    v4l2_format fmt;
-    memset(&fmt, 0, sizeof(v4l2_format));
-    fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-    uint width = 0;
-    uint height = 0;
-
-    // Check if it has at least a default format.
-    if (x_ioctl(fd, VIDIOC_G_FMT, &fmt) >= 0) {
-        width = fmt.fmt.pix.width;
-        height = fmt.fmt.pix.height;
-    }
-
-    if (width <= 0 || height <= 0)
-        return {};
-#endif
-
+#ifdef VIDIOC_ENUM_FRAMESIZES
     // Enumerate all supported formats.
     v4l2_fmtdesc fmtdesc;
     memset(&fmtdesc, 0, sizeof(v4l2_fmtdesc));
@@ -841,7 +825,6 @@ QVariantList CaptureV4L2Private::caps(int fd) const
     for (fmtdesc.index = 0;
          x_ioctl(fd, VIDIOC_ENUM_FMT, &fmtdesc) >= 0;
          fmtdesc.index++) {
-#ifdef VIDIOC_ENUM_FRAMESIZES
         v4l2_frmsizeenum frmsize;
         memset(&frmsize, 0, sizeof(v4l2_frmsizeenum));
         frmsize.pixel_format = fmtdesc.pixelformat;
@@ -868,9 +851,36 @@ QVariantList CaptureV4L2Private::caps(int fd) const
 #endif
             }
         }
-#else
-        caps << this->capsFps(fd, fmtdesc, width, height);
+    }
+
+    if (!caps.isEmpty())
+        return caps;
 #endif
+
+    // If VIDIOC_ENUM_FRAMESIZES failed, try reading the current resolution.
+    v4l2_format fmt;
+    memset(&fmt, 0, sizeof(v4l2_format));
+    fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+    uint width = 0;
+    uint height = 0;
+
+    // Check if it has at least a default format.
+    if (x_ioctl(fd, VIDIOC_G_FMT, &fmt) >= 0) {
+        width = fmt.fmt.pix.width;
+        height = fmt.fmt.pix.height;
+    }
+
+    if (width <= 0 || height <= 0)
+        return {};
+
+    // Enumerate all supported formats.
+    memset(&fmtdesc, 0, sizeof(v4l2_fmtdesc));
+    fmtdesc.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+
+    for (fmtdesc.index = 0;
+         x_ioctl(fd, VIDIOC_ENUM_FMT, &fmtdesc) >= 0;
+         fmtdesc.index++) {
+        caps << this->capsFps(fd, fmtdesc, width, height);
     }
 
     return caps;

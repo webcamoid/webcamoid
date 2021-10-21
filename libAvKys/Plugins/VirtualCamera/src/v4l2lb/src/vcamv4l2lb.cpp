@@ -991,8 +991,8 @@ bool VCamV4L2LoopBack::init()
         return false;
     }
 
-    v4l2_fract fps = {__u32(this->d->m_currentCaps.fps().num()),
-                      __u32(this->d->m_currentCaps.fps().den())};
+    v4l2_fract fps = {__u32(this->d->m_outputCaps.fps().num()),
+                      __u32(this->d->m_outputCaps.fps().den())};
     this->d->setFps(this->d->m_fd, fps);
 
     if (this->d->m_ioMethod == IoMethodReadWrite
