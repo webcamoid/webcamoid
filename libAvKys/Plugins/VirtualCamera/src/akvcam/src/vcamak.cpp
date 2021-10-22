@@ -2913,7 +2913,6 @@ void VCamAkPrivate::updateDevices()
         if (!this->m_devices.isEmpty())
             this->m_fsWatcher->addPaths(this->m_devices);
 #endif
-        emit self->webcamsChanged(this->m_devices);
     }
 }
 
@@ -3150,8 +3149,7 @@ inline QString VCamAkPrivate::stringFromIoctl(ulong cmd) const
 #endif
     };
 
-    return ioctlStrings.value(cmd,
-                              QString("VIDIOC_UNKNOWN(%1)").arg(cmd));
+    return ioctlStrings.value(cmd, QString("VIDIOC_UNKNOWN(%1)").arg(cmd));
 }
 
 #include "moc_vcamak.cpp"

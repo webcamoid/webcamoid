@@ -2445,8 +2445,7 @@ inline QString VCamV4L2LoopBackPrivate::stringFromIoctl(ulong cmd) const
 #endif
     };
 
-    return ioctlStrings.value(cmd,
-                              QString("VIDIOC_UNKNOWN(%1)").arg(cmd));
+    return ioctlStrings.value(cmd, QString("VIDIOC_UNKNOWN(%1)").arg(cmd));
 }
 
 #include "moc_vcamv4l2lb.cpp"
