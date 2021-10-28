@@ -422,7 +422,7 @@ QString VCamCMIO::deviceCreate(const QString &description,
         auto errorMsg = proc.readAllStandardError();
 
         if (!errorMsg.isEmpty()) {
-            qDebug() << errorMsg;
+            qDebug() << errorMsg.toStdString().c_str();
             this->d->m_error += QString(errorMsg);
         }
     }
@@ -565,7 +565,7 @@ bool VCamCMIO::deviceEdit(const QString &deviceId,
         auto errorMsg = proc.readAllStandardError();
 
         if (!errorMsg.isEmpty()) {
-            qDebug() << errorMsg;
+            qDebug() << errorMsg.toStdString().c_str();
             this->d->m_error += QString(errorMsg);
         }
     }
@@ -600,7 +600,7 @@ bool VCamCMIO::changeDescription(const QString &deviceId,
         auto errorMsg = proc.readAllStandardError();
 
         if (!errorMsg.isEmpty()) {
-            qDebug() << errorMsg;
+            qDebug() << errorMsg.toStdString().c_str();
             this->d->m_error += QString(errorMsg);
         }
     }
@@ -634,7 +634,7 @@ bool VCamCMIO::deviceDestroy(const QString &deviceId)
         auto errorMsg = proc.readAllStandardError();
 
         if (!errorMsg.isEmpty()) {
-            qDebug() << errorMsg;
+            qDebug() << errorMsg.toStdString().c_str();
             this->d->m_error += QString(errorMsg);
         }
     }
@@ -668,7 +668,7 @@ bool VCamCMIO::destroyAllDevices()
         auto errorMsg = proc.readAllStandardError();
 
         if (!errorMsg.isEmpty()) {
-            qDebug() << errorMsg;
+            qDebug() << errorMsg.toStdString().c_str();
             this->d->m_error += QString(errorMsg);
         }
     }
@@ -811,7 +811,7 @@ bool VCamCMIO::applyPicture()
         auto errorMsg = proc.readAllStandardError();
 
         if (!errorMsg.isEmpty()) {
-            qDebug() << errorMsg;
+            qDebug() << errorMsg.toStdString().c_str();
             this->d->m_error += QString(errorMsg);
         }
 
@@ -1009,7 +1009,7 @@ QVariantList VCamCMIOPrivate::controls(const QString &device)
         auto errorMsg = proc.readAllStandardError();
 
         if (!errorMsg.isEmpty()) {
-            qDebug() << errorMsg;
+            qDebug() << errorMsg.toStdString().c_str();
             this->m_error = QString(errorMsg);
         }
 
@@ -1033,7 +1033,7 @@ QVariantList VCamCMIOPrivate::controls(const QString &device)
         switch (token) {
         case QXmlStreamReader::Invalid: {
             if (this->m_error != xmlInfo.errorString()) {
-                qDebug() << xmlInfo.errorString();
+                qDebug() << xmlInfo.errorString().toStdString().c_str();
                 this->m_error = xmlInfo.errorString();
             }
 
@@ -1157,7 +1157,7 @@ bool VCamCMIOPrivate::setControls(const QString &device,
         auto errorMsg = proc.readAllStandardError();
 
         if (!errorMsg.isEmpty()) {
-            qDebug() << errorMsg;
+            qDebug() << errorMsg.toStdString().c_str();
             this->m_error += QString(errorMsg);
         }
 

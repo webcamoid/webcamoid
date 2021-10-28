@@ -434,7 +434,7 @@ QString VCamDShow::deviceCreate(const QString &description,
 
     if (exitCode) {
         auto errorMsg = QString("Manager exited with code %1").arg(exitCode);
-        qDebug() << errorMsg;
+        qDebug() << errorMsg.toStdString().c_str();
         this->d->m_error += errorMsg;
     }
 
@@ -572,7 +572,7 @@ bool VCamDShow::deviceEdit(const QString &deviceId,
     if (exitCode) {
         ok = false;
         auto errorMsg = QString("Manager exited with code %1").arg(exitCode);
-        qDebug() << errorMsg;
+        qDebug() << errorMsg.toStdString().c_str();
         this->d->m_error += errorMsg;
     }
 
@@ -691,7 +691,7 @@ bool VCamDShow::changeDescription(const QString &deviceId,
     if (exitCode) {
         ok = false;
         auto errorMsg = QString("Manager exited with code %1").arg(exitCode);
-        qDebug() << errorMsg;
+        qDebug() << errorMsg.toStdString().c_str();
         this->d->m_error += errorMsg;
     }
 
@@ -807,7 +807,7 @@ bool VCamDShow::deviceDestroy(const QString &deviceId)
     if (exitCode) {
         ok = false;
         auto errorMsg = QString("Manager exited with code %1").arg(exitCode);
-        qDebug() << errorMsg;
+        qDebug() << errorMsg.toStdString().c_str();
         this->d->m_error += errorMsg;
     }
 
@@ -876,7 +876,7 @@ bool VCamDShow::destroyAllDevices()
     if (exitCode) {
         ok = false;
         auto errorMsg = QString("Manager exited with code %1").arg(exitCode);
-        qDebug() << errorMsg;
+        qDebug() << errorMsg.toStdString().c_str();
         this->d->m_error += errorMsg;
     }
 
@@ -1135,7 +1135,7 @@ bool VCamDShow::applyPicture()
     if (exitCode) {
         ok = false;
         auto errorMsg = QString("Manager exited with code %1").arg(exitCode);
-        qDebug() << errorMsg;
+        qDebug() << errorMsg.toStdString().c_str();
         this->d->m_error += errorMsg;
     }
 
@@ -1350,7 +1350,7 @@ QVariantList VCamDShowPrivate::controls(const QString &device)
         auto errorMsg = proc.readAllStandardError();
 
         if (!errorMsg.isEmpty()) {
-            qDebug() << errorMsg;
+            qDebug() << errorMsg.toStdString().c_str();
             this->m_error = QString(errorMsg);
         }
 
@@ -1374,7 +1374,7 @@ QVariantList VCamDShowPrivate::controls(const QString &device)
         switch (token) {
         case QXmlStreamReader::Invalid: {
             if (this->m_error != xmlInfo.errorString()) {
-                qDebug() << xmlInfo.errorString();
+                qDebug() << xmlInfo.errorString().toStdString().c_str();
                 this->m_error = xmlInfo.errorString();
             }
 
@@ -1498,7 +1498,7 @@ bool VCamDShowPrivate::setControls(const QString &device,
         auto errorMsg = proc.readAllStandardError();
 
         if (!errorMsg.isEmpty()) {
-            qDebug() << errorMsg;
+            qDebug() << errorMsg.toStdString().c_str();
             this->m_error += QString(errorMsg);
         }
 
@@ -1633,7 +1633,7 @@ void VCamDShowPrivate::updateDevices()
         switch (token) {
         case QXmlStreamReader::Invalid: {
             if (this->m_error != xmlInfo.errorString()) {
-                qDebug() << xmlInfo.errorString();
+                qDebug() << xmlInfo.errorString().toStdString().c_str();
                 this->m_error = xmlInfo.errorString();
             }
 
