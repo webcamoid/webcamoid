@@ -548,6 +548,10 @@ void CaptureAvFoundation::updateDevices()
                     map.value(fourCC,
                               CaptureAvFoundationPrivate::fourccToStr(fourCC));
 
+            // Ignore formats that can cause alignment problems when capturing.
+            if ((size.width % 32) != 0)
+                continue;
+
             AkCaps videoCaps;
             videoCaps.setMimeType("video/unknown");
             videoCaps.setProperty("fourcc", fourccStr);

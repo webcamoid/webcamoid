@@ -1059,6 +1059,10 @@ AkCaps CaptureCMIOPrivate::capsFromDescription(CMVideoFormatDescriptionRef forma
     auto &map = CaptureCMIOPrivate::fourccToStrMap();
     auto fourccStr = map.value(fourCC, CaptureCMIOPrivate::fourccToStr(fourCC));
 
+    // Ignore formats that can cause alignment problems when capturing.
+    if ((size.width % 32) != 0)
+        return {};
+
     AkCaps videoCaps;
     videoCaps.setMimeType("video/unknown");
     videoCaps.setProperty("fourcc", fourccStr);
