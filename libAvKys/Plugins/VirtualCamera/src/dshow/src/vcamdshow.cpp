@@ -430,7 +430,7 @@ QString VCamDShow::deviceCreate(const QString &description,
 #endif
 
     settings.sync();
-    int exitCode = this->d->sudo({manager, "load", settings.fileName()});
+    int exitCode = this->d->sudo({manager, "-f", "load", settings.fileName()});
 
     if (exitCode) {
         auto errorMsg = QString("Manager exited with code %1").arg(exitCode);
@@ -567,7 +567,7 @@ bool VCamDShow::deviceEdit(const QString &deviceId,
     settings.sync();
 
     bool ok = true;
-    int exitCode = this->d->sudo({manager, "load", settings.fileName()});
+    int exitCode = this->d->sudo({manager, "-f", "load", settings.fileName()});
 
     if (exitCode) {
         ok = false;
@@ -686,7 +686,7 @@ bool VCamDShow::changeDescription(const QString &deviceId,
     settings.sync();
 
     bool ok = true;
-    int exitCode = this->d->sudo({manager, "load", settings.fileName()});
+    int exitCode = this->d->sudo({manager, "-f", "load", settings.fileName()});
 
     if (exitCode) {
         ok = false;
@@ -802,7 +802,7 @@ bool VCamDShow::deviceDestroy(const QString &deviceId)
     settings.sync();
 
     bool ok = true;
-    int exitCode = this->d->sudo({manager, "load", settings.fileName()});
+    int exitCode = this->d->sudo({manager, "-f", "load", settings.fileName()});
 
     if (exitCode) {
         ok = false;
@@ -871,7 +871,7 @@ bool VCamDShow::destroyAllDevices()
     settings.sync();
 
     bool ok = true;
-    int exitCode = this->d->sudo({manager, "load", settings.fileName()});
+    int exitCode = this->d->sudo({manager, "-f", "load", settings.fileName()});
 
     if (exitCode) {
         ok = false;

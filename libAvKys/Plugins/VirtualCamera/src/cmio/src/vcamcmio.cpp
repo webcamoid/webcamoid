@@ -415,7 +415,7 @@ QString VCamCMIO::deviceCreate(const QString &description,
     settings.sync();
 
     QProcess proc;
-    proc.start(manager, {"load", settings.fileName()});
+    proc.start(manager, {"-f", "load", settings.fileName()});
     proc.waitForFinished();
 
     if (proc.exitCode()) {
@@ -557,7 +557,7 @@ bool VCamCMIO::deviceEdit(const QString &deviceId,
 
     bool ok = true;
     QProcess proc;
-    proc.start(manager, {"load", settings.fileName()});
+    proc.start(manager, {"-f", "load", settings.fileName()});
     proc.waitForFinished();
 
     if (proc.exitCode()) {
@@ -587,11 +587,11 @@ bool VCamCMIO::changeDescription(const QString &deviceId,
 
     bool ok = true;
     QProcess proc;
-    proc.start(manager, {"set-description", deviceId, description});
+    proc.start(manager, {"-f", "set-description", deviceId, description});
     proc.waitForFinished();
 
     if (!proc.exitCode()) {
-        proc.start(manager, {"update"});
+        proc.start(manager, {"-f", "update"});
         proc.waitForFinished();
     }
 
@@ -621,11 +621,11 @@ bool VCamCMIO::deviceDestroy(const QString &deviceId)
 
     bool ok = true;
     QProcess proc;
-    proc.start(manager, {"remove-device", deviceId});
+    proc.start(manager, {"-f", "remove-device", deviceId});
     proc.waitForFinished();
 
     if (!proc.exitCode()) {
-        proc.start(manager, {"update"});
+        proc.start(manager, {"-f", "update"});
         proc.waitForFinished();
     }
 
@@ -655,11 +655,11 @@ bool VCamCMIO::destroyAllDevices()
 
     bool ok = true;
     QProcess proc;
-    proc.start(manager, {"remove-devices"});
+    proc.start(manager, {"-f", "remove-devices"});
     proc.waitForFinished();
 
     if (!proc.exitCode()) {
-        proc.start(manager, {"update"});
+        proc.start(manager, {"-f", "update"});
         proc.waitForFinished();
     }
 
