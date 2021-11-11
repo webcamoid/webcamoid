@@ -646,47 +646,10 @@ bool VideoLayer::executeVCamInstaller(const QString &installer)
         }
 #elif defined(Q_OS_OSX)
         QProcess proc;
-
-        // Check if the disk image is mounted and unmount it
-        auto volumeName = QFileInfo(installer).completeBaseName();
-        auto volumePath = "/Volumes/" + volumeName;
-        bool ok = true;
-
-        if (QFileInfo::exists(volumePath)) {
-            proc.start("hdiutil", QStringList {"detach", volumePath});
-            proc.waitForFinished(-1);
-            exitCode = proc.exitCode();
-            errorString = proc.errorString();
-            ok = exitCode == 0;
-        }
-
-        // Mount the disk image
-        if (ok) {
-            proc.start("hdiutil", QStringList {"attach", installer});
-            proc.waitForFinished(-1);
-            exitCode = proc.exitCode();
-            errorString = proc.errorString();
-            ok = exitCode == 0;
-        }
-
-        // Execute the installer
-        if (ok) {
-            auto installerFile = volumePath
-                                 + "/"
-                                 + volumeName
-                                 + ".app/Contents/MacOS/"
-                                 + volumeName;
-            proc.start(installerFile, QStringList {});
-            proc.waitForFinished(-1);
-            exitCode = proc.exitCode();
-            errorString = proc.errorString();
-        }
-
-        // Unmount the disk image
-        if (QFileInfo::exists(volumePath)) {
-            proc.start("hdiutil", QStringList {"detach", volumePath});
-            proc.waitForFinished(-1);
-        }
+        proc.start("open", QStringList {"-W", installer});
+        proc.waitForFinished(-1);
+        exitCode = proc.exitCode();
+        errorString = proc.errorString();
 #else
         QProcess proc;
         proc.start(installer, QStringList {});
@@ -1429,7 +1392,7 @@ QString VideoLayerPrivate::vcamDownloadUrl() const
     return QString("https://github.com/webcamoid/akvirtualcamera/releases/download/%1/akvirtualcamera-windows-%1.exe")
            .arg(this->m_latestVersion);
 #elif defined(Q_OS_OSX)
-    return QString("https://github.com/webcamoid/akvirtualcamera/releases/download/%1/akvirtualcamera-mac-%1.dmg")
+    return QString("https://github.com/webcamoid/akvirtualcamera/releases/download/%1/akvirtualcamera-mac-%1.pkg")
            .arg(this->m_latestVersion);
 #elif defined(Q_OS_LINUX)
     return QString("https://github.com/webcamoid/akvcam/releases/download/%1/akvcam-linux-%1.run")
