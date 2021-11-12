@@ -93,24 +93,24 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/AudioDeviceOptions.qml" line="131"/>
+        <location filename="../qml/AudioDeviceOptions.qml" line="134"/>
         <source>Sample Format</source>
         <extracomment>An sample represents the strength of the wave at a certain time. A sample can be expressed as the number of bits defining it (more bits better sound), the type of data representing it (signed integer, unsigned integer, floating point), and the endianness of the data (big endian, little endian). The sample format is the representation of that information. For example, &apos;s16le&apos; means that each sample format is represented by a 16 bits signed integer arranged as little endian.</extracomment>
         <translation type="unfinished">Format de mostratge</translation>
     </message>
     <message>
-        <location filename="../qml/AudioDeviceOptions.qml" line="153"/>
+        <location filename="../qml/AudioDeviceOptions.qml" line="156"/>
         <source>Channels</source>
         <translation type="unfinished">Canals</translation>
     </message>
     <message>
-        <location filename="../qml/AudioDeviceOptions.qml" line="176"/>
+        <location filename="../qml/AudioDeviceOptions.qml" line="179"/>
         <source>Sample Rate</source>
         <extracomment>Number of audio samples per channel to be played per second.</extracomment>
         <translation type="unfinished">Freqüència de mostratge</translation>
     </message>
     <message>
-        <location filename="../qml/AudioDeviceOptions.qml" line="207"/>
+        <location filename="../qml/AudioDeviceOptions.qml" line="210"/>
         <source>Latency (ms)</source>
         <extracomment>The latency is the amount of accumulated audio ready to play, measured in time. Higher latency == smoother audio playback, but more desynchronization with the video. Lowerer latency == audio synchronization near to the video, but glitchy audio playback. https://en.wikipedia.org/wiki/Latency_(audio)</extracomment>
         <translation type="unfinished">Latència (ms)</translation>

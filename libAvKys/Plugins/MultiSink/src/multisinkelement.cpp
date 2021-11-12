@@ -282,9 +282,9 @@ QVariantMap MultiSinkElement::addStream(int streamIndex,
     this->d->m_mutex.lock();
 
     if (this->d->m_mediaWriter)
-        this->d->m_mediaWriter->addStream(streamIndex,
-                                          streamCaps,
-                                          codecParams);
+        stream = this->d->m_mediaWriter->addStream(streamIndex,
+                                                   streamCaps,
+                                                   codecParams);
 
     this->d->m_mutex.unlock();
 

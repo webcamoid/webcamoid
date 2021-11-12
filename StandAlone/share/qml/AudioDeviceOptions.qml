@@ -30,6 +30,8 @@ Dialog {
     height: AkUnit.create(350 * AkTheme.controlScale, "dp").pixels
     modal: true
 
+    property string device: ""
+
     function bound(min, value, max)
     {
         return Math.max(min, Math.min(value, max))
@@ -37,6 +39,7 @@ Dialog {
 
     function openOptions(device)
     {
+        deviceOptions.device = device
         deviceInfo.text =
                 "<b>" + audioLayer.description(device) + "</b>"
                 + "<br/><i>" + device + "</i>"
@@ -140,9 +143,9 @@ Dialog {
                 function reset()
                 {
                     var supportedFormats =
-                            audioLayer.supportedFormatsVariant(txtDevice.text)
+                            audioLayer.supportedFormatsVariant(deviceOptions.device)
                     let caps =
-                        AkAudioCaps.create(audioLayer.preferredFormat(txtDevice.text))
+                        AkAudioCaps.create(audioLayer.preferredFormat(deviceOptions.device))
                     currentIndex =
                             bound(0,
                                   supportedFormats.indexOf(caps.format),
@@ -162,9 +165,9 @@ Dialog {
                 function reset()
                 {
                     var supportedChannelLayouts =
-                            audioLayer.supportedChannelLayoutsVariant(txtDevice.text)
+                            audioLayer.supportedChannelLayoutsVariant(deviceOptions.device)
                     let caps =
-                        AkAudioCaps.create(audioLayer.preferredFormat(txtDevice.text))
+                        AkAudioCaps.create(audioLayer.preferredFormat(deviceOptions.device))
                     currentIndex =
                             bound(0,
                                   supportedChannelLayouts.indexOf(caps.layout),
@@ -185,9 +188,9 @@ Dialog {
                 function reset()
                 {
                     var supportedSampleRates =
-                            audioLayer.supportedSampleRates(txtDevice.text)
+                            audioLayer.supportedSampleRates(deviceOptions.device)
                     let caps =
-                        AkAudioCaps.create(audioLayer.preferredFormat(txtDevice.text))
+                        AkAudioCaps.create(audioLayer.preferredFormat(deviceOptions.device))
                     currentIndex =
                             bound(0,
                                   supportedSampleRates.indexOf(caps.rate),
@@ -259,7 +262,7 @@ Dialog {
                                        cbxSampleRates.model.get(sampleRatesCI).sampleRate)
         }
 
-        if (audioLayer.outputs.indexOf(txtDevice.text) < 0) {
+        if (audioLayer.outputs.indexOf(deviceOptions.device) < 0) {
             let state = audioLayer.inputState
             audioLayer.inputState = AkElement.ElementStateNull
             audioLayer.inputDeviceCaps = audioCaps.toVariant()
