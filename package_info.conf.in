@@ -43,6 +43,26 @@ name = webcamoid-portable
 [Dmg]
 name = webcamoid-portable
 
+[MacPkg]
+name = webcamoid-installer
+appName = Webcamoid
+productTitle = Webcamoid
+description = Webcamoid, the ultimate webcam suite!
+identifier = org.webcamoidprj.webcamoid
+licenseFile = COPYING
+
+[Nsis]
+name = webcamoid-installer
+organization = Webcamoid
+appName = Webcamoid
+productVersion = @VERSION@.0
+description = Webcamoid, the ultimate webcam suite!
+icon = @INSTALLER_ICON@
+runProgram = @RUN_PROGRAM@
+license = COPYING
+requiresAdminRights = false
+multiUserInstall = true
+
 [QtIFW]
 name = webcamoid-installer
 organization = org.webcamoidprj
@@ -59,15 +79,3 @@ licenseName = GNU General Public License v3.0
 script = ports/deploy/installscript.@TARGET_PLATFORM@.qs
 changeLog = ChangeLog
 pkgTargetPlatform = @PKG_TARGET_PLATFORM@
-
-[Nsis]
-name = webcamoid-installer
-organization = Webcamoid
-appName = Webcamoid
-productVersion = @VERSION@.0
-description = Webcamoid, the ultimate webcam suite!
-icon = @INSTALLER_ICON@
-runProgram = @RUN_PROGRAM@
-license = COPYING
-requiresAdminRights = false
-multiUserInstall = true
