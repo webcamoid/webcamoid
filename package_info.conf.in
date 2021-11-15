@@ -49,6 +49,7 @@ appName = Webcamoid
 productTitle = Webcamoid
 description = Webcamoid, the ultimate webcam suite!
 identifier = org.webcamoidprj.webcamoid
+component = Webcamoid.app
 licenseFile = COPYING
 
 [Nsis]
