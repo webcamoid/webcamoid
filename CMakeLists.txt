@@ -303,9 +303,10 @@ if (UNIX AND NOT ANDROID)
     endif ()
 endif ()
 
+find_package(PkgConfig)
+
 # Try detecting VLC plugins install path.
 
-find_package(PkgConfig)
 pkg_check_modules(VLC_PLUGINS vlc-plugin)
 
 if (VLC_PLUGINS_FOUND)
@@ -353,6 +354,14 @@ elseif (APPLE AND NOT VLC_PLUGINS_FOUND)
     else ()
         message("--   No 'VLC' found")
     endif ()
+endif ()
+
+# Try detecting GStreamer plugins install path.
+
+pkg_check_modules(GST_PLUGINS gstreamer-1.0)
+
+if (GST_PLUGINS_FOUND)
+    pkg_get_variable(GST_PLUGINS_DIR gstreamer-1.0 pluginsdir)
 endif ()
 
 configure_file(package_info.conf.in package_info.conf)
