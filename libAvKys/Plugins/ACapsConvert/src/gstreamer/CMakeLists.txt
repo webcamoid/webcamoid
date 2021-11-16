@@ -52,6 +52,8 @@ pkg_check_modules(GSTREAMER
                   gstreamer-audio-1.0
                   gstreamer-pbutils-1.0)
 link_directories(${GSTREAMER_LIBRARY_DIRS})
+add_definitions(-DBINDIR="${BINDIR}"
+                -DGST_PLUGINS_PATH="${GST_PLUGINS_PATH}")
 
 if (NOT NOGSTREAMER AND GSTREAMER_FOUND)
     add_library(ACapsConvert_gstreamer SHARED ${SOURCES})

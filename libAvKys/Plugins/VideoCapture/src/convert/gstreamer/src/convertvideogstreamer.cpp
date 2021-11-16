@@ -123,6 +123,19 @@ ConvertVideoGStreamer::ConvertVideoGStreamer(QObject *parent):
     ConvertVideo(parent)
 {
     //qputenv("GST_DEBUG", "2");
+    auto binDir = QDir(BINDIR).absolutePath();
+    auto gstPluginsDir = QDir(GST_PLUGINS_PATH).absolutePath();
+    auto relGstPluginsDir = QDir(binDir).relativeFilePath(gstPluginsDir);
+    QDir appDir = QCoreApplication::applicationDirPath();
+    appDir.cd(relGstPluginsDir);
+    auto path = appDir.absolutePath();
+    path.replace("/", QDir::separator());
+
+    if (QFileInfo::exists(path)) {
+        if (qEnvironmentVariableIsEmpty("GST_PLUGIN_PATH"))
+            qputenv("GST_PLUGIN_PATH", path.toLocal8Bit());
+    }
+
     gst_init(nullptr, nullptr);
 
     this->d = new ConvertVideoGStreamerPrivate;
