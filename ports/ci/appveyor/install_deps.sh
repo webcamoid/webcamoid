@@ -49,7 +49,5 @@ pacman --noconfirm --needed -S \
 if [ -z "${DAILY_BUILD}" ] && [ -z "${RELEASE_BUILD}" ]; then
     pacman --noconfirm --needed -S \
         mingw-w64-${packagesArch}-gst-plugins-base \
-        mingw-w64-${packagesArch}-gst-plugins-good \
-        mingw-w64-${packagesArch}-gst-plugins-bad \
-        mingw-w64-${packagesArch}-gst-plugins-ugly
+        mingw-w64-${packagesArch}-gst-plugins-good
 fi

@@ -88,7 +88,9 @@ dnf -y install \
     file \
     gcc-c++ \
     git \
+    gstreamer1-plugins-base \
     gstreamer1-plugins-base-devel \
+    gstreamer1-plugins-good \
     jack-audio-connection-kit-devel \
     kmod-devel \
     libv4l-devel \

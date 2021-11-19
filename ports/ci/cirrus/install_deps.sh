@@ -26,6 +26,7 @@ pkg install -y \
     ffmpeg \
     git \
     gstreamer1 \
+    gstreamer1-plugins-good \
     jackit \
     libuvc \
     pkgconf \

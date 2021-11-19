@@ -129,6 +129,8 @@ apt-get -y install \
 
 if [ "${UPLOAD}" != 1 ]; then
     apt-get -y install \
+        gstreamer1.0-plugins-base \
+        gstreamer1.0-plugins-good \
         libgstreamer-plugins-base1.0-dev
 
     if [ "${DOCKERIMG}" != ubuntu:focal ]; then

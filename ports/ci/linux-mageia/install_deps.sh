@@ -86,6 +86,8 @@ dnf -y install \
     cmake \
     gcc-c++ \
     git \
+    gstreamer1.0-plugins-base \
+    gstreamer1.0-plugins-good \
     lib64alsa2-devel \
     lib64ffmpeg-devel \
     lib64gstreamer-plugins-base1.0-devel \

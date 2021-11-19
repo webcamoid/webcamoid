@@ -100,6 +100,8 @@ apt-get -y install \
     file \
     g++ \
     git \
+    gstreamer1.0-plugins-base \
+    gstreamer1.0-plugins-good \
     libasound2-dev \
     libavcodec-dev \
     libavdevice-dev \

@@ -95,7 +95,9 @@ zypper -n in \
     cmake \
     ffmpeg-devel \
     git \
+    gstreamer-plugins-base \
     gstreamer-plugins-base-devel \
+    gstreamer-plugins-good \
     gzip \
     libjack-devel \
     libkmod-devel \

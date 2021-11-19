@@ -96,7 +96,9 @@ pacman --noconfirm --needed -S \
     ffmpeg \
     file \
     git \
+    gst-plugins-base \
     gst-plugins-base-libs \
+    gst-plugins-good \
     jack \
     libpulse \
     make \

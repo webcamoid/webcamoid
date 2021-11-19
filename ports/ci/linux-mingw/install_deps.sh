@@ -55,23 +55,25 @@ pacman --noconfirm --needed -S \
     cmake \
     file \
     git \
+    gst-plugins-base-libs \
+    lib32-gst-plugins-base-libs \
+    lib32-mpg123 \
     make \
+    mpg123 \
     pkgconf \
     python \
     sed \
-    xorg-server-xvfb \
-    gst-plugins-base-libs \
-    mpg123 \
-    lib32-gst-plugins-base-libs \
-    lib32-mpg123 \
     wine \
-    mingw-w64-pkg-config \
+    xorg-server-xvfb \
     mingw-w64-cmake \
+    mingw-w64-ffmpeg \
     mingw-w64-gcc \
+    mingw-w64-gst-plugins-base \
+    mingw-w64-gstreamer \
+    mingw-w64-pkg-config \
     mingw-w64-qt5-quickcontrols2 \
     mingw-w64-qt5-svg \
-    mingw-w64-qt5-tools \
-    mingw-w64-ffmpeg
+    mingw-w64-qt5-tools
 
 # Install NSIS
 

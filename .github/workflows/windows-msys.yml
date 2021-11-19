@@ -73,8 +73,6 @@ jobs:
           mingw-w64-${{ matrix.target_arch }}-ffmpeg
           mingw-w64-${{ matrix.target_arch }}-gst-plugins-base
           mingw-w64-${{ matrix.target_arch }}-gst-plugins-good
-          mingw-w64-${{ matrix.target_arch }}-gst-plugins-bad
-          mingw-w64-${{ matrix.target_arch }}-gst-plugins-ugly
           mingw-w64-${{ matrix.target_arch }}-pkgconf
           mingw-w64-${{ matrix.target_arch }}-qt5
           mingw-w64-${{ matrix.target_arch }}-vlc
