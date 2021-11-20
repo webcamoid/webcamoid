@@ -107,17 +107,22 @@ apt-get -y install \
     cmake \
     g++ \
     git \
+    gstreamer1.0-plugins-base \
+    gstreamer1.0-plugins-good \
     libasound2-dev \
     libavcodec-dev \
     libavdevice-dev \
     libavformat-dev \
     libavutil-dev \
     libgl1-mesa-dev \
+    libgstreamer-plugins-base1.0-dev \
     libjack-dev \
     libkmod-dev \
     libpulse-dev \
     libswresample-dev \
     libswscale-dev \
+    libusb-dev \
+    libuvc-dev \
     libv4l-dev \
     libvlc-dev \
     libvlccore-dev \
@@ -126,19 +131,6 @@ apt-get -y install \
     pkg-config \
     vlc-plugin-base \
     xvfb
-
-if [ "${UPLOAD}" != 1 ]; then
-    apt-get -y install \
-        gstreamer1.0-plugins-base \
-        gstreamer1.0-plugins-good \
-        libgstreamer-plugins-base1.0-dev
-
-    if [ "${DOCKERIMG}" != ubuntu:focal ]; then
-        apt-get -y install \
-            libusb-dev \
-            libuvc-dev
-    fi
-fi
 
 # Install Qt dev
 if [ "${DOCKERIMG}" = ubuntu:focal ]; then
