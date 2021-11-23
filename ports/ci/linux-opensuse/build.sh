@@ -44,6 +44,7 @@ cmake \
     -DCMAKE_C_COMPILER="${COMPILER_C}" \
     -DCMAKE_CXX_COMPILER="${COMPILER_CXX}" \
     ${EXTRA_PARAMS} \
+    -DGST_PLUGINS_SCANNER_PATH=/usr/libexec/gstreamer-1.0/gst-plugin-scanner-x86_64 \
     -DDAILY_BUILD=${DAILY_BUILD}
 cmake --build ${buildDir} --parallel ${NJOBS}
 cmake --install ${buildDir}
