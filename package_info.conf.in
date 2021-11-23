@@ -28,6 +28,7 @@ outputPluginsDir = @CMAKE_INSTALL_PREFIX@/@VLC_PLUGINS_PATH@
 [GStreamer]
 pluginsDir = @GST_PLUGINS_DIR@
 outputPluginsDir = @CMAKE_INSTALL_PREFIX@/@GST_PLUGINS_PATH@
+pluginScanner = @GST_PLUGINS_SCANNER_PATH@
 
 [AppImage]
 name = webcamoid-portable

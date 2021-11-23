@@ -115,3 +115,19 @@ endif ()
 
 set(VLC_PLUGINS_PATH "${OUTPUT_VLC_PLUGINS_DIR}" CACHE PATH "VLC plugins search path")
 set(GST_PLUGINS_PATH "${OUTPUT_GST_PLUGINS_DIR}" CACHE PATH "GStreamer plugins search path")
+
+# Guess gst-plugin-scanner path.
+
+find_package(PkgConfig)
+pkg_check_modules(GSTREAMER_PKG gstreamer-1.0)
+
+if (GSTREAMER_PKG_FOUND)
+    pkg_get_variable(GST_PLUGINS_SCANNER_DIR gstreamer-1.0 pluginscannerdir)
+
+    if (NOT "${GST_PLUGINS_SCANNER_DIR}" STREQUAL "")
+        file(GLOB GST_PLUGINS_SCANNER
+             ${GST_PLUGINS_SCANNER_DIR}/gst-plugin-scanner*)
+    endif ()
+endif ()
+
+set(GST_PLUGINS_SCANNER_PATH "${GST_PLUGINS_SCANNER}" CACHE FILEPATH "GStreamer plugins scanner utility path")

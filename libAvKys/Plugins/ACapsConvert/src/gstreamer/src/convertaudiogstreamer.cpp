@@ -90,6 +90,17 @@ ConvertAudioGStreamer::ConvertAudioGStreamer(QObject *parent):
     if (QFileInfo::exists(path)) {
         if (qEnvironmentVariableIsEmpty("GST_PLUGIN_PATH"))
             qputenv("GST_PLUGIN_PATH", path.toLocal8Bit());
+
+        auto scanner = QFileInfo(GST_PLUGINS_SCANNER_PATH).baseName();
+
+        if (!scanner.isEmpty()) {
+            auto scannerPath = path + "/" + scanner;
+
+            if (QFileInfo::exists(scannerPath)) {
+                if (qEnvironmentVariableIsEmpty("GST_PLUGIN_SCANNER"))
+                    qputenv("GST_PLUGIN_SCANNER", scannerPath.toLocal8Bit());
+            }
+        }
     }
 
     gst_init(nullptr, nullptr);

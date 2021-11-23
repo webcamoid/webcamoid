@@ -116,6 +116,7 @@ apt-get -y install \
     libavutil-dev \
     libgl1-mesa-dev \
     libgstreamer-plugins-base1.0-dev \
+    libgstreamer1.0-0 \
     libjack-dev \
     libkmod-dev \
     libpulse-dev \
