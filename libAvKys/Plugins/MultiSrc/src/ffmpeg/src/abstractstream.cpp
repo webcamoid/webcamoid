@@ -593,7 +593,7 @@ void AbstractStreamPrivate::deletePacket(AVPacket *packet)
         return;
 
     av_packet_unref(packet);
-    delete packet;
+    av_packet_free(&packet);
 }
 
 void AbstractStreamPrivate::deleteFrame(AVFrame *frame)

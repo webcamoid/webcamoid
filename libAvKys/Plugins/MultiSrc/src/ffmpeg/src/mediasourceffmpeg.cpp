@@ -370,6 +370,7 @@ void MediaSourceFFmpeg::setMedia(const QString &media)
     emit this->mediaChanged(media);
     emit this->mediasChanged(this->medias());
     emit this->durationMSecsChanged(this->durationMSecs());
+    emit this->mediaLoaded(media);
 }
 
 void MediaSourceFFmpeg::setStreams(const QList<int> &streams)
@@ -490,16 +491,16 @@ bool MediaSourceFFmpeg::setState(AkElement::ElementState state)
                 this->d->m_streamsMap[i] = stream;
 
                 QObject::connect(stream.data(),
-                                 SIGNAL(oStream(const AkPacket &)),
+                                 SIGNAL(oStream(AkPacket)),
                                  this,
-                                 SIGNAL(oStream(const AkPacket &)),
+                                 SIGNAL(oStream(AkPacket)),
                                  Qt::DirectConnection);
                 QObject::connect(stream.data(),
                                  SIGNAL(notify()),
                                  this,
                                  SLOT(packetConsumed()));
                 QObject::connect(stream.data(),
-                                 SIGNAL(oStream(const AkPacket &)),
+                                 SIGNAL(oStream(AkPacket)),
                                  this,
                                  SLOT(log()));
                 QObject::connect(stream.data(),
@@ -841,15 +842,14 @@ void MediaSourceFFmpegPrivate::readPacket()
                 return;
             }
 
-        auto packet = new AVPacket;
-        av_init_packet(packet);
+        auto packet = av_packet_alloc();
         int r = av_read_frame(this->m_inputContext.data(), packet);
 
         if (r < 0) {
             for (auto &stream: this->m_streamsMap)
                 stream->packetEnqueue(nullptr);
 
-            delete packet;
+            av_packet_free(&packet);
             this->m_eos = true;
         } else {
             if (this->m_streamsMap.contains(packet->stream_index)
@@ -858,7 +858,7 @@ void MediaSourceFFmpegPrivate::readPacket()
                 this->m_streamsMap[packet->stream_index]->packetEnqueue(packet);
             } else {
                 av_packet_unref(packet);
-                delete packet;
+                av_packet_free(&packet);
             }
         }
     }

@@ -113,7 +113,7 @@ MediaSourceVLC::MediaSourceVLC(QObject *parent):
     if (this->d->m_threadPool.maxThreadCount() < 4)
         this->d->m_threadPool.setMaxThreadCount(4);
 
-    //qputenv("VLC_VERBOSE", "3", 1);
+    //qputenv("VLC_VERBOSE", "3");
 
     auto binDir = QDir(BINDIR).absolutePath();
     auto vlcPluginsDir = QDir(VLC_PLUGINS_PATH).absolutePath();
@@ -545,15 +545,14 @@ bool MediaSourceVLC::setState(AkElement::ElementState state)
                 }
             }
 
-            if (state == AkElement::ElementStatePlaying) {
-                if (libvlc_media_player_play(this->d->m_mediaPlayer) != 0) {
-                    this->d->m_mutex.unlock();
+            if (libvlc_media_player_play(this->d->m_mediaPlayer) != 0) {
+                this->d->m_mutex.unlock();
 
-                    return false;
-                }
-            } else {
-                libvlc_media_player_set_pause(this->d->m_mediaPlayer, true);
+                return false;
             }
+
+            if (state == AkElement::ElementStatePaused)
+                libvlc_media_player_set_pause(this->d->m_mediaPlayer, true);
 
             this->d->m_mutex.unlock();
             this->d->m_audioId = Ak::id();
@@ -644,6 +643,7 @@ void MediaSourceVLCPrivate::mediaParsedChangedCallback(const libvlc_event_t *eve
 {
     Q_UNUSED(event)
     auto self = reinterpret_cast<MediaSourceVLC *>(userData);
+    bool streamsChanged = false;
     self->d->m_mutex.lock();
 
     if (self->d->m_mediaPlayer) {
@@ -702,9 +702,15 @@ void MediaSourceVLCPrivate::mediaParsedChangedCallback(const libvlc_event_t *eve
             libvlc_media_tracks_release(tracks, ntracks);
 
         self->d->m_streamInfo = streamInfo;
+        streamsChanged = true;
     }
 
     self->d->m_mutex.unlock();
+
+    if (streamsChanged) {
+        emit self->streamsChanged(self->d->m_streams);
+        emit self->mediaLoaded(self->d->m_media);
+    }
 }
 
 void MediaSourceVLCPrivate::mediaPlayerEndReachedCallback(const libvlc_event_t *event,

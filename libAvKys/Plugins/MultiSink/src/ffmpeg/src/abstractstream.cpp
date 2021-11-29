@@ -225,13 +225,12 @@ void AbstractStream::rescaleTS(AVPacket *pkt, AVRational src, AVRational dst)
 
 void AbstractStream::deleteFrame(AVFrame **frame)
 {
-    if (frame && *frame) {
-        av_freep(&((*frame)->data[0]));
-        (*frame)->data[0] = nullptr;
-    }
+    if (!frame || !*frame)
+        return;
 
     av_frame_unref(*frame);
     av_frame_free(frame);
+    *frame = nullptr;
 }
 
 void AbstractStreamPrivate::convertLoop()
@@ -277,10 +276,17 @@ bool AbstractStream::init()
     if (!this->d->m_codecContext)
         return false;
 
-    if (avcodec_open2(this->d->m_codecContext,
-                      this->d->m_codecContext->codec,
-                      &this->d->m_codecOptions) < 0)
+    int result = avcodec_open2(this->d->m_codecContext,
+                               this->d->m_codecContext->codec,
+                               &this->d->m_codecOptions);
+
+    if (result < 0) {
+        char error[1024];
+        av_strerror(result, error, 1024);
+        qDebug() << "Error: " << error;
+
         return false;
+    }
 
     avcodec_parameters_from_context(this->d->m_stream->codecpar,
                                     this->d->m_codecContext);

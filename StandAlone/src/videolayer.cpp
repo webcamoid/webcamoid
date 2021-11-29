@@ -1100,6 +1100,10 @@ void VideoLayerPrivate::connectSignals()
                          SIGNAL(error(QString)),
                          self,
                          SIGNAL(inputErrorChanged(QString)));
+        QObject::connect(this->m_desktopCapture.data(),
+                         SIGNAL(streamsChanged(QList<int>)),
+                         self,
+                         SLOT(updateCaps()));
     }
 
     if (this->m_uriCapture) {
@@ -1116,6 +1120,10 @@ void VideoLayerPrivate::connectSignals()
                          SIGNAL(error(QString)),
                          self,
                          SIGNAL(inputErrorChanged(QString)));
+        QObject::connect(this->m_uriCapture.data(),
+                         SIGNAL(streamsChanged(QList<int>)),
+                         self,
+                         SLOT(updateCaps()));
     }
 
     if (this->m_cameraOutput) {

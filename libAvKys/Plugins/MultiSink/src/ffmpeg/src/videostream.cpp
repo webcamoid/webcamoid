@@ -108,7 +108,7 @@ VideoStream::VideoStream(const AVFormatContext *formatContext,
         AkFrac frameRate;
         qreal maxDiff = std::numeric_limits<qreal>::max();
 
-        for (const QVariant &rate: supportedFrameRates) {
+        for (auto &rate: supportedFrameRates) {
             qreal diff = qAbs(videoCaps.fps().value() - rate.value<AkFrac>().value());
 
             if (diff < maxDiff) {
@@ -192,8 +192,8 @@ QImage VideoStreamPrivate::swapChannels(const QImage &image) const
     QImage swapped(image.size(), image.format());
 
     for (int y = 0; y < image.height(); y++) {
-        const XRGB *src = reinterpret_cast<const XRGB *>(image.constScanLine(y));
-        BGRX *dst = reinterpret_cast<BGRX *>(swapped.scanLine(y));
+        auto src = reinterpret_cast<const XRGB *>(image.constScanLine(y));
+        auto dst = reinterpret_cast<BGRX *>(swapped.scanLine(y));
 
         for (int x = 0; x < image.width(); x++) {
             dst[x].x = src[x].x;
@@ -268,12 +268,7 @@ void VideoStream::convertPacket(const AkPacket &packet)
         return;
     }
 
-    if (av_image_alloc(oFrame->data,
-                       oFrame->linesize,
-                       oFrame->width,
-                       oFrame->height,
-                       AVPixelFormat(oFrame->format),
-                       4) < 0)
+    if (av_frame_get_buffer(oFrame, 4) < 0)
         return;
 
     sws_scale(this->d->m_scaleContext,
@@ -357,22 +352,23 @@ int VideoStream::encodeData(AVFrame *frame)
     }
 
     forever {
-        AVPacket pkt;
-        av_init_packet(&pkt);
-        pkt.data = nullptr; // packet data will be allocated by the encoder
-        pkt.size = 0;
-        result = avcodec_receive_packet(codecContext, &pkt);
+        auto pkt = av_packet_alloc();
+        result = avcodec_receive_packet(codecContext, pkt);
 
-        if (result < 0)
+        if (result < 0) {
+            av_packet_free(&pkt);
+
             break;
+        }
 
-        pkt.stream_index = this->streamIndex();
-        this->rescaleTS(&pkt,
+        pkt->stream_index = this->streamIndex();
+        this->rescaleTS(pkt,
                         codecContext->time_base,
                         stream->time_base);
 
         // Write the compressed frame to the media file.
-        emit this->packetReady(&pkt);
+        emit this->packetReady(pkt);
+        av_packet_free(&pkt);
     }
 
     return result;

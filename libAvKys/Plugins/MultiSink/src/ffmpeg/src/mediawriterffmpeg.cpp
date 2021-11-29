@@ -140,6 +140,8 @@ MediaWriterFFmpeg::MediaWriterFFmpeg(QObject *parent):
         "v308",
         "v408",
     };
+
+    // av_log_set_level(AV_LOG_TRACE);
 }
 
 MediaWriterFFmpeg::~MediaWriterFFmpeg()
@@ -1067,13 +1069,20 @@ void MediaWriterFFmpeg::clearStreams()
 bool MediaWriterFFmpeg::init()
 {
     auto outputFormat = this->d->guessFormat();
+    int result =
+            avformat_alloc_output_context2(&this->d->m_formatContext,
+                                           nullptr,
+                                           this->d->m_outputFormat.isEmpty()?
+                                                nullptr: this->d->m_outputFormat.toStdString().c_str(),
+                                           this->m_location.toStdString().c_str());
 
-    if (avformat_alloc_output_context2(&this->d->m_formatContext,
-                                       nullptr,
-                                       this->d->m_outputFormat.isEmpty()?
-                                            nullptr: this->d->m_outputFormat.toStdString().c_str(),
-                                       this->m_location.toStdString().c_str()) < 0)
+    if (result < 0) {
+        char error[1024];
+        av_strerror(result, error, 1024);
+        qDebug() << "Error allocating output context: " << error;
+
         return false;
+    }
 
     auto streamConfigs = this->d->m_streamConfigs.toVector();
 
@@ -1175,12 +1184,12 @@ bool MediaWriterFFmpeg::init()
                                           this->d->m_formatOptions.value(outputFormat));
 
     // Write file header.
-    int error = avformat_write_header(this->d->m_formatContext, &formatOptions);
+    result = avformat_write_header(this->d->m_formatContext, &formatOptions);
     av_dict_free(&formatOptions);
 
-    if (error < 0) {
+    if (result < 0) {
         char errorStr[1024];
-        av_strerror(AVERROR(error), errorStr, 1024);
+        av_strerror(AVERROR(result), errorStr, 1024);
         qDebug() << "Can't write header: " << errorStr;
 
         if (!(this->d->m_formatContext->oformat->flags & AVFMT_NOFILE))

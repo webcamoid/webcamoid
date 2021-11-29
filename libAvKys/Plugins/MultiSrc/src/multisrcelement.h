@@ -105,6 +105,7 @@ class MultiSrcElement: public AkMultimediaSourceElement
     signals:
         void mediasChanged(const QStringList &medias);
         void mediaChanged(const QString &media);
+        void mediaLoaded(const QString &media);
         void streamsChanged(const QList<int> &streams);
         void loopChanged(bool loop);
         void syncChanged(bool sync);

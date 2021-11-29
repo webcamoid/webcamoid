@@ -287,6 +287,7 @@ void MediaSourceNDKMedia::setMedia(const QString &media)
     emit this->mediaChanged(media);
     emit this->mediasChanged(this->medias());
     emit this->durationMSecsChanged(this->durationMSecs());
+    emit this->mediaLoaded(media);
 }
 
 void MediaSourceNDKMedia::setStreams(const QList<int> &streams)

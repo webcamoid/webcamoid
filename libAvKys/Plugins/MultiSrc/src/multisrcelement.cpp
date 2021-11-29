@@ -20,6 +20,7 @@
 #include <QSharedPointer>
 #include <QMutex>
 #include <QQmlContext>
+#include <QReadWriteLock>
 #include <akcaps.h>
 #include <akplugininfo.h>
 #include <akpluginmanager.h>
@@ -35,7 +36,7 @@ class MultiSrcElementPrivate
         MultiSrcElement *self;
         MediaSourcePtr m_mediaSource;
         QString m_mediaSourceImpl;
-        QMutex m_mutex;
+        QReadWriteLock m_mutex;
 
         explicit MultiSrcElementPrivate(MultiSrcElement *self);
         void linksChanged(const AkPluginLinks &links);
@@ -99,6 +100,10 @@ MultiSrcElement::MultiSrcElement():
                          this,
                          &MultiSrcElement::mediaChanged);
         QObject::connect(this->d->m_mediaSource.data(),
+                         &MediaSource::mediaLoaded,
+                         this,
+                         &MultiSrcElement::mediaLoaded);
+        QObject::connect(this->d->m_mediaSource.data(),
                          &MediaSource::streamsChanged,
                          this,
                          &MultiSrcElement::streamsChanged);
@@ -113,7 +118,7 @@ MultiSrcElement::~MultiSrcElement()
 
 QStringList MultiSrcElement::medias()
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForRead();
     QStringList medias;
 
     if (this->d->m_mediaSource)
@@ -126,7 +131,7 @@ QStringList MultiSrcElement::medias()
 
 QString MultiSrcElement::media() const
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForRead();
     QString media;
 
     if (this->d->m_mediaSource)
@@ -139,7 +144,7 @@ QString MultiSrcElement::media() const
 
 QList<int> MultiSrcElement::streams()
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForRead();
     QList<int> streams;
 
     if (this->d->m_mediaSource)
@@ -152,7 +157,7 @@ QList<int> MultiSrcElement::streams()
 
 bool MultiSrcElement::loop() const
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForRead();
     bool loop = false;
 
     if (this->d->m_mediaSource)
@@ -165,7 +170,7 @@ bool MultiSrcElement::loop() const
 
 bool MultiSrcElement::sync() const
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForRead();
     bool sync = false;
 
     if (this->d->m_mediaSource)
@@ -178,7 +183,7 @@ bool MultiSrcElement::sync() const
 
 QList<int> MultiSrcElement::listTracks(const QString &type)
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForRead();
     QList<int> tracks;
 
     if (this->d->m_mediaSource)
@@ -191,7 +196,7 @@ QList<int> MultiSrcElement::listTracks(const QString &type)
 
 QString MultiSrcElement::streamLanguage(int stream)
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForRead();
     QString language;
 
     if (this->d->m_mediaSource)
@@ -204,7 +209,7 @@ QString MultiSrcElement::streamLanguage(int stream)
 
 int MultiSrcElement::defaultStream(const QString &mimeType)
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForRead();
     int stream = 0;
 
     if (this->d->m_mediaSource)
@@ -217,7 +222,7 @@ int MultiSrcElement::defaultStream(const QString &mimeType)
 
 QString MultiSrcElement::description(const QString &media)
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForRead();
     QString description;
 
     if (this->d->m_mediaSource)
@@ -230,7 +235,7 @@ QString MultiSrcElement::description(const QString &media)
 
 AkCaps MultiSrcElement::caps(int stream)
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForRead();
     AkCaps caps;
 
     if (this->d->m_mediaSource)
@@ -243,7 +248,7 @@ AkCaps MultiSrcElement::caps(int stream)
 
 qint64 MultiSrcElement::durationMSecs()
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForRead();
     qint64 duration = 0;
 
     if (this->d->m_mediaSource)
@@ -256,7 +261,7 @@ qint64 MultiSrcElement::durationMSecs()
 
 qint64 MultiSrcElement::currentTimeMSecs()
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForRead();
     qint64 curTime = 0;
 
     if (this->d->m_mediaSource)
@@ -269,7 +274,7 @@ qint64 MultiSrcElement::currentTimeMSecs()
 
 qint64 MultiSrcElement::maxPacketQueueSize() const
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForRead();
     qint64 queueSize = 0;
 
     if (this->d->m_mediaSource)
@@ -282,7 +287,7 @@ qint64 MultiSrcElement::maxPacketQueueSize() const
 
 bool MultiSrcElement::showLog() const
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForRead();
     bool showLog = false;
 
     if (this->d->m_mediaSource)
@@ -295,7 +300,7 @@ bool MultiSrcElement::showLog() const
 
 AkElement::ElementState MultiSrcElement::state() const
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForRead();
     ElementState state = ElementStateNull;
 
     if (this->d->m_mediaSource)
@@ -324,7 +329,7 @@ void MultiSrcElement::controlInterfaceConfigure(QQmlContext *context,
 
 void MultiSrcElement::seek(qint64 seekTo, SeekPosition position)
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForRead();
 
     if (this->d->m_mediaSource)
         this->d->m_mediaSource->seek(seekTo, position);
@@ -334,7 +339,7 @@ void MultiSrcElement::seek(qint64 seekTo, SeekPosition position)
 
 void MultiSrcElement::setMedia(const QString &media)
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForRead();
 
     if (this->d->m_mediaSource)
         this->d->m_mediaSource->setMedia(media);
@@ -344,7 +349,7 @@ void MultiSrcElement::setMedia(const QString &media)
 
 void MultiSrcElement::setStreams(const QList<int> &streams)
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForRead();
 
     if (this->d->m_mediaSource)
         this->d->m_mediaSource->setStreams(streams);
@@ -354,7 +359,7 @@ void MultiSrcElement::setStreams(const QList<int> &streams)
 
 void MultiSrcElement::setLoop(bool loop)
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForRead();
 
     if (this->d->m_mediaSource)
         this->d->m_mediaSource->setLoop(loop);
@@ -364,7 +369,7 @@ void MultiSrcElement::setLoop(bool loop)
 
 void MultiSrcElement::setSync(bool sync)
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForRead();
 
     if (this->d->m_mediaSource)
         this->d->m_mediaSource->setSync(sync);
@@ -374,7 +379,7 @@ void MultiSrcElement::setSync(bool sync)
 
 void MultiSrcElement::setMaxPacketQueueSize(qint64 maxPacketQueueSize)
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForRead();
 
     if (this->d->m_mediaSource)
         this->d->m_mediaSource->setMaxPacketQueueSize(maxPacketQueueSize);
@@ -384,7 +389,7 @@ void MultiSrcElement::setMaxPacketQueueSize(qint64 maxPacketQueueSize)
 
 void MultiSrcElement::setShowLog(bool showLog)
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForRead();
 
     if (this->d->m_mediaSource)
         this->d->m_mediaSource->setShowLog(showLog);
@@ -394,7 +399,7 @@ void MultiSrcElement::setShowLog(bool showLog)
 
 void MultiSrcElement::resetMedia()
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForRead();
 
     if (this->d->m_mediaSource)
         this->d->m_mediaSource->resetMedia();
@@ -404,7 +409,7 @@ void MultiSrcElement::resetMedia()
 
 void MultiSrcElement::resetStreams()
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForRead();
 
     if (this->d->m_mediaSource)
         this->d->m_mediaSource->resetStreams();
@@ -414,7 +419,7 @@ void MultiSrcElement::resetStreams()
 
 void MultiSrcElement::resetLoop()
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForRead();
 
     if (this->d->m_mediaSource)
         this->d->m_mediaSource->resetLoop();
@@ -424,7 +429,7 @@ void MultiSrcElement::resetLoop()
 
 void MultiSrcElement::resetSync()
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForRead();
 
     if (this->d->m_mediaSource)
         this->d->m_mediaSource->resetSync();
@@ -434,7 +439,7 @@ void MultiSrcElement::resetSync()
 
 void MultiSrcElement::resetMaxPacketQueueSize()
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForRead();
 
     if (this->d->m_mediaSource)
         this->d->m_mediaSource->resetMaxPacketQueueSize();
@@ -444,7 +449,7 @@ void MultiSrcElement::resetMaxPacketQueueSize()
 
 void MultiSrcElement::resetShowLog()
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForRead();
 
     if (this->d->m_mediaSource)
         this->d->m_mediaSource->resetShowLog();
@@ -454,7 +459,7 @@ void MultiSrcElement::resetShowLog()
 
 bool MultiSrcElement::setState(ElementState state)
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForRead();
     bool result = false;
 
     if (this->d->m_mediaSource)
@@ -483,7 +488,7 @@ void MultiSrcElementPrivate::linksChanged(const AkPluginLinks &links)
 
     auto state = self->state();
     self->setState(AkElement::ElementStateNull);
-    this->m_mutex.lock();
+    this->m_mutex.lockForWrite();
 
     QString media;
     bool loop = false;
@@ -548,6 +553,10 @@ void MultiSrcElementPrivate::linksChanged(const AkPluginLinks &links)
                      &MediaSource::mediaChanged,
                      self,
                      &MultiSrcElement::mediaChanged);
+    QObject::connect(this->m_mediaSource.data(),
+                     &MediaSource::mediaLoaded,
+                     self,
+                     &MultiSrcElement::mediaLoaded);
     QObject::connect(this->m_mediaSource.data(),
                      &MediaSource::streamsChanged,
                      self,

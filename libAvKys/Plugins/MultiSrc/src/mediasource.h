@@ -106,6 +106,7 @@ class MediaSource: public QObject
         void syncChanged(bool sync);
         void mediasChanged(const QStringList &medias);
         void mediaChanged(const QString &media);
+        void mediaLoaded(const QString &media);
         void streamsChanged(const QList<int> &streams);
 
     public slots:

@@ -268,6 +268,7 @@ class Recording: public QObject
 
     private slots:
         void thumbnailUpdated(const AkPacket &packet);
+        void mediaLoaded(const QString &media);
 };
 
 #endif // RECORDING_H
