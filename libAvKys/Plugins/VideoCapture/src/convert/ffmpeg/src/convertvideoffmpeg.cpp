@@ -201,10 +201,6 @@ class ConvertVideoFFmpegPrivate
 ConvertVideoFFmpeg::ConvertVideoFFmpeg(QObject *parent):
     ConvertVideo(parent)
 {
-#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(58, 10, 100)
-    avcodec_register_all();
-#endif
-
     this->d = new ConvertVideoFFmpegPrivate(this);
 
 #ifndef QT_DEBUG
@@ -359,13 +355,12 @@ void ConvertVideoFFmpegPrivate::packetLoop(ConvertVideoFFmpeg *stream)
         if (!stream->d->m_packets.isEmpty()) {
             AkPacket packet = stream->d->m_packets.dequeue();
 
-            AVPacket videoPacket;
-            av_init_packet(&videoPacket);
-            videoPacket.data = reinterpret_cast<uint8_t *>(packet.buffer().data());
-            videoPacket.size = packet.buffer().size();
-            videoPacket.pts = packet.pts();
+            auto videoPacket = av_packet_alloc();
+            videoPacket->data = reinterpret_cast<uint8_t *>(packet.buffer().data());
+            videoPacket->size = packet.buffer().size();
+            videoPacket->pts = packet.pts();
 
-            if (avcodec_send_packet(stream->d->m_codecContext, &videoPacket) >= 0)
+            if (avcodec_send_packet(stream->d->m_codecContext, videoPacket) >= 0)
                 forever {
                     auto iFrame = av_frame_alloc();
                     int r = avcodec_receive_frame(stream->d->m_codecContext, iFrame);
@@ -381,6 +376,7 @@ void ConvertVideoFFmpegPrivate::packetLoop(ConvertVideoFFmpeg *stream)
                         break;
                 }
 
+            av_packet_free(&videoPacket);
             stream->d->m_packetQueueSize -= packet.buffer().size();
 
             if (stream->d->m_packetQueueSize < stream->d->m_maxPacketQueueSize)
