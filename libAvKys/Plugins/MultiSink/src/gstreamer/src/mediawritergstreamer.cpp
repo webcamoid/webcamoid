@@ -1163,7 +1163,7 @@ QVariantMap MediaWriterGStreamer::addStream(int streamIndex,
     }
 
     this->d->m_streamConfigs << outputParams;
-    this->streamsChanged(this->streams());
+    emit this->streamsChanged(this->streams());
 
     return outputParams;
 }
@@ -1201,7 +1201,6 @@ QVariantMap MediaWriterGStreamer::updateStream(int index,
         streamChanged = true;
 
         // Update sample format.
-        auto codecDefaults = this->defaultCodecParams(codec);
 
         if (streamCaps.mimeType() == "audio/x-raw") {
             AkAudioCaps audioCaps(streamCaps);
@@ -1215,8 +1214,9 @@ QVariantMap MediaWriterGStreamer::updateStream(int index,
 
         this->d->m_streamConfigs[index]["caps"] =
                 QVariant::fromValue(streamCaps);
-    } else
+    } else {
         codec = this->d->m_streamConfigs[index]["codec"].toString();
+    }
 
     auto codecDefaults = this->defaultCodecParams(codec);
 
@@ -1401,7 +1401,7 @@ void MediaWriterGStreamer::enqueuePacket(const AkPacket &packet)
 void MediaWriterGStreamer::clearStreams()
 {
     this->d->m_streamConfigs.clear();
-    this->streamsChanged(this->streams());
+    emit this->streamsChanged(this->streams());
 }
 
 bool MediaWriterGStreamer::init()
