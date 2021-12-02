@@ -2266,8 +2266,10 @@ gboolean MediaWriterGStreamerPrivate::busCallback(GstBus *bus,
         break;
     }
     case GST_MESSAGE_EOS:
+        qDebug() << "EOS received";
         g_main_loop_quit(self->d->m_mainLoop);
-    break;
+
+        break;
     case GST_MESSAGE_STATE_CHANGED: {
         GstState oldstate;
         GstState newstate;
@@ -2325,17 +2327,19 @@ gboolean MediaWriterGStreamerPrivate::busCallback(GstBus *bus,
     case GST_MESSAGE_TAG: {
         GstTagList *tagList = nullptr;
         gst_message_parse_tag(message, &tagList);
-        gchar *tags = gst_tag_list_to_string(tagList);
+        auto tags = gst_tag_list_to_string(tagList);
 //        qDebug() << "Tags:" << tags;
         g_free(tags);
         gst_tag_list_unref(tagList);
+
         break;
     }
     case GST_MESSAGE_ELEMENT: {
-        const GstStructure *messageStructure = gst_message_get_structure(message);
-        gchar *structure = gst_structure_to_string(messageStructure);
+        auto messageStructure = gst_message_get_structure(message);
+        auto structure = gst_structure_to_string(messageStructure);
 //        qDebug() << structure;
         g_free(structure);
+
         break;
     }
     case GST_MESSAGE_QOS: {
@@ -2345,8 +2349,7 @@ gboolean MediaWriterGStreamerPrivate::busCallback(GstBus *bus,
         GstFormat format;
         guint64 processed;
         guint64 dropped;
-        gst_message_parse_qos_stats(message, &format, &processed, &dropped);
-        const gchar *formatStr = gst_format_get_name(format);
+        auto formatStr = gst_format_get_name(format);
         qDebug() << "    Processed" << processed << formatStr;
         qDebug() << "    Dropped" << dropped << formatStr;
 

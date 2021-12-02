@@ -19,8 +19,9 @@
 
 #include <QCoreApplication>
 #include <QMap>
-#include <QVector>
 #include <QMutex>
+#include <QVector>
+#include <QtDebug>
 #include <akaudiopacket.h>
 #include <pulse/simple.h>
 #include <pulse/context.h>

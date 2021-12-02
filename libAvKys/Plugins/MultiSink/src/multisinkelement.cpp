@@ -18,6 +18,7 @@
  */
 
 #include <QMutex>
+#include <QReadWriteLock>
 #include <QSharedPointer>
 #include <akpacket.h>
 #include <akplugininfo.h>
@@ -38,7 +39,7 @@ class MultiSinkElementPrivate
         QString m_mediaWriterImpl;
         MultiSinkUtils m_utils;
         QList<int> m_inputStreams;
-        QMutex m_mutex;
+        QReadWriteLock m_mutex;
 
         // Formats and codecs info cache.
         QStringList m_supportedFormats;
@@ -140,7 +141,7 @@ QString MultiSinkElement::location() const
 
 QString MultiSinkElement::defaultFormat() const
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForRead();
     QString defaultFormat;
 
     if (this->d->m_mediaWriter)
@@ -158,7 +159,7 @@ QStringList MultiSinkElement::supportedFormats() const
 
 QString MultiSinkElement::outputFormat() const
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForRead();
     QString outputFormat;
 
     if (this->d->m_mediaWriter)
@@ -171,7 +172,7 @@ QString MultiSinkElement::outputFormat() const
 
 QVariantList MultiSinkElement::streams()
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForRead();
     QVariantList streams;
 
     if (this->d->m_mediaWriter)
@@ -184,7 +185,7 @@ QVariantList MultiSinkElement::streams()
 
 QStringList MultiSinkElement::formatsBlackList() const
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForRead();
     QStringList formatsBlackList;
 
     if (this->d->m_mediaWriter)
@@ -197,7 +198,7 @@ QStringList MultiSinkElement::formatsBlackList() const
 
 QStringList MultiSinkElement::codecsBlackList() const
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForRead();
     QStringList codecsBlackList;
 
     if (this->d->m_mediaWriter)
@@ -220,7 +221,7 @@ QString MultiSinkElement::formatDescription(const QString &format) const
 
 QVariantList MultiSinkElement::formatOptions() const
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForRead();
     QVariantList formatOptions;
 
     if (this->d->m_mediaWriter)
@@ -234,7 +235,7 @@ QVariantList MultiSinkElement::formatOptions() const
 QStringList MultiSinkElement::supportedCodecs(const QString &format,
                                               const QString &type)
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForRead();
     QStringList supportedCodecs;
 
     if (this->d->m_mediaWriter)
@@ -248,7 +249,7 @@ QStringList MultiSinkElement::supportedCodecs(const QString &format,
 QString MultiSinkElement::defaultCodec(const QString &format,
                                        const QString &type)
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForRead();
     QString defaultCodec;
 
     if (this->d->m_mediaWriter)
@@ -279,7 +280,7 @@ QVariantMap MultiSinkElement::addStream(int streamIndex,
                                         const QVariantMap &codecParams)
 {
     QVariantMap stream;
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForRead();
 
     if (this->d->m_mediaWriter)
         stream = this->d->m_mediaWriter->addStream(streamIndex,
@@ -298,7 +299,7 @@ QVariantMap MultiSinkElement::updateStream(int index,
                                            const QVariantMap &codecParams)
 {
     QVariantMap stream;
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForRead();
 
     if (this->d->m_mediaWriter)
         stream = this->d->m_mediaWriter->updateStream(index, codecParams);
@@ -311,7 +312,7 @@ QVariantMap MultiSinkElement::updateStream(int index,
 QVariantList MultiSinkElement::codecOptions(int index)
 {
     QVariantList options;
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForRead();
 
     if (this->d->m_mediaWriter)
         options = this->d->m_mediaWriter->codecOptions(index);
@@ -332,7 +333,7 @@ void MultiSinkElement::setLocation(const QString &location)
 
 void MultiSinkElement::setOutputFormat(const QString &outputFormat)
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForRead();
 
     if (this->d->m_mediaWriter)
         this->d->m_mediaWriter->setOutputFormat(outputFormat);
@@ -342,7 +343,7 @@ void MultiSinkElement::setOutputFormat(const QString &outputFormat)
 
 void MultiSinkElement::setFormatOptions(const QVariantMap &formatOptions)
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForRead();
 
     if (this->d->m_mediaWriter)
         this->d->m_mediaWriter->setFormatOptions(formatOptions);
@@ -353,7 +354,7 @@ void MultiSinkElement::setFormatOptions(const QVariantMap &formatOptions)
 void MultiSinkElement::setCodecOptions(int index,
                                        const QVariantMap &codecOptions)
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForRead();
 
     if (this->d->m_mediaWriter)
         this->d->m_mediaWriter->setCodecOptions(index, codecOptions);
@@ -363,7 +364,7 @@ void MultiSinkElement::setCodecOptions(int index,
 
 void MultiSinkElement::setFormatsBlackList(const QStringList &formatsBlackList)
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForRead();
 
     if (this->d->m_mediaWriter)
         this->d->m_mediaWriter->setFormatsBlackList(formatsBlackList);
@@ -373,7 +374,7 @@ void MultiSinkElement::setFormatsBlackList(const QStringList &formatsBlackList)
 
 void MultiSinkElement::setCodecsBlackList(const QStringList &codecsBlackList)
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForRead();
 
     if (this->d->m_mediaWriter)
         this->d->m_mediaWriter->setCodecsBlackList(codecsBlackList);
@@ -388,7 +389,7 @@ void MultiSinkElement::resetLocation()
 
 void MultiSinkElement::resetOutputFormat()
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForRead();
 
     if (this->d->m_mediaWriter)
         this->d->m_mediaWriter->resetOutputFormat();
@@ -398,7 +399,7 @@ void MultiSinkElement::resetOutputFormat()
 
 void MultiSinkElement::resetFormatOptions()
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForRead();
 
     if (this->d->m_mediaWriter)
         this->d->m_mediaWriter->resetFormatOptions();
@@ -408,7 +409,7 @@ void MultiSinkElement::resetFormatOptions()
 
 void MultiSinkElement::resetCodecOptions(int index)
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForRead();
 
     if (this->d->m_mediaWriter)
         this->d->m_mediaWriter->resetCodecOptions(index);
@@ -418,7 +419,7 @@ void MultiSinkElement::resetCodecOptions(int index)
 
 void MultiSinkElement::resetFormatsBlackList()
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForRead();
 
     if (this->d->m_mediaWriter)
         this->d->m_mediaWriter->resetFormatsBlackList();
@@ -428,7 +429,7 @@ void MultiSinkElement::resetFormatsBlackList()
 
 void MultiSinkElement::resetCodecsBlackList()
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForRead();
 
     if (this->d->m_mediaWriter)
         this->d->m_mediaWriter->resetCodecsBlackList();
@@ -438,7 +439,7 @@ void MultiSinkElement::resetCodecsBlackList()
 
 void MultiSinkElement::clearStreams()
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForRead();
 
     if (this->d->m_mediaWriter)
         this->d->m_mediaWriter->clearStreams();
@@ -452,7 +453,7 @@ AkPacket MultiSinkElement::iStream(const AkPacket &packet)
     if (this->state() != ElementStatePlaying)
         return AkPacket();
 
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForRead();
 
     if (this->d->m_mediaWriter && this->d->m_inputStreams.contains(packet.index()))
         this->d->m_mediaWriter->enqueuePacket(packet);
@@ -501,7 +502,7 @@ void MultiSinkElementPrivate::linksChanged(const AkPluginLinks &links)
     auto state = self->state();
     self->setState(AkElement::ElementStateNull);
 
-    this->m_mutex.lock();
+    this->m_mutex.lockForWrite();
     QString location;
 
     if (this->m_mediaWriter)
