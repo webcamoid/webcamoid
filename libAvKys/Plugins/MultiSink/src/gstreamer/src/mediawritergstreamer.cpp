@@ -2346,13 +2346,6 @@ gboolean MediaWriterGStreamerPrivate::busCallback(GstBus *bus,
         qDebug() << QString("Received QOS from element %1:")
                         .arg(GST_MESSAGE_SRC_NAME(message)).toStdString().c_str();
 
-        GstFormat format;
-        guint64 processed;
-        guint64 dropped;
-        auto formatStr = gst_format_get_name(format);
-        qDebug() << "    Processed" << processed << formatStr;
-        qDebug() << "    Dropped" << dropped << formatStr;
-
         gint64 jitter;
         gdouble proportion;
         gint quality;
