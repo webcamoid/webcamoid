@@ -812,6 +812,10 @@ void Recording::mediaLoaded(const QString &media)
     this->d->m_thumbnail = {};
     this->d->m_thumbnailer->setState(AkElement::ElementStatePaused);
     auto duration = this->d->m_thumbnailer->property("durationMSecs").value<qint64>();
+
+    if (duration < 1)
+        return;
+
     QMetaObject::invokeMethod(this->d->m_thumbnailer.data(),
                               "seek",
                               Q_ARG(qint64, qint64(0.1 * duration)));

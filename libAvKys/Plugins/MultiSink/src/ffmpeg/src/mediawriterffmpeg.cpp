@@ -107,6 +107,7 @@ class MediaWriterFFmpegPrivate
         explicit MediaWriterFFmpegPrivate(MediaWriterFFmpeg *self);
         QString guessFormat();
         QVariantList parseOptions(const AVClass *avClass) const;
+        QVariantMap parseOptionsDefaults(const AVClass *avClass) const;
         AVDictionary *formatContextOptions(AVFormatContext *formatContext,
                                            const QVariantMap &options);
 };
@@ -766,10 +767,25 @@ QVariantList MediaWriterFFmpegPrivate::parseOptions(const AVClass *avClass) cons
     return options;
 }
 
+QVariantMap MediaWriterFFmpegPrivate::parseOptionsDefaults(const AVClass *avClass) const
+{
+    QVariantMap optionsDefaults;
+
+    for (auto &option: this->parseOptions(avClass)) {
+        auto opt = option.toList();
+        optionsDefaults[opt[0].toString()] = opt[6].toString();
+    }
+
+    return optionsDefaults;
+}
+
 AVDictionary *MediaWriterFFmpegPrivate::formatContextOptions(AVFormatContext *formatContext,
                                                              const QVariantMap &options)
 {
     auto avClass = formatContext->oformat->priv_class;
+    auto currentOptions =
+            this->parseOptionsDefaults(formatContext->oformat->priv_class);
+
     QStringList flagType;
 
     if (avClass)
@@ -785,11 +801,19 @@ AVDictionary *MediaWriterFFmpegPrivate::formatContextOptions(AVFormatContext *fo
     for (auto it = options.begin();
          it != options.end();
          it++) {
+        if (currentOptions.contains(it.key())
+            && currentOptions[it.key()] == it.value()) {
+            continue;
+        }
+
         QString value;
 
         if (flagType.contains(it.key())) {
             auto flags = it.value().toStringList();
             value = flags.join('+');
+
+            if (value.isEmpty())
+                value = "0";
         } else {
             value = it.value().toString();
         }
