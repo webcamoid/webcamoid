@@ -222,6 +222,7 @@ AkPacket ConvertAudioFFmpegSW::convert(const AkAudioPacket &packet)
     }
 
     // convert to destination format
+
     if (swr_convert_frame(this->d->m_resampleContext,
                           &oFrame,
                           &iFrame) < 0)

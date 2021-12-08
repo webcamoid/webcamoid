@@ -20,12 +20,12 @@
 #include <limits>
 #include <qrgb.h>
 #include <QDebug>
+#include <QLibrary>
+#include <QMutex>
 #include <QSharedPointer>
 #include <QSize>
-#include <QVector>
-#include <QLibrary>
 #include <QThreadPool>
-#include <QMutex>
+#include <QVector>
 #include <QtMath>
 #include <akaudiocaps.h>
 #include <akfrac.h>
@@ -94,13 +94,8 @@ class MediaWriterFFmpegPrivate
         QMap<QString, QVariantMap> m_codecOptions;
         QList<QVariantMap> m_streamConfigs;
         AVFormatContext *m_formatContext {nullptr};
-        QThreadPool m_threadPool;
         qint64 m_maxPacketQueueSize {15 * 1024 * 1024};
         QMutex m_packetMutex;
-        QMutex m_audioMutex;
-        QMutex m_videoMutex;
-        QMutex m_subtitleMutex;
-        QMutex m_writeMutex;
         QMap<int, AbstractStreamPtr> m_streamsMap;
         bool m_isRecording {false};
 
@@ -1108,6 +1103,7 @@ bool MediaWriterFFmpeg::init()
         return false;
     }
 
+    // Initialize and run streams loops.
     auto streamConfigs = this->d->m_streamConfigs.toVector();
 
     if (!strcmp(this->d->m_formatContext->oformat->name, "mxf_opatom")) {
@@ -1256,9 +1252,9 @@ void MediaWriterFFmpeg::uninit()
 
 void MediaWriterFFmpeg::writePacket(AVPacket *packet)
 {
-    this->d->m_writeMutex.lock();
+    this->d->m_packetMutex.lock();
     av_interleaved_write_frame(this->d->m_formatContext, packet);
-    this->d->m_writeMutex.unlock();
+    this->d->m_packetMutex.unlock();
 }
 
 MediaWriterFFmpegGlobal::MediaWriterFFmpegGlobal()

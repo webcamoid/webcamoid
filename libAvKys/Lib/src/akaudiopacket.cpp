@@ -244,9 +244,19 @@ class AkAudioPacketPrivate
             AkAudioPacket dst(caps);
             dst.copyMetadata(src);
 
+            // Precalculate positional factors
+            QVector<qreal> factors;
+
             for (int ochannel = 0; ochannel < sumPacket.caps().channels(); ochannel++) {
                 auto oposition = sumPacket.caps().position(ochannel);
 
+                for (int ichannel = 0; ichannel < src.caps().channels(); ichannel++) {
+                    auto iposition = src.caps().position(ichannel);
+                    factors << AkAudioCaps::distanceFactor(iposition, oposition);
+                }
+            }
+
+            for (int ochannel = 0; ochannel < sumPacket.caps().channels(); ochannel++) {
                 // Wave limits
                 auto xmin = std::numeric_limits<SumType>::max();
                 auto xmax = std::numeric_limits<SumType>::min();
@@ -259,8 +269,7 @@ class AkAudioPacketPrivate
                      *
                      * http://digitalsoundandmusic.com/4-3-4-the-mathematics-of-the-inverse-square-law-and-pag-equations/
                      */
-                    auto iposition = src.caps().position(ichannel);
-                    auto k = AkAudioCaps::distanceFactor(iposition, oposition);
+                    auto k = factors[ichannel + ochannel * src.caps().channels()];
 
                     for (int sample = 0; sample < sumPacket.caps().samples(); sample++) {
                         auto inSample =

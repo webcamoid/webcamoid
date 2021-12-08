@@ -62,6 +62,25 @@ Any donation amount is welcome and very appreciated.
 
 [![Packaging status](https://repology.org/badge/vertical-allrepos/webcamoid.svg)](https://repology.org/metapackage/webcamoid)
 
+## License ##
+
+```
+Webcamoid is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Webcamoid is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Webcamoid. If not, see <http://www.gnu.org/licenses/>.
+```
+
+[![License](https://www.gnu.org/graphics/gplv3-with-text-136x68.png)](https://github.com/webcamoid/webcamoid/blob/master/COPYING)
+
 ## Reporting Bugs ##
 
 Report all issues in the [issues tracker](https://github.com/webcamoid/webcamoid/issues).
