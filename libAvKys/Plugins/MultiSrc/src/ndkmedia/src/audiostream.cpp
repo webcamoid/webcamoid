@@ -24,6 +24,7 @@
 #include <QMap>
 #include <akelement.h>
 #include <akaudiocaps.h>
+#include <akaudioconverter.h>
 #include <akaudiopacket.h>
 #include <akcaps.h>
 #include <akfrac.h>
@@ -86,7 +87,7 @@ class AudioStreamPrivate
 {
     public:
         AudioStream *self;
-        AkElementPtr m_audioConvert;
+        AkAudioConverter m_audioConvert;
         qreal audioDiffCum {0.0}; // used for AV difference average computation
         qreal audioDiffAvgCoef {exp(log(0.01) / AUDIO_DIFF_AVG_NB)};
         int audioDiffAvgCount {0};
@@ -112,8 +113,6 @@ AudioStream::AudioStream(AMediaExtractor *mediaExtractor,
 {
     this->d = new AudioStreamPrivate(this);
     this->m_maxData = 9;
-    this->d->m_audioConvert =
-            akPluginManager->create<AkElement>("AudioFilter/AudioConvert");
 }
 
 AudioStream::~AudioStream()
@@ -286,14 +285,17 @@ AkPacket AudioStreamPrivate::readPacket(size_t bufferIndex,
 
 AkAudioPacket AudioStreamPrivate::convert(const AkAudioPacket &packet)
 {
-    if (this->m_audioConvert->state() != AkElement::ElementStatePlaying) {
-        this->m_audioConvert->setProperty("caps",
-                                          QVariant::fromValue(packet.caps()));
-        this->m_audioConvert->setState(AkElement::ElementStatePlaying);
-    }
+    auto caps = packet.caps();
+    auto layout = caps.layout();
+
+    if (layout != AkAudioCaps::Layout_mono
+        && layout != AkAudioCaps::Layout_stereo)
+        caps.setLayout(AkAudioCaps::Layout_stereo);
+
+    this->m_audioConvert.setOutputCaps(caps);
 
     if (!self->sync())
-        return this->m_audioConvert->iStream(packet);
+        return this->m_audioConvert.convert(packet);
 
     AkAudioPacket audioPacket = packet;
 
@@ -320,7 +322,7 @@ AkAudioPacket AudioStreamPrivate::convert(const AkAudioPacket &packet)
                 int minSamples = audioPacket.caps().samples() * (100 - SAMPLE_CORRECTION_PERCENT_MAX) / 100;
                 int maxSamples = audioPacket.caps().samples() * (100 + SAMPLE_CORRECTION_PERCENT_MAX) / 100;
                 wantedSamples = qBound(minSamples, wantedSamples, maxSamples);
-                audioPacket = audioPacket.scale(wantedSamples);
+                audioPacket = this->m_audioConvert.scale(audioPacket, wantedSamples);
             }
         }
     } else {
@@ -335,7 +337,7 @@ AkAudioPacket AudioStreamPrivate::convert(const AkAudioPacket &packet)
 
     self->clockDiff() = diff;
 
-    return this->m_audioConvert->iStream(packet);
+    return this->m_audioConvert.convert(audioPacket);
 }
 
 #include "moc_audiostream.cpp"

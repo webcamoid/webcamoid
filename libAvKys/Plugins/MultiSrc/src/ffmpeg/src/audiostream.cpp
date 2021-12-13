@@ -22,6 +22,7 @@
 #include <QVector>
 #include <QMap>
 #include <akaudiocaps.h>
+#include <akaudioconverter.h>
 #include <akaudiopacket.h>
 #include <akcaps.h>
 #include <akelement.h>
@@ -54,13 +55,12 @@ class AudioStreamPrivate
     public:
         AudioStream *self;
         qint64 m_pts {0};
-        AkElementPtr m_audioConvert;
+        AkAudioConverter m_audioConvert;
         qreal audioDiffCum {0.0}; // used for AV difference average computation
         qreal audioDiffAvgCoef {exp(log(0.01) / AUDIO_DIFF_AVG_NB)};
         int audioDiffAvgCount {0};
 
         explicit AudioStreamPrivate(AudioStream *self);
-        bool compensate(AVFrame *oFrame, AVFrame *iFrame, int wantedSamples);
         AkAudioPacket frameToPacket(AVFrame *iFrame);
         AkPacket convert(AVFrame *iFrame);
         AVFrame *copyFrame(AVFrame *frame) const;
@@ -86,7 +86,6 @@ AudioStream::AudioStream(const AVFormatContext *formatContext,
 {
     this->d = new AudioStreamPrivate(this);
     this->m_maxData = 9;
-    this->d->m_audioConvert = akPluginManager->create<AkElement>("AudioFilter/AudioConvert");
 }
 
 AudioStream::~AudioStream()
@@ -163,46 +162,6 @@ AudioStreamPrivate::AudioStreamPrivate(AudioStream *self):
 {
 }
 
-bool AudioStreamPrivate::compensate(AVFrame *oFrame,
-                                    AVFrame *iFrame,
-                                    int wantedSamples)
-{
-    if (wantedSamples == iFrame->nb_samples)
-        return false;
-
-    int iChannels = av_get_channel_layout_nb_channels(iFrame->channel_layout);
-
-    if (av_samples_alloc(oFrame->data,
-                         iFrame->linesize,
-                         iChannels,
-                         wantedSamples,
-                         AVSampleFormat(iFrame->format),
-                         1) < 0) {
-        return false;
-    }
-
-    if (av_samples_copy(oFrame->data,
-                        iFrame->data,
-                        0,
-                        0,
-                        qMin(wantedSamples, iFrame->nb_samples),
-                        iChannels,
-                        AVSampleFormat(iFrame->format)) < 0) {
-        av_freep(&oFrame->data[0]);
-        av_frame_unref(oFrame);
-
-        return false;
-    }
-
-    oFrame->format = iFrame->format;
-    oFrame->channel_layout = iFrame->channel_layout;
-    oFrame->sample_rate = iFrame->sample_rate;
-    oFrame->nb_samples = wantedSamples;
-    oFrame->pts = iFrame->pts;
-
-    return true;
-}
-
 AkAudioPacket AudioStreamPrivate::frameToPacket(AVFrame *iFrame)
 {
     int iChannels = av_get_channel_layout_nb_channels(iFrame->channel_layout);
@@ -261,15 +220,17 @@ AkAudioPacket AudioStreamPrivate::frameToPacket(AVFrame *iFrame)
 AkPacket AudioStreamPrivate::convert(AVFrame *iFrame)
 {
     auto packet = this->frameToPacket(iFrame);
+    auto caps = packet.caps();
+    auto layout = caps.layout();
 
-    if (this->m_audioConvert->state() != AkElement::ElementStatePlaying) {
-        this->m_audioConvert->setProperty("caps",
-                                          QVariant::fromValue(packet.caps()));
-        this->m_audioConvert->setState(AkElement::ElementStatePlaying);
-    }
+    if (layout != AkAudioCaps::Layout_mono
+        && layout != AkAudioCaps::Layout_stereo)
+        caps.setLayout(AkAudioCaps::Layout_stereo);
+
+    this->m_audioConvert.setOutputCaps(caps);
 
     if (!self->sync())
-        return this->m_audioConvert->iStream(packet);
+        return this->m_audioConvert.convert(packet);
 
     // Synchronize audio
     qreal pts = iFrame->pts * self->timeBase().value();
@@ -294,15 +255,7 @@ AkPacket AudioStreamPrivate::convert(AVFrame *iFrame)
                 int minSamples = iFrame->nb_samples * (100 - SAMPLE_CORRECTION_PERCENT_MAX) / 100;
                 int maxSamples = iFrame->nb_samples * (100 + SAMPLE_CORRECTION_PERCENT_MAX) / 100;
                 wantedSamples = qBound(minSamples, wantedSamples, maxSamples);
-
-                AVFrame oFrame;
-                memset(&oFrame, 0, sizeof(AVFrame));
-
-                if (this->compensate(&oFrame, iFrame, wantedSamples)) {
-                    packet = this->frameToPacket(&oFrame);
-                    av_freep(&oFrame.data[0]);
-                    av_frame_unref(&oFrame);
-                }
+                packet = this->m_audioConvert.scale(packet, wantedSamples);
             }
         }
     } else {
@@ -317,7 +270,7 @@ AkPacket AudioStreamPrivate::convert(AVFrame *iFrame)
 
     self->clockDiff() = diff;
 
-    return this->m_audioConvert->iStream(packet);
+    return this->m_audioConvert.convert(packet);
 }
 
 AVFrame *AudioStreamPrivate::copyFrame(AVFrame *frame) const

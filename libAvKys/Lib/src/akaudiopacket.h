@@ -29,7 +29,6 @@ class AkFrac;
 class AKCOMMONS_EXPORT AkAudioPacket: public QObject
 {
     Q_OBJECT
-    Q_ENUMS(ResampleMethod)
     Q_PROPERTY(AkAudioCaps caps
                READ caps
                WRITE setCaps
@@ -62,13 +61,6 @@ class AKCOMMONS_EXPORT AkAudioPacket: public QObject
                NOTIFY indexChanged)
 
     public:
-        enum ResampleMethod
-        {
-            ResampleMethod_Fast,
-            ResampleMethod_Linear,
-            ResampleMethod_Quadratic
-        };
-
         AkAudioPacket(QObject *parent=nullptr);
         AkAudioPacket(const AkAudioCaps &caps);
         AkAudioPacket(const AkPacket &other);
@@ -100,18 +92,6 @@ class AKCOMMONS_EXPORT AkAudioPacket: public QObject
         Q_INVOKABLE const quint8 *constSample(int channel, int i) const;
         Q_INVOKABLE quint8 *sample(int channel, int i);
         Q_INVOKABLE void setSample(int channel, int i, const quint8 *sample);
-        Q_INVOKABLE AkAudioPacket convert(const AkAudioCaps &caps) const;
-        Q_INVOKABLE static bool canConvertFormat(AkAudioCaps::SampleFormat input,
-                                           AkAudioCaps::SampleFormat output);
-        Q_INVOKABLE bool canConvertFormat(AkAudioCaps::SampleFormat output) const;
-        Q_INVOKABLE AkAudioPacket convertFormat(AkAudioCaps::SampleFormat format) const;
-        Q_INVOKABLE AkAudioPacket convertLayout(AkAudioCaps::ChannelLayout layout) const;
-        Q_INVOKABLE AkAudioPacket convertSampleRate(int rate,
-                                                    qreal &sampleCorrection,
-                                                    ResampleMethod method=ResampleMethod_Fast) const;
-        Q_INVOKABLE AkAudioPacket scale(int samples,
-                                        ResampleMethod method=ResampleMethod_Fast) const;
-        Q_INVOKABLE AkAudioPacket convertPlanar(bool planar) const;
         Q_INVOKABLE AkAudioPacket realign(int align) const;
         Q_INVOKABLE AkAudioPacket pop(int samples);
 
@@ -143,9 +123,7 @@ class AKCOMMONS_EXPORT AkAudioPacket: public QObject
 };
 
 AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, const AkAudioPacket &packet);
-AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, AkAudioPacket::ResampleMethod method);
 
 Q_DECLARE_METATYPE(AkAudioPacket)
-Q_DECLARE_METATYPE(AkAudioPacket::ResampleMethod)
 
 #endif // AKAUDIOPACKET_H

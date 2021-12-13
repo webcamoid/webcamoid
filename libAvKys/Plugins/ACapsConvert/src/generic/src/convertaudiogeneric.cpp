@@ -17,11 +17,13 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QDebug>
 #include <QMap>
 #include <QMutex>
 #include <akfrac.h>
 #include <akpacket.h>
 #include <akaudiocaps.h>
+#include <akaudioconverter.h>
 #include <akaudiopacket.h>
 
 #include "convertaudiogeneric.h"
@@ -29,10 +31,7 @@
 class ConvertAudioGenericPrivate
 {
     public:
-        AkAudioCaps m_caps;
-        AkAudioCaps m_previousCaps;
-        QMutex m_mutex;
-        qreal m_sampleCorrection {0};
+        AkAudioConverter m_converter;
 };
 
 ConvertAudioGeneric::ConvertAudioGeneric(QObject *parent):
@@ -49,37 +48,22 @@ ConvertAudioGeneric::~ConvertAudioGeneric()
 
 bool ConvertAudioGeneric::init(const AkAudioCaps &caps)
 {
-    QMutexLocker mutexLocker(&this->d->m_mutex);
-    this->d->m_caps = caps;
-    this->d->m_previousCaps = AkAudioCaps();
-    this->d->m_sampleCorrection = 0;
+    this->d->m_converter.reset();
+    this->d->m_converter.setOutputCaps(caps);
 
     return true;
 }
 
 AkPacket ConvertAudioGeneric::convert(const AkAudioPacket &packet)
 {
-    QMutexLocker mutexLocker(&this->d->m_mutex);
-
-    if (!this->d->m_caps || packet.buffer().size() < 1)
+    if (!this->d->m_converter.outputCaps() || packet.buffer().size() < 1)
         return {};
 
-    if (packet.caps() != this->d->m_previousCaps) {
-        this->d->m_previousCaps = packet.caps();
-        this->d->m_sampleCorrection = 0;
-    }
-
-    return packet.convertFormat(this->d->m_caps.format())
-                 .convertLayout(this->d->m_caps.layout())
-                 .convertPlanar(this->d->m_caps.planar())
-                 .convertSampleRate(this->d->m_caps.rate(),
-                                    this->d->m_sampleCorrection);
+    return this->d->m_converter.convert(packet);
 }
 
 void ConvertAudioGeneric::uninit()
 {
-    QMutexLocker mutexLocker(&this->d->m_mutex);
-    this->d->m_caps = AkAudioCaps();
 }
 
 #include "moc_convertaudiogeneric.cpp"

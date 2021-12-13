@@ -207,7 +207,7 @@ class AKCOMMONS_EXPORT AkAudioCaps: public QObject
                     const QVector<size_t> &planeSize);
         AkAudioCaps(const AkCaps &caps);
         AkAudioCaps(const AkAudioCaps &other);
-         ~AkAudioCaps();
+        ~AkAudioCaps();
         AkAudioCaps &operator =(const AkAudioCaps &other);
         AkAudioCaps &operator =(const AkCaps &caps);
         bool operator ==(const AkAudioCaps &other) const;

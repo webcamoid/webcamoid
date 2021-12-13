@@ -41,6 +41,8 @@ add_library(avkys SHARED
             src/ak.h
             src/akaudiocaps.cpp
             src/akaudiocaps.h
+            src/akaudioconverter.cpp
+            src/akaudioconverter.h
             src/akaudiopacket.cpp
             src/akaudiopacket.h
             src/akcaps.cpp
