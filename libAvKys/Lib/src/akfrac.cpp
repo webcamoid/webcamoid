@@ -120,6 +120,11 @@ AkFrac::operator QString() const
     return QString("%1/%2").arg(this->d->m_num).arg(this->d->m_den);
 }
 
+AkFrac AkFrac::operator *(const AkFrac &other)
+{
+    return {this->d->m_num * other.d->m_num, this->d->m_den * other.d->m_den};
+}
+
 QObject *AkFrac::create()
 {
     return new AkFrac();

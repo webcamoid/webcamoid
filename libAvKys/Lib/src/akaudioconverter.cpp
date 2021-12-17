@@ -25,6 +25,7 @@
 #include <QtMath>
 
 #include "akaudioconverter.h"
+#include "akfrac.h"
 
 using AudioConvertFuntion =
     std::function<AkAudioPacket (const AkAudioPacket &src)>;
@@ -357,194 +358,55 @@ class AkAudioConverterPrivate
                  typename SumType,
                  typename TransformFuncType>
         inline static SampleType interpolate(qreal isample,
-                                             int sample1,
-                                             int sample2,
-                                             SampleType minValue,
-                                             SampleType maxValue,
+                                             int x0,
+                                             SampleType y0,
+                                             SampleType y1,
                                              TransformFuncType transformFrom,
                                              TransformFuncType transformTo)
         {
-            if (sample1 == sample2)
-                return minValue;
+            y0 = transformFrom(y0);
+            y1 = transformFrom(y1);
+            auto y = (SumType(isample) - SumType(x0))
+                     * (SumType(y1) - SumType(y0))
+                     + SumType(y0);
 
-            minValue = transformFrom(minValue);
-            maxValue = transformFrom(maxValue);
-            auto value = ((SumType(isample) - SumType(sample1))
-                          * (SumType(maxValue) - SumType(minValue))
-                          + SumType(minValue) * (SumType(sample2) - SumType(sample1)))
-                         / (SumType(sample2) - SumType(sample1));
-
-            return transformTo(SampleType(value));
+            return transformTo(SampleType(y));
         }
 
         template<typename SampleType,
                  typename SumType,
                  typename TransformFuncType>
         inline static SampleType interpolate(qreal isample,
-                                             int sample1,
-                                             int sample2,
-                                             int sample3,
-                                             SampleType minValue,
-                                             SampleType midValue,
-                                             SampleType maxValue,
+                                             int x0,
+                                             SampleType y0,
+                                             SampleType y1,
+                                             SampleType y2,
                                              TransformFuncType transformFrom,
                                              TransformFuncType transformTo)
         {
-            if (sample1 == sample2
-                || sample2 == sample3) {
-                return interpolate<SampleType,
-                                   SumType,
-                                   TransformFuncType>(isample,
-                                                      sample1,
-                                                      sample3,
-                                                      midValue,
-                                                      maxValue,
-                                                      transformFrom,
-                                                      transformTo);
-            }
+            y0 = transformFrom(y0);
+            y1 = transformFrom(y1);
+            y2 = transformFrom(y2);
+            // y = a * x ^ 2 + b * x + c
+            //
+            // |a|   |x0^2 x0 1|^-1 |y0|;
+            // |b| = |x1^2 x1 1|    |y1|;
+            // |c|   |x2^2 x2 1|    |y2|;
+            //
+            auto x02 = SumType(x0) * SumType(x0);
 
-            minValue = transformFrom(minValue);
-            midValue = transformFrom(midValue);
-            maxValue = transformFrom(maxValue);
-            auto sample21 = SumType(sample1);
-            auto sample22 = SumType(sample2);
-            auto sample23 = SumType(sample3);
-            /* y = a * x ^ 2 + b * x + c
-             *
-             * |a|   |x0^2 x0 1|^-1 |y0|;
-             * |b| = |x1^2 x1 1|    |y1|;
-             * |c|   |x2^2 x2 1|    |y2|;
-             */
-            auto det = sample21 * SumType(sample2 - sample3) - sample1 * SumType(sample22 - sample23) + SumType(sample22 * sample3 - sample23 * sample2)
-                     - sample22 * SumType(sample2 - sample3) + sample2 * SumType(sample21 - sample23) - SumType(sample21 * sample3 - sample23 * sample1)
-                     + sample23 * SumType(sample1 - sample2) - sample1 * SumType(sample21 - sample22) + SumType(sample21 * sample2 - sample22 * sample1);
-            const SumType matrixValues[] {
-                SumType(sample2 - sample3), sample23 - sample22, sample22 * sample3 - sample23 * sample2,
-                SumType(sample3 - sample1), sample21 - sample23, sample23 * sample1 - sample21 * sample3,
-                SumType(sample1 - sample2), sample22 - sample21, sample21 * sample2 - sample22 * sample1,
-            };
-            QGenericMatrix<3, 3, SumType> inv(matrixValues);
-            const SumType yMatrixValues[] {
-                SumType(minValue),
-                SumType(midValue),
-                SumType(maxValue),
-            };
-            QGenericMatrix<1, 3, SumType> valuesMatrix(yMatrixValues);
-            auto coef = inv * valuesMatrix;
-            auto value = (coef(0, 0) * isample * isample + coef(1, 0) * isample + coef(2, 0))
-                       / det;
-
-            return transformTo(SampleType(value));
-        }
-
-        using InterpolateLinearFunction =
-            std::function<void (const AkAudioPacket &packet,
-                                int channel,
-                                qreal isample,
-                                int sample1,
-                                int sample2,
-                                quint8 *osample)>;
-        using InterpolateQuadraticFunction =
-            std::function<void (const AkAudioPacket &packet,
-                                int channel,
-                                qreal isample,
-                                int sample1,
-                                int sample2,
-                                int sample3,
-                                quint8 *osample)>;
-
-#define DEFINE_SAMPLE_INTERPOLATION_FUNCTION(sitype, \
-                                             itype, \
-                                             optype, \
-                                             endian) \
-        {AkAudioCaps::SampleFormat_##sitype, \
-         [] (const AkAudioPacket &packet, \
-             int channel, \
-             int isample, \
-             int sample1, \
-             int sample2, \
-             quint8 *osample) { \
-            auto minValue = *reinterpret_cast<const itype *>(packet.constSample(channel, sample1)); \
-            auto maxValue = *reinterpret_cast<const itype *>(packet.constSample(channel, sample2)); \
-            \
-            auto value = \
-                interpolate<itype, optype> \
-                    (isample, \
-                     sample1, \
-                     sample2, \
-                     minValue, \
-                     maxValue, \
-                     from##endian<itype>, \
-                     to##endian<itype>); \
-            memcpy(osample, &value, sizeof(itype)); \
-         }, \
-         [] (const AkAudioPacket &packet, \
-             int channel, \
-             int isample, \
-             int sample1, \
-             int sample2, \
-             int sample3, \
-             quint8 *osample) { \
-            auto minValue = *reinterpret_cast<const itype *>(packet.constSample(channel, sample1)); \
-            auto midValue = *reinterpret_cast<const itype *>(packet.constSample(channel, sample2)); \
-            auto maxValue = *reinterpret_cast<const itype *>(packet.constSample(channel, sample3)); \
-            \
-            auto value = \
-                interpolate<itype, optype> \
-                    (isample, \
-                     sample1, \
-                     sample2, \
-                     sample3, \
-                     minValue, \
-                     midValue, \
-                     maxValue, \
-                     from##endian<itype>, \
-                     to##endian<itype>); \
-            memcpy(osample, &value, sizeof(itype)); \
-         }}
-
-        struct AudioSamplesInterpolation
-        {
-            AkAudioCaps::SampleFormat format;
-            InterpolateLinearFunction linear;
-            InterpolateQuadraticFunction quadratic;
-        };
-
-        using AudioSamplesInterpolationFuncs = QVector<AudioSamplesInterpolation>;
-
-        inline static const AudioSamplesInterpolationFuncs &samplesInterpolation()
-        {
-            static const AudioSamplesInterpolationFuncs interpolation {
-                DEFINE_SAMPLE_INTERPOLATION_FUNCTION(s8   ,   qint8, qint64,  _),
-                DEFINE_SAMPLE_INTERPOLATION_FUNCTION(u8   ,  quint8, qint64,  _),
-                DEFINE_SAMPLE_INTERPOLATION_FUNCTION(s16le,  qint16, qint64, LE),
-                DEFINE_SAMPLE_INTERPOLATION_FUNCTION(s16be,  qint16, qint64, BE),
-                DEFINE_SAMPLE_INTERPOLATION_FUNCTION(u16le, quint16, qint64, LE),
-                DEFINE_SAMPLE_INTERPOLATION_FUNCTION(u16be, quint16, qint64, BE),
-                DEFINE_SAMPLE_INTERPOLATION_FUNCTION(s32le,  qint32, qint64, LE),
-                DEFINE_SAMPLE_INTERPOLATION_FUNCTION(s32be,  qint32, qint64, BE),
-                DEFINE_SAMPLE_INTERPOLATION_FUNCTION(u32le, quint32, qint64, LE),
-                DEFINE_SAMPLE_INTERPOLATION_FUNCTION(u32be, quint32, qint64, BE),
-                DEFINE_SAMPLE_INTERPOLATION_FUNCTION(s64le,  qint64,  qreal, LE),
-                DEFINE_SAMPLE_INTERPOLATION_FUNCTION(s64be,  qint64,  qreal, BE),
-                DEFINE_SAMPLE_INTERPOLATION_FUNCTION(u64le, quint64,  qreal, LE),
-                DEFINE_SAMPLE_INTERPOLATION_FUNCTION(u64be, quint64,  qreal, BE),
-                DEFINE_SAMPLE_INTERPOLATION_FUNCTION(fltle,   float,  qreal, LE),
-                DEFINE_SAMPLE_INTERPOLATION_FUNCTION(fltbe,   float,  qreal, BE),
-                DEFINE_SAMPLE_INTERPOLATION_FUNCTION(dblle,   qreal,  qreal, LE),
-                DEFINE_SAMPLE_INTERPOLATION_FUNCTION(dblbe,   qreal,  qreal, BE),
+            const SumType matrixValues[3][3] {
+                { 1, -2 *  SumType(x0) - 3 ,       x02 + 3 * SumType(x0) + 2},
+                {-2,  4 * (SumType(x0) + 1), -2 * (x02 + 2 * SumType(x0))   },
+                { 1, -2 *  SumType(x0) - 1 ,       x02 +     SumType(x0)    }
             };
 
-            return interpolation;
-        }
+            auto yy0 = y0 * matrixValues[0][0] + y1 * matrixValues[1][0] + y2 * matrixValues[2][0];
+            auto yy1 = y0 * matrixValues[0][1] + y1 * matrixValues[1][1] + y2 * matrixValues[2][1];
+            auto yy2 = y0 * matrixValues[0][2] + y1 * matrixValues[1][2] + y2 * matrixValues[2][2];
+            auto y = SampleType(yy0 * isample * isample + yy1 * isample + yy2) / 2;
 
-        inline static const AudioSamplesInterpolation *bySamplesInterpolationFormat(AkAudioCaps::SampleFormat format)
-        {
-            for (auto &interpolation: samplesInterpolation())
-                if (interpolation.format == format)
-                    return &interpolation;
-
-            return &samplesInterpolation().front();
+            return transformTo(y);
         }
 
         template<typename SampleType>
@@ -555,6 +417,7 @@ class AkAudioConverterPrivate
             auto caps = packet.caps();
             caps.setSamples(samples);
             AkAudioPacket outPacket(caps);
+            outPacket.copyMetadata(packet);
             QVector<int> sampleValues;
 
             for (int sample = 0; sample < outPacket.caps().samples(); sample++)
@@ -599,6 +462,7 @@ class AkAudioConverterPrivate
             auto caps = packet.caps();
             caps.setSamples(samples);
             AkAudioPacket outPacket(caps);
+            outPacket.copyMetadata(packet);
             QVector<qreal> sampleValues;
             QVector<int> sampleMinValues;
             QVector<int> sampleMaxValues;
@@ -670,6 +534,7 @@ class AkAudioConverterPrivate
             auto caps = packet.caps();
             caps.setSamples(samples);
             AkAudioPacket outPacket(caps);
+            outPacket.copyMetadata(packet);
             QVector<qreal> sampleValues;
             QVector<int> sampleMinValues;
             QVector<int> sampleMidValues;
@@ -679,9 +544,6 @@ class AkAudioConverterPrivate
                 auto iSample = qreal(sample) * (iSamples - 1) / (samples - 1);
                 auto minSample = qFloor(iSample);
                 auto maxSample = qCeil(iSample);
-
-
-
                 auto diffMinSample = minSample - iSample;
                 auto diffMaxSample = maxSample - iSample;
                 diffMinSample *= diffMinSample;
@@ -716,8 +578,6 @@ class AkAudioConverterPrivate
                                             SumType,
                                             TransformFuncType>(sampleValues[sample],
                                                                minSample,
-                                                               midSample,
-                                                               maxSample,
                                                                src_line[minSample],
                                                                src_line[midSample],
                                                                src_line[maxSample],
@@ -742,8 +602,6 @@ class AkAudioConverterPrivate
                                             SumType,
                                             TransformFuncType>(sampleValues[sample],
                                                                sampleMinValues[sample],
-                                                               sampleMidValues[sample],
-                                                               sampleMaxValues[sample],
                                                                src_line[iSampleMinOffset + channel],
                                                                src_line[iSampleMidOffset + channel],
                                                                src_line[iSampleMaxOffset + channel],
@@ -796,16 +654,16 @@ class AkAudioConverterPrivate
         inline static const AudioSamplesScaleFuncs &samplesScaling()
         {
             static const AudioSamplesScaleFuncs scaling {
-                DEFINE_SAMPLE_SCALING_FUNCTION(s8   ,   qint8, qint64,  _),
-                DEFINE_SAMPLE_SCALING_FUNCTION(u8   ,  quint8, qint64,  _),
-                DEFINE_SAMPLE_SCALING_FUNCTION(s16le,  qint16, qint64, LE),
-                DEFINE_SAMPLE_SCALING_FUNCTION(s16be,  qint16, qint64, BE),
-                DEFINE_SAMPLE_SCALING_FUNCTION(u16le, quint16, qint64, LE),
-                DEFINE_SAMPLE_SCALING_FUNCTION(u16be, quint16, qint64, BE),
-                DEFINE_SAMPLE_SCALING_FUNCTION(s32le,  qint32, qint64, LE),
-                DEFINE_SAMPLE_SCALING_FUNCTION(s32be,  qint32, qint64, BE),
-                DEFINE_SAMPLE_SCALING_FUNCTION(u32le, quint32, qint64, LE),
-                DEFINE_SAMPLE_SCALING_FUNCTION(u32be, quint32, qint64, BE),
+                DEFINE_SAMPLE_SCALING_FUNCTION(s8   ,   qint8,  qreal,  _),
+                DEFINE_SAMPLE_SCALING_FUNCTION(u8   ,  quint8,  qreal,  _),
+                DEFINE_SAMPLE_SCALING_FUNCTION(s16le,  qint16,  qreal, LE),
+                DEFINE_SAMPLE_SCALING_FUNCTION(s16be,  qint16,  qreal, BE),
+                DEFINE_SAMPLE_SCALING_FUNCTION(u16le, quint16,  qreal, LE),
+                DEFINE_SAMPLE_SCALING_FUNCTION(u16be, quint16,  qreal, BE),
+                DEFINE_SAMPLE_SCALING_FUNCTION(s32le,  qint32,  qreal, LE),
+                DEFINE_SAMPLE_SCALING_FUNCTION(s32be,  qint32,  qreal, BE),
+                DEFINE_SAMPLE_SCALING_FUNCTION(u32le, quint32,  qreal, LE),
+                DEFINE_SAMPLE_SCALING_FUNCTION(u32be, quint32,  qreal, BE),
                 DEFINE_SAMPLE_SCALING_FUNCTION(s64le,  qint64,  qreal, LE),
                 DEFINE_SAMPLE_SCALING_FUNCTION(s64be,  qint64,  qreal, BE),
                 DEFINE_SAMPLE_SCALING_FUNCTION(u64le, quint64,  qreal, LE),
@@ -1140,134 +998,48 @@ AkAudioPacket AkAudioConverterPrivate::convertSampleRate(const AkAudioPacket &pa
                     * oSampleRate
                     / packet.caps().rate()
                     + sampleCorrection;
-    auto oSamples = qRound(rSamples);
+    auto samples = qRound(rSamples);
 
-    if (oSamples < 1)
+    if (samples < 1)
         return {};
 
-    auto caps = packet.caps();
-    caps.setSamples(oSamples);
-    caps.setRate(oSampleRate);
-    AkAudioPacket outPacket(caps);
+    if (iSamples == samples)
+        return packet;
+
+    auto ssf =
+            AkAudioConverterPrivate::bySamplesScalingFormat(packet.caps().format());
     auto method = this->m_resaampleMethod;
 
-    if (oSamples <  iSamples)
+    if (samples <  iSamples)
         method = AkAudioConverter::ResampleMethod_Fast;
+
+    AkAudioPacket outPacket;
 
     switch (method) {
     case AkAudioConverter::ResampleMethod_Fast:
-        for (int channel = 0; channel < outPacket.caps().channels(); channel++) {
-            for (int sample = 0; sample < outPacket.caps().samples(); sample++) {
-                auto iSample = sample
-                               * (iSamples - 1)
-                               / (oSamples - 1);
-                auto iValue = packet.constSample(channel, iSample);
-                outPacket.setSample(channel, sample, iValue);
-            }
-        }
-
+        outPacket = ssf->fast(packet, samples);
         break;
 
-    case AkAudioConverter::ResampleMethod_Linear: {
-        auto sif =
-                AkAudioConverterPrivate::bySamplesInterpolationFormat(caps.format());
-        auto interpolation = sif->linear;
-
-        for (int channel = 0; channel < outPacket.caps().channels(); channel++) {
-            for (int sample = 0; sample < outPacket.caps().samples(); sample++) {
-                auto iSample = qreal(sample)
-                               * (iSamples - 1)
-                               / (oSamples - 1);
-                auto minSample = qFloor(iSample);
-                auto maxSample = qCeil(iSample);
-
-                if (minSample == maxSample) {
-                    auto iValue = packet.constSample(channel, minSample);
-                    outPacket.setSample(channel, sample, iValue);
-                } else {
-                    quint64 data;
-                    interpolation(packet,
-                                  channel,
-                                  iSample,
-                                  minSample,
-                                  maxSample,
-                                  reinterpret_cast<quint8 *>(&data));
-                    outPacket.setSample(channel,
-                                      sample,
-                                      reinterpret_cast<const quint8 *>(&data));
-                }
-            }
-        }
-
+    case AkAudioConverter::ResampleMethod_Linear:
+        outPacket = ssf->linear(packet, samples);
         break;
-    }
 
     case AkAudioConverter::ResampleMethod_Quadratic:
-        auto sif =
-                AkAudioConverterPrivate::bySamplesInterpolationFormat(caps.format());
-        auto interpolationL = sif->linear;
-        auto interpolationQ = sif->quadratic;
-
-        for (int channel = 0; channel < outPacket.caps().channels(); channel++) {
-            for (int sample = 0; sample < outPacket.caps().samples(); sample++) {
-                auto iSample = qreal(sample)
-                               * (iSamples - 1)
-                               / (oSamples - 1);
-                auto minSample = qFloor(iSample);
-                auto maxSample = qCeil(iSample);
-
-                if (minSample == maxSample) {
-                    auto iValue = packet.constSample(channel, minSample);
-                    outPacket.setSample(channel, sample, iValue);
-                } else {
-                    auto diffMinSample = minSample - iSample;
-                    auto diffMaxSample = maxSample - iSample;
-                    diffMinSample *= diffMinSample;
-                    diffMaxSample *= diffMaxSample;
-                    auto midSample = diffMinSample < diffMaxSample?
-                                         qMax(minSample - 1, 0):
-                                         qMin(maxSample + 1, iSamples - 1);
-
-                    if (midSample < minSample)
-                        std::swap(midSample, minSample);
-
-                    if (midSample > maxSample)
-                        std::swap(midSample, maxSample);
-
-                    if (midSample == minSample
-                        || midSample == maxSample) {
-                        quint64 data;
-                        interpolationL(packet,
-                                       channel,
-                                       iSample,
-                                       minSample,
-                                       maxSample,
-                                       reinterpret_cast<quint8 *>(&data));
-                        outPacket.setSample(channel,
-                                          sample,
-                                          reinterpret_cast<const quint8 *>(&data));
-                    } else {
-                        quint64 data;
-                        interpolationQ(packet,
-                                       channel,
-                                       iSample,
-                                       minSample,
-                                       midSample,
-                                       maxSample,
-                                       reinterpret_cast<quint8 *>(&data));
-                        outPacket.setSample(channel,
-                                          sample,
-                                          reinterpret_cast<const quint8 *>(&data));
-                    }
-                }
-            }
-        }
-
+        outPacket = ssf->quadratic(packet, samples);
         break;
     }
 
+    auto caps = packet.caps();
+    caps.setSamples(samples);
+    caps.setRate(oSampleRate);
+    outPacket.setCaps(caps);
+    outPacket.setPts(packet.pts() * oSampleRate / packet.caps().rate());
+    outPacket.setTimeBase(packet.timeBase()
+                          * AkFrac(packet.caps().rate(),
+                                   oSampleRate));
+
     this->m_mutex.lock();
-    this->m_sampleCorrection = rSamples - oSamples;
+    this->m_sampleCorrection = rSamples - samples;
     this->m_mutex.unlock();
 
     return outPacket;

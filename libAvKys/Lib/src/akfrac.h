@@ -62,6 +62,7 @@ class AKCOMMONS_EXPORT AkFrac: public QObject
         AkFrac operator *(const AkFrac &other) const;
         operator bool() const;
         operator QString() const;
+        AkFrac operator *(const AkFrac &other);
 
         Q_INVOKABLE static QObject *create();
         Q_INVOKABLE static QObject *create(qint64 num, qint64 den);
