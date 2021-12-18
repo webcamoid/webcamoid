@@ -254,58 +254,105 @@ class AkAudioConverterPrivate
                 }
             }
 
-            for (int ochannel = 0; ochannel < sumPacket.caps().channels(); ochannel++) {
-                // Wave limits
-                auto xmin = std::numeric_limits<SumType>::max();
-                auto xmax = std::numeric_limits<SumType>::min();
-                auto ymin = std::numeric_limits<SampleType>::max();
-                auto ymax = std::numeric_limits<SampleType>::min();
+            // Wave limits
+            auto xmin = std::numeric_limits<SumType>::max();
+            auto xmax = std::numeric_limits<SumType>::min();
+            auto ymin = std::numeric_limits<SampleType>::max();
+            auto ymax = std::numeric_limits<SampleType>::min();
 
-                for (int ichannel = 0; ichannel < src.caps().channels(); ichannel++) {
-                    /* We use inverse square law to sum the samples
-                     * according to the speaker position in the sound dome.
-                     *
-                     * http://digitalsoundandmusic.com/4-3-4-the-mathematics-of-the-inverse-square-law-and-pag-equations/
-                     */
-                    auto k = factors[ichannel + ochannel * src.caps().channels()];
+            /* We use inverse square law to sum the samples
+             * according to the speaker position in the sound dome.
+             *
+             * http://digitalsoundandmusic.com/4-3-4-the-mathematics-of-the-inverse-square-law-and-pag-equations/
+             */
+            if (src.caps().planar()) {
+                for (int ochannel = 0; ochannel < dst.caps().channels(); ochannel++) {
+                    auto sum_line = reinterpret_cast<SumType *>(sumPacket.planeData(ochannel));
 
-                    for (int sample = 0; sample < sumPacket.caps().samples(); sample++) {
-                        auto inSample =
-                                reinterpret_cast<const SampleType *>(src.constSample(ichannel,
-                                                                                     sample));
-                        auto outSample =
-                                reinterpret_cast<SumType *>(sumPacket.sample(ochannel,
-                                                                             sample));
-                        auto isample = SumType(k * qreal(transformFrom(*inSample)));
-                        *outSample += isample;
+                    for (int ichannel = 0; ichannel < src.caps().channels(); ichannel++) {
+                        auto k = factors[ichannel + ochannel * src.caps().channels()];
+                        auto src_line = reinterpret_cast<const SampleType *>(src.constPlaneData(ichannel));
 
-                        // Calculate minimum and maximum values of the wave.
-                        if (ichannel == src.caps().channels() - 1) {
-                            xmin = qMin(xmin, *outSample);
-                            xmax = qMax(xmax, *outSample);
+                        for (int sample = 0; sample < dst.caps().samples(); sample++) {
+                            auto sampleValue = transformFrom(src_line[sample]);
+                            sum_line[sample] += SumType(k * qreal(sampleValue));
+
+                            // Calculate minimum and maximum values of the wave.
+
+                            if (ichannel == src.caps().channels() - 1) {
+                                xmin = qMin(xmin, sum_line[sample]);
+                                xmax = qMax(xmax, sum_line[sample]);
+                            }
+
+                            if (ochannel == 0) {
+                                ymin = qMin(ymin, sampleValue);
+                                ymax = qMax(ymax, sampleValue);
+                            }
                         }
+                    }
+                }
 
-                        ymin = qMin(ymin, *inSample);
-                        ymax = qMax(ymax, *inSample);
+                // Recreate frame with the wave scaled to fit it.
+                for (int ochannel = 0; ochannel < dst.caps().channels(); ochannel++) {
+                    auto dst_line = reinterpret_cast<SampleType *>(dst.planeData(ochannel));
+                    auto sum_line = reinterpret_cast<SumType *>(sumPacket.planeData(ochannel));
+
+                    for (int sample = 0; sample < dst.caps().samples(); sample++) {
+                        dst_line[sample] = transformTo(scaleValue<SumType,
+                                                                  SampleType,
+                                                                  SumType>(sum_line[sample],
+                                                                           xmin,
+                                                                           xmax,
+                                                                           ymin,
+                                                                           ymax));
+                    }
+                }
+            } else {
+                auto src_line = reinterpret_cast<const SampleType *>(src.constPlaneData(0));
+                auto dst_line = reinterpret_cast<SampleType *>(dst.planeData(0));
+                auto sum_line = reinterpret_cast<SumType *>(sumPacket.planeData(0));
+
+                for (int sample = 0; sample < dst.caps().samples(); sample++) {
+                    auto iSampleOffset = sample * src.caps().channels();
+                    auto oSampleOffset = sample * dst.caps().channels();
+
+                    for (int ochannel = 0; ochannel < dst.caps().channels(); ochannel++) {
+                        auto sumOffset = oSampleOffset + ochannel;
+
+                        for (int ichannel = 0; ichannel < src.caps().channels(); ichannel++) {
+                            auto k = factors[ichannel + ochannel * src.caps().channels()];
+                            auto sampleValue = transformFrom(src_line[iSampleOffset + ichannel]);
+                            sum_line[sumOffset] += SumType(k * qreal(sampleValue));
+
+                            // Calculate minimum and maximum values of the wave.
+
+                            if (ichannel == src.caps().channels() - 1) {
+                                xmin = qMin(xmin, sum_line[sumOffset]);
+                                xmax = qMax(xmax, sum_line[sumOffset]);
+                            }
+
+                            if (ochannel == 0) {
+                                ymin = qMin(ymin, sampleValue);
+                                ymax = qMax(ymax, sampleValue);
+                            }
+                        }
                     }
                 }
 
                 // Recreate frame with the wave scaled to fit it.
                 for (int sample = 0; sample < dst.caps().samples(); sample++) {
-                    auto idata =
-                            reinterpret_cast<const SumType *>(sumPacket.constSample(ochannel,
-                                                                                    sample));
-                    auto odata =
-                            reinterpret_cast<SampleType *>(dst.sample(ochannel,
-                                                                      sample));
+                    auto oSampleOffset = sample * dst.caps().channels();
 
-                    *odata = transformTo(scaleValue<SumType,
-                                                    SampleType,
-                                                    SumType>(*idata,
-                                                             xmin,
-                                                             xmax,
-                                                             ymin,
-                                                             ymax));
+                    for (int ochannel = 0; ochannel < dst.caps().channels(); ochannel++) {
+                        auto sumOffset = oSampleOffset + ochannel;
+                        dst_line[sumOffset] = transformTo(scaleValue<SumType,
+                                                                     SampleType,
+                                                                     SumType>(sum_line[sumOffset],
+                                                                              xmin,
+                                                                              xmax,
+                                                                              ymin,
+                                                                              ymax));
+                    }
                 }
             }
 
