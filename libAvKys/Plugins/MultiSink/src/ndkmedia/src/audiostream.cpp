@@ -17,11 +17,12 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QSharedPointer>
 #include <QMutex>
+#include <QSharedPointer>
 #include <QVector>
 #include <QWaitCondition>
 #include <akaudiocaps.h>
+#include <akaudioconverter.h>
 #include <akaudiopacket.h>
 #include <akcaps.h>
 #include <akelement.h>
@@ -75,15 +76,12 @@ inline const ChannelMaskToPositionMap &channelMaskToPosition()
 class AudioStreamPrivate
 {
     public:
-        AudioStream *self;
-        AkElementPtr m_convert;
+        AkAudioConverter m_audioConvert;
         AkAudioPacket m_frame;
         QMutex m_frameMutex;
         int64_t m_pts {0};
         QWaitCondition m_frameReady;
         AkAudioCaps m_caps;
-
-        explicit AudioStreamPrivate(AudioStream *self);
 };
 
 AudioStream::AudioStream(AMediaMuxer *mediaMuxer,
@@ -100,7 +98,7 @@ AudioStream::AudioStream(AMediaMuxer *mediaMuxer,
                    mediaWriter,
                    parent)
 {
-    this->d = new AudioStreamPrivate(this);
+    this->d = new AudioStreamPrivate;
     this->d->m_caps = configs["caps"].value<AkCaps>();
 
 #if __ANDROID_API__ >= 28
@@ -117,10 +115,7 @@ AudioStream::AudioStream(AMediaMuxer *mediaMuxer,
     AMediaFormat_setInt32(this->mediaFormat(),
                           AMEDIAFORMAT_KEY_SAMPLE_RATE,
                           this->d->m_caps.rate());
-
-    this->d->m_convert =
-            akPluginManager->create<AkElement>("AudioFilter/AudioConvert");
-    this->d->m_convert->setProperty("caps", QVariant::fromValue(this->d->m_caps));
+    this->d->m_audioConvert.setOutputCaps(this->d->m_caps);
 }
 
 AudioStream::~AudioStream()
@@ -155,7 +150,7 @@ void AudioStream::convertPacket(const AkPacket &packet)
     if (!packet)
         return;
 
-    auto iPacket = AkAudioPacket(this->d->m_convert->iStream(packet));
+    auto iPacket = AkAudioPacket(this->d->m_audioConvert.convert(packet));
 
     if (!iPacket)
         return;
@@ -202,25 +197,10 @@ AkPacket AudioStream::avPacketDequeue(size_t bufferSize)
 
 bool AudioStream::init()
 {
-    this->d->m_convert->setState(AkElement::ElementStatePlaying);
     auto result = AbstractStream::init();
-
-    if (!result)
-        this->d->m_convert->setState(AkElement::ElementStateNull);
+    this->d->m_audioConvert.reset();
 
     return result;
-}
-
-void AudioStream::uninit()
-{
-    AbstractStream::uninit();
-    this->d->m_convert->setState(AkElement::ElementStateNull);
-}
-
-AudioStreamPrivate::AudioStreamPrivate(AudioStream *self):
-    self(self)
-{
-
 }
 
 #include "moc_audiostream.cpp"

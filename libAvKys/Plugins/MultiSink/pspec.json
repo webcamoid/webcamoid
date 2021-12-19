@@ -7,8 +7,7 @@
             "id": "MultimediaSink/MultiSink",
             "implements": ["Element"],
             "depends": [
-                "MultimediaSink/MultiSink/Impl/*",
-                "AudioFilter/AudioConvert"
+                "MultimediaSink/MultiSink/Impl/*"
             ],
             "type": "qtplugin"
         }

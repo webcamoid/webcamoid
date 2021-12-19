@@ -119,7 +119,7 @@
 <context>
     <name>AudioLayer</name>
     <message>
-        <location filename="../../src/audiolayer.cpp" line="249"/>
+        <location filename="../../src/audiolayer.cpp" line="248"/>
         <source>Silence</source>
         <translation>Silêncio</translation>
     </message>
@@ -258,17 +258,12 @@
         <translation>Conversão de vídeo</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="159"/>
-        <source>Audio convert</source>
-        <translation>Conversão de áudio</translation>
-    </message>
-    <message>
-        <location filename="../qml/GeneralConfig.qml" line="210"/>
+        <location filename="../qml/GeneralConfig.qml" line="193"/>
         <source>Virtual camera driver</source>
         <translation>Driver da câmera virtual</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="176"/>
+        <location filename="../qml/GeneralConfig.qml" line="159"/>
         <source>Video playback</source>
         <translation>Reprodução de vídeo</translation>
     </message>
@@ -284,12 +279,12 @@
         <translation>Frameworks e bibliotecas</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="193"/>
+        <location filename="../qml/GeneralConfig.qml" line="176"/>
         <source>Video record</source>
         <translation>Gravação de vídeo</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="230"/>
+        <location filename="../qml/GeneralConfig.qml" line="213"/>
         <source>Root method</source>
         <extracomment>The preferred method for executing commands with elevated privileges in the system.</extracomment>
         <translation>Método root</translation>

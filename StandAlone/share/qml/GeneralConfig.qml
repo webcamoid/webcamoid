@@ -156,23 +156,6 @@ Page {
                                          model.get(currentIndex).plugin)
             }
             Label {
-                text: qsTr("Audio convert")
-            }
-            ComboBox {
-                Layout.fillWidth: true
-                textRole: "description"
-                model: ListModel {
-                }
-
-                Component.onCompleted:
-                    generalConfigs.fillControl(this,
-                                               "AudioFilter/AudioConvert/Impl/*",
-                                               ["AudioConvertImpl"])
-                onCurrentIndexChanged:
-                    AkPluginManager.link("AudioFilter/AudioConvert/Impl/*",
-                                         model.get(currentIndex).plugin)
-            }
-            Label {
                 text: qsTr("Video playback")
             }
             ComboBox {

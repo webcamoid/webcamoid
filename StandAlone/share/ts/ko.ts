@@ -119,7 +119,7 @@
 <context>
     <name>AudioLayer</name>
     <message>
-        <location filename="../../src/audiolayer.cpp" line="249"/>
+        <location filename="../../src/audiolayer.cpp" line="248"/>
         <source>Silence</source>
         <translation>무음</translation>
     </message>
@@ -258,17 +258,12 @@
         <translation>비디오 변환</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="159"/>
-        <source>Audio convert</source>
-        <translation>오디오 변환</translation>
-    </message>
-    <message>
-        <location filename="../qml/GeneralConfig.qml" line="210"/>
+        <location filename="../qml/GeneralConfig.qml" line="193"/>
         <source>Virtual camera driver</source>
         <translation>가상 카메라 드라이버</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="176"/>
+        <location filename="../qml/GeneralConfig.qml" line="159"/>
         <source>Video playback</source>
         <translation>비디오 재생출력</translation>
     </message>
@@ -284,12 +279,12 @@
         <translation>프레임워크와 라이브러리</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="193"/>
+        <location filename="../qml/GeneralConfig.qml" line="176"/>
         <source>Video record</source>
         <translation>비디오 녹화</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="230"/>
+        <location filename="../qml/GeneralConfig.qml" line="213"/>
         <source>Root method</source>
         <extracomment>The preferred method for executing commands with elevated privileges in the system.</extracomment>
         <translation>기본 방법</translation>

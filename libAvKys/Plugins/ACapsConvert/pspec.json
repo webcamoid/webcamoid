@@ -6,7 +6,6 @@
             "description": "Convert audio frames to different formats",
             "id": "AudioFilter/AudioConvert",
             "implements": ["Element"],
-            "depends": ["AudioFilter/AudioConvert/Impl/*"],
             "type": "qtplugin"
         }
     ]

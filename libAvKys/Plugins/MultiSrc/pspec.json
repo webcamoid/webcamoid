@@ -7,8 +7,7 @@
             "id": "MultimediaSource/MultiSrc",
             "implements": ["Element"],
             "depends": [
-                "MultimediaSource/MultiSrc/Impl/*",
-                "AudioFilter/AudioConvert"
+                "MultimediaSource/MultiSrc/Impl/*"
             ],
             "type": "qtplugin"
         }

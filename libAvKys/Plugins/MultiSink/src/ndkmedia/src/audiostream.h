@@ -50,7 +50,6 @@ class AudioStream: public AbstractStream
 
     public slots:
         bool init();
-        void uninit();
 };
 
 #endif // AUDIOSTREAM_H

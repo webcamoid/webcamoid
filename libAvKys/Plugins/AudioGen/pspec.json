@@ -6,7 +6,6 @@
             "description": "Sound wave generator",
             "id": "AudioSource/AudioGenerator",
             "implements": ["Element"],
-            "depends": ["AudioFilter/AudioConvert"],
             "type": "qtplugin"
         }
     ]

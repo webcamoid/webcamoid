@@ -18,10 +18,11 @@
  */
 
 #include <QDebug>
-#include <QSharedPointer>
 #include <QMutex>
+#include <QSharedPointer>
 #include <QWaitCondition>
 #include <akaudiocaps.h>
+#include <akaudioconverter.h>
 #include <akaudiopacket.h>
 #include <akcaps.h>
 #include <akelement.h>
@@ -42,7 +43,7 @@ using ChannelLayoutsMap = QMap<AkAudioCaps::ChannelLayout, uint64_t>;
 class AudioStreamPrivate
 {
     public:
-        AkElementPtr m_convert;
+        AkAudioConverter m_audioConvert;
         AVFrame *m_frame {nullptr};
         QMutex m_frameMutex;
         int64_t m_pts {0};
@@ -229,10 +230,7 @@ AudioStream::AudioStream(const AVFormatContext *formatContext,
     stream->time_base.num = 1;
     stream->time_base.den = audioCaps.rate();
     codecContext->time_base = stream->time_base;
-
-    this->d->m_convert =
-            akPluginManager->create<AkElement>("AudioFilter/AudioConvert");
-    this->d->m_convert->setProperty("caps", QVariant::fromValue(audioCaps));
+    this->d->m_audioConvert.setOutputCaps(audioCaps);
 }
 
 AudioStream::~AudioStream()
@@ -247,7 +245,7 @@ void AudioStream::convertPacket(const AkPacket &packet)
         return;
 
     auto codecContext = this->codecContext();
-    auto iPacket = AkAudioPacket(this->d->m_convert->iStream(packet));
+    auto iPacket = AkAudioPacket(this->d->m_audioConvert.convert(packet));
 
     if (!iPacket)
         return;
@@ -484,11 +482,8 @@ AVFrame *AudioStream::dequeueFrame()
 
 bool AudioStream::init()
 {
-    this->d->m_convert->setState(AkElement::ElementStatePlaying);
     auto result = AbstractStream::init();
-
-    if (!result)
-        this->d->m_convert->setState(AkElement::ElementStateNull);
+    this->d->m_audioConvert.reset();
 
     return result;
 }
@@ -496,7 +491,6 @@ bool AudioStream::init()
 void AudioStream::uninit()
 {
     AbstractStream::uninit();
-    this->d->m_convert->setState(AkElement::ElementStateNull);
 
     this->d->m_frameMutex.lock();
     this->deleteFrame(&this->d->m_frame);

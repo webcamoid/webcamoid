@@ -51,7 +51,6 @@ class AudioLayerPrivate
         AkAudioCaps m_outputCaps;
         AkElementPtr m_audioOut {akPluginManager->create<AkElement>("AudioSource/AudioDevice")};
         AkElementPtr m_audioIn {akPluginManager->create<AkElement>("AudioSource/AudioDevice")};
-        AkElementPtr m_audioConvert {akPluginManager->create<AkElement>("AudioFilter/AudioConvert")};
         AkElementPtr m_audioGenerator {akPluginManager->create<AkElement>("AudioSource/AudioGenerator")};
         AkElementPtr m_audioSwitch {akPluginManager->create<AkElement>("Utils/Multiplex")};
         QMutex m_mutex;

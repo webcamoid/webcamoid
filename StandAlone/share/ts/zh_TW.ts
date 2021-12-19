@@ -119,7 +119,7 @@
 <context>
     <name>AudioLayer</name>
     <message>
-        <location filename="../../src/audiolayer.cpp" line="249"/>
+        <location filename="../../src/audiolayer.cpp" line="248"/>
         <source>Silence</source>
         <translation type="unfinished">靜音</translation>
     </message>
@@ -258,17 +258,12 @@
         <translation>視訊轉換</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="159"/>
-        <source>Audio convert</source>
-        <translation>音訊轉換</translation>
-    </message>
-    <message>
-        <location filename="../qml/GeneralConfig.qml" line="210"/>
+        <location filename="../qml/GeneralConfig.qml" line="193"/>
         <source>Virtual camera driver</source>
         <translation>虛擬相機驅動程式</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="176"/>
+        <location filename="../qml/GeneralConfig.qml" line="159"/>
         <source>Video playback</source>
         <translation>視訊回放</translation>
     </message>
@@ -284,12 +279,12 @@
         <translation>框架與函式庫</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="193"/>
+        <location filename="../qml/GeneralConfig.qml" line="176"/>
         <source>Video record</source>
         <translation>視訊錄製</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="230"/>
+        <location filename="../qml/GeneralConfig.qml" line="213"/>
         <source>Root method</source>
         <extracomment>The preferred method for executing commands with elevated privileges in the system.</extracomment>
         <translation type="unfinished">根模式（Root method）</translation>

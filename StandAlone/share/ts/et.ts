@@ -119,7 +119,7 @@
 <context>
     <name>AudioLayer</name>
     <message>
-        <location filename="../../src/audiolayer.cpp" line="249"/>
+        <location filename="../../src/audiolayer.cpp" line="248"/>
         <source>Silence</source>
         <translation>Vaikus</translation>
     </message>
@@ -258,17 +258,12 @@
         <translation>Video teisendamine</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="159"/>
-        <source>Audio convert</source>
-        <translation>Audio teisendamine</translation>
-    </message>
-    <message>
-        <location filename="../qml/GeneralConfig.qml" line="210"/>
+        <location filename="../qml/GeneralConfig.qml" line="193"/>
         <source>Virtual camera driver</source>
         <translation>Virtuaalse kaamera draiver</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="176"/>
+        <location filename="../qml/GeneralConfig.qml" line="159"/>
         <source>Video playback</source>
         <translation>Video taasesitus</translation>
     </message>
@@ -284,12 +279,12 @@
         <translation>Raamistikud ja teegid</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="193"/>
+        <location filename="../qml/GeneralConfig.qml" line="176"/>
         <source>Video record</source>
         <translation>Video salvestamine</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="230"/>
+        <location filename="../qml/GeneralConfig.qml" line="213"/>
         <source>Root method</source>
         <extracomment>The preferred method for executing commands with elevated privileges in the system.</extracomment>
         <translation>Põhimeetod</translation>
