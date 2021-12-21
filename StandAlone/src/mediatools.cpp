@@ -19,7 +19,6 @@
 
 #include <QApplication>
 #include <QDateTime>
-#include <QDesktopServices>
 #include <QDir>
 #include <QFileInfo>
 #include <QMutex>
@@ -300,33 +299,6 @@ QString MediaTools::projectIssuesUrl() const
 QString MediaTools::fileNameFromUri(const QString &uri) const
 {
     return QFileInfo(uri).baseName();
-}
-
-bool MediaTools::openUrl(const QUrl &url) const
-{
-    bool ok = QDesktopServices::openUrl(url);
-
-    if (ok)
-        return true;
-
-#if defined(Q_OS_UNIX) && !defined(Q_OS_OSX)
-    qWarning() << "QDesktopServices::openUrl() failed, trying with xdg-open.";
-
-    QProcess proc;
-    proc.start("sh", {"xdg-open", url.toString()});
-    proc.waitForFinished();
-
-    if (proc.exitCode() == 0) {
-        ok = true;
-    } else {
-        auto errorMsg = proc.readAllStandardError();
-
-        if (!errorMsg.isEmpty())
-            qDebug() << errorMsg.toStdString().c_str();
-    }
-#endif
-
-    return ok;
 }
 
 bool MediaTools::matches(const QString &pattern,

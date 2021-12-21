@@ -84,7 +84,6 @@ class MediaTools: public QObject
         Q_INVOKABLE QString projectDownloadsUrl() const;
         Q_INVOKABLE QString projectIssuesUrl() const;
         Q_INVOKABLE QString fileNameFromUri(const QString &uri) const;
-        Q_INVOKABLE bool openUrl(const QUrl &url) const;
         Q_INVOKABLE bool matches(const QString &pattern,
                                  const QStringList &strings) const;
         Q_INVOKABLE QString currentTime() const;

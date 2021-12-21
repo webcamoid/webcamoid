@@ -66,7 +66,7 @@ Page {
                         text: qsTr("Website")
                         icon.source: "image://icons/internet"
 
-                        onClicked: mediaTools.openUrl(mediaTools.projectUrl)
+                        onClicked: Qt.openUrlExternally(mediaTools.projectUrl)
                     }
                 }
             }

@@ -82,7 +82,7 @@ Dialog {
         }
     }
 
-    onAccepted: mediaTools.openUrl(mediaTools.projectDownloadsUrl)
+    onAccepted: Qt.openUrlExternally(mediaTools.projectDownloadsUrl)
 
     LABS.Settings {
         category: "Updates"
