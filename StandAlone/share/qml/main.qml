@@ -250,7 +250,7 @@ ApplicationWindow {
 
                     onClicked: {
                         if (photoPreview.status == Image.Ready)
-                            Qt.openUrlExternally(photoPreview.source)
+                            mediaTools.openUrl(photoPreview.source)
                     }
                 }
             }
@@ -351,7 +351,7 @@ ApplicationWindow {
 
                     onClicked: {
                         if (videoPreview.status == Image.Ready)
-                            Qt.openUrlExternally("file://" + recording.lastVideo)
+                            mediaTools.openUrl("file://" + recording.lastVideo)
                     }
                 }
             }

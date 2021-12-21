@@ -40,5 +40,5 @@ Dialog {
         }
     }
 
-    onAccepted: Qt.openUrlExternally(videoLayer.vcamDownloadUrl)
+    onAccepted: mediaTools.openUrl(videoLayer.vcamDownloadUrl)
 }
