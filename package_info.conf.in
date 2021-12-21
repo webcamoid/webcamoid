@@ -9,7 +9,7 @@ buildInfoFile = @BUILD_INFO_FILE@
 targetArch = @TARGET_ARCH@
 version = @VERSION@
 outputFormats = @OUTPUT_FORMATS@
-modules = Qt5, GStreamer, Vlc
+modules = Qt5, Qt5KF5, GStreamer, Vlc
 extraLibs = @EXTRA_LIBS@
 
 [Qt5]
