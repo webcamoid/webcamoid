@@ -170,7 +170,7 @@ Page {
                     icon.source: "image://icons/internet"
                     Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
 
-                    onClicked: Qt.openUrlExternally(mediaTools.projectDownloadsUrl)
+                    onClicked: mediaTools.openUrl(mediaTools.projectDownloadsUrl)
                 }
             }
             ColumnLayout {
@@ -190,7 +190,7 @@ Page {
                     icon.source: "image://icons/bug"
                     Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
 
-                    onClicked: Qt.openUrlExternally(mediaTools.projectIssuesUrl)
+                    onClicked: mediaTools.openUrl(mediaTools.projectIssuesUrl)
                 }
             }
         }
