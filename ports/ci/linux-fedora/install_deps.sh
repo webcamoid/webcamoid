@@ -92,6 +92,7 @@ dnf -y install \
     gstreamer1-plugins-base-devel \
     gstreamer1-plugins-good \
     jack-audio-connection-kit-devel \
+    kf5-frameworkintegration \
     kf5-frameworkintegration-libs \
     kmod-devel \
     libv4l-devel \

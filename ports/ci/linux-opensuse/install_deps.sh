@@ -94,7 +94,6 @@ zypper -n in \
     clang \
     cmake \
     ffmpeg-devel \
-    frameworkintegration-plugin \
     git \
     gstreamer-plugins-base \
     gstreamer-plugins-base-devel \
