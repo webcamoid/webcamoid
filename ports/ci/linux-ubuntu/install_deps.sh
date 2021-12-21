@@ -105,6 +105,7 @@ apt-get -y install \
     ccache \
     clang \
     cmake \
+    frameworkintegration \
     g++ \
     git \
     gstreamer1.0-plugins-base \

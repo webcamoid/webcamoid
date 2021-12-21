@@ -23,6 +23,7 @@ pkg install -y \
     alsa-lib \
     ccache \
     cmake \
+    kf5-frameworkintegration \
     ffmpeg \
     git \
     gstreamer1 \

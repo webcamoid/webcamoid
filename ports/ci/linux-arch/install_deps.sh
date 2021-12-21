@@ -95,6 +95,7 @@ pacman --noconfirm --needed -S \
     cmake \
     ffmpeg \
     file \
+    frameworkintegration \
     git \
     gst-plugins-base \
     gst-plugins-base-libs \
