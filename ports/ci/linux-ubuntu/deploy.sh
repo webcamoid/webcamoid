@@ -31,10 +31,6 @@ if [ "${DOCKERIMG}" = ubuntu:focal ]; then
 [Qt5KF5]
 qtPluginsDir = /usr/lib/x86_64-linux-gnu/qt5/plugins
 
-[Package]
-targetArch = any
-EOF
-
 [System]
 libDir = /opt/qt${PPAQTVER}/lib
 EOF
