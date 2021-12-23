@@ -3,7 +3,6 @@ name: Mac
 on: [push, pull_request]
 
 env:
-  QTIFWVER: 4.1.1
   NJOBS: 4
 
 jobs:
