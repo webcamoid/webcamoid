@@ -21,7 +21,7 @@
 #include <QMap>
 #include <QVariant>
 #include <QWaitCondition>
-#include <QMutex>
+#include <QReadWriteLock>
 #include <ak.h>
 #include <akfrac.h>
 #include <akcaps.h>
@@ -76,8 +76,8 @@ class CaptureCMIOPrivate
         QMap<QString, QVariantList> m_devicesCaps;
         QMap<QString, CMIODeviceID> m_devicesID;
         int m_nBuffers {32};
-        QMutex m_mutex;
-        QMutex m_controlsMutex;
+        QReadWriteLock m_mutex;
+        QReadWriteLock m_controlsMutex;
         QWaitCondition m_frameReady;
         AkFrac m_fps;
         AkFrac m_timeBase;
@@ -245,7 +245,7 @@ QVariantList CaptureCMIO::imageControls() const
 
 bool CaptureCMIO::setImageControls(const QVariantMap &imageControls)
 {
-    this->d->m_controlsMutex.lock();
+    this->d->m_controlsMutex.lockForRead();
     auto globalImageControls = this->d->m_globalImageControls;
     this->d->m_controlsMutex.unlock();
 
@@ -259,7 +259,7 @@ bool CaptureCMIO::setImageControls(const QVariantMap &imageControls)
         }
     }
 
-    this->d->m_controlsMutex.lock();
+    this->d->m_controlsMutex.lockForWrite();
 
     if (this->d->m_globalImageControls == globalImageControls) {
         this->d->m_controlsMutex.unlock();
@@ -294,7 +294,7 @@ QVariantList CaptureCMIO::cameraControls() const
 
 bool CaptureCMIO::setCameraControls(const QVariantMap &cameraControls)
 {
-    this->d->m_controlsMutex.lock();
+    this->d->m_controlsMutex.lockForRead();
     auto globalCameraControls = this->d->m_globalCameraControls;
     this->d->m_controlsMutex.unlock();
 
@@ -308,7 +308,7 @@ bool CaptureCMIO::setCameraControls(const QVariantMap &cameraControls)
         }
     }
 
-    this->d->m_controlsMutex.lock();
+    this->d->m_controlsMutex.lockForWrite();
 
     if (this->d->m_globalCameraControls == globalCameraControls) {
         this->d->m_controlsMutex.unlock();
@@ -338,10 +338,10 @@ bool CaptureCMIO::resetCameraControls()
 
 AkPacket CaptureCMIO::readFrame()
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForWrite();
 
 #if defined(ENABLE_CONTROLS) && ENABLE_CONTROLS != 0
-    this->d->m_controlsMutex.lock();
+    this->d->m_controlsMutex.lockForRead();
     auto imageControls = this->d->controlStatus(this->d->m_globalImageControls);
     this->d->m_controlsMutex.unlock();
 
@@ -523,12 +523,12 @@ void CaptureCMIO::setDevice(const QString &device)
     this->d->m_device = device;
 
     if (device.isEmpty()) {
-        this->d->m_controlsMutex.lock();
+        this->d->m_controlsMutex.lockForWrite();
         this->d->m_globalImageControls.clear();
         this->d->m_globalCameraControls.clear();
         this->d->m_controlsMutex.unlock();
     } else {
-        this->d->m_controlsMutex.lock();
+        this->d->m_controlsMutex.lockForWrite();
 
 #if defined(ENABLE_CONTROLS) && ENABLE_CONTROLS != 0
         auto deviceID = this->d->m_devicesID.value(device, kCMIODeviceUnknown);
@@ -540,7 +540,7 @@ void CaptureCMIO::setDevice(const QString &device)
         this->d->m_controlsMutex.unlock();
     }
 
-    this->d->m_controlsMutex.lock();
+    this->d->m_controlsMutex.lockForRead();
     auto imageStatus = this->d->controlStatus(this->d->m_globalImageControls);
     auto cameraStatus = this->d->controlStatus(this->d->m_globalCameraControls);
     this->d->m_controlsMutex.unlock();
@@ -1406,7 +1406,7 @@ void CaptureCMIOPrivate::streamQueueAltered(CMIOStreamID streamID,
         if (!videoFrame)
             break;
 
-        self->m_mutex.lock();
+        self->m_mutex.lockForWrite();
 
         if (self->m_curFrame)
             CFRelease(self->m_curFrame);

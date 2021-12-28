@@ -18,7 +18,7 @@
  */
 
 #include <QDateTime>
-#include <QMutex>
+#include <QReadWriteLock>
 #include <QSet>
 #include <QThread>
 #include <QVariant>
@@ -183,12 +183,12 @@ class CaptureAndroidCameraPrivate
         QStringList m_devices;
         QMap<QString, QString> m_descriptions;
         QMap<QString, QVariantList> m_devicesCaps;
-        QMutex m_controlsMutex;
+        QReadWriteLock m_controlsMutex;
         QVariantList m_globalImageControls;
         QVariantList m_globalCameraControls;
         QVariantMap m_localImageControls;
         QVariantMap m_localCameraControls;
-        QMutex m_mutex;
+        QReadWriteLock m_mutex;
         QByteArray m_curBuffer;
         QWaitCondition m_waitCondition;
         AkFrac m_fps;
@@ -347,7 +347,7 @@ QVariantList CaptureAndroidCamera::imageControls() const
 
 bool CaptureAndroidCamera::setImageControls(const QVariantMap &imageControls)
 {
-    this->d->m_controlsMutex.lock();
+    this->d->m_controlsMutex.lockForRead();
     auto globalImageControls = this->d->m_globalImageControls;
     this->d->m_controlsMutex.unlock();
 
@@ -361,7 +361,7 @@ bool CaptureAndroidCamera::setImageControls(const QVariantMap &imageControls)
         }
     }
 
-    this->d->m_controlsMutex.lock();
+    this->d->m_controlsMutex.lockForWrite();
 
     if (this->d->m_globalImageControls == globalImageControls) {
         this->d->m_controlsMutex.unlock();
@@ -396,7 +396,7 @@ QVariantList CaptureAndroidCamera::cameraControls() const
 
 bool CaptureAndroidCamera::setCameraControls(const QVariantMap &cameraControls)
 {
-    this->d->m_controlsMutex.lock();
+    this->d->m_controlsMutex.lockForRead();
     auto globalCameraControls = this->d->m_globalCameraControls;
     this->d->m_controlsMutex.unlock();
 
@@ -410,7 +410,7 @@ bool CaptureAndroidCamera::setCameraControls(const QVariantMap &cameraControls)
         }
     }
 
-    this->d->m_controlsMutex.lock();
+    this->d->m_controlsMutex.lockForWrite();
 
     if (this->d->m_globalCameraControls == globalCameraControls) {
         this->d->m_controlsMutex.unlock();
@@ -445,7 +445,7 @@ AkPacket CaptureAndroidCamera::readFrame()
                                                    "()Landroid/hardware/Camera$Parameters;");
 
         if (parameters.isValid()) {
-            this->d->m_controlsMutex.lock();
+            this->d->m_controlsMutex.lockForRead();
             auto imageControls = this->d->controlStatus(this->d->m_globalImageControls);
             this->d->m_controlsMutex.unlock();
             bool apply = false;
@@ -457,7 +457,7 @@ AkPacket CaptureAndroidCamera::readFrame()
                 this->d->m_localImageControls = imageControls;
             }
 
-            this->d->m_controlsMutex.lock();
+            this->d->m_controlsMutex.lockForRead();
             auto cameraControls = this->d->controlStatus(this->d->m_globalCameraControls);
             this->d->m_controlsMutex.unlock();
 
@@ -482,7 +482,7 @@ AkPacket CaptureAndroidCamera::readFrame()
                    * this->d->m_timeBase.invert().value()
                    / 1e3);
 
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForWrite();
 
     if (this->d->m_curBuffer.isEmpty())
         this->d->m_waitCondition.wait(&this->d->m_mutex, 1000);
@@ -1122,7 +1122,7 @@ void CaptureAndroidCameraPrivate::previewFrameReady(JNIEnv *env,
                             reinterpret_cast<jbyte *>(buffer.data()));
     auto self = reinterpret_cast<CaptureAndroidCameraPrivate *>(userPtr);
 
-    self->m_mutex.lock();
+    self->m_mutex.lockForWrite();
     self->m_curBuffer = buffer;
     self->m_waitCondition.wakeAll();
     self->m_mutex.unlock();
@@ -1366,12 +1366,12 @@ void CaptureAndroidCamera::setDevice(const QString &device)
     this->d->m_device = device;
 
     if (device.isEmpty()) {
-        this->d->m_controlsMutex.lock();
+        this->d->m_controlsMutex.lockForWrite();
         this->d->m_globalImageControls.clear();
         this->d->m_globalCameraControls.clear();
         this->d->m_controlsMutex.unlock();
     } else {
-        this->d->m_controlsMutex.lock();
+        this->d->m_controlsMutex.lockForWrite();
 
         auto camera =
                 QAndroidJniObject::callStaticObjectMethod("android/hardware/Camera",
@@ -1395,7 +1395,7 @@ void CaptureAndroidCamera::setDevice(const QString &device)
         this->d->m_controlsMutex.unlock();
     }
 
-    this->d->m_controlsMutex.lock();
+    this->d->m_controlsMutex.lockForRead();
     auto imageStatus = this->d->controlStatus(this->d->m_globalImageControls);
     auto cameraStatus = this->d->controlStatus(this->d->m_globalCameraControls);
     this->d->m_controlsMutex.unlock();

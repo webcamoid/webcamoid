@@ -18,12 +18,12 @@
  */
 
 #include <QDebug>
-#include <QVariant>
-#include <QMap>
-#include <QMutex>
-#include <QVector>
 #include <QDir>
 #include <QFileSystemWatcher>
+#include <QMap>
+#include <QReadWriteLock>
+#include <QVariant>
+#include <QVector>
 #include <ak.h>
 #include <akfrac.h>
 #include <akcaps.h>
@@ -178,7 +178,7 @@ class CaptureV4L2Private
         QStringList m_devices;
         QMap<QString, QString> m_descriptions;
         QMap<QString, QVariantList> m_devicesCaps;
-        QMutex m_controlsMutex;
+        QReadWriteLock m_controlsMutex;
         QVariantList m_globalImageControls;
         QVariantList m_globalCameraControls;
         QVariantMap m_localImageControls;
@@ -323,7 +323,7 @@ QVariantList CaptureV4L2::imageControls() const
 
 bool CaptureV4L2::setImageControls(const QVariantMap &imageControls)
 {
-    this->d->m_controlsMutex.lock();
+    this->d->m_controlsMutex.lockForRead();
     auto globalImageControls = this->d->m_globalImageControls;
     this->d->m_controlsMutex.unlock();
 
@@ -337,7 +337,7 @@ bool CaptureV4L2::setImageControls(const QVariantMap &imageControls)
         }
     }
 
-    this->d->m_controlsMutex.lock();
+    this->d->m_controlsMutex.lockForWrite();
 
     if (this->d->m_globalImageControls == globalImageControls) {
         this->d->m_controlsMutex.unlock();
@@ -372,7 +372,7 @@ QVariantList CaptureV4L2::cameraControls() const
 
 bool CaptureV4L2::setCameraControls(const QVariantMap &cameraControls)
 {
-    this->d->m_controlsMutex.lock();
+    this->d->m_controlsMutex.lockForRead();
     auto globalCameraControls = this->d->m_globalCameraControls;
     this->d->m_controlsMutex.unlock();
 
@@ -386,7 +386,7 @@ bool CaptureV4L2::setCameraControls(const QVariantMap &cameraControls)
         }
     }
 
-    this->d->m_controlsMutex.lock();
+    this->d->m_controlsMutex.lockForWrite();
 
     if (this->d->m_globalCameraControls == globalCameraControls) {
         this->d->m_controlsMutex.unlock();
@@ -421,7 +421,7 @@ AkPacket CaptureV4L2::readFrame()
     if (this->d->m_fd < 0)
         return AkPacket();
 
-    this->d->m_controlsMutex.lock();
+    this->d->m_controlsMutex.lockForRead();
     auto imageControls = this->d->controlStatus(this->d->m_globalImageControls);
     this->d->m_controlsMutex.unlock();
 
@@ -432,7 +432,7 @@ AkPacket CaptureV4L2::readFrame()
         this->d->m_localImageControls = imageControls;
     }
 
-    this->d->m_controlsMutex.lock();
+    this->d->m_controlsMutex.lockForRead();
     auto cameraControls = this->d->controlStatus(this->d->m_globalCameraControls);
     this->d->m_controlsMutex.unlock();
 
@@ -618,12 +618,12 @@ void CaptureV4L2::setDevice(const QString &device)
     this->d->m_device = device;
 
     if (device.isEmpty()) {
-        this->d->m_controlsMutex.lock();
+        this->d->m_controlsMutex.lockForWrite();
         this->d->m_globalImageControls.clear();
         this->d->m_globalCameraControls.clear();
         this->d->m_controlsMutex.unlock();
     } else {
-        this->d->m_controlsMutex.lock();
+        this->d->m_controlsMutex.lockForWrite();
         int fd = x_open(device.toStdString().c_str(), O_RDWR | O_NONBLOCK, 0);
 
         if (fd >= 0) {
@@ -635,7 +635,7 @@ void CaptureV4L2::setDevice(const QString &device)
         this->d->m_controlsMutex.unlock();
     }
 
-    this->d->m_controlsMutex.lock();
+    this->d->m_controlsMutex.lockForRead();
     auto imageStatus = this->d->controlStatus(this->d->m_globalImageControls);
     auto cameraStatus = this->d->controlStatus(this->d->m_globalCameraControls);
     this->d->m_controlsMutex.unlock();

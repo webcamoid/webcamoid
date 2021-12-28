@@ -20,8 +20,11 @@
 #ifndef USBGLOBALS_H
 #define USBGLOBALS_H
 
-#include <QtConcurrent>
+#include <QObject>
+
 #include <libusb.h>
+
+class UsbGlobalsPrivate;
 
 class UsbGlobals: public QObject
 {
@@ -31,20 +34,10 @@ class UsbGlobals: public QObject
         UsbGlobals(QObject *parent=nullptr);
         ~UsbGlobals();
 
-        libusb_context *context();
+        Q_INVOKABLE libusb_context *context() const;
 
     private:
-        libusb_context *m_context;
-        libusb_hotplug_callback_handle m_hotplugCallbackHnd;
-        QThreadPool m_threadPool;
-        bool m_processsUsbEventsLoop;
-        QFuture<void> m_processsUsbEvents;
-        QMutex m_mutex;
-
-        static int hotplugCallback(libusb_context *context,
-                                   libusb_device *device,
-                                   libusb_hotplug_event event,
-                                   void *userData);
+        UsbGlobalsPrivate *d;
 
     signals:
         void devicesUpdated();
@@ -52,9 +45,6 @@ class UsbGlobals: public QObject
     public slots:
         void startUSBEvents();
         void stopUSBEvents();
-
-    private slots:
-        void processUSBEvents();
 };
 
 #endif // USBGLOBALS_H

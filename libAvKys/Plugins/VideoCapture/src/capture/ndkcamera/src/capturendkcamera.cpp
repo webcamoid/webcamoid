@@ -18,7 +18,7 @@
  */
 
 #include <QDateTime>
-#include <QMutex>
+#include <QReadWriteLock>
 #include <QThread>
 #include <QVariant>
 #include <QVector>
@@ -71,12 +71,12 @@ class CaptureNdkCameraPrivate
         QStringList m_devices;
         QMap<QString, QString> m_descriptions;
         QMap<QString, QVariantList> m_devicesCaps;
-        QMutex m_controlsMutex;
+        QReadWriteLock m_controlsMutex;
         QVariantList m_globalImageControls;
         QVariantList m_globalCameraControls;
         QVariantMap m_localImageControls;
         QVariantMap m_localCameraControls;
-        QMutex m_mutex;
+        QReadWriteLock m_mutex;
         AkPacket m_curPacket;
         QWaitCondition m_waitCondition;
         AkFrac m_fps;
@@ -215,7 +215,7 @@ QVariantList CaptureNdkCamera::imageControls() const
 
 bool CaptureNdkCamera::setImageControls(const QVariantMap &imageControls)
 {
-    this->d->m_controlsMutex.lock();
+    this->d->m_controlsMutex.lockForRead();
     auto globalImageControls = this->d->m_globalImageControls;
     this->d->m_controlsMutex.unlock();
 
@@ -229,7 +229,7 @@ bool CaptureNdkCamera::setImageControls(const QVariantMap &imageControls)
         }
     }
 
-    this->d->m_controlsMutex.lock();
+    this->d->m_controlsMutex.lockForWrite();
 
     if (this->d->m_globalImageControls == globalImageControls) {
         this->d->m_controlsMutex.unlock();
@@ -265,7 +265,7 @@ QVariantList CaptureNdkCamera::cameraControls() const
 
 bool CaptureNdkCamera::setCameraControls(const QVariantMap &cameraControls)
 {
-    this->d->m_controlsMutex.lock();
+    this->d->m_controlsMutex.lockForRead();
     auto globalCameraControls = this->d->m_globalCameraControls;
     this->d->m_controlsMutex.unlock();
 
@@ -279,7 +279,7 @@ bool CaptureNdkCamera::setCameraControls(const QVariantMap &cameraControls)
         }
     }
 
-    this->d->m_controlsMutex.lock();
+    this->d->m_controlsMutex.lockForWrite();
 
     if (this->d->m_globalCameraControls == globalCameraControls) {
         this->d->m_controlsMutex.unlock();
@@ -310,7 +310,7 @@ AkPacket CaptureNdkCamera::readFrame()
 {
     AkPacket packet;
 
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForWrite();
 
     if (!this->d->m_curPacket)
         this->d->m_waitCondition.wait(&this->d->m_mutex, 1000);
@@ -451,7 +451,7 @@ void CaptureNdkCameraPrivate::imageAvailable(void *context,
     packet.setIndex(0);
     packet.setId(self->m_id);
 
-    self->m_mutex.lock();
+    self->m_mutex.lockForWrite();
     self->m_curPacket = packet;
     self->m_waitCondition.wakeAll();
     self->m_mutex.unlock();
@@ -902,18 +902,18 @@ void CaptureNdkCamera::setDevice(const QString &device)
     this->d->m_device = device;
 
     if (device.isEmpty()) {
-        this->d->m_controlsMutex.lock();
+        this->d->m_controlsMutex.lockForWrite();
         this->d->m_globalImageControls.clear();
         this->d->m_globalCameraControls.clear();
         this->d->m_controlsMutex.unlock();
     } else {
-        this->d->m_controlsMutex.lock();
+        this->d->m_controlsMutex.lockForWrite();
 
 
         this->d->m_controlsMutex.unlock();
     }
 
-    this->d->m_controlsMutex.lock();
+    this->d->m_controlsMutex.lockForWrite();
     this->d->m_controlsMutex.unlock();
 
     emit this->deviceChanged(device);

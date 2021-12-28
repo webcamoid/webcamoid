@@ -18,16 +18,16 @@
  */
 
 #include <QCoreApplication>
-#include <QSharedPointer>
-#include <QMap>
-#include <QSize>
 #include <QDateTime>
+#include <QMap>
+#include <QReadWriteLock>
+#include <QSharedPointer>
+#include <QSize>
 #include <QVariant>
-#include <QMutex>
 #include <QWaitCondition>
 #include <ak.h>
-#include <akfrac.h>
 #include <akcaps.h>
+#include <akfrac.h>
 #include <akpacket.h>
 #include <dshow.h>
 #include <dbt.h>
@@ -207,8 +207,8 @@ class CaptureDShowPrivate
         SampleGrabberPtr m_grabber;
         FrameGrabber m_frameGrabber;
         QByteArray m_curBuffer;
-        QMutex m_mutex;
-        QMutex m_controlsMutex;
+        QReadWriteLock m_mutex;
+        QReadWriteLock m_controlsMutex;
         QWaitCondition m_waitCondition;
         QVariantList m_globalImageControls;
         QVariantList m_globalCameraControls;
@@ -350,7 +350,7 @@ QVariantList CaptureDShow::imageControls() const
 
 bool CaptureDShow::setImageControls(const QVariantMap &imageControls)
 {
-    this->d->m_controlsMutex.lock();
+    this->d->m_controlsMutex.lockForRead();
     auto globalImageControls = this->d->m_globalImageControls;
     this->d->m_controlsMutex.unlock();
 
@@ -364,7 +364,7 @@ bool CaptureDShow::setImageControls(const QVariantMap &imageControls)
         }
     }
 
-    this->d->m_controlsMutex.lock();
+    this->d->m_controlsMutex.lockForWrite();
 
     if (this->d->m_globalImageControls == globalImageControls) {
         this->d->m_controlsMutex.unlock();
@@ -399,7 +399,7 @@ QVariantList CaptureDShow::cameraControls() const
 
 bool CaptureDShow::setCameraControls(const QVariantMap &cameraControls)
 {
-    this->d->m_controlsMutex.lock();
+    this->d->m_controlsMutex.lockForRead();
     auto globalCameraControls = this->d->m_globalCameraControls;
     this->d->m_controlsMutex.unlock();
 
@@ -413,7 +413,7 @@ bool CaptureDShow::setCameraControls(const QVariantMap &cameraControls)
         }
     }
 
-    this->d->m_controlsMutex.lock();
+    this->d->m_controlsMutex.lockForWrite();
 
     if (this->d->m_globalCameraControls == globalCameraControls) {
         this->d->m_controlsMutex.unlock();
@@ -446,7 +446,7 @@ AkPacket CaptureDShow::readFrame()
     this->d->m_graph->FindFilterByName(SOURCE_FILTER_NAME, &source);
 
     if (source) {
-        this->d->m_controlsMutex.lock();
+        this->d->m_controlsMutex.lockForRead();
         auto imageControls = this->d->controlStatus(this->d->m_globalImageControls);
         this->d->m_controlsMutex.unlock();
 
@@ -457,7 +457,7 @@ AkPacket CaptureDShow::readFrame()
             this->d->m_localImageControls = imageControls;
         }
 
-        this->d->m_controlsMutex.lock();
+        this->d->m_controlsMutex.lockForRead();
         auto cameraControls = this->d->controlStatus(this->d->m_globalCameraControls);
         this->d->m_controlsMutex.unlock();
 
@@ -485,7 +485,7 @@ AkPacket CaptureDShow::readFrame()
                    / 1e3);
 
     if (this->d->m_ioMethod != IoMethodDirectRead) {
-        this->d->m_mutex.lock();
+        this->d->m_mutex.lockForWrite();
 
         if (this->d->m_curBuffer.isEmpty())
             this->d->m_waitCondition.wait(&this->d->m_mutex, 1000);
@@ -1235,7 +1235,7 @@ void CaptureDShowPrivate::frameReceived(qreal time, const QByteArray &buffer)
 {
     Q_UNUSED(time)
 
-    this->m_mutex.lock();
+    this->m_mutex.lockForWrite();
     this->m_curBuffer = buffer;
     this->m_waitCondition.wakeAll();
     this->m_mutex.unlock();
@@ -1557,12 +1557,12 @@ void CaptureDShow::setDevice(const QString &device)
     this->d->m_device = device;
 
     if (device.isEmpty()) {
-        this->d->m_controlsMutex.lock();
+        this->d->m_controlsMutex.lockForWrite();
         this->d->m_globalImageControls.clear();
         this->d->m_globalCameraControls.clear();
         this->d->m_controlsMutex.unlock();
     } else {
-        this->d->m_controlsMutex.lock();
+        this->d->m_controlsMutex.lockForWrite();
         auto camera = this->d->findFilterP(device);
 
         if (camera) {
@@ -1574,7 +1574,7 @@ void CaptureDShow::setDevice(const QString &device)
         this->d->m_controlsMutex.unlock();
     }
 
-    this->d->m_controlsMutex.lock();
+    this->d->m_controlsMutex.lockForRead();
     auto imageStatus = this->d->controlStatus(this->d->m_globalImageControls);
     auto cameraStatus = this->d->controlStatus(this->d->m_globalCameraControls);
     this->d->m_controlsMutex.unlock();

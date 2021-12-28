@@ -17,26 +17,42 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QtConcurrent>
+
 #include "usbglobals.h"
 
-template <typename T>
-inline void waitLoop(const QFuture<T> &loop)
+class UsbGlobalsPrivate
 {
-    while (!loop.isFinished()) {
-        auto eventDispatcher = QThread::currentThread()->eventDispatcher();
+    public:
+        libusb_context *m_context {nullptr};
+        libusb_hotplug_callback_handle m_hotplugCallbackHnd {0};
+        QThreadPool m_threadPool;
+        bool m_processsUsbEventsLoop {false};
+        QFuture<void> m_processsUsbEvents;
+        QMutex m_mutex;
 
-        if (eventDispatcher)
-            eventDispatcher->processEvents(QEventLoop::AllEvents);
-    }
-}
+        void processUSBEvents();
+        static int hotplugCallback(libusb_context *context,
+                                   libusb_device *device,
+                                   libusb_hotplug_event event,
+                                   void *userData);
+        template <typename T>
+        inline void waitLoop(const QFuture<T> &loop)
+        {
+            while (!loop.isFinished()) {
+                auto eventDispatcher = QThread::currentThread()->eventDispatcher();
+
+                if (eventDispatcher)
+                    eventDispatcher->processEvents(QEventLoop::AllEvents);
+            }
+        }
+};
 
 UsbGlobals::UsbGlobals(QObject *parent):
-    QObject(parent),
-    m_context(nullptr),
-    m_hotplugCallbackHnd(0),
-    m_processsUsbEventsLoop(false)
+    QObject(parent)
 {
-    auto usbError = libusb_init(&this->m_context);
+    this->d = new UsbGlobalsPrivate;
+    auto usbError = libusb_init(&this->d->m_context);
 
     if (usbError != LIBUSB_SUCCESS) {
         qDebug() << "CaptureLibUVC:" << libusb_strerror(libusb_error(usbError));
@@ -47,16 +63,16 @@ UsbGlobals::UsbGlobals(QObject *parent):
 #if QT_VERSION_CHECK(LIBUSB_MAJOR, LIBUSB_MINOR, LIBUSB_MICRO) >= QT_VERSION_CHECK(1, 0, 15)
     if (libusb_has_capability(LIBUSB_CAP_HAS_HOTPLUG)) {
         usbError =
-                libusb_hotplug_register_callback(this->m_context,
+                libusb_hotplug_register_callback(this->d->m_context,
                                                  libusb_hotplug_event(LIBUSB_HOTPLUG_EVENT_DEVICE_ARRIVED
                                                                       | LIBUSB_HOTPLUG_EVENT_DEVICE_LEFT),
                                                  LIBUSB_HOTPLUG_ENUMERATE,
                                                  LIBUSB_HOTPLUG_MATCH_ANY,
                                                  LIBUSB_HOTPLUG_MATCH_ANY,
                                                  LIBUSB_HOTPLUG_MATCH_ANY,
-                                                 this->hotplugCallback,
+                                                 UsbGlobalsPrivate::hotplugCallback,
                                                  this,
-                                                 &this->m_hotplugCallbackHnd);
+                                                 &this->d->m_hotplugCallbackHnd);
 
         if (usbError != LIBUSB_SUCCESS)
             qDebug() << "CaptureLibUVC:" << libusb_strerror(libusb_error(usbError));
@@ -70,25 +86,58 @@ UsbGlobals::~UsbGlobals()
 {
 #if QT_VERSION_CHECK(LIBUSB_MAJOR, LIBUSB_MINOR, LIBUSB_MICRO) >= QT_VERSION_CHECK(1, 0, 15)
     if (libusb_has_capability(LIBUSB_CAP_HAS_HOTPLUG))
-        libusb_hotplug_deregister_callback(this->m_context,
-                                           this->m_hotplugCallbackHnd);
+        libusb_hotplug_deregister_callback(this->d->m_context,
+                                           this->d->m_hotplugCallbackHnd);
 #endif
 
     this->stopUSBEvents();
 
-    if (this->m_context)
-        libusb_exit(this->m_context);
+    if (this->d->m_context)
+        libusb_exit(this->d->m_context);
+
+    delete this->d;
 }
 
-libusb_context *UsbGlobals::context()
+libusb_context *UsbGlobals::context() const
 {
-    return this->m_context;
+    return this->d->m_context;
 }
 
-int UsbGlobals::hotplugCallback(libusb_context *context,
-                                libusb_device *device,
-                                libusb_hotplug_event event,
-                                void *userData)
+void UsbGlobals::startUSBEvents()
+{
+    this->d->m_mutex.lock();
+
+    if (!this->d->m_processsUsbEventsLoop) {
+        this->d->m_processsUsbEventsLoop = true;
+        this->d->m_processsUsbEvents =
+                QtConcurrent::run(&this->d->m_threadPool,
+                                  this->d,
+                                  &UsbGlobalsPrivate::processUSBEvents);
+    }
+
+    this->d->m_mutex.unlock();
+}
+
+void UsbGlobals::stopUSBEvents()
+{
+    this->d->m_mutex.lock();
+    this->d->m_processsUsbEventsLoop = false;
+    this->d->m_mutex.unlock();
+    this->d->waitLoop(this->d->m_processsUsbEvents);
+}
+
+void UsbGlobalsPrivate::processUSBEvents()
+{
+    while (this->m_processsUsbEventsLoop) {
+        timeval tv {0, 500000};
+        libusb_handle_events_timeout_completed(this->m_context, &tv, nullptr);
+    }
+}
+
+int UsbGlobalsPrivate::hotplugCallback(libusb_context *context,
+                                       libusb_device *device,
+                                       libusb_hotplug_event event,
+                                       void *userData)
 {
     Q_UNUSED(context)
     Q_UNUSED(device)
@@ -100,33 +149,4 @@ int UsbGlobals::hotplugCallback(libusb_context *context,
     return 0;
 }
 
-void UsbGlobals::startUSBEvents()
-{
-    this->m_mutex.lock();
-
-    if (!this->m_processsUsbEventsLoop) {
-        this->m_processsUsbEventsLoop = true;
-        this->m_processsUsbEvents =
-                QtConcurrent::run(&this->m_threadPool,
-                                  this,
-                                  &UsbGlobals::processUSBEvents);
-    }
-
-    this->m_mutex.unlock();
-}
-
-void UsbGlobals::stopUSBEvents()
-{
-    this->m_mutex.lock();
-    this->m_processsUsbEventsLoop = false;
-    this->m_mutex.unlock();
-    waitLoop(this->m_processsUsbEvents);
-}
-
-void UsbGlobals::processUSBEvents()
-{
-    while (this->m_processsUsbEventsLoop) {
-        timeval tv {0, 500000};
-        libusb_handle_events_timeout_completed(this->m_context, &tv, nullptr);
-    }
-}
+#include "moc_usbglobals.cpp"

@@ -18,7 +18,6 @@
  */
 
 #include <QImage>
-#include <QMutex>
 #include <QVariant>
 #include <ak.h>
 #include <akfrac.h>

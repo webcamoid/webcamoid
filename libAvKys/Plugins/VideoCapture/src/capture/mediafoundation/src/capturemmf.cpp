@@ -17,18 +17,18 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QtDebug>
 #include <QCoreApplication>
-#include <QSharedPointer>
-#include <QMap>
-#include <QSize>
 #include <QDateTime>
+#include <QMap>
+#include <QReadWriteLock>
+#include <QSharedPointer>
+#include <QSize>
 #include <QVariant>
-#include <QMutex>
 #include <QWaitCondition>
+#include <QtDebug>
 #include <ak.h>
-#include <akfrac.h>
 #include <akcaps.h>
+#include <akfrac.h>
 #include <akpacket.h>
 #include <mfapi.h>
 #include <mfidl.h>
@@ -198,7 +198,7 @@ class CaptureMMFPrivate
         CaptureMMF::IoMethod m_ioMethod {CaptureMMF::IoMethodSync};
         MediaSourcePtr m_mediaSource;
         SourceReaderPtr m_sourceReader;
-        QMutex m_controlsMutex;
+        QReadWriteLock m_controlsMutex;
         QVariantList m_globalImageControls;
         QVariantList m_globalCameraControls;
         QVariantMap m_localImageControls;
@@ -331,7 +331,7 @@ QVariantList CaptureMMF::imageControls() const
 
 bool CaptureMMF::setImageControls(const QVariantMap &imageControls)
 {
-    this->d->m_controlsMutex.lock();
+    this->d->m_controlsMutex.lockForRead();
     auto globalImageControls = this->d->m_globalImageControls;
     this->d->m_controlsMutex.unlock();
 
@@ -345,7 +345,7 @@ bool CaptureMMF::setImageControls(const QVariantMap &imageControls)
         }
     }
 
-    this->d->m_controlsMutex.lock();
+    this->d->m_controlsMutex.lockForWrite();
 
     if (this->d->m_globalImageControls == globalImageControls) {
         this->d->m_controlsMutex.unlock();
@@ -380,7 +380,7 @@ QVariantList CaptureMMF::cameraControls() const
 
 bool CaptureMMF::setCameraControls(const QVariantMap &cameraControls)
 {
-    this->d->m_controlsMutex.lock();
+    this->d->m_controlsMutex.lockForRead();
     auto globalCameraControls = this->d->m_globalCameraControls;
     this->d->m_controlsMutex.unlock();
 
@@ -394,7 +394,7 @@ bool CaptureMMF::setCameraControls(const QVariantMap &cameraControls)
         }
     }
 
-    this->d->m_controlsMutex.lock();
+    this->d->m_controlsMutex.lockForWrite();
 
     if (this->d->m_globalCameraControls == globalCameraControls) {
         this->d->m_controlsMutex.unlock();
@@ -426,7 +426,7 @@ AkPacket CaptureMMF::readFrame()
     if (!this->d->m_sourceReader)
         return AkPacket();
 
-    this->d->m_controlsMutex.lock();
+    this->d->m_controlsMutex.lockForRead();
     auto imageControls = this->d->controlStatus(this->d->m_globalImageControls);
     this->d->m_controlsMutex.unlock();
 
@@ -437,7 +437,7 @@ AkPacket CaptureMMF::readFrame()
         this->d->m_localImageControls = imageControls;
     }
 
-    this->d->m_controlsMutex.lock();
+    this->d->m_controlsMutex.lockForRead();
     auto cameraControls = this->d->controlStatus(this->d->m_globalCameraControls);
     this->d->m_controlsMutex.unlock();
 
@@ -644,12 +644,12 @@ void CaptureMMF::setDevice(const QString &device)
     this->d->m_device = device;
 
     if (device.isEmpty()) {
-        this->d->m_controlsMutex.lock();
+        this->d->m_controlsMutex.lockForWrite();
         this->d->m_globalImageControls.clear();
         this->d->m_globalCameraControls.clear();
         this->d->m_controlsMutex.unlock();
     } else {
-        this->d->m_controlsMutex.lock();
+        this->d->m_controlsMutex.lockForWrite();
         auto mediaSource = this->d->mediaSource(device);
 
         if (mediaSource) {
@@ -662,7 +662,7 @@ void CaptureMMF::setDevice(const QString &device)
         this->d->m_controlsMutex.unlock();
     }
 
-    this->d->m_controlsMutex.lock();
+    this->d->m_controlsMutex.lockForRead();
     auto imageStatus = this->d->controlStatus(this->d->m_globalImageControls);
     auto cameraStatus = this->d->controlStatus(this->d->m_globalCameraControls);
     this->d->m_controlsMutex.unlock();

@@ -20,7 +20,7 @@
 #include <QMetaEnum>
 #include <QtConcurrent>
 #include <QQueue>
-#include <QMutex>
+#include <QReadWriteLock>
 #include <ak.h>
 #include <akfrac.h>
 #include <akcaps.h>
@@ -163,8 +163,8 @@ class ConvertVideoFFmpegPrivate
         AVCodecContext *m_codecContext {nullptr};
         qint64 m_maxPacketQueueSize {15 * 1024 * 1024};
         QThreadPool m_threadPool;
-        QMutex m_packetMutex;
-        QMutex m_dataMutex;
+        QReadWriteLock m_packetMutex;
+        QReadWriteLock m_dataMutex;
         QWaitCondition m_packetQueueNotEmpty;
         QWaitCondition m_packetQueueNotFull;
         QWaitCondition m_dataQueueNotEmpty;
@@ -229,7 +229,7 @@ bool ConvertVideoFFmpeg::showLog() const
 
 void ConvertVideoFFmpeg::packetEnqueue(const AkPacket &packet)
 {
-    this->d->m_packetMutex.lock();
+    this->d->m_packetMutex.lockForWrite();
 
     if (this->d->m_packetQueueSize >= this->d->m_maxPacketQueueSize)
         this->d->m_packetQueueNotFull.wait(&this->d->m_packetMutex);
@@ -242,7 +242,7 @@ void ConvertVideoFFmpeg::packetEnqueue(const AkPacket &packet)
 
 void ConvertVideoFFmpeg::dataEnqueue(AVFrame *frame)
 {
-    this->d->m_dataMutex.lock();
+    this->d->m_dataMutex.lockForWrite();
 
     if (this->d->m_frames.size() >= this->d->m_maxData)
         this->d->m_dataQueueNotFull.wait(&this->d->m_dataMutex);
@@ -346,7 +346,7 @@ void ConvertVideoFFmpeg::uninit()
 void ConvertVideoFFmpegPrivate::packetLoop(ConvertVideoFFmpeg *stream)
 {
     while (stream->d->m_runPacketLoop) {
-        stream->d->m_packetMutex.lock();
+        stream->d->m_packetMutex.lockForRead();
 
         if (stream->d->m_packets.isEmpty())
             stream->d->m_packetQueueNotEmpty.wait(&stream->d->m_packetMutex,
@@ -390,7 +390,7 @@ void ConvertVideoFFmpegPrivate::packetLoop(ConvertVideoFFmpeg *stream)
 void ConvertVideoFFmpegPrivate::dataLoop(ConvertVideoFFmpeg *stream)
 {
     while (stream->d->m_runDataLoop) {
-        stream->d->m_dataMutex.lock();
+        stream->d->m_dataMutex.lockForRead();
 
         if (stream->d->m_frames.isEmpty())
             stream->d->m_dataQueueNotEmpty.wait(&stream->d->m_dataMutex,

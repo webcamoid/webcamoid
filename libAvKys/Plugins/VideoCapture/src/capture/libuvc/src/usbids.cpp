@@ -89,3 +89,5 @@ QString UsbIds::description(quint16 vendorId, quint16 productId) const
 
     return element->vendor;
 }
+
+#include "moc_usbids.cpp"

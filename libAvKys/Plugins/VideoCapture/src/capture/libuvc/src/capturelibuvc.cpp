@@ -18,6 +18,7 @@
  */
 
 #include <QtConcurrent>
+#include <QReadWriteLock>
 #include <ak.h>
 #include <akfrac.h>
 #include <akcaps.h>
@@ -73,7 +74,7 @@ class CaptureLibUVCPrivate
         uvc_device_handle_t *m_deviceHnd {nullptr};
         QThreadPool m_threadPool;
         QWaitCondition m_packetNotReady;
-        QMutex m_mutex;
+        QReadWriteLock m_mutex;
         qint64 m_id {-1};
         AkFrac m_fps;
 
@@ -380,7 +381,7 @@ bool CaptureLibUVC::resetCameraControls()
 
 AkPacket CaptureLibUVC::readFrame()
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForRead();
 
     if (!this->d->m_curPacket)
         if (!this->d->m_packetNotReady.wait(&this->d->m_mutex, TIME_OUT)) {
@@ -554,7 +555,7 @@ void CaptureLibUVCPrivate::frameCallback(uvc_frame *frame, void *userData)
 
     auto self = reinterpret_cast<CaptureLibUVCPrivate *>(userData);
 
-    self->m_mutex.lock();
+    self->m_mutex.lockForWrite();
 
     AkCaps caps("video/unknown");
     caps.setProperty("fourcc", CaptureLibUVCPrivate::pixFmtToStr().value(frame->frame_format));
@@ -917,7 +918,7 @@ init_failed:
 
 void CaptureLibUVC::uninit()
 {
-    this->d->m_mutex.lock();
+    this->d->m_mutex.lockForWrite();
 
     if (this->d->m_deviceHnd) {
         uvc_stop_streaming(this->d->m_deviceHnd);
