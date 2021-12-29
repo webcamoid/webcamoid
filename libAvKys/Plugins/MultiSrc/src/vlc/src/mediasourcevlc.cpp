@@ -644,17 +644,13 @@ void MediaSourceVLCPrivate::mediaParsedChangedCallback(const libvlc_event_t *eve
     Q_UNUSED(event)
     auto self = reinterpret_cast<MediaSourceVLC *>(userData);
     bool streamsChanged = false;
+    qint64 duration = 0;
     self->d->m_mutex.lock();
 
     if (self->d->m_mediaPlayer) {
         auto vlcMedia = libvlc_media_player_get_media(self->d->m_mediaPlayer);
-        auto duration = std::max<qint64>(0,
-                                         libvlc_media_get_duration(vlcMedia));
-
-        if (self->d->m_duration != duration) {
-            self->d->m_duration = duration;
-            emit self->durationMSecsChanged(duration);
-        }
+        duration = std::max<qint64>(0,
+                                    libvlc_media_get_duration(vlcMedia));
 
         QList<Stream> streamInfo;
         libvlc_media_track_t **tracks = nullptr;
@@ -706,6 +702,11 @@ void MediaSourceVLCPrivate::mediaParsedChangedCallback(const libvlc_event_t *eve
     }
 
     self->d->m_mutex.unlock();
+
+    if (self->d->m_duration != duration) {
+        self->d->m_duration = duration;
+        emit self->durationMSecsChanged(duration);
+    }
 
     if (streamsChanged) {
         emit self->streamsChanged(self->d->m_streams);
