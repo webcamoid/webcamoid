@@ -102,6 +102,7 @@ pacman --noconfirm --needed -S \
     jack \
     libpulse \
     make \
+    patchelf \
     pkgconf \
     python \
     qt5-quickcontrols2 \

@@ -30,6 +30,7 @@ pkg install -y \
     jackit \
     libuvc \
     pkgconf \
+    patchelf \
     pulseaudio \
     python3 \
     qt5-buildtools \

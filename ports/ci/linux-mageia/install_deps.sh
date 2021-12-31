@@ -102,6 +102,7 @@ dnf -y install \
     lib64v4l-devel \
     lib64vlc-devel \
     make \
+    patchelf \
     qtbase5-common-devel \
     qtquickcontrols25 \
     qttools5 \

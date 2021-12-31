@@ -124,6 +124,7 @@ apt-get -y install \
     libvlccore-dev \
     linux-libc-dev \
     make \
+    patchelf \
     pkg-config \
     qml-module-qt-labs-folderlistmodel \
     qml-module-qt-labs-settings \

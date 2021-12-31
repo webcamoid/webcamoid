@@ -129,6 +129,7 @@ apt-get -y install \
     libvlccore-dev \
     linux-libc-dev \
     make \
+    patchelf \
     pkg-config \
     vlc-plugin-base \
     xvfb

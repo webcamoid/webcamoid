@@ -95,6 +95,7 @@ dnf -y install \
     kmod-devel \
     libv4l-devel \
     make \
+    patchelf \
     pulseaudio-libs-devel \
     qt5-linguist \
     qt5-qtdeclarative-devel \

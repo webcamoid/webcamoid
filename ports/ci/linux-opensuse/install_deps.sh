@@ -110,6 +110,7 @@ zypper -n in \
     libqt5-qtsvg-devel \
     libusb-1_0-devel \
     libv4l-devel \
+    patchelf \
     python3 \
     vlc-devel \
     vlc-noX \
