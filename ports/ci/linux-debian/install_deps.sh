@@ -98,7 +98,6 @@ apt-get -y install \
     clang \
     cmake \
     file \
-    frameworkintegration \
     g++ \
     git \
     gstreamer1.0-plugins-base \

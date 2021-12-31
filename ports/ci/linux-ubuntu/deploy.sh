@@ -28,9 +28,6 @@ export PYTHONPATH="${PWD}/DeployTools"
 
 if [ "${DOCKERIMG}" = ubuntu:focal ]; then
     cat << EOF > package_info_libdir.conf
-[Qt5KF5]
-qtPluginsDir = /usr/lib/x86_64-linux-gnu/qt5/plugins
-
 [System]
 libDir = /opt/qt${PPAQTVER}/lib
 EOF

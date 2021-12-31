@@ -84,7 +84,6 @@ dnf -y install \
     ccache \
     clang \
     cmake \
-    frameworkintegration \
     gcc-c++ \
     git \
     gstreamer1.0-plugins-base \
