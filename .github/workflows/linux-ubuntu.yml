@@ -3,10 +3,11 @@ name: Ubuntu
 on: [push, pull_request]
 
 env:
-  QTVER: 5.15.2
+  APPIMAGEVER: 12
+  PATCHELFVER: 0.14.3
   PPAQTVER: 515
   QTIFWVER: 4.1.1
-  APPIMAGEVER: 12
+  QTVER: 5.15.2
   NJOBS: 4
 
 jobs:
@@ -54,6 +55,7 @@ jobs:
           -e QTVER=${{ env.QTVER }}
           -e PPAQTVER=${{ env.PPAQTVER }}
           -e APPIMAGEVER=${{ env.APPIMAGEVER }}
+          -e PATCHELFVER=${{ env.PATCHELFVER }}
           -e COMPILER=${{ matrix.compiler }}
           -e DOCKERIMG=${{ matrix.dockerimg }}
           -e NJOBS=${{ env.NJOBS }}
@@ -93,6 +95,7 @@ jobs:
           -e QTVER=${{ env.QTVER }}
           -e PPAQTVER=${{ env.PPAQTVER }}
           -e APPIMAGEVER=${{ env.APPIMAGEVER }}
+          -e PATCHELFVER=${{ env.PATCHELFVER }}
           -e COMPILER=${{ matrix.compiler }}
           -e DOCKERIMG=${{ matrix.dockerimg }}
           -e NJOBS=${{ env.NJOBS }}
