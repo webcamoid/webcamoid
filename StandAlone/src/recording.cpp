@@ -17,20 +17,21 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QtGlobal>
 #include <QAbstractEventDispatcher>
 #include <QDateTime>
 #include <QDir>
+#include <QFile>
 #include <QImage>
 #include <QMutex>
-#include <QFile>
+#include <QQmlApplicationEngine>
+#include <QQmlContext>
+#include <QQmlProperty>
+#include <QQuickItem>
 #include <QSettings>
 #include <QStandardPaths>
 #include <QThread>
-#include <QQmlContext>
-#include <QQuickItem>
-#include <QQmlProperty>
-#include <QQmlApplicationEngine>
+#include <QtConcurrent>
+#include <QtGlobal>
 #include <akaudiocaps.h>
 #include <akcaps.h>
 #include <akpacket.h>
@@ -79,6 +80,8 @@ class RecordingPrivate
         AkElementPtr m_thumbnailer {akPluginManager->create<AkElement>("MultimediaSource/MultiSrc")};
         QString m_mediaWriterImpl;
         QMutex m_mutex;
+        QMutex m_thumbnailMutex;
+        QThreadPool m_threadPool;
         AkVideoPacket m_curPacket;
         QImage m_photo;
         QImage m_thumbnail;
@@ -123,6 +126,7 @@ class RecordingPrivate
         void saveAudioCodecOptions(const QVariantMap &audioCodecOptions);
         void saveRecordAudio(bool recordAudio);
         void readThumbnail(const QString &videoFile);
+        void thumbnailReady();
 };
 
 Recording::Recording(QQmlApplicationEngine *engine, QObject *parent):
@@ -791,6 +795,9 @@ void Recording::thumbnailUpdated(const AkPacket &packet)
         return;
 
     this->d->m_thumbnail = thumbnail;
+    QtConcurrent::run(&this->d->m_threadPool,
+                      this->d,
+                      &RecordingPrivate::thumbnailReady);
 }
 
 void Recording::mediaLoaded(const QString &media)
@@ -819,38 +826,9 @@ void Recording::mediaLoaded(const QString &media)
     QMetaObject::invokeMethod(this->d->m_thumbnailer.data(),
                               "seek",
                               Q_ARG(qint64, qint64(0.1 * duration)));
+    this->d->m_thumbnailMutex.lock();
     this->d->m_thumbnailer->setState(AkElement::ElementStatePlaying);
-
-    while (this->d->m_thumbnail.isNull()
-           && this->d->m_thumbnailer->state() != AkElement::ElementStateNull) {
-        auto eventDispatcher = QThread::currentThread()->eventDispatcher();
-
-        if (eventDispatcher)
-            eventDispatcher->processEvents(QEventLoop::AllEvents);
-    }
-
-    this->d->m_thumbnailer->setState(AkElement::ElementStateNull);
-    auto tempPaths =
-            QStandardPaths::standardLocations(QStandardPaths::TempLocation);
-    auto thumnailDir =
-            QDir(tempPaths.first()).filePath(qApp->applicationName());
-
-    if (this->d->m_thumbnail.isNull() || !QDir().mkpath(thumnailDir))
-        return;
-
-    auto baseName = QFileInfo(media).baseName();
-    auto thumnailPath = QString("%1/%2.%3")
-                        .arg(thumnailDir,
-                             baseName,
-                             this->d->m_imageFormat);
-
-    if (!this->d->m_thumbnail.save(thumnailPath,
-                                   nullptr,
-                                   this->d->m_imageSaveQuality))
-        return;
-
-    this->d->m_lastVideoPreview = thumnailPath;
-    emit this->lastVideoPreviewChanged(thumnailPath);
+    this->d->m_thumbnailMutex.unlock();
 }
 
 RecordingPrivate::RecordingPrivate(Recording *self):
@@ -1665,6 +1643,36 @@ void RecordingPrivate::readThumbnail(const QString &videoFile)
 
     this->m_thumbnailer->setProperty("media", videoFile);
     this->m_thumbnailer->setProperty("sync", false);
+}
+
+void RecordingPrivate::thumbnailReady()
+{
+    this->m_thumbnailMutex.lock();
+    this->m_thumbnailer->setState(AkElement::ElementStateNull);
+    this->m_thumbnailMutex.unlock();
+
+    auto tempPaths =
+            QStandardPaths::standardLocations(QStandardPaths::TempLocation);
+    auto thumnailDir =
+            QDir(tempPaths.first()).filePath(qApp->applicationName());
+
+    if (this->m_thumbnail.isNull() || !QDir().mkpath(thumnailDir))
+        return;
+
+    auto media = this->m_thumbnailer->property("media").toString();
+    auto baseName = QFileInfo(media).baseName();
+    auto thumbnailPath = QString("%1/%2.%3")
+                         .arg(thumnailDir,
+                              baseName,
+                              this->m_imageFormat);
+
+    if (!this->m_thumbnail.save(thumbnailPath,
+                                nullptr,
+                                this->m_imageSaveQuality))
+        return;
+
+    this->m_lastVideoPreview = thumbnailPath;
+    emit self->lastVideoPreviewChanged(thumbnailPath);
 }
 
 #include "moc_recording.cpp"

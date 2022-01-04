@@ -664,13 +664,11 @@ void MediaSourceFFmpeg::log()
         return;
 
     QString logFmt("%1 %2: %3 aq=%4KB vq=%5KB");
-
     QString log = logFmt.arg(this->d->m_globalClock.clock(), 7, 'f', 2)
                         .arg(diffType)
                         .arg(diff, 7, 'f', 3)
                         .arg(audioQueueSize / 1024, 5)
                         .arg(videoQueueSize / 1024, 5);
-
     qDebug() << log.toStdString().c_str();
 }
 

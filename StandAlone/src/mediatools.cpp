@@ -74,6 +74,7 @@ class MediaToolsPrivate
         int m_windowWidth {0};
         int m_windowHeight {0};
 
+        void loadLinks();
         void saveLinks(const AkPluginLinks &links);
 };
 
@@ -82,6 +83,7 @@ MediaTools::MediaTools(const CliOptions &cliOptions, QObject *parent):
 {
     this->d = new MediaToolsPrivate;
     Ak::registerTypes();
+    this->d->loadLinks();
 
     // Initialize environment.
     this->d->m_engine = new QQmlApplicationEngine();
@@ -455,23 +457,6 @@ void MediaTools::loadConfigs()
     this->d->m_windowWidth = windowSize.width();
     this->d->m_windowHeight = windowSize.height();
     config.endGroup();
-
-    config.beginGroup("PluginsLinks");
-    int nlinks = config.beginReadArray("links");
-    AkPluginLinks links;
-
-    for (int i = 0; i < nlinks; i++) {
-        config.setArrayIndex(i);
-        auto from = config.value("from").toString();
-        auto to = config.value("to").toString();
-
-        if (!from.isEmpty() && !to.isEmpty())
-            links[from] = to;
-    }
-
-    akPluginManager->setLinks(links);
-    config.endArray();
-    config.endGroup();
 }
 
 void MediaTools::saveConfigs()
@@ -520,6 +505,28 @@ void MediaTools::restartApp()
         QProcess::startDetached(args.first(), args.mid(1));
     else
         QProcess::startDetached(args.first(), {});
+}
+
+void MediaToolsPrivate::loadLinks()
+{
+    QSettings config;
+
+    config.beginGroup("PluginsLinks");
+    int nlinks = config.beginReadArray("links");
+    AkPluginLinks links;
+
+    for (int i = 0; i < nlinks; i++) {
+        config.setArrayIndex(i);
+        auto from = config.value("from").toString();
+        auto to = config.value("to").toString();
+
+        if (!from.isEmpty() && !to.isEmpty())
+            links[from] = to;
+    }
+
+    akPluginManager->setLinks(links);
+    config.endArray();
+    config.endGroup();
 }
 
 void MediaToolsPrivate::saveLinks(const AkPluginLinks &links)

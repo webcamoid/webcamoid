@@ -98,7 +98,7 @@ AkCaps VideoStream::caps() const
                        this->codecContext()->height,
                        this->d->fps());
 }
-#include <QtDebug>
+
 bool VideoStream::decodeData()
 {
     if (!this->isValid())
