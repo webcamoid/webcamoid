@@ -99,15 +99,6 @@ if [ -e .local/${appimage} ]; then
     cd ..
 fi
 
-# Install patchelf
-
-patchelf=patchelf-${PATCHELFVER}-x86_64.tar.gz
-wget -c -O .local/${patchelf} https://github.com/NixOS/patchelf/releases/download/${PATCHELFVER}/${patchelf} || true
-
-if [ -e .local/${patchelf} ]; then
-    tar -xvf .local/${patchelf} -C .local
-fi
-
 # Install dev tools
 
 apt-get -y install \
