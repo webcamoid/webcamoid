@@ -773,6 +773,7 @@ void VideoCaptureElementPrivate::cameraLoop()
 
             if (initConvert) {
                 AkCaps caps = packet.caps();
+                qDebug() << "Camera input frame format:" << caps;
 
 #if !defined(Q_OS_OSX)
                 QString fourcc = caps.property("fourcc").toString();

@@ -69,9 +69,11 @@ inline ImgFmtMap initImgFmtMap()
         {"BGR"     , AV_PIX_FMT_BGR24   },
         {"RGB"     , AV_PIX_FMT_RGB24   },
         {"BGR0"    , AV_PIX_FMT_BGR0    },
+        {"BGRA"    , AV_PIX_FMT_BGRA    },
         {"BGRX"    , AV_PIX_FMT_RGB0    },
         {"RGBX"    , AV_PIX_FMT_0RGB    },
         {"ARGB"    , AV_PIX_FMT_ARGB    },
+        {"ABGR"    , AV_PIX_FMT_ABGR    },
         {"RGBA"    , AV_PIX_FMT_RGBA    },
 
         // Grey formats

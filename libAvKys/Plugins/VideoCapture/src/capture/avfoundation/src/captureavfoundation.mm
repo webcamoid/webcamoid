@@ -17,6 +17,7 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QtDebug>
 #include <QCoreApplication>
 #include <QMap>
 #include <QVariant>
@@ -322,7 +323,10 @@ bool CaptureAvFoundation::init()
 
     // Add data output unit.
     this->d->m_dataOutput = [AVCaptureVideoDataOutput new];
-    this->d->m_dataOutput.videoSettings = nil;
+
+    this->d->m_dataOutput.videoSettings = @{
+        (NSString *) kCVPixelBufferPixelFormatTypeKey: @(kCVPixelFormatType_32ARGB)
+    };
     this->d->m_dataOutput.alwaysDiscardsLateVideoFrames = YES;
 
     dispatch_queue_t queue = dispatch_queue_create("frameQueue", nullptr);
@@ -513,9 +517,16 @@ void CaptureAvFoundation::updateDevices()
     decltype(this->d->m_descriptions) descriptions;
     decltype(this->d->m_devicesCaps) devicesCaps;
 
-    auto cameras = [AVCaptureDevice devicesWithMediaType: AVMediaTypeVideo];
+    auto devicesDiscovery =
+            [AVCaptureDeviceDiscoverySession
+             discoverySessionWithDeviceTypes: @[
+                AVCaptureDeviceTypeExternalUnknown,
+                AVCaptureDeviceTypeBuiltInWideAngleCamera
+             ]
+             mediaType: AVMediaTypeVideo
+             position: AVCaptureDevicePositionUnspecified];
 
-    for (AVCaptureDevice *camera in cameras) {
+    for (AVCaptureDevice *camera in [devicesDiscovery devices]) {
         QString deviceId = camera.uniqueID.UTF8String;
         devices << deviceId;
         descriptions[deviceId] = camera.localizedName.UTF8String;
@@ -681,6 +692,7 @@ const FourCharCodeToStrMap &CaptureAvFoundationPrivate::fourccToStrMap()
     static const FourCharCodeToStrMap fourccToStrMap {
         // Raw formats
         {kCMPixelFormat_32ARGB         , "ARGB"    },
+        {kCMPixelFormat_32BGRA         , "BGRA"    },
         {kCMPixelFormat_24RGB          , "RGB"     },
         {kCMPixelFormat_16BE555        , "RGB555BE"},
         {kCMPixelFormat_16BE565        , "RGB565BE"},
