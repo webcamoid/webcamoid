@@ -75,7 +75,7 @@ GridLayout {
         from: grdCameraControl.minimumValue
         to: grdCameraControl.maximumValue
         stepSize: grdCameraControl.stepSize
-        Layout.minimumWidth: minimumRightWidth
+        //Layout.minimumWidth: minimumRightWidth
         visible: false
         editable: true
 

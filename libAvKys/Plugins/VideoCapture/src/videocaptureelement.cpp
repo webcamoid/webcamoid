@@ -382,7 +382,7 @@ QVariantList VideoCaptureElement::imageControls() const
 bool VideoCaptureElement::setImageControls(const QVariantMap &imageControls)
 {
     bool result = false;
-    this->d->m_mutex.lockForWrite();
+    this->d->m_mutex.lockForRead();
 
     if (this->d->m_capture)
         result = this->d->m_capture->setImageControls(imageControls);
@@ -395,7 +395,7 @@ bool VideoCaptureElement::setImageControls(const QVariantMap &imageControls)
 bool VideoCaptureElement::resetImageControls()
 {
     bool result = false;
-    this->d->m_mutex.lockForWrite();
+    this->d->m_mutex.lockForRead();
 
     if (this->d->m_capture)
         result = this->d->m_capture->resetImageControls();
@@ -421,7 +421,7 @@ QVariantList VideoCaptureElement::cameraControls() const
 bool VideoCaptureElement::setCameraControls(const QVariantMap &cameraControls)
 {
     bool result = false;
-    this->d->m_mutex.lockForWrite();
+    this->d->m_mutex.lockForRead();
 
     if (this->d->m_capture)
         result = this->d->m_capture->setCameraControls(cameraControls);
@@ -434,7 +434,7 @@ bool VideoCaptureElement::setCameraControls(const QVariantMap &cameraControls)
 bool VideoCaptureElement::resetCameraControls()
 {
     bool result = false;
-    this->d->m_mutex.lockForWrite();
+    this->d->m_mutex.lockForRead();
 
     if (this->d->m_capture)
         result = this->d->m_capture->resetCameraControls();
@@ -462,7 +462,7 @@ void VideoCaptureElement::controlInterfaceConfigure(QQmlContext *context,
 
 void VideoCaptureElement::setMedia(const QString &media)
 {
-    this->d->m_mutex.lockForWrite();
+    this->d->m_mutex.lockForRead();
 
     if (this->d->m_capture) {
         this->d->m_capture->setDevice(media);
@@ -503,7 +503,7 @@ void VideoCaptureElement::setStreams(const QList<int> &streams)
     this->setState(AkElement::ElementStateNull);
     QString media;
     QString deviceDescription;
-    this->d->m_mutex.lockForWrite();
+    this->d->m_mutex.lockForRead();
 
     if (this->d->m_capture) {
         this->d->m_capture->setStreams(streams);
@@ -545,7 +545,7 @@ void VideoCaptureElement::setStreams(const QList<int> &streams)
 
 void VideoCaptureElement::setIoMethod(const QString &ioMethod)
 {
-    this->d->m_mutex.lockForWrite();
+    this->d->m_mutex.lockForRead();
 
     if (this->d->m_capture)
         this->d->m_capture->setIoMethod(ioMethod);
@@ -555,7 +555,7 @@ void VideoCaptureElement::setIoMethod(const QString &ioMethod)
 
 void VideoCaptureElement::setNBuffers(int nBuffers)
 {
-    this->d->m_mutex.lockForWrite();
+    this->d->m_mutex.lockForRead();
 
     if (this->d->m_capture)
         this->d->m_capture->setNBuffers(nBuffers);
@@ -565,7 +565,7 @@ void VideoCaptureElement::setNBuffers(int nBuffers)
 
 void VideoCaptureElement::resetMedia()
 {
-    this->d->m_mutex.lockForWrite();
+    this->d->m_mutex.lockForRead();
 
     if (this->d->m_capture)
         this->d->m_capture->resetDevice();
@@ -575,7 +575,7 @@ void VideoCaptureElement::resetMedia()
 
 void VideoCaptureElement::resetStreams()
 {
-    this->d->m_mutex.lockForWrite();
+    this->d->m_mutex.lockForRead();
 
     if (this->d->m_capture)
         this->d->m_capture->resetStreams();
@@ -585,7 +585,7 @@ void VideoCaptureElement::resetStreams()
 
 void VideoCaptureElement::resetIoMethod()
 {
-    this->d->m_mutex.lockForWrite();
+    this->d->m_mutex.lockForRead();
 
     if (this->d->m_capture)
         this->d->m_capture->resetIoMethod();
@@ -595,7 +595,7 @@ void VideoCaptureElement::resetIoMethod()
 
 void VideoCaptureElement::resetNBuffers()
 {
-    this->d->m_mutex.lockForWrite();
+    this->d->m_mutex.lockForRead();
 
     if (this->d->m_capture)
         this->d->m_capture->resetNBuffers();
@@ -610,7 +610,7 @@ void VideoCaptureElement::reset()
     QString media;
     QString deviceDescription;
     QList<int> streams;
-    this->d->m_mutex.lockForWrite();
+    this->d->m_mutex.lockForRead();
 
     if (this->d->m_capture) {
         this->d->m_capture->reset();
