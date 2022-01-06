@@ -54,7 +54,7 @@ Any donation amount is welcome and very appreciated.
 [![Windows MSYS](https://github.com/webcamoid/webcamoid/actions/workflows/windows-msys.yml/badge.svg)](https://github.com/webcamoid/webcamoid/actions/workflows/windows-msys.yml)
 [![Build status](https://ci.appveyor.com/api/projects/status/1ecp839l0nnnya9l?svg=true)](https://ci.appveyor.com/project/hipersayanX/webcamoid)
 [![Build status](https://api.cirrus-ci.com/github/webcamoid/webcamoid.svg)](https://cirrus-ci.com/github/webcamoid/webcamoid)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/fd3ca6ed8bea43e992b1d329c3dc916f)](https://www.codacy.com/app/webcamoid/webcamoid?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=webcamoid/webcamoid&amp;utm_campaign=Badge_Grade)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/08a585dc07a14b8bad2bbb39d6628fdd)](https://www.codacy.com/gh/webcamoid/webcamoid/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=webcamoid/webcamoid&amp;utm_campaign=Badge_Grade)
 [![Translation status](https://hosted.weblate.org/widgets/webcamoid/-/svg-badge.svg)](https://hosted.weblate.org/engage/webcamoid/?utm_source=widget)
 [![Project Stats](https://www.openhub.net/p/Webcamoid/widgets/project_thin_badge.gif)](https://www.openhub.net/p/Webcamoid)
 [![Gitlab mirror](https://img.shields.io/badge/mirror-Gitlab-007fff.svg)](https://gitlab.com/hipersayanX/webcamoid/)
