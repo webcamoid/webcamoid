@@ -325,7 +325,7 @@ bool CaptureAvFoundation::init()
     this->d->m_dataOutput = [AVCaptureVideoDataOutput new];
 
     this->d->m_dataOutput.videoSettings = @{
-        (NSString *) kCVPixelBufferPixelFormatTypeKey: @(kCVPixelFormatType_32ARGB)
+        (NSString *) kCVPixelBufferPixelFormatTypeKey: @(kCVPixelFormatType_24RGB)
     };
     this->d->m_dataOutput.alwaysDiscardsLateVideoFrames = YES;
 
