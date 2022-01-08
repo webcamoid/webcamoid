@@ -91,6 +91,7 @@ class VCamCMIOPrivate
         ~VCamCMIOPrivate();
 
         QStringList availableRootMethods() const;
+        QString whereBin(const QString &binary) const;
         inline const CMIOAkFormatMap &cmioAkFormatMap() const;
         void fillSupportedFormats();
         QVariantMap controlStatus(const QVariantList &controls) const;
@@ -892,22 +893,29 @@ VCamCMIOPrivate::~VCamCMIOPrivate()
 
 QStringList VCamCMIOPrivate::availableRootMethods() const
 {
-    QStringList methods;
-    auto paths =
-            QProcessEnvironment::systemEnvironment().value("PATH").split(':');
     static const QStringList sus {
         "osascript"
     };
 
-    for (auto &su: sus)
-        for (auto &path: paths)
-            if (QDir(path).exists(su)) {
-                methods << su;
+    QStringList methods;
 
-                break;
-            }
+    for (auto &su: sus)
+        if (!this->whereBin(su).isEmpty())
+            methods << su;
 
     return methods;
+}
+
+QString VCamCMIOPrivate::whereBin(const QString &binary) const
+{
+    auto paths =
+            QProcessEnvironment::systemEnvironment().value("PATH").split(':');
+
+    for (auto &path: paths)
+        if (QDir(path).exists(binary))
+            return QDir(path).filePath(binary);
+
+    return {};
 }
 
 const CMIOAkFormatMap &VCamCMIOPrivate::cmioAkFormatMap() const

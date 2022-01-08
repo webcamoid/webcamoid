@@ -135,9 +135,9 @@ class VCamV4L2LoopBackPrivate
         ~VCamV4L2LoopBackPrivate();
 
         inline int xioctl(int fd, ulong request, void *arg) const;
-        bool sudo(const QString &command,
-                  const QStringList &argumments);
+        bool sudo(const QString &script);
         QStringList availableRootMethods() const;
+        QString whereBin(const QString &binary) const;
         QVariantList controls(int fd, quint32 controlClass) const;
         QVariantList controls(int fd) const;
         bool setControls(int fd,
@@ -199,18 +199,8 @@ VCamV4L2LoopBack::VCamV4L2LoopBack(QObject *parent):
     VCam(parent)
 {
     this->d = new VCamV4L2LoopBackPrivate(this);
-    QStringList preferredRootMethod {
-        // List of possible graphical sudo methods that can be supported:
-        //
-        // https://en.wikipedia.org/wiki/Comparison_of_privilege_authorization_features#Introduction_to_implementations
+    static const QStringList preferredRootMethod {
         "pkexec",
-        "kdesu",
-        "kdesudo",
-        "gksu",
-        "gksudo",
-        "gtksu",
-        "ktsuss",
-        "beesu",
     };
 
     auto availableMethods = this->d->availableRootMethods();
@@ -504,36 +494,23 @@ QString VCamV4L2LoopBack::deviceCreate(const QString &description,
     }
 
     // Write the script file.
-    QTemporaryDir tempDir;
-    QTemporaryFile cmds(tempDir.path() + "/XXXXXX.sh");
 
-    if (!cmds.open()) {
-        this->d->m_error = "Can't create script";
-
-        return {};
-    }
-
-    cmds.setPermissions(QFileDevice::ReadOwner
-                        | QFileDevice::WriteOwner
-                        | QFileDevice::ExeOwner
-                        | QFileDevice::ReadUser
-                        | QFileDevice::WriteUser
-                        | QFileDevice::ExeUser);
-    cmds.write("rmmod v4l2loopback 2>/dev/null\n");
-    cmds.write("sed -i '/v4l2loopback/d' /etc/modules 2>/dev/null\n");
-    cmds.write("sed -i '/v4l2loopback/d' /etc/modules-load.d/*.conf 2>/dev/null\n");
-    cmds.write("sed -i '/v4l2loopback/d' /etc/modprobe.d/*.conf 2>/dev/null\n");
-    cmds.write("echo v4l2loopback > /etc/modules-load.d/v4l2loopback.conf\n");
-    cmds.write(QString("echo options v4l2loopback video_nr=%1 'card_label=\"%2\"' "
-                       "> /etc/modprobe.d/v4l2loopback.conf\n")
-               .arg(videoNR, cardLabel).toUtf8());
-    cmds.write(QString("modprobe v4l2loopback video_nr=%1 card_label=\"%2\"\n")
-               .arg(videoNR, cardLabel).toUtf8());
-
-    cmds.close();
+    QString script;
+    QTextStream ts(&script);
+    ts << "rmmod v4l2loopback 2>/dev/null" << Qt::endl;
+    ts << "sed -i '/v4l2loopback/d' /etc/modules 2>/dev/null" << Qt::endl;
+    ts << "sed -i '/v4l2loopback/d' /etc/modules-load.d/*.conf 2>/dev/null" << Qt::endl;
+    ts << "sed -i '/v4l2loopback/d' /etc/modprobe.d/*.conf 2>/dev/null" << Qt::endl;
+    ts << "echo v4l2loopback > /etc/modules-load.d/v4l2loopback.conf" << Qt::endl;
+    ts << "echo options v4l2loopback video_nr="
+       << videoNR
+       << " 'card_label=\""
+       << cardLabel
+       << "\"' > /etc/modprobe.d/v4l2loopback.conf" << Qt::endl;
+    ts << "modprobe v4l2loopback video_nr=" << videoNR << " card_label=\"" << cardLabel << "\"" << Qt::endl;
 
     // Execute the script
-    if (!this->d->sudo(this->d->m_rootMethod, {"sh", cmds.fileName()}))
+    if (!this->d->sudo(script))
         return {};
 
     if (!this->d->waitForDevice(deviceId)) {
@@ -639,37 +616,23 @@ bool VCamV4L2LoopBack::deviceEdit(const QString &deviceId,
     }
 
     // Write the script file.
-    QTemporaryDir tempDir;
-    QTemporaryFile cmds(tempDir.path() + "/XXXXXX.sh");
 
-    if (!cmds.open()) {
-        this->d->m_error = "Can't create script";
-
-        return false;
-    }
-
-    cmds.setPermissions(QFileDevice::ReadOwner
-                        | QFileDevice::WriteOwner
-                        | QFileDevice::ExeOwner
-                        | QFileDevice::ReadUser
-                        | QFileDevice::WriteUser
-                        | QFileDevice::ExeUser);
-    cmds.write("rmmod v4l2loopback 2>/dev/null\n");
-
-    // Use the driver installed in the system.
-    cmds.write("sed -i '/v4l2loopback/d' /etc/modules 2>/dev/null\n");
-    cmds.write("sed -i '/v4l2loopback/d' /etc/modules-load.d/*.conf 2>/dev/null\n");
-    cmds.write("sed -i '/v4l2loopback/d' /etc/modprobe.d/*.conf 2>/dev/null\n");
-    cmds.write("echo v4l2loopback > /etc/modules-load.d/v4l2loopback.conf\n");
-    cmds.write(QString("echo options v4l2loopback video_nr=%1 'card_label=\"%2\"' "
-                       "> /etc/modprobe.d/v4l2loopback.conf\n")
-               .arg(videoNR, cardLabel).toUtf8());
-    cmds.write(QString("modprobe v4l2loopback video_nr=%1 card_label=\"%2\"\n")
-               .arg(videoNR, cardLabel).toUtf8());
-    cmds.close();
+    QString script;
+    QTextStream ts(&script);
+    ts << "rmmod v4l2loopback 2>/dev/null" << Qt::endl;
+    ts << "sed -i '/v4l2loopback/d' /etc/modules 2>/dev/null" << Qt::endl;
+    ts << "sed -i '/v4l2loopback/d' /etc/modules-load.d/*.conf 2>/dev/null" << Qt::endl;
+    ts << "sed -i '/v4l2loopback/d' /etc/modprobe.d/*.conf 2>/dev/null" << Qt::endl;
+    ts << "echo v4l2loopback > /etc/modules-load.d/v4l2loopback.conf" << Qt::endl;
+    ts << "echo options v4l2loopback video_nr="
+       << videoNR
+       << " 'card_label=\""
+       << cardLabel
+       << "\"' > /etc/modprobe.d/v4l2loopback.conf" << Qt::endl;
+    ts << "modprobe v4l2loopback video_nr=" << videoNR << " card_label=\"" << cardLabel << "\"" << Qt::endl;
 
     // Execute the script
-    if (!this->d->sudo(this->d->m_rootMethod, {"sh", cmds.fileName()}))
+    if (!this->d->sudo(script))
         return false;
 
     if (!this->d->waitForDevice(deviceId)) {
@@ -766,34 +729,23 @@ bool VCamV4L2LoopBack::changeDescription(const QString &deviceId,
             cardLabel += device.description;
     }
 
-    QTemporaryDir tempDir;
-    QTemporaryFile cmds(tempDir.path() + "/XXXXXX.sh");
+    // Write the script file.
 
-    if (!cmds.open()) {
-        this->d->m_error = "Can't create script";
+    QString script;
+    QTextStream ts(&script);
+    ts << "rmmod v4l2loopback 2>/dev/null" << Qt::endl;
+    ts << "sed -i '/v4l2loopback/d' /etc/modules 2>/dev/null" << Qt::endl;
+    ts << "sed -i '/v4l2loopback/d' /etc/modules-load.d/*.conf 2>/dev/null" << Qt::endl;
+    ts << "sed -i '/v4l2loopback/d' /etc/modprobe.d/*.conf 2>/dev/null" << Qt::endl;
+    ts << "echo v4l2loopback > /etc/modules-load.d/v4l2loopback.conf" << Qt::endl;
+    ts << "echo options v4l2loopback video_nr="
+       << videoNR
+       << " 'card_label=\""
+       << cardLabel
+       << "\"' > /etc/modprobe.d/v4l2loopback.conf" << Qt::endl;
+    ts << "modprobe v4l2loopback video_nr=" << videoNR << " card_label=\"" << cardLabel << "\"" << Qt::endl;
 
-        return {};
-    }
-
-    cmds.setPermissions(QFileDevice::ReadOwner
-                        | QFileDevice::WriteOwner
-                        | QFileDevice::ExeOwner
-                        | QFileDevice::ReadUser
-                        | QFileDevice::WriteUser
-                        | QFileDevice::ExeUser);
-    cmds.write("rmmod v4l2loopback 2>/dev/null\n");
-    cmds.write("sed -i '/v4l2loopback/d' /etc/modules 2>/dev/null\n");
-    cmds.write("sed -i '/v4l2loopback/d' /etc/modules-load.d/*.conf 2>/dev/null\n");
-    cmds.write("sed -i '/v4l2loopback/d' /etc/modprobe.d/*.conf 2>/dev/null\n");
-    cmds.write("echo v4l2loopback > /etc/modules-load.d/v4l2loopback.conf\n");
-    cmds.write(QString("echo options v4l2loopback video_nr=%1 'card_label=\"%2\"' "
-                       "> /etc/modprobe.d/v4l2loopback.conf\n")
-               .arg(videoNR, cardLabel).toUtf8());
-    cmds.write(QString("modprobe v4l2loopback video_nr=%1 card_label=\"%2\"\n")
-               .arg(videoNR, cardLabel).toUtf8());
-    cmds.close();
-
-    if (!this->d->sudo(this->d->m_rootMethod, {"sh", cmds.fileName()}))
+    if (!this->d->sudo(script))
         return false;
 
     auto result = this->d->waitForDevice(deviceId);
@@ -851,37 +803,29 @@ bool VCamV4L2LoopBack::deviceDestroy(const QString &deviceId)
         cardLabel += device.description;
     }
 
-    QTemporaryDir tempDir;
-    QTemporaryFile cmds(tempDir.path() + "/XXXXXX.sh");
+    // Write the script file.
 
-    if (!cmds.open()) {
-        this->d->m_error = "Can't create script";
+    QString script;
+    QTextStream ts(&script);
+    ts << "rmmod v4l2loopback 2>/dev/null" << Qt::endl;
+    ts << "sed -i '/v4l2loopback/d' /etc/modules 2>/dev/null" << Qt::endl;
+    ts << "sed -i '/v4l2loopback/d' /etc/modules-load.d/*.conf 2>/dev/null" << Qt::endl;
+    ts << "sed -i '/v4l2loopback/d' /etc/modprobe.d/*.conf 2>/dev/null" << Qt::endl;
 
-        return {};
+    if (devices.empty()) {
+        ts << "rm -f /etc/modules-load.d/v4l2loopback.conf" << Qt::endl;
+        ts << "rm -f /etc/modprobe.d/v4l2loopback.conf" << Qt::endl;
+    } else {
+        ts << "echo v4l2loopback > /etc/modules-load.d/v4l2loopback.conf" << Qt::endl;
+        ts << "echo options v4l2loopback video_nr="
+           << videoNR
+           << " 'card_label=\""
+           << cardLabel
+           << "\"' > /etc/modprobe.d/v4l2loopback.conf" << Qt::endl;
+        ts << "modprobe v4l2loopback video_nr=" << videoNR << " card_label=\"" << cardLabel << "\"" << Qt::endl;
     }
 
-    cmds.setPermissions(QFileDevice::ReadOwner
-                        | QFileDevice::WriteOwner
-                        | QFileDevice::ExeOwner
-                        | QFileDevice::ReadUser
-                        | QFileDevice::WriteUser
-                        | QFileDevice::ExeUser);
-    cmds.write("rmmod v4l2loopback 2>/dev/null\n");
-    cmds.write("sed -i '/v4l2loopback/d' /etc/modules 2>/dev/null\n");
-    cmds.write("sed -i '/v4l2loopback/d' /etc/modules-load.d/*.conf 2>/dev/null\n");
-    cmds.write("sed -i '/v4l2loopback/d' /etc/modprobe.d/*.conf 2>/dev/null\n");
-
-    if (!devices.empty()) {
-        cmds.write("echo v4l2loopback > /etc/modules-load.d/v4l2loopback.conf\n");
-        cmds.write(QString("echo options v4l2loopback video_nr=%1 'card_label=\"%2\"' "
-                           "> /etc/modprobe.d/v4l2loopback.conf\n")
-                   .arg(videoNR, cardLabel).toUtf8());
-        cmds.write(QString("modprobe v4l2loopback video_nr=%1 card_label=\"%2\"\n")
-                   .arg(videoNR, cardLabel).toUtf8());
-    }
-    cmds.close();
-
-    if (!this->d->sudo(this->d->m_rootMethod, {"sh", cmds.fileName()}))
+    if (!this->d->sudo(script))
         return false;
 
     if (!this->d->waitForDevices(devicesList)) {
@@ -905,31 +849,18 @@ bool VCamV4L2LoopBack::destroyAllDevices()
         return false;
     }
 
-    QTemporaryDir tempDir;
-    QTemporaryFile cmds(tempDir.path() + "/XXXXXX.sh");
+    // Write the script file.
 
-    if (!cmds.open()) {
-        this->d->m_error = "Can't create script";
+    QString script;
+    QTextStream ts(&script);
+    ts << "rmmod v4l2loopback 2>/dev/null" << Qt::endl;
+    ts << "sed -i '/v4l2loopback/d' /etc/modules 2>/dev/null" << Qt::endl;
+    ts << "sed -i '/v4l2loopback/d' /etc/modules-load.d/*.conf 2>/dev/null" << Qt::endl;
+    ts << "sed -i '/v4l2loopback/d' /etc/modprobe.d/*.conf 2>/dev/null" << Qt::endl;
+    ts << "rm -f /etc/modules-load.d/v4l2loopback.conf" << Qt::endl;
+    ts << "rm -f /etc/modprobe.d/v4l2loopback.conf" << Qt::endl;
 
-        return {};
-    }
-
-    cmds.setPermissions(QFileDevice::ReadOwner
-                        | QFileDevice::WriteOwner
-                        | QFileDevice::ExeOwner
-                        | QFileDevice::ReadUser
-                        | QFileDevice::WriteUser
-                        | QFileDevice::ExeUser);
-    QString cmd = "rmmod v4l2loopback 2>/dev/null\n"
-                  "sed -i '/v4l2loopback/d' /etc/modules 2>/dev/null\n"
-                  "sed -i '/v4l2loopback/d' /etc/modules-load.d/*.conf 2>/dev/null\n"
-                  "sed -i '/v4l2loopback/d' /etc/modprobe.d/*.conf 2>/dev/null\n"
-                  "rm -f /etc/modules-load.d/v4l2loopback.conf\n"
-                  "rm -f /etc/modprobe.d/v4l2loopback.conf\n";
-    cmds.write(cmd.toUtf8());
-    cmds.close();
-
-    if (!this->d->sudo(this->rootMethod(), {"sh", cmds.fileName()}))
+    if (!this->d->sudo(script))
         return false;
 
     this->d->updateDevices();
@@ -1249,12 +1180,34 @@ int VCamV4L2LoopBackPrivate::xioctl(int fd, ulong request, void *arg) const
     return r;
 }
 
-bool VCamV4L2LoopBackPrivate::sudo(const QString &command,
-                                    const QStringList &argumments)
+bool VCamV4L2LoopBackPrivate::sudo(const QString &script)
 {
+    if (this->m_rootMethod.isEmpty()) {
+        static const QString msg = "Root method not set";
+        qDebug() << msg;
+        this->m_error += msg + " ";
+
+        return false;
+    }
+
+    auto sudoBin = this->whereBin(this->m_rootMethod);
+
+    if (sudoBin.isEmpty()) {
+        static const QString msg = "Can't find " + this->m_rootMethod;
+        qDebug() << msg;
+        this->m_error += msg + " ";
+
+        return false;
+    }
+
     QProcess su;
-    su.start(self->rootMethod(),
-             QStringList {command} << argumments);
+    su.start(sudoBin, QStringList {});
+
+    if (su.waitForStarted()) {
+       su.write(script.toUtf8());
+       su.closeWriteChannel();
+    }
+
     su.waitForFinished(-1);
 
     if (su.exitCode()) {
@@ -1281,29 +1234,39 @@ bool VCamV4L2LoopBackPrivate::sudo(const QString &command,
 
 QStringList VCamV4L2LoopBackPrivate::availableRootMethods() const
 {
-    QStringList methods;
-    auto paths =
-            QProcessEnvironment::systemEnvironment().value("PATH").split(':');
     static const QStringList sus {
-        "beesu",
-        "gksu",
-        "gksudo",
-        "gtksu",
-        "kdesu",
-        "kdesudo",
-        "ktsuss",
         "pkexec",
     };
 
-    for (auto &su: sus)
-        for (auto &path: paths)
-            if (QDir(path).exists(su)) {
-                methods << su;
+    QStringList methods;
 
-                break;
-            }
+    for (auto &su: sus)
+        if (!this->whereBin(su).isEmpty())
+            methods << su;
 
     return methods;
+}
+
+QString VCamV4L2LoopBackPrivate::whereBin(const QString &binary) const
+{
+    // Limit search paths to trusted directories only.
+    static const QStringList paths {
+        "/usr/bin",       // GNU/Linux
+        "/bin",           // NetBSD
+        "/usr/local/bin", // FreeBSD
+
+        // Additionally, search it in a developer provided extra directory.
+
+#ifdef EXTRA_SUDOER_TOOL_DIR
+        EXTRA_SUDOER_TOOL_DIR,
+#endif
+    };
+
+    for (auto &path: paths)
+        if (QDir(path).exists(binary))
+            return QDir(path).filePath(binary);
+
+    return {};
 }
 
 QVariantList VCamV4L2LoopBackPrivate::controls(int fd, quint32 controlClass) const

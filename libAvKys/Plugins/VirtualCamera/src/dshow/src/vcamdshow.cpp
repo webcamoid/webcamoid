@@ -102,6 +102,7 @@ class VCamDShowPrivate
         ~VCamDShowPrivate();
 
         QStringList availableRootMethods() const;
+        QString whereBin(const QString &binary) const;
         inline const DShowAkFormatMap &dshowAkFormatMap() const;
         void fillSupportedFormats();
         QVariantMap controlStatus(const QVariantList &controls) const;
@@ -1233,22 +1234,30 @@ VCamDShowPrivate::~VCamDShowPrivate()
 
 QStringList VCamDShowPrivate::availableRootMethods() const
 {
-    QStringList methods;
-    auto paths =
-            QProcessEnvironment::systemEnvironment().value("Path").split(';');
     static const QStringList sus {
         "runas"
     };
 
-    for (auto &su: sus)
-        for (auto &path: paths)
-            if (QDir(path).exists(su + ".exe")) {
-                methods << su;
+    QStringList methods;
 
-                break;
-            }
+    for (auto &su: sus)
+        if (!this->whereBin(su).isEmpty())
+            methods << su;
 
     return methods;
+}
+
+QString VCamDShowPrivate::whereBin(const QString &binary) const
+{
+    auto binaryExe = binary + ".exe";
+    auto paths =
+            QProcessEnvironment::systemEnvironment().value("Path").split(';');
+
+    for (auto &path: paths)
+        if (QDir(path).exists(binaryExe))
+            return QDir(path).filePath(binaryExe);
+
+    return {};
 }
 
 const DShowAkFormatMap &VCamDShowPrivate::dshowAkFormatMap() const

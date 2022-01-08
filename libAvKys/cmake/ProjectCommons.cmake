@@ -131,3 +131,7 @@ if (GSTREAMER_PKG_FOUND)
 endif ()
 
 set(GST_PLUGINS_SCANNER_PATH "${GST_PLUGINS_SCANNER}" CACHE FILEPATH "GStreamer plugins scanner utility path")
+
+# Sudoer tool search directory
+
+set(EXTRA_SUDOER_TOOL_DIR "" CACHE PATH "Additional sudoer tool search directory")

@@ -122,9 +122,9 @@ class VCamAkPrivate
         ~VCamAkPrivate();
 
         inline int xioctl(int fd, ulong request, void *arg) const;
-        bool sudo(const QString &command,
-                  const QStringList &argumments);
+        bool sudo(const QString &script);
         QStringList availableRootMethods() const;
+        QString whereBin(const QString &binary) const;
         QString sysfsControls(const QString &deviceId) const;
         QStringList connectedDevices(const QString &deviceId) const;
         QVariantList capsFps(int fd,
@@ -183,18 +183,8 @@ VCamAk::VCamAk(QObject *parent):
 {
     this->d = new VCamAkPrivate(this);
     this->d->m_picture = this->d->readPicturePath();
-    QStringList preferredRootMethod {
-        // List of possible graphical sudo methods that can be supported:
-        //
-        // https://en.wikipedia.org/wiki/Comparison_of_privilege_authorization_features#Introduction_to_implementations
+    static const QStringList preferredRootMethod {
         "pkexec",
-        "kdesu",
-        "kdesudo",
-        "gksu",
-        "gksudo",
-        "gtksu",
-        "ktsuss",
-        "beesu",
     };
 
     auto availableMethods = this->d->availableRootMethods();
@@ -667,53 +657,35 @@ QString VCamAk::deviceCreate(const QString &description,
     settings.sync();
 
     // Write the script file.
-    QTemporaryFile cmds(tempDir.path() + "/XXXXXX.sh");
 
-    if (!cmds.open()) {
-        this->d->m_error = "Can't create script";
-
-        return {};
-    }
-
-    cmds.setPermissions(QFileDevice::ReadOwner
-                        | QFileDevice::WriteOwner
-                        | QFileDevice::ExeOwner
-                        | QFileDevice::ReadUser
-                        | QFileDevice::WriteUser
-                        | QFileDevice::ExeUser);
-    cmds.write("#/bin/sh\n");
-    cmds.write("rmmod akvcam 2>/dev/null\n");
-
-    // Use the driver installed in the system.
-    cmds.write("sed -i '/akvcam/d' /etc/modules 2>/dev/null\n");
-    cmds.write("sed -i '/akvcam/d' /etc/modules-load.d/*.conf 2>/dev/null\n");
-    cmds.write("sed -i '/akvcam/d' /etc/modprobe.d/*.conf 2>/dev/null\n");
-    cmds.write("echo akvcam > /etc/modules-load.d/akvcam.conf\n");
+    QString script;
+    QTextStream ts(&script);
+    ts << "rmmod akvcam 2>/dev/null" << Qt::endl;
+    ts << "sed -i '/akvcam/d' /etc/modules 2>/dev/null" << Qt::endl;
+    ts << "sed -i '/akvcam/d' /etc/modules-load.d/*.conf 2>/dev/null" << Qt::endl;
+    ts << "sed -i '/akvcam/d' /etc/modprobe.d/*.conf 2>/dev/null" << Qt::endl;
+    ts << "echo akvcam > /etc/modules-load.d/akvcam.conf" << Qt::endl;
 
 #ifdef QT_DEBUG
-    cmds.write("echo options akvcam loglevel=7 > /etc/modprobe.d/akvcam.conf\n");
+    ts << "echo options akvcam loglevel=7 > /etc/modprobe.d/akvcam.conf" << Qt::endl;
 #endif
 
-    cmds.write("rm -f /etc/modprobe.d/akvcam.conf\n");
-    cmds.write("mkdir -p /etc/akvcam\n");
+    ts << "rm -f /etc/modprobe.d/akvcam.conf" << Qt::endl;
+    ts << "mkdir -p /etc/akvcam" << Qt::endl;
 
     if (!defaultImage.isNull())
-        cmds.write(QString("cp -f %1 /etc/akvcam/default_frame.bmp\n")
-                   .arg(defaultFrame).toUtf8());
+        ts << "cp -f " << defaultFrame << " /etc/akvcam/default_frame.bmp" << Qt::endl;
 
-    cmds.write(QString("cp -f %1 /etc/akvcam/config.ini\n")
-               .arg(settings.fileName()).toUtf8());
+    ts << "cp -f " << settings.fileName() << " /etc/akvcam/config.ini" << Qt::endl;
 
 #ifdef QT_DEBUG
-    cmds.write("modprobe akvcam loglevel=7\n");
+    ts << "modprobe akvcam loglevel=7" << Qt::endl;
 #else
-    cmds.write("modprobe akvcam\n");
+    ts << "modprobe akvcam" << Qt::endl;
 #endif
 
-    cmds.close();
-
     // Execute the script
-    if (!this->d->sudo(this->d->m_rootMethod, {"sh", cmds.fileName()}))
+    if (!this->d->sudo(script))
         return {};
 
     auto deviceId = QString("/dev/video%1").arg(deviceNR[1]);
@@ -931,53 +903,35 @@ bool VCamAk::deviceEdit(const QString &deviceId,
     settings.sync();
 
     // Write the script file.
-    QTemporaryFile cmds(tempDir.path() + "/XXXXXX.sh");
 
-    if (!cmds.open()) {
-        this->d->m_error = "Can't create script";
-
-        return false;
-    }
-
-    cmds.setPermissions(QFileDevice::ReadOwner
-                        | QFileDevice::WriteOwner
-                        | QFileDevice::ExeOwner
-                        | QFileDevice::ReadUser
-                        | QFileDevice::WriteUser
-                        | QFileDevice::ExeUser);
-    cmds.write("#/bin/sh\n");
-    cmds.write("rmmod akvcam 2>/dev/null\n");
-
-    // Use the driver installed in the system.
-    cmds.write("sed -i '/akvcam/d' /etc/modules 2>/dev/null\n");
-    cmds.write("sed -i '/akvcam/d' /etc/modules-load.d/*.conf 2>/dev/null\n");
-    cmds.write("sed -i '/akvcam/d' /etc/modprobe.d/*.conf 2>/dev/null\n");
-    cmds.write("echo akvcam > /etc/modules-load.d/akvcam.conf\n");
+    QString script;
+    QTextStream ts(&script);
+    ts << "rmmod akvcam 2>/dev/null" << Qt::endl;
+    ts << "sed -i '/akvcam/d' /etc/modules 2>/dev/null" << Qt::endl;
+    ts << "sed -i '/akvcam/d' /etc/modules-load.d/*.conf 2>/dev/null" << Qt::endl;
+    ts << "sed -i '/akvcam/d' /etc/modprobe.d/*.conf 2>/dev/null" << Qt::endl;
+    ts << "echo akvcam > /etc/modules-load.d/akvcam.conf" << Qt::endl;
 
 #ifdef QT_DEBUG
-    cmds.write("echo options akvcam loglevel=7 > /etc/modprobe.d/akvcam.conf\n");
+    ts << "echo options akvcam loglevel=7 > /etc/modprobe.d/akvcam.conf" << Qt::endl;
 #endif
 
-    cmds.write("rm -f /etc/modprobe.d/akvcam.conf\n");
-    cmds.write("mkdir -p /etc/akvcam\n");
+    ts << "rm -f /etc/modprobe.d/akvcam.conf" << Qt::endl;
+    ts << "mkdir -p /etc/akvcam" << Qt::endl;
 
     if (!defaultImage.isNull())
-        cmds.write(QString("cp -f %1 /etc/akvcam/default_frame.bmp\n")
-                   .arg(defaultFrame).toUtf8());
+        ts << "cp -f " << defaultFrame << " /etc/akvcam/default_frame.bmp" << Qt::endl;
 
-    cmds.write(QString("cp -f %1 /etc/akvcam/config.ini\n")
-               .arg(settings.fileName()).toUtf8());
+    ts << "cp -f " << settings.fileName() << " /etc/akvcam/config.ini" << Qt::endl;
 
 #ifdef QT_DEBUG
-    cmds.write("modprobe akvcam loglevel=7\n");
+    ts << "modprobe akvcam loglevel=7" << Qt::endl;
 #else
-    cmds.write("modprobe akvcam\n");
+    ts << "modprobe akvcam" << Qt::endl;
 #endif
 
-    cmds.close();
-
     // Execute the script
-    if (!this->d->sudo(this->d->m_rootMethod, {"sh", cmds.fileName()}))
+    if (!this->d->sudo(script))
         return false;
 
     if (!this->d->waitForDevice(deviceId)) {
@@ -1173,50 +1127,34 @@ bool VCamAk::changeDescription(const QString &deviceId,
     settings.sync();
 
     // Write the script file.
-    QTemporaryFile cmds(tempDir.path() + "/XXXXXX.sh");
 
-    if (!cmds.open()) {
-        this->d->m_error = "Can't create script";
-
-        return false;
-    }
-
-    cmds.setPermissions(QFileDevice::ReadOwner
-                        | QFileDevice::WriteOwner
-                        | QFileDevice::ExeOwner
-                        | QFileDevice::ReadUser
-                        | QFileDevice::WriteUser
-                        | QFileDevice::ExeUser);
-    cmds.write("#/bin/sh\n");
-    cmds.write("rmmod akvcam 2>/dev/null\n");
-    cmds.write("sed -i '/akvcam/d' /etc/modules 2>/dev/null\n");
-    cmds.write("sed -i '/akvcam/d' /etc/modules-load.d/*.conf 2>/dev/null\n");
-    cmds.write("sed -i '/akvcam/d' /etc/modprobe.d/*.conf 2>/dev/null\n");
-    cmds.write("echo akvcam > /etc/modules-load.d/akvcam.conf\n");
+    QString script;
+    QTextStream ts(&script);
+    ts << "rmmod akvcam 2>/dev/null" << Qt::endl;
+    ts << "sed -i '/akvcam/d' /etc/modules 2>/dev/null" << Qt::endl;
+    ts << "sed -i '/akvcam/d' /etc/modules-load.d/*.conf 2>/dev/null" << Qt::endl;
+    ts << "sed -i '/akvcam/d' /etc/modprobe.d/*.conf 2>/dev/null" << Qt::endl;
+    ts << "echo akvcam > /etc/modules-load.d/akvcam.conf" << Qt::endl;
 
 #ifdef QT_DEBUG
-    cmds.write("echo options akvcam loglevel=7 > /etc/modprobe.d/akvcam.conf\n");
+    ts << "echo options akvcam loglevel=7 > /etc/modprobe.d/akvcam.conf" << Qt::endl;
 #endif
 
-    cmds.write("rm -f /etc/modprobe.d/akvcam.conf\n");
-    cmds.write("mkdir -p /etc/akvcam\n");
+    ts << "rm -f /etc/modprobe.d/akvcam.conf" << Qt::endl;
+    ts << "mkdir -p /etc/akvcam" << Qt::endl;
 
     if (!defaultImage.isNull())
-        cmds.write(QString("cp -f %1 /etc/akvcam/default_frame.bmp\n")
-                   .arg(defaultFrame).toUtf8());
+        ts << "cp -f " << defaultFrame << " /etc/akvcam/default_frame.bmp" << Qt::endl;
 
-    cmds.write(QString("cp -f %1 /etc/akvcam/config.ini\n")
-               .arg(settings.fileName()).toUtf8());
+    ts << "cp -f " << settings.fileName() << " /etc/akvcam/config.ini" << Qt::endl;
 
 #ifdef QT_DEBUG
-    cmds.write("modprobe akvcam loglevel=7\n");
+    ts << "modprobe akvcam loglevel=7" << Qt::endl;
 #else
-    cmds.write("modprobe akvcam\n");
+    ts << "modprobe akvcam" << Qt::endl;
 #endif
 
-    cmds.close();
-
-    if (!this->d->sudo(this->d->m_rootMethod, {"sh", cmds.fileName()}))
+    if (!this->d->sudo(script))
         return false;
 
     if (!this->d->waitForDevice(deviceId)) {
@@ -1286,32 +1224,17 @@ bool VCamAk::deviceDestroy(const QString &deviceId)
 
     // Unload the driver if there are not any device.
     if (devices.isEmpty()) {
-        QTemporaryDir tempDir;
-        QTemporaryFile cmds(tempDir.path() + "/XXXXXX.sh");
+        QString script;
+        QTextStream ts(&script);
+        ts << "rmmod akvcam 2>/dev/null" << Qt::endl;
+        ts << "sed -i '/akvcam/d' /etc/modules 2>/dev/null" << Qt::endl;
+        ts << "sed -i '/akvcam/d' /etc/modules-load.d/*.conf 2>/dev/null" << Qt::endl;
+        ts << "sed -i '/akvcam/d' /etc/modprobe.d/*.conf 2>/dev/null" << Qt::endl;
+        ts << "rm -f /etc/modules-load.d/akvcam.conf" << Qt::endl;
+        ts << "rm -f /etc/modprobe.d/akvcam.conf" << Qt::endl;
+        ts << "rm -f /etc/akvcam/config.ini" << Qt::endl;
 
-        if (!cmds.open()) {
-            this->d->m_error = "Can't create script";
-
-            return false;
-        }
-
-        cmds.setPermissions(QFileDevice::ReadOwner
-                            | QFileDevice::WriteOwner
-                            | QFileDevice::ExeOwner
-                            | QFileDevice::ReadUser
-                            | QFileDevice::WriteUser
-                            | QFileDevice::ExeUser);
-        QString cmd = "rmmod akvcam 2>/dev/null\n"
-                      "sed -i '/akvcam/d' /etc/modules 2>/dev/null\n"
-                      "sed -i '/akvcam/d' /etc/modules-load.d/*.conf 2>/dev/null\n"
-                      "sed -i '/akvcam/d' /etc/modprobe.d/*.conf 2>/dev/null\n"
-                      "rm -f /etc/modules-load.d/akvcam.conf\n"
-                      "rm -f /etc/modprobe.d/akvcam.conf\n"
-                      "rm -f /etc/akvcam/config.ini\n";
-        cmds.write(cmd.toUtf8());
-        cmds.close();
-
-        return this->d->sudo(this->d->m_rootMethod, {"sh", cmds.fileName()});
+        return this->d->sudo(script);
     }
 
     // Fill missing devices information.
@@ -1474,50 +1397,40 @@ bool VCamAk::deviceDestroy(const QString &deviceId)
     settings.sync();
 
     // Write the script file.
-    QTemporaryFile cmds(tempDir.path() + "/XXXXXX.sh");
 
-    if (!cmds.open()) {
-        this->d->m_error = "Can't create script";
+    QString script;
+    QTextStream ts(&script);
+    ts << "rmmod akvcam 2>/dev/null" << Qt::endl;
+    ts << "sed -i '/akvcam/d' /etc/modules 2>/dev/null" << Qt::endl;
+    ts << "sed -i '/akvcam/d' /etc/modules-load.d/*.conf 2>/dev/null" << Qt::endl;
+    ts << "sed -i '/akvcam/d' /etc/modprobe.d/*.conf 2>/dev/null" << Qt::endl;
 
-        return false;
+    if (devices.empty()) {
+        ts << "rm -f /etc/modules-load.d/akvcam.conf" << Qt::endl;
+        ts << "rm -f /etc/modprobe.d/akvcam.conf" << Qt::endl;
+    } else {
+        ts << "echo akvcam > /etc/modules-load.d/akvcam.conf" << Qt::endl;
+
+#ifdef QT_DEBUG
+        ts << "echo options akvcam loglevel=7 > /etc/modprobe.d/akvcam.conf" << Qt::endl;
+#endif
+
+        ts << "rm -f /etc/modprobe.d/akvcam.conf" << Qt::endl;
+        ts << "mkdir -p /etc/akvcam" << Qt::endl;
+
+        if (!defaultImage.isNull())
+            ts << "cp -f " << defaultFrame << " /etc/akvcam/default_frame.bmp" << Qt::endl;
+
+        ts << "cp -f " << settings.fileName() << " /etc/akvcam/config.ini" << Qt::endl;
+
+#ifdef QT_DEBUG
+        ts << "modprobe akvcam loglevel=7" << Qt::endl;
+#else
+        ts << "modprobe akvcam" << Qt::endl;
+#endif
     }
 
-    cmds.setPermissions(QFileDevice::ReadOwner
-                        | QFileDevice::WriteOwner
-                        | QFileDevice::ExeOwner
-                        | QFileDevice::ReadUser
-                        | QFileDevice::WriteUser
-                        | QFileDevice::ExeUser);
-    cmds.write("#/bin/sh\n");
-    cmds.write("rmmod akvcam 2>/dev/null\n");
-    cmds.write("sed -i '/akvcam/d' /etc/modules 2>/dev/null\n");
-    cmds.write("sed -i '/akvcam/d' /etc/modules-load.d/*.conf 2>/dev/null\n");
-    cmds.write("sed -i '/akvcam/d' /etc/modprobe.d/*.conf 2>/dev/null\n");
-    cmds.write("echo akvcam > /etc/modules-load.d/akvcam.conf\n");
-
-#ifdef QT_DEBUG
-    cmds.write("echo options akvcam loglevel=7 > /etc/modprobe.d/akvcam.conf\n");
-#endif
-
-    cmds.write("rm -f /etc/modprobe.d/akvcam.conf\n");
-    cmds.write("mkdir -p /etc/akvcam\n");
-
-    if (!defaultImage.isNull())
-        cmds.write(QString("cp -f %1 /etc/akvcam/default_frame.bmp\n")
-                   .arg(defaultFrame).toUtf8());
-
-    cmds.write(QString("cp -f %1 /etc/akvcam/config.ini\n")
-               .arg(settings.fileName()).toUtf8());
-
-#ifdef QT_DEBUG
-    cmds.write("modprobe akvcam loglevel=7\n");
-#else
-    cmds.write("modprobe akvcam\n");
-#endif
-
-    cmds.close();
-
-    if (!this->d->sudo(this->d->m_rootMethod, {"sh", cmds.fileName()}))
+    if (!this->d->sudo(script))
         return false;
 
     if (!this->d->waitForDevices(devicesList)) {
@@ -1541,33 +1454,19 @@ bool VCamAk::destroyAllDevices()
         return false;
     }
 
-    QTemporaryDir tempDir;
-    QTemporaryFile cmds(tempDir.path() + "/XXXXXX.sh");
+    // Write the script file.
 
-    if (!cmds.open()) {
-        this->d->m_error = "Can't create script";
+    QString script;
+    QTextStream ts(&script);
+    ts << "rmmod akvcam 2>/dev/null" << Qt::endl;
+    ts << "sed -i '/akvcam/d' /etc/modules 2>/dev/null" << Qt::endl;
+    ts << "sed -i '/akvcam/d' /etc/modules-load.d/*.conf 2>/dev/null" << Qt::endl;
+    ts << "sed -i '/akvcam/d' /etc/modprobe.d/*.conf 2>/dev/null" << Qt::endl;
+    ts << "rm -f /etc/modules-load.d/akvcam.conf" << Qt::endl;
+    ts << "rm -f /etc/modprobe.d/akvcam.conf" << Qt::endl;
+    ts << "rm -f /etc/akvcam/config.ini" << Qt::endl;
 
-        return false;
-    }
-
-    cmds.setPermissions(QFileDevice::ReadOwner
-                        | QFileDevice::WriteOwner
-                        | QFileDevice::ExeOwner
-                        | QFileDevice::ReadUser
-                        | QFileDevice::WriteUser
-                        | QFileDevice::ExeUser);
-    cmds.write("#/bin/sh\n");
-    QString cmd = "rmmod akvcam 2>/dev/null\n"
-                  "sed -i '/akvcam/d' /etc/modules 2>/dev/null\n"
-                  "sed -i '/akvcam/d' /etc/modules-load.d/*.conf 2>/dev/null\n"
-                  "sed -i '/akvcam/d' /etc/modprobe.d/*.conf 2>/dev/null\n"
-                  "rm -f /etc/modules-load.d/akvcam.conf\n"
-                  "rm -f /etc/modprobe.d/akvcam.conf\n"
-                  "rm -f /etc/akvcam/config.ini\n";
-    cmds.write(cmd.toUtf8());
-    cmds.close();
-
-    if (!this->d->sudo(this->d->m_rootMethod, {"sh", cmds.fileName()}))
+    if (!this->d->sudo(script))
         return false;
 
     this->d->updateDevices();
@@ -1913,37 +1812,24 @@ bool VCamAk::applyPicture()
     settings.sync();
 
     // Write the script file.
-    QTemporaryFile cmds(tempDir.path() + "/XXXXXX.sh");
 
-    if (!cmds.open())
-        return false;
-
-    cmds.setPermissions(QFileDevice::ReadOwner
-                        | QFileDevice::WriteOwner
-                        | QFileDevice::ExeOwner
-                        | QFileDevice::ReadUser
-                        | QFileDevice::WriteUser
-                        | QFileDevice::ExeUser);
-    cmds.write("#/bin/sh\n");
-    cmds.write("rmmod akvcam 2>/dev/null\n");
-    cmds.write("mkdir -p /etc/akvcam\n");
+    QString script;
+    QTextStream ts(&script);
+    ts << "rmmod akvcam 2>/dev/null" << Qt::endl;
+    ts << "mkdir -p /etc/akvcam" << Qt::endl;
 
     if (!defaultImage.isNull())
-        cmds.write(QString("cp -f %1 /etc/akvcam/default_frame.bmp\n")
-                   .arg(defaultFrame).toUtf8());
+        ts << "cp -f " << defaultFrame << " /etc/akvcam/default_frame.bmp" << Qt::endl;
 
-    cmds.write(QString("cp -f %1 /etc/akvcam/config.ini\n")
-               .arg(settings.fileName()).toUtf8());
+    ts << "cp -f " << settings.fileName() << " /etc/akvcam/config.ini" << Qt::endl;
 
 #ifdef QT_DEBUG
-    cmds.write("modprobe akvcam loglevel=7\n");
+    ts << "modprobe akvcam loglevel=7" << Qt::endl;
 #else
-    cmds.write("modprobe akvcam\n");
+    ts << "modprobe akvcam" << Qt::endl;
 #endif
 
-    cmds.close();
-
-    if (!this->d->sudo(this->d->m_rootMethod, {"sh", cmds.fileName()}))
+    if (!this->d->sudo(script))
         return false;
 
     return true;
@@ -2056,11 +1942,34 @@ int VCamAkPrivate::xioctl(int fd, ulong request, void *arg) const
     return r;
 }
 
-bool VCamAkPrivate::sudo(const QString &command, const QStringList &argumments)
+bool VCamAkPrivate::sudo(const QString &script)
 {
+    if (this->m_rootMethod.isEmpty()) {
+        static const QString msg = "Root method not set";
+        qDebug() << msg;
+        this->m_error += msg + " ";
+
+        return false;
+    }
+
+    auto sudoBin = this->whereBin(this->m_rootMethod);
+
+    if (sudoBin.isEmpty()) {
+        static const QString msg = "Can't find " + this->m_rootMethod;
+        qDebug() << msg;
+        this->m_error += msg + " ";
+
+        return false;
+    }
+
     QProcess su;
-    su.start(self->rootMethod(),
-             QStringList {command} << argumments);
+    su.start(sudoBin, QStringList {});
+
+    if (su.waitForStarted()) {
+       su.write(script.toUtf8());
+       su.closeWriteChannel();
+    }
+
     su.waitForFinished(-1);
 
     if (su.exitCode()) {
@@ -2087,29 +1996,39 @@ bool VCamAkPrivate::sudo(const QString &command, const QStringList &argumments)
 
 QStringList VCamAkPrivate::availableRootMethods() const
 {
-    QStringList methods;
-    auto paths =
-            QProcessEnvironment::systemEnvironment().value("PATH").split(':');
     static const QStringList sus {
-        "beesu",
-        "gksu",
-        "gksudo",
-        "gtksu",
-        "kdesu",
-        "kdesudo",
-        "ktsuss",
         "pkexec",
     };
 
-    for (auto &su: sus)
-        for (auto &path: paths)
-            if (QDir(path).exists(su)) {
-                methods << su;
+    QStringList methods;
 
-                break;
-            }
+    for (auto &su: sus)
+        if (!this->whereBin(su).isEmpty())
+            methods << su;
 
     return methods;
+}
+
+QString VCamAkPrivate::whereBin(const QString &binary) const
+{
+    // Limit search paths to trusted directories only.
+    static const QStringList paths {
+        "/usr/bin",       // GNU/Linux
+        "/bin",           // NetBSD
+        "/usr/local/bin", // FreeBSD
+
+        // Additionally, search it in a developer provided extra directory.
+
+#ifdef EXTRA_SUDOER_TOOL_DIR
+        EXTRA_SUDOER_TOOL_DIR,
+#endif
+    };
+
+    for (auto &path: paths)
+        if (QDir(path).exists(binary))
+            return QDir(path).filePath(binary);
+
+    return {};
 }
 
 QString VCamAkPrivate::sysfsControls(const QString &deviceId) const
