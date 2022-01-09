@@ -29,7 +29,7 @@ class AkThemePrivate
         AkPalette m_palette;
         qreal m_controlScale {1.6};
 
-        AkThemePrivate(AkTheme *self);
+        explicit AkThemePrivate(AkTheme *self);
 };
 
 AkTheme::AkTheme(QObject *parent):
@@ -108,7 +108,7 @@ void AkTheme::setControlScale(qreal controlScale)
 
 void AkTheme::setPalette(const AkPalette *palette)
 {
-    if (this->d->m_palette == *palette)
+    if (!palette || this->d->m_palette == *palette)
         return;
 
     this->d->m_palette = *palette;

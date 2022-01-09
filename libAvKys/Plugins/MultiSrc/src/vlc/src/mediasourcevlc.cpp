@@ -778,7 +778,7 @@ unsigned MediaSourceVLCPrivate::videoFormatCallback(void **userData,
     self->d->m_videoFrame.timeBase() = AkFrac(1, 1000);
     self->d->m_videoFrame.index() = int(self->d->m_videoIndex);
     self->d->m_videoFrame.id() = self->d->m_videoId;
-    strncpy(chroma, "RV24", 4);
+    snprintf(chroma, 5, "%s", "RV24");
     *pitches = unsigned(caps.bytesPerLine(0));
     *lines = *height;
 
@@ -805,7 +805,7 @@ int MediaSourceVLCPrivate::audioSetupCallback(void **userData,
     self->d->m_audioFrame.timeBase() = AkFrac(1, 1000);
     self->d->m_audioFrame.index() = int(self->d->m_audioIndex);
     self->d->m_audioFrame.id() = self->d->m_audioId;
-    strncpy(format, "S16N", 4);
+    snprintf(format, 5, "%s", "S16N");
 
     return 0;
 }

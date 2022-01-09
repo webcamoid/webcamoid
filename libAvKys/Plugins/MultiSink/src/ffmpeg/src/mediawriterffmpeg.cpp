@@ -609,8 +609,9 @@ QVariantList MediaWriterFFmpegPrivate::parseOptions(const AVClass *avClass) cons
 
                 if (av_parse_video_size(&width, &height, option->default_val.str) < 0)
                     value = QSize();
+                else
+                    value = QSize(width, height);
 
-                value = QSize(width, height);
                 break;
             }
             case AV_OPT_TYPE_VIDEO_RATE: {
@@ -618,8 +619,9 @@ QVariantList MediaWriterFFmpegPrivate::parseOptions(const AVClass *avClass) cons
 
                 if (av_parse_video_rate(&rate, option->default_val.str) < 0)
                     value = QVariant::fromValue(AkFrac());
+                else
+                    value = QVariant::fromValue(AkFrac(rate.num, rate.den));
 
-                value = QVariant::fromValue(AkFrac(rate.num, rate.den));
                 break;
             }
             case AV_OPT_TYPE_COLOR: {
@@ -628,10 +630,12 @@ QVariantList MediaWriterFFmpegPrivate::parseOptions(const AVClass *avClass) cons
                 if (av_parse_color(color,
                                    option->default_val.str,
                                    -1,
-                                   nullptr) < 0)
+                                   nullptr) < 0) {
                     value = qRgba(0, 0, 0, 0);
+                } else {
+                    value = qRgba(color[0], color[1], color[2], color[3]);
+                }
 
-                value = qRgba(color[0], color[1], color[2], color[3]);
                 break;
             }
             case AV_OPT_TYPE_RATIONAL:
@@ -645,9 +649,9 @@ QVariantList MediaWriterFFmpegPrivate::parseOptions(const AVClass *avClass) cons
         if (option->type == AV_OPT_TYPE_CONST) {
             QVariantList menuOption = {option->name, option->help, value};
 
-            if (menu.contains(option->unit)) {
+            if (menu.contains(option->unit))
                 menu[option->unit] << QVariant(menuOption);
-            } else
+            else
                 menu[option->unit] = QVariantList {QVariant(menuOption)};
         } else {
             avOptions << QVariantList {
@@ -836,8 +840,9 @@ AkVideoCaps MediaWriterFFmpeg::nearestDVCaps(const AkVideoCaps &caps) const
         if (k < q) {
             nearestCaps = sCaps;
             q = k;
-        } else if (qFuzzyCompare(k, q) && sCaps.format() == caps.format())
+        } else if (qFuzzyCompare(k, q) && sCaps.format() == caps.format()) {
             nearestCaps = sCaps;
+        }
     }
 
     return nearestCaps;
@@ -860,8 +865,9 @@ AkVideoCaps MediaWriterFFmpeg::nearestDNxHDCaps(const AkVideoCaps &caps) const
             nearestCaps = sCaps;
             nearestCaps.fps() = fps;
             q = k;
-        } else if (qFuzzyCompare(k, q) && sCaps.format() == caps.format())
+        } else if (qFuzzyCompare(k, q) && sCaps.format() == caps.format()) {
             nearestCaps = sCaps;
+        }
     }
 
     return nearestCaps;

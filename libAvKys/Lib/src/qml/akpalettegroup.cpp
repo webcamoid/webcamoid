@@ -46,7 +46,7 @@ class AkPaletteGroupPrivate
         QColor m_link;
         QColor m_linkVisited;
 
-        AkPaletteGroupPrivate(AkPaletteGroup *self);
+        explicit AkPaletteGroupPrivate(AkPaletteGroup *self);
 };
 
 AkPaletteGroup::AkPaletteGroup(QObject *parent):

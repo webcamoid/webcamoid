@@ -405,7 +405,6 @@ class AkAudioConverterPrivate
         inline static AkAudioPacket convertChannelModel(const AkAudioPacket &packet,
                                                         bool planar)
         {
-            auto iSamples = packet.caps().samples();
             auto caps = packet.caps();
             caps.updatePlaneSize(planar);
             AkAudioPacket outPacket(caps);

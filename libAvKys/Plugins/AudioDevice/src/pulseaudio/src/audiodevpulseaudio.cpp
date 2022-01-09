@@ -590,7 +590,7 @@ void AudioDevPulseAudioPrivate::sourceInfoCallback(pa_context *context,
     audioDevice->d->m_sources[info->index] = info->name;
 
     audioDevice->d->m_pinDescriptionMap[info->name] =
-            strlen(info->description) < 1?
+            QString(info->description).isEmpty()?
                   info->name: info->description;
 
     audioDevice->d->m_pinCapsMap[info->name] =

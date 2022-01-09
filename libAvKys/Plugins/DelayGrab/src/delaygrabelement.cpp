@@ -141,8 +141,12 @@ AkPacket DelayGrabElement::iVideoStream(const AkVideoPacket &packet)
     for (int i = 0; i < diff; i++)
         this->d->m_frames.removeFirst();
 
-    if (this->d->m_frames.isEmpty())
-        akSend(packet)
+    if (this->d->m_frames.isEmpty()) {
+        if (packet)
+            emit this->oStream(packet);
+
+        return packet;
+    }
 
     this->d->m_mutex.lock();
     int blockSize = this->d->m_blockSize > 0? this->d->m_blockSize: 1;
@@ -151,8 +155,12 @@ AkPacket DelayGrabElement::iVideoStream(const AkVideoPacket &packet)
     QVector<int> delayMap = this->d->m_delayMap;
     this->d->m_mutex.unlock();
 
-    if (delayMap.isEmpty())
-        akSend(packet)
+    if (delayMap.isEmpty()) {
+        if (packet)
+            emit this->oStream(packet);
+
+        return packet;
+    }
 
     // Copy image blockwise to screenbuffer
     for (int i = 0, y = 0; y < delayMapHeight; y++) {
@@ -180,7 +188,11 @@ AkPacket DelayGrabElement::iVideoStream(const AkVideoPacket &packet)
     }
 
     auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
-    akSend(oPacket)
+
+    if (oPacket)
+        emit this->oStream(oPacket);
+
+    return oPacket;
 }
 
 void DelayGrabElement::setMode(const QString &mode)

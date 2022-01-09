@@ -162,7 +162,11 @@ AkPacket WaveElement::iVideoStream(const AkVideoPacket &packet)
     }
 
     auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
-    akSend(oPacket)
+
+    if (oPacket)
+        emit this->oStream(oPacket);
+
+    return oPacket;
 }
 
 void WaveElement::setAmplitude(qreal amplitude)

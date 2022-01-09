@@ -29,7 +29,7 @@ class AkPalettePrivate
         AkPaletteGroup m_active {QPalette::Active};
         AkPaletteGroup m_disabled {QPalette::Disabled};
 
-        AkPalettePrivate(AkPalette *self);
+        explicit AkPalettePrivate(AkPalette *self);
 };
 
 AkPalette::AkPalette(QObject *parent):

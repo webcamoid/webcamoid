@@ -313,7 +313,13 @@ AkVideoCaps::AkVideoCaps(AkVideoCaps::PixelFormat format,
                          const AkFrac &fps,
                          int align)
 {
-    AkVideoCaps(format, size.width(), size.height(), fps, align);
+    this->d = new AkVideoCapsPrivate();
+    this->d->m_format = format;
+    this->d->m_width = size.width();
+    this->d->m_height = size.height();
+    this->d->m_fps = fps;
+    this->d->m_align = align;
+    this->d->updateParams();
 }
 
 

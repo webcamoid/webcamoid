@@ -51,7 +51,7 @@ class AkColorizedImagePrivate
         bool m_asynchronous {false};
         bool m_mipmap {false};
 
-        AkColorizedImagePrivate(AkColorizedImage *self);
+        explicit AkColorizedImagePrivate(AkColorizedImage *self);
         QImage colorizeImage(const QImage &image);
         void scale(const QSize &size,
                    QRectF &sourceRect,

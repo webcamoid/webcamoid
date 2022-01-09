@@ -426,7 +426,7 @@ AkPluginManagerPrivate::AkPluginManagerPrivate(AkPluginManager *self):
     this->m_pluginFilePattern =
             QString("%1*%2").arg(PREFIX_SHLIB, platformTargetSuffix);
 
-    if (strlen(EXTENSION_SHLIB) > 1)
+    if (!QString(EXTENSION_SHLIB).isEmpty())
         this->m_pluginFilePattern += EXTENSION_SHLIB;
 }
 
