@@ -91,7 +91,7 @@ export PATH="${ANDROID_NDK}:${PATH}"
 
 # Install Android things
 echo y | sdkmanager \
-    --sdk_root=${ANDROID_HOME} \
+    --sdk_root="${ANDROID_HOME}" \
     "build-tools;${ANDROID_BUILD_TOOLS_VERSION}" \
     "platform-tools" \
     "platforms;android-${ANDROID_PLATFORM}" \

@@ -639,7 +639,7 @@ void AudioDevPulseAudioPrivate::sinkInfoCallback(pa_context *context,
     audioDevice->d->m_sinks[info->index] = info->name;
 
     audioDevice->d->m_pinDescriptionMap[info->name] =
-            strlen(info->description) < 1?
+            QString(info->description).isEmpty()?
                   info->name: info->description;
 
     audioDevice->d->m_pinCapsMap[info->name] =

@@ -41,7 +41,7 @@ def createPng(inputFile, outputFile, size, dpi):
 
     # Optimize PNG.
     if shutil.which('pngquant'):
-        subprocess.Popen(['pngquant',
+        subprocess.Popen(['pngquant',  # nosec
                           '--verbose',
                           '--force',
                           '--strip',
@@ -55,7 +55,7 @@ def createPng(inputFile, outputFile, size, dpi):
 
     # Remove metadata.
     if shutil.which('exiv2'):
-        subprocess.Popen(['exiv2',
+        subprocess.Popen(['exiv2',  # nosec
                           'rm',
                           outputFile]).communicate()
 
@@ -75,7 +75,7 @@ def createIco(inputFile, outputFile, size, dpi):
 
     # Convert PNG to ICO.
     if shutil.which('convert'):
-        subprocess.Popen(['convert',
+        subprocess.Popen(['convert',  # nosec
                           tmpFile,
                           outputFile]).communicate()
 
@@ -116,7 +116,7 @@ for root, _, files in os.walk('../StandAlone/share/themes/WebcamoidTheme/icons')
 
             # Optimize SVG.
             if shutil.which('scour'):
-                subprocess.Popen(['scour',
+                subprocess.Popen(['scour',  # nosec
                                   '--enable-viewboxing',
                                   '--enable-id-stripping',
                                   '--enable-comment-stripping',
@@ -130,7 +130,7 @@ for root, _, files in os.walk('../StandAlone/share/themes/WebcamoidTheme/icons')
                 except:
                     pass
             elif shutil.which('inkscape'):
-                subprocess.Popen(['inkscape',
+                subprocess.Popen(['inkscape',  # nosec
                                   '-z',
                                   '--vacuum-defs',
                                   '-f', filePath,

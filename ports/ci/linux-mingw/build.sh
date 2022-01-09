@@ -41,12 +41,12 @@ LUPDATE_TOOL=${MINGW_PREFIX}/lib/qt/bin/lupdate
 
 INSTALL_PREFIX=${PWD}/webcamoid-data-${COMPILER}-${TARGET_ARCH}
 buildDir=build-${COMPILER}-${TARGET_ARCH}
-mkdir ${buildDir}
+mkdir "${buildDir}"
 "${TARGET_ARCH}-w64-mingw32-cmake" \
     -LA \
     -S . \
     -B "${buildDir}" \
-    -DQT_QMAKE_EXECUTABLE=${QMAKE_CMD} \
+    -DQT_QMAKE_EXECUTABLE="${QMAKE_CMD}" \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX="${INSTALL_PREFIX}" \
     -DCMAKE_C_COMPILER="${COMPILER_C}" \
