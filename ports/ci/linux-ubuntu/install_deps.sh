@@ -44,7 +44,7 @@ dpkg-reconfigure --frontend noninteractive keyboard-configuration
 
 if [ "${DOCKERIMG}" = ubuntu:focal ]; then
     apt-get -y install software-properties-common
-    add-apt-repository ppa:beineri/opt-qt-${QTVER}-focal
+    add-apt-repository "ppa:beineri/opt-qt-${QTVER}-focal"
 fi
 
 # Install missing dependencies
@@ -71,7 +71,7 @@ qtIFW=QtInstallerFramework-linux-x64-${QTIFWVER}.run
 ${DOWNLOAD_CMD} "http://download.qt.io/official_releases/qt-installer-framework/${QTIFWVER}/${qtIFW}" || true
 
 if [ -e ${qtIFW} ]; then
-    chmod +x ${qtIFW}
+    chmod +x "${qtIFW}"
     QT_QPA_PLATFORM=minimal \
     ./${qtIFW} \
         --verbose \
@@ -88,7 +88,7 @@ fi
 # Install AppImageTool
 
 appimage=appimagetool-x86_64.AppImage
-wget -c -O .local/${appimage} https://github.com/AppImage/AppImageKit/releases/download/${APPIMAGEVER}/${appimage} || true
+wget -c -O ".local/${appimage} https://github.com/AppImage/AppImageKit/releases/download/${APPIMAGEVER}/${appimage}" || true
 
 if [ -e .local/${appimage} ]; then
     chmod +x .local/${appimage}

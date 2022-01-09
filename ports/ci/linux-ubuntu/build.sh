@@ -35,7 +35,7 @@ if [ "${UPLOAD}" == 1 ]; then
 fi
 
 if [ "${DOCKERIMG}" = ubuntu:focal ]; then
-    source /opt/qt${PPAQTVER}/bin/qt${PPAQTVER}-env.sh
+    source "/opt/qt${PPAQTVER}/bin/qt${PPAQTVER}-env.sh"
 else
     EXTRA_PARAMS="${EXTRA_PARAMS} -DQT_QMAKE_EXECUTABLE=/usr/lib/qt5/bin/qmake"
 fi
@@ -43,7 +43,7 @@ fi
 export PATH=${HOME}/.local/bin:${PATH}
 INSTALL_PREFIX=${PWD}/webcamoid-data-${DOCKERIMG#*:}-${COMPILER}
 buildDir=build-${DOCKERIMG#*:}-${COMPILER}
-mkdir ${buildDir}
+mkdir "${buildDir}"
 cmake \
     -LA \
     -S . \
@@ -54,6 +54,6 @@ cmake \
     -DCMAKE_CXX_COMPILER="${COMPILER_CXX}" \
     ${EXTRA_PARAMS} \
     -DGST_PLUGINS_SCANNER_PATH=/usr/lib/x86_64-linux-gnu/gstreamer1.0/gstreamer-1.0/gst-plugin-scanner \
-    -DDAILY_BUILD=${DAILY_BUILD}
-cmake --build ${buildDir} --parallel ${NJOBS}
-cmake --install ${buildDir}
+    -DDAILY_BUILD="${DAILY_BUILD}"
+cmake --build "${buildDir}" --parallel ${NJOBS}
+cmake --install "${buildDir}"

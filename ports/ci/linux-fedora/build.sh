@@ -33,7 +33,7 @@ fi
 export PATH=$HOME/.local/bin:$PATH
 INSTALL_PREFIX=${PWD}/webcamoid-data-${COMPILER}
 buildDir=build-${COMPILER}
-mkdir ${buildDir}
+mkdir "${buildDir}"
 cmake \
     -LA \
     -S . \
@@ -45,5 +45,5 @@ cmake \
     -DCMAKE_CXX_COMPILER="${COMPILER_CXX}" \
     ${EXTRA_PARAMS} \
     -DDAILY_BUILD=${DAILY_BUILD}
-cmake --build ${buildDir} --parallel ${NJOBS}
-cmake --install ${buildDir}
+cmake --build "${buildDir}" --parallel ${NJOBS}
+cmake --install "${buildDir}"

@@ -52,7 +52,7 @@ unzip -q -d android-sdk ${fileName}
 # Install Android NDK
 fileName="android-ndk-${NDKVER}-linux-x86_64.zip"
 ${DOWNLOAD_CMD} "https://dl.google.com/android/repository/${fileName}"
-unzip -q ${fileName}
+unzip -q "${fileName}"
 mv -vf android-ndk-${NDKVER} android-ndk
 
 # Install Qt for Android

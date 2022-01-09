@@ -47,18 +47,18 @@ mkdir -p build
 for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
     export PATH="${PWD}/build/Qt/${QTVER_ANDROID}/android/bin:${ORIG_PATH}"
     buildDir=build-${arch_}
-    mkdir ${buildDir}
+    mkdir "${buildDir}"
     cmake \
         -LA \
         -S . \
         -B ${buildDir} \
         -G Ninja \
         -DCMAKE_BUILD_TYPE=Release \
-        -DCMAKE_C_COMPILER=${ANDROID_NDK}/toolchains/llvm/prebuilt/linux-x86_64/bin/clang \
-        -DCMAKE_CXX_COMPILER=${ANDROID_NDK}/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ \
+        -DCMAKE_C_COMPILER="${ANDROID_NDK}/toolchains/llvm/prebuilt/linux-x86_64/bin/clang" \
+        -DCMAKE_CXX_COMPILER="${ANDROID_NDK}/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++" \
         -DANDROID_NATIVE_API_LEVEL=${ANDROID_PLATFORM} \
         -DANDROID_NDK=${ANDROID_NDK} \
-        -DCMAKE_TOOLCHAIN_FILE=${ANDROID_NDK}/build/cmake/android.toolchain.cmake \
+        -DCMAKE_TOOLCHAIN_FILE="${ANDROID_NDK}/build/cmake/android.toolchain.cmake" \
         -DANDROID_ABI=${arch_} \
         -DANDROID_STL=c++_shared \
         -DCMAKE_FIND_ROOT_PATH=$(qmake -query QT_INSTALL_PREFIX) \
@@ -66,6 +66,6 @@ for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
         ${EXTRA_PARAMS} \
         -DDAILY_BUILD=${DAILY_BUILD}
     cmake --build ${buildDir} --parallel ${NJOBS}
-    cp -vf ${buildDir}/package_info.conf build/
-    cp -vf ${buildDir}/package_info_android.conf build/
+    cp -vf "${buildDir}/package_info.conf" build/
+    cp -vf "${buildDir}/package_info_android.conf" build/
 done
