@@ -24,7 +24,7 @@ else
     export PATH=/mingw64/bin:${PATH}
 fi
 
-git clone https://github.com/webcamoid/DeployTools.git
+git clone "https://github.com/webcamoid/DeployTools.git"
 
 export INSTALL_PREFIX=${PWD}/webcamoid-data-${COMPILER}-${TARGET_ARCH}
 export PACKAGES_DIR=${PWD}/webcamoid-packages/windows-${COMPILER}-${TARGET_ARCH}

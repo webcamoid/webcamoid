@@ -33,11 +33,11 @@ fi
 export PATH=$HOME/.local/bin:$PATH
 INSTALL_PREFIX=${PWD}/webcamoid-data-${COMPILER}
 buildDir=build-${COMPILER}
-mkdir ${buildDir}
+mkdir "${buildDir}"
 cmake \
     -LA \
     -S . \
-    -B ${buildDir} \
+    -B "${buildDir}" \
     -DQT_QMAKE_EXECUTABLE=qmake-qt5 \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX="${INSTALL_PREFIX}" \
@@ -45,6 +45,6 @@ cmake \
     -DCMAKE_CXX_COMPILER="${COMPILER_CXX}" \
     ${EXTRA_PARAMS} \
     -DGST_PLUGINS_SCANNER_PATH=/usr/libexec/gstreamer-1.0/gst-plugin-scanner-x86_64 \
-    -DDAILY_BUILD=${DAILY_BUILD}
-cmake --build ${buildDir} --parallel ${NJOBS}
-cmake --install ${buildDir}
+    -DDAILY_BUILD="${DAILY_BUILD}"
+cmake --build "${buildDir}" --parallel "${NJOBS}"
+cmake --install "${buildDir}"

@@ -26,8 +26,6 @@ if [ "${UPLOAD}" == 1 ]; then
     EXTRA_PARAMS="${EXTRA_PARAMS} -DNOGSTREAMER=ON -DNOLIBAVDEVICE=ON"
 fi
 
-BUILDSCRIPT=dockerbuild.sh
-
 export JAVA_HOME=$(readlink -f /usr/bin/java | sed 's:bin/java::')
 export ANDROID_HOME="${PWD}/build/android-sdk"
 export ANDROID_NDK="${PWD}/build/android-ndk"
@@ -51,21 +49,21 @@ for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
     cmake \
         -LA \
         -S . \
-        -B ${buildDir} \
+        -B "${buildDir}" \
         -G Ninja \
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_C_COMPILER="${ANDROID_NDK}/toolchains/llvm/prebuilt/linux-x86_64/bin/clang" \
         -DCMAKE_CXX_COMPILER="${ANDROID_NDK}/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++" \
-        -DANDROID_NATIVE_API_LEVEL=${ANDROID_PLATFORM} \
-        -DANDROID_NDK=${ANDROID_NDK} \
+        -DANDROID_NATIVE_API_LEVEL="${ANDROID_PLATFORM}" \
+        -DANDROID_NDK="${ANDROID_NDK}" \
         -DCMAKE_TOOLCHAIN_FILE="${ANDROID_NDK}/build/cmake/android.toolchain.cmake" \
-        -DANDROID_ABI=${arch_} \
+        -DANDROID_ABI="${arch_}" \
         -DANDROID_STL=c++_shared \
-        -DCMAKE_FIND_ROOT_PATH=$(qmake -query QT_INSTALL_PREFIX) \
-        -DANDROID_SDK=${ANDROID_HOME} \
+        -DCMAKE_FIND_ROOT_PATH="$(qmake -query QT_INSTALL_PREFIX)" \
+        -DANDROID_SDK="${ANDROID_HOME}" \
         ${EXTRA_PARAMS} \
-        -DDAILY_BUILD=${DAILY_BUILD}
-    cmake --build ${buildDir} --parallel ${NJOBS}
+        -DDAILY_BUILD="${DAILY_BUILD}"
+    cmake --build "${buildDir}" --parallel "${NJOBS}"
     cp -vf "${buildDir}/package_info.conf" build/
     cp -vf "${buildDir}/package_info_android.conf" build/
 done

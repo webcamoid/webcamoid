@@ -47,7 +47,7 @@ mkdir "${buildDir}"
 cmake \
     -LA \
     -S . \
-    -B ${buildDir} \
+    -B "${buildDir}" \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX="${INSTALL_PREFIX}" \
     -DCMAKE_C_COMPILER="${COMPILER_C}" \
@@ -55,5 +55,5 @@ cmake \
     ${EXTRA_PARAMS} \
     -DGST_PLUGINS_SCANNER_PATH=/usr/lib/x86_64-linux-gnu/gstreamer1.0/gstreamer-1.0/gst-plugin-scanner \
     -DDAILY_BUILD="${DAILY_BUILD}"
-cmake --build "${buildDir}" --parallel ${NJOBS}
+cmake --build "${buildDir}" --parallel "${NJOBS}"
 cmake --install "${buildDir}"

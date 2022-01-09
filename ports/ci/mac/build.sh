@@ -44,5 +44,5 @@ cmake \
     -DCMAKE_CXX_COMPILER="${COMPILER_CXX}" \
     ${EXTRA_PARAMS} \
     -DDAILY_BUILD="${DAILY_BUILD}"
-cmake --build build --parallel ${NJOBS}
+cmake --build build --parallel "${NJOBS}"
 cmake --install build

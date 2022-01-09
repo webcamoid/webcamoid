@@ -57,7 +57,7 @@ mkdir -p .local/bin
 qtIFW=QtInstallerFramework-linux-x64-${QTIFWVER}.run
 ${DOWNLOAD_CMD} "http://download.qt.io/official_releases/qt-installer-framework/${QTIFWVER}/${qtIFW}" || true
 
-if [ -e ${qtIFW} ]; then
+if [ -e "${qtIFW}" ]; then
     chmod +x ${qtIFW}
     QT_QPA_PLATFORM=minimal \
     ./"${qtIFW}" \
@@ -77,8 +77,8 @@ fi
 appimage=appimagetool-x86_64.AppImage
 wget -c -O .local/${appimage} "https://github.com/AppImage/AppImageKit/releases/download/${APPIMAGEVER}/${appimage}" || true
 
-if [ -e .local/${appimage} ]; then
-    chmod +x .local/${appimage}
+if [ -e ".local/${appimage}" ]; then
+    chmod +x ".local/${appimage}"
 
     cd .local
     ./${appimage} --appimage-extract
