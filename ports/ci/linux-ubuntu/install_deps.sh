@@ -140,15 +140,12 @@ if [ "${DOCKERIMG}" = ubuntu:focal ]; then
         "qt${PPAQTVER}tools" \
         "qt${PPAQTVER}declarative" \
         "qt${PPAQTVER}svg" \
-        "qt${PPAQTVER}quickcontrols2"
+        "qt${PPAQTVER}quickcontrols2" \
+        "qt${PPAQTVER}wayland"
 else
     apt-get -y install \
-        qt5-qmake \
-        qttools5-dev-tools \
-        qtdeclarative5-dev \
         libqt5opengl5-dev \
         libqt5svg5-dev \
-        qtquickcontrols2-5-dev \
         qml-module-qt-labs-folderlistmodel \
         qml-module-qt-labs-settings \
         qml-module-qtqml-models2 \
@@ -156,5 +153,10 @@ else
         qml-module-qtquick-dialogs \
         qml-module-qtquick-extras \
         qml-module-qtquick-privatewidgets \
-        qml-module-qtquick-templates2
+        qml-module-qtquick-templates2 \
+        qt5-qmake \
+        qtdeclarative5-dev \
+        qtquickcontrols2-5-dev \
+        qttools5-dev-tools \
+        qtwayland5
 fi

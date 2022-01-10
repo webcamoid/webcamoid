@@ -102,6 +102,7 @@ dnf -y install \
     qt5-qtquickcontrols2-devel \
     qt5-qtsvg-devel \
     qt5-qttools-devel \
+    qt5-qtwayland \
     vlc-core \
     vlc-devel \
     which \

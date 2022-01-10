@@ -108,6 +108,7 @@ pacman --noconfirm --needed -S \
     qt5-quickcontrols2 \
     qt5-svg \
     qt5-tools \
+    qt5-wayland \
     sed \
     v4l-utils \
     vlc \

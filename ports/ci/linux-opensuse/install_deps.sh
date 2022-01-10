@@ -108,6 +108,7 @@ zypper -n in \
     libqt5-qtdeclarative-devel \
     libqt5-qtquickcontrols2 \
     libqt5-qtsvg-devel \
+    libqt5-qtwayland \
     libusb-1_0-devel \
     libv4l-devel \
     patchelf \

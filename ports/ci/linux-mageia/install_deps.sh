@@ -106,6 +106,7 @@ dnf -y install \
     qtbase5-common-devel \
     qtquickcontrols25 \
     qttools5 \
+    qtwayland5 \
     vlc-plugin-common \
     which \
     x11-server-xvfb \
