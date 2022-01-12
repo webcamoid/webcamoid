@@ -55,6 +55,7 @@ for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
         -DCMAKE_C_COMPILER="${ANDROID_NDK}/toolchains/llvm/prebuilt/linux-x86_64/bin/clang" \
         -DCMAKE_CXX_COMPILER="${ANDROID_NDK}/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++" \
         -DANDROID_NATIVE_API_LEVEL="${ANDROID_PLATFORM}" \
+        -DANDROID_PLATFORM="${ANDROID_PLATFORM}" \
         -DANDROID_NDK="${ANDROID_NDK}" \
         -DCMAKE_TOOLCHAIN_FILE="${ANDROID_NDK}/build/cmake/android.toolchain.cmake" \
         -DANDROID_ABI="${arch_}" \
