@@ -36,7 +36,8 @@ sudo apt-get -qq -y install \
     make \
     ninja-build \
     openjdk-8-jdk \
-    openjdk-8-jre
+    openjdk-8-jre \
+    python3-pip
 
 sudo update-java-alternatives --set java-1.8.0-openjdk-amd64
 mkdir -p build
@@ -50,29 +51,15 @@ mkdir -p android-sdk
 unzip -q -d android-sdk "${fileName}"
 
 # Install Android NDK
-fileName="android-ndk-${NDKVER}-linux-x86_64.zip"
+fileName="android-ndk-${NDKVER}-linux.zip"
 ${DOWNLOAD_CMD} "https://dl.google.com/android/repository/${fileName}"
 unzip -q "${fileName}"
 mv -vf "android-ndk-${NDKVER}" android-ndk
 
 # Install Qt for Android
-fileName=qt-opensource-linux-x64-${QTVER_ANDROID}.run
-${DOWNLOAD_CMD} "https://download.qt.io/archive/qt/${QTVER_ANDROID:0:4}/${QTVER_ANDROID}/${fileName}"
-chmod +x "${fileName}"
-
-# Shutdown network connection so Qt installer does not ask for credentials.
-netName=$(ifconfig -s | grep BMRU | awk '{print $1}' | sed 's/.*://g')
-sudo ifconfig "${netName}" down
-
-export QT_QPA_PLATFORM=minimal
-
-./"qt-opensource-linux-x64-${QTVER_ANDROID}.run" \
-    ${qtIinstallerVerbose} \
-    --script "$PWD/../ports/ci/android/qt_non_interactive_install.qs" \
-    --no-force-installations
-
-# Get network connection up again.
-sudo ifconfig "${netName}" up
+pip install -U pip
+pip install aqtinstall
+aqt install-qt linux android "${QTVER_ANDROID}" android -O "$PWD/Qt"
 
 cd ..
 
