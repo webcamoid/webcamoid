@@ -178,7 +178,7 @@
     <message>
         <location filename="../qml/Contributors.qml" line="36"/>
         <source>Thanks to all these cool people that helped contributing to Webcamoid all these years.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tüm bu yıllar boyunca Webcamoid&apos;e katkı sağlamaya yardımcı olan tüm bu havalı insanlara teşekkürler.</translation>
     </message>
 </context>
 <context>
@@ -271,7 +271,7 @@
         <location filename="../qml/GeneralConfig.qml" line="72"/>
         <source>Play sources on start</source>
         <extracomment>Start playing the webcam and other sources right after * opening Webcamoid.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Tüm kaynak girdilerini başlangıçta yürüt</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="82"/>
@@ -366,7 +366,7 @@
     <message>
         <location filename="../../src/clioptions.cpp" line="47"/>
         <source>Load settings from PATH. If PATH is empty, load configs from application directory.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ayarları YOL&apos;dan yükle. Eğer YOL boş ise yapılandırmayı uygulama dizininden yükle.</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="49"/>
@@ -382,7 +382,7 @@
     <message>
         <location filename="../../src/clioptions.cpp" line="75"/>
         <source>Send debug output to a file</source>
-        <translation type="unfinished"></translation>
+        <translation>Hata ayıklama çıktısını bir dosyaya gönder</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="76"/>
@@ -392,18 +392,18 @@
     <message>
         <location filename="../../src/clioptions.cpp" line="54"/>
         <source>Search in the specified plugins paths recursively.</source>
-        <translation type="unfinished"></translation>
+        <translation>Belirlenen eklenti yollarında tekrar tekrar ara.</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="59"/>
         <source>Semi-colon separated list of paths to search for plugins.</source>
-        <translation type="unfinished"></translation>
+        <translation>Eklentileri aramak için yarım sütuna ayrılmış yol listesi.</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="68"/>
         <source>Semi-colon separated list of paths to avoid loading.</source>
         <extracomment>Blacklist of plugins that could have conflicts when loading in Webcamoid.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Yüklemeden kaçınılacak yarım sütuna ayrılmış yol listesi.</translation>
     </message>
 </context>
 <context>
@@ -419,7 +419,7 @@
     <message>
         <location filename="../qml/RecordingNotice.qml" line="55"/>
         <source>Recording</source>
-        <translation type="unfinished">Kaydediliyor</translation>
+        <translation>Kaydediliyor</translation>
     </message>
 </context>
 <context>
@@ -562,7 +562,7 @@
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="184"/>
         <source>Thanks for using a &lt;b&gt;development version&lt;/b&gt;!&lt;br /&gt;It will be very helpful if you can report any bug and suggestions you have.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bir &lt;b&gt; geliştirici sürümünü&lt;/b&gt; kullandığınız için teşekkürler!&lt;br /&gt;Eğer herhangi bir hatayı ve önerinizi rapor edebilirseniz bu, çok yardımcı olacaktır.</translation>
     </message>
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="189"/>
@@ -585,7 +585,7 @@
     <message>
         <location filename="../qml/UpdatesDialog.qml" line="78"/>
         <source>Show this dialog next time</source>
-        <translation type="unfinished">Bu iletiyi gelecek sefer göster</translation>
+        <translation>Bu iletiyi gelecek sefer göster</translation>
     </message>
 </context>
 <context>
@@ -614,7 +614,7 @@
     <message>
         <location filename="../qml/VCamManualDownloadDialog.qml" line="31"/>
         <source>Can&apos;t get latest version</source>
-        <translation type="unfinished"></translation>
+        <translation>En son sürüm alınamıyor</translation>
     </message>
     <message>
         <location filename="../qml/VCamManualDownloadDialog.qml" line="38"/>
@@ -643,7 +643,7 @@
         <location filename="../qml/VideoCodecOptions.qml" line="182"/>
         <location filename="../qml/VideoCodecOptions.qml" line="186"/>
         <source>Keyframes stride</source>
-        <translation type="unfinished"></translation>
+        <translation>Anahtar kare atlaması</translation>
     </message>
 </context>
 <context>
@@ -1128,12 +1128,12 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Aging/share/qml/main.qml" line="40"/>
         <source>Number of scratches</source>
-        <translation type="unfinished"></translation>
+        <translation>Çizik sayısı</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Aging/share/qml/main.qml" line="63"/>
         <source>Add dust</source>
-        <translation type="unfinished"></translation>
+        <translation>Toz ekle</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Blur/share/qml/main.qml" line="40"/>
@@ -1174,7 +1174,7 @@
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="164"/>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="168"/>
         <source>Scan block</source>
-        <translation type="unfinished"></translation>
+        <translation>Blok tara</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="188"/>
@@ -1188,7 +1188,7 @@
         <location filename="../../../libAvKys/Plugins/MatrixTransform/share/qml/main.qml" line="36"/>
         <source>Transform matrix</source>
         <extracomment>https://en.wikipedia.org/wiki/Transformation_matrix</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Dönüşüm matrisi</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="44"/>
@@ -1331,7 +1331,7 @@
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="182"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="173"/>
         <source>Force integer metrics</source>
-        <translation type="unfinished"></translation>
+        <translation>Tam sayı ölçüye zorla</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="186"/>
@@ -1343,7 +1343,7 @@
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="190"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="181"/>
         <source>No font merging</source>
-        <translation type="unfinished"></translation>
+        <translation>Yazıtipi birleştirme yok</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="199"/>
@@ -1399,7 +1399,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Cinema/share/qml/main.qml" line="88"/>
         <source>Choose the strips color</source>
-        <translation type="unfinished"></translation>
+        <translation>Şerit rengini seç</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorFilter/share/qml/main.qml" line="87"/>
@@ -1443,7 +1443,7 @@
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="46"/>
         <source>Base</source>
         <extracomment>Base color, show the image without modifications</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Esas</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="50"/>
@@ -1512,7 +1512,7 @@
         <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="48"/>
         <source>Convolve matrix</source>
         <extracomment>https://en.wikipedia.org/wiki/Kernel_(image_processing)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Evriştirme matrisi</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="163"/>
@@ -1536,7 +1536,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/DelayGrab/share/qml/main.qml" line="42"/>
         <source>Grab mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Kapma kipi</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/DelayGrab/share/qml/main.qml" line="52"/>
@@ -1556,7 +1556,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/DelayGrab/share/qml/main.qml" line="64"/>
         <source>Rings increase</source>
-        <translation type="unfinished"></translation>
+        <translation>Halka artışı</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/DelayGrab/share/qml/main.qml" line="73"/>
@@ -1584,13 +1584,13 @@
         <location filename="../../../libAvKys/Plugins/Denoise/share/qml/main.qml" line="88"/>
         <source>Mu</source>
         <extracomment>Mu factor (µ letter from greek), represents the average of a group of values. https://en.wikipedia.org/wiki/Arithmetic_mean</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Mu</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Denoise/share/qml/main.qml" line="109"/>
         <source>Sigma</source>
         <extracomment>Sigma factor (σ letter from greek), represents the standard deviation of a group of values. https://en.wikipedia.org/wiki/Standard_deviation</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Sigma</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/DesktopCapture/share/qml/main.qml" line="48"/>
@@ -1632,18 +1632,18 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Dizzy/share/qml/main.qml" line="125"/>
         <source>Strength</source>
-        <translation type="unfinished"></translation>
+        <translation>Şiddet</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="46"/>
         <source>Canny mode</source>
         <extracomment>https://en.wikipedia.org/wiki/Canny_edge_detector</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Canny kenar algılama kipi</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="62"/>
         <source>Canny threshold</source>
-        <translation type="unfinished"></translation>
+        <translation>Canny kenar algılama eşiği</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="103"/>
@@ -1654,7 +1654,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="118"/>
         <source>Invert</source>
-        <translation type="unfinished"></translation>
+        <translation>Ters Çevir</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="93"/>
@@ -1679,31 +1679,31 @@
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="111"/>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="77"/>
         <source>Frontal face alternative 1</source>
-        <translation type="unfinished"></translation>
+        <translation>Cepheden yüz alternatifi 1</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="115"/>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="81"/>
         <source>Frontal face alternative 2</source>
-        <translation type="unfinished"></translation>
+        <translation>Cepheden yüz alternatifi 2</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="119"/>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="85"/>
         <source>Frontal face alternative 3</source>
-        <translation type="unfinished"></translation>
+        <translation>Cepheden yüz alternatifi 3</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="123"/>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="89"/>
         <source>Frontal face default</source>
-        <translation type="unfinished"></translation>
+        <translation>Cepheden yüz varsayılanı</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="127"/>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="93"/>
         <source>Full body</source>
-        <translation type="unfinished"></translation>
+        <translation>Tüm gövde</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="131"/>
@@ -1721,13 +1721,13 @@
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="139"/>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="105"/>
         <source>Eye pair big</source>
-        <translation type="unfinished"></translation>
+        <translation>Büyük göz çifti</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="143"/>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="109"/>
         <source>Eye pair small</source>
-        <translation type="unfinished"></translation>
+        <translation>Küçük göz çifti</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="147"/>
@@ -1775,7 +1775,7 @@
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="175"/>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="141"/>
         <source>Profile face</source>
-        <translation type="unfinished"></translation>
+        <translation>Yan yüz</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="179"/>
@@ -1818,7 +1818,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="235"/>
         <source>Pixelate</source>
-        <translation type="unfinished"></translation>
+        <translation>Mozaikle</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="239"/>
@@ -1852,7 +1852,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="271"/>
         <source>Dash</source>
-        <translation type="unfinished"></translation>
+        <translation>Tire</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="275"/>
@@ -2169,18 +2169,18 @@ için gelişmiş yüz alanı ayarları.</translation>
     <message>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="97"/>
         <source>Hard</source>
-        <translation type="unfinished"></translation>
+        <translation>Sert</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="107"/>
         <source>Cooling</source>
-        <translation type="unfinished"></translation>
+        <translation>Soğutma</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="132"/>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="136"/>
         <source>Dissolve</source>
-        <translation type="unfinished"></translation>
+        <translation>Dağılma</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="166"/>
@@ -2188,7 +2188,7 @@ için gelişmiş yüz alanı ayarları.</translation>
         <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="88"/>
         <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="92"/>
         <source>Zoom</source>
-        <translation type="unfinished"></translation>
+        <translation>Yakınlaştırma</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="136"/>
@@ -2208,25 +2208,25 @@ için gelişmiş yüz alanı ayarları.</translation>
         <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="112"/>
         <source>Luma threshold</source>
         <extracomment>Minimum luminance/light/white level/intensity in a gray or black and white picture. https://en.wikipedia.org/wiki/Luma_(video)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Parlaklık eşiği</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="237"/>
         <source>Alpha diff</source>
         <extracomment>Alpha channel, also known as the transparency component of a pixel in an image.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Alfa farkı</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="265"/>
         <source>Alpha variation</source>
         <extracomment>Alpha channel, also known as the transparency component of a pixel in an image.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Alfa değişimi</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FrameOverlap/share/qml/main.qml" line="45"/>
         <location filename="../../../libAvKys/Plugins/FrameOverlap/share/qml/main.qml" line="49"/>
         <source>Stride</source>
-        <translation type="unfinished"></translation>
+        <translation>Atlama</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="50"/>
@@ -2236,7 +2236,7 @@ için gelişmiş yüz alanı ayarları.</translation>
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="59"/>
         <source>90° Halftone 6x6</source>
-        <translation type="unfinished"></translation>
+        <translation>90° Yarı ton 6x6</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="63"/>
@@ -2271,17 +2271,17 @@ için gelişmiş yüz alanı ayarları.</translation>
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="87"/>
         <source>Ordered 4x4</source>
-        <translation type="unfinished"></translation>
+        <translation>Sıralı 4x4</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="91"/>
         <source>Ordered 6x6</source>
-        <translation type="unfinished"></translation>
+        <translation>Sıralı 6x6</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="95"/>
         <source>Ordered 8x8</source>
-        <translation type="unfinished"></translation>
+        <translation>Sıralı 8x8</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="121"/>
@@ -2348,19 +2348,19 @@ için gelişmiş yüz alanı ayarları.</translation>
         <location filename="../../../libAvKys/Plugins/Life/share/qml/main.qml" line="93"/>
         <source>Luma Threshold</source>
         <extracomment>Minimum luminance/light/white level/intensity in a gray or black and white picture. https://en.wikipedia.org/wiki/Luma_(video)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Parlaklık Eşiği</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Life/share/qml/main.qml" line="57"/>
         <source>Choose the automata color</source>
         <extracomment>https://en.wikipedia.org/wiki/Life-like_cellular_automaton</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Otomat renk seç</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="44"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="48"/>
         <source>N° of drops</source>
-        <translation type="unfinished"></translation>
+        <translation>Damlaya ait N°</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="83"/>
@@ -2381,13 +2381,13 @@ için gelişmiş yüz alanı ayarları.</translation>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="235"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="239"/>
         <source>Min. drop length</source>
-        <translation type="unfinished"></translation>
+        <translation>Min. damla uzunluğu</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="249"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="253"/>
         <source>Max. drop length</source>
-        <translation type="unfinished"></translation>
+        <translation>Maks. damla uzunluğu</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="263"/>
@@ -2424,7 +2424,7 @@ için gelişmiş yüz alanı ayarları.</translation>
     <message>
         <location filename="../../../libAvKys/Plugins/Nervous/share/qml/main.qml" line="43"/>
         <source>Simple</source>
-        <translation type="unfinished"></translation>
+        <translation>Basit</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Photocopy/share/qml/main.qml" line="28"/>
@@ -2441,33 +2441,33 @@ için gelişmiş yüz alanı ayarları.</translation>
     <message>
         <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="53"/>
         <source>Soft normal</source>
-        <translation type="unfinished"></translation>
+        <translation>Yumuşak normal</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="57"/>
         <source>Hard normal</source>
-        <translation type="unfinished"></translation>
+        <translation>Sert normal</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="61"/>
         <source>Soft color</source>
-        <translation type="unfinished"></translation>
+        <translation>Yumuşak renk</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="65"/>
         <source>Hard color</source>
-        <translation type="unfinished"></translation>
+        <translation>Sert renk</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="140"/>
         <source>Alpha differential</source>
         <extracomment>Alpha channel, also known as the transparency component of a pixel in an image.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Alfa değer farkı</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="155"/>
         <source>Radiation color</source>
-        <translation type="unfinished"></translation>
+        <translation>Yayınım rengi</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="51"/>
@@ -2574,7 +2574,7 @@ için gelişmiş yüz alanı ayarları.</translation>
     <message>
         <location filename="../../../libAvKys/Plugins/Vignette/share/qml/main.qml" line="62"/>
         <source>Choose the vignette color</source>
-        <translation type="unfinished"></translation>
+        <translation>Süsleme rengini seç</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Warp/share/qml/main.qml" line="28"/>
@@ -2585,7 +2585,7 @@ için gelişmiş yüz alanı ayarları.</translation>
     <message>
         <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="127"/>
         <source>Phase</source>
-        <translation type="unfinished"></translation>
+        <translation>Aşama</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="137"/>
@@ -2631,12 +2631,13 @@ için gelişmiş yüz alanı ayarları.</translation>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="180"/>
         <source>Face bracketing
 duration (seconds)</source>
-        <translation type="unfinished"></translation>
+        <translation>Yüz basamaklama
+süresi (saniye)</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="195"/>
         <source>Face bracket count</source>
-        <translation type="unfinished"></translation>
+        <translation>Yüz basamak sayısı</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="210"/>
@@ -2651,12 +2652,12 @@ duration (seconds)</source>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="240"/>
         <source>Face padding (% of face size)</source>
-        <translation type="unfinished"></translation>
+        <translation>Yüz doldurma (yüz boyutunun %&apos;si)</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="320"/>
         <source>Face margin (% of face size)</source>
-        <translation type="unfinished"></translation>
+        <translation>Yüz kenar boşluğu (yüz boyutunun %&apos;si)</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="410"/>
@@ -2666,7 +2667,7 @@ duration (seconds)</source>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="434"/>
         <source>Lock viewport</source>
-        <translation type="unfinished"></translation>
+        <translation>Görüntü alanını kilitle</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="445"/>
@@ -2726,7 +2727,7 @@ duration (seconds)</source>
     <message>
         <location filename="../../../libAvKys/Plugins/Scale/share/qml/main.qml" line="104"/>
         <source>Expanding</source>
-        <translation type="unfinished"></translation>
+        <translation>Genişliyor</translation>
     </message>
 </context>
 </TS>
