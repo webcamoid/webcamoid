@@ -12,6 +12,9 @@ outputFormats = @OUTPUT_FORMATS@
 modules = Qt5, GStreamer, Vlc
 extraLibs = @EXTRA_LIBS@
 
+[AndroidAPK]
+verbose = true
+
 [Qt5]
 sourcesQmlDirs = StandAlone/share/qml, StandAlone/share/themes/WebcamoidTheme, libAvKys/Plugins
 outputQmlDir = @OUTPUT_QML_DIR@

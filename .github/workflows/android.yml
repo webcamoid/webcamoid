@@ -5,8 +5,8 @@ on: [push, pull_request]
 env:
   QTVER_ANDROID: 5.15.2
   SDKVER: 7583922
-  NDKVER: r23b
-  ANDROID_BUILD_TOOLS_VERSION: 32.0.0
+  NDKVER: r22b
+  ANDROID_BUILD_TOOLS_VERSION: 28.0.3
   NJOBS: 4
 
 jobs:
