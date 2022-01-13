@@ -39,7 +39,7 @@ sudo apt-get -qq -y install \
     openjdk-8-jre \
     python3-pip
 
-sudo update-java-alternatives --set java-1.8.0-openjdk-amd64
+sudo update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
 mkdir -p build
 cd build
 
@@ -51,7 +51,7 @@ mkdir -p android-sdk
 unzip -q -d android-sdk "${fileName}"
 
 # Install Android NDK
-fileName="android-ndk-${NDKVER}-linux.zip"
+fileName="android-ndk-${NDKVER}-linux-x86_64.zip"
 ${DOWNLOAD_CMD} "https://dl.google.com/android/repository/${fileName}"
 unzip -q "${fileName}"
 mv -vf "android-ndk-${NDKVER}" android-ndk
