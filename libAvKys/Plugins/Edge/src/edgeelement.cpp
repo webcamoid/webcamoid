@@ -119,7 +119,6 @@ AkPacket EdgeElement::iVideoStream(const AkVideoPacket &packet)
 
     src = src.convertToFormat(QImage::Format_Grayscale8);
     QImage oFrame(src.size(), src.format());
-
     QVector<quint8> in;
 
     if (this->d->m_equalize)
@@ -139,11 +138,7 @@ AkPacket EdgeElement::iVideoStream(const AkVideoPacket &packet)
                                          src.height(),
                                          gradient,
                                          direction);
-
-        QVector<int> thresholds(2);
-        thresholds[0] = this->d->m_thLow;
-        thresholds[1] = this->d->m_thHi;
-
+        QVector<int> thresholds {this->d->m_thLow, this->d->m_thHi};
         QVector<int> colors {0, 127, 255};
         auto thresholded = this->d->threshold(src.width(),
                                               src.height(),
@@ -155,16 +150,16 @@ AkPacket EdgeElement::iVideoStream(const AkVideoPacket &packet)
                                                      thresholded);
 
         for (int y = 0; y < src.height(); y++) {
-            const quint8 *srcLine = canny.constData() + y * src.width();
-            quint8 *dstLine = oFrame.scanLine(y);
+            auto srcLine = canny.constData() + y * src.width();
+            auto dstLine = oFrame.scanLine(y);
 
             for (int x = 0; x < src.width(); x++)
                 dstLine[x] = this->d->m_invert? 255 - srcLine[x]: srcLine[x];
         }
     } else
         for (int y = 0; y < src.height(); y++) {
-            const quint16 *srcLine = gradient.constData() + y * src.width();
-            quint8 *dstLine = oFrame.scanLine(y);
+            auto srcLine = gradient.constData() + y * src.width();
+            auto dstLine = oFrame.scanLine(y);
 
             for (int x = 0; x < src.width(); x++) {
                 int gray = qBound<int>(0, srcLine[x], 255);
@@ -173,7 +168,11 @@ AkPacket EdgeElement::iVideoStream(const AkVideoPacket &packet)
         }
 
     auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
-    akSend(oPacket)
+
+    if (oPacket)
+        emit this->oStream(oPacket);
+
+    return oPacket;
 }
 
 void EdgeElement::setCanny(bool canny)

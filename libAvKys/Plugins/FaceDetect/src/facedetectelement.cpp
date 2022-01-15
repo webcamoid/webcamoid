@@ -262,15 +262,19 @@ AkPacket FaceDetectElement::iVideoStream(const AkVideoPacket &packet)
     QSize scanSize(this->d->m_scanSize);
 
     if (this->d->m_haarFile.isEmpty()
-        || scanSize.isEmpty())
-        akSend(packet)
+        || scanSize.isEmpty()) {
+        if (packet)
+            emit this->oStream(packet);
+
+        return packet;
+    }
 
     auto src = packet.toImage();
 
     if (src.isNull())
-        return AkPacket();
+        return {};
 
-    QImage oFrame = src.convertToFormat(QImage::Format_ARGB32);
+    auto oFrame = src.convertToFormat(QImage::Format_ARGB32);
     qreal scale = 1;
 
     QImage scanFrame(src.scaled(scanSize, Qt::KeepAspectRatio));
@@ -281,10 +285,16 @@ AkPacket FaceDetectElement::iVideoStream(const AkVideoPacket &packet)
         scale = qreal(src.height()) / scanSize.height();
 
     this->d->m_cascadeClassifier.setEqualize(true);
-    QVector<QRect> vecFaces = this->d->m_cascadeClassifier.detect(scanFrame);
+    auto vecFaces = this->d->m_cascadeClassifier.detect(scanFrame);
 
-    if (vecFaces.isEmpty() && this->d->m_markerType != MarkerTypeBlurOuter && this->d->m_markerType != MarkerTypeImageOuter)
-        akSend(packet)
+    if (vecFaces.isEmpty()
+        && this->d->m_markerType != MarkerTypeBlurOuter
+        && this->d->m_markerType != MarkerTypeImageOuter) {
+        if (packet)
+            emit this->oStream(packet);
+
+        return packet;
+    }
 
     QPainter painter;
     painter.begin(&oFrame);
@@ -342,9 +352,10 @@ AkPacket FaceDetectElement::iVideoStream(const AkVideoPacket &packet)
             auto blurImage = blurPacket.toImage();
 
             painter.drawImage(rect, blurImage);
-        } else if (this->d->m_markerType == MarkerTypeBlurOuter || this->d->m_markerType == MarkerTypeImageOuter) {
+        } else if (this->d->m_markerType == MarkerTypeBlurOuter
+                   || this->d->m_markerType == MarkerTypeImageOuter) {
             if (this->d->m_smootheEdges) {
-                QPainterPath path = QPainterPath();
+                QPainterPath path;
                 QRectF rRect((scale * face.x() + this->d->m_hOffset),
                              (scale * face.y() + this->d->m_vOffset),
                              (scale * face.width()),
@@ -353,13 +364,13 @@ AkPacket FaceDetectElement::iVideoStream(const AkVideoPacket &packet)
                 rRect.setWidth(rRect.width() * this->d->m_rScale * (this->d->m_rWAdjust / 100.0));
                 rRect.setHeight(rRect.height() * this->d->m_rScale * (this->d->m_rHAdjust / 100.0));
                 rRect.moveCenter(rCenter);
-
                 path.addRoundedRect(rRect,
                                     this->d->m_rHRadius,
                                     this->d->m_rVRadius,
                                     Qt::RelativeSize);
                 painter.setClipPath(path);
             }
+
             painter.drawImage(rect, src.copy(rect));
         }
     }
@@ -367,7 +378,11 @@ AkPacket FaceDetectElement::iVideoStream(const AkVideoPacket &packet)
     painter.end();
 
     auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
-    akSend(oPacket)
+
+    if (oPacket)
+        emit this->oStream(oPacket);
+
+    return oPacket;
 }
 
 void FaceDetectElement::setHaarFile(const QString &haarFile)

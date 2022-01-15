@@ -2727,5 +2727,10 @@ duration (seconds)</source>
         <source>Record video</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Otsu/share/qml/main.qml" line="40"/>
+        <source>Levels</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 </TS>
