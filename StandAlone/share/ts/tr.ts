@@ -6,7 +6,7 @@
     <message>
         <location filename="../qml/About.qml" line="58"/>
         <source>Version %1</source>
-        <translation>Versiyon %1</translation>
+        <translation>Sürüm %1</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="62"/>
@@ -16,7 +16,7 @@
     <message>
         <location filename="../qml/About.qml" line="66"/>
         <source>Website</source>
-        <translation>Websitesi</translation>
+        <translation>Web Sayfası</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="75"/>
