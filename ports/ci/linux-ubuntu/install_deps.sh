@@ -119,7 +119,6 @@ apt-get -y install \
     libgstreamer1.0-0 \
     libjack-dev \
     libkmod-dev \
-    libpipewire-0.3-dev \
     libpulse-dev \
     libswresample-dev \
     libswscale-dev \
@@ -138,6 +137,7 @@ apt-get -y install \
 # Install Qt dev
 if [ "${DOCKERIMG}" = ubuntu:focal ]; then
     apt-get -y install \
+        libpipewire-0.2-dev \
         "qt${PPAQTVER}tools" \
         "qt${PPAQTVER}declarative" \
         "qt${PPAQTVER}svg" \
@@ -145,6 +145,7 @@ if [ "${DOCKERIMG}" = ubuntu:focal ]; then
         "qt${PPAQTVER}wayland"
 else
     apt-get -y install \
+        libpipewire-0.3-dev \
         libqt5opengl5-dev \
         libqt5svg5-dev \
         qml-module-qt-labs-folderlistmodel \

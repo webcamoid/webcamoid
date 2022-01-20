@@ -51,7 +51,7 @@ set(SOURCES
 pkg_check_modules(PIPEWIRE libpipewire-0.3)
 link_directories(${PIPEWIRE_LIBRARY_DIRS})
 
-if (NOT NOPIPEWIRE AND PIPEWIRE_FOUND)
+if (NOT ANDROID AND NOT NOPIPEWIRE AND PIPEWIRE_FOUND)
     add_library(DesktopCapture_pipewire SHARED ${SOURCES})
 else ()
     add_library(DesktopCapture_pipewire SHARED EXCLUDE_FROM_ALL ${SOURCES})
@@ -79,7 +79,7 @@ target_link_libraries(DesktopCapture_pipewire
                       ${PIPEWIRE_LIBRARIES}
                       avkys)
 
-if (NOT NOPIPEWIRE AND PIPEWIRE_FOUND)
+if (NOT ANDROID AND NOT NOPIPEWIRE AND PIPEWIRE_FOUND)
     if (WIN32)
         install(TARGETS DesktopCapture_pipewire RUNTIME DESTINATION ${PLUGINSDIR})
     elseif (NOT ANDROID)

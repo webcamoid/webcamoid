@@ -111,7 +111,13 @@ class PipewireScreenDevPrivate
 
 static const struct pw_stream_events pipewireStreamEvents = {
     .version       = PW_VERSION_STREAM_EVENTS                         ,
+    .destroy       = nullptr,
+    .state_changed = nullptr,
+    .control_info  = nullptr,
+    .io_changed    = nullptr,
     .param_changed = PipewireScreenDevPrivate::streamParamChangedEvent,
+    .add_buffer    = nullptr,
+    .remove_buffer = nullptr,
     .process       = PipewireScreenDevPrivate::streamProcessEvent     ,
 };
 
