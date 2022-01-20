@@ -29,8 +29,12 @@ set(CMAKE_AUTORCC ON)
 
 set(QT_COMPONENTS
     Concurrent
-    DBus
     Widgets)
+
+if (NOT ANDROID)
+    list(APPEND QT_COMPONENTS DBus)
+endif ()
+
 find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
