@@ -186,32 +186,32 @@
     <message>
         <location filename="../qml/DownloadDialog.qml" line="32"/>
         <source>Downloading %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Laster ned %1</translation>
     </message>
     <message>
         <location filename="../qml/DownloadDialog.qml" line="148"/>
         <source>From: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Fra: %1</translation>
     </message>
     <message>
         <location filename="../qml/DownloadDialog.qml" line="152"/>
         <source>To: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Til: %1</translation>
     </message>
     <message>
         <location filename="../qml/DownloadDialog.qml" line="156"/>
         <source>Size: %1 %2B / %3 %4B</source>
-        <translation type="unfinished"></translation>
+        <translation>Størrelse: %1 %2B/%3 %4B</translation>
     </message>
     <message>
         <location filename="../qml/DownloadDialog.qml" line="164"/>
         <source>Speed: %1 %2B/s</source>
-        <translation type="unfinished"></translation>
+        <translation>Hastighet: %1 %2B/s</translation>
     </message>
     <message>
         <location filename="../qml/DownloadDialog.qml" line="170"/>
         <source>Time remaining: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Gjenstående tid: %1</translation>
     </message>
 </context>
 <context>
@@ -232,7 +232,7 @@
     <message>
         <location filename="../qml/DownloadSucceededDialog.qml" line="46"/>
         <source>Install the virtual camera?</source>
-        <translation type="unfinished"></translation>
+        <translation>Installer det virtuelle kameraet?</translation>
     </message>
 </context>
 <context>
@@ -323,7 +323,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/DesktopCapture/src/pipewire/src/pipewirescreendev.cpp" line="184"/>
         <source>PipeWire Screen</source>
-        <translation type="unfinished"></translation>
+        <translation>PipeWire-skjerm</translation>
     </message>
 </context>
 <context>
@@ -395,7 +395,7 @@
     <message>
         <location filename="../../src/clioptions.cpp" line="76"/>
         <source>FILE</source>
-        <translation type="unfinished"></translation>
+        <translation>Fil</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="54"/>
