@@ -93,6 +93,7 @@ dnf -y install \
     lib64gstreamer-plugins-base1.0-devel \
     lib64jack-devel \
     lib64kmod-devel \
+    lib64pipewire-devel \
     lib64pulseaudio-devel \
     lib64qt5concurrent-devel \
     lib64qt5opengl-devel \

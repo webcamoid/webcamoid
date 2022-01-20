@@ -319,6 +319,14 @@
     </message>
 </context>
 <context>
+    <name>PipewireScreenDev</name>
+    <message>
+        <location filename="../../../libAvKys/Plugins/DesktopCapture/src/pipewire/src/pipewirescreendev.cpp" line="184"/>
+        <source>PipeWire Screen</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>PluginConfig</name>
     <message>
         <location filename="../qml/PluginConfig.qml" line="35"/>

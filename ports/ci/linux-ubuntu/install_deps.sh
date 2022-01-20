@@ -119,6 +119,7 @@ apt-get -y install \
     libgstreamer1.0-0 \
     libjack-dev \
     libkmod-dev \
+    libpipewire-0.3-dev \
     libpulse-dev \
     libswresample-dev \
     libswscale-dev \

@@ -96,6 +96,7 @@ dnf -y install \
     libv4l-devel \
     make \
     patchelf \
+    pipewire-devel \
     pulseaudio-libs-devel \
     qt5-linguist \
     qt5-qtdeclarative-devel \

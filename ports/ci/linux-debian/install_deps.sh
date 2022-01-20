@@ -112,6 +112,7 @@ apt-get -y install \
     libgstreamer1.0-0 \
     libjack-dev \
     libkmod-dev \
+    libpipewire-0.3-dev \
     libpulse-dev \
     libqt5opengl5-dev \
     libqt5svg5-dev \

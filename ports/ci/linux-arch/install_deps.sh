@@ -103,6 +103,7 @@ pacman --noconfirm --needed -S \
     libpulse \
     make \
     patchelf \
+    pipewire \
     pkgconf \
     python \
     qt5-quickcontrols2 \

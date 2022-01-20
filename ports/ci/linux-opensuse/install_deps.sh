@@ -112,6 +112,7 @@ zypper -n in \
     libusb-1_0-devel \
     libv4l-devel \
     patchelf \
+    pipewire-devel \
     python3 \
     vlc-devel \
     vlc-noX \
