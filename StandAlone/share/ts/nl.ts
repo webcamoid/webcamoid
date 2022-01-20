@@ -2740,7 +2740,7 @@ duur (in seconden)</translation>
     <message>
         <location filename="../../../libAvKys/Plugins/Otsu/share/qml/main.qml" line="40"/>
         <source>Levels</source>
-        <translation type="unfinished"></translation>
+        <translation>Niveaus</translation>
     </message>
 </context>
 </TS>

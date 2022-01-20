@@ -6,7 +6,7 @@
     <message>
         <location filename="../qml/About.qml" line="58"/>
         <source>Version %1</source>
-        <translation>Versiyon %1</translation>
+        <translation>Sürüm %1</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="62"/>
@@ -16,7 +16,7 @@
     <message>
         <location filename="../qml/About.qml" line="66"/>
         <source>Website</source>
-        <translation>Websitesi</translation>
+        <translation>Web Sayfası</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="75"/>
@@ -400,7 +400,7 @@
     <message>
         <location filename="../../src/clioptions.cpp" line="54"/>
         <source>Search in the specified plugins paths recursively.</source>
-        <translation>Belirlenen eklenti yollarında tekrar tekrar ara.</translation>
+        <translation>Belirlenen eklenti yollarında yineleyerek ara.</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="59"/>
@@ -2228,7 +2228,7 @@ için gelişmiş yüz alanı ayarları.</translation>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="265"/>
         <source>Alpha variation</source>
         <extracomment>Alpha channel, also known as the transparency component of a pixel in an image.</extracomment>
-        <translation type="unfinished">Alfa değişimi</translation>
+        <translation>Alfa çeşidi</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FrameOverlap/share/qml/main.qml" line="45"/>
@@ -2740,7 +2740,7 @@ süresi (saniye)</translation>
     <message>
         <location filename="../../../libAvKys/Plugins/Otsu/share/qml/main.qml" line="40"/>
         <source>Levels</source>
-        <translation type="unfinished"></translation>
+        <translation>Seviyeler</translation>
     </message>
 </context>
 </TS>
