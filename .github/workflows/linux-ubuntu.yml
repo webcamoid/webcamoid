@@ -3,9 +3,9 @@ name: Ubuntu
 on: [push, pull_request]
 
 env:
-  APPIMAGEVER: 12
+  APPIMAGEVER: 13
   PPAQTVER: 515
-  QTIFWVER: 4.1.1
+  QTIFWVER: 4.2.0
   QTVER: 5.15.2
   NJOBS: 4
 
