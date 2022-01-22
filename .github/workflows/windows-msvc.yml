@@ -1,0 +1,43 @@
+name: Windows MSVC
+
+on: [push, pull_request]
+
+env:
+  NJOBS: 4
+
+jobs:
+  build:
+    runs-on: windows-latest
+    strategy:
+      max-parallel: 10
+      fail-fast: false
+      matrix:
+       include:
+         - target_arch: x64
+         - target_arch: x86
+    env:
+      QTVER: 5.15.2
+      FFMPEG_VERSION: 4.4.1
+      GSTREAMER_VERSION: 1.18.5
+      PYTHON_VERSION: Python38
+      TARGET_ARCH: ${{ matrix.target_arch }}
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install dependencies
+      run: ./ports/ci/windows-msvc/install_deps.bat
+    - name: Release Build
+      if: ${{ startsWith(github.ref, 'refs/tags/') }}
+      run: ./ports/ci/windows-msvc/build.bat
+    - name: Release Deploy
+      if: ${{ startsWith(github.ref, 'refs/tags/') }}
+      run: ./ports/ci/windows-msvc/deploy.bat
+    - name: Daily Build
+      if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+      env:
+        DAILY_BUILD: 1
+      run: ./ports/ci/windows-msvc/build.bat
+    - name: Daily Deploy
+      if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+      env:
+        DAILY_BUILD: 1
+      run: ./ports/ci/windows-msvc/deploy.bat
