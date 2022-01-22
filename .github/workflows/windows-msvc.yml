@@ -3,24 +3,15 @@ name: Windows MSVC
 on: [push, pull_request]
 
 env:
+  QTVER: 5.15.2
+  FFMPEG_VERSION: 4.4.1
+  GSTREAMER_VERSION: 1.18.5
+  CMAKE_GENERATOR: Visual Studio 16 2019
   NJOBS: 4
 
 jobs:
   build:
     runs-on: windows-latest
-    strategy:
-      max-parallel: 10
-      fail-fast: false
-      matrix:
-       include:
-         - target_arch: x64
-         - target_arch: x86
-    env:
-      QTVER: 5.15.2
-      FFMPEG_VERSION: 4.4.1
-      GSTREAMER_VERSION: 1.18.5
-      PYTHON_VERSION: Python38
-      TARGET_ARCH: ${{ matrix.target_arch }}
     steps:
     - uses: actions/checkout@v2
     - name: Install dependencies

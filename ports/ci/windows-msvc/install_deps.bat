@@ -16,56 +16,32 @@ REM along with Webcamoid. If not, see <http://www.gnu.org/licenses/>.
 REM
 REM Web-Site: http://webcamoid.github.io/
 
-if "%TARGET_ARCH%" == "x86" (
-    set FF_ARCH=win32
-    set GST_ARCH=x86
-    set VC_ARGS=x86
-) else (
-    set FF_ARCH=win64
-    set GST_ARCH=x86_64
-    set VC_ARGS=amd64
-)
-
 rem Install Qt
 pip install -U pip
 pip install aqtinstall
-
-if "%TARGET_ARCH%" == "x86" (
-    aqt install-qt windows desktop "%QTVER%" win32_msvc2019 -O "C:\Qt"
-    set QTDIR=C:\Qt\%QTVER%\msvc2019
-) else (
-    aqt install-qt windows desktop "%QTVER%" win64_msvc2019_64 -O "C:\Qt"
-    set QTDIR=C:\Qt\%QTVER%\msvc2019_64
-)
-
+aqt install-qt windows desktop "%QTVER%" win64_msvc2019_64 -O "C:\Qt"
 aqt install-tool windows desktop tools_qtcreator -O "C:\Qt"
+set QTDIR=C:\Qt\%QTVER%\msvc2019_64
 set TOOLSDIR=C:\Qt\Tools\QtCreator
 set PATH=%QTDIR%\bin;%TOOLSDIR%\bin;%PATH%
 
 rem Install FFmpeg development headers and libraries
-set FFMPEG_DEV_FILE=ffmpeg-%FFMPEG_VERSION%-%FF_ARCH%-dev.zip
+set FFMPEG_FILE=ffmpeg-%FFMPEG_VERSION%-full_build-shared.7z
 
-if not exist %FFMPEG_DEV_FILE% curl --retry 10 -kLOC - "https://ffmpeg.zeranoe.com/builds/%FF_ARCH%/dev/%FFMPEG_DEV_FILE%"
+if not exist %FFMPEG_FILE% curl --retry 10 -kLOC - "https://www.gyan.dev/ffmpeg/builds/packages/%FFMPEG_FILE%"
 
-if exist %FFMPEG_DEV_FILE% 7z x %FFMPEG_DEV_FILE% -aoa -bb
-
-rem Install FFmpeg binaries
-set FFMPEG_BIN_FILE=ffmpeg-%FFMPEG_VERSION%-%FF_ARCH%-shared.zip
-
-if not exist %FFMPEG_BIN_FILE% curl --retry 10 -kLOC - "https://ffmpeg.zeranoe.com/builds/%FF_ARCH%/shared/%FFMPEG_BIN_FILE%"
-
-if exist %FFMPEG_BIN_FILE% 7z x %FFMPEG_BIN_FILE% -aoa -bb
+if exist %FFMPEG_FILE% 7z x %FFMPEG_FILE% -aoa -bb
 
 rem Installing GStreamer development headers and libraries
 if not "%DAILY_BUILD%" == "" goto Exit
 
-set GSTREAMER_DEV_FILE=gstreamer-1.0-devel-%GST_ARCH%-%GSTREAMER_VERSION%.msi
+set GSTREAMER_DEV_FILE=gstreamer-1.0-devel-x86_64-%GSTREAMER_VERSION%.msi
 
 if not exist %GSTREAMER_DEV_FILE% curl --retry 10 -kLOC - "https://gstreamer.freedesktop.org/data/pkg/windows/%GSTREAMER_VERSION%/%GSTREAMER_DEV_FILE%"
 
 if exist %GSTREAMER_DEV_FILE% (
     start /b /wait msiexec /i "%CD%\%GSTREAMER_DEV_FILE%" /quiet /qn /norestart
-    set GSTREAMER_DEV_PATH=C:\gstreamer\1.0\%GST_ARCH%
+    set GSTREAMER_DEV_PATH=C:\gstreamer\1.0\x86_64
 )
 
 rem Copy necessary libraries to an alternative path to avoid conflicts with
@@ -82,7 +58,7 @@ if exist %GSTREAMER_DEV_FILE% (
 
 rem Installing GStreamer binaries
 
-set GSTREAMER_BIN_FILE=gstreamer-1.0-%GST_ARCH%-%GSTREAMER_VERSION%.msi
+set GSTREAMER_BIN_FILE=gstreamer-1.0-x86_64-%GSTREAMER_VERSION%.msi
 
 if not exist %GSTREAMER_BIN_FILE% curl --retry 10 -kLOC - "https://gstreamer.freedesktop.org/data/pkg/windows/%GSTREAMER_VERSION%/%GSTREAMER_BIN_FILE%"
 

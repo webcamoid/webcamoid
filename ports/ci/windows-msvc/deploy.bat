@@ -16,29 +16,19 @@ REM along with Webcamoid. If not, see <http://www.gnu.org/licenses/>.
 REM
 REM Web-Site: http://webcamoid.github.io/
 
-if "%TARGET_ARCH%" == "x86" (
-    set FF_ARCH=win32
-    set GST_ARCH=x86
-    set QTDIR=C:\Qt\%QTVER%\msvc2019
-    set PYTHON_PATH=C:\%PYTHON_VERSION%
-) else (
-    set FF_ARCH=win64
-    set GST_ARCH=x86_64
-    set QTDIR=C:\Qt\%QTVER%\msvc2019_64
-    set PYTHON_PATH=C:\%PYTHON_VERSION%-x64
-)
-
 git clone "https://github.com/webcamoid/DeployTools.git"
 
+set QTDIR=C:\Qt\%QTVER%\msvc2019_64
 set TOOLSDIR=C:\Qt\Tools\QtCreator
-set GSTREAMER_DEV_PATH=C:\gstreamer\1.0\%GST_ARCH%
-set PATH=%QTDIR%\bin;%TOOLSDIR%\bin;%CD%\ffmpeg-%FFMPEG_VERSION%-%FF_ARCH%-shared\bin;%GSTREAMER_DEV_PATH%\bin;%PATH%
-set INSTALL_PREFIX=%CD%/webcamoid-data-%TARGET_ARCH%
-set PACKAGES_DIR=%CD%/webcamoid-packages/windows-%TARGET_ARCH%
-set BUILD_PATH=%CD%/build-%TARGET_ARCH%
+set FFMPEG_PATH=%CD%\ffmpeg-%FFMPEG_VERSION%-full_build-shared
+set GSTREAMER_DEV_PATH=C:\gstreamer\1.0\x86_64
+set PATH=%QTDIR%\bin;%TOOLSDIR%\bin;%FFMPEG_PATH%\bin;%GSTREAMER_DEV_PATH%\bin;%PATH%
+set INSTALL_PREFIX=%CD%/webcamoid-data
+set PACKAGES_DIR=%CD%/webcamoid-packages/windows
+set BUILD_PATH=%CD%/build
 set PYTHONPATH=%CD%/DeployTools
 
-"%PYTHON_PATH%\python3.exe" DeployTools/deploy.py ^
+python DeployTools/deploy.py ^
     -d "%INSTALL_PREFIX%" ^
     -c "%BUILD_PATH%/package_info.conf" ^
     -o "%PACKAGES_DIR%"
