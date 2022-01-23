@@ -321,7 +321,7 @@
 <context>
     <name>PipewireScreenDev</name>
     <message>
-        <location filename="../../../libAvKys/Plugins/DesktopCapture/src/pipewire/src/pipewirescreendev.cpp" line="190"/>
+        <location filename="../../../libAvKys/Plugins/DesktopCapture/src/pipewire/src/pipewirescreendev.cpp" line="217"/>
         <source>PipeWire Screen</source>
         <translation>PipeWire-scherm</translation>
     </message>

@@ -364,6 +364,19 @@ if (GST_PLUGINS_FOUND)
     pkg_get_variable(GST_PLUGINS_DIR gstreamer-1.0 pluginsdir)
 endif ()
 
+# Try detecting PipeWire plugins install path.
+
+pkg_check_modules(PIPEWIRE_MODULES libpipewire-0.3)
+pkg_check_modules(PIPEWIRE_SPA_PLUGINS libspa-0.2)
+
+if (PIPEWIRE_MODULES_FOUND)
+    pkg_get_variable(PIPEWIRE_MODULES_DIR libpipewire-0.3 moduledir)
+endif ()
+
+if (PIPEWIRE_SPA_PLUGINS_FOUND)
+    pkg_get_variable(PIPEWIRE_SPA_PLUGINS_DIR libspa-0.2 plugindir)
+endif ()
+
 configure_file(package_info.conf.in package_info.conf)
 
 if (ANDROID)

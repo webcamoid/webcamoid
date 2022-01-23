@@ -54,6 +54,9 @@ set(SOURCES
 
 pkg_check_modules(PIPEWIRE libpipewire-0.3)
 link_directories(${PIPEWIRE_LIBRARY_DIRS})
+add_definitions(-DBINDIR="${BINDIR}"
+                -DPIPEWIRE_MODULES_PATH="${PIPEWIRE_MODULES_PATH}"
+                -DPIPEWIRE_SPA_PLUGINS_PATH="${PIPEWIRE_SPA_PLUGINS_PATH}")
 
 if (NOT ANDROID AND NOT NOPIPEWIRE AND PIPEWIRE_FOUND)
     add_library(DesktopCapture_pipewire SHARED ${SOURCES})

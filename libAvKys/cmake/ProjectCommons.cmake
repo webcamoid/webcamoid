@@ -84,6 +84,8 @@ else ()
     set(LICENSEDIR ${DATAROOTDIR}/licenses/webcamoid)
     set(OUTPUT_VLC_PLUGINS_DIR ${LIBDIR}/vlc/plugins)
     set(OUTPUT_GST_PLUGINS_DIR ${LIBDIR}/gstreamer-1.0)
+    set(OUTPUT_PIPEWIRE_MODULES_DIR ${LIBDIR}/pipewire)
+    set(OUTPUT_PIPEWIRE_SPA_PLUGINS_DIR ${LIBDIR}/pipewire-spa)
 endif ()
 
 # The following define makes your compiler emit warnings if you use
@@ -116,6 +118,8 @@ endif ()
 
 set(VLC_PLUGINS_PATH "${OUTPUT_VLC_PLUGINS_DIR}" CACHE PATH "VLC plugins search path")
 set(GST_PLUGINS_PATH "${OUTPUT_GST_PLUGINS_DIR}" CACHE PATH "GStreamer plugins search path")
+set(PIPEWIRE_MODULES_PATH "${OUTPUT_PIPEWIRE_MODULES_DIR}" CACHE PATH "PipeWire modules search path")
+set(PIPEWIRE_SPA_PLUGINS_PATH "${OUTPUT_PIPEWIRE_SPA_PLUGINS_DIR}" CACHE PATH "PipeWire SPA plugins search path")
 
 # Guess gst-plugin-scanner path.
 

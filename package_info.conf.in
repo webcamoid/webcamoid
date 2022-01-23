@@ -9,8 +9,14 @@ buildInfoFile = @BUILD_INFO_FILE@
 targetArch = @TARGET_ARCH@
 version = @VERSION@
 outputFormats = @OUTPUT_FORMATS@
-modules = Qt5, GStreamer, Vlc
+modules = Qt5, GStreamer, PipeWire, Vlc
 extraLibs = @EXTRA_LIBS@
+
+[PipeWire]
+modulesDir = @PIPEWIRE_MODULES_DIR@
+outputModulesDir = @PIPEWIRE_MODULES_PATH@
+spaPluginsDir = @PIPEWIRE_SPA_PLUGINS_DIR@
+outputSpaPluginsDir = @PIPEWIRE_SPA_PLUGINS_PATH@
 
 [Qt5]
 sourcesQmlDirs = StandAlone/share/qml, StandAlone/share/themes/WebcamoidTheme, libAvKys/Plugins
@@ -23,11 +29,11 @@ qtConfFile = @QT_CONF_FILE@
 
 [Vlc]
 pluginsDir = @VLC_PLUGINS_DIR@
-outputPluginsDir = @CMAKE_INSTALL_PREFIX@/@VLC_PLUGINS_PATH@
+outputPluginsDir = @VLC_PLUGINS_PATH@
 
 [GStreamer]
 pluginsDir = @GST_PLUGINS_DIR@
-outputPluginsDir = @CMAKE_INSTALL_PREFIX@/@GST_PLUGINS_PATH@
+outputPluginsDir = @GST_PLUGINS_PATH@
 pluginScanner = @GST_PLUGINS_SCANNER_PATH@
 
 [AppImage]
