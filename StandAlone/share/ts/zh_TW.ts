@@ -321,7 +321,7 @@
 <context>
     <name>PipewireScreenDev</name>
     <message>
-        <location filename="../../../libAvKys/Plugins/DesktopCapture/src/pipewire/src/pipewirescreendev.cpp" line="217"/>
+        <location filename="../../../libAvKys/Plugins/DesktopCapture/src/pipewire/src/pipewirescreendev.cpp" line="213"/>
         <source>PipeWire Screen</source>
         <translation type="unfinished"></translation>
     </message>
@@ -503,6 +503,14 @@
         <location filename="../qml/SettingsMenu.qml" line="56"/>
         <source>Play sources</source>
         <translation>播放來源</translation>
+    </message>
+</context>
+<context>
+    <name>TableColor</name>
+    <message>
+        <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/TableColor.qml" line="36"/>
+        <source>Select the new color</source>
+        <translation type="unfinished">選擇新色彩</translation>
     </message>
 </context>
 <context>
@@ -1411,7 +1419,7 @@
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorFilter/share/qml/main.qml" line="87"/>
-        <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/main.qml" line="54"/>
+        <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/main.qml" line="69"/>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="93"/>
         <source>Soft</source>
         <translation type="unfinished">柔和</translation>
@@ -1443,7 +1451,6 @@
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="36"/>
-        <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/main.qml" line="69"/>
         <source>Color table</source>
         <translation>色彩表</translation>
     </message>
@@ -2740,6 +2747,27 @@ duration (seconds)</source>
         <location filename="../../../libAvKys/Plugins/Otsu/share/qml/main.qml" line="40"/>
         <source>Levels</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/main.qml" line="83"/>
+        <source>Add color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/main.qml" line="91"/>
+        <source>Clear all colors</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/main.qml" line="107"/>
+        <source>Select the color to add</source>
+        <extracomment>Select the color to add to the color table</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/main.qml" line="106"/>
+        <source></source>
+        <translation></translation>
     </message>
 </context>
 </TS>

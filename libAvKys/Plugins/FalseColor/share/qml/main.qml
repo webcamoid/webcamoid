@@ -20,33 +20,48 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
+import Qt.labs.platform 1.1 as LABS
 import Ak 1.0
 
 GridLayout {
     columns: 2
 
-    function tableFromStr(str)
+    function createColorTable()
     {
-        if (str.length < 1)
-            return []
+        // Remove old controls.
+        for(let i = clyColorTable.children.length - 1; i >= 0 ; i--)
+            clyColorTable.children[i].destroy()
 
-        var colorTable = JSON.parse(str)
-        var table = []
+        let len = FalseColor.table.length
 
-        for (var color in colorTable)
-            table.push(AkUtils.toRgba(colorTable[color]))
+        // Create new ones.
+        for (let index = 0; index < len; index++) {
+            let component = Qt.createComponent("TableColor.qml")
 
-        return table
+            if (component.status !== Component.Ready)
+                continue
+
+            let obj = component.createObject(clyColorTable)
+            obj.tableColor = AkUtils.fromRgba(FalseColor.colorAt(index))
+            obj.index = index
+            obj.onColorChanged.connect(function (index, tableColor) {
+                FalseColor.setColor(index, AkUtils.toRgba(tableColor));
+            })
+            obj.onColorRemoved.connect(function (index) {
+                FalseColor.removeColor(index);
+            })
+        }
     }
 
-    function tableToStr(table)
-    {
-        var colorTable = []
+    Component.onCompleted: createColorTable()
 
-        for (var color in table)
-            colorTable.push(fromRgba(table[color]))
+    Connections {
+        target: FalseColor
 
-        return JSON.stringify(colorTable, null, 4)
+        function onTableChanged()
+        {
+            createColorTable()
+        }
     }
 
     // Soft gradient.
@@ -64,19 +79,33 @@ GridLayout {
         }
     }
 
-    // Color table.
-    Label {
-        text: qsTr("Color table")
+    Button {
+        text: qsTr("Add color")
+        icon.source: "image://icons/add"
+        flat: true
+        Layout.columnSpan: 2
+
+        onClicked: colorDialog.open()
+    }
+    Button {
+        text: qsTr("Clear all colors")
+        icon.source: "image://icons/no"
+        flat: true
+        Layout.columnSpan: 2
+
+        onClicked: FalseColor.clearTable()
+    }
+    ColumnLayout {
+        id: clyColorTable
+        Layout.fillWidth: true
         Layout.columnSpan: 2
     }
-    TextArea {
-        id: colorTable
-        text: tableToStr(FalseColor.table)
-        cursorVisible: true
-        wrapMode: TextEdit.Wrap
-        Layout.columnSpan: 2
-        Layout.fillWidth: true
 
-        onTextChanged: FalseColor.table = tableFromStr(text)
+    LABS.ColorDialog {
+        id: colorDialog
+        //: Select the color to add to the color table
+        title: qsTr("Select the color to add")
+
+        onAccepted: FalseColor.addColor(AkUtils.toRgba(color))
     }
 }

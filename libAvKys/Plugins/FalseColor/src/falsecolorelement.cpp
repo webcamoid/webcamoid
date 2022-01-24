@@ -18,6 +18,7 @@
  */
 
 #include <QImage>
+#include <QReadWriteLock>
 #include <QVariant>
 #include <QQmlContext>
 #include <akpacket.h>
@@ -29,6 +30,7 @@
 class FalseColorElementPrivate
 {
     public:
+        QReadWriteLock m_mutex;
         QList<QRgb> m_table {
             qRgb(0, 0, 0),
             qRgb(255, 0, 0),
@@ -63,6 +65,15 @@ bool FalseColorElement::soft() const
     return this->d->m_soft;
 }
 
+QRgb FalseColorElement::colorAt(int index)
+{
+    this->d->m_mutex.lockForRead();
+    auto color = this->d->m_table.at(index);
+    this->d->m_mutex.unlock();
+
+    return color;
+}
+
 QString FalseColorElement::controlInterfaceProvide(const QString &controlId) const
 {
     Q_UNUSED(controlId)
@@ -81,8 +92,16 @@ void FalseColorElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket FalseColorElement::iVideoStream(const AkVideoPacket &packet)
 {
-    if (this->d->m_table.isEmpty())
-        akSend(packet)
+    this->d->m_mutex.lockForRead();
+    auto isTableEmpty = this->d->m_table.isEmpty();
+    this->d->m_mutex.unlock();
+
+    if (isTableEmpty)  {
+        if (packet)
+            emit this->oStream(packet);
+
+        return packet;
+    }
 
     auto src = packet.toImage();
 
@@ -93,7 +112,10 @@ AkPacket FalseColorElement::iVideoStream(const AkVideoPacket &packet)
     QImage oFrame(src.size(), QImage::Format_ARGB32);
 
     QRgb table[256];
-    QList<QRgb> tableRgb = this->d->m_table;
+
+    this->d->m_mutex.lockForRead();
+    auto tableRgb = this->d->m_table;
+    this->d->m_mutex.unlock();
 
     for (int i = 0; i < 256; i++) {
         QRgb color;
@@ -128,35 +150,114 @@ AkPacket FalseColorElement::iVideoStream(const AkVideoPacket &packet)
         } else {
             int t = tableRgb.size() * i / 255;
             t = qBound(0, t, tableRgb.size() - 1);
-            color = tableRgb[t];
+            int r = qRed(tableRgb[t]);
+            int g = qGreen(tableRgb[t]);
+            int b = qBlue(tableRgb[t]);
+            color = qRgb(r, g, b);
         }
 
         table[i] = color;
     }
 
     for (int y = 0; y < src.height(); y++) {
-        const quint8 *srcLine = src.constScanLine(y);
-        QRgb *dstLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
+        auto srcLine = src.constScanLine(y);
+        auto dstLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
 
         for (int x = 0; x < src.width(); x++)
             dstLine[x] = table[srcLine[x]];
     }
 
     auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
-    akSend(oPacket)
+
+    if (oPacket)
+        emit this->oStream(oPacket);
+
+    return oPacket;
+}
+
+void FalseColorElement::addColor(QRgb color)
+{
+    this->d->m_mutex.lockForWrite();
+    this->d->m_table << color;
+    this->d->m_mutex.unlock();
+
+    QVariantList table;
+
+    for (auto &color: this->d->m_table)
+        table << color;
+
+    emit this->tableChanged(table);
+}
+
+void FalseColorElement::setColor(int index, QRgb color)
+{
+    bool tableChanged = false;
+    this->d->m_mutex.lockForWrite();
+
+    if (index >= 0
+        && index < this->d->m_table.size()
+        && this->d->m_table[index] != color) {
+        this->d->m_table[index] = color;
+        tableChanged = true;
+    }
+
+    this->d->m_mutex.unlock();
+
+    if (tableChanged) {
+        QVariantList table;
+
+        for (auto &color: this->d->m_table)
+            table << color;
+
+        emit this->tableChanged(table);
+    }
+}
+
+void FalseColorElement::removeColor(int index)
+{
+    bool tableChanged = false;
+    this->d->m_mutex.lockForWrite();
+
+    if (index >= 0
+        && index < this->d->m_table.size()) {
+        this->d->m_table.removeAt(index);
+        tableChanged = true;
+    }
+
+    this->d->m_mutex.unlock();
+
+    if (tableChanged) {
+        QVariantList table;
+
+        for (auto &color: this->d->m_table)
+            table << color;
+
+        emit this->tableChanged(table);
+    }
+}
+
+void FalseColorElement::clearTable()
+{
+    this->setTable({});
 }
 
 void FalseColorElement::setTable(const QVariantList &table)
 {
     QList<QRgb> tableRgb;
 
-    for (const QVariant &color: table)
+    for (auto &color: table)
         tableRgb << color.value<QRgb>();
 
-    if (this->d->m_table == tableRgb)
+    this->d->m_mutex.lockForWrite();
+
+    if (this->d->m_table == tableRgb) {
+        this->d->m_mutex.unlock();
+
         return;
+    }
 
     this->d->m_table = tableRgb;
+    this->d->m_mutex.unlock();
     emit this->tableChanged(table);
 }
 

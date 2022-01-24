@@ -20,6 +20,7 @@
 #ifndef FALSECOLORELEMENT_H
 #define FALSECOLORELEMENT_H
 
+#include <qrgb.h>
 #include <akelement.h>
 
 class FalseColorElementPrivate;
@@ -44,6 +45,7 @@ class FalseColorElement: public AkElement
 
         Q_INVOKABLE QVariantList table() const;
         Q_INVOKABLE bool soft() const;
+        Q_INVOKABLE QRgb colorAt(int index);
 
     private:
         FalseColorElementPrivate *d;
@@ -59,6 +61,10 @@ class FalseColorElement: public AkElement
         void softChanged(bool soft);
 
     public slots:
+        void addColor(QRgb color);
+        void setColor(int index, QRgb color);
+        void removeColor(int index);
+        void clearTable();
         void setTable(const QVariantList &table);
         void setSoft(bool soft);
         void resetTable();
