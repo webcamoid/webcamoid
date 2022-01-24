@@ -510,7 +510,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/TableColor.qml" line="36"/>
         <source>Select the new color</source>
-        <translation type="unfinished">נא לבחור את הצבע החדש</translation>
+        <translation>נא לבחור את הצבע החדש</translation>
     </message>
 </context>
 <context>
@@ -2752,18 +2752,18 @@ duration (seconds)</source>
     <message>
         <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/main.qml" line="83"/>
         <source>Add color</source>
-        <translation type="unfinished"></translation>
+        <translation>הוספת צבע</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/main.qml" line="91"/>
         <source>Clear all colors</source>
-        <translation type="unfinished"></translation>
+        <translation>פינוי כל הצבעים</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/main.qml" line="107"/>
         <source>Select the color to add</source>
         <extracomment>Select the color to add to the color table</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>נא לבחור את הצבע להוספה</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/main.qml" line="106"/>
