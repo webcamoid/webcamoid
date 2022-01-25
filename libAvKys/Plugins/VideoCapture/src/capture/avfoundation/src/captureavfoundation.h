@@ -43,6 +43,9 @@ class CaptureAvFoundation: public Capture
         Q_INVOKABLE QString description(const QString &webcam) const;
         Q_INVOKABLE QVariantList caps(const QString &webcam) const;
         Q_INVOKABLE QString capsDescription(const AkCaps &caps) const;
+        Q_INVOKABLE QVariantList imageControls() const;
+        Q_INVOKABLE bool setImageControls(const QVariantMap &imageControls);
+        Q_INVOKABLE bool resetImageControls();
         Q_INVOKABLE AkPacket readFrame();
         Q_INVOKABLE quint32 modelId(const QString &webcam) const;
 

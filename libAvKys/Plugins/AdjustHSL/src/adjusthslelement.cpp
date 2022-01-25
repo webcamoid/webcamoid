@@ -123,7 +123,11 @@ AkPacket AdjustHSLElement::iVideoStream(const AkVideoPacket &packet)
     }
 
     auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
-    akSend(oPacket)
+
+    if (oPacket)
+        emit this->oStream(oPacket);
+
+    return oPacket;
 }
 
 void AdjustHSLElement::setHue(int hue)

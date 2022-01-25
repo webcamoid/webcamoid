@@ -408,6 +408,11 @@ AkPacket CaptureCMIO::readFrame()
         timeBase = this->d->m_timeBase;
     }
 
+    CFRelease(this->d->m_curFrame);
+    this->d->m_curFrame = nil;
+
+    this->d->m_mutex.unlock();
+
     // Create package.
     AkPacket packet(caps);
     packet.setBuffer(oBuffer);
@@ -415,11 +420,6 @@ AkPacket CaptureCMIO::readFrame()
     packet.setTimeBase(this->d->m_timeBase);
     packet.setIndex(0);
     packet.setId(this->d->m_id);
-
-    CFRelease(this->d->m_curFrame);
-    this->d->m_curFrame = nil;
-
-    this->d->m_mutex.unlock();
 
     return packet;
 }

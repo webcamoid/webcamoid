@@ -26,7 +26,11 @@
 #include <ak.h>
 #include <akfrac.h>
 #include <akcaps.h>
+#include <akelement.h>
 #include <akpacket.h>
+#include <akpluginmanager.h>
+#include <akvideocaps.h>
+#include <akvideopacket.h>
 #include <sys/time.h>
 #import <AVFoundation/AVFoundation.h>
 
@@ -38,11 +42,15 @@ using FourCharCodeToStrMap = QMap<FourCharCode, QString>;
 class CaptureAvFoundationPrivate
 {
     public:
+        CaptureAvFoundation *self;
         id m_deviceObserver {nil};
         AVCaptureDeviceInput *m_deviceInput {nil};
         AVCaptureVideoDataOutput *m_dataOutput {nil};
         AVCaptureSession *m_session {nil};
         CMSampleBufferRef m_curFrame {nil};
+        AkElementPtr m_hslFilter {akPluginManager->create<AkElement>("VideoFilter/AdjustHSL")};
+        AkElementPtr m_contrastFilter {akPluginManager->create<AkElement>("VideoFilter/Contrast")};
+        AkElementPtr m_gammaFilter {akPluginManager->create<AkElement>("VideoFilter/Gamma")};
         QString m_device;
         QList<int> m_streams;
         QStringList m_devices;
@@ -57,7 +65,7 @@ class CaptureAvFoundationPrivate
         AkCaps m_caps;
         qint64 m_id {-1};
 
-        CaptureAvFoundationPrivate();
+        CaptureAvFoundationPrivate(CaptureAvFoundation *self);
         static bool canUseCamera();
         static inline QString fourccToStr(FourCharCode format);
         static inline FourCharCode strToFourCC(const QString &format);
@@ -72,7 +80,7 @@ class CaptureAvFoundationPrivate
 CaptureAvFoundation::CaptureAvFoundation(QObject *parent):
     Capture(parent)
 {
-    this->d = new CaptureAvFoundationPrivate();
+    this->d = new CaptureAvFoundationPrivate(this);
     this->d->m_deviceObserver = [[DeviceObserverAVFoundation alloc]
                                  initWithCaptureObject: this];
 
@@ -170,10 +178,94 @@ QString CaptureAvFoundation::capsDescription(const AkCaps &caps) const
     AkFrac fps = caps.property("fps").toString();
 
     return QString("%1, %2x%3, %4 FPS")
-                .arg(caps.property("fourcc").toString())
-                .arg(caps.property("width").toString())
-                .arg(caps.property("height").toString())
-                .arg(qRound(fps.value()));
+                .arg(caps.property("fourcc").toString(),
+                     caps.property("width").toString(),
+                     caps.property("height").toString(),
+                     QString::number(qRound(fps.value())));
+}
+
+QVariantList CaptureAvFoundation::imageControls() const
+{
+    return {
+        QVariant(QVariantList {
+                     "Brightness",
+                     "integer",
+                     -255,
+                     255,
+                     1,
+                     0,
+                     this->d->m_hslFilter->property("luminance").toInt(),
+                     QStringList()}),
+        QVariant(QVariantList {
+                     "Contrast",
+                     "integer",
+                     -255,
+                     255,
+                     1,
+                     0,
+                     this->d->m_contrastFilter->property("contrast").toInt(),
+                     QStringList()}),
+        QVariant(QVariantList {
+                     "Saturation",
+                     "integer",
+                     -255,
+                     255,
+                     1,
+                     0,
+                     this->d->m_hslFilter->property("saturation").toInt(),
+                     QStringList()}),
+        QVariant(QVariantList {
+                     "Hue",
+                     "integer",
+                     -359,
+                     359,
+                     1,
+                     0,
+                     this->d->m_hslFilter->property("hue").toInt(),
+                     QStringList()}),
+        QVariant(QVariantList {
+                     "Gamma",
+                     "integer",
+                     -255,
+                     255,
+                     1,
+                     0,
+                     this->d->m_gammaFilter->property("gamma").toInt(),
+                     QStringList()}),
+    };
+}
+
+bool CaptureAvFoundation::setImageControls(const QVariantMap &imageControls)
+{
+    bool ok = true;
+
+    for (auto it = imageControls.cbegin(); it != imageControls.cend(); it++) {
+        if (it.key() == "Brightness")
+            this->d->m_hslFilter->setProperty("luminance", it.value());
+        else if (it.key() == "Contrast")
+            this->d->m_contrastFilter->setProperty("contrast", it.value());
+        else if (it.key() == "Saturation")
+            this->d->m_hslFilter->setProperty("saturation", it.value());
+        else if (it.key() == "Hue")
+            this->d->m_hslFilter->setProperty("hue", it.value());
+        else if (it.key() == "Gamma")
+            this->d->m_gammaFilter->setProperty("gamma", it.value());
+        else
+            ok = false;
+    }
+
+    return ok;
+}
+
+bool CaptureAvFoundation::resetImageControls()
+{
+    this->d->m_hslFilter->setProperty("luminance", 0);
+    this->d->m_contrastFilter->setProperty("contrast", 0);
+    this->d->m_hslFilter->setProperty("saturation", 0);
+    this->d->m_hslFilter->setProperty("hue", 0);
+    this->d->m_gammaFilter->setProperty("gamma", 0);
+
+    return true;
 }
 
 AkPacket CaptureAvFoundation::readFrame()
@@ -234,18 +326,28 @@ AkPacket CaptureAvFoundation::readFrame()
         timeBase = this->d->m_timeBase;
     }
 
-    // Create package.
-    AkPacket packet(caps);
-    packet.setBuffer(oBuffer);
-    packet.setPts(pts);
-    packet.setTimeBase(this->d->m_timeBase);
-    packet.setIndex(0);
-    packet.setId(this->d->m_id);
-
     CFRelease(this->d->m_curFrame);
     this->d->m_curFrame = nil;
 
     this->d->m_mutex.unlock();
+
+    // Create package.
+    AkVideoCaps videoCaps(AkVideoCaps::Format_rgb24,
+                          caps.property("width").toInt(),
+                          caps.property("height").toInt(),
+                          caps.property("fps").toString());
+    AkVideoPacket videoPacket;
+    videoPacket.setCaps(videoCaps);
+    videoPacket.setBuffer(oBuffer);
+    videoPacket.setPts(pts);
+    videoPacket.setTimeBase(this->d->m_timeBase);
+    videoPacket.setIndex(0);
+    videoPacket.setId(this->d->m_id);
+    videoPacket = this->d->m_hslFilter->iStream(videoPacket);
+    videoPacket = this->d->m_gammaFilter->iStream(videoPacket);
+    videoPacket = this->d->m_contrastFilter->iStream(videoPacket);
+    AkPacket packet(videoPacket.convert(AkVideoCaps::Format_rgb24));
+    packet.setCaps(caps);
 
     return packet;
 }
@@ -295,6 +397,10 @@ bool CaptureAvFoundation::init()
     // Get camera input.
     auto uniqueID = [[NSString alloc]
                      initWithUTF8String: webcam.toStdString().c_str()];
+
+    if (!uniqueID)
+        return false;
+
     auto camera = [AVCaptureDevice deviceWithUniqueID: uniqueID];
     [uniqueID release];
 
@@ -593,9 +699,9 @@ void CaptureAvFoundation::updateDevices()
     }
 }
 
-CaptureAvFoundationPrivate::CaptureAvFoundationPrivate()
+CaptureAvFoundationPrivate::CaptureAvFoundationPrivate(CaptureAvFoundation *self):
+    self(self)
 {
-
 }
 
 bool CaptureAvFoundationPrivate::canUseCamera()
@@ -720,6 +826,9 @@ const FourCharCodeToStrMap &CaptureAvFoundationPrivate::fourccToStrMap()
 AkCaps CaptureAvFoundationPrivate::capsFromFrameSampleBuffer(const CMSampleBufferRef sampleBuffer) const
 {
     auto formatDesc = CMSampleBufferGetFormatDescription(sampleBuffer);
+
+    if (!formatDesc)
+        return {};
 
     AkCaps videoCaps;
     videoCaps.setMimeType("video/unknown");
