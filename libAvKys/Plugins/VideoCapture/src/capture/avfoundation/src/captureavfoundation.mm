@@ -601,6 +601,7 @@ void CaptureAvFoundation::resetNBuffers()
 void CaptureAvFoundation::reset()
 {
     this->resetStreams();
+    this->resetImageControls();
 }
 
 void CaptureAvFoundation::cameraConnected()
