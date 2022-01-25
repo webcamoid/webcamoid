@@ -21,12 +21,12 @@
     <message>
         <location filename="../qml/About.qml" line="75"/>
         <source>Webcam capture application.</source>
-        <translation>Webcam yakalama uygulaması.</translation>
+        <translation>Web kamerası yakalama uygulaması.</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="78"/>
         <source>A simple webcam application for picture and video capture.</source>
-        <translation>Resim ve video yakalama için basit bir webcam uygulaması.</translation>
+        <translation>Resim ve video yakalama için basit bir web kamerası uygulaması.</translation>
     </message>
 </context>
 <context>
@@ -323,7 +323,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/DesktopCapture/src/pipewire/src/pipewirescreendev.cpp" line="213"/>
         <source>PipeWire Screen</source>
-        <translation type="unfinished"></translation>
+        <translation>PipeWire Ekranı</translation>
     </message>
 </context>
 <context>
@@ -369,7 +369,7 @@
     <message>
         <location filename="../../src/clioptions.cpp" line="44"/>
         <source>Webcam capture application.</source>
-        <translation>Webcam yakalama uygulaması.</translation>
+        <translation>Web kamerası yakalama uygulaması.</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="47"/>
@@ -405,13 +405,13 @@
     <message>
         <location filename="../../src/clioptions.cpp" line="59"/>
         <source>Semi-colon separated list of paths to search for plugins.</source>
-        <translation>Eklentileri aramak için yarım sütuna ayrılmış yol listesi.</translation>
+        <translation>Eklentileri aramak için noktalı virgülle ayrılmış yol listesi.</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="68"/>
         <source>Semi-colon separated list of paths to avoid loading.</source>
         <extracomment>Blacklist of plugins that could have conflicts when loading in Webcamoid.</extracomment>
-        <translation>Yüklemeden kaçınılacak yarım sütuna ayrılmış yol listesi.</translation>
+        <translation>Yüklemeden kaçınılacak noktalı virgülle ayrılmış yol listesi.</translation>
     </message>
 </context>
 <context>
@@ -479,7 +479,7 @@
         <location filename="../qml/SettingsDialog.qml" line="94"/>
         <source>3rd Party Licenses</source>
         <extracomment>License for 3rd party components used in Webcamoid, like libraries and code snippets.</extracomment>
-        <translation>3. Parti Lisanslar</translation>
+        <translation>3. Taraf Lisansları</translation>
     </message>
 </context>
 <context>
@@ -510,7 +510,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/TableColor.qml" line="36"/>
         <source>Select the new color</source>
-        <translation type="unfinished">Yeni rengi seç</translation>
+        <translation>Yeni rengi seç</translation>
     </message>
 </context>
 <context>
@@ -578,12 +578,12 @@
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="184"/>
         <source>Thanks for using a &lt;b&gt;development version&lt;/b&gt;!&lt;br /&gt;It will be very helpful if you can report any bug and suggestions you have.</source>
-        <translation>Bir &lt;b&gt; geliştirici sürümünü&lt;/b&gt; kullandığınız için teşekkürler!&lt;br /&gt;Eğer herhangi bir hatayı ve önerinizi rapor edebilirseniz bu, çok yardımcı olacaktır.</translation>
+        <translation>Bir &lt;b&gt;geliştirici sürümünü&lt;/b&gt; kullandığınız için teşekkürler!&lt;br /&gt;Eğer herhangi bir hatayı ve önerinizi bildirebilirseniz bu, çok yardımcı olacaktır.</translation>
     </message>
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="189"/>
         <source>Report a Bug</source>
-        <translation>Bir Hatayı Raporla</translation>
+        <translation>Hata Bildir</translation>
     </message>
 </context>
 <context>
@@ -890,7 +890,7 @@
     <message>
         <location filename="../qml/VideoInputs.qml" line="67"/>
         <source>No webcams found</source>
-        <translation>Webcam bulunamadı</translation>
+        <translation>Web kamerası bulunamadı</translation>
     </message>
 </context>
 <context>
@@ -1045,7 +1045,7 @@
     <message>
         <location filename="../qml/VideoOutputs.qml" line="74"/>
         <source>The virtual camera is outdated (%1), install the latest version (%2)?</source>
-        <translation>Sanal kamera güncel değil (%1), en son sürüm yüklensin mi (%2)?</translation>
+        <translation>Sanal kamera güncel değil (%1), en son sürüm kurulsun mu (%2)?</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="83"/>
@@ -1086,7 +1086,7 @@
     <message>
         <location filename="../qml/VideoOutputs.qml" line="235"/>
         <source>The virtual camera is not installed, do you want to install it?</source>
-        <translation>Sanal kamera yüklü değil, kurmak ister misiniz?</translation>
+        <translation>Sanal kamera kurulu değil, kurmak ister misiniz?</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="261"/>
@@ -1359,20 +1359,20 @@
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="190"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="181"/>
         <source>No font merging</source>
-        <translation>Yazıtipi birleştirme yok</translation>
+        <translation>Yazı tipi birleştirme yok</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="199"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="205"/>
         <source>Foreground color</source>
-        <translation>Önplan rengi</translation>
+        <translation>Ön plan rengi</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="215"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="220"/>
         <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="162"/>
         <source>Background color</source>
-        <translation>Arkaplan rengi</translation>
+        <translation>Arka plan rengi</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="231"/>
@@ -1383,20 +1383,20 @@
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="246"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="307"/>
         <source>Please choose a font</source>
-        <translation>Lütfen bir yazıtipi seçin</translation>
+        <translation>Lütfen bir yazı tipi seçin</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="207"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="213"/>
         <source>Choose the foreground color</source>
-        <translation>Önplan rengi seçin</translation>
+        <translation>Ön plan rengi seçin</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="223"/>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="228"/>
         <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="172"/>
         <source>Choose the background color</source>
-        <translation>Arkaplan rengi seçin</translation>
+        <translation>Arka plan rengi seçin</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Cinema/share/qml/main.qml" line="42"/>
@@ -1474,7 +1474,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="59"/>
         <source>Old Photo</source>
-        <translation>Eski Foto</translation>
+        <translation>Eski Fotoğraf</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="63"/>
@@ -1852,7 +1852,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="247"/>
         <source>Background Image</source>
-        <translation>Arkaplan Resmi</translation>
+        <translation>Arka Plan Resmi</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="257"/>
@@ -2078,7 +2078,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="475"/>
         <source>Triceratops</source>
-        <translation>Dinazor</translation>
+        <translation>Dinozor</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="479"/>
@@ -2098,7 +2098,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="535"/>
         <source>Backgrounds</source>
-        <translation>Arkaplanlar</translation>
+        <translation>Arka planlar</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="544"/>
@@ -2108,12 +2108,12 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="557"/>
         <source>Background picture</source>
-        <translation>Arkaplan resmi</translation>
+        <translation>Arka plan resmi</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="571"/>
         <source>Replace background with this picture</source>
-        <translation>Arkaplanı bu resimle değiştir</translation>
+        <translation>Arka planı bu resimle değiştir</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="600"/>
@@ -2136,7 +2136,7 @@
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="638"/>
         <source>Advanced face area settings for 
 background blur or image below.</source>
-        <translation>Arkaplan buğusu veya alttaki resim
+        <translation>Arka plan buğusu veya alttaki resim
 için gelişmiş yüz alanı ayarları.</translation>
     </message>
     <message>
@@ -2380,7 +2380,7 @@ için gelişmiş yüz alanı ayarları.</translation>
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="83"/>
         <source>Select</source>
-        <translation>Seçin</translation>
+        <translation>Seç</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="190"/>
@@ -2434,7 +2434,7 @@ için gelişmiş yüz alanı ayarları.</translation>
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSrc/share/qml/main.qml" line="147"/>
         <source>Subtitles track</source>
-        <translation>Altyazı parçası</translation>
+        <translation>Alt yazı parçası</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Nervous/share/qml/main.qml" line="43"/>
@@ -2753,18 +2753,18 @@ süresi (saniye)</translation>
     <message>
         <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/main.qml" line="83"/>
         <source>Add color</source>
-        <translation type="unfinished"></translation>
+        <translation>Renk ekle</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/main.qml" line="91"/>
         <source>Clear all colors</source>
-        <translation type="unfinished"></translation>
+        <translation>Tüm renkleri temizle</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/main.qml" line="107"/>
         <source>Select the color to add</source>
         <extracomment>Select the color to add to the color table</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Eklenecek rengi seç</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/main.qml" line="106"/>
