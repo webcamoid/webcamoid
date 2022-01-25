@@ -75,13 +75,21 @@ void ChangeHSLElement::controlInterfaceConfigure(QQmlContext *context,
 
 AkPacket ChangeHSLElement::iVideoStream(const AkVideoPacket &packet)
 {
-    if (this->d->m_kernel.size() < 12)
-        akSend(packet)
+    if (this->d->m_kernel.size() < 12) {
+        if (packet)
+            emit this->oStream(packet);
+
+        return packet;
+    }
 
     auto src = packet.toImage();
 
-    if (src.isNull())
-        return AkPacket();
+    if (src.isNull()) {
+        if (packet)
+            emit this->oStream(packet);
+
+        return packet;
+    }
 
     src = src.convertToFormat(QImage::Format_ARGB32);
     QImage oFrame(src.size(), src.format());
@@ -115,7 +123,11 @@ AkPacket ChangeHSLElement::iVideoStream(const AkVideoPacket &packet)
     }
 
     auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
-    akSend(oPacket)
+
+    if (oPacket)
+        emit this->oStream(oPacket);
+
+    return oPacket;
 }
 
 void ChangeHSLElement::setKernel(const QVariantList &kernel)

@@ -2447,6 +2447,7 @@ background blur or image below.</source>
         <translation>Helligkeit</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/Plugins/Contrast/share/qml/main.qml" line="40"/>
         <location filename="../../../libAvKys/Plugins/Photocopy/share/qml/main.qml" line="42"/>
         <location filename="../../../libAvKys/Plugins/Photocopy/share/qml/main.qml" line="46"/>
         <source>Contrast</source>
@@ -2767,6 +2768,26 @@ duration (seconds)</source>
         <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/main.qml" line="106"/>
         <source></source>
         <translation></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Gamma/share/qml/main.qml" line="40"/>
+        <source>Gamma</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/AdjustHSL/share/qml/main.qml" line="51"/>
+        <source>Hue</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/AdjustHSL/share/qml/main.qml" line="74"/>
+        <source>Saturation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/AdjustHSL/share/qml/main.qml" line="97"/>
+        <source>Luminance</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 </TS>
