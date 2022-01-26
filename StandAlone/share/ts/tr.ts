@@ -2774,22 +2774,22 @@ süresi (saniye)</translation>
     <message>
         <location filename="../../../libAvKys/Plugins/Gamma/share/qml/main.qml" line="40"/>
         <source>Gamma</source>
-        <translation type="unfinished"></translation>
+        <translation>Gama</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/AdjustHSL/share/qml/main.qml" line="51"/>
         <source>Hue</source>
-        <translation type="unfinished"></translation>
+        <translation>Ton</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/AdjustHSL/share/qml/main.qml" line="74"/>
         <source>Saturation</source>
-        <translation type="unfinished"></translation>
+        <translation>Doygunluk</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/AdjustHSL/share/qml/main.qml" line="97"/>
         <source>Luminance</source>
-        <translation type="unfinished"></translation>
+        <translation>Parlaklık</translation>
     </message>
 </context>
 </TS>
