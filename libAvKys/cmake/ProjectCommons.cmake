@@ -52,6 +52,7 @@ set(NOPIPEWIRE OFF CACHE BOOL "Disable Pipewire support")
 set(NOPULSEAUDIO OFF CACHE BOOL "Disable PulseAudio support")
 set(NOV4L2 OFF CACHE BOOL "Disable V4L2 support")
 set(NOV4LUTILS OFF CACHE BOOL "Disable V4l-utils support")
+set(NOVLC OFF CACHE BOOL "Disable VLC support")
 set(NOWASAPI OFF CACHE BOOL "Disable WASAPI support")
 
 if (APPLE)
