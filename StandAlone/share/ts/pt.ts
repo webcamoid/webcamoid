@@ -485,22 +485,22 @@
 <context>
     <name>SettingsMenu</name>
     <message>
-        <location filename="../qml/SettingsMenu.qml" line="40"/>
+        <location filename="../qml/SettingsMenu.qml" line="38"/>
         <source>Video</source>
         <translation type="unfinished">Vídeo</translation>
     </message>
     <message>
-        <location filename="../qml/SettingsMenu.qml" line="46"/>
+        <location filename="../qml/SettingsMenu.qml" line="44"/>
         <source>Audio</source>
         <translation type="unfinished">Áudio</translation>
     </message>
     <message>
-        <location filename="../qml/SettingsMenu.qml" line="52"/>
+        <location filename="../qml/SettingsMenu.qml" line="50"/>
         <source>Preferences</source>
         <translation>Preferências</translation>
     </message>
     <message>
-        <location filename="../qml/SettingsMenu.qml" line="59"/>
+        <location filename="../qml/SettingsMenu.qml" line="57"/>
         <source>Play sources</source>
         <translation>Executar fontes</translation>
     </message>
@@ -2699,14 +2699,26 @@ duration (seconds)</source>
         <translation>Girar verticalmente</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/Plugins/AspectRatio/share/qml/main.qml" line="28"/>
         <location filename="../../../libAvKys/Plugins/Scale/share/qml/main.qml" line="42"/>
         <source>Width</source>
         <translation type="unfinished">Largura</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/Plugins/AspectRatio/share/qml/main.qml" line="32"/>
+        <source>Aspect ratio width</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/AspectRatio/share/qml/main.qml" line="42"/>
         <location filename="../../../libAvKys/Plugins/Scale/share/qml/main.qml" line="55"/>
         <source>Height</source>
         <translation type="unfinished">Altura</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/AspectRatio/share/qml/main.qml" line="46"/>
+        <source>Aspect ratio height</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Scale/share/qml/main.qml" line="68"/>
