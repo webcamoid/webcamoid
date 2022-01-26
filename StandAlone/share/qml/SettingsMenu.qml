@@ -23,6 +23,7 @@ import Ak 1.0
 
 Menu {
     id: settingsMenu
+    margins: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
 
     signal openVideoSettings()
     signal openAudioSettings()

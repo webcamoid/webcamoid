@@ -485,22 +485,22 @@
 <context>
     <name>SettingsMenu</name>
     <message>
-        <location filename="../qml/SettingsMenu.qml" line="37"/>
+        <location filename="../qml/SettingsMenu.qml" line="40"/>
         <source>Video</source>
         <translation type="unfinished">视频</translation>
     </message>
     <message>
-        <location filename="../qml/SettingsMenu.qml" line="43"/>
+        <location filename="../qml/SettingsMenu.qml" line="46"/>
         <source>Audio</source>
         <translation type="unfinished">音频</translation>
     </message>
     <message>
-        <location filename="../qml/SettingsMenu.qml" line="49"/>
+        <location filename="../qml/SettingsMenu.qml" line="52"/>
         <source>Preferences</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/SettingsMenu.qml" line="56"/>
+        <location filename="../qml/SettingsMenu.qml" line="59"/>
         <source>Play sources</source>
         <translation type="unfinished"></translation>
     </message>
