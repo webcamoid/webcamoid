@@ -510,7 +510,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/TableColor.qml" line="36"/>
         <source>Select the new color</source>
-        <translation type="unfinished">Kies de nieuwe kleur</translation>
+        <translation>Kies de nieuwe kleur</translation>
     </message>
 </context>
 <context>
@@ -2753,18 +2753,18 @@ duur (in seconden)</translation>
     <message>
         <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/main.qml" line="83"/>
         <source>Add color</source>
-        <translation type="unfinished"></translation>
+        <translation>Kleur toevoegen</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/main.qml" line="91"/>
         <source>Clear all colors</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle kleuren wissen</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/main.qml" line="107"/>
         <source>Select the color to add</source>
         <extracomment>Select the color to add to the color table</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Kies de toe te voegen kleur</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/main.qml" line="106"/>
@@ -2774,22 +2774,22 @@ duur (in seconden)</translation>
     <message>
         <location filename="../../../libAvKys/Plugins/Gamma/share/qml/main.qml" line="40"/>
         <source>Gamma</source>
-        <translation type="unfinished"></translation>
+        <translation>Gamma</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/AdjustHSL/share/qml/main.qml" line="51"/>
         <source>Hue</source>
-        <translation type="unfinished"></translation>
+        <translation>Tint</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/AdjustHSL/share/qml/main.qml" line="74"/>
         <source>Saturation</source>
-        <translation type="unfinished"></translation>
+        <translation>Verzadiging</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/AdjustHSL/share/qml/main.qml" line="97"/>
         <source>Luminance</source>
-        <translation type="unfinished"></translation>
+        <translation>Helderheid</translation>
     </message>
 </context>
 </TS>
