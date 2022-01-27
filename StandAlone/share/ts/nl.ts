@@ -2709,7 +2709,7 @@ duur (in seconden)</translation>
     <message>
         <location filename="../../../libAvKys/Plugins/AspectRatio/share/qml/main.qml" line="32"/>
         <source>Aspect ratio width</source>
-        <translation type="unfinished"></translation>
+        <translation>Beeldverhouding - breedte</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/AspectRatio/share/qml/main.qml" line="42"/>
@@ -2720,7 +2720,7 @@ duur (in seconden)</translation>
     <message>
         <location filename="../../../libAvKys/Plugins/AspectRatio/share/qml/main.qml" line="46"/>
         <source>Aspect ratio height</source>
-        <translation type="unfinished"></translation>
+        <translation>Beeldverhouding - hoogte</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Scale/share/qml/main.qml" line="68"/>
