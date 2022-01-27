@@ -2709,7 +2709,7 @@ süresi (saniye)</translation>
     <message>
         <location filename="../../../libAvKys/Plugins/AspectRatio/share/qml/main.qml" line="32"/>
         <source>Aspect ratio width</source>
-        <translation type="unfinished"></translation>
+        <translation>En boy oranı genişliği</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/AspectRatio/share/qml/main.qml" line="42"/>
@@ -2720,7 +2720,7 @@ süresi (saniye)</translation>
     <message>
         <location filename="../../../libAvKys/Plugins/AspectRatio/share/qml/main.qml" line="46"/>
         <source>Aspect ratio height</source>
-        <translation type="unfinished"></translation>
+        <translation>En boy oranı yüksekliği</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Scale/share/qml/main.qml" line="68"/>
