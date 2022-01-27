@@ -32,7 +32,7 @@ class QQuickItem;
 class AKCOMMONS_EXPORT AkUnit: public QObject
 {
     Q_OBJECT
-    Q_ENUMS(Unit)
+    Q_ENUMS(AkUnit::Unit)
     Q_PROPERTY(qreal value
                READ value
                WRITE setValue
@@ -92,20 +92,22 @@ class AKCOMMONS_EXPORT AkUnit: public QObject
         Q_INVOKABLE QVariant toVariant() const;
 
         Q_INVOKABLE qreal value() const;
-        Q_INVOKABLE Unit unit() const;
+        Q_INVOKABLE AkUnit::Unit unit() const;
         Q_INVOKABLE int pixels() const;
+        Q_INVOKABLE AkUnit convert(AkUnit::Unit unit) const;
+        Q_INVOKABLE AkUnit convert(const QString &unit) const;
 
     private:
         AkUnitPrivate *d;
 
     signals:
         void valueChanged(qreal value);
-        void unitChanged(Unit unit);
+        void unitChanged(AkUnit::Unit unit);
         void pixelsChanged(int pixels);
 
     public slots:
         void setValue(qreal value);
-        void setUnit(Unit unit);
+        void setUnit(AkUnit::Unit unit);
         void resetValue();
         void resetUnit();
         static void registerTypes();

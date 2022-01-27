@@ -34,7 +34,7 @@ class AkUnitPrivate
         AkUnit *self;
         qreal m_value {0.0};
         AkUnit::Unit m_unit {AkUnit::px};
-        int m_pixels {0};
+        qreal m_pixels {0.0};
         QSize m_parentSize;
 
         // Screen info
@@ -45,7 +45,8 @@ class AkUnitPrivate
         bool m_hasParent {false};
 
         explicit AkUnitPrivate(AkUnit *self);
-        int pixels(qreal value, AkUnit::Unit unitsMap) const;
+        qreal pixels(qreal value, AkUnit::Unit unit) const;
+        qreal fromPixels(qreal value, AkUnit::Unit unit) const;
         static const UnitsMap &unitsMap();
         void updateScreenInfo(bool updatePixels);
         void updatePixels();
@@ -86,12 +87,14 @@ AkUnit::AkUnit(qreal value, Unit unit, QWindow *parent):
     if (parent) {
         QObject::connect(parent,
                          &QWindow::widthChanged,
+                         this,
                          [this] (int width) {
             this->d->m_parentSize.setWidth(width);
             this->d->updatePixels();
         });
         QObject::connect(parent,
                          &QWindow::heightChanged,
+                         this,
                          [this] (int height) {
             this->d->m_parentSize.setHeight(height);
             this->d->updatePixels();
@@ -112,12 +115,14 @@ AkUnit::AkUnit(qreal value, const QString &unit, QWindow *parent):
     if (parent) {
         QObject::connect(parent,
                          &QWindow::widthChanged,
+                         this,
                          [this] (int width) {
             this->d->m_parentSize.setWidth(width);
             this->d->updatePixels();
         });
         QObject::connect(parent,
                          &QWindow::heightChanged,
+                         this,
                          [this] (int height) {
             this->d->m_parentSize.setHeight(height);
             this->d->updatePixels();
@@ -141,12 +146,14 @@ AkUnit::AkUnit(qreal value, Unit unit, QQuickItem *parent):
     if (parent) {
         QObject::connect(parent,
                          &QQuickItem::widthChanged,
+                         this,
                          [this, parent] () {
             this->d->m_parentSize.setWidth(qRound(parent->width()));
             this->d->updatePixels();
         });
         QObject::connect(parent,
                          &QQuickItem::heightChanged,
+                         this,
                          [this, parent] () {
             this->d->m_parentSize.setHeight(qRound(parent->height()));
             this->d->updatePixels();
@@ -170,12 +177,14 @@ AkUnit::AkUnit(qreal value, const QString &unit, QQuickItem *parent):
     if (parent) {
         QObject::connect(parent,
                          &QQuickItem::widthChanged,
+                         this,
                          [this, parent] () {
             this->d->m_parentSize.setWidth(qRound(parent->width()));
             this->d->updatePixels();
         });
         QObject::connect(parent,
                          &QQuickItem::heightChanged,
+                         this,
                          [this, parent] () {
             this->d->m_parentSize.setHeight(qRound(parent->height()));
             this->d->updatePixels();
@@ -218,12 +227,12 @@ AkUnit &AkUnit::operator =(const AkUnit &other)
 
 bool AkUnit::operator ==(const AkUnit &other) const
 {
-    return this->d->m_pixels == other.d->m_pixels;
+    return qFuzzyCompare(this->d->m_pixels, other.d->m_pixels);
 }
 
 bool AkUnit::operator !=(const AkUnit &other) const
 {
-    return this->d->m_pixels != other.d->m_pixels;
+    return !qFuzzyCompare(this->d->m_pixels, other.d->m_pixels);
 }
 
 QObject *AkUnit::create(qreal value, AkUnit::Unit unit)
@@ -273,7 +282,7 @@ QVariant AkUnit::toVariant() const
 
 AkUnit::operator int() const
 {
-    return this->d->m_pixels;
+    return qRound(this->d->m_pixels);
 }
 
 AkUnit::operator QString() const
@@ -295,7 +304,17 @@ AkUnit::Unit AkUnit::unit() const
 
 int AkUnit::pixels() const
 {
-    return this->d->m_pixels;
+    return qRound(this->d->m_pixels);
+}
+
+AkUnit AkUnit::convert(Unit unit) const
+{
+    return AkUnit(this->d->fromPixels(this->d->m_pixels, unit), unit);
+}
+
+AkUnit AkUnit::convert(const QString &unit) const
+{
+    return this->convert(AkUnitPrivate::unitsMap().value(unit, AkUnit::px));
 }
 
 void AkUnit::setValue(qreal value)
@@ -305,12 +324,15 @@ void AkUnit::setValue(qreal value)
 
     this->d->m_value = value;
     auto pixels = this->d->pixels(this->d->m_value, this->d->m_unit);
-    bool pixelsChanged = this->d->m_pixels != pixels;
-    this->d->m_pixels = pixels;
+    bool pixelsChanged = !qFuzzyCompare(this->d->m_pixels, pixels);
+
+    if (pixelsChanged)
+        this->d->m_pixels = pixels;
+
     emit this->valueChanged(value);
 
     if (pixelsChanged)
-        emit this->pixelsChanged(this->d->m_pixels);
+        emit this->pixelsChanged(qRound(this->d->m_pixels));
 }
 
 void AkUnit::setUnit(AkUnit::Unit unit)
@@ -320,12 +342,15 @@ void AkUnit::setUnit(AkUnit::Unit unit)
 
     this->d->m_unit = unit;
     auto pixels = this->d->pixels(this->d->m_value, this->d->m_unit);
-    bool pixelsChanged = this->d->m_pixels != pixels;
-    this->d->m_pixels = pixels;
+    bool pixelsChanged = !qFuzzyCompare(this->d->m_pixels, pixels);
+
+    if (pixelsChanged)
+        this->d->m_pixels = pixels;
+
     emit this->unitChanged(unit);
 
     if (pixelsChanged)
-        emit this->pixelsChanged(this->d->m_pixels);
+        emit this->pixelsChanged(qRound(this->d->m_pixels));
 }
 
 void AkUnit::resetValue()
@@ -360,43 +385,79 @@ AkUnitPrivate::AkUnitPrivate(AkUnit *self):
     this->updateScreenInfo(false);
     QObject::connect(qApp,
                      &QGuiApplication::primaryScreenChanged,
+                     self,
                      [this] () {
         this->updateScreenInfo(true);
     });
 }
 
-int AkUnitPrivate::pixels(qreal value, AkUnit::Unit unit) const
+qreal AkUnitPrivate::pixels(qreal value, AkUnit::Unit unit) const
 {
     switch (unit) {
     case AkUnit::cm:
-        return qRound(value * this->m_physicalDotsPerInch / 2.54);
+        return value * this->m_physicalDotsPerInch / 2.54;
     case AkUnit::mm:
-        return qRound(value * this->m_physicalDotsPerInch / 25.4);
+        return value * this->m_physicalDotsPerInch / 25.4;
     case AkUnit::in:
-        return qRound(value * this->m_physicalDotsPerInch);
+        return value * this->m_physicalDotsPerInch;
     case AkUnit::pt:
-        return qRound(value * this->m_physicalDotsPerInch / 72);
+        return value * this->m_physicalDotsPerInch / 72;
     case AkUnit::pc:
-        return qRound(12 * value * this->m_physicalDotsPerInch / 72);
+        return 12 * value * this->m_physicalDotsPerInch / 72;
     case AkUnit::dp:
-        return qRound(value * this->m_physicalDotsPerInch / 160);
+        return value * this->m_physicalDotsPerInch / 160;
     case AkUnit::vw:
-        return qRound(value * this->m_parentSize.width() / 100);
+        return value * this->m_parentSize.width() / 100;
     case AkUnit::vh:
-        return qRound(value * this->m_parentSize.height() / 100);
+        return value * this->m_parentSize.height() / 100;
     case AkUnit::vmin: {
         auto min = qMin(this->m_parentSize.width(),
                         this->m_parentSize.height());
 
-        return qRound(value * min / 100);
+        return value * min / 100;
     }
     case AkUnit::vmax: {
         auto max = qMax(this->m_parentSize.width(),
                         this->m_parentSize.height());
 
-        return qRound(value * max / 100);
+        return value * max / 100;
     }
-    default: return qRound(value);
+    default: return value;
+    }
+}
+
+qreal AkUnitPrivate::fromPixels(qreal value, AkUnit::Unit unit) const
+{
+    switch (unit) {
+    case AkUnit::cm:
+        return 2.54 * value / this->m_physicalDotsPerInch;
+    case AkUnit::mm:
+        return 25.4 * value / this->m_physicalDotsPerInch;
+    case AkUnit::in:
+        return value / this->m_physicalDotsPerInch;
+    case AkUnit::pt:
+        return 72  * value / this->m_physicalDotsPerInch;
+    case AkUnit::pc:
+        return 72 * value / (12 * this->m_physicalDotsPerInch);
+    case AkUnit::dp:
+        return 160 * value / this->m_physicalDotsPerInch;
+    case AkUnit::vw:
+        return 100 * value / this->m_parentSize.width();
+    case AkUnit::vh:
+        return 100 * value / this->m_parentSize.height();
+    case AkUnit::vmin: {
+        auto min = qMin(this->m_parentSize.width(),
+                        this->m_parentSize.height());
+
+        return 100 * value / min;
+    }
+    case AkUnit::vmax: {
+        auto max = qMax(this->m_parentSize.width(),
+                        this->m_parentSize.height());
+
+        return 100 * value / max;
+    }
+    default: return value;
     }
 }
 
@@ -436,6 +497,7 @@ void AkUnitPrivate::updateScreenInfo(bool updatePixels)
 
     QObject::connect(screen,
                      &QScreen::geometryChanged,
+                     self,
                      [this, screen] () {
         this->m_screenSize = screen->size();
 
@@ -446,6 +508,7 @@ void AkUnitPrivate::updateScreenInfo(bool updatePixels)
     });
     QObject::connect(screen,
                      &QScreen::physicalDotsPerInchChanged,
+                     self,
                      [this, screen] () {
         this->m_physicalDotsPerInchX = screen->physicalDotsPerInchX();
         this->m_physicalDotsPerInchY = screen->physicalDotsPerInchY();
@@ -457,11 +520,11 @@ void AkUnitPrivate::updatePixels()
 {
     auto pixels = this->pixels(this->m_value, this->m_unit);
 
-    if (this->m_pixels == pixels)
+    if (qFuzzyCompare(this->m_pixels, pixels))
         return;
 
     this->m_pixels = pixels;
-    emit self->pixelsChanged(this->m_pixels);
+    emit self->pixelsChanged(qRound(this->m_pixels));
 }
 
 QString AkUnitPrivate::matchClassName(const QObject *obj,
