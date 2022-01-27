@@ -31,6 +31,7 @@ pkg install -y \
     libuvc \
     pkgconf \
     patchelf \
+    pipewire \
     pulseaudio \
     python3 \
     qt5-buildtools \
