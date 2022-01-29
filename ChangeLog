@@ -1,8 +1,47 @@
+Webcamoid 9.0.0:
+
+- Now Qt 5.15 is the minimum required version.
+- More modern UI redesign.
+- Now the default theme can adapt to the current color scheme of the system.
+- Switched build system to CMake.
+- Redesigned plugins system to a more expandable one.
+- Photos and videos are saved in their default folders, and its also user
+  customizable.
+- You can now open the last photo taken and the last video recorded from
+  Webcamoid.
+- Added support for screen capturing in PipeWire/Wayland.
+- Added VLC as video playback backend.
+- The virtual camera code for Mac and Windows has been splitted to its own
+  project fixing several install/uninstall problems, and allowing other
+  developers to use the virtual camera on their own projects.
+- The virtual camera is now fully customizable (format, resolution, default
+  picture, etc.).
+- Improved error messages for the virtual camera.
+- Added CoreMediaIO capture support in Mac.
+- Add face tracking plugin (thanks Chris Barth!).
+- Removed support for MSVC (for now).
+- Add appstream data (thanks Joel Barrios!).
+- Fixed privilege escalation when creating the virtual camera in GNU/Linux
+  (issue #330)
+- Added support for background image replacement in FaceDetect plugin (thanks
+  cont1nuity!).
+- Fixed deault masks rendering when selecting an image from filesystem (issue
+  #229, thanks cont1nuity!).
+- Added more options to the FaceDetect plugin (thanks cont1nuity!).
+- Switched from using QtIFW to NSIS in Windows, and pkg format in Mac, this
+  fixes several install/uninstall problems.
+- Fixed video recording with FFmpeg.
+- Added Otsu threshold, and other video effects plugins.
+- Improved FalseColor plugin UI.
+- Added software based camera controls for brightness, contrast, saturation,
+  hue, and gamma, in Mac (issue #333).
+- Added donations links for people who wants to support the project.
+
 Webcamoid 8.8.0:
 
-- Fixed bug when setting boolean type automatic controls in Windows 
+- Fixed bug when setting boolean type automatic controls in Windows
   (issue #148)
-- Added option for blurring outside detected face in FaceDetect plugin 
+- Added option for blurring outside detected face in FaceDetect plugin
   (thanks Erich Schubert!).
 - Added public method for detecting face rectangles in FaceDetect plugin
   (thanks Chris Barth!).

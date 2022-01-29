@@ -3,7 +3,6 @@ Ordered by priority:
 Webcamoid 9.x series:
 
 - Android port.
-- Add support for scripted plugins/addons.
 - New and customizable UI.
 
 Webcamoid 10.x series or higher:
@@ -12,3 +11,4 @@ Webcamoid 10.x series or higher:
 - Add social sharing features.
 - Add network broadcast support.
 - Audio effects.
+- Add support for scripted plugins/addons.
