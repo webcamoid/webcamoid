@@ -91,7 +91,7 @@ Q_GLOBAL_STATIC_WITH_ARGS(StyleStrategyToStr,
 class CharifyElementPrivate
 {
     public:
-        CharifyElement::ColorMode m_mode {CharifyElement::ColorModeNatural};
+        CharifyElement::ColorMode m_mode {CharifyElement::ColorModeFixed};
         QString m_charTable;
         QFont m_font {QApplication::font()};
         QRgb m_foregroundColor {qRgb(255, 255, 255)};
@@ -222,13 +222,13 @@ AkPacket CharifyElement::iVideoStream(const AkVideoPacket &packet)
     auto src = packet.toImage();
 
     if (src.isNull())
-        return AkPacket();
+        return {};
 
     src = src.convertToFormat(QImage::Format_ARGB32);
 
     this->d->m_mutex.lock();
-    QSize fontSize = this->d->m_fontSize;
-    QVector<Character> characters = this->d->m_characters;
+    auto fontSize = this->d->m_fontSize;
+    auto characters = this->d->m_characters;
     this->d->m_mutex.unlock();
 
     int textWidth = src.width() / fontSize.width();
@@ -243,11 +243,15 @@ AkPacket CharifyElement::iVideoStream(const AkVideoPacket &packet)
         oFrame.fill(qRgb(0, 0, 0));
         auto oPacket = AkVideoPacket::fromImage(oFrame.scaled(src.size()),
                                                 packet);
-        akSend(oPacket)
+
+        if (oPacket)
+            emit this->oStream(oPacket);
+
+        return oPacket;
     }
 
-    QImage textImage = src.scaled(textWidth, textHeight);
-    const QRgb *textImageBits = reinterpret_cast<const QRgb *>(textImage.constBits());
+    auto textImage = src.scaled(textWidth, textHeight);
+    auto textImageBits = reinterpret_cast<const QRgb *>(textImage.constBits());
     int textArea = textImage.width() * textImage.height();
     QPainter painter;
 
@@ -260,8 +264,8 @@ AkPacket CharifyElement::iVideoStream(const AkVideoPacket &packet)
         if (this->d->m_mode == ColorModeFixed)
             painter.drawImage(x, y, characters[qGray(textImageBits[i])].image());
         else {
-            QChar chr = characters[qGray(textImageBits[i])].chr();
-            QRgb foreground = textImageBits[i];
+            auto chr = characters[qGray(textImageBits[i])].chr();
+            auto foreground = textImageBits[i];
             auto image = this->d->drawChar(chr,
                                            this->d->m_font,
                                            fontSize,
@@ -274,12 +278,16 @@ AkPacket CharifyElement::iVideoStream(const AkVideoPacket &packet)
     painter.end();
 
     auto oPacket = AkVideoPacket::fromImage(oFrame, packet);
-    akSend(oPacket)
+
+    if (oPacket)
+        emit this->oStream(oPacket);
+
+    return oPacket;
 }
 
 void CharifyElement::setMode(const QString &mode)
 {
-    ColorMode modeEnum = colorModeToStr->key(mode, ColorModeNatural);
+    ColorMode modeEnum = colorModeToStr->key(mode, ColorModeFixed);
 
     if (this->d->m_mode == modeEnum)
         return;
@@ -302,12 +310,10 @@ void CharifyElement::setFont(const QFont &font)
     if (this->d->m_font == font)
         return;
 
-    QFont::HintingPreference hp =
-            hintingPreferenceToStr->key(this->hintingPreference(),
-                                        QFont::PreferFullHinting);
-    QFont::StyleStrategy ss =
-            styleStrategyToStr->key(this->styleStrategy(),
-                                    QFont::NoAntialias);
+    auto hp = hintingPreferenceToStr->key(this->hintingPreference(),
+                                          QFont::PreferFullHinting);
+    auto ss = styleStrategyToStr->key(this->styleStrategy(),
+                                      QFont::NoAntialias);
 
     this->d->m_font = font;
     this->d->m_font.setHintingPreference(hp);
@@ -317,9 +323,8 @@ void CharifyElement::setFont(const QFont &font)
 
 void CharifyElement::setHintingPreference(const QString &hintingPreference)
 {
-    QFont::HintingPreference hp =
-            hintingPreferenceToStr->key(hintingPreference,
-                                        QFont::PreferFullHinting);
+    auto hp = hintingPreferenceToStr->key(hintingPreference,
+                                          QFont::PreferFullHinting);
 
     if (this->d->m_font.hintingPreference() == hp)
         return;
@@ -330,9 +335,7 @@ void CharifyElement::setHintingPreference(const QString &hintingPreference)
 
 void CharifyElement::setStyleStrategy(const QString &styleStrategy)
 {
-    QFont::StyleStrategy ss =
-            styleStrategyToStr->key(styleStrategy,
-                                    QFont::NoAntialias);
+    auto ss = styleStrategyToStr->key(styleStrategy, QFont::NoAntialias);
 
     if (this->d->m_font.styleStrategy() == ss)
         return;
@@ -370,7 +373,7 @@ void CharifyElement::setReversed(bool reversed)
 
 void CharifyElement::resetMode()
 {
-    this->setMode("natural");
+    this->setMode("fixed");
 }
 
 void CharifyElement::resetCharTable()
@@ -467,8 +470,8 @@ QSize CharifyElementPrivate::fontSize(const QString &chrTable,
     int width = -1;
     int height = -1;
 
-    for (const QChar &chr: chrTable) {
-        QSize size = metrics.size(Qt::TextSingleLine, chr);
+    for (auto &chr: chrTable) {
+        auto size = metrics.size(Qt::TextSingleLine, chr);
 
         if (size.width() > width)
             width = size.width();
