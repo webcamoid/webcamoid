@@ -128,6 +128,7 @@ class CharifyElement: public AkElement
 
     private slots:
         void updateCharTable();
+        void updateGrayToForeBackTable();
 };
 
 #endif // CHARIFYELEMENT_H
