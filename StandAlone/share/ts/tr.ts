@@ -9,22 +9,28 @@
         <translation>Sürüm %1</translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="62"/>
+        <location filename="../qml/About.qml" line="66"/>
+        <source>Built from</source>
+        <extracomment>Built from &quot;short commit hash&quot;</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/About.qml" line="76"/>
         <source>Using Qt %1</source>
         <translation>Qt %1 Kullanılıyor</translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="66"/>
+        <location filename="../qml/About.qml" line="80"/>
         <source>Website</source>
         <translation>Web Sayfası</translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="75"/>
+        <location filename="../qml/About.qml" line="89"/>
         <source>Webcam capture application.</source>
         <translation>Web kamerası yakalama uygulaması.</translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="78"/>
+        <location filename="../qml/About.qml" line="92"/>
         <source>A simple webcam application for picture and video capture.</source>
         <translation>Resim ve video yakalama için basit bir web kamerası uygulaması.</translation>
     </message>
@@ -2604,37 +2610,37 @@ için gelişmiş yüz alanı ayarları.</translation>
         <translation>Aşama</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="137"/>
+        <location filename="../qml/main.qml" line="149"/>
         <source>Use flash</source>
         <translation>Flaş kullan</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="157"/>
+        <location filename="../qml/main.qml" line="169"/>
         <source>Now</source>
         <translation>Şimdi</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="164"/>
+        <location filename="../qml/main.qml" line="176"/>
         <source>%1 seconds</source>
         <translation>%1 saniye</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="265"/>
+        <location filename="../qml/main.qml" line="277"/>
         <source>Take a photo</source>
         <translation>Fotoğraf çek</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="46"/>
+        <location filename="../qml/main.qml" line="58"/>
         <source>%1/Picture %2.%3</source>
         <translation>%1/Resim %2.%3</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="33"/>
+        <location filename="../qml/main.qml" line="44"/>
         <source>Daily Build</source>
         <translation>Günlük Yapım</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="314"/>
+        <location filename="../qml/main.qml" line="326"/>
         <source>Record video</source>
         <translation>Video kaydet</translation>
     </message>

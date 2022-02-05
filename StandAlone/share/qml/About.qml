@@ -58,6 +58,20 @@ Page {
                         text: qsTr("Version %1").arg(mediaTools.applicationVersion)
                         font.bold: true
                     }
+                    RowLayout {
+                        visible: mediaTools.projectGitShortCommit.length > 0
+
+                        Label {
+                            //: Built from "short commit hash"
+                            text: qsTr("Built from")
+                        }
+                        Button {
+                            text: mediaTools.projectGitShortCommit
+                            flat: true
+
+                            onClicked: Qt.openUrlExternally(mediaTools.projectGitCommitUrl)
+                        }
+                    }
                     Label {
                         text: qsTr("Using Qt %1")
                                 .arg(mediaTools.qtVersion)

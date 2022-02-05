@@ -9,22 +9,28 @@
         <translation>版本 %1</translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="62"/>
+        <location filename="../qml/About.qml" line="66"/>
+        <source>Built from</source>
+        <extracomment>Built from &quot;short commit hash&quot;</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/About.qml" line="76"/>
         <source>Using Qt %1</source>
         <translation>使用 Qt %1</translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="66"/>
+        <location filename="../qml/About.qml" line="80"/>
         <source>Website</source>
         <translation>網站</translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="75"/>
+        <location filename="../qml/About.qml" line="89"/>
         <source>Webcam capture application.</source>
         <translation>網路攝影機抓取應用程式。</translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="78"/>
+        <location filename="../qml/About.qml" line="92"/>
         <source>A simple webcam application for picture and video capture.</source>
         <translation>一個簡單地網路攝影機應用程式，用於抓取照片與影片。</translation>
     </message>
@@ -2603,37 +2609,37 @@ background blur or image below.</source>
         <translation type="unfinished">層次（Phase）</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="137"/>
+        <location filename="../qml/main.qml" line="149"/>
         <source>Use flash</source>
         <translation type="unfinished">使用閃光（flash）</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="157"/>
+        <location filename="../qml/main.qml" line="169"/>
         <source>Now</source>
         <translation>現在</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="164"/>
+        <location filename="../qml/main.qml" line="176"/>
         <source>%1 seconds</source>
         <translation>%1 秒</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="265"/>
+        <location filename="../qml/main.qml" line="277"/>
         <source>Take a photo</source>
         <translation>照相</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="46"/>
+        <location filename="../qml/main.qml" line="58"/>
         <source>%1/Picture %2.%3</source>
         <translation>%1/圖像 %2.%3</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="33"/>
+        <location filename="../qml/main.qml" line="44"/>
         <source>Daily Build</source>
         <translation type="unfinished">每日構建</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="314"/>
+        <location filename="../qml/main.qml" line="326"/>
         <source>Record video</source>
         <translation>錄影</translation>
     </message>

@@ -50,7 +50,8 @@
 #define COMMONS_PROJECT_LICENSE_URL "https://raw.githubusercontent.com/webcamoid/webcamoid/master/COPYING"
 #define COMMONS_PROJECT_DOWNLOADS_URL "https://webcamoid.github.io/#downloads"
 #define COMMONS_PROJECT_ISSUES_URL "https://github.com/webcamoid/webcamoid/issues"
-#define COMMONS_COPYRIGHT_NOTICE "Copyright (C) 2011-2021  Gonzalo Exequiel Pedone"
+#define COMMONS_PROJECT_COMMIT_URL "https://github.com/webcamoid/webcamoid/commit"
+#define COMMONS_COPYRIGHT_NOTICE "Copyright (C) 2011-2022  Gonzalo Exequiel Pedone"
 
 struct LogingOptions
 {
@@ -296,6 +297,33 @@ QString MediaTools::projectDownloadsUrl() const
 QString MediaTools::projectIssuesUrl() const
 {
     return COMMONS_PROJECT_ISSUES_URL;
+}
+
+QString MediaTools::projectGitCommit() const
+{
+#ifdef GIT_COMMIT_HASH
+    return {GIT_COMMIT_HASH};
+#else
+    return {};
+#endif
+}
+
+QString MediaTools::projectGitShortCommit() const
+{
+#ifdef GIT_COMMIT_HASH
+    return QString(GIT_COMMIT_HASH).left(7);
+#else
+    return {};
+#endif
+}
+
+QString MediaTools::projectGitCommitUrl() const
+{
+#ifdef GIT_COMMIT_HASH
+    return {COMMONS_PROJECT_COMMIT_URL "/" GIT_COMMIT_HASH};
+#else
+    return {};
+#endif
 }
 
 QString MediaTools::fileNameFromUri(const QString &uri) const

@@ -29,9 +29,7 @@ ApplicationWindow {
     id: wdgMainWidget
     title: mediaTools.applicationName
            + " "
-           + (mediaTools.isDailyBuild?
-                  qsTr("Daily Build"):
-                  mediaTools.applicationVersion)
+           + version()
            + " - "
            + videoLayer.description(videoLayer.videoInput)
     visible: true
@@ -39,6 +37,20 @@ ApplicationWindow {
     y: (Screen.height - mediaTools.windowHeight) / 2
     width: mediaTools.windowWidth
     height: mediaTools.windowHeight
+
+    function version()
+    {
+        if (mediaTools.isDailyBuild) {
+            let versionStr = qsTr("Daily Build")
+
+            if (mediaTools.projectGitShortCommit.length > 0)
+                versionStr += " (" + mediaTools.projectGitShortCommit + ")"
+
+            return versionStr
+        }
+
+        return mediaTools.applicationVersion
+    }
 
     function savePhoto()
     {

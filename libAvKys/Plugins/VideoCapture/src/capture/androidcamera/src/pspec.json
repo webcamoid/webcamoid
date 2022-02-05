@@ -6,7 +6,7 @@
             "description": "Capture video using Android JNI Camera API",
             "id": "VideoSource/CameraCapture/Impl/AndroidJNI",
             "implements": ["CameraCaptureImpl"],
-            "priority": 900,
+            "priority": 1000,
             "type": "qtplugin"
         }
     ]

@@ -104,6 +104,21 @@ if (DAILY_BUILD)
     add_definitions(-DDAILY_BUILD)
 endif ()
 
+# Retrieve useful variables related to Qt installation.
+
+find_program(GIT_BIN git)
+
+if (GIT_BIN)
+    execute_process(COMMAND ${GIT_BIN} rev-parse HEAD
+                    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+                    OUTPUT_VARIABLE GIT_COMMIT_HASH
+                    OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+    if (GIT_COMMIT_HASH)
+        add_definitions(-DGIT_COMMIT_HASH="${GIT_COMMIT_HASH}")
+    endif ()
+endif ()
+
 set(ANDROID_JAVA_VERSION 1.6 CACHE STRING "Mimimum Java version to use in Android")
 set(ANDROID_JAR_DIRECTORY ${ANDROID_SDK}/platforms/android-${ANDROID_NATIVE_API_LEVEL} CACHE INTERNAL "")
 

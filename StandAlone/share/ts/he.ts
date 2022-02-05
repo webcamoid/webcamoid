@@ -9,22 +9,28 @@
         <translation>גרסה %1</translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="62"/>
+        <location filename="../qml/About.qml" line="66"/>
+        <source>Built from</source>
+        <extracomment>Built from &quot;short commit hash&quot;</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/About.qml" line="76"/>
         <source>Using Qt %1</source>
         <translation>על גבי Qt %1</translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="66"/>
+        <location filename="../qml/About.qml" line="80"/>
         <source>Website</source>
         <translation>אתר</translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="75"/>
+        <location filename="../qml/About.qml" line="89"/>
         <source>Webcam capture application.</source>
         <translation>יישומון לכידה ממצלמה.</translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="78"/>
+        <location filename="../qml/About.qml" line="92"/>
         <source>A simple webcam application for picture and video capture.</source>
         <translation>יישומון פשוט לצילום והסרטה מהמצלמה.</translation>
     </message>
@@ -2604,37 +2610,37 @@ background blur or image below.</source>
         <translation>פן</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="137"/>
+        <location filename="../qml/main.qml" line="149"/>
         <source>Use flash</source>
         <translation>להשתמש במבזק</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="157"/>
+        <location filename="../qml/main.qml" line="169"/>
         <source>Now</source>
         <translation>עכשיו</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="164"/>
+        <location filename="../qml/main.qml" line="176"/>
         <source>%1 seconds</source>
         <translation>%1 שניות</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="265"/>
+        <location filename="../qml/main.qml" line="277"/>
         <source>Take a photo</source>
         <translation>צילום תמונה</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="46"/>
+        <location filename="../qml/main.qml" line="58"/>
         <source>%1/Picture %2.%3</source>
         <translation>%1/תמונה %2.%3</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="33"/>
+        <location filename="../qml/main.qml" line="44"/>
         <source>Daily Build</source>
         <translation>מהדורה יומית</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="314"/>
+        <location filename="../qml/main.qml" line="326"/>
         <source>Record video</source>
         <translation>הקלטת וידאו</translation>
     </message>

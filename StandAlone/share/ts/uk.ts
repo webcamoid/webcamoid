@@ -9,22 +9,28 @@
         <translation>Версія %1</translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="62"/>
+        <location filename="../qml/About.qml" line="66"/>
+        <source>Built from</source>
+        <extracomment>Built from &quot;short commit hash&quot;</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/About.qml" line="76"/>
         <source>Using Qt %1</source>
         <translation>Використати Qt %1</translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="66"/>
+        <location filename="../qml/About.qml" line="80"/>
         <source>Website</source>
         <translation>Сайт</translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="75"/>
+        <location filename="../qml/About.qml" line="89"/>
         <source>Webcam capture application.</source>
         <translation>Застосунок захоплення веб-камери.</translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="78"/>
+        <location filename="../qml/About.qml" line="92"/>
         <source>A simple webcam application for picture and video capture.</source>
         <translation>Простий застосунок для захоплення світлин та відео з вебкамери.</translation>
     </message>
@@ -2604,37 +2610,37 @@ background blur or image below.</source>
         <translation>Фаза</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="137"/>
+        <location filename="../qml/main.qml" line="149"/>
         <source>Use flash</source>
         <translation>Використовувати спалах</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="157"/>
+        <location filename="../qml/main.qml" line="169"/>
         <source>Now</source>
         <translation>Вже</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="164"/>
+        <location filename="../qml/main.qml" line="176"/>
         <source>%1 seconds</source>
         <translation>%1 секунд</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="265"/>
+        <location filename="../qml/main.qml" line="277"/>
         <source>Take a photo</source>
         <translation>Зробити світлину</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="46"/>
+        <location filename="../qml/main.qml" line="58"/>
         <source>%1/Picture %2.%3</source>
         <translation>%1/Картинка %2.%3</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="33"/>
+        <location filename="../qml/main.qml" line="44"/>
         <source>Daily Build</source>
         <translation type="unfinished">Денна збірка</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="314"/>
+        <location filename="../qml/main.qml" line="326"/>
         <source>Record video</source>
         <translation>Записати відео</translation>
     </message>
