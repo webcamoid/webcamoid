@@ -263,7 +263,7 @@ bool ConvertVideoFFmpeg::init(const AkCaps &caps)
         && !compressedToFF->contains(fourcc))
         return false;
 
-    AVCodec *codec = avcodec_find_decoder(compressedToFF->value(fourcc, AV_CODEC_ID_RAWVIDEO));
+    auto codec = avcodec_find_decoder(compressedToFF->value(fourcc, AV_CODEC_ID_RAWVIDEO));
 
     if (!codec)
         return false;

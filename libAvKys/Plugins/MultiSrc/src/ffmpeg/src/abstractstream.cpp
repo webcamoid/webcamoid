@@ -28,6 +28,11 @@
 #include <akfrac.h>
 #include <akcaps.h>
 
+extern "C"
+{
+    #include <libavcodec/avcodec.h>
+}
+
 #include "abstractstream.h"
 #include "clock.h"
 
@@ -53,7 +58,7 @@ class AbstractStreamPrivate
         AkFrac m_timeBase;
         AVStream *m_stream {nullptr};
         AVCodecContext *m_codecContext {nullptr};
-        AVCodec *m_codec {nullptr};
+        const AVCodec *m_codec {nullptr};
         AVDictionary *m_codecOptions {nullptr};
         QThreadPool m_threadPool;
         QMutex m_packetMutex;
@@ -203,7 +208,7 @@ AVCodecContext *AbstractStream::codecContext() const
     return this->d->m_codecContext;
 }
 
-AVCodec *AbstractStream::codec() const
+const AVCodec *AbstractStream::codec() const
 {
     return this->d->m_codec;
 }

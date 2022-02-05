@@ -58,7 +58,7 @@ class AbstractStream: public QObject
         Q_INVOKABLE AVMediaType mediaType() const;
         Q_INVOKABLE AVStream *stream() const;
         Q_INVOKABLE AVCodecContext *codecContext() const;
-        Q_INVOKABLE AVCodec *codec() const;
+        Q_INVOKABLE const AVCodec *codec() const;
         Q_INVOKABLE AVDictionary *codecOptions() const;
         Q_INVOKABLE virtual AkCaps caps() const;
         Q_INVOKABLE bool sync() const;

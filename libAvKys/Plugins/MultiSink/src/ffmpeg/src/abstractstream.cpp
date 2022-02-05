@@ -101,7 +101,7 @@ AbstractStream::AbstractStream(const AVFormatContext *formatContext,
                 formatContext->streams[index]: nullptr;
 
     QString codecName = configs["codec"].toString();
-    AVCodec *codec = avcodec_find_encoder_by_name(codecName.toStdString().c_str());
+    auto codec = avcodec_find_encoder_by_name(codecName.toStdString().c_str());
     this->d->m_codecContext = avcodec_alloc_context3(codec);
 
     // Some formats want stream headers to be separate.

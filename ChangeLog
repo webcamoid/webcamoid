@@ -30,9 +30,11 @@ Webcamoid 9.0.0:
 - Added more options to the FaceDetect plugin (thanks cont1nuity!).
 - Switched from using QtIFW to NSIS in Windows, and pkg format in Mac, this
   fixes several install/uninstall problems.
+- Added support for FFmpeg 5.0.
 - Fixed video recording with FFmpeg.
 - Added Otsu threshold, and other video effects plugins.
 - Improved FalseColor plugin UI.
+- Optimized Charify plugin (issie #488).
 - Added software based camera controls for brightness, contrast, saturation,
   hue, and gamma, in Mac (issue #333).
 - Added donations links for people who wants to support the project.

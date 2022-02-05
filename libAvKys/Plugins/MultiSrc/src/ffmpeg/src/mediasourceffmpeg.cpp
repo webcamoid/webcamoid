@@ -679,7 +679,7 @@ bool MediaSourceFFmpeg::initContext()
     if (uri.isEmpty())
         return false;
 
-    AVInputFormat *inputFormat = nullptr;
+    const AVInputFormat *inputFormat = nullptr;
     AVDictionary *inputOptions = nullptr;
 
     if (QRegExp("/dev/video\\d*").exactMatch(uri)) {
@@ -721,14 +721,22 @@ bool MediaSourceFFmpeg::initContext()
 
             if (avformat_open_input(&inputContext,
                                     uriCopy.toStdString().c_str(),
+#if LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT(59, 16, 100)
                                     inputFormat,
+#else
+                                    const_cast<AVInputFormat *>(inputFormat),
+#endif
                                     &inputOptions) >= 0)
                 break;
         }
     } else {
         avformat_open_input(&inputContext,
                             uri.toStdString().c_str(),
+#if LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT(59, 16, 100)
                             inputFormat,
+#else
+                            const_cast<AVInputFormat *>(inputFormat),
+#endif
                             &inputOptions);
     }
 
