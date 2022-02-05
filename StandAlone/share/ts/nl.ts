@@ -12,7 +12,7 @@
         <location filename="../qml/About.qml" line="66"/>
         <source>Built from</source>
         <extracomment>Built from &quot;short commit hash&quot;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Gebouwd op basis van</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="76"/>
