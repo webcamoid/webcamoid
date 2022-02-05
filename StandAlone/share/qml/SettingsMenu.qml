@@ -28,6 +28,8 @@ Menu {
     signal openVideoSettings()
     signal openAudioSettings()
     signal openSettings()
+    signal openDonationsDialog()
+    signal openAboutDialog()
 
     Component.onCompleted: {
         if (videoLayer.playOnStart)
@@ -51,6 +53,18 @@ Menu {
         icon.source: "image://icons/settings"
 
         onClicked: settingsMenu.openSettings()
+    }
+    MenuItem {
+        text: qsTr("Donate")
+        icon.source: "image://icons/heart"
+
+        onClicked: settingsMenu.openDonationsDialog()
+    }
+    MenuItem {
+        text: qsTr("About")
+        icon.source: "image://icons/about"
+
+        onClicked: settingsMenu.openAboutDialog()
     }
     MenuSeparator {}
     SwitchDelegate {

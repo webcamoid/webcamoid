@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg version="1.1" viewBox="0 0 127.99 127.99" xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+<title>Information Icon</title>
+<g transform="translate(-126.33 -483)">
+<path transform="translate(126.33,483)" d="m63.994 15.994c-26.51 0-48 21.49-48 48 1e-6 26.51 21.49 48 48 48 26.51 0 48-21.49 48-48 0-26.51-21.49-48-48-48zm-1.3711 12c5.5861 2.35e-4 10.114 4.5292 10.113 10.115-2.35e-4 5.5853-4.528 10.113-10.113 10.113-5.5853-2.35e-4 -10.113-4.528-10.113-10.113-8.43e-4 -5.5861 4.5272-10.115 10.113-10.115zm0.11719 24.465c0.66166-0.01264 1.3208 0.06513 1.9766 0.18945h0.23242c3.8056 0 6.8691 3.0635 6.8691 6.8691v30.404c3.3051-0.91643 6.3231-2.9897 8.5312-5.8984-0.07512 0.33214-0.11966 0.64907-0.20898 0.98242-2.128 7.9433-7.6109 13.706-13.328 14.703-1.3323 0.37072-2.4932 0.28516-3.9062 0.28516-3.8056 0-6.8691-3.0636-6.8691-6.8691v-30.688c-3.2524 0.93486-6.2182 2.99-8.3965 5.8594 0.07512-0.33214 0.11966-0.64907 0.20898-0.98242 2.3215-8.6654 8.6354-14.736 14.891-14.855z" fill="#7f7f7f" stroke-width="4.8368"/>
+<g transform="matrix(1.6892 0 0 1.6892 110.18 -412.15)" fill="#3e75b2">
+<g fill="#3e75b2"></g>
+</g>
+</g>
+<metadata>
+<rdf:RDF>
+<cc:Work>
+<dc:format>image/svg+xml</dc:format>
+<dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+<cc:license rdf:resource="http://creativecommons.org/licenses/publicdomain/"/>
+<dc:publisher>
+<cc:Agent rdf:about="http://openclipart.org/">
+<dc:title>Openclipart</dc:title>
+</cc:Agent>
+</dc:publisher>
+<dc:title>Information Icon</dc:title>
+<dc:date>2012-12-09T20:59:13</dc:date>
+<dc:description>A simple information icon.</dc:description>
+<dc:source>https://openclipart.org/detail/173675/information-icon-by-libberry-173675</dc:source>
+<dc:creator>
+<cc:Agent>
+<dc:title>libberry</dc:title>
+</cc:Agent>
+</dc:creator>
+<dc:subject>
+<rdf:Bag>
+<rdf:li>icon</rdf:li>
+<rdf:li>information</rdf:li>
+<rdf:li>sign</rdf:li>
+</rdf:Bag>
+</dc:subject>
+</cc:Work>
+<cc:License rdf:about="http://creativecommons.org/licenses/publicdomain/">
+<cc:permits rdf:resource="http://creativecommons.org/ns#Reproduction"/>
+<cc:permits rdf:resource="http://creativecommons.org/ns#Distribution"/>
+<cc:permits rdf:resource="http://creativecommons.org/ns#DerivativeWorks"/>
+</cc:License>
+</rdf:RDF>
+</metadata>
+</svg>

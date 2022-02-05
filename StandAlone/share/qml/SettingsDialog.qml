@@ -77,21 +77,7 @@ Dialog {
                         qsTr("Video Recording"),
                         qsTr("General Options"),
                         qsTr("Plugins"),
-                        qsTr("Updates"),
-                        /*: Information of the program, like name, description, vesion,
-                            etc..
-                         */
-                        qsTr("About"),
-                        /*: List of people contributing to the project: software
-                            developers, translators, designers, etc..
-                         */
-                        qsTr("Contributors"),
-                        //: Program license.
-                        qsTr("License"),
-                        /*: License for 3rd party components used in Webcamoid, like
-                            libraries and code snippets.
-                         */
-                        qsTr("3rd Party Licenses")
+                        qsTr("Updates")
                     ]
                 }
             }
@@ -137,10 +123,6 @@ Dialog {
             GeneralConfig { }
             PluginConfig { }
             UpdatesConfig { }
-            About { }
-            Contributors { }
-            License { }
-            ThirdPartyLicenses { }
         }
     }
 }

@@ -217,6 +217,8 @@ ApplicationWindow {
         onOpenAudioSettings: audioVideoPanel.openAudioSettings()
         onOpenVideoSettings: audioVideoPanel.openVideoSettings()
         onOpenSettings: settingsDialog.open()
+        onOpenDonationsDialog: Qt.openUrlExternally(mediaTools.projectDonationsUrl)
+        onOpenAboutDialog: aboutDialog.open()
     }
     RecordingNotice {
         anchors.top: parent.top
@@ -586,6 +588,11 @@ ApplicationWindow {
     }
     UpdatesDialog {
         id: updatesDialog
+
+        anchors.centerIn: Overlay.overlay
+    }
+    AboutDialog {
+        id: aboutDialog
 
         anchors.centerIn: Overlay.overlay
     }

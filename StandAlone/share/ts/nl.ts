@@ -36,6 +36,38 @@
     </message>
 </context>
 <context>
+    <name>AboutDialog</name>
+    <message>
+        <location filename="../qml/AboutDialog.qml" line="32"/>
+        <source>About %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/AboutDialog.qml" line="45"/>
+        <source>About</source>
+        <extracomment>Information of the program, like name, description, vesion, etc..</extracomment>
+        <translation type="unfinished">Over</translation>
+    </message>
+    <message>
+        <location filename="../qml/AboutDialog.qml" line="51"/>
+        <source>Contributors</source>
+        <extracomment>List of people contributing to the project: software developers, translators, designers, etc..</extracomment>
+        <translation type="unfinished">Bijdragers</translation>
+    </message>
+    <message>
+        <location filename="../qml/AboutDialog.qml" line="55"/>
+        <source>License</source>
+        <extracomment>Program license.</extracomment>
+        <translation type="unfinished">Licentie</translation>
+    </message>
+    <message>
+        <location filename="../qml/AboutDialog.qml" line="61"/>
+        <source>3rd Party Licenses</source>
+        <extracomment>License for 3rd party components used in Webcamoid, like libraries and code snippets.</extracomment>
+        <translation type="unfinished">Externe licenties</translation>
+    </message>
+</context>
+<context>
     <name>AddVideoFormat</name>
     <message>
         <location filename="../qml/AddVideoFormat.qml" line="42"/>
@@ -463,50 +495,36 @@
         <source>Updates</source>
         <translation>Updates</translation>
     </message>
-    <message>
-        <location filename="../qml/SettingsDialog.qml" line="84"/>
-        <source>About</source>
-        <extracomment>Information of the program, like name, description, vesion, etc..</extracomment>
-        <translation>Over</translation>
-    </message>
-    <message>
-        <location filename="../qml/SettingsDialog.qml" line="88"/>
-        <source>Contributors</source>
-        <extracomment>List of people contributing to the project: software developers, translators, designers, etc..</extracomment>
-        <translation>Bijdragers</translation>
-    </message>
-    <message>
-        <location filename="../qml/SettingsDialog.qml" line="90"/>
-        <source>License</source>
-        <extracomment>Program license.</extracomment>
-        <translation>Licentie</translation>
-    </message>
-    <message>
-        <location filename="../qml/SettingsDialog.qml" line="94"/>
-        <source>3rd Party Licenses</source>
-        <extracomment>License for 3rd party components used in Webcamoid, like libraries and code snippets.</extracomment>
-        <translation>Externe licenties</translation>
-    </message>
 </context>
 <context>
     <name>SettingsMenu</name>
     <message>
-        <location filename="../qml/SettingsMenu.qml" line="38"/>
+        <location filename="../qml/SettingsMenu.qml" line="40"/>
         <source>Video</source>
         <translation>Video</translation>
     </message>
     <message>
-        <location filename="../qml/SettingsMenu.qml" line="44"/>
+        <location filename="../qml/SettingsMenu.qml" line="46"/>
         <source>Audio</source>
         <translation>Audio</translation>
     </message>
     <message>
-        <location filename="../qml/SettingsMenu.qml" line="50"/>
+        <location filename="../qml/SettingsMenu.qml" line="52"/>
         <source>Preferences</source>
         <translation>Instellingen</translation>
     </message>
     <message>
-        <location filename="../qml/SettingsMenu.qml" line="57"/>
+        <location filename="../qml/SettingsMenu.qml" line="58"/>
+        <source>Donate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/SettingsMenu.qml" line="64"/>
+        <source>About</source>
+        <translation type="unfinished">Over</translation>
+    </message>
+    <message>
+        <location filename="../qml/SettingsMenu.qml" line="71"/>
         <source>Play sources</source>
         <translation>Bronnen afspelen</translation>
     </message>
@@ -2625,7 +2643,7 @@ aangaande achtergrondvervaging.</translation>
         <translation>%1 seconden</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="277"/>
+        <location filename="../qml/main.qml" line="279"/>
         <source>Take a photo</source>
         <translation>Foto maken</translation>
     </message>
@@ -2640,7 +2658,7 @@ aangaande achtergrondvervaging.</translation>
         <translation>Dagelijkse ontwikkelingsversie</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="326"/>
+        <location filename="../qml/main.qml" line="328"/>
         <source>Record video</source>
         <translation>Video opnemen</translation>
     </message>

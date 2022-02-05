@@ -7,6 +7,7 @@
         <file>share/3rd-party/licenses/TemperatureAlgorithm.txt</file>
         <file>share/3rd-party/licenses/UsbIds.txt</file>
         <file>share/qml/About.qml</file>
+        <file>share/qml/AboutDialog.qml</file>
         <file>share/qml/AddVideoFormat.qml</file>
         <file>share/qml/AudioCodecOptions.qml</file>
         <file>share/qml/AudioDeviceOptions.qml</file>

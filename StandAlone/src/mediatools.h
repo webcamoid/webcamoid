@@ -76,6 +76,9 @@ class MediaTools: public QObject
     Q_PROPERTY(QString projectGitCommitUrl
                READ projectGitCommitUrl
                CONSTANT)
+    Q_PROPERTY(QString projectDonationsUrl
+               READ projectDonationsUrl
+               CONSTANT)
 
     public:
         MediaTools(const CliOptions &cliOptions, QObject *parent=nullptr);
@@ -95,6 +98,7 @@ class MediaTools: public QObject
         Q_INVOKABLE QString projectGitCommit() const;
         Q_INVOKABLE QString projectGitShortCommit() const;
         Q_INVOKABLE QString projectGitCommitUrl() const;
+        Q_INVOKABLE QString projectDonationsUrl() const;
         Q_INVOKABLE QString fileNameFromUri(const QString &uri) const;
         Q_INVOKABLE bool matches(const QString &pattern,
                                  const QStringList &strings) const;

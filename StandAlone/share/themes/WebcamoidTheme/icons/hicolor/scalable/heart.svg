@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="128" height="128" version="1.1" viewBox="-138 -33 128 128" xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:xlink="http://www.w3.org/1999/xlink">
+<title>raw data now</title>
+<defs>
+<path id="h" d="m0 0c100-100 250 50 0 200-250-150-100-300 0-200"/>
+</defs>
+<g transform="matrix(.35084 0 0 .35084 -74 1.5959)" fill="#7f7f7f">
+<use width="100%" height="100%" fill="#7f7f7f" xlink:href="#h"/>
+</g>
+<metadata>
+<rdf:RDF>
+<cc:Work rdf:about="">
+<dc:title>raw data now</dc:title>
+</cc:Work>
+</rdf:RDF>
+</metadata>
+</svg>
