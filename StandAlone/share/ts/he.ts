@@ -12,7 +12,7 @@
         <location filename="../qml/About.qml" line="66"/>
         <source>Built from</source>
         <extracomment>Built from &quot;short commit hash&quot;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>נבנה מתוך</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="76"/>
@@ -40,31 +40,31 @@
     <message>
         <location filename="../qml/AboutDialog.qml" line="32"/>
         <source>About %1</source>
-        <translation type="unfinished"></translation>
+        <translation>על %1</translation>
     </message>
     <message>
         <location filename="../qml/AboutDialog.qml" line="45"/>
         <source>About</source>
         <extracomment>Information of the program, like name, description, vesion, etc..</extracomment>
-        <translation type="unfinished">על אודות</translation>
+        <translation>על אודות</translation>
     </message>
     <message>
         <location filename="../qml/AboutDialog.qml" line="51"/>
         <source>Contributors</source>
         <extracomment>List of people contributing to the project: software developers, translators, designers, etc..</extracomment>
-        <translation type="unfinished">מתנדבים</translation>
+        <translation>מתנדבים</translation>
     </message>
     <message>
         <location filename="../qml/AboutDialog.qml" line="55"/>
         <source>License</source>
         <extracomment>Program license.</extracomment>
-        <translation type="unfinished">רישיון</translation>
+        <translation>רישיון</translation>
     </message>
     <message>
         <location filename="../qml/AboutDialog.qml" line="61"/>
         <source>3rd Party Licenses</source>
         <extracomment>License for 3rd party components used in Webcamoid, like libraries and code snippets.</extracomment>
-        <translation type="unfinished">רישיונות צד־שלישי</translation>
+        <translation>רישיונות צד־שלישי</translation>
     </message>
 </context>
 <context>
@@ -516,12 +516,12 @@
     <message>
         <location filename="../qml/SettingsMenu.qml" line="58"/>
         <source>Donate</source>
-        <translation type="unfinished"></translation>
+        <translation>תרומה</translation>
     </message>
     <message>
         <location filename="../qml/SettingsMenu.qml" line="64"/>
         <source>About</source>
-        <translation type="unfinished">על אודות</translation>
+        <translation>על אודות</translation>
     </message>
     <message>
         <location filename="../qml/SettingsMenu.qml" line="71"/>
