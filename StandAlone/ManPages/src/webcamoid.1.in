@@ -7,7 +7,7 @@
 .\" Distributed under GPLv3+
 .\" %%%LICENSE_END
 .\"
-.TH WEBCAMOID 1 "16 Feb 2021" "Version @VERSION@" "Webcamoid Users's Manual"
+.TH WEBCAMOID 1 "22 Feb 2022" "Version @VERSION@" "Webcamoid Users's Manual"
 .SH NAME
 Webcamoid \- full featured webcam capture application
 .SH SYNOPSIS
@@ -28,9 +28,6 @@ Displays version information.
 .BR \-c\ <\fIPATH\fP> ", " \-\-config\ <\fIPATH\fP>
 Load settings from \fIPATH\fP. If \fIPATH\fP is empty, load configs from application directory.
 .TP
-.BR \-q\ <\fIPATH1\fP;\fIPATH2\fP;\fIPATH3\fP;\fI...\fP> ", " \-\-qmlpaths\ <\fIPATH1\fP;\fIPATH2\fP;\fIPATH3\fP;\fI...\fP>
-Semi-colon separated list of paths to search the Qml interface.
-.TP
 .BR \-r ", " \-\-recursive
 Search in the specified plugins paths recursively.
 .TP
@@ -39,6 +36,9 @@ Semi-colon separated list of paths to search for plugins.
 .TP
 .BR \-b\ <\fIPATH1\fP;\fIPATH2\fP;\fIPATH3\fP;\fI...\fP> ", " \-\-no\-load\ <\fIPATH1\fP;\fIPATH2\fP;\fIPATH3\fP;\fI...\fP>
 Semi-colon separated list of paths to avoid loading.
+.TP
+.BR \-\-log\-file\ <\fIFILE\fP>
+Send debug output to \fIFILE\fP.
 .SH SEE ALSO
 .BR ffmpeg (1),
 .BR gst\-launch\-1.0 (1),
