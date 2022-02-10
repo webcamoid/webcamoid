@@ -529,7 +529,7 @@ void PipewireScreenDevPrivate::initPipewire()
 {
     if (this->m_streams.isEmpty()) {
         this->uninitPipewire();
-        qDebug() << "Screams information is empty";
+        qInfo() << "Screams information is empty";
 
         return;
     }
@@ -540,7 +540,7 @@ void PipewireScreenDevPrivate::initPipewire()
 
     if (!this->m_pwThreadLoop) {
         this->uninitPipewire();
-        qDebug() << "Error creating PipeWire thread loop";
+        qInfo() << "Error creating PipeWire thread loop";
 
         return;
     }
@@ -552,14 +552,14 @@ void PipewireScreenDevPrivate::initPipewire()
 
     if (!this->m_pwContext) {
         this->uninitPipewire();
-        qDebug() << "Error creating PipeWire context";
+        qInfo() << "Error creating PipeWire context";
 
         return;
     }
 
     if (pw_thread_loop_start(this->m_pwThreadLoop) < 0) {
         this->uninitPipewire();
-        qDebug() << "Error starting PipeWire main loop";
+        qInfo() << "Error starting PipeWire main loop";
 
         return;
     }
@@ -576,7 +576,7 @@ void PipewireScreenDevPrivate::initPipewire()
     if (!this->m_pwCore) {
         pw_thread_loop_unlock(this->m_pwThreadLoop);
         this->uninitPipewire();
-        qDebug() << "Error connecting to the PipeWire file descriptor";
+        qInfo() << "Error connecting to the PipeWire file descriptor:" << strerror(errno);
 
         return;
     }
