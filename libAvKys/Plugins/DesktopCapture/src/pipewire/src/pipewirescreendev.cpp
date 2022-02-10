@@ -148,24 +148,28 @@ PipewireScreenDev::PipewireScreenDev():
     auto pwPluginsDir = QDir(PIPEWIRE_MODULES_PATH).absolutePath();
     auto relPwPluginsDir = QDir(binDir).relativeFilePath(pwPluginsDir);
     QDir appDir = QCoreApplication::applicationDirPath();
-    appDir.cd(relPwPluginsDir);
-    auto path = appDir.absolutePath();
-    path.replace("/", QDir::separator());
 
-    if (QFileInfo::exists(path)
-        && qEnvironmentVariableIsEmpty("PIPEWIRE_MODULE_DIR"))
-        qputenv("PIPEWIRE_MODULE_DIR", path.toLocal8Bit());
+    if (appDir.cd(relPwPluginsDir)) {
+        auto path = appDir.absolutePath();
+        path.replace("/", QDir::separator());
+
+        if (QFileInfo::exists(path)
+            && qEnvironmentVariableIsEmpty("PIPEWIRE_MODULE_DIR"))
+            qputenv("PIPEWIRE_MODULE_DIR", path.toLocal8Bit());
+    }
 
     auto pwSpaPluginsDir = QDir(PIPEWIRE_SPA_PLUGINS_PATH).absolutePath();
     auto relPwSpaPluginsDir = QDir(binDir).relativeFilePath(pwSpaPluginsDir);
     appDir.setPath(QCoreApplication::applicationDirPath());
-    appDir.cd(relPwSpaPluginsDir);
-    path = appDir.absolutePath();
-    path.replace("/", QDir::separator());
 
-    if (QFileInfo::exists(path)
-        && qEnvironmentVariableIsEmpty("SPA_PLUGIN_DIR"))
-        qputenv("SPA_PLUGIN_DIR", path.toLocal8Bit());
+    if (appDir.cd(relPwSpaPluginsDir)) {
+        auto path = appDir.absolutePath();
+        path.replace("/", QDir::separator());
+
+        if (QFileInfo::exists(path)
+            && qEnvironmentVariableIsEmpty("SPA_PLUGIN_DIR"))
+            qputenv("SPA_PLUGIN_DIR", path.toLocal8Bit());
+    }
 
     pw_init(nullptr, nullptr);
 }

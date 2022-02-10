@@ -236,22 +236,24 @@ MediaWriterGStreamer::MediaWriterGStreamer(QObject *parent):
     auto gstPluginsDir = QDir(GST_PLUGINS_PATH).absolutePath();
     auto relGstPluginsDir = QDir(binDir).relativeFilePath(gstPluginsDir);
     QDir appDir = QCoreApplication::applicationDirPath();
-    appDir.cd(relGstPluginsDir);
-    auto path = appDir.absolutePath();
-    path.replace("/", QDir::separator());
 
-    if (QFileInfo::exists(path)) {
-        if (qEnvironmentVariableIsEmpty("GST_PLUGIN_PATH"))
-            qputenv("GST_PLUGIN_PATH", path.toLocal8Bit());
+    if (appDir.cd(relGstPluginsDir)) {
+        auto path = appDir.absolutePath();
+        path.replace("/", QDir::separator());
 
-        auto scanner = QFileInfo(GST_PLUGINS_SCANNER_PATH).baseName();
+        if (QFileInfo::exists(path)) {
+            if (qEnvironmentVariableIsEmpty("GST_PLUGIN_PATH"))
+                qputenv("GST_PLUGIN_PATH", path.toLocal8Bit());
 
-        if (!scanner.isEmpty()) {
-            auto scannerPath = path + "/" + scanner;
+            auto scanner = QFileInfo(GST_PLUGINS_SCANNER_PATH).baseName();
 
-            if (QFileInfo::exists(scannerPath)) {
-                if (qEnvironmentVariableIsEmpty("GST_PLUGIN_SCANNER"))
-                    qputenv("GST_PLUGIN_SCANNER", scannerPath.toLocal8Bit());
+            if (!scanner.isEmpty()) {
+                auto scannerPath = path + "/" + scanner;
+
+                if (QFileInfo::exists(scannerPath)) {
+                    if (qEnvironmentVariableIsEmpty("GST_PLUGIN_SCANNER"))
+                        qputenv("GST_PLUGIN_SCANNER", scannerPath.toLocal8Bit());
+                }
             }
         }
     }

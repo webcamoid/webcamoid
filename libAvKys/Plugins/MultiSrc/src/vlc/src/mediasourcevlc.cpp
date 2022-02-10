@@ -120,62 +120,64 @@ MediaSourceVLC::MediaSourceVLC(QObject *parent):
     auto vlcPluginsDir = QDir(VLC_PLUGINS_PATH).absolutePath();
     auto relVlcPluginsDir = QDir(binDir).relativeFilePath(vlcPluginsDir);
     QDir appDir = QCoreApplication::applicationDirPath();
-    appDir.cd(relVlcPluginsDir);
-    auto path = appDir.absolutePath();
-    path.replace("/", QDir::separator());
 
-    if (QFileInfo::exists(path + "/plugins.dat")) {
-        if (qEnvironmentVariableIsEmpty("VLC_PLUGIN_PATH"))
-            qputenv("VLC_PLUGIN_PATH", path.toLocal8Bit());
-    } else {
+    if (appDir.cd(relVlcPluginsDir)) {
+        auto path = appDir.absolutePath();
+        path.replace("/", QDir::separator());
+
+        if (QFileInfo::exists(path + "/plugins.dat")) {
+            if (qEnvironmentVariableIsEmpty("VLC_PLUGIN_PATH"))
+                qputenv("VLC_PLUGIN_PATH", path.toLocal8Bit());
+        } else {
 #ifdef Q_OS_OSX
-        QString path;
-        QString vlcDir;
-        QString vlcInstallPath = VLC_INSTALL_PATH;
+            QString path;
+            QString vlcDir;
+            QString vlcInstallPath = VLC_INSTALL_PATH;
 
-        // Check user defined VLC path first.
+            // Check user defined VLC path first.
 
-        if (!vlcInstallPath.isEmpty()
-            && QFileInfo::exists(vlcInstallPath))
-            vlcDir = vlcInstallPath;
+            if (!vlcInstallPath.isEmpty()
+                && QFileInfo::exists(vlcInstallPath))
+                vlcDir = vlcInstallPath;
 
-        // Check VLC installed by homebrew.
+            // Check VLC installed by homebrew.
 
-        if (vlcDir.isEmpty()) {
-            QString vlcBin = "/usr/local/bin/vlc";
+            if (vlcDir.isEmpty()) {
+                QString vlcBin = "/usr/local/bin/vlc";
 
-            if (QFileInfo::exists(vlcBin)) {
-                auto vlcBinPath = QFileInfo(vlcBin).canonicalFilePath();
-                auto vlcInstallDir = QFileInfo(vlcBinPath).canonicalPath()
-                                     + "/VLC.app";
+                if (QFileInfo::exists(vlcBin)) {
+                    auto vlcBinPath = QFileInfo(vlcBin).canonicalFilePath();
+                    auto vlcInstallDir = QFileInfo(vlcBinPath).canonicalPath()
+                                         + "/VLC.app";
+
+                    if (QFileInfo::exists(vlcInstallDir))
+                        vlcDir = vlcInstallDir;
+                }
+            }
+
+            // Check VLC manually installed by the user.
+
+            if (vlcDir.isEmpty()) {
+                QString vlcInstallDir = "/Applications/VLC.app";
 
                 if (QFileInfo::exists(vlcInstallDir))
                     vlcDir = vlcInstallDir;
             }
-        }
 
-        // Check VLC manually installed by the user.
+            if (!vlcDir.isEmpty()) {
+                auto vlcPluginsDirs = vlcDir + "/Contents/MacOS/plugins";
 
-        if (vlcDir.isEmpty()) {
-            QString vlcInstallDir = "/Applications/VLC.app";
+                if (QFileInfo::exists(vlcPluginsDirs))
+                    path = vlcPluginsDirs;
+            }
 
-            if (QFileInfo::exists(vlcInstallDir))
-                vlcDir = vlcInstallDir;
-        }
-
-        if (!vlcDir.isEmpty()) {
-            auto vlcPluginsDirs = vlcDir + "/Contents/MacOS/plugins";
-
-            if (QFileInfo::exists(vlcPluginsDirs))
-                path = vlcPluginsDirs;
-        }
-
-        if (!path.isEmpty()
-            && QFileInfo::exists(path + "/plugins.dat")
-            && qEnvironmentVariableIsEmpty("VLC_PLUGIN_PATH")) {
-            qputenv("VLC_PLUGIN_PATH", path.toLocal8Bit());
-        }
+            if (!path.isEmpty()
+                && QFileInfo::exists(path + "/plugins.dat")
+                && qEnvironmentVariableIsEmpty("VLC_PLUGIN_PATH")) {
+                qputenv("VLC_PLUGIN_PATH", path.toLocal8Bit());
+            }
 #endif
+        }
     }
 
     this->d->m_vlcInstance = libvlc_new(0, nullptr);

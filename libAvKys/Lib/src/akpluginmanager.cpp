@@ -415,8 +415,10 @@ AkPluginManagerPrivate::AkPluginManagerPrivate(AkPluginManager *self):
     auto pluginsDir = QDir(PLUGINSDIR).absolutePath();
     auto relPluginsDir = QDir(binDir).relativeFilePath(pluginsDir);
     QDir appDir = QCoreApplication::applicationDirPath();
-    appDir.cd(relPluginsDir);
-    this->m_defaultPluginsSearchPaths << appDir.absolutePath();
+
+    if (appDir.cd(relPluginsDir))
+        this->m_defaultPluginsSearchPaths << appDir.absolutePath();
+
     QString platformTargetSuffix;
 
 #ifdef Q_OS_ANDROID
