@@ -25,7 +25,7 @@ Webcamoid 9.0.0:
   (issue #330)
 - Added support for background image replacement in FaceDetect plugin (thanks
   cont1nuity!).
-- Fixed deault masks rendering when selecting an image from filesystem (issue
+- Fixed default masks rendering when selecting an image from file system (issue
   #229, thanks cont1nuity!).
 - Added more options to the FaceDetect plugin (thanks cont1nuity!).
 - Switched from using QtIFW to NSIS in Windows, and pkg format in Mac, this
