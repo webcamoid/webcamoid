@@ -496,7 +496,9 @@ QStringList VideoLayer::availableRootMethods() const
 
 bool VideoLayer::isVCamSupported() const
 {
-#if defined(Q_OS_WIN32) || defined(Q_OS_OSX) || defined(Q_OS_LINUX)
+#if defined(Q_OS_WIN32) \
+    || defined(Q_OS_OSX) \
+    || (defined(Q_OS_LINUX) && ! defined(Q_OS_ANDROID))
     return true;
 #else
     return false;

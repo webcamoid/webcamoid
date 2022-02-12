@@ -926,7 +926,7 @@
         <translation>출력 없음</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="591"/>
+        <location filename="../../src/videolayer.cpp" line="593"/>
         <source>Virtual Camera</source>
         <translation type="unfinished"></translation>
     </message>
