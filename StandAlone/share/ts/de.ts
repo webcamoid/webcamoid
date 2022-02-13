@@ -40,7 +40,7 @@
     <message>
         <location filename="../qml/AboutDialog.qml" line="32"/>
         <source>About %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Über %1</translation>
     </message>
     <message>
         <location filename="../qml/AboutDialog.qml" line="45"/>
@@ -224,7 +224,7 @@
     <message>
         <location filename="../qml/DownloadDialog.qml" line="32"/>
         <source>Downloading %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Lade %1 herunter</translation>
     </message>
     <message>
         <location filename="../qml/DownloadDialog.qml" line="148"/>
@@ -239,17 +239,17 @@
     <message>
         <location filename="../qml/DownloadDialog.qml" line="156"/>
         <source>Size: %1 %2B / %3 %4B</source>
-        <translation type="unfinished"></translation>
+        <translation>Größe: %1 %2B / %3 %4B</translation>
     </message>
     <message>
         <location filename="../qml/DownloadDialog.qml" line="164"/>
         <source>Speed: %1 %2B/s</source>
-        <translation type="unfinished"></translation>
+        <translation>Geschwindigkeit %1 %2B/s</translation>
     </message>
     <message>
         <location filename="../qml/DownloadDialog.qml" line="170"/>
         <source>Time remaining: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeit übrig: %1</translation>
     </message>
 </context>
 <context>
@@ -257,7 +257,7 @@
     <message>
         <location filename="../qml/DownloadFailedDialog.qml" line="31"/>
         <source>Download failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Herunterladen fehlgeschlagen</translation>
     </message>
 </context>
 <context>
@@ -270,7 +270,7 @@
     <message>
         <location filename="../qml/DownloadSucceededDialog.qml" line="46"/>
         <source>Install the virtual camera?</source>
-        <translation type="unfinished"></translation>
+        <translation>Virtuelle Kamera installieren?</translation>
     </message>
 </context>
 <context>
@@ -516,7 +516,7 @@
     <message>
         <location filename="../qml/SettingsMenu.qml" line="58"/>
         <source>Donate</source>
-        <translation type="unfinished"></translation>
+        <translation>Spenden</translation>
     </message>
     <message>
         <location filename="../qml/SettingsMenu.qml" line="64"/>
@@ -633,7 +633,7 @@
     <message>
         <location filename="../qml/VCamInstallFailedDialog.qml" line="31"/>
         <source>Installation failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Installation fehlgeschlagen</translation>
     </message>
 </context>
 <context>
@@ -641,12 +641,12 @@
     <message>
         <location filename="../qml/VCamInstallSucceededDialog.qml" line="31"/>
         <source>Installation succeeded</source>
-        <translation type="unfinished"></translation>
+        <translation>Installation erfolgreich</translation>
     </message>
     <message>
         <location filename="../qml/VCamInstallSucceededDialog.qml" line="38"/>
         <source>Restart Webcamoid?</source>
-        <translation type="unfinished"></translation>
+        <translation>Webcamoid neu starten?</translation>
     </message>
 </context>
 <context>
@@ -654,7 +654,7 @@
     <message>
         <location filename="../qml/VCamManualDownloadDialog.qml" line="31"/>
         <source>Can&apos;t get latest version</source>
-        <translation type="unfinished"></translation>
+        <translation>Kann neueste Version nicht finden</translation>
     </message>
     <message>
         <location filename="../qml/VCamManualDownloadDialog.qml" line="38"/>
@@ -928,7 +928,7 @@
     <message>
         <location filename="../../src/videolayer.cpp" line="593"/>
         <source>Virtual Camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Virtuelle Kamera</translation>
     </message>
 </context>
 <context>
@@ -974,28 +974,28 @@
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="230"/>
         <source>Can&apos;t edit the virtual camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Kann die virtuelle Kamera nicht bearbeiten</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="231"/>
         <source>Can&apos;t add the virtual camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Kann die virtuelle Kamera nicht hinzufügen</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="240"/>
         <location filename="../qml/VideoOutputAddEdit.qml" line="267"/>
         <source>Error editing the virtual camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Bearbeiten der virtuellen Kamera</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="241"/>
         <source>Error adding the virtual camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Hinzufügen der virtuellen Kamera</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="279"/>
         <source>Error creating the virtual camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Erstellen der virtuellen Kamera</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="242"/>
@@ -1023,7 +1023,7 @@
     <message>
         <location filename="../qml/VideoOutputOptions.qml" line="95"/>
         <source>Error removing the virtual camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Entfernen der virtuellen Kamera</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputOptions.qml" line="99"/>
