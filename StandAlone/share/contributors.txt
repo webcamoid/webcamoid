@@ -2,6 +2,7 @@ a1346054 <36859588+a1346054@users.noreply.github.com>
 Adam Magnier <adam@magnier.io>
 Adolfo Jayme Barrientos <fitojb@ubuntu.com>
 Ale-Ma <alemassimiani@gmail.com>
+Alex <alexander.simm@posteo.de>
 Alexey Napalkov <flynbit@gmail.com>
 aliereny <aeren.myper@gmail.com>
 Allan Nordhøy <epost@anotheragency.no>

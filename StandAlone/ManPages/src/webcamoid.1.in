@@ -7,7 +7,7 @@
 .\" Distributed under GPLv3+
 .\" %%%LICENSE_END
 .\"
-.TH WEBCAMOID 1 "22 Feb 2022" "Version @VERSION@" "Webcamoid Users's Manual"
+.TH WEBCAMOID 1 "15 Feb 2022" "Version @VERSION@" "Webcamoid Users's Manual"
 .SH NAME
 Webcamoid \- full featured webcam capture application
 .SH SYNOPSIS
