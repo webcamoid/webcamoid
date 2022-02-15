@@ -35,5 +35,5 @@ if (GZIP_TOOL)
                       VERBATIM
                       SOURCES src/webcamoid.1.in)
 
-    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/src/webcamoid.1.gz DESTINATION ${CMAKE_INSTALL_MANDIR})
+    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/src/webcamoid.1.gz DESTINATION ${CMAKE_INSTALL_MANDIR}/man1)
 endif ()
