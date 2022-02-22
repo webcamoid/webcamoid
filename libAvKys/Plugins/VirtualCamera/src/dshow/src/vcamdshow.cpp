@@ -29,7 +29,6 @@
 #include <QSettings>
 #include <QStandardPaths>
 #include <QTemporaryDir>
-#include <QTextCodec>
 #include <QVariant>
 #include <QWaitCondition>
 #include <QXmlStreamReader>
@@ -353,14 +352,6 @@ QString VCamDShow::deviceCreate(const QString &description,
     QTemporaryDir tempDir;
     QSettings settings(tempDir.path() + "/config.ini", QSettings::IniFormat);
 
-    // Set file encoding.
-    auto codec = QTextCodec::codecForLocale();
-
-    if (codec)
-        settings.setIniCodec(codec->name());
-    else
-        settings.setIniCodec("UTF-8");
-
     // Write 'config.ini'.
     int i = 0;
     int j = 0;
@@ -488,14 +479,6 @@ bool VCamDShow::deviceEdit(const QString &deviceId,
     QTemporaryDir tempDir;
     QSettings settings(tempDir.path() + "/config.ini", QSettings::IniFormat);
 
-    // Set file encoding.
-    auto codec = QTextCodec::codecForLocale();
-
-    if (codec)
-        settings.setIniCodec(codec->name());
-    else
-        settings.setIniCodec("UTF-8");
-
     // Write 'config.ini'.
     int i = 0;
     int j = 0;
@@ -607,14 +590,6 @@ bool VCamDShow::changeDescription(const QString &deviceId,
     QTemporaryDir tempDir;
     QSettings settings(tempDir.path() + "/config.ini", QSettings::IniFormat);
 
-    // Set file encoding.
-    auto codec = QTextCodec::codecForLocale();
-
-    if (codec)
-        settings.setIniCodec(codec->name());
-    else
-        settings.setIniCodec("UTF-8");
-
     // Write 'config.ini'.
     int i = 0;
     int j = 0;
@@ -723,14 +698,6 @@ bool VCamDShow::deviceDestroy(const QString &deviceId)
     QTemporaryDir tempDir;
     QSettings settings(tempDir.path() + "/config.ini", QSettings::IniFormat);
 
-    // Set file encoding.
-    auto codec = QTextCodec::codecForLocale();
-
-    if (codec)
-        settings.setIniCodec(codec->name());
-    else
-        settings.setIniCodec("UTF-8");
-
     // Write 'config.ini'.
     int i = 0;
     int j = 0;
@@ -828,14 +795,6 @@ bool VCamDShow::destroyAllDevices()
 
     QTemporaryDir tempDir;
     QSettings settings(tempDir.path() + "/config.ini", QSettings::IniFormat);
-
-    // Set file encoding.
-    auto codec = QTextCodec::codecForLocale();
-
-    if (codec)
-        settings.setIniCodec(codec->name());
-    else
-        settings.setIniCodec("UTF-8");
 
     // Copy default frame to file system.
     QImage defaultImage;
@@ -1050,14 +1009,6 @@ bool VCamDShow::applyPicture()
 
     QTemporaryDir tempDir;
     QSettings settings(tempDir.path() + "/config.ini", QSettings::IniFormat);
-
-    // Set file encoding.
-    auto codec = QTextCodec::codecForLocale();
-
-    if (codec)
-        settings.setIniCodec(codec->name());
-    else
-        settings.setIniCodec("UTF-8");
 
     // Write 'config.ini'.
     int i = 0;
@@ -1393,12 +1344,14 @@ QVariantList VCamDShowPrivate::controls(const QString &device)
         case QXmlStreamReader::StartElement: {
             pathList << xmlInfo.name().toString();
 
-            if (path.isEmpty() && xmlInfo.name() != "info")
+            if (path.isEmpty() && xmlInfo.name() != QStringLiteral("info"))
                 return {};
 
-            if (path == "info/devices" && xmlInfo.name() == "device")
+            if (path == "info/devices"
+                && xmlInfo.name() == QStringLiteral("device"))
                 curDeviceControls.clear();
-            else if (path == "info/devices/device/controls" && xmlInfo.name() == "control")
+            else if (path == "info/devices/device/controls"
+                     && xmlInfo.name() == QStringLiteral("control"))
                 deviceControl = {};
 
             break;
@@ -1652,12 +1605,13 @@ void VCamDShowPrivate::updateDevices()
         case QXmlStreamReader::StartElement: {
             pathList << xmlInfo.name().toString();
 
-            if (path.isEmpty() && xmlInfo.name() != "info")
+            if (path.isEmpty() && xmlInfo.name() != QStringLiteral("info"))
                 return;
 
-            if (path == "info/devices" && xmlInfo.name() == "device")
+            if (path == "info/devices" && xmlInfo.name() == QStringLiteral("device"))
                 curDeviceCaps.clear();
-            else if (path == "info/devices/device/formats" && xmlInfo.name() == "format")
+            else if (path == "info/devices/device/formats"
+                     && xmlInfo.name() == QStringLiteral("format"))
                 curFormat = {};
 
             break;

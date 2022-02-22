@@ -528,6 +528,7 @@ void MediaTools::show()
         AkElement::link(this->d->m_videoEffects.data(),
                         videoDisplay,
                         Qt::DirectConnection);
+
         break;
     }
 

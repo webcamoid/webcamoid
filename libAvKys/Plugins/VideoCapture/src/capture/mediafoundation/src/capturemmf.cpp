@@ -518,8 +518,8 @@ AkPacket CaptureMMF::readFrame()
 }
 
 bool CaptureMMF::nativeEventFilter(const QByteArray &eventType,
-                                     void *message,
-                                     long *result)
+                                   void *message,
+                                   qintptr *result)
 {
     Q_UNUSED(eventType)
 
