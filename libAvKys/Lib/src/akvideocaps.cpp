@@ -832,10 +832,8 @@ void AkVideoCaps::registerTypes()
 {
     qRegisterMetaType<AkVideoCaps>("AkVideoCaps");
     qRegisterMetaType<AkVideoCapsList>("AkVideoCapsList");
-    qRegisterMetaTypeStreamOperators<AkVideoCaps>("AkVideoCaps");
     qRegisterMetaType<PixelFormat>("PixelFormat");
     qRegisterMetaType<PixelFormatList>("PixelFormatList");
-    QMetaType::registerDebugStreamOperator<AkVideoCaps::PixelFormat>();
     qmlRegisterSingletonType<AkVideoCaps>("Ak", 1, 0, "AkVideoCaps",
                                           [] (QQmlEngine *qmlEngine,
                                               QJSEngine *jsEngine) -> QObject * {

@@ -18,11 +18,12 @@
  */
 
 #include <cstdarg>
-#include <QMap>
-#include <QVector>
-#include <QTimer>
-#include <QMutex>
 #include <QFileSystemWatcher>
+#include <QMap>
+#include <QMutex>
+#include <QRegularExpression>
+#include <QTimer>
+#include <QVector>
 #include <alsa/asoundlib.h>
 #include <alsa/error.h>
 #include <akaudiopacket.h>
@@ -173,7 +174,7 @@ bool AudioDevAlsa::init(const QString &device, const AkAudioCaps &caps)
     int error =
             snd_pcm_open(&this->d->m_pcmHnd,
                          QString(device)
-                             .remove(QRegExp(":Input$|:Output$"))
+                             .remove(QRegularExpression(":Input$|:Output$"))
                              .toStdString().c_str(),
                          device.endsWith(":Input")?
                              SND_PCM_STREAM_CAPTURE: SND_PCM_STREAM_PLAYBACK,
@@ -301,7 +302,7 @@ void AudioDevAlsaPrivate::fillDeviceInfo(const QString &device,
     snd_pcm_t *pcmHnd = nullptr;
     int error = snd_pcm_open(&pcmHnd,
                              QString(device)
-                                 .remove(QRegExp(":Input$|:Output$"))
+                                 .remove(QRegularExpression(":Input$|:Output$"))
                                  .toStdString().c_str(),
                              device.endsWith(":Input")?
                                  SND_PCM_STREAM_CAPTURE: SND_PCM_STREAM_PLAYBACK,

@@ -371,7 +371,7 @@ void MediaSourceVLC::seek(qint64 mSecs,
         break;
     }
 
-    pts = qBound<qint64>(0, pts, duration);
+    pts = qBound(0, qint64(pts), duration);
     libvlc_media_player_set_position(this->d->m_mediaPlayer,
                                      float(pts) / float(duration));
 }
@@ -734,9 +734,10 @@ void MediaSourceVLCPrivate::mediaPlayerEndReachedCallback(const libvlc_event_t *
 {
     Q_UNUSED(event)
     auto self = reinterpret_cast<MediaSourceVLC *>(userData);
-    QtConcurrent::run(&self->d->m_threadPool, [self] () {
+    auto result = QtConcurrent::run(&self->d->m_threadPool, [self] () {
         self->d->doLoop();
     });
+    Q_UNUSED(result)
 }
 
 void MediaSourceVLCPrivate::mediaPlayerTimeChanged(const libvlc_event_t *event, void *userData)

@@ -75,9 +75,8 @@ inline StyleStrategyToStr initStyleStrategyToStr()
         {QFont::PreferQuality      , "PreferQuality"      },
         {QFont::PreferAntialias    , "PreferAntialias"    },
         {QFont::NoAntialias        , "NoAntialias"        },
-        {QFont::OpenGLCompatible   , "OpenGLCompatible"   },
-        {QFont::ForceIntegerMetrics, "ForceIntegerMetrics"},
         {QFont::NoSubpixelAntialias, "NoSubpixelAntialias"},
+        {QFont::PreferNoShaping    , "PreferNoShaping "   },
         {QFont::NoFontMerging      , "NoFontMerging"      }
     };
 

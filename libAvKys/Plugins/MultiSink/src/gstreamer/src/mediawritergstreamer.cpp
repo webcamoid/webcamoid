@@ -60,6 +60,7 @@ class MediaWriterGStreamerPrivate
         QThreadPool m_threadPool;
         GstElement *m_pipeline {nullptr};
         GMainLoop *m_mainLoop {nullptr};
+        QFuture<void> m_mainLoopResult;
         guint m_busWatchId {0};
         bool m_isRecording {false};
 
@@ -1055,9 +1056,8 @@ QVariantMap MediaWriterGStreamer::defaultCodecParams(const QString &codec)
 
             // Read default bitrate
             int bitrate = 0;
-
-            const char *propBitrate =
-                    QRegExp("vp\\d+enc").exactMatch(codec)?
+            static const QRegularExpression re("^vp\\d+enc$");
+            const char *propBitrate = re.match(codec).hasMatch()?
                         "target-bitrate": "bitrate";
 
             if (g_object_class_find_property(G_OBJECT_GET_CLASS(element), propBitrate))
@@ -1601,8 +1601,8 @@ bool MediaWriterGStreamer::init()
             // Set codec options.
 
             // Set bitrate
-            const char *propBitrate =
-                    QRegExp("vp\\d+enc").exactMatch(codec)?
+            static const QRegularExpression re("^vp\\d+enc$");
+            const char *propBitrate = re.match(codec).hasMatch()?
                         "target-bitrate": "bitrate";
 
             if (g_object_class_find_property(G_OBJECT_GET_CLASS(videoCodec),
@@ -1682,7 +1682,10 @@ bool MediaWriterGStreamer::init()
 
     // Run the main GStreamer loop.
     this->d->m_mainLoop = g_main_loop_new(nullptr, FALSE);
-    QtConcurrent::run(&this->d->m_threadPool, g_main_loop_run, this->d->m_mainLoop);
+    this->d->m_mainLoopResult =
+            QtConcurrent::run(&this->d->m_threadPool,
+                              g_main_loop_run,
+                              this->d->m_mainLoop);
     gst_element_set_state(this->d->m_pipeline, GST_STATE_PLAYING);
     this->d->m_isRecording = true;
 

@@ -17,13 +17,13 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-import QtQuick 2.12
-import QtQuick.Window 2.12
-import QtQuick.Controls 2.5
-import QtQuick.Layouts 1.3
-import Qt.labs.settings 1.0 as LABS
-import Ak 1.0
-import Webcamoid 1.0
+import QtQuick
+import QtQuick.Window
+import QtQuick.Controls
+import QtQuick.Layouts
+import Qt.labs.settings as LABS
+import Ak
+import Webcamoid
 
 ApplicationWindow {
     id: wdgMainWidget
@@ -239,13 +239,16 @@ ApplicationWindow {
             height: AkUnit.create(64 * AkTheme.controlScale, "dp").pixels
             Layout.fillWidth: true
 
+            readonly property real smallButton: AkUnit.create(48 * AkTheme.controlScale, "dp").pixels
+            readonly property real bigButton: AkUnit.create(64 * AkTheme.controlScale, "dp").pixels
+            readonly property real previewSize: AkUnit.create(32 * AkTheme.controlScale, "dp").pixels
             readonly property int animationTime: 200
 
             Image {
                 id: photoPreview
                 source: pathToUrl(recording.lastPhotoPreview)
-                width: AkUnit.create(32 * AkTheme.controlScale, "dp").pixels
-                height: AkUnit.create(32 * AkTheme.controlScale, "dp").pixels
+                width: cameraControls.previewSize
+                height: cameraControls.previewSize
                 sourceSize: Qt.size(width, height)
                 asynchronous: true
                 cache: false
@@ -271,8 +274,8 @@ ApplicationWindow {
             RoundButton {
                 id: photoButton
                 icon.source: "image://icons/photo"
-                width: AkUnit.create(64 * AkTheme.controlScale, "dp").pixels
-                height: AkUnit.create(64 * AkTheme.controlScale, "dp").pixels
+                width: cameraControls.bigButton
+                height: cameraControls.bigButton
                 x: (parent.width - width) / 2
                 y: (parent.height - height) / 2
                 ToolTip.visible: hovered
@@ -320,8 +323,8 @@ ApplicationWindow {
                 icon.source: recording.state == AkElement.ElementStateNull?
                                  "image://icons/video":
                                  "image://icons/record-stop"
-                width: AkUnit.create(48 * AkTheme.controlScale, "dp").pixels
-                height: AkUnit.create(48 * AkTheme.controlScale, "dp").pixels
+                width: cameraControls.smallButton
+                height: cameraControls.smallButton
                 x: parent.width - width
                 y: (parent.height - height) / 2
                 ToolTip.visible: hovered
@@ -382,24 +385,27 @@ ApplicationWindow {
                     }
                     PropertyChanges {
                         target: photoButton
-                        width: AkUnit.create(48 * AkTheme.controlScale, "dp").pixels
-                        height: AkUnit.create(48 * AkTheme.controlScale, "dp").pixels
+                        width: cameraControls.smallButton
+                        height: cameraControls.smallButton
                         x: 0
                     }
                     PropertyChanges {
                         target: videoButton
-                        width: AkUnit.create(64 * AkTheme.controlScale, "dp").pixels
-                        height: AkUnit.create(64 * AkTheme.controlScale, "dp").pixels
+                        width: cameraControls.bigButton
+                        height: cameraControls.bigButton
                         x: (parent.width - width) / 2
                     }
                     PropertyChanges {
                         target: videoPreview
-                        width: AkUnit.create(32 * AkTheme.controlScale, "dp").pixels
-                        height: AkUnit.create(32 * AkTheme.controlScale, "dp").pixels
+                        width: cameraControls.previewSize
+                        height: cameraControls.previewSize
                         visible: true
                     }
                 }
             ]
+            /**
+            // NOTE: The transition was working perfectly fine in Qt5 but is
+            // totally broken in Qt6.
 
             transitions: Transition {
                 PropertyAnimation {
@@ -423,6 +429,7 @@ ApplicationWindow {
                     duration: cameraControls.animationTime
                 }
             }
+            //*/
         }
         ProgressBar {
             id: pgbPhotoShot
@@ -454,7 +461,8 @@ ApplicationWindow {
     AudioVideoPanel {
         id: audioVideoPanel
 
-        onOpenErrorDialog: videoOutputError.openError(title, message)
+        onOpenErrorDialog: (title, message) =>
+            videoOutputError.openError(title, message)
     }
 
     SequentialAnimation {

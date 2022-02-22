@@ -308,20 +308,20 @@ bool HaarCascade::load(const QString &fileName)
         case QXmlStreamReader::StartElement: {
             pathList << haarReader.name().toString();
 
-            if (path.isEmpty() && haarReader.name() != "opencv_storage")
+            if (path.isEmpty() && haarReader.name() != QStringLiteral("opencv_storage"))
                 return false;
 
             if (path == "opencv_storage")
                 this->m_name = haarReader.name().toString();
             else if (path == QString("opencv_storage/%1/stages").arg(this->m_name)
-                     && haarReader.name() == "_") {
+                     && haarReader.name() == QStringLiteral("_")) {
                 this->m_stages << HaarStage();
                 this->m_stages.last().setParentStage(stage - 1);
             } else if (path == QString("opencv_storage/%1/stages/_/trees").arg(this->m_name)
-                && haarReader.name() == "_") {
+                && haarReader.name() == QStringLiteral("_")) {
                 this->m_stages.last().trees() << HaarTree();
             } else if (path == QString("opencv_storage/%1/stages/_/trees/_").arg(this->m_name)
-                && haarReader.name() == "_") {
+                && haarReader.name() == QStringLiteral("_")) {
                 this->m_stages.last().trees().last().features() << HaarFeature();
             }
 

@@ -17,9 +17,9 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-import QtQuick 2.12
-import QtQuick.Controls 2.5
-import QtQuick.Layouts 1.3
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
 
 ColumnLayout {
     id: videoOptions
@@ -52,16 +52,17 @@ ColumnLayout {
         clip: true
 
         VideoInputs {
-            onOpenVideoInputAddEditDialog:
+            onOpenVideoInputAddEditDialog: videoInput =>
                 videoOptions.openVideoInputAddEditDialog(videoInput)
-            onOpenVideoInputOptions:
+            onOpenVideoInputOptions: videoInput =>
                 videoOptions.openVideoInputOptions(videoInput)
         }
         VideoOutputs {
-            onOpenErrorDialog: videoOptions.openErrorDialog(title, message)
-            onOpenVideoOutputAddEditDialog:
+            onOpenErrorDialog: (title, message) =>
+                videoOptions.openErrorDialog(title, message)
+            onOpenVideoOutputAddEditDialog: videoOutput =>
                 videoOptions.openVideoOutputAddEditDialog(videoOutput)
-            onOpenVideoOutputOptions:
+            onOpenVideoOutputOptions: videoOutput =>
                 videoOptions.openVideoOutputOptions(videoOutput)
             onOpenVideoOutputPictureDialog: videoOptions.openVideoOutputPictureDialog()
             onOpenVCamDownloadDialog: videoOptions.openVCamDownloadDialog()

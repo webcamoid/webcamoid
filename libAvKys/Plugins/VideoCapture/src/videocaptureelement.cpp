@@ -664,8 +664,8 @@ bool VideoCaptureElement::setState(AkElement::ElementState state)
             this->d->m_runCameraLoop = true;
             this->d->m_cameraLoopResult =
                     QtConcurrent::run(&this->d->m_threadPool,
-                                      this->d,
-                                      &VideoCaptureElementPrivate::cameraLoop);
+                                      &VideoCaptureElementPrivate::cameraLoop,
+                                      this->d);
 
             return AkElement::setState(state);
         }
@@ -674,8 +674,8 @@ bool VideoCaptureElement::setState(AkElement::ElementState state)
             this->d->m_runCameraLoop = true;
             this->d->m_cameraLoopResult =
                     QtConcurrent::run(&this->d->m_threadPool,
-                                      this->d,
-                                      &VideoCaptureElementPrivate::cameraLoop);
+                                      &VideoCaptureElementPrivate::cameraLoop,
+                                      this->d);
 
             return AkElement::setState(state);
         }

@@ -22,7 +22,6 @@
 #include <QDirIterator>
 #include <QFontDatabase>
 #include <QMutex>
-#include <QQuickStyle>
 #include <QTranslator>
 
 #include "clioptions.h"
@@ -30,8 +29,6 @@
 
 int main(int argc, char *argv[])
 {
-    QApplication::setAttribute(Qt::AA_EnableHighDpiScaling, true);
-    QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps, true);
     qInstallMessageHandler(MediaTools::messageHandler);
     QApplication app(argc, argv);
     CliOptions cliOptions;
@@ -51,12 +48,11 @@ int main(int argc, char *argv[])
 
     // Install translations.
     QTranslator translator;
-    translator.load(QLocale::system().name(), ":/Webcamoid/share/ts");
-    QCoreApplication::installTranslator(&translator);
 
-    // Set theme.
-    QQuickStyle::addStylePath(":/Webcamoid/share/themes");
-    QQuickStyle::setStyle("WebcamoidTheme");
+    if (translator.load(QLocale::system().name(), ":/Webcamoid/share/ts"))
+        QCoreApplication::installTranslator(&translator);
+
+    // Set fonts
     QDirIterator fontsDirIterator(":/Webcamoid/share/themes/WebcamoidTheme/fonts",
                                   QStringList() << "*.ttf",
                                   QDir::Files

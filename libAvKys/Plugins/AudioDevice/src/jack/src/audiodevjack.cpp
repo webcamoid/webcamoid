@@ -27,7 +27,6 @@
 #include <jack/jack.h>
 
 #include "audiodevjack.h"
-#include "jackserver.h"
 
 using JackErrorCodes = QMap<jack_status_t, QString>;
 

@@ -80,11 +80,6 @@ AkPaletteGroup::AkPaletteGroup(QObject *parent):
     this->d->m_toolTipBase = palette.toolTipBase().color();
     this->d->m_link = palette.link().color();
     this->d->m_linkVisited = palette.linkVisited().color();
-
-    QObject::connect(qGuiApp,
-                     &QGuiApplication::paletteChanged,
-                     this,
-                     &AkPaletteGroup::updatePalette);
 }
 
 AkPaletteGroup::AkPaletteGroup(QPalette::ColorGroup colorGroup)
@@ -119,11 +114,6 @@ AkPaletteGroup::AkPaletteGroup(QPalette::ColorGroup colorGroup)
     this->d->m_toolTipBase = palette.toolTipBase().color();
     this->d->m_link = palette.link().color();
     this->d->m_linkVisited = palette.linkVisited().color();
-
-    QObject::connect(qGuiApp,
-                     &QGuiApplication::paletteChanged,
-                     this,
-                     &AkPaletteGroup::updatePalette);
 }
 
 AkPaletteGroup::AkPaletteGroup(const AkPaletteGroup &other):
@@ -149,11 +139,6 @@ AkPaletteGroup::AkPaletteGroup(const AkPaletteGroup &other):
     this->d->m_toolTipBase = other.d->m_toolTipBase;
     this->d->m_link = other.d->m_link;
     this->d->m_linkVisited = other.d->m_linkVisited;
-
-    QObject::connect(qGuiApp,
-                     &QGuiApplication::paletteChanged,
-                     this,
-                     &AkPaletteGroup::updatePalette);
 }
 
 AkPaletteGroup::~AkPaletteGroup()

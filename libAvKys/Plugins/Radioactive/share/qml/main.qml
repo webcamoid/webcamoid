@@ -17,11 +17,11 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-import QtQuick 2.12
-import QtQuick.Controls 2.5
-import QtQuick.Layouts 1.3
-import Ak 1.0
-import AkControls 1.0 as AK
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
+import Ak
+import AkControls as AK
 
 GridLayout {
     columns: 2
@@ -77,8 +77,8 @@ GridLayout {
         text: Radioactive.blur
         placeholderText: qsTr("Blur")
         selectByMouse: true
-        validator: RegExpValidator {
-            regExp: /\d+/
+        validator: RegularExpressionValidator {
+            regularExpression: /\d+/
         }
         Layout.fillWidth: true
 
@@ -91,8 +91,8 @@ GridLayout {
         text: Radioactive.zoom
         placeholderText: qsTr("Zoom")
         selectByMouse: true
-        validator: RegExpValidator {
-            regExp: /\d+\.\d+|\d+\.|\.\d+|\d+/
+        validator: RegularExpressionValidator {
+            regularExpression: /\d+\.\d+|\d+\.|\.\d+|\d+/
         }
         Layout.fillWidth: true
 
@@ -105,8 +105,8 @@ GridLayout {
         text: Radioactive.threshold
         placeholderText: qsTr("Threshold")
         selectByMouse: true
-        validator: RegExpValidator {
-            regExp: /\d+/
+        validator: RegularExpressionValidator {
+            regularExpression: /\d+/
         }
         Layout.fillWidth: true
 
@@ -125,8 +125,8 @@ GridLayout {
         text: Radioactive.lumaThreshold
         placeholderText: lumaLabel.text
         selectByMouse: true
-        validator: RegExpValidator {
-            regExp: /\d+/
+        validator: RegularExpressionValidator {
+            regularExpression: /\d+/
         }
         Layout.fillWidth: true
 
@@ -143,8 +143,8 @@ GridLayout {
         text: Radioactive.alphaDiff
         placeholderText: alphaDiffLabel.text
         selectByMouse: true
-        validator: RegExpValidator {
-            regExp: /-?\d+/
+        validator: RegularExpressionValidator {
+            regularExpression: /-?\d+/
         }
         Layout.fillWidth: true
 

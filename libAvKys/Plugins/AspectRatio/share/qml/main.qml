@@ -17,9 +17,9 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-import QtQuick 2.12
-import QtQuick.Controls 2.5
-import QtQuick.Layouts 1.3
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
 
 GridLayout {
     columns: 2
@@ -31,8 +31,8 @@ GridLayout {
         text: AspectRatio.width
         placeholderText: qsTr("Aspect ratio width")
         selectByMouse: true
-        validator: RegExpValidator {
-            regExp: /[1-9][0-9]*/
+        validator: RegularExpressionValidator {
+            regularExpression: /[1-9][0-9]*/
         }
         Layout.fillWidth: true
 
@@ -45,8 +45,8 @@ GridLayout {
         text: AspectRatio.height
         placeholderText: qsTr("Aspect ratio height")
         selectByMouse: true
-        validator: RegExpValidator {
-            regExp: /[1-9][0-9]*/
+        validator: RegularExpressionValidator {
+            regularExpression: /[1-9][0-9]*/
         }
         Layout.fillWidth: true
 

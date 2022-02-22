@@ -17,9 +17,9 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-import QtQuick 2.12
-import QtQuick.Controls 2.5
-import QtQuick.Layouts 1.3
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
 
 OptionsPanel {
     id: panel
@@ -47,7 +47,7 @@ OptionsPanel {
 
         VideoEffectsList {
             onOpenVideoEffectsDialog: panel.openVideoEffectsDialog()
-            onOpenVideoEffectOptions: {
+            onOpenVideoEffectOptions: function(effectIndex) {
                 closeAndOpen()
                 layout.currentIndex = 1
                 effectOptions.effectIndex = effectIndex

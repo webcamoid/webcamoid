@@ -366,12 +366,12 @@ bool AbstractStream::setState(AkElement::ElementState state)
             this->d->m_paused = state == AkElement::ElementStatePaused;
             this->d->m_dataLoopResult =
                     QtConcurrent::run(&this->d->m_threadPool,
-                                      this->d,
-                                      &AbstractStreamPrivate::dataLoop);
+                                      &AbstractStreamPrivate::dataLoop,
+                                      this->d);
             this->d->m_packetLoopResult =
                     QtConcurrent::run(&this->d->m_threadPool,
-                                      this->d,
-                                      &AbstractStreamPrivate::packetLoop);
+                                      &AbstractStreamPrivate::packetLoop,
+                                      this->d);
             this->d->m_state = state;
             emit this->stateChanged(state);
 

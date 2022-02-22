@@ -17,10 +17,10 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-import QtQuick 2.12
-import QtQuick.Controls 2.5
-import Qt.labs.platform 1.1 as LABS
-import QtQuick.Layouts 1.3
+import QtQuick
+import QtQuick.Controls
+import Qt.labs.platform as LABS
+import QtQuick.Layouts
 
 GridLayout {
     columns: 2
@@ -154,8 +154,8 @@ GridLayout {
         text: Halftone.patternSize.width + "x" + Halftone.patternSize.height
         placeholderText: qsTr("Pattern size")
         selectByMouse: true
-        validator: RegExpValidator {
-            regExp: /-?\d+x-?\d+/
+        validator: RegularExpressionValidator {
+            regularExpression: /-?\d+x-?\d+/
         }
         Layout.fillWidth: true
 
@@ -168,8 +168,8 @@ GridLayout {
         text: Halftone.lightness
         placeholderText: qsTr("Lightness")
         selectByMouse: true
-        validator: RegExpValidator {
-            regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
+        validator: RegularExpressionValidator {
+            regularExpression: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
         }
         Layout.fillWidth: true
 
@@ -182,8 +182,8 @@ GridLayout {
         text: Halftone.slope
         placeholderText: qsTr("Slope")
         selectByMouse: true
-        validator: RegExpValidator {
-            regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
+        validator: RegularExpressionValidator {
+            regularExpression: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
         }
         Layout.fillWidth: true
 
@@ -196,8 +196,8 @@ GridLayout {
         text: Halftone.intercept
         placeholderText: qsTr("Intercept")
         selectByMouse: true
-        validator: RegExpValidator {
-            regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
+        validator: RegularExpressionValidator {
+            regularExpression: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
         }
         Layout.fillWidth: true
 

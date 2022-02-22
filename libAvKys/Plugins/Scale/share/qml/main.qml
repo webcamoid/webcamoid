@@ -17,10 +17,10 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-import QtQuick 2.12
-import QtQuick.Controls 2.5
-import QtQuick.Layouts 1.3
-import ScaleElement 1.0
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
+import ScaleElement
 
 GridLayout {
     columns: 2
@@ -44,8 +44,8 @@ GridLayout {
     TextField {
         text: Scaling.width
         selectByMouse: true
-        validator: RegExpValidator {
-            regExp: /-?\d+/
+        validator: RegularExpressionValidator {
+            regularExpression: /-?\d+/
         }
         Layout.fillWidth: true
 
@@ -57,8 +57,8 @@ GridLayout {
     TextField {
         text: Scaling.height
         selectByMouse: true
-        validator: RegExpValidator {
-            regExp: /-?\d+/
+        validator: RegularExpressionValidator {
+            regularExpression: /-?\d+/
         }
         Layout.fillWidth: true
 

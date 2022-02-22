@@ -27,9 +27,7 @@ QObject *Scale::create(const QString &key, const QString &specification)
     Q_UNUSED(key)
     Q_UNUSED(specification)
     qRegisterMetaType<ScaleElement::ScalingMode>("ScaleElementScalingMode");
-    qRegisterMetaTypeStreamOperators<ScaleElement::ScalingMode>("ScaleElementScalingMode");
     qRegisterMetaType<ScaleElement::AspectRatioMode>("ScaleElementAspectRatioMode");
-    qRegisterMetaTypeStreamOperators<ScaleElement::AspectRatioMode>("ScaleElementAspectRatioMode");
     qmlRegisterType<ScaleElement>("ScaleElement", 1, 0, "ScaleElement");
 
     return new ScaleElement();

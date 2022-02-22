@@ -18,7 +18,6 @@
  */
 
 #include <QApplication>
-#include <QDesktopWidget>
 #include <QScreen>
 #include <QTime>
 #include <QTimer>
@@ -260,7 +259,7 @@ void QtScreenDev::readFrame()
                      fps};
 
     auto frame =
-            screen->grabWindow(QApplication::desktop()->winId(),
+            screen->grabWindow(0,
                                screen->geometry().x(),
                                screen->geometry().y(),
                                screen->geometry().width(),
@@ -290,8 +289,8 @@ void QtScreenDev::readFrame()
 
         this->d->m_threadStatus =
                 QtConcurrent::run(&this->d->m_threadPool,
-                                  this->d,
                                   &QtScreenDevPrivate::sendPacket,
+                                  this->d,
                                   this->d->m_curPacket);
     }
 }

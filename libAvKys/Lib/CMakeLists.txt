@@ -30,6 +30,7 @@ set(CMAKE_AUTORCC ON)
 set(QT_COMPONENTS
     Quick
     Widgets)
+
 find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)

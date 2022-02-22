@@ -17,11 +17,11 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-import QtQuick 2.12
-import QtQuick.Controls 2.5
-import QtQuick.Templates 2.5 as T
-import QtQuick.Window 2.12
-import Ak 1.0
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Templates as T
+import QtQuick.Window
+import Ak
 
 T.Menu {
     id: control

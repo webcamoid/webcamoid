@@ -795,9 +795,11 @@ void Recording::thumbnailUpdated(const AkPacket &packet)
         return;
 
     this->d->m_thumbnail = thumbnail;
-    QtConcurrent::run(&this->d->m_threadPool,
-                      this->d,
-                      &RecordingPrivate::thumbnailReady);
+    auto result =
+            QtConcurrent::run(&this->d->m_threadPool,
+                              &RecordingPrivate::thumbnailReady,
+                              this->d);
+    Q_UNUSED(result)
 }
 
 void Recording::mediaLoaded(const QString &media)

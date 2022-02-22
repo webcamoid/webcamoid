@@ -17,9 +17,9 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-import QtQuick 2.12
-import QtQuick.Controls 2.5
-import QtQuick.Layouts 1.3
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
 
 GridLayout {
     columns: 2
@@ -67,8 +67,8 @@ GridLayout {
         text: Ripple.amplitude
         placeholderText: qsTr("Amplitude")
         selectByMouse: true
-        validator: RegExpValidator {
-            regExp: /\d+/
+        validator: RegularExpressionValidator {
+            regularExpression: /\d+/
         }
         Layout.fillWidth: true
 
@@ -81,8 +81,8 @@ GridLayout {
         text: Ripple.decay
         placeholderText: qsTr("Decay")
         selectByMouse: true
-        validator: RegExpValidator {
-            regExp: /\d+/
+        validator: RegularExpressionValidator {
+            regularExpression: /\d+/
         }
         Layout.fillWidth: true
 
@@ -95,8 +95,8 @@ GridLayout {
         text: Ripple.threshold
         placeholderText: qsTr("Threshold")
         selectByMouse: true
-        validator: RegExpValidator {
-            regExp: /\d+/
+        validator: RegularExpressionValidator {
+            regularExpression: /\d+/
         }
         Layout.fillWidth: true
 
@@ -115,8 +115,8 @@ GridLayout {
         text: Ripple.lumaThreshold
         placeholderText: lumaLabel.text
         selectByMouse: true
-        validator: RegExpValidator {
-            regExp: /\d+/
+        validator: RegularExpressionValidator {
+            regularExpression: /\d+/
         }
         Layout.fillWidth: true
 

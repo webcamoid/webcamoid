@@ -22,6 +22,7 @@
 #include <QQmlEngine>
 #include <QQuickImageProvider>
 #include <QQuickWindow>
+#include <QRegularExpression>
 #include <QSGSimpleTextureNode>
 
 #include "akcolorizedimage.h"
@@ -627,7 +628,7 @@ void AkColorizedImagePrivate::loadImage(const QString &source)
         auto tmpSource = source;
 
         if (tmpSource.startsWith("file://"))
-            tmpSource.remove(QRegExp("^file://"));
+            tmpSource.remove(QRegularExpression("^file://"));
 
         this->m_image = QImage(tmpSource);
     }

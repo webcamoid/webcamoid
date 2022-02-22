@@ -17,8 +17,8 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-import QtQuick 2.12
-import QtQuick.Controls 2.5
+import QtQuick
+import QtQuick.Controls
 
 ListView {
     id: lsvOptionList
@@ -53,8 +53,8 @@ ListView {
               lsvOptionList.textRole?
                   lsvOptionList.model.get(index)[lsvOptionList.textRole]:
                   lsvOptionList.model[index]
-        anchors.right: parent.right
-        anchors.left: parent.left
+        anchors.right: parent? parent.right: undefined
+        anchors.left: parent? parent.left: undefined
         visible: mediaTools.matches(filter, optionValues(index))
         height: visible? implicitHeight: 0
         highlighted: lsvOptionList.currentItem == this

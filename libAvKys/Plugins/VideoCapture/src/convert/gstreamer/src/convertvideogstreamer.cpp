@@ -106,6 +106,7 @@ class ConvertVideoGStreamerPrivate
         GstElement *m_source {nullptr};
         GstElement *m_sink {nullptr};
         GMainLoop *m_mainLoop {nullptr};
+        QFuture<void> m_mainLoopResult;
         guint m_busWatchId {0};
         qint64 m_id {-1};
         qint64 m_ptsDiff {AkNoPts<qint64>()};
@@ -267,9 +268,10 @@ bool ConvertVideoGStreamer::init(const AkCaps &caps)
 
     // Run the main GStreamer loop.
     this->d->m_mainLoop = g_main_loop_new(nullptr, FALSE);
-    QtConcurrent::run(&this->d->m_threadPool,
-                      g_main_loop_run,
-                      this->d->m_mainLoop);
+    this->d->m_mainLoopResult =
+            QtConcurrent::run(&this->d->m_threadPool,
+                              g_main_loop_run,
+                              this->d->m_mainLoop);
     gst_element_set_state(this->d->m_pipeline, GST_STATE_PLAYING);
 
     return true;

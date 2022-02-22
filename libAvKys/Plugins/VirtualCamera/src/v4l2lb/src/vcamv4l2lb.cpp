@@ -25,10 +25,10 @@
 #include <QFileSystemWatcher>
 #include <QMutex>
 #include <QProcessEnvironment>
+#include <QRegularExpression>
 #include <QSettings>
 #include <QTemporaryDir>
 #include <QTemporaryFile>
-#include <QTextCodec>
 #include <QThread>
 #include <fcntl.h>
 #include <limits>
@@ -413,8 +413,9 @@ QList<quint64> VCamV4L2LoopBack::clientsPids() const
         for (auto &fd: fds) {
             QFileInfo fdInfo(fdDir.absoluteFilePath(fd));
             QString target = fdInfo.isSymLink()? fdInfo.symLinkTarget(): "";
+            static const QRegularExpression re("^/dev/video[0-9]+$");
 
-            if (QRegExp("/dev/video[0-9]+").exactMatch(target))
+            if (re.match(target).hasMatch())
                 videoDevices << target;
         }
 

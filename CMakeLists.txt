@@ -23,7 +23,7 @@ project(Webcamoid)
 include(libAvKys/cmake/ProjectCommons.cmake)
 
 if (ANDROID)
-    find_package(Qt5 COMPONENTS Core REQUIRED)
+    find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core REQUIRED)
 endif ()
 
 add_subdirectory(libAvKys)

@@ -17,9 +17,9 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-import QtQuick 2.12
-import QtQuick.Controls 2.5
-import QtQuick.Layouts 1.3
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
 
 OptionsPanel {
     id: panel
@@ -78,17 +78,18 @@ OptionsPanel {
         AudioOptions {
         }
         VideoOptions {
-            onOpenErrorDialog: panel.openErrorDialog(title, message)
-            onOpenVideoInputAddEditDialog:
+            onOpenErrorDialog: (title, message) =>
+                panel.openErrorDialog(title, message)
+            onOpenVideoInputAddEditDialog: videoInput =>
                 videoInputAddEdit.openOptions(videoInput)
-            onOpenVideoOutputAddEditDialog:
+            onOpenVideoOutputAddEditDialog: videoOutput =>
                 videoOutputAddEdit.openOptions(videoOutput)
-            onOpenVideoInputOptions: {
+            onOpenVideoInputOptions: function (videoInput) {
                 closeAndOpen()
                 layout.currentIndex = 2
                 videoInputOptions.setInput(videoInput)
             }
-            onOpenVideoOutputOptions: {
+            onOpenVideoOutputOptions: function (videoOutput) {
                 closeAndOpen()
                 layout.currentIndex = 3
                 videoOutputOptions.setOutput(videoOutput)
@@ -106,7 +107,7 @@ OptionsPanel {
                 layout.currentIndex -= 1
             }
 
-            onOpenVideoInputAddEditDialog:
+            onOpenVideoInputAddEditDialog: videoInput =>
                 videoInputAddEdit.openOptions(videoInput)
             onVideoInputRemoved: closeOption()
         }
@@ -119,8 +120,9 @@ OptionsPanel {
                 layout.currentIndex -= 2
             }
 
-            onOpenErrorDialog: panel.openErrorDialog(title, message)
-            onOpenVideoOutputAddEditDialog:
+            onOpenErrorDialog: (title, message) =>
+                panel.openErrorDialog(title, message)
+            onOpenVideoOutputAddEditDialog: videoOutput =>
                 videoOutputAddEdit.openOptions(videoOutput)
             onVideoOutputRemoved: closeOption()
         }
@@ -136,30 +138,38 @@ OptionsPanel {
         id: videoOutputAddEdit
         anchors.centerIn: Overlay.overlay
 
-        onOpenErrorDialog: panel.openErrorDialog(title, message)
-        onOpenOutputFormatDialog: addVideoFormat.openOptions(index, caps)
+        onOpenErrorDialog: (title, message) =>
+            panel.openErrorDialog(title, message)
+        onOpenOutputFormatDialog: (index, caps) =>
+            addVideoFormat.openOptions(index, caps)
         onEdited: videoOutputOptions.closeOption()
     }
     AddVideoFormat {
         id:  addVideoFormat
         anchors.centerIn: Overlay.overlay
 
-        onAddFormat: videoOutputAddEdit.addFormat(caps)
-        onChangeFormat: videoOutputAddEdit.changeFormat(index, caps)
-        onRemoveFormat: videoOutputAddEdit.removeFormat(index)
+        onAddFormat: caps =>
+            videoOutputAddEdit.addFormat(caps)
+        onChangeFormat: (index, caps) =>
+            videoOutputAddEdit.changeFormat(index, caps)
+        onRemoveFormat: index =>
+            videoOutputAddEdit.removeFormat(index)
     }
     VideoOutputPicture {
         id: videoOutputPicture
         anchors.centerIn: Overlay.overlay
 
-        onOpenErrorDialog: panel.openErrorDialog(title, message)
+        onOpenErrorDialog: (title, message) =>
+            panel.openErrorDialog(title, message)
     }
     DownloadDialog {
         id: vcamDownload
         anchors.centerIn: Overlay.overlay
 
-        onDownloadSucceeded: vcamDownloadSucceeded.openWithInstaller(installerFile)
-        onDownloadFailed: vcamDownloadFailed.openWithError(error)
+        onDownloadSucceeded: installerFile =>
+            vcamDownloadSucceeded.openWithInstaller(installerFile)
+        onDownloadFailed: error =>
+            vcamDownloadFailed.openWithError(error)
     }
     VCamManualDownloadDialog {
         id: vcamManualDownload

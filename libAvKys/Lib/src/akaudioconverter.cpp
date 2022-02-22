@@ -534,7 +534,7 @@ class AkAudioConverterPrivate
                 ymax = std::numeric_limits<SampleType>::max();
             }
 
-            y = qBound<SumType>(ymin, y, ymax);
+            y = qBound(SumType(ymin), SumType(y), SumType(ymax));
 
             return transformTo(SampleType(y));
         }

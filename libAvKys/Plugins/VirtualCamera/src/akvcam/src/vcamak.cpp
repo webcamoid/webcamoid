@@ -26,10 +26,10 @@
 #include <QImage>
 #include <QMutex>
 #include <QProcessEnvironment>
+#include <QRegularExpression>
 #include <QSettings>
 #include <QTemporaryDir>
 #include <QTemporaryFile>
-#include <QTextCodec>
 #include <QThread>
 #include <fcntl.h>
 #include <limits>
@@ -403,8 +403,9 @@ QList<quint64> VCamAk::clientsPids() const
         for (auto &fd: fds) {
             QFileInfo fdInfo(fdDir.absoluteFilePath(fd));
             QString target = fdInfo.isSymLink()? fdInfo.symLinkTarget(): "";
+            static const QRegularExpression re("^/dev/video[0-9]+$");
 
-            if (QRegExp("/dev/video[0-9]+").exactMatch(target))
+            if (re.match(target).hasMatch())
                 videoDevices << target;
         }
 
@@ -545,14 +546,6 @@ QString VCamAk::deviceCreate(const QString &description,
 
     QTemporaryDir tempDir;
     QSettings settings(tempDir.path() + "/config.ini", QSettings::IniFormat);
-
-    // Set file encoding.
-    auto codec = QTextCodec::codecForLocale();
-
-    if (codec)
-        settings.setIniCodec(codec->name());
-    else
-        settings.setIniCodec("UTF-8");
 
     // Write 'config.ini'.
     int i = 0;
@@ -792,14 +785,6 @@ bool VCamAk::deviceEdit(const QString &deviceId,
     QTemporaryDir tempDir;
     QSettings settings(tempDir.path() + "/config.ini", QSettings::IniFormat);
 
-    // Set file encoding.
-    auto codec = QTextCodec::codecForLocale();
-
-    if (codec)
-        settings.setIniCodec(codec->name());
-    else
-        settings.setIniCodec("UTF-8");
-
     // Write 'config.ini'.
     int i = 0;
     int j = 0;
@@ -1018,12 +1003,6 @@ bool VCamAk::changeDescription(const QString &deviceId,
 
     QTemporaryDir tempDir;
     QSettings settings(tempDir.path() + "/config.ini", QSettings::IniFormat);
-    auto codec = QTextCodec::codecForLocale();
-
-    if (codec)
-        settings.setIniCodec(codec->name());
-    else
-        settings.setIniCodec("UTF-8");
 
     int i = 0;
     int j = 0;
@@ -1288,12 +1267,6 @@ bool VCamAk::deviceDestroy(const QString &deviceId)
     // Write config.ini.
     QTemporaryDir tempDir;
     QSettings settings(tempDir.path() + "/config.ini", QSettings::IniFormat);
-    auto codec = QTextCodec::codecForLocale();
-
-    if (codec)
-        settings.setIniCodec(codec->name());
-    else
-        settings.setIniCodec("UTF-8");
 
     int i = 0;
     int j = 0;
@@ -1700,12 +1673,6 @@ bool VCamAk::applyPicture()
 
     QTemporaryDir tempDir;
     QSettings settings(tempDir.path() + "/config.ini", QSettings::IniFormat);
-    auto codec = QTextCodec::codecForLocale();
-
-    if (codec)
-        settings.setIniCodec(codec->name());
-    else
-        settings.setIniCodec("UTF-8");
 
     int i = 0;
     int j = 0;

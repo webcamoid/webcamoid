@@ -17,10 +17,10 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-import QtQuick 2.12
-import QtQuick.Controls 2.5
-import QtQuick.Layouts 1.3
-import Ak 1.0
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
+import Ak
 
 Dialog {
     id: audioCodecOptions
@@ -167,8 +167,8 @@ Dialog {
                 id: bitrate
                 placeholderText: qsTr("Bitrate (bits/secs)")
                 selectByMouse: true
-                validator: RegExpValidator {
-                    regExp: /\d+/
+                validator: RegularExpressionValidator {
+                    regularExpression: /\d+/
                 }
                 Layout.fillWidth: true
 
@@ -251,8 +251,8 @@ Dialog {
 
         TextField {
             selectByMouse: true
-            validator: RegExpValidator {
-                regExp: /-?\d+\/\d+/
+            validator: RegularExpressionValidator {
+                regularExpression: /-?\d+\/\d+/
             }
             Layout.fillWidth: true
 
@@ -349,8 +349,8 @@ Dialog {
 
         TextField {
             selectByMouse: true
-            validator: RegExpValidator {
-                regExp: /[-+]?(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?/
+            validator: RegularExpressionValidator {
+                regularExpression: /[-+]?(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?/
             }
             Layout.fillWidth: true
 

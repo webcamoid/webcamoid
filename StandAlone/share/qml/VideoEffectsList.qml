@@ -17,10 +17,10 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-import QtQuick 2.12
-import QtQuick.Controls 2.5
-import QtQuick.Layouts 1.3
-import Ak 1.0
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
+import Ak
 
 ScrollView {
     id: effectsView
@@ -73,8 +73,8 @@ ScrollView {
                       effectsList.model.get(index)?
                           effectsList.model.get(index)["description"]:
                           ""
-                anchors.right: parent.right
-                anchors.left: parent.left
+                anchors.right: parent? parent.right: undefined
+                anchors.left: parent? parent.left: undefined
                 height: implicitHeight
 
                 onClicked:

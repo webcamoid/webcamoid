@@ -17,11 +17,11 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-import QtQuick 2.12
-import QtQuick.Controls 2.5
-import QtQuick.Layouts 1.3
-import Ak 1.0
-import AkControls 1.0 as AK
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
+import Ak
+import AkControls as AK
 
 RowLayout {
     id: rlyColor

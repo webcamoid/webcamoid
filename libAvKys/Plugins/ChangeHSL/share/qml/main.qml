@@ -17,9 +17,9 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-import QtQuick 2.12
-import QtQuick.Controls 2.5
-import QtQuick.Layouts 1.3
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
 
 ColumnLayout {
     id: configs
@@ -44,8 +44,8 @@ ColumnLayout {
             id: hh
             text: ChangeHSL.kernel[0]
             selectByMouse: true
-            validator: RegExpValidator {
-                regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
+            validator: RegularExpressionValidator {
+                regularExpression: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
             }
             Layout.preferredWidth: cellSize
 
@@ -55,8 +55,8 @@ ColumnLayout {
             id: hs
             text: ChangeHSL.kernel[1]
             selectByMouse: true
-            validator: RegExpValidator {
-                regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
+            validator: RegularExpressionValidator {
+                regularExpression: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
             }
             Layout.preferredWidth: cellSize
 
@@ -66,8 +66,8 @@ ColumnLayout {
             id: hl
             text: ChangeHSL.kernel[2]
             selectByMouse: true
-            validator: RegExpValidator {
-                regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
+            validator: RegularExpressionValidator {
+                regularExpression: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
             }
             Layout.preferredWidth: cellSize
 
@@ -77,8 +77,8 @@ ColumnLayout {
             id: h0
             text: ChangeHSL.kernel[3]
             selectByMouse: true
-            validator: RegExpValidator {
-                regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
+            validator: RegularExpressionValidator {
+                regularExpression: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
             }
             Layout.preferredWidth: cellSize
 
@@ -90,8 +90,8 @@ ColumnLayout {
             id: sh
             text: ChangeHSL.kernel[4]
             selectByMouse: true
-            validator: RegExpValidator {
-                regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
+            validator: RegularExpressionValidator {
+                regularExpression: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
             }
             Layout.preferredWidth: cellSize
 
@@ -101,8 +101,8 @@ ColumnLayout {
             id: ss
             text: ChangeHSL.kernel[5]
             selectByMouse: true
-            validator: RegExpValidator {
-                regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
+            validator: RegularExpressionValidator {
+                regularExpression: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
             }
             Layout.preferredWidth: cellSize
 
@@ -112,8 +112,8 @@ ColumnLayout {
             id: sl
             text: ChangeHSL.kernel[6]
             selectByMouse: true
-            validator: RegExpValidator {
-                regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
+            validator: RegularExpressionValidator {
+                regularExpression: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
             }
             Layout.preferredWidth: cellSize
 
@@ -123,8 +123,8 @@ ColumnLayout {
             id: s0
             text: ChangeHSL.kernel[7]
             selectByMouse: true
-            validator: RegExpValidator {
-                regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
+            validator: RegularExpressionValidator {
+                regularExpression: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
             }
             Layout.preferredWidth: cellSize
 
@@ -136,8 +136,8 @@ ColumnLayout {
             id: lh
             text: ChangeHSL.kernel[8]
             selectByMouse: true
-            validator: RegExpValidator {
-                regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
+            validator: RegularExpressionValidator {
+                regularExpression: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
             }
             Layout.preferredWidth: cellSize
 
@@ -147,8 +147,8 @@ ColumnLayout {
             id: ls
             text: ChangeHSL.kernel[9]
             selectByMouse: true
-            validator: RegExpValidator {
-                regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
+            validator: RegularExpressionValidator {
+                regularExpression: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
             }
             Layout.preferredWidth: cellSize
 
@@ -158,8 +158,8 @@ ColumnLayout {
             id: ll
             text: ChangeHSL.kernel[10]
             selectByMouse: true
-            validator: RegExpValidator {
-                regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
+            validator: RegularExpressionValidator {
+                regularExpression: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
             }
             Layout.preferredWidth: cellSize
 
@@ -169,8 +169,8 @@ ColumnLayout {
             id: l0
             text: ChangeHSL.kernel[11]
             selectByMouse: true
-            validator: RegExpValidator {
-                regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
+            validator: RegularExpressionValidator {
+                regularExpression: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
             }
             Layout.preferredWidth: cellSize
 

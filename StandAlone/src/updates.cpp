@@ -79,7 +79,7 @@ class UpdatesPrivate
             QString sv2;
 
             for (int i = 0; i < v1.size(); i++) {
-                auto fillChar = v1[i].type() == QVariant::String? ' ': '0';
+                auto fillChar = v1[i].metaType() == QMetaType::fromType<QString>()? ' ': '0';
                 auto a = v1[i].toString();
                 auto b = v2[i].toString();
                 auto width = qMax(a.size(), b.size());
@@ -484,7 +484,7 @@ void UpdatesPrivate::normalize(QVariantList &vector1,
         auto offset = vector2.size();
 
         for (int i = 0; i < diff; i++)
-            if (vector1.value(offset + i).type() == QVariant::String)
+            if (vector1.value(offset + i).metaType() == QMetaType::fromType<QString>())
                 vector2 << QString();
             else
                 vector2 << 0;
@@ -493,7 +493,7 @@ void UpdatesPrivate::normalize(QVariantList &vector1,
         auto offset = vector1.size();
 
         for (int i = 0; i < diff; i++)
-            if (vector2.value(offset + i).type() == QVariant::String)
+            if (vector2.value(offset + i).metaType() == QMetaType::fromType<QString>())
                 vector1 << QString();
             else
                 vector1 << 0;

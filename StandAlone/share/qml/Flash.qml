@@ -17,9 +17,9 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-import QtQuick 2.12
-import QtQuick.Window 2.12
-import QtQuick.Controls 2.5
+import QtQuick
+import QtQuick.Window
+import QtQuick.Controls
 
 ApplicationWindow {
     id: wndFlash

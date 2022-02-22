@@ -25,6 +25,8 @@
 #include <QProcess>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
+#include <QQuickStyle>
+#include <QRegularExpression>
 #include <QSettings>
 #include <QStandardPaths>
 #include <QThread>
@@ -89,6 +91,11 @@ MediaTools::MediaTools(const CliOptions &cliOptions, QObject *parent):
 
     // Initialize environment.
     this->d->m_engine = new QQmlApplicationEngine();
+
+    // Set theme.
+    this->d->m_engine->addImportPath(":/Webcamoid/share/themes");
+    QQuickStyle::setStyle("WebcamoidTheme");
+
     this->d->m_engine->addImageProvider(QLatin1String("icons"),
                                         new IconsProvider);
     Ak::setQmlEngine(this->d->m_engine);
@@ -343,10 +350,12 @@ bool MediaTools::matches(const QString &pattern,
     if (pattern.isEmpty())
         return true;
 
+    auto re = QRegularExpression::fromWildcard(pattern,
+                                               Qt::CaseInsensitive,
+                                               QRegularExpression::UnanchoredWildcardConversion);
+
     for (auto &str: strings)
-        if (str.contains(QRegExp(pattern,
-                                 Qt::CaseInsensitive,
-                                 QRegExp::Wildcard)))
+        if (re.match(str).hasMatch())
             return true;
 
     return false;

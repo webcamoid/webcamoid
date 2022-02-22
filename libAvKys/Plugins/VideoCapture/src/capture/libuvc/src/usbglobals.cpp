@@ -111,8 +111,8 @@ void UsbGlobals::startUSBEvents()
         this->d->m_processsUsbEventsLoop = true;
         this->d->m_processsUsbEvents =
                 QtConcurrent::run(&this->d->m_threadPool,
-                                  this->d,
-                                  &UsbGlobalsPrivate::processUSBEvents);
+                                  &UsbGlobalsPrivate::processUSBEvents,
+                                  this->d);
     }
 
     this->d->m_mutex.unlock();

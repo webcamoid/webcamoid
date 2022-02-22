@@ -17,9 +17,9 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-import QtQuick 2.12
-import QtQuick.Controls 2.5
-import Ak 1.0
+import QtQuick
+import QtQuick.Controls
+import Ak
 
 Menu {
     id: settingsMenu

@@ -17,9 +17,9 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-import QtQuick 2.12
-import QtQuick.Controls 2.5
-import QtQuick.Templates 2.5 as T
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Templates as T
 
 T.SwipeView {
     id: control

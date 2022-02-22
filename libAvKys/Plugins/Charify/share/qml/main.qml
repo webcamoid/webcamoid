@@ -17,12 +17,12 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-import QtQuick 2.12
-import QtQuick.Controls 2.5
-import Qt.labs.platform 1.1 as LABS
-import QtQuick.Layouts 1.3
-import Ak 1.0
-import AkControls 1.0 as AK
+import QtQuick
+import QtQuick.Controls
+import Qt.labs.platform as LABS
+import QtQuick.Layouts
+import Ak
+import AkControls as AK
 
 GridLayout {
     columns: 2

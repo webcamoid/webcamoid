@@ -293,15 +293,15 @@ bool AbstractStream::init()
     this->d->m_runEncodeLoop = true;
     this->d->m_encodeLoopResult =
             QtConcurrent::run(&this->d->m_threadPool,
-                              this->d,
-                              &AbstractStreamPrivate::encodeLoop);
+                              &AbstractStreamPrivate::encodeLoop,
+                              this->d);
 
     this->d->m_runConvertLoop = true;
 
     this->d->m_convertLoopResult =
             QtConcurrent::run(&this->d->m_threadPool,
-                              this->d,
-                              &AbstractStreamPrivate::convertLoop);
+                              &AbstractStreamPrivate::convertLoop,
+                              this->d);
 
     return true;
 }

@@ -66,7 +66,7 @@ RainDrop::RainDrop(const QSize &textArea,
     this->d = new RainDropPrivate;
 
     for (int i = 0; i < textArea.height(); i++)
-        this->d->m_line.append(QRandomGenerator::global()->bounded(charTable.size()));
+        this->d->m_line.append(char(QRandomGenerator::global()->bounded(charTable.size())));
 
     this->d->m_textArea = textArea;
     int y = randomStart?

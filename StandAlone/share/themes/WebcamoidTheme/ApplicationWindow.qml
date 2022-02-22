@@ -17,10 +17,11 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-import QtQuick 2.12
-import QtQuick.Window 2.12
-import QtQuick.Templates 2.5 as T
-import Ak 1.0
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Window
+import QtQuick.Templates as T
+import Ak
 
 T.ApplicationWindow {
     id: control
@@ -31,10 +32,10 @@ T.ApplicationWindow {
     background: Rectangle {
         color: control.color
     }
-    overlay.modal: Rectangle {
+    Overlay.modal: Rectangle {
         color: control.color
     }
-    overlay.modeless: Rectangle {
+    Overlay.modeless: Rectangle {
         color: control.color
     }
 }

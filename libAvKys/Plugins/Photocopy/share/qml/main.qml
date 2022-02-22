@@ -17,9 +17,9 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-import QtQuick 2.12
-import QtQuick.Controls 2.5
-import QtQuick.Layouts 1.3
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
 
 GridLayout {
     columns: 2
@@ -31,8 +31,8 @@ GridLayout {
         text: Photocopy.brightness
         placeholderText: qsTr("Brightness")
         selectByMouse: true
-        validator: RegExpValidator {
-            regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
+        validator: RegularExpressionValidator {
+            regularExpression: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
         }
         Layout.fillWidth: true
 
@@ -45,8 +45,8 @@ GridLayout {
         text: Photocopy.contrast
         placeholderText: qsTr("Contrast")
         selectByMouse: true
-        validator: RegExpValidator {
-            regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
+        validator: RegularExpressionValidator {
+            regularExpression: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
         }
         Layout.fillWidth: true
 

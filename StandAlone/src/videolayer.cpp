@@ -613,7 +613,8 @@ bool VideoLayer::executeVCamInstaller(const QString &installer)
                                     | QFileDevice::ReadOther
                                     | QFileDevice::ExeOther);
 
-    QtConcurrent::run(&this->d->m_threadPool, [this, installer] () {
+    auto result =
+            QtConcurrent::run(&this->d->m_threadPool, [this, installer] () {
         qDebug() << "Executing installer:" << installer;
         int exitCode = -1;
         QString errorString = "Can't execute installer";
@@ -662,6 +663,7 @@ bool VideoLayer::executeVCamInstaller(const QString &installer)
 
         emit this->vcamInstallFinished(exitCode, errorString);
     });
+    Q_UNUSED(result)
 
     return true;
 }

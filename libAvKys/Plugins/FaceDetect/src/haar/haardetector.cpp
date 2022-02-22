@@ -1210,7 +1210,9 @@ QVector<QRect> HaarDetector::detect(const QImage &image, qreal scaleFactor,
                                           &roi,
                                           &mutex);
 
-        QtConcurrent::run(&threadPool, HaarCascadeHID::run, cascade);
+        auto result =
+                QtConcurrent::run(&threadPool, HaarCascadeHID::run, cascade);
+        Q_UNUSED(result)
     }
 
     threadPool.waitForDone();

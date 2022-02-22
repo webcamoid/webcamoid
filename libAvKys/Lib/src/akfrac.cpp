@@ -19,7 +19,6 @@
 
 #include <QDataStream>
 #include <QDebug>
-#include <QRegExp>
 #include <QStringList>
 #include <QQmlEngine>
 
@@ -305,8 +304,6 @@ void AkFrac::resetDen()
 void AkFrac::registerTypes()
 {
     qRegisterMetaType<AkFrac>("AkFrac");
-    qRegisterMetaTypeStreamOperators<AkFrac>("AkFrac");
-    QMetaType::registerDebugStreamOperator<AkFrac>();
     qmlRegisterSingletonType<AkFrac>("Ak", 1, 0, "AkFrac",
                                      [] (QQmlEngine *qmlEngine,
                                          QJSEngine *jsEngine) -> QObject * {

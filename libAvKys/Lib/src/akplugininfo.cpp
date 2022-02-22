@@ -21,7 +21,6 @@
 #include <QDebug>
 #include <QJsonObject>
 #include <QQmlEngine>
-#include <QRegExp>
 #include <QStringList>
 
 #include "akplugininfo.h"
@@ -186,8 +185,6 @@ int AkPluginInfo::priority() const
 void AkPluginInfo::registerTypes()
 {
     qRegisterMetaType<AkPluginInfo>("AkPluginInfo");
-    qRegisterMetaTypeStreamOperators<AkPluginInfo>("AkPluginInfo");
-    QMetaType::registerDebugStreamOperator<AkPluginInfo>();
     qmlRegisterSingletonType<AkPluginInfo>("Ak", 1, 0, "AkPluginInfo",
                                      [] (QQmlEngine *qmlEngine,
                                          QJSEngine *jsEngine) -> QObject * {

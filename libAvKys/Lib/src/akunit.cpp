@@ -366,8 +366,6 @@ void AkUnit::resetUnit()
 void AkUnit::registerTypes()
 {
     qRegisterMetaType<AkUnit>("AkUnit");
-    qRegisterMetaTypeStreamOperators<AkUnit>("AkUnit");
-    QMetaType::registerDebugStreamOperator<AkUnit>();
     qRegisterMetaType<Unit>("Unit");
     qmlRegisterSingletonType<AkUnit>("Ak", 1, 0, "AkUnit",
                                      [] (QQmlEngine *qmlEngine,

@@ -186,7 +186,6 @@ void AkCaps::clear()
 void AkCaps::registerTypes()
 {
     qRegisterMetaType<AkCaps>("AkCaps");
-    qRegisterMetaTypeStreamOperators<AkCaps>("AkCaps");
     qRegisterMetaType<CapsType>("CapsType");
     qmlRegisterSingletonType<AkCaps>("Ak", 1, 0, "AkCaps",
                                      [] (QQmlEngine *qmlEngine,

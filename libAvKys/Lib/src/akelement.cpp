@@ -23,6 +23,7 @@
 #include <QQmlComponent>
 #include <QQmlContext>
 #include <QQmlEngine>
+#include <QRegularExpression>
 
 #include "akelement.h"
 #include "akcaps.h"
@@ -255,7 +256,6 @@ void AkElement::registerTypes()
 {
     qRegisterMetaType<AkElementPtr>("AkElementPtr");
     qRegisterMetaType<ElementState>("ElementState");
-    qRegisterMetaTypeStreamOperators<ElementState>("ElementState");
     qmlRegisterSingletonType<AkElement>("Ak", 1, 0, "AkElement",
                                         [] (QQmlEngine *qmlEngine,
                                             QJSEngine *jsEngine) -> QObject * {
@@ -279,9 +279,9 @@ QList<QMetaMethod> AkElementPrivate::methodsByName(const QObject *object,
     for (int i = 0; i < object->metaObject()->methodCount(); i++) {
         QMetaMethod method = object->metaObject()->method(i);
         QString signature(method.methodSignature());
+        QRegularExpression re(QString(R"(^\s*%1\s*\(.*$)").arg(methodName));
 
-        if (QRegExp(QString(R"(\s*%1\s*\(.*)").arg(methodName))
-            .exactMatch(signature))
+        if (re.match(signature).hasMatch())
             if (!methodSignatures.contains(signature)) {
                 methods << method;
                 methodSignatures << signature;

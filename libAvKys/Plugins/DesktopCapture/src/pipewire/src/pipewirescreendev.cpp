@@ -21,7 +21,6 @@
 #include <QDBusInterface>
 #include <QDBusReply>
 #include <QDBusUnixFileDescriptor>
-#include <QDesktopWidget>
 #include <QFuture>
 #include <QMutex>
 #include <QScreen>
@@ -766,8 +765,8 @@ void PipewireScreenDevPrivate::streamProcessEvent(void *userData)
 
         self->m_threadStatus =
                 QtConcurrent::run(&self->m_threadPool,
-                                  self,
                                   &PipewireScreenDevPrivate::sendPacket,
+                                  self,
                                   self->m_curPacket);
     }
 

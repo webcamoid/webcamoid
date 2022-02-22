@@ -17,11 +17,11 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-import QtQuick 2.12
-import QtQuick.Controls 2.5
-import QtQuick.Layouts 1.3
-import Ak 1.0
-import AkControls 1.0 as AK
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
+import Ak
+import AkControls as AK
 
 GridLayout {
     columns: 2
@@ -167,8 +167,8 @@ GridLayout {
         text: FaceTrack.scanSize.width + "x" + FaceTrack.scanSize.height
         placeholderText: qsTr("Scan block")
         selectByMouse: true
-        validator: RegExpValidator {
-            regExp: /\d+x\d+/
+        validator: RegularExpressionValidator {
+            regularExpression: /\d+x\d+/
         }
         Layout.fillWidth: true
 
@@ -409,8 +409,8 @@ GridLayout {
             text: AkFrac.create(FaceTrack.aspectRatio).string.replace("/", ":")
             placeholderText: qsTr("e.g. 16:9, 4:3")
             selectByMouse: true
-            validator: RegExpValidator {
-                regExp: /\d+:\d+/
+            validator: RegularExpressionValidator {
+                regularExpression: /\d+:\d+/
             }
             enabled: FaceTrack.overrideAspectRatio
             Layout.fillWidth: true

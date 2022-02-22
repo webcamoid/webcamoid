@@ -22,7 +22,6 @@
 #include <QDirIterator>
 #include <QPluginLoader>
 #include <QQmlEngine>
-#include <QRegExp>
 #include <QStringList>
 
 #include "akpluginmanager.h"
@@ -133,14 +132,14 @@ QStringList AkPluginManager::listPlugins(const QString &pluginId,
                                          PluginsFilters filter) const
 {
     QStringList plugins;
-    QRegExp regexp(pluginId, Qt::CaseSensitive, QRegExp::Wildcard);
+    auto regexp = QRegularExpression::fromWildcard(pluginId, Qt::CaseSensitive);
     StringSet interfaces(implements.begin(), implements.end());
 
     if ((filter & FilterAll) == FilterNone)
         filter |= FilterAll;
 
     for (auto &pluginInfo: this->d->m_pluginsList) {
-        if (!pluginId.isEmpty() && !regexp.exactMatch(pluginInfo.id()))
+        if (!pluginId.isEmpty() && !regexp.match(pluginInfo.id()).hasMatch())
             continue;
 
         auto implements = pluginInfo.implements();
@@ -303,7 +302,7 @@ void AkPluginManager::scanPlugins()
 
     for (auto sPath: sPaths)
         for (auto searchDir: qAsConst(*sPath)) {
-            searchDir.replace(QRegExp(R"(((\\/?)|(/\\?))+)"),
+            searchDir.replace(QRegularExpression(R"(((\\/?)|(/\\?))+)"),
                               QDir::separator());
 
             while (searchDir.endsWith(QDir::separator()))

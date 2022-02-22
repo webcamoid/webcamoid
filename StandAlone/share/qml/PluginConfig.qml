@@ -17,11 +17,11 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-import QtQuick 2.12
-import Qt.labs.platform 1.1 as LABS
-import QtQuick.Controls 2.5
-import QtQuick.Layouts 1.3
-import Ak 1.0
+import QtQuick
+import Qt.labs.platform as LABS
+import QtQuick.Controls
+import QtQuick.Layouts
+import Ak
 
 Page {
     ColumnLayout {
