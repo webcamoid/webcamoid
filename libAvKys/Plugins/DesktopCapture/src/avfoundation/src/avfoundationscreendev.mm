@@ -18,7 +18,6 @@
  */
 
 #include <QApplication>
-#include <QDesktopWidget>
 #include <QScreen>
 #include <QThreadPool>
 #include <QtConcurrent>
@@ -55,6 +54,7 @@ AVFoundationScreenDev::AVFoundationScreenDev():
     for (auto screen: QGuiApplication::screens()) {
         QObject::connect(screen,
                          &QScreen::geometryChanged,
+                         this,
                          [=]() { this->srceenResized(int(i)); });
         i++;
     }
@@ -131,7 +131,12 @@ AkCaps AVFoundationScreenDev::caps(int stream)
         || stream != 0)
         return {};
 
-    auto screen = QGuiApplication::screens()[this->d->m_curScreenNumber];
+    auto screens = QGuiApplication::screens();
+
+    if (screens.isEmpty())
+        return {};
+
+    auto screen = screens[this->d->m_curScreenNumber];
 
     if (!screen)
         return {};
@@ -160,6 +165,7 @@ void AVFoundationScreenDev::frameReceived(CGDirectDisplayID screen,
     videoPacket.timeBase() = fps.invert();
     videoPacket.index() = 0;
     videoPacket.id() = id;
+    CGImageRelease(image);
 
     emit this->oStream(videoPacket);
 }
@@ -323,6 +329,7 @@ void AVFoundationScreenDev::screenAdded(QScreen *screen)
         if (screen_ == screen)
             QObject::connect(screen_,
                              &QScreen::geometryChanged,
+                             this,
                              [=]() { this->srceenResized(int(i)); });
 
         i++;
@@ -341,8 +348,12 @@ void AVFoundationScreenDev::screenRemoved(QScreen *screen)
 void AVFoundationScreenDev::srceenResized(int screen)
 {
     auto media = QString("screen://%1").arg(screen);
-    auto widget = QGuiApplication::screens()[screen];
+    auto screens = QGuiApplication::screens();
 
+    if (screens.isEmpty())
+        return;
+
+    auto widget = screens[screen];
     emit this->sizeChanged(media, widget->size());
 }
 

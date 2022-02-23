@@ -47,7 +47,6 @@ class CaptureAvFoundation: public Capture
         Q_INVOKABLE bool setImageControls(const QVariantMap &imageControls);
         Q_INVOKABLE bool resetImageControls();
         Q_INVOKABLE AkPacket readFrame();
-        Q_INVOKABLE quint32 modelId(const QString &webcam) const;
 
         QMutex &mutex();
         QWaitCondition &frameReady();
