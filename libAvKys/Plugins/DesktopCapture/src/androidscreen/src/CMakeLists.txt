@@ -32,7 +32,6 @@ set(QT_COMPONENTS
     Widgets)
 
 if (ANDROID)
-    list(APPEND QT_COMPONENTS AndroidExtras)
     include(UseJava)
     find_package(Java ${ANDROID_JAVA_VERSION})
 endif ()

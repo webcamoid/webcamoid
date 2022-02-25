@@ -396,20 +396,20 @@ bool AbstractStream::init()
     this->d->m_runDequeueLoop = true;
     this->d->m_dequeueLoopResult =
             QtConcurrent::run(&this->d->m_threadPool,
-                              this->d,
-                              &AbstractStreamPrivate::dequeueLoop);
+                              &AbstractStreamPrivate::dequeueLoop,
+                              this->d);
 
     this->d->m_runEqueueLoop = true;
     this->d->m_equeueLoopResult =
             QtConcurrent::run(&this->d->m_threadPool,
-                              this->d,
-                              &AbstractStreamPrivate::equeueLoop);
+                              &AbstractStreamPrivate::equeueLoop,
+                              this->d);
 
     this->d->m_runConvertLoop = true;
     this->d->m_convertLoopResult =
             QtConcurrent::run(&this->d->m_threadPool,
-                              this->d,
-                              &AbstractStreamPrivate::convertLoop);
+                              &AbstractStreamPrivate::convertLoop,
+                              this->d);
 
     return true;
 }

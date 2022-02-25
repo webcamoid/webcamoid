@@ -258,7 +258,7 @@ void MediaSourceNDKMedia::seek(qint64 mSecs,
         break;
     }
 
-    pts = qBound<qint64>(0, pts, this->durationMSecs()) * 1000;
+    pts = qBound(0, qint64(pts), this->durationMSecs()) * 1000;
 
     this->d->m_dataMutex.lock();
 
@@ -403,12 +403,12 @@ bool MediaSourceNDKMedia::setState(AkElement::ElementState state)
                 this->d->m_streamsMap[i] = stream;
 
                 QObject::connect(stream.data(),
-                                 SIGNAL(oStream(const AkPacket &)),
+                                 SIGNAL(oStream(AkPacket)),
                                  this,
-                                 SIGNAL(oStream(const AkPacket &)),
+                                 SIGNAL(oStream(AkPacket)),
                                  Qt::DirectConnection);
                 QObject::connect(stream.data(),
-                                 SIGNAL(oStream(const AkPacket &)),
+                                 SIGNAL(oStream(AkPacket)),
                                  this,
                                  SLOT(log()));
                 QObject::connect(stream.data(),
@@ -424,9 +424,11 @@ bool MediaSourceNDKMedia::setState(AkElement::ElementState state)
             this->d->m_run = true;
             this->d->m_paused = state == AkElement::ElementStatePaused;
             this->d->m_eos = false;
-            QtConcurrent::run(&this->d->m_threadPool,
-                               this->d,
-                               &MediaSourceNDKMediaPrivate::readPackets);
+            auto result =
+                    QtConcurrent::run(&this->d->m_threadPool,
+                                      &MediaSourceNDKMediaPrivate::readPackets,
+                                      this->d);
+            Q_UNUSED(result)
             this->d->m_state = state;
             emit this->stateChanged(state);
 

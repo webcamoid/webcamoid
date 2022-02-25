@@ -17,16 +17,15 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QCoreApplication>
 #include <QDateTime>
+#include <QJniObject>
 #include <QReadWriteLock>
 #include <QSet>
 #include <QThread>
 #include <QVariant>
 #include <QWaitCondition>
 #include <QWindow>
-#include <QtAndroid>
-#include <QAndroidJniEnvironment>
-#include <QAndroidJniObject>
 #include <ak.h>
 #include <akcaps.h>
 #include <akfrac.h>
@@ -195,53 +194,53 @@ class CaptureAndroidCameraPrivate
         AkFrac m_timeBase;
         AkCaps m_caps;
         qint64 m_id {-1};
-        QAndroidJniObject m_camera;
-        QAndroidJniObject m_callbacks;
-        QAndroidJniObject m_surfaceView;
+        QJniObject m_camera;
+        QJniObject m_callbacks;
+        QJniObject m_surfaceView;
 
         explicit CaptureAndroidCameraPrivate(CaptureAndroidCamera *self);
         void registerNatives();
         QVariantList caps(jint device);
         jint deviceId(const QString &device) const;
-        bool nearestFpsRangue(const QAndroidJniObject &parameters,
+        bool nearestFpsRangue(const QJniObject &parameters,
                               const AkFrac &fps,
                               jint &min,
                               jint &max);
-        QVariantList controlBoolean(const QAndroidJniObject &parameters,
+        QVariantList controlBoolean(const QJniObject &parameters,
                                     const QString &name,
                                     const QString &description,
                                     bool defaultValue=false) const;
-        bool setControlBoolean(QAndroidJniObject &parameters,
+        bool setControlBoolean(QJniObject &parameters,
                                const QString &name,
                                bool value) const;
-        QVariantList controlMenu(const QAndroidJniObject &parameters,
+        QVariantList controlMenu(const QJniObject &parameters,
                                  const QString &name,
                                  const QString &description,
                                  const QString &defaultValue={}) const;
-        bool setControlMenu(QAndroidJniObject &parameters,
+        bool setControlMenu(QJniObject &parameters,
                             const QString &name,
                             int index) const;
-        QVariantList controlInteger(const QAndroidJniObject &parameters,
+        QVariantList controlInteger(const QJniObject &parameters,
                                     const QString &name,
                                     const QString &description,
                                     int defaultValue=0) const;
-        bool setControlInteger(QAndroidJniObject &parameters,
+        bool setControlInteger(QJniObject &parameters,
                                const QString &name,
                                int value) const;
-        QVariantList controlZoom(const QAndroidJniObject &parameters,
+        QVariantList controlZoom(const QJniObject &parameters,
                                  int defaultValue=0) const;
-        bool setControlZoom(QAndroidJniObject &parameters,
+        bool setControlZoom(QJniObject &parameters,
                             int value) const;
-        QVariantList controls(const QAndroidJniObject &parameters,
+        QVariantList controls(const QJniObject &parameters,
                               const ControlVector &controls) const;
-        bool setControls(QAndroidJniObject &parameters,
+        bool setControls(QJniObject &parameters,
                          const ControlVector &controls,
                          const QVariantMap &values);
-        QVariantList imageControls(const QAndroidJniObject &parameters) const;
-        bool setImageControls(QAndroidJniObject &parameters,
+        QVariantList imageControls(const QJniObject &parameters) const;
+        bool setImageControls(QJniObject &parameters,
                               const QVariantMap &imageControls);
-        QVariantList cameraControls(const QAndroidJniObject &parameters) const;
-        bool setCameraControls(QAndroidJniObject &parameters,
+        QVariantList cameraControls(const QJniObject &parameters) const;
+        bool setCameraControls(QJniObject &parameters,
                                const QVariantMap &cameraControls);
         QVariantMap controlStatus(const QVariantList &controls) const;
         QVariantMap mapDiff(const QVariantMap &map1,
@@ -252,6 +251,7 @@ class CaptureAndroidCameraPrivate
                                       jbyteArray data);
         static void surfaceCreated(JNIEnv *env, jobject obj, jlong userPtr);
         static void surfaceDestroyed(JNIEnv *env, jobject obj, jlong userPtr);
+        static bool hasPermission(const QString &permission);
         static bool canUseCamera();
         void updateDevices();
 };
@@ -513,7 +513,7 @@ CaptureAndroidCameraPrivate::CaptureAndroidCameraPrivate(CaptureAndroidCamera *s
 {
     this->registerNatives();
     this->m_callbacks =
-            QAndroidJniObject(JCLASS(AkAndroidCameraCallbacks),
+            QJniObject(JCLASS(AkAndroidCameraCallbacks),
                               "(J)V",
                               this);
 }
@@ -525,7 +525,7 @@ void CaptureAndroidCameraPrivate::registerNatives()
     if (ready)
         return;
 
-    QAndroidJniEnvironment jenv;
+    QJniEnvironment jenv;
 
     if (auto jclass = jenv.findClass(JCLASS(AkAndroidCameraCallbacks))) {
         QVector<JNINativeMethod> methods {
@@ -543,10 +543,10 @@ void CaptureAndroidCameraPrivate::registerNatives()
 QVariantList CaptureAndroidCameraPrivate::caps(jint device)
 {
     auto camera =
-            QAndroidJniObject::callStaticObjectMethod("android/hardware/Camera",
-                                                      "open",
-                                                      "(I)Landroid/hardware/Camera;",
-                                                      device);
+            QJniObject::callStaticObjectMethod("android/hardware/Camera",
+                                               "open",
+                                               "(I)Landroid/hardware/Camera;",
+                                               device);
 
     if (!camera.isValid())
         return {};
@@ -600,7 +600,7 @@ QVariantList CaptureAndroidCameraPrivate::caps(jint device)
     auto frameRates = parameters.callObjectMethod("getSupportedPreviewFpsRange",
                                                   "()Ljava/util/List;");
     auto numFps = frameRates.callMethod<jint>("size");
-    QAndroidJniEnvironment jenv;
+    QJniEnvironment jenv;
 
     for (jint i = 0; i < numFps; i++) {
         auto jfpsRange = frameRates.callObjectMethod("get",
@@ -643,12 +643,12 @@ jint CaptureAndroidCameraPrivate::deviceId(const QString &device) const
     return ok? id: -1;
 }
 
-bool CaptureAndroidCameraPrivate::nearestFpsRangue(const QAndroidJniObject &parameters,
+bool CaptureAndroidCameraPrivate::nearestFpsRangue(const QJniObject &parameters,
                                                    const AkFrac &fps,
                                                    jint &min,
                                                    jint &max)
 {
-    QAndroidJniEnvironment jenv;
+    QJniEnvironment jenv;
     auto frameRates = parameters.callObjectMethod("getSupportedPreviewFpsRange",
                                                   "()Ljava/util/List;");
     auto numFps = frameRates.callMethod<jint>("size");
@@ -680,7 +680,7 @@ bool CaptureAndroidCameraPrivate::nearestFpsRangue(const QAndroidJniObject &para
     return ok;
 }
 
-QVariantList CaptureAndroidCameraPrivate::controlBoolean(const QAndroidJniObject &parameters,
+QVariantList CaptureAndroidCameraPrivate::controlBoolean(const QJniObject &parameters,
                                                          const QString &name,
                                                          const QString &description,
                                                          bool defaultValue) const
@@ -711,7 +711,7 @@ QVariantList CaptureAndroidCameraPrivate::controlBoolean(const QAndroidJniObject
     };
 }
 
-bool CaptureAndroidCameraPrivate::setControlBoolean(QAndroidJniObject &parameters,
+bool CaptureAndroidCameraPrivate::setControlBoolean(QJniObject &parameters,
                                                     const QString &name,
                                                     bool value) const
 {
@@ -734,7 +734,7 @@ bool CaptureAndroidCameraPrivate::setControlBoolean(QAndroidJniObject &parameter
     return true;
 }
 
-QVariantList CaptureAndroidCameraPrivate::controlMenu(const QAndroidJniObject &parameters,
+QVariantList CaptureAndroidCameraPrivate::controlMenu(const QJniObject &parameters,
                                                       const QString &name,
                                                       const QString &description,
                                                       const QString &defaultValue) const
@@ -792,7 +792,7 @@ QVariantList CaptureAndroidCameraPrivate::controlMenu(const QAndroidJniObject &p
     };
 }
 
-bool CaptureAndroidCameraPrivate::setControlMenu(QAndroidJniObject &parameters,
+bool CaptureAndroidCameraPrivate::setControlMenu(QJniObject &parameters,
                                                  const QString &name,
                                                  int index) const
 {
@@ -835,7 +835,7 @@ bool CaptureAndroidCameraPrivate::setControlMenu(QAndroidJniObject &parameters,
     return true;
 }
 
-QVariantList CaptureAndroidCameraPrivate::controlInteger(const QAndroidJniObject &parameters,
+QVariantList CaptureAndroidCameraPrivate::controlInteger(const QJniObject &parameters,
                                                          const QString &name,
                                                          const QString &description,
                                                          int defaultValue) const
@@ -873,7 +873,7 @@ QVariantList CaptureAndroidCameraPrivate::controlInteger(const QAndroidJniObject
     };
 }
 
-bool CaptureAndroidCameraPrivate::setControlInteger(QAndroidJniObject &parameters,
+bool CaptureAndroidCameraPrivate::setControlInteger(QJniObject &parameters,
                                                     const QString &name,
                                                     int value) const
 {
@@ -899,7 +899,7 @@ bool CaptureAndroidCameraPrivate::setControlInteger(QAndroidJniObject &parameter
     return true;
 }
 
-QVariantList CaptureAndroidCameraPrivate::controlZoom(const QAndroidJniObject &parameters,
+QVariantList CaptureAndroidCameraPrivate::controlZoom(const QJniObject &parameters,
                                                       int defaultValue) const
 {
     auto supported = parameters.callMethod<jboolean>("isZoomSupported");
@@ -965,7 +965,7 @@ QVariantList CaptureAndroidCameraPrivate::controlZoom(const QAndroidJniObject &p
     };
 }
 
-bool CaptureAndroidCameraPrivate::setControlZoom(QAndroidJniObject &parameters,
+bool CaptureAndroidCameraPrivate::setControlZoom(QJniObject &parameters,
                                                  int value) const
 {
     auto supported = parameters.callMethod<jboolean>("isZoomSupported");
@@ -978,7 +978,7 @@ bool CaptureAndroidCameraPrivate::setControlZoom(QAndroidJniObject &parameters,
     return true;
 }
 
-QVariantList CaptureAndroidCameraPrivate::controls(const QAndroidJniObject &parameters,
+QVariantList CaptureAndroidCameraPrivate::controls(const QJniObject &parameters,
                                                    const ControlVector &controls) const
 {
     QVariantList controlsList;
@@ -1021,7 +1021,7 @@ QVariantList CaptureAndroidCameraPrivate::controls(const QAndroidJniObject &para
     return controlsList;
 }
 
-bool CaptureAndroidCameraPrivate::setControls(QAndroidJniObject &parameters,
+bool CaptureAndroidCameraPrivate::setControls(QJniObject &parameters,
                                               const ControlVector &controls,
                                               const QVariantMap &values)
 {
@@ -1055,23 +1055,23 @@ bool CaptureAndroidCameraPrivate::setControls(QAndroidJniObject &parameters,
     return ok;
 }
 
-QVariantList CaptureAndroidCameraPrivate::imageControls(const QAndroidJniObject &parameters) const
+QVariantList CaptureAndroidCameraPrivate::imageControls(const QJniObject &parameters) const
 {
     return this->controls(parameters, *globalImageControls);
 }
 
-bool CaptureAndroidCameraPrivate::setImageControls(QAndroidJniObject &parameters,
+bool CaptureAndroidCameraPrivate::setImageControls(QJniObject &parameters,
                                                    const QVariantMap &imageControls)
 {
     return this->setControls(parameters, *globalImageControls, imageControls);
 }
 
-QVariantList CaptureAndroidCameraPrivate::cameraControls(const QAndroidJniObject &parameters) const
+QVariantList CaptureAndroidCameraPrivate::cameraControls(const QJniObject &parameters) const
 {
     return this->controls(parameters, *globalCameraControls);
 }
 
-bool CaptureAndroidCameraPrivate::setCameraControls(QAndroidJniObject &parameters,
+bool CaptureAndroidCameraPrivate::setCameraControls(QJniObject &parameters,
                                                     const QVariantMap &cameraControls)
 {
     return this->setControls(parameters, *globalCameraControls, cameraControls);
@@ -1146,6 +1146,25 @@ void CaptureAndroidCameraPrivate::surfaceDestroyed(JNIEnv *env,
     Q_UNUSED(userPtr)
 }
 
+bool CaptureAndroidCameraPrivate::hasPermission(const QString &permission)
+{
+    auto sdkVersion = QNativeInterface::QAndroidApplication::sdkVersion();
+
+    if (sdkVersion < 23)
+        return true;
+
+    auto status =
+            QJniObject::callStaticMethod<jint>("android/content/Context",
+                                               "checkSelfPermission",
+                                               "(Ljava/lang/String;)I;",
+                                               QJniObject::fromString(permission).object());
+    auto permissionGranted =
+            QJniObject::getStaticField<jint>("android/content/pm/PackageManager",
+                                             "PERMISSION_GRANTED");
+
+    return status == permissionGranted;
+}
+
 bool CaptureAndroidCameraPrivate::canUseCamera()
 {
     static bool done = false;
@@ -1160,7 +1179,7 @@ bool CaptureAndroidCameraPrivate::canUseCamera()
     QStringList neededPermissions;
 
     for (auto &permission: permissions)
-        if (QtAndroid::checkPermission(permission) == QtAndroid::PermissionResult::Denied)
+        if (!hasPermission(permission))
             neededPermissions << permission;
 
     if (!neededPermissions.isEmpty()) {
@@ -1190,20 +1209,20 @@ void CaptureAndroidCameraPrivate::updateDevices()
     decltype(this->m_devicesCaps) devicesCaps;
 
     auto numCameras =
-            QAndroidJniObject::callStaticMethod<jint>("android/hardware/Camera",
-                                                      "getNumberOfCameras");
+            QJniObject::callStaticMethod<jint>("android/hardware/Camera",
+                                               "getNumberOfCameras");
 
     for (jint i = 0; i < numCameras; i++) {
         auto caps = this->caps(i);
 
         if (!caps.empty()) {
             auto deviceId = QString("/dev/video%1").arg(i);
-            QAndroidJniObject cameraInfo("android/hardware/Camera$CameraInfo");
-            QAndroidJniObject::callStaticMethod<void>("android/hardware/Camera",
-                                                      "getCameraInfo",
-                                                      "(ILandroid/hardware/Camera$CameraInfo;)V",
-                                                      i,
-                                                      cameraInfo.object());
+            QJniObject cameraInfo("android/hardware/Camera$CameraInfo");
+            QJniObject::callStaticMethod<void>("android/hardware/Camera",
+                                               "getCameraInfo",
+                                               "(ILandroid/hardware/Camera$CameraInfo;)V",
+                                               i,
+                                               cameraInfo.object());
             auto facing = cameraInfo.getField<jint>("facing");
             auto description = QString("%1 Camera %2")
                                .arg(facing == CAMERA_FACING_BACK? "Back": "Front")
@@ -1235,29 +1254,29 @@ bool CaptureAndroidCamera::init()
     this->d->m_localCameraControls.clear();
     this->uninit();
 
-    QAndroidJniObject surfaceHolder;
+    QJniObject surfaceHolder;
     QList<int> streams;
     QVariantList supportedCaps;
     AkCaps caps;
-    QAndroidJniObject parameters;
+    QJniObject parameters;
     jint min = 0;
     jint max = 0;
     AkFrac fps;
 
     this->d->m_camera =
-            QAndroidJniObject::callStaticObjectMethod("android/hardware/Camera",
-                                                      "open",
-                                                      "(I)Landroid/hardware/Camera;",
-                                                      this->d->deviceId(this->d->m_device));
+            QJniObject::callStaticObjectMethod("android/hardware/Camera",
+                                               "open",
+                                               "(I)Landroid/hardware/Camera;",
+                                               this->d->deviceId(this->d->m_device));
 
     if (!this->d->m_camera.isValid())
         goto init_failed;
 
     QtAndroid::runOnAndroidThreadSync([this] {
         this->d->m_surfaceView =
-                QAndroidJniObject("android/view/SurfaceView",
-                                  "(Landroid/content/Context;)V",
-                                  QtAndroid::androidActivity().object());
+                QJniObject("android/view/SurfaceView",
+                           "(Landroid/content/Context;)V",
+                           QtAndroid::androidActivity().object());
         auto window = QWindow::fromWinId(WId(this->d->m_surfaceView.object()));
         window->setVisible(true);
         window->setGeometry(0, 0, 0, 0);
@@ -1374,10 +1393,10 @@ void CaptureAndroidCamera::setDevice(const QString &device)
         this->d->m_controlsMutex.lockForWrite();
 
         auto camera =
-                QAndroidJniObject::callStaticObjectMethod("android/hardware/Camera",
-                                                          "open",
-                                                          "(I)Landroid/hardware/Camera;",
-                                                          this->d->deviceId(device));
+                QJniObject::callStaticObjectMethod("android/hardware/Camera",
+                                                   "open",
+                                                   "(I)Landroid/hardware/Camera;",
+                                                   this->d->deviceId(device));
 
         if (camera.isValid()) {
             auto parameters =

@@ -37,8 +37,7 @@ set(QT_COMPONENTS
 
 if (ANDROID)
     list(APPEND QT_COMPONENTS
-         Xml
-         AndroidExtras)
+         Xml)
 endif()
 
 find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS

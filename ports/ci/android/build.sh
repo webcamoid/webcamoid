@@ -61,7 +61,7 @@ for arch_ in $(echo "${TARGET_ARCH}" | tr ":" "\n"); do
         -DANDROID_ABI="${arch_}" \
         -DANDROID_STL=c++_shared \
         -DCMAKE_FIND_ROOT_PATH="$(qmake -query QT_INSTALL_PREFIX)" \
-        -DANDROID_SDK="${ANDROID_HOME}" \
+        -DANDROID_SDK_ROOT="${ANDROID_HOME}" \
         ${EXTRA_PARAMS} \
         -DDAILY_BUILD="${DAILY_BUILD}"
     cmake --build "${buildDir}" --parallel "${NJOBS}"

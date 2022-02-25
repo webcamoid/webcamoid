@@ -18,7 +18,6 @@
  */
 
 #include <QApplication>
-#include <QDesktopWidget>
 #include <QFuture>
 #include <QMutex>
 #include <QScreen>
@@ -26,10 +25,6 @@
 #include <QTime>
 #include <QTimer>
 #include <QtConcurrent>
-#include <QtAndroid>
-#include <QAndroidJniEnvironment>
-#include <QAndroidJniObject>
-#include <QAndroidActivityResultReceiver>
 #include <ak.h>
 #include <akfrac.h>
 #include <akpacket.h>
@@ -105,13 +100,13 @@ class AndroidScreenDevPrivate: public QAndroidActivityResultReceiver
         QWaitCondition m_packetReady;
         QMutex m_mutex;
         AkPacket m_curPacket;
-        QAndroidJniEnvironment m_jenv;
-        QAndroidJniObject m_activity;
-        QAndroidJniObject m_service;
-        QAndroidJniObject m_mediaProjection;
-        QAndroidJniObject m_virtualDisplay;
-        QAndroidJniObject m_imageReader;
-        QAndroidJniObject m_callbacks;
+        QJniEnvironment m_jenv;
+        QJniObject m_activity;
+        QJniObject m_service;
+        QJniObject m_mediaProjection;
+        QJniObject m_virtualDisplay;
+        QJniObject m_imageReader;
+        QJniObject m_callbacks;
         int m_curScreenNumber {-1};
         bool m_threadedRead {true};
         bool m_canCapture {false};
@@ -121,7 +116,7 @@ class AndroidScreenDevPrivate: public QAndroidActivityResultReceiver
         void sendPacket(const AkPacket &packet);
         void handleActivityResult(int requestCode,
                                   int resultCode,
-                                  const QAndroidJniObject &intent);
+                                  const QJniObject &intent);
         static void imageAvailable(JNIEnv *env,
                                    jobject obj,
                                    jlong userPtr,
@@ -226,7 +221,7 @@ AndroidScreenDevPrivate::AndroidScreenDevPrivate(AndroidScreenDev *self):
 {
     this->registerNatives();
     this->m_callbacks =
-            QAndroidJniObject(JCLASS(AkAndroidScreenCallbacks),
+            QJniObject(JCLASS(AkAndroidScreenCallbacks),
                               "(J)V",
                               this);
 }
@@ -238,7 +233,7 @@ void AndroidScreenDevPrivate::registerNatives()
     if (ready)
         return;
 
-    QAndroidJniEnvironment jenv;
+    QJniEnvironment jenv;
 
     if (auto jclass = jenv.findClass(JCLASS(AkAndroidScreenCallbacks))) {
         QVector<JNINativeMethod> methods {
@@ -259,16 +254,16 @@ void AndroidScreenDevPrivate::sendPacket(const AkPacket &packet)
 
 void AndroidScreenDevPrivate::handleActivityResult(int requestCode,
                                                    int resultCode,
-                                                   const QAndroidJniObject &intent)
+                                                   const QJniObject &intent)
 {
     if (requestCode != SCREEN_CAPTURE_REQUEST_CODE)
         return;
 
-    QAndroidJniObject mediaProjectionCallback;
-    QAndroidJniObject resources;
-    QAndroidJniObject metrics;
-    QAndroidJniObject surface;
-    auto displayName = QAndroidJniObject::fromString("VirtualDisplay");
+    QJniObject mediaProjectionCallback;
+    QJniObject resources;
+    QJniObject metrics;
+    QJniObject surface;
+    auto displayName = QJniObject::fromString("VirtualDisplay");
     jint width;
     jint height;
     jint density;
@@ -303,7 +298,7 @@ void AndroidScreenDevPrivate::handleActivityResult(int requestCode,
     density = metrics.getField<jint>("densityDpi");
 
     this->m_imageReader =
-            QAndroidJniObject::callStaticObjectMethod("android/media/ImageReader",
+            QJniObject::callStaticObjectMethod("android/media/ImageReader",
                                                       "newInstance",
                                                       "(IIII)Landroid/media/ImageReader;",
                                                       width,
@@ -474,7 +469,7 @@ bool AndroidScreenDev::init()
     this->uninit();
 
     this->d->m_canCapture = false;
-    auto serviceName = QAndroidJniObject::fromString(MEDIA_PROJECTION_SERVICE);
+    auto serviceName = QJniObject::fromString(MEDIA_PROJECTION_SERVICE);
     this->d->m_service =
             this->d->m_activity.callObjectMethod("getSystemService",
                                                  "(Ljava/lang/String;)Ljava/lang/Object;",
@@ -558,8 +553,8 @@ void AndroidScreenDev::readFrame()
     if (!this->d->m_threadStatus.isRunning()) {
         this->d->m_threadStatus =
                 QtConcurrent::run(&this->d->m_threadPool,
-                                  this->d,
                                   &AndroidScreenDevPrivate::sendPacket,
+                                  this->d,
                                   packet);
     }
 }

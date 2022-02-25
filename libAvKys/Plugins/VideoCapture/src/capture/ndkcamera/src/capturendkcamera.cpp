@@ -17,13 +17,15 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QCoreApplication>
 #include <QDateTime>
+#include <QJniObject>
 #include <QReadWriteLock>
+#include <QRegularExpression>
 #include <QThread>
 #include <QVariant>
 #include <QVector>
 #include <QWaitCondition>
-#include <QtAndroid>
 #include <ak.h>
 #include <akcaps.h>
 #include <akfrac.h>
@@ -110,6 +112,7 @@ class CaptureNdkCameraPrivate
                                  ACameraCaptureSession *session);
         static void sessionActive(void *context,
                                   ACameraCaptureSession *session);
+        static bool hasPermission(const QString &permission);
         static bool canUseCamera();
         static QByteArray readBuffer(AImage *image);
         void updateDevices();
@@ -481,6 +484,25 @@ void CaptureNdkCameraPrivate::sessionActive(void *context,
     Q_UNUSED(session)
 }
 
+bool CaptureNdkCameraPrivate::hasPermission(const QString &permission)
+{
+    auto sdkVersion = QNativeInterface::QAndroidApplication::sdkVersion();
+
+    if (sdkVersion < 23)
+        return true;
+
+    auto status =
+            QJniObject::callStaticMethod<jint>("android/content/Context",
+                                               "checkSelfPermission",
+                                               "(Ljava/lang/String;)I;",
+                                               QJniObject::fromString(permission).object());
+    auto permissionGranted =
+            QJniObject::getStaticField<jint>("android/content/pm/PackageManager",
+                                             "PERMISSION_GRANTED");
+
+    return status == permissionGranted;
+}
+
 bool CaptureNdkCameraPrivate::canUseCamera()
 {
     static bool done = false;
@@ -495,7 +517,7 @@ bool CaptureNdkCameraPrivate::canUseCamera()
     QStringList neededPermissions;
 
     for (auto &permission: permissions)
-        if (QtAndroid::checkPermission(permission) == QtAndroid::PermissionResult::Denied)
+        if (!hasPermission(permission))
             neededPermissions << permission;
 
     if (!neededPermissions.isEmpty()) {
@@ -717,7 +739,7 @@ bool CaptureNdkCamera::init()
     AkFrac fps;
 
     auto cameraId = this->d->m_device;
-    cameraId.remove(QRegExp("^NdkCamera:"));
+    cameraId.remove(QRegularExpression("^NdkCamera:"));
     ACameraDevice_StateCallbacks deviceStateCb {
         this->d,
         CaptureNdkCameraPrivate::deviceDisconnected,
