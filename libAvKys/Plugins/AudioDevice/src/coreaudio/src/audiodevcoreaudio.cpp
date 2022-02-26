@@ -18,6 +18,7 @@
  */
 
 #include <QMap>
+#include <QMutex>
 #include <QVector>
 #include <QWaitCondition>
 #include <akaudiocaps.h>

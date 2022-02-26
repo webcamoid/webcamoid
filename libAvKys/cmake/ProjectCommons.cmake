@@ -120,7 +120,7 @@ if (GIT_BIN)
 endif ()
 
 set(ANDROID_JAVA_VERSION 1.6 CACHE STRING "Mimimum Java version to use in Android")
-set(ANDROID_JAR_DIRECTORY ${ANDROID_SDK}/platforms/android-${ANDROID_NATIVE_API_LEVEL} CACHE INTERNAL "")
+set(ANDROID_JAR_DIRECTORY ${ANDROID_SDK_ROOT}/platforms/android-${ANDROID_NATIVE_API_LEVEL} CACHE INTERNAL "")
 
 # Force prefix and suffix. This fix broken MinGW builds in CI environments.
 if (WIN32 AND NOT MSVC)

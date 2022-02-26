@@ -17,12 +17,12 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QtDebug>
 #include <QCoreApplication>
 #include <QMap>
+#include <QMutex>
 #include <QVariant>
 #include <QWaitCondition>
-#include <QMutex>
+#include <QtDebug>
 #include <ak.h>
 #include <akfrac.h>
 #include <akcaps.h>
@@ -54,7 +54,6 @@ class CaptureAvFoundationPrivate
         QString m_device;
         QList<int> m_streams;
         QStringList m_devices;
-        QMap<QString, quint32> m_modelId;
         QMap<QString, QString> m_descriptions;
         QMap<QString, QVariantList> m_devicesCaps;
         int m_nBuffers {32};
@@ -352,11 +351,6 @@ AkPacket CaptureAvFoundation::readFrame()
     return packet;
 }
 
-quint32 CaptureAvFoundation::modelId(const QString &webcam) const
-{
-    return this->d->m_modelId.value(webcam);
-}
-
 QMutex &CaptureAvFoundation::mutex()
 {
     return this->d->m_mutex;
@@ -620,7 +614,6 @@ void CaptureAvFoundation::updateDevices()
         return;
 
     decltype(this->d->m_devices) devices;
-    decltype(this->d->m_modelId) modelId;
     decltype(this->d->m_descriptions) descriptions;
     decltype(this->d->m_devicesCaps) devicesCaps;
 
@@ -637,24 +630,6 @@ void CaptureAvFoundation::updateDevices()
         QString deviceId = camera.uniqueID.UTF8String;
         devices << deviceId;
         descriptions[deviceId] = camera.localizedName.UTF8String;
-        QString modelIdStr = camera.modelID.UTF8String;
-        QRegExp vpMatch("VendorID_(\\d+) ProductID_(\\d+)");
-        quint16 vendorId = 0;
-        quint16 productId = 0;
-        int pos = 0;
-
-        forever {
-            pos = vpMatch.indexIn(modelIdStr, pos);
-
-            if (pos < 0)
-                break;
-
-            vendorId = vpMatch.cap(1).toUShort();
-            productId = vpMatch.cap(2).toUShort();
-            pos += vpMatch.matchedLength();
-        }
-
-        modelId[deviceId] = quint32(vendorId << 16) | productId;
 
         // List supported frame formats.
         for (AVCaptureDeviceFormat *format in camera.formats) {
@@ -686,11 +661,9 @@ void CaptureAvFoundation::updateDevices()
 
     if (devicesCaps.isEmpty()) {
         devices.clear();
-        modelId.clear();
         descriptions.clear();
     }
 
-    this->d->m_modelId = modelId;
     this->d->m_descriptions = descriptions;
     this->d->m_devicesCaps = devicesCaps;
 

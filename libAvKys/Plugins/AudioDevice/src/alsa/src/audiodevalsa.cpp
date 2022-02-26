@@ -18,11 +18,11 @@
  */
 
 #include <cstdarg>
-#include <QMap>
-#include <QVector>
-#include <QTimer>
-#include <QMutex>
 #include <QFileSystemWatcher>
+#include <QMap>
+#include <QMutex>
+#include <QTimer>
+#include <QVector>
 #include <alsa/asoundlib.h>
 #include <alsa/error.h>
 #include <akaudiopacket.h>

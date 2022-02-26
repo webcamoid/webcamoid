@@ -26,7 +26,6 @@
 
 #include "multisinkelement.h"
 #include "mediawriter.h"
-#include "multisinkutils.h"
 
 using MediaWriterPtr = QSharedPointer<MediaWriter>;
 
@@ -37,7 +36,6 @@ class MultiSinkElementPrivate
         QString m_location;
         MediaWriterPtr m_mediaWriter;
         QString m_mediaWriterImpl;
-        MultiSinkUtils m_utils;
         QList<int> m_inputStreams;
         QReadWriteLock m_mutex;
 

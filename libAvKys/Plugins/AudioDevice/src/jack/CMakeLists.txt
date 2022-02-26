@@ -42,9 +42,6 @@ set(SOURCES
     ../audiodev.h
     src/audiodevjack.cpp
     src/audiodevjack.h
-    src/jackserver.cpp
-    src/jackserver.h
-    src/jackservertypedefs.h
     src/plugin.cpp
     src/plugin.h
     pspec.json)

@@ -359,7 +359,7 @@
 <context>
     <name>PipewireScreenDev</name>
     <message>
-        <location filename="../../../libAvKys/Plugins/DesktopCapture/src/pipewire/src/pipewirescreendev.cpp" line="217"/>
+        <location filename="../../../libAvKys/Plugins/DesktopCapture/src/pipewire/src/pipewirescreendev.cpp" line="216"/>
         <source>PipeWire Screen</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2642,7 +2642,7 @@ background blur or image below.</source>
         <translation>%1 segondas</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="279"/>
+        <location filename="../qml/main.qml" line="282"/>
         <source>Take a photo</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2657,7 +2657,7 @@ background blur or image below.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="328"/>
+        <location filename="../qml/main.qml" line="331"/>
         <source>Record video</source>
         <translation type="unfinished"></translation>
     </message>

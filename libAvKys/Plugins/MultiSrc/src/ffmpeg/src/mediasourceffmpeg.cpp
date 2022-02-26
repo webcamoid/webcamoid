@@ -18,14 +18,14 @@
  */
 
 #include <QApplication>
-#include <QDesktopWidget>
 #include <QFileInfo>
-#include <QtConcurrent>
-#include <QThreadPool>
-#include <QMutex>
 #include <QFuture>
+#include <QMutex>
+#include <QScreen>
+#include <QThreadPool>
 #include <QWaitCondition>
 #include <QWaitCondition>
+#include <QtConcurrent>
 #include <ak.h>
 #include <akcaps.h>
 
@@ -512,9 +512,10 @@ bool MediaSourceFFmpeg::setState(AkElement::ElementState state)
             this->d->m_run = true;
             this->d->m_paused = state == AkElement::ElementStatePaused;
             this->d->m_eos = false;
-            QtConcurrent::run(&this->d->m_threadPool,
-                              this->d,
-                              &MediaSourceFFmpegPrivate::readPackets);
+            auto result = QtConcurrent::run(&this->d->m_threadPool,
+                                            this->d,
+                                            &MediaSourceFFmpegPrivate::readPackets);
+            Q_UNUSED(result)
             this->d->m_state = state;
             emit this->stateChanged(state);
 
@@ -616,9 +617,10 @@ void MediaSourceFFmpeg::doLoop()
 
 void MediaSourceFFmpeg::packetConsumed()
 {
-    QtConcurrent::run(&this->d->m_threadPool,
-                      this->d,
-                      &MediaSourceFFmpegPrivate::unlockQueue);
+    auto result = QtConcurrent::run(&this->d->m_threadPool,
+                                    this->d,
+                                    &MediaSourceFFmpegPrivate::unlockQueue);
+    Q_UNUSED(result)
 }
 
 void MediaSourceFFmpeg::log()
@@ -686,9 +688,9 @@ bool MediaSourceFFmpeg::initContext()
         inputFormat = av_find_input_format("v4l2");
     } else if (QRegExp(R"(:\d+\.\d+(?:\+\d+,\d+)?)").exactMatch(uri)) {
         inputFormat = av_find_input_format("x11grab");
-
-        int width = this->d->roundDown(QApplication::desktop()->width(), 4);
-        int height = this->d->roundDown(QApplication::desktop()->height(), 4);
+        auto screen = QGuiApplication::primaryScreen();
+        int width = this->d->roundDown(screen->geometry().width(), 4);
+        int height = this->d->roundDown(screen->geometry().height(), 4);
 
         av_dict_set(&inputOptions,
                     "video_size",

@@ -17,6 +17,7 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QMutex>
 #include <QWaitCondition>
 
 #include "deviceobserver.h"

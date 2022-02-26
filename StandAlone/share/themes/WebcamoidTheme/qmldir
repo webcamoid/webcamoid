@@ -11,6 +11,7 @@ DialogButtonBox 1.0 DialogButtonBox.qml
 Drawer 1.0 Drawer.qml
 Frame 1.0 Frame.qml
 GroupBox 1.0 GroupBox.qml
+HorizontalHeaderView 1.0 HorizontalHeaderView.qml
 ItemDelegate 1.0 ItemDelegate.qml
 Label 1.0 Label.qml
 Menu 1.0 Menu.qml
@@ -32,6 +33,7 @@ ScrollIndicator 1.0 ScrollIndicator.qml
 ScrollView 1.0 ScrollView.qml
 Slider 1.0 Slider.qml
 SpinBox 1.0 SpinBox.qml
+SplitView 1.0 SplitView.qml
 StackView 1.0 StackView.qml
 SwipeDelegate 1.0 SwipeDelegate.qml
 SwipeView 1.0 SwipeView.qml
@@ -46,3 +48,4 @@ ToolButton 1.0 ToolButton.qml
 ToolSeparator 1.0 ToolSeparator.qml
 ToolTip 1.0 ToolTip.qml
 Tumbler 1.0 Tumbler.qml
+VerticalHeaderView 1.0 VerticalHeaderView.qml

@@ -42,8 +42,6 @@ add_library(MultiSinkSrc SHARED
             multisink.h
             multisinkelement.cpp
             multisinkelement.h
-            multisinkutils.cpp
-            multisinkutils.h
             ../pspec.json)
 set_target_properties(MultiSinkSrc PROPERTIES
                       OUTPUT_NAME MultiSink)

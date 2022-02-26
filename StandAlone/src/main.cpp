@@ -51,12 +51,15 @@ int main(int argc, char *argv[])
 
     // Install translations.
     QTranslator translator;
-    translator.load(QLocale::system().name(), ":/Webcamoid/share/ts");
-    QCoreApplication::installTranslator(&translator);
+
+    if (translator.load(QLocale::system().name(), ":/Webcamoid/share/ts"))
+        QCoreApplication::installTranslator(&translator);
 
     // Set theme.
     QQuickStyle::addStylePath(":/Webcamoid/share/themes");
     QQuickStyle::setStyle("WebcamoidTheme");
+
+    // Set fonts
     QDirIterator fontsDirIterator(":/Webcamoid/share/themes/WebcamoidTheme/fonts",
                                   QStringList() << "*.ttf",
                                   QDir::Files

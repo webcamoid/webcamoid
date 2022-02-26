@@ -734,9 +734,10 @@ void MediaSourceVLCPrivate::mediaPlayerEndReachedCallback(const libvlc_event_t *
 {
     Q_UNUSED(event)
     auto self = reinterpret_cast<MediaSourceVLC *>(userData);
-    QtConcurrent::run(&self->d->m_threadPool, [self] () {
+    auto result = QtConcurrent::run(&self->d->m_threadPool, [self] () {
         self->d->doLoop();
     });
+    Q_UNUSED(result)
 }
 
 void MediaSourceVLCPrivate::mediaPlayerTimeChanged(const libvlc_event_t *event, void *userData)

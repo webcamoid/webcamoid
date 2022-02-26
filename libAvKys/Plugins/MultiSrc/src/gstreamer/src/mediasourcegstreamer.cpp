@@ -62,6 +62,7 @@ class MediaSourceGStreamerPrivate
         QThreadPool m_threadPool;
         GstElement *m_pipeline {nullptr};
         GMainLoop *m_mainLoop {nullptr};
+        QFuture<void> m_mainLoopResult;
         qint64 m_audioIndex {-1};
         qint64 m_videoIndex {-1};
         qint64 m_subtitlesIndex {-1};
@@ -533,9 +534,10 @@ bool MediaSourceGStreamer::setState(AkElement::ElementState state)
 
             // Run the main GStreamer loop.
             this->d->m_mainLoop = g_main_loop_new(nullptr, FALSE);
-            QtConcurrent::run(&this->d->m_threadPool,
-                              g_main_loop_run,
-                              this->d->m_mainLoop);
+            this->d->m_mainLoopResult =
+                    QtConcurrent::run(&this->d->m_threadPool,
+                                      g_main_loop_run,
+                                      this->d->m_mainLoop);
             GstState gstState = state == AkElement::ElementStatePaused?
                                  GST_STATE_PAUSED: GST_STATE_PLAYING;
             gst_element_set_state(this->d->m_pipeline, gstState);

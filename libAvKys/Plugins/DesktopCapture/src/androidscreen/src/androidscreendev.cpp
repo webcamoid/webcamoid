@@ -18,7 +18,6 @@
  */
 
 #include <QApplication>
-#include <QDesktopWidget>
 #include <QFuture>
 #include <QMutex>
 #include <QScreen>
@@ -209,8 +208,13 @@ AkCaps AndroidScreenDev::caps(int stream)
         || stream != 0)
         return AkCaps();
 
+    auto curScreen = this->d->m_curScreenNumber;
     auto screens = QGuiApplication::screens();
-    auto screen = screens[this->d->m_curScreenNumber];
+
+    if (curScreen < 0 || curScreen >= screens.size())
+        return {};
+
+    auto screen = screens[curScreen];
 
     if (!screen)
         return {};

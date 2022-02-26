@@ -145,8 +145,13 @@ AkCaps QtScreenDev::caps(int stream)
         || stream != 0)
         return AkCaps();
 
+    auto curScreen = this->d->m_curScreenNumber;
     auto screens = QGuiApplication::screens();
-    auto screen = screens[this->d->m_curScreenNumber];
+
+    if (curScreen < 0 || curScreen >= screens.size())
+        return {};
+
+    auto screen = screens[curScreen];
 
     if (!screen)
         return {};
@@ -247,8 +252,17 @@ bool QtScreenDev::uninit()
 
 void QtScreenDev::readFrame()
 {
+    auto curScreen = this->d->m_curScreenNumber;
     auto screens = QGuiApplication::screens();
-    auto screen = screens[this->d->m_curScreenNumber];
+
+    if (curScreen < 0 || curScreen >= screens.size())
+        return;
+
+    auto screen = screens[curScreen];
+
+    if (!screen)
+        return;
+
     this->d->m_mutex.lock();
     auto fps = this->d->m_fps;
     this->d->m_mutex.unlock();
@@ -325,7 +339,14 @@ void QtScreenDev::srceenResized(int screen)
 {
     auto media = QString("screen://%1").arg(screen);
     auto screens = QGuiApplication::screens();
+
+    if (screen < 0 || screen >= screens.size())
+        return;
+
     auto widget = screens[screen];
+
+    if (!widget)
+        return;
 
     emit this->sizeChanged(media, widget->size());
 }

@@ -1051,12 +1051,14 @@ QVariantList VCamCMIOPrivate::controls(const QString &device)
         case QXmlStreamReader::StartElement: {
             pathList << xmlInfo.name().toString();
 
-            if (path.isEmpty() && xmlInfo.name() != "info")
+            if (path.isEmpty() && xmlInfo.name() != QStringLiteral("info"))
                 return {};
 
-            if (path == "info/devices" && xmlInfo.name() == "device")
+            if (path == "info/devices"
+                && xmlInfo.name() == QStringLiteral("device"))
                 curDeviceControls.clear();
-            else if (path == "info/devices/device/controls" && xmlInfo.name() == "control")
+            else if (path == "info/devices/device/controls"
+                     && xmlInfo.name() == QStringLiteral("control"))
                 deviceControl = {};
 
             break;
@@ -1245,12 +1247,14 @@ void VCamCMIOPrivate::updateDevices()
         case QXmlStreamReader::StartElement: {
             pathList << xmlInfo.name().toString();
 
-            if (path.isEmpty() && xmlInfo.name() != "info")
+            if (path.isEmpty() && xmlInfo.name() != QStringLiteral("info"))
                 return;
 
-            if (path == "info/devices" && xmlInfo.name() == "device")
+            if (path == "info/devices"
+                && xmlInfo.name() == QStringLiteral("device"))
                 curDeviceCaps.clear();
-            else if (path == "info/devices/device/formats" && xmlInfo.name() == "format")
+            else if (path == "info/devices/device/formats"
+                     && xmlInfo.name() == QStringLiteral("format"))
                 curFormat = {};
 
             break;

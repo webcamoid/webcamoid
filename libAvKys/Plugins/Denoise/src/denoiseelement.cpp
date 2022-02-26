@@ -275,13 +275,16 @@ AkPacket DenoiseElement::iVideoStream(const AkVideoPacket &packet)
             params->oPixel = oLine + x;
             params->alpha = qAlpha(iLine[x]);
 
-            if (radius >= 20)
-                QtConcurrent::run(&threadPool,
-                                  DenoiseElementPrivate::denoise,
-                                  staticParams,
-                                  params);
-            else
+            if (radius >= 20) {
+                auto result =
+                        QtConcurrent::run(&threadPool,
+                                          DenoiseElementPrivate::denoise,
+                                          staticParams,
+                                          params);
+                Q_UNUSED(result)
+            } else {
                 this->d->denoise(staticParams, params);
+            }
         }
     }
 

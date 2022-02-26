@@ -19,7 +19,7 @@
 
 import QtQuick 2.12
 import QtQuick.Controls 2.5
-import QtQuick.Templates 2.5 as T
+import QtQuick.Templates 2.15 as T
 import Ak 1.0
 
 T.ProgressBar {

@@ -60,6 +60,7 @@ class MediaWriterGStreamerPrivate
         QThreadPool m_threadPool;
         GstElement *m_pipeline {nullptr};
         GMainLoop *m_mainLoop {nullptr};
+        QFuture<void> m_mainLoopResult;
         guint m_busWatchId {0};
         bool m_isRecording {false};
 
@@ -1682,7 +1683,10 @@ bool MediaWriterGStreamer::init()
 
     // Run the main GStreamer loop.
     this->d->m_mainLoop = g_main_loop_new(nullptr, FALSE);
-    QtConcurrent::run(&this->d->m_threadPool, g_main_loop_run, this->d->m_mainLoop);
+    this->d->m_mainLoopResult =
+            QtConcurrent::run(&this->d->m_threadPool,
+                              g_main_loop_run,
+                              this->d->m_mainLoop);
     gst_element_set_state(this->d->m_pipeline, GST_STATE_PLAYING);
     this->d->m_isRecording = true;
 

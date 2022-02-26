@@ -42,42 +42,42 @@ class CaptureDShow: public Capture, QAbstractNativeEventFilter
         CaptureDShow(QObject *parent=nullptr);
         ~CaptureDShow();
 
-        Q_INVOKABLE QStringList webcams() const;
-        Q_INVOKABLE QString device() const;
-        Q_INVOKABLE QList<int> streams();
-        Q_INVOKABLE QList<int> listTracks(const QString &mimeType);
-        Q_INVOKABLE QString ioMethod() const;
-        Q_INVOKABLE int nBuffers() const;
-        Q_INVOKABLE QString description(const QString &webcam) const;
-        Q_INVOKABLE QVariantList caps(const QString &webcam) const;
-        Q_INVOKABLE QString capsDescription(const AkCaps &caps) const;
-        Q_INVOKABLE QVariantList imageControls() const;
-        Q_INVOKABLE bool setImageControls(const QVariantMap &imageControls);
-        Q_INVOKABLE bool resetImageControls();
-        Q_INVOKABLE QVariantList cameraControls() const;
-        Q_INVOKABLE bool setCameraControls(const QVariantMap &cameraControls);
-        Q_INVOKABLE bool resetCameraControls();
-        Q_INVOKABLE AkPacket readFrame();
+        Q_INVOKABLE QStringList webcams() const override;
+        Q_INVOKABLE QString device() const override;
+        Q_INVOKABLE QList<int> streams() override;
+        Q_INVOKABLE QList<int> listTracks(const QString &mimeType) override;
+        Q_INVOKABLE QString ioMethod() const override;
+        Q_INVOKABLE int nBuffers() const override;
+        Q_INVOKABLE QString description(const QString &webcam) const override;
+        Q_INVOKABLE QVariantList caps(const QString &webcam) const override;
+        Q_INVOKABLE QString capsDescription(const AkCaps &caps) const override;
+        Q_INVOKABLE QVariantList imageControls() const override;
+        Q_INVOKABLE bool setImageControls(const QVariantMap &imageControls) override;
+        Q_INVOKABLE bool resetImageControls() override;
+        Q_INVOKABLE QVariantList cameraControls() const override;
+        Q_INVOKABLE bool setCameraControls(const QVariantMap &cameraControls) override;
+        Q_INVOKABLE bool resetCameraControls() override;
+        Q_INVOKABLE AkPacket readFrame() override;
 
         bool nativeEventFilter(const QByteArray &eventType,
                                void *message,
-                               long *result);
+                               long *result) override;
 
     private:
         CaptureDShowPrivate *d;
 
     public slots:
-        bool init();
-        void uninit();
-        void setDevice(const QString &device);
-        void setStreams(const QList<int> &streams);
-        void setIoMethod(const QString &ioMethod);
-        void setNBuffers(int nBuffers);
-        void resetDevice();
-        void resetStreams();
-        void resetIoMethod();
-        void resetNBuffers();
-        void reset();
+        bool init() override;
+        void uninit() override;
+        void setDevice(const QString &device) override;
+        void setStreams(const QList<int> &streams) override;
+        void setIoMethod(const QString &ioMethod) override;
+        void setNBuffers(int nBuffers) override;
+        void resetDevice() override;
+        void resetStreams() override;
+        void resetIoMethod() override;
+        void resetNBuffers() override;
+        void reset() override;
 };
 
 #endif // CAPTUREDSHOW_H

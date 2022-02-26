@@ -480,7 +480,7 @@ AkPacket CaptureDShow::readFrame()
     AkPacket packet;
     auto timestamp = QDateTime::currentMSecsSinceEpoch();
     auto pts =
-            qint64(timestamp
+            qint64(qreal(timestamp)
                    * this->d->m_timeBase.invert().value()
                    / 1e3);
 
@@ -491,7 +491,7 @@ AkPacket CaptureDShow::readFrame()
             this->d->m_waitCondition.wait(&this->d->m_mutex, 1000);
 
         if (!this->d->m_curBuffer.isEmpty()) {
-            int bufferSize = this->d->m_curBuffer.size();
+            auto bufferSize = int(this->d->m_curBuffer.size());
             QByteArray oBuffer(bufferSize, 0);
             memcpy(oBuffer.data(),
                    this->d->m_curBuffer.constData(),

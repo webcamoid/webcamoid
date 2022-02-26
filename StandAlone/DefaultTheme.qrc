@@ -14,6 +14,7 @@
         <file>share/themes/WebcamoidTheme/Drawer.qml</file>
         <file>share/themes/WebcamoidTheme/Frame.qml</file>
         <file>share/themes/WebcamoidTheme/GroupBox.qml</file>
+        <file>share/themes/WebcamoidTheme/HorizontalHeaderView.qml</file>
         <file>share/themes/WebcamoidTheme/ItemDelegate.qml</file>
         <file>share/themes/WebcamoidTheme/Label.qml</file>
         <file>share/themes/WebcamoidTheme/Menu.qml</file>
@@ -35,6 +36,7 @@
         <file>share/themes/WebcamoidTheme/ScrollView.qml</file>
         <file>share/themes/WebcamoidTheme/Slider.qml</file>
         <file>share/themes/WebcamoidTheme/SpinBox.qml</file>
+        <file>share/themes/WebcamoidTheme/SplitView.qml</file>
         <file>share/themes/WebcamoidTheme/StackView.qml</file>
         <file>share/themes/WebcamoidTheme/SwipeDelegate.qml</file>
         <file>share/themes/WebcamoidTheme/SwipeView.qml</file>
@@ -49,6 +51,7 @@
         <file>share/themes/WebcamoidTheme/ToolSeparator.qml</file>
         <file>share/themes/WebcamoidTheme/ToolTip.qml</file>
         <file>share/themes/WebcamoidTheme/Tumbler.qml</file>
+        <file>share/themes/WebcamoidTheme/VerticalHeaderView.qml</file>
         <file>share/themes/WebcamoidTheme/Private/qmldir</file>
         <file>share/themes/WebcamoidTheme/Private/IconLabel.qml</file>
     </qresource>

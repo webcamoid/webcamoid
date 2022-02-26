@@ -73,8 +73,8 @@ ScrollView {
                       effectsList.model.get(index)?
                           effectsList.model.get(index)["description"]:
                           ""
-                anchors.right: parent.right
-                anchors.left: parent.left
+                anchors.right: parent? parent.right: undefined
+                anchors.left: parent? parent.left: undefined
                 height: implicitHeight
 
                 onClicked:

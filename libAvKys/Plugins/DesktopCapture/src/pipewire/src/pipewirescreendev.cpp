@@ -21,7 +21,6 @@
 #include <QDBusInterface>
 #include <QDBusReply>
 #include <QDBusUnixFileDescriptor>
-#include <QDesktopWidget>
 #include <QFuture>
 #include <QMutex>
 #include <QScreen>
@@ -339,7 +338,14 @@ void PipewireScreenDev::screenRemoved(QScreen *screen)
 void PipewireScreenDev::srceenResized(int screen)
 {
     auto screens = QGuiApplication::screens();
+
+    if (screen < 0 || screen >= screens.size())
+        return;
+
     auto widget = screens[screen];
+
+    if (!widget)
+        return;
 
     emit this->sizeChanged("screen://pipewire", widget->size());
 }

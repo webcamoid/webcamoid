@@ -38,7 +38,7 @@ class VideoDisplay: public QQuickItem
 
     public:
         VideoDisplay(QQuickItem *parent=nullptr);
-        ~VideoDisplay();
+        ~VideoDisplay() override;
 
         Q_INVOKABLE bool fillDisplay() const;
 
@@ -47,7 +47,7 @@ class VideoDisplay: public QQuickItem
 
     protected:
         QSGNode *updatePaintNode(QSGNode *oldNode,
-                                 UpdatePaintNodeData *updatePaintNodeData);
+                                 UpdatePaintNodeData *updatePaintNodeData) override;
 
     signals:
         void fillDisplayChanged();
