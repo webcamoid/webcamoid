@@ -45,7 +45,7 @@
     <message>
         <location filename="../qml/AboutDialog.qml" line="45"/>
         <source>About</source>
-        <extracomment>Information of the program, like name, description, vesion, etc..</extracomment>
+        <extracomment>Information of the program, like name, description, version, etc..</extracomment>
         <translation type="unfinished">Про нас</translation>
     </message>
     <message>
