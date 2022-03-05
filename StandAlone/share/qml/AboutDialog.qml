@@ -39,7 +39,7 @@ Dialog {
             Layout.fillWidth: true
 
             TabButton {
-                /*: Information of the program, like name, description, vesion,
+                /*: Information of the program, like name, description, version,
                     etc..
                  */
                 text: qsTr("About")
