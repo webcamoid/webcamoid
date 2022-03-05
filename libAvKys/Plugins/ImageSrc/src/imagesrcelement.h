@@ -1,5 +1,5 @@
 /* Webcamoid, webcam capture application.
- * Copyright (C) 2017  Gonzalo Exequiel Pedone
+ * Copyright (C) 2022  Gonzalo Exequiel Pedone
  *
  * Webcamoid is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,15 +17,15 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef QTSCREENDEV_H
-#define QTSCREENDEV_H
+#ifndef IMAGESRCELEMENT_H
+#define IMAGESRCELEMENT_H
 
-#include "screendev.h"
+#include <akmultimediasourceelement.h>
 
-class QtScreenDevPrivate;
-class QScreen;
+class ImageSrcElementPrivate;
+class AkFrac;
 
-class QtScreenDev: public ScreenDev
+class ImageSrcElement: public AkMultimediaSourceElement
 {
     Q_OBJECT
     Q_PROPERTY(QStringList medias
@@ -41,50 +41,70 @@ class QtScreenDev: public ScreenDev
                WRITE setStreams
                RESET resetStreams
                NOTIFY streamsChanged)
+    Q_PROPERTY(bool loop
+               READ loop
+               WRITE setLoop
+               RESET resetLoop
+               NOTIFY loopChanged)
+    Q_PROPERTY(bool isAnimated
+               READ isAnimated
+               NOTIFY isAnimatedChanged)
+    Q_PROPERTY(bool forceFps
+               READ forceFps
+               WRITE setForceFps
+               RESET resetForceFps
+               NOTIFY forceFpsChanged)
     Q_PROPERTY(AkFrac fps
                READ fps
                WRITE setFps
                RESET resetFps
                NOTIFY fpsChanged)
+    Q_PROPERTY(QStringList supportedFormats
+               READ supportedFormats
+               CONSTANT)
 
     public:
-        QtScreenDev();
-        ~QtScreenDev();
+        ImageSrcElement();
+        ~ImageSrcElement();
 
-        Q_INVOKABLE AkFrac fps() const;
         Q_INVOKABLE QStringList medias();
         Q_INVOKABLE QString media() const;
-        Q_INVOKABLE QList<int> streams() const;
+        Q_INVOKABLE QList<int> streams();
         Q_INVOKABLE int defaultStream(const QString &mimeType);
         Q_INVOKABLE QString description(const QString &media);
         Q_INVOKABLE AkCaps caps(int stream);
+        Q_INVOKABLE bool isAnimated() const;
+        Q_INVOKABLE bool forceFps() const;
+        Q_INVOKABLE AkFrac fps() const;
+        Q_INVOKABLE QStringList supportedFormats() const;
 
     private:
-        QtScreenDevPrivate *d;
+        ImageSrcElementPrivate *d;
+
+    protected:
+        QString controlInterfaceProvide(const QString &controlId) const;
+        void controlInterfaceConfigure(QQmlContext *context,
+                                       const QString &controlId) const;
 
     signals:
         void mediasChanged(const QStringList &medias);
         void mediaChanged(const QString &media);
         void streamsChanged(const QList<int> &streams);
         void loopChanged(bool loop);
+        void isAnimatedChanged(bool isAnimated);
+        void forceFpsChanged(bool forceFps);
         void fpsChanged(const AkFrac &fps);
-        void sizeChanged(const QString &media, const QSize &size);
+        void sizeChanged(const QSize &size);
         void error(const QString &message);
 
     public slots:
+        void setForceFps(bool forceFps);
         void setFps(const AkFrac &fps);
+        void resetForceFps();
         void resetFps();
         void setMedia(const QString &media);
         void resetMedia();
-        void setStreams(const QList<int> &streams);
-        void resetStreams();
-        bool init();
-        bool uninit();
-
-    private slots:
-        void screenAdded(QScreen *screen);
-        void screenRemoved(QScreen *screen);
-        void srceenResized(int screen);
+        bool setState(AkElement::ElementState state);
 };
 
-#endif // QTSCREENDEV_H
+#endif // IMAGESRCELEMENT_H

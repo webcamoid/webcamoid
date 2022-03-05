@@ -215,27 +215,7 @@ Dialog {
         title: qsTr("Choose the file to add as source")
         fileMode: LABS.FileDialog.OpenFile
         selectedNameFilter.index: 0
-        nameFilters: [qsTr("All Video Files")
-                      + " (*.3gp *.avi *.flv *.gif *.mkv *.mng  *.mov *.mp4"
-                      + " *.m4v *.mpg *.mpeg *.ogg *.rm *.vob *.webm *.wmv)",
-                      qsTr("3GP Video") + " (*.3gp)",
-                      qsTr("AVI Video") + " (*.avi)",
-                      //: Adobe FLV Flash video
-                      qsTr("Flash Video") + " (*.flv)",
-                      qsTr("Animated GIF") + " (*.gif)",
-                      qsTr("MKV Video") + " (*.mkv)",
-                      qsTr("Animated PNG") + " (*.mng)",
-                      qsTr("QuickTime Video") + " (*.mov)",
-                      qsTr("MP4 Video") + " (*.mp4 *.m4v)",
-                      qsTr("MPEG Video") + " (*.mpg *.mpeg)",
-                      qsTr("Ogg Video") + " (*.ogg)",
-                      //: Don't translate "RealMedia", leave it as is.
-                      qsTr("RealMedia Video") + " (*.rm)",
-                      qsTr("DVD Video") + " (*.vob)",
-                      qsTr("WebM Video") + " (*.webm)",
-                      //: Also known as WMV, is a video file format.
-                      qsTr("Windows Media Video") + " (*.wmv)",
-                      qsTr("All Files") + " (*)"]
+        nameFilters: videoLayer.videoSourceFileFilters
 
         onAccepted: {
             filePath.text = mediaTools.urlToLocalFile(fileDialog.file)

@@ -113,8 +113,8 @@ ScrollView {
                       devicesList.model.get(index)?
                           devicesList.model.get(index)["description"]:
                           ""
-                anchors.right: parent.right
-                anchors.left: parent.left
+                anchors.right: parent? parent.right: undefined
+                anchors.left: parent? parent.left: undefined
                 height: implicitHeight
                 highlighted: devicesList.currentItem == this
 

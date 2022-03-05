@@ -20,6 +20,7 @@
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
+#include <QImageReader>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QQmlProperty>
@@ -56,11 +57,14 @@ class VideoLayerPrivate
         QString m_videoInput;
         QStringList m_videoOutput;
         QStringList m_inputs;
+        QMap<QString, QString> m_images;
         QMap<QString, QString> m_streams;
+        QStringList m_supportedImageFormats;
         AkAudioCaps m_inputAudioCaps;
         AkVideoCaps m_inputVideoCaps;
         AkElementPtr m_cameraCapture {akPluginManager->create<AkElement>("VideoSource/CameraCapture")};
         AkElementPtr m_desktopCapture {akPluginManager->create<AkElement>("VideoSource/DesktopCapture")};
+        AkElementPtr m_imageCapture {akPluginManager->create<AkElement>("VideoSource/ImageSrc")};
         AkElementPtr m_uriCapture {akPluginManager->create<AkElement>("MultimediaSource/MultiSrc")};
         AkElementPtr m_cameraOutput {akPluginManager->create<AkElement>("VideoSink/VirtualCamera")};
         QString m_vcamDriver;
@@ -125,6 +129,123 @@ VideoLayer::~VideoLayer()
 {
     this->setState(AkElement::ElementStateNull);
     delete this->d;
+}
+
+QStringList VideoLayer::videoSourceFileFilters() const
+{
+    static const QMap<QString, QString> formatsDescription {
+        {"3gp" , tr("3GP Video")                            },
+        {"avi" , tr("AVI Video")                            },
+        {"bmp" , tr("Windows Bitmap")                       },
+        {"cur" , tr("Microsoft Windows Cursor")             },
+        //: Adobe FLV Flash video
+        {"flv" , tr("Flash Video")                          },
+        {"gif" , tr("Animated GIF")                         },
+        {"gif" , tr("Graphic Interchange Format")           },
+        {"icns", tr("Apple Icon Image")                     },
+        {"ico" , tr("Microsoft Windows Icon")               },
+        {"jpg" , tr("Joint Photographic Experts Group")     },
+        {"mkv" , tr("MKV Video")                            },
+        {"mng" , tr("Animated PNG")                         },
+        {"mng" , tr("Multiple-image Network Graphics")      },
+        {"mov" , tr("QuickTime Video")                      },
+        {"mp4" , tr("MP4 Video")                            },
+        {"mpg" , tr("MPEG Video")                           },
+        {"ogg" , tr("Ogg Video")                            },
+        {"pbm" , tr("Portable Bitmap")                      },
+        {"pgm" , tr("Portable Graymap")                     },
+        {"png" , tr("Portable Network Graphics")            },
+        {"ppm" , tr("Portable Pixmap")                      },
+        //: Don't translate "RealMedia", leave it as is.
+        {"rm"  , tr("RealMedia Video")                      },
+        {"svg" , tr("Scalable Vector Graphics")             },
+        {"tga" , tr("Truevision TGA")                       },
+        {"tiff", tr("Tagged Image File Format")             },
+        {"vob" , tr("DVD Video")                            },
+        {"wbmp", tr("Wireless Bitmap")                      },
+        {"webm", tr("WebM Video")                           },
+        {"webp", tr("WebP")                                 },
+        //: Also known as WMV, is a video file format.
+        {"wmv" , tr("Windows Media Video")                  },
+        {"xbm" , tr("X11 Bitmap")                           },
+        {"xpm" , tr("X11 Pixmap")                           },
+    };
+
+    static const QMap<QString, QString> formatsMapping {
+        {"jp2" , "jpg" },
+        {"jpeg", "jpg" },
+        {"svgz", "svg" },
+        {"tif" , "tiff"},
+        {"m4v" , "mp4" },
+        {"mpeg", "mpg" },
+    };
+
+    static const QStringList supportedVideoFormats {
+        "3gp",
+        "avi",
+        "flv",
+        "gif",
+        "mkv",
+        "mng",
+        "mov",
+        "mp4",
+        "m4v",
+        "mpg",
+        "mpeg",
+        "ogg",
+        "rm",
+        "vob",
+        "webm",
+        "wmv"
+    };
+
+    auto supportedImageFormats = QImageReader::supportedImageFormats();
+    supportedImageFormats.removeAll("pdf");
+    QStringList supportedFormats = supportedVideoFormats
+                                   + QStringList(supportedImageFormats.begin(),
+                                                 supportedImageFormats.end());
+    QString extensions =
+            "*." + supportedFormats.join(" *.");
+
+    QStringList filters;
+    filters << tr("All Image and Video Files")
+               + QString(" (%1)").arg(extensions);
+
+    QStringList formats;
+
+    for (auto &format: supportedFormats) {
+        QString fmt;
+
+        if (formatsMapping.contains(format))
+            fmt = formatsMapping[format];
+        else
+            fmt = format;
+
+        if (!formats.contains(fmt))
+            formats << fmt;
+    }
+
+    QStringList fileFilters;
+
+    for (auto &format: formats) {
+        QString filter;
+        QStringList extensions = QStringList {format}
+                                 + formatsMapping.keys(format);
+        QString extensionsFilter = "*." + extensions.join(" *.");
+
+        if (formatsDescription.contains(format))
+            filter = format.toUpper() + " - " + formatsDescription[format];
+        else
+            filter = format.toUpper();
+
+        fileFilters << filter + QString(" (%1)").arg(extensionsFilter);
+    }
+
+    fileFilters.sort();
+    filters << fileFilters;
+    filters << tr("All Files") + " (*)";
+
+    return filters;
 }
 
 QString VideoLayer::videoInput() const
@@ -229,6 +350,9 @@ VideoLayer::InputType VideoLayer::deviceType(const QString &device) const
     if (this->d->desktops().contains(device))
         return InputDesktop;
 
+    if (this->d->m_images.contains(device))
+        return InputImage;
+
     if (this->d->m_streams.contains(device))
         return InputStream;
 
@@ -243,6 +367,9 @@ QStringList VideoLayer::devicesByType(InputType type) const
 
     case InputDesktop:
         return this->d->desktops();
+
+    case InputImage:
+        return this->d->m_images.keys();
 
     case InputStream:
         return this->d->m_streams.keys();
@@ -279,6 +406,9 @@ QString VideoLayer::description(const QString &device) const
 
     if (this->d->desktops().contains(device))
         return this->d->desktopDescription(device);
+
+    if (this->d->m_images.contains(device))
+        return this->d->m_images.value(device);
 
     if (this->d->m_streams.contains(device))
         return this->d->m_streams.value(device);
@@ -702,23 +832,37 @@ void VideoLayer::setInputStream(const QString &stream,
 {
     if (stream.isEmpty()
         || description.isEmpty()
-        || this->d->m_streams.value(stream) == description)
+        || this->d->m_streams.value(stream) == description
+        || this->d->m_images.value(stream) == description)
         return;
 
-    this->d->m_streams[stream] = description;
+    QFileInfo fileInfo(stream);
+    auto suffix = fileInfo.suffix().toLower();
+
+    if (fileInfo.exists() && this->d->m_supportedImageFormats.contains(suffix))
+        this->d->m_images[stream] = description;
+    else
+        this->d->m_streams[stream] = description;
+
     this->updateInputs();
-    this->d->saveStreams(this->d->m_streams);
+    auto streams = this->d->m_streams;
+    streams.insert(this->d->m_images);
+    this->d->saveStreams(streams);
 }
 
 void VideoLayer::removeInputStream(const QString &stream)
 {
     if (stream.isEmpty()
-        || !this->d->m_streams.contains(stream))
+        || (!this->d->m_images.contains(stream)
+            && !this->d->m_streams.contains(stream)))
         return;
 
+    this->d->m_images.remove(stream);
     this->d->m_streams.remove(stream);
     this->updateInputs();
-    this->d->saveStreams(this->d->m_streams);
+    auto streams = this->d->m_streams;
+    streams.insert(this->d->m_images);
+    this->d->saveStreams(streams);
 }
 
 void VideoLayer::setVideoInput(const QString &videoInput)
@@ -769,6 +913,9 @@ void VideoLayer::setState(AkElement::ElementState state)
         if (this->d->m_desktopCapture)
             this->d->m_desktopCapture->setState(AkElement::ElementStateNull);
 
+        if (this->d->m_imageCapture)
+            this->d->m_imageCapture->setState(AkElement::ElementStateNull);
+
         if (this->d->m_uriCapture)
             this->d->m_uriCapture->setState(AkElement::ElementStateNull);
 
@@ -777,16 +924,33 @@ void VideoLayer::setState(AkElement::ElementState state)
         if (this->d->m_cameraCapture)
             this->d->m_cameraCapture->setState(AkElement::ElementStateNull);
 
+        if (this->d->m_imageCapture)
+            this->d->m_imageCapture->setState(AkElement::ElementStateNull);
+
         if (this->d->m_uriCapture)
             this->d->m_uriCapture->setState(AkElement::ElementStateNull);
 
         source = this->d->m_desktopCapture;
+    } else if (this->d->m_images.contains(this->d->m_videoInput)) {
+        if (this->d->m_cameraCapture)
+            this->d->m_cameraCapture->setState(AkElement::ElementStateNull);
+
+        if (this->d->m_desktopCapture)
+            this->d->m_desktopCapture->setState(AkElement::ElementStateNull);
+
+        if (this->d->m_uriCapture)
+            this->d->m_uriCapture->setState(AkElement::ElementStateNull);
+
+        source = this->d->m_imageCapture;
     } else if (this->d->m_streams.contains(this->d->m_videoInput)) {
         if (this->d->m_cameraCapture)
             this->d->m_cameraCapture->setState(AkElement::ElementStateNull);
 
         if (this->d->m_desktopCapture)
             this->d->m_desktopCapture->setState(AkElement::ElementStateNull);
+
+        if (this->d->m_imageCapture)
+            this->d->m_imageCapture->setState(AkElement::ElementStateNull);
 
         source = this->d->m_uriCapture;
     }
@@ -989,41 +1153,18 @@ void VideoLayer::updateCaps()
 void VideoLayer::updateInputs()
 {
     QStringList inputs;
-    QMap<QString, QString> descriptions;
 
     // Read cameras
     auto cameras = this->d->cameras();
     inputs << cameras;
 
-    for (auto &camera: cameras) {
-        QString description;
-        QMetaObject::invokeMethod(this->d->m_cameraCapture.data(),
-                                  "description",
-                                  Q_RETURN_ARG(QString, description),
-                                  Q_ARG(QString, camera));
-        descriptions[camera] = description;
-    }
-
     // Read desktops
     auto desktops = this->d->desktops();
     inputs << desktops;
 
-    for (auto &desktop: desktops) {
-        QString description;
-        QMetaObject::invokeMethod(this->d->m_desktopCapture.data(),
-                                  "description",
-                                  Q_RETURN_ARG(QString, description),
-                                  Q_ARG(QString, desktop));
-        descriptions[desktop] = description;
-    }
-
     // Read streams
-    inputs << this->d->m_streams.keys();
-
-    for (auto it = this->d->m_streams.begin();
-         it != this->d->m_streams.end();
-         it++)
-        descriptions[it.key()] = it.value();
+    inputs << this->d->m_images.keys()
+           << this->d->m_streams.keys();
 
     // Remove outputs to prevent self blocking.
     if (this->d->m_cameraOutput && !this->d->m_outputsAsInputs) {
@@ -1110,10 +1251,26 @@ void VideoLayerPrivate::connectSignals()
                          SLOT(updateCaps()));
     }
 
+    if (this->m_imageCapture) {
+        QObject::connect(this->m_imageCapture.data(),
+                         SIGNAL(oStream(AkPacket)),
+                         self,
+                         SIGNAL(oStream(AkPacket)),
+                         Qt::DirectConnection);
+        QObject::connect(this->m_imageCapture.data(),
+                         SIGNAL(error(QString)),
+                         self,
+                         SIGNAL(inputErrorChanged(QString)));
+        QObject::connect(this->m_imageCapture.data(),
+                         SIGNAL(streamsChanged(QList<int>)),
+                         self,
+                         SLOT(updateCaps()));
+        this->m_supportedImageFormats =
+                this->m_imageCapture->property("supportedFormats").toStringList();
+    }
+
     if (this->m_uriCapture) {
-        this->m_uriCapture->setProperty("objectName", "uriCapture");
         this->m_uriCapture->setProperty("loop", true);
-        this->m_uriCapture->setProperty("audioAlign", true);
 
         QObject::connect(this->m_uriCapture.data(),
                          SIGNAL(oStream(AkPacket)),
@@ -1168,6 +1325,9 @@ AkElementPtr VideoLayerPrivate::sourceElement(const QString &stream) const
     if (this->desktops().contains(stream))
         return this->m_desktopCapture;
 
+    if (this->m_images.contains(stream))
+        return this->m_imageCapture;
+
     if (this->m_streams.contains(stream))
         return this->m_uriCapture;
 
@@ -1181,6 +1341,9 @@ QString VideoLayerPrivate::sourceId(const QString &stream) const
 
     if (this->desktops().contains(stream))
         return {"VideoSource/DesktopCapture"};
+
+    if (this->m_images.contains(stream))
+        return {"VideoSource/ImageSrc"};
 
     if (this->m_streams.contains(stream))
         return {"MultimediaSource/MultiSrc"};
@@ -1307,7 +1470,14 @@ void VideoLayerPrivate::loadProperties()
         config.setArrayIndex(i);
         auto uri = config.value("uri").toString();
         auto description = config.value("description").toString();
-        this->m_streams[uri] = description;
+
+        QFileInfo fileInfo(uri);
+        auto suffix = fileInfo.suffix().toLower();
+
+        if (fileInfo.exists() && this->m_supportedImageFormats.contains(suffix))
+            this->m_images[uri] = description;
+        else
+            this->m_streams[uri] = description;
     }
 
     config.endArray();

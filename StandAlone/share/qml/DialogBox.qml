@@ -57,9 +57,9 @@ Rectangle {
         radius: 16
         anchors.bottomMargin: -recDialogBox.markSize * Math.SQRT1_2
         anchors.bottom: recMark.top
-        anchors.top: parent.top
-        anchors.right: parent.right
-        anchors.left: parent.left
+        anchors.top: parent? parent.top: undefined
+        anchors.right: parent? parent.right: undefined
+        anchors.left: parent? parent.left: undefined
         border.width: 4
         border.color: recDialogBox.dialogBorder
 

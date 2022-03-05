@@ -22,6 +22,7 @@
 #include <QDir>
 #include <QFile>
 #include <QImage>
+#include <QImageWriter>
 #include <QMutex>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
@@ -836,12 +837,43 @@ void Recording::mediaLoaded(const QString &media)
 RecordingPrivate::RecordingPrivate(Recording *self):
     self(self)
 {
-    this->m_imageFormats = {
-        {"png", "PNG" },
-        {"jpg", "JPEG"},
-        {"bmp", "BMP" },
-        {"gif", "GIF" },
+    static const QMap<QString, QString> formatsDescription {
+        {"bmp" , "Windows Bitmap (BMP)"                       },
+        {"cur" , "Microsoft Windows Cursor (CUR)"             },
+        {"icns", "Apple Icon Image (ICNS)"                    },
+        {"ico" , "Microsoft Windows Icon (ICO)"               },
+        {"jp2" , "Joint Photographic Experts Group 2000 (JP2)"},
+        {"jpg" , "Joint Photographic Experts Group (JPEG)"    },
+        {"pbm" , "Portable Bitmap (PBM)"                      },
+        {"pgm" , "Portable Graymap (PGM)"                     },
+        {"png" , "Portable Network Graphics (PNG)"            },
+        {"ppm" , "Portable Pixmap (PPM)"                      },
+        {"tiff", "Tagged Image File Format (TIFF)"            },
+        {"wbmp", "Wireless Bitmap (WBMP)"                     },
+        {"webp", "WebP (WEBP)"                                },
+        {"xbm" , "X11 Bitmap (XBM)"                           },
+        {"xpm" , "X11 Pixmap (XPM)"                           },
     };
+
+    static const QMap<QString, QString> formatsMapping {
+        {"jpeg", "jpg" },
+        {"tif" , "tiff"},
+    };
+
+    for (auto &format: QImageWriter::supportedImageFormats()) {
+        QString fmt = format;
+
+        if (formatsMapping.contains(fmt))
+            fmt = formatsMapping[fmt];
+
+        if (this->m_imageFormats.contains(fmt))
+            continue;
+
+        if (formatsDescription.contains(fmt))
+            this->m_imageFormats[fmt] = formatsDescription[fmt];
+        else
+            this->m_imageFormats[fmt] = fmt.toUpper();
+    }
 
     this->m_mediaWriterImpl =
             akPluginManager->defaultPlugin("MultimediaSink/MultiSink/Impl/*",

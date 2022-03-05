@@ -45,6 +45,9 @@ class VideoLayer: public QObject
     Q_PROPERTY(QString outputError
                READ outputError
                NOTIFY outputErrorChanged)
+    Q_PROPERTY(QStringList videoSourceFileFilters
+               READ videoSourceFileFilters
+               CONSTANT)
     Q_PROPERTY(QString videoInput
                READ videoInput
                WRITE setVideoInput
@@ -131,6 +134,7 @@ class VideoLayer: public QObject
             InputUnknown,
             InputCamera,
             InputDesktop,
+            InputImage,
             InputStream
         };
         enum OutputType {
@@ -149,6 +153,7 @@ class VideoLayer: public QObject
                    QObject *parent=nullptr);
         ~VideoLayer();
 
+        Q_INVOKABLE QStringList videoSourceFileFilters() const;
         Q_INVOKABLE QString videoInput() const;
         Q_INVOKABLE QStringList videoOutput() const;
         Q_INVOKABLE QStringList inputs() const;

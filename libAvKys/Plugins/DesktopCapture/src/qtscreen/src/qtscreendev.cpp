@@ -50,6 +50,7 @@ class QtScreenDevPrivate
         bool m_threadedRead {true};
 
         explicit QtScreenDevPrivate(QtScreenDev *self);
+        void readFrame();
         void sendPacket(const AkPacket &packet);
 };
 
@@ -80,7 +81,9 @@ QtScreenDev::QtScreenDev():
     QObject::connect(&this->d->m_timer,
                      &QTimer::timeout,
                      this,
-                     &QtScreenDev::readFrame);
+                     [this] () {
+        this->d->readFrame();
+    });
 }
 
 QtScreenDev::~QtScreenDev()
@@ -167,6 +170,66 @@ QtScreenDevPrivate::QtScreenDevPrivate(QtScreenDev *self):
 {
 }
 
+void QtScreenDevPrivate::readFrame()
+{
+    auto curScreen = this->m_curScreenNumber;
+    auto screens = QGuiApplication::screens();
+
+    if (curScreen < 0 || curScreen >= screens.size())
+        return;
+
+    auto screen = screens[curScreen];
+
+    if (!screen)
+        return;
+
+    this->m_mutex.lock();
+    auto fps = this->m_fps;
+    this->m_mutex.unlock();
+
+    AkVideoPacket packet;
+    packet.caps() = {AkVideoCaps::Format_rgb24,
+                     screen->size().width(),
+                     screen->size().height(),
+                     fps};
+
+    auto frame =
+            screen->grabWindow(QApplication::desktop()->winId(),
+                               screen->geometry().x(),
+                               screen->geometry().y(),
+                               screen->geometry().width(),
+                               screen->geometry().height());
+    auto frameImg = frame.toImage().convertToFormat(QImage::Format_RGB888);
+    packet = AkVideoPacket::fromImage(frameImg, packet);
+
+    if (!packet)
+        return;
+
+    auto pts = qRound64(QTime::currentTime().msecsSinceStartOfDay()
+                        * fps.value() / 1e3);
+
+    packet.setPts(pts);
+    packet.setTimeBase(fps.invert());
+    packet.setIndex(0);
+    packet.setId(this->m_id);
+
+    if (!this->m_threadedRead) {
+        emit self->oStream(packet);
+
+        return;
+    }
+
+    if (!this->m_threadStatus.isRunning()) {
+        this->m_curPacket = packet;
+
+        this->m_threadStatus =
+                QtConcurrent::run(&this->m_threadPool,
+                                  this,
+                                  &QtScreenDevPrivate::sendPacket,
+                                  this->m_curPacket);
+    }
+}
+
 void QtScreenDevPrivate::sendPacket(const AkPacket &packet)
 {
     emit self->oStream(packet);
@@ -248,66 +311,6 @@ bool QtScreenDev::uninit()
     this->d->m_threadStatus.waitForFinished();
 
     return true;
-}
-
-void QtScreenDev::readFrame()
-{
-    auto curScreen = this->d->m_curScreenNumber;
-    auto screens = QGuiApplication::screens();
-
-    if (curScreen < 0 || curScreen >= screens.size())
-        return;
-
-    auto screen = screens[curScreen];
-
-    if (!screen)
-        return;
-
-    this->d->m_mutex.lock();
-    auto fps = this->d->m_fps;
-    this->d->m_mutex.unlock();
-
-    AkVideoPacket packet;
-    packet.caps() = {AkVideoCaps::Format_rgb24,
-                     screen->size().width(),
-                     screen->size().height(),
-                     fps};
-
-    auto frame =
-            screen->grabWindow(QApplication::desktop()->winId(),
-                               screen->geometry().x(),
-                               screen->geometry().y(),
-                               screen->geometry().width(),
-                               screen->geometry().height());
-    auto frameImg = frame.toImage().convertToFormat(QImage::Format_RGB888);
-    packet = AkVideoPacket::fromImage(frameImg, packet);
-
-    if (!packet)
-        return;
-
-    auto pts = qRound64(QTime::currentTime().msecsSinceStartOfDay()
-                        * fps.value() / 1e3);
-
-    packet.setPts(pts);
-    packet.setTimeBase(fps.invert());
-    packet.setIndex(0);
-    packet.setId(this->d->m_id);
-
-    if (!this->d->m_threadedRead) {
-        emit this->oStream(packet);
-
-        return;
-    }
-
-    if (!this->d->m_threadStatus.isRunning()) {
-        this->d->m_curPacket = packet;
-
-        this->d->m_threadStatus =
-                QtConcurrent::run(&this->d->m_threadPool,
-                                  this->d,
-                                  &QtScreenDevPrivate::sendPacket,
-                                  this->d->m_curPacket);
-    }
 }
 
 void QtScreenDev::screenAdded(QScreen *screen)
