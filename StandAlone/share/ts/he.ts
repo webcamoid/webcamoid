@@ -839,175 +839,175 @@
     <message>
         <location filename="../../src/videolayer.cpp" line="137"/>
         <source>3GP Video</source>
-        <translation type="unfinished">וידאו 3GP</translation>
+        <translation>וידאו 3GP</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="138"/>
         <source>AVI Video</source>
-        <translation type="unfinished">וידאו AVI</translation>
+        <translation>וידאו AVI</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="139"/>
         <source>Windows Bitmap</source>
-        <translation type="unfinished"></translation>
+        <translation>מפת סיביות של Windows</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="140"/>
         <source>Microsoft Windows Cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>סמן של Microsoft Windows</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="142"/>
         <source>Flash Video</source>
         <extracomment>Adobe FLV Flash video</extracomment>
-        <translation type="unfinished">וידאו Flash</translation>
+        <translation>וידאו Flash</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="143"/>
         <source>Animated GIF</source>
-        <translation type="unfinished">GIF מונפש</translation>
+        <translation>GIF מונפש</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="144"/>
         <source>Graphic Interchange Format</source>
-        <translation type="unfinished"></translation>
+        <translation>תצורת גרפיקה להחלפה</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="145"/>
         <source>Apple Icon Image</source>
-        <translation type="unfinished"></translation>
+        <translation>תמונת סמל של Apple</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="146"/>
         <source>Microsoft Windows Icon</source>
-        <translation type="unfinished"></translation>
+        <translation>סמל של Microsoft Windows</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="147"/>
         <source>Joint Photographic Experts Group</source>
-        <translation type="unfinished"></translation>
+        <translation>קבוצת מומחי הצילום המאוחדת</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="148"/>
         <source>MKV Video</source>
-        <translation type="unfinished">וידאו MKV</translation>
+        <translation>וידאו MKV</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="149"/>
         <source>Animated PNG</source>
-        <translation type="unfinished">PNG מונפש</translation>
+        <translation>PNG מונפש</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="150"/>
         <source>Multiple-image Network Graphics</source>
-        <translation type="unfinished"></translation>
+        <translation>גרפיקת רשת מרובת תמונות</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="151"/>
         <source>QuickTime Video</source>
-        <translation type="unfinished">וידאו QuickTime</translation>
+        <translation>וידאו QuickTime</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="152"/>
         <source>MP4 Video</source>
-        <translation type="unfinished">וידאו MP4</translation>
+        <translation>וידאו MP4</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="153"/>
         <source>MPEG Video</source>
-        <translation type="unfinished">וידאו MPEG</translation>
+        <translation>וידאו MPEG</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="154"/>
         <source>Ogg Video</source>
-        <translation type="unfinished">וידאו Ogg</translation>
+        <translation>וידאו Ogg</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="155"/>
         <source>Portable Bitmap</source>
-        <translation type="unfinished"></translation>
+        <translation>מפת סיביות ניידת</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="156"/>
         <source>Portable Graymap</source>
-        <translation type="unfinished"></translation>
+        <translation>מפת אפורים ניידת</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="157"/>
         <source>Portable Network Graphics</source>
-        <translation type="unfinished"></translation>
+        <translation>גרפיקת רשת ניידת</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="158"/>
         <source>Portable Pixmap</source>
-        <translation type="unfinished"></translation>
+        <translation>מפת פיקסלים ניידת</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="160"/>
         <source>RealMedia Video</source>
         <extracomment>Don&apos;t translate &quot;RealMedia&quot;, leave it as is.</extracomment>
-        <translation type="unfinished">וידאו RealMedia</translation>
+        <translation>וידאו RealMedia</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="161"/>
         <source>Scalable Vector Graphics</source>
-        <translation type="unfinished"></translation>
+        <translation>גרפיקת וקטורים נמתחת</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="162"/>
         <source>Truevision TGA</source>
-        <translation type="unfinished"></translation>
+        <translation>TGA מבית Truevision</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="163"/>
         <source>Tagged Image File Format</source>
-        <translation type="unfinished"></translation>
+        <translation>תצורת קובץ תמונה מתויגת</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="164"/>
         <source>DVD Video</source>
-        <translation type="unfinished">וידאו DVD</translation>
+        <translation>וידאו DVD</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="165"/>
         <source>Wireless Bitmap</source>
-        <translation type="unfinished"></translation>
+        <translation>מפת סיביות אלחוטית</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="166"/>
         <source>WebM Video</source>
-        <translation type="unfinished">וידאו WebM</translation>
+        <translation>וידאו WebM</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="167"/>
         <source>WebP</source>
-        <translation type="unfinished"></translation>
+        <translation>WebP</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="169"/>
         <source>Windows Media Video</source>
         <extracomment>Also known as WMV, is a video file format.</extracomment>
-        <translation type="unfinished">וידאו Windows Media</translation>
+        <translation>וידאו Windows Media</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="170"/>
         <source>X11 Bitmap</source>
-        <translation type="unfinished"></translation>
+        <translation>מפת סיביות X11</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="171"/>
         <source>X11 Pixmap</source>
-        <translation type="unfinished"></translation>
+        <translation>מפת פיקסלים X11</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="211"/>
         <source>All Image and Video Files</source>
-        <translation type="unfinished"></translation>
+        <translation>כל קובצי התמונה והווידאו</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="246"/>
         <source>All Files</source>
-        <translation type="unfinished">כל הקבצים</translation>
+        <translation>כל הקבצים</translation>
     </message>
     <message>
         <location filename="../../src/videolayer.cpp" line="388"/>
@@ -2921,7 +2921,7 @@ duration (seconds)</source>
     <message>
         <location filename="../../../libAvKys/Plugins/ImageSrc/share/qml/main.qml" line="47"/>
         <source>Force frame rate</source>
-        <translation type="unfinished"></translation>
+        <translation>אילוץ קצב תמוניות</translation>
     </message>
 </context>
 </TS>
