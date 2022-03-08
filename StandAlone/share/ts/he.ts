@@ -438,7 +438,7 @@
     <message>
         <location filename="../../src/clioptions.cpp" line="81"/>
         <source>Open a new instance of %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>פתיחת עותק חדש של %1.</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="55"/>
