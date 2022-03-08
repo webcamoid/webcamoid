@@ -35,6 +35,7 @@ class CliOptions: public QCommandLineParser
         QCommandLineOption pluginPathsOpt() const;
         QCommandLineOption blackListOpt() const;
         QCommandLineOption logFileOpt() const;
+        QCommandLineOption newInstance() const;
 
     private:
         CliOptionsPrivate *d;

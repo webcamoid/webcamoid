@@ -76,6 +76,16 @@ ApplicationWindow {
     Component.onCompleted: chkFlash.updateVisibility()
 
     Connections {
+        target: mediaTools
+
+        function onNewInstanceOpened()
+        {
+            wdgMainWidget.raise();
+            wdgMainWidget.requestActivate()
+        }
+    }
+
+    Connections {
         target: videoLayer
 
         function onVideoInputChanged()

@@ -26,8 +26,10 @@
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QSettings>
+#include <QSharedMemory>
 #include <QStandardPaths>
 #include <QThread>
+#include <QtConcurrent>
 #include <ak.h>
 #include <akcaps.h>
 #include <akaudiocaps.h>
@@ -65,6 +67,12 @@ Q_GLOBAL_STATIC(LogingOptions, globalLogingOptions)
 class MediaToolsPrivate
 {
     public:
+        MediaTools *self;
+        QSharedMemory m_singleInstanceSM {
+            QString("%1.%2.%3").arg(QApplication::applicationName(),
+                                    QApplication::organizationName(),
+                                    QApplication::organizationDomain())
+        };
         QQmlApplicationEngine *m_engine {nullptr};
         AudioLayerPtr m_audioLayer;
         PluginConfigsPtr m_pluginConfigs;
@@ -76,168 +84,26 @@ class MediaToolsPrivate
         int m_windowWidth {0};
         int m_windowHeight {0};
 
+        explicit MediaToolsPrivate(MediaTools *self);
+        bool isSecondInstance();
+        void hasNewInstance();
         void loadLinks();
         void saveLinks(const AkPluginLinks &links);
 };
 
-MediaTools::MediaTools(const CliOptions &cliOptions, QObject *parent):
+MediaTools::MediaTools(QObject *parent):
     QObject(parent)
 {
-    this->d = new MediaToolsPrivate;
-    Ak::registerTypes();
-    this->d->loadLinks();
-
-    // Initialize environment.
-    this->d->m_engine = new QQmlApplicationEngine();
-    this->d->m_engine->addImageProvider(QLatin1String("icons"),
-                                        new IconsProvider);
-    Ak::setQmlEngine(this->d->m_engine);
-    this->d->m_pluginConfigs =
-            PluginConfigsPtr(new PluginConfigs(cliOptions,
-                                               this->d->m_engine));
-    this->d->m_videoLayer =
-            VideoLayerPtr(new VideoLayer(this->d->m_engine));
-    this->d->m_audioLayer = AudioLayerPtr(new AudioLayer(this->d->m_engine));
-    this->d->m_videoEffects =
-            VideoEffectsPtr(new VideoEffects(this->d->m_engine));
-    this->d->m_recording = RecordingPtr(new Recording(this->d->m_engine));
-    this->d->m_updates = UpdatesPtr(new Updates(this->d->m_engine));
-    this->d->m_downloadManager =
-            DownloadManagerPtr(new DownloadManager(this->d->m_engine));
-    this->d->m_updates->watch("Webcamoid",
-                              COMMONS_VERSION,
-                              "https://api.github.com/repos/webcamoid/webcamoid/releases/latest");
-    this->d->m_updates->watch("VirtualCamera",
-                              this->d->m_videoLayer->currentVCamVersion(),
-                              this->d->m_videoLayer->vcamUpdateUrl());
-    QObject::connect(this->d->m_updates.data(),
-                     &Updates::newVersionAvailable,
-                     this,
-                     [this] (const QString &component,
-                             const QString &latestVersion) {
-        if (component == "VirtualCamera")
-            this->d->m_videoLayer->setLatestVCamVersion(latestVersion);
-    });
-
-    AkElement::link(this->d->m_videoLayer.data(),
-                    this->d->m_videoEffects.data(),
-                    Qt::DirectConnection);
-    AkElement::link(this->d->m_videoLayer.data(),
-                    this->d->m_audioLayer.data(),
-                    Qt::DirectConnection);
-    AkElement::link(this->d->m_videoEffects.data(),
-                    this->d->m_recording.data(),
-                    Qt::DirectConnection);
-    AkElement::link(this->d->m_videoEffects.data(),
-                    this->d->m_videoLayer.data(),
-                    Qt::DirectConnection);
-    AkElement::link(this->d->m_audioLayer.data(),
-                    this->d->m_recording.data(),
-                    Qt::DirectConnection);
-    QObject::connect(this->d->m_videoLayer.data(),
-                     &VideoLayer::stateChanged,
-                     this->d->m_videoEffects.data(),
-                     &VideoEffects::setState);
-    QObject::connect(this->d->m_videoLayer.data(),
-                     &VideoLayer::stateChanged,
-                     this->d->m_audioLayer.data(),
-                     &AudioLayer::setOutputState);
-    QObject::connect(this->d->m_recording.data(),
-                     &Recording::stateChanged,
-                     this->d->m_audioLayer.data(),
-                     &AudioLayer::setInputState);
-    QObject::connect(this->d->m_videoLayer.data(),
-                     &VideoLayer::startVCamDownload,
-                     this,
-                     [this] (const QString &title,
-                             const QString &fromUrl,
-                             const QString &toFile) {
-        this->d->m_downloadManager->clear();
-        this->d->m_downloadManager->enqueue(title, fromUrl, toFile);
-    });
-    QObject::connect(this->d->m_videoLayer.data(),
-                     &VideoLayer::inputAudioCapsChanged,
-                     this->d->m_audioLayer.data(),
-                     [this] (const AkAudioCaps &audioCaps)
-                     {
-                        auto stream = this->d->m_videoLayer->videoInput();
-
-                        if (stream.isEmpty())
-                            this->d->m_audioLayer->resetInput();
-                        else
-                            this->d->m_audioLayer->setInput(stream,
-                                                            this->d->m_videoLayer->description(stream),
-                                                            audioCaps);
-                     });
-    QObject::connect(this->d->m_videoLayer.data(),
-                     &VideoLayer::videoInputChanged,
-                     this->d->m_audioLayer.data(),
-                     [this] (const QString &stream)
-                     {
-                        if (stream.isEmpty())
-                            this->d->m_audioLayer->resetInput();
-                        else
-                            this->d->m_audioLayer->setInput(stream,
-                                                            this->d->m_videoLayer->description(stream),
-                                                            this->d->m_videoLayer->inputAudioCaps());
-                     });
-    QObject::connect(akPluginManager,
-                     &AkPluginManager::pluginsChanged,
-                     this->d->m_videoEffects.data(),
-                     &VideoEffects::updateAvailableEffects);
-    QObject::connect(this->d->m_audioLayer.data(),
-                     &AudioLayer::outputCapsChanged,
-                     this->d->m_recording.data(),
-                     &Recording::setAudioCaps);
-    QObject::connect(this->d->m_videoLayer.data(),
-                     &VideoLayer::inputVideoCapsChanged,
-                     this->d->m_recording.data(),
-                     &Recording::setVideoCaps);
-    QObject::connect(qApp,
-                     &QCoreApplication::aboutToQuit,
-                     this->d->m_videoLayer.data(),
-                     [this] () {
-                        this->d->m_videoLayer->setState(AkElement::ElementStateNull);
-                     });
-    QObject::connect(akPluginManager,
-                     &AkPluginManager::linksChanged,
-                     this,
-                     [this] (const AkPluginLinks &links) {
-                        this->d->saveLinks(links);
-                     });
-    QObject::connect(this->d->m_downloadManager.data(),
-                     &DownloadManager::finished,
-                     this,
-                     [this] (const QString &url) {
-        auto filePath = this->d->m_downloadManager->downloadFile(url);
-        auto status = this->d->m_downloadManager->downloadStatus(url);
-        auto error = this->d->m_downloadManager->downloadErrorString(url);
-        this->d->m_videoLayer->checkVCamDownloadReady(url,
-                                                      filePath,
-                                                      status,
-                                                      error);
-    });
-
-    this->loadConfigs();
-    this->d->m_recording->setVideoCaps(this->d->m_videoLayer->inputVideoCaps());
-    this->d->m_recording->setAudioCaps(this->d->m_audioLayer->outputCaps());
-    auto stream = this->d->m_videoLayer->videoInput();
-
-    if (stream.isEmpty())
-        this->d->m_audioLayer->resetInput();
-    else
-        this->d->m_audioLayer->setInput(stream,
-                                        this->d->m_videoLayer->description(stream),
-                                        this->d->m_videoLayer->inputAudioCaps());
-
-    this->d->m_videoLayer->setLatestVCamVersion(this->d->m_updates->latestVersion("VirtualCamera"));
-    this->d->m_updates->start();
+    this->d = new MediaToolsPrivate(this);
 }
 
 MediaTools::~MediaTools()
 {
     this->saveConfigs();
-    delete this->d->m_engine;
+
+    if (this->d->m_engine)
+        delete this->d->m_engine;
+
     delete this->d;
 }
 
@@ -454,6 +320,166 @@ void MediaTools::messageHandler(QtMsgType type,
     globalLogingOptions->mutex.unlock();
 }
 
+bool MediaTools::init(const CliOptions &cliOptions)
+{
+    if (!cliOptions.isSet(cliOptions.newInstance()))
+        if (this->d->isSecondInstance()) {
+            qInfo() << QString("An instance of %1 is already running").arg(QApplication::applicationName());
+
+            return false;
+        }
+
+    Ak::registerTypes();
+    this->d->loadLinks();
+
+    // Initialize environment.
+    this->d->m_engine = new QQmlApplicationEngine();
+    this->d->m_engine->addImageProvider(QLatin1String("icons"),
+                                        new IconsProvider);
+    Ak::setQmlEngine(this->d->m_engine);
+    this->d->m_pluginConfigs =
+            PluginConfigsPtr(new PluginConfigs(cliOptions, this->d->m_engine));
+    this->d->m_videoLayer =
+            VideoLayerPtr(new VideoLayer(this->d->m_engine));
+    this->d->m_audioLayer = AudioLayerPtr(new AudioLayer(this->d->m_engine));
+    this->d->m_videoEffects =
+            VideoEffectsPtr(new VideoEffects(this->d->m_engine));
+    this->d->m_recording = RecordingPtr(new Recording(this->d->m_engine));
+    this->d->m_updates = UpdatesPtr(new Updates(this->d->m_engine));
+    this->d->m_downloadManager =
+            DownloadManagerPtr(new DownloadManager(this->d->m_engine));
+    this->d->m_updates->watch("Webcamoid",
+                              COMMONS_VERSION,
+                              "https://api.github.com/repos/webcamoid/webcamoid/releases/latest");
+    this->d->m_updates->watch("VirtualCamera",
+                              this->d->m_videoLayer->currentVCamVersion(),
+                              this->d->m_videoLayer->vcamUpdateUrl());
+    QObject::connect(this->d->m_updates.data(),
+                     &Updates::newVersionAvailable,
+                     this,
+                     [this] (const QString &component,
+                             const QString &latestVersion) {
+        if (component == "VirtualCamera")
+            this->d->m_videoLayer->setLatestVCamVersion(latestVersion);
+    });
+
+    AkElement::link(this->d->m_videoLayer.data(),
+                    this->d->m_videoEffects.data(),
+                    Qt::DirectConnection);
+    AkElement::link(this->d->m_videoLayer.data(),
+                    this->d->m_audioLayer.data(),
+                    Qt::DirectConnection);
+    AkElement::link(this->d->m_videoEffects.data(),
+                    this->d->m_recording.data(),
+                    Qt::DirectConnection);
+    AkElement::link(this->d->m_videoEffects.data(),
+                    this->d->m_videoLayer.data(),
+                    Qt::DirectConnection);
+    AkElement::link(this->d->m_audioLayer.data(),
+                    this->d->m_recording.data(),
+                    Qt::DirectConnection);
+    QObject::connect(this->d->m_videoLayer.data(),
+                     &VideoLayer::stateChanged,
+                     this->d->m_videoEffects.data(),
+                     &VideoEffects::setState);
+    QObject::connect(this->d->m_videoLayer.data(),
+                     &VideoLayer::stateChanged,
+                     this->d->m_audioLayer.data(),
+                     &AudioLayer::setOutputState);
+    QObject::connect(this->d->m_recording.data(),
+                     &Recording::stateChanged,
+                     this->d->m_audioLayer.data(),
+                     &AudioLayer::setInputState);
+    QObject::connect(this->d->m_videoLayer.data(),
+                     &VideoLayer::startVCamDownload,
+                     this,
+                     [this] (const QString &title,
+                             const QString &fromUrl,
+                             const QString &toFile) {
+        this->d->m_downloadManager->clear();
+        this->d->m_downloadManager->enqueue(title, fromUrl, toFile);
+    });
+    QObject::connect(this->d->m_videoLayer.data(),
+                     &VideoLayer::inputAudioCapsChanged,
+                     this->d->m_audioLayer.data(),
+                     [this] (const AkAudioCaps &audioCaps)
+                     {
+                        auto stream = this->d->m_videoLayer->videoInput();
+
+                        if (stream.isEmpty())
+                            this->d->m_audioLayer->resetInput();
+                        else
+                            this->d->m_audioLayer->setInput(stream,
+                                                            this->d->m_videoLayer->description(stream),
+                                                            audioCaps);
+                     });
+    QObject::connect(this->d->m_videoLayer.data(),
+                     &VideoLayer::videoInputChanged,
+                     this->d->m_audioLayer.data(),
+                     [this] (const QString &stream)
+                     {
+                        if (stream.isEmpty())
+                            this->d->m_audioLayer->resetInput();
+                        else
+                            this->d->m_audioLayer->setInput(stream,
+                                                            this->d->m_videoLayer->description(stream),
+                                                            this->d->m_videoLayer->inputAudioCaps());
+                     });
+    QObject::connect(akPluginManager,
+                     &AkPluginManager::pluginsChanged,
+                     this->d->m_videoEffects.data(),
+                     &VideoEffects::updateAvailableEffects);
+    QObject::connect(this->d->m_audioLayer.data(),
+                     &AudioLayer::outputCapsChanged,
+                     this->d->m_recording.data(),
+                     &Recording::setAudioCaps);
+    QObject::connect(this->d->m_videoLayer.data(),
+                     &VideoLayer::inputVideoCapsChanged,
+                     this->d->m_recording.data(),
+                     &Recording::setVideoCaps);
+    QObject::connect(qApp,
+                     &QCoreApplication::aboutToQuit,
+                     this->d->m_videoLayer.data(),
+                     [this] () {
+                        this->d->m_videoLayer->setState(AkElement::ElementStateNull);
+                     });
+    QObject::connect(akPluginManager,
+                     &AkPluginManager::linksChanged,
+                     this,
+                     [this] (const AkPluginLinks &links) {
+                        this->d->saveLinks(links);
+                     });
+    QObject::connect(this->d->m_downloadManager.data(),
+                     &DownloadManager::finished,
+                     this,
+                     [this] (const QString &url) {
+        auto filePath = this->d->m_downloadManager->downloadFile(url);
+        auto status = this->d->m_downloadManager->downloadStatus(url);
+        auto error = this->d->m_downloadManager->downloadErrorString(url);
+        this->d->m_videoLayer->checkVCamDownloadReady(url,
+                                                      filePath,
+                                                      status,
+                                                      error);
+    });
+
+    this->loadConfigs();
+    this->d->m_recording->setVideoCaps(this->d->m_videoLayer->inputVideoCaps());
+    this->d->m_recording->setAudioCaps(this->d->m_audioLayer->outputCaps());
+    auto stream = this->d->m_videoLayer->videoInput();
+
+    if (stream.isEmpty())
+        this->d->m_audioLayer->resetInput();
+    else
+        this->d->m_audioLayer->setInput(stream,
+                                        this->d->m_videoLayer->description(stream),
+                                        this->d->m_videoLayer->inputAudioCaps());
+
+    this->d->m_videoLayer->setLatestVCamVersion(this->d->m_updates->latestVersion("VirtualCamera"));
+    this->d->m_updates->start();
+
+    return true;
+}
+
 void MediaTools::setWindowWidth(int windowWidth)
 {
     if (this->d->m_windowWidth == windowWidth)
@@ -540,6 +566,68 @@ void MediaTools::restartApp()
         QProcess::startDetached(args.first(), args.mid(1));
     else
         QProcess::startDetached(args.first(), {});
+}
+
+MediaToolsPrivate::MediaToolsPrivate(MediaTools *self):
+    self(self)
+{
+
+}
+
+bool MediaToolsPrivate::isSecondInstance()
+{
+    if (this->m_singleInstanceSM.attach()) {
+        this->m_singleInstanceSM.lock();
+        auto newInstance =
+                reinterpret_cast<bool *>(this->m_singleInstanceSM.data());
+        *newInstance = true;
+        this->m_singleInstanceSM.unlock();
+
+        return true;
+    } else {
+        if (this->m_singleInstanceSM.create(sizeof(bool))) {
+            QtConcurrent::run([this] () {
+                bool run = true;
+                QObject::connect(qApp,
+                                 &QApplication::aboutToQuit,
+                                 [&run]() {
+                    run = false;
+                });
+
+                this->m_singleInstanceSM.lock();
+                auto newInstance =
+                        reinterpret_cast<bool *>(this->m_singleInstanceSM.data());
+                *newInstance = false;
+                this->m_singleInstanceSM.unlock();
+
+                while (run) {
+                    bool hasNewInstance = false;
+                    this->m_singleInstanceSM.lock();
+                    auto newInstance =
+                            reinterpret_cast<bool *>(this->m_singleInstanceSM.data());
+
+                    if (*newInstance) {
+                        hasNewInstance = true;
+                        *newInstance = false;
+                    }
+
+                    this->m_singleInstanceSM.unlock();
+
+                    if (hasNewInstance)
+                        this->hasNewInstance();
+
+                    QThread::msleep(1000);
+                }
+            });
+        }
+    }
+
+    return false;
+}
+
+void MediaToolsPrivate::hasNewInstance()
+{
+    emit self->newInstanceOpened();
 }
 
 void MediaToolsPrivate::loadLinks()

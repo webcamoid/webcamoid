@@ -405,48 +405,53 @@
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../../src/clioptions.cpp" line="44"/>
+        <location filename="../../src/clioptions.cpp" line="45"/>
         <source>Webcam capture application.</source>
         <translation>יישומון לכידה ממצלמה.</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="47"/>
+        <location filename="../../src/clioptions.cpp" line="48"/>
         <source>Load settings from PATH. If PATH is empty, load configs from application directory.</source>
         <translation>טעינת הגדרות מ־PATH. אם ה־PATH ריק, יש לטעון הגדרות מתיקיית היישומון.</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="49"/>
+        <location filename="../../src/clioptions.cpp" line="50"/>
         <source>PATH</source>
         <translation>PATH</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="61"/>
-        <location filename="../../src/clioptions.cpp" line="70"/>
+        <location filename="../../src/clioptions.cpp" line="62"/>
+        <location filename="../../src/clioptions.cpp" line="71"/>
         <source>PATH1;PATH2;PATH3;...</source>
         <translation>PATH1;PATH2;PATH3;...</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="75"/>
+        <location filename="../../src/clioptions.cpp" line="76"/>
         <source>Send debug output to a file</source>
         <translation>שליחת פלט ניפוי שגיאות לקובץ</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="76"/>
+        <location filename="../../src/clioptions.cpp" line="77"/>
         <source>FILE</source>
         <translation>קובץ</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="54"/>
+        <location filename="../../src/clioptions.cpp" line="81"/>
+        <source>Open a new instance of %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/clioptions.cpp" line="55"/>
         <source>Search in the specified plugins paths recursively.</source>
         <translation>חיפוש בנתיבי התוספים האלו באופן רקורסיבי.</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="59"/>
+        <location filename="../../src/clioptions.cpp" line="60"/>
         <source>Semi-colon separated list of paths to search for plugins.</source>
         <translation>רשימה מופרדת בנקודה פסיק לחיפוש אחר תוספים.</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="68"/>
+        <location filename="../../src/clioptions.cpp" line="69"/>
         <source>Semi-colon separated list of paths to avoid loading.</source>
         <extracomment>Blacklist of plugins that could have conflicts when loading in Webcamoid.</extracomment>
         <translation>רשימה מופרדת בפסיקים של נתיבים אותם אין לטעון.</translation>
@@ -2719,22 +2724,22 @@ background blur or image below.</source>
         <translation>פן</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="149"/>
+        <location filename="../qml/main.qml" line="159"/>
         <source>Use flash</source>
         <translation>להשתמש במבזק</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="169"/>
+        <location filename="../qml/main.qml" line="179"/>
         <source>Now</source>
         <translation>עכשיו</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="176"/>
+        <location filename="../qml/main.qml" line="186"/>
         <source>%1 seconds</source>
         <translation>%1 שניות</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="282"/>
+        <location filename="../qml/main.qml" line="292"/>
         <source>Take a photo</source>
         <translation>צילום תמונה</translation>
     </message>
@@ -2749,7 +2754,7 @@ background blur or image below.</source>
         <translation>מהדורה יומית</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="331"/>
+        <location filename="../qml/main.qml" line="341"/>
         <source>Record video</source>
         <translation>הקלטת וידאו</translation>
     </message>

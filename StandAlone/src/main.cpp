@@ -84,7 +84,11 @@ int main(int argc, char *argv[])
         qputenv("QML_DISABLE_DISTANCEFIELD", "1");
 #endif
 
-    MediaTools mediaTools(cliOptions);
+    MediaTools mediaTools;
+
+    if (!mediaTools.init(cliOptions))
+        return 0;
+
     mediaTools.show();
 
     return QApplication::exec();

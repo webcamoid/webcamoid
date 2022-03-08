@@ -405,48 +405,53 @@
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../../src/clioptions.cpp" line="44"/>
+        <location filename="../../src/clioptions.cpp" line="45"/>
         <source>Webcam capture application.</source>
         <translation>網路攝影機抓取應用程式。</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="47"/>
+        <location filename="../../src/clioptions.cpp" line="48"/>
         <source>Load settings from PATH. If PATH is empty, load configs from application directory.</source>
         <translation>從 PATH 讀取設定。如果 PATH 是空的，就從程式資料夾讀取配置。</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="49"/>
+        <location filename="../../src/clioptions.cpp" line="50"/>
         <source>PATH</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="61"/>
-        <location filename="../../src/clioptions.cpp" line="70"/>
+        <location filename="../../src/clioptions.cpp" line="62"/>
+        <location filename="../../src/clioptions.cpp" line="71"/>
         <source>PATH1;PATH2;PATH3;...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="75"/>
+        <location filename="../../src/clioptions.cpp" line="76"/>
         <source>Send debug output to a file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="76"/>
+        <location filename="../../src/clioptions.cpp" line="77"/>
         <source>FILE</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="54"/>
+        <location filename="../../src/clioptions.cpp" line="81"/>
+        <source>Open a new instance of %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/clioptions.cpp" line="55"/>
         <source>Search in the specified plugins paths recursively.</source>
         <translation>在指定的擴充功能路徑中，遞歸地尋找。</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="59"/>
+        <location filename="../../src/clioptions.cpp" line="60"/>
         <source>Semi-colon separated list of paths to search for plugins.</source>
         <translation>以分號（;）分割的路徑列表，用於搜尋擴充功能。</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="68"/>
+        <location filename="../../src/clioptions.cpp" line="69"/>
         <source>Semi-colon separated list of paths to avoid loading.</source>
         <extracomment>Blacklist of plugins that could have conflicts when loading in Webcamoid.</extracomment>
         <translation>以分號（;）分割的路徑列表，用以避免用以避免被讀取。（載入至 Webcamoid 時可能造成衝突的插件黑名單）。</translation>
@@ -2718,22 +2723,22 @@ background blur or image below.</source>
         <translation type="unfinished">層次（Phase）</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="149"/>
+        <location filename="../qml/main.qml" line="159"/>
         <source>Use flash</source>
         <translation type="unfinished">使用閃光（flash）</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="169"/>
+        <location filename="../qml/main.qml" line="179"/>
         <source>Now</source>
         <translation>現在</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="176"/>
+        <location filename="../qml/main.qml" line="186"/>
         <source>%1 seconds</source>
         <translation>%1 秒</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="282"/>
+        <location filename="../qml/main.qml" line="292"/>
         <source>Take a photo</source>
         <translation>照相</translation>
     </message>
@@ -2748,7 +2753,7 @@ background blur or image below.</source>
         <translation type="unfinished">每日構建</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="331"/>
+        <location filename="../qml/main.qml" line="341"/>
         <source>Record video</source>
         <translation>錄影</translation>
     </message>

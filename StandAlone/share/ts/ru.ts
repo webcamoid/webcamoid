@@ -405,48 +405,53 @@
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../../src/clioptions.cpp" line="44"/>
+        <location filename="../../src/clioptions.cpp" line="45"/>
         <source>Webcam capture application.</source>
         <translation>Приложение для захвата веб-камеры.</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="47"/>
+        <location filename="../../src/clioptions.cpp" line="48"/>
         <source>Load settings from PATH. If PATH is empty, load configs from application directory.</source>
         <translation>Загрузить настройки из PATH. Если PATH пуст, загрузите конфиги из каталога приложения.</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="49"/>
+        <location filename="../../src/clioptions.cpp" line="50"/>
         <source>PATH</source>
         <translation>ПУТЬ</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="61"/>
-        <location filename="../../src/clioptions.cpp" line="70"/>
+        <location filename="../../src/clioptions.cpp" line="62"/>
+        <location filename="../../src/clioptions.cpp" line="71"/>
         <source>PATH1;PATH2;PATH3;...</source>
         <translation>ПУТЬ1;ПУТЬ2;ПУТЬ3;...</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="75"/>
+        <location filename="../../src/clioptions.cpp" line="76"/>
         <source>Send debug output to a file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="76"/>
+        <location filename="../../src/clioptions.cpp" line="77"/>
         <source>FILE</source>
         <translation>ФАЙЛ</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="54"/>
+        <location filename="../../src/clioptions.cpp" line="81"/>
+        <source>Open a new instance of %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/clioptions.cpp" line="55"/>
         <source>Search in the specified plugins paths recursively.</source>
         <translation>Рекурсивный поиск по указанным путям подключаемых плагинов.</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="59"/>
+        <location filename="../../src/clioptions.cpp" line="60"/>
         <source>Semi-colon separated list of paths to search for plugins.</source>
         <translation>Список путей для поиска плагинов разделен точкой с запятой.</translation>
     </message>
     <message>
-        <location filename="../../src/clioptions.cpp" line="68"/>
+        <location filename="../../src/clioptions.cpp" line="69"/>
         <source>Semi-colon separated list of paths to avoid loading.</source>
         <extracomment>Blacklist of plugins that could have conflicts when loading in Webcamoid.</extracomment>
         <translation>Список путей, чтобы избежать нагрузки разделен точкой с запятой.</translation>
@@ -2719,22 +2724,22 @@ background blur or image below.</source>
         <translation>Фаза</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="149"/>
+        <location filename="../qml/main.qml" line="159"/>
         <source>Use flash</source>
         <translation>Использовать вспышку</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="169"/>
+        <location filename="../qml/main.qml" line="179"/>
         <source>Now</source>
         <translation>Сейчас</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="176"/>
+        <location filename="../qml/main.qml" line="186"/>
         <source>%1 seconds</source>
         <translation>%1 секунд</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="282"/>
+        <location filename="../qml/main.qml" line="292"/>
         <source>Take a photo</source>
         <translation>Сделать фото</translation>
     </message>
@@ -2749,7 +2754,7 @@ background blur or image below.</source>
         <translation>Ежедневная сборка</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="331"/>
+        <location filename="../qml/main.qml" line="341"/>
         <source>Record video</source>
         <translation>Запись видео</translation>
     </message>

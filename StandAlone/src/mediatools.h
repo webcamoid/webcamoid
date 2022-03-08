@@ -81,7 +81,7 @@ class MediaTools: public QObject
                CONSTANT)
 
     public:
-        MediaTools(const CliOptions &cliOptions, QObject *parent=nullptr);
+        MediaTools(QObject *parent=nullptr);
         ~MediaTools();
 
         Q_INVOKABLE int windowWidth() const;
@@ -120,8 +120,10 @@ class MediaTools: public QObject
         void windowWidthChanged(int windowWidth);
         void windowHeightChanged(int windowHeight);
         void interfaceLoaded();
+        void newInstanceOpened();
 
     public slots:
+        bool init(const CliOptions &cliOptions);
         void setWindowWidth(int windowWidth);
         void setWindowHeight(int windowHeight);
         void resetWindowWidth();
