@@ -1,0 +1,20 @@
+name: Flatpak
+
+on: [push, pull_request]
+
+env:
+  RUNTIME_VERSION: 5.15-21.08
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install dependencies
+      run: |
+        chmod +x ports/ci/flatpak/install_deps.sh
+        ./ports/ci/flatpak/install_deps.sh
+    - name: Build
+      run: |
+        chmod +x ports/ci/flatpak/build.sh
+        ./ports/ci/flatpak/build.sh
