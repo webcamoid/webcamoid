@@ -18,6 +18,12 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
+apt-get -qq -y update
+apt-get -qq -y upgrade
+apt-get -y install \
+    flatpak \
+    flatpak-builder
+
 flatpak -y install \
     "org.kde.Platform//${RUNTIME_VERSION}" \
     "org.kde.Sdk//${RUNTIME_VERSION}"
