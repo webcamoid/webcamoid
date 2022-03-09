@@ -24,6 +24,10 @@ sudo apt-get -y install \
     flatpak \
     flatpak-builder
 
-flatpak -y install \
-    "org.kde.Platform//${RUNTIME_VERSION}" \
-    "org.kde.Sdk//${RUNTIME_VERSION}"
+flatpak install \
+    "org.kde.Platform" \
+    "org.kde.Sdk"
+
+# flatpak -y install \
+#     "org.kde.Platform//${RUNTIME_VERSION}" \
+#     "org.kde.Sdk//${RUNTIME_VERSION}"
