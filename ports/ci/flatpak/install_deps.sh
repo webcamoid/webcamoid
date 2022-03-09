@@ -18,9 +18,9 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-apt-get -qq -y update
-apt-get -qq -y upgrade
-apt-get -y install \
+sudo apt-get -qq -y update
+sudo apt-get -qq -y upgrade
+sudo apt-get -y install \
     flatpak \
     flatpak-builder
 
