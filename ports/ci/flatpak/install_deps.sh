@@ -24,6 +24,7 @@ sudo apt-get -y install \
     flatpak \
     flatpak-builder
 
+flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 flatpak install \
     "org.kde.Platform" \
     "org.kde.Sdk"
