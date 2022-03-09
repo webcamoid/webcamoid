@@ -369,7 +369,7 @@
     <message>
         <location filename="../qml/PluginConfig.qml" line="35"/>
         <source>Paths</source>
-        <translation>Paden</translation>
+        <translation>Locaties</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="38"/>
@@ -384,7 +384,7 @@
     <message>
         <location filename="../qml/PluginConfig.qml" line="119"/>
         <source>Add path</source>
-        <translation>Pad toevoegen</translation>
+        <translation>Locatie toevoegen</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="162"/>
@@ -399,7 +399,7 @@
     <message>
         <location filename="../qml/PluginConfig.qml" line="246"/>
         <source>Add plugins search path</source>
-        <translation>Plug-inzoekpad toevoegen</translation>
+        <translation>Plug-inzoeklocatie toevoegen</translation>
     </message>
 </context>
 <context>
@@ -412,18 +412,18 @@
     <message>
         <location filename="../../src/clioptions.cpp" line="48"/>
         <source>Load settings from PATH. If PATH is empty, load configs from application directory.</source>
-        <translation>Instellingen laden uit PAD. Als PAD leeg is, dan wordt de configuratie geladen uit de programmamap.</translation>
+        <translation>Instellingen laden uit LOCATIE. Als LOCATIE leeg is, dan wordt de configuratie geladen uit de programmamap.</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="50"/>
         <source>PATH</source>
-        <translation>PAD</translation>
+        <translation>LOCATIE</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="62"/>
         <location filename="../../src/clioptions.cpp" line="71"/>
         <source>PATH1;PATH2;PATH3;...</source>
-        <translation>PAD1;PAD2;PAD3;...</translation>
+        <translation>LOCATIE1;LOCATIE2;LOCATIE3;…</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="76"/>
@@ -438,23 +438,23 @@
     <message>
         <location filename="../../src/clioptions.cpp" line="81"/>
         <source>Open a new instance of %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Open een nieuwe instantie van %1.</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="55"/>
         <source>Search in the specified plugins paths recursively.</source>
-        <translation>Opgegeven plug-inpaden recursief doorzoeken.</translation>
+        <translation>Doorzoek de opgegeven plug-inlocaties recursief.</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="60"/>
         <source>Semi-colon separated list of paths to search for plugins.</source>
-        <translation>Puntkommagescheiden lijst met paden waarin gezocht moet worden naar plug-ins.</translation>
+        <translation>Puntkommagescheiden lijst met locaties waarin gezocht moet worden naar plug-ins.</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="69"/>
         <source>Semi-colon separated list of paths to avoid loading.</source>
         <extracomment>Blacklist of plugins that could have conflicts when loading in Webcamoid.</extracomment>
-        <translation>Puntkommagescheiden lijst met paden die niet moeten worden geladen.</translation>
+        <translation>Puntkommagescheiden lijst met locaties die niet moeten worden geladen.</translation>
     </message>
 </context>
 <context>
@@ -795,12 +795,12 @@
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="122"/>
         <source>Path</source>
-        <translation>Pad</translation>
+        <translation>Locatie</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="129"/>
         <source>File path</source>
-        <translation>Bestandspad</translation>
+        <translation>Bestandslocatie</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="136"/>
