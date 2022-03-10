@@ -34,6 +34,7 @@ echo "Running packaging"
 echo
 echo "Formats: Flatpak"
 
+mkdir -p "${PACKAGES_DIR}"
 flatpak build-bundle \
     -v \
     ~/.local/share/flatpak/repo \
