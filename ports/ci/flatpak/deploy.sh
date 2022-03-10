@@ -19,34 +19,33 @@
 # Web-Site: http://webcamoid.github.io/
 
 appId=org.webcamoid.Webcamoid
-manifestFile=${appId}.yml
+export PACKAGES_DIR=${PWD}/webcamoid-packages/linux
 
-cat << EOF > "${manifestFile}"
-app-id: ${appId}
-runtime: org.kde.Platform
-runtime-version: '${RUNTIME_VERSION}'
-sdk: org.kde.Sdk
-command: webcamoid
-finish-args:
-  - --share=ipc
-  - --share=network
-  - --socket=x11
-  - --socket=wayland
-  - --socket=pulseaudio
-  - --filesystem=host
-  - --device=all
-modules:
-  - name: webcamoid
-    buildsystem: cmake-ninja
-    config-opts:
-      - -LA
-      - -DCMAKE_BUILD_TYPE=Release
-      - -DDAILY_BUILD="${DAILY_BUILD}"
-    sources:
-      - type: git
-        url: https://github.com/webcamoid/webcamoid.git
-        branch: ${GITHUB_REF##*/}
-        commit: ${GITHUB_SHA}
-EOF
+if [ "${DAILY_BUILD}" = 1 ]; then
+    version=daily-$(basename ${GITHUB_REF})-$(git rev-list --count HEAD)
+else
+    version=$(flatpak run "${appId}" -v | awk '{print $2}')
+fi
 
-flatpak-builder --user --install webcamoid-build --force-clean "${manifestFile}"
+package=webcamoid-installer-linux-${version}-x86_64.flatpak
+packagePath=${PACKAGES_DIR}/${package}
+
+echo "Running packaging"
+echo
+echo "Formats: Flatpak"
+
+flatpak build-bundle \
+    -v \
+    ~/.local/share/flatpak/repo \
+    "${packagePath}" \
+    "${appId}"
+
+if [ -e "${packagePath}" ]; then
+    fileSize=$(stat --format="%s" "${packagePath}" | numfmt --to=iec-i --suffix=B --format='%.2f')
+    md5=$(md5sum "${packagePath}" | awk '{print $1}')
+
+    echo
+    echo "Packages created:"
+    echo "\t${package} ${fileSize}"
+    echo "\t\tmd5sum: ${md5}"
+fi

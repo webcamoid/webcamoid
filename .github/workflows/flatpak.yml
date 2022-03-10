@@ -14,7 +14,27 @@ jobs:
       run: |
         chmod +x ports/ci/flatpak/install_deps.sh
         ./ports/ci/flatpak/install_deps.sh
-    - name: Build
+    - name: Release Build
+      if: ${{ startsWith(github.ref, 'refs/tags/') }}
       run: |
         chmod +x ports/ci/flatpak/build.sh
         ./ports/ci/flatpak/build.sh
+    - name: Release Deploy
+      if: ${{ startsWith(github.ref, 'refs/tags/') }}
+      run: |
+        chmod +x ports/ci/flatpak/deploy.sh
+        ./ports/ci/flatpak/deploy.sh
+    - name: Daily Build
+      if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+      env:
+        DAILY_BUILD: 1
+      run: |
+        chmod +x ports/ci/flatpak/build.sh
+        ./ports/ci/flatpak/build.sh
+    - name: Daily Deploy
+      if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+      env:
+        DAILY_BUILD: 1
+      run: |
+        chmod +x ports/ci/flatpak/deploy.sh
+        ./ports/ci/flatpak/deploy.sh

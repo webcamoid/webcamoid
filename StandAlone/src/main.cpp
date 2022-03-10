@@ -30,9 +30,14 @@
 
 int main(int argc, char *argv[])
 {
+    QApplication::setApplicationName(COMMONS_APPNAME);
+    QApplication::setApplicationVersion(COMMONS_VERSION);
+    QApplication::setOrganizationName(COMMONS_APPNAME);
+    QApplication::setOrganizationDomain(QString("%1.com").arg(COMMONS_APPNAME));
     QApplication::setAttribute(Qt::AA_EnableHighDpiScaling, true);
     QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps, true);
     qInstallMessageHandler(MediaTools::messageHandler);
+
     QApplication app(argc, argv);
     CliOptions cliOptions;
 
@@ -43,11 +48,6 @@ int main(int argc, char *argv[])
         if (!logFile.isEmpty())
             MediaTools::setLogFile(logFile);
     }
-
-    QApplication::setApplicationName(COMMONS_APPNAME);
-    QApplication::setApplicationVersion(COMMONS_VERSION);
-    QApplication::setOrganizationName(COMMONS_APPNAME);
-    QApplication::setOrganizationDomain(QString("%1.com").arg(COMMONS_APPNAME));
 
     // Install translations.
     QTranslator translator;
