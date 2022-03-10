@@ -47,6 +47,6 @@ if [ -e "${packagePath}" ]; then
 
     echo
     echo "Packages created:"
-    echo "\t${package} ${fileSize}"
-    echo "\t\tmd5sum: ${md5}"
+    echo "    ${package} ${fileSize}"
+    echo "        md5sum: ${md5}"
 fi
