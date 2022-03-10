@@ -29,10 +29,12 @@ sdk: org.kde.Sdk
 command: webcamoid
 finish-args:
   - --share=ipc
+  - --share=network
   - --socket=x11
   - --socket=wayland
+  - --socket=pulseaudio
   - --filesystem=host
-  - --device=dri
+  - --device=all
 modules:
   - name: webcamoid
     buildsystem: cmake-ninja
@@ -40,8 +42,10 @@ modules:
       - -LA
       - -DCMAKE_BUILD_TYPE=Release
     sources:
-      - type: dir
-        path: .
+      - type: git
+        url: https://github.com/webcamoid/webcamoid.git
+        branch: ${GITHUB_REF##*/}
+        commit: ${GITHUB_SHA}
 EOF
 
 flatpak-builder --user --install webcamoid-build --force-clean "${manifestFile}"

@@ -50,6 +50,7 @@ Any donation amount is welcome and very appreciated.
 [![Linux MinGW](https://github.com/webcamoid/webcamoid/actions/workflows/linux-mingw.yml/badge.svg)](https://github.com/webcamoid/webcamoid/actions/workflows/linux-mingw.yml)
 [![OpenSUSE](https://github.com/webcamoid/webcamoid/actions/workflows/linux-opensuse.yml/badge.svg)](https://github.com/webcamoid/webcamoid/actions/workflows/linux-opensuse.yml)
 [![Ubuntu](https://github.com/webcamoid/webcamoid/actions/workflows/linux-ubuntu.yml/badge.svg)](https://github.com/webcamoid/webcamoid/actions/workflows/linux-ubuntu.yml)
+[![Flatpak](https://github.com/webcamoid/webcamoid/actions/workflows/flatpak.yml/badge.svg)](https://github.com/webcamoid/webcamoid/actions/workflows/flatpak.yml)
 [![Mac](https://github.com/webcamoid/webcamoid/actions/workflows/mac.yml/badge.svg)](https://github.com/webcamoid/webcamoid/actions/workflows/mac.yml)
 [![Windows MSYS](https://github.com/webcamoid/webcamoid/actions/workflows/windows-msys.yml/badge.svg)](https://github.com/webcamoid/webcamoid/actions/workflows/windows-msys.yml)
 [![Build status](https://ci.appveyor.com/api/projects/status/1ecp839l0nnnya9l?svg=true)](https://ci.appveyor.com/project/hipersayanX/webcamoid)
