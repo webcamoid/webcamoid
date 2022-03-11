@@ -18,6 +18,7 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
+sudo add-apt-repository ppa:flatpak/stable
 sudo apt-get -qq -y update
 sudo apt-get -qq -y upgrade
 sudo apt-get -y install \
