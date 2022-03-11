@@ -149,6 +149,7 @@ else
         libqt5opengl5-dev \
         libqt5svg5-dev \
         qml-module-qt-labs-folderlistmodel \
+        qml-module-qt-labs-platform \
         qml-module-qt-labs-settings \
         qml-module-qtqml-models2 \
         qml-module-qtquick-controls2 \
