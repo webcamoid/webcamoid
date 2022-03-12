@@ -53,7 +53,7 @@
 #define COMMONS_PROJECT_DOWNLOADS_URL "https://webcamoid.github.io/#downloads"
 #define COMMONS_PROJECT_ISSUES_URL "https://github.com/webcamoid/webcamoid/issues"
 #define COMMONS_PROJECT_COMMIT_URL "https://github.com/webcamoid/webcamoid/commit"
-#define COMMONS_PROJECT_DONATIONS_URL "https://github.com/webcamoid/webcamoid#donations"
+#define COMMONS_PROJECT_DONATIONS_URL "https://webcamoid.github.io/donations"
 #define COMMONS_COPYRIGHT_NOTICE "Copyright (C) 2011-2022  Gonzalo Exequiel Pedone"
 
 struct LogingOptions
