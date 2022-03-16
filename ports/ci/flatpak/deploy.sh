@@ -18,7 +18,7 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-appId=org.webcamoid.Webcamoid
+appId=io.github.webcamoid.Webcamoid
 export PACKAGES_DIR=${PWD}/webcamoid-packages/linux
 
 if [ "${DAILY_BUILD}" = 1 ]; then
