@@ -18,7 +18,7 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-appId=org.webcamoid.Webcamoid
+appId=io.github.webcamoid.Webcamoid
 manifestFile=${appId}.yml
 
 cat << EOF > "${manifestFile}"
@@ -27,13 +27,17 @@ runtime: org.kde.Platform
 runtime-version: '${RUNTIME_VERSION}'
 sdk: org.kde.Sdk
 command: webcamoid
+rename-icon: webcamoid
+rename-appdata-file: io.github.webcamoid.metainfo.xml
+rename-desktop-file: Webcamoid.desktop
 finish-args:
   - --share=ipc
   - --share=network
-  - --socket=x11
+  - --socket=fallback-x11
   - --socket=wayland
   - --socket=pulseaudio
-  - --filesystem=host
+  - --filesystem=xdg-pictures
+  - --filesystem=xdg-videos
   - --device=all
 modules:
   - name: webcamoid
