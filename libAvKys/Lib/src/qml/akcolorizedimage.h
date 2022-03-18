@@ -78,6 +78,11 @@ class AKCOMMONS_EXPORT AkColorizedImage: public QQuickItem
     Q_PROPERTY(Status status
                READ status
                NOTIFY statusChanged)
+    Q_PROPERTY(bool colorize
+               READ colorize
+               WRITE setColorize
+               RESET resetColorize
+               NOTIFY colorizeChanged)
     Q_PROPERTY(bool mirror
                READ mirror
                WRITE setMirror
@@ -130,13 +135,14 @@ class AKCOMMONS_EXPORT AkColorizedImage: public QQuickItem
         Q_INVOKABLE QString source() const;
         Q_INVOKABLE bool cache() const;
         Q_INVOKABLE QColor color() const;
-        Q_INVOKABLE FillMode fillMode() const;
+        Q_INVOKABLE AkColorizedImage::FillMode fillMode() const;
         Q_INVOKABLE QSize sourceSize() const;
         Q_INVOKABLE qreal paintedWidth() const;
         Q_INVOKABLE qreal paintedHeight() const;
-        Q_INVOKABLE HorizontalAlignment horizontalAlignment() const;
-        Q_INVOKABLE VerticalAlignment verticalAlignment() const;
-        Q_INVOKABLE Status status() const;
+        Q_INVOKABLE AkColorizedImage::HorizontalAlignment horizontalAlignment() const;
+        Q_INVOKABLE AkColorizedImage::VerticalAlignment verticalAlignment() const;
+        Q_INVOKABLE AkColorizedImage::Status status() const;
+        Q_INVOKABLE bool colorize() const;
         Q_INVOKABLE bool mirror() const;
         Q_INVOKABLE bool asynchronous() const;
         Q_INVOKABLE bool mipmap() const;
@@ -154,12 +160,13 @@ class AKCOMMONS_EXPORT AkColorizedImage: public QQuickItem
         void sourceChanged(const QString &source);
         void cacheChanged(bool cache);
         void colorChanged(const QColor &color);
-        void fillModeChanged(FillMode fillMode);
+        void fillModeChanged(AkColorizedImage::FillMode fillMode);
         void sourceSizeChanged(const QSize &sourceSize);
         void paintedGeometryChanged();
-        void horizontalAlignmentChanged(HorizontalAlignment horizontalAlignment);
-        void verticalAlignmentChanged(VerticalAlignment verticalAlignment);
-        void statusChanged(Status status);
+        void horizontalAlignmentChanged(AkColorizedImage::HorizontalAlignment horizontalAlignment);
+        void verticalAlignmentChanged(AkColorizedImage::VerticalAlignment verticalAlignment);
+        void statusChanged(AkColorizedImage::Status status);
+        void colorizeChanged(bool colorize);
         void mirrorChanged(bool mirror);
         void asynchronousChanged(bool asynchronous);
         void mipmapChanged(bool mipmap);
@@ -169,10 +176,11 @@ class AKCOMMONS_EXPORT AkColorizedImage: public QQuickItem
         void setSource(const QString &source);
         void setCache(bool cache);
         void setColor(const QColor &color);
-        void setFillMode(FillMode fillMode);
+        void setFillMode(AkColorizedImage::FillMode fillMode);
         void setSourceSize(const QSize &sourceSize);
-        void setHorizontalAlignment(HorizontalAlignment horizontalAlignment);
-        void setVerticalAlignment(VerticalAlignment verticalAlignment);
+        void setHorizontalAlignment(AkColorizedImage::HorizontalAlignment horizontalAlignment);
+        void setVerticalAlignment(AkColorizedImage::VerticalAlignment verticalAlignment);
+        void setColorize(bool colorize);
         void setMirror(bool mirror);
         void setAsynchronous(bool asynchronous);
         void setMipmap(bool mipmap);
@@ -183,6 +191,7 @@ class AKCOMMONS_EXPORT AkColorizedImage: public QQuickItem
         void resetSourceSize();
         void resetHorizontalAlignment();
         void resetVerticalAlignment();
+        void resetColorize();
         void resetMirror();
         void resetAsynchronous();
         void resetMipmap();

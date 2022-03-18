@@ -46,6 +46,7 @@ class AkColorizedImagePrivate
         AkColorizedImage::VerticalAlignment m_verticalAlignment {AkColorizedImage::AlignVCenter};
         AkColorizedImage::Status m_status {AkColorizedImage::Null};
         qreal m_progress {0.0};
+        bool m_colorize {true};
         bool m_mirror {false};
         bool m_cache {true};
         bool m_asynchronous {false};
@@ -124,6 +125,11 @@ AkColorizedImage::Status AkColorizedImage::status() const
     return this->d->m_status;
 }
 
+bool AkColorizedImage::colorize() const
+{
+    return this->d->m_colorize;
+}
+
 bool AkColorizedImage::mirror() const
 {
     return this->d->m_mirror;
@@ -155,7 +161,9 @@ QSGNode *AkColorizedImage::updatePaintNode(QSGNode *oldNode,
     if (!this->d->load())
         return nullptr;
 
-    auto image = this->d->colorizeImage(this->d->m_image);
+    auto image = this->d->m_colorize?
+                     this->d->colorizeImage(this->d->m_image):
+                     this->d->m_image.copy();
 
     if (image.isNull())
         return nullptr;
@@ -171,11 +179,12 @@ QSGNode *AkColorizedImage::updatePaintNode(QSGNode *oldNode,
         return nullptr;
     }
 
-    if (this->smooth())
-        videoFrame->setFiltering(QSGTexture::Linear);
-
-    if (this->d->m_mipmap)
-        videoFrame->setMipmapFiltering(QSGTexture::Nearest);
+    videoFrame->setFiltering(this->smooth()?
+                                 QSGTexture::Linear:
+                                 QSGTexture::Nearest);
+    videoFrame->setMipmapFiltering(this->d->m_mipmap?
+                                       QSGTexture::Linear:
+                                       QSGTexture::Nearest);
 
     QSGSimpleTextureNode *node = nullptr;
 
@@ -199,8 +208,9 @@ QSGNode *AkColorizedImage::updatePaintNode(QSGNode *oldNode,
         emit this->paintedGeometryChanged();
     }
 
-    if (this->smooth())
-        node->setFiltering(QSGTexture::Linear);
+    node->setFiltering(this->smooth()?
+                           QSGTexture::Linear:
+                           QSGTexture::Nearest);
 
     if (this->d->m_mirror)
         node->setTextureCoordinatesTransform(QSGSimpleTextureNode::MirrorHorizontally);
@@ -291,6 +301,17 @@ void AkColorizedImage::setVerticalAlignment(AkColorizedImage::VerticalAlignment 
     QMetaObject::invokeMethod(this, "update");
 }
 
+void AkColorizedImage::setColorize(bool colorize)
+{
+    if (this->d->m_colorize == colorize)
+        return;
+
+    this->d->m_colorize = colorize;
+    emit this->colorizeChanged(this->d->m_colorize);
+
+    QMetaObject::invokeMethod(this, "update");
+}
+
 void AkColorizedImage::setMirror(bool mirror)
 {
     if (this->d->m_mirror == mirror)
@@ -355,6 +376,11 @@ void AkColorizedImage::resetHorizontalAlignment()
 void AkColorizedImage::resetVerticalAlignment()
 {
     this->setVerticalAlignment(AlignVCenter);
+}
+
+void AkColorizedImage::resetColorize()
+{
+    this->setColorize(true);
 }
 
 void AkColorizedImage::resetMirror()

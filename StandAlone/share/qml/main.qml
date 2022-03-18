@@ -23,6 +23,7 @@ import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
 import Qt.labs.settings 1.0 as LABS
 import Ak 1.0
+import AkControls 1.0 as AK
 import Webcamoid 1.0
 
 ApplicationWindow {
@@ -137,7 +138,6 @@ ApplicationWindow {
 
         property real k: 0
     }
-
     ColumnLayout {
         id: leftControls
         width: AkUnit.create(150 * AkTheme.controlScale, "dp").pixels
@@ -151,6 +151,8 @@ ApplicationWindow {
             icon.source: "image://icons/video-effects"
             display: AbstractButton.IconOnly
             flat: true
+            Accessible.name: qsTr("Video effects")
+            Accessible.description: qsTr("Open video effects pannel")
 
             onClicked: videoEffectsPanel.open()
         }
@@ -160,6 +162,8 @@ ApplicationWindow {
             checked: true
             Layout.fillWidth: true
             visible: false
+            Accessible.name: text
+            Accessible.description: qsTr("Use flash when taking a photo")
 
             function updateVisibility()
             {
@@ -172,6 +176,8 @@ ApplicationWindow {
             textRole: "text"
             Layout.fillWidth: true
             visible: chkFlash.visible
+            Accessible.name: qsTr("Photo timer")
+            Accessible.description: qsTr("The time to wait before the photo is taken")
             model: ListModel {
                 id: lstTimeOptions
 
@@ -217,6 +223,8 @@ ApplicationWindow {
         anchors.topMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
         anchors.right: parent.right
         anchors.rightMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+        Accessible.name: qsTr("Sources and outputs settings")
+        Accessible.description: qsTr("Open sources and outputs settings menu")
 
         onClicked: settings.popup()
     }
@@ -251,34 +259,27 @@ ApplicationWindow {
 
             readonly property real smallButton: AkUnit.create(48 * AkTheme.controlScale, "dp").pixels
             readonly property real bigButton: AkUnit.create(64 * AkTheme.controlScale, "dp").pixels
-            readonly property real previewSize: AkUnit.create(32 * AkTheme.controlScale, "dp").pixels
+            readonly property real previewSize: AkUnit.create(48 * AkTheme.controlScale, "dp").pixels
             readonly property int animationTime: 200
 
-            Image {
+            AK.ImageButton {
                 id: photoPreview
-                source: pathToUrl(recording.lastPhotoPreview)
+                text: qsTr("Open last photo")
+                icon.source: pathToUrl(recording.lastPhotoPreview)
                 width: cameraControls.previewSize
                 height: cameraControls.previewSize
-                sourceSize: Qt.size(width, height)
-                asynchronous: true
+                fillMode: AkColorizedImage.PreserveAspectCrop
                 cache: false
-                smooth: true
-                mipmap: true
-                fillMode: Image.PreserveAspectCrop
+                visible: photoPreview.status == Image.Ready
                 y: (parent.height - height) / 2
+                ToolTip.visible: hovered
+                ToolTip.text: text
+                Accessible.name: text
+                Accessible.description: qsTr("Open last photo taken")
 
-                MouseArea {
-                    cursorShape: enabled?
-                                     Qt.PointingHandCursor:
-                                     Qt.ArrowCursor
-                    anchors.fill: parent
-                    enabled: photoPreview.visible
-                             && photoPreview.status == Image.Ready
-
-                    onClicked: {
-                        if (photoPreview.status == Image.Ready)
-                            Qt.openUrlExternally(photoPreview.source)
-                    }
+                onClicked: {
+                    if (photoPreview.status == AkColorizedImage.Ready)
+                        Qt.openUrlExternally(photoPreview.icon.source)
                 }
             }
             RoundButton {
@@ -290,6 +291,14 @@ ApplicationWindow {
                 y: (parent.height - height) / 2
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Take a photo")
+                Accessible.name:
+                    cameraControls.state == ""?
+                        qsTr("Take a photo"):
+                        qsTr("Image capture mode")
+                Accessible.description:
+                    cameraControls.state == ""?
+                        qsTr("Make a capture and save it to an image file"):
+                        qsTr("Put %1 in image capture mode").arg(mediaTools.applicationName)
                 focus: true
                 enabled: recording.state == AkElement.ElementStateNull
                          && (videoLayer.state == AkElement.ElementStatePlaying
@@ -338,7 +347,21 @@ ApplicationWindow {
                 x: parent.width - width
                 y: (parent.height - height) / 2
                 ToolTip.visible: hovered
-                ToolTip.text: qsTr("Record video")
+                ToolTip.text: recording.state == AkElement.ElementStateNull?
+                                  qsTr("Record video"):
+                                  qsTr("Stop video recording")
+                Accessible.name:
+                    cameraControls.state == ""?
+                        qsTr("Video capture mode"):
+                    recording.state == AkElement.ElementStateNull?
+                        qsTr("Record video"):
+                        qsTr("Stop video recording")
+                Accessible.description:
+                    cameraControls.state == ""?
+                        qsTr("Put %1 in video recording mode").arg(mediaTools.applicationName):
+                    recording.state == AkElement.ElementStateNull?
+                        qsTr("Start recording to a video file"):
+                        qsTr("Stop current video recording")
                 enabled: videoLayer.state == AkElement.ElementStatePlaying
                          || cameraControls.state == ""
 
@@ -353,33 +376,25 @@ ApplicationWindow {
                     }
                 }
             }
-            Image {
+            AK.ImageButton {
                 id: videoPreview
-                source: pathToUrl(recording.lastVideoPreview)
+                text: qsTr("Open last video")
+                icon.source: pathToUrl(recording.lastVideoPreview)
                 width: 0
                 height: 0
-                sourceSize: Qt.size(width, height)
-                asynchronous: true
+                fillMode: AkColorizedImage.PreserveAspectCrop
                 cache: false
-                smooth: true
-                mipmap: true
-                fillMode: Image.PreserveAspectCrop
                 visible: false
                 x: parent.width - width
                 y: (parent.height - height) / 2
+                ToolTip.visible: hovered
+                ToolTip.text: text
+                Accessible.name: text
+                Accessible.description: qsTr("Open last recorded video")
 
-                MouseArea {
-                    cursorShape: enabled?
-                                     Qt.PointingHandCursor:
-                                     Qt.ArrowCursor
-                    anchors.fill: parent
-                    enabled: videoPreview.visible
-                             && videoPreview.status == Image.Ready
-
-                    onClicked: {
-                        if (videoPreview.status == Image.Ready)
-                            Qt.openUrlExternally("file://" + recording.lastVideo)
-                    }
+                onClicked: {
+                    if (videoPreview.status == Image.Ready)
+                        Qt.openUrlExternally("file://" + recording.lastVideo)
                 }
             }
 
@@ -474,10 +489,10 @@ ApplicationWindow {
         id: photoPreviewSaveAnimation
 
         PropertyAnimation {
-            target: photoPreviewThumbnail
-            property: "k"
-            to: 0
-            duration: 0
+                   target: photoPreviewThumbnail
+                   property: "k"
+                   to: 0
+                   duration: 0
         }
         PropertyAnimation {
             target: photoPreview
