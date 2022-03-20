@@ -2757,62 +2757,62 @@ background blur or image below.</source>
     <message>
         <location filename="../qml/main.qml" line="154"/>
         <source>Video effects</source>
-        <translation type="unfinished"></translation>
+        <translation>אפקטים של וידאו</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="155"/>
         <source>Open video effects pannel</source>
-        <translation type="unfinished"></translation>
+        <translation>פתיחת חלונית אפקטים של וידאו</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="166"/>
         <source>Use flash when taking a photo</source>
-        <translation type="unfinished"></translation>
+        <translation>להשתמש במבזק בצילום תמונה</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="179"/>
         <source>Photo timer</source>
-        <translation type="unfinished"></translation>
+        <translation>מתזמן תמונות</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="180"/>
         <source>The time to wait before the photo is taken</source>
-        <translation type="unfinished"></translation>
+        <translation>הזמן להמתנה בטרם צילום התמונה</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="226"/>
         <source>Sources and outputs settings</source>
-        <translation type="unfinished"></translation>
+        <translation>הגדרות מקורות ופלטים</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="227"/>
         <source>Open sources and outputs settings menu</source>
-        <translation type="unfinished"></translation>
+        <translation>פתיחת תפריט הגדרות מקורות ופלטים</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="267"/>
         <source>Open last photo</source>
-        <translation type="unfinished"></translation>
+        <translation>פתיחת התמונה האחרונה</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="278"/>
         <source>Open last photo taken</source>
-        <translation type="unfinished"></translation>
+        <translation>פתיחת התמונה האחרונה שצולמה</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="297"/>
         <source>Image capture mode</source>
-        <translation type="unfinished"></translation>
+        <translation>מצב לכידת תמונה</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="300"/>
         <source>Make a capture and save it to an image file</source>
-        <translation type="unfinished"></translation>
+        <translation>לכידת תמונה ושמירתה לקובץ תמונה</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="301"/>
         <source>Put %1 in image capture mode</source>
-        <translation type="unfinished"></translation>
+        <translation>הגדרת %1 למצב לכידת תמונה</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="351"/>
@@ -2824,37 +2824,37 @@ background blur or image below.</source>
         <location filename="../qml/main.qml" line="352"/>
         <location filename="../qml/main.qml" line="358"/>
         <source>Stop video recording</source>
-        <translation type="unfinished"></translation>
+        <translation>עצירת הקלטת וידאו</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="355"/>
         <source>Video capture mode</source>
-        <translation type="unfinished"></translation>
+        <translation>מצב לכידת וידאו</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="361"/>
         <source>Put %1 in video recording mode</source>
-        <translation type="unfinished"></translation>
+        <translation>הגדרת %1 למצב לכידת וידאו</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="363"/>
         <source>Start recording to a video file</source>
-        <translation type="unfinished"></translation>
+        <translation>התחלת הקלטה לקובץ וידאו</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="364"/>
         <source>Stop current video recording</source>
-        <translation type="unfinished"></translation>
+        <translation>עצירת הקלטת הווידאו הנוכחית</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="381"/>
         <source>Open last video</source>
-        <translation type="unfinished"></translation>
+        <translation>פתיחת הווידאו האחרון</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="393"/>
         <source>Open last recorded video</source>
-        <translation type="unfinished"></translation>
+        <translation>פתיחת הווידאו האחרון שהוקלט</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceTrack/share/qml/main.qml" line="402"/>
